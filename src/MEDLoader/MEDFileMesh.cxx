@@ -3840,7 +3840,7 @@ bool MEDFileUMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode
           end=PutInThirdComponentOfCodeOffset(code2,start);
           newCode.insert(newCode.end(),code2.begin(),code2.end());
           //
-          if(o2nCellsPart2->isIdentity())
+          if(o2nCellsPart2->isIdentity2(o2nCellsPart2->getNumberOfTuples()))
             continue;
           if(famField)
             {
@@ -6181,7 +6181,7 @@ void MEDFileCMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
     }
   MEDFileCMeshL2 loaderl2;
   loaderl2.loadAll(fid,mid,mName,dt,it);
-  setAxType(loaderl2.getAxType());
+  setAxType(axType);
   MEDCouplingCMesh *mesh=loaderl2.getMesh();
   mesh->incrRef();
   _cmesh=mesh;
@@ -6260,8 +6260,7 @@ void MEDFileCMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  // MED_CARTESIAN and not MEDFileMeshL2::TraduceAxisTypeRev(getAxType()) ! Yes it is not a bug. The discrimination is done in MEDmeshGridTypeWr.
-  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
+  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MEDFileMeshL2::TraduceAxisTypeRev(getAxType()),comp,unit));
   if(_univ_wr_status)
     MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MEDFileMeshL2::TraduceAxisTypeRevStruct(getAxType())));

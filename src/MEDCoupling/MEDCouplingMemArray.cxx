@@ -6479,7 +6479,7 @@ void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNb
  *  \throw If any value of \a this can't be used as a valid index for 
  *         [\a indArrBg, \a indArrEnd).
  *
- *  \sa replaceOneValByInThis
+ *  \sa changeValue
  */
 void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd)
 {
@@ -6498,29 +6498,6 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
         }
     }
   declareAsNew();
-}
-
-/*!
- * Modifies in place \a this one-dimensional array like this : each id in \a this so that this[id] equal to \a valToBeReplaced will be replaced at the same place by \a replacedBy.
- *
- * \param [in] valToBeReplaced - the value in \a this to be replaced.
- * \param [in] replacedBy - the value taken by each tuple previously equal to \a valToBeReplaced.
- *
- * \sa DataArrayInt::transformWithIndArr
- */
-void DataArrayInt::replaceOneValByInThis(int valToBeReplaced, int replacedBy)
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("Call replaceOneValByInThis method on DataArrayInt with only one component, you can call 'rearrange' method before !");
-  if(valToBeReplaced==replacedBy)
-    return ;
-  int nbOfTuples(getNumberOfTuples()),*pt(getPointer());
-  for(int i=0;i<nbOfTuples;i++,pt++)
-    {
-      if(*pt==valToBeReplaced)
-        *pt=replacedBy;
-    }
 }
 
 /*!
@@ -7799,44 +7776,27 @@ DataArrayInt *DataArrayInt::buildPermArrPerLevel() const
 /*!
  * Checks if contents of \a this array are equal to that of an array filled with
  * iota(). This method is particularly useful for DataArrayInt instances that represent
- * a renumbering array to check the real need in renumbering. In this case it is better to use isIdentity2
- * method of isIdentity method.
+ * a renumbering array to check the real need in renumbering. This method checks than \a this can be considered as an identity function
+ * of a set having \a sizeExpected elements into itself.
  *
+ *  \param [in] sizeExpected - The number of elements expected.
  *  \return bool - \a true if \a this array contents == \a range( \a this->getNumberOfTuples())
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
- *  \sa isIdentity2
  */
-bool DataArrayInt::isIdentity() const
+bool DataArrayInt::isIdentity2(int sizeExpected) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     return false;
   int nbOfTuples(getNumberOfTuples());
+  if(nbOfTuples!=sizeExpected)
+    return false;
   const int *pt=getConstPointer();
   for(int i=0;i<nbOfTuples;i++,pt++)
     if(*pt!=i)
       return false;
   return true;
-}
-
-/*!
- * This method is stronger than isIdentity method. This method checks than \a this can be considered as an identity function
- * of a set having \a sizeExpected elements into itself.
- *
- * \param [in] sizeExpected - The number of elements
- * \return bool - \a true if \a this array contents == \a range( \a this->getNumberOfTuples()) and if \a this has \a sizeExpected tuples in it.
- *
- *  \throw If \a this is not allocated.
- *  \throw If \a this->getNumberOfComponents() != 1.
- * \sa isIdentity
- */
-bool DataArrayInt::isIdentity2(int sizeExpected) const
-{
-  bool ret0(isIdentity());
-  if(!ret0)
-    return false;
-  return getNumberOfTuples()==sizeExpected;
 }
 
 /*!
@@ -8929,9 +8889,10 @@ int DataArrayInt::changeValue(int oldValue, int newValue)
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::changeValue : the array must have only one component, you can call 'rearrange' method before !");
-  int *start=getPointer();
-  int *end2=start+getNbOfElems();
-  int ret=0;
+  if(oldValue==newValue)
+    return 0;
+  int *start(getPointer()),*end2(start+getNbOfElems());
+  int ret(0);
   for(int *val=start;val!=end2;val++)
     {
       if(*val==oldValue)
@@ -8940,6 +8901,8 @@ int DataArrayInt::changeValue(int oldValue, int newValue)
           ret++;
         }
     }
+  if(ret>0)
+    declareAsNew();
   return ret;
 }
 
@@ -8958,9 +8921,9 @@ DataArrayInt *DataArrayInt::getIdsEqualList(const int *valsBg, const int *valsEn
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualList : the array must have only one component, you can call 'rearrange' method before !");
   std::set<int> vals2(valsBg,valsEnd);
-  const int *cptr=getConstPointer();
+  const int *cptr(getConstPointer());
   std::vector<int> res;
-  int nbOfTuples=getNumberOfTuples();
+  int nbOfTuples(getNumberOfTuples());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(vals2.find(*cptr)!=vals2.end())

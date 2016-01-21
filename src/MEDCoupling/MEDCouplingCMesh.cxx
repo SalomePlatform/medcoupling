@@ -89,7 +89,7 @@ MEDCouplingCMesh *MEDCouplingCMesh::New(const std::string& meshName)
   return ret;
 }
 
-MEDCouplingMesh *MEDCouplingCMesh::deepCpy() const
+MEDCouplingCMesh *MEDCouplingCMesh::deepCpy() const
 {
   return clone(true);
 }
@@ -281,11 +281,6 @@ void MEDCouplingCMesh::checkCoherency1(double eps) const
     _y_array->checkMonotonic(true, eps);
   if(_z_array)
     _z_array->checkMonotonic(true, eps);
-}
-
-void MEDCouplingCMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
 }
 
 void MEDCouplingCMesh::getNodeGridStructure(int *res) const

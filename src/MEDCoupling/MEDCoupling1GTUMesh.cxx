@@ -183,12 +183,11 @@ void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::splitProfilePerType : input profile is NULL !");
   if(profile->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::splitProfilePerType : input profile should have exactly one component !");
-  int nbTuples=profile->getNumberOfTuples();
-  int nbOfCells=getNumberOfCells();
+  int nbTuples(profile->getNumberOfTuples()),nbOfCells(getNumberOfCells());
   code.resize(3); idsInPflPerType.resize(1);
   code[0]=(int)getCellModelEnum(); code[1]=nbTuples;
   idsInPflPerType.resize(1);
-  if(profile->isIdentity() && nbTuples==nbOfCells)
+  if(profile->isIdentity2(nbOfCells))
     {
       code[2]=-1;
       idsInPflPerType[0]=const_cast<DataArrayInt *>(profile); idsInPflPerType[0]->incrRef();
@@ -550,10 +549,10 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::clone(bool recDeepCpy) const
  * This method behaves mostly like MEDCoupling1SGTUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
  * 
- * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
+ * \return MEDCoupling1SGTUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCoupling1SGTUMesh::deepCpy
  */
-MEDCouplingPointSet *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const
 {
   checkCoherency();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(clone(false));
@@ -592,7 +591,7 @@ std::vector<const BigMemoryObject *> MEDCoupling1SGTUMesh::getDirectChildrenWith
   return ret;
 }
 
-MEDCouplingMesh *MEDCoupling1SGTUMesh::deepCpy() const
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::deepCpy() const
 {
   return clone(true);
 }
@@ -689,11 +688,6 @@ void MEDCoupling1SGTUMesh::checkCoherency1(double eps) const
             throw INTERP_KERNEL::Exception(oss.str().c_str());
           }
       }
-}
-
-void MEDCoupling1SGTUMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
 }
 
 int MEDCoupling1SGTUMesh::getNumberOfCells() const
@@ -2185,10 +2179,10 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::clone(bool recDeepCpy) const
  * This method behaves mostly like MEDCoupling1DGTUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
  * 
- * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
+ * \return MEDCoupling1DGTUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCoupling1DGTUMesh::deepCpy
  */
-MEDCouplingPointSet *MEDCoupling1DGTUMesh::deepCpyConnectivityOnly() const
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::deepCpyConnectivityOnly() const
 {
   checkCoherency();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(clone(false));
@@ -2221,7 +2215,7 @@ std::vector<const BigMemoryObject *> MEDCoupling1DGTUMesh::getDirectChildrenWith
   return ret;
 }
 
-MEDCouplingMesh *MEDCoupling1DGTUMesh::deepCpy() const
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::deepCpy() const
 {
   return clone(true);
 }
@@ -2419,11 +2413,6 @@ void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-}
-
-void MEDCoupling1DGTUMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
 }
 
 int MEDCoupling1DGTUMesh::getNumberOfCells() const
@@ -2863,7 +2852,7 @@ MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords2(int star
 
 void MEDCoupling1DGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
 {
-  checkCoherency2();
+  checkCoherency1();
   int sz((int)nodeIdsInUse.size());
   for(const int *conn=_conn->begin();conn!=_conn->end();conn++)
     {
@@ -3072,7 +3061,7 @@ void MEDCoupling1DGTUMesh::unserialization(const std::vector<double>& tinyInfoD,
  */
 DataArrayInt *MEDCoupling1DGTUMesh::computeFetchedNodeIds() const
 {
-  checkCoherency2();
+  checkCoherency1();
   int nbNodes(getNumberOfNodes());
   std::vector<bool> fetchedNodes(nbNodes,false);
   computeNodeIdsAlg(fetchedNodes);

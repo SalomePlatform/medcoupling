@@ -71,21 +71,22 @@ MEDCouplingUMesh *MEDCouplingUMesh::New(const std::string& meshName, int meshDim
 }
 
 /*!
- * Returns a new MEDCouplingMesh which is a full copy of \a this one. No data is shared
+ * Returns a new MEDCouplingUMesh which is a full copy of \a this one. No data is shared
  * between \a this and the new mesh.
- *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingMesh. The caller is to
  *          delete this mesh using decrRef() as it is no more needed. 
  */
-MEDCouplingMesh *MEDCouplingUMesh::deepCpy() const
+MEDCouplingUMesh *MEDCouplingUMesh::deepCpy() const
 {
   return clone(true);
 }
 
+
 /*!
- * Returns a new MEDCouplingMesh which is a copy of \a this one.
+ * Returns a new MEDCouplingUMesh which is a copy of \a this one.
  *  \param [in] recDeepCpy - if \a true, the copy is deep, else all data arrays of \a
  * this mesh are shared by the new mesh.
- *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingMesh. The caller is to
  *          delete this mesh using decrRef() as it is no more needed. 
  */
 MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
@@ -100,7 +101,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
  * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCouplingUMesh::deepCpy
  */
-MEDCouplingPointSet *MEDCouplingUMesh::deepCpyConnectivityOnly() const
+MEDCouplingUMesh *MEDCouplingUMesh::deepCpyConnectivityOnly() const
 {
   checkConnectivityFullyDefined();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=clone(false);
@@ -279,27 +280,6 @@ void MEDCouplingUMesh::checkCoherency1(double eps) const
             }
         }
     }
-}
-
-
-/*!
- * Checks if \a this mesh is well defined. If no exception is thrown by this method,
- * then \a this mesh is most probably is writable, exchangeable and available for all
- * algorithms. <br> This method performs the same checks as checkCoherency1() does. 
- *  \param [in] eps - a not used parameter.
- *  \throw If the mesh dimension is not set.
- *  \throw If the coordinates array is not set (if mesh dimension != -1 ).
- *  \throw If \a this mesh contains elements of dimension different from the mesh dimension.
- *  \throw If the connectivity data array has more than one component.
- *  \throw If the connectivity data array has a named component.
- *  \throw If the connectivity index data array has more than one component.
- *  \throw If the connectivity index data array has a named component.
- *  \throw If number of nodes defining an element does not correspond to the type of element.
- *  \throw If the nodal connectivity includes an invalid node id.
- */
-void MEDCouplingUMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
 }
 
 /*!
@@ -2005,7 +1985,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn2(const MEDCouplingUMesh *other, DataAr
   return true;
 }
 
-MEDCouplingPointSet *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
+MEDCouplingUMesh *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::mergeMyselfWithOnSameCoords : input other is null !");
@@ -2032,10 +2012,10 @@ MEDCouplingPointSet *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCoup
  * \warning This method modifies can generate an unstructured mesh whose cells are not sorted by geometric type order.
  * In view of the MED file writing, a renumbering of cells of returned unstructured mesh (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, int step, bool keepCoords) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, int step, bool keepCoords) const
 {
   if(getMeshDimension()!=-1)
-    return MEDCouplingPointSet::buildPartOfMySelf2(start,end,step,keepCoords);
+    return static_cast<MEDCouplingUMesh *>(MEDCouplingPointSet::buildPartOfMySelf2(start,end,step,keepCoords));
   else
     {
       int newNbOfCells=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCouplingUMesh::buildPartOfMySelf2 for -1 dimension mesh ");
@@ -2060,7 +2040,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, in
  *  \param [in] keepCoords - if \c true, the result mesh shares the node coordinates
  *         array of \a this mesh, else "free" nodes are removed from the result mesh
  *         by calling zipCoords().
- *  \return MEDCouplingPointSet * - a new instance of MEDCouplingUMesh. The caller is
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is
  *         to delete this mesh using decrRef() as it is no more needed. 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
@@ -2071,10 +2051,10 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, in
  *  \ref  py_mcumesh_buildPartOfMySelf "Here is a Python example".
  *  \endif
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
 {
   if(getMeshDimension()!=-1)
-    return MEDCouplingPointSet::buildPartOfMySelf(begin,end,keepCoords);
+    return static_cast<MEDCouplingUMesh *>(MEDCouplingPointSet::buildPartOfMySelf(begin,end,keepCoords));
   else
     {
       if(end-begin!=1)
@@ -2250,7 +2230,7 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int 
  *  \param [in] fullyIn - if \c true, then cells whose all nodes are in the
  *         array \a begin are added, else cells whose any node is in the
  *         array \a begin are added.
- *  \return MEDCouplingPointSet * - new instance of MEDCouplingUMesh. The caller is
+ *  \return MEDCouplingUMesh * - new instance of MEDCouplingUMesh. The caller is
  *         to delete this mesh using decrRef() as it is no more needed. 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
@@ -2261,13 +2241,13 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int 
  *  \ref  py_mcumesh_buildFacePartOfMySelfNode "Here is a Python example".
  *  \endif
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc,descIndx,revDesc,revDescIndx;
   desc=DataArrayInt::New(); descIndx=DataArrayInt::New(); revDesc=DataArrayInt::New(); revDescIndx=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> subMesh=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
   desc=0; descIndx=0; revDesc=0; revDescIndx=0;
-  return subMesh->buildPartOfMySelfNode(begin,end,fullyIn);
+  return static_cast<MEDCouplingUMesh*>(subMesh->buildPartOfMySelfNode(begin,end,fullyIn));
 }
 
 /*!
@@ -2276,7 +2256,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begi
  *  \param [in] keepCoords - if \c true, the result mesh shares the node coordinates
  *         array of \a this mesh, else "free" nodes are removed from the result mesh
  *         by calling zipCoords().
- *  \return MEDCouplingPointSet * - a new instance of MEDCouplingUMesh. The caller is
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is
  *         to delete this mesh using decrRef() as it is no more needed. 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
@@ -2286,7 +2266,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begi
  *  \ref  py_mcumesh_buildBoundaryMesh "Here is a Python example".
  *  \endif
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
 {
   DataArrayInt *desc=DataArrayInt::New();
   DataArrayInt *descIndx=DataArrayInt::New();
@@ -2304,7 +2284,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
     if(revDescIndxC[i+1]-revDescIndxC[i]==1)
       boundaryCells.push_back(i);
   revDescIndx->decrRef();
-  MEDCouplingPointSet *ret=meshDM1->buildPartOfMySelf(&boundaryCells[0],&boundaryCells[0]+boundaryCells.size(),keepCoords);
+  MEDCouplingUMesh *ret=meshDM1->buildPartOfMySelf(&boundaryCells[0],&boundaryCells[0]+boundaryCells.size(),keepCoords);
   return ret;
 }
 
@@ -3355,7 +3335,7 @@ void MEDCouplingUMesh::unserialization(const std::vector<double>& tinyInfoD, con
  * This is the low algorithm of MEDCouplingUMesh::buildPartOfMySelf2.
  * CellIds are given using range specified by a start an end and step.
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfKeepCoords2(int start, int end, int step) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords2(int start, int end, int step) const
 {
   checkFullyDefined();
   int ncell=getNumberOfCells();
@@ -3400,7 +3380,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfKeepCoords2(int start, i
  * Keeps from \a this only cells which constituing point id are in the ids specified by [ \a begin,\a end ).
  * The return newly allocated mesh will share the same coordinates as \a this.
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
 {
   checkConnectivityFullyDefined();
   int ncell=getNumberOfCells();
@@ -5191,6 +5171,46 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic(int conversionType
   return ret.retn();
 }
 
+/*!
+ * Tessellates \a this 2D mesh by dividing not straight edges of quadratic faces,
+ * so that the number of cells remains the same. Quadratic faces are converted to
+ * polygons. This method works only for 2D meshes in
+ * 2D space. If no cells are quadratic (INTERP_KERNEL::NORM_QUAD8,
+ * INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QPOLYG ), \a this mesh remains unchanged.
+ * \warning This method can lead to a huge amount of nodes if \a eps is very low.
+ *  \param [in] eps - specifies the maximal angle (in radians) between 2 sub-edges of
+ *         a polylinized edge constituting the input polygon.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If \a this->getMeshDimension() != 2.
+ *  \throw If \a this->getSpaceDimension() != 2.
+ */
+void MEDCouplingUMesh::tessellate2D(double eps)
+{
+  int meshDim(getMeshDimension()),spaceDim(getSpaceDimension());
+  if(spaceDim!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2D : works only with space dimension equal to 2 !");
+  switch(meshDim)
+    {
+    case 1:
+      return tessellate2DCurveInternal(eps);
+    case 2:
+      return tessellate2DInternal(eps);
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2D : mesh dimension must be in [1,2] !");
+    }
+}
+/*!
+ * Tessellates \a this 1D mesh in 2D space by dividing not straight quadratic edges.
+ * \warning This method can lead to a huge amount of nodes if \a eps is very low.
+ *  \param [in] eps - specifies the maximal angle (in radian) between 2 sub-edges of
+ *         a sub-divided edge.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If \a this->getMeshDimension() != 1.
+ *  \throw If \a this->getSpaceDimension() != 2.
+ */
+
 #if 0
 /*!
  * This method only works if \a this has spaceDimension equal to 2 and meshDimension also equal to 2.
@@ -5470,120 +5490,6 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic3D1(DataArrayInt *&
     c[cI[(*elt)+1]-1]+=offset;
   coords=DataArrayDouble::Aggregate(v); conn=newConn.retn(); connI=newConnI.retn();
   return ret.retn();
-}
-
-/*!
- * Tessellates \a this 2D mesh by dividing not straight edges of quadratic faces,
- * so that the number of cells remains the same. Quadratic faces are converted to
- * polygons. This method works only for 2D meshes in
- * 2D space. If no cells are quadratic (INTERP_KERNEL::NORM_QUAD8,
- * INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QPOLYG ), \a this mesh remains unchanged.
- * \warning This method can lead to a huge amount of nodes if \a eps is very low.
- *  \param [in] eps - specifies the maximal angle (in radians) between 2 sub-edges of
- *         a polylinized edge constituting the input polygon.
- *  \throw If the coordinates array is not set.
- *  \throw If the nodal connectivity of cells is not defined.
- *  \throw If \a this->getMeshDimension() != 2.
- *  \throw If \a this->getSpaceDimension() != 2.
- */
-void MEDCouplingUMesh::tessellate2D(double eps)
-{
-  checkFullyDefined();
-  if(getMeshDimension()!=2 || getSpaceDimension()!=2)  
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2D works on umeshes with meshdim equal to 2 and spaceDim equal to 2 too!");
-  double epsa=fabs(eps);
-  if(epsa<std::numeric_limits<double>::min())
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurve : epsilon is null ! Please specify a higher epsilon. If too tiny it can lead to a huge amount of nodes and memory !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc1=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx1=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc1=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx1=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mDesc=buildDescendingConnectivity2(desc1,descIndx1,revDesc1,revDescIndx1);
-  revDesc1=0; revDescIndx1=0;
-  mDesc->tessellate2DCurve(eps);
-  subDivide2DMesh(mDesc->_nodal_connec->getConstPointer(),mDesc->_nodal_connec_index->getConstPointer(),desc1->getConstPointer(),descIndx1->getConstPointer());
-  setCoords(mDesc->getCoords());
-}
-
-/*!
- * Tessellates \a this 1D mesh in 2D space by dividing not straight quadratic edges.
- * \warning This method can lead to a huge amount of nodes if \a eps is very low.
- *  \param [in] eps - specifies the maximal angle (in radian) between 2 sub-edges of
- *         a sub-divided edge.
- *  \throw If the coordinates array is not set.
- *  \throw If the nodal connectivity of cells is not defined.
- *  \throw If \a this->getMeshDimension() != 1.
- *  \throw If \a this->getSpaceDimension() != 2.
- */
-void MEDCouplingUMesh::tessellate2DCurve(double eps)
-{
-  checkFullyDefined();
-  if(getMeshDimension()!=1 || getSpaceDimension()!=2)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurve works on umeshes with meshdim equal to 1 and spaceDim equal to 2 too!");
-  double epsa=fabs(eps);
-  if(epsa<std::numeric_limits<double>::min())
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurve : epsilon is null ! Please specify a higher epsilon. If too tiny it can lead to a huge amount of nodes and memory !");
-  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=1.e-10;
-  int nbCells=getNumberOfCells();
-  int nbNodes=getNumberOfNodes();
-  const int *conn=_nodal_connec->getConstPointer();
-  const int *connI=_nodal_connec_index->getConstPointer();
-  const double *coords=_coords->getConstPointer();
-  std::vector<double> addCoo;
-  std::vector<int> newConn;//no direct DataArrayInt because interface with Geometric2D
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI(DataArrayInt::New());
-  newConnI->alloc(nbCells+1,1);
-  int *newConnIPtr=newConnI->getPointer();
-  *newConnIPtr=0;
-  int tmp1[3];
-  INTERP_KERNEL::Node *tmp2[3];
-  std::set<INTERP_KERNEL::NormalizedCellType> types;
-  for(int i=0;i<nbCells;i++,newConnIPtr++)
-    {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
-      if(cm.isQuadratic())
-        {//assert(connI[i+1]-connI[i]-1==3)
-          tmp1[0]=conn[connI[i]+1+0]; tmp1[1]=conn[connI[i]+1+1]; tmp1[2]=conn[connI[i]+1+2];
-          tmp2[0]=new INTERP_KERNEL::Node(coords[2*tmp1[0]],coords[2*tmp1[0]+1]);
-          tmp2[1]=new INTERP_KERNEL::Node(coords[2*tmp1[1]],coords[2*tmp1[1]+1]);
-          tmp2[2]=new INTERP_KERNEL::Node(coords[2*tmp1[2]],coords[2*tmp1[2]+1]);
-          INTERP_KERNEL::EdgeArcCircle *eac=INTERP_KERNEL::EdgeArcCircle::BuildFromNodes(tmp2[0],tmp2[2],tmp2[1]);
-          if(eac)
-            {
-              eac->tesselate(tmp1,nbNodes,epsa,newConn,addCoo);
-              types.insert((INTERP_KERNEL::NormalizedCellType)newConn[newConnIPtr[0]]);
-              delete eac;
-              newConnIPtr[1]=(int)newConn.size();
-            }
-          else
-            {
-              types.insert(INTERP_KERNEL::NORM_SEG2);
-              newConn.push_back(INTERP_KERNEL::NORM_SEG2);
-              newConn.insert(newConn.end(),conn+connI[i]+1,conn+connI[i]+3);
-              newConnIPtr[1]=newConnIPtr[0]+3;
-            }
-        }
-      else
-        {
-          types.insert((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
-          newConn.insert(newConn.end(),conn+connI[i],conn+connI[i+1]);
-          newConnIPtr[1]=newConnIPtr[0]+3;
-        }
-    }
-  if(addCoo.empty() && ((int)newConn.size())==_nodal_connec->getNumberOfTuples())//nothing happens during tessellation : no update needed
-    return ;
-  _types=types;
-  DataArrayInt::SetArrayIn(newConnI,_nodal_connec_index);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnArr=DataArrayInt::New();
-  newConnArr->alloc((int)newConn.size(),1);
-  std::copy(newConn.begin(),newConn.end(),newConnArr->getPointer());
-  DataArrayInt::SetArrayIn(newConnArr,_nodal_connec);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=DataArrayDouble::New();
-  newCoords->alloc(nbNodes+((int)addCoo.size())/2,2);
-  double *work=std::copy(_coords->begin(),_coords->end(),newCoords->getPointer());
-  std::copy(addCoo.begin(),addCoo.end(),work);
-  DataArrayDouble::SetArrayIn(newCoords,_coords);
-  updateTime();
 }
 
 /*!
@@ -5869,6 +5775,117 @@ DataArrayInt *MEDCouplingUMesh::simplexizePlanarFace6()
   computeTypes();
   updateTime();
   return ret.retn();
+}
+
+/*!
+ * Tessellates \a this 2D mesh by dividing not straight edges of quadratic faces,
+ * so that the number of cells remains the same. Quadratic faces are converted to
+ * polygons. This method works only for 2D meshes in
+ * 2D space. If no cells are quadratic (INTERP_KERNEL::NORM_QUAD8,
+ * INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QPOLYG ), \a this mesh remains unchanged.
+ * \warning This method can lead to a huge amount of nodes if \a eps is very low.
+ *  \param [in] eps - specifies the maximal angle (in radians) between 2 sub-edges of
+ *         a polylinized edge constituting the input polygon.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If \a this->getMeshDimension() != 2.
+ *  \throw If \a this->getSpaceDimension() != 2.
+ */
+void MEDCouplingUMesh::tessellate2DInternal(double eps)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=2 || getSpaceDimension()!=2)  
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DInternal works on umeshes with meshdim equal to 2 and spaceDim equal to 2 too!");
+  double epsa=fabs(eps);
+  if(epsa<std::numeric_limits<double>::min())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DInternal : epsilon is null ! Please specify a higher epsilon. If too tiny it can lead to a huge amount of nodes and memory !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc1(DataArrayInt::New()),descIndx1(DataArrayInt::New()),revDesc1(DataArrayInt::New()),revDescIndx1(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mDesc(buildDescendingConnectivity2(desc1,descIndx1,revDesc1,revDescIndx1));
+  revDesc1=0; revDescIndx1=0;
+  mDesc->tessellate2D(eps);
+  subDivide2DMesh(mDesc->_nodal_connec->getConstPointer(),mDesc->_nodal_connec_index->getConstPointer(),desc1->getConstPointer(),descIndx1->getConstPointer());
+  setCoords(mDesc->getCoords());
+}
+
+/*!
+ * Tessellates \a this 1D mesh in 2D space by dividing not straight quadratic edges.
+ * \warning This method can lead to a huge amount of nodes if \a eps is very low.
+ *  \param [in] eps - specifies the maximal angle (in radian) between 2 sub-edges of
+ *         a sub-divided edge.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If \a this->getMeshDimension() != 1.
+ *  \throw If \a this->getSpaceDimension() != 2.
+ */
+void MEDCouplingUMesh::tessellate2DCurveInternal(double eps)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=1 || getSpaceDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurveInternal works on umeshes with meshdim equal to 1 and spaceDim equal to 2 too!");
+  double epsa=fabs(eps);
+  if(epsa<std::numeric_limits<double>::min())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurveInternal : epsilon is null ! Please specify a higher epsilon. If too tiny it can lead to a huge amount of nodes and memory !");
+  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=1.e-10;
+  int nbCells=getNumberOfCells();
+  int nbNodes=getNumberOfNodes();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coords=_coords->getConstPointer();
+  std::vector<double> addCoo;
+  std::vector<int> newConn;//no direct DataArrayInt because interface with Geometric2D
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI(DataArrayInt::New());
+  newConnI->alloc(nbCells+1,1);
+  int *newConnIPtr=newConnI->getPointer();
+  *newConnIPtr=0;
+  int tmp1[3];
+  INTERP_KERNEL::Node *tmp2[3];
+  std::set<INTERP_KERNEL::NormalizedCellType> types;
+  for(int i=0;i<nbCells;i++,newConnIPtr++)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
+      if(cm.isQuadratic())
+        {//assert(connI[i+1]-connI[i]-1==3)
+          tmp1[0]=conn[connI[i]+1+0]; tmp1[1]=conn[connI[i]+1+1]; tmp1[2]=conn[connI[i]+1+2];
+          tmp2[0]=new INTERP_KERNEL::Node(coords[2*tmp1[0]],coords[2*tmp1[0]+1]);
+          tmp2[1]=new INTERP_KERNEL::Node(coords[2*tmp1[1]],coords[2*tmp1[1]+1]);
+          tmp2[2]=new INTERP_KERNEL::Node(coords[2*tmp1[2]],coords[2*tmp1[2]+1]);
+          INTERP_KERNEL::EdgeArcCircle *eac=INTERP_KERNEL::EdgeArcCircle::BuildFromNodes(tmp2[0],tmp2[2],tmp2[1]);
+          if(eac)
+            {
+              eac->tesselate(tmp1,nbNodes,epsa,newConn,addCoo);
+              types.insert((INTERP_KERNEL::NormalizedCellType)newConn[newConnIPtr[0]]);
+              delete eac;
+              newConnIPtr[1]=(int)newConn.size();
+            }
+          else
+            {
+              types.insert(INTERP_KERNEL::NORM_SEG2);
+              newConn.push_back(INTERP_KERNEL::NORM_SEG2);
+              newConn.insert(newConn.end(),conn+connI[i]+1,conn+connI[i]+3);
+              newConnIPtr[1]=newConnIPtr[0]+3;
+            }
+        }
+      else
+        {
+          types.insert((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
+          newConn.insert(newConn.end(),conn+connI[i],conn+connI[i+1]);
+          newConnIPtr[1]=newConnIPtr[0]+3;
+        }
+    }
+  if(addCoo.empty() && ((int)newConn.size())==_nodal_connec->getNumberOfTuples())//nothing happens during tessellation : no update needed
+    return ;
+  _types=types;
+  DataArrayInt::SetArrayIn(newConnI,_nodal_connec_index);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnArr=DataArrayInt::New();
+  newConnArr->alloc((int)newConn.size(),1);
+  std::copy(newConn.begin(),newConn.end(),newConnArr->getPointer());
+  DataArrayInt::SetArrayIn(newConnArr,_nodal_connec);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=DataArrayDouble::New();
+  newCoords->alloc(nbNodes+((int)addCoo.size())/2,2);
+  double *work=std::copy(_coords->begin(),_coords->end(),newCoords->getPointer());
+  std::copy(addCoo.begin(),addCoo.end(),work);
+  DataArrayDouble::SetArrayIn(newCoords,_coords);
+  updateTime();
 }
 
 /*!
@@ -6237,7 +6254,7 @@ DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells()
 /*!
  * This method is a faster method to correct orientation of all 3D cells in \a this.
  * This method works only if \a this is a 3D mesh, that is to say a mesh with mesh dimension 3 and a space dimension 3.
- * This method makes the hypothesis that \a this a coherent that is to say MEDCouplingUMesh::checkCoherency2 should throw no exception.
+ * This method makes the hypothesis that \a this a coherent that is to say MEDCouplingUMesh::checkCoherency1 should throw no exception.
  * 
  * \return a newly allocated int array with one components containing cell ids renumbered to fit the convention of MED (MED file and MEDCoupling)
  * \sa MEDCouplingUMesh::orientCorrectlyPolyhedrons, 
@@ -7011,7 +7028,7 @@ void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vec
       code[3*i]=(int)types[castId];
       code[3*i+1]=tmp3->getNumberOfTuples();
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp4=rankInsideCast->selectByTupleId(tmp3->getConstPointer(),tmp3->getConstPointer()+tmp3->getNumberOfTuples());
-      if(tmp4->getNumberOfTuples()!=typeRangeVals[castId+1]-typeRangeVals[castId] || !tmp4->isIdentity())
+      if(!tmp4->isIdentity2(typeRangeVals[castId+1]-typeRangeVals[castId]))
         {
           tmp4->copyStringInfoFrom(*profile);
           idsPerType2.push_back(tmp4);
@@ -7385,7 +7402,7 @@ DataArrayInt *MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh() co
  */
 void MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndex) const
 {
-  static const char msg0[]="MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : nodal connectivity in this are invalid ! Call checkCoherency2 !";
+  static const char msg0[]="MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : nodal connectivity in this are invalid ! Call checkCoherency1 !";
   checkConnectivityFullyDefined();
   if(_types.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : current mesh does not contain exactly one geometric type !");
@@ -8377,7 +8394,7 @@ bool MEDCouplingUMesh::IsTetra4WellOriented(const int *begin, const int *end, co
 {
   std::size_t sz=std::distance(begin,end);
   if(sz!=4)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsTetra4WellOriented : Tetra4 cell with not 4 nodes ! Call checkCoherency2 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsTetra4WellOriented : Tetra4 cell with not 4 nodes ! Call checkCoherency1 !");
   double vec0[3],vec1[3];
   const double *pt0=coords+3*begin[0],*pt1=coords+3*begin[1],*pt2=coords+3*begin[2],*pt3=coords+3*begin[3];
   vec0[0]=pt1[0]-pt0[0]; vec0[1]=pt1[1]-pt0[1]; vec0[2]=pt1[2]-pt0[2]; vec1[0]=pt2[0]-pt0[0]; vec1[1]=pt2[1]-pt0[1]; vec1[2]=pt2[2]-pt0[2]; 
@@ -8388,7 +8405,7 @@ bool MEDCouplingUMesh::IsPyra5WellOriented(const int *begin, const int *end, con
 {
   std::size_t sz=std::distance(begin,end);
   if(sz!=5)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsPyra5WellOriented : Pyra5 cell with not 5 nodes ! Call checkCoherency2 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsPyra5WellOriented : Pyra5 cell with not 5 nodes ! Call checkCoherency1 !");
   double vec0[3];
   INTERP_KERNEL::areaVectorOfPolygon<int,INTERP_KERNEL::ALL_C_MODE>(begin,4,coords,vec0);
   const double *pt0=coords+3*begin[0],*pt1=coords+3*begin[4];
@@ -9941,7 +9958,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> candidates(ret2->getIdsEqual(old2DCellId));
       ret3->setIJ(*it,0,FindRightCandidateAmong(ret2D,candidates->begin(),candidates->end(),ret1,*it%2==0?-((*it)/2+1):(*it)/2+1,eps));// div by 2 because 2 components natively in ret3
     }
-  ret3->replaceOneValByInThis(std::numeric_limits<int>::max(),-1);
+  ret3->changeValue(std::numeric_limits<int>::max(),-1);
   ret3->rearrange(2);
   //
   splitMesh1D=ret1.retn();

@@ -64,7 +64,7 @@ MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::New(const std::string& m
   return ret;
 }
 
-MEDCouplingMesh *MEDCouplingCurveLinearMesh::deepCpy() const
+MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::deepCpy() const
 {
   return clone(true);
 }
@@ -203,11 +203,6 @@ void MEDCouplingCurveLinearMesh::checkCoherency() const
 void MEDCouplingCurveLinearMesh::checkCoherency1(double eps) const
 {
   checkCoherency();
-}
-
-void MEDCouplingCurveLinearMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
 }
 
 int MEDCouplingCurveLinearMesh::getNumberOfCells() const

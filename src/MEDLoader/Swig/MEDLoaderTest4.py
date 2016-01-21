@@ -2642,7 +2642,7 @@ class MEDLoaderTest4(unittest.TestCase):
         m.allocateCells()
         m.insertNextCell(NORM_QUAD4,[0,3,4,1])
         m.insertNextCell(NORM_QUAD4,[1,4,5,2])
-        m.checkCoherency2()
+        m.checkCoherency1()
         #
         t=(1.1,0,-1)
         f=MEDCouplingFieldDouble(ON_GAUSS_NE) ; f.setTime(*t) ; f.setMesh(m)
@@ -2756,7 +2756,7 @@ class MEDLoaderTest4(unittest.TestCase):
         m.allocateCells()
         m.insertNextCell(NORM_QUAD4,[0,3,4,1])
         m.insertNextCell(NORM_QUAD4,[1,4,5,2])
-        m.checkCoherency2()
+        m.checkCoherency1()
         #
         t=(1.1,0,-1)
         f=MEDCouplingFieldDouble(ON_GAUSS_PT) ; f.setTime(*t) ; f.setMesh(m)
@@ -5134,8 +5134,11 @@ class MEDLoaderTest4(unittest.TestCase):
         #
         ms=MEDFileMeshes() ; ms.pushMesh(mm)
         fields=MEDFileFields() ; fields.pushField(fmts)
-        #ms.write(fname,2) ; fields.write(fname,0)
-        # WARNING for the moment we do not reread fname ! It is not a hidden bug it is just to wait EF control. Coming soon.
+        ms.write(fname,2) ; fields.write(fname,0)
+        #
+        del mm,fmts,fields,ms
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
         ms.cartesianizeMe()
         #
         fields.removeFieldsWithoutAnyTimeStep()
@@ -5180,7 +5183,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(DataArrayDouble([0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3]),1e-14))
             pass
         pass
-        
+
     def test38(self):
         """ Introduction of non cartesian meshes management. Here spherical."""
         fname="ForMEDReader38.med"
@@ -5200,8 +5203,11 @@ class MEDLoaderTest4(unittest.TestCase):
         #
         ms=MEDFileMeshes() ; ms.pushMesh(mm)
         fields=MEDFileFields() ; fields.pushField(fmts)
-        #ms.write(fname,2) ; fields.write(fname,0)
-        # WARNING for the moment we do not reread fname ! It is not a hidden bug it is just to wait EF control. Coming soon.
+        ms.write(fname,2) ; fields.write(fname,0)
+        #
+        del mm,fmts,fields,ms
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
         ms.cartesianizeMe()
         #
         fields.removeFieldsWithoutAnyTimeStep()
@@ -5267,6 +5273,10 @@ class MEDLoaderTest4(unittest.TestCase):
         ms=MEDFileMeshes() ; ms.pushMesh(mm)
         fields=MEDFileFields() ; fields.pushField(fmts)
         ms.write(fname,2) ; fields.write(fname,0)
+        #
+        del mm,fmts,fields,ms
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
         #
         ms=MEDFileMeshes(fname) ; ms.cartesianizeMe()
         fields=MEDFileFields(fname,False)

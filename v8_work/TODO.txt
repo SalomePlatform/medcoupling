@@ -1,0 +1,146 @@
+TODO for V8
+%%%%%%%%%%%
+
+Covariance fixes [DONE]
+================
+    + MEDCouplingUMesh
+        deepCpy !
+        deepCpyConnectivityOnly
+        mergeMyselfWithOnSameCoords
+        buildPartOfMySelf
+        buildPartOfMySelfNode
+        buildPartOfMySelf2
+        buildFacePartOfMySelfNode
+        buildBoundaryMesh
+        buildPartOfMySelfKeepCoords
+        buildPartOfMySelfKeepCoords2
+        
+    + MEDCouplingExtrudedMesh
+        deepCpy
+    + MEDCouplingIMesh
+        deepCpy  
+
+Various simplifications [DONE]
+=======================
+    + remove isIdentity2
+    + remove replaceOneValByInThis (changeValue fait le meme boulot) - Attention repercuter if(oldValue==newValue) return 0
+    + tessellate2D et tessellate2DCurve: à merger en un seul tessellate2D
+    + remove checkCoherency2
+     
+Inheritance fix (OK but at the end of process)
+===============
+    + move up in all classes deepCpy(), shallowCpy(), clone() 
+
+Namespace changes
+=================
+    + MEDCoupling for all
+    + MEDLoader static methods moved at namespace level
+        . C++ modifications
+        . Removal of the MEDLoader Python module
+
+Renaming
+========
+    + write script to do it!
+    + apply following renamings
+
+Interpolation
+-------------
+    RevIntegral / IntensiveConservation 
+    ConservativeVolumic / IntensiveMaximum
+    IntegralGlobConstraint / ExtensiveConservation
+    Integral / ExtensiveMaximum
+
+All classes
+-----------
+    deepCpy / deepCopy
+    performCpy / performCopyOrIncrRef
+
+Auto-pointeur
+-------------
+    MEDCouplingAutoRefCountObjectPtr / MCAuto
+
+MEDCouplingExtrudedMesh
+-----------------------
+    MEDCouplingExtrudedMesh / MEDCouplingMappedExtrudedMesh
+    
+MEDCouplingMesh
+---------------
+    getBarycenterAndOwner / computeCellCenterOfMass
+    checkCoherency / checkConsistencyLight
+    checkCoherency1 / checkConsistency
+    
+MEDCouplingPointSet
+-------------------
+    mergeNodes2 / mergeNodesCenter
+    renumberNodes2 / renumberNodesCenter
+    buildPartOfMySelf2 / buildPartOfMySelfSlice
+    buildPartOfMySelfKeepCoords2 / buildPartOfMySelfKeepCoordsSlice
+    deepCpyConnectivityOnly / deepCopyConnectivityOnly
+    
+MEDCoupling1DGTUMesh
+--------------------
+    checkCoherencyOfConnectivity / checkConsistencyOfConnectivity
+
+MEDCouplingUMesh
+----------------
+    getMeshLength / getNodalConnectivityArrayLen
+    AreCellsEqual0 / AreCellsEqualPolicy0
+    AreCellsEqual1 / AreCellsEqualPolicy1
+    AreCellsEqual2 / AreCellsEqualPolicy2
+    AreCellsEqual7 / AreCellsEqualPolicy7
+    AreCellsEqual3 / AreCellsEqualPolicy2NoType
+    areCellsIncludedIn2 / areCellsIncludedInPolicy7
+    setPartOfMySelf2 / setPartOfMySelfSlice
+    ExtractFromIndexedArrays2 / ExtractFromIndexedArraysSlice
+    SetPartOfIndexedArrays2 / SetPartOfIndexedArraysSlice
+    SetPartOfIndexedArraysSameIdx2 / SetPartOfIndexedArraysSameIdxSlice
+    deepCpyConnectivityOnly / deepCopyConnectivityOnly
+
+DataArray
+---------
+    setContigPartOfSelectedValues2 / setContigPartOfSelectedValuesSlice
+    selectByTupleId2 / selectByTupleIdSafe
+    GetAxTypeRepr / GetAxisTypeRepr
+    cpyFrom / deepCopyFrom
+    
+DataArrayInt
+------------
+    selectByTupleId2 / selectByTupleIdSlice
+    BuildOld2NewArrayFromSurjectiveFormat2 / ConvertIndexArrayToO2N 
+  
+    getIdsEqual / findIdsEqual
+    getIdsNotEqual / findIdsNotEqual
+    getIdsEqualList / findIdsEqualList
+    getIdsNotEqualList / findIdsNotEqualList
+    getIdsEqualTuple / findIdsEqualTuple
+    locateValue(int) / findIdsFirstEqual
+    locateValue(vec) / findIdsFirstEqualList
+    search / findIdsSequence
+    getIdsInRange / findIdsInRange
+    getIdsNotInRange / findIdsNotInRange
+    getIdsStrictlyNegative / findIdsStricltyNegative
+    searchRangesInListOfIds / findIdsRangesInListOfIds
+  
+    computeOffsets2 / computeOffsetsFull
+
+DataArrayDouble
+---------------
+    substr / subArray 
+    applyFunc2 / applyFuncCompo
+    applyFunc3 / applyFuncNamedCompo
+  
+MEDCouplingFieldDouble
+----------------------
+    getIdsInRange / findIdsInRange
+    fillFromAnalytic2 / fillFromAnalyticCompo
+    fillFromAnalytic3 / fillFromAnalyticNamedCompo
+    applyFunc2 / applyFuncCompo
+    applyFunc3 / applyFuncNamedCompo
+    mergeNodes2 / mergeNodesCenter
+   
+MEDFileMesh
+-----------
+    setAxType / setAxisType
+    getAxType / getAxisType
+
+   

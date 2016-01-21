@@ -813,9 +813,8 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         da.alloc(8,1);
         da.iota(0);
         da2=da.checkAndPreparePermutation();
-        self.assertEqual(8,da2.getNumberOfTuples());
         self.assertEqual(1,da2.getNumberOfComponents());
-        self.assertTrue(da2.isIdentity());
+        self.assertTrue(da2.isIdentity2(8));
         #
         da=DataArrayInt.New();
         da.alloc(8,1);
@@ -860,8 +859,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
     def testUMeshFindCellIdsOnBoundary1(self):
         m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
         da5=m.findCellIdsOnBoundary();
-        self.assertEqual(5,da5.getNumberOfTuples());
-        self.assertTrue(da5.isIdentity());
+        self.assertTrue(da5.isIdentity2(5));
         pass
 
     def testMeshSetTime1(self):
@@ -2025,7 +2023,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         expected2=[0,5,14,19,42,49,86,95,108,159]
         self.assertEqual(expected1,da.getValues());
         self.assertEqual(expected2,dai.getValues());
-        m.checkCoherency2()
+        m.checkCoherency1()
         pass
 
     def testNonRegressionCopyTinyStrings(self):
@@ -2507,7 +2505,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         m1.setCoords(myCoords)
         
         m2 = m1.deepCpy()
-        m2.tessellate2DCurve(0.1)
+        m2.tessellate2D(0.1)
         # If the following raises, the test will fail automatically:
         m2.checkCoherency1(0.0) # eps param not used
 

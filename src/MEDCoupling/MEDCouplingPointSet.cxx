@@ -1500,8 +1500,8 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
         throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=da->selectByTupleId2(nbCells,da->getNbOfElems(),1);
-  nodeCor=nodeCor2->isIdentity()?0:nodeCor2.retn();
-  cellCor=cellCor2->isIdentity()?0:cellCor2.retn();
+  nodeCor=nodeCor2->isIdentity2(nodeCor2->getNumberOfTuples())?0:nodeCor2.retn();
+  cellCor=cellCor2->isIdentity2(cellCor2->getNumberOfTuples())?0:cellCor2.retn();
 }
 
 /*!
@@ -1542,7 +1542,7 @@ void MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh 
       throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : some cells in other are not in this !");
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=da->selectByTupleId2(getNumberOfCells(),da->getNbOfElems(),1);
-  cellCor=cellCor2->isIdentity()?0:cellCor2.retn();
+  cellCor=cellCor2->isIdentity2(cellCor2->getNumberOfTuples())?0:cellCor2.retn();
 }
 
 void MEDCouplingPointSet::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const

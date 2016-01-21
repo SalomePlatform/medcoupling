@@ -157,7 +157,7 @@ int MEDCouplingExtrudedMesh::getMeshDimension() const
   return 3;
 }
 
-MEDCouplingMesh *MEDCouplingExtrudedMesh::deepCpy() const
+MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::deepCpy() const
 {
   return clone(true);
 }
@@ -394,11 +394,6 @@ void MEDCouplingExtrudedMesh::checkCoherency() const
 void MEDCouplingExtrudedMesh::checkCoherency1(double eps) const
 {
   checkCoherency();
-}
-
-void MEDCouplingExtrudedMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
 }
 
 void MEDCouplingExtrudedMesh::getBoundingBox(double *bbox) const

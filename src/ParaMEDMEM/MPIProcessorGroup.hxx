@@ -38,7 +38,7 @@ namespace ParaMEDMEM
     MPIProcessorGroup(const CommInterface& interface,int pstart, int pend, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     MPIProcessorGroup(const MPIProcessorGroup& other);
     virtual ~MPIProcessorGroup();
-    virtual ProcessorGroup *deepCpy() const;
+    virtual MPIProcessorGroup *deepCpy() const;
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const;
     void intersect (ProcessorGroup&) { }
     int myRank() const;

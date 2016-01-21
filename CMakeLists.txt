@@ -201,6 +201,7 @@ IF(MEDCOUPLING_BUILD_DOC)
 ENDIF(MEDCOUPLING_BUILD_DOC)
 
 ADD_SUBDIRECTORY(resources)
+ADD_SUBDIRECTORY(v8_work)
 
 # Configuration export
 # ====================

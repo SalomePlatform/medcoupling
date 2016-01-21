@@ -64,10 +64,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setTime(double val, int iteration, int order) { _time=val; _iteration=iteration; _order=order; }
     MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_unit=unit; }
     MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
-    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *deepCpy() const = 0;
-    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *clone(bool recDeepCpy) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingMeshType getType() const = 0;
     MEDCOUPLING_EXPORT bool isStructured() const;
+    // Copy methods
+    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *deepCpy() const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *clone(bool recDeepCpy) const = 0;
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingMesh *other);
     MEDCOUPLING_EXPORT virtual void copyTinyInfoFrom(const MEDCouplingMesh *other);
     // comparison methods
@@ -84,7 +85,6 @@ namespace ParaMEDMEM
     //
     MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
     MEDCOUPLING_EXPORT virtual void checkCoherency1(double eps=1e-12) const = 0;
-    MEDCOUPLING_EXPORT virtual void checkCoherency2(double eps=1e-12) const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfCells() const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfNodes() const = 0;
     MEDCOUPLING_EXPORT virtual int getSpaceDimension() const = 0;

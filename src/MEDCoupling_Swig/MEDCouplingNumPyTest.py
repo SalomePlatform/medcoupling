@@ -102,8 +102,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         d=DataArrayInt(a)
         self.assertEqual(weakref.getweakrefcount(a),1)
         self.assertTrue(not a.flags["OWNDATA"])
-        self.assertTrue(d.isIdentity())
-        self.assertEqual(len(d),20)
+        self.assertTrue(d.isIdentity2(20))
         a[:]=2 # modifying a and d because a and d share the same chunk of data
         self.assertTrue(d.isUniform(2))
         del d # d is destroyed, a retrieves its ownership of its initial chunk of data
@@ -120,8 +119,8 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a=arange(20,dtype=int32)
         d=DataArrayInt(a) # d owns data of a
         e=DataArrayInt(a) # a not owned -> e only an access to chunk of a 
-        self.assertTrue(d.isIdentity())
-        self.assertTrue(e.isIdentity())
+        self.assertTrue(d.isIdentity2(d.getNumberOfTuples()))
+        self.assertTrue(e.isIdentity2(e.getNumberOfTuples()))
         a[:]=6
         self.assertTrue(d.isUniform(6))
         self.assertTrue(e.isUniform(6))
@@ -155,13 +154,13 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         del b # no impact on e and f because a is the base of a.
         ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
         gc.collect()
-        self.assertTrue(f.isIdentity())
-        self.assertTrue(e.isIdentity())
+        self.assertTrue(f.isIdentity2(f.getNumberOfTuples()))
+        self.assertTrue(e.isIdentity2(e.getNumberOfTuples()))
         del a # a destroyed, but as c has its base set to a, a exists -> e and f not allocated
         ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
         gc.collect()
-        self.assertTrue(f.isIdentity())
-        self.assertTrue(e.isIdentity())
+        self.assertTrue(f.isIdentity2(f.getNumberOfTuples()))
+        self.assertTrue(e.isIdentity2(e.getNumberOfTuples()))
         del c # c killed -> a killed -> e and d are put into not allocated state
         ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
         gc.collect()        
@@ -563,33 +562,33 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         b=DataArrayInt(a)
         c=DataArrayInt(a)
         d=DataArrayInt(a)
-        self.assertTrue(b.isIdentity()) ; self.assertEqual(len(b),10)
-        self.assertTrue(c.isIdentity()) ; self.assertEqual(len(c),10)
-        self.assertTrue(d.isIdentity()) ; self.assertEqual(len(d),10)
+        self.assertTrue(b.isIdentity2(10))
+        self.assertTrue(c.isIdentity2(10))
+        self.assertTrue(d.isIdentity2(10))
         c.pushBackSilent(10) # c and a,b are dissociated
-        self.assertTrue(b.isIdentity()) ; self.assertEqual(len(b),10)
-        self.assertTrue(c.isIdentity()) ; self.assertEqual(len(c),11)
-        self.assertTrue(d.isIdentity()) ; self.assertEqual(len(d),10)
+        self.assertTrue(b.isIdentity2(10))
+        self.assertTrue(c.isIdentity2(11))
+        self.assertTrue(d.isIdentity2(10))
         del a
         gc.collect()
-        self.assertTrue(b.isIdentity()) ; self.assertEqual(len(b),10)
-        self.assertTrue(c.isIdentity()) ; self.assertEqual(len(c),11)
+        self.assertTrue(b.isIdentity2(10))
+        self.assertTrue(c.isIdentity2(11))
         self.assertTrue(not d.isAllocated())
         del b
         gc.collect()
-        self.assertTrue(c.isIdentity()) ; self.assertEqual(len(c),11)
+        self.assertTrue(c.isIdentity2(11))
         #
         a=arange(10,dtype=int32)
         b=DataArrayInt(a)
         c=DataArrayInt(a)
-        self.assertTrue(b.isIdentity()) ; self.assertEqual(len(b),10)
-        self.assertTrue(c.isIdentity()) ; self.assertEqual(len(c),10)
+        self.assertTrue(b.isIdentity2(10))
+        self.assertTrue(c.isIdentity2(10))
         b.pushBackSilent(10) # c and a,b are dissociated
-        self.assertTrue(b.isIdentity()) ; self.assertEqual(len(b),11)
-        self.assertTrue(c.isIdentity()) ; self.assertEqual(len(c),10)
+        self.assertTrue(b.isIdentity2(11))
+        self.assertTrue(c.isIdentity2(10))
         del a
         gc.collect()
-        self.assertTrue(b.isIdentity()) ; self.assertEqual(len(b),11)
+        self.assertTrue(b.isIdentity2(11))
         self.assertTrue(not c.isAllocated())
         del b
         gc.collect()

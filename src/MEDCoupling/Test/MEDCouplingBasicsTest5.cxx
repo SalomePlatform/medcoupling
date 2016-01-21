@@ -102,7 +102,7 @@ void MEDCouplingBasicsTest5::testUMeshTessellate2DCurve1()
   myCoords->decrRef();
 
   MEDCouplingUMesh *m2 = static_cast<MEDCouplingUMesh *>(m1->deepCpy());
-  m2->tessellate2DCurve(0.1);
+  m2->tessellate2D(0.1);
   CPPUNIT_ASSERT_NO_THROW(m2->checkCoherency1(0.0)); // eps param not used
   m1->decrRef();
   m2->decrRef();
@@ -1139,8 +1139,7 @@ void MEDCouplingBasicsTest5::testConvexEnvelop2D1()
   ref2->decrRef();
   vals->abs();
   DataArrayInt *theTest=vals->getIdsInRange(-1.,1e-7);
-  CPPUNIT_ASSERT(theTest->isIdentity());
-  CPPUNIT_ASSERT_EQUAL(331,theTest->getNumberOfTuples());
+  CPPUNIT_ASSERT(theTest->isIdentity2(331));
   theTest->decrRef();
   valsF->decrRef();
   //
@@ -2003,11 +2002,11 @@ void MEDCouplingBasicsTest5::testSimplexize3()
   c->useArray(coords,false,CPP_DEALLOC,24,3);
   m->setCoords(c);
   c->decrRef();
-  m->checkCoherency2();
+  m->checkCoherency1();
   //
   MEDCouplingUMesh *m1=static_cast<MEDCouplingUMesh *>(m->deepCpy());
   DataArrayInt *d1=m1->simplexize(INTERP_KERNEL::PLANAR_FACE_5);
-  m1->checkCoherency2();
+  m1->checkCoherency1();
   MEDCouplingFieldDouble *f1=m1->getMeasureField(ON_CELLS);
   const double vol1Expected[12]={1./6, 1./6, 1./6,1./6, 1./6, 1./3,1./6, 1./6, 1./6, 1./6, 1./3, 1./6};
   CPPUNIT_ASSERT_EQUAL(1,f1->getArray()->getNumberOfComponents());
@@ -2032,7 +2031,7 @@ void MEDCouplingBasicsTest5::testSimplexize3()
   //
   MEDCouplingUMesh *m2=static_cast<MEDCouplingUMesh *>(m->deepCpy());
   DataArrayInt *d2=m2->simplexize(INTERP_KERNEL::PLANAR_FACE_6);
-  m2->checkCoherency2();
+  m2->checkCoherency1();
   MEDCouplingFieldDouble *f2=m2->getMeasureField(ON_CELLS);
   const double vol2Expected[14]={1./6, 1./6, 1./6,1./6, 1./6, 1./6,1./6,1./6, 1./6, 1./6, 1./6, 1./6,1./6,1./6};
   CPPUNIT_ASSERT_EQUAL(1,f2->getArray()->getNumberOfComponents());

@@ -891,8 +891,7 @@ class MEDLoaderTest3(unittest.TestCase):
         ff1.write(fname,0)
         f1=ff1.getFieldOnMeshAtLevel(ON_GAUSS_NE,m1,0)
         f2,p1=ff1.getFieldWithProfile(ON_GAUSS_NE,0,mm1) ; f2.setName("")
-        self.assertTrue(p1.isIdentity())
-        self.assertEqual(5,p1.getNumberOfTuples())
+        self.assertTrue(p1.isIdentity2(5))
         self.assertTrue(f1.getArray().isEqual(f2,1e-12))
         pass
     # Test for getFieldAtTopLevel method
@@ -3540,7 +3539,7 @@ class MEDLoaderTest3(unittest.TestCase):
         for elt in [[0,1,2,3,4,5],[1,2,3,4,5,6],[2,3,4,5,6,7],[3,4,5,6,7,8]]:#4
             m0.insertNextCell(NORM_PENTA6,elt)
             pass
-        m0.checkCoherency2()
+        m0.checkCoherency1()
         m1=MEDCouplingUMesh(); m1.setName("mesh")
         m1.setMeshDimension(2);
         m1.allocateCells(5);
@@ -3704,7 +3703,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m.changeSpaceDimension(3,0.)
         infos=["aa [b]","cc [de]","gg [klm]"]
         m.getCoords().setInfoOnComponents(infos)
-        m.checkCoherency2()
+        m.checkCoherency1()
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m)
         m1=MEDCouplingCMesh() ; m1.setCoords(arr) ; m1.setName("Mesh") 
@@ -3788,7 +3787,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m.changeSpaceDimension(3,0.)
         infos=["aa [b]","cc [de]","gg [klm]"]
         m.getCoords().setInfoOnComponents(infos)
-        m.checkCoherency2()
+        m.checkCoherency1()
         f=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f.setMesh(m)
         f.setName("Field")
         arr=DataArrayDouble(25,2) ; arr.setInfoOnComponents(compos)
@@ -3853,7 +3852,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m.changeSpaceDimension(3,0.)
         infos=["aa [b]","cc [de]","gg [klm]"]
         m.getCoords().setInfoOnComponents(infos)
-        m.checkCoherency2()
+        m.checkCoherency1()
         f=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f.setMesh(m)
         f.setName("Field")
         arr=DataArrayDouble(25,2) ; arr.setInfoOnComponents(compos)
@@ -4351,7 +4350,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m3D=m.buildExtrudedMesh(m1D,0)
         m3D.sortCellsInMEDFileFrmt()
         m3D.setName(meshName)
-        m2D=m ; m2D.setCoords(m3D.getCoords()) ; m2D.shiftNodeNumbersInConn(delta) ; m2D.setName(meshName) ; m2D.checkCoherency2()
+        m2D=m ; m2D.setCoords(m3D.getCoords()) ; m2D.shiftNodeNumbersInConn(delta) ; m2D.setName(meshName) ; m2D.checkCoherency1()
         m1D=m2D.computeSkin() ; m1D.setName(meshName)
         m0D=MEDCouplingUMesh.Build0DMeshFromCoords(m3D.getCoords()) ; m0D.setName(meshName) ; m0D=m0D[[2,4,10]]
         #

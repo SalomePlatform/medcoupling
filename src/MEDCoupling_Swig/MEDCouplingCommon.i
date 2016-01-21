@@ -562,7 +562,6 @@ namespace ParaMEDMEM
     virtual void copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
     virtual void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfCells() const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
     virtual int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
@@ -1792,7 +1791,6 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildDirectionVectorField() const throw(INTERP_KERNEL::Exception);
     bool isContiguous1D() const throw(INTERP_KERNEL::Exception);
     void tessellate2D(double eps) throw(INTERP_KERNEL::Exception);
-    void tessellate2DCurve(double eps) throw(INTERP_KERNEL::Exception);
     void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertLinearCellsToQuadratic(int conversionType=0) throw(INTERP_KERNEL::Exception);
     void convertDegeneratedCells() throw(INTERP_KERNEL::Exception);

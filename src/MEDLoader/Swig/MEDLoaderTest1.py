@@ -260,10 +260,11 @@ class MEDLoaderTest1(unittest.TestCase):
         #
         ret=MEDLoader.MEDLoader.GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1");
         self.assertEqual(4,len(ret));
-        self.assertEqual(ret[0],"Family_-2");
-        self.assertEqual(ret[1],"Family_-3");
-        self.assertEqual(ret[2],"Family_-4");
-        self.assertEqual(ret[3],"Family_-5");
+        ref=['Family_-3','Family_-4','Family_-2','Family_-5']
+        self.assertIn(ref[0],ret);
+        self.assertIn(ref[1],ret);
+        self.assertIn(ref[2],ret);
+        self.assertIn(ref[3],ret);
         #
         ret1=MEDLoader.MEDLoader.GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3");
         self.assertEqual(2,len(ret1));

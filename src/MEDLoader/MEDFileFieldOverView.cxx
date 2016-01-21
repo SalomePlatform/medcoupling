@@ -482,7 +482,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCpy());
           p1->sort(true);
-          if(!p1->isIdentity() || p1->getNumberOfTuples()!=getNumberOfNodes())
+          if(!p1->isIdentity2(getNumberOfNodes()))
             throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 4 !");
           MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->deepCpy());
           ret->renumberInPlace(globs->getProfile(pflName.c_str())->begin());
@@ -1747,7 +1747,7 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
   arr=arr->buildUnique();
   if(oldNbTuples!=arr->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : some entities are present several times !");
-  if(arr->isIdentity() && oldNbTuples==nbEntityRef)
+  if(arr->isIdentity2(nbEntityRef))
     {
       std::pair<int,int> p(0,nbEntityRef);
       std::string a,b;
@@ -1938,7 +1938,7 @@ bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TS
       const DataArrayInt *pfl=globs->getProfile(otherNodeIt.getPflName().c_str());
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cpyPfl(pfl->deepCpy());
       cpyPfl->sort();
-      if(cpyPfl->isIdentity() && cpyPfl->getNumberOfTuples()==nbOfNodes)
+      if(cpyPfl->isIdentity2(nbOfNodes))
         {//on all nodes also !
           if(!ret0)
             return false;

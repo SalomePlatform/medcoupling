@@ -42,9 +42,11 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const std::string& meshName, int meshDim);
-    MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
+    // Copy methods
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCpy() const;;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCpyConnectivityOnly() const;
+
     MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other);
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -55,7 +57,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkCoherency() const;
     MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const;
     MEDCOUPLING_EXPORT void setMeshDimension(int meshDim);
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0);
     MEDCOUPLING_EXPORT void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell);
@@ -126,15 +127,15 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static void ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI,
                                                               DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx);
     MEDCOUPLING_EXPORT void computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf(const int *begin, const int *end, bool keepCoords=true) const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf2(int start, int end, int step, bool keepCoords=true) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelf(const int *begin, const int *end, bool keepCoords=true) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelf2(int start, int end, int step, bool keepCoords=true) const;
     MEDCOUPLING_EXPORT void setPartOfMySelf(const int *cellIdsBg, const int *cellIdsEnd, const MEDCouplingUMesh& otherOnSameCoordsThanThis);
     MEDCOUPLING_EXPORT void setPartOfMySelf2(int start, int end, int step, const MEDCouplingUMesh& otherOnSameCoordsThanThis);
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT DataArrayInt *findBoundaryNodes() const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildBoundaryMesh(bool keepCoords) const;
     MEDCOUPLING_EXPORT DataArrayInt *findCellIdsOnBoundary() const;
     MEDCOUPLING_EXPORT void findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *&cellIdsRk0, DataArrayInt *&cellIdsRk1) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *computeSkin() const;
@@ -179,7 +180,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void convertQuadraticCellsToLinear();
     MEDCOUPLING_EXPORT DataArrayInt *convertLinearCellsToQuadratic(int conversionType=0);
     MEDCOUPLING_EXPORT void tessellate2D(double eps);
-    MEDCOUPLING_EXPORT void tessellate2DCurve(double eps);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *tetrahedrize(int policy, DataArrayInt *& n2oCells, int& nbOfAdditionalPoints) const;
     MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy);
     MEDCOUPLING_EXPORT bool areOnlySimplexCells() const;
@@ -285,6 +285,8 @@ namespace ParaMEDMEM
     DataArrayInt *simplexizePol1();
     DataArrayInt *simplexizePlanarFace5();
     DataArrayInt *simplexizePlanarFace6();
+    void tessellate2DInternal(double eps);
+    void tessellate2DCurveInternal(double eps);
     void subDivide2DMesh(const int *nodeSubdived, const int *nodeIndxSubdived, const int *desc, const int *descIndex);
     void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     void split3DCurveWithPlane(const double *origin, const double *vec, double eps, std::vector<int>& cut3DCurve);
@@ -294,8 +296,8 @@ namespace ParaMEDMEM
     DataArrayDouble *fillExtCoordsUsingTranslAndAutoRotation2D(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     DataArrayDouble *fillExtCoordsUsingTranslAndAutoRotation3D(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     static bool AreCellsEqualInPool(const std::vector<int>& candidates, int compType, const int *conn, const int *connI, DataArrayInt *result) ;
-    MEDCouplingPointSet *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
-    MEDCouplingPointSet *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
+    MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
+    MEDCouplingUMesh *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
     DataArrayInt *convertLinearCellsToQuadratic1D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
     DataArrayInt *convertLinearCellsToQuadratic2DAnd3D0(const MEDCouplingUMesh *m1D, const DataArrayInt *desc, const DataArrayInt *descI, DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
     DataArrayInt *convertLinearCellsToQuadratic2D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;

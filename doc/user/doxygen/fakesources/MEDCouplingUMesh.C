@@ -105,7 +105,6 @@ MEDCouplingUMesh::buildSlice3D(const double *origin, const double *vec, double e
 MEDCouplingUMesh::buildSlice3DSurf(const double *origin, const double *vec, double eps, DataArrayInt *&cellIds) const;
 MEDCouplingUMesh::checkCoherency() const;
 MEDCouplingUMesh::checkCoherency1(double eps=1e-12) const;
-MEDCouplingUMesh::checkCoherency2(double eps=1e-12) const;
 //MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,DataArrayInt *&cellCor) const;
 //MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
 MEDCouplingUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
@@ -178,7 +177,6 @@ MEDCouplingUMesh::isFullyQuadratic() const;
 MEDCouplingUMesh::isPresenceOfQuadratic() const;
 MEDCouplingUMesh::simplexize(int policy);
 MEDCouplingUMesh::tessellate2D(double eps);
-MEDCouplingUMesh::tessellate2DCurve(double eps);
   ///@
 
 /*! \name Others... */

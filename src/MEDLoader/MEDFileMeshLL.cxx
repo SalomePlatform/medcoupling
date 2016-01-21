@@ -75,8 +75,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
       int naxis(MEDmeshnAxis(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
       INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-      MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));
-      
+      MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));      
       dtunit1=MEDLoaderBase::buildStringFromFortran(dtunit,sizeof(dtunit));
       std::string cur=MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa));
       ms.push_back(cur);
@@ -433,8 +432,10 @@ med_grid_type MEDFileMeshL2::TraduceAxisTypeRevStruct(ParaMEDMEM::MEDCouplingAxi
       return MED_CARTESIAN_GRID;
     case AX_CYL:
       return MED_POLAR_GRID;
+    case AX_SPHER:
+      return MED_POLAR_GRID;
     default:
-      throw INTERP_KERNEL::Exception("MEDFileMeshL2::TraduceAxisTypeRevStruct : only Cartesian and Cylindrical supported by MED file !");
+      throw INTERP_KERNEL::Exception("MEDFileMeshL2::TraduceAxisTypeRevStruct : unrecognized axis type !");
     }
 }
 
@@ -1025,7 +1026,7 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld)
       _m=m;
       _m_by_types.assignUMesh(dynamic_cast<MEDCouplingUMesh *>(m->deepCpy()));
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_m_by_types.getUmesh()->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_N_CELL_FIXED_GEO);
-      if(!da->isIdentity())
+      if(!da->isIdentity2(m->getNumberOfCells()))
         {
           _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
           _m.updateTime();

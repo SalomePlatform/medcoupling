@@ -65,7 +65,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::New(const std::string& meshName, int spaceDi
   return ret.retn();
 }
 
-MEDCouplingMesh *MEDCouplingIMesh::deepCpy() const
+MEDCouplingIMesh *MEDCouplingIMesh::deepCpy() const
 {
   return clone(true);
 }
@@ -947,11 +947,6 @@ void MEDCouplingIMesh::checkCoherency() const
 void MEDCouplingIMesh::checkCoherency1(double eps) const
 {
   checkCoherency();
-}
-
-void MEDCouplingIMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
 }
 
 void MEDCouplingIMesh::getNodeGridStructure(int *res) const
