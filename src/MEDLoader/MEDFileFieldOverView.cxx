@@ -391,6 +391,30 @@ void MEDMeshMultiLev::retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isW
     }
 }
 
+/*!
+ * This method returns, if any, a new object containing the global node ids **BUT CONTRARY TO OTHER RETRIEVE METHODS** the returned object is always a NON AGGREGATED object. So the returned object if not null
+ * can be used as this safely.
+ */
+DataArrayInt *MEDMeshMultiLev::retrieveGlobalNodeIdsIfAny() const
+{
+  const MEDFileUMesh *umesh(dynamic_cast<const MEDFileUMesh *>(_mesh));
+  if(!umesh)
+    return 0;
+  const PartDefinition *pd(umesh->getPartDefAtLevel(1));
+  if(!pd)
+    return 0;
+  MCAuto<DataArrayInt> tmp(pd->toDAI());
+  const DataArrayInt *tmpCpp(tmp);
+  if(!tmpCpp)
+    return 0;
+  //
+  const DataArrayInt *nr(_node_reduction);
+  if(nr)
+    return tmp->selectByTupleIdSafe(nr->begin(),nr->end());
+  else
+    return tmp->deepCopy();// Yes a deep copy is needed because this method has to return a non aggregated object !
+}
+
 std::vector< INTERP_KERNEL::NormalizedCellType > MEDMeshMultiLev::getGeoTypes() const
 {
   return _geo_types;

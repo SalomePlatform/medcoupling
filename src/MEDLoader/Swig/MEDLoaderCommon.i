@@ -230,6 +230,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileMeshStruct::New;
 %newobject MEDCoupling::MEDMeshMultiLev::prepare;
 %newobject MEDCoupling::MEDMeshMultiLev::buildDataArray;
+%newobject MEDCoupling::MEDMeshMultiLev::retrieveGlobalNodeIdsIfAny;
 %newobject MEDCoupling::MEDFileFastCellSupportComparator::New;
 %newobject MEDCoupling::MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport;
 
@@ -3544,6 +3545,7 @@ namespace MEDCoupling
   public:
     virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
     DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *retrieveGlobalNodeIdsIfAny() const throw(INTERP_KERNEL::Exception);
   protected:
     ~MEDMeshMultiLev();
   public:

@@ -89,6 +89,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isWithoutCopy) const;
     MEDLOADER_EXPORT void retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isWithoutCopy) const;
     MEDLOADER_EXPORT void retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT DataArrayInt *retrieveGlobalNodeIdsIfAny() const;
     MEDLOADER_EXPORT std::vector< INTERP_KERNEL::NormalizedCellType > getGeoTypes() const;
     void setFamilyIdsOnCells(DataArrayInt *famIds);
     void setNumberIdsOnCells(DataArrayInt *numIds);
