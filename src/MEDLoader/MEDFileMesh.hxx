@@ -255,6 +255,9 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileMesh *deepCpy() const;
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT void checkCoherency() const;
+    MEDLOADER_EXPORT void checkSMESHCoherency() const;
+    MEDLOADER_EXPORT void clearNodeAndCellNumbers();
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
     MEDLOADER_EXPORT void setName(const std::string& name);
     //

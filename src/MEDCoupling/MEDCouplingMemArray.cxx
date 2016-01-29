@@ -7821,6 +7821,24 @@ bool DataArrayInt::isUniform(int val) const
 }
 
 /*!
+ * Checks if all values in \a this array are unique.
+ *  \return bool - \a true if condition above is true
+ *  \throw If \a this is not allocated.
+ *  \throw If \a this->getNumberOfComponents() != 1
+ */
+bool DataArrayInt::hasUniqueValues() const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::hasOnlyUniqueValues: must be applied on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  int nbOfTuples(getNumberOfTuples());
+  std::set<int> s(begin(),end());  // in C++11, should use unordered_set (O(1) complexity)
+  if (s.size() != nbOfTuples)
+    return false;
+  return true;
+}
+
+/*!
  * Creates a new DataArrayDouble and assigns all (textual and numerical) data of \a this
  * array to the new one.
  *  \return DataArrayDouble * - the new instance of DataArrayInt.
