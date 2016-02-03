@@ -7,9 +7,9 @@ visible to the Python user.
 - \ref MEDCoupling::MCAuto "MCAuto"
 - \subpage MEDCouplingTimeLabelPage
 
-\b Note: all the standard (sequential) MEDCoupling API lies in the \ref MEDCoupling "MEDCoupling namespace".
-This is quite unfortunate but due to historical reasons. The true parallel functionalities
-of the \ref library "MED library" are detailed here: \ref parallel
+\b Note: from version 8, all the standard (sequential and parallel) MEDCoupling API lies in a single
+ \ref MEDCoupling "MEDCoupling namespace".
+The true parallel functionalities of the \ref library "MED library" are detailed here: \ref parallel
 
 The memory management of the various strucutres is eased by the class 
 \ref MEDCoupling::MCAuto "MCAuto". It acts as an auto pointer and takes care of deleting the
