@@ -1205,6 +1205,9 @@ namespace MEDCoupling
     ~MEDFileUMesh();
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     int getRelativeLevOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
+    void checkConsistency() const throw(INTERP_KERNEL::Exception);
+    void checkSMESHConsistency() const throw(INTERP_KERNEL::Exception);
+    void clearNodeAndCellNumbers();
     //
     MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);

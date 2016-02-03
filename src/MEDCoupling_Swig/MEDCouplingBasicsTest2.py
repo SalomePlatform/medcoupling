@@ -1870,6 +1870,19 @@ class MEDCouplingBasicsTest2(unittest.TestCase):
         da2.setIJ(1,0,1.+1.e-11);
         self.assertTrue(not da2.isUniform(1.,1.e-12));
         pass
+
+    def testDAHasUniqueValues1(self):
+        da=DataArrayInt([1,2,3,4,5])
+        self.assertTrue(da.hasUniqueValues())
+        da[1,0] = 5
+        self.assertFalse(da.hasUniqueValues())
+        da=DataArrayInt([])
+        self.assertTrue(da.hasUniqueValues())
+        da=DataArrayInt([(1,2), (2,3)]) # wrong num of compo
+        self.assertRaises(InterpKernelException, da.hasUniqueValues)
+        da=DataArrayInt()  # non allocated array
+        self.assertRaises(InterpKernelException, da.hasUniqueValues)
+        pass
     
     def testDADFromPolarToCart1(self):
         tab1=[2.,0.2,2.5,0.7]

@@ -947,6 +947,29 @@ MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::deepCopy(DataArrayDouble *coords) cons
   return ret.retn();
 }
 
+void MEDFileUMeshSplitL1::checkConsistency() const
+{
+  if (!_fam || _fam->getNumberOfTuples() != getSize())
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::checkConsistency(): internal family array has an invalid size!");
+  int nbCells = getSize();
+  if (_num)
+    {
+      _num->checkNbOfTuplesAndComp(nbCells,1,"MEDFileUMeshSplitL1::checkConsistency(): inconsistent internal node numbering array!");
+      int pos;
+      int maxValue=_num->getMaxValue(pos);
+      if (!_rev_num || _rev_num->getNumberOfTuples() != (maxValue+1))
+        throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::checkConsistency(): inconsistent internal revert node numbering array!");
+    }
+  if ((_num && !_rev_num) || (!_num && _rev_num))
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::checkConsistency(): inconsistent internal numbering arrays (one is null)!");
+  if (_num && !_num->hasUniqueValues())
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::checkConsistency(): inconsistent internal node numbering array: duplicates found!");
+  if (_names)
+    _names->checkNbOfTuplesAndComp(nbCells,1,"MEDFileUMeshSplitL1::checkConsistency(): internal cell naming array has an invalid size!");
+
+  _m_by_types.checkConsistency();
+}
+
 bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const
 {
   if(!_m_by_types.isEqual(other->_m_by_types,eps,what))
@@ -1834,6 +1857,16 @@ bool MEDFileUMeshAggregateCompute::isEqual(const MEDFileUMeshAggregateCompute& o
         return false;
     }
   return true;
+}
+
+void MEDFileUMeshAggregateCompute::checkConsistency() const
+{
+  if(_mp_time >= _m_time)
+    for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();
+        it!=_m_parts.end(); it++)
+      (*it)->checkConsistency();
+  else
+    _m->checkConsistency();
 }
 
 void MEDFileUMeshAggregateCompute::clearNonDiscrAttributes() const

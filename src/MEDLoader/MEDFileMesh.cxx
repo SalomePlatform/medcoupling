@@ -2489,6 +2489,97 @@ bool MEDFileUMesh::isEqual(const MEDFileMesh *other, double eps, std::string& wh
 }
 
 /*!
+ * Check that the current object MEDFileUMesh is consistent. This does not check the optional renumbering of
+ * nodes and cells. This last item is important for SMESH, see checkSMESHConsistency().
+ * \throw if any internal part (i.e. mesh sub-levels and single geometric-type meshes) are inconsistent
+ * \throw if internal family array is inconsistent
+ * \sa checkSMESHConsistency()
+ */
+void MEDFileUMesh::checkConsistency() const
+{
+  if(!_coords || !_coords->isAllocated())
+    {
+      if(!_ms.size())
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): coords are null but some mesh parts are present!");
+      if (!_fam_coords)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): coords are null but not the internal node family array!");
+      if (!_num_coords || !_rev_num_coords)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): coords are null but not the internal node numbering array!");
+    }
+  else
+    {
+      int nbCoo = _coords->getNumberOfTuples();
+      if (_fam_coords)
+        _fam_coords->checkNbOfTuplesAndComp(nbCoo,1,"MEDFileUMesh::checkConsistency(): inconsistent internal node family array!");
+      if (_num_coords)
+        {
+          _num_coords->checkNbOfTuplesAndComp(nbCoo,1,"MEDFileUMesh::checkConsistency(): inconsistent internal node numbering array!");
+          int pos;
+          int maxValue=_num_coords->getMaxValue(pos);
+          if (!_rev_num_coords || _rev_num_coords->getNumberOfTuples() != (maxValue+1))
+            throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): inconsistent internal revert node numbering array!");
+        }
+      if ((_num_coords && !_rev_num_coords) || (!_num_coords && _rev_num_coords))
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): inconsistent internal numbering arrays (one is null)!");
+      if (_num_coords && !_num_coords->hasUniqueValues())
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): inconsistent internal node numbering array: duplicates found!");
+      if (_name_coords)
+        _name_coords->checkNbOfTuplesAndComp(nbCoo,MED_SNAME_SIZE,"MEDFileUMesh::checkConsistency(): inconsistent internal coord name array!");
+      // Now sub part check:
+      for (std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();
+          it != _ms.end(); it++)
+        (*it)->checkConsistency();
+    }
+}
+
+/**
+ * Same as checkConsistency() but also checks that optional entities (edges, faces, volumes) numbers are
+ * consistent, i.e. the numbering is either set to null for all sub-levels (thus letting SMESH numbers the
+ * entities as it likes), or non overlapping between all sub-levels.
+ * \throw if the condition above is not respected
+ */
+void MEDFileUMesh::checkSMESHConsistency() const
+{
+  checkConsistency();
+  // For all sub-levels, numbering is either always null or with void intersection:
+  if (_ms.size())
+    {
+      std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();
+      std::vector< const DataArrayInt * > v;
+      bool voidOrNot = ((*it)->_num == 0);
+      for (it++; it != _ms.end(); it++)
+        if( ((*it)->_num == 0) != voidOrNot )
+          throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): inconsistent numbering between mesh sub-levels!");
+        else if (!voidOrNot)
+          v.push_back((*it)->_num);
+      if (!voidOrNot)
+        {
+          // don't forget the 1st one:
+          v.push_back(_ms[0]->_num);
+          MCAuto<DataArrayInt> inter = DataArrayInt::BuildIntersection(v);
+          if (inter->getNumberOfTuples())
+            throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): overlapping entity numbering between mesh sub-levels!");
+        }
+    }
+}
+
+/**
+ * Reset optional node and cell numbering for all sub levels in this. This particularly useful to make
+ * sure SMESH will handle the mesh correctly, as it tries to use those numbers if given.
+ */
+void MEDFileUMesh::clearNodeAndCellNumbers()
+{
+  _num_coords = 0;
+  _rev_num_coords = 0;
+  for (std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();
+      it != _ms.end(); it++)
+    {
+      (*it)->_num = 0;
+      (*it)->_rev_num = 0;
+    }
+}
+
+/*!
  * Clears redundant attributes of incorporated data arrays.
  */
 void MEDFileUMesh::clearNonDiscrAttributes() const
@@ -3694,12 +3785,15 @@ void MEDFileUMesh::optimizeFamilies()
  *  other side of the group is no more a neighbor)
  *   - finally, the connectivity of (part of) the top level-cells bordering the group is also modified so that some cells
  *  bordering the newly created boundary use the newly computed nodes.
+ *  Finally note that optional cell numbers are also affected by this method and might become invalid for SMESH.
+ *  Use clearNodeAndCellNumbers() afterwards to ensure a proper SMESH loading.
  *
  *  \param[in] grpNameM1 name of the (-1)-level group defining the boundary
  *  \param[out] nodesDuplicated ids of the initial nodes which have been duplicated (and whose copy is put at the end of
  *  the coord array)
  *  \param[out] cellsModified ids of the cells whose connectivity has been modified (to use the newly created nodes)
  *  \param[out] cellsNotModified ids of the rest of cells bordering the new boundary whose connectivity remains unchanged.
+ *  \sa clearNodeAndCellNumbers()
  */
 void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated,
                                            DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
@@ -3793,6 +3887,7 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
       newFam->setPartOfValuesSimple1(0,nbNodes,newNbOfNodes,1,0,1,1);
       _fam_coords=newFam;
     }
+
   nodesDuplicated=nodeIdsToDuplicate.retn();
   cellsModified=cellsToModifyConn0.retn();
   cellsNotModified=cellsToModifyConn1.retn();

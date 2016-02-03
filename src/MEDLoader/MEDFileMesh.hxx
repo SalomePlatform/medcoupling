@@ -255,6 +255,9 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileMesh *deepCopy() const;
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT void checkConsistency() const;
+    MEDLOADER_EXPORT void checkSMESHConsistency() const;
+    MEDLOADER_EXPORT void clearNodeAndCellNumbers();
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
     MEDLOADER_EXPORT void setName(const std::string& name);
     //
