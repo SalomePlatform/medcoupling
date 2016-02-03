@@ -522,6 +522,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *buildPermArrPerLevel() const;
     MEDCOUPLING_EXPORT bool isIota(int sizeExpected) const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
+    MEDCOUPLING_EXPORT bool hasUniqueValues() const;
     MEDCOUPLING_EXPORT DataArrayInt *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
     MEDCOUPLING_EXPORT void transpose();

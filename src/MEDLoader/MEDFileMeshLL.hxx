@@ -186,6 +186,7 @@ namespace MEDCoupling
     MEDFileUMeshAggregateCompute deepCopy(DataArrayDouble *coords) const;
     void shallowCpyMeshes();
     bool isEqual(const MEDFileUMeshAggregateCompute& other, double eps, std::string& what) const;
+    void checkConsistency() const;
     void clearNonDiscrAttributes() const;
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
     bool empty() const;
@@ -211,6 +212,7 @@ namespace MEDCoupling
   class MEDFileUMeshSplitL1 : public RefCountObject
   {
     friend class MEDFileUMeshPermCompute;
+    friend class MEDFileUMesh;
   public:
     MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other);
     MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const std::string& mName, int id);
@@ -222,6 +224,7 @@ namespace MEDCoupling
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileUMeshSplitL1 *shallowCpyUsingCoords(DataArrayDouble *coords) const;
     MEDFileUMeshSplitL1 *deepCopy(DataArrayDouble *coords) const;
+    void checkConsistency() const;
     void setCoords(DataArrayDouble *coords);
     bool isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const;
     void clearNonDiscrAttributes() const;

@@ -4852,6 +4852,103 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertTrue(mm.getHiddenCppPointer()==mm2.getHiddenCppPointer()) # optimization
       pass
 
+    def testCheckCoherency(self):
+      m2 = MEDCouplingUMesh("2d", 2)
+      m2.setCoords(DataArrayDouble([(0.0, 1.0)] * 4, 4,2))  # whatever
+      m2.setConnectivity(DataArrayInt([NORM_TRI3, 0,1,2,NORM_TRI3, 1,2,3]), DataArrayInt(([0,4,8])))
+      m1 , _, _ , _, _ = m2.buildDescendingConnectivity()
+      mum = MEDFileUMesh()
+      mum.setMeshAtLevel(0, m2)
+      mum.setMeshAtLevel(-1, m1)
+      mum.checkConsistency()
+      mum2 = mum.deepCopy()
+
+      # Nodes
+      arr = DataArrayInt([2]*4)
+      mum.setFamilyFieldArr(1, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      arr = DataArrayInt([2]*4)
+      mum.setRenumFieldArr(1, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      mum.setRenumFieldArr(1, DataArrayInt([2]*4))
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      arr = DataArrayAsciiChar(['tutu           x']*4)
+      mum.setNameFieldAtLevel(1, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+
+      # 2D
+      mum=mum2; mum2=mum.deepCopy();
+      arr = DataArrayInt([2]*2)
+      mum.setFamilyFieldArr(0, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      arr = DataArrayInt([2]*2)
+      mum.setRenumFieldArr(0, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      mum.setRenumFieldArr(0, DataArrayInt([2]*2))
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      arr = DataArrayAsciiChar(['tutu           x']*2)
+      mum.setNameFieldAtLevel(0, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+
+      # 1D
+      mum=mum2; mum2=mum.deepCopy();
+      arr = DataArrayInt([2]*5)
+      mum.setFamilyFieldArr(-1, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      arr = DataArrayInt([2]*5)
+      mum.setRenumFieldArr(-1, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      mum.setRenumFieldArr(-1, DataArrayInt([2]*5))
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+      mum=mum2; mum2=mum.deepCopy();
+      arr = DataArrayAsciiChar(['tutu           x']*5)
+      mum.setNameFieldAtLevel(-1, arr); arr.reAlloc(35);
+      self.assertRaises(InterpKernelException, mum.checkConsistency)
+
+    def testCheckSMESHConsistency(self):
+      m2 = MEDCouplingUMesh("2d", 2)
+      m2.setCoords(DataArrayDouble([(0.0, 1.0)] * 4, 4,2))  # whatever
+      m2.setConnectivity(DataArrayInt([NORM_TRI3, 0,1,2,NORM_TRI3, 1,2,3]), DataArrayInt(([0,4,8])))
+      m1 , _, _ , _, _ = m2.buildDescendingConnectivity()
+      mum = MEDFileUMesh()
+      mum.setMeshAtLevel(0, m2)
+      mum.setMeshAtLevel(-1, m1)
+      mum.checkConsistency()
+      mum.checkSMESHConsistency()
+      n2 = DataArrayInt(m2.getNumberOfCells(), 1); n2.iota(1)
+      n1 = DataArrayInt(m1.getNumberOfCells(), 1); n1.iota(1)
+      mum.setRenumFieldArr(0, n2)
+      mum.setRenumFieldArr(-1, n1)
+      self.assertRaises(InterpKernelException, mum.checkSMESHConsistency)
+      mum.setRenumFieldArr(-1, n1+100)
+      mum.checkSMESHConsistency()
+      pass
+
+    def testClearNodeAndCellNumbers(self):
+      m2 = MEDCouplingUMesh("2d", 2)
+      m2.setCoords(DataArrayDouble([(0.0, 1.0)] * 4, 4,2))  # whatever
+      m2.setConnectivity(DataArrayInt([NORM_TRI3, 0,1,2,NORM_TRI3, 1,2,3]), DataArrayInt(([0,4,8])))
+      m1 , _, _ , _, _ = m2.buildDescendingConnectivity()
+      mum = MEDFileUMesh()
+      mum.setMeshAtLevel(0, m2)
+      mum.setMeshAtLevel(-1, m1)
+      mum.checkConsistency()
+      n2 = DataArrayInt(m2.getNumberOfCells(), 1); n2.iota(1)
+      n1 = DataArrayInt(m1.getNumberOfCells(), 1); n1.iota(1)
+      mum.setRenumFieldArr(0, n2)
+      mum.setRenumFieldArr(-1, n1)
+      mum.clearNodeAndCellNumbers()
+      mum.checkSMESHConsistency()
+      pass
+
     pass
 
 if __name__ == "__main__":
