@@ -34,7 +34,9 @@ SET(admlocal_cmake_DATA
     FindSalomeMetis.cmake
     FindSalomeMPI.cmake
     FindSalomeParMetis.cmake
-    FindSalomePython.cmake
+#    FindSalomePython.cmake
+    FindSalomePythonLibs.cmake
+    FindSalomePythonInterp.cmake
     FindSalomeScotch.cmake
     FindSalomeSphinx.cmake
     FindSalomeSWIG.cmake
