@@ -6487,9 +6487,19 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getAspectRatioField() const
 
 /*!
  * Creates a new MEDCouplingFieldDouble holding Warping factor values of all
- * cells of \a this 2D mesh in 3D space. Currently cells of the following types are
+ * cells of \a this 2D mesh in 3D space. It is a measure of the "planarity" of 2D cell
+ * in 3D space. Currently only cells of the following types are
  * treated: INTERP_KERNEL::NORM_QUAD4.
  * For a cell of other type an exception is thrown.
+ * The warp field is computed as follows: let (a,b,c,d) be the points of the quad.
+ * Defining
+ * \f$t=\vec{da}\times\vec{ab}\f$,
+ * \f$u=\vec{ab}\times\vec{bc}\f$
+ * \f$v=\vec{bc}\times\vec{cd}\f$
+ * \f$w=\vec{cd}\times\vec{da}\f$, the warp is defined as \f$W^3\f$ with
+ *  \f[
+ *     W=min(\frac{t}{|t|}\cdot\frac{v}{|v|}, \frac{u}{|u|}\cdot\frac{w}{|w|})
+ *  \f]
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on
  *          cells and one time, lying on \a this mesh. The caller is to delete this
  *          field using decrRef() as it is no more needed. 
@@ -6552,7 +6562,9 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getWarpField() const
  * The skew is computed as follow for a quad with points (a,b,c,d): let
  * \f$u=\vec{ab}+\vec{dc}\f$ and \f$v=\vec{ac}+\vec{bd}\f$
  * then the skew is computed as:
- *  \f$s=\frac{u}{|u|}\cdot\frac{v}{|v|}\f$
+ *  \f[
+ *    s=\frac{u}{|u|}\cdot\frac{v}{|v|}
+ *  \f]
  *
  * For a cell of other type an exception is thrown.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on
