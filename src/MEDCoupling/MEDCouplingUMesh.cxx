@@ -1277,6 +1277,8 @@ void MEDCouplingUMesh::convertExtrudedPolyhedra()
  * \warning Cells of the result mesh are \b not sorted by geometric type, hence,
  *          to write this mesh to the MED file, its cells must be sorted using
  *          sortCellsInMEDFileFrmt().
+ * \warning Cells (and most notably polyhedrons) must be correctly oriented for this to work
+ *          properly. See orientCorrectlyPolyhedrons() and arePolyhedronsNotCorrectlyOriented().
  * \return \c true if at least one cell has been converted, \c false else. In the
  *         last case the nodal connectivity remains unchanged.
  * \throw If the coordinates array is not set.
@@ -1898,7 +1900,7 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, int startCellId, const D
 /*!
  * Checks if \a this mesh includes all cells of an \a other mesh, and returns an array
  * giving for each cell of the \a other an id of a cell in \a this mesh. A value larger
- * than \a other->getNumberOfCells() in the returned array means that there is no
+ * than \a this->getNumberOfCells() in the returned array means that there is no
  * corresponding cell in \a this mesh.
  * It is expected that \a this and \a other meshes share the same node coordinates
  * array, if it is not so an exception is thrown. 

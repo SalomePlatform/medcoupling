@@ -3893,7 +3893,10 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
   cellsNotModified=cellsToModifyConn1.retn();
 }
 
-/*!
+/*! Similar to MEDCouplingUMesh::unPolyze():  converts all polygons (if \a this is a 2D mesh) or polyhedrons
+ * (if \a this is a 3D mesh) to cells of classical types. The cells remain correctly sorted by geometric type
+ * in this method.
+ *
  * \param [out] oldCode retrieves the distribution of types before the call if true is returned
  * \param [out] newCode etrieves the distribution of types after the call if true is returned
  * \param [out] o2nRenumCell tells for **all levels** the old 2 new renumbering of cells.
