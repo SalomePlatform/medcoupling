@@ -473,6 +473,7 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ##
   ## 0. Initialization
   ##
+  PARSE_ARGUMENTS(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS "ENVVAR" "" ${ARGN})
   
   # Package name, upper case
   STRING(TOUPPER ${pkg} pkg_UC)
@@ -480,22 +481,25 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ##
   ## 1. Load environment or any previously detected root dir for the package
   ##
-  IF(DEFINED ENV{${pkg_UC}_ROOT_DIR})
-    FILE(TO_CMAKE_PATH "$ENV{${pkg_UC}_ROOT_DIR}" _${pkg_UC}_ROOT_DIR_ENV)
+  SET(_envvar ${pkg_UC}_ROOT_DIR)
+  IF(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS_ENVVAR)
+    SET(_envvar "${SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS_ENVVAR}")
+  ENDIF()
+  IF(DEFINED ENV{${_envvar}})
+    FILE(TO_CMAKE_PATH "$ENV{${_envvar}}" _${pkg_UC}_ROOT_DIR_ENV)
     SET(_dflt_value "${_${pkg_UC}_ROOT_DIR_ENV}")
   ELSE()
     # will be blank if no package was previously loaded:
     SET(_dflt_value "${${pkg_UC}_ROOT_DIR_EXP}")
   ENDIF()
-
   # Detect if the variable has been set on the command line or elsewhere:
-  IF(DEFINED ${pkg_UC}_ROOT_DIR)
+  IF(DEFINED ${_envvar})
      SET(_var_already_there TRUE)
   ELSE()
      SET(_var_already_there FALSE)
   ENDIF()
   #   Make cache entry 
-  SET(${pkg_UC}_ROOT_DIR "${_dflt_value}" CACHE PATH "Path to ${pkg_UC} directory")
+  SET(${_envvar} "${_dflt_value}" CACHE PATH "Path to ${pkg_UC} directory")
 
   ##
   ## 2. Find package - try CONFIG mode first (i.e. looking for XYZ-config.cmake)
@@ -503,8 +507,8 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   
   # Override the variable - don't append to it, as it would give precedence
   # to what was stored there before!  
-  IF(DEFINED ${pkg_UC}_ROOT_DIR)
-    SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
+  IF(DEFINED ${_envvar})
+    SET(CMAKE_PREFIX_PATH "${${_envvar}}")
   ENDIF()
     
   # Try find_package in config mode. This has the priority, but is 
@@ -531,11 +535,11 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
     IF(NOT Salome${pkg}_FIND_QUIETLY)
       IF(Salome${pkg}_FIND_REQUIRED)
          MESSAGE(FATAL_ERROR "Package ${pkg} couldn't be found - did you set the corresponing root dir correctly? "
-         "It currently contains ${pkg_UC}_ROOT_DIR=${${pkg_UC}_ROOT_DIR}  "
+         "It currently contains ${_envvar}=${${_envvar}}  "
          "Append -DSALOME_CMAKE_DEBUG=ON on the command line if you want to see the original CMake error.")
       ELSE()
          MESSAGE(WARNING "Package ${pkg} couldn't be found - did you set the corresponing root dir correctly? "
-         "It currently contains ${pkg_UC}_ROOT_DIR=${${pkg_UC}_ROOT_DIR}  "
+         "It currently contains ${_envvar}=${${_envvar}}  "
          "Append -DSALOME_CMAKE_DEBUG=ON on the command line if you want to see the original CMake error.")
       ENDIF()
     ENDIF()
@@ -568,19 +572,19 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
     ##
     ## 4. Warn if CMake found something not located under ENV(XYZ_ROOT_DIR)
     ##
-    IF(DEFINED ENV{${pkg_UC}_ROOT_DIR})
+    IF(DEFINED ENV{${_envvar}})
       SALOME_CHECK_EQUAL_PATHS(_res "${_tmp_ROOT_DIR}" "${_${pkg_UC}_ROOT_DIR_ENV}")
       IF(NOT _res)
         MESSAGE(WARNING "${pkg} was found, but not at the path given by the "
-            "environment ${pkg_UC}_ROOT_DIR! Is the variable correctly set? "
+            "environment ${_envvar}! Is the variable correctly set? "
             "The two paths are: ${_tmp_ROOT_DIR} and: ${_${pkg_UC}_ROOT_DIR_ENV}")
         
       ELSE()
-        MESSAGE(STATUS "${pkg} found directory matches what was specified in the ${pkg_UC}_ROOT_DIR variable, all good!")    
+        MESSAGE(STATUS "${pkg} found directory matches what was specified in the ${_envvar} variable, all good!")    
       ENDIF()
     ELSE()
         IF(NOT _var_already_there) 
-          MESSAGE(STATUS "Variable ${pkg_UC}_ROOT_DIR was not explicitly defined. "
+          MESSAGE(STATUS "Variable ${_envvar} was not explicitly defined. "
           "An installation was found anyway: ${_tmp_ROOT_DIR}")
         ENDIF()
     ENDIF()
@@ -602,7 +606,7 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
     ##
     ## 6. Save the detected installation
     ##
-    SET(${pkg_UC}_ROOT_DIR "${_tmp_ROOT_DIR}")
+    SET(${_envvar} "${_tmp_ROOT_DIR}")
      
   ELSE()
     MESSAGE(STATUS "${pkg} was not found.")  
