@@ -5446,6 +5446,75 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(DataArrayDouble([0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3]),1e-14))
         pass
 
+    def test41(self):
+        """This test focused on bug revealed with // load of multi nodes field with no profile. The error was the first node field (dataarray partdef) change the partdef for the others ! """
+        fname="ForMEDReader41.med"
+        meshName="mesh"
+        nx=5
+        arr=DataArrayDouble(nx) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m=m.buildUnstructured() ; m.setName(meshName)
+        renum=DataArrayInt.Aggregate([DataArrayInt.Range(0,m.getNumberOfCells(),2),DataArrayInt.Range(1,m.getNumberOfCells(),2)])
+        m=m[renum] # important think to renum if not we see nothing. The goal if to have dynamic_cast<DataPartDefinition>!=NULL
+        mm=MEDFileUMesh() ; mm[0]=m
+        mm.write(fname,2)
+        f0=MEDCouplingFieldDouble(ON_NODES) ; f0.setMesh(m) ; f0.setName("aaa")
+        arr0=DataArrayDouble(nx*nx) ; arr0.iota() ; f0.setArray(arr0)
+        ff0=MEDFileField1TS() ; ff0.setFieldNoProfileSBT(f0)
+        f1=MEDCouplingFieldDouble(ON_NODES) ; f1.setMesh(m) ; f1.setName("bbb")
+        arr1=DataArrayDouble(nx*nx) ; arr1.iota() ; arr1+=100 ; f1.setArray(arr1)
+        ff1=MEDFileField1TS() ; ff1.setFieldNoProfileSBT(f1)
+        ff0.write(fname,0) ; ff1.write(fname,0)
+        # 
+        a=8 ; b=16
+        ms=MEDFileMeshes()
+        mm=MEDFileUMesh.LoadPartOf(fname,meshName,[NORM_QUAD4],[a,b,1],-1,-1)
+        ms.pushMesh(mm)
+        ms[0].zipCoords()
+        ms.cartesianizeMe()
+        fields=MEDFileFields.LoadPartOf(fname,False,ms);
+        fields.removeFieldsWithoutAnyTimeStep()
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    if itmp.presenceOfMultiDiscPerGeoType():
+                        tmp2=itmp.splitMultiDiscrPerGeoTypes()
+                        for iii,itmp2 in enumerate(tmp2):
+                            name="%s_%i"%(itmp2.getName(),iii)
+                            itmp2.setName(name)
+                            allFMTSLeavesToDisplay2.append(itmp2)
+                            pass
+                        pass
+                    else:
+                        allFMTSLeavesToDisplay2.append(itmp)
+                        pass
+                    pass
+                allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+                pass
+        # GO for reading in MEDReader, by not loading all. Mesh is fully loaded but not fields values
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
+        mst=MEDFileMeshStruct.New(ms[0])
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        #
+        f2=allFMTSLeavesPerCommonSupport[0][0][0][0]
+        fsst=MEDFileField1TSStructItem.BuildItemFrom(f2,mst)
+        f2.loadArraysIfNecessary()
+        v0=mml.buildDataArray(fsst,fields,f2.getUndergroundDataArray())
+        assert(v0.isEqual(DataArrayDouble([1,2,3,4,6,7,8,9,11,12,13,14,16,17,18,19,21,22,23,24]),1e-12))
+        #
+        f2=allFMTSLeavesPerCommonSupport[0][0][1][0]
+        fsst=MEDFileField1TSStructItem.BuildItemFrom(f2,mst)
+        f2.loadArraysIfNecessary()
+        v1=mml.buildDataArray(fsst,fields,f2.getUndergroundDataArray())
+        assert(v1.isEqual(DataArrayDouble([101,102,103,104,106,107,108,109,111,112,113,114,116,117,118,119,121,122,123,124]),1e-12))
+        pass
+
     pass
 
 if __name__ == "__main__":
