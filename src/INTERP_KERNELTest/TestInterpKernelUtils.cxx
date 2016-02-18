@@ -40,7 +40,7 @@ namespace INTERP_TEST
       resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
       resourceFile += "/share/resources/med/";
       resourceFile += filename;
-      std::ifstream my_file(resourceFile);
+      std::ifstream my_file(resourceFile.c_str());
       if (my_file.good())
         return resourceFile;
     }
@@ -51,7 +51,7 @@ namespace INTERP_TEST
       resourceFile += "../";
     resourceFile += "resources/";
     resourceFile += filename;
-    std::ifstream my_file(resourceFile);
+    std::ifstream my_file(resourceFile.c_str());
     if (!my_file.good())
       {
         std::stringstream ss;

@@ -94,7 +94,7 @@ std::string MEDPARTITIONERTest::getPartitionerExe() const
     {
       execName=getenv("MEDCOUPLING_ROOT_DIR");  //.../INSTALL/MED
       execName+="/bin/medpartitioner";
-      std::ifstream my_file(execName);
+      std::ifstream my_file(execName.c_str());
       if (my_file.good())
         return execName;
     }
