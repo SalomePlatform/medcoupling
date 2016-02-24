@@ -22,6 +22,7 @@
 from MEDLoader import *
 import unittest
 from math import pi,e,sqrt
+from distutils.version import StrictVersion
 
 class MEDLoaderTest4(unittest.TestCase):
     """
@@ -5115,6 +5116,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @unittest.skipUnless(StrictVersion(MEDLoader.MEDFileVersionStr())>=StrictVersion("3.2.0"),"requires at least 3.2.0 MED file version")
     def test37(self):
         """ Introduction of non cartesian meshes management. Here cylindrical."""
         fname="ForMEDReader37.med"
@@ -5183,7 +5185,8 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(DataArrayDouble([0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3]),1e-14))
             pass
         pass
-
+    
+    @unittest.skipUnless(StrictVersion(MEDLoader.MEDFileVersionStr())>=StrictVersion("3.2.0"),"requires at least 3.2.0 MED file version")
     def test38(self):
         """ Introduction of non cartesian meshes management. Here spherical."""
         fname="ForMEDReader38.med"
