@@ -86,6 +86,7 @@ IF(NOT MEDCOUPLING_MICROMED)
 ENDIF(NOT MEDCOUPLING_MICROMED)
 
 ADD_LIBRARY(InterpKernelTestUtils SHARED ${InterpKernelTestUtils_SOURCES})
+TARGET_LINK_LIBRARIES(InterpKernelTestUtils interpkernel)
 ADD_LIBRARY(InterpKernelTest SHARED ${InterpKernelTest_SOURCES})
 
 SET(InterpKernelTest_LIBS medcoupling interpkernel ${CPPUNIT_LIBRARIES})
