@@ -5064,7 +5064,7 @@ class MEDLoaderTest3(unittest.TestCase):
 
     def testCMeshSetFamilyFieldArrNull(self):
       meshName="mesh"
-      fname="file.med"
+      fname="Pyfile99.med"
       arrX=DataArrayDouble([0,1,2,3])
       arrY=DataArrayDouble([0,1,2])
       m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY) ; m.setName(meshName)
