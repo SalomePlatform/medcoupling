@@ -5301,22 +5301,25 @@ void MEDFileStructuredMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayI
   {
     case 0:
       {
-        int nbCells=mesh->getNumberOfCells();
-        famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of cells of mesh !");
+        int nbCells(mesh->getNumberOfCells());
+        if(famArr)
+          famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of cells of mesh !");
         _fam_cells=famArr;
         break;
       }
     case 1:
       {
-        int nbNodes=mesh->getNumberOfNodes();
-        famArr->checkNbOfTuplesAndComp(nbNodes,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of nodes of mesh !");
+        int nbNodes(mesh->getNumberOfNodes());
+        if(famArr)
+          famArr->checkNbOfTuplesAndComp(nbNodes,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of nodes of mesh !");
         _fam_nodes=famArr;
         break;
       }
     case -1:
       {
-        int nbCells=mesh->getNumberOfCellsOfSubLevelMesh();
-        famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of faces of mesh !");
+        int nbCells(mesh->getNumberOfCellsOfSubLevelMesh());
+        if(famArr)
+          famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of faces of mesh !");
         _fam_faces=famArr;
         break;
       }
