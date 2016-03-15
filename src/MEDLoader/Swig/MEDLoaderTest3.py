@@ -5062,6 +5062,34 @@ class MEDLoaderTest3(unittest.TestCase):
       mum.checkSMESHCoherency()
       pass
 
+    def testCMeshSetFamilyFieldArrNull(self):
+      meshName="mesh"
+      fname="Pyfile99.med"
+      arrX=DataArrayDouble([0,1,2,3])
+      arrY=DataArrayDouble([0,1,2])
+      m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY) ; m.setName(meshName)
+      mm=MEDFileCMesh() ; mm.setMesh(m)
+      famCellIds=DataArrayInt([0,-2,-2,-1,-2,0])
+      famNodeIds=DataArrayInt([0,0,0,3,4,1,2,7,2,1,0,0])
+      mm.setFamilyFieldArr(0,famCellIds)
+      mm.setFamilyFieldArr(1,famNodeIds)
+      mm.write(fname,2)
+      mm=MEDFileMesh.New(fname)
+      self.assertTrue(mm.getFamilyFieldAtLevel(0) is not None)
+      self.assertTrue(mm.getFamilyFieldAtLevel(1) is not None)
+      mm.setFamilyFieldArr(0,None)#<- bug was here
+      mm.setFamilyFieldArr(1,None)#<- bug was here
+      self.assertTrue(mm.getFamilyFieldAtLevel(0) is None)
+      self.assertTrue(mm.getFamilyFieldAtLevel(1) is None)
+      mm3=mm.deepCpy()
+      self.assertTrue(mm3.getFamilyFieldAtLevel(0) is None)
+      self.assertTrue(mm3.getFamilyFieldAtLevel(1) is None)
+      mm.write(fname,2)
+      mm2=MEDFileMesh.New(fname)
+      self.assertTrue(mm2.getFamilyFieldAtLevel(0) is None)
+      self.assertTrue(mm2.getFamilyFieldAtLevel(1) is None)
+      pass
+
     pass
 
 if __name__ == "__main__":
