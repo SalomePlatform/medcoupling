@@ -500,6 +500,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
           dpd->checkCoherency();
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> myIds(dpd->toDAI());
           int a(myIds->getMinValueInArray()),b(myIds->getMaxValueInArray());
+          myIds=myIds->deepCpy();// WARNING deep copy here because _pd is modified by applyLin !!!
           myIds->applyLin(1,-a);
           int nbOfEltsToLoad(b-a+1);
           med_filter filter=MED_FILTER_INIT;
