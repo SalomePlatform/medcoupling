@@ -356,3 +356,31 @@ int MEDFileFieldsgetitemSingleTS__(const MEDFileFields *self, PyObject *obj) thr
   else
     throw INTERP_KERNEL::Exception("MEDFileFields::__getitem__ : only integer or string with fieldname supported !");
 }
+
+void convertToMapIntDataArrayInt(PyObject *pyMap, std::map<int, MCAuto<DataArrayInt> >& cppMap)
+{
+  if(!PyDict_Check(pyMap))
+    throw INTERP_KERNEL::Exception("convertToMapIntDataArrayInt : input is not a python map !");
+  PyObject *key, *value;
+  Py_ssize_t pos(0);
+  cppMap.clear();
+  while (PyDict_Next(pyMap,&pos,&key,&value))
+    {
+      if(!PyInt_Check(key))
+        throw INTERP_KERNEL::Exception("convertToMapIntDataArrayInt : keys in map must be PyInt !");
+      long k(PyInt_AS_LONG(key));
+      void *argp(0);
+      int status(SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0));
+      if(!SWIG_IsOK(status))
+        {
+          std::ostringstream oss; oss << "convertToMapIntDataArrayInt : values in map must be DataArrayInt !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      DataArrayInt *arg(reinterpret_cast<DataArrayInt*>(argp));
+      MCAuto<DataArrayInt> arg2(arg);
+      if(arg)
+        arg->incrRef();
+      cppMap[k]=arg2;
+    }
+}
+

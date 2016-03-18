@@ -146,6 +146,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFields::partOfThisLyingOnSpecifiedTimeSteps;
 %newobject MEDCoupling::MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps;
 %newobject MEDCoupling::MEDFileFields::__iter__;
+%newobject MEDCoupling::MEDFileFields::extractPart;
 
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::deepCopy;
@@ -154,6 +155,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::getTimeStep;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::getTimeStepGivenTime;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::__iter__;
+%newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::extractPart;
 %newobject MEDCoupling::MEDFileFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileFieldMultiTS::LoadSpecificEntities;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getFieldAtLevel;
@@ -177,6 +179,8 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtLevelOld;
 %newobject MEDCoupling::MEDFileField1TS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileField1TS::convertToInt;
+%newobject MEDCoupling::MEDFileField1TS::extractPart;
+
 %newobject MEDCoupling::MEDFileIntField1TS::New;
 %newobject MEDCoupling::MEDFileIntField1TS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileIntField1TS::convertToDouble;
@@ -2102,6 +2106,13 @@ namespace MEDCoupling
            PyTuple_SetItem(ret,1,elt);
            return ret;
          }
+
+         MEDFileField1TS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const
+         {
+           std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+           convertToMapIntDataArrayInt(extractDef,extractDefCpp);
+           return self->extractPart(extractDefCpp,mm);
+         }
        }
   };
 
@@ -2546,6 +2557,13 @@ namespace MEDCoupling
             convertFromPyObjVectorOfObj<MEDCoupling::MEDFileAnyTypeField1TS *>(li,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeField1TS,"MEDFileAnyTypeField1TS",tmp);
             self->pushBackTimeSteps(tmp);
           }
+      }
+
+      MEDFileAnyTypeFieldMultiTS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const
+      {
+        std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+        convertToMapIntDataArrayInt(extractDef,extractDefCpp);
+        return self->extractPart(extractDefCpp,mm);
       }
 
       static PyObject *MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -3053,6 +3071,13 @@ namespace MEDCoupling
                if(!idsToRemove.empty())
                  self->destroyFieldsAtPos(&idsToRemove[0],&idsToRemove[0]+idsToRemove.size());
              }
+         }
+
+         MEDFileFields *extractPart(PyObject *extractDef, MEDFileMesh *mm) const throw(INTERP_KERNEL::Exception)
+         {
+           std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+           convertToMapIntDataArrayInt(extractDef,extractDefCpp);
+           return self->extractPart(extractDefCpp,mm);
          }
        }
   };
