@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -30,6 +30,10 @@ IF(EXISTS "${PYTHON_ROOT_DIR}" AND (NOT PYTHONLIBS_ROOT_DIR))
   # Extract sub-directory "paraview-x.xx":
   MESSAGE(STATUS "Setting PYTHONLIBS_ROOT_DIR to: ${PYTHON_ROOT_DIR}")
   SET(PYTHONLIBS_ROOT_DIR "${PYTHON_ROOT_DIR}" CACHE PATH "Path to PythonLibs directory")
+ENDIF()
+IF (SALOMEPYTHONINTERP_FOUND AND NOT "${PYTHON_VERSION_STRING}" STREQUAL "") 
+   # Trying to search libraries with same version as an interpreter version
+   SET(PythonLibs_FIND_VERSION ${PYTHON_VERSION_STRING})
 ENDIF()
 SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(PythonLibs PYTHON_INCLUDE_DIR 2)
 
