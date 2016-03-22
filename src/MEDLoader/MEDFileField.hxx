@@ -702,6 +702,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static int LocateField2(med_idt fid, const std::string& fileName, int fieldIdCFormat, bool checkFieldId, std::string& fieldName, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut);
     MEDLOADER_EXPORT static int LocateField(med_idt fid, const std::string& fileName, const std::string& fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut);
   public:
+    MEDLOADER_EXPORT virtual MEDFileAnyTypeField1TS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const = 0;
+  public:
     MEDLOADER_EXPORT virtual med_field_type getMEDFileFieldType() const = 0;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA *contentNotNullBase();
     MEDLOADER_EXPORT const MEDFileAnyTypeField1TSWithoutSDA *contentNotNullBase() const;
@@ -782,6 +784,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT DataArrayInt *getUndergroundDataArray() const;
   public:
     MEDLOADER_EXPORT static DataArrayInt *ReturnSafelyDataArrayInt(MCAuto<DataArray>& arr);
+  public:
+    MEDLOADER_EXPORT MEDFileIntField1TS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
   private:
     med_field_type getMEDFileFieldType() const { return MED_INT32; }
     const MEDFileIntField1TSWithoutSDA *contentNotNull() const;
@@ -986,7 +990,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::vector< std::vector< std::pair<int,int> > > getFieldSplitedByType(int iteration, int order, const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
     MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> getContent();
   public:
-    MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const = 0;
+    MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTS *buildNewEmpty() const = 0;
+    MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
   public:
     MEDLOADER_EXPORT std::vector<std::string> getPflsReallyUsed() const;
     MEDLOADER_EXPORT std::vector<std::string> getLocsReallyUsed() const;
@@ -1037,7 +1042,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT DataArrayDouble *getUndergroundDataArray(int iteration, int order) const;
     MEDLOADER_EXPORT DataArrayDouble *getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
   public:
-    MEDLOADER_EXPORT MEDFileFieldMultiTS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
+    MEDLOADER_EXPORT MEDFileFieldMultiTS *buildNewEmpty() const;
   private:
     const MEDFileFieldMultiTSWithoutSDA *contentNotNull() const;
     MEDFileFieldMultiTSWithoutSDA *contentNotNull();
@@ -1077,7 +1082,7 @@ namespace MEDCoupling
     //
     MEDLOADER_EXPORT DataArrayInt *getUndergroundDataArray(int iteration, int order) const;
   public:
-    MEDLOADER_EXPORT MEDFileIntFieldMultiTS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
+    MEDLOADER_EXPORT MEDFileIntFieldMultiTS *buildNewEmpty() const;
   private:
     const MEDFileIntFieldMultiTSWithoutSDA *contentNotNull() const;
     MEDFileIntFieldMultiTSWithoutSDA *contentNotNull();
