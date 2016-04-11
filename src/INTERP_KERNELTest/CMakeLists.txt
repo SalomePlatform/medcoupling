@@ -85,9 +85,9 @@ IF(NOT MEDCOUPLING_MICROMED)
   INSTALL(TARGETS PerfTest DESTINATION ${MEDCOUPLING_INSTALL_BINS})
 ENDIF(NOT MEDCOUPLING_MICROMED)
 
-ADD_LIBRARY(InterpKernelTestUtils SHARED ${InterpKernelTestUtils_SOURCES})
+ADD_LIBRARY(InterpKernelTestUtils ${InterpKernelTestUtils_SOURCES})
 TARGET_LINK_LIBRARIES(InterpKernelTestUtils interpkernel)
-ADD_LIBRARY(InterpKernelTest SHARED ${InterpKernelTest_SOURCES})
+ADD_LIBRARY(InterpKernelTest ${InterpKernelTest_SOURCES})
 
 SET(InterpKernelTest_LIBS medcoupling interpkernel ${CPPUNIT_LIBRARIES})
 IF(NOT MEDCOUPLING_MICROMED)

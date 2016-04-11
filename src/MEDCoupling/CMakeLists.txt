@@ -66,11 +66,11 @@ SET(medcouplingremapper_SOURCES
   MEDCouplingRemapper.cxx
   )
 
-ADD_LIBRARY(medcoupling SHARED ${medcoupling_SOURCES})
+ADD_LIBRARY(medcoupling ${medcoupling_SOURCES})
 TARGET_LINK_LIBRARIES(medcoupling interpkernel)
 INSTALL(TARGETS medcoupling EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
-ADD_LIBRARY(medcouplingremapper SHARED ${medcouplingremapper_SOURCES})
+ADD_LIBRARY(medcouplingremapper ${medcouplingremapper_SOURCES})
 TARGET_LINK_LIBRARIES(medcouplingremapper medcoupling)
 INSTALL(TARGETS medcouplingremapper EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
