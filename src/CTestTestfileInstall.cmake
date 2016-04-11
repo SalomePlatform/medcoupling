@@ -17,4 +17,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+SET(COMPONENT_NAME MEDCOUPLING)
+SET(TIMEOUT        500)
+
+SUBDIRS(INTERP_KERNELTest)
 SUBDIRS(MEDCoupling)
+SUBDIRS(MEDCoupling_Swig)
+SUBDIRS(MEDLoader)
+SUBDIRS(MEDLoader_Swig)
+SUBDIRS(MEDPartitioner)
+#SUBDIRS(ParaMEDMEM_Swig)
+#SUBDIRS(ParaMEDMEMTest)
+SUBDIRS(MEDPartitioner_Swig)
+SUBDIRS(RENUMBER_Swig)

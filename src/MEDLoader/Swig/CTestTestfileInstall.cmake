@@ -17,18 +17,20 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_TEST(MEDLoaderTest1_2_3 python MEDLoaderTest123.py)
-SET_TESTS_PROPERTIES(MEDLoaderTest1_2_3 PROPERTIES LABELS "${COMPONENT_NAME}")
+SET(TEST_NAMES
+  MEDLoaderTest123
+  MEDLoaderTest4
+  MEDLoaderExamplesTest
+  SauvLoaderTest
+  # if numpy is used
+  MEDLoaderCouplingTrainingSession
+)
 
-ADD_TEST(MEDLoaderTest4 python MEDLoaderTest4.py)
-SET_TESTS_PROPERTIES(MEDLoaderTest4 PROPERTIES LABELS "${COMPONENT_NAME}")
-
-ADD_TEST(MEDLoaderExamplesTest python MEDLoaderExamplesTest.py)
-SET_TESTS_PROPERTIES(MEDLoaderExamplesTest PROPERTIES LABELS "${COMPONENT_NAME}")
-
-ADD_TEST(SauvLoaderTest python SauvLoaderTest.py)
-SET_TESTS_PROPERTIES(SauvLoaderTest PROPERTIES LABELS "${COMPONENT_NAME}")
-
-# if numpy is used
-ADD_TEST(MEDLoaderCouplingTrainingSession python MEDLoaderCouplingTrainingSession.py)
-SET_TESTS_PROPERTIES(MEDLoaderCouplingTrainingSession PROPERTIES LABELS "${COMPONENT_NAME}")
+FOREACH(tfile ${TEST_NAMES})
+  SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
+  ADD_TEST(${TEST_NAME} python ${tfile}.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+    LABELS "${COMPONENT_NAME}"
+    TIMEOUT ${TIMEOUT}
+    )
+ENDFOREACH()

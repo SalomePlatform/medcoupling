@@ -17,8 +17,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_TEST(TestMEDLoader TestMEDLoader)
-SET_TESTS_PROPERTIES(TestMEDLoader PROPERTIES LABELS "${COMPONENT_NAME}")
+SET(TEST_NAMES
+  TestMEDLoader
+  TestSauvLoader
+)
 
-ADD_TEST(TestSauvLoader TestSauvLoader)
-SET_TESTS_PROPERTIES(TestSauvLoader PROPERTIES LABELS "${COMPONENT_NAME}")
+FOREACH(tfile ${TEST_NAMES})
+  SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
+  ADD_TEST(${TEST_NAME} ${tfile})
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+    LABELS "${COMPONENT_NAME}"
+    TIMEOUT ${TIMEOUT}
+    )
+ENDFOREACH()
