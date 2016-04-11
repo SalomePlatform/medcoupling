@@ -37,23 +37,23 @@ SET (MC_pyTestFiles
     MEDCouplingBasicsTest2.py
     MEDCouplingBasicsTest3.py
     MEDCouplingBasicsTest4.py
-    MEDCouplingBasicsTest5.py 
-    MEDCouplingRemapperTest.py 
-    MEDCouplingDataForTest.py 
-    MEDCouplingNumPyTest.py 
+    MEDCouplingBasicsTest5.py
+    MEDCouplingRemapperTest.py
+    MEDCouplingDataForTest.py
+    MEDCouplingNumPyTest.py
     MEDCouplingPickleTest.py
 )
 
 SET (MC_Swig_interf
-    MEDCoupling.i 
-    MEDCouplingCommon.i 
-    MEDCouplingRefCountObject.i 
-    MEDCouplingMemArray.i 
-    MEDCouplingFieldDiscretization.i 
-    MEDCouplingTimeDiscretization.i 
-    MEDCouplingFinalize.i 
-    MEDCouplingRemapper.i 
-    MEDCouplingTypemaps.i 
+    MEDCoupling.i
+    MEDCouplingCommon.i
+    MEDCouplingRefCountObject.i
+    MEDCouplingMemArray.i
+    MEDCouplingFieldDiscretization.i
+    MEDCouplingTimeDiscretization.i
+    MEDCouplingFinalize.i
+    MEDCouplingRemapper.i
+    MEDCouplingTypemaps.i
     MEDCouplingDataArrayTypemaps.i
 )
 
@@ -140,7 +140,7 @@ ENDIF(NUMPY_FOUND)
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDCoupling_Swig)
+SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDCoupling_Swig)
 LIST(APPEND MC_pyTestFiles MEDCouplingExamplesTest.py)
 INSTALL(FILES ${MC_pyTestFiles} DESTINATION ${TEST_INSTALL_DIRECTORY})
 

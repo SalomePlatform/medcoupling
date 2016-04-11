@@ -17,11 +17,17 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_TEST(TestMEDCoupling TestMEDCoupling)
-SET_TESTS_PROPERTIES(TestMEDCoupling PROPERTIES LABELS "${COMPONENT_NAME}")
+SET(TEST_NAMES
+  TestMEDCoupling
+  TestMEDCouplingRemapper
+  TestMEDCouplingExamples
+)
 
-ADD_TEST(TestMEDCouplingRemapper TestMEDCouplingRemapper)
-SET_TESTS_PROPERTIES(TestMEDCouplingRemapper PROPERTIES LABELS "${COMPONENT_NAME}")
-
-ADD_TEST(TestMEDCouplingExamples TestMEDCouplingExamples)
-SET_TESTS_PROPERTIES(TestMEDCouplingExamples PROPERTIES LABELS "${COMPONENT_NAME}")
+FOREACH(tfile ${TEST_NAMES})
+  SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
+  ADD_TEST(${TEST_NAME} ${tfile})
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+    LABELS "${COMPONENT_NAME}"
+    TIMEOUT ${TIMEOUT}
+    )
+ENDFOREACH()

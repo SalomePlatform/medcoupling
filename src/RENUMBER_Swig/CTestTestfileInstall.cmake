@@ -17,5 +17,15 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_TEST(MEDRenumberTest python MEDRenumberTest.py)
-SET_TESTS_PROPERTIES(MEDRenumberTest PROPERTIES LABELS "${COMPONENT_NAME}")
+SET(TEST_NAMES
+  MEDRenumberTest
+)
+
+FOREACH(tfile ${TEST_NAMES})
+  SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
+  ADD_TEST(${TEST_NAME} python ${tfile}.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+    LABELS "${COMPONENT_NAME}"
+    TIMEOUT ${TIMEOUT}
+    )
+ENDFOREACH()

@@ -102,22 +102,23 @@ ENDIF(NUMPY_FOUND)
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDLoader/Swig)
+SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDLoader_Swig)
 
-SET(MEDLOADER_TEST_FILES 
-    MEDLoaderDataForTest.py 
-    MEDLoaderTest1.py 
-    MEDLoaderTest2.py 
-    MEDLoaderTest3.py 
-    MEDLoaderTest4.py 
-    SauvLoaderTest.py 
-    MEDLoaderExamplesTest.py 
-    MEDLoaderCouplingTrainingSession.py 
-    CaseIO.py 
-    CaseReader.py 
-    CaseWriter.py 
-    VTKReader.py 
-    MEDLoaderSplitter.py 
+SET(MEDLOADER_TEST_FILES
+    MEDLoaderDataForTest.py
+    MEDLoaderTest123.py
+    MEDLoaderTest1.py
+    MEDLoaderTest2.py
+    MEDLoaderTest3.py
+    MEDLoaderTest4.py
+    SauvLoaderTest.py
+    MEDLoaderExamplesTest.py
+    MEDLoaderCouplingTrainingSession.py
+    CaseIO.py
+    CaseReader.py
+    CaseWriter.py
+    VTKReader.py
+    MEDLoaderSplitter.py
     medutilities.py
 )
 
