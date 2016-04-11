@@ -136,13 +136,13 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
       LIST(APPEND _all_pyo ${_pyo_file})
       ADD_CUSTOM_COMMAND(
            OUTPUT ${_pyc_file}
-           COMMAND ${PYTHON_EXECUTABLE} -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyc_file}' )"
+           COMMAND ${PYTHON_EXECUTABLE} -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyc_file}', doraise=True )"
            DEPENDS ${PREFIX}${file}
            VERBATIM
        )
       ADD_CUSTOM_COMMAND(
            OUTPUT ${_pyo_file}
-           COMMAND ${PYTHON_EXECUTABLE} -O -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyo_file}' )"
+           COMMAND ${PYTHON_EXECUTABLE} -O -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyo_file}', doraise=True )"
            DEPENDS ${PREFIX}${file}
            VERBATIM
        )
