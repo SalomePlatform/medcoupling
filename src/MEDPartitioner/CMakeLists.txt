@@ -136,7 +136,7 @@ ENDIF(${MEDCOUPLING_USE_MPI})
 
 ADD_DEFINITIONS(${medpartitionercpp_DEFINITIONS})
 
-ADD_LIBRARY(medpartitionercpp SHARED ${medpartitionercpp_SOURCES})
+ADD_LIBRARY(medpartitionercpp ${medpartitionercpp_SOURCES})
 TARGET_LINK_LIBRARIES(medpartitionercpp ${medpartitionercpp_LDFLAGS} ${PLATFORM_LIBS} ${PTHREAD_LIBS})
 INSTALL(TARGETS medpartitionercpp DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 

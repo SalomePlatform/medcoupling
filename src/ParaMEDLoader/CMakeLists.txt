@@ -41,7 +41,7 @@ SET(paramedloader_SOURCES
   ParaMEDFileMesh.cxx
   )
 
-ADD_LIBRARY(paramedloader SHARED ${paramedloader_SOURCES})
+ADD_LIBRARY(paramedloader ${paramedloader_SOURCES})
 TARGET_LINK_LIBRARIES(paramedloader paramedmem medloader ${PLATFORM_LIBS})
 INSTALL(TARGETS paramedloader EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 

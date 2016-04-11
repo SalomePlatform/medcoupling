@@ -61,7 +61,7 @@ SET(paramedmem_SOURCES
   ExplicitMapping.cxx
   )
 
-ADD_LIBRARY(paramedmem SHARED ${paramedmem_SOURCES})
+ADD_LIBRARY(paramedmem ${paramedmem_SOURCES})
 TARGET_LINK_LIBRARIES(paramedmem medcoupling ${MPI_LIBRARIES})
 INSTALL(TARGETS paramedmem EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
