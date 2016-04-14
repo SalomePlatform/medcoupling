@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -77,7 +77,7 @@ SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES UnitTestsResult)
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDCoupling)
+SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDCoupling)
 INSTALL(TARGETS TestMEDCoupling TestMEDCouplingRemapper TestMEDCouplingExamples DESTINATION ${TEST_INSTALL_DIRECTORY})
 
 INSTALL(FILES CTestTestfileInstall.cmake

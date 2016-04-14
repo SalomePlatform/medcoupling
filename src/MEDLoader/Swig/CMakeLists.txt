@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,11 +21,11 @@
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
-ADD_DEFINITIONS(${PYTHON_DEFINITIONS})
+ADD_DEFINITIONS(${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS})
 
 SET_SOURCE_FILES_PROPERTIES(MEDLoader.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(MEDLoader.i PROPERTIES SWIG_DEFINITIONS "-shadow")
-SET(SWIG_MODULE_MEDLoader_EXTRA_FLAGS ${SWIG_EXTRA_FLAGS_FOR_NUMPYANDSCIPY})
+SET(SWIG_MODULE_MEDLoader_EXTRA_FLAGS "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
 
 SET (MEDLoader_SWIG_DPYS_FILES
     MEDLoaderCommon.i
@@ -33,6 +33,7 @@ SET (MEDLoader_SWIG_DPYS_FILES
 
 INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
+  ${NUMPY_INCLUDE_DIR}
   ${MEDFILE_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -101,22 +102,23 @@ ENDIF(NUMPY_FOUND)
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDLoader/Swig)
+SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDLoader_Swig)
 
-SET(MEDLOADER_TEST_FILES 
-    MEDLoaderDataForTest.py 
-    MEDLoaderTest1.py 
-    MEDLoaderTest2.py 
-    MEDLoaderTest3.py 
-    MEDLoaderTest4.py 
-    SauvLoaderTest.py 
-    MEDLoaderExamplesTest.py 
-    MEDLoaderCouplingTrainingSession.py 
-    CaseIO.py 
-    CaseReader.py 
-    CaseWriter.py 
-    VTKReader.py 
-    MEDLoaderSplitter.py 
+SET(MEDLOADER_TEST_FILES
+    MEDLoaderDataForTest.py
+    MEDLoaderTest123.py
+    MEDLoaderTest1.py
+    MEDLoaderTest2.py
+    MEDLoaderTest3.py
+    MEDLoaderTest4.py
+    SauvLoaderTest.py
+    MEDLoaderExamplesTest.py
+    MEDLoaderCouplingTrainingSession.py
+    CaseIO.py
+    CaseReader.py
+    CaseWriter.py
+    VTKReader.py
+    MEDLoaderSplitter.py
     medutilities.py
 )
 

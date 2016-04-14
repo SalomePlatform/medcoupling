@@ -1,4 +1,4 @@
-# Copyright (C) 2015  CEA/DEN, EDF R&D
+# Copyright (C) 2015-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -34,7 +34,9 @@ SET(admlocal_cmake_DATA
     FindSalomeMetis.cmake
     FindSalomeMPI.cmake
     FindSalomeParMetis.cmake
-    FindSalomePython.cmake
+    FindSalomePythonLibs.cmake
+    FindSalomePythonInterp.cmake
+    FindSalomeNumPySciPy.cmake
     FindSalomeScotch.cmake
     FindSalomeSphinx.cmake
     FindSalomeSWIG.cmake

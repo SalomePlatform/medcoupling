@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2015  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -40,7 +40,7 @@ namespace INTERP_TEST
       resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
       resourceFile += "/share/resources/med/";
       resourceFile += filename;
-      std::ifstream my_file(resourceFile);
+      std::ifstream my_file(resourceFile.c_str());
       if (my_file.good())
         return resourceFile;
     }
@@ -51,7 +51,7 @@ namespace INTERP_TEST
       resourceFile += "../";
     resourceFile += "resources/";
     resourceFile += filename;
-    std::ifstream my_file(resourceFile);
+    std::ifstream my_file(resourceFile.c_str());
     if (!my_file.good())
       {
         std::stringstream ss;

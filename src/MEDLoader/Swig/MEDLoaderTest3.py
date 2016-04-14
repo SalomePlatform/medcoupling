@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2015  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -1372,6 +1372,119 @@ class MEDLoaderTest3(unittest.TestCase):
         valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ;     delta=(valsToTest-refValues2) ; delta.abs()
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
         mm.write(fname,2)   
+
+    def testBuildInnerBoundaryAlongM1Group4(self):
+        """ Test case where cells touch the M1 group on some nodes only and not on full egdes (triangle mesh for ex)
+        """
+        coo = DataArrayDouble([0.,0., 1.,0., 2.,0., 3.,0.,
+                               0.,1., 1.,1., 2.,1., 3.,1.,
+                               0.,2., 1.,2., 2.,2., 3.,2.], 12, 2)
+        conn = [3,0,4,1,  3,1,4,5,
+                3,5,9,10, 3,5,10,6,
+                3,2,6,7,  3,2,7,3,
+                3,4,8,9,  3,4,9,5,
+                3,1,5,6,  3,1,6,2,
+                3,6,10,11,3,6,11,7]
+        # Only TRI3:
+        connI = DataArrayInt()
+        connI.alloc(13, 1); connI.iota(); connI *= 4
+        m2 = MEDCouplingUMesh("2D", 2)
+        m2.setCoords(coo)
+        m2.setConnectivity(DataArrayInt(conn), connI)
+        m2.checkConsistency()
+        m1, _, _, _, _ = m2.buildDescendingConnectivity()
+        grpIds = DataArrayInt([9,11]); grpIds.setName("group")
+        grpIds2 = DataArrayInt([0,1]); grpIds2.setName("group2")
+        mfu = MEDFileUMesh()
+        mfu.setMeshAtLevel(0, m2)
+        mfu.setMeshAtLevel(-1, m1)
+        mfu.setGroupsAtLevel(-1, [grpIds, grpIds2])
+        nNod = m2.getNumberOfNodes()
+        nodesDup, cells1, cells2 = mfu.buildInnerBoundaryAlongM1Group("group")
+        m2_bis = mfu.getMeshAtLevel(0)
+        m2_bis.checkConsistency()
+        m1_bis = mfu.getMeshAtLevel(-1)
+        m1_bis.checkConsistency()
+        self.assertEqual(nNod+2, mfu.getNumberOfNodes())
+        self.assertEqual(nNod+2, m2_bis.getNumberOfNodes())
+        self.assertEqual(nNod+2, m1_bis.getNumberOfNodes())
+        self.assertEqual([6,7], nodesDup.getValues())
+        self.assertEqual([2.,1., 3.,1.], m2_bis.getCoords()[nNod:].getValues())
+        self.assertEqual(set([3,10,11]), set(cells1.getValues()))
+        self.assertEqual(set([8,9,4,5]), set(cells2.getValues()))
+        self.assertEqual([9,11],mfu.getGroupArr(-1,"group").getValues())
+        self.assertEqual([23,24],mfu.getGroupArr(-1,"group_dup").getValues())
+        self.assertEqual([0,1],mfu.getGroupArr(-1,"group2").getValues())
+#         mfu.getMeshAtLevel(0).writeVTK("/tmp/mfu_M0.vtu")
+        ref0 =[3, 5, 10, 12, 3, 12, 10, 11, 3, 12, 11, 13]
+        ref1 =[3, 2, 6, 7, 3, 2, 7, 3, 3, 1, 5, 6, 3, 1, 6, 2]
+        self.assertEqual(ref0,mfu.getMeshAtLevel(0)[[3,10,11]].getNodalConnectivity().getValues())
+        self.assertEqual(ref1,mfu.getMeshAtLevel(0)[[4,5,8,9]].getNodalConnectivity().getValues())
+        self.assertRaises(InterpKernelException,mfu.getGroup(-1,"group_dup").checkGeoEquivalWith,mfu.getGroup(-1,"group"),2,1e-12) # Grp_dup and Grp are not equal considering connectivity only
+        mfu.getGroup(-1,"group_dup").checkGeoEquivalWith(mfu.getGroup(-1,"group"),12,1e-12)# Grp_dup and Grp are equal considering connectivity and coordinates
+        m_bis0 = mfu.getMeshAtLevel(-1)
+        m_desc, _, _, _, _ = m_bis0.buildDescendingConnectivity()
+        m_bis0.checkDeepEquivalOnSameNodesWith(mfu.getMeshAtLevel(-1), 2, 9.9999999)
+
+    def testBuildInnerBoundary5(self):
+        """ Full 3D test with tetras only. In this case a tri from the group is not duplicated because it is made only
+        of non duplicated nodes. The tri in question is hence not part of the final new "dup" group. """
+        coo = DataArrayDouble([200.0, 200.0, 0.0, 200.0, 200.0, 200.0, 200.0, 0.0, 200.0, 200.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 200.0, 200.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+        200.0, 400.0, 200.0, 0.0, 400.0, 200.0, 200.0, 400.0, 0.0, 0.0, 400.0, 0.0, 200.0, 0.0, 100.00000000000016, 200.0, 63.15203310314546, 200.0, 200.0, 134.45205700643342,
+         200.0, 200.0, 200.0, 100.00000000000016, 200.0, 63.15203310314546, 0.0, 200.0, 134.45205700643342, 0.0, 200.0, 0.0, 100.00000000000016, 0.0, 63.15203310314546, 
+         200.0, 0.0, 134.45205700643342, 200.0, 0.0, 200.0, 100.00000000000016, 0.0, 63.15203310314546, 0.0, 0.0, 134.45205700643342, 0.0, 0.0, 200.0, 200.0, 100.02130053568538, 
+         0.0, 200.0, 100.00938163175135, 200.0, 0.0, 100.02130053568538, 0.0, 0.0, 100.00938163175135, 299.3058739933347, 200.0, 200.0, 400.0, 98.68100542924483, 
+         200.0, 302.8923433403344, 0.0, 200.0, 302.8923433403344, 200.0, 0.0, 400.0, 100.00000000000016, 0.0, 302.8923433403344, 0.0, 0.0, 400.0, 200.0, 98.55126825835082, 
+         400.0, 0.0, 100.02162286181577, 99.31624553977466, 99.99999998882231, 200.0, 99.31624576683302, 100.00000010178034, 0.0, 99.31624560596512, 200.0, 100.0050761312483,
+         99.31624560612883, 0.0, 100.00507613125338, 200.0, 99.99999995813045, 100.00950673487786, 0.0, 99.99999989928207, 100.0041870621175, 301.29063354383015, 
+         100.0000000093269, 0.0, 301.29063360689975, 0.0, 100.00957769061164, 140.52853868782435, 99.99999963972768, 100.00509135751312, 297.87779091770784, 
+         97.16750463405486, 97.18018457127863], 46, 3)
+        c0 = [14, 45, 31, 21, 42, 14, 37, 38, 20, 44, 14, 39, 36, 41, 44, 14, 5, 25, 12, 13, 14, 38, 36, 44, 41, 14, 21, 20, 24, 44, 14, 38, 25, 41, 19, 14, 37, 38, 44, 41, 14, 16, 27,
+         39, 41, 14, 21, 45, 26, 40, 14, 39, 37, 44, 41, 14, 14, 15, 24, 44, 14, 25, 38, 41, 13, 14, 27, 18, 6, 22, 14, 38, 36, 41, 13, 14, 44, 14, 15, 36, 14, 44, 23, 39, 26, 14,
+         21,26, 23, 44, 14, 38, 44, 14, 24, 14, 39, 37, 41, 22, 14, 21, 33, 45, 42, 14, 27, 22, 39, 41, 14, 23, 26, 21, 3, 14, 27, 18, 22, 41, 14, 39, 36, 44, 17, 14, 21, 26, 44, 40,
+         14, 39, 37, 22, 23, 14, 37, 38, 41, 19, 14, 25, 12, 13, 41, 14, 30, 26, 43, 45, 14, 38, 36, 13, 14, 14, 12, 36, 13, 41, 14, 20, 44, 21, 37, 14, 16, 36, 12, 41, 14, 39, 36,
+         17, 16, 14, 44, 20, 24, 38, 14, 27, 16, 12, 41, 14, 26, 15, 17, 44, 14, 19, 18, 41, 37, 14, 40, 45, 26, 15, 14, 37, 38, 19, 20, 14, 17, 15, 26, 2, 14, 39, 36, 16, 41, 14,
+         24, 21, 44, 40, 14, 16, 7, 27, 12, 14, 22, 18, 37, 41, 14, 21, 31, 45, 24, 14, 44, 40, 15, 24, 14, 24, 45, 15, 28, 14, 44, 40, 26, 15, 14, 24, 20, 21, 0, 14, 38, 36, 14,
+         44, 14, 39, 37, 23, 44, 14, 45, 31, 42, 32, 14, 25, 18, 19, 4, 14, 36, 44, 17, 15, 14, 25, 19, 18, 41, 14, 24, 15, 14, 1, 14, 45, 24, 34, 28, 14, 35, 45, 30, 43, 14, 17,
+         44, 39, 26, 14, 44, 23, 21, 37, 14, 30, 45, 29, 15, 14, 45, 35, 33, 43, 14, 30, 15, 26, 45, 14, 31, 21, 0, 24, 14, 33, 35, 32, 10, 14, 29, 45, 34, 28, 14, 32, 45, 34,
+         29, 14, 45, 31, 32, 34, 14, 33, 26, 45, 43, 14, 45, 31, 34, 24, 14, 33, 26, 21, 45, 14, 11, 30, 35, 29, 14, 33, 35, 45, 32, 14, 33, 45, 42, 32, 14, 32, 8, 34, 31, 14,
+         21, 26, 33, 3, 14, 35, 45, 32, 29, 14, 29, 34, 9, 28, 14, 15, 45, 24, 40, 14, 29, 45, 28, 15, 14, 21, 24, 45, 40, 14, 24, 15, 1, 28, 14, 35, 45, 29, 30, 14, 26, 15,
+         30, 2]
+        cI0 = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185,
+         190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325, 330, 335, 340, 345, 350, 355, 
+         360, 365, 370, 375, 380, 385, 390, 395, 400, 405, 410, 415, 420, 425, 430]
+        m3 = MEDCouplingUMesh("3D", 3)
+        m3.setCoords(coo)
+        m3.setConnectivity(DataArrayInt(c0), DataArrayInt(cI0))
+        m3.checkConsistency()
+        m2, _, _, _, _ = m3.buildDescendingConnectivity()
+        grpIds = DataArrayInt([36,74]); grpIds.setName("group")
+        mfu = MEDFileUMesh()
+        mfu.setMeshAtLevel(0, m3)
+        mfu.setMeshAtLevel(-1, m2)
+        grpIds3D = DataArrayInt([0,1]); grpIds3D.setName("group_3d")
+        mfu.setGroupsAtLevel(0, [grpIds3D])  # just to check preservation of 3D group
+        mfu.setGroupsAtLevel(-1, [grpIds])
+        nNod = m3.getNumberOfNodes()
+        nodesDup, cells1, cells2 = mfu.buildInnerBoundaryAlongM1Group("group")
+        m3_bis = mfu.getMeshAtLevel(0)
+        m3_bis.checkConsistency()
+        m2_bis = mfu.getMeshAtLevel(-1)
+        m2_bis.checkConsistency()
+        self.assertEqual(nNod+1, mfu.getNumberOfNodes())
+        self.assertEqual(nNod+1, m3_bis.getNumberOfNodes())
+        self.assertEqual(nNod+1, m2_bis.getNumberOfNodes())
+        self.assertEqual([3], nodesDup.getValues())
+        self.assertEqual(m3_bis.getCoords()[3].getValues(), m3_bis.getCoords()[nNod:].getValues())
+        self.assertEqual(set([22]), set(cells1.getValues()))
+        self.assertEqual(set([77]), set(cells2.getValues()))
+        self.assertEqual([36,74],mfu.getGroupArr(-1,"group").getValues())
+        self.assertEqual([0,1],mfu.getGroupArr(0,"group_3d").getValues())
+        self.assertEqual([213],mfu.getGroupArr(-1,"group_dup").getValues())  # here only one cell has been duplicated
+        m_bis0 = mfu.getMeshAtLevel(-1)
+        m_desc, _, _, _, _ = m_bis0.buildDescendingConnectivity()
+        m_bis0.checkDeepEquivalOnSameNodesWith(mfu.getMeshAtLevel(-1), 2, 9.9999999)
+        pass
 
     def testBasicConstructors(self):
         fname="Pyfile18.med"
@@ -4947,6 +5060,34 @@ class MEDLoaderTest3(unittest.TestCase):
       mum.setRenumFieldArr(-1, n1)
       mum.clearNodeAndCellNumbers()
       mum.checkSMESHConsistency()
+      pass
+
+    def testCMeshSetFamilyFieldArrNull(self):
+      meshName="mesh"
+      fname="Pyfile99.med"
+      arrX=DataArrayDouble([0,1,2,3])
+      arrY=DataArrayDouble([0,1,2])
+      m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY) ; m.setName(meshName)
+      mm=MEDFileCMesh() ; mm.setMesh(m)
+      famCellIds=DataArrayInt([0,-2,-2,-1,-2,0])
+      famNodeIds=DataArrayInt([0,0,0,3,4,1,2,7,2,1,0,0])
+      mm.setFamilyFieldArr(0,famCellIds)
+      mm.setFamilyFieldArr(1,famNodeIds)
+      mm.write(fname,2)
+      mm=MEDFileMesh.New(fname)
+      self.assertTrue(mm.getFamilyFieldAtLevel(0) is not None)
+      self.assertTrue(mm.getFamilyFieldAtLevel(1) is not None)
+      mm.setFamilyFieldArr(0,None)#<- bug was here
+      mm.setFamilyFieldArr(1,None)#<- bug was here
+      self.assertTrue(mm.getFamilyFieldAtLevel(0) is None)
+      self.assertTrue(mm.getFamilyFieldAtLevel(1) is None)
+      mm3=mm.deepCopy()
+      self.assertTrue(mm3.getFamilyFieldAtLevel(0) is None)
+      self.assertTrue(mm3.getFamilyFieldAtLevel(1) is None)
+      mm.write(fname,2)
+      mm2=MEDFileMesh.New(fname)
+      self.assertTrue(mm2.getFamilyFieldAtLevel(0) is None)
+      self.assertTrue(mm2.getFamilyFieldAtLevel(1) is None)
       pass
 
     pass

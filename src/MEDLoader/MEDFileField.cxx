@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2015  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -500,6 +500,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
           dpd->checkConsistencyLight();
           MCAuto<DataArrayInt> myIds(dpd->toDAI());
           int a(myIds->getMinValueInArray()),b(myIds->getMaxValueInArray());
+          myIds=myIds->deepCopy();// WARNING deep copy here because _pd is modified by applyLin !!!
           myIds->applyLin(1,-a);
           int nbOfEltsToLoad(b-a+1);
           med_filter filter=MED_FILTER_INIT;
@@ -6363,6 +6364,53 @@ DataArrayDouble *MEDFileField1TS::ReturnSafelyDataArrayDouble(MCAuto<DataArray>&
   return arrOutC;
 }
 
+/*!
+ * Return an extraction of \a this using \a extractDef map to specify the extraction.
+ * The keys of \a extractDef is level relative to max ext of \a mm mesh.
+ *
+ * \return A new object that the caller is responsible to deallocate.
+ */
+MEDFileField1TS *MEDFileField1TS::extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
+{
+  if(!mm)
+    throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : input mesh is NULL !");
+  MCAuto<MEDFileField1TS> ret(MEDFileField1TS::New());
+  std::vector<TypeOfField> tof(getTypesOfFieldAvailable());
+  for(std::vector<TypeOfField>::const_iterator it0=tof.begin();it0!=tof.end();it0++)
+    {
+      if((*it0)!=ON_NODES)
+        {
+          std::vector<int> levs;
+          getNonEmptyLevels(mm->getName(),levs);
+          for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
+            {
+              std::map<int, MCAuto<DataArrayInt> >::const_iterator it2(extractDef.find(*lev));
+              if(it2!=extractDef.end())
+                {
+                  MCAuto<DataArrayInt> t((*it2).second);
+                  MCAuto<MEDCouplingFieldDouble> f(getFieldOnMeshAtLevel(ON_CELLS,(*lev),mm));
+                  MCAuto<MEDCouplingFieldDouble> fOut(f->buildSubPart(t));
+                  ret->setFieldNoProfileSBT(fOut);
+                }
+            }
+        }
+      else
+        {
+          std::map<int, MCAuto<DataArrayInt> >::const_iterator it2(extractDef.find(1));
+          if(it2==extractDef.end())
+            throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a NODE field and no extract array available for NODE !");
+          MCAuto<DataArrayInt> t((*it2).second);
+          MCAuto<MEDCouplingFieldDouble> f(getFieldOnMeshAtLevel(ON_NODES,0,mm));
+          MCAuto<MEDCouplingFieldDouble> fOut(f->deepCopy());
+          DataArrayDouble *arr(f->getArray());
+          MCAuto<DataArrayDouble> newArr(arr->selectByTupleIdSafe(t->begin(),t->end()));
+          fOut->setArray(newArr);
+          ret->setFieldNoProfileSBT(fOut);
+        }
+    }
+  return ret.retn();
+}
+
 MEDFileField1TS::MEDFileField1TS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
 try:MEDFileAnyTypeField1TS(fileName,loadAll,ms)
 {
@@ -6840,6 +6888,11 @@ DataArrayInt *MEDFileIntField1TS::ReturnSafelyDataArrayInt(MCAuto<DataArray>& ar
     throw INTERP_KERNEL::Exception("MEDFileIntField1TS::ReturnSafelyDataArrayInt : input DataArray is not of type INT32 !");
   arrC->incrRef();
   return arrC;
+}
+
+MEDFileIntField1TS *MEDFileIntField1TS::extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
+{
+  throw INTERP_KERNEL::Exception("MEDFileIntField1TS::extractPart : not implemented yet !");
 }
 
 /*!
@@ -8911,6 +8964,27 @@ int MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime(MEDFileAnyTypeFieldMultiT
   return nts;
 }
 
+/*!
+ * Return an extraction of \a this using \a extractDef map to specify the extraction.
+ * The keys of \a extractDef is level relative to max ext of \a mm mesh.
+ *
+ * \return A new object that the caller is responsible to deallocate.
+ */
+MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
+{
+  if(!mm)
+    throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::extractPart : mesh is null !");
+  MCAuto<MEDFileAnyTypeFieldMultiTS> fmtsOut(buildNewEmpty());
+  int nbTS(getNumberOfTS());
+  for(int i=0;i<nbTS;i++)
+    {
+      MCAuto<MEDFileAnyTypeField1TS> f1ts(getTimeStepAtPos(i));
+      MCAuto<MEDFileAnyTypeField1TS> f1tsOut(f1ts->extractPart(extractDef,mm));
+      fmtsOut->pushBackTimeStep(f1tsOut);
+    }
+  return fmtsOut.retn();
+}
+
 MEDFileAnyTypeFieldMultiTSIterator *MEDFileAnyTypeFieldMultiTS::iterator()
 {
   return new MEDFileAnyTypeFieldMultiTSIterator(this);
@@ -9034,7 +9108,7 @@ MEDFileIntFieldMultiTS *MEDFileFieldMultiTS::convertToInt(bool isDeepCpyGlobs) c
  *          delete this field using decrRef() as it is no more needed.
  *  \throw If \a pos is not a valid time step id.
  */
-MEDFileAnyTypeField1TS *MEDFileFieldMultiTS::getTimeStepAtPos(int pos) const
+MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepAtPos(int pos) const
 {
   const MEDFileAnyTypeField1TSWithoutSDA *item=contentNotNullBase()->getTimeStepAtPos2(pos);
   if(!item)
@@ -9339,6 +9413,11 @@ DataArrayDouble *MEDFileFieldMultiTS::getUndergroundDataArray(int iteration, int
 DataArrayDouble *MEDFileFieldMultiTS::getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
 {
   return static_cast<DataArrayDouble *>(contentNotNull()->getUndergroundDataArrayExt(iteration,order,entries));
+}
+
+MEDFileFieldMultiTS *MEDFileFieldMultiTS::buildNewEmpty() const
+{
+  return MEDFileFieldMultiTS::New();
 }
 
 //= MEDFileAnyTypeFieldMultiTSIterator
@@ -9782,6 +9861,11 @@ catch(INTERP_KERNEL::Exception& e)
 DataArrayInt *MEDFileIntFieldMultiTS::getUndergroundDataArray(int iteration, int order) const
 {
   return static_cast<DataArrayInt *>(contentNotNull()->getUndergroundDataArray(iteration,order));
+}
+
+MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::buildNewEmpty() const
+{
+  return MEDFileIntFieldMultiTS::New();
 }
 
 //= MEDFileFields
@@ -10272,6 +10356,32 @@ bool MEDFileFields::renumberEntitiesLyingOnMesh(const std::string& meshName, con
         }
     }
   return ret;
+}
+
+/*!
+ * Return an extraction of \a this using \a extractDef map to specify the extraction.
+ * The keys of \a extractDef is level relative to max ext of \a mm mesh.
+ *
+ * \return A new object that the caller is responsible to deallocate.
+ */
+MEDFileFields *MEDFileFields::extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
+{
+  if(!mm)
+    throw INTERP_KERNEL::Exception("MEDFileFields::extractPart : input mesh is NULL !");
+  MCAuto<MEDFileFields> fsOut(MEDFileFields::New());
+  int nbFields(getNumberOfFields());
+  for(int i=0;i<nbFields;i++)
+    {
+      MCAuto<MEDFileAnyTypeFieldMultiTS> fmts(getFieldAtPos(i));
+      if(!fmts)
+        {
+          std::ostringstream oss; oss << "MEDFileFields::extractPart : at pos #" << i << " field is null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      MCAuto<MEDFileAnyTypeFieldMultiTS> fmtsOut(fmts->extractPart(extractDef,mm));
+      fsOut->pushField(fmtsOut);
+    }
+  return fsOut.retn();
 }
 
 MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const

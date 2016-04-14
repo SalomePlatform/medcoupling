@@ -5,7 +5,7 @@
 #   SPHINX_PYTHONPATH - path to the Sphinx Python modules                 
 # 
 ###########################################################################
-# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -48,7 +48,7 @@ IF(SPHINX_EXECUTABLE)
   STRING(REGEX REPLACE ".* ([0-9.]+)$" "\\1" SPHINX_VERSION "${SPHINX_VERSION}" )
   MESSAGE(STATUS "Sphinx version is ${SPHINX_VERSION}")
   IF(SPHINX_VERSION VERSION_LESS "1.3")
-    SET(SPHINX_THEME "basic")
+    SET(SPHINX_THEME "default")
   ELSE()
     SET(SPHINX_THEME "classic")
   ENDIF()

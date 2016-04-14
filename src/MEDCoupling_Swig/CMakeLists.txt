@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,11 @@
 
 INCLUDE(${SWIG_USE_FILE})
 
-ADD_DEFINITIONS(${PYTHON_DEFINITIONS})
+ADD_DEFINITIONS(${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS})
 
 SET_SOURCE_FILES_PROPERTIES(MEDCoupling.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(MEDCoupling.i PROPERTIES SWIG_DEFINITIONS "-shadow")
-SET(SWIG_MODULE_MEDCoupling_EXTRA_FLAGS ${SWIG_EXTRA_FLAGS_FOR_NUMPYANDSCIPY})
+SET(SWIG_MODULE_MEDCoupling_EXTRA_FLAGS "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
 
 SET (MEDCoupling_SWIG_DPYS_FILES
     MEDCouplingCommon.i
@@ -37,28 +37,29 @@ SET (MC_pyTestFiles
     MEDCouplingBasicsTest2.py
     MEDCouplingBasicsTest3.py
     MEDCouplingBasicsTest4.py
-    MEDCouplingBasicsTest5.py 
-    MEDCouplingRemapperTest.py 
-    MEDCouplingDataForTest.py 
-    MEDCouplingNumPyTest.py 
+    MEDCouplingBasicsTest5.py
+    MEDCouplingRemapperTest.py
+    MEDCouplingDataForTest.py
+    MEDCouplingNumPyTest.py
     MEDCouplingPickleTest.py
 )
 
 SET (MC_Swig_interf
-    MEDCoupling.i 
-    MEDCouplingCommon.i 
-    MEDCouplingRefCountObject.i 
-    MEDCouplingMemArray.i 
-    MEDCouplingFieldDiscretization.i 
-    MEDCouplingTimeDiscretization.i 
-    MEDCouplingFinalize.i 
-    MEDCouplingRemapper.i 
-    MEDCouplingTypemaps.i 
+    MEDCoupling.i
+    MEDCouplingCommon.i
+    MEDCouplingRefCountObject.i
+    MEDCouplingMemArray.i
+    MEDCouplingFieldDiscretization.i
+    MEDCouplingTimeDiscretization.i
+    MEDCouplingFinalize.i
+    MEDCouplingRemapper.i
+    MEDCouplingTypemaps.i
     MEDCouplingDataArrayTypemaps.i
 )
 
 INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
+  ${NUMPY_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR} # pthread dependancy due to python2.7 library
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -90,7 +91,7 @@ SWIG_LINK_LIBRARIES(MEDCoupling ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcoupling
 
 SET_SOURCE_FILES_PROPERTIES(MEDCouplingRemapper.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(MEDCouplingRemapper.i PROPERTIES SWIG_DEFINITIONS "-shadow")
-SET(SWIG_MODULE_MEDCouplingRemapper_EXTRA_FLAGS ${SWIG_EXTRA_FLAGS_FOR_NUMPYANDSCIPY})
+SET(SWIG_MODULE_MEDCouplingRemapper_EXTRA_FLAGS "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
 
 # _ABR_ Ensure dependency mechanism on all SWIG files and headers
 SET (SWIG_MODULE_MEDCouplingRemapper_EXTRA_DEPS ${MEDCoupling_SWIG_DPYS_FILES}
@@ -139,7 +140,7 @@ ENDIF(NUMPY_FOUND)
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDCoupling_Swig)
+SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDCoupling_Swig)
 LIST(APPEND MC_pyTestFiles MEDCouplingExamplesTest.py)
 INSTALL(FILES ${MC_pyTestFiles} DESTINATION ${TEST_INSTALL_DIRECTORY})
 

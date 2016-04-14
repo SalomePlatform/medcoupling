@@ -1,4 +1,4 @@
-# Copyright (C) 2015  CEA/DEN, EDF R&D
+# Copyright (C) 2015-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,4 +17,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+SET(COMPONENT_NAME MEDCOUPLING)
+SET(TIMEOUT        120)
+
+SUBDIRS(INTERP_KERNELTest)
 SUBDIRS(MEDCoupling)
+SUBDIRS(MEDCoupling_Swig)
+SUBDIRS(MEDLoader)
+SUBDIRS(MEDLoader_Swig)
+SUBDIRS(MEDPartitioner)
+#SUBDIRS(ParaMEDMEM_Swig)
+#SUBDIRS(ParaMEDMEMTest)
+SUBDIRS(MEDPartitioner_Swig)
+SUBDIRS(RENUMBER_Swig)

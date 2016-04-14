@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2015  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -3780,7 +3780,9 @@ void MEDFileUMesh::optimizeFamilies()
  * The boundary is built according to the following method:
  *  - all nodes along the boundary which are not lying on an internal extremity of the (-1)-level group are duplicated (so the
  * coordinates array is extended).
- *  - new (-1)-level cells are built lying on those new nodes. So the edges/faces along the group are duplicated.
+ *  - new (-1)-level cells are built lying on those new nodes. So the edges/faces along the group are duplicated. A new group
+ *  called "<grpNameM1>_dup" containing the effectively duplicated cells is created. Note that in 3D some cells of the group
+ *  might not be duplicated at all.
  *  After this operation a top-level cell bordering the group will loose some neighbors (typically the cell which is  on the
  *  other side of the group is no more a neighbor)
  *   - finally, the connectivity of (part of) the top level-cells bordering the group is also modified so that some cells
@@ -3798,53 +3800,61 @@ void MEDFileUMesh::optimizeFamilies()
 void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated,
                                            DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
 {
+  typedef MCAuto<MEDCouplingUMesh> MUMesh;
+  typedef MCAuto<DataArrayInt> DAInt;
+
   std::vector<int> levs=getNonEmptyLevels();
   if(std::find(levs.begin(),levs.end(),0)==levs.end() || std::find(levs.begin(),levs.end(),-1)==levs.end())
     throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group : This method works only for mesh definied on level 0 and -1 !");
-  MCAuto<MEDCouplingUMesh> m0=getMeshAtLevel(0);
-  MCAuto<MEDCouplingUMesh> m1=getMeshAtLevel(-1);
+  MUMesh m0=getMeshAtLevel(0);
+  MUMesh m1=getMeshAtLevel(-1);
   int nbNodes=m0->getNumberOfNodes();
-  MCAuto<MEDCouplingUMesh> m11=getGroup(-1,grpNameM1);
+  MUMesh m11=getGroup(-1,grpNameM1);
   DataArrayInt *tmp00=0,*tmp11=0,*tmp22=0;
   m0->findNodesToDuplicate(*m11,tmp00,tmp11,tmp22);
-  MCAuto<DataArrayInt> nodeIdsToDuplicate(tmp00);
-  MCAuto<DataArrayInt> cellsToModifyConn0(tmp11);
-  MCAuto<DataArrayInt> cellsToModifyConn1(tmp22);
-  MCAuto<MEDCouplingUMesh> tmp0=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),true));
+  DAInt nodeIdsToDuplicate(tmp00);
+  DAInt cellsToModifyConn0(tmp11);
+  DAInt cellsToModifyConn1(tmp22);
+  MUMesh tmp0=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),true));
   // node renumbering of cells in m1 impacted by duplication of node but not in group 'grpNameM1' on level -1
-  MCAuto<DataArrayInt> descTmp0=DataArrayInt::New(),descITmp0=DataArrayInt::New(),revDescTmp0=DataArrayInt::New(),revDescITmp0=DataArrayInt::New();
-  MCAuto<MEDCouplingUMesh> tmp0Desc=tmp0->buildDescendingConnectivity(descTmp0,descITmp0,revDescTmp0,revDescITmp0);
+  DAInt descTmp0=DataArrayInt::New(),descITmp0=DataArrayInt::New(),revDescTmp0=DataArrayInt::New(),revDescITmp0=DataArrayInt::New();
+  MUMesh tmp0Desc=tmp0->buildDescendingConnectivity(descTmp0,descITmp0,revDescTmp0,revDescITmp0);
   descTmp0=0; descITmp0=0; revDescTmp0=0; revDescITmp0=0;
-  MCAuto<DataArrayInt> cellsInM1ToRenumW2=tmp0Desc->getCellIdsLyingOnNodes(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),false);
-  MCAuto<MEDCouplingUMesh> cellsInM1ToRenumW3=static_cast<MEDCouplingUMesh *>(tmp0Desc->buildPartOfMySelf(cellsInM1ToRenumW2->begin(),cellsInM1ToRenumW2->end(),true));
+  DAInt cellsInM1ToRenumW2=tmp0Desc->getCellIdsLyingOnNodes(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),false);
+  MUMesh cellsInM1ToRenumW3=static_cast<MEDCouplingUMesh *>(tmp0Desc->buildPartOfMySelf(cellsInM1ToRenumW2->begin(),cellsInM1ToRenumW2->end(),true));
   DataArrayInt *cellsInM1ToRenumW4Tmp=0;
   m1->areCellsIncludedIn(cellsInM1ToRenumW3,2,cellsInM1ToRenumW4Tmp);
-  MCAuto<DataArrayInt> cellsInM1ToRenumW4(cellsInM1ToRenumW4Tmp);
-  MCAuto<DataArrayInt> cellsInM1ToRenumW5=cellsInM1ToRenumW4->findIdsInRange(0,m1->getNumberOfCells());
+  DAInt cellsInM1ToRenumW4(cellsInM1ToRenumW4Tmp);
+  DAInt cellsInM1ToRenumW5=cellsInM1ToRenumW4->findIdsInRange(0,m1->getNumberOfCells());
   cellsInM1ToRenumW5->transformWithIndArr(cellsInM1ToRenumW4->begin(),cellsInM1ToRenumW4->end());
-  MCAuto<DataArrayInt> grpIds=getGroupArr(-1,grpNameM1);
-  MCAuto<DataArrayInt> cellsInM1ToRenum=cellsInM1ToRenumW5->buildSubstraction(grpIds);
-  MCAuto<MEDCouplingUMesh> m1Part=static_cast<MEDCouplingUMesh *>(m1->buildPartOfMySelf(cellsInM1ToRenum->begin(),cellsInM1ToRenum->end(),true));
+  DAInt grpIds=getGroupArr(-1,grpNameM1);
+  DAInt cellsInM1ToRenum=cellsInM1ToRenumW5->buildSubstraction(grpIds);
+  MUMesh m1Part=static_cast<MEDCouplingUMesh *>(m1->buildPartOfMySelf(cellsInM1ToRenum->begin(),cellsInM1ToRenum->end(),true));
   m1Part->duplicateNodesInConn(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),nbNodes);
   m1->setPartOfMySelf(cellsInM1ToRenum->begin(),cellsInM1ToRenum->end(),*m1Part);
   // end of node renumbering of cells in m1 impacted by duplication of node but not in group of level -1 'grpNameM1'
   tmp0->duplicateNodes(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end());
   m0->setCoords(tmp0->getCoords());
   m0->setPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),*tmp0);
+  _ms[0]->forceComputationOfParts();  // necessary because we modify the connectivity of some internal part
   m1->setCoords(m0->getCoords());
   _coords=m0->getCoords(); _coords->incrRef();
-  // duplication of cells in group 'grpNameM1' on level -1
+  // duplication of cells in group 'grpNameM1' on level -1, but not duplicating cells for which nothing has changed
   m11->duplicateNodesInConn(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),nbNodes); m11->setCoords(m0->getCoords());
-  std::vector<const MEDCouplingUMesh *> v(2); v[0]=m1; v[1]=m11;
-  MCAuto<MEDCouplingUMesh> newm1=MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords(v,tmp00,tmp11);
-  MCAuto<DataArrayInt> szOfCellGrpOfSameType(tmp00);
-  MCAuto<DataArrayInt> idInMsOfCellGrpOfSameType(tmp11);
+  DataArrayInt * duplCells;
+  m1->areCellsIncludedIn(m11, 0, duplCells);
+  DAInt zeIds = duplCells->findIdsNotInRange(-1, m1->getNumberOfCells()-1); duplCells->decrRef();
+  MUMesh m11Part=static_cast<MEDCouplingUMesh *>(m11->buildPartOfMySelf(zeIds->begin(),zeIds->end(),true));
+  std::vector<const MEDCouplingUMesh *> v(2); v[0]=m1; v[1]=m11Part;
+  MUMesh newm1=MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords(v,tmp00,tmp11);
+  DAInt szOfCellGrpOfSameType(tmp00);
+  DAInt idInMsOfCellGrpOfSameType(tmp11);
   //
   newm1->setName(getName());
   const DataArrayInt *fam=getFamilyFieldAtLevel(-1);
   if(!fam)
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group : internal problem !");
-  MCAuto<DataArrayInt> newFam=DataArrayInt::New();
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group(): internal error no family field !");
+  DAInt newFam=DataArrayInt::New();
   newFam->alloc(newm1->getNumberOfCells(),1);
   // Get a new family ID: care must be taken if we need a positive ID or a negative one:
   // Positive ID for family of nodes, negative for all the rest.
@@ -3861,7 +3871,7 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
       if(idInMsOfCellGrpOfSameType->getIJ(i,0)==0)
         {
           end=start+szOfCellGrpOfSameType->getIJ(i,0);
-          MCAuto<DataArrayInt> part=fam->selectByTupleIdSafeSlice(start,end,1);
+          DAInt part=fam->selectByTupleIdSafeSlice(start,end,1);
           newFam->setPartOfValues1(part,globStart,globEnd,1,0,1,1,true);
           start=end;
         }
@@ -3888,6 +3898,14 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
       _fam_coords=newFam;
     }
 
+  _num_coords = 0;
+  _rev_num_coords = 0;
+  for (std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();
+      it != _ms.end(); it++)
+    {
+      (*it)->_num = 0;
+      (*it)->_rev_num = 0;
+    }
   nodesDuplicated=nodeIdsToDuplicate.retn();
   cellsModified=cellsToModifyConn0.retn();
   cellsNotModified=cellsToModifyConn1.retn();
@@ -5286,22 +5304,25 @@ void MEDFileStructuredMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayI
   {
     case 0:
       {
-        int nbCells=mesh->getNumberOfCells();
-        famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of cells of mesh !");
+        int nbCells(mesh->getNumberOfCells());
+        if(famArr)
+          famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of cells of mesh !");
         _fam_cells=famArr;
         break;
       }
     case 1:
       {
-        int nbNodes=mesh->getNumberOfNodes();
-        famArr->checkNbOfTuplesAndComp(nbNodes,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of nodes of mesh !");
+        int nbNodes(mesh->getNumberOfNodes());
+        if(famArr)
+          famArr->checkNbOfTuplesAndComp(nbNodes,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of nodes of mesh !");
         _fam_nodes=famArr;
         break;
       }
     case -1:
       {
-        int nbCells=mesh->getNumberOfCellsOfSubLevelMesh();
-        famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of faces of mesh !");
+        int nbCells(mesh->getNumberOfCellsOfSubLevelMesh());
+        if(famArr)
+          famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of faces of mesh !");
         _fam_faces=famArr;
         break;
       }

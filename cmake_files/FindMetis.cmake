@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,7 @@ FOREACH(ln ${list_metis_h_content})
   ENDIF("${ln}" MATCHES "^#define METIS_VER_MAJOR")
 ENDFOREACH(ln ${list_metis_h_content})
 IF(metis_major_version STREQUAL 5)
-  SET(SALOME_MED_METIS_V5 1)
+  SET(MEDCOUPLING_METIS_V5 1)
   MESSAGE(STATUS "Metis maj version 5 detected.")
 ELSE(metis_major_version STREQUAL 5)
    MESSAGE(STATUS "Metis maj version 4 detected.")

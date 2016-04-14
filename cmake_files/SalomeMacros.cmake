@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -136,13 +136,13 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
       LIST(APPEND _all_pyo ${_pyo_file})
       ADD_CUSTOM_COMMAND(
            OUTPUT ${_pyc_file}
-           COMMAND ${PYTHON_EXECUTABLE} -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyc_file}' )"
+           COMMAND ${PYTHON_EXECUTABLE} -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyc_file}', doraise=True )"
            DEPENDS ${PREFIX}${file}
            VERBATIM
        )
       ADD_CUSTOM_COMMAND(
            OUTPUT ${_pyo_file}
-           COMMAND ${PYTHON_EXECUTABLE} -O -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyo_file}' )"
+           COMMAND ${PYTHON_EXECUTABLE} -O -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyo_file}', doraise=True )"
            DEPENDS ${PREFIX}${file}
            VERBATIM
        )
@@ -944,7 +944,8 @@ MACRO(SALOME_CONFIGURE_PREPARE)
   FOREACH(_prereq IN LISTS _tmp_prereq)
     IF(${_prereq}_DIR)
       SET(_PREREQ_LIST "${_PREREQ_LIST} ${_prereq}")
-      SET(_PREREQ_DIR_LIST "${_PREREQ_DIR_LIST} \"${${_prereq}_DIR}\"")
+      FILE(TO_CMAKE_PATH ${${_prereq}_DIR} CURR_DIR)
+      SET(_PREREQ_DIR_LIST "${_PREREQ_DIR_LIST} \"${CURR_DIR}\"")
       SALOME_APPEND_LIST_OF_LIST(_PREREQ_COMPO_LIST Salome${_prereq}_COMPONENTS)
     ENDIF()
   ENDFOREACH()

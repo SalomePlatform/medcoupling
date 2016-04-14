@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2015  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -2439,6 +2439,7 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
                                             DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const
 {
   typedef MCAuto<DataArrayInt> DAInt;
+  typedef MCAuto<MEDCouplingUMesh> MCUMesh;
 
   checkFullyDefined();
   otherDimM1OnSameCoords.checkFullyDefined();
@@ -2446,21 +2447,62 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : meshes do not share the same coords array !");
   if(otherDimM1OnSameCoords.getMeshDimension()!=getMeshDimension()-1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the mesh given in other parameter must have this->getMeshDimension()-1 !");
-  DataArrayInt *cellIdsRk0=0,*cellIdsRk1=0;
-  findCellIdsLyingOn(otherDimM1OnSameCoords,cellIdsRk0,cellIdsRk1);
-  DAInt cellIdsRk0Auto(cellIdsRk0),cellIdsRk1Auto(cellIdsRk1);
-  DAInt s0=cellIdsRk1->buildComplement(cellIdsRk0->getNumberOfTuples());
-  s0->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
-  MCAuto<MEDCouplingUMesh> m0Part=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(s0->begin(),s0->end(),true));
-  DAInt s1=m0Part->computeFetchedNodeIds();
-  DAInt s2=otherDimM1OnSameCoords.computeFetchedNodeIds();
-  DAInt s3=s2->buildSubstraction(s1);
-  cellIdsRk1->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
+
+  // Checking star-shaped M1 group:
+  DAInt dt0=DataArrayInt::New(),dit0=DataArrayInt::New(),rdt0=DataArrayInt::New(),rdit0=DataArrayInt::New();
+  MCUMesh meshM2 = otherDimM1OnSameCoords.buildDescendingConnectivity(dt0, dit0, rdt0, rdit0);
+  DAInt dsi = rdit0->deltaShiftIndex();
+  DAInt idsTmp0 = dsi->findIdsNotInRange(-1, 3);
+  if(idsTmp0->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group: group is too complex: some points (or edges) have more than two connected segments (or faces)!");
+  dt0=0; dit0=0; rdt0=0; rdit0=0; idsTmp0=0;
+
+  // Get extreme nodes from the group (they won't be duplicated), ie nodes belonging to boundary cells of M1
+  DAInt xtremIdsM2 = dsi->findIdsEqual(1); dsi = 0;
+  MCUMesh meshM2Part = static_cast<MEDCouplingUMesh *>(meshM2->buildPartOfMySelf(xtremIdsM2->begin(), xtremIdsM2->end(),true));
+  DAInt xtrem = meshM2Part->computeFetchedNodeIds();
+  // Remove from the list points on the boundary of the M0 mesh (those need duplication!)
+  dt0=DataArrayInt::New(),dit0=DataArrayInt::New(),rdt0=DataArrayInt::New(),rdit0=DataArrayInt::New();
+  MCUMesh m0desc = buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); dt0=0; dit0=0; rdt0=0;
+  dsi = rdit0->deltaShiftIndex();
+  DAInt boundSegs = dsi->findIdsEqual(1);   // boundary segs/faces of the M0 mesh
+  MCUMesh m0descSkin = static_cast<MEDCouplingUMesh *>(m0desc->buildPartOfMySelf(boundSegs->begin(),boundSegs->end(), true));
+  DAInt fNodes = m0descSkin->computeFetchedNodeIds();
+  // In 3D, some points on the boundary of M0 still need duplication:
+  DAInt notDup = 0;
+  if (getMeshDimension() == 3)
+    {
+      DAInt dnu1=DataArrayInt::New(), dnu2=DataArrayInt::New(), dnu3=DataArrayInt::New(), dnu4=DataArrayInt::New();
+      MCUMesh m0descSkinDesc = m0descSkin->buildDescendingConnectivity(dnu1, dnu2, dnu3, dnu4);
+      dnu1=0;dnu2=0;dnu3=0;dnu4=0;
+      DataArrayInt * corresp=0;
+      meshM2->areCellsIncludedIn(m0descSkinDesc,2,corresp);
+      DAInt validIds = corresp->findIdsInRange(0, meshM2->getNumberOfCells());
+      corresp->decrRef();
+      if (validIds->getNumberOfTuples())
+        {
+          MCUMesh m1IntersecSkin = static_cast<MEDCouplingUMesh *>(m0descSkinDesc->buildPartOfMySelf(validIds->begin(), validIds->end(), true));
+          DAInt notDuplSkin = m1IntersecSkin->findBoundaryNodes();
+          DAInt fNodes1 = fNodes->buildSubstraction(notDuplSkin);
+          notDup = xtrem->buildSubstraction(fNodes1);
+        }
+      else
+        notDup = xtrem->buildSubstraction(fNodes);
+    }
+  else
+    notDup = xtrem->buildSubstraction(fNodes);
+
+  // Now compute cells around group (i.e. cells where we will do the propagation to identify the two sub-sets delimited by the group)
+  DAInt m1Nodes = otherDimM1OnSameCoords.computeFetchedNodeIds();
+  DAInt dupl = m1Nodes->buildSubstraction(notDup);
+  DAInt cellsAroundGroup = getCellIdsLyingOnNodes(dupl->begin(), dupl->end(), false);  // false= take cell in, even if not all nodes are in notDup
+
   //
-  MCAuto<MEDCouplingUMesh> m0Part2=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellIdsRk1->begin(),cellIdsRk1->end(),true));
+  MCUMesh m0Part2=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellsAroundGroup->begin(),cellsAroundGroup->end(),true));
   int nCells2 = m0Part2->getNumberOfCells();
   DAInt desc00=DataArrayInt::New(),descI00=DataArrayInt::New(),revDesc00=DataArrayInt::New(),revDescI00=DataArrayInt::New();
-  MCAuto<MEDCouplingUMesh> m01=m0Part2->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
+  MCUMesh m01=m0Part2->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
+
   // Neighbor information of the mesh without considering the crack (serves to count how many connex pieces it is made of)
   DataArrayInt *tmp00=0,*tmp11=0;
   MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00, tmp00, tmp11);
@@ -2470,8 +2512,6 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   DataArrayInt *idsTmp=0;
   bool b=m01->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsTmp);
   DAInt ids(idsTmp);
-  if(!b)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the given mdim-1 mesh in other is not a constituent of this !");
   // In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
   // of the frontier given in parameter (i.e. the cells of low dimension from the group delimiting the crack):
   MEDCouplingUMesh::RemoveIdsFromIndexedArrays(ids->begin(),ids->end(),desc00,descI00);
@@ -2517,12 +2557,12 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate(): internal error - too many iterations.");
 
   DAInt cellsToModifyConn1_torenum=cellsToModifyConn0_torenum->buildComplement(neighI00->getNumberOfTuples()-1);
-  cellsToModifyConn0_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
-  cellsToModifyConn1_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
+  cellsToModifyConn0_torenum->transformWithIndArr(cellsAroundGroup->begin(),cellsAroundGroup->end());
+  cellsToModifyConn1_torenum->transformWithIndArr(cellsAroundGroup->begin(),cellsAroundGroup->end());
   //
   cellIdsNeededToBeRenum=cellsToModifyConn0_torenum.retn();
   cellIdsNotModified=cellsToModifyConn1_torenum.retn();
-  nodeIdsToDuplicate=s3.retn();
+  nodeIdsToDuplicate=dupl.retn();
 }
 
 /*!

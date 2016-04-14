@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2015  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -146,6 +146,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFields::partOfThisLyingOnSpecifiedTimeSteps;
 %newobject MEDCoupling::MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps;
 %newobject MEDCoupling::MEDFileFields::__iter__;
+%newobject MEDCoupling::MEDFileFields::extractPart;
 
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::deepCopy;
@@ -154,6 +155,8 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::getTimeStep;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::getTimeStepGivenTime;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::__iter__;
+%newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::extractPart;
+%newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::buildNewEmpty;
 %newobject MEDCoupling::MEDFileFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileFieldMultiTS::LoadSpecificEntities;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getFieldAtLevel;
@@ -170,6 +173,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::New;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::shallowCpy;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::deepCopy;
+%newobject MEDCoupling::MEDFileAnyTypeField1TS::extractPart;
 %newobject MEDCoupling::MEDFileField1TS::New;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtLevel;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtTopLevel;
@@ -177,6 +181,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtLevelOld;
 %newobject MEDCoupling::MEDFileField1TS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileField1TS::convertToInt;
+
 %newobject MEDCoupling::MEDFileIntField1TS::New;
 %newobject MEDCoupling::MEDFileIntField1TS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileIntField1TS::convertToDouble;
@@ -1968,6 +1973,13 @@ namespace MEDCoupling
           PyList_SetItem(retPy,i,convertMEDFileField1TS(ret[i].retn(), SWIG_POINTER_OWN | 0 ));
         return retPy;
       }
+
+      MEDFileAnyTypeField1TS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const throw(INTERP_KERNEL::Exception)
+      {
+        std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+        convertToMapIntDataArrayInt(extractDef,extractDefCpp);
+        return self->extractPart(extractDefCpp,mm);
+      }
     }
   };
 
@@ -2263,6 +2275,7 @@ namespace MEDCoupling
     MEDFileAnyTypeField1TS *getTimeStepGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
     void pushBackTimeStep(MEDFileAnyTypeField1TS *f1ts) throw(INTERP_KERNEL::Exception);
     void synchronizeNameScope() throw(INTERP_KERNEL::Exception);
+    MEDFileAnyTypeFieldMultiTS *buildNewEmpty() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       int __len__() const throw(INTERP_KERNEL::Exception)
@@ -2546,6 +2559,13 @@ namespace MEDCoupling
             convertFromPyObjVectorOfObj<MEDCoupling::MEDFileAnyTypeField1TS *>(li,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeField1TS,"MEDFileAnyTypeField1TS",tmp);
             self->pushBackTimeSteps(tmp);
           }
+      }
+
+      MEDFileAnyTypeFieldMultiTS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const throw(INTERP_KERNEL::Exception)
+      {
+        std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+        convertToMapIntDataArrayInt(extractDef,extractDefCpp);
+        return self->extractPart(extractDefCpp,mm);
       }
 
       static PyObject *MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -3053,6 +3073,13 @@ namespace MEDCoupling
                if(!idsToRemove.empty())
                  self->destroyFieldsAtPos(&idsToRemove[0],&idsToRemove[0]+idsToRemove.size());
              }
+         }
+
+         MEDFileFields *extractPart(PyObject *extractDef, MEDFileMesh *mm) const throw(INTERP_KERNEL::Exception)
+         {
+           std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+           convertToMapIntDataArrayInt(extractDef,extractDefCpp);
+           return self->extractPart(extractDefCpp,mm);
          }
        }
   };

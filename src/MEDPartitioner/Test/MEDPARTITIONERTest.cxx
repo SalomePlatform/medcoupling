@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2015  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -94,7 +94,7 @@ std::string MEDPARTITIONERTest::getPartitionerExe() const
     {
       execName=getenv("MEDCOUPLING_ROOT_DIR");  //.../INSTALL/MED
       execName+="/bin/medpartitioner";
-      std::ifstream my_file(execName);
+      std::ifstream my_file(execName.c_str());
       if (my_file.good())
         return execName;
     }

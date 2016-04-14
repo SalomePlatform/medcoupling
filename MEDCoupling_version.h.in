@@ -1,4 +1,4 @@
-// Copyright (C) 2015  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2015-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -31,7 +31,6 @@
   MEDCOUPLING_VERSION_MAINTENANCE : (integer) number identifying maintenance version
   MEDCOUPLING_VERSION_STR         : (string)  complete version number "major.minor.maintenance"
   MEDCOUPLING_VERSION             : (hex)     complete version number (major << 16) + (minor << 8) + maintenance
-  MEDCOUPLING_DEVELOPMENT         : (integer) indicates development version when set to 1
 */
 
 #define MEDCOUPLING_VERSION_MAJOR       @MEDCOUPLING_MAJOR_VERSION@
@@ -39,6 +38,5 @@
 #define MEDCOUPLING_VERSION_MAINTENANCE @MEDCOUPLING_PATCH_VERSION@
 #define MEDCOUPLING_VERSION_STR         "@MEDCOUPLING_VERSION@"
 #define MEDCOUPLING_VERSION             @MEDCOUPLING_XVERSION@
-#define MEDCOUPLING_DEVELOPMENT         @MEDCOUPLING_VERSION_DEV@
 
 #endif // __MEDCOUPLING_VERSION_H__

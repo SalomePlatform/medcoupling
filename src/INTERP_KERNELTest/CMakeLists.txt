@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
   )
-  
+
 IF(NOT MEDCOUPLING_MICROMED)
   INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader)
 ENDIF()
@@ -86,6 +86,7 @@ IF(NOT MEDCOUPLING_MICROMED)
 ENDIF(NOT MEDCOUPLING_MICROMED)
 
 ADD_LIBRARY(InterpKernelTestUtils SHARED ${InterpKernelTestUtils_SOURCES})
+TARGET_LINK_LIBRARIES(InterpKernelTestUtils interpkernel)
 ADD_LIBRARY(InterpKernelTest SHARED ${InterpKernelTest_SOURCES})
 
 SET(InterpKernelTest_LIBS medcoupling interpkernel ${CPPUNIT_LIBRARIES})
@@ -107,7 +108,7 @@ INSTALL(FILES CppUnitTest.hxx InterpKernelTestExport.hxx TestInterpKernelUtils.h
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDCoupling/INTERP_KERNELTest)
+SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/INTERP_KERNELTest)
 INSTALL(TARGETS TestINTERP_KERNEL InterpKernelTest DESTINATION ${TEST_INSTALL_DIRECTORY})
 
 INSTALL(FILES CTestTestfileInstall.cmake

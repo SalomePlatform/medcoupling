@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -57,7 +57,7 @@ SET_TESTS_PROPERTIES(TestMEDPARTITIONER PROPERTIES ENVIRONMENT "${tests_env}")
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDPartitioner)
+SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDPartitioner)
 INSTALL(TARGETS MEDPARTITIONERTest TestMEDPARTITIONER DESTINATION ${TEST_INSTALL_DIRECTORY})
 
 INSTALL(FILES CTestTestfileInstall.cmake

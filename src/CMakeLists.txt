@@ -1,4 +1,4 @@
-# Copyright (C) 2015  CEA/DEN, EDF R&D
+# Copyright (C) 2015-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
 # InterpKERNEL
@@ -30,7 +32,7 @@ ENDIF(MEDCOUPLING_ENABLE_PYTHON)
 IF(NOT MEDCOUPLING_MICROMED)
   # MEDLoader
   ADD_SUBDIRECTORY(MEDLoader)
-  
+
   # RENUMBER
   IF(MEDCOUPLING_ENABLE_RENUMBER)
     ADD_SUBDIRECTORY(RENUMBER)
@@ -38,7 +40,7 @@ IF(NOT MEDCOUPLING_MICROMED)
       ADD_SUBDIRECTORY(RENUMBER_Swig)
     ENDIF(MEDCOUPLING_ENABLE_PYTHON)
   ENDIF(MEDCOUPLING_ENABLE_RENUMBER)
-  
+
   # MEDPartitioner
   IF(MEDCOUPLING_ENABLE_PARTITIONER)
     ADD_SUBDIRECTORY(MEDPartitioner)
@@ -51,7 +53,7 @@ ENDIF(NOT MEDCOUPLING_MICROMED)
 IF(MEDCOUPLING_USE_MPI)
   # ParaMEDMEM
   ADD_SUBDIRECTORY(ParaMEDMEM)
-  
+
   # ParaMEDLoader
   IF(NOT MEDCOUPLING_MICROMED)
     ADD_SUBDIRECTORY(ParaMEDLoader)
@@ -69,8 +71,4 @@ ENDIF(MEDCOUPLING_USE_MPI)
 # Application tests
 INSTALL(FILES CTestTestfileInstall.cmake
   DESTINATION ${MEDCOUPLING_INSTALL_TESTS}
-  RENAME CTestTestfile.cmake)
-
-INSTALL(FILES CTestTestfileInstallMEDCoupling.cmake
-  DESTINATION ${MEDCOUPLING_INSTALL_TESTS}/MEDCoupling
   RENAME CTestTestfile.cmake)
