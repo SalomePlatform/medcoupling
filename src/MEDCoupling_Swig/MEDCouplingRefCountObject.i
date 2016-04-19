@@ -115,6 +115,28 @@ namespace ParaMEDMEM
   protected:
     ~RefCountObject();
   };
+
+  class GlobalDict
+  {
+  public:
+    static GlobalDict *GetInstance() throw(INTERP_KERNEL::Exception);
+    bool hasKey(const std::string& key) const throw(INTERP_KERNEL::Exception);
+    std::string value(const std::string& key) const throw(INTERP_KERNEL::Exception);
+    void erase(const std::string& key) throw(INTERP_KERNEL::Exception);
+    void clear() throw(INTERP_KERNEL::Exception);
+    void setKeyValue(const std::string& key, const std::string& value) throw(INTERP_KERNEL::Exception);
+    void setKeyValueForce(const std::string& key, const std::string& value) throw(INTERP_KERNEL::Exception);
+  private:
+    GlobalDict();
+  public:
+    %extend
+    {
+      std::string __str__() const
+      {
+        return self->printSelf();
+      }
+    }
+  };
 }
 
 %inline

@@ -24,6 +24,7 @@
 #include "MEDCoupling.hxx"
 
 #include <set>
+#include <map>
 #include <vector>
 #include <string>
 #include <cstddef>
@@ -102,6 +103,25 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT RefCountObject();
     MEDCOUPLING_EXPORT RefCountObject(const RefCountObject& other);
     MEDCOUPLING_EXPORT virtual ~RefCountObject();
+  };
+
+  class GlobalDict
+  {
+  public:
+    MEDCOUPLING_EXPORT static GlobalDict *GetInstance();
+    MEDCOUPLING_EXPORT bool hasKey(const std::string& key) const;
+    MEDCOUPLING_EXPORT std::string value(const std::string& key) const;
+    MEDCOUPLING_EXPORT void erase(const std::string& key);
+    MEDCOUPLING_EXPORT void clear();
+    MEDCOUPLING_EXPORT void setKeyValue(const std::string& key, const std::string& value);
+    MEDCOUPLING_EXPORT void setKeyValueForce(const std::string& key, const std::string& value);
+    MEDCOUPLING_EXPORT std::string printSelf() const;
+  private:
+    GlobalDict() { }
+  private:
+    static GlobalDict *UNIQUE_INSTANCE;
+  private:
+    std::map<std::string, std::string> _my_map;
   };
 }
 
