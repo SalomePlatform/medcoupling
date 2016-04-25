@@ -122,6 +122,7 @@ namespace ParaMEDMEM
     static GlobalDict *GetInstance() throw(INTERP_KERNEL::Exception);
     bool hasKey(const std::string& key) const throw(INTERP_KERNEL::Exception);
     std::string value(const std::string& key) const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> keys() const throw(INTERP_KERNEL::Exception);
     void erase(const std::string& key) throw(INTERP_KERNEL::Exception);
     void clear() throw(INTERP_KERNEL::Exception);
     void setKeyValue(const std::string& key, const std::string& value) throw(INTERP_KERNEL::Exception);

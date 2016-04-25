@@ -111,6 +111,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static GlobalDict *GetInstance();
     MEDCOUPLING_EXPORT bool hasKey(const std::string& key) const;
     MEDCOUPLING_EXPORT std::string value(const std::string& key) const;
+    MEDCOUPLING_EXPORT std::vector<std::string> keys() const;
     MEDCOUPLING_EXPORT void erase(const std::string& key);
     MEDCOUPLING_EXPORT void clear();
     MEDCOUPLING_EXPORT void setKeyValue(const std::string& key, const std::string& value);

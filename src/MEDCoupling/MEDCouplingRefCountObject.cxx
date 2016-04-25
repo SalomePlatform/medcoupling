@@ -305,6 +305,14 @@ std::string GlobalDict::value(const std::string& key) const
   return (*it).second;
 }
 
+std::vector<std::string> GlobalDict::keys() const
+{
+  std::vector<std::string> ret;
+  for(std::map<std::string, std::string>::const_iterator it=_my_map.begin();it!=_my_map.end();it++)
+    ret.push_back((*it).first);
+  return ret;
+}
+
 void GlobalDict::erase(const std::string& key)
 {
   std::map<std::string, std::string>::iterator it(_my_map.find(key));
