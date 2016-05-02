@@ -421,7 +421,7 @@ namespace INTERP_KERNEL
    */
   inline void barycentric_coords(const std::vector<const double*>& n, const double *p, double *bc)
   {
-    enum { _X, _Y, _Z };
+    enum { _XX=0, _YY, _ZZ };
     switch(n.size())
       {
       case 2:
@@ -435,8 +435,8 @@ namespace INTERP_KERNEL
         { // TRIA3
           // matrix 2x2
           double
-            T11 = n[0][_X]-n[2][_X], T12 = n[1][_X]-n[2][_X],
-            T21 = n[0][_Y]-n[2][_Y], T22 = n[1][_Y]-n[2][_Y];
+            T11 = n[0][_XX]-n[2][_XX], T12 = n[1][_XX]-n[2][_XX],
+            T21 = n[0][_YY]-n[2][_YY], T22 = n[1][_YY]-n[2][_YY];
           // matrix determinant
           double Tdet = T11*T22 - T12*T21;
           if ( (std::fabs( Tdet) ) < (std::numeric_limits<double>::min()) )
@@ -447,7 +447,7 @@ namespace INTERP_KERNEL
           // matrix inverse
           double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
           // vector
-          double r11 = p[_X]-n[2][_X], r12 = p[_Y]-n[2][_Y];
+          double r11 = p[_XX]-n[2][_XX], r12 = p[_YY]-n[2][_YY];
           // barycentric coordinates: mutiply matrix by vector
           bc[0] = (t11 * r11 + t12 * r12)/Tdet;
           bc[1] = (t21 * r11 + t22 * r12)/Tdet;
@@ -462,9 +462,9 @@ namespace INTERP_KERNEL
           // bc1*( z1 - z4 ) + bc2*( z2 - z4 ) + bc3*( z3 - z4 ) = px - z4
           
           double T[3][4]=
-            {{ n[0][_X]-n[3][_X], n[1][_X]-n[3][_X], n[2][_X]-n[3][_X], p[_X]-n[3][_X] },
-             { n[0][_Y]-n[3][_Y], n[1][_Y]-n[3][_Y], n[2][_Y]-n[3][_Y], p[_Y]-n[3][_Y] },
-             { n[0][_Z]-n[3][_Z], n[1][_Z]-n[3][_Z], n[2][_Z]-n[3][_Z], p[_Z]-n[3][_Z] }};
+            {{ n[0][_XX]-n[3][_XX], n[1][_XX]-n[3][_XX], n[2][_XX]-n[3][_XX], p[_XX]-n[3][_XX] },
+             { n[0][_YY]-n[3][_YY], n[1][_YY]-n[3][_YY], n[2][_YY]-n[3][_YY], p[_YY]-n[3][_YY] },
+             { n[0][_ZZ]-n[3][_ZZ], n[1][_ZZ]-n[3][_ZZ], n[2][_ZZ]-n[3][_ZZ], p[_ZZ]-n[3][_ZZ] }};
           
           if ( !solveSystemOfEquations<3>( T, bc ) )
             bc[0]=1., bc[1] = bc[2] = bc[3] = 0;
