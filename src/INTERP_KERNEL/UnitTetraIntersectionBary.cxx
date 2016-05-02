@@ -35,7 +35,7 @@
 
 namespace INTERP_KERNEL
 {
-  enum { _X=0, _Y, _Z };
+  enum { _XX=0, _YY, _ZZ };
 
   inline bool samePoint( const double* p1, const double* p2 )
   {
@@ -86,7 +86,7 @@ namespace INTERP_KERNEL
     const std::vector<double*> * pPolygonA = &triangle.getPolygonA();
     if ( pPolygonA->size() < 3 )
       {
-        if ( !epsilonEqual( triNormal[_Z], 0 ))
+        if ( !epsilonEqual( triNormal[_ZZ], 0 ))
           return; // not vertical triangle does not intersect the unit tetra
 
         // Vertical triangle. Use inherited methods of TransformedTriangle to
@@ -378,8 +378,8 @@ namespace INTERP_KERNEL
         }
         // check if the segment p1-p2 is on the inclined side
         if ( sideFaces[3] &&
-             epsilonEqual( p1[_X] + p1[_Y] + p1[_Z], 1.0 ) &&
-             epsilonEqual( p2[_X] + p2[_Y] + p2[_Z], 1.0 ))
+             epsilonEqual( p1[_XX] + p1[_YY] + p1[_ZZ], 1.0 ) &&
+             epsilonEqual( p2[_XX] + p2[_YY] + p2[_ZZ], 1.0 ))
         {
           sideFaces[3]->push_back( new double[3] );
           copyVector3( p1, sideFaces[3]->back() );
