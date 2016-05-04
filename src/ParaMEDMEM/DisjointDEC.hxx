@@ -74,6 +74,7 @@ namespace MEDCoupling
     void compareFieldAndMethod() const throw(INTERP_KERNEL::Exception);
     void cleanInstance();
     void copyInstance(const DisjointDEC& other);
+    void checkPartitionGroup() const;
   protected:
     const ParaFIELD* _local_field;
     //! Processor group representing the union of target and source processors

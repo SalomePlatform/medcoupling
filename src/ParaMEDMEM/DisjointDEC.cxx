@@ -73,6 +73,7 @@ namespace MEDCoupling
       _owns_groups(false),
       _union_comm(MPI_COMM_NULL)
   {
+    checkPartitionGroup();
     _union_group = source_group.fuse(target_group);  
   }
   
@@ -101,16 +102,29 @@ namespace MEDCoupling
   void DisjointDEC::copyInstance(const DisjointDEC& other)
   {
     DEC::copyFrom(other);
-    if(other._target_group)
+    if (other._union_comm != MPI_COMM_NULL)
       {
-        _target_group=other._target_group->deepCopy();
-        _owns_groups=true;
+        // Tricky: the DEC is responsible for the management of _union_comm. And this comm is referenced by
+        // the MPIProcGroups (source/targets). In the case where _union_comm is not NULL we must take care of rebuilding the
+        // MPIProcGroups with a communicator that will survive the destruction of 'other'.
+        _owns_groups = true;
+        MPI_Comm_dup(other._union_comm, &_union_comm);
+//        std::cout << "DUP union comm - new is "<< _union_comm << "\n";
+        _target_group = new MPIProcessorGroup(*_comm_interface, other._target_group->getProcIDs(), _union_comm);
+        _source_group = new MPIProcessorGroup(*_comm_interface, other._source_group->getProcIDs(), _union_comm);
       }
-    if(other._source_group)
-      {
-        _source_group=other._source_group->deepCopy();
-        _owns_groups=true;
-      }
+    else{
+      if(other._target_group)
+        {
+          _target_group=other._target_group->deepCopy();
+          _owns_groups=true;
+        }
+      if(other._source_group)
+        {
+          _source_group=other._source_group->deepCopy();
+          _owns_groups=true;
+        }
+    }
     if (_source_group && _target_group)
       _union_group = _source_group->fuse(*_target_group);
   }
@@ -203,6 +217,28 @@ namespace MEDCoupling
     _union_group=0;
     if (_union_comm != MPI_COMM_NULL)
       _comm_interface->commFree(&_union_comm);
+  }
+
+  /**
+   * Check that the sources and targets procs form a partition of the world communicator referenced in the groups.
+   * This world communicator is not necessarily MPI_WORLD_COMM, but it has to be covered completly for the DECs to work.
+   */
+  void DisjointDEC::checkPartitionGroup() const
+  {
+    int size = -1;
+    MPIProcessorGroup * tgt = static_cast<MPIProcessorGroup *>(_target_group);
+    MPIProcessorGroup * src = static_cast<MPIProcessorGroup *>(_source_group);
+    MPI_Comm comm_t = tgt->getWorldComm();
+    MPI_Comm comm_s = src->getWorldComm();
+    if (comm_t != comm_s)
+      throw INTERP_KERNEL::Exception("DisjointDEC constructor: Inconsistent world communicator when building DisjointDEC");
+    MPI_Comm_size(comm_t, &size);
+
+    std::set<int> union_ids; // source and target ids in world_comm
+    union_ids.insert(src->getProcIDs().begin(),src->getProcIDs().end());
+    union_ids.insert(tgt->getProcIDs().begin(),tgt->getProcIDs().end());
+    if(union_ids.size()!=size)
+      throw INTERP_KERNEL::Exception("DisjointDEC constructor: source_ids and target_ids do not form a partition of the communicator! Restrain the world communicator passed to MPIProcessorGroup ctor.");
   }
 
   void DisjointDEC::setNature(NatureOfField nature)

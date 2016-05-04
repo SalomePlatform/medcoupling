@@ -356,32 +356,61 @@ void ParaMEDMEMTest::testGauthier2()
     }
 }
 
+void ParaMEDMEMTest::testGauthier3_1()
+{
+  testGauthier3_GEN(true,4);
+}
+
+void ParaMEDMEMTest::testGauthier3_2()
+{
+  testGauthier3_GEN(false,4);
+}
+
+void ParaMEDMEMTest::testGauthier3_3()
+{
+  testGauthier3_GEN(true,5);
+}
+
+void ParaMEDMEMTest::testGauthier3_4()
+{
+  int size;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+
+  if(size!=5)
+    return;
+
+  // Should throw since the two groups (source/target) do not form a partition of
+  // all the procs.
+  CPPUNIT_ASSERT_THROW(testGauthier3_GEN(false,5), INTERP_KERNEL::Exception);
+}
+
+
 /*!
  * Non regression test testing copy constructor of InterpKernelDEC. 
  */
-void ParaMEDMEMTest::testGauthier3()
+void ParaMEDMEMTest::testGauthier3_GEN(bool withIDs, int nprocs)
 {
   int num_cas=0;
   int rank, size;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&size);
-  
+
   int is_master=0;
 
   CommInterface comm;
   set<int> emetteur_ids;
   set<int> recepteur_ids;
   emetteur_ids.insert(0);
-  if(size!=4)
+  if(size!=nprocs)
     return;
   recepteur_ids.insert(1);
-  if (size >2) 
-    recepteur_ids.insert(2);
-  if (size >2) 
-    emetteur_ids.insert(3);
-  if ((rank==0)||(rank==1)) 
+
+  recepteur_ids.insert(size-2);
+
+  emetteur_ids.insert(size-1);
+  if ((rank==0)||(rank==1))
     is_master=1;
-  
+
   MPIProcessorGroup recepteur_group(comm,recepteur_ids);
   MPIProcessorGroup emetteur_group(comm,emetteur_ids);
 
@@ -394,10 +423,14 @@ void ParaMEDMEMTest::testGauthier3()
     }
   else
     {
-      cas="emetteur";
+      if (emetteur_group.containsMyRank())
+        cas="emetteur";
+      else
+        cas="vide";
       // freopen("emetteur.out","w",stdout);
       //freopen("emetteur.err","w",stderr);
     }
+
   double expected[8][4]={
     {1.,1.,1.,1.},
     {40., 40., 1., 1.},
@@ -409,12 +442,15 @@ void ParaMEDMEMTest::testGauthier3()
     {20.5,1.,1e200,1e200}
   };
   int expectedLgth[8]={4,4,2,2,4,4,2,2};
-  
+
   for (int send=0;send<2;send++)
     for (int rec=0;rec<2;rec++)
       {
         std::vector<InterpKernelDEC> decu(1);
-        decu[0]=InterpKernelDEC(emetteur_group,recepteur_group);
+        if (withIDs)
+          decu[0] = InterpKernelDEC(emetteur_ids,recepteur_ids);
+        else
+          decu[0] = InterpKernelDEC(emetteur_group,recepteur_group);
         InterpKernelDEC& dec_emetteur=decu[0];
         MEDCoupling::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
         MEDCoupling::ParaMESH *paramesh(0);
@@ -428,29 +464,31 @@ void ParaMEDMEMTest::testGauthier3()
           {
             mesh=init_triangleGauthier1(is_master);
           }
-        paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
-        MEDCoupling::ComponentTopology comptopo;
-        champ_emetteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
-        champ_emetteur->getField()->setNature(IntensiveMaximum);
-        champ_emetteur->setOwnSupport(true);
-        if (rec==0)
+        if (cas!="vide")
           {
-            mesh=init_triangleGauthier1(is_master);
+            paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
+            MEDCoupling::ComponentTopology comptopo;
+            champ_emetteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+            champ_emetteur->getField()->setNature(IntensiveMaximum);
+            champ_emetteur->setOwnSupport(true);
+            if (rec==0)
+              {
+                mesh=init_triangleGauthier1(is_master);
+              }
+            else
+              {
+                mesh=init_quadGauthier1(is_master);
+              }
+            paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
+            champ_recepteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+            champ_recepteur->getField()->setNature(IntensiveMaximum);
+            champ_recepteur->setOwnSupport(true);
+            if (cas=="emetteur")
+              {
+                champ_emetteur->getField()->getArray()->fillWithValue(1.);
+              }
           }
-        else
-          {
-            mesh=init_quadGauthier1(is_master);
-          }
-        paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
-        champ_recepteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
-        champ_recepteur->getField()->setNature(IntensiveMaximum);
-        champ_recepteur->setOwnSupport(true);
-        if (cas=="emetteur") 
-          {
-            champ_emetteur->getField()->getArray()->fillWithValue(1.);
-          }
-  
-  
+
         MPI_Barrier(MPI_COMM_WORLD);
 
         //clock_t clock0= clock ();
@@ -460,50 +498,50 @@ void ParaMEDMEMTest::testGauthier3()
         bool stop=false;
         //boucle sur les pas de quads
         while (!stop) {
-  
-          compti++;
-          //clock_t clocki= clock ();
-          //cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl; 
-          for (int non_unif=0;non_unif<2;non_unif++)
-            {
-              if (cas=="emetteur") 
-                {
-                  if (non_unif)
-                    if(rank!=3)
-                      champ_emetteur->getField()->getArray()->setIJ(0,0,40);
-                }
-              //bool ok=false; // Is the time interval successfully solved ?
-    
-              // Loop on the time interval tries
-              if(1) {
-      
 
+            compti++;
+            //clock_t clocki= clock ();
+            //cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl;
+            for (int non_unif=0;non_unif<2;non_unif++)
+              {
                 if (cas=="emetteur")
-                  dec_emetteur.attachLocalField(champ_emetteur);
-                else
-                  dec_emetteur.attachLocalField(champ_recepteur);
-
-
-                if(init) dec_emetteur.synchronize();
-                init=false;
-
-                if (cas=="emetteur") {
-                  //    affiche(champ_emetteur);
-                  dec_emetteur.sendData();
-                }
-                else if (cas=="recepteur")
                   {
-                    dec_emetteur.recvData();
-                    if (is_master)
-                      afficheGauthier1(*champ_recepteur,expected[num_cas],expectedLgth[num_cas]);
+                    if (non_unif)
+                      if(rank!=3)
+                        champ_emetteur->getField()->getArray()->setIJ(0,0,40);
                   }
-                else
-                  throw 0;
-                MPI_Barrier(MPI_COMM_WORLD);
+                //bool ok=false; // Is the time interval successfully solved ?
+
+                // Loop on the time interval tries
+                if(1) {
+
+
+                    if (cas=="emetteur")
+                      dec_emetteur.attachLocalField(champ_emetteur);
+                    else
+                      dec_emetteur.attachLocalField(champ_recepteur);
+
+
+                    if(init) dec_emetteur.synchronize();
+                    init=false;
+
+                    if (cas=="emetteur") {
+                        //    affiche(champ_emetteur);
+                        dec_emetteur.sendData();
+                    }
+                    else if (cas=="recepteur")
+                      {
+                        dec_emetteur.recvData();
+                        if (is_master)
+                          afficheGauthier1(*champ_recepteur,expected[num_cas],expectedLgth[num_cas]);
+                      }
+                    // else
+                    //   throw 0;
+                    MPI_Barrier(MPI_COMM_WORLD);
+                }
+                stop=true;
+                num_cas++;
               }
-              stop=true;
-              num_cas++;
-            }
         }
         delete champ_emetteur;
         delete champ_recepteur;
