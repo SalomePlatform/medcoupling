@@ -141,6 +141,8 @@ namespace ParaMEDMEM
     This constructor creates an InterpKernelDEC which has \a source_group as a working side 
     and  \a target_group as an idle side. All the processors will actually participate, but intersection computations will be performed on the working side during the \a synchronize() phase.
     The constructor must be called synchronously on all processors of both processor groups.
+    The source group and target group MUST form a partition of all the procs within the communicator passed as 'world_comm'
+    when building the group.
 
     \param source_group working side ProcessorGroup
     \param target_group lazy side ProcessorGroup
@@ -154,6 +156,12 @@ namespace ParaMEDMEM
 
   }
 
+
+  /*!
+   * Creates an InterpKernelDEC from a set of source procs IDs and target group IDs.
+   * The difference with the ctor using groups is that the set of procs might not cover entirely MPI_COMM_WORLD
+   * (a sub-communicator holding the union of source and target procs is recreated internally).
+   */
   InterpKernelDEC::InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
                                    const MPI_Comm& world_comm):
     DisjointDEC(src_ids,trg_ids,world_comm),

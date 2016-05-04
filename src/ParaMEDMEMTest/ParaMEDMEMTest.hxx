@@ -77,7 +77,10 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testICoco1);           // 2 procs
   CPPUNIT_TEST(testGauthier1);        // 4 procs
   CPPUNIT_TEST(testGauthier2);        // >= 2 procs
-  CPPUNIT_TEST(testGauthier3);        // 4 procs
+  CPPUNIT_TEST(testGauthier3_1);      // 4 procs
+  CPPUNIT_TEST(testGauthier3_2);      // 4 procs
+  CPPUNIT_TEST(testGauthier3_3);      // 5 procs
+  CPPUNIT_TEST(testGauthier3_4);      // 5 procs
   CPPUNIT_TEST(testGauthier4);        // 3 procs
   CPPUNIT_TEST(testFabienAPI1);       // 3 procs
   CPPUNIT_TEST(testFabienAPI2);       // 3 procs
@@ -137,7 +140,10 @@ public:
   void testICoco1();
   void testGauthier1();
   void testGauthier2();
-  void testGauthier3();
+  void testGauthier3_1();
+  void testGauthier3_2();
+  void testGauthier3_3();
+  void testGauthier3_4();
   void testGauthier4();
   void testFabienAPI1();
   void testFabienAPI2();
@@ -159,7 +165,7 @@ private:
   void testInterpKernelDEC_2D_(const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC2_2D_(const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC_3D_(const char *srcMeth, const char *targetMeth);
-
+  void testGauthier3_GEN(bool, int);
 };
 
 // to automatically remove temporary files from disk
