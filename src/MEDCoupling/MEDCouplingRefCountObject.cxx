@@ -21,10 +21,14 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCoupling_version.h"
 
+#include "InterpKernelException.hxx"
+
 #include <sstream>
 #include <algorithm>
 
 using namespace MEDCoupling;
+
+GlobalDict *GlobalDict::UNIQUE_INSTANCE=0;
 
 const char *MEDCoupling::MEDCouplingVersionStr()
 {
@@ -272,4 +276,83 @@ RefCountObject::RefCountObject(const RefCountObject& other):RefCountObjectOnly(o
 
 RefCountObject::~RefCountObject()
 {
+}
+
+//=
+
+GlobalDict *GlobalDict::GetInstance()
+{
+  if(!UNIQUE_INSTANCE)
+    UNIQUE_INSTANCE=new GlobalDict;
+  return UNIQUE_INSTANCE;
+}
+
+bool GlobalDict::hasKey(const std::string& key) const
+{
+  std::map<std::string, std::string>::const_iterator it(_my_map.find(key));
+  return it!=_my_map.end();
+}
+
+std::string GlobalDict::value(const std::string& key) const
+{
+  std::map<std::string, std::string>::const_iterator it(_my_map.find(key));
+  if(it==_my_map.end())
+    {
+      std::ostringstream oss;
+      oss << "GlobalDict::value : key \"" << key << "\" is not in map !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return (*it).second;
+}
+
+std::vector<std::string> GlobalDict::keys() const
+{
+  std::vector<std::string> ret;
+  for(std::map<std::string, std::string>::const_iterator it=_my_map.begin();it!=_my_map.end();it++)
+    ret.push_back((*it).first);
+  return ret;
+}
+
+void GlobalDict::erase(const std::string& key)
+{
+  std::map<std::string, std::string>::iterator it(_my_map.find(key));
+  if(it==_my_map.end())
+    {
+      std::ostringstream oss;
+      oss << "GlobalDict::erase : key \"" << key << "\" is not in map !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  _my_map.erase(it);
+}
+
+void GlobalDict::clear()
+{
+  _my_map.clear();
+}
+
+void GlobalDict::setKeyValue(const std::string& key, const std::string& value)
+{
+  std::map<std::string, std::string>::const_iterator it(_my_map.find(key));
+  if(it!=_my_map.end())
+    {
+      std::ostringstream oss;
+      oss << "GlobalDict::setKeyValue : key \"" << key << "\" already exists !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  _my_map[key]=value;
+}
+
+void GlobalDict::setKeyValueForce(const std::string& key, const std::string& value)
+{
+  _my_map[key]=value;
+}
+
+std::string GlobalDict::printSelf() const
+{
+  std::ostringstream oss;
+  for(std::map<std::string, std::string>::const_iterator it=_my_map.begin();it!=_my_map.end();it++)
+    {
+      oss << "(" << (*it).first << "," << (*it).second << ")" << std::endl;
+    }
+  return oss.str();
 }
