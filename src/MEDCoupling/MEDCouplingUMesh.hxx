@@ -43,7 +43,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const std::string& meshName, int meshDim);
     // Copy methods
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCpy() const;;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCpyConnectivityOnly() const;
 
