@@ -43,7 +43,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const std::string& meshName, int meshDim);
     // Copy methods
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopy() const;;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopyConnectivityOnly() const;
 
