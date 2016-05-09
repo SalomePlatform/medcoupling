@@ -481,12 +481,13 @@ from numpy import *
 from math import acos
 
 med_root_dir=os.getenv("MEDCOUPLING_ROOT_DIR")
+agitateur_file = ""
 if med_root_dir:
   agitateur_file = os.path.join(os.getenv("MEDCOUPLING_ROOT_DIR"),"share","resources","med","agitateur.med")
-  if not os.path.exists(agitateur_file):
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    agitateur_file=os.path.join(current_dir, "..", "..", "..", "resources","agitateur.med")
-  pass
+if not os.path.exists(agitateur_file):
+  current_dir = os.path.dirname(os.path.realpath(__file__))
+  agitateur_file=os.path.join(current_dir, "..", "..", "..", "resources","agitateur.med")
+pass
 data=MEDFileData(agitateur_file)
 ts=data.getFields()[0].getTimeSteps()
 print ts
