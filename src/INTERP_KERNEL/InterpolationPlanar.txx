@@ -315,6 +315,8 @@ namespace INTERP_KERNEL
                                                                                                     InterpolationOptions::getPrecision(),
                                                                                                     InterpolationOptions::getOrientation());
             break;
+          default:
+            throw INTERP_KERNEL::Exception("For P1P0 planar interpolation possibities are : Triangulation, Convex, Geometric2D, PointLocator, BarycentricGeo2D or Barycentric!");
           }
       }
     else if(meth=="P1P1")
