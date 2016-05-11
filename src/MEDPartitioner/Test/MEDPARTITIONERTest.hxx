@@ -57,14 +57,16 @@ class MEDPARTITIONERTEST_EXPORT MEDPARTITIONERTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testScotchSmallSize );
 #endif
 
-#if defined(HAVE_MPI)
-#if defined(MED_ENABLE_PARMETIS)
-  //test with mpi on system
-  CPPUNIT_TEST( testMpirunSmallSize );
-  CPPUNIT_TEST( testMpirunMedianSize );
-  CPPUNIT_TEST( testMpirunHugeSize );
-#endif
-#endif
+// [ABN] TO BE REVISED:
+
+//#if defined(HAVE_MPI)
+//#if defined(MED_ENABLE_PARMETIS)
+//  //test with mpi on system
+//  CPPUNIT_TEST( testMpirunSmallSize );
+//  CPPUNIT_TEST( testMpirunMedianSize );
+//  CPPUNIT_TEST( testMpirunHugeSize );
+//#endif
+//#endif
 
   CPPUNIT_TEST( testCreateBoundaryFaces2D ); // imp 0021756
 
