@@ -100,7 +100,7 @@ principle than described in 2D.
  * used in the computation of the cell-cell intersections</TD><TD>
  * Triangulation, PointLocator</TD><TD> Triangulation </TD></TR>
  * <TR><TD> SplittingPolicy </TD><TD> Way in which the hexahedra are
- * split into tetrahedra (only if Intersection_type==Triangulation) </TD><TD> PLANAR_FACE_5,  PLANAR_FACE_6, GENERAL_24, GENERAL_48</TD><TD> GENERAL_48 </TD></TR>
+ * split into tetrahedra (only if Intersection_type==Triangulation) </TD><TD> PLANAR_FACE_5,  PLANAR_FACE_6, GENERAL_24, GENERAL_48</TD><TD> PLANAR_FACE_5 </TD></TR>
  * <TR><TD>PrintLevel </TD><TD>Level of verboseness during the computations </TD><TD> 1, 2, 3, 4, 5 </TD><TD>0 </TD></TR>
  * </TABLE>
 
