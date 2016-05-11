@@ -52,6 +52,8 @@ namespace INTERP_TEST
     CPPUNIT_TEST( test_UnitTetraIntersectionBary_11 );
     CPPUNIT_TEST( test_TetraAffineTransform_reverseApply );
     CPPUNIT_TEST( test_barycentric_coords );
+    CPPUNIT_TEST( test_cuboid_mapped_coords_3D );
+    CPPUNIT_TEST( test_quad_mapped_coords_2D );
     CPPUNIT_TEST_SUITE_END();
   public:
     void test_UnitTetraIntersectionBary_1();
@@ -69,6 +71,8 @@ namespace INTERP_TEST
     void test_UnitTetraIntersectionBary_13();
     void test_TetraAffineTransform_reverseApply();
     void test_barycentric_coords();
+    void test_cuboid_mapped_coords_3D();
+    void test_quad_mapped_coords_2D();
   };
 }
 

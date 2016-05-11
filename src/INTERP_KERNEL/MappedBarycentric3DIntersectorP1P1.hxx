@@ -16,25 +16,30 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Adrien Bruneton (CEA/DEN)
 
-#ifndef __INTERPOLATION2D_HXX__
-#define __INTERPOLATION2D_HXX__
+#ifndef __MappedBarycentric3DIntersectorP1P1_HXX__
+#define __MappedBarycentric3DIntersectorP1P1_HXX__
 
-#include "InterpolationPlanar.hxx"
+#include "Intersector3DP1P1.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 
 namespace INTERP_KERNEL
 {
-  class Interpolation2D : public InterpolationPlanar<Interpolation2D>
-  {
+  template<class MyMeshType, class MyMatrix>
+  class MappedBarycentric3DIntersectorP1P1 : public Intersector3DP1P1<MyMeshType,MyMatrix>
+  { 
   public:
-    Interpolation2D() { }
-    Interpolation2D(const InterpolationOptions& io):InterpolationPlanar<Interpolation2D>(io) { }
+    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+    typedef typename MyMeshType::MyConnType ConnType;
+    static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
-    bool doRotate() const { return false; }
-    double medianPlane() const { return 0.; }
-    template<class MyMeshType, class MyMatrixRow>
-    void performAdjustmentOfBB(PlanarIntersector<MyMeshType,MyMatrixRow>* intersector, std::vector<double>& bbox) const { }
+    MappedBarycentric3DIntersectorP1P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh, double precision);
+    ~MappedBarycentric3DIntersectorP1P1();
+    void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res);
+  protected:
+    double _precision;
   };
 }
 

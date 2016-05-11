@@ -28,6 +28,25 @@
 
 namespace INTERP_KERNEL
 {
+  /* Orthogonal distance from a point to a plane defined by three points p1, p2, p3.
+   * Returns a signed distance, the normal of the plane being defined by (p1-p2)x(p3-p2)
+   */
+  double OrthoDistanceFromPtToPlaneInSpaceDim3(const double *p, const double *p1, const double *p2, const double *p3)
+  {
+    double prec = 1.0e-14;
+    double T[2][3] = {{p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]},
+                      {p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2]}};
+    double N[3] = {T[0][1]*T[1][2]-T[0][2]*T[1][1],
+                   T[0][2]*T[1][0]-T[0][0]*T[1][2],
+                   T[0][0]*T[1][1]-T[0][1]*T[1][0]};
+
+    double norm2 = N[0]*N[0] + N[1]*N[1] + N[2]*N[2];
+    if (norm2 < prec)
+      throw INTERP_KERNEL::Exception("OrthoDistanceFromPtToPlaneInSpaceDim3: degenerated normal vector!");
+    double num = N[0]*(p[0]-p1[0]) + N[1]*(p[1]-p1[1]) + N[2]*(p[2]-p1[2]);
+    return num/sqrt(norm2);
+  }
+
   double SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint)
   {
     double dx=pt1Seg2[0]-pt0Seg2[0],dy=pt1Seg2[1]-pt0Seg2[1];

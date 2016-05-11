@@ -342,5 +342,148 @@ namespace INTERP_TEST
     CPPUNIT_ASSERT_DOUBLES_EQUAL( p[0], p2[0], 1e-12);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( p[1], p2[1], 1e-12);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( p[2], p2[2], 1e-12);
-  }  
+  }
+
+  /* Conventions:
+  *   - for HEXA8, point 5 is taken to be the origin (see med file ref connec):
+  *          0 ------ 3
+            /|       /|
+           / |      / |
+          1 ------ 2  |
+          |  |     |  |
+          |  |     |  |
+          |  4-----|- 7
+          | /      | /
+          5 ------ 6
+   */
+  void UnitTetraIntersectionBaryTest::test_cuboid_mapped_coords_3D()
+  {
+    double nodes[8][3] = { { 0.0, 2.0, 4.0 }, //0
+                           { 0.0, 0.0, 4.0 },
+                           { 1.0, 0.0, 4.0 },
+                           { 1.0, 2.0, 4.0 },
+                           { 0.0, 2.0, 0.0 }, // 4
+                           { 0.0, 0.0, 0.0 },
+                           { 1.0, 0.0, 0.0 },
+                           { 1.0, 2.0, 0.0 }
+    };
+    // Translate cube:
+    for (int i=0; i < 8; ++i)
+      for (int j=0; j < 3; ++j)
+        nodes[i][j] += 15.0;
+
+    std::vector<const double*> n (8);
+    for (int i=0; i<8; i++)
+      n[i] = &nodes[i][0];
+
+    {
+        // middle point
+        double p[3] = { 15.5, 16.0, 17.0 }, bc[3];
+        cuboid_mapped_coords(n, p, bc);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, bc[0], 1e-12);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, bc[1], 1e-12);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, bc[2], 1e-12);
+    }
+    {
+      // point 1
+      double p[3] = { 15.0, 15.0, 19.0 }, bc[3];
+      cuboid_mapped_coords(n, p, bc);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, bc[0], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, bc[1], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[2], 1e-12);
+    }
+    {
+      // point 7
+      double p[3] = { 16.0, 17.0, 15.0 }, bc[3];
+      cuboid_mapped_coords(n, p, bc);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[0], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[1], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, bc[2], 1e-12);
+    }
+    {
+      // point 3
+      double p[3] = { 16.0, 17.0, 19.0 }, bc[3];
+      cuboid_mapped_coords(n, p, bc);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[0], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[1], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[2], 1e-12);
+    }
+    {
+      // point outside
+      double p[3] = { 2.0, 16.0, 18.0 }, bc[3];
+      CPPUNIT_ASSERT_THROW(cuboid_mapped_coords(n, p, bc), INTERP_KERNEL::Exception);
+    }
+
+  }
+
+  /* Convention
+      - for QUAD4, point 0 is taken to be the origin (again see med file ref connec):
+
+         1------2
+         |      |
+         |      |
+         0------3
+  */
+  void UnitTetraIntersectionBaryTest::test_quad_mapped_coords_2D()
+  {
+
+    double nodes[4][2] = { { 0.0, 0.0 },
+                           { 0.0, 1.0 },
+                           { 2.0, 3.0 },
+                           { 1.0, 0.0 } };
+
+    // Translate quad4:
+    for (int i=0; i < 4; ++i)
+      for (int j=0; j < 2; ++j)
+        nodes[i][j] += 15.0;
+
+    std::vector<const double*> n (4);
+    for (int i=0; i<4; i++)
+      n[i] = &nodes[i][0];
+
+    {
+      // middle point
+      double p[2] = { 15.75, 16.0 }, bc[2];
+      quad_mapped_coords(n, p, bc);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, bc[0], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, bc[1], 1e-12);
+    }
+
+    {
+      // middle point of seg
+      double p[2] = { 15.5, 15.0 }, bc[2];
+      quad_mapped_coords(n, p, bc);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, bc[0], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, bc[1], 1e-12);
+    }
+
+    {
+      // point 1
+      double p[2] = { 15.0, 16.0 }, bc[2];
+      quad_mapped_coords(n, p, bc);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, bc[0], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[1], 1e-12);
+    }
+    {
+      // point 2
+      double p[2] = { 17.0, 18.0 }, bc[2];
+      quad_mapped_coords(n, p, bc);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[0], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[1], 1e-12);
+    }
+    {
+      // point 3
+      double p[2] = { 16.0, 15.0 }, bc[2];
+      quad_mapped_coords(n, p, bc);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, bc[0], 1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, bc[1], 1e-12);
+    }
+    {
+      // point outside
+      double p[2] = { 18.0, 18.0 }, bc[2];
+      CPPUNIT_ASSERT_THROW(quad_mapped_coords(n, p, bc), INTERP_KERNEL::Exception);
+    }
+  }
+
+
 }
