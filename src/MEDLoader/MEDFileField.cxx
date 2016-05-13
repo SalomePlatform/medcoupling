@@ -778,6 +778,8 @@ void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid, const MEDFileFieldN
   const DataArray *arr=getOrCreateAndGetArray();
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : no array set !");
+  if(!arr->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : the array to be written is not allocated !");
   const DataArrayDouble *arrD=dynamic_cast<const DataArrayDouble *>(arr);
   const DataArrayInt *arrI=dynamic_cast<const DataArrayInt *>(arr);
   const unsigned char *locToWrite=0;
