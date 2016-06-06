@@ -24,6 +24,29 @@ from math import pi,e,sqrt,cos,sin
 from datetime import datetime
 from MEDCouplingDataForTest import MEDCouplingDataForTest
 import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@cea.fr
+from sys import platform
+
+def checkFreeMemory(size):
+    """
+    Get node total memory and memory usage
+    """
+    ret = True
+    dic = {}
+    if platform not in ["win32"]:
+        with open('/proc/meminfo', 'r') as mem:
+            tmp = 0
+            for i in mem:
+                sline = i.split()
+                if str(sline[0]) == 'MemTotal:':
+                    dic['total'] = int(sline[1])
+                elif str(sline[0]) in ('MemFree:', 'Buffers:', 'Cached:'):
+                    tmp += int(sline[1])
+            dic['free'] = tmp
+            dic['used'] = int(dic['total']) - int(dic['free'])
+            ret = dic['free'] > size
+    #TODO: extend this method for Windows OS            
+    return ret
+
 
 class MEDCouplingBasicsTest4(unittest.TestCase):
     def testSwigDADOp4(self):
@@ -2873,7 +2896,8 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(a.isEqual(DataArrayInt([0,2,4])))
         self.assertTrue(b.isEqual(DataArrayInt([0,1,2,7,8,15,16,17])))
         pass
-    
+
+    @unittest.skipUnless(checkFreeMemory((223456789*16)/(1024)), "Not enough memory")
     def testSwig2BigMem(self):
         if MEDCouplingSizeOfVoidStar()==64:
             d=DataArrayAsciiChar(223456789,16)
