@@ -24,6 +24,7 @@ INCLUDE_DIRECTORIES(
   ${MPI_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
@@ -53,8 +54,6 @@ SET(paramedmem_SOURCES
   ExplicitTopology.cxx
   MxN_Mapping.cxx
   OverlapMapping.cxx
-  ICoCoMEDField.cxx
-  ICoCoField.cxx
   ParaFIELD.cxx
   ParaGRID.cxx
   BlockTopology.cxx

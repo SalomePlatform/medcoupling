@@ -17,30 +17,46 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __ICOCOMEDFIELD_HXX__
-#define __ICOCOMEDFIELD_HXX__
-
-#include "ICoCoField.hxx"
+#include "ICoCoMEDField.hxx"
+//#include "ProcessorGroup.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-
-#include <vector>
+#include "NormalizedUnstructuredMesh.hxx"
 
 namespace ICoCo
 {
-  class MEDField : public ICoCo::Field
-  {
-  public:
-    MEDField():_field(0) { }
-    MEDField(MEDCoupling::MEDCouplingFieldDouble* field);
-    MEDField(const MEDField& field);
-    MEDField& operator=(const MEDField& field);
-    virtual ~MEDField();
-    MEDCoupling::MEDCouplingFieldDouble *getField() const  { return _field; }
-    const MEDCoupling::MEDCouplingMesh *getMesh() const { return _field->getMesh(); }
-  private:
-    MEDCoupling::MEDCouplingFieldDouble *_field;
-  };
-}
 
-#endif
+  /*! Constructor directly attaching a MEDCouplingFieldDouble
+    the object does not take the control the objects pointed by 
+    \a field.
+  */
+    
+  MEDField::MEDField(MEDCoupling::MEDCouplingFieldDouble *field):_field(field)
+  {
+    if(_field)
+      _field->incrRef();
+  }
+ MEDField::MEDField(const MEDField& field):_field(field.getField())
+  {
+    if(_field)
+      _field->incrRef();
+  }
+
+  MEDField::~MEDField()
+  {
+    if(_field)
+      _field->decrRef();
+  }
+
+
+  MEDField& MEDField::operator=(const MEDField& field)
+  {
+    if (_field)
+      _field->decrRef();
+     
+    _field=field.getField();
+    if(_field)
+      _field->incrRef();
+    return *this;
+  }
+}

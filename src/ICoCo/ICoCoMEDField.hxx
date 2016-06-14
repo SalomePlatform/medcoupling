@@ -17,46 +17,30 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "ICoCoMEDField.hxx"
-#include "ProcessorGroup.hxx"
+#ifndef __ICOCOMEDFIELD_HXX__
+#define __ICOCOMEDFIELD_HXX__
+
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
+
+#include <vector>
+#include "ICoCoField.hxx"
 
 namespace ICoCo
 {
-
-  /*! Constructor directly attaching a MEDCouplingFieldDouble
-    the object does not take the control the objects pointed by 
-    \a field.
-  */
-    
-  MEDField::MEDField(MEDCoupling::MEDCouplingFieldDouble *field):_field(field)
+  class MEDField : public ICoCo::Field
   {
-    if(_field)
-      _field->incrRef();
-  }
- MEDField::MEDField(const MEDField& field):_field(field.getField())
-  {
-    if(_field)
-      _field->incrRef();
-  }
-
-  MEDField::~MEDField()
-  {
-    if(_field)
-      _field->decrRef();
-  }
-
-
-  MEDField& MEDField::operator=(const MEDField& field)
-  {
-    if (_field)
-      _field->decrRef();
-     
-    _field=field.getField();
-    if(_field)
-      _field->incrRef();
-    return *this;
-  }
+  public:
+    MEDField():_field(0) { }
+    MEDField(MEDCoupling::MEDCouplingFieldDouble* field);
+    MEDField(const MEDField& field);
+    MEDField& operator=(const MEDField& field);
+    virtual ~MEDField();
+    MEDCoupling::MEDCouplingFieldDouble *getField() const  { return _field; }
+    const MEDCoupling::MEDCouplingMesh *getMesh() const { return _field->getMesh(); }
+  private:
+    MEDCoupling::MEDCouplingFieldDouble *_field;
+  };
 }
+
+#endif

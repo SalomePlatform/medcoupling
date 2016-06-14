@@ -24,6 +24,7 @@ ENDIF(MEDCOUPLING_BUILD_TESTS)
 
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}/../..
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
@@ -60,6 +61,8 @@ SET(medcoupling_SOURCES
   MEDCouplingMatrix.cxx
   MEDCouplingPartDefinition.cxx
   MEDCouplingSkyLineArray.cxx
+  ../ICoCo/ICoCoField.cxx
+  ../ICoCo/ICoCoMEDField.cxx
   )
 
 SET(medcouplingremapper_SOURCES
@@ -76,7 +79,8 @@ INSTALL(TARGETS medcouplingremapper EXPORT ${PROJECT_NAME}TargetGroup DESTINATIO
 
 FILE(GLOB medcoupling_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 FILE(GLOB medcoupling_HEADERS_TXX "${CMAKE_CURRENT_SOURCE_DIR}/*.txx")
-INSTALL(FILES ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX} MEDCouplingNatureOfFieldEnum DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
+FILE(GLOB icoco_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo/*.hxx")
+INSTALL(FILES ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX} ${icoco_HEADERS_HXX} MEDCouplingNatureOfFieldEnum DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
 
 # To allow usage as SWIG dependencies:
 SET(medcoupling_HEADERS_HXX PARENT_SCOPE)
