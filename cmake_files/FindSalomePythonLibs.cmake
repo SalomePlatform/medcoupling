@@ -27,7 +27,6 @@
 # Use the PYTHON_ROOT_DIR if PYTHONLIBS_ROOT_DIR is not defined:
 SET(PYTHON_ROOT_DIR "$ENV{PYTHON_ROOT_DIR}" CACHE PATH "Path to the Python installation (libs+interpreter)")
 IF(EXISTS "${PYTHON_ROOT_DIR}" AND (NOT PYTHONLIBS_ROOT_DIR))
-  # Extract sub-directory "paraview-x.xx":
   MESSAGE(STATUS "Setting PYTHONLIBS_ROOT_DIR to: ${PYTHON_ROOT_DIR}")
   SET(PYTHONLIBS_ROOT_DIR "${PYTHON_ROOT_DIR}" CACHE PATH "Path to PythonLibs directory")
 ENDIF()
