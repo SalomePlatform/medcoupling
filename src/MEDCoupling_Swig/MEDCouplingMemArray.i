@@ -3094,8 +3094,7 @@ namespace MEDCoupling
             if(!da2)
               throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
             da2->checkAllocated();
-            int size=self->getNumberOfTuples();
-            self->splitByValueRange(da2->getConstPointer(),da2->getConstPointer()+size,ret0,ret1,ret2);
+            self->splitByValueRange(da2->begin(),da2->end(),ret0,ret1,ret2);
           }
         PyObject *ret = PyList_New(3);
         PyList_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));

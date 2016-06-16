@@ -1778,6 +1778,12 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         #
         d.setIJ(6,0,9);
         self.assertRaises(InterpKernelException,d.splitByValueRange,val2);
+        # non regression test in python wrapping
+        rg=DataArrayInt([0,10,29,56,75,102,121,148,167,194,213,240,259,286,305,332,351,378,397,424,443,470,489,516])
+        a,b,c=DataArrayInt([75]).splitByValueRange(rg)
+        assert(a.isEqual(DataArrayInt([4])))
+        assert(b.isEqual(DataArrayInt([0])))
+        assert(c.isEqual(DataArrayInt([4])))
         pass
 
     def testUMeshSplitProfilePerType1(self):
