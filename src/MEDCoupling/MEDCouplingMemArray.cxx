@@ -10757,7 +10757,8 @@ void DataArrayInt::sortEachPairToMakeALinkedList()
             }
           else
             {//here we are sure to have (std::count(conn,conn+4,conn[1])==2)
-              std::swap(conn[2],conn[3]);
+              if(conn[1]==conn[3])
+                std::swap(conn[2],conn[3]);
             }
         }
     }
