@@ -3724,6 +3724,12 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         d=DataArrayInt([(50,49),(50,51),(51,52),(53,52),(53,54),(55,54),(55,56),(56,57),(58,57),(58,59),(60,59),(60,61),(61,62),(63,62),(63,64),(65,64),(65,66),(66,67)])
         d.sortEachPairToMakeALinkedList()
         self.assertTrue(d.isEqual(DataArrayInt([(49,50),(50,51),(51,52),(52,53),(53,54),(54,55),(55,56),(56,57),(57,58),(58,59),(59,60),(60,61),(61,62),(62,63),(63,64),(64,65),(65,66),(66,67)])))
+        d=DataArrayInt([(0,2),(1,2),(1,3)])
+        d.sortEachPairToMakeALinkedList()
+        self.assertTrue(d.isEqual(DataArrayInt([(0,2),(2,1),(1,3)])))
+        d=DataArrayInt([(0,2),(1,2),(3,1)])
+        d.sortEachPairToMakeALinkedList()
+        self.assertTrue(d.isEqual(DataArrayInt([(0,2),(2,1),(1,3)])))
         pass
 
     def testSwig2DAIIsRange(self):

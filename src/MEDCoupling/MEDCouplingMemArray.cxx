@@ -10755,6 +10755,10 @@ void DataArrayInt::sortEachPairToMakeALinkedList()
                 { tmp[3]=conn[2];}
               std::copy(tmp,tmp+4,conn);
             }
+          else
+            {//here we are sure to have (std::count(conn,conn+4,conn[1])==2)
+              std::swap(conn[2],conn[3]);
+            }
         }
     }
 }
