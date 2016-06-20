@@ -1432,11 +1432,10 @@ void MEDFileMesh::setGroupInfo(const std::map<std::string, std::vector<std::stri
  */
 int MEDFileMesh::getFamilyId(const std::string& name) const
 {
-  std::string oname(name);
-  std::map<std::string, int>::const_iterator it=_families.find(oname);
-  std::vector<std::string> fams=getFamiliesNames();
+  std::map<std::string, int>::const_iterator it=_families.find(name);
   if(it==_families.end())
     {
+      std::vector<std::string> fams(getFamiliesNames());
       std::ostringstream oss; oss << "No such familyname \"" << name << "\" !\nAvailable families are :";
       std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
