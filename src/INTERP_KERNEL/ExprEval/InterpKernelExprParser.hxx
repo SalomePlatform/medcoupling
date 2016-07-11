@@ -125,6 +125,10 @@ namespace INTERP_KERNEL
   class ExprParser
   {
   public:
+#if __cplusplus >= 201103L
+    INTERPKERNEL_EXPORT ExprParser(ExprParser&& other);
+    INTERPKERNEL_EXPORT ExprParser& operator=(ExprParser&& other);
+#endif
     INTERPKERNEL_EXPORT ExprParser(const std::string& expr, ExprParser *father=0);
     INTERPKERNEL_EXPORT ExprParser(const char *expr, int lgth, ExprParser *father=0);
     INTERPKERNEL_EXPORT ~ExprParser();

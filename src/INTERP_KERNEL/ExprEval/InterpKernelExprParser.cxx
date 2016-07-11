@@ -459,22 +459,49 @@ Value *ExprParser::evaluateLowLev(Value *valGen) const
   return stackOfVal.back();
 }
 
+#if __cplusplus >= 201103L
+
+ExprParser::ExprParser(ExprParser&& other):_father(other._father),_leaf(other._leaf),_is_parsing_ok(std::move(other._is_parsing_ok)),_expr(std::move(other._expr)),_sub_expr(std::move(other._sub_expr)),_func_btw_sub_expr(std::move(other._func_btw_sub_expr))
+{
+  other._leaf=0;
+}
+
+ExprParser& ExprParser::operator=(ExprParser&& other)
+{
+  _father=other._father;
+  _is_parsing_ok=std::move(other._is_parsing_ok);
+  _leaf=other._leaf;
+  _expr=std::move(other._expr);
+  _sub_expr=std::move(other._sub_expr);
+  _func_btw_sub_expr=std::move(other._func_btw_sub_expr);
+  other._leaf=other._leaf;
+  other._leaf=0;
+  return *this;
+}
+
+#endif
+
 void ExprParser::reverseThis()
 {
   if(_leaf)
     return ;
   for(std::vector<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
     (*iter).reverseThis();
-  AutoPtr<char> buf(new char[sizeof(ExprParser)]);
-  char *loc(reinterpret_cast<char *>(&_sub_expr[0])),*bufPtr(buf);
   std::size_t sz(_sub_expr.size());
   std::size_t nbOfTurn(sz/2);
+#if __cplusplus >= 201103L
+  for(std::size_t i=0;i<nbOfTurn;i++)
+    std::swap(_sub_expr[i],_sub_expr[sz-i-1]);
+#else
+  AutoPtr<char> buf(new char[sizeof(ExprParser)]);
+  char *loc(reinterpret_cast<char *>(&_sub_expr[0])),*bufPtr(buf);
   for(std::size_t i=0;i<nbOfTurn;i++)
     {
       std::copy(loc+i*sizeof(ExprParser),loc+(i+1)*sizeof(ExprParser),bufPtr);
       std::copy(loc+(sz-i-1)*sizeof(ExprParser),loc+(sz-i)*sizeof(ExprParser),loc+i*sizeof(ExprParser));
       std::copy(bufPtr,bufPtr+sizeof(ExprParser),loc+(sz-i-1)*sizeof(ExprParser));
     }
+#endif
 }
 
 ExprParserOfEval ExprParser::convertMeTo() const
