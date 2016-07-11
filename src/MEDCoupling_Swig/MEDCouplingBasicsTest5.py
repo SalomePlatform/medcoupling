@@ -4260,6 +4260,26 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(m2.getNodeGridStructure(),(3,4))
         pass
 
+    def testRemoveIdsFromIndexedArrays1(self):
+        arr=DataArrayInt([101,102,103,201,202,203,204,301,501,502,503,504,505,601,602])
+        arrI=DataArrayInt([0,3,7,8,8,13,15])
+        # case where all elts in inputs are in
+        arr2=arr.deepCopy() ; arrI2=arrI.deepCopy()
+        self.assertTrue(MEDCouplingUMesh.RemoveIdsFromIndexedArrays([501,502],arr2,arrI2))
+        self.assertTrue(arr2.isEqual(DataArrayInt([101,102,103,201,202,203,204,301,503,504,505,601,602])))
+        self.assertTrue(arrI2.isEqual(DataArrayInt([0,3,7,8,8,11,13])))
+        # case where part of elts in inputs are in
+        arr2=arr.deepCopy() ; arrI2=arrI.deepCopy()
+        self.assertTrue(MEDCouplingUMesh.RemoveIdsFromIndexedArrays([504,507],arr2,arrI2))
+        self.assertTrue(arr2.isEqual(DataArrayInt([101,102,103,201,202,203,204,301,501,502,503,505,601,602])))
+        self.assertTrue(arrI2.isEqual(DataArrayInt([0,3,7,8,8,12,14])))
+        # case where no elts in inputs are in
+        arr2=arr.deepCopy() ; arrI2=arrI.deepCopy()
+        self.assertTrue(not MEDCouplingUMesh.RemoveIdsFromIndexedArrays([1,5,701],arr2,arrI2))
+        self.assertTrue(arr2.isEqual(arr))
+        self.assertTrue(arrI2.isEqual(arrI))
+        pass
+
     pass
 
 if __name__ == '__main__':
