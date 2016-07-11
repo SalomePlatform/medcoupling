@@ -5090,6 +5090,42 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertTrue(mm2.getFamilyFieldAtLevel(1) is None)
       pass
 
+    def testAppendFieldProfileOnIntField(self):
+      fname="Pyfile100.med"
+      arrX=DataArrayDouble([0,1,2,3])
+      arrY=DataArrayDouble([0,1,2])
+      mesh=MEDCouplingCMesh() ; mesh.setCoords(arrX,arrY) ; mesh.setName("Mesh")
+      mm=MEDFileCMesh()
+      mm.setMesh(mesh)
+      #
+      fmts=MEDFileIntFieldMultiTS()
+      pflName="PFL"
+      pfl=DataArrayInt([1,3,5]) ; pfl.setName(pflName)
+      f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(mesh)
+      fieldName="FieldOnCell"
+      f.setTime(1.2,1,1) ; f.setName(fieldName)
+      arr=DataArrayInt([101,102,103])
+      fmts.appendFieldProfile(f,arr,mm,0,pfl)
+      #
+      mm.write(fname,2)
+      fmts.write(fname,0)
+      #
+      mm=MEDFileMesh.New(fname)
+      fmts=MEDFileAnyTypeFieldMultiTS.New(fname)
+      self.assertTrue(isinstance(fmts,MEDFileIntFieldMultiTS))
+      self.assertEqual(fmts.getName(),fieldName)
+      self.assertEqual(len(fmts),1)
+      f1ts=fmts[0]
+      ftest,pfltest=f1ts.getFieldWithProfile(ON_CELLS,0,mm)
+      self.assertEqual(pfltest.getName(),pflName)
+      self.assertEqual(ftest.getName(),fieldName)
+      self.assertTrue(ftest.isEqualWithoutConsideringStr(arr))
+      ftest2,vals=f1ts.getFieldOnMeshAtLevel(ON_CELLS,0,mm)
+      self.assertTrue(vals.isEqualWithoutConsideringStr(arr))
+      self.assertEqual(ftest2.getTime(),f.getTime())
+      self.assertEqual(ftest2.getMesh().getNumberOfCells(),len(arr))
+      pass
+
     pass
 
 if __name__ == "__main__":

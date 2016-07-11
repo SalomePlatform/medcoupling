@@ -7961,7 +7961,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldProfile(const MEDCouplingF
     throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTSWithoutSDA::appendFieldNoProfileSBT : input field is NULL !");
   if(!_time_steps.empty())
     checkCoherencyOfTinyInfo(field,arr);
-  MEDFileField1TSWithoutSDA *objC=new MEDFileField1TSWithoutSDA;
+  MEDFileAnyTypeField1TSWithoutSDA *objC=createNew1TSWithoutSDAEmptyInstance();
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> obj(objC);
   objC->setFieldProfile(field,arr,mesh,meshDimRelToMax,profile,glob,*this);
   copyTinyInfoFrom(field,arr);
