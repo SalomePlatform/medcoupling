@@ -33,6 +33,8 @@ namespace MEDCoupling
     MCAuto(const MCAuto& other):_ptr(0) { referPtr(other._ptr); }
     MCAuto(T *ptr=0):_ptr(ptr) { }
     ~MCAuto() { destroyPtr(); }
+    bool isNull() const { return _ptr==0; }
+    bool isNotNull() const { return !isNull(); }
     bool operator==(const MCAuto& other) const { return _ptr==other._ptr; }
     bool operator==(const T *other) const { return _ptr==other; }
     MCAuto &operator=(const MCAuto& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }

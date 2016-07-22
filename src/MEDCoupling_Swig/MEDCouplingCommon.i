@@ -37,6 +37,7 @@
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldInt.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MCAuto.hxx"
@@ -228,6 +229,8 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::nodeToCellDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::cellToNodeDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti;
+%newobject MEDCoupling::MEDCouplingFieldInt::New;
+%newobject MEDCoupling::MEDCouplingFieldInt::getArray;
 %newobject MEDCoupling::MEDCouplingFieldTemplate::New;
 %newobject MEDCoupling::MEDCouplingMesh::deepCopy;
 %newobject MEDCoupling::MEDCouplingMesh::clone;
@@ -5147,6 +5150,53 @@ namespace MEDCoupling
            return ret;
          }
        }
+  };
+
+  class MEDCouplingFieldInt : public MEDCouplingField
+  {
+  public:
+    static MEDCouplingFieldInt *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
+    void setTimeUnit(const std::string& unit) throw(INTERP_KERNEL::Exception);
+    std::string getTimeUnit() const throw(INTERP_KERNEL::Exception);
+    void setTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
+    void setArray(DataArrayInt *array) throw(INTERP_KERNEL::Exception);
+    %extend {
+      MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME)
+      {
+        return MEDCouplingFieldInt::New(type,td);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss;
+        self->reprQuickOverview(oss);
+        return oss.str();
+      }
+
+      DataArrayInt *getArray() throw(INTERP_KERNEL::Exception)
+        {
+          DataArrayInt *ret=self->getArray();
+          if(ret)
+            ret->incrRef();
+          return ret;
+        }
+      
+      PyObject *getTime() throw(INTERP_KERNEL::Exception)
+        {
+        int tmp1,tmp2;
+        double tmp0=self->getTime(tmp1,tmp2);
+        PyObject *res = PyList_New(3);
+        PyList_SetItem(res,0,SWIG_From_double(tmp0));
+        PyList_SetItem(res,1,SWIG_From_int(tmp1));
+        PyList_SetItem(res,2,SWIG_From_int(tmp2));
+        return res;
+        }
+    }
   };
   
   class MEDCouplingDefinitionTime

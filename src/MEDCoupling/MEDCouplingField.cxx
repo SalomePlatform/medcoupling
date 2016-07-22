@@ -26,6 +26,14 @@
 
 using namespace MEDCoupling;
 
+void MEDCouplingField::checkConsistencyLight() const
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("Field invalid because no mesh specified !");
+  if(_type.isNull())
+    throw INTERP_KERNEL::Exception("MEDCouplingField::checkConsistencyLight : no spatial discretization !");
+}
+
 bool MEDCouplingField::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const
 {
   if(!other)

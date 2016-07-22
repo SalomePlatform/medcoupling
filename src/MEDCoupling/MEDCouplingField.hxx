@@ -44,7 +44,7 @@ namespace MEDCoupling
   class MEDCouplingField : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
+    MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatible(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;

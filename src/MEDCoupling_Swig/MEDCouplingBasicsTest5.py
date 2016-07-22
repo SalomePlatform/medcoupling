@@ -4280,6 +4280,27 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(arrI2.isEqual(arrI))
         pass
 
+    def testFieldIntIsOnStage1(self):
+        """ My first test with field int."""
+        m=MEDCouplingCMesh()
+        m.setName("mesh")
+        arrX=DataArrayDouble([0,1,2,3])
+        m.setCoords(arrX,arrX)
+        f=MEDCouplingFieldInt(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayInt(8) ; arr.iota() ;f.setArray(arr)
+        self.assertRaises(InterpKernelException,f.checkConsistencyLight)
+        arr=DataArrayInt(9) ; arr.iota() ;f.setArray(arr)
+        f.checkConsistencyLight()
+        f.setTimeUnit("ms")
+        self.assertEqual(f.getTimeUnit(),"ms")
+        f.setTime(3.2,5,6)
+        a,b,c=f.getTime()
+        self.assertEqual(b,5)
+        self.assertEqual(c,6)
+        self.assertEqual(a,3.2,12)
+        pass
+
     pass
 
 if __name__ == '__main__':

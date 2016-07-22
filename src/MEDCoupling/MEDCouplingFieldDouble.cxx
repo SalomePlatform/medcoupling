@@ -924,10 +924,7 @@ MEDCouplingFieldDouble::~MEDCouplingFieldDouble()
  */
 void MEDCouplingFieldDouble::checkConsistencyLight() const
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Field invalid because no mesh specified !");
-  if(!((const MEDCouplingFieldDiscretization *)_type))
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::checkConsistencyLight : no spatial discretization !");
+  MEDCouplingField::checkConsistencyLight();
   _time_discr->checkConsistencyLight();
   _type->checkCoherencyBetween(_mesh,getArray());
 }
