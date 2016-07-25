@@ -3061,6 +3061,15 @@ void DataArrayDouble::useExternalArrayWithRWAccess(const double *array, int nbOf
   declareAsNew();
 }
 
+void DataArrayDouble::aggregate(const DataArrayDouble *other)
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::aggregate : null pointer !");
+  if(getNumberOfComponents()!=other->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayDouble::aggregate : mismatch number of components !");
+  _mem.insertAtTheEnd(other->begin(),other->end());
+}
+
 /*!
  * Checks if 0.0 value is present in \a this array. If it is the case, an exception
  * is thrown.
@@ -7157,6 +7166,15 @@ void DataArrayInt::useExternalArrayWithRWAccess(const int *array, int nbOfTuple,
   _info_on_compo.resize(nbOfCompo);
   _mem.useExternalArrayWithRWAccess(array,nbOfTuple*nbOfCompo);
   declareAsNew();
+}
+
+void DataArrayInt::aggregate(const DataArrayInt *other)
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("DataArrayInt::aggregate : null pointer !");
+  if(getNumberOfComponents()!=other->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayInt::aggregate : mismatch number of components !");
+  _mem.insertAtTheEnd(other->begin(),other->end());
 }
 
 /*!

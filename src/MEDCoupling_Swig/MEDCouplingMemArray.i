@@ -532,6 +532,7 @@ namespace MEDCoupling
     static DataArrayDouble *New();
     double doubleValue() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
+    void aggregate(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
     void deepCopyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
@@ -2587,6 +2588,7 @@ namespace MEDCoupling
     int intValue() const throw(INTERP_KERNEL::Exception);
     int getHashCode() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
+    void aggregate(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
     DataArrayInt *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
     void deepCopyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);

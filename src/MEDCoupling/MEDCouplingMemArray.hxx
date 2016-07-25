@@ -308,6 +308,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const double *array, int nbOfTuple, int nbOfCompo);
     template<class InputIterator>
     void insertAtTheEnd(InputIterator first, InputIterator last);
+    MEDCOUPLING_EXPORT void aggregate(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT void writeOnPlace(std::size_t id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const;
     MEDCOUPLING_EXPORT void getMinMaxPerComponent(double *bounds) const;
@@ -626,6 +627,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const int *array, int nbOfTuple, int nbOfCompo);
     template<class InputIterator>
     void insertAtTheEnd(InputIterator first, InputIterator last);
+    MEDCOUPLING_EXPORT void aggregate(const DataArrayInt *other);
     MEDCOUPLING_EXPORT void writeOnPlace(std::size_t id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT static DataArrayInt *Add(const DataArrayInt *a1, const DataArrayInt *a2);
     MEDCOUPLING_EXPORT void addEqual(const DataArrayInt *other);
