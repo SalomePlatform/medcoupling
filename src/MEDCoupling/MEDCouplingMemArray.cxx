@@ -6916,6 +6916,8 @@ bool DataArrayInt::isFittingWith(const std::vector<bool>& v) const
  * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple equal to \a val
  * put True to the corresponding entry in \a vec.
  * \a vec is expected to be with the same size than the number of tuples of \a this.
+ *
+ *  \sa DataArrayInt::switchOnTupleNotEqualTo.
  */
 void DataArrayInt::switchOnTupleEqualTo(int val, std::vector<bool>& vec) const
 {
@@ -6928,6 +6930,27 @@ void DataArrayInt::switchOnTupleEqualTo(int val, std::vector<bool>& vec) const
   const int *pt(begin());
   for(int i=0;i<nbOfTuples;i++)
     if(pt[i]==val)
+      vec[i]=true;
+}
+
+/*!
+ * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple different from \a val
+ * put True to the corresponding entry in \a vec.
+ * \a vec is expected to be with the same size than the number of tuples of \a this.
+ * 
+ *  \sa DataArrayInt::switchOnTupleEqualTo.
+ */
+void DataArrayInt::switchOnTupleNotEqualTo(int val, std::vector<bool>& vec) const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleNotEqualTo : number of components of this should be equal to one !");
+  int nbOfTuples(getNumberOfTuples());
+  if(nbOfTuples!=(int)vec.size())
+    throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleNotEqualTo : number of tuples of this should be equal to size of input vector of bool !");
+  const int *pt(begin());
+  for(int i=0;i<nbOfTuples;i++)
+    if(pt[i]!=val)
       vec[i]=true;
 }
 
