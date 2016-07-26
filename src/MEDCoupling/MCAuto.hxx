@@ -35,6 +35,7 @@ namespace MEDCoupling
     ~MCAuto() { destroyPtr(); }
     bool isNull() const { return _ptr==0; }
     bool isNotNull() const { return !isNull(); }
+    void nullify() { destroyPtr(); _ptr=0; }
     bool operator==(const MCAuto& other) const { return _ptr==other._ptr; }
     bool operator==(const T *other) const { return _ptr==other; }
     MCAuto &operator=(const MCAuto& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
