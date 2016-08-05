@@ -318,7 +318,7 @@ class Doxy2SWIG:
 
     def do_sectiondef(self, node):
         kind = node.attributes['kind'].value
-        if kind in ('public-func', 'func', 'user-defined', ''):
+        if kind in ('public-static-func', 'public-func', 'func', 'user-defined', ''):
             self.generic_parse(node)
 
     def do_header(self, node):
