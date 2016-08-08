@@ -2357,7 +2357,7 @@ void MEDCoupling1DGTUMesh::checkConsistencyOfConnectivity() const
       if(c1->getInfoOnComponent(0)!="")
         throw INTERP_KERNEL::Exception("Nodal connectivity index array is expected to have no info on its single component !");
       int f=c1->front(),ll=c1->back();
-      if(f<0 || f>=sz2)
+      if(f<0 || (sz2>0 && f>=sz2))
         {
           std::ostringstream oss; oss << "Nodal connectivity index array first value (" << f << ") is expected to be exactly in [0," << sz2 << ") !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());

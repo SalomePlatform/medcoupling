@@ -4301,6 +4301,13 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(a,3.2,12)
         pass
 
+    def testNoThrowOn1DGTU2UOnNullCells(self):
+        """ Non regression test : no throw when trying to convert 1DGTUMesh to UMesh on an empty mesh"""
+        m=MEDCoupling1DGTUMesh("",NORM_POLYGON) ; m.setCoords(DataArrayDouble([],0,3))
+        m.setNodalConnectivity(DataArrayInt([]),DataArrayInt([0]))
+        m=m.buildUnstructured()
+        pass
+    
     pass
 
 if __name__ == '__main__':

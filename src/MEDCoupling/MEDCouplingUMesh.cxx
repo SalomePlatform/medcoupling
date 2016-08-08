@@ -6693,7 +6693,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::computeDiameterField() const
 }
 
 /*!
- * This method aggregate the bbox of each cell and put it into bbox parameter.
+ * This method aggregate the bbox of each cell and put it into bbox parameter (xmin,xmax,ymin,ymax,zmin,zmax).
  * 
  * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
  *                         For all other cases this input parameter is ignored.
