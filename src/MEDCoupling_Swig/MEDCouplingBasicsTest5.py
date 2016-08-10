@@ -4307,7 +4307,32 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         m.setNodalConnectivity(DataArrayInt([]),DataArrayInt([0]))
         m=m.buildUnstructured()
         pass
-    
+
+    def testExplodeMeshIntoMicroEdges1(self):
+        """ test for new functionality MEDCouplingUMesh.explodeMeshIntoMicroEdges"""
+        m=MEDCouplingUMesh("mesh",2)
+        coo=DataArrayDouble([2,0,10,0,12,0,0,3,4,5,10,5,12,7,3,2.5,7,2.5,6,0,10,2.5,11,2.5,11,0,7,5],14,2)
+        m.setCoords(coo)
+        m.allocateCells()
+        # here a mix of quadratic, linear cells. Non conform but conform considering micro edges
+        m.insertNextCell(NORM_TRI6,[0,4,1,7,8,9])
+        m.insertNextCell(NORM_TRI6,[1,5,2,10,11,12])
+        m.insertNextCell(NORM_TRI6,[5,1,4,10,8,13])
+        m.insertNextCell(NORM_TRI3,[3,4,7])
+        m.insertNextCell(NORM_TRI3,[3,7,0])
+        m.insertNextCell(NORM_TRI3,[6,2,11])
+        m.insertNextCell(NORM_TRI3,[6,11,5])
+        m.insertNextCell(NORM_TRI3,[6,5,13])
+        m.insertNextCell(NORM_TRI3,[6,13,4])
+        edges,d,di,rd,rdi=m.explodeMeshIntoMicroEdges() # <- new method
+        self.assertTrue(MEDCoupling1SGTUMesh(edges).getNodalConnectivity().isEqual(DataArrayInt([0,7,7,4,4,8,8,1,1,9,9,0,1,10,10,5,5,11,11,2,2,12,12,1,4,13,13,5,3,4,7,3,0,3,6,2,11,6,5,6,13,6,4,6])))
+        self.assertEqual(edges.getCoords().getHiddenCppPointer(),coo.getHiddenCppPointer())
+        self.assertTrue(d.isEqual(DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,7,6,3,2,12,13,14,1,15,15,0,16,17,9,18,18,8,19,19,13,20,20,12,21])))
+        self.assertTrue(di.isEqual(DataArrayInt([0,6,12,18,21,24,27,30,33,36])))
+        self.assertTrue(rd.isEqual(DataArrayInt([0,4,0,3,0,2,0,2,0,0,1,2,1,2,1,6,1,5,1,1,2,8,2,7,3,3,4,4,5,5,6,6,7,7,8,8])))
+        self.assertTrue(rdi.isEqual(DataArrayInt([0,2,4,6,8,9,10,12,14,16,18,19,20,22,24,25,27,28,29,31,33,35,36])))
+        pass
+        
     pass
 
 if __name__ == '__main__':

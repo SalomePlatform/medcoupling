@@ -674,6 +674,28 @@ private:
   const INTERP_KERNEL::CellModel& _cm;
 };
 
+class MicroEdgesGenerator2D
+{
+public:
+  MicroEdgesGenerator2D(const INTERP_KERNEL::CellModel& cm):_cm(cm) { }
+  unsigned getNumberOfSons2(const int *conn, int lgth) const { return _cm.getNumberOfMicroEdges(); }
+  unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, INTERP_KERNEL::NormalizedCellType& typeOfSon) const { return _cm.fillMicroEdgeNodalConnectivity(sonId,nodalConn,sonNodalConn,typeOfSon); }
+  static const int DELTA=1;
+private:
+  const INTERP_KERNEL::CellModel& _cm;
+};
+
+class MicroEdgesGenerator3D
+{
+public:
+  MicroEdgesGenerator3D(const INTERP_KERNEL::CellModel& cm):_cm(cm) { }
+  unsigned getNumberOfSons2(const int *conn, int lgth) const { return _cm.getNumberOfMicroEdges(); }
+  unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, INTERP_KERNEL::NormalizedCellType& typeOfSon) const { return _cm.fillMicroEdgeNodalConnectivity(sonId,nodalConn,sonNodalConn,typeOfSon); }
+  static const int DELTA=2;
+private:
+  const INTERP_KERNEL::CellModel& _cm;
+};
+
 /// @endcond
 
 /*!
@@ -738,6 +760,26 @@ MEDCouplingUMesh *MEDCouplingUMesh::explode3DMeshTo1D(DataArrayInt *desc, DataAr
   if(getMeshDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::explode3DMeshTo1D : This has to have a mesh dimension to 3 !");
   return buildDescendingConnectivityGen<MinusTwoSonsGenerator>(desc,descIndx,revDesc,revDescIndx,MEDCouplingFastNbrer);
+}
+
+/*!
+ * This method computes the micro edges constituting each cell in \a this. Micro edge is an edge for non quadratic cells. Micro edge is an half edge for quadratic cells.
+ * This method works for both meshes with mesh dimenstion equal to 2 or 3. Dynamical cells are not supported (polygons, polyhedrons...)
+ * 
+ * \sa explode3DMeshTo1D, buildDescendingConnectiviy
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::explodeMeshIntoMicroEdges(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const
+{
+   checkFullyDefined();
+   switch(getMeshDimension())
+     {
+     case 2:
+       return buildDescendingConnectivityGen<MicroEdgesGenerator2D>(desc,descIndx,revDesc,revDescIndx,MEDCouplingFastNbrer);
+     case 3:
+       return buildDescendingConnectivityGen<MicroEdgesGenerator2D>(desc,descIndx,revDesc,revDescIndx,MEDCouplingFastNbrer);
+     default:
+       throw INTERP_KERNEL::Exception("MEDCouplingUMesh::explodeMeshIntoMicroEdges : Only 2D and 3D supported !");
+     }
 }
 
 /*!
