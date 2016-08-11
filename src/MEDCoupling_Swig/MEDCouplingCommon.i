@@ -279,6 +279,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingUMesh::buildDescendingConnectivity;
 %newobject MEDCoupling::MEDCouplingUMesh::buildDescendingConnectivity2;
 %newobject MEDCoupling::MEDCouplingUMesh::explode3DMeshTo1D;
+%newobject MEDCoupling::MEDCouplingUMesh::explodeMeshIntoMicroEdges;
 %newobject MEDCoupling::MEDCouplingUMesh::buildExtrudedMesh;
 %newobject MEDCoupling::MEDCouplingUMesh::buildSpreadZonesWithPoly;
 %newobject MEDCoupling::MEDCouplingUMesh::MergeUMeshes;
@@ -1788,6 +1789,7 @@ namespace MEDCoupling
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *explode3DMeshTo1D(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *explodeMeshIntoMicroEdges(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
     bool isPresenceOfQuadratic() const throw(INTERP_KERNEL::Exception);
     bool isFullyQuadratic() const throw(INTERP_KERNEL::Exception);
@@ -2531,6 +2533,22 @@ namespace MEDCoupling
         MCAuto<DataArrayInt> d2=DataArrayInt::New();
         MCAuto<DataArrayInt> d3=DataArrayInt::New();
         MEDCouplingUMesh *m=self->explode3DMeshTo1D(d0,d1,d2,d3);
+        PyObject *ret=PyTuple_New(5);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(d2.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(d3.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      PyObject *explodeMeshIntoMicroEdges() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> d0=DataArrayInt::New();
+        MCAuto<DataArrayInt> d1=DataArrayInt::New();
+        MCAuto<DataArrayInt> d2=DataArrayInt::New();
+        MCAuto<DataArrayInt> d3=DataArrayInt::New();
+        MEDCouplingUMesh *m=self->explodeMeshIntoMicroEdges(d0,d1,d2,d3);
         PyObject *ret=PyTuple_New(5);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));

@@ -452,6 +452,28 @@ namespace INTERP_KERNEL
       return (lgth-std::count(conn,conn+lgth,-1))/2;
   }
   
+  /*!
+   * \sa fillMicroEdgeNodalConnectivity
+   */
+  unsigned CellModel::getNumberOfMicroEdges() const
+  {
+    unsigned mul(isQuadratic()?2:1);
+    if(!isDynamic())
+      {
+        switch(getDimension())
+          {
+          case 2:
+            return mul*getNumberOfSons();
+          case 3:
+            return mul*_nb_of_little_sons;
+          default:
+            throw INTERP_KERNEL::Exception("CellModel::getNumberOfMacroEdges : only 2D and 3D cells support this !");
+          }
+      }
+    else
+      throw INTERP_KERNEL::Exception("CellModel::getNumberOfMacroEdges : not supported by dynamic type !");
+  }
+  
   NormalizedCellType CellModel::getCorrespondingPolyType() const
   {
     switch(getDimension())
@@ -590,6 +612,50 @@ namespace INTERP_KERNEL
       }
     else
       throw INTERP_KERNEL::Exception("CellModel::fillSonEdgesNodalConnectivity3D : not implemented yet for NORM_POLYHED !");   
+  }
+
+  /*!
+   * \sa getNumberOfMicroEdges
+   */
+  unsigned CellModel::fillMicroEdgeNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn, NormalizedCellType& typeOfSon) const
+  {
+    if(isQuadratic())
+      {
+        int edgeId(sonId/2),subEdgeId(sonId%2);
+        typeOfSon=NORM_SEG2;
+        const unsigned *sonConn(0);
+        switch(getDimension())
+          {
+          case 2:
+            {
+              sonConn=_sons_con[edgeId];
+              break;
+            }
+          case 3:
+            {
+              sonConn=_little_sons_con[edgeId];
+              break;
+            }
+          default:
+            throw INTERP_KERNEL::Exception("CellModel::fillMicroEdgeNodalConnectivity : only 2D and 3D cells support this !");
+          }
+        const unsigned tmp[3]={sonConn[0],sonConn[2],sonConn[1]};
+        sonNodalConn[0]=nodalConn[tmp[subEdgeId]];
+        sonNodalConn[1]=nodalConn[tmp[subEdgeId+1]];
+        return 2;
+      }
+    else
+      {
+        switch(getDimension())
+          {
+          case 2:
+            return fillSonCellNodalConnectivity2(sonId,nodalConn,0,sonNodalConn,typeOfSon);
+          case 3:
+            return fillSonEdgesNodalConnectivity3D(sonId,nodalConn,0,sonNodalConn,typeOfSon);
+          default:
+            throw INTERP_KERNEL::Exception("CellModel::fillMicroEdgeNodalConnectivity : only 2D and 3D cells support this #2 !");
+          }
+      }
   }
 
   void CellModel::changeOrientationOf2D(int *nodalConn, unsigned int sz) const
