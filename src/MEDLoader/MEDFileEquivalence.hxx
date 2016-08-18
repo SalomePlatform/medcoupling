@@ -150,7 +150,7 @@ namespace MEDCoupling
     void getRepr(std::ostream& oss) const;
   public:
     void write(med_idt fid) const;
-  private:
+  protected:
     ~MEDFileEquivalenceCellType() { }
   private:
     INTERP_KERNEL::NormalizedCellType _type;
@@ -193,7 +193,7 @@ namespace MEDCoupling
     MEDFileEquivalenceNode *deepCopy(MEDFileEquivalencePair *owner) const;
     bool isEqual(const MEDFileEquivalenceNode *other, std::string& what) const;
     void getRepr(std::ostream& oss) const;
-  private:
+  protected:
     ~MEDFileEquivalenceNode() { }
   };
 }
