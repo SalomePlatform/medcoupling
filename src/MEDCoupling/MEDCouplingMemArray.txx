@@ -25,6 +25,7 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpolationUtils.hxx"
+#include "MCAuto.hxx"
 
 #include <sstream>
 #include <cstdlib>
@@ -489,6 +490,452 @@ namespace MEDCoupling
     alloc(other._nb_of_elem);
     std::copy(other._pointer.getConstPointer(),other._pointer.getConstPointer()+_nb_of_elem,_pointer.getPointer());
     return *this;
+  }
+
+  //////////////////////////////////
+  
+  template<class T>
+  std::size_t DataArrayTemplate<T>::getHeapMemorySizeWithoutChildren() const
+  {
+    std::size_t sz(_mem.getNbOfElemAllocated());
+    sz*=sizeof(T);
+    return DataArray::getHeapMemorySizeWithoutChildren()+sz;
+  }
+  
+  /*!
+   * Allocates the raw data in memory. If the memory was already allocated, then it is
+   * freed and re-allocated. See an example of this method use
+   * \ref MEDCouplingArraySteps1WC "here".
+   *  \param [in] nbOfTuple - number of tuples of data to allocate.
+   *  \param [in] nbOfCompo - number of components of data to allocate.
+   *  \throw If \a nbOfTuple < 0 or \a nbOfCompo < 0.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::alloc(int nbOfTuple, int nbOfCompo)
+  {
+    if(nbOfTuple<0 || nbOfCompo<0)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::alloc : request for negative length of data !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    _info_on_compo.resize(nbOfCompo);
+    _mem.alloc(nbOfCompo*(std::size_t)nbOfTuple);
+    declareAsNew();
+  }
+
+  /*!
+   * Sets a C array to be used as raw data of \a this. The previously set info
+   *  of components is retained and re-sized. 
+   * For more info see \ref MEDCouplingArraySteps1.
+   *  \param [in] array - the C array to be used as raw data of \a this.
+   *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
+   *  \param [in] type - specifies how to deallocate \a array. If \a type == MEDCoupling::CPP_DEALLOC,
+   *                     \c delete [] \c array; will be called. If \a type == MEDCoupling::C_DEALLOC,
+   *                     \c free(\c array ) will be called.
+   *  \param [in] nbOfTuple - new number of tuples in \a this.
+   *  \param [in] nbOfCompo - new number of components in \a this.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::useArray(const T *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo)
+  {
+    _info_on_compo.resize(nbOfCompo);
+    _mem.useArray(array,ownership,type,(std::size_t)nbOfTuple*nbOfCompo);
+    declareAsNew();
+  }
+  
+  template<class T>
+  void DataArrayTemplate<T>::useExternalArrayWithRWAccess(const T *array, int nbOfTuple, int nbOfCompo)
+  {
+    _info_on_compo.resize(nbOfCompo);
+    _mem.useExternalArrayWithRWAccess(array,(std::size_t)nbOfTuple*nbOfCompo);
+    declareAsNew();
+  }
+
+  /*!
+   * Returns a value located at specified tuple and component.
+   * This method is equivalent to DataArrayTemplate<T>::getIJ() except that validity of
+   * parameters is checked. So this method is safe but expensive if used to go through
+   * all values of \a this.
+   *  \param [in] tupleId - index of tuple of interest.
+   *  \param [in] compoId - index of component of interest.
+   *  \return double - value located by \a tupleId and \a compoId.
+   *  \throw If \a this is not allocated.
+   *  \throw If condition <em>( 0 <= tupleId < this->getNumberOfTuples() )</em> is violated.
+   *  \throw If condition <em>( 0 <= compoId < this->getNumberOfComponents() )</em> is violated.
+   */
+  template<class T>
+  T DataArrayTemplate<T>::getIJSafe(int tupleId, int compoId) const
+  {
+    checkAllocated();
+    if(tupleId<0 || tupleId>=getNumberOfTuples())
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::getIJSafe : request for tupleId " << tupleId << " should be in [0," << getNumberOfTuples() << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    if(compoId<0 || compoId>=getNumberOfComponents())
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::getIJSafe : request for compoId " << compoId << " should be in [0," << getNumberOfComponents() << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    return _mem[tupleId*_info_on_compo.size()+compoId];
+  }
+
+  /*!
+   * This method \b do \b not modify content of \a this. It only modify its memory footprint if the allocated memory is to high regarding real data to store.
+   *
+   * \sa DataArray::getHeapMemorySizeWithoutChildren, DataArrayTemplate<T>::reserve
+   */
+  template<class T>
+  void DataArrayTemplate<T>::pack() const
+  {
+    _mem.pack();
+  }
+
+  /*!
+   * Checks if raw data is allocated. Read more on the raw data
+   * in \ref MEDCouplingArrayBasicsTuplesAndCompo "DataArrays infos" for more information.
+   *  \return bool - \a true if the raw data is allocated, \a false else.
+   */
+  template<class T>
+  bool DataArrayTemplate<T>::isAllocated() const
+  {
+    return getConstPointer()!=0;
+  }
+  
+  /*!
+   * Checks if raw data is allocated and throws an exception if it is not the case.
+   *  \throw If the raw data is not allocated.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::checkAllocated() const
+  {
+    if(!isAllocated())
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  }
+  
+  /*!
+   * This method desallocated \a this without modification of informations relative to the components.
+   * After call of this method, DataArrayDouble::isAllocated will return false.
+   * If \a this is already not allocated, \a this is let unchanged.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::desallocate()
+  {
+    _mem.destroy();
+  }
+
+  /*!
+   * This method reserve nbOfElems elements in memory ( nbOfElems*8 bytes ) \b without impacting the number of tuples in \a this.
+   * If \a this has already been allocated, this method checks that \a this has only one component. If not an INTERP_KERNEL::Exception will be thrown.
+   * If \a this has not already been allocated, number of components is set to one.
+   * This method allows to reduce number of reallocations on invokation of DataArrayDouble::pushBackSilent and DataArrayDouble::pushBackValsSilent on \a this.
+   * 
+   * \sa DataArrayDouble::pack, DataArrayDouble::pushBackSilent, DataArrayDouble::pushBackValsSilent
+   */
+  template<class T>
+  void DataArrayTemplate<T>::reserve(std::size_t nbOfElems)
+  {
+    int nbCompo(getNumberOfComponents());
+    if(nbCompo==1)
+      {
+        _mem.reserve(nbOfElems);
+      }
+    else if(nbCompo==0)
+      {
+        _mem.reserve(nbOfElems);
+        _info_on_compo.resize(1);
+      }
+    else
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::reserve : not available for DataArrayDouble with number of components different than 1 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  }
+  
+  /*!
+   * This method adds at the end of \a this the single value \a val. This method do \b not update its time label to avoid useless incrementation
+   * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
+   *
+   * \param [in] val the value to be added in \a this
+   * \throw If \a this has already been allocated with number of components different from one.
+   * \sa DataArrayDouble::pushBackValsSilent
+   */
+  template<class T>
+  void DataArrayTemplate<T>::pushBackSilent(T val)
+  {
+    int nbCompo(getNumberOfComponents());
+    if(nbCompo==1)
+      _mem.pushBack(val);
+    else if(nbCompo==0)
+      {
+        _info_on_compo.resize(1);
+        _mem.pushBack(val);
+      }
+    else
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::pushBackSilent : not available for DataArrayDouble with number of components different than 1 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  }
+  
+  /*!
+   * This method adds at the end of \a this a serie of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
+   * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
+   *
+   *  \param [in] valsBg - an array of values to push at the end of \c this.
+   *  \param [in] valsEnd - specifies the end of the array \a valsBg, so that
+   *              the last value of \a valsBg is \a valsEnd[ -1 ].
+   * \throw If \a this has already been allocated with number of components different from one.
+   * \sa DataArrayDouble::pushBackSilent
+   */
+  template<class T>
+  void DataArrayTemplate<T>::pushBackValsSilent(const T *valsBg, const T *valsEnd)
+  {
+    int nbCompo(getNumberOfComponents());
+    if(nbCompo==1)
+      _mem.insertAtTheEnd(valsBg,valsEnd);
+    else if(nbCompo==0)
+      {
+        _info_on_compo.resize(1);
+        _mem.insertAtTheEnd(valsBg,valsEnd);
+      }
+    else
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::pushBackValsSilent : not available for DataArrayDouble with number of components different than 1 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  }
+  
+  /*!
+   * This method returns silently ( without updating time label in \a this ) the last value, if any and suppress it.
+   * \throw If \a this is already empty.
+   * \throw If \a this has number of components different from one.
+   */
+  template<class T>
+  T DataArrayTemplate<T>::popBackSilent()
+  {
+    if(getNumberOfComponents()==1)
+      return _mem.popBack();
+    else
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::popBackSilent : not available for DataArrayDouble with number of components different than 1 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  }
+  
+  /*!
+   * Allocates the raw data in memory. If exactly same memory as needed already
+   * allocated, it is not re-allocated.
+   *  \param [in] nbOfTuple - number of tuples of data to allocate.
+   *  \param [in] nbOfCompo - number of components of data to allocate.
+   *  \throw If \a nbOfTuple < 0 or \a nbOfCompo < 0.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::allocIfNecessary(int nbOfTuple, int nbOfCompo)
+  {
+    if(isAllocated())
+      {
+        if(nbOfTuple!=getNumberOfTuples() || nbOfCompo!=getNumberOfComponents())
+          alloc(nbOfTuple,nbOfCompo);
+      }
+    else
+      alloc(nbOfTuple,nbOfCompo);
+  }
+
+  /*!
+   * Checks the number of tuples.
+   *  \return bool - \a true if getNumberOfTuples() == 0, \a false else.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  bool DataArrayTemplate<T>::empty() const
+  {
+    checkAllocated();
+    return getNumberOfTuples()==0;
+  }
+
+  /*!
+   * Copies all the data from another DataArrayDouble. For more info see
+   * \ref MEDCouplingArrayBasicsCopyDeepAssign.
+   *  \param [in] other - another instance of DataArrayDouble to copy data from.
+   *  \throw If the \a other is not allocated.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::deepCopyFrom(const DataArrayTemplate<T>& other)
+  {
+    other.checkAllocated();
+    int nbOfTuples(other.getNumberOfTuples()),nbOfComp(other.getNumberOfComponents());
+    allocIfNecessary(nbOfTuples,nbOfComp);
+    std::size_t nbOfElems((std::size_t)nbOfTuples*nbOfComp);
+    T *pt(getPointer());
+    const T *ptI(other.begin());
+    for(std::size_t i=0;i<nbOfElems;i++)
+      pt[i]=ptI[i];
+    copyStringInfoFrom(other);
+  }
+
+  /*!
+   * Reverse the array values.
+   *  \throw If \a this->getNumberOfComponents() < 1.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::reverse()
+  {
+    checkAllocated();
+    _mem.reverse(getNumberOfComponents());
+    declareAsNew();
+  }
+
+  /*!
+   * Assign \a val to all values in \a this array. To know more on filling arrays see
+   * \ref MEDCouplingArrayFill.
+   *  \param [in] val - the value to fill with.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::fillWithValue(T val)
+  {
+    checkAllocated();
+    _mem.fillWithValue(val);
+    declareAsNew();
+  }
+
+  /*!
+   * Changes number of tuples in the array. If the new number of tuples is smaller
+   * than the current number the array is truncated, otherwise the array is extended.
+   *  \param [in] nbOfTuples - new number of tuples. 
+   *  \throw If \a this is not allocated.
+   *  \throw If \a nbOfTuples is negative.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::reAlloc(int nbOfTuples)
+  {
+    if(nbOfTuples<0)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::reAlloc : input new number of tuples should be >=0 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    checkAllocated();
+    _mem.reAlloc(getNumberOfComponents()*(std::size_t)nbOfTuples);
+    declareAsNew();
+  }
+
+  /*!
+   * Permutes values of \a this array as required by \a old2New array. The values are
+   * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
+   * the same as in \c this one.
+   * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
+   *     giving a new position for i-th old value.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::renumberInPlace(const int *old2New)
+  {
+    checkAllocated();
+    int nbTuples(getNumberOfTuples()),nbOfCompo(getNumberOfComponents());
+    T *tmp(new T[nbTuples*nbOfCompo]);
+    const T *iptr(begin());
+    for(int i=0;i<nbTuples;i++)
+      {
+        int v=old2New[i];
+        if(v>=0 && v<nbTuples)
+          std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*v);
+        else
+          {
+            std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::renumberInPlace : At place #" << i << " value is " << v << " ! Should be in [0," << nbTuples << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+    std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
+    delete [] tmp;
+    declareAsNew();
+  }
+
+
+  /*!
+   * Permutes values of \a this array as required by \a new2Old array. The values are
+   * permuted so that \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of tuples remains
+   * the same as in \c this one.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
+   *     giving a previous position of i-th new value.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::renumberInPlaceR(const int *new2Old)
+  {
+    checkAllocated();
+    int nbTuples(getNumberOfTuples()),nbOfCompo(getNumberOfComponents());
+    T *tmp(new T[nbTuples*nbOfCompo]);
+    const T *iptr(begin());
+    for(int i=0;i<nbTuples;i++)
+      {
+        int v=new2Old[i];
+        if(v>=0 && v<nbTuples)
+          std::copy(iptr+nbOfCompo*v,iptr+nbOfCompo*(v+1),tmp+nbOfCompo*i);
+        else
+          {
+            std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::renumberInPlaceR : At place #" << i << " value is " << v << " ! Should be in [0," << nbTuples << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+    std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
+    delete [] tmp;
+    declareAsNew();
+  }
+
+  /*!
+   * Sorts values of the array.
+   *  \param [in] asc - \a true means ascending order, \a false, descending.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::sort(bool asc)
+  {
+    checkAllocated();
+    if(getNumberOfComponents()!=1)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::sort : only supported with 'this' array with ONE component !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    _mem.sort(asc);
+    declareAsNew();
+  }
+
+  /*!
+   * Returns a copy of \a this array with values permuted as required by \a old2New array.
+   * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ].
+   * Number of tuples in the result array remains the same as in \c this one.
+   * If a permutation reduction is needed, renumberAndReduce() should be used.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
+   *          giving a new position for i-th old value.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::renumber(const int *old2New) const
+  {
+    checkAllocated();
+    int nbTuples(getNumberOfTuples()),nbOfCompo(getNumberOfComponents());
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    ret->alloc(nbTuples,nbOfCompo);
+    ret->copyStringInfoFrom(*this);
+    const T *iptr(begin());
+    T *optr(ret->getPointer());
+    for(int i=0;i<nbTuples;i++)
+      std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),optr+nbOfCompo*old2New[i]);
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
   }
 }
 

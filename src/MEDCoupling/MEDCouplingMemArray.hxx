@@ -25,6 +25,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
+#include "MEDCouplingTraits.hxx"
 #include "BBTreePts.txx"
 
 #include <string>
@@ -147,6 +148,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
     MEDCOUPLING_EXPORT void setPartOfValuesBase3(const DataArray *aBase, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
     MEDCOUPLING_EXPORT virtual DataArray *deepCopy() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArray *buildNewEmptyInstance() const = 0;
     MEDCOUPLING_EXPORT virtual bool isAllocated() const = 0;
     MEDCOUPLING_EXPORT virtual void checkAllocated() const = 0;
     MEDCOUPLING_EXPORT virtual void desallocate() = 0;
@@ -199,41 +201,68 @@ namespace MEDCoupling
   };
 }
 
+namespace MEDCoupling
+{
+  template<class T>
+  class DataArrayTemplate : public DataArray
+  {
+  public:
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    //
+    MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
+    MEDCOUPLING_EXPORT std::size_t getNbOfElems() const { return _mem.getNbOfElem(); }
+    MEDCOUPLING_EXPORT bool empty() const;
+    MEDCOUPLING_EXPORT const T *getConstPointer() const { return _mem.getConstPointer(); }
+    MEDCOUPLING_EXPORT const T *begin() const { return getConstPointer(); }
+    MEDCOUPLING_EXPORT const T *end() const { return getConstPointer()+getNbOfElems(); }
+    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo=1);
+    MEDCOUPLING_EXPORT void useArray(const T *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const T *array, int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT T getIJSafe(int tupleId, int compoId) const;
+    MEDCOUPLING_EXPORT T getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
+    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, T newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
+    MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, T newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
+    MEDCOUPLING_EXPORT T *getPointer() { return _mem.getPointer(); declareAsNew(); }
+    MEDCOUPLING_EXPORT void pack() const;
+    MEDCOUPLING_EXPORT bool isAllocated() const;
+    MEDCOUPLING_EXPORT void checkAllocated() const;
+    MEDCOUPLING_EXPORT void desallocate();
+    MEDCOUPLING_EXPORT void reserve(std::size_t nbOfElems);
+    MEDCOUPLING_EXPORT void pushBackSilent(T val);
+    MEDCOUPLING_EXPORT void pushBackValsSilent(const T *valsBg, const T *valsEnd);
+    MEDCOUPLING_EXPORT T popBackSilent();
+    MEDCOUPLING_EXPORT std::size_t getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
+    MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void deepCopyFrom(const DataArrayTemplate<T>& other);
+    MEDCOUPLING_EXPORT void reverse();
+    MEDCOUPLING_EXPORT void fillWithValue(T val);
+    MEDCOUPLING_EXPORT void reAlloc(int newNbOfTuple);
+    MEDCOUPLING_EXPORT void renumberInPlace(const int *old2New);
+    MEDCOUPLING_EXPORT void renumberInPlaceR(const int *new2Old);
+    MEDCOUPLING_EXPORT void sort(bool asc=true);
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *renumber(const int *old2New) const;
+  protected:
+    MemArray<T> _mem;
+  };
+}
+
 #include "MEDCouplingMemArray.txx"
 
 namespace MEDCoupling
 {
   class DataArrayInt;
   class DataArrayDoubleIterator;
-  class DataArrayDouble : public DataArray
+  class DataArrayDouble : public DataArrayTemplate<double>
   {
   public:
     MEDCOUPLING_EXPORT static DataArrayDouble *New();
-    MEDCOUPLING_EXPORT bool isAllocated() const;
-    MEDCOUPLING_EXPORT void checkAllocated() const;
-    MEDCOUPLING_EXPORT void desallocate();
-    MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
-    MEDCOUPLING_EXPORT std::size_t getNbOfElems() const { return _mem.getNbOfElem(); }
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT double doubleValue() const;
-    MEDCOUPLING_EXPORT bool empty() const;
     MEDCOUPLING_EXPORT DataArrayDouble *deepCopy() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *buildNewEmptyInstance() const { return DataArrayDouble::New(); }
     MEDCOUPLING_EXPORT DataArrayDouble *performCopyOrIncrRef(bool deepCopy) const;
-    MEDCOUPLING_EXPORT void deepCopyFrom(const DataArrayDouble& other);
-    MEDCOUPLING_EXPORT void reserve(std::size_t nbOfElems);
-    MEDCOUPLING_EXPORT void pushBackSilent(double val);
-    MEDCOUPLING_EXPORT void pushBackValsSilent(const double *valsBg, const double *valsEnd);
-    MEDCOUPLING_EXPORT double popBackSilent();
-    MEDCOUPLING_EXPORT void pack() const;
-    MEDCOUPLING_EXPORT std::size_t getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
-    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo=1);
-    MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void fillWithZero();
-    MEDCOUPLING_EXPORT void fillWithValue(double val);
     MEDCOUPLING_EXPORT void iota(double init=0.);
     MEDCOUPLING_EXPORT bool isUniform(double val, double eps) const;
-    MEDCOUPLING_EXPORT void sort(bool asc=true);
-    MEDCOUPLING_EXPORT void reverse();
     MEDCOUPLING_EXPORT void checkMonotonic(bool increasing, double eps) const;
     MEDCOUPLING_EXPORT bool isMonotonic(bool increasing, double eps) const;
     MEDCOUPLING_EXPORT std::string repr() const;
@@ -252,13 +281,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const;
-    MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
     MEDCOUPLING_EXPORT DataArrayInt *convertToIntArr() const;
     MEDCOUPLING_EXPORT DataArrayDouble *fromNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayDouble *toNoInterlace() const;
-    MEDCOUPLING_EXPORT void renumberInPlace(const int *old2New);
-    MEDCOUPLING_EXPORT void renumberInPlaceR(const int *new2Old);
-    MEDCOUPLING_EXPORT DataArrayDouble *renumber(const int *old2New) const;
     MEDCOUPLING_EXPORT DataArrayDouble *renumberR(const int *new2Old) const;
     MEDCOUPLING_EXPORT DataArrayDouble *renumberAndReduce(const int *old2New, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
@@ -292,20 +317,10 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
     MEDCOUPLING_EXPORT void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     MEDCOUPLING_EXPORT double front() const;
     MEDCOUPLING_EXPORT double back() const;
-    MEDCOUPLING_EXPORT double getIJSafe(int tupleId, int compoId) const;
-    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
-    MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    MEDCOUPLING_EXPORT double *getPointer() { return _mem.getPointer(); declareAsNew(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
-    MEDCOUPLING_EXPORT const double *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT DataArrayDoubleIterator *iterator();
-    MEDCOUPLING_EXPORT const double *begin() const { return getConstPointer(); }
-    MEDCOUPLING_EXPORT const double *end() const { return getConstPointer()+getNbOfElems(); }
-    MEDCOUPLING_EXPORT void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
-    MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const double *array, int nbOfTuple, int nbOfCompo);
     template<class InputIterator>
     void insertAtTheEnd(InputIterator first, InputIterator last);
     MEDCOUPLING_EXPORT void aggregate(const DataArrayDouble *other);
@@ -404,8 +419,6 @@ namespace MEDCoupling
   private:
     ~DataArrayDouble() { }
     DataArrayDouble() { }
-  private:
-    MemArray<double> _mem;
   };
 
   class DataArrayDoubleTuple;
@@ -441,30 +454,15 @@ namespace MEDCoupling
 
   class DataArrayIntIterator;
 
-  class DataArrayInt : public DataArray
+  class DataArrayInt : public DataArrayTemplate<int>
   {
   public:
     MEDCOUPLING_EXPORT static DataArrayInt *New();
-    MEDCOUPLING_EXPORT bool isAllocated() const;
-    MEDCOUPLING_EXPORT void checkAllocated() const;
-    MEDCOUPLING_EXPORT void desallocate();
-    MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
-    MEDCOUPLING_EXPORT std::size_t getNbOfElems() const { return _mem.getNbOfElem(); }
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT int intValue() const;
     MEDCOUPLING_EXPORT int getHashCode() const;
-    MEDCOUPLING_EXPORT bool empty() const;
     MEDCOUPLING_EXPORT DataArrayInt *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayInt *performCopyOrIncrRef(bool deepCopy) const;
-    MEDCOUPLING_EXPORT void deepCopyFrom(const DataArrayInt& other);
-    MEDCOUPLING_EXPORT void reserve(std::size_t nbOfElems);
-    MEDCOUPLING_EXPORT void pushBackSilent(int val);
-    MEDCOUPLING_EXPORT void pushBackValsSilent(const int *valsBg, const int *valsEnd);
-    MEDCOUPLING_EXPORT int popBackSilent();
-    MEDCOUPLING_EXPORT void pack() const;
-    MEDCOUPLING_EXPORT std::size_t getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
-    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo=1);
-    MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT DataArrayInt *buildNewEmptyInstance() const { return DataArrayInt::New(); }
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayInt& other, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt& other) const;
@@ -474,14 +472,11 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void switchOnTupleNotEqualTo(int val, std::vector<bool>& vec) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildPermutationArr(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT DataArrayInt *sumPerTuple() const;
-    MEDCOUPLING_EXPORT void sort(bool asc=true);
-    MEDCOUPLING_EXPORT void reverse();
     MEDCOUPLING_EXPORT void checkMonotonic(bool increasing) const;
     MEDCOUPLING_EXPORT bool isMonotonic(bool increasing) const;
     MEDCOUPLING_EXPORT void checkStrictlyMonotonic(bool increasing) const;
     MEDCOUPLING_EXPORT bool isStrictlyMonotonic(bool increasing) const;
     MEDCOUPLING_EXPORT void fillWithZero();
-    MEDCOUPLING_EXPORT void fillWithValue(int val);
     MEDCOUPLING_EXPORT void iota(int init=0);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
@@ -504,13 +499,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const;
-    MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
     MEDCOUPLING_EXPORT DataArrayDouble *convertToDblArr() const;
     MEDCOUPLING_EXPORT DataArrayInt *fromNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayInt *toNoInterlace() const;
-    MEDCOUPLING_EXPORT void renumberInPlace(const int *old2New);
-    MEDCOUPLING_EXPORT void renumberInPlaceR(const int *new2Old);
-    MEDCOUPLING_EXPORT DataArrayInt *renumber(const int *old2New) const;
     MEDCOUPLING_EXPORT DataArrayInt *renumberR(const int *new2Old) const;
     MEDCOUPLING_EXPORT DataArrayInt *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
@@ -544,18 +535,10 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
     MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
-    MEDCOUPLING_EXPORT int getIJSafe(int tupleId, int compoId) const;
     MEDCOUPLING_EXPORT int front() const;
     MEDCOUPLING_EXPORT int back() const;
-    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
-    MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    MEDCOUPLING_EXPORT int *getPointer() { return _mem.getPointer(); declareAsNew(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
-    MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT DataArrayIntIterator *iterator();
-    MEDCOUPLING_EXPORT const int *begin() const { return getConstPointer(); }
-    MEDCOUPLING_EXPORT const int *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT DataArrayInt *findIdsEqual(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsNotEqual(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsEqualList(const int *valsBg, const int *valsEnd) const;
@@ -624,8 +607,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *getDifferentValues() const;
     MEDCOUPLING_EXPORT std::vector<DataArrayInt *> partitionByDifferentValues(std::vector<int>& differentIds) const;
     MEDCOUPLING_EXPORT std::vector< std::pair<int,int> > splitInBalancedSlices(int nbOfSlices) const;
-    MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
-    MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const int *array, int nbOfTuple, int nbOfCompo);
     template<class InputIterator>
     void insertAtTheEnd(InputIterator first, InputIterator last);
     MEDCOUPLING_EXPORT void aggregate(const DataArrayInt *other);
@@ -656,8 +637,6 @@ namespace MEDCoupling
   private:
     ~DataArrayInt() { }
     DataArrayInt() { }
-  private:
-    MemArray<int> _mem;
   };
 
   class DataArrayIntTuple;
@@ -691,40 +670,18 @@ namespace MEDCoupling
     int _nb_of_compo;
   };
 
-  class DataArrayChar : public DataArray
+  class DataArrayChar : public DataArrayTemplate<char>
   {
   public:
     MEDCOUPLING_EXPORT virtual DataArrayChar *buildEmptySpecializedDAChar() const = 0;
-    MEDCOUPLING_EXPORT bool isAllocated() const;
-    MEDCOUPLING_EXPORT void checkAllocated() const;
-    MEDCOUPLING_EXPORT void desallocate();
-    MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
-    MEDCOUPLING_EXPORT std::size_t getNbOfElems() const { return _mem.getNbOfElem(); }
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT int getHashCode() const;
-    MEDCOUPLING_EXPORT bool empty() const;
-    MEDCOUPLING_EXPORT void deepCopyFrom(const DataArrayChar& other);
-    MEDCOUPLING_EXPORT void reserve(std::size_t nbOfElems);
-    MEDCOUPLING_EXPORT void pushBackSilent(char val);
-    MEDCOUPLING_EXPORT void pushBackValsSilent(const char *valsBg, const char *valsEnd);
-    MEDCOUPLING_EXPORT char popBackSilent();
-    MEDCOUPLING_EXPORT void pack() const;
-    MEDCOUPLING_EXPORT std::size_t getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
-    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo=1);
-    MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayChar& other) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayChar& other) const;
-    MEDCOUPLING_EXPORT void reverse();
     MEDCOUPLING_EXPORT void fillWithZero();
-    MEDCOUPLING_EXPORT void fillWithValue(char val);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
-    MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
     MEDCOUPLING_EXPORT DataArrayInt *convertToIntArr() const;
-    MEDCOUPLING_EXPORT void renumberInPlace(const int *old2New);
-    MEDCOUPLING_EXPORT void renumberInPlaceR(const int *new2Old);
-    MEDCOUPLING_EXPORT DataArrayChar *renumber(const int *old2New) const;
     MEDCOUPLING_EXPORT DataArrayChar *renumberR(const int *new2Old) const;
     MEDCOUPLING_EXPORT DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayChar *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
@@ -749,16 +706,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
     MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const;
     MEDCOUPLING_EXPORT void getTuple(int tupleId, char *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    MEDCOUPLING_EXPORT char getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
-    MEDCOUPLING_EXPORT char getIJSafe(int tupleId, int compoId) const;
     MEDCOUPLING_EXPORT char front() const;
     MEDCOUPLING_EXPORT char back() const;
-    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, char newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
-    MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, char newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    MEDCOUPLING_EXPORT char *getPointer() { return _mem.getPointer(); declareAsNew(); }
-    MEDCOUPLING_EXPORT const char *getConstPointer() const { return _mem.getConstPointer(); }
-    MEDCOUPLING_EXPORT const char *begin() const { return getConstPointer(); }
-    MEDCOUPLING_EXPORT const char *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT DataArrayInt *findIdsEqual(char val) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsNotEqual(char val) const;
     MEDCOUPLING_EXPORT int findIdSequence(const std::vector<char>& vals) const;
@@ -777,10 +726,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayChar *Aggregate(const std::vector<const DataArrayChar *>& arr);
     MEDCOUPLING_EXPORT static DataArrayChar *Meld(const DataArrayChar *a1, const DataArrayChar *a2);
     MEDCOUPLING_EXPORT static DataArrayChar *Meld(const std::vector<const DataArrayChar *>& arr);
-    MEDCOUPLING_EXPORT void useArray(const char *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     template<class InputIterator>
     void insertAtTheEnd(InputIterator first, InputIterator last);
-    MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const char *array, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void updateTime() const { }
     MEDCOUPLING_EXPORT MemArray<char>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<char>& accessToMemArray() const { return _mem; }
@@ -791,8 +738,6 @@ namespace MEDCoupling
     //MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   protected:
     DataArrayChar() { }
-  protected:
-    MemArray<char> _mem;
   };
 
   class DataArrayByteIterator;
@@ -805,6 +750,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayByteIterator *iterator();
     MEDCOUPLING_EXPORT DataArrayByte *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayByte *performCopyOrIncrRef(bool deepCopy) const;
+    MEDCOUPLING_EXPORT DataArrayByte *buildNewEmptyInstance() const { return DataArrayByte::New(); }
     MEDCOUPLING_EXPORT char byteValue() const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
@@ -863,6 +809,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayAsciiCharIterator *iterator();
     MEDCOUPLING_EXPORT DataArrayAsciiChar *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayAsciiChar *performCopyOrIncrRef(bool deepCopy) const;
+    MEDCOUPLING_EXPORT DataArrayAsciiChar *buildNewEmptyInstance() const { return DataArrayAsciiChar::New(); }
     MEDCOUPLING_EXPORT char asciiCharValue() const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;

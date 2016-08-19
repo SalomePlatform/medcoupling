@@ -40,6 +40,7 @@ SET(medcoupling_SOURCES
   MEDCoupling1GTUMesh.cxx
   MEDCouplingMemArray.cxx
   MEDCouplingMemArrayChar.cxx
+  MEDCouplingTraits.cxx
   MEDCouplingTimeLabel.cxx
   MEDCouplingCMesh.cxx
   MEDCouplingIMesh.cxx

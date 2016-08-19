@@ -30,41 +30,7 @@
 
 using namespace MEDCoupling;
 
-/*!
- * Checks if raw data is allocated. Read more on the raw data
- * in \ref MEDCouplingArrayBasicsTuplesAndCompo "DataArrays infos" for more information.
- *  \return bool - \a true if the raw data is allocated, \a false else.
- */
-bool DataArrayChar::isAllocated() const
-{
-  return getConstPointer()!=0;
-}
-
-/*!
- * Checks if raw data is allocated and throws an exception if it is not the case.
- *  \throw If the raw data is not allocated.
- */
-void DataArrayChar::checkAllocated() const
-{
-  if(!isAllocated())
-    throw INTERP_KERNEL::Exception("DataArrayChar::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
-}
-
-/*!
- * This method desallocated \a this without modification of informations relative to the components.
- * After call of this method, DataArrayChar::isAllocated will return false.
- * If \a this is already not allocated, \a this is let unchanged.
- */
-void DataArrayChar::desallocate()
-{
-  _mem.destroy();
-}
-
-std::size_t DataArrayChar::getHeapMemorySizeWithoutChildren() const
-{
-  std::size_t sz(_mem.getNbOfElemAllocated());
-  return DataArray::getHeapMemorySizeWithoutChildren()+sz;
-}
+template class DataArrayTemplate<char>;
 
 /*!
  * Returns an integer value characterizing \a this array, which is useful for a quick
@@ -85,165 +51,6 @@ int DataArrayChar::getHashCode() const
   for(std::size_t i=0;i<nbOfElems;i+=delta)
     ret0+=pt[i];
   return ret+ret0;
-}
-
-/*!
- * Checks the number of tuples.
- *  \return bool - \a true if getNumberOfTuples() == 0, \a false else.
- *  \throw If \a this is not allocated.
- */
-bool DataArrayChar::empty() const
-{
-  checkAllocated();
-  return getNumberOfTuples()==0;
-}
-
-/*!
- * Copies all the data from another DataArrayChar. For more info see
- * \ref MEDCouplingArrayBasicsCopyDeepAssign.
- *  \param [in] other - another instance of DataArrayChar to copy data from.
- *  \throw If the \a other is not allocated.
- */
-void DataArrayChar::deepCopyFrom(const DataArrayChar& other)
-{
-  other.checkAllocated();
-  int nbOfTuples=other.getNumberOfTuples();
-  int nbOfComp=other.getNumberOfComponents();
-  allocIfNecessary(nbOfTuples,nbOfComp);
-  std::size_t nbOfElems=(std::size_t)nbOfTuples*nbOfComp;
-  char *pt=getPointer();
-  const char *ptI=other.getConstPointer();
-  for(std::size_t i=0;i<nbOfElems;i++)
-    pt[i]=ptI[i];
-  copyStringInfoFrom(other);
-}
-
-/*!
- * This method reserve nbOfElems elements in memory ( nbOfElems*4 bytes ) \b without impacting the number of tuples in \a this.
- * If \a this has already been allocated, this method checks that \a this has only one component. If not an INTERP_KERNEL::Exception will be thrown.
- * If \a this has not already been allocated, number of components is set to one.
- * This method allows to reduce number of reallocations on invokation of DataArrayChar::pushBackSilent and DataArrayChar::pushBackValsSilent on \a this.
- * 
- * \sa DataArrayChar::pack, DataArrayChar::pushBackSilent, DataArrayChar::pushBackValsSilent
- */
-void DataArrayChar::reserve(std::size_t nbOfElems)
-{
-  int nbCompo=getNumberOfComponents();
-  if(nbCompo==1)
-    {
-      _mem.reserve(nbOfElems);
-    }
-  else if(nbCompo==0)
-    {
-      _mem.reserve(nbOfElems);
-      _info_on_compo.resize(1);
-    }
-  else
-    throw INTERP_KERNEL::Exception("DataArrayChar::reserve : not available for DataArrayChar with number of components different than 1 !");
-}
-
-/*!
- * This method adds at the end of \a this the single value \a val. This method do \b not update its time label to avoid useless incrementation
- * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
- *
- * \param [in] val the value to be added in \a this
- * \throw If \a this has already been allocated with number of components different from one.
- * \sa DataArrayChar::pushBackValsSilent
- */
-void DataArrayChar::pushBackSilent(char val)
-{
-  int nbCompo=getNumberOfComponents();
-  if(nbCompo==1)
-    _mem.pushBack(val);
-  else if(nbCompo==0)
-    {
-      _info_on_compo.resize(1);
-      _mem.pushBack(val);
-    }
-  else
-    throw INTERP_KERNEL::Exception("DataArrayChar::pushBackSilent : not available for DataArrayChar with number of components different than 1 !");
-}
-
-/*!
- * This method adds at the end of \a this a serie of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
- * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
- *
- *  \param [in] valsBg - an array of values to push at the end of \this.
- *  \param [in] valsEnd - specifies the end of the array \a valsBg, so that
- *              the last value of \a valsBg is \a valsEnd[ -1 ].
- * \throw If \a this has already been allocated with number of components different from one.
- * \sa DataArrayChar::pushBackSilent
- */
-void DataArrayChar::pushBackValsSilent(const char *valsBg, const char *valsEnd)
-{
-  int nbCompo=getNumberOfComponents();
-  if(nbCompo==1)
-    _mem.insertAtTheEnd(valsBg,valsEnd);
-  else if(nbCompo==0)
-    {
-      _info_on_compo.resize(1);
-      _mem.insertAtTheEnd(valsBg,valsEnd);
-    }
-  else
-    throw INTERP_KERNEL::Exception("DataArrayChar::pushBackValsSilent : not available for DataArrayChar with number of components different than 1 !");
-}
-
-/*!
- * This method returns silently ( without updating time label in \a this ) the last value, if any and suppress it.
- * \throw If \a this is already empty.
- * \throw If \a this has number of components different from one.
- */
-char DataArrayChar::popBackSilent()
-{
-  if(getNumberOfComponents()==1)
-    return _mem.popBack();
-  else
-    throw INTERP_KERNEL::Exception("DataArrayChar::popBackSilent : not available for DataArrayChar with number of components different than 1 !");
-}
-
-/*!
- * This method \b do \b not modify content of \a this. It only modify its memory footprint if the allocated memory is to high regarding real data to store.
- *
- * \sa DataArrayChar::getHeapMemorySizeWithoutChildren, DataArrayChar::reserve
- */
-void DataArrayChar::pack() const
-{
-  _mem.pack();
-}
-
-/*!
- * Allocates the raw data in memory. If exactly as same memory as needed already
- * allocated, it is not re-allocated.
- *  \param [in] nbOfTuple - number of tuples of data to allocate.
- *  \param [in] nbOfCompo - number of components of data to allocate.
- *  \throw If \a nbOfTuple < 0 or \a nbOfCompo < 0.
- */
-void DataArrayChar::allocIfNecessary(int nbOfTuple, int nbOfCompo)
-{
-  if(isAllocated())
-    {
-      if(nbOfTuple!=getNumberOfTuples() || nbOfCompo!=getNumberOfComponents())
-        alloc(nbOfTuple,nbOfCompo);
-    }
-  else
-    alloc(nbOfTuple,nbOfCompo);
-}
-
-/*!
- * Allocates the raw data in memory. If the memory was already allocated, then it is
- * freed and re-allocated. See an example of this method use
- * \ref MEDCouplingArraySteps1WC "here".
- *  \param [in] nbOfTuple - number of tuples of data to allocate.
- *  \param [in] nbOfCompo - number of components of data to allocate.
- *  \throw If \a nbOfTuple < 0 or \a nbOfCompo < 0.
- */
-void DataArrayChar::alloc(int nbOfTuple, int nbOfCompo)
-{
-  if(nbOfTuple<0 || nbOfCompo<0)
-    throw INTERP_KERNEL::Exception("DataArrayChar::alloc : request for negative length of data !");
-  _info_on_compo.resize(nbOfCompo);
-  _mem.alloc(nbOfCompo*(std::size_t)nbOfTuple);
-  declareAsNew();
 }
 
 /*!
@@ -286,40 +93,13 @@ bool DataArrayChar::isEqualWithoutConsideringStr(const DataArrayChar& other) con
 }
 
 /*!
- * Reverse the array values.
- *  \throw If \a this->getNumberOfComponents() < 1.
- *  \throw If \a this is not allocated.
- */
-void DataArrayChar::reverse()
-{
-  checkAllocated();
-  _mem.reverse(getNumberOfComponents());
-  declareAsNew();
-}
-
-/*!
  * Assign zero to all values in \a this array. To know more on filling arrays see
  * \ref MEDCouplingArrayFill.
  * \throw If \a this is not allocated.
  */
 void DataArrayChar::fillWithZero()
 {
-  checkAllocated();
-  _mem.fillWithValue(0);
-  declareAsNew();
-}
-
-/*!
- * Assign \a val to all values in \a this array. To know more on filling arrays see
- * \ref MEDCouplingArrayFill.
- *  \param [in] val - the value to fill with.
- *  \throw If \a this is not allocated.
- */
-void DataArrayChar::fillWithValue(char val)
-{
-  checkAllocated();
-  _mem.fillWithValue(val);
-  declareAsNew();
+  fillWithValue(0);
 }
 
 /*!
@@ -342,22 +122,6 @@ std::string DataArrayChar::reprZip() const
 }
 
 /*!
- * Changes number of tuples in the array. If the new number of tuples is smaller
- * than the current number the array is truncated, otherwise the array is extended.
- *  \param [in] nbOfTuples - new number of tuples. 
- *  \throw If \a this is not allocated.
- *  \throw If \a nbOfTuples is negative.
- */
-void DataArrayChar::reAlloc(int nbOfTuples)
-{
-  if(nbOfTuples<0)
-    throw INTERP_KERNEL::Exception("DataArrayChar::reAlloc : input new number of tuples should be >=0 !");
-  checkAllocated();
-  _mem.reAlloc(getNumberOfComponents()*(std::size_t)nbOfTuples);
-  declareAsNew();
-}
-
-/*!
  * Creates a new DataArrayInt and assigns all (textual and numerical) data of \a this
  * array to the new one.
  *  \return DataArrayInt * - the new instance of DataArrayChar.
@@ -373,79 +137,6 @@ DataArrayInt *DataArrayChar::convertToIntArr() const
   std::copy(src,src+nbOfVals,dest);
   ret->copyStringInfoFrom(*this);
   return ret;
-}
-
-/*!
- * Permutes values of \a this array as required by \a old2New array. The values are
- * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
- * the same as in \this one.
- * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
- * For more info on renumbering see \ref numbering.
- *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
- *     giving a new position for i-th old value.
- */
-void DataArrayChar::renumberInPlace(const int *old2New)
-{
-  checkAllocated();
-  int nbTuples=getNumberOfTuples();
-  int nbOfCompo=getNumberOfComponents();
-  char *tmp=new char[nbTuples*nbOfCompo];
-  const char *iptr=getConstPointer();
-  for(int i=0;i<nbTuples;i++)
-    std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*old2New[i]);
-  std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
-  delete [] tmp;
-  declareAsNew();
-}
-
-/*!
- * Permutes values of \a this array as required by \a new2Old array. The values are
- * permuted so that \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of tuples remains
- * the same as in \this one.
- * For more info on renumbering see \ref numbering.
- *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
- *     giving a previous position of i-th new value.
- */
-void DataArrayChar::renumberInPlaceR(const int *new2Old)
-{
-  checkAllocated();
-  int nbTuples=getNumberOfTuples();
-  int nbOfCompo=getNumberOfComponents();
-  char *tmp=new char[nbTuples*nbOfCompo];
-  const char *iptr=getConstPointer();
-  for(int i=0;i<nbTuples;i++)
-    std::copy(iptr+nbOfCompo*new2Old[i],iptr+nbOfCompo*(new2Old[i]+1),tmp+nbOfCompo*i);
-  std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
-  delete [] tmp;
-  declareAsNew();
-}
-
-/*!
- * Returns a copy of \a this array with values permuted as required by \a old2New array.
- * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ].
- * Number of tuples in the result array remains the same as in \this one.
- * If a permutation reduction is needed, renumberAndReduce() should be used.
- * For more info on renumbering see \ref numbering.
- *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
- *          giving a new position for i-th old value.
- *  \return DataArrayChar * - the new instance of DataArrayChar that the caller
- *          is to delete using decrRef() as it is no more needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayChar *DataArrayChar::renumber(const int *old2New) const
-{
-  checkAllocated();
-  int nbTuples=getNumberOfTuples();
-  int nbOfCompo=getNumberOfComponents();
-  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
-  ret->alloc(nbTuples,nbOfCompo);
-  ret->copyStringInfoFrom(*this);
-  const char *iptr=getConstPointer();
-  char *optr=ret->getPointer();
-  for(int i=0;i<nbTuples;i++)
-    std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),optr+nbOfCompo*old2New[i]);
-  ret->copyStringInfoFrom(*this);
-  return ret.retn();
 }
 
 /*!
@@ -1479,34 +1170,6 @@ DataArray *DataArrayChar::selectByTupleRanges(const std::vector<std::pair<int,in
 }
 
 /*!
- * Returns a value located at specified tuple and component.
- * This method is equivalent to DataArrayChar::getIJ() except that validity of
- * parameters is checked. So this method is safe but expensive if used to go through
- * all values of \a this.
- *  \param [in] tupleId - index of tuple of interest.
- *  \param [in] compoId - index of component of interest.
- *  \return char - value located by \a tupleId and \a compoId.
- *  \throw If \a this is not allocated.
- *  \throw If condition <em>( 0 <= tupleId < this->getNumberOfTuples() )</em> is violated.
- *  \throw If condition <em>( 0 <= compoId < this->getNumberOfComponents() )</em> is violated.
- */
-char DataArrayChar::getIJSafe(int tupleId, int compoId) const
-{
-  checkAllocated();
-  if(tupleId<0 || tupleId>=getNumberOfTuples())
-    {
-      std::ostringstream oss; oss << "DataArrayChar::getIJSafe : request for tupleId " << tupleId << " should be in [0," << getNumberOfTuples() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  if(compoId<0 || compoId>=getNumberOfComponents())
-    {
-      std::ostringstream oss; oss << "DataArrayChar::getIJSafe : request for compoId " << compoId << " should be in [0," << getNumberOfComponents() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  return _mem[tupleId*_info_on_compo.size()+compoId];
-}
-
-/*!
  * Returns the first value of \a this. 
  *  \return char - the last value of \a this array.
  *  \throw If \a this is not allocated.
@@ -1955,32 +1618,6 @@ DataArrayChar *DataArrayChar::Meld(const std::vector<const DataArrayChar *>& arr
     for(int j=0;j<nbc[i];j++,k++)
       ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j));
   return ret;
-}
-
-/*!
- * Sets a C array to be used as raw data of \a this. The previously set info
- *  of components is retained and re-sized. 
- * For more info see \ref MEDCouplingArraySteps1.
- *  \param [in] array - the C array to be used as raw data of \a this.
- *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
- *  \param [in] type - specifies how to deallocate \a array. If \a type == MEDCoupling::CPP_DEALLOC,
- *                     \c delete [] \c array; will be called. If \a type == MEDCoupling::C_DEALLOC,
- *                     \c free(\c array ) will be called.
- *  \param [in] nbOfTuple - new number of tuples in \a this.
- *  \param [in] nbOfCompo - new number of components in \a this.
- */
-void DataArrayChar::useArray(const char *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)
-{
-  _info_on_compo.resize(nbOfCompo);
-  _mem.useArray(array,ownership,type,(std::size_t)nbOfTuple*nbOfCompo);
-  declareAsNew();
-}
-
-void DataArrayChar::useExternalArrayWithRWAccess(const char *array, int nbOfTuple, int nbOfCompo)
-{
-  _info_on_compo.resize(nbOfCompo);
-  _mem.useExternalArrayWithRWAccess(array,(std::size_t)nbOfTuple*nbOfCompo);
-  declareAsNew();
 }
 
 /*!

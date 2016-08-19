@@ -43,6 +43,7 @@
 //$$$$$$$$$$$$$$$$$$
 
 %newobject MEDCoupling::DataArray::deepCopy;
+%newobject MEDCoupling::DataArray::buildNewEmptyInstance;
 %newobject MEDCoupling::DataArray::selectByTupleRanges;
 %newobject MEDCoupling::DataArray::selectByTupleId;
 %newobject MEDCoupling::DataArray::selectByTupleIdSafe;
@@ -240,6 +241,7 @@ namespace MEDCoupling
     virtual std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception);
     virtual DataArray *deepCopy() const throw(INTERP_KERNEL::Exception);
+    virtual DataArray *buildNewEmptyInstance() const throw(INTERP_KERNEL::Exception);
     virtual DataArray *selectByTupleIdSafeSlice(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
     virtual void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     void checkNbOfTuples(int nbOfTuples, const std::string& msg) const throw(INTERP_KERNEL::Exception);
@@ -4970,6 +4972,7 @@ namespace MEDCoupling
     DataArrayChar *renumberR(const int *new2Old) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const throw(INTERP_KERNEL::Exception);
     bool isUniform(char val) const throw(INTERP_KERNEL::Exception);
+    void sort(bool asc=true) throw(INTERP_KERNEL::Exception);
     DataArrayChar *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Exception);
