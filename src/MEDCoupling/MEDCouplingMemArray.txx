@@ -937,6 +937,1203 @@ namespace MEDCoupling
     ret->copyStringInfoFrom(*this);
     return ret.retn();
   }
+
+  /*!
+   * Returns a copy of \a this array with values permuted as required by \a new2Old array.
+   * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
+   * tuples in the result array remains the same as in \c this one.
+   * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
+   *     giving a previous position of i-th new value.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::renumberR(const int *new2Old) const
+  {
+    checkAllocated();
+    int nbTuples(getNumberOfTuples()),nbOfCompo(getNumberOfComponents());
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    ret->alloc(nbTuples,nbOfCompo);
+    ret->copyStringInfoFrom(*this);
+    const T *iptr(getConstPointer());
+    T *optr(ret->getPointer());
+    for(int i=0;i<nbTuples;i++)
+      std::copy(iptr+nbOfCompo*new2Old[i],iptr+nbOfCompo*(new2Old[i]+1),optr+i*nbOfCompo);
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a shorten and permuted copy of \a this array. The new DataArrayDouble is
+   * of size \a newNbOfTuple and it's values are permuted as required by \a old2New array.
+   * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ] for all
+   * \a old2New[ i ] >= 0. In other words every i-th tuple in \a this array, for which 
+   * \a old2New[ i ] is negative, is missing from the result array.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
+   *     giving a new position for i-th old tuple and giving negative position for
+   *     for i-th old tuple that should be omitted.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::renumberAndReduce(const int *old2New, int newNbOfTuple) const
+  {
+    checkAllocated();
+    int nbTuples(getNumberOfTuples()),nbOfCompo(getNumberOfComponents());
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    ret->alloc(newNbOfTuple,nbOfCompo);
+    const T *iptr=getConstPointer();
+    T *optr=ret->getPointer();
+    for(int i=0;i<nbTuples;i++)
+      {
+        int w=old2New[i];
+        if(w>=0)
+          std::copy(iptr+i*nbOfCompo,iptr+(i+1)*nbOfCompo,optr+w*nbOfCompo);
+      }
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a shorten and permuted copy of \a this array. The new DataArrayDouble is
+   * of size \a new2OldEnd - \a new2OldBg and it's values are permuted as required by
+   * \a new2OldBg array.
+   * The values are permuted so that  \c new[ i ] = \c old[ \a new2OldBg[ i ]].
+   * This method is equivalent to renumberAndReduce() except that convention in input is
+   * \c new2old and \b not \c old2new.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
+   *              tuple index in \a this array to fill the i-th tuple in the new array.
+   *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
+   *              \a new2OldBg, so that pointer to a tuple index (\a pi) varies as this:
+   *              \a new2OldBg <= \a pi < \a new2OldEnd.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleId(const int *new2OldBg, const int *new2OldEnd) const
+  {
+    checkAllocated();
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    int nbComp(getNumberOfComponents());
+    ret->alloc((int)std::distance(new2OldBg,new2OldEnd),nbComp);
+    ret->copyStringInfoFrom(*this);
+    T *pt(ret->getPointer());
+    const T *srcPt(getConstPointer());
+    int i(0);
+    for(const int *w=new2OldBg;w!=new2OldEnd;w++,i++)
+      std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
+  }
+
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleId(const DataArrayInt& di) const
+  {
+    return DataArrayTemplate<T>::mySelectByTupleId(di.begin(),di.end());
+  }
+  
+  /*!
+   * Returns a shorten and permuted copy of \a this array. The new DataArrayDouble is
+   * of size \a new2OldEnd - \a new2OldBg and it's values are permuted as required by
+   * \a new2OldBg array.
+   * The values are permuted so that  \c new[ i ] = \c old[ \a new2OldBg[ i ]].
+   * This method is equivalent to renumberAndReduce() except that convention in input is
+   * \c new2old and \b not \c old2new.
+   * This method is equivalent to selectByTupleId() except that it prevents coping data
+   * from behind the end of \a this array.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
+   *              tuple index in \a this array to fill the i-th tuple in the new array.
+   *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
+   *              \a new2OldBg, so that pointer to a tuple index (\a pi) varies as this:
+   *              \a new2OldBg <= \a pi < \a new2OldEnd.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \throw If \a new2OldEnd - \a new2OldBg > \a this->getNumberOfTuples().
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const
+  {
+    checkAllocated();
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    int nbComp(getNumberOfComponents()),oldNbOfTuples(getNumberOfTuples());
+    ret->alloc((int)std::distance(new2OldBg,new2OldEnd),nbComp);
+    ret->copyStringInfoFrom(*this);
+    T *pt(ret->getPointer());
+    const T *srcPt(getConstPointer());
+    int i(0);
+    for(const int *w=new2OldBg;w!=new2OldEnd;w++,i++)
+      if(*w>=0 && *w<oldNbOfTuples)
+        std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
+      else
+        {
+          std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::selectByTupleIdSafe : some ids has been detected to be out of [0,this->getNumberOfTuples) !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
+  }
+
+  /*!
+   * Changes the number of components within \a this array so that its raw data **does
+   * not** change, instead splitting this data into tuples changes.
+   *  \warning This method erases all (name and unit) component info set before!
+   *  \param [in] newNbOfComp - number of components for \a this array to have.
+   *  \throw If \a this is not allocated
+   *  \throw If getNbOfElems() % \a newNbOfCompo != 0.
+   *  \throw If \a newNbOfCompo is lower than 1.
+   *  \throw If the rearrange method would lead to a number of tuples higher than 2147483647 (maximal capacity of int32 !).
+   *  \warning This method erases all (name and unit) component info set before!
+   */
+  template<class T>
+  void DataArrayTemplate<T>::rearrange(int newNbOfCompo)
+  {
+    checkAllocated();
+    if(newNbOfCompo<1)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::rearrange : input newNbOfCompo must be > 0 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    std::size_t nbOfElems=getNbOfElems();
+    if(nbOfElems%newNbOfCompo!=0)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::rearrange : nbOfElems%newNbOfCompo!=0 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    if(nbOfElems/newNbOfCompo>(std::size_t)std::numeric_limits<int>::max())
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::rearrange : the rearrangement leads to too high number of tuples (> 2147483647) !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    _info_on_compo.clear();
+    _info_on_compo.resize(newNbOfCompo);
+    declareAsNew();
+  }
+
+  /*!
+   * Changes the number of components within \a this array to be equal to its number
+   * of tuples, and inversely its number of tuples to become equal to its number of 
+   * components. So that its raw data **does not** change, instead splitting this
+   * data into tuples changes.
+   *  \warning This method erases all (name and unit) component info set before!
+   *  \warning Do not confuse this method with fromNoInterlace() and toNoInterlace()!
+   *  \throw If \a this is not allocated.
+   *  \sa rearrange()
+   */
+  template<class T>
+  void DataArrayTemplate<T>::transpose()
+  {
+    checkAllocated();
+    int nbOfTuples(getNumberOfTuples());
+    rearrange(nbOfTuples);
+  }
+
+  /*!
+   * Returns a shorten or extended copy of \a this array. If \a newNbOfComp is less
+   * than \a this->getNumberOfComponents() then the result array is shorten as each tuple
+   * is truncated to have \a newNbOfComp components, keeping first components. If \a
+   * newNbOfComp is more than \a this->getNumberOfComponents() then the result array is
+   * expanded as each tuple is populated with \a dftValue to have \a newNbOfComp
+   * components.  
+   *  \param [in] newNbOfComp - number of components for the new array to have.
+   *  \param [in] dftValue - value assigned to new values added to the new array.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::changeNbOfComponents(int newNbOfComp, T dftValue) const
+  {
+    checkAllocated();
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    ret->alloc(getNumberOfTuples(),newNbOfComp);
+    const T *oldc(getConstPointer());
+    T *nc(ret->getPointer());
+    int nbOfTuples(getNumberOfTuples()),oldNbOfComp(getNumberOfComponents());
+    int dim(std::min(oldNbOfComp,newNbOfComp));
+    for(int i=0;i<nbOfTuples;i++)
+      {
+        int j=0;
+        for(;j<dim;j++)
+          nc[newNbOfComp*i+j]=oldc[i*oldNbOfComp+j];
+        for(;j<newNbOfComp;j++)
+          nc[newNbOfComp*i+j]=dftValue;
+      }
+    ret->setName(getName());
+    for(int i=0;i<dim;i++)
+      ret->setInfoOnComponent(i,getInfoOnComponent(i));
+    ret->setName(getName());
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a copy of \a this array composed of selected components.
+   * The new DataArrayDouble has the same number of tuples but includes components
+   * specified by \a compoIds parameter. So that getNbOfElems() of the result array
+   * can be either less, same or more than \a this->getNbOfElems().
+   *  \param [in] compoIds - sequence of zero based indices of components to include
+   *              into the new array.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \throw If \a this is not allocated.
+   *  \throw If a component index (\a i) is not valid: 
+   *         \a i < 0 || \a i >= \a this->getNumberOfComponents().
+   *
+   *  \if ENABLE_EXAMPLES
+   *  \ref py_mcdataarraydouble_KeepSelectedComponents "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::myKeepSelectedComponents(const std::vector<int>& compoIds) const
+  {
+    checkAllocated();
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    std::size_t newNbOfCompo(compoIds.size());
+    int oldNbOfCompo(getNumberOfComponents());
+    for(std::vector<int>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
+      if((*it)<0 || (*it)>=oldNbOfCompo)
+        {
+          std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::keepSelectedComponents : invalid requested component : " << *it << " whereas it should be in [0," << oldNbOfCompo << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    int nbOfTuples(getNumberOfTuples());
+    ret->alloc(nbOfTuples,(int)newNbOfCompo);
+    ret->copyPartOfStringInfoFrom(*this,compoIds);
+    const T *oldc(getConstPointer());
+    T *nc(ret->getPointer());
+    for(int i=0;i<nbOfTuples;i++)
+      for(std::size_t j=0;j<newNbOfCompo;j++,nc++)
+        *nc=oldc[i*oldNbOfCompo+compoIds[j]];
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a shorten copy of \a this array. The new DataArrayDouble contains all
+   * tuples starting from the \a tupleIdBg-th tuple and including all tuples located before
+   * the \a tupleIdEnd-th one. This methods has a similar behavior as std::string::substr().
+   * This method is a specialization of selectByTupleIdSafeSlice().
+   *  \param [in] tupleIdBg - index of the first tuple to copy from \a this array.
+   *  \param [in] tupleIdEnd - index of the tuple before which the tuples to copy are located.
+   *          If \a tupleIdEnd == -1, all the tuples till the end of \a this array are copied.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \throw If \a tupleIdBg < 0.
+   *  \throw If \a tupleIdBg > \a this->getNumberOfTuples().
+   *  \throw If \a tupleIdEnd != -1 && \a tupleIdEnd < \a this->getNumberOfTuples().
+   *  \sa DataArrayDouble::selectByTupleIdSafeSlice
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::subArray(int tupleIdBg, int tupleIdEnd) const
+  {
+    checkAllocated();
+    int nbt(getNumberOfTuples());
+    if(tupleIdBg<0)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::subArray : The tupleIdBg parameter must be greater than 0 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    if(tupleIdBg>nbt)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << ":subArray : The tupleIdBg parameter is greater than number of tuples !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    int trueEnd=tupleIdEnd;
+    if(tupleIdEnd!=-1)
+      {
+        if(tupleIdEnd>nbt)
+          {
+            std::ostringstream oss; oss << Traits<T>::ArrayTypeName << ":subArray : The tupleIdBg parameter is greater than number of tuples !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+    else
+      trueEnd=nbt;
+    int nbComp(getNumberOfComponents());
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    ret->alloc(trueEnd-tupleIdBg,nbComp);
+    ret->copyStringInfoFrom(*this);
+    std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a shorten copy of \a this array. The new DataArrayDouble contains every
+   * (\a bg + \c i * \a step)-th tuple of \a this array located before the \a end2-th
+   * tuple. Indices of the selected tuples are the same as ones returned by the Python
+   * command \c range( \a bg, \a end2, \a step ).
+   * This method is equivalent to selectByTupleIdSafe() except that the input array is
+   * not constructed explicitly.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] bg - index of the first tuple to copy from \a this array.
+   *  \param [in] end2 - index of the tuple before which the tuples to copy are located.
+   *  \param [in] step - index increment to get index of the next tuple to copy.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \sa DataArrayDouble::subArray.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleIdSafeSlice(int bg, int end2, int step) const
+  {
+    checkAllocated();
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    int nbComp(getNumberOfComponents());
+    std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::selectByTupleIdSafeSlice : ";
+    int newNbOfTuples(GetNumberOfItemGivenBESRelative(bg,end2,step,oss.str()));
+    ret->alloc(newNbOfTuples,nbComp);
+    T *pt(ret->getPointer());
+    const T *srcPt(getConstPointer()+bg*nbComp);
+    for(int i=0;i<newNbOfTuples;i++,srcPt+=step*nbComp)
+      std::copy(srcPt,srcPt+nbComp,pt+i*nbComp);
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
+  }
+  
+  /*!
+   * Copy all values from another DataArrayDouble into specified tuples and components
+   * of \a this array. Textual data is not copied.
+   * The tree parameters defining set of indices of tuples and components are similar to
+   * the tree parameters of the Python function \c range(\c start,\c stop,\c step).
+   *  \param [in] a - the array to copy values from.
+   *  \param [in] bgTuples - index of the first tuple of \a this array to assign values to.
+   *  \param [in] endTuples - index of the tuple before which the tuples to assign to
+   *              are located.
+   *  \param [in] stepTuples - index increment to get index of the next tuple to assign to.
+   *  \param [in] bgComp - index of the first component of \a this array to assign values to.
+   *  \param [in] endComp - index of the component before which the components to assign
+   *              to are located.
+   *  \param [in] stepComp - index increment to get index of the next component to assign to.
+   *  \param [in] strictCompoCompare - if \a true (by default), then \a a->getNumberOfComponents() 
+   *              must be equal to the number of columns to assign to, else an
+   *              exception is thrown; if \a false, then it is only required that \a
+   *              a->getNbOfElems() equals to number of values to assign to (this condition
+   *              must be respected even if \a strictCompoCompare is \a true). The number of 
+   *              values to assign to is given by following Python expression:
+   *              \a nbTargetValues = 
+   *              \c len(\c range(\a bgTuples,\a endTuples,\a stepTuples)) *
+   *              \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
+   *  \throw If \a a is NULL.
+   *  \throw If \a a is not allocated.
+   *  \throw If \a this is not allocated.
+   *  \throw If parameters specifying tuples and components to assign to do not give a
+   *            non-empty range of increasing indices.
+   *  \throw If \a a->getNbOfElems() != \a nbTargetValues.
+   *  \throw If \a strictCompoCompare == \a true && \a a->getNumberOfComponents() !=
+   *            \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
+   *
+   *  \if ENABLE_EXAMPLES
+   *  \ref py_mcdataarraydouble_setpartofvalues1 "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValues1(const typename Traits<T>::ArrayType *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare)
+  {
+    if(!a)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::setPartOfValues1 : input DataArrayDouble is NULL !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    const char msg[]="DataArrayTemplate::setPartOfValues1";
+    checkAllocated();
+    a->checkAllocated();
+    int newNbOfTuples(DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg));
+    int newNbOfComp(DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg));
+    int nbComp(getNumberOfComponents()),nbOfTuples(getNumberOfTuples());
+    DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
+    DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
+    bool assignTech(true);
+    if(a->getNbOfElems()==(std::size_t)newNbOfTuples*newNbOfComp)
+      {
+        if(strictCompoCompare)
+          a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+      }
+    else
+      {
+        a->checkNbOfTuplesAndComp(1,newNbOfComp,msg);
+        assignTech=false;
+      }
+    const T *srcPt(a->getConstPointer());
+    T *pt(getPointer()+bgTuples*nbComp+bgComp);
+    if(assignTech)
+      {
+        for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+          for(int j=0;j<newNbOfComp;j++,srcPt++)
+            pt[j*stepComp]=*srcPt;
+      }
+    else
+      {
+        for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+          {
+            const T*srcPt2=srcPt;
+            for(int j=0;j<newNbOfComp;j++,srcPt2++)
+              pt[j*stepComp]=*srcPt2;
+          }
+      }
+  }
+  
+  /*!
+ * Assign a given value to values at specified tuples and components of \a this array.
+ * The tree parameters defining set of indices of tuples and components are similar to
+ * the tree parameters of the Python function \c range(\c start,\c stop,\c step)..
+ *  \param [in] a - the value to assign.
+ *  \param [in] bgTuples - index of the first tuple of \a this array to assign to.
+ *  \param [in] endTuples - index of the tuple before which the tuples to assign to
+ *              are located.
+ *  \param [in] stepTuples - index increment to get index of the next tuple to assign to.
+ *  \param [in] bgComp - index of the first component of \a this array to assign to.
+ *  \param [in] endComp - index of the component before which the components to assign
+ *              to are located.
+ *  \param [in] stepComp - index increment to get index of the next component to assign to.
+ *  \throw If \a this is not allocated.
+ *  \throw If parameters specifying tuples and components to assign to, do not give a
+ *            non-empty range of increasing indices or indices are out of a valid range
+ *            for \c this array.
+ *
+ *  \if ENABLE_EXAMPLES
+ *  \ref py_mcdataarraydouble_setpartofvaluessimple1 "Here is a Python example".
+ *  \endif
+ */
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValuesSimple1(T a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp)
+  {
+    const char msg[]="DataArrayTemplate::setPartOfValuesSimple1";
+    checkAllocated();
+    int newNbOfTuples(DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg));
+    int newNbOfComp(DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg));
+    int nbComp(getNumberOfComponents()),nbOfTuples(getNumberOfTuples());
+    DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
+    DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
+    T *pt=getPointer()+bgTuples*nbComp+bgComp;
+    for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+      for(int j=0;j<newNbOfComp;j++)
+        pt[j*stepComp]=a;
+  }
+  
+  /*!
+   * Copy all values from another DataArrayDouble (\a a) into specified tuples and 
+   * components of \a this array. Textual data is not copied.
+   * The tuples and components to assign to are defined by C arrays of indices.
+   * There are two *modes of usage*:
+   * - If \a a->getNbOfElems() equals to number of values to assign to, then every value
+   *   of \a a is assigned to its own location within \a this array. 
+   * - If \a a includes one tuple, then all values of \a a are assigned to the specified
+   *   components of every specified tuple of \a this array. In this mode it is required
+   *   that \a a->getNumberOfComponents() equals to the number of specified components.
+   *
+   *  \param [in] a - the array to copy values from.
+   *  \param [in] bgTuples - pointer to an array of tuple indices of \a this array to
+   *              assign values of \a a to.
+   *  \param [in] endTuples - specifies the end of the array \a bgTuples, so that
+   *              pointer to a tuple index <em>(pi)</em> varies as this: 
+   *              \a bgTuples <= \a pi < \a endTuples.
+   *  \param [in] bgComp - pointer to an array of component indices of \a this array to
+   *              assign values of \a a to.
+   *  \param [in] endComp - specifies the end of the array \a bgTuples, so that
+   *              pointer to a component index <em>(pi)</em> varies as this: 
+   *              \a bgComp <= \a pi < \a endComp.
+   *  \param [in] strictCompoCompare - this parameter is checked only if the
+   *               *mode of usage* is the first; if it is \a true (default), 
+   *               then \a a->getNumberOfComponents() must be equal 
+   *               to the number of specified columns, else this is not required.
+   *  \throw If \a a is NULL.
+   *  \throw If \a a is not allocated.
+   *  \throw If \a this is not allocated.
+   *  \throw If any index of tuple/component given by <em>bgTuples / bgComp</em> is
+   *         out of a valid range for \a this array.
+   *  \throw In the first *mode of usage*, if <em>strictCompoCompare == true </em> and
+   *         if <em> a->getNumberOfComponents() != (endComp - bgComp) </em>.
+   *  \throw In the second *mode of usage*, if \a a->getNumberOfTuples() != 1 or
+   *         <em> a->getNumberOfComponents() != (endComp - bgComp)</em>.
+   *
+   *  \if ENABLE_EXAMPLES
+   *  \ref py_mcdataarraydouble_setpartofvalues2 "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValues2(const typename Traits<T>::ArrayType *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare)
+  {
+    if(!a)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::setPartOfValues2 : input DataArrayDouble is NULL !");
+    const char msg[]="DataArrayTemplate::setPartOfValues2";
+    checkAllocated();
+    a->checkAllocated();
+    int nbComp(getNumberOfComponents()),nbOfTuples(getNumberOfTuples());
+    for(const int *z=bgComp;z!=endComp;z++)
+      DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
+    int newNbOfTuples((int)std::distance(bgTuples,endTuples));
+    int newNbOfComp((int)std::distance(bgComp,endComp));
+    bool assignTech(true);
+    if(a->getNbOfElems()==(std::size_t)newNbOfTuples*newNbOfComp)
+      {
+        if(strictCompoCompare)
+          a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+      }
+    else
+      {
+        a->checkNbOfTuplesAndComp(1,newNbOfComp,msg);
+        assignTech=false;
+      }
+    T *pt(getPointer());
+    const T *srcPt(a->getConstPointer());
+    if(assignTech)
+      {    
+        for(const int *w=bgTuples;w!=endTuples;w++)
+          {
+            DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+            for(const int *z=bgComp;z!=endComp;z++,srcPt++)
+              {    
+                pt[(std::size_t)(*w)*nbComp+(*z)]=*srcPt;
+              }
+          }
+      }
+    else
+      {
+        for(const int *w=bgTuples;w!=endTuples;w++)
+          {
+            const T *srcPt2=srcPt;
+            DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+            for(const int *z=bgComp;z!=endComp;z++,srcPt2++)
+              {    
+                pt[(std::size_t)(*w)*nbComp+(*z)]=*srcPt2;
+              }
+          }
+      }
+  }
+  
+  /*!
+   * Assign a given value to values at specified tuples and components of \a this array.
+   * The tuples and components to assign to are defined by C arrays of indices.
+   *  \param [in] a - the value to assign.
+   *  \param [in] bgTuples - pointer to an array of tuple indices of \a this array to
+   *              assign \a a to.
+   *  \param [in] endTuples - specifies the end of the array \a bgTuples, so that
+   *              pointer to a tuple index (\a pi) varies as this: 
+   *              \a bgTuples <= \a pi < \a endTuples.
+   *  \param [in] bgComp - pointer to an array of component indices of \a this array to
+   *              assign \a a to.
+   *  \param [in] endComp - specifies the end of the array \a bgTuples, so that
+   *              pointer to a component index (\a pi) varies as this: 
+   *              \a bgComp <= \a pi < \a endComp.
+   *  \throw If \a this is not allocated.
+   *  \throw If any index of tuple/component given by <em>bgTuples / bgComp</em> is
+   *         out of a valid range for \a this array.
+   *
+   *  \if ENABLE_EXAMPLES
+   *  \ref py_mcdataarraydouble_setpartofvaluessimple2 "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValuesSimple2(T a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp)
+  {
+    checkAllocated();
+    int nbComp(getNumberOfComponents()),nbOfTuples(getNumberOfTuples());
+    for(const int *z=bgComp;z!=endComp;z++)
+      DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
+    T *pt(getPointer());
+    for(const int *w=bgTuples;w!=endTuples;w++)
+      for(const int *z=bgComp;z!=endComp;z++)
+        {
+          DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+          pt[(std::size_t)(*w)*nbComp+(*z)]=a;
+        }
+  }
+  
+  /*!
+   * Copy all values from another DataArrayDouble (\a a) into specified tuples and 
+   * components of \a this array. Textual data is not copied.
+   * The tuples to assign to are defined by a C array of indices.
+   * The components to assign to are defined by three values similar to parameters of
+   * the Python function \c range(\c start,\c stop,\c step).
+   * There are two *modes of usage*:
+   * - If \a a->getNbOfElems() equals to number of values to assign to, then every value
+   *   of \a a is assigned to its own location within \a this array. 
+   * - If \a a includes one tuple, then all values of \a a are assigned to the specified
+   *   components of every specified tuple of \a this array. In this mode it is required
+   *   that \a a->getNumberOfComponents() equals to the number of specified components.
+   *
+   *  \param [in] a - the array to copy values from.
+   *  \param [in] bgTuples - pointer to an array of tuple indices of \a this array to
+   *              assign values of \a a to.
+   *  \param [in] endTuples - specifies the end of the array \a bgTuples, so that
+   *              pointer to a tuple index <em>(pi)</em> varies as this: 
+   *              \a bgTuples <= \a pi < \a endTuples.
+   *  \param [in] bgComp - index of the first component of \a this array to assign to.
+   *  \param [in] endComp - index of the component before which the components to assign
+   *              to are located.
+   *  \param [in] stepComp - index increment to get index of the next component to assign to.
+   *  \param [in] strictCompoCompare - this parameter is checked only in the first
+   *               *mode of usage*; if \a strictCompoCompare is \a true (default), 
+   *               then \a a->getNumberOfComponents() must be equal 
+   *               to the number of specified columns, else this is not required.
+   *  \throw If \a a is NULL.
+   *  \throw If \a a is not allocated.
+   *  \throw If \a this is not allocated.
+   *  \throw If any index of tuple given by \a bgTuples is out of a valid range for 
+   *         \a this array.
+   *  \throw In the first *mode of usage*, if <em>strictCompoCompare == true </em> and
+   *         if <em> a->getNumberOfComponents()</em> is unequal to the number of components
+   *         defined by <em>(bgComp,endComp,stepComp)</em>.
+   *  \throw In the second *mode of usage*, if \a a->getNumberOfTuples() != 1 or
+   *         <em> a->getNumberOfComponents()</em> is unequal to the number of components
+   *         defined by <em>(bgComp,endComp,stepComp)</em>.
+   *  \throw If parameters specifying components to assign to, do not give a
+   *            non-empty range of increasing indices or indices are out of a valid range
+   *            for \c this array.
+   *
+   *  \if ENABLE_EXAMPLES
+   *  \ref py_mcdataarraydouble_setpartofvalues3 "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValues3(const typename Traits<T>::ArrayType *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare)
+  {
+    if(!a)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setPartOfValues3 : input DataArrayDouble is NULL !");
+    const char msg[]="DataArrayTemplate::setPartOfValues3";
+    checkAllocated();
+    a->checkAllocated();
+    int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+    int nbComp=getNumberOfComponents();
+    int nbOfTuples=getNumberOfTuples();
+    DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
+    int newNbOfTuples=(int)std::distance(bgTuples,endTuples);
+    bool assignTech=true;
+    if(a->getNbOfElems()==(std::size_t)newNbOfTuples*newNbOfComp)
+      {
+        if(strictCompoCompare)
+          a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+      }
+    else
+      {
+        a->checkNbOfTuplesAndComp(1,newNbOfComp,msg);
+        assignTech=false;
+      }
+    T *pt(getPointer()+bgComp);
+    const T *srcPt(a->getConstPointer());
+    if(assignTech)
+      {
+        for(const int *w=bgTuples;w!=endTuples;w++)
+          for(int j=0;j<newNbOfComp;j++,srcPt++)
+            {
+              DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+              pt[(std::size_t)(*w)*nbComp+j*stepComp]=*srcPt;
+            }
+      }
+    else
+      {
+        for(const int *w=bgTuples;w!=endTuples;w++)
+          {
+            const T *srcPt2=srcPt;
+            for(int j=0;j<newNbOfComp;j++,srcPt2++)
+              {
+                DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+                pt[(std::size_t)(*w)*nbComp+j*stepComp]=*srcPt2;
+              }
+          }
+      }
+  }
+  
+  /*!
+   * Assign a given value to values at specified tuples and components of \a this array.
+   * The tuples to assign to are defined by a C array of indices.
+   * The components to assign to are defined by three values similar to parameters of
+   * the Python function \c range(\c start,\c stop,\c step).
+   *  \param [in] a - the value to assign.
+   *  \param [in] bgTuples - pointer to an array of tuple indices of \a this array to
+   *              assign \a a to.
+   *  \param [in] endTuples - specifies the end of the array \a bgTuples, so that
+   *              pointer to a tuple index <em>(pi)</em> varies as this: 
+   *              \a bgTuples <= \a pi < \a endTuples.
+   *  \param [in] bgComp - index of the first component of \a this array to assign to.
+   *  \param [in] endComp - index of the component before which the components to assign
+   *              to are located.
+   *  \param [in] stepComp - index increment to get index of the next component to assign to.
+   *  \throw If \a this is not allocated.
+   *  \throw If any index of tuple given by \a bgTuples is out of a valid range for 
+   *         \a this array.
+   *  \throw If parameters specifying components to assign to, do not give a
+   *            non-empty range of increasing indices or indices are out of a valid range
+   *            for \c this array.
+   *
+   *  \if ENABLE_EXAMPLES
+   *  \ref py_mcdataarraydouble_setpartofvaluessimple3 "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValuesSimple3(T a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp)
+  {
+    const char msg[]="DataArrayTemplate::setPartOfValuesSimple3";
+    checkAllocated();
+    int newNbOfComp(DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg));
+    int nbComp(getNumberOfComponents()),nbOfTuples(getNumberOfTuples());
+    DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
+    T *pt(getPointer()+bgComp);
+    for(const int *w=bgTuples;w!=endTuples;w++)
+      for(int j=0;j<newNbOfComp;j++)
+        {
+          DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+          pt[(std::size_t)(*w)*nbComp+j*stepComp]=a;
+        }
+  }
+
+  /*!
+   * Copy all values from another DataArrayDouble into specified tuples and components
+   * of \a this array. Textual data is not copied.
+   * The tree parameters defining set of indices of tuples and components are similar to
+   * the tree parameters of the Python function \c range(\c start,\c stop,\c step).
+   *  \param [in] a - the array to copy values from.
+   *  \param [in] bgTuples - index of the first tuple of \a this array to assign values to.
+   *  \param [in] endTuples - index of the tuple before which the tuples to assign to
+   *              are located.
+   *  \param [in] stepTuples - index increment to get index of the next tuple to assign to.
+   *  \param [in] bgComp - pointer to an array of component indices of \a this array to
+   *              assign \a a to.
+   *  \param [in] endComp - specifies the end of the array \a bgTuples, so that
+   *              pointer to a component index (\a pi) varies as this: 
+   *              \a bgComp <= \a pi < \a endComp.
+   *  \param [in] strictCompoCompare - if \a true (by default), then \a a->getNumberOfComponents() 
+   *              must be equal to the number of columns to assign to, else an
+   *              exception is thrown; if \a false, then it is only required that \a
+   *              a->getNbOfElems() equals to number of values to assign to (this condition
+   *              must be respected even if \a strictCompoCompare is \a true). The number of 
+   *              values to assign to is given by following Python expression:
+   *              \a nbTargetValues = 
+   *              \c len(\c range(\a bgTuples,\a endTuples,\a stepTuples)) *
+   *              \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
+   *  \throw If \a a is NULL.
+   *  \throw If \a a is not allocated.
+   *  \throw If \a this is not allocated.
+   *  \throw If parameters specifying tuples and components to assign to do not give a
+   *            non-empty range of increasing indices.
+   *  \throw If \a a->getNbOfElems() != \a nbTargetValues.
+   *  \throw If \a strictCompoCompare == \a true && \a a->getNumberOfComponents() !=
+   *            \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
+   *
+   */
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValues4(const typename Traits<T>::ArrayType *a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp, bool strictCompoCompare)
+  {if(!a)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setPartOfValues4 : input DataArrayTemplate is NULL !");
+    const char msg[]="DataArrayTemplate::setPartOfValues4";
+    checkAllocated();
+    a->checkAllocated();
+    int newNbOfTuples(DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg));
+    int newNbOfComp((int)std::distance(bgComp,endComp));
+    int nbComp(getNumberOfComponents());
+    for(const int *z=bgComp;z!=endComp;z++)
+      DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
+    int nbOfTuples(getNumberOfTuples());
+    DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
+    bool assignTech(true);
+    if(a->getNbOfElems()==(std::size_t)newNbOfTuples*newNbOfComp)
+      {
+        if(strictCompoCompare)
+          a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+      }
+    else
+      {
+        a->checkNbOfTuplesAndComp(1,newNbOfComp,msg);
+        assignTech=false;
+      }
+    const T *srcPt(a->getConstPointer());
+    T *pt(getPointer()+bgTuples*nbComp);
+    if(assignTech)
+      {
+        for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+          for(const int *z=bgComp;z!=endComp;z++,srcPt++)
+            pt[*z]=*srcPt;
+      }
+    else
+      {
+      for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+        {
+          const T *srcPt2(srcPt);
+          for(const int *z=bgComp;z!=endComp;z++,srcPt2++)
+            pt[*z]=*srcPt2;
+        }
+      }
+  }
+
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValuesSimple4(T a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp)
+  {
+    const char msg[]="DataArrayTemplate::setPartOfValuesSimple4";
+    checkAllocated();
+    int newNbOfTuples(DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg));
+    int nbComp(getNumberOfComponents());
+    for(const int *z=bgComp;z!=endComp;z++)
+      DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
+    int nbOfTuples(getNumberOfTuples());
+    DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
+    T *pt=getPointer()+bgTuples*nbComp;
+    for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+      for(const int *z=bgComp;z!=endComp;z++)
+        pt[*z]=a;
+  }
+  
+  /*!
+   * Copy some tuples from another DataArrayDouble into specified tuples
+   * of \a this array. Textual data is not copied. Both arrays must have equal number of
+   * components.
+   * Both the tuples to assign and the tuples to assign to are defined by a DataArrayInt.
+   * All components of selected tuples are copied.
+   *  \param [in] a - the array to copy values from.
+   *  \param [in] tuplesSelec - the array specifying both source tuples of \a a and
+   *              target tuples of \a this. \a tuplesSelec has two components, and the
+   *              first component specifies index of the source tuple and the second
+   *              one specifies index of the target tuple.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a a is NULL.
+   *  \throw If \a a is not allocated.
+   *  \throw If \a tuplesSelec is NULL.
+   *  \throw If \a tuplesSelec is not allocated.
+   *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
+   *  \throw If \a tuplesSelec->getNumberOfComponents() != 2.
+   *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for 
+   *         the corresponding (\a this or \a a) array.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::setPartOfValuesAdv(const typename Traits<T>::ArrayType *a, const DataArrayInt *tuplesSelec)
+  {
+    if(!a || !tuplesSelec)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setPartOfValuesAdv : input DataArrayTemplate is NULL !");
+    checkAllocated();
+    a->checkAllocated();
+    tuplesSelec->checkAllocated();
+    int nbOfComp=getNumberOfComponents();
+    if(nbOfComp!=a->getNumberOfComponents())
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setPartOfValuesAdv : This and a do not have the same number of components !");
+    if(tuplesSelec->getNumberOfComponents()!=2)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setPartOfValuesAdv : Expecting to have a tuple selector DataArrayInt instance with exactly 2 components !");
+    int thisNt(getNumberOfTuples());
+    int aNt(a->getNumberOfTuples());
+    T *valsToSet(getPointer());
+    const T *valsSrc(a->getConstPointer());
+    for(const int *tuple=tuplesSelec->begin();tuple!=tuplesSelec->end();tuple+=2)
+    {
+      if(tuple[1]>=0 && tuple[1]<aNt)
+        {
+          if(tuple[0]>=0 && tuple[0]<thisNt)
+            std::copy(valsSrc+nbOfComp*tuple[1],valsSrc+nbOfComp*(tuple[1]+1),valsToSet+nbOfComp*tuple[0]);
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayTemplate::setPartOfValuesAdv : Tuple #" << std::distance(tuplesSelec->begin(),tuple)/2;
+              oss << " of 'tuplesSelec' request of tuple id #" << tuple[0] << " in 'this' ! It should be in [0," << thisNt << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayTemplate::setPartOfValuesAdv : Tuple #" << std::distance(tuplesSelec->begin(),tuple)/2;
+          oss << " of 'tuplesSelec' request of tuple id #" << tuple[1] << " in 'a' ! It should be in [0," << aNt << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  }
+  
+  /*!
+   * Copy some tuples from another DataArrayDouble (\a aBase) into contiguous tuples
+   * of \a this array. Textual data is not copied. Both arrays must have equal number of
+   * components.
+   * The tuples to assign to are defined by index of the first tuple, and
+   * their number is defined by \a tuplesSelec->getNumberOfTuples().
+   * The tuples to copy are defined by values of a DataArrayInt.
+   * All components of selected tuples are copied.
+   *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
+   *              values to.
+   *  \param [in] aBase - the array to copy values from.
+   *  \param [in] tuplesSelec - the array specifying tuples of \a a to copy.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a aBase is NULL.
+   *  \throw If \a aBase is not allocated.
+   *  \throw If \a tuplesSelec is NULL.
+   *  \throw If \a tuplesSelec is not allocated.
+   *  \throw If <em>this->getNumberOfComponents() != aBase->getNumberOfComponents()</em>.
+   *  \throw If \a tuplesSelec->getNumberOfComponents() != 1.
+   *  \throw If <em>tupleIdStart + tuplesSelec->getNumberOfTuples() > this->getNumberOfTuples().</em>
+   *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for 
+   *         \a aBase array.
+ */
+  template<class T>
+  void DataArrayTemplate<T>::setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec)
+  {
+    if(!aBase || !tuplesSelec)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : input DataArray is NULL !");
+    const typename Traits<T>::ArrayType *a(dynamic_cast<const typename Traits<T>::ArrayType *>(aBase));
+    if(!a)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : input DataArray aBase is not a DataArrayDouble !");
+    checkAllocated();
+    a->checkAllocated();
+    tuplesSelec->checkAllocated();
+    int nbOfComp(getNumberOfComponents());
+    if(nbOfComp!=a->getNumberOfComponents())
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : This and a do not have the same number of components !");
+    if(tuplesSelec->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : Expecting to have a tuple selector DataArrayInt instance with exactly 1 component !");
+    int thisNt(getNumberOfTuples());
+    int aNt(a->getNumberOfTuples());
+    int nbOfTupleToWrite(tuplesSelec->getNumberOfTuples());
+    T *valsToSet(getPointer()+tupleIdStart*nbOfComp);
+    if(tupleIdStart+nbOfTupleToWrite>thisNt)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : invalid number range of values to write !");
+    const T *valsSrc=a->getConstPointer();
+    for(const int *tuple=tuplesSelec->begin();tuple!=tuplesSelec->end();tuple++,valsToSet+=nbOfComp)
+      {
+        if(*tuple>=0 && *tuple<aNt)
+          {
+            std::copy(valsSrc+nbOfComp*(*tuple),valsSrc+nbOfComp*(*tuple+1),valsToSet);
+          }
+        else
+          {
+            std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::setContigPartOfSelectedValues : Tuple #" << std::distance(tuplesSelec->begin(),tuple);
+            oss << " of 'tuplesSelec' request of tuple id #" << *tuple << " in 'a' ! It should be in [0," << aNt << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+  }
+  
+  /*!
+   * Copy some tuples from another DataArrayDouble (\a aBase) into contiguous tuples
+   * of \a this array. Textual data is not copied. Both arrays must have equal number of
+   * components.
+   * The tuples to copy are defined by three values similar to parameters of
+   * the Python function \c range(\c start,\c stop,\c step).
+   * The tuples to assign to are defined by index of the first tuple, and
+   * their number is defined by number of tuples to copy.
+   * All components of selected tuples are copied.
+   *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
+   *              values to.
+   *  \param [in] aBase - the array to copy values from.
+   *  \param [in] bg - index of the first tuple to copy of the array \a aBase.
+   *  \param [in] end2 - index of the tuple of \a aBase before which the tuples to copy
+   *              are located.
+   *  \param [in] step - index increment to get index of the next tuple to copy.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a aBase is NULL.
+   *  \throw If \a aBase is not allocated.
+   *  \throw If <em>this->getNumberOfComponents() != aBase->getNumberOfComponents()</em>.
+   *  \throw If <em>tupleIdStart + len(range(bg,end2,step)) > this->getNumberOfTuples().</em>
+   *  \throw If parameters specifying tuples to copy, do not give a
+   *            non-empty range of increasing indices or indices are out of a valid range
+   *            for the array \a aBase.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step)
+  {
+    if(!aBase)
+      {
+        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::setContigPartOfSelectedValuesSlice : input DataArray is NULL !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    const typename Traits<T>::ArrayType *a(dynamic_cast<const typename Traits<T>::ArrayType *>(aBase));
+    if(!a)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValuesSlice : input DataArray aBase is not a DataArrayDouble !");
+    checkAllocated();
+    a->checkAllocated();
+    int nbOfComp(getNumberOfComponents());
+    const char msg[]="DataArrayDouble::setContigPartOfSelectedValuesSlice";
+    int nbOfTupleToWrite(DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg));
+    if(nbOfComp!=a->getNumberOfComponents())
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValuesSlice : This and a do not have the same number of components !");
+    int thisNt(getNumberOfTuples()),aNt(a->getNumberOfTuples());
+    T *valsToSet(getPointer()+tupleIdStart*nbOfComp);
+    if(tupleIdStart+nbOfTupleToWrite>thisNt)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValuesSlice : invalid number range of values to write !");
+    if(end2>aNt)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValuesSlice : invalid range of values to read !");
+    const T *valsSrc(a->getConstPointer()+bg*nbOfComp);
+    for(int i=0;i<nbOfTupleToWrite;i++,valsToSet+=nbOfComp,valsSrc+=step*nbOfComp)
+      {
+        std::copy(valsSrc,valsSrc+nbOfComp,valsToSet);
+      }
+  }
+
+  /*!
+   * Returns a shorten copy of \a this array. The new DataArrayDouble contains ranges
+   * of tuples specified by \a ranges parameter.
+   * For more info on renumbering see \ref numbering.
+   *  \param [in] ranges - std::vector of std::pair's each of which defines a range
+   *              of tuples in [\c begin,\c end) format.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \throw If \a end < \a begin.
+   *  \throw If \a end > \a this->getNumberOfTuples().
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const
+  {
+    checkAllocated();
+    int nbOfComp(getNumberOfComponents()),nbOfTuplesThis(getNumberOfTuples());
+    if(ranges.empty())
+      {
+        MCAuto<DataArray> ret0(buildNewEmptyInstance());
+        MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+        ret->alloc(0,nbOfComp);
+        ret->copyStringInfoFrom(*this);
+        return ret.retn();
+      }
+    int ref(ranges.front().first),nbOfTuples(0);
+    bool isIncreasing(true);
+    for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+      {
+        if((*it).first<=(*it).second)
+          {
+            if((*it).first>=0 && (*it).second<=nbOfTuplesThis)
+              {
+                nbOfTuples+=(*it).second-(*it).first;
+                if(isIncreasing)
+                  isIncreasing=ref<=(*it).first;
+                ref=(*it).second;
+              }
+            else
+              {
+                std::ostringstream oss; oss << "DataArrayTemplate::selectByTupleRanges : on range #" << std::distance(ranges.begin(),it);
+                oss << " (" << (*it).first << "," << (*it).second << ") is greater than number of tuples of this :" << nbOfTuples << " !";
+                throw INTERP_KERNEL::Exception(oss.str().c_str());
+              }
+          }
+        else
+          {
+            std::ostringstream oss; oss << "DataArrayTemplate::selectByTupleRanges : on range #" << std::distance(ranges.begin(),it);
+            oss << " (" << (*it).first << "," << (*it).second << ") end is before begin !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+    if(isIncreasing && nbOfTuplesThis==nbOfTuples)
+      return static_cast<typename Traits<T>::ArrayType *>(deepCopy());
+    MCAuto<DataArray> ret0(buildNewEmptyInstance());
+    MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
+    ret->alloc(nbOfTuples,nbOfComp);
+    ret->copyStringInfoFrom(*this);
+    const T *src(getConstPointer());
+    T *work(ret->getPointer());
+    for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+      work=std::copy(src+(*it).first*nbOfComp,src+(*it).second*nbOfComp,work);
+    return ret.retn();
+  }
+
+  /*!
+   * Returns the first value of \a this. 
+   *  \return double - the last value of \a this array.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \throw If \a this->getNumberOfTuples() < 1.
+   */
+  template<class T>
+  T DataArrayTemplate<T>::front() const
+  {
+    checkAllocated();
+    if(getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::front : number of components not equal to one !");
+    int nbOfTuples(getNumberOfTuples());
+    if(nbOfTuples<1)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::front : number of tuples must be >= 1 !");
+    return *(getConstPointer());
+  }
+  
+  /*!
+   * Returns the last value of \a this. 
+   *  \return double - the last value of \a this array.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \throw If \a this->getNumberOfTuples() < 1.
+   */
+  template<class T>
+  T DataArrayTemplate<T>::back() const
+  {
+    checkAllocated();
+    if(getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::back : number of components not equal to one !");
+    int nbOfTuples(getNumberOfTuples());
+    if(nbOfTuples<1)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate::back : number of tuples must be >= 1 !");
+    return *(getConstPointer()+nbOfTuples-1);
+  }
+  
+  /*!
+   * Returns the maximal value and its location within \a this one-dimensional array.
+   *  \param [out] tupleId - index of the tuple holding the maximal value.
+   *  \return double - the maximal value among all values of \a this array.
+   *  \throw If \a this->getNumberOfComponents() != 1
+   *  \throw If \a this->getNumberOfTuples() < 1
+   */
+  template<class T>
+  T DataArrayTemplate<T>::getMaxValue(int& tupleId) const
+  {
+    checkAllocated();
+    if(getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before or call 'getMaxValueInArray' method !");
+    int nbOfTuples(getNumberOfTuples());
+    if(nbOfTuples<=0)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : array exists but number of tuples must be > 0 !");
+    const T *vals(getConstPointer());
+    const T *loc(std::max_element(vals,vals+nbOfTuples));
+    tupleId=(int)std::distance(vals,loc);
+    return *loc;
+  }
+  
+  /*!
+   * Returns the maximal value within \a this array that is allowed to have more than
+   *  one component.
+   *  \return double - the maximal value among all values of \a this array.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  T DataArrayTemplate<T>::getMaxValueInArray() const
+  {
+    checkAllocated();
+    const T *loc(std::max_element(begin(),end()));
+    return *loc;
+  }
+  
+  /*!
+   * Returns the minimal value and its location within \a this one-dimensional array.
+   *  \param [out] tupleId - index of the tuple holding the minimal value.
+   *  \return double - the minimal value among all values of \a this array.
+   *  \throw If \a this->getNumberOfComponents() != 1
+   *  \throw If \a this->getNumberOfTuples() < 1
+   */
+  template<class T>
+  T DataArrayTemplate<T>::getMinValue(int& tupleId) const
+  {
+    checkAllocated();
+    if(getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before call 'getMinValueInArray' method !");
+    int nbOfTuples(getNumberOfTuples());
+    if(nbOfTuples<=0)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : array exists but number of tuples must be > 0 !");
+    const T *vals(getConstPointer());
+    const T *loc(std::min_element(vals,vals+nbOfTuples));
+    tupleId=(int)std::distance(vals,loc);
+    return *loc;
+  }
+  
+  /*!
+   * Returns the minimal value within \a this array that is allowed to have more than
+   *  one component.
+   *  \return double - the minimal value among all values of \a this array.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  T DataArrayTemplate<T>::getMinValueInArray() const
+  {
+    checkAllocated();
+    const T *loc=std::min_element(begin(),end());
+    return *loc;
+  }
+  
 }
 
 #endif

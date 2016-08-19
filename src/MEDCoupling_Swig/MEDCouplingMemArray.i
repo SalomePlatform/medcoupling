@@ -4976,7 +4976,7 @@ namespace MEDCoupling
     DataArrayChar *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Exception);
-    void setPartOfValuesAdv(const DataArrayChar *a, const DataArrayChar *tuplesSelec) throw(INTERP_KERNEL::Exception);
+    void setPartOfValuesAdv(const DataArrayChar *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
     char front() const throw(INTERP_KERNEL::Exception);
     char back() const throw(INTERP_KERNEL::Exception);
     void setIJ(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);
