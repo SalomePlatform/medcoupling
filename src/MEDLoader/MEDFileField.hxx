@@ -28,6 +28,7 @@
 
 #include "MCAuto.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingFieldInt.hxx"
 #include "MEDCouplingMemArray.hxx"
 
 #include "NormalizedUnstructuredMesh.hxx"
@@ -192,6 +193,7 @@ namespace MEDCoupling
     void loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc);
     void writeLL(med_idt fid, const MEDFileFieldNameScope& nasc) const;
     void getDimension(int& dim) const;
+    bool isUniqueLevel(int& dim) const;
     void fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const;
     void fillFieldSplitedByType(std::vector< std::pair<int,int> >& dads, std::vector<TypeOfField>& types, std::vector<std::string>& pfls, std::vector<std::string>& locs) const;
     int getIteration() const;
@@ -255,6 +257,7 @@ namespace MEDCoupling
     void fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const;
     std::vector< std::vector< std::pair<int,int> > > getFieldSplitedByType(std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
     void getDimension(int& dim) const;
+    bool isUniqueLevel(int& dim) const;
     double getTime() const;
     int getIteration() const;
     int getOrder() const;
@@ -517,6 +520,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual DataArray *getOrCreateAndGetArray() = 0;
     MEDLOADER_EXPORT virtual const DataArray *getOrCreateAndGetArray() const = 0;
   public:
+    MEDLOADER_EXPORT MEDCouplingFieldDouble *fieldOnMesh(const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh, MCAuto<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const std::string& mName, int renumPol, const MEDFileFieldGlobsReal *glob, MCAuto<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh, MCAuto<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, const std::string& mName, int renumPol, const MEDFileFieldGlobsReal *glob, MCAuto<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const;
@@ -726,6 +730,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileField1TS *New();
     MEDLOADER_EXPORT MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const;
     //
+    MEDLOADER_EXPORT MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
@@ -772,18 +777,21 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *shallowCpy() const;
     //
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol=0) const;
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, DataArrayInt* &arrOut, int renumPol=0) const;
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt* &arrOut, int renumPol=0) const;
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, DataArrayInt* &arrOut, int renumPol=0) const;
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *field(const MEDFileMesh *mesh) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     MEDLOADER_EXPORT DataArrayInt *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const;
     //
-    MEDLOADER_EXPORT void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals);
-    MEDLOADER_EXPORT void setFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    MEDLOADER_EXPORT void setFieldNoProfileSBT(const MEDCouplingFieldInt *field);
+    MEDLOADER_EXPORT void setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
     MEDLOADER_EXPORT DataArrayInt *getUndergroundDataArray() const;
   public:
     MEDLOADER_EXPORT static DataArrayInt *ReturnSafelyDataArrayInt(MCAuto<DataArray>& arr);
+    MEDLOADER_EXPORT static MCAuto<MEDCouplingFieldInt> SetDataArrayDoubleInIntField(MEDCouplingFieldDouble *f, MCAuto<DataArray>& arr);
+    MEDLOADER_EXPORT static MCAuto<MEDCouplingFieldDouble> ConvertFieldIntToFieldDouble(const MEDCouplingFieldInt *f);
   public:
     MEDLOADER_EXPORT MEDFileIntField1TS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
   private:
@@ -1029,6 +1037,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *getTimeStepGivenTime(double time, double eps=1e-8) const;
     //
+    MEDLOADER_EXPORT MEDCouplingFieldDouble *field(int iteration, int order, const MEDFileMesh *mesh) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
@@ -1070,15 +1079,16 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const;
     MEDLOADER_EXPORT MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const;
     //
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol=0) const;
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, DataArrayInt* &arrOut, int renumPol=0) const;
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt* &arrOut, int renumPol=0) const;
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, DataArrayInt* &arrOut, int renumPol=0) const;
-    MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *field(int iteration, int order, const MEDFileMesh *mesh) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     MEDLOADER_EXPORT DataArrayInt *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const;
     //
-    MEDLOADER_EXPORT void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals);
-    MEDLOADER_EXPORT void appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    MEDLOADER_EXPORT void appendFieldNoProfileSBT(const MEDCouplingFieldInt *field);
+    MEDLOADER_EXPORT void appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
     //
     MEDLOADER_EXPORT DataArrayInt *getUndergroundDataArray(int iteration, int order) const;
   public:

@@ -26,6 +26,7 @@
 #include "MEDFileFieldOverView.hxx"
 
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -300,7 +301,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(bool isPflAlone, int&
         throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile : existing profile with empty name !");
       if(_type!=ON_GAUSS_PT)
         {
-          locIds->setName(oss.str().c_str());
+          locIds->setName(oss.str());
           glob.appendProfile(locIds);
           _profile=oss.str();
         }
@@ -366,7 +367,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(bool isPflAlone, int&
         if(locIds)
           {
             MCAuto<DataArrayInt> da5=locIds->selectByTupleId(da3->begin(),da3->end());
-            da5->setName(oss.str().c_str());
+            da5->setName(oss.str());
             glob.appendProfile(da5);
             _profile=oss.str();
           }
@@ -374,7 +375,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(bool isPflAlone, int&
           {
             if(!da3->isIota(nbOfEltsInWholeMesh))
               {
-                da3->setName(oss.str().c_str());
+                da3->setName(oss.str());
                 glob.appendProfile(da3);
                 _profile=oss.str();
               }
@@ -468,7 +469,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
       if(_end-_start!=nbValsInFile*nbi)
         {
           std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile : The number of tuples to read is " << nbValsInFile << "*" << nbi <<  " (nb integration points) ! But in data structure it values " << _end-_start << " is expected !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       MEDFILESAFECALLERRD0(MEDfieldValueWithProfileRd,(fid,fieldName.c_str(),iteration,order,menti,mgeoti,MED_COMPACT_PFLMODE,_profile.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,startFeedingPtr));
     }
@@ -584,12 +585,12 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, const MEDFileF
   if(_start<0 || _start>=arr->getNumberOfTuples())
     {
       std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypePerDisc::loadBigArray : Invalid start ("<< _start << ") regarding admissible range of allocated array [0," << arr->getNumberOfTuples() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   if(_end<0 || _end>arr->getNumberOfTuples())
     {
       std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypePerDisc::loadBigArray : Invalid start ("<< _start << ") regarding admissible range of allocated array [0," << arr->getNumberOfTuples() << "] !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   int nbOfCompo(arr->getNumberOfComponents());
   DataArrayDouble *arrD(dynamic_cast<DataArrayDouble *>(arr));
@@ -821,7 +822,7 @@ int MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode(int offset, const std:
     {
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getGeoType());
       oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : not found geometric type " << cm.getRepr() << " in the referenced mesh of field !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   int *work=ptToFill;
   if(_profile.empty())
@@ -831,7 +832,7 @@ int MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode(int offset, const std:
           const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getGeoType());
           oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : for geometric type " << cm.getRepr() << " number of elt ids in mesh is equal to " << _nval;
           oss << " whereas mesh has " << codeOfMesh[3*found+1] << " for this geometric type !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       for(int ii=codeOfMesh[3*found+2];ii<codeOfMesh[3*found+2]+_nval;ii++)
         *work++=ii;
@@ -845,7 +846,7 @@ int MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode(int offset, const std:
           oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : for geometric type " << cm.getRepr() << ", field is defined on profile \"" << _profile << "\" and size of profile is ";
           oss << _nval;
           oss << pfl->getNumberOfTuples() << " whereas the number of ids is set to " << _nval << " for this geometric type !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       int offset2=codeOfMesh[3*found+2];
       for(const int *pflId=pfl->begin();pflId!=pfl->end();pflId++)
@@ -1270,9 +1271,23 @@ const MEDFileFieldPerMesh *MEDFileFieldPerMeshPerType::getFather() const
 
 void MEDFileFieldPerMeshPerType::getDimension(int& dim) const
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
-  int curDim=(int)cm.getDimension();
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
+  int curDim((int)cm.getDimension());
   dim=std::max(dim,curDim);
+}
+
+bool MEDFileFieldPerMeshPerType::isUniqueLevel(int& dim) const
+{
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
+  int curDim((int)cm.getDimension());
+  if(dim!=std::numeric_limits<int>::max())
+    {
+      if(dim!=curDim)
+        return false;
+    }
+  else
+    dim=curDim;
+  return true;
 }
 
 void MEDFileFieldPerMeshPerType::fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const
@@ -1465,7 +1480,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerType::getLeafGivenLocId
     {
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
       std::ostringstream oss; oss << "MEDFileFieldPerMeshPerType::getLeafGivenLocId : no localizations for geotype \"" << cm.getRepr() << "\" !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   if(locId>=0 && locId<(int)_field_pm_pt_pd.size())
     return _field_pm_pt_pd[locId];
@@ -1482,7 +1497,7 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerType::getLeafGive
     {
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
       std::ostringstream oss; oss << "MEDFileFieldPerMeshPerType::getLeafGivenLocId : no localizations for geotype \"" << cm.getRepr() << "\" !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   if(locId>=0 && locId<(int)_field_pm_pt_pd.size())
     return _field_pm_pt_pd[locId];
@@ -1773,6 +1788,14 @@ void MEDFileFieldPerMesh::getDimension(int& dim) const
 {
   for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->getDimension(dim);
+}
+
+bool MEDFileFieldPerMesh::isUniqueLevel(int& dim) const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    if(!(*it)->isUniqueLevel(dim))
+      return false;
+  return true;
 }
 
 void MEDFileFieldPerMesh::fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const
@@ -2184,7 +2207,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
   if(code.empty())
     {
       std::ostringstream oss; oss << "MEDFileFieldPerMesh::getFieldOnMeshAtLevel : " << "The field \"" << nasc.getName() << "\" exists but not with such spatial discretization or such dimension specified !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   //
   std::vector< MCAuto<DataArrayInt> > notNullPflsPerGeoType2(notNullPflsPerGeoType.begin(),notNullPflsPerGeoType.end());
@@ -2211,7 +2234,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
             {
               std::ostringstream oss; oss << "MEDFileFieldPerMesh::getFieldOnMeshAtLevel : There is a problem there is " << nb << " nodes in field whereas there is " << mesh->getNumberOfNodes();
               oss << " nodes in mesh !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
           return finishField(type,glob,dads,locs,mesh,isPfl,arrOut,nasc);
         }
@@ -2237,7 +2260,7 @@ DataArray *MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl(TypeOfField type, c
   if(code.empty())
     {
       std::ostringstream oss; oss << "MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl : " << "The field \"" << nasc.getName() << "\" exists but not with such spatial discretization or such dimension specified !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   std::vector< MCAuto<DataArrayInt> > notNullPflsPerGeoType2(notNullPflsPerGeoType.begin(),notNullPflsPerGeoType.end());
   std::vector< const DataArrayInt *> notNullPflsPerGeoType3(notNullPflsPerGeoType.begin(),notNullPflsPerGeoType.end());
@@ -2257,7 +2280,7 @@ DataArray *MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl(TypeOfField type, c
             {
               std::ostringstream oss; oss << "MEDFileFieldPerMesh::getFieldOnMeshAtLevel : There is a problem there is " << nb << " nodes in field whereas there is " << mesh->getNumberOfNodes();
               oss << " nodes in mesh !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
       return finishField4(dads,code[2]==-1?0:notNullPflsPerGeoType3[0],mesh->getNumberOfNodes(),pfl);
@@ -2297,7 +2320,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId
       const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel((*it)->getGeoType());
       oss << "\"" << cm2.getRepr() << "\", ";
     }
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId(INTERP_KERNEL::NormalizedCellType typ, int locId) const
@@ -2315,7 +2338,7 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAn
       const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel((*it)->getGeoType());
       oss << "\"" << cm2.getRepr() << "\", ";
     }
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type)
@@ -2451,7 +2474,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishFieldNode2(const MEDFileField
       oss << " - use an another meshDim compatible with the field on nodes (MED file does not have such information)" << std::endl;
       oss << " - use an another a meshDimRelToMax equal to 1 -> it will return a mesh with artificial cell POINT1 containing the profile !" << std::endl;
       oss << " - if definitely the node profile has no link with mesh connectivity use MEDFileField1TS::getFieldWithProfile or MEDFileFieldMultiTS::getFieldWithProfile methods instead !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   return 0;
 }
@@ -2672,7 +2695,7 @@ void MEDFileFieldGlobs::appendGlobs(const MEDFileFieldGlobs& other, double eps)
           if(!(*it)->isEqual(*_pfls[id]))
             {
               std::ostringstream oss; oss << "MEDFileFieldGlobs::appendGlobs : Profile \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
     }
@@ -2690,7 +2713,7 @@ void MEDFileFieldGlobs::appendGlobs(const MEDFileFieldGlobs& other, double eps)
           if(!(*it)->isEqual(*_locs[id],eps))
             {
               std::ostringstream oss; oss << "MEDFileFieldGlobs::appendGlobs : Localization \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
     }
@@ -2968,7 +2991,7 @@ int MEDFileFieldGlobs::getLocalizationId(const std::string& loc) const
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getLocalisationId : no such localisation name : \"" << loc << "\" Possible localizations are : ";
       for(it=_locs.begin();it!=_locs.end();it++)
         oss << "\"" << (*it)->getName() << "\", ";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   return std::distance(_locs.begin(),it);
 }
@@ -2985,7 +3008,7 @@ const DataArrayInt *MEDFileFieldGlobs::getProfile(const std::string& pflName) co
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
       for(it=_pfls.begin();it!=_pfls.end();it++)
         oss << "\"" << (*it)->getName() << "\", ";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   return *it;
 }
@@ -3021,7 +3044,7 @@ DataArrayInt *MEDFileFieldGlobs::getProfile(const std::string& pflName)
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
       for(it=_pfls.begin();it!=_pfls.end();it++)
         oss << "\"" << (*it)->getName() << "\", ";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   return *it;
 }
@@ -3145,7 +3168,7 @@ void MEDFileFieldGlobs::appendProfile(DataArrayInt *pfl)
         if(!pfl->isEqual(*(*it)))
           {
             std::ostringstream oss; oss << "MEDFileFieldGlobs::appendProfile : profile \"" << name << "\" already exists and is different from existing !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            throw INTERP_KERNEL::Exception(oss.str());
           }
       }
   pfl->incrRef();
@@ -3164,7 +3187,7 @@ void MEDFileFieldGlobs::appendLoc(const std::string& locName, INTERP_KERNEL::Nor
         if(!(*it)->isEqual(*obj,1e-12))
           {
             std::ostringstream oss; oss << "MEDFileFieldGlobs::appendLoc : localization \"" << name << "\" already exists and is different from existing !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            throw INTERP_KERNEL::Exception(oss.str());
           }
       }
   _locs.push_back(obj);
@@ -4260,7 +4283,7 @@ int MEDFileAnyTypeField1TSWithoutSDA::getMeshIdFromMeshName(const std::string& m
   oss << "Possible meshes are : ";
   for(std::vector<std::string>::const_iterator it2=msg.begin();it2!=msg.end();it2++)
     oss << "\"" << (*it2) << "\" ";
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 int MEDFileAnyTypeField1TSWithoutSDA::addNewEntryIfNecessary(const MEDCouplingMesh *mesh)
@@ -4603,7 +4626,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const MEDCouplingFieldDou
       if(nbOfTuplesExp!=arrOfVals->getNumberOfTuples())
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : The array is expected to have " << nbOfTuplesExp << " tuples ! It has " << arrOfVals->getNumberOfTuples() << " !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       // end of check
       int start=copyTinyInfoFrom(field,arrOfVals);
@@ -4622,7 +4645,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const MEDCouplingFieldDou
       if(nbOfTuplesExp!=arrOfVals->getNumberOfTuples())
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : For node field, the array is expected to have " << nbOfTuplesExp << " tuples ! It has " << arrOfVals->getNumberOfTuples() << " !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       int start=copyTinyInfoFrom(field,arrOfVals);
       int pos=addNewEntryIfNecessary(m);
@@ -4738,6 +4761,37 @@ bool MEDFileAnyTypeField1TSWithoutSDA::presenceOfMultiDiscPerGeoType() const
   return false;
 }
 
+MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh(const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh, MCAuto<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
+{
+  static const char MSG0[]="MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the field is too complex to be able to extract a field ! Call getFieldOnMeshAtLevel method instead to deal with complexity !";
+  if(_field_per_mesh.empty())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the field is empty ! Nothing to extract !");
+  if(_field_per_mesh.size()>1)
+    throw INTERP_KERNEL::Exception(MSG0);
+  if(_field_per_mesh[0].isNull())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the field is inconsistent !");
+  const MEDFileFieldPerMesh *pm(_field_per_mesh[0]);
+  std::set<TypeOfField> types;
+  pm->fillTypesOfFieldAvailable(types);
+  if(types.size()!=1)
+    throw INTERP_KERNEL::Exception(MSG0);
+  TypeOfField type(*types.begin());
+  int meshDimRelToMax(0);
+  if(type==ON_NODES)
+    meshDimRelToMax=0;
+  else
+    {
+      int myDim(std::numeric_limits<int>::max());
+      bool isUnique(pm->isUniqueLevel(myDim));
+      if(!isUnique)
+        throw INTERP_KERNEL::Exception(MSG0);
+      meshDimRelToMax=myDim-mesh->getMeshDimension();
+      if(meshDimRelToMax>0)
+        throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the mesh attached to field is not compatible with the field !");
+    }
+  return MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(type,meshDimRelToMax,0/*renumPol*/,glob,mesh,arrOut,nasc);
+}
+
 /*!
  * Returns a new MEDCouplingFieldDouble of given type lying on a given support.
  *  \param [in] type - a spatial discretization of the new field.
@@ -4792,8 +4846,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtLevel(TypeOf
 MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh, MCAuto<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
 {
   MCAuto<MEDCouplingMesh> m(mesh->getMeshAtLevel(meshDimRelToMax,false));
-  const DataArrayInt *d=mesh->getNumberFieldAtLevel(meshDimRelToMax);
-  const DataArrayInt *e=mesh->getNumberFieldAtLevel(1);
+  const DataArrayInt *d(mesh->getNumberFieldAtLevel(meshDimRelToMax)),*e(mesh->getNumberFieldAtLevel(1));
   if(meshDimRelToMax==1)
     (static_cast<MEDCouplingUMesh *>((MEDCouplingMesh *)m))->setMeshDimension(0);
   return MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(type,renumPol,glob,m,d,e,arrOut,nasc);
@@ -4878,7 +4931,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
               {
                 std::ostringstream oss; oss << "MEDFileField1TSWithoutSDA::getFieldOnMeshAtLevel : Request of simple renumbering but it seems that underlying mesh \"" << mesh->getName() << "\" of requested field ";
                 oss << "\"" << getName() << "\" has partial renumbering (some geotype has no renumber) !";
-                throw INTERP_KERNEL::Exception(oss.str().c_str());
+                throw INTERP_KERNEL::Exception(oss.str());
               }
             MEDCouplingFieldDiscretization *disc=ret->getDiscretization();
             if(!disc) throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel : internal error, no discretization on field !");
@@ -4901,7 +4954,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
               {
                 std::ostringstream oss; oss << "MEDFileField1TSWithoutSDA::getFieldOnMeshAtLevel : Request of simple renumbering but it seems that underlying mesh \"" << mesh->getName() << "\" of requested field ";
                 oss << "\"" << nasc.getName() << "\" not defined on all nodes !";
-                throw INTERP_KERNEL::Exception(oss.str().c_str());
+                throw INTERP_KERNEL::Exception(oss.str());
               }
             MCAuto<DataArrayInt> nodeRenumSafe=nodeRenum->checkAndPreparePermutation();
             if(!dynamic_cast<DataArrayDouble *>((DataArray *)arrOut))
@@ -5438,7 +5491,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
     default:
       {
         std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fileName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32] !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        throw INTERP_KERNEL::Exception(oss.str());
       }
   }
   ret->setDtUnit(dtunit.c_str());
@@ -5492,7 +5545,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
     default:
       {
         std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fileName,fieldName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        throw INTERP_KERNEL::Exception(oss.str());
       }
   }
   ret->setDtUnit(dtunit.c_str());
@@ -5501,7 +5554,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   if(nbSteps<1)
     {
       std::ostringstream oss; oss << "MEDFileField1TS(fileName,fieldName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but there is no time steps on it !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   //
   med_int numdt,numit;
@@ -5603,7 +5656,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
     default:
       {
         std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fileName,fieldName,iteration,order) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        throw INTERP_KERNEL::Exception(oss.str());
       }
   }
   ret->setDtUnit(dtunit.c_str());
@@ -5629,7 +5682,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       std::ostringstream oss; oss << "No such iteration (" << iteration << "," << order << ") in existing field '" << fieldName << "' in file '" << fileName << "' ! Available iterations are : ";
       for(std::vector< std::pair<int,int> >::const_iterator iter=dtits.begin();iter!=dtits.end();iter++)
         oss << "(" << (*iter).first << "," << (*iter).second << "), ";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   if(loadAll)
     ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,0);
@@ -5679,7 +5732,7 @@ int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, const std::string& fileNam
       if(fieldIdCFormat>=nbFields)
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::LocateField2(fileName) : in file \'" << fileName << "\' number of fields is " << nbFields << " ! Trying to request for id " << fieldIdCFormat << " !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   int ncomp(MEDfieldnComponent(fid,fieldIdCFormat+1));
@@ -5725,7 +5778,7 @@ int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fileName
       std::ostringstream oss; oss << "No such field '" << fieldName << "' in file '" << fileName << "' ! Available fields are : ";
       for(std::vector<std::string>::const_iterator it=fns.begin();it!=fns.end();it++)
         oss << "\"" << *it << "\" ";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   return nbOfStep2;
 }
@@ -5763,7 +5816,7 @@ void MEDFileAnyTypeField1TS::setProfileNameOnLeaf(const std::string& mName, INTE
   else
     {
       std::ostringstream oss; oss << "MEDFileField1TS::setProfileNameOnLeaf : Profile \"" << newPflName << "\" already exists or referenced more than one !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
 }
 
@@ -5801,7 +5854,7 @@ void MEDFileAnyTypeField1TS::setLocNameOnLeaf(const std::string& mName, INTERP_K
   else
     {
       std::ostringstream oss; oss << "MEDFileField1TS::setLocNameOnLeaf : Localization \"" << newLocName << "\" already exists or referenced more than one !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
 }
 
@@ -6347,9 +6400,9 @@ void MEDFileField1TS::SetDataArrayDoubleInField(MEDCouplingFieldDouble *f, MCAut
 {
   if(!f)
     throw INTERP_KERNEL::Exception("MEDFileField1TS::SetDataArrayDoubleInField : input field is NULL !");
-  if(!((DataArray*)arr))
+  if(arr.isNull())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::SetDataArrayDoubleInField : no array !");
-  DataArrayDouble *arrOutC=dynamic_cast<DataArrayDouble *>((DataArray*)arr);
+  DataArrayDouble *arrOutC(dynamic_cast<DataArrayDouble *>((DataArray*)arr));
   if(!arrOutC)
     throw INTERP_KERNEL::Exception("MEDFileField1TS::SetDataArrayDoubleInField : mismatch between dataArrays type and MEDFileField1TS ! Expected double !");
   f->setArray(arrOutC);
@@ -6357,9 +6410,9 @@ void MEDFileField1TS::SetDataArrayDoubleInField(MEDCouplingFieldDouble *f, MCAut
 
 DataArrayDouble *MEDFileField1TS::ReturnSafelyDataArrayDouble(MCAuto<DataArray>& arr)
 {
-  if(!((DataArray*)arr))
+  if(arr.isNull())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::ReturnSafelyDataArrayDouble : no array !");
-  DataArrayDouble *arrOutC=dynamic_cast<DataArrayDouble *>((DataArray*)arr);
+  DataArrayDouble *arrOutC(dynamic_cast<DataArrayDouble *>((DataArray*)arr));
   if(!arrOutC)
     throw INTERP_KERNEL::Exception("MEDFileField1TS::ReturnSafelyDataArrayDouble : mismatch between dataArrays type and MEDFileField1TS ! Expected double !");
   arrOutC->incrRef();
@@ -6453,6 +6506,23 @@ MEDFileField1TS::MEDFileField1TS()
 }
 
 /*!
+ * This is the simplest version to fetch a field for MED structure. One drawback : if \a this is a complex field (multi spatial discretization inside a same field) this method will throw exception and more advance
+ * method should be called (getFieldOnMeshAtLevel for example).
+ * But for normal usage of field in MED file world this method is the most efficient to fetch data.
+ *
+ * \param [in] mesh - the mesh the field is lying on
+ * \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *          caller is to delete this field using decrRef() as it is no more needed. 
+ */
+MEDCouplingFieldDouble *MEDFileField1TS::field(const MEDFileMesh *mesh) const
+{
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->fieldOnMesh(this,mesh,arrOut,*contentNotNull()));
+  MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
+  return ret.retn();
+}
+
+/*!
  * Returns a new MEDCouplingFieldDouble of a given type lying on
  * mesh entities of a given dimension of the first mesh in MED file. If \a this field 
  * has not been constructed via file reading, an exception is thrown.
@@ -6480,7 +6550,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevel(TypeOfField type, int m
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   MCAuto<DataArray> arrOut;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut,*contentNotNull());
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut,*contentNotNull()));
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -6512,7 +6582,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtTopLevel(TypeOfField type, in
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtTopLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtTopLevel method instead !");
   MCAuto<DataArray> arrOut;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtTopLevel(type,std::string(),renumPol,this,arrOut,*contentNotNull());
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldAtTopLevel(type,std::string(),renumPol,this,arrOut,*contentNotNull()));
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -6540,7 +6610,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtTopLevel(TypeOfField type, in
 MEDCouplingFieldDouble *MEDFileField1TS::getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol) const
 {
   MCAuto<DataArray> arrOut;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0,arrOut,*contentNotNull());
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0,arrOut,*contentNotNull()));
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -6569,7 +6639,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldOnMeshAtLevel(TypeOfField type,
 MEDCouplingFieldDouble *MEDFileField1TS::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol) const
 {
   MCAuto<DataArray> arrOut;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,this,mesh,arrOut,*contentNotNull());
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,this,mesh,arrOut,*contentNotNull()));
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -6605,7 +6675,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevelOld(TypeOfField type, co
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevelOld : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   MCAuto<DataArray> arrOut;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this,arrOut,*contentNotNull());
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this,arrOut,*contentNotNull()));
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -6808,12 +6878,11 @@ MEDFileField1TS *MEDFileIntField1TS::convertToDouble(bool isDeepCpyGlobs) const
 }
 
 /*!
- * Adds a MEDCouplingFieldDouble to \a this. The underlying mesh of the given field is
+ * Adds a MEDCouplingFieldInt to \a this. The underlying mesh of the given field is
  * checked if its elements are sorted suitable for writing to MED file ("STB" stands for
  * "Sort By Type"), if not, an exception is thrown. 
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
- *  \param [in] field - the field to add to \a this. The field double values are ignored.
- *  \param [in] arrOfVals - the values of the field \a field used.
+ *  \param [in] field - the field to add to \a this.
  *  \throw If the name of \a field is empty.
  *  \throw If the data array of \a field is not set.
  *  \throw If the data array is already allocated but has different number of components
@@ -6821,14 +6890,15 @@ MEDFileField1TS *MEDFileIntField1TS::convertToDouble(bool isDeepCpyGlobs) const
  *  \throw If the underlying mesh of \a field has no name.
  *  \throw If elements in the mesh are not in the order suitable for writing to the MED file.
  */
-void MEDFileIntField1TS::setFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals)
+void MEDFileIntField1TS::setFieldNoProfileSBT(const MEDCouplingFieldInt *field)
 {
+  MCAuto<MEDCouplingFieldDouble> field2(ConvertFieldIntToFieldDouble(field));
   setFileName("");
-  contentNotNull()->setFieldNoProfileSBT(field,arrOfVals,*this,*contentNotNull());
+  contentNotNull()->setFieldNoProfileSBT(field2,field->getArray(),*this,*contentNotNull());
 }
 
 /*!
- * Adds a MEDCouplingFieldDouble to \a this. As described in \ref MEDLoaderMainC a field in MED file sense
+ * Adds a MEDCouplingFieldInt to \a this. As described in \ref MEDLoaderMainC a field in MED file sense
  * can be an aggregation of several MEDCouplingFieldDouble instances.
  * The mesh support of input parameter \a field is ignored here, it can be NULL.
  * The support of field \a field is expected to be those computed with the input parameter \a mesh, \a meshDimRelToMax,
@@ -6837,8 +6907,7 @@ void MEDFileIntField1TS::setFieldNoProfileSBT(const MEDCouplingFieldDouble *fiel
  * This method will check that the field based on the computed support is coherent. If not an exception will be thrown.
  * A new profile is added only if no equal profile is missing.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
- *  \param [in] field - the field to add to \a this. The field double values and mesh support are ignored.
- *  \param [in] arrOfVals - the values of the field \a field used.
+ *  \param [in] field - the field to add to \a this.
  *  \param [in] mesh - the supporting mesh of \a field.
  *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on (useless if field spatial discretization is ON_NODES).
  *  \param [in] profile - ids of mesh entities on which corresponding field values lie.
@@ -6850,10 +6919,11 @@ void MEDFileIntField1TS::setFieldNoProfileSBT(const MEDCouplingFieldDouble *fiel
  *  \throw If elements in \a mesh are not in the order suitable for writing to the MED file.
  *  \sa setFieldNoProfileSBT()
  */
-void MEDFileIntField1TS::setFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+void MEDFileIntField1TS::setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
 {
+  MCAuto<MEDCouplingFieldDouble> field2(ConvertFieldIntToFieldDouble(field));
   setFileName("");
-  contentNotNull()->setFieldProfile(field,arrOfVals,mesh,meshDimRelToMax,profile,*this,*contentNotNull());
+  contentNotNull()->setFieldProfile(field2,field->getArray(),mesh,meshDimRelToMax,profile,*this,*contentNotNull());
 }
 
 const MEDFileIntField1TSWithoutSDA *MEDFileIntField1TS::contentNotNull() const
@@ -6867,29 +6937,48 @@ const MEDFileIntField1TSWithoutSDA *MEDFileIntField1TS::contentNotNull() const
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntField1TS::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol) const
 {
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileIntField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
-  MCAuto<DataArray> arrOut2;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut2,*contentNotNull());
-  DataArrayInt *arrOutC=dynamic_cast<DataArrayInt *>((DataArray *)arrOut2);
-  if(!arrOutC)
-    throw INTERP_KERNEL::Exception("MEDFileIntField1TS::getFieldAtLevelOld : mismatch between dataArrays type and MEDFileIntField1TS ! Expected int32 !");
-  arrOut=arrOutC;
-  arrOut->incrRef();  // arrOut2 dies at the end of the func
-  return ret.retn();
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut,*contentNotNull()));
+  MCAuto<MEDCouplingFieldInt> ret2(SetDataArrayDoubleInIntField(ret,arrOut));
+  return ret2.retn();
 }
 
 DataArrayInt *MEDFileIntField1TS::ReturnSafelyDataArrayInt(MCAuto<DataArray>& arr)
 {
-  if(!((DataArray *)arr))
+  if(arr.isNull())
     throw INTERP_KERNEL::Exception("MEDFileIntField1TS::ReturnSafelyDataArrayInt : input DataArray is NULL !");
-  DataArrayInt *arrC=dynamic_cast<DataArrayInt *>((DataArray *)arr);
+  DataArrayInt *arrC(dynamic_cast<DataArrayInt *>((DataArray *)arr));
   if(!arrC)
     throw INTERP_KERNEL::Exception("MEDFileIntField1TS::ReturnSafelyDataArrayInt : input DataArray is not of type INT32 !");
   arrC->incrRef();
   return arrC;
+}
+
+MCAuto<MEDCouplingFieldInt> MEDFileIntField1TS::SetDataArrayDoubleInIntField(MEDCouplingFieldDouble *f, MCAuto<DataArray>& arr)
+{
+  int t1,t2;
+  double t0(f->getTime(t1,t2));
+  MCAuto<DataArrayInt> arr2(DynamicCastSafe<DataArray,DataArrayInt>(arr));
+  MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::New(*f));
+  MCAuto<MEDCouplingFieldInt> ret(MEDCouplingFieldInt::New(*ft));
+  ret->setTime(t0,t1,t2); ret->setArray(arr2);
+  return ret.retn();
+}
+
+MCAuto<MEDCouplingFieldDouble> MEDFileIntField1TS::ConvertFieldIntToFieldDouble(const MEDCouplingFieldInt *f)
+{
+  if(!f)
+    throw INTERP_KERNEL::Exception("MEDFileIntField1TS::ConvertFieldIntToFieldDouble : null input field !");
+  int t1,t2;
+  double t0(f->getTime(t1,t2));
+  MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::New(*f));
+  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(*ft));
+  ret->setTime(t0,t1,t2);
+  return ret;
 }
 
 MEDFileIntField1TS *MEDFileIntField1TS::extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
@@ -6898,12 +6987,28 @@ MEDFileIntField1TS *MEDFileIntField1TS::extractPart(const std::map<int, MCAuto<D
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble of a given type lying on
+ * This is the simplest version to fetch a field for MED structure. One drawback : if \a this is a complex field (multi spatial discretization inside a same field) this method will throw exception and more advance
+ * method should be called (getFieldOnMeshAtLevel for example).
+ * But for normal usage of field in MED file world this method is the most efficient to fetch data.
+ *
+ * \param [in] mesh - the mesh the field is lying on
+ * \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldInt. The
+ *          caller is to delete this field using decrRef() as it is no more needed. 
+ */
+MEDCouplingFieldInt *MEDFileIntField1TS::field(const MEDFileMesh *mesh) const
+{
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->fieldOnMesh(this,mesh,arrOut,*contentNotNull()));
+  MCAuto<MEDCouplingFieldInt> ret2(SetDataArrayDoubleInIntField(ret,arrOut));
+  return ret2.retn();
+}
+
+/*!
+ * Returns a new MEDCouplingFieldInt of a given type lying on
  * the top level cells of the first mesh in MED file. If \a this field 
  * has not been constructed via file reading, an exception is thrown.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
  *  \param [in] type - a spatial discretization of interest.
- *  \param [out] arrOut - the DataArrayInt containing values of field.
  *  \param [in] renumPol - specifies how to permute values of the result field according to
  *          the optional numbers of cells and nodes, if any. The valid values are
  *          - 0 - do not permute.
@@ -6911,7 +7016,7 @@ MEDFileIntField1TS *MEDFileIntField1TS::extractPart(const std::map<int, MCAuto<D
  *          - 2 - permute nodes.
  *          - 3 - permute cells and nodes.
  *
- *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *  \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldDouble. The
  *          caller is to delete this field using decrRef() as it is no more needed. 
  *  \throw If \a this field has not been constructed via file reading.
  *  \throw If the MED file is not readable.
@@ -6920,22 +7025,21 @@ MEDFileIntField1TS *MEDFileIntField1TS::extractPart(const std::map<int, MCAuto<D
  *  \throw If no field values lying on the top level support.
  *  \sa getFieldAtLevel()
  */
-MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtTopLevel(TypeOfField type, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntField1TS::getFieldAtTopLevel(TypeOfField type, int renumPol) const
 {
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtTopLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtTopLevel method instead !");
-  MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtTopLevel(type,std::string(),renumPol,this,arr,*contentNotNull());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldAtTopLevel(type,std::string(),renumPol,this,arrOut,*contentNotNull()));
+  MCAuto<MEDCouplingFieldInt> ret2(SetDataArrayDoubleInIntField(ret,arrOut));
+  return ret2.retn();
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble of given type lying on a given mesh.
+ * Returns a new MEDCouplingFieldInt of given type lying on a given mesh.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
  *  \param [in] type - a spatial discretization of the new field.
  *  \param [in] mesh - the supporting mesh.
- *  \param [out] arrOut - the DataArrayInt containing values of field.
  *  \param [in] renumPol - specifies how to permute values of the result field according to
  *          the optional numbers of cells and nodes, if any. The valid values are
  *          - 0 - do not permute.
@@ -6943,7 +7047,7 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtTopLevel(TypeOfField type,
  *          - 2 - permute nodes.
  *          - 3 - permute cells and nodes.
  *
- *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *  \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldDouble. The
  *          caller is to delete this field using decrRef() as it is no more needed. 
  *  \throw If no field of \a this is lying on \a mesh.
  *  \throw If the mesh is empty.
@@ -6951,20 +7055,19 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtTopLevel(TypeOfField type,
  *  \sa getFieldAtLevel()
  *  \sa getFieldOnMeshAtLevel() 
  */
-MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol) const
 {
-  MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0,arr,*contentNotNull());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0,arrOut,*contentNotNull()));
+  MCAuto<MEDCouplingFieldInt> ret2(SetDataArrayDoubleInIntField(ret,arrOut));
+  return ret2.retn();
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble of a given type lying on a given support.
+ * Returns a new MEDCouplingFieldInt of a given type lying on a given support.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
  *  \param [in] type - a spatial discretization of interest.
  *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
- *  \param [out] arrOut - the DataArrayInt containing values of field.
  *  \param [in] mesh - the supporting mesh.
  *  \param [in] renumPol - specifies how to permute values of the result field according to
  *          the optional numbers of cells and nodes, if any. The valid values are
@@ -6973,7 +7076,7 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField ty
  *          - 2 - permute nodes.
  *          - 3 - permute cells and nodes.
  *
- *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *  \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldDouble. The
  *          caller is to delete this field using decrRef() as it is no more needed. 
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
  *  \throw If no field of \a this is lying on \a mesh.
@@ -6981,12 +7084,12 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField ty
  *  \sa getFieldAtLevel()
  *  \sa getFieldOnMeshAtLevel() 
  */
-MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol) const
 {
-  MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,this,mesh,arr,*contentNotNull());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret(contentNotNull()->getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,this,mesh,arrOut,*contentNotNull()));
+  MCAuto<MEDCouplingFieldInt> ret2(SetDataArrayDoubleInIntField(ret,arrOut));
+  return ret2.retn();
 }
 
 /*!
@@ -6998,7 +7101,6 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField ty
  *  \param [in] type - a spatial discretization of interest.
  *  \param [in] mName - a name of the supporting mesh.
  *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
- *  \param [out] arrOut - the DataArrayInt containing values of field.
  *  \param [in] renumPol - specifies how to permute values of the result field according to
  *          the optional numbers of cells and nodes, if any. The valid values are
  *          - 0 - do not permute.
@@ -7006,7 +7108,7 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField ty
  *          - 2 - permute nodes.
  *          - 3 - permute cells and nodes.
  *
- *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *  \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldDouble. The
  *          caller is to delete this field using decrRef() as it is no more needed. 
  *  \throw If the MED file is not readable.
  *  \throw If there is no mesh named \a mName in the MED file.
@@ -7016,14 +7118,14 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField ty
  *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
  *  \sa getFieldAtLevel()
  */
-MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntField1TS::getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol) const
 {
   if(getFileName().empty())
-    throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevelOld : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
-  MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this,arr,*contentNotNull());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+    throw INTERP_KERNEL::Exception("MEDFileIntField1TS::getFieldAtLevelOld : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this,arrOut,*contentNotNull());
+  MCAuto<MEDCouplingFieldInt> ret2(SetDataArrayDoubleInIntField(ret,arrOut));
+  return ret2.retn();
 }
 
 /*!
@@ -7139,7 +7241,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTSWithoutSDA::buil
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::buildFromTimeStepIds : At pos #" << std::distance(startIds,id) << " value is " << *id;
           oss << " ! Should be in [0," << sz << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   if(ret->getNumberOfTS()>0)
@@ -7177,7 +7279,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTSWithoutSDA::buil
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::buildFromTimeStepIds : At pos #" << i << " value is " << j;
           oss << " ! Should be in [0," << sz << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   if(ret->getNumberOfTS()>0)
@@ -7254,7 +7356,7 @@ int MEDFileAnyTypeFieldMultiTSWithoutSDA::getTimeStepPos(int iteration, int orde
   std::vector< std::pair<int,int> > vp=getIterations();
   for(std::vector< std::pair<int,int> >::const_iterator it2=vp.begin();it2!=vp.end();it2++)
     oss << "(" << (*it2).first << "," << (*it2).second << ") ";
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 const MEDFileAnyTypeField1TSWithoutSDA& MEDFileAnyTypeFieldMultiTSWithoutSDA::getTimeStepEntry(int iteration, int order) const
@@ -7364,7 +7466,7 @@ std::vector< std::pair<int,int> > MEDFileAnyTypeFieldMultiTSWithoutSDA::getTimeS
       else
         {
           std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutSDA::getTimeSteps : At rank #" << i << " time step is not defined. Invoke eraseEmptyTS method !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   return ret;
@@ -7397,7 +7499,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::synchronizeNameScope()
             {
               std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::synchronizeNameScope : Mismatch in the number of components of parts ! Should be " << nbOfCompo;
               oss << " ! but the field at iteration=" << cur->getIteration() << " order=" << cur->getOrder() << " has " << (cur->getInfo()).size() << " components !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
           cur->copyNameScope(*this);
         }
@@ -7523,7 +7625,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::eraseTimeStepIds(const int *startIds,
       else
         {
           std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutSDA::eraseTimeStepIds : At pos #" << ii << " request for id=" << *id << " not in [0," << maxId << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   for(int iii=0;iii<maxId;iii++)
@@ -7567,7 +7669,7 @@ int MEDFileAnyTypeFieldMultiTSWithoutSDA::getPosOfTimeStep(int iteration, int or
             oss << "(" << it2 << ","  << ord << "), ";
         }
     }
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 int MEDFileAnyTypeFieldMultiTSWithoutSDA::getPosGivenTime(double time, double eps) const
@@ -7588,7 +7690,7 @@ int MEDFileAnyTypeFieldMultiTSWithoutSDA::getPosGivenTime(double time, double ep
             oss << ti << ", ";
         }
     }
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 std::vector< std::pair<int,int> > MEDFileAnyTypeFieldMultiTSWithoutSDA::getIterations() const
@@ -7641,14 +7743,14 @@ const MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeFieldMultiTSWithoutSDA::ge
   if(pos<0 || pos>=(int)_time_steps.size())
     {
       std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::getTimeStepAtPos2 : request for pos #" << pos << " whereas should be in [0," << _time_steps.size() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   const MEDFileAnyTypeField1TSWithoutSDA *item=_time_steps[pos];
   if(item==0)
     {
       std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::getTimeStepAtPos2 : request for pos #" << pos << ", this pos id exists but the underlying Field1TS is null !";
       oss << "\nTry to use following method eraseEmptyTS !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   return item;
 }
@@ -7658,14 +7760,14 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeFieldMultiTSWithoutSDA::getTimeS
   if(pos<0 || pos>=(int)_time_steps.size())
     {
       std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::getTimeStepAtPos2 : request for pos #" << pos << " whereas should be in [0," << _time_steps.size() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   MEDFileAnyTypeField1TSWithoutSDA *item=_time_steps[pos];
   if(item==0)
     {
       std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::getTimeStepAtPos2 : request for pos #" << pos << ", this pos id exists but the underlying Field1TS is null !";
       oss << "\nTry to use following method eraseEmptyTS !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   return item;
 }
@@ -7783,7 +7885,7 @@ std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > MEDFileAnyTypeFieldM
       if(ret1.size()!=sz)
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::splitComponents : At rank #" << i << " number of components is " << ret1.size() << " whereas it should be for all time steps " << sz << " !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       ts[i]=ret1;
     }
@@ -7807,7 +7909,7 @@ std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > MEDFileAnyTypeFieldM
       if(!timeStep)
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::splitDiscretizations : time step #" << i << " is null !"; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       items[i]=timeStep->splitDiscretizations();  
     }
@@ -7858,7 +7960,7 @@ std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > MEDFileAnyTypeFieldM
       if(!timeStep)
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::splitMultiDiscrPerGeoTypes : time step #" << i << " is null !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       items[i]=timeStep->splitMultiDiscrPerGeoTypes();
       if(szOut==std::numeric_limits<std::size_t>::max())
@@ -7898,7 +8000,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::checkCoherencyOfTinyInfo(const MEDCou
     {
       std::ostringstream oss; oss << MSG << "name ! should be \"" << _name;
       oss << "\" and it is set in input field to \"" << field->getName() << "\" !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTSWithoutSDA::checkCoherencyOfTinyInfo : no array set !");
@@ -7912,7 +8014,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::checkThatComponentsMatch(const std::v
     {
       std::ostringstream oss; oss << MSG << "mismatch of number of components between this (" << getInfo().size() << ") and ";
       oss << " number of components of element to append (" << compos.size() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   if(_infos!=compos)
     {
@@ -7921,7 +8023,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::checkThatComponentsMatch(const std::v
       oss << " But compo in input fields are : ";
       std::copy(compos.begin(),compos.end(),std::ostream_iterator<std::string>(oss,", "));
       oss << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
 }
 
@@ -7937,7 +8039,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::checkThatNbOfCompoOfTSMatchThis() con
           {
             std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::checkThatNbOfCompoOfTSMatchThis : At pos #" << j << " the number of components is equal to ";
             oss << elt->getInfo().size() << " whereas it is expected to be equal to " << sz << " !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            throw INTERP_KERNEL::Exception(oss.str());
           }
     }
 }
@@ -7974,7 +8076,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::setIteration(int i, MCAuto<MEDFileAny
   if(i<0 || i>=sz)
     {
       std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::setIteration : trying to set element at place #" << i << " should be in [0," << sz << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   const MEDFileAnyTypeField1TSWithoutSDA *tsPtr(ts);
   if(tsPtr)
@@ -7982,7 +8084,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::setIteration(int i, MCAuto<MEDFileAny
       if(tsPtr->getNumberOfComponents()!=(int)_infos.size())
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::setIteration : trying to set element with " << tsPtr->getNumberOfComponents() << " components ! Should be " << _infos.size() <<  " !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   _time_steps[i]=ts;
@@ -8124,7 +8226,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
     default:
       {
         std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fileName,fieldName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        throw INTERP_KERNEL::Exception(oss.str());
       }
   }
   ret->setDtUnit(dtunit.c_str());
@@ -8154,7 +8256,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
     default:
       {
         std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fileName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32] !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        throw INTERP_KERNEL::Exception(oss.str());
       }
   }
   ret->setDtUnit(dtunit.c_str());
@@ -8921,12 +9023,12 @@ int MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime(MEDFileAnyTypeFieldMultiT
   if(f0->getMeshName()!=mesh->getName())
     {
       std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : first field points to mesh \""<< f0->getMeshName() << "\" and input mesh to compare has name \"" << mesh->getName() << "\" !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   if(f1->getMeshName()!=mesh->getName())
     {
       std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : second field points to mesh \""<< f1->getMeshName() << "\" and input mesh to compare has name \"" << mesh->getName() << "\" !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   int nts=f0->getNumberOfTS();
   if(nts!=f1->getNumberOfTS())
@@ -8950,17 +9052,17 @@ int MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime(MEDFileAnyTypeFieldMultiT
       if(f0cur->getMeshIteration()!=mesh->getIteration() || f0cur->getMeshOrder()!=mesh->getOrder())
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : first field points to mesh time step (" << f0cur->getMeshIteration() << ","<< f0cur->getMeshOrder() << ") whereas input mesh points to time step (" << mesh->getIteration() << "," << mesh->getOrder() << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       if(f1cur->getMeshIteration()!=mesh->getIteration() || f1cur->getMeshOrder()!=mesh->getOrder())
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : second field points to mesh time step (" << f1cur->getMeshIteration() << ","<< f1cur->getMeshOrder() << ") whereas input mesh points to time step (" << mesh->getIteration() << "," << mesh->getOrder() << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       if(f0cur->getIteration()!=f1cur->getIteration() || f0cur->getOrder()!=f1cur->getOrder())
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : all the time steps must be the same ! it is not the case (" << f0cur->getIteration() << "," << f0cur->getOrder() << ")!=(" << f1cur->getIteration() << "," << f1cur->getOrder() << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   return nts;
@@ -9116,7 +9218,7 @@ MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepAtPos(int pos) const
   if(!item)
     {
       std::ostringstream oss; oss << "MEDFileFieldMultiTS::getTimeStepAtPos : field at pos #" << pos << " is null !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   const MEDFileField1TSWithoutSDA *itemC=dynamic_cast<const MEDFileField1TSWithoutSDA *>(item);
   if(itemC)
@@ -9126,7 +9228,7 @@ MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepAtPos(int pos) const
       return ret.retn();
     }
   std::ostringstream oss; oss << "MEDFileFieldMultiTS::getTimeStepAtPos : type of field at pos #" << pos << " is not FLOAT64 !";
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 /*!
@@ -9196,6 +9298,26 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtTopLevel(TypeOfField type
 }
 
 /*!
+ * This is the simplest version to fetch a field for MED structure. One drawback : if \a this is a complex field (multi spatial discretization inside a same field) this method will throw exception and more advance
+ * method should be called (getFieldOnMeshAtLevel for example).
+ * But for normal usage of field in MED file world this method is the most efficient to fetch data.
+ *
+ * \param [in] iteration - the iteration number of a required time step.
+ * \param [in] order - the iteration order number of required time step.
+ * \param [in] mesh - the mesh the field is lying on
+ * \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *          caller is to delete this field using decrRef() as it is no more needed. 
+ */
+MEDCouplingFieldDouble *MEDFileFieldMultiTS::field(int iteration, int order, const MEDFileMesh *mesh) const
+{
+  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret(myF1TS.fieldOnMesh(this,mesh,arrOut,*contentNotNullBase()));
+  MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
+  return ret.retn();
+}
+
+/*!
  * Returns a new MEDCouplingFieldDouble of a given type, of a given time step, lying on
  * a given support.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
@@ -9219,7 +9341,7 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtTopLevel(TypeOfField type
  */
 MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol) const
 {
-  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=contentNotNullBase()->getTimeStepEntry(iteration,order);
+  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
   const MEDFileField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileField1TSWithoutSDA *>(&myF1TS);
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::getFieldOnMeshAtLevel : mismatch of type of field !");
@@ -9563,14 +9685,36 @@ void MEDFileIntFieldMultiTS::checkCoherencyOfType(const MEDFileAnyTypeField1TS *
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble of a given type, of a given time step, lying on
+ * This is the simplest version to fetch a field for MED structure. One drawback : if \a this is a complex field (multi spatial discretization inside a same field) this method will throw exception and more advance
+ * method should be called (getFieldOnMeshAtLevel for example).
+ * But for normal usage of field in MED file world this method is the most efficient to fetch data.
+ *
+ * \param [in] iteration - the iteration number of a required time step.
+ * \param [in] order - the iteration order number of required time step.
+ * \param [in] mesh - the mesh the field is lying on
+ * \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldInt. The
+ *          caller is to delete this field using decrRef() as it is no more needed. 
+ */
+MEDCouplingFieldInt *MEDFileIntFieldMultiTS::field(int iteration, int order, const MEDFileMesh *mesh) const
+{
+  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
+  const MEDFileIntField1TSWithoutSDA *myF1TSC(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS));
+  if(!myF1TSC)
+    throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::field : mismatch of type of field expecting INT32 !");
+  MCAuto<DataArray> arrOut;
+  MCAuto<MEDCouplingFieldDouble> ret(myF1TS.fieldOnMesh(this,mesh,arrOut,*contentNotNullBase()));
+  MCAuto<MEDCouplingFieldInt> ret2(MEDFileIntField1TS::SetDataArrayDoubleInIntField(ret,arrOut));
+  return ret2.retn();
+}
+
+/*!
+ * Returns a new MEDCouplingFieldInt of a given type, of a given time step, lying on
  * mesh entities of a given dimension of the first mesh in MED file.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
  *  \param [in] type - a spatial discretization of interest.
  *  \param [in] iteration - the iteration number of a required time step.
  *  \param [in] order - the iteration order number of required time step.
  *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
- *  \param [out] arrOut - the DataArrayInt containing values of field.
  *  \param [in] renumPol - specifies how to permute values of the result field according to
  *          the optional numbers of cells and nodes, if any. The valid values are
  *          - 0 - do not permute.
@@ -9578,33 +9722,32 @@ void MEDFileIntFieldMultiTS::checkCoherencyOfType(const MEDFileAnyTypeField1TS *
  *          - 2 - permute nodes.
  *          - 3 - permute cells and nodes.
  *
- *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *  \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldDouble. The
  *          caller is to delete this field using decrRef() as it is no more needed. 
  *  \throw If the MED file is not readable.
  *  \throw If there is no mesh in the MED file.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
  *  \throw If no field values of the required parameters are available.
  */
-MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntFieldMultiTS::getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol) const
 {
-  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=contentNotNullBase()->getTimeStepEntry(iteration,order);
-  const MEDFileIntField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS);
+  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
+  const MEDFileIntField1TSWithoutSDA *myF1TSC(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS));
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::getFieldAtLevel : mismatch of type of field expecting INT32 !");
   MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arr,*contentNotNullBase());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+  MCAuto<MEDCouplingFieldDouble> ret(myF1TSC->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arr,*contentNotNullBase()));
+  MCAuto<MEDCouplingFieldInt> ret2(MEDFileIntField1TS::SetDataArrayDoubleInIntField(ret,arr));
+  return ret2.retn();
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble of a given type, of a given time step, lying on
+ * Returns a new MEDCouplingFieldInt of a given type, of a given time step, lying on
  * the top level cells of the first mesh in MED file.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
  *  \param [in] type - a spatial discretization of interest.
  *  \param [in] iteration - the iteration number of a required time step.
  *  \param [in] order - the iteration order number of required time step.
- *  \param [out] arrOut - the DataArrayInt containing values of field.
  *  \param [in] renumPol - specifies how to permute values of the result field according to
  *          the optional numbers of cells and nodes, if any. The valid values are
  *          - 0 - do not permute.
@@ -9612,32 +9755,31 @@ MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtLevel(TypeOfField type
  *          - 2 - permute nodes.
  *          - 3 - permute cells and nodes.
  *
- *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *  \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldDouble. The
  *          caller is to delete this field using decrRef() as it is no more needed. 
  *  \throw If the MED file is not readable.
  *  \throw If there is no mesh in the MED file.
  *  \throw If no field values of the required parameters are available.
  */
-MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtTopLevel(TypeOfField type, int iteration, int order, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntFieldMultiTS::getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol) const
 {
-  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=contentNotNullBase()->getTimeStepEntry(iteration,order);
-  const MEDFileIntField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS);
+  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
+  const MEDFileIntField1TSWithoutSDA *myF1TSC(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS));
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::getFieldAtTopLevel : mismatch of type of field ! INT32 expected !");
   MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtTopLevel(type,std::string(),renumPol,this,arr,*contentNotNullBase());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+  MCAuto<MEDCouplingFieldDouble> ret(myF1TSC->getFieldAtTopLevel(type,std::string(),renumPol,this,arr,*contentNotNullBase()));
+  MCAuto<MEDCouplingFieldInt> ret2(MEDFileIntField1TS::SetDataArrayDoubleInIntField(ret,arr));
+  return ret2.retn();
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble of a given type, of a given time step, lying on
+ * Returns a new MEDCouplingFieldInt of a given type, of a given time step, lying on
  * a given support.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
  *  \param [in] type - a spatial discretization of interest.
  *  \param [in] iteration - the iteration number of a required time step.
  *  \param [in] order - the iteration order number of required time step.
- *  \param [out] arrOut - the DataArrayInt containing values of field.
  *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
  *  \param [in] mesh - the supporting mesh.
  *  \param [in] renumPol - specifies how to permute values of the result field according to
@@ -9647,26 +9789,26 @@ MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtTopLevel(TypeOfField t
  *          - 2 - permute nodes.
  *          - 3 - permute cells and nodes.
  *
- *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *  \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldDouble. The
  *          caller is to delete this field using decrRef() as it is no more needed. 
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
  *  \throw If no field of \a this is lying on \a mesh.
  *  \throw If no field values of the required parameters are available.
  */
-MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol) const
 {
-  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=contentNotNullBase()->getTimeStepEntry(iteration,order);
-  const MEDFileIntField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS);
+  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
+  const MEDFileIntField1TSWithoutSDA *myF1TSC(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS));
   if(!myF1TSC)
-    throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::getFieldOnMeshAtLevel : mismatch of type of field ! INT32 expected !");
+    throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel : mismatch of type of field ! INT32 expected !");
   MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=myF1TSC->getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,this,mesh,arr,*contentNotNullBase());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+  MCAuto<MEDCouplingFieldDouble> ret(myF1TSC->getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,this,mesh,arr,*contentNotNullBase()));
+  MCAuto<MEDCouplingFieldInt> ret2(MEDFileIntField1TS::SetDataArrayDoubleInIntField(ret,arr));
+  return ret2.retn();
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble of given type, of a given time step, lying on a
+ * Returns a new MEDCouplingFieldInt of given type, of a given time step, lying on a
  * given support. 
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
  *  \param [in] type - a spatial discretization of the new field.
@@ -9681,21 +9823,21 @@ MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel(TypeOfFiel
  *          - 2 - permute nodes.
  *          - 3 - permute cells and nodes.
  *
- *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *  \return MEDCouplingFieldInt * - a new instance of MEDCouplingFieldDouble. The
  *          caller is to delete this field using decrRef() as it is no more needed. 
  *  \throw If no field of \a this is lying on \a mesh.
  *  \throw If no field values of the required parameters are available.
  */
-MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol) const
 {
-  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=contentNotNullBase()->getTimeStepEntry(iteration,order);
-  const MEDFileIntField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS);
+  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
+  const MEDFileIntField1TSWithoutSDA *myF1TSC(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS));
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileFieldIntMultiTS::getFieldOnMeshAtLevel : mismatch of type of field ! INT32 expected !");
   MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=myF1TSC->getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0,arr,*contentNotNullBase());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+  MCAuto<MEDCouplingFieldDouble> ret(myF1TSC->getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0,arr,*contentNotNullBase()));
+  MCAuto<MEDCouplingFieldInt> ret2(MEDFileIntField1TS::SetDataArrayDoubleInIntField(ret,arr));
+  return ret2.retn();
 }
 
 /*!
@@ -9703,16 +9845,16 @@ MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel(TypeOfFiel
  * This method is called 'old' because the user should give the mesh name he wants to use for it's field.
  * This method is useful for MED2 file format when field on different mesh was autorized.
  */
-MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldInt *MEDFileIntFieldMultiTS::getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol) const
 {
-  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=contentNotNullBase()->getTimeStepEntry(iteration,order);
-  const MEDFileIntField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS);
+  const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
+  const MEDFileIntField1TSWithoutSDA *myF1TSC(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS));
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::getFieldOnMeshAtLevel : mismatch of type of field ! INT32 expected !");
   MCAuto<DataArray> arr;
-  MCAuto<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this,arr,*contentNotNullBase());
-  arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-  return ret.retn();
+  MCAuto<MEDCouplingFieldDouble> ret(myF1TSC->getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this,arr,*contentNotNullBase()));
+  MCAuto<MEDCouplingFieldInt> ret2(MEDFileIntField1TS::SetDataArrayDoubleInIntField(ret,arr));
+  return ret2.retn();
 }
 
 /*!
@@ -9758,7 +9900,7 @@ MEDFileAnyTypeField1TS *MEDFileIntFieldMultiTS::getTimeStepAtPos(int pos) const
   if(!item)
     {
       std::ostringstream oss; oss << "MEDFileIntFieldMultiTS::getTimeStepAtPos : field at pos #" << pos << " is null !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   const MEDFileIntField1TSWithoutSDA *itemC=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(item);
   if(itemC)
@@ -9768,11 +9910,11 @@ MEDFileAnyTypeField1TS *MEDFileIntFieldMultiTS::getTimeStepAtPos(int pos) const
       return ret.retn();
     }
   std::ostringstream oss; oss << "MEDFileIntFieldMultiTS::getTimeStepAtPos : type of field at pos #" << pos << " is not INT32 !";
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 /*!
- * Adds a MEDCouplingFieldDouble to \a this as another time step. The underlying mesh of
+ * Adds a MEDCouplingFieldInt to \a this as another time step. The underlying mesh of
  * the given field is checked if its elements are sorted suitable for writing to MED file
  * ("STB" stands for "Sort By Type"), if not, an exception is thrown. 
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
@@ -9783,9 +9925,10 @@ MEDFileAnyTypeField1TS *MEDFileIntFieldMultiTS::getTimeStepAtPos(int pos) const
  *  \throw If the underlying mesh of \a field has no name.
  *  \throw If elements in the mesh are not in the order suitable for writing to the MED file.
  */
-void MEDFileIntFieldMultiTS::appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals)
+void MEDFileIntFieldMultiTS::appendFieldNoProfileSBT(const MEDCouplingFieldInt *field)
 {
-  contentNotNull()->appendFieldNoProfileSBT(field,arrOfVals,*this);
+  MCAuto<MEDCouplingFieldDouble> field2(MEDFileIntField1TS::ConvertFieldIntToFieldDouble(field));
+  contentNotNull()->appendFieldNoProfileSBT(field2,field->getArray(),*this);
 }
 
 /*!
@@ -9810,9 +9953,10 @@ void MEDFileIntFieldMultiTS::appendFieldNoProfileSBT(const MEDCouplingFieldDoubl
  *  \throw If elements in \a mesh are not in the order suitable for writing to the MED file.
  *  \sa setFieldNoProfileSBT()
  */
-void MEDFileIntFieldMultiTS::appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+void MEDFileIntFieldMultiTS::appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
 {
-  contentNotNull()->appendFieldProfile(field,arrOfVals,mesh,meshDimRelToMax,profile,*this);
+  MCAuto<MEDCouplingFieldDouble> field2(MEDFileIntField1TS::ConvertFieldIntToFieldDouble(field));
+  contentNotNull()->appendFieldProfile(field2,field->getArray(),mesh,meshDimRelToMax,profile,*this);
 }
 
 const MEDFileIntFieldMultiTSWithoutSDA *MEDFileIntFieldMultiTS::contentNotNull() const
@@ -9980,7 +10124,7 @@ std::vector<std::string> MEDFileFields::getFieldsNames() const
       else
         {
           std::ostringstream oss; oss << "MEDFileFields::getFieldsNames : At rank #" << i << " field is not defined !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   return ret;
@@ -10075,7 +10219,7 @@ try:MEDFileFieldGlobsReal(fileName)
         default:
           {
             std::ostringstream oss; oss << "constructor MEDFileFields(fileName) : file \'" << fileName << "\' at pos #" << i << " field has name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            throw INTERP_KERNEL::Exception(oss.str());
           }
       }
     }
@@ -10096,7 +10240,7 @@ void MEDFileFields::writeLL(med_idt fid) const
       if(!elt)
         {
           std::ostringstream oss; oss << "MEDFileFields::write : at rank #" << i << "/" << _fields.size() << " field is empty !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       elt->writeLL(fid,*this);
     }
@@ -10290,7 +10434,7 @@ void MEDFileFields::destroyFieldsAtPos(const int *startIds, const int *endIds)
       if(*i<0 || *i>=(int)_fields.size())
         {
           std::ostringstream oss; oss << "MEDFileFields::destroyFieldsAtPos : Invalid given id in input (" << *i << ") should be in [0," << _fields.size() << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       b[*i]=false;
     }
@@ -10313,7 +10457,7 @@ void MEDFileFields::destroyFieldsAtPos2(int bg, int end, int step)
       if(k<0 || k>=(int)_fields.size())
         {
           std::ostringstream oss; oss << "MEDFileFields::destroyFieldsAtPos2 : Invalid given id in input (" << k << ") should be in [0," << _fields.size() << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       b[k]=false;
     }
@@ -10378,7 +10522,7 @@ MEDFileFields *MEDFileFields::extractPart(const std::map<int, MCAuto<DataArrayIn
       if(!fmts)
         {
           std::ostringstream oss; oss << "MEDFileFields::extractPart : at pos #" << i << " field is null !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       MCAuto<MEDFileAnyTypeFieldMultiTS> fmtsOut(fmts->extractPart(extractDef,mm));
       fsOut->pushField(fmtsOut);
@@ -10391,7 +10535,7 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const
   if(i<0 || i>=(int)_fields.size())
     {
       std::ostringstream oss; oss << "MEDFileFields::getFieldAtPos : Invalid given id in input (" << i << ") should be in [0," << _fields.size() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   const MEDFileAnyTypeFieldMultiTSWithoutSDA *fmts=_fields[i];
   if(!fmts)
@@ -10406,7 +10550,7 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const
   else
     {
       std::ostringstream oss; oss << "MEDFileFields::getFieldAtPos : At pos #" << i << " field is neither double (FLOAT64) nor integer (INT32) !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   ret->shallowCpyGlobs(*this);
   return ret.retn();
@@ -10428,7 +10572,7 @@ MEDFileFields *MEDFileFields::buildSubPart(const int *startIds, const int *endId
       if(*i<0 || *i>=(int)_fields.size())
         {
           std::ostringstream oss; oss << "MEDFileFields::buildSubPart : Invalid given id in input (" << *i << ") should be in [0," << _fields.size() << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       fields[j]=_fields[*i];
     }
@@ -10564,7 +10708,7 @@ int MEDFileFields::getPosFromFieldName(const std::string& fieldName) const
   std::ostringstream oss; oss << "MEDFileFields::getPosFromFieldName : impossible to find field '" << tmp << "' in this ! Possibilities are : ";
   std::copy(poss.begin(),poss.end(),std::ostream_iterator<std::string>(oss,", "));
   oss << " !";
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
+  throw INTERP_KERNEL::Exception(oss.str());
 }
 
 MEDFileFieldsIterator::MEDFileFieldsIterator(MEDFileFields *fs):_fs(fs),_iter_id(0),_nb_iter(0)

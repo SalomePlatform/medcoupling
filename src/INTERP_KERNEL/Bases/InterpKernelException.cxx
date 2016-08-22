@@ -24,6 +24,10 @@ INTERP_KERNEL::Exception::Exception(const char *reason):_reason(reason)
 {
 }
 
+INTERP_KERNEL::Exception::Exception(const std::string& reason):_reason(reason)
+{
+}
+
 INTERP_KERNEL::Exception::Exception(const char *reason, const char *file, int line):_reason(reason)
 {
 }

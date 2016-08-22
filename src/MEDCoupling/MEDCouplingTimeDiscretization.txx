@@ -186,6 +186,39 @@ namespace MEDCoupling
     if(_array)
       _array->decrRef();
   }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::setEndArray(typename Traits<T>::ArrayType *array, TimeLabel *owner)
+  {
+    throw INTERP_KERNEL::Exception("setEndArray not available for this type of time discretization !");
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::setArrays(const std::vector<typename Traits<T>::ArrayType *>& arrays, TimeLabel *owner)
+  {
+    if(arrays.size()!=1)
+      throw INTERP_KERNEL::Exception("MEDCouplingTimeDiscretization::setArrays : number of arrays must be one.");
+    setArray(arrays.back(),owner);
+  }
+  
+  template<class T>
+  const typename Traits<T>::ArrayType *MEDCouplingTimeDiscretizationTemplate<T>::getEndArray() const
+  {
+    throw INTERP_KERNEL::Exception("getEndArray not available for this type of time discretization !");
+  }
+  
+  template<class T>
+  typename Traits<T>::ArrayType *MEDCouplingTimeDiscretizationTemplate<T>::getEndArray()
+  {
+    throw INTERP_KERNEL::Exception("getEndArray not available for this type of time discretization !");
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::getArrays(std::vector<typename Traits<T>::ArrayType *>& arrays) const
+  {
+    arrays.resize(1);
+    arrays[0]=_array;
+  }
 }
 
 #endif

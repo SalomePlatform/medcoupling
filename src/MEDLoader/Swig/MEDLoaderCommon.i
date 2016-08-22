@@ -159,6 +159,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::buildNewEmpty;
 %newobject MEDCoupling::MEDFileFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileFieldMultiTS::LoadSpecificEntities;
+%newobject MEDCoupling::MEDFileFieldMultiTS::field;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getFieldAtLevel;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getFieldAtTopLevel;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
@@ -166,15 +167,21 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileFieldMultiTS::convertToInt;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::New;
+%newobject MEDCoupling::MEDFileIntFieldMultiTS::field;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::LoadSpecificEntities;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::convertToDouble;
+%newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtLevel;
+%newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtTopLevel;
+%newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel;
+%newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtLevelOld;
 
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::New;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::shallowCpy;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::deepCopy;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::extractPart;
 %newobject MEDCoupling::MEDFileField1TS::New;
+%newobject MEDCoupling::MEDFileField1TS::field;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtLevel;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtTopLevel;
 %newobject MEDCoupling::MEDFileField1TS::getFieldOnMeshAtLevel;
@@ -183,6 +190,11 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileField1TS::convertToInt;
 
 %newobject MEDCoupling::MEDFileIntField1TS::New;
+%newobject MEDCoupling::MEDFileIntField1TS::field;
+%newobject MEDCoupling::MEDFileIntField1TS::getFieldAtLevel;
+%newobject MEDCoupling::MEDFileIntField1TS::getFieldAtTopLevel;
+%newobject MEDCoupling::MEDFileIntField1TS::getFieldOnMeshAtLevel;
+%newobject MEDCoupling::MEDFileIntField1TS::getFieldAtLevelOld;
 %newobject MEDCoupling::MEDFileIntField1TS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileIntField1TS::convertToDouble;
 
@@ -1991,6 +2003,7 @@ namespace MEDCoupling
     static MEDFileField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New();
     MEDCoupling::MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -2126,8 +2139,14 @@ namespace MEDCoupling
     static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     //
-    void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals) throw(INTERP_KERNEL::Exception);
-    void setFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    void setFieldNoProfileSBT(const MEDCouplingFieldInt *field) throw(INTERP_KERNEL::Exception);
+    void setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDFileIntField1TS() throw(INTERP_KERNEL::Exception)
@@ -2153,56 +2172,6 @@ namespace MEDCoupling
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
-      }
-
-      PyObject *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldAtLevel(type,meshDimRelToMax,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-
-      PyObject *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldAtTopLevel(type,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-
-      PyObject *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldOnMeshAtLevel(type,meshDimRelToMax,mesh,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-      
-      PyObject *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldOnMeshAtLevel(type,mesh,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-      
-      PyObject *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldAtLevelOld(type,mname,meshDimRelToMax,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
       }
 
       PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
@@ -2632,6 +2601,7 @@ namespace MEDCoupling
     static MEDFileFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     //
+    MEDCouplingFieldDouble *field(int iteration, int order, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -2782,9 +2752,15 @@ namespace MEDCoupling
     static MEDFileIntFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileIntFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     //
-    void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals) throw(INTERP_KERNEL::Exception);
-    void appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    void appendFieldNoProfileSBT(const MEDCouplingFieldInt *field) throw(INTERP_KERNEL::Exception);
+    void appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
     MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *field(int iteration, int order, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDFileIntFieldMultiTS()
@@ -2818,56 +2794,6 @@ namespace MEDCoupling
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
-      }
-
-      PyObject *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldAtLevel(type,iteration,order,meshDimRelToMax,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-
-      PyObject *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldAtTopLevel(type,iteration,order,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-
-      PyObject *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldOnMeshAtLevel(type,iteration,order,meshDimRelToMax,mesh,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-      
-      PyObject *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldOnMeshAtLevel(type,iteration,order,mesh,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-      
-      PyObject *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret1=0;
-        MEDCouplingFieldDouble *ret0=self->getFieldAtLevelOld(type,iteration,order,mname,meshDimRelToMax,ret1,renumPol);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
       }
 
       PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)

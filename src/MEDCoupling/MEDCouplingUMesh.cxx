@@ -236,7 +236,7 @@ void MEDCouplingUMesh::checkConsistency(double eps) const
         {
           std::ostringstream oss;
           oss << "MEDCouplingUMesh::checkConsistency : cell << #" << i<< " with type Type " << cm.getRepr() << " in 'this' whereas meshdim == " << meshDim << " !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       int nbOfNodesInCell=ptrI[i+1]-ptrI[i]-1;
       if(!cm.isDynamic())
@@ -245,7 +245,7 @@ void MEDCouplingUMesh::checkConsistency(double eps) const
             std::ostringstream oss;
             oss << "MEDCouplingUMesh::checkConsistency : cell #" << i << " with static Type '" << cm.getRepr() << "' has " <<  cm.getNumberOfNodes();
             oss << " nodes whereas in connectivity there is " << nbOfNodesInCell << " nodes ! Looks very bad !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            throw INTERP_KERNEL::Exception(oss.str());
           }
       if(cm.isQuadratic() && cm.isDynamic() && meshDim == 2)
         if (nbOfNodesInCell % 2 || nbOfNodesInCell < 4)
@@ -253,7 +253,7 @@ void MEDCouplingUMesh::checkConsistency(double eps) const
             std::ostringstream oss;
             oss << "MEDCouplingUMesh::checkConsistency : cell #" << i << " with quadratic type '" << cm.getRepr() << "' has " <<  nbOfNodesInCell;
             oss << " nodes. This should be even, and greater or equal than 4!! Looks very bad!";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            throw INTERP_KERNEL::Exception(oss.str());
           }
       for(const int *w=ptr+ptrI[i]+1;w!=ptr+ptrI[i+1];w++)
         {
@@ -263,20 +263,20 @@ void MEDCouplingUMesh::checkConsistency(double eps) const
               if(nodeId>=nbOfNodes)
                 {
                   std::ostringstream oss; oss << "Cell #" << i << " is built with node #" << nodeId << " whereas there are only " << nbOfNodes << " nodes in the mesh !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  throw INTERP_KERNEL::Exception(oss.str());
                 }
             }
           else if(nodeId<-1)
             {
               std::ostringstream oss; oss << "Cell #" << i << " is built with node #" << nodeId << " in connectivity ! sounds bad !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
           else
             {
               if((INTERP_KERNEL::NormalizedCellType)(ptr[ptrI[i]])!=INTERP_KERNEL::NORM_POLYHED)
                 {
                   std::ostringstream oss; oss << "Cell #" << i << " is built with node #-1 in connectivity ! sounds bad !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  throw INTERP_KERNEL::Exception(oss.str());
                 }
             }
         }
@@ -355,7 +355,7 @@ void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, in
           {
             std::ostringstream oss; oss << "MEDCouplingUMesh::insertNextCell : Trying to push a " << cm.getRepr() << " cell with a size of " << size;
             oss << " ! Expecting " << cm.getNumberOfNodes() << " !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            throw INTERP_KERNEL::Exception(oss.str());
           }
       int idx=_nodal_connec_index->back();
       int val=idx+size+1;
@@ -368,7 +368,7 @@ void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, in
       std::ostringstream oss; oss << "MEDCouplingUMesh::insertNextCell : cell type " << cm.getRepr() << " has a dimension " << cm.getDimension();
       oss << " whereas Mesh Dimension of current UMesh instance is set to " << _mesh_dim << " ! Please invoke \"setMeshDimension\" method before or invoke ";
       oss << "\"MEDCouplingUMesh::New\" static method with 2 parameters name and meshDimension !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
 }
 
@@ -1150,7 +1150,7 @@ void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const i
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::convertToPolyTypes : On rank #" << std::distance(cellIdsToConvertBg,iter) << " value is " << *iter << " which is not";
               oss << " in range [0," << nbOfCells << ") !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
     }
@@ -1168,7 +1168,7 @@ void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const i
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::convertToPolyTypes : On rank #" << std::distance(cellIdsToConvertBg,iter) << " value is " << *iter << " which is not";
               oss << " in range [0," << nbOfCells << ") !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
       for(int cellId=0;cellId<nbOfCells;cellId++)
@@ -1270,13 +1270,13 @@ void MEDCouplingUMesh::convertExtrudedPolyhedra()
           if(std::count(c+ci[i]+1,c+ci[i+1],-1)!=0)
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::convertExtrudedPolyhedra : cell # " << i << " is a polhedron BUT it has NOT exactly 1 face !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
           std::size_t n2=std::distance(c+ci[i]+1,c+ci[i+1]);
           if(n2%2!=0)
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::convertExtrudedPolyhedra : cell # " << i << " is a polhedron with 1 face but there is a mismatch of number of nodes in face should be even !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
           int n1=(int)(n2/2);
           newci[i+1]=7*n1+2+newci[i];//6*n1 (nodal length) + n1+2 (number of faces) - 1 (number of '-1' separator is equal to number of faces -1) + 1 (for cell type)
@@ -1488,7 +1488,7 @@ void MEDCouplingUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::computeNodeIdsAlg : In cell #" << i  << " presence of node id " <<  conn[j] << " not in [0," << nbOfNodes << ") !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
 }
@@ -1532,7 +1532,7 @@ DataArrayInt *MEDCouplingUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::getNodeIdsInUse : In cell #" << i  << " presence of node id " <<  conn[j] << " not in [0," << nbOfNodes << ") !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
   nbrOfNodesInUse=(int)std::count(traducer,traducer+nbOfNodes,1);
@@ -1974,7 +1974,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int com
       std::ostringstream oss; oss << "MEDCouplingUMesh::areCellsIncludedIn : only following policies are possible : ";
       std::copy(possibleCompType,possibleCompType+sizeof(possibleCompType)/sizeof(int),std::ostream_iterator<int>(oss," "));
       oss << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   MCAuto<DataArrayInt> o2n=mesh->zipConnectivityTraducer(compType,nbOfCells);
   arr=o2n->subArray(nbOfCells);
@@ -2133,13 +2133,13 @@ void MEDCouplingUMesh::setPartOfMySelf(const int *cellIdsBg, const int *cellIdsE
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelf : Mismatch of meshdimensions ! this is equal to " << getMeshDimension();
       oss << ", whereas other mesh dimension is set equal to " << otherOnSameCoordsThanThis.getMeshDimension() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   int nbOfCellsToModify=(int)std::distance(cellIdsBg,cellIdsEnd);
   if(nbOfCellsToModify!=otherOnSameCoordsThanThis.getNumberOfCells())
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelf : cells ids length (" <<  nbOfCellsToModify << ") do not match the number of cells of other mesh (" << otherOnSameCoordsThanThis.getNumberOfCells() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   int nbOfCells=getNumberOfCells();
   bool easyAssign=true;
@@ -2154,7 +2154,7 @@ void MEDCouplingUMesh::setPartOfMySelf(const int *cellIdsBg, const int *cellIdsE
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelf : On pos #" << std::distance(cellIdsBg,it) << " id is equal to " << *it << " which is not in [0," << nbOfCells << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   if(easyAssign)
@@ -2182,13 +2182,13 @@ void MEDCouplingUMesh::setPartOfMySelfSlice(int start, int end, int step, const 
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelfSlice : Mismatch of meshdimensions ! this is equal to " << getMeshDimension();
       oss << ", whereas other mesh dimension is set equal to " << otherOnSameCoordsThanThis.getMeshDimension() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   int nbOfCellsToModify=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCouplingUMesh::setPartOfMySelfSlice : ");
   if(nbOfCellsToModify!=otherOnSameCoordsThanThis.getNumberOfCells())
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelfSlice : cells ids length (" <<  nbOfCellsToModify << ") do not match the number of cells of other mesh (" << otherOnSameCoordsThanThis.getNumberOfCells() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   int nbOfCells=getNumberOfCells();
   bool easyAssign=true;
@@ -2204,7 +2204,7 @@ void MEDCouplingUMesh::setPartOfMySelfSlice(int start, int end, int step, const 
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelfSlice : On pos #" << i << " id is equal to " << it << " which is not in [0," << nbOfCells << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   if(easyAssign)
@@ -2680,7 +2680,7 @@ void MEDCouplingUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>
             else
               {
                 std::ostringstream oss; oss << "MEDCouplingUMesh::renumberNodesInConn(map) : presence in connectivity for cell #" << i << " of node #" << node << " : Not in map !";
-                throw INTERP_KERNEL::Exception(oss.str().c_str());
+                throw INTERP_KERNEL::Exception(oss.str());
               }
           }
       }
@@ -2974,7 +2974,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
   else
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::getTypeOfCell : Requesting type of cell #" << cellId << " but it should be in [0," << _nodal_connec_index->getNbOfElems()-1 << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
 }
 
@@ -3442,7 +3442,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoordsSlice(int start, 
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::buildPartOfMySelfKeepCoordsSlice : On pos #" << i << " input cell id =" << work << " should be in [0," << ncell << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   MCAuto<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(newConnIPtr[0],1);
@@ -3486,7 +3486,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin
         {
           free(connIndexRet);
           std::ostringstream oss; oss << "MEDCouplingUMesh::buildPartOfMySelfKeepCoords : On pos #" << std::distance(begin,work) << " input cell id =" << *work << " should be in [0," << ncell << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   int *connRet=(int *)malloc(connIndexRet[nbOfElemsRet]*sizeof(int));
@@ -4136,7 +4136,7 @@ double MEDCouplingUMesh::distanceToPoint(const double *ptBg, const double *ptEnd
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::distanceToPoint : only mesh dimension 2 and 1 are implemented !");
   checkFullyDefined();
   if((int)std::distance(ptBg,ptEnd)!=spaceDim)
-    { std::ostringstream oss; oss << "MEDCouplingUMesh::distanceToPoint : input point has to have dimension equal to the space dimension of this (" << spaceDim << ") !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
+    { std::ostringstream oss; oss << "MEDCouplingUMesh::distanceToPoint : input point has to have dimension equal to the space dimension of this (" << spaceDim << ") !"; throw INTERP_KERNEL::Exception(oss.str()); }
   DataArrayInt *ret1=0;
   MCAuto<DataArrayDouble> pts=DataArrayDouble::New(); pts->useArray(ptBg,false,C_DEALLOC,1,spaceDim);
   MCAuto<DataArrayDouble> ret0=distanceToPoints(pts,ret1);
@@ -4179,7 +4179,7 @@ DataArrayDouble *MEDCouplingUMesh::distanceToPoints(const DataArrayDouble *pts, 
   if(pts->getNumberOfComponents()!=spaceDim)
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::distanceToPoints : input pts DataArrayDouble has " << pts->getNumberOfComponents() << " components whereas it should be equal to " << spaceDim << " (mesh spaceDimension) !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   checkFullyDefined();
   int nbCells=getNumberOfCells();
@@ -5535,7 +5535,7 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic3D1(DataArrayInt *&
           if(typ2==INTERP_KERNEL::NORM_ERROR)
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::convertLinearCellsToQuadratic3D1 : On cell #" << i << " the linear cell type does not support advanced quadratization !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
           types.insert(typ2); newConn->pushBackSilent(typ2);
           newConn->pushBackValsSilent(cPtr+icPtr[0]+1,cPtr+icPtr[1]);
@@ -6015,7 +6015,7 @@ void MEDCouplingUMesh::subDivide2DMesh(const int *nodeSubdived, const int *nodeI
               else
                 {
                   std::ostringstream oss; oss << "MEDCouplingUMesh::subDivide2DMesh : On polygon #" << i << " edgeid #" << j << " subedges mismatch : end subedge k!=start subedge k+1 !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  throw INTERP_KERNEL::Exception(oss.str());
                 }
             }
           else
@@ -6281,7 +6281,7 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons()
           catch(INTERP_KERNEL::Exception& e)
           {
               std::ostringstream oss; oss << "Something wrong in polyhedron #" << i << " : " << e.what();
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
           }
         }
     }
@@ -6811,7 +6811,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTreeFast() const
       if(kk==0)
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::getBoundingBoxForBBTree : cell #" << i << " contains no valid nodeId !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   return ret.retn();
@@ -6959,7 +6959,7 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::getDistributionOfTypes : Type " << INTERP_KERNEL::CellModel::GetCellModel(typ).getRepr();
           oss << " is not contiguous !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       types.insert(typ);
       ret[3*i]=typ;
@@ -7052,7 +7052,7 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
                             {
                               std::ostringstream oss; oss << "MEDCouplingUMesh::checkTypeConsistencyAndContig : the section " << kk << " points to the profile #" << idInIdsPerType;
                               oss << ", and this profile contains a value " << *k << " should be in [0," << nbOfCellsOfCurType << ") !";
-                              throw INTERP_KERNEL::Exception(oss.str().c_str());
+                              throw INTERP_KERNEL::Exception(oss.str());
                             }
                         }
                     }
@@ -7066,7 +7066,7 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::checkTypeConsistencyAndContig : at section " << kk << " of code it points to the array #" << idInIdsPerType;
               oss << " should be in [0," << idsPerType.size() << ") !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
       i=j;
@@ -7190,7 +7190,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1
       ret->getMaxValue(tmp2);
       ret->decrRef();
       std::ostringstream oss; oss << "MEDCouplingUMesh::emulateMEDMEMBDC : input N-1 mesh present a cell not in descending mesh ... Id of cell is " << tmp2 << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   nM1LevMeshIds=ret;
   //
@@ -7325,7 +7325,7 @@ DataArrayInt *MEDCouplingUMesh::getLevArrPerCellTypes(const INTERP_KERNEL::Norma
           const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[*i]);
           std::ostringstream oss; oss << "MEDCouplingUMesh::getLevArrPerCellTypes : Cell #" << std::distance(connI,i);
           oss << " has a type " << cm.getRepr() << " not in input array of type !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   nbPerType=tmpb.retn();
@@ -7473,7 +7473,7 @@ DataArrayInt *MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh() co
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh : this contains a single geo type (" << cm.getRepr() << ") but ";
       oss << "this type is dynamic ! Only static geometric type is possible for that type ! call convertNodalConnectivityToDynamicGeoTypeMesh instead !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   int nbCells=getNumberOfCells();
   int typi=(int)typ;
@@ -7490,7 +7490,7 @@ DataArrayInt *MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh() co
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh : there something wrong in cell #" << i << " ! The type of cell is not those expected, or the length of nodal connectivity is not those expected (" << nbNodesPerCell-1 << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   return connOut.retn();
@@ -7671,7 +7671,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::keepSpecifiedCells(INTERP_KERNEL::Normalized
       {
         std::ostringstream oss; oss << "MEDCouplingUMesh::keepSpecifiedCells : Request on type " << type << " at place #" << std::distance(idsPerGeoTypeBg,work) << " value " << *work;
         oss << ". It should be in [0," << szOfType << ") !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        throw INTERP_KERNEL::Exception(oss.str());
       }
   MCAuto<DataArrayInt> idsTokeep=DataArrayInt::New(); idsTokeep->alloc(sz+(int)std::distance(idsPerGeoTypeBg,idsPerGeoTypeEnd),1);
   int *idsPtr=idsTokeep->getPointer();
@@ -7788,7 +7788,7 @@ DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const
               else
                 {
                   std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on cell #" << i << " presence of nodeId #" << *conn << " should be in [0," <<   nbOfNodes << ") !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  throw INTERP_KERNEL::Exception(oss.str());
                 }
             }
           int nbOfNodesInCell=nodalI[i+1]-nodalI[i]-1;
@@ -7797,7 +7797,7 @@ DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on cell #" << i << " presence of cell with no nodes !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
       else
@@ -7811,7 +7811,7 @@ DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const
               else
                 {
                   std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on cell polyhedron cell #" << i << " presence of nodeId #" << *it << " should be in [0," <<   nbOfNodes << ") !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  throw INTERP_KERNEL::Exception(oss.str());
                 }
             }
           if(!s.empty())
@@ -7819,7 +7819,7 @@ DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on polyhedron cell #" << i << " there are no nodes !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
     }
@@ -7901,14 +7901,14 @@ DataArrayDouble *MEDCouplingUMesh::computePlaneEquationOf3DFaces() const
               else
                 {
                   std::ostringstream oss; oss << "MEDCouplingUMesh::computePlaneEquationOf3DFaces : invalid 2D cell #" << i << " ! This cell points to an invalid nodeId : " << nodeId << " !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  throw INTERP_KERNEL::Exception(oss.str());
                 }
             }
         }
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::computePlaneEquationOf3DFaces : invalid 2D cell #" << i << " ! Must be constitued by more than 3 nodes !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       INTERP_KERNEL::inverseMatrix(matrix,4,matrix2);
       retPtr[0]=matrix2[3]; retPtr[1]=matrix2[7]; retPtr[2]=matrix2[11]; retPtr[3]=matrix2[15];
@@ -7988,7 +7988,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUM
     if(!a[ii])
       {
         std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshes : item #" << ii << " in input array of size "<< sz << " is empty !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        throw INTERP_KERNEL::Exception(oss.str());
       }
   std::vector< MCAuto<MEDCouplingUMesh> > bb(sz);
   std::vector< const MEDCouplingUMesh * > aa(sz);
@@ -8114,7 +8114,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<c
     if(!meshes[ii])
       {
         std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshesOnSameCoords : item #" << ii << " in input array of size "<< meshes.size() << " is empty !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        throw INTERP_KERNEL::Exception(oss.str());
       }
   const DataArrayDouble *coords=meshes.front()->getCoords();
   int meshDim=meshes.front()->getMeshDimension();
@@ -8236,14 +8236,14 @@ void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCou
             {
               std::ostringstream oss; oss << " MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords : Item #" << std::distance(meshes.begin(),it) << " inside the vector of length " << meshes.size();
               oss << " has no coordinate array defined !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
       else
         {
           std::ostringstream oss; oss << " MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords : Item #" << std::distance(meshes.begin(),it) << " inside the vector of length " << meshes.size();
           oss << " is null !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   MCAuto<DataArrayDouble> res=DataArrayDouble::Aggregate(coords);
@@ -8283,13 +8283,13 @@ void MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(const std::vector<ME
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords : In input vector of unstructured meshes of size " << meshes.size() << " the element #" << std::distance(meshes.begin(),it) << " is null !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   if(s.size()!=1)
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords : In input vector of unstructured meshes of size " << meshes.size() << ", it appears that they do not share the same instance of DataArrayDouble for coordiantes ! tryToShareSameCoordsPermute method can help to reach that !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+      throw INTERP_KERNEL::Exception(oss.str());
     }
   const DataArrayDouble *coo=*(s.begin());
   if(!coo)
@@ -8701,9 +8701,9 @@ void MEDCouplingUMesh::TryToCorrectPolyhedronOrientation(int *begin, int *end, c
                       std::pair<int,int> p1(bgFace[j],bgFace[(j+1)%nbOfEdgesInFace]);
                       std::pair<int,int> p2(p1.second,p1.first);
                       if(std::find(edgesOK.begin(),edgesOK.end(),p1)!=edgesOK.end())
-                        { std::ostringstream oss; oss << "Face #" << j << " of polyhedron looks bad !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
+                        { std::ostringstream oss; oss << "Face #" << j << " of polyhedron looks bad !"; throw INTERP_KERNEL::Exception(oss.str()); }
                       if(std::find(edgesFinished.begin(),edgesFinished.end(),p1)!=edgesFinished.end() || std::find(edgesFinished.begin(),edgesFinished.end(),p2)!=edgesFinished.end())
-                        { std::ostringstream oss; oss << "Face #" << j << " of polyhedron looks bad !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
+                        { std::ostringstream oss; oss << "Face #" << j << " of polyhedron looks bad !"; throw INTERP_KERNEL::Exception(oss.str()); }
                       std::list< std::pair<int,int> >::iterator it=std::find(edgesOK.begin(),edgesOK.end(),p2);
                       if(it!=edgesOK.end())
                         {
@@ -10149,7 +10149,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
           catch(INTERP_KERNEL::Exception& e)
           {
               std::ostringstream oss; oss << "Error when computing residual of cell #" << i << " in source/m1 mesh ! Maybe the neighbours of this cell in mesh are not well connected !\n" << "The deep reason is the following : " << e.what();
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
           }
         }
       for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
@@ -11004,7 +11004,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const 
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " ! Must be in [0," << nbOfGrps << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       if(lgth>=work[-1])
         *work=lgth;
@@ -11012,7 +11012,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const 
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " and at this pos arrIndxIn[" << *idsIt;
           oss << "+1]-arrIndxIn[" << *idsIt << "] < 0 ! The input index array is bugged !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   arro->alloc(lgth,1);
@@ -11026,7 +11026,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const 
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " arrIndx[" << *idsIt << "] must be >= 0 and arrIndx[";
           oss << *idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   arrOut=arro.retn();
@@ -11078,7 +11078,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArraysSlice(int idsOfSelectStart, int i
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " ! Must be in [0," << nbOfGrps << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
       if(lgth>=work[-1])
         *work=lgth;
@@ -11086,7 +11086,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArraysSlice(int idsOfSelectStart, int i
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " and at this pos arrIndxIn[" << idsIt;
           oss << "+1]-arrIndxIn[" << idsIt << "] < 0 ! The input index array is bugged !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   arro->alloc(lgth,1);
@@ -11100,7 +11100,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArraysSlice(int idsOfSelectStart, int i
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " arrIndx[" << idsIt << "] must be >= 0 and arrIndx[";
           oss << idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   arrOut=arro.retn();
@@ -11147,7 +11147,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const in
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArrays : On pos #" << std::distance(idsOfSelectBg,it) << " value is " << *it << " not in [0," << nbOfTuples << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   srcArrIndexPtr=srcArrIndex->getConstPointer();
@@ -11207,13 +11207,13 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, c
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : On pos #" << std::distance(idsOfSelectBg,it) << " id (idsOfSelectBg[" << std::distance(idsOfSelectBg,it)<< "]) is " << *it << " arrIndxIn[id+1]-arrIndxIn[id]!=srcArrIndex[pos+1]-srcArrIndex[pos] !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : On pos #" << std::distance(idsOfSelectBg,it) << " value is " << *it << " not in [0," << nbOfTuples << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
 }
@@ -11282,7 +11282,7 @@ DataArrayInt *MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeedAlg(std::vecto
       if(*seedElt>=0 && *seedElt<nbOfTuples)
         { fetched[*seedElt]=true; fetched2[*seedElt]=true; }
       else
-        { std::ostringstream oss; oss << "MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeedAlg : At pos #" << i << " of seeds value is " << *seedElt << "! Should be in [0," << nbOfTuples << ") !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
+        { std::ostringstream oss; oss << "MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeedAlg : At pos #" << i << " of seeds value is " << *seedElt << "! Should be in [0," << nbOfTuples << ") !"; throw INTERP_KERNEL::Exception(oss.str()); }
     }
   const int *arrInPtr=arrIn->getConstPointer();
   const int *arrIndxPtr=arrIndxIn->getConstPointer();
@@ -11350,7 +11350,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSlice(int start, int end, int step,
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSlice : On pos #" << i << " value is " << it << " not in [0," << nbOfTuples << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   srcArrIndexPtr=srcArrIndex->getConstPointer();
@@ -11413,13 +11413,13 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice(int start, int end, in
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice : On pos #" << i << " id (idsOfSelectBg[" << i << "]) is " << it << " arrIndxIn[id+1]-arrIndxIn[id]!=srcArrIndex[pos+1]-srcArrIndex[pos] !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+              throw INTERP_KERNEL::Exception(oss.str());
             }
         }
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice : On pos #" << i << " value is " << it << " not in [0," << nbOfTuples << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
 }

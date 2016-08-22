@@ -24,6 +24,10 @@ using namespace MEDCoupling;
 
 const char Traits<double>::ArrayTypeName[]="DataArrayDouble";
 
+const char Traits<double>::FieldTypeName[]="MEDCouplingFieldDouble";
+
 const char Traits<int>::ArrayTypeName[]="DataArrayInt";
+
+const char Traits<int>::FieldTypeName[]="MEDCouplingFieldInt";
 
 const char Traits<char>::ArrayTypeName[]="DataArrayChar";

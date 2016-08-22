@@ -18,38 +18,27 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGFIELDDOUBLE_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGFIELDDOUBLE_HXX__
+#ifndef __MEDCOUPLINGFIELDDOUBLE_HXX__
+#define __MEDCOUPLINGFIELDDOUBLE_HXX__
 
 #include "MEDCoupling.hxx"
-#include "MEDCouplingField.hxx"
-#include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingFieldT.hxx"
 #include "MEDCouplingMemArray.hxx"
 
 namespace MEDCoupling
 {
+  class MEDCouplingFieldInt;
   class MEDCouplingFieldTemplate;
 
-  class MEDCouplingFieldDouble : public MEDCouplingField
+  class MEDCouplingFieldDouble : public MEDCouplingFieldT<double>
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
-    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit);
-    MEDCOUPLING_EXPORT std::string getTimeUnit() const;
     MEDCOUPLING_EXPORT void synchronizeTimeWithSupport();
-    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingField *other);
-    MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingFieldDouble *other);
-    MEDCOUPLING_EXPORT void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other);
-    MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
     MEDCOUPLING_EXPORT std::string writeVTK(const std::string& fileName, bool isBinary=true) const;
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT bool areCompatibleForMerge(const MEDCouplingField *other) const;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingField *other) const;
-    MEDCOUPLING_EXPORT bool areCompatibleForMul(const MEDCouplingField *other) const;
-    MEDCOUPLING_EXPORT bool areCompatibleForDiv(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingFieldDouble *other) const;
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
     MEDCOUPLING_EXPORT void renumberCellsWithoutMesh(const int *old2NewBg, bool check=true);
@@ -61,38 +50,11 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPartRange(int begin, int end, int step) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *nodeToCellDiscretization() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cellToNodeDiscretization() const;
-    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getTimeDiscretization() const;
-    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
-    MEDCOUPLING_EXPORT void setNature(NatureOfField nat);
-    MEDCOUPLING_EXPORT void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
-    MEDCOUPLING_EXPORT double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
-    MEDCOUPLING_EXPORT void setIteration(int it) { _time_discr->setIteration(it); }
-    MEDCOUPLING_EXPORT void setEndIteration(int it) { _time_discr->setEndIteration(it); }
-    MEDCOUPLING_EXPORT void setOrder(int order) { _time_discr->setOrder(order); }
-    MEDCOUPLING_EXPORT void setEndOrder(int order) { _time_discr->setEndOrder(order); }
-    MEDCOUPLING_EXPORT void setTimeValue(double val) { _time_discr->setTimeValue(val); }
-    MEDCOUPLING_EXPORT void setEndTimeValue(double val) { _time_discr->setEndTimeValue(val); }
-    MEDCOUPLING_EXPORT void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
-    MEDCOUPLING_EXPORT void synchronizeTimeWithMesh();
-    MEDCOUPLING_EXPORT void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
-    MEDCOUPLING_EXPORT void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }
-    MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const { return _time_discr->getTime(iteration,order); }
-    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const { return _time_discr->getStartTime(iteration,order); }
-    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const { return _time_discr->getEndTime(iteration,order); }
-    MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt *convertToIntField() const;
     MEDCOUPLING_EXPORT double getIJK(int cellId, int nodeIdInCell, int compoId) const;
-    MEDCOUPLING_EXPORT void setArray(DataArrayDouble *array);
-    MEDCOUPLING_EXPORT void setEndArray(DataArrayDouble *array);
-    MEDCOUPLING_EXPORT void setArrays(const std::vector<DataArrayDouble *>& arrs);
-    MEDCOUPLING_EXPORT const DataArrayDouble *getArray() const { return _time_discr->getArray(); }
-    MEDCOUPLING_EXPORT DataArrayDouble *getArray() { return _time_discr->getArray(); }
-    MEDCOUPLING_EXPORT const DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
-    MEDCOUPLING_EXPORT DataArrayDouble *getEndArray() { return _time_discr->getEndArray(); }
-    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getArrays() const { std::vector<DataArrayDouble *> ret; _time_discr->getArrays(ret); return ret; }
     MEDCOUPLING_EXPORT double accumulate(int compId) const;
     MEDCOUPLING_EXPORT void accumulate(double *res) const;
     MEDCOUPLING_EXPORT double getMaxValue() const;
@@ -194,18 +156,17 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCOUPLING_EXPORT static std::string WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true);
   public:
-    MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return _time_discr; }
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return _time_discr; }
-    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return timeDiscr(); }
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return timeDiscr(); }
   protected:
-    ~MEDCouplingFieldDouble();
+    ~MEDCouplingFieldDouble() { }
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy);
     MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
-  private:
-    MEDCouplingTimeDiscretization *_time_discr;
+    MEDCouplingTimeDiscretization *timeDiscr();
+    const MEDCouplingTimeDiscretization *timeDiscr() const;
   };
 }
 

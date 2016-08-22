@@ -184,6 +184,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::getEndArray;
 %newobject MEDCoupling::MEDCouplingFieldDouble::MergeFields;
 %newobject MEDCoupling::MEDCouplingFieldDouble::MeldFields;
+%newobject MEDCoupling::MEDCouplingFieldDouble::convertToIntField;
 %newobject MEDCoupling::MEDCouplingFieldDouble::doublyContractedProduct;
 %newobject MEDCoupling::MEDCouplingFieldDouble::determinant;
 %newobject MEDCoupling::MEDCouplingFieldDouble::eigenValues;
@@ -230,7 +231,11 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::cellToNodeDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject MEDCoupling::MEDCouplingFieldInt::New;
+%newobject MEDCoupling::MEDCouplingFieldInt::convertToDblField;
 %newobject MEDCoupling::MEDCouplingFieldInt::getArray;
+%newobject MEDCoupling::MEDCouplingFieldInt::deepCopy;
+%newobject MEDCoupling::MEDCouplingFieldInt::clone;
+%newobject MEDCoupling::MEDCouplingFieldInt::cloneWithMesh;
 %newobject MEDCoupling::MEDCouplingFieldTemplate::New;
 %newobject MEDCoupling::MEDCouplingMesh::deepCopy;
 %newobject MEDCoupling::MEDCouplingMesh::clone;
@@ -3773,6 +3778,8 @@ namespace MEDCoupling
        }
   };
   
+  class MEDCouplingFieldInt;
+  
   class MEDCouplingFieldDouble : public MEDCoupling::MEDCouplingField
   {
   public:
@@ -3786,6 +3793,7 @@ namespace MEDCoupling
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
     std::string  writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *convertToIntField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *deepCopy() const;
@@ -5185,6 +5193,10 @@ namespace MEDCoupling
     std::string getTimeUnit() const throw(INTERP_KERNEL::Exception);
     void setTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void setArray(DataArrayInt *array) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *deepCopy() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *clone(bool recDeepCpy) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldInt *cloneWithMesh(bool recDeepCpy) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *convertToDblField() const throw(INTERP_KERNEL::Exception);
     %extend {
       MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME)
       {

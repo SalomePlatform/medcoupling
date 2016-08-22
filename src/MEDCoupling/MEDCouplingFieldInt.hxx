@@ -22,39 +22,30 @@
 #define __MEDCOUPLINGFIELDINT_HXX__
 
 #include "MEDCoupling.hxx"
-#include "MEDCouplingField.hxx"
-#include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingFieldT.hxx"
 #include "MEDCouplingMemArray.hxx"
 
 #include <string>
 
 namespace MEDCoupling
 {
+  class MEDCouplingFieldDouble;
   class MEDCouplingFieldTemplate;
   
-  class MEDCouplingFieldInt : public MEDCouplingField
+  class MEDCouplingFieldInt : public MEDCouplingFieldT<int>
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingFieldInt *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     MEDCOUPLING_EXPORT static MEDCouplingFieldInt *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
-    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
-    MEDCOUPLING_EXPORT std::string simpleRepr() const;
-    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
-    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit);
-    MEDCOUPLING_EXPORT std::string getTimeUnit() const;
-    MEDCOUPLING_EXPORT void setTime(double val, int iteration, int order);
-    MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const;
-    MEDCOUPLING_EXPORT void setArray(DataArrayInt *array);
-    MEDCOUPLING_EXPORT const DataArrayInt *getArray() const;
-    MEDCOUPLING_EXPORT DataArrayInt *getArray();
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt *deepCopy() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
   protected:
     MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCopy);
     MEDCouplingFieldInt(NatureOfField n, MEDCouplingTimeDiscretizationInt *td, MEDCouplingFieldDiscretization *type);
     MEDCouplingFieldInt(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
-    ~MEDCouplingFieldInt();
-  private:
-    MEDCouplingTimeDiscretizationInt *_time_discr;
+    ~MEDCouplingFieldInt() { }
   };
 }
 

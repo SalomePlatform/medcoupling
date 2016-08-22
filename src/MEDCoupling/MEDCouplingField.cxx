@@ -236,6 +236,8 @@ NatureOfField MEDCouplingField::getNature() const
 void MEDCouplingField::setNature(NatureOfField nat)
 {
   MEDCouplingNatureOfField::GetRepr(nat);//generate a throw if nat not recognized
+  if(_type)
+    _type->checkCompatibilityWithNature(nat);
   _nature=nat;
 }
 

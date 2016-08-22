@@ -32,19 +32,25 @@ namespace MEDCoupling
   class DataArrayInt;
   class DataArrayDouble;
   class DataArrayChar;
+  class MEDCouplingFieldDouble;
+  class MEDCouplingFieldInt;
   
   template<>
   struct Traits<double>
   {
     static const char ArrayTypeName[];
+    static const char FieldTypeName[];
     typedef DataArrayDouble ArrayType;
+    typedef MEDCouplingFieldDouble FieldType;
   };
   
   template<>
   struct Traits<int>
   {
     static const char ArrayTypeName[];
+    static const char FieldTypeName[];
     typedef DataArrayInt ArrayType;
+    typedef MEDCouplingFieldInt FieldType;
   };
 
   template<>

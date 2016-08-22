@@ -4332,7 +4332,50 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(rd.isEqual(DataArrayInt([0,4,0,3,0,2,0,2,0,0,1,2,1,2,1,6,1,5,1,1,2,8,2,7,3,3,4,4,5,5,6,6,7,7,8,8])))
         self.assertTrue(rdi.isEqual(DataArrayInt([0,2,4,6,8,9,10,12,14,16,18,19,20,22,24,25,27,28,29,31,33,35,36])))
         pass
-        
+
+    def testFieldIntIsOnStage2(self):
+        """ Very important test to check that isEqual of MEDCouplingFieldInt is OK !"""
+        m1=MEDCouplingCMesh() ; m1.setCoords(DataArrayDouble([0,1,2,3]),DataArrayDouble([0,1,2,3,4]))
+        m1=m1.buildUnstructured() ; m1.setName("mesh")
+        f1=MEDCouplingFieldInt(ON_CELLS) ; f1.setMesh(m1)
+        arr1=DataArrayInt([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr1.setInfoOnComponents(["aa","bbb"])
+        f1.setArray(arr1) ; f1.setName("f1") ; f1.setTime(2.,3,4)
+        #
+        m2=MEDCouplingCMesh() ; m2.setCoords(DataArrayDouble([0,1,2,3]),DataArrayDouble([0,1,2,3,4]))
+        m2=m2.buildUnstructured() ; m2.setName("mesh")
+        f2=MEDCouplingFieldInt(ON_CELLS) ; f2.setMesh(m2)
+        arr2=DataArrayInt([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr2.setInfoOnComponents(["aa","bbb"])
+        f2.setArray(arr2) ; f2.setName("f1") ; f2.setTime(2.,3,4)
+        #
+        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        f1.getArray()[:]*=2
+        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(not f1.isEqualWithoutConsideringStr(f2,1e-12,0.))
+        f1.getArray()[:]/=2
+        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        #
+        f1.setName("F1")
+        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
+        f1.setName("f1")
+        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        #
+        f1.getArray().setInfoOnComponents(["aa","bbbb"])
+        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(f1.isEqualWithoutConsideringStr(f2,1e-12,0.))
+        f1.getArray().setInfoOnComponents(["aa","bbb"])
+        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        #
+        f3=f2.deepCopy()
+        self.assertTrue(f1.isEqual(f3,1e-12,0.))
+        #
+        for fd,expected in ((ON_NODES,False),(ON_CELLS,True)):
+            f4=MEDCouplingFieldInt(fd) ; f4.setMesh(m2) ; f4.setTime(2.,3,4)
+            arr4=DataArrayInt([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr4.setInfoOnComponents(["aa","bbb"])
+            f4.setArray(arr4) ; f4.setName("f1")
+            self.assertEqual(f1.isEqual(f4,1e-12,0.),expected)
+            pass
+        pass
+    
     pass
 
 if __name__ == '__main__':

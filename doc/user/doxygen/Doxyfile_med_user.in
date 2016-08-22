@@ -140,6 +140,8 @@ FILE_PATTERNS          = InterpKernelDEC.*xx \
                          MEDCouplingCurveLinearMesh.*xx \
                          MEDCouplingMappedExtrudedMesh.*xx \
                          MEDCouplingFieldDouble.*xx \
+			 MEDCouplingFieldInt.*xx \
+			 MEDCouplingFieldT.*xx \
                          MEDCouplingField.*xx \
                          MEDCouplingNatureOfFieldEnum \
                          MEDCouplingNatureOfField.hxx \
