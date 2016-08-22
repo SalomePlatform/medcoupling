@@ -18,8 +18,8 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_HXX__
+#ifndef __MEDCOUPLING_MEDCOUPLINGMEMARRAY_HXX__
+#define __MEDCOUPLING_MEDCOUPLINGMEMARRAY_HXX__
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingTimeLabel.hxx"

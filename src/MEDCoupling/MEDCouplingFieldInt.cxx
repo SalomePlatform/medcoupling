@@ -19,6 +19,8 @@
 // Author : Yann Pora (EDF R&D)
 
 #include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldTemplate.hxx"
+#include "MEDCouplingMesh.hxx"
 
 using namespace MEDCoupling;
 
@@ -27,17 +29,53 @@ MEDCouplingFieldInt *MEDCouplingFieldInt::New(TypeOfField type, TypeOfTimeDiscre
   return new MEDCouplingFieldInt(type,td);
 }
 
+MEDCouplingFieldInt *MEDCouplingFieldInt::New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td)
+{
+  return new MEDCouplingFieldInt(ft,td);
+}
+
 void MEDCouplingFieldInt::checkConsistencyLight() const
 {
   MEDCouplingField::checkConsistencyLight();
-  if(_array.isNull())
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldInt::checkConsistencyLight : array is null !");
+  _time_discr->checkConsistencyLight();
   _type->checkCoherencyBetween(_mesh,getArray());
 }
 
 std::string MEDCouplingFieldInt::simpleRepr() const
 {
-  return std::string();
+  std::ostringstream ret;
+  ret << "FieldInt with name : \"" << getName() << "\"\n";
+  ret << "Description of field is : \"" << getDescription() << "\"\n";
+  if(_type)
+    { ret << "FieldInt space discretization is : " << _type->getStringRepr() << "\n"; }
+  else
+    { ret << "FieldInt has no spatial discretization !\n"; }
+  if(_time_discr)
+    { ret << "FieldInt time discretization is : " << _time_discr->getStringRepr() << "\n"; }
+  else
+    { ret << "FieldInt has no time discretization !\n"; }
+  ret << "FieldInt nature of field is : \"" << MEDCouplingNatureOfField::GetReprNoThrow(_nature) << "\"\n";
+  if(getArray())
+    {
+      if(getArray()->isAllocated())
+        {
+          int nbOfCompo=getArray()->getNumberOfComponents();
+          ret << "FieldInt default array has " << nbOfCompo << " components and " << getArray()->getNumberOfTuples() << " tuples.\n";
+          ret << "FieldInt default array has following info on components : ";
+          for(int i=0;i<nbOfCompo;i++)
+            ret << "\"" << getArray()->getInfoOnComponent(i) << "\" ";
+          ret << "\n";
+        }
+      else
+        {
+          ret << "Array set but not allocated !\n";
+        }
+    }
+  if(_mesh)
+    ret << "Mesh support information :\n__________________________\n" << _mesh->simpleRepr();
+  else
+    ret << "Mesh support information : No mesh set !\n";
+  return ret.str();
 }
 
 void MEDCouplingFieldInt::reprQuickOverview(std::ostream& stream) const
@@ -66,46 +104,39 @@ double MEDCouplingFieldInt::getTime(int& iteration, int& order) const
 
 void MEDCouplingFieldInt::setArray(DataArrayInt *array)
 {
-  MCAuto<DataArrayInt> array2(array);
-  if(array2.isNotNull())
-    array2->incrRef();
-  _array=array2;
-  //_time_discr->setArray(array,this);
+  _time_discr->setArray(array,this);
 }
 
 const DataArrayInt *MEDCouplingFieldInt::getArray() const
 {
-  return _array;
+  return _time_discr->getArray();
 }
 
 DataArrayInt *MEDCouplingFieldInt::getArray()
 {
-  return _array;
+  return _time_discr->getArray();
 }
 
-MEDCouplingFieldInt::MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),_time_discr(MEDCouplingTimeDiscretization::New(td))
+MEDCouplingFieldInt::MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),_time_discr(MEDCouplingTimeDiscretizationInt::New(td))
 {
 }
 
-MEDCouplingFieldInt::MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCopy):MEDCouplingField(other,deepCopy),_time_discr(other._time_discr->performCopyOrIncrRef(deepCopy))
+MEDCouplingFieldInt::MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCopy):MEDCouplingField(other,deepCopy),_time_discr(dynamic_cast<MEDCouplingTimeDiscretizationInt *>(other._time_discr->performCopyOrIncrRef(deepCopy)))
 {
-  if(other._array.isNull())
-    return ;
-  if(deepCopy)
-    {
-      _array=other._array->deepCopy();
-    }
-  else
-    {
-      _array=other._array;
-    }
 }
 
-MEDCouplingFieldInt::MEDCouplingFieldInt(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type):MEDCouplingField(type,n),_time_discr(td)
+MEDCouplingFieldInt::MEDCouplingFieldInt(NatureOfField n, MEDCouplingTimeDiscretizationInt *td, MEDCouplingFieldDiscretization *type):MEDCouplingField(type,n),_time_discr(td)
 {
 }
 
 MEDCouplingFieldInt::~MEDCouplingFieldInt()
 {
   delete _time_discr;
+}
+
+/*!
+ * ** WARINING : This method do not deeply copy neither mesh nor spatial discretization. Only a shallow copy (reference) is done for mesh and spatial discretization ! **
+ */
+MEDCouplingFieldInt::MEDCouplingFieldInt(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td):MEDCouplingField(ft,false),_time_discr(MEDCouplingTimeDiscretizationInt::New(td))
+{
 }

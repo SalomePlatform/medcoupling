@@ -900,7 +900,7 @@ MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& f
 }
 
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy):MEDCouplingField(other,deepCopy),
-    _time_discr(other._time_discr->performCopyOrIncrRef(deepCopy))
+                                                                                                  _time_discr(dynamic_cast<MEDCouplingTimeDiscretization *>(other._time_discr->performCopyOrIncrRef(deepCopy)))
 {
 }
 

@@ -18,20 +18,21 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingTimeDiscretization.txx"
 #include "MCAuto.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMesh.hxx"
 
-#include <cmath>
-#include <sstream>
 #include <iterator>
 #include <algorithm>
 #include <functional>
 
 using namespace MEDCoupling;
 
-const double MEDCouplingTimeDiscretization::TIME_TOLERANCE_DFT=1.e-12;
+template class MEDCouplingTimeDiscretizationTemplate<double>;
+template class MEDCouplingTimeDiscretizationTemplate<int>;
+
+const char MEDCouplingTimeDiscretizationInt::REPR[]="One time label.";
 
 const char MEDCouplingNoTimeLabel::EXCEPTION_MSG[]="MEDCouplingNoTimeLabel::setTime : no time info attached.";
 
@@ -66,88 +67,6 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::New(TypeOfTimeDisc
   }
 }
 
-void MEDCouplingTimeDiscretization::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
-{
-  _time_tolerance=other._time_tolerance;
-  _time_unit=other._time_unit;
-}
-
-void MEDCouplingTimeDiscretization::copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other)
-{
-  _time_unit=other._time_unit;
-  if(_array && other._array)
-    _array->copyStringInfoFrom(*other._array);
-}
-
-void MEDCouplingTimeDiscretization::checkConsistencyLight() const
-{
-  if(!_array)
-    throw INTERP_KERNEL::Exception("Field invalid because no values set !");
-  if(_time_tolerance<0.)
-    throw INTERP_KERNEL::Exception("time tolerance is expected to be greater than 0. !");
-}
-
-void MEDCouplingTimeDiscretization::updateTime() const
-{
-  if(_array)
-    updateTimeWith(*_array);
-}
-
-std::size_t MEDCouplingTimeDiscretization::getHeapMemorySizeWithoutChildren() const
-{
-  std::size_t ret(_time_unit.capacity());
-  return ret;
-}
-
-std::vector<const BigMemoryObject *> MEDCouplingTimeDiscretization::getDirectChildrenWithNull() const
-{
-  std::vector<const BigMemoryObject *> ret;
-  ret.push_back(_array);
-  return ret;
-}
-
-bool MEDCouplingTimeDiscretization::areCompatible(const MEDCouplingTimeDiscretization *other) const
-{
-  if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
-    return false;
-  if(_array==0 && other->_array==0)
-    return true;
-  if(_array==0 || other->_array==0)
-    return false;
-  if(_array->getNumberOfComponents()!=other->_array->getNumberOfComponents())
-    return false;
-  return true;
-}
-
-bool MEDCouplingTimeDiscretization::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
-{
-  std::ostringstream oss; oss.precision(15);
-  if(_time_unit!=other->_time_unit)
-    {
-      oss << "Field discretizations differ : this time unit = \"" << _time_unit << "\" and other time unit = \"" << other->_time_unit << "\" !";
-      reason=oss.str();
-      return false;
-    }
-  if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
-    {
-      oss << "Field discretizations differ : this time tolerance = \"" << _time_tolerance << "\" and other time tolerance = \"" << other->_time_tolerance << "\" !";
-      reason=oss.str();
-      return false;
-    }
-  if(_array==0 && other->_array==0)
-    return true;
-  if(_array==0 || other->_array==0)
-    {
-      reason="Field discretizations differ : Only one timediscretization between the two this and other has a DataArrayDouble for values defined";
-      return false;
-    }
-  if(_array->getNumberOfComponents()!=other->_array->getNumberOfComponents())
-    return false;
-  if(_array->getNumberOfTuples()!=other->_array->getNumberOfTuples())
-    return false;
-  return true;
-}
-
 bool MEDCouplingTimeDiscretization::areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const
 {
   if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
@@ -157,37 +76,6 @@ bool MEDCouplingTimeDiscretization::areCompatibleForMeld(const MEDCouplingTimeDi
   if(_array==0 || other->_array==0)
     return false;
   if(_array->getNumberOfTuples()!=other->_array->getNumberOfTuples())
-    return false;
-  return true;
-}
-
-bool MEDCouplingTimeDiscretization::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
-{
-  if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
-    return false;
-  if(_array==0 && other->_array==0)
-    return true;
-  if(_array==0 || other->_array==0)
-    return false;
-  int nbC1=_array->getNumberOfComponents();
-  int nbC2=other->_array->getNumberOfComponents();
-  int nbMin=std::min(nbC1,nbC2);
-  if(nbC1!=nbC2 && nbMin!=1)
-    return false;
-  return true;
-}
-
-bool MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
-{
-  if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
-    return false;
-  if(_array==0 && other->_array==0)
-    return true;
-  if(_array==0 || other->_array==0)
-    return false;
-  int nbC1=_array->getNumberOfComponents();
-  int nbC2=other->_array->getNumberOfComponents();
-  if(nbC1!=nbC2 && nbC2!=1)
     return false;
   return true;
 }
@@ -294,38 +182,6 @@ void MEDCouplingTimeDiscretization::getTinySerializationStrInformation(std::vect
   int nbOfCompo=_array->getNumberOfComponents();
   for(int i=0;i<nbOfCompo;i++)
     tinyInfo.push_back(_array->getInfoOnComponent(i));
-}
-
-MEDCouplingTimeDiscretization::MEDCouplingTimeDiscretization():_time_tolerance(TIME_TOLERANCE_DFT),_array(0)
-{
-}
-
-MEDCouplingTimeDiscretization::MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCopy):_time_unit(other._time_unit),_time_tolerance(other._time_tolerance)
-{
-  if(other._array)
-    _array=other._array->performCopyOrIncrRef(deepCopy);
-  else
-    _array=0;
-}
-
-MEDCouplingTimeDiscretization::~MEDCouplingTimeDiscretization()
-{
-  if(_array)
-    _array->decrRef();
-}
-
-void MEDCouplingTimeDiscretization::setArray(DataArrayDouble *array, TimeLabel *owner)
-{
-  if(array!=_array)
-    {
-      if(_array)
-        _array->decrRef();
-      _array=array;
-      if(_array)
-        _array->incrRef();
-      if(owner)
-        owner->declareAsNew();
-    }
 }
 
 const DataArrayDouble *MEDCouplingTimeDiscretization::getEndArray() const
@@ -889,6 +745,97 @@ void MEDCouplingTimeDiscretization::fillFromAnalyticNamedCompo(const DataArrayDo
   setArrays(arrays3,0);
 }
 
+////////////////////////
+
+bool MEDCouplingTimeKeeper::isEqualIfNotWhy(const MEDCouplingTimeKeeper& other, double prec, std::string& reason) const
+{
+  std::ostringstream oss;
+  if(_iteration!=other._iteration)
+    {
+      oss << "iterations differ. this iteration=" << _iteration << " other iteration=" << other._iteration;
+      reason=oss.str();
+      return false;
+    }
+  if(_order!=other._order)
+    {
+      oss << "orders differ. this order=" << _order << " other order=" << other._order;
+      reason=oss.str();
+      return false;
+    }
+  if(std::fabs(_time-other._time)>prec)
+    {
+      oss << "times differ. this time=" << _time << " other time=" << other._time;
+      reason=oss.str();
+      return false;
+    }
+  return true;
+}
+
+bool MEDCouplingTimeKeeper::isEqual(const MEDCouplingTimeKeeper& other, double prec) const
+{
+  if(_iteration!=other._iteration)
+    return false;
+  if(_order!=other._order)
+    return false;
+  if(std::fabs(_time-other._time)>prec)
+    return false;
+  return true;
+}
+
+void MEDCouplingTimeKeeper::copyFrom(const MEDCouplingTimeKeeper& other)
+{
+  _time=other._time;
+  _iteration=other._iteration;
+  _order=other._order;
+}
+
+void MEDCouplingTimeKeeper::checkTimePresence(double time, double eps) const
+{
+  if(std::fabs(time-_time)>eps)
+    {
+      std::ostringstream stream;
+      stream << "The field is defined on time " << _time << " with eps=" << eps << " and asking time = " << time << " !";
+      throw INTERP_KERNEL::Exception(stream.str().c_str());
+    }
+}
+
+////////////////////////
+
+MEDCouplingTimeDiscretizationInt::MEDCouplingTimeDiscretizationInt()
+{
+}
+
+MEDCouplingTimeDiscretizationInt::MEDCouplingTimeDiscretizationInt(const MEDCouplingTimeDiscretizationInt& other, bool deepCopy):MEDCouplingTimeDiscretizationTemplate<int>(other,deepCopy)
+{
+}
+
+std::string MEDCouplingTimeDiscretizationInt::getStringRepr() const
+{
+  std::ostringstream stream;
+  stream << REPR << " Time is defined by iteration=" << _tk.getIteration() << " order=" << _tk.getOrder() << " and time=" << _tk.getTimeValue() << ".";
+  stream << "\nTime unit is : \"" << _time_unit << "\"";
+  return stream.str();
+}
+
+MEDCouplingTimeDiscretizationInt *MEDCouplingTimeDiscretizationInt::performCopyOrIncrRef(bool deepCopy) const
+{
+  return new MEDCouplingTimeDiscretizationInt(*this,deepCopy);
+}
+
+MEDCouplingTimeDiscretizationInt *MEDCouplingTimeDiscretizationInt::New(TypeOfTimeDiscretization type)
+{
+  switch(type)
+  {
+    case MEDCouplingTimeDiscretizationInt::DISCRETIZATION:
+      return new MEDCouplingTimeDiscretizationInt;
+    default:
+      throw INTERP_KERNEL::Exception("Time discretization not implemented yet for intergers !");
+  }
+}
+
+
+////////////////////////
+
 MEDCouplingNoTimeLabel::MEDCouplingNoTimeLabel()
 {
 }
@@ -910,7 +857,7 @@ void MEDCouplingNoTimeLabel::synchronizeTimeWith(const MEDCouplingMesh *mesh)
   throw INTERP_KERNEL::Exception("MEDCouplingNoTimeLabel::synchronizeTimeWith : impossible to synchronize time with a MEDCouplingMesh because the time discretization is incompatible with it !");
 }
 
-bool MEDCouplingNoTimeLabel::areCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingNoTimeLabel::areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
     return false;
@@ -918,7 +865,7 @@ bool MEDCouplingNoTimeLabel::areCompatible(const MEDCouplingTimeDiscretization *
   return otherC!=0;
 }
 
-bool MEDCouplingNoTimeLabel::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
+bool MEDCouplingNoTimeLabel::areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other,reason))
     return false;
@@ -929,7 +876,7 @@ bool MEDCouplingNoTimeLabel::areStrictlyCompatible(const MEDCouplingTimeDiscreti
   return ret;
 }
 
-bool MEDCouplingNoTimeLabel::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingNoTimeLabel::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForMul(other))
     return false;
@@ -937,7 +884,7 @@ bool MEDCouplingNoTimeLabel::areStrictlyCompatibleForMul(const MEDCouplingTimeDi
   return otherC!=0;
 }
 
-bool MEDCouplingNoTimeLabel::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingNoTimeLabel::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(other))
     return false;
@@ -1278,19 +1225,18 @@ void MEDCouplingNoTimeLabel::finishUnserialization2(const std::vector<int>& tiny
   _time_tolerance=tinyInfoD[0];
 }
 
-MEDCouplingWithTimeStep::MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCopy):MEDCouplingTimeDiscretization(other,deepCopy),
-    _time(other._time),_iteration(other._iteration),_order(other._order)
+MEDCouplingWithTimeStep::MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCopy):MEDCouplingTimeDiscretization(other,deepCopy),_tk(other._tk)
 {
 }
 
-MEDCouplingWithTimeStep::MEDCouplingWithTimeStep():_time(0.),_iteration(-1),_order(-1)
+MEDCouplingWithTimeStep::MEDCouplingWithTimeStep()
 {
 }
 
 std::string MEDCouplingWithTimeStep::getStringRepr() const
 {
   std::ostringstream stream;
-  stream << REPR << " Time is defined by iteration=" << _iteration << " order=" << _order << " and time=" << _time << ".";
+  stream << REPR << " Time is defined by iteration=" << _tk.getIteration() << " order=" << _tk.getOrder() << " and time=" << _tk.getTimeValue() << ".";
   stream << "\nTime unit is : \"" << _time_unit << "\"";
   return stream.str();
 }
@@ -1301,7 +1247,7 @@ void MEDCouplingWithTimeStep::synchronizeTimeWith(const MEDCouplingMesh *mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingWithTimeStep::synchronizeTimeWith : mesh instance is NULL ! Impossible to synchronize time !");
   int it=-1,order=-1;
   double val=mesh->getTime(it,order);
-  _time=val; _iteration=it; _order=order;
+  _tk.setAllInfo(val,it,order);
   std::string tUnit=mesh->getTimeUnit();
   _time_unit=tUnit;
 }
@@ -1309,22 +1255,22 @@ void MEDCouplingWithTimeStep::synchronizeTimeWith(const MEDCouplingMesh *mesh)
 void MEDCouplingWithTimeStep::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
 {
   MEDCouplingTimeDiscretization::getTinySerializationIntInformation(tinyInfo);
-  tinyInfo.push_back(_iteration);
-  tinyInfo.push_back(_order);
+  tinyInfo.push_back(_tk.getIteration());
+  tinyInfo.push_back(_tk.getOrder());
 }
 
 void MEDCouplingWithTimeStep::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
 {
   MEDCouplingTimeDiscretization::getTinySerializationDbleInformation(tinyInfo);
-  tinyInfo.push_back(_time);
+  tinyInfo.push_back(_tk.getTimeValue());
 }
 
 void MEDCouplingWithTimeStep::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
 {
   MEDCouplingTimeDiscretization::finishUnserialization(tinyInfoI,tinyInfoD,tinyInfoS);
-  _time=tinyInfoD[1];
-  _iteration=tinyInfoI[2];
-  _order=tinyInfoI[3];
+  _tk.setTimeValue(tinyInfoD[1]);
+  _tk.setIteration(tinyInfoI[2]);
+  _tk.setOrder(tinyInfoI[3]);
 }
 
 /*!
@@ -1333,8 +1279,8 @@ void MEDCouplingWithTimeStep::finishUnserialization(const std::vector<int>& tiny
 void MEDCouplingWithTimeStep::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
 {
   tinyInfo.resize(2);
-  tinyInfo[0]=_iteration;
-  tinyInfo[1]=_order;
+  tinyInfo[0]=_tk.getIteration();
+  tinyInfo[1]=_tk.getOrder();
 }
 
 /*!
@@ -1344,7 +1290,7 @@ void MEDCouplingWithTimeStep::getTinySerializationDbleInformation2(std::vector<d
 {
   tinyInfo.resize(2);
   tinyInfo[0]=_time_tolerance;
-  tinyInfo[1]=_time;
+  tinyInfo[1]=_tk.getTimeValue();
 }
 
 /*!
@@ -1352,13 +1298,13 @@ void MEDCouplingWithTimeStep::getTinySerializationDbleInformation2(std::vector<d
  */
 void MEDCouplingWithTimeStep::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
 {
-  _iteration=tinyInfoI[0];
-  _order=tinyInfoI[1];
+  _tk.setIteration(tinyInfoI[0]);
+  _tk.setOrder(tinyInfoI[1]);
   _time_tolerance=tinyInfoD[0];
-  _time=tinyInfoD[1];
+  _tk.setTimeValue(tinyInfoD[1]);
 }
 
-bool MEDCouplingWithTimeStep::areCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingWithTimeStep::areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
     return false;
@@ -1366,7 +1312,7 @@ bool MEDCouplingWithTimeStep::areCompatible(const MEDCouplingTimeDiscretization 
   return otherC!=0;
 }
 
-bool MEDCouplingWithTimeStep::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
+bool MEDCouplingWithTimeStep::areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other,reason))
     return false;
@@ -1377,7 +1323,7 @@ bool MEDCouplingWithTimeStep::areStrictlyCompatible(const MEDCouplingTimeDiscret
   return ret;
 }
 
-bool MEDCouplingWithTimeStep::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingWithTimeStep::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForMul(other))
     return false;
@@ -1385,7 +1331,7 @@ bool MEDCouplingWithTimeStep::areStrictlyCompatibleForMul(const MEDCouplingTimeD
   return otherC!=0;
 }
 
-bool MEDCouplingWithTimeStep::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingWithTimeStep::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(other))
     return false;
@@ -1410,24 +1356,8 @@ bool MEDCouplingWithTimeStep::isEqualIfNotWhy(const MEDCouplingTimeDiscretizatio
       reason="This has time discretization ONE_TIME, other not.";
       return false;
     }
-  if(_iteration!=otherC->_iteration)
-    {
-      oss << "iterations differ. this iteration=" << _iteration << " other iteration=" << otherC->_iteration;
-      reason=oss.str();
-      return false;
-    }
-  if(_order!=otherC->_order)
-    {
-      oss << "orders differ. this order=" << _order << " other order=" << otherC->_order;
-      reason=oss.str();
-      return false;
-    }
-  if(std::fabs(_time-otherC->_time)>_time_tolerance)
-    {
-      oss << "times differ. this time=" << _time << " other time=" << otherC->_time;
-      reason=oss.str();
-      return false;
-    }
+  if(!_tk.isEqualIfNotWhy(otherC->_tk,_time_tolerance,reason))
+    return false;
   return MEDCouplingTimeDiscretization::isEqualIfNotWhy(other,prec,reason);
 }
 
@@ -1436,24 +1366,18 @@ bool MEDCouplingWithTimeStep::isEqualWithoutConsideringStr(const MEDCouplingTime
   const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
   if(!otherC)
     return false;
-  if(_iteration!=otherC->_iteration)
-    return false;
-  if(_order!=otherC->_order)
-    return false;
-  if(std::fabs(_time-otherC->_time)>_time_tolerance)
-    return false;
+  if(!_tk.isEqual(otherC->_tk,_time_tolerance))
+     return false;
   return MEDCouplingTimeDiscretization::isEqualWithoutConsideringStr(other,prec);
 }
 
-void MEDCouplingWithTimeStep::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
+void MEDCouplingWithTimeStep::copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other)
 {
   MEDCouplingTimeDiscretization::copyTinyAttrFrom(other);
   const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(&other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingWithTimeStep::copyTinyAttrFrom : mismatch of time discretization !");
-  _time=otherC->_time;
-  _iteration=otherC->_iteration;
-  _order=otherC->_order;
+  _tk.copyFrom(otherC->_tk);
 }
 
 MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::aggregate(const MEDCouplingTimeDiscretization *other) const
@@ -1671,17 +1595,12 @@ void MEDCouplingWithTimeStep::checkNoTimePresence() const
 
 void MEDCouplingWithTimeStep::checkTimePresence(double time) const
 {
-  if(std::fabs(time-_time)>_time_tolerance)
-    {
-      std::ostringstream stream;
-      stream << "The field is defined on time " << _time << " with eps=" << _time_tolerance << " and asking time = " << time << " !";
-      throw INTERP_KERNEL::Exception(stream.str().c_str());
-    }
+  _tk.checkTimePresence(time,_time_tolerance);
 }
 
 std::vector< const DataArrayDouble *> MEDCouplingWithTimeStep::getArraysForTime(double time) const
 {
-  if(std::fabs(time-_time)<=_time_tolerance)
+  if(std::fabs(time-_tk.getTimeValue())<=_time_tolerance)
     {
       std::vector< const DataArrayDouble *> ret(1);
       ret[0]=_array;
@@ -1698,7 +1617,7 @@ void MEDCouplingWithTimeStep::getValueForTime(double time, const std::vector<dou
 
 void MEDCouplingWithTimeStep::getValueOnTime(int eltId, double time, double *value) const
 {
-  if(std::fabs(time-_time)<=_time_tolerance)
+  if(std::fabs(time-_tk.getTimeValue())<=_time_tolerance)
     if(_array)
       _array->getTuple(eltId,value);
     else
@@ -1709,7 +1628,7 @@ void MEDCouplingWithTimeStep::getValueOnTime(int eltId, double time, double *val
 
 void MEDCouplingWithTimeStep::getValueOnDiscTime(int eltId, int iteration, int order, double *value) const
 {
-  if(_iteration==iteration && _order==order)
+  if(_tk.getIteration()==iteration && _tk.getOrder()==order)
     if(_array)
       _array->getTuple(eltId,value);
     else
@@ -1718,49 +1637,45 @@ void MEDCouplingWithTimeStep::getValueOnDiscTime(int eltId, int iteration, int o
     throw INTERP_KERNEL::Exception("No data on this discrete time.");
 }
 
-MEDCouplingConstOnTimeInterval::MEDCouplingConstOnTimeInterval():_start_time(0.),_end_time(0.),_start_iteration(-1),_end_iteration(-1),_start_order(-1),_end_order(-1)
+MEDCouplingConstOnTimeInterval::MEDCouplingConstOnTimeInterval()
 {
 }
 
-void MEDCouplingConstOnTimeInterval::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
+void MEDCouplingConstOnTimeInterval::copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other)
 {
   MEDCouplingTimeDiscretization::copyTinyAttrFrom(other);
   const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(&other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingConstOnTimeInterval::copyTinyAttrFrom : mismatch of time discretization !");
-  _start_time=otherC->_start_time;
-  _end_time=otherC->_end_time;
-  _start_iteration=otherC->_start_iteration;
-  _end_iteration=otherC->_end_iteration;
-  _start_order=otherC->_start_order;
-  _end_order=otherC->_end_order;
+  _start.copyFrom(otherC->_start);
+  _end.copyFrom(otherC->_end);
 }
 
 void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
 {
   MEDCouplingTimeDiscretization::getTinySerializationIntInformation(tinyInfo);
-  tinyInfo.push_back(_start_iteration);
-  tinyInfo.push_back(_start_order);
-  tinyInfo.push_back(_end_iteration);
-  tinyInfo.push_back(_end_order);
+  tinyInfo.push_back(_start.getIteration());
+  tinyInfo.push_back(_start.getOrder());
+  tinyInfo.push_back(_end.getIteration());
+  tinyInfo.push_back(_end.getOrder());
 }
 
 void MEDCouplingConstOnTimeInterval::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
 {
   MEDCouplingTimeDiscretization::getTinySerializationDbleInformation(tinyInfo);
-  tinyInfo.push_back(_start_time);
-  tinyInfo.push_back(_end_time);
+  tinyInfo.push_back(_start.getTimeValue());
+  tinyInfo.push_back(_end.getTimeValue());
 }
 
 void MEDCouplingConstOnTimeInterval::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
 {
   MEDCouplingTimeDiscretization::finishUnserialization(tinyInfoI,tinyInfoD,tinyInfoS);
-  _start_time=tinyInfoD[1];
-  _end_time=tinyInfoD[2];
-  _start_iteration=tinyInfoI[2];
-  _start_order=tinyInfoI[3];
-  _end_iteration=tinyInfoI[4];
-  _end_order=tinyInfoI[5];
+  _start.setTimeValue(tinyInfoD[1]);
+  _end.setTimeValue(tinyInfoD[2]);
+  _start.setIteration(tinyInfoI[2]);
+  _start.setOrder(tinyInfoI[3]);
+  _end.setIteration(tinyInfoI[4]);
+  _end.setOrder(tinyInfoI[5]);
 }
 
 /*!
@@ -1769,10 +1684,10 @@ void MEDCouplingConstOnTimeInterval::finishUnserialization(const std::vector<int
 void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
 {
   tinyInfo.resize(4);
-  tinyInfo[0]=_start_iteration;
-  tinyInfo[1]=_start_order;
-  tinyInfo[2]=_end_iteration;
-  tinyInfo[3]=_end_order;
+  tinyInfo[0]=_start.getIteration();
+  tinyInfo[1]=_start.getOrder();
+  tinyInfo[2]=_end.getIteration();
+  tinyInfo[3]=_end.getOrder();
 }
 
 /*!
@@ -1782,8 +1697,8 @@ void MEDCouplingConstOnTimeInterval::getTinySerializationDbleInformation2(std::v
 {
   tinyInfo.resize(3);
   tinyInfo[0]=_time_tolerance;
-  tinyInfo[1]=_start_time;
-  tinyInfo[2]=_end_time;
+  tinyInfo[1]=_start.getTimeValue();
+  tinyInfo[2]=_end.getTimeValue();
 }
 
 /*!
@@ -1791,26 +1706,25 @@ void MEDCouplingConstOnTimeInterval::getTinySerializationDbleInformation2(std::v
  */
 void MEDCouplingConstOnTimeInterval::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
 {
-  _start_iteration=tinyInfoI[0];
-  _start_order=tinyInfoI[1];
-  _end_iteration=tinyInfoI[2];
-  _end_order=tinyInfoI[3];
+  _start.setIteration(tinyInfoI[0]);
+  _start.setOrder(tinyInfoI[1]);
+  _end.setIteration(tinyInfoI[2]);
+  _end.setOrder(tinyInfoI[3]);
   _time_tolerance=tinyInfoD[0];
-  _start_time=tinyInfoD[1];
-  _end_time=tinyInfoD[2];
+  _start.setTimeValue(tinyInfoD[1]);
+  _end.setTimeValue(tinyInfoD[2]);
 }
 
 MEDCouplingConstOnTimeInterval::MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCopy):
-      MEDCouplingTimeDiscretization(other,deepCopy),_start_time(other._start_time),_end_time(other._end_time),_start_iteration(other._start_iteration),
-      _end_iteration(other._end_iteration),_start_order(other._start_order),_end_order(other._end_order)
+  MEDCouplingTimeDiscretization(other,deepCopy),_start(other._start),_end(other._end)
 {
 }
 
 std::string MEDCouplingConstOnTimeInterval::getStringRepr() const
 {
   std::ostringstream stream;
-  stream << REPR << " Time interval is defined by :\niteration_start=" << _start_iteration << " order_start=" << _start_order << " and time_start=" << _start_time << "\n";
-  stream << "iteration_end=" << _end_iteration << " order_end=" << _end_order << " and end_time=" << _end_time << "\n";
+  stream << REPR << " Time interval is defined by :\niteration_start=" << _start.getIteration() << " order_start=" << _start.getOrder() << " and time_start=" << _start.getTimeValue() << "\n";
+  stream << "iteration_end=" << _end.getIteration() << " order_end=" << _end.getOrder() << " and end_time=" << _end.getTimeValue() << "\n";
   stream << "\nTime unit is : \"" << _time_unit << "\"";
   return stream.str();
 }
@@ -1821,9 +1735,9 @@ void MEDCouplingConstOnTimeInterval::synchronizeTimeWith(const MEDCouplingMesh *
     throw INTERP_KERNEL::Exception("MEDCouplingWithTimeStep::synchronizeTimeWith : mesh instance is NULL ! Impossible to synchronize time !");
   int it=-1,order=-1;
   double val=mesh->getTime(it,order);
-  _start_time=val; _start_iteration=it; _start_order=order;
-  _end_time=val; _end_iteration=it; _end_order=order;
-  std::string tUnit=mesh->getTimeUnit();
+  _start.setAllInfo(val,it,order);
+  _end.setAllInfo(val,it,order);
+  std::string tUnit(mesh->getTimeUnit());
   _time_unit=tUnit;
 }
 
@@ -1834,7 +1748,7 @@ MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::performCopyOrIncr
 
 std::vector< const DataArrayDouble *> MEDCouplingConstOnTimeInterval::getArraysForTime(double time) const
 {
-  if(time>_start_time-_time_tolerance && time<_end_time+_time_tolerance)
+  if(time>_start.getTimeValue()-_time_tolerance && time<_end.getTimeValue()+_time_tolerance)
     {
       std::vector< const DataArrayDouble *> ret(1);
       ret[0]=_array;
@@ -1849,7 +1763,7 @@ void MEDCouplingConstOnTimeInterval::getValueForTime(double time, const std::vec
   std::copy(vals.begin(),vals.end(),res);
 }
 
-bool MEDCouplingConstOnTimeInterval::areCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingConstOnTimeInterval::areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
     return false;
@@ -1857,7 +1771,7 @@ bool MEDCouplingConstOnTimeInterval::areCompatible(const MEDCouplingTimeDiscreti
   return otherC!=0;
 }
 
-bool MEDCouplingConstOnTimeInterval::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
+bool MEDCouplingConstOnTimeInterval::areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other,reason))
     return false;
@@ -1868,7 +1782,7 @@ bool MEDCouplingConstOnTimeInterval::areStrictlyCompatible(const MEDCouplingTime
   return ret;
 }
 
-bool MEDCouplingConstOnTimeInterval::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingConstOnTimeInterval::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForMul(other))
     return false;
@@ -1876,7 +1790,7 @@ bool MEDCouplingConstOnTimeInterval::areStrictlyCompatibleForMul(const MEDCoupli
   return otherC!=0;
 }
 
-bool MEDCouplingConstOnTimeInterval::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingConstOnTimeInterval::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(other))
     return false;
@@ -1901,42 +1815,10 @@ bool MEDCouplingConstOnTimeInterval::isEqualIfNotWhy(const MEDCouplingTimeDiscre
       reason="This has time discretization CONST_ON_TIME_INTERVAL, other not.";
       return false;
     }
-  if(_start_iteration!=otherC->_start_iteration)
-    {
-      oss << "start iterations differ. this start iteration=" << _start_iteration << " other start iteration=" << otherC->_start_iteration;
-      reason=oss.str();
-      return false;
-    }
-  if(_start_order!=otherC->_start_order)
-    {
-      oss << "start orders differ. this start order=" << _start_order << " other start order=" << otherC->_start_order;
-      reason=oss.str();
-      return false;
-    }
-  if(std::fabs(_start_time-otherC->_start_time)>_time_tolerance)
-    {
-      oss << "start times differ. this start time=" << _start_time << " other start time=" << otherC->_start_time;
-      reason=oss.str();
-      return false;
-    }
-  if(_end_iteration!=otherC->_end_iteration)
-    {
-      oss << "end iterations differ. this end iteration=" << _end_iteration << " other end iteration=" << otherC->_end_iteration;
-      reason=oss.str();
-      return false;
-    }
-  if(_end_order!=otherC->_end_order)
-    {
-      oss << "end orders differ. this end order=" << _end_order << " other end order=" << otherC->_end_order;
-      reason=oss.str();
-      return false;
-    }
-  if(std::fabs(_end_time-otherC->_end_time)>_time_tolerance)
-    {
-      oss << "end times differ. this end time=" << _end_time << " other end time=" << otherC->_end_time;
-      reason=oss.str();
-      return false;
-    }
+  if(!_start.isEqualIfNotWhy(otherC->_start,_time_tolerance,reason))
+    return false;
+  if(!_end.isEqualIfNotWhy(otherC->_end,_time_tolerance,reason))
+    return false;
   return MEDCouplingTimeDiscretization::isEqualIfNotWhy(other,prec,reason);
 }
 
@@ -1945,24 +1827,16 @@ bool MEDCouplingConstOnTimeInterval::isEqualWithoutConsideringStr(const MEDCoupl
   const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
   if(!otherC)
     return false;
-  if(_start_iteration!=otherC->_start_iteration)
+  if(!_start.isEqual(otherC->_start,_time_tolerance))
     return false;
-  if(_start_order!=otherC->_start_order)
-    return false;
-  if(std::fabs(_start_time-otherC->_start_time)>_time_tolerance)
-    return false;
-  if(_end_iteration!=otherC->_end_iteration)
-    return false;
-  if(_end_order!=otherC->_end_order)
-    return false;
-  if(std::fabs(_end_time-otherC->_end_time)>_time_tolerance)
+  if(!_end.isEqual(otherC->_end,_time_tolerance))
     return false;
   return MEDCouplingTimeDiscretization::isEqualWithoutConsideringStr(other,prec);
 }
 
 void MEDCouplingConstOnTimeInterval::getValueOnTime(int eltId, double time, double *value) const
 {
-  if(time>_start_time-_time_tolerance && time<_end_time+_time_tolerance)
+  if(time>_start.getTimeValue()-_time_tolerance && time<_end.getTimeValue()+_time_tolerance)
     if(_array)
       _array->getTuple(eltId,value);
     else
@@ -1973,7 +1847,7 @@ void MEDCouplingConstOnTimeInterval::getValueOnTime(int eltId, double time, doub
 
 void MEDCouplingConstOnTimeInterval::getValueOnDiscTime(int eltId, int iteration, int order, double *value) const
 {
-  if(iteration>=_start_iteration && iteration<=_end_iteration)
+  if(iteration>=_start.getIteration() && iteration<=_end.getIteration())
     if(_array)
       _array->getTuple(eltId,value);
     else
@@ -1989,10 +1863,10 @@ void MEDCouplingConstOnTimeInterval::checkNoTimePresence() const
 
 void MEDCouplingConstOnTimeInterval::checkTimePresence(double time) const
 {
-  if(time<_start_time-_time_tolerance || time>_end_time+_time_tolerance)
+  if(time<_start.getTimeValue()-_time_tolerance || time>_end.getTimeValue()+_time_tolerance)
     {
       std::ostringstream stream;
-      stream << "The field is defined between times " << _start_time << " and " << _end_time << " worderh tolerance ";
+      stream << "The field is defined between times " << _start.getTimeValue() << " and " << _end.getTimeValue() << " worderh tolerance ";
       stream << _time_tolerance << " and trying to access on time = " << time;
       throw INTERP_KERNEL::Exception(stream.str().c_str());
     }
@@ -2254,7 +2128,7 @@ std::vector<const BigMemoryObject *> MEDCouplingTwoTimeSteps::getDirectChildrenW
   return ret;
 }
 
-void MEDCouplingTwoTimeSteps::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
+void MEDCouplingTwoTimeSteps::copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other)
 {
   MEDCouplingTimeDiscretization::copyTinyAttrFrom(other);
   const MEDCouplingTwoTimeSteps *otherC=dynamic_cast<const MEDCouplingTwoTimeSteps *>(&other);
@@ -2268,7 +2142,7 @@ void MEDCouplingTwoTimeSteps::copyTinyAttrFrom(const MEDCouplingTimeDiscretizati
   _end_order=otherC->_end_order;
 }
 
-void MEDCouplingTwoTimeSteps::copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other)
+void MEDCouplingTwoTimeSteps::copyTinyStringsFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other)
 {
   MEDCouplingTimeDiscretization::copyTinyStringsFrom(other);
   const MEDCouplingTwoTimeSteps *otherC=dynamic_cast<const MEDCouplingTwoTimeSteps *>(&other);
@@ -2607,7 +2481,7 @@ MEDCouplingTimeDiscretization *MEDCouplingLinearTime::performCopyOrIncrRef(bool 
   return new MEDCouplingLinearTime(*this,deepCopy);
 }
 
-bool MEDCouplingLinearTime::areCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingLinearTime::areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
     return false;
@@ -2623,7 +2497,7 @@ bool MEDCouplingLinearTime::areCompatible(const MEDCouplingTimeDiscretization *o
   return true;
 }
 
-bool MEDCouplingLinearTime::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
+bool MEDCouplingLinearTime::areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other,reason))
     return false;
@@ -2634,7 +2508,7 @@ bool MEDCouplingLinearTime::areStrictlyCompatible(const MEDCouplingTimeDiscretiz
   return ret;
 }
 
-bool MEDCouplingLinearTime::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingLinearTime::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForMul(other))
     return false;
@@ -2642,7 +2516,7 @@ bool MEDCouplingLinearTime::areStrictlyCompatibleForMul(const MEDCouplingTimeDis
   return otherC!=0;
 }
 
-bool MEDCouplingLinearTime::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingLinearTime::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(other))
     return false;

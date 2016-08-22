@@ -18,8 +18,8 @@
 //
 // Author : Yann Pora (EDF R&D)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGFIELDINT_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGFIELDINT_HXX__
+#ifndef __MEDCOUPLINGFIELDINT_HXX__
+#define __MEDCOUPLINGFIELDINT_HXX__
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingField.hxx"
@@ -30,10 +30,13 @@
 
 namespace MEDCoupling
 {
+  class MEDCouplingFieldTemplate;
+  
   class MEDCouplingFieldInt : public MEDCouplingField
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingFieldInt *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldInt *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
@@ -47,11 +50,11 @@ namespace MEDCoupling
   protected:
     MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCopy);
-    MEDCouplingFieldInt(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
+    MEDCouplingFieldInt(NatureOfField n, MEDCouplingTimeDiscretizationInt *td, MEDCouplingFieldDiscretization *type);
+    MEDCouplingFieldInt(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
     ~MEDCouplingFieldInt();
   private:
-    MEDCouplingTimeDiscretization *_time_discr;
-    MCAuto<DataArrayInt> _array;// agy : don't panic ! this is temporary ! templatization of time discr is planned !
+    MEDCouplingTimeDiscretizationInt *_time_discr;
   };
 }
 

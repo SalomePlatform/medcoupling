@@ -3738,12 +3738,18 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt& f) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDCouplingFieldTemplate::New(f);
+         }
+
+         MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f) throw(INTERP_KERNEL::Exception)
          {
            return MEDCouplingFieldTemplate::New(f);
          }
@@ -5174,6 +5180,7 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingFieldInt *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
+    static MEDCouplingFieldInt *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
     void setTimeUnit(const std::string& unit) throw(INTERP_KERNEL::Exception);
     std::string getTimeUnit() const throw(INTERP_KERNEL::Exception);
     void setTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -5182,6 +5189,11 @@ namespace MEDCoupling
       MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME)
       {
         return MEDCouplingFieldInt::New(type,td);
+      }
+
+      MEDCouplingFieldInt(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME)
+      {
+        return MEDCouplingFieldInt::New(ft,td);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
