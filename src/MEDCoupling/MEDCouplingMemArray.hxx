@@ -192,9 +192,9 @@ namespace MEDCoupling
     DataArray() { }
     ~DataArray() { }
   protected:
-    static void CheckValueInRange(int ref, int value, const std::string& msg);
-    static void CheckValueInRangeEx(int value, int start, int end, const std::string& msg);
-    static void CheckClosingParInRange(int ref, int value, const std::string& msg);
+    MEDCOUPLING_EXPORT static void CheckValueInRange(int ref, int value, const std::string& msg);
+    MEDCOUPLING_EXPORT static void CheckValueInRangeEx(int value, int start, int end, const std::string& msg);
+    MEDCOUPLING_EXPORT static void CheckClosingParInRange(int ref, int value, const std::string& msg);
   protected:
     std::string _name;
     std::vector<std::string> _info_on_compo;
@@ -209,63 +209,63 @@ namespace MEDCoupling
   class DataArrayTemplate : public DataArray
   {
   public:
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
     //
     MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
     MEDCOUPLING_EXPORT std::size_t getNbOfElems() const { return _mem.getNbOfElem(); }
-    MEDCOUPLING_EXPORT bool empty() const;
+    bool empty() const;
     MEDCOUPLING_EXPORT const T *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT const T *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const T *end() const { return getConstPointer()+getNbOfElems(); }
-    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo=1);
-    MEDCOUPLING_EXPORT void useArray(const T *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
-    MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const T *array, int nbOfTuple, int nbOfCompo);
-    MEDCOUPLING_EXPORT T getIJSafe(int tupleId, int compoId) const;
+    void alloc(int nbOfTuple, int nbOfCompo=1);
+    void useArray(const T *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+    void useExternalArrayWithRWAccess(const T *array, int nbOfTuple, int nbOfCompo);
+    T getIJSafe(int tupleId, int compoId) const;
     MEDCOUPLING_EXPORT T getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, T newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, T newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
     MEDCOUPLING_EXPORT T *getPointer() { return _mem.getPointer(); declareAsNew(); }
-    MEDCOUPLING_EXPORT void pack() const;
-    MEDCOUPLING_EXPORT bool isAllocated() const;
-    MEDCOUPLING_EXPORT void checkAllocated() const;
-    MEDCOUPLING_EXPORT void desallocate();
-    MEDCOUPLING_EXPORT void reserve(std::size_t nbOfElems);
-    MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
-    MEDCOUPLING_EXPORT void transpose();
-    MEDCOUPLING_EXPORT void pushBackSilent(T val);
-    MEDCOUPLING_EXPORT void pushBackValsSilent(const T *valsBg, const T *valsEnd);
-    MEDCOUPLING_EXPORT T popBackSilent();
-    MEDCOUPLING_EXPORT T front() const;
-    MEDCOUPLING_EXPORT T back() const;
-    MEDCOUPLING_EXPORT std::size_t getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
-    MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
-    MEDCOUPLING_EXPORT void deepCopyFrom(const DataArrayTemplate<T>& other);
-    MEDCOUPLING_EXPORT void reverse();
-    MEDCOUPLING_EXPORT void fillWithValue(T val);
-    MEDCOUPLING_EXPORT void reAlloc(int newNbOfTuple);
-    MEDCOUPLING_EXPORT void renumberInPlace(const int *old2New);
-    MEDCOUPLING_EXPORT void renumberInPlaceR(const int *new2Old);
-    MEDCOUPLING_EXPORT void sort(bool asc=true);
-    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *renumber(const int *old2New) const;
-    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *renumberR(const int *new2Old) const;
-    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *renumberAndReduce(const int *old2New, int newNbOfTuple) const;
-    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *changeNbOfComponents(int newNbOfComp, T dftValue) const;
-    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
-    MEDCOUPLING_EXPORT void setPartOfValues1(const typename Traits<T>::ArrayType *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
-    MEDCOUPLING_EXPORT void setPartOfValuesSimple1(T a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp);
-    MEDCOUPLING_EXPORT void setPartOfValues2(const typename Traits<T>::ArrayType *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare=true);
-    MEDCOUPLING_EXPORT void setPartOfValuesSimple2(T a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp);
-    MEDCOUPLING_EXPORT void setPartOfValues3(const typename Traits<T>::ArrayType *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
-    MEDCOUPLING_EXPORT void setPartOfValuesSimple3(T a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp);
-    MEDCOUPLING_EXPORT void setPartOfValues4(const typename Traits<T>::ArrayType *a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp, bool strictCompoCompare=true);
-    MEDCOUPLING_EXPORT void setPartOfValuesSimple4(T a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp);
-    MEDCOUPLING_EXPORT void setPartOfValuesAdv(const typename Traits<T>::ArrayType *a, const DataArrayInt *tuplesSelec);
-    MEDCOUPLING_EXPORT void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec);
-    MEDCOUPLING_EXPORT void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
-    MEDCOUPLING_EXPORT T getMaxValue(int& tupleId) const;
-    MEDCOUPLING_EXPORT T getMaxValueInArray() const;
-    MEDCOUPLING_EXPORT T getMinValue(int& tupleId) const;
-    MEDCOUPLING_EXPORT T getMinValueInArray() const;
+    void pack() const;
+    bool isAllocated() const;
+    void checkAllocated() const;
+    void desallocate();
+    void reserve(std::size_t nbOfElems);
+    void rearrange(int newNbOfCompo);
+    void transpose();
+    void pushBackSilent(T val);
+    void pushBackValsSilent(const T *valsBg, const T *valsEnd);
+    T popBackSilent();
+    T front() const;
+    T back() const;
+    std::size_t getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
+    void allocIfNecessary(int nbOfTuple, int nbOfCompo);
+    void deepCopyFrom(const DataArrayTemplate<T>& other);
+    void reverse();
+    void fillWithValue(T val);
+    void reAlloc(int newNbOfTuple);
+    void renumberInPlace(const int *old2New);
+    void renumberInPlaceR(const int *new2Old);
+    void sort(bool asc=true);
+    typename Traits<T>::ArrayType *renumber(const int *old2New) const;
+    typename Traits<T>::ArrayType *renumberR(const int *new2Old) const;
+    typename Traits<T>::ArrayType *renumberAndReduce(const int *old2New, int newNbOfTuple) const;
+    typename Traits<T>::ArrayType *changeNbOfComponents(int newNbOfComp, T dftValue) const;
+    typename Traits<T>::ArrayType *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
+    void setPartOfValues1(const typename Traits<T>::ArrayType *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
+    void setPartOfValuesSimple1(T a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp);
+    void setPartOfValues2(const typename Traits<T>::ArrayType *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare=true);
+    void setPartOfValuesSimple2(T a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp);
+    void setPartOfValues3(const typename Traits<T>::ArrayType *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
+    void setPartOfValuesSimple3(T a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp);
+    void setPartOfValues4(const typename Traits<T>::ArrayType *a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp, bool strictCompoCompare=true);
+    void setPartOfValuesSimple4(T a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp);
+    void setPartOfValuesAdv(const typename Traits<T>::ArrayType *a, const DataArrayInt *tuplesSelec);
+    void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec);
+    void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
+    T getMaxValue(int& tupleId) const;
+    T getMaxValueInArray() const;
+    T getMinValue(int& tupleId) const;
+    T getMinValueInArray() const;
   protected:
     typename Traits<T>::ArrayType *mySelectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     typename Traits<T>::ArrayType *mySelectByTupleId(const DataArrayInt& di) const;

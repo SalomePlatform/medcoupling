@@ -21,10 +21,12 @@
 #ifndef __MEDCOUPLINGTRAITS_HXX__
 #define __MEDCOUPLINGTRAITS_HXX__
 
+#include "MEDCoupling.hxx"
+
 namespace MEDCoupling
 {
   template<class T>
-  struct Traits
+  struct MEDCOUPLING_EXPORT Traits
   {
     typedef T EltType;
   };
@@ -36,7 +38,7 @@ namespace MEDCoupling
   class MEDCouplingFieldInt;
   
   template<>
-  struct Traits<double>
+  struct MEDCOUPLING_EXPORT Traits<double>
   {
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
@@ -45,7 +47,7 @@ namespace MEDCoupling
   };
   
   template<>
-  struct Traits<int>
+  struct MEDCOUPLING_EXPORT Traits<int>
   {
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
@@ -54,7 +56,7 @@ namespace MEDCoupling
   };
 
   template<>
-  struct Traits<char>
+  struct MEDCOUPLING_EXPORT Traits<char>
   {
     static const char ArrayTypeName[];
     typedef DataArrayChar ArrayType;
