@@ -329,6 +329,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified);
     MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell);
     MEDLOADER_EXPORT DataArrayInt *zipCoords();
+    MEDLOADER_EXPORT DataArrayInt *deduceNodeSubPartFromCellSubPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef) const;
+    MEDLOADER_EXPORT MEDFileUMesh *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef) const;
     MEDLOADER_EXPORT MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const;
     MEDLOADER_EXPORT MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const;
     MEDLOADER_EXPORT MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;

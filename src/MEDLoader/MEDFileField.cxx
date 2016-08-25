@@ -4763,7 +4763,7 @@ bool MEDFileAnyTypeField1TSWithoutSDA::presenceOfMultiDiscPerGeoType() const
 
 MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh(const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh, MCAuto<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
 {
-  static const char MSG0[]="MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the field is too complex to be able to extract a field ! Call getFieldOnMeshAtLevel method instead to deal with complexity !";
+  static const char MSG0[]="MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the field is too complex to be able to be extracted with  \"field\" method ! Call getFieldOnMeshAtLevel method instead to deal with complexity !";
   if(_field_per_mesh.empty())
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the field is empty ! Nothing to extract !");
   if(_field_per_mesh.size()>1)
@@ -6424,6 +6424,7 @@ DataArrayDouble *MEDFileField1TS::ReturnSafelyDataArrayDouble(MCAuto<DataArray>&
  * The keys of \a extractDef is level relative to max ext of \a mm mesh.
  *
  * \return A new object that the caller is responsible to deallocate.
+ * \sa MEDFileUMesh::deduceNodeSubPartFromCellSubPart , MEDFileUMesh::extractPart
  */
 MEDFileField1TS *MEDFileField1TS::extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
 {
@@ -6443,6 +6444,8 @@ MEDFileField1TS *MEDFileField1TS::extractPart(const std::map<int, MCAuto<DataArr
               if(it2!=extractDef.end())
                 {
                   MCAuto<DataArrayInt> t((*it2).second);
+                  if(t.isNull())
+                    throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a value with null pointer 1 !");
                   MCAuto<MEDCouplingFieldDouble> f(getFieldOnMeshAtLevel(ON_CELLS,(*lev),mm));
                   MCAuto<MEDCouplingFieldDouble> fOut(f->buildSubPart(t));
                   ret->setFieldNoProfileSBT(fOut);
@@ -6455,6 +6458,8 @@ MEDFileField1TS *MEDFileField1TS::extractPart(const std::map<int, MCAuto<DataArr
           if(it2==extractDef.end())
             throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a NODE field and no extract array available for NODE !");
           MCAuto<DataArrayInt> t((*it2).second);
+          if(t.isNull())
+            throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a value with null pointer 1 !");
           MCAuto<MEDCouplingFieldDouble> f(getFieldOnMeshAtLevel(ON_NODES,0,mm));
           MCAuto<MEDCouplingFieldDouble> fOut(f->deepCopy());
           DataArrayDouble *arr(f->getArray());

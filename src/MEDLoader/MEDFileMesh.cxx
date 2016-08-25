@@ -4063,6 +4063,108 @@ DataArrayInt *MEDFileUMesh::zipCoords()
 }
 
 /*!
+ * This method is a const method. It computes the minimal set of node ids covered by the cell extraction of \a this.
+ * The extraction of \a this is specified by the extractDef \a input map.
+ * This map tells for each level of cells, the cells kept in the extraction.
+ * 
+ * \return - a new reference of DataArrayInt that represents sorted node ids, the extraction is lying on.
+ * \sa MEDFileField1TS::extractPart, MEDFileUMesh::extractPart
+ */
+DataArrayInt *MEDFileUMesh::deduceNodeSubPartFromCellSubPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef) const
+{
+  std::vector<int> levs(getNonEmptyLevels());
+  std::vector<bool> fetchedNodes(getNumberOfNodes(),false);
+  for(std::map<int, MCAuto<DataArrayInt> >::const_iterator it=extractDef.begin();it!=extractDef.end();it++)
+    {
+      if((*it).first>1)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::deduceNodeSubPartFromCellSubPart : invalid key ! Must be <=1 !");
+      if((*it).second.isNull())
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::deduceNodeSubPartFromCellSubPart : presence of a value with null pointer !");
+      if((*it).first==1)
+        continue;
+      if(std::find(levs.begin(),levs.end(),(*it).first)==levs.end())
+        {
+          std::ostringstream oss; oss << "MEDFileUMesh::deduceNodeSubPartFromCellSubPart : invalid level " << (*it).first << " ! Not present in this !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+      MCAuto<MEDCouplingUMesh> m(getMeshAtLevel((*it).first));
+      MCAuto<MEDCouplingUMesh> mPart(m->buildPartOfMySelf((*it).second->begin(),(*it).second->end(),true));
+      mPart->computeNodeIdsAlg(fetchedNodes);
+    }
+  return DataArrayInt::BuildListOfSwitchedOn(fetchedNodes);
+}
+
+/*!
+ * This method returns a new MEDFileUMesh that is the result of the extraction of cells/nodes in \a this.
+ * 
+ * \return - a new reference of MEDFileUMesh
+ * \sa MEDFileUMesh::deduceNodeSubPartFromCellSubPart, MEDFileFields::extractPart
+ */
+MEDFileUMesh *MEDFileUMesh::extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef) const
+{
+  MCAuto<MEDFileUMesh> ret(MEDFileUMesh::New()); ret->setName(getName()); ret->copyFamGrpMapsFrom(*this);
+  std::vector<int> levs(getNonEmptyLevels());
+  for(std::map<int, MCAuto<DataArrayInt> >::const_iterator it=extractDef.begin();it!=extractDef.end();it++)
+    {
+      if((*it).first>1)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::extractPart : invalid key ! Must be <=1 !");
+      if((*it).second.isNull())
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::extractPart : presence of a value with null pointer !");
+      if((*it).first==1)
+        continue;
+      if(std::find(levs.begin(),levs.end(),(*it).first)==levs.end())
+        {
+          std::ostringstream oss; oss << "MEDFileUMesh::extractPart : invalid level " << (*it).first << " ! Not present in this !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+      MCAuto<MEDCouplingUMesh> m(getMeshAtLevel((*it).first));
+      MCAuto<MEDCouplingUMesh> mPart(m->buildPartOfMySelf((*it).second->begin(),(*it).second->end(),true));
+      ret->setMeshAtLevel((*it).first,mPart);
+      const DataArrayInt *fam(getFamilyFieldAtLevel((*it).first)),*num(getNumberFieldAtLevel((*it).first));
+      if(fam)
+        {
+          MCAuto<DataArrayInt> famPart(fam->selectByTupleIdSafe((*it).second->begin(),(*it).second->end()));
+          ret->setFamilyFieldArr((*it).first,famPart);
+        }
+      if(num)
+        {
+          MCAuto<DataArrayInt> numPart(num->selectByTupleIdSafe((*it).second->begin(),(*it).second->end()));
+          ret->setFamilyFieldArr((*it).first,numPart);
+        }
+    }
+  std::map<int, MCAuto<DataArrayInt> >::const_iterator it2(extractDef.find(1));
+  if(it2!=extractDef.end())
+    {
+      const DataArrayDouble *coo(ret->getCoords());
+      if(!coo)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::extractPart : trying to extract nodes whereas there is no nodes !");
+      MCAuto<DataArrayInt> o2nNodes(((*it2).second)->invertArrayN2O2O2N(coo->getNumberOfTuples()));
+      MCAuto<DataArrayDouble> cooPart(coo->selectByTupleIdSafe((*it2).second->begin(),(*it2).second->end()));
+      ret->setCoords(cooPart);
+      const DataArrayInt *fam(getFamilyFieldAtLevel(1)),*num(getNumberFieldAtLevel(1));
+      if(fam)
+        {
+          MCAuto<DataArrayInt> famPart(fam->selectByTupleIdSafe((*it2).second->begin(),(*it2).second->end()));
+          ret->setFamilyFieldArr(1,famPart);
+        }
+      if(num)
+        {
+          MCAuto<DataArrayInt> numPart(num->selectByTupleIdSafe((*it2).second->begin(),(*it2).second->end()));
+          ret->setFamilyFieldArr(1,numPart);
+        }
+      for(std::map<int, MCAuto<DataArrayInt> >::const_iterator it3=extractDef.begin();it3!=extractDef.end();it3++)
+        {
+          if((*it3).first==1)
+            continue;
+          MCAuto<MEDCouplingUMesh> m(ret->getMeshAtLevel((*it3).first));
+          m->renumberNodesInConn(o2nNodes->begin());
+          ret->setMeshAtLevel((*it3).first,m);
+        }
+    }
+  return ret.retn();
+}
+
+/*!
  * This method performs an extrusion along a path defined by \a m1D.
  * \a this is expected to be a mesh with max mesh dimension equal to 2.
  * \a m1D is expected to be a mesh with space dimesion equal to 3 and mesh dimension equal to 1.

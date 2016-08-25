@@ -1448,27 +1448,11 @@ void MEDCouplingUMesh::simplifyPolyhedra(double eps)
 DataArrayInt *MEDCouplingUMesh::computeFetchedNodeIds() const
 {
   checkConnectivityFullyDefined();
-  int nbOfCells=getNumberOfCells();
-  const int *connIndex=_nodal_connec_index->getConstPointer();
-  const int *conn=_nodal_connec->getConstPointer();
-  const int *maxEltPt=std::max_element(_nodal_connec->begin(),_nodal_connec->end());
-  int maxElt=maxEltPt==_nodal_connec->end()?0:std::abs(*maxEltPt)+1;
+  const int *maxEltPt(std::max_element(_nodal_connec->begin(),_nodal_connec->end()));
+  int maxElt(maxEltPt==_nodal_connec->end()?0:std::abs(*maxEltPt)+1);
   std::vector<bool> retS(maxElt,false);
-  for(int i=0;i<nbOfCells;i++)
-    for(int j=connIndex[i]+1;j<connIndex[i+1];j++)
-      if(conn[j]>=0)
-        retS[conn[j]]=true;
-  int sz=0;
-  for(int i=0;i<maxElt;i++)
-    if(retS[i])
-      sz++;
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(sz,1);
-  int *retPtr=ret->getPointer();
-  for(int i=0;i<maxElt;i++)
-    if(retS[i])
-      *retPtr++=i;
-  return ret;
+  computeNodeIdsAlg(retS);
+  return DataArrayInt::BuildListOfSwitchedOn(retS);
 }
 
 /*!

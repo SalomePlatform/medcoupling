@@ -5418,6 +5418,115 @@ class MEDLoaderTest3(unittest.TestCase):
         mm=MEDFileMesh.New(fname) ; f1ts=MEDFileField1TS(fname,fieldName,6,7)
         self.assertTrue(f.isEqual(f1ts.field(mm),1e-12,1e-12))
         pass
+
+    def testExtractPart1(self):
+        coo=DataArrayDouble([(0,0),(1,0),(2,0),(3,0),(4,0),(0,1),(1,1),(2,1),(3,1),(4,1),(0,2),(1,2),(2,2),(3,2),(4,2)])
+        meshName="mesh"
+        m0=MEDCouplingUMesh(meshName,2) ; m0.setCoords(coo) ; m0.allocateCells()
+        m0.insertNextCell(NORM_TRI3,[8,4,3])
+        m0.insertNextCell(NORM_TRI3,[8,9,4])
+        m0.insertNextCell(NORM_TRI3,[7,13,8])
+        m0.insertNextCell(NORM_TRI3,[7,12,13])
+        m0.insertNextCell(NORM_TRI3,[0,6,1])
+        m0.insertNextCell(NORM_TRI3,[0,5,6])
+        m0.insertNextCell(NORM_QUAD4,[1,6,7,2])
+        m0.insertNextCell(NORM_QUAD4,[2,7,8,3])
+        m0.insertNextCell(NORM_QUAD4,[8,13,14,9])
+        m0.insertNextCell(NORM_QUAD4,[6,11,12,7])
+        m0.insertNextCell(NORM_QUAD4,[5,10,11,6])
+        #
+        m1=MEDCouplingUMesh(meshName,1) ; m1.setCoords(coo) ; m1.allocateCells()
+        m1.insertNextCell(NORM_SEG2,[10,5])
+        m1.insertNextCell(NORM_SEG2,[5,0])
+        m1.insertNextCell(NORM_SEG2,[0,1])
+        m1.insertNextCell(NORM_SEG2,[1,2])
+        m1.insertNextCell(NORM_SEG2,[2,3])
+        m1.insertNextCell(NORM_SEG2,[3,4])
+        m1.insertNextCell(NORM_SEG2,[4,9])
+        m1.insertNextCell(NORM_SEG2,[9,14])
+        m1.insertNextCell(NORM_SEG2,[14,13])
+        m1.insertNextCell(NORM_SEG2,[13,12])
+        m1.insertNextCell(NORM_SEG2,[12,11])
+        m1.insertNextCell(NORM_SEG2,[11,10])
+        mm=MEDFileUMesh()
+        mm[0]=m0 ; mm[-1]=m1
+        arr0=DataArrayInt([0,1,2,3,4,6,7,8,12,13])
+        tab={} #
+        tab[0]=DataArrayInt([0,2,3,4,6,7])
+        tab[-1]=DataArrayInt([2,3,4,5,9])
+        fs=MEDFileFields()
+        self.assertTrue(mm.deduceNodeSubPartFromCellSubPart(tab).isEqual(arr0))
+        tab[1]=arr0
+        #
+        fname0="Field0"
+        fmts=MEDFileFieldMultiTS() ; fs.pushField(fmts)
+        t0=(16.5,3,4)
+        ic=["toto [m]"]
+        arr0_0=DataArrayDouble([100,101,102,103,104,105,106,107,108,109,110]) ; arr0_0.setInfoOnComponents(ic)
+        f0=MEDCouplingFieldDouble(ON_CELLS) ; f0.setTime(*t0) ; f0.setArray(arr0_0)
+        f0.setMesh(m0) ; f0.setName(fname0)
+        f1=MEDCouplingFieldDouble(ON_CELLS) ; f1.setTime(*t0) ; f1.setArray(DataArrayDouble([200,201,202,203,204,205,206,207,208,209,210,211]))
+        f1.setMesh(m1) ; f1.setName(fname0) ; f1.getArray().setInfoOnComponents(ic)
+        f2=MEDCouplingFieldDouble(ON_NODES) ; f2.setTime(*t0) ; f2.setArray(DataArrayDouble([300,301,302,303,304,305,306,307,308,309,310,311,312,313,314]))
+        f2.setMesh(m0) ; f2.setName(fname0) ; f2.getArray().setInfoOnComponents(ic)
+        f1ts=MEDFileField1TS() ; f1ts.setFieldNoProfileSBT(f0) ; f1ts.setFieldNoProfileSBT(f1) ; f1ts.setFieldNoProfileSBT(f2)
+        fmts.pushBackTimeStep(f1ts)
+        #
+        mmOut=mm.extractPart(tab)
+        #
+        fsPart0=fs.extractPart(tab,mm)
+        self.assertEqual(len(fsPart0),1)
+        fmtsP=fsPart0[0]
+        self.assertEqual(len(fmtsP),1)
+        f1ts=fmtsP[0]
+        self.assertRaises(InterpKernelException,f1ts.field,mmOut)
+        #
+        self.assertTrue(mmOut[0].computeCellCenterOfMass().isEqual(m0[tab[0]].computeCellCenterOfMass(),1e-12))
+        self.assertTrue(mmOut[-1].computeCellCenterOfMass().isEqual(m1[tab[-1]].computeCellCenterOfMass(),1e-12))
+        #
+        m0Part=m0.deepCopy()[tab[0]] ; m0Part.renumberNodes(tab[1].invertArrayN2O2O2N(mm.getNumberOfNodes()),len(tab[1])) ; m0Part.setName(m0.getName())
+        self.assertTrue(mmOut[0].isEqual(m0Part,1e-12))
+        m1Part=m1.deepCopy()[tab[-1]] ; m1Part.renumberNodes(tab[1].invertArrayN2O2O2N(mm.getNumberOfNodes()),len(tab[1])) ; m1Part.setName(m0.getName())
+        self.assertTrue(mmOut[0].isEqual(m0Part,1e-12))
+        self.assertTrue(mmOut[-1].isEqual(m1Part,1e-12))
+        #
+        f0Part=f1ts.getFieldOnMeshAtLevel(ON_CELLS,0,mmOut) ; f0Part.checkConsistencyLight()
+        self.assertEqual(f0Part.getTypeOfField(),ON_CELLS)
+        self.assertTrue(f0Part.getMesh().isEqual(m0Part,1e-12))
+        arr0Exp=DataArrayDouble([100,102,103,104,106,107]) ; arr0Exp.setInfoOnComponents(ic)
+        self.assertTrue(f0Part.getArray().isEqual(arr0Exp,1e-12)) ; self.assertEqual(f0Part.getTime(),list(t0))
+        f1Part=f1ts.getFieldOnMeshAtLevel(ON_CELLS,-1,mmOut) ; f1Part.checkConsistencyLight()
+        self.assertEqual(f1Part.getTypeOfField(),ON_CELLS)
+        self.assertTrue(f1Part.getMesh().isEqual(m1Part,1e-12))
+        arr1Exp=DataArrayDouble([202,203,204,205,209]) ; arr1Exp.setInfoOnComponents(ic)
+        self.assertTrue(f1Part.getArray().isEqual(arr1Exp,1e-12)) ; self.assertEqual(f1Part.getTime(),list(t0))
+        #
+        f2Part=f1ts.getFieldOnMeshAtLevel(ON_NODES,0,mmOut) ; f2Part.checkConsistencyLight()
+        arr2Exp=DataArrayDouble([300,301,302,303,304,306,307,308,312,313]) ; arr2Exp.setInfoOnComponents(ic)
+        self.assertTrue(f2Part.getArray().isEqual(arr2Exp,1e-12)) ; self.assertEqual(f2Part.getTime(),list(t0))
+        # multisteps
+        fs=MEDFileFields() ; fmts=MEDFileFieldMultiTS() ; fs.pushField(fmts)
+        tss=[(16.5,3,4),(17.5,4,5),(18.5,5,6)]
+        for i,tt in enumerate(tss):
+            f0=MEDCouplingFieldDouble(ON_CELLS) ; f0.setTime(*tt)
+            myarr=arr0_0+i*1000.
+            f0.setArray(myarr)
+            f0.setMesh(m0) ; f0.setName(fname0) ; f0.getArray().setInfoOnComponents(ic)
+            f1ts=MEDFileField1TS() ; f1ts.setFieldNoProfileSBT(f0) ; fmts.pushBackTimeStep(f1ts)
+            pass
+        fsPart1=fs.extractPart(tab,mm)
+        self.assertEqual(len(fsPart1),1)
+        fmtsP=fsPart1[0]
+        self.assertEqual(len(fmtsP),len(tss))
+        for i,(f1tsP,tt) in enumerate(zip(fmtsP,tss)):
+            fPart=f1tsP.field(mmOut) ; fPart.checkConsistencyLight()
+            self.assertEqual(fPart.getTypeOfField(),ON_CELLS)
+            arr0Exp=DataArrayDouble([100,102,103,104,106,107]) ; arr0Exp.setInfoOnComponents(ic) ; arr0Exp+=i*1000.
+            self.assertTrue(fPart.getMesh().isEqual(m0Part,1e-12))
+            self.assertTrue(fPart.getArray().isEqual(arr0Exp,1e-12))
+            self.assertEqual(fPart.getTime(),list(tt))
+            pass
+        pass
     
     pass
 

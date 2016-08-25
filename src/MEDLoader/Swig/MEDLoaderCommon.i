@@ -120,6 +120,8 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileUMesh::extractFamilyFieldOnGeoType;
 %newobject MEDCoupling::MEDFileUMesh::extractNumberFieldOnGeoType;
 %newobject MEDCoupling::MEDFileUMesh::zipCoords;
+%newobject MEDCoupling::MEDFileUMesh::deduceNodeSubPartFromCellSubPart;
+%newobject MEDCoupling::MEDFileUMesh::extractPart;
 %newobject MEDCoupling::MEDFileUMesh::buildExtrudedMesh;
 %newobject MEDCoupling::MEDFileUMesh::linearToQuadratic;
 %newobject MEDCoupling::MEDFileUMesh::quadraticToLinear;
@@ -1390,6 +1392,20 @@ namespace MEDCoupling
          void __delitem__(int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
          {
            self->removeMeshAtLevel(meshDimRelToMax);
+         }
+
+         DataArrayInt *deduceNodeSubPartFromCellSubPart(PyObject *extractDef) const throw(INTERP_KERNEL::Exception)
+         {
+           std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+           convertToMapIntDataArrayInt(extractDef,extractDefCpp);
+           return self->deduceNodeSubPartFromCellSubPart(extractDefCpp);
+         }
+
+         MEDFileUMesh *extractPart(PyObject *extractDef) const throw(INTERP_KERNEL::Exception)
+         {
+           std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+           convertToMapIntDataArrayInt(extractDef,extractDefCpp);
+           return self->extractPart(extractDefCpp);
          }
 
          void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
