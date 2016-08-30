@@ -24,8 +24,12 @@
 #include "MEDPARTITIONER_ParallelTopology.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
-#include "MEDPARTITIONER_MetisGraph.hxx"
-#include "MEDPARTITIONER_ScotchGraph.hxx"
+#ifdef MED_ENABLE_METIS
+#  include "MEDPARTITIONER_MetisGraph.hxx"
+#endif
+#ifdef MED_ENABLE_SCOTCH
+#  include "MEDPARTITIONER_ScotchGraph.hxx"
+#endif
 #include "MEDPARTITIONER_MeshCollectionDriver.hxx"
 
 #include "MEDCouplingUMesh.hxx"
