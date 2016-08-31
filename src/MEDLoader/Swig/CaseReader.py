@@ -215,6 +215,7 @@ class CaseReader(CaseIO):
             typ=fd.read(80).strip() ; pos=fd.tell()
             mcmeshes2=[]
             while pos!=end and typ!="part":
+                if typ[0]=='\0': pos+=1; continue
                 mctyp=self.dictMCTyp2[typ]
                 nbCellsOfType=np.memmap(fd,dtype='int32',mode='r',offset=int(pos),shape=(1,)).tolist()[0]
                 pos+=4
@@ -246,10 +247,11 @@ class CaseReader(CaseIO):
                     elt=fd.read(80) ; elt=elt.strip() ; typ=elt[:] ; pos+=80
                     pass
                 pass
-            coo=mcmeshes2[0].getCoords() ; name=mcmeshes2[0].getName()
-            for itmesh in mcmeshes2: itmesh.setCoords(coo)
-            m=MEDCouplingUMesh.MergeUMeshesOnSameCoords(mcmeshes2) ; m.setName(name)
-            mcmeshes.append(m)
+            if mcmeshes2:
+                coo=mcmeshes2[0].getCoords() ; name=mcmeshes2[0].getName()
+                for itmesh in mcmeshes2: itmesh.setCoords(coo)
+                m=MEDCouplingUMesh.MergeUMeshesOnSameCoords(mcmeshes2) ; m.setName(name)
+                mcmeshes.append(m)
             pass
         return mcmeshes
         
