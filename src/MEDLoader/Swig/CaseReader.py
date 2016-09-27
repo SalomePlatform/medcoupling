@@ -273,7 +273,7 @@ class CaseReader(CaseIO):
             fdisc=MEDCouplingFieldDiscretization.New(self.discSpatial2[discr])
             meshId=np.memmap(fd,dtype='int32',mode='r',offset=int(pos),shape=(1)).tolist()[0]-1
             if meshId >= len( mcmeshes ):
-                continue
+                return
             nbOfValues=fdisc.getNumberOfTuples(mcmeshes[meshId])
             vals2=DataArrayDouble(nbOfValues,nbCompo)
             fd.seek(pos+4)
