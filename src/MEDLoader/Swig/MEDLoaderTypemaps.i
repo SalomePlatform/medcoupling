@@ -197,6 +197,20 @@ static PyObject *convertFieldDoubleVecToPy(const std::vector<MEDCoupling::MEDCou
   return ret;
 }
 
+PyObject *convertVecPairIntToPy(const std::vector< std::pair<int,int> >& vec)
+{
+  PyObject *ret(PyList_New(vec.size()));
+  int rk=0;
+  for(std::vector< std::pair<int,int> >::const_iterator iter=vec.begin();iter!=vec.end();iter++,rk++)
+    {
+      PyObject *elt=PyTuple_New(2);
+      PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
+      PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
+      PyList_SetItem(ret,rk,elt);
+    }
+  return ret;
+}
+
 PyObject *convertVecPairVecStToPy(const std::vector< std::pair<std::vector<std::string>, std::string > >& vec)
 {
   int sz=(int)vec.size();

@@ -2175,7 +2175,7 @@ void MEDCouplingBasicsTest1::testGetCellsContainingPoint()
   CPPUNIT_ASSERT(std::equal(t2->begin(),t2->end(),expectedValues2));
   //2D with no help of bounding box.
   double center[2]={0.2,0.2};
-  MEDCouplingPointSet::Rotate2DAlg(center,0.78539816339744830962,6,pos);
+  DataArrayDouble::Rotate2DAlg(center,0.78539816339744830962,6,pos,pos);
   targetMesh->rotate(center,0,0.78539816339744830962);
   targetMesh->getCellsContainingPoints(pos,6,1e-12,t1,t2);
   CPPUNIT_ASSERT_EQUAL(6,(int)t1->getNbOfElems());

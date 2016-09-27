@@ -946,6 +946,24 @@ namespace INTERP_KERNEL
       }              
   }
 
+  /*!
+   * Find a vector orthogonal to the input vector
+   */
+  inline void orthogonalVect3(const double inpVect[3], double outVect[3])
+  {
+    std::vector<bool> sw(3,false);
+    double inpVect2[3];
+    std::transform(inpVect,inpVect+3,inpVect2,std::ptr_fun<double,double>(fabs));
+    std::size_t posMin(std::distance(inpVect2,std::min_element(inpVect2,inpVect2+3)));
+    sw[posMin]=true;
+    std::size_t posMax(std::distance(inpVect2,std::max_element(inpVect2,inpVect2+3)));
+    if(posMax==posMin)
+      { posMax=(posMin+1)%3; }
+    sw[posMax]=true;
+    std::size_t posMid(std::distance(sw.begin(),std::find(sw.begin(),sw.end(),false)));
+    outVect[posMin]=0.; outVect[posMid]=1.; outVect[posMax]=-inpVect[posMid]/inpVect[posMax];
+  }
+  
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Computes the dot product of a and b */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/

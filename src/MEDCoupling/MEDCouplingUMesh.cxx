@@ -4009,7 +4009,7 @@ DataArrayInt *MEDCouplingUMesh::getCellIdsCrossingPlane(const double *origin, co
       MCAuto<DataArrayDouble> coo=_coords->deepCopy();
       double normm2(sqrt(vec2[0]*vec2[0]+vec2[1]*vec2[1]+vec2[2]*vec2[2]));
       if(normm2/normm>1e-6)
-        MEDCouplingPointSet::Rotate3DAlg(origin,vec2,angle,coo->getNumberOfTuples(),coo->getPointer());
+        DataArrayDouble::Rotate3DAlg(origin,vec2,angle,coo->getNumberOfTuples(),coo->getPointer(),coo->getPointer());
       MCAuto<MEDCouplingUMesh> mw=clone(false);//false -> shallow copy
       mw->setCoords(coo);
       mw->getBoundingBox(bbox);
@@ -7963,7 +7963,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(const MEDCouplingUMesh *mesh1, 
  *  \throw If \a a[ *i* ]->getMeshDimension() < 0.
  *  \throw If the meshes in \a a are of different dimension (getMeshDimension()).
  */
-MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUMesh *>& a)
+MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(const std::vector<const MEDCouplingUMesh *>& a)
 {
   std::size_t sz=a.size();
   if(sz==0)
@@ -7996,7 +7996,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUM
 
 /// @cond INTERNAL
 
-MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesLL(std::vector<const MEDCouplingUMesh *>& a)
+MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesLL(const std::vector<const MEDCouplingUMesh *>& a)
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::MergeUMeshes : input array must be NON EMPTY !");

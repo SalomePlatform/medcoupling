@@ -18,9 +18,10 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#include "MEDFileField.hxx"
+#include "MEDFileField.txx"
 #include "MEDFileMesh.hxx"
 #include "MEDLoaderBase.hxx"
+#include "MEDLoaderTraits.hxx"
 #include "MEDFileUtilities.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileFieldOverView.hxx"
@@ -41,6 +42,9 @@ extern med_geometry_type typmainoeud[1];
 extern med_geometry_type typmai3[34];
 
 using namespace MEDCoupling;
+
+template class MEDFileField1TSTemplateWithoutSDA<int>;
+template class MEDFileField1TSTemplateWithoutSDA<double>;
 
 const char MEDFileField1TSWithoutSDA::TYPE_STR[]="FLOAT64";
 const char MEDFileIntField1TSWithoutSDA::TYPE_STR[]="INT32";
@@ -1579,10 +1583,6 @@ bool MEDFileFieldPerMeshPerType::keepOnlyGaussDiscretization(std::size_t idOfDis
   return true;
 }
 
-MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType):_father(fath),_geo_type(geoType)
-{
-}
-
 MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const MEDFileFieldNameScope& nasc, const PartDefinition *pd):_father(fath),_geo_type(geoType)
 {
   INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -2339,6 +2339,90 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAn
       oss << "\"" << cm2.getRepr() << "\", ";
     }
   throw INTERP_KERNEL::Exception(oss.str());
+}
+
+/*!
+ * \param [in,out] start - Integer that gives the current position in the final aggregated array
+ * \param [in] pms - list of elements to aggregate. integer gives the mesh id 
+ * \param [in] dts - (Distribution of types) = level 1 : meshes to aggregate. Level 2 : all geo type. Level 3 pair specifying geo type and number of elem in geotype.
+ * \param [out] extractInfo - Gives information about the where the data comes from. It is a vector of triplet. First element in the triplet the mesh pos. The 2nd one the start pos. The 3rd the end pos.
+ */
+MCAuto<MEDFileFieldPerMeshPerTypePerDisc> MEDFileFieldPerMeshPerTypePerDisc::Aggregate(int &start, const std::vector< std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc *> >& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, TypeOfField tof, MEDFileFieldPerMeshPerType *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo)
+{
+  MCAuto<MEDFileFieldPerMeshPerTypePerDisc> ret(new MEDFileFieldPerMeshPerTypePerDisc(father,tof));
+  if(pms.empty())
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::Aggregate : empty input vector !");
+  for(std::vector<std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc *> >::const_iterator it=pms.begin();it!=pms.end();it++)
+    {
+      if(!(*it).second)
+        throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::Aggregate : presence of null pointer !");
+      if(!(*it).second->getProfile().empty())
+        throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::Aggregate : not implemented yet for profiles !");
+      if(!(*it).second->getLocalization().empty())
+        throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::Aggregate : not implemented yet for gauss pts !");
+    }
+  INTERP_KERNEL::NormalizedCellType gt(pms[0].second->getGeoType());
+  std::size_t i(0);
+  std::vector< std::pair<int,int> > filteredDTS;
+  for(std::vector< std::vector< std::pair<int,int> > >::const_iterator it=dts.begin();it!=dts.end();it++,i++)
+    for(std::vector< std::pair<int,int> >::const_iterator it2=(*it).begin();it2!=(*it).end();it2++)
+      if((*it2).first==gt)
+        filteredDTS.push_back(std::pair<int,int>(i,(*it2).second));
+  if(pms.size()!=filteredDTS.size())
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::Aggregate : not implemented yet for generated profiles !");
+  std::vector<std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc *> >::const_iterator it1(pms.begin());
+  std::vector< std::pair<int,int> >::const_iterator it2(filteredDTS.begin());
+  int zeStart(start),nval(0);
+  for(;it1!=pms.end();it1++,it2++)
+    {
+      if((*it1).first!=(*it2).first)
+        throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::Aggregate : not implemented yet for generated profiles 2 !");
+      int s1((*it1).second->getStart()),e1((*it1).second->getEnd());
+      extractInfo.push_back(std::pair<int, std::pair<int,int> >((*it1).first,std::pair<int,int>(s1,e1)));
+      start+=e1-s1;
+      nval+=((*it1).second)->getNumberOfVals();
+    }
+  ret->_start=zeStart; ret->_end=start; ret->_nval=nval;
+  return ret;
+}
+
+MCAuto<MEDFileFieldPerMeshPerType> MEDFileFieldPerMeshPerType::Aggregate(int &start, const std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, INTERP_KERNEL::NormalizedCellType gt, MEDFileFieldPerMesh *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo)
+{
+  MCAuto<MEDFileFieldPerMeshPerType> ret(new MEDFileFieldPerMeshPerType(father,gt));
+  std::map<TypeOfField, std::vector< std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * > > > m;
+  for(std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >::const_iterator it=pms.begin();it!=pms.end();it++)
+    {
+      for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it2=(*it).second->_field_pm_pt_pd.begin();it2!=(*it).second->_field_pm_pt_pd.end();it2++)
+        m[(*it2)->getType()].push_back(std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * >((*it).first,*it2));
+    }
+  for(std::map<TypeOfField, std::vector< std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * > > >::const_iterator it=m.begin();it!=m.end();it++)
+    {
+      MCAuto<MEDFileFieldPerMeshPerTypePerDisc> agg(MEDFileFieldPerMeshPerTypePerDisc::Aggregate(start,(*it).second,dts,(*it).first,ret,extractInfo));
+      ret->_field_pm_pt_pd.push_back(agg);
+    }
+  return ret;
+}
+
+MCAuto<MEDFileFieldPerMesh> MEDFileFieldPerMesh::Aggregate(int &start, const std::vector<const MEDFileFieldPerMesh *>& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, MEDFileAnyTypeField1TSWithoutSDA *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo)
+{
+  MCAuto<MEDFileFieldPerMesh> ret(new MEDFileFieldPerMesh(father,pms[0]->getMeshName(),pms[0]->getMeshIteration(),pms[0]->getMeshOrder()));
+  std::map<INTERP_KERNEL::NormalizedCellType, std::vector< std::pair<int,const MEDFileFieldPerMeshPerType *> > > m;
+  std::size_t i(0);
+  for(std::vector<const MEDFileFieldPerMesh *>::const_iterator it=pms.begin();it!=pms.end();it++,i++)
+    {
+      const std::vector< MCAuto< MEDFileFieldPerMeshPerType > >& v((*it)->_field_pm_pt);
+      for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it2=v.begin();it2!=v.end();it2++)
+        {
+          INTERP_KERNEL::NormalizedCellType gt((*it2)->getGeoType());
+          m[gt].push_back(std::pair<int,const MEDFileFieldPerMeshPerType *>(i,*it2));
+        }
+    }
+  for(std::map<INTERP_KERNEL::NormalizedCellType, std::vector< std::pair<int,const MEDFileFieldPerMeshPerType *> > >::const_iterator it=m.begin();it!=m.end();it++)
+    {
+      MCAuto<MEDFileFieldPerMeshPerType> agg(MEDFileFieldPerMeshPerType::Aggregate(start,(*it).second,dts,(*it).first,ret,extractInfo));
+      ret->_field_pm_pt.push_back(agg);
+    }
+  return ret;
 }
 
 int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type)
@@ -5114,22 +5198,6 @@ std::vector< std::vector<DataArrayDouble *> > MEDFileField1TSWithoutSDA::getFiel
   return ret;
 }
 
-/*!
- * Returns a pointer to the underground DataArrayDouble instance. So the
- * caller should not decrRef() it. This method allows for a direct access to the field
- * values. This method is quite unusable if there is more than a nodal field or a cell
- * field on single geometric cell type. 
- *  \return DataArrayDouble * - the pointer to the field values array.
- */
-DataArrayDouble *MEDFileField1TSWithoutSDA::getUndergroundDataArrayDouble() const
-{
-  const DataArrayDouble *ret=_arr;
-  if(ret)
-    return const_cast<DataArrayDouble *>(ret);
-  else
-    return 0;
-}
-
 const char *MEDFileField1TSWithoutSDA::getTypeStr() const
 {
   return TYPE_STR;
@@ -5147,18 +5215,6 @@ MEDFileIntField1TSWithoutSDA *MEDFileField1TSWithoutSDA::convertToInt() const
       ret->setArray(arr2);
     }
   return ret.retn();
-}
-
-/*!
- * Returns a pointer to the underground DataArrayDouble instance. So the
- * caller should not decrRef() it. This method allows for a direct access to the field
- * values. This method is quite unusable if there is more than a nodal field or a cell
- * field on single geometric cell type. 
- *  \return DataArrayDouble * - the pointer to the field values array.
- */
-DataArray *MEDFileField1TSWithoutSDA::getUndergroundDataArray() const
-{
-  return getUndergroundDataArrayDouble();
 }
 
 /*!
@@ -5184,7 +5240,7 @@ DataArrayDouble *MEDFileField1TSWithoutSDA::getUndergroundDataArrayDoubleExt(std
   if(_field_per_mesh[0]==0)
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : no field specified !");
   _field_per_mesh[0]->getUndergroundDataArrayExt(entries);
-  return getUndergroundDataArrayDouble();
+  return getUndergroundDataArrayTemplate();
 }
 
 /*!
@@ -5208,13 +5264,13 @@ DataArray *MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt(std::vector< st
   return getUndergroundDataArrayDoubleExt(entries);
 }
 
-MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA(const std::string& fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos):MEDFileAnyTypeField1TSWithoutSDA(fieldName,csit,iteration,order)
+MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA(const std::string& fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos):MEDFileField1TSTemplateWithoutSDA<double>(fieldName,csit,iteration,order)
 {
-  DataArrayDouble *arr(getOrCreateAndGetArrayDouble());
+  DataArrayDouble *arr(getOrCreateAndGetArrayTemplate());
   arr->setInfoAndChangeNbOfCompo(infos);
 }
 
-MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA():MEDFileAnyTypeField1TSWithoutSDA()
+MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA():MEDFileField1TSTemplateWithoutSDA<double>()
 {
 }
 
@@ -5233,57 +5289,6 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileField1TSWithoutSDA::deepCopy() const
   return ret.retn();
 }
 
-void MEDFileField1TSWithoutSDA::setArray(DataArray *arr)
-{
-  if(!arr)
-    {
-      _nb_of_tuples_to_be_allocated=-1;
-      _arr=0;
-      return ;
-    }
-  DataArrayDouble *arrC=dynamic_cast<DataArrayDouble *>(arr);
-  if(!arrC)
-    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::setArray : the input not null array is not of type DataArrayDouble !");
-  else
-    _nb_of_tuples_to_be_allocated=-3;
-  arrC->incrRef();
-  _arr=arrC;
-}
-
-DataArray *MEDFileField1TSWithoutSDA::createNewEmptyDataArrayInstance() const
-{
-  return DataArrayDouble::New();
-}
-
-DataArrayDouble *MEDFileField1TSWithoutSDA::getOrCreateAndGetArrayDouble()
-{
-  DataArrayDouble *ret=_arr;
-  if(ret)
-    return ret;
-  _arr=DataArrayDouble::New();
-  return _arr;
-}
-
-DataArray *MEDFileField1TSWithoutSDA::getOrCreateAndGetArray()
-{
-  return getOrCreateAndGetArrayDouble();
-}
-
-const DataArrayDouble *MEDFileField1TSWithoutSDA::getOrCreateAndGetArrayDouble() const
-{
-  const DataArrayDouble *ret=_arr;
-  if(ret)
-    return ret;
-  DataArrayDouble *ret2=DataArrayDouble::New();
-  const_cast<MEDFileField1TSWithoutSDA *>(this)->_arr=DataArrayDouble::New();
-  return ret2;
-}
-
-const DataArray *MEDFileField1TSWithoutSDA::getOrCreateAndGetArray() const
-{
-  return getOrCreateAndGetArrayDouble();
-}
-
 //= MEDFileIntField1TSWithoutSDA
 
 MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::New(const std::string& fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos)
@@ -5291,14 +5296,14 @@ MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::New(const std::strin
   return new MEDFileIntField1TSWithoutSDA(fieldName,csit,iteration,order,infos);
 }
 
-MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA():MEDFileAnyTypeField1TSWithoutSDA()
+MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA():MEDFileField1TSTemplateWithoutSDA<int>()
 {
 }
 
 MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA(const std::string& fieldName, int csit, int iteration, int order,
-                                                           const std::vector<std::string>& infos):MEDFileAnyTypeField1TSWithoutSDA(fieldName,csit,iteration,order)
+                                                           const std::vector<std::string>& infos):MEDFileField1TSTemplateWithoutSDA<int>(fieldName,csit,iteration,order)
 {
-  DataArrayInt *arr(getOrCreateAndGetArrayInt());
+  DataArrayInt *arr(getOrCreateAndGetArrayTemplate());
   arr->setInfoAndChangeNbOfCompo(infos);
 }
 
@@ -5319,34 +5324,6 @@ MEDFileField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::convertToDouble() const
       ret->setArray(arr2);
     }
   return ret.retn();
-}
-
-/*!
- * Returns a pointer to the underground DataArrayInt instance. So the
- * caller should not decrRef() it. This method allows for a direct access to the field
- * values. This method is quite unusable if there is more than a nodal field or a cell
- * field on single geometric cell type. 
- *  \return DataArrayInt * - the pointer to the field values array.
- */
-DataArray *MEDFileIntField1TSWithoutSDA::getUndergroundDataArray() const
-{
-  return getUndergroundDataArrayInt();
-}
-
-/*!
- * Returns a pointer to the underground DataArrayInt instance. So the
- * caller should not decrRef() it. This method allows for a direct access to the field
- * values. This method is quite unusable if there is more than a nodal field or a cell
- * field on single geometric cell type. 
- *  \return DataArrayInt * - the pointer to the field values array.
- */
-DataArrayInt *MEDFileIntField1TSWithoutSDA::getUndergroundDataArrayInt() const
-{
-  const DataArrayInt *ret=_arr;
-  if(ret)
-    return const_cast<DataArrayInt *>(ret);
-  else
-    return 0;
 }
 
 /*!
@@ -5393,7 +5370,7 @@ DataArrayInt *MEDFileIntField1TSWithoutSDA::getUndergroundDataArrayIntExt(std::v
   if(_field_per_mesh[0]==0)
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : no field specified !");
   _field_per_mesh[0]->getUndergroundDataArrayExt(entries);
-  return getUndergroundDataArrayInt();
+  return getUndergroundDataArrayTemplate();
 }
 
 MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::shallowCpy() const
@@ -5409,57 +5386,6 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::deepCopy() const
   if((const DataArrayInt *)_arr)
     ret->_arr=_arr->deepCopy();
   return ret.retn();
-}
-
-void MEDFileIntField1TSWithoutSDA::setArray(DataArray *arr)
-{
-  if(!arr)
-    {
-      _nb_of_tuples_to_be_allocated=-1;
-      _arr=0;
-      return ;
-    }
-  DataArrayInt *arrC=dynamic_cast<DataArrayInt *>(arr);
-  if(!arrC)
-    throw INTERP_KERNEL::Exception("MEDFileIntField1TSWithoutSDA::setArray : the input not null array is not of type DataArrayInt !");
-  else
-    _nb_of_tuples_to_be_allocated=-3;
-  arrC->incrRef();
-  _arr=arrC;
-}
-
-DataArray *MEDFileIntField1TSWithoutSDA::createNewEmptyDataArrayInstance() const
-{
-  return DataArrayInt::New();
-}
-
-DataArrayInt *MEDFileIntField1TSWithoutSDA::getOrCreateAndGetArrayInt()
-{
-  DataArrayInt *ret=_arr;
-  if(ret)
-    return ret;
-  _arr=DataArrayInt::New();
-  return _arr;
-}
-
-DataArray *MEDFileIntField1TSWithoutSDA::getOrCreateAndGetArray()
-{
-  return getOrCreateAndGetArrayInt();
-}
-
-const DataArrayInt *MEDFileIntField1TSWithoutSDA::getOrCreateAndGetArrayInt() const
-{
-  const DataArrayInt *ret=_arr;
-  if(ret)
-    return ret;
-  DataArrayInt *ret2=DataArrayInt::New();
-  const_cast<MEDFileIntField1TSWithoutSDA *>(this)->_arr=DataArrayInt::New();
-  return ret2;
-}
-
-const DataArray *MEDFileIntField1TSWithoutSDA::getOrCreateAndGetArray() const
-{
-  return getOrCreateAndGetArrayInt();
 }
 
 MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS()
@@ -6328,7 +6254,7 @@ MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::st
  */
 MEDFileField1TS *MEDFileField1TS::New(const MEDFileField1TSWithoutSDA& other, bool shallowCopyOfContent)
 {
-  MCAuto<MEDFileField1TS> ret=new MEDFileField1TS(other,shallowCopyOfContent);
+  MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(other,shallowCopyOfContent));
   ret->contentNotNull();
   return ret.retn();
 }
@@ -6340,7 +6266,7 @@ MEDFileField1TS *MEDFileField1TS::New(const MEDFileField1TSWithoutSDA& other, bo
  */
 MEDFileField1TS *MEDFileField1TS::New()
 {
-  MCAuto<MEDFileField1TS> ret=new MEDFileField1TS;
+  MCAuto<MEDFileField1TS> ret(new MEDFileField1TS);
   ret->contentNotNull();
   return ret.retn();
 }
@@ -6761,7 +6687,7 @@ MEDFileAnyTypeField1TS *MEDFileField1TS::shallowCpy() const
 
 DataArrayDouble *MEDFileField1TS::getUndergroundDataArray() const
 {
-  return contentNotNull()->getUndergroundDataArrayDouble();
+  return contentNotNull()->getUndergroundDataArrayTemplate();
 }
 
 DataArrayDouble *MEDFileField1TS::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
@@ -7168,7 +7094,7 @@ MEDFileIntField1TSWithoutSDA *MEDFileIntField1TS::contentNotNull()
 
 DataArrayInt *MEDFileIntField1TS::getUndergroundDataArray() const
 {
-  return contentNotNull()->getUndergroundDataArrayInt();
+  return contentNotNull()->getUndergroundDataArrayTemplate();
 }
 
 //= MEDFileAnyTypeFieldMultiTSWithoutSDA
@@ -7489,6 +7415,8 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::pushBackTimeStep(MCAuto<MEDFileAnyTyp
       setInfo(tse2->getInfo());
     }
   checkThatComponentsMatch(tse2->getInfo());
+  if(getDtUnit().empty() && !tse->getDtUnit().empty())
+    setDtUnit(tse->getDtUnit());
   _time_steps.push_back(tse);
 }
 
@@ -7540,6 +7468,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysR
         _time_steps[i]->loadStructureAndBigArraysRecursively(fid,*this,ms,entities);
       else
         _time_steps[i]->loadOnlyStructureOfDataRecursively(fid,*this,ms,entities);
+      synchronizeNameScope();
     }
 }
 
@@ -9094,6 +9023,97 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::extractPart(const std::m
   return fmtsOut.retn();
 }
 
+template<class T>
+MCAuto<MEDFileAnyTypeField1TS> AggregateHelperF1TS(const std::vector< typename MLFieldTraits<T>::F1TSType const *>& f1tss, const std::vector< std::vector< std::pair<int,int> > >& dts)
+{
+  MCAuto< typename MLFieldTraits<T>::F1TSType > ret(MLFieldTraits<T>::F1TSType::New());
+  if(f1tss.empty())
+    throw INTERP_KERNEL::Exception("AggregateHelperF1TS : empty vector !");
+  std::size_t sz(f1tss.size()),i(0);
+  std::vector< typename MLFieldTraits<T>::F1TSWSDAType const *> f1tsw(sz);
+  for(typename std::vector< typename MLFieldTraits<T>::F1TSType const *>::const_iterator it=f1tss.begin();it!=f1tss.end();it++,i++)
+    {
+      typename MLFieldTraits<T>::F1TSType const *elt(*it);
+      if(!elt)
+        throw INTERP_KERNEL::Exception("AggregateHelperF1TS : presence of a null pointer !");
+      f1tsw[i]=dynamic_cast<typename MLFieldTraits<T>::F1TSWSDAType const *>(elt->contentNotNullBase());
+    }
+  typename MLFieldTraits<T>::F1TSWSDAType *retc(dynamic_cast<typename MLFieldTraits<T>::F1TSWSDAType *>(ret->contentNotNullBase()));
+  if(!retc)
+    throw INTERP_KERNEL::Exception("AggregateHelperF1TS : internal error 1 !");
+  retc->aggregate(f1tsw,dts);
+  ret->setDtUnit(f1tss[0]->getDtUnit());
+  return DynamicCast<typename MLFieldTraits<T>::F1TSType , MEDFileAnyTypeField1TS>(ret);
+}
+
+template<class T>
+MCAuto< MEDFileAnyTypeFieldMultiTS > AggregateHelperFMTS(const std::vector< typename MLFieldTraits<T>::FMTSType const *>& fmtss, const std::vector< std::vector< std::pair<int,int> > >& dts)
+{
+  MCAuto< typename MLFieldTraits<T>::FMTSType > ret(MLFieldTraits<T>::FMTSType::New());
+  if(fmtss.empty())
+    throw INTERP_KERNEL::Exception("AggregateHelperFMTS : empty vector !");
+  std::size_t sz(fmtss.size());
+  for(typename std::vector< typename MLFieldTraits<T>::FMTSType const *>::const_iterator it=fmtss.begin();it!=fmtss.end();it++)
+    {
+      typename MLFieldTraits<T>::FMTSType const *elt(*it);
+      if(!elt)
+        throw INTERP_KERNEL::Exception("AggregateHelperFMTS : presence of null pointer !");
+    }
+  int nbTS(fmtss[0]->getNumberOfTS());
+  for(typename std::vector< typename MLFieldTraits<T>::FMTSType const *>::const_iterator it=fmtss.begin();it!=fmtss.end();it++)
+    if((*it)->getNumberOfTS()!=nbTS)
+      throw INTERP_KERNEL::Exception("AggregateHelperFMTS : all fields must have the same number of TS !");
+  for(int iterTS=0;iterTS<nbTS;iterTS++)
+    {
+      std::size_t i(0);
+      std::vector< typename MLFieldTraits<T>::F1TSType const *> f1tss(sz);
+      std::vector< MCAuto<typename MLFieldTraits<T>::F1TSType> > f1tss2(sz);
+      for(typename std::vector< typename MLFieldTraits<T>::FMTSType const *>::const_iterator it=fmtss.begin();it!=fmtss.end();it++,i++)
+        { f1tss2[i]=(*it)->getTimeStepAtPos(iterTS); f1tss[i]=f1tss2[i]; }
+      MCAuto<MEDFileAnyTypeField1TS> f1ts(AggregateHelperF1TS<T>(f1tss,dts));
+      ret->pushBackTimeStep(f1ts);
+      ret->setDtUnit(f1ts->getDtUnit());
+    }
+  return DynamicCast<typename MLFieldTraits<T>::FMTSType , MEDFileAnyTypeFieldMultiTS>(ret);
+}
+
+/*!
+ * \a dts and \a ftmss are expected to have same size.
+ */
+MCAuto<MEDFileAnyTypeFieldMultiTS> MEDFileAnyTypeFieldMultiTS::Aggregate(const std::vector<const MEDFileAnyTypeFieldMultiTS *>& fmtss, const std::vector< std::vector< std::pair<int,int> > >& dts)
+{
+  if(fmtss.empty())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : input vector is empty !");
+  std::size_t sz(fmtss.size());
+  std::vector<const MEDFileFieldMultiTS *> fmtss1;
+  std::vector<const MEDFileIntFieldMultiTS *> fmtss2;
+  for(std::vector<const MEDFileAnyTypeFieldMultiTS *>::const_iterator it=fmtss.begin();it!=fmtss.end();it++)
+    {
+      if(!(*it))
+        throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : presence of null instance in input vector !");
+      const MEDFileFieldMultiTS *elt1(dynamic_cast<const MEDFileFieldMultiTS *>(*it));
+      if(elt1)
+        {
+          fmtss1.push_back(elt1);
+          continue;
+        }
+      const MEDFileIntFieldMultiTS *elt2(dynamic_cast<const MEDFileIntFieldMultiTS *>(*it));
+      if(elt2)
+        {
+          fmtss2.push_back(elt2);
+          continue;
+        }
+      throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : not recognized type !");
+    }
+  if(fmtss1.size()!=sz && fmtss2.size()!=sz)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : type of data is not homogeneous !");
+  if(fmtss1.size()==sz)
+    return AggregateHelperFMTS<double>(fmtss1,dts);
+  if(fmtss2.size()!=sz)
+    return AggregateHelperFMTS<int>(fmtss2,dts);
+  throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : not implemented yet !");
+}
+
 MEDFileAnyTypeFieldMultiTSIterator *MEDFileAnyTypeFieldMultiTS::iterator()
 {
   return new MEDFileAnyTypeFieldMultiTSIterator(this);
@@ -9899,7 +9919,7 @@ DataArrayInt *MEDFileIntFieldMultiTS::getFieldWithProfile(TypeOfField type, int 
  *          delete this field using decrRef() as it is no more needed.
  *  \throw If \a pos is not a valid time step id.
  */
-MEDFileAnyTypeField1TS *MEDFileIntFieldMultiTS::getTimeStepAtPos(int pos) const
+MEDFileIntField1TS *MEDFileIntFieldMultiTS::getTimeStepAtPos(int pos) const
 {
   const MEDFileAnyTypeField1TSWithoutSDA *item=contentNotNullBase()->getTimeStepAtPos2(pos);
   if(!item)

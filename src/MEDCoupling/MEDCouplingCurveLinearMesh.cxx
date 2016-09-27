@@ -637,9 +637,9 @@ void MEDCouplingCurveLinearMesh::rotate(const double *center, const double *vect
   int nbNodes=_coords->getNumberOfTuples();
   double *coords=_coords->getPointer();
   if(spaceDim==3)
-    MEDCouplingPointSet::Rotate3DAlg(center,vector,angle,nbNodes,coords);
+    DataArrayDouble::Rotate3DAlg(center,vector,angle,nbNodes,coords,coords);
   else if(spaceDim==2)
-    MEDCouplingPointSet::Rotate2DAlg(center,angle,nbNodes,coords);
+    DataArrayDouble::Rotate2DAlg(center,angle,nbNodes,coords,coords);
   else
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::rotate : invalid space dim for rotation must be 2 or 3");
   _coords->declareAsNew();

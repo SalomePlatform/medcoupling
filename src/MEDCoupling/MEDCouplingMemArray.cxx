@@ -19,7 +19,6 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingMemArray.txx"
-#include "MCAuto.hxx"
 
 #include "BBTree.txx"
 #include "GenMathFormulae.hxx"
@@ -3217,6 +3216,21 @@ void DataArrayDouble::applyFuncFast64(const std::string& func)
   declareAsNew();
 }
 
+/*!
+ * \return a new object that is the result of the symmetry along 3D plane defined by its normal vector \a normalVector and a point \a point.
+ */
+MCAuto<DataArrayDouble> DataArrayDouble::symmetry3DPlane(const double point[3], const double normalVector[3]) const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=3)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::symmetry3DPlane : this is excepted to have 3 components !");
+  int nbTuples(getNumberOfTuples());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  ret->alloc(nbTuples,3);
+  Symmetry3DPlane(point,normalVector,nbTuples,begin(),ret->getPointer());
+  return ret;
+}
+
 DataArrayDoubleIterator *DataArrayDouble::iterator()
 {
   return new DataArrayDoubleIterator(this);
@@ -4353,6 +4367,112 @@ void DataArrayDouble::finishUnserialization(const std::vector<int>& tinyInfoI, c
       int nbOfCompo=getNumberOfComponents();
       for(int i=0;i<nbOfCompo;i++)
         setInfoOnComponent(i,tinyInfoS[i+1]);
+    }
+}
+
+/*!
+ * Low static method that operates 3D rotation of 'nbNodes' 3D nodes whose coordinates are arranged in \a coordsIn
+ * around an axe ( \a center, \a vect) and with angle \a angle.
+ */
+void DataArrayDouble::Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, const double *coordsIn, double *coordsOut)
+{
+  if(!center || !vect)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::Rotate3DAlg : null vector in input !");
+  double sina(sin(angle));
+  double cosa(cos(angle));
+  double vectorNorm[3];
+  double matrix[9];
+  double matrixTmp[9];
+  double norm(sqrt(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]));
+  if(norm<std::numeric_limits<double>::min())
+    throw INTERP_KERNEL::Exception("DataArrayDouble::Rotate3DAlg : magnitude of input vector is too close of 0. !");
+  std::transform(vect,vect+3,vectorNorm,std::bind2nd(std::multiplies<double>(),1/norm));
+  //rotation matrix computation
+  matrix[0]=cosa; matrix[1]=0.; matrix[2]=0.; matrix[3]=0.; matrix[4]=cosa; matrix[5]=0.; matrix[6]=0.; matrix[7]=0.; matrix[8]=cosa;
+  matrixTmp[0]=vectorNorm[0]*vectorNorm[0]; matrixTmp[1]=vectorNorm[0]*vectorNorm[1]; matrixTmp[2]=vectorNorm[0]*vectorNorm[2];
+  matrixTmp[3]=vectorNorm[1]*vectorNorm[0]; matrixTmp[4]=vectorNorm[1]*vectorNorm[1]; matrixTmp[5]=vectorNorm[1]*vectorNorm[2];
+  matrixTmp[6]=vectorNorm[2]*vectorNorm[0]; matrixTmp[7]=vectorNorm[2]*vectorNorm[1]; matrixTmp[8]=vectorNorm[2]*vectorNorm[2];
+  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind2nd(std::multiplies<double>(),1-cosa));
+  std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
+  matrixTmp[0]=0.; matrixTmp[1]=-vectorNorm[2]; matrixTmp[2]=vectorNorm[1];
+  matrixTmp[3]=vectorNorm[2]; matrixTmp[4]=0.; matrixTmp[5]=-vectorNorm[0];
+  matrixTmp[6]=-vectorNorm[1]; matrixTmp[7]=vectorNorm[0]; matrixTmp[8]=0.;
+  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind2nd(std::multiplies<double>(),sina));
+  std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
+  //rotation matrix computed.
+  double tmp[3];
+  for(int i=0; i<nbNodes; i++)
+    {
+      std::transform(coordsIn+i*3,coordsIn+(i+1)*3,center,tmp,std::minus<double>());
+      coordsOut[i*3]=matrix[0]*tmp[0]+matrix[1]*tmp[1]+matrix[2]*tmp[2]+center[0];
+      coordsOut[i*3+1]=matrix[3]*tmp[0]+matrix[4]*tmp[1]+matrix[5]*tmp[2]+center[1];
+      coordsOut[i*3+2]=matrix[6]*tmp[0]+matrix[7]*tmp[1]+matrix[8]*tmp[2]+center[2];
+    }
+}
+
+void DataArrayDouble::Symmetry3DPlane(const double point[3], const double normalVector[3], int nbNodes, const double *coordsIn, double *coordsOut)
+{
+  double matrix[9],matrix2[9],matrix3[9];
+  double vect[3],crossVect[3];
+  INTERP_KERNEL::orthogonalVect3(normalVector,vect);
+  crossVect[0]=normalVector[1]*vect[2]-normalVector[2]*vect[1];
+  crossVect[1]=normalVector[2]*vect[0]-normalVector[0]*vect[2];
+  crossVect[2]=normalVector[0]*vect[1]-normalVector[1]*vect[0];
+  double nv(INTERP_KERNEL::norm<3>(vect)),ni(INTERP_KERNEL::norm<3>(normalVector)),nc(INTERP_KERNEL::norm<3>(crossVect));
+  matrix[0]=vect[0]/nv; matrix[1]=crossVect[0]/nc; matrix[2]=-normalVector[0]/ni;
+  matrix[3]=vect[1]/nv; matrix[4]=crossVect[1]/nc; matrix[5]=-normalVector[1]/ni;
+  matrix[6]=vect[2]/nv; matrix[7]=crossVect[2]/nc; matrix[8]=-normalVector[2]/ni;
+  matrix2[0]=vect[0]/nv; matrix2[1]=vect[1]/nv; matrix2[2]=vect[2]/nv;
+  matrix2[3]=crossVect[0]/nc; matrix2[4]=crossVect[1]/nc; matrix2[5]=crossVect[2]/nc;
+  matrix2[6]=normalVector[0]/ni; matrix2[7]=normalVector[1]/ni; matrix2[8]=normalVector[2]/ni;
+  for(int i=0;i<3;i++)
+    for(int j=0;j<3;j++)
+      {
+        double val(0.);
+        for(int k=0;k<3;k++)
+          val+=matrix[3*i+k]*matrix2[3*k+j];
+        matrix3[3*i+j]=val;
+      }
+  //rotation matrix computed.
+  double tmp[3];
+  for(int i=0; i<nbNodes; i++)
+    {
+      std::transform(coordsIn+i*3,coordsIn+(i+1)*3,point,tmp,std::minus<double>());
+      coordsOut[i*3]=matrix3[0]*tmp[0]+matrix3[1]*tmp[1]+matrix3[2]*tmp[2]+point[0];
+      coordsOut[i*3+1]=matrix3[3]*tmp[0]+matrix3[4]*tmp[1]+matrix3[5]*tmp[2]+point[1];
+      coordsOut[i*3+2]=matrix3[6]*tmp[0]+matrix3[7]*tmp[1]+matrix3[8]*tmp[2]+point[2];
+    }
+}
+
+void DataArrayDouble::GiveBaseForPlane(const double normalVector[3], double baseOfPlane[9])
+{
+  double vect[3],crossVect[3];
+  INTERP_KERNEL::orthogonalVect3(normalVector,vect);
+  crossVect[0]=normalVector[1]*vect[2]-normalVector[2]*vect[1];
+  crossVect[1]=normalVector[2]*vect[0]-normalVector[0]*vect[2];
+  crossVect[2]=normalVector[0]*vect[1]-normalVector[1]*vect[0];
+  double nv(INTERP_KERNEL::norm<3>(vect)),ni(INTERP_KERNEL::norm<3>(normalVector)),nc(INTERP_KERNEL::norm<3>(crossVect));
+  baseOfPlane[0]=vect[0]/nv; baseOfPlane[1]=vect[1]/nv; baseOfPlane[2]=vect[2]/nv;
+  baseOfPlane[3]=crossVect[0]/nc; baseOfPlane[4]=crossVect[1]/nc; baseOfPlane[5]=crossVect[2]/nc;
+  baseOfPlane[6]=normalVector[0]/ni; baseOfPlane[7]=normalVector[1]/ni; baseOfPlane[8]=normalVector[2]/ni;
+}
+
+/*!
+ * Low static method that operates 3D rotation of \a nbNodes 3D nodes whose coordinates are arranged in \a coords
+ * around the center point \a center and with angle \a angle.
+ */
+void DataArrayDouble::Rotate2DAlg(const double *center, double angle, int nbNodes, const double *coordsIn, double *coordsOut)
+{
+  double cosa=cos(angle);
+  double sina=sin(angle);
+  double matrix[4];
+  matrix[0]=cosa; matrix[1]=-sina; matrix[2]=sina; matrix[3]=cosa;
+  double tmp[2];
+  for(int i=0; i<nbNodes; i++)
+    {
+      std::transform(coordsIn+i*2,coordsIn+(i+1)*2,center,tmp,std::minus<double>());
+      coordsOut[i*2]=matrix[0]*tmp[0]+matrix[1]*tmp[1]+center[0];
+      coordsOut[i*2+1]=matrix[2]*tmp[0]+matrix[3]*tmp[1]+center[1];
     }
 }
 

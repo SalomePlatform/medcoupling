@@ -53,6 +53,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     MEDLOADER_EXPORT bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName);
     MEDLOADER_EXPORT bool unPolyzeMeshes();
+    MEDLOADER_EXPORT static MCAuto<MEDFileData> Aggregate(const std::vector<const MEDFileData *>& mfds);
     //
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
   private:

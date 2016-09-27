@@ -232,7 +232,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int split2DCells(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *midOpt=0, const DataArrayInt *midOptI=0);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
-    MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(std::vector<const MEDCouplingUMesh *>& a);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(const std::vector<const MEDCouplingUMesh *>& a);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const std::vector<const MEDCouplingUMesh *>& meshes);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *FuseUMeshesOnSameCoords(const std::vector<const MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr);
@@ -311,7 +311,7 @@ namespace MEDCoupling
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                      double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const;
 /// @cond INTERNAL
-    static MEDCouplingUMesh *MergeUMeshesLL(std::vector<const MEDCouplingUMesh *>& a);
+    static MEDCouplingUMesh *MergeUMeshesLL(const std::vector<const MEDCouplingUMesh *>& a);
     typedef int (*DimM1DescNbrer)(int id, unsigned nb, const INTERP_KERNEL::CellModel& cm, bool compute, const int *conn1, const int *conn2);
     template<class SonsGenerator>
     MEDCouplingUMesh *buildDescendingConnectivityGen(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx, DimM1DescNbrer nbrer) const;

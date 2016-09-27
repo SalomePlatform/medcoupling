@@ -5527,6 +5527,222 @@ class MEDLoaderTest3(unittest.TestCase):
             self.assertEqual(fPart.getTime(),list(tt))
             pass
         pass
+
+    def test42(self):
+        """ Testing of MEDFileData::Aggregate and MEDFileUMesh::Aggregate and MEDFileUMesh::getAllDistributionOfType """
+        fname1="Pyfile106_1.med"
+        fname2="Pyfile106_2.med"
+        fname3="Pyfile106_3.med"
+        meshName="mesh"
+        mm1=MEDFileUMesh()
+        da1=DataArrayDouble([1,2,10,3,4,11,5,6,12,7,8,13],4,3) ; da1.setInfoOnComponents(["aa [m]","bbb [kg]","cccc [MW]"])
+        mm1.setCoords(da1)
+        mm1_0=MEDCouplingUMesh(meshName,3) ; mm1_0.allocateCells()
+        mm1_0.setCoords(da1)
+        mm1_0.insertNextCell(NORM_TETRA4,[0,1,2,3])
+        mm1_0.insertNextCell(NORM_TETRA4,[4,5,6,7])
+        mm1_0.insertNextCell(NORM_PENTA6,[8,9,10,11,12,13])
+        mm1_0.insertNextCell(NORM_PENTA6,[14,15,16,17,18,19])
+        mm1_0.insertNextCell(NORM_PENTA6,[20,21,22,23,24,25])
+        mm1[0]=mm1_0
+        mm1.setFamilyFieldArr(0,DataArrayInt([1,2,3,4,5]))
+        mm1.setRenumFieldArr(0,DataArrayInt([11,12,13,14,15]))
+        #
+        mm1_1=MEDCouplingUMesh(meshName,2) ; mm1_1.allocateCells()
+        mm1_1.setCoords(da1)
+        mm1_1.insertNextCell(NORM_TRI3,[0,1,2])
+        mm1_1.insertNextCell(NORM_TRI3,[3,4,5])
+        mm1_1.insertNextCell(NORM_QUAD4,[6,7,8,9])
+        mm1_1.insertNextCell(NORM_QUAD4,[10,11,12,13])
+        mm1_1.insertNextCell(NORM_QUAD4,[14,15,16,17])
+        mm1_1.insertNextCell(NORM_QUAD4,[18,19,20,21])
+        mm1[-1]=mm1_1
+        mm1.setFamilyFieldArr(-1,DataArrayInt([6,7,8,9,10,11]))
+        mm1.setRenumFieldArr(-1,DataArrayInt([16,17,18,19,20,21]))
+        for i in range(1,10):
+            mm1.setFamilyId("F%d"%i,i)
+        mm1.setFamilyId("FAMILLE_ZERO",0)
+        mm1.setFamilyId("H1",100)
+        mm1.setFamiliesOnGroup("myGRP",["F2","F6"])
+        mm1.setFamiliesOnGroup("myGRP1",["F2","F6"])
+        mm1.setFamilyFieldArr(1,DataArrayInt([12,13,14,15]))
+        mm1.setRenumFieldArr(1,DataArrayInt([22,23,24,25]))
+        ##############
+        mm2=MEDFileUMesh()
+        da1=DataArrayDouble([9,10,30,11,12,31,13,14,32,15,16,33,17,18,34],5,3) ; da1.setInfoOnComponents(["aa [m]","bbb [kg]","cccc [MW]"])
+        mm2.setCoords(da1)
+        mm2_0=MEDCouplingUMesh(meshName,3) ; mm2_0.allocateCells()
+        mm2_0.setCoords(da1)
+        mm2_0.insertNextCell(NORM_TETRA4,[100,101,102,103])
+        mm2_0.insertNextCell(NORM_TETRA4,[104,105,106,107])
+        mm2_0.insertNextCell(NORM_TETRA4,[108,109,110,111])
+        mm2_0.insertNextCell(NORM_PENTA6,[112,113,114,115,116,117])
+        mm2[0]=mm2_0
+        mm2.setFamilyFieldArr(0,DataArrayInt([40,41,42,43]))
+        mm2.setRenumFieldArr(0,DataArrayInt([50,51,52,53]))
+        #
+        mm2_1=MEDCouplingUMesh(meshName,2) ; mm2_1.allocateCells()
+        mm2_1.setCoords(da1)
+        mm2_1.insertNextCell(NORM_TRI3,[100,101,102])
+        mm2_1.insertNextCell(NORM_TRI3,[103,104,105])
+        mm2_1.insertNextCell(NORM_TRI3,[106,107,108])
+        mm2_1.insertNextCell(NORM_QUAD4,[109,110,111,112])
+        mm2_1.insertNextCell(NORM_QUAD4,[113,114,115,116])
+        mm2_1.insertNextCell(NORM_QUAD4,[117,118,119,120])
+        mm2_1.insertNextCell(NORM_QUAD4,[121,122,123,124])
+        mm2_1.insertNextCell(NORM_QUAD4,[125,126,127,128])
+        mm2[-1]=mm2_1
+        mm2.setFamilyFieldArr(-1,DataArrayInt([200,201,202,203,204,205,206,207]))
+        mm2.setRenumFieldArr(-1,DataArrayInt([300,301,302,303,304,305,306,307]))
+        for i in range(1,12):
+            mm2.setFamilyId("G%d"%i,i+30)
+        mm2.setFamilyId("H1",100)
+        mm2.setFamilyId("FAMILLE_ZERO",0)
+        mm2.setFamiliesOnGroup("myGRP",["G2","G6"])
+        mm2.setFamiliesOnGroup("myGRP2",["G4","G7"])
+        mm2.setFamilyFieldArr(1,DataArrayInt([112,113,114,115,116]))
+        mm2.setRenumFieldArr(1,DataArrayInt([122,123,124,125,126]))
+        #
+        mm=MEDFileUMesh.Aggregate([mm1,mm2])
+        #######
+        def CheckMesh(tester,mm):
+            cooExp=DataArrayDouble([(1,2,10),(3,4,11),(5,6,12),(7,8,13),(9,10,30),(11,12,31),(13,14,32),(15,16,33),(17,18,34)]) ; cooExp.setInfoOnComponents(["aa [m]","bbb [kg]","cccc [MW]"])
+            tester.assertTrue(mm.getCoords().isEqual(cooExp,1e-12))
+            tester.assertTrue(mm[0].getNodalConnectivity().isEqual(DataArrayInt([14,0,1,2,3,14,4,5,6,7,14,104,105,106,107,14,108,109,110,111,14,112,113,114,115,16,8,9,10,11,12,13,16,14,15,16,17,18,19,16,20,21,22,23,24,25,16,116,117,118,119,120,121])))
+            tester.assertTrue(mm[0].getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,32,39,46,53])))
+            tester.assertTrue(mm[-1].getNodalConnectivity().isEqual(DataArrayInt([3,0,1,2,3,3,4,5,3,104,105,106,3,107,108,109,3,110,111,112,4,6,7,8,9,4,10,11,12,13,4,14,15,16,17,4,18,19,20,21,4,113,114,115,116,4,117,118,119,120,4,121,122,123,124,4,125,126,127,128,4,129,130,131,132])))
+            tester.assertTrue(mm[-1].getNodalConnectivityIndex().isEqual(DataArrayInt([0,4,8,12,16,20,25,30,35,40,45,50,55,60,65])))
+            tester.assertTrue(mm.getFamilyFieldAtLevel(0).isEqual(DataArrayInt([1,2,40,41,42,3,4,5,43])))
+            tester.assertTrue(mm.getNumberFieldAtLevel(0).isEqual(DataArrayInt([11,12,50,51,52,13,14,15,53])))
+            tester.assertTrue(mm.getFamilyFieldAtLevel(-1).isEqual(DataArrayInt([6,7,200,201,202,8,9,10,11,203,204,205,206,207])))
+            tester.assertTrue(mm.getNumberFieldAtLevel(-1).isEqual(DataArrayInt([16,17,300,301,302,18,19,20,21,303,304,305,306,307])))
+            refFamIds=[("FAMILLE_ZERO",0),('F1',1),('F2',2),('F3',3),('F4',4),('F5',5),('F6',6),('F7',7),('F8',8),('F9',9),('G1',31),('G10',40),('G11',41),('G2',32),('G3',33),('G4',34),('G5',35),('G6',36),('G7',37),('G8',38),('G9',39),("H1",100)]
+            tester.assertEqual(set(mm.getFamiliesNames()),set([elt[0] for elt in refFamIds]))
+            tester.assertEqual(set([mm.getFamilyId(elt) for elt in mm.getFamiliesNames()]),set([elt[1] for elt in refFamIds]))
+            tester.assertEqual(mm.getGroupsNames(),('myGRP','myGRP1','myGRP2'))
+            tester.assertEqual(mm.getAllDistributionOfTypes(),[(NORM_TRI3,5),(NORM_QUAD4,9),(NORM_TETRA4,5),(NORM_PENTA6,4),(NORM_ERROR,9)])
+            pass
+        CheckMesh(self,mm)
+        ##
+        fieldName="zeField"
+        t1=(2.3,3,5)
+        t2=(5.6,7,12)
+        infoc=["dd [W]","eee [kA]"]
+        ##
+        fmts1=MEDFileFieldMultiTS()
+        f1ts1=MEDFileField1TS()
+        f1_1=MEDCouplingFieldDouble(ON_CELLS) ; f1_1.setMesh(mm1[0]) ; f1_1.setName(fieldName)
+        arr1=DataArrayDouble([(10,110),(11,111),(12,112),(13,113),(14,114)])
+        arr1.setInfoOnComponents(infoc)
+        f1_1.setArray(arr1) ; f1_1.setTime(*t1) ; f1_1.setTimeUnit("ms")
+        f1_1.checkConsistencyLight()
+        f1ts1.setFieldNoProfileSBT(f1_1)
+        #
+        f1_2=MEDCouplingFieldDouble(ON_CELLS) ; f1_2.setMesh(mm1[-1]) ; f1_2.setName(fieldName)
+        arr2=DataArrayDouble([(15,115),(16,116),(17,117),(18,118),(19,119),(20,120)])
+        arr2.setInfoOnComponents(infoc)
+        f1_2.setArray(arr2) ; f1_2.setTime(*t1) ; f1_2.setTimeUnit("ms")
+        f1_2.checkConsistencyLight()
+        f1ts1.setFieldNoProfileSBT(f1_2)
+        f1_3=MEDCouplingFieldDouble(ON_NODES) ; f1_3.setMesh(mm1[0]) ; f1_3.setName(fieldName)
+        arr3=DataArrayDouble([(21,121),(22,122),(23,123),(24,124)])
+        arr3.setInfoOnComponents(infoc)
+        f1_3.setArray(arr3) ; f1_3.setTime(*t1) ; f1_3.setTimeUnit("ms")
+        f1_3.checkConsistencyLight()
+        f1ts1.setFieldNoProfileSBT(f1_3)
+        fmts1.pushBackTimeStep(f1ts1)
+        #
+        f1ts2=f1ts1.deepCopy()
+        f1ts2.setTime(t2[1],t2[2],t2[0])
+        f1ts2.getUndergroundDataArray()[:]+=2000
+        fmts1.pushBackTimeStep(f1ts2)
+        ### fmts2
+        fmts2=MEDFileFieldMultiTS()
+        f1ts3=MEDFileField1TS()
+        f2_1=MEDCouplingFieldDouble(ON_CELLS) ; f2_1.setMesh(mm2[0]) ; f2_1.setName(fieldName)
+        arr4=DataArrayDouble([(50,150),(51,151),(52,152),(53,153)])
+        arr4.setInfoOnComponents(infoc)
+        f2_1.setArray(arr4) ; f2_1.setTime(*t1) ; f2_1.setTimeUnit("ms")
+        f2_1.checkConsistencyLight()
+        f1ts3.setFieldNoProfileSBT(f2_1)
+        f2_2=MEDCouplingFieldDouble(ON_CELLS) ; f2_2.setMesh(mm2[-1]) ; f2_2.setName(fieldName)
+        arr5=DataArrayDouble([(54,154),(55,155),(56,156),(57,157),(158,158),(59,159),(60,160),(61,161)])
+        arr5.setInfoOnComponents(infoc)
+        f2_2.setArray(arr5) ; f2_2.setTime(*t1) ; f2_2.setTimeUnit("ms")
+        f2_2.checkConsistencyLight()
+        f1ts3.setFieldNoProfileSBT(f2_2)
+        f2_3=MEDCouplingFieldDouble(ON_NODES) ; f2_3.setMesh(mm2[0]) ; f2_3.setName(fieldName)
+        arr6=DataArrayDouble([(62,162),(63,163),(64,164),(65,165),(66,166)])
+        arr6.setInfoOnComponents(infoc)
+        f2_3.setArray(arr6) ; f2_3.setTime(*t1) ; f2_3.setTimeUnit("ms")
+        f2_3.checkConsistencyLight()
+        f1ts3.setFieldNoProfileSBT(f2_3)
+        fmts2.pushBackTimeStep(f1ts3)
+        #
+        f1ts4=f1ts3.deepCopy()
+        f1ts4.setTime(t2[1],t2[2],t2[0])
+        f1ts4.getUndergroundDataArray()[:]+=2000
+        fmts2.pushBackTimeStep(f1ts4)
+        #
+        mfd1=MEDFileData()
+        mfd1.setMeshes(MEDFileMeshes())
+        mfd1.getMeshes().pushMesh(mm1)
+        mfd1.setFields(MEDFileFields())
+        mfd1.getFields().pushField(fmts1)
+        #
+        mfd2=MEDFileData()
+        mfd2.setMeshes(MEDFileMeshes())
+        mfd2.getMeshes().pushMesh(mm2)
+        mfd2.setFields(MEDFileFields())
+        mfd2.getFields().pushField(fmts2)
+        # ze Call !
+        mfd=MEDFileData.Aggregate([mfd1,mfd2])
+        def CheckMFD(tester,mfd):
+            tester.assertEqual(len(mfd.getMeshes()),1)
+            tester.assertEqual(len(mfd.getFields()),1)
+            CheckMesh(self,mfd.getMeshes()[0])
+            tester.assertEqual(len(mfd.getFields()[0]),2)
+            zeF1=mfd.getFields()[0][0]
+            zeF1_1=zeF1.getFieldOnMeshAtLevel(ON_CELLS,0,mfd.getMeshes()[0])
+            ref=MEDCouplingFieldDouble.MergeFields([f1_1,f2_1])
+            o2n=ref.getMesh().deepCopy().sortCellsInMEDFileFrmt()
+            ref.renumberCells(o2n)
+            tester.assertTrue(ref.isEqual(zeF1_1,1e-12,1e-12))
+            zeF1_2=zeF1.getFieldOnMeshAtLevel(ON_CELLS,-1,mfd.getMeshes()[0])
+            ref=MEDCouplingFieldDouble.MergeFields([f1_2,f2_2])
+            o2n=ref.getMesh().deepCopy().sortCellsInMEDFileFrmt()
+            ref.renumberCells(o2n)
+            tester.assertTrue(ref.isEqual(zeF1_2,1e-12,1e-12))
+            zeF1_3=zeF1.getFieldOnMeshAtLevel(ON_NODES,0,mfd.getMeshes()[0])
+            ref=MEDCouplingFieldDouble.MergeFields([f1_3,f2_3])
+            o2n=ref.getMesh().deepCopy().sortCellsInMEDFileFrmt()
+            ref.renumberCells(o2n)
+            tester.assertTrue(ref.isEqual(zeF1_3,1e-12,1e-12))
+            #
+            zeF2=mfd.getFields()[0][1]
+            zeF2_1=zeF2.getFieldOnMeshAtLevel(ON_CELLS,0,mfd.getMeshes()[0])
+            ref=MEDCouplingFieldDouble.MergeFields([f1_1,f2_1])
+            o2n=ref.getMesh().deepCopy().sortCellsInMEDFileFrmt()
+            ref.renumberCells(o2n)
+            ref.setTime(*t2) ; ref.getArray()[:]+=2000
+            tester.assertTrue(ref.isEqual(zeF2_1,1e-12,1e-12))
+            zeF2_2=zeF2.getFieldOnMeshAtLevel(ON_CELLS,-1,mfd.getMeshes()[0])
+            ref=MEDCouplingFieldDouble.MergeFields([f1_2,f2_2])
+            o2n=ref.getMesh().deepCopy().sortCellsInMEDFileFrmt()
+            ref.renumberCells(o2n)
+            ref.setTime(*t2) ; ref.getArray()[:]+=2000
+            tester.assertTrue(ref.isEqual(zeF2_2,1e-12,1e-12))
+            zeF2_3=zeF2.getFieldOnMeshAtLevel(ON_NODES,0,mfd.getMeshes()[0])
+            ref=MEDCouplingFieldDouble.MergeFields([f1_3,f2_3])
+            o2n=ref.getMesh().deepCopy().sortCellsInMEDFileFrmt()
+            ref.renumberCells(o2n)
+            ref.setTime(*t2) ; ref.getArray()[:]+=2000
+            tester.assertTrue(ref.isEqual(zeF2_3,1e-12,1e-12))
+        CheckMFD(self,mfd)
+        mfd1.write(fname1,2) ; mfd2.write(fname2,2)
+        mfd=MEDFileData.Aggregate([MEDFileData(fname1),MEDFileData(fname2)])
+        CheckMFD(self,mfd)
+        pass
     
     pass
 

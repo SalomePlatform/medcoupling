@@ -4375,6 +4375,41 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
             self.assertEqual(f1.isEqual(f4,1e-12,0.),expected)
             pass
         pass
+
+    def testDADSymmetry1(self):
+        arr=DataArrayDouble([2,3,4],1,3)
+        res=arr.symmetry3DPlane([0.,0.,0.],[0.,0.,2.])
+        self.assertTrue(res.isEqual(DataArrayDouble([2,3,-4],1,3),1e-14))
+        #
+        res=arr.symmetry3DPlane([-1000,100,-1],[0.,0.,2.])
+        self.assertTrue(res.isEqual(DataArrayDouble([2,3,-6],1,3),1e-14))
+        #
+        res=arr.symmetry3DPlane([0,0,0],[1.,0.,0.])
+        self.assertTrue(res.isEqual(DataArrayDouble([-2,3,4],1,3),1e-14))
+        #
+        res=arr.symmetry3DPlane([0,0,0],[0.,1.,0.])
+        self.assertTrue(res.isEqual(DataArrayDouble([2,-3,4],1,3),1e-14))
+        #
+        res=arr.symmetry3DPlane([0,0,0],[-1.,1.,0.])
+        self.assertTrue(res.isEqual(DataArrayDouble([3,2,4],1,3),1e-14))
+        #
+        plane=[5.,4.,-7.]
+        a=DataArrayDouble(DataArrayDouble.GiveBaseForPlane(plane))
+        self.assertAlmostEqual(DataArrayDouble.Dot(a[0],a[1]).magnitude()[0],0.,13)
+        self.assertAlmostEqual(DataArrayDouble.Dot(a[0],a[2]).magnitude()[0],0.,13)
+        self.assertAlmostEqual(DataArrayDouble.Dot(a[1],a[2]).magnitude()[0],0.,13)
+        coo=DataArrayDouble.Aggregate([10*a[0]+10*a[1],-10*a[0]+10*a[1],-10*a[0]-10*a[1],10*a[0]-10*a[1]])
+        m=MEDCouplingUMesh("",2) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[0,1,2,3])
+        d,_=m.distanceToPoint(arr)
+        res=arr.symmetry3DPlane([0.,0.,0.],plane) #
+        d2,_=m.distanceToPoint(res)
+        self.assertAlmostEqual(abs(d-d2),0.,12)
+        self.assertAlmostEqual(DataArrayDouble.Dot(res-arr,a[0])[0],0.,12)
+        self.assertAlmostEqual(DataArrayDouble.Dot(res-arr,a[1])[0],0.,12)
+        self.assertAlmostEqual((res-arr).magnitude()[0]-2*d,0.,12)
+        self.assertTrue(res.isEqual(DataArrayDouble([2.666666666666667,3.5333333333333333,3.0666666666666666],1,3),1e-12))
+        pass
     
     pass
 

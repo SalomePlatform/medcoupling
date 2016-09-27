@@ -1621,7 +1621,7 @@ namespace MEDCoupling
              int sz;
              INTERP_KERNEL::AutoCPtr<double> c=convertPyToNewDblArr2(center,&sz);
              INTERP_KERNEL::AutoCPtr<double> coo=convertPyToNewDblArr2(coords,&sz);
-             MEDCoupling::MEDCouplingPointSet::Rotate2DAlg(c,angle,nbNodes,coo);
+             MEDCoupling::DataArrayDouble::Rotate2DAlg(c,angle,nbNodes,coo,coo);
              for(int i=0;i<sz;i++)
                PyList_SetItem(coords,i,PyFloat_FromDouble(coo[i]));
            }
@@ -1637,7 +1637,7 @@ namespace MEDCoupling
                                                             "Rotate2DAlg",2,true,nbNodes);
              if(sw!=2 && sw!=3)
                throw INTERP_KERNEL::Exception("Invalid call to MEDCouplingPointSet::Rotate2DAlg : try another overload method !");
-             MEDCoupling::MEDCouplingPointSet::Rotate2DAlg(c,angle,nbNodes,const_cast<double *>(coo));
+             MEDCoupling::DataArrayDouble::Rotate2DAlg(c,angle,nbNodes,coo,const_cast<double *>(coo));
            }
            
            static void Rotate3DAlg(PyObject *center, PyObject *vect, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
@@ -1646,7 +1646,7 @@ namespace MEDCoupling
              INTERP_KERNEL::AutoCPtr<double> c=convertPyToNewDblArr2(center,&sz);
              INTERP_KERNEL::AutoCPtr<double> coo=convertPyToNewDblArr2(coords,&sz);
              INTERP_KERNEL::AutoCPtr<double> v=convertPyToNewDblArr2(vect,&sz2);
-             MEDCoupling::MEDCouplingPointSet::Rotate3DAlg(c,v,angle,nbNodes,coo);
+             MEDCoupling::DataArrayDouble::Rotate3DAlg(c,v,angle,nbNodes,coo,coo);
              for(int i=0;i<sz;i++)
                PyList_SetItem(coords,i,PyFloat_FromDouble(coo[i]));
            }
@@ -1663,7 +1663,7 @@ namespace MEDCoupling
              if(sw!=2 && sw!=3)
                throw INTERP_KERNEL::Exception("Invalid call to MEDCouplingPointSet::Rotate3DAlg : try another overload method !");
              INTERP_KERNEL::AutoCPtr<double> v=convertPyToNewDblArr2(vect,&sz2);
-             MEDCoupling::MEDCouplingPointSet::Rotate3DAlg(c,v,angle,nbNodes,const_cast<double *>(coo));
+             MEDCoupling::DataArrayDouble::Rotate3DAlg(c,v,angle,nbNodes,coo,const_cast<double *>(coo));
            }
          }
     };

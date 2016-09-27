@@ -994,8 +994,8 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
  */
 bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps)
 {
-  double* bbtemp = new double[2*dim];
-  double deltamax=0.0;
+  double* bbtemp(new double[2*dim]);
+  double deltamax(0.0);
 
   for (int i=0; i< dim; i++)
     {
@@ -1011,7 +1011,7 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBou
       bbtemp[i*2+1]=bb2[i*2+1]+deltamax*eps;
     }
   
-  bool intersects = !bb1.isDisjointWith( bbtemp );
+  bool intersects(!bb1.isDisjointWith(bbtemp));
   delete [] bbtemp;
   return intersects;
 }
@@ -1021,49 +1021,9 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBou
  */
 void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, double angle)
 {
-  double *coords=_coords->getPointer();
-  int nbNodes=getNumberOfNodes();
-  Rotate3DAlg(center,vect,angle,nbNodes,coords);
-}
-
-/*!
- * Low static method that operates 3D rotation of 'nbNodes' 3D nodes whose coordinates are arranged in 'coords'
- * around an axe ('center','vect') and with angle 'angle'.
- */
-void MEDCouplingPointSet::Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords)
-{
-  if(!center || !vect)
-    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::Rotate3DAlg : null vector in input !");
-  double sina=sin(angle);
-  double cosa=cos(angle);
-  double vectorNorm[3];
-  double matrix[9];
-  double matrixTmp[9];
-  double norm=sqrt(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]);
-  if(norm<std::numeric_limits<double>::min())
-    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::Rotate3DAlg : magnitude of input vector is too close of 0. !");
-  std::transform(vect,vect+3,vectorNorm,std::bind2nd(std::multiplies<double>(),1/norm));
-  //rotation matrix computation
-  matrix[0]=cosa; matrix[1]=0.; matrix[2]=0.; matrix[3]=0.; matrix[4]=cosa; matrix[5]=0.; matrix[6]=0.; matrix[7]=0.; matrix[8]=cosa;
-  matrixTmp[0]=vectorNorm[0]*vectorNorm[0]; matrixTmp[1]=vectorNorm[0]*vectorNorm[1]; matrixTmp[2]=vectorNorm[0]*vectorNorm[2];
-  matrixTmp[3]=vectorNorm[1]*vectorNorm[0]; matrixTmp[4]=vectorNorm[1]*vectorNorm[1]; matrixTmp[5]=vectorNorm[1]*vectorNorm[2];
-  matrixTmp[6]=vectorNorm[2]*vectorNorm[0]; matrixTmp[7]=vectorNorm[2]*vectorNorm[1]; matrixTmp[8]=vectorNorm[2]*vectorNorm[2];
-  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind2nd(std::multiplies<double>(),1-cosa));
-  std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
-  matrixTmp[0]=0.; matrixTmp[1]=-vectorNorm[2]; matrixTmp[2]=vectorNorm[1];
-  matrixTmp[3]=vectorNorm[2]; matrixTmp[4]=0.; matrixTmp[5]=-vectorNorm[0];
-  matrixTmp[6]=-vectorNorm[1]; matrixTmp[7]=vectorNorm[0]; matrixTmp[8]=0.;
-  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind2nd(std::multiplies<double>(),sina));
-  std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
-  //rotation matrix computed.
-  double tmp[3];
-  for(int i=0; i<nbNodes; i++)
-    {
-      std::transform(coords+i*3,coords+(i+1)*3,center,tmp,std::minus<double>());
-      coords[i*3]=matrix[0]*tmp[0]+matrix[1]*tmp[1]+matrix[2]*tmp[2]+center[0];
-      coords[i*3+1]=matrix[3]*tmp[0]+matrix[4]*tmp[1]+matrix[5]*tmp[2]+center[1];
-      coords[i*3+2]=matrix[6]*tmp[0]+matrix[7]*tmp[1]+matrix[8]*tmp[2]+center[2];
-    }
+  double *coords(_coords->getPointer());
+  int nbNodes(getNumberOfNodes());
+  DataArrayDouble::Rotate3DAlg(center,vect,angle,nbNodes,coords,coords);
 }
 
 /*!
@@ -1157,7 +1117,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(int beginCellIds, int endCe
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const
 {
-  MCAuto<MEDCouplingPointSet> ret=buildPartOfMySelfSlice(beginCellIds,endCellIds,stepCellIds,true);
+  MCAuto<MEDCouplingPointSet> ret(buildPartOfMySelfSlice(beginCellIds,endCellIds,stepCellIds,true));
   arr=ret->zipCoordsTraducer();
   return ret.retn();
 }
@@ -1167,28 +1127,9 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartRangeAndReduceNodes(int beginCell
  */
 void MEDCouplingPointSet::rotate2D(const double *center, double angle)
 {
-  double *coords=_coords->getPointer();
-  int nbNodes=getNumberOfNodes();
-  Rotate2DAlg(center,angle,nbNodes,coords);
-}
-
-/*!
- * Low static method that operates 3D rotation of 'nbNodes' 3D nodes whose coordinates are arranged in 'coords'
- * around the center point 'center' and with angle 'angle'.
- */
-void MEDCouplingPointSet::Rotate2DAlg(const double *center, double angle, int nbNodes, double *coords)
-{
-  double cosa=cos(angle);
-  double sina=sin(angle);
-  double matrix[4];
-  matrix[0]=cosa; matrix[1]=-sina; matrix[2]=sina; matrix[3]=cosa;
-  double tmp[2];
-  for(int i=0; i<nbNodes; i++)
-    {
-      std::transform(coords+i*2,coords+(i+1)*2,center,tmp,std::minus<double>());
-      coords[i*2]=matrix[0]*tmp[0]+matrix[1]*tmp[1]+center[0];
-      coords[i*2+1]=matrix[2]*tmp[0]+matrix[3]*tmp[1]+center[1];
-    }
+  double *coords(_coords->getPointer());
+  int nbNodes(getNumberOfNodes());
+  DataArrayDouble::Rotate2DAlg(center,angle,nbNodes,coords,coords);
 }
 
 /// @cond INTERNAL
@@ -1212,8 +1153,8 @@ public:
  */
 void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const
 {
-  const double *coords=_coords->getConstPointer();
-  int spaceDim=getSpaceDimension();
+  const double *coords(_coords->getConstPointer());
+  int spaceDim(getSpaceDimension());
   for(const int *it=startConn;it!=endConn;it++)
     res.insert(res.end(),coords+spaceDim*(*it),coords+spaceDim*(*it+1));
   if(spaceDim==2)
@@ -1239,7 +1180,7 @@ void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *end
  */
 bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad, double eps)
 {
-  std::size_t nbOfNodes=res.size()/2;
+  std::size_t nbOfNodes(res.size()/2);
   std::vector<INTERP_KERNEL::Node *> nodes(nbOfNodes);
   for(std::size_t i=0;i<nbOfNodes;i++)
     {
@@ -1253,7 +1194,7 @@ bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool
     pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
   else
     pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
-  bool ret=pol->isButterflyAbs();
+  bool ret(pol->isButterflyAbs());
   delete pol;
   return ret;
 }
@@ -1269,7 +1210,7 @@ bool MEDCouplingPointSet::areCellsFrom2MeshEqual(const MEDCouplingPointSet *othe
   std::vector<int> c1,c2;
   getNodeIdsOfCell(cellId,c1);
   other->getNodeIdsOfCell(cellId,c2);
-  std::size_t sz=c1.size();
+  std::size_t sz(c1.size());
   if(sz!=c2.size())
     return false;
   for(std::size_t i=0;i<sz;i++)

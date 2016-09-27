@@ -103,8 +103,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayDouble *MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
     MEDCOUPLING_EXPORT static DataArrayDouble *MergeNodesArray(const std::vector<const MEDCouplingPointSet *>& ms);
     MEDCOUPLING_EXPORT static MEDCouplingPointSet *BuildInstanceFromMeshType(MEDCouplingMeshType type);
-    MEDCOUPLING_EXPORT static void Rotate2DAlg(const double *center, double angle, int nbNodes, double *coords);
-    MEDCOUPLING_EXPORT static void Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords);
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeNbOfInteractionsWithSrcCells(const MEDCouplingPointSet *srcMesh, const MEDCouplingPointSet *trgMesh, double eps);
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;

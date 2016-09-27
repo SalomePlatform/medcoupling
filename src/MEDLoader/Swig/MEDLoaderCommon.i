@@ -125,6 +125,8 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileUMesh::buildExtrudedMesh;
 %newobject MEDCoupling::MEDFileUMesh::linearToQuadratic;
 %newobject MEDCoupling::MEDFileUMesh::quadraticToLinear;
+%newobject MEDCoupling::MEDFileUMesh::symmetry3DPlane;
+%newobject MEDCoupling::MEDFileUMesh::Aggregate;
 %newobject MEDCoupling::MEDFileCMesh::New;
 %newobject MEDCoupling::MEDFileCurveLinearMesh::New;
 %newobject MEDCoupling::MEDFileMeshMultiTS::New;
@@ -205,6 +207,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileData::getMeshes;
 %newobject MEDCoupling::MEDFileData::getFields;
 %newobject MEDCoupling::MEDFileData::getParams;
+%newobject MEDCoupling::MEDFileData::Aggregate;
 
 %newobject MEDCoupling::MEDFileParameterDouble1TS::New;
 %newobject MEDCoupling::MEDFileParameterDouble1TS::deepCopy;
@@ -1241,6 +1244,7 @@ namespace MEDCoupling
     //
     void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
+    void setCoordsForced(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     void eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception);
     void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
     void setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m) throw(INTERP_KERNEL::Exception);
@@ -1394,6 +1398,34 @@ namespace MEDCoupling
            self->removeMeshAtLevel(meshDimRelToMax);
          }
 
+         MEDFileUMesh *symmetry3DPlane(PyObject *point, PyObject *normalVector) const throw(INTERP_KERNEL::Exception)
+         {
+           const char msg[]="Python wrap of MEDFileUMesh::symmetry3DPlane : ";
+           double val,val2;
+           DataArrayDouble *a,*a2;
+           DataArrayDoubleTuple *aa,*aa2;
+           std::vector<double> bb,bb2;
+           int sw;
+           const double *centerPtr(convertObjToPossibleCpp5_Safe(point,sw,val,a,aa,bb,msg,1,3,true));
+           const double *vectorPtr(convertObjToPossibleCpp5_Safe(normalVector,sw,val2,a2,aa2,bb2,msg,1,3,true));
+           MCAuto<MEDFileUMesh> ret(self->symmetry3DPlane(centerPtr,vectorPtr));
+           return ret.retn();
+         }
+
+         static MEDFileUMesh *Aggregate(PyObject *meshes) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<const MEDFileUMesh *> meshesCpp;
+           convertFromPyObjVectorOfObj<const MEDCoupling::MEDFileUMesh *>(meshes,SWIGTYPE_p_MEDCoupling__MEDFileUMesh,"MEDFileUMesh",meshesCpp);
+           MCAuto<MEDFileUMesh> ret(MEDFileUMesh::Aggregate(meshesCpp));
+           return ret.retn();
+         }
+
+         PyObject *getAllDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<int,int> > ret(self->getAllDistributionOfTypes());
+           return convertVecPairIntToPy(ret);
+         }
+         
          DataArrayInt *deduceNodeSubPartFromCellSubPart(PyObject *extractDef) const throw(INTERP_KERNEL::Exception)
          {
            std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
@@ -2304,17 +2336,8 @@ namespace MEDCoupling
       
       PyObject *getIterations() const throw(INTERP_KERNEL::Exception)
       {
-        std::vector< std::pair<int,int> > res=self->getIterations();
-        PyObject *ret=PyList_New(res.size());
-        int rk=0;
-        for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
-          {
-            PyObject *elt=PyTuple_New(2);
-            PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
-            PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
-            PyList_SetItem(ret,rk,elt);
-          }
-        return ret;
+        std::vector< std::pair<int,int> > res(self->getIterations());
+        return convertVecPairIntToPy(res);
       }
       
       PyObject *getTimeSteps() const throw(INTERP_KERNEL::Exception)
@@ -3459,6 +3482,14 @@ namespace MEDCoupling
          {
            std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
            return self->changeMeshNames(modifTab);
+         }
+
+         static MEDFileData *Aggregate(PyObject *mfds) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<const MEDFileData *> mfdsCpp;
+           convertFromPyObjVectorOfObj<const MEDCoupling::MEDFileData *>(mfds,SWIGTYPE_p_MEDCoupling__MEDFileData,"MEDFileData",mfdsCpp);
+           MCAuto<MEDFileData> ret(MEDFileData::Aggregate(mfdsCpp));
+           return ret.retn();
          }
        }
   };

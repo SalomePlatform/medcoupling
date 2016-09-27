@@ -252,8 +252,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
-    MEDLOADER_EXPORT MEDFileMesh *deepCopy() const;
-    MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
+    MEDLOADER_EXPORT MEDFileUMesh *deepCopy() const;
+    MEDLOADER_EXPORT MEDFileUMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void checkConsistency() const;
     MEDLOADER_EXPORT void checkSMESHConsistency() const;
@@ -299,6 +299,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
     MEDLOADER_EXPORT std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const;
+    MEDLOADER_EXPORT std::vector< std::pair<int,int> > getAllDistributionOfTypes() const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const;
@@ -312,6 +313,7 @@ namespace MEDCoupling
     //
     MEDLOADER_EXPORT void setFamilyNameAttachedOnId(int id, const std::string& newFamName);
     MEDLOADER_EXPORT void setCoords(DataArrayDouble *coords);
+    MEDLOADER_EXPORT void setCoordsForced(DataArrayDouble *coords);
     MEDLOADER_EXPORT void eraseGroupsAtLevel(int meshDimRelToMaxExt);
     MEDLOADER_EXPORT void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr);
     MEDLOADER_EXPORT void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr);
@@ -334,6 +336,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const;
     MEDLOADER_EXPORT MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const;
     MEDLOADER_EXPORT MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;
+    MEDLOADER_EXPORT MCAuto<MEDFileUMesh> symmetry3DPlane(const double point[3], const double normalVector[3]) const;
+    MEDLOADER_EXPORT static MCAuto<MEDFileUMesh> Aggregate(const std::vector<const MEDFileUMesh *>& meshes);
     // serialization
     MEDLOADER_EXPORT void serialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr,
                                     std::vector< MCAuto<DataArrayInt> >& bigArraysI, MCAuto<DataArrayDouble>& bigArrayD);
@@ -447,8 +451,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
-    MEDLOADER_EXPORT MEDFileMesh *deepCopy() const;
-    MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
+    MEDLOADER_EXPORT MEDFileCMesh *deepCopy() const;
+    MEDLOADER_EXPORT MEDFileCMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT int getMeshDimension() const;
     MEDLOADER_EXPORT int getSpaceDimension() const;
@@ -480,8 +484,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
-    MEDLOADER_EXPORT MEDFileMesh *deepCopy() const;
-    MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
+    MEDLOADER_EXPORT MEDFileCurveLinearMesh *deepCopy() const;
+    MEDLOADER_EXPORT MEDFileCurveLinearMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT int getMeshDimension() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;

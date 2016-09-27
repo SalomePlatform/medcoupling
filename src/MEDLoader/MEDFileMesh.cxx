@@ -2090,6 +2090,9 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileMesh::getAllGeoTypes() con
   return ret;
 }
 
+/*!
+ * \sa getAllDistributionOfTypes
+ */
 std::vector<int> MEDFileMesh::getDistributionOfTypes(int meshDimRelToMax) const
 {
   MCAuto<MEDCouplingMesh> mLev(getMeshAtLevel(meshDimRelToMax));
@@ -2335,7 +2338,7 @@ std::vector<const BigMemoryObject *> MEDFileUMesh::getDirectChildrenWithNull() c
   return ret;
 }
 
-MEDFileMesh *MEDFileUMesh::shallowCpy() const
+MEDFileUMesh *MEDFileUMesh::shallowCpy() const
 {
   MCAuto<MEDFileUMesh> ret(new MEDFileUMesh(*this));
   return ret.retn();
@@ -2346,7 +2349,7 @@ MEDFileMesh *MEDFileUMesh::createNewEmpty() const
   return new MEDFileUMesh;
 }
 
-MEDFileMesh *MEDFileUMesh::deepCopy() const
+MEDFileUMesh *MEDFileUMesh::deepCopy() const
 {
   MCAuto<MEDFileUMesh> ret(new MEDFileUMesh(*this));
   ret->deepCpyEquivalences(*this);
@@ -3589,6 +3592,30 @@ MEDCoupling1GTUMesh *MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh(INTERP_
 }
 
 /*!
+ * This method returns for each geo types in \a this number of cells with this geo type.
+ * This method returns info as a vector of pair. The first element of pair is geo type and the second the number of cells associated.
+ * This method also returns the number of nodes of \a this (key associated is NORM_ERROR)
+ *
+ * \sa getDistributionOfTypes
+ */
+std::vector< std::pair<int,int> > MEDFileUMesh::getAllDistributionOfTypes() const
+{
+  std::vector< std::pair<int,int> > ret;
+  std::vector<int> nel(getNonEmptyLevels());
+  for(std::vector<int>::reverse_iterator it=nel.rbegin();it!=nel.rend();it++)
+    {
+      std::vector<INTERP_KERNEL::NormalizedCellType> gt(getGeoTypesAtLevel(*it));
+      for(std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator it1=gt.begin();it1!=gt.end();it1++)
+        {
+          int nbCells(getNumberOfCellsWithType(*it1));
+          ret.push_back(std::pair<int,int>(*it1,nbCells));
+        }
+    }
+  ret.push_back(std::pair<int,int>(INTERP_KERNEL::NORM_ERROR,getNumberOfNodes()));
+  return ret;
+}
+
+/*!
  * Given a relative level \a meshDimRelToMax it returns the sorted vector of geometric types present in \a this.
  * \throw if the reqsuested \a meshDimRelToMax does not exist.
  */
@@ -3703,12 +3730,42 @@ void MEDFileUMesh::setCoords(DataArrayDouble *coords)
   if(coords==(DataArrayDouble *)_coords)
     return ;
   coords->checkAllocated();
-  int nbOfTuples=coords->getNumberOfTuples();
+  int nbOfTuples(coords->getNumberOfTuples());
   _coords=coords;
   coords->incrRef();
   _fam_coords=DataArrayInt::New();
   _fam_coords->alloc(nbOfTuples,1);
   _fam_coords->fillWithZero();
+  _num_coords=0; _rev_num_coords=0; _name_coords=0;
+  for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
+    if((MEDFileUMeshSplitL1 *)(*it))
+      (*it)->setCoords(coords);
+}
+
+/*!
+ * Change coords without changing anything concerning families and numbering on nodes.
+ */
+void MEDFileUMesh::setCoordsForced(DataArrayDouble *coords)
+{
+  if(!coords)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::setCoordsForced : null pointer in input !");
+  if(coords==(DataArrayDouble *)_coords)
+    return ;
+  coords->checkAllocated();
+  int nbOfTuples(coords->getNumberOfTuples());
+  if(_coords.isNull())
+    {
+      _coords=coords;
+      coords->incrRef();
+    }
+  else
+    {
+      int oldNbTuples(_coords->getNumberOfTuples());
+      if(oldNbTuples!=nbOfTuples)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setCoordsForced : number of tuples is not the same -> invoke setCoords instead !");
+      _coords=coords;
+      coords->incrRef();
+    }
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
     if((MEDFileUMeshSplitL1 *)(*it))
       (*it)->setCoords(coords);
@@ -4451,6 +4508,120 @@ MEDFileUMesh *MEDFileUMesh::quadraticToLinear(double eps) const
         }
     }
   return ret.retn();
+}
+
+/*!
+ * Computes the symmetry of \a this.
+ * \return a new object.
+ */
+MCAuto<MEDFileUMesh> MEDFileUMesh::symmetry3DPlane(const double point[3], const double normalVector[3]) const
+{
+  MCAuto<MEDFileUMesh> ret(deepCopy());
+  DataArrayDouble *myCoo(getCoords());
+  if(myCoo)
+    {
+      MCAuto<DataArrayDouble> newCoo(myCoo->symmetry3DPlane(point,normalVector));
+      ret->setCoordsForced(newCoo);
+    }
+  return ret;
+}
+
+MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *>& meshes)
+{
+  if(meshes.empty())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : empty input vector !");
+  std::size_t sz(meshes.size()),i(0);
+  std::vector<const DataArrayDouble *> coos(sz);
+  std::vector<const DataArrayInt *> fam_coos(sz),num_coos(sz);
+  for(std::vector<const MEDFileUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++,i++)
+    {
+      if(!(*it))
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : presence of NULL pointer in input vector !");
+      coos[i]=(*it)->getCoords();
+      fam_coos[i]=(*it)->getFamilyFieldAtLevel(1);
+      num_coos[i]=(*it)->getNumberFieldAtLevel(1);
+    }
+  const MEDFileUMesh *ref(meshes[0]);
+  int spaceDim(ref->getSpaceDimension()),meshDim(ref->getMeshDimension());
+  std::vector<int> levs(ref->getNonEmptyLevels());
+  std::map<int, std::vector<const DataArrayInt *> > m_fam,m_renum;
+  std::map<int, std::vector< MCAuto< MEDCouplingUMesh > > > m_mesh2;
+  std::map<int, std::vector<const MEDCouplingUMesh *> > m_mesh;
+  std::map<std::string,int> map1;
+  std::map<std::string, std::vector<std::string> > map2;
+  for(std::vector<const MEDFileUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++,i++)
+    {
+      if((*it)->getSpaceDimension()!=spaceDim)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : space dimension must be homogeneous !");
+      if((*it)->getMeshDimension()!=meshDim)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : mesh dimension must be homogeneous !");
+      if((*it)->getNonEmptyLevels()!=levs)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : levels must be the same for elements in input vector !");
+      for(std::vector<int>::const_iterator it2=levs.begin();it2!=levs.end();it2++)
+        {
+          MCAuto<MEDCouplingUMesh> locMesh((*it)->getMeshAtLevel(*it2));
+          m_mesh[*it2].push_back(locMesh); m_mesh2[*it2].push_back(locMesh);
+          m_fam[*it2].push_back((*it)->getFamilyFieldAtLevel(*it2));
+          m_renum[*it2].push_back((*it)->getNumberFieldAtLevel(*it2));
+        }
+      const std::map<std::string,int>& locMap1((*it)->getFamilyInfo());
+      for(std::map<std::string,int>::const_iterator it3=locMap1.begin();it3!=locMap1.end();it3++)
+        map1[(*it3).first]=(*it3).second;
+      const std::map<std::string, std::vector<std::string> >& locMap2((*it)->getGroupInfo());
+      for(std::map<std::string, std::vector<std::string> >::const_iterator it4=locMap2.begin();it4!=locMap2.end();it4++)
+        map2[(*it4).first]=(*it4).second;
+    }
+  // Easy part : nodes
+  MCAuto<MEDFileUMesh> ret(MEDFileUMesh::New());
+  MCAuto<DataArrayDouble> coo(DataArrayDouble::Aggregate(coos));
+  ret->setCoords(coo);
+  if(std::find(fam_coos.begin(),fam_coos.end(),(const DataArrayInt *)0)==fam_coos.end())
+    {
+      MCAuto<DataArrayInt> fam_coo(DataArrayInt::Aggregate(fam_coos));
+      ret->setFamilyFieldArr(1,fam_coo);
+    }
+  if(std::find(num_coos.begin(),num_coos.end(),(const DataArrayInt *)0)==num_coos.end())
+    {
+      MCAuto<DataArrayInt> num_coo(DataArrayInt::Aggregate(num_coos));
+      ret->setRenumFieldArr(1,num_coo);
+    }
+  // cells
+  for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
+    {
+      std::map<int, std::vector<const MEDCouplingUMesh *> >::const_iterator it2(m_mesh.find(*it));
+      if(it2==m_mesh.end())
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : internal error 1 !");
+      MCAuto<MEDCouplingUMesh> mesh(MEDCouplingUMesh::MergeUMeshes((*it2).second));
+      mesh->setCoords(coo); mesh->setName(ref->getName());
+      MCAuto<DataArrayInt> renum(mesh->sortCellsInMEDFileFrmt());
+      ret->setMeshAtLevel(*it,mesh);
+      std::map<int, std::vector<const DataArrayInt *> >::const_iterator it3(m_fam.find(*it)),it4(m_renum.find(*it));
+      if(it3!=m_fam.end())
+        {
+          const std::vector<const DataArrayInt *>& fams((*it3).second);
+          if(std::find(fams.begin(),fams.end(),(const DataArrayInt *)0)==fams.end())
+            {
+              MCAuto<DataArrayInt> famm(DataArrayInt::Aggregate(fams));
+              famm->renumberInPlace(renum->begin());
+              ret->setFamilyFieldArr(*it,famm);
+            }
+        }
+      if(it4!=m_renum.end())
+        {
+          const std::vector<const DataArrayInt *>& renums((*it4).second);
+          if(std::find(renums.begin(),renums.end(),(const DataArrayInt *)0)==renums.end())
+            {
+              MCAuto<DataArrayInt> renumm(DataArrayInt::Aggregate(renums));
+              renumm->renumberInPlace(renum->begin());
+              ret->setRenumFieldArr(*it,renumm);
+            }
+        }
+    }
+  //
+  ret->setFamilyInfo(map1);
+  ret->setGroupInfo(map2);
+  ret->setName(ref->getName());
+  return ret;
 }
 
 void MEDFileUMesh::serialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr, std::vector< MCAuto<DataArrayInt> >& bigArraysI, MCAuto<DataArrayDouble>& bigArrayD)
@@ -6305,7 +6476,7 @@ std::string MEDFileCMesh::advancedRepr() const
   return simpleRepr();
 }
 
-MEDFileMesh *MEDFileCMesh::shallowCpy() const
+MEDFileCMesh *MEDFileCMesh::shallowCpy() const
 {
   MCAuto<MEDFileCMesh> ret(new MEDFileCMesh(*this));
   return ret.retn();
@@ -6316,7 +6487,7 @@ MEDFileMesh *MEDFileCMesh::createNewEmpty() const
   return new MEDFileCMesh;
 }
 
-MEDFileMesh *MEDFileCMesh::deepCopy() const
+MEDFileCMesh *MEDFileCMesh::deepCopy() const
 {
   MCAuto<MEDFileCMesh> ret(new MEDFileCMesh(*this));
   ret->deepCpyEquivalences(*this);
@@ -6547,7 +6718,7 @@ std::vector<const BigMemoryObject *> MEDFileCurveLinearMesh::getDirectChildrenWi
   return ret;
 }
 
-MEDFileMesh *MEDFileCurveLinearMesh::shallowCpy() const
+MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::shallowCpy() const
 {
   MCAuto<MEDFileCurveLinearMesh> ret(new MEDFileCurveLinearMesh(*this));
   return ret.retn();
@@ -6558,7 +6729,7 @@ MEDFileMesh *MEDFileCurveLinearMesh::createNewEmpty() const
   return new MEDFileCurveLinearMesh;
 }
 
-MEDFileMesh *MEDFileCurveLinearMesh::deepCopy() const
+MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::deepCopy() const
 {
   MCAuto<MEDFileCurveLinearMesh> ret(new MEDFileCurveLinearMesh(*this));
   ret->deepCpyEquivalences(*this);

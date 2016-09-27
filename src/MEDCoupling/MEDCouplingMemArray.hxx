@@ -22,6 +22,7 @@
 #define __MEDCOUPLING_MEDCOUPLINGMEMARRAY_HXX__
 
 #include "MEDCoupling.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
@@ -385,6 +386,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const;
     MEDCOUPLING_EXPORT void applyFuncFast32(const std::string& func);
     MEDCOUPLING_EXPORT void applyFuncFast64(const std::string& func);
+    MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> symmetry3DPlane(const double point[3], const double normalVector[3]) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsNotInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
@@ -409,6 +411,10 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MemArray<double>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<double>& accessToMemArray() const { return _mem; }
     MEDCOUPLING_EXPORT std::vector<bool> toVectorOfBool(double eps) const;
+    MEDCOUPLING_EXPORT static void Rotate2DAlg(const double *center, double angle, int nbNodes, const double *coordsIn, double *coordsOut);
+    MEDCOUPLING_EXPORT static void Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, const double *coordsIn, double *coordsOut);
+    MEDCOUPLING_EXPORT static void Symmetry3DPlane(const double point[3], const double normalVector[3], int nbNodes, const double *coordsIn, double *coordsOut);
+    MEDCOUPLING_EXPORT static void GiveBaseForPlane(const double normalVector[3], double baseOfPlane[9]);
   public:
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;

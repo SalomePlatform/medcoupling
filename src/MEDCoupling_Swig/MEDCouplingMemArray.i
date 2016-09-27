@@ -151,6 +151,7 @@
 %newobject MEDCoupling::DataArrayDouble::Multiply;
 %newobject MEDCoupling::DataArrayDouble::Divide;
 %newobject MEDCoupling::DataArrayDouble::Pow;
+%newobject MEDCoupling::DataArrayDouble::symmetry3DPlane;
 %newobject MEDCoupling::DataArrayDouble::subArray;
 %newobject MEDCoupling::DataArrayDouble::changeNbOfComponents;
 %newobject MEDCoupling::DataArrayDouble::accumulatePerChunck;
@@ -870,6 +871,34 @@ namespace MEDCoupling
         return convertDblArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
       }
 
+      DataArrayDouble *symmetry3DPlane(PyObject *point, PyObject *normalVector) throw(INTERP_KERNEL::Exception)
+      {
+        const char msg[]="Python wrap of DataArrayDouble::symmetry3DPlane : ";
+        double val,val2;
+        DataArrayDouble *a,*a2;
+        DataArrayDoubleTuple *aa,*aa2;
+        std::vector<double> bb,bb2;
+        int sw;
+        const double *centerPtr(convertObjToPossibleCpp5_Safe(point,sw,val,a,aa,bb,msg,1,3,true));
+        const double *vectorPtr(convertObjToPossibleCpp5_Safe(normalVector,sw,val2,a2,aa2,bb2,msg,1,3,true));
+        MCAuto<DataArrayDouble> ret(self->symmetry3DPlane(centerPtr,vectorPtr));
+        return ret.retn();
+      }
+
+      static PyObject *GiveBaseForPlane(PyObject *normalVector) throw(INTERP_KERNEL::Exception)
+      {
+        const char msg[]="Python wrap of DataArrayDouble::GiveBaseForPlane : ";
+        double val,val2;
+        DataArrayDouble *a,*a2;
+        DataArrayDoubleTuple *aa,*aa2;
+        std::vector<double> bb,bb2;
+        int sw;
+        const double *vectorPtr(convertObjToPossibleCpp5_Safe(normalVector,sw,val,a,aa,bb,msg,1,3,true));
+        double res[9];
+        DataArrayDouble::GiveBaseForPlane(vectorPtr,res);
+        return convertDblArrToPyListOfTuple(res,3,3);
+      }
+      
       DataArrayDouble *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;

@@ -219,6 +219,74 @@ bool MEDFileData::unPolyzeMeshes()
   return !meshesImpacted.empty();
 }
 
+/*!
+ * Precondition : all instances in \a mfds should have a single mesh with fields on it. If there is an instance with not exactly one mesh an exception will be thrown.
+ * You can invoke MEDFileFields::partOfThisLyingOnSpecifiedMeshName method to make it work.
+ */
+MCAuto<MEDFileData> MEDFileData::Aggregate(const std::vector<const MEDFileData *>& mfds)
+{
+  if(mfds.empty())
+    throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : empty vector !");
+  std::size_t sz(mfds.size()),i(0);
+  MCAuto<MEDFileData> ret(MEDFileData::New());
+  std::vector<const MEDFileUMesh *> ms(sz);
+  std::vector< std::vector< std::pair<int,int> > > dts(sz);
+  for(std::vector<const MEDFileData *>::const_iterator it=mfds.begin();it!=mfds.end();it++,i++)
+    {
+      const MEDFileData *elt(*it);
+      if(!elt)
+        throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : presence of NULL pointer !");
+      const MEDFileMeshes *meshes(elt->getMeshes());
+      if(!meshes)
+        throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : presence of an instance with no meshes attached on it !");
+      if(meshes->getNumberOfMeshes()!=1)
+        throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : all instances in input vector must lie on exactly one mesh ! To have it you can invoke partOfThisLyingOnSpecifiedMeshName method.");
+      const MEDFileMesh *mesh(meshes->getMeshAtPos(0));
+      if(!mesh)
+        throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : presence of null mesh in a MEDFileData instance among input vector !");
+      const MEDFileUMesh *umesh(dynamic_cast<const MEDFileUMesh *>(mesh));
+      if(!umesh)
+        throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : works only for unstructured meshes !");
+      ms[i]=umesh;
+      dts[i]=umesh->getAllDistributionOfTypes();
+    }
+  MCAuto<MEDFileUMesh> agg_m(MEDFileUMesh::Aggregate(ms));
+  MCAuto<MEDFileMeshes> mss(MEDFileMeshes::New()); mss->pushMesh(agg_m);
+  ret->setMeshes(mss);
+  // fields
+  std::vector<std::string> fieldNames(mfds[0]->getFields()->getFieldsNames());
+  std::set<std::string> fieldNamess(fieldNames.begin(),fieldNames.end());
+  if(fieldNames.size()!=fieldNamess.size())
+    throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : field names must be different each other !");
+  std::vector< std::vector<const MEDFileAnyTypeFieldMultiTS *> > vectOfFields(fieldNames.size());
+  std::vector< std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > > vectOfFields2(fieldNames.size());
+  MCAuto<MEDFileFields> fss(MEDFileFields::New());
+  for(std::vector<const MEDFileData *>::const_iterator it=mfds.begin();it!=mfds.end();it++)
+    {
+      std::vector<std::string> fieldNames0((*it)->getFields()->getFieldsNames());
+      std::set<std::string> fieldNamess0(fieldNames0.begin(),fieldNames0.end());
+      if(fieldNamess!=fieldNamess0)
+        throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : field names must be the same for all input instances !");
+      i=0;
+      for(std::vector<std::string>::const_iterator it1=fieldNames.begin();it1!=fieldNames.end();it1++,i++)
+        {
+          MCAuto<MEDFileAnyTypeFieldMultiTS> fmts((*it)->getFields()->getFieldWithName(*it1));
+          if(fmts.isNull())
+            throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : internal error 1 !");
+          vectOfFields2[i].push_back(fmts); vectOfFields[i].push_back(fmts);
+        }
+    }
+  i=0;
+  for(std::vector<std::string>::const_iterator it1=fieldNames.begin();it1!=fieldNames.end();it1++,i++)
+    {
+      MCAuto<MEDFileAnyTypeFieldMultiTS> fmts(MEDFileAnyTypeFieldMultiTS::Aggregate(vectOfFields[i],dts));
+      fmts->setMeshName(agg_m->getName());
+      fss->pushField(fmts);
+    }
+  ret->setFields(fss);
+  return ret;
+}
+
 MEDFileData::MEDFileData()
 {
 }
