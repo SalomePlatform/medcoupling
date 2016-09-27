@@ -272,6 +272,8 @@ class CaseReader(CaseIO):
                 raise Exception("ConvertField : mismatch #2")
             fdisc=MEDCouplingFieldDiscretization.New(self.discSpatial2[discr])
             meshId=np.memmap(fd,dtype='int32',mode='r',offset=int(pos),shape=(1)).tolist()[0]-1
+            if meshId >= len( mcmeshes ):
+                continue
             nbOfValues=fdisc.getNumberOfTuples(mcmeshes[meshId])
             vals2=DataArrayDouble(nbOfValues,nbCompo)
             fd.seek(pos+4)
