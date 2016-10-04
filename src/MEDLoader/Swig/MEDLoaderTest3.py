@@ -5528,7 +5528,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
-    def test42(self):
+    def testSymmetryPlusAggregationMFD1(self):
         """ Testing of MEDFileData::Aggregate and MEDFileUMesh::Aggregate and MEDFileUMesh::getAllDistributionOfType """
         fname1="Pyfile106_1.med"
         fname2="Pyfile106_2.med"
