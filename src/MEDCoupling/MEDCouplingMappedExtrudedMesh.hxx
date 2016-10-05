@@ -107,6 +107,7 @@ namespace MEDCoupling
                                             const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
+    MEDCOUPLING_EXPORT int get2DCellIdForExtrusion() const { return _cell_2D_id; }
   private:
     MEDCouplingMappedExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId);
     MEDCouplingMappedExtrudedMesh(const MEDCouplingCMesh *mesh3D);

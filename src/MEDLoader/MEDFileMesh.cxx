@@ -27,6 +27,7 @@
 #include "MEDLoaderBase.hxx"
 
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 
@@ -38,6 +39,8 @@ extern med_geometry_type typmai3[34];
 using namespace MEDCoupling;
 
 const char MEDFileMesh::DFT_FAM_NAME[]="FAMILLE_ZERO";
+
+const char MEDFileUMesh::SPE_FAM_STR_EXTRUDED_MESH[]="HIDDEN_FAM_EXT_MESH@";
 
 MEDFileMesh::MEDFileMesh():_order(-1),_iteration(-1),_time(0.),_univ_wr_status(true),_axis_type(AX_CART)
 {
@@ -2271,6 +2274,25 @@ MEDFileUMesh *MEDFileUMesh::New(const std::string& fileName, MEDFileMeshReadSele
   MEDCoupling::MEDCouplingAxisType dummy3;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   return new MEDFileUMesh(fid,ms.front(),dt,it,mrs);
+}
+
+/*!
+ * \b WARNING this implementation is dependant from MEDCouplingMappedExtrudedMesh::buildUnstructured !
+ * \sa MEDCouplingMappedExtrudedMesh::buildUnstructured , MEDCouplingMappedExtrudedMesh::build3DUnstructuredMesh
+ */
+MEDFileUMesh *MEDFileUMesh::New(const MEDCouplingMappedExtrudedMesh *mem)
+{
+  if(!mem)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::New : null input vector !");
+  MCAuto<MEDFileUMesh> ret(MEDFileUMesh::New());
+  MCAuto<MEDCouplingUMesh> m3D(mem->buildUnstructured());
+  MCAuto<MEDCouplingUMesh> m2D(mem->getMesh2D()->deepCopy());
+  m2D->zipCoords();
+  m2D->setCoords(m3D->getCoords());
+  ret->setMeshAtLevel(0,m3D);
+  ret->setMeshAtLevel(-1,m2D);
+  ret->setFamilyId(GetSpeStr4ExtMesh(),mem->get2DCellIdForExtrusion());
+  return ret.retn();
 }
 
 /*!
@@ -4622,6 +4644,18 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
   ret->setGroupInfo(map2);
   ret->setName(ref->getName());
   return ret;
+}
+
+MEDCouplingMappedExtrudedMesh *MEDFileUMesh::convertToExtrudedMesh() const
+{
+  if(getMeshDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::convertToExtrudedMesh : works only for 3D mesh !");
+  MCAuto<MEDCouplingUMesh> m3D(getMeshAtLevel(0)),m2D(getMeshAtLevel(-1));
+  if(m3D.isNull() || m2D.isNull())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::convertToExtrudedMesh : this must be defined both at level 0 and level -1 !");
+  int zeId(getFamilyId(GetSpeStr4ExtMesh()));
+  MCAuto<MEDCouplingMappedExtrudedMesh> ret(MEDCouplingMappedExtrudedMesh::New(m3D,m2D,zeId));
+  return ret.retn();
 }
 
 void MEDFileUMesh::serialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr, std::vector< MCAuto<DataArrayInt> >& bigArraysI, MCAuto<DataArrayDouble>& bigArrayD)

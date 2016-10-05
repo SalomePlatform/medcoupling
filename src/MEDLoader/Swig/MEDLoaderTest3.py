@@ -5743,6 +5743,16 @@ class MEDLoaderTest3(unittest.TestCase):
         mfd=MEDFileData.Aggregate([MEDFileData(fname1),MEDFileData(fname2)])
         CheckMFD(self,mfd)
         pass
+
+    def testExtrudedMesh1(self):
+        fname1="Pyfile107.med"
+        arrX=DataArrayDouble([0,1,2,3]) ; arrY=DataArrayDouble([0,1,2,3,4]) ; arrZ=DataArrayDouble([0,1,2,3,4,5])
+        mesh3D=MEDCouplingCMesh() ; mesh3D.setCoords(arrX,arrY,arrZ)
+        ex=MEDCouplingMappedExtrudedMesh(mesh3D)
+        mm=MEDFileUMesh(ex)
+        ex2=mm.convertToExtrudedMesh()
+        self.assertTrue(ex.isEqual(ex2,1e-12))
+        pass
     
     pass
 

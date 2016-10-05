@@ -127,6 +127,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileUMesh::quadraticToLinear;
 %newobject MEDCoupling::MEDFileUMesh::symmetry3DPlane;
 %newobject MEDCoupling::MEDFileUMesh::Aggregate;
+%newobject MEDCoupling::MEDFileUMesh::convertToExtrudedMesh;
 %newobject MEDCoupling::MEDFileCMesh::New;
 %newobject MEDCoupling::MEDFileCurveLinearMesh::New;
 %newobject MEDCoupling::MEDFileMeshMultiTS::New;
@@ -1223,7 +1224,9 @@ namespace MEDCoupling
   public:
     static MEDFileUMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileUMesh *New(const MEDCouplingMappedExtrudedMesh *mem) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New();
+    static const char *GetSpeStr4ExtMesh();
     ~MEDFileUMesh();
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     int getRelativeLevOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
@@ -1256,6 +1259,7 @@ namespace MEDCoupling
     MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const throw(INTERP_KERNEL::Exception);
     MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     MEDFileUMesh *quadraticToLinear(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingMappedExtrudedMesh *convertToExtrudedMesh() const throw(INTERP_KERNEL::Exception);
     %extend
        { 
          MEDFileUMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
@@ -1266,6 +1270,11 @@ namespace MEDCoupling
          MEDFileUMesh(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileUMesh::New(fileName,mrs);
+         }
+
+         MEDFileUMesh(const MEDCouplingMappedExtrudedMesh *mem) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileUMesh::New(mem);
          }
 
          MEDFileUMesh()

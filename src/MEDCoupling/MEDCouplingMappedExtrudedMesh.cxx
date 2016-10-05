@@ -440,6 +440,10 @@ void MEDCouplingMappedExtrudedMesh::renumberCells(const int *old2NewBg, bool che
   throw INTERP_KERNEL::Exception("Functionnality of renumbering cells unavailable for ExtrudedMesh");
 }
 
+/*!
+ * \b WARNING in case of modif think to update MEDFileUMesh::New implementation !
+ * \sa MEDFileUMesh::New
+ */
 MEDCouplingUMesh *MEDCouplingMappedExtrudedMesh::build3DUnstructuredMesh() const
 {
   MCAuto<MEDCouplingUMesh> mesh2DZC(_mesh2D->deepCopyConnectivityOnly());
@@ -451,6 +455,10 @@ MEDCouplingUMesh *MEDCouplingMappedExtrudedMesh::build3DUnstructuredMesh() const
   return ret.retn();
 }
 
+/*!
+ * \b WARNING in case of modif think to update MEDFileUMesh::New implementation !
+ * \sa MEDFileUMesh::New
+ */
 MEDCouplingUMesh *MEDCouplingMappedExtrudedMesh::buildUnstructured() const
 {
   return build3DUnstructuredMesh();

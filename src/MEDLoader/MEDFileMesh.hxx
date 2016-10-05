@@ -240,15 +240,19 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static const char DFT_FAM_NAME[];
   };
 
+  class MEDCouplingMappedExtrudedMesh;
+  
   class MEDFileUMesh : public MEDFileMesh
   {
     friend class MEDFileMesh;
   public:
     MEDLOADER_EXPORT static MEDFileUMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileUMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileUMesh *New(const MEDCouplingMappedExtrudedMesh *mem);
     MEDLOADER_EXPORT static MEDFileUMesh *New();
     MEDLOADER_EXPORT static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileUMesh *LoadPartOf(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static const char *GetSpeStr4ExtMesh() { return SPE_FAM_STR_EXTRUDED_MESH; }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
@@ -338,6 +342,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;
     MEDLOADER_EXPORT MCAuto<MEDFileUMesh> symmetry3DPlane(const double point[3], const double normalVector[3]) const;
     MEDLOADER_EXPORT static MCAuto<MEDFileUMesh> Aggregate(const std::vector<const MEDFileUMesh *>& meshes);
+    MEDLOADER_EXPORT MEDCouplingMappedExtrudedMesh *convertToExtrudedMesh() const;
     // serialization
     MEDLOADER_EXPORT void serialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr,
                                     std::vector< MCAuto<DataArrayInt> >& bigArraysI, MCAuto<DataArrayDouble>& bigArrayD);
@@ -360,6 +365,8 @@ namespace MEDCoupling
     void changeFamilyIdArr(int oldId, int newId);
     std::list< MCAuto<DataArrayInt> > getAllNonNullFamilyIds() const;
     MCAuto<MEDFileUMeshSplitL1>& checkAndGiveEntryInSplitL1(int meshDimRelToMax, MEDCouplingPointSet *m);
+  private:
+    static const char SPE_FAM_STR_EXTRUDED_MESH[];
   private:
     std::vector< MCAuto<MEDFileUMeshSplitL1> > _ms;
     MCAuto<DataArrayDouble> _coords;
