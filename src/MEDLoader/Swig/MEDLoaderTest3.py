@@ -5745,13 +5745,17 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     def testExtrudedMesh1(self):
-        fname1="Pyfile107.med"
+        fname="Pyfile107.med"
         arrX=DataArrayDouble([0,1,2,3]) ; arrY=DataArrayDouble([0,1,2,3,4]) ; arrZ=DataArrayDouble([0,1,2,3,4,5])
-        mesh3D=MEDCouplingCMesh() ; mesh3D.setCoords(arrX,arrY,arrZ)
+        mesh3D=MEDCouplingCMesh() ; mesh3D.setCoords(arrX,arrY,arrZ) ; mesh3D.setName("mesh")
         ex=MEDCouplingMappedExtrudedMesh(mesh3D)
         mm=MEDFileUMesh(ex)
+        mm.write(fname,2)
         ex2=mm.convertToExtrudedMesh()
+        mm2=MEDFileMesh.New(fname)
+        ex3=mm2.convertToExtrudedMesh()
         self.assertTrue(ex.isEqual(ex2,1e-12))
+        self.assertTrue(ex.isEqual(ex3,1e-12))
         pass
     
     pass

@@ -2291,7 +2291,7 @@ MEDFileUMesh *MEDFileUMesh::New(const MEDCouplingMappedExtrudedMesh *mem)
   m2D->setCoords(m3D->getCoords());
   ret->setMeshAtLevel(0,m3D);
   ret->setMeshAtLevel(-1,m2D);
-  ret->setFamilyId(GetSpeStr4ExtMesh(),mem->get2DCellIdForExtrusion());
+  ret->setFamilyId(GetSpeStr4ExtMesh(),std::numeric_limits<int>::max()-mem->get2DCellIdForExtrusion());
   return ret.retn();
 }
 
@@ -4653,7 +4653,7 @@ MEDCouplingMappedExtrudedMesh *MEDFileUMesh::convertToExtrudedMesh() const
   MCAuto<MEDCouplingUMesh> m3D(getMeshAtLevel(0)),m2D(getMeshAtLevel(-1));
   if(m3D.isNull() || m2D.isNull())
     throw INTERP_KERNEL::Exception("MEDFileUMesh::convertToExtrudedMesh : this must be defined both at level 0 and level -1 !");
-  int zeId(getFamilyId(GetSpeStr4ExtMesh()));
+  int zeId(std::numeric_limits<int>::max()-getFamilyId(GetSpeStr4ExtMesh()));
   MCAuto<MEDCouplingMappedExtrudedMesh> ret(MEDCouplingMappedExtrudedMesh::New(m3D,m2D,zeId));
   return ret.retn();
 }
