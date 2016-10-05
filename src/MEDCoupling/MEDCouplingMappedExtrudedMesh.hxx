@@ -70,9 +70,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void getBoundingBox(double *bbox) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *getMesh2D() const { return _mesh2D; }
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *getMesh1D() const { return _mesh1D; }
-    MEDCOUPLING_EXPORT DataArrayInt *getMesh3DIds() const { return _mesh3D_ids; }
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *getMesh2D() const { return _mesh2D.iAmATrollConstCast(); }
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *getMesh1D() const { return _mesh1D.iAmATrollConstCast(); }
+    MEDCOUPLING_EXPORT DataArrayInt *getMesh3DIds() const { return _mesh3D_ids.iAmATrollConstCast(); }
     MEDCOUPLING_EXPORT MEDCouplingUMesh *build3DUnstructuredMesh() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool) const;
@@ -123,10 +123,10 @@ namespace MEDCoupling
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
     std::string getVTKDataSetType() const;
   private:
-    MEDCouplingUMesh *_mesh2D;
-    MEDCouplingUMesh *_mesh1D;
+    MCAuto<MEDCouplingUMesh> _mesh2D;
+    MCAuto<MEDCouplingUMesh> _mesh1D;
     //! New to old 3D cell Ids Array
-    DataArrayInt *_mesh3D_ids;
+    MCAuto<DataArrayInt> _mesh3D_ids;
     int _cell_2D_id;
   };
 }

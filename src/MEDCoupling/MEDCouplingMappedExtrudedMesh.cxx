@@ -234,14 +234,14 @@ void MEDCouplingMappedExtrudedMesh::checkDeepEquivalOnSameNodesWith(const MEDCou
 
 INTERP_KERNEL::NormalizedCellType MEDCouplingMappedExtrudedMesh::getTypeOfCell(int cellId) const
 {
-  const int *ids=_mesh3D_ids->getConstPointer();
-  int nbOf3DCells=_mesh3D_ids->getNumberOfTuples();
-  const int *where=std::find(ids,ids+nbOf3DCells,cellId);
+  const int *ids(_mesh3D_ids->begin());
+  int nbOf3DCells(_mesh3D_ids->getNumberOfTuples());
+  const int *where(std::find(ids,ids+nbOf3DCells,cellId));
   if(where==ids+nbOf3DCells)
     throw INTERP_KERNEL::Exception("Invalid cellId specified >= getNumberOfCells() !");
-  int nbOfCells2D=_mesh2D->getNumberOfCells();
-  int locId=((int)std::distance(ids,where))%nbOfCells2D;
-  INTERP_KERNEL::NormalizedCellType tmp=_mesh2D->getTypeOfCell(locId);
+  int nbOfCells2D(_mesh2D->getNumberOfCells());
+  int locId(((int)std::distance(ids,where))%nbOfCells2D);
+  INTERP_KERNEL::NormalizedCellType tmp(_mesh2D->getTypeOfCell(locId));
   return INTERP_KERNEL::CellModel::GetCellModel(tmp).getExtrudedType();
 }
 
@@ -256,34 +256,34 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingMappedExtrudedMesh::getAl
 
 DataArrayInt *MEDCouplingMappedExtrudedMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
-  INTERP_KERNEL::NormalizedCellType revExtTyp=cm.getReverseExtrudedType();
-  MCAuto<DataArrayInt> ret=DataArrayInt::New();
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(type));
+  INTERP_KERNEL::NormalizedCellType revExtTyp(cm.getReverseExtrudedType());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
   if(revExtTyp==INTERP_KERNEL::NORM_ERROR)
     {
       ret->alloc(0,1);
       return ret.retn();
     }
-  MCAuto<DataArrayInt> tmp=_mesh2D->giveCellsWithType(revExtTyp);
-  int nbOfLevs=_mesh1D->getNumberOfCells();
-  int nbOfCells2D=_mesh2D->getNumberOfCells();
-  int nbOfTuples=tmp->getNumberOfTuples();
+  MCAuto<DataArrayInt> tmp(_mesh2D->giveCellsWithType(revExtTyp));
+  int nbOfLevs(_mesh1D->getNumberOfCells());
+  int nbOfCells2D(_mesh2D->getNumberOfCells());
+  int nbOfTuples(tmp->getNumberOfTuples());
   ret->alloc(nbOfLevs*nbOfTuples,1);
-  int *pt=ret->getPointer();
+  int *pt(ret->getPointer());
   for(int i=0;i<nbOfLevs;i++,pt+=nbOfTuples)
     std::transform(tmp->begin(),tmp->end(),pt,std::bind2nd(std::plus<int>(),i*nbOfCells2D));
-  MCAuto<DataArrayInt> ret2=ret->renumberR(_mesh3D_ids->begin());
+  MCAuto<DataArrayInt> ret2(ret->renumberR(_mesh3D_ids->begin()));
   ret2->sort();
   return ret2.retn();
 }
 
 DataArrayInt *MEDCouplingMappedExtrudedMesh::computeNbOfNodesPerCell() const
 {
-  MCAuto<DataArrayInt> ret2D=_mesh2D->computeNbOfNodesPerCell();
-  int nbOfLevs=_mesh1D->getNumberOfCells();
-  int nbOfCells2D=_mesh2D->getNumberOfCells();
-  MCAuto<DataArrayInt> ret3D=DataArrayInt::New(); ret3D->alloc(nbOfLevs*nbOfCells2D,1);
-  int *pt=ret3D->getPointer();
+  MCAuto<DataArrayInt> ret2D(_mesh2D->computeNbOfNodesPerCell());
+  int nbOfLevs(_mesh1D->getNumberOfCells());
+  int nbOfCells2D(_mesh2D->getNumberOfCells());
+  MCAuto<DataArrayInt> ret3D(DataArrayInt::New()); ret3D->alloc(nbOfLevs*nbOfCells2D,1);
+  int *pt(ret3D->getPointer());
   for(int i=0;i<nbOfLevs;i++,pt+=nbOfCells2D)
     std::copy(ret2D->begin(),ret2D->end(),pt);
   ret3D->applyLin(2,0,0);
@@ -292,11 +292,11 @@ DataArrayInt *MEDCouplingMappedExtrudedMesh::computeNbOfNodesPerCell() const
 
 DataArrayInt *MEDCouplingMappedExtrudedMesh::computeNbOfFacesPerCell() const
 {
-  MCAuto<DataArrayInt> ret2D=_mesh2D->computeNbOfNodesPerCell();
-  int nbOfLevs=_mesh1D->getNumberOfCells();
-  int nbOfCells2D=_mesh2D->getNumberOfCells();
-  MCAuto<DataArrayInt> ret3D=DataArrayInt::New(); ret3D->alloc(nbOfLevs*nbOfCells2D,1);
-  int *pt=ret3D->getPointer();
+  MCAuto<DataArrayInt> ret2D(_mesh2D->computeNbOfNodesPerCell());
+  int nbOfLevs(_mesh1D->getNumberOfCells());
+  int nbOfCells2D(_mesh2D->getNumberOfCells());
+  MCAuto<DataArrayInt> ret3D(DataArrayInt::New()); ret3D->alloc(nbOfLevs*nbOfCells2D,1);
+  int *pt(ret3D->getPointer());
   for(int i=0;i<nbOfLevs;i++,pt+=nbOfCells2D)
     std::copy(ret2D->begin(),ret2D->end(),pt);
   ret3D->applyLin(2,2,0);
@@ -310,11 +310,11 @@ DataArrayInt *MEDCouplingMappedExtrudedMesh::computeEffectiveNbOfNodesPerCell() 
 
 int MEDCouplingMappedExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  int ret=0;
-  int nbOfCells2D=_mesh2D->getNumberOfCells();
+  int ret(0);
+  int nbOfCells2D(_mesh2D->getNumberOfCells());
   for(int i=0;i<nbOfCells2D;i++)
     {
-      INTERP_KERNEL::NormalizedCellType t=_mesh2D->getTypeOfCell(i);
+      INTERP_KERNEL::NormalizedCellType t(_mesh2D->getTypeOfCell(i));
       if(INTERP_KERNEL::CellModel::GetCellModel(t).getExtrudedType()==type)
         ret++;
     }
@@ -323,10 +323,10 @@ int MEDCouplingMappedExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::Norma
 
 void MEDCouplingMappedExtrudedMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
-  int nbOfCells2D=_mesh2D->getNumberOfCells();
-  int nbOfNodes2D=_mesh2D->getNumberOfNodes();
-  int locId=cellId%nbOfCells2D;
-  int lev=cellId/nbOfCells2D;
+  int nbOfCells2D(_mesh2D->getNumberOfCells());
+  int nbOfNodes2D(_mesh2D->getNumberOfNodes());
+  int locId(cellId%nbOfCells2D);
+  int lev(cellId/nbOfCells2D);
   std::vector<int> tmp,tmp2;
   _mesh2D->getNodeIdsOfCell(locId,tmp);
   tmp2=tmp;
@@ -338,14 +338,14 @@ void MEDCouplingMappedExtrudedMesh::getNodeIdsOfCell(int cellId, std::vector<int
 
 void MEDCouplingMappedExtrudedMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
 {
-  int nbOfNodes2D=_mesh2D->getNumberOfNodes();
-  int locId=nodeId%nbOfNodes2D;
-  int lev=nodeId/nbOfNodes2D;
+  int nbOfNodes2D(_mesh2D->getNumberOfNodes());
+  int locId(nodeId%nbOfNodes2D);
+  int lev(nodeId/nbOfNodes2D);
   std::vector<double> tmp,tmp2;
   _mesh2D->getCoordinatesOfNode(locId,tmp);
   tmp2=tmp;
-  int spaceDim=_mesh1D->getSpaceDimension();
-  const double *z=_mesh1D->getCoords()->getConstPointer();
+  int spaceDim(_mesh1D->getSpaceDimension());
+  const double *z(_mesh1D->getCoords()->begin());
   std::transform(tmp.begin(),tmp.end(),z+lev*spaceDim,tmp.begin(),std::plus<double>());
   std::transform(tmp2.begin(),tmp2.end(),z+(lev+1)*spaceDim,tmp2.begin(),std::plus<double>());
   coo.insert(coo.end(),tmp.begin(),tmp.end());
@@ -400,8 +400,8 @@ void MEDCouplingMappedExtrudedMesh::getBoundingBox(double *bbox) const
 {
   double bbox2D[6];
   _mesh2D->getBoundingBox(bbox2D);
-  const double *nodes1D=_mesh1D->getCoords()->getConstPointer();
-  int nbOfNodes1D=_mesh1D->getNumberOfNodes();
+  const double *nodes1D(_mesh1D->getCoords()->begin());
+  int nbOfNodes1D(_mesh1D->getNumberOfNodes());
   double bbox1DMin[3],bbox1DMax[3],tmp[3];
   std::fill(bbox1DMin,bbox1DMin+3,std::numeric_limits<double>::max());
   std::fill(bbox1DMax,bbox1DMax+3,-(std::numeric_limits<double>::max()));
@@ -420,14 +420,10 @@ void MEDCouplingMappedExtrudedMesh::getBoundingBox(double *bbox) const
 
 void MEDCouplingMappedExtrudedMesh::updateTime() const
 {
-  if(_mesh2D)
-    {
-      updateTimeWith(*_mesh2D);
-    }
-  if(_mesh1D)
-    {
-      updateTimeWith(*_mesh1D);
-    }
+  if(_mesh2D.isNotNull())
+    updateTimeWith(*_mesh2D);
+  if(_mesh1D.isNotNull())
+    updateTimeWith(*_mesh1D);
 }
 
 void MEDCouplingMappedExtrudedMesh::renumberCells(const int *old2NewBg, bool check)
@@ -437,11 +433,13 @@ void MEDCouplingMappedExtrudedMesh::renumberCells(const int *old2NewBg, bool che
 
 MEDCouplingUMesh *MEDCouplingMappedExtrudedMesh::build3DUnstructuredMesh() const
 {
-  MEDCouplingUMesh *ret=_mesh2D->buildExtrudedMesh(_mesh1D,0);
-  const int *renum=_mesh3D_ids->getConstPointer();
+  MCAuto<MEDCouplingUMesh> mesh2DZC(_mesh2D->deepCopyConnectivityOnly());
+  mesh2DZC->zipCoords();
+  MCAuto<MEDCouplingUMesh> ret(mesh2DZC->buildExtrudedMesh(_mesh1D,0));
+  const int *renum(_mesh3D_ids->begin());
   ret->renumberCells(renum,false);
   ret->setName(getName());
-  return ret;
+  return ret.retn();
 }
 
 MEDCouplingUMesh *MEDCouplingMappedExtrudedMesh::buildUnstructured() const
@@ -453,29 +451,23 @@ MEDCouplingFieldDouble *MEDCouplingMappedExtrudedMesh::getMeasureField(bool) con
 {
   std::string name="MeasureOfMesh_";
   name+=getName();
-  MEDCouplingFieldDouble *ret2D=_mesh2D->getMeasureField(true);
-  MEDCouplingFieldDouble *ret1D=_mesh1D->getMeasureField(true);
-  const double *ret2DPtr=ret2D->getArray()->getConstPointer();
-  const double *ret1DPtr=ret1D->getArray()->getConstPointer();
-  int nbOf2DCells=_mesh2D->getNumberOfCells();
-  int nbOf1DCells=_mesh1D->getNumberOfCells();
-  int nbOf3DCells=nbOf2DCells*nbOf1DCells;
-  const int *renum=_mesh3D_ids->getConstPointer();
-  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  MCAuto<MEDCouplingFieldDouble> ret2D(_mesh2D->getMeasureField(true)),ret1D(_mesh1D->getMeasureField(true));
+  const double *ret2DPtr(ret2D->getArray()->begin());
+  const double *ret1DPtr(ret1D->getArray()->begin());
+  int nbOf2DCells(_mesh2D->getNumberOfCells()),nbOf1DCells(_mesh1D->getNumberOfCells()),nbOf3DCells(nbOf2DCells*nbOf1DCells);
+  const int *renum(_mesh3D_ids->begin());
+  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME));
   ret->setMesh(this);
   ret->synchronizeTimeWithMesh();
-  DataArrayDouble *da=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> da(DataArrayDouble::New());
   da->alloc(nbOf3DCells,1);
-  double *retPtr=da->getPointer();
+  double *retPtr(da->getPointer());
   for(int i=0;i<nbOf1DCells;i++)
     for(int j=0;j<nbOf2DCells;j++)
       retPtr[renum[i*nbOf2DCells+j]]=ret2DPtr[j]*ret1DPtr[i];
   ret->setArray(da);
-  da->decrRef();
   ret->setName(name);
-  ret2D->decrRef();
-  ret1D->decrRef();
-  return ret;
+  return ret.retn();
 }
 
 MEDCouplingFieldDouble *MEDCouplingMappedExtrudedMesh::getMeasureFieldOnNode(bool isAbs) const
@@ -496,12 +488,6 @@ int MEDCouplingMappedExtrudedMesh::getCellContainingPoint(const double *pos, dou
 
 MEDCouplingMappedExtrudedMesh::~MEDCouplingMappedExtrudedMesh()
 {
-  if(_mesh2D)
-    _mesh2D->decrRef();
-  if(_mesh1D)
-    _mesh1D->decrRef();
-  if(_mesh3D_ids)
-    _mesh3D_ids->decrRef();
 }
 
 void MEDCouplingMappedExtrudedMesh::computeExtrusion(const MEDCouplingUMesh *mesh3D)
@@ -509,15 +495,15 @@ void MEDCouplingMappedExtrudedMesh::computeExtrusion(const MEDCouplingUMesh *mes
   const char errMsg1[]="2D mesh is empty unable to compute extrusion !";
   const char errMsg2[]="Coords between 2D and 3D meshes are not the same ! Try MEDCouplingPointSet::tryToShareSameCoords method";
   const char errMsg3[]="No chance to find extrusion pattern in mesh3D,mesh2D couple because nbCells3D%nbCells2D!=0 !";
-  if(_mesh2D==0 || mesh3D==0)
+  if(_mesh2D.isNull() || mesh3D==0)
     throw INTERP_KERNEL::Exception(errMsg1);
   if(_mesh2D->getCoords()!=mesh3D->getCoords())
     throw INTERP_KERNEL::Exception(errMsg2);
   if(mesh3D->getNumberOfCells()%_mesh2D->getNumberOfCells()!=0)
     throw INTERP_KERNEL::Exception(errMsg3);
-  if(!_mesh3D_ids)
+  if(_mesh3D_ids.isNull())
     _mesh3D_ids=DataArrayInt::New();
-  if(!_mesh1D)
+  if(_mesh1D.isNull())
     _mesh1D=MEDCouplingUMesh::New();
   computeExtrusionAlg(mesh3D);
 }
@@ -527,21 +513,21 @@ void MEDCouplingMappedExtrudedMesh::build1DExtrusion(int idIn3DDesc, int newId, 
                                                const int *revDesc3D, const int *revDescIndx3D,
                                                bool computeMesh1D)
 {
-  int nbOf2DCells=_mesh2D->getNumberOfCells();
-  int start=revDescIndx3D[idIn3DDesc];
-  int end=revDescIndx3D[idIn3DDesc+1];
+  int nbOf2DCells(_mesh2D->getNumberOfCells());
+  int start(revDescIndx3D[idIn3DDesc]);
+  int end(revDescIndx3D[idIn3DDesc+1]);
   if(end-start!=1)
     {
       std::ostringstream ost; ost << "Invalid bases 2D mesh specified : 2D cell # " <<  idIn3DDesc;
       ost << " shared by more than 1 3D cell !!!";
       throw INTERP_KERNEL::Exception(ost.str().c_str());
     }
-  int current3DCell=revDesc3D[start];
-  int current2DCell=idIn3DDesc;
-  int *mesh3DIDs=_mesh3D_ids->getPointer();
+  int current3DCell(revDesc3D[start]);
+  int current2DCell(idIn3DDesc);
+  int *mesh3DIDs(_mesh3D_ids->getPointer());
   mesh3DIDs[newId]=current3DCell;
-  const int *conn2D=subMesh->getNodalConnectivity()->getConstPointer();
-  const int *conn2DIndx=subMesh->getNodalConnectivityIndex()->getConstPointer();
+  const int *conn2D(subMesh->getNodalConnectivity()->begin());
+  const int *conn2DIndx(subMesh->getNodalConnectivityIndex()->begin());
   for(int i=1;i<nbOf1DLev;i++)
     {
       std::vector<int> conn(conn2D+conn2DIndx[current2DCell]+1,conn2D+conn2DIndx[current2DCell+1]);
@@ -582,8 +568,8 @@ int MEDCouplingMappedExtrudedMesh::findOppositeFaceOf(int current2DCell, int cur
                                                 const int *desc3D, const int *descIndx3D,
                                                 const int *conn2D, const int *conn2DIndx)
 {
-  int start=descIndx3D[current3DCell];
-  int end=descIndx3D[current3DCell+1];
+  int start(descIndx3D[current3DCell]);
+  int end(descIndx3D[current3DCell+1]);
   bool found=false;
   for(const int *candidate2D=desc3D+start;candidate2D!=desc3D+end && !found;candidate2D++)
     {
@@ -605,9 +591,9 @@ int MEDCouplingMappedExtrudedMesh::findOppositeFaceOf(int current2DCell, int cur
 
 void MEDCouplingMappedExtrudedMesh::computeBaryCenterOfFace(const std::vector<int>& nodalConnec, int lev1DId)
 {
-  double *zoneToUpdate=_mesh1D->getCoords()->getPointer()+lev1DId*3;
+  double *zoneToUpdate(_mesh1D->getCoords()->getPointer()+lev1DId*3);
   std::fill(zoneToUpdate,zoneToUpdate+3,0.);
-  const double *coords=_mesh2D->getCoords()->getConstPointer();
+  const double *coords(_mesh2D->getCoords()->begin());
   for(std::vector<int>::const_iterator iter=nodalConnec.begin();iter!=nodalConnec.end();iter++)
     std::transform(zoneToUpdate,zoneToUpdate+3,coords+3*(*iter),zoneToUpdate,std::plus<double>());
   std::transform(zoneToUpdate,zoneToUpdate+3,zoneToUpdate,std::bind2nd(std::multiplies<double>(),(double)(1./(int)nodalConnec.size())));
@@ -726,25 +712,25 @@ MEDCouplingMesh *MEDCouplingMappedExtrudedMesh::mergeMyselfWith(const MEDCouplin
 
 DataArrayDouble *MEDCouplingMappedExtrudedMesh::getCoordinatesAndOwner() const
 {
-  DataArrayDouble *arr2D=_mesh2D->getCoords();
-  DataArrayDouble *arr1D=_mesh1D->getCoords();
-  DataArrayDouble *ret=DataArrayDouble::New();
+  const DataArrayDouble *arr2D(_mesh2D->getCoords());
+  const DataArrayDouble *arr1D(_mesh1D->getCoords());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(getNumberOfNodes(),3);
-  int nbOf1DLev=_mesh1D->getNumberOfNodes();
-  int nbOf2DNodes=_mesh2D->getNumberOfNodes();
-  const double *ptSrc=arr2D->getConstPointer();
-  double *pt=ret->getPointer();
+  int nbOf1DLev(_mesh1D->getNumberOfNodes());
+  int nbOf2DNodes(_mesh2D->getNumberOfNodes());
+  const double *ptSrc(arr2D->begin());
+  double *pt(ret->getPointer());
   std::copy(ptSrc,ptSrc+3*nbOf2DNodes,pt);
   for(int i=1;i<nbOf1DLev;i++)
     {
       std::copy(ptSrc,ptSrc+3*nbOf2DNodes,pt+3*i*nbOf2DNodes);
       double vec[3];
-      std::copy(arr1D->getConstPointer()+3*i,arr1D->getConstPointer()+3*(i+1),vec);
-      std::transform(arr1D->getConstPointer()+3*(i-1),arr1D->getConstPointer()+3*i,vec,vec,std::minus<double>());
+      std::copy(arr1D->begin()+3*i,arr1D->begin()+3*(i+1),vec);
+      std::transform(arr1D->begin()+3*(i-1),arr1D->begin()+3*i,vec,vec,std::minus<double>());
       for(int j=0;j<nbOf2DNodes;j++)
         std::transform(vec,vec+3,pt+3*(i*nbOf2DNodes+j),pt+3*(i*nbOf2DNodes+j),std::plus<double>());
     }
-  return ret;
+  return ret.retn();
 }
 
 DataArrayDouble *MEDCouplingMappedExtrudedMesh::computeCellCenterOfMass() const
@@ -781,22 +767,17 @@ void MEDCouplingMappedExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *
   myCoords->alloc(nbOf1DLev+1,3);
   _mesh1D->setCoords(myCoords);
   myCoords->decrRef();
-  DataArrayInt *desc,*descIndx,*revDesc,*revDescIndx;
-  desc=DataArrayInt::New(); descIndx=DataArrayInt::New(); revDesc=DataArrayInt::New(); revDescIndx=DataArrayInt::New();
-  MEDCouplingUMesh *subMesh=mesh3D->buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
-  DataArrayInt *revNodal2D,*revNodalIndx2D;
-  revNodal2D=DataArrayInt::New(); revNodalIndx2D=DataArrayInt::New();
+  MCAuto<DataArrayInt> desc(DataArrayInt::New()),descIndx(DataArrayInt::New()),revDesc(DataArrayInt::New()),revDescIndx(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> subMesh(mesh3D->buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx));
+  MCAuto<DataArrayInt> revNodal2D(DataArrayInt::New()),revNodalIndx2D(DataArrayInt::New());
   subMesh->getReverseNodalConnectivity(revNodal2D,revNodalIndx2D);
-  const int *nodal2D=_mesh2D->getNodalConnectivity()->getConstPointer();
-  const int *nodal2DIndx=_mesh2D->getNodalConnectivityIndex()->getConstPointer();
-  const int *revNodal2DPtr=revNodal2D->getConstPointer();
-  const int *revNodalIndx2DPtr=revNodalIndx2D->getConstPointer();
-  const int *descP=desc->getConstPointer();
-  const int *descIndxP=descIndx->getConstPointer();
-  const int *revDescP=revDesc->getConstPointer();
-  const int *revDescIndxP=revDescIndx->getConstPointer();
+  const int *nodal2D(_mesh2D->getNodalConnectivity()->begin());
+  const int *nodal2DIndx(_mesh2D->getNodalConnectivityIndex()->begin());
+  const int *revNodal2DPtr(revNodal2D->begin());
+  const int *revNodalIndx2DPtr(revNodalIndx2D->begin());
+  const int *descP(desc->begin()),*descIndxP(descIndx->begin()),*revDescP(revDesc->begin()),*revDescIndxP(revDescIndx->begin());
   //
-  int nbOf2DCells=_mesh2D->getNumberOfCells();
+  int nbOf2DCells(_mesh2D->getNumberOfCells());
   for(int i=0;i<nbOf2DCells;i++)
     {
       int idInSubMesh;
@@ -813,14 +794,6 @@ void MEDCouplingMappedExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *
       }
       build1DExtrusion(idInSubMesh,i,nbOf1DLev,subMesh,descP,descIndxP,revDescP,revDescIndxP,i==_cell_2D_id);
     }
-  //
-  revNodal2D->decrRef();
-  revNodalIndx2D->decrRef();
-  subMesh->decrRef();
-  desc->decrRef();
-  descIndx->decrRef();
-  revDesc->decrRef();
-  revDescIndx->decrRef();
 }
 
 void MEDCouplingMappedExtrudedMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
@@ -879,16 +852,16 @@ void MEDCouplingMappedExtrudedMesh::serialize(DataArrayInt *&a1, DataArrayDouble
   _mesh1D->serialize(a1_2,a2_2);
   a1->alloc(a1_1->getNbOfElems()+a1_2->getNbOfElems()+_mesh3D_ids->getNbOfElems(),1);
   int *ptri=a1->getPointer();
-  ptri=std::copy(a1_1->getConstPointer(),a1_1->getConstPointer()+a1_1->getNbOfElems(),ptri);
+  ptri=std::copy(a1_1->begin(),a1_1->begin()+a1_1->getNbOfElems(),ptri);
   a1_1->decrRef();
-  ptri=std::copy(a1_2->getConstPointer(),a1_2->getConstPointer()+a1_2->getNbOfElems(),ptri);
+  ptri=std::copy(a1_2->begin(),a1_2->begin()+a1_2->getNbOfElems(),ptri);
   a1_2->decrRef();
-  std::copy(_mesh3D_ids->getConstPointer(),_mesh3D_ids->getConstPointer()+_mesh3D_ids->getNbOfElems(),ptri);
+  std::copy(_mesh3D_ids->begin(),_mesh3D_ids->begin()+_mesh3D_ids->getNbOfElems(),ptri);
   a2->alloc(a2_1->getNbOfElems()+a2_2->getNbOfElems(),1);
   double *ptrd=a2->getPointer();
-  ptrd=std::copy(a2_1->getConstPointer(),a2_1->getConstPointer()+a2_1->getNbOfElems(),ptrd);
+  ptrd=std::copy(a2_1->begin(),a2_1->begin()+a2_1->getNbOfElems(),ptrd);
   a2_1->decrRef();
-  std::copy(a2_2->getConstPointer(),a2_2->getConstPointer()+a2_2->getNbOfElems(),ptrd);
+  std::copy(a2_2->begin(),a2_2->begin()+a2_2->getNbOfElems(),ptrd);
   a2_2->decrRef();
 }
 
@@ -903,8 +876,8 @@ void MEDCouplingMappedExtrudedMesh::unserialization(const std::vector<double>& t
   std::vector<int> ti2(tinyInfo.begin()+sz1,tinyInfo.end()-3);
   DataArrayInt *a1tmp=DataArrayInt::New();
   DataArrayDouble *a2tmp=DataArrayDouble::New();
-  const int *a1Ptr=a1->getConstPointer();
-  const double *a2Ptr=a2->getConstPointer();
+  const int *a1Ptr=a1->begin();
+  const double *a2Ptr=a2->begin();
   _mesh2D=MEDCouplingUMesh::New();
   std::vector<std::string> ls1,ls2;
   _mesh2D->resizeForUnserialization(ti1,a1tmp,a2tmp,ls1);
@@ -929,7 +902,7 @@ void MEDCouplingMappedExtrudedMesh::unserialization(const std::vector<double>& t
   a1tmp->decrRef(); a2tmp->decrRef();
   //
   _mesh3D_ids=DataArrayInt::New();
-  int szIds=(int)std::distance(a1Ptr,a1->getConstPointer()+a1->getNbOfElems());
+  int szIds=(int)std::distance(a1Ptr,a1->begin()+a1->getNbOfElems());
   _mesh3D_ids->alloc(szIds,1);
   std::copy(a1Ptr,a1Ptr+szIds,_mesh3D_ids->getPointer());
 }

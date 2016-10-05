@@ -4410,6 +4410,20 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertAlmostEqual((res-arr).magnitude()[0]-2*d,0.,12)
         self.assertTrue(res.isEqual(DataArrayDouble([2.666666666666667,3.5333333333333333,3.0666666666666666],1,3),1e-12))
         pass
+
+    def testExtrudedMeshBuildUnstructured1(self):
+        """ Non reg test. ExtrudedMesh.buildUnstructured used to modify the coordinates of this. It used to lead to an extra amount of memory consumtion. The aim of the test here is to check that buildUnstructured method do not alter the content of the mesh"""
+        arr=DataArrayDouble(11) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr,arr)
+        m=m.buildUnstructured()
+        faces=MEDCouplingCMesh() ; faces.setCoords(arr,arr)
+        faces=faces.buildUnstructured()
+        faces.setCoords(m.getCoords())
+        em=MEDCouplingMappedExtrudedMesh(m,faces,0)
+        self.assertTrue(em.buildUnstructured().isEqual(m,1e-12))
+        self.assertTrue(em.buildUnstructured().isEqual(m,1e-12)) # the bug was here ... buildUnstructured used to modify em ...
+        self.assertTrue(em.buildUnstructured().isEqual(m,1e-12)) # the bug was here ... buildUnstructured used to modify em ...
+        pass
     
     pass
 

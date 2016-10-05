@@ -47,6 +47,7 @@ namespace MEDCoupling
     operator T *() { return _ptr; }
     operator const T *() const { return _ptr; }
     T *retn() { if(_ptr) _ptr->incrRef(); return _ptr; }
+    T *iAmATrollConstCast() const { return _ptr; }
   private:
     void referPtr(T *ptr) { _ptr=ptr; if(_ptr) _ptr->incrRef(); }
     void destroyPtr() { if(_ptr) _ptr->decrRef(); }
