@@ -31,12 +31,14 @@ namespace MEDCoupling
   class DataArrayInt;
   class DataArrayDouble;
   class MEDCouplingUMesh;
+  class MEDCouplingCMesh;
   class MEDCouplingFieldDouble;
 
   class MEDCouplingMappedExtrudedMesh : public MEDCouplingMesh
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId);
+    MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingCMesh *mesh3D);
     MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New();
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -107,6 +109,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
   private:
     MEDCouplingMappedExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId);
+    MEDCouplingMappedExtrudedMesh(const MEDCouplingCMesh *mesh3D);
     MEDCouplingMappedExtrudedMesh(const MEDCouplingMappedExtrudedMesh& other, bool deepCopy);
     MEDCouplingMappedExtrudedMesh();
     void computeExtrusion(const MEDCouplingUMesh *mesh3D);

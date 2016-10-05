@@ -20,6 +20,7 @@
 
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MCAuto.hxx"
@@ -48,6 +49,11 @@ using namespace MEDCoupling;
 MEDCouplingMappedExtrudedMesh *MEDCouplingMappedExtrudedMesh::New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId)
 {
   return new MEDCouplingMappedExtrudedMesh(mesh3D,mesh2D,cell2DId);
+}
+
+MEDCouplingMappedExtrudedMesh *MEDCouplingMappedExtrudedMesh::New(const MEDCouplingCMesh *mesh3D)
+{
+  return new MEDCouplingMappedExtrudedMesh(mesh3D);
 }
 
 /*!
@@ -95,20 +101,29 @@ void MEDCouplingMappedExtrudedMesh::copyTinyStringsFrom(const MEDCouplingMesh *o
 MEDCouplingMappedExtrudedMesh::MEDCouplingMappedExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId)
 try:_mesh2D(const_cast<MEDCouplingUMesh *>(mesh2D)),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(cell2DId)
 {
-  if(_mesh2D!=0)
+  if(_mesh2D.isNotNull())
     _mesh2D->incrRef();
   computeExtrusion(mesh3D);
-  setName(mesh3D->getName());
+  setName(mesh3D->getName()); setDescription(mesh3D->getDescription());
 }
 catch(INTERP_KERNEL::Exception& e)
 {
-    if(_mesh2D)
-      _mesh2D->decrRef();
-    if(_mesh1D)
-      _mesh1D->decrRef();
-    if(_mesh3D_ids)
-      _mesh3D_ids->decrRef();
     throw e;
+}
+
+MEDCouplingMappedExtrudedMesh::MEDCouplingMappedExtrudedMesh(const MEDCouplingCMesh *mesh3D):_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(0)
+{
+  if(!mesh3D)
+    throw INTERP_KERNEL::Exception("MEDCouplingMappedExtrudedMesh contrct : null input pointer !");
+  if(mesh3D->getMeshDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingMappedExtrudedMesh contrct : input cart mesh must have dimension equal to 3 !");
+  MCAuto<MEDCouplingUMesh> umesh3D(mesh3D->buildUnstructured());
+  MCAuto<MEDCouplingCMesh> cmesh2D(MEDCouplingCMesh::New()); cmesh2D->setName(mesh3D->getName());
+  cmesh2D->setCoords(mesh3D->getCoordsAt(0),mesh3D->getCoordsAt(1));
+  _mesh2D=cmesh2D->buildUnstructured();
+  _mesh2D->setCoords(umesh3D->getCoords());
+  computeExtrusion(umesh3D);
+  setName(mesh3D->getName()); setDescription(mesh3D->getDescription());
 }
 
 MEDCouplingMappedExtrudedMesh::MEDCouplingMappedExtrudedMesh():_mesh2D(0),_mesh1D(0),_mesh3D_ids(0),_cell_2D_id(-1)
@@ -126,14 +141,8 @@ MEDCouplingMappedExtrudedMesh::MEDCouplingMappedExtrudedMesh(const MEDCouplingMa
   else
     {
       _mesh2D=other._mesh2D;
-      if(_mesh2D)
-        _mesh2D->incrRef();
       _mesh1D=other._mesh1D;
-      if(_mesh1D)
-        _mesh1D->incrRef();
       _mesh3D_ids=other._mesh3D_ids;
-      if(_mesh3D_ids)
-        _mesh3D_ids->incrRef();
     }
 }
 
@@ -752,7 +761,7 @@ void MEDCouplingMappedExtrudedMesh::getReverseNodalConnectivity(DataArrayInt *re
 void MEDCouplingMappedExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D)
 {
   _mesh3D_ids->alloc(mesh3D->getNumberOfCells(),1);
-  int nbOf1DLev=mesh3D->getNumberOfCells()/_mesh2D->getNumberOfCells();
+  int nbOf1DLev(mesh3D->getNumberOfCells()/_mesh2D->getNumberOfCells());
   _mesh1D->setMeshDimension(1);
   _mesh1D->allocateCells(nbOf1DLev);
   int tmpConn[2];

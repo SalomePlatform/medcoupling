@@ -522,6 +522,7 @@ namespace MEDCoupling
   class DataArrayInt;
   class DataArrayDouble;
   class MEDCouplingUMesh;
+  class MEDCouplingCMesh;
   class MEDCouplingFieldDouble;
 
   %extend RefCountObject
@@ -2824,11 +2825,17 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingCMesh *mesh3D) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *build3DUnstructuredMesh() const throw(INTERP_KERNEL::Exception);
     %extend {
       MEDCouplingMappedExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
       {
         return MEDCouplingMappedExtrudedMesh::New(mesh3D,mesh2D,cell2DId);
+      }
+
+      MEDCouplingMappedExtrudedMesh(const MEDCouplingCMesh *mesh3D) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCouplingMappedExtrudedMesh::New(mesh3D);
       }
 
       MEDCouplingMappedExtrudedMesh()

@@ -4424,7 +4424,13 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(em.buildUnstructured().isEqual(m,1e-12)) # the bug was here ... buildUnstructured used to modify em ...
         self.assertTrue(em.buildUnstructured().isEqual(m,1e-12)) # the bug was here ... buildUnstructured used to modify em ...
         pass
-    
+
+    def testExtrudedMeshFromCMesh1(self):
+        arrX=DataArrayDouble([0,1,2,3]) ; arrY=DataArrayDouble([0,1,2,3,4]) ; arrZ=DataArrayDouble([0,1,2,3,4,5])
+        mesh3D=MEDCouplingCMesh() ; mesh3D.setCoords(arrX,arrY,arrZ)
+        ex=MEDCouplingMappedExtrudedMesh(mesh3D)
+        self.assertTrue(ex.buildUnstructured().isEqual(mesh3D.buildUnstructured(),1e-12))
+        pass
     pass
 
 if __name__ == '__main__':
