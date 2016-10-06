@@ -60,6 +60,15 @@ namespace MEDCoupling
     mutable int _too_long_str;
     mutable int _zipconn_pol;
   };
+
+  class MEDFileWritableStandAlone : public MEDFileWritable
+  {
+  public:
+    MEDLOADER_EXPORT virtual void writeLL(med_idt fid) const = 0;
+    MEDLOADER_EXPORT virtual void write(const std::string& fileName, int mode) const;
+  };
+  
+  MEDFileUtilities::AutoFid OpenMEDFileForRead(const std::string& fileName);
 }
 
 #endif

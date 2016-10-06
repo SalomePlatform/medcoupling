@@ -112,7 +112,7 @@ private:
  * \brief Joint holds a sequence of joints of different iterations relating to
  *        a pair of mesh domains: a local one and a distant one
  */
-class MEDFileJoint : public RefCountObject, public MEDFileWritable
+class MEDFileJoint : public RefCountObject, public MEDFileWritableStandAlone
 {
 public:
     MEDLOADER_EXPORT static MEDFileJoint *New();
@@ -139,8 +139,7 @@ public:
     MEDLOADER_EXPORT int getNumberOfSteps() const;
     MEDLOADER_EXPORT MEDFileJointOneStep *getStepAtPos(int i) const;
 
-    MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
-    MEDLOADER_EXPORT void write(med_idt fid) const;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
 
     MEDLOADER_EXPORT std::string simpleRepr() const;
   private:
@@ -158,7 +157,7 @@ public:
   /*!
    * \brief Joints of a mesh domain relating to all other mesh domains
    */
-  class MEDFileJoints : public RefCountObject, public MEDFileWritable
+  class MEDFileJoints : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     MEDLOADER_EXPORT static MEDFileJoints *New();
@@ -169,8 +168,7 @@ public:
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT void simpleReprWithoutHeader(std::ostream& oss) const;
-    MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
-    MEDLOADER_EXPORT void write(med_idt fid) const;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT std::string getMeshName() const;
     MEDLOADER_EXPORT int getNumberOfJoints() const;
     MEDLOADER_EXPORT MEDFileJoint *getJointAtPos(int i) const;

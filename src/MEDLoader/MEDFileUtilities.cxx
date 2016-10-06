@@ -158,3 +158,28 @@ std::string MEDCoupling::MEDFileWritable::FileNameFromFID(med_idt fid)
     throw INTERP_KERNEL::Exception("MEDFileWritable::FileNameFromFID : Return code of MEDFile call \"MEDfileName\" is not >=0 as expected !");
   return std::string(tmp);
 }
+
+MEDFileUtilities::AutoFid MEDCoupling::OpenMEDFileForRead(const std::string& fileName)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+  return MEDFileUtilities::AutoFid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+}
+
+/*!
+ * Writes \a this mesh into a MED file specified by its name.
+ *  \param [in] fileName - the MED file name.
+ *  \param [in] mode - the writing mode. For more on \a mode, see \ref AdvMEDLoaderBasics.
+ * - 2 - erase; an existing file is removed.
+ * - 1 - append; same data should not be present in an existing file.
+ * - 0 - overwrite; same data present in an existing file is overwritten.
+ *  \throw If the mesh name is not set.
+ *  \throw If \a mode == 1 and the same data is present in an existing file.
+ */
+void MEDCoupling::MEDFileWritableStandAlone::write(const std::string& fileName, int mode) const
+{
+  med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
+  std::ostringstream oss; oss << "MEDFileWritableStandAlone : error on attempt to write in file : \"" << fileName << "\""; 
+  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str());
+  writeLL(fid);
+}

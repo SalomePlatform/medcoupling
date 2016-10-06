@@ -771,7 +771,7 @@ bool MEDFileParameters::isEqual(const MEDFileParameters *other, double eps, std:
   return true;
 }
 
-MEDFileParameters::MEDFileParameters(const MEDFileParameters& other, bool deepCopy):MEDFileWritable(other),_params(other._params)
+MEDFileParameters::MEDFileParameters(const MEDFileParameters& other, bool deepCopy):MEDFileWritableStandAlone(other),_params(other._params)
 {
   if(deepCopy)
     for(std::size_t i=0;i<_params.size();i++)

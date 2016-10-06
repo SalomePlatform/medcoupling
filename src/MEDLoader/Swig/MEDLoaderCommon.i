@@ -531,7 +531,13 @@ namespace MEDCoupling
     int getZipConnPolicy() throw(INTERP_KERNEL::Exception);
     void setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception);
   };
-
+  
+  class MEDFileWritableStandAlone : public MEDFileWritable
+  {
+  public:
+    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
+  };
+  
   class MEDFileMeshReadSelector
   {
   public:
@@ -652,7 +658,7 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileJoint : public RefCountObject, public MEDFileWritable
+  class MEDFileJoint : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileJoint *New() throw(INTERP_KERNEL::Exception);
@@ -675,7 +681,6 @@ namespace MEDCoupling
     void pushStep(MEDFileJointOneStep* step);
     int getNumberOfSteps() const;
     MEDFileJointOneStep *getStepAtPos(int i) const;
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     %extend
     {
@@ -696,14 +701,13 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileJoints : public RefCountObject, public MEDFileWritable
+  class MEDFileJoints : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileJoints *New() throw(INTERP_KERNEL::Exception);
     static MEDFileJoints *New(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
     MEDFileJoints *deepCopy() const;
     std::string simpleRepr() const;
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     std::string getMeshName() const;
     int getNumberOfJoints() const;
     std::vector<std::string> getJointsNames() const;
@@ -907,7 +911,7 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileMesh : public RefCountObject, public MEDFileWritable
+  class MEDFileMesh : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
@@ -947,7 +951,6 @@ namespace MEDCoupling
     virtual MEDFileMesh *cartesianize() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevels() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     //
     bool existsGroup(const std::string& groupName) const throw(INTERP_KERNEL::Exception);
@@ -1605,7 +1608,7 @@ namespace MEDCoupling
        }
   };
 
-  class MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
+  class MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileMeshMultiTS *New();
@@ -1613,7 +1616,6 @@ namespace MEDCoupling
     static MEDFileMeshMultiTS *New(const std::string& fileName, const std::string& mName) throw(INTERP_KERNEL::Exception);
     MEDFileMeshMultiTS *deepCopy() const throw(INTERP_KERNEL::Exception);
     std::string getName() const throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
     void cartesianizeMe() throw(INTERP_KERNEL::Exception);
     %extend
@@ -1665,13 +1667,12 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileMeshes : public RefCountObject, public MEDFileWritable
+  class MEDFileMeshes : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileMeshes *New();
     static MEDFileMeshes *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
     MEDFileMeshes *deepCopy() const throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
     //
@@ -1891,13 +1892,12 @@ namespace MEDCoupling
      }
   };
 
-  class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritable
+  class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileAnyTypeField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileAnyTypeField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileAnyTypeField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
     void unloadArrays() throw(INTERP_KERNEL::Exception);
@@ -2270,7 +2270,7 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileAnyTypeFieldMultiTS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritable
+  class MEDFileAnyTypeFieldMultiTS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
@@ -2290,7 +2290,6 @@ namespace MEDCoupling
     void eraseEmptyTS() throw(INTERP_KERNEL::Exception);
     int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
     void unloadArrays() throw(INTERP_KERNEL::Exception);
@@ -2864,7 +2863,7 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileFields : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritable
+  class MEDFileFields : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileFields *New() throw(INTERP_KERNEL::Exception);
@@ -2876,7 +2875,6 @@ namespace MEDCoupling
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
     void unloadArrays() throw(INTERP_KERNEL::Exception);
     void unloadArraysWithoutDataLoss() throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
@@ -3342,7 +3340,7 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileParameters : public RefCountObject, public MEDFileWritable
+  class MEDFileParameters : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileParameters *New();
@@ -3429,7 +3427,7 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileData : public RefCountObject, public MEDFileWritable
+  class MEDFileData : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileData *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
@@ -3445,7 +3443,6 @@ namespace MEDCoupling
     bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName) throw(INTERP_KERNEL::Exception);
     bool unPolyzeMeshes() throw(INTERP_KERNEL::Exception);
     //
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileData(const std::string& fileName) throw(INTERP_KERNEL::Exception)

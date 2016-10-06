@@ -495,33 +495,13 @@ MEDFileJoint::MEDFileJoint(med_idt fid, const std::string& mName, int curJoint)
     }
 }
 
-/*!
- * Writes \a this joint into a MED file specified by its name.
- *  \param [in] fileName - the MED file name.
- *  \param [in] mode - the writing mode. For more on \a mode, see \ref AdvMEDLoaderBasics.
- * - 2 - erase; an existing file is removed.
- * - 1 - append; same data should not be present in an existing file.
- * - 0 - overwrite; same data present in an existing file is overwritten.
- *  \throw If the mesh name is not set.
- *  \throw If \a mode == 1 and the same data is present in an existing file.
- */
-void MEDFileJoint::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  std::ostringstream oss; oss << "MEDFileJoint : error on attempt to write in file : \"" << fileName << "\"";
-  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str());
-  write(fid);
-}
-
-void MEDFileJoint::write(med_idt fid) const
+void MEDFileJoint::writeLL(med_idt fid) const
 {
   // if ( _loc_mesh_name.empty() )
   //   throw INTERP_KERNEL::Exception("MEDFileJoint::write : name of a local mesh not defined!");
   MEDFILESAFECALLERWR0(MEDsubdomainJointCr,(fid,getLocalMeshName().c_str(),getJointName().c_str(),getDescription().c_str(),getDomainNumber(),getRemoteMeshName().c_str()));
-  for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++) {
+  for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++)
     (*it)->writeLL(fid, getLocalMeshName(),getJointName());
-  }
 }
 
 void MEDFileJoint::pushStep(MEDFileJointOneStep* step)
@@ -654,21 +634,10 @@ MEDFileJoints *MEDFileJoints::New(med_idt fid, const std::string& meshName)
   return new MEDFileJoints( fid, meshName );
 }
 
-void MEDFileJoints::write(med_idt fid) const
+void MEDFileJoints::writeLL(med_idt fid) const
 {
   for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++)
-    {
-      (*it)->write(fid);
-    }
-}
-
-void MEDFileJoints::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  std::ostringstream oss; oss << "MEDFileJoints : error on attempt to write in file : \"" << fileName << "\"";
-  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str());
-  write(fid);
+    (*it)->writeLL(fid);
 }
 
 std::string MEDFileJoints::getMeshName() const

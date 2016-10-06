@@ -181,36 +181,17 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mN
  *  \throw If the file is open for reading only.
  *  \throw If the writing mode == 1 and the same data is present in an existing file.
  */
-void MEDFileMesh::write(med_idt fid) const
+void MEDFileMesh::writeLL(med_idt fid) const
 {
   if(!existsFamily(0))
     const_cast<MEDFileMesh *>(this)->addFamily(DFT_FAM_NAME,0);
   if(_name.empty())
     throw INTERP_KERNEL::Exception("MEDFileMesh : name is empty. MED file ask for a NON EMPTY name !");
-  writeLL(fid);
+  writeMeshLL(fid);
   writeJoints(fid);
   const MEDFileEquivalences *eqs(_equiv);
   if(eqs)
     eqs->write(fid);
-}
-
-/*!
- * Writes \a this mesh into a MED file specified by its name.
- *  \param [in] fileName - the MED file name.
- *  \param [in] mode - the writing mode. For more on \a mode, see \ref AdvMEDLoaderBasics.
- * - 2 - erase; an existing file is removed.
- * - 1 - append; same data should not be present in an existing file.
- * - 0 - overwrite; same data present in an existing file is overwritten.
- *  \throw If the mesh name is not set.
- *  \throw If \a mode == 1 and the same data is present in an existing file.
- */
-void MEDFileMesh::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  std::ostringstream oss; oss << "MEDFileMesh : error on attempt to write in file : \"" << fileName << "\""; 
-  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str());
-  write(fid);
 }
 
 /*!
@@ -2679,8 +2660,8 @@ void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, 
  */
 void MEDFileMesh::writeJoints(med_idt fid) const
 {
-  if ( (const MEDFileJoints*) _joints )
-    _joints->write(fid);
+  if ( _joints.isNotNull() )
+    _joints->writeLL(fid);
 }
 
 /*!
@@ -2837,7 +2818,7 @@ MEDFileUMesh::~MEDFileUMesh()
 {
 }
 
-void MEDFileUMesh::writeLL(med_idt fid) const
+void MEDFileUMesh::writeMeshLL(med_idt fid) const
 {
   const DataArrayDouble *coo=_coords;
   INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -6666,7 +6647,7 @@ MEDFileMesh *MEDFileCMesh::cartesianize() const
     }
 }
 
-void MEDFileCMesh::writeLL(med_idt fid) const
+void MEDFileCMesh::writeMeshLL(med_idt fid) const
 {
   INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> desc=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
@@ -6897,7 +6878,7 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
+void MEDFileCurveLinearMesh::writeMeshLL(med_idt fid) const
 {
   INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> desc=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
@@ -6911,7 +6892,7 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
   INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
   const DataArrayDouble *coords=_clmesh->getCoords();
   if(!coords)
-    throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh::writeLL : no coordinates set !");
+    throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh::writeMeshLL : no coordinates set !");
   for(int i=0;i<spaceDim;i++)
     {
       std::string info(_clmesh->getCoords()->getInfoOnComponent(i));
@@ -7069,7 +7050,7 @@ void MEDFileMeshMultiTS::setJoints( MEDFileJoints* joints )
     }
 }
 
-void MEDFileMeshMultiTS::write(med_idt fid) const
+void MEDFileMeshMultiTS::writeLL(med_idt fid) const
 {
   MEDFileJoints *joints(getJoints());
   bool jointsWritten(false);
@@ -7082,19 +7063,10 @@ void MEDFileMeshMultiTS::write(med_idt fid) const
         jointsWritten = true;
 
       (*it)->copyOptionsFrom(*this);
-      (*it)->write(fid);
+      (*it)->writeLL(fid);
     }
 
   (const_cast<MEDFileMeshMultiTS*>(this))->setJoints( joints ); // restore joints
-}
-
-void MEDFileMeshMultiTS::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  std::ostringstream oss; oss << "MEDFileMesh : error on attempt to write in file : \"" << fileName << "\""; 
-  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str());
-  write(fid);
 }
 
 void MEDFileMeshMultiTS::loadFromFile(const std::string& fileName, const std::string& mName)
@@ -7157,25 +7129,17 @@ MEDFileMeshes *MEDFileMeshes::New(const std::string& fileName)
   return new MEDFileMeshes(fileName);
 }
 
-void MEDFileMeshes::write(med_idt fid) const
+void MEDFileMeshes::writeLL(med_idt fid) const
 {
   checkConsistencyLight();
   for(std::vector< MCAuto<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++)
     {
       (*it)->copyOptionsFrom(*this);
-      (*it)->write(fid);
+      (*it)->writeLL(fid);
     }
 }
 
-void MEDFileMeshes::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  std::ostringstream oss; oss << "MEDFileMesh : error on attempt to write in file : \"" << fileName << "\""; 
-  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str());
-  checkConsistencyLight();
-  write(fid);
-}
+//  MEDFileMeshes::writ checkConsistencyLight();
 
 int MEDFileMeshes::getNumberOfMeshes() const
 {

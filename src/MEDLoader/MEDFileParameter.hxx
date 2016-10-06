@@ -152,7 +152,7 @@ namespace MEDCoupling
     std::vector< MCAuto<MEDFileParameter1TS> > _param_per_ts;
   };
 
-  class MEDFileParameters : public RefCountObject, public MEDFileWritable
+  class MEDFileParameters : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     MEDLOADER_EXPORT static MEDFileParameters *New();

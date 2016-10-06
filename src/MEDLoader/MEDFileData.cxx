@@ -303,17 +303,15 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-void MEDFileData::write(const std::string& fileName, int mode) const
+void MEDFileData::writeLL(med_idt fid) const
 {
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  const MEDFileMeshes *ms=_meshes;
+  const MEDFileMeshes *ms(_meshes);
   if(ms)
-    ms->write(fid);
-  const MEDFileFields *fs=_fields;
+    ms->writeLL(fid);
+  const MEDFileFields *fs(_fields);
   if(fs)
     fs->writeLL(fid);
-  const MEDFileParameters *ps=_params;
+  const MEDFileParameters *ps(_params);
   if(ps)
     ps->writeLL(fid);
 }

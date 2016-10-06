@@ -2031,10 +2031,10 @@ bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const std::string& meshNam
   std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> entriesKept;
   std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> otherEntries;
   getUndergroundDataArrayExt(entries);
-  DataArray *arr0=getOrCreateAndGetArray();//tony
+  DataArray *arr0(getOrCreateAndGetArray());//tony
   if(!arr0)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh : DataArray storing values of field is null !");
-  DataArrayDouble *arr=dynamic_cast<DataArrayDouble *>(arr0);//tony
+  DataArrayDouble *arr(dynamic_cast<DataArrayDouble *>(arr0));//tony
   if(!arr0)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh : DataArray storing values is double ! Not managed for the moment !");
   int sz=0;
@@ -2843,9 +2843,9 @@ void MEDFileFieldGlobs::loadAllGlobals(med_idt fid)
     }
 }
 
-MEDFileFieldGlobs *MEDFileFieldGlobs::New(const std::string& fname)
+MEDFileFieldGlobs *MEDFileFieldGlobs::New(med_idt fid)
 {
-  return new MEDFileFieldGlobs(fname);
+  return new MEDFileFieldGlobs(fid);
 }
 
 MEDFileFieldGlobs *MEDFileFieldGlobs::New()
@@ -2942,7 +2942,7 @@ MEDFileFieldGlobs *MEDFileFieldGlobs::deepCpyPart(const std::vector<std::string>
   return ret.retn();
 }
 
-MEDFileFieldGlobs::MEDFileFieldGlobs(const std::string& fname):_file_name(fname)
+MEDFileFieldGlobs::MEDFileFieldGlobs(med_idt fid):_file_name(MEDFileWritable::FileNameFromFID(fid))
 {
 }
 
@@ -2978,11 +2978,6 @@ void MEDFileFieldGlobs::simpleRepr(std::ostream& oss) const
       else
         oss<< "EMPTY !\n";
     }
-}
-
-void MEDFileFieldGlobs::setFileName(const std::string& fileName)
-{
-  _file_name=fileName;
 }
 
 void MEDFileFieldGlobs::changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif)
@@ -3305,7 +3300,7 @@ std::string MEDFileFieldGlobs::CreateNewNameNotIn(const std::string& prefix, con
  * Creates a MEDFileFieldGlobsReal on a given file name. Nothing is read here.
  *  \param [in] fname - the file name.
  */
-MEDFileFieldGlobsReal::MEDFileFieldGlobsReal(const std::string& fname):_globals(MEDFileFieldGlobs::New(fname))
+MEDFileFieldGlobsReal::MEDFileFieldGlobsReal(med_idt fid):_globals(MEDFileFieldGlobs::New(fid))
 {
 }
 
@@ -5435,11 +5430,9 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileFieldGlobsReal(fileName)
+MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileFieldGlobsReal(fid)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
   _content=BuildContentFrom(fid,loadAll,ms);
   loadGlobals(fid);
 }
@@ -5495,11 +5488,9 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileFieldGlobsReal(fileName)
+MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileFieldGlobsReal(fid)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   _content=BuildContentFrom(fid,fieldName,loadAll,ms);
   loadGlobals(fid);
 }
@@ -5531,8 +5522,7 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDF
 
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, bool loadAll)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,loadAll,0));
   MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
   ret->loadGlobals(fid);
@@ -5541,8 +5531,7 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName,
 
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,loadAll,0));
   MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
   ret->loadGlobals(fid);
@@ -5551,8 +5540,7 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName,
 
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=OpenMEDFileForRead(fileName);
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,iteration,order,loadAll,0));
   MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
   ret->loadGlobals(fid);
@@ -5617,11 +5605,9 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileFieldGlobsReal(fileName)
+MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileFieldGlobsReal(fid)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
   _content=BuildContentFrom(fid,fieldName,iteration,order,loadAll,ms);
   loadGlobals(fid);
 }
@@ -5801,24 +5787,6 @@ const MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::contentNotNullBa
 }
 
 /*!
- * Writes \a this field into a MED file specified by its name.
- *  \param [in] fileName - the MED file name.
- *  \param [in] mode - the writing mode. For more on \a mode, see \ref AdvMEDLoaderBasics.
- * - 2 - erase; an existing file is removed.
- * - 1 - append; same data should not be present in an existing file.
- * - 0 - overwrite; same data present in an existing file is overwritten.
- *  \throw If the field name is not set.
- *  \throw If no field data is set.
- *  \throw If \a mode == 1 and the same data is present in an existing file.
- */
-void MEDFileAnyTypeField1TS::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
-  writeLL(fid);
-}
-
-/*!
  * This method alloc the arrays and load potentially huge arrays contained in this field.
  * This method should be called when a MEDFileAnyTypeField1TS::New constructor has been with false as the last parameter.
  * This method can be also called to refresh or reinit values from a file.
@@ -5830,7 +5798,7 @@ void MEDFileAnyTypeField1TS::loadArrays()
 {
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::loadArrays : the structure does not come from a file !");
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(getFileName()));
   contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
 }
 
@@ -5845,7 +5813,7 @@ void MEDFileAnyTypeField1TS::loadArraysIfNecessary()
 {
   if(!getFileName().empty())
     {
-      MEDFileUtilities::AutoFid fid(MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY));
+      MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(getFileName()));
       contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
     }
 }
@@ -6198,7 +6166,8 @@ int MEDFileAnyTypeField1TS::copyTinyInfoFrom(const MEDCouplingFieldDouble *field
  */
 MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, bool loadAll)
 {
-  MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fileName,loadAll,0));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fid,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
 }
@@ -6215,7 +6184,8 @@ MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, bool loadAll)
  */
 MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
-  MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fileName,fieldName,loadAll,0));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fid,fieldName,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
 }
@@ -6235,7 +6205,8 @@ MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::st
  */
 MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
-  MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fileName,fieldName,iteration,order,loadAll,0));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fid,fieldName,iteration,order,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
 }
@@ -6397,22 +6368,22 @@ MEDFileField1TS *MEDFileField1TS::extractPart(const std::map<int, MCAuto<DataArr
   return ret.retn();
 }
 
-MEDFileField1TS::MEDFileField1TS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeField1TS(fileName,loadAll,ms)
+MEDFileField1TS::MEDFileField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileAnyTypeField1TS(fid,loadAll,ms)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
-MEDFileField1TS::MEDFileField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeField1TS(fileName,fieldName,loadAll,ms)
+MEDFileField1TS::MEDFileField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileAnyTypeField1TS(fid,fieldName,loadAll,ms)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
-MEDFileField1TS::MEDFileField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeField1TS(fileName,fieldName,iteration,order,loadAll,ms)
+MEDFileField1TS::MEDFileField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileAnyTypeField1TS(fid,fieldName,iteration,order,loadAll,ms)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -6705,28 +6676,31 @@ std::vector< std::vector<DataArrayDouble *> > MEDFileField1TS::getFieldSplitedBy
 
 MEDFileIntField1TS *MEDFileIntField1TS::New()
 {
-  MCAuto<MEDFileIntField1TS> ret=new MEDFileIntField1TS;
+  MCAuto<MEDFileIntField1TS> ret(new MEDFileIntField1TS);
   ret->contentNotNull();
   return ret.retn();
 }
 
 MEDFileIntField1TS *MEDFileIntField1TS::New(const std::string& fileName, bool loadAll)
 {
-  MCAuto<MEDFileIntField1TS> ret(new MEDFileIntField1TS(fileName,loadAll,0));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileIntField1TS> ret(new MEDFileIntField1TS(fid,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
 }
 
 MEDFileIntField1TS *MEDFileIntField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
-  MCAuto<MEDFileIntField1TS> ret(new MEDFileIntField1TS(fileName,fieldName,loadAll,0));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileIntField1TS> ret(new MEDFileIntField1TS(fid,fieldName,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
 }
 
 MEDFileIntField1TS *MEDFileIntField1TS::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
-  MCAuto<MEDFileIntField1TS> ret(new MEDFileIntField1TS(fileName,fieldName,iteration,order,loadAll,0));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileIntField1TS> ret(new MEDFileIntField1TS(fid,fieldName,iteration,order,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
 }
@@ -6743,22 +6717,22 @@ MEDFileIntField1TS::MEDFileIntField1TS()
   _content=new MEDFileIntField1TSWithoutSDA;
 }
 
-MEDFileIntField1TS::MEDFileIntField1TS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeField1TS(fileName,loadAll,ms)
+MEDFileIntField1TS::MEDFileIntField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileAnyTypeField1TS(fid,loadAll,ms)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
-MEDFileIntField1TS::MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeField1TS(fileName,fieldName,loadAll,ms)
+MEDFileIntField1TS::MEDFileIntField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileAnyTypeField1TS(fid,fieldName,loadAll,ms)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
-MEDFileIntField1TS::MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeField1TS(fileName,fieldName,iteration,order,loadAll,ms)
+MEDFileIntField1TS::MEDFileIntField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileAnyTypeField1TS(fid,fieldName,iteration,order,loadAll,ms)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -8124,12 +8098,10 @@ MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS()
 {
 }
 
-MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileFieldGlobsReal(fileName)
+MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileFieldGlobsReal(fid)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  _content=BuildContentFrom(fid,fileName,loadAll,ms);
+  _content=BuildContentFrom(fid,loadAll,ms);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -8137,7 +8109,7 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
 {
   med_field_type typcha;
   std::vector<std::string> infos;
@@ -8159,7 +8131,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fileName,fieldName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -8167,7 +8139,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
   return ret.retn();
 }
 
-MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
+MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
 {
   med_field_type typcha;
   //
@@ -8189,7 +8161,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fileName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fid) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -8218,12 +8190,10 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromCont
   throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 and INT32 has been built but not intercepted !");
 }
 
-MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
-try:MEDFileFieldGlobsReal(fileName)
+MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+try:MEDFileFieldGlobsReal(fid)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  _content=BuildContentFrom(fid,fileName,fieldName,loadAll,ms,entities);
+  _content=BuildContentFrom(fid,fieldName,loadAll,ms,entities);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -8324,10 +8294,9 @@ MEDFileFieldMultiTSWithoutSDA *MEDFileIntFieldMultiTSWithoutSDA::convertToDouble
  */
 MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const std::string& fileName, bool loadAll)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> c=BuildContentFrom(fid,fileName,loadAll,0);
-  MCAuto<MEDFileAnyTypeFieldMultiTS> ret=BuildNewInstanceFromContent(c,fileName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> c(BuildContentFrom(fid,loadAll,0));
+  MCAuto<MEDFileAnyTypeFieldMultiTS> ret(BuildNewInstanceFromContent(c,fileName));
   ret->loadGlobals(fid);
   return ret.retn();
 }
@@ -8344,9 +8313,8 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const std::string& f
  */
 MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> c(BuildContentFrom(fid,fileName,fieldName,loadAll,0,0));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> c(BuildContentFrom(fid,fieldName,loadAll,0,0));
   MCAuto<MEDFileAnyTypeFieldMultiTS> ret=BuildNewInstanceFromContent(c,fileName);
   ret->loadGlobals(fid);
   return ret.retn();
@@ -8596,24 +8564,6 @@ void MEDFileAnyTypeFieldMultiTS::writeLL(med_idt fid) const
 }
 
 /*!
- * Writes \a this field into a MED file specified by its name.
- *  \param [in] fileName - the MED file name.
- *  \param [in] mode - the writing mode. For more on \a mode, see \ref AdvMEDLoaderBasics.
- * - 2 - erase; an existing file is removed.
- * - 1 - append; same data should not be present in an existing file.
- * - 0 - overwrite; same data present in an existing file is overwritten.
- *  \throw If the field name is not set.
- *  \throw If no field data is set.
- *  \throw If \a mode == 1 and the same data is present in an existing file.
- */
-void MEDFileAnyTypeFieldMultiTS::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  writeLL(fid);
-}
-
-/*!
  * This method alloc the arrays and load potentially huge arrays contained in this field.
  * This method should be called when a MEDFileAnyTypeFieldMultiTS::New constructor has been with false as the last parameter.
  * This method can be also called to refresh or reinit values from a file.
@@ -8624,7 +8574,7 @@ void MEDFileAnyTypeFieldMultiTS::loadArrays()
 {
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::loadArrays : the structure does not come from a file !");
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(getFileName()));
   contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
 }
 
@@ -8639,7 +8589,7 @@ void MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary()
 {
   if(!getFileName().empty())
     {
-      MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+      MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(getFileName()));
       contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
     }
 }
@@ -9141,7 +9091,8 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New()
  */
 MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const std::string& fileName, bool loadAll)
 {
-  MCAuto<MEDFileFieldMultiTS> ret=new MEDFileFieldMultiTS(fileName,loadAll,0);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileFieldMultiTS> ret(new MEDFileFieldMultiTS(fid,loadAll,0));
   ret->contentNotNull();//to check that content type matches with \a this type.
   return ret.retn();
 }
@@ -9158,7 +9109,8 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const std::string& fileName, bool 
  */
 MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
-  MCAuto<MEDFileFieldMultiTS> ret=new MEDFileFieldMultiTS(fileName,fieldName,loadAll,0);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileFieldMultiTS> ret(new MEDFileFieldMultiTS(fid,fieldName,loadAll,0));
   ret->contentNotNull();//to check that content type matches with \a this type.
   return ret.retn();
 }
@@ -9182,7 +9134,8 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const MEDFileFieldMultiTSWithoutSD
 
 MEDFileFieldMultiTS *MEDFileFieldMultiTS::LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll)
 {
-  MCAuto<MEDFileFieldMultiTS> ret(new MEDFileFieldMultiTS(fileName,fieldName,loadAll,0,&entities));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileFieldMultiTS> ret(new MEDFileFieldMultiTS(fid,fieldName,loadAll,0,&entities));
   ret->contentNotNull();//to check that content type matches with \a this type.
   return ret.retn();
 }
@@ -9531,15 +9484,15 @@ MEDFileFieldMultiTS::MEDFileFieldMultiTS()
   _content=new MEDFileFieldMultiTSWithoutSDA;
 }
 
-MEDFileFieldMultiTS::MEDFileFieldMultiTS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeFieldMultiTS(fileName,loadAll,ms)
+MEDFileFieldMultiTS::MEDFileFieldMultiTS(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileAnyTypeFieldMultiTS(fid,loadAll,ms)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
-MEDFileFieldMultiTS::MEDFileFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
-try:MEDFileAnyTypeFieldMultiTS(fileName,fieldName,loadAll,ms,entities)
+MEDFileFieldMultiTS::MEDFileFieldMultiTS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+try:MEDFileAnyTypeFieldMultiTS(fid,fieldName,loadAll,ms,entities)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -9620,7 +9573,8 @@ MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New()
  */
 MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const std::string& fileName, bool loadAll)
 {
-  MCAuto<MEDFileIntFieldMultiTS> ret=new MEDFileIntFieldMultiTS(fileName,loadAll,0);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileIntFieldMultiTS> ret(new MEDFileIntFieldMultiTS(fid,loadAll,0));
   ret->contentNotNull();//to check that content type matches with \a this type.
   return ret.retn();
 }
@@ -9637,7 +9591,8 @@ MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const std::string& fileName,
  */
 MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
-  MCAuto<MEDFileIntFieldMultiTS> ret=new MEDFileIntFieldMultiTS(fileName,fieldName,loadAll,0);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileIntFieldMultiTS> ret(new MEDFileIntFieldMultiTS(fid,fieldName,loadAll,0));
   ret->contentNotNull();//to check that content type matches with \a this type.
   return ret.retn();
 }
@@ -9661,7 +9616,8 @@ MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const MEDFileIntFieldMultiTS
 
 MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll)
 {
-  MCAuto<MEDFileIntFieldMultiTS> ret=new MEDFileIntFieldMultiTS(fileName,fieldName,loadAll,0,&entities);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MCAuto<MEDFileIntFieldMultiTS> ret(new MEDFileIntFieldMultiTS(fid,fieldName,loadAll,0,&entities));
   ret->contentNotNull();//to check that content type matches with \a this type.
   return ret.retn();
 }
@@ -10015,15 +9971,15 @@ MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const MEDFileIntFieldMultiTSWitho
 {
 }
 
-MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeFieldMultiTS(fileName,loadAll,ms)
+MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileAnyTypeFieldMultiTS(fid,loadAll,ms)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
-MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
-try:MEDFileAnyTypeFieldMultiTS(fileName,fieldName,loadAll,ms,entities)
+MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+try:MEDFileAnyTypeFieldMultiTS(fid,fieldName,loadAll,ms,entities)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -10048,17 +10004,21 @@ MEDFileFields *MEDFileFields::New()
 
 MEDFileFields *MEDFileFields::New(const std::string& fileName, bool loadAll)
 {
-  return new MEDFileFields(fileName,loadAll,0,0);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return new MEDFileFields(fid,loadAll,0,0);
 }
 
 MEDFileFields *MEDFileFields::LoadPartOf(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
 {
-  return new MEDFileFields(fileName,loadAll,ms,0);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return new MEDFileFields(fid,loadAll,ms,0);
 }
 
 MEDFileFields *MEDFileFields::LoadSpecificEntities(const std::string& fileName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll)
 {
-  return new MEDFileFields(fileName,loadAll,0,&entities);
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return new MEDFileFields(fid,loadAll,0,&entities);
 }
 
 std::size_t MEDFileFields::getHeapMemorySizeWithoutChildren() const
@@ -10216,11 +10176,9 @@ MEDFileFields::MEDFileFields()
 {
 }
 
-MEDFileFields::MEDFileFields(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
-try:MEDFileFieldGlobsReal(fileName)
+MEDFileFields::MEDFileFields(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+try:MEDFileFieldGlobsReal(fid)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
   int nbFields(MEDnField(fid));
   _fields.resize(nbFields);
   med_field_type typcha;
@@ -10243,7 +10201,7 @@ try:MEDFileFieldGlobsReal(fileName)
           }
         default:
           {
-            std::ostringstream oss; oss << "constructor MEDFileFields(fileName) : file \'" << fileName << "\' at pos #" << i << " field has name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
+            std::ostringstream oss; oss << "constructor MEDFileFields(fileName) : file \'" << FileNameFromFID(fid) << "\' at pos #" << i << " field has name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
             throw INTERP_KERNEL::Exception(oss.str());
           }
       }
@@ -10271,13 +10229,6 @@ void MEDFileFields::writeLL(med_idt fid) const
     }
 }
 
-void MEDFileFields::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
-  writeLL(fid);
-}
-
 /*!
  * This method alloc the arrays and load potentially huge arrays contained in this field.
  * This method should be called when a MEDFileAnyTypeFieldMultiTS::New constructor has been with false as the last parameter.
@@ -10289,7 +10240,7 @@ void MEDFileFields::loadArrays()
 {
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileFields::loadArrays : the structure does not come from a file !");
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(getFileName()));
   for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
       MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
@@ -10309,7 +10260,7 @@ void MEDFileFields::loadArraysIfNecessary()
 {
   if(!getFileName().empty())
     {
-      MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+      MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(getFileName()));
       for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
         {
           MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);

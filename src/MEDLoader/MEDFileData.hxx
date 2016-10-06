@@ -31,7 +31,7 @@ namespace MEDCoupling
   /*!
    * User class.
    */
-  class MEDFileData : public RefCountObject, public MEDFileWritable
+  class MEDFileData : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
     MEDLOADER_EXPORT static MEDFileData *New(const std::string& fileName);
@@ -55,7 +55,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool unPolyzeMeshes();
     MEDLOADER_EXPORT static MCAuto<MEDFileData> Aggregate(const std::vector<const MEDFileData *>& mfds);
     //
-    MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
   private:
     MEDFileData();
     MEDFileData(const std::string& fileName);
