@@ -620,9 +620,11 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
   const MEDCouplingMappedExtrudedMesh *target_mesh=static_cast<const MEDCouplingMappedExtrudedMesh *>(_target_ft->getMesh());
   if(methC!="P0P0")
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyEE : Only P0P0 method implemented for Extruded/Extruded meshes !");
-  MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(src_mesh->getMesh2D());
-  MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(target_mesh->getMesh2D());
-  INTERP_KERNEL::Interpolation3DSurf interpolation2D(*this);
+  MCAuto<MEDCouplingUMesh> src2D(src_mesh->getMesh2D()->clone(false)); src2D->changeSpaceDimension(2,0.);
+  MCAuto<MEDCouplingUMesh> trg2D(target_mesh->getMesh2D()->clone(false)); trg2D->changeSpaceDimension(2,0.);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src2D);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(trg2D);
+  INTERP_KERNEL::Interpolation2D interpolation2D(*this);
   std::vector<std::map<int,double> > matrix2D;
   int nbCols2D=interpolation2D.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,methC);
   MEDCouplingUMesh *s1D,*t1D;
@@ -632,6 +634,8 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
   MEDCouplingNormalizedUnstructuredMesh<1,1> t1DWrapper(t1D);
   std::vector<std::map<int,double> > matrix1D;
   INTERP_KERNEL::Interpolation1D interpolation1D(*this);
+  if(interpolation1D.getIntersectionType()==INTERP_KERNEL::Geometric2D)// For intersection type of 1D, Geometric2D do not deal with it ! -> make interpolation1D not inherite from this
+    interpolation1D.setIntersectionType(INTERP_KERNEL::Triangulation);//
   int nbCols1D=interpolation1D.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,methC);
   s1D->decrRef();
   t1D->decrRef();

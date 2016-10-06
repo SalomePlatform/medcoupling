@@ -1019,6 +1019,51 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(rem.getCrudeMatrix(),[{0:1.},{1:1.}])
         pass
     
+    def testExtrudedOnDiffZLev1(self):
+        """Non regression bug : This test is base on P0P0 ExtrudedExtruded. This test checks that if the input meshes are not based on a same plane // OXY the interpolation works"""
+        arrX=DataArrayDouble([0,1]) ; arrY=DataArrayDouble([0,1]) ; arrZ=DataArrayDouble([0,1,2])
+        src=MEDCouplingCMesh() ; src.setCoords(arrX,arrY,arrZ)
+        arrX=DataArrayDouble([0.5,1.5]) ; arrY=DataArrayDouble([0.5,1.5]) ; arrZ=DataArrayDouble([0.5,2])
+        trg=MEDCouplingCMesh() ; trg.setCoords(arrX,arrY,arrZ)
+        #
+        src=MEDCouplingMappedExtrudedMesh(src) ; trg=MEDCouplingMappedExtrudedMesh(trg)
+        pt1=src.getMesh2D().getCoords().getHiddenCppPointer() ; pt2=trg.getMesh2D().getCoords().getHiddenCppPointer()
+        #
+        rem=MEDCouplingRemapper()
+        rem.prepare(src,trg,"P0P0")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.125,1:0.25}],src.getNumberOfCells(),1e-12)
+        #
+        self.assertEqual(src.getMesh2D().getSpaceDimension(),3)
+        self.assertEqual(trg.getMesh2D().getSpaceDimension(),3)
+        self.assertEqual(src.getMesh2D().getCoords().getHiddenCppPointer(),pt1)
+        self.assertEqual(trg.getMesh2D().getCoords().getHiddenCppPointer(),pt2)
+        #
+        rem2=MEDCouplingRemapper()
+        rem2.setIntersectionType(Geometric2D)
+        rem2.prepare(src,trg,"P0P0")
+        self.checkMatrix(rem2.getCrudeMatrix(),[{0:0.125,1:0.25}],src.getNumberOfCells(),1e-12)
+        pass
+
+    def checkMatrix(self,mat1,mat2,nbCols,eps):
+        self.assertEqual(len(mat1),len(mat2))
+        for i in xrange(len(mat1)):
+            self.assertTrue(max(mat2[i].keys())<nbCols)
+            self.assertTrue(max(mat1[i].keys())<nbCols)
+            self.assertTrue(min(mat2[i].keys())>=0)
+            self.assertTrue(min(mat1[i].keys())>=0)
+            s1=set(mat1[i].keys()) ; s2=set(mat2[i].keys())
+            for elt in s1.intersection(s2):
+                self.assertTrue(abs(mat1[i][elt]-mat2[i][elt])<eps)
+                pass
+            for elt in s1.difference(s2):
+                self.assertTrue(abs(mat1[i][elt])<eps)
+                pass
+            for elt in s2.difference(s1):
+                self.assertTrue(abs(mat2[i][elt])<eps)
+                pass
+            pass
+        pass
+    
     def build2DSourceMesh_1(self):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
         sourceConn=[0,3,1,0,2,3]
