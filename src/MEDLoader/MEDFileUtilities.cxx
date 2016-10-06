@@ -21,6 +21,8 @@
 #include "MEDFileUtilities.hxx"
 #include "MEDLoaderBase.hxx"
 
+#include "InterpKernelAutoPtr.hxx"
+
 #include <sstream>
 
 med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode)
@@ -144,4 +146,15 @@ int MEDCoupling::MEDFileWritable::getZipConnPolicy()
 void MEDCoupling::MEDFileWritable::setZipConnPolicy(int newVal)
 {
   _zipconn_pol=newVal;
+}
+
+std::string MEDCoupling::MEDFileWritable::FileNameFromFID(med_idt fid)
+{
+  int lgth(MEDfileName(fid,0,0));
+  if(lgth<=0)
+    return std::string();
+  INTERP_KERNEL::AutoPtr<char> tmp(new char[lgth+1]);
+  if(MEDfileName(fid,tmp,lgth)<0)
+    throw INTERP_KERNEL::Exception("MEDFileWritable::FileNameFromFID : Return code of MEDFile call \"MEDfileName\" is not >=0 as expected !");
+  return std::string(tmp);
 }

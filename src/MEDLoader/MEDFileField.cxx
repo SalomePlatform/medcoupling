@@ -69,11 +69,11 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const std::string& locName):_name(
   med_geometry_type geotype;
   med_geometry_type sectiongeotype;
   int nsectionmeshcell;
-  INTERP_KERNEL::AutoPtr<char> geointerpname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> sectionmeshname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> geointerpname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> sectionmeshname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   MEDlocalizationInfoByName(fid,locName.c_str(),&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
   _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype)));
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
   _nb_node_per_cell=cm.getNumberOfNodes();
   _ref_coo.resize(_dim*_nb_node_per_cell);
   _gs_coo.resize(_dim*_nb_gauss_pt);
@@ -86,13 +86,13 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id)
   med_geometry_type geotype;
   med_geometry_type sectiongeotype;
   int nsectionmeshcell;
-  INTERP_KERNEL::AutoPtr<char> locName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> geointerpname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> sectionmeshname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> locName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> geointerpname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> sectionmeshname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   MEDlocalizationInfo(fid,id+1,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
   _name=locName;
   _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype)));
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
   _nb_node_per_cell=cm.getNumberOfNodes();
   _ref_coo.resize(_dim*_nb_node_per_cell);
   _gs_coo.resize(_dim*_nb_gauss_pt);
@@ -104,7 +104,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(const std::string& locName, INTERP_KERNEL::Norm
                                  const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w):_name(locName),_geo_type(geoType),_ref_coo(refCoo),_gs_coo(gsCoo),
                                      _w(w)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
   _dim=cm.getDimension();
   _nb_node_per_cell=cm.getNumberOfNodes();
   _nb_gauss_pt=_w.size();
@@ -173,7 +173,7 @@ void MEDFileFieldLoc::writeLL(med_idt fid) const
 std::string MEDFileFieldLoc::repr() const
 {
   std::ostringstream oss; oss.precision(15);
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
   oss << "Localization \"" << _name << "\" :\n" << "  - Geometric Type : " << cm.getRepr();
   oss << "\n  - Dimension : " << _dim << "\n  - Number of gauss points : ";
   oss << _nb_gauss_pt << "\n  - Number of nodes in cell : " << _nb_node_per_cell;
@@ -235,18 +235,18 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int& start, int off
       }
     case ON_GAUSS_PT:
       {
-        const MEDCouplingFieldDiscretization *disc=field->getDiscretization();
-        const MEDCouplingGaussLocalization& gsLoc=field->getGaussLocalization(_loc_id);
-        const MEDCouplingFieldDiscretizationGauss *disc2=dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc);
+        const MEDCouplingFieldDiscretization *disc(field->getDiscretization());
+        const MEDCouplingGaussLocalization& gsLoc(field->getGaussLocalization(_loc_id));
+        const MEDCouplingFieldDiscretizationGauss *disc2(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc));
         if(!disc2)
           throw INTERP_KERNEL::Exception("assignFieldNoProfile : invalid call to this method ! Internal Error !");
-        const DataArrayInt *dai=disc2->getArrayOfDiscIds();
-        MCAuto<DataArrayInt> dai2=disc2->getOffsetArr(field->getMesh());
-        const int *dai2Ptr=dai2->getConstPointer();
-        int nbi=gsLoc.getWeights().size();
-        MCAuto<DataArrayInt> da2=dai->selectByTupleIdSafeSlice(offset,offset+nbOfCells,1);
-        MCAuto<DataArrayInt> da3=da2->findIdsEqual(_loc_id);
-        const int *da3Ptr=da3->getConstPointer();
+        const DataArrayInt *dai(disc2->getArrayOfDiscIds());
+        MCAuto<DataArrayInt> dai2(disc2->getOffsetArr(field->getMesh()));
+        const int *dai2Ptr(dai2->getConstPointer());
+        int nbi(gsLoc.getWeights().size());
+        MCAuto<DataArrayInt> da2(dai->selectByTupleIdSafeSlice(offset,offset+nbOfCells,1));
+        MCAuto<DataArrayInt> da3(da2->findIdsEqual(_loc_id));
+        const int *da3Ptr(da3->getConstPointer());
         if(da3->getNumberOfTuples()!=nbOfCells)
           {//profile : for gauss even in NoProfile !!!
             std::ostringstream oss; oss << "Pfl_" << nasc.getName() << "_" << INTERP_KERNEL::CellModel::GetCellModel(getGeoType()).getRepr() << "_" << _loc_id;
@@ -254,10 +254,10 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int& start, int off
             da3->setName(_profile.c_str());
             glob.appendProfile(da3);
           }
-        MCAuto<DataArrayInt> da4=DataArrayInt::New();
+        MCAuto<DataArrayInt> da4(DataArrayInt::New());
         _nval=da3->getNbOfElems();
         da4->alloc(_nval*nbi,1);
-        int *da4Ptr=da4->getPointer();
+        int *da4Ptr(da4->getPointer());
         for(int i=0;i<_nval;i++)
           {
             int ref=dai2Ptr[offset+da3Ptr[i]];
@@ -5394,13 +5394,13 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS()
 
 //= MEDFileAnyTypeField1TS
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
 {
   med_field_type typcha;
   //
   std::vector<std::string> infos;
   std::string dtunit,fieldName;
-  LocateField2(fid,fileName,0,true,fieldName,typcha,infos,dtunit);
+  LocateField2(fid,0,true,fieldName,typcha,infos,dtunit);
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret;
   switch(typcha)
   {
@@ -5416,7 +5416,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fileName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -5439,8 +5439,8 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const std::string& fileName, bool
 try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  _content=BuildContentFrom(fid,fileName,loadAll,ms);
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  _content=BuildContentFrom(fid,loadAll,ms);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -5448,13 +5448,13 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
 {
   med_field_type typcha;
   std::vector<std::string> infos;
   std::string dtunit;
   int iii=-1;
-  int nbSteps=LocateField(fid,fileName,fieldName,iii,typcha,infos,dtunit);
+  int nbSteps=LocateField(fid,fieldName,iii,typcha,infos,dtunit);
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret;
   switch(typcha)
   {
@@ -5470,7 +5470,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fileName,fieldName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -5479,7 +5479,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   //
   if(nbSteps<1)
     {
-      std::ostringstream oss; oss << "MEDFileField1TS(fileName,fieldName) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but there is no time steps on it !";
+      std::ostringstream oss; oss << "MEDFileField1TS(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but there is no time steps on it !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
   //
@@ -5500,7 +5500,7 @@ try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  _content=BuildContentFrom(fid,fileName,fieldName,loadAll,ms);
+  _content=BuildContentFrom(fid,fieldName,loadAll,ms);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -5514,14 +5514,14 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDF
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::BuildNewInstanceFromContent : empty content in input : unable to build a new instance !");
   if(dynamic_cast<const MEDFileField1TSWithoutSDA *>(c))
     {
-      MCAuto<MEDFileField1TS> ret=MEDFileField1TS::New();
+      MCAuto<MEDFileField1TS> ret(MEDFileField1TS::New());
       ret->setFileName(fileName);
       ret->_content=c; c->incrRef();
       return ret.retn();
     }
   if(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(c))
     {
-      MCAuto<MEDFileIntField1TS> ret=MEDFileIntField1TS::New();
+      MCAuto<MEDFileIntField1TS> ret(MEDFileIntField1TS::New());
       ret->setFileName(fileName);
       ret->_content=c; c->incrRef();
       return ret.retn();
@@ -5532,9 +5532,9 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDF
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, bool loadAll)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c=BuildContentFrom(fid,fileName,loadAll,0);
-  MCAuto<MEDFileAnyTypeField1TS> ret=BuildNewInstanceFromContent(c,fileName);
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,loadAll,0));
+  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
   ret->loadGlobals(fid);
   return ret.retn();
 }
@@ -5542,9 +5542,9 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName,
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c=BuildContentFrom(fid,fileName,fieldName,loadAll,0);
-  MCAuto<MEDFileAnyTypeField1TS> ret=BuildNewInstanceFromContent(c,fileName);
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,loadAll,0));
+  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
   ret->loadGlobals(fid);
   return ret.retn();
 }
@@ -5553,19 +5553,19 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName,
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c=BuildContentFrom(fid,fileName,fieldName,iteration,order,loadAll,0);
-  MCAuto<MEDFileAnyTypeField1TS> ret=BuildNewInstanceFromContent(c,fileName);
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,iteration,order,loadAll,0));
+  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
   ret->loadGlobals(fid);
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
 {
   med_field_type typcha;
   std::vector<std::string> infos;
   std::string dtunit;
-  int iii=-1;
-  int nbOfStep2=LocateField(fid,fileName,fieldName,iii,typcha,infos,dtunit);
+  int iii(-1);
+  int nbOfStep2(LocateField(fid,fieldName,iii,typcha,infos,dtunit));
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret;
   switch(typcha)
   {
@@ -5581,7 +5581,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fileName,fieldName,iteration,order) : file \'" << fileName << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid,fieldName,iteration,order) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -5605,7 +5605,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
     }
   if(!found)
     {
-      std::ostringstream oss; oss << "No such iteration (" << iteration << "," << order << ") in existing field '" << fieldName << "' in file '" << fileName << "' ! Available iterations are : ";
+      std::ostringstream oss; oss << "No such iteration (" << iteration << "," << order << ") in existing field '" << fieldName << "' in file '" << FileNameFromFID(fid) << "' ! Available iterations are : ";
       for(std::vector< std::pair<int,int> >::const_iterator iter=dtits.begin();iter!=dtits.end();iter++)
         oss << "(" << (*iter).first << "," << (*iter).second << "), ";
       throw INTERP_KERNEL::Exception(oss.str());
@@ -5621,8 +5621,8 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const std::string& fileName, cons
 try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  _content=BuildContentFrom(fid,fileName.c_str(),fieldName.c_str(),iteration,order,loadAll,ms);
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  _content=BuildContentFrom(fid,fieldName,iteration,order,loadAll,ms);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -5650,14 +5650,14 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const MEDFileAnyTypeField1TSWitho
     }
 }
 
-int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, const std::string& fileName, int fieldIdCFormat, bool checkFieldId, std::string& fieldName, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut)
+int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, int fieldIdCFormat, bool checkFieldId, std::string& fieldName, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut)
 {
   if(checkFieldId)
     {
       int nbFields=MEDnField(fid);
       if(fieldIdCFormat>=nbFields)
         {
-          std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::LocateField2(fileName) : in file \'" << fileName << "\' number of fields is " << nbFields << " ! Trying to request for id " << fieldIdCFormat << " !";
+          std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::LocateField2(fileName) : in file \'" << FileNameFromFID(fid) << "\' number of fields is " << nbFields << " ! Trying to request for id " << fieldIdCFormat << " !";
           throw INTERP_KERNEL::Exception(oss.str());
         }
     }
@@ -5684,16 +5684,16 @@ int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, const std::string& fileNam
  * \param [out]
  * \return in case of success the number of time steps available for the field with name \a fieldName.
  */
-int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fileName, const std::string& fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut)
+int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut)
 {
   int nbFields=MEDnField(fid);
   bool found=false;
   std::vector<std::string> fns(nbFields);
-  int nbOfStep2=-1;
+  int nbOfStep2(-1);
   for(int i=0;i<nbFields && !found;i++)
     {
       std::string tmp;
-      nbOfStep2=LocateField2(fid,fileName,i,false,tmp,typcha,infos,dtunitOut);
+      nbOfStep2=LocateField2(fid,i,false,tmp,typcha,infos,dtunitOut);
       fns[i]=tmp;
       found=(tmp==fieldName);
       if(found)
@@ -5701,7 +5701,7 @@ int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fileName
     }
   if(!found)
     {
-      std::ostringstream oss; oss << "No such field '" << fieldName << "' in file '" << fileName << "' ! Available fields are : ";
+      std::ostringstream oss; oss << "No such field '" << fieldName << "' in file '" << FileNameFromFID(fid) << "' ! Available fields are : ";
       for(std::vector<std::string>::const_iterator it=fns.begin();it!=fns.end();it++)
         oss << "\"" << *it << "\" ";
       throw INTERP_KERNEL::Exception(oss.str());
@@ -5813,8 +5813,8 @@ const MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::contentNotNullBa
  */
 void MEDFileAnyTypeField1TS::write(const std::string& fileName, int mode) const
 {
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
+  med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
   writeLL(fid);
 }
 
@@ -5830,7 +5830,7 @@ void MEDFileAnyTypeField1TS::loadArrays()
 {
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::loadArrays : the structure does not come from a file !");
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY));
   contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
 }
 
@@ -5845,7 +5845,7 @@ void MEDFileAnyTypeField1TS::loadArraysIfNecessary()
 {
   if(!getFileName().empty())
     {
-      MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+      MEDFileUtilities::AutoFid fid(MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY));
       contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
     }
 }
@@ -5877,9 +5877,9 @@ void MEDFileAnyTypeField1TS::unloadArraysWithoutDataLoss()
 
 void MEDFileAnyTypeField1TS::writeLL(med_idt fid) const
 {
-  int nbComp=getNumberOfComponents();
-  INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(nbComp*MED_SNAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(nbComp*MED_SNAME_SIZE);
+  int nbComp(getNumberOfComponents());
+  INTERP_KERNEL::AutoPtr<char> comp(MEDLoaderBase::buildEmptyString(nbComp*MED_SNAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> unit(MEDLoaderBase::buildEmptyString(nbComp*MED_SNAME_SIZE));
   for(int i=0;i<nbComp;i++)
     {
       std::string info=getInfo()[i];
@@ -7114,7 +7114,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(med_i
 {
   med_field_type typcha;
   std::string dtunitOut;
-  int nbOfStep=MEDFileAnyTypeField1TS::LocateField2(fid,"",fieldId,false,_name,typcha,_infos,dtunitOut);
+  int nbOfStep(MEDFileAnyTypeField1TS::LocateField2(fid,fieldId,false,_name,typcha,_infos,dtunitOut));
   setDtUnit(dtunitOut.c_str());
   loadStructureOrStructureAndBigArraysRecursively(fid,nbOfStep,typcha,loadAll,ms,entities);
 }
@@ -8142,8 +8142,8 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
   med_field_type typcha;
   std::vector<std::string> infos;
   std::string dtunit;
-  int i=-1;
-  MEDFileAnyTypeField1TS::LocateField(fid,fileName,fieldName,i,typcha,infos,dtunit);
+  int i(-1);
+  MEDFileAnyTypeField1TS::LocateField(fid,fieldName,i,typcha,infos,dtunit);
   MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> ret;
   switch(typcha)
   {
@@ -8173,7 +8173,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
   //
   std::vector<std::string> infos;
   std::string dtunit,fieldName;
-  MEDFileAnyTypeField1TS::LocateField2(fid,fileName,0,true,fieldName,typcha,infos,dtunit);
+  MEDFileAnyTypeField1TS::LocateField2(fid,0,true,fieldName,typcha,infos,dtunit);
   MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> ret;
   switch(typcha)
   {
@@ -10228,7 +10228,7 @@ try:MEDFileFieldGlobsReal(fileName)
     {
       std::vector<std::string> infos;
       std::string fieldName,dtunit;
-      int nbOfStep(MEDFileAnyTypeField1TS::LocateField2(fid,fileName,i,false,fieldName,typcha,infos,dtunit));
+      int nbOfStep(MEDFileAnyTypeField1TS::LocateField2(fid,i,false,fieldName,typcha,infos,dtunit));
       switch(typcha)
       {
         case MED_FLOAT64:

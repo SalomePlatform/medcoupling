@@ -55,6 +55,7 @@ namespace MEDCoupling
     void setTooLongStrPolicy(int newVal);
     int getZipConnPolicy();
     void setZipConnPolicy(int newVal);
+    static std::string FileNameFromFID(med_idt fid);
   protected://policies on write
     mutable int _too_long_str;
     mutable int _zipconn_pol;

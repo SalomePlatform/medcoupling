@@ -646,9 +646,9 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms);
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS(const MEDFileAnyTypeField1TSWithoutSDA& other, bool shallowCopyOfContent);
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TS *BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c, const std::string& fileName);
-    MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fileName, bool loadAll, const MEDFileMeshes *ms);
-    MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms);
-    MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms);
+    MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms);
+    MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms);
+    MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms);
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     // direct forwarding to MEDFileAnyTypeField1TSWithoutSDA instance _content
   public:
@@ -712,8 +712,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
     MEDLOADER_EXPORT void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
   public:
-    MEDLOADER_EXPORT static int LocateField2(med_idt fid, const std::string& fileName, int fieldIdCFormat, bool checkFieldId, std::string& fieldName, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut);
-    MEDLOADER_EXPORT static int LocateField(med_idt fid, const std::string& fileName, const std::string& fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut);
+    MEDLOADER_EXPORT static int LocateField2(med_idt fid, int fieldIdCFormat, bool checkFieldId, std::string& fieldName, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut);
+    MEDLOADER_EXPORT static int LocateField(med_idt fid, const std::string& fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut);
   public:
     MEDLOADER_EXPORT virtual MEDFileAnyTypeField1TS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const = 0;
   public:
