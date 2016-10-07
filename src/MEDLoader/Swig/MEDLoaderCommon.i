@@ -776,7 +776,7 @@ namespace MEDCoupling
     }
   };
   
-  class MEDFileEquivalenceBase : public RefCountObject
+  class MEDFileEquivalenceBase : public RefCountObject, public MEDFileWritableStandAlone
   {
   private:
     MEDFileEquivalenceBase();
@@ -835,7 +835,7 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileEquivalencePair : public RefCountObject
+  class MEDFileEquivalencePair : public RefCountObject, public MEDFileWritableStandAlone
   {
   private:
     MEDFileEquivalencePair();
@@ -877,7 +877,7 @@ namespace MEDCoupling
     }
   };
   
-  class MEDFileEquivalences : public RefCountObject
+  class MEDFileEquivalences : public RefCountObject, public MEDFileWritableStandAlone
   {
   private:
     MEDFileEquivalences();
@@ -3346,7 +3346,6 @@ namespace MEDCoupling
     static MEDFileParameters *New();
     static MEDFileParameters *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
     MEDFileParameters *deepCopy() const throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getParamsNames() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     void resize(int newSize) throw(INTERP_KERNEL::Exception);

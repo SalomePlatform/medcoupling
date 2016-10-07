@@ -41,7 +41,7 @@ MEDFileEquivalencePair *MEDFileEquivalencePair::Load(MEDFileEquivalences *father
   return ret.retn();
 }
 
-void MEDFileEquivalencePair::write(med_idt fid) const
+void MEDFileEquivalencePair::writeLL(med_idt fid) const
 {
   std::string meshName(getFather()->getMeshName());
   INTERP_KERNEL::AutoPtr<char> meshName2(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
@@ -53,10 +53,10 @@ void MEDFileEquivalencePair::write(med_idt fid) const
   MEDFILESAFECALLERWR0(MEDequivalenceCr,(fid,meshName2,name,desc));
   const MEDFileEquivalenceCell *cell(_cell);
   if(cell)
-    cell->write(fid);
+    cell->writeLL(fid);
   const MEDFileEquivalenceNode *node(_node);
   if(node)
-    node->write(fid);
+    node->writeLL(fid);
 }
 
 const MEDFileMesh *MEDFileEquivalencePair::getMesh() const
@@ -392,13 +392,13 @@ void MEDFileEquivalences::clear()
   _equ.clear();
 }
 
-void MEDFileEquivalences::write(med_idt fid) const
+void MEDFileEquivalences::writeLL(med_idt fid) const
 {
   for(std::vector< MCAuto<MEDFileEquivalencePair> >::const_iterator it=_equ.begin();it!=_equ.end();it++)
     {
       const MEDFileEquivalencePair *elt(*it);
       if(elt)
-        elt->write(fid);
+        elt->writeLL(fid);
     }
 }
 
@@ -494,7 +494,7 @@ bool MEDFileEquivalenceData::isEqual(const MEDFileEquivalenceData *other, std::s
   return true;
 }
 
-void MEDFileEquivalenceData::writeLL(med_idt fid, med_entity_type medtype, med_geometry_type medgt) const
+void MEDFileEquivalenceData::writeAdvanced(med_idt fid, med_entity_type medtype, med_geometry_type medgt) const
 {
   
   const DataArrayInt *da(getArray());
@@ -549,9 +549,9 @@ void MEDFileEquivalenceCellType::getRepr(std::ostream& oss) const
   oss << ",";
 }
 
-void MEDFileEquivalenceCellType::write(med_idt fid) const
+void MEDFileEquivalenceCellType::writeLL(med_idt fid) const
 {
-  writeLL(fid,MED_CELL,typmai3[_type]);
+  writeAdvanced(fid,MED_CELL,typmai3[_type]);
 }
 
 std::vector<const BigMemoryObject *> MEDFileEquivalenceCell::getDirectChildrenWithNull() const
@@ -578,13 +578,13 @@ MEDFileEquivalenceCell *MEDFileEquivalenceCell::Load(med_idt fid, MEDFileEquival
     return 0;
 }
 
-void MEDFileEquivalenceCell::write(med_idt fid) const
+void MEDFileEquivalenceCell::writeLL(med_idt fid) const
 {
   for(std::vector< MCAuto<MEDFileEquivalenceCellType> >::const_iterator it=_types.begin();it!=_types.end();it++)
     {
       const MEDFileEquivalenceCellType *ct(*it);
       if(ct)
-        ct->write(fid);
+        ct->writeLL(fid);
     }
 }
 
@@ -741,9 +741,9 @@ std::size_t MEDFileEquivalenceNode::getHeapMemorySizeWithoutChildren() const
   return sizeof(MEDFileEquivalenceNode);
 }
 
-void MEDFileEquivalenceNode::write(med_idt fid) const
+void MEDFileEquivalenceNode::writeLL(med_idt fid) const
 {
-  writeLL(fid,MED_NODE,MED_NONE);
+  writeAdvanced(fid,MED_NODE,MED_NONE);
 }
 
 MEDFileEquivalenceNode *MEDFileEquivalenceNode::deepCopy(MEDFileEquivalencePair *owner) const

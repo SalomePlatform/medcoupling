@@ -191,7 +191,7 @@ void MEDFileMesh::writeLL(med_idt fid) const
   writeJoints(fid);
   const MEDFileEquivalences *eqs(_equiv);
   if(eqs)
-    eqs->write(fid);
+    eqs->writeLL(fid);
 }
 
 /*!

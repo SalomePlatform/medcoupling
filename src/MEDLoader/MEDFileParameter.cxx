@@ -144,7 +144,7 @@ void MEDFileParameterDouble1TSWTI::finishLoading(med_idt fid, const std::string&
   MEDFILESAFECALLERRD0(MEDparameterValueRd,(fid,name.c_str(),_iteration,_order,reinterpret_cast<unsigned char *const>(&_arr)));
 }
 
-void MEDFileParameterDouble1TSWTI::writeLL(med_idt fid, const std::string& name, const MEDFileWritable& mw) const
+void MEDFileParameterDouble1TSWTI::writeAdvanced(med_idt fid, const std::string& name, const MEDFileWritable& mw) const
 {
   char nameW[MED_NAME_SIZE+1];
   MEDLoaderBase::safeStrCpy(name.c_str(),MED_NAME_SIZE,nameW,mw.getTooLongStrPolicy());
@@ -361,7 +361,7 @@ void MEDFileParameterDouble1TS::write(const std::string& fileName, int mode) con
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
   MEDFileParameterTinyInfo::writeLLHeader(fid,MED_FLOAT64);
-  MEDFileParameterDouble1TSWTI::writeLL(fid,_name,*this);
+  MEDFileParameterDouble1TSWTI::writeAdvanced(fid,_name,*this);
 }
 
 MEDFileParameterMultiTS *MEDFileParameterMultiTS::New()
@@ -523,10 +523,10 @@ void MEDFileParameterMultiTS::write(const std::string& fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  writeLL(fid,*this);
+  writeAdvanced(fid,*this);
 }
 
-void MEDFileParameterMultiTS::writeLL(med_idt fid, const MEDFileWritable& mw) const
+void MEDFileParameterMultiTS::writeAdvanced(med_idt fid, const MEDFileWritable& mw) const
 {
   std::set<med_parameter_type> diffType;
   for(std::vector< MCAuto<MEDFileParameter1TS> >::const_iterator it=_param_per_ts.begin();it!=_param_per_ts.end();it++)
@@ -536,7 +536,7 @@ void MEDFileParameterMultiTS::writeLL(med_idt fid, const MEDFileWritable& mw) co
         diffType.insert(MED_FLOAT64);
     }
   if(diffType.size()>1)
-    throw INTERP_KERNEL::Exception("MEDFileParameterMultiTS::writeLL : impossible to mix type of data in parameters in MED file ! Only float64 or only int32 ...");
+    throw INTERP_KERNEL::Exception("MEDFileParameterMultiTS::writeAdvanced : impossible to mix type of data in parameters in MED file ! Only float64 or only int32 ...");
   if(diffType.empty())
     return;
   med_parameter_type typ=*diffType.begin();
@@ -545,7 +545,7 @@ void MEDFileParameterMultiTS::writeLL(med_idt fid, const MEDFileWritable& mw) co
     {
       const MEDFileParameter1TS *elt(*it);
       if(elt)
-        elt->writeLL(fid,_name,mw);
+        elt->writeAdvanced(fid,_name,mw);
     }
 }
 
@@ -782,20 +782,13 @@ MEDFileParameters::MEDFileParameters(const MEDFileParameters& other, bool deepCo
       }
 }
 
-void MEDFileParameters::write(const std::string& fileName, int mode) const
-{
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  writeLL(fid);
-}
-
 void MEDFileParameters::writeLL(med_idt fid) const
 {
   for(std::vector< MCAuto<MEDFileParameterMultiTS> >::const_iterator it=_params.begin();it!=_params.end();it++)
     {
       const MEDFileParameterMultiTS *elt(*it);
       if(elt)
-        elt->writeLL(fid,*this);
+        elt->writeAdvanced(fid,*this);
     }
 }
 
