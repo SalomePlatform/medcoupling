@@ -5499,32 +5499,42 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c, const std::string& fileName)
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c)
 {
   if(!c)
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::BuildNewInstanceFromContent : empty content in input : unable to build a new instance !");
   if(dynamic_cast<const MEDFileField1TSWithoutSDA *>(c))
     {
       MCAuto<MEDFileField1TS> ret(MEDFileField1TS::New());
-      ret->setFileName(fileName);
       ret->_content=c; c->incrRef();
       return ret.retn();
     }
   if(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(c))
     {
       MCAuto<MEDFileIntField1TS> ret(MEDFileIntField1TS::New());
-      ret->setFileName(fileName);
       ret->_content=c; c->incrRef();
       return ret.retn();
     }
   throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 and INT32 has been built but not intercepted !");
 }
 
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c, med_idt fid)
+{
+  MEDFileAnyTypeField1TS *ret(BuildNewInstanceFromContent(c));
+  ret->setFileName(FileNameFromFID(fid));
+  return ret;
+}
+
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, bool loadAll)
 {
   MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,loadAll);
+}
+
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(med_idt fid, bool loadAll)
+{
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,loadAll,0));
-  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
+  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fid));
   ret->loadGlobals(fid);
   return ret.retn();
 }
@@ -5532,17 +5542,27 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName,
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,fieldName,loadAll);
+}
+
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(med_idt fid, const std::string& fieldName, bool loadAll)
+{
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,loadAll,0));
-  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
+  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fid));
   ret->loadGlobals(fid);
   return ret.retn();
 }
 
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
-  MEDFileUtilities::AutoFid fid=OpenMEDFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,fieldName,iteration,order,loadAll);
+}
+
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll)
+{
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,iteration,order,loadAll,0));
-  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fileName));
+  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fid));
   ret->loadGlobals(fid);
   return ret.retn();
 }
@@ -6167,6 +6187,11 @@ int MEDFileAnyTypeField1TS::copyTinyInfoFrom(const MEDCouplingFieldDouble *field
 MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, bool loadAll)
 {
   MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,loadAll);
+}
+
+MEDFileField1TS *MEDFileField1TS::New(med_idt fid, bool loadAll)
+{
   MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fid,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
@@ -6185,6 +6210,11 @@ MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, bool loadAll)
 MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,fieldName,loadAll);
+}
+
+MEDFileField1TS *MEDFileField1TS::New(med_idt fid, const std::string& fieldName, bool loadAll)
+{
   MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fid,fieldName,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
@@ -6206,6 +6236,11 @@ MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::st
 MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
   MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,fieldName,iteration,order,loadAll);
+}
+
+MEDFileField1TS *MEDFileField1TS::New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll)
+{
   MCAuto<MEDFileField1TS> ret(new MEDFileField1TS(fid,fieldName,iteration,order,loadAll,0));
   ret->contentNotNull();
   return ret.retn();
@@ -6260,7 +6295,7 @@ MEDFileIntField1TS *MEDFileField1TS::convertToInt(bool isDeepCpyGlobs) const
       if(!contc)
         throw INTERP_KERNEL::Exception("MEDFileField1TS::convertToInt : the content inside this is not FLOAT64 ! This is incoherent !");
       MCAuto<MEDFileIntField1TSWithoutSDA> newc(contc->convertToInt());
-      ret=static_cast<MEDFileIntField1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileIntField1TSWithoutSDA *)newc,getFileName()));
+      ret=static_cast<MEDFileIntField1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileIntField1TSWithoutSDA *)newc));
     }
   else
     ret=MEDFileIntField1TS::New();
@@ -6771,7 +6806,7 @@ MEDFileField1TS *MEDFileIntField1TS::convertToDouble(bool isDeepCpyGlobs) const
       if(!contc)
         throw INTERP_KERNEL::Exception("MEDFileIntField1TS::convertToInt : the content inside this is not INT32 ! This is incoherent !");
       MCAuto<MEDFileField1TSWithoutSDA> newc(contc->convertToDouble());
-      ret=static_cast<MEDFileField1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileField1TSWithoutSDA *)newc,getFileName()));
+      ret=static_cast<MEDFileField1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileField1TSWithoutSDA *)newc));
     }
   else
     ret=MEDFileField1TS::New();
@@ -8175,14 +8210,14 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromCont
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : empty content in input : unable to build a new instance !");
   if(dynamic_cast<const MEDFileFieldMultiTSWithoutSDA *>(c))
     {
-      MCAuto<MEDFileFieldMultiTS> ret=MEDFileFieldMultiTS::New();
+      MCAuto<MEDFileFieldMultiTS> ret(MEDFileFieldMultiTS::New());
       ret->setFileName(fileName);
       ret->_content=c;  c->incrRef();
       return ret.retn();
     }
   if(dynamic_cast<const MEDFileIntFieldMultiTSWithoutSDA *>(c))
     {
-      MCAuto<MEDFileIntFieldMultiTS> ret=MEDFileIntFieldMultiTS::New();
+      MCAuto<MEDFileIntFieldMultiTS> ret(MEDFileIntFieldMultiTS::New());
       ret->setFileName(fileName);
       ret->_content=c;  c->incrRef();
       return ret.retn();
