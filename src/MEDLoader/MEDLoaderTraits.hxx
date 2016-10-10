@@ -53,6 +53,33 @@ namespace MEDCoupling
     typedef MEDFileIntField1TS F1TSType;
     typedef MEDFileIntField1TSWithoutSDA F1TSWSDAType;
   };
+
+  template<class T>
+  struct MEDLOADER_EXPORT MLMeshTraits
+  {
+  };
+  
+  class MEDFileUMesh;
+  class MEDFileCMesh;
+  class MEDFileCurveLinearMesh;
+  
+  template<>
+  struct MEDLOADER_EXPORT MLMeshTraits<MEDFileUMesh>
+  {
+    static const char ClassName[];
+  };
+  
+  template<>
+  struct MEDLOADER_EXPORT MLMeshTraits<MEDFileCMesh>
+  {
+    static const char ClassName[];
+  };
+
+  template<>
+  struct MEDLOADER_EXPORT MLMeshTraits<MEDFileCurveLinearMesh>
+  {
+    static const char ClassName[];
+  };
 }
 
 #endif

@@ -24,7 +24,13 @@ using namespace MEDCoupling;
 
 MEDFileData *MEDFileData::New(const std::string& fileName)
 {
-  return new MEDFileData(fileName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid);
+}
+
+MEDFileData *MEDFileData::New(med_idt fid)
+{
+  return new MEDFileData(fid);
 }
 
 MEDFileData *MEDFileData::New()
@@ -291,12 +297,12 @@ MEDFileData::MEDFileData()
 {
 }
 
-MEDFileData::MEDFileData(const std::string& fileName)
+MEDFileData::MEDFileData(med_idt fid)
 try
 {
-    _fields=MEDFileFields::New(fileName);
-    _meshes=MEDFileMeshes::New(fileName);
-    _params=MEDFileParameters::New(fileName);
+    _fields=MEDFileFields::New(fid);
+    _meshes=MEDFileMeshes::New(fid);
+    _params=MEDFileParameters::New(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
 {

@@ -41,7 +41,9 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT static MEDFileMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileMesh *New(med_idt fid, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0, MEDFileJoints* joints=0);
+    MEDLOADER_EXPORT static MEDFileMesh *New(med_idt fid, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0, MEDFileJoints* joints=0);
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -247,7 +249,9 @@ namespace MEDCoupling
     friend class MEDFileMesh;
   public:
     MEDLOADER_EXPORT static MEDFileUMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileUMesh *New(med_idt fid, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileUMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileUMesh *New(med_idt fid, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileUMesh *New(const MEDCouplingMappedExtrudedMesh *mem);
     MEDLOADER_EXPORT static MEDFileUMesh *New();
     MEDLOADER_EXPORT static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
@@ -454,7 +458,9 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileCMesh *New();
     MEDLOADER_EXPORT static MEDFileCMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileCMesh *New(med_idt fid, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileCMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileCMesh *New(med_idt fid, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
@@ -487,7 +493,9 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New();
     MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New(med_idt fid, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New(med_idt fid, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
@@ -517,7 +525,9 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT static MEDFileMeshMultiTS *New();
+    MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(const std::string& fileName);
+    MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(med_idt fid, const std::string& mName);
     MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(const std::string& fileName, const std::string& mName);
     MEDLOADER_EXPORT MEDFileMeshMultiTS *deepCopy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -533,10 +543,10 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void setJoints(MEDFileJoints* joints);
   private:
     ~MEDFileMeshMultiTS() { }
-    void loadFromFile(const std::string& fileName, const std::string& mName);
+    void loadFromFile(med_idt fid, const std::string& mName);
     MEDFileMeshMultiTS();
-    MEDFileMeshMultiTS(const std::string& fileName);
-    MEDFileMeshMultiTS(const std::string& fileName, const std::string& mName);
+    MEDFileMeshMultiTS(med_idt fid);
+    MEDFileMeshMultiTS(med_idt fid, const std::string& mName);
   private:
     std::vector< MCAuto<MEDFileMesh> > _mesh_one_ts;
   };
@@ -547,6 +557,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT static MEDFileMeshes *New();
+    MEDLOADER_EXPORT static MEDFileMeshes *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileMeshes *New(const std::string& fileName);
     MEDLOADER_EXPORT MEDFileMeshes *deepCopy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -569,9 +580,9 @@ namespace MEDCoupling
   private:
     ~MEDFileMeshes() { }
     void checkConsistencyLight() const;
-    void loadFromFile(const std::string& fileName);
+    void loadFromFile(med_idt fid);
     MEDFileMeshes();
-    MEDFileMeshes(const std::string& fileName);
+    MEDFileMeshes(med_idt fid);
   private:
     std::vector< MCAuto<MEDFileMeshMultiTS> > _meshes;
   };

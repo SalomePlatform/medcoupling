@@ -23,6 +23,7 @@
 #include "MEDFileFieldOverView.hxx"
 #include "MEDFileField.hxx"
 #include "MEDLoader.hxx"
+#include "MEDLoaderNS.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDLoaderBase.hxx"
 
@@ -79,15 +80,19 @@ std::vector<const BigMemoryObject *> MEDFileMesh::getDirectChildrenWithNull() co
  */
 MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelector *mrs)
 {
-  std::vector<std::string> ms=MEDCoupling::GetMeshNames(fileName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mrs);
+}
+
+MEDFileMesh *MEDFileMesh::New(med_idt fid, MEDFileMeshReadSelector *mrs)
+{
+  std::vector<std::string> ms(MEDLoaderNS::getMeshNamesFid(fid));
   if(ms.empty())
     {
-      std::ostringstream oss; oss << "MEDFileMesh::New : no meshes in file \"" << fileName << "\" !";
+      std::ostringstream oss; oss << "MEDFileMesh::New : no meshes in file \"" << FileNameFromFID(fid) << "\" !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MEDFileUtilities::CheckFileForRead(fileName);
   MEDCoupling::MEDCouplingMeshType meshType;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dt,it;
   std::string dummy2;
   MEDCoupling::MEDCouplingAxisType dummy3;
@@ -139,9 +144,13 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelect
  */
 MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs, MEDFileJoints* joints)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mName,dt,it,mrs,joints);
+}
+
+MEDFileMesh *MEDFileMesh::New(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs, MEDFileJoints* joints)
+{
   MEDCoupling::MEDCouplingMeshType meshType;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dummy0,dummy1;
   std::string dummy2;
   MEDCoupling::MEDCouplingAxisType dummy3;
@@ -2224,8 +2233,12 @@ void MEDFileMesh::getFamilyRepr(std::ostream& oss) const
  */
 MEDFileUMesh *MEDFileUMesh::New(const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mName,dt,it,mrs);
+}
+
+MEDFileUMesh *MEDFileUMesh::New(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
   return new MEDFileUMesh(fid,mName,dt,it,mrs);
 }
 
@@ -2241,20 +2254,30 @@ MEDFileUMesh *MEDFileUMesh::New(const std::string& fileName, const std::string& 
  */
 MEDFileUMesh *MEDFileUMesh::New(const std::string& fileName, MEDFileMeshReadSelector *mrs)
 {
-  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mrs);
+}
+
+template<class T>
+T *NewForTheFirstMeshInFile(med_idt fid, MEDFileMeshReadSelector *mrs)
+{
+  std::vector<std::string> ms(MEDLoaderNS::getMeshNamesFid(fid));
   if(ms.empty())
     {
-      std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
+      std::ostringstream oss; oss << MLMeshTraits<T>::ClassName << "::New : no meshes in file \"" << MEDFileWritable::FileNameFromFID(fid) << "\" !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dt,it;
   MEDCoupling::MEDCouplingMeshType meshType;
   std::string dummy2;
   MEDCoupling::MEDCouplingAxisType dummy3;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
-  return new MEDFileUMesh(fid,ms.front(),dt,it,mrs);
+  return T::New(fid,ms.front(),dt,it,mrs);
+}
+
+MEDFileUMesh *MEDFileUMesh::New(med_idt fid, MEDFileMeshReadSelector *mrs)
+{
+  return NewForTheFirstMeshInFile<MEDFileUMesh>(fid,mrs);
 }
 
 /*!
@@ -6400,20 +6423,13 @@ MEDFileCMesh *MEDFileCMesh::New()
  */
 MEDFileCMesh *MEDFileCMesh::New(const std::string& fileName, MEDFileMeshReadSelector *mrs)
 {
-  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
-  if(ms.empty())
-    {
-      std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  int dt,it;
-  MEDCoupling::MEDCouplingMeshType meshType;
-  std::string dummy2;
-  MEDCoupling::MEDCouplingAxisType dummy3;
-  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
-  return new MEDFileCMesh(fid,ms.front(),dt,it,mrs);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mrs);
+}
+
+MEDFileCMesh *MEDFileCMesh::New(med_idt fid, MEDFileMeshReadSelector *mrs)
+{
+  return NewForTheFirstMeshInFile<MEDFileCMesh>(fid,mrs);
 }
 
 /*!
@@ -6432,8 +6448,12 @@ MEDFileCMesh *MEDFileCMesh::New(const std::string& fileName, MEDFileMeshReadSele
  */
 MEDFileCMesh *MEDFileCMesh::New(const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mName,dt,it,mrs);
+}
+
+MEDFileCMesh *MEDFileCMesh::New(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
   return new MEDFileCMesh(fid,mName,dt,it,mrs);
 }
 
@@ -6696,28 +6716,25 @@ MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New()
   return new MEDFileCurveLinearMesh;
 }
 
+MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(med_idt fid, MEDFileMeshReadSelector *mrs)
+{
+  return NewForTheFirstMeshInFile<MEDFileCurveLinearMesh>(fid,mrs);
+}
+
 MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const std::string& fileName, MEDFileMeshReadSelector *mrs)
 {
-  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
-  if(ms.empty())
-    {
-      std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  int dt,it;
-  MEDCoupling::MEDCouplingMeshType meshType;
-  MEDCoupling::MEDCouplingAxisType dummy3;
-  std::string dummy2;
-  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
-  return new MEDFileCurveLinearMesh(fid,ms.front(),dt,it,mrs);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mrs);
 }
 
 MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mName,dt,it,mrs);
+}
+
+MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
   return new MEDFileCurveLinearMesh(fid,mName,dt,it,mrs);
 }
 
@@ -6940,21 +6957,33 @@ MEDFileMeshMultiTS *MEDFileMeshMultiTS::New()
   return new MEDFileMeshMultiTS;
 }
 
+MEDFileMeshMultiTS *MEDFileMeshMultiTS::New(med_idt fid)
+{
+  return new MEDFileMeshMultiTS(fid);
+}
+
 MEDFileMeshMultiTS *MEDFileMeshMultiTS::New(const std::string& fileName)
 {
-  return new MEDFileMeshMultiTS(fileName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid);
+}
+
+MEDFileMeshMultiTS *MEDFileMeshMultiTS::New(med_idt fid, const std::string& mName)
+{
+  return new MEDFileMeshMultiTS(fid,mName);
 }
 
 MEDFileMeshMultiTS *MEDFileMeshMultiTS::New(const std::string& fileName, const std::string& mName)
 {
-  return new MEDFileMeshMultiTS(fileName,mName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,mName);
 }
 
 MEDFileMeshMultiTS *MEDFileMeshMultiTS::deepCopy() const
 {
-  MCAuto<MEDFileMeshMultiTS> ret=MEDFileMeshMultiTS::New();
+  MCAuto<MEDFileMeshMultiTS> ret(MEDFileMeshMultiTS::New());
   std::vector< MCAuto<MEDFileMesh> > meshOneTs(_mesh_one_ts.size());
-  std::size_t i=0;
+  std::size_t i(0);
   for(std::vector< MCAuto<MEDFileMesh> >::const_iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++,i++)
     if((const MEDFileMesh *)*it)
       meshOneTs[i]=(*it)->deepCopy();
@@ -7069,50 +7098,47 @@ void MEDFileMeshMultiTS::writeLL(med_idt fid) const
   (const_cast<MEDFileMeshMultiTS*>(this))->setJoints( joints ); // restore joints
 }
 
-void MEDFileMeshMultiTS::loadFromFile(const std::string& fileName, const std::string& mName)
+void MEDFileMeshMultiTS::loadFromFile(med_idt fid, const std::string& mName)
 {
-  MEDFileJoints* joints = 0;
+  MEDFileJoints *joints(0);
   if ( !_mesh_one_ts.empty() && getOneTimeStep() )
     {
       // joints of mName already read, pass them to MEDFileMesh::New() to prevent repeated reading
       joints = getOneTimeStep()->getJoints();
     }
-
   _mesh_one_ts.clear();  //for the moment to be improved
-  _mesh_one_ts.push_back( MEDFileMesh::New(fileName,mName,-1,-1,0, joints ));
+  _mesh_one_ts.push_back( MEDFileMesh::New(fid,mName,-1,-1,0, joints ));
 }
 
 MEDFileMeshMultiTS::MEDFileMeshMultiTS()
 {
 }
 
-MEDFileMeshMultiTS::MEDFileMeshMultiTS(const std::string& fileName)
+MEDFileMeshMultiTS::MEDFileMeshMultiTS(med_idt fid)
 try
 {
-  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
+  std::vector<std::string> ms(MEDLoaderNS::getMeshNamesFid(fid));
     if(ms.empty())
       {
-        std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
+        std::ostringstream oss; oss << "MEDFileMeshMultiTS : no meshes in file \"" << FileNameFromFID(fid) << "\" !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    MEDFileUtilities::CheckFileForRead(fileName);
-    MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
     int dt,it;
     MEDCoupling::MEDCouplingMeshType meshType;
     std::string dummy2;
     MEDCoupling::MEDCouplingAxisType dummy3;
     MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
-    loadFromFile(fileName,ms.front());
+    loadFromFile(fid,ms.front());
 }
 catch(INTERP_KERNEL::Exception& e)
 {
     throw e;
 }
 
-MEDFileMeshMultiTS::MEDFileMeshMultiTS(const std::string& fileName, const std::string& mName)
+MEDFileMeshMultiTS::MEDFileMeshMultiTS(med_idt fid, const std::string& mName)
 try
 {
-    loadFromFile(fileName,mName);
+    loadFromFile(fid,mName);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -7124,9 +7150,15 @@ MEDFileMeshes *MEDFileMeshes::New()
   return new MEDFileMeshes;
 }
 
+MEDFileMeshes *MEDFileMeshes::New(med_idt fid)
+{
+  return new MEDFileMeshes(fid);
+}
+
 MEDFileMeshes *MEDFileMeshes::New(const std::string& fileName)
 {
-  return new MEDFileMeshes(fileName);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid);
 }
 
 void MEDFileMeshes::writeLL(med_idt fid) const
@@ -7253,23 +7285,23 @@ void MEDFileMeshes::destroyMeshAtPos(int i)
   _meshes.erase(_meshes.begin()+i);
 }
 
-void MEDFileMeshes::loadFromFile(const std::string& fileName)
+void MEDFileMeshes::loadFromFile(med_idt fid)
 {
-  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
+  std::vector<std::string> ms(MEDLoaderNS::getMeshNamesFid(fid));
   int i=0;
   _meshes.resize(ms.size());
   for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++,i++)
-    _meshes[i]=MEDFileMeshMultiTS::New(fileName,(*it));
+    _meshes[i]=MEDFileMeshMultiTS::New(fid,(*it));
 }
 
 MEDFileMeshes::MEDFileMeshes()
 {
 }
 
-MEDFileMeshes::MEDFileMeshes(const std::string& fileName)
+MEDFileMeshes::MEDFileMeshes(med_idt fid)
 try
 {
-    loadFromFile(fileName);
+    loadFromFile(fid);
 }
 catch(INTERP_KERNEL::Exception& /*e*/)
 {
@@ -7282,7 +7314,7 @@ MEDFileMeshes *MEDFileMeshes::deepCopy() const
   for(std::vector< MCAuto<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++,i++)
     if((const MEDFileMeshMultiTS *)*it)
       meshes[i]=(*it)->deepCopy();
-  MCAuto<MEDFileMeshes> ret=MEDFileMeshes::New();
+  MCAuto<MEDFileMeshes> ret(MEDFileMeshes::New());
   ret->_meshes=meshes;
   return ret.retn();
 }

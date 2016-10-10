@@ -21,6 +21,7 @@
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileUtilities.hxx"
+#include "MEDLoaderNS.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
@@ -141,20 +142,6 @@ using namespace MEDCoupling;
 
 /// @cond INTERNAL
 
-namespace MEDLoaderNS
-{
-  int readUMeshDimFromFile(const std::string& fileName, const std::string& meshName, std::vector<int>& possibilities);
-  void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entity_type& whichEntity);
-  void writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch);
-  med_int getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName);
-  std::vector<std::string> getMeshNamesFid(med_idt fid);
-}
-
-/// @endcond
-
-
-/// @cond INTERNAL
-
 /*!
  * This method returns a first quick overview of mesh with name \a meshName into the file \a fileName.
  * @param possibilities the relativeToMeshDim authorized to returned maxdim. This vector is systematically cleared at the begin of this method.
@@ -163,7 +150,7 @@ namespace MEDLoaderNS
 int MEDLoaderNS::readUMeshDimFromFile(const std::string& fileName, const std::string& meshName, std::vector<int>& possibilities)
 {
   possibilities.clear();
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   int ret;
   std::set<int> poss;
   char nommaa[MED_NAME_SIZE+1];
@@ -347,8 +334,7 @@ void MEDCoupling::SetTooLongStrPolicy(int val)
  */
 std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > MEDCoupling::GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName, int &meshDim, int& spaceDim, int& numberOfNodes)
 {
-  CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   std::set<int> poss;
   char nommaa[MED_NAME_SIZE+1];
   char maillage_description[MED_COMMENT_SIZE+1];
@@ -410,16 +396,13 @@ void MEDCoupling::CheckFileForRead(const std::string& fileName)
 
 std::vector<std::string> MEDCoupling::GetMeshNames(const std::string& fileName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  std::vector<std::string> ret=MEDLoaderNS::getMeshNamesFid(fid);
-  return ret;
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
+  return MEDLoaderNS::getMeshNamesFid(fid);
 }
 
 std::vector< std::pair<std::string,std::string> > MEDCoupling::GetComponentsNamesOfField(const std::string& fileName, const std::string& fieldName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields(MEDnField(fid));
   std::vector<std::string> fields(nbFields);
   med_field_type typcha;
@@ -454,10 +437,9 @@ std::vector< std::pair<std::string,std::string> > MEDCoupling::GetComponentsName
 
 std::vector<std::string> MEDCoupling::GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
   //
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -483,8 +465,7 @@ std::vector<std::string> MEDCoupling::GetMeshNamesOnField(const std::string& fil
 
 std::vector<std::string> MEDCoupling::GetMeshFamiliesNames(const std::string& fileName, const std::string& meshName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nfam=MEDnFamily(fid,meshName.c_str());
   std::vector<std::string> ret(nfam);
   char nomfam[MED_NAME_SIZE+1];
@@ -507,8 +488,7 @@ std::vector<std::string> MEDCoupling::GetMeshFamiliesNames(const std::string& fi
 
 std::vector<std::string> MEDCoupling::GetMeshFamiliesNamesOnGroup(const std::string& fileName, const std::string& meshName, const std::string& grpName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nfam=MEDnFamily(fid,meshName.c_str());
   std::vector<std::string> ret;
   char nomfam[MED_NAME_SIZE+1];
@@ -535,9 +515,8 @@ std::vector<std::string> MEDCoupling::GetMeshFamiliesNamesOnGroup(const std::str
 
 std::vector<std::string> MEDCoupling::GetMeshGroupsNamesOnFamily(const std::string& fileName, const std::string& meshName, const std::string& famName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  med_int nfam=MEDnFamily(fid,meshName.c_str());
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
+  med_int nfam(MEDnFamily(fid,meshName.c_str()));
   std::vector<std::string> ret;
   char nomfam[MED_NAME_SIZE+1];
   med_int numfam;
@@ -572,8 +551,7 @@ std::vector<std::string> MEDCoupling::GetMeshGroupsNamesOnFamily(const std::stri
 
 std::vector<std::string> MEDCoupling::GetMeshGroupsNames(const std::string& fileName, const std::string& meshName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nfam=MEDnFamily(fid,meshName.c_str());
   std::vector<std::string> ret;
   char nomfam[MED_NAME_SIZE+1];
@@ -632,9 +610,8 @@ std::vector<MEDCoupling::TypeOfField> MEDCoupling::GetTypesOfField(const std::st
 
 std::vector<std::string> MEDCoupling::GetAllFieldNames(const std::string& fileName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   med_field_type typcha;
   for(int i=0;i<nbFields;i++)
@@ -655,9 +632,8 @@ std::vector<std::string> MEDCoupling::GetAllFieldNames(const std::string& fileNa
 
 std::vector<std::string> MEDCoupling::GetAllFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -700,9 +676,8 @@ std::vector<std::string> MEDCoupling::GetFieldNamesOnMesh(MEDCoupling::TypeOfFie
 
 std::vector<std::string> MEDCoupling::GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -750,9 +725,8 @@ std::vector<std::string> MEDCoupling::GetCellFieldNamesOnMesh(const std::string&
 
 std::vector<std::string> MEDCoupling::GetNodeFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   char pflname[MED_NAME_SIZE+1]="";
   char locname[MED_NAME_SIZE+1]="";
@@ -791,9 +765,8 @@ std::vector<std::string> MEDCoupling::GetNodeFieldNamesOnMesh(const std::string&
 
 std::vector< std::pair< std::pair<int,int>, double> > MEDCoupling::GetAllFieldIterations(const std::string& fileName, const std::string& fieldName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
   std::vector< std::pair< std::pair<int,int>, double > > ret;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -834,8 +807,7 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDCoupling::GetAllFieldIt
 
 double MEDCoupling::GetTimeAttachedOnFieldIteration(const std::string& fileName, const std::string& fieldName, int iteration, int order)
 {
-  MEDCoupling::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -896,10 +868,9 @@ std::vector< std::pair<int,int> > MEDCoupling::GetFieldIterations(MEDCoupling::T
 
 std::vector< std::pair<int,int> > MEDCoupling::GetCellFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -968,10 +939,9 @@ std::vector< std::pair<int,int> > MEDCoupling::GetCellFieldIterations(const std:
 
 std::vector< std::pair<int,int> > MEDCoupling::GetNodeFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
-  MEDCoupling::CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;

@@ -35,6 +35,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT static MEDFileData *New(const std::string& fileName);
+    MEDLOADER_EXPORT static MEDFileData *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileData *New();
     MEDLOADER_EXPORT MEDFileData *deepCopy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -58,7 +59,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
   private:
     MEDFileData();
-    MEDFileData(const std::string& fileName);
+    MEDFileData(med_idt fid);
   private:
     MCAuto<MEDFileFields> _fields;
     MCAuto<MEDFileMeshes> _meshes;

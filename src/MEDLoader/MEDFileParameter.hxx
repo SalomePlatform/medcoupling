@@ -122,7 +122,9 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileParameterMultiTS *New();
     MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const std::string& fileName);
+    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const std::string& fileName, const std::string& paramName);
+    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(med_idt fid, const std::string& paramName);
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -145,8 +147,8 @@ namespace MEDCoupling
   protected:
     MEDFileParameterMultiTS();
     MEDFileParameterMultiTS(const MEDFileParameterMultiTS& other, bool deepCopy);
-    MEDFileParameterMultiTS(const std::string& fileName);
-    MEDFileParameterMultiTS(const std::string& fileName, const std::string& paramName);
+    MEDFileParameterMultiTS(med_idt fid);
+    MEDFileParameterMultiTS(med_idt fid, const std::string& paramName);
     void finishLoading(med_idt fid, med_parameter_type typ, int nbOfSteps);
   protected:
     std::vector< MCAuto<MEDFileParameter1TS> > _param_per_ts;
@@ -156,6 +158,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT static MEDFileParameters *New();
+    MEDLOADER_EXPORT static MEDFileParameters *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileParameters *New(const std::string& fileName);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -175,7 +178,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT int getNumberOfParams() const;
   protected:
     void simpleRepr2(int bkOffset, std::ostream& oss) const;
-    MEDFileParameters(const std::string& fileName);
+    MEDFileParameters(med_idt fid);
     MEDFileParameters(const MEDFileParameters& other, bool deepCopy);
     MEDFileParameters();
   protected:

@@ -56,6 +56,7 @@ INCLUDE_DIRECTORIES(
 SET(medloader_SOURCES
   MEDLoader.cxx
   MEDLoaderBase.cxx
+  MEDLoaderTraits.cxx
   MEDFileUtilities.cxx
   MEDFileMesh.cxx
   MEDFileMeshElt.cxx

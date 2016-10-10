@@ -786,8 +786,11 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileIntField1TS *New();
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const MEDFileIntField1TSWithoutSDA& other, bool shallowCopyOfContent);
     MEDLOADER_EXPORT MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *shallowCpy() const;
@@ -952,12 +955,15 @@ namespace MEDCoupling
     MEDFileAnyTypeFieldMultiTS(med_idt fid, bool loadAll, const MEDFileMeshes *ms);
     MEDFileAnyTypeFieldMultiTS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities=0);
     MEDFileAnyTypeFieldMultiTS(const MEDFileAnyTypeFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
-    static MEDFileAnyTypeFieldMultiTS *BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c, const std::string& fileName);
+    static MEDFileAnyTypeFieldMultiTS *BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c);
+    static MEDFileAnyTypeFieldMultiTS *BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c, med_idt fid);
     static MEDFileAnyTypeFieldMultiTSWithoutSDA *BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms);
     static MEDFileAnyTypeFieldMultiTSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities);
   public:
     MEDLOADER_EXPORT static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileAnyTypeFieldMultiTS *New(med_idt fid, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileAnyTypeFieldMultiTS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT void loadArrays();
     MEDLOADER_EXPORT void loadArraysIfNecessary();
     MEDLOADER_EXPORT void unloadArrays();
@@ -1041,7 +1047,9 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New();
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(med_idt fid, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(const MEDFileFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll=true);
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTS *shallowCpy() const;
@@ -1086,7 +1094,9 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New();
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(med_idt fid, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(const MEDFileIntFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll=true);
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTS *shallowCpy() const;
@@ -1141,6 +1151,7 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileFields *New();
     MEDLOADER_EXPORT static MEDFileFields *New(const std::string& fileName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileFields *New(med_idt fid, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0);
     MEDLOADER_EXPORT static MEDFileFields *LoadSpecificEntities(const std::string& fileName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll=true);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
