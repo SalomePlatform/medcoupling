@@ -35,6 +35,7 @@
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation2D1D.txx"
 #include "Interpolation2D3D.txx"
+#include "Interpolation3D1D.txx"
 #include "InterpolationCU.txx"
 #include "InterpolationCC.txx"
 
@@ -436,7 +437,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
         throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 1D ! Select PointLocator as intersection type !");
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
-      INTERP_KERNEL::Interpolation3D interpolation(*this);
+      INTERP_KERNEL::Interpolation3D1D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
   else if(srcMeshDim==1 && trgMeshDim==3 && srcSpaceDim==3)
@@ -445,7 +446,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
         throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 1D ! Select PointLocator as intersection type !");
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
-      INTERP_KERNEL::Interpolation3D interpolation(*this);
+      INTERP_KERNEL::Interpolation3D1D interpolation(*this);
       std::vector<std::map<int,double> > matrixTmp;
       std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
       nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);

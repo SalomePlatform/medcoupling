@@ -605,11 +605,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pt_c = coo.deepCopy();   pt_c[:,0] = 1.0;  pt_c[:,1] = 0.0
         # P = x*C+y*A + xy(B-A-C) + ORIGIN
         coo2 = coo[:,0]*pt_c + coo[:, 1]*pt_a + coo[:, 0]*coo[:, 1]*(pt_b - pt_a - pt_c) + orig
-         
+
         tgt.setCoords(coo2)
-      
+
         sCoo = DataArrayDouble([0.0,0.0,  -0.3,1.0,  2.0,3.0,  1.0,0.0],4,2)
-        sCoo[:,0] += 10.0;  sCoo[:,1] += 15.0;   
+        sCoo[:,0] += 10.0;  sCoo[:,1] += 15.0;
         sConn = DataArrayInt([0,1,2,3])
         s = MEDCoupling1SGTUMesh("source",NORM_QUAD4) ; s.setCoords(sCoo)
         s.setNodalConnectivity(sConn)
@@ -623,11 +623,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         srcField.setMesh(s); srcField.setName("field")
         srcField.setArray(DataArrayDouble([1.0,2.0,3.0,4.0]))
         tgtF = aRemapper.transferField(srcField, 1e+300)
-        ref = [1.0, 1.75, 2.5, 3.25, 4.0, 1.25, 1.875, 2.5, 3.125, 3.75, 1.5, 2.0, 2.5, 3.0, 3.5, 1.75, 
+        ref = [1.0, 1.75, 2.5, 3.25, 4.0, 1.25, 1.875, 2.5, 3.125, 3.75, 1.5, 2.0, 2.5, 3.0, 3.5, 1.75,
          2.125, 2.5, 2.875, 3.25, 2.0, 2.25, 2.5, 2.75, 3.0]
         val = tgtF.getArray().getValues()
         for i, ref_v in enumerate(ref):
-            self.assertAlmostEqual(ref_v, val[i])        
+            self.assertAlmostEqual(ref_v, val[i])
         pass
 
     def testSwig2MappedBarycentricP1P13_1(self):
@@ -658,10 +658,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pt_1 = coo.deepCopy(); pt_1[:,0] = 0.0; pt_1[:,1] = 0.0; pt_1[:,2] = 1.0
         pt_2 = coo.deepCopy(); pt_2[:,0] = 1.0; pt_2[:,1] = 0.0; pt_2[:,2] = 1.0
         pt_3 = coo.deepCopy(); pt_3[:,0] = 2.0; pt_3[:,1] = 3.0; pt_3[:,2] = 1.0
-        
+
         pt_4 = coo.deepCopy(); pt_4[:,0] = -0.3; pt_4[:,1] = 1.0; pt_4[:,2] = 0.0
         orig = coo.deepCopy(); orig[:,0] = 10.0; orig[:,1] = 15.0; orig[:,2] = 20.0
-        pt_6 = coo.deepCopy(); pt_6[:,0] = 1.0; pt_6[:,1] = 0.0; pt_6[:,2] = 0.0 
+        pt_6 = coo.deepCopy(); pt_6[:,0] = 1.0; pt_6[:,1] = 0.0; pt_6[:,2] = 0.0
         pt_7 = coo.deepCopy(); pt_7[:,0] = 2.0; pt_7[:,1] = 3.0; pt_7[:,2] = 0.0
         # P = x*p6 + y*p4 + z*p1 + xy*(p7-p6-p4) + xz*(p2-p1-p6) + yz*(p0-p4-p1) + xyz(p3-p7-p2-p0+p1+p6+p4)
         x,y,z = coo[:,0],coo[:,1],coo[:,2]
@@ -669,10 +669,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
                x*y*(pt_7 - pt_6 - pt_4) + x*z*(pt_2 - pt_1 - pt_6) + y*z*(pt_0 - pt_4 - pt_1) + \
                x*y*z*(pt_3 - pt_7 - pt_2 - pt_0 + pt_6 + pt_1 + pt_4) + orig
         tgt.setCoords(coo2)
-      
-        sCoo = DataArrayDouble([-0.3,1.0,1.0,  0.0,0.0,1.0,  1.0,0.0,1.0,  2.0,3.0,1.0, 
+
+        sCoo = DataArrayDouble([-0.3,1.0,1.0,  0.0,0.0,1.0,  1.0,0.0,1.0,  2.0,3.0,1.0,
                                 -0.3,1.0,0.0,  0.0,0.0,0.0,  1.0,0.0,0.0,  2.0,3.0,0.0,],8,3)
-        sCoo[:, 0] += 10.0; sCoo[:, 1] += 15.0; sCoo[:, 2] += 20.0;  
+        sCoo[:, 0] += 10.0; sCoo[:, 1] += 15.0; sCoo[:, 2] += 20.0;
         sConn = DataArrayInt([0,1,2,3,4, 5,6,7])
         s = MEDCoupling1SGTUMesh("source",NORM_HEXA8) ; s.setCoords(sCoo)
         s.setNodalConnectivity(sConn)
@@ -687,28 +687,28 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         srcField.setArray(DataArrayDouble([1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0]))
         tgtF = aRemapper.transferField(srcField, 1e+300)
 #        print tgtF.getArray().getValues()
-        ref = [6.0, 6.251802698104413, 6.502397834044702, 6.7517940736426665, 7.0, 5.740554726834594, 
-               6.1761835575796935, 6.6052985689637564, 7.009392769824465, 7.383488834310164, 
-               5.487562931129931, 6.140664596972973, 6.720290674177548, 7.220534970454015, 7.651092836860121, 
-               5.2407867837524345, 6.125759809889516, 6.82853486793175, 7.390880823876876, 7.848445254819061, 
-               5.0, 6.12211344611157, 6.925740671133115, 7.529623182840827, 8.0, 5.0, 5.251802698104413, 
-               5.502397834044702, 5.751794073642667, 6.0, 4.740554726834594, 5.1761835575796935, 
+        ref = [6.0, 6.251802698104413, 6.502397834044702, 6.7517940736426665, 7.0, 5.740554726834594,
+               6.1761835575796935, 6.6052985689637564, 7.009392769824465, 7.383488834310164,
+               5.487562931129931, 6.140664596972973, 6.720290674177548, 7.220534970454015, 7.651092836860121,
+               5.2407867837524345, 6.125759809889516, 6.82853486793175, 7.390880823876876, 7.848445254819061,
+               5.0, 6.12211344611157, 6.925740671133115, 7.529623182840827, 8.0, 5.0, 5.251802698104413,
+               5.502397834044702, 5.751794073642667, 6.0, 4.740554726834594, 5.1761835575796935,
                5.6052985689637564, 6.009392769824465, 6.383488834310163, 4.487562931129931, 5.140664596972973,
-                5.720290674177548, 6.220534970454015, 6.651092836860121, 4.2407867837524345, 5.125759809889516, 
-                5.828534867931749, 6.390880823876876, 6.848445254819061, 4.0, 5.122113446111569, 5.925740671133115, 
-                6.529623182840827, 7.0, 4.0, 4.251802698104413, 4.502397834044702, 4.751794073642667, 5.0, 3.740554726834594, 
-                4.176183557579693, 4.6052985689637564, 5.009392769824464, 5.383488834310164, 3.487562931129931, 
-                4.140664596972973, 4.720290674177548, 5.220534970454015, 5.651092836860121, 3.240786783752434, 4.125759809889516, 4.82853486793175, 
-                5.390880823876876, 5.848445254819061, 3.0, 4.122113446111569, 4.925740671133115, 5.529623182840827, 6.0, 3.0, 
-                3.2518026981044135, 3.502397834044702, 3.7517940736426674, 4.0, 2.7405547268345933, 3.176183557579693, 
-                3.6052985689637564, 4.009392769824465, 4.383488834310164, 2.487562931129931, 3.140664596972973, 3.7202906741775474, 4.220534970454015, 4.65109283686012, 2.2407867837524345, 3.1257598098895154, 3.828534867931749, 
-                4.390880823876876, 4.848445254819061, 2.0, 3.1221134461115687, 3.9257406711331146, 4.529623182840826, 5.0, 2.0, 2.2518026981044135, 2.502397834044702, 2.7517940736426674, 3.0, 1.7405547268345936, 2.176183557579693, 2.6052985689637564, 
-                3.0093927698244642, 3.3834888343101635, 1.4875629311299305, 2.1406645969729734, 2.720290674177548, 
+                5.720290674177548, 6.220534970454015, 6.651092836860121, 4.2407867837524345, 5.125759809889516,
+                5.828534867931749, 6.390880823876876, 6.848445254819061, 4.0, 5.122113446111569, 5.925740671133115,
+                6.529623182840827, 7.0, 4.0, 4.251802698104413, 4.502397834044702, 4.751794073642667, 5.0, 3.740554726834594,
+                4.176183557579693, 4.6052985689637564, 5.009392769824464, 5.383488834310164, 3.487562931129931,
+                4.140664596972973, 4.720290674177548, 5.220534970454015, 5.651092836860121, 3.240786783752434, 4.125759809889516, 4.82853486793175,
+                5.390880823876876, 5.848445254819061, 3.0, 4.122113446111569, 4.925740671133115, 5.529623182840827, 6.0, 3.0,
+                3.2518026981044135, 3.502397834044702, 3.7517940736426674, 4.0, 2.7405547268345933, 3.176183557579693,
+                3.6052985689637564, 4.009392769824465, 4.383488834310164, 2.487562931129931, 3.140664596972973, 3.7202906741775474, 4.220534970454015, 4.65109283686012, 2.2407867837524345, 3.1257598098895154, 3.828534867931749,
+                4.390880823876876, 4.848445254819061, 2.0, 3.1221134461115687, 3.9257406711331146, 4.529623182840826, 5.0, 2.0, 2.2518026981044135, 2.502397834044702, 2.7517940736426674, 3.0, 1.7405547268345936, 2.176183557579693, 2.6052985689637564,
+                3.0093927698244642, 3.3834888343101635, 1.4875629311299305, 2.1406645969729734, 2.720290674177548,
                 3.2205349704540143, 3.6510928368601205, 1.2407867837524345, 2.125759809889516, 2.8285348679317495, 3.390880823876876, 3.848445254819061, 1.0, 2.1221134461115687, 2.9257406711331146, 3.529623182840827, 4.0]
 
         val = tgtF.getArray().getValues()
         for i, ref_v in enumerate(ref):
-            self.assertAlmostEqual(ref_v, val[i])        
+            self.assertAlmostEqual(ref_v, val[i])
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
@@ -769,7 +769,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(m_1[2,3],0.3,12)
         self.assertEqual(m_1.getnnz(),7)
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
     def testP0P1Bary_1(self):
         a=MEDCouplingUMesh("a",2)
@@ -836,7 +836,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         rem=MEDCouplingRemapper()
         rem.setMaxDistance3DSurfIntersect(1e-12)
-        rem.setMinDotBtwPlane3DSurfIntersect(0.99)# this line is important it is to tell to remapper to select only cells with very close orientation 
+        rem.setMinDotBtwPlane3DSurfIntersect(0.99)# this line is important it is to tell to remapper to select only cells with very close orientation
         rem.prepare(skinAndNonConformCells,skinAndNonConformCells,"P0P0")
         mat=rem.getCrudeCSRMatrix()
         indptr=DataArrayInt(mat.indptr)
@@ -909,7 +909,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         self.assertTrue(coarse.isEqual(trgField.getArray(),1e-12))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
     def test1DPointLocator1(self):
         """This test focuses on PointLocator for P1P1 in 1D and 2DCurve."""
@@ -977,7 +977,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         diff=abs(m-mExp0)
         self.assertAlmostEqual(diff.sum(),0.,14)
         pass
-    
+
     def test3D2Dand2D3DPointLocator1(self):
         """ Non regression test solving SIGSEGV when using 3D<->3Dsurf pointlocator."""
         arrX=DataArrayDouble([0,1,2])
@@ -1018,7 +1018,37 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         rem.prepare(mt,ms,"P0P0")
         self.assertEqual(rem.getCrudeMatrix(),[{0:1.},{1:1.}])
         pass
-    
+
+    def test3D1DPointLocatorBBoxAdjusted(self):
+        """ In case a 1D segment lies exactly on the interface between two 2D (or 3D) faces, the default
+        bounding box logic will make it non-intersecting with the surrounding 2D (or 3D) faces.
+        Test bounding box adjustment allowing to widen the BB to capture this.
+        """
+        m = MEDCouplingCMesh("source")
+        di, dd = DataArrayInt, DataArrayDouble
+        m.setCoordsAt(0, dd([0.0, 1.0, 2.0]))
+        m.setCoordsAt(1, dd([0.0, 1.0]))
+        m.setCoordsAt(2, dd([0.0, 1.0]))
+        m3d = m.buildUnstructured()
+        m1d = MEDCouplingUMesh("target", 1)
+        m1d.setCoords(dd([1.0,0.5,0.2  ,  1.0,0.5,0.8], 2,3))
+        m1d.setConnectivity(di([NORM_SEG2, 0, 1]), di([0,3]))
+
+        rem = MEDCouplingRemapper()
+        rem.setPrecision(1e-12)
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(m3d, m1d,"P0P1")
+        self.assertEqual(rem.getCrudeMatrix(), [{0: 1.0, 1: 1.0}, {0: 1.0, 1: 1.0}])
+
+        rem = MEDCouplingRemapper()
+        rem.setPrecision(1e-12)
+        rem.setIntersectionType(PointLocator)
+        rem.setBoundingBoxAdjustment(0.0)
+        rem.setBoundingBoxAdjustmentAbs(0.0)
+        rem.prepare(m3d, m1d,"P0P1")
+        self.assertEqual(rem.getCrudeMatrix(), [{}, {}])
+        pass
+
     def testExtrudedOnDiffZLev1(self):
         """Non regression bug : This test is base on P0P0 ExtrudedExtruded. This test checks that if the input meshes are not based on a same plane // OXY the interpolation works"""
         arrX=DataArrayDouble([0,1]) ; arrY=DataArrayDouble([0,1]) ; arrZ=DataArrayDouble([0,1,2])
@@ -1063,7 +1093,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
                 pass
             pass
         pass
-    
+
     def build2DSourceMesh_1(self):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
         sourceConn=[0,3,1,0,2,3]
@@ -1076,7 +1106,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         myCoords.setValues(sourceCoords,4,2);
         sourceMesh.setCoords(myCoords);
         return sourceMesh;
-    
+
     def build2DTargetMesh_1(self):
         targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
@@ -1109,7 +1139,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         targetMesh.setCoords(myCoords);
         return targetMesh;
         pass
-    
+
     def setUp(self):
         pass
     pass
