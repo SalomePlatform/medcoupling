@@ -25,6 +25,8 @@
 
 #include <sstream>
 
+const char MEDCoupling::MEDFileWritableStandAlone::DFT_FILENAME_IN_MEM[]="DftFileNameInMemory";
+
 med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode)
 {
   switch(medloaderwritemode)
@@ -182,4 +184,26 @@ void MEDCoupling::MEDFileWritableStandAlone::write(const std::string& fileName, 
   std::ostringstream oss; oss << "MEDFileWritableStandAlone : error on attempt to write in file : \"" << fileName << "\""; 
   MEDFileUtilities::CheckMEDCode(fid,fid,oss.str());
   writeLL(fid);
+}
+
+void MEDCoupling::MEDFileWritableStandAlone::write30(const std::string& fileName, int mode) const
+{
+  med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
+  throw INTERP_KERNEL::Exception("MEDFileWritableStandAlone::write30 : will be implemented with MEDFile >= 3.2.1 !");
+  //MEDFileUtilities::AutoFid fid(MEDfileVersionOpen(fileName.c_str(),medmod,3,0,0));
+  //writeLL(fid);
+}
+
+MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> MEDCoupling::MEDFileWritableStandAlone::serialize() const
+{
+  med_memfile memfile=MED_MEMFILE_INIT;
+  memfile.app_image_ptr=0;
+  memfile.app_image_size=0;
+  //
+  MEDFileUtilities::AutoFid fid(MEDmemFileOpen(DFT_FILENAME_IN_MEM,&memfile,MED_FALSE,MED_ACC_CREAT));
+  writeLL(fid);
+  //
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> ret(MEDCoupling::DataArrayByte::New());
+  ret->useArray(reinterpret_cast<char *>(memfile.app_image_ptr),true,C_DEALLOC,memfile.app_image_size,1);
+  return ret;
 }

@@ -22,7 +22,7 @@
 #define __MEDFILEPARAMETER_HXX__
 
 #include "MEDLoaderDefines.hxx"
-#include "MEDFileUtilities.hxx"
+#include "MEDFileUtilities.txx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 
@@ -159,6 +159,7 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileParameters *New();
     MEDLOADER_EXPORT static MEDFileParameters *New(med_idt fid);
+    MEDLOADER_EXPORT static MEDFileParameters *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileParameters>(db); }
     MEDLOADER_EXPORT static MEDFileParameters *New(const std::string& fileName);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;

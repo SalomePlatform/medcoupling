@@ -22,7 +22,6 @@
 #include "MEDFileMesh.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDLoaderTraits.hxx"
-#include "MEDFileUtilities.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileFieldOverView.hxx"
 

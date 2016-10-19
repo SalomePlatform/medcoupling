@@ -19,7 +19,6 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDFileParameter.hxx"
-#include "MEDFileUtilities.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDLoaderBase.hxx"
 

@@ -21,7 +21,7 @@
 #define __MEDFILEJOINT_HXX__
 
 #include "MEDLoaderDefines.hxx"
-#include "MEDFileUtilities.hxx"
+#include "MEDFileUtilities.txx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 

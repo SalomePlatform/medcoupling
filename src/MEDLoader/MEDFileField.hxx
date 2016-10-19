@@ -24,7 +24,7 @@
 #include "MEDLoaderDefines.hxx"
 
 #include "MEDFileFieldOverView.hxx"
-#include "MEDFileUtilities.hxx"
+#include "MEDFileUtilities.txx"
 
 #include "MCAuto.hxx"
 #include "MEDLoaderTraits.hxx"
@@ -737,6 +737,7 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileField1TS *New(const std::string& fileName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileField1TS *New(med_idt fid, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileField1TS *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileField1TS>(db); }
     MEDLOADER_EXPORT static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileField1TS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
@@ -787,6 +788,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileIntField1TS *New();
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileIntField1TS *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileIntField1TS>(db); }
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
@@ -1048,6 +1050,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New();
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(med_idt fid, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileFieldMultiTS>(db); }
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(const MEDFileFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
@@ -1095,6 +1098,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New();
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(med_idt fid, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileIntFieldMultiTS>(db); }
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntFieldMultiTS *New(const MEDFileIntFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
@@ -1152,6 +1156,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileFields *New();
     MEDLOADER_EXPORT static MEDFileFields *New(const std::string& fileName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFields *New(med_idt fid, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileFields *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileFields>(db); }
     MEDLOADER_EXPORT static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0);
     MEDLOADER_EXPORT static MEDFileFields *LoadSpecificEntities(const std::string& fileName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll=true);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;

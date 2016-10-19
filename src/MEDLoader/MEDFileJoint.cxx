@@ -18,7 +18,6 @@
 //
 
 #include "MEDFileJoint.hxx"
-#include "MEDFileUtilities.hxx"
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileSafeCaller.txx"

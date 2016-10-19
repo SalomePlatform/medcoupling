@@ -24,7 +24,7 @@
 #include "MEDLoaderDefines.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDFileUtilities.hxx"
+#include "MEDFileUtilities.txx"
 #include "MCAuto.hxx"
 
 #include <vector>

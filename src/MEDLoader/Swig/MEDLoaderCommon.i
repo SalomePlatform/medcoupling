@@ -153,6 +153,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFields::__iter__;
 %newobject MEDCoupling::MEDFileFields::extractPart;
 
+%newobject MEDCoupling::MEDFileWritableStandAlone::serialize;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::deepCopy;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::shallowCpy;
@@ -536,6 +537,15 @@ namespace MEDCoupling
   {
   public:
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void write30(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    %extend
+       {
+         DataArrayByte *serialize() const throw(INTERP_KERNEL::Exception)
+         {
+           MCAuto<DataArrayByte> ret(self->serialize());
+           return ret.retn();
+         }
+       }
   };
   
   class MEDFileMeshReadSelector
@@ -916,6 +926,7 @@ namespace MEDCoupling
   public:
     static MEDFileMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileMesh *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     virtual MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileMesh *deepCopy() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
@@ -1228,6 +1239,7 @@ namespace MEDCoupling
     static MEDFileUMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New(const MEDCouplingMappedExtrudedMesh *mem) throw(INTERP_KERNEL::Exception);
+    static MEDFileUMesh *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New();
     static const char *GetSpeStr4ExtMesh();
     ~MEDFileUMesh();
@@ -1278,6 +1290,11 @@ namespace MEDCoupling
          MEDFileUMesh(const MEDCouplingMappedExtrudedMesh *mem) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileUMesh::New(mem);
+         }
+
+         MEDFileUMesh(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileUMesh::New(db);
          }
 
          MEDFileUMesh()
@@ -1543,6 +1560,7 @@ namespace MEDCoupling
   {
   public:
     static MEDFileCMesh *New();
+    static MEDFileCMesh *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileCMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileCMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
@@ -1563,6 +1581,11 @@ namespace MEDCoupling
          {
            return MEDFileCMesh::New(fileName,mName,dt,it,mrs);
          }
+
+         MEDFileCMesh(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileCMesh::New(db);
+         }
          
          PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
          {
@@ -1578,6 +1601,7 @@ namespace MEDCoupling
   {
   public:
     static MEDFileCurveLinearMesh *New();
+    static MEDFileCurveLinearMesh *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileCurveLinearMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileCurveLinearMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     void setMesh(MEDCouplingCurveLinearMesh *m) throw(INTERP_KERNEL::Exception);
@@ -1596,6 +1620,11 @@ namespace MEDCoupling
          MEDFileCurveLinearMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileCurveLinearMesh::New(fileName,mName,dt,it,mrs);
+         }
+
+         MEDFileCurveLinearMesh(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileCurveLinearMesh::New(db);
          }
          
          PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
@@ -1671,7 +1700,7 @@ namespace MEDCoupling
   {
   public:
     static MEDFileMeshes *New();
-    static MEDFileMeshes *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileMeshes *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     MEDFileMeshes *deepCopy() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
@@ -1691,6 +1720,11 @@ namespace MEDCoupling
          MEDFileMeshes(const std::string& fileName) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileMeshes::New(fileName);
+         }
+
+         MEDFileMeshes(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileMeshes::New(db);
          }
 
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2058,6 +2092,7 @@ namespace MEDCoupling
     static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New();
     MEDCoupling::MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
@@ -2086,6 +2121,11 @@ namespace MEDCoupling
          MEDFileField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileField1TS::New(fileName,fieldName,iteration,order,loadAll);
+         }
+
+         MEDFileField1TS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileField1TS::New(db);
          }
 
          MEDFileField1TS()
@@ -2192,6 +2232,7 @@ namespace MEDCoupling
   public:
     static MEDFileIntField1TS *New();
     static MEDFileIntField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileIntField1TS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
@@ -2224,6 +2265,11 @@ namespace MEDCoupling
       MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception)
       {
         return MEDFileIntField1TS::New(fileName,fieldName,iteration,order,loadAll);
+      }
+
+      MEDFileIntField1TS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileIntField1TS::New(db);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2798,6 +2844,7 @@ namespace MEDCoupling
     static MEDFileIntFieldMultiTS *New();
     static MEDFileIntFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileIntFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileIntFieldMultiTS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldInt *field) throw(INTERP_KERNEL::Exception);
     void appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
@@ -2823,6 +2870,11 @@ namespace MEDCoupling
       MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
       {
         return MEDFileIntFieldMultiTS::New(fileName,fieldName,loadAll);
+      }
+
+      MEDFileIntFieldMultiTS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileIntFieldMultiTS::New(db);
       }
 
       static MEDFileIntFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
@@ -2868,6 +2920,7 @@ namespace MEDCoupling
   public:
     static MEDFileFields *New() throw(INTERP_KERNEL::Exception);
     static MEDFileFields *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileFields *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0) throw(INTERP_KERNEL::Exception);
     MEDFileFields *deepCopy() const throw(INTERP_KERNEL::Exception);
     MEDFileFields *shallowCpy() const throw(INTERP_KERNEL::Exception);
@@ -2898,6 +2951,11 @@ namespace MEDCoupling
          MEDFileFields(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileFields::New(fileName,loadAll);
+         }
+
+         MEDFileFields(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileFields::New(db);
          }
          
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -3345,6 +3403,7 @@ namespace MEDCoupling
   public:
     static MEDFileParameters *New();
     static MEDFileParameters *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileParameters *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     MEDFileParameters *deepCopy() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getParamsNames() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
@@ -3366,6 +3425,11 @@ namespace MEDCoupling
         return MEDFileParameters::New(fileName);
       }
 
+      MEDFileParameters(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileParameters::New(db);
+      }
+      
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -3429,6 +3493,7 @@ namespace MEDCoupling
   class MEDFileData : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
+    static MEDFileData *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileData *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileData *New();
     MEDFileData *deepCopy() const throw(INTERP_KERNEL::Exception);
@@ -3447,6 +3512,11 @@ namespace MEDCoupling
          MEDFileData(const std::string& fileName) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileData::New(fileName);
+         }
+
+         MEDFileData(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileData::New(db);
          }
 
          MEDFileData()

@@ -19,7 +19,6 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDFileMesh.hxx"
-#include "MEDFileUtilities.hxx"
 #include "MEDFileFieldOverView.hxx"
 #include "MEDFileField.hxx"
 #include "MEDLoader.hxx"
