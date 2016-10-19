@@ -35,6 +35,7 @@ SET(interpkernel_SOURCES
   Interpolation3DSurf.cxx
   Interpolation3D.cxx
   Interpolation2D3D.cxx
+  Interpolation3D1D.cxx
   MeshElement.cxx
   InterpKernelMeshQuality.cxx
   InterpKernelCellSimplify.cxx
