@@ -255,7 +255,8 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT_EQUAL(2,  um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PYRA5 ));
   CPPUNIT_ASSERT_EQUAL(2,  um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
   MCAuto<MEDCouplingMesh> um1 = m->getMeshAtLevel(-1);
-  CPPUNIT_ASSERT_EQUAL(2, um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
+  CPPUNIT_ASSERT_EQUAL(1, um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
+  //CPPUNIT_ASSERT_EQUAL(2, um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
   MCAuto<MEDCouplingUMesh> pointeUM0 =
     static_cast<MEDCouplingUMesh*>( pointeMedMesh->getMeshAtLevel(0));
   DataArrayDouble *coo = m->getCoords();
@@ -314,17 +315,36 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT( d->isEqual( *fof->getArray(), 1e-12 ));
 }
 
+void SauvLoaderTest::testCellsWithLingNames()
+{
+  // test IMP 3285: [CEA 1778] SauvReader: only keep the meshes named in the table MED_MAIL
+  std::string file = INTERP_TEST::getResourceFile("test_MED_MAIL.sauv", 3);
+  MCAuto<SauvReader> sr=SauvReader::New(file.c_str());
+  MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
+  // check that the mesh contains
+  // - Nombre de noeuds : 74
+  // - Nombre de mailles de type MED_TRIA3 : 6
+  // - Nombre de mailles de type MED_QUAD4 : 43
+  // - Nombre de mailles de type MED_HEXA8 : 24
+  // - Nombre de mailles de type MED_PENTA6 : 3
+  MEDFileUMesh* m = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0));
+  CPPUNIT_ASSERT_EQUAL(6,  m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
+  CPPUNIT_ASSERT_EQUAL(43, m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_QUAD4 ));
+  CPPUNIT_ASSERT_EQUAL(24, m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
+  CPPUNIT_ASSERT_EQUAL(3,  m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PENTA6 ));
+}
+
 void SauvLoaderTest::tearDown()
 {
   const int nbFilesToRemove = 3;
   const char* fileToRemove[nbFilesToRemove] = { "allPillesTest.med", "pointe.sauv", "mesh_with_void_family.sauv" };
   for ( int i = 0; i < nbFilesToRemove; ++i )
-    {
+  {
 #ifdef WIN32
-      if (GetFileAttributes(fileToRemove[i]) != INVALID_FILE_ATTRIBUTES)
+    if (GetFileAttributes(fileToRemove[i]) != INVALID_FILE_ATTRIBUTES)
 #else
-        if (access(fileToRemove[i], F_OK) == 0)
+      if (access(fileToRemove[i], F_OK) == 0)
 #endif
-      remove(fileToRemove[i]);
+        remove(fileToRemove[i]);
   }
 }

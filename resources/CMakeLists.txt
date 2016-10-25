@@ -88,6 +88,7 @@ SET(MED_other_FILES
   BDC-714.sauv
   portico_3subs.sauv
   agitateur.med
+  test_MED_MAIL.sauv
   )
 
 SET(MED_RESOURCES_FILES ${MED_test_fig_files})

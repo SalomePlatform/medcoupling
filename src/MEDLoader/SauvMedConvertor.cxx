@@ -2402,7 +2402,9 @@ MEDCoupling::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
   // check if all needed piles are present
   checkDataAvailability();
 
-  // set long names
+  decreaseHierarchicalDepthOfSubgroups();
+
+  // set long names (before orienting!)
   setGroupLongNames();
 
   // fix element orientation
@@ -2412,7 +2414,6 @@ MEDCoupling::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
     orientElements3D();
 
   // process groups
-  decreaseHierarchicalDepthOfSubgroups();
   eraseUselessGroups();
   //detectMixDimGroups();
 
@@ -2444,6 +2445,16 @@ MEDCoupling::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
 
 void IntermediateMED::setGroupLongNames()
 {
+  if ( _listGIBItoMED_mail.empty() )
+    return;
+
+  // IMP 0023285: only keep the meshes named in the table MED_MAIL
+  // clear all group names
+  for ( size_t i = 0; i < _groups.size(); ++i )
+    if ( !_groups[i]._isProfile )
+      _groups[i]._name.clear();
+
+
   // IMP 0020434: mapping GIBI names to MED names
   // set med names to objects (mesh, fields, support, group or other)
 
@@ -2473,6 +2484,41 @@ void IntermediateMED::setGroupLongNames()
         {
           grp._refNames.push_back( _mapStrings[ (*itGIBItoMED).med_id ]);
         }
+    }
+
+  // IMP 0023285: only keep the meshes named in the table MED_MAIL
+  // remove all cells belonging to non-named groups only
+
+  // use Cell::_reverse to mark cells to keep
+  for ( size_t i = 0; i < _groups.size(); ++i )
+    {
+      SauvUtilities::Group & grp = _groups[i];
+      if ( grp._isProfile || !grp._name.empty() )
+        {
+          for ( size_t iC = 0; iC < grp._cells.size(); ++iC )
+            grp._cells[iC]->_reverse = true;
+
+          for (size_t j = 0; j < grp._groups.size(); ++j )
+            for ( size_t iC = 0; iC < grp._groups[j]->_cells.size(); ++iC )
+              grp._groups[j]->_cells[iC]->_reverse = true;
+        }
+    }
+  // remove non-marked cells (with _reverse == false)
+  CellsByDimIterator cellsIt( *this );
+  while ( cellsIt.nextType() )
+    {
+      std::set<Cell> & cells = _cellsByType[ cellsIt.type() ];
+      std::set<Cell>::iterator cIt = cells.begin();
+      while ( cIt != cells.end() )
+        if ( cIt->_reverse )
+          {
+            cIt->_reverse = false;
+            ++cIt;
+          }
+        else
+          {
+            cells.erase( cIt++ );
+          }
     }
 }
 

@@ -130,7 +130,8 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertEqual(2, um0.getNumberOfCellsWithType( NORM_PYRA5 ))
         self.assertEqual(2, um0.getNumberOfCellsWithType( NORM_HEXA8 ))
         um1 = m.getMeshAtLevel(-1)
-        self.assertEqual(2, um1.getNumberOfCellsWithType( NORM_TRI3 ))
+        #self.assertEqual(2, um1.getNumberOfCellsWithType( NORM_TRI3 ))
+        self.assertEqual(1, um1.getNumberOfCellsWithType( NORM_TRI3 ))
         pointeUM0 = pointeMedMesh.getMeshAtLevel(0)
         self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(pointeMedMesh.getCoords(),1e-12))
         self.assertEqual( um0.getMeasureField(0).accumulate(0),
