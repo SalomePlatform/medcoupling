@@ -300,6 +300,7 @@ namespace MEDCoupling
 {
   bool HasXDR();
   std::string MEDFileVersionStr();
+  std::string MEDFileVersionOfFileStr(const std::string& fileName) throw(INTERP_KERNEL::Exception);
   void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
   void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
   void SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);

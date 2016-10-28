@@ -292,6 +292,24 @@ std::string MEDCoupling::MEDFileVersionStr()
   return std::string(MED_VERSION_STR);
 }
 
+std::string MEDCoupling::MEDFileVersionOfFileStr(const std::string& fileName)
+{
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
+  const int SZ=20;
+  const char START_EXPECTED[]="MED-";
+  char buf[SZ];
+  std::fill(buf,buf+SZ,'\0');
+  MEDFILESAFECALLERRD0(MEDfileStrVersionRd,(fid,buf));
+  std::string ret(buf);
+  std::size_t pos(ret.find(START_EXPECTED,0));
+  if(pos!=0)
+    {
+      std::ostringstream oss; oss << "MEDFileVersionOfFileStr : internal error ! The MEDFile returned version (\"" << ret << "\") has not the right pattern !";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  return ret.substr(sizeof(START_EXPECTED)-1,std::string::npos);
+}
+
 void MEDCoupling::MEDFileVersion(int& major, int& minor, int& release)
 {
   major=MED_NUM_MAJEUR;

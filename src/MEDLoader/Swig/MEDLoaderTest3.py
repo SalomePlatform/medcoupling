@@ -24,6 +24,7 @@ import unittest
 import platform
 from math import pi,e,sqrt
 from MEDLoaderDataForTest import MEDLoaderDataForTest
+from distutils.version import LooseVersion
 
 class MEDLoaderTest3(unittest.TestCase):
     def testMEDMesh1(self):
@@ -5751,6 +5752,7 @@ class MEDLoaderTest3(unittest.TestCase):
         ex=MEDCouplingMappedExtrudedMesh(mesh3D)
         mm=MEDFileUMesh(ex)
         mm.write(fname,2)
+        assert(LooseVersion(MEDFileVersionOfFileStr(fname)).version[:2]==list(MEDFileVersion()[:2])) # checks that MED file version of written mesh is thoose of the current MED file lib
         ex2=mm.convertToExtrudedMesh()
         mm2=MEDFileMesh.New(fname)
         ex3=mm2.convertToExtrudedMesh()
@@ -5758,6 +5760,18 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(ex.isEqual(ex3,1e-12))
         pass
     
+    @unittest.skipUnless(LooseVersion(MEDFileVersionStr())>=LooseVersion('3.2.1'),"This test requires at least MEDFile version 3.2.1")
+    def testWriteInto30(self):
+        fname="Pyfile108.med"
+        m=MEDCouplingUMesh("mesh",1) ; m.setCoords(DataArrayDouble([0,0,1,1],2,2)) ; m.allocateCells() ; m.insertNextCell(NORM_SEG2,[1,0])
+        mm=MEDFileUMesh() ; mm[0]=m
+        mm.setFamilyId("FAMILLE_ZERO",0)
+        #
+        mm.write30(fname,2)
+        assert(LooseVersion(MEDFileVersionOfFileStr(fname)).version[:2]==[3,0]) # checks that just written MED file has a version == 3.0.x
+        mm2=MEDFileUMesh(fname)
+        self.assertTrue(mm.isEqual(mm2,1e-12))
+        pass
     pass
 
 if __name__ == "__main__":

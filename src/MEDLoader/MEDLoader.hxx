@@ -42,6 +42,7 @@ namespace MEDCoupling
   MEDLOADER_EXPORT void SetTooLongStrPolicy(int val);
   MEDLOADER_EXPORT bool HasXDR();
   MEDLOADER_EXPORT std::string MEDFileVersionStr();
+  MEDLOADER_EXPORT std::string MEDFileVersionOfFileStr(const std::string& fileName);
   MEDLOADER_EXPORT void MEDFileVersion(int& major, int& minor, int& release);
   MEDLOADER_EXPORT void CheckFileForRead(const std::string& fileName);
   MEDLOADER_EXPORT std::vector<std::string> GetMeshNames(const std::string& fileName);

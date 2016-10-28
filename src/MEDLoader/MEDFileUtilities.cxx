@@ -20,6 +20,7 @@
 
 #include "MEDFileUtilities.hxx"
 #include "MEDLoaderBase.hxx"
+#include "MEDLoader.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 
@@ -189,9 +190,13 @@ void MEDCoupling::MEDFileWritableStandAlone::write(const std::string& fileName, 
 void MEDCoupling::MEDFileWritableStandAlone::write30(const std::string& fileName, int mode) const
 {
   med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
-  throw INTERP_KERNEL::Exception("MEDFileWritableStandAlone::write30 : will be implemented with MEDFile >= 3.2.1 !");
-  //MEDFileUtilities::AutoFid fid(MEDfileVersionOpen(fileName.c_str(),medmod,3,0,0));
-  //writeLL(fid);
+#if MED_NUM_MAJEUR>=3 && MED_NUM_MINEUR>=2 && MED_NUM_RELEASE>=1
+  MEDFileUtilities::AutoFid fid(MEDfileVersionOpen(fileName.c_str(),medmod,3,0,0));
+  writeLL(fid);
+#else
+  std::ostringstream oss; oss << "MEDFileWritableStandAlone::write30 : is implemented with MEDFile " << MEDFileVersionStr() << " ! If you need this feature please use version >= 3.2.1.";
+  throw INTERP_KERNEL::Exception(oss.str());
+#endif
 }
 
 MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> MEDCoupling::MEDFileWritableStandAlone::serialize() const
