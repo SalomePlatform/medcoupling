@@ -205,10 +205,21 @@ MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> MEDCoupling::MEDFileWritableStan
   memfile.app_image_ptr=0;
   memfile.app_image_size=0;
   //
-  MEDFileUtilities::AutoFid fid(MEDmemFileOpen(DFT_FILENAME_IN_MEM,&memfile,MED_FALSE,MED_ACC_CREAT));
+  std::string dftFileName(GenerateUniqueDftFileNameInMem());
+  MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_CREAT));
   writeLL(fid);
   //
   MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> ret(MEDCoupling::DataArrayByte::New());
-  ret->useArray(reinterpret_cast<char *>(memfile.app_image_ptr),true,C_DEALLOC,memfile.app_image_size,1);
+  //ret->useArray(reinterpret_cast<char *>(memfile.app_image_ptr),true,C_DEALLOC,memfile.app_image_size,1);
+  ret->alloc(memfile.app_image_size,1);
+  const char *srcData(reinterpret_cast<char *>(memfile.app_image_ptr));
+  std::copy(srcData,srcData+memfile.app_image_size,ret->getPointer());
   return ret;
+}
+
+std::string MEDCoupling::MEDFileWritableStandAlone::GenerateUniqueDftFileNameInMem()
+{
+  static int ii=0;
+  std::ostringstream oss; oss << DFT_FILENAME_IN_MEM << "_" << ii++;
+  return oss.str();
 }

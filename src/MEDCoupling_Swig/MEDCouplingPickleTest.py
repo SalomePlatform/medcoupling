@@ -292,6 +292,20 @@ class MEDCouplingPickleTest(unittest.TestCase):
         self.assertEqual(e2.what(),eStr)
         pass
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test14(self):
+        """Pickelization of DataArrayBytes"""
+        x=DataArrayByte(256,1)
+        for i in xrange(256):
+            x[i]=-128+i
+            pass
+        x.rearrange(2) ; x.setInfoOnComponents(["aa","bbb"])
+        x.setName("toto")
+        st=cPickle.dumps(x,cPickle.HIGHEST_PROTOCOL)
+        x2=cPickle.loads(st)
+        self.assertTrue(x2.isEqual(x))
+        pass
+
     def setUp(self):
         pass
     pass

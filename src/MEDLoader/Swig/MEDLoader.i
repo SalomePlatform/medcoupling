@@ -57,6 +57,9 @@ def MEDCouplingFieldDoubleIdiv(self,*args):
 def MEDCouplingFieldDoubleIpow(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____ipow___(self, self, *args)
+def MEDCouplingDataArrayBytenew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayByte____new___(cls,args)
 def MEDCouplingDataArrayIntnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayInt____new___(cls,args)
@@ -135,14 +138,19 @@ def MEDCouplingExtrudedMeshnew(cls,*args):
 %}
 
 %pythoncode %{
-def ParaMEDMEMMEDFileUMeshnew(cls,*args):
+def MEDCouplingMEDFileUMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDFileUMesh____new___(cls,args)
+def MEDCouplingMEDFileDatanew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileData____new___(cls,args)
 %}
 
 %include "MEDCouplingFinalize.i"
 
 %pythoncode %{
-MEDFileUMesh.__new__=classmethod(ParaMEDMEMMEDFileUMeshnew)
-del ParaMEDMEMMEDFileUMeshnew
+MEDFileUMesh.__new__=classmethod(MEDCouplingMEDFileUMeshnew)
+del MEDCouplingMEDFileUMeshnew
+MEDFileData.__new__=classmethod(MEDCouplingMEDFileDatanew)
+del MEDCouplingMEDFileDatanew
 %}

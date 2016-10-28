@@ -32,7 +32,8 @@ T *MEDCoupling::MEDFileWritableStandAlone::BuildFromMemoryChunk(MEDCoupling::Dat
   med_memfile memfile=MED_MEMFILE_INIT;
   memfile.app_image_ptr=db->getPointer();
   memfile.app_image_size=db->getNbOfElems();
-  MEDFileUtilities::AutoFid fid(MEDmemFileOpen(MEDCoupling::MEDFileWritableStandAlone::DFT_FILENAME_IN_MEM,&memfile,MED_FALSE,MED_ACC_RDONLY));
+  std::string dftFileName(MEDCoupling::MEDFileWritableStandAlone::GenerateUniqueDftFileNameInMem());
+  MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_RDONLY));
   return T::New(fid);
 }
 

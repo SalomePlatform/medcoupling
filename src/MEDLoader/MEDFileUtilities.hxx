@@ -71,6 +71,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT virtual void write30(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT MCAuto<DataArrayByte> serialize() const;
+    MEDLOADER_EXPORT static std::string GenerateUniqueDftFileNameInMem();
   public:
     MEDLOADER_EXPORT static const char DFT_FILENAME_IN_MEM[];
     template<class T>

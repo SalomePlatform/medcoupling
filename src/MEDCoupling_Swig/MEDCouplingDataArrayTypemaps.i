@@ -18,6 +18,9 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
+#ifndef __MEDCOUPLINGDATAARRAYTYPEMAPS_I__
+#define __MEDCOUPLINGDATAARRAYTYPEMAPS_I__
+
 #include "InterpKernelAutoPtr.hxx"
 
 /*!
@@ -107,6 +110,7 @@ struct PyCallBackDataArraySt {
     MCData *_pt_mc;
 };
 
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayByte> PyCallBackDataArrayChar;
 typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt> PyCallBackDataArrayInt;
 typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayDouble> PyCallBackDataArrayDouble;
 
@@ -114,6 +118,12 @@ extern "C"
 {
   static int callbackmcdataarray___init__(PyObject *self, PyObject *args, PyObject *kwargs) { return 0; }
   
+  static PyObject *callbackmcdataarraychar___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+  {
+    PyCallBackDataArrayChar *self = (PyCallBackDataArrayChar *) ( type->tp_alloc(type, 0) );
+    return (PyObject *)self;
+  }
+
   static PyObject *callbackmcdataarrayint___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
     PyCallBackDataArrayInt *self = (PyCallBackDataArrayInt *) ( type->tp_alloc(type, 0) );
@@ -130,7 +140,21 @@ extern "C"
   {
     Py_TYPE(self)->tp_free(self);
   }
+
   
+  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
+  static PyObject *callbackmcdataarraychar_call(PyCallBackDataArrayChar *self, PyObject *args, PyObject *kw)
+  {
+    if(self->_pt_mc)
+      {
+        MEDCoupling::MemArray<char>& mma=self->_pt_mc->accessToMemArray();
+        mma.destroy();
+      }
+    Py_XINCREF(Py_None);
+    return Py_None;
+  }
+
   // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
   // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
   static PyObject *callbackmcdataarrayint_call(PyCallBackDataArrayInt *self, PyObject *args, PyObject *kw)
@@ -157,6 +181,49 @@ extern "C"
     return Py_None;
   }
 }
+
+PyTypeObject PyCallBackDataArrayChar_RefType = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "callbackmcdataarraychar",
+  sizeof(PyCallBackDataArrayChar),
+  0,
+  callbackmcdataarray_dealloc,            /*tp_dealloc*/
+  0,                          /*tp_print*/
+  0,                          /*tp_getattr*/
+  0,                          /*tp_setattr*/
+  0,                          /*tp_compare*/
+  0,                          /*tp_repr*/
+  0,                          /*tp_as_number*/
+  0,                          /*tp_as_sequence*/
+  0,                          /*tp_as_mapping*/
+  0,                          /*tp_hash*/
+  (ternaryfunc)callbackmcdataarraychar_call,  /*tp_call*/
+  0,                          /*tp_str*/
+  0,                          /*tp_getattro*/
+  0,                          /*tp_setattro*/
+  0,                          /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
+  0,                          /*tp_doc*/
+  0,                          /*tp_traverse*/
+  0,                          /*tp_clear*/
+  0,                          /*tp_richcompare*/
+  0,                          /*tp_weaklistoffset*/
+  0,                          /*tp_iter*/
+  0,                          /*tp_iternext*/
+  0,                          /*tp_methods*/
+  0,                          /*tp_members*/
+  0,                          /*tp_getset*/
+  0,                          /*tp_base*/
+  0,                          /*tp_dict*/
+  0,                          /*tp_descr_get*/
+  0,                          /*tp_descr_set*/
+  0,                          /*tp_dictoffset*/
+  callbackmcdataarray___init__,           /*tp_init*/
+  PyType_GenericAlloc,        /*tp_alloc*/
+  callbackmcdataarraychar___new__,            /*tp_new*/
+  PyObject_GC_Del,            /*tp_free*/
+};
+
 
 PyTypeObject PyCallBackDataArrayInt_RefType = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -2527,3 +2594,71 @@ static MEDCoupling::DataArray *CheckAndRetrieveDataArrayInstance(PyObject *obj, 
     }
   return reinterpret_cast< MEDCoupling::DataArray * >(aBasePtrVS);
 }
+
+static PyObject *NewMethWrapCallInitOnlyIfEmptyDictInInput(PyObject *cls, PyObject *args, const char *clsName)
+{
+  if(!PyTuple_Check(args))
+    {
+      std::ostringstream oss; oss << clsName << ".__new__ : the args in input is expected to be a tuple !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  PyObject *builtinsd(PyEval_GetBuiltins());//borrowed
+  PyObject *obj(PyDict_GetItemString(builtinsd,"object"));//borrowed
+  PyObject *selfMeth(PyObject_GetAttrString(obj,"__new__"));
+  //
+  PyObject *tmp0(PyTuple_New(1));
+  PyTuple_SetItem(tmp0,0,cls); Py_XINCREF(cls);
+  PyObject *instance(PyObject_CallObject(selfMeth,tmp0));
+  Py_DECREF(tmp0);
+  Py_DECREF(selfMeth);
+  if(PyTuple_Size(args)==2 && PyDict_Check(PyTuple_GetItem(args,1)) && PyDict_Size(PyTuple_GetItem(args,1))==0 )
+    {// NOT general case. only true if in unpickeling context ! call __init__. Because for all other cases, __init__ is called right after __new__ !
+      PyObject *initMeth(PyObject_GetAttrString(instance,"__init__"));
+      PyObject *tmp3(PyTuple_New(0));
+      PyObject *tmp2(PyObject_CallObject(initMeth,tmp3));
+      Py_XDECREF(tmp2);
+      Py_DECREF(tmp3);
+      Py_DECREF(initMeth);
+    }
+  return instance;
+}
+
+static PyObject *NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(PyObject *cls, PyObject *args, const char *clsName)
+{
+  if(!PyTuple_Check(args))
+    {
+      std::ostringstream oss; oss << clsName << ".__new__ : the args in input is expected to be a tuple !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  PyObject *builtinsd(PyEval_GetBuiltins());//borrowed
+  PyObject *obj(PyDict_GetItemString(builtinsd,"object"));//borrowed
+  PyObject *selfMeth(PyObject_GetAttrString(obj,"__new__"));
+  //
+  PyObject *tmp0(PyTuple_New(1));
+  PyTuple_SetItem(tmp0,0,cls); Py_XINCREF(cls);
+  PyObject *instance(PyObject_CallObject(selfMeth,tmp0));
+  Py_DECREF(tmp0);
+  Py_DECREF(selfMeth);
+  if(PyTuple_Size(args)==2 && PyDict_Check(PyTuple_GetItem(args,1)) && PyDict_Size(PyTuple_GetItem(args,1))==1 )
+    {// NOT general case. only true if in unpickeling context ! call __init__. Because for all other cases, __init__ is called right after __new__ !
+      PyObject *initMeth(PyObject_GetAttrString(instance,"__init__"));
+      PyObject *zeNumpyRepr(0);
+      {
+        PyObject *tmp1(PyInt_FromLong(0));
+       zeNumpyRepr=PyDict_GetItem(PyTuple_GetItem(args,1),tmp1);//borrowed
+        Py_DECREF(tmp1);
+      }
+      {
+        PyObject *tmp3(PyTuple_New(1));
+        PyTuple_SetItem(tmp3,0,zeNumpyRepr); Py_XINCREF(zeNumpyRepr);
+        PyObject *tmp2(PyObject_CallObject(initMeth,tmp3));
+        Py_XDECREF(tmp2);
+        Py_DECREF(tmp3);
+      }
+      Py_DECREF(initMeth);
+    }
+  return instance;
+}
+
+#endif
+

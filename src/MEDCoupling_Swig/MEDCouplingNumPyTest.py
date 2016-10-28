@@ -663,6 +663,99 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(m0np.tolist(),[[2.0,3.0,4.0],[5.0,1.0,6.0]])
         pass
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test28(self):
+        """Test on DataArrayBytes"""
+        # use case 1
+        d=DataArrayByte(256)
+        for i in xrange(len(d)):
+            d[i]=-128+i
+            pass
+        arr=d.toNumPyArray()
+        for i in xrange(len(d)):
+            self.assertEqual(int(arr[i]),-128+i)
+            pass
+        d[0]=7
+        self.assertEqual(int(arr[0]),7)
+        arr[0]=8
+        self.assertEqual(int(d.getIJ(0,0)),8)
+        del arr
+        gc.collect()
+        del d
+        gc.collect()
+        # use case 2
+        d=DataArrayByte(256)
+        for i in xrange(len(d)):
+            d[i]=-128+i
+            pass
+        arr=d.toNumPyArray()
+        for i in xrange(len(d)):
+            self.assertEqual(int(arr[i]),-128+i)
+            pass
+        del d
+        gc.collect()
+        del arr
+        gc.collect()
+        # use case 3
+        d=DataArrayByte(256)
+        for i in xrange(len(d)):
+            d[i]=-128+i
+            pass
+        arr1=d.toNumPyArray()
+        arr2=d.toNumPyArray()
+        arr3=d.toNumPyArray()
+        d[0]=10
+        self.assertEqual(int(arr1[0]),10) ; self.assertEqual(int(arr2[0]),10) ; self.assertEqual(int(arr3[0]),10)
+        arr2[0]=15 ; self.assertEqual(int(d.getIJ(0,0)),15) ; self.assertEqual(int(arr1[0]),15) ; self.assertEqual(int(arr3[0]),15)
+        arr1[0]=-128
+        for i in xrange(len(d)):
+            self.assertEqual(int(arr1[i]),-128+i)
+            self.assertEqual(int(arr2[i]),-128+i)
+            self.assertEqual(int(arr3[i]),-128+i)
+            pass
+        del arr2
+        gc.collect()
+        for i in xrange(len(d)):
+            self.assertEqual(int(arr1[i]),-128+i)
+            self.assertEqual(int(arr3[i]),-128+i)
+            pass
+        del arr1
+        gc.collect()
+        for i in xrange(len(d)):
+            self.assertEqual(int(arr3[i]),-128+i)
+            pass
+        del arr3
+        gc.collect()
+        # use case 4
+        arr=array(0,dtype=int8)
+        arr.resize(256)
+        for i in xrange(256):
+            arr[i]=-128+i
+            pass
+        d=DataArrayByte(arr)
+        for i in xrange(256):
+            self.assertEqual(int(d.getIJ(i,0)),-128+i)
+            pass
+        del arr
+        gc.collect()
+        del d
+        gc.collect()
+        # use case 5
+        arr=array(0,dtype=int8)
+        arr.resize(256)
+        for i in xrange(256):
+            arr[i]=-128+i
+            pass
+        d=DataArrayByte(arr)
+        for i in xrange(256):
+            self.assertEqual(int(d.getIJ(i,0)),-128+i)
+            pass
+        del d
+        gc.collect()
+        del arr
+        gc.collect()
+        pass
+
     def setUp(self):
         pass
     pass

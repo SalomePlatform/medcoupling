@@ -2256,35 +2256,7 @@ namespace MEDCoupling
       // serialization
       static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
       {
-        static const char MSG[]="DataArrayDouble.__new__ : the args in input is expected to be a tuple !";
-        if(!PyTuple_Check(args))
-          throw INTERP_KERNEL::Exception(MSG);
-        PyObject *builtinsd(PyEval_GetBuiltins());//borrowed
-        PyObject *obj(PyDict_GetItemString(builtinsd,"object"));//borrowed
-        PyObject *selfMeth(PyObject_GetAttrString(obj,"__new__"));
-        //
-        PyObject *tmp0(PyTuple_New(1));
-        PyTuple_SetItem(tmp0,0,cls); Py_XINCREF(cls);
-        PyObject *instance(PyObject_CallObject(selfMeth,tmp0));
-        Py_DECREF(tmp0);
-        Py_DECREF(selfMeth);
-        PyObject *initMeth(PyObject_GetAttrString(instance,"__init__"));
-        int sz(PyTuple_Size(args));
-        
-        if(PyTuple_Size(args)==2 && PyDict_Check(PyTuple_GetItem(args,1)) && PyDict_Size(PyTuple_GetItem(args,1))==1 )
-          {// NOT general case. only true if in unpickeling context ! call __init__. Because for all other cases, __init__ is called right after __new__ !
-            PyObject *zeNumpyRepr(0);
-            PyObject *tmp1(PyInt_FromLong(0));
-            zeNumpyRepr=PyDict_GetItem(PyTuple_GetItem(args,1),tmp1);//borrowed
-            Py_DECREF(tmp1);
-            PyObject *tmp3(PyTuple_New(1));
-            PyTuple_SetItem(tmp3,0,zeNumpyRepr); Py_XINCREF(zeNumpyRepr);
-            PyObject *tmp2(PyObject_CallObject(initMeth,tmp3));
-            Py_XDECREF(tmp2);
-            Py_DECREF(tmp3);
-          }
-        Py_DECREF(initMeth);
-        return instance;
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"DataArrayDouble");
       }
 
       PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
@@ -4614,35 +4586,7 @@ namespace MEDCoupling
       // serialization
       static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
       {
-        static const char MSG[]="DataArrayInt.__new__ : the args in input is expected to be a tuple !";
-        if(!PyTuple_Check(args))
-          throw INTERP_KERNEL::Exception(MSG);
-        PyObject *builtinsd(PyEval_GetBuiltins());//borrowed
-        PyObject *obj(PyDict_GetItemString(builtinsd,"object"));//borrowed
-        PyObject *selfMeth(PyObject_GetAttrString(obj,"__new__"));
-        //
-        PyObject *tmp0(PyTuple_New(1));
-        PyTuple_SetItem(tmp0,0,cls); Py_XINCREF(cls);
-        PyObject *instance(PyObject_CallObject(selfMeth,tmp0));
-        Py_DECREF(tmp0);
-        Py_DECREF(selfMeth);
-        PyObject *initMeth(PyObject_GetAttrString(instance,"__init__"));
-        int sz(PyTuple_Size(args));
-        
-        if(PyTuple_Size(args)==2 && PyDict_Check(PyTuple_GetItem(args,1)) && PyDict_Size(PyTuple_GetItem(args,1))==1 )
-          {// NOT general case. only true if in unpickeling context ! call __init__. Because for all other cases, __init__ is called right after __new__ !
-            PyObject *zeNumpyRepr(0);
-            PyObject *tmp1(PyInt_FromLong(0));
-            zeNumpyRepr=PyDict_GetItem(PyTuple_GetItem(args,1),tmp1);//borrowed
-            Py_DECREF(tmp1);
-            PyObject *tmp3(PyTuple_New(1));
-            PyTuple_SetItem(tmp3,0,zeNumpyRepr); Py_XINCREF(zeNumpyRepr);
-            PyObject *tmp2(PyObject_CallObject(initMeth,tmp3));
-            Py_XDECREF(tmp2);
-            Py_DECREF(tmp3);
-          }
-        Py_DECREF(initMeth);
-        return instance;
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"DataArrayInt");
       }
       
       PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
@@ -5246,6 +5190,12 @@ namespace MEDCoupling
                 return ret.retn();
               }
           }
+#ifdef WITH_NUMPY
+        else if(PyArray_Check(elt0) && nbOfTuples==NULL && nbOfComp==NULL)
+          {//DataArrayDouble.New(numpyArray)
+            return BuildNewInstance<DataArrayByte,char>(elt0,NPY_INT8,&PyCallBackDataArrayChar_RefType,"INT8");
+          }
+#endif
         else
           throw INTERP_KERNEL::Exception(msg);
       }
@@ -5415,6 +5365,38 @@ namespace MEDCoupling
           default:
             return MEDCoupling_DataArrayByte_presenceOfTuple(self,obj);
           }
+      }
+      
+#ifdef WITH_NUMPY
+      PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      {
+        return ToNumPyArray<DataArrayByte,char>(self,NPY_INT8,"DataArrayByte");
+      }
+#endif
+
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"DataArrayByte");
+      }
+
+      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+      {
+#ifdef WITH_NUMPY
+        if(!self->isAllocated())
+          throw INTERP_KERNEL::Exception("PyWrap of DataArrayByte.__getnewargs__ : self is not allocated !");
+        PyObject *ret(PyTuple_New(1));
+        PyObject *ret0(PyDict_New());
+        PyObject *numpyArryObj(MEDCoupling_DataArrayByte_toNumPyArray(self));
+        {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
+          PyObject *tmp1(PyInt_FromLong(0));
+          PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
+          PyTuple_SetItem(ret,0,ret0);
+        }
+        return ret;
+#else
+        throw INTERP_KERNEL::Exception("PyWrap of DataArrayByte.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
+#endif
       }
 
       DataArrayByte *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)

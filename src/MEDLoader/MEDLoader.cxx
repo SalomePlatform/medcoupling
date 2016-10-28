@@ -294,6 +294,7 @@ std::string MEDCoupling::MEDFileVersionStr()
 
 std::string MEDCoupling::MEDFileVersionOfFileStr(const std::string& fileName)
 {
+#if MED_NUM_MAJEUR>=3 && MED_NUM_MINEUR>=2 && MED_NUM_RELEASE>=1
   MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   const int SZ=20;
   const char START_EXPECTED[]="MED-";
@@ -308,6 +309,10 @@ std::string MEDCoupling::MEDFileVersionOfFileStr(const std::string& fileName)
       throw INTERP_KERNEL::Exception(oss.str());
     }
   return ret.substr(sizeof(START_EXPECTED)-1,std::string::npos);
+#else
+  std::ostringstream oss; oss << "MEDFileVersionOfFileStr : is implemented with MEDFile " << MEDFileVersionStr() << " ! If you need this feature please use version >= 3.2.1.";
+  throw INTERP_KERNEL::Exception(oss.str());
+#endif
 }
 
 void MEDCoupling::MEDFileVersion(int& major, int& minor, int& release)

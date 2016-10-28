@@ -546,6 +546,24 @@ namespace MEDCoupling
            MCAuto<DataArrayByte> ret(self->serialize());
            return ret.retn();
          }
+
+         PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+         {
+#ifdef WITH_NUMPY
+           PyObject *ret(PyTuple_New(1));
+           PyObject *ret0(PyDict_New());
+           DataArrayByte *retCpp(MEDCoupling_MEDFileWritableStandAlone_serialize(self));
+           PyObject *numpyArryObj=SWIG_NewPointerObj(SWIG_as_voidptr(retCpp),SWIGTYPE_p_MEDCoupling__DataArrayByte, SWIG_POINTER_OWN | 0 );
+           {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
+             PyObject *tmp1(PyInt_FromLong(0));
+             PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
+             PyTuple_SetItem(ret,0,ret0);
+           }
+           return ret;
+#else
+           throw INTERP_KERNEL::Exception("PyWrap of MEDFileData.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
+#endif
+         }
        }
   };
   
@@ -3566,6 +3584,22 @@ namespace MEDCoupling
            convertFromPyObjVectorOfObj<const MEDCoupling::MEDFileData *>(mfds,SWIGTYPE_p_MEDCoupling__MEDFileData,"MEDFileData",mfdsCpp);
            MCAuto<MEDFileData> ret(MEDFileData::Aggregate(mfdsCpp));
            return ret.retn();
+         }
+
+         // serialization
+         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+         {
+           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileData");
+         }
+
+         PyObject *__getstate__() throw(INTERP_KERNEL::Exception)
+         {
+           PyObject *ret(PyList_New(0));
+           return ret;
+         }
+
+         void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+         {
          }
        }
   };
