@@ -235,11 +235,11 @@ namespace
       isRelocated = ( c2oIt->second != newOrder );
 
     if ( isRelocated )
-    {
-      grp->_relocTable.resize( cell2order.size() );
-      for ( newOrder = 0, c2oIt = cell2order.begin(); c2oIt != c2oEnd; ++c2oIt, ++newOrder )
-        grp->_relocTable[ c2oIt->second ] = newOrder;
-    }
+      {
+        grp->_relocTable.resize( cell2order.size() );
+        for ( newOrder = 0, c2oIt = cell2order.begin(); c2oIt != c2oEnd; ++c2oIt, ++newOrder )
+          grp->_relocTable[ c2oIt->second ] = newOrder;
+      }
   }
 }
 
@@ -1049,7 +1049,7 @@ namespace // define default GAUSS points
         }
         default:
           THROW_IK_EXCEPTION("TGaussDef: Invalid nb of gauss points for TRIA, variant 1: "
-                     <<nbGauss);
+                             <<nbGauss);
         }
       }
       else if ( variant == 2 ) {
@@ -1076,7 +1076,7 @@ namespace // define default GAUSS points
         }
         default:
           THROW_IK_EXCEPTION("TGaussDef: Invalid nb of gauss points for TRIA, variant 2: "
-                     <<nbGauss);
+                             <<nbGauss);
         }
       }
       else if ( variant == 3 ) {
@@ -1091,7 +1091,7 @@ namespace // define default GAUSS points
         }
         default:
           THROW_IK_EXCEPTION("TGaussDef: Invalid nb of gauss points for TRIA, variant 3: "
-                     <<nbGauss);
+                             <<nbGauss);
         }
       }
       break;
@@ -1134,7 +1134,7 @@ namespace // define default GAUSS points
         }
         default:
           THROW_IK_EXCEPTION("TGaussDef: Invalid nb of gauss points for QUAD, variant 1: "
-                     <<nbGauss);
+                             <<nbGauss);
         }
       }
       else if ( variant == 2 ) {
@@ -1162,7 +1162,7 @@ namespace // define default GAUSS points
         }
         default:
           THROW_IK_EXCEPTION("TGaussDef: Invalid nb of gauss points for QUAD, variant 1: "
-                     <<nbGauss);
+                             <<nbGauss);
         }
       }
       else if ( variant == 3 ) {
@@ -1191,7 +1191,7 @@ namespace // define default GAUSS points
         }
         default:
           THROW_IK_EXCEPTION("TGaussDef: Invalid nb of gauss points for QUAD, variant 3: "
-                     <<nbGauss);
+                             <<nbGauss);
         }
       }
       break;
@@ -1473,16 +1473,16 @@ const int * SauvUtilities::getGibi2MedQuadraticInterlace( INTERP_KERNEL::Normali
   static const int tria6  [] = {0,2,4, 1,3,5};
   static const int seg3   [] = {0,2,1};
   if ( conn.empty() )
-  {
-    conn.resize( MaxMedCellType + 1, 0 );
-    conn[ NORM_HEXA20 ] = hexa20;
-    conn[ NORM_PENTA15] = penta15;
-    conn[ NORM_PYRA13 ] = pyra13;
-    conn[ NORM_TETRA10] = tetra10;
-    conn[ NORM_SEG3   ] = seg3;
-    conn[ NORM_TRI6   ] = tria6;
-    conn[ NORM_QUAD8  ] = quad8;
-  }
+    {
+      conn.resize( MaxMedCellType + 1, 0 );
+      conn[ NORM_HEXA20 ] = hexa20;
+      conn[ NORM_PENTA15] = penta15;
+      conn[ NORM_PYRA13 ] = pyra13;
+      conn[ NORM_TETRA10] = tetra10;
+      conn[ NORM_SEG3   ] = seg3;
+      conn[ NORM_TRI6   ] = tria6;
+      conn[ NORM_QUAD8  ] = quad8;
+    }
   return conn[ type ];
 }
 
@@ -1526,14 +1526,14 @@ SauvUtilities::Link Cell::link(int i) const
 const TID* Cell::getSortedNodes() const
 {
   if ( !_sortedNodeIDs )
-  {
-    size_t l=_nodes.size();
-    _sortedNodeIDs = new int[ l ];
+    {
+      size_t l=_nodes.size();
+      _sortedNodeIDs = new int[ l ];
 
-    for (size_t i=0; i!=l; ++i)
-      _sortedNodeIDs[i]=_nodes[i]->_number;
-    std::sort( _sortedNodeIDs, _sortedNodeIDs + l );
-  }
+      for (size_t i=0; i!=l; ++i)
+        _sortedNodeIDs[i]=_nodes[i]->_number;
+      std::sort( _sortedNodeIDs, _sortedNodeIDs + l );
+    }
   return _sortedNodeIDs;
 }
 
@@ -2049,28 +2049,28 @@ bool XDRReader::open()
 #ifdef WIN32
   if ((_xdrs_file = ::fopen(_fileName.c_str(), "rb")))
 #else 
-  if ((_xdrs_file = ::fopen(_fileName.c_str(), "r")))
+    if ((_xdrs_file = ::fopen(_fileName.c_str(), "r")))
 #endif
-    {
-      _xdrs = (XDR *)malloc(sizeof(XDR));
-      xdrstdio_create((XDR*)_xdrs, _xdrs_file, XDR_DECODE);
+      {
+        _xdrs = (XDR *)malloc(sizeof(XDR));
+        xdrstdio_create((XDR*)_xdrs, _xdrs_file, XDR_DECODE);
 
-      const int maxsize = 10;
-      char icha[maxsize+1];
-      char* icha2 = icha;
-      if (( xdr_ok = xdr_string((XDR*)_xdrs, &icha2, maxsize)))
-        {
-          icha[maxsize] = '\0';
-          xdr_ok = (strcmp(icha, "CASTEM XDR") == 0);
-        }
-      if ( !xdr_ok )
-        {
-          xdr_destroy((XDR*)_xdrs);
-          free((XDR*)_xdrs);
-          fclose(_xdrs_file);
-          _xdrs_file = NULL;
-        }
-    }
+        const int maxsize = 10;
+        char icha[maxsize+1];
+        char* icha2 = icha;
+        if (( xdr_ok = xdr_string((XDR*)_xdrs, &icha2, maxsize)))
+          {
+            icha[maxsize] = '\0';
+            xdr_ok = (strcmp(icha, "CASTEM XDR") == 0);
+          }
+        if ( !xdr_ok )
+          {
+            xdr_destroy((XDR*)_xdrs);
+            free((XDR*)_xdrs);
+            fclose(_xdrs_file);
+            _xdrs_file = NULL;
+          }
+      }
 #endif
   return xdr_ok;
 }
@@ -2587,28 +2587,28 @@ void IntermediateMED::setFieldLongNames(std::set< std::string >& usedNames)
 void IntermediateMED::decreaseHierarchicalDepthOfSubgroups()
 {
   for (size_t i=0; i!=_groups.size(); ++i)
-  {
-    Group& grp = _groups[i];
-    for (size_t j = 0; j < grp._groups.size(); ++j )
     {
-      Group & sub_grp = *grp._groups[j];
-      if ( !sub_grp._groups.empty() )
-      {
-        // replace j with its 1st subgroup
-        grp._groups[j] = sub_grp._groups[0];
-        // push back the rest subs
-        grp._groups.insert( grp._groups.end(), ++sub_grp._groups.begin(), sub_grp._groups.end() );
-      }
+      Group& grp = _groups[i];
+      for (size_t j = 0; j < grp._groups.size(); ++j )
+        {
+          Group & sub_grp = *grp._groups[j];
+          if ( !sub_grp._groups.empty() )
+            {
+              // replace j with its 1st subgroup
+              grp._groups[j] = sub_grp._groups[0];
+              // push back the rest subs
+              grp._groups.insert( grp._groups.end(), ++sub_grp._groups.begin(), sub_grp._groups.end() );
+            }
+        }
+      // remove empty sub-_groups
+      std::vector< Group* > newSubGroups;
+      newSubGroups.reserve( grp._groups.size() );
+      for (size_t j = 0; j < grp._groups.size(); ++j )
+        if ( !grp._groups[j]->empty() )
+          newSubGroups.push_back( grp._groups[j] );
+      if ( newSubGroups.size() < grp._groups.size() )
+        grp._groups.swap( newSubGroups );
     }
-    // remove empty sub-_groups
-    std::vector< Group* > newSubGroups;
-    newSubGroups.reserve( grp._groups.size() );
-    for (size_t j = 0; j < grp._groups.size(); ++j )
-      if ( !grp._groups[j]->empty() )
-        newSubGroups.push_back( grp._groups[j] );
-    if ( newSubGroups.size() < grp._groups.size() )
-      grp._groups.swap( newSubGroups );
-  }
 }
 
 //================================================================================
@@ -2630,32 +2630,32 @@ void IntermediateMED::eraseUselessGroups()
   std::set<Group*> groups2convert;
   // keep not named sub-groups of field supports
   for (size_t i=0; i!=_groups.size(); ++i)
-  {
-    Group& grp = _groups[i];
-    if ( grp._isProfile && !grp._groups.empty() )
-      groups2convert.insert( grp._groups.begin(), grp._groups.end() );
-  }
+    {
+      Group& grp = _groups[i];
+      if ( grp._isProfile && !grp._groups.empty() )
+        groups2convert.insert( grp._groups.begin(), grp._groups.end() );
+    }
 
   // keep named groups and their subgroups
   for (size_t i=0; i!=_groups.size(); ++i)
-  {
-    Group& grp = _groups[i];
-    if ( !grp._name.empty() && !grp.empty() )
     {
-      groups2convert.insert( &grp );
-      groups2convert.insert( grp._groups.begin(), grp._groups.end() );
+      Group& grp = _groups[i];
+      if ( !grp._name.empty() && !grp.empty() )
+        {
+          groups2convert.insert( &grp );
+          groups2convert.insert( grp._groups.begin(), grp._groups.end() );
+        }
     }
-  }
   // erase groups that are not in groups2convert and not _isProfile
   for (size_t i=0; i!=_groups.size(); ++i)
-  {
-    Group* grp = &_groups[i];
-    if ( !grp->_isProfile && !groups2convert.count( grp ) )
     {
-      grp->_cells.clear();
-      grp->_groups.clear();
+      Group* grp = &_groups[i];
+      if ( !grp->_isProfile && !groups2convert.count( grp ) )
+        {
+          grp->_cells.clear();
+          grp->_groups.clear();
+        }
     }
-  }
 }
 
 //================================================================================
@@ -2668,26 +2668,26 @@ void IntermediateMED::detectMixDimGroups()
 {
   //hasMixedCells = false;
   for ( size_t i=0; i < _groups.size(); ++i )
-  {
-    Group& grp = _groups[i];
-    if ( grp._groups.size() < 2 )
-      continue;
-
-    // check if sub-groups have different dimension
-    unsigned dim1 = getDim( &grp );
-    for ( size_t j = 1; j  < grp._groups.size(); ++j )
     {
-      unsigned dim2 = getDim( grp._groups[j] );
-      if ( dim1 != dim2 )
-      {
-        grp._cells.clear();
-        grp._groups.clear();
-        if ( !grp._name.empty() )
-          std::cout << "Erase a group with elements of different dim |" << grp._name << "|"<< std::endl;
-        break;
-      }
+      Group& grp = _groups[i];
+      if ( grp._groups.size() < 2 )
+        continue;
+
+      // check if sub-groups have different dimension
+      unsigned dim1 = getDim( &grp );
+      for ( size_t j = 1; j  < grp._groups.size(); ++j )
+        {
+          unsigned dim2 = getDim( grp._groups[j] );
+          if ( dim1 != dim2 )
+            {
+              grp._cells.clear();
+              grp._groups.clear();
+              if ( !grp._name.empty() )
+                std::cout << "Erase a group with elements of different dim |" << grp._name << "|"<< std::endl;
+              break;
+            }
+        }
     }
-  }
 }
 
 //================================================================================
@@ -2790,27 +2790,27 @@ void IntermediateMED::orientElements3D()
   std::vector< std::pair<int,int> > swapVec;
 
   for ( int dim = 1; dim <= 3; ++dim )
-  {
-    CellsByDimIterator cellsIt( *this, dim );
-    while ( const std::set<Cell > * elems = cellsIt.nextType() )
     {
-      TCellType cellType = cellsIt.type();
-      bool isQuadratic = getGibi2MedQuadraticInterlace( cellType );
-      getReverseVector( cellType, swapVec );
+      CellsByDimIterator cellsIt( *this, dim );
+      while ( const std::set<Cell > * elems = cellsIt.nextType() )
+        {
+          TCellType cellType = cellsIt.type();
+          bool isQuadratic = getGibi2MedQuadraticInterlace( cellType );
+          getReverseVector( cellType, swapVec );
 
-      elemIt = elems->begin(), elemEnd = elems->end();
-      for ( ; elemIt != elemEnd; elemIt++ )
-      {
-        // GIBI connectivity -> MED one
-        if( isQuadratic )
-          ConvertQuadratic( cellType, *elemIt );
+          elemIt = elems->begin(), elemEnd = elems->end();
+          for ( ; elemIt != elemEnd; elemIt++ )
+            {
+              // GIBI connectivity -> MED one
+              if( isQuadratic )
+                ConvertQuadratic( cellType, *elemIt );
 
-        // reverse faces
-        if ( elemIt->_reverse )
-          reverse ( *elemIt, swapVec );
-      }
+              // reverse faces
+              if ( elemIt->_reverse )
+                reverse ( *elemIt, swapVec );
+            }
+        }
     }
-  }
 
   // COMMENTED for issue 0022612 note 17739
   //orientVolumes();
@@ -2854,7 +2854,7 @@ void IntermediateMED::orientFaces3D()
   // Each oriented link must appear in one face only, else a face is reversed.
 
   std::queue<const Cell*> faceQueue; /* the queue contains well oriented faces
-                                     whose neighbors orientation is to be checked */
+                                        whose neighbors orientation is to be checked */
   bool manifold = true;
   while ( !linkFacesMap.empty() )
     {
@@ -3101,12 +3101,11 @@ void IntermediateMED::numberElements()
           TID typeSize = typeCells->size();
           if ( typeSize != maxNumber - minNumber + 1 )
             ok = false;
-          if ( prevNbElems != 0 ) {
-            if ( minNumber == 1 )
-              renumEntity = true;
-            else if ( prevNbElems+1 != (int)minNumber )
-              ok = false;
-          }
+          if ( prevNbElems+1 != (int)minNumber )
+            ok = false;
+          if ( prevNbElems != 0 && minNumber == 1 )
+            renumEntity = true;
+
           prevNbElems += typeSize;
         }
 
@@ -3173,54 +3172,54 @@ void IntermediateMED::setConnectivity( MEDCoupling::MEDFileUMesh*    mesh,
 
   std::set<Cell>::const_iterator elemIt, elemEnd;
   for ( int dim = 3; dim > 0; --dim )
-  {
-    CellsByDimIterator dimCells( *this, dim );
+    {
+      CellsByDimIterator dimCells( *this, dim );
 
-    int nbOfCells = 0;
-    while ( const std::set<Cell > * cells = dimCells.nextType() )
-      nbOfCells += cells->size();
-    if ( nbOfCells == 0 )
-      continue;
+      int nbOfCells = 0;
+      while ( const std::set<Cell > * cells = dimCells.nextType() )
+        nbOfCells += cells->size();
+      if ( nbOfCells == 0 )
+        continue;
 
-    if ( !meshDim ) meshDim = dim;
+      if ( !meshDim ) meshDim = dim;
 
-    MEDCouplingUMesh* dimMesh = MEDCouplingUMesh::New();
-    dimMesh->setCoords( coords );
-    dimMesh->setMeshDimension( dim );
-    dimMesh->allocateCells( nbOfCells );
+      MEDCouplingUMesh* dimMesh = MEDCouplingUMesh::New();
+      dimMesh->setCoords( coords );
+      dimMesh->setMeshDimension( dim );
+      dimMesh->allocateCells( nbOfCells );
 
-    int prevNbCells = 0;
-    dimCells.init( dim );
-    while ( const std::set<Cell > * cells = dimCells.nextType() )
-      {
-        // fill connectivity array to take into account order of elements in the sauv file
-        const int nbCellNodes = cells->begin()->_nodes.size();
-        std::vector< TID > connectivity( cells->size() * nbCellNodes );
-        int * nodalConnOfCell;
-        for ( elemIt = cells->begin(), elemEnd = cells->end(); elemIt != elemEnd; ++elemIt )
-          {
-            const Cell& cell = *elemIt;
-            const int index = cell._number - 1 - prevNbCells;
-            nodalConnOfCell = &connectivity[ index * nbCellNodes ];
-            if ( cell._reverse )
-              for ( int i = nbCellNodes-1; i >= 0; --i )
-                *nodalConnOfCell++ = cell._nodes[i]->_number - 1;
-            else
-              for ( int i = 0; i < nbCellNodes; ++i )
-                *nodalConnOfCell++ = cell._nodes[i]->_number - 1;
-          }
-        prevNbCells += cells->size();
+      int prevNbCells = 0;
+      dimCells.init( dim );
+      while ( const std::set<Cell > * cells = dimCells.nextType() )
+        {
+          // fill connectivity array to take into account order of elements in the sauv file
+          const int nbCellNodes = cells->begin()->_nodes.size();
+          std::vector< TID > connectivity( cells->size() * nbCellNodes );
+          int * nodalConnOfCell;
+          for ( elemIt = cells->begin(), elemEnd = cells->end(); elemIt != elemEnd; ++elemIt )
+            {
+              const Cell& cell = *elemIt;
+              const int index = cell._number - 1 - prevNbCells;
+              nodalConnOfCell = &connectivity[ index * nbCellNodes ];
+              if ( cell._reverse )
+                for ( int i = nbCellNodes-1; i >= 0; --i )
+                  *nodalConnOfCell++ = cell._nodes[i]->_number - 1;
+              else
+                for ( int i = 0; i < nbCellNodes; ++i )
+                  *nodalConnOfCell++ = cell._nodes[i]->_number - 1;
+            }
+          prevNbCells += cells->size();
 
-        // fill dimMesh
-        TCellType cellType = dimCells.type();
-        nodalConnOfCell = &connectivity[0];
-        for ( size_t i = 0; i < cells->size(); ++i, nodalConnOfCell += nbCellNodes )
-          dimMesh->insertNextCell( cellType, nbCellNodes, nodalConnOfCell );
-      }
-    dimMesh->finishInsertingCells();
-    mesh->setMeshAtLevel( dim - meshDim, dimMesh );
-    dimMesh->decrRef();
-  }
+          // fill dimMesh
+          TCellType cellType = dimCells.type();
+          nodalConnOfCell = &connectivity[0];
+          for ( size_t i = 0; i < cells->size(); ++i, nodalConnOfCell += nbCellNodes )
+            dimMesh->insertNextCell( cellType, nbCellNodes, nodalConnOfCell );
+        }
+      dimMesh->finishInsertingCells();
+      mesh->setMeshAtLevel( dim - meshDim, dimMesh );
+      dimMesh->decrRef();
+    }
 }
 
 //================================================================================
@@ -3688,14 +3687,14 @@ bool DoubleField::hasSameComponentsBySupport() const
   std::vector< _Sub_data >::const_iterator sub_data = _sub.begin();
   const _Sub_data& first_sub_data = *sub_data;
   for ( ++sub_data ; sub_data != _sub.end(); ++sub_data )
-  {
-    if ( first_sub_data._comp_names != sub_data->_comp_names )
-      return false; // diff names of components
+    {
+      if ( first_sub_data._comp_names != sub_data->_comp_names )
+        return false; // diff names of components
 
-    if ( first_sub_data._nb_gauss != sub_data->_nb_gauss &&
-         first_sub_data._support->_cellType == sub_data->_support->_cellType)
-      return false; // diff nb of gauss points on same cell type
-  }
+      if ( first_sub_data._nb_gauss != sub_data->_nb_gauss &&
+           first_sub_data._support->_cellType == sub_data->_support->_cellType)
+        return false; // diff nb of gauss points on same cell type
+    }
   return true;
 }
 
