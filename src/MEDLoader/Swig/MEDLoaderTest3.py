@@ -5775,6 +5775,134 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.write(fname2,2)
         assert(LooseVersion(MEDFileVersionOfFileStr(fname2)).version[:2]==list(MEDFileVersion()[:2])) # checks that MED file version of written mesh is thoose of the current MED file lib
         pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def testPickelizationOfMEDFileObjects1(self):
+        fname="Pyfile110.med"
+        coo=DataArrayDouble([0.,0.,0.5,0.,1.,0.,0.,0.5,0.5,0.5,1.,0.5,0.,1.,0.5,1.,1.,1.],9,2)
+        m0=MEDCouplingUMesh("Mesh",2)
+        m0.allocateCells(5)
+        m0.insertNextCell(NORM_TRI3,[1,4,2])
+        m0.insertNextCell(NORM_TRI3,[4,5,2])
+        m0.insertNextCell(NORM_QUAD4,[0,3,4,1])
+        m0.insertNextCell(NORM_QUAD4,[3,6,7,4])
+        m0.insertNextCell(NORM_QUAD4,[4,7,8,5])
+        m0.finishInsertingCells()
+        m0.setCoords(coo)
+        m1=MEDCouplingUMesh(m0.getName(),1)
+        m1.allocateCells(9)
+        conn1=[0,1,0,3,3,4,4,1,5,4,2,4,1,2,3,6,5,8]
+        for i in xrange(9):
+            m1.insertNextCell(NORM_SEG2,conn1[2*i:2*i+2])
+            pass
+        m1.finishInsertingCells()
+        m1.setCoords(coo)
+        #
+        m=MEDFileUMesh()
+        m.setMeshAtLevel(0,m0)
+        m.setMeshAtLevel(-1,m1)
+        #
+        dt=3 ; it=2 ; tim=4.5
+        fieldNode0=MEDCouplingFieldDouble(ON_NODES,ONE_TIME)
+        fieldNode0.setName("fieldNode0")
+        fieldNode0.setTime(tim,dt,it)
+        pfl0=DataArrayInt([0,1,2,3,4]) ; pfl0.setName("PflIdentity0") # important to keep like that
+        arr=DataArrayDouble([10,11,12,13,14])
+        fieldNode0.setArray(arr)
+        f0=MEDFileField1TS()
+        f0.setFieldProfile(fieldNode0,m,0,pfl0)
+        fieldNode1=MEDCouplingFieldDouble(ON_NODES,ONE_TIME)
+        fieldNode1.setName("fieldNode1")
+        fieldNode1.setTime(tim,dt,it)
+        pfl1=DataArrayInt([0,1,2,3,4,5,6]) ; pfl1.setName("PflIdentity1")
+        arr1=DataArrayDouble([20,21,22,23,24,25,26])
+        fieldNode1.setArray(arr1)
+        f1=MEDFileField1TS()
+        f1.setFieldProfile(fieldNode1,m,-1,pfl1)
+        mfd=MEDFileData()
+        mfd.setMeshes(MEDFileMeshes()) ; mfd.setFields(MEDFileFields())
+        mfd.getMeshes().pushMesh(m)
+        fmts=MEDFileFieldMultiTS() ; fmts.pushBackTimeStep(f0)
+        mfd.getFields().pushField(fmts)
+        # first start gently
+        d=mfd.serialize()
+        mfd2=MEDFileData(d)
+        self.assertEqual(len(mfd2.getMeshes()),1)
+        self.assertEqual(len(mfd2.getFields()),1)
+        self.assertEqual(len(mfd2.getFields()[0]),1)
+        self.assertTrue(mfd2.getMeshes()[0].isEqual(mfd.getMeshes()[0],1e-12))
+        ff2=mfd2.getFields()[0][0].field(mfd2.getMeshes()[0])
+        ff =mfd.getFields()[0][0].field(mfd.getMeshes()[0])
+        self.assertTrue(ff2.isEqual(ff,1e-12,1e-12))
+        # OK now end of joke -> serialization of MEDFileData
+        import cPickle
+        st=cPickle.dumps(mfd,cPickle.HIGHEST_PROTOCOL)
+        mfd3=cPickle.loads(st)
+        # check of object
+        self.assertEqual(len(mfd3.getMeshes()),1)
+        self.assertEqual(len(mfd3.getFields()),1)
+        self.assertEqual(len(mfd3.getFields()[0]),1)
+        self.assertTrue(mfd3.getMeshes()[0].isEqual(mfd.getMeshes()[0],1e-12))
+        ff3=mfd3.getFields()[0][0].field(mfd3.getMeshes()[0])
+        self.assertTrue(ff3.isEqual(ff,1e-12,1e-12))
+        # serialization of MEDFileFields
+        st=cPickle.dumps(mfd.getFields(),cPickle.HIGHEST_PROTOCOL)
+        fs4=cPickle.loads(st)
+        ff4=fs4[0][0].field(mfd3.getMeshes()[0])
+        self.assertTrue(ff4.isEqual(ff,1e-12,1e-12))
+        # serialization of MEDFileFieldMulitTS
+        st=cPickle.dumps(mfd.getFields()[0],cPickle.HIGHEST_PROTOCOL)
+        fmts5=cPickle.loads(st)
+        ff5=fmts5[0].field(mfd3.getMeshes()[0])
+        self.assertTrue(ff5.isEqual(ff,1e-12,1e-12))
+        # serialization of MEDFileField1TS
+        st=cPickle.dumps(mfd.getFields()[0][0],cPickle.HIGHEST_PROTOCOL)
+        f1ts6=cPickle.loads(st)
+        ff6=f1ts6.field(mfd3.getMeshes()[0])
+        self.assertTrue(ff6.isEqual(ff,1e-12,1e-12))
+        # serialization of MEDFileMeshes
+        st=cPickle.dumps(mfd.getMeshes(),cPickle.HIGHEST_PROTOCOL)
+        ms7=cPickle.loads(st)
+        self.assertEqual(len(ms7),1)
+        self.assertTrue(ms7[0].isEqual(mfd.getMeshes()[0],1e-12))
+        pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def testPickelizationOfMEDFileObjects2(self):
+        # CMesh
+        self.testMEDMesh6() # generates MEDFileMesh5.med file
+        mm=MEDFileMesh.New("MEDFileMesh5.med")
+        self.assertTrue(isinstance(mm,MEDFileCMesh))
+        import cPickle
+        st=cPickle.dumps(mm,cPickle.HIGHEST_PROTOCOL)
+        mm2=cPickle.loads(st)
+        self.assertTrue(isinstance(mm2,MEDFileCMesh))
+        self.assertTrue(mm.getMesh().isEqual(mm2.getMesh(),1e-12))
+        # CurveLinear
+        self.testCurveLinearMesh1() # generates Pyfile55.med
+        mm=MEDFileMesh.New("Pyfile55.med")
+        self.assertTrue(isinstance(mm,MEDFileCurveLinearMesh))
+        st=cPickle.dumps(mm,cPickle.HIGHEST_PROTOCOL)
+        mm3=cPickle.loads(st)
+        self.assertTrue(isinstance(mm3,MEDFileCurveLinearMesh))
+        self.assertTrue(mm.getMesh().isEqual(mm3.getMesh(),1e-12))
+        self.testInt32InMEDFileFieldStar1()# generates Pyfile63.med
+        # MEDFileIntFieldMultiTS
+        fs4=MEDFileFields("Pyfile63.med")
+        ms4=MEDFileMeshes("Pyfile63.med")
+        self.assertTrue(isinstance(fs4[0],MEDFileIntFieldMultiTS))
+        st=cPickle.dumps(fs4[0],cPickle.HIGHEST_PROTOCOL)
+        fmts5=cPickle.loads(st)
+        self.assertEqual(len(fs4[0]),len(fmts5))
+        self.assertTrue(isinstance(fmts5,MEDFileIntFieldMultiTS))
+        self.assertTrue(fmts5[0].field(ms4[0]).isEqual((fs4[0][0]).field(ms4[0]),1e-12,1e-12))
+        # MEDFileIntField1TS
+        st=cPickle.dumps(fs4[0][0],cPickle.HIGHEST_PROTOCOL)
+        f1ts6=cPickle.loads(st)
+        self.assertTrue(isinstance(f1ts6,MEDFileIntField1TS))
+        self.assertTrue(f1ts6.field(ms4[0]).isEqual((fs4[0][0]).field(ms4[0]),1e-12,1e-12))
+        pass
+    
     pass
 
 if __name__ == "__main__":

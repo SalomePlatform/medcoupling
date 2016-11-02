@@ -206,14 +206,13 @@ MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> MEDCoupling::MEDFileWritableStan
   memfile.app_image_size=0;
   //
   std::string dftFileName(GenerateUniqueDftFileNameInMem());
-  MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_CREAT));
-  writeLL(fid);
+  {// very important to let this braces ! The AutoFid destructor must be called, to have a "clean" memfile.app_image_ptr pointer embedded in the returned object.
+    MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_CREAT));
+    writeLL(fid);
+  }
   //
   MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> ret(MEDCoupling::DataArrayByte::New());
-  //ret->useArray(reinterpret_cast<char *>(memfile.app_image_ptr),true,C_DEALLOC,memfile.app_image_size,1);
-  ret->alloc(memfile.app_image_size,1);
-  const char *srcData(reinterpret_cast<char *>(memfile.app_image_ptr));
-  std::copy(srcData,srcData+memfile.app_image_size,ret->getPointer());
+  ret->useArray(reinterpret_cast<char *>(memfile.app_image_ptr),true,C_DEALLOC,memfile.app_image_size,1);
   return ret;
 }
 

@@ -547,6 +547,16 @@ namespace MEDCoupling
            return ret.retn();
          }
 
+         PyObject *__getstate__() throw(INTERP_KERNEL::Exception)
+         {
+           PyObject *ret(PyList_New(0));
+           return ret;
+         }
+
+         void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+         {
+         }
+
          PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
          {
 #ifdef WITH_NUMPY
@@ -1605,6 +1615,12 @@ namespace MEDCoupling
          {
            return MEDFileCMesh::New(db);
          }
+
+         // serialization
+         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+         {
+           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileCMesh");
+         }
          
          PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
          {
@@ -1644,6 +1660,12 @@ namespace MEDCoupling
          MEDFileCurveLinearMesh(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileCurveLinearMesh::New(db);
+         }
+
+         // serialization
+         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+         {
+           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileCurveLinearMesh");
          }
          
          PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
@@ -1744,6 +1766,12 @@ namespace MEDCoupling
          MEDFileMeshes(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileMeshes::New(db);
+         }
+
+         // serialization
+         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+         {
+           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileMeshes");
          }
 
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2152,6 +2180,12 @@ namespace MEDCoupling
            return MEDFileField1TS::New();
          }
 
+         // serialization
+         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+         {
+           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileField1TS");
+         }
+         
          void copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception)
          {
            const DataArrayDouble *arr=0;
@@ -2289,6 +2323,12 @@ namespace MEDCoupling
       MEDFileIntField1TS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
       {
         return MEDFileIntField1TS::New(db);
+      }
+
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileIntField1TS");
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2712,6 +2752,7 @@ namespace MEDCoupling
     static MEDFileFieldMultiTS *New() throw(INTERP_KERNEL::Exception);
     static MEDFileFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileFieldMultiTS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     //
     MEDCouplingFieldDouble *field(int iteration, int order, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -2738,6 +2779,17 @@ namespace MEDCoupling
          MEDFileFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileFieldMultiTS::New(fileName,fieldName,loadAll);
+         }
+         
+         MEDFileFieldMultiTS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileFieldMultiTS::New(db);
+         }
+         
+         // serialization
+         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+         {
+           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileFieldMultiTS");
          }
 
          static MEDFileFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
@@ -2895,7 +2947,13 @@ namespace MEDCoupling
       {
         return MEDFileIntFieldMultiTS::New(db);
       }
-
+      
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileIntFieldMultiTS");
+      }
+      
       static MEDFileIntFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
       {
         std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
@@ -2975,6 +3033,12 @@ namespace MEDCoupling
          MEDFileFields(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileFields::New(db);
+         }
+         
+         // serialization
+         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+         {
+           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileFields");
          }
          
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -3590,16 +3654,6 @@ namespace MEDCoupling
          static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
          {
            return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileData");
-         }
-
-         PyObject *__getstate__() throw(INTERP_KERNEL::Exception)
-         {
-           PyObject *ret(PyList_New(0));
-           return ret;
-         }
-
-         void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
-         {
          }
        }
   };

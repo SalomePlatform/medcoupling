@@ -141,9 +141,33 @@ def MEDCouplingExtrudedMeshnew(cls,*args):
 def MEDCouplingMEDFileUMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDFileUMesh____new___(cls,args)
+def MEDCouplingMEDFileCMeshnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileCMesh____new___(cls,args)
+def MEDCouplingMEDFileCurveLinearMeshnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileCurveLinearMesh____new___(cls,args)
+def MEDCouplingMEDFileMeshesnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileMeshes____new___(cls,args)
 def MEDCouplingMEDFileDatanew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDFileData____new___(cls,args)
+def MEDCouplingMEDFileFieldsnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileFields____new___(cls,args)
+def MEDCouplingMEDFileField1TSnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileField1TS____new___(cls,args)
+def MEDCouplingMEDFileFieldMultiTSnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileFieldMultiTS____new___(cls,args)
+def MEDCouplingMEDFileIntField1TSnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileIntField1TS____new___(cls,args)
+def MEDCouplingMEDFileIntFieldMultiTSnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileIntFieldMultiTS____new___(cls,args)
 %}
 
 %include "MEDCouplingFinalize.i"
@@ -151,6 +175,22 @@ def MEDCouplingMEDFileDatanew(cls,*args):
 %pythoncode %{
 MEDFileUMesh.__new__=classmethod(MEDCouplingMEDFileUMeshnew)
 del MEDCouplingMEDFileUMeshnew
+MEDFileCMesh.__new__=classmethod(MEDCouplingMEDFileCMeshnew)
+del MEDCouplingMEDFileCMeshnew
+MEDFileCurveLinearMesh.__new__=classmethod(MEDCouplingMEDFileCurveLinearMeshnew)
+del MEDCouplingMEDFileCurveLinearMeshnew
 MEDFileData.__new__=classmethod(MEDCouplingMEDFileDatanew)
 del MEDCouplingMEDFileDatanew
+MEDFileMeshes.__new__=classmethod(MEDCouplingMEDFileMeshesnew)
+del MEDCouplingMEDFileMeshesnew
+MEDFileFields.__new__=classmethod(MEDCouplingMEDFileFieldsnew)
+del MEDCouplingMEDFileFieldsnew
+MEDFileField1TS.__new__=classmethod(MEDCouplingMEDFileField1TSnew)
+del MEDCouplingMEDFileField1TSnew
+MEDFileFieldMultiTS.__new__=classmethod(MEDCouplingMEDFileFieldMultiTSnew)
+del MEDCouplingMEDFileFieldMultiTSnew
+MEDFileIntField1TS.__new__=classmethod(MEDCouplingMEDFileIntField1TSnew)
+del MEDCouplingMEDFileIntField1TSnew
+MEDFileIntFieldMultiTS.__new__=classmethod(MEDCouplingMEDFileIntFieldMultiTSnew)
+del MEDCouplingMEDFileIntFieldMultiTSnew
 %}
