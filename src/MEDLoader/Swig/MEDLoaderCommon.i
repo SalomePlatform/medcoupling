@@ -3512,6 +3512,12 @@ namespace MEDCoupling
       {
         return MEDFileParameters::New(db);
       }
+
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileParameters");
+      }
       
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {

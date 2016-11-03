@@ -5901,6 +5901,15 @@ class MEDLoaderTest3(unittest.TestCase):
         f1ts6=cPickle.loads(st)
         self.assertTrue(isinstance(f1ts6,MEDFileIntField1TS))
         self.assertTrue(f1ts6.field(ms4[0]).isEqual((fs4[0][0]).field(ms4[0]),1e-12,1e-12))
+        # MEDFileParameters
+        self.testParameters1()# generates Pyfile56.med
+        params=MEDFileParameters("Pyfile56.med")
+        st=cPickle.dumps(params,cPickle.HIGHEST_PROTOCOL)
+        params7=cPickle.loads(st)
+        self.assertEqual(len(params),len(params7))
+        for i in xrange(len(params)):
+            self.assertTrue(params[i].isEqual(params7[i],1e-12)[0])
+            pass
         pass
     
     pass
