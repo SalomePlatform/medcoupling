@@ -59,6 +59,9 @@ def MEDCouplingDataArrayIntImod(self,*args):
 def MEDCouplingDataArrayIntIpow(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____ipow___(self, self, *args)
+def MEDCouplingDataArrayBytenew(cls,*args):
+    import _MEDRenumber
+    return _MEDRenumber.DataArrayByte____new___(cls,args)
 def MEDCouplingDataArrayDoubleTupleIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDoubleTuple____iadd___(self, self, *args)
