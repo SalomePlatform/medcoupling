@@ -1,3 +1,4 @@
+.. _medcouplingnumpyptr:
 
 MEDCoupling,  NumPy et SciPy
 ----------------------------

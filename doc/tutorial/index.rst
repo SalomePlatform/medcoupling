@@ -26,6 +26,7 @@ Table des matières:
    medloader_fr
    medcouplingremapper_fr
    medcouplingnumpy_fr
+   medcouplingmultiproc_fr
    medcouplingcorba_fr
    medcouplingloaderex1_fr
    medcouplingloaderex2_fr
