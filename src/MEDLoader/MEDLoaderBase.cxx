@@ -177,7 +177,8 @@ void MEDLoaderBase::safeStrCpy2(const char *src, int maxLgth, char *dest, int be
           return ;
         }
     }
-  int n=strlen(src);
+  int n(strlen(src));
+  std::fill(dest,dest+maxLgth,' ');
   strncpy(dest,src,n);
 }
 
