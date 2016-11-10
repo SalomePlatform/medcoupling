@@ -289,7 +289,21 @@ bool MEDCoupling::HasXDR()
 
 std::string MEDCoupling::MEDFileVersionStr()
 {
-  return std::string(MED_VERSION_STR);
+  const int SZ=20;
+  char buf[SZ];
+  std::fill(buf,buf+SZ,'\0');
+  const char START_EXPECTED[]="MED-";
+  med_err ret(MEDlibraryStrVersion(buf));
+  if(ret!=0)
+    throw INTERP_KERNEL::Exception("MEDFileVersionStr : fail to find version of MED file ! It looks very bad !");
+  std::string zeRet(buf);
+  std::size_t pos(zeRet.find(START_EXPECTED,0));
+  if(pos!=0)
+    {
+      std::ostringstream oss; oss << "MEDFileVersionStr : internal error ! The MEDFile returned version (\"" << zeRet << "\") has not the right pattern !";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  return zeRet.substr(sizeof(START_EXPECTED)-1,std::string::npos);
 }
 
 std::string MEDCoupling::MEDFileVersionOfFileStr(const std::string& fileName)
@@ -317,9 +331,13 @@ std::string MEDCoupling::MEDFileVersionOfFileStr(const std::string& fileName)
 
 void MEDCoupling::MEDFileVersion(int& major, int& minor, int& release)
 {
-  major=MED_NUM_MAJEUR;
-  minor=MED_NUM_MINEUR;
-  release=MED_NUM_RELEASE;
+  med_int majj,minn,rell;
+  med_err ret(MEDlibraryNumVersion(&majj,&minn,&rell));
+  if(ret!=0)
+    throw INTERP_KERNEL::Exception("MEDFileVersion : fail to call MEDlibraryNumVersion ! It looks very bad !");
+  major=majj;
+  minor=minn;
+  release=rell;
 }
 
 /*!

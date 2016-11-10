@@ -299,7 +299,7 @@ using namespace MEDCoupling;
 namespace MEDCoupling
 {
   bool HasXDR();
-  std::string MEDFileVersionStr();
+  std::string MEDFileVersionStr() throw(INTERP_KERNEL::Exception);
   std::string MEDFileVersionOfFileStr(const std::string& fileName) throw(INTERP_KERNEL::Exception);
   void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
   void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
@@ -353,7 +353,7 @@ namespace MEDCoupling
 
 %inline
 {
-  PyObject *MEDFileVersionSwig()
+  PyObject *MEDFileVersionSwig() throw(INTERP_KERNEL::Exception)
   {
     int major,minor,release;
     MEDCoupling::MEDFileVersion(major,minor,release);
@@ -364,7 +364,7 @@ namespace MEDCoupling
     return ret;
   }
 
-  PyObject *GetFieldIterationsSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName)
+  PyObject *GetFieldIterationsSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
   {
     std::vector< std::pair<int,int> > res=MEDCoupling::GetFieldIterations(type,fileName,meshName,fieldName);
     PyObject *ret=PyList_New(res.size());
