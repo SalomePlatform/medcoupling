@@ -338,6 +338,10 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
 
 /*!
  * Creates a new unstructured mesh (MEDCoupling1SGTUMesh) from \a this structured one.
+ *
+ * In the returned mesh, the nodes are ordered with the first axis varying first: (X0,Y0), (X1,Y0),  ... (X0,Y1), (X1,Y1), ...
+ * and the cells are ordered with the same logic, i.e. in (i,j) notation: (0,0), (1,0), (2,0), ... (0,1), (1,1), ...
+ *
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is to
  * delete this array using decrRef() as it is no more needed. 
  *  \throw If \a this->getMeshDimension() is not among [1,2,3].
@@ -381,6 +385,10 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTSubLevelMesh() const
 
 /*!
  * Creates a new unstructured mesh (MEDCouplingUMesh) from \a this structured one.
+ *
+ * In the returned mesh, the nodes are ordered with the first axis varying first: (X0,Y0), (X1,Y0),  ... (X0,Y1), (X1,Y1), ...
+ * and the cells are ordered with the same logic, i.e. in (i,j) notation: (0,0), (1,0), (2,0), ... (0,1), (1,1), ...
+ *
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is to
  * delete this array using decrRef() as it is no more needed. 
  *  \throw If \a this->getMeshDimension() is not among [1,2,3].

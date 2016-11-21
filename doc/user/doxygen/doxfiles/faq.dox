@@ -14,6 +14,7 @@ Python API is almost 100% identical to the C++ one, with the \ref python-api "ru
     -# \ref f-visu
     -# \ref f-p0p1
     -# \ref f-number
+    -# \ref f-struct-ordering
     
 \ref faq-python
     -# \ref f-hellow
@@ -35,24 +36,28 @@ Python API is almost 100% identical to the C++ one, with the \ref python-api "ru
 
 \section Answers
 \subsection faq-general General questions
-\subsubsection f-newbie "I am a complete newbie, where should I start?"
+\subsubsection f-newbie I am a complete newbie, where should I start?
 Take a look at the \ref start "getting started" section and the \ref tutorial.
 
-\subsubsection f-mehsf "What is a mesh, what is a field?"
+\subsubsection f-mehsf What is a mesh, what is a field?
 Take a look at \ref terminology
 
-\subsubsection f-constel "What is a the difference between MED file, MEDCoupling and the SALOME MED module?"
+\subsubsection f-constel What is a the difference between MED file, MEDCoupling and the SALOME MED module?
 Take a look at \ref library
 
-\subsubsection f-visu "How can I visualize a mesh and/or a field?"
+\subsubsection f-visu How can I visualize a mesh and/or a field?
 Use the PARAVIS module of SALOME to visualize your MED file. The following dedicated fitlers have been 
 written specifically for MED files: Extract group, Extract cell types, ELNO Mesh, ELNO Points, ELNO Surface.
 
-\subsubsection f-p0p1 "What does a P0- (or P1-) field mean?"
+\subsubsection f-p0p1 What does a P0- (or P1-) field mean?
 Take a look at \ref terminology
 
-\subsubsection f-number "What does surjective/old-2-new/new-2-old format mean?"
+\subsubsection f-number What does surjective/old-2-new/new-2-old format mean?
 Take a look at \ref numbering
+
+\subsubsection f-struct-ordering What is the implicit numbering of a structured mesh?
+When converting a structured mesh to unstructured one, or when storing a field onto a structured
+mesh, the numbering convention detailed in \ref MEDCoupling::MEDCouplingStructuredMesh::buildUnstructured() is used.
 
 \subsection faq-python MEDCoupling scripts in Python 
 \subsubsection f-hellow "Can you show me a simple example to get me started"
