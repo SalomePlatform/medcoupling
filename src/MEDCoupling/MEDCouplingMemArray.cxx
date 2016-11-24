@@ -5814,9 +5814,10 @@ DataArrayInt *DataArrayInt::buildPermArrPerLevel() const
 }
 
 /*!
- * Checks if contents of \a this array are equal to that of an array filled with
+ * Checks if \a this array has the given size, and if its contents is equal to an array filled with
  * iota(). This method is particularly useful for DataArrayInt instances that represent
- * a renumbering array to check the real need in renumbering. This method checks than \a this can be considered as an identity function
+ * a renumbering array, to check if there is a real need in renumbering.
+ * This method checks than \a this can be considered as an identity mapping
  * of a set having \a sizeExpected elements into itself.
  *
  *  \param [in] sizeExpected - The number of elements expected.
