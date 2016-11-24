@@ -96,7 +96,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void killEquivalenceAt(int i);
     MEDLOADER_EXPORT void clear();
   public:
-    void writeLL(med_idt fid) const;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     static int PresenceOfEquivalences(med_idt fid, const std::string& meshName);
     static MEDFileEquivalences *Load(med_idt fid, int nbOfEq, MEDFileMesh *owner);
     static void CheckDataArray(const DataArrayInt *data);
