@@ -60,8 +60,23 @@ QuadraticPolygon::QuadraticPolygon(const char *file)
         }
       while(1);
   }
-  catch(std::ifstream::failure&)
+  catch(const std::ifstream::failure&)
   {
+  }
+  catch(const std::exception & ex)
+  {
+      // Some code before this catch throws the C++98 version of the exception (mangled
+      // name is " NSt8ios_base7failureE"), but FED24 compilation of the current version of the code
+      // tries to catch the C++11 version of it (mangled name "NSt8ios_base7failureB5cxx11E").
+      // So we have this nasty hack to catch both versions ...
+
+      // TODO: the below should be replaced by a better handling avoiding exception throwing.
+      if (std::string(ex.what()) == "basic_ios::clear")
+        {
+          //std::cout << "std::ios_base::failure C++11\n";
+        }
+      else
+        throw ex;
   }
   front()->changeStartNodeWith(back()->getEndNode());
 }
