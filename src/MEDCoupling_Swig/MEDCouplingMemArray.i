@@ -2933,14 +2933,14 @@ namespace MEDCoupling
         const char *msg="MEDCoupling::DataArrayInt::setValues : Available API are : \n-DataArrayInt.setValues([1,3,4])\n-DataArrayInt.setValues([1,3,4],3)\n-DataArrayInt.setValues([1,3,4,5],2,2)\n-DataArrayInt.New(5)\n !";
         if(PyList_Check(li) || PyTuple_Check(li))
           {
-            if(nbOfTuples)
+            if(nbOfTuples && nbOfTuples != Py_None)
               {
                 if(PyInt_Check(nbOfTuples))
                   {
                     int nbOfTuples1=PyInt_AS_LONG(nbOfTuples);
                     if(nbOfTuples<0)
                       throw INTERP_KERNEL::Exception("DataArrayInt::setValue : should be a positive set of allocated memory !");
-                    if(nbOfComp)
+                    if(nbOfComp && nbOfComp != Py_None)
                       {
                         if(PyInt_Check(nbOfComp))
                           {//DataArrayInt.setValues([1,3,4,5],2,2)
