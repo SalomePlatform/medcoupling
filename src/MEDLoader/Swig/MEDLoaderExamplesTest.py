@@ -37,7 +37,7 @@ class MEDLoaderBasicsTest(unittest.TestCase):
         m=MEDLoaderDataForTest.build2DMesh_3()
         m=m[:10]
         m.setName(meshName)
-        f=m.getMeasureField(ON_CELLS)
+        f=m.getMeasureField(False)
         f=f.buildNewTimeReprFromThis(ONE_TIME,False)
         f.setTime(5.5,iteration,order)
         f.setName(fieldName)
@@ -92,7 +92,7 @@ class MEDLoaderBasicsTest(unittest.TestCase):
         m.sortCellsInMEDFileFrmt()
         m.setName(meshName)
         # end of generation of a mesh -> let's create a field on that mesh
-        f=m.getMeasureField(ON_CELLS)
+        f=m.getMeasureField(False)
         f=f.buildNewTimeReprFromThis(ONE_TIME,False)
         f.setTime(5.5,iteration,order)
         f.setName(fieldName)
@@ -171,7 +171,7 @@ class MEDLoaderBasicsTest(unittest.TestCase):
         myMesh.setName(meshName)
         WriteUMesh("wFile1.med",myMesh,False)
 #! [PySnippetMeshAdvAPI1_2]
-        f=myMesh.getMeasureField(ON_CELLS)
+        f=myMesh.getMeasureField(False)
         f=f.buildNewTimeReprFromThis(ONE_TIME,False)
         f.setName("myField")
 #! [PySnippetMeshAdvAPI1_3]

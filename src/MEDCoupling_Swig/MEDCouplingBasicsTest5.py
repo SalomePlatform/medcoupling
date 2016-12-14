@@ -614,7 +614,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertRaises(InterpKernelException,m.insertNextCell,[0,6,7])
         self.assertRaises(InterpKernelException,m.insertNextCell,[0,6,7,1,2])
         self.assertEqual(m.getNodalConnectivity().getNbOfElemAllocated(),20)
-        f=m.getMeasureField(ON_CELLS)
+        f=m.getMeasureField(False)
         self.assertEqual(f.getMesh().getHiddenCppPointer(),m.getHiddenCppPointer())
         self.assertTrue(f.getArray().isUniform(1,1e-14))
         self.assertEqual(m.getType(),10)

@@ -333,7 +333,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         cc=MEDCouplingCMesh()
         cc.setCoords(c,c,c)
         um=cc.buildUnstructured()
-        f=um.getMeasureField(ON_CELLS)
+        f=um.getMeasureField(False)
         #
         n2o=um.simplexize(PLANAR_FACE_5)
         f.setArray(f.getArray()[n2o])

@@ -1528,7 +1528,7 @@ class MEDLoaderTest3(unittest.TestCase):
         fname="Pyfile46.med"
         m=MEDLoaderDataForTest.build2DMesh_3()
         m=m[:10] ; m.setName("mesh")
-        f=m.getMeasureField(ON_CELLS)
+        f=m.getMeasureField(False)
         f=f.buildNewTimeReprFromThis(ONE_TIME,False)
         f.setTime(5.5,3,4)
         f.setName("SemiPartialField")
@@ -2142,7 +2142,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m.setCoords(arr,arr)
         m=m.buildUnstructured()
         m.setName("mm")
-        f=m.getMeasureField(ON_CELLS)
+        f=m.getMeasureField(False)
         self.assertIn(m.getHeapMemorySize(),xrange(3552-100,3552+100+4*strMulFac))
         self.assertIn(f.getHeapMemorySize(),xrange(4215-100,4215+100+8*strMulFac))
         #
