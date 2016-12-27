@@ -1049,6 +1049,39 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(rem.getCrudeMatrix(), [{}, {}])
         pass
 
+    def testPointLocator3DTo2D(self):
+        """Target mesh has spaceDim==3 and meshDim==2. Source has spaceDim==3 and meshDim==3. Here we are on pointlocator alg.
+        The test evaluates on each nodes of target mesh the bary coor into source mesh."""
+        src=MEDCouplingCMesh()
+        arr=DataArrayDouble([0,1,2])
+        src.setCoords(arr,arr,arr)
+        src=src.buildUnstructured()
+        src.simplexize(PLANAR_FACE_5)
+        fsrc=MEDCouplingFieldDouble(ON_NODES) ; fsrc.setMesh(src)
+        fsrc.setArray(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]))
+        #
+        trg=MEDCouplingCMesh()
+        arr=DataArrayDouble([0,1])
+        trg.setCoords(arr,arr)
+        trg=trg.buildUnstructured()
+        trg.changeSpaceDimension(3,0.)
+        trg.translate([0.5,0.5,0.5])
+        #
+        arrTrg=fsrc.getValueOnMulti(trg.getCoords())
+        ftrg=MEDCouplingFieldDouble(ON_NODES)
+        ftrg.setMesh(trg)
+        ftrg.setArray(arrTrg)
+        ftrg.checkConsistencyLight()
+        ftrg.setNature(IntensiveMaximum)
+        #
+        fsrc.setNature(IntensiveMaximum)
+        remap=MEDCouplingRemapper()
+        remap.setIntersectionType(PointLocator)
+        self.assertEqual(remap.prepare(src,trg,"P1P1"),1)
+        ftrg2=remap.transferField(fsrc,1e300)
+        self.assertTrue(ftrg.isEqual(ftrg2,1e-12,1e-12))
+        pass
+
     def testExtrudedOnDiffZLev1(self):
         """Non regression bug : This test is base on P0P0 ExtrudedExtruded. This test checks that if the input meshes are not based on a same plane // OXY the interpolation works"""
         arrX=DataArrayDouble([0,1]) ; arrY=DataArrayDouble([0,1]) ; arrZ=DataArrayDouble([0,1,2])

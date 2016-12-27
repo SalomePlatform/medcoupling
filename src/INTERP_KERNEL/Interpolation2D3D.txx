@@ -107,7 +107,7 @@ namespace INTERP_KERNEL
           }
       }
     else
-      throw Exception("Invalid method choosed must be in \"P0P0\".");
+      throw Exception("Invalid method chosen must be in \"P0P0\".");
     // create empty maps for all source elements
     matrix.resize(intersector->getNumberOfRowsOfResMatrix());
 

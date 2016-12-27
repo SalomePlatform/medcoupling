@@ -77,7 +77,7 @@ namespace INTERP_KERNEL
       {  intersector=new PointLocator3DIntersectorP1P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
       }
     else
-      throw Exception("Invalid method choosed must be in \"P0P0\", \"P0P1\", \"P1P0\" or \"P1P1\".");
+      throw Exception("Invalid method chosen must be in \"P0P0\", \"P0P1\", \"P1P0\" or \"P1P1\".");
     // create empty maps for all source elements
     result.resize(intersector->getNumberOfRowsOfResMatrix());
 

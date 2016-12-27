@@ -537,23 +537,33 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
     }
   else if(srcMeshDim==3 && trgMeshDim==2 && srcSpaceDim==3)
     {
-      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
-      INTERP_KERNEL::Interpolation2D3D interpolation(*this);
-      std::vector<std::map<int,double> > matrixTmp;
-      std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
-      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
-      ReverseMatrix(matrixTmp,nbCols,_matrix);
-      nbCols=matrixTmp.size();
-      INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
-      if(!duplicateFaces.empty())
+      if(getIntersectionType()==INTERP_KERNEL::PointLocator)
         {
-          std::ostringstream oss; oss << "An unexpected situation happend ! For the following 2D Cells are part of edges shared by 3D cells :\n";
-          for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+          MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+          MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation3D interpolation(*this);
+          nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+        }
+      else
+        {
+          MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+          MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation2D3D interpolation(*this);
+          std::vector<std::map<int,double> > matrixTmp;
+          std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
+          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
+          ReverseMatrix(matrixTmp,nbCols,_matrix);
+          nbCols=matrixTmp.size();
+          INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
+          if(!duplicateFaces.empty())
             {
-              oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
-              std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
-              oss << std::endl;
+              std::ostringstream oss; oss << "An unexpected situation happend ! For the following 2D Cells are part of edges shared by 3D cells :\n";
+              for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+                {
+                  oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
+                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+                  oss << std::endl;
+                }
             }
         }
     }
