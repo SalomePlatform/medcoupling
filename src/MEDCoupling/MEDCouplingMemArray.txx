@@ -511,15 +511,10 @@ namespace MEDCoupling
    *  \throw If \a nbOfTuple < 0 or \a nbOfCompo < 0.
    */
   template<class T>
-  void DataArrayTemplate<T>::alloc(int nbOfTuple, int nbOfCompo)
+  void DataArrayTemplate<T>::alloc(std::size_t nbOfTuple, std::size_t nbOfCompo)
   {
-    if(nbOfTuple<0 || nbOfCompo<0)
-      {
-        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::alloc : request for negative length of data !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
     _info_on_compo.resize(nbOfCompo);
-    _mem.alloc(nbOfCompo*(std::size_t)nbOfTuple);
+    _mem.alloc(nbOfCompo*nbOfTuple);
     declareAsNew();
   }
 
@@ -812,15 +807,10 @@ namespace MEDCoupling
    *  \throw If \a nbOfTuples is negative.
    */
   template<class T>
-  void DataArrayTemplate<T>::reAlloc(int nbOfTuples)
+  void DataArrayTemplate<T>::reAlloc(std::size_t nbOfTuples)
   {
-    if(nbOfTuples<0)
-      {
-        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::reAlloc : input new number of tuples should be >=0 !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
     checkAllocated();
-    _mem.reAlloc(getNumberOfComponents()*(std::size_t)nbOfTuples);
+    _mem.reAlloc(getNumberOfComponents()*nbOfTuples);
     declareAsNew();
   }
 

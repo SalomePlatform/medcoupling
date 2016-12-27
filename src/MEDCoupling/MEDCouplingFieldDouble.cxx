@@ -1635,7 +1635,7 @@ void MEDCouplingFieldDouble::applyFuncFast64(const std::string& func)
  *  \return int - the number of components in the data array.
  *  \throw If the data array is not set.
  */
-int MEDCouplingFieldDouble::getNumberOfComponents() const
+std::size_t MEDCouplingFieldDouble::getNumberOfComponents() const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getNumberOfComponents : No array specified !");
@@ -1666,7 +1666,7 @@ int MEDCouplingFieldDouble::getNumberOfComponents() const
  *  \throw If the spatial discretization is not fully defined.
  *  \sa MEDCouplingField::getNumberOfTuplesExpected
  */
-int MEDCouplingFieldDouble::getNumberOfTuples() const
+std::size_t MEDCouplingFieldDouble::getNumberOfTuples() const
 {
   //std::cerr << " ******* MEDCouplingFieldDouble::getNumberOfTuples is deprecated : use MEDCouplingField::getNumberOfTuplesExpected instead ! ******" << std::endl;
   if(!_mesh)
@@ -1683,7 +1683,7 @@ int MEDCouplingFieldDouble::getNumberOfTuples() const
  *  data array.
  *  \throw If the data array is not set.
  */
-int MEDCouplingFieldDouble::getNumberOfValues() const
+std::size_t MEDCouplingFieldDouble::getNumberOfValues() const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getNumberOfValues : No array specified !");

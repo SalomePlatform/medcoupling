@@ -146,7 +146,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string getVarOnComponent(int i) const;
     MEDCOUPLING_EXPORT std::string getUnitOnComponent(int i) const;
     MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const std::string& info);
-    MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
+    MEDCOUPLING_EXPORT std::size_t getNumberOfComponents() const { return _info_on_compo.size(); }
     MEDCOUPLING_EXPORT void setPartOfValuesBase3(const DataArray *aBase, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
     MEDCOUPLING_EXPORT virtual DataArray *deepCopy() const = 0;
     MEDCOUPLING_EXPORT virtual DataArray *buildNewEmptyInstance() const = 0;
@@ -156,8 +156,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual int getNumberOfTuples() const = 0;
     MEDCOUPLING_EXPORT virtual std::size_t getNbOfElems() const = 0;
     MEDCOUPLING_EXPORT virtual std::size_t getNbOfElemAllocated() const = 0;
-    MEDCOUPLING_EXPORT virtual void alloc(int nbOfTuple, int nbOfCompo=1) = 0;
-    MEDCOUPLING_EXPORT virtual void reAlloc(int newNbOfTuple) = 0;
+    MEDCOUPLING_EXPORT virtual void alloc(std::size_t nbOfTuple, std::size_t nbOfCompo=1) = 0;
+    MEDCOUPLING_EXPORT virtual void reAlloc(std::size_t newNbOfTuple) = 0;
     MEDCOUPLING_EXPORT virtual void renumberInPlace(const int *old2New) = 0;
     MEDCOUPLING_EXPORT virtual void renumberInPlaceR(const int *new2Old) = 0;
     MEDCOUPLING_EXPORT virtual void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec) = 0;
@@ -218,7 +218,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const T *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT const T *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const T *end() const { return getConstPointer()+getNbOfElems(); }
-    void alloc(int nbOfTuple, int nbOfCompo=1);
+    void alloc(std::size_t nbOfTuple, std::size_t nbOfCompo=1);
     void useArray(const T *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void useExternalArrayWithRWAccess(const T *array, int nbOfTuple, int nbOfCompo);
     T getIJSafe(int tupleId, int compoId) const;
@@ -243,7 +243,7 @@ namespace MEDCoupling
     void deepCopyFrom(const DataArrayTemplate<T>& other);
     void reverse();
     void fillWithValue(T val);
-    void reAlloc(int newNbOfTuple);
+    void reAlloc(std::size_t newNbOfTuple);
     void renumberInPlace(const int *old2New);
     void renumberInPlaceR(const int *new2Old);
     void sort(bool asc=true);

@@ -411,10 +411,8 @@ MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const
  */
 MEDCouplingMesh *MEDCouplingStructuredMesh::buildPart(const int *start, const int *end) const
 {
-  MEDCouplingUMesh *um=buildUnstructured();
-  MEDCouplingMesh *ret=um->buildPart(start,end);
-  um->decrRef();
-  return ret;
+  MCAuto<MEDCouplingUMesh> um(buildUnstructured());
+  return um->buildPart(start,end);
 }
 
 MEDCouplingMesh *MEDCouplingStructuredMesh::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
@@ -437,10 +435,8 @@ MEDCouplingMesh *MEDCouplingStructuredMesh::buildPartAndReduceNodes(const int *s
     }
   else
     {
-      MEDCouplingUMesh *um=buildUnstructured();
-      MEDCouplingMesh *ret=um->buildPartAndReduceNodes(start,end,arr);
-      um->decrRef();
-      return ret;
+      MCAuto<MEDCouplingUMesh> um(buildUnstructured());
+      return um->buildPartAndReduceNodes(start,end,arr);
     }
 }
 
@@ -461,17 +457,16 @@ MEDCouplingFieldDouble *MEDCouplingStructuredMesh::buildOrthogonalField() const
 {
   if(getMeshDimension()!=2)
     throw INTERP_KERNEL::Exception("Expected a MEDCouplingStructuredMesh with meshDim == 2 !");
-  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
-  DataArrayDouble *array=DataArrayDouble::New();
-  int nbOfCells=getNumberOfCells();
+  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME));
+  MCAuto<DataArrayDouble> array(DataArrayDouble::New());
+  int nbOfCells(getNumberOfCells());
   array->alloc(nbOfCells,3);
-  double *vals=array->getPointer();
+  double *vals(array->getPointer());
   for(int i=0;i<nbOfCells;i++)
     { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
   ret->setArray(array);
-  array->decrRef();
   ret->setMesh(this);
-  return ret;
+  return ret.retn();
 }
 
 void MEDCouplingStructuredMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
@@ -970,11 +965,11 @@ std::vector< std::vector<int> > MEDCouplingStructuredMesh::ComputeSignaturePerAx
 
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg)
 {
-  int nbOfCells(*nodeStBg-1);
+  std::size_t nbOfCells(*nodeStBg-1);
   MCAuto<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(2*nbOfCells,1);
   int *cp=conn->getPointer();
-  for(int i=0;i<nbOfCells;i++)
+  for(std::size_t i=0;i<nbOfCells;i++)
     {
       cp[2*i+0]=i;
       cp[2*i+1]=i+1;
@@ -984,12 +979,11 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *
 
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *nodeStBg)
 {
-  int n1=nodeStBg[0]-1;
-  int n2=nodeStBg[1]-1;
+  std::size_t n1(nodeStBg[0]-1),n2(nodeStBg[1]-1);
   MCAuto<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(4*n1*n2,1);
-  int *cp=conn->getPointer();
-  int pos=0;
+  int *cp(conn->getPointer());
+  std::size_t pos(0);
   for(int j=0;j<n2;j++)
     for(int i=0;i<n1;i++,pos++)
       {
@@ -1003,13 +997,11 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *
 
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *nodeStBg)
 {
-  int n1=nodeStBg[0]-1;
-  int n2=nodeStBg[1]-1;
-  int n3=nodeStBg[2]-1;
+  std::size_t n1(nodeStBg[0]-1),n2(nodeStBg[1]-1),n3(nodeStBg[2]-1);
   MCAuto<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(8*n1*n2*n3,1);
-  int *cp=conn->getPointer();
-  int pos=0;
+  int *cp(conn->getPointer());
+  std::size_t pos(0);
   for(int k=0;k<n3;k++)
     for(int j=0;j<n2;j++)
       for(int i=0;i<n1;i++,pos++)

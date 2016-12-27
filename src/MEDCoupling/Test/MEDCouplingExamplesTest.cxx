@@ -1947,8 +1947,8 @@ void CppExample_DataArrayInt_buildPermutationArr()
   DataArrayInt *c=a->buildPermutationArr(*b);
   //! [CppSnippet_DataArrayInt_buildPermutationArr_1]
   const int expect1[5]={1,0,4,2,3};
-  CPPUNIT_ASSERT_EQUAL(5,c->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,c->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,(int)c->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)c->getNumberOfComponents());
   CPPUNIT_ASSERT(std::equal(expect1,expect1+5,c->getConstPointer()));
   CPPUNIT_ASSERT(a->isEqualWithoutConsideringStrAndOrder(*b));
   a->decrRef();

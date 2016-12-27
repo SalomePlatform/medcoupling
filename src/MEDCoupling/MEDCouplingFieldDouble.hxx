@@ -91,9 +91,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void applyFunc(const std::string& func);
     MEDCOUPLING_EXPORT void applyFuncFast32(const std::string& func);
     MEDCOUPLING_EXPORT void applyFuncFast64(const std::string& func);
-    MEDCOUPLING_EXPORT int getNumberOfComponents() const;
-    MEDCOUPLING_EXPORT int getNumberOfTuples() const;
-    MEDCOUPLING_EXPORT int getNumberOfValues() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfComponents() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfTuples() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfValues() const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;

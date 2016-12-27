@@ -862,8 +862,8 @@ void MEDLoaderTest::testMEDLoaderRead1()
   MEDCouplingFieldDouble *field0=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field0->checkConsistencyLight();
   CPPUNIT_ASSERT(field0->getName()==fieldsName[0]);
-  CPPUNIT_ASSERT_EQUAL(1,field0->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(16,field0->getNumberOfTuples());
+ CPPUNIT_ASSERT_EQUAL(1,(int)field0->getNumberOfComponents());
+ CPPUNIT_ASSERT_EQUAL(16,(int)field0->getNumberOfTuples());
   const double expectedValues[16]={1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,2.,3.,3.,2.};
   double diffValue[16];
   std::transform(field0->getArray()->getPointer(),field0->getArray()->getPointer()+16,expectedValues,diffValue,std::minus<double>());
@@ -891,8 +891,8 @@ void MEDLoaderTest::testMEDLoaderRead1()
   MEDCouplingFieldDouble *field1=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
   field1->checkConsistencyLight();
   CPPUNIT_ASSERT(field1->getName()==fieldsName[1]);
-  CPPUNIT_ASSERT_EQUAL(3,field1->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(16,field1->getNumberOfTuples());
+ CPPUNIT_ASSERT_EQUAL(3,(int)field1->getNumberOfComponents());
+ CPPUNIT_ASSERT_EQUAL(16,(int)field1->getNumberOfTuples());
   const double expectedValues2[48]={1.,0.,1.,1.,0.,1.,1.,0.,1.,2.,1.,0.,2.,1.,0.,2.,1.,0.,3.,0.,1.,3.,0.,1.,3.,0.,1.,4.,1.,0.,4.,1.,0.,4.,1.,0.,5.,0.,0.,6.,1.,1.,6.,0.,0.,5.,1.,1.};
   double diffValue2[48];
   std::transform(field1->getArray()->getPointer(),field1->getArray()->getPointer()+48,expectedValues2,diffValue2,std::minus<double>());
@@ -932,8 +932,8 @@ void MEDLoaderTest::testMEDLoaderRead1()
   MEDCouplingFieldDouble *field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
   field0Nodes->checkConsistencyLight();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
-  CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(19,field0Nodes->getNumberOfTuples());
+ CPPUNIT_ASSERT_EQUAL(1,(int)field0Nodes->getNumberOfComponents());
+ CPPUNIT_ASSERT_EQUAL(19,(int)field0Nodes->getNumberOfTuples());
   const double expectedValues3[19]={1.,1.,1.,2.,2.,2.,3.,3.,3.,4.,4.,4.,5.,5.,5.,6.,6.,6.,7.};
   double diffValue3[19];
   std::transform(field0Nodes->getArray()->getPointer(),field0Nodes->getArray()->getPointer()+19,expectedValues3,diffValue3,std::minus<double>());
@@ -946,8 +946,8 @@ void MEDLoaderTest::testMEDLoaderRead1()
   field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
   field0Nodes->checkConsistencyLight();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
-  CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(19,field0Nodes->getNumberOfTuples());
+ CPPUNIT_ASSERT_EQUAL(1,(int)field0Nodes->getNumberOfComponents());
+ CPPUNIT_ASSERT_EQUAL(19,(int)field0Nodes->getNumberOfTuples());
   const double expectedValues4[19]={1.,2.,2.,2.,3.,3.,3.,4.,4.,4.,5.,5.,5.,6.,6.,6.,7.,7.,7.};
   std::transform(field0Nodes->getArray()->getPointer(),field0Nodes->getArray()->getPointer()+19,expectedValues4,diffValue3,std::minus<double>());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,*std::max_element(diffValue3,diffValue3+19),1e-12);
@@ -974,8 +974,8 @@ void MEDLoaderTest::testMEDLoaderRead1()
   field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
   field0Nodes->checkConsistencyLight();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
-  CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(19,field0Nodes->getNumberOfTuples());
+ CPPUNIT_ASSERT_EQUAL(1,(int)field0Nodes->getNumberOfComponents());
+ CPPUNIT_ASSERT_EQUAL(19,(int)field0Nodes->getNumberOfTuples());
   const double expectedValues5[19]={1.,1.,1.,2.,2.,2.,3.,3.,3.,4.,4.,4.,5.,5.,5.,6.,6.,6.,7.};
   std::transform(field0Nodes->getArray()->getPointer(),field0Nodes->getArray()->getPointer()+19,expectedValues5,diffValue3,std::minus<double>());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,*std::max_element(diffValue3,diffValue3+19),1e-12);
@@ -1041,8 +1041,8 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   MEDCouplingFieldDouble *field=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field->checkConsistencyLight();
   CPPUNIT_ASSERT(field->getName()==fieldsName[0]);
-  CPPUNIT_ASSERT_EQUAL(1,field->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(538,field->getNumberOfTuples());
+ CPPUNIT_ASSERT_EQUAL(1,(int)field->getNumberOfComponents());
+ CPPUNIT_ASSERT_EQUAL(538,(int)field->getNumberOfTuples());
   const MEDCouplingUMesh *constMesh=dynamic_cast<const MEDCouplingUMesh *>(field->getMesh());
   CPPUNIT_ASSERT(constMesh);
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
