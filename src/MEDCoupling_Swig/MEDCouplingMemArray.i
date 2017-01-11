@@ -183,6 +183,10 @@
 %newobject MEDCoupling::DataArrayDouble::fromPolarToCart;
 %newobject MEDCoupling::DataArrayDouble::fromCylToCart;
 %newobject MEDCoupling::DataArrayDouble::fromSpherToCart;
+%newobject MEDCoupling::DataArrayDouble::fromCartToPolar;
+%newobject MEDCoupling::DataArrayDouble::fromCartToCyl;
+%newobject MEDCoupling::DataArrayDouble::fromCartToSpher;
+%newobject MEDCoupling::DataArrayDouble::fromCartToCylGiven;
 %newobject MEDCoupling::DataArrayDouble::cartesianize;
 %newobject MEDCoupling::DataArrayDouble::getDifferentValues;
 %newobject MEDCoupling::DataArrayDouble::findClosestTupleId;
@@ -593,6 +597,9 @@ namespace MEDCoupling
     DataArrayDouble *fromPolarToCart() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromCylToCart() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromSpherToCart() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *fromCartToPolar() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *fromCartToCyl() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *fromCartToSpher() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *cartesianize(MEDCouplingAxisType atOfThis) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *determinant() const throw(INTERP_KERNEL::Exception);
@@ -897,6 +904,19 @@ namespace MEDCoupling
         double res[9];
         DataArrayDouble::GiveBaseForPlane(vectorPtr,res);
         return convertDblArrToPyListOfTuple(res,3,3);
+      }
+
+      DataArrayDouble *fromCartToCylGiven(const DataArrayDouble *coords, PyObject *center, PyObject *vector) const
+      {
+        const char msg[]="Python wrap of DataArrayDouble::fromCartToCylGiven : ";
+        double val,val2;
+        DataArrayDouble *a,*a2;
+        DataArrayDoubleTuple *aa,*aa2;
+        std::vector<double> bb,bb2;
+        int sw;
+        const double *centerPtr=convertObjToPossibleCpp5_Safe(center,sw,val,a,aa,bb,msg,1,3,true);
+        const double *vectorPtr=convertObjToPossibleCpp5_Safe(vector,sw,val2,a2,aa2,bb2,msg,1,3,true);
+        return self->fromCartToCylGiven(coords,centerPtr,vectorPtr);
       }
       
       DataArrayDouble *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)

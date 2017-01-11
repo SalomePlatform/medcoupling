@@ -53,6 +53,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
+    MEDCOUPLING_EXPORT const DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getCoords();
     MEDCOUPLING_EXPORT const DataArrayDouble *getCoords() const;
     MEDCOUPLING_EXPORT void setCoords(const DataArrayDouble *coords);

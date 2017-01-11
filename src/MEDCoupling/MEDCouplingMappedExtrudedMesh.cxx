@@ -176,6 +176,11 @@ MEDCouplingMappedExtrudedMesh *MEDCouplingMappedExtrudedMesh::clone(bool recDeep
   return new MEDCouplingMappedExtrudedMesh(*this,recDeepCpy);
 }
 
+const DataArrayDouble *MEDCouplingMappedExtrudedMesh::getDirectAccessOfCoordsArrIfInStructure() const
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingMappedExtrudedMesh::getDirectAccessOfCoordsArrIfInStructure : no direct acess of DataArrayDouble holding nodes !");
+}
+
 bool MEDCouplingMappedExtrudedMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   if(!other)

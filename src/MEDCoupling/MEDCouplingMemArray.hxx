@@ -356,6 +356,10 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *fromCylToCart() const;
     MEDCOUPLING_EXPORT DataArrayDouble *fromSpherToCart() const;
     MEDCOUPLING_EXPORT DataArrayDouble *cartesianize(MEDCouplingAxisType atOfThis) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *fromCartToPolar() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *fromCartToCyl() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *fromCartToSpher() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *fromCartToCylGiven(const DataArrayDouble *coords, const double center[3], const double vect[3]) const;
     MEDCOUPLING_EXPORT DataArrayDouble *doublyContractedProduct() const;
     MEDCOUPLING_EXPORT DataArrayDouble *determinant() const;
     MEDCOUPLING_EXPORT DataArrayDouble *eigenValues() const;

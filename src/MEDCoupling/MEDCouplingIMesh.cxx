@@ -75,6 +75,11 @@ MEDCouplingIMesh *MEDCouplingIMesh::clone(bool recDeepCpy) const
   return new MEDCouplingIMesh(*this,recDeepCpy);
 }
 
+const DataArrayDouble *MEDCouplingIMesh::getDirectAccessOfCoordsArrIfInStructure() const
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingIMesh::getDirectAccessOfCoordsArrIfInStructure : MEDCouplingIMesh does not aggregate array of coordinates !");
+}
+
 /*!
  * This method creates a copy of \a this enlarged by \a ghostLev cells on each axis.
  * If \a ghostLev equal to 0 this method behaves as MEDCouplingIMesh::clone.

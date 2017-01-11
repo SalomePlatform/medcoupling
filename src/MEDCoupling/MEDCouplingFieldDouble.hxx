@@ -114,6 +114,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool zipConnectivity(int compType, double epsOnVals=1e-15);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *extractSlice3D(const double *origin, const double *vec, double eps) const;
     MEDCOUPLING_EXPORT bool simplexize(int policy);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeVectorFieldCyl(const double center[3], const double vect[3]) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *doublyContractedProduct() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *determinant() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *eigenValues() const;

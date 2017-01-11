@@ -99,6 +99,11 @@ MEDCouplingCMesh *MEDCouplingCMesh::clone(bool recDeepCpy) const
   return new MEDCouplingCMesh(*this,recDeepCpy);
 }
 
+const DataArrayDouble *MEDCouplingCMesh::getDirectAccessOfCoordsArrIfInStructure() const
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingCMesh::getDirectAccessOfCoordsArrIfInStructure : MEDCouplingCMesh does not aggregate array of coordinates !");
+}
+
 MEDCouplingCurveLinearMesh *MEDCouplingCMesh::buildCurveLinear() const
 {
   checkConsistencyLight();

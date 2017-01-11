@@ -270,6 +270,11 @@ std::string MEDCouplingCurveLinearMesh::advancedRepr() const
   return simpleRepr();
 }
 
+const DataArrayDouble *MEDCouplingCurveLinearMesh::getDirectAccessOfCoordsArrIfInStructure() const
+{
+  return _coords;
+}
+
 DataArrayDouble *MEDCouplingCurveLinearMesh::getCoords()
 {
   return _coords;

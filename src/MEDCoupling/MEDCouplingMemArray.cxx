@@ -2046,6 +2046,7 @@ DataArrayDouble *DataArrayDouble::accumulatePerChunck(const int *bgOfIndex, cons
  *          is to delete this array using decrRef() as it is no more needed. The array
  *          does not contain any textual info on components.
  *  \throw If \a this->getNumberOfComponents() != 2.
+ * \sa fromCartToPolar
  */
 DataArrayDouble *DataArrayDouble::fromPolarToCart() const
 {
@@ -2076,6 +2077,7 @@ DataArrayDouble *DataArrayDouble::fromPolarToCart() const
  *          on the third component is copied from \a this array. The caller
  *          is to delete this array using decrRef() as it is no more needed. 
  *  \throw If \a this->getNumberOfComponents() != 3.
+ * \sa fromCartToCyl
  */
 DataArrayDouble *DataArrayDouble::fromCylToCart() const
 {
@@ -2108,6 +2110,7 @@ DataArrayDouble *DataArrayDouble::fromCylToCart() const
  *          on the third component is copied from \a this array. The caller
  *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() != 3.
+ * \sa fromCartToSpher
  */
 DataArrayDouble *DataArrayDouble::fromSpherToCart() const
 {
@@ -2174,6 +2177,116 @@ DataArrayDouble *DataArrayDouble::cartesianize(MEDCouplingAxisType atOfThis) con
         throw INTERP_KERNEL::Exception("DataArrayDouble::cartesianize : For AX_CYL, number of components must be in [2,3] !");
     default:
       throw INTERP_KERNEL::Exception("DataArrayDouble::cartesianize : not recognized axis type ! Only AX_CART, AX_CYL and AX_SPHER supported !");
+    }
+  ret->copyStringInfoFrom(*this);
+  return ret.retn();
+}
+
+/*!
+ * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to polar.
+ * This method expects that \a this has exactly 2 components.
+ * \sa fromPolarToCart
+ */
+DataArrayDouble *DataArrayDouble::fromCartToPolar() const
+{
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  checkAllocated();
+  int nbOfComp(getNumberOfComponents()),nbTuples(getNumberOfTuples());
+  if(nbOfComp!=2)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToPolar : must be an array with exactly 2 components !");
+  ret->alloc(nbTuples,2);
+  double *retPtr(ret->getPointer());
+  const double *ptr(begin());
+  for(int i=0;i<nbTuples;i++,ptr+=2,retPtr+=2)
+    {
+      retPtr[0]=sqrt(ptr[0]*ptr[0]+ptr[1]*ptr[1]);
+      retPtr[1]=atan2(ptr[1],ptr[0]);
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to cylindrical.
+ * This method expects that \a this has exactly 3 components.
+ * \sa fromCylToCart
+ */
+DataArrayDouble *DataArrayDouble::fromCartToCyl() const
+{
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  checkAllocated();
+  int nbOfComp(getNumberOfComponents()),nbTuples(getNumberOfTuples());
+  if(nbOfComp!=3)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCyl : must be an array with exactly 3 components !");
+  ret->alloc(nbTuples,3);
+  double *retPtr(ret->getPointer());
+  const double *ptr(begin());
+  for(int i=0;i<nbTuples;i++,ptr+=3,retPtr+=3)
+    {
+      retPtr[0]=sqrt(ptr[0]*ptr[0]+ptr[1]*ptr[1]);
+      retPtr[1]=atan2(ptr[1],ptr[0]);
+      retPtr[2]=ptr[2];
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to spherical coordinates.
+ * \sa fromSpherToCart
+ */
+DataArrayDouble *DataArrayDouble::fromCartToSpher() const
+{
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  checkAllocated();
+  int nbOfComp(getNumberOfComponents()),nbTuples(getNumberOfTuples());
+  if(nbOfComp!=3)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToSpher : must be an array with exactly 3 components !");
+  ret->alloc(nbTuples,3);
+  double *retPtr(ret->getPointer());
+  const double *ptr(begin());
+  for(int i=0;i<nbTuples;i++,ptr+=3,retPtr+=3)
+    {
+      retPtr[0]=sqrt(ptr[0]*ptr[0]+ptr[1]*ptr[1]+ptr[2]*ptr[2]);
+      retPtr[1]=acos(ptr[2]/retPtr[0]);
+      retPtr[2]=atan2(ptr[1],ptr[0]);
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to cylindrical relative to the given \a center and a \a vector.
+ * This method expects that \a this has exactly 3 components.
+ * \sa MEDCouplingFieldDouble::computeVectorFieldCyl
+ */
+DataArrayDouble *DataArrayDouble::fromCartToCylGiven(const DataArrayDouble *coords, const double center[3], const double vect[3]) const
+{
+  if(!coords)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : input coords are NULL !");
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  checkAllocated(); coords->checkAllocated();
+  int nbOfComp(getNumberOfComponents()),nbTuples(getNumberOfTuples());
+  if(nbOfComp!=3)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : must be an array with exactly 3 components !");
+  if(coords->getNumberOfComponents()!=3)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : coords array must have exactly 3 components !");
+  if(coords->getNumberOfTuples()!=nbTuples)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : coords array must have the same number of tuples !");
+  ret->alloc(nbTuples,nbOfComp);
+  double magOfVect(sqrt(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]));
+  if(magOfVect<1e-12)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : magnitude of vect is too low !");
+  double Ur[3],Uteta[3],Uz[3],*retPtr(ret->getPointer());
+  const double *coo(coords->begin()),*vectField(begin());
+  std::transform(vect,vect+3,Uz,std::bind2nd(std::multiplies<double>(),1./magOfVect));
+  for(int i=0;i<nbTuples;i++,vectField+=3,retPtr+=3,coo+=3)
+    {
+      std::transform(coo,coo+3,center,Ur,std::minus<double>());
+      Uteta[0]=Uz[1]*Ur[2]-Uz[2]*Ur[1]; Uteta[1]=Uz[2]*Ur[0]-Uz[0]*Ur[2]; Uteta[2]=Uz[0]*Ur[1]-Uz[1]*Ur[0];
+      double magOfTeta(sqrt(Uteta[0]*Uteta[0]+Uteta[1]*Uteta[1]+Uteta[2]*Uteta[2]));
+      std::transform(Uteta,Uteta+3,Uteta,std::bind2nd(std::multiplies<double>(),1./magOfTeta));
+      Ur[0]=Uteta[1]*Uz[2]-Uteta[2]*Uz[1]; Ur[1]=Uteta[2]*Uz[0]-Uteta[0]*Uz[2]; Ur[2]=Uteta[0]*Uz[1]-Uteta[1]*Uz[0];
+      retPtr[0]=Ur[0]*vectField[0]+Ur[1]*vectField[1]+Ur[2]*vectField[2];
+      retPtr[1]=Uteta[0]*vectField[0]+Uteta[1]*vectField[1]+Uteta[2]*vectField[2];
+      retPtr[2]=Uz[0]*vectField[0]+Uz[1]*vectField[1]+Uz[2]*vectField[2];
     }
   ret->copyStringInfoFrom(*this);
   return ret.retn();

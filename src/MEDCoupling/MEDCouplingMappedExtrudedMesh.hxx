@@ -49,7 +49,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
     MEDCOUPLING_EXPORT MEDCouplingMappedExtrudedMesh *deepCopy() const;
-    MEDCouplingMappedExtrudedMesh *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingMappedExtrudedMesh *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT const DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,

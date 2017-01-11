@@ -168,6 +168,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void getValueOnTime(int eltId, double time, double *value) const = 0;
     MEDCOUPLING_EXPORT virtual void getValueOnDiscTime(int eltId, int iteration, int order, double *value) const = 0;
     //
+    MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *computeVectorFieldCyl(const DataArrayDouble *coords, const double center[3], const double vect[3]) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *doublyContractedProduct() const;
     MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *determinant() const;
     MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *eigenValues() const;

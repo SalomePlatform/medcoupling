@@ -4431,6 +4431,32 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         ex=MEDCouplingMappedExtrudedMesh(mesh3D)
         self.assertTrue(ex.buildUnstructured().isEqual(mesh3D.buildUnstructured(),1e-12))
         pass
+
+    def testCylSpherPolarCartFiesta(self):
+        """Test to check new capabilities from to cyl spher polar cart conversions"""
+        da0=DataArrayDouble([(7,13,2.1),(15,2,-4.2),(-6,12,1.4),(-1,10,-3.5),(-2.1,-3.3,2.7),(-1.4,-0.2,-4),(1.2,-1.3,2.8),(2.5,-0.4,-3)])
+        self.assertTrue(da0.fromCartToCyl().fromCylToCart().isEqual(da0,1e-12))
+        self.assertTrue(da0.fromCartToSpher().fromSpherToCart().isEqual(da0,1e-12))
+        da1=da0[:,:2]
+        self.assertTrue(da1.fromCartToPolar().fromPolarToCart().isEqual(da1,1e-12))
+        #
+        da2=da0[::-1]
+        pt=[-2.1,0.3,1.1]
+        vect=[1.,-0.5,0.7]
+        #
+        expected=DataArrayDouble([(2.023252607860588,14.699865529518792,1.4934531458504392),(10.91440936818929,7.5640431386495965,8.384564361982669),(-7.1057844983810705,7.853310978767742,-8.354240440239513),(-8.414001990391881,-1.1910713519565301,-6.405928468241733),(-4.35426264858532,1.5616250027467273,1.0916611827536211),(-2.0571195416878396,-2.0266572603615365,-3.1082019786735042),(-1.5714718759210784,0.39735366651452453,2.8883535460356216),(0.8733250236104675,-3.800053532703407,0.45485882614734185)])
+        da4=da0.fromCartToCylGiven(da2,pt,vect)
+        self.assertTrue(da4.isEqual(expected,1e-12))
+        #
+        m=MEDCouplingUMesh.Build0DMeshFromCoords(da2)
+        self.assertEqual(m.getDirectAccessOfCoordsArrIfInStructure().getHiddenCppPointer(),da2.getHiddenCppPointer())
+        f0=MEDCouplingFieldDouble(ON_NODES) ; f0.setMesh(m) ; f0.setArray(da0)
+        f=f0.computeVectorFieldCyl(pt,vect)
+        f.checkConsistencyLight()
+        self.assertEqual(f.getMesh().getHiddenCppPointer(),m.getHiddenCppPointer())
+        self.assertTrue(f.getArray().isEqual(expected,1e-12))
+        pass
+    
     pass
 
 if __name__ == '__main__':

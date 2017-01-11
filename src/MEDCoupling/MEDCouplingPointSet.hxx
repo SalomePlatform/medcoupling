@@ -62,6 +62,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const DataArrayDouble *getCoords() const { return _coords; }
     MEDCOUPLING_EXPORT DataArrayDouble *getCoords() { return _coords; }
     MEDCOUPLING_EXPORT DataArrayDouble *getCoordinatesAndOwner() const;
+    MEDCOUPLING_EXPORT const DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const { return _coords; }
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;

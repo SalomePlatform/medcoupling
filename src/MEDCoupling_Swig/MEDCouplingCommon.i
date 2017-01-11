@@ -230,6 +230,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::nodeToCellDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::cellToNodeDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti;
+%newobject MEDCoupling::MEDCouplingFieldDouble::computeVectorFieldCyl;
 %newobject MEDCoupling::MEDCouplingFieldInt::New;
 %newobject MEDCoupling::MEDCouplingFieldInt::convertToDblField;
 %newobject MEDCoupling::MEDCouplingFieldInt::getArray;
@@ -259,6 +260,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingMesh::simplexize;
 %newobject MEDCoupling::MEDCouplingMesh::buildUnstructured;
 %newobject MEDCoupling::MEDCouplingMesh::MergeMeshes;
+%newobject MEDCoupling::MEDCouplingMesh::getDirectAccessOfCoordsArrIfInStructure;
 %newobject MEDCoupling::MEDCouplingPointSet::zipCoordsTraducer;
 %newobject MEDCoupling::MEDCouplingPointSet::getCellsInBoundingBox;
 %newobject MEDCoupling::MEDCouplingPointSet::findBoundaryNodes;
@@ -626,6 +628,15 @@ namespace MEDCoupling
            PyList_SetItem(res,1,SWIG_From_int(tmp1));
            PyList_SetItem(res,2,SWIG_From_int(tmp2));
            return res;
+         }
+
+         DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const throw(INTERP_KERNEL::Exception)
+         {
+           const DataArrayDouble *ret(self->getDirectAccessOfCoordsArrIfInStructure());
+           DataArrayDouble *ret2(const_cast<DataArrayDouble *>(ret));
+           if(ret2)
+             ret2->incrRef();
+           return ret2;
          }
          
          int getCellContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
@@ -3908,6 +3919,19 @@ namespace MEDCoupling
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
+      }
+
+      MEDCouplingFieldDouble *computeVectorFieldCyl(PyObject *center, PyObject *vector) const
+      {
+        const char msg[]="Python wrap of MEDCouplingFieldDouble::computeVectorFieldCyl : ";
+        double val,val2;
+        DataArrayDouble *a,*a2;
+        DataArrayDoubleTuple *aa,*aa2;
+        std::vector<double> bb,bb2;
+        int sw;
+        const double *centerPtr=convertObjToPossibleCpp5_Safe(center,sw,val,a,aa,bb,msg,1,3,true);
+        const double *vectorPtr=convertObjToPossibleCpp5_Safe(vector,sw,val2,a2,aa2,bb2,msg,1,3,true);
+        return self->computeVectorFieldCyl(centerPtr,vectorPtr);
       }
 
       DataArrayDouble *getArray() throw(INTERP_KERNEL::Exception)

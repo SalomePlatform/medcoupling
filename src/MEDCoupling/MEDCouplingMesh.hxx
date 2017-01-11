@@ -105,6 +105,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual std::string simpleRepr() const = 0;
     MEDCOUPLING_EXPORT virtual std::string advancedRepr() const = 0;
     // tools
+    MEDCOUPLING_EXPORT virtual const DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const = 0;
     MEDCOUPLING_EXPORT virtual std::vector<int> getDistributionOfTypes() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const = 0;
     MEDCOUPLING_EXPORT virtual void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const = 0;

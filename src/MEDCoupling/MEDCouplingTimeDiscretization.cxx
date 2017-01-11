@@ -200,9 +200,28 @@ bool MEDCouplingTimeDiscretization::isStrictlyBefore(const MEDCouplingTimeDiscre
   return time1<time2;
 }
 
+MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::computeVectorFieldCyl(const DataArrayDouble *coords, const double center[3], const double vect[3]) const
+{
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
+  ret->setTimeUnit(getTimeUnit());
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MCAuto<DataArrayDouble> > arrays2(arrays.size());
+  for(std::size_t j=0;j<arrays.size();j++)
+    {
+      if(arrays[j])
+        arrays2[j]=arrays[j]->fromCartToCylGiven(coords,center,vect);
+    }
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(std::size_t j=0;j<arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  ret->setArrays(arrays3,0);
+  return ret;
+}
+
 MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::doublyContractedProduct() const
 {
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -211,8 +230,6 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::doublyContractedPr
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->doublyContractedProduct();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
@@ -230,13 +247,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::determinant() cons
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->determinant();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -251,13 +266,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::eigenValues() cons
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->eigenValues();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -272,13 +285,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::eigenVectors() con
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->eigenVectors();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -293,13 +304,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::inverse() const
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->inverse();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -314,13 +323,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::trace() const
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->trace();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -335,13 +342,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::deviator() const
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->deviator();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -356,13 +361,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::magnitude() const
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->magnitude();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -377,13 +380,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::negate() const
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->negate();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -398,13 +399,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::maxPerTuple() cons
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->maxPerTuple();
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -419,13 +418,11 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::keepSelectedCompon
     {
       if(arrays[j])
         arrays2[j]=static_cast<DataArrayDouble *>(arrays[j]->keepSelectedComponents(compoIds));
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
-  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  MEDCouplingTimeDiscretization *ret(MEDCouplingTimeDiscretization::New(getEnum()));
   ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
@@ -456,8 +453,6 @@ void MEDCouplingTimeDiscretization::changeNbOfComponents(int newNbOfComp, double
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->changeNbOfComponents(newNbOfComp,dftValue);
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
@@ -562,8 +557,6 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate f
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFunc(nbOfComp,func);
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
@@ -598,8 +591,6 @@ void MEDCouplingTimeDiscretization::applyFuncCompo(int nbOfComp, const std::stri
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFuncCompo(nbOfComp,func);
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
@@ -616,8 +607,6 @@ void MEDCouplingTimeDiscretization::applyFuncNamedCompo(int nbOfComp, const std:
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFuncNamedCompo(nbOfComp,varsOrder,func);
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
@@ -634,8 +623,6 @@ void MEDCouplingTimeDiscretization::applyFunc(const std::string& func)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFunc(func);
-      else
-        arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(std::size_t j=0;j<arrays.size();j++)
