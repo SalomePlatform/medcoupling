@@ -86,6 +86,7 @@
 %newobject MEDCoupling::DataArrayInt::BuildUnion;
 %newobject MEDCoupling::DataArrayInt::BuildIntersection;
 %newobject MEDCoupling::DataArrayInt::Range;
+%newobject MEDCoupling::DataArrayInt::indicesOfSubPart;
 %newobject MEDCoupling::DataArrayInt::fromNoInterlace;
 %newobject MEDCoupling::DataArrayInt::toNoInterlace;
 %newobject MEDCoupling::DataArrayInt::buildComplement;
@@ -2640,6 +2641,7 @@ namespace MEDCoupling
     DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *indicesOfSubPart(const DataArrayInt& partOfThis) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *toNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *selectByTupleIdSafeSlice(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);

@@ -4456,6 +4456,18 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(f.getMesh().getHiddenCppPointer(),m.getHiddenCppPointer())
         self.assertTrue(f.getArray().isEqual(expected,1e-12))
         pass
+
+    def testDAIIndicesOfSubPart(self):
+        a=DataArrayInt([9,10,0,6,4,11,3,8])
+        b=DataArrayInt([6,0,11,8])
+        c=a.indicesOfSubPart(b)
+        self.assertTrue(c.isEqual(DataArrayInt([3,2,5,7])))
+        #
+        d=DataArrayInt([9,10,0,6,4,11,0,8])
+        self.assertRaises(InterpKernelException,d.indicesOfSubPart,b) # 0 appears twice in the d array
+        f=DataArrayInt([6,0,11,8,12])
+        self.assertRaises(InterpKernelException,a.indicesOfSubPart,f) # 12 in f does not exist in a
+        pass
     
     pass
 

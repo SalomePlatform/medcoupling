@@ -5620,6 +5620,48 @@ DataArrayInt *DataArrayInt::buildPermutationArr(const DataArrayInt& other) const
   return ret.retn();
 }
 
+/*!
+ * Elements of \a partOfThis are expected to be included in \a this.
+ * The returned array \a ret is so that this[ret]==partOfThis
+ *
+ * For example, if \a this array contents are [9,10,0,6,4,11,3,8] and if \a partOfThis contains [6,0,11,8]
+ * the return array will contain [3,2,5,7].
+ *
+ * \a this is expected to be a 1 compo allocated array.
+ * \param [in] partOfThis - A 1 compo allocated array
+ * \return - A newly allocated array to be dealed by caller having the same number of tuples than \a partOfThis.
+ * \throw if two same element is present twice in \a this
+ * \throw if an element in \a partOfThis is \b NOT in \a this.
+ */
+DataArrayInt *DataArrayInt::indicesOfSubPart(const DataArrayInt& partOfThis) const
+{
+  if(getNumberOfComponents()!=1 || partOfThis.getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : this and input array must be one component array !");
+  checkAllocated(); partOfThis.checkAllocated();
+  int thisNbTuples(getNumberOfTuples()),nbTuples(partOfThis.getNumberOfTuples());
+  const int *thisPt(begin()),*pt(partOfThis.begin());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
+  ret->alloc(nbTuples,1);
+  int *retPt(ret->getPointer());
+  std::map<int,int> m;
+  for(int i=0;i<thisNbTuples;i++,thisPt++)
+    m[*thisPt]=i;
+  if(m.size()!=thisNbTuples)
+    throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : some elements appears more than once !");
+  for(int i=0;i<nbTuples;i++,retPt++,pt++)
+    {
+      std::map<int,int>::const_iterator it(m.find(*pt));
+      if(it!=m.end())
+        *retPt=(*it).second;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::indicesOfSubPart : At pos #" << i << " of input array value is " << *pt << " not in this !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+  return ret.retn();
+}
+
 void DataArrayInt::aggregate(const DataArrayInt *other)
 {
   if(!other)
