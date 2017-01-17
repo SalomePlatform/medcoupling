@@ -19,6 +19,10 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDFileData.hxx"
+#include "MEDLoaderBase.hxx"
+#include "MEDFileSafeCaller.txx"
+
+#include "InterpKernelAutoPtr.hxx"
 
 using namespace MEDCoupling;
 
@@ -41,13 +45,13 @@ MEDFileData *MEDFileData::New()
 MEDFileData *MEDFileData::deepCopy() const
 {
   MCAuto<MEDFileFields> fields;
-  if((const MEDFileFields *)_fields)
+  if(_fields.isNotNull())
     fields=_fields->deepCopy();
   MCAuto<MEDFileMeshes> meshes;
-  if((const MEDFileMeshes *)_meshes)
+  if(_meshes.isNotNull())
     meshes=_meshes->deepCopy();
   MCAuto<MEDFileParameters> params;
-  if((const MEDFileParameters *)_params)
+  if(_params.isNotNull())
     params=_params->deepCopy();
   MCAuto<MEDFileData> ret(MEDFileData::New());
   ret->_fields=fields; ret->_meshes=meshes; ret->_params=params;
@@ -56,7 +60,7 @@ MEDFileData *MEDFileData::deepCopy() const
 
 std::size_t MEDFileData::getHeapMemorySizeWithoutChildren() const
 {
-  return 0;
+  return _header.capacity();
 }
 
 std::vector<const BigMemoryObject *> MEDFileData::getDirectChildrenWithNull() const
@@ -300,9 +304,10 @@ MEDFileData::MEDFileData()
 MEDFileData::MEDFileData(med_idt fid)
 try
 {
-    _fields=MEDFileFields::New(fid);
-    _meshes=MEDFileMeshes::New(fid);
-    _params=MEDFileParameters::New(fid);
+  readHeader(fid);
+  _fields=MEDFileFields::New(fid);
+  _meshes=MEDFileMeshes::New(fid);
+  _params=MEDFileParameters::New(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -311,6 +316,7 @@ catch(INTERP_KERNEL::Exception& e)
 
 void MEDFileData::writeLL(med_idt fid) const
 {
+  writeHeader(fid);
   const MEDFileMeshes *ms(_meshes);
   if(ms)
     ms->writeLL(fid);
@@ -320,4 +326,29 @@ void MEDFileData::writeLL(med_idt fid) const
   const MEDFileParameters *ps(_params);
   if(ps)
     ps->writeLL(fid);
+}
+
+std::string MEDFileData::getHeader() const
+{
+  return _header;
+}
+
+
+void MEDFileData::setHeader(const std::string& header)
+{
+  _header=header;
+}
+
+void MEDFileData::readHeader(med_idt fid)
+{
+  INTERP_KERNEL::AutoPtr<char> header(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
+  MEDFILESAFECALLERRD0(MEDfileCommentRd,(fid,header));
+  _header=MEDLoaderBase::buildStringFromFortran(header,MED_COMMENT_SIZE);
+}
+
+void MEDFileData::writeHeader(med_idt fid) const
+{
+  INTERP_KERNEL::AutoPtr<char> header(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
+  MEDLoaderBase::safeStrCpy(_header.c_str(),MED_COMMENT_SIZE,header,_too_long_str);
+  MEDFILESAFECALLERWR0(MEDfileCommentWr,(fid,header));
 }

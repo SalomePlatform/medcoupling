@@ -3595,6 +3595,8 @@ namespace MEDCoupling
     //
     bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName) throw(INTERP_KERNEL::Exception);
     bool unPolyzeMeshes() throw(INTERP_KERNEL::Exception);
+    std::string getHeader() const throw(INTERP_KERNEL::Exception);
+    void setHeader(const std::string& header) throw(INTERP_KERNEL::Exception);
     //
     %extend
        {
