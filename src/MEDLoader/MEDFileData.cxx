@@ -70,6 +70,7 @@ std::vector<const BigMemoryObject *> MEDFileData::getDirectChildrenWithNull() co
   ret.push_back((const MEDFileMeshes *)_meshes);
   ret.push_back((const MEDFileParameters *)_params);
   ret.push_back((const MEDFileMeshSupports *)_mesh_supports);
+  ret.push_back((const MEDFileStructureElements *)_struct_elems);
   return ret;
 
 }
@@ -310,6 +311,7 @@ try
   _meshes=MEDFileMeshes::New(fid);
   _params=MEDFileParameters::New(fid);
   _mesh_supports=MEDFileMeshSupports::New(fid);
+  _struct_elems=MEDFileStructureElements::New(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -327,6 +329,8 @@ void MEDFileData::writeLL(med_idt fid) const
     _params->writeLL(fid);
   if(_mesh_supports.isNotNull())
     _mesh_supports->writeLL(fid);
+  if(_struct_elems.isNotNull())
+    _struct_elems->writeLL(fid);
 }
 
 std::string MEDFileData::getHeader() const

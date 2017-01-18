@@ -26,6 +26,7 @@
 #include "MEDFileField.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileMeshSupport.hxx"
+#include "MEDFileStructureElement.hxx"
 
 namespace MEDCoupling
 {
@@ -73,6 +74,7 @@ namespace MEDCoupling
     MCAuto<MEDFileMeshes> _meshes;
     MCAuto<MEDFileParameters> _params;
     MCAuto<MEDFileMeshSupports> _mesh_supports;
+    MCAuto<MEDFileStructureElements> _struct_elems;
     std::string _header;
   };
 }

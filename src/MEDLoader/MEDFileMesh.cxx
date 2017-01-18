@@ -34,6 +34,8 @@
 #include <limits>
 #include <cmath>
 
+extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
+extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmai3[34];
 
 using namespace MEDCoupling;
@@ -7396,4 +7398,15 @@ MEDFileMesh *MEDFileMeshesIterator::nextt()
     }
   else
     return 0;
+}
+
+INTERP_KERNEL::NormalizedCellType MEDFileMesh::ConvertFromMEDFile(med_geometry_type geoType)
+{
+  med_geometry_type *pos(std::find(typmai,typmai+MED_N_CELL_FIXED_GEO,geoType));
+  if(pos==typmai+MED_N_CELL_FIXED_GEO)
+    {
+      std::ostringstream oss; oss << "MEDFileMesh::ConvertFromMEDFile : no entry with " << geoType << " !"; 
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  return typmai2[std::distance(typmai,pos)];
 }
