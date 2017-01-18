@@ -69,6 +69,7 @@ std::vector<const BigMemoryObject *> MEDFileData::getDirectChildrenWithNull() co
   ret.push_back((const MEDFileFields *)_fields);
   ret.push_back((const MEDFileMeshes *)_meshes);
   ret.push_back((const MEDFileParameters *)_params);
+  ret.push_back((const MEDFileMeshSupports *)_mesh_supports);
   return ret;
 
 }
@@ -308,6 +309,7 @@ try
   _fields=MEDFileFields::New(fid);
   _meshes=MEDFileMeshes::New(fid);
   _params=MEDFileParameters::New(fid);
+  _mesh_supports=MEDFileMeshSupports::New(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -317,15 +319,14 @@ catch(INTERP_KERNEL::Exception& e)
 void MEDFileData::writeLL(med_idt fid) const
 {
   writeHeader(fid);
-  const MEDFileMeshes *ms(_meshes);
-  if(ms)
-    ms->writeLL(fid);
-  const MEDFileFields *fs(_fields);
-  if(fs)
-    fs->writeLL(fid);
-  const MEDFileParameters *ps(_params);
-  if(ps)
-    ps->writeLL(fid);
+  if(_meshes.isNotNull())
+    _meshes->writeLL(fid);
+  if(_fields.isNotNull())
+    _fields->writeLL(fid);
+  if(_params.isNotNull())
+    _params->writeLL(fid);
+  if(_mesh_supports.isNotNull())
+    _mesh_supports->writeLL(fid);
 }
 
 std::string MEDFileData::getHeader() const
@@ -342,8 +343,9 @@ void MEDFileData::setHeader(const std::string& header)
 void MEDFileData::readHeader(med_idt fid)
 {
   INTERP_KERNEL::AutoPtr<char> header(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
-  MEDFILESAFECALLERRD0(MEDfileCommentRd,(fid,header));
-  _header=MEDLoaderBase::buildStringFromFortran(header,MED_COMMENT_SIZE);
+  int ret(MEDfileCommentRd(fid,header));
+  if(ret==0)
+    _header=MEDLoaderBase::buildStringFromFortran(header,MED_COMMENT_SIZE);
 }
 
 void MEDFileData::writeHeader(med_idt fid) const

@@ -67,11 +67,12 @@ namespace MEDCoupling
     MEDFileData(med_idt fid);
     void readHeader(med_idt fid);
     void writeHeader(med_idt fid) const;
+    void readMeshSupports(med_idt fid);
   private:
     MCAuto<MEDFileFields> _fields;
     MCAuto<MEDFileMeshes> _meshes;
     MCAuto<MEDFileParameters> _params;
-    std::vector< MCAuto<MEDFileMeshSupport> > _mesh_supports;
+    MCAuto<MEDFileMeshSupports> _mesh_supports;
     std::string _header;
   };
 }
