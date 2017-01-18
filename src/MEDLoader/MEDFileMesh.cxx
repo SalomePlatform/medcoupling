@@ -2667,7 +2667,7 @@ void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, 
   int dummy0,dummy1;
   std::string dummy2;
   MEDCoupling::MEDCouplingAxisType dummy3;
-  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2));
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2));
   if(meshType!=UNSTRUCTURED)
     {
       std::ostringstream oss; oss << "loadPartUMeshFromFile : Trying to load as unstructured an existing mesh with name '" << mName << "' !";
@@ -2794,7 +2794,7 @@ void MEDFileUMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
   int dummy0,dummy1;
   std::string dummy2;
   MEDCoupling::MEDCouplingAxisType axType;
-  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dummy2));
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dummy2));
   setAxisType(axType);
   if(meshType!=UNSTRUCTURED)
     {
@@ -6598,7 +6598,7 @@ void MEDFileCMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
   int dummy0,dummy1;
   std::string dtunit;
   MEDCoupling::MEDCouplingAxisType axType;
-  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit);
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit));
   if(meshType!=CARTESIAN)
     {
       std::ostringstream oss; oss << "Trying to load as cartesian an existing mesh with name '" << mName << "' that is NOT cartesian !";
@@ -6936,7 +6936,7 @@ void MEDFileCurveLinearMesh::loadLL(med_idt fid, const std::string& mName, int d
   int dummy0,dummy1;
   std::string dtunit;
   MEDCoupling::MEDCouplingAxisType axType;
-  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit);
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit));
   setAxisType(axType);
   if(meshType!=CURVE_LINEAR)
     {
