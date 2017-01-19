@@ -7400,13 +7400,31 @@ MEDFileMesh *MEDFileMeshesIterator::nextt()
     return 0;
 }
 
-INTERP_KERNEL::NormalizedCellType MEDFileMesh::ConvertFromMEDFile(med_geometry_type geoType)
+INTERP_KERNEL::NormalizedCellType MEDFileMesh::ConvertFromMEDFileGeoType(med_geometry_type geoType)
 {
   med_geometry_type *pos(std::find(typmai,typmai+MED_N_CELL_FIXED_GEO,geoType));
   if(pos==typmai+MED_N_CELL_FIXED_GEO)
     {
-      std::ostringstream oss; oss << "MEDFileMesh::ConvertFromMEDFile : no entry with " << geoType << " !"; 
+      if(geoType==MED_NO_GEOTYPE)
+        return INTERP_KERNEL::NORM_ERROR;
+      std::ostringstream oss; oss << "MEDFileMesh::ConvertFromMEDFileGeoType : no entry with " << geoType << " !"; 
       throw INTERP_KERNEL::Exception(oss.str());
     }
   return typmai2[std::distance(typmai,pos)];
+}
+
+TypeOfField MEDFileMesh::ConvertFromMEDFileEntity(med_entity_type etype)
+{
+  switch(etype)
+    {
+    case MED_NODE:
+      return ON_NODES;
+    case MED_CELL:
+      return ON_CELLS;
+    default:
+      {
+        std::ostringstream oss; oss << "EDFileMesh::ConvertFromMEDFileEntity : not recognized entity " << etype << " !";
+        throw INTERP_KERNEL::Exception(oss.str());
+      }
+    }
 }

@@ -29,21 +29,74 @@
 
 namespace MEDCoupling
 {
-  class MEDFileStructureElement : public RefCountObject, public MEDFileWritableStandAlone
+  class MEDFileStructureElement;
+  
+  class MEDFileSEHolder
+  {
+  protected:
+    MEDFileSEHolder(MEDFileStructureElement *father):_father(father) { }
+    std::string getModelName() const;
+    void setName(const std::string& name);
+    std::size_t getHeapMemorySizeLoc() const;
+  private:
+    MEDFileStructureElement *_father;
+    std::string _name;
+  };
+  
+class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlone, public MEDFileSEHolder
   {
   public:
-    MEDLOADER_EXPORT static MEDFileStructureElement *New(med_idt fid, int idSE);
+    static MEDFileSEConstAtt *New(med_idt fid, MEDFileStructureElement *father, int idCstAtt);
+  public:
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    void writeLL(med_idt fid) const;
+    void setProfile(const std::string& name);
+    std::string getProfile() const;
+  private:
+    MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *father, int idCstAtt);
+  private:
+    std::string _pfl;
+    TypeOfField _tof;
+    MCAuto<DataArray> _val;
+  };
+  
+  class MEDFileSEVarAtt : public RefCountObject, public MEDFileWritableStandAlone, public MEDFileSEHolder
+  {
+  public:
+    static MEDFileSEVarAtt *New(med_idt fid, MEDFileStructureElement *father, int idVarAtt);
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     void writeLL(med_idt fid) const;
   private:
+    MEDFileSEVarAtt(med_idt fid, MEDFileStructureElement *father, int idVarAtt);
+  private:
+    int _nb_compo;
+    MCAuto<DataArray> _gen;
+  };
+  
+  class MEDFileStructureElement : public RefCountObject, public MEDFileWritableStandAlone
+  {
+  public:
+    MEDLOADER_EXPORT static MEDFileStructureElement *New(med_idt fid, int idSE);
+    MEDLOADER_EXPORT std::string getName() const;
+  public:
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    void writeLL(med_idt fid) const;
+  public:
+    static MCAuto<DataArray> BuildFrom(med_attribute_type mat);
+    static int EffectiveNbCompo(med_attribute_type mat, int nbCompo);
+  private:
     MEDFileStructureElement(med_idt fid, int idSE);
   private:
     int _id_type;
-    std::string _model_name;
+    std::string _name;
     INTERP_KERNEL::NormalizedCellType _geo_type;
     int _dim;
+    std::vector< MCAuto<MEDFileSEConstAtt> > _cst_att;
+    std::vector< MCAuto<MEDFileSEVarAtt> > _var_att;
   };
   
   class MEDFileStructureElements : public RefCountObject, public MEDFileWritableStandAlone

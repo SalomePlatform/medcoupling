@@ -195,7 +195,8 @@ namespace MEDCoupling
     const MEDFileEquivalences *getEquivalences() const { return _equiv; }
     void killEquivalences() { _equiv=(MEDFileEquivalences *)0; }
     void initializeEquivalences() { _equiv=MEDFileEquivalences::New(this); }
-    static INTERP_KERNEL::NormalizedCellType ConvertFromMEDFile(med_geometry_type geoType);
+    static INTERP_KERNEL::NormalizedCellType ConvertFromMEDFileGeoType(med_geometry_type geoType);
+    static TypeOfField ConvertFromMEDFileEntity(med_entity_type etype);
   protected:
     MEDFileMesh();
     //! protected because no way in MED file API to specify this name

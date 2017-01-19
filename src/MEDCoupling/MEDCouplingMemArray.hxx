@@ -148,6 +148,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const std::string& info);
     MEDCOUPLING_EXPORT std::size_t getNumberOfComponents() const { return _info_on_compo.size(); }
     MEDCOUPLING_EXPORT void setPartOfValuesBase3(const DataArray *aBase, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
+    MEDCOUPLING_EXPORT virtual void *getVoidStarPointer() = 0;
     MEDCOUPLING_EXPORT virtual DataArray *deepCopy() const = 0;
     MEDCOUPLING_EXPORT virtual DataArray *buildNewEmptyInstance() const = 0;
     MEDCOUPLING_EXPORT virtual bool isAllocated() const = 0;
@@ -215,6 +216,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
     MEDCOUPLING_EXPORT std::size_t getNbOfElems() const { return _mem.getNbOfElem(); }
     bool empty() const;
+    MEDCOUPLING_EXPORT void *getVoidStarPointer() { return getPointer(); }
     MEDCOUPLING_EXPORT const T *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT const T *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const T *end() const { return getConstPointer()+getNbOfElems(); }
