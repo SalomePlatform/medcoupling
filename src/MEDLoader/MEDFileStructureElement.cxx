@@ -19,6 +19,7 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileStructureElement.hxx"
+#include "MEDFileMeshSupport.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileMeshLL.hxx"
 #include "MEDFileSafeCaller.txx"
@@ -45,12 +46,12 @@ std::size_t MEDFileSEHolder::getHeapMemorySizeLoc() const
 
 ////////////////////
 
-MEDFileSEConstAtt *MEDFileSEConstAtt::New(med_idt fid, MEDFileStructureElement *father, int idCstAtt)
+MEDFileSEConstAtt *MEDFileSEConstAtt::New(med_idt fid, MEDFileStructureElement *father, int idCstAtt, const MEDFileUMesh *mesh)
 {
-  return new MEDFileSEConstAtt(fid,father,idCstAtt);
+  return new MEDFileSEConstAtt(fid,father,idCstAtt,mesh);
 }
 
-MEDFileSEConstAtt::MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *father, int idCstAtt):MEDFileSEHolder(father)
+MEDFileSEConstAtt::MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *father, int idCstAtt, const MEDFileUMesh *mesh):MEDFileSEHolder(father)
 {
   std::string modelName(getModelName());
   INTERP_KERNEL::AutoPtr<char> constattname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),profilename(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
@@ -67,7 +68,26 @@ MEDFileSEConstAtt::MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *fathe
   _val=MEDFileStructureElement::BuildFrom(constatttype);
   nbCompo=MEDFileStructureElement::EffectiveNbCompo(constatttype,nbCompo);
   if(pflSz==0 && getProfile().empty())
-    pflSz=1;
+    {
+      switch(met)
+        {
+        case MED_CELL:
+          {
+            std::vector<INTERP_KERNEL::NormalizedCellType> gt(mesh->getAllGeoTypes());
+            if(gt.size()!=1)
+              throw INTERP_KERNEL::Exception("MEDFileSEConstAtt constr : only one cell type expected !");
+            pflSz=mesh->getNumberOfCellsWithType(gt[0]);
+            break;
+          }
+        case MED_NODE:
+          {
+            pflSz=mesh->getNumberOfNodes();
+            break;
+          }
+        default:
+          throw INTERP_KERNEL::Exception("MEDFileSEConstAtt cstr : not recognized entity type !");
+        }
+    }
   if(constatttype==MED_ATT_NAME)
     pflSz++;
   std::cerr << "******* " << pflSz << std::endl;
@@ -140,12 +160,12 @@ void MEDFileSEVarAtt::writeLL(med_idt fid) const
 
 ////////////////////
 
-MEDFileStructureElement *MEDFileStructureElement::New(med_idt fid, int idSE)
+MEDFileStructureElement *MEDFileStructureElement::New(med_idt fid, int idSE, const MEDFileMeshSupports *ms)
 {
-  return new MEDFileStructureElement(fid,idSE);
+  return new MEDFileStructureElement(fid,idSE,ms);
 }
 
-MEDFileStructureElement::MEDFileStructureElement(med_idt fid, int idSE)
+MEDFileStructureElement::MEDFileStructureElement(med_idt fid, int idSE, const MEDFileMeshSupports *ms)
 {
   INTERP_KERNEL::AutoPtr<char> modelName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),supportMeshName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   med_geometry_type sgeoType;
@@ -157,10 +177,11 @@ MEDFileStructureElement::MEDFileStructureElement(med_idt fid, int idSE)
     MEDFILESAFECALLERRD0(MEDstructElementInfo,(fid,idSE+1,modelName,&_id_type,&_dim,supportMeshName,&entiyType,&nnode,&ncell,&sgeoType,&nConsAttr,&anyPfl,&nVarAttr));
   }
   _name=MEDLoaderBase::buildStringFromFortran(modelName,MED_NAME_SIZE);
+  _sup_mesh_name=MEDLoaderBase::buildStringFromFortran(supportMeshName,MED_NAME_SIZE);
   _geo_type=MEDFileMesh::ConvertFromMEDFileGeoType(sgeoType);
   _cst_att.resize(nConsAttr);
   for(int i=0;i<nConsAttr;i++)
-    _cst_att[i]=MEDFileSEConstAtt::New(fid,this,i);
+    _cst_att[i]=MEDFileSEConstAtt::New(fid,this,i,ms->getSupMeshWithName(_sup_mesh_name));
   _var_att.resize(nVarAttr);
   for(int i=0;i<nVarAttr;i++)
     _var_att[i]=MEDFileSEVarAtt::New(fid,this,i);
@@ -232,9 +253,9 @@ int MEDFileStructureElement::EffectiveNbCompo(med_attribute_type mat, int nbComp
 
 ////////////////////
 
-MEDFileStructureElements *MEDFileStructureElements::New(med_idt fid)
+MEDFileStructureElements *MEDFileStructureElements::New(med_idt fid, const MEDFileMeshSupports *ms)
 {
-  return new MEDFileStructureElements(fid);
+  return new MEDFileStructureElements(fid,ms);
 }
 
 MEDFileStructureElements *MEDFileStructureElements::New()
@@ -259,12 +280,12 @@ void MEDFileStructureElements::writeLL(med_idt fid) const
 {
 }
 
-MEDFileStructureElements::MEDFileStructureElements(med_idt fid)
+MEDFileStructureElements::MEDFileStructureElements(med_idt fid, const MEDFileMeshSupports *ms)
 {
   int nbSE(MEDnStructElement(fid));
   _elems.resize(nbSE);
   for(int i=0;i<nbSE;i++)
-    _elems[i]=MEDFileStructureElement::New(fid,i);
+    _elems[i]=MEDFileStructureElement::New(fid,i,ms);
 }
 
 MEDFileStructureElements::MEDFileStructureElements()

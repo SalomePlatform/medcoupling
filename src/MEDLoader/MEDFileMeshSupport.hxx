@@ -38,6 +38,7 @@ namespace MEDCoupling
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     void writeLL(med_idt fid) const;
+    const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
   private:
     MEDFileMeshSupports(med_idt fid);
     MEDFileMeshSupports();

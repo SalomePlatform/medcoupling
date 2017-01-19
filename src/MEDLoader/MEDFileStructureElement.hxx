@@ -30,6 +30,8 @@
 namespace MEDCoupling
 {
   class MEDFileStructureElement;
+  class MEDFileMeshSupports;
+  class MEDFileUMesh;
   
   class MEDFileSEHolder
   {
@@ -46,7 +48,7 @@ namespace MEDCoupling
 class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlone, public MEDFileSEHolder
   {
   public:
-    static MEDFileSEConstAtt *New(med_idt fid, MEDFileStructureElement *father, int idCstAtt);
+    static MEDFileSEConstAtt *New(med_idt fid, MEDFileStructureElement *father, int idCstAtt, const MEDFileUMesh *mesh);
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -54,7 +56,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     void setProfile(const std::string& name);
     std::string getProfile() const;
   private:
-    MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *father, int idCstAtt);
+    MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *father, int idCstAtt, const MEDFileUMesh *mesh);
   private:
     std::string _pfl;
     TypeOfField _tof;
@@ -79,7 +81,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
   class MEDFileStructureElement : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
-    MEDLOADER_EXPORT static MEDFileStructureElement *New(med_idt fid, int idSE);
+    MEDLOADER_EXPORT static MEDFileStructureElement *New(med_idt fid, int idSE, const MEDFileMeshSupports *ms);
     MEDLOADER_EXPORT std::string getName() const;
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -89,10 +91,11 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     static MCAuto<DataArray> BuildFrom(med_attribute_type mat);
     static int EffectiveNbCompo(med_attribute_type mat, int nbCompo);
   private:
-    MEDFileStructureElement(med_idt fid, int idSE);
+    MEDFileStructureElement(med_idt fid, int idSE, const MEDFileMeshSupports *ms);
   private:
     int _id_type;
     std::string _name;
+    std::string _sup_mesh_name;
     INTERP_KERNEL::NormalizedCellType _geo_type;
     int _dim;
     std::vector< MCAuto<MEDFileSEConstAtt> > _cst_att;
@@ -102,14 +105,14 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
   class MEDFileStructureElements : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
-    MEDLOADER_EXPORT static MEDFileStructureElements *New(med_idt fid);
+    MEDLOADER_EXPORT static MEDFileStructureElements *New(med_idt fid, const MEDFileMeshSupports *ms);
     MEDLOADER_EXPORT static MEDFileStructureElements *New();
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     void writeLL(med_idt fid) const;
   private:
-    MEDFileStructureElements(med_idt fid);
+    MEDFileStructureElements(med_idt fid, const MEDFileMeshSupports *ms);
     MEDFileStructureElements();
     ~MEDFileStructureElements();
   private:

@@ -307,11 +307,11 @@ MEDFileData::MEDFileData(med_idt fid)
 try
 {
   readHeader(fid);
+  _mesh_supports=MEDFileMeshSupports::New(fid);
+  _struct_elems=MEDFileStructureElements::New(fid,_mesh_supports);
   _fields=MEDFileFields::New(fid);
   _meshes=MEDFileMeshes::New(fid);
   _params=MEDFileParameters::New(fid);
-  _mesh_supports=MEDFileMeshSupports::New(fid);
-  _struct_elems=MEDFileStructureElements::New(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
 {

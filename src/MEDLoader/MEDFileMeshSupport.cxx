@@ -83,3 +83,24 @@ void MEDFileMeshSupports::writeLL(med_idt fid) const
     if((*it).isNotNull())
       (*it)->writeLL(fid);
 }
+
+const MEDFileUMesh *MEDFileMeshSupports::getSupMeshWithName(const std::string& name) const
+{
+  std::vector<std::string> mns;
+  for(std::vector< MCAuto<MEDFileUMesh> >::const_iterator it=_supports.begin();it!=_supports.end();it++)
+    {
+      if((*it).isNotNull())
+        {
+          std::string na((*it)->getName());
+          if(na==name)
+            return *it;
+          else
+            mns.push_back(na);
+        }
+    }
+  std::ostringstream oss;
+  oss << "MEDFileMeshSupports::getSupMeshWithName : no such name \"" << name << "\". Possibilitities are :";
+  std::copy(mns.begin(),mns.end(),std::ostream_iterator<std::string>(oss,","));
+  oss << " !";
+  throw INTERP_KERNEL::Exception(oss.str());
+}
