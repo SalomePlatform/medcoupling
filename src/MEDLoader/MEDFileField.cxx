@@ -2674,8 +2674,7 @@ MFFPMIter *MFFPMIter::NewCell(const MEDFileEntities *entities)
             }
           return new MFFPMIter2(tmp);
         }
-      else
-        throw INTERP_KERNEL::Exception("MFFPMIter::NewCell : not recognized type !");
+      return new MFFPMIterSimple;// for MEDFileAllStaticEntites and MEDFileAllStaticEntitiesPlusDyn cells are in
     }
 }
 
@@ -2694,8 +2693,7 @@ bool MFFPMIter::IsPresenceOfNode(const MEDFileEntities *entities)
               return true;
           return false;
         }
-      else
-        throw INTERP_KERNEL::Exception("MFFPMIter::IsPresenceOfNode : not recognized type !");
+      return true;// for MEDFileAllStaticEntites and MEDFileAllStaticEntitiesPlusDyn nodes are in
     }
 }
 
@@ -10146,6 +10144,11 @@ MEDFileFields *MEDFileFields::New(const std::string& fileName, bool loadAll)
 MEDFileFields *MEDFileFields::NewWithDynGT(const std::string& fileName, const MEDFileStructureElements *se, bool loadAll)
 {
   MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return NewWithDynGT(fid,se,loadAll);
+}
+
+MEDFileFields *MEDFileFields::NewWithDynGT(med_idt fid, const MEDFileStructureElements *se, bool loadAll)
+{
   if(!se)
     throw INTERP_KERNEL::Exception("MEDFileFields::NewWithDynGT : null struct element pointer !");
   INTERP_KERNEL::AutoCppPtr<MEDFileEntities> entities(MEDFileEntities::BuildFrom(*se));
