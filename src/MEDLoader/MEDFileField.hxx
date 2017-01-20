@@ -196,7 +196,6 @@ namespace MEDCoupling
     void loadOnlyStructureOfDataRecursively(med_idt fid, int &start, const MEDFileFieldNameScope& nasc);
     void loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc);
     void writeLL(med_idt fid, const MEDFileFieldNameScope& nasc) const;
-    void getDimension(int& dim) const;
     bool isUniqueLevel(int& dim) const;
     void fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const;
     void fillFieldSplitedByType(std::vector< std::pair<int,int> >& dads, std::vector<TypeOfField>& types, std::vector<std::string>& pfls, std::vector<std::string>& locs) const;
@@ -204,9 +203,7 @@ namespace MEDCoupling
     int getOrder() const;
     double getTime() const;
     std::string getMeshName() const;
-    void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
     void getSizes(int& globalSz, int& nbOfEntries) const;
-    INTERP_KERNEL::NormalizedCellType getGeoType() const;
     int getNumberOfComponents() const;
     bool presenceOfMultiDiscPerGeoType() const;
     DataArray *getOrCreateAndGetArray();
@@ -221,14 +218,20 @@ namespace MEDCoupling
     MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenLocId(int locId);
     const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenLocId(int locId) const;
     int getNumberOfLoc() const { return _field_pm_pt_pd.size(); }
-    void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
+    //void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
     void fillValues(int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
     void setLeaves(const std::vector< MCAuto< MEDFileFieldPerMeshPerTypePerDisc > >& leaves);
     bool keepOnlySpatialDiscretization(TypeOfField tof, int &globalNum, std::vector< std::pair<int,int> >& its);
     bool keepOnlyGaussDiscretization(std::size_t idOfDisc, int &globalNum, std::vector< std::pair<int,int> >& its);
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
     static MCAuto<MEDFileFieldPerMeshPerType> Aggregate(int &start, const std::vector< std::pair<int,const MEDFileFieldPerMeshPerType *> >& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, INTERP_KERNEL::NormalizedCellType gt, MEDFileFieldPerMesh *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo);
-    MEDFileFieldPerMeshPerTypeCommon(MEDFileFieldPerMesh *father, INTERP_KERNEL::NormalizedCellType gt):_father(father),_geo_type(gt) { }
+    MEDFileFieldPerMeshPerTypeCommon(MEDFileFieldPerMesh *father):_father(father) { }
+  public:
+    virtual ~MEDFileFieldPerMeshPerTypeCommon();
+    virtual void getDimension(int& dim) const = 0;
+    virtual INTERP_KERNEL::NormalizedCellType getGeoType() const = 0;
+    virtual void simpleRepr(int bkOffset, std::ostream& oss, int id) const = 0;
+    virtual std::string getGeoTypeRepr() const = 0;
   protected:
     void setFather(MEDFileFieldPerMesh *father);
     void deepCopyElements();
@@ -236,11 +239,10 @@ namespace MEDCoupling
     std::vector<int> addNewEntryIfNecessaryGauss(const MEDCouplingFieldDouble *field, int offset, int nbOfCells);
     std::vector<int> addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, const DataArrayInt *subCells);
     std::vector<int> addNewEntryIfNecessaryGauss(const MEDCouplingFieldDouble *field, const DataArrayInt *subCells);
-    MEDFileFieldPerMeshPerTypeCommon(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const MEDFileFieldNameScope& nasc, const PartDefinition *pd);
   private:
     MEDFileFieldPerMesh *_father;
+  protected:
     std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> > _field_pm_pt_pd;
-    INTERP_KERNEL::NormalizedCellType _geo_type;
   };
 
   class MEDFileFieldPerMeshPerType : public MEDFileFieldPerMeshPerTypeCommon
@@ -248,10 +250,18 @@ namespace MEDCoupling
   public:
     static MEDFileFieldPerMeshPerType *New(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType);
     static MEDFileFieldPerMeshPerType *NewOnRead(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const MEDFileFieldNameScope& nasc, const PartDefinition *pd);
-    MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *father, INTERP_KERNEL::NormalizedCellType gt):MEDFileFieldPerMeshPerTypeCommon(father,gt) { }
     MEDFileFieldPerMeshPerType *deepCopy(MEDFileFieldPerMesh *father) const;
+    void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
+  public:
+    void getDimension(int& dim) const;
+    INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
+    std::string getGeoTypeRepr() const;
   private:
-    MEDFileFieldPerMeshPerType(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const MEDFileFieldNameScope& nasc, const PartDefinition *pd):MEDFileFieldPerMeshPerTypeCommon(fid,fath,type,geoType,nasc,pd) { }
+    MEDFileFieldPerMeshPerType(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const MEDFileFieldNameScope& nasc, const PartDefinition *pd);
+    MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *father, INTERP_KERNEL::NormalizedCellType gt);
+  private:
+    INTERP_KERNEL::NormalizedCellType _geo_type;
   };
   
   class MEDFileMesh;

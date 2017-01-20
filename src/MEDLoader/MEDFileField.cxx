@@ -662,6 +662,11 @@ TypeOfField MEDFileFieldPerMeshPerTypePerDisc::getType() const
   return _type;
 }
 
+INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypePerDisc::getGeoType() const
+{
+  return _father->getGeoType();
+}
+
 void MEDFileFieldPerMeshPerTypePerDisc::fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const
 {
   types.insert(_type);
@@ -670,11 +675,6 @@ void MEDFileFieldPerMeshPerTypePerDisc::fillTypesOfFieldAvailable(std::set<TypeO
 void MEDFileFieldPerMeshPerTypePerDisc::setType(TypeOfField newType)
 {
   _type=newType;
-}
-
-INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypePerDisc::getGeoType() const
-{
-  return _father->getGeoType();
 }
 
 int MEDFileFieldPerMeshPerTypePerDisc::getNumberOfComponents() const
@@ -1049,6 +1049,10 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::NewObjectO
 
 ////////////////////////////////////
 
+MEDFileFieldPerMeshPerTypeCommon::~MEDFileFieldPerMeshPerTypeCommon()
+ {
+ }
+
 void MEDFileFieldPerMeshPerTypeCommon::setFather(MEDFileFieldPerMesh *father)
 {
   _father=father;
@@ -1266,16 +1270,9 @@ const MEDFileFieldPerMesh *MEDFileFieldPerMeshPerTypeCommon::getFather() const
   return _father;
 }
 
-void MEDFileFieldPerMeshPerTypeCommon::getDimension(int& dim) const
-{
-  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
-  int curDim((int)cm.getDimension());
-  dim=std::max(dim,curDim);
-}
-
 bool MEDFileFieldPerMeshPerTypeCommon::isUniqueLevel(int& dim) const
 {
-  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getGeoType()));
   int curDim((int)cm.getDimension());
   if(dim!=std::numeric_limits<int>::max())
     {
@@ -1325,33 +1322,6 @@ std::string MEDFileFieldPerMeshPerTypeCommon::getMeshName() const
   return _father->getMeshName();
 }
 
-void MEDFileFieldPerMeshPerTypeCommon::simpleRepr(int bkOffset, std::ostream& oss, int id) const
-{
-  const char startLine[]="  ## ";
-  std::string startLine2(bkOffset,' ');
-  std::string startLine3(startLine2);
-  startLine3+=startLine;
-  if(_geo_type!=INTERP_KERNEL::NORM_ERROR)
-    {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
-      oss << startLine3 << "Entry geometry type #" << id << " is lying on geometry types " << cm.getRepr() << "." << std::endl;
-    }
-  else
-    oss << startLine3 << "Entry geometry type #" << id << " is lying on NODES." << std::endl;
-  oss << startLine3 << "Entry is defined on " <<  _field_pm_pt_pd.size() << " localizations." << std::endl;
-  int i=0;
-  for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,i++)
-    {
-      const MEDFileFieldPerMeshPerTypePerDisc *cur=(*it);
-      if(cur)
-        cur->simpleRepr(bkOffset,oss,i);
-      else
-        {
-          oss << startLine2 << "    ## " << "Localization #" << i << " is empty !" << std::endl;
-        }
-    }
-}
-
 void MEDFileFieldPerMeshPerTypeCommon::getSizes(int& globalSz, int& nbOfEntries) const
 {
   for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
@@ -1360,12 +1330,6 @@ void MEDFileFieldPerMeshPerTypeCommon::getSizes(int& globalSz, int& nbOfEntries)
     }
   nbOfEntries+=(int)_field_pm_pt_pd.size();
 }
-
-INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypeCommon::getGeoType() const
-{
-  return _geo_type;
-}
-
 
 int MEDFileFieldPerMeshPerTypeCommon::getNumberOfComponents() const
 {
@@ -1475,15 +1439,13 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypeCommon::getLeafGive
 {
   if(_field_pm_pt_pd.empty())
     {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
-      std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypeCommon::getLeafGivenLocId : no localizations for geotype \"" << cm.getRepr() << "\" !";
+      std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypeCommon::getLeafGivenLocId : no localizations for geotype \"" << getGeoTypeRepr() << "\" !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
   if(locId>=0 && locId<(int)_field_pm_pt_pd.size())
     return _field_pm_pt_pd[locId];
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   std::ostringstream oss2; oss2 << "MEDFileFieldPerMeshPerTypeCommon::getLeafGivenLocId : no such locId available (" << locId;
-  oss2 << ") for geometric type \"" << cm.getRepr() << "\" It should be in [0," << _field_pm_pt_pd.size() << ") !";
+  oss2 << ") for geometric type \"" << getGeoTypeRepr() << "\" It should be in [0," << _field_pm_pt_pd.size() << ") !";
   throw INTERP_KERNEL::Exception(oss2.str().c_str());
   return static_cast<MEDFileFieldPerMeshPerTypePerDisc*>(0);
 }
@@ -1492,29 +1454,15 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypeCommon::getLe
 {
   if(_field_pm_pt_pd.empty())
     {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
-      std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypeCommon::getLeafGivenLocId : no localizations for geotype \"" << cm.getRepr() << "\" !";
+      std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypeCommon::getLeafGivenLocId : no localizations for geotype \"" << getGeoTypeRepr() << "\" !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
   if(locId>=0 && locId<(int)_field_pm_pt_pd.size())
     return _field_pm_pt_pd[locId];
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   std::ostringstream oss2; oss2 << "MEDFileFieldPerMeshPerTypeCommon::getLeafGivenLocId : no such locId available (" << locId;
-  oss2 << ") for geometric type \"" << cm.getRepr() << "\" It should be in [0," << _field_pm_pt_pd.size() << ") !";
+  oss2 << ") for geometric type \"" << getGeoTypeRepr() << "\" It should be in [0," << _field_pm_pt_pd.size() << ") !";
   throw INTERP_KERNEL::Exception(oss2.str().c_str());
   return static_cast<const MEDFileFieldPerMeshPerTypePerDisc*>(0);
-}
-
-void MEDFileFieldPerMeshPerTypeCommon::getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
-{
-  if(_geo_type!=INTERP_KERNEL::NORM_ERROR)
-    {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
-      if(meshDim!=(int)cm.getDimension())
-        return ;
-    }
-  for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
-    (*it)->getFieldAtLevel(type,glob,dads,pfls,locs,geoTypes);
 }
 
 void MEDFileFieldPerMeshPerTypeCommon::fillValues(int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
@@ -1574,26 +1522,6 @@ bool MEDFileFieldPerMeshPerTypeCommon::keepOnlyGaussDiscretization(std::size_t i
   its.push_back(bgEnd);
   _field_pm_pt_pd=newPmPtPd;
   return true;
-}
-
-MEDFileFieldPerMeshPerTypeCommon::MEDFileFieldPerMeshPerTypeCommon(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const MEDFileFieldNameScope& nasc, const PartDefinition *pd):_father(fath),_geo_type(geoType)
-{
-  INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> locName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  med_geometry_type mgeoti;
-  med_entity_type menti(ConvertIntoMEDFileType(type,geoType,mgeoti));
-  int nbProfiles(MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),menti,mgeoti,pflName,locName));
-  _field_pm_pt_pd.resize(nbProfiles);
-  for(int i=0;i<nbProfiles;i++)
-    {
-      _field_pm_pt_pd[i]=MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,type,i,pd);
-    }
-  if(type==ON_CELLS)
-    {
-      int nbProfiles2(MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_NODE_ELEMENT,mgeoti,pflName,locName));
-      for(int i=0;i<nbProfiles2;i++)
-        _field_pm_pt_pd.push_back(MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,ON_GAUSS_NE,i,pd));
-    }
 }
 
 void MEDFileFieldPerMeshPerTypeCommon::loadOnlyStructureOfDataRecursively(med_idt fid, int &start, const MEDFileFieldNameScope& nasc)
@@ -1657,6 +1585,87 @@ MEDFileFieldPerMeshPerType *MEDFileFieldPerMeshPerType::deepCopy(MEDFileFieldPer
   ret->setFather(father);
   ret->deepCopyElements();
   return ret.retn();
+}
+
+void MEDFileFieldPerMeshPerType::getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
+{
+  if(_geo_type!=INTERP_KERNEL::NORM_ERROR)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+      if(meshDim!=(int)cm.getDimension())
+        return ;
+    }
+  for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    (*it)->getFieldAtLevel(type,glob,dads,pfls,locs,geoTypes);
+}
+
+INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerType::getGeoType() const
+{
+  return _geo_type;
+}
+
+void MEDFileFieldPerMeshPerType::getDimension(int& dim) const
+{
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
+  int curDim((int)cm.getDimension());
+  dim=std::max(dim,curDim);
+}
+
+void MEDFileFieldPerMeshPerType::simpleRepr(int bkOffset, std::ostream& oss, int id) const
+{
+  const char startLine[]="  ## ";
+  std::string startLine2(bkOffset,' ');
+  std::string startLine3(startLine2);
+  startLine3+=startLine;
+  if(_geo_type!=INTERP_KERNEL::NORM_ERROR)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+      oss << startLine3 << "Entry geometry type #" << id << " is lying on geometry types " << cm.getRepr() << "." << std::endl;
+    }
+  else
+    oss << startLine3 << "Entry geometry type #" << id << " is lying on NODES." << std::endl;
+  oss << startLine3 << "Entry is defined on " <<  _field_pm_pt_pd.size() << " localizations." << std::endl;
+  int i=0;
+  for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,i++)
+    {
+      const MEDFileFieldPerMeshPerTypePerDisc *cur=(*it);
+      if(cur)
+        cur->simpleRepr(bkOffset,oss,i);
+      else
+        {
+          oss << startLine2 << "    ## " << "Localization #" << i << " is empty !" << std::endl;
+        }
+    }
+}
+
+std::string MEDFileFieldPerMeshPerType::getGeoTypeRepr() const
+{
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
+  return std::string(cm.getRepr());
+}
+
+MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *father, INTERP_KERNEL::NormalizedCellType gt):MEDFileFieldPerMeshPerTypeCommon(father),_geo_type(gt)
+{
+}
+
+MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const MEDFileFieldNameScope& nasc, const PartDefinition *pd):MEDFileFieldPerMeshPerTypeCommon(fath),_geo_type(geoType)
+{
+  INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> locName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  med_geometry_type mgeoti;
+  med_entity_type menti(ConvertIntoMEDFileType(type,geoType,mgeoti));
+  int nbProfiles(MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),menti,mgeoti,pflName,locName));
+  _field_pm_pt_pd.resize(nbProfiles);
+  for(int i=0;i<nbProfiles;i++)
+    {
+      _field_pm_pt_pd[i]=MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,type,i,pd);
+    }
+  if(type==ON_CELLS)
+    {
+      int nbProfiles2(MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_NODE_ELEMENT,mgeoti,pflName,locName));
+      for(int i=0;i<nbProfiles2;i++)
+        _field_pm_pt_pd.push_back(MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,ON_GAUSS_NE,i,pd));
+    }
 }
 
 //////////////////////////////////////////////////
@@ -2403,7 +2412,7 @@ MCAuto<MEDFileFieldPerMeshPerTypePerDisc> MEDFileFieldPerMeshPerTypePerDisc::Agg
 
 MCAuto<MEDFileFieldPerMeshPerType> MEDFileFieldPerMeshPerTypeCommon::Aggregate(int &start, const std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, INTERP_KERNEL::NormalizedCellType gt, MEDFileFieldPerMesh *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo)
 {
-  MCAuto<MEDFileFieldPerMeshPerType> ret(new MEDFileFieldPerMeshPerType(father,gt));
+  MCAuto<MEDFileFieldPerMeshPerType> ret(MEDFileFieldPerMeshPerType::New(father,gt));
   std::map<TypeOfField, std::vector< std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * > > > m;
   for(std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >::const_iterator it=pms.begin();it!=pms.end();it++)
     {
