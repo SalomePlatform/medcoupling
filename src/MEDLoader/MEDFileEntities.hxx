@@ -37,6 +37,7 @@ namespace MEDCoupling
     static MEDFileEntities *BuildFrom(const MEDFileStructureElements& se);
     virtual std::vector<int> getDynGTAvail() const = 0;
     virtual bool areAllStaticTypesPresent() const = 0;
+    virtual ~MEDFileEntities();
   };
 
   class MEDFileStaticEntities : public MEDFileEntities

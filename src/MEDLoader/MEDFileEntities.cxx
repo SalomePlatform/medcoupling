@@ -38,6 +38,10 @@ MEDFileEntities *MEDFileEntities::BuildFrom(const MEDFileStructureElements& se)
     return new MEDFileAllStaticEntitiesPlusDyn(&se);
 }
 
+MEDFileEntities::~MEDFileEntities()
+{
+}
+
 //////////////
 
 std::vector<int> MEDFileStaticEntities::getDynGTAvail() const
