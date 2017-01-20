@@ -65,6 +65,7 @@ namespace MEDCoupling
     MEDFileAllStaticEntitiesPlusDyn(const MEDFileStructureElements *se);
     std::vector<int> getDynGTAvail() const;
     bool areAllStaticTypesPresent() const;
+    const MEDFileStructureElement *getWithGT(int idGT) const;
   private:
     MCConstAuto<MEDFileStructureElements> _se;
   };

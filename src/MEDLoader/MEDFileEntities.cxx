@@ -84,3 +84,9 @@ bool MEDFileAllStaticEntitiesPlusDyn::areAllStaticTypesPresent() const
 {
   return true;
 }
+
+const MEDFileStructureElement *MEDFileAllStaticEntitiesPlusDyn::getWithGT(int idGT) const
+{
+  return _se->getWithGT(idGT);
+}
+

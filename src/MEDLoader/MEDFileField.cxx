@@ -1687,6 +1687,83 @@ MCAuto<MEDFileFieldPerMeshPerType> MEDFileFieldPerMeshPerType::Aggregate(int &st
 
 //////////////////////////////////////////////////
 
+MEDFileFieldPerMeshPerTypeDyn *MEDFileFieldPerMeshPerTypeDyn::NewOnRead(med_idt fid, MEDFileFieldPerMesh *fath, const MEDFileEntities *entities, int idGT, const MEDFileFieldNameScope& nasc)
+{
+  if(!entities)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypeDyn::NewOnRead : null pointer !");
+  const MEDFileAllStaticEntitiesPlusDyn *entities2(dynamic_cast<const MEDFileAllStaticEntitiesPlusDyn *>(entities));
+  if(!entities2)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypeDyn::NewOnRead : invalid type of entities !");
+  const MEDFileStructureElement *se(entities2->getWithGT(idGT));
+  return new MEDFileFieldPerMeshPerTypeDyn(fid,fath,se,nasc);
+}
+
+MEDFileFieldPerMeshPerTypeDyn::MEDFileFieldPerMeshPerTypeDyn(med_idt fid, MEDFileFieldPerMesh *fath, const MEDFileStructureElement *se, const MEDFileFieldNameScope& nasc):MEDFileFieldPerMeshPerTypeCommon(fath)
+{
+  _se.takeRef(se);
+  INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> locName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  int nbProfiles(MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_STRUCT_ELEMENT,_se->getDynGT(),pflName,locName));
+  _field_pm_pt_pd.resize(nbProfiles);
+  for(int i=0;i<nbProfiles;i++)
+    {
+      _field_pm_pt_pd[i]=MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,_se->getEntity(),i,NULL);
+    }
+}
+
+int MEDFileFieldPerMeshPerTypeDyn::getDynGT() const
+{
+  return _se->getDynGT();
+}
+
+void MEDFileFieldPerMeshPerTypeDyn::getDimension(int& dim) const
+{
+  throw INTERP_KERNEL::Exception("not implemented yet !");
+}
+
+INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypeDyn::getGeoType() const
+{
+  throw INTERP_KERNEL::Exception("not implemented yet !");
+}
+
+void MEDFileFieldPerMeshPerTypeDyn::simpleRepr(int bkOffset, std::ostream& oss, int id) const
+{
+  const char startLine[]="  ## ";
+  std::string startLine2(bkOffset,' ');
+  std::string startLine3(startLine2);
+  startLine3+=startLine;
+  oss << startLine3 << "Entry geometry type #" << id << " is lying on geometry type " << getDynGT() << "." << std::endl;
+  oss << startLine3 << "Entry is defined on " <<  _field_pm_pt_pd.size() << " localizations." << std::endl;
+  int i=0;
+  for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,i++)
+    {
+      const MEDFileFieldPerMeshPerTypePerDisc *cur=(*it);
+      if(cur)
+        cur->simpleRepr(bkOffset,oss,i);
+      else
+        {
+          oss << startLine2 << "    ## " << "Localization #" << i << " is empty !" << std::endl;
+        }
+    }
+}
+
+std::string MEDFileFieldPerMeshPerTypeDyn::getGeoTypeRepr() const
+{
+  throw INTERP_KERNEL::Exception("not implemented yet !");
+}
+
+MEDFileFieldPerMeshPerType *MEDFileFieldPerMeshPerTypeDyn::deepCopy(MEDFileFieldPerMesh *father) const
+{
+  throw INTERP_KERNEL::Exception("not implemented yet !");
+}
+
+void MEDFileFieldPerMeshPerTypeDyn::getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
+{
+  throw INTERP_KERNEL::Exception("not implemented yet !");
+}
+
+//////////////////////////////////////////////////
+
 MEDFileFieldPerMesh *MEDFileFieldPerMesh::NewOnRead(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const MEDFileMesh *mm, const MEDFileEntities *entities)
 {
   return new MEDFileFieldPerMesh(fid,fath,meshCsit,meshIteration,meshOrder,nasc,mm,entities);
@@ -2756,7 +2833,11 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
   std::vector<int> dynGT(entities->getDynGTAvail());
   for(std::vector<int>::const_iterator it=dynGT.begin();it!=dynGT.end();it++)
     {
-      std::cerr << "**** " << *it << std::endl;
+      int nbPfl(MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_STRUCT_ELEMENT,*it,pflName,locName));
+      if(nbPfl>0)
+        {
+          _field_pm_pt.push_back(MEDFileFieldPerMeshPerTypeDyn::NewOnRead(fid,this,entities,*it,nasc));
+        }
     }
 }
 

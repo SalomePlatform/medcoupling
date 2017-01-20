@@ -178,6 +178,7 @@ MEDFileStructureElement::MEDFileStructureElement(med_idt fid, int idSE, const ME
   _name=MEDLoaderBase::buildStringFromFortran(modelName,MED_NAME_SIZE);
   _sup_mesh_name=MEDLoaderBase::buildStringFromFortran(supportMeshName,MED_NAME_SIZE);
   _geo_type=MEDFileMesh::ConvertFromMEDFileGeoType(sgeoType);
+  _tof=MEDFileMesh::ConvertFromMEDFileEntity(entiyType);
   _cst_att.resize(nConsAttr);
   for(int i=0;i<nConsAttr;i++)
     _cst_att[i]=MEDFileSEConstAtt::New(fid,this,i,ms->getSupMeshWithName(_sup_mesh_name));
@@ -255,6 +256,11 @@ int MEDFileStructureElement::getDynGT() const
   return _id_type;
 }
 
+TypeOfField MEDFileStructureElement::getEntity() const
+{
+  return _tof;
+}
+
 ////////////////////
 
 MEDFileStructureElements *MEDFileStructureElements::New(med_idt fid, const MEDFileMeshSupports *ms)
@@ -315,4 +321,16 @@ std::vector<int> MEDFileStructureElements::getDynGTAvail() const
         ret.push_back(elt->getDynGT());
     }
   return ret;
+}
+
+const MEDFileStructureElement *MEDFileStructureElements::getWithGT(int idGT) const
+{
+  for(std::vector< MCAuto<MEDFileStructureElement> >::const_iterator it=_elems.begin();it!=_elems.end();it++)
+    if((*it).isNotNull())
+      {
+        if((*it)->getDynGT()==idGT)
+          return *it;
+      }
+  std::ostringstream oss; oss << "MEDFileStructureElements::getWithGT : no such geo type " << idGT << " !";
+  throw INTERP_KERNEL::Exception(oss.str());
 }

@@ -264,6 +264,24 @@ namespace MEDCoupling
   private:
     INTERP_KERNEL::NormalizedCellType _geo_type;
   };
+
+  class MEDFileFieldPerMeshPerTypeDyn : public MEDFileFieldPerMeshPerTypeCommon
+  {
+  public:
+    static MEDFileFieldPerMeshPerTypeDyn *NewOnRead(med_idt fid, MEDFileFieldPerMesh *fath, const MEDFileEntities *entities, int idGT, const MEDFileFieldNameScope& nasc);
+    int getDynGT() const;
+  public:
+    void getDimension(int& dim) const;
+    INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
+    std::string getGeoTypeRepr() const;
+    MEDFileFieldPerMeshPerType *deepCopy(MEDFileFieldPerMesh *father) const;
+    void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
+  private:
+    MEDFileFieldPerMeshPerTypeDyn(med_idt fid, MEDFileFieldPerMesh *fath, const MEDFileStructureElement *se, const MEDFileFieldNameScope& nasc);
+  private:
+    MCConstAuto<MEDFileStructureElement> _se;
+  };
   
   class MEDFileMesh;
 
