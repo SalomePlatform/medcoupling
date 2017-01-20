@@ -71,6 +71,7 @@ SET(medloader_SOURCES
   MEDFileMeshReadSelector.cxx
   MEDFileMeshSupport.cxx
   MEDFileStructureElement.cxx
+  MEDFileEntities.cxx
   SauvMedConvertor.cxx
   SauvReader.cxx
   SauvWriter.cxx

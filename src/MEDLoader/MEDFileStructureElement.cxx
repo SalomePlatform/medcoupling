@@ -90,7 +90,6 @@ MEDFileSEConstAtt::MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *fathe
     }
   if(constatttype==MED_ATT_NAME)
     pflSz++;
-  std::cerr << "******* " << pflSz << std::endl;
   _val->alloc(pflSz,nbCompo);
   MEDFILESAFECALLERRD0(MEDstructElementConstAttRd,(fid,modelName.c_str(),name.c_str(),_val->getVoidStarPointer()));
   if(constatttype==MED_ATT_NAME)
@@ -251,6 +250,11 @@ int MEDFileStructureElement::EffectiveNbCompo(med_attribute_type mat, int nbComp
     }
 }
 
+int MEDFileStructureElement::getDynGT() const
+{
+  return _id_type;
+}
+
 ////////////////////
 
 MEDFileStructureElements *MEDFileStructureElements::New(med_idt fid, const MEDFileMeshSupports *ms)
@@ -296,3 +300,19 @@ MEDFileStructureElements::~MEDFileStructureElements()
 {
 }
 
+int MEDFileStructureElements::getNumberOf() const
+{
+  return _elems.size();
+}
+
+std::vector<int> MEDFileStructureElements::getDynGTAvail() const
+{
+  std::vector<int> ret;
+  for(std::vector< MCAuto<MEDFileStructureElement> >::const_iterator it=_elems.begin();it!=_elems.end();it++)
+    {
+      const MEDFileStructureElement *elt(*it);
+      if(elt)
+        ret.push_back(elt->getDynGT());
+    }
+  return ret;
+}
