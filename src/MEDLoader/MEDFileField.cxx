@@ -1668,6 +1668,23 @@ MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(med_idt fid, MEDFileField
     }
 }
 
+MCAuto<MEDFileFieldPerMeshPerType> MEDFileFieldPerMeshPerType::Aggregate(int &start, const std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, INTERP_KERNEL::NormalizedCellType gt, MEDFileFieldPerMesh *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo)
+{
+  MCAuto<MEDFileFieldPerMeshPerType> ret(MEDFileFieldPerMeshPerType::New(father,gt));
+  std::map<TypeOfField, std::vector< std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * > > > m;
+  for(std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >::const_iterator it=pms.begin();it!=pms.end();it++)
+    {
+      for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it2=(*it).second->_field_pm_pt_pd.begin();it2!=(*it).second->_field_pm_pt_pd.end();it2++)
+        m[(*it2)->getType()].push_back(std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * >((*it).first,*it2));
+    }
+  for(std::map<TypeOfField, std::vector< std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * > > >::const_iterator it=m.begin();it!=m.end();it++)
+    {
+      MCAuto<MEDFileFieldPerMeshPerTypePerDisc> agg(MEDFileFieldPerMeshPerTypePerDisc::Aggregate(start,(*it).second,dts,(*it).first,ret,extractInfo));
+      ret->_field_pm_pt_pd.push_back(agg);
+    }
+  return ret;
+}
+
 //////////////////////////////////////////////////
 
 MEDFileFieldPerMesh *MEDFileFieldPerMesh::NewOnRead(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const MEDFileMesh *mm, const MEDFileEntities *entities)
@@ -1688,8 +1705,8 @@ std::size_t MEDFileFieldPerMesh::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> MEDFileFieldPerMesh::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
-    ret.push_back((const MEDFileFieldPerMeshPerType *)*it);
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    ret.push_back(*it);
   return ret;
 }
 
@@ -1698,9 +1715,9 @@ MEDFileFieldPerMesh *MEDFileFieldPerMesh::deepCopy(MEDFileAnyTypeField1TSWithout
   MCAuto< MEDFileFieldPerMesh > ret=new MEDFileFieldPerMesh(*this);
   ret->_father=father;
   std::size_t i=0;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++,i++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++,i++)
     {
-      if((const MEDFileFieldPerMeshPerType *)*it)
+      if((*it).isNotNull())
         ret->_field_pm_pt[i]=(*it)->deepCopy((MEDFileFieldPerMesh *)(ret));
     }
   return ret.retn();
@@ -1712,11 +1729,10 @@ void MEDFileFieldPerMesh::simpleRepr(int bkOffset, std::ostream& oss, int id) co
   oss << startLine << "## Field part (" << id << ") lying on mesh \"" << _mesh_name << "\", Mesh iteration=" << _mesh_iteration << ". Mesh order=" << _mesh_order << "." << std::endl;
   oss << startLine << "## Field is defined on " << _field_pm_pt.size() << " types." << std::endl;
   int i=0;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++,i++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++,i++)
     {
-      const MEDFileFieldPerMeshPerType *cur=*it;
-      if(cur)
-        cur->simpleRepr(bkOffset,oss,i);
+      if((*it).isNotNull())
+        (*it)->simpleRepr(bkOffset,oss,i);
       else
         {
           oss << startLine << "  ## Entry geometry type #" << i << " is empty !" << std::endl;
@@ -1788,13 +1804,13 @@ void MEDFileFieldPerMesh::assignNodeFieldProfile(int& start, const DataArrayInt 
 
 void MEDFileFieldPerMesh::loadOnlyStructureOfDataRecursively(med_idt fid, int& start, const MEDFileFieldNameScope& nasc)
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->loadOnlyStructureOfDataRecursively(fid,start,nasc);
 }
 
 void MEDFileFieldPerMesh::loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc)
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->loadBigArraysRecursively(fid,nasc);
 }
 
@@ -1810,13 +1826,13 @@ void MEDFileFieldPerMesh::writeLL(med_idt fid, const MEDFileFieldNameScope& nasc
 
 void MEDFileFieldPerMesh::getDimension(int& dim) const
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->getDimension(dim);
 }
 
 bool MEDFileFieldPerMesh::isUniqueLevel(int& dim) const
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     if(!(*it)->isUniqueLevel(dim))
       return false;
   return true;
@@ -1824,7 +1840,7 @@ bool MEDFileFieldPerMesh::isUniqueLevel(int& dim) const
 
 void MEDFileFieldPerMesh::fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->fillTypesOfFieldAvailable(types);
 }
 
@@ -1864,12 +1880,11 @@ int MEDFileFieldPerMesh::getNumberOfComponents() const
 
 bool MEDFileFieldPerMesh::presenceOfMultiDiscPerGeoType() const
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
-      const MEDFileFieldPerMeshPerType *fpmt(*it);
-      if(!fpmt)
+      if((*it).isNull())
         continue;
-      if(fpmt->presenceOfMultiDiscPerGeoType())
+      if((*it)->presenceOfMultiDiscPerGeoType())
         return true;
     }
   return false;
@@ -1979,7 +1994,7 @@ std::vector<std::string> MEDFileFieldPerMesh::getPflsReallyUsed() const
 {
   std::vector<std::string> ret;
   std::set<std::string> ret2;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       std::vector<std::string> tmp=(*it)->getPflsReallyUsed();
       for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
@@ -1995,7 +2010,7 @@ std::vector<std::string> MEDFileFieldPerMesh::getPflsReallyUsed() const
 std::vector<std::string> MEDFileFieldPerMesh::getPflsReallyUsedMulti() const
 {
   std::vector<std::string> ret;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       std::vector<std::string> tmp=(*it)->getPflsReallyUsedMulti();
       ret.insert(ret.end(),tmp.begin(),tmp.end());
@@ -2007,7 +2022,7 @@ std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsed() const
 {
   std::vector<std::string> ret;
   std::set<std::string> ret2;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       std::vector<std::string> tmp=(*it)->getLocsReallyUsed();
       for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
@@ -2023,7 +2038,7 @@ std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsed() const
 std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsedMulti() const
 {
   std::vector<std::string> ret;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       std::vector<std::string> tmp=(*it)->getLocsReallyUsedMulti();
       ret.insert(ret.end(),tmp.begin(),tmp.end());
@@ -2149,8 +2164,8 @@ bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const std::string& meshNam
  */
 void MEDFileFieldPerMesh::keepOnlySpatialDiscretization(TypeOfField tof, int &globalNum, std::vector< std::pair<int,int> >& its)
 {
-  std::vector< MCAuto< MEDFileFieldPerMeshPerType > > ret;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > > ret;
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       std::vector< std::pair<int,int> > its2;
       if((*it)->keepOnlySpatialDiscretization(tof,globalNum,its2))
@@ -2168,8 +2183,8 @@ void MEDFileFieldPerMesh::keepOnlySpatialDiscretization(TypeOfField tof, int &gl
  */
 void MEDFileFieldPerMesh::keepOnlyGaussDiscretization(std::size_t idOfDisc, int &globalNum, std::vector< std::pair<int,int> >& its)
 {
-  std::vector< MCAuto< MEDFileFieldPerMeshPerType > > ret;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > > ret;
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       std::vector< std::pair<int,int> > its2;
       if((*it)->keepOnlyGaussDiscretization(idOfDisc,globalNum,its2))
@@ -2187,9 +2202,9 @@ void MEDFileFieldPerMesh::assignNewLeaves(const std::vector< MCAuto< MEDFileFiel
   for( std::vector< MCAuto< MEDFileFieldPerMeshPerTypePerDisc > >::const_iterator it=leaves.begin();it!=leaves.end();it++)
     types[(INTERP_KERNEL::NormalizedCellType)(*it)->getLocId()].push_back(*it);
   //
-  std::vector< MCAuto< MEDFileFieldPerMeshPerType > > fieldPmPt(types.size());
+  std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > > fieldPmPt(types.size());
   std::map<INTERP_KERNEL::NormalizedCellType,std::vector< MCAuto< MEDFileFieldPerMeshPerTypePerDisc> > >::const_iterator it1=types.begin();
-  std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it2=fieldPmPt.begin();
+  std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it2=fieldPmPt.begin();
   for(;it1!=types.end();it1++,it2++)
     {
       MCAuto<MEDFileFieldPerMeshPerType> elt=MEDFileFieldPerMeshPerType::New(this,(INTERP_KERNEL::NormalizedCellType)((*it1).second[0]->getLocId()));
@@ -2201,13 +2216,13 @@ void MEDFileFieldPerMesh::assignNewLeaves(const std::vector< MCAuto< MEDFileFiel
 
 void MEDFileFieldPerMesh::changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif)
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->changePflsRefsNamesGen(mapOfModif);
 }
 
 void MEDFileFieldPerMesh::changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif)
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->changeLocsRefsNamesGen(mapOfModif);
 }
 
@@ -2224,7 +2239,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
   std::vector<DataArrayInt *> notNullPflsPerGeoType;
   std::vector<int> locs,code;
   std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->getFieldAtLevel(mesh->getMeshDimension(),type,glob,dads,pfls,locs,geoTypes);
   // Sort by types
   SortArraysPerType(glob,type,geoTypes,dads,pfls,locs,code,notNullPflsPerGeoType);
@@ -2277,7 +2292,7 @@ DataArray *MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl(TypeOfField type, c
   std::vector<DataArrayInt *> notNullPflsPerGeoType;
   std::vector<int> locs,code;
   std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->getFieldAtLevel(mesh->getMeshDimension(),type,glob,dads,pfls,locs,geoTypes);
   // Sort by types
   SortArraysPerType(glob,type,geoTypes,dads,pfls,locs,code,notNullPflsPerGeoType);
@@ -2317,13 +2332,13 @@ void MEDFileFieldPerMesh::getUndergroundDataArrayExt(std::vector< std::pair<std:
 {
   int globalSz=0;
   int nbOfEntries=0;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       (*it)->getSizes(globalSz,nbOfEntries);
     }
   entries.resize(nbOfEntries);
   nbOfEntries=0;
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       (*it)->fillValues(nbOfEntries,entries);
     }
@@ -2331,7 +2346,7 @@ void MEDFileFieldPerMesh::getUndergroundDataArrayExt(std::vector< std::pair<std:
 
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId(INTERP_KERNEL::NormalizedCellType typ, int locId)
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       if((*it)->getGeoType()==typ)
         return (*it)->getLeafGivenLocId(locId);
@@ -2339,7 +2354,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
   std::ostringstream oss; oss << "MEDFileFieldPerMesh::getLeafGivenTypeAndLocId : no such geometric type \"" << cm.getRepr() << "\" in this !" << std::endl;
   oss << "Possiblities are : ";
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel((*it)->getGeoType());
       oss << "\"" << cm2.getRepr() << "\", ";
@@ -2349,7 +2364,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId
 
 const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId(INTERP_KERNEL::NormalizedCellType typ, int locId) const
 {
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       if((*it)->getGeoType()==typ)
         return (*it)->getLeafGivenLocId(locId);
@@ -2357,7 +2372,7 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAn
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
   std::ostringstream oss; oss << "MEDFileFieldPerMesh::getLeafGivenTypeAndLocId : no such geometric type \"" << cm.getRepr() << "\" in this !" << std::endl;
   oss << "Possiblities are : ";
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel((*it)->getGeoType());
       oss << "\"" << cm2.getRepr() << "\", ";
@@ -2410,23 +2425,6 @@ MCAuto<MEDFileFieldPerMeshPerTypePerDisc> MEDFileFieldPerMeshPerTypePerDisc::Agg
   return ret;
 }
 
-MCAuto<MEDFileFieldPerMeshPerType> MEDFileFieldPerMeshPerTypeCommon::Aggregate(int &start, const std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, INTERP_KERNEL::NormalizedCellType gt, MEDFileFieldPerMesh *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo)
-{
-  MCAuto<MEDFileFieldPerMeshPerType> ret(MEDFileFieldPerMeshPerType::New(father,gt));
-  std::map<TypeOfField, std::vector< std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * > > > m;
-  for(std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >::const_iterator it=pms.begin();it!=pms.end();it++)
-    {
-      for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it2=(*it).second->_field_pm_pt_pd.begin();it2!=(*it).second->_field_pm_pt_pd.end();it2++)
-        m[(*it2)->getType()].push_back(std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * >((*it).first,*it2));
-    }
-  for(std::map<TypeOfField, std::vector< std::pair<int,const MEDFileFieldPerMeshPerTypePerDisc * > > >::const_iterator it=m.begin();it!=m.end();it++)
-    {
-      MCAuto<MEDFileFieldPerMeshPerTypePerDisc> agg(MEDFileFieldPerMeshPerTypePerDisc::Aggregate(start,(*it).second,dts,(*it).first,ret,extractInfo));
-      ret->_field_pm_pt_pd.push_back(agg);
-    }
-  return ret;
-}
-
 MCAuto<MEDFileFieldPerMesh> MEDFileFieldPerMesh::Aggregate(int &start, const std::vector<const MEDFileFieldPerMesh *>& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, MEDFileAnyTypeField1TSWithoutSDA *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo)
 {
   MCAuto<MEDFileFieldPerMesh> ret(new MEDFileFieldPerMesh(father,pms[0]->getMeshName(),pms[0]->getMeshIteration(),pms[0]->getMeshOrder()));
@@ -2434,16 +2432,19 @@ MCAuto<MEDFileFieldPerMesh> MEDFileFieldPerMesh::Aggregate(int &start, const std
   std::size_t i(0);
   for(std::vector<const MEDFileFieldPerMesh *>::const_iterator it=pms.begin();it!=pms.end();it++,i++)
     {
-      const std::vector< MCAuto< MEDFileFieldPerMeshPerType > >& v((*it)->_field_pm_pt);
-      for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::const_iterator it2=v.begin();it2!=v.end();it2++)
+      const std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >& v((*it)->_field_pm_pt);
+      for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it2=v.begin();it2!=v.end();it2++)
         {
           INTERP_KERNEL::NormalizedCellType gt((*it2)->getGeoType());
-          m[gt].push_back(std::pair<int,const MEDFileFieldPerMeshPerType *>(i,*it2));
+          const MEDFileFieldPerMeshPerType *elt(dynamic_cast<const MEDFileFieldPerMeshPerType *>((const MEDFileFieldPerMeshPerTypeCommon *)(*it2)));
+          if(!elt)
+            throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::Aggregate : not managed for structelement !");
+          m[gt].push_back(std::pair<int,const MEDFileFieldPerMeshPerType *>(i,elt));
         }
     }
   for(std::map<INTERP_KERNEL::NormalizedCellType, std::vector< std::pair<int,const MEDFileFieldPerMeshPerType *> > >::const_iterator it=m.begin();it!=m.end();it++)
     {
-      MCAuto<MEDFileFieldPerMeshPerType> agg(MEDFileFieldPerMeshPerTypeCommon::Aggregate(start,(*it).second,dts,(*it).first,ret,extractInfo));
+      MCAuto<MEDFileFieldPerMeshPerTypeCommon> agg(MEDFileFieldPerMeshPerType::Aggregate(start,(*it).second,dts,(*it).first,ret,extractInfo));
       ret->_field_pm_pt.push_back(agg);
     }
   return ret;
@@ -2453,8 +2454,8 @@ int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellTyp
 {
   int i=0;
   int pos=std::distance(typmai2,std::find(typmai2,typmai2+MED_N_CELL_FIXED_GEO,type));
-  std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it2=_field_pm_pt.begin();
-  for(std::vector< MCAuto< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++,i++)
+  std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it2=_field_pm_pt.begin();
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++,i++)
     {
       INTERP_KERNEL::NormalizedCellType curType=(*it)->getGeoType();
       if(type==curType)
