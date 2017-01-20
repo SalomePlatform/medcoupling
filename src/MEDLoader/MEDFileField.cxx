@@ -2209,7 +2209,8 @@ void MEDFileFieldPerMesh::assignNewLeaves(const std::vector< MCAuto< MEDFileFiel
     {
       MCAuto<MEDFileFieldPerMeshPerType> elt=MEDFileFieldPerMeshPerType::New(this,(INTERP_KERNEL::NormalizedCellType)((*it1).second[0]->getLocId()));
       elt->setLeaves((*it1).second);
-      *it2=elt;
+      MCAuto<MEDFileFieldPerMeshPerTypeCommon> elt2(DynamicCast<MEDFileFieldPerMeshPerType,MEDFileFieldPerMeshPerTypeCommon>(elt));
+      *it2=elt2;
     }
   _field_pm_pt=fieldPmPt;
 }
@@ -2444,8 +2445,9 @@ MCAuto<MEDFileFieldPerMesh> MEDFileFieldPerMesh::Aggregate(int &start, const std
     }
   for(std::map<INTERP_KERNEL::NormalizedCellType, std::vector< std::pair<int,const MEDFileFieldPerMeshPerType *> > >::const_iterator it=m.begin();it!=m.end();it++)
     {
-      MCAuto<MEDFileFieldPerMeshPerTypeCommon> agg(MEDFileFieldPerMeshPerType::Aggregate(start,(*it).second,dts,(*it).first,ret,extractInfo));
-      ret->_field_pm_pt.push_back(agg);
+      MCAuto<MEDFileFieldPerMeshPerType> agg(MEDFileFieldPerMeshPerType::Aggregate(start,(*it).second,dts,(*it).first,ret,extractInfo));
+      MCAuto<MEDFileFieldPerMeshPerTypeCommon> agg2(DynamicCast<MEDFileFieldPerMeshPerType,MEDFileFieldPerMeshPerTypeCommon>(agg));
+      ret->_field_pm_pt.push_back(agg2);
     }
   return ret;
 }
@@ -2750,6 +2752,13 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
           _field_pm_pt.push_back(MEDFileFieldPerMeshPerType::NewOnRead(fid,this,ON_NODES,INTERP_KERNEL::NORM_ERROR,nasc,pd));
           _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
         }
+    }
+  if(!entities)
+    return ;
+  std::vector<int> dynGT(entities->getDynGTAvail());
+  for(std::vector<int>::const_iterator it=dynGT.begin();it!=dynGT.end();it++)
+    {
+      std::cerr << "**** " << *it << std::endl;
     }
 }
 
