@@ -646,7 +646,7 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(MEDCoupling::MEDCouplingUMesh*
 #endif
 }
 
-#ifndef WIN32
+#if !defined WIN32 && !defined __APPLE__
 #include <sys/sysinfo.h>
 #endif
 
@@ -658,7 +658,7 @@ int MEDPARTITIONER::ParaDomainSelector::evaluateMemory() const
   if ( _mesure_memory )
     {
       int used_memory = 0;
-#ifndef WIN32
+#if !defined WIN32 && !defined __APPLE__
       struct sysinfo si;
       int err = sysinfo( &si );
       if ( !err )
