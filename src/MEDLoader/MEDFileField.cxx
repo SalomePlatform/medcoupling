@@ -1976,6 +1976,45 @@ bool MEDFileFieldPerMesh::presenceOfMultiDiscPerGeoType() const
   return false;
 }
 
+bool MEDFileFieldPerMesh::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    if((*it).isNotNull())
+      {
+        const MEDFileFieldPerMeshPerTypeDyn *pt(dynamic_cast<const MEDFileFieldPerMeshPerTypeDyn *>((const MEDFileFieldPerMeshPerTypeCommon *)*it));
+        if(pt)
+          return true;
+      }
+  return false;
+}
+
+bool MEDFileFieldPerMesh::onlyStructureElements() const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    if((*it).isNotNull())
+      {
+        const MEDFileFieldPerMeshPerTypeDyn *pt(dynamic_cast<const MEDFileFieldPerMeshPerTypeDyn *>((const MEDFileFieldPerMeshPerTypeCommon *)*it));
+        if(!pt)
+          return false;
+      }
+  return true;
+}
+
+void MEDFileFieldPerMesh::killStructureElements()
+{
+  std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > > res;
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      if((*it).isNotNull())
+        {
+          const MEDFileFieldPerMeshPerTypeDyn *pt(dynamic_cast<const MEDFileFieldPerMeshPerTypeDyn *>((const MEDFileFieldPerMeshPerTypeCommon *)*it));
+          if(!pt)
+            res.push_back(*it);
+        }
+    }
+  _field_pm_pt=res;
+}
+
 DataArray *MEDFileFieldPerMesh::getOrCreateAndGetArray()
 {
   if(!_father)
@@ -4977,6 +5016,31 @@ bool MEDFileAnyTypeField1TSWithoutSDA::presenceOfMultiDiscPerGeoType() const
   return false;
 }
 
+bool MEDFileAnyTypeField1TSWithoutSDA::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    if((*it).isNotNull())
+      if((*it)->presenceOfStructureElements())
+        return true;
+  return false;
+}
+
+bool MEDFileAnyTypeField1TSWithoutSDA::onlyStructureElements() const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    if((*it).isNotNull())
+      if(!(*it)->onlyStructureElements())
+        return false;
+  return true;
+}
+
+void MEDFileAnyTypeField1TSWithoutSDA::killStructureElements()
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMesh > >::iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    if((*it).isNotNull())
+      (*it)->killStructureElements();
+}
+
 MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh(const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh, MCAuto<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
 {
   static const char MSG0[]="MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the field is too complex to be able to be extracted with  \"field\" method ! Call getFieldOnMeshAtLevel method instead to deal with complexity !";
@@ -5406,17 +5470,17 @@ MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA():MEDFileField1TSTemplateWi
 {
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileField1TSWithoutSDA::shallowCpy() const
+MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::shallowCpy() const
 {
   MCAuto<MEDFileField1TSWithoutSDA> ret(new MEDFileField1TSWithoutSDA(*this));
   ret->deepCpyLeavesFrom(*this);
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileField1TSWithoutSDA::deepCopy() const
+MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::deepCopy() const
 {
-  MCAuto<MEDFileField1TSWithoutSDA> ret=static_cast<MEDFileField1TSWithoutSDA *>(shallowCpy());
-  if((const DataArrayDouble *)_arr)
+  MCAuto<MEDFileField1TSWithoutSDA> ret(shallowCpy());
+  if(_arr.isNotNull())
     ret->_arr=_arr->deepCopy();
   return ret.retn();
 }
@@ -5505,17 +5569,17 @@ DataArrayInt *MEDFileIntField1TSWithoutSDA::getUndergroundDataArrayIntExt(std::v
   return getUndergroundDataArrayTemplate();
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::shallowCpy() const
+MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::shallowCpy() const
 {
   MCAuto<MEDFileIntField1TSWithoutSDA> ret(new MEDFileIntField1TSWithoutSDA(*this));
   ret->deepCpyLeavesFrom(*this);
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::deepCopy() const
+MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::deepCopy() const
 {
-  MCAuto<MEDFileIntField1TSWithoutSDA> ret=static_cast<MEDFileIntField1TSWithoutSDA *>(shallowCpy());
-  if((const DataArrayInt *)_arr)
+  MCAuto<MEDFileIntField1TSWithoutSDA> ret(shallowCpy());
+  if(_arr.isNotNull())
     ret->_arr=_arr->deepCopy();
   return ret.retn();
 }
@@ -6823,7 +6887,7 @@ void MEDFileField1TS::setFieldProfile(const MEDCouplingFieldDouble *field, const
   contentNotNull()->setFieldProfile(field,field->getArray(),mesh,meshDimRelToMax,profile,*this,*contentNotNull());
 }
 
-MEDFileAnyTypeField1TS *MEDFileField1TS::shallowCpy() const
+MEDFileField1TS *MEDFileField1TS::shallowCpy() const
 {
   return new MEDFileField1TS(*this);
 }
@@ -6935,7 +6999,7 @@ MEDFileIntField1TS::MEDFileIntField1TS(const MEDFileIntField1TSWithoutSDA& other
 {
 }
 
-MEDFileAnyTypeField1TS *MEDFileIntField1TS::shallowCpy() const
+MEDFileIntField1TS *MEDFileIntField1TS::shallowCpy() const
 {
   return new MEDFileIntField1TS(*this);
 }
@@ -7410,6 +7474,46 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTSWithoutSDA::part
         ids->pushBackSilent(id);
     }
   return buildFromTimeStepIds(ids->begin(),ids->end());
+}
+
+bool MEDFileAnyTypeFieldMultiTSWithoutSDA::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    if((*it).isNotNull())
+      if((*it)->presenceOfStructureElements())
+        return true;
+  return false;
+}
+
+bool MEDFileAnyTypeFieldMultiTSWithoutSDA::onlyStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    if((*it).isNotNull())
+      if(!(*it)->onlyStructureElements())
+        return false;
+  return true;
+}
+
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::killStructureElements()
+{
+  std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> > res;
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    if((*it).isNotNull())
+      {
+        if((*it)->presenceOfStructureElements())
+          {
+            if(!(*it)->onlyStructureElements())
+              {
+                (*it)->killStructureElements();
+                res.push_back(*it);
+              }
+          }
+        else
+          {
+            res.push_back(*it);
+          }
+      }
+  _time_steps=res;
 }
 
 bool MEDFileAnyTypeFieldMultiTSWithoutSDA::presenceOfMultiDiscPerGeoType() const
@@ -10902,6 +11006,42 @@ MEDFileFields *MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps(const std::
     }
   ret->shallowCpyOnlyUsedGlobs(*this);
   return ret.retn();
+}
+
+bool MEDFileFields::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
+      if((*it)->presenceOfStructureElements())
+        return true;
+  return false;
+}
+
+void MEDFileFields::killStructureElements()
+{
+  std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > ret;
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
+      {
+        if((*it)->presenceOfStructureElements())
+          {
+            if(!(*it)->onlyStructureElements())
+              {
+                (*it)->killStructureElements();
+                ret.push_back(*it);
+              }
+          }
+      }
+    else
+      {
+        ret.push_back(*it);
+      }
+  _fields=ret;
+}
+
+MCAuto<MEDFileFields> MEDFileFields::partOfThisOnStructureElements() const
+{
+  throw INTERP_KERNEL::Exception("partOfThisOnStructureElements : not implemented yet !");
 }
 
 MEDFileFieldsIterator *MEDFileFields::iterator()

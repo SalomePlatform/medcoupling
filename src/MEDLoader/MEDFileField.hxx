@@ -317,6 +317,9 @@ namespace MEDCoupling
     std::string getMeshName() const { return _mesh_name; }
     int getNumberOfComponents() const;
     bool presenceOfMultiDiscPerGeoType() const;
+    bool presenceOfStructureElements() const;
+    bool onlyStructureElements() const;
+    void killStructureElements();
     DataArray *getOrCreateAndGetArray();
     const DataArray *getOrCreateAndGetArray() const;
     const std::vector<std::string>& getInfo() const;
@@ -555,6 +558,9 @@ namespace MEDCoupling
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
     MEDLOADER_EXPORT std::vector<std::string>& getInfo();
     MEDLOADER_EXPORT bool presenceOfMultiDiscPerGeoType() const;
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT bool onlyStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& infos);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -651,8 +657,8 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT MEDFileField1TSWithoutSDA();
     MEDLOADER_EXPORT MEDFileField1TSWithoutSDA(const std::string& fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
-    MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA *shallowCpy() const;
-    MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA *deepCopy() const;
+    MEDLOADER_EXPORT MEDFileField1TSWithoutSDA *shallowCpy() const;
+    MEDLOADER_EXPORT MEDFileField1TSWithoutSDA *deepCopy() const;
     MEDLOADER_EXPORT MEDFileIntField1TSWithoutSDA *convertToInt() const;
   public:
     static const char TYPE_STR[];
@@ -666,8 +672,8 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT MEDFileIntField1TSWithoutSDA();
     MEDLOADER_EXPORT static MEDFileIntField1TSWithoutSDA *New(const std::string& fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
-    MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA *deepCopy() const;
-    MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA *shallowCpy() const;
+    MEDLOADER_EXPORT MEDFileIntField1TSWithoutSDA *deepCopy() const;
+    MEDLOADER_EXPORT MEDFileIntField1TSWithoutSDA *shallowCpy() const;
     MEDLOADER_EXPORT const char *getTypeStr() const;
     MEDLOADER_EXPORT DataArray *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
     MEDLOADER_EXPORT DataArrayInt *getUndergroundDataArrayIntExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
@@ -802,7 +808,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
     // direct forwarding to MEDFileField1TSWithoutSDA instance _content
   public:
-    MEDLOADER_EXPORT MEDFileAnyTypeField1TS *shallowCpy() const;
+    MEDLOADER_EXPORT MEDFileField1TS *shallowCpy() const;
     MEDLOADER_EXPORT DataArrayDouble *getUndergroundDataArray() const;
     MEDLOADER_EXPORT DataArrayDouble *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
 
@@ -839,7 +845,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const MEDFileIntField1TSWithoutSDA& other, bool shallowCopyOfContent);
     MEDLOADER_EXPORT MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
-    MEDLOADER_EXPORT MEDFileAnyTypeField1TS *shallowCpy() const;
+    MEDLOADER_EXPORT MEDFileIntField1TS *shallowCpy() const;
     //
     MEDLOADER_EXPORT MEDCouplingFieldInt *field(const MEDFileMesh *mesh) const;
     MEDLOADER_EXPORT MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
@@ -907,6 +913,9 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSWithoutSDA *buildFromTimeStepIds2(int bg, int end, int step) const;
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSWithoutSDA *partOfThisLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const;
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSWithoutSDA *partOfThisNotLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const;
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT bool onlyStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
     MEDLOADER_EXPORT int getPosOfTimeStep(int iteration, int order) const;
     MEDLOADER_EXPORT int getPosGivenTime(double time, double eps=1e-8) const;
     MEDLOADER_EXPORT std::vector< std::pair<int,int> > getIterations() const;
@@ -1057,6 +1066,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
     MEDLOADER_EXPORT bool presenceOfMultiDiscPerGeoType() const;
+    MEDLOADER_EXPORT void killStructureElements();
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& info);
     MEDLOADER_EXPORT int getNumberOfComponents() const;
     MEDLOADER_EXPORT int getNonEmptyLevels(int iteration, int order, const std::string& mname, std::vector<int>& levs) const;
@@ -1234,6 +1244,9 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const;
     MEDLOADER_EXPORT MEDFileFields *partOfThisLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const;
     MEDLOADER_EXPORT MEDFileFields *partOfThisNotLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const;
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
+    MEDLOADER_EXPORT MCAuto<MEDFileFields> partOfThisOnStructureElements() const;
     MEDLOADER_EXPORT MEDFileFieldsIterator *iterator();
     MEDLOADER_EXPORT void destroyFieldAtPos(int i);
     MEDLOADER_EXPORT void destroyFieldsAtPos(const int *startIds, const int *endIds);

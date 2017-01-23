@@ -150,6 +150,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFields::partOfThisLyingOnSpecifiedMeshName;
 %newobject MEDCoupling::MEDFileFields::partOfThisLyingOnSpecifiedTimeSteps;
 %newobject MEDCoupling::MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps;
+%newobject MEDCoupling::MEDFileFields::partOfThisOnStructureElements;
 %newobject MEDCoupling::MEDFileFields::__iter__;
 %newobject MEDCoupling::MEDFileFields::extractPart;
 
@@ -3020,6 +3021,8 @@ namespace MEDCoupling
     MEDFileAnyTypeFieldMultiTS *getFieldAtPos(int i) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeFieldMultiTS *getFieldWithName(const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const throw(INTERP_KERNEL::Exception);
+    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
+    void killStructureElements() throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
     bool removeFieldsWithoutAnyTimeStep() throw(INTERP_KERNEL::Exception);
     %extend
@@ -3049,7 +3052,13 @@ namespace MEDCoupling
          {
            return self->simpleRepr();
          }
-
+         
+         MEDFileFields *partOfThisOnStructureElements() const throw(INTERP_KERNEL::Exception)
+         {
+           MCAuto<MEDFileFields> ret(self->partOfThisOnStructureElements());
+           return ret.retn();
+         }
+         
          static MEDFileFields *LoadSpecificEntities(const std::string& fileName, PyObject *entities, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
            std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
