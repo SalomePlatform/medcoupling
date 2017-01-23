@@ -228,6 +228,7 @@ namespace MEDCoupling
     virtual ~MEDFileFieldPerMeshPerTypeCommon();
     virtual void getDimension(int& dim) const = 0;
     virtual INTERP_KERNEL::NormalizedCellType getGeoType() const = 0;
+    virtual void entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const = 0;
     virtual void simpleRepr(int bkOffset, std::ostream& oss, int id) const = 0;
     virtual std::string getGeoTypeRepr() const = 0;
     virtual MEDFileFieldPerMeshPerTypeCommon *deepCopy(MEDFileFieldPerMesh *father) const = 0;
@@ -254,6 +255,7 @@ namespace MEDCoupling
   public:// overload of abstract methods
     void getDimension(int& dim) const;
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    void entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const;
     void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
     std::string getGeoTypeRepr() const;
     MEDFileFieldPerMeshPerType *deepCopy(MEDFileFieldPerMesh *father) const;
@@ -273,6 +275,7 @@ namespace MEDCoupling
   public:
     void getDimension(int& dim) const;
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    void entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const;
     void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
     std::string getGeoTypeRepr() const;
     MEDFileFieldPerMeshPerType *deepCopy(MEDFileFieldPerMesh *father) const;

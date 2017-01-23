@@ -537,12 +537,11 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_i
   INTERP_KERNEL::AutoPtr<char> locname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> pflname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   std::string fieldName(nasc.getName()),meshName(getMeshName());
-  int iteration(getIteration()),order(getOrder());
+  int iteration(getIteration()),order(getOrder()),profilesize,nbi;
   TypeOfField type(getType());
-  INTERP_KERNEL::NormalizedCellType geoType(getGeoType());
-  int profilesize,nbi;
   med_geometry_type mgeoti;
-  med_entity_type menti(MEDFileFieldPerMeshPerTypeCommon::ConvertIntoMEDFileType(type,geoType,mgeoti));
+  med_entity_type menti;
+  _father->entriesForMEDfile(type,mgeoti,menti);
   int zeNVal(MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,menti,mgeoti,_profile_it+1,MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi));
   _profile=MEDLoaderBase::buildStringFromFortran(pflname,MED_NAME_SIZE);
   _localization=MEDLoaderBase::buildStringFromFortran(locname,MED_NAME_SIZE);
@@ -577,9 +576,9 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, const MEDFileF
   std::string fieldName(nasc.getName()),meshName(getMeshName());
   int iteration(getIteration()),order(getOrder());
   TypeOfField type(getType());
-  INTERP_KERNEL::NormalizedCellType geoType(getGeoType());
   med_geometry_type mgeoti;
-  med_entity_type menti(MEDFileFieldPerMeshPerTypeCommon::ConvertIntoMEDFileType(type,geoType,mgeoti));
+  med_entity_type menti;
+  _father->entriesForMEDfile(type,mgeoti,menti);
   if(_start>_end)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::loadBigArray : internal error in range !");
   if(_start==_end)
@@ -648,10 +647,9 @@ void MEDFileFieldPerMeshPerTypePerDisc::simpleRepr(int bkOffset, std::ostream& o
   const char startLine[]="    ## ";
   std::string startLine2(bkOffset,' ');
   startLine2+=startLine;
-  MEDCouplingFieldDiscretization *tmp=MEDCouplingFieldDiscretization::New(_type);
+  INTERP_KERNEL::AutoCppPtr<MEDCouplingFieldDiscretization> tmp(MEDCouplingFieldDiscretization::New(_type));
   oss << startLine2 << "Localization #" << id << "." << std::endl;
   oss << startLine2 << "  Type=" << tmp->getRepr() << "." << std::endl;
-  delete tmp;
   oss << startLine2 << "  This type discretization lies on profile : \"" << _profile << "\" and on the following localization : \"" << _localization << "\"." << std::endl;
   oss << startLine2 << "  This type discretization has " << _end-_start << " tuples (start=" << _start << ", end=" << _end << ")." << std::endl;
   oss << startLine2 << "  This type discretization has " << (_end-_start)/_nval << " integration points." << std::endl;
@@ -776,10 +774,11 @@ void MEDFileFieldPerMeshPerTypePerDisc::fillValues(int discId, int& startEntryId
 void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid, const MEDFileFieldNameScope& nasc) const
 {
   TypeOfField type=getType();
-  INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
+  INTERP_KERNEL::NormalizedCellType geoType(getGeoType());
   med_geometry_type mgeoti;
-  med_entity_type menti=MEDFileFieldPerMeshPerTypeCommon::ConvertIntoMEDFileType(type,geoType,mgeoti);
-  const DataArray *arr=getOrCreateAndGetArray();
+  med_entity_type menti;
+  _father->entriesForMEDfile(getType(),mgeoti,menti);
+  const DataArray *arr(getOrCreateAndGetArray());
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : no array set !");
   if(!arr->isAllocated())
@@ -1604,6 +1603,11 @@ INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerType::getGeoType() const
   return _geo_type;
 }
 
+void MEDFileFieldPerMeshPerType::entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const
+{
+  ent=MEDFileFieldPerMeshPerTypeCommon::ConvertIntoMEDFileType(mct,_geo_type,gt);
+}
+
 void MEDFileFieldPerMeshPerType::getDimension(int& dim) const
 {
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
@@ -1721,6 +1725,12 @@ void MEDFileFieldPerMeshPerTypeDyn::getDimension(int& dim) const
   throw INTERP_KERNEL::Exception("not implemented yet !");
 }
 
+void MEDFileFieldPerMeshPerTypeDyn::entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const
+{
+  gt=getDynGT();
+  ent=MED_STRUCT_ELEMENT;
+}
+
 INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypeDyn::getGeoType() const
 {
   throw INTERP_KERNEL::Exception("not implemented yet !");
@@ -1732,14 +1742,13 @@ void MEDFileFieldPerMeshPerTypeDyn::simpleRepr(int bkOffset, std::ostream& oss, 
   std::string startLine2(bkOffset,' ');
   std::string startLine3(startLine2);
   startLine3+=startLine;
-  oss << startLine3 << "Entry geometry type #" << id << " is lying on geometry type " << getDynGT() << "." << std::endl;
+  oss << startLine3 << "Entry geometry type #" << id << " is lying on geometry STRUCTURE_ELEMENT type " << getDynGT() << "." << std::endl;
   oss << startLine3 << "Entry is defined on " <<  _field_pm_pt_pd.size() << " localizations." << std::endl;
   int i=0;
   for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,i++)
     {
-      const MEDFileFieldPerMeshPerTypePerDisc *cur=(*it);
-      if(cur)
-        cur->simpleRepr(bkOffset,oss,i);
+      if((*it).isNotNull())
+        (*it)->simpleRepr(bkOffset,oss,i);
       else
         {
           oss << startLine2 << "    ## " << "Localization #" << i << " is empty !" << std::endl;
