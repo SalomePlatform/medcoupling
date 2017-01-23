@@ -91,6 +91,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const;
     MEDLOADER_EXPORT virtual void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const = 0;
     MEDLOADER_EXPORT virtual MEDFileMesh *cartesianize() const = 0;
+    MEDLOADER_EXPORT virtual bool presenceOfStructureElements() const = 0;
+    MEDLOADER_EXPORT virtual void killStructureElements() { }
     //
     MEDLOADER_EXPORT bool areFamsEqual(const MEDFileMesh *other, std::string& what) const;
     MEDLOADER_EXPORT bool areGrpsEqual(const MEDFileMesh *other, std::string& what) const;
@@ -296,6 +298,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
     MEDLOADER_EXPORT MEDFileMesh *cartesianize() const;
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevels() const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevelsExt() const;
     MEDLOADER_EXPORT std::vector<int> getFamArrNonEmptyLevelsExt() const;
@@ -426,6 +430,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const;
     MEDLOADER_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const { return false; }
     MEDLOADER_EXPORT virtual const MEDCouplingStructuredMesh *getStructuredMesh() const = 0;
     // tools
     MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell);
@@ -548,6 +553,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void setOneTimeStep(MEDFileMesh *mesh1TimeStep);
     MEDLOADER_EXPORT MEDFileJoints *getJoints() const;
     MEDLOADER_EXPORT void setJoints(MEDFileJoints* joints);
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
   private:
     ~MEDFileMeshMultiTS() { }
     void loadFromFile(med_idt fid, const std::string& mName);
@@ -585,6 +592,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void pushMesh(MEDFileMesh *mesh);
     MEDLOADER_EXPORT void setMeshAtPos(int i, MEDFileMesh *mesh);
     MEDLOADER_EXPORT void destroyMeshAtPos(int i);
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
   private:
     ~MEDFileMeshes() { }
     void checkConsistencyLight() const;

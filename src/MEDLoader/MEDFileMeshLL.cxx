@@ -2064,7 +2064,7 @@ MEDFileEltStruct4Mesh *MEDFileEltStruct4Mesh::New(med_idt fid, const std::string
 
 std::size_t MEDFileEltStruct4Mesh::getHeapMemorySizeWithoutChildren() const
 {
-  return _geo_type_name.capacity();
+  return _geo_type_name.capacity()+_vars.capacity()*sizeof(MCAuto<DataArray>);
 }
 
 std::vector<const MEDCoupling::BigMemoryObject*> MEDFileEltStruct4Mesh::getDirectChildrenWithNull() const
@@ -2072,6 +2072,8 @@ std::vector<const MEDCoupling::BigMemoryObject*> MEDFileEltStruct4Mesh::getDirec
   std::vector<const MEDCoupling::BigMemoryObject*> ret;
   ret.push_back(_conn);
   ret.push_back(_common);
+  for(std::vector< MCAuto<DataArray> >::const_iterator it=_vars.begin();it!=_vars.end();it++)
+    ret.push_back(*it);
   return ret;
 }
 
@@ -2094,5 +2096,16 @@ MEDFileEltStruct4Mesh::MEDFileEltStruct4Mesh(med_idt fid, const std::string& mNa
   MEDFILESAFECALLERRD0(MEDmeshElementConnectivityRd,(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,_geo_type,MED_NODAL,MED_FULL_INTERLACE,_conn->getPointer()));
   _common=MEDFileUMeshPerTypeCommon::New();
   _common->loadCommonPart(fid,mName.c_str(),dt,it,nCells,geoType,MED_STRUCT_ELEMENT,mrs);
-  //MEDFILESAFECALLERRD0(MEDmeshElementRd,(mName.c_str(),dt,it,MED_STRUCT_ELEMENT,geoType,MED_NODAL,MED_FULL_INTERLACE,conn,));
+  std::vector<std::string> vns(mse->getVarAttsOf(_geo_type_name));
+  std::size_t sz(vns.size());
+  _vars.resize(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDFileSEVarAtt *var(mse->getVarAttOf(_geo_type_name,vns[i]));
+      MCAuto<DataArray> gen(var->getGenerator());
+      MCAuto<DataArray> arr(gen->buildNewEmptyInstance());
+      arr->alloc(nCells,var->getNbOfComponents());
+      arr->setName(vns[i]);
+      MEDFILESAFECALLERRD0(MEDmeshStructElementVarAttRd,(fid,mName.c_str(),dt,it,_geo_type,vns[i].c_str(),arr->getVoidStarPointer()));
+    }
 }

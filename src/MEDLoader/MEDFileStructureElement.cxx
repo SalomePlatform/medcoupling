@@ -34,6 +34,11 @@ std::string MEDFileSEHolder::getModelName() const
   return _father->getName();
 }
 
+std::string MEDFileSEHolder::getName() const
+{
+  return _name;
+}
+
 void MEDFileSEHolder::setName(const std::string& name)
 {
   _name=name;
@@ -266,7 +271,32 @@ std::string MEDFileStructureElement::getMeshName() const
   return _sup_mesh_name;
 }
 
+std::vector<std::string> MEDFileStructureElement::getVarAtts() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MCAuto<MEDFileSEVarAtt> >::const_iterator it=_var_att.begin();it!=_var_att.end();it++)
+    if((*it).isNotNull())
+      ret.push_back((*it)->getName());
+  return ret;
+}
+
+const MEDFileSEVarAtt *MEDFileStructureElement::getVarAtt(const std::string& varName) const
+{
+  for(std::vector< MCAuto<MEDFileSEVarAtt> >::const_iterator it=_var_att.begin();it!=_var_att.end();it++)
+    if((*it).isNotNull())
+      if((*it)->getName()==varName)
+        return *it;
+  std::ostringstream oss; oss << "MEDFileStructureElement::getVarAtt : no var att with name \"" << varName << "\" !";
+  throw INTERP_KERNEL::Exception(oss.str());
+}
+
 ////////////////////
+
+MEDFileStructureElements *MEDFileStructureElements::New(const std::string& fileName, const MEDFileMeshSupports *ms)
+{
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid,ms);
+}
 
 MEDFileStructureElements *MEDFileStructureElements::New(med_idt fid, const MEDFileMeshSupports *ms)
 {
@@ -360,3 +390,14 @@ const MEDFileStructureElement *MEDFileStructureElements::getSEWithName(const std
   throw INTERP_KERNEL::Exception(oss.str());
 }
 
+std::vector<std::string> MEDFileStructureElements::getVarAttsOf(const std::string& seName) const
+{
+  const MEDFileStructureElement *se(getSEWithName(seName));
+  return se->getVarAtts();
+}
+
+const MEDFileSEVarAtt *MEDFileStructureElements::getVarAttOf(const std::string &seName, const std::string& varName) const
+{
+  const MEDFileStructureElement *se(getSEWithName(seName));
+  return se->getVarAtt(varName);
+}

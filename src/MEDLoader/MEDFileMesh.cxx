@@ -2816,7 +2816,6 @@ void MEDFileUMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
   if(nModels<=0)
     return ;
   _elt_str.resize(nModels);
-  std::cerr << "******** " << nModels << std::endl;
   for(int i=0;i<nModels;i++)
     _elt_str[i]=MEDFileEltStruct4Mesh::New(fid,mName,dt,it,i,mrs);
 }
@@ -3313,6 +3312,19 @@ MEDFileMesh *MEDFileUMesh::cartesianize() const
       ret->setAxisType(AX_CART);
       return ret.retn();
     }
+}
+
+bool MEDFileUMesh::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileEltStruct4Mesh> >::const_iterator it=_elt_str.begin();it!=_elt_str.end();it++)
+    if((*it).isNotNull())
+      return true;
+  return false;
+}
+
+void MEDFileUMesh::killStructureElements()
+{
+  _elt_str.clear();
 }
 
 /*!
@@ -7094,6 +7106,22 @@ void MEDFileMeshMultiTS::setJoints( MEDFileJoints* joints )
     }
 }
 
+bool MEDFileMeshMultiTS::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileMesh> >::const_iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
+    if((*it).isNotNull())
+      if((*it)->presenceOfStructureElements())
+        return true;
+  return false;
+}
+
+void MEDFileMeshMultiTS::killStructureElements()
+{
+  for(std::vector< MCAuto<MEDFileMesh> >::iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
+    if((*it).isNotNull())
+      (*it)->killStructureElements();
+}
+
 void MEDFileMeshMultiTS::writeLL(med_idt fid) const
 {
   MEDFileJoints *joints(getJoints());
@@ -7387,6 +7415,22 @@ void MEDFileMeshes::checkConsistencyLight() const
     }
 }
 
+bool MEDFileMeshes::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++)
+    if((*it).isNotNull())
+      if((*it)->presenceOfStructureElements())
+        return true;
+  return false;
+}
+
+void MEDFileMeshes::killStructureElements()
+{
+  for(std::vector< MCAuto<MEDFileMeshMultiTS> >::iterator it=_meshes.begin();it!=_meshes.end();it++)
+    if((*it).isNotNull())
+      (*it)->killStructureElements();
+}
+
 MEDFileMeshesIterator::MEDFileMeshesIterator(MEDFileMeshes *ms):_ms(ms),_iter_id(0),_nb_iter(0)
 {
   if(ms)
@@ -7442,3 +7486,5 @@ TypeOfField MEDFileMesh::ConvertFromMEDFileEntity(med_entity_type etype)
       }
     }
 }
+
+

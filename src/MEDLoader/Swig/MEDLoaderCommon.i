@@ -1083,6 +1083,8 @@ namespace MEDCoupling
     void setJoints( MEDFileJoints* joints );
     void initializeEquivalences();
     void killEquivalences();
+    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
+    void killStructureElements() throw(INTERP_KERNEL::Exception);
     %extend
        {
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -1751,6 +1753,8 @@ namespace MEDCoupling
     void setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
     void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
     void cartesianizeMe() throw(INTERP_KERNEL::Exception);
+    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
+    void killStructureElements() throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileMeshes()

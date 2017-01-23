@@ -32,6 +32,7 @@ namespace MEDCoupling
   class MEDFileMeshSupports : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
+    MEDLOADER_EXPORT static MEDFileMeshSupports *New(const std::string& fileName);
     MEDLOADER_EXPORT static MEDFileMeshSupports *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileMeshSupports *New();
   public:

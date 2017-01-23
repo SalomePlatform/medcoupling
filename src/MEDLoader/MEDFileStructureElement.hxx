@@ -35,9 +35,11 @@ namespace MEDCoupling
   
   class MEDFileSEHolder
   {
+  public:
+    std::string getModelName() const;
+    std::string getName() const;
   protected:
     MEDFileSEHolder(MEDFileStructureElement *father):_father(father) { }
-    std::string getModelName() const;
     void setName(const std::string& name);
     std::size_t getHeapMemorySizeLoc() const;
   private:
@@ -71,6 +73,8 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     void writeLL(med_idt fid) const;
+    int getNbOfComponents() const { return _nb_compo; }
+    MCAuto<DataArray> getGenerator() const { return _gen; }
   private:
     MEDFileSEVarAtt(med_idt fid, MEDFileStructureElement *father, int idVarAtt);
   private:
@@ -86,6 +90,8 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT int getDynGT() const;
     MEDLOADER_EXPORT TypeOfField getEntity() const;
     MEDLOADER_EXPORT std::string getMeshName() const;
+    MEDLOADER_EXPORT std::vector<std::string> getVarAtts() const;
+    MEDLOADER_EXPORT const MEDFileSEVarAtt *getVarAtt(const std::string& varName) const;
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -109,6 +115,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
   class MEDFileStructureElements : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
+    MEDLOADER_EXPORT static MEDFileStructureElements *New(const std::string& fileName, const MEDFileMeshSupports *ms);
     MEDLOADER_EXPORT static MEDFileStructureElements *New(med_idt fid, const MEDFileMeshSupports *ms);
     MEDLOADER_EXPORT static MEDFileStructureElements *New();
     MEDLOADER_EXPORT int getNumberOf() const;
@@ -116,6 +123,8 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT const MEDFileStructureElement *getWithGT(int idGT) const;
     MEDLOADER_EXPORT int getNumberOfNodesPerCellOf(const std::string& seName) const;
     MEDLOADER_EXPORT const MEDFileStructureElement *getSEWithName(const std::string& seName) const;
+    MEDLOADER_EXPORT std::vector<std::string> getVarAttsOf(const std::string& seName) const;
+    MEDLOADER_EXPORT const MEDFileSEVarAtt *getVarAttOf(const std::string &seName, const std::string& varName) const;
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;

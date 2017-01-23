@@ -338,6 +338,7 @@ namespace MEDCoupling
     int _geo_type;
     MCAuto<DataArrayInt> _conn;
     MCAuto<MEDFileUMeshPerTypeCommon> _common;
+    std::vector< MCAuto<DataArray> > _vars;
   };
 }
 

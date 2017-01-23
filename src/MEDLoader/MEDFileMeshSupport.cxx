@@ -27,6 +27,12 @@
 
 using namespace MEDCoupling;
 
+MEDFileMeshSupports *MEDFileMeshSupports::New(const std::string& fileName)
+{
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return New(fid);
+}
+
 MEDFileMeshSupports *MEDFileMeshSupports::New(med_idt fid)
 {
   return new MEDFileMeshSupports(fid);
