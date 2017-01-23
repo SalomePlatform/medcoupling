@@ -101,7 +101,7 @@ namespace MEDCoupling
     const T& operator*() const { return *_ptr; }
     operator const T *() const { return _ptr; }
   private:
-    void referPtr(T *ptr) { _ptr=ptr; if(_ptr) _ptr->incrRef(); }
+    void referPtr(const T *ptr) { _ptr=ptr; if(_ptr) _ptr->incrRef(); }
     void destroyPtr() { if(_ptr) _ptr->decrRef(); }
   private:
     const T *_ptr;

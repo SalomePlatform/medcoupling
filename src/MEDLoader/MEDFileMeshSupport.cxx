@@ -111,8 +111,22 @@ const MEDFileUMesh *MEDFileMeshSupports::getSupMeshWithName(const std::string& n
   throw INTERP_KERNEL::Exception(oss.str());
 }
 
-int MEDFileMeshSupports::getNumberOfNodesPerCellOf(const std::string& name) const
+int MEDFileMeshSupports::getNumberOfNodesInConnOf(TypeOfField entity, const std::string& name) const
 {
   const MEDFileUMesh *sup(getSupMeshWithName(name));
-  return sup->getNumberOfNodes();
+  switch(entity)
+    {
+    case ON_NODES:
+      return sup->getNumberOfNodes();
+    case ON_CELLS:
+      {
+        std::vector<INTERP_KERNEL::NormalizedCellType> gt(sup->getAllGeoTypes());
+        if(gt.size()!=1)
+          throw INTERP_KERNEL::Exception("MEDFileMeshSupports::getNumberOfNodesInConnOf : on cells only one geometric type allowed !");
+        const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(gt[0]));
+        return sup->getNumberOfCellsAtLevel(0)*cm.getNumberOfNodes();
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileMeshSupports::getNumberOfNodesInConnOf : not recognized entity type !");
+    }
 }

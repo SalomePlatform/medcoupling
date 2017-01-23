@@ -2091,8 +2091,8 @@ MEDFileEltStruct4Mesh::MEDFileEltStruct4Mesh(med_idt fid, const std::string& mNa
   }
   MCAuto<MEDFileMeshSupports> mss(MEDFileMeshSupports::New(fid));
   MCAuto<MEDFileStructureElements> mse(MEDFileStructureElements::New(fid,mss));
-  int nbOfNodesPerCell(mse->getNumberOfNodesPerCellOf(_geo_type_name));
-  _conn=DataArrayInt::New(); _conn->alloc(nCells,nbOfNodesPerCell);
+  int nbEntities(mse->getNumberOfNodesPerSE(_geo_type_name));
+  _conn=DataArrayInt::New(); _conn->alloc(nCells,nbEntities);
   MEDFILESAFECALLERRD0(MEDmeshElementConnectivityRd,(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,_geo_type,MED_NODAL,MED_FULL_INTERLACE,_conn->getPointer()));
   _common=MEDFileUMeshPerTypeCommon::New();
   _common->loadCommonPart(fid,mName.c_str(),dt,it,nCells,geoType,MED_STRUCT_ELEMENT,mrs);

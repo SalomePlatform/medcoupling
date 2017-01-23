@@ -371,11 +371,13 @@ const MEDFileStructureElement *MEDFileStructureElements::getWithGT(int idGT) con
   throw INTERP_KERNEL::Exception(oss.str());
 }
 
-int MEDFileStructureElements::getNumberOfNodesPerCellOf(const std::string& seName) const
+int MEDFileStructureElements::getNumberOfNodesPerSE(const std::string& seName) const
 {
+  if(seName=="MED_PARTICLE")
+    return 1;
   const MEDFileStructureElement *se(getSEWithName(seName));
   std::string meshName(se->getMeshName());
-  return _sup->getNumberOfNodesPerCellOf(meshName);
+  return _sup->getNumberOfNodesInConnOf(se->getEntity(),meshName);
 }
 
 const MEDFileStructureElement *MEDFileStructureElements::getSEWithName(const std::string& seName) const

@@ -278,7 +278,7 @@ namespace MEDCoupling
     void entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const;
     void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
     std::string getGeoTypeRepr() const;
-    MEDFileFieldPerMeshPerType *deepCopy(MEDFileFieldPerMesh *father) const;
+    MEDFileFieldPerMeshPerTypeDyn *deepCopy(MEDFileFieldPerMesh *father) const;
     void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
   private:
     MEDFileFieldPerMeshPerTypeDyn(med_idt fid, MEDFileFieldPerMesh *fath, const MEDFileStructureElement *se, const MEDFileFieldNameScope& nasc);
@@ -320,6 +320,7 @@ namespace MEDCoupling
     bool presenceOfStructureElements() const;
     bool onlyStructureElements() const;
     void killStructureElements();
+    void keepOnlyStructureElements();
     DataArray *getOrCreateAndGetArray();
     const DataArray *getOrCreateAndGetArray() const;
     const std::vector<std::string>& getInfo() const;
@@ -561,6 +562,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool presenceOfStructureElements() const;
     MEDLOADER_EXPORT bool onlyStructureElements() const;
     MEDLOADER_EXPORT void killStructureElements();
+    MEDLOADER_EXPORT void keepOnlyStructureElements();
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& infos);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -916,6 +918,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool presenceOfStructureElements() const;
     MEDLOADER_EXPORT bool onlyStructureElements() const;
     MEDLOADER_EXPORT void killStructureElements();
+    MEDLOADER_EXPORT void keepOnlyStructureElements();
     MEDLOADER_EXPORT int getPosOfTimeStep(int iteration, int order) const;
     MEDLOADER_EXPORT int getPosGivenTime(double time, double eps=1e-8) const;
     MEDLOADER_EXPORT std::vector< std::pair<int,int> > getIterations() const;
@@ -1067,6 +1070,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
     MEDLOADER_EXPORT bool presenceOfMultiDiscPerGeoType() const;
     MEDLOADER_EXPORT void killStructureElements();
+    MEDLOADER_EXPORT void keepOnlyStructureElements();
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& info);
     MEDLOADER_EXPORT int getNumberOfComponents() const;
     MEDLOADER_EXPORT int getNonEmptyLevels(int iteration, int order, const std::string& mname, std::vector<int>& levs) const;
@@ -1246,6 +1250,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileFields *partOfThisNotLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const;
     MEDLOADER_EXPORT bool presenceOfStructureElements() const;
     MEDLOADER_EXPORT void killStructureElements();
+    MEDLOADER_EXPORT void keepOnlyStructureElements();
     MEDLOADER_EXPORT MCAuto<MEDFileFields> partOfThisOnStructureElements() const;
     MEDLOADER_EXPORT MEDFileFieldsIterator *iterator();
     MEDLOADER_EXPORT void destroyFieldAtPos(int i);

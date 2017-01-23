@@ -3023,6 +3023,7 @@ namespace MEDCoupling
     MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const throw(INTERP_KERNEL::Exception);
     bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
     void killStructureElements() throw(INTERP_KERNEL::Exception);
+    void keepOnlyStructureElements() throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
     bool removeFieldsWithoutAnyTimeStep() throw(INTERP_KERNEL::Exception);
     %extend
