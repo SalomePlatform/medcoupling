@@ -85,6 +85,7 @@ namespace MEDCoupling
   {
   public:
     MCConstAuto(const MCConstAuto& other):_ptr(0) { referPtr(other._ptr); }
+    MCConstAuto(const typename MEDCoupling::MCAuto<T> & other):_ptr(0) { referPtr( (const T*) other); }
     MCConstAuto(const T *ptr=0):_ptr(ptr) { }
     ~MCConstAuto() { destroyPtr(); }
     bool isNull() const { return _ptr==0; }

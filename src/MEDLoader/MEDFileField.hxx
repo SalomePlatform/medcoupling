@@ -272,6 +272,7 @@ namespace MEDCoupling
   public:
     static MEDFileFieldPerMeshPerTypeDyn *NewOnRead(med_idt fid, MEDFileFieldPerMesh *fath, const MEDFileEntities *entities, int idGT, const MEDFileFieldNameScope& nasc);
     int getDynGT() const;
+    std::string getModelName() const;
   public:
     void getDimension(int& dim) const;
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
@@ -321,6 +322,8 @@ namespace MEDCoupling
     bool onlyStructureElements() const;
     void killStructureElements();
     void keepOnlyStructureElements();
+    void keepOnlyOnSE(const std::string& seName);
+    void getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const;
     DataArray *getOrCreateAndGetArray();
     const DataArray *getOrCreateAndGetArray() const;
     const std::vector<std::string>& getInfo() const;
@@ -563,6 +566,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool onlyStructureElements() const;
     MEDLOADER_EXPORT void killStructureElements();
     MEDLOADER_EXPORT void keepOnlyStructureElements();
+    MEDLOADER_EXPORT void keepOnlyOnSE(const std::string& seName);
+    MEDLOADER_EXPORT void getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const;
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& infos);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -919,6 +924,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool onlyStructureElements() const;
     MEDLOADER_EXPORT void killStructureElements();
     MEDLOADER_EXPORT void keepOnlyStructureElements();
+    MEDLOADER_EXPORT void keepOnlyOnSE(const std::string& seName);
+    MEDLOADER_EXPORT void getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const;
     MEDLOADER_EXPORT int getPosOfTimeStep(int iteration, int order) const;
     MEDLOADER_EXPORT int getPosGivenTime(double time, double eps=1e-8) const;
     MEDLOADER_EXPORT std::vector< std::pair<int,int> > getIterations() const;
@@ -1069,8 +1076,6 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
     MEDLOADER_EXPORT bool presenceOfMultiDiscPerGeoType() const;
-    MEDLOADER_EXPORT void killStructureElements();
-    MEDLOADER_EXPORT void keepOnlyStructureElements();
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& info);
     MEDLOADER_EXPORT int getNumberOfComponents() const;
     MEDLOADER_EXPORT int getNonEmptyLevels(int iteration, int order, const std::string& mname, std::vector<int>& levs) const;
@@ -1251,7 +1256,10 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool presenceOfStructureElements() const;
     MEDLOADER_EXPORT void killStructureElements();
     MEDLOADER_EXPORT void keepOnlyStructureElements();
+    MEDLOADER_EXPORT void keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName);
+    MEDLOADER_EXPORT void getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const;
     MEDLOADER_EXPORT MCAuto<MEDFileFields> partOfThisOnStructureElements() const;
+    MEDLOADER_EXPORT MCAuto<MEDFileFields> partOfThisLyingOnSpecifiedMeshSEName(const std::string& meshName, const std::string& seName) const;
     MEDLOADER_EXPORT MEDFileFieldsIterator *iterator();
     MEDLOADER_EXPORT void destroyFieldAtPos(int i);
     MEDLOADER_EXPORT void destroyFieldsAtPos(const int *startIds, const int *endIds);

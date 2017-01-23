@@ -1720,6 +1720,11 @@ int MEDFileFieldPerMeshPerTypeDyn::getDynGT() const
   return _se->getDynGT();
 }
 
+std::string MEDFileFieldPerMeshPerTypeDyn::getModelName() const
+{
+  return _se->getName();
+}
+
 void MEDFileFieldPerMeshPerTypeDyn::getDimension(int& dim) const
 {
   throw INTERP_KERNEL::Exception("not implemented yet !");
@@ -2031,6 +2036,40 @@ void MEDFileFieldPerMesh::keepOnlyStructureElements()
         }
     }
   _field_pm_pt=res;
+}
+
+void MEDFileFieldPerMesh::keepOnlyOnSE(const std::string& seName)
+{
+  std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > > res;
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      if((*it).isNotNull())
+        {
+          const MEDFileFieldPerMeshPerTypeDyn *pt(dynamic_cast<const MEDFileFieldPerMeshPerTypeDyn *>((const MEDFileFieldPerMeshPerTypeCommon *)*it));
+          if(!pt)
+            throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::keepOnlyOnSE : presence of non SE !");
+          if(pt->getModelName()==seName)
+            res.push_back(*it);
+        }
+    }
+  _field_pm_pt=res;
+}
+
+void MEDFileFieldPerMesh::getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      if((*it).isNotNull())
+        {
+          const MEDFileFieldPerMeshPerTypeDyn *pt(dynamic_cast<const MEDFileFieldPerMeshPerTypeDyn *>((const MEDFileFieldPerMeshPerTypeCommon *)*it));
+          if(pt)
+            {
+              ps.push_back(std::pair<std::string,std::string>(getMeshName(),pt->getModelName()));
+            }
+          else
+            throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getMeshSENames : presence of a non structure element part !");
+        }
+    }
 }
 
 DataArray *MEDFileFieldPerMesh::getOrCreateAndGetArray()
@@ -5066,6 +5105,20 @@ void MEDFileAnyTypeField1TSWithoutSDA::keepOnlyStructureElements()
       (*it)->keepOnlyStructureElements();
 }
 
+void MEDFileAnyTypeField1TSWithoutSDA::keepOnlyOnSE(const std::string& seName)
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMesh > >::iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    if((*it).isNotNull())
+      (*it)->keepOnlyOnSE(seName);
+}
+
+void MEDFileAnyTypeField1TSWithoutSDA::getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    if((*it).isNotNull())
+      (*it)->getMeshSENames(ps);
+}
+
 MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh(const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh, MCAuto<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
 {
   static const char MSG0[]="MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh : the field is too complex to be able to be extracted with  \"field\" method ! Call getFieldOnMeshAtLevel method instead to deal with complexity !";
@@ -7555,6 +7608,41 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::keepOnlyStructureElements()
           }
       }
   _time_steps=ret;
+}
+
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::keepOnlyOnSE(const std::string& seName)
+{
+  std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> > ret;
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    if((*it).isNotNull())
+      (*it)->keepOnlyOnSE(seName);
+}
+
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const
+{
+  std::vector< std::pair<std::string,std::string> > ps2;
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    if((*it).isNotNull())
+      {
+        (*it)->getMeshSENames(ps2);
+        break;
+      }
+  if(ps2.empty())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::getMeshSENames : this appears to not contain SE only !");
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    if((*it).isNotNull())
+      {
+        std::vector< std::pair<std::string,std::string> > ps3;
+        (*it)->getMeshSENames(ps3);
+        if(ps2!=ps3)
+          throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::getMeshSENames : For the moment only homogeneous SE def through time managed !");
+      }
+  for(std::vector< std::pair<std::string,std::string> >::const_iterator it=ps2.begin();it!=ps2.end();it++)
+    {
+      std::vector< std::pair<std::string,std::string> >::iterator it2(std::find(ps.begin(),ps.end(),*it));
+      if(it2==ps.end())
+        ps.push_back(*it);
+    }
 }
 
 bool MEDFileAnyTypeFieldMultiTSWithoutSDA::presenceOfMultiDiscPerGeoType() const
@@ -11095,11 +11183,43 @@ void MEDFileFields::keepOnlyStructureElements()
       }
   _fields=ret;
 }
-  
+
+void MEDFileFields::keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName)
+{
+  std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > ret;
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
+      {
+        if((*it)->getMeshName()!=meshName)
+          continue;
+        std::vector< std::pair<std::string,std::string> > ps;
+        (*it)->getMeshSENames(ps);
+        std::pair<std::string,std::string> p(meshName,seName);
+        if(std::find(ps.begin(),ps.end(),p)!=ps.end())
+          (*it)->keepOnlyOnSE(seName);
+        ret.push_back(*it);
+      }
+  _fields=ret;
+}
+
+void MEDFileFields::getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const
+{
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
+      (*it)->getMeshSENames(ps);
+}
+
 MCAuto<MEDFileFields> MEDFileFields::partOfThisOnStructureElements() const
 {
   MCAuto<MEDFileFields> ret(deepCopy());
   ret->keepOnlyStructureElements();
+  return ret;
+}
+
+MCAuto<MEDFileFields> MEDFileFields::partOfThisLyingOnSpecifiedMeshSEName(const std::string& meshName, const std::string& seName) const
+{
+  MCAuto<MEDFileFields> ret(deepCopy());
+  ret->keepOnlyOnMeshSE(meshName,seName);
   return ret;
 }
 

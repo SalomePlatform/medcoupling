@@ -3024,6 +3024,7 @@ namespace MEDCoupling
     bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
     void killStructureElements() throw(INTERP_KERNEL::Exception);
     void keepOnlyStructureElements() throw(INTERP_KERNEL::Exception);
+    void keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName) throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
     bool removeFieldsWithoutAnyTimeStep() throw(INTERP_KERNEL::Exception);
     %extend
@@ -3059,6 +3060,12 @@ namespace MEDCoupling
            MCAuto<MEDFileFields> ret(self->partOfThisOnStructureElements());
            return ret.retn();
          }
+
+         MEDFileFields *partOfThisLyingOnSpecifiedMeshSEName(const std::string& meshName, const std::string& seName) const throw(INTERP_KERNEL::Exception)
+         {
+           MCAuto<MEDFileFields> ret(self->partOfThisLyingOnSpecifiedMeshSEName(meshName,seName));
+           return ret.retn();
+         }
          
          static MEDFileFields *LoadSpecificEntities(const std::string& fileName, PyObject *entities, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
@@ -3071,6 +3078,13 @@ namespace MEDCoupling
                entitiesCpp[i].second=(INTERP_KERNEL::NormalizedCellType)tmp[i].second;
              }
            return MEDFileFields::LoadSpecificEntities(fileName,entitiesCpp,loadAll);
+         }
+
+         PyObject *getMeshSENames() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<std::string,std::string> > ps;
+           self->getMeshSENames(ps);
+           return convertVectPairStToPy(ps);
          }
 
          PyObject *getCommonIterations() const throw(INTERP_KERNEL::Exception)
