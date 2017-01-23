@@ -321,6 +321,24 @@ namespace MEDCoupling
     mutable MCAuto<DataArrayInt> _rev_num;
     MEDFileUMeshPermCompute _m;
   };
+
+  class MEDFileEltStruct4Mesh : public RefCountObject
+  {
+  public:
+    static MEDFileEltStruct4Mesh *New(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs);
+  private:
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const MEDCoupling::BigMemoryObject*> getDirectChildrenWithNull() const;
+  private:
+    ~MEDFileEltStruct4Mesh() { }
+  private:
+    MEDFileEltStruct4Mesh(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs);
+  private:
+    std::string _geo_type_name;
+    int _geo_type;
+    MCAuto<DataArrayInt> _conn;
+    MCAuto<MEDFileUMeshPerTypeCommon> _common;
+  };
 }
 
 #endif

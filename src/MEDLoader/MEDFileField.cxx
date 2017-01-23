@@ -2846,6 +2846,7 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
       if(nbPfl>0)
         {
           _field_pm_pt.push_back(MEDFileFieldPerMeshPerTypeDyn::NewOnRead(fid,this,entities,*it,nasc));
+          _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
         }
     }
 }

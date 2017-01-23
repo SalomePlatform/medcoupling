@@ -261,6 +261,11 @@ TypeOfField MEDFileStructureElement::getEntity() const
   return _tof;
 }
 
+std::string MEDFileStructureElement::getMeshName() const
+{
+  return _sup_mesh_name;
+}
+
 ////////////////////
 
 MEDFileStructureElements *MEDFileStructureElements::New(med_idt fid, const MEDFileMeshSupports *ms)
@@ -296,6 +301,7 @@ MEDFileStructureElements::MEDFileStructureElements(med_idt fid, const MEDFileMes
   _elems.resize(nbSE);
   for(int i=0;i<nbSE;i++)
     _elems[i]=MEDFileStructureElement::New(fid,i,ms);
+  _sup.takeRef(ms);
 }
 
 MEDFileStructureElements::MEDFileStructureElements()
@@ -334,3 +340,23 @@ const MEDFileStructureElement *MEDFileStructureElements::getWithGT(int idGT) con
   std::ostringstream oss; oss << "MEDFileStructureElements::getWithGT : no such geo type " << idGT << " !";
   throw INTERP_KERNEL::Exception(oss.str());
 }
+
+int MEDFileStructureElements::getNumberOfNodesPerCellOf(const std::string& seName) const
+{
+  const MEDFileStructureElement *se(getSEWithName(seName));
+  std::string meshName(se->getMeshName());
+  return _sup->getNumberOfNodesPerCellOf(meshName);
+}
+
+const MEDFileStructureElement *MEDFileStructureElements::getSEWithName(const std::string& seName) const
+{
+  for(std::vector< MCAuto<MEDFileStructureElement> >::const_iterator it=_elems.begin();it!=_elems.end();it++)
+    {
+      if((*it).isNotNull())
+        if((*it)->getName()==seName)
+          return *it;
+    }
+  std::ostringstream oss; oss << "MEDFileStructureElements::getSEWithName : no such structure element with name " << seName << " !";
+  throw INTERP_KERNEL::Exception(oss.str());
+}
+

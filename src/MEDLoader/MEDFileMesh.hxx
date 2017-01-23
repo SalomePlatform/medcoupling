@@ -383,6 +383,7 @@ namespace MEDCoupling
     MCAuto<DataArrayAsciiChar> _name_coords;
     mutable MCAuto<DataArrayInt> _rev_num_coords;
     MCAuto<PartDefinition> _part_coords;
+    std::vector< MCAuto<MEDFileEltStruct4Mesh> > _elt_str;
   };
 
   class MEDFileStructuredMesh : public MEDFileMesh

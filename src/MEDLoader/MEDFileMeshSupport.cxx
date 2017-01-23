@@ -104,3 +104,9 @@ const MEDFileUMesh *MEDFileMeshSupports::getSupMeshWithName(const std::string& n
   oss << " !";
   throw INTERP_KERNEL::Exception(oss.str());
 }
+
+int MEDFileMeshSupports::getNumberOfNodesPerCellOf(const std::string& name) const
+{
+  const MEDFileUMesh *sup(getSupMeshWithName(name));
+  return sup->getNumberOfNodes();
+}

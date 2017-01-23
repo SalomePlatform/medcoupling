@@ -85,6 +85,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT std::string getName() const;
     MEDLOADER_EXPORT int getDynGT() const;
     MEDLOADER_EXPORT TypeOfField getEntity() const;
+    MEDLOADER_EXPORT std::string getMeshName() const;
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -113,6 +114,8 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT int getNumberOf() const;
     MEDLOADER_EXPORT std::vector<int> getDynGTAvail() const;
     MEDLOADER_EXPORT const MEDFileStructureElement *getWithGT(int idGT) const;
+    MEDLOADER_EXPORT int getNumberOfNodesPerCellOf(const std::string& seName) const;
+    MEDLOADER_EXPORT const MEDFileStructureElement *getSEWithName(const std::string& seName) const;
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -123,6 +126,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     ~MEDFileStructureElements();
   private:
     std::vector< MCAuto<MEDFileStructureElement> > _elems;
+    MCConstAuto<MEDFileMeshSupports> _sup;
   };
 }
 

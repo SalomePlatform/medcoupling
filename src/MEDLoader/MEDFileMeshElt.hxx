@@ -35,7 +35,21 @@ namespace MEDCoupling
   class MEDCouplingUMesh;
   class MEDFileMeshReadSelector;
 
-  class MEDFileUMeshPerType : public RefCountObject
+  class MEDFileUMeshPerTypeCommon : public RefCountObject
+  {
+  public:
+    static MEDFileUMeshPerTypeCommon *New();
+    void loadCommonPart(med_idt fid, const char *mName, int dt, int it, int curNbOfElem, med_geometry_type geoElt,
+                        med_entity_type entity, MEDFileMeshReadSelector *mrs);
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+  protected:
+    MCAuto<DataArrayInt> _num;
+    MCAuto<DataArrayInt> _fam;
+    MCAuto<DataArrayAsciiChar> _names;
+  };
+
+  class MEDFileUMeshPerType : public MEDFileUMeshPerTypeCommon
   {
   public:
     static MEDFileUMeshPerType *New(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType geoElt2, MEDFileMeshReadSelector *mrs);
@@ -64,15 +78,10 @@ namespace MEDCoupling
                    med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPolyh(med_idt fid, const char *mName, int dt, int it, int mdim, int connFaceLgth, med_geometry_type geoElt,
                    med_entity_type entity, MEDFileMeshReadSelector *mrs);
-    void loadCommonPart(med_idt fid, const char *mName, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPartOfCellCommonPart(med_idt fid, const char *mName, int strt, int stp, int step, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
   private:
     MCAuto<MEDCoupling1GTUMesh> _m;
-    MCAuto<DataArrayInt> _num;
-    MCAuto<DataArrayInt> _fam;
-    MCAuto<DataArrayAsciiChar> _names;
     MCAuto<PartDefinition> _pd;
-    med_entity_type _entity;
   };
 }
 

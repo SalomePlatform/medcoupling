@@ -23,6 +23,8 @@
 #include "MEDLoaderBase.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileMeshReadSelector.hxx"
+#include "MEDFileStructureElement.hxx"
+#include "MEDFileMeshSupport.hxx"
 
 #include "MEDCouplingUMesh.hxx"
 
@@ -2053,4 +2055,44 @@ void MEDFileUMeshAggregateCompute::setCoords(DataArrayDouble *coords)
   MEDCouplingUMesh *m(_m);
   if(m)
     m->setCoords(coords);
+}
+
+MEDFileEltStruct4Mesh *MEDFileEltStruct4Mesh::New(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs)
+{
+  return new MEDFileEltStruct4Mesh(fid,mName,dt,it,iterOnStEltOfMesh,mrs);
+}
+
+std::size_t MEDFileEltStruct4Mesh::getHeapMemorySizeWithoutChildren() const
+{
+  return _geo_type_name.capacity();
+}
+
+std::vector<const MEDCoupling::BigMemoryObject*> MEDFileEltStruct4Mesh::getDirectChildrenWithNull() const
+{
+  std::vector<const MEDCoupling::BigMemoryObject*> ret;
+  ret.push_back(_conn);
+  ret.push_back(_common);
+  return ret;
+}
+
+MEDFileEltStruct4Mesh::MEDFileEltStruct4Mesh(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs)
+{
+  med_geometry_type geoType;
+  INTERP_KERNEL::AutoPtr<char> geoTypeName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  MEDFILESAFECALLERRD0(MEDmeshEntityInfo,(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,iterOnStEltOfMesh+1,geoTypeName,&geoType));
+  _geo_type=geoType;
+  _geo_type_name=MEDLoaderBase::buildStringFromFortran(geoTypeName,MED_NAME_SIZE);
+  int nCells(0);
+  {
+    med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+    nCells=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,geoType,MED_CONNECTIVITY,MED_NODAL,&chgt,&trsf);
+  }
+  MCAuto<MEDFileMeshSupports> mss(MEDFileMeshSupports::New(fid));
+  MCAuto<MEDFileStructureElements> mse(MEDFileStructureElements::New(fid,mss));
+  int nbOfNodesPerCell(mse->getNumberOfNodesPerCellOf(_geo_type_name));
+  _conn=DataArrayInt::New(); _conn->alloc(nCells,nbOfNodesPerCell);
+  MEDFILESAFECALLERRD0(MEDmeshElementConnectivityRd,(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,_geo_type,MED_NODAL,MED_FULL_INTERLACE,_conn->getPointer()));
+  _common=MEDFileUMeshPerTypeCommon::New();
+  _common->loadCommonPart(fid,mName.c_str(),dt,it,nCells,geoType,MED_STRUCT_ELEMENT,mrs);
+  //MEDFILESAFECALLERRD0(MEDmeshElementRd,(mName.c_str(),dt,it,MED_STRUCT_ELEMENT,geoType,MED_NODAL,MED_FULL_INTERLACE,conn,));
 }

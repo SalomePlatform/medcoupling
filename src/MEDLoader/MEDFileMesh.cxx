@@ -2347,7 +2347,7 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOf(med_idt fid, const std::string& mName, co
 std::size_t MEDFileUMesh::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(MEDFileMesh::getHeapMemorySizeWithoutChildren());
-  ret+=_ms.capacity()*(sizeof(MCAuto<MEDFileUMeshSplitL1>));
+  ret+=_ms.capacity()*(sizeof(MCAuto<MEDFileUMeshSplitL1>))+_elt_str.capacity()*sizeof(MCAuto<MEDFileEltStruct4Mesh>);
   return ret;
 }
 
@@ -2362,6 +2362,8 @@ std::vector<const BigMemoryObject *> MEDFileUMesh::getDirectChildrenWithNull() c
   ret.push_back((const PartDefinition *)_part_coords);
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     ret.push_back((const MEDFileUMeshSplitL1*) *it);
+  for(std::vector< MCAuto<MEDFileEltStruct4Mesh> >::const_iterator it=_elt_str.begin();it!=_elt_str.end();it++)
+    ret.push_back((const MEDFileEltStruct4Mesh *)*it);
   return ret;
 }
 
@@ -2805,6 +2807,18 @@ void MEDFileUMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
     }
   loaderl2.loadAll(fid,mid,mName,dt,it,mrs);
   dispatchLoadedPart(fid,loaderl2,mName,mrs);
+  // Structure element part...
+  int nModels(-1);
+  {
+    med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+    nModels=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,MED_GEO_ALL,MED_CONNECTIVITY,MED_NODAL,&chgt,&trsf);
+  }
+  if(nModels<=0)
+    return ;
+  _elt_str.resize(nModels);
+  std::cerr << "******** " << nModels << std::endl;
+  for(int i=0;i<nModels;i++)
+    _elt_str[i]=MEDFileEltStruct4Mesh::New(fid,mName,dt,it,i,mrs);
 }
 
 void MEDFileUMesh::dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl2, const std::string& mName, MEDFileMeshReadSelector *mrs)
