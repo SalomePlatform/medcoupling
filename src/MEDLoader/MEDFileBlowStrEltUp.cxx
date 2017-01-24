@@ -117,16 +117,10 @@ MCAuto<MEDFileEltStruct4Mesh> MEDFileBlowStrEltUp::dealWithMEDBALLInMesh(const M
   MCAuto<MEDFileUMeshPerTypeCommon> md(zeStr->getMeshDef());
   const DataArrayInt *ff0(md->getFam());
   if(ff0)
-    {
-      MCAuto<DataArrayInt> ff0o(ff0->duplicateEachTupleNTimes(nbCells));
-      mOut->setFamilyFieldArr(0,ff0o);
-    }
+    mOut->setFamilyFieldArr(0,const_cast<DataArrayInt *>(ff0));
   const DataArrayInt *nf0(md->getNum());
   if(nf0)
-    {
-      MCAuto<DataArrayInt> nf0o(ff0->duplicateEachTupleNTimes(nbCells));
-      mOut->setRenumFieldArr(0,nf0o);
-    }
+    mOut->setRenumFieldArr(0,const_cast<DataArrayInt *>(nf0));
   mOut->copyFamGrpMapsFrom(*mesh);
   const std::vector< MCAuto<DataArray> >& vars(zeStr->getVars());
   for(std::vector< MCAuto<DataArray> >::const_iterator it=vars.begin();it!=vars.end();it++)
@@ -159,7 +153,7 @@ MCAuto<MEDFileEltStruct4Mesh> MEDFileBlowStrEltUp::dealWithMEDBALLInMesh(const M
  * \param [in] varAtt - fields containing var att of current structure element. WARNING at this stage the number of iteration are equal to one for each field in \a varAtt
  * \param [out] zeOutputs - ze fields that are the concatenation of fields in \a fs transformed and those in \a varAtt normalized in time space
  */
-void MEDFileBlowStrEltUp::dealWithSEInFields(const std::string& seName, const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MCAuto<MEDFileFields>& zeOutputs) const
+void MEDFileBlowStrEltUp::dealWithSEInFields(const std::string& seName, const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MEDFileFields *zeOutputs) const
 {
   if(!fs)
     throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithSEInFields : null pointer !");
@@ -171,15 +165,61 @@ void MEDFileBlowStrEltUp::dealWithSEInFields(const std::string& seName, const ME
   throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithSEInFields : only MED_BALL is managed for the moment, but if you are interested please send spec to anthony.geay@edf.fr !");
 }
 
-void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MCAuto<MEDFileFields>& zeOutputs) const
+void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MEDFileFields *zeOutputs) const
 {
+  int nbf(fs->getNumberOfFields());
+  std::vector< MCAuto<MEDFileAnyTypeFieldMultiTS> > elts0;
+  std::vector< MEDFileAnyTypeFieldMultiTS * > elts1;
+  for(int i=0;i<nbf;i++)
+    {
+      MCAuto<MEDFileAnyTypeFieldMultiTS> elt(fs->getFieldAtPos(i));
+      MCAuto<MEDFileAnyTypeFieldMultiTS> eltOut(elt->buildNewEmpty());
+      int nbTS(elt->getNumberOfTS());
+      for(int j=0;j<nbTS;j++)
+        {
+          MCAuto<MEDFileAnyTypeField1TS> eltt(elt->getTimeStepAtPos(j));
+          MCAuto<MEDFileAnyTypeField1TS> elttOut(eltt->deepCopy());
+          std::string meshName(eltt->getMeshName());
+          elttOut->setMeshName(BuildNewMeshName(meshName,MED_BALL_STR));
+          elttOut->convertMedBallIntoClassic();
+          eltOut->pushBackTimeStep(elttOut);
+        }
+      elts0.push_back(eltOut); elts1.push_back(eltOut);
+    }
+  //
+  std::size_t ii(0);
+  std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > sp(MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(elts1));
+  for(std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> >::const_iterator it0=sp.begin();it0!=sp.end();it0++,ii++)
+    {
+      for(std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+        zeOutputs->pushField(*it1);
+      std::vector<double> t2s;
+      std::vector< std::pair<int,int> > t1s((*it0)[0]->getTimeSteps(t2s));
+      std::size_t nbTS3(t2s.size());
+      int nbf2(varAtt->getNumberOfFields());
+      for(int i=0;i<nbf2;i++)
+        {
+          MCAuto<MEDFileAnyTypeFieldMultiTS> elt(varAtt->getFieldAtPos(i));
+          int nbTS2(elt->getNumberOfTS());
+          if(nbTS2!=1)
+            throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : internal error ! The dealWithMEDBALLInMesh is expected to return a single TS !");
+          MCAuto<MEDFileAnyTypeField1TS> elt2(elt->getTimeStepAtPos(0));
+          MCAuto<MEDFileAnyTypeFieldMultiTS> elt4(elt->buildNewEmpty());
+          for(std::size_t j=0;j<nbTS3;j++)
+            {
+              MCAuto<MEDFileAnyTypeField1TS> elt3(elt2->deepCopy());
+              elt3->setTime(t1s[j].first,t1s[j].second,t2s[j]);
+              elt3->setName(BuildVarAttName(ii,sp.size(),elt3->getName()));
+              elt4->pushBackTimeStep(elt3);
+            }
+          zeOutputs->pushField(elt4);
+        }
+    }
   
 }
 
-void MEDFileBlowStrEltUp::generate(MCAuto<MEDFileMeshes>& msOut, MCAuto<MEDFileFields>& allZeOutFields)
+void MEDFileBlowStrEltUp::generate(MEDFileMeshes *msOut, MEDFileFields *allZeOutFields)
 {
-  msOut=MEDFileMeshes::New();
-  allZeOutFields=MEDFileFields::New();
   for(std::vector< MCAuto<MEDFileFields> >::iterator elt=_elts.begin();elt!=_elts.end();elt++)
     {
       std::vector< std::pair<std::string,std::string> > ps;
@@ -195,10 +235,8 @@ void MEDFileBlowStrEltUp::generate(MCAuto<MEDFileMeshes>& msOut, MCAuto<MEDFileF
       MCAuto<MEDFileUMesh> mOut;
       MCAuto<MEDFileFields> fsOut1;
       MCAuto<MEDFileEltStruct4Mesh> zeStr(dealWithSEInMesh(ps[0].second,umesh,mOut,fsOut1));
-      msOut->pushMesh(umesh);
-      MCAuto<MEDFileFields> fsOut2;
-      dealWithSEInFields(ps[0].second,*elt,zeStr,fsOut1,fsOut2);
-      allZeOutFields->aggregate(*fsOut2);
+      msOut->pushMesh(mOut);
+      dealWithSEInFields(ps[0].second,*elt,zeStr,fsOut1,allZeOutFields);
     }
 }
 
@@ -209,13 +247,19 @@ std::string MEDFileBlowStrEltUp::BuildNewMeshName(const std::string& meshName, c
   return mNameOut.str();
 }
 
-void MEDFileBlowStrEltUp::DealWithSE(MEDFileFields *fs, const MEDFileMeshes *ms, const MEDFileStructureElements *ses, MCAuto<MEDFileFields>& fsOut, MCAuto<MEDFileMeshes>& msOut)
+std::string MEDFileBlowStrEltUp::BuildVarAttName(std::size_t iPart, std::size_t totNbParts, const std::string& name)
+{
+  if(totNbParts==1)
+    return name;
+  std::ostringstream oss;
+  oss << name << "@" << iPart;
+  return oss.str();
+}
+
+void MEDFileBlowStrEltUp::DealWithSE(MEDFileFields *fs, MEDFileMeshes *ms, const MEDFileStructureElements *ses)
 {
   MCAuto<MEDFileFields> fsSEOnly(fs->partOfThisOnStructureElements());
   fs->killStructureElements();
   MEDFileBlowStrEltUp bu(fsSEOnly,ms,ses);
-  MCAuto<MEDFileMeshes> msOut1;
-  MCAuto<MEDFileFields> allZeOutFields1;
-  bu.generate(msOut1,allZeOutFields1);
-  
+  bu.generate(ms,fs);
 }

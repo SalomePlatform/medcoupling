@@ -1347,6 +1347,13 @@ bool MEDFileFieldPerMeshPerTypeCommon::presenceOfMultiDiscPerGeoType() const
   return nb>1;
 }
 
+void MEDFileFieldPerMeshPerTypeCommon::pushDiscretization(MEDFileFieldPerMeshPerTypePerDisc *disc)
+{
+  MCAuto<MEDFileFieldPerMeshPerTypePerDisc> elt;
+  elt.takeRef(disc);
+  _field_pm_pt_pd.push_back(elt);
+}
+
 DataArray *MEDFileFieldPerMeshPerTypeCommon::getOrCreateAndGetArray()
 {
   return _father->getOrCreateAndGetArray();
@@ -2239,6 +2246,29 @@ bool MEDFileFieldPerMesh::changeMeshNames(const std::vector< std::pair<std::stri
         }
     }
   return false;
+}
+
+void MEDFileFieldPerMesh::convertMedBallIntoClassic()
+{
+  if(_field_pm_pt.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::convertMedBallIntoClassic : Only managed for single mesh !");
+  if(_field_pm_pt[0].isNull())
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::convertMedBallIntoClassic : null pointer !");
+  MEDFileFieldPerMeshPerTypeDyn *pt(dynamic_cast<MEDFileFieldPerMeshPerTypeDyn *>((MEDFileFieldPerMeshPerTypeCommon *)_field_pm_pt[0]));
+  if(!pt)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::convertMedBallIntoClassic : this is expected to be marked as structure element !");
+  if(pt->getNumberOfLoc()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::convertMedBallIntoClassic : only one loc managed !");
+  const MEDFileFieldPerMeshPerTypePerDisc *disc(pt->getLeafGivenLocId(0));
+  if(!disc)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::convertMedBallIntoClassic : internal error !");
+  MCAuto<MEDFileFieldPerMeshPerTypePerDisc> disc2(MEDFileFieldPerMeshPerTypePerDisc::New(*disc));
+  disc2->setType(ON_NODES);
+  MCAuto<MEDFileFieldPerMeshPerType> pt2(MEDFileFieldPerMeshPerType::New(this,INTERP_KERNEL::NORM_ERROR));
+  disc2->setFather(pt2);
+  pt2->setFather(this);
+  pt2->pushDiscretization(disc2);
+  _field_pm_pt[0]=DynamicCast<MEDFileFieldPerMeshPerType,MEDFileFieldPerMeshPerTypeCommon>(pt2);
 }
 
 bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
@@ -4550,6 +4580,13 @@ int MEDFileAnyTypeField1TSWithoutSDA::getNonEmptyLevels(const std::string& mname
   return ret;
 }
 
+void MEDFileAnyTypeField1TSWithoutSDA::convertMedBallIntoClassic()
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMesh > >::iterator it=_field_per_mesh.begin();it<_field_per_mesh.end();it++)
+    if((*it).isNotNull())
+      (*it)->convertMedBallIntoClassic();
+}
+
 /*!
  * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
  * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
@@ -6365,6 +6402,11 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TS::getLeafGivenMes
 int MEDFileAnyTypeField1TS::getNonEmptyLevels(const std::string& mname, std::vector<int>& levs) const
 {
   return contentNotNullBase()->getNonEmptyLevels(mname,levs);
+}
+
+void MEDFileAnyTypeField1TS::convertMedBallIntoClassic()
+{
+  return contentNotNullBase()->convertMedBallIntoClassic();
 }
 
 std::vector<TypeOfField> MEDFileAnyTypeField1TS::getTypesOfFieldAvailable() const

@@ -2107,5 +2107,6 @@ MEDFileEltStruct4Mesh::MEDFileEltStruct4Mesh(med_idt fid, const std::string& mNa
       arr->alloc(nCells,var->getNbOfComponents());
       arr->setName(vns[i]);
       MEDFILESAFECALLERRD0(MEDmeshStructElementVarAttRd,(fid,mName.c_str(),dt,it,_geo_type,vns[i].c_str(),arr->getVoidStarPointer()));
+      _vars[i]=arr;
     }
 }

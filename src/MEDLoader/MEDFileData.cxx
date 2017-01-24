@@ -21,6 +21,7 @@
 #include "MEDFileData.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileSafeCaller.txx"
+#include "MEDFileBlowStrEltUp.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 
@@ -229,6 +230,15 @@ bool MEDFileData::unPolyzeMeshes()
           fs->renumberEntitiesLyingOnMesh(meshesImpacted[i]->getName(),oldCodeOfMeshImpacted[i],newCodeOfMeshImpacted[i],renumParamsOfMeshImpacted[i]);
     }
   return !meshesImpacted.empty();
+}
+
+void MEDFileData::dealWithStructureElements()
+{
+  if(_struct_elems.isNull())
+    throw INTERP_KERNEL::Exception("MEDFileData::dealWithStructureElements : no structure elements in this !");
+  if(_meshes.isNull() || _fields.isNull())
+    throw INTERP_KERNEL::Exception("MEDFileData::dealWithStructureElements : meshes and fields must be not null !");
+  MEDFileBlowStrEltUp::DealWithSE(_fields,_meshes,_struct_elems);
 }
 
 /*!
