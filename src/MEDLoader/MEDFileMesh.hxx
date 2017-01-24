@@ -274,6 +274,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void clearNodeAndCellNumbers();
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
     MEDLOADER_EXPORT void setName(const std::string& name);
+    MEDLOADER_EXPORT const std::vector< MCAuto<MEDFileEltStruct4Mesh> >& getAccessOfUndergroundEltStrs() const { return _elt_str; }
     //
     MEDLOADER_EXPORT int getMaxAbsFamilyIdInArrays() const;
     MEDLOADER_EXPORT int getMaxFamilyIdInArrays() const;

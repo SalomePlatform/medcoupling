@@ -43,6 +43,9 @@ namespace MEDCoupling
                         med_entity_type entity, MEDFileMeshReadSelector *mrs);
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    const DataArrayInt *getFam() const { return _fam; }
+    const DataArrayInt *getNum() const { return _num; }
+    const DataArrayAsciiChar *getNames() const { return _names; }
   protected:
     MCAuto<DataArrayInt> _num;
     MCAuto<DataArrayInt> _fam;
@@ -59,9 +62,6 @@ namespace MEDCoupling
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     int getDim() const;
     MEDCoupling1GTUMesh *getMesh() const { return const_cast<MEDCoupling1GTUMesh *>((const MEDCoupling1GTUMesh *)_m); }
-    const DataArrayInt *getFam() const { return _fam; }
-    const DataArrayInt *getNum() const { return _num; }
-    const DataArrayAsciiChar *getNames() const { return _names; }
     const PartDefinition *getPartDef() const { return _pd; }
     static void Write(med_idt fid, const std::string& mname, int mdim, const MEDCoupling1GTUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names);
   private:

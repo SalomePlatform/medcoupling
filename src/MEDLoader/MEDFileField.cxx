@@ -11223,6 +11223,23 @@ MCAuto<MEDFileFields> MEDFileFields::partOfThisLyingOnSpecifiedMeshSEName(const 
   return ret;
 }
 
+void MEDFileFields::aggregate(const MEDFileFields& other)
+{
+  int nbFieldsToAdd(other.getNumberOfFields());
+  std::vector<std::string> fsn(getFieldsNames());
+  for(int i=0;i<nbFieldsToAdd;i++)
+    {
+      MCAuto<MEDFileAnyTypeFieldMultiTS> elt(other.getFieldAtPos(i));
+      std::string name(elt->getName());
+      if(std::find(fsn.begin(),fsn.end(),name)!=fsn.end())
+        {
+          std::ostringstream oss; oss << "MEDFileFields::aggregate : name \"" << name << "\" already appears !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+      pushField(elt);
+    }
+}
+
 MEDFileFieldsIterator *MEDFileFields::iterator()
 {
   return new MEDFileFieldsIterator(this);

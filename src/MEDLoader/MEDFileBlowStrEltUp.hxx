@@ -35,8 +35,18 @@ namespace MEDCoupling
   {
   public:
     MEDFileBlowStrEltUp(const MEDFileFields *fsOnlyOnSE, const MEDFileMeshes *ms, const MEDFileStructureElements *ses);
+    static void DealWithSE(MEDFileFields *fs, const MEDFileMeshes *ms, const MEDFileStructureElements *ses, MCAuto<MEDFileFields>& fsOut, MCAuto<MEDFileMeshes>& msOut);
   private:
-    std::vector< MCAuto<MEDFileFields> > _elts;
+    void generate(MCAuto<MEDFileMeshes>& msOut, MCAuto<MEDFileFields>& allZeOutFields);
+    MCAuto<MEDFileEltStruct4Mesh> dealWithSEInMesh(const std::string& seName, MEDFileUMesh *mesh, MCAuto<MEDFileUMesh>& mOut, MCAuto<MEDFileFields>& fsOut) const;
+    MCAuto<MEDFileEltStruct4Mesh> dealWithMEDBALLInMesh(const MEDFileUMesh *mesh, MCAuto<MEDFileUMesh>& mOut, MCAuto<MEDFileFields>& fsOut) const;
+    void dealWithSEInFields(const std::string& seName, const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MCAuto<MEDFileFields>& zeOutputs) const;
+    void dealWithMEDBALLSInFields(const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MCAuto<MEDFileFields>& zeOutputs) const;
+    static std::string BuildNewMeshName(const std::string& meshName, const std::string& seName);
+  public:
+    static const char MED_BALL_STR[];
+  private:
+    std::vector< MCAuto<MEDFileFields> > _elts;// split by pair(meshName,SEName)
     MCConstAuto<MEDFileMeshes> _ms;
     MCConstAuto<MEDFileStructureElements> _ses;
   };

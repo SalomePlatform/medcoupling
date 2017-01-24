@@ -326,6 +326,10 @@ namespace MEDCoupling
   {
   public:
     static MEDFileEltStruct4Mesh *New(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs);
+    std::string getGeoTypeName() const { return _geo_type_name; }
+    MCAuto<DataArrayInt> getConn() const { return _conn; }
+    MCAuto<MEDFileUMeshPerTypeCommon> getMeshDef() const { return _common; }
+    const std::vector< MCAuto<DataArray> >& getVars() const { return _vars; }
   private:
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const MEDCoupling::BigMemoryObject*> getDirectChildrenWithNull() const;

@@ -1260,6 +1260,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const;
     MEDLOADER_EXPORT MCAuto<MEDFileFields> partOfThisOnStructureElements() const;
     MEDLOADER_EXPORT MCAuto<MEDFileFields> partOfThisLyingOnSpecifiedMeshSEName(const std::string& meshName, const std::string& seName) const;
+    MEDLOADER_EXPORT void aggregate(const MEDFileFields& other);
     MEDLOADER_EXPORT MEDFileFieldsIterator *iterator();
     MEDLOADER_EXPORT void destroyFieldAtPos(int i);
     MEDLOADER_EXPORT void destroyFieldsAtPos(const int *startIds, const int *endIds);

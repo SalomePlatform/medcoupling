@@ -3022,6 +3022,7 @@ namespace MEDCoupling
     MEDFileAnyTypeFieldMultiTS *getFieldWithName(const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const throw(INTERP_KERNEL::Exception);
     bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
+    void aggregate(const MEDFileFields& other) throw(INTERP_KERNEL::Exception);
     void killStructureElements() throw(INTERP_KERNEL::Exception);
     void keepOnlyStructureElements() throw(INTERP_KERNEL::Exception);
     void keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName) throw(INTERP_KERNEL::Exception);
