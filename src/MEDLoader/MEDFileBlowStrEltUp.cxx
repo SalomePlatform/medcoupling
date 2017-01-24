@@ -170,6 +170,7 @@ void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, cons
   int nbf(fs->getNumberOfFields());
   std::vector< MCAuto<MEDFileAnyTypeFieldMultiTS> > elts0;
   std::vector< MEDFileAnyTypeFieldMultiTS * > elts1;
+  std::string zeMeshName;
   for(int i=0;i<nbf;i++)
     {
       MCAuto<MEDFileAnyTypeFieldMultiTS> elt(fs->getFieldAtPos(i));
@@ -180,42 +181,73 @@ void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, cons
           MCAuto<MEDFileAnyTypeField1TS> eltt(elt->getTimeStepAtPos(j));
           MCAuto<MEDFileAnyTypeField1TS> elttOut(eltt->deepCopy());
           std::string meshName(eltt->getMeshName());
-          elttOut->setMeshName(BuildNewMeshName(meshName,MED_BALL_STR));
+          zeMeshName=BuildNewMeshName(meshName,MED_BALL_STR);
+          elttOut->setMeshName(zeMeshName);
           elttOut->convertMedBallIntoClassic();
           eltOut->pushBackTimeStep(elttOut);
         }
       elts0.push_back(eltOut); elts1.push_back(eltOut);
     }
   //
+  const MEDFileMesh *zeCurrentMesh(_ms->getMeshWithName(zeMeshName));
+  //
   std::size_t ii(0);
   std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > sp(MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(elts1));
   for(std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> >::const_iterator it0=sp.begin();it0!=sp.end();it0++,ii++)
     {
-      for(std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-        zeOutputs->pushField(*it1);
-      std::vector<double> t2s;
-      std::vector< std::pair<int,int> > t1s((*it0)[0]->getTimeSteps(t2s));
-      std::size_t nbTS3(t2s.size());
-      int nbf2(varAtt->getNumberOfFields());
-      for(int i=0;i<nbf2;i++)
+      std::vector< MCAuto<MEDFileFastCellSupportComparator> > fsc;
+      std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > sp2(MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(*it0,zeCurrentMesh,fsc));
+      std::size_t jj(0);
+      for(std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> >::const_iterator it1=sp2.begin();it1!=sp2.end();it1++,jj++)
         {
-          MCAuto<MEDFileAnyTypeFieldMultiTS> elt(varAtt->getFieldAtPos(i));
-          int nbTS2(elt->getNumberOfTS());
-          if(nbTS2!=1)
-            throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : internal error ! The dealWithMEDBALLInMesh is expected to return a single TS !");
-          MCAuto<MEDFileAnyTypeField1TS> elt2(elt->getTimeStepAtPos(0));
-          MCAuto<MEDFileAnyTypeFieldMultiTS> elt4(elt->buildNewEmpty());
-          for(std::size_t j=0;j<nbTS3;j++)
+          for(std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+            zeOutputs->pushField(*it2);
+          // The most exciting part. Users that put profiles on struct elements part of fields. Reduce var att.
+          if((*it1).size()<1)
+            throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : take a deep breath !");
+          MCAuto<MEDFileAnyTypeField1TS> zeGuideForPfl;// This var is the reference for pfl management.
+          {
+            if(!(*it1)[0])
+              throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : take a deep breath 2 !");
+            int pdm((*it1)[0]->getNumberOfTS());
+            if(pdm<1)
+              throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : take a deep breath 3 !");
+            zeGuideForPfl=(*it1)[0]->getTimeStepAtPos(0);
+          }
+          if(zeGuideForPfl.isNull())
+            throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : take a deep breath 4 !");
+          std::vector<std::string> pfls(zeGuideForPfl->getPflsReallyUsed());
+          if(pfls.size()>=2)
+            throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : drink less coffee");
+          MCAuto<DataArrayInt> pflMyLove;
+          if(pfls.size()==1)
+            pflMyLove.takeRef(zeGuideForPfl->getProfile(pfls[0]));
+          // Yeah we have pfls
+          std::vector<double> t2s;
+          std::vector< std::pair<int,int> > t1s((*it1)[0]->getTimeSteps(t2s));
+          std::size_t nbTS3(t2s.size());
+          int nbf2(varAtt->getNumberOfFields());
+          for(int i=0;i<nbf2;i++)
             {
-              MCAuto<MEDFileAnyTypeField1TS> elt3(elt2->deepCopy());
-              elt3->setTime(t1s[j].first,t1s[j].second,t2s[j]);
-              elt3->setName(BuildVarAttName(ii,sp.size(),elt3->getName()));
-              elt4->pushBackTimeStep(elt3);
+              MCAuto<MEDFileAnyTypeFieldMultiTS> elt(varAtt->getFieldAtPos(i));
+              int nbTS2(elt->getNumberOfTS());
+              if(nbTS2!=1)
+                throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : internal error ! The dealWithMEDBALLInMesh is expected to return a single TS !");
+              MCAuto<MEDFileAnyTypeField1TS> elt2(elt->getTimeStepAtPos(0));
+              MCAuto<MEDFileAnyTypeFieldMultiTS> elt4(elt->buildNewEmpty());
+              for(std::size_t j=0;j<nbTS3;j++)
+                {
+                  MCAuto<MEDFileAnyTypeField1TS> elt3(elt2->deepCopy());
+                  elt3->setTime(t1s[j].first,t1s[j].second,t2s[j]);
+                  elt3->setName(BuildVarAttName(ii,sp.size(),jj,sp2.size(),elt3->getName()));
+                  if(pflMyLove.isNotNull())
+                    elt3->makeReduction(INTERP_KERNEL::NORM_ERROR,ON_NODES,pflMyLove);
+                  elt4->pushBackTimeStep(elt3);
+                }
+              zeOutputs->pushField(elt4);
             }
-          zeOutputs->pushField(elt4);
         }
     }
-  
 }
 
 void MEDFileBlowStrEltUp::generate(MEDFileMeshes *msOut, MEDFileFields *allZeOutFields)
@@ -247,12 +279,12 @@ std::string MEDFileBlowStrEltUp::BuildNewMeshName(const std::string& meshName, c
   return mNameOut.str();
 }
 
-std::string MEDFileBlowStrEltUp::BuildVarAttName(std::size_t iPart, std::size_t totNbParts, const std::string& name)
+std::string MEDFileBlowStrEltUp::BuildVarAttName(std::size_t iPart, std::size_t totINbParts, std::size_t jPart, std::size_t totJNbParts, const std::string& name)
 {
-  if(totNbParts==1)
+  if(totINbParts==1 && totJNbParts==1)
     return name;
   std::ostringstream oss;
-  oss << name << "@" << iPart;
+  oss << name << "@" << iPart << "@" << jPart;
   return oss.str();
 }
 

@@ -4587,6 +4587,42 @@ void MEDFileAnyTypeField1TSWithoutSDA::convertMedBallIntoClassic()
       (*it)->convertMedBallIntoClassic();
 }
 
+void MEDFileAnyTypeField1TSWithoutSDA::makeReduction(INTERP_KERNEL::NormalizedCellType ct, TypeOfField tof, const DataArrayInt *pfl)
+{
+  if(!pfl)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::makeReduction : null pfl !");
+  std::string name(pfl->getName());
+  pfl->checkAllocated();
+  if(pfl->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::makeReduction : non mono compo array !");
+  if(name.empty())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::makeReduction : empty pfl name !");
+  if(_field_per_mesh.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::makeReduction : only single mesh supported !");
+  MCAuto<MEDFileFieldPerMesh> fpm(_field_per_mesh[0]);
+  if(fpm.isNull())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::makeReduction : only single not null mesh supported !");
+  MEDFileFieldPerMeshPerTypePerDisc *disc(fpm->getLeafGivenTypeAndLocId(ct,0));
+  if(disc->getType()!=tof)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::makeReduction : error !");
+  int s(disc->getStart()),e(disc->getEnd()),nt(pfl->getNumberOfTuples());
+  DataArray *arr(getUndergroundDataArray());
+  int nt2(arr->getNumberOfTuples()),delta((e-s)-nt);
+  if(delta<0)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::makeReduction : internal error !");
+  MCAuto<DataArray> arr0(arr->selectByTupleIdSafeSlice(0,s,1)),arr1(arr->selectByTupleIdSafeSlice(s,e,1)),arr2(arr->selectByTupleIdSafeSlice(e,nt2,1));
+  MCAuto<DataArray> arr11(arr1->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+  MCAuto<DataArray> arrOut(arr->buildNewEmptyInstance());
+  arrOut->alloc(nt2-delta,arr->getNumberOfComponents());
+  arrOut->copyStringInfoFrom(*arr);
+  arrOut->setContigPartOfSelectedValuesSlice(0,arr0,0,s,1);
+  arrOut->setContigPartOfSelectedValuesSlice(s,arr11,0,nt,1);
+  arrOut->setContigPartOfSelectedValuesSlice(e-delta,arr2,0,nt2-e,1);
+  setArray(arrOut);
+  disc->setEnd(e-delta);
+  disc->setProfile(name);
+}
+
 /*!
  * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
  * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
@@ -6407,6 +6443,11 @@ int MEDFileAnyTypeField1TS::getNonEmptyLevels(const std::string& mname, std::vec
 void MEDFileAnyTypeField1TS::convertMedBallIntoClassic()
 {
   return contentNotNullBase()->convertMedBallIntoClassic();
+}
+
+void MEDFileAnyTypeField1TS::makeReduction(INTERP_KERNEL::NormalizedCellType ct, TypeOfField tof, const DataArrayInt *pfl)
+{
+  return contentNotNullBase()->makeReduction(ct,tof,pfl);
 }
 
 std::vector<TypeOfField> MEDFileAnyTypeField1TS::getTypesOfFieldAvailable() const

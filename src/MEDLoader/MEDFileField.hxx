@@ -131,6 +131,7 @@ namespace MEDCoupling
     int getNumberOfTuples() const;
     int getStart() const { return _start; }
     int getEnd() const { return _end; }
+    void setEnd(int endd) { _end=endd; }
     int getNumberOfVals() const { return _nval; }
     DataArray *getOrCreateAndGetArray();
     const DataArray *getOrCreateAndGetArray() const;
@@ -555,6 +556,7 @@ namespace MEDCoupling
     //
     MEDLOADER_EXPORT int getNonEmptyLevels(const std::string& mname, std::vector<int>& levs) const;
     MEDLOADER_EXPORT void convertMedBallIntoClassic();
+    MEDLOADER_EXPORT void makeReduction(INTERP_KERNEL::NormalizedCellType ct, TypeOfField tof, const DataArrayInt *pfl);
     MEDLOADER_EXPORT std::vector< std::vector<std::pair<int,int> > > getFieldSplitedByType(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
     //
     MEDLOADER_EXPORT MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId);
@@ -751,6 +753,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const;
     MEDLOADER_EXPORT int getNonEmptyLevels(const std::string& mname, std::vector<int>& levs) const;
     MEDLOADER_EXPORT void convertMedBallIntoClassic();
+    MEDLOADER_EXPORT void makeReduction(INTERP_KERNEL::NormalizedCellType ct, TypeOfField tof, const DataArrayInt *pfl);
   public:
     MEDLOADER_EXPORT void loadArrays();
     MEDLOADER_EXPORT void loadArraysIfNecessary();
