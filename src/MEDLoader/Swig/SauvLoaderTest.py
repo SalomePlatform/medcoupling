@@ -134,8 +134,8 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertEqual(1, um1.getNumberOfCellsWithType( NORM_TRI3 ))
         pointeUM0 = pointeMedMesh.getMeshAtLevel(0)
         self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(pointeMedMesh.getCoords(),1e-12))
-        self.assertEqual( um0.getMeasureField(0).accumulate(0),
-                          pointeUM0.getMeasureField(0).accumulate(0),1e-12)
+        self.assertEqual( um0.getMeasureField(False).accumulate(0),
+                          pointeUM0.getMeasureField(False).accumulate(0),1e-12)
         # check fields
         # fieldnodedouble
         fieldnodedoubleTS1 = pointeMed.getFields().getFieldWithName("fieldnodedouble")
