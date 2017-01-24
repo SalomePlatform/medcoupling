@@ -34,6 +34,8 @@
 #include <limits>
 #include <cmath>
 
+extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
+extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmai3[34];
 
 using namespace MEDCoupling;
@@ -2345,7 +2347,7 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOf(med_idt fid, const std::string& mName, co
 std::size_t MEDFileUMesh::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(MEDFileMesh::getHeapMemorySizeWithoutChildren());
-  ret+=_ms.capacity()*(sizeof(MCAuto<MEDFileUMeshSplitL1>));
+  ret+=_ms.capacity()*(sizeof(MCAuto<MEDFileUMeshSplitL1>))+_elt_str.capacity()*sizeof(MCAuto<MEDFileEltStruct4Mesh>);
   return ret;
 }
 
@@ -2360,6 +2362,8 @@ std::vector<const BigMemoryObject *> MEDFileUMesh::getDirectChildrenWithNull() c
   ret.push_back((const PartDefinition *)_part_coords);
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     ret.push_back((const MEDFileUMeshSplitL1*) *it);
+  for(std::vector< MCAuto<MEDFileEltStruct4Mesh> >::const_iterator it=_elt_str.begin();it!=_elt_str.end();it++)
+    ret.push_back((const MEDFileEltStruct4Mesh *)*it);
   return ret;
 }
 
@@ -2667,7 +2671,7 @@ void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, 
   int dummy0,dummy1;
   std::string dummy2;
   MEDCoupling::MEDCouplingAxisType dummy3;
-  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2));
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2));
   if(meshType!=UNSTRUCTURED)
     {
       std::ostringstream oss; oss << "loadPartUMeshFromFile : Trying to load as unstructured an existing mesh with name '" << mName << "' !";
@@ -2794,7 +2798,7 @@ void MEDFileUMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
   int dummy0,dummy1;
   std::string dummy2;
   MEDCoupling::MEDCouplingAxisType axType;
-  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dummy2));
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dummy2));
   setAxisType(axType);
   if(meshType!=UNSTRUCTURED)
     {
@@ -2803,6 +2807,17 @@ void MEDFileUMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
     }
   loaderl2.loadAll(fid,mid,mName,dt,it,mrs);
   dispatchLoadedPart(fid,loaderl2,mName,mrs);
+  // Structure element part...
+  int nModels(-1);
+  {
+    med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+    nModels=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,MED_GEO_ALL,MED_CONNECTIVITY,MED_NODAL,&chgt,&trsf);
+  }
+  if(nModels<=0)
+    return ;
+  _elt_str.resize(nModels);
+  for(int i=0;i<nModels;i++)
+    _elt_str[i]=MEDFileEltStruct4Mesh::New(fid,mName,dt,it,i,mrs);
 }
 
 void MEDFileUMesh::dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl2, const std::string& mName, MEDFileMeshReadSelector *mrs)
@@ -3297,6 +3312,19 @@ MEDFileMesh *MEDFileUMesh::cartesianize() const
       ret->setAxisType(AX_CART);
       return ret.retn();
     }
+}
+
+bool MEDFileUMesh::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileEltStruct4Mesh> >::const_iterator it=_elt_str.begin();it!=_elt_str.end();it++)
+    if((*it).isNotNull())
+      return true;
+  return false;
+}
+
+void MEDFileUMesh::killStructureElements()
+{
+  _elt_str.clear();
 }
 
 /*!
@@ -6598,7 +6626,7 @@ void MEDFileCMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
   int dummy0,dummy1;
   std::string dtunit;
   MEDCoupling::MEDCouplingAxisType axType;
-  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit);
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit));
   if(meshType!=CARTESIAN)
     {
       std::ostringstream oss; oss << "Trying to load as cartesian an existing mesh with name '" << mName << "' that is NOT cartesian !";
@@ -6936,7 +6964,7 @@ void MEDFileCurveLinearMesh::loadLL(med_idt fid, const std::string& mName, int d
   int dummy0,dummy1;
   std::string dtunit;
   MEDCoupling::MEDCouplingAxisType axType;
-  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit);
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit));
   setAxisType(axType);
   if(meshType!=CURVE_LINEAR)
     {
@@ -7076,6 +7104,22 @@ void MEDFileMeshMultiTS::setJoints( MEDFileJoints* joints )
     {
       (*it)->setJoints( joints );
     }
+}
+
+bool MEDFileMeshMultiTS::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileMesh> >::const_iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
+    if((*it).isNotNull())
+      if((*it)->presenceOfStructureElements())
+        return true;
+  return false;
+}
+
+void MEDFileMeshMultiTS::killStructureElements()
+{
+  for(std::vector< MCAuto<MEDFileMesh> >::iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
+    if((*it).isNotNull())
+      (*it)->killStructureElements();
 }
 
 void MEDFileMeshMultiTS::writeLL(med_idt fid) const
@@ -7371,6 +7415,22 @@ void MEDFileMeshes::checkConsistencyLight() const
     }
 }
 
+bool MEDFileMeshes::presenceOfStructureElements() const
+{
+  for(std::vector< MCAuto<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++)
+    if((*it).isNotNull())
+      if((*it)->presenceOfStructureElements())
+        return true;
+  return false;
+}
+
+void MEDFileMeshes::killStructureElements()
+{
+  for(std::vector< MCAuto<MEDFileMeshMultiTS> >::iterator it=_meshes.begin();it!=_meshes.end();it++)
+    if((*it).isNotNull())
+      (*it)->killStructureElements();
+}
+
 MEDFileMeshesIterator::MEDFileMeshesIterator(MEDFileMeshes *ms):_ms(ms),_iter_id(0),_nb_iter(0)
 {
   if(ms)
@@ -7397,3 +7457,34 @@ MEDFileMesh *MEDFileMeshesIterator::nextt()
   else
     return 0;
 }
+
+INTERP_KERNEL::NormalizedCellType MEDFileMesh::ConvertFromMEDFileGeoType(med_geometry_type geoType)
+{
+  med_geometry_type *pos(std::find(typmai,typmai+MED_N_CELL_FIXED_GEO,geoType));
+  if(pos==typmai+MED_N_CELL_FIXED_GEO)
+    {
+      if(geoType==MED_NO_GEOTYPE)
+        return INTERP_KERNEL::NORM_ERROR;
+      std::ostringstream oss; oss << "MEDFileMesh::ConvertFromMEDFileGeoType : no entry with " << geoType << " !"; 
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  return typmai2[std::distance(typmai,pos)];
+}
+
+TypeOfField MEDFileMesh::ConvertFromMEDFileEntity(med_entity_type etype)
+{
+  switch(etype)
+    {
+    case MED_NODE:
+      return ON_NODES;
+    case MED_CELL:
+      return ON_CELLS;
+    default:
+      {
+        std::ostringstream oss; oss << "EDFileMesh::ConvertFromMEDFileEntity : not recognized entity " << etype << " !";
+        throw INTERP_KERNEL::Exception(oss.str());
+      }
+    }
+}
+
+

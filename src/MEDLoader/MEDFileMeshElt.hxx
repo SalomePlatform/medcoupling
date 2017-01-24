@@ -35,7 +35,24 @@ namespace MEDCoupling
   class MEDCouplingUMesh;
   class MEDFileMeshReadSelector;
 
-  class MEDFileUMeshPerType : public RefCountObject
+  class MEDFileUMeshPerTypeCommon : public RefCountObject
+  {
+  public:
+    static MEDFileUMeshPerTypeCommon *New();
+    void loadCommonPart(med_idt fid, const char *mName, int dt, int it, int curNbOfElem, med_geometry_type geoElt,
+                        med_entity_type entity, MEDFileMeshReadSelector *mrs);
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    const DataArrayInt *getFam() const { return _fam; }
+    const DataArrayInt *getNum() const { return _num; }
+    const DataArrayAsciiChar *getNames() const { return _names; }
+  protected:
+    MCAuto<DataArrayInt> _num;
+    MCAuto<DataArrayInt> _fam;
+    MCAuto<DataArrayAsciiChar> _names;
+  };
+
+  class MEDFileUMeshPerType : public MEDFileUMeshPerTypeCommon
   {
   public:
     static MEDFileUMeshPerType *New(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType geoElt2, MEDFileMeshReadSelector *mrs);
@@ -45,9 +62,6 @@ namespace MEDCoupling
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     int getDim() const;
     MEDCoupling1GTUMesh *getMesh() const { return const_cast<MEDCoupling1GTUMesh *>((const MEDCoupling1GTUMesh *)_m); }
-    const DataArrayInt *getFam() const { return _fam; }
-    const DataArrayInt *getNum() const { return _num; }
-    const DataArrayAsciiChar *getNames() const { return _names; }
     const PartDefinition *getPartDef() const { return _pd; }
     static void Write(med_idt fid, const std::string& mname, int mdim, const MEDCoupling1GTUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names);
   private:
@@ -64,15 +78,10 @@ namespace MEDCoupling
                    med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPolyh(med_idt fid, const char *mName, int dt, int it, int mdim, int connFaceLgth, med_geometry_type geoElt,
                    med_entity_type entity, MEDFileMeshReadSelector *mrs);
-    void loadCommonPart(med_idt fid, const char *mName, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPartOfCellCommonPart(med_idt fid, const char *mName, int strt, int stp, int step, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
   private:
     MCAuto<MEDCoupling1GTUMesh> _m;
-    MCAuto<DataArrayInt> _num;
-    MCAuto<DataArrayInt> _fam;
-    MCAuto<DataArrayAsciiChar> _names;
     MCAuto<PartDefinition> _pd;
-    med_entity_type _entity;
   };
 }
 

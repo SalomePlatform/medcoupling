@@ -79,6 +79,34 @@ namespace MEDCoupling
       ptr->incrRef();
     return ret;
   }
+
+  template<class T>
+  class MCConstAuto
+  {
+  public:
+    MCConstAuto(const MCConstAuto& other):_ptr(0) { referPtr(other._ptr); }
+    MCConstAuto(const typename MEDCoupling::MCAuto<T> & other):_ptr(0) { referPtr( (const T*) other); }
+    MCConstAuto(const T *ptr=0):_ptr(ptr) { }
+    ~MCConstAuto() { destroyPtr(); }
+    bool isNull() const { return _ptr==0; }
+    bool isNotNull() const { return !isNull(); }
+    void nullify() { destroyPtr(); _ptr=0; }
+    bool operator==(const MCConstAuto& other) const { return _ptr==other._ptr; }
+    bool operator==(const T *other) const { return _ptr==other; }
+    MCConstAuto &operator=(const MCConstAuto& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
+    MCConstAuto &operator=(const T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
+    void takeRef(const T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; if(_ptr) _ptr->incrRef(); } }
+    const T *operator->() { return _ptr ; }
+    const T *operator->() const { return _ptr; }
+    const T& operator*() { return *_ptr; }
+    const T& operator*() const { return *_ptr; }
+    operator const T *() const { return _ptr; }
+  private:
+    void referPtr(const T *ptr) { _ptr=ptr; if(_ptr) _ptr->incrRef(); }
+    void destroyPtr() { if(_ptr) _ptr->decrRef(); }
+  private:
+    const T *_ptr;
+  };
 }
 
 #endif

@@ -31,6 +31,8 @@
 #include "MEDCouplingCurveLinearMesh.hxx"
 #include "MCAuto.hxx"
 
+#include "InterpKernelAutoPtr.hxx"
+
 #include "med.h"
 
 #include <map>
@@ -39,6 +41,34 @@ namespace MEDCoupling
 {
   class MEDFileMeshReadSelector;
 
+  class MeshOrStructMeshCls
+  {
+  protected:
+    MeshOrStructMeshCls(int mid):_mid(mid) { }
+  public:
+    int getID() const { return _mid; }
+    virtual std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const = 0;
+    virtual double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const = 0;
+  private:
+    int _mid;
+  };
+
+  class MeshCls : public MeshOrStructMeshCls
+  {
+  public:
+    MeshCls(int mid):MeshOrStructMeshCls(mid) { }
+    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const;
+    double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const;
+  };
+
+  class StructMeshCls : public MeshOrStructMeshCls
+  {
+  public:
+    StructMeshCls(int mid):MeshOrStructMeshCls(mid) { }
+    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const;
+    double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const;
+  };
+  
   class MEDFileMeshL2 : public RefCountObject
   {
   public:
@@ -53,9 +83,8 @@ namespace MEDCoupling
     int getOrder() const { return _order; }
     double getTime() const { return _time; }
     MCAuto<PartDefinition> getPartDefOfCoo() const { return _part_coords; }
-    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim);
-    static int GetMeshIdFromName(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1);
-    static double CheckMeshTimeStep(med_idt fid, const std::string& mname, int nstep, int dt, int it);
+    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim);
+    static INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> GetMeshIdFromName(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1);
     static void ReadFamiliesAndGrps(med_idt fid, const std::string& mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs);
     static void WriteFamiliesAndGrps(med_idt fid, const std::string& mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol);
     static bool RenameFamiliesFromFileToMem(std::vector< std::string >& famNames);
@@ -87,13 +116,13 @@ namespace MEDCoupling
   {
   public:
     MEDFileUMeshL2();
-    std::vector<std::string> loadCommonPart(med_idt fid, int mId, const std::string& mName, int dt, int it, int& Mdim);
-    void loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
-    void loadPart(med_idt fid, int mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
+    std::vector<std::string> loadCommonPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, int& Mdim);
+    void loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadPartOfConnectivity(med_idt fid, int mdim, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
-    void loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it);
-    void loadPartCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, int nMin, int nMax);
+    void loadCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it);
+    void loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, int nMin, int nMax);
     int getNumberOfLevels() const { return _per_type_mesh.size(); }
     bool emptyLev(int levId) const { return _per_type_mesh[levId].empty(); }
     const std::vector< MCAuto<MEDFileUMeshPerType> >& getLev(int levId) const { return _per_type_mesh[levId]; }
@@ -123,7 +152,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileCMeshL2();
-    void loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it);
+    void loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it);
     MEDCouplingCMesh *getMesh() { return _cmesh; }
     MEDCoupling::MEDCouplingAxisType getAxisType() const { return _ax_type; }
   private:
@@ -137,7 +166,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileCLMeshL2();
-    void loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it);
+    void loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it);
     MEDCouplingCurveLinearMesh *getMesh() { return _clmesh; }
   private:
     MCAuto<MEDCouplingCurveLinearMesh> _clmesh;
@@ -291,6 +320,29 @@ namespace MEDCoupling
     MCAuto<DataArrayAsciiChar> _names;
     mutable MCAuto<DataArrayInt> _rev_num;
     MEDFileUMeshPermCompute _m;
+  };
+
+  class MEDFileEltStruct4Mesh : public RefCountObject
+  {
+  public:
+    static MEDFileEltStruct4Mesh *New(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs);
+    std::string getGeoTypeName() const { return _geo_type_name; }
+    MCAuto<DataArrayInt> getConn() const { return _conn; }
+    MCAuto<MEDFileUMeshPerTypeCommon> getMeshDef() const { return _common; }
+    const std::vector< MCAuto<DataArray> >& getVars() const { return _vars; }
+  private:
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const MEDCoupling::BigMemoryObject*> getDirectChildrenWithNull() const;
+  private:
+    ~MEDFileEltStruct4Mesh() { }
+  private:
+    MEDFileEltStruct4Mesh(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs);
+  private:
+    std::string _geo_type_name;
+    int _geo_type;
+    MCAuto<DataArrayInt> _conn;
+    MCAuto<MEDFileUMeshPerTypeCommon> _common;
+    std::vector< MCAuto<DataArray> > _vars;
   };
 }
 

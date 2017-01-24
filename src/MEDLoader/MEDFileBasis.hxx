@@ -33,6 +33,7 @@ namespace MEDCoupling
   public:
     MEDFileString(int maxLgth);
     ~MEDFileString();
+    void clear();
     void set(const char *s);
     char *getPointer() { return _content; }
     const char *getReprForWrite() const { return _content; }

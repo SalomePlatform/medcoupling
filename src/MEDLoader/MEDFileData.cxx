@@ -19,6 +19,11 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDFileData.hxx"
+#include "MEDLoaderBase.hxx"
+#include "MEDFileSafeCaller.txx"
+#include "MEDFileBlowStrEltUp.hxx"
+
+#include "InterpKernelAutoPtr.hxx"
 
 using namespace MEDCoupling;
 
@@ -41,13 +46,13 @@ MEDFileData *MEDFileData::New()
 MEDFileData *MEDFileData::deepCopy() const
 {
   MCAuto<MEDFileFields> fields;
-  if((const MEDFileFields *)_fields)
+  if(_fields.isNotNull())
     fields=_fields->deepCopy();
   MCAuto<MEDFileMeshes> meshes;
-  if((const MEDFileMeshes *)_meshes)
+  if(_meshes.isNotNull())
     meshes=_meshes->deepCopy();
   MCAuto<MEDFileParameters> params;
-  if((const MEDFileParameters *)_params)
+  if(_params.isNotNull())
     params=_params->deepCopy();
   MCAuto<MEDFileData> ret(MEDFileData::New());
   ret->_fields=fields; ret->_meshes=meshes; ret->_params=params;
@@ -56,7 +61,7 @@ MEDFileData *MEDFileData::deepCopy() const
 
 std::size_t MEDFileData::getHeapMemorySizeWithoutChildren() const
 {
-  return 0;
+  return _header.capacity();
 }
 
 std::vector<const BigMemoryObject *> MEDFileData::getDirectChildrenWithNull() const
@@ -65,6 +70,8 @@ std::vector<const BigMemoryObject *> MEDFileData::getDirectChildrenWithNull() co
   ret.push_back((const MEDFileFields *)_fields);
   ret.push_back((const MEDFileMeshes *)_meshes);
   ret.push_back((const MEDFileParameters *)_params);
+  ret.push_back((const MEDFileMeshSupports *)_mesh_supports);
+  ret.push_back((const MEDFileStructureElements *)_struct_elems);
   return ret;
 
 }
@@ -225,6 +232,15 @@ bool MEDFileData::unPolyzeMeshes()
   return !meshesImpacted.empty();
 }
 
+void MEDFileData::dealWithStructureElements()
+{
+  if(_struct_elems.isNull())
+    throw INTERP_KERNEL::Exception("MEDFileData::dealWithStructureElements : no structure elements in this !");
+  if(_meshes.isNull() || _fields.isNull())
+    throw INTERP_KERNEL::Exception("MEDFileData::dealWithStructureElements : meshes and fields must be not null !");
+  MEDFileBlowStrEltUp::DealWithSE(_fields,_meshes,_struct_elems);
+}
+
 /*!
  * Precondition : all instances in \a mfds should have a single mesh with fields on it. If there is an instance with not exactly one mesh an exception will be thrown.
  * You can invoke MEDFileFields::partOfThisLyingOnSpecifiedMeshName method to make it work.
@@ -300,9 +316,12 @@ MEDFileData::MEDFileData()
 MEDFileData::MEDFileData(med_idt fid)
 try
 {
-    _fields=MEDFileFields::New(fid);
-    _meshes=MEDFileMeshes::New(fid);
-    _params=MEDFileParameters::New(fid);
+  readHeader(fid);
+  _mesh_supports=MEDFileMeshSupports::New(fid);
+  _struct_elems=MEDFileStructureElements::New(fid,_mesh_supports);
+  _fields=MEDFileFields::NewWithDynGT(fid,_struct_elems,true);
+  _meshes=MEDFileMeshes::New(fid);
+  _params=MEDFileParameters::New(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -311,13 +330,41 @@ catch(INTERP_KERNEL::Exception& e)
 
 void MEDFileData::writeLL(med_idt fid) const
 {
-  const MEDFileMeshes *ms(_meshes);
-  if(ms)
-    ms->writeLL(fid);
-  const MEDFileFields *fs(_fields);
-  if(fs)
-    fs->writeLL(fid);
-  const MEDFileParameters *ps(_params);
-  if(ps)
-    ps->writeLL(fid);
+  writeHeader(fid);
+  if(_meshes.isNotNull())
+    _meshes->writeLL(fid);
+  if(_fields.isNotNull())
+    _fields->writeLL(fid);
+  if(_params.isNotNull())
+    _params->writeLL(fid);
+  if(_mesh_supports.isNotNull())
+    _mesh_supports->writeLL(fid);
+  if(_struct_elems.isNotNull())
+    _struct_elems->writeLL(fid);
+}
+
+std::string MEDFileData::getHeader() const
+{
+  return _header;
+}
+
+
+void MEDFileData::setHeader(const std::string& header)
+{
+  _header=header;
+}
+
+void MEDFileData::readHeader(med_idt fid)
+{
+  INTERP_KERNEL::AutoPtr<char> header(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
+  int ret(MEDfileCommentRd(fid,header));
+  if(ret==0)
+    _header=MEDLoaderBase::buildStringFromFortran(header,MED_COMMENT_SIZE);
+}
+
+void MEDFileData::writeHeader(med_idt fid) const
+{
+  INTERP_KERNEL::AutoPtr<char> header(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
+  MEDLoaderBase::safeStrCpy(_header.c_str(),MED_COMMENT_SIZE,header,_too_long_str);
+  MEDFILESAFECALLERWR0(MEDfileCommentWr,(fid,header));
 }

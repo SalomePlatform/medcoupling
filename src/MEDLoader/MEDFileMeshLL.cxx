@@ -23,6 +23,8 @@
 #include "MEDLoaderBase.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileMeshReadSelector.hxx"
+#include "MEDFileStructureElement.hxx"
+#include "MEDFileMeshSupport.hxx"
 
 #include "MEDCouplingUMesh.hxx"
 
@@ -42,135 +44,22 @@ const char MEDFileMeshL2::ZE_SEP_FOR_FAMILY_KILLERS[]="!/__\\!";//important star
 
 int MEDFileMeshL2::ZE_SEP2_FOR_FAMILY_KILLERS=4;
 
-MEDFileMeshL2::MEDFileMeshL2():_name(MED_NAME_SIZE),_description(MED_COMMENT_SIZE),_univ_name(MED_LNAME_SIZE),_dt_unit(MED_LNAME_SIZE)
-{
-}
-
-std::size_t MEDFileMeshL2::getHeapMemorySizeWithoutChildren() const
-{
-  return 0;
-}
-
-std::vector<const BigMemoryObject *> MEDFileMeshL2::getDirectChildrenWithNull() const
-{
-  return std::vector<const BigMemoryObject *>();
-}
-
-int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1)
-{
-  med_mesh_type type_maillage;
-  char maillage_description[MED_COMMENT_SIZE+1];
-  char dtunit[MED_LNAME_SIZE+1];
-  med_int spaceDim,dim;
-  char nommaa[MED_NAME_SIZE+1];
-  med_int n=MEDnMesh(fid);
-  bool found=false;
-  int ret=-1;
-  med_sorting_type stype;
-  std::vector<std::string> ms;
-  int nstep;
-  med_axis_type axistype;
-  for(int i=0;i<n && !found;i++)
-    {
-      int naxis(MEDmeshnAxis(fid,i+1));
-      INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-      INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-      MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));      
-      dtunit1=MEDLoaderBase::buildStringFromFortran(dtunit,sizeof(dtunit));
-      std::string cur=MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa));
-      ms.push_back(cur);
-      if(cur==mname)
-        {
-          found=true;
-          ret=i+1;
-        }
-    }
-  if(!found)
-    {
-      std::ostringstream oss;
-      oss << "No such meshname (" << mname <<  ") in file ! Must be in : ";
-      std::copy(ms.begin(),ms.end(),std::ostream_iterator<std::string>(oss,", "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  axType=TraduceAxisType(axistype);
-  switch(type_maillage)
-  {
-    case MED_UNSTRUCTURED_MESH:
-      meshType=UNSTRUCTURED;
-      break;
-    case MED_STRUCTURED_MESH:
-      {
-        med_grid_type gt;
-        MEDFILESAFECALLERRD0(MEDmeshGridTypeRd,(fid,mname.c_str(),&gt));
-        switch(gt)
-        {
-          case MED_CARTESIAN_GRID:
-            meshType=CARTESIAN;
-            break;
-          case MED_CURVILINEAR_GRID:
-            meshType=CURVE_LINEAR;
-            break;
-          case MED_POLAR_GRID:// this is not a bug. A MED file POLAR_GRID is deal by CARTESIAN MEDLoader
-            meshType=CARTESIAN;
-            break;
-          default:
-            throw INTERP_KERNEL::Exception("MEDFileMeshL2::getMeshIdFromName : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
-        }
-        break;
-      }
-    default:
-      throw INTERP_KERNEL::Exception("MEDFileMeshL2::getMeshIdFromName : unrecognized mesh type !");
-  }
-  med_int numdt,numit;
-  med_float dtt;
-  MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,mname.c_str(),1,&numdt,&numit,&dtt));
-  dt=numdt; it=numit;
-  return ret;
-}
-
-double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it)
-{
-  bool found=false;
-  med_int numdt,numit;
-  med_float dtt;
-  std::vector< std::pair<int,int> > p(nstep);
-  for(int i=0;i<nstep;i++)
-    {
-      MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,mName.c_str(),i+1,&numdt,&numit,&dtt));
-      p[i]=std::make_pair((int)numdt,(int)numit);
-      found=(numdt==dt) && (numit==it);
-      if (found) break;
-    }
-  if(!found)
-    {
-      std::ostringstream oss; oss << "No such iteration=" << dt << ",order=" << it << " numbers found for mesh '" << mName << "' ! ";
-      oss << "Possibilities are : ";
-      for(int i=0;i<nstep;i++)
-        oss << "(" << p[i].first << "," << p[i].second << "), ";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  return dtt;
-}
-
-/*!
- * non static and non const method because _description, _dt_unit... are set in this method.
- */
-std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim)
+std::vector<std::string> MeshCls::getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const
 {
   med_mesh_type type_maillage;
   med_int spaceDim;
   med_sorting_type stype;
   med_axis_type axistype;
-  int naxis(MEDmeshnAxis(fid,mId));
-  INTERP_KERNEL::AutoPtr<char> nameTmp=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> univTmp=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
-  if(MEDmeshInfo(fid,mId,nameTmp,&spaceDim,&Mdim,&type_maillage,_description.getPointer(),_dt_unit.getPointer(),
+  int naxis(MEDmeshnAxis(fid,getID()));
+  INTERP_KERNEL::AutoPtr<char> nameTmp(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> axisname(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> axisunit(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> univTmp(MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE));
+  if(MEDmeshInfo(fid,getID(),nameTmp,&spaceDim,&Mdim,&type_maillage,description.getPointer(),dtunit.getPointer(),
       &stype,&nstep,&axistype,axisname,axisunit)!=0)
     throw INTERP_KERNEL::Exception("A problem has been detected when trying to get info on mesh !");
-  MEDmeshUniversalNameRd(fid,nameTmp,_univ_name.getPointer());// do not protect  MEDFILESAFECALLERRD0 call : Thanks to fra.med.
-  axType=TraduceAxisType(axistype);
+  MEDmeshUniversalNameRd(fid,nameTmp,univName.getPointer());// do not protect  MEDFILESAFECALLERRD0 call : Thanks to fra.med.
+  axType=MEDFileMeshL2::TraduceAxisType(axistype);
   switch(type_maillage)
   {
     case MED_UNSTRUCTURED_MESH:
@@ -203,10 +92,190 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
   std::vector<std::string> infosOnComp(naxis);
   for(int i=0;i<naxis;i++)
     {
-      std::string info=MEDLoaderBase::buildUnionUnit(((char *)axisname)+i*MED_SNAME_SIZE,MED_SNAME_SIZE,((char *)axisunit)+i*MED_SNAME_SIZE,MED_SNAME_SIZE);
+      std::string info(MEDLoaderBase::buildUnionUnit(((char *)axisname)+i*MED_SNAME_SIZE,MED_SNAME_SIZE,((char *)axisunit)+i*MED_SNAME_SIZE,MED_SNAME_SIZE));
       infosOnComp[i]=info;
     }
   return infosOnComp;
+}
+
+double MeshCls::checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const
+{
+  bool found=false;
+  med_int numdt,numit;
+  med_float dtt;
+  std::vector< std::pair<int,int> > p(nstep);
+  for(int i=0;i<nstep;i++)
+    {
+      MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,mName.c_str(),i+1,&numdt,&numit,&dtt));
+      p[i]=std::make_pair((int)numdt,(int)numit);
+      found=(numdt==dt) && (numit==it);
+      if (found) break;
+    }
+  if(!found)
+    {
+      std::ostringstream oss; oss << "No such iteration=" << dt << ",order=" << it << " numbers found for mesh '" << mName << "' ! ";
+      oss << "Possibilities are : ";
+      for(int i=0;i<nstep;i++)
+        oss << "(" << p[i].first << "," << p[i].second << "), ";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return dtt;
+}
+
+std::vector<std::string> StructMeshCls::getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const
+{
+  INTERP_KERNEL::AutoPtr<char> msn(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> zeDescription(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
+  med_axis_type medAxType;
+  int nAxis(MEDsupportMeshnAxis(fid,getID()));
+  INTERP_KERNEL::AutoPtr<char> axisName(new char[MED_SNAME_SIZE*nAxis+1]),axisUnit(new char[MED_SNAME_SIZE*nAxis+1]);
+  int spaceDim(0),meshDim(0);
+  MEDFILESAFECALLERRD0(MEDsupportMeshInfo,(fid,getID(),msn,&spaceDim,&meshDim,zeDescription,&medAxType,axisName,axisUnit));
+  std::string descriptionCpp(MEDLoaderBase::buildStringFromFortran(zeDescription,MED_COMMENT_SIZE));
+  description.set(descriptionCpp.c_str());
+  dtunit.clear(); univName.clear(); meshType=UNSTRUCTURED; nstep=1;
+  axType=MEDFileMeshL2::TraduceAxisType(medAxType);
+  //int nmodels(0);
+  //med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+  //nmodels=MEDmeshnEntity(fid,_name.c_str(),MED_NO_DT,MED_NO_IT,MED_STRUCT_ELEMENT,MED_GEO_ALL,MED_CONNECTIVITY,MED_NODAL,&chgt,&trsf);
+  std::vector<std::string> ret;
+  for(int i=0;i<nAxis;i++)
+    {
+      std::string info(DataArray::BuildInfoFromVarAndUnit(MEDLoaderBase::buildStringFromFortran(axisName+i*MED_SNAME_SIZE,MED_SNAME_SIZE),
+                                                          MEDLoaderBase::buildStringFromFortran(axisUnit+i*MED_SNAME_SIZE,MED_SNAME_SIZE)));
+      ret.push_back(info);
+    }
+  return ret;
+}
+
+double StructMeshCls::checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const
+{
+  return 0.;
+}
+
+MEDFileMeshL2::MEDFileMeshL2():_name(MED_NAME_SIZE),_description(MED_COMMENT_SIZE),_univ_name(MED_LNAME_SIZE),_dt_unit(MED_LNAME_SIZE)
+{
+}
+
+std::size_t MEDFileMeshL2::getHeapMemorySizeWithoutChildren() const
+{
+  return 0;
+}
+
+std::vector<const BigMemoryObject *> MEDFileMeshL2::getDirectChildrenWithNull() const
+{
+  return std::vector<const BigMemoryObject *>();
+}
+
+INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1)
+{
+  med_mesh_type type_maillage;
+  char maillage_description[MED_COMMENT_SIZE+1];
+  char dtunit[MED_LNAME_SIZE+1];
+  med_int spaceDim,dim;
+  char nommaa[MED_NAME_SIZE+1];
+  med_int n=MEDnMesh(fid);
+  char found(0);
+  int ret=-1;
+  med_sorting_type stype;
+  std::vector<std::string> ms;
+  int nstep;
+  med_axis_type axistype;
+  for(int i=0;i<n && found==0;i++)
+    {
+      int naxis(MEDmeshnAxis(fid,i+1));
+      INTERP_KERNEL::AutoPtr<char> axisname(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE)),axisunit(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
+      MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));      
+      dtunit1=MEDLoaderBase::buildStringFromFortran(dtunit,sizeof(dtunit));
+      std::string cur(MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa)));
+      ms.push_back(cur);
+      if(cur==mName)
+        {
+          found=1;
+          ret=i+1;
+        }
+    }
+  if(found==0)
+    {//last chance ! Is it a support mesh ?
+      int nbSM(MEDnSupportMesh(fid));
+      for(int i=0;i<nbSM && found==0;i++)
+        {
+          int naxis(MEDsupportMeshnAxis(fid,i+1));
+          INTERP_KERNEL::AutoPtr<char> axisname(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE)),axisunit(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
+          MEDFILESAFECALLERRD0(MEDsupportMeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,maillage_description,&axistype,axisname,axisunit));
+          std::string cur(MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa)));
+          ms.push_back(cur);
+          if(cur==mName)
+            {
+              found=2;
+              ret=i+1;
+            }
+        }
+    }
+  ////////////////////////
+  switch(found)
+    {
+    case 1:
+      {
+        axType=TraduceAxisType(axistype);
+        switch(type_maillage)
+          {
+          case MED_UNSTRUCTURED_MESH:
+            meshType=UNSTRUCTURED;
+            break;
+          case MED_STRUCTURED_MESH:
+            {
+              med_grid_type gt;
+              MEDFILESAFECALLERRD0(MEDmeshGridTypeRd,(fid,mName.c_str(),&gt));
+              switch(gt)
+                {
+                case MED_CARTESIAN_GRID:
+                  meshType=CARTESIAN;
+                  break;
+                case MED_CURVILINEAR_GRID:
+                  meshType=CURVE_LINEAR;
+                  break;
+                case MED_POLAR_GRID:// this is not a bug. A MED file POLAR_GRID is deal by CARTESIAN MEDLoader
+                  meshType=CARTESIAN;
+                  break;
+                default:
+                  throw INTERP_KERNEL::Exception("MEDFileMeshL2::getMeshIdFromName : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
+                }
+              break;
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDFileMeshL2::getMeshIdFromName : unrecognized mesh type !");
+          }
+        med_int numdt,numit;
+        med_float dtt;
+        MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,mName.c_str(),1,&numdt,&numit,&dtt));
+        dt=numdt; it=numit;
+        return new MeshCls(ret);
+      }
+    case 2:
+      {
+        meshType=UNSTRUCTURED;
+        dt=MED_NO_DT; it=MED_NO_IT; dtunit1.clear();
+        axType=axType=TraduceAxisType(axistype);
+        return new StructMeshCls(ret);
+      }
+    default:
+      {
+        std::ostringstream oss;
+        oss << "No such meshname (" << mName <<  ") in file ! Must be in : ";
+        std::copy(ms.begin(),ms.end(),std::ostream_iterator<std::string>(oss,", "));
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    }
+  
+}
+
+/*!
+ * non static and non const method because _description, _dt_unit... are set in this method.
+ */
+std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim)
+{
+  return mId->getAxisInfoOnMesh(fid,mName,meshType,axType,nstep,Mdim,_description,_dt_unit,_univ_name);
 }
 
 void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const std::string& meshName, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs)
@@ -444,7 +513,7 @@ MEDFileUMeshL2::MEDFileUMeshL2()
 {
 }
 
-std::vector<std::string> MEDFileUMeshL2::loadCommonPart(med_idt fid, int mId, const std::string& mName, int dt, int it, int& Mdim)
+std::vector<std::string> MEDFileUMeshL2::loadCommonPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, int& Mdim)
 {
   Mdim=-3;
   _name.set(mName.c_str());
@@ -459,23 +528,23 @@ std::vector<std::string> MEDFileUMeshL2::loadCommonPart(med_idt fid, int mId, co
     }
   if(meshType!=UNSTRUCTURED)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected an unstructured one whereas in file it is not an unstructured !");
-  _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
+  _time=mId->checkMeshTimeStep(fid,mName,nstep,dt,it);
   _iteration=dt;
   _order=it;
   return ret;
 }
 
-void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileUMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   int Mdim;
   std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
   if(Mdim==-4)
     return ;
   loadConnectivity(fid,Mdim,mName,dt,it,mrs);//to improve check (dt,it) coherency
-  loadCoords(fid,mId,infosOnComp,mName,dt,it);
+  loadCoords(fid,infosOnComp,mName,dt,it);
 }
 
-void MEDFileUMeshL2::loadPart(med_idt fid, int mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileUMeshL2::loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   int Mdim;
   std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
@@ -494,7 +563,7 @@ void MEDFileUMeshL2::loadPart(med_idt fid, int mId, const std::string& mName, co
   for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
     for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
       (*it1)->getMesh()->renumberNodesWithOffsetInConn(-nMin);
-  loadPartCoords(fid,mId,infosOnComp,mName,dt,it,nMin,nMax);
+  loadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax);
 }
 
 void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
@@ -529,7 +598,7 @@ void MEDFileUMeshL2::loadPartOfConnectivity(med_idt fid, int mdim, const std::st
   sortTypes();
 }
 
-void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it)
+void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it)
 {
   int spaceDim((int)infosOnComp.size());
   med_bool changement,transformation;
@@ -568,7 +637,7 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::str
     _coords->setInfoOnComponent(i,infosOnComp[i]);
 }
 
-void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, int nMin, int nMax)
+void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, int nMin, int nMax)
 {
   med_bool changement,transformation;
   int spaceDim((int)infosOnComp.size()),nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
@@ -696,17 +765,17 @@ MEDFileCMeshL2::MEDFileCMeshL2():_ax_type(AX_CART)
 {
 }
 
-void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it)
+void MEDFileCMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it)
 {
   _name.set(mName.c_str());
   int nstep;
   int Mdim;
   MEDCoupling::MEDCouplingMeshType meshType;
   MEDCoupling::MEDCouplingAxisType dummy3;
-  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,dummy3,nstep,Mdim);
+  std::vector<std::string> infosOnComp(getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,dummy3,nstep,Mdim));
   if(meshType!=CARTESIAN)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
-  _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
+  _time=mId->checkMeshTimeStep(fid,mName,nstep,dt,it);
   _iteration=dt;
   _order=it;
   //
@@ -748,17 +817,17 @@ MEDFileCLMeshL2::MEDFileCLMeshL2()
 {
 }
 
-void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it)
+void MEDFileCLMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it)
 {
   _name.set(mName.c_str());
   int nstep;
   int Mdim;
   MEDCoupling::MEDCouplingMeshType meshType;
   MEDCoupling::MEDCouplingAxisType dummy3;
-  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName,meshType,dummy3,nstep,Mdim);
+  std::vector<std::string> infosOnComp(getAxisInfoOnMesh(fid,mId,mName,meshType,dummy3,nstep,Mdim));
   if(meshType!=CURVE_LINEAR)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
-  _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
+  _time=mId->checkMeshTimeStep(fid,mName,nstep,dt,it);
   _iteration=dt;
   _order=it;
   //
@@ -1986,4 +2055,58 @@ void MEDFileUMeshAggregateCompute::setCoords(DataArrayDouble *coords)
   MEDCouplingUMesh *m(_m);
   if(m)
     m->setCoords(coords);
+}
+
+MEDFileEltStruct4Mesh *MEDFileEltStruct4Mesh::New(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs)
+{
+  return new MEDFileEltStruct4Mesh(fid,mName,dt,it,iterOnStEltOfMesh,mrs);
+}
+
+std::size_t MEDFileEltStruct4Mesh::getHeapMemorySizeWithoutChildren() const
+{
+  return _geo_type_name.capacity()+_vars.capacity()*sizeof(MCAuto<DataArray>);
+}
+
+std::vector<const MEDCoupling::BigMemoryObject*> MEDFileEltStruct4Mesh::getDirectChildrenWithNull() const
+{
+  std::vector<const MEDCoupling::BigMemoryObject*> ret;
+  ret.push_back(_conn);
+  ret.push_back(_common);
+  for(std::vector< MCAuto<DataArray> >::const_iterator it=_vars.begin();it!=_vars.end();it++)
+    ret.push_back(*it);
+  return ret;
+}
+
+MEDFileEltStruct4Mesh::MEDFileEltStruct4Mesh(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs)
+{
+  med_geometry_type geoType;
+  INTERP_KERNEL::AutoPtr<char> geoTypeName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  MEDFILESAFECALLERRD0(MEDmeshEntityInfo,(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,iterOnStEltOfMesh+1,geoTypeName,&geoType));
+  _geo_type=geoType;
+  _geo_type_name=MEDLoaderBase::buildStringFromFortran(geoTypeName,MED_NAME_SIZE);
+  int nCells(0);
+  {
+    med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+    nCells=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,geoType,MED_CONNECTIVITY,MED_NODAL,&chgt,&trsf);
+  }
+  MCAuto<MEDFileMeshSupports> mss(MEDFileMeshSupports::New(fid));
+  MCAuto<MEDFileStructureElements> mse(MEDFileStructureElements::New(fid,mss));
+  int nbEntities(mse->getNumberOfNodesPerSE(_geo_type_name));
+  _conn=DataArrayInt::New(); _conn->alloc(nCells,nbEntities);
+  MEDFILESAFECALLERRD0(MEDmeshElementConnectivityRd,(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,_geo_type,MED_NODAL,MED_FULL_INTERLACE,_conn->getPointer()));
+  _common=MEDFileUMeshPerTypeCommon::New();
+  _common->loadCommonPart(fid,mName.c_str(),dt,it,nCells,geoType,MED_STRUCT_ELEMENT,mrs);
+  std::vector<std::string> vns(mse->getVarAttsOf(_geo_type_name));
+  std::size_t sz(vns.size());
+  _vars.resize(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDFileSEVarAtt *var(mse->getVarAttOf(_geo_type_name,vns[i]));
+      MCAuto<DataArray> gen(var->getGenerator());
+      MCAuto<DataArray> arr(gen->buildNewEmptyInstance());
+      arr->alloc(nCells,var->getNbOfComponents());
+      arr->setName(vns[i]);
+      MEDFILESAFECALLERRD0(MEDmeshStructElementVarAttRd,(fid,mName.c_str(),dt,it,_geo_type,vns[i].c_str(),arr->getVoidStarPointer()));
+      _vars[i]=arr;
+    }
 }

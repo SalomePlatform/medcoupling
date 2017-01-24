@@ -91,6 +91,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const;
     MEDLOADER_EXPORT virtual void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const = 0;
     MEDLOADER_EXPORT virtual MEDFileMesh *cartesianize() const = 0;
+    MEDLOADER_EXPORT virtual bool presenceOfStructureElements() const = 0;
+    MEDLOADER_EXPORT virtual void killStructureElements() { }
     //
     MEDLOADER_EXPORT bool areFamsEqual(const MEDFileMesh *other, std::string& what) const;
     MEDLOADER_EXPORT bool areGrpsEqual(const MEDFileMesh *other, std::string& what) const;
@@ -195,6 +197,8 @@ namespace MEDCoupling
     const MEDFileEquivalences *getEquivalences() const { return _equiv; }
     void killEquivalences() { _equiv=(MEDFileEquivalences *)0; }
     void initializeEquivalences() { _equiv=MEDFileEquivalences::New(this); }
+    static INTERP_KERNEL::NormalizedCellType ConvertFromMEDFileGeoType(med_geometry_type geoType);
+    static TypeOfField ConvertFromMEDFileEntity(med_entity_type etype);
   protected:
     MEDFileMesh();
     //! protected because no way in MED file API to specify this name
@@ -270,6 +274,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void clearNodeAndCellNumbers();
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
     MEDLOADER_EXPORT void setName(const std::string& name);
+    MEDLOADER_EXPORT const std::vector< MCAuto<MEDFileEltStruct4Mesh> >& getAccessOfUndergroundEltStrs() const { return _elt_str; }
     //
     MEDLOADER_EXPORT int getMaxAbsFamilyIdInArrays() const;
     MEDLOADER_EXPORT int getMaxFamilyIdInArrays() const;
@@ -294,6 +299,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
     MEDLOADER_EXPORT MEDFileMesh *cartesianize() const;
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevels() const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevelsExt() const;
     MEDLOADER_EXPORT std::vector<int> getFamArrNonEmptyLevelsExt() const;
@@ -381,6 +388,7 @@ namespace MEDCoupling
     MCAuto<DataArrayAsciiChar> _name_coords;
     mutable MCAuto<DataArrayInt> _rev_num_coords;
     MCAuto<PartDefinition> _part_coords;
+    std::vector< MCAuto<MEDFileEltStruct4Mesh> > _elt_str;
   };
 
   class MEDFileStructuredMesh : public MEDFileMesh
@@ -423,6 +431,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const;
     MEDLOADER_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const { return false; }
     MEDLOADER_EXPORT virtual const MEDCouplingStructuredMesh *getStructuredMesh() const = 0;
     // tools
     MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell);
@@ -545,6 +554,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void setOneTimeStep(MEDFileMesh *mesh1TimeStep);
     MEDLOADER_EXPORT MEDFileJoints *getJoints() const;
     MEDLOADER_EXPORT void setJoints(MEDFileJoints* joints);
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
   private:
     ~MEDFileMeshMultiTS() { }
     void loadFromFile(med_idt fid, const std::string& mName);
@@ -582,6 +593,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void pushMesh(MEDFileMesh *mesh);
     MEDLOADER_EXPORT void setMeshAtPos(int i, MEDFileMesh *mesh);
     MEDLOADER_EXPORT void destroyMeshAtPos(int i);
+    MEDLOADER_EXPORT bool presenceOfStructureElements() const;
+    MEDLOADER_EXPORT void killStructureElements();
   private:
     ~MEDFileMeshes() { }
     void checkConsistencyLight() const;

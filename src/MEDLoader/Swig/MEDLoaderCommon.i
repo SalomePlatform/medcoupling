@@ -150,6 +150,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFields::partOfThisLyingOnSpecifiedMeshName;
 %newobject MEDCoupling::MEDFileFields::partOfThisLyingOnSpecifiedTimeSteps;
 %newobject MEDCoupling::MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps;
+%newobject MEDCoupling::MEDFileFields::partOfThisOnStructureElements;
 %newobject MEDCoupling::MEDFileFields::__iter__;
 %newobject MEDCoupling::MEDFileFields::extractPart;
 
@@ -1083,6 +1084,8 @@ namespace MEDCoupling
     void setJoints( MEDFileJoints* joints );
     void initializeEquivalences();
     void killEquivalences();
+    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
+    void killStructureElements() throw(INTERP_KERNEL::Exception);
     %extend
        {
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -1751,6 +1754,8 @@ namespace MEDCoupling
     void setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
     void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
     void cartesianizeMe() throw(INTERP_KERNEL::Exception);
+    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
+    void killStructureElements() throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileMeshes()
@@ -3016,6 +3021,11 @@ namespace MEDCoupling
     MEDFileAnyTypeFieldMultiTS *getFieldAtPos(int i) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeFieldMultiTS *getFieldWithName(const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const throw(INTERP_KERNEL::Exception);
+    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
+    void aggregate(const MEDFileFields& other) throw(INTERP_KERNEL::Exception);
+    void killStructureElements() throw(INTERP_KERNEL::Exception);
+    void keepOnlyStructureElements() throw(INTERP_KERNEL::Exception);
+    void keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName) throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
     bool removeFieldsWithoutAnyTimeStep() throw(INTERP_KERNEL::Exception);
     %extend
@@ -3045,7 +3055,19 @@ namespace MEDCoupling
          {
            return self->simpleRepr();
          }
+         
+         MEDFileFields *partOfThisOnStructureElements() const throw(INTERP_KERNEL::Exception)
+         {
+           MCAuto<MEDFileFields> ret(self->partOfThisOnStructureElements());
+           return ret.retn();
+         }
 
+         MEDFileFields *partOfThisLyingOnSpecifiedMeshSEName(const std::string& meshName, const std::string& seName) const throw(INTERP_KERNEL::Exception)
+         {
+           MCAuto<MEDFileFields> ret(self->partOfThisLyingOnSpecifiedMeshSEName(meshName,seName));
+           return ret.retn();
+         }
+         
          static MEDFileFields *LoadSpecificEntities(const std::string& fileName, PyObject *entities, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
            std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
@@ -3057,6 +3079,13 @@ namespace MEDCoupling
                entitiesCpp[i].second=(INTERP_KERNEL::NormalizedCellType)tmp[i].second;
              }
            return MEDFileFields::LoadSpecificEntities(fileName,entitiesCpp,loadAll);
+         }
+
+         PyObject *getMeshSENames() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<std::string,std::string> > ps;
+           self->getMeshSENames(ps);
+           return convertVectPairStToPy(ps);
          }
 
          PyObject *getCommonIterations() const throw(INTERP_KERNEL::Exception)
@@ -3595,6 +3624,9 @@ namespace MEDCoupling
     //
     bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName) throw(INTERP_KERNEL::Exception);
     bool unPolyzeMeshes() throw(INTERP_KERNEL::Exception);
+    void dealWithStructureElements() throw(INTERP_KERNEL::Exception);
+    std::string getHeader() const throw(INTERP_KERNEL::Exception);
+    void setHeader(const std::string& header) throw(INTERP_KERNEL::Exception);
     //
     %extend
        {

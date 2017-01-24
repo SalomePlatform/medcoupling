@@ -25,6 +25,8 @@
 #include "MEDFileParameter.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileMesh.hxx"
+#include "MEDFileMeshSupport.hxx"
+#include "MEDFileStructureElement.hxx"
 
 namespace MEDCoupling
 {
@@ -52,19 +54,29 @@ namespace MEDCoupling
     MEDLOADER_EXPORT int getNumberOfParams() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     //
+    MEDLOADER_EXPORT std::string getHeader() const;
+    MEDLOADER_EXPORT void setHeader(const std::string& header);
+    //
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     MEDLOADER_EXPORT bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName);
     MEDLOADER_EXPORT bool unPolyzeMeshes();
+    MEDLOADER_EXPORT void dealWithStructureElements();
     MEDLOADER_EXPORT static MCAuto<MEDFileData> Aggregate(const std::vector<const MEDFileData *>& mfds);
     //
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
   private:
     MEDFileData();
     MEDFileData(med_idt fid);
+    void readHeader(med_idt fid);
+    void writeHeader(med_idt fid) const;
+    void readMeshSupports(med_idt fid);
   private:
     MCAuto<MEDFileFields> _fields;
     MCAuto<MEDFileMeshes> _meshes;
     MCAuto<MEDFileParameters> _params;
+    MCAuto<MEDFileMeshSupports> _mesh_supports;
+    MCAuto<MEDFileStructureElements> _struct_elems;
+    std::string _header;
   };
 }
 

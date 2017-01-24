@@ -229,6 +229,20 @@ PyObject *convertVecPairVecStToPy(const std::vector< std::pair<std::vector<std::
   return ret;
 }
 
+PyObject *convertVectPairStToPy(const std::vector< std::pair<std::string, std::string > >& vec)
+{
+  int sz=(int)vec.size();
+  PyObject *ret=PyList_New(sz);
+  for(int i=0;i<sz;i++)
+    {
+      PyObject *t=PyTuple_New(2);
+      PyTuple_SetItem(t,0,PyString_FromString(vec[i].first.c_str()));
+      PyTuple_SetItem(t,1,PyString_FromString(vec[i].second.c_str()));
+      PyList_SetItem(ret,i,t);
+    }
+  return ret;
+}
+
 std::vector< std::pair<std::string, std::string > > convertVecPairStStFromPy(PyObject *pyLi)
 {
   std::vector< std::pair<std::string, std::string > > ret;
