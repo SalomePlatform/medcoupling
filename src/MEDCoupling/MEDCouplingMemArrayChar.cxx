@@ -30,6 +30,7 @@
 
 using namespace MEDCoupling;
 
+template class MemArray<char>;
 template class DataArrayTemplate<char>;
 
 /*!

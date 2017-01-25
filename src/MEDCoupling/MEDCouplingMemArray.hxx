@@ -169,6 +169,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const = 0;
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleIdSafeSlice(int bg, int end2, int step) const = 0;
     MEDCOUPLING_EXPORT virtual void rearrange(int newNbOfCompo) = 0;
+    MEDCOUPLING_EXPORT virtual void circularPermutation(int nbOfShift=1) = 0;
+    MEDCOUPLING_EXPORT virtual void circularPermutationPerTuple(int nbOfShift=1) = 0;
+    MEDCOUPLING_EXPORT virtual void reversePerTuple() = 0;
     MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const std::string& msg) const;
     MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const std::string& msg) const;
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const;
@@ -197,6 +200,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static void CheckValueInRange(int ref, int value, const std::string& msg);
     MEDCOUPLING_EXPORT static void CheckValueInRangeEx(int value, int start, int end, const std::string& msg);
     MEDCOUPLING_EXPORT static void CheckClosingParInRange(int ref, int value, const std::string& msg);
+    MEDCOUPLING_EXPORT static int EffectiveCircPerm(int nbOfShift, int nbOfTuples);
   protected:
     std::string _name;
     std::vector<std::string> _info_on_compo;
@@ -254,6 +258,9 @@ namespace MEDCoupling
     typename Traits<T>::ArrayType *renumberAndReduce(const int *old2New, int newNbOfTuple) const;
     typename Traits<T>::ArrayType *changeNbOfComponents(int newNbOfComp, T dftValue) const;
     typename Traits<T>::ArrayType *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
+    void circularPermutation(int nbOfShift=1);
+    void circularPermutationPerTuple(int nbOfShift=1);
+    void reversePerTuple();
     void setPartOfValues1(const typename Traits<T>::ArrayType *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
     void setPartOfValuesSimple1(T a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp);
     void setPartOfValues2(const typename Traits<T>::ArrayType *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare=true);
@@ -834,10 +841,24 @@ namespace MEDCoupling
   };
 }
 
-#include "MEDCouplingMemArray.txx"
-
 namespace MEDCoupling
 {
+  template<class T>
+  template<class InputIterator>
+  void MemArray<T>::insertAtTheEnd(InputIterator first, InputIterator last)
+  {
+    T *pointer=_pointer.getPointer();
+    while(first!=last)
+      {
+        if(_nb_of_elem>=_nb_of_elem_alloc)
+          {
+            reserve(_nb_of_elem_alloc>0?2*_nb_of_elem_alloc:1);
+            pointer=_pointer.getPointer();
+          }
+        pointer[_nb_of_elem++]=*first++;
+      }
+  }
+  
   template<class InputIterator>
   void DataArrayDouble::insertAtTheEnd(InputIterator first, InputIterator last)
   {

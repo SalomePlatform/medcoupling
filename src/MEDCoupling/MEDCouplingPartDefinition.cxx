@@ -20,6 +20,8 @@
 
 #include "MEDCouplingPartDefinition.hxx"
 
+#include <sstream>
+
 using namespace MEDCoupling;
 
 PartDefinition *PartDefinition::New(int start, int stop, int step)

@@ -36,6 +36,8 @@ typedef double (*MYFUNCPTR)(double);
 
 using namespace MEDCoupling;
 
+template class MemArray<int>;
+template class MemArray<double>;
 template class DataArrayTemplate<int>;
 template class DataArrayTemplate<double>;
 
@@ -109,6 +111,22 @@ void DataArrayDouble::FindClosestTupleIdAlg(const BBTreePts<SPACEDIM,int>& myTre
           else
             { distOpt=2*distOpt; continue; }
         }
+    }
+}
+
+int DataArray::EffectiveCircPerm(int nbOfShift, int nbOfTuples)
+{
+  if(nbOfTuples<=0)
+    throw INTERP_KERNEL::Exception("DataArray::EffectiveCircPerm : number of tuples is expected to be > 0 !");
+  if(nbOfShift>=0)
+    {
+      return nbOfShift%nbOfTuples;
+    }
+  else
+    {
+      int tmp(-nbOfShift);
+      tmp=tmp%nbOfTuples;
+      return nbOfTuples-tmp;
     }
 }
 

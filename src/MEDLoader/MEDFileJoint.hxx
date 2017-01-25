@@ -25,6 +25,8 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 
+#include "NormalizedGeometricTypes"
+
 namespace MEDCoupling
 {
 /*!

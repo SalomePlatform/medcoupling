@@ -25,6 +25,7 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpolationUtils.hxx"
+#include "InterpKernelAutoPtr.hxx"
 #include "MCAuto.hxx"
 
 #include <sstream>
@@ -93,22 +94,6 @@ namespace MEDCoupling
     pointer[id]=element0;
     std::copy(others,others+sizeOfOthers,pointer+id+1);
     _nb_of_elem=std::max<std::size_t>(_nb_of_elem,id+sizeOfOthers+1);
-  }
-
-  template<class T>
-  template<class InputIterator>
-  void MemArray<T>::insertAtTheEnd(InputIterator first, InputIterator last)
-  {
-    T *pointer=_pointer.getPointer();
-    while(first!=last)
-      {
-        if(_nb_of_elem>=_nb_of_elem_alloc)
-          {
-            reserve(_nb_of_elem_alloc>0?2*_nb_of_elem_alloc:1);
-            pointer=_pointer.getPointer();
-          }
-        pointer[_nb_of_elem++]=*first++;
-      }
   }
 
   template<class T>
@@ -2124,6 +2109,78 @@ namespace MEDCoupling
     return *loc;
   }
   
+  template<class T>
+  void DataArrayTemplate<T>::circularPermutation(int nbOfShift)
+  {
+    checkAllocated();
+    int nbOfCompo(getNumberOfComponents()),nbTuples(getNumberOfTuples());
+    int effNbSh(EffectiveCircPerm(nbOfShift,nbTuples));
+    if(effNbSh==0)
+      return ;
+    T *work(getPointer());
+    if(effNbSh<nbTuples-effNbSh)
+      {
+        typename INTERP_KERNEL::AutoPtr<T> buf(new T[effNbSh*nbOfCompo]);
+        std::copy(work,work+effNbSh*nbOfCompo,(T *)buf);
+        std::copy(work+effNbSh*nbOfCompo,work+nbTuples*nbOfCompo,work);// ze big shift
+        std::copy((T *)buf,(T *)buf+effNbSh*nbOfCompo,work+(nbTuples-effNbSh)*nbOfCompo);
+      }
+    else
+      {
+        typename INTERP_KERNEL::AutoPtr<T> buf(new T[(nbTuples-effNbSh)*nbOfCompo]);
+        std::copy(work+effNbSh*nbOfCompo,work+nbTuples*nbOfCompo,(T *)buf);
+        std::copy(work,work+effNbSh*nbOfCompo,work+(nbTuples-effNbSh)*nbOfCompo);// ze big shift
+        std::copy((T*)buf,(T *)buf+(nbTuples-effNbSh)*nbOfCompo,work);
+      }
+  }
+  
+  template<class T>
+  void DataArrayTemplate<T>::circularPermutationPerTuple(int nbOfShift)
+  {
+    checkAllocated();
+    int nbOfCompo(getNumberOfComponents()),nbTuples(getNumberOfTuples());
+    int effNbSh(EffectiveCircPerm(nbOfShift,nbOfCompo));
+    if(effNbSh==0)
+      return ;
+    T *work(getPointer());
+    if(effNbSh<nbOfCompo-effNbSh)
+      {
+        typename INTERP_KERNEL::AutoPtr<T> buf(new T[effNbSh]);
+        for(int i=0;i<nbTuples;i++,work+=nbOfCompo)
+          {
+            std::copy(work,work+effNbSh,(T *)buf);
+            std::copy(work+effNbSh,work+nbOfCompo,work);// ze big shift
+            std::copy((T *)buf,(T *)buf+effNbSh,work+(nbOfCompo-effNbSh));
+          }
+      }
+    else
+      {
+        typename INTERP_KERNEL::AutoPtr<T> buf(new T[nbOfCompo-effNbSh]);
+        for(int i=0;i<nbTuples;i++,work+=nbOfCompo)
+          {
+            std::copy(work+effNbSh,work+nbOfCompo,(T *)buf);
+            std::copy(work,work+effNbSh,work+(nbOfCompo-effNbSh));// ze big shift
+            std::copy((T*)buf,(T *)buf+(nbOfCompo-effNbSh),work);
+          }
+      }
+    std::vector<std::string> sts(nbOfCompo);
+    for(int i=0;i<nbOfCompo;i++)
+      sts[i]=_info_on_compo[(i+effNbSh)%nbOfCompo];
+    setInfoOnComponents(sts);
+  }
+  
+  template<class T>
+  void DataArrayTemplate<T>::reversePerTuple()
+  {
+    checkAllocated();
+    int nbOfCompo(getNumberOfComponents()),nbTuples(getNumberOfTuples());
+    if(nbOfCompo<=1)
+      return ;
+    T *work(getPointer());
+    for(int i=0;i<nbTuples;i++,work+=nbOfCompo)
+      std::reverse(work,work+nbOfCompo);
+    std::reverse(_info_on_compo.begin(),_info_on_compo.end());
+  }
 }
 
 #endif

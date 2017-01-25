@@ -27,6 +27,8 @@
 #include "MEDFileUtilities.txx"
 #include "MCAuto.hxx"
 
+#include "NormalizedGeometricTypes"
+
 #include <vector>
 
 namespace MEDCoupling

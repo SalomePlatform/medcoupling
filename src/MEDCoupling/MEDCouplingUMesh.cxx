@@ -20,7 +20,6 @@
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
-#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingSkyLineArray.hxx"
 #include "CellModel.hxx"

@@ -19,6 +19,8 @@
 
 #include "MEDCouplingSkyLineArray.hxx"
 
+#include <sstream>
+
 using namespace MEDCoupling;
 
 MEDCouplingSkyLineArray::MEDCouplingSkyLineArray():

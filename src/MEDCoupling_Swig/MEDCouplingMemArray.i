@@ -250,6 +250,9 @@ namespace MEDCoupling
     virtual DataArray *buildNewEmptyInstance() const throw(INTERP_KERNEL::Exception);
     virtual DataArray *selectByTupleIdSafeSlice(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
     virtual void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
+    virtual void circularPermutation(int nbOfShift=1) throw(INTERP_KERNEL::Exception);
+    virtual void circularPermutationPerTuple(int nbOfShift=1) throw(INTERP_KERNEL::Exception);
+    virtual void reversePerTuple() throw(INTERP_KERNEL::Exception);
     void checkNbOfTuples(int nbOfTuples, const std::string& msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfComps(int nbOfCompo, const std::string& msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const throw(INTERP_KERNEL::Exception);

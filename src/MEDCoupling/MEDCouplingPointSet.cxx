@@ -32,6 +32,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <sstream>
 
 using namespace MEDCoupling;
 

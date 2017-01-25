@@ -22,6 +22,8 @@
 
 #include "InterpKernelMatrixTools.hxx"
 
+#include <sstream>
+
 using namespace MEDCoupling;
 
 DenseMatrix *DenseMatrix::New(int nbRows, int nbCols)
