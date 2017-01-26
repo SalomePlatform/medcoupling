@@ -33,6 +33,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>

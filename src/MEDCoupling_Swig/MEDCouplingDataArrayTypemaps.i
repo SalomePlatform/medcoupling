@@ -23,6 +23,8 @@
 
 #include "InterpKernelAutoPtr.hxx"
 
+#include <sstream>
+
 /*!
  * This method is an extention of PySlice_GetIndices but less
  * open than PySlice_GetIndicesEx that accepts too many situations.
