@@ -478,6 +478,17 @@ namespace MEDCoupling
   }
 
   //////////////////////////////////
+
+  template<class T>
+  MCAuto< typename Traits<T>::ArrayTypeCh > DataArrayTemplate<T>::NewFromStdVector(const typename std::vector<T>& v)
+  {
+    std::size_t sz(v.size());
+    MCAuto< typename Traits<T>::ArrayTypeCh > ret(Traits<T>::ArrayTypeCh::New());
+    ret->alloc(sz,1);
+    T *pt(ret->getPointer());
+    std::copy(v.begin(),v.end(),pt);
+    return ret;
+  }
   
   template<class T>
   std::size_t DataArrayTemplate<T>::getHeapMemorySizeWithoutChildren() const
