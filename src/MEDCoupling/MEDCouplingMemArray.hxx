@@ -215,7 +215,8 @@ namespace MEDCoupling
   class DataArrayTemplate : public DataArray
   {
   public:
-    static MCAuto< typename Traits<T>::ArrayTypeCh > NewFromStdVector(const typename std::vector<T>& v);
+    MEDCOUPLING_EXPORT static MCAuto< typename Traits<T>::ArrayTypeCh > NewFromStdVector(const typename std::vector<T>& v);
+    MEDCOUPLING_EXPORT std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > explodeComponents() const;
     //
     std::size_t getHeapMemorySizeWithoutChildren() const;
     //

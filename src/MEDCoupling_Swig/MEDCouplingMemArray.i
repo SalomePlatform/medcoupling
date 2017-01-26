@@ -1119,6 +1119,16 @@ namespace MEDCoupling
         convertPyToNewIntArr3(li,tmp);
         self->setSelectedComponents(a,tmp);
       }
+
+      PyObject *explodeComponents() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< MCAuto<DataArrayDouble> > retCpp(self->explodeComponents());
+        std::size_t sz(retCpp.size());
+        PyObject *res(PyList_New(sz));
+        for(std::size_t i=0;i<sz;i++)
+          PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(retCpp[i].retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+        return res;
+      }
    
       PyObject *getTuple(int tupleId) throw(INTERP_KERNEL::Exception)
       {
@@ -3242,6 +3252,16 @@ namespace MEDCoupling
         std::vector<int> tmp;
         convertPyToNewIntArr3(li,tmp);
         self->setSelectedComponents(a,tmp);
+      }
+
+      PyObject *explodeComponents() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< MCAuto<DataArrayInt> > retCpp(self->explodeComponents());
+        std::size_t sz(retCpp.size());
+        PyObject *res(PyList_New(sz));
+        for(std::size_t i=0;i<sz;i++)
+          PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(retCpp[i].retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return res;
       }
 
       PyObject *getTuple(int tupleId) throw(INTERP_KERNEL::Exception)

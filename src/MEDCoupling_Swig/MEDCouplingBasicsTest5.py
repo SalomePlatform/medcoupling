@@ -4543,6 +4543,30 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         d3Exp=DataArrayInt([3,2,1,6,5,4],2,3) ; d3Exp.setInfoOnComponents(["c","b","a"])
         self.assertTrue(d3Exp.isEqual(d2))
         pass
+
+    def testDAExplodeComponents1(self):
+        d=DataArrayDouble([(1,2),(3,4),(5,6)])
+        d.setName("toto")
+        d.setInfoOnComponents(["a","b"])
+        d2=d.explodeComponents()
+        self.assertEqual(len(d2),2)
+        #
+        d3=DataArrayDouble([1,3,5]) ; d3.setName("toto") ; d3.setInfoOnComponents(["a"])
+        self.assertTrue(d3.isEqual(d2[0],1e-14))
+        d4=DataArrayDouble([2,4,6]) ; d4.setName("toto") ; d4.setInfoOnComponents(["b"])
+        self.assertTrue(d4.isEqual(d2[1],1e-14))
+        #
+        d=DataArrayInt([(1,2),(3,4),(5,6)])
+        d.setName("toto")
+        d.setInfoOnComponents(["a","b"])
+        d2=d.explodeComponents()
+        self.assertEqual(len(d2),2)
+        #
+        d3=DataArrayInt([1,3,5]) ; d3.setName("toto") ; d3.setInfoOnComponents(["a"])
+        self.assertTrue(d3.isEqual(d2[0]))
+        d4=DataArrayInt([2,4,6]) ; d4.setName("toto") ; d4.setInfoOnComponents(["b"])
+        self.assertTrue(d4.isEqual(d2[1]))
+        pass
     
     pass
 

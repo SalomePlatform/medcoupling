@@ -491,6 +491,30 @@ namespace MEDCoupling
   }
   
   template<class T>
+  std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > DataArrayTemplate<T>::explodeComponents() const
+  {
+    checkAllocated();
+    std::size_t sz(getNumberOfComponents());
+    int nbTuples(getNumberOfTuples());
+    std::string name(getName());
+    std::vector<std::string> compNames(getInfoOnComponents());
+    std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > ret(sz);
+    const T *thisPt(begin());
+    for(std::size_t i=0;i<sz;i++)
+      {
+        MCAuto< typename Traits<T>::ArrayTypeCh > part(Traits<T>::ArrayTypeCh::New());
+        part->alloc(nbTuples,1);
+        part->setName(name);
+        part->setInfoOnComponent(0,compNames[i]);
+        T *otherPt(part->getPointer());
+        for(int j=0;j<nbTuples;j++)
+          otherPt[j]=thisPt[sz*j+i];
+        ret[i]=part;
+      }
+    return ret;
+  }
+  
+  template<class T>
   std::size_t DataArrayTemplate<T>::getHeapMemorySizeWithoutChildren() const
   {
     std::size_t sz(_mem.getNbOfElemAllocated());
