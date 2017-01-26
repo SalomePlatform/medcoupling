@@ -34,6 +34,7 @@ namespace MEDCoupling
   class DataArrayInt;
   class DataArrayDouble;
   class DataArrayChar;
+  class DataArrayByte;
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldInt;
   
@@ -43,6 +44,7 @@ namespace MEDCoupling
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     typedef DataArrayDouble ArrayType;
+    typedef DataArrayDouble ArrayTypeCh;
     typedef MEDCouplingFieldDouble FieldType;
   };
   
@@ -52,6 +54,7 @@ namespace MEDCoupling
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     typedef DataArrayInt ArrayType;
+    typedef DataArrayInt ArrayTypeCh;
     typedef MEDCouplingFieldInt FieldType;
   };
 
@@ -59,6 +62,7 @@ namespace MEDCoupling
   struct MEDCOUPLING_EXPORT Traits<char>
   {
     static const char ArrayTypeName[];
+    typedef DataArrayByte ArrayTypeCh;
     typedef DataArrayChar ArrayType;
   };
 }
