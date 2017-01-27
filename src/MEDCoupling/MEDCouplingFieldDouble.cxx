@@ -25,7 +25,8 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MCAuto.hxx"
+#include "MCAuto.txx"
+#include "MEDCouplingVoronoi.hxx"
 #include "MEDCouplingNatureOfField.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -2203,6 +2204,19 @@ bool MEDCouplingFieldDouble::simplexize(int policy)
 }
 
 /*!
+ * This method makes the hypothesis that \a this is a Gauss field. This method returns a newly created field on cells with same number of tuples than \a this.
+ * Each Gauss points in \a this is replaced by a polygon or polyhedron cell with associated region following Voronoi algorithm.
+ */
+MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoize(double eps) const
+{
+  checkConsistencyLight();
+  const MEDCouplingMesh *mesh(getMesh());
+  if(mesh->getSpaceDimension()==2 && mesh->getSpaceDimension()==2)
+    return voronoize2D(eps);
+  throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize : only 2D is supported for the moment !");
+}
+
+/*!
  * This is expected to be a 3 components vector field on nodes (if not an exception will be thrown). \a this is also expected to lie on a MEDCouplingPointSet mesh.
  * Finaly \a this is also expected to be consistent.
  * In these conditions this method returns a newly created field (to be dealed by the caller).
@@ -3068,6 +3082,65 @@ std::string MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const 
   return ret;
 }
 
+MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoize2D(double eps) const
+{
+  checkConsistencyLight();
+  const MEDCouplingMesh *inpMesh(getMesh());
+  int nbCells(inpMesh->getNumberOfCells());
+  const MEDCouplingFieldDiscretization *disc(getDiscretization());
+  const MEDCouplingFieldDiscretizationGauss *disc2(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc));
+  if(!disc2)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize2D : Not a ON_GAUSS_PT field");
+  int nbLocs(disc2->getNbOfGaussLocalization());
+  std::vector< MCAuto<MEDCouplingUMesh> > cells(nbCells);
+  for(int i=0;i<nbLocs;i++)
+    {
+      const MEDCouplingGaussLocalization& gl(disc2->getGaussLocalization(i));
+      if(gl.getDimension()!=2)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize2D : not a 2D one !");
+      MCAuto<MEDCouplingUMesh> mesh(gl.buildRefCell());
+      const std::vector<double>& coo(gl.getGaussCoords());
+      MCAuto<DataArrayDouble> coo2(DataArrayDouble::NewFromStdVector(coo));
+      coo2->rearrange(2);
+      //
+      MCAuto<MEDCouplingUMesh> coo3(MEDCouplingUMesh::Build0DMeshFromCoords(coo2));
+      //
+      MCAuto<MEDCouplingUMesh> vorCellsForCurDisc(Voronoize2D(mesh,coo2,eps));
+      std::vector<int> ids;
+      MCAuto<DataArrayDouble> ptsInReal;
+      disc2->getCellIdsHavingGaussLocalization(i,ids);
+      {
+        MCAuto<MEDCouplingUMesh> tmp4(inpMesh->buildUnstructured());
+        MCAuto<MEDCouplingUMesh> subMesh(tmp4->buildPartOfMySelf(&ids[0],&ids[0]+ids.size()));
+        ptsInReal=gl.localizePtsInRefCooForEachCell(vorCellsForCurDisc->getCoords(),subMesh);
+      }
+      int nbPtsPerCell(vorCellsForCurDisc->getNumberOfNodes());
+      for(std::size_t i=0;i<ids.size();i++)
+        {
+          MCAuto<MEDCouplingUMesh> elt(vorCellsForCurDisc->clone(false));
+          MCAuto<DataArrayDouble> coo(ptsInReal->selectByTupleIdSafeSlice(i*nbPtsPerCell,(i+1)*nbPtsPerCell,1));
+          elt->setCoords(coo);
+          cells[ids[i]]=elt;
+        }
+    }
+  std::vector< const MEDCouplingUMesh * > cellsPtr(VecAutoToVecOfCstPt(cells));
+  MCAuto<MEDCouplingUMesh> outMesh(MEDCouplingUMesh::MergeUMeshes(cellsPtr));
+  MCAuto<MEDCouplingFieldDouble> onCells(MEDCouplingFieldDouble::New(ON_CELLS));
+  onCells->setMesh(outMesh);
+  {
+    MCAuto<DataArrayDouble> arr(getArray()->deepCopy());
+    onCells->setArray(arr);
+  }
+  onCells->setTimeUnit(getTimeUnit());
+  {
+    int b,c;
+    double a(getTime(b,c));
+    onCells->setTime(a,b,c);
+  }
+  onCells->setName(getName());
+  return onCells;
+}
+
 MEDCouplingTimeDiscretization *MEDCouplingFieldDouble::timeDiscr()
 {
   MEDCouplingTimeDiscretizationTemplate<double> *ret(_time_discr);
@@ -3089,3 +3162,4 @@ const MEDCouplingTimeDiscretization *MEDCouplingFieldDouble::timeDiscr() const
     throw INTERP_KERNEL::Exception("Field Double Null invalid type of time discr !");
   return retc;
 }
+

@@ -212,6 +212,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::findIdsInRange;
 %newobject MEDCoupling::MEDCouplingFieldDouble::buildSubPart;
 %newobject MEDCoupling::MEDCouplingFieldDouble::buildSubPartRange;
+%newobject MEDCoupling::MEDCouplingFieldDouble::voronoize;
 %newobject MEDCoupling::MEDCouplingFieldDouble::__getitem__;
 %newobject MEDCoupling::MEDCouplingFieldDouble::__neg__;
 %newobject MEDCoupling::MEDCouplingFieldDouble::__add__;
@@ -3937,7 +3938,13 @@ namespace MEDCoupling
         self->reprQuickOverview(oss);
         return oss.str();
       }
-
+      
+      MEDCouplingFieldDouble *voronoize(double eps) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<MEDCouplingFieldDouble> ret(self->voronoize(eps));
+        return ret.retn();
+      }
+      
       MEDCouplingFieldDouble *computeVectorFieldCyl(PyObject *center, PyObject *vector) const
       {
         const char msg[]="Python wrap of MEDCouplingFieldDouble::computeVectorFieldCyl : ";

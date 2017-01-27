@@ -114,6 +114,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool zipConnectivity(int compType, double epsOnVals=1e-15);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *extractSlice3D(const double *origin, const double *vec, double eps) const;
     MEDCOUPLING_EXPORT bool simplexize(int policy);
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingFieldDouble> voronoize(double eps) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeVectorFieldCyl(const double center[3], const double vect[3]) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *doublyContractedProduct() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *determinant() const;
@@ -166,6 +167,7 @@ namespace MEDCoupling
     MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy);
     MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
+    MCAuto<MEDCouplingFieldDouble> voronoize2D(double eps) const;
     MEDCouplingTimeDiscretization *timeDiscr();
     const MEDCouplingTimeDiscretization *timeDiscr() const;
   };

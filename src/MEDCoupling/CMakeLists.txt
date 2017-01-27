@@ -63,6 +63,7 @@ SET(medcoupling_SOURCES
   MEDCouplingMatrix.cxx
   MEDCouplingPartDefinition.cxx
   MEDCouplingSkyLineArray.cxx
+  MEDCouplingVoronoi.cxx
   ../ICoCo/ICoCoField.cxx
   ../ICoCo/ICoCoMEDField.cxx
   )
