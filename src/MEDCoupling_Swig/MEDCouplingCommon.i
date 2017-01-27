@@ -411,6 +411,8 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::PartDefinition::tryToSimplify;
 %newobject MEDCoupling::DataArrayPartDefinition::New;
 %newobject MEDCoupling::SlicePartDefinition::New;
+%newobject MEDCoupling::MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell;
+%newobject MEDCoupling::MEDCouplingGaussLocalization::buildRefCell;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -1161,6 +1163,21 @@ namespace MEDCoupling
     void setWeights(const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
     //
     static bool AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps);
+    //
+    %extend 
+    {
+      DataArrayDouble *localizePtsInRefCooForEachCell(const DataArrayDouble *ptsInRefCoo, const MEDCouplingUMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayDouble> ret(self->localizePtsInRefCooForEachCell(ptsInRefCoo,mesh));
+        return ret.retn();
+      }
+
+      MEDCouplingUMesh *buildRefCell() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<MEDCouplingUMesh> ret(self->buildRefCell());
+        return ret.retn();
+      }
+    }
   };
 
   class MEDCouplingSkyLineArray

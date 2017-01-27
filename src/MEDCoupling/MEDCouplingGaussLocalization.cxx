@@ -20,6 +20,7 @@
 
 #include "MEDCouplingGaussLocalization.hxx"
 #include "InterpKernelGaussCoords.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "CellModel.hxx"
 
@@ -230,6 +231,26 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::localizePtsInRefCooForEach
   for(int i=0;i<nbCells;i++,retPtr+=nbPts*dim)
     calculator.calculateCoords(getType(),coords,dim,conn+connI[i]+1,retPtr);
   return ret;
+}
+
+/*!
+ * This method returns an unstructured mesh that represents the reference cell.
+ */
+MCAuto<MEDCouplingUMesh> MEDCouplingGaussLocalization::buildRefCell() const
+{
+  MCAuto<DataArrayDouble> coo(DataArrayDouble::New());
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getType()));
+  if(getDimension()!=cm.getDimension())
+    throw INTERP_KERNEL::Exception("BuildRefCell : dimension mistmatch !");
+  coo->alloc(cm.getNumberOfNodes(),getDimension());
+  std::copy(_ref_coord.begin(),_ref_coord.end(),coo->getPointer());
+  MCAuto<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New("",getType()));
+  ret->setCoords(coo);
+  MCAuto<DataArrayInt> conn(DataArrayInt::New());
+  conn->alloc(cm.getNumberOfNodes(),1);
+  conn->iota();
+  ret->setNodalConnectivity(conn);
+  return MCAuto<MEDCouplingUMesh>(ret->buildUnstructured());
 }
 
 /*!

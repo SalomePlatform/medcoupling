@@ -53,6 +53,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const double *fillWithValues(const double *vals);
     //
     MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> localizePtsInRefCooForEachCell(const DataArrayDouble *ptsInRefCoo, const MEDCouplingUMesh *mesh) const;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> buildRefCell() const;
     //
     MEDCOUPLING_EXPORT const std::vector<double>& getRefCoords() const { return _ref_coord; }
     MEDCOUPLING_EXPORT double getRefCoord(int ptIdInCell, int comp) const;
