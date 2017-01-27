@@ -19,6 +19,8 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingGaussLocalization.hxx"
+#include "InterpKernelGaussCoords.hxx"
+#include "MEDCouplingUMesh.hxx"
 #include "CellModel.hxx"
 
 #include <cmath>
@@ -27,8 +29,10 @@
 #include <iterator>
 #include <algorithm>
 
-MEDCoupling::MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                                                       const std::vector<double>& gsCoo, const std::vector<double>& w)
+using namespace MEDCoupling;
+
+MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
+                                                           const std::vector<double>& gsCoo, const std::vector<double>& w)
 try:_type(type),_ref_coord(refCoo),_gauss_coord(gsCoo),_weight(w)
 {
   checkConsistencyLight();
@@ -42,7 +46,7 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-MEDCoupling::MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType typ)
+MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType typ)
 try:_type(typ)
 {
   INTERP_KERNEL::CellModel::GetCellModel(_type);
@@ -53,13 +57,13 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-void MEDCoupling::MEDCouplingGaussLocalization::setType(INTERP_KERNEL::NormalizedCellType typ)
+void MEDCouplingGaussLocalization::setType(INTERP_KERNEL::NormalizedCellType typ)
 {
   INTERP_KERNEL::CellModel::GetCellModel(typ);//throws if not found. This is a check
   _type=typ;
 }
 
-void MEDCoupling::MEDCouplingGaussLocalization::checkConsistencyLight() const
+void MEDCouplingGaussLocalization::checkConsistencyLight() const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
@@ -79,14 +83,14 @@ void MEDCoupling::MEDCouplingGaussLocalization::checkConsistencyLight() const
     }
 }
 
-int MEDCoupling::MEDCouplingGaussLocalization::getDimension() const
+int MEDCouplingGaussLocalization::getDimension() const
 {
   if(_weight.empty())
     return -1;
   return (int)_gauss_coord.size()/(int)_weight.size();
 }
 
-int MEDCoupling::MEDCouplingGaussLocalization::getNumberOfPtsInRefCell() const
+int MEDCouplingGaussLocalization::getNumberOfPtsInRefCell() const
 {
   int dim=getDimension();
   if(dim==0)
@@ -94,7 +98,7 @@ int MEDCoupling::MEDCouplingGaussLocalization::getNumberOfPtsInRefCell() const
   return (int)_ref_coord.size()/dim;
 }
 
-std::string MEDCoupling::MEDCouplingGaussLocalization::getStringRepr() const
+std::string MEDCouplingGaussLocalization::getStringRepr() const
 {
   std::ostringstream oss;
   oss << "CellType : " << INTERP_KERNEL::CellModel::GetCellModel(_type).getRepr() << std::endl;
@@ -104,7 +108,7 @@ std::string MEDCoupling::MEDCouplingGaussLocalization::getStringRepr() const
   return oss.str();
 }
 
-std::size_t MEDCoupling::MEDCouplingGaussLocalization::getMemorySize() const
+std::size_t MEDCouplingGaussLocalization::getMemorySize() const
 {
   std::size_t ret=0;
   ret+=_ref_coord.capacity()*sizeof(double);
@@ -113,7 +117,7 @@ std::size_t MEDCoupling::MEDCouplingGaussLocalization::getMemorySize() const
   return ret;
 }
 
-bool MEDCoupling::MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLocalization& other, double eps) const
+bool MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLocalization& other, double eps) const
 {
   if(_type!=other._type)
     return false;
@@ -126,7 +130,7 @@ bool MEDCoupling::MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLo
   return true;
 }
 
-double MEDCoupling::MEDCouplingGaussLocalization::getRefCoord(int ptIdInCell, int comp) const
+double MEDCouplingGaussLocalization::getRefCoord(int ptIdInCell, int comp) const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
@@ -138,13 +142,13 @@ double MEDCoupling::MEDCouplingGaussLocalization::getRefCoord(int ptIdInCell, in
   return _ref_coord[ptIdInCell*dim+comp];
 }
 
-double MEDCoupling::MEDCouplingGaussLocalization::getGaussCoord(int gaussPtIdInCell, int comp) const
+double MEDCouplingGaussLocalization::getGaussCoord(int gaussPtIdInCell, int comp) const
 {
   int dim=checkCoherencyOfRequest(gaussPtIdInCell,comp);
   return _gauss_coord[gaussPtIdInCell*dim+comp];
 }
 
-double MEDCoupling::MEDCouplingGaussLocalization::getWeight(int gaussPtIdInCell, double newVal) const
+double MEDCouplingGaussLocalization::getWeight(int gaussPtIdInCell, double newVal) const
 {
   checkCoherencyOfRequest(gaussPtIdInCell,0);
   return _weight[gaussPtIdInCell];
@@ -155,7 +159,7 @@ double MEDCoupling::MEDCouplingGaussLocalization::getWeight(int gaussPtIdInCell,
  * push at the end of tinyInfo its basic serialization info. The size of pushed data is always the same.
  * @param tinyInfo inout parameter.
  */
-void MEDCoupling::MEDCouplingGaussLocalization::pushTinySerializationIntInfo(std::vector<int>& tinyInfo) const
+void MEDCouplingGaussLocalization::pushTinySerializationIntInfo(std::vector<int>& tinyInfo) const
 {
   tinyInfo.push_back((int)_type);
   tinyInfo.push_back(getNumberOfPtsInRefCell());
@@ -167,7 +171,7 @@ void MEDCoupling::MEDCouplingGaussLocalization::pushTinySerializationIntInfo(std
  * push at the end of tinyInfo its basic serialization info. The size of pushed data is \b NOT always the same contrary to pushTinySerializationIntInfo.
  * @param tinyInfo inout parameter.
  */
-void MEDCoupling::MEDCouplingGaussLocalization::pushTinySerializationDblInfo(std::vector<double>& tinyInfo) const
+void MEDCouplingGaussLocalization::pushTinySerializationDblInfo(std::vector<double>& tinyInfo) const
 {
   tinyInfo.insert(tinyInfo.end(),_ref_coord.begin(),_ref_coord.end());
   tinyInfo.insert(tinyInfo.end(),_gauss_coord.begin(),_gauss_coord.end());
@@ -175,12 +179,12 @@ void MEDCoupling::MEDCouplingGaussLocalization::pushTinySerializationDblInfo(std
 }
 
 /*!
- * This method operates the exact inverse operation than MEDCoupling::MEDCouplingGaussLocalization::pushTinySerializationDblInfo method. This is one of the last step of unserialization process.
+ * This method operates the exact inverse operation than MEDCouplingGaussLocalization::pushTinySerializationDblInfo method. This is one of the last step of unserialization process.
  * This method should be called on an object resized by buildNewInstanceFromTinyInfo static method.
  * This method takes in argument a pointer 'vals' that point to the begin of double data pushed remotely by pushTinySerializationDblInfo method.
  * This method returns the pointer 'vals' with an offset of size what it has been read in this method.
  */
-const double *MEDCoupling::MEDCouplingGaussLocalization::fillWithValues(const double *vals)
+const double *MEDCouplingGaussLocalization::fillWithValues(const double *vals)
 {
   const double *work=vals;
   std::copy(work,work+_ref_coord.size(),_ref_coord.begin());
@@ -193,10 +197,46 @@ const double *MEDCoupling::MEDCouplingGaussLocalization::fillWithValues(const do
 }
 
 /*!
+ * Given points in \a ptsInRefCoo in the reference coordinates of \a this (in _ref_coord attribute)
+ * this method computes their coordinates in real world for each cells in \a mesh.
+ * So the returned array will contain nbCells* \a ptsInRefCoo->getNumberOfTuples() tuples and the number of component
+ * will be equal to the dimension of \a this.
+ * 
+ * This method ignores Gauss points in \a this and only those in \a ptsInRefCoo are considered here.
+ */
+MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell(const DataArrayDouble *ptsInRefCoo, const MEDCouplingUMesh *mesh) const
+{
+  if(!ptsInRefCoo || !mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell : null pointer !");
+  ptsInRefCoo->checkAllocated();
+  mesh->checkConsistencyLight();
+  //
+  int nbCells(mesh->getNumberOfCells());
+  const double *coords(mesh->getCoords()->begin());
+  const int *connI(mesh->getNodalConnectivityIndex()->begin()),*conn(mesh->getNodalConnectivity()->begin());
+  //
+  int nbPts(ptsInRefCoo->getNumberOfTuples());
+  INTERP_KERNEL::NormalizedCellType typ(getType());
+  int dim(INTERP_KERNEL::CellModel::GetCellModel(typ).getDimension());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  ret->alloc(nbPts*nbCells,dim);
+  double *retPtr(ret->getPointer());
+  if(dim!=ptsInRefCoo->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell : number of components of input coo is not equal to dim of element !");
+  const std::vector<double>& wg(getWeights());
+  INTERP_KERNEL::GaussCoords calculator;
+  calculator.addGaussInfo(typ,dim, ptsInRefCoo->begin(),nbPts,&_ref_coord[0],getNumberOfPtsInRefCell());
+  //
+  for(int i=0;i<nbCells;i++,retPtr+=nbPts*dim)
+    calculator.calculateCoords(getType(),coords,dim,conn+connI[i]+1,retPtr);
+  return ret;
+}
+
+/*!
  * This method sets the comp_th component of ptIdInCell_th point coordinate of reference element of type this->_type.
  * @throw if not 0<=ptIdInCell<nbOfNodePerCell or if not 0<=comp<dim
  */
-void MEDCoupling::MEDCouplingGaussLocalization::setRefCoord(int ptIdInCell, int comp, double newVal)
+void MEDCouplingGaussLocalization::setRefCoord(int ptIdInCell, int comp, double newVal)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
@@ -208,43 +248,43 @@ void MEDCoupling::MEDCouplingGaussLocalization::setRefCoord(int ptIdInCell, int 
   _ref_coord[ptIdInCell*dim+comp]=newVal;
 }
 
-void MEDCoupling::MEDCouplingGaussLocalization::setGaussCoord(int gaussPtIdInCell, int comp, double newVal)
+void MEDCouplingGaussLocalization::setGaussCoord(int gaussPtIdInCell, int comp, double newVal)
 {
   int dim=checkCoherencyOfRequest(gaussPtIdInCell,comp);
   _gauss_coord[gaussPtIdInCell*dim+comp]=newVal;
 }
 
-void MEDCoupling::MEDCouplingGaussLocalization::setWeight(int gaussPtIdInCell, double newVal)
+void MEDCouplingGaussLocalization::setWeight(int gaussPtIdInCell, double newVal)
 {
   checkCoherencyOfRequest(gaussPtIdInCell,0);
   _weight[gaussPtIdInCell]=newVal;
 }
 
-void MEDCoupling::MEDCouplingGaussLocalization::setRefCoords(const std::vector<double>& refCoo)
+void MEDCouplingGaussLocalization::setRefCoords(const std::vector<double>& refCoo)
 {
   _ref_coord=refCoo;
 }
 
-void MEDCoupling::MEDCouplingGaussLocalization::setGaussCoords(const std::vector<double>& gsCoo)
+void MEDCouplingGaussLocalization::setGaussCoords(const std::vector<double>& gsCoo)
 {
   _gauss_coord=gsCoo;
 }
 
-void MEDCoupling::MEDCouplingGaussLocalization::setWeights(const std::vector<double>& w)
+void MEDCouplingGaussLocalization::setWeights(const std::vector<double>& w)
 {
   _weight=w;
 }
 
 /*!
- * The format of 'tinyData' parameter is the same than pushed in method MEDCoupling::MEDCouplingGaussLocalization::pushTinySerializationIntInfo.
+ * The format of 'tinyData' parameter is the same than pushed in method MEDCouplingGaussLocalization::pushTinySerializationIntInfo.
  */
-MEDCoupling::MEDCouplingGaussLocalization MEDCoupling::MEDCouplingGaussLocalization::BuildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData)
+MEDCouplingGaussLocalization MEDCouplingGaussLocalization::BuildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData)
 {
   std::vector<double> v1(dim*tinyData[1]),v2(dim*tinyData[2]),v3(tinyData[2]);
-  return MEDCoupling::MEDCouplingGaussLocalization((INTERP_KERNEL::NormalizedCellType)tinyData[0],v1,v2,v3);
+  return MEDCouplingGaussLocalization((INTERP_KERNEL::NormalizedCellType)tinyData[0],v1,v2,v3);
 }
 
-int MEDCoupling::MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gaussPtIdInCell, int comp) const
+int MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gaussPtIdInCell, int comp) const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int dim=cm.getDimension();
@@ -256,7 +296,7 @@ int MEDCoupling::MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gauss
   return dim;
 }
 
-bool MEDCoupling::MEDCouplingGaussLocalization::AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
+bool MEDCouplingGaussLocalization::AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
 {
   std::size_t sz=v1.size();
   if(sz!=v2.size())

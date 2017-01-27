@@ -1541,15 +1541,14 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValue
     {
       INTERP_KERNEL::GaussCoords calculator;
       //
-      const MEDCouplingGaussLocalization& cli=_loc[locIds[i]];//curLocInfo
-      INTERP_KERNEL::NormalizedCellType typ=cli.getType();
-      const std::vector<double>& wg=cli.getWeights();
+      const MEDCouplingGaussLocalization& cli(_loc[locIds[i]]);//curLocInfo
+      INTERP_KERNEL::NormalizedCellType typ(cli.getType());
+      const std::vector<double>& wg(cli.getWeights());
       calculator.addGaussInfo(typ,INTERP_KERNEL::CellModel::GetCellModel(typ).getDimension(),
           &cli.getGaussCoords()[0],(int)wg.size(),&cli.getRefCoords()[0],
           INTERP_KERNEL::CellModel::GetCellModel(typ).getNumberOfNodes());
       //
-      int nbt=parts2[i]->getNumberOfTuples();
-      for(const int *w=parts2[i]->getConstPointer();w!=parts2[i]->getConstPointer()+nbt;w++)
+      for(const int *w=parts2[i]->begin();w!=parts2[i]->end();w++)
         calculator.calculateCoords(cli.getType(),coords,spaceDim,conn+connI[*w]+1,valsToFill+spaceDim*(ptrOffsets[*w]));
     }
   ret->copyStringInfoFrom(*umesh->getCoords());

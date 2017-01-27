@@ -23,6 +23,7 @@
 
 #include "MEDCoupling.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "InterpKernelException.hxx"
 
 #include <vector>
@@ -30,6 +31,7 @@
 namespace MEDCoupling
 {
   class MEDCouplingMesh;
+  class MEDCouplingUMesh;
 
   class MEDCouplingGaussLocalization
   {
@@ -49,6 +51,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void pushTinySerializationIntInfo(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void pushTinySerializationDblInfo(std::vector<double>& tinyInfo) const;
     MEDCOUPLING_EXPORT const double *fillWithValues(const double *vals);
+    //
+    MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> localizePtsInRefCooForEachCell(const DataArrayDouble *ptsInRefCoo, const MEDCouplingUMesh *mesh) const;
     //
     MEDCOUPLING_EXPORT const std::vector<double>& getRefCoords() const { return _ref_coord; }
     MEDCOUPLING_EXPORT double getRefCoord(int ptIdInCell, int comp) const;
