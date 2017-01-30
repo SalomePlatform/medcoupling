@@ -4567,6 +4567,93 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         d4=DataArrayInt([2,4,6]) ; d4.setName("toto") ; d4.setInfoOnComponents(["b"])
         self.assertTrue(d4.isEqual(d2[1]))
         pass
+
+    def testVoronoi2D_1(self):
+        """ Check of voronize on 2D mesh method of MEDCouplingFieldDouble that converts field on Gauss Points to a field on cell"""
+        tmp=MEDCouplingCMesh("mesh")
+        arr=DataArrayDouble(5) ; arr.iota()
+        tmp.setCoords(arr,arr)
+        tmp=tmp.build1SGTUnstructured()
+        conn=tmp.getNodalConnectivity()
+        conn.rearrange(4)
+        conn.reversePerTuple()
+        conn.circularPermutationPerTuple(2)
+        conn.rearrange(1)
+        coo=tmp.getCoords().deepCopy()
+        coo.circularPermutationPerTuple(2) ; coo*=0.1
+        coo.reverse()
+        coo2=DataArrayDouble(len(tmp.getCoords())*tmp.getSpaceDimension()) ; coo2.iota() ; coo2.rearrange(tmp.getSpaceDimension())
+        coo2*=0.14
+        coo2.circularPermutationPerTuple(2)
+        tmp.getCoords()[:]+=coo2*coo
+        #
+        field=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        field.setName("MyFieldPG") ; field.setMesh(tmp)
+        field.setGaussLocalizationOnType(NORM_QUAD4,[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.8,-0.8, 0.8,0.8, -0.8,0.8, -0.8,-0.8, 0.,0., 0.2,0.2, 0.1,0.3],[0.1,0.1,0.1,0.1,0.1,0.1,0.4])
+        arr=DataArrayDouble(field.getNumberOfTuplesExpected()) ; arr.iota() 
+        field.setArray(arr)
+        field.checkConsistencyLight()
+        ####
+        fieldOnCell=field.voronoize(1e-12) # hot point
+        fieldOnCell.checkConsistencyLight()
+        self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
+        meaRef=field.getMesh().getMeasureField(True).getArray()
+        mea=fieldOnCell.getMesh().getMeasureField(True).getArray()
+        self.assertEqual(field.getDiscretization().getNbOfGaussLocalization(),1)
+        self.assertEqual(field.getDiscretization().getGaussLocalization(0).getNumberOfGaussPt(),7)
+        mea.rearrange(7)
+        mea2=mea.sumPerTuple()
+        self.assertTrue(mea2.isEqual(meaRef,1e-12))
+        pass
+
+    def testVoronoi3D_1(self):
+        """ Check of voronize on 3D mesh method of MEDCouplingFieldDouble that converts field on Gauss Points to a field on cell"""
+        tmp=MEDCouplingCMesh("mesh")
+        arr=DataArrayDouble(5) ; arr.iota()
+        tmp.setCoords(arr,arr)
+        tmp=tmp.build1SGTUnstructured()
+        conn=tmp.getNodalConnectivity()
+        conn.rearrange(4)
+        conn.reversePerTuple()
+        conn.circularPermutationPerTuple(2)
+        conn.rearrange(1)
+        coo=tmp.getCoords().deepCopy()
+        coo.circularPermutationPerTuple(2) ; coo*=0.1
+        coo.reverse()
+        coo2=DataArrayDouble(len(tmp.getCoords())*tmp.getSpaceDimension()) ; coo2.iota() ; coo2.rearrange(tmp.getSpaceDimension())
+        coo2*=0.14
+        coo2.circularPermutationPerTuple(2)
+        tmp.getCoords()[:]+=coo2*coo
+        #
+        tmp.changeSpaceDimension(3,0.)
+        #
+        arrZ=DataArrayDouble(5) ; arrZ.iota()
+        mz=MEDCouplingCMesh() ; mz.setCoords(arrZ) ; mz=mz.buildUnstructured()
+        mz.changeSpaceDimension(3,0.)
+        mz.getCoords().circularPermutationPerTuple(1)
+        tmp=tmp.buildUnstructured().buildExtrudedMesh(mz,0)
+        #
+        field=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        field.setName("MyFieldPG") ; field.setMesh(tmp)
+        field.setGaussLocalizationOnType(NORM_HEXA8,[-1,-1,-1,  1,-1,-1,  1,1,-1,  -1,1,-1, -1,-1,1, 1,-1,1, 1,1,1, -1,1,1],[0.8,-0.8,0., 0.8,0.8,0., -0.8,0.8,0., -0.8,-0.8,0., 0.,0.,0., 0.2,0.2,0., 0.1,0.3,0.],[0.1,0.1,0.1,0.1,0.1,0.1,0.4])
+        arr=DataArrayDouble(field.getNumberOfTuplesExpected()) ; arr.iota() 
+        field.setArray(arr)
+        field.checkConsistencyLight()
+        ####
+        fieldOnCell=field.voronoize(1e-12) # hot point
+        fieldOnCell.checkConsistencyLight()
+        self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
+        meaRef=field.getMesh().getMeasureField(True).getArray()
+        mea=fieldOnCell.getMesh().getMeasureField(False).getArray()
+        self.assertEqual(field.getDiscretization().getNbOfGaussLocalization(),1)
+        self.assertEqual(field.getDiscretization().getGaussLocalization(0).getNumberOfGaussPt(),7)
+        mea.rearrange(7)
+        mea2=mea.sumPerTuple()
+        delta=(meaRef-mea2)
+        delta.abs()
+        delta/=meaRef
+        self.assertEqual(len(delta.findIdsNotInRange(0,1e-2)),0) # 1e-2 because hexa8 are warped !
+        pass
     
     pass
 

@@ -328,6 +328,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingUMesh::buildUnionOf3DMesh;
 %newobject MEDCoupling::MEDCouplingUMesh::generateGraph;
 %newobject MEDCoupling::MEDCouplingUMesh::orderConsecutiveCells1D;
+%newobject MEDCoupling::MEDCouplingUMesh::clipSingle3DCellByPlane;
 %newobject MEDCoupling::MEDCouplingUMesh::getBoundingBoxForBBTreeFast;
 %newobject MEDCoupling::MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic;
 %newobject MEDCoupling::MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic;
@@ -2787,6 +2788,21 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cellIds),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
+      }
+
+      MEDCouplingUMesh *clipSingle3DCellByPlane(PyObject *origin, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
+      {
+        double val,val2;
+        DataArrayDouble *a,*a2;
+        DataArrayDoubleTuple *aa,*aa2;
+        std::vector<double> bb,bb2;
+        int sw;
+        const char msg[]="Python wrap of MEDCouplingUMesh::clipSingle3DCellByPlane : 1st paramater for origin.";
+        const char msg2[]="Python wrap of MEDCouplingUMesh::clipSingle3DCellByPlane : 2nd paramater for vector.";
+        const double *orig=convertObjToPossibleCpp5_Safe(origin,sw,val,a,aa,bb,msg,1,3,true);
+        const double *vect=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,3,true);
+        MCAuto<MEDCouplingUMesh> ret(self->clipSingle3DCellByPlane(orig,vect,eps));
+        return ret.retn();
       }
 
       DataArrayInt *getCellIdsCrossingPlane(PyObject *origin, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)

@@ -27,6 +27,7 @@
 
 namespace MEDCoupling
 {
+  class Voronizer;
   class MEDCouplingFieldInt;
   class MEDCouplingFieldTemplate;
 
@@ -167,7 +168,7 @@ namespace MEDCoupling
     MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy);
     MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
-    MCAuto<MEDCouplingFieldDouble> voronoize2D(double eps) const;
+    MCAuto<MEDCouplingFieldDouble> voronoizeGen(const Voronizer *vor, double eps) const;
     MEDCouplingTimeDiscretization *timeDiscr();
     const MEDCouplingTimeDiscretization *timeDiscr() const;
   };

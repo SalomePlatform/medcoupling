@@ -2211,9 +2211,18 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoize(double eps) con
 {
   checkConsistencyLight();
   const MEDCouplingMesh *mesh(getMesh());
+  INTERP_KERNEL::AutoCppPtr<Voronizer> vor;
   if(mesh->getSpaceDimension()==2 && mesh->getSpaceDimension()==2)
-    return voronoize2D(eps);
-  throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize : only 2D is supported for the moment !");
+    {
+      vor=new Voronizer2D;
+    }
+  else if(mesh->getSpaceDimension()==3 && mesh->getSpaceDimension()==3)
+    {
+      vor=new Voronizer3D;
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize : only 2D and 3D are supported for the moment !");
+  return voronoizeGen(vor,eps);
 }
 
 /*!
@@ -3082,9 +3091,11 @@ std::string MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const 
   return ret;
 }
 
-MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoize2D(double eps) const
+MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voronizer *vor, double eps) const
 {
   checkConsistencyLight();
+  if(!vor)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoizeGen : null pointer !");
   const MEDCouplingMesh *inpMesh(getMesh());
   int nbCells(inpMesh->getNumberOfCells());
   const MEDCouplingFieldDiscretization *disc(getDiscretization());
@@ -3096,16 +3107,16 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoize2D(double eps) c
   for(int i=0;i<nbLocs;i++)
     {
       const MEDCouplingGaussLocalization& gl(disc2->getGaussLocalization(i));
-      if(gl.getDimension()!=2)
+      if(gl.getDimension()!=vor->getDimension())
         throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize2D : not a 2D one !");
       MCAuto<MEDCouplingUMesh> mesh(gl.buildRefCell());
       const std::vector<double>& coo(gl.getGaussCoords());
       MCAuto<DataArrayDouble> coo2(DataArrayDouble::NewFromStdVector(coo));
-      coo2->rearrange(2);
+      coo2->rearrange(vor->getDimension());
       //
       MCAuto<MEDCouplingUMesh> coo3(MEDCouplingUMesh::Build0DMeshFromCoords(coo2));
       //
-      MCAuto<MEDCouplingUMesh> vorCellsForCurDisc(Voronoize2D(mesh,coo2,eps));
+      MCAuto<MEDCouplingUMesh> vorCellsForCurDisc(vor->doIt(mesh,coo2,eps));
       std::vector<int> ids;
       MCAuto<DataArrayDouble> ptsInReal;
       disc2->getCellIdsHavingGaussLocalization(i,ids);

@@ -3914,18 +3914,15 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3DSurf(const double *origin, const
   checkFullyDefined();
   if(getMeshDimension()!=2 || getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf works on umeshes with meshdim equal to 2 and spaceDim equal to 3 !");
-  MCAuto<DataArrayInt> candidates=getCellIdsCrossingPlane(origin,vec,eps);
+  MCAuto<DataArrayInt> candidates(getCellIdsCrossingPlane(origin,vec,eps));
   if(candidates->empty())
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf : No 3D surf cells in this intercepts the specified plane considering bounding boxes !");
   std::vector<int> nodes;
-  DataArrayInt *cellIds1D=0;
-  MCAuto<MEDCouplingUMesh> subMesh=static_cast<MEDCouplingUMesh*>(buildPartOfMySelf(candidates->begin(),candidates->end(),false));
+  DataArrayInt *cellIds1D(0);
+  MCAuto<MEDCouplingUMesh> subMesh(buildPartOfMySelf(candidates->begin(),candidates->end(),false));
   subMesh->findNodesOnPlane(origin,vec,eps,nodes);
-  MCAuto<DataArrayInt> desc1=DataArrayInt::New();
-  MCAuto<DataArrayInt> descIndx1=DataArrayInt::New();
-  MCAuto<DataArrayInt> revDesc1=DataArrayInt::New();
-  MCAuto<DataArrayInt> revDescIndx1=DataArrayInt::New();
-  MCAuto<MEDCouplingUMesh> mDesc1=subMesh->buildDescendingConnectivity(desc1,descIndx1,revDesc1,revDescIndx1);//meshDim==1 spaceDim==3
+  MCAuto<DataArrayInt> desc1(DataArrayInt::New()),descIndx1(DataArrayInt::New()),revDesc1(DataArrayInt::New()),revDescIndx1(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> mDesc1(subMesh->buildDescendingConnectivity(desc1,descIndx1,revDesc1,revDescIndx1));//meshDim==1 spaceDim==3
   mDesc1->fillCellIdsToKeepFromNodeIds(&nodes[0],&nodes[0]+nodes.size(),true,cellIds1D);
   MCAuto<DataArrayInt> cellIds1DTmp(cellIds1D);
   //
@@ -3973,6 +3970,117 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3DSurf(const double *origin, const
   ret->setConnectivity(conn,connI,true);
   cellIds=candidates->selectByTupleId(cellIds2->begin(),cellIds2->end());
   return ret.retn();
+}
+
+MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::clipSingle3DCellByPlane(const double origin[3], const double vec[3], double eps) const
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::clipSingle3DCellByPlane works on umeshes with meshdim equal to 3 and spaceDim equal to 3 too!");
+  if(getNumberOfCells()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::clipSingle3DCellByPlane works only on mesh containing exactly one cell !");
+  //
+  std::vector<int> nodes;
+  findNodesOnPlane(origin,vec,eps,nodes);
+  MCAuto<DataArrayInt> desc1(DataArrayInt::New()),desc2(DataArrayInt::New()),descIndx1(DataArrayInt::New()),descIndx2(DataArrayInt::New()),revDesc1(DataArrayInt::New()),revDesc2(DataArrayInt::New()),revDescIndx1(DataArrayInt::New()),revDescIndx2(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> mDesc2(buildDescendingConnectivity(desc2,descIndx2,revDesc2,revDescIndx2));//meshDim==2 spaceDim==3
+  revDesc2=0; revDescIndx2=0;
+  MCAuto<MEDCouplingUMesh> mDesc1(mDesc2->buildDescendingConnectivity(desc1,descIndx1,revDesc1,revDescIndx1));//meshDim==1 spaceDim==3
+  revDesc1=0; revDescIndx1=0;
+  DataArrayInt *cellIds1D(0);
+  mDesc1->fillCellIdsToKeepFromNodeIds(&nodes[0],&nodes[0]+nodes.size(),true,cellIds1D);
+  MCAuto<DataArrayInt> cellIds1DTmp(cellIds1D);
+  std::vector<int> cut3DCurve(mDesc1->getNumberOfCells(),-2);
+  for(const int *it=cellIds1D->begin();it!=cellIds1D->end();it++)
+    cut3DCurve[*it]=-1;
+  mDesc1->split3DCurveWithPlane(origin,vec,eps,cut3DCurve);
+  std::vector< std::pair<int,int> > cut3DSurf(mDesc2->getNumberOfCells());
+  AssemblyForSplitFrom3DCurve(cut3DCurve,nodes,mDesc2->getNodalConnectivity()->begin(),mDesc2->getNodalConnectivityIndex()->begin(),
+                              mDesc1->getNodalConnectivity()->begin(),mDesc1->getNodalConnectivityIndex()->begin(),
+                              desc1->begin(),descIndx1->begin(),cut3DSurf);
+  MCAuto<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
+  connI->pushBackSilent(0); conn->alloc(0,1);
+  {
+    MCAuto<DataArrayInt> cellIds2(DataArrayInt::New()); cellIds2->alloc(0,1);
+    assemblyForSplitFrom3DSurf(cut3DSurf,desc2->begin(),descIndx2->begin(),conn,connI,cellIds2);
+    if(cellIds2->empty())
+      throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : No 3D cells in this intercepts the specified plane !");
+  }
+  std::vector<std::vector<int> > res;
+  buildSubCellsFromCut(cut3DSurf,desc2->begin(),descIndx2->begin(),mDesc1->getCoords()->begin(),eps,res);
+  std::size_t sz(res.size());
+  if(res.size()==mDesc1->getNumberOfCells())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::clipSingle3DCellByPlane : cell is not clipped !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      conn->pushBackSilent((int)INTERP_KERNEL::NORM_POLYGON);
+      conn->insertAtTheEnd(res[i].begin(),res[i].end());
+      connI->pushBackSilent(conn->getNumberOfTuples());
+    }
+  MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::New("",2));
+  ret->setCoords(mDesc1->getCoords());
+  ret->setConnectivity(conn,connI,true);
+  int nbCellsRet(ret->getNumberOfCells());
+  //
+  MCAuto<DataArrayDouble> vec2(DataArrayDouble::New()); vec2->alloc(1,3); std::copy(vec,vec+3,vec2->getPointer());
+  MCAuto<MEDCouplingFieldDouble> ortho(ret->buildOrthogonalField());
+  MCAuto<DataArrayDouble> ortho2(ortho->getArray()->selectByTupleIdSafeSlice(0,1,1));
+  MCAuto<DataArrayDouble> dott(DataArrayDouble::Dot(ortho2,vec2));
+  MCAuto<DataArrayDouble> ccm(ret->computeCellCenterOfMass());
+  MCAuto<DataArrayDouble> occm;
+  {
+    MCAuto<DataArrayDouble> pt(DataArrayDouble::New()); pt->alloc(1,3); std::copy(origin,origin+3,pt->getPointer());
+    occm=DataArrayDouble::Substract(ccm,pt);
+  }
+  vec2=DataArrayDouble::New(); vec2->alloc(nbCellsRet,3);
+  vec2->setPartOfValuesSimple1(vec[0],0,nbCellsRet,1,0,1,1); vec2->setPartOfValuesSimple1(vec[1],0,nbCellsRet,1,1,2,1); vec2->setPartOfValuesSimple1(vec[2],0,nbCellsRet,1,2,3,1);
+  MCAuto<DataArrayDouble> dott2(DataArrayDouble::Dot(occm,vec2));
+  //
+  const int *cPtr(ret->getNodalConnectivity()->begin()),*ciPtr(ret->getNodalConnectivityIndex()->begin());
+  MCAuto<MEDCouplingUMesh> ret2(MEDCouplingUMesh::New("Clip3D",3));
+  ret2->setCoords(mDesc1->getCoords());
+  MCAuto<DataArrayInt> conn2(DataArrayInt::New()),conn2I(DataArrayInt::New());
+  conn2I->pushBackSilent(0); conn2->alloc(0,1);
+  std::vector<int> cell0(1,(int)INTERP_KERNEL::NORM_POLYHED);
+  std::vector<int> cell1(1,(int)INTERP_KERNEL::NORM_POLYHED);
+  if(dott->getIJ(0,0)>0)
+    {
+      cell0.insert(cell0.end(),cPtr+1,cPtr+ciPtr[1]);
+      std::reverse_copy(cPtr+1,cPtr+ciPtr[1],std::inserter(cell1,cell1.end()));
+    }
+  else
+    {
+      cell1.insert(cell1.end(),cPtr+1,cPtr+ciPtr[1]);
+      std::reverse_copy(cPtr+1,cPtr+ciPtr[1],std::inserter(cell0,cell0.end()));
+    }
+  for(int i=1;i<nbCellsRet;i++)
+    {
+      if(dott2->getIJ(i,0)<0)
+        {
+          if(ciPtr[i+1]-ciPtr[i]>=4)
+            {
+              cell0.push_back(-1);
+              cell0.insert(cell0.end(),cPtr+ciPtr[i]+1,cPtr+ciPtr[i+1]);
+            }
+        }
+      else
+        {
+          if(ciPtr[i+1]-ciPtr[i]>=4)
+            {
+              cell1.push_back(-1);
+              cell1.insert(cell1.end(),cPtr+ciPtr[i]+1,cPtr+ciPtr[i+1]);
+            }
+        }
+    }
+  conn2->insertAtTheEnd(cell0.begin(),cell0.end());
+  conn2I->pushBackSilent(conn2->getNumberOfTuples());
+  conn2->insertAtTheEnd(cell1.begin(),cell1.end());
+  conn2I->pushBackSilent(conn2->getNumberOfTuples());
+  ret2->setConnectivity(conn2,conn2I,true);
+  ret2->checkConsistencyLight();
+  ret2->writeVTK("ret2.vtu");
+  ret2->orientCorrectlyPolyhedrons();
+  return ret2;
 }
 
 /*!
@@ -4038,8 +4146,7 @@ bool MEDCouplingUMesh::isContiguous1D() const
   int nbCells=getNumberOfCells();
   if(nbCells<1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::isContiguous1D : this method has a sense for non empty mesh !");
-  const int *connI=_nodal_connec_index->getConstPointer();
-  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI(_nodal_connec_index->begin()),*conn(_nodal_connec->begin());
   int ref=conn[connI[0]+2];
   for(int i=1;i<nbCells;i++)
     {
@@ -10734,9 +10841,8 @@ void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<i
   checkFullyDefined();
   if(getMeshDimension()!=3 || getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::assemblyForSplitFrom3DSurf works on umeshes with meshdim equal to 3 and spaceDim equal to 3 too!");
-  const int *nodal3D=_nodal_connec->getConstPointer();
-  const int *nodalIndx3D=_nodal_connec_index->getConstPointer();
-  int nbOfCells=getNumberOfCells();
+  const int *nodal3D(_nodal_connec->begin()),*nodalIndx3D(_nodal_connec_index->begin());
+  int nbOfCells(getNumberOfCells());
   for(int i=0;i<nbOfCells;i++)
     {
       std::map<int, std::set<int> > m;
@@ -10798,6 +10904,100 @@ void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<i
           nodalRes->insertAtTheEnd(conn.begin(),conn.end());
           nodalResIndx->pushBackSilent(nodalRes->getNumberOfTuples());
           cellIds->pushBackSilent(i);
+        }
+    }
+}
+
+void InsertNodeInConnIfNecessary(int nodeIdToInsert, std::vector<int>& conn, const double *coords, double eps)
+{
+  std::vector<int>::iterator it(std::find(conn.begin(),conn.end(),nodeIdToInsert));
+  if(it!=conn.end())
+    return ;
+  std::size_t sz(conn.size());
+  std::size_t found(std::numeric_limits<std::size_t>::max());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      int pt0(conn[i]),pt1(conn[(i+1)%sz]);
+      double v1[3]={coords[3*pt1+0]-coords[3*pt0+0],coords[3*pt1+1]-coords[3*pt0+1],coords[3*pt1+2]-coords[3*pt0+2]},v2[3]={coords[3*nodeIdToInsert+0]-coords[3*pt0+0],coords[3*nodeIdToInsert+1]-coords[3*pt0+1],coords[3*nodeIdToInsert+2]-coords[3*pt0+2]};
+      double normm(sqrt(v1[0]*v1[0]+v1[1]*v1[1]+v1[2]*v1[2]));
+      std::transform(v1,v1+3,v1,std::bind2nd(std::multiplies<double>(),1./normm));
+      std::transform(v2,v2+3,v2,std::bind2nd(std::multiplies<double>(),1./normm));
+      double v3[3];
+      v3[0]=v1[1]*v2[2]-v1[2]*v2[1]; v3[1]=v1[2]*v2[0]-v1[0]*v2[2]; v3[2]=v1[0]*v2[1]-v1[1]*v2[0];
+      double normm2(sqrt(v3[0]*v3[0]+v3[1]*v3[1]+v3[2]*v3[2])),dotTest(v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2]);
+      if(normm2<eps)
+        if(dotTest>eps && dotTest<1.-eps)
+          {
+            found=i;
+            break;
+          }
+    }
+  if(found==std::numeric_limits<std::size_t>::max())
+    throw INTERP_KERNEL::Exception("InsertNodeInConnIfNecessary : not found point !");
+  conn.insert(conn.begin()+(found+1)%sz,nodeIdToInsert);
+}
+
+void SplitIntoToPart(const std::vector<int>& conn, int pt0, int pt1, std::vector<int>& part0, std::vector<int>& part1)
+{
+  std::size_t sz(conn.size());
+  std::vector<int> *curPart(&part0);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      int nextt(conn[(i+1)%sz]);
+      (*curPart).push_back(nextt);
+      if(nextt==pt0 || nextt==pt1)
+        {
+          if(curPart==&part0)
+            curPart=&part1;
+          else
+            curPart=&part0;
+          (*curPart).push_back(nextt);
+        }
+    }
+}
+
+/*!
+ * this method method splits cur cells 3D Surf in sub cells 3DSurf using the previous subsplit. This method is the last one used to clip.
+ */
+void MEDCouplingUMesh::buildSubCellsFromCut(const std::vector< std::pair<int,int> >& cut3DSurf,
+                                            const int *desc, const int *descIndx, const double *coords, double eps,
+                                            std::vector<std::vector<int> >& res) const
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSubCellsFromCut works on umeshes with meshdim equal to 3 and spaceDim equal to 3 too!");
+  const int *nodal3D(_nodal_connec->begin()),*nodalIndx3D(_nodal_connec_index->begin());
+  int nbOfCells(getNumberOfCells());
+  if(nbOfCells!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSubCellsFromCut works only with single cell presently !");
+  for(int i=0;i<nbOfCells;i++)
+    {
+      int offset(descIndx[i]),nbOfFaces(descIndx[i+1]-offset),start(-1),end(-1);
+      for(int j=0;j<nbOfFaces;j++)
+        {
+          const std::pair<int,int>& p=cut3DSurf[desc[offset+j]];
+          const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)nodal3D[nodalIndx3D[i]]));
+          int sz=nodalIndx3D[i+1]-nodalIndx3D[i]-1;
+          INTERP_KERNEL::AutoPtr<int> tmp(new int[sz]);
+          INTERP_KERNEL::NormalizedCellType cmsId;
+          unsigned nbOfNodesSon(cm.fillSonCellNodalConnectivity2(j,nodal3D+nodalIndx3D[i]+1,sz,tmp,cmsId));
+          std::vector<int> elt((int *)tmp,(int *)tmp+nbOfNodesSon);
+          if(p.first!=-1 && p.second!=-1)
+            {
+              if(p.first!=-2)
+                {
+                  InsertNodeInConnIfNecessary(p.first,elt,coords,eps);
+                  InsertNodeInConnIfNecessary(p.second,elt,coords,eps);
+                  std::vector<int> elt1,elt2;
+                  SplitIntoToPart(elt,p.first,p.second,elt1,elt2);
+                  res.push_back(elt1);
+                  res.push_back(elt2);
+                }
+              else
+                res.push_back(elt);
+            }
+          else
+            res.push_back(elt);
         }
     }
 }

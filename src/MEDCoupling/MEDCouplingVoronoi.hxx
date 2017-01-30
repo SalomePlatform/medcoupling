@@ -26,8 +26,28 @@
 #include "MEDCouplingUMesh.hxx"
 
 namespace MEDCoupling
-{ 
-  MCAuto<MEDCouplingUMesh> Voronoize2D(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps);
+{
+  class Voronizer
+  {
+  public:
+    virtual MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const = 0;
+    virtual int getDimension() const = 0;
+    virtual ~Voronizer();
+  };
+
+  class Voronizer2D : public Voronizer
+  {
+  public:
+    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
+    int getDimension() const;
+  };
+
+  class Voronizer3D : public Voronizer
+  {
+  public:
+    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
+    int getDimension() const;
+  };
 }
 
 #endif

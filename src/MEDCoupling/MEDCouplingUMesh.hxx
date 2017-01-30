@@ -159,6 +159,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildDirectionVectorField() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSlice3D(const double *origin, const double *vec, double eps, DataArrayInt *&cellIds) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSlice3DSurf(const double *origin, const double *vec, double eps, DataArrayInt *&cellIds) const;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> clipSingle3DCellByPlane(const double origin[3], const double vec[3], double eps) const;
     MEDCOUPLING_EXPORT DataArrayInt *getCellIdsCrossingPlane(const double *origin, const double *vec, double eps) const;
     MEDCOUPLING_EXPORT bool isContiguous1D() const;
     MEDCOUPLING_EXPORT void project1D(const double *pt, const double *v, double eps, double *res) const;
@@ -336,6 +337,7 @@ namespace MEDCoupling
                                               const int *desc, const int *descIndx, std::vector< std::pair<int,int> >& cut3DSurf);
     void assemblyForSplitFrom3DSurf(const std::vector< std::pair<int,int> >& cut3DSurf,
                                     const int *desc, const int *descIndx, DataArrayInt *nodalRes, DataArrayInt *nodalResIndx, DataArrayInt *cellIds) const;
+    void buildSubCellsFromCut(const std::vector< std::pair<int,int> >& cut3DSurf, const int *desc, const int *descIndx, const double *coords, double eps, std::vector<std::vector<int> >& res) const;
     void split2DCellsLinear(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI);
     int split2DCellsQuadratic(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *mid, const DataArrayInt *midI);
     static bool Colinearize2DCell(const double *coords, const int *connBg, const int *connEnd, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords);
