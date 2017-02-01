@@ -40,6 +40,8 @@
 #include "PlanarIntersectorP1P0PL.txx"
 #include "PlanarIntersectorP1P1PL.hxx"
 #include "PlanarIntersectorP1P1PL.txx"
+#include "MappedBarycentric2DIntersectorP1P1.hxx"
+#include "MappedBarycentric2DIntersectorP1P1.txx"
 #include "VectorUtils.hxx"
 #include "BBTree.txx"
 
@@ -358,8 +360,16 @@ namespace INTERP_KERNEL
                                                                            InterpolationOptions::getPrecision(),
                                                                            InterpolationOptions::getOrientation());
             break;
+          case MappedBarycentric:
+            intersector=new MappedBarycentric2DIntersectorP1P1<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                     InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                     InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
+                                                                                     InterpolationOptions::getMedianPlane(),
+                                                                                     InterpolationOptions::getPrecision(),
+                                                                                     InterpolationOptions::getOrientation());
+            break;
           default:
-            throw INTERP_KERNEL::Exception("For P1P1 planar interpolation possibities are : Triangulation, Convex, Geometric2D, PointLocator !");
+            throw INTERP_KERNEL::Exception("For P1P1 planar interpolation possibities are : Triangulation, Convex, Geometric2D, PointLocator, MappedBarycentric !");
           }
       }
     else

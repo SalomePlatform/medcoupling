@@ -28,7 +28,7 @@
 
 namespace INTERP_KERNEL
 {
-  typedef enum { Triangulation, Convex, Geometric2D, PointLocator, Barycentric, BarycentricGeo2D } IntersectionType;
+  typedef enum { Triangulation, Convex, Geometric2D, PointLocator, Barycentric, BarycentricGeo2D, MappedBarycentric } IntersectionType;
   
   /*!
    * Class defining the options for all interpolation algorithms used in the \ref remapper "remapper" and

@@ -11,7 +11,8 @@ Before reading on, remember the definition of a \ref glossary "P0 and P1 field".
 
 - \subpage intersec-specifics
 - \subpage interpkernelGeo2D
-- \subpage barycoords (used in some P1 intersectors/locators) 
+- \subpage barycoords (used in some P1 intersectors/locators)
+- \subpage mapped_bary (used in some P1P1 intersectors) 
 
 Some implementation details of the C++ code can also be found here: \ref interpkernel 
 

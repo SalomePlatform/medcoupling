@@ -7357,9 +7357,8 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysR
     {
       std::vector< std::pair<int,int> > ts;
       med_int numdt=0,numo=0;
-      med_int meshIt=0,meshOrder=0;
       med_float dt=0.0;
-      MEDFILESAFECALLERRD0(MEDfieldComputingStepMeshInfo,(fid,_name.c_str(),i+1,&numdt,&numo,&dt,&meshIt,&meshOrder));
+      MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,_name.c_str(),i+1,&numdt,&numo,&dt));
       switch(fieldTyp)
       {
         case MED_FLOAT64:

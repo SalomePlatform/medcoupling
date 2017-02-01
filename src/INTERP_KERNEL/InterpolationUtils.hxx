@@ -23,6 +23,7 @@
 
 #include "INTERPKERNELDefines.hxx"
 #include "InterpKernelException.hxx"
+#include "VolSurfUser.hxx"
 
 #include "NormalizedUnstructuredMesh.hxx"
 
@@ -413,7 +414,7 @@ namespace INTERP_KERNEL
   }
 
   /*!
-   * Calculate barycentric coordinates of a point p with respect to triangle or tetra verices.
+   * Calculate barycentric coordinates of a point p with respect to triangle or tetra vertices.
    * This method makes 2 assumptions :
    *    - this is a simplex
    *    - spacedim == meshdim. For TRI3 and TRI6 spaceDim is expected to be equal to 2 and for TETRA4 spaceDim is expected to be equal to 3.
@@ -533,6 +534,136 @@ namespace INTERP_KERNEL
       default:
         throw INTERP_KERNEL::Exception("INTERP_KERNEL::barycentric_coords : unrecognized simplex !");
       }
+  }
+
+  /*!
+   * Calculate pseudo barycentric coordinates of a point p with respect to the quadrangle vertices.
+   * This method makes the assumption that:
+   *  - spacedim == meshdim (2 here).
+   *  - the point is within the quad
+   *  Quadratic elements are not supported yet.
+   *
+   *  A quadrangle can be described as 3 vectors, one point being taken as the origin.
+   *  Denoting A, B, C the three other points, any point P within the quad is written as
+   *    P = xA+ yC + xy(B-A-C)
+   *  This method solve those 2 equations (one per component) for x and y.
+   *
+
+          A------B
+          |      |
+          |      |
+          0------C
+   */
+  inline void quad_mapped_coords(const std::vector<const double*>& n, const double *p, double *bc)
+  {
+    double prec = 1.0e-14;
+    enum { _XX=0, _YY, _ZZ };
+
+    if(n.size() != 4)
+      throw INTERP_KERNEL::Exception("INTERP_KERNEL::quad_mapped_coords : unrecognized geometric type! Only QUAD4 supported.");
+
+    double A[2] = {n[1][_XX] - n[0][_XX],  n[1][_YY] - n[0][_YY]};
+    double B[2] = {n[2][_XX] - n[0][_XX],  n[2][_YY] - n[0][_YY]};
+    double C[2] = {n[3][_XX] - n[0][_XX],  n[3][_YY] - n[0][_YY]};
+    double N[2] = {B[_XX] - A[_XX] - C[_XX], B[_YY] - A[_YY] - C[_YY]};
+    double P[2] = {p[_XX] - n[0][_XX], p[_YY] - n[0][_YY]};
+
+    // degenerated case: a rectangle:
+    if (fabs(N[0]) < prec && fabs(N[1]) < prec)
+      {
+        double det = C[0]*A[1] -C[1]*A[0];
+        if (fabs(det) < prec)
+          throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords() has a degenerated 2x2 system!");
+        bc[0] = (P[0]*A[1]-P[1]*A[0])/det;
+        bc[1] = (P[1]*C[0]-P[0]*C[1])/det;
+        return;
+      }
+    double b,c ,a = A[1]*N[0]-A[0]*N[1];
+    bool cas1;
+    if (fabs(a) > 1.0e-14)
+      {
+        b = A[1]*C[0]+N[1]*P[0]-N[0]*P[1]-A[0]*C[1];
+        c = P[0]*C[1] - P[1]*C[0];
+        cas1 = true;
+      }
+    else
+      {
+        a = -C[1]*N[0]+C[0]*N[1];
+        b = A[1]*C[0]-N[1]*P[0]+N[0]*P[1]-A[0]*C[1];
+        c = -P[0]*A[1] + P[1]*A[0];
+        cas1 = false;
+      }
+    double delta = b*b - 4.0*a*c;
+    if (delta < 0.0)
+      throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords(): imaginary solutions!");
+    bc[1] = 0.5*(-b+sqrt(delta))/a;
+    if (bc[1] < -prec || bc[1] > (1.0+prec))
+      bc[1] = 0.5*(-b-sqrt(delta))/a;
+    if (bc[1] < -prec || bc[1] > (1.0+prec))
+      throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords(): point doesn't seem to be in quad4!");
+    if (cas1)
+      {
+        double denom = C[0]+bc[1]*N[0];
+        if (fabs(denom) < prec)
+          throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords(): point doesn't seem to be in quad4!");
+        bc[0] = (P[0]-bc[1]*A[0])/denom;
+        if (bc[0] < -prec || bc[0] > (1.0+prec))
+          throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords(): point doesn't seem to be in quad4!");
+      }
+    else
+      {
+        bc[0] = bc[1];
+        double denom = A[1]+bc[0]*N[1];
+        if (fabs(denom) < prec)
+          throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: cuboid_mapped_coord(): point doesn't seem to be in quad4!");
+        bc[1] = (P[1]-bc[0]*C[1])/denom;
+        if (bc[1] < -prec || bc[1] > (1.0+prec))
+          throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: cuboid_mapped_coord(): point doesn't seem to be in quad4!");
+      }
+  }
+
+  /*!
+   * Doing as in quad_mapped_coords() would lead to a 4th order equation ... So go simpler here:
+   * orthogonal distance to each pair of parallel faces is computed. The ratio gives a number in [0,1]
+   *
+   * Conventions:
+   *   - for HEXA8, point F (5) is taken to be the origin (see med file ref connec):
+   *          0 ------ 3
+             /|       /|
+            / |      / |
+           1 ------ 2  |
+           |  |     |  |
+           |  |     |  |
+           |  4-----|- 7
+           | /      | /
+           5 ------ 6
+
+   *
+   */
+
+  inline void cuboid_mapped_coords(const std::vector<const double*>& n, const double *p, double *bc)
+  {
+    double prec = 1.0e-14;
+    enum { _XX=0, _YY };
+    if (n.size() != 8)
+      throw INTERP_KERNEL::Exception("INTERP_KERNEL::cuboid_mapped_coords: unrecognized geometric type! Only HEXA8 supported.");
+
+    double dx1, dx2, dy1, dy2, dz1, dz2;
+    dx1 = OrthoDistanceFromPtToPlaneInSpaceDim3(p, n[4],n[5],n[1]);
+    dx2 = OrthoDistanceFromPtToPlaneInSpaceDim3(p, n[7],n[3],n[2]);
+
+    dy1 = OrthoDistanceFromPtToPlaneInSpaceDim3(p, n[5],n[6],n[2]);
+    dy2 = OrthoDistanceFromPtToPlaneInSpaceDim3(p, n[4],n[0],n[3]);
+
+    dz1 = OrthoDistanceFromPtToPlaneInSpaceDim3(p, n[5],n[4],n[7]);
+    dz2 = OrthoDistanceFromPtToPlaneInSpaceDim3(p, n[1],n[2],n[3]);
+
+    if (dx1 < -prec || dx2 < -prec || dy1 < -prec || dy2 < -prec || dz1 < -prec || dz2 < -prec)
+      throw INTERP_KERNEL::Exception("INTERP_KERNEL::cuboid_mapped_coords: point outside HEXA8");
+
+    bc[0] = dx1+dx2 < prec ? 0.5 : dx1/(dx1+dx2);
+    bc[1] = dy1+dy2 < prec ? 0.5 : dy1/(dy1+dy2);
+    bc[2] = dz1+dz2 < prec ? 0.5 : dz1/(dz1+dz2);
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */

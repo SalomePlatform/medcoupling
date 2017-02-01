@@ -39,6 +39,8 @@ namespace INTERP_KERNEL
   template<class ConnType, NumberingPolicy numPolConn>
   void computeBarycenter2(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, int spaceDim, double *res);
 
+  double INTERPKERNEL_EXPORT OrthoDistanceFromPtToPlaneInSpaceDim3(const double *p, const double *p1, const double *p2, const double *p3);
+
   double INTERPKERNEL_EXPORT SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint);
 
   double INTERPKERNEL_EXPORT DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3);
