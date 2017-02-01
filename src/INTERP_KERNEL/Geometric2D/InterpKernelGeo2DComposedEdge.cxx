@@ -512,7 +512,9 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
   if(b.nearlyWhere((*nodeToTest)[0],(*nodeToTest)[1])==OUT)
     return false;
   std::set< IntersectElement > inOutSwitch;
-  double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
+  std::set<Node *> nodes;
+  getAllNodes(nodes);
+  double ref(isInOrOutAlg(nodeToTest,nodes,inOutSwitch));
   bool ret(false);
   for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
@@ -536,7 +538,12 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
 bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
 {
   std::set< IntersectElement > inOutSwitch;
-  double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
+  std::set<Node *> nodes;
+  getAllNodes(nodes);
+  for(std::set<Node *>::const_iterator iter=nodes.begin();iter!=nodes.end();iter++)
+    if(sqrt((*iter)->distanceWithSq(*nodeToTest))<QUADRATIC_PLANAR::_precision)
+      return true;
+  double ref(isInOrOutAlg(nodeToTest,nodes,inOutSwitch));
   bool ret(false);
   for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
@@ -557,11 +564,9 @@ bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
   return ret;
 }
 
-double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >& inOutSwitch) const
+double ComposedEdge::isInOrOutAlg(Node *nodeToTest, const std::set<Node*>& nodes, std::set< IntersectElement >& inOutSwitch) const
 {
   // searching for e1
-  std::set<Node *> nodes;
-  getAllNodes(nodes);
   std::set<double> radialDistributionOfNodes;
   std::set<Node *>::const_iterator iter;
   for(iter=nodes.begin();iter!=nodes.end();iter++)
@@ -606,52 +611,6 @@ double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >
   e1->decrRef();
   return ref;
 }
-
-/*bool ComposedEdge::isInOrOut(Node *aNodeOn, Node *nodeToTest) const
-{
-
-  EdgeInfLin *e1=new EdgeInfLin(aNodeOn,nodeToTest);
-  double ref=e1->getCharactValue(*nodeToTest);
-  set< IntersectElement > inOutSwitch;
-  for(vector<AbstractEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
-    {
-      ElementaryEdge *val=dynamic_cast<ElementaryEdge *>(*iter);
-      if(val)
-        {
-          Edge *e=val->getPtr();
-          auto_ptr<Intersector> intersc(Edge::buildIntersectorWith(e1,e));
-          bool obviousNoIntersection,areOverlapped;
-          intersc->areOverlappedOrOnlyColinears(0,obviousNoIntersection,areOverlapped);
-          if(obviousNoIntersection)
-            {
-              continue;
-            }
-          if(!areOverlapped)
-            {
-              list< IntersectElement > listOfIntesc=intersc->getIntersectionsCharacteristicVal();
-              for(list< IntersectElement >::iterator iter2=listOfIntesc.begin();iter2!=listOfIntesc.end();iter2++)
-                if((*iter2).isIncludedByBoth())
-                  inOutSwitch.insert(*iter2);
-              }
-          //if overlapped we can forget
-        }
-      else
-        throw Exception("Invalid use of ComposedEdge::isInOrOut : only one level supported !");
-    }
-  e1->decrRef();
-  bool ret=false;
-  for(set< IntersectElement >::iterator iter=inOutSwitch.begin();iter!=inOutSwitch.end();iter++)
-    {
-      if((*iter).getVal1()<ref)
-        {
-          if((*iter).getNodeOnly()->getLoc()==ON_1)
-            ret=!ret;
-        }
-      else
-        break;
-    }
-  return ret;
-}*/
 
 bool ComposedEdge::getDirection() const
 {
