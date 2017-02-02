@@ -308,6 +308,10 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
     }
   std::vector< const MEDCouplingUMesh * > l0Bis(VecAutoToVecOfCstPt(l0));
   MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::MergeUMeshes(l0Bis));
+  {
+    bool dummy; int dummy2;
+    MCAuto<DataArrayInt> dummy3(ret->mergeNodes(eps,dummy,dummy2));
+  }
   return ret;
 }
 
@@ -321,10 +325,9 @@ MCAuto<MEDCouplingUMesh> Split3DCellInParts(const MEDCouplingUMesh *m, const dou
   return res;
 }
 
-#include <sstream>
-
 MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const
 {
+  double eps2(1.-sqrt(eps));// 2nd eps for interpolation. Here the eps is computed to feet cos(eps) ~ 1-eps^2
   if(!m || !points)
     throw INTERP_KERNEL::Exception("Voronoize3D : null pointer !");
   m->checkConsistencyLight();
@@ -395,7 +398,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
               MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(facesOfCurSplitPol);
               MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(faces3);
               INTERP_KERNEL::Interpolation3DSurf interpolation;
-              interpolation.setMinDotBtwPlane3DSurfIntersect(1.*10000.*eps);
+              interpolation.setMinDotBtwPlane3DSurfIntersect(eps2);
               interpolation.setMaxDistance3DSurfIntersect(eps);
               interpolation.setPrecision(1e-12);
               std::vector<std::map<int,double> > matrix;
@@ -424,5 +427,9 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
     }
   std::vector< const MEDCouplingUMesh * > l0Bis(VecAutoToVecOfCstPt(l0));
   MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::MergeUMeshes(l0Bis));
+  {
+    bool dummy; int dummy2;
+    MCAuto<DataArrayInt> dummy3(ret->mergeNodes(eps,dummy,dummy2));
+  }
   return ret;
 }

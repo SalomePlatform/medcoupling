@@ -4596,6 +4596,8 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         ####
         fieldOnCell=field.voronoize(1e-12) # hot point
         fieldOnCell.checkConsistencyLight()
+        self.assertEqual(fieldOnCell.getMesh().getNumberOfCells(),112)
+        self.assertEqual(fieldOnCell.getMesh().getNumberOfNodes(),256)
         self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
         meaRef=field.getMesh().getMeasureField(True).getArray()
         mea=fieldOnCell.getMesh().getMeasureField(True).getArray()
@@ -4604,6 +4606,38 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         mea.rearrange(7)
         mea2=mea.sumPerTuple()
         self.assertTrue(mea2.isEqual(meaRef,1e-12))
+        pass
+
+    def testVoronoi2D_2(self):
+        """More aggressive 2D test. No warping here. To check data"""
+        tmp=MEDCouplingCMesh("mesh")
+        arr=DataArrayDouble([-1.,1.])
+        tmp.setCoords(arr,arr)
+        tmp=tmp.buildUnstructured()
+        field=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        field.setName("MyFieldPG") ; field.setMesh(tmp)
+        field.setGaussLocalizationOnType(NORM_QUAD4,[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.8,-0.8, 0.8,0.8, -0.8,0.8, -0.8,-0.8, 0.,0., 0.2,0.2, 0.1,0.3],[0.1,0.1,0.1,0.1,0.1,0.1,0.4])
+        arr=DataArrayDouble(field.getNumberOfTuplesExpected()) ; arr.iota() 
+        field.setArray(arr)
+        field.checkConsistencyLight()
+        #
+        fieldOnCell=field.voronoize(1e-12) # hot point
+        fieldOnCell.checkConsistencyLight()
+        self.assertEqual(fieldOnCell.getMesh().getNumberOfCells(),7)
+        self.assertEqual(fieldOnCell.getMesh().getNumberOfNodes(),16)
+        self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
+        meaRef=DataArrayDouble([0.65,0.4710714285714285,0.59875,0.68,0.73875,0.4,0.46142857142857235])
+        mea=fieldOnCell.getMesh().getMeasureField(True).getArray()
+        self.assertTrue(mea.isEqual(meaRef,1e-12))# the first important test is here
+        self.assertEqual(field.getDiscretization().getNbOfGaussLocalization(),1)
+        self.assertEqual(field.getDiscretization().getGaussLocalization(0).getNumberOfGaussPt(),7)
+        #
+        gsPt=field.getLocalizationOfDiscr()
+        a,b=fieldOnCell.getMesh().getCellsContainingPoints(gsPt,1e-12)
+        self.assertTrue(a.isIota(7))# the second important test is here ! Check that Gauss points are inside the associated cell in fieldOnCell !
+        self.assertTrue(b.isIota(8))
+        #
+        self.assertEqual(fieldOnCell.getMesh().buildDescendingConnectivity()[0].getNumberOfCells(),22)# last little test to reduce chance of errors. For humans there 21 but last tiny edge is split into 2 subedges due to alg
         pass
 
     def testVoronoi3D_1(self):
@@ -4653,6 +4687,38 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         delta.abs()
         delta/=meaRef
         self.assertEqual(len(delta.findIdsNotInRange(0,1e-2)),0) # 1e-2 because hexa8 are warped !
+        pass
+
+    def testVoronoi3D_2(self):
+        """More aggressive 3D test. No warping here. To check data"""
+        tmp=MEDCouplingCMesh("mesh")
+        arr=DataArrayDouble([-1.,1.])
+        tmp.setCoords(arr,arr,arr)
+        tmp=tmp.buildUnstructured()
+        field=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        field.setName("MyFieldPG") ; field.setMesh(tmp)
+        field.setGaussLocalizationOnType(NORM_HEXA8,[-1,-1,-1,  1,-1,-1,  1,1,-1,  -1,1,-1, -1,-1,1, 1,-1,1, 1,1,1, -1,1,1],[0.8,-0.8,0., 0.8,0.8,0., -0.8,0.8,0., -0.8,-0.8,0., 0.,0.,0., 0.2,0.2,0., 0.1,0.3,0.],[0.1,0.1,0.1,0.1,0.1,0.1,0.4])
+        arr=DataArrayDouble(field.getNumberOfTuplesExpected()) ; arr.iota() 
+        field.setArray(arr)
+        field.checkConsistencyLight()
+        #
+        fieldOnCell=field.voronoize(1e-12) # hot point
+        fieldOnCell.checkConsistencyLight()
+        self.assertEqual(fieldOnCell.getMesh().getNumberOfCells(),7)
+        self.assertEqual(fieldOnCell.getMesh().getNumberOfNodes(),32)
+        self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
+        meaRef=DataArrayDouble([1.3,1.0,1.1975,1.36,1.4775,0.8,0.865])
+        mea=fieldOnCell.getMesh().getMeasureField(True).getArray()
+        self.assertTrue(mea.isEqual(meaRef,1e-12))# the first important test is here
+        self.assertEqual(field.getDiscretization().getNbOfGaussLocalization(),1)
+        self.assertEqual(field.getDiscretization().getGaussLocalization(0).getNumberOfGaussPt(),7)
+        #
+        gsPt=field.getLocalizationOfDiscr()
+        a,b=fieldOnCell.getMesh().getCellsContainingPoints(gsPt,1e-12)
+        self.assertTrue(a.isIota(7))# the second important test is here ! Check that Gauss points are inside the associated cell in fieldOnCell !
+        self.assertTrue(b.isIota(8))
+        #
+        self.assertEqual(fieldOnCell.getMesh().buildDescendingConnectivity()[0].getNumberOfCells(),2*7+22)# last little test to reduce chance of errors. For humans there 21 but last tiny edge is split into 2 subedges due to alg
         pass
     
     pass
