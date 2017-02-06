@@ -218,9 +218,9 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::localizePtsInRefCooForEach
   //
   int nbPts(ptsInRefCoo->getNumberOfTuples());
   INTERP_KERNEL::NormalizedCellType typ(getType());
-  int dim(INTERP_KERNEL::CellModel::GetCellModel(typ).getDimension());
+  int dim(INTERP_KERNEL::CellModel::GetCellModel(typ).getDimension()),outDim(mesh->getSpaceDimension());
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  ret->alloc(nbPts*nbCells,dim);
+  ret->alloc(nbPts*nbCells,outDim);
   double *retPtr(ret->getPointer());
   if(dim!=ptsInRefCoo->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell : number of components of input coo is not equal to dim of element !");
@@ -228,8 +228,8 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::localizePtsInRefCooForEach
   INTERP_KERNEL::GaussCoords calculator;
   calculator.addGaussInfo(typ,dim, ptsInRefCoo->begin(),nbPts,&_ref_coord[0],getNumberOfPtsInRefCell());
   //
-  for(int i=0;i<nbCells;i++,retPtr+=nbPts*dim)
-    calculator.calculateCoords(getType(),coords,dim,conn+connI[i]+1,retPtr);
+  for(int i=0;i<nbCells;i++,retPtr+=nbPts*outDim)
+    calculator.calculateCoords(getType(),coords,outDim,conn+connI[i]+1,retPtr);
   return ret;
 }
 

@@ -2212,16 +2212,13 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoize(double eps) con
   checkConsistencyLight();
   const MEDCouplingMesh *mesh(getMesh());
   INTERP_KERNEL::AutoCppPtr<Voronizer> vor;
-  if(mesh->getSpaceDimension()==2 && mesh->getSpaceDimension()==2)
-    {
-      vor=new Voronizer2D;
-    }
-  else if(mesh->getSpaceDimension()==3 && mesh->getSpaceDimension()==3)
-    {
-      vor=new Voronizer3D;
-    }
+  int meshDim(mesh->getMeshDimension()),spaceDim(mesh->getSpaceDimension());
+  if(meshDim==2 && (spaceDim==2 || spaceDim==3))
+    vor=new Voronizer2D;
+  else if(meshDim==3 && spaceDim==3)
+    vor=new Voronizer3D;
   else
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize : only 2D and 3D are supported for the moment !");
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize : only 2D, 3D surf, and 3D are supported for the moment !");
   return voronoizeGen(vor,eps);
 }
 

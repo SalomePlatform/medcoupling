@@ -4720,6 +4720,47 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         #
         self.assertEqual(fieldOnCell.getMesh().buildDescendingConnectivity()[0].getNumberOfCells(),2*7+22)# last little test to reduce chance of errors. For humans there 21 but last tiny edge is split into 2 subedges due to alg
         pass
+
+    def testVoronoi3DSurf_1(self):
+        tmp=MEDCouplingCMesh("mesh")
+        arr=DataArrayDouble(5) ; arr.iota()
+        tmp.setCoords(arr,arr)
+        tmp=tmp.build1SGTUnstructured()
+        conn=tmp.getNodalConnectivity()
+        conn.rearrange(4)
+        conn.reversePerTuple()
+        conn.circularPermutationPerTuple(2)
+        conn.rearrange(1)
+        coo=tmp.getCoords().deepCopy()
+        coo.circularPermutationPerTuple(2) ; coo*=0.1
+        coo.reverse()
+        coo2=DataArrayDouble(len(tmp.getCoords())*tmp.getSpaceDimension()) ; coo2.iota() ; coo2.rearrange(tmp.getSpaceDimension())
+        coo2*=0.14
+        coo2.circularPermutationPerTuple(2)
+        tmp.getCoords()[:]+=coo2*coo
+        #
+        tmp.changeSpaceDimension(3,0.)    # force 3D surf
+        tmp.rotate([0,0,0],[1,0,0],pi/3)  # force 3D surf
+        #
+        field=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        field.setName("MyFieldPG") ; field.setMesh(tmp)
+        field.setGaussLocalizationOnType(NORM_QUAD4,[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.8,-0.8, 0.8,0.8, -0.8,0.8, -0.8,-0.8, 0.,0., 0.2,0.2, 0.1,0.3],[0.1,0.1,0.1,0.1,0.1,0.1,0.4])
+        arr=DataArrayDouble(field.getNumberOfTuplesExpected()) ; arr.iota() 
+        field.setArray(arr)
+        field.checkConsistencyLight()
+        #####
+        fieldOnCell=field.voronoize(1e-12);
+        fieldOnCell.checkConsistencyLight()
+        self.assertEqual(field.getMesh().getSpaceDimension(),fieldOnCell.getMesh().getSpaceDimension())
+        self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
+        meaRef=field.getMesh().getMeasureField(True).getArray()
+        mea=fieldOnCell.getMesh().getMeasureField(True).getArray()
+        self.assertEqual(field.getDiscretization().getNbOfGaussLocalization(),1)
+        self.assertEqual(field.getDiscretization().getGaussLocalization(0).getNumberOfGaussPt(),7)
+        mea.rearrange(7)
+        mea2=mea.sumPerTuple()
+        self.assertTrue(mea2.isEqual(meaRef,1e-12))
+        pass
     
     pass
 
