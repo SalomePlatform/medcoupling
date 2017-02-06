@@ -66,6 +66,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
+    MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
     MEDCOUPLING_EXPORT void rotate(const double *center, const double *vector, double angle);
     MEDCOUPLING_EXPORT void translate(const double *vector);
     MEDCOUPLING_EXPORT void scale(const double *point, double factor);

@@ -1123,6 +1123,12 @@ int MEDCouplingIMesh::getCellContainingPoint(const double *pos, double eps) cons
   return ret;
 }
 
+void MEDCouplingIMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+{
+  int ret(getCellContainingPoint(pos,eps));
+  elts.push_back(ret);
+}
+
 void MEDCouplingIMesh::rotate(const double *center, const double *vector, double angle)
 {
   throw INTERP_KERNEL::Exception("No rotation available on IMesh : Traduce it to unstructured mesh to apply it !");

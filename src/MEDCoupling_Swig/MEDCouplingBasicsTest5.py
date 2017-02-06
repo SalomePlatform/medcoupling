@@ -4751,6 +4751,8 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         #####
         fieldOnCell=field.voronoize(1e-12);
         fieldOnCell.checkConsistencyLight()
+        self.assertEqual(fieldOnCell.getMesh().getSpaceDimension(),3)
+        self.assertEqual(fieldOnCell.getMesh().getMeshDimension(),2)
         self.assertEqual(field.getMesh().getSpaceDimension(),fieldOnCell.getMesh().getSpaceDimension())
         self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
         meaRef=field.getMesh().getMeasureField(True).getArray()
@@ -4758,6 +4760,39 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(field.getDiscretization().getNbOfGaussLocalization(),1)
         self.assertEqual(field.getDiscretization().getGaussLocalization(0).getNumberOfGaussPt(),7)
         mea.rearrange(7)
+        mea2=mea.sumPerTuple()
+        self.assertTrue(mea2.isEqual(meaRef,1e-12))
+        pass
+
+    def testVoronoi1D_1(self):
+        tmp=MEDCouplingCMesh("mesh")
+        arr=DataArrayDouble(5) ; arr.iota()
+        tmp.setCoords(arr)
+        tmp=tmp.build1SGTUnstructured()
+        tmp1=tmp.deepCopy()
+        tmp.changeSpaceDimension(2,0.)
+        tmp.getCoords()[:,1]=pi/(len(arr)-1)*tmp.getCoords()[:,0]
+        tmp.getCoords()[:,0]=1.
+        tmp.setCoords(tmp.getCoords().fromPolarToCart())
+        tmp.changeSpaceDimension(3,1.)
+        #
+        field=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        field.setName("MyFieldPG") ; field.setMesh(tmp)
+        field.setGaussLocalizationOnType(NORM_SEG2,[-1.,1.],[-0.9,-0.8,0.2,0.4,0.5,0.9],[0.1,0.1,0.1,0.1,0.1,0.5])
+        arr=DataArrayDouble(field.getNumberOfTuplesExpected()) ; arr.iota() 
+        field.setArray(arr)
+        field.checkConsistencyLight()
+        ####
+        fieldOnCell=field.voronoize(1e-12);
+        fieldOnCell.checkConsistencyLight()
+        self.assertEqual(fieldOnCell.getMesh().getSpaceDimension(),3)
+        self.assertEqual(fieldOnCell.getMesh().getMeshDimension(),1)
+        assert(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
+        meaRef=field.getMesh().getMeasureField(True).getArray()
+        mea=fieldOnCell.getMesh().getMeasureField(True).getArray()
+        self.assertEqual(field.getDiscretization().getNbOfGaussLocalization(),1)
+        self.assertEqual(field.getDiscretization().getGaussLocalization(0).getNumberOfGaussPt(),6)
+        mea.rearrange(6)
         mea2=mea.sumPerTuple()
         self.assertTrue(mea2.isEqual(meaRef,1e-12))
         pass

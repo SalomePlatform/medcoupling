@@ -20,7 +20,7 @@
 
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MCAuto.hxx"
@@ -623,27 +623,6 @@ const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCel
 }
 
 /*!
- * Finds cells in contact with a ball (i.e. a point with precision).
- * \warning This method is suitable if the caller intends to evaluate only one
- *          point, for more points getCellsContainingPoints() is recommended as it is
- *          faster. 
- *  \param [in] pos - array of coordinates of the ball central point.
- *  \param [in] eps - ball radius.
- *  \param [in,out] elts - vector returning ids of the found cells. It is cleared
- *         before inserting ids.
- *
- *  \if ENABLE_EXAMPLES
- *  \ref cpp_mcumesh_getCellsContainingPoint "Here is a C++ example".<br>
- *  \ref  py_mcumesh_getCellsContainingPoint "Here is a Python example".
- *  \endif
- */
-void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
-{
-  int ret=getCellContainingPoint(pos,eps);
-  elts.push_back(ret);
-}
-
-/*!
  * Finds cells in contact with several balls (i.e. points with precision).
  * This method is an extension of getCellContainingPoint() and
  * getCellsContainingPoint() for the case of multiple points.
@@ -676,14 +655,10 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
   const double *work(pos);
   for(int i=0;i<nbOfPoints;i++,work+=spaceDim)
     {
-      int ret=getCellContainingPoint(work,eps);
-      if(ret>=0)
-        {
-          elts->pushBackSilent(ret);
-          eltsIndexPtr[i+1]=eltsIndexPtr[i]+1;
-        }
-      else
-        eltsIndexPtr[i+1]=eltsIndexPtr[i];
+      std::vector<int> ret;
+      getCellsContainingPoint(work,eps,ret);
+      elts->insertAtTheEnd(ret.begin(),ret.end());
+      eltsIndexPtr[i+1]=elts->getNumberOfTuples();
     }
 }
 

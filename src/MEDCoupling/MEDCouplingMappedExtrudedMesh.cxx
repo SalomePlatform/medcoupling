@@ -508,6 +508,11 @@ int MEDCouplingMappedExtrudedMesh::getCellContainingPoint(const double *pos, dou
   throw INTERP_KERNEL::Exception("MEDCouplingMappedExtrudedMesh::getCellContainingPoint : not implemented yet !");
 }
 
+void MEDCouplingMappedExtrudedMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingMappedExtrudedMesh::getCellsContainingPoint : not implemented yet !");
+}
+
 MEDCouplingMappedExtrudedMesh::~MEDCouplingMappedExtrudedMesh()
 {
 }

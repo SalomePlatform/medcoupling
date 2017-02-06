@@ -82,6 +82,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
+    MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
     MEDCOUPLING_EXPORT static int FindCorrespCellByNodalConn(const std::vector<int>& nodalConnec,
                                                              const int *revNodalPtr, const int *revNodalIndxPtr);
     MEDCOUPLING_EXPORT static void Project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,

@@ -2213,7 +2213,9 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoize(double eps) con
   const MEDCouplingMesh *mesh(getMesh());
   INTERP_KERNEL::AutoCppPtr<Voronizer> vor;
   int meshDim(mesh->getMeshDimension()),spaceDim(mesh->getSpaceDimension());
-  if(meshDim==2 && (spaceDim==2 || spaceDim==3))
+  if(meshDim==1 && (spaceDim==1 || spaceDim==2 || spaceDim==3))
+    vor=new Voronizer1D;
+  else if(meshDim==2 && (spaceDim==2 || spaceDim==3))
     vor=new Voronizer2D;
   else if(meshDim==3 && spaceDim==3)
     vor=new Voronizer3D;

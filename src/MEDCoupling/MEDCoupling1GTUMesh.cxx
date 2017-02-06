@@ -329,8 +329,17 @@ MEDCouplingFieldDouble *MEDCoupling1GTUMesh::getMeasureFieldOnNode(bool isAbs) c
  */
 int MEDCoupling1GTUMesh::getCellContainingPoint(const double *pos, double eps) const
 {
-  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m(buildUnstructured());
   return m->getCellContainingPoint(pos,eps);
+}
+
+/*!
+ * to improve perf !
+ */
+void MEDCoupling1GTUMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+{
+  MCAuto<MEDCouplingUMesh> m(buildUnstructured());
+  return m->getCellsContainingPoint(pos,eps,elts);
 }
 
 MEDCouplingFieldDouble *MEDCoupling1GTUMesh::buildOrthogonalField() const

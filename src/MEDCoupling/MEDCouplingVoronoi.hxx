@@ -35,6 +35,13 @@ namespace MEDCoupling
     virtual ~Voronizer();
   };
 
+  class Voronizer1D : public Voronizer
+  {
+  public:
+    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
+    int getDimension() const;
+  };
+
   class Voronizer2D : public Voronizer
   {
   public:

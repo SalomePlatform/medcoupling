@@ -33,6 +33,11 @@ Voronizer::~Voronizer()
 {
 }
 
+int Voronizer1D::getDimension() const
+{
+  return 1;
+}
+
 int Voronizer2D::getDimension() const
 {
   return 2;
@@ -209,6 +214,117 @@ MCAuto<MEDCouplingUMesh> MergeVorCells3D(const std::vector< MCAuto<MEDCouplingUM
       }
   }
   ret->insertNextCell(INTERP_KERNEL::NORM_POLYHED,conn.size(),&conn[0]);
+  return ret;
+}
+
+MCAuto<MEDCouplingUMesh> MergeVorCells1D(const std::vector< MCAuto<MEDCouplingUMesh> >& vcs, double eps)
+{
+  static const int CONN_SEG2_DFT[2]={0,1};
+  if(vcs.empty())
+    throw INTERP_KERNEL::Exception("MergeVorCells1D : internal error 1 !");
+  if(vcs.size()==1)
+    return vcs[0];
+  if(vcs.size()>2)
+    throw INTERP_KERNEL::Exception("MergeVorCells1D : internal error 2 !");
+  double a0,b0,a1,b1;
+  {
+    const int *connPtr(vcs[0]->getNodalConnectivity()->begin());
+    const double *coordPtr(vcs[0]->getCoords()->begin());
+    a0=coordPtr[connPtr[1]]; b0=coordPtr[connPtr[2]];
+  }
+  {
+    const int *connPtr(vcs[1]->getNodalConnectivity()->begin());
+    const double *coordPtr(vcs[1]->getCoords()->begin());
+    a1=coordPtr[connPtr[1]]; b1=coordPtr[connPtr[2]];
+  }
+  MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::New("",1)); ret->allocateCells(); ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,CONN_SEG2_DFT);
+  MCAuto<DataArrayDouble> coo(DataArrayDouble::New()); coo->alloc(2,1); ret->setCoords(coo);
+  if(fabs(b0-a1)<eps)
+    { coo->setIJ(0,0,a0); coo->setIJ(1,0,b1); }
+  else if(fabs(b1-a0)<eps)
+    { coo->setIJ(0,0,b0); coo->setIJ(1,0,a1); }
+  return ret;
+}
+
+MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer1D::doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const
+{
+  static const int CONN_SEG2_DFT[2]={0,1};
+  if(!m || !points)
+    throw INTERP_KERNEL::Exception("Voronoize1D : null pointer !");
+  m->checkConsistencyLight();
+  points->checkAllocated();
+  if(m->getMeshDimension()!=1 || m->getSpaceDimension()!=1 || points->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Voronoize1D : spacedim must be equal to 1 and meshdim also equal to 1 !");
+  if(m->getNumberOfCells()!=1)
+    throw INTERP_KERNEL::Exception("Voronoize1D : mesh is expected to have only one cell !");
+  int nbPts(points->getNumberOfTuples());
+  if(nbPts<1)
+    throw INTERP_KERNEL::Exception("Voronoize1D : at least one point expected !");
+  std::vector<double> bbox(4);
+  m->getBoundingBox(&bbox[0]);
+  std::vector< MCAuto<MEDCouplingUMesh> > l0(1,MCAuto<MEDCouplingUMesh>(m->deepCopy()));
+  const double *pts(points->begin());
+  for(int i=1;i<nbPts;i++)
+    {
+      MCAuto<MEDCouplingUMesh> vorTess;
+      {
+        std::vector< const MEDCouplingUMesh * > l0Bis(VecAutoToVecOfCstPt(l0));
+        vorTess=MEDCouplingUMesh::MergeUMeshes(l0Bis);
+      }
+      {
+        bool dummy;
+        int newNbNodes;
+        MCAuto<DataArrayInt> dummy3(vorTess->mergeNodes(eps,dummy,newNbNodes));
+      }
+      std::vector<int> polygsToIterOn;
+      const double *pt(pts+i);
+      vorTess->getCellsContainingPoint(pt,eps,polygsToIterOn);
+      if(polygsToIterOn.empty())
+        throw INTERP_KERNEL::Exception("Voronoize1D : a point is outside domain !");
+      if(polygsToIterOn.size()>2)
+        throw INTERP_KERNEL::Exception("Voronoize1D : overlap of points !");
+      std::vector< MCAuto<MEDCouplingUMesh> > newVorCells;
+      for(std::vector<int>::const_iterator it=polygsToIterOn.begin();it!=polygsToIterOn.end();it++)
+        {
+          int poly(*it);
+          //
+          double seed(pts[poly]),zept(*pt);
+          double mid((seed+zept)/2.);
+          //
+          MCAuto<MEDCouplingUMesh> tile(l0[poly]);
+          tile->zipCoords();
+          double a,b;
+          {
+            const int *connPtr(tile->getNodalConnectivity()->begin());
+            const double *coordPtr(tile->getCoords()->begin());
+            a=coordPtr[connPtr[1]]; b=coordPtr[connPtr[2]];
+          }
+          double pol0[2],pol1[2];
+          MCAuto<DataArrayDouble> t0(DataArrayDouble::New()); t0->alloc(3,1); t0->setIJ(0,0,zept); t0->setIJ(1,0,mid); t0->setIJ(2,0,seed);
+          t0->applyLin(1.,-a);
+          if(t0->isMonotonic(true,eps))
+            { pol0[0]=a; pol0[1]=mid; pol1[0]=mid; pol1[1]=b; }
+          else
+            { pol1[0]=a; pol1[1]=mid; pol0[0]=mid; pol0[1]=b; }
+          MCAuto<MEDCouplingUMesh> modifiedCell(MEDCouplingUMesh::New("",1)); modifiedCell->allocateCells();
+          MCAuto<DataArrayDouble> coo1(DataArrayDouble::New()); coo1->alloc(2,1); coo1->setIJ(0,0,pol1[0]); coo1->setIJ(1,0,pol1[1]);
+          modifiedCell->setCoords(coo1); modifiedCell->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,CONN_SEG2_DFT);
+          //
+          MCAuto<MEDCouplingUMesh> newVorCell(MEDCouplingUMesh::New("",1)); newVorCell->allocateCells();
+          MCAuto<DataArrayDouble> coo2(DataArrayDouble::New()); coo2->alloc(2,1); coo2->setIJ(0,0,pol0[0]); coo2->setIJ(1,0,pol0[1]);
+          newVorCell->setCoords(coo2); newVorCell->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,CONN_SEG2_DFT);
+          //
+          l0[poly]=modifiedCell;
+          newVorCells.push_back(newVorCell);
+        }
+      l0.push_back(MergeVorCells1D(newVorCells,eps));
+    }
+  std::vector< const MEDCouplingUMesh * > l0Bis(VecAutoToVecOfCstPt(l0));
+  MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::MergeUMeshes(l0Bis));
+  {
+    bool dummy; int dummy2;
+    MCAuto<DataArrayInt> dummy3(ret->mergeNodes(eps,dummy,dummy2));
+  }
   return ret;
 }
 

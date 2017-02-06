@@ -634,6 +634,12 @@ int MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double
   }
 }
 
+void MEDCouplingCurveLinearMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+{
+  int ret(getCellContainingPoint(pos,eps));
+  elts.push_back(ret);
+}
+
 void MEDCouplingCurveLinearMesh::rotate(const double *center, const double *vector, double angle)
 {
   if(!((DataArrayDouble *)_coords))
