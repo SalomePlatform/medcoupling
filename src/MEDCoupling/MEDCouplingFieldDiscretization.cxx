@@ -1679,10 +1679,10 @@ void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplin
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  int nbOfTuples=getNumberOfTuples(mesh);
+  int nbOfTuples(getNumberOfTuples(mesh));
   if(nbOfTuples!=da->getNumberOfTuples())
     {
-      std::ostringstream oss; oss << "Invalid number of tuples in the array : expecting " << nbOfTuples << " !";
+      std::ostringstream oss; oss << "Invalid number of tuples in the array : expecting " << nbOfTuples << " having " << da->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
