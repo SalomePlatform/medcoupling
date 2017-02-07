@@ -213,6 +213,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::buildSubPart;
 %newobject MEDCoupling::MEDCouplingFieldDouble::buildSubPartRange;
 %newobject MEDCoupling::MEDCouplingFieldDouble::voronoize;
+%newobject MEDCoupling::MEDCouplingFieldDouble::convertQuadraticCellsToLinear;
 %newobject MEDCoupling::MEDCouplingFieldDouble::__getitem__;
 %newobject MEDCoupling::MEDCouplingFieldDouble::__neg__;
 %newobject MEDCoupling::MEDCouplingFieldDouble::__add__;
@@ -3958,6 +3959,12 @@ namespace MEDCoupling
       MEDCouplingFieldDouble *voronoize(double eps) const throw(INTERP_KERNEL::Exception)
       {
         MCAuto<MEDCouplingFieldDouble> ret(self->voronoize(eps));
+        return ret.retn();
+      }
+
+      MEDCouplingFieldDouble *convertQuadraticCellsToLinear() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<MEDCouplingFieldDouble> ret(self->convertQuadraticCellsToLinear());
         return ret.retn();
       }
       

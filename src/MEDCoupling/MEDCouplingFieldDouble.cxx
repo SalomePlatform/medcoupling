@@ -2225,6 +2225,51 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoize(double eps) con
 }
 
 /*!
+ * \sa MEDCouplingUMesh::convertQuadraticCellsToLinear
+ */
+MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::convertQuadraticCellsToLinear() const
+{
+  checkConsistencyLight();
+  switch(getTypeOfField())
+    {
+    case ON_NODES:
+      {
+        const MEDCouplingMesh *mesh(getMesh());
+        if(!mesh)
+          throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::convertQuadraticCellsToLinear : null mesh !");
+        MCAuto<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
+        umesh=umesh->clone(false);
+        umesh->convertQuadraticCellsToLinear();
+        MCAuto<DataArrayInt> o2n(umesh->zipCoordsTraducer());
+        MCAuto<DataArrayInt> n2o(o2n->invertArrayO2N2N2O(umesh->getNumberOfNodes()));
+        MCAuto<DataArrayDouble> arr(getArray()->selectByTupleIdSafe(n2o->begin(),n2o->end()));
+        MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_NODES));
+        ret->setArray(arr);
+        ret->setMesh(umesh);
+        ret->copyAllTinyAttrFrom(this);
+        return ret;
+      }
+    case ON_CELLS:
+      {
+        const MEDCouplingMesh *mesh(getMesh());
+        if(!mesh)
+          throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::convertQuadraticCellsToLinear : null mesh !");
+        MCAuto<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
+        umesh=umesh->clone(false);
+        umesh->convertQuadraticCellsToLinear();
+        umesh->zipCoords();
+        MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
+        ret->setArray(const_cast<DataArrayDouble *>(getArray()));
+        ret->setMesh(umesh);
+        ret->copyAllTinyAttrFrom(this);
+        return ret;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::convertQuadraticCellsToLinear : Only available for fields on nodes !");
+    }
+}
+
+/*!
  * This is expected to be a 3 components vector field on nodes (if not an exception will be thrown). \a this is also expected to lie on a MEDCouplingPointSet mesh.
  * Finaly \a this is also expected to be consistent.
  * In these conditions this method returns a newly created field (to be dealed by the caller).
