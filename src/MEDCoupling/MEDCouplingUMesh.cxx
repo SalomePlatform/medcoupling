@@ -864,6 +864,30 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArr
   ComputeNeighborsOfCellsAdv(desc,descIndx,revDesc,revDescIndx,neighbors,neighborsIndx);
 }
 
+void MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne(const DataArrayInt *nodeNeigh, const DataArrayInt *nodeNeighI, MCAuto<DataArrayInt>& cellNeigh, MCAuto<DataArrayInt>& cellNeighIndex) const
+{
+  if(!nodeNeigh || !nodeNeighI)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne : null pointer !");
+  checkConsistencyLight();
+  nodeNeigh->checkAllocated(); nodeNeighI->checkAllocated();
+  nodeNeigh->checkNbOfComps(1,"MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne : node neigh");
+  nodeNeighI->checkNbOfComps(1,"MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne : node neigh index");
+  nodeNeighI->checkNbOfTuples(1+getNumberOfNodes(),"MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne : invalid length");
+  int nbCells(getNumberOfCells());
+  const int *c(_nodal_connec->begin()),*ci(_nodal_connec_index->begin()),*ne(nodeNeigh->begin()),*nei(nodeNeighI->begin());
+  cellNeigh=DataArrayInt::New(); cellNeigh->alloc(0,1); cellNeighIndex=DataArrayInt::New(); cellNeighIndex->alloc(1,1); cellNeighIndex->setIJ(0,0,0);
+  for(int i=0;i<nbCells;i++)
+    {
+      std::set<int> s;
+      for(const int *it=c+ci[i]+1;it!=c+ci[i+1];it++)
+        if(*it>=0)
+          s.insert(ne+nei[*it],ne+nei[*it+1]);
+      s.erase(i);
+      cellNeigh->insertAtTheEnd(s.begin(),s.end());
+      cellNeighIndex->pushBackSilent(cellNeigh->getNumberOfTuples());
+    }
+}
+
 /*!
  * This method is called by MEDCouplingUMesh::computeNeighborsOfCells. This methods performs the algorithm
  * of MEDCouplingUMesh::computeNeighborsOfCells.
@@ -11658,20 +11682,31 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const
  */
 std::vector<DataArrayInt *> MEDCouplingUMesh::partitionBySpreadZone() const
 {
-  int nbOfCellsCur=getNumberOfCells();
-  std::vector<DataArrayInt *> ret;
-  if(nbOfCellsCur<=0)
-    return ret;
   DataArrayInt *neigh=0,*neighI=0;
   computeNeighborsOfCells(neigh,neighI);
   MCAuto<DataArrayInt> neighAuto(neigh),neighIAuto(neighI);
+  return PartitionBySpreadZone(neighAuto,neighIAuto);
+}
+
+std::vector<DataArrayInt *> MEDCouplingUMesh::PartitionBySpreadZone(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn)
+{
+  if(!arrIn || !arrIndxIn)
+    throw INTERP_KERNEL::Exception("PartitionBySpreadZone : null input pointers !");
+  arrIn->checkAllocated(); arrIndxIn->checkAllocated();
+  int nbOfTuples(arrIndxIn->getNumberOfTuples());
+  if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1 || nbOfTuples<1)
+    throw INTERP_KERNEL::Exception("PartitionBySpreadZone : invalid arrays in input !");
+  int nbOfCellsCur(nbOfTuples-1);
+  std::vector<DataArrayInt *> ret;
+  if(nbOfCellsCur<=0)
+    return ret;
   std::vector<bool> fetchedCells(nbOfCellsCur,false);
   std::vector< MCAuto<DataArrayInt> > ret2;
   int seed=0;
   while(seed<nbOfCellsCur)
     {
       int nbOfPeelPerformed=0;
-      ret2.push_back(ComputeSpreadZoneGraduallyFromSeedAlg(fetchedCells,&seed,&seed+1,neigh,neighI,-1,nbOfPeelPerformed));
+      ret2.push_back(ComputeSpreadZoneGraduallyFromSeedAlg(fetchedCells,&seed,&seed+1,arrIn,arrIndxIn,-1,nbOfPeelPerformed));
       seed=(int)std::distance(fetchedCells.begin(),std::find(fetchedCells.begin()+seed,fetchedCells.end(),false));
     }
   for(std::vector< MCAuto<DataArrayInt> >::iterator it=ret2.begin();it!=ret2.end();it++)

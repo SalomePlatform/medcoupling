@@ -125,6 +125,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *explodeMeshIntoMicroEdges(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     MEDCOUPLING_EXPORT void computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const;
+    MEDCOUPLING_EXPORT void computeCellNeighborhoodFromNodesOne(const DataArrayInt *nodeNeigh, const DataArrayInt *nodeNeighI, MCAuto<DataArrayInt>& cellNeigh, MCAuto<DataArrayInt>& cellNeighIndex) const;
     MEDCOUPLING_EXPORT static void ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI,
                                                               DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx);
     MEDCOUPLING_EXPORT void computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const;
@@ -267,6 +268,7 @@ namespace MEDCoupling
                                                            DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
     MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSameIdxSlice(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
                                                                   const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex);
+    MEDCOUPLING_EXPORT static std::vector<DataArrayInt *> PartitionBySpreadZone(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn);
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeSpreadZoneGradually(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn);
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeSpreadZoneGraduallyFromSeed(const int *seedBg, const int *seedEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn, int nbOfDepthPeeling, int& nbOfDepthPeelingPerformed);
     MEDCOUPLING_EXPORT static void FindCommonCellsAlg(int compType, int startCellId, const DataArrayInt *nodal, const DataArrayInt *nodalI, const DataArrayInt *revNodal, const DataArrayInt *revNodalI,

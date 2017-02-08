@@ -2156,6 +2156,16 @@ namespace MEDCoupling
         return ret;
       }
 
+      static PyObject *PartitionBySpreadZone(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<DataArrayInt *> retCpp(MEDCouplingUMesh::PartitionBySpreadZone(arrIn,arrIndxIn));
+        int sz=retCpp.size();
+        PyObject *ret=PyList_New(sz);
+        for(int i=0;i<sz;i++)
+          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(retCpp[i]),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       PyObject *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, PyObject *ids) const throw(INTERP_KERNEL::Exception)
       {
         int size;
@@ -2646,7 +2656,17 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(neighborsIdx),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
-
+      
+      PyObject *computeCellNeighborhoodFromNodesOne(const DataArrayInt *nodeNeigh, const DataArrayInt *nodeNeighI) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> cellNeigh,cellNeighIndex;
+        self->computeCellNeighborhoodFromNodesOne(nodeNeigh,nodeNeighI,cellNeigh,cellNeighIndex);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(cellNeigh.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cellNeighIndex.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+      
       static PyObject *ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI) throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *neighbors=0,*neighborsIdx=0;
