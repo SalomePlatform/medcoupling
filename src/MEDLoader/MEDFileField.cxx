@@ -24,6 +24,7 @@
 #include "MEDLoaderTraits.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileFieldOverView.hxx"
+#include "MEDFileBlowStrEltUp.hxx"
 
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
@@ -48,14 +49,78 @@ template class MEDFileField1TSTemplateWithoutSDA<double>;
 const char MEDFileField1TSWithoutSDA::TYPE_STR[]="FLOAT64";
 const char MEDFileIntField1TSWithoutSDA::TYPE_STR[]="INT32";
 
+MEDFileGTKeeper::~MEDFileGTKeeper()
+{
+}
+
+MEDFileGTKeeper *MEDFileGTKeeperSta::deepCopy() const
+{
+  return new MEDFileGTKeeperSta(_geo_type);
+}
+
+INTERP_KERNEL::NormalizedCellType MEDFileGTKeeperSta::getGeoType() const
+{
+  return _geo_type;
+}
+
+std::string MEDFileGTKeeperSta::getRepr() const
+{
+  return INTERP_KERNEL::CellModel::GetCellModel(_geo_type).getRepr();
+}
+
+bool MEDFileGTKeeperSta::isEqual(const MEDFileGTKeeper *other) const
+{
+  const MEDFileGTKeeperSta *otherC(dynamic_cast<const MEDFileGTKeeperSta *>(other));
+  if(!otherC)
+    return false;
+  return _geo_type==otherC->_geo_type;
+}
+
+MEDFileGTKeeperDyn::MEDFileGTKeeperDyn(const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileStructureElement *se):_mesh(mesh),_section(section),_se(se)
+{
+  if(mesh)
+    mesh->incrRef();
+  if(section)
+    section->incrRef();
+  if(se)
+    se->incrRef();
+  if(_mesh.isNull() || _section.isNull() || _se.isNull())
+    throw INTERP_KERNEL::Exception("MEDFileGTKeeperDyn constructor : null pointer not allowed !");
+}
+
+MEDFileGTKeeper *MEDFileGTKeeperDyn::deepCopy() const
+{
+  return new MEDFileGTKeeperDyn(_mesh,_section,_se);
+}
+
+INTERP_KERNEL::NormalizedCellType MEDFileGTKeeperDyn::getGeoType() const
+{
+  throw INTERP_KERNEL::Exception("MEDFileGTKeeperDyn::getGeoType : not valid !");
+}
+
+std::string MEDFileGTKeeperDyn::getRepr() const
+{
+  std::ostringstream oss;
+  oss << _se->getDynGT();
+  return oss.str();
+}
+
+bool MEDFileGTKeeperDyn::isEqual(const MEDFileGTKeeper *other) const
+{
+  const MEDFileGTKeeperDyn *otherC(dynamic_cast<const MEDFileGTKeeperDyn *>(other));
+  if(!otherC)
+    return false;
+  return this==otherC;
+}
+
 MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, const std::string& locName)
 {
   return new MEDFileFieldLoc(fid,locName);
 }
 
-MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, int id)
+MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, int id, const MEDFileEntities *entities)
 {
-  return new MEDFileFieldLoc(fid,id);
+  return new MEDFileFieldLoc(fid,id,entities);
 }
 
 MEDFileFieldLoc *MEDFileFieldLoc::New(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
@@ -71,8 +136,8 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const std::string& locName):_name(
   INTERP_KERNEL::AutoPtr<char> geointerpname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> sectionmeshname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   MEDlocalizationInfoByName(fid,locName.c_str(),&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
-  _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype)));
-  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
+  _gt=new MEDFileGTKeeperSta((INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype))));
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getGeoType()));
   _nb_node_per_cell=cm.getNumberOfNodes();
   _ref_coo.resize(_dim*_nb_node_per_cell);
   _gs_coo.resize(_dim*_nb_gauss_pt);
@@ -80,7 +145,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const std::string& locName):_name(
   MEDlocalizationRd(fid,locName.c_str(),MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
 }
 
-MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id)
+MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id, const MEDFileEntities *entities)
 {
   med_geometry_type geotype;
   med_geometry_type sectiongeotype;
@@ -90,9 +155,30 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id)
   INTERP_KERNEL::AutoPtr<char> sectionmeshname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   MEDlocalizationInfo(fid,id+1,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
   _name=locName;
-  _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype)));
-  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
-  _nb_node_per_cell=cm.getNumberOfNodes();
+  std::string sectionName(MEDLoaderBase::buildStringFromFortran(sectionmeshname,MED_NAME_SIZE));
+  if(sectionName.empty())
+    {
+      _gt=new MEDFileGTKeeperSta((INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype))));
+      const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getGeoType()));
+      _nb_node_per_cell=cm.getNumberOfNodes();
+    }
+  else
+    {
+      const MEDFileAllStaticEntitiesPlusDyn *entities2(dynamic_cast<const MEDFileAllStaticEntitiesPlusDyn *>(entities));
+      if(!entities2)
+        {
+          std::ostringstream oss; oss << "MEDFileFieldLoc cstr : for loc \"" << _name << "\" presence of non static type ! Expect entities !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+      const MEDFileStructureElement *se(entities2->getWithGT(geotype));
+      const MEDFileUMesh *um(entities2->getSupMeshWithName(se->getMeshName()));
+      const MEDFileUMesh *section(entities2->getSupMeshWithName(sectionName));
+      _gt=new MEDFileGTKeeperDyn(um,section,se);
+      {
+        int dummy;
+        MEDFILESAFECALLERWR0(MEDmeshGeotypeParameter,(fid,geotype,&dummy,&_nb_node_per_cell));
+      }
+    }
   _ref_coo.resize(_dim*_nb_node_per_cell);
   _gs_coo.resize(_dim*_nb_gauss_pt);
   _w.resize(_nb_gauss_pt);
@@ -100,13 +186,17 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id)
 }
 
 MEDFileFieldLoc::MEDFileFieldLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType,
-                                 const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w):_name(locName),_geo_type(geoType),_ref_coo(refCoo),_gs_coo(gsCoo),
-                                     _w(w)
+                                 const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w):_name(locName),_gt(new MEDFileGTKeeperSta(geoType)),_ref_coo(refCoo),_gs_coo(gsCoo),_w(w)
 {
-  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getGeoType()));
   _dim=cm.getDimension();
   _nb_node_per_cell=cm.getNumberOfNodes();
   _nb_gauss_pt=_w.size();
+}
+
+
+MEDFileFieldLoc::MEDFileFieldLoc(const MEDFileFieldLoc& other):_dim(other._dim),_nb_gauss_pt(other._nb_gauss_pt),_gt(other._gt->deepCopy()),_nb_node_per_cell(other._nb_node_per_cell),_name(other._name),_ref_coo(other._ref_coo),_gs_coo(other._gs_coo),_w(other._w)
+{
 }
 
 MEDFileFieldLoc *MEDFileFieldLoc::deepCopy() const
@@ -128,7 +218,7 @@ void MEDFileFieldLoc::simpleRepr(std::ostream& oss) const
 {
   static const char OFF7[]="\n    ";
   oss << "\"" << _name << "\"" << OFF7;
-  oss << "GeoType=" << INTERP_KERNEL::CellModel::GetCellModel(_geo_type).getRepr() << OFF7;
+  oss << "GeoType=" << _gt->getRepr() << OFF7;
   oss << "Dimension=" << _dim << OFF7;
   oss << "Number of Gauss points=" << _nb_gauss_pt << OFF7;
   oss << "Number of nodes per cell=" << _nb_node_per_cell << OFF7;
@@ -152,7 +242,7 @@ bool MEDFileFieldLoc::isEqual(const MEDFileFieldLoc& other, double eps) const
     return false;
   if(_nb_node_per_cell!=other._nb_node_per_cell)
     return false;
-  if(_geo_type!=other._geo_type)
+  if(!_gt->isEqual(other._gt))
     return false;
   if(!MEDCouplingGaussLocalization::AreAlmostEqual(_ref_coo,other._ref_coo,eps))
     return false;
@@ -166,13 +256,13 @@ bool MEDFileFieldLoc::isEqual(const MEDFileFieldLoc& other, double eps) const
 
 void MEDFileFieldLoc::writeLL(med_idt fid) const
 {
-  MEDlocalizationWr(fid,_name.c_str(),typmai3[(int)_geo_type],_dim,&_ref_coo[0],MED_FULL_INTERLACE,_nb_gauss_pt,&_gs_coo[0],&_w[0],MED_NO_INTERPOLATION,MED_NO_MESH_SUPPORT);
+  MEDlocalizationWr(fid,_name.c_str(),typmai3[(int)getGeoType()],_dim,&_ref_coo[0],MED_FULL_INTERLACE,_nb_gauss_pt,&_gs_coo[0],&_w[0],MED_NO_INTERPOLATION,MED_NO_MESH_SUPPORT);
 }
 
 std::string MEDFileFieldLoc::repr() const
 {
   std::ostringstream oss; oss.precision(15);
-  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(_geo_type));
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getGeoType()));
   oss << "Localization \"" << _name << "\" :\n" << "  - Geometric Type : " << cm.getRepr();
   oss << "\n  - Dimension : " << _dim << "\n  - Number of gauss points : ";
   oss << _nb_gauss_pt << "\n  - Number of nodes in cell : " << _nb_node_per_cell;
@@ -3093,7 +3183,7 @@ void MEDFileFieldGlobs::loadGlobals(med_idt fid, const MEDFileFieldGlobsReal& re
     _locs[i]=MEDFileFieldLoc::New(fid,locs[i].c_str());
 }
 
-void MEDFileFieldGlobs::loadAllGlobals(med_idt fid)
+void MEDFileFieldGlobs::loadAllGlobals(med_idt fid, const MEDFileEntities *entities)
 {
   int nProfil=MEDnProfile(fid);
   for(int i=0;i<nProfil;i++)
@@ -3102,7 +3192,7 @@ void MEDFileFieldGlobs::loadAllGlobals(med_idt fid)
   _locs.resize(sz);
   for(int i=0;i<sz;i++)
     {
-      _locs[i]=MEDFileFieldLoc::New(fid,i);
+      _locs[i]=MEDFileFieldLoc::New(fid,i,entities);
     }
 }
 
@@ -3703,9 +3793,9 @@ void MEDFileFieldGlobsReal::loadGlobals(med_idt fid)
   contentNotNull()->loadGlobals(fid,*this);
 }
 
-void MEDFileFieldGlobsReal::loadAllGlobals(med_idt fid)
+void MEDFileFieldGlobsReal::loadAllGlobals(med_idt fid, const MEDFileEntities *entities)
 {
-  contentNotNull()->loadAllGlobals(fid);
+  contentNotNull()->loadAllGlobals(fid,entities);
 }
 
 void MEDFileFieldGlobsReal::writeGlobals(med_idt fid, const MEDFileWritable& opt) const
@@ -10766,7 +10856,7 @@ try:MEDFileFieldGlobsReal(fid)
           }
       }
     }
-  loadAllGlobals(fid);
+  loadAllGlobals(fid,entities);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -11290,6 +11380,14 @@ void MEDFileFields::getMeshSENames(std::vector< std::pair<std::string,std::strin
   for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     if((*it).isNotNull())
       (*it)->getMeshSENames(ps);
+}
+
+void MEDFileFields::blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *ses)
+{
+  MCAuto<MEDFileFields> fsSEOnly(partOfThisOnStructureElements());
+  killStructureElements();
+  MEDFileBlowStrEltUp bu(fsSEOnly,ms,ses);
+  bu.generate(ms,this);
 }
 
 MCAuto<MEDFileFields> MEDFileFields::partOfThisOnStructureElements() const

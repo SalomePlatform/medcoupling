@@ -51,6 +51,43 @@ namespace MEDCoupling
   class MEDCouplingFieldDouble;
   class MEDFileMesh;
 
+  class MEDFileGTKeeper
+  {
+  public:
+    virtual MEDFileGTKeeper *deepCopy() const = 0;
+    virtual INTERP_KERNEL::NormalizedCellType getGeoType() const = 0;
+    virtual std::string getRepr() const = 0;
+    virtual bool isEqual(const MEDFileGTKeeper *other) const = 0;
+    virtual ~MEDFileGTKeeper();
+  };
+
+  class MEDFileGTKeeperSta : public MEDFileGTKeeper
+  {
+  public:
+    MEDFileGTKeeperSta(INTERP_KERNEL::NormalizedCellType gt):_geo_type(gt) { }
+    MEDFileGTKeeper *deepCopy() const;
+    INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    std::string getRepr() const;
+    bool isEqual(const MEDFileGTKeeper *other) const;
+  private:
+    INTERP_KERNEL::NormalizedCellType _geo_type;
+  };
+
+
+  class MEDFileGTKeeperDyn : public MEDFileGTKeeper
+  {
+  public:
+    MEDFileGTKeeperDyn(const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileStructureElement *se);
+    MEDFileGTKeeper *deepCopy() const;
+    INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    std::string getRepr() const;
+    bool isEqual(const MEDFileGTKeeper *other) const;
+  private:
+    MCConstAuto<MEDFileUMesh> _mesh;
+    MCConstAuto<MEDFileUMesh> _section;
+    MCConstAuto<MEDFileStructureElement> _se;
+  };
+    
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
@@ -58,7 +95,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT void setName(const std::string& name);
     static MEDFileFieldLoc *New(med_idt fid, const std::string& locName);
-    static MEDFileFieldLoc *New(med_idt fid, int id);
+    static MEDFileFieldLoc *New(med_idt fid, int i, const MEDFileEntities *entities);
     static MEDFileFieldLoc *New(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -73,18 +110,19 @@ namespace MEDCoupling
     MEDLOADER_EXPORT const std::vector<double>& getRefCoords() const { return _ref_coo; }
     MEDLOADER_EXPORT const std::vector<double>& getGaussCoords() const { return _gs_coo; }
     MEDLOADER_EXPORT const std::vector<double>& getGaussWeights() const { return _w; }
-    MEDLOADER_EXPORT INTERP_KERNEL::NormalizedCellType getGeoType() const { return _geo_type; }
+    MEDLOADER_EXPORT INTERP_KERNEL::NormalizedCellType getGeoType() const { return _gt->getGeoType(); }
     MEDLOADER_EXPORT bool isEqual(const MEDFileFieldLoc& other, double eps) const;
   private:
+    MEDFileFieldLoc(const MEDFileFieldLoc& other);
     MEDFileFieldLoc(med_idt fid, const std::string& locName);
-    MEDFileFieldLoc(med_idt fid, int id);
+    MEDFileFieldLoc(med_idt fid, int id, const MEDFileEntities *entities);
     MEDFileFieldLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
   private:
     int _dim;
     int _nb_gauss_pt;
+    INTERP_KERNEL::AutoCppPtr<MEDFileGTKeeper> _gt;
     int _nb_node_per_cell;
     std::string _name;
-    INTERP_KERNEL::NormalizedCellType _geo_type;
     std::vector<double> _ref_coo;
     std::vector<double> _gs_coo;
     std::vector<double> _w;
@@ -393,7 +431,7 @@ namespace MEDCoupling
     void loadProfileInFile(med_idt fid, int id, const std::string& pflName);
     void loadProfileInFile(med_idt fid, int id);
     void loadGlobals(med_idt fid, const MEDFileFieldGlobsReal& real);
-    void loadAllGlobals(med_idt fid);
+    void loadAllGlobals(med_idt fid, const MEDFileEntities *entities);
     void writeGlobals(med_idt fid, const MEDFileWritable& opt) const;
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
@@ -464,7 +502,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void loadProfileInFile(med_idt fid, int id, const std::string& pflName);
     MEDLOADER_EXPORT void loadProfileInFile(med_idt fid, int id);
     MEDLOADER_EXPORT void loadGlobals(med_idt fid);
-    MEDLOADER_EXPORT void loadAllGlobals(med_idt fid);
+    MEDLOADER_EXPORT void loadAllGlobals(med_idt fid, const MEDFileEntities *entities=0);
     MEDLOADER_EXPORT void writeGlobals(med_idt fid, const MEDFileWritable& opt) const;
     MEDLOADER_EXPORT std::vector<std::string> getPfls() const;
     MEDLOADER_EXPORT std::vector<std::string> getLocs() const;
@@ -1265,6 +1303,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void keepOnlyStructureElements();
     MEDLOADER_EXPORT void keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName);
     MEDLOADER_EXPORT void getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const;
+    MEDLOADER_EXPORT void blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *ses);
     MEDLOADER_EXPORT MCAuto<MEDFileFields> partOfThisOnStructureElements() const;
     MEDLOADER_EXPORT MCAuto<MEDFileFields> partOfThisLyingOnSpecifiedMeshSEName(const std::string& meshName, const std::string& seName) const;
     MEDLOADER_EXPORT void aggregate(const MEDFileFields& other);

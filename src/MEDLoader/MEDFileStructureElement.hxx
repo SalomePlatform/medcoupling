@@ -125,6 +125,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT const MEDFileStructureElement *getSEWithName(const std::string& seName) const;
     MEDLOADER_EXPORT std::vector<std::string> getVarAttsOf(const std::string& seName) const;
     MEDLOADER_EXPORT const MEDFileSEVarAtt *getVarAttOf(const std::string &seName, const std::string& varName) const;
+    MEDLOADER_EXPORT const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;

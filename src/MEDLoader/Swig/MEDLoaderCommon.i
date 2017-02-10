@@ -140,7 +140,12 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileMeshes::__getitem__;
 %newobject MEDCoupling::MEDFileMeshes::__iter__;
 
+%newobject MEDCoupling::MEDFileMeshSupports::New;
+
+%newobject MEDCoupling::MEDFileStructureElements::New;
+
 %newobject MEDCoupling::MEDFileFields::New;
+%newobject MEDCoupling::MEDFileFields::NewWithDynGT;
 %newobject MEDCoupling::MEDFileFields::LoadPartOf;
 %newobject MEDCoupling::MEDFileFields::LoadSpecificEntities;
 %newobject MEDCoupling::MEDFileFields::deepCopy;
@@ -271,6 +276,8 @@ using namespace MEDCoupling;
 %feature("unref") MEDFileAnyTypeFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileIntFieldMultiTS "$this->decrRef();"
+%feature("unref") MEDFileMeshSupports "$this->decrRef();"
+%feature("unref") MEDFileStructureElements "$this->decrRef();"
 %feature("unref") MEDFileFields "$this->decrRef();"
 %feature("unref") MEDFileParameter1TS "$this->decrRef();"
 %feature("unref") MEDFileParameterDouble1TSWTI "$this->decrRef();"
@@ -2996,6 +3003,20 @@ namespace MEDCoupling
       }
     }
   };
+  
+  class MEDFileMeshSupports : public RefCountObject, public MEDFileWritableStandAlone
+  {
+  public:
+    static MEDFileMeshSupports *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
+  };
+ 
+  class MEDFileStructureElements : public RefCountObject, public MEDFileWritableStandAlone
+  {
+  public:
+    static MEDFileStructureElements *New(const std::string& fileName, const MEDFileMeshSupports *ms) throw(INTERP_KERNEL::Exception);
+  private:
+    MEDFileStructureElements();
+  };
 
   class MEDFileFields : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritableStandAlone
   {
@@ -3004,6 +3025,7 @@ namespace MEDCoupling
     static MEDFileFields *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileFields *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileFields *NewWithDynGT(const std::string& fileName, const MEDFileStructureElements *se, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     MEDFileFields *deepCopy() const throw(INTERP_KERNEL::Exception);
     MEDFileFields *shallowCpy() const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
@@ -3026,6 +3048,7 @@ namespace MEDCoupling
     void killStructureElements() throw(INTERP_KERNEL::Exception);
     void keepOnlyStructureElements() throw(INTERP_KERNEL::Exception);
     void keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName) throw(INTERP_KERNEL::Exception);
+    void blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *ses) throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
     bool removeFieldsWithoutAnyTimeStep() throw(INTERP_KERNEL::Exception);
     %extend

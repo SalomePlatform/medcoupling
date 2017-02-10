@@ -90,3 +90,7 @@ const MEDFileStructureElement *MEDFileAllStaticEntitiesPlusDyn::getWithGT(int id
   return _se->getWithGT(idGT);
 }
 
+const MEDFileUMesh *MEDFileAllStaticEntitiesPlusDyn::getSupMeshWithName(const std::string& name) const
+{
+  return _se->getSupMeshWithName(name);
+}

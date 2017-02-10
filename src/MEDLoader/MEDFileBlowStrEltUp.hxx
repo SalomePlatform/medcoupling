@@ -36,8 +36,8 @@ namespace MEDCoupling
   public:
     MEDFileBlowStrEltUp(const MEDFileFields *fsOnlyOnSE, const MEDFileMeshes *ms, const MEDFileStructureElements *ses);
     static void DealWithSE(MEDFileFields *fs, MEDFileMeshes *ms, const MEDFileStructureElements *ses);
-  private:
     void generate(MEDFileMeshes *msOut, MEDFileFields *allZeOutFields);
+  private:
     MCAuto<MEDFileEltStruct4Mesh> dealWithSEInMesh(const std::string& seName, MEDFileUMesh *mesh, MCAuto<MEDFileUMesh>& mOut, MCAuto<MEDFileFields>& fsOut) const;
     MCAuto<MEDFileEltStruct4Mesh> dealWithMEDBALLInMesh(const MEDFileUMesh *mesh, MCAuto<MEDFileUMesh>& mOut, MCAuto<MEDFileFields>& fsOut) const;
     void dealWithSEInFields(const std::string& seName, const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MEDFileFields *zeOutputs) const;

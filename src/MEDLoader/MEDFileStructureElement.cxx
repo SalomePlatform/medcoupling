@@ -403,3 +403,8 @@ const MEDFileSEVarAtt *MEDFileStructureElements::getVarAttOf(const std::string &
   const MEDFileStructureElement *se(getSEWithName(seName));
   return se->getVarAtt(varName);
 }
+
+const MEDFileUMesh *MEDFileStructureElements::getSupMeshWithName(const std::string& name) const
+{
+  return _sup->getSupMeshWithName(name);
+}
