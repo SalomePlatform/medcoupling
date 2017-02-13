@@ -90,6 +90,15 @@ void MEDFileMeshSupports::writeLL(med_idt fid) const
       (*it)->writeLL(fid);
 }
 
+std::vector<std::string> MEDFileMeshSupports::getSupMeshNames() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MCAuto<MEDFileUMesh> >::const_iterator it=_supports.begin();it!=_supports.end();it++)
+    if((*it).isNotNull())
+      ret.push_back((*it)->getName());
+  return ret;
+}
+
 const MEDFileUMesh *MEDFileMeshSupports::getSupMeshWithName(const std::string& name) const
 {
   std::vector<std::string> mns;

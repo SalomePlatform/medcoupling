@@ -29,6 +29,8 @@ namespace INTERP_KERNEL
   public:
     AutoPtr(T *ptr=0):_ptr(ptr) {  }
     ~AutoPtr() { destroyPtr(); }
+    bool isNull() const { return _ptr==0; }
+    bool isNotNull() const { return !isNull(); }
     AutoPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
     T *operator->() { return _ptr ; }
     const T *operator->() const { return _ptr; }
@@ -48,6 +50,8 @@ namespace INTERP_KERNEL
   public:
     AutoCppPtr(T *ptr=0):_ptr(ptr) {  }
     ~AutoCppPtr() { destroyPtr(); }
+    bool isNull() const { return _ptr==0; }
+    bool isNotNull() const { return !isNull(); }
     AutoCppPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
     T *operator->() { return _ptr ; }
     const T *operator->() const { return _ptr; }
@@ -67,6 +71,8 @@ namespace INTERP_KERNEL
   public:
     AutoCPtr(T *ptr=0):_ptr(ptr) {  }
     ~AutoCPtr() { destroyPtr(); }
+    bool isNull() const { return _ptr==0; }
+    bool isNotNull() const { return !isNull(); }
     AutoCPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
     T *operator->() { return _ptr ; }
     const T *operator->() const { return _ptr; }

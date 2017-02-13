@@ -50,6 +50,7 @@ namespace MEDCoupling
   class MEDCouplingMesh;
   class MEDCouplingFieldDouble;
   class MEDFileMesh;
+  class MEDFileFieldVisitor;
 
   class MEDFileGTKeeper
   {
@@ -82,6 +83,9 @@ namespace MEDCoupling
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
     std::string getRepr() const;
     bool isEqual(const MEDFileGTKeeper *other) const;
+    const MEDFileUMesh *getMesh() const { return _mesh; }
+    const MEDFileUMesh *getSection() const { return _section; }
+    const MEDFileStructureElement *getSE() const { return _se; }
   private:
     MCConstAuto<MEDFileUMesh> _mesh;
     MCConstAuto<MEDFileUMesh> _section;
@@ -100,6 +104,8 @@ namespace MEDCoupling
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileFieldLoc *deepCopy() const;
+    bool isOnStructureElement() const;
+    const MEDFileGTKeeper *getUndergroundGTKeeper() const { return _gt; }
     MEDLOADER_EXPORT int getNbOfGaussPtPerCell() const { return _nb_gauss_pt; }
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT std::string repr() const;
@@ -265,6 +271,7 @@ namespace MEDCoupling
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
     MEDFileFieldPerMeshPerTypeCommon(MEDFileFieldPerMesh *father):_father(father) { }
     void setFather(MEDFileFieldPerMesh *father);
+    void accept(MEDFileFieldVisitor& visitor) const;
   public:
     virtual ~MEDFileFieldPerMeshPerTypeCommon();
     virtual void getDimension(int& dim) const = 0;
@@ -348,6 +355,7 @@ namespace MEDCoupling
     void writeLL(med_idt fid, const MEDFileFieldNameScope& nasc) const;
     void fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const;
     std::vector< std::vector< std::pair<int,int> > > getFieldSplitedByType(std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
+    void accept(MEDFileFieldVisitor& visitor) const;
     void getDimension(int& dim) const;
     bool isUniqueLevel(int& dim) const;
     double getTime() const;
@@ -457,6 +465,7 @@ namespace MEDCoupling
     DataArrayInt *getProfileFromId(int pflId);
     void killProfileIds(const std::vector<int>& pflIds);
     void killLocalizationIds(const std::vector<int>& locIds);
+    void killStructureElementsInGlobs();
     //
     void appendProfile(DataArrayInt *pfl);
     void appendLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
@@ -483,6 +492,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT void simpleReprGlobs(std::ostream& oss) const;
     MEDLOADER_EXPORT void resetContent();
+    MEDLOADER_EXPORT void killStructureElementsInGlobs();
     MEDLOADER_EXPORT void shallowCpyGlobs(const MEDFileFieldGlobsReal& other);
     MEDLOADER_EXPORT void deepCpyGlobs(const MEDFileFieldGlobsReal& other);
     MEDLOADER_EXPORT void shallowCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other);
@@ -600,6 +610,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId);
     MEDLOADER_EXPORT const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const;
     MEDLOADER_EXPORT void deepCpyLeavesFrom(const MEDFileAnyTypeField1TSWithoutSDA& other);
+    MEDLOADER_EXPORT void accept(MEDFileFieldVisitor& visitor) const;
   public:
     MEDLOADER_EXPORT int getNumberOfComponents() const;
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
@@ -986,6 +997,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT DataArray *getUndergroundDataArray(int iteration, int order) const;
     MEDLOADER_EXPORT DataArray *getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
     MEDLOADER_EXPORT bool renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N, MEDFileFieldGlobsReal& glob);
+    MEDLOADER_EXPORT void accept(MEDFileFieldVisitor& visitor) const;
     MEDLOADER_EXPORT void loadStructureOrStructureAndBigArraysRecursively(med_idt fid, int nbPdt, med_field_type fieldTyp, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities);
     MEDLOADER_EXPORT void writeLL(med_idt fid, const MEDFileWritable& opts) const;
     MEDLOADER_EXPORT void loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc);
@@ -1065,7 +1077,6 @@ namespace MEDCoupling
     MEDFileAnyTypeFieldMultiTS(med_idt fid, bool loadAll, const MEDFileMeshes *ms);
     MEDFileAnyTypeFieldMultiTS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities=0);
     MEDFileAnyTypeFieldMultiTS(const MEDFileAnyTypeFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
-    static MEDFileAnyTypeFieldMultiTS *BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c);
     static MEDFileAnyTypeFieldMultiTS *BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c, med_idt fid);
     static MEDFileAnyTypeFieldMultiTSWithoutSDA *BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms);
     static MEDFileAnyTypeFieldMultiTSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities);
@@ -1074,6 +1085,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileAnyTypeFieldMultiTS *New(med_idt fid, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileAnyTypeFieldMultiTS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
+    MEDLOADER_EXPORT static MEDFileAnyTypeFieldMultiTS *BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c);
     MEDLOADER_EXPORT void loadArrays();
     MEDLOADER_EXPORT void loadArraysIfNecessary();
     MEDLOADER_EXPORT void unloadArrays();
@@ -1313,6 +1325,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void destroyFieldsAtPos2(int bg, int end, int step);
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     MEDLOADER_EXPORT bool renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N);
+    MEDLOADER_EXPORT void accept(MEDFileFieldVisitor& visitor) const;
   public:
     MEDLOADER_EXPORT MEDFileFields *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
   public:

@@ -25,6 +25,7 @@
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileFieldOverView.hxx"
 #include "MEDFileBlowStrEltUp.hxx"
+#include "MEDFileFieldVisitor.hxx"
 
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
@@ -202,6 +203,15 @@ MEDFileFieldLoc::MEDFileFieldLoc(const MEDFileFieldLoc& other):_dim(other._dim),
 MEDFileFieldLoc *MEDFileFieldLoc::deepCopy() const
 {
   return new MEDFileFieldLoc(*this);
+}
+
+bool MEDFileFieldLoc::isOnStructureElement() const
+{
+  const MEDFileGTKeeper *gt(_gt);
+  if(!gt)
+    throw INTERP_KERNEL::Exception("MEDFileFieldLoc::isOnStructureElement : null pointer !");
+  const MEDFileGTKeeperDyn *gt2(dynamic_cast<const MEDFileGTKeeperDyn *>(gt));
+  return gt2!=NULL;
 }
 
 std::size_t MEDFileFieldLoc::getHeapMemorySizeWithoutChildren() const
@@ -1139,12 +1149,21 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::NewObjectO
 ////////////////////////////////////
 
 MEDFileFieldPerMeshPerTypeCommon::~MEDFileFieldPerMeshPerTypeCommon()
- {
- }
+{
+}
 
 void MEDFileFieldPerMeshPerTypeCommon::setFather(MEDFileFieldPerMesh *father)
 {
   _father=father;
+}
+
+void MEDFileFieldPerMeshPerTypeCommon::accept(MEDFileFieldVisitor& visitor) const
+{
+  for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    if((*it).isNotNull())
+      {
+        visitor.newPerMeshPerTypePerDisc(*it);
+      }
 }
 
 void MEDFileFieldPerMeshPerTypeCommon::deepCopyElements()
@@ -2631,6 +2650,17 @@ DataArray *MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl(TypeOfField type, c
   return 0;
 }
 
+void MEDFileFieldPerMesh::accept(MEDFileFieldVisitor& visitor) const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    if((*it).isNotNull())
+      {
+        visitor.newPerMeshPerTypeEntry(*it);
+        (*it)->accept(visitor);
+        visitor.endPerMeshPerTypeEntry(*it);
+      }
+}
+
 void MEDFileFieldPerMesh::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
 {
   int globalSz=0;
@@ -3512,6 +3542,19 @@ void MEDFileFieldGlobs::killLocalizationIds(const std::vector<int>& locIds)
   _locs=newLocs;
 }
 
+void MEDFileFieldGlobs::killStructureElementsInGlobs()
+{
+  std::vector< MCAuto<MEDFileFieldLoc> > newLocs;
+  for(std::vector< MCAuto<MEDFileFieldLoc> >::iterator it=_locs.begin();it!=_locs.end();it++)
+    {
+      if((*it).isNull())
+        continue;
+      if(!(*it)->isOnStructureElement())
+        newLocs.push_back(*it);
+    }
+  _locs=newLocs;
+}
+
 std::vector<std::string> MEDFileFieldGlobs::getPfls() const
 {
   int sz=_pfls.size();
@@ -3695,6 +3738,11 @@ void MEDFileFieldGlobsReal::simpleReprGlobs(std::ostream& oss) const
 void MEDFileFieldGlobsReal::resetContent()
 {
   _globals=MEDFileFieldGlobs::New();
+}
+
+void MEDFileFieldGlobsReal::killStructureElementsInGlobs()
+{
+  contentNotNull()->killStructureElementsInGlobs();
 }
 
 MEDFileFieldGlobsReal::~MEDFileFieldGlobsReal()
@@ -4272,6 +4320,17 @@ void MEDFileAnyTypeField1TSWithoutSDA::deepCpyLeavesFrom(const MEDFileAnyTypeFie
       if((const MEDFileFieldPerMesh *)*it)
         _field_per_mesh[i]=(*it)->deepCopy(this);
     }
+}
+
+void MEDFileAnyTypeField1TSWithoutSDA::accept(MEDFileFieldVisitor& visitor) const
+{
+  for(std::vector< MCAuto< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    if((*it).isNotNull())
+      {
+        visitor.newMeshEntry(*it);
+        (*it)->accept(visitor);
+        visitor.endMeshEntry(*it);
+      }
 }
 
 /*!
@@ -7923,6 +7982,17 @@ bool MEDFileAnyTypeFieldMultiTSWithoutSDA::renumberEntitiesLyingOnMesh(const std
   return ret;
 }
 
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::accept(MEDFileFieldVisitor& visitor) const
+{
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    if((*it).isNotNull())
+      {
+        visitor.newTimeStepEntry(*it);
+        (*it)->accept(visitor);
+        visitor.endTimeStepEntry(*it);
+      }
+}
+
 void MEDFileAnyTypeFieldMultiTSWithoutSDA::simpleRepr(int bkOffset, std::ostream& oss, int fmtsId) const
 {
   std::string startLine(bkOffset,' ');
@@ -11156,6 +11226,17 @@ MEDFileFields *MEDFileFields::extractPart(const std::map<int, MCAuto<DataArrayIn
   return fsOut.retn();
 }
 
+void MEDFileFields::accept(MEDFileFieldVisitor& visitor) const
+{
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
+      {
+        visitor.newFieldEntry(*it);
+        (*it)->accept(visitor);
+        visitor.endFieldEntry(*it);
+      }
+}
+
 MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const
 {
   if(i<0 || i>=(int)_fields.size())
@@ -11384,10 +11465,7 @@ void MEDFileFields::getMeshSENames(std::vector< std::pair<std::string,std::strin
 
 void MEDFileFields::blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *ses)
 {
-  MCAuto<MEDFileFields> fsSEOnly(partOfThisOnStructureElements());
-  killStructureElements();
-  MEDFileBlowStrEltUp bu(fsSEOnly,ms,ses);
-  bu.generate(ms,this);
+  MEDFileBlowStrEltUp::DealWithSE(this,ms,ses);
 }
 
 MCAuto<MEDFileFields> MEDFileFields::partOfThisOnStructureElements() const
