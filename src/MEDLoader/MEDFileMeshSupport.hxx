@@ -39,6 +39,7 @@ namespace MEDCoupling
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     void writeLL(med_idt fid) const;
+    std::vector<std::string> getSupMeshNames() const;
     const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
     int getNumberOfNodesInConnOf(TypeOfField entity, const std::string& name) const;
   private:

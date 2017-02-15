@@ -141,6 +141,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileMeshes::__iter__;
 
 %newobject MEDCoupling::MEDFileMeshSupports::New;
+%newobject MEDCoupling::MEDFileMeshSupports::getSupMeshWithName;
 
 %newobject MEDCoupling::MEDFileStructureElements::New;
 
@@ -1894,6 +1895,7 @@ namespace MEDCoupling
     void changeLocName(const std::string& oldName, const std::string& newName) throw(INTERP_KERNEL::Exception);
     int getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception);
     int getLocalizationId(const std::string& loc) const throw(INTERP_KERNEL::Exception);
+    void killStructureElementsInGlobs() throw(INTERP_KERNEL::Exception);
   %extend
      {
        PyObject *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception)
@@ -3008,6 +3010,18 @@ namespace MEDCoupling
   {
   public:
     static MEDFileMeshSupports *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getSupMeshNames() const throw(INTERP_KERNEL::Exception);
+    %extend
+       {
+         MEDFileUMesh *getSupMeshWithName(const std::string& name) const throw(INTERP_KERNEL::Exception)
+         {
+           const MEDFileUMesh *ret(self->getSupMeshWithName(name));
+           MEDFileUMesh *ret2(const_cast<MEDFileUMesh *>(ret));
+           if(ret2)
+             ret2->incrRef();
+           return ret2;
+         }
+       }
   };
  
   class MEDFileStructureElements : public RefCountObject, public MEDFileWritableStandAlone
