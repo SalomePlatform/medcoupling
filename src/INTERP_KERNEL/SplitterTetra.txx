@@ -252,7 +252,8 @@ namespace INTERP_KERNEL
                 faceType = cellModelCell.getSonType(ii);
                 const CellModel& faceModel=CellModel::GetCellModel(faceType);
                 assert(faceModel.getDimension() == 2);
-                faceNodes=new int[faceModel.getNumberOfNodes()];      
+                nbFaceNodes = cellModelCell.getNumberOfNodesConstituentTheSon(ii);
+                faceNodes = new int[nbFaceNodes];
                 cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
               }
             // intersect a son with the unit tetra

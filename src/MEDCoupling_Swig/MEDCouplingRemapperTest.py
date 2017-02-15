@@ -1107,6 +1107,34 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.checkMatrix(rem2.getCrudeMatrix(),[{0:0.125,1:0.25}],src.getNumberOfCells(),1e-12)
         pass
 
+    def testP0P0WithHEXGP12(self):
+        """ Test that HEXGP12 are correclty remapped (elements with polygonal faces were not properly handled) """
+        # From Astrid, two disjoint hexagonal prisms:
+        coo1 = [-4.991193077144312, 8.644999999999998, 0.0, -9.982386154288623, 6.112246755425186e-16, 0.0, -4.991193077144315, -8.644999999999998, 0.0, 4.991193077144309, -8.645000000000005, 0.0, 9.982386154288626, 1.1651321638577316e-15, 0.0, 4.991193077144314, 8.645, 0.0, -4.991193077144312, 8.644999999999998, 7.561799999999991, -9.982386154288623, 6.112246755425186e-16, 7.561799999999991, -4.991193077144315, -8.644999999999998, 7.561799999999991, 4.991193077144309, -8.645000000000005, 7.561799999999991, 9.982386154288626, 1.1651321638577316e-15, 7.561799999999991, 4.991193077144314, 8.645, 7.561799999999991]
+        coo2 = [-4.991193077144313, -8.645, 0.0, -9.982386154288626, -1.3992140779350848e-15, 0.0, -19.964772308577256, 0.0, 0.0, -24.95596538572157, -8.644999999999998, 0.0, -19.96477230857726, -17.289999999999996, 0.0, -9.982386154288626, -17.289999999999996, 0.0, -4.991193077144313, -8.645, 5.041200000000004, -9.982386154288626, -1.3992140779350848e-15, 5.041200000000004, -19.964772308577256, 0.0, 5.041200000000004, -24.95596538572157, -8.644999999999998, 5.041200000000004, -19.96477230857726, -17.289999999999996, 5.041200000000004, -9.982386154288626, -17.289999999999996, 5.041200000000004]
+        conn1 = [31, 0, 5, 4, 3, 2, 1, -1, 11, 6, 7, 8, 9, 10, -1, 1, 7, 6, 0, -1, 2, 8, 7, 1, -1, 3, 9, 8, 2, -1, 4, 10, 9, 3, -1, 5, 11, 10, 4, -1, 0, 6, 11, 5]
+        cI1 = [0, 44]
+        conn2 = [31, 0, 5, 4, 3, 2, 1, -1, 6, 7, 8, 9, 10, 11, -1, 0, 1, 7, 6, -1, 1, 2, 8, 7, -1, 2, 3, 9, 8, -1, 3, 4, 10, 9, -1, 4, 5, 11, 10, -1, 5, 0, 6, 11]
+        cI2 = [0, 44]
+        mTgt = MEDCouplingUMesh("target", 3)
+        mSrc = MEDCouplingUMesh("src", 3)
+        mTgt.setCoords(DataArrayDouble(coo1, len(coo1)/3, 3))
+        mSrc.setCoords(DataArrayDouble(coo2, len(coo2)/3, 3))
+        mTgt.setConnectivity(DataArrayInt(conn1), DataArrayInt(cI1))
+        mSrc.setConnectivity(DataArrayInt(conn2), DataArrayInt(cI2))
+
+        # Recognize the HEXGP12:
+        mTgt.unPolyze()
+        mSrc.unPolyze()
+
+        rmp = MEDCouplingRemapper()
+        rmp.setIntersectionType(Triangulation)
+        rmp.prepare(mSrc, mTgt, "P0P0")
+        mat = rmp.getCrudeMatrix()
+        self.assertEqual(len(mat[0]), 0)
+        self.assertEqual(len(mat), 1)
+        pass
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in xrange(len(mat1)):
