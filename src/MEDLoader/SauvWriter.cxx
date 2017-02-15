@@ -450,17 +450,21 @@ void SauvWriter::fillGroupSubMeshes()
               ++k;
             }
         }
+      if ( k == 0 )
+        continue;
       // if a family exists but has no element, no submesh has been found for this family
       // => we have to resize famSubMeshes with the number of submeshes stored
       if (k != famNames.size())
-          famSubMeshes.resize(k);
+        famSubMeshes.resize(k);
       SubMesh* grpSubMesh = addSubMesh( groupName, famSubMeshes[0]->_dimRelExt );
-      if(!_cpy_grp_if_on_single_family)
-        grpSubMesh->_subs.swap( famSubMeshes );
+      if( ! _cpy_grp_if_on_single_family )
+        {
+          grpSubMesh->_subs.swap( famSubMeshes );
+        }
       else
         {
-          /* If a group sub mesh consists of only one family, the group is written as 
-           * a copy of this family. 
+          /* If a group sub mesh consists of only one family, the group is written as
+           * a copy of this family.
            * A mesh composed of only one submesh may cause an issue with some Gibi operators.*/
           if (famSubMeshes.size() == 1)
             {
