@@ -803,6 +803,23 @@ void LocSpliter::newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDis
   _fw->newPerMeshPerTypePerDisc(pmptpd);
 }
 
+void MEDFileBlowStrEltUp::DealWithConflictNames(MEDFileAnyTypeFieldMultiTS *fmtsToAdd, const MEDFileFields *fs)
+{
+  std::vector<std::string> fnames(fs->getFieldsNames());
+  for(int i=0;i<1000;i++)
+    {
+      std::ostringstream oss; oss << fmtsToAdd->getName();
+      if(i>=1)
+        oss << "_" << i-1;
+      if(std::find(fnames.begin(),fnames.end(),oss.str())==fnames.end())
+        {
+          fmtsToAdd->setName(oss.str());
+          return ;
+        }
+    }
+  throw INTERP_KERNEL::Exception("DealWithConflictNames : Eh eh interesting !");
+}
+
 MCAuto<MEDFileFields> MEDFileBlowStrEltUp::splitFieldsPerLoc(const MEDFileFields *fields, const MEDFileUMesh *mesh, MEDFileMeshes *msOut, MEDFileFields *allZeOutFields)
 {
   LocSpliter ls(fields);
@@ -815,6 +832,7 @@ MCAuto<MEDFileFields> MEDFileBlowStrEltUp::splitFieldsPerLoc(const MEDFileFields
       for(int j=0;j<(*it)->getNumberOfFields();j++)
         {
           MCAuto<MEDFileAnyTypeFieldMultiTS> fmts((*it)->getFieldAtPos(j));
+          DealWithConflictNames(fmts,allZeOutFields);
           allZeOutFields->pushField(fmts);
         }
     }

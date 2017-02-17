@@ -45,6 +45,7 @@ namespace MEDCoupling
     void dealWithMEDBALLSInFields(const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MEDFileFields *zeOutputs) const;
     static std::string BuildNewMeshName(const std::string& meshName, const std::string& seName);
     static std::string BuildVarAttName(std::size_t iPart, std::size_t totINbParts, std::size_t jPart, std::size_t totJNbParts, const std::string& name);
+    static void DealWithConflictNames(MEDFileAnyTypeFieldMultiTS *fmtsToAdd, const MEDFileFields *fs);
   public:
     static const char MED_BALL_STR[];
   private:
