@@ -450,6 +450,7 @@ using namespace INTERP_KERNEL;
 %feature("unref") PartDefinition "$this->decrRef();"
 %feature("unref") DataArrayPartDefinition "$this->decrRef();"
 %feature("unref") SlicePartDefinition "$this->decrRef();"
+%feature("unref") MEDCouplingSkyLineArray "$this->decrRef();"
 
 %rename(assign) *::operator=;
 %ignore MEDCoupling::MEDCouplingGaussLocalization::pushTinySerializationIntInfo;
@@ -1186,24 +1187,35 @@ namespace MEDCoupling
 
   class MEDCouplingSkyLineArray
   {
-  public:
-    MEDCouplingSkyLineArray();
-    MEDCouplingSkyLineArray( const MEDCouplingSkyLineArray &myArray );
-    MEDCouplingSkyLineArray( DataArrayInt* index, DataArrayInt* value );
-    MEDCouplingSkyLineArray( const std::vector<int>& index, const std::vector<int>& value );
-  
+  public:  
     void set( DataArrayInt* index, DataArrayInt* value );
     int getNumberOf() const;
     int getLength() const;
     DataArrayInt* getIndexArray() const;
-    DataArrayInt* getValueArray() const;
-      %extend 
-         {
-           std::string __str__() const throw(INTERP_KERNEL::Exception)
-           {
-             return self->simpleRepr();
-           }
-         }
+    DataArrayInt* getValuesArray() const;
+    %extend 
+    {
+      MEDCouplingSkyLineArray() throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCouplingSkyLineArray::New();
+      }
+
+      MEDCouplingSkyLineArray( const std::vector<int>& index, const std::vector<int>& value) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCouplingSkyLineArray::New(index, value);
+      }
+
+      MEDCouplingSkyLineArray( DataArrayInt* index, DataArrayInt* value ) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCouplingSkyLineArray::New(index, value);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+           
+    }
   };
 }
 
@@ -1848,10 +1860,10 @@ namespace MEDCoupling
     DataArrayInt *findAndCorrectBadOriented3DExtrudedCells() throw(INTERP_KERNEL::Exception);
     DataArrayInt *findAndCorrectBadOriented3DCells() throw(INTERP_KERNEL::Exception);
     MEDCoupling::MEDCoupling1GTUMesh *convertIntoSingleGeoTypeMesh() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingSkyLineArray *generateGraph() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertNodalConnectivityToStaticGeoTypeMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnionOf2DMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnionOf3DMesh() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingSkyLineArray *generateGraph() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *orderConsecutiveCells1D() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTreeFast() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
@@ -2880,7 +2892,7 @@ namespace MEDCoupling
           default:
             throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertToPolyTypes : unexpected input array type recognized !");
           }
-      }
+      }      
     }
     void convertAllToPoly();
     void convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception);

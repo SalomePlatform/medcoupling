@@ -24,43 +24,61 @@
 using namespace MEDCoupling;
 
 MEDCouplingSkyLineArray::MEDCouplingSkyLineArray():
-  _index( DataArrayInt::New() ), _value( DataArrayInt::New() )
+  _index( DataArrayInt::New() ), _values( DataArrayInt::New() ), _sub_values( DataArrayInt::New() )
 {
-}
-
-MEDCouplingSkyLineArray::MEDCouplingSkyLineArray(const MEDCouplingSkyLineArray &myArray)
-{
-  _index=myArray._index;
-  _value=myArray._value;
 }
 
 MEDCouplingSkyLineArray::~MEDCouplingSkyLineArray()
 {
 }
 
-MEDCouplingSkyLineArray::MEDCouplingSkyLineArray(DataArrayInt* index, DataArrayInt* value)
+MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New()
 {
-  set( index, value );
+  return new MEDCouplingSkyLineArray();
 }
 
-MEDCouplingSkyLineArray::MEDCouplingSkyLineArray( const std::vector<int>& index,
-                                                  const std::vector<int>& value ):
-  _index( DataArrayInt::New() ), _value( DataArrayInt::New() )
+MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New( const std::vector<int>& index,
+                                                       const std::vector<int>& value )
 {
-  _index->reserve( index.size() );
-  _index->insertAtTheEnd( index.begin(), index.end() );
-  _value->reserve( value.size() );
-  _value->insertAtTheEnd( value.begin(), value.end() );
+  MEDCouplingSkyLineArray * ret = new MEDCouplingSkyLineArray();
+  ret->_index->reserve( index.size() );
+  ret->_index->insertAtTheEnd( index.begin(), index.end() );
+  ret->_values->reserve( value.size() );
+  ret->_values->insertAtTheEnd( value.begin(), value.end() );
+  return ret;
 }
+
+MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New( DataArrayInt* index, DataArrayInt* value )
+{
+  MEDCouplingSkyLineArray* ret = new MEDCouplingSkyLineArray();
+  ret->set(index, value);
+  return ret;
+}
+
+
+std::size_t MEDCouplingSkyLineArray::getHeapMemorySizeWithoutChildren() const
+{
+  return _index->getHeapMemorySizeWithoutChildren()+_values->getHeapMemorySizeWithoutChildren()+_sub_values->getHeapMemorySizeWithoutChildren();
+}
+
+std::vector<const BigMemoryObject *> MEDCouplingSkyLineArray::getDirectChildrenWithNull() const
+{
+  std::vector<const BigMemoryObject *> ret;
+  ret.push_back(_index);
+  ret.push_back(_values);
+  ret.push_back(_sub_values);
+  return ret;
+}
+
 
 void MEDCouplingSkyLineArray::set( DataArrayInt* index, DataArrayInt* value )
 {
   _index=index;
-  _value=value;
+  _values=value;
   if ( (DataArrayInt*)_index ) _index->incrRef();
   else                         _index = DataArrayInt::New();
-  if ( (DataArrayInt*)_value ) _value->incrRef();
-  else                         _value = DataArrayInt::New();
+  if ( (DataArrayInt*)_values ) _values->incrRef();
+  else                         _values = DataArrayInt::New();
 }
 
 DataArrayInt* MEDCouplingSkyLineArray::getIndexArray() const
@@ -68,9 +86,9 @@ DataArrayInt* MEDCouplingSkyLineArray::getIndexArray() const
   return ((MEDCouplingSkyLineArray*)this)->_index;
 }
 
-DataArrayInt* MEDCouplingSkyLineArray::getValueArray() const
+DataArrayInt* MEDCouplingSkyLineArray::getValuesArray() const
 {
-  return ((MEDCouplingSkyLineArray*)this)->_value;
+  return ((MEDCouplingSkyLineArray*)this)->_values;
 }
 
 std::string MEDCouplingSkyLineArray::simpleRepr() const
@@ -87,9 +105,9 @@ std::string MEDCouplingSkyLineArray::simpleRepr() const
   oss << std::endl;
   oss << "   Value:" << std::endl;
   oss << "   ";
-  const int * v = _value->begin();
+  const int * v = _values->begin();
   int cnt = 0;
-  for ( i = _index->begin(); v != _value->end(); ++v, ++cnt )
+  for ( i = _index->begin(); v != _values->end(); ++v, ++cnt )
     {
       if ( cnt == *i )
         {

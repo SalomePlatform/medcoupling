@@ -140,7 +140,8 @@ MEDCoupling::MEDFileData* MEDPARTITIONER::MEDPartitioner::getMEDFileData()
 MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split, int* edgeweight)
 {
   MEDPARTITIONER::Graph* cellGraph=0;
-  MEDCoupling::MEDCouplingSkyLineArray* arr = new MEDCoupling::MEDCouplingSkyLineArray(graph->getIndexArray(), graph->getValueArray());
+  // will be destroyed by XXXGraph class:
+  MEDCoupling::MEDCouplingSkyLineArray* arr = MEDCoupling::MEDCouplingSkyLineArray::New(graph->getIndexArray(), graph->getValuesArray());
   switch (split)
     {
     case Graph::METIS:

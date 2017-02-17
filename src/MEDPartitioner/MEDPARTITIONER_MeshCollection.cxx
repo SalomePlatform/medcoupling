@@ -1142,7 +1142,7 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
 
       // separate ids of two domains
       const MEDCoupling::MEDCouplingSkyLineArray *corrArray = cz->getEntityCorresp( 0, 0 );
-      const DataArrayInt* ids12 = corrArray->getValueArray();
+      const DataArrayInt* ids12 = corrArray->getValuesArray();
       MCAuto<DataArrayInt> ids1, ids2, ids12Sorted;
       ids1 = ids12->selectByTupleIdSafeSlice( 0, corrArray->getLength(), 2 );
       ids2 = ids12->selectByTupleIdSafeSlice( 1, corrArray->getLength(), 2 );
@@ -1252,7 +1252,7 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
 
       // separate ids of two domains
       const MEDCoupling::MEDCouplingSkyLineArray *corrArray = cz->getNodeCorresp();
-      const DataArrayInt *ids12 = corrArray->getValueArray();
+      const DataArrayInt *ids12 = corrArray->getValuesArray();
       MCAuto<DataArrayInt> ids1, ids2, ids12Sorted;
       ids1 = ids12->selectByTupleIdSafeSlice( 0, corrArray->getLength(), 2 );
       ids2 = ids12->selectByTupleIdSafeSlice( 1, corrArray->getLength(), 2 );
@@ -1922,7 +1922,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDCoupling::MEDCouplingSkyL
         vector<int> value;
         vector<int> index(1,0);
         
-        array=new MEDCoupling::MEDCouplingSkyLineArray(index,value);
+        array = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
         return;
      }
   array=mesh->generateGraph();
@@ -2101,7 +2101,7 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCoup
         }
     }
 
-  array=new MEDCoupling::MEDCouplingSkyLineArray(index,value);
+  array=MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
 
   if (MyGlobals::_Verbose>100)
     {

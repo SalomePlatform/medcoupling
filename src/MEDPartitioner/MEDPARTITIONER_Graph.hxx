@@ -21,6 +21,7 @@
 #define __MEDPARTITIONER_GRAPH_HXX__
 
 #include "MEDPARTITIONER.hxx"
+#include "MCAuto.hxx"
 
 #include <string>
 
@@ -28,6 +29,8 @@ namespace MEDCoupling
 {
   class MEDCouplingSkyLineArray;
 }
+
+using namespace MEDCoupling;
 
 namespace MEDPARTITIONER 
 {
@@ -37,9 +40,9 @@ namespace MEDPARTITIONER
   public:
     typedef enum {METIS,SCOTCH} splitter_type;
 
-    Graph(){};
-    //creates a graph from a SKYLINEARRAY
-    Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, int* edgeweight=0);
+    Graph();
+    //creates a graph from a SKYLINEARRAY- WARNING!! Graph takes ownership of the array.
+    Graph(MEDCouplingSkyLineArray* graph, int* edgeweight=0);
     virtual ~Graph();
 
     void setEdgesWeights(int *edgeweight) { _edge_weight=edgeweight; }
@@ -57,12 +60,12 @@ namespace MEDPARTITIONER
     // returns nb of domains in _partition
     int nbDomains() const;
     
-    const MEDCoupling::MEDCouplingSkyLineArray *getGraph() const { return _graph; }
-    const MEDCoupling::MEDCouplingSkyLineArray *getPartition() const { return _partition; }
+    const MEDCouplingSkyLineArray *getGraph() const { return (const MEDCouplingSkyLineArray*)_graph; }
+    const MEDCouplingSkyLineArray *getPartition() const { return (const MEDCouplingSkyLineArray*)_partition; }
 
   protected:
-    MEDCoupling::MEDCouplingSkyLineArray* _graph;
-    MEDCoupling::MEDCouplingSkyLineArray* _partition;
+    MCAuto<MEDCouplingSkyLineArray> _graph;
+    MCAuto<MEDCouplingSkyLineArray> _partition;
     int* _edge_weight;  
     int* _cell_weight;
   };

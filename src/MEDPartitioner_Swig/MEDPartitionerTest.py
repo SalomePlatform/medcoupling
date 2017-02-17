@@ -102,4 +102,7 @@ class MEDPartitionerTest(unittest.TestCase):
         self.assertTrue(isinstance(p,MEDCouplingSkyLineArray))
         self.assertTrue(part.nbVertices() > 0 )
     pass
-unittest.main()
+
+if __name__ == "__main__":
+  unittest.main()
+

@@ -56,7 +56,7 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
   int n = _graph->getNumberOf();
   //graph
   int * xadj=const_cast<int*>(_graph->getIndex());
-  int * adjncy=const_cast<int*>(_graph->getValue());
+  int * adjncy=const_cast<int*>(_graph->getValues());
   //ndomain
   int nparts=ndomain;
 
@@ -112,6 +112,6 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
   //creating a skylinearray with no copy of the index and partition array
   //the fifth argument true specifies that only the pointers are passed 
   //to the object
-  _partition = new MEDCoupling::MEDCouplingSkyLineArray(index,value);
+  _partition = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
 #endif
 }
