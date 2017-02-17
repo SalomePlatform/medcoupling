@@ -300,7 +300,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
           if ( nodeCorr )
             {
               MCAuto< MEDFileJointCorrespondence >
-                corr = MEDFileJointCorrespondence::New( nodeCorr->getValueArray() );
+                corr = MEDFileJointCorrespondence::New( nodeCorr->getValuesArray() );
               j1st->pushCorrespondence( corr );
             }
 
@@ -315,7 +315,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
                   t1 = INTERP_KERNEL::NormalizedCellType( types[it].first );
                   t2 = INTERP_KERNEL::NormalizedCellType( types[it].second );
                   MCAuto< MEDFileJointCorrespondence>
-                    corr = MEDFileJointCorrespondence::New( cellCorr->getValueArray(), t1, t2 );
+                    corr = MEDFileJointCorrespondence::New( cellCorr->getValuesArray(), t1, t2 );
                   j1st->pushCorrespondence( corr );
                 }
             }

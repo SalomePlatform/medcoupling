@@ -32,16 +32,16 @@ MEDPARTITIONER::ConnectZone::ConnectZone():
   ,_distant_domain_number(0)
   ,_node_corresp(0)
   ,_face_corresp(0)
+  ,_local_mesh(0)
+  ,_distant_mesh(0)
 {
 }
 
 MEDPARTITIONER::ConnectZone::~ConnectZone()
 {
-  delete _node_corresp;
-  delete _face_corresp;
   for(std::map < std::pair <int, int>,MEDCouplingSkyLineArray * >::iterator iter=_entity_corresp.begin(); iter!=_entity_corresp.end();iter++)
     {
-      delete iter->second;
+      iter->second->decrRef();
     }
 }
 
@@ -53,6 +53,8 @@ MEDPARTITIONER::ConnectZone::ConnectZone(const ConnectZone & myConnectZone):
   ,_node_corresp(myConnectZone._node_corresp)
   ,_face_corresp(myConnectZone._face_corresp)
   ,_entity_corresp(myConnectZone._entity_corresp)
+  ,_local_mesh(0)
+  ,_distant_mesh(0)
 {
 }
 
@@ -76,12 +78,12 @@ int MEDPARTITIONER::ConnectZone::getLocalDomainNumber() const
   return _local_domain_number;
 }
 
-MEDCoupling::MEDCouplingUMesh *MEDPARTITIONER::ConnectZone::getLocalMesh() const 
+MEDCouplingUMesh *MEDPARTITIONER::ConnectZone::getLocalMesh() const
 {
   return _local_mesh;
 }
 
-MEDCoupling::MEDCouplingUMesh *MEDPARTITIONER::ConnectZone::getDistantMesh() const 
+MEDCouplingUMesh *MEDPARTITIONER::ConnectZone::getDistantMesh() const
 {
   return _distant_mesh;
 }
@@ -104,7 +106,7 @@ const int *MEDPARTITIONER::ConnectZone::getNodeCorrespIndex() const
 
 const int *MEDPARTITIONER::ConnectZone::getNodeCorrespValue() const
 {
-  return _node_corresp->getValue();
+  return _node_corresp->getValues();
 }
 
 int MEDPARTITIONER::ConnectZone::getNodeNumber() const
@@ -112,9 +114,9 @@ int MEDPARTITIONER::ConnectZone::getNodeNumber() const
   return _node_corresp->getNumberOf();
 }
 
-const MEDCoupling::MEDCouplingSkyLineArray * MEDPARTITIONER::ConnectZone::getNodeCorresp() const
+const MEDCouplingSkyLineArray * MEDPARTITIONER::ConnectZone::getNodeCorresp() const
 {
-  return _node_corresp;
+  return (const MEDCouplingSkyLineArray *)_node_corresp;
 }
 
 const int *MEDPARTITIONER::ConnectZone::getFaceCorrespIndex() const
@@ -124,7 +126,7 @@ const int *MEDPARTITIONER::ConnectZone::getFaceCorrespIndex() const
 
 const int *MEDPARTITIONER::ConnectZone::getFaceCorrespValue() const
 {
-  return _face_corresp->getValue();
+  return _face_corresp->getValues();
 }
 
 int MEDPARTITIONER::ConnectZone::getFaceNumber() const
@@ -132,7 +134,7 @@ int MEDPARTITIONER::ConnectZone::getFaceNumber() const
   return _face_corresp->getNumberOf();
 }
 
-const MEDCoupling::MEDCouplingSkyLineArray * MEDPARTITIONER::ConnectZone::getFaceCorresp() const
+const MEDCouplingSkyLineArray * MEDPARTITIONER::ConnectZone::getFaceCorresp() const
 {
   return _face_corresp;
 }
@@ -158,7 +160,7 @@ const int *MEDPARTITIONER::ConnectZone::getEntityCorrespValue(int localEntity,
   for (map_iter iter=_entity_corresp.begin();iter!=_entity_corresp.end();iter++)
   {
     if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
-      return iter->second->getValue();
+      return iter->second->getValues();
   }
   return 0;
 }
@@ -189,7 +191,7 @@ int MEDPARTITIONER::ConnectZone::getEntityCorrespLength(int localEntity,
   return 0;
 }
 
-const MEDCoupling::MEDCouplingSkyLineArray *
+const MEDCouplingSkyLineArray *
 MEDPARTITIONER::ConnectZone::getEntityCorresp(int localEntity, int distantEntity) const
 {
   typedef std::map<std::pair<int,int>, MEDCouplingSkyLineArray*>::const_iterator map_iter;
@@ -236,12 +238,12 @@ void MEDPARTITIONER::ConnectZone::setLocalDomainNumber(int localDomainNumber)
   _local_domain_number=localDomainNumber;
 }
 
-void MEDPARTITIONER::ConnectZone::setLocalMesh(MEDCoupling::MEDCouplingUMesh * localMesh)
+void MEDPARTITIONER::ConnectZone::setLocalMesh(MEDCouplingUMesh * localMesh)
 {
   _local_mesh=localMesh;
 }
 
-void MEDPARTITIONER::ConnectZone::setDistantMesh(MEDCoupling::MEDCouplingUMesh * distantMesh)
+void MEDPARTITIONER::ConnectZone::setDistantMesh(MEDCouplingUMesh * distantMesh)
 {
   _distant_mesh=distantMesh;
 }
@@ -265,13 +267,13 @@ void MEDPARTITIONER::ConnectZone::setNodeCorresp(const int * nodeCorresp, int nb
       value[2*i+1]=nodeCorresp[2*i+1];
     }
   index[nbnode]=2*nbnode;
-  setNodeCorresp( new MEDCouplingSkyLineArray( indexArr, valueArr ));
+  setNodeCorresp( MEDCouplingSkyLineArray::New( indexArr, valueArr ));
 }
 
 void MEDPARTITIONER::ConnectZone::setNodeCorresp(MEDCouplingSkyLineArray* array)
 {
-  if ( _node_corresp ) delete _node_corresp;
-  _node_corresp = array;
+  MCAuto<MEDCouplingSkyLineArray> arr(array);
+  _node_corresp = arr;
 }
 
 /*! transforms an int array containing 
@@ -293,13 +295,13 @@ void MEDPARTITIONER::ConnectZone::setFaceCorresp(const int * faceCorresp, int nb
       value[2*i+1]=faceCorresp[2*i+1];
     }
   index[nbface]=2*nbface;
-  setFaceCorresp( new MEDCouplingSkyLineArray( indexArr, valueArr ));
+  setFaceCorresp( MEDCouplingSkyLineArray::New( indexArr, valueArr ));
 }
 
 void MEDPARTITIONER::ConnectZone::setFaceCorresp(MEDCouplingSkyLineArray* array)
 {
-  if ( _face_corresp ) delete _face_corresp;
-  _face_corresp = array;
+  MCAuto<MEDCouplingSkyLineArray> arr (array);
+  _face_corresp = arr;
 }
 
 /*! transforms an int array containing 
@@ -324,16 +326,16 @@ void MEDPARTITIONER::ConnectZone::setEntityCorresp(int localEntity, int distantE
       value[2*i+1]=entityCorresp[2*i+1];
     }
   index[nbentity]=2*nbentity;
-  setEntityCorresp( localEntity, distantEntity, new MEDCouplingSkyLineArray(indexArr,valueArr));
+  setEntityCorresp( localEntity, distantEntity, MEDCouplingSkyLineArray::New(indexArr,valueArr));
 }
 
 void MEDPARTITIONER::ConnectZone::setEntityCorresp(int localEntity, int distantEntity,
                                                    MEDCouplingSkyLineArray *array)
 {
-  MEDCoupling::MEDCouplingSkyLineArray * nullArray = 0;
-  std::map < std::pair <int,int>, MEDCoupling::MEDCouplingSkyLineArray * >::iterator it;
+  MEDCouplingSkyLineArray * nullArray = 0;
+  std::map < std::pair <int,int>, MEDCouplingSkyLineArray * >::iterator it;
   it = _entity_corresp.insert
     ( std::make_pair( std::make_pair(localEntity,distantEntity), nullArray )).first;
-  if ( it->second != nullArray ) delete it->second;
+  if ( it->second != nullArray ) it->second->decrRef();
   it->second = array;
 }

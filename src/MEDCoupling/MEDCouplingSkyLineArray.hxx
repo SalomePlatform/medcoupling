@@ -23,34 +23,52 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
+#include "NormalizedGeometricTypes"
 
 #include <vector>
 
 namespace MEDCoupling
 {
-  class MEDCOUPLING_EXPORT MEDCouplingSkyLineArray
+  /**!
+   * Class allowing the easy manipulation of the indexed array format, where the first array is a set of offsets to
+   * be used in the second array, to extract packs of values.
+   *
+   * This class allows to pursuie this logic up to 3 levels, i.e. the first array points to packs in the second, which
+   * itself points to identifiers in the third array.
+   *
+   * This particularly useful for connectivity of pure polygonal/polyhedral meshes.
+   */
+  class MEDCOUPLING_EXPORT MEDCouplingSkyLineArray : public RefCountObject
   {
-  private:
-    MCAuto<DataArrayInt> _index;
-    MCAuto<DataArrayInt> _value;
   public:
-    MEDCouplingSkyLineArray();
-    MEDCouplingSkyLineArray( const MEDCouplingSkyLineArray &myArray );
-    MEDCouplingSkyLineArray( const std::vector<int>& index, const std::vector<int>& value );
-    MEDCouplingSkyLineArray( DataArrayInt* index, DataArrayInt* value );
-    ~MEDCouplingSkyLineArray();
+    static MEDCouplingSkyLineArray * New();
+    static MEDCouplingSkyLineArray * New( const std::vector<int>& index, const std::vector<int>& value);
+    static MEDCouplingSkyLineArray * New( DataArrayInt* index, DataArrayInt* value );
+
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
 
     void set( DataArrayInt* index, DataArrayInt* value );
 
     int getNumberOf() const { return _index->getNbOfElems()-1; }
-    int getLength()   const { return _value->getNbOfElems(); }
+    int getLength()   const { return _values->getNbOfElems(); }
     const int* getIndex() const { return _index->begin(); }
-    const int* getValue() const { return _value->begin(); }
+    const int* getValues() const { return _values->begin(); }
 
     DataArrayInt* getIndexArray() const;
-    DataArrayInt* getValueArray() const;
+    DataArrayInt* getValuesArray() const;
 
     std::string simpleRepr() const;
+
+//    replaceWithPackFromOther()
+
+  private:
+    MEDCouplingSkyLineArray();
+    ~MEDCouplingSkyLineArray();
+
+    MCAuto<DataArrayInt> _index;
+    MCAuto<DataArrayInt> _values;
+    MCAuto<DataArrayInt> _sub_values;
   };
 }
 # endif

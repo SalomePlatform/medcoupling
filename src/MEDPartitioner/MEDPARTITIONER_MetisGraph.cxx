@@ -58,7 +58,7 @@ void METISGraph::partGraph(int ndomain,
   int n=_graph->getNumberOf();
   //graph
   int * xadj=const_cast<int*>(_graph->getIndex());
-  int * adjncy=const_cast<int*>(_graph->getValue());
+  int * adjncy=const_cast<int*>(_graph->getValues());
   //constraints
   int * vwgt=_cell_weight;
   int * adjwgt=_edge_weight;
@@ -113,7 +113,7 @@ void METISGraph::partGraph(int ndomain,
   //creating a skylinearray with no copy of the index and partition array
   //the fifth argument true specifies that only the pointers are passed 
   //to the object
-  _partition = new MEDCoupling::MEDCouplingSkyLineArray(index,value);
+  _partition = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
 #endif
 }
 

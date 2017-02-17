@@ -277,7 +277,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf2DMesh() const;
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf3DMesh() const;
     MEDCOUPLING_EXPORT DataArrayInt *orderConsecutiveCells1D() const;
-    MEDCOUPLING_EXPORT MEDCouplingSkyLineArray *generateGraph() const;
+    MEDCOUPLING_EXPORT MEDCouplingSkyLineArray* generateGraph() const;
   private: // all private methods are impl in MEDCouplingUMesh_internal.cxx
 
     MEDCouplingUMesh();

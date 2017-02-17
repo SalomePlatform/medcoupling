@@ -44,7 +44,7 @@ UserGraph::UserGraph(MEDCoupling::MEDCouplingSkyLineArray *array, const int *par
       value[i]=partition[i];
     }
 
-  _partition = new MEDCoupling::MEDCouplingSkyLineArray(index,value);
+  _partition = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
 
 }
 

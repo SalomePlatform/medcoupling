@@ -331,7 +331,7 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
         }
       const MEDCoupling::MEDCouplingSkyLineArray* skylinegraph = graph->getGraph();
       const int*  index = skylinegraph->getIndex();
-      const int*  value = skylinegraph->getValue();
+      const int*  value = skylinegraph->getValues();
       const int nbCells = skylinegraph->getNumberOf();
 
       for ( int iGlob = 0; iGlob < nbCells; ++iGlob )

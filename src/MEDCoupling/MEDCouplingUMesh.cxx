@@ -7175,7 +7175,7 @@ DataArrayInt *MEDCouplingUMesh::buildUnionOf3DMesh() const
  *  means 6 arcs (0,1), (0,2), (0,3), (1,2), (1,3), (2,3)
  *  Arcs are not doubled but reflexive (1,1) arcs are present for each cell
  */
-MEDCouplingSkyLineArray *MEDCouplingUMesh::generateGraph() const
+MEDCouplingSkyLineArray* MEDCouplingUMesh::generateGraph() const
 {
   checkConnectivityFullyDefined();
 
@@ -7237,7 +7237,7 @@ MEDCouplingSkyLineArray *MEDCouplingUMesh::generateGraph() const
     cell2cell_index[icell+1]=cell2cell_index[icell]+cell2cell_index[icell+1];
 
   //filling up index and value to create skylinearray structure
-  MEDCouplingSkyLineArray* array=new MEDCouplingSkyLineArray(cell2cell_index,cell2cell);
+  MEDCouplingSkyLineArray * array(MEDCouplingSkyLineArray::New(cell2cell_index,cell2cell));
   return array;
 }
 

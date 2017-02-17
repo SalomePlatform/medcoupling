@@ -23,34 +23,44 @@
 
 #include <set>
 
-MEDPARTITIONER::Graph::Graph(MEDCoupling::MEDCouplingSkyLineArray *array, int *edgeweight):_graph(array),_partition(0),_edge_weight(edgeweight),_cell_weight(0)
+namespace MEDPARTITIONER
 {
-}
+  Graph::Graph():
+    _graph(0),_partition(0),
+    _edge_weight(0),_cell_weight(0)
+  {
+  }
 
-MEDPARTITIONER::Graph::~Graph()
-{
-  delete _partition;
-  delete _graph;
-}
+  Graph::Graph(MEDCoupling::MEDCouplingSkyLineArray *array, int *edgeweight):
+    _graph(array),_partition(0),
+    _edge_weight(edgeweight),_cell_weight(0)
+  {
+  }
 
-int MEDPARTITIONER::Graph::nbDomains() const
-{
-  std::set<int> domains;
-  if ( _partition )
-    if ( MEDCoupling::DataArrayInt* array = _partition->getValueArray() )
-    {
-      for ( const int * dom = array->begin(); dom != array->end(); ++dom )
-        domains.insert( *dom );
-    }
-  return domains.size();
-}
+  Graph::~Graph()
+  {
+  }
 
-const int *MEDPARTITIONER::Graph::getPart() const
-{
-  return _partition->getValue();
-}
+  int Graph::nbDomains() const
+  {
+    std::set<int> domains;
+    if ( _partition.isNotNull() )
+      if ( MEDCoupling::DataArrayInt* array = _partition->getValuesArray() )
+      {
+        for ( const int * dom = array->begin(); dom != array->end(); ++dom )
+          domains.insert( *dom );
+      }
+    return domains.size();
+  }
 
-int MEDPARTITIONER::Graph::nbVertices() const
-{
-  return _graph->getNumberOf();
-}
+  const int *Graph::getPart() const
+  {
+    return _partition->getValues();
+  }
+
+  int Graph::nbVertices() const
+  {
+    return _graph->getNumberOf();
+  }
+
+};
