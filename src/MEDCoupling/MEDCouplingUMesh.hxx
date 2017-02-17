@@ -233,6 +233,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *colinearize2D(double eps);
     MEDCOUPLING_EXPORT int split2DCells(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *midOpt=0, const DataArrayInt *midOptI=0);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da);
+    MEDCOUPLING_EXPORT static MCAuto<MEDCouplingUMesh> Build1DMeshFromCoords(DataArrayDouble *da);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(const std::vector<const MEDCouplingUMesh *>& a);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
