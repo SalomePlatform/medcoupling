@@ -119,7 +119,78 @@ namespace INTERP_KERNEL
       rotate_vector(P);
     }
                      
-       
+    /**
+     * Fills in rotation_matrix so that the triangle PP1, PP2, PP3 is in the plane Oxy, with PP1 at the origin and PP2 on Ox.
+     */
+    static void Rotate3DTriangle(const double* PP1,const double*PP2,const double*PP3, TranslationRotationMatrix& rotation_matrix)
+    {
+      double P1w[3];
+      double P2w[3];
+      double P3w[3];
+      P2w[0]=PP2[0]; P2w[1]=PP2[1];P2w[2]=PP2[2];
+      P3w[0]=PP3[0]; P3w[1]=PP3[1];P3w[2]=PP3[2];
+
+      // translating to set P1 at the origin
+      for (int i=0; i<3; i++)
+        {
+          P1w[i] = -PP1[i];
+          P2w[i] -= PP1[i];
+          P3w[i] -= PP1[i];
+        }
+
+      //initializes matrix
+      rotation_matrix.translate(P1w);
+
+      // rotating to set P2 on the Oxy plane
+      TranslationRotationMatrix A;
+      A.rotate_x(P2w);
+      A.rotate_vector(P3w);
+      rotation_matrix.multiply(A);
+
+      //rotating to set P2 on the Ox axis
+      TranslationRotationMatrix B;
+      B.rotate_z(P2w);
+      B.rotate_vector(P3w);
+      rotation_matrix.multiply(B);
+
+      //rotating to set P3 on the Oxy plane
+      TranslationRotationMatrix C;
+      C.rotate_x(P3w);
+      rotation_matrix.multiply(C);
+    }
+
+    /**
+     * Fills in rotation_matrix so that the bipoint PP1, PP2 is on the Ox axis.
+     */
+    static void Rotate3DBipoint(const double* PP1,const double*PP2, TranslationRotationMatrix& rotation_matrix)
+    {
+      double P1w[3];
+      double P2w[3];
+      P2w[0]=PP2[0]; P2w[1]=PP2[1];P2w[2]=PP2[2];
+
+      // translating to set P1 at the origin
+      for (int i=0; i<3; i++)
+        {
+          P1w[i] = -PP1[i];
+          P2w[i] -= PP1[i];
+        }
+
+      //initializes
+      rotation_matrix.translate(P1w);
+
+      // rotating to set P2 on the Oxy plane
+      TranslationRotationMatrix A;
+      A.rotate_x(P2w);
+      rotation_matrix.multiply(A);
+
+      //rotating to set P2 on the Ox axis
+      TranslationRotationMatrix B;
+      B.rotate_z(P2w);
+      rotation_matrix.multiply(B);
+    }
+
+
+
   private:
     static const double EPS;
     static const unsigned ROT_SIZE=9;

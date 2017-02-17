@@ -231,6 +231,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *computePlaneEquationOf3DFaces() const;
     MEDCOUPLING_EXPORT DataArrayInt *conformize2D(double eps);
     MEDCOUPLING_EXPORT DataArrayInt *colinearize2D(double eps);
+    MEDCOUPLING_EXPORT DataArrayInt *conformize3D(double eps);
     MEDCOUPLING_EXPORT int split2DCells(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *midOpt=0, const DataArrayInt *midOptI=0);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da);
     MEDCOUPLING_EXPORT static MCAuto<MEDCouplingUMesh> Build1DMeshFromCoords(DataArrayDouble *da);
@@ -346,6 +347,11 @@ namespace MEDCoupling
     int split2DCellsQuadratic(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *mid, const DataArrayInt *midI);
     static bool Colinearize2DCell(const double *coords, const int *connBg, const int *connEnd, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords);
     static void ComputeAllTypesInternal(std::set<INTERP_KERNEL::NormalizedCellType>& types, const DataArrayInt *nodalConnec, const DataArrayInt *nodalConnecIndex);
+    static bool OrderPointsAlongLine(const double * coo, int startNode, int endNode,
+                                                const int * c, const int * cI, const int *idsBg, const int *endBg,
+                                                std::vector<int> & pointIds, std::vector<int> & hitSegs);
+    static void ReplaceEdgeInFace(const int * sIdxConn, const int * sIdxConnE, int startNode, int endNode,
+                                      const std::vector<int>& insidePoints, std::vector<int>& modifiedFace);
   public:
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeRangesFromTypeDistribution(const std::vector<int>& code);
     MEDCOUPLING_EXPORT static const int N_MEDMEM_ORDER=24;

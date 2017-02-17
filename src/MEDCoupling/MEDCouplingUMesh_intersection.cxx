@@ -20,6 +20,7 @@
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 #include "CellModel.hxx"
 #include "VolSurfUser.txx"
 #include "InterpolationUtils.hxx"
@@ -33,6 +34,9 @@
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "TranslationRotationMatrix.hxx"
+#include "VectorUtils.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 
 #include <sstream>
 #include <fstream>
@@ -40,6 +44,7 @@
 #include <cstring>
 #include <limits>
 #include <list>
+#include <assert.h>
 
 using namespace MEDCoupling;
 
@@ -1991,6 +1996,462 @@ DataArrayInt *MEDCouplingUMesh::colinearize2D(double eps)
     }
   //non const part
   setConnectivity(newc,newci,true);
+  return ret.retn();
+}
+
+///@cond INTERNAL
+/**
+ * c, cI describe a wire mesh in 3D space, in local numbering
+ * startNode, endNode in global numbering
+ *\return true if the segment is indeed split
+ */
+bool MEDCouplingUMesh::OrderPointsAlongLine(const double * coo, int startNode, int endNode,
+                                            const int * c, const int * cI, const int *idsBg, const int *endBg,
+                                            std::vector<int> & pointIds, std::vector<int> & hitSegs)
+{
+  using namespace std;
+
+  const int SPACEDIM=3;
+  typedef pair<double, int> PairDI;
+  set< PairDI > x;
+  for (const int * it = idsBg; it != endBg; ++it)
+    {
+      assert(c[cI[*it]] == INTERP_KERNEL::NORM_SEG2);
+      int start = c[cI[*it]+1], end = c[cI[*it]+2];
+      x.insert(make_pair(coo[start*SPACEDIM], start));  // take only X coords
+      x.insert(make_pair(coo[end*SPACEDIM], end));
+    }
+
+  vector<PairDI> xx(x.begin(), x.end());
+  sort(xx.begin(),xx.end());
+  pointIds.reserve(xx.size());
+
+  // Keep what is inside [startNode, endNode]:
+  int go = 0;
+  for (vector<PairDI>::const_iterator it=xx.begin(); it != xx.end(); ++it)
+    {
+      const int idx = (*it).second;
+      if (!go)
+        {
+          if (idx == startNode)   go = 1;
+          if (idx == endNode)     go = 2;
+          if (go)                 pointIds.push_back(idx);
+          continue;
+        }
+      pointIds.push_back(idx);
+      if (idx == endNode || idx == startNode)
+        break;
+    }
+
+//  vector<int> pointIds2(pointIds.size()+2);
+//  copy(pointIds.begin(), pointIds.end(), pointIds2.data()+1);
+//  pointIds2[0] = startNode;
+//  pointIds2[pointIds2.size()-1] = endNode;
+
+  if (go == 2)
+    reverse(pointIds.begin(), pointIds.end());
+
+  // Now identify smaller segments that are not sub-divided - those won't need any further treatment:
+  for (const int * it = idsBg; it != endBg; ++it)
+    {
+      int start = c[cI[*it]+1], end = c[cI[*it]+2];
+      vector<int>::const_iterator itStart = find(pointIds.begin(), pointIds.end(), start);
+      if (itStart == pointIds.end()) continue;
+      vector<int>::const_iterator itEnd = find(pointIds.begin(), pointIds.end(), end);
+      if (itEnd == pointIds.end())               continue;
+      if (abs(distance(itEnd, itStart)) != 1)    continue;
+      hitSegs.push_back(*it);   // segment is undivided.
+    }
+
+  return (pointIds.size() > 2); // something else apart start and end node
+}
+
+void MEDCouplingUMesh::ReplaceEdgeInFace(const int * sIdxConn, const int * sIdxConnE, int startNode, int endNode,
+                                          const std::vector<int>& insidePoints, std::vector<int>& modifiedFace)
+{
+  using namespace std;
+  int dst = distance(sIdxConn, sIdxConnE);
+  modifiedFace.reserve(dst + insidePoints.size()-2);
+  modifiedFace.resize(dst);
+  copy(sIdxConn, sIdxConnE, modifiedFace.data());
+
+  vector<int>::iterator shortEnd = modifiedFace.begin()+dst;
+  vector<int>::iterator startPos = find(modifiedFace.begin(), shortEnd , startNode);
+  if (startPos == shortEnd)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ReplaceEdgeInFace: internal error, should never happen!");
+  vector<int>::iterator endPos = find(modifiedFace.begin(),shortEnd, endNode);
+  if (endPos == shortEnd)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ReplaceEdgeInFace: internal error, should never happen!");
+  int d = distance(startPos, endPos);
+  if (d == 1 || d == (1-dst)) // don't use modulo, for neg numbers, result is implementation defined ...
+    modifiedFace.insert(++startPos, ++insidePoints.begin(), --insidePoints.end());  // insidePoints also contains start and end node. Those dont need to be inserted.
+  else
+    modifiedFace.insert(++endPos, ++insidePoints.rbegin(), --insidePoints.rend());
+}
+
+///@endcond
+
+
+/*!
+ * \b WARNING this method is \b potentially \b non \b const (if returned array is not empty).
+ * \b WARNING this method lead to have a non geometric type sorted mesh (for MED file users) !
+ * This method performs a conformization of \b this.
+ *
+ * Only polyhedron cells are supported. You can call convertAllToPoly()
+ *
+ * This method expects that \b this has a meshDim equal 3 and spaceDim equal to 3 too.
+ * This method expects that all nodes in \a this are not closer than \a eps.
+ * If it is not the case you can invoke MEDCouplingUMesh::mergeNodes before calling this method.
+ *
+ * \param [in] eps the relative error to detect merged edges.
+ * \return DataArrayInt  * - The list of cellIds in \a this that have been subdivided. If empty, nothing changed in \a this (as if it were a const method). The array is a newly allocated array
+ *                           that the user is expected to deal with.
+ *
+ * \throw If \a this is not coherent.
+ * \throw If \a this has not spaceDim equal to 3.
+ * \throw If \a this has not meshDim equal to 3.
+ * \sa MEDCouplingUMesh::mergeNodes, MEDCouplingUMesh::conformize2D, MEDCouplingUMesh::convertAllToPoly()
+ */
+DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
+{
+  using namespace std;
+
+  static const int SPACEDIM=3;
+  checkConsistencyLight();
+  if(getSpaceDimension()!=3 || getMeshDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::conformize3D : This method only works for meshes with spaceDim=3 and meshDim=3!");
+  if(_types.size() != 1 || *(_types.begin()) != INTERP_KERNEL::NORM_POLYHED)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::conformize3D : This method only works for polyhedrons! Call convertAllToPoly first.");
+
+  int *c(getNodalConnectivity()->getPointer()),*cI(getNodalConnectivityIndex()->getPointer());
+  MCAuto<MEDCouplingSkyLineArray> connSla(MEDCouplingSkyLineArray::BuildFromPolyhedronConn(getNodalConnectivity(), getNodalConnectivityIndex()));
+  const double * coo(_coords->begin());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
+
+  {
+    /*************************
+     *  STEP 1  -- faces
+     *************************/
+    MCAuto<DataArrayInt> descDNU(DataArrayInt::New()),descIDNU(DataArrayInt::New()),revDesc(DataArrayInt::New()),revDescI(DataArrayInt::New());
+    MCAuto<MEDCouplingUMesh> mDesc(buildDescendingConnectivity(descDNU,descIDNU,revDesc,revDescI));
+    const int *revDescIP(revDescI->getConstPointer()), *revDescP(revDesc->getConstPointer());
+    const int *cDesc(mDesc->getNodalConnectivity()->begin()),*cIDesc(mDesc->getNodalConnectivityIndex()->begin());
+    MCAuto<MEDCouplingSkyLineArray> connSlaDesc(MEDCouplingSkyLineArray::New(mDesc->getNodalConnectivityIndex(), mDesc->getNodalConnectivity()));
+
+    // Build BBTree
+    MCAuto<DataArrayDouble> bboxArr(mDesc->getBoundingBoxForBBTree());
+    const double *bbox(bboxArr->begin()),*coords(getCoords()->begin());
+    int nCell=getNumberOfCells(), nDescCell=mDesc->getNumberOfCells();
+    BBTree<SPACEDIM,int> myTree(bbox,0,0,nDescCell,-eps);
+    // Surfaces - handle biggest first
+    MCAuto<MEDCouplingFieldDouble> surfF = mDesc->getMeasureField(true);
+    DataArrayDouble * surfs = surfF->getArray();
+    // Normal field
+    MCAuto<MEDCouplingFieldDouble> normalsF = mDesc->buildOrthogonalField();
+    DataArrayDouble * normals = normalsF->getArray();
+    const double * normalsP = normals->getConstPointer();
+
+    // Sort faces by decreasing surface:
+    vector<pair<double,int>> S;
+    for(int i=0;i < surfs->getNumberOfTuples();i++){
+        pair<double,int> p = make_pair(surfs->begin()[i], i);
+        S.push_back(p);
+    }
+    sort(S.rbegin(),S.rend()); // reverse sort
+    vector<bool> hit(nDescCell);
+    fill(hit.begin(), hit.end(), false);
+    vector<int> hitPoly; // the final result: which 3D cells have been modified.
+
+    for( vector<pair<double,int>>::const_iterator it = S.begin(); it != S.end(); it++)
+      {
+        int faceIdx = (*it).second;
+        if (hit[faceIdx]) continue;
+
+        vector<int> candidates, cands2;
+        myTree.getIntersectingElems(bbox+faceIdx*2*SPACEDIM,candidates);
+        // Keep only candidates whose normal matches the normal of current face
+        for(vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+          {
+            bool col = INTERP_KERNEL::isColinear3D(normalsP + faceIdx*SPACEDIM, normalsP + *(it)*SPACEDIM, eps);
+            if (*it != faceIdx && col)
+              cands2.push_back(*it);
+          }
+        if (!cands2.size())
+          continue;
+
+        // Now rotate, and match barycenters -- this is where we will bring Intersect2DMeshes later
+        INTERP_KERNEL::TranslationRotationMatrix rotation;
+        INTERP_KERNEL::TranslationRotationMatrix::Rotate3DTriangle(coo+SPACEDIM*(cDesc[cIDesc[faceIdx]+1]),
+                                                                   coo+SPACEDIM*(cDesc[cIDesc[faceIdx]+2]),
+                                                                   coo+SPACEDIM*(cDesc[cIDesc[faceIdx]+3]), rotation);
+
+        MCAuto<MEDCouplingUMesh> mPartRef(mDesc->buildPartOfMySelfSlice(faceIdx, faceIdx+1,1,false));  // false=zipCoords is called
+        MCAuto<MEDCouplingUMesh> mPartCand(mDesc->buildPartOfMySelf(&cands2[0], &cands2[0]+cands2.size(), false)); // false=zipCoords is called
+        double * cooPartRef(mPartRef->_coords->getPointer());
+        double * cooPartCand(mPartCand->_coords->getPointer());
+        for (int ii = 0; ii < mPartRef->_coords->getNumberOfTuples(); ii++)
+          rotation.transform_vector(cooPartRef+SPACEDIM*ii);
+        for (int ii = 0; ii < mPartCand->_coords->getNumberOfTuples(); ii++)
+          rotation.transform_vector(cooPartCand+SPACEDIM*ii);
+
+        // Localize faces in 2D thanks to barycenters
+        MCAuto<DataArrayDouble> baryPart = mPartCand->computeCellCenterOfMass();
+        vector<int> compo; compo.push_back(2);
+        MCAuto<DataArrayDouble> baryPartZ = baryPart->keepSelectedComponents(compo);
+        MCAuto<DataArrayInt> idsGoodPlane = baryPartZ->findIdsInRange(-eps, +eps);
+        if (!idsGoodPlane->getNumberOfTuples())
+          continue;
+
+        baryPart = baryPart->selectByTupleId(*idsGoodPlane);
+
+        compo[0] = 0; compo.push_back(1);
+        MCAuto<DataArrayDouble> baryPartXY = baryPart->keepSelectedComponents(compo);
+        mPartRef->changeSpaceDimension(2,0.0);
+        MCAuto<DataArrayInt> cc(DataArrayInt::New()), ccI(DataArrayInt::New());
+        mPartRef->getCellsContainingPoints(baryPartXY->begin(), baryPartXY->getNumberOfTuples(), eps, cc, ccI);
+
+        if (!cc->getNumberOfTuples())
+          continue;
+        MCAuto<DataArrayInt> dsi = ccI->deltaShiftIndex();
+
+        {
+          MCAuto<DataArrayInt> tmp = dsi->findIdsInRange(0, 2);
+          if (tmp->getNumberOfTuples() != dsi->getNumberOfTuples())
+            {
+              ostringstream oss;
+              oss << "MEDCouplingUMesh::conformize3D: Non expected non-conformity. Only simple (=partition-like) non-conformities are handled. Face #" << faceIdx << " violates this condition!";
+              throw INTERP_KERNEL::Exception(oss.str());
+            }
+        }
+
+        MCAuto<DataArrayInt> ids = dsi->findIdsEqual(1);
+        // Boundary face:
+        if (!ids->getNumberOfTuples())
+          continue;
+
+        double checkSurf=0.0;
+        const int * idsGoodPlaneP(idsGoodPlane->begin());
+        for (const int * ii = ids->begin(); ii != ids->end(); ii++)
+          {
+            int faceIdx = cands2[idsGoodPlaneP[*ii]];
+            hit[faceIdx] = true;
+            checkSurf += surfs->begin()[faceIdx];
+          }
+        if (fabs(checkSurf - surfs->begin()[faceIdx]) > eps)
+          {
+            ostringstream oss;
+            oss << "MEDCouplingUMesh::conformize3D: Non expected non-conformity. Only simple (=partition-like) non-conformities are handled. Face #" << faceIdx << " violates this condition!";
+            throw INTERP_KERNEL::Exception(oss.str());
+          }
+
+        // For all polyhedrons using this face, replace connectivity:
+        vector<int> polyIndices, packsIds, facePack;
+        for (int ii=revDescIP[faceIdx]; ii < revDescIP[faceIdx+1]; ii++)
+          polyIndices.push_back(revDescP[ii]);
+        ret->pushBackValsSilent(polyIndices.data(),polyIndices.data()+polyIndices.size());
+
+        // Current face connectivity
+        const int * sIdxConn = cDesc + cIDesc[faceIdx] + 1;
+        const int * sIdxConnE = cDesc + cIDesc[faceIdx+1];
+        connSla->findPackIds(polyIndices, sIdxConn, sIdxConnE, packsIds);
+        // Deletion of old faces
+        int jj=0;
+        for (vector<int>::const_iterator it=polyIndices.begin(); it!=polyIndices.end(); ++it, ++jj)
+          {
+            if (packsIds[jj] == -1)
+              // The below should never happen - if a face is used several times, with a different layout of the nodes
+              // it means that is is already conform, so it is *not* hit by the algorithm. The algorithm only hits
+              // faces which are actually used only once, by a single cell. This is different for edges below.
+              throw INTERP_KERNEL::Exception("MEDCouplingUMesh::conformize3D: Could not find face in connectivity! Internal error.");
+            else
+              connSla->deletePack(*it, packsIds[jj]);
+          }
+        // Insertion of new faces:
+        for (const int * ii = ids->begin(); ii != ids->end(); ii++)
+          {
+            // Build pack from the face to insert:
+            int faceIdx = cands2[idsGoodPlane->getIJ(*ii,0)];
+            int facePack2Sz;
+            const int * facePack2 = connSlaDesc->getSimplePackSafePtr(faceIdx, facePack2Sz); // contains the type!
+            // Insert it in all hit polyhedrons:
+            for (vector<int>::const_iterator it=polyIndices.begin(); it!=polyIndices.end(); ++it)
+              connSla->pushBackPack(*it, facePack2+1, facePack2+facePack2Sz);  // without the type
+          }
+      }
+  }  // end step1
+
+  // Set back modified connectivity
+  MCAuto<DataArrayInt> cAuto; cAuto.takeRef(_nodal_connec);
+  MCAuto<DataArrayInt> cIAuto; cIAuto.takeRef(_nodal_connec_index);
+  connSla->convertToPolyhedronConn(cAuto, cIAuto);
+
+  {
+    /************************
+     *  STEP 2 -- edges
+    /************************/
+    // Now we have a face-conform mesh.
+
+    // Recompute descending
+    MCAuto<DataArrayInt> desc(DataArrayInt::New()),descI(DataArrayInt::New()),revDesc(DataArrayInt::New()),revDescI(DataArrayInt::New());
+    // Rebuild desc connectivity with orientation this time!!
+    MCAuto<MEDCouplingUMesh> mDesc(buildDescendingConnectivity2(desc,descI,revDesc,revDescI));
+    const int *revDescIP(revDescI->getConstPointer()), *revDescP(revDesc->getConstPointer());
+    const int *descIP(descI->getConstPointer()), *descP(desc->getConstPointer());
+    const int *cDesc(mDesc->getNodalConnectivity()->begin()),*cIDesc(mDesc->getNodalConnectivityIndex()->begin());
+    MCAuto<DataArrayInt> ciDeepC(mDesc->getNodalConnectivityIndex()->deepCopy());
+    MCAuto<DataArrayInt> cDeepC(mDesc->getNodalConnectivity()->deepCopy());
+    MCAuto<MEDCouplingSkyLineArray> connSlaDesc(MEDCouplingSkyLineArray::New(ciDeepC, cDeepC));
+    MCAuto<DataArrayInt> desc2(DataArrayInt::New()),descI2(DataArrayInt::New()),revDesc2(DataArrayInt::New()),revDescI2(DataArrayInt::New());
+    MCAuto<MEDCouplingUMesh> mDesc2 = mDesc->buildDescendingConnectivity(desc2,descI2,revDesc2,revDescI2);
+//    std::cout << "writing!\n";
+//    mDesc->writeVTK("/tmp/toto_desc_confInter.vtu");
+//    mDesc2->writeVTK("/tmp/toto_desc2_confInter.vtu");
+    const int *revDescIP2(revDescI2->getConstPointer()), *revDescP2(revDesc2->getConstPointer());
+    const int *cDesc2(mDesc2->getNodalConnectivity()->begin()),*cIDesc2(mDesc2->getNodalConnectivityIndex()->begin());
+    MCAuto<DataArrayDouble> bboxArr(mDesc2->getBoundingBoxForBBTree());
+    const double *bbox2(bboxArr->begin());
+    int nDesc2Cell=mDesc2->getNumberOfCells();
+    BBTree<SPACEDIM,int> myTree2(bbox2,0,0,nDesc2Cell,-eps);
+
+    // Edges - handle longest first
+    MCAuto<MEDCouplingFieldDouble> lenF = mDesc2->getMeasureField(true);
+    DataArrayDouble * lens = lenF->getArray();
+
+    // Sort edges by decreasing length:
+    vector<pair<double,int>> S;
+    for(int i=0;i < lens->getNumberOfTuples();i++){
+        pair<double,int> p = make_pair(lens->getIJ(i, 0), i);
+        S.push_back(p);
+    }
+    sort(S.rbegin(),S.rend()); // reverse sort
+
+    vector<bool> hit(nDesc2Cell);
+    fill(hit.begin(), hit.end(), false);
+
+    for( vector<pair<double,int>>::const_iterator it = S.begin(); it != S.end(); it++)
+      {
+        int eIdx = (*it).second;
+        if (hit[eIdx])
+          continue;
+
+        vector<int> candidates, cands2;
+        myTree2.getIntersectingElems(bbox2+eIdx*2*SPACEDIM,candidates);
+        // Keep only candidates colinear with current edge
+        double vCurr[3];
+        unsigned start = cDesc2[cIDesc2[eIdx]+1], end = cDesc2[cIDesc2[eIdx]+2];
+        for (int i3=0; i3 < 3; i3++)  // TODO: use fillSonCellNodalConnectivity2 or similar?
+          vCurr[i3] = coo[start*SPACEDIM+i3] - coo[end*SPACEDIM+i3];
+        for(vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+          {
+            double vOther[3];
+            unsigned start2 = cDesc2[cIDesc2[*it]+1], end2 = cDesc2[cIDesc2[*it]+2];
+            for (int i3=0; i3 < 3; i3++)
+              vOther[i3] = coo[start2*SPACEDIM+i3] - coo[end2*SPACEDIM+i3];
+            bool col = INTERP_KERNEL::isColinear3D(vCurr, vOther, eps);
+            // Warning: different from faces: we need to keep eIdx in the final list of candidates because we need
+            // to have its nodes inside the sub mesh mPartCand below (needed in OrderPointsAlongLine())
+            if (col)
+              cands2.push_back(*it);
+          }
+        if (cands2.size() == 1 && cands2[0] == eIdx)  // see warning above
+          continue;
+
+        // Now rotate edges to bring them on Ox
+        int startNode = cDesc2[cIDesc2[eIdx]+1];
+        int endNode = cDesc2[cIDesc2[eIdx]+2];
+        INTERP_KERNEL::TranslationRotationMatrix rotation;
+        INTERP_KERNEL::TranslationRotationMatrix::Rotate3DBipoint(coo+SPACEDIM*startNode, coo+SPACEDIM*endNode, rotation);
+        MCAuto<MEDCouplingUMesh> mPartRef(mDesc2->buildPartOfMySelfSlice(eIdx, eIdx+1,1,false));  // false=zipCoords is called
+        MCAuto<MEDCouplingUMesh> mPartCand(mDesc2->buildPartOfMySelf(&cands2[0], &cands2[0]+cands2.size(), true)); // true=zipCoords is called
+        MCAuto<DataArrayInt> nodeMap(mPartCand->zipCoordsTraducer());
+        int nbElemsNotM1;
+        {
+          MCAuto<DataArrayInt> tmp(nodeMap->findIdsNotEqual(-1));
+          nbElemsNotM1 = tmp->getNbOfElems();
+        }
+        MCAuto<DataArrayInt>  nodeMapInv = nodeMap->invertArrayO2N2N2O(nbElemsNotM1);
+        double * cooPartRef(mPartRef->_coords->getPointer());
+        double * cooPartCand(mPartCand->_coords->getPointer());
+        for (int ii = 0; ii < mPartRef->_coords->getNumberOfTuples(); ii++)
+          rotation.transform_vector(cooPartRef+SPACEDIM*ii);
+        for (int ii = 0; ii < mPartCand->_coords->getNumberOfTuples(); ii++)
+          rotation.transform_vector(cooPartCand+SPACEDIM*ii);
+
+
+        // Eliminate all edges for which y or z is not null
+        MCAuto<DataArrayDouble> baryPart = mPartCand->computeCellCenterOfMass();
+        vector<int> compo; compo.push_back(1);
+        MCAuto<DataArrayDouble> baryPartY = baryPart->keepSelectedComponents(compo);
+        compo[0] = 2;
+        MCAuto<DataArrayDouble> baryPartZ = baryPart->keepSelectedComponents(compo);
+        MCAuto<DataArrayInt> idsGoodLine1 = baryPartY->findIdsInRange(-eps, +eps);
+        MCAuto<DataArrayInt> idsGoodLine2 = baryPartZ->findIdsInRange(-eps, +eps);
+        MCAuto<DataArrayInt> idsGoodLine = idsGoodLine1->buildIntersection(idsGoodLine2);
+        if (!idsGoodLine->getNumberOfTuples())
+          continue;
+
+        // Now the ordering along the Ox axis:
+        std::vector<int> insidePoints, hitSegs;
+        bool isSplit = OrderPointsAlongLine(mPartCand->_coords->getConstPointer(), nodeMap->begin()[startNode], nodeMap->begin()[endNode],
+            mPartCand->getNodalConnectivity()->begin(), mPartCand->getNodalConnectivityIndex()->begin(),
+            idsGoodLine->begin(), idsGoodLine->end(),
+            /*out*/insidePoints, hitSegs);
+        // Optim: smaller segments completly included in eIdx and not split won't need any further treatment:
+        for (vector<int>::const_iterator its=hitSegs.begin(); its != hitSegs.end(); ++its)
+          hit[cands2[*its]] = true;
+
+        if (!isSplit)  // current segment remains in one piece
+          continue;
+
+        // Get original node IDs in global coords array
+        for (std::vector<int>::iterator iit = insidePoints.begin(); iit!=insidePoints.end(); ++iit)
+          *iit = nodeMapInv->begin()[*iit];
+
+        vector<int> polyIndices, packsIds, facePack;
+        // For each face implying this edge
+        for (int ii=revDescIP2[eIdx]; ii < revDescIP2[eIdx+1]; ii++)
+          {
+            int faceIdx = revDescP2[ii];
+            // each cell where this face is involved connectivity will be modified:
+            ret->pushBackValsSilent(revDescP + revDescIP[faceIdx], revDescP + revDescIP[faceIdx+1]);
+
+            // Current face connectivity
+            const int * sIdxConn = cDesc + cIDesc[faceIdx] + 1;
+            const int * sIdxConnE = cDesc + cIDesc[faceIdx+1];
+
+            vector<int> modifiedFace;
+            ReplaceEdgeInFace(sIdxConn, sIdxConnE, startNode, endNode, insidePoints, /*out*/modifiedFace);
+            modifiedFace.insert(modifiedFace.begin(), INTERP_KERNEL::NORM_POLYGON);
+            connSlaDesc->replaceSimplePack(faceIdx, modifiedFace.data(), modifiedFace.data()+modifiedFace.size());
+          }
+      }
+
+    // Rebuild 3D connectivity from descending:
+    MCAuto<MEDCouplingSkyLineArray> newConn(MEDCouplingSkyLineArray::New());
+    MCAuto<DataArrayInt> superIdx(DataArrayInt::New());  superIdx->alloc(getNumberOfCells()+1); superIdx->fillWithValue(0);
+    MCAuto<DataArrayInt> idx(DataArrayInt::New());       idx->alloc(1);                         idx->fillWithValue(0);
+    MCAuto<DataArrayInt> vals(DataArrayInt::New());      vals->alloc(0);
+    newConn->set3(superIdx, idx, vals);
+    for(int ii = 0; ii < getNumberOfCells(); ii++)
+      for (int jj=descIP[ii]; jj < descIP[ii+1]; jj++)
+        {
+          int sz, faceIdx = abs(descP[jj])-1;
+          bool orient = descP[jj]>0;
+          const int * p = connSlaDesc->getSimplePackSafePtr(faceIdx, sz);
+          if (orient)
+            newConn->pushBackPack(ii, p+1, p+sz);  // +1 to skip type
+          else
+            {
+              vector<int> rev(sz-1);
+              for (int kk=0; kk<sz-1; kk++) rev[kk]=*(p+sz-kk-1);
+              newConn->pushBackPack(ii, rev.data(), rev.data()+sz-1);
+            }
+        }
+    // And finally:
+    newConn->convertToPolyhedronConn(cAuto, cIAuto);
+  } // end step2
+
+  ret = ret->buildUniqueNotSorted();
   return ret.retn();
 }
 

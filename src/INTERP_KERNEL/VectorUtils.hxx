@@ -145,6 +145,19 @@ namespace INTERP_KERNEL
     //    return std::fabs(x - y) < errTol;
   }
 
+
+  /**
+   * Test whether two 3D vectors are colinear. The two vectors are expected to be of unit norm (not checked)
+   * Implemented by checking that the norm of the cross product is null.
+   */
+  inline bool isColinear3D(const double *v1, const double *v2, const double eps = DEFAULT_ABS_TOL)
+  {
+    double cros[3];
+    cross(v1, v2, cros);
+    return epsilonEqual(dot(cros, cros), 0.0, eps);
+  }
+
+
   /**
    * Compares doubles using a relative tolerance
    * This is suitable mainly for comparing larger values to each other. Before performing the relative test,

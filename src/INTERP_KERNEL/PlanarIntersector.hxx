@@ -60,7 +60,7 @@ namespace INTERP_KERNEL
     void getRealSourceCoordinatesPermute(ConnType icellS, int offset, std::vector<double>& coordsS);
     void getRealCoordinates(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS, std::vector<double>& coordsT, std::vector<double>& coordsS, int& orientation);
     double getValueRegardingOption(double val) const;
-    static void rotate3DTriangle( double* PP1, double*PP2, double*PP3,
+    static void Rotate3DTriangle( double* PP1, double*PP2, double*PP3,
                                   TranslationRotationMatrix& rotation_matrix);
   protected:
     const ConnType *_connectT;

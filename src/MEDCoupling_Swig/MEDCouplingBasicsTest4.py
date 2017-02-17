@@ -44,7 +44,7 @@ def checkFreeMemory(size):
             dic['free'] = tmp
             dic['used'] = int(dic['total']) - int(dic['free'])
             ret = dic['free'] > size
-    #TODO: extend this method for Windows OS            
+    #TODO: extend this method for Windows OS
     return ret
 
 
@@ -560,7 +560,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             pass
         #
         pass
-    
+
     def testComputeNeighborsOfCells1(self):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
         d1,d2=m.computeNeighborsOfCells();
@@ -666,7 +666,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(subMesh.isEqual(m5,1e-12))
         self.assertRaises(InterpKernelException,m.buildPartOfMySelf,[1,5],True);
         pass
-    
+
     def testSwigGetItem3(self):
         da=DataArrayInt.New([4,5,6])
         self.assertEqual(5,da[1])
@@ -921,14 +921,14 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d-=2
         d%=7
         pass
-        
+
     def testSwigDAIOp5(self):
         d=DataArrayInt.New([4,5,6,10,3,-1],2,3)
         self.toSeeIfDaIIopsAreOK(d)
         dExp=DataArrayInt.New([2,4,6,0,0,6],2,3)
         self.assertTrue(d.isEqual(dExp));
         pass
-    
+
     def toSeeIfDaDIopsAreOK(self,d):
         d+=5
         d*=6
@@ -1039,7 +1039,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             self.assertAlmostEqual(expected4[i],ard2.getIJ(i,0),12)
             pass
         pass
-    
+
     def testPartitionBySpreadZone1(self):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
         m4=MEDCouplingUMesh.MergeUMeshes([m,m[-3:],m[0:2]]);
@@ -1163,7 +1163,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             self.assertTrue(m2.getCoords().isEqual(DataArrayDouble.New(expected1[pos],4,2),1e-12))
             pass
         pass
-    
+
     def testSwigBugNonRegressionZipDA(self):
         angles=map(lambda x:pi/3*x,xrange(6))
         radius=3
@@ -1439,122 +1439,6 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertEqual(d.getValues(),[1,2,0,1,2,0,1,2,0,1])
         pass
 
-    def testIntersect2DMeshesTmp5(self):
-        coords=DataArrayDouble.New([41,0,42,0,0,42,0,41,41.5,0,29.698484809834998,29.698484809834994,0,41.5,28.991378028648452,28.991378028648445,-42,0,-41,0,-29.698484809834994,29.698484809834998,-41.5,0,-28.991378028648445,28.991378028648452,0,-42,0,-41,-29.698484809835001,-29.698484809834994,0,-41.5,-28.991378028648455,-28.991378028648445,29.698484809834987,-29.698484809835001,28.991378028648441,-28.991378028648455,43,0,0,43,42.5,0,30.405591591021544,30.40559159102154,0,42.5,-43,0,-30.40559159102154,30.405591591021544,-42.5,0,0,-43,-30.405591591021551,-30.40559159102154,0,-42.5,30.405591591021537,-30.405591591021551,44,0,0,44,43.5,0,31.112698372208094,31.112698372208087,0,43.5,-44,0,-31.112698372208087,31.112698372208094,-43.5,0,0,-44,-31.112698372208097,-31.112698372208087,0,-43.5,31.112698372208083,-31.112698372208097,45,0,0,45,44.5,0,31.81980515339464,31.819805153394636,0,44.5,-45,0,-31.819805153394636,31.81980515339464,-44.5,0,0,-45,-31.819805153394647,-31.819805153394636,0,-44.5,31.819805153394629,-31.819805153394647,47,0,0,47,46,0,33.234018715767739,33.234018715767732,0,46,-47,0,-33.234018715767732,33.234018715767739,-46,0,0,-47,-33.234018715767739,-33.234018715767732,0,-46,33.234018715767725,-33.234018715767739,49,0,0,49,48,0,34.648232278140831,34.648232278140824,0,48,-49,0,-34.648232278140824,34.648232278140831,-48,0,0,-49,-34.648232278140839,-34.648232278140824,0,-48,34.648232278140817,-34.648232278140839,51,0,0,51,50,0,36.062445840513924,36.062445840513924,0,50,-51,0,-36.062445840513924,36.062445840513924,-50,0,0,-51,-36.062445840513931,-36.062445840513924,0,-50,36.062445840513917,-36.062445840513931,53,0,0,53,52,0,37.476659402887023,37.476659402887016,0,52,-53,0,-37.476659402887016,37.476659402887023,-52,0,0,-53,-37.47665940288703,-37.476659402887016,0,-52,37.476659402887009,-37.47665940288703,55,0,0,55,54,0,38.890872965260115,38.890872965260108,0,54,-55,0,-38.890872965260108,38.890872965260115,-54,0,0,-55,-38.890872965260122,-38.890872965260108,0,-54,38.890872965260101,-38.890872965260122,59,0,0,59,57,0,41.719300090006307,41.7193000900063,0,57,-59,0,-41.7193000900063,41.719300090006307,-57,0,0,-59,-41.719300090006314,-41.7193000900063,0,-57,41.719300090006293,-41.719300090006314,63,0,0,63,61,0,44.547727214752499,44.547727214752491,0,61,-63,0,-44.547727214752491,44.547727214752499,-61,0,0,-63,-44.547727214752506,-44.547727214752491,0,-61,44.547727214752484,-44.547727214752506,67,0,0,67,65,0,47.37615433949869,47.376154339498683,0,65,-67,0,-47.376154339498683,47.37615433949869,-65,0,0,-67,-47.376154339498697,-47.376154339498683,0,-65,47.376154339498676,-47.376154339498697,71,0,0,71,69,0,50.204581464244875,50.204581464244868,0,69,-71,0,-50.204581464244868,50.204581464244875,-69,0,0,-71,-50.204581464244889,-50.204581464244868,0,-69,50.20458146424486,-50.204581464244889,75,0,0,75,73,0,53.033008588991066,53.033008588991059,0,73,-75,0,-53.033008588991059,53.033008588991066,-73,0,0,-75,-53.033008588991073,-53.033008588991059,0,-73,53.033008588991052,-53.033008588991073,80,0,0,80,77.5,0,56.568542494923804,56.568542494923797,0,77.5,-80,0,-56.568542494923797,56.568542494923804,-77.5,0,0,-80,-56.568542494923818,-56.568542494923797,0,-77.5,56.56854249492379,-56.568542494923818],188,2)
-        conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12,8,9,8,13,14,11,15,16,17,8,14,13,1,0,16,18,4,19,8,1,20,21,2,22,23,24,5,8,2,21,25,8,24,26,27,10,8,8,25,28,13,27,29,30,15,8,13,28,20,1,30,31,22,18,8,20,32,33,21,34,35,36,23,8,21,33,37,25,36,38,39,26,8,25,37,40,28,39,41,42,29,8,28,40,32,20,42,43,34,31,8,32,44,45,33,46,47,48,35,8,33,45,49,37,48,50,51,38,8,37,49,52,40,51,53,54,41,8,40,52,44,32,54,55,46,43,8,44,56,57,45,58,59,60,47,8,45,57,61,49,60,62,63,50,8,49,61,64,52,63,65,66,53,8,52,64,56,44,66,67,58,55,8,56,68,69,57,70,71,72,59,8,57,69,73,61,72,74,75,62,8,61,73,76,64,75,77,78,65,8,64,76,68,56,78,79,70,67,8,68,80,81,69,82,83,84,71,8,69,81,85,73,84,86,87,74,8,73,85,88,76,87,89,90,77,8,76,88,80,68,90,91,82,79,8,80,92,93,81,94,95,96,83,8,81,93,97,85,96,98,99,86,8,85,97,100,88,99,101,102,89,8,88,100,92,80,102,103,94,91,8,92,104,105,93,106,107,108,95,8,93,105,109,97,108,110,111,98,8,97,109,112,100,111,113,114,101,8,100,112,104,92,114,115,106,103,8,104,116,117,105,118,119,120,107,8,105,117,121,109,120,122,123,110,8,109,121,124,112,123,125,126,113,8,112,124,116,104,126,127,118,115,8,116,128,129,117,130,131,132,119,8,117,129,133,121,132,134,135,122,8,121,133,136,124,135,137,138,125,8,124,136,128,116,138,139,130,127,8,128,140,141,129,142,143,144,131,8,129,141,145,133,144,146,147,134,8,133,145,148,136,147,149,150,137,8,136,148,140,128,150,151,142,139,8,140,152,153,141,154,155,156,143,8,141,153,157,145,156,158,159,146,8,145,157,160,148,159,161,162,149,8,148,160,152,140,162,163,154,151,8,152,164,165,153,166,167,168,155,8,153,165,169,157,168,170,171,158,8,157,169,172,160,171,173,174,161,8,160,172,164,152,174,175,166,163,8,164,176,177,165,178,179,180,167,8,165,177,181,169,180,182,183,170,8,169,181,184,172,183,185,186,173,8,172,184,176,164,186,187,178,175],540)
-        connI=DataArrayInt.New([0,9,18,27,36,45,54,63,72,81,90,99,108,117,126,135,144,153,162,171,180,189,198,207,216,225,234,243,252,261,270,279,288,297,306,315,324,333,342,351,360,369,378,387,396,405,414,423,432,441,450,459,468,477,486,495,504,513,522,531,540],61)
-        #
-        m1=MEDCouplingUMesh.New("Fix",2);
-        m1.setCoords(coords);
-        m1.setConnectivity(conn,connI,True);
-        #
-        coords=DataArrayDouble([46.5,-2.5,53.5,-2.5,53.5,2.5,46.5,2.5,50,-2.5,53.5,0,50,2.5,46.5,0,60.5,-2.5,60.5,2.5,57,-2.5,60.5,0,57,2.5,53.5,7.5,46.5,7.5,53.5,5,50,7.5,46.5,5,60.5,7.5,60.5,5,57,7.5,-2,47,2,47,2,53,-2,53,0,47,2,50,0,53,-2,50,6,47,6,53,4,47,6,50,4,53,2,59,-2,59,2,56,0,59,-2,56,6,59,6,56,4,59],42,2)
-        # connectivity
-        conn=DataArrayInt([8,0,1,2,3,4,5,6,7,8,1,8,9,2,10,11,12,5,8,3,2,13,14,6,15,16,17,8,2,9,18,13,12,19,20,15,8,21,22,23,24,25,26,27,28,8,22,29,30,23,31,32,33,26,8,24,23,34,35,27,36,37,38,8,23,30,39,34,33,40,41,36],72);
-        conn.setName("");
-        connI=DataArrayInt([0,9,18,27,36,45,54,63,72],9)
-        m2=MEDCouplingUMesh.New("Mobile",2);
-        m2.setCoords(coords);
-        m2.setConnectivity(conn,connI,True);
-        #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10);
-        self.assertEqual(105,m3.getNumberOfCells());
-        self.assertEqual(105,d1.getNumberOfTuples());
-        self.assertEqual(105,d2.getNumberOfTuples());
-        self.assertEqual(704,m3.getNumberOfNodes());
-        #
-        areaExpected=[-65.18804756198824,-65.18804756198824,-65.18804756198824,-65.18804756198824,-66.75884388878285,-66.75884388878285,-66.7588438887833,-66.75884388878308,-68.32964021557768,-68.32964021557768,-68.32964021557814,-68.32964021557791,-69.9004365423732,-69.9004365423732,-69.90043654237297,-69.90043654237297,-1.194568659706448,-1.0869994447159463,-142.2316939607081,-144.51326206513068,-144.5132620651309,-1.1945686597064424,-143.3186934054243,-5.002264310862817,-10.0261332846393,-3.9727823117092953,-7.290862524642649,-124.504404940456,-3.9727823117093237,-146.82366506060032,-150.79644737231024,-5.002264310862776,-145.79418306144626,-5.00208651738126,-10.054764051268958,-4.001067863263231,-8.027932154428669,-129.99378209314813,-4.001067863263216,-153.07856481622616,-157.0796326794898,-5.0020865173811915,-152.07754616210832,-5.001928880064381,-10.050590216368969,-4.00098721602491,-8.025810856794209,-136.28350081741684,-4.000987216024939,-159.36183077064402,-163.36281798667005,-5.0019288800643285,-158.36088910660442,-1.2991516319851801,-3.702636830195414,-3.7815130030068254,-6.265364371195623,-0.02516260900254963,-0.6553944641345026,-3.975752765070567,-7.368528340442765,-142.57249927881398,-0.02516260900254963,-3.9757527650706095,-165.64508791977525,-169.64600329384803,-1.299151631985167,-3.7026368301953885,-164.6442148316677,-10.00321285677458,-20.08414323176165,-8.001644468035863,-16.042954878437143,-304.0096070742277,-8.00164446803587,-350.1399180412005,-358.1415625092368,-10.003212856774468,-348.13834965246224,-3.794150313030109,-8.65049239704272,-0.02260276689354157,-0.5885167811200915,-370.2185414798688,-0.022602766893559393,-383.2517009710623,-383.2743037379555,-3.7941503130300576,-379.48015342492505,-408.40704496667513,-408.4070449666742,-408.4070449666742,-408.4070449666742,-433.53978619538975,-433.5397861953902,-433.5397861953911,-433.53978619539066,-458.67252742410983,-458.6725274241094,-458.67252742410983,-458.6725274241089,-608.6835766330232,-608.6835766330232,-608.6835766330232,-608.6835766330241]
-        expected1=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,16,16,17,18,19,19,20,20,20,20,20,21,21,22,23,23,24,24,24,24,24,25,25,26,27,27,28,28,28,28,28,29,29,30,31,31,32,32,32,32,32,32,32,32,32,33,33,33,34,35,35,35,36,36,36,36,36,37,37,38,39,39,40,40,40,40,40,41,41,42,43,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]
-        expected2=[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,2,-1,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,1,2,3,4,5,6,7,-1,4,6,-1,-1,0,1,-1,1,3,6,7,-1,6,-1,-1,1,-1,1,3,6,7,-1,6,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
-        f3=m3.getMeasureField(False).getArray().getValues();
-        for i in xrange(105):
-            self.assertAlmostEqual(areaExpected[i],f3[i],10)
-            pass
-        self.assertEqual(expected1,d1.getValues())
-        self.assertEqual(expected2,d2.getValues())
-        pass
-
-    def testSwig2Intersect2DMeshesQuadra1(self):
-        import cmath
-        def createDiagCircle(lX, lY, R, cells=[0,1]):  
-            """ A circle in a square box, cut along the diagonal. 
-            """    
-            c = []
-            for i in range(8):
-              c.append(cmath.rect(R, i*pi/4))
-        
-            coords = [0.0,0.0,          c[3].real,c[3].imag,       -lX/2.0, lY/2.0,
-                      0.0, lY/2.0,      lX/2.0,lY/2.0,             lX/2.0,0.0,
-                      #   6                  7                              8
-                      lX/2.0,-lY/2.0,   c[7].real,c[7].imag,       c[1].real,c[1].imag,
-                      #   9                  10                            11  
-                      c[5].real,c[5].imag,   -lX/2.0,-lY/2.0,      0.0, -lY/2.0,
-                      #   12                  13                            14
-                      -lX/2.0,0.0,         0.0,0.0,                  0.0, 0.0]
-            # Points 13 (reps. 14) are average of points (6,7) (resp (1,2))
-            coords[13*2]   = 0.5*(coords[6*2]+coords[7*2])
-            coords[13*2+1] = 0.5*(coords[6*2+1]+coords[7*2+1])
-            coords[14*2]   = 0.5*(coords[1*2]+coords[2*2])
-            coords[14*2+1] = 0.5*(coords[1*2+1]+coords[2*2+1])
-            connec  = [1,7,8,0]      # half circle up right
-            connec3 = [6,7,1,2,4,13,8,14,3,5]
-            
-            baseMesh = MEDCouplingUMesh.New("box_circle", 2)  
-            baseMesh.allocateCells(2)
-            meshCoords = DataArrayDouble.New(coords, len(coords)/2, 2)
-            meshCoords.setInfoOnComponents(["X [au]", "Y [au]"])
-            baseMesh.setCoords(meshCoords)
-            
-            if 0 in cells:
-              baseMesh.insertNextCell(NORM_QPOLYG, connec)  
-            if 1 in cells: 
-              baseMesh.insertNextCell(NORM_QPOLYG, connec3) 
-            baseMesh.finishInsertingCells()  
-            baseMesh.checkConsistencyLight() 
-            return baseMesh 
-        
-        eps = 1.0e-7
-        m1 = createDiagCircle(1.0, 1.0, 0.5*0.90, cells=[0,1])  
-        m2 = createDiagCircle(1.0, 1.0, 0.5*0.95, cells=[0])
-        m3, _, _= MEDCouplingUMesh.Intersect2DMeshes(m1, m2, eps)
-        m3.mergeNodes(eps)
-        m3.convertDegeneratedCells()
-        m3.zipCoords()        
-        m4 = m3.deepCopy()
-        m5, _, _ = MEDCouplingUMesh.Intersect2DMeshes(m3, m4, eps)
-        m5.mergeNodes(eps)
-        # Check coordinates:
-        self.assertTrue(m3.getCoords().isEqual(m5.getCoords(), eps))
-
-    def testIntersect2DMeshesTmp7(self):
-        eps = 1.0e-8
-        coords = [-0.5,-0.5,   -0.5, 0.5, 0.5, 0.5,    0.5,-0.5]
-        connec = range(4)
-        m1 = MEDCouplingUMesh.New("box", 2)  
-        m1.allocateCells(1)
-        meshCoords = DataArrayDouble.New(coords, len(coords)/2, 2)
-        m1.setCoords(meshCoords)
-        m1.insertNextCell(NORM_POLYGON, connec)
-        m1.finishInsertingCells()  
-     
-        m2 = MEDCouplingDataForTest.buildCircle(0.25, 0.2, 0.4)
-        # Was looping indefinitly:
-        m_intersec, resToM1, resToM2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, eps)
-        m_intersec.zipCoords()
-        coo_tgt = DataArrayDouble([-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.03284271247461901, 0.4828427124746191, 
-          -0.014575131106459124, 0.5000000000000001, 0.5, -0.11224989991991996, 0.24271243444677046, 0.5, 0.5, 0.19387505004004, 
-          -0.04799910280454185, -0.06682678787499614, -0.023843325638122054, 0.4915644577163915, 0.5, -0.30612494995996, 0.0, -0.5, 
-          -0.5, 0.0, -0.25728756555322957, 0.5, -0.023843325638122026, 0.49156445771639157, -0.04799910280454181, -0.06682678787499613], 17 ,2)
-        conn_tgt = [32, 5, 2, 6, 4, 7, 8, 9, 10, 32, 6, 3, 0, 1, 5, 4, 11, 12, 13, 14, 15, 16]
-        connI_tgt = [0, 9, 22]
-        res1_tgt  = [0, 0]
-        res2_tgt = [0, -1]
-        self.assert_(coo_tgt.isEqualWithoutConsideringStr(m_intersec.getCoords(), 1e-12))
-        self.assertEqual(conn_tgt, m_intersec.getNodalConnectivity().getValues())
-        self.assertEqual(connI_tgt, m_intersec.getNodalConnectivityIndex().getValues())
-        self.assertEqual(res1_tgt, resToM1.getValues())
-        self.assertEqual(res2_tgt, resToM2.getValues())
-        
     def testDAIBuildUnique1(self):
         d=DataArrayInt([1,2,2,3,3,3,3,4,5,5,7,7,7,19])
         e=d.buildUnique()
@@ -1584,7 +1468,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         mT3.allocateCells(1)
         mT3.insertNextCell(NORM_TRI3,range(3))
         mT3.finishInsertingCells()
-        
+
         tr=[[0.,0.],[2.,0.], [0.,2.],[2.,2.],[4.,2.],[6.,2.],[8.,2.],[10.,2.],[12.,2.],[0.,4.],[2.,4.],[4.,4.],[6.,4.],[8.,4.],[10.,4.],[12.,4.],[14.,4.],[16.,4.],[18.,4.],[20.,4.],[22.,4.]]
         ms=2*[mQ4]+7*[mQ8]+11*[mT3]
         ms[:]=(elt.deepCopy() for elt in ms)
@@ -1709,42 +1593,6 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         arr=DataArrayInt([0,4,5,1])
         d=DataArrayInt([7,8,9,10])
         self.assertRaises(InterpKernelException,arr.transformWithIndArr,d)
-        pass
-
-    def testIntersect2DMeshesTmp6(self):
-        # coordinates
-        coords=DataArrayDouble.New([2.7554552980815448e-15,45,-45,5.5109105961630896e-15,-31.819805153394636,31.81980515339464,2.8779199779962799e-15,47,2.8166876380389124e-15,46,-47,5.7558399559925599e-15,-33.234018715767732,33.234018715767739,-46,5.6333752760778247e-15],8,2);
-        # connectivity
-        conn=DataArrayInt.New([8,0,3,5,1,4,6,7,2])
-        connI=DataArrayInt.New([0,9]);
-        m1=MEDCouplingUMesh.New("Fixe",2);
-        m1.setCoords(coords);
-        m1.setConnectivity(conn,connI,True);
-        #
-        coords=DataArrayDouble.New([-7.3800475508445391,41.854329503018846,-3.7041190667754655,42.338274668899189,-3.7041190667754655,45.338274668899189,-7.3800475508445382,44.854329503018839,-5.5473631693521845,42.136406608386956,-3.7041190667754655,43.838274668899189,-5.5420833088100014,45.09630208595901,-7.3800475508445382,43.354329503018839,-3.7041190667754651,52.338274668899189,-7.3800475508445382,51.854329503018839,-3.7041190667754655,48.838274668899189,-5.5420833088100014,52.09630208595901,-7.3800475508445382,48.354329503018839],13,2);
-        # connectivity
-        conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12]);
-        connI=DataArrayInt.New([0,9,18]);
-        #
-        m2=MEDCouplingUMesh.New("Mobile",2);
-        m2.setCoords(coords);
-        m2.setConnectivity(conn,connI,True);
-        #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10);
-        self.assertTrue(d1.isEqual(DataArrayInt([0,0,0,0])));
-        self.assertTrue(d2.isEqual(DataArrayInt([0,1,-1,-1])));
-        self.assertEqual(4,m3.getNumberOfCells());
-        self.assertEqual(4,d1.getNumberOfTuples());
-        self.assertEqual(4,d2.getNumberOfTuples());
-        self.assertEqual(43,m3.getNumberOfNodes());
-        dI,areMerged,newNbOfNodes=m3.mergeNodes(1e-12)
-        self.assertEqual(35,m3.getNumberOfNodes());
-        m3.zipCoords();
-        self.assertEqual(23,m3.getNumberOfNodes());
-        #
-        f=m3.getMeasureField(True);
-        valuesExpected=DataArrayDouble([1.6603638692585716,5.747555728471923,129.68907101754394,7.4162714498559694])
-        self.assertTrue(f.getArray().isEqual(valuesExpected,1e-12))
         pass
 
     def testDAPushBack(self):
@@ -1973,7 +1821,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #
         m0=MEDCouplingUMesh("m",3) ; m0.allocateCells(0); m0.insertNextCell(NORM_TETRA4,[0,1,2,3]); #Well oriented
         m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,1,2,3,4]); #Well oriented
-        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented 
+        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented
         m3=MEDCouplingUMesh("m",3) ; m3.allocateCells(0); m3.insertNextCell(NORM_HEXA8,[0,1,2,3,4,5,6,7]); #Well oriented
         m4=MEDCouplingUMesh("m",3) ; m4.allocateCells(0)
         self.assertRaises(InterpKernelException,m4.insertNextCell,NORM_HEXGP12,[0,1,2,3,4,5,6,7,8,9,10,11,12]);
@@ -2001,8 +1849,8 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #
         mOK=m.deepCopy()
         m0=MEDCouplingUMesh("m",3) ; m0.allocateCells(0); m0.insertNextCell(NORM_TETRA4,[0,2,1,3]); #Not well oriented
-        m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,1,2,3,4]); #Well oriented 
-        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented 
+        m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,1,2,3,4]); #Well oriented
+        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented
         m3=MEDCouplingUMesh("m",3) ; m3.allocateCells(0); m3.insertNextCell(NORM_HEXA8,[0,3,2,1,4,7,6,5]); #Not well oriented
         m4=MEDCouplingUMesh("m",3) ; m4.allocateCells(0); m4.insertNextCell(NORM_HEXGP12,[0,5,4,3,2,1,6,11,10,9,8,7]); #Not well oriented
         m0.setCoords(c0) ; m1.setCoords(c1) ; m2.setCoords(c2) ; m3.setCoords(c3) ; m4.setCoords(c4)
@@ -2027,8 +1875,8 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             pass
         #
         m0=MEDCouplingUMesh("m",3) ; m0.allocateCells(0); m0.insertNextCell(NORM_TETRA4,[0,1,2,3]); #Well oriented
-        m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,3,2,1,4]); #Not well oriented 
-        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,2,1,3,5,4]); #Not well oriented 
+        m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,3,2,1,4]); #Not well oriented
+        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,2,1,3,5,4]); #Not well oriented
         m3=MEDCouplingUMesh("m",3) ; m3.allocateCells(0); m3.insertNextCell(NORM_HEXA8,[0,1,2,3,4,5,6,7]); #Well oriented
         m4=MEDCouplingUMesh("m",3) ; m4.allocateCells(0); m4.insertNextCell(NORM_HEXGP12,range(12)); #Well oriented
         m0.setCoords(c0) ; m1.setCoords(c1) ; m2.setCoords(c2) ; m3.setCoords(c3) ; m4.setCoords(c4)
@@ -2362,7 +2210,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         pass
 
     def testSwigSetItem3(self):
-        # 1-2 
+        # 1-2
         d=DataArrayDouble([0,0,0,0,0,0,0,0,0,0,0,0],6,2)
         d[3]=[1,2]
         self.assertTrue(d.isEqual(DataArrayDouble([0,0,0,0,0,0,1,2,0,0,0,0],6,2),1e-14))
@@ -2422,7 +2270,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d=DataArrayDouble([0,0,0,0,0,0,0,0,0,0,0,0],6,2)
         d[1::2,:]=[3,9]
         self.assertTrue(d.isEqual(DataArrayDouble([0,0,3,9,0,0,3,9,0,0,3,9],6,2),1e-14))
-        # 1-2 
+        # 1-2
         d=DataArrayInt([0,0,0,0,0,0,0,0,0,0,0,0],6,2)
         d[3]=[1,2]
         self.assertTrue(d.isEqual(DataArrayInt([0,0,0,0,0,0,1,2,0,0,0,0],6,2)))
@@ -2979,7 +2827,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d4**=d3
         self.assertTrue(d4.isEqual(DataArrayDouble([1.,sqrt(2.),1.4422495703074083,sqrt(2.)]),1e-14))
         pass
-    
+
     def testSwig2Baryenter3DForCellsWithVolumeZero1(self):
         coo=DataArrayDouble([0.,0.,0.,1.,0.,0.,0.,1.,0.],3,3)
         m2=MEDCouplingUMesh("mesh",2)
@@ -3060,7 +2908,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d.alloc(1000,3) ; d.fillWithValue(127)
         self.assertTrue(len(d.__repr__())<500)
         pass
-    
+
     def testSwig2MeshComputeIsoBarycenterOfNodesPerCell1(self):
         coo=DataArrayDouble([26.17509821414239,5.0374,200.,26.175098214142388,-5.0374,200.,17.450065476094927,20.1496,200.,8.725032738047464,25.187,200.,43.62516369023732,5.0374,200.,34.90013095218986,10.0748,200.,34.900130952189855,-10.0748,200.,43.625163690237315,-5.0374,200.,26.175098214142402,25.187,200.,26.175098214142395,35.2618,200.,17.45006547609493,40.2992,200.,8.725032738047469,35.2618,200.,26.17509821414239,5.0374,200.,26.175098214142388,-5.0374,200.,17.450065476094927,20.1496,200.,8.725032738047464,25.187,200.,43.62516369023732,5.0374,200.,34.90013095218986,10.0748,200.,34.900130952189855,-10.0748,200.,43.625163690237315,-5.0374,200.,26.175098214142402,25.187,200.,26.175098214142395,35.2618,200.,17.45006547609493,40.2992,200.,8.725032738047469,35.2618,200.],24,3)
         m=MEDCouplingUMesh.New("toto",3)
@@ -3133,7 +2981,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([0,0,0,0,0,0])))
         self.assertTrue(e.isEqual(DataArrayInt([0,1,2,3,4,5,6])))
         pass
-    
+
     def testSwigAdvGauss(self):
         f=MEDCouplingFieldTemplate(ON_GAUSS_PT)
         f.setDiscretization(None)
@@ -3612,9 +3460,9 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(1,0.25),(1,0.44444444444444442),(1,0.59999999999999998),(1,0.72727272727272729),(1,0.83333333333333337)]),1e-12))
         self.assertRaises(InterpKernelException,f.__rdiv__,f2)
         pass
-    
+
     pass
 
 if __name__ == '__main__':
     unittest.main()
-  
+

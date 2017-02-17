@@ -385,7 +385,7 @@ namespace INTERP_KERNEL
           {
             TranslationRotationMatrix rotation;
             //rotate3DTriangle(Coords_A, &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2], rotation);
-            rotate3DTriangle(Coords_B, Coords_B+SPACEDIM*i_B1, Coords_B+SPACEDIM*i_B2, rotation);
+            Rotate3DTriangle(Coords_B, Coords_B+SPACEDIM*i_B1, Coords_B+SPACEDIM*i_B2, rotation);
             for (int i=0; i<nb_NodesA; i++)
               rotation.transform_vector(Coords_A+SPACEDIM*i);
             for (int i=0; i<nb_NodesB; i++)
@@ -407,7 +407,7 @@ namespace INTERP_KERNEL
   }
   
   template<class MyMeshType, class MyMatrix>
-  void PlanarIntersector<MyMeshType,MyMatrix>::rotate3DTriangle(double* PP1, double*PP2, double*PP3,
+  void PlanarIntersector<MyMeshType,MyMatrix>::Rotate3DTriangle(double* PP1, double*PP2, double*PP3,
                                                                 TranslationRotationMatrix& rotation_matrix)
   {
     //initializes

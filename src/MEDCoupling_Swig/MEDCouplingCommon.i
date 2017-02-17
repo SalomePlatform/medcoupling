@@ -297,6 +297,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed;
 %newobject MEDCoupling::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
 %newobject MEDCoupling::MEDCouplingUMesh::conformize2D;
+%newobject MEDCoupling::MEDCouplingUMesh::conformize3D;
 %newobject MEDCoupling::MEDCouplingUMesh::colinearize2D;
 %newobject MEDCoupling::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject MEDCoupling::MEDCouplingUMesh::sortCellsInMEDFileFrmt;
@@ -410,6 +411,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::DenseMatrix::__mul__;
 %newobject MEDCoupling::MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell;
 %newobject MEDCoupling::MEDCouplingGaussLocalization::buildRefCell;
+%newobject MEDCoupling::MEDCouplingSkyLineArray::BuildFromPolyhedronConn;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -1178,11 +1180,21 @@ namespace MEDCoupling
   class MEDCouplingSkyLineArray
   {
   public:  
+    static MEDCouplingSkyLineArray *BuildFromPolyhedronConn( const DataArrayInt* c, const DataArrayInt* cI ) throw(INTERP_KERNEL::Exception);
+  
     void set( DataArrayInt* index, DataArrayInt* value );
+    void set3( DataArrayInt* superIndex, DataArrayInt* index, DataArrayInt* value );
+    
+    int getSuperNumberOf() const;
     int getNumberOf() const;
     int getLength() const;
+    
+    DataArrayInt* getSuperIndexArray() const;
     DataArrayInt* getIndexArray() const;
     DataArrayInt* getValuesArray() const;
+
+    void deletePack(const int i, const int j) throw(INTERP_KERNEL::Exception);
+    
     %extend 
     {
       MEDCouplingSkyLineArray() throw(INTERP_KERNEL::Exception)
@@ -1209,7 +1221,56 @@ namespace MEDCoupling
       {
         return self->simpleRepr();
       }
-           
+     
+      PyObject *getSimplePackSafe(int absolutePackId) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> ret;
+        self->getSimplePackSafe(absolutePackId,ret);
+        return convertIntArrToPyList2(ret);
+      }
+
+      PyObject *findPackIds(PyObject *superPackIndices, PyObject *pack) const throw(INTERP_KERNEL::Exception)
+      {
+          std::vector<int> vpack, vspIdx, out;
+          
+          convertPyToNewIntArr3(superPackIndices,vspIdx);
+          convertPyToNewIntArr3(pack,vpack);
+          
+          self->findPackIds(vspIdx, vpack.data(), vpack.data()+vpack.size(), out);
+          return convertIntArrToPyList2(out);
+      }
+      
+      void pushBackPack(const int i, PyObject *pack) throw(INTERP_KERNEL::Exception)
+        {
+          std::vector<int> vpack;
+          convertPyToNewIntArr3(pack,vpack);
+          self->pushBackPack(i,vpack.data(), vpack.data()+vpack.size());
+        }
+        
+      void replaceSimplePack(const int idx, PyObject *pack) throw(INTERP_KERNEL::Exception)
+        {
+          std::vector<int> vpack;
+          convertPyToNewIntArr3(pack,vpack);
+          self->replaceSimplePack(idx, vpack.data(), vpack.data()+vpack.size());
+        }
+        
+      void replacePack(const int superIdx, const int idx, PyObject *pack) throw(INTERP_KERNEL::Exception)
+        {
+          std::vector<int> vpack;
+          convertPyToNewIntArr3(pack,vpack);
+          self->replacePack(superIdx, idx, vpack.data(), vpack.data()+vpack.size());
+        }
+
+      PyObject *convertToPolyhedronConn() const throw(INTERP_KERNEL::Exception)
+         {
+           MCAuto<DataArrayInt> d0=DataArrayInt::New();
+           MCAuto<DataArrayInt> d1=DataArrayInt::New();
+           self->convertToPolyhedronConn(d0,d1);
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           return ret;
+         } 
     }
   };
 }
@@ -1820,6 +1881,7 @@ namespace MEDCoupling
     MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     //tools
     DataArrayInt *conformize2D(double eps) throw(INTERP_KERNEL::Exception);
+    DataArrayInt *conformize3D(double eps) throw(INTERP_KERNEL::Exception);
     DataArrayInt *colinearize2D(double eps) throw(INTERP_KERNEL::Exception);
     void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);

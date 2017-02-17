@@ -32,7 +32,7 @@ namespace INTERP_KERNEL
   class DiameterCalculator;
   
   /*!
-   * This class descibes all static elements (different from polygons and polyhedron) 3D, 2D and 1D.
+   * This class describes all static elements (different from polygons and polyhedron) 3D, 2D and 1D.
    */
   class CellModel
   {
