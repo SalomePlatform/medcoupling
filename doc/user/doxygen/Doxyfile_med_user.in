@@ -132,6 +132,7 @@ FILE_PATTERNS          = InterpKernelDEC.*xx \
                          ParaMESH.*xx \
                          MEDCouplingMesh.*xx \
                          MEDCouplingUMesh.*xx \
+                         MEDCouplingUMesh_intersection.*xx \
                          MEDCoupling1GTUMesh.*xx \
                          MEDCouplingPointSet.*xx \
                          MEDCouplingCMesh.*xx \
