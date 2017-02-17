@@ -19,6 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingCMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingSkyLineArray.hxx"
@@ -8037,15 +8038,16 @@ MEDCouplingUMesh *MEDCouplingUMesh::Build0DMeshFromCoords(DataArrayDouble *da)
   if(!da)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Build0DMeshFromCoords : instance of DataArrayDouble must be not null !");
   da->checkAllocated();
-  MCAuto<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(da->getName(),0);
+  std::string name(da->getName());
+  MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::New(name,0));
+  if(name.empty())
+    ret->setName("Mesh");
   ret->setCoords(da);
-  int nbOfTuples=da->getNumberOfTuples();
-  MCAuto<DataArrayInt> c=DataArrayInt::New();
-  MCAuto<DataArrayInt> cI=DataArrayInt::New();
+  int nbOfTuples(da->getNumberOfTuples());
+  MCAuto<DataArrayInt> c(DataArrayInt::New()),cI(DataArrayInt::New());
   c->alloc(2*nbOfTuples,1);
   cI->alloc(nbOfTuples+1,1);
-  int *cp=c->getPointer();
-  int *cip=cI->getPointer();
+  int *cp(c->getPointer()),*cip(cI->getPointer());
   *cip++=0;
   for(int i=0;i<nbOfTuples;i++)
     {
@@ -8056,6 +8058,29 @@ MEDCouplingUMesh *MEDCouplingUMesh::Build0DMeshFromCoords(DataArrayDouble *da)
   ret->setConnectivity(c,cI,true);
   return ret.retn();
 }
+
+MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::Build1DMeshFromCoords(DataArrayDouble *da)
+{
+  if(!da)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Build01MeshFromCoords : instance of DataArrayDouble must be not null !");
+  da->checkAllocated();
+  std::string name(da->getName());
+  MCAuto<MEDCouplingUMesh> ret;
+  {
+    MCAuto<MEDCouplingCMesh> tmp(MEDCouplingCMesh::New());
+    MCAuto<DataArrayDouble> arr(DataArrayDouble::New());
+    arr->alloc(da->getNumberOfTuples());
+    tmp->setCoordsAt(0,arr);
+    ret=tmp->buildUnstructured();
+  }
+  ret->setCoords(da);
+  if(name.empty())
+    ret->setName("Mesh");
+  else
+    ret->setName(name);
+  return ret;
+}
+
 /*!
  * Creates a new MEDCouplingUMesh by concatenating two given meshes of the same dimension.
  * Cells and nodes of

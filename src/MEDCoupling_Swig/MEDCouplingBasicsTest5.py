@@ -4852,6 +4852,28 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(f2.getArray().getHiddenCppPointer(),f3.getArray().getHiddenCppPointer())
         self.assertEqual(f3.getTime(),[0.5,2,3])
         pass
+
+    def testBuild1DMeshFromCoords1(self):
+        da=DataArrayDouble([(3,4),(5,6),(7,8)])
+        da.setName("ZeArr")
+        da0=da.deepCopy()
+        m=MEDCouplingUMesh.Build1DMeshFromCoords(da0)
+        m.checkConsistencyLight()
+        self.assertEqual(da0.getHiddenCppPointer(),m.getCoords().getHiddenCppPointer())
+        self.assertTrue(da.isEqual(da0,1e-12))
+        self.assertEqual(m.getName(),da.getName())
+        self.assertEqual(m.getMeshDimension(),1)
+        self.assertTrue(isinstance(m,MEDCouplingUMesh))
+        m1=MEDCoupling1SGTUMesh(m)
+        m1.checkConsistencyLight()
+        self.assertTrue(m1.getNodalConnectivity().isEqual(DataArrayInt([0,1,1,2])))
+        #
+        da0.setName("")
+        m2=MEDCouplingUMesh.Build1DMeshFromCoords(da0)
+        m2.checkConsistencyLight()
+        self.assertEqual(da0.getHiddenCppPointer(),m2.getCoords().getHiddenCppPointer())
+        self.assertEqual(m2.getName(),"Mesh")
+        pass
     
     pass
 

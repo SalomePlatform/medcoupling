@@ -315,6 +315,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingUMesh::buildPartOrthogonalField;
 %newobject MEDCoupling::MEDCouplingUMesh::keepCellIdsByType;
 %newobject MEDCoupling::MEDCouplingUMesh::Build0DMeshFromCoords;
+%newobject MEDCoupling::MEDCouplingUMesh::Build1DMeshFromCoords;
 %newobject MEDCoupling::MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells;
 %newobject MEDCoupling::MEDCouplingUMesh::findAndCorrectBadOriented3DCells;
 %newobject MEDCoupling::MEDCouplingUMesh::convertIntoSingleGeoTypeMesh;
@@ -1896,6 +1897,12 @@ namespace MEDCoupling
         return self->cellIterator();
       }
 
+      static MEDCouplingUMesh *Build1DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::Build1DMeshFromCoords(da));
+        return ret.retn();
+      }
+      
       PyObject *getAllGeoTypesSorted() const throw(INTERP_KERNEL::Exception)
       {
         std::vector<INTERP_KERNEL::NormalizedCellType> result=self->getAllGeoTypesSorted();
