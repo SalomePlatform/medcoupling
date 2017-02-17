@@ -1387,6 +1387,14 @@ bool MEDCouplingPointSet::areAllNodesFetched() const
  * mesh (with a specified precision) and (2) \a this mesh contains the same cells as
  * the \a other mesh (with use of a specified cell comparison technique). The mapping 
  * from \a other to \a this for nodes and cells is returned via out parameters.
+ *
+ * If \a cellCor is null (or Py_None) it means that for all #i cell in \a other is equal to cell # i in \a this.
+ *
+ * If \a nodeCor is null (or Py_None) it means that for all #i node in \a other is equal to node # i in \a this.
+ *
+ * So null (or Py_None) returned in \a cellCor and/or \a nodeCor means identity array. This is for optimization reason to avoid building
+ * useless arrays for some \a levOfCheck (for example 0).
+ *
  *  \param [in] other - the mesh to compare with.
  *  \param [in] cellCompPol - id [0-2] of cell comparison method. See meaning of
  *         each method in description of MEDCouplingPointSet::zipConnectivityTraducer().
@@ -1452,6 +1460,9 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
  * node coordinates array and (2) they contain the same cells (with use of a specified
  * cell comparison technique). The mapping from cells of the \a other to ones of \a this 
  * is returned via an out parameter.
+ *
+ * If \a cellCor is null (or Py_None) it means that for all #i cell in \a other is equal to cell # i in \a this.
+ *
  *  \param [in] other - the mesh to compare with.
  *  \param [in] cellCompPol - id [0-2] of cell comparison method. See the meaning of
  *         each method in description of MEDCouplingPointSet::zipConnectivityTraducer().
