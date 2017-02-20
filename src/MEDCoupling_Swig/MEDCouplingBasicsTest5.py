@@ -4138,19 +4138,19 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual( 0,  sla0.getLength() )
         sla0.set( index, value )
         self.assertTrue( index.isEqual( sla0.getIndexArray() ))
-        self.assertTrue( value.isEqual( sla0.getValueArray() ))
+        self.assertTrue( value.isEqual( sla0.getValuesArray() ))
         self.assertEqual( 4, sla0.getNumberOf() )
         self.assertEqual( 6, sla0.getLength() )
 
         sla1 = MEDCouplingSkyLineArray( index, value )
         self.assertTrue( index.isEqual( sla1.getIndexArray() ))
-        self.assertTrue( value.isEqual( sla1.getValueArray() ))
+        self.assertTrue( value.isEqual( sla1.getValuesArray() ))
         self.assertEqual( 4, sla1.getNumberOf() )
         self.assertEqual( 6, sla1.getLength() )
 
         sla2 = MEDCouplingSkyLineArray( sla1 )
         self.assertTrue( index.isEqual( sla2.getIndexArray() ))
-        self.assertTrue( value.isEqual( sla2.getValueArray() ))
+        self.assertTrue( value.isEqual( sla2.getValuesArray() ))
         self.assertEqual( 4, sla2.getNumberOf() )
         self.assertEqual( 6, sla2.getLength() )
 
@@ -4160,7 +4160,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         for i in value: valueVec.push_back( i[0] )
         sla3 = MEDCouplingSkyLineArray( indexVec, valueVec )
         self.assertTrue( index.isEqual( sla3.getIndexArray() ))
-        self.assertTrue( value.isEqual( sla3.getValueArray() ))
+        self.assertTrue( value.isEqual( sla3.getValuesArray() ))
         self.assertEqual( 4, sla3.getNumberOf() )
         self.assertEqual( 6, sla3.getLength() )
 

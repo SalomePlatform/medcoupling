@@ -43,6 +43,8 @@ namespace MEDCoupling
     } MEDCouplingAxisType;
   // -- WARNING this enum must be synchronized with MEDCouplingCommon.i file ! --
 
+  class PartDefinition;
+  
   template<class T>
   class MEDCouplingPointer
   {
@@ -261,6 +263,7 @@ namespace MEDCoupling
     typename Traits<T>::ArrayType *renumberAndReduce(const int *old2New, int newNbOfTuple) const;
     typename Traits<T>::ArrayType *changeNbOfComponents(int newNbOfComp, T dftValue) const;
     typename Traits<T>::ArrayType *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
+    MCAuto<typename Traits<T>::ArrayTypeCh> selectPartDef(const PartDefinition* pd) const;
     void circularPermutation(int nbOfShift=1);
     void circularPermutationPerTuple(int nbOfShift=1);
     void reversePerTuple();
@@ -331,7 +334,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<double>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
     MEDCOUPLING_EXPORT DataArrayDouble *keepSelectedComponents(const std::vector<int>& compoIds) const { return DataArrayTemplate<double>::myKeepSelectedComponents(compoIds); }
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafeSlice(int bg, int end2, int step) const { return DataArrayTemplate<double>::mySelectByTupleIdSafeSlice(bg,end2,step); }
-    MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplate<double>::mySelectByTupleRanges(ranges); }
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplate<double>::mySelectByTupleRanges(ranges); }
     MEDCOUPLING_EXPORT void meldWith(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT bool areIncludedInMe(const DataArrayDouble *other, double prec, DataArrayInt *&tupleIds) const;
     MEDCOUPLING_EXPORT void findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
@@ -536,7 +539,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<int>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
     MEDCOUPLING_EXPORT DataArrayInt *keepSelectedComponents(const std::vector<int>& compoIds) const { return DataArrayTemplate<int>::myKeepSelectedComponents(compoIds); }
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafeSlice(int bg, int end, int step) const { return DataArrayTemplate<int>::mySelectByTupleIdSafeSlice(bg,end,step); }
-    MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplate<int>::mySelectByTupleRanges(ranges); }
+    MEDCOUPLING_EXPORT DataArrayInt *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplate<int>::mySelectByTupleRanges(ranges); }
     MEDCOUPLING_EXPORT DataArrayInt *checkAndPreparePermutation() const;
     MEDCOUPLING_EXPORT static DataArrayInt *FindPermutationFromFirstToSecond(const DataArrayInt *ids1, const DataArrayInt *ids2);
     MEDCOUPLING_EXPORT void changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, DataArrayInt *&arrI) const;

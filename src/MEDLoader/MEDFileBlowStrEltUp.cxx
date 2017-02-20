@@ -21,6 +21,7 @@
 #include "MEDFileBlowStrEltUp.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDFileFieldVisitor.hxx"
+#include "MEDCouplingPartDefinition.hxx"
 #include "MCAuto.txx"
 
 using namespace MEDCoupling;
@@ -315,10 +316,12 @@ public:
   bool isClassic() const { return _is_classic; }
   bool operator!=(const FieldWalker2& other) const;
   bool operator==(const FieldWalker2& other) const;
+  const SlicePartDefinition *getPartDef() const { return _pd; }
 private:
   std::string _loc;
   std::string _pfl;
   bool _is_classic;
+  MCAuto<SlicePartDefinition> _pd;
 };
 
 class LocInfo
@@ -329,6 +332,7 @@ public:
   bool operator==(const LocInfo& other) const { return _locs==other._locs && _pfl==other._pfl; }
   void push(const std::string& loc, const std::string& pfl) { checkUniqueLoc(loc); _locs.push_back(loc); _pfl.push_back(pfl); }
   MCAuto<MEDFileUMesh> generateNonClassicalData(int zePos, const MEDFileUMesh *mesh, const MEDFileFieldGlobsReal *globs) const;
+  const PartDefinition *getPartDef() const { return _pd; }
 private:
   void checkUniqueLoc(const std::string& loc) const;
   static MCAuto<DataArrayDouble> BuildMeshFromAngleVrille(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *angleDeVrille, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
@@ -338,6 +342,7 @@ public:
 private:
   std::vector<std::string> _locs;
   std::vector<std::string> _pfl;
+  MCAuto<PartDefinition> _pd;
 };
 
 const char LocInfo::ANGLE_DE_VRILLE[]="ANGLE DE VRILLE";
@@ -346,10 +351,14 @@ LocInfo::LocInfo(const std::vector<FieldWalker2>& fw)
 {
   std::size_t sz(fw.size());
   _locs.resize(sz); _pfl.resize(sz);
+  if(sz>0)
+    _pd=fw[0].getPartDef()->deepCopy();
   for(std::size_t i=0;i<sz;i++)
     {
       _locs[i]=fw[i].getLoc();
       _pfl[i]=fw[i].getPfl();
+      if(i>0)
+        _pd=(*_pd)+(*(fw[i].getPartDef()));
     }
 }
 
@@ -505,17 +514,22 @@ FieldWalker2::FieldWalker2(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd)
   _loc=pmptpd->getLocalization();
   _pfl=pmptpd->getProfile();
   _is_classic=pmptpd->getType()!=ON_GAUSS_PT;
+  _pd=SlicePartDefinition::New(pmptpd->getStart(),pmptpd->getEnd(),1);
 }
 
 bool FieldWalker2::operator!=(const FieldWalker2& other) const
 {
-  bool ret(_loc==other._loc && _pfl==other._pfl && _is_classic==other._is_classic);
-  return !ret;
+  return !((*this)==other);
 }
 
 bool FieldWalker2::operator==(const FieldWalker2& other) const
 {
-  bool ret(_loc==other._loc && _pfl==other._pfl && _is_classic==other._is_classic);
+  bool ret2(false);
+  {
+    std::string tmp;
+    ret2=_pd->isEqual(other._pd,tmp);
+  }
+  bool ret(_loc==other._loc && _pfl==other._pfl && _is_classic==other._is_classic && ret2);
   return ret;
 }
 
@@ -755,7 +769,10 @@ void LocSpliter::generateNonClassicalData(const MEDFileUMesh *mesh, std::vector<
               int t2,t3;
               double t1(f1ts->getTime(t2,t3));
               MCAuto<MEDCouplingFieldDouble> mcf(MEDCouplingFieldDouble::New(ON_NODES));
-              mcf->setArray(f1ts->getUndergroundDataArray());
+              MCAuto<DataArrayDouble> arr,arr2;
+              arr.takeRef(f1ts->getUndergroundDataArray());
+              arr2=arr->selectPartDef((*it).getPartDef());
+              mcf->setArray(arr2);
               mcf->setTime(t1,t2,t3);
               mcf->setName(f1ts->getName());
               mcf->setMesh(mcm);

@@ -408,13 +408,6 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::DenseMatrix::__add__;
 %newobject MEDCoupling::DenseMatrix::__sub__;
 %newobject MEDCoupling::DenseMatrix::__mul__;
-%newobject MEDCoupling::PartDefinition::New;
-%newobject MEDCoupling::PartDefinition::toDAI;
-%newobject MEDCoupling::PartDefinition::__add__;
-%newobject MEDCoupling::PartDefinition::composeWith;
-%newobject MEDCoupling::PartDefinition::tryToSimplify;
-%newobject MEDCoupling::DataArrayPartDefinition::New;
-%newobject MEDCoupling::SlicePartDefinition::New;
 %newobject MEDCoupling::MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell;
 %newobject MEDCoupling::MEDCouplingGaussLocalization::buildRefCell;
 
@@ -447,9 +440,6 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingDataForGodFather "$this->decrRef();"
 %feature("unref") MEDCouplingAMRAttribute "$this->decrRef();"
 %feature("unref") DenseMatrix "$this->decrRef();"
-%feature("unref") PartDefinition "$this->decrRef();"
-%feature("unref") DataArrayPartDefinition "$this->decrRef();"
-%feature("unref") SlicePartDefinition "$this->decrRef();"
 %feature("unref") MEDCouplingSkyLineArray "$this->decrRef();"
 
 %rename(assign) *::operator=;
@@ -5952,107 +5942,6 @@ namespace MEDCoupling
       }
 #endif
     }
-  };
-  
-  class PartDefinition : public RefCountObject, public TimeLabel
-  {
-  public:
-    static PartDefinition *New(int start, int stop, int step) throw(INTERP_KERNEL::Exception);
-    static PartDefinition *New(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *toDAI() const throw(INTERP_KERNEL::Exception);
-    virtual int getNumberOfElems() const throw(INTERP_KERNEL::Exception);
-    virtual std::string getRepr() const throw(INTERP_KERNEL::Exception);
-    virtual PartDefinition *composeWith(const PartDefinition *other) const throw(INTERP_KERNEL::Exception);
-    virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
-    virtual PartDefinition *tryToSimplify() const throw(INTERP_KERNEL::Exception);
-    %extend
-    {
-      virtual PartDefinition *__add__(const PartDefinition& other) const throw(INTERP_KERNEL::Exception)
-      {
-        return (*self)+other;
-      }
-
-      virtual PyObject *isEqual(const PartDefinition *other) const throw(INTERP_KERNEL::Exception)
-      {
-        std::string ret1;
-        bool ret0(self->isEqual(other,ret1));
-        PyObject *ret=PyTuple_New(2);
-        PyObject *ret0Py=ret0?Py_True:Py_False;
-        Py_XINCREF(ret0Py);
-        PyTuple_SetItem(ret,0,ret0Py);
-        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
-        return ret;
-      }
-
-      virtual PyObject *deepCopy() const throw(INTERP_KERNEL::Exception)
-      {
-        return convertPartDefinition(self->deepCopy(),SWIG_POINTER_OWN | 0);
-      }
-    }
-  protected:
-    virtual ~PartDefinition();
-  };
-
-  class DataArrayPartDefinition : public PartDefinition
-  {
-  public:
-    static DataArrayPartDefinition *New(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception);
-    %extend
-    {
-      DataArrayPartDefinition(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception)
-      {
-        return DataArrayPartDefinition::New(listOfIds);
-      }
-
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
-      {
-        return self->getRepr();
-      }
-      
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
-      {
-        std::ostringstream oss; oss << "DataArrayPartDefinition C++ instance at " << self << "." << std::endl;
-        oss << self->getRepr();
-        return oss.str();
-      }
-    }
-  protected:
-    virtual ~DataArrayPartDefinition();
-  };
-
-  class SlicePartDefinition : public PartDefinition
-  {
-  public:
-    static SlicePartDefinition *New(int start, int stop, int step) throw(INTERP_KERNEL::Exception);
-    int getEffectiveStop() const throw(INTERP_KERNEL::Exception);
-    %extend
-    {
-      SlicePartDefinition(int start, int stop, int step) throw(INTERP_KERNEL::Exception)
-      {
-        return SlicePartDefinition::New(start,stop,step);
-      }
-
-      PyObject *getSlice() const throw(INTERP_KERNEL::Exception)
-      {
-        int a,b,c;
-        self->getSlice(a,b,c);
-        return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(c));
-      }
-      
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
-      {
-        return self->getRepr();
-      }
-      
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
-      {
-        std::ostringstream oss; oss << "SlicePartDefinition C++ instance at " << self << "." << std::endl;
-        oss << self->getRepr();
-        return oss.str();
-      }
-    }
-  protected:
-    virtual ~SlicePartDefinition();
   };
 }
 

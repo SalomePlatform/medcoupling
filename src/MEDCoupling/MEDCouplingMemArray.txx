@@ -25,6 +25,7 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpolationUtils.hxx"
+#include "MEDCouplingPartDefinition.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "MCAuto.hxx"
 
@@ -1047,6 +1048,41 @@ namespace MEDCoupling
   typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleId(const DataArrayInt& di) const
   {
     return DataArrayTemplate<T>::mySelectByTupleId(di.begin(),di.end());
+  }
+
+  template<class T>
+  MCAuto<typename Traits<T>::ArrayTypeCh> DataArrayTemplate<T>::selectPartDef(const PartDefinition *pd) const
+  {
+    if(!pd)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate<T>::selectPartDef : null input pointer !");
+    MCAuto<typename Traits<T>::ArrayTypeCh> ret(Traits<T>::ArrayTypeCh::New());
+    const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(pd));
+    if(spd)
+      {
+        int a,b,c;
+        spd->getSlice(a,b,c);
+        if(a==0 && b==getNumberOfTuples() && c==1)
+          {
+            DataArrayTemplate<T> *directRet(const_cast<DataArrayTemplate<T> *>(this));
+            directRet->incrRef();
+            MCAuto<DataArrayTemplate<T> > ret(directRet);
+            return DynamicCastSafe<DataArrayTemplate<T>,typename Traits<T>::ArrayTypeCh>(ret);
+          }
+        else
+          {
+            MCAuto<DataArray> ret(selectByTupleIdSafeSlice(a,b,c));
+            return DynamicCastSafe<DataArray,typename Traits<T>::ArrayTypeCh>(ret);
+          }
+      }
+    const DataArrayPartDefinition *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
+    if(dpd)
+      {
+        MCAuto<DataArrayInt> arr(dpd->toDAI());
+        MCAuto<DataArray> ret(selectByTupleIdSafe(arr->begin(),arr->end()));
+        return DynamicCastSafe<DataArray,typename Traits<T>::ArrayTypeCh>(ret);
+        
+      }
+    throw INTERP_KERNEL::Exception("DataArrayTemplate<T>::selectPartDef : unrecognized part def !");
   }
   
   /*!

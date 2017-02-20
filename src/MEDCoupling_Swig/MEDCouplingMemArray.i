@@ -51,6 +51,7 @@
 %newobject MEDCoupling::DataArray::Aggregate;
 %newobject MEDCoupling::DataArrayInt::New;
 %newobject MEDCoupling::DataArrayInt::__iter__;
+%newobject MEDCoupling::DataArrayInt::selectPartDef;
 %newobject MEDCoupling::DataArrayInt::convertToDblArr;
 %newobject MEDCoupling::DataArrayInt::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayInt::subArray;
@@ -141,6 +142,7 @@
 %newobject MEDCoupling::DataArrayAsciiCharTuple::buildDAAsciiChar;
 %newobject MEDCoupling::DataArrayDouble::New;
 %newobject MEDCoupling::DataArrayDouble::__iter__;
+%newobject MEDCoupling::DataArrayDouble::selectPartDef;
 %newobject MEDCoupling::DataArrayDouble::convertToIntArr;
 %newobject MEDCoupling::DataArrayDouble::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayDouble::Aggregate;
@@ -202,12 +204,25 @@
 %newobject MEDCoupling::DataArrayDouble::__rpow__;
 %newobject MEDCoupling::DataArrayDoubleTuple::buildDADouble;
 
+%newobject MEDCoupling::PartDefinition::New;
+%newobject MEDCoupling::PartDefinition::toDAI;
+%newobject MEDCoupling::PartDefinition::__add__;
+%newobject MEDCoupling::PartDefinition::composeWith;
+%newobject MEDCoupling::PartDefinition::tryToSimplify;
+%newobject MEDCoupling::DataArrayPartDefinition::New;
+%newobject MEDCoupling::SlicePartDefinition::New;
+
+
 %feature("unref") DataArray "$this->decrRef();"
 %feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") DataArrayInt "$this->decrRef();"
 %feature("unref") DataArrayChar "$this->decrRef();"
 %feature("unref") DataArrayAsciiChar "$this->decrRef();"
 %feature("unref") DataArrayByte "$this->decrRef();"
+
+%feature("unref") PartDefinition "$this->decrRef();"
+%feature("unref") DataArrayPartDefinition "$this->decrRef();"
+%feature("unref") SlicePartDefinition "$this->decrRef();"
 
 namespace MEDCoupling
 {
@@ -218,6 +233,109 @@ namespace MEDCoupling
       AX_SPHER = 5
     } MEDCouplingAxisType;
 
+  class DataArrayInt;
+  
+  class PartDefinition : public RefCountObject, public TimeLabel
+  {
+  public:
+    static PartDefinition *New(int start, int stop, int step) throw(INTERP_KERNEL::Exception);
+    static PartDefinition *New(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception);
+    virtual DataArrayInt *toDAI() const throw(INTERP_KERNEL::Exception);
+    virtual int getNumberOfElems() const throw(INTERP_KERNEL::Exception);
+    virtual std::string getRepr() const throw(INTERP_KERNEL::Exception);
+    virtual PartDefinition *composeWith(const PartDefinition *other) const throw(INTERP_KERNEL::Exception);
+    virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
+    virtual PartDefinition *tryToSimplify() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      virtual PartDefinition *__add__(const PartDefinition& other) const throw(INTERP_KERNEL::Exception)
+      {
+        return (*self)+other;
+      }
+
+      virtual PyObject *isEqual(const PartDefinition *other) const throw(INTERP_KERNEL::Exception)
+      {
+        std::string ret1;
+        bool ret0(self->isEqual(other,ret1));
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
+      }
+
+      virtual PyObject *deepCopy() const throw(INTERP_KERNEL::Exception)
+      {
+        return convertPartDefinition(self->deepCopy(),SWIG_POINTER_OWN | 0);
+      }
+    }
+  protected:
+    virtual ~PartDefinition();
+  };
+
+  class DataArrayPartDefinition : public PartDefinition
+  {
+  public:
+    static DataArrayPartDefinition *New(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      DataArrayPartDefinition(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayPartDefinition::New(listOfIds);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->getRepr();
+      }
+      
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss; oss << "DataArrayPartDefinition C++ instance at " << self << "." << std::endl;
+        oss << self->getRepr();
+        return oss.str();
+      }
+    }
+  protected:
+    virtual ~DataArrayPartDefinition();
+  };
+
+  class SlicePartDefinition : public PartDefinition
+  {
+  public:
+    static SlicePartDefinition *New(int start, int stop, int step) throw(INTERP_KERNEL::Exception);
+    int getEffectiveStop() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      SlicePartDefinition(int start, int stop, int step) throw(INTERP_KERNEL::Exception)
+      {
+        return SlicePartDefinition::New(start,stop,step);
+      }
+
+      PyObject *getSlice() const throw(INTERP_KERNEL::Exception)
+      {
+        int a,b,c;
+        self->getSlice(a,b,c);
+        return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(c));
+      }
+      
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->getRepr();
+      }
+      
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss; oss << "SlicePartDefinition C++ instance at " << self << "." << std::endl;
+        oss << self->getRepr();
+        return oss.str();
+      }
+    }
+  protected:
+    virtual ~SlicePartDefinition();
+  };
+  
   class DataArray : public RefCountObject, public TimeLabel
   {
   public:
@@ -758,6 +876,12 @@ namespace MEDCoupling
         {
           return MEDCoupling_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
         }
+
+      DataArrayDouble *selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayDouble> ret(self->selectPartDef(pd));
+        return ret.retn();
+      }
 
       void pushBackValsSilent(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
@@ -2881,6 +3005,12 @@ namespace MEDCoupling
       DataArrayIntIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->iterator();
+      }
+
+      DataArrayInt *selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> ret(self->selectPartDef(pd));
+        return ret.retn();
       }
    
       PyObject *accumulate() const throw(INTERP_KERNEL::Exception)
