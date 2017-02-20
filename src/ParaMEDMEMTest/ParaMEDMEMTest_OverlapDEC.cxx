@@ -590,7 +590,7 @@ void ParaMEDMEMTest::testOverlapDEC3()
   MEDCouplingFieldDouble * resField = parafieldT->getField();
   if(rank==0)
     {
-      CPPUNIT_ASSERT_EQUAL(8, resField->getNumberOfTuples());
+      CPPUNIT_ASSERT_EQUAL(8, (int)resField->getNumberOfTuples());
       for(int i=0;i<4;i++)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0,resField->getArray()->getIJ(i,0),1e-12);
       for(int i=4;i<8;i++)
@@ -598,7 +598,7 @@ void ParaMEDMEMTest::testOverlapDEC3()
     }
   if(rank==1)
     {
-      CPPUNIT_ASSERT_EQUAL(12, resField->getNumberOfTuples());
+      CPPUNIT_ASSERT_EQUAL(12, (int)resField->getNumberOfTuples());
       for(int i=0;i<4;i++)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0,resField->getArray()->getIJ(i,0),1e-12);
       for(int i=4;i<8;i++)
@@ -660,7 +660,7 @@ void ParaMEDMEMTest::testOverlapDEC4()
   MEDCouplingFieldDouble * resField = parafieldT->getField();
   if(rank==0)
     {
-      CPPUNIT_ASSERT_EQUAL(8, resField->getNumberOfTuples());
+      CPPUNIT_ASSERT_EQUAL(8, (int)resField->getNumberOfTuples());
       for(int i=0;i<4;i++)
         {
           CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0,resField->getArray()->getIJ(i*2,0),1e-12);
@@ -674,7 +674,7 @@ void ParaMEDMEMTest::testOverlapDEC4()
     }
   if(rank==1)
     {
-      CPPUNIT_ASSERT_EQUAL(12, resField->getNumberOfTuples());
+      CPPUNIT_ASSERT_EQUAL(12, (int)resField->getNumberOfTuples());
       for(int i=0;i<4;i++)
         {
           CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0,resField->getArray()->getIJ(i*2,0),1e-12);

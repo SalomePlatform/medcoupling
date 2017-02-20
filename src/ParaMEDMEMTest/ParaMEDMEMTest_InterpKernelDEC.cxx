@@ -235,14 +235,14 @@ void ParaMEDMEMTest::testInterpKernelDEC_1D()
       const double *res=parafieldP0->getField()->getArray()->getConstPointer();
       if(rank==3)
         {
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfTuples());
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP0->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP0->getField()->getNumberOfComponents());
           CPPUNIT_ASSERT_DOUBLES_EQUAL(7.4,res[0],1e-12);
         }
       if(rank==4)
         {
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfTuples());
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP0->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP0->getField()->getNumberOfComponents());
           CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0540540540540526,res[0],1e-12);
         }
       dec.sendData();
@@ -424,14 +424,14 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
       const double *res=parafieldP0->getField()->getArray()->getConstPointer();
       if(rank==3)
         {
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfTuples());
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP0->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP0->getField()->getNumberOfComponents());
           CPPUNIT_ASSERT_DOUBLES_EQUAL(7.4,res[0],1e-12);
         }
       if(rank==4)
         {
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfTuples());
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP0->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP0->getField()->getNumberOfComponents());
           CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0540540540540526,res[0],1e-12);
         }
       dec.sendData();
@@ -1266,7 +1266,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec5.setForcedRenormalization(false);
       dec5.recvData();
       const double *res=parafield->getField()->getArray()->getConstPointer();
-      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      CPPUNIT_ASSERT_EQUAL(1,(int)parafield->getField()->getNumberOfTuples());
       const double expected[]={37.8518518518519,43.5333333333333};
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
     }
@@ -1293,7 +1293,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec6.setForcedRenormalization(false);
       dec6.recvData();
       const double *res=parafield->getField()->getArray()->getConstPointer();
-      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      CPPUNIT_ASSERT_EQUAL(1,(int)parafield->getField()->getNumberOfTuples());
       const double expected[]={0.794600591715977,1.35631163708087};
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
     }
@@ -1320,7 +1320,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec7.setForcedRenormalization(false);
       dec7.recvData();
       const double *res=parafield->getField()->getArray()->getConstPointer();
-      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      CPPUNIT_ASSERT_EQUAL(1,(int)parafield->getField()->getNumberOfTuples());
       const double expected[]={36.4592592592593,44.5407407407407};
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
     }
@@ -1347,7 +1347,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec8.setForcedRenormalization(false);
       dec8.recvData();
       const double *res=parafield->getField()->getArray()->getConstPointer();
-      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      CPPUNIT_ASSERT_EQUAL(1,(int)parafield->getField()->getNumberOfTuples());
       const double expected[]={0.81314102564102553,1.3428994082840233};
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
     }
@@ -1561,24 +1561,24 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
       if(rank==2)
         {
           const double expectP2[5]={39.0, 31.0, 31.0, 47.0, 39.0};
-          CPPUNIT_ASSERT_EQUAL(5,parafieldP1->getField()->getNumberOfTuples());
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP1->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_EQUAL(5,(int)parafieldP1->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP1->getField()->getNumberOfComponents());
           for(int kk=0;kk<5;kk++)
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP2[kk],res[kk],1e-12);
         }
       if(rank==3)
         {
           const double expectP3[3]={39.0, 31.0, 31.0};
-          CPPUNIT_ASSERT_EQUAL(3,parafieldP1->getField()->getNumberOfTuples());
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP1->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_EQUAL(3,(int)parafieldP1->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP1->getField()->getNumberOfComponents());
           for(int kk=0;kk<3;kk++)
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP3[kk],res[kk],1e-12);
         }
       if(rank==4)
         {
           const double expectP4[6]={47.0, 47.0, 47.0, 39.0, 39.0, 31.0};
-          CPPUNIT_ASSERT_EQUAL(6,parafieldP1->getField()->getNumberOfTuples());
-          CPPUNIT_ASSERT_EQUAL(1,parafieldP1->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_EQUAL(6,(int)parafieldP1->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,(int)parafieldP1->getField()->getNumberOfComponents());
           for(int kk=0;kk<6;kk++)
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP4[kk],res[kk],1e-12);
         }

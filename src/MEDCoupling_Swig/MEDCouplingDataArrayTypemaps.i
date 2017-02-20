@@ -2662,5 +2662,20 @@ static PyObject *NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(PyObject *cls
   return instance;
 }
 
+static PyObject *convertPartDefinition(MEDCoupling::PartDefinition *pd, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(!pd)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<MEDCoupling::DataArrayPartDefinition *>(pd))
+    ret=SWIG_NewPointerObj((void*)pd,SWIGTYPE_p_MEDCoupling__DataArrayPartDefinition,owner);
+  else
+    ret=SWIG_NewPointerObj((void*)pd,SWIGTYPE_p_MEDCoupling__SlicePartDefinition,owner);
+  return ret;
+}
+
 #endif
 

@@ -24,7 +24,7 @@
 %include std_string.i
 
 %{
-#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingMemArray.txx"
 #include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
 

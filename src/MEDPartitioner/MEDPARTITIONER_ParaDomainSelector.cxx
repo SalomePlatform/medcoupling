@@ -340,7 +340,7 @@ std::auto_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherG
 
   int value_size = graph_index[ index_size-1 ] - graph_index[ 0 ];
   int *graph_value = new int[ value_size ];
-  const int *value = graph->getGraph()->getValue();
+  const int *value = graph->getGraph()->getValues();
 
   MPI_Allgatherv((void*) value,                // send local value
                  value_size_of_proc[_rank],    // value size on this proc
