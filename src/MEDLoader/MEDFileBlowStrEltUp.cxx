@@ -849,7 +849,7 @@ MCAuto<MEDFileFields> MEDFileBlowStrEltUp::splitFieldsPerLoc(const MEDFileFields
       for(int j=0;j<(*it)->getNumberOfFields();j++)
         {
           MCAuto<MEDFileAnyTypeFieldMultiTS> fmts((*it)->getFieldAtPos(j));
-          DealWithConflictNames(fmts,allZeOutFields);
+          //DealWithConflictNames(fmts,allZeOutFields);// uncomment to have a writable data structure
           allZeOutFields->pushField(fmts);
         }
     }
