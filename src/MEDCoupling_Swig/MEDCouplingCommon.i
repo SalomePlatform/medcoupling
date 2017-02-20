@@ -1200,6 +1200,11 @@ namespace MEDCoupling
         return MEDCouplingSkyLineArray::New(index, value);
       }
 
+      MEDCouplingSkyLineArray( const MEDCouplingSkyLineArray & other ) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCouplingSkyLineArray::New(other);
+      }
+
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();

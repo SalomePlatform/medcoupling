@@ -44,6 +44,7 @@ namespace MEDCoupling
     static MEDCouplingSkyLineArray * New();
     static MEDCouplingSkyLineArray * New( const std::vector<int>& index, const std::vector<int>& value);
     static MEDCouplingSkyLineArray * New( DataArrayInt* index, DataArrayInt* value );
+    static MEDCouplingSkyLineArray * New( const MEDCouplingSkyLineArray & other );
 
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;

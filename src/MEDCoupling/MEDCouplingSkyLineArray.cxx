@@ -55,6 +55,15 @@ MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New( DataArrayInt* index, Data
   return ret;
 }
 
+MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New( const MEDCouplingSkyLineArray & other )
+{
+  MEDCouplingSkyLineArray* ret = new MEDCouplingSkyLineArray();
+  ret->_index = other._index;
+  ret->_values = other._values;
+  ret->_sub_values = other._sub_values;
+  return ret;
+}
+
 
 std::size_t MEDCouplingSkyLineArray::getHeapMemorySizeWithoutChildren() const
 {
