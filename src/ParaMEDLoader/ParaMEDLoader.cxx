@@ -25,6 +25,7 @@
 #include "MEDCouplingUMesh.hxx"
 
 #include <fstream>
+#include <sstream>
 
 using namespace MEDCoupling;
 
