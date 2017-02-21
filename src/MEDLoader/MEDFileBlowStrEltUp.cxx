@@ -336,9 +336,12 @@ public:
 private:
   void checkUniqueLoc(const std::string& loc) const;
   static MCAuto<DataArrayDouble> BuildMeshFromAngleVrille(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *angleDeVrille, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
+  static MCAuto<DataArrayDouble> BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thikness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
+  static MCAuto<MEDCouplingUMesh> BuildMeshCommon(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs, MCAuto<DataArrayDouble>& ptsForLoc);
   static MCAuto<DataArrayDouble> BuildMeshFromStructure(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
 public:
   static const char ANGLE_DE_VRILLE[];
+  static const char EPAISSEUR[];
 private:
   std::vector<std::string> _locs;
   std::vector<std::string> _pfl;
@@ -346,6 +349,8 @@ private:
 };
 
 const char LocInfo::ANGLE_DE_VRILLE[]="ANGLE DE VRILLE";
+
+const char LocInfo::EPAISSEUR[]="EPAISSEUR";
 
 LocInfo::LocInfo(const std::vector<FieldWalker2>& fw)
 {
@@ -371,7 +376,7 @@ void LocInfo::checkUniqueLoc(const std::string& loc) const
     }
 }
 
-MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *angleDeVrille, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
+MCAuto<MEDCouplingUMesh> LocInfo::BuildMeshCommon(INTERP_KERNEL::NormalizedCellType gt,const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs, MCAuto<DataArrayDouble>& ptsForLoc)
 {
   MCAuto<DataArrayInt> conn(zeStr->getConn());
   conn=conn->deepCopy(); conn->rearrange(1);
@@ -383,6 +388,19 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
     geoMesh=umesh->buildUnstructured();
   }
   //
+  MCAuto<MEDCouplingFieldDouble> fakeF(MEDCouplingFieldDouble::New(ON_GAUSS_PT));
+  fakeF->setMesh(geoMesh);
+  fakeF->setGaussLocalizationOnType(gt,loc.getRefCoords(),loc.getGaussCoords(),loc.getGaussWeights());
+  ptsForLoc=fakeF->getLocalizationOfDiscr();
+  //
+  return geoMesh;
+}
+
+MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *angleDeVrille, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
+{
+  MCAuto<DataArrayDouble> ptsForLoc;
+  MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(gt,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
+  //
   MCConstAuto<DataArrayDouble> angleVrille;
   if(!pfl.empty())
     {
@@ -393,22 +411,17 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
   else
     angleVrille.takeRef(angleDeVrille);
   //
-  MCAuto<MEDCouplingFieldDouble> fakeF(MEDCouplingFieldDouble::New(ON_GAUSS_PT));
-  fakeF->setMesh(geoMesh);
-  int nbg(loc.getGaussWeights().size());
-  fakeF->setGaussLocalizationOnType(gt,loc.getRefCoords(),loc.getGaussCoords(),loc.getGaussWeights());
-  MCAuto<DataArrayDouble> ptsForLoc(fakeF->getLocalizationOfDiscr());
-  //
-  MCAuto<MEDCouplingFieldDouble> dir(geoMesh->buildDirectionVectorField());
-  MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
-  int nbCells(geoMesh->getNumberOfCells()),nbCompo(ptsForLoc->getNumberOfComponents());
+  int nbCompo(ptsForLoc->getNumberOfComponents());
   MCAuto<DataArrayDouble> secPts(section->getCoords()->changeNbOfComponents(nbCompo,0.));
-  int nbSecPts(secPts->getNumberOfTuples());
+  int nbSecPts(secPts->getNumberOfTuples()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
   {
     const int TAB[3]={2,0,1};
     std::vector<int> v(TAB,TAB+3);
     secPts=secPts->keepSelectedComponents(v);
   }
+  MCAuto<MEDCouplingFieldDouble> dir(geoMesh->buildDirectionVectorField());
+  MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
+  //
   const double CENTER[3]={0.,0.,0.},AX0[3]={0.,0.,1.};
   double AX1[3]; AX1[2]=0.;
   std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
@@ -434,6 +447,49 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
   return resu;
 }
 
+MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thikness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
+{
+  MCAuto<DataArrayDouble> ptsForLoc;
+  MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(gt,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
+  int nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
+  MCConstAuto<DataArrayDouble> zeThikness;
+  if(!pfl.empty())
+    {
+      const DataArrayInt *pflArr(globs->getProfile(pfl));
+      geoMesh=geoMesh->buildPartOfMySelf(pflArr->begin(),pflArr->end(),true);
+      zeThikness=thikness->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
+    }
+  else
+    zeThikness.takeRef(thikness);
+  MCAuto<DataArrayDouble> orthoArr;
+  {
+    MCAuto<MEDCouplingFieldDouble> ortho(geoMesh->buildOrthogonalField());
+    orthoArr.takeRef(ortho->getArray());
+  }
+  int nbCompo(orthoArr->getNumberOfComponents());
+  MCAuto<DataArrayDouble> secPts(section->getCoords()->duplicateEachTupleNTimes(nbCompo));
+  secPts->rearrange(nbCompo);
+  std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
+  for(int j=0;j<nbCells;j++)
+    {
+      double thck(zeThikness->getIJ(j,0));
+      MCAuto<DataArrayDouble> fact(DataArrayDouble::New()); fact->alloc(1,nbCompo);
+      std::copy(orthoArr->begin()+j*nbCompo,orthoArr->begin()+(j+1)*nbCompo,fact->getPointer());
+      std::transform(fact->begin(),fact->end(),fact->getPointer(),std::bind2nd(std::multiplies<double>(),thck/2.));
+      MCAuto<DataArrayDouble> p(DataArrayDouble::Multiply(secPts,fact));
+      for(int l=0;l<nbg;l++)
+        {
+          MCAuto<DataArrayDouble> p2(p->deepCopy());
+          for(int k=0;k<nbCompo;k++)
+            p2->applyLin(1.,ptsForLoc->getIJ(j*nbg+l,k),k);
+          arrs[j*nbg+l]=p2;
+        }
+    }
+  std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
+  MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
+  return resu;
+}
+
 MCAuto<DataArrayDouble> LocInfo::BuildMeshFromStructure(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
 {
   static const char MSG1[]="BuildMeshFromStructure : not recognized pattern ! Send mail to anthony.geay@edf.fr with corresponding MED file !";
@@ -446,9 +502,11 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromStructure(INTERP_KERNEL::Normalize
   MCAuto<DataArrayDouble> zeArr2(DynamicCast<DataArray,DataArrayDouble>(zeArr));
   if(zeArr2.isNull())
     throw INTERP_KERNEL::Exception(MSG1);
-  if(zeArr2->getName()!=ANGLE_DE_VRILLE)
-    throw INTERP_KERNEL::Exception(MSG1);
-  return BuildMeshFromAngleVrille(gt,zeArr2,pfl,loc,zeStr,mesh,section,globs);
+  if(zeArr2->getName()==ANGLE_DE_VRILLE)
+    return BuildMeshFromAngleVrille(gt,zeArr2,pfl,loc,zeStr,mesh,section,globs);
+  if(zeArr2->getName()==EPAISSEUR)
+    return BuildMeshFromEpaisseur(gt,zeArr2,pfl,loc,zeStr,mesh,section,globs);
+  throw INTERP_KERNEL::Exception(MSG1);
 }
 
 MCAuto<MEDFileUMesh> LocInfo::generateNonClassicalData(int zePos, const MEDFileUMesh *mesh, const MEDFileFieldGlobsReal *globs) const
