@@ -4704,10 +4704,11 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         #
         fieldOnCell=field.voronoize(1e-12) # hot point
         fieldOnCell.checkConsistencyLight()
+        fieldOnCell.writeVTK("tt.vtu")
         self.assertEqual(fieldOnCell.getMesh().getNumberOfCells(),7)
-        self.assertEqual(fieldOnCell.getMesh().getNumberOfNodes(),32)
+        self.assertEqual(fieldOnCell.getMesh().getNumberOfNodes(),34)
         self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))
-        meaRef=DataArrayDouble([1.3,1.0,1.1975,1.36,1.4775,0.8,0.865])
+        meaRef=DataArrayDouble([1.3,0.9421428571428572,1.1975,1.36,1.4775,0.8,0.922857142857143])
         mea=fieldOnCell.getMesh().getMeasureField(True).getArray()
         self.assertTrue(mea.isEqual(meaRef,1e-12))# the first important test is here
         self.assertEqual(field.getDiscretization().getNbOfGaussLocalization(),1)
@@ -4718,7 +4719,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(a.isIota(7))# the second important test is here ! Check that Gauss points are inside the associated cell in fieldOnCell !
         self.assertTrue(b.isIota(8))
         #
-        self.assertEqual(fieldOnCell.getMesh().buildDescendingConnectivity()[0].getNumberOfCells(),2*7+22)# last little test to reduce chance of errors. For humans there 21 but last tiny edge is split into 2 subedges due to alg
+        self.assertEqual(fieldOnCell.getMesh().buildDescendingConnectivity()[0].getNumberOfCells(),2*7+21)
         pass
 
     def testVoronoi3DSurf_1(self):
@@ -4875,6 +4876,68 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(m2.getName(),"Mesh")
         pass
 
+    def testVoronoi3D_3(self):
+        """Non regression test to check MEDCouplingUMesh::clipSingle3DCellByPlane"""
+        coo=DataArrayDouble([0.,1.,0.,0.,0.,0.,0.,0.,1.,1.,0.,0.],4,3)
+        m=MEDCouplingUMesh("mesh",3)
+        m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_TETRA4,[0,2,3,1])
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f.setMesh(m) ; f.setName("field")
+        f.setGaussLocalizationOnType(NORM_TETRA4,[0.,1.,0.,0.,0.,0.,0.,0.,1.,1.,0.,0.],[0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.1381966011250105], [0.041667,0.041667,0.041667,0.041667])
+        f.setArray(DataArrayDouble([0,1,2,3]))
+        f3=f.voronoize(1e-12)
+        ref=DataArrayDouble([0.047256836610416179,0.03980327668541684,0.039803276685416833,0.039803276685416833])
+        self.assertTrue(f3.getMesh().getMeasureField(False).getArray().isEqual(ref,1e-12))
+        self.assertTrue(f3.getArray().isEqual(DataArrayDouble([0,1,2,3]),1e-12))
+        pass
+    
+    def testVoronoi3D_4(self):
+        """Idem testVoronoi3D_3 except that here quadratic cells are considered"""
+        coo=DataArrayDouble([0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.5,0.0,0.5,0.5,0.5,0.5,0.0,0.5,0.0,0.0,0.5,0.0,0.5],10,3)
+        m=MEDCouplingUMesh("mesh",3)
+        m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_TETRA10,[0,1,2,3,4,5,6,7,8,9])
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f.setMesh(m) ; f.setName("field")
+        f.setGaussLocalizationOnType(NORM_TETRA10,[0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.5,0.0,0.5,0.5,0.5,0.5,0.0,0.5,0.0,0.0,0.5,0.0,0.5],[0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.1381966011250105], [0.041667,0.041667,0.041667,0.041667])
+        f.setArray(DataArrayDouble([0,1,2,3]))
+        f3=f.voronoize(1e-12)
+        ref=DataArrayDouble([0.047256836610416179,0.03980327668541684,0.039803276685416833,0.039803276685416833])
+        self.assertTrue(f3.getMesh().getMeasureField(False).getArray().isEqual(ref,1e-12))
+        self.assertTrue(f3.getArray().isEqual(DataArrayDouble([0,1,2,3]),1e-12))
+        pass
+
+    def testConvertQuadToLin4Gauss_1(self):
+        coo=DataArrayDouble([0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.5,0.0,0.5,0.5,0.5,0.5,0.0,0.5,0.0,0.0,0.5,0.0,0.5],10,3)
+        m=MEDCouplingUMesh("mesh",3)
+        m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_TETRA10,[0,1,2,3,4,5,6,7,8,9])
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f.setMesh(m) ; f.setName("field")
+        aaaa=[0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.5,0.0,0.5,0.5,0.5,0.5,0.0,0.5,0.0,0.0,0.5,0.0,0.5]
+        bbbb=[0.1381966011250105,0.1381966011250105,0.1381966011250105,0.1381966011250105,0.1381966011250105,0.5854101966249685,0.1381966011250105,0.5854101966249685,0.1381966011250105,0.5854101966249685,0.1381966011250105,0.1381966011250105]
+        cccc=[0.041667,0.041667,0.041667,0.041667]
+        f.setGaussLocalizationOnType(NORM_TETRA10,aaaa,bbbb,cccc)
+        f.setArray(DataArrayDouble([0,1,2,3]))
+        f.setTime(1.,2,3)
+        #
+        mcpy=m.deepCopy() ; mcpy.convertQuadraticCellsToLinear() ; mcpy.zipCoords()
+        #
+        f2=f.convertQuadraticCellsToLinear()
+        f2.checkConsistencyLight()
+        self.assertTrue(f2.getMesh().isEqual(mcpy,1e-12))
+        self.assertTrue(f2.getArray().isEqual(DataArrayDouble([0,1,2,3]),1e-12))
+        self.assertEqual(f2.getNbOfGaussLocalization(),1)
+        gl=f2.getGaussLocalization(0)
+        self.assertEqual(gl.getType(),NORM_TETRA4)
+        self.assertTrue(DataArrayDouble(gl.getRefCoords()).isEqual(DataArrayDouble([0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0]),1e-12))
+        self.assertTrue(DataArrayDouble(gl.getGaussCoords()).isEqual(DataArrayDouble(bbbb),1e-12))
+        self.assertTrue(DataArrayDouble(gl.getWeights()).isEqual(DataArrayDouble(cccc),1e-12))
+        self.assertEqual(f2.getName(),"field")
+        self.assertEqual(f2.getTime(),[1.,2,3])
+        pass
+    
     pass
 
 if __name__ == '__main__':

@@ -28,6 +28,15 @@
 
 using namespace INTERP_KERNEL;
 
+const double GaussInfo::TETRA4A_REF[12]={0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0};
+
+const double GaussInfo::TETRA4B_REF[12]={0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0};
+
+const double GaussInfo::TETRA10A_REF[30]={0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.5, 0.0, 0.5, 0.0, 0.5, 0.5, 0.0, 0.5, 0.0, 0.5, 0.5, 0.0, 0.0};
+
+const double GaussInfo::TETRA10B_REF[30]={0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5, 0.0, 0.0, 0.5, 0.0, 0.5};
+
+
 //Define common part of the code in the MACRO
 //---------------------------------------------------------------
 #define LOCAL_COORD_MACRO_BEGIN                                         \
@@ -157,6 +166,42 @@ int GaussInfo::getNbGauss() const
 int GaussInfo::getNbRef() const 
 {
   return _my_nb_ref;
+}
+
+GaussInfo GaussInfo::convertToLinear() const
+{
+  switch(_my_geometry)
+    {
+    case NORM_TETRA10:
+      {
+        std::vector<double> a(TETRA10A_REF,TETRA10A_REF+30),b(TETRA10B_REF,TETRA10B_REF+30);
+        if(IsSatisfy(a,_my_reference_coord))
+          {
+            std::vector<double> c(TETRA4A_REF,TETRA4A_REF+12);
+            return GaussInfo(NORM_TETRA4,_my_gauss_coord,getNbGauss(),c,4);
+          }
+        if(IsSatisfy(b,_my_reference_coord))
+          {
+            std::vector<double> c(TETRA4B_REF,TETRA4B_REF+12);
+            return GaussInfo(NORM_TETRA4,_my_gauss_coord,getNbGauss(),c,4);
+          }
+        throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for TETRA10 !");
+      }
+    default:
+      throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not implemented yet for other types than TETRA10 !");
+    }
+}
+
+
+bool GaussInfo::IsSatisfy(const std::vector<double>& ref1, const std::vector<double>& ref2)
+{
+  std::size_t sz(ref1.size());
+  if(sz!=ref2.size())
+    return false;
+  for(std::size_t i=0;i<sz;i++)
+    if(!IsEqual(ref1[i],ref2[i]))
+      return false;
+  return true;
 }
 
 /*!
@@ -1022,34 +1067,34 @@ void GaussInfo::quad9aInit()
 void GaussInfo::tetra4aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
- case  0:
-   coords[0] =  0.0;
-   coords[1] =  1.0;
-   coords[2] =  0.0;
-   break;
- case  1:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  1.0;
-   break;
- case  2:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
- case  3:
-   coords[0] =  1.0;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
-   LOCAL_COORD_MACRO_END;
-
-   SHAPE_FUN_MACRO_BEGIN;
-   funValue[0] = gc[1];
-   funValue[1] = gc[2];
-   funValue[2] = 1.0 - gc[0] - gc[1] - gc[2];
-   funValue[3] = gc[0];
-   SHAPE_FUN_MACRO_END;
+  case 0:
+    coords[0] = TETRA4A_REF[0];
+    coords[1] = TETRA4A_REF[1];
+    coords[2] = TETRA4A_REF[2];
+    break;
+  case 1:
+    coords[0] = TETRA4A_REF[3];
+    coords[1] = TETRA4A_REF[4];
+    coords[2] = TETRA4A_REF[5];
+    break;
+  case 2:
+    coords[0] = TETRA4A_REF[6];
+    coords[1] = TETRA4A_REF[7];
+    coords[2] = TETRA4A_REF[8];
+    break;
+  case 3:
+    coords[0] = TETRA4A_REF[9];
+    coords[1] = TETRA4A_REF[10];
+    coords[2] = TETRA4A_REF[11];
+    break;
+  LOCAL_COORD_MACRO_END;
+  
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = gc[1];
+  funValue[1] = gc[2];
+  funValue[2] = 1.0 - gc[0] - gc[1] - gc[2];
+  funValue[3] = gc[0];
+  SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1059,35 +1104,34 @@ void GaussInfo::tetra4aInit()
 void GaussInfo::tetra4bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
- case  0:
-   coords[0] =  0.0;
-   coords[1] =  1.0;
-   coords[2] =  0.0;
-   break;
- case  2:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  1.0;
-   break;
- case  1:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
- case  3:
-   coords[0] =  1.0;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
-   LOCAL_COORD_MACRO_END;
-
-   SHAPE_FUN_MACRO_BEGIN;
-   funValue[0] = gc[1];
-   funValue[2] = gc[2];
-   funValue[1] = 1.0 - gc[0] - gc[1] - gc[2];
-   funValue[3] = gc[0];
-   SHAPE_FUN_MACRO_END;
-
+  case 0:
+    coords[0] = TETRA4B_REF[0];
+    coords[1] = TETRA4B_REF[1];
+    coords[2] = TETRA4B_REF[2];
+    break;
+  case 1:
+    coords[0] = TETRA4B_REF[3];
+    coords[1] = TETRA4B_REF[4];
+    coords[2] = TETRA4B_REF[5];
+    break;
+  case 2:
+    coords[0] = TETRA4B_REF[6];
+    coords[1] = TETRA4B_REF[7];
+    coords[2] = TETRA4B_REF[8];
+    break;
+  case 3:
+    coords[0] = TETRA4B_REF[9];
+    coords[1] = TETRA4B_REF[10];
+    coords[2] = TETRA4B_REF[11];
+    break;
+  LOCAL_COORD_MACRO_END;
+  
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = gc[1];
+  funValue[2] = gc[2];
+  funValue[1] = 1.0 - gc[0] - gc[1] - gc[2];
+  funValue[3] = gc[0];
+  SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1097,70 +1141,70 @@ void GaussInfo::tetra4bInit()
 void GaussInfo::tetra10aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
- case  0:
-   coords[0] =  0.0;
-   coords[1] =  1.0;
-   coords[2] =  0.0;
-   break;
- case  1:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  1.0;
-   break;
- case  2:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
- case  3:
-   coords[0] =  1.0;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
- case  4:
-   coords[0] =  0.0;
-   coords[1] =  0.5;
-   coords[2] =  0.5;
-   break;
- case  5:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  0.5;
-   break;
- case  6:
-   coords[0] =  0.0;
-   coords[1] =  0.5;
-   coords[2] =  0.0;
-   break;
- case  7:
-   coords[0] =  0.5;
-   coords[1] =  0.5;
-   coords[2] =  0.0;
-   break;
- case  8:
-   coords[0] =  0.5;
-   coords[1] =  0.0;
-   coords[2] =  0.5;
-   break;
- case  9:
-   coords[0] =  0.5;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
-   LOCAL_COORD_MACRO_END;
+  case 0:
+    coords[0] = TETRA10A_REF[0];
+    coords[1] = TETRA10A_REF[1];
+    coords[2] = TETRA10A_REF[2];
+    break;
+  case 1:
+    coords[0] = TETRA10A_REF[3];
+    coords[1] = TETRA10A_REF[4];
+    coords[2] = TETRA10A_REF[5];
+    break;
+  case 2:
+    coords[0] = TETRA10A_REF[6];
+    coords[1] = TETRA10A_REF[7];
+    coords[2] = TETRA10A_REF[8];
+    break;
+  case 3:
+    coords[0] = TETRA10A_REF[9];
+    coords[1] = TETRA10A_REF[10];
+    coords[2] = TETRA10A_REF[11];
+    break;
+  case 4:
+    coords[0] = TETRA10A_REF[12];
+    coords[1] = TETRA10A_REF[13];
+    coords[2] = TETRA10A_REF[14];
+    break;
+  case 5:
+    coords[0] = TETRA10A_REF[15];
+    coords[1] = TETRA10A_REF[16];
+    coords[2] = TETRA10A_REF[17];
+    break;
+  case 6:
+    coords[0] = TETRA10A_REF[18];
+    coords[1] = TETRA10A_REF[19];
+    coords[2] = TETRA10A_REF[20];
+    break;
+  case 7:
+    coords[0] = TETRA10A_REF[21];
+    coords[1] = TETRA10A_REF[22];
+    coords[2] = TETRA10A_REF[23];
+    break;
+  case 8:
+    coords[0] = TETRA10A_REF[24];
+    coords[1] = TETRA10A_REF[25];
+    coords[2] = TETRA10A_REF[26];
+    break;
+  case 9:
+    coords[0] = TETRA10A_REF[27];
+    coords[1] = TETRA10A_REF[28];
+    coords[2] = TETRA10A_REF[29];
+    break;
+  LOCAL_COORD_MACRO_END;
 
-   SHAPE_FUN_MACRO_BEGIN;
-   funValue[0] = gc[1]*(2.0*gc[1] - 1.0);
-   funValue[1] = gc[2]*(2.0*gc[2] - 1.0);
-   funValue[2] = (1.0 - gc[0] - gc[1] - gc[2])*(1.0 - 2.0*gc[0] - 2.0*gc[1] - 2.0*gc[2]);
-   funValue[3] = gc[0]*(2.0*gc[0] - 1.0);
-   funValue[4] = 4.0*gc[1]*gc[2];
-   funValue[5] = 4.0*gc[2]*(1.0 - gc[0] - gc[1] - gc[2]);
-   funValue[6] = 4.0*gc[1]*(1.0 - gc[0] - gc[1] - gc[2]);
-   funValue[7] = 4.0*gc[0]*gc[1];
-   funValue[8] = 4.0*gc[0]*gc[2];
-   funValue[9] = 4.0*gc[0]*(1.0 - gc[0] - gc[1] - gc[2]);
-   SHAPE_FUN_MACRO_END;
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = gc[1]*(2.0*gc[1] - 1.0);
+  funValue[1] = gc[2]*(2.0*gc[2] - 1.0);
+  funValue[2] = (1.0 - gc[0] - gc[1] - gc[2])*(1.0 - 2.0*gc[0] - 2.0*gc[1] - 2.0*gc[2]);
+  funValue[3] = gc[0]*(2.0*gc[0] - 1.0);
+  funValue[4] = 4.0*gc[1]*gc[2];
+  funValue[5] = 4.0*gc[2]*(1.0 - gc[0] - gc[1] - gc[2]);
+  funValue[6] = 4.0*gc[1]*(1.0 - gc[0] - gc[1] - gc[2]);
+  funValue[7] = 4.0*gc[0]*gc[1];
+  funValue[8] = 4.0*gc[0]*gc[2];
+  funValue[9] = 4.0*gc[0]*(1.0 - gc[0] - gc[1] - gc[2]);
+  SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1170,70 +1214,69 @@ void GaussInfo::tetra10aInit()
 void GaussInfo::tetra10bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
- case  0:
-   coords[0] =  0.0;
-   coords[1] =  1.0;
-   coords[2] =  0.0;
-   break;
- case  2:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  1.0;
-   break;
- case  1:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
- case  3:
-   coords[0] =  1.0;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
- case  6:
-   coords[0] =  0.0;
-   coords[1] =  0.5;
-   coords[2] =  0.5;
-   break;
- case  5:
-   coords[0] =  0.0;
-   coords[1] =  0.0;
-   coords[2] =  0.5;
-   break;
- case  4:
-   coords[0] =  0.0;
-   coords[1] =  0.5;
-   coords[2] =  0.0;
-   break;
- case  7:
-   coords[0] =  0.5;
-   coords[1] =  0.5;
-   coords[2] =  0.0;
-   break;
- case  9:
-   coords[0] =  0.5;
-   coords[1] =  0.0;
-   coords[2] =  0.5;
-   break;
- case  8:
-   coords[0] =  0.5;
-   coords[1] =  0.0;
-   coords[2] =  0.0;
-   break;
-   LOCAL_COORD_MACRO_END;
-
-   SHAPE_FUN_MACRO_BEGIN;
-   funValue[0] = gc[1]*(2.0*gc[1] - 1.0);
-   funValue[2] = gc[2]*(2.0*gc[2] - 1.0);
-   funValue[1] = (1.0 - gc[0] - gc[1] - gc[2])*(1.0 - 2.0*gc[0] - 2.0*gc[1] - 2.0*gc[2]);
-   funValue[3] = gc[0]*(2.0*gc[0] - 1.0);
-   funValue[6] = 4.0*gc[1]*gc[2];
-   funValue[5] = 4.0*gc[2]*(1.0 - gc[0] - gc[1] - gc[2]);
-   funValue[4] = 4.0*gc[1]*(1.0 - gc[0] - gc[1] - gc[2]);
-   funValue[7] = 4.0*gc[0]*gc[1];
-   funValue[9] = 4.0*gc[0]*gc[2];
-   funValue[8] = 4.0*gc[0]*(1.0 - gc[0] - gc[1] - gc[2]);
-   SHAPE_FUN_MACRO_END;
+  case 0:
+    coords[0] = TETRA10B_REF[0];
+    coords[1] = TETRA10B_REF[1];
+    coords[2] = TETRA10B_REF[2];
+    break;
+  case 1:
+    coords[0] = TETRA10B_REF[3];
+    coords[1] = TETRA10B_REF[4];
+    coords[2] = TETRA10B_REF[5];
+    break;
+  case 2:
+    coords[0] = TETRA10B_REF[6];
+    coords[1] = TETRA10B_REF[7];
+    coords[2] = TETRA10B_REF[8];
+    break;
+  case 3:
+    coords[0] = TETRA10B_REF[9];
+    coords[1] = TETRA10B_REF[10];
+    coords[2] = TETRA10B_REF[11];
+    break;
+  case 4:
+    coords[0] = TETRA10B_REF[12];
+    coords[1] = TETRA10B_REF[13];
+    coords[2] = TETRA10B_REF[14];
+    break;
+  case 5:
+    coords[0] = TETRA10B_REF[15];
+    coords[1] = TETRA10B_REF[16];
+    coords[2] = TETRA10B_REF[17];
+    break;
+  case 6:
+    coords[0] = TETRA10B_REF[18];
+    coords[1] = TETRA10B_REF[19];
+    coords[2] = TETRA10B_REF[20];
+    break;
+  case 7:
+    coords[0] = TETRA10B_REF[21];
+    coords[1] = TETRA10B_REF[22];
+    coords[2] = TETRA10B_REF[23];
+    break;
+  case 8:
+    coords[0] = TETRA10B_REF[24];
+    coords[1] = TETRA10B_REF[25];
+    coords[2] = TETRA10B_REF[26];
+    break;
+  case 9:
+    coords[0] = TETRA10B_REF[27];
+    coords[1] = TETRA10B_REF[28];
+    coords[2] = TETRA10B_REF[29];
+    break;
+  LOCAL_COORD_MACRO_END;
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = gc[1]*(2.0*gc[1] - 1.0);
+  funValue[2] = gc[2]*(2.0*gc[2] - 1.0);
+  funValue[1] = (1.0 - gc[0] - gc[1] - gc[2])*(1.0 - 2.0*gc[0] - 2.0*gc[1] - 2.0*gc[2]);
+  funValue[3] = gc[0]*(2.0*gc[0] - 1.0);
+  funValue[6] = 4.0*gc[1]*gc[2];
+  funValue[5] = 4.0*gc[2]*(1.0 - gc[0] - gc[1] - gc[2]);
+  funValue[4] = 4.0*gc[1]*(1.0 - gc[0] - gc[1] - gc[2]);
+  funValue[7] = 4.0*gc[0]*gc[1];
+  funValue[9] = 4.0*gc[0]*gc[2];
+  funValue[8] = 4.0*gc[0]*(1.0 - gc[0] - gc[1] - gc[2]);
+  SHAPE_FUN_MACRO_END;
 }
 
 /*!

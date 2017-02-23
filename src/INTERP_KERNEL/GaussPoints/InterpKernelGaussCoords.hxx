@@ -47,9 +47,14 @@ namespace INTERP_KERNEL
 
     INTERPKERNEL_EXPORT int getGaussCoordDim() const;
     INTERPKERNEL_EXPORT int getReferenceCoordDim() const;
+    INTERPKERNEL_EXPORT DataVector getGaussCoords() const { return _my_gauss_coord; }
+    INTERPKERNEL_EXPORT DataVector getRefCoords() const { return _my_reference_coord; }
+    INTERPKERNEL_EXPORT NormalizedCellType getGeoType() const { return _my_geometry; }
 
     INTERPKERNEL_EXPORT int getNbGauss() const;
     INTERPKERNEL_EXPORT int getNbRef() const;
+
+    INTERPKERNEL_EXPORT GaussInfo convertToLinear() const;
 
     INTERPKERNEL_EXPORT const double* getFunctionValues( const int theGaussId ) const;
 
@@ -57,8 +62,14 @@ namespace INTERP_KERNEL
     
     INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray);
 
-  protected:
+  public:
+    static const double TETRA4A_REF[12];
+    static const double TETRA4B_REF[12];
+    static const double TETRA10A_REF[30];
+    static const double TETRA10B_REF[30];
 
+  protected:
+    static bool IsSatisfy(const std::vector<double>& ref1, const std::vector<double>& ref2);
     bool isSatisfy();
     
     void point1Init();

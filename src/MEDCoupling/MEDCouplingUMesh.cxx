@@ -3628,7 +3628,12 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::clipSingle3DCellByPlane(const double 
   std::vector<int> cut3DCurve(mDesc1->getNumberOfCells(),-2);
   for(const int *it=cellIds1D->begin();it!=cellIds1D->end();it++)
     cut3DCurve[*it]=-1;
-  mDesc1->split3DCurveWithPlane(origin,vec,eps,cut3DCurve);
+  bool sameNbNodes;
+  {
+    int oldNbNodes(mDesc1->getNumberOfNodes());
+    mDesc1->split3DCurveWithPlane(origin,vec,eps,cut3DCurve);
+    sameNbNodes=(mDesc1->getNumberOfNodes()==oldNbNodes);
+  }
   std::vector< std::pair<int,int> > cut3DSurf(mDesc2->getNumberOfCells());
   AssemblyForSplitFrom3DCurve(cut3DCurve,nodes,mDesc2->getNodalConnectivity()->begin(),mDesc2->getNodalConnectivityIndex()->begin(),
                               mDesc1->getNodalConnectivity()->begin(),mDesc1->getNodalConnectivityIndex()->begin(),
@@ -3644,7 +3649,7 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::clipSingle3DCellByPlane(const double 
   std::vector<std::vector<int> > res;
   buildSubCellsFromCut(cut3DSurf,desc2->begin(),descIndx2->begin(),mDesc1->getCoords()->begin(),eps,res);
   std::size_t sz(res.size());
-  if(res.size()==mDesc1->getNumberOfCells())
+  if(res.size()==mDesc1->getNumberOfCells() && sameNbNodes)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::clipSingle3DCellByPlane : cell is not clipped !");
   for(std::size_t i=0;i<sz;i++)
     {
@@ -3713,7 +3718,6 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::clipSingle3DCellByPlane(const double 
   conn2I->pushBackSilent(conn2->getNumberOfTuples());
   ret2->setConnectivity(conn2,conn2I,true);
   ret2->checkConsistencyLight();
-  ret2->writeVTK("ret2.vtu");
   ret2->orientCorrectlyPolyhedrons();
   return ret2;
 }
