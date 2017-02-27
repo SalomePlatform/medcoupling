@@ -30,6 +30,7 @@
 #include "MEDCouplingNatureOfField.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
+#include "InterpKernelGaussCoords.hxx"
 
 #include <sstream>
 #include <limits>
@@ -2264,8 +2265,70 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::convertQuadraticCellsToLi
         ret->copyAllTinyAttrFrom(this);
         return ret;
       }
+    case ON_GAUSS_PT:
+      {
+        const MEDCouplingMesh *mesh(getMesh());
+        if(!mesh)
+          throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::convertQuadraticCellsToLinear : null mesh !");
+        MCAuto<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
+        std::set<INTERP_KERNEL::NormalizedCellType> gt(umesh->getAllGeoTypes());
+        MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_GAUSS_PT));
+        //
+        const MEDCouplingFieldDiscretization *disc(getDiscretization());
+        const MEDCouplingFieldDiscretizationGauss *disc2(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc));
+        if(!disc2)
+          throw INTERP_KERNEL::Exception("convertQuadraticCellsToLinear : Not a ON_GAUSS_PT field");
+        std::set<INTERP_KERNEL::NormalizedCellType> gt2(umesh->getAllGeoTypes());
+        const DataArrayDouble *arr(getArray());
+        std::vector< MCAuto<DataArrayInt> > cellIdsV;
+        std::vector< MCAuto<MEDCouplingUMesh> > meshesV;
+        std::vector< MEDCouplingGaussLocalization > glV;
+        bool isZipReq(false);
+        for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=gt.begin();it!=gt.end();it++)
+          {
+            const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(*it));
+            MCAuto<DataArrayInt> cellIds(umesh->giveCellsWithType(*it));
+            cellIdsV.push_back(cellIds);
+            MCAuto<MEDCouplingUMesh> part(umesh->buildPartOfMySelf(cellIds->begin(),cellIds->end()));
+            int id(disc2->getGaussLocalizationIdOfOneType(*it));
+            const MEDCouplingGaussLocalization& gl(disc2->getGaussLocalization(id));
+            if(!cm.isQuadratic())
+              {
+                glV.push_back(gl);
+              }
+            else
+              {
+                isZipReq=true;
+                part->convertQuadraticCellsToLinear();
+                INTERP_KERNEL::GaussInfo gi(*it,gl.getGaussCoords(),gl.getNumberOfGaussPt(),gl.getRefCoords(),gl.getNumberOfPtsInRefCell());
+                INTERP_KERNEL::GaussInfo gi2(gi.convertToLinear());
+                MEDCouplingGaussLocalization gl2(gi2.getGeoType(),gi2.getRefCoords(),gi2.getGaussCoords(),gl.getWeights());
+                glV.push_back(gl2);
+              }
+            meshesV.push_back(part);
+          }
+        //
+        {
+          std::vector< const MEDCouplingUMesh * > meshesPtr(VecAutoToVecOfCstPt(meshesV));
+          umesh=MEDCouplingUMesh::MergeUMeshesOnSameCoords(meshesPtr);
+          std::vector< const DataArrayInt * > zeCellIds(VecAutoToVecOfCstPt(cellIdsV));
+          MCAuto<DataArrayInt> zeIds(DataArrayInt::Aggregate(zeCellIds));
+          umesh->renumberCells(zeIds->begin());
+          umesh->setName(mesh->getName());
+        }
+        //
+        if(isZipReq)
+          umesh->zipCoords();
+        ret->setArray(const_cast<DataArrayDouble *>(getArray()));
+        ret->setMesh(umesh);
+        for(std::vector< MEDCouplingGaussLocalization >::const_iterator it=glV.begin();it!=glV.end();it++)
+          ret->setGaussLocalizationOnType((*it).getType(),(*it).getRefCoords(),(*it).getGaussCoords(),(*it).getWeights());
+        ret->copyAllTinyAttrFrom(this);
+        ret->checkConsistencyLight();
+        return ret;
+      }
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::convertQuadraticCellsToLinear : Only available for fields on nodes !");
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::convertQuadraticCellsToLinear : Only available for fields on nodes and on cells !");
     }
 }
 
@@ -3140,9 +3203,20 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
   checkConsistencyLight();
   if(!vor)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoizeGen : null pointer !");
-  const MEDCouplingMesh *inpMesh(getMesh());
+  MCAuto<MEDCouplingFieldDouble> fieldToWO;
+  const MEDCouplingMesh *inpMeshBase(getMesh());
+  MCAuto<MEDCouplingUMesh> inpMesh(inpMeshBase->buildUnstructured());
+  std::string meshName(inpMesh->getName());
+  if(!inpMesh->isPresenceOfQuadratic())
+    fieldToWO=clone(false);
+  else
+    {
+      fieldToWO=convertQuadraticCellsToLinear();
+      inpMeshBase=fieldToWO->getMesh();
+      inpMesh=inpMeshBase->buildUnstructured();
+    }
   int nbCells(inpMesh->getNumberOfCells());
-  const MEDCouplingFieldDiscretization *disc(getDiscretization());
+  const MEDCouplingFieldDiscretization *disc(fieldToWO->getDiscretization());
   const MEDCouplingFieldDiscretizationGauss *disc2(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc));
   if(!disc2)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize2D : Not a ON_GAUSS_PT field");
@@ -3165,8 +3239,7 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
       MCAuto<DataArrayDouble> ptsInReal;
       disc2->getCellIdsHavingGaussLocalization(i,ids);
       {
-        MCAuto<MEDCouplingUMesh> tmp4(inpMesh->buildUnstructured());
-        MCAuto<MEDCouplingUMesh> subMesh(tmp4->buildPartOfMySelf(&ids[0],&ids[0]+ids.size()));
+        MCAuto<MEDCouplingUMesh> subMesh(inpMesh->buildPartOfMySelf(&ids[0],&ids[0]+ids.size()));
         ptsInReal=gl.localizePtsInRefCooForEachCell(vorCellsForCurDisc->getCoords(),subMesh);
       }
       int nbPtsPerCell(vorCellsForCurDisc->getNumberOfNodes());
@@ -3180,10 +3253,11 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
     }
   std::vector< const MEDCouplingUMesh * > cellsPtr(VecAutoToVecOfCstPt(cells));
   MCAuto<MEDCouplingUMesh> outMesh(MEDCouplingUMesh::MergeUMeshes(cellsPtr));
+  outMesh->setName(meshName);
   MCAuto<MEDCouplingFieldDouble> onCells(MEDCouplingFieldDouble::New(ON_CELLS));
   onCells->setMesh(outMesh);
   {
-    MCAuto<DataArrayDouble> arr(getArray()->deepCopy());
+    MCAuto<DataArrayDouble> arr(fieldToWO->getArray()->deepCopy());
     onCells->setArray(arr);
   }
   onCells->setTimeUnit(getTimeUnit());
