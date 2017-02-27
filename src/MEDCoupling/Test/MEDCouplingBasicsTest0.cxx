@@ -1654,7 +1654,7 @@ void MEDCouplingBasicsTest::test2D1DMeshesIntersection(MEDCouplingUMesh *sourceM
   std::cout.precision(16);
 
   const double length = sumAll(matrix);
-  LOG(1, "length =  " << surf <<"  correctLength = " << correctLength );
+  LOG(1, "length =  " << length <<"  correctLength = " << correctLength );
   CPPUNIT_ASSERT_DOUBLES_EQUAL(correctLength, length, prec * std::max(correctLength, length));
 
   INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();

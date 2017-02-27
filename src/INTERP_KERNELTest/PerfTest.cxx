@@ -73,7 +73,7 @@ namespace INTERP_TEST
 
       LOG(5, "Loading " << mesh2 << " from " << mesh2path);
       MCAuto<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
-    MCAuto<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
+      MCAuto<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
 
       MEDCouplingNormalizedUnstructuredMesh<3,3> sMesh_wrapper(sMesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> tMesh_wrapper(tMesh);
@@ -82,8 +82,8 @@ namespace INTERP_TEST
       interpolator.interpolateMeshes(sMesh_wrapper, tMesh_wrapper,m,"P0P0");
 
       std::pair<int, int> eff = countNumberOfMatrixEntries(m);
-      LOG(1, eff.first << " of " << numTargetElems * numSrcElems << " intersections calculated : ratio = "
-          << double(eff.first) / double(numTargetElems * numSrcElems));
+//      LOG(1, eff.first << " of " << numTargetElems * numSrcElems << " intersections calculated : ratio = "
+//          << double(eff.first) / double(numTargetElems * numSrcElems));
       LOG(1, eff.second << " non-zero elements of " << eff.first << " total : filter efficiency = "
           << double(eff.second) / double(eff.first));
 
