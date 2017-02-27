@@ -33,6 +33,7 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingFieldInt.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingPartDefinition.hxx"
 
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
@@ -142,7 +143,6 @@ namespace MEDCoupling
   class MEDFileFieldNameScope;
   class MEDFileFieldGlobsReal;
   class MEDFileFieldPerMesh;
-  class PartDefinition;
 
   class MEDFileFieldPerMeshPerTypePerDisc : public RefCountObject, public MEDFileWritable
   {
