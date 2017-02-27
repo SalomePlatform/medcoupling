@@ -4704,7 +4704,6 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         #
         fieldOnCell=field.voronoize(1e-12) # hot point
         fieldOnCell.checkConsistencyLight()
-        fieldOnCell.writeVTK("tt.vtu")
         self.assertEqual(fieldOnCell.getMesh().getNumberOfCells(),7)
         self.assertEqual(fieldOnCell.getMesh().getNumberOfNodes(),34)
         self.assertTrue(fieldOnCell.getArray().isEqual(field.getArray(),1e-12))

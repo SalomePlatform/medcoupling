@@ -63,11 +63,35 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray);
 
   public:
+    static const double SEG2_REF[2];
+    static const double SEG3_REF[3];
+    static const double TRIA3A_REF[6];
+    static const double TRIA3B_REF[6];
+    static const double TRIA6A_REF[12];
+    static const double TRIA6B_REF[12];
+    static const double TRIA7A_REF[14];
+    static const double QUAD4A_REF[8];
+    static const double QUAD4B_REF[8];
+    static const double QUAD8A_REF[16];
+    static const double QUAD8B_REF[16];
+    static const double QUAD9A_REF[18];
     static const double TETRA4A_REF[12];
     static const double TETRA4B_REF[12];
     static const double TETRA10A_REF[30];
     static const double TETRA10B_REF[30];
-
+    static const double PYRA5A_REF[15];
+    static const double PYRA5B_REF[15];
+    static const double PYRA13A_REF[39];
+    static const double PYRA13B_REF[39];
+    static const double PENTA6A_REF[18];
+    static const double PENTA6B_REF[18];
+    static const double PENTA15A_REF[45];
+    static const double PENTA15B_REF[45];
+    static const double HEXA8A_REF[24];
+    static const double HEXA8B_REF[24];
+    static const double HEXA20A_REF[60];
+    static const double HEXA20B_REF[60];
+    static const double HEXA27A_REF[81];
   protected:
     static bool IsSatisfy(const std::vector<double>& ref1, const std::vector<double>& ref2);
     bool isSatisfy();

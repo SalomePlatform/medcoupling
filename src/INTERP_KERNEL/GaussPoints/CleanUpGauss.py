@@ -19,8 +19,8 @@
 
 import re
 
-s1=1080
-s2=1104
+s1=2709
+s2=2848
 f=file("InterpKernelGaussCoords.cxx","r")
 lines=[elt[:-1] for elt in f.readlines()[s1:s2]]
 pat0=re.compile("void[\s]+GaussInfo\:\:([^\(]+)\([\s]*\)[\s]*$")
@@ -51,7 +51,7 @@ entries=[(i,int(casePat.match(elt).group(1))) for i,elt in entries]
 assert(set([elt[1] for elt in entries])==set(range(nbPts)))
 #
 partEndEntries=re.compile("[\s]*break[\s]*\;[\s]*$")
-zePat=re.compile("[\s]+coords\[([\d]+)\][\s]*=[\s]*([\d]+[\.]?[\d]*)[\s]*\;[\s]*$")
+zePat=re.compile("[\s]+coords\[([\d]+)\][\s]*=[\s]*([\-]?[\d]+[\.]?[\d]*)[\s]*\;[\s]*$")
 zeTab=(nbPts*dim)*[None]
 for lineId,ptId in entries:
     endLine=lines[offsetLines+lineId+1+dim]
