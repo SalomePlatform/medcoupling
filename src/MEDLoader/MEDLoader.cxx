@@ -1153,19 +1153,73 @@ MEDCoupling::MEDCouplingUMesh *MEDCoupling::ReadUMeshFromGroups(const std::strin
   return mmuPtr->getGroups(meshDimRelToMax,grps,true);
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(const std::string& fileName)
+{
+  std::vector<std::string> fieldNames(GetAllFieldNames(fileName));
+  std::size_t sz(fieldNames.size());
+  if(sz==0)
+    {
+      std::ostringstream oss;
+      oss << "The file \"" << fileName << "\" contains no field !";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  if(sz>1)
+    {
+      std::ostringstream oss;
+      oss << "In file \"" << fileName << "\" there are more than one field !" << std::endl;
+      oss << "You are invited to use ReadField(fileName, fieldName) instead to avoid misleading concerning field you want to read !" << std::endl;
+      oss << "For information, fields available are :" << std::endl;
+      for(std::vector<std::string>::const_iterator it=fieldNames.begin();it!=fieldNames.end();it++)
+        oss << " - \"" << *it << "\"" << std::endl;
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  return ReadField(fileName,fieldNames[0]);
+}
+
+MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(const std::string& fileName, const std::string& fieldName)
+{
+  std::vector< std::pair< std::pair<int,int>, double> > iterations(GetAllFieldIterations(fileName,fieldName));
+  std::size_t sz(iterations.size());
+  if(sz==0)
+    {
+      std::ostringstream oss;
+      oss << "In file \"" << fileName << "\" field \"" << fieldName << "\" exists but with no time steps !";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  if(sz>1)
+    {
+      std::ostringstream oss;
+      oss << "In file \"" << fileName << "\" field \"" << fieldName << "\" exists but with more than one time steps !" << std::endl;
+      oss << "You are invited to use ReadField(fileName, fieldName, iteration, order) instead to avoid misleading concerning time steps." << std::endl;
+      oss << "For information, time steps available for field \"" << fieldName << "\" are :" << std::endl;
+      for(std::vector< std::pair< std::pair<int,int>, double> >::const_iterator it=iterations.begin();it!=iterations.end();it++)
+        oss << " - " << (*it).first.first << ", " << (*it).first.second << " (" << (*it).second << ")" << std::endl;
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  return ReadField(fileName,fieldName,iterations[0].first.first,iterations[0].first.second);
+}
+
+MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(const std::string& fileName, const std::string& fieldName, int iteration, int order)
+{
+  MCAuto<MEDFileField1TS> f(MEDFileField1TS::New(fileName,fieldName,iteration,order));
+  MCAuto<MEDFileMesh> mesh(MEDFileMesh::New(fileName,f->getMeshName()));
+  MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(f->field(mesh));
+  return ret;
+}
+
+MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCoupling::CheckFileForRead(fileName);
   switch(type)
   {
     case ON_CELLS:
-      return ReadFieldCell(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+      return MCAuto<MEDCoupling::MEDCouplingFieldDouble>(ReadFieldCell(fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
     case ON_NODES:
-      return ReadFieldNode(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+      return MCAuto<MEDCoupling::MEDCouplingFieldDouble>(ReadFieldNode(fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
     case ON_GAUSS_PT:
-      return ReadFieldGauss(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+      return MCAuto<MEDCoupling::MEDCouplingFieldDouble>(ReadFieldGauss(fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
     case ON_GAUSS_NE:
-      return ReadFieldGaussNE(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+      return MCAuto<MEDCoupling::MEDCouplingFieldDouble>(ReadFieldGaussNE(fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
     default:
       throw INTERP_KERNEL::Exception("Type of field specified not managed ! manages are ON_NODES, ON_CELLS, ON_GAUSS_PT or ON_GAUSS_NE !");
   }

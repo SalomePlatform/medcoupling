@@ -751,6 +751,127 @@ class MEDLoaderTest1(unittest.TestCase):
         self.assertTrue(f11.isEqual(f3r,1e-12,1e-12))
         self.assertTrue(f3r.getArray().isEqual(MEDLoader.DataArrayDouble([0.,4.,8.,12.,16.,20.,24.,28.,32.,36.,40.,44.,48.,52.,56.,60.,64.,68.,72.,76.]),1e-12))
         pass
+
+    def testEasyFieldRead1(self):
+        fname="Pyfile111.med"
+        arr=MEDLoader.DataArrayDouble(4) ; arr.iota()
+        m=MEDLoader.MEDCouplingCMesh() ; m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        m.setName("mesh")
+        f=MEDLoader.MEDCouplingFieldDouble(MEDLoader.ON_CELLS)
+        f.setName("field")
+        f.setTime(3.,1,2)
+        da=MEDLoader.DataArrayDouble([2,3,4,5,6,7,8,9,10])
+        f.setArray(da) ; f.setMesh(m)
+        MEDLoader.WriteField(fname,f,True)
+        #
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field"),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",1,2),1e-12,1e-12))
+        #
+        f3=f.deepCopy()
+        f3.setArray(f.getArray()+30)
+        f3.setName("field2")
+        f3.setTime(5.,4,5)
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f3)
+        #
+        self.assertRaises(Exception,MEDLoader.ReadField,fname) # because several fields in fname now
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field"),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(fname,"field2"),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(fname,"field2",4,5),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field2",4,5),1e-12,1e-12))
+        #
+        f2=f.deepCopy()
+        f2.setTime(4.,3,4)
+        f2.setArray(f2.getArray()+10)
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f2)
+        #
+        self.assertRaises(Exception,MEDLoader.ReadField,fname) # because unique field "field" has more than one time step
+        self.assertRaises(Exception,MEDLoader.ReadField,fname,"field") # because unique field "field" has more than one time step
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(MEDLoader.ReadField(fname,"field",3,4),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",3,4),1e-12,1e-12))
+        #
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(MEDLoader.ReadField(fname,"field",3,4),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",3,4),1e-12,1e-12))
+        #
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(fname,"field2"),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(fname,"field2",4,5),1e-12,1e-12))
+        self.assertRaises(Exception,MEDLoader.ReadField,fname,"field2",5,5) # invalid time step
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field2",4,5),1e-12,1e-12))
+        self.assertRaises(Exception,MEDLoader.ReadField,MEDLoader.ON_CELLS,fname,"mesh",0,"field2",5,5) # invalid time step
+        # Test on profile - restart from scratch
+        mm=MEDLoader.MEDFileUMesh()
+        mm[0]=m
+        mm.write(fname,2)
+        #
+        pfl=MEDLoader.DataArrayInt(range(8))
+        pfl.setName("PFL")
+        #
+        f=MEDLoader.MEDCouplingFieldDouble(MEDLoader.ON_CELLS)
+        f.setName("field")
+        f.setTime(3.,1,2)
+        da=MEDLoader.DataArrayDouble([2,3,4,5,6,7,8,9])
+        f.setArray(da) ; f.setMesh(m[pfl])
+        f.checkConsistencyLight()
+        #
+        f1ts=MEDLoader.MEDFileField1TS()
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        f1ts.write(fname,0)
+        #
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field"),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",1,2),1e-12,1e-12))
+        #
+        f3=f.deepCopy()
+        f3.setArray(f.getArray()+30)
+        f3.setName("field2")
+        f3.setTime(5.,4,5)
+        f1ts=MEDLoader.MEDFileField1TS()
+        f1ts.setFieldProfile(f3,mm,0,pfl)
+        f1ts.write(fname,0)
+        #
+        self.assertRaises(Exception,MEDLoader.ReadField,fname) # because several fields in fname now
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field"),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(fname,"field2"),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(fname,"field2",4,5),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field2",4,5),1e-12,1e-12))
+        #
+        f2=f.deepCopy()
+        f2.setTime(4.,3,4)
+        f2.setArray(f2.getArray()+10)
+        f1ts=MEDLoader.MEDFileField1TS()
+        f1ts.setFieldProfile(f2,mm,0,pfl)
+        f1ts.write(fname,0)
+        #
+        self.assertRaises(Exception,MEDLoader.ReadField,fname) # because unique field "field" has more than one time step
+        self.assertRaises(Exception,MEDLoader.ReadField,fname,"field") # because unique field "field" has more than one time step
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(MEDLoader.ReadField(fname,"field",3,4),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",3,4),1e-12,1e-12))
+        #
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(fname,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",1,2),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(MEDLoader.ReadField(fname,"field",3,4),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field",3,4),1e-12,1e-12))
+        #
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(fname,"field2"),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(fname,"field2",4,5),1e-12,1e-12))
+        self.assertRaises(Exception,MEDLoader.ReadField,fname,"field2",5,5) # invalid time step
+        self.assertTrue(f3.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field2",4,5),1e-12,1e-12))
+        self.assertRaises(Exception,MEDLoader.ReadField,MEDLoader.ON_CELLS,fname,"mesh",0,"field2",5,5) # invalid time step
+        pass
+    
     pass
 
 if __name__ == "__main__":

@@ -77,9 +77,9 @@ using namespace MEDCoupling;
 
 %newobject ReadUMeshFromFamiliesSwig;
 %newobject ReadUMeshFromGroupsSwig;
+%newobject ReadFieldSwig;
 %newobject MEDCoupling::ReadUMeshFromFile;
 %newobject MEDCoupling::ReadMeshFromFile;
-%newobject MEDCoupling::ReadField;
 %newobject MEDCoupling::ReadFieldCell;
 %newobject MEDCoupling::ReadFieldNode;
 %newobject MEDCoupling::ReadFieldGauss;
@@ -332,7 +332,6 @@ namespace MEDCoupling
   MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   int ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingFieldDouble *ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   MEDCoupling::MEDCouplingFieldDouble *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   MEDCoupling::MEDCouplingFieldDouble *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   MEDCoupling::MEDCouplingFieldDouble *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -359,6 +358,7 @@ namespace MEDCoupling
 %rename (GetTypesOfField) GetTypesOfFieldSwig;
 %rename (ReadUMeshFromGroups) ReadUMeshFromGroupsSwig;
 %rename (ReadUMeshFromFamilies) ReadUMeshFromFamiliesSwig;
+%rename (ReadField) ReadFieldSwig;
 
 %inline
 {
@@ -371,6 +371,30 @@ namespace MEDCoupling
     PyTuple_SetItem(ret,1,SWIG_From_int(minor));
     PyTuple_SetItem(ret,2,SWIG_From_int(release));
     return ret;
+  }
+
+  MEDCoupling::MEDCouplingFieldDouble *ReadFieldSwig(const std::string& fileName) throw(INTERP_KERNEL::Exception)
+  {
+    MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(MEDCoupling::ReadField(fileName));
+    return ret.retn();
+  }
+
+  MEDCoupling::MEDCouplingFieldDouble *ReadFieldSwig(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  {
+    MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(MEDCoupling::ReadField(fileName,fieldName));
+    return ret.retn();
+  }
+  
+  MEDCoupling::MEDCouplingFieldDouble *ReadFieldSwig(const std::string& fileName, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+  {
+    MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(MEDCoupling::ReadField(fileName,fieldName,iteration,order));
+    return ret.retn();
+  }
+  
+  MEDCoupling::MEDCouplingFieldDouble *ReadFieldSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+  {
+    MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(MEDCoupling::ReadField(type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+    return ret.retn();
   }
 
   PyObject *GetFieldIterationsSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
