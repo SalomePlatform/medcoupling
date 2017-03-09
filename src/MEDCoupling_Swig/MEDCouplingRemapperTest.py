@@ -1135,6 +1135,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(len(mat), 1)
         pass
 
+    def testP0P0KillerTet(self):
+        """ The killer tetrahedron detected by LMEC!"""
+        mesh = MEDCouplingUMesh('SupportOf_ECHIA1_Tin', 3)
+#         # was OK:
+#         coo = DataArrayDouble([(-4.50135,1.95352,4.59608),(-4.50409,1.86642,4.54551), (-4.55175,1.92167,4.64844),(-4.58813,1.94795,4.5283)])
+        # was KO:
+        coo = DataArrayDouble([(-4.501352938826142847,1.953517433537110159,4.596082552008083688),(-4.504092113061189728,1.866415526007169978,4.545507396150389567),(-4.551750368181751050,1.921669328035479962,4.648439577911889664),(-4.588131417812300050,1.947948377683889953,4.528298931319220344)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([14, 2, 0, 3, 1]); cI = DataArrayInt([0, 5])
+        mesh.setConnectivity(c, cI)
+        mesh_src, mesh_tgt = mesh.deepCopy(), mesh.deepCopy()
+        field_src = mesh_src.fillFromAnalytic(ON_CELLS, 1, "1")
+        field_src.setNature(IntensiveMaximum)
+        rmp = MEDCouplingRemapper()
+        rmp.setIntersectionType(Triangulation)
+        rmp.prepare(mesh_src, mesh_tgt, "P0P0")
+        self.assertEqual(1, len(rmp.getCrudeMatrix()))
+        self.assertEqual(1, len(rmp.getCrudeMatrix()[0]))
+        pass
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in xrange(len(mat1)):

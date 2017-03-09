@@ -79,7 +79,7 @@ namespace INTERP_KERNEL
   void TransformedTriangle::resetNearZeroCoordinates()
   {
     for (int i=0; i<15; i++)
-      if (fabs(_coords[i])<TransformedTriangle::MACH_EPS*20.0) _coords[i]=0.0;
+      if (fabs(_coords[i])<TransformedTriangle::MACH_EPS*40.0) _coords[i]=0.0;
   }
   
   // ----------------------------------------------------------------------------------
