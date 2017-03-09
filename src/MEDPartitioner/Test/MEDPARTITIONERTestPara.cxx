@@ -212,8 +212,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
 
-  MEDCouplingFieldDouble* field1=ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
-  MEDCouplingFieldDouble* field2=ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
+  MCAuto<MEDCouplingFieldDouble> field1=ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
+  MCAuto<MEDCouplingFieldDouble> field2=ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
 
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
@@ -247,8 +247,6 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
 
   for (std::size_t i = 0; i < corr.size(); i++)
     corr[i]->decrRef();
-  field1->decrRef();
-  field2->decrRef();
   fusedCell->decrRef();
   refusedCellMesh->decrRef();
   cellMesh->decrRef();
@@ -299,8 +297,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
 
-  MEDCouplingFieldDouble* field1=ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
-  MEDCouplingFieldDouble* field2=ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MCAuto<MEDCouplingFieldDouble> field1=ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MCAuto<MEDCouplingFieldDouble> field2=ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
 
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
@@ -335,8 +333,6 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
 
   for (std::size_t i = 0; i < corr.size(); i++)
     corr[i]->decrRef();
-  field1->decrRef();
-  field2->decrRef();
   fusedCell->decrRef();
   refusedCellMesh->decrRef();
   cellMesh->decrRef();

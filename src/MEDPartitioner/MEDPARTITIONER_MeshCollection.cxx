@@ -2252,7 +2252,7 @@ void MEDPARTITIONER::MeshCollection::setDomainNames(const std::string& name)
 
 MEDCoupling::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::string descriptionField, int iold)
 //getField look for and read it if not done, and assume decrRef() in ~MeshCollection;
-//something like MEDCouplingFieldDouble *f2=ReadFieldCell(name,f1->getMesh()->getName(),0,f1->getName(),0,1);
+//something like MCAuto<MEDCouplingFieldDouble> f2=ReadFieldCell(name,f1->getMesh()->getName(),0,f1->getName(),0,1);
 {
   int rank=MyGlobals::_Rank;
   std::string tag="ioldFieldDouble="+IntToStr(iold);
@@ -2274,8 +2274,8 @@ MEDCoupling::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::stri
   FieldShortDescriptionToData(descriptionIold, fieldName, typeField, entity, DT, IT);
   meshName=MyGlobals::_Mesh_Names[iold];
   
-  MEDCoupling::MEDCouplingFieldDouble* f2=ReadField((MEDCoupling::TypeOfField) typeField,
-                                                    fileName, meshName, 0, fieldName, DT, IT);
+  MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> f2=ReadField((MEDCoupling::TypeOfField) typeField,
+                                                                        fileName, meshName, 0, fieldName, DT, IT);
   
   MEDCoupling::DataArrayDouble* res=f2->getArray();
   //to know names of components
@@ -2285,7 +2285,6 @@ MEDCoupling::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::stri
     std::cout << "proc " << MyGlobals::_Rank << " : localFieldInformation : " << localFieldInformation << std::endl;
   MyGlobals::_General_Informations.push_back(localFieldInformation);
   res->incrRef();
-  f2->decrRef();
   _map_dataarray_double[descriptionIold]=res; 
   return res;
 }
