@@ -37,6 +37,7 @@
 #include "MEDFileParameter.hxx"
 #include "MEDFileData.hxx"
 #include "MEDFileEquivalence.hxx"
+#include "MEDFileEntities.hxx"
 #include "MEDFileMeshReadSelector.hxx"
 #include "MEDFileFieldOverView.hxx"
 #include "MEDLoaderTypemaps.i"
@@ -146,6 +147,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileStructureElements::New;
 
 %newobject MEDCoupling::MEDFileFields::New;
+%newobject MEDCoupling::MEDFileFields::NewAdv;
 %newobject MEDCoupling::MEDFileFields::NewWithDynGT;
 %newobject MEDCoupling::MEDFileFields::LoadPartOf;
 %newobject MEDCoupling::MEDFileFields::LoadSpecificEntities;
@@ -190,6 +192,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtLevelOld;
 
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::New;
+%newobject MEDCoupling::MEDFileAnyTypeField1TS::NewAdv;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::shallowCpy;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::deepCopy;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::extractPart;
@@ -217,6 +220,8 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileData::getFields;
 %newobject MEDCoupling::MEDFileData::getParams;
 %newobject MEDCoupling::MEDFileData::Aggregate;
+
+%newobject MEDCoupling::MEDFileEntities::BuildFrom;
 
 %newobject MEDCoupling::MEDFileParameterDouble1TS::New;
 %newobject MEDCoupling::MEDFileParameterDouble1TS::deepCopy;
@@ -2011,12 +2016,35 @@ namespace MEDCoupling
      }
   };
 
+  class MEDFileEntities
+  {
+  public:
+    %extend
+      {
+        static MEDFileEntities *BuildFrom(PyObject *entities) throw(INTERP_KERNEL::Exception)
+        {
+          std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > inp;
+          std::vector< std::pair<int,int> > inp0(convertTimePairIdsFromPy(entities));
+          {
+            std::size_t sz(inp0.size());
+            inp.resize(sz);
+            for(std::size_t i=0;i<sz;i++)
+              inp[i]=std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType>((TypeOfField)inp0[i].first,(INTERP_KERNEL::NormalizedCellType)inp0[i].second);
+          }
+          return MEDFileEntities::BuildFrom(&inp);
+        }
+      }
+  private:
+    MEDFileEntities();
+  };
+
   class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritableStandAlone
   {
   public:
     static MEDFileAnyTypeField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileAnyTypeField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileAnyTypeField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileAnyTypeField1TS *NewAdv(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileEntities *entities) throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
     void unloadArrays() throw(INTERP_KERNEL::Exception);
@@ -3062,6 +3090,7 @@ namespace MEDCoupling
     static MEDFileFields *New() throw(INTERP_KERNEL::Exception);
     static MEDFileFields *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileFields *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
+    static MEDFileFields *NewAdv(const std::string& fileName, bool loadAll, const MEDFileEntities *entities) throw(INTERP_KERNEL::Exception);
     static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0) throw(INTERP_KERNEL::Exception);
     static MEDFileFields *NewWithDynGT(const std::string& fileName, const MEDFileStructureElements *se, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     MEDFileFields *deepCopy() const throw(INTERP_KERNEL::Exception);
@@ -3104,6 +3133,11 @@ namespace MEDCoupling
          MEDFileFields(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileFields::New(db);
+         }
+
+         MEDFileFields(const std::string& fileName, bool loadAll, const MEDFileEntities *entities) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileFields::NewAdv(fileName,loadAll,entities);
          }
          
          // serialization
