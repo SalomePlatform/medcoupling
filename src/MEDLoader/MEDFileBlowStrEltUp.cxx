@@ -388,6 +388,12 @@ MCAuto<MEDCouplingUMesh> LocInfo::BuildMeshCommon(INTERP_KERNEL::NormalizedCellT
     geoMesh=umesh->buildUnstructured();
   }
   //
+  if(!pfl.empty())
+    {
+      const DataArrayInt *pflArr(globs->getProfile(pfl));
+      geoMesh=geoMesh->buildPartOfMySelf(pflArr->begin(),pflArr->end(),true);
+    }
+  //
   MCAuto<MEDCouplingFieldDouble> fakeF(MEDCouplingFieldDouble::New(ON_GAUSS_PT));
   fakeF->setMesh(geoMesh);
   fakeF->setGaussLocalizationOnType(gt,loc.getRefCoords(),loc.getGaussCoords(),loc.getGaussWeights());
@@ -405,12 +411,13 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
   if(!pfl.empty())
     {
       const DataArrayInt *pflArr(globs->getProfile(pfl));
-      geoMesh=geoMesh->buildPartOfMySelf(pflArr->begin(),pflArr->end(),true);
       angleVrille=angleDeVrille->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
     }
   else
     angleVrille.takeRef(angleDeVrille);
   //
+  MCAuto<MEDCouplingFieldDouble> dir(geoMesh->buildDirectionVectorField());
+  MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
   int nbCompo(ptsForLoc->getNumberOfComponents());
   MCAuto<DataArrayDouble> secPts(section->getCoords()->changeNbOfComponents(nbCompo,0.));
   int nbSecPts(secPts->getNumberOfTuples()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
@@ -419,9 +426,6 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
     std::vector<int> v(TAB,TAB+3);
     secPts=secPts->keepSelectedComponents(v);
   }
-  MCAuto<MEDCouplingFieldDouble> dir(geoMesh->buildDirectionVectorField());
-  MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
-  //
   const double CENTER[3]={0.,0.,0.},AX0[3]={0.,0.,1.};
   double AX1[3]; AX1[2]=0.;
   std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
