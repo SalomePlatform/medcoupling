@@ -3138,7 +3138,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         ffs=MEDFileFields(fname,False)
         heap_memory_ref=ffs.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(5335,9031+(80+50+1)*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(5335,9031+(80+50+len(ffs))*strMulFac))
         ffs.loadArrays()
         self.assertEqual(ffs.getHeapMemorySize()-heap_memory_ref,20*70*8*2+70*8*2+50*8*2)
         pass
