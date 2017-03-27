@@ -164,6 +164,9 @@ static std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > c
 
 static void converPyListToVecString(PyObject *pyLi, std::vector<std::string>& v)
 {
+  static const char msg0[]="In list passed in argument some elements are NOT strings ! Expected a list containing only strings !";
+  static const char msg1[]="In tuple passed in argument some elements are NOT strings ! Expected a list containing only strings !";
+  static const char msg2[]="Unrecognized python argument : expected a list of string or tuple of string or string !";
   if(PyList_Check(pyLi))
     {
       int size=PyList_Size(pyLi);
@@ -171,11 +174,9 @@ static void converPyListToVecString(PyObject *pyLi, std::vector<std::string>& v)
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
-          if(!PyString_Check(o))
-            throw INTERP_KERNEL::Exception("In list passed in argument some elements are NOT strings ! Expected a list containing only strings !");
-          const char *st=PyString_AsString(o);
-          v[i]=std::string(st);
+          v[i]=convertPyObjectToStr(o,msg0);
         }
+      return ;
     }
   else if(PyTuple_Check(pyLi))
     {
@@ -184,21 +185,12 @@ static void converPyListToVecString(PyObject *pyLi, std::vector<std::string>& v)
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyTuple_GetItem(pyLi,i);
-          if(!PyString_Check(o))
-            throw INTERP_KERNEL::Exception("In tuple passed in argument some elements are NOT strings ! Expected a tuple containing only strings !");
-          const char *st=PyString_AsString(o);
-          v[i]=std::string(st);
+          v[i]=convertPyObjectToStr(o,msg1);
         }
+      return ;
     }
-  else if(PyString_Check(pyLi))
-    {
-      v.resize(1);
-      v[0]=std::string((const char *)PyString_AsString(pyLi));
-    }
-  else
-    {
-      throw INTERP_KERNEL::Exception("Unrecognized python argument : expected a list of string or tuple of string or string !");
-    }
+  v.resize(1);
+  v[0]=convertPyObjectToStr(pyLi,msg2);
 }
 
 static PyObject *convertFieldDoubleVecToPy(const std::vector<MEDCoupling::MEDCouplingFieldDouble *>& li)
@@ -277,15 +269,9 @@ std::vector< std::pair<std::string, std::string > > convertVecPairStStFromPy(PyO
               if(size2!=2)
                 throw INTERP_KERNEL::Exception(msg);
               PyObject *o0=PyTuple_GetItem(o,0);
-              if(PyString_Check(o0))
-                p.first=std::string(PyString_AsString(o0));
-              else
-                throw INTERP_KERNEL::Exception(msg);
+              p.first=convertPyObjectToStr(o0,msg);
               PyObject *o1=PyTuple_GetItem(o,1);
-              if(PyString_Check(o1))
-                p.second=std::string(PyString_AsString(o1));
-              else
-                throw INTERP_KERNEL::Exception(msg);
+              p.second=convertPyObjectToStr(o1,msg);
               ret[i]=p;
             }
           else
@@ -321,21 +307,13 @@ std::vector< std::pair<std::vector<std::string>, std::string > > convertVecPairV
                   for(int j=0;j<size3;j++)
                     {
                       PyObject *o0j=PyList_GetItem(o0,j);
-                      if(PyString_Check(o0j))
-                        {
-                          p.first[j]=std::string(PyString_AsString(o0j));
-                        }
-                      else
-                        throw INTERP_KERNEL::Exception(msg);
+                      p.first[j]=convertPyObjectToStr(o0j,msg);
                     }
                 }
               else
                 throw INTERP_KERNEL::Exception(msg);
               PyObject *o1=PyTuple_GetItem(o,1);
-              if(PyString_Check(o1))
-                p.second=std::string(PyString_AsString(o1));
-              else
-                throw INTERP_KERNEL::Exception(msg);
+              p.second=convertPyObjectToStr(o1,msg);
               ret[i]=p;
             }
           else
@@ -389,16 +367,12 @@ int MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(const MEDFileAnyTypeFieldMultiTS
  */
 int MEDFileFieldsgetitemSingleTS__(const MEDFileFields *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
 {
+  static const char msg[]="MEDFileFields::__getitem__ : only integer or string with fieldname supported !";
   if(PyInt_Check(obj))
     {
       return InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfFields());
     }
-  else if(PyString_Check(obj))
-    {
-      return self->getPosFromFieldName(PyString_AsString(obj));
-    }
-  else
-    throw INTERP_KERNEL::Exception("MEDFileFields::__getitem__ : only integer or string with fieldname supported !");
+  return self->getPosFromFieldName(convertPyObjectToStr(obj,msg));
 }
 
 void convertToMapIntDataArrayInt(PyObject *pyMap, std::map<int, MCAuto<DataArrayInt> >& cppMap)

@@ -38,7 +38,7 @@ class MEDLoaderSplitter:
         mfflds=mfflds.partOfThisLyingOnSpecifiedMeshName(mfmsh[0].getName())
         retf=self.__splitFields(mfmsh[0],mfflds,idsLst)
         retm=self.__splitMesh(mfmsh[0],idsLst)
-        self._mfd_splitted=[MEDFileData() for i in xrange(len(idsLst))]
+        self._mfd_splitted=[MEDFileData() for i in range(len(idsLst))]
         for a,b,c in zip(self._mfd_splitted,retf,retm):
             a.setFields(b) ; a.setMeshes(c)
             pass
@@ -62,7 +62,7 @@ class MEDLoaderSplitter:
         pass
     
     def __splitMEDFileField1TS(self,mm,f1ts,idsLst):
-        ret=[f1ts.__class__() for i in xrange(len(idsLst))]
+        ret=[f1ts.__class__() for i in range(len(idsLst))]
         dico={ON_CELLS:self.__splitMEDFileField1TSCell,
               ON_NODES:self.__splitMEDFileField1TSNode,
               ON_GAUSS_PT:self.__splitMEDFileField1TSCell,
@@ -76,13 +76,13 @@ class MEDLoaderSplitter:
         return ret
     
     def __splitFields(self,mm,mfflds,idsLst):
-        ret0=[MEDFileFields() for i in xrange(len(idsLst))]
+        ret0 = [MEDFileFields() for i in range(len(idsLst))]
         for fmts in mfflds:
             if len(fmts.getPflsReallyUsed())!=0:
-                print "Field \"%s\" contains profiles ! Not supported yet ! This field will be ignored !"%(fmts.getName())
+                print("Field \"%s\" contains profiles ! Not supported yet ! This field will be ignored !" % (fmts.getName()))
                 continue
             pass
-            ret1=[fmts.__class__() for i in xrange(len(idsLst))]
+            ret1=[fmts.__class__() for i in range(len(idsLst))]
             for f1ts in fmts:
                 for fmtsPart,f1tsPart in zip(ret1,self.__splitMEDFileField1TS(mm,f1ts,idsLst)):
                     fmtsPart.pushBackTimeStep(f1tsPart)
@@ -95,7 +95,7 @@ class MEDLoaderSplitter:
         return ret0
 
     def __splitMesh(self,mfm,idsLst):
-        ret0=[MEDFileMeshes() for i in xrange(len(idsLst))]
+        ret0 = [MEDFileMeshes() for i in range(len(idsLst))]
         m=mfm.getMeshAtLevel(0)
         for ret,ids in zip(ret0,idsLst):
             mlPart=mfm.createNewEmpty()

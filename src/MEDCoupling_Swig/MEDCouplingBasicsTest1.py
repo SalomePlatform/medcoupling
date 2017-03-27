@@ -23,7 +23,7 @@ import unittest
 from math import pi,e,sqrt,cos,sin
 from datetime import datetime
 from MEDCouplingDataForTest import MEDCouplingDataForTest
-import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@cea.fr
+import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@edf.fr
 
 class MEDCouplingBasicsTest1(unittest.TestCase):
     def testArray2(self):
@@ -60,21 +60,21 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(7,arr4.getNumberOfTuples());
         self.assertEqual(2,arr4.getNumberOfComponents());
         tmp=arr4.getValues()
-        for i in xrange(14):
+        for i in range(14):
             self.assertTrue(abs(arr4Ref[i]-tmp[i])<1e-14);
             pass
         arr5=arr4.subArray(3);
         self.assertEqual(4,arr5.getNumberOfTuples());
         self.assertEqual(2,arr5.getNumberOfComponents());
         tmp=arr5.getValues()
-        for i in xrange(8):
+        for i in range(8):
             self.assertTrue(abs(arr4Ref[6+i]-tmp[i])<1e-14);
             pass
         arr6=arr4.subArray(2,5);
         self.assertEqual(3,arr6.getNumberOfTuples());
         self.assertEqual(2,arr6.getNumberOfComponents());
         tmp=arr6.getValues()
-        for i in xrange(6):
+        for i in range(6):
             self.assertTrue(abs(arr4Ref[4+i]-tmp[i])<1e-14);
             pass
         pass
@@ -133,7 +133,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         field.setNature(ExtensiveMaximum)
         myCoords=DataArrayDouble.New()
         sampleTab=[]
-        for i in range(nbOfCells*9):
+        for i in range(nbOfCells * 9):
             sampleTab.append(float(i))
         myCoords.setValues(sampleTab,nbOfCells,9);
         field.setArray(myCoords)
@@ -797,7 +797,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(5,m4.getMesh2D().getNumberOfCells());
         self.assertEqual(3,m4.getMesh1D().getNumberOfCells());
         m3DIds=m4.getMesh3DIds().getValues();
-        self.assertEqual(range(15),list(m3DIds));
+        self.assertEqual(list(range(15)), list(m3DIds));
         #some random in cells to check that extrusion alg find it correctly
         expected1=[1,3,2,0,6,5,7,10,11,8,12,9,14,13,4]
         m3.renumberCells(expected1,False);
@@ -853,7 +853,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         expected2=[0.075,0.0375,0.0375,0.075,0.075,
                    0.1125,0.05625,0.05625,0.1125,0.1125,
                    0.0625,0.03125,0.03125,0.0625,0.0625]
-        for i in xrange(15):
+        for i in range(15):
             self.assertAlmostEqual(expected2[rexpected1[i]],arrPtr[i],16);
             pass
         m5=m4.build3DUnstructuredMesh();
@@ -864,7 +864,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(isinstance(f.getMesh(),MEDCouplingMappedExtrudedMesh))
         arr=f.getArray();
         arrPtr=arr.getValues();
-        for i in xrange(15):
+        for i in range(15):
             self.assertAlmostEqual(expected2[rexpected1[i]],arrPtr[i],15);
             pass
         pass
@@ -877,7 +877,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         o2n,newNbOfNodes=targetMesh.buildNewNumberingFromCommonNodesFormat(comm,commI);
         self.assertEqual(27,newNbOfNodes);
         self.assertEqual(27,o2n.getNumberOfTuples());
-        o2nExp1=range(27)
+        o2nExp1 = list(range(27))
         self.assertEqual(o2nExp1,list(o2n.getValues()));
         #
         targetMesh=MEDCouplingDataForTest.build3DTargetMeshMergeNode_1();
@@ -992,7 +992,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
     def testMergeMeshOnSameCoords1(self):
         m1=MEDCouplingDataForTest.build2DTargetMesh_1();
         m2=MEDCouplingDataForTest.build2DTargetMesh_1();
-        cells=range(5);
+        cells = list(range(5));
         m2.convertToPolyTypes(cells);
         m1.tryToShareSameCoords(m2,1e-12);
         m3=MEDCouplingDataForTest.build2DTargetMesh_1();
@@ -1035,7 +1035,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values=[0.25,0.125,0.125,0.25,0.25,0.5,0.5]
         tmp=f3.getArray().getValues();
         self.assertEqual(len(values),len(tmp))
-        for i in xrange(7):
+        for i in range(7):
             self.assertTrue(abs(values[i]-tmp[i])<1e-12)
             pass
         pass
@@ -1054,7 +1054,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values1=[-0.1,0.23333333333333336,0.56666666666666665,0.4,0.9]
         tmp=f1.getArray().getValues();
         self.assertEqual(len(values1),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values1[i])<1.e-12)
             pass
         #
@@ -1067,7 +1067,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values2=[-0.6,-0.1,0.4,-0.1,0.4,0.9,0.4,0.9,1.4]
         tmp=f1.getArray().getValues();
         self.assertEqual(len(values2),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values2[i])<1.e-12)
             pass
         #
@@ -1080,7 +1080,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values3=[-0.6,-1.2,-0.1,-0.2,0.4,0.8,-0.1,-0.2,0.4,0.8,0.9,1.8,0.4,0.8,0.9,1.8,1.4,2.8]
         tmp=f1.getArray().getValues();
         self.assertEqual(len(values3),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values3[i])<1.e-12)
             pass
         values4=f1.accumulate();
@@ -1106,7 +1106,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values1=[-0.1,0.23333333333333336,0.56666666666666665,0.4,0.9]
         tmp=f1.getArray().getValues();
         self.assertEqual(len(values1),len(tmp))
-        for i in xrange(len(values1)):
+        for i in range(len(values1)):
             self.assertTrue(abs(values1[i]-tmp[i])<1.e-12);
             pass
         #
@@ -1119,7 +1119,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values2=[-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1]
         tmp=f1.getArray().getValues();
         self.assertEqual(len(values2),len(tmp))
-        for i in xrange(len(values2)):
+        for i in range(len(values2)):
             self.assertTrue(abs(values2[i]-tmp[i])<1.e-12);
             pass
         f1=m.fillFromAnalytic(ON_NODES,1,"2.*x+y");
@@ -1131,7 +1131,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         tmp=f1.getArray().getValues();
         values2Bis=[-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1]
         self.assertEqual(len(values2Bis),len(tmp))
-        for i in xrange(len(values2Bis)):
+        for i in range(len(values2Bis)):
             self.assertTrue(abs(values2Bis[i]-tmp[i])<1.e-12);
             pass
         #
@@ -1144,7 +1144,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values3=[-0.6,-1.2,-0.1,-0.2,0.4,0.8,-0.1,-0.2,0.4,0.8,0.9,1.8,0.4,0.8,0.9,1.8,1.4,2.8]
         tmp=f1.getArray().getValues();
         self.assertEqual(len(values3),len(tmp))
-        for i in xrange(len(values3)):
+        for i in range(len(values3)):
             self.assertTrue(abs(values3[i]-tmp[i])<1.e-12);
             pass
         values4=f1.accumulate();
@@ -1171,7 +1171,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values1=[-1.8,-0.3,1.2,-0.3,1.2,2.7,1.2,2.7,4.2]
         tmp=f1.getArray().getValues();
         self.assertEqual(len(values1),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values1[i])<1.e-12)
             pass
         pass
@@ -1201,7 +1201,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
                  5.0423700574830965, 17.435300118916864]
         tmp=f2.getArray().getValues();
         self.assertEqual(len(tmp),len(values2))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values2[i])<1.e-12)
             pass
         #
@@ -1213,7 +1213,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values1=[-1.8,-0.3,1.2,-0.3,1.2,2.7,1.2,2.7,4.2]
         tmp=f1.getArray().getValues();
         self.assertEqual(len(tmp),len(values1))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values1[i])<1.e-12)
             pass
         pass
@@ -1231,7 +1231,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values1=[-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8]
         tmp=f3.getArray().getValues();
         self.assertEqual(len(values1),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values1[i])<1.e-12)
             pass
         #
@@ -1242,7 +1242,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values2=[0.36,0.01,0.16,0.01,0.16,0.81,0.16,0.81,1.96]
         tmp=f3.getArray().getValues();
         self.assertEqual(len(values2),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values2[i])<1.e-12)
             pass
         #
@@ -1254,7 +1254,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         values3=[0.6,0.1,-0.4,0.1,-0.4,-0.9,-0.4,-0.9,-1.4]
         tmp=f4.getArray().getValues();
         self.assertEqual(len(values3),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values3[i])<1.e-12)
             pass
         #
@@ -1264,7 +1264,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(f4.getTypeOfField(),ON_NODES);
         self.assertEqual(f4.getTimeDiscretization(),ONE_TIME);
         tmp=f4.getArray().getValues();
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-2.)<1.e-12)
             pass
         #
@@ -1280,7 +1280,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         tmp=f3.getArray().getValues();
         values4=[-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8]
         self.assertEqual(len(values3),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values4[i])<1.e-12)
             pass
         #
@@ -1296,7 +1296,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         tmp=f3.getArray().getValues();
         values5=[-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8]
         self.assertEqual(len(values5),len(tmp))
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             self.assertTrue(abs(tmp[i]-values5[i])<1.e-12)
             pass
         pass
@@ -1316,7 +1316,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(1,f3.getNumberOfComponents());
         self.assertEqual(9,f3.getNumberOfTuples());
         val=f3.getArray().getValues();
-        for i in xrange(9):
+        for i in range(9):
             self.assertTrue(abs(expected1[i]-val[i])<1.e-12);
         #
         f1=m.buildOrthogonalField();
@@ -1326,13 +1326,13 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f3=f1*f2;
         expected2=[-0.035355339059327376,0.,0.035355339059327376, 0.2592724864350674,0.,-0.2592724864350674, 0.37712361663282529,0.,-0.37712361663282529, -0.035355339059327376,0.,0.035355339059327376, 0.31819805153394637,0.,-0.31819805153394637]
         val=f3.getArray().getValues();
-        for i in xrange(15):
+        for i in range(15):
             self.assertTrue(abs(expected2[i]-val[i])<1.e-12);
             pass
         #
         f3=f2*f1;
         val=f3.getArray().getValues();
-        for i in xrange(15):
+        for i in range(15):
             self.assertTrue(abs(expected2[i]-val[i])<1.e-12);
             pass
         pass
@@ -1351,7 +1351,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(1,f1.getNumberOfComponents());
         self.assertEqual(9,f1.getNumberOfTuples());
         val=f1.getArray().getValues();
-        for i in xrange(9):
+        for i in range(9):
             self.assertTrue(abs(expected1[i]-val[i])<1.e-12);
             pass
         #
@@ -1360,7 +1360,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f1*=f2
         expected2=[-0.035355339059327376,0.,0.035355339059327376, 0.2592724864350674,0.,-0.2592724864350674, 0.37712361663282529,0.,-0.37712361663282529, -0.035355339059327376,0.,0.035355339059327376, 0.31819805153394637,0.,-0.31819805153394637]
         val=f1.getArray().getValues();
-        for i in xrange(15):
+        for i in range(15):
             self.assertTrue(abs(expected2[i]-val[i])<1.e-12);
             pass
         #
@@ -1546,7 +1546,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(3,len(corr));
         expectedVals1=[3,3,2]
         expectedVals2=[[0,1,2],[3,0,2],[3,0]]
-        for i in xrange(3):
+        for i in range(3):
             arr=corr[i];
             self.assertEqual(1,arr.getNumberOfComponents());
             nbOfVals=expectedVals1[i];
@@ -1561,7 +1561,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(1,arr2.getNumberOfComponents());
         self.assertEqual(4,arr2.getNumberOfTuples());
         self.assertEqual(fidExp,list(arr2.getValues()));
-        for i in xrange(3):
+        for i in range(3):
             nbOfVals=expectedVals1[i];
             self.assertEqual(list(fidsOfGroups[i]),fidsGrp[i]);
             pass
@@ -1595,7 +1595,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(5,field.getNumberOfTuples());
         self.assertEqual(3,field.getNumberOfComponents());
         vals=field.getArray().getValues();
-        for i in xrange(15):
+        for i in range(15):
             self.assertTrue(abs(expected[i%3]-vals[i])<1e-12);
         # testing
         targetCoords=[0.,0.,0.,0.5,0.,0.5,1.,0.,1.,0.,1.,0.]
@@ -1699,7 +1699,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         fieldOnCells.setMesh(targetMesh);
         array=DataArrayDouble.New();
         tmp=2*nbOfCells*[None]
-        for i in xrange(nbOfCells):
+        for i in range(nbOfCells):
             tmp[2*i]=7.+float(i);
             tmp[2*i+1]=17.+float(i)
             pass
@@ -1719,7 +1719,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         fieldOnNodes.setMesh(targetMesh);
         array=DataArrayDouble.New();
         tmp=2*nbOfNodes*[None]
-        for i in xrange(nbOfNodes):
+        for i in range(nbOfNodes):
             tmp[2*i]=17.+float(i);
             tmp[2*i+1]=27.+float(i)
             pass
@@ -1765,7 +1765,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
                     7., 4., 6., 7., 9., 5., 7., 8., 10., 7., 9., 10., 12.];
         
         val=fieldOnNodes.getArray().getValues();
-        for i in xrange(64):
+        for i in range(64):
           self.assertAlmostEqual(expected1[i], val[i], 12)
         res=fieldOnNodes.getValueOnPos(1, 3, 2);
         self.assertAlmostEqual(7., res[0], 12);
@@ -1776,7 +1776,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         val=fieldOnCells.getArray().getValues();
         expected2=[0, 1.5, 3, 1.5, 3, 4.5, 3, 4.5, 6, 1.5, 3, 4.5, 3, 4.5,
                     6, 4.5, 6, 7.5, 3, 4.5, 6, 4.5, 6, 7.5, 6, 7.5, 9];
-        for i in xrange(27):
+        for i in range(27):
           self.assertAlmostEqual(expected2[i], val[i], 12);
         #res=fieldOnCells.getValueOnPos(1,2,1);
         #self.assertAlmostEqual(6.,res,12);
@@ -1962,7 +1962,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
                    -0.05,0.45, 0.2,0.45, 0.45,0.45]
         val=mesh.getCoords().getValues();
         self.assertEqual(18,len(val))
-        for i in xrange(18):
+        for i in range(18):
             self.assertTrue(abs(expected1[i]-val[i])<1e-12);
             pass
         pass
@@ -2049,7 +2049,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(3,m1.getSpaceDimension());
         expected=[-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0.]
         val=m1.getCoords().getValues();
-        for i in xrange(27):
+        for i in range(27):
             self.assertTrue(abs(expected[i]-val[i])<1e-14);
             pass
         pass
@@ -2084,7 +2084,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(2,f.getNbOfGaussLocalization());
         array=DataArrayDouble.New();
         ptr=18*2*[None]
-        for i in xrange(18*2):
+        for i in range(18 * 2):
             ptr[i]=float(i+1)
         array.setValues(ptr,18,2);
         ptr=array.getPointer();
@@ -2146,7 +2146,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f.setDescription("MyDescriptionNE");
         array=DataArrayDouble.New();
         tmp=18*2*[None]
-        for i in xrange(18*2):
+        for i in range(18 * 2):
             tmp[i]=float(i+7)
             pass
         array.setValues(tmp,18,2);
@@ -2228,7 +2228,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(1,f3.getNumberOfComponents());
         f3Ptr=f3.getArray().getValues();
         expected1=[0.075,0.0375,0.0375,0.075,0.075, 0.1125,0.05625,0.05625,0.1125,0.1125, 0.0625,0.03125,0.03125,0.0625,0.0625];
-        for i in xrange(15):
+        for i in range(15):
             self.assertTrue(abs(expected1[i]-f3Ptr[i])<1e-12);
             pass
         f4=m5.computeCellCenterOfMass();
@@ -2236,7 +2236,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(3,f4.getNumberOfComponents());
         f4Ptr=f4.getValues();
         expected2=[-0.05,-0.05,0.15, 0.3666666666666667,-0.13333333333333333,0.15, 0.53333333333333333,0.033333333333333333,0.15, -0.05,0.45,0.15, 0.45,0.45,0.15,-0.05,-0.05,0.525, 0.3666666666666667,-0.13333333333333333,0.525, 0.53333333333333333,0.033333333333333333,0.525, -0.05,0.45,0.525, 0.45,0.45,0.525,-0.05,-0.05,0.875, 0.3666666666666667,-0.13333333333333333,0.875, 0.53333333333333333,0.033333333333333333,0.875, -0.05,0.45,0.875, 0.45,0.45,0.875];
-        for i in xrange(45):
+        for i in range(45):
             self.assertTrue(abs(expected2[i]-f4Ptr[i])<1e-12);
             pass
         pass
@@ -2244,7 +2244,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
     def testCellOrientation3(self):
         from cmath import rect  
 
-        c = [rect(1.0, i*pi/4.0) for i in range(8)]
+        c = [rect(1.0, i * pi / 4.0) for i in range(8)]
         coords = [c[-1].real,c[-1].imag,  c[3].real,c[3].imag,
                    c[5].real,c[5].imag,  c[1].real,c[1].imag]
         connec = [0,1,2,3] 
@@ -2284,7 +2284,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(3,da.getNumberOfComponents());
         daPtr=da.getValues();
         ref=meshN.getCoords().getValues()[24:];
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(ref[i]-daPtr[i])<1e-12);
             pass
         #
@@ -2293,7 +2293,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         da=meshN.computeCellCenterOfMass();
         daPtr=da.getValues();
         ref=meshN.getCoords().getValues()[24:];
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(ref[i]-daPtr[i])<1e-12);
             pass
         #
@@ -2302,7 +2302,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         da=meshN.computeCellCenterOfMass();
         daPtr=da.getValues();
         ref=meshN.getCoords().getValues()[24:];
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(ref[i]-daPtr[i])<1e-12);
             pass
         #
@@ -2313,7 +2313,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         da=meshN.computeCellCenterOfMass();
         daPtr=da.getValues();
         ref=meshN.getCoords().getValues()[24:];
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(ref[i]-daPtr[i])<1e-10);
             pass
         pass
@@ -2332,7 +2332,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(1,f3.getNumberOfComponents());
         expected9=[0.75,5.105,0.8,5.155]
         ptr=f3.getValues();
-        for i in xrange(4):
+        for i in range(4):
             self.assertTrue(abs(expected9[i]-ptr[i])<1e-12);
             pass
         #
@@ -2341,13 +2341,13 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(1,f2.getNumberOfComponents());
         expected1=[0.5,0.21,-0.6,-0.31]
         ptr=f2.getArray().getValues();
-        for i in xrange(4):
+        for i in range(4):
             self.assertTrue(abs(expected1[i]-ptr[i])<1e-12);
             pass
         expected2=[0.5,0.21,0.6,0.31]
         f2=m1.getMeasureField(True);
         ptr=f2.getArray().getValues();
-        for i in xrange(4):
+        for i in range(4):
             self.assertTrue(abs(expected2[i]-ptr[i])<1e-12);
             pass
         #integral
@@ -2355,7 +2355,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         res=f1.integral(False);
         self.assertTrue(3,len(res))
         expected3=[0.9866,-0.3615,0.4217]
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(expected3[i]-res[i])<1e-12);
             pass
         self.assertTrue(abs(expected3[0]-f1.integral(0,False))<1e-12);
@@ -2363,14 +2363,14 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(abs(expected3[2]-f1.integral(2,False))<1e-12);
         res=f1.integral(True);
         expected4=[-3.4152,8.7639,-14.6879]
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(expected4[i]-res[i])<1e-12);
             pass
         #normL1
         res=f1.normL1();
         self.assertTrue(3,len(res))
         expected5=[6.979506172839505, 16.89018518518518, 27.02969135802469]
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(expected5[i]-res[i])<1e-12);
             pass
         self.assertTrue(abs(expected5[0]-f1.normL1(0))<1e-12);
@@ -2380,7 +2380,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         res=f1.normL2();
         self.assertTrue(3,len(res))
         expected7=[7.090910979452395, 16.9275542960123, 27.053271464160858]
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(expected7[i]-res[i])<1e-9);
             pass
         self.assertTrue(abs(expected7[0]-f1.normL2(0))<1e-9);
@@ -2397,14 +2397,14 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(4,f2.getArray().getNumberOfTuples());
         self.assertEqual(1,f2.getNumberOfComponents());
         ptr=f2.getArray().getValues();
-        for i in xrange(4):
+        for i in range(4):
             self.assertTrue(abs(sqrt(2.)*expected2[i]-ptr[i])<1e-12);
             pass
         f2=m1.getMeasureField(True);
         self.assertEqual(4,f2.getArray().getNumberOfTuples());
         self.assertEqual(1,f2.getNumberOfComponents());
         ptr=f2.getArray().getValues();
-        for i in xrange(4):
+        for i in range(4):
             self.assertTrue(abs(expected2[i]*sqrt(2.)-ptr[i])<1e-12);
             pass
         #bary
@@ -2413,7 +2413,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(2,f3.getNumberOfComponents());
         expected10=[0.75,0.75,5.105,5.105,0.8,0.8,5.155,5.155]
         ptr=f3.getValues();
-        for i in xrange(8):
+        for i in range(8):
             self.assertTrue(abs(expected10[i]-ptr[i])<1e-12);
             pass
         #
@@ -2423,19 +2423,19 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         array.setValues(arr,m1.getNumberOfCells(),3);
         f1.setArray(array);
         res=f1.integral(False);
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(sqrt(2.)*expected4[i]-res[i])<1e-12);
             pass
         res=f1.integral(True);
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(sqrt(2.)*expected4[i]-res[i])<1e-12);
             pass
         res=f1.normL1();
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(expected5[i]-res[i])<1e-12);
             pass
         res=f1.normL2();
-        for i in xrange(3):
+        for i in range(3):
             self.assertTrue(abs(expected7[i]-res[i])<1e-12);
             pass
         pass
@@ -2447,12 +2447,12 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(1,f1.getNumberOfComponents());
         expected1=[-0.5,-1,-1.5,-0.5,-1,  0.5,1,1.5,0.5,1]
         ptr=f1.getArray().getValues();
-        for i in xrange(10):
+        for i in range(10):
             self.assertTrue(abs(expected1[i]-ptr[i])<1e-12);
             pass
         f1=m1.getMeasureField(True);
         ptr=f1.getArray().getValues();
-        for i in xrange(10):
+        for i in range(10):
             self.assertTrue(abs(abs(expected1[i])-ptr[i])<1e-12);
             pass
         f2=m1.computeCellCenterOfMass();
@@ -2460,7 +2460,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(2,f2.getNumberOfComponents());
         expected2=[0.5,0.3333333333333333,0.5,0.5,0.5,0.77777777777777777,0.5,0.3333333333333333,0.5,0.5,0.5,0.3333333333333333,0.5,0.5,0.5,0.77777777777777777,0.5,0.3333333333333333,0.5,0.5]
         ptr=f2.getValues();
-        for i in xrange(20):
+        for i in range(20):
             self.assertTrue(abs(expected2[i]-ptr[i])<1e-12);
             pass
         m1.changeSpaceDimension(3);
@@ -2468,7 +2468,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(10,f1.getArray().getNumberOfTuples());
         self.assertEqual(1,f1.getNumberOfComponents());
         ptr=f1.getArray().getValues();
-        for i in xrange(10):
+        for i in range(10):
             self.assertTrue(abs(abs(expected1[i])-ptr[i])<1e-12);
             pass
         f2=m1.computeCellCenterOfMass();
@@ -2476,7 +2476,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(3,f2.getNumberOfComponents());
         ptr=f2.getValues();
         expected3=[0.5,0.3333333333333333,0.,0.5,0.5,0.,0.5,0.77777777777777777,0.,0.5,0.3333333333333333,0.,0.5,0.5,0., 0.5,0.3333333333333333,0.,0.5,0.5,0.,0.5,0.77777777777777777,0.,0.5,0.3333333333333333,0.,0.5,0.5,0.]
-        for i in xrange(30):
+        for i in range(30):
             self.assertTrue(abs(expected3[i]-ptr[i])<1e-12);
             pass
         pass
@@ -2563,7 +2563,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(4,da.getNumberOfTuples());
         self.assertEqual(3,da.getNumberOfComponents());
         daPtr=da.getValues();
-        for i in xrange(12):
+        for i in range(12):
             self.assertTrue(abs(barys[i]-daPtr[i])<1e-12);
             pass
         pass
@@ -2579,22 +2579,22 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f.setArray(arr);
         renumber1=[3,1,0,4,2]
         loc=[-0.05,-0.05, 0.55,-0.25, 0.55,0.15, -0.05,0.45, 0.45,0.45]
-        for j in xrange(5):
+        for j in range(5):
             res=f.getValueOn(loc[2*j:2*j+2]);
-            for i in xrange(3):
+            for i in range(3):
                 self.assertTrue(abs(values1[i+3*j]-res[i])<1e-12);
                 pass
             pass
         f.renumberCells(renumber1,False);
         ptr=f.getArray().getValues();
         expected1=[9.,109.,10009.,8.,108.,10008.,11.,111.,10011.,7.,107.,10007.,10.,110.,10010.]
-        for i in xrange(15):
+        for i in range(15):
             self.assertTrue(abs(expected1[i]-ptr[i])<1e-12);
             pass
         #check that fields remains the same geometrically
-        for j in xrange(5):
+        for j in range(5):
             res=f.getValueOn(loc[2*j:2*(j+1)]);
-            for i in xrange(3):
+            for i in range(3):
                 self.assertTrue(abs(values1[i+3*j]-res[i])<1e-12);
                 pass
             pass
@@ -2628,7 +2628,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(not f.isEqual(fCpy,1e-12,1e-12));
         expected2=[21.,1021.,22.,1022.,23.,1023.,24.,1024.,25.,1025.,26.,1026., 11.,1011.,12.,1012.,13.,1013.,14.,1014.,15.,1015.,16.,1016., 41.,1041.,42.,1042., 1.,1001.,2.,1002., 31.,1031.,32.,1032.]
         ptr=f.getArray().getValues();
-        for i in xrange(36):
+        for i in range(36):
             self.assertTrue(abs(expected2[i]-ptr[i])<1e-12);
             pass
         renumber2=[2,1,4,0,3]
@@ -2648,7 +2648,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(not f.isEqual(fCpy,1e-12,1e-12));
         expected3=[21.,1021.,22.,1022.,23.,1023.,11.,1011.,12.,1012.,13.,1013.,41.,1041.,42.,1042.,43.,1043.,44.,1044.,1.,1001.,2.,1002.,3.,1003.,4.,1004.,31.,1031.,32.,1032.,33.,1033.,34.,1034.]
         ptr=f.getArray().getValues();
-        for i in xrange(36):
+        for i in range(36):
             self.assertTrue(abs(expected3[i]-ptr[i])<1e-12);
             pass
         f.renumberCells(renumber2,False);#perform reverse operation of renumbering to check that the resulting field is equal.
@@ -2670,9 +2670,9 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         renumber1=[0,4,1,3,5,2,6,7,8]
         loc=[0.5432,-0.2432, 0.5478,0.1528]
         expected1=[9.0272, 109.0272, 10009.0272, 11.4124,111.4124,10011.4124]
-        for j in xrange(2):
+        for j in range(2):
             res=f.getValueOn(loc[2*j:2*j+2]);
-            for i in xrange(3):
+            for i in range(3):
                 self.assertTrue(abs(expected1[i+3*j]-res[i])<1e-12);
                 pass
             pass
@@ -2680,14 +2680,14 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(f.isEqual(fCpy,1e-12,1e-12));
         f.renumberNodes(renumber1);
         self.assertTrue(not f.isEqual(fCpy,1e-12,1e-12));
-        for j in xrange(2):
+        for j in range(2):
             res=f.getValueOn(loc[2*j:2*j+2]);
-            for i in xrange(3):
+            for i in range(3):
                 self.assertTrue(abs(expected1[i+3*j]-res[i])<1e-12);
                 pass
             pass
         expected2=[7.,107.,10007.,9.,109.,10009.,12.,112.,10012.,10.,110.,10010.,8.,108.,10008.,11.,111.,10011.,13.,113.,10013.,14.,114.,10014.,15.,115.,10015.]
-        for i in xrange(27):
+        for i in range(27):
             self.assertTrue(abs(expected2[i]-f.getArray().getValues()[i])<1e-12);
             pass
         renumber2=[0,2,5,3,1,4,6,7,8]
@@ -2701,7 +2701,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         types=mesh.getAllGeoTypes();
         types.sort()
         self.assertEqual(5,len(types));
-        expected1=[NORM_POLYGON, NORM_TRI3, NORM_QUAD4, NORM_TRI6, NORM_QUAD8]
+        expected1 = [NORM_POLYGON, NORM_TRI3, NORM_QUAD4, NORM_TRI6, NORM_QUAD8]
         expected1.sort()
         self.assertEqual(expected1,types);
         self.assertTrue(mesh.isPresenceOfQuadratic());
@@ -2824,7 +2824,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(None,cellCor);
         self.assertNotEqual(None,nodeCor);
         expected1=[0, 1, 3, 4, 5, 6, 7, 8, 9]
-        for i in xrange(9):
+        for i in range(9):
             self.assertEqual(expected1[i],nodeCor.getIJ(i,0));
             pass
         pass
@@ -2943,7 +2943,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f2=m2.getMeasureField(False);
         self.assertEqual(5,f1.getArray().getNumberOfTuples());
         self.assertEqual(1,f2.getArray().getNumberOfTuples());
-        for i in xrange(5):
+        for i in range(5):
             self.assertAlmostEqual(expected1[i],f1.getIJ(i,0),12);
             pass
         self.assertAlmostEqual(expected1[0],f2.getIJ(0,0),12);
@@ -2954,7 +2954,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f2=m2.getMeasureField(False);
         self.assertEqual(5,f1.getArray().getNumberOfTuples());
         self.assertEqual(1,f2.getArray().getNumberOfTuples());
-        for i in xrange(5):
+        for i in range(5):
             self.assertAlmostEqual(expected1[i],f1.getIJ(i,0),12);
             pass
         self.assertAlmostEqual(expected1[0],f2.getIJ(0,0),12);
@@ -2978,7 +2978,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f1.changeUnderlyingMesh(mesh2,10,1e-12);
         #self.assertTrue(f1.getMesh()==mesh2);
         expected1=[7.,107.,9.,109.,8.,108.,10.,110.,11.,111.,12.,112.,13.,113.,15.,115.,14.,114.,16.,116.]
-        for i in xrange(20):
+        for i in range(20):
             self.assertAlmostEqual(expected1[i],f1.getArray().getIJ(0,i),12);
             pass
         #
@@ -2995,7 +2995,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f1.changeUnderlyingMesh(mesh2,10,1e-12);
         #self.assertTrue(f1.getMesh()==mesh2);
         expected2=[7.,107.,17.,117.,8.,108.,10.,110.,11.,111.,12.,112.,13.,113.,15.,115.,14.,114.,16.,116.,9.,109.]
-        for i in xrange(22):
+        for i in range(22):
             self.assertAlmostEqual(expected2[i],f1.getArray().getIJ(0,i),12);
             pass
         pass
@@ -3076,13 +3076,13 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         #
         f3=f1.dot(f2);
         expected1=[842.,1820.,2816.,3830.,4862.,5912.,6980.,8066.,9170.,10292.]
-        for i in xrange(10):
+        for i in range(10):
             self.assertAlmostEqual(expected1[i],f3.getIJ(i,0),9);
             pass
         #
         f4=f1.crossProduct(f2);
         expected2=[-93., 186., -93., -392., 784., -392., -691., 1382., -691., -990., 1980., -990., -1289., 2578., -1289., -1588., 3176., -1588., -1887., 3774., -1887., -2186., 4372., -2186., -2485., 4970., -2485., -2784., 5568., -2784.]
-        for i in xrange(30):
+        for i in range(30):
             self.assertAlmostEqual(expected2[i],f4.getIJ(0,i),9);
             pass
         pass

@@ -203,6 +203,12 @@ def MEDCouplingMEDFileParametersnew(cls,*args):
 %include "MEDCouplingFinalize.i"
 
 %pythoncode %{
+MEDFileMeshesIterator.__next__ = MEDFileMeshesIterator.next
+MEDFileAnyTypeFieldMultiTSIterator.__next__ = MEDFileAnyTypeFieldMultiTSIterator.next
+MEDFileFieldsIterator.__next__ = MEDFileFieldsIterator.next
+%}
+
+%pythoncode %{
 MEDFileUMesh.__new__=classmethod(MEDCouplingMEDFileUMeshnew)
 del MEDCouplingMEDFileUMeshnew
 MEDFileCMesh.__new__=classmethod(MEDCouplingMEDFileCMeshnew)

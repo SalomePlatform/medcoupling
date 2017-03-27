@@ -30,13 +30,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         remapper=MEDCouplingRemapper()
         remapper.setPrecision(1e-12);
         remapper.setIntersectionType(Triangulation);
-        self.failUnless(remapper.prepare(sourceMesh,targetMesh,"P0P0")==1);
+        self.assertTrue(remapper.prepare(sourceMesh,targetMesh,"P0P0")==1);
         srcField=MEDCouplingFieldDouble.New(ON_CELLS);
         srcField.setNature(IntensiveMaximum);
         srcField.setMesh(sourceMesh);
         array=DataArrayDouble.New();
         ptr=sourceMesh.getNumberOfCells()*[None]
-        for i in xrange(sourceMesh.getNumberOfCells()):
+        for i in range(sourceMesh.getNumberOfCells()):
             ptr[i]=float(i+7)
             pass
         array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
@@ -52,10 +52,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(c,10)
         values=trgfield.getArray().getValues();
         valuesExpected=[7.5 ,7. ,7.,8.,7.5];
-        for i in xrange(targetMesh.getNumberOfCells()):
-            self.failUnless(abs(values[i]-valuesExpected[i])<1e-12);
+        for i in range(targetMesh.getNumberOfCells()):
+            self.assertTrue(abs(values[i]-valuesExpected[i])<1e-12);
             pass
-        self.failUnless(1==trgfield.getArray().getNumberOfComponents());
+        self.assertTrue(1==trgfield.getArray().getNumberOfComponents());
         pass
 
     def testPrepareEx1(self):
@@ -75,7 +75,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         srcField.setMesh(sourceMesh);
         array=DataArrayDouble.New();
         ptr=sourceMesh.getNumberOfCells()*[None]
-        for i in xrange(sourceMesh.getNumberOfCells()):
+        for i in range(sourceMesh.getNumberOfCells()):
             ptr[i]=float(i+7);
             pass
         array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
@@ -85,7 +85,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         valuesExpected=[7.75, 7.0625, 4.220173,8.0]
         self.assertEqual(4,trgfield.getArray().getNumberOfTuples());
         self.assertEqual(1,trgfield.getArray().getNumberOfComponents());
-        for i0 in xrange(4):
+        for i0 in range(4):
             self.assertAlmostEqual(valuesExpected[i0],values[i0],12);
             pass
         pass
@@ -107,7 +107,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         srcField.setMesh(sourceMesh);
         array=DataArrayDouble.New();
         ptr=sourceMesh.getNumberOfCells()*[None]
-        for i in xrange(sourceMesh.getNumberOfCells()):
+        for i in range(sourceMesh.getNumberOfCells()):
             ptr[i]=float(i+7);
             pass
         array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
@@ -117,7 +117,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trgfield.setMesh(targetMesh);
         array=DataArrayDouble.New();
         ptr=targetMesh.getNumberOfCells()*[None]
-        for i in xrange(targetMesh.getNumberOfCells()):
+        for i in range(targetMesh.getNumberOfCells()):
             ptr[i]=4.220173;
             pass
         array.setValues(ptr,targetMesh.getNumberOfCells(),1);
@@ -127,7 +127,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         valuesExpected=[7.75, 7.0625, 4.220173,8.0]
         self.assertEqual(4,trgfield.getArray().getNumberOfTuples());
         self.assertEqual(1,trgfield.getArray().getNumberOfComponents());
-        for i0 in xrange(4):
+        for i0 in range(4):
             self.assertAlmostEqual(valuesExpected[i0],values[i0],12);
             pass
         pass
@@ -308,7 +308,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         rem2=MEDCouplingRemapper() ; rem2.setSplittingPolicy(PLANAR_FACE_5) ; rem2.prepare(src1,trg,"P0P0")
         mat1=rem1.getCrudeMatrix() ; mat2=rem2.getCrudeMatrix()
         self.assertEqual(1,len(mat1)) ; self.assertEqual(1,len(mat2))
-        self.assertEqual(mat1[0].keys(),mat2[0].keys()) ; self.assertEqual([0,1],mat1[0].keys())
+        self.assertEqual(list(mat1[0].keys()),list(mat2[0].keys())) ; self.assertEqual([0,1],list(mat1[0].keys()))
         self.assertAlmostEqual(1.25884108122e-06,mat1[0][0],16) ; self.assertAlmostEqual(1.25884108122e-06,mat2[0][0],16)
         self.assertAlmostEqual(1.25884086663e-06,mat1[0][1],16) ; self.assertAlmostEqual(1.25884086663e-06,mat2[0][1],16)
         #
@@ -570,7 +570,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(aRemapper.prepare(s,t,'P1P1'),1)
         m=aRemapper.getCrudeMatrix()
         self.assertEqual(len(m),28)
-        for i in xrange(28):
+        for i in range(28):
             if i not in [5,6]:
                 self.assertEqual(len(m[i]),0)
                 pass
@@ -727,7 +727,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         # Internal crude sparse matrix computed. Let's manipulate it using CSR matrix in scipy.
-        for i in xrange(10):
+        for i in range(10):
             m=rem.getCrudeCSRMatrix()
             pass
         m2=rem.getCrudeCSRMatrix()
@@ -776,7 +776,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         a.allocateCells()
         conna=[0,1,3,2,1,4,5,3,4,6,7,5,6,8,9,7,8,10,11,9,10,12,13,11,12,14,15,13,14,16,17,15,16,18,19,17,18,20,21,19,20,22,23,21,22,24,25,23,24,26,27,25]
         a.setCoords(DataArrayDouble([1.54,0,-0.01,1.54,0.02,-0.01,1.54,0,0.01,1.54,0.02,0.01,1.54,0.04,-0.01,1.54,0.04,0.01,1.54,0.06,-0.01,1.54,0.06,0.01,1.54,0.08,-0.01,1.54,0.08,0.01,1.54,0.1,-0.01,1.54,0.1,0.01,1.54,0.12,-0.01,1.54,0.12,0.01,1.54,0.14,-0.01,1.54,0.14,0.01,1.54,0.16,-0.01,1.54,0.16,0.01,1.54,0.18,-0.01,1.54,0.18,0.01,1.54,0.2,-0.01,1.54,0.2,0.01,1.54,0.22,-0.01,1.54,0.22,0.01,1.54,0.24,-0.01,1.54,0.24,0.01,1.54,0.26,-0.01,1.54,0.26,0.01],28,3))
-        for i in xrange(13):
+        for i in range(13):
             a.insertNextCell(NORM_QUAD4,conna[4*i:4*(i+1)])
             pass
         a.finishInsertingCells() ; a.simplexize(0)
@@ -784,7 +784,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         connb=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,0,2,39,3,5,40,6,8,41,9,11,42,12,14,43,15,17,44,18,20,45,21,23,46,24,26,47,27,29,48,30,32,49,33,35,50,36,38,51,52,2,39,53,5,40,54,8,41,55,11,42,56,14,43,57,17,44,58,20,45,59,23,46,60,26,47,61,29,48,62,32,49,63,35,50,64,38,51,52,2,65,53,5,66,54,8,67,55,11,68,56,14,69,57,17,70,58,20,71,59,23,72,60,26,73,61,29,74,62,32,75,63,35,76,64,38,77,53,2,65,54,5,66,55,8,67,56,11,68,57,14,69,58,17,70,59,20,71,60,23,72,61,26,73,62,29,74,63,32,75,64,35,76,78,38,77,53,2,40,54,5,41,55,8,42,56,11,43,57,14,44,58,17,45,59,20,46,60,23,47,61,26,48,62,29,49,63,32,50,64,35,51,78,38,79,3,2,40,6,5,41,9,8,42,12,11,43,15,14,44,18,17,45,21,20,46,24,23,47,27,26,48,30,29,49,33,32,50,36,35,51,80,38,79,3,2,1,6,5,4,9,8,7,12,11,10,15,14,13,18,17,16,21,20,19,24,23,22,27,26,25,30,29,28,33,32,31,36,35,34,80,38,37]
         b=MEDCouplingUMesh("b",2)
         b.allocateCells()
-        for i in xrange(104):
+        for i in range(104):
             b.insertNextCell(NORM_TRI3,connb[3*i:3*(i+1)])
             pass
         b.setCoords(DataArrayDouble([1.54,0,-0.01,1.54,0.01,-0.01,1.54,0.01,0,1.54,0.02,-0.01,1.54,0.03,-0.01,1.54,0.03,0,1.54,0.04,-0.01,1.54,0.05,-0.01,1.54,0.05,0,1.54,0.06,-0.01,1.54,0.07,-0.01,1.54,0.07,0,1.54,0.08,-0.01,1.54,0.09,-0.01,1.54,0.09,0,1.54,0.1,-0.01,1.54,0.11,-0.01,1.54,0.11,0,1.54,0.12,-0.01,1.54,0.13,-0.01,1.54,0.13,0,1.54,0.14,-0.01,1.54,0.15,-0.01,1.54,0.15,0,1.54,0.16,-0.01,1.54,0.17,-0.01,1.54,0.17,0,1.54,0.18,-0.01,1.54,0.19,-0.01,1.54,0.19,0,1.54,0.2,-0.01,1.54,0.21,-0.01,1.54,0.21,0,1.54,0.22,-0.01,1.54,0.23,-0.01,1.54,0.23,0,1.54,0.24,-0.01,1.54,0.25,-0.01,1.54,0.25,0,1.54,0,0,1.54,0.02,0,1.54,0.04,0,1.54,0.06,0,1.54,0.08,0,1.54,0.1,0,1.54,0.12,0,1.54,0.14,0,1.54,0.16,0,1.54,0.18,0,1.54,0.2,0,1.54,0.22,0,1.54,0.24,0,1.54,0,0.01,1.54,0.02,0.01,1.54,0.04,0.01,1.54,0.06,0.01,1.54,0.08,0.01,1.54,0.1,0.01,1.54,0.12,0.01,1.54,0.14,0.01,1.54,0.16,0.01,1.54,0.18,0.01,1.54,0.2,0.01,1.54,0.22,0.01,1.54,0.24,0.01,1.54,0.01,0.01,1.54,0.03,0.01,1.54,0.05,0.01,1.54,0.07,0.01,1.54,0.09,0.01,1.54,0.11,0.01,1.54,0.13,0.01,1.54,0.15,0.01,1.54,0.17,0.01,1.54,0.19,0.01,1.54,0.21,0.01,1.54,0.23,0.01,1.54,0.25,0.01,1.54,0.26,0.01,1.54,0.26,0,1.54,0.26,-0.01],81,3))
@@ -860,7 +860,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         source=MEDCoupling1SGTUMesh("SourcePrimaire",NORM_SEG2)
         source.setCoords(sourceCoo)
         source.allocateCells()
-        for i in xrange(len(sourceCoo)-1):
+        for i in range(len(sourceCoo) - 1):
             source.insertNextCell([i,i+1])
             pass
         source=source.buildUnstructured()
@@ -1118,8 +1118,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         cI2 = [0, 44]
         mTgt = MEDCouplingUMesh("target", 3)
         mSrc = MEDCouplingUMesh("src", 3)
-        mTgt.setCoords(DataArrayDouble(coo1, len(coo1)/3, 3))
-        mSrc.setCoords(DataArrayDouble(coo2, len(coo2)/3, 3))
+        mTgt.setCoords(DataArrayDouble(coo1, len(coo1) // 3, 3))
+        mSrc.setCoords(DataArrayDouble(coo2, len(coo2) // 3, 3))
         mTgt.setConnectivity(DataArrayInt(conn1), DataArrayInt(cI1))
         mSrc.setConnectivity(DataArrayInt(conn2), DataArrayInt(cI2))
 
@@ -1157,7 +1157,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
-        for i in xrange(len(mat1)):
+        for i in range(len(mat1)):
             self.assertTrue(max(mat2[i].keys())<nbCols)
             self.assertTrue(max(mat1[i].keys())<nbCols)
             self.assertTrue(min(mat2[i].keys())>=0)
@@ -1211,7 +1211,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         targetMesh=MEDCouplingUMesh.New();
         targetMesh.setMeshDimension(2);
         targetMesh.allocateCells(4);
-        for i in xrange(4):
+        for i in range(4):
             targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[4*i:4*(i+1)])
             pass
         targetMesh.finishInsertingCells();

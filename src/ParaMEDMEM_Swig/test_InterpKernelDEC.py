@@ -30,11 +30,11 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         size = MPI_Comm_size(MPI_COMM_WORLD)
         rank = MPI_Comm_rank(MPI_COMM_WORLD)
         if size != 5:
-            raise RuntimeError, "Expect MPI_COMM_WORLD size == 5"
-        print rank
+            raise RuntimeError("Expect MPI_COMM_WORLD size == 5")
+        print(rank)
         nproc_source = 3
-        procs_source = range( nproc_source )
-        procs_target = range( size - nproc_source + 1, size)
+        procs_source = list(range(nproc_source))
+        procs_target = list(range(size - nproc_source + 1, size))
 
         interface = CommInterface()
         target_group = MPIProcessorGroup(interface, procs_target)
@@ -95,7 +95,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             dec.sendData()
             dec.recvData()
             field_after_int=parafield.getVolumeIntegral(0,True);
-            self.failUnless(math.fabs(field_after_int-field_before_int)<1e-8)
+            self.assertTrue(math.fabs(field_after_int-field_before_int)<1e-8)
             pass
         else:
             dec.synchronize()

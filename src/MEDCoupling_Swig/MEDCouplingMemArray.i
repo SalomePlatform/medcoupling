@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 ////////////////////
 %typemap(out) MEDCoupling::DataArray*
@@ -577,8 +577,7 @@ namespace MEDCoupling
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::GetSlice (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
-        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        GetIndicesOfSliceExplicitely(sly,&strt,&stp,&step,"DataArray::GetSlice (wrap) : the input slice is invalid !");
+        GetIndicesOfSliceExplicitely(slic,&strt,&stp,&step,"DataArray::GetSlice (wrap) : the input slice is invalid !");
         int a,b;
         DataArray::GetSlice(strt,stp,step,sliceId,nbOfSlices,a,b);
         return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
@@ -589,8 +588,7 @@ namespace MEDCoupling
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::getSlice (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
-        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        GetIndicesOfSlice(sly,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getSlice (wrap) : the input slice is invalid !");
+        GetIndicesOfSlice(slic,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getSlice (wrap) : the input slice is invalid !");
         int a,b;
         DataArray::GetSlice(strt,stp,step,sliceId,nbOfSlices,a,b);
         return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
@@ -601,8 +599,7 @@ namespace MEDCoupling
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
-        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        GetIndicesOfSliceExplicitely(sly,&strt,&stp,&step,"DataArray::GetNumberOfItemGivenBES (wrap) : the input slice is invalid !");
+        GetIndicesOfSliceExplicitely(slic,&strt,&stp,&step,"DataArray::GetNumberOfItemGivenBES (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBES(strt,stp,step,"");
       }
 
@@ -611,8 +608,7 @@ namespace MEDCoupling
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
-        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        GetIndicesOfSliceExplicitely(sly,&strt,&stp,&step,"DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
+        GetIndicesOfSliceExplicitely(slic,&strt,&stp,&step,"DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
       }
       
@@ -628,8 +624,7 @@ namespace MEDCoupling
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBES (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
-        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        GetIndicesOfSlice(sly,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getNumberOfItemGivenBES (wrap) : the input slice is invalid !");
+        GetIndicesOfSlice(slic,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getNumberOfItemGivenBES (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBES(strt,stp,step,"");
       }
 
@@ -638,8 +633,7 @@ namespace MEDCoupling
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBESRelative (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
-        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        GetIndicesOfSlice(sly,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
+        GetIndicesOfSlice(slic,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
       }
 
@@ -668,13 +662,11 @@ namespace MEDCoupling
         if(sz!=2)
           throw INTERP_KERNEL::Exception("DataArrayDouble.__setstate__ : invalid tuple in input ! Should be of size 2 ! Invalid overwrite of __getstate__ ?");
         PyObject *a0(PyTuple_GetItem(inp,0));
-        if(!PyString_Check(a0))
-          throw INTERP_KERNEL::Exception(MSG);
+        self->setName(convertPyObjectToStr(a0,MSG));
         PyObject *a1(PyTuple_GetItem(inp,1));
         std::vector<std::string> a1cpp;
         if(!fillStringVector(a1,a1cpp))
           throw INTERP_KERNEL::Exception(MSG);
-        self->setName(PyString_AsString(a0));
         self->setInfoOnComponents(a1cpp);
       }
     }
@@ -2599,8 +2591,7 @@ namespace MEDCoupling
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
-        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        GetIndicesOfSliceExplicitely(sly,&strt,&stp,&step,"DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice is invalid !");
+        GetIndicesOfSliceExplicitely(slic,&strt,&stp,&step,"DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice is invalid !");
         if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
           throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice contains some unknowns that can't be determined in static method ! Call DataArray::getSlice (non static) instead !");
         return self->buildExplicitArrOfSliceOnScaledArr(strt,stp,step);
@@ -4410,7 +4401,6 @@ namespace MEDCoupling
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
-
       PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
@@ -5446,6 +5436,19 @@ namespace MEDCoupling
                     else
                       throw INTERP_KERNEL::Exception(msg);
                   }
+%#if PY_VERSION_HEX >= 0x03000000
+                else if(PyUnicode_Check(nbOfTuples))
+                  {
+                    if(PyUnicode_GET_LENGTH(nbOfTuples)!=1)
+                      throw INTERP_KERNEL::Exception(msg);
+                    //DataArrayAsciiChar.New(["abc","de","fghi"],"t")
+                    std::vector<std::string> tmp;
+                    if(fillStringVector(elt0,tmp))
+                      return DataArrayAsciiChar::New(tmp,PyUnicode_AsUTF8(nbOfTuples)[0]);
+                    else
+                      throw INTERP_KERNEL::Exception(msg);
+                  }
+%#endif
                 else
                   throw INTERP_KERNEL::Exception(msg);
               }
@@ -5554,6 +5557,15 @@ namespace MEDCoupling
             std::copy(PyString_AsString(tupl),PyString_AsString(tupl)+sz,vals.begin());
             return self->presenceOfTuple(vals);
           }
+%#if PY_VERSION_HEX >= 0x03000000
+        else if(PyUnicode_Check(tupl))
+          {
+            Py_ssize_t sz=PyUnicode_GET_LENGTH(tupl);
+            std::vector<char> vals(sz);
+            std::copy(PyUnicode_AsUTF8(tupl),PyUnicode_AsUTF8(tupl)+sz,vals.begin());
+            return self->presenceOfTuple(vals);
+          }
+%#endif
         else
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::presenceOfTuple : only strings in input supported !");
       }
@@ -5567,6 +5579,15 @@ namespace MEDCoupling
             std::copy(PyString_AsString(vals),PyString_AsString(vals)+sz,vals2.begin());
             return self->presenceOfValue(vals2);
           }
+%#if PY_VERSION_HEX >= 0x03000000
+        if(PyUnicode_Check(vals))
+          {
+            Py_ssize_t sz=PyUnicode_GET_LENGTH(vals);
+            std::vector<char> vals2(sz);
+            std::copy(PyUnicode_AsUTF8(vals),PyUnicode_AsUTF8(vals)+sz,vals2.begin());
+            return self->presenceOfValue(vals2);
+          }
+%#endif
         else
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::presenceOfValue : only strings in input supported !");
       }
@@ -5580,6 +5601,15 @@ namespace MEDCoupling
             std::copy(PyString_AsString(vals),PyString_AsString(vals)+sz,vals2.begin());
             return self->findIdFirstEqual(vals2);
           }
+%#if PY_VERSION_HEX >= 0x03000000
+        if(PyUnicode_Check(vals))
+          {
+            Py_ssize_t sz=PyUnicode_GET_LENGTH(vals);
+            std::vector<char> vals2(sz);
+            std::copy(PyUnicode_AsUTF8(vals),PyUnicode_AsUTF8(vals)+sz,vals2.begin());
+            return self->findIdFirstEqual(vals2);
+          }
+%#endif
         else
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::findIdFirstEqual : only strings in input supported !");
       }
@@ -5593,6 +5623,15 @@ namespace MEDCoupling
             std::copy(PyString_AsString(tupl),PyString_AsString(tupl)+sz,vals.begin());
             return self->findIdFirstEqualTuple(vals);
           }
+%#if PY_VERSION_HEX >= 0x03000000
+        if(PyUnicode_Check(tupl))
+          {
+            Py_ssize_t sz=PyUnicode_GET_LENGTH(tupl);
+            std::vector<char> vals(sz);
+            std::copy(PyUnicode_AsUTF8(tupl),PyUnicode_AsUTF8(tupl)+sz,vals.begin());
+            return self->findIdFirstEqualTuple(vals);
+          }
+%#endif
         else
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::findIdFirstEqualTuple : only strings in input supported !");
       }
@@ -5606,6 +5645,15 @@ namespace MEDCoupling
             std::copy(PyString_AsString(strOrListOfInt),PyString_AsString(strOrListOfInt)+sz,vals.begin());
             return self->findIdSequence(vals);
           }
+%#if PY_VERSION_HEX >= 0x03000000
+        else if(PyUnicode_Check(strOrListOfInt))
+          {
+            Py_ssize_t sz=PyUnicode_GET_LENGTH(strOrListOfInt);
+            std::vector<char> vals(sz);
+            std::copy(PyUnicode_AsUTF8(strOrListOfInt),PyUnicode_AsUTF8(strOrListOfInt)+sz,vals.begin());
+            return self->findIdSequence(vals);
+          }
+%#endif
         else
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::search : only strings in input supported !");
       }
@@ -5656,6 +5704,17 @@ namespace MEDCoupling
                   else
                     throw INTERP_KERNEL::Exception("DataArrayAsciiChar::index : 'this' contains one component and trying to find a string with size different from 1 !");
                 }
+%#if PY_VERSION_HEX >= 0x03000000
+              if(PyUnicode_Check(obj))
+                {
+                  Py_ssize_t sz;
+                  char *pt=PyUnicode_AsUTF8AndSize(obj, &sz);
+                  if(sz==1)
+                    return self->findIdFirstEqual(pt[0]);
+                  else
+                    throw INTERP_KERNEL::Exception("DataArrayAsciiChar::index : 'this' contains one component and trying to find a string with size different from 1 !");
+                }
+%#endif
               else
                 throw INTERP_KERNEL::Exception("DataArrayAsciiChar::index : 'this' contains one component and trying to find an element which is not an integer !");
             }
@@ -5682,6 +5741,17 @@ namespace MEDCoupling
                   else
                     throw INTERP_KERNEL::Exception("DataArrayAsciiChar::__contains__ : 'this' contains one component and trying to find a string with size different from 1 !");
                 }
+%#if PY_VERSION_HEX >= 0x03000000
+              if(PyUnicode_Check(obj))
+                {
+                  Py_ssize_t sz;
+                  char *pt=PyUnicode_AsUTF8AndSize(obj, &sz);
+                  if(sz==1)
+                    return self->presenceOfValue(pt[0]);
+                  else
+                    throw INTERP_KERNEL::Exception("DataArrayAsciiChar::__contains__ : 'this' contains one component and trying to find a string with size different from 1 !");
+                }
+%#endif
               else
                 throw INTERP_KERNEL::Exception("DataArrayAsciiChar::__contains__ : 'this' contains one component and trying to find an element which is not an integer !");
             }

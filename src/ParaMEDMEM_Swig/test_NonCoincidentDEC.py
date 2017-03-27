@@ -27,11 +27,11 @@ MPI_Init(sys.argv)
 size = MPI_Comm_size(MPI_COMM_WORLD)
 rank = MPI_Comm_rank(MPI_COMM_WORLD)
 if size != 5:
-    raise RuntimeError, "Expect MPI_COMM_WORLD size == 5"
+    raise RuntimeError("Expect MPI_COMM_WORLD size == 5")
 
 nproc_source = 3
-procs_source = range( nproc_source )
-procs_target = range( size - nproc_source + 1, size)
+procs_source = list(range(nproc_source))
+procs_target = list(range(size - nproc_source + 1, size))
 
 interface = CommInterface()
 
@@ -114,7 +114,7 @@ if source_group.containsMyRank():
     field_before_int = [parafield.getVolumeIntegral(1)]
     MPI_Bcast(field_before_int, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     dec.synchronize()
-    print "DEC usage"
+    print("DEC usage")
     dec.setForcedRenormalization(False)
 
     dec.sendData()
@@ -134,11 +134,11 @@ MPI_Bcast(field_after_int , 1, MPI_DOUBLE, size-1, MPI_COMM_WORLD)
 
 epsilon = 1e-6
 if abs(field_before_int[0] - field_after_int[0]) > epsilon:
-    print "Field before is not equal field after: %s != %s"%\
-          (field_before_int[0],field_after_int[0])
+    print("Field before is not equal field after: %s != %s"%\
+          (field_before_int[0],field_after_int[0]))
     pass
 
 
 MPI_Barrier(MPI_COMM_WORLD)
 MPI_Finalize()
-print "# End of testNonCoincidentDEC"
+print("# End of testNonCoincidentDEC")

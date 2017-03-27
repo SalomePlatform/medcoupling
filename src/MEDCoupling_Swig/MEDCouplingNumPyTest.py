@@ -668,11 +668,11 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         """Test on DataArrayBytes"""
         # use case 1
         d=DataArrayByte(256)
-        for i in xrange(len(d)):
+        for i in range(len(d)):
             d[i]=-128+i
             pass
         arr=d.toNumPyArray()
-        for i in xrange(len(d)):
+        for i in range(len(d)):
             self.assertEqual(int(arr[i]),-128+i)
             pass
         d[0]=7
@@ -685,11 +685,11 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         gc.collect()
         # use case 2
         d=DataArrayByte(256)
-        for i in xrange(len(d)):
+        for i in range(len(d)):
             d[i]=-128+i
             pass
         arr=d.toNumPyArray()
-        for i in xrange(len(d)):
+        for i in range(len(d)):
             self.assertEqual(int(arr[i]),-128+i)
             pass
         del d
@@ -698,7 +698,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         gc.collect()
         # use case 3
         d=DataArrayByte(256)
-        for i in xrange(len(d)):
+        for i in range(len(d)):
             d[i]=-128+i
             pass
         arr1=d.toNumPyArray()
@@ -708,20 +708,20 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(int(arr1[0]),10) ; self.assertEqual(int(arr2[0]),10) ; self.assertEqual(int(arr3[0]),10)
         arr2[0]=15 ; self.assertEqual(int(d.getIJ(0,0)),15) ; self.assertEqual(int(arr1[0]),15) ; self.assertEqual(int(arr3[0]),15)
         arr1[0]=-128
-        for i in xrange(len(d)):
+        for i in range(len(d)):
             self.assertEqual(int(arr1[i]),-128+i)
             self.assertEqual(int(arr2[i]),-128+i)
             self.assertEqual(int(arr3[i]),-128+i)
             pass
         del arr2
         gc.collect()
-        for i in xrange(len(d)):
+        for i in range(len(d)):
             self.assertEqual(int(arr1[i]),-128+i)
             self.assertEqual(int(arr3[i]),-128+i)
             pass
         del arr1
         gc.collect()
-        for i in xrange(len(d)):
+        for i in range(len(d)):
             self.assertEqual(int(arr3[i]),-128+i)
             pass
         del arr3
@@ -729,11 +729,11 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         # use case 4
         arr=array(0,dtype=int8)
         arr.resize(256)
-        for i in xrange(256):
+        for i in range(256):
             arr[i]=-128+i
             pass
         d=DataArrayByte(arr)
-        for i in xrange(256):
+        for i in range(256):
             self.assertEqual(int(d.getIJ(i,0)),-128+i)
             pass
         del arr
@@ -743,11 +743,11 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         # use case 5
         arr=array(0,dtype=int8)
         arr.resize(256)
-        for i in xrange(256):
+        for i in range(256):
             arr[i]=-128+i
             pass
         d=DataArrayByte(arr)
-        for i in xrange(256):
+        for i in range(256):
             self.assertEqual(int(d.getIJ(i,0)),-128+i)
             pass
         del d

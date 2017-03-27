@@ -112,6 +112,6 @@ namespace MED_RENUMBER
 import os
 __filename=os.environ.get('PYTHONSTARTUP')
 if __filename and os.path.isfile(__filename):
-  execfile(__filename)
+  exec(open(__filename).read())
   pass
 %}

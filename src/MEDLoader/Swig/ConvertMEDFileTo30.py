@@ -35,12 +35,12 @@ def ConvertTo30(nameOfMEDFile):
     #
     finalVersion=ml.MEDFileVersionOfFileStr(realFnOut)
     #
-    print("File \"%s\" has been converted to 3.0 successfuly ( %s -> %s ) !\nOutput file is here : \"%s\" !"%(fn,initalVersion,finalVersion,realFnOut))
+    print(("File \"%s\" has been converted to 3.0 successfuly ( %s -> %s ) !\nOutput file is here : \"%s\" !"%(fn,initalVersion,finalVersion,realFnOut)))
     pass
 
 if __name__=="__main__":
     import argparse
-    parser=argparse.ArgumentParser(description=u'Convert a MED file into a MED file with 3.0 version (3.0.8)')
+    parser=argparse.ArgumentParser(description='Convert a MED file into a MED file with 3.0 version (3.0.8)')
     parser.add_argument('nameOfMEDFile', type=str, nargs=1,help='File name of the MED file to be converted into 3.0.')
     args=parser.parse_args()
     nameOfMEDFile=args.nameOfMEDFile[0]

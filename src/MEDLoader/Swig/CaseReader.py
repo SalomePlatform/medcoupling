@@ -166,7 +166,7 @@ class CaseReader(CaseIO):
             pos+=nbNodes*3*4 ; fd.seek(pos)#np.array(0,dtype='float%i'%(typeOfCoo)).nbytes
             typ=fd.read(80).strip() ; pos=fd.tell()
             zeK=""
-            for k in self.dictMCTyp2.keys():
+            for k in self.dictMCTyp2:
                 if k in typ:
                     zeK=k
                     break
@@ -327,7 +327,7 @@ class CaseReader(CaseIO):
             nbOfValsOfTyp=np.memmap(fd,dtype='>i4',mode='r',offset=pos,shape=(1)).tolist()[0]/4
             pos+=4
             vals=np.zeros(dtype=">f4",shape=(nbOfValsOfTyp*nbCompo))
-            for iii in xrange(nbCompo):
+            for iii in range(nbCompo):
                 valsTmp=np.memmap(fd,dtype='>f4',mode='r',offset=int(pos),shape=(nbOfValsOfTyp))
                 vals[iii*nbOfValsOfTyp:(iii+1)*nbOfValsOfTyp]=valsTmp
                 pos+=nbOfValsOfTyp*4
@@ -368,7 +368,7 @@ class CaseReader(CaseIO):
             if "TIME\n" in lines:
                 end=lines.index("TIME\n")
                 pass
-            for i in xrange(ind+1,end):
+            for i in range(ind + 1, end):
                 m=re.match("^([\w]+)[\s]+\per[\s]+([\w]+)[\s]*\:[\s]*([\w]+)[\s]+([\S]+)$",lines[i])
                 if m:
                     if m.groups()[0]=="constant":
@@ -379,13 +379,13 @@ class CaseReader(CaseIO):
                 pass
             
             expr=re.compile("number[\s]+of[\s]+steps[\s]*\:[\s]*([\d]+)")
-            tmp=filter(expr.search,lines)
-            if len(tmp)!=0:
-                nbOfTimeSteps=int(expr.search(filter(expr.search,lines)[0]).group(1))
+            tmp = [line for line in lines if expr.search(line)]
+            if tmp:
+                nbOfTimeSteps = int(expr.search(tmp[0]).group(1))
                 expr=re.compile("filename[\s]+start[\s]+number[\s]*\:[\s]*([\d]+)")
-                startIt=int(expr.search(filter(expr.search,lines)[0]).group(1))
+                startIt = int(expr.search([line for line in lines if expr.search(line)][0]).group(1))
                 expr=re.compile("filename[\s]+increment[\s]*\:[\s]*([\d]+)")
-                incrIt=int(expr.search(filter(expr.search,lines)[0]).group(1))
+                incrIt = int(expr.search([line for line in lines if expr.search(line)][0]).group(1))
             else:
                 nbOfTimeSteps=1
                 startIt=0
@@ -402,7 +402,7 @@ class CaseReader(CaseIO):
                 i+=1
                 pass
             pass
-        for ts in xrange(nbOfTimeSteps):
+        for ts in range(nbOfTimeSteps):
             i=0
             for field in fieldsInfo:
                 if typeOfFile:
@@ -416,7 +416,7 @@ class CaseReader(CaseIO):
             pass
         ret=MEDFileData()
         ret.setMeshes(m2)
-        del mlfields[filter(lambda x: len(mlfields[x])==0,range(len(mlfields)))]
+        del mlfields[[x for x in range(len(mlfields)) if len(mlfields[x]) == 0]]
         ret.setFields(mlfields)
         return ret
 

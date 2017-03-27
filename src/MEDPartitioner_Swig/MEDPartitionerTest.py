@@ -78,7 +78,7 @@ class MEDPartitionerTest(unittest.TestCase):
         self.assertEqual( 2, joints.getJointAtPos(1).getStepAtPos(0).getNumberOfCorrespondences())
         self.assertEqual( 1, joints.getJointAtPos(2).getStepAtPos(0).getNumberOfCorrespondences())
         found=0
-        for ii in xrange(joints.getJointAtPos(0).getStepAtPos(0).getNumberOfCorrespondences()):
+        for ii in range(joints.getJointAtPos(0).getStepAtPos(0).getNumberOfCorrespondences()):
             correspond=joints.getJointAtPos(0).getStepAtPos(0).getCorrespondenceAtPos(ii)
             #VSR (10/05/2016): changed to work with metis 5.1... to be confirmed!
             #if correspond.getCorrespondence().isEqual(DataArrayInt([1,3,2,4])):

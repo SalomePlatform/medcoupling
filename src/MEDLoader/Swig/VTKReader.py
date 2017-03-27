@@ -105,7 +105,7 @@ class PVTUReader:
                     self._tmp=3
                     return
                 if name=="PDataArray":
-                    if self._tmp in self._data_array.keys():
+                    if self._tmp in self._data_array:
                         self._data_array[self._tmp](attrs)
                         pass
                     return
@@ -270,7 +270,7 @@ class VTURawReader:
         except self.NormalException as e:
             isOK=True
             fd.seek(0)
-            for i in xrange(e.getLineNb()): fd.readline()
+            for i in range(e.getLineNb()): fd.readline()
             ref=fd.tell()+5
             pass
         if not isOK:
@@ -285,11 +285,11 @@ class VTURawReader:
 
     def __init__(self,fileName,tim=(0.,0)):
         msg="The time specified in constructor as 2nd arg should be a tuple containing 2 values 1 float and 1 int !"
-        if type(tim)!=tuple:
+        if not isinstance(tim, tuple):
             raise Exception(msg)
         if len(tim)!=2:
             raise Exception(msg)
-        if type(tim[0])!=float or type(tim[1])!=int:
+        if not isinstance(tim[0], float) or not isinstance(tim[1], int):
             raise Exception(msg)
         self._fileName=fileName
         self._time=tim

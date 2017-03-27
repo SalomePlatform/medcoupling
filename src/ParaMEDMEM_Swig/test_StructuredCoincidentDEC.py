@@ -32,7 +32,7 @@ class ParaMEDMEMBasicsTest2(unittest.TestCase):
         rank = MPI_Comm_rank(MPI_COMM_WORLD)
         #
         if size < 4:
-            raise RuntimeError, "Expect MPI_COMM_WORLD size >= 4"
+            raise RuntimeError("Expect MPI_COMM_WORLD size >= 4")
         #
         interface = CommInterface()
         #
@@ -103,7 +103,7 @@ class ParaMEDMEMBasicsTest2(unittest.TestCase):
             for i in range(nb_local):
                 first=comptopo.firstLocalComponent()
                 for icomp in range(comptopo.nbLocalComponents()):
-                    self.failUnless(math.fabs(recv_value[i*comptopo.nbLocalComponents()+icomp]-
+                    self.assertTrue(math.fabs(recv_value[i*comptopo.nbLocalComponents()+icomp]-
                                               (float)(i*6+icomp+first))<1e-12)
                     pass
                 pass
@@ -121,7 +121,7 @@ class ParaMEDMEMBasicsTest2(unittest.TestCase):
         source_group = 0
         MPI_Barrier(MPI_COMM_WORLD)
         MPI_Finalize()
-        print "End of test StructuredCoincidentDEC"
+        print("End of test StructuredCoincidentDEC")
         pass
 
 

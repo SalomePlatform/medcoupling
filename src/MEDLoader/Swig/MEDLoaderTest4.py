@@ -37,13 +37,13 @@ class MEDLoaderTest4(unittest.TestCase):
         tri=MEDCouplingUMesh("tri",2)
         tri.allocateCells() ; tri.insertNextCell(NORM_TRI3,[0,1,2])
         tri.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,0.)]))
-        tris=[tri.deepCopy() for i in xrange(4)]
+        tris = [tri.deepCopy() for i in range(4)]
         for i,elt in enumerate(tris): elt.translate([i,0])
         tris=MEDCouplingUMesh.MergeUMeshes(tris)
         quad=MEDCouplingUMesh("quad",2)
         quad.allocateCells() ; quad.insertNextCell(NORM_QUAD4,[0,1,2,3])
         quad.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,1.),(1.,0.)]))
-        quads=[quad.deepCopy() for i in xrange(5)]
+        quads = [quad.deepCopy() for i in range(5)]
         for i,elt in enumerate(quads): elt.translate([5+i,0])
         quads=MEDCouplingUMesh.MergeUMeshes(quads)
         m=MEDCouplingUMesh.MergeUMeshes(tris,quads)
@@ -181,7 +181,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
@@ -199,7 +199,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,100,101,102,103,104,105,106,107,108])))
         self.assertTrue(not a9)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(5):
+        for i in range(5):
             fsst=MEDFileField1TSStructItem.BuildItemFrom(fields[0][i],mst)
             fields[0][i].loadArraysIfNecessary()
             tmpMem=fields.getHeapMemorySize()
@@ -222,13 +222,13 @@ class MEDLoaderTest4(unittest.TestCase):
         tri=MEDCouplingUMesh("tri",2)
         tri.allocateCells() ; tri.insertNextCell(NORM_TRI3,[0,1,2])
         tri.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,0.)]))
-        tris=[tri.deepCopy() for i in xrange(4)]
+        tris = [tri.deepCopy() for i in range(4)]
         for i,elt in enumerate(tris): elt.translate([i,0])
         tris=MEDCouplingUMesh.MergeUMeshes(tris)
         quad=MEDCouplingUMesh("quad",2)
         quad.allocateCells() ; quad.insertNextCell(NORM_QUAD4,[0,1,2,3])
         quad.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,1.),(1.,0.)]))
-        quads=[quad.deepCopy() for i in xrange(5)]
+        quads = [quad.deepCopy() for i in range(5)]
         for i,elt in enumerate(quads): elt.translate([5+i,0])
         quads=MEDCouplingUMesh.MergeUMeshes(quads)
         m=MEDCouplingUMesh.MergeUMeshes(tris,quads)
@@ -399,7 +399,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         assert isinstance(mml2,MEDUMeshMultiLev)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
@@ -412,7 +412,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
         # for cells
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
@@ -421,7 +421,7 @@ class MEDLoaderTest4(unittest.TestCase):
             vExp=DataArrayDouble([200.,201.,202.,203.,204.,205.,206.,207.,208.,209.,210.,211.,212.,213.,214.,215.,216.,217.,218.,219.,220.,221.,222.,223.,224.,225.,226.,227.,228.,229.,230.,231.,232.,233.,234.,235.,236.,237.,238.,239.,240.,241.,242.,243.,244.,245.,246.,247.,248.,249.,250.,251.,252.,253.,254.,255.,256.,257.,258.,259.,260.,261.,262.,263.,100.,101.,102.,103.,104.,105.,106.,107.,108.,109.,110.,111.,112.,113.,114.,115.,116.,117.],41,2) ; vExp.setInfoOnComponents(['Comp1 [m]','Com2 [s^2]']) ; vExp+=i*1000
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][1][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
@@ -441,13 +441,13 @@ class MEDLoaderTest4(unittest.TestCase):
         tri=MEDCouplingUMesh("tri",2)
         tri.allocateCells() ; tri.insertNextCell(NORM_TRI3,[0,1,2])
         tri.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,0.)]))
-        tris=[tri.deepCopy() for i in xrange(4)]
+        tris = [tri.deepCopy() for i in range(4)]
         for i,elt in enumerate(tris): elt.translate([i,0])
         tris=MEDCouplingUMesh.MergeUMeshes(tris)
         quad=MEDCouplingUMesh("quad",2)
         quad.allocateCells() ; quad.insertNextCell(NORM_QUAD4,[0,1,2,3])
         quad.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,1.),(1.,0.)]))
-        quads=[quad.deepCopy() for i in xrange(5)]
+        quads = [quad.deepCopy() for i in range(5)]
         for i,elt in enumerate(quads): elt.translate([5+i,0])
         quads=MEDCouplingUMesh.MergeUMeshes(quads)
         m=MEDCouplingUMesh.MergeUMeshes(tris,quads)
@@ -564,7 +564,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        for i in xrange(1,3):
+        for i in range(1, 3):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
@@ -577,7 +577,7 @@ class MEDLoaderTest4(unittest.TestCase):
         assert a5 is None
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
         # for cells
-        for i in xrange(3):
+        for i in range(3):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
@@ -595,7 +595,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        for i in xrange(1,2):
+        for i in range(1, 2):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
@@ -607,7 +607,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(2):
+        for i in range(2):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
@@ -627,13 +627,13 @@ class MEDLoaderTest4(unittest.TestCase):
         tri=MEDCouplingUMesh("tri",2)
         tri.allocateCells() ; tri.insertNextCell(NORM_TRI3,[0,1,2])
         tri.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,0.)]))
-        tris=[tri.deepCopy() for i in xrange(4)]
+        tris = [tri.deepCopy() for i in range(4)]
         for i,elt in enumerate(tris): elt.translate([i,0])
         tris=MEDCouplingUMesh.MergeUMeshes(tris)
         quad=MEDCouplingUMesh("quad",2)
         quad.allocateCells() ; quad.insertNextCell(NORM_QUAD4,[0,1,2,3])
         quad.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,1.),(1.,0.)]))
-        quads=[quad.deepCopy() for i in xrange(5)]
+        quads = [quad.deepCopy() for i in range(5)]
         for i,elt in enumerate(quads): elt.translate([5+i,0])
         quads=MEDCouplingUMesh.MergeUMeshes(quads)
         m=MEDCouplingUMesh.MergeUMeshes(tris,quads)
@@ -823,7 +823,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
@@ -836,7 +836,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
         # test all the time steps of the 1/1 time step serie, on field 1
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -847,7 +847,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
         # test all the time steps of the 1/1 time step serie, on field 2
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][1][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -858,7 +858,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
         # test all the time steps of the 1/1 time step serie, on field 3
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][2][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -893,7 +893,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fieldName3="zeField3" ; pfl3=DataArrayInt([0,1,2,3,4,5,9,10]) ; pfl3.setName("pfl3") # on cells but different support
         fs1=MEDFileFieldMultiTS() ; fs2=MEDFileFieldMultiTS() ; fs3=MEDFileFieldMultiTS()
         #
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_CELLS) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName1)
@@ -955,7 +955,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
@@ -973,10 +973,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([100,101,102,103,104,105])))
         self.assertTrue(not a9)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(5):
+        for i in range(5):
             nbOfT=[6,8]
             fieldNames=[fieldName1,fieldName2]
-            for j in xrange(2):
+            for j in range(2):
                 m={"i":j}
                 f=allFMTSLeavesPerCommonSupport[0][0][j][i]
                 fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
@@ -993,7 +993,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
@@ -1011,7 +1011,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([100,101,102,103,104,105,109,110])))
         self.assertTrue(not a9)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1043,7 +1043,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fieldName4="zeField4" ;# on nodes
         fs0=MEDFileFieldMultiTS() ; fs1=MEDFileFieldMultiTS() ; fs2=MEDFileFieldMultiTS() ; fs3=MEDFileFieldMultiTS() ; fs4=MEDFileFieldMultiTS()
         #
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_CELLS) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0) ; fNode.setMesh(m)
@@ -1128,7 +1128,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a.isEqual(coordsX,1e-12))
         self.assertTrue(b.isEqual(coordsY,1e-12))
         self.assertTrue(isinstance(mml2,MEDCMeshMultiLev))
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
         a6,a7=mml2.retrieveFamilyIdsOnCells()
@@ -1141,7 +1141,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a10.isEqual(DataArrayInt([200,201,202,203,204,205,206,207,208,209,210,211,212,213,214])))
         self.assertTrue(a11) # True because no copy
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1179,10 +1179,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a10.isEqual(DataArrayInt([202,203,204,207,208,209,212,213,214])))
         self.assertTrue(not a11) # False because copy
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1223,7 +1223,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([102,103,105,107])))
         self.assertTrue(not a9) # False because copy
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[2][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1255,7 +1255,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fieldName4="zeField4" ;# on nodes
         fs0=MEDFileFieldMultiTS() ; fs1=MEDFileFieldMultiTS() ; fs2=MEDFileFieldMultiTS() ; fs3=MEDFileFieldMultiTS() ; fs4=MEDFileFieldMultiTS()
         #
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_CELLS) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0) ; fNode.setMesh(m)
@@ -1347,10 +1347,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([100,101,102,103,104,105,106,107])))
         self.assertTrue(a9) # True because no copy
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1385,10 +1385,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([102,103,106,107])))
         self.assertTrue(not a9) # False because copy
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1429,7 +1429,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([102,103,105,107])))
         self.assertTrue(not a9) # False because copy
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[2][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1461,7 +1461,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fieldName2="zeField2"
         fieldName3="zeField3"
         fs0=MEDFileFieldMultiTS() ; fs1=MEDFileFieldMultiTS() ; fs2=MEDFileFieldMultiTS() ; fs3=MEDFileFieldMultiTS()
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_GAUSS_NE) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0) ; fNode.setMesh(m)
@@ -1545,10 +1545,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1610,7 +1610,7 @@ class MEDLoaderTest4(unittest.TestCase):
         pfl1=DataArrayInt([0,1,7,9,10]) ; pfl1.setName("pfl1") # on cells
         pfl2=DataArrayInt([1,2,3,6,7,8,11,12,13]) ; pfl2.setName("pfl2") # on nodes
         fs0=MEDFileFieldMultiTS() ; fs1=MEDFileFieldMultiTS() ; fs2=MEDFileFieldMultiTS() ; fs3=MEDFileFieldMultiTS()
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_GAUSS_NE) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0)
@@ -1694,10 +1694,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1756,7 +1756,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fieldName2="zeField2"
         pfl1=DataArrayInt([1,2,3,6,7,8,11,12,13]) ; pfl1.setName("pfl1") # on nodes
         fs0=MEDFileFieldMultiTS() ; fs1=MEDFileFieldMultiTS() ; fs2=MEDFileFieldMultiTS()
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0)
@@ -1828,10 +1828,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1874,7 +1874,7 @@ class MEDLoaderTest4(unittest.TestCase):
         #
         fieldName0="zeField0"
         fs0=MEDFileFieldMultiTS()
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_GAUSS_PT) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0) ; fNode.setMesh(m)
@@ -1932,10 +1932,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -1962,7 +1962,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fieldName0="zeField0"
         fieldName1="zeField1"
         fs0=MEDFileFieldMultiTS() ; fs1=MEDFileFieldMultiTS()
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_GAUSS_PT) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0) ; fNode.setMesh(m)
@@ -2028,10 +2028,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -2068,7 +2068,7 @@ class MEDLoaderTest4(unittest.TestCase):
             fieldName1="zeField1"
             fieldName2="zeField2" ; pfl1=DataArrayInt([2,3]) ; pfl1.setName("pfl1")
             fieldName3="zefield3" ; pfl2=DataArrayInt([2,3,4]) ; pfl2.setName("pfl2")
-            for i in xrange(5):
+            for i in range(5):
                 f=MEDFileField1TS()
                 fNode=MEDCouplingFieldDouble(ON_CELLS) ; fNode.setTime(float(i),i,0)
                 fNode.setName(fieldName0) ; fNode.setMesh(m)
@@ -2148,11 +2148,11 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(a4.isEqual(DataArrayInt([-1,-1,0,31,62])))
             self.assertTrue(a5.isEqual(DataArrayInt([6,4,3,2,8,9,4,15,21,20,14,4,3,15,14,2,4,2,14,20,8,4,8,20,21,9,4,9,21,15,3,6,4,4,3,9,10,4,16,22,21,15,4,4,16,15,3,4,3,15,21,9,4,9,21,22,10,4,10,22,16,4,6,4,5,4,10,11,4,17,23,22,16,4,5,17,16,4,4,4,16,22,10,4,10,22,23,11,4,11,23,17,5])))
             self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-            for i in xrange(1,5):
+            for i in range(1, 5):
                 self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
                 pass
             pass
-            for i in xrange(5):
+            for i in range(5):
                 f=allFMTSLeavesPerCommonSupport[0][0][0][i]
                 fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
                 f.loadArraysIfNecessary()
@@ -2185,11 +2185,11 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(a4.isEqual(DataArrayInt([0,31])))
             self.assertTrue(a5.isEqual(DataArrayInt([6,4,3,2,8,9,4,15,21,20,14,4,3,15,14,2,4,2,14,20,8,4,8,20,21,9,4,9,21,15,3,6,4,4,3,9,10,4,16,22,21,15,4,4,16,15,3,4,3,15,21,9,4,9,21,22,10,4,10,22,16,4])))
             self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-            for i in xrange(1,5):
+            for i in range(1, 5):
                 self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
                 pass
             pass
-            for i in xrange(5):
+            for i in range(5):
                 f=allFMTSLeavesPerCommonSupport[1][0][0][i]
                 fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
                 f.loadArraysIfNecessary()
@@ -2212,11 +2212,11 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(a3.isEqual(DataArrayInt([8,2,3,8,9,14,15,20,21,8,3,4,9,10,15,16,21,22,8,4,5,10,11,16,17,22,23])))
             self.assertTrue(a4.isEqual(DataArrayInt([0,31,62])))
             self.assertTrue(a5.isEqual(DataArrayInt([6,4,3,2,8,9,4,15,21,20,14,4,3,15,14,2,4,2,14,20,8,4,8,20,21,9,4,9,21,15,3,6,4,4,3,9,10,4,16,22,21,15,4,4,16,15,3,4,3,15,21,9,4,9,21,22,10,4,10,22,16,4,6,4,5,4,10,11,4,17,23,22,16,4,5,17,16,4,4,4,16,22,10,4,10,22,23,11,4,11,23,17,5])))
-            for i in xrange(1,5):
+            for i in range(1, 5):
                 self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
                 pass
             pass
-            for i in xrange(5):
+            for i in range(5):
                 f=allFMTSLeavesPerCommonSupport[2][0][0][i]
                 fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
                 f.loadArraysIfNecessary()
@@ -2242,7 +2242,7 @@ class MEDLoaderTest4(unittest.TestCase):
             fs0=MEDFileFieldMultiTS() ; fs1=MEDFileFieldMultiTS()
             fieldName0="zeField0"
             fieldName1="zeField1"
-            for i in xrange(5):
+            for i in range(5):
                 f=MEDFileField1TS()
                 fNode=MEDCouplingFieldDouble(ON_CELLS) ; fNode.setTime(float(i),i,0)
                 fNode.setName(fieldName0) ; fNode.setMesh(m)
@@ -2304,7 +2304,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(a4.isEqual(DataArrayInt([0,31,62])))
             self.assertTrue(a5.isEqual(DataArrayInt([6,4,3,2,8,9,4,15,21,20,14,4,3,15,14,2,4,2,14,20,8,4,8,20,21,9,4,9,21,15,3,6,4,4,3,9,10,4,16,22,21,15,4,4,16,15,3,4,3,15,21,9,4,9,21,22,10,4,10,22,16,4,6,4,5,4,10,11,4,17,23,22,16,4,5,17,16,4,4,4,16,22,10,4,10,22,23,11,4,11,23,17,5])))
             self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-            for i in xrange(1,5):
+            for i in range(1, 5):
                 self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
                 pass
             a6,a7=mml2.retrieveFamilyIdsOnCells()
@@ -2313,7 +2313,7 @@ class MEDLoaderTest4(unittest.TestCase):
             a8,a9=mml2.retrieveNumberIdsOnCells()
             self.assertTrue(a8 is None)
             self.assertTrue(a9)
-            for i in xrange(5):
+            for i in range(5):
                 f=allFMTSLeavesPerCommonSupport[0][0][0][i]
                 fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
                 f.loadArraysIfNecessary()
@@ -2742,12 +2742,12 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([0,1])))
         self.assertTrue(a9) # no copy here
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,2):
+        for i in range(1, 2):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
         vExp0=[DataArrayDouble([7.,11.]),DataArrayDouble([11.,7.])]
         vExp1=[DataArrayDouble([3.,5.,7.,6.,2.,3.,11.,8.]),DataArrayDouble([7.,6.,3.,5.,11.,8.,2.,3.])]
-        for i in xrange(2):
+        for i in range(2):
             f=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -2860,12 +2860,12 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([0,1])))
         self.assertTrue(a9) # no copy here
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,2):
+        for i in range(1, 2):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
         vExp0=[DataArrayDouble([7.,11.]),DataArrayDouble([11.,7.])]
         vExp1=[DataArrayDouble([3.,5.,4.,6.]),DataArrayDouble([5.,3.,6.,4.])]
-        for i in xrange(2):
+        for i in range(2):
             f=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -2929,12 +2929,12 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a8.isEqual(DataArrayInt([0,1])))
         self.assertTrue(a9) # no copy here
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,2):
+        for i in range(1, 2):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
         vExp0=[DataArrayDouble([7.,11.]),DataArrayDouble([11.,7.])]
         vExp1=[DataArrayDouble([3.,5.,4.,6.]),DataArrayDouble([5.,3.,6.,4.])]
-        for i in xrange(2):
+        for i in range(2):
             f=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst) # no load needed here
             v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
@@ -3041,10 +3041,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(not a12)
         self.assertTrue(a13) # no copy here
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,2):
+        for i in range(1, 2):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(2):
+        for i in range(2):
             f=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -3227,10 +3227,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a12.isEqual(DataArrayInt([0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240])))
         self.assertTrue(a13) # no copy here
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,2):
+        for i in range(1, 2):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(2):
+        for i in range(2):
             f=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -3280,7 +3280,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a12.isEqual(DataArrayInt([50,60,70,100,110,120,150,160,170,200,210,220])))
         self.assertTrue(not a13) # copy here
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(2):
+        for i in range(2):
             f=allFMTSLeavesPerCommonSupport1[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -3633,7 +3633,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(b.isEqual(arr1,1e-12))
         self.assertTrue(c.isEqual(arr2,1e-12))
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(2):
+        for i in range(2):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -4388,7 +4388,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
         self.assertEqual(v.getHiddenCppPointer(),ffGauss.getUndergroundDataArray().getHiddenCppPointer())
         self.assertEqual(ffGauss.getName(),"fGauss")
-        self.assertTrue(v.isEqual(arrGauss,1e-12)) ; self.assertTrue(v.isEqualWithoutConsideringStr(DataArrayDouble(range(27)),1e-12)) ; self.assertEqual(v.getInfoOnComponents(),["gaussc"])
+        self.assertTrue(v.isEqual(arrGauss, 1e-12)) ; self.assertTrue(v.isEqualWithoutConsideringStr(DataArrayDouble(list(range(27))), 1e-12)) ; self.assertEqual(v.getInfoOnComponents(), ["gaussc"])
         ffGauss=allFMTSLeavesPerCommonSupport1[0][0][1][0]
         pass
 
@@ -4417,7 +4417,7 @@ class MEDLoaderTest4(unittest.TestCase):
         #
         fmts0=MEDFileFieldMultiTS()
         fmts1=MEDFileFieldMultiTS()
-        for i in xrange(30):
+        for i in range(30):
             f1ts=MEDFileField1TS()
             fFaces=MEDCouplingFieldDouble(ON_CELLS) ; fFaces.setName("FieldOnFaces")
             arr=DataArrayDouble(98) ; arr.iota() ; arr[i]=100.
@@ -4480,7 +4480,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(b.isEqual(arrY,1e-12))
         self.assertTrue(c.isEqual(arrZ,1e-12))
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(30):
+        for i in range(30):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -4504,7 +4504,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a3.isEqual(DataArrayInt([4,0,12,15,3,4,12,24,27,15,4,24,36,39,27,4,36,48,51,39,4,3,15,18,6,4,15,27,30,18,4,27,39,42,30,4,39,51,54,42,4,6,18,21,9,4,18,30,33,21,4,30,42,45,33,4,42,54,57,45,4,1,13,16,4,4,13,25,28,16,4,25,37,40,28,4,37,49,52,40,4,4,16,19,7,4,16,28,31,19,4,28,40,43,31,4,40,52,55,43,4,7,19,22,10,4,19,31,34,22,4,31,43,46,34,4,43,55,58,46,4,2,14,17,5,4,14,26,29,17,4,26,38,41,29,4,38,50,53,41,4,5,17,20,8,4,17,29,32,20,4,29,41,44,32,4,41,53,56,44,4,8,20,23,11,4,20,32,35,23,4,32,44,47,35,4,44,56,59,47,4,0,12,13,1,4,12,24,25,13,4,24,36,37,25,4,36,48,49,37,4,1,13,14,2,4,13,25,26,14,4,25,37,38,26,4,37,49,50,38,4,3,15,16,4,4,15,27,28,16,4,27,39,40,28,4,39,51,52,40,4,4,16,17,5,4,16,28,29,17,4,28,40,41,29,4,40,52,53,41,4,6,18,19,7,4,18,30,31,19,4,30,42,43,31,4,42,54,55,43,4,7,19,20,8,4,19,31,32,20,4,31,43,44,32,4,43,55,56,44,4,9,21,22,10,4,21,33,34,22,4,33,45,46,34,4,45,57,58,46,4,10,22,23,11,4,22,34,35,23,4,34,46,47,35,4,46,58,59,47,4,0,1,4,3,4,3,4,7,6,4,6,7,10,9,4,1,2,5,4,4,4,5,8,7,4,7,8,11,10,4,12,13,16,15,4,15,16,19,18,4,18,19,22,21,4,13,14,17,16,4,16,17,20,19,4,19,20,23,22,4,24,25,28,27,4,27,28,31,30,4,30,31,34,33,4,25,26,29,28,4,28,29,32,31,4,31,32,35,34,4,36,37,40,39,4,39,40,43,42,4,42,43,46,45,4,37,38,41,40,4,40,41,44,43,4,43,44,47,46,4,48,49,52,51,4,51,52,55,54,4,54,55,58,57,4,49,50,53,52,4,52,53,56,55,4,55,56,59,58])))
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
-        for i in xrange(30):
+        for i in range(30):
             ffCell=allFMTSLeavesPerCommonSupport1[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -4537,7 +4537,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fmts0=MEDFileFieldMultiTS()
         fmts1=MEDFileFieldMultiTS()
         pfl=DataArrayInt(11) ; pfl.iota() ; pfl.setName("PflOnHECA8")
-        for i in xrange(30):
+        for i in range(30):
             f1ts=MEDFileField1TS()
             fFaces=MEDCouplingFieldDouble(ON_CELLS) ; fFaces.setName("FieldOnCells")
             arr=DataArrayDouble(11) ; arr.iota() ; arr[i%11]=100.
@@ -4593,7 +4593,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a3.isEqual(DataArrayInt([8,1,0,3,4,13,12,15,16,8,2,1,4,5,14,13,16,17,8,4,3,6,7,16,15,18,19,8,5,4,7,8,17,16,19,20,8,7,6,9,10,19,18,21,22,8,8,7,10,11,20,19,22,23,8,13,12,15,16,25,24,27,28,8,14,13,16,17,26,25,28,29,8,16,15,18,19,28,27,30,31,8,17,16,19,20,29,28,31,32,8,19,18,21,22,31,30,33,34])))
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
-        for i in xrange(30):
+        for i in range(30):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -4628,7 +4628,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fmts0=MEDFileFieldMultiTS()
         fmts1=MEDFileFieldMultiTS()
         pfl=DataArrayInt(31) ; pfl.iota() ; pfl.setName("PflOnQUAD4")
-        for i in xrange(30):
+        for i in range(30):
             f1ts=MEDFileField1TS()
             fFaces=MEDCouplingFieldDouble(ON_CELLS) ; fFaces.setName("FieldOnFaces")
             arr=DataArrayDouble(31) ; arr.iota() ; arr[i]=100.
@@ -4692,7 +4692,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(b.isEqual(arrY,1e-12))
         self.assertTrue(c.isEqual(arrZ,1e-12))
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(30):
+        for i in range(30):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -4719,7 +4719,7 @@ class MEDLoaderTest4(unittest.TestCase):
         a6,a7=mml2.retrieveFamilyIdsOnCells()
         self.assertTrue(a6 is None)
         self.assertTrue(a7)
-        for i in xrange(30):
+        for i in range(30):
             ffCell=allFMTSLeavesPerCommonSupport1[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -4751,7 +4751,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m)
         mm.write(fname,2)
-        for i in xrange(15):
+        for i in range(15):
             fCell0=MEDCouplingFieldDouble(ON_CELLS) ; fCell0.setTime(float(i)+0.1,i,0)
             fCell0.setName(fieldName) ; fCell0.setMesh(m)
             arr=DataArrayDouble(m.getNumberOfCells()) ; arr.iota(0) ; arr[i%10]=100.
@@ -4800,7 +4800,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(15):
+        for i in range(15):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -4827,7 +4827,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fieldName0="zeField0"
         fieldName1="zeField1"
         fs0=MEDFileFieldMultiTS() ; fs1=MEDFileFieldMultiTS()
-        for i in xrange(5):
+        for i in range(5):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_GAUSS_PT) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0) ; fNode.setMesh(m)
@@ -4885,7 +4885,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),5)
         allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
         self.assertEqual(len(allFMTSLeavesPerCommonSupport),5)
-        for i in xrange(5):
+        for i in range(5):
             self.assertEqual(len(allFMTSLeavesPerCommonSupport[i][0]),1)
         #
         mst=MEDFileMeshStruct.New(ms[0])
@@ -4903,10 +4903,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1,5):
+        for i in range(1, 5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        for i in xrange(5):
+        for i in range(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
@@ -5133,7 +5133,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1):
+        for i in range(1):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -5161,7 +5161,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1):
+        for i in range(1):
             ffCell=allFMTSLeavesPerCommonSupport1[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -5231,7 +5231,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a.isEqual(ref_a,1e-14))
         self.assertEqual(b,[3,4,5])
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1):
+        for i in range(1):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -5301,7 +5301,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a.isEqual(ref_a,1e-14))
         self.assertEqual(b,[3,4,5])
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1):
+        for i in range(1):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -5371,7 +5371,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ref_a.setInfoOnComponents(comps)
         self.assertTrue(a0.isEqual(ref_a,1e-14))#<- Test is here
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1):
+        for i in range(1):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()
@@ -5437,7 +5437,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a.isEqual(ref_a,1e-14))#<- Test is here
         self.assertEqual(b,[3,4,5])
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
-        for i in xrange(1):
+        for i in range(1):
             ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
             ffCell.loadArraysIfNecessary()

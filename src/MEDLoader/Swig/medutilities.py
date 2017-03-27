@@ -33,7 +33,7 @@ def my_remove(f):
 
 def convert(file_in, driver_in, driver_out, format=1, file_out=None):
     #
-    print file_in
+    print(file_in)
     #
     if file_out is None:
         file_out = file_in
@@ -45,7 +45,7 @@ def convert(file_in, driver_in, driver_out, format=1, file_out=None):
             msg = "Driver out %s is unknown"%(driver_out)
             raise NotImplementedError(msg)
         pass
-    print file_out
+    print(file_out)
     #
     if driver_in == "GIBI":
         sr = SauvReader.New(file_in)

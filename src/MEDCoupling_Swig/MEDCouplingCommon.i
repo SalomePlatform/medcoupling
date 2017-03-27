@@ -2528,13 +2528,12 @@ namespace MEDCoupling
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : the first param is not a pyslice !");
         Py_ssize_t strt=2,stp=2,step=2;
-        PySliceObject *sliC=reinterpret_cast<PySliceObject *>(slic);
         if(!arrIndxIn)
           throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : last array is null !");
         arrIndxIn->checkAllocated();
         if(arrIndxIn->getNumberOfComponents()!=1)
           throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : number of components of last argument must be equal to one !");
-        GetIndicesOfSlice(sliC,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step,"ExtractFromIndexedArraysSlice (wrap) : Invalid slice regarding nb of elements !");
+        GetIndicesOfSlice(slic,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step,"ExtractFromIndexedArraysSlice (wrap) : Invalid slice regarding nb of elements !");
         DataArrayInt *arrOut=0,*arrIndexOut=0;
         MEDCouplingUMesh::ExtractFromIndexedArraysSlice(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
         PyObject *ret=PyTuple_New(2);
@@ -6003,6 +6002,6 @@ namespace MEDCoupling
 import os
 __filename=os.environ.get('PYTHONSTARTUP')
 if __filename and os.path.isfile(__filename):
-  execfile(__filename)
+  exec(open(__filename).read())
   pass
 %}

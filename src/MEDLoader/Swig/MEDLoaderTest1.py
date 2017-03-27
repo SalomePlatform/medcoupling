@@ -556,7 +556,7 @@ class MEDLoaderTest1(unittest.TestCase):
         nbOfCompo=4100
         arr=MEDLoader.DataArrayDouble(nbOfCompo*3) ; arr.iota()
         arr.rearrange(nbOfCompo)
-        arr.setInfoOnComponents(["c%i"%(i) for i in xrange(nbOfCompo)])
+        arr.setInfoOnComponents(["c%i" % (i) for i in range(nbOfCompo)])
         f.setArray(arr)
         f.setName("FieldBigCompo")
         MEDLoader.WriteField(fileName,f,True)
@@ -570,7 +570,7 @@ class MEDLoaderTest1(unittest.TestCase):
         m.insertNextCell([0,2,1,3])
         m.setCoords(MEDLoader.DataArrayDouble([0.,0.,1.,1.,1.,0.,0.,1.],4,2))
         #
-        ms=[m.deepCopy() for i in xrange(4)]
+        ms = [m.deepCopy() for i in range(4)]
         for i,elt in enumerate(ms):
             elt.translate([float(i)*1.5,0.])
             pass
@@ -619,7 +619,7 @@ class MEDLoaderTest1(unittest.TestCase):
         m.insertNextCell([0,2,1,3])
         m.setCoords(MEDLoader.DataArrayDouble([0.,0.,1.,1.,1.,0.,0.,1.],4,2))
         #
-        ms=[m.deepCopy() for i in xrange(4)]
+        ms = [m.deepCopy() for i in range(4)]
         for i,elt in enumerate(ms):
             elt.translate([float(i)*1.5,0.])
             pass
@@ -811,7 +811,7 @@ class MEDLoaderTest1(unittest.TestCase):
         mm[0]=m
         mm.write(fname,2)
         #
-        pfl=MEDLoader.DataArrayInt(range(8))
+        pfl = MEDLoader.DataArrayInt(list(range(8)))
         pfl.setName("PFL")
         #
         f=MEDLoader.MEDCouplingFieldDouble(MEDLoader.ON_CELLS)

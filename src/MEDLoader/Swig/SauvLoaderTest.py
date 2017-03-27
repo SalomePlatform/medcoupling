@@ -97,7 +97,7 @@ class SauvLoaderTest(unittest.TestCase):
 
         #remove fieldnodeint
         pointeFields = pointeMed.getFields()
-        for i in range( pointeFields.getNumberOfFields() ):
+        for i in range(pointeFields.getNumberOfFields()):
             if pointeFields.getFieldAtPos(i).getName() == "fieldnodeint":
                 pointeFields.destroyFieldAtPos( i )
                 break
@@ -144,7 +144,7 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertEqual( fieldnodedoubleTS1.getNumberOfTS(), fieldnodedoubleTS2.getNumberOfTS())
         io1 = fieldnodedoubleTS1.getIterations()
         io2 = fieldnodedoubleTS2.getIterations()
-        for i in range(fieldnodedoubleTS1.getNumberOfTS() ):
+        for i in range(fieldnodedoubleTS1.getNumberOfTS()):
             fnd1 = fieldnodedoubleTS1.getFieldOnMeshAtLevel(ON_NODES, io1[i][0],io1[i][1],pointeUM0)
             fnd2 = fieldnodedoubleTS2.getFieldOnMeshAtLevel(ON_NODES, io2[i][0],io2[i][1],um0)
             self.assertTrue( fnd1.getArray().isEqual( fnd2.getArray(), 1e-12 ))
@@ -155,7 +155,7 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertEqual( fieldnodedoubleTS1.getNumberOfTS(), fieldnodedoubleTS2.getNumberOfTS())
         io1 = fieldnodedoubleTS1.getIterations()
         io2 = fieldnodedoubleTS2.getIterations()
-        for i in range(fieldnodedoubleTS1.getNumberOfTS() ):
+        for i in range(fieldnodedoubleTS1.getNumberOfTS()):
             fnd1 = fieldnodedoubleTS1.getFieldOnMeshAtLevel(ON_CELLS, io1[i][0],io1[i][1],pointeUM0)
             fnd2 = fieldnodedoubleTS2.getFieldOnMeshAtLevel(ON_CELLS, io2[i][0],io2[i][1],um0)
             self.assertAlmostEqual( fnd1.accumulate(0), fnd2.accumulate(0) )

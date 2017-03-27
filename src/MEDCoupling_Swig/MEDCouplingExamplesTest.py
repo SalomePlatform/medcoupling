@@ -43,7 +43,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fileName = "testExample_MEDCouplingFieldDouble_WriteVTK"
         fs = [ field1, field2, field3 ] # field series
         writtenFileName=MEDCouplingFieldDouble.WriteVTK( fileName, fs )
-        print "The file name with correct extension is : %s"%(writtenFileName)
+        print("The file name with correct extension is : %s"%(writtenFileName))
         #! [PySnippet_MEDCouplingFieldDouble_WriteVTK_1]
         import os
         os.remove( writtenFileName )
@@ -1478,7 +1478,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 #! [Snippet_DataArrayInt_getTuple_1]
 #! [Snippet_DataArrayInt_getTuple_2]
         for tpl in dv:
-            print tpl
+            print(tpl)
 #! [Snippet_DataArrayInt_getTuple_2]
         return
 
@@ -1500,7 +1500,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setValues(arr1,6,1)
         da2=da.invertArrayO2N2N2O(6)
         expected1=[1,3,0,5,2,4]
-        for i in xrange(6):
+        for i in range(6):
             self.assertEqual(expected1[i],da2.getIJ(i,0))
             pass
 #! [PySnippet_DataArrayInt_invertArrayO2N2N2O_1]
@@ -1513,7 +1513,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setValues(arr1,6,1)
         da2=da.invertArrayN2O2O2N(7)
         expected1=[1,3,0,5,2,4,-1]
-        for i in xrange(6):
+        for i in range(6):
             self.assertEqual(expected1[i],da2.getIJ(i,0))
             pass
 #! [PySnippet_DataArrayInt_invertArrayN2O2O2N_1]
@@ -1524,7 +1524,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 #! [PySnippet_DataArrayDouble_getIdsInRange_1]
         da=DataArrayDouble()
         da.alloc( 10, 1 )
-        da[ :, :] = range(10)
+        da[ :, :] = list(range(10))
         da2 = da.findIdsInRange( 2.5, 6 )
 #! [PySnippet_DataArrayDouble_getIdsInRange_1]
         return
@@ -1890,7 +1890,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv=da.getDifferentValues(2e-1)
         expected2=[2.301,1.3,0.8]
         self.assertEqual(3,dv.getNbOfElems())
-        for i in xrange(3):
+        for i in range(3):
             self.assertAlmostEqual(expected2[i],dv.getIJ(i,0),14)
             pass
 #! [Snippet_DataArrayDouble_getDifferentValues1]
@@ -2009,7 +2009,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(3,f2.getNumberOfTuples())
         self.assertEqual(2,f2.getNumberOfComponents())
         expected1=[5.,105.,4.,104.,7.,107.]
-        for i in xrange(6):
+        for i in range(6):
             self.assertAlmostEqual(f2.getIJ(0,i),expected1[i],12)
             pass
         self.assertEqual(3,f2.getMesh().getNumberOfCells())
@@ -2019,7 +2019,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m2C=f2.getMesh()
         self.assertEqual(13,m2C.getNodalConnectivityArrayLen())
         expected2=[0.2, -0.3, 0.7, -0.3, 0.2, 0.2, 0.7, 0.2, 0.2, 0.7, 0.7, 0.7]
-        for i in xrange(12):
+        for i in range(12):
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
         expected3=[3,2,3,1,3,0,2,1,4,4,5,3,2]
@@ -2042,7 +2042,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(4,f2.getNumberOfTuples())
         self.assertEqual(2,f2.getNumberOfComponents())
         expected5=[4.,104.,5.,105.,7.,107.,8.,108.]
-        for i in xrange(8):
+        for i in range(8):
             self.assertAlmostEqual(f2.getIJ(0,i),expected5[i],12)
             pass
         self.assertEqual(2,f2.getMesh().getNumberOfCells())
@@ -2051,7 +2051,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
         self.assertEqual(8,m2C.getNodalConnectivityArrayLen())
-        for i in xrange(8):#8 is not an error
+        for i in range(8):  # 8 is not an error
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
         self.assertEqual(expected3[:4],[int(i) for i in m2C.getNodalConnectivity()][4:])
@@ -2064,7 +2064,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f2=f1.buildSubPart(arrr)
         self.assertEqual(4,f2.getNumberOfTuples())
         self.assertEqual(2,f2.getNumberOfComponents())
-        for i in xrange(8):
+        for i in range(8):
             self.assertAlmostEqual(f2.getIJ(0,i),expected5[i],12)
             pass
         self.assertEqual(2,f2.getMesh().getNumberOfCells())
@@ -2073,7 +2073,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
         self.assertEqual(8,m2C.getNodalConnectivityArrayLen())
-        for i in xrange(8):#8 is not an error
+        for i in range(8):  # 8 is not an error
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
         self.assertEqual(expected3[:4],[int(i) for i in m2C.getNodalConnectivity()][4:8])
@@ -2084,7 +2084,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(6,f2.getNumberOfTuples())
         self.assertEqual(2,f2.getNumberOfComponents())
         expected6=[4.,104.,5.,105.,7.,107.,8.,108.,10.,110.,11.,111.]
-        for i in xrange(12):
+        for i in range(12):
             self.assertAlmostEqual(f2.getIJ(0,i),expected6[i],12)
             pass
         self.assertEqual(3,f2.getMesh().getNumberOfCells())
@@ -2093,7 +2093,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
         self.assertEqual(13,m2C.getNodalConnectivityArrayLen())
-        for i in xrange(12):
+        for i in range(12):
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
         self.assertEqual(expected3[0:4],m2C.getNodalConnectivity().getValues()[4:8])

@@ -18,6 +18,7 @@
 # Author : Anthony Geay (EDF R&D)
 
 import re
+import sys
 
 s1=2709
 s2=2848
@@ -39,7 +40,7 @@ if not mEnd:
 #
 nbLines=len(lines)-4
 casePat=re.compile("[\s]+case[\s]+([\d]+)\:[\s]*$")
-entries=filter(lambda (i,x): casePat.match(x),enumerate(lines[offsetLines:-1]))
+entries=[i_x for i_x in enumerate(lines[offsetLines:-1]) if casePat.match(i_x[1])]
 #
 nbPts=len(entries)
 if nbLines%nbPts!=0:
@@ -48,7 +49,7 @@ dim=nbLines/nbPts-2
 if dim<1 or dim>3:
     raise Exception("Ooops invalid dim !")
 entries=[(i,int(casePat.match(elt).group(1))) for i,elt in entries]
-assert(set([elt[1] for elt in entries])==set(range(nbPts)))
+assert({elt[1] for elt in entries} == set(range(nbPts)))
 #
 partEndEntries=re.compile("[\s]*break[\s]*\;[\s]*$")
 zePat=re.compile("[\s]+coords\[([\d]+)\][\s]*=[\s]*([\-]?[\d]+[\.]?[\d]*)[\s]*\;[\s]*$")
@@ -56,7 +57,7 @@ zeTab=(nbPts*dim)*[None]
 for lineId,ptId in entries:
     endLine=lines[offsetLines+lineId+1+dim]
     assert(partEndEntries.match(endLine))
-    for j in xrange(dim):
+    for j in range(dim):
         curLine=lines[offsetLines+lineId+1+j]
         m=zePat.match(curLine)
         assert(m)
@@ -68,11 +69,11 @@ assert(None not in zeTab)
 patInit="Init"
 assert(m0.group(1)[-len(patInit):]==patInit)
 varName="%s_REF"%((m0.group(1)[:-len(patInit)]).upper())
-print("const double %s[%d]={%s};"%(varName,len(zeTab),", ".join(zeTab)))
-for i in xrange(nbPts):
-    print("  case %d:"%(i))
-    for j in xrange(dim):
-        print("    coords[%d] = %s[%d];"%(j,varName,i*dim+j))
+print(("const double %s[%d]={%s};"%(varName,len(zeTab),", ".join(zeTab))))
+for i in range(nbPts):
+    print(("  case %d:"%(i)))
+    for j in range(dim):
+        print(("    coords[%d] = %s[%d];"%(j,varName,i*dim+j)))
         pass
     print("    break;")
         

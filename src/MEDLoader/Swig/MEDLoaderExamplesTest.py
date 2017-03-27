@@ -232,7 +232,7 @@ class MEDLoaderBasicsTest(unittest.TestCase):
 #! [PySnippetMeshAdvAPI1_6]
         m0D=ReadUMeshFromFile("file2.med","Example2",-3)
 #! [PySnippetMeshAdvAPI1_6]
-        for i in xrange(4):
+        for i in range(4):
             mm.removeMeshAtLevel(-i)
             pass
         mm.setMeshAtLevel(0,myMesh1)

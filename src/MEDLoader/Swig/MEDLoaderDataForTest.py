@@ -17,7 +17,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-# Author : Anthony Geay (CEA/DEN)
+# Author : Anthony Geay (EDF R&D)
 
 from MEDLoader import *
 from math import pi,e,sqrt
@@ -242,12 +242,12 @@ class MEDLoaderDataForTest:
         m2=MEDCouplingUMesh.New("ma",2)
         m2.setCoords(coo2)
         m2.allocateCells(128)
-        nbTri=len(c2tri)/3
-        for i in xrange(nbTri):
+        nbTri = len(c2tri) // 3
+        for i in range(nbTri):
             m2.insertNextCell(NORM_TRI3,3,c2tri[3*i:3*i+3])
             pass
-        nbQua=len(c2quad4)/4
-        for i in xrange(nbQua):
+        nbQua = len(c2quad4) // 4
+        for i in range(nbQua):
             m2.insertNextCell(NORM_QUAD4,4,c2quad4[4*i:4*i+4])
             pass
         m2.finishInsertingCells()
@@ -256,7 +256,7 @@ class MEDLoaderDataForTest:
         m1.setCoords(coo2)
         c1seg=[0,1,1,2,2,3,3,4,4,9,9,14,14,19,19,24,24,29,29,34,34,39,39,43,43,42,42,41,41,40,40,44,44,35,35,30,30,25,25,20,20,15,15,10,10,5,5,0,43,39,39,34,34,29,29,24,24,19,19,14,14,9,9,4,45,53,53,54,54,55,55,56,56,57,57,58,58,59,59,49,49,60,60,61,61,62,62,52,52,63,63,64,64,65,65,66,66,67,67,68,68,69,69,47,47,70,70,71,71,72,72,45,50,94,94,95,95,96,96,97,97,98,98,99,99,100,100,46,46,101,101,102,102,103,103,48,48,104,104,105,105,106,106,107,107,108,108,109,109,110,110,51,51,111,111,112,112,113,113,50]
         m1.allocateCells(80)
-        for i in xrange(80):
+        for i in range(80):
             m1.insertNextCell(NORM_SEG2,2,c1seg[2*i:2*i+2])
             pass
         m1.finishInsertingCells()
@@ -265,7 +265,7 @@ class MEDLoaderDataForTest:
         m0.setCoords(coo2)
         c0pt=[44,0,47,48]
         m0.allocateCells(4)
-        for i in xrange(4):
+        for i in range(4):
             m0.insertNextCell(NORM_POINT1,1,[c0pt[i]])
             pass
         m0.finishInsertingCells()
@@ -437,7 +437,7 @@ class MEDLoaderDataForTest:
         array=DataArrayDouble.New();
         array.alloc(19,2);
         ptr=array.getPointer();
-        for i in xrange(19*2):
+        for i in range(19 * 2):
             array.setIJ(0,i,float(i+7));
             pass
         f.setArray(array);
@@ -486,7 +486,7 @@ class MEDLoaderDataForTest:
         array=DataArrayDouble.New();
         array.alloc(53,2);
         ptr=array.getPointer();
-        for i in xrange(53*2):
+        for i in range(53 * 2):
             array.setIJ(0,i,float(i+7));
             pass
         f.setArray(array);
@@ -536,7 +536,7 @@ class MEDLoaderDataForTest:
         array=DataArrayDouble.New();
         array.alloc(53,2);
         ptr=array.getPointer();
-        for i in xrange(53*2):
+        for i in range(53 * 2):
             array.setIJ(0,i,float(i+7));
             pass
         f.setArray(array);
@@ -553,7 +553,7 @@ class MEDLoaderDataForTest:
         f.setMesh(m);
         array=DataArrayDouble.New();
         array.alloc(20,2);
-        for i in xrange(2*20):
+        for i in range(2 * 20):
             array.setIJ(0,i,float(i+8));
         f.setArray(array);
         array.setInfoOnComponent(0,"power [W]");

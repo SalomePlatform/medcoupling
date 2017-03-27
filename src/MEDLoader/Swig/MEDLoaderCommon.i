@@ -878,6 +878,7 @@ namespace MEDCoupling
 
       MEDFileJoint *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
+        static const char msg[]="MEDFileJoints::__getitem__ : only integer or string with meshname supported !";
         if(PyInt_Check(obj))
           {
             MEDFileJoint *ret=self->getJointAtPos(InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfJoints()));
@@ -885,15 +886,10 @@ namespace MEDCoupling
               ret->incrRef();
             return ret;
           }
-        else if(PyString_Check(obj))
-          {
-            MEDFileJoint *ret=self->getJointWithName(PyString_AsString(obj));
-            if(ret)
-              ret->incrRef();
-            return ret;
-          }
-        else
-          throw INTERP_KERNEL::Exception("MEDFileJoints::__getitem__ : only integer or string with meshname supported !");
+        MEDFileJoint *ret(self->getJointWithName(convertPyObjectToStr(obj,msg)));
+        if(ret)
+          ret->incrRef();
+        return ret;
       }
 
       int __len__() const throw(INTERP_KERNEL::Exception)
@@ -1896,22 +1892,18 @@ namespace MEDCoupling
 
          MEDFileMesh *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
          {
-           if(PyInt_Check(obj))
+           static const char msg[]="MEDFileMeshes::__getitem__ : only integer or string with meshname supported !";
+             if(PyInt_Check(obj))
              {
                MEDFileMesh *ret=self->getMeshAtPos(InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfMeshes()));
                if(ret)
                  ret->incrRef();
                return ret;
              }
-           else if(PyString_Check(obj))
-             {
-               MEDFileMesh *ret=self->getMeshWithName(PyString_AsString(obj));
-               if(ret)
-                 ret->incrRef();
-               return ret;
-             }
-           else
-             throw INTERP_KERNEL::Exception("MEDFileMeshes::__getitem__ : only integer or string with meshname supported !");
+           MEDFileMesh *ret(self->getMeshWithName(convertPyObjectToStr(obj,msg)));
+           if(ret)
+             ret->incrRef();
+           return ret;
          }
 
          MEDFileMeshes *__setitem__(int obj, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
@@ -2771,8 +2763,7 @@ namespace MEDCoupling
         if(PySlice_Check(elts))
           {
             Py_ssize_t strt=2,stp=2,step=2;
-            PySliceObject *oC=reinterpret_cast<PySliceObject *>(elts);
-            GetIndicesOfSlice(oC,self->getNumberOfTS(),&strt,&stp,&step,"MEDFileAnyTypeFieldMultiTS.__delitem__ : error in input slice !");
+            GetIndicesOfSlice(elts,self->getNumberOfTS(),&strt,&stp,&step,"MEDFileAnyTypeFieldMultiTS.__delitem__ : error in input slice !");
             self->eraseTimeStepIds2(strt,stp,step);
           }
         else
@@ -2837,8 +2828,7 @@ namespace MEDCoupling
         else if(elt0 && PySlice_Check(elt0))
           {
             Py_ssize_t strt=2,stp=2,step=2;
-            PySliceObject *oC=reinterpret_cast<PySliceObject *>(elt0);
-            GetIndicesOfSlice(oC,self->getNumberOfTS(),&strt,&stp,&step,"MEDFileAnyTypeFieldMultiTS.__getitem__ : error in input slice !");
+            GetIndicesOfSlice(elt0,self->getNumberOfTS(),&strt,&stp,&step,"MEDFileAnyTypeFieldMultiTS.__getitem__ : error in input slice !");
             return convertMEDFileFieldMultiTS(self->buildSubPartSlice(strt,stp,step),SWIG_POINTER_OWN | 0);
           }
         else
@@ -3479,14 +3469,14 @@ namespace MEDCoupling
 
          int getPosOfField(PyObject *elt0) const throw(INTERP_KERNEL::Exception)
          {
-           if(elt0 && PyInt_Check(elt0))
+           static const char msg[]="MEDFileFields::getPosOfField : invalid input params ! expected fields[int], fields[string_of_field_name] !";
+           if(!elt0)
+             throw INTERP_KERNEL::Exception(msg);
+           if(PyInt_Check(elt0))
              {//fmts[3]
                return PyInt_AS_LONG(elt0);
              }
-           else if(elt0 && PyString_Check(elt0))
-             return self->getPosFromFieldName(PyString_AsString(elt0));
-           else
-             throw INTERP_KERNEL::Exception("MEDFileFields::getPosOfField : invalid input params ! expected fields[int], fields[string_of_field_name] !");
+           return self->getPosFromFieldName(convertPyObjectToStr(elt0,msg));
          }
          
          std::vector<int> getPosOfFields(PyObject *elts) const throw(INTERP_KERNEL::Exception)
@@ -3522,8 +3512,7 @@ namespace MEDCoupling
            if(elts && PySlice_Check(elts))
              {
                Py_ssize_t strt=2,stp=2,step=2;
-               PySliceObject *oC=reinterpret_cast<PySliceObject *>(elts);
-               GetIndicesOfSlice(oC,self->getNumberOfFields(),&strt,&stp,&step,"MEDFileFields.__delitem__ : error in input slice !");
+               GetIndicesOfSlice(elts,self->getNumberOfFields(),&strt,&stp,&step,"MEDFileFields.__delitem__ : error in input slice !");
                self->destroyFieldsAtPos2(strt,stp,step);
              }
            else
@@ -3872,6 +3861,7 @@ namespace MEDCoupling
 
       MEDFileParameterMultiTS *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
+        static const char msg[]="MEDFileParameters::__getitem__ : only integer or string with meshname supported !";
         if(PyInt_Check(obj))
           {
             MEDFileParameterMultiTS *ret=self->getParamAtPos(InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfParams()));
@@ -3879,15 +3869,10 @@ namespace MEDCoupling
               ret->incrRef();
             return ret;
           }
-        else if(PyString_Check(obj))
-          {
-            MEDFileParameterMultiTS *ret=self->getParamWithName(PyString_AsString(obj));
-            if(ret)
-              ret->incrRef();
-            return ret;
-          }
-        else
-          throw INTERP_KERNEL::Exception("MEDFileParameters::__getitem__ : only integer or string with meshname supported !");
+        MEDFileParameterMultiTS *ret(self->getParamWithName(convertPyObjectToStr(obj,msg)));
+        if(ret)
+          ret->incrRef();
+        return ret;
       }
 
       int __len__() const throw(INTERP_KERNEL::Exception)

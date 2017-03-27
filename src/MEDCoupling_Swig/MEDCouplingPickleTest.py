@@ -28,7 +28,12 @@ if MEDCouplingHasNumPyBindings():
 from platform import architecture
 from sys import getrefcount
 
-import os,gc,weakref,cPickle,unittest
+import os, gc, weakref, unittest
+import sys
+if sys.version_info.major < 3:
+  import cPickle as pickle
+else:
+  import pickle
 
 class MEDCouplingPickleTest(unittest.TestCase):
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
@@ -36,14 +41,14 @@ class MEDCouplingPickleTest(unittest.TestCase):
         """ Test of a simple DataArrayDouble."""
         x=DataArrayDouble(10,1) ; x.iota() ; x.rearrange(2) ; x.setInfoOnComponents(["aa","bbb"])
         x.setName("toto")
-        pickled=cPickle.dumps(x,cPickle.HIGHEST_PROTOCOL)
-        xx=cPickle.loads(pickled)
+        pickled=pickle.dumps(x,pickle.HIGHEST_PROTOCOL)
+        xx=pickle.loads(pickled)
         self.assertTrue(xx.isEqual(x,1e-16))
         # Bigger to check that the behavior is OK for large strings.
         x=DataArrayDouble(1200) ; x.iota() ; x.setInfoOnComponents(["aa"])
         x.setName("titi")
-        pickled=cPickle.dumps(x,cPickle.HIGHEST_PROTOCOL)
-        xx=cPickle.loads(pickled)
+        pickled=pickle.dumps(x,pickle.HIGHEST_PROTOCOL)
+        xx=pickle.loads(pickled)
         self.assertTrue(xx.isEqual(x,1e-16))
         pass
 
@@ -52,14 +57,14 @@ class MEDCouplingPickleTest(unittest.TestCase):
         """ Test of a simple DataArrayInt."""
         x=DataArrayInt(10) ; x.iota() ; x.rearrange(2) ; x.setInfoOnComponents(["aa","bbb"])
         x.setName("toto")
-        pickled=cPickle.dumps(x,cPickle.HIGHEST_PROTOCOL)
-        xx=cPickle.loads(pickled)
+        pickled=pickle.dumps(x,pickle.HIGHEST_PROTOCOL)
+        xx=pickle.loads(pickled)
         self.assertTrue(xx.isEqual(x))
         # Bigger to check that the behavior is OK for large strings.
         x=DataArrayInt(1200) ; x.iota() ; x.setInfoOnComponents(["aa"])
         x.setName("titi")
-        pickled=cPickle.dumps(x,cPickle.HIGHEST_PROTOCOL)
-        xx=cPickle.loads(pickled)
+        pickled=pickle.dumps(x,pickle.HIGHEST_PROTOCOL)
+        xx=pickle.loads(pickled)
         self.assertTrue(xx.isEqual(x))
         pass
     
@@ -72,8 +77,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         m.setName("mesh")
         m.getCoords().setInfoOnComponents(["aa","bbb","ddddd"])
         m.checkConsistencyLight()
-        st=cPickle.dumps(m,cPickle.HIGHEST_PROTOCOL)
-        m2=cPickle.loads(st)
+        st=pickle.dumps(m,pickle.HIGHEST_PROTOCOL)
+        m2=pickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
         pass
 
@@ -104,8 +109,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY,arrZ)
         m.setName("mesh")
         m.checkConsistencyLight()
-        st=cPickle.dumps(m,cPickle.HIGHEST_PROTOCOL)
-        m2=cPickle.loads(st)
+        st=pickle.dumps(m,pickle.HIGHEST_PROTOCOL)
+        m2=pickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
         self.assertTrue(m2.getCoordsAt(0).isEqual(arrX,1e-16))
         pass
@@ -117,8 +122,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
         m=m.build1SGTUnstructured()
         self.assertTrue(isinstance(m,MEDCoupling1SGTUMesh))
-        st=cPickle.dumps(m,cPickle.HIGHEST_PROTOCOL)
-        m2=cPickle.loads(st)
+        st=pickle.dumps(m,pickle.HIGHEST_PROTOCOL)
+        m2=pickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
         pass
     
@@ -130,8 +135,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         m=m.buildUnstructured() ; m.convertAllToPoly()
         m=MEDCoupling1DGTUMesh(m)
         self.assertTrue(isinstance(m,MEDCoupling1DGTUMesh))
-        st=cPickle.dumps(m,cPickle.HIGHEST_PROTOCOL)
-        m2=cPickle.loads(st)
+        st=pickle.dumps(m,pickle.HIGHEST_PROTOCOL)
+        m2=pickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
         pass
 
@@ -150,8 +155,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         mesh2D.setCoords(mesh3D.getCoords())
         mesh=MEDCouplingMappedExtrudedMesh(mesh3D,mesh2D,0) ; del mesh3D,mesh2D
         self.assertTrue(isinstance(mesh,MEDCouplingMappedExtrudedMesh))
-        st=cPickle.dumps(mesh,cPickle.HIGHEST_PROTOCOL)
-        m2=cPickle.loads(st)
+        st=pickle.dumps(mesh,pickle.HIGHEST_PROTOCOL)
+        m2=pickle.loads(st)
         self.assertTrue(m2.isEqual(mesh,1e-16))
         pass
 
@@ -165,8 +170,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         #
         mesh=MEDCouplingCurveLinearMesh() ; mesh.setCoords(m.getCoords()) ; del m
         mesh.setNodeGridStructure([10,5])
-        st=cPickle.dumps(mesh,cPickle.HIGHEST_PROTOCOL)
-        m2=cPickle.loads(st)
+        st=pickle.dumps(mesh,pickle.HIGHEST_PROTOCOL)
+        m2=pickle.loads(st)
         self.assertTrue(m2.isEqual(mesh,1e-16))
         pass
 
@@ -175,8 +180,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         """ Test of a MEDCouplingIMesh pickeling."""
         m=MEDCouplingIMesh("mesh",3,DataArrayInt([3,1,4]),DataArrayDouble([1.5,2.5,3.5]),DataArrayDouble((0.5,1.,0.25))) ; m.setAxisUnit("km")
         m.checkConsistencyLight()
-        st=cPickle.dumps(m,cPickle.HIGHEST_PROTOCOL)
-        m2=cPickle.loads(st)
+        st=pickle.dumps(m,pickle.HIGHEST_PROTOCOL)
+        m2=pickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
         self.assertEqual(m2.getName(),m.getName())
         pass
@@ -195,8 +200,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         f.getArray().setInfoOnComponents(["u1","vv2"])
         f.checkConsistencyLight();
         #
-        st=cPickle.dumps(f,cPickle.HIGHEST_PROTOCOL)
-        f2=cPickle.loads(st)
+        st=pickle.dumps(f,pickle.HIGHEST_PROTOCOL)
+        f2=pickle.loads(st)
         self.assertTrue(f2.isEqual(f,1e-16,1e-16))
         self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
         pass
@@ -233,7 +238,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         self.assertEqual(2,f.getNbOfGaussLocalization());
         array=DataArrayDouble.New();
         ptr=18*2*[None]
-        for i in xrange(18*2):
+        for i in range(18 * 2):
             ptr[i]=float(i+1)
         array.setValues(ptr,18,2);
         ptr=array.getPointer();
@@ -275,8 +280,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         f.setArray(array2);
         f.checkConsistencyLight();
         ####
-        st=cPickle.dumps(f,cPickle.HIGHEST_PROTOCOL)
-        f2=cPickle.loads(st)
+        st=pickle.dumps(f,pickle.HIGHEST_PROTOCOL)
+        f2=pickle.loads(st)
         self.assertTrue(f2.isEqual(f,1e-16,1e-16))
         self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
         pass
@@ -285,8 +290,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         eStr="This is an exception."
         e=InterpKernelException(eStr)
         self.assertEqual(e.what(),eStr)
-        st=cPickle.dumps(e,cPickle.HIGHEST_PROTOCOL)
-        e2=cPickle.loads(st)
+        st=pickle.dumps(e,pickle.HIGHEST_PROTOCOL)
+        e2=pickle.loads(st)
         self.assertTrue(e is not e2)
         self.assertTrue(isinstance(e2,InterpKernelException))
         self.assertEqual(e2.what(),eStr)
@@ -296,13 +301,13 @@ class MEDCouplingPickleTest(unittest.TestCase):
     def test14(self):
         """Pickelization of DataArrayBytes"""
         x=DataArrayByte(256,1)
-        for i in xrange(256):
+        for i in range(256):
             x[i]=-128+i
             pass
         x.rearrange(2) ; x.setInfoOnComponents(["aa","bbb"])
         x.setName("toto")
-        st=cPickle.dumps(x,cPickle.HIGHEST_PROTOCOL)
-        x2=cPickle.loads(st)
+        st=pickle.dumps(x,pickle.HIGHEST_PROTOCOL)
+        x2=pickle.loads(st)
         self.assertTrue(x2.isEqual(x))
         pass
 
@@ -312,8 +317,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         x=DataArrayFloat(256) ; x.iota()
         x.rearrange(2) ; x.setInfoOnComponents(["aa","bbb"])
         x.setName("toto")
-        st=cPickle.dumps(x,cPickle.HIGHEST_PROTOCOL)
-        x2=cPickle.loads(st)
+        st = pickle.dumps(x, pickle.HIGHEST_PROTOCOL)
+        x2 = pickle.loads(st)
         self.assertTrue(x2.isEqual(x,1e-7))
         pass
 
@@ -333,8 +338,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         f.getArray().setInfoOnComponents(["u1","vv2"])
         f.checkConsistencyLight();
         #
-        st=cPickle.dumps(f,cPickle.HIGHEST_PROTOCOL)
-        f2=cPickle.loads(st)
+        st = pickle.dumps(f, pickle.HIGHEST_PROTOCOL)
+        f2 = pickle.loads(st)
         self.assertTrue(f2.isEqual(f,1e-16,0))
         self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
         pass
@@ -356,8 +361,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         f.getArray().setInfoOnComponents(["u1","vv2"])
         f.checkConsistencyLight();
         #
-        st=cPickle.dumps(f,cPickle.HIGHEST_PROTOCOL)
-        f2=cPickle.loads(st)
+        st = pickle.dumps(f, pickle.HIGHEST_PROTOCOL)
+        f2 = pickle.loads(st)
         self.assertTrue(f2.isEqual(f,1e-16,0))
         self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
         pass

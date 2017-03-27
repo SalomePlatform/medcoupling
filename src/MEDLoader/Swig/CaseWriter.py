@@ -201,7 +201,7 @@ time values:
         self._ze_top_dict={}
         its,areForgottenTS=mdfs.getCommonIterations()
         if areForgottenTS:
-            print "WARNING : some iterations are NOT present in all fields ! Kept iterations are : %s !"%(str(its))
+            print("WARNING : some iterations are NOT present in all fields ! Kept iterations are : %s !"%(str(its)))
             pass
         TimeValues=""
         for it in its:
@@ -211,12 +211,12 @@ time values:
         for mdf in mdfs:
             nbCompo=mdf.getNumberOfComponents()
             if nbCompo not in self.dictCompo:
-                l=filter(lambda x:x-nbCompo>0,self.dictCompo.keys())
+                l = [x for x in self.dictCompo if x - nbCompo > 0]
                 if len(l)==0:
-                    print "Field \"%s\" will be ignored because number of components (%i) is too big to be %s supported by case files !"%(mdf.getName(),nbCompo,str(self.dictCompo.keys()))
+                    print("Field \"%s\" will be ignored because number of components (%i) is too big to be %s supported by case files !"%(mdf.getName(),nbCompo,str(list(self.dictCompo.keys()))))
                     continue
                     pass
-                print "WARNING : Field \"%s\" will have its number of components (%i) set to %i, in order to be supported by case files (must be in %s) !"%(mdf.getName(),nbCompo,l[0],str(self.dictCompo.keys()))
+                print("WARNING : Field \"%s\" will have its number of components (%i) set to %i, in order to be supported by case files (must be in %s) !"%(mdf.getName(),nbCompo,l[0],str(list(self.dictCompo.keys()))))
                 nbCompo=l[0]
                 pass
             if nbCompo in dictVars:
@@ -229,7 +229,7 @@ time values:
         for mdf in mdfs:
             nbCompo=mdf.getNumberOfComponents()
             if nbCompo not in self.dictCompo:
-                l=filter(lambda x:x-nbCompo>0,self.dictCompo.keys())
+                l = [x for x in self.dictCompo if x - nbCompo > 0]
                 if len(l)==0:
                     continue;
                 nbCompo=l[0]
@@ -276,7 +276,7 @@ time values:
                                 mm.write(self.__str80("coordinates"))
                                 pass
                             else:
-                                print "UnManaged type of field for field \"%s\" !"%(mdf.getName())
+                                print("UnManaged type of field for field \"%s\" !"%(mdf.getName()))
                                 pass
                             a=np.memmap(f,dtype='float32',mode='w+',offset=mm.tell(),shape=(nbCompo,end-bg))
                             b=arr.toNumPyArray() ; b=b.reshape(nbCompo,end-bg)

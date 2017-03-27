@@ -108,7 +108,7 @@ def convert(root_dir, ext, quiet):
       # Skip this script!
       if fileName == __myName:
         if not quiet:
-          print "!!! Skipping script %s !!!" % __myName
+          print("!!! Skipping script %s !!!" % __myName)
         continue
       ok = False
       if fileName[-28:] != "MEDCouplingNatureOfFieldEnum":
@@ -119,7 +119,7 @@ def convert(root_dir, ext, quiet):
       else:
         ok = True
       if not ok: continue # skip file
-      if not quiet:  print "Handling %s ..." % fileName
+      if not quiet:  print("Handling %s ..." % fileName)
       for line in fileinput.input(fileName, inplace=1, backup='.bak'):
         for before, after in REPLACEMENTS:
           line = re.sub("(\W|^)(%s)(\W|$)" % before, r"\1%s\3" % after, line.rstrip('\r\n'))

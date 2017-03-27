@@ -34,12 +34,17 @@
   char** aStrs = (char **) malloc((aSize+1)*sizeof(char *));
   for (i = 0; i < aSize; i++) {
     PyObject *s = PyList_GetItem($input,i);
-    if (!PyString_Check(s)) {
+    if (PyString_Check(s))
+      aStrs[i] = PyString_AsString(s);
+%#if PY_VERSION_HEX >= 0x03000000
+    else if (PyUnicode_Check(s))
+      aStrs[i] = PyUnicode_AsUTF8(s);
+%#endif
+    else {
         free(aStrs);
         PyErr_SetString(PyExc_ValueError, "List items must be strings");
         return NULL;
     }
-    aStrs[i] = PyString_AsString(s);
   }
   aStrs[i] = 0;
   $2 = &aStrs;
