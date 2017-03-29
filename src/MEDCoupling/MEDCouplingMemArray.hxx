@@ -538,7 +538,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const DataArrayInt& di) const { return DataArrayTemplate<int>::mySelectByTupleId(di); }
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<int>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
     MEDCOUPLING_EXPORT DataArrayInt *keepSelectedComponents(const std::vector<int>& compoIds) const { return DataArrayTemplate<int>::myKeepSelectedComponents(compoIds); }
-    MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafeSlice(int bg, int end, int step) const { return DataArrayTemplate<int>::mySelectByTupleIdSafeSlice(bg,end,step); }
+    MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafeSlice(int bg, int end2, int step) const { return DataArrayTemplate<int>::mySelectByTupleIdSafeSlice(bg,end2,step); }
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplate<int>::mySelectByTupleRanges(ranges); }
     MEDCOUPLING_EXPORT DataArrayInt *checkAndPreparePermutation() const;
     MEDCOUPLING_EXPORT static DataArrayInt *FindPermutationFromFirstToSecond(const DataArrayInt *ids1, const DataArrayInt *ids2);
@@ -696,7 +696,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayChar *selectByTupleId(const DataArrayInt& di) const { return DataArrayTemplate<char>::mySelectByTupleId(di); }
     MEDCOUPLING_EXPORT DataArrayChar *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<char>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
     MEDCOUPLING_EXPORT DataArrayChar *keepSelectedComponents(const std::vector<int>& compoIds) const { return DataArrayTemplate<char>::myKeepSelectedComponents(compoIds); }
-    MEDCOUPLING_EXPORT DataArrayChar *selectByTupleIdSafeSlice(int bg, int end, int step) const { return DataArrayTemplate<char>::mySelectByTupleIdSafeSlice(bg,end,step); }
+    MEDCOUPLING_EXPORT DataArrayChar *selectByTupleIdSafeSlice(int bg, int end2, int step) const { return DataArrayTemplate<char>::mySelectByTupleIdSafeSlice(bg,end2,step); }
     MEDCOUPLING_EXPORT bool isUniform(char val) const;
     MEDCOUPLING_EXPORT void meldWith(const DataArrayChar *other);
     MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplate<char>::mySelectByTupleRanges(ranges); }
