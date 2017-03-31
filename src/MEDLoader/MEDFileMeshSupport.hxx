@@ -36,12 +36,12 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileMeshSupports *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileMeshSupports *New();
   public:
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    void writeLL(med_idt fid) const;
-    std::vector<std::string> getSupMeshNames() const;
-    const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
-    int getNumberOfNodesInConnOf(TypeOfField entity, const std::string& name) const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
+    MEDLOADER_EXPORT std::vector<std::string> getSupMeshNames() const;
+    MEDLOADER_EXPORT const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
+    MEDLOADER_EXPORT int getNumberOfNodesInConnOf(TypeOfField entity, const std::string& name) const;
   private:
     MEDFileMeshSupports(med_idt fid);
     MEDFileMeshSupports();

@@ -30,7 +30,7 @@
 
 namespace MEDCoupling
 {
-  class MEDFileEntities
+  class MEDLOADER_EXPORT MEDFileEntities
   {
   public:
     static MEDFileEntities *BuildFrom(const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities);
@@ -40,7 +40,7 @@ namespace MEDCoupling
     virtual ~MEDFileEntities();
   };
 
-  class MEDFileStaticEntities : public MEDFileEntities
+  class MEDLOADER_EXPORT MEDFileStaticEntities : public MEDFileEntities
   {
   public:
     MEDFileStaticEntities(const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities):_entities(entities) { }
@@ -51,7 +51,7 @@ namespace MEDCoupling
     std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > _entities;
   };
 
-  class MEDFileAllStaticEntites : public MEDFileEntities
+  class MEDLOADER_EXPORT MEDFileAllStaticEntites : public MEDFileEntities
   {
   public:
     MEDFileAllStaticEntites() { }
@@ -59,7 +59,7 @@ namespace MEDCoupling
     bool areAllStaticTypesPresent() const;
   };
 
-  class MEDFileAllStaticEntitiesPlusDyn : public MEDFileEntities
+  class MEDLOADER_EXPORT MEDFileAllStaticEntitiesPlusDyn : public MEDFileEntities
   {
   public:
     MEDFileAllStaticEntitiesPlusDyn(const MEDFileStructureElements *se);

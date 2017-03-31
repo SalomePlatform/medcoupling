@@ -30,6 +30,10 @@
 #include <algorithm>
 #include <functional>
 
+#ifdef WIN32
+#include "MEDCouplingMemArray.txx"
+#endif
+
 using namespace MEDCoupling;
 
 void MEDCouplingBasicsTest1::testArray()
