@@ -24,7 +24,6 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingFieldT.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingFieldDouble_compat.hxx"
 
 namespace MEDCoupling
 {
