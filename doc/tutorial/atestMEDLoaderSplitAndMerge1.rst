@@ -7,7 +7,6 @@ Splitting and Merging a MED file using MEDLoader
 ::
 
 	import MEDLoader as ml
-	from MEDLoader import MEDLoader
 	
 	m0 = ml.MEDCouplingCMesh()
 	arr = ml.DataArrayDouble(31,1) ; arr.iota(0.)
@@ -41,25 +40,25 @@ Splitting and Merging a MED file using MEDLoader
 	nodeField1 = nodeField[proc1] ; cellField1 = cellField[proc1] ; cellField1.setMesh(nodeField1.getMesh())
 	
 	proc0_fname = "proc0.med"
-	MEDLoader.WriteField(proc0_fname, nodeField0, True)
-	MEDLoader.WriteFieldUsingAlreadyWrittenMesh(proc0_fname, cellField0)
+	ml.WriteField(proc0_fname, nodeField0, True)
+	ml.WriteFieldUsingAlreadyWrittenMesh(proc0_fname, cellField0)
 	
 	proc1_fname = "proc1.med"
-	MEDLoader.WriteField(proc1_fname,nodeField1,True)
-	MEDLoader.WriteFieldUsingAlreadyWrittenMesh(proc1_fname,cellField1)
+	ml.WriteField(proc1_fname,nodeField1,True)
+	ml.WriteFieldUsingAlreadyWrittenMesh(proc1_fname,cellField1)
 	#
 	# Merging - Sub-optimal method
 	#
-	cellField0_read = MEDLoader.ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
-	cellField1_read = MEDLoader.ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
+	cellField0_read = ml.ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
+	cellField1_read = ml.ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
 	cellField_read = ml.MEDCouplingFieldDouble.MergeFields([cellField0_read,cellField1_read])
 	cellFieldCpy = cellField.deepCopy()
 	cellFieldCpy.substractInPlaceDM(cellField_read,10,1e-12)
 	cellFieldCpy.getArray().abs()
 	print cellFieldCpy.getArray().isUniform(0.,1e-12)
 	#
-	nodeField0_read = MEDLoader.ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
-	nodeField1_read = MEDLoader.ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
+	nodeField0_read = ml.ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
+	nodeField1_read = ml.ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
 	nodeField_read = ml.MEDCouplingFieldDouble.MergeFields([nodeField0_read, nodeField1_read])
 	nodeField_read.mergeNodes(1e-10)
 	nodeFieldCpy = nodeField.deepCopy()
