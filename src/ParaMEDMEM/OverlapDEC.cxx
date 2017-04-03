@@ -25,6 +25,7 @@
 #include "MPIProcessorGroup.hxx"
 #include "OverlapElementLocator.hxx"
 #include "OverlapInterpolationMatrix.hxx"
+#include "ICoCoMEDField.hxx"
 
 namespace MEDCoupling
 {
@@ -346,6 +347,16 @@ namespace MEDCoupling
     ParaFIELD *tmpField=new ParaFIELD(field, paramesh, *_group);
     tmpField->setOwnSupport(true);
     attachTargetLocalField(tmpField,true);
+  }
+
+  void OverlapDEC::attachSourceLocalField(ICoCo::MEDField *field)
+  {
+    attachSourceLocalField(field->getField());
+  }
+
+  void OverlapDEC::attachTargetLocalField(ICoCo::MEDField *field)
+  {
+    attachTargetLocalField(field->getField());
   }
 
   bool OverlapDEC::isInGroup() const

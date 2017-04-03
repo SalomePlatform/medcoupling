@@ -27,6 +27,10 @@
 #include <mpi.h>
 #include <string>
 
+namespace ICoCo {
+  class MEDField;
+}
+
 namespace MEDCoupling
 {
   class OverlapInterpolationMatrix;
@@ -47,6 +51,8 @@ namespace MEDCoupling
     void attachTargetLocalField(ParaFIELD *field, bool ownPt=false);
     void attachSourceLocalField(MEDCouplingFieldDouble *field);
     void attachTargetLocalField(MEDCouplingFieldDouble *field);
+    void attachSourceLocalField(ICoCo::MEDField *field);
+    void attachTargetLocalField(ICoCo::MEDField *field);
     ProcessorGroup *getGroup() { return _group; }
     bool isInGroup() const;
 
