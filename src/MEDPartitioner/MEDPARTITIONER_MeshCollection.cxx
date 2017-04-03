@@ -398,7 +398,7 @@ void getNodeIds(MEDCoupling::MEDCouplingUMesh& meshOne, MEDCoupling::MEDCoupling
 {
   using std::vector;
   using MEDPARTITIONER::BBTreeOfDim;
-  if (!&meshOne || !&meshTwo) return;  //empty or not existing
+  //if (!&meshOne || !&meshTwo) return;  //empty or not existing
   double* bbox;
   BBTreeOfDim* tree = 0;
   int nv1=meshOne.getNumberOfNodes();

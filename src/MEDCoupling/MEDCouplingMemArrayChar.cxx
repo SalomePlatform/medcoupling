@@ -30,8 +30,8 @@
 
 using namespace MEDCoupling;
 
-template class MemArray<char>;
-template class DataArrayTemplate<char>;
+template class MEDCoupling::MemArray<char>;
+template class MEDCoupling::DataArrayTemplate<char>;
 
 /*!
  * Returns an integer value characterizing \a this array, which is useful for a quick

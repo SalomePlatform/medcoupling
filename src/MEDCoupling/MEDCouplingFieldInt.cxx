@@ -26,7 +26,7 @@
 
 using namespace MEDCoupling;
 
-template class MEDCouplingFieldT<int>;
+template class MEDCoupling::MEDCouplingFieldT<int>;
 
 MEDCouplingFieldInt *MEDCouplingFieldInt::New(TypeOfField type, TypeOfTimeDiscretization td)
 {

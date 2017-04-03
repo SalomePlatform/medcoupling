@@ -262,17 +262,17 @@ namespace INTERP_TEST
   }
   //  Square and diamond intersecting with no degeneracy
   //               /\
-  //              /  \  
-  //             /    \      
-  //          __/______\__    
-  //         | /        \ |  
-  //         |/          \|      
+  //              /  \
+  //             /    \
+  //          __/______\__
+  //         | /        \ |
+  //         |/          \|
   //         /            \
-  //        /|            |\   
-  //        \|            |/      
-  //         \            /      
-  //         |\          /|     
-  //         |_\________/_|      
+  //        /|            |\
+  //        \|            |/
+  //         \            /
+  //         |\          /|
+  //         |_\________/_|
   //            \      /
   //             \    /
   //              \  /
@@ -369,7 +369,7 @@ namespace INTERP_TEST
   //  Two diamonds intersecting at one vertex on edge and one double vertex
   //             /\   /\
   //            /  \ /  \
-  //           /    ¤    \
+  //           /    ï¿½    \
   //          /    / \    \
   //          \    \ /    /
   //           \    *    /
@@ -500,12 +500,12 @@ namespace INTERP_TEST
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }  //  square and diamond intersecting at four degenerated pointss 
   //    
-  //      ²/²\  
-  //          ² / ² \ 
-  //           ²  /  ²  \
-  //           ²  \  ²  /
-  //          ² \ ² /
-  //      ²\²/
+  //      ï¿½/ï¿½\
+  //          ï¿½ / ï¿½ \
+  //           ï¿½  /  ï¿½  \
+  //           ï¿½  \  ï¿½  /
+  //          ï¿½ \ ï¿½ /
+  //      ï¿½\ï¿½/
   // \brief Status : pass
 
   void SingleElementPlanarTests::diamondsCritical2()
@@ -542,14 +542,14 @@ namespace INTERP_TEST
 
   //  Two tangent hexagons with double vertices and a critical starting vertex on edge
   //      _________ 
-  //             /         \²²²
-  //            ²           \² 
-  //           /             \ 
-  //          / ²           ² \
+  //             /         \ï¿½ï¿½ï¿½
+  //            ï¿½           \ï¿½ 
+  //           /             \
+  //          / ï¿½           ï¿½ \
   //          \               /
-  //           \ ²         ² /
+  //           \ ï¿½         ï¿½ /
   //            \           /
-  //             \²_______²/
+  //             \ï¿½_______ï¿½/
 
 
   // \brief Status : pass
@@ -599,11 +599,11 @@ namespace INTERP_TEST
   //  Two tangent hexagons with double vertices and a critical starting vertex on edge
   //              _______
   //             /       \
-  //            /         \ 
+  //            /         \
   //            \         /
   //             \_______/
   //             /       \
-  //            /         \ 
+  //            /         \
   //            \         /
   //             \_______/
 
@@ -666,22 +666,22 @@ namespace INTERP_TEST
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   //  Two diamonds sharing a vertex in an exclusion configuration
-  //             /\   
-  //            /  \    
-  //           /    \  
-  //          /      \      
-  //          \      /      
-  //           \    /      
-  //            \  /      
-  //             \/      
-  //             /\   
-  //            /  \    
-  //           /    \  
-  //          /      \      
-  //          \      /      
-  //           \    /      
-  //            \  /      
-  //             \/      
+  //             /\
+  //            /  \
+  //           /    \
+  //          /      \
+  //          \      /
+  //           \    /
+  //            \  /
+  //             \/
+  //             /\
+  //            /  \
+  //           /    \
+  //          /      \
+  //          \      /
+  //           \    /
+  //            \  /
+  //             \/
 
 
   // \brief Status : pass
@@ -710,12 +710,12 @@ namespace INTERP_TEST
   //               ____  
   //             /|\  / 
   //            / | \/    
-  //           /  | /\  
-  //          /   |/  \      
-  //          \       /      
-  //           \     /      
-  //            \   /      
-  //             \ /      
+  //           /  | /\
+  //          /   |/  \
+  //          \       /
+  //           \     /
+  //            \   /
+  //             \ /
 
   // \brief Status : pass
   void SingleElementPlanarTests:: triangleAndDiamondCritical()
@@ -751,7 +751,7 @@ namespace INTERP_TEST
   //     |          |
   //     |       |\ |
   //     |       | \|
-  //     |       |  \ 
+  //     |       |  \
   //     |       |  |\
   //     |       |  |/
   //     |       |  / 
@@ -794,10 +794,10 @@ namespace INTERP_TEST
   }
   //  Two triangles with a starting vertex on edge
 
-  //             /\ ²²²²  
-  //            /  ²  ²  
-  //           /  ² ²  
-  //          /__²___\   
+  //             /\ ï¿½ï¿½ï¿½ï¿½  
+  //            /  ï¿½  ï¿½  
+  //           /  ï¿½ ï¿½  
+  //          /__ï¿½___\
 
   // \brief Status : pass
   void SingleElementPlanarTests::trianglesCritical()
@@ -839,7 +839,7 @@ namespace INTERP_TEST
   //             /\      /\
   //            /  \    /  \
   //           /    \  /    \
-  //          /______\/______\      
+  //          /______\/______\
 
 
   // \brief Status : pass
@@ -952,10 +952,10 @@ namespace INTERP_TEST
   }
 
   //  Two triangles with double starting point in an outer tangency configuration
-  //             /\   
-  //            /  \    
-  //           /    \  
-  //          /______\        
+  //             /\
+  //            /  \
+  //           /    \
+  //          /______\
   //          \      /      
   //           \    /      
   //            \  /      

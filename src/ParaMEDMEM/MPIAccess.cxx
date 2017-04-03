@@ -137,7 +137,7 @@ namespace MEDCoupling
     array_of_displacements[0] = 0 ;
     array_of_displacements[1] = sizeof(double) ;
     array_of_displacements[2] = 2*sizeof(double) ;
-    MPI_Type_struct(3, array_of_blocklengths, array_of_displacements,
+    MPI_Type_create_struct(3, array_of_blocklengths, array_of_displacements,
                     array_of_types, &_MPI_TIME) ;
     MPI_Type_commit(&_MPI_TIME) ;
   }
@@ -865,9 +865,9 @@ namespace MEDCoupling
   int MPIAccess::cancel( int source, int theMPITag, MPI_Datatype datatype, int outcount, int &flag )
   {
     int sts ;
-    MPI_Aint extent ;
+    MPI_Aint extent, lbound ;
     flag = 0 ;
-    sts =  MPI_Type_extent( datatype , &extent ) ;
+    sts =  MPI_Type_get_extent( datatype , &lbound, &extent ) ;
     if ( sts == MPI_SUCCESS )
       {
         void * recvbuf = malloc( extent*outcount ) ;
@@ -1039,24 +1039,24 @@ namespace MEDCoupling
   // Returns the MPI size of a TimeMessage
   MPI_Aint MPIAccess::timeExtent() const
   {
-    MPI_Aint aextent ;
-    MPI_Type_extent( _MPI_TIME , &aextent ) ;
+    MPI_Aint aextent, lbound ;
+    MPI_Type_get_extent( _MPI_TIME , &lbound, &aextent ) ;
     return aextent ;
   }
 
   // Returns the MPI size of a MPI_INT
   MPI_Aint MPIAccess::intExtent() const
   {
-    MPI_Aint aextent ;
-    MPI_Type_extent( MPI_INT , &aextent ) ;
+    MPI_Aint aextent, lbound ;
+    MPI_Type_get_extent( MPI_INT , &lbound, &aextent ) ;
     return aextent ;
   }
 
   // Returns the MPI size of a MPI_DOUBLE
   MPI_Aint MPIAccess::doubleExtent() const
   {
-    MPI_Aint aextent ;
-    MPI_Type_extent( MPI_DOUBLE , &aextent ) ;
+    MPI_Aint aextent, lbound ;
+    MPI_Type_get_extent( MPI_DOUBLE , &lbound, &aextent ) ;
     return aextent ;
   }
 

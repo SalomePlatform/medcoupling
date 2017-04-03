@@ -44,8 +44,8 @@ extern med_geometry_type typmai3[34];
 
 using namespace MEDCoupling;
 
-template class MEDFileField1TSTemplateWithoutSDA<int>;
-template class MEDFileField1TSTemplateWithoutSDA<double>;
+template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<int>;
+template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<double>;
 
 const char MEDFileField1TSWithoutSDA::TYPE_STR[]="FLOAT64";
 const char MEDFileIntField1TSWithoutSDA::TYPE_STR[]="INT32";

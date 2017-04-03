@@ -29,8 +29,8 @@
 
 using namespace MEDCoupling;
 
-template class MEDCouplingTimeDiscretizationTemplate<double>;
-template class MEDCouplingTimeDiscretizationTemplate<int>;
+template class MEDCoupling::MEDCouplingTimeDiscretizationTemplate<double>;
+template class MEDCoupling::MEDCouplingTimeDiscretizationTemplate<int>;
 
 const char MEDCouplingTimeDiscretizationInt::REPR[]="One time label.";
 

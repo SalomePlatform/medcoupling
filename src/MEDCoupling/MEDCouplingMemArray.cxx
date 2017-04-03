@@ -36,10 +36,10 @@ typedef double (*MYFUNCPTR)(double);
 
 using namespace MEDCoupling;
 
-template class MemArray<int>;
-template class MemArray<double>;
-template class DataArrayTemplate<int>;
-template class DataArrayTemplate<double>;
+template class MEDCoupling::MemArray<int>;
+template class MEDCoupling::MemArray<double>;
+template class MEDCoupling::DataArrayTemplate<int>;
+template class MEDCoupling::DataArrayTemplate<double>;
 
 template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const

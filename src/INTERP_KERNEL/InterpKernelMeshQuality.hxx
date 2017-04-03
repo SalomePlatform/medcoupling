@@ -18,7 +18,7 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __INTERPKERNELMESHQUALITY_HXX_
+#ifndef __INTERPKERNELMESHQUALITY_HXX__
 #define __INTERPKERNELMESHQUALITY_HXX__
 
 #include "INTERPKERNELDefines.hxx"

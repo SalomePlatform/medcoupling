@@ -263,7 +263,7 @@ namespace INTERP_TEST
         const int num_zero = (c_yz*c_xh == 0.0 ? 1 : 0) + (c_zx*c_yh == 0.0 ? 1 : 0) + (c_xy*c_zh == 0.0 ? 1 : 0);
         const int num_neg = (c_yz*c_xh < 0.0 ? 1 : 0) + (c_zx*c_yh < 0.0 ? 1 : 0) + (c_xy*c_zh < 0.0 ? 1 : 0);
       
-        if((num_zero == 1 && num_neg != 1) || num_zero == 2 || num_neg == 0 && num_zero !=3 || num_neg == 3 )
+        if((num_zero == 1 && num_neg != 1) || num_zero == 2 || (num_neg == 0 && num_zero !=3) || num_neg == 3 )
           {
             ++num_cases;
   

@@ -1972,7 +1972,7 @@ double ASCIIReader::getDouble() const
   //0123456789012345678901234567890123456789012345678901234567890123456789
   const size_t posE = 18;
   std::string aStr (_curPos);
-  if ( aStr.find('E') < 0 && aStr.find('e') < 0 )
+  if ( aStr.find('E') == std::string::npos && aStr.find('e') == std::string::npos )
     {
       if ( aStr.size() < posE+1 )
         THROW_IK_EXCEPTION("No more doubles (line #" << lineNb() << ")");

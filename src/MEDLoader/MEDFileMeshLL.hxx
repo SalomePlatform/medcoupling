@@ -46,6 +46,7 @@ namespace MEDCoupling
   protected:
     MeshOrStructMeshCls(int mid):_mid(mid) { }
   public:
+    virtual ~MeshOrStructMeshCls() {}
     int getID() const { return _mid; }
     virtual std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const = 0;
     virtual double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const = 0;

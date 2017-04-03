@@ -53,6 +53,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileWritable();
+    virtual ~MEDFileWritable() {}
     void copyOptionsFrom(const MEDFileWritable& other) const;
     int getTooLongStrPolicy() const;
     void setTooLongStrPolicy(int newVal);

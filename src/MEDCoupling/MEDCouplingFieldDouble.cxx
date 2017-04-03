@@ -39,7 +39,7 @@
 
 using namespace MEDCoupling;
 
-template class MEDCouplingFieldT<double>;
+template class MEDCoupling::MEDCouplingFieldT<double>;
 
 /*!
  * Creates a new MEDCouplingFieldDouble, of given spatial type and time discretization.
