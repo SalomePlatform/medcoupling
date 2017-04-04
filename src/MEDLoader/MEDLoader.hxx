@@ -101,6 +101,6 @@ namespace MEDCoupling
   MEDLOADER_EXPORT void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f);
 
   MEDLOADER_EXPORT void AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj);
-};
+}
 
 #endif
