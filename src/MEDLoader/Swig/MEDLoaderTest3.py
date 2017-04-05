@@ -3131,14 +3131,14 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         ff0=MEDFileAnyTypeFieldMultiTS.New(fname,fieldName,False)
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(5536,8212+(80+26+1)*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(5536,8212+(80+26+1+len(ff0))*strMulFac))
         ff0.loadArrays()
         self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,20*70*8*2)
         del ff0
         #
         ffs=MEDFileFields(fname,False)
         heap_memory_ref=ffs.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(5335,9031+(80+50+len(ffs))*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(5335,9031+(80+50+24+len(ffs))*strMulFac))
         ffs.loadArrays()
         self.assertEqual(ffs.getHeapMemorySize()-heap_memory_ref,20*70*8*2+70*8*2+50*8*2)
         pass
