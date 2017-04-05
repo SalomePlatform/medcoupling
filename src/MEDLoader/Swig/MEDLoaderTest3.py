@@ -3087,7 +3087,7 @@ class MEDLoaderTest3(unittest.TestCase):
         ff0=MEDFileField1TS(fname,"FieldCellPfl",False)
         self.assertEqual(ff0.getUndergroundDataArray().getInfoOnComponents(),["XX [pm]","YYY [hm]"])
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(350,520+6*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(350,520+7*strMulFac))
         ff0.loadArrays() ##
         arr=DataArrayDouble(100) ; arr.iota() ; arr.rearrange(2)
         self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
