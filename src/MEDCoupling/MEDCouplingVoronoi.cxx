@@ -150,6 +150,40 @@ MCAuto<MEDCouplingUMesh> MergeVorCells(const std::vector< MCAuto<MEDCouplingUMes
   return MergeVorCells2D(p,eps,true);
 }
 
+/*!
+ * suppress additional sub points on edges
+ */
+MCAuto<MEDCouplingUMesh> SimplifyPolygon(const MEDCouplingUMesh *m, double eps)
+{
+  if(m->getNumberOfCells()!=1)
+    throw INTERP_KERNEL::Exception("SimplifyPolygon : internal error !");
+  const int *conn(m->getNodalConnectivity()->begin()),*conni(m->getNodalConnectivityIndex()->begin());
+  int nbPtsInPolygon(conni[1]-conni[0]-1);
+  const double *coo(m->getCoords()->begin());
+  std::vector<int> resConn;
+  for(int i=0;i<nbPtsInPolygon;i++)
+    {
+      int prev(conn[(i+nbPtsInPolygon-1)%nbPtsInPolygon+1]),current(conn[i%nbPtsInPolygon+1]),zeNext(conn[(i+1)%nbPtsInPolygon+1]);
+      double a[3]={
+        coo[3*prev+0]-coo[3*current+0],
+        coo[3*prev+1]-coo[3*current+1],
+        coo[3*prev+2]-coo[3*current+2],
+      },b[3]={
+        coo[3*current+0]-coo[3*zeNext+0],
+        coo[3*current+1]-coo[3*zeNext+1],
+        coo[3*current+2]-coo[3*zeNext+2],
+      };
+      double c[3]={a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]};
+      if(sqrt(c[0]*c[0]+c[1]*c[1]+c[2]*c[2])>eps)
+        resConn.push_back(current);
+    }
+  MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::New("",2));
+  ret->setCoords(m->getCoords());
+  ret->allocateCells();
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYGON,resConn.size(),&resConn[0]);
+  return ret;
+}
+
 MCAuto<MEDCouplingUMesh> MergeVorCells3D(const std::vector< MCAuto<MEDCouplingUMesh> >& vcs, double eps)
 {
   std::size_t sz(vcs.size());
@@ -199,6 +233,7 @@ MCAuto<MEDCouplingUMesh> MergeVorCells3D(const std::vector< MCAuto<MEDCouplingUM
         tmp2=tmp;
       else
         tmp2=MergeVorCells2D(tmp,eps,false);
+      tmp2=SimplifyPolygon(tmp2,eps);
       const int *cPtr(tmp2->getNodalConnectivity()->begin()),*ciPtr(tmp2->getNodalConnectivityIndex()->begin());
       conn.insert(conn.end(),cPtr+1,cPtr+ciPtr[1]);
     }
@@ -474,15 +509,9 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
       vorTess->getCellsContainingPoint(pt,eps,polygsToIterOn);
       if(polygsToIterOn.size()<1)
         throw INTERP_KERNEL::Exception("Voronoize3D : presence of a point outside the given cell !");
-      std::set<int> elemsToDo(polygsToIterOn.begin(),polygsToIterOn.end()),elemsDone;
-      std::size_t ii(0);
       std::vector< MCAuto<MEDCouplingUMesh> > newVorCells;
-      MCAuto<DataArrayInt> d(DataArrayInt::New()),dI(DataArrayInt::New()),rd(DataArrayInt::New()),rdI(DataArrayInt::New());
-      MCAuto<MEDCouplingUMesh> faces(vorTess->buildDescendingConnectivity(d,dI,rd,rdI));
-      //
-      while(!elemsToDo.empty())
+      for(int poly=0;poly<vorTess->getNumberOfCells();poly++)
         {
-          int poly(*elemsToDo.begin()); elemsToDo.erase(elemsToDo.begin()); elemsDone.insert(poly);
           const double *seed(pts+3*poly);
           MCAuto<MEDCouplingUMesh> tile(l0[poly]);
           tile->zipCoords();
@@ -500,44 +529,8 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
           newVorCell->zipCoords();
           MCAuto<MEDCouplingUMesh> modifiedCell(cells->buildPartOfMySelfSlice(0,1,1,true));
           modifiedCell->zipCoords();
-          l0[poly]=modifiedCell;
-          if(std::find(polygsToIterOn.begin(),polygsToIterOn.end(),poly)!=polygsToIterOn.end())// we iterate on a polyhedron containg the point to add pt -> add cells sharing faces with just computed newVorCell
-            {
-              MCAuto<MEDCouplingUMesh> faces2;
-              {
-                MCAuto<DataArrayInt> d2(DataArrayInt::New()),d2I(DataArrayInt::New()),rd2(DataArrayInt::New()),rd2I(DataArrayInt::New());
-                faces2=newVorCell->buildDescendingConnectivity(d2,d2I,rd2,rd2I);
-              }
-              MCAuto<MEDCouplingUMesh> faces3(faces2->buildPartOfMySelfSlice(1,faces2->getNumberOfCells(),1,true));// suppress internal face
-              MCAuto<MEDCouplingUMesh> facesOfCurSplitPol(faces->buildPartOfMySelf(d->begin()+dI->getIJ(poly,0),d->begin()+dI->getIJ(poly+1,0),true));
-              // intersection between the out faces of newVorCell and the neighbor faces of poly polyhedron -> candidates
-              MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(facesOfCurSplitPol);
-              MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(faces3);
-              INTERP_KERNEL::Interpolation3DSurf interpolation;
-              interpolation.setMinDotBtwPlane3DSurfIntersect(eps2);
-              interpolation.setMaxDistance3DSurfIntersect(eps);
-              interpolation.setPrecision(1e-12);
-              std::vector<std::map<int,double> > matrix;
-              interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix,"P0P0");
-              std::set<int> zeCandidates;
-              for(std::vector<std::map<int,double> >::const_iterator it2=matrix.begin();it2!=matrix.end();it2++)
-                for(std::map<int,double>::const_iterator it3=(*it2).begin();it3!=(*it2).end();it3++)
-                  {
-                    int faceIdInVorTess(d->getIJ(dI->getIJ(poly,0)+(*it3).first,0));
-                    for(const int *it4=rd->begin()+rdI->getIJ(faceIdInVorTess,0);it4!=rd->begin()+rdI->getIJ(faceIdInVorTess+1,0);it4++)
-                      {
-                        if(*it4!=poly)
-                          zeCandidates.insert(*it4);
-                      }
-                  }
-              std::set<int> tmp,newElementsToDo;
-              std::set_difference(zeCandidates.begin(),zeCandidates.end(),elemsDone.begin(),elemsDone.end(),std::inserter(tmp,tmp.begin()));
-              std::set_union(elemsToDo.begin(),elemsToDo.end(),tmp.begin(),tmp.end(),std::inserter(newElementsToDo,newElementsToDo.begin()));
-              elemsToDo=newElementsToDo;
-            }
-          //
           newVorCells.push_back(newVorCell);
-          ii++;
+          l0[poly]=modifiedCell;
         }
       l0.push_back(MergeVorCells3D(newVorCells,eps));
     }
