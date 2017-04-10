@@ -4462,6 +4462,60 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(f3.getArray().isEqual(DataArrayDouble([0,1,2,3]),1e-12))
         pass
 
+    def testVoronoi3D_5(self):
+        """ Cell 0 of Barreau_Elga_V11.rmed and sslv07b.rmed. HEXA8 cut regularly into 8 parts"""
+        coo=DataArrayDouble([(0.024,0.024,1.2),(0.024,0.048,1.2),(0.048,0.024,1.2),(0.048,0.048,1.2),(0.024,0.024,1.6),(0.024,0.048,1.6),(0.048,0.024,1.6),(0.048,0.048,1.6)])
+        m=MEDCouplingUMesh("",3) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_HEXA8,[0,2,6,4,1,3,7,5])
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT) ; f.setMesh(m)
+        f.setGaussLocalizationOnType(NORM_HEXA8,[-1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0],[-0.577350269189626, -0.577350269189626, -0.577350269189626, -0.577350269189626, -0.577350269189626, 0.577350269189626, -0.577350269189626, 0.577350269189626, -0.577350269189626, -0.577350269189626, 0.577350269189626, 0.577350269189626, 0.577350269189626, -0.577350269189626, -0.577350269189626, 0.577350269189626, -0.577350269189626, 0.577350269189626, 0.577350269189626, 0.577350269189626, -0.577350269189626, 0.577350269189626, 0.577350269189626, 0.577350269189626],[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+        arr=DataArrayDouble(8) ; arr.iota() ; f.setArray(arr)
+        f.checkConsistencyLight()
+        #
+        vol=f.getMesh().getMeasureField(ON_CELLS).getIJ(0,0)
+        f2=f.voronoize(1e-12)
+        f2.checkConsistencyLight()
+        self.assertEqual(f2.getNumberOfTuples(),8)
+        volRef=vol/8
+        self.assertTrue(f2.getMesh().getMeasureField(ON_CELLS).getArray().isUniform(volRef,1e-12))
+        pass
+
+    def testVoronoi3D_6(self):
+        """ Cell 0 of brokenshire.med (and pace.med). TETRA10 split into 4 parts"""
+        coo=DataArrayDouble([(50.,-50.,200.0),(50.0,-30.,200.0),(30.,-50.,200.0),(50.,-50.,180.0),(50.,-40.,200.0),(40.,-50.,200.0),(50.,-50.,190.0),(40.,-40.,200.0),(50.,-40.,190.0),(40.,-50.,190.0)])
+        m=MEDCouplingUMesh("",3) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_TETRA10,[2,0,1,3,5,4,7,9,6,8])
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT) ; f.setMesh(m)
+        f.setGaussLocalizationOnType(NORM_TETRA10,[0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.5, 0.5, 0.5, 0.5, 0, 0.5, 0, 0, 0.5, 0, 0.5],[0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.5854101966249685, 0.1381966011250105, 0.1381966011250105],[0.041666666666666664, 0.041666666666666664, 0.041666666666666664, 0.041666666666666664])
+        arr=DataArrayDouble(4) ; arr.iota() ; f.setArray(arr)
+        f.checkConsistencyLight()
+        f2=f.voronoize(1e-12)
+        f2.checkConsistencyLight()
+        self.assertEqual(f2.getNumberOfTuples(),4)
+        arr=f2.getMesh().getMeasureField(ON_CELLS).getArray()
+        self.assertTrue(f2.getMesh().getMeasureField(ON_CELLS).getArray().isEqual(DataArrayDouble([378.0546928833331, 318.42621348333586, 318.4262134833361, 318.4262134833278]),1e-6))
+        pass
+
+    def testVoronoi3D_7(self):
+        """ sslv07a.rmed. HEXA20 split into 27 parts """
+        coo=DataArrayDouble([(-0.5,-0.5,0.0),(-0.25,-0.5,0.0),(0.0,-0.5,0.0),(-0.5,0.0,0.0),(-0.5,-0.25,0.0),(0.0,0.0,0.0),(0.0,-0.25,0.0),(-0.25,0.0,0.0),(-0.5,-0.5,1.0),(-0.25,-0.5,1.0),(0.0,-0.5,1.0),(0.0,-0.25,1.0),(0.0,0.0,1.0),(-0.25,0.0,1.0),(-0.5,0.0,1.0),(-0.5,-0.25,1.0),(-0.5,-0.5,0.5),(0.0,-0.5,0.5),(0.0,0.0,0.5),(-0.5,0.0,0.5)])
+        m=MEDCouplingUMesh("",3) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_HEXA20,[0,3,5,2,8,14,12,10,4,7,6,1,15,13,11,9,16,19,18,17])
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT) ; f.setMesh(m)
+        f.setGaussLocalizationOnType(NORM_HEXA20,
+                                     [-1,-1,-1,-1,1,-1,1,1,-1,1,-1,-1,-1,-1,1,-1,1,1,1,1,1,1,-1,1,-1,0,-1,0,1,-1,1,0,-1,0,-1,-1,-1,0,1,0,1,1,1,0,1,0,-1,1,-1,-1,0,-1,1,0,1,1,0,1,-1,0],
+                                     [-0.774597,-0.774597,-0.774597,-0.774597,-0.774597,0,-0.774597,-0.774597,0.774597,-0.774597,0,-0.774597,-0.774597,0,0,-0.774597,0,0.774597,-0.774597,0.774597,-0.774597,-0.774597,0.774597,0,-0.774597,0.774597,0.774597,0,-0.774597,-0.774597,0,-0.774597,0,0,-0.774597,0.774597,0,0,-0.774597,0,0,0,0,0,0.774597,0,0.774597,-0.774597,0,0.774597,0,0,0.774597,0.774597,0.774597,-0.774597,-0.774597,0.774597,-0.774597,0,0.774597,-0.774597,0.774597,0.774597,0,-0.774597,0.774597,0,0,0.774597,0,0.774597,0.774597,0.774597,-0.774597,0.774597,0.774597,0,0.774597,0.774597,0.774597],
+                                     [0.171468,0.274348,0.171468,0.274348,0.438957,0.274348,0.171468,0.274348,0.171468,0.274348,0.438957,0.274348,0.438957,0.702332,0.438957,0.274348,0.438957,0.274348,0.171468,0.274348,0.171468,0.274348,0.438957,0.274348,0.171468,0.274348,0.171468])
+        arr=DataArrayDouble(27) ; arr.iota() ; f.setArray(arr)
+        f.checkConsistencyLight()
+        f2=f.voronoize(1e-12)
+        a=0.007187820185770747 ; b=0.0090870678008658 ; c=0.011488156225861077 ; d=0.014523687548277797
+        ref=DataArrayDouble(27) ; ref[::2]=a ; ref[1::2]=b
+        ref[[4,10,12,14,16,22]]=c ; ref[13]=d  # 6 cells 4,10,12,14,16,22 are the 6 cells boarding the most inner cell 13
+        #
+        self.assertTrue(f2.getMesh().getMeasureField(ON_CELLS).getArray().isEqual(ref,1e-7))
+        pass
+
     def testConvertQuadToLin4Gauss_1(self):
         coo=DataArrayDouble([0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.5,0.0,0.5,0.5,0.5,0.5,0.0,0.5,0.0,0.0,0.5,0.0,0.5],10,3)
         m=MEDCouplingUMesh("mesh",3)
