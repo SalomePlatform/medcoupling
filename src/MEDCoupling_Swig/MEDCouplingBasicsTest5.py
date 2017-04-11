@@ -4472,12 +4472,12 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         arr=DataArrayDouble(8) ; arr.iota() ; f.setArray(arr)
         f.checkConsistencyLight()
         #
-        vol=f.getMesh().getMeasureField(ON_CELLS).getIJ(0,0)
+        vol=f.getMesh().getMeasureField(False).getIJ(0,0)
         f2=f.voronoize(1e-12)
         f2.checkConsistencyLight()
         self.assertEqual(f2.getNumberOfTuples(),8)
         volRef=vol/8
-        self.assertTrue(f2.getMesh().getMeasureField(ON_CELLS).getArray().isUniform(volRef,1e-12))
+        self.assertTrue(f2.getMesh().getMeasureField(False).getArray().isUniform(volRef,1e-12))
         pass
 
     def testVoronoi3D_6(self):
@@ -4492,8 +4492,8 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         f2=f.voronoize(1e-12)
         f2.checkConsistencyLight()
         self.assertEqual(f2.getNumberOfTuples(),4)
-        arr=f2.getMesh().getMeasureField(ON_CELLS).getArray()
-        self.assertTrue(f2.getMesh().getMeasureField(ON_CELLS).getArray().isEqual(DataArrayDouble([378.0546928833331, 318.42621348333586, 318.4262134833361, 318.4262134833278]),1e-6))
+        arr=f2.getMesh().getMeasureField(False).getArray()
+        self.assertTrue(f2.getMesh().getMeasureField(False).getArray().isEqual(DataArrayDouble([378.0546928833331, 318.42621348333586, 318.4262134833361, 318.4262134833278]),1e-6))
         pass
 
     def testVoronoi3D_7(self):
@@ -4513,7 +4513,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         ref=DataArrayDouble(27) ; ref[::2]=a ; ref[1::2]=b
         ref[[4,10,12,14,16,22]]=c ; ref[13]=d  # 6 cells 4,10,12,14,16,22 are the 6 cells boarding the most inner cell 13
         #
-        self.assertTrue(f2.getMesh().getMeasureField(ON_CELLS).getArray().isEqual(ref,1e-7))
+        self.assertTrue(f2.getMesh().getMeasureField(False).getArray().isEqual(ref,1e-7))
         pass
 
     def testConvertQuadToLin4Gauss_1(self):
