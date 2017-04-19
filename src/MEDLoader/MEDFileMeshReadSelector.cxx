@@ -70,6 +70,11 @@ bool MEDFileMeshReadSelector::isNodeNumFieldReading() const
   return _code & 0x00000020;
 }
 
+bool MEDFileMeshReadSelector::isGlobalNodeNumFieldReading() const
+{
+  return _code & 0x00000040;
+}
+
 void MEDFileMeshReadSelector::setCellFamilyFieldReading(bool b)
 {
   unsigned int code(_code & 0xFFFFFFFE);
@@ -124,6 +129,15 @@ void MEDFileMeshReadSelector::setNodeNumFieldReading(bool b)
   _code=code;
 }
 
+void MEDFileMeshReadSelector::setGlobalNodeNumFieldReading(bool b)
+{
+  unsigned int code(_code & 0xFFFFFFBF);
+  unsigned int b2=b?1:0;
+  b2<<=6;
+  code+=b2;
+  _code=code;
+}
+
 void MEDFileMeshReadSelector::reprAll(std::ostream& str) const
 {
   str << "MEDFileMeshReadSelector (code=" << _code << ") : \n";
@@ -132,7 +146,8 @@ void MEDFileMeshReadSelector::reprAll(std::ostream& str) const
   str << "Read name field on cells : " << ReprStatus(isCellNameFieldReading()) << std::endl;
   str << "Read name field on nodes : " << ReprStatus(isNodeNameFieldReading()) << std::endl;
   str << "Read number field on cells : " << ReprStatus(isCellNumFieldReading()) << std::endl;
-  str << "Read number field name on nodes : " << ReprStatus(isNodeNumFieldReading());
+  str << "Read number field name on nodes : " << ReprStatus(isNodeNumFieldReading()) << std::end;
+  str << "Read global number field name on nodes : " << ReprStatus(isGlobalNodeNumFieldReading());
 }
 
 std::string MEDFileMeshReadSelector::ReprStatus(bool v)

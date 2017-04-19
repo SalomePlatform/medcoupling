@@ -2357,6 +2357,7 @@ std::vector<const BigMemoryObject *> MEDFileUMesh::getDirectChildrenWithNull() c
   ret.push_back((const DataArrayDouble*)_coords);
   ret.push_back((const DataArrayInt *)_fam_coords);
   ret.push_back((const DataArrayInt *)_num_coords);
+  ret.push_back((const DataArrayInt *)_global_num_coords);
   ret.push_back((const DataArrayInt *)_rev_num_coords);
   ret.push_back((const DataArrayAsciiChar *)_name_coords);
   ret.push_back((const PartDefinition *)_part_coords);
@@ -2382,15 +2383,17 @@ MEDFileUMesh *MEDFileUMesh::deepCopy() const
 {
   MCAuto<MEDFileUMesh> ret(new MEDFileUMesh(*this));
   ret->deepCpyEquivalences(*this);
-  if((const DataArrayDouble*)_coords)
+  if(_coords.isNotNull())
     ret->_coords=_coords->deepCopy();
-  if((const DataArrayInt*)_fam_coords)
+  if(_fam_coords.isNotNull())
     ret->_fam_coords=_fam_coords->deepCopy();
-  if((const DataArrayInt*)_num_coords)
+  if(_num_coords.isNotNull())
     ret->_num_coords=_num_coords->deepCopy();
-  if((const DataArrayInt*)_rev_num_coords)
+  if(_global_num_coords.isNotNull())
+    ret->_global_num_coords=_global_num_coords->deepCopy();
+  if(_rev_num_coords.isNotNull())
     ret->_rev_num_coords=_rev_num_coords->deepCopy();
-  if((const DataArrayAsciiChar*)_name_coords)
+  if(_name_coords.isNotNull())
     ret->_name_coords=_name_coords->deepCopy();
   std::size_t i=0;
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++,i++)
@@ -2438,54 +2441,74 @@ bool MEDFileUMesh::isEqual(const MEDFileMesh *other, double eps, std::string& wh
           return false;
         }
     }
-  const DataArrayInt *famc1=_fam_coords;
-  const DataArrayInt *famc2=otherC->_fam_coords;
-  if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
-    {
-      what="Mismatch of families arr on nodes ! One is defined and not other !";
-      return false;
-    }
-  if(famc1)
-    {
-      bool ret=famc1->isEqual(*famc2);
-      if(!ret)
-        {
-          what="Families arr on node differ !";
-          return false;
-        }
-    }
-  const DataArrayInt *numc1=_num_coords;
-  const DataArrayInt *numc2=otherC->_num_coords;
-  if((numc1==0 && numc2!=0) || (numc1!=0 && numc2==0))
-    {
-      what="Mismatch of numbering arr on nodes ! One is defined and not other !";
-      return false;
-    }
-  if(numc1)
-    {
-      bool ret=numc1->isEqual(*numc2);
-      if(!ret)
-        {
-          what="Numbering arr on node differ !";
-          return false;
-        }
-    }
-  const DataArrayAsciiChar *namec1=_name_coords;
-  const DataArrayAsciiChar *namec2=otherC->_name_coords;
-  if((namec1==0 && namec2!=0) || (namec1!=0 && namec2==0))
-    {
-      what="Mismatch of naming arr on nodes ! One is defined and not other !";
-      return false;
-    }
-  if(namec1)
-    {
-      bool ret=namec1->isEqual(*namec2);
-      if(!ret)
-        {
-          what="Names arr on node differ !";
-          return false;
-        }
-    }
+  {
+    const DataArrayInt *famc1(_fam_coords),*famc2(otherC->_fam_coords);
+    if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
+      {
+        what="Mismatch of families arr on nodes ! One is defined and not other !";
+        return false;
+      }
+    if(famc1)
+      {
+        bool ret=famc1->isEqual(*famc2);
+        if(!ret)
+          {
+            what="Families arr on node differ !";
+            return false;
+          }
+      }
+  }
+  {
+    const DataArrayInt *numc1(_num_coords),*numc2(otherC->_num_coords);
+    if((numc1==0 && numc2!=0) || (numc1!=0 && numc2==0))
+      {
+        what="Mismatch of numbering arr on nodes ! One is defined and not other !";
+        return false;
+      }
+    if(numc1)
+      {
+        bool ret=numc1->isEqual(*numc2);
+        if(!ret)
+          {
+            what="Numbering arr on node differ !";
+            return false;
+          }
+      }
+  }
+  {
+    const DataArrayInt *gnumc1(_global_num_coords),*gnumc2(otherC->_global_num_coords);
+    if((gnumc1==0 && gnumc2!=0) || (gnumc1!=0 && gnumc2==0))
+      {
+        what="Mismatch of numbering arr on nodes ! One is defined and not other !";
+        return false;
+      }
+    if(gnumc1)
+      {
+        bool ret=gnumc1->isEqual(*gnumc2);
+        if(!ret)
+          {
+            what="Global numbering arr on node differ !";
+            return false;
+          }
+      }
+  }
+  {
+    const DataArrayAsciiChar *namec1(_name_coords),*namec2(otherC->_name_coords);
+    if((namec1==0 && namec2!=0) || (namec1!=0 && namec2==0))
+      {
+        what="Mismatch of naming arr on nodes ! One is defined and not other !";
+        return false;
+      }
+    if(namec1)
+      {
+        bool ret=namec1->isEqual(*namec2);
+        if(!ret)
+          {
+            what="Names arr on node differ !";
+            return false;
+          }
+      }
+  }
   if(_ms.size()!=otherC->_ms.size())
     {
       what="Number of levels differs !";
@@ -2534,21 +2557,25 @@ void MEDFileUMesh::checkConsistency() const
         throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): coords are null but some mesh parts are present!");
       if (!_fam_coords)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): coords are null but not the internal node family array!");
-      if (!_num_coords || !_rev_num_coords)
+      if (_num_coords.isNotNull() || _rev_num_coords.isNotNull() || _global_num_coords.isNotNull())
         throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): coords are null but not the internal node numbering array!");
     }
   else
     {
       int nbCoo = _coords->getNumberOfTuples();
-      if (_fam_coords)
+      if (_fam_coords.isNotNull())
         _fam_coords->checkNbOfTuplesAndComp(nbCoo,1,"MEDFileUMesh::checkConsistency(): inconsistent internal node family array!");
-      if (_num_coords)
+      if (_num_coords.isNotNull())
         {
           _num_coords->checkNbOfTuplesAndComp(nbCoo,1,"MEDFileUMesh::checkConsistency(): inconsistent internal node numbering array!");
           int pos;
           int maxValue=_num_coords->getMaxValue(pos);
           if (!_rev_num_coords || _rev_num_coords->getNumberOfTuples() != (maxValue+1))
             throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): inconsistent internal revert node numbering array!");
+        }
+      if (_global_num_coords.isNotNull())
+        {
+          _global_num_coords->checkNbOfTuplesAndComp(nbCoo,1,"MEDFileUMesh::checkConsistency(): inconsistent global node numbering array!");
         }
       if ((_num_coords && !_rev_num_coords) || (!_num_coords && _rev_num_coords))
         throw INTERP_KERNEL::Exception("MEDFileUMesh::checkConsistency(): inconsistent internal numbering arrays (one is null)!");
@@ -2600,13 +2627,13 @@ void MEDFileUMesh::checkSMESHConsistency() const
  */
 void MEDFileUMesh::clearNodeAndCellNumbers()
 {
-  _num_coords = 0;
-  _rev_num_coords = 0;
-  for (std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();
-      it != _ms.end(); it++)
+  _num_coords.nullify();
+  _rev_num_coords.nullify();
+  for (std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin(); it != _ms.end(); it++)
     {
-      (*it)->_num = 0;
-      (*it)->_rev_num = 0;
+      (*it)->_num.nullify();
+      (*it)->_rev_num.nullify();
+      (*it)->_global_num_coords.nullify();
     }
 }
 
@@ -2616,30 +2643,25 @@ void MEDFileUMesh::clearNodeAndCellNumbers()
 void MEDFileUMesh::clearNonDiscrAttributes() const
 {
   MEDFileMesh::clearNonDiscrAttributes();
-  const DataArrayDouble *coo1=_coords;
-  if(coo1)
-    (const_cast<DataArrayDouble *>(coo1))->setName("");//This parameter is not discriminant for comparison
-  const DataArrayInt *famc1=_fam_coords;
-  if(famc1)
-    (const_cast<DataArrayInt *>(famc1))->setName("");//This parameter is not discriminant for comparison
-  const DataArrayInt *numc1=_num_coords;
-  if(numc1)
-    (const_cast<DataArrayInt *>(numc1))->setName("");//This parameter is not discriminant for comparison
-  const DataArrayAsciiChar *namc1=_name_coords;
-  if(namc1)
-    (const_cast<DataArrayAsciiChar *>(namc1))->setName("");//This parameter is not discriminant for comparison
+  if(_coords.isNotNull())
+    _coords->setName("");//This parameter is not discriminant for comparison
+  if(_fam_coords.isNotNull())
+    _fam_coords->setName("");//This parameter is not discriminant for comparison
+  if(_num_coords.isNotNull())
+    _num_coords->setName("");//This parameter is not discriminant for comparison
+  if(_name_coords.isNotNull())
+    _name_coords->setName("");//This parameter is not discriminant for comparison
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     {
-      const MEDFileUMeshSplitL1 *tmp=(*it);
-      if(tmp)
-        tmp->clearNonDiscrAttributes();
+      if((*it).isNotNull())
+        (*it)->clearNonDiscrAttributes();
     }
 }
 
 void MEDFileUMesh::setName(const std::string& name)
 {
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
-    if((MEDFileUMeshSplitL1 *)(*it)!=0)
+    if((*it).isNotNull())
       (*it)->setName(name);
   MEDFileMesh::setName(name);
 }
@@ -2847,6 +2869,8 @@ void MEDFileUMesh::dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl
     _num_coords=loaderl2.getCoordsNum();
   if(!mrs || mrs->isNodeNameFieldReading())
     _name_coords=loaderl2.getCoordsName();
+  if(!mrs || mrs->isGlobalNodeNumFieldReading())
+    _global_num_coords=loaderl2.getGlobalCoordsNum();
   _part_coords=loaderl2.getPartDefOfCoo();
   computeRevNum();
 }
@@ -2939,8 +2963,7 @@ std::vector<int> MEDFileUMesh::getFamArrNonEmptyLevelsExt() const
 std::vector<int> MEDFileUMesh::getNumArrNonEmptyLevelsExt() const
 {
   std::vector<int> ret;
-  const DataArrayInt *numCoo(_num_coords);
-  if(numCoo)
+  if(_num_coords.isNotNull())
     ret.push_back(1);
   int lev=0;
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++,lev--)
@@ -3339,11 +3362,11 @@ const DataArrayInt *MEDFileUMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxEx
 {
   if(meshDimRelToMaxExt==1)
     {
-      if(!((const DataArrayInt *)_num_coords))
+      if(_num_coords.isNotNull())
         throw INTERP_KERNEL::Exception("MEDFileUMesh::getRevNumberFieldAtLevel : no coordinates renum specified !");
       return _rev_num_coords;
     }
-  const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
+  const MEDFileUMeshSplitL1 *l1(getMeshAtLevSafe(meshDimRelToMaxExt));
   return l1->getRevNumberField();
 }
 
@@ -3784,12 +3807,11 @@ void MEDFileUMesh::setCoords(DataArrayDouble *coords)
     return ;
   coords->checkAllocated();
   int nbOfTuples(coords->getNumberOfTuples());
-  _coords=coords;
-  coords->incrRef();
+  _coords.takeRef(coords);
   _fam_coords=DataArrayInt::New();
   _fam_coords->alloc(nbOfTuples,1);
   _fam_coords->fillWithZero();
-  _num_coords=0; _rev_num_coords=0; _name_coords=0;
+  _num_coords.nullify(); _rev_num_coords.nullify(); _name_coords.nullify(); _global_num_coords.nullify();
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
     if((MEDFileUMeshSplitL1 *)(*it))
       (*it)->setCoords(coords);
@@ -4007,8 +4029,8 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
       _fam_coords=newFam;
     }
 
-  _num_coords = 0;
-  _rev_num_coords = 0;
+  _num_coords.nullify(); _rev_num_coords.nullify(); _global_num_coords.nullify();
+  
   for (std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();
       it != _ms.end(); it++)
     {
@@ -4148,12 +4170,14 @@ DataArrayInt *MEDFileUMesh::zipCoords()
   MCAuto<DataArrayAsciiChar> newNameCoords;
   if((const DataArrayInt *)_fam_coords)
     newFamCoords=_fam_coords->selectByTupleIdSafe(ret2->begin(),ret2->end());
-  MCAuto<DataArrayInt> newNumCoords;
-  if((const DataArrayInt *)_num_coords)
+  MCAuto<DataArrayInt> newNumCoords,newGlobalNumCoords;
+  if(_num_coords.isNotNull())
     newNumCoords=_num_coords->selectByTupleIdSafe(ret2->begin(),ret2->end());
-  if((const DataArrayAsciiChar *)_name_coords)
+  if(_global_num_coords.isNotNull())
+    newGlobalNumCoords=_global_num_coords->selectByTupleIdSafe(ret2->begin(),ret2->end());
+  if(_name_coords.isNotNull())
     newNameCoords=static_cast<DataArrayAsciiChar *>(_name_coords->selectByTupleIdSafe(ret2->begin(),ret2->end()));
-  _coords=newCoords; _fam_coords=newFamCoords; _num_coords=newNumCoords; _name_coords=newNameCoords; _rev_num_coords=0;
+  _coords=newCoords; _fam_coords=newFamCoords; _num_coords=newNumCoords; _global_num_coords=newGlobalNumCoords; _name_coords=newNameCoords; _rev_num_coords.nullify();
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
     {
       if((MEDFileUMeshSplitL1*)*it)
@@ -5169,8 +5193,8 @@ void MEDFileUMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumA
     {
       if(!renumArr)
         {
-          _num_coords=0;
-          _rev_num_coords=0;
+          _num_coords.nullify();
+          _rev_num_coords.nullify();
           return ;
         }
       DataArrayDouble *coo(_coords);
@@ -5272,7 +5296,7 @@ std::list< MCAuto<DataArrayInt> > MEDFileUMesh::getAllNonNullFamilyIds() const
 
 void MEDFileUMesh::computeRevNum() const
 {
-  if((const DataArrayInt *)_num_coords)
+  if(_num_coords.isNotNull())
     {
       int pos;
       int maxValue=_num_coords->getMaxValue(pos);

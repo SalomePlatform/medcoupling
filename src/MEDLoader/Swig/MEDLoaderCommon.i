@@ -628,12 +628,14 @@ namespace MEDCoupling
     bool isNodeNameFieldReading() const;
     bool isCellNumFieldReading() const;
     bool isNodeNumFieldReading() const;
+    bool isGlobalNodeNumFieldReading() const;
     void setCellFamilyFieldReading(bool b);
     void setNodeFamilyFieldReading(bool b);
     void setCellNameFieldReading(bool b);
     void setNodeNameFieldReading(bool b);
     void setCellNumFieldReading(bool b);
     void setNodeNumFieldReading(bool b);
+    void setGlobalNodeNumFieldReading(bool b);
     %extend
     {
       std::string __str__() const throw(INTERP_KERNEL::Exception)

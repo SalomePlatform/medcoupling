@@ -385,6 +385,7 @@ namespace MEDCoupling
     MCAuto<DataArrayDouble> _coords;
     MCAuto<DataArrayInt> _fam_coords;
     MCAuto<DataArrayInt> _num_coords;
+    MCAuto<DataArrayInt> _global_num_coords;
     MCAuto<DataArrayAsciiChar> _name_coords;
     mutable MCAuto<DataArrayInt> _rev_num_coords;
     MCAuto<PartDefinition> _part_coords;
