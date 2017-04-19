@@ -172,6 +172,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) = 0;
     MEDLOADER_EXPORT virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) = 0;
     MEDLOADER_EXPORT virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) = 0;
+    MEDLOADER_EXPORT virtual void setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr) = 0;
     MEDLOADER_EXPORT virtual void addNodeGroup(const DataArrayInt *ids) = 0;
     MEDLOADER_EXPORT virtual void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) = 0;
     MEDLOADER_EXPORT virtual const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const = 0;
@@ -180,6 +181,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const = 0;
     MEDLOADER_EXPORT virtual const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const = 0;
     MEDLOADER_EXPORT virtual const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const = 0;
+    MEDLOADER_EXPORT virtual MCAuto<DataArrayInt> getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const = 0;
     MEDLOADER_EXPORT virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const = 0;
     MEDLOADER_EXPORT virtual DataArrayInt *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const;
     MEDLOADER_EXPORT virtual DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const;
@@ -289,6 +291,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const;
+    MEDLOADER_EXPORT MCAuto<DataArrayInt> getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const PartDefinition *getPartDefAtLevel(int meshDimRelToMaxExt, INTERP_KERNEL::NormalizedCellType gt=INTERP_KERNEL::NORM_ERROR) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
     MEDLOADER_EXPORT int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const;
@@ -335,6 +338,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr);
     MEDLOADER_EXPORT void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr);
     MEDLOADER_EXPORT void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr);
+    MEDLOADER_EXPORT void setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr);
     MEDLOADER_EXPORT void addNodeGroup(const DataArrayInt *ids);
     MEDLOADER_EXPORT void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids);
     MEDLOADER_EXPORT void removeMeshAtLevel(int meshDimRelToMax);
@@ -409,11 +413,13 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr);
     MEDLOADER_EXPORT void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr);
     MEDLOADER_EXPORT void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr);
+    MEDLOADER_EXPORT void setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr);
     MEDLOADER_EXPORT void addNodeGroup(const DataArrayInt *ids);
     MEDLOADER_EXPORT void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids);
     MEDLOADER_EXPORT const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const;
+    MEDLOADER_EXPORT MCAuto<DataArrayInt> getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevels() const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevelsExt() const;
     MEDLOADER_EXPORT std::vector<int> getFamArrNonEmptyLevelsExt() const;

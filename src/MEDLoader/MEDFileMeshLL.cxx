@@ -633,6 +633,12 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& inf
     }
   else
     _name_coords=0;
+  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_GLOBAL_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      _global_num_coords=DataArrayInt::New();
+      _global_num_coords->alloc(nCoords,1);
+      MEDFILESAFECALLERRD0(MEDmeshGlobalNumberRd,(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_global_num_coords->getPointer()));
+    }
   for(int i=0;i<spaceDim;i++)
     _coords->setInfoOnComponent(i,infosOnComp[i]);
 }
@@ -716,15 +722,15 @@ void MEDFileUMeshL2::sortTypes()
   _per_type_mesh.resize(_per_type_mesh.size()-nbOfUselessLev);
 }
 
-void MEDFileUMeshL2::WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords)
+void MEDFileUMeshL2::WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords, const DataArrayInt *globalNumCoords)
 {
   if(!coords)
     return ;
-  MEDFILESAFECALLERWR0(MEDmeshNodeCoordinateWr,(fid,mname.c_str(),dt,it,time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->getConstPointer()));
+  MEDFILESAFECALLERWR0(MEDmeshNodeCoordinateWr,(fid,mname.c_str(),dt,it,time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->begin()));
   if(famCoords)
-    MEDFILESAFECALLERWR0(MEDmeshEntityFamilyNumberWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->getConstPointer()));
+    MEDFILESAFECALLERWR0(MEDmeshEntityFamilyNumberWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->begin()));
   if(numCoords)
-    MEDFILESAFECALLERWR0(MEDmeshEntityNumberWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->getConstPointer()));
+    MEDFILESAFECALLERWR0(MEDmeshEntityNumberWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->begin()));
   if(nameCoords)
     {
       if(nameCoords->getNumberOfComponents()!=MED_SNAME_SIZE)
@@ -733,8 +739,10 @@ void MEDFileUMeshL2::WriteCoords(med_idt fid, const std::string& mname, int dt, 
           oss << " ! The array has " << nameCoords->getNumberOfComponents() << " components !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      MEDFILESAFECALLERWR0(MEDmeshEntityNameWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,nameCoords->getNumberOfTuples(),nameCoords->getConstPointer()));
+      MEDFILESAFECALLERWR0(MEDmeshEntityNameWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,nameCoords->getNumberOfTuples(),nameCoords->begin()));
     }
+  if(globalNumCoords)
+    MEDFILESAFECALLERWR0(MEDmeshGlobalNumberWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NONE,globalNumCoords->getNumberOfTuples(),globalNumCoords->begin()));
 }
 
 bool MEDFileUMeshL2::isFamDefinedOnLev(int levId) const
@@ -858,7 +866,7 @@ MEDFileUMeshPermCompute::operator MEDCouplingUMesh *() const
     {
       updateTime();
       _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types.getUmesh()->deepCopy());
-      _m->renumberCells(_st->_num->getConstPointer(),true);
+      _m->renumberCells(_st->_num->begin(),true);
       return _m.retn();
     }
   else
@@ -869,7 +877,7 @@ MEDFileUMeshPermCompute::operator MEDCouplingUMesh *() const
         {
           updateTime();
           _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types.getUmesh()->deepCopy());
-          _m->renumberCells(_st->_num->getConstPointer(),true);
+          _m->renumberCells(_st->_num->begin(),true);
           return _m.retn();
         }
     }
@@ -1124,7 +1132,7 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld)
           _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
           _m.updateTime();
           computeRevNum();
-          _m_by_types.getUmesh()->renumberCells(da->getConstPointer(),false);
+          _m_by_types.getUmesh()->renumberCells(da->begin(),false);
         }
     }
   else
@@ -1196,9 +1204,9 @@ int MEDFileUMeshSplitL1::getSize() const
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const
 {
   MCAuto<DataArrayInt> eltsToKeep=_fam->findIdsEqualList(idsBg,idsEnd);
-  MEDCouplingUMesh *m=(MEDCouplingUMesh *)_m_by_types.getUmesh()->buildPartOfMySelf(eltsToKeep->getConstPointer(),eltsToKeep->getConstPointer()+eltsToKeep->getNumberOfTuples(),true);
+  MEDCouplingUMesh *m=(MEDCouplingUMesh *)_m_by_types.getUmesh()->buildPartOfMySelf(eltsToKeep->begin(),eltsToKeep->end(),true);
   if(renum)
-    return renumIfNeeded(m,eltsToKeep->getConstPointer());
+    return renumIfNeeded(m,eltsToKeep->begin());
   return m;
 }
 
@@ -1413,11 +1421,11 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::Renumber2(const DataArrayInt *renum, MEDC
   if(renum==0)
     return m;
   if(cellIds==0)
-    m->renumberCells(renum->getConstPointer(),true);
+    m->renumberCells(renum->begin(),true);
   else
     {
       MCAuto<DataArrayInt> locnum=renum->selectByTupleId(cellIds,cellIds+m->getNumberOfCells());
-      m->renumberCells(locnum->getConstPointer(),true);
+      m->renumberCells(locnum->begin(),true);
     }
   return m;
 }
@@ -1441,7 +1449,7 @@ DataArrayInt *MEDFileUMeshSplitL1::Renumber(const DataArrayInt *renum, const Dat
       da->incrRef();
       return const_cast<DataArrayInt *>(da);
     }
-  return renum->selectByTupleId(da->getConstPointer(),da->getConstPointer()+da->getNumberOfTuples());
+  return renum->selectByTupleId(da->begin(),da->end());
 }
 
 DataArrayInt *MEDFileUMeshSplitL1::renumIfNeededArr(const DataArrayInt *da) const

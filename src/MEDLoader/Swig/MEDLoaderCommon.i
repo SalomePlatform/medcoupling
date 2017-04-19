@@ -1108,6 +1108,7 @@ namespace MEDCoupling
     virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
     virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
     virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception);
+    virtual void setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr) throw(INTERP_KERNEL::Exception);
     virtual void addNodeGroup(const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
     virtual void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);

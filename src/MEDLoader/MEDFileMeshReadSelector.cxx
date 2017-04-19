@@ -146,7 +146,7 @@ void MEDFileMeshReadSelector::reprAll(std::ostream& str) const
   str << "Read name field on cells : " << ReprStatus(isCellNameFieldReading()) << std::endl;
   str << "Read name field on nodes : " << ReprStatus(isNodeNameFieldReading()) << std::endl;
   str << "Read number field on cells : " << ReprStatus(isCellNumFieldReading()) << std::endl;
-  str << "Read number field name on nodes : " << ReprStatus(isNodeNumFieldReading()) << std::end;
+  str << "Read number field name on nodes : " << ReprStatus(isNodeNumFieldReading()) << std::endl;
   str << "Read global number field name on nodes : " << ReprStatus(isGlobalNodeNumFieldReading());
 }
 

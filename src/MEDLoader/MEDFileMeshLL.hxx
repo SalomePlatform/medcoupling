@@ -133,8 +133,9 @@ namespace MEDCoupling
     MCAuto<DataArrayDouble> getCoords() const { return _coords; }
     MCAuto<DataArrayInt> getCoordsFamily() const { return _fam_coords; }
     MCAuto<DataArrayInt> getCoordsNum() const { return _num_coords; }
+    MCAuto<DataArrayInt> getCoordsGlobalNum() const { return _global_num_coords; }
     MCAuto<DataArrayAsciiChar> getCoordsName() const { return _name_coords; }
-    static void WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords);
+    static void WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords, const DataArrayInt *globalNumCoords);
   private:
     void sortTypes();
   private:
@@ -142,6 +143,7 @@ namespace MEDCoupling
     MCAuto<DataArrayDouble> _coords;
     MCAuto<DataArrayInt> _fam_coords;
     MCAuto<DataArrayInt> _num_coords;
+    MCAuto<DataArrayInt> _global_num_coords;
     MCAuto<DataArrayAsciiChar> _name_coords;
   };
 
@@ -318,6 +320,7 @@ namespace MEDCoupling
     MEDFileUMeshAggregateCompute _m_by_types;
     MCAuto<DataArrayInt> _fam;
     MCAuto<DataArrayInt> _num;
+    MCAuto<DataArrayInt> _global_num;
     MCAuto<DataArrayAsciiChar> _names;
     mutable MCAuto<DataArrayInt> _rev_num;
     MEDFileUMeshPermCompute _m;

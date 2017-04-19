@@ -2629,11 +2629,12 @@ void MEDFileUMesh::clearNodeAndCellNumbers()
 {
   _num_coords.nullify();
   _rev_num_coords.nullify();
+  _global_num_coords.nullify();
   for (std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin(); it != _ms.end(); it++)
     {
       (*it)->_num.nullify();
       (*it)->_rev_num.nullify();
-      (*it)->_global_num_coords.nullify();
+      (*it)->_global_num.nullify();
     }
 }
 
@@ -2644,13 +2645,13 @@ void MEDFileUMesh::clearNonDiscrAttributes() const
 {
   MEDFileMesh::clearNonDiscrAttributes();
   if(_coords.isNotNull())
-    _coords->setName("");//This parameter is not discriminant for comparison
+    _coords.iAmATrollConstCast()->setName("");//This parameter is not discriminant for comparison
   if(_fam_coords.isNotNull())
-    _fam_coords->setName("");//This parameter is not discriminant for comparison
+    _fam_coords.iAmATrollConstCast()->setName("");//This parameter is not discriminant for comparison
   if(_num_coords.isNotNull())
-    _num_coords->setName("");//This parameter is not discriminant for comparison
+    _num_coords.iAmATrollConstCast()->setName("");//This parameter is not discriminant for comparison
   if(_name_coords.isNotNull())
-    _name_coords->setName("");//This parameter is not discriminant for comparison
+    _name_coords.iAmATrollConstCast()->setName("");//This parameter is not discriminant for comparison
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     {
       if((*it).isNotNull())
@@ -2870,7 +2871,7 @@ void MEDFileUMesh::dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl
   if(!mrs || mrs->isNodeNameFieldReading())
     _name_coords=loaderl2.getCoordsName();
   if(!mrs || mrs->isGlobalNodeNumFieldReading())
-    _global_num_coords=loaderl2.getGlobalCoordsNum();
+    _global_num_coords=loaderl2.getCoordsGlobalNum();
   _part_coords=loaderl2.getPartDefOfCoo();
   computeRevNum();
 }
@@ -2904,7 +2905,7 @@ void MEDFileUMesh::writeMeshLL(med_idt fid) const
   if(_univ_wr_status)
     MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
-  MEDFileUMeshL2::WriteCoords(fid,meshName,_iteration,_order,_time,_coords,_fam_coords,_num_coords,_name_coords);
+  MEDFileUMeshL2::WriteCoords(fid,meshName,_iteration,_order,_time,_coords,_fam_coords,_num_coords,_name_coords,_global_num_coords);
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     if((const MEDFileUMeshSplitL1 *)(*it)!=0)
       (*it)->write(fid,meshName,mdim);
@@ -3251,6 +3252,13 @@ const DataArrayAsciiChar *MEDFileUMesh::getNameFieldAtLevel(int meshDimRelToMaxE
     return _name_coords;
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   return l1->getNameField();
+}
+
+MCAuto<DataArrayInt> MEDFileUMesh::getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const
+{
+  if(meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::getGlobalNumFieldAtLevel : not implemented yet for structured mesh !");
+  return _global_num_coords;
 }
 
 /*!
@@ -5166,8 +5174,7 @@ void MEDFileUMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famAr
       if(!coo)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::setFamilyFieldArr : the coordinates have not been set !");
       famArr->checkNbOfTuplesAndComp(coo->getNumberOfTuples(),1,"MEDFileUMesh::setFamilyFieldArr : Problem in size of node family arr ! ");
-      famArr->incrRef();
-      _fam_coords=famArr;
+      _fam_coords.takeRef(famArr);
       return ;
     }
   if(meshDimRelToMaxExt>1)
@@ -5197,12 +5204,10 @@ void MEDFileUMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumA
           _rev_num_coords.nullify();
           return ;
         }
-      DataArrayDouble *coo(_coords);
-      if(!coo)
+      if(_coords.isNull())
         throw INTERP_KERNEL::Exception("MEDFileUMesh::setRenumFieldArr : the coordinates have not been set !");
-      renumArr->checkNbOfTuplesAndComp(coo->getNumberOfTuples(),1,"MEDFileUMesh::setRenumArr : Problem in size of node numbering arr ! ");
-      renumArr->incrRef();
-      _num_coords=renumArr;
+      renumArr->checkNbOfTuplesAndComp(_coords->getNumberOfTuples(),1,"MEDFileUMesh::setRenumArr : Problem in size of node numbering arr ! ");
+      _num_coords.takeRef(renumArr);
       computeRevNum();
       return ;
     }
@@ -5236,8 +5241,7 @@ void MEDFileUMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiCha
       if(!coo)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::setNameFieldAtLevel : the coordinates have not been set !");
       nameArr->checkNbOfTuplesAndComp(coo->getNumberOfTuples(),MED_SNAME_SIZE,"MEDFileUMesh::setNameFieldAtLevel : Problem in size of node numbering arr ! ");
-      nameArr->incrRef();
-      _name_coords=nameArr;
+      _name_coords.takeRef(nameArr);
       return ;
     }
   if(meshDimRelToMaxExt>1)
@@ -5248,6 +5252,13 @@ void MEDFileUMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiCha
   if((MEDFileUMeshSplitL1 *)_ms[traducedRk]==0)
     throw INTERP_KERNEL::Exception("On specified lev (or entity) no cells exists !");
   return _ms[traducedRk]->setNameArr(nameArr);
+}
+
+void MEDFileUMesh::setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr)
+{
+  if(meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::setGlobalNumFieldAtLevel : Only implemented for meshDimRelToMaxExt==1 for the moment !");
+  _global_num_coords.takeRef(globalNumArr);
 }
 
 void MEDFileUMesh::synchronizeTinyInfoOnLeaves() const
@@ -5778,6 +5789,11 @@ void MEDFileStructuredMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArra
     nameArr->incrRef();
 }
 
+void MEDFileStructuredMesh::setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr)
+{
+  throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setGlobalNumFieldAtLevel : not implemented yet !");
+}
+
 /*!
  * Adds a group of nodes to \a this mesh.
  *  \param [in] ids - a DataArrayInt providing ids and a name of the group to add.
@@ -5937,6 +5953,11 @@ const DataArrayAsciiChar *MEDFileStructuredMesh::getNameFieldAtLevel(int meshDim
     default:
       throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNameFieldAtLevel : Only available for levels 0 or 1 or -1 !");
   }
+}
+
+MCAuto<DataArrayInt> MEDFileStructuredMesh::getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const
+{
+  throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGlobalNumFieldAtLevel : not implemented yet for structured mesh !");
 }
 
 /*!
