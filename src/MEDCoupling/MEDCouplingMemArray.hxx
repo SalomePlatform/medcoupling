@@ -366,6 +366,7 @@ namespace MEDCoupling
      void accumulate(double *res) const;
      double accumulate(int compId) const;
      DataArrayDouble *accumulatePerChunck(const int *bgOfIndex, const int *endOfIndex) const;
+     MCAuto<DataArrayDouble> cumSum() const;
      double distanceToTuple(const double *tupleBg, const double *tupleEnd, int& tupleId) const;
      DataArrayDouble *fromPolarToCart() const;
      DataArrayDouble *fromCylToCart() const;
@@ -613,6 +614,7 @@ namespace MEDCoupling
      DataArrayInt *findRangeIdForEachTuple(const DataArrayInt *ranges) const;
      DataArrayInt *findIdInRangeForEachTuple(const DataArrayInt *ranges) const;
      void sortEachPairToMakeALinkedList();
+     MCAuto<DataArrayInt> fromLinkedListOfPairToList() const;
      DataArrayInt *duplicateEachTupleNTimes(int nbTimes) const;
      DataArrayInt *getDifferentValues() const;
      std::vector<DataArrayInt *> partitionByDifferentValues(std::vector<int>& differentIds) const;

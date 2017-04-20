@@ -23,7 +23,7 @@ import unittest
 from math import pi,e,sqrt,cos,sin
 from datetime import datetime
 from MEDCouplingDataForTest import MEDCouplingDataForTest
-import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@cea.fr
+import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@edf.fr
 
 class MEDCouplingBasicsTest5(unittest.TestCase):
     def testSwig2FieldDoubleBuildSubPartRange1(self):
@@ -4490,6 +4490,33 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(DataArrayDouble(gl.getWeights()).isEqual(DataArrayDouble(cccc),1e-12))
         self.assertEqual(f2.getName(),"field")
         self.assertEqual(f2.getTime(),[1.,2,3])
+        pass
+
+    def testDADCumSum1(self):
+        d=DataArrayDouble([3.,2.,4.,5.])
+        self.assertTrue(d.cumSum().isEqual(DataArrayDouble([0.,3.,5.,9.,14.]),1e-12))
+        d2=DataArrayDouble([])
+        self.assertTrue(d2.cumSum().isEqual(DataArrayDouble([0.]),1e-12))
+        d.rearrange(2)
+        self.assertRaises(InterpKernelException,d.cumSum)
+        pass
+
+    def testDAIFromLinkedListOfPairToList1(self):
+        d=DataArrayInt([(5,7),(7,3),(3,12),(12,17)])
+        zeRes=DataArrayInt([5,7,3,12,17])
+        self.assertTrue(d.fromLinkedListOfPairToList().isEqual(zeRes))
+        d.rearrange(1)
+        self.assertRaises(InterpKernelException,d.fromLinkedListOfPairToList)
+        d.rearrange(2)
+        self.assertTrue(d.fromLinkedListOfPairToList().isEqual(zeRes))
+        d2=DataArrayInt([(5,7)])
+        self.assertTrue(d2.fromLinkedListOfPairToList().isEqual(DataArrayInt([5,7])))
+        d3=DataArrayInt([(5,7),(7,3),(4,12),(12,17)])
+        self.assertRaises(InterpKernelException,d3.fromLinkedListOfPairToList) # not a linked list of pair
+        d4=DataArrayInt([(5,7),(7,3),(12,3),(12,17)])
+        self.assertRaises(InterpKernelException,d4.fromLinkedListOfPairToList) # not a linked list of pair, but can be repaired !
+        d4.sortEachPairToMakeALinkedList()
+        self.assertTrue(d4.fromLinkedListOfPairToList().isEqual(zeRes))
         pass
     
     pass

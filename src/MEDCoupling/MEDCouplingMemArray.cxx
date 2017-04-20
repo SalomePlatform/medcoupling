@@ -2056,6 +2056,27 @@ DataArrayDouble *DataArrayDouble::accumulatePerChunck(const int *bgOfIndex, cons
 }
 
 /*!
+ * This method is close to numpy cumSum except that number of element is equal to \a this->getNumberOfTuples()+1. First element of DataArray returned is equal to 0.
+ * This method expects that \a this as only one component. The returned array will have \a this->getNumberOfTuples()+1 tuple with also one component.
+ * The ith element of returned array is equal to the sum of elements in \a this with rank strictly lower than i.
+ *
+ * \return DataArrayDouble - A newly built array containing cum sum of \a this.
+ */
+MCAuto<DataArrayDouble> DataArrayDouble::cumSum() const
+{
+  checkAllocated();
+  checkNbOfComps(1,"DataArrayDouble::cumSum : this is expected to be single component");
+  int nbOfTuple(getNumberOfTuples());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfTuple+1,1);
+  double *ptr(ret->getPointer());
+  ptr[0]=0.;
+  const double *thisPtr(begin());
+  for(int i=0;i<nbOfTuple;i++)
+    ptr[i+1]=ptr[i]+thisPtr[i];
+  return ret;
+}
+
+/*!
  * Converts each 2D point defined by the tuple of \a this array from the Polar to the
  * Cartesian coordinate system. The two components of the tuple of \a this array are 
  * considered to contain (1) radius and (2) angle of the point in the Polar CS.
@@ -7999,7 +8020,7 @@ DataArrayInt *DataArrayInt::findIdInRangeForEachTuple(const DataArrayInt *ranges
  *
  * This method is useful for users having an unstructured mesh having only SEG2 to rearrange internaly the connectibity without any coordinates consideration.
  *
- * \sa MEDCouplingUMesh::orderConsecutiveCells1D
+ * \sa MEDCouplingUMesh::orderConsecutiveCells1D, DataArrayInt::fromLinkedListOfPairToList
  */
 void DataArrayInt::sortEachPairToMakeALinkedList()
 {
@@ -8055,6 +8076,35 @@ void DataArrayInt::sortEachPairToMakeALinkedList()
             }
         }
     }
+}
+
+/*!
+ * \a this is expected to be a correctly linked list of pairs.
+ * 
+ * \sa DataArrayInt::sortEachPairToMakeALinkedList
+ */
+MCAuto<DataArrayInt> DataArrayInt::fromLinkedListOfPairToList() const
+{
+  checkAllocated();
+  checkNbOfComps(2,"DataArrayInt::fromLinkedListOfPairToList : this is expected to have 2 components");
+  int nbTuples(getNumberOfTuples());
+  if(nbTuples<1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::fromLinkedListOfPairToList : no tuples in this ! Not a linked list !");
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbTuples+1,1);
+  const int *thisPtr(begin());
+  int *retPtr(ret->getPointer());
+  retPtr[0]=thisPtr[0];
+  for(int i=0;i<nbTuples;i++)
+    {
+      retPtr[i+1]=thisPtr[2*i+1];
+      if(i<nbTuples-1)
+        if(thisPtr[2*i+1]!=thisPtr[2*(i+1)+0])
+          {
+            std::ostringstream oss; oss << "DataArrayInt::fromLinkedListOfPairToList : this is not a proper linked list of pair. The link is broken between tuple #" << i << " and tuple #" << i+1 << " ! Call sortEachPairToMakeALinkedList ?";
+            throw INTERP_KERNEL::Exception(oss.str());
+          }
+    }
+  return ret;
 }
 
 /*!

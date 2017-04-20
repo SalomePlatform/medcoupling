@@ -97,6 +97,7 @@
 %newobject MEDCoupling::DataArrayInt::buildIntersection;
 %newobject MEDCoupling::DataArrayInt::buildUnique;
 %newobject MEDCoupling::DataArrayInt::buildUniqueNotSorted;
+%newobject MEDCoupling::DataArrayInt::fromLinkedListOfPairToList;
 %newobject MEDCoupling::DataArrayInt::deltaShiftIndex;
 %newobject MEDCoupling::DataArrayInt::buildExplicitArrByRanges;
 %newobject MEDCoupling::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
@@ -158,6 +159,7 @@
 %newobject MEDCoupling::DataArrayDouble::subArray;
 %newobject MEDCoupling::DataArrayDouble::changeNbOfComponents;
 %newobject MEDCoupling::DataArrayDouble::accumulatePerChunck;
+%newobject MEDCoupling::DataArrayDouble::cumSum;
 %newobject MEDCoupling::DataArrayDouble::findIdsInRange;
 %newobject MEDCoupling::DataArrayDouble::findIdsNotInRange;
 %newobject MEDCoupling::DataArrayDouble::negate;
@@ -880,6 +882,12 @@ namespace MEDCoupling
       DataArrayDouble *selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception)
       {
         MCAuto<DataArrayDouble> ret(self->selectPartDef(pd));
+        return ret.retn();
+      }
+
+      DataArrayDouble *cumSum() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayDouble> ret(self->cumSum());
         return ret.retn();
       }
 
@@ -3005,6 +3013,12 @@ namespace MEDCoupling
       DataArrayIntIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->iterator();
+      }
+
+      DataArrayInt *fromLinkedListOfPairToList() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> ret(self->fromLinkedListOfPairToList());
+        return ret.retn();
       }
 
       DataArrayInt *selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception)
