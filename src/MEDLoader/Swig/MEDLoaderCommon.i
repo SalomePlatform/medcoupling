@@ -99,6 +99,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileMesh::getNodeGroupsArr;
 %newobject MEDCoupling::MEDFileMesh::getNodeFamilyArr;
 %newobject MEDCoupling::MEDFileMesh::getNodeFamiliesArr;
+%newobject MEDCoupling::MEDFileMesh::getGlobalNumFieldAtLevel;
 %newobject MEDCoupling::MEDFileMesh::getAllFamiliesIdsReferenced;
 %newobject MEDCoupling::MEDFileMesh::computeAllFamilyIdsInUse;
 %newobject MEDCoupling::MEDFileMesh::getEquivalences;
@@ -1301,6 +1302,12 @@ namespace MEDCoupling
            MEDFileEquivalences *ret(self->getEquivalences());
            if(ret) ret->incrRef();
            return ret;
+         }
+
+         virtual DataArrayInt *getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         {
+           MCAuto<DataArrayInt> ret(self->getGlobalNumFieldAtLevel(meshDimRelToMaxExt));
+           return ret.retn();
          }
        }
   };

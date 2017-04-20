@@ -3370,7 +3370,7 @@ const DataArrayInt *MEDFileUMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxEx
 {
   if(meshDimRelToMaxExt==1)
     {
-      if(_num_coords.isNotNull())
+      if(_num_coords.isNull())
         throw INTERP_KERNEL::Exception("MEDFileUMesh::getRevNumberFieldAtLevel : no coordinates renum specified !");
       return _rev_num_coords;
     }
@@ -5258,6 +5258,8 @@ void MEDFileUMesh::setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt
 {
   if(meshDimRelToMaxExt!=1)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setGlobalNumFieldAtLevel : Only implemented for meshDimRelToMaxExt==1 for the moment !");
+  if(globalNumArr)
+    globalNumArr->checkNbOfTuplesAndComp(_coords->getNumberOfTuples(),1,"MEDFileUMesh::setGlobalNumFieldAtLevel : Problem in size of node global numbering arr ! ");
   _global_num_coords.takeRef(globalNumArr);
 }
 

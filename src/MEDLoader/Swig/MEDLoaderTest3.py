@@ -5911,6 +5911,32 @@ class MEDLoaderTest3(unittest.TestCase):
             self.assertTrue(params[i].isEqual(params7[i],1e-12)[0])
             pass
         pass
+
+    def testGlobalNumOnNodes1(self):
+        fname="Pyfile112.med"
+        arr=DataArrayDouble(5) ; arr.iota()
+        m=MEDCouplingUMesh.Build1DMeshFromCoords(arr)
+        m.setName("mesh")
+        mm=MEDFileUMesh()
+        mm[0]=m
+        self.assertTrue(not mm.getGlobalNumFieldAtLevel(1))
+        d=DataArrayInt([7,8,9,2,0])
+        dRef=d.deepCopy()
+        mm.setGlobalNumFieldAtLevel(1,d)
+        mm.checkConsistency()
+        self.assertRaises(InterpKernelException,mm.setGlobalNumFieldAtLevel,1,d[::2])
+        mm.checkConsistency()
+        self.assertEqual(d.getHiddenCppPointer(),mm.getGlobalNumFieldAtLevel(1).getHiddenCppPointer())
+        self.assertTrue(mm.getGlobalNumFieldAtLevel(1).isEqual(dRef))
+        mm.write(fname,2)
+        mm2=MEDFileMesh.New(fname)
+        self.assertTrue(mm.isEqual(mm2,1e-12)[0])
+        self.assertTrue(mm2.getGlobalNumFieldAtLevel(1).isEqual(dRef))
+        mm2.getGlobalNumFieldAtLevel(1).setIJ(0,0,10)
+        self.assertTrue(not mm.isEqual(mm2,1e-12)[0])
+        mm2.getGlobalNumFieldAtLevel(1).setIJ(0,0,7)
+        self.assertTrue(mm.isEqual(mm2,1e-12)[0])
+        pass
     
     pass
 
