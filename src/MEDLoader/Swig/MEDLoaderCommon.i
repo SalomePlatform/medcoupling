@@ -743,7 +743,7 @@ namespace MEDCoupling
   public:
     static MEDFileJoint *New() throw(INTERP_KERNEL::Exception);
     static MEDFileJoint *New(const std::string& fileName, const std::string& mName, int num) throw(INTERP_KERNEL::Exception);
-    static MEDFileJoint *New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum ) throw(INTERP_KERNEL::Exception);
+    static MEDFileJoint *New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum) throw(INTERP_KERNEL::Exception);
     MEDFileJoint *deepCopy() const;
     MEDFileJoint *shallowCpy() const;
     bool isEqual(const MEDFileJoint *other) const;
@@ -772,6 +772,11 @@ namespace MEDCoupling
       MEDFileJoint(const std::string& fileName, const std::string& mName, int num) throw(INTERP_KERNEL::Exception)
       {
         return MEDFileJoint::New(fileName,mName,num);
+      }
+
+      MEDFileJoint(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileJoint::New(jointName,locMeshName,remoteMeshName,remoteMeshNum);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
