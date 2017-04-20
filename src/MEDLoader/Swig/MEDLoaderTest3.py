@@ -5913,6 +5913,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     def testGlobalNumOnNodes1(self):
+        """Test global number on nodes here. Used by partitionners."""
         fname="Pyfile112.med"
         arr=DataArrayDouble(5) ; arr.iota()
         m=MEDCouplingUMesh.Build1DMeshFromCoords(arr)
@@ -5936,6 +5937,51 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(not mm.isEqual(mm2,1e-12)[0])
         mm2.getGlobalNumFieldAtLevel(1).setIJ(0,0,7)
         self.assertTrue(mm.isEqual(mm2,1e-12)[0])
+        pass
+
+    def testPartialReadOfEntities1(self):
+        """Test for advanced API on read to speed up read phase for users with "huge" number of time steps (more than 10 000)."""
+        fname="Pyfile113.med"
+        arr=DataArrayDouble(5) ; arr.iota()
+        m=MEDCouplingUMesh.Build1DMeshFromCoords(arr)
+        m.setName("mesh")
+        mm=MEDFileUMesh()
+        mm[0]=m
+        #
+        fieldName="Field"
+        ts1=(5.,1,2)
+        f1=MEDCouplingFieldDouble(ON_NODES) ; f1.setMesh(m) ; f1.setName(fieldName)
+        f1.setArray(DataArrayDouble([0.,0.1,0.2,0.3,0.4]))
+        f1.setTime(*ts1)
+        f2=MEDCouplingFieldDouble(ON_CELLS) ; f2.setMesh(m) ; f2.setName(fieldName)
+        f2.setArray(DataArrayDouble([1.,1.1,1.2,1.3]))
+        f2.setTime(*ts1)
+        f1ts=MEDFileField1TS()
+        f1ts.setFieldNoProfileSBT(f1)
+        f1ts.setFieldNoProfileSBT(f2)
+        self.assertEqual(set(f1ts.getTypesOfFieldAvailable()),set([ON_NODES,ON_CELLS]))
+        f1ts_2=f1ts.deepCopy()
+        f1ts_2.getUndergroundDataArray()[:]+=2
+        f1ts_2.setTime(3,4,6.)
+        fmts=MEDFileFieldMultiTS()
+        fmts.pushBackTimeStep(f1ts)
+        fmts.pushBackTimeStep(f1ts_2)
+        #
+        mm.write(fname,2)
+        fmts.write(fname,0)
+        #
+        ent=MEDFileEntities.BuildFrom([(ON_NODES,NORM_ERROR)])
+        mm=MEDFileMesh.New(fname)
+        fs=MEDFileFields(fname,False,ent) # the important line is here - We specify to MEDFileFields to read only nodes part to speed up read phase (by avoiding to scan all entities time geo types)
+        fs.loadArrays()
+        self.assertEqual(len(fs),1)
+        fmts=fs[0]
+        self.assertEqual(len(fmts),2)
+        ff0=fmts[0] ; ff1=fmts[1]
+        self.assertEqual(ff0.getTypesOfFieldAvailable(),[ON_NODES]) # only NODES have been loaded
+        self.assertTrue(ff0.field(mm).isEqual(f1,1e-12,1e-12))
+        f3=f1.deepCopy() ; f3+=2. ; f3.setTime(6.,3,4)
+        self.assertTrue(ff1.field(mm).isEqual(f3,1e-12,1e-12))
         pass
     
     pass
