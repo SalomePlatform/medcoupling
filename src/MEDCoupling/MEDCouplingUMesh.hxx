@@ -120,6 +120,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool areCellsIncludedIn(const MEDCouplingUMesh *other, int compType, DataArrayInt *& arr) const;
     MEDCOUPLING_EXPORT bool areCellsIncludedInPolicy7(const MEDCouplingUMesh *other, DataArrayInt *& arr) const;
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> explodeIntoEdges(MCAuto<DataArrayInt>& desc, MCAuto<DataArrayInt>& descIndex, MCAuto<DataArrayInt>& revDesc, MCAuto<DataArrayInt>& revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *explode3DMeshTo1D(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
@@ -129,6 +130,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static void ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI,
                                                               DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx);
     MEDCOUPLING_EXPORT void computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const;
+    MEDCOUPLING_EXPORT void computeEnlargedNeighborsOfNodes(MCAuto<DataArrayInt> &neighbors, MCAuto<DataArrayInt>& neighborsIdx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelf(const int *begin, const int *end, bool keepCoords=true) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelfSlice(int start, int end, int step, bool keepCoords=true) const;

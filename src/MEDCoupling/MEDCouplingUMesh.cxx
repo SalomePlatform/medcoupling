@@ -589,18 +589,15 @@ void MEDCouplingUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double
 void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
 {
   checkFullyDefined();
-  int nbOfNodes=getNumberOfNodes();
+  int nbOfNodes(getNumberOfNodes());
   int *revNodalIndxPtr=(int *)malloc((nbOfNodes+1)*sizeof(int));
   revNodalIndx->useArray(revNodalIndxPtr,true,C_DEALLOC,nbOfNodes+1,1);
   std::fill(revNodalIndxPtr,revNodalIndxPtr+nbOfNodes+1,0);
-  const int *conn=_nodal_connec->getConstPointer();
-  const int *connIndex=_nodal_connec_index->getConstPointer();
-  int nbOfCells=getNumberOfCells();
-  int nbOfEltsInRevNodal=0;
+  const int *conn(_nodal_connec->begin()),*connIndex(_nodal_connec_index->begin());
+  int nbOfCells(getNumberOfCells()),nbOfEltsInRevNodal(0);
   for(int eltId=0;eltId<nbOfCells;eltId++)
     {
-      const int *strtNdlConnOfCurCell=conn+connIndex[eltId]+1;
-      const int *endNdlConnOfCurCell=conn+connIndex[eltId+1];
+      const int *strtNdlConnOfCurCell(conn+connIndex[eltId]+1),*endNdlConnOfCurCell(conn+connIndex[eltId+1]);
       for(const int *iter=strtNdlConnOfCurCell;iter!=endNdlConnOfCurCell;iter++)
         if(*iter>=0)//for polyhedrons
           {
@@ -838,10 +835,10 @@ void MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, cons
 {
   if(!desc || !descIndx || !revDesc || !revDescIndx)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ComputeNeighborsOfCellsAdv some input array is empty !");
-  const int *descPtr=desc->getConstPointer();
-  const int *descIPtr=descIndx->getConstPointer();
-  const int *revDescPtr=revDesc->getConstPointer();
-  const int *revDescIPtr=revDescIndx->getConstPointer();
+  const int *descPtr=desc->begin();
+  const int *descIPtr=descIndx->begin();
+  const int *revDescPtr=revDesc->begin();
+  const int *revDescIPtr=revDescIndx->begin();
   //
   int nbCells=descIndx->getNumberOfTuples()-1;
   MCAuto<DataArrayInt> out0=DataArrayInt::New();
@@ -864,6 +861,35 @@ void MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, cons
 }
 
 /*!
+ * Explodes \a this into edges whatever its dimension.
+ */
+MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::explodeIntoEdges(MCAuto<DataArrayInt>& desc, MCAuto<DataArrayInt>& descIndex, MCAuto<DataArrayInt>& revDesc, MCAuto<DataArrayInt>& revDescIndx) const
+{
+  checkFullyDefined();
+  int mdim(getMeshDimension());
+  desc=DataArrayInt::New(); descIndex=DataArrayInt::New(); revDesc=DataArrayInt::New(); revDescIndx=DataArrayInt::New();
+  MCAuto<MEDCouplingUMesh> mesh1D;
+  switch(mdim)
+  {
+    case 3:
+      {
+        mesh1D=explode3DMeshTo1D(desc,descIndex,revDesc,revDescIndx);
+        break;
+      }
+    case 2:
+      {
+        mesh1D=buildDescendingConnectivity(desc,descIndex,revDesc,revDescIndx);
+        break;
+      }
+    default:
+      {
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::computeNeighborsOfNodes : Mesh dimension supported are [3,2] !");
+      }
+  }
+  return mesh1D;
+}
+
+/*!
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done. This method calls
  * MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
@@ -877,13 +903,15 @@ void MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, cons
  * The number of tuples is equal to the last values in \b neighborsIndx.
  * \param [out] neighborsIdx is an array of size this->getNumberOfCells()+1 newly allocated and should
  * be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
+ * 
+ * \sa MEDCouplingUMesh::computeEnlargedNeighborsOfNodes
  */
 void MEDCouplingUMesh::computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const
 {
   checkFullyDefined();
   int mdim(getMeshDimension()),nbNodes(getNumberOfNodes());
   MCAuto<DataArrayInt> desc(DataArrayInt::New()),descIndx(DataArrayInt::New()),revDesc(DataArrayInt::New()),revDescIndx(DataArrayInt::New());
-  MCAuto<MEDCouplingUMesh> mesh1D;
+  MCConstAuto<MEDCouplingUMesh> mesh1D;
   switch(mdim)
   {
     case 3:
@@ -898,8 +926,7 @@ void MEDCouplingUMesh::computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArr
       }
     case 1:
       {
-        mesh1D=const_cast<MEDCouplingUMesh *>(this);
-        mesh1D->incrRef();
+        mesh1D.takeRef(this);
         break;
       }
     default:
@@ -920,6 +947,45 @@ void MEDCouplingUMesh::computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArr
     }
   neighbors=ret0.retn();
   neighborsIdx=descIndx.retn();
+}
+
+/*!
+ * Computes enlarged neighbors for each nodes in \a this. The behavior of this method is close to MEDCouplingUMesh::computeNeighborsOfNodes except that the neighborhood of each node is wider here.
+ * A node j is considered to be in the neighborhood of i if and only if there is a cell in \a this containing in its nodal connectivity both i and j.
+ * This method is useful to find ghost cells of a part of a mesh with a code based on fields on nodes.
+ * 
+ * \sa MEDCouplingUMesh::computeNeighborsOfNodes
+ */
+void MEDCouplingUMesh::computeEnlargedNeighborsOfNodes(MCAuto<DataArrayInt> &neighbors, MCAuto<DataArrayInt>& neighborsIdx) const
+{
+  checkFullyDefined();
+  int nbOfNodes(getNumberOfNodes());
+  const int *conn(_nodal_connec->begin()),*connIndex(_nodal_connec_index->begin());
+  int nbOfCells(getNumberOfCells());
+  std::vector< std::set<int> > st0(nbOfNodes);
+  for(int eltId=0;eltId<nbOfCells;eltId++)
+    {
+      const int *strtNdlConnOfCurCell(conn+connIndex[eltId]+1),*endNdlConnOfCurCell(conn+connIndex[eltId+1]);
+      std::set<int> s(strtNdlConnOfCurCell,endNdlConnOfCurCell); s.erase(-1); //for polyhedrons
+      for(std::set<int>::const_iterator iter2=s.begin();iter2!=s.end();iter2++)
+        st0[*iter2].insert(s.begin(),s.end());
+    }
+  neighborsIdx=DataArrayInt::New(); neighborsIdx->alloc(nbOfNodes+1,1); neighborsIdx->setIJ(0,0,0);
+  {
+    int *neighIdx(neighborsIdx->getPointer());
+    for(std::vector< std::set<int> >::const_iterator it=st0.begin();it!=st0.end();it++,neighIdx++)
+      neighIdx[1]=neighIdx[0]+(*it).size()-1;
+  }
+  neighbors=DataArrayInt::New(); neighbors->alloc(neighborsIdx->back(),1);
+  {
+    const int *neighIdx(neighborsIdx->begin());
+    int *neigh(neighbors->getPointer()),nodeId(0);
+    for(std::vector< std::set<int> >::const_iterator it=st0.begin();it!=st0.end();it++,neighIdx++,nodeId++)
+      {
+        std::set<int> s(*it); s.erase(nodeId);
+        std::copy(s.begin(),s.end(),neigh+*neighIdx);
+      }
+  }
 }
 
 /*!
@@ -954,7 +1020,7 @@ void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const i
   int nbOfCells(getNumberOfCells());
   if(dim==2)
     {
-      const int *connIndex=_nodal_connec_index->getConstPointer();
+      const int *connIndex=_nodal_connec_index->begin();
       int *conn=_nodal_connec->getPointer();
       for(const int *iter=cellIdsToConvertBg;iter!=cellIdsToConvertEnd;iter++)
         {

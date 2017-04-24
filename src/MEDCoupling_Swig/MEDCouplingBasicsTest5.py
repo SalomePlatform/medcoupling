@@ -4518,6 +4518,29 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         d4.sortEachPairToMakeALinkedList()
         self.assertTrue(d4.fromLinkedListOfPairToList().isEqual(zeRes))
         pass
+
+    def testUMeshExplodeIntoEdges1(self):
+        m=MEDCouplingCMesh() ; arr=DataArrayDouble(5) ; arr.iota() ; m.setCoords(arr,arr,arr) ; m=m.buildUnstructured()
+        self.assertEqual(m.getMeshDimension(),3)
+        a0,a1,a2,a3,a4=m.explodeIntoEdges()
+        b0,b1,b2,b3,b4=m.explode3DMeshTo1D()
+        self.assertTrue(a0.isEqual(b0,1e-12))
+        self.assertTrue(a1.isEqual(b1)) ; self.assertTrue(a2.isEqual(b2)) ; self.assertTrue(a3.isEqual(b3)) ; self.assertTrue(a4.isEqual(b4))
+        #
+        m=MEDCouplingCMesh() ; arr=DataArrayDouble(5) ; arr.iota() ; m.setCoords(arr,arr) ; m=m.buildUnstructured()
+        self.assertEqual(m.getMeshDimension(),2)
+        a0,a1,a2,a3,a4=m.explodeIntoEdges()
+        b0,b1,b2,b3,b4=m.buildDescendingConnectivity()
+        self.assertTrue(a0.isEqual(b0,1e-12))
+        self.assertTrue(a1.isEqual(b1)) ; self.assertTrue(a2.isEqual(b2)) ; self.assertTrue(a3.isEqual(b3)) ; self.assertTrue(a4.isEqual(b4))
+        pass
+
+    def testUMeshComputeEnlargedNeighborsOfNodes(self):
+        m=MEDCouplingCMesh() ; arr=DataArrayDouble(4) ; arr.iota() ; m.setCoords(arr,arr) ; m=m.buildUnstructured()
+        a,b=m.computeEnlargedNeighborsOfNodes()
+        self.assertTrue(a.isEqual(DataArrayInt([1,4,5,0,2,4,5,6,1,3,5,6,7,2,6,7,0,1,5,8,9,0,1,2,4,6,8,9,10,1,2,3,5,7,9,10,11,2,3,6,10,11,4,5,9,12,13,4,5,6,8,10,12,13,14,5,6,7,9,11,13,14,15,6,7,10,14,15,8,9,13,8,9,10,12,14,9,10,11,13,15,10,11,14])))
+        self.assertTrue(b.isEqual(DataArrayInt([0,3,8,13,16,21,29,37,42,47,55,63,68,71,76,81,84])))
+        pass
     
     pass
 
