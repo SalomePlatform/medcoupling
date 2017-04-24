@@ -50,6 +50,8 @@ namespace MEDPARTITIONER
   class Graph
   {
   public:
+    typedef enum {METIS,SCOTCH} splitter_type;
+  public:
     virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) throw(INTERP_KERNEL::Exception);
     const MEDCoupling::MEDCouplingSkyLineArray *getGraph() const;
     const MEDCoupling::MEDCouplingSkyLineArray *getPartition() const;
