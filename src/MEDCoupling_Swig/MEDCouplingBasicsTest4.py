@@ -1963,10 +1963,10 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         m.insertNextCell(NORM_TRI3,[0,1,2])
         a,b=m.distanceToPoint([-0.335,2.27,1.21])
         self.assertEqual(0,b)
-        self.assertAlmostEqual(0.022360988100374124,a,14);
+        self.assertAlmostEqual(0.0223609881003,a,12);
         a,b=m.distanceToPoint(DataArrayDouble([-0.335,2.27,1.21],1,3))
         self.assertEqual(0,b)
-        self.assertAlmostEqual(0.022360988100374124,a,14);
+        self.assertAlmostEqual(0.0223609881003,a,12);
         a,b=coords.distanceToTuple([-0.335,2.27,1.21])
         self.assertAlmostEqual(5.243302871282566,a,14)
         self.assertEqual(0,b)
@@ -2003,6 +2003,27 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertAlmostEqual(0.14142135623730925,a,14)  # b==1 self.assertEqual(2,c)
         a,b=m.distanceToPoint([0.,3.9])
         self.assertAlmostEqual(0.07071067811865482,a,14) ; self.assertEqual(1,b) # self.assertEqual(2,c)
+        pass
+
+    def testSwig2UMeshDistanceToMesh2(self):
+        mesh = MEDCouplingUMesh('Solid_3', 2)
+        coo = DataArrayDouble([(99.75,-1.42109e-14,102.75),(99.75,200,102.75),(2.5,0,200),(2.5,200,200),(197,0,200),(197,200,200)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([3, 4, 0, 1, 3, 4, 1, 5, 3, 1, 0, 3, 3, 3, 0, 2])
+        cI = DataArrayInt([0, 4, 8, 12, 16])
+        mesh.setConnectivity(c, cI)
+        mesh.checkConsistency()
+        pt = [125.0, 175.0, 175.0]
+        # Values computed from GEOM:
+        exp1, exp2, exp3, exp4 = 54.0633707597, 33.2340187158, 68.9429111657, 99.5221476482
+        d1, _ = mesh[0].distanceToPoint(pt)
+        d2, _ = mesh[1].distanceToPoint(pt)
+        d3, _ = mesh[2].distanceToPoint(pt)
+        d4, _ = mesh[3].distanceToPoint(pt)
+        self.assertAlmostEqual(exp1,d1,10)
+        self.assertAlmostEqual(exp2,d2,10)
+        self.assertAlmostEqual(exp3,d3,10)
+        self.assertAlmostEqual(exp4,d4,10)
         pass
 
     def testSwig2NonRegressionPartitionBySpreadZone1(self):

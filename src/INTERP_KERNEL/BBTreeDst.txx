@@ -134,6 +134,10 @@ public:
       }
   }
   
+  /** Get the minimal (square) distance between a point and all the available bounding boxes in the tree.
+    The (square) distance to a bbox is the true geometric distance between the point and a face
+    (or an edge, or a corner) of the bbox.
+  */
   void getMinDistanceOfMax(const double *pt, double& minOfMaxDstsSq) const
   {
     if(_terminal)

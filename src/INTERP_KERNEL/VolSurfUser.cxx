@@ -20,6 +20,7 @@
 
 #include "VolSurfUser.hxx"
 #include "InterpKernelAutoPtr.hxx"
+#include "InterpolationUtils.hxx"
 
 #include <cmath>
 #include <limits>
@@ -63,29 +64,152 @@ namespace INTERP_KERNEL
     return (x-pt[0])*(x-pt[0])+(y-pt[1])*(y-pt[1]);
   }
 
+  /**
+   * See http://geomalgorithms.com/a02-_lines.html#Distance-to-Ray-or-Segment
+   */
+  double DistanceFromPtToSegInSpaceDim3(const double *pt, const double *pt0Seg2, const double *pt1Seg2)
+  {
+    double v[3], w[3];
+    for(int i=0; i < 3; i++) {
+        v[i]=pt1Seg2[i]-pt0Seg2[i];
+        w[i] = pt[i] - pt0Seg2[i];
+    }
+
+    double c1 = dotprod<3>(w,v);
+    if ( c1 <= 0 )
+      return norm<3>(w);
+    double c2 = dotprod<3>(v,v);
+    if ( c2 <= c1 )
+      {
+        for(int i=0; i < 3; i++)
+          w[i] = pt[i] - pt1Seg2[i];
+        return norm<3>(w);
+      }
+    double b = c1 / c2;
+    for(int i=0; i < 3; i++)
+      w[i] = pt0Seg2[i] + b * v[i] - pt[i];
+    return norm<3>(w);
+  }
+
+  /**
+     Helper for DistanceFromPtToTriInSpaceDim3
+   */
+  inline double _HelperDistancePtToTri3D_1(const double aXX, const double bX, const double c)
+  {
+    if (bX >= 0)
+      return c;
+    if (-bX >= aXX)
+      return aXX + 2*bX + c;
+    return bX*(-bX / aXX) + c;
+  }
+
+  /**
+    Helper for DistanceFromPtToTriInSpaceDim3
+   */
+  inline double _HelperDistancePtToTri3D_2(const double a01, const double aXX, const double aYY,
+                                           const double bX, const double bY, const double c)
+  {
+    double tmp0 = a01 + bX, tmp1 = aXX + bY;
+    if (tmp1 > tmp0) {
+        double numer = tmp1 - tmp0, denom = aXX - 2*a01 + aYY;
+        if (numer >= denom)
+          return aXX + 2*bX + c;
+        else {
+            double s, t;
+            s = numer / denom; t = 1 - s;
+            return s*(aXX*s + a01*t + 2*bX) + t*(a01*s + aYY*t + 2*bY) + c;
+        }
+    }
+    else
+      {
+        if (tmp1 <= 0)   return aYY + 2*bY + c;
+        else {
+            if (bY >= 0) return c;
+            else         return bY*(-bY / aYY) + c;
+        }
+      }
+  }
+
+  /**
+   * From https://www.geometrictools.com/Documentation/DistancePoint3Triangle3.pdf
+   */
   double DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3)
   {
-    double matrix[12];
-    if(!ComputeRotTranslationMatrixToPut3PointsOnOXY(pt0Tri3,pt1Tri3,pt2Tri3,matrix))
-      return std::numeric_limits<double>::max();
-    double xy0[2],xy1[2],xy2[2],xy[2]; xy0[0]=0.; xy0[1]=0.;
-    xy1[0]=matrix[0]*pt1Tri3[0]+matrix[1]*pt1Tri3[1]+matrix[2]*pt1Tri3[2]+matrix[3]; xy1[1]=0.;
-    xy2[0]=matrix[0]*pt2Tri3[0]+matrix[1]*pt2Tri3[1]+matrix[2]*pt2Tri3[2]+matrix[3];
-    xy2[1]=matrix[4]*pt2Tri3[0]+matrix[5]*pt2Tri3[1]+matrix[6]*pt2Tri3[2]+matrix[7];
-    xy[0]=matrix[0]*pt[0]+matrix[1]*pt[1]+matrix[2]*pt[2]+matrix[3];
-    xy[1]=matrix[4]*pt[0]+matrix[5]*pt[1]+matrix[6]*pt[2]+matrix[7];
-    double z=matrix[8]*pt[0]+matrix[9]*pt[1]+matrix[10]*pt[2]+matrix[11];
-    double ret=std::numeric_limits<double>::max();
-    std::size_t nbOfHint=0;
-    if(xy[0]>0. && xy[0]<xy1[0])
-      { ret=std::min(ret,z*z+xy[1]*xy[1]); nbOfHint++; } //distance pt to edge [pt0Tri3,pt1Tri3]
-    double tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,xy1,xy2,nbOfHint); //distance pt to edge [pt1Tri3,pt2Tri3]
-    ret=std::min(ret,z*z+tmp);
-    tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,xy2,xy0,nbOfHint);//distance pt to edge [pt2Tri3,pt0Tri3]
-    ret=std::min(ret,z*z+tmp);
-    if(nbOfHint==3)
-      ret=std::min(ret,z*z);
-  return sqrt(ret);
+    double diff[3], edge0[3], edge1[3];
+    for(int i=0; i < 3; i++) diff[i]=pt0Tri3[i]-pt[i];
+    for(int i=0; i < 3; i++) edge0[i]=pt1Tri3[i]-pt0Tri3[i];
+    for(int i=0; i < 3; i++) edge1[i]=pt2Tri3[i]-pt0Tri3[i];
+
+    double a00=dotprod<3>(edge0, edge0), a01=dotprod<3>(edge0,edge1), a11=dotprod<3>(edge1,edge1);
+    double b0=dotprod<3>(diff, edge0), b1=dotprod<3>(diff, edge1), c=dotprod<3>(diff, diff);
+    double det = fabs(a00*a11 - a01*a01);
+    double s = a01*b1 - a11*b0, t = a01*b0 - a00*b1;
+    double sDist;
+
+    if (s + t <= det)
+      {
+        if (s < 0)  {
+            if (t < 0) { // region 4
+                if (b0 < 0) {
+                    if (-b0 >= a00)  sDist = a00 + 2*b0 + c;
+                    else             sDist = b0*(-b0 / a00) + c;
+                  }
+                else
+                  sDist = _HelperDistancePtToTri3D_1(a11, b1, c);
+              }
+            else  // region 3
+              sDist = _HelperDistancePtToTri3D_1(a11, b1, c);
+          }
+        else       {
+            if (t < 0)  // region 5
+              sDist = _HelperDistancePtToTri3D_1(a00, b0, c);
+            else  // region 0
+              {
+                // minimum at interior point
+                if (fabs(det) < 1.0e-12)
+                  {
+                    // points are colinear (degenerated triangle)
+                    // => Compute distance between segments
+                     double distance = std::min(DistanceFromPtToSegInSpaceDim3(pt, pt0Tri3, pt1Tri3),
+                                                DistanceFromPtToSegInSpaceDim3(pt, pt1Tri3, pt2Tri3));
+                     return distance;
+                  }
+
+                // else we can divide by non-zero
+                double invDet = 1 / det;
+                s *= invDet;    t *= invDet;
+                sDist = s*(a00*s + a01*t + 2*b0) + t*(a01*s + a11*t + 2*b1) + c;
+              }
+          }
+      }
+    else  // s+t > det
+      {
+        if (s < 0.0)  // region 2
+          sDist = _HelperDistancePtToTri3D_2(a01, a00, a11, b0, b1, c);
+        else {
+            if (t < 0.0)  // region 6
+              sDist = _HelperDistancePtToTri3D_2(a01, a11, a00, b1, b0, c);
+            else {  // region 1
+                double numer = a11 + b1 - a01 - b0;
+                if (numer <= 0.0)
+                  sDist = a11 + 2*b1 + c;
+                else {
+                    double denom = a00 - 2*a01 + a11;
+                    if (numer >= denom)
+                      sDist = a00 + 2*b0 + c;
+                    else {
+                        s = numer / denom; t = 1 - s;
+                        sDist = s*(a00*s + a01*t + 2*b0) + t*(a01*s + a11*t + 2*b1) + c;
+                    }
+                }
+            }
+        }
+      }
+    // Account for numerical round-off error.
+    if (sDist < 0)
+      sDist = 0.0;
+
+    return sqrt(sDist);
   }
 
   double DistanceFromPtToPolygonInSpaceDim3(const double *pt, const int *connOfPolygonBg, const int *connOfPolygonEnd, const double *coords)
