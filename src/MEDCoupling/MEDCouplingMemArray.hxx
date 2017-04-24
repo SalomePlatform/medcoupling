@@ -586,6 +586,10 @@ namespace MEDCoupling
      DataArrayInt *findIdsInRange(int vmin, int vmax) const;
      DataArrayInt *findIdsNotInRange(int vmin, int vmax) const;
      DataArrayInt *findIdsStricltyNegative() const;
+     MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(int val) const;
+     MCAuto<DataArrayInt> findIdsGreaterThan(int val) const;
+     MCAuto<DataArrayInt> findIdsLowerOrEqualTo(int val) const;
+     MCAuto<DataArrayInt> findIdsLowerThan(int val) const;
      bool checkAllIdsInRange(int vmin, int vmax) const;
      static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
      static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& arr);
@@ -647,10 +651,29 @@ namespace MEDCoupling
      bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
      void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   private:
+     template<class OP>
+     MCAuto<DataArrayInt> findIdsAdv(const OP& op) const;
+  private:
     ~DataArrayInt() { }
     DataArrayInt() { }
   };
 
+  template<class OP>
+  MCAuto<DataArrayInt> DataArrayInt::findIdsAdv(const OP& op) const
+  {
+    checkAllocated();
+    if(getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::findIdsAdv : this must have exactly one component !");
+    const int *cptr(getConstPointer());
+    MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+    int nbOfTuples(getNumberOfTuples());
+    for(int i=0;i<nbOfTuples;i++,cptr++)
+      if(op(*cptr))
+        ret->pushBackSilent(i);
+    return ret;
+  }
+
+  
   class DataArrayIntTuple;
 
   class MEDCOUPLING_EXPORT DataArrayIntIterator

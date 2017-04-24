@@ -98,6 +98,10 @@
 %newobject MEDCoupling::DataArrayInt::buildUnique;
 %newobject MEDCoupling::DataArrayInt::buildUniqueNotSorted;
 %newobject MEDCoupling::DataArrayInt::fromLinkedListOfPairToList;
+%newobject MEDCoupling::DataArrayInt::findIdsGreaterOrEqualTo;
+%newobject MEDCoupling::DataArrayInt::findIdsGreaterThan;
+%newobject MEDCoupling::DataArrayInt::findIdsLowerOrEqualTo;
+%newobject MEDCoupling::DataArrayInt::findIdsLowerThan;
 %newobject MEDCoupling::DataArrayInt::deltaShiftIndex;
 %newobject MEDCoupling::DataArrayInt::buildExplicitArrByRanges;
 %newobject MEDCoupling::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
@@ -3018,6 +3022,30 @@ namespace MEDCoupling
       DataArrayInt *fromLinkedListOfPairToList() const throw(INTERP_KERNEL::Exception)
       {
         MCAuto<DataArrayInt> ret(self->fromLinkedListOfPairToList());
+        return ret.retn();
+      }
+      
+      DataArrayInt *findIdsGreaterOrEqualTo(int val) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> ret(self->findIdsGreaterOrEqualTo(val));
+        return ret.retn();
+      }
+      
+      DataArrayInt *findIdsGreaterThan(int val) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> ret(self->findIdsGreaterThan(val));
+        return ret.retn();
+      }
+      
+      DataArrayInt *findIdsLowerOrEqualTo(int val) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> ret(self->findIdsLowerOrEqualTo(val));
+        return ret.retn();
+      }
+      
+      DataArrayInt *findIdsLowerThan(int val) const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> ret(self->findIdsLowerThan(val));
         return ret.retn();
       }
 
