@@ -6953,7 +6953,7 @@ struct LowerThan
 struct InRange
 {
   InRange(int a, int b):_a(a),_b(b) { }
-  bool operator()(int v) const { return v>=_a || v<_b; }
+  bool operator()(int v) const { return v>=_a && v<_b; }
   int _a,_b;
 };
 
