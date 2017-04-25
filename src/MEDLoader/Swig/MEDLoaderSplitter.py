@@ -62,7 +62,7 @@ class MEDLoaderSplitter:
         pass
     
     def __splitMEDFileField1TS(self,mm,f1ts,idsLst):
-        ret=[MEDFileField1TS() for i in xrange(len(idsLst))]
+        ret=[f1ts.__class__() for i in xrange(len(idsLst))]
         dico={ON_CELLS:self.__splitMEDFileField1TSCell,
               ON_NODES:self.__splitMEDFileField1TSNode,
               ON_GAUSS_PT:self.__splitMEDFileField1TSCell,
@@ -82,7 +82,7 @@ class MEDLoaderSplitter:
                 print "Field \"%s\" contains profiles ! Not supported yet ! This field will be ignored !"%(fmts.getName())
                 continue
             pass
-            ret1=[MEDFileFieldMultiTS() for i in xrange(len(idsLst))]
+            ret1=[fmts.__class__() for i in xrange(len(idsLst))]
             for f1ts in fmts:
                 for fmtsPart,f1tsPart in zip(ret1,self.__splitMEDFileField1TS(mm,f1ts,idsLst)):
                     fmtsPart.pushBackTimeStep(f1tsPart)
