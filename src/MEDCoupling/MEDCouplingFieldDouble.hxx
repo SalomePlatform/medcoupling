@@ -46,9 +46,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void renumberNodes(const int *old2NewBg, double eps=1e-15);
     MEDCOUPLING_EXPORT void renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps=1e-15);
     MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(double vmin, double vmax) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPart(const DataArrayInt *part) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPart(const int *partBg, const int *partEnd) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPartRange(int begin, int end, int step) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const;

@@ -46,6 +46,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual typename Traits<T>::FieldType *clone(bool recDeepCpy) const = 0;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT typename Traits<T>::FieldType *cloneWithMesh(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const DataArrayInt *part) const;
+    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const int *partBg, const int *partEnd) const;
+    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPartRange(int begin, int end, int step) const;
     MEDCOUPLING_EXPORT void setArray(typename Traits<T>::ArrayType *array) { _time_discr->setArray(array,this); }
     MEDCOUPLING_EXPORT void setEndArray(typename Traits<T>::ArrayType *array) { _time_discr->setEndArray(array,this); }
     MEDCOUPLING_EXPORT const typename Traits<T>::ArrayType *getArray() const { return _time_discr->getArray(); }
@@ -84,6 +87,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool areCompatibleForDiv(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingFieldT<T> *other);
     MEDCOUPLING_EXPORT void copyAllTinyAttrFrom(const MEDCouplingFieldT<T> *other);
+  protected:
+    const MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe() const;
+    MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe();
   protected:
     MEDCouplingTimeDiscretizationTemplate<T> *_time_discr;
   };

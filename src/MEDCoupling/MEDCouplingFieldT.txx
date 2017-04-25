@@ -367,6 +367,169 @@ namespace MEDCoupling
   {
     return _time_discr->getEnum();
   }
+
+  /*!
+   * Builds a newly created field, that the caller will have the responsability to deal with.
+   * \n This method makes the assumption that \a this field is correctly defined when this method is called (\a this->checkConsistencyLight() returns without any exception thrown), **no check of this will be done**.
+   * \n This method returns a restriction of \a this so that only tuple ids specified in [ \a partBg , \a partEnd ) will be contained in the returned field.
+   * \n Parameter [\a partBg, \a partEnd ) specifies **cell ids whatever the spatial discretization** of \a this (
+   * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+   * \ref MEDCoupling::ON_NODES "ON_NODES",
+   * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+   * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
+   * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
+   *
+   * For example, \a this is a field on cells lying on a mesh that have 10 cells, \a partBg contains the following cell ids [3,7,6].
+   * Then the returned field will lie on mesh having 3 cells and will contain 3 tuples.
+   *- Tuple #0 of the result field will refer to the cell #0 of returned mesh. The cell #0 of returned mesh will be equal to the cell #3 of \a this->getMesh().
+   *- Tuple #1 of the result field will refer to the cell #1 of returned mesh. The cell #1 of returned mesh will be equal to the cell #7 of \a this->getMesh().
+   *- Tuple #2 of the result field will refer to the cell #2 of returned mesh. The cell #2 of returned mesh will be equal to the cell #6 of \a this->getMesh().
+   *
+   * Let, for example, \a this be a field on nodes lying on a mesh that have 10 cells and 11 nodes, and \a partBg contains following cellIds [3,7,6].
+   * Thus \a this currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, then the returned field
+   * will contain 6 tuples and \a this field will lie on this restricted mesh. 
+   *
+   * \param [in] partBg - start (included) of input range of cell ids to select [ \a partBg, \a partEnd )
+   * \param [in] partEnd - end (not included) of input range of cell ids to select [ \a partBg, \a partEnd )
+   * \return a newly allocated field the caller should deal with.
+   * 
+   * \throw if there is presence of an invalid cell id in [ \a partBg, \a partEnd ) regarding the number of cells of \a this->getMesh().
+   *
+   * \if ENABLE_EXAMPLES
+   * \ref cpp_mcfielddouble_subpart1 "Here a C++ example."<br>
+   * \ref py_mcfielddouble_subpart1 "Here a Python example."
+   * \endif
+   * \sa MEDCoupling::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const, MEDCouplingFieldDouble::buildSubPartRange
+   */
+  template<class T>
+  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPart(const int *partBg, const int *partEnd) const
+  {
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldT::buildSubPart : Expecting a not NULL spatial discretization !");
+    DataArrayInt *arrSelect;
+    MCAuto<MEDCouplingMesh> m=_type->buildSubMeshData(_mesh,partBg,partEnd,arrSelect);
+    MCAuto<DataArrayInt> arrSelect2(arrSelect);
+    MCAuto< typename Traits<T>::FieldType > ret(clone(false));//quick shallow copy.
+    const MEDCouplingFieldDiscretization *disc=getDiscretization();
+    if(disc)
+      ret->setDiscretization(MCAuto<MEDCouplingFieldDiscretization>(disc->clonePart(partBg,partEnd)));
+    ret->setMesh(m);
+    std::vector<typename Traits<T>::ArrayType *> arrays;
+    timeDiscrSafe()->getArrays(arrays);
+    std::vector<typename Traits<T>::ArrayType *> arrs;
+    std::vector< MCAuto< typename Traits<T>::ArrayType > > arrsSafe;
+    const int *arrSelBg=arrSelect->begin();
+    const int *arrSelEnd=arrSelect->end();
+    for(typename std::vector<typename Traits<T>::ArrayType *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+      {
+        typename Traits<T>::ArrayType *arr(0);
+        if(*iter)
+          arr=(*iter)->selectByTupleIdSafe(arrSelBg,arrSelEnd);
+        arrs.push_back(arr); arrsSafe.push_back(arr);
+      }
+    ret->timeDiscrSafe()->setArrays(arrs,0);
+    return ret.retn();
+  }
+
+  /*!
+   * Builds a newly created field, that the caller will have the responsability to deal with (decrRef()).
+   * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
+   * This method returns a restriction of \a this so that only tuples with ids specified in \a part will be contained in the returned field.
+   * Parameter \a part specifies **cell ids whatever the spatial discretization of this** (
+   * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+   * \ref MEDCoupling::ON_NODES "ON_NODES",
+   * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+   * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
+   * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
+   *
+   * For example, \a this is a field on cells lying on a mesh that have 10 cells, \a part contains following cell ids [3,7,6].
+   * Then the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.<br>
+   * Tuple #0 of the result field will refer to the cell #0 of returned mesh. The cell #0 of returned mesh will be equal to the cell #3 of \a this->getMesh().<br>
+   * Tuple #1 of the result field will refer to the cell #1 of returned mesh. The cell #1 of returned mesh will be equal to the cell #7 of \a this->getMesh().<br>
+   * Tuple #2 of the result field will refer to the cell #2 of returned mesh. The cell #2 of returned mesh will be equal to the cell #6 of \a this->getMesh().
+   *
+   * Let, for example, \a this be a field on nodes lying on a mesh that have 10 cells and 11 nodes, and \a part contains following cellIds [3,7,6].
+   * Thus \a this currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, then the returned field
+   * will contain 6 tuples and \a this field will lie on this restricted mesh. 
+   *
+   *  \param [in] part - an array of cell ids to include to the result field.
+   *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The caller is to delete this field using decrRef() as it is no more needed.
+   *
+   *  \if ENABLE_EXAMPLES
+   *  \ref cpp_mcfielddouble_subpart1 "Here is a C++ example".<br>
+   *  \ref  py_mcfielddouble_subpart1 "Here is a Python example".
+   *  \endif
+   *  \sa MEDCouplingFieldDouble::buildSubPartRange
+   */
+  template<class T>
+  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPart(const DataArrayInt *part) const
+  {
+    if(part==0)
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldT::buildSubPart : not empty array must be passed to this method !");
+    return buildSubPart(part->begin(),part->end());
+  }
+  
+  /*!
+   * This method is equivalent to MEDCouplingFieldDouble::buildSubPart, the only difference is that the input range of cell ids is
+   * given using a range given \a begin, \a end and \a step to optimize the part computation.
+   * 
+   * \sa MEDCouplingFieldDouble::buildSubPart
+   */
+  template<class T>
+  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPartRange(int begin, int end, int step) const
+  {
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : Expecting a not NULL spatial discretization !");
+    DataArrayInt *arrSelect;
+    int beginOut,endOut,stepOut;
+    MCAuto<MEDCouplingMesh> m(_type->buildSubMeshDataRange(_mesh,begin,end,step,beginOut,endOut,stepOut,arrSelect));
+    MCAuto<DataArrayInt> arrSelect2(arrSelect);
+    MCAuto< typename Traits<T>::FieldType > ret(clone(false));//quick shallow copy.
+    const MEDCouplingFieldDiscretization *disc=getDiscretization();
+    if(disc)
+      ret->setDiscretization(MCAuto<MEDCouplingFieldDiscretization>(disc->clonePartRange(begin,end,step)));
+    ret->setMesh(m);
+    std::vector<typename Traits<T>::ArrayType *> arrays;
+    timeDiscrSafe()->getArrays(arrays);
+    std::vector<typename Traits<T>::ArrayType *> arrs;
+    std::vector< MCAuto< typename Traits<T>::ArrayType > > arrsSafe;
+    for(typename std::vector<typename Traits<T>::ArrayType *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+      {
+        typename Traits<T>::ArrayType *arr(0);
+        if(*iter)
+          {
+            if(arrSelect)
+              {
+                const int *arrSelBg=arrSelect->begin();
+                const int *arrSelEnd=arrSelect->end();
+                arr=(*iter)->selectByTupleIdSafe(arrSelBg,arrSelEnd);
+              }
+            else
+              arr=(*iter)->selectByTupleIdSafeSlice(beginOut,endOut,stepOut);
+          }
+        arrs.push_back(arr); arrsSafe.push_back(arr);
+      }
+    ret->timeDiscrSafe()->setArrays(arrs,0);
+    return ret.retn();
+  }
+  
+  template<class T>
+  const MEDCouplingTimeDiscretizationTemplate<T> *MEDCouplingFieldT<T>::timeDiscrSafe() const
+  {
+    const MEDCouplingTimeDiscretizationTemplate<T> *ret(_time_discr);
+    if(!ret)
+      throw INTERP_KERNEL::Exception("const FieldT : Null type of time discr !");
+    return ret;
+  }
+  
+  template<class T>
+  MEDCouplingTimeDiscretizationTemplate<T> *MEDCouplingFieldT<T>::timeDiscrSafe()
+  {
+    MEDCouplingTimeDiscretizationTemplate<T> *ret(_time_discr);
+    if(!ret)
+      throw INTERP_KERNEL::Exception("const FieldT : Null type of time discr !");
+    return ret;
+  }
 }
 
 #endif

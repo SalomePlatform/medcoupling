@@ -426,4 +426,123 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
     }
 }
 
+template<class T>
+typename MEDCoupling::Traits<T>::FieldType *fieldT_buildSubPart(const MEDCoupling::MEDCouplingFieldT<T> *self, PyObject *li)
+{
+  int sw;
+  int singleVal;
+  std::vector<int> multiVal;
+  std::pair<int, std::pair<int,int> > slic;
+  MEDCoupling::DataArrayInt *daIntTyypp=0;
+  const MEDCoupling::MEDCouplingMesh *mesh=self->getMesh();
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : field lies on a null mesh !");
+  int nbc=mesh->getNumberOfCells();
+  convertObjToPossibleCpp2(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+  switch(sw)
+    {
+    case 1:
+      {
+        if(singleVal>=nbc)
+          {
+            std::ostringstream oss;
+            oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+        if(singleVal>=0)
+          return self->buildSubPart(&singleVal,&singleVal+1);
+        else
+          {
+            if(nbc+singleVal>0)
+              {
+                int tmp=nbc+singleVal;
+                return self->buildSubPart(&tmp,&tmp+1);
+              }
+            else
+              {
+                std::ostringstream oss;
+                oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                throw INTERP_KERNEL::Exception(oss.str().c_str());
+              }
+          }
+      }
+    case 2:
+      {
+        return self->buildSubPart(&multiVal[0],&multiVal[0]+multiVal.size());
+      }
+    case 3:
+      {
+        return self->buildSubPartRange(slic.first,slic.second.first,slic.second.second);
+      }
+    case 4:
+      {
+        if(!daIntTyypp)
+          throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : null instance has been given in input !");
+        daIntTyypp->checkAllocated();
+        return self->buildSubPart(daIntTyypp->begin(),daIntTyypp->end());
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
+    }
+}
+
+template<class T>
+typename MEDCoupling::Traits<T>::FieldType *fieldT__getitem__(const MEDCoupling::MEDCouplingFieldT<T> *self, PyObject *li)
+{
+  const char msg[]="MEDCouplingFieldDouble::__getitem__ : invalid call  Available API are : \n-myField[dataArrayInt]\n-myField[slice]\n-myField[pythonListOfCellIds]\n-myField[integer]\n-myField[dataArrayInt,1]\n-myField[slice,1]\n-myField[pythonListOfCellIds,1]\n-myField[integer,1]\n";
+  if(PyTuple_Check(li))
+    {
+      Py_ssize_t sz=PyTuple_Size(li);
+      if(sz!=2)
+        throw INTERP_KERNEL::Exception(msg);
+      PyObject *elt0=PyTuple_GetItem(li,0),*elt1=PyTuple_GetItem(li,1);
+      int sw;
+      int singleVal;
+      std::vector<int> multiVal;
+      std::pair<int, std::pair<int,int> > slic;
+      MEDCoupling::DataArrayInt *daIntTyypp=0;
+      if(!self->getArray())
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::__getitem__ : no array set on field to deduce number of components !");
+      try
+        { convertObjToPossibleCpp2(elt1,self->getArray()->getNumberOfComponents(),sw,singleVal,multiVal,slic,daIntTyypp); }
+      catch(INTERP_KERNEL::Exception& e)
+        { std::ostringstream oss; oss << "MEDCouplingFieldDouble::__getitem__ : invalid type in 2nd parameter (compo) !" << e.what(); throw INTERP_KERNEL::Exception(oss.str().c_str()); }
+      typename MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::FieldType > ret0(fieldT_buildSubPart<T>(self,elt0));
+      typename MEDCoupling::Traits<T>::ArrayType *ret0Arr=ret0->getArray();
+      if(!ret0Arr)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::__getitem__ : no array exists to apply restriction on component on it !");
+      switch(sw)
+        {
+        case 1:
+          {
+            std::vector<int> v2(1,singleVal);
+            MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aarr(ret0Arr->keepSelectedComponents(v2));
+            ret0->setArray(aarr);
+            return ret0.retn();
+          }
+        case 2:
+          {
+            MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aarr(ret0Arr->keepSelectedComponents(multiVal));
+            ret0->setArray(aarr);
+            return ret0.retn();
+          }
+        case 3:
+          {
+            int nbOfComp(MEDCoupling::DataArray::GetNumberOfItemGivenBESRelative(slic.first,slic.second.first,slic.second.second,"MEDCouplingFieldDouble::__getitem__ : invalid range in 2nd parameter (components) !"));
+            std::vector<int> v2(nbOfComp);
+            for(int i=0;i<nbOfComp;i++)
+              v2[i]=slic.first+i*slic.second.second;
+            MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aarr(ret0Arr->keepSelectedComponents(v2));
+            ret0->setArray(aarr);
+            return ret0.retn();
+          }
+        default:
+          throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else
+    return fieldT_buildSubPart<T>(self,li);
+}
+
+
 #endif
