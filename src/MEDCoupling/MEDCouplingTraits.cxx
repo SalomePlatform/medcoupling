@@ -26,6 +26,14 @@ const char Traits<double>::ArrayTypeName[]="DataArrayDouble";
 
 const char Traits<double>::FieldTypeName[]="MEDCouplingFieldDouble";
 
+const char Traits<double>::NPYStr[]="FLOAT64";
+
+const char Traits<float>::ArrayTypeName[]="DataArrayFloat";
+
+const char Traits<float>::FieldTypeName[]="MEDCouplingFieldFloat";
+
+const char Traits<float>::NPYStr[]="FLOAT32";
+
 const char Traits<int>::ArrayTypeName[]="DataArrayInt";
 
 const char Traits<int>::FieldTypeName[]="MEDCouplingFieldInt";

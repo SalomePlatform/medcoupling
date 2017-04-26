@@ -2252,6 +2252,50 @@ namespace MEDCoupling
       std::reverse(work,work+nbOfCompo);
     std::reverse(_info_on_compo.begin(),_info_on_compo.end());
   }
+  
+  /*!
+   * Checks if all values in \a this array are equal to \a val at precision \a eps.
+   *  \param [in] val - value to check equality of array values to.
+   *  \param [in] eps - precision to check the equality.
+   *  \return bool - \a true if all values are in range (_val_ - _eps_; _val_ + _eps_),
+   *                 \a false else.
+   *  \throw If \a this->getNumberOfComponents() != 1
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  bool DataArrayTemplateFP<T>::isUniform(T val, T eps) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::isUniform : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
+    int nbOfTuples(this->getNumberOfTuples());
+    const T *w(this->begin()),*end2(this->end());
+    const T vmin(val-eps),vmax(val+eps);
+    for(;w!=end2;w++)
+      if(*w<vmin || *w>vmax)
+        return false;
+    return true;
+  }
+
+  /*!
+   * Set all values in \a this array so that the i-th element equals to \a init + i
+   * (i starts from zero). To know more on filling arrays see \ref MEDCouplingArrayFill.
+   *  \param [in] init - value to assign to the first element of array.
+   *  \throw If \a this->getNumberOfComponents() != 1
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  void DataArrayTemplateFP<T>::iota(T init)
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
+    T *ptr(this->getPointer());
+    int ntuples(this->getNumberOfTuples());
+    for(int i=0;i<ntuples;i++)
+      ptr[i]=init+T(i);
+    this->declareAsNew();
+  }
 }
 
 #endif

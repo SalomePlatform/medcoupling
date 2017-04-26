@@ -49,6 +49,7 @@
 %newobject MEDCoupling::DataArray::selectByTupleIdSafe;
 %newobject MEDCoupling::DataArray::selectByTupleIdSafeSlice;
 %newobject MEDCoupling::DataArray::Aggregate;
+%newobject MEDCoupling::DataArrayFloat::New;
 %newobject MEDCoupling::DataArrayInt::New;
 %newobject MEDCoupling::DataArrayInt::__iter__;
 %newobject MEDCoupling::DataArrayInt::selectPartDef;
@@ -657,6 +658,90 @@ namespace MEDCoupling
       }
     }
   };
+
+  class DataArrayFloat : public DataArray
+  {
+  public:
+    static DataArrayFloat *New();
+    void fillWithValue(float val) throw(INTERP_KERNEL::Exception);
+    bool isEqual(const DataArrayFloat& other, float prec) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const DataArrayFloat& other, float prec) const throw(INTERP_KERNEL::Exception);
+    bool isUniform(float val, float eps) const throw(INTERP_KERNEL::Exception);
+    void pushBackSilent(float val) throw(INTERP_KERNEL::Exception);
+    void iota(float init=0.) throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      DataArrayFloat() throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayFloat::New();
+      }
+
+      static DataArrayFloat *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayT_New<float>(elt0,nbOfTuples,elt2);
+      }
+   
+      DataArrayFloat(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCoupling_DataArrayFloat_New__SWIG_1(elt0,nbOfTuples,elt2);
+      }
+
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss;
+        self->reprQuickOverview(oss);
+        return oss.str();
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->reprNotTooLong();
+      }
+
+      int __len__() const throw(INTERP_KERNEL::Exception)
+      {
+        if(self->isAllocated())
+          {
+            return self->getNumberOfTuples();
+          }
+        else
+          {
+            throw INTERP_KERNEL::Exception("DataArrayFloat::__len__ : Instance is NOT allocated !");
+          }
+      }
+
+      PyObject *getValues() const throw(INTERP_KERNEL::Exception)
+      {
+        const float *vals(self->begin());
+        return convertDblArrToPyList<float>(vals,self->getNbOfElems());
+      }
+
+      PyObject *getValuesAsTuple() const throw(INTERP_KERNEL::Exception)
+      {
+        const float *vals(self->begin());
+        int nbOfComp(self->getNumberOfComponents()),nbOfTuples(self->getNumberOfTuples());
+        return convertDblArrToPyListOfTuple<float>(vals,nbOfComp,nbOfTuples);
+      }
+
+      PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayT__getitem<float>(self,obj);
+      }
+
+      DataArrayFloat *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayT__setitem__<float>(self,obj,value);
+      }
+      
+#ifdef WITH_NUMPY
+      PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      {
+        return ToNumPyArray<DataArrayFloat,float>(self,NPY_FLOAT,"DataArrayFloat");
+      }
+#endif
+      
+    }
+  };
   
   class DataArrayInt;
   class DataArrayDoubleIterator;
@@ -779,109 +864,19 @@ namespace MEDCoupling
     %extend
     {
       DataArrayDouble() throw(INTERP_KERNEL::Exception)
-        {
-          return DataArrayDouble::New();
-        }
+      {
+        return DataArrayDouble::New();
+      }
 
       static DataArrayDouble *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msgBase="MEDCoupling::DataArrayDouble::New : Available API are : \n-DataArrayDouble.New()\n-DataArrayDouble.New([1.,3.,4.])\n-DataArrayDouble.New([1.,3.,4.],3)\n-DataArrayDouble.New([1.,3.,4.,5.],2,2)\n-DataArrayDouble.New([1.,3.,4.,5.,7,8.],3,2)\n-DataArrayDouble.New([(1.,3.),(4.,5.),(7,8.)])\n-DataArrayDouble.New(5)\n-DataArrayDouble.New(5,2)";
-        std::string msg(msgBase);
-#ifdef WITH_NUMPY
-        msg+="\n-DataArrayDouble.New(numpy array with dtype=float64)";
-#endif
-        msg+=" !";
-        if(PyList_Check(elt0) || PyTuple_Check(elt0))
-          {
-            if(nbOfTuples)
-              {
-                if(PyInt_Check(nbOfTuples))
-                  {
-                    int nbOfTuples1=PyInt_AS_LONG(nbOfTuples);
-                    if(nbOfTuples1<0)
-                      throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive set of allocated memory !");
-                    if(elt2)
-                      {
-                        if(PyInt_Check(elt2))
-                          {//DataArrayDouble.New([1.,3.,4.,5.],2,2)
-                            int nbOfCompo=PyInt_AS_LONG(elt2);
-                            if(nbOfCompo<0)
-                              throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
-                            MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-                            std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,nbOfTuples1,nbOfCompo);
-                            ret->alloc(nbOfTuples1,nbOfCompo); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
-                            return ret.retn();
-                          }
-                        else
-                          throw INTERP_KERNEL::Exception(msg.c_str());
-                      }
-                    else
-                      {//DataArrayDouble.New([1.,3.,4.],3)
-                        MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-                        int tmpp1=-1;
-                        std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,nbOfTuples1,tmpp1);
-                        ret->alloc(nbOfTuples1,tmpp1); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
-                        return ret.retn();
-                      }
-                  }
-                else
-                  throw INTERP_KERNEL::Exception(msg.c_str());
-              }
-            else
-              {// DataArrayDouble.New([1.,3.,4.])
-                MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-                int tmpp1=-1,tmpp2=-1;
-                std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,tmpp1,tmpp2);
-                ret->alloc(tmpp1,tmpp2); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
-                return ret.retn();
-              }
-          }
-        else if(PyInt_Check(elt0))
-          {
-            int nbOfTuples1=PyInt_AS_LONG(elt0);
-            if(nbOfTuples1<0)
-              throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive set of allocated memory !");
-            if(nbOfTuples)
-              {
-                if(!elt2)
-                  {
-                    if(PyInt_Check(nbOfTuples))
-                      {//DataArrayDouble.New(5,2)
-                        int nbOfCompo=PyInt_AS_LONG(nbOfTuples);
-                        if(nbOfCompo<0)
-                          throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
-                        MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-                        ret->alloc(nbOfTuples1,nbOfCompo);
-                        return ret.retn();
-                      }
-                    else
-                      throw INTERP_KERNEL::Exception(msg.c_str());
-                  }
-                else
-                  throw INTERP_KERNEL::Exception(msg.c_str());
-              }
-            else
-              {//DataArrayDouble.New(5)
-                MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-                ret->alloc(nbOfTuples1,1);
-                return ret.retn();
-              }
-          }
-#ifdef WITH_NUMPY
-        else if(PyArray_Check(elt0) && nbOfTuples==NULL && elt2==NULL)
-          {//DataArrayDouble.New(numpyArray)
-            return BuildNewInstance<DataArrayDouble,double>(elt0,NPY_DOUBLE,&PyCallBackDataArrayDouble_RefType,"FLOAT64");
-          }
-#endif
-        else
-          throw INTERP_KERNEL::Exception(msg.c_str());
-        throw INTERP_KERNEL::Exception(msg.c_str());//to make g++ happy
+        return DataArrayT_New<double>(elt0,nbOfTuples,elt2);
       }
    
       DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
-        {
-          return MEDCoupling_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
-        }
+      {
+        return MEDCoupling_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
+      }
 
       DataArrayDouble *selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception)
       {
@@ -987,8 +982,8 @@ namespace MEDCoupling
 
       PyObject *getValues() const throw(INTERP_KERNEL::Exception)
       {
-        const double *vals=self->getConstPointer();
-        return convertDblArrToPyList(vals,self->getNbOfElems());
+        const double *vals(self->begin());
+        return convertDblArrToPyList<double>(vals,self->getNbOfElems());
       }
 
 #ifdef WITH_NUMPY
@@ -1012,10 +1007,9 @@ namespace MEDCoupling
 
       PyObject *getValuesAsTuple() const throw(INTERP_KERNEL::Exception)
       {
-        const double *vals=self->getConstPointer();
-        int nbOfComp=self->getNumberOfComponents();
-        int nbOfTuples=self->getNumberOfTuples();
-        return convertDblArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
+        const double *vals(self->begin());
+        int nbOfComp(self->getNumberOfComponents()),nbOfTuples(self->getNumberOfTuples());
+        return convertDblArrToPyListOfTuple<double>(vals,nbOfComp,nbOfTuples);
       }
 
       DataArrayDouble *symmetry3DPlane(PyObject *point, PyObject *normalVector) throw(INTERP_KERNEL::Exception)
@@ -1043,7 +1037,7 @@ namespace MEDCoupling
         const double *vectorPtr(convertObjToPossibleCpp5_Safe(normalVector,sw,val,a,aa,bb,msg,1,3,true));
         double res[9];
         DataArrayDouble::GiveBaseForPlane(vectorPtr,res);
-        return convertDblArrToPyListOfTuple(res,3,3);
+        return convertDblArrToPyListOfTuple<double>(res,3,3);
       }
 
       DataArrayDouble *fromCartToCylGiven(const DataArrayDouble *coords, PyObject *center, PyObject *vector) const
@@ -1199,10 +1193,10 @@ namespace MEDCoupling
 
       PyObject *getMinMaxPerComponent() const throw(INTERP_KERNEL::Exception)
       {
-        int nbOfCompo=self->getNumberOfComponents();
-        INTERP_KERNEL::AutoPtr<double> tmp=new double[2*nbOfCompo];
+        int nbOfCompo(self->getNumberOfComponents());
+        INTERP_KERNEL::AutoPtr<double> tmp(new double[2*nbOfCompo]);
         self->getMinMaxPerComponent(tmp);
-        PyObject *ret=convertDblArrToPyListOfTuple(tmp,2,nbOfCompo);
+        PyObject *ret=convertDblArrToPyListOfTuple<double>(tmp,2,nbOfCompo);
         return ret;
       }
 
@@ -1211,7 +1205,7 @@ namespace MEDCoupling
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->accumulate(tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
 
       DataArrayDouble *accumulatePerChunck(PyObject *indexArr) const throw(INTERP_KERNEL::Exception)
@@ -1271,7 +1265,7 @@ namespace MEDCoupling
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->getTuple(tupleId,tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
 
       static DataArrayDouble *Aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -1321,454 +1315,12 @@ namespace MEDCoupling
 
       PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        const char msg[]="Unexpected situation in DataArrayDouble::__getitem__ !";
-        const char msg2[]="DataArrayDouble::__getitem__ : Mismatch of slice values in 2nd parameter (components) !";
-        self->checkAllocated();
-        int nbOfTuples=self->getNumberOfTuples();
-        int nbOfComponents=self->getNumberOfComponents();
-        int it1,ic1;
-        std::vector<int> vt1,vc1;
-        std::pair<int, std::pair<int,int> > pt1,pc1;
-        DataArrayInt *dt1=0,*dc1=0;
-        int sw;
-        convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
-        MCAuto<DataArrayDouble> ret;
-        switch(sw)
-          {
-          case 1:
-            if(nbOfComponents==1)
-              return PyFloat_FromDouble(self->getIJSafe(it1,0));
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&it1,&it1+1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-          case 2:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-          case 3:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-          case 4:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-          case 5:
-            return PyFloat_FromDouble(self->getIJSafe(it1,ic1));
-          case 6:
-            {
-              ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
-              std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 7:
-            {
-              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
-              std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 8:
-            {
-              ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
-              std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 9:
-            {
-              ret=self->selectByTupleIdSafe(&it1,&it1+1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 10:
-            {
-              ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 11:
-            {
-              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 12:
-            {
-              ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 13:
-            {
-              ret=self->selectByTupleIdSafe(&it1,&it1+1);
-              int nbOfComp=DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2);
-              std::vector<int> v2(nbOfComp);
-              for(int i=0;i<nbOfComp;i++)
-                v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 14:
-            {
-              ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
-              int nbOfComp=DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2);
-              std::vector<int> v2(nbOfComp);
-              for(int i=0;i<nbOfComp;i++)
-                v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 15:
-            {
-              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
-              int nbOfComp=DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2);
-              std::vector<int> v2(nbOfComp);
-              for(int i=0;i<nbOfComp;i++)
-                v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          case 16:
-            {
-              ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
-              int nbOfComp=DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2);
-              std::vector<int> v2(nbOfComp);
-              for(int i=0;i<nbOfComp;i++)
-                v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
-            }
-          default:
-            throw INTERP_KERNEL::Exception(msg);
-          }
+        return DataArrayT__getitem<double>(self,obj);
       }
 
       DataArrayDouble *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
       {
-        self->checkAllocated();
-        const char msg[]="Unexpected situation in DataArrayDouble::__setitem__ !";
-        int nbOfTuples=self->getNumberOfTuples();
-        int nbOfComponents=self->getNumberOfComponents();
-        int sw1,sw2;
-        double i1;
-        std::vector<double> v1;
-        DataArrayDouble *d1=0;
-        convertObjToPossibleCpp4(value,sw1,i1,v1,d1);
-        int it1,ic1;
-        std::vector<int> vt1,vc1;
-        std::pair<int, std::pair<int,int> > pt1,pc1;
-        DataArrayInt *dt1=0,*dc1=0;
-        convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw2,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
-        MCAuto<DataArrayDouble> tmp;
-        switch(sw2)
-          {
-          case 1:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple1(i1,it1,it1+1,1,0,nbOfComponents,1);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues1(tmp,it1,it1+1,1,0,nbOfComponents,1,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues1(d1,it1,it1+1,1,0,nbOfComponents,1);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 2:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 3:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 4:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 5:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple1(i1,it1,it1+1,1,ic1,ic1+1,1);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues1(tmp,it1,it1+1,1,ic1,ic1+1,1,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues1(d1,it1,it1+1,1,ic1,ic1+1,1);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 6:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 7:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 8:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 9:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple2(i1,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues2(tmp,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size(),false);
-                  return self;
-                case 3:
-                  self->setPartOfValues2(d1,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 10:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple2(i1,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues2(tmp,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size(),false);
-                  return self;
-                case 3:
-                  self->setPartOfValues2(d1,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 11:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple4(i1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues4(tmp,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size(),false);
-                  return self;
-                case 3:
-                  self->setPartOfValues4(d1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 12:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple2(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues2(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size(),false);
-                  return self;
-                case 3:
-                  self->setPartOfValues2(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 13:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple1(i1,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues1(tmp,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues1(d1,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 14:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 15:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          case 16:
-            {
-              switch(sw1)
-                {
-                case 1:
-                  self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
-                  return self;
-                case 2:
-                  tmp=DataArrayDouble::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-                  self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second,false);
-                  return self;
-                case 3:
-                  self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
-                  return self;
-                default:
-                  throw INTERP_KERNEL::Exception(msg);
-                }
-              break;
-            }
-          default:
-            throw INTERP_KERNEL::Exception(msg);
-          }
-        return self;
+        return DataArrayT__setitem__<double>(self,obj,value);
       }
 
       DataArrayDouble *__neg__() const throw(INTERP_KERNEL::Exception)

@@ -44,6 +44,8 @@ using namespace INTERP_KERNEL;
 %init %{ import_array(); %}
 #endif
 
+%init %{ initializeMe(); %}
+
 %feature("autodoc", "1");
 %feature("docstring");
 
@@ -55,6 +57,15 @@ using namespace INTERP_KERNEL;
 
 %include "MEDCouplingRefCountObject.i"
 %include "MEDCouplingMemArray.i"
+
+%inline
+{
+  void initializeMe()
+  {
+    SWIGTITraits<double>::TI=SWIGTYPE_p_MEDCoupling__DataArrayDouble;
+    SWIGTITraits<float>::TI=SWIGTYPE_p_MEDCoupling__DataArrayFloat;
+  }
+}
 
 class Renumbering
 {

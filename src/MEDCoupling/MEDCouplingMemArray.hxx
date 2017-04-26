@@ -221,6 +221,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > explodeComponents() const;
     //
     std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT void updateTime() const { }
     //
     MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
     MEDCOUPLING_EXPORT std::size_t getNbOfElems() const { return _mem.getNbOfElem(); }
@@ -282,6 +283,9 @@ namespace MEDCoupling
     T getMaxValueInArray() const;
     T getMinValue(int& tupleId) const;
     T getMinValueInArray() const;
+  public:
+    MEDCOUPLING_EXPORT MemArray<T>& accessToMemArray() { return _mem; }
+    MEDCOUPLING_EXPORT const MemArray<T>& accessToMemArray() const { return _mem; }
   protected:
     typename Traits<T>::ArrayType *mySelectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     typename Traits<T>::ArrayType *mySelectByTupleId(const DataArrayInt& di) const;
@@ -292,12 +296,54 @@ namespace MEDCoupling
   protected:
     MemArray<T> _mem;
   };
+
+  template<class T>
+  class DataArrayTemplateFP : public DataArrayTemplate<T>
+  {
+  public:
+    MEDCOUPLING_EXPORT bool isUniform(T val, T eps) const;
+    MEDCOUPLING_EXPORT void iota(T init=0.);
+  };
+}
+
+namespace MEDCoupling
+{
+  class DataArrayFloat : public DataArrayTemplateFP<float>
+  {
+  public:
+    MEDCOUPLING_EXPORT static DataArrayFloat *New();
+  public:// abstract method overload
+    MEDCOUPLING_EXPORT DataArrayFloat *deepCopy() const;
+    MEDCOUPLING_EXPORT DataArrayFloat *buildNewEmptyInstance() const { return DataArrayFloat::New(); }
+    MEDCOUPLING_EXPORT DataArrayFloat *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplateFP<float>::mySelectByTupleRanges(ranges); }
+    MEDCOUPLING_EXPORT DataArrayFloat *keepSelectedComponents(const std::vector<int>& compoIds) const { return DataArrayTemplateFP<float>::myKeepSelectedComponents(compoIds); }
+    MEDCOUPLING_EXPORT DataArrayFloat *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplateFP<float>::mySelectByTupleId(new2OldBg,new2OldEnd); }
+    MEDCOUPLING_EXPORT DataArrayFloat *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplateFP<float>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
+    MEDCOUPLING_EXPORT DataArrayFloat *selectByTupleIdSafeSlice(int bg, int end2, int step) const { return DataArrayTemplateFP<float>::mySelectByTupleIdSafeSlice(bg,end2,step); }
+    MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprCppStream(const std::string& varName, std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
+  public:
+    MEDCOUPLING_EXPORT std::string reprNotTooLong() const;
+    MEDCOUPLING_EXPORT void reprNotTooLongStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprNotTooLongWithoutNameStream(std::ostream& stream) const;
+  public:
+    MEDCOUPLING_EXPORT bool isEqual(const DataArrayFloat& other, float prec) const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayFloat& other, float prec, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayFloat& other, float prec) const;
+  private:
+    ~DataArrayFloat() { }
+    DataArrayFloat() { }
+  };
 }
 
 namespace MEDCoupling
 {
   class DataArrayDoubleIterator;
-  class DataArrayDouble : public DataArrayTemplate<double>
+  class DataArrayDouble : public DataArrayTemplateFP<double>
   {
   public:
     MEDCOUPLING_EXPORT static DataArrayDouble *New();
@@ -306,8 +352,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *buildNewEmptyInstance() const { return DataArrayDouble::New(); }
     MEDCOUPLING_EXPORT DataArrayDouble *performCopyOrIncrRef(bool deepCopy) const;
     MEDCOUPLING_EXPORT void fillWithZero();
-    MEDCOUPLING_EXPORT void iota(double init=0.);
-    MEDCOUPLING_EXPORT bool isUniform(double val, double eps) const;
     MEDCOUPLING_EXPORT void checkMonotonic(bool increasing, double eps) const;
     MEDCOUPLING_EXPORT bool isMonotonic(bool increasing, double eps) const;
     MEDCOUPLING_EXPORT std::string repr() const;
@@ -329,12 +373,12 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *convertToIntArr() const;
     MEDCOUPLING_EXPORT DataArrayDouble *fromNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayDouble *toNoInterlace() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<double>::mySelectByTupleId(new2OldBg,new2OldEnd); }
-    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const DataArrayInt& di) const { return DataArrayTemplate<double>::mySelectByTupleId(di); }
-    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<double>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
-    MEDCOUPLING_EXPORT DataArrayDouble *keepSelectedComponents(const std::vector<int>& compoIds) const { return DataArrayTemplate<double>::myKeepSelectedComponents(compoIds); }
-    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafeSlice(int bg, int end2, int step) const { return DataArrayTemplate<double>::mySelectByTupleIdSafeSlice(bg,end2,step); }
-    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplate<double>::mySelectByTupleRanges(ranges); }
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplateFP<double>::mySelectByTupleId(new2OldBg,new2OldEnd); }
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const DataArrayInt& di) const { return DataArrayTemplateFP<double>::mySelectByTupleId(di); }
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplateFP<double>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
+    MEDCOUPLING_EXPORT DataArrayDouble *keepSelectedComponents(const std::vector<int>& compoIds) const { return DataArrayTemplateFP<double>::myKeepSelectedComponents(compoIds); }
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafeSlice(int bg, int end2, int step) const { return DataArrayTemplateFP<double>::mySelectByTupleIdSafeSlice(bg,end2,step); }
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplateFP<double>::mySelectByTupleRanges(ranges); }
     MEDCOUPLING_EXPORT void meldWith(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT bool areIncludedInMe(const DataArrayDouble *other, double prec, DataArrayInt *&tupleIds) const;
     MEDCOUPLING_EXPORT void findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
@@ -427,9 +471,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT static DataArrayDouble *Pow(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT void powEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT void updateTime() const { }
-    MEDCOUPLING_EXPORT MemArray<double>& accessToMemArray() { return _mem; }
-    MEDCOUPLING_EXPORT const MemArray<double>& accessToMemArray() const { return _mem; }
     MEDCOUPLING_EXPORT std::vector<bool> toVectorOfBool(double eps) const;
     MEDCOUPLING_EXPORT static void Rotate2DAlg(const double *center, double angle, int nbNodes, const double *coordsIn, double *coordsOut);
     MEDCOUPLING_EXPORT static void Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, const double *coordsIn, double *coordsOut);
@@ -639,7 +680,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void modulusEqual(const DataArrayInt *other);
     MEDCOUPLING_EXPORT static DataArrayInt *Pow(const DataArrayInt *a1, const DataArrayInt *a2);
     MEDCOUPLING_EXPORT void powEqual(const DataArrayInt *other);
-    MEDCOUPLING_EXPORT void updateTime() const { }
     MEDCOUPLING_EXPORT MemArray<int>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<int>& accessToMemArray() const { return _mem; }
   public:
@@ -742,7 +782,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayChar *Meld(const std::vector<const DataArrayChar *>& arr);
     template<class InputIterator>
     void insertAtTheEnd(InputIterator first, InputIterator last);
-    MEDCOUPLING_EXPORT void updateTime() const { }
     MEDCOUPLING_EXPORT MemArray<char>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<char>& accessToMemArray() const { return _mem; }
   public:

@@ -56,6 +56,7 @@ SET (MC_Swig_interf
     MEDCouplingRemapper.i
     MEDCouplingTypemaps.i
     MEDCouplingDataArrayTypemaps.i
+    MEDCouplingDataArrayTraits.hxx
 )
 
 INCLUDE_DIRECTORIES(

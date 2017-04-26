@@ -756,6 +756,307 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         gc.collect()
         pass
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test29(self):
+        """Same as test9 with float32"""
+        sz=20
+        a=array(0,dtype=float32)
+        a.resize(sz)
+        a[:]=4
+        self.assertEqual(getrefcount(a),2)
+        a=a.cumsum(dtype=float32)
+        self.assertEqual(getrefcount(a),2)
+        d=DataArrayFloat(a)
+        d[:]=2
+        #
+        e=DataArrayFloat(sz) ; e.fillWithValue(2)
+        self.assertTrue(d.isEqual(e,1e-7))
+        #
+        a[:]=4 ; e.fillWithValue(4)
+        self.assertTrue(d.isEqual(e,1e-7))
+        pass
+    
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test30(self):
+        """Same as test10 with float32"""
+        sz=20
+        a=array(0,dtype=float32)
+        a.resize(sz,2)
+        self.assertEqual(getrefcount(a),2)
+        b=a.reshape(2*sz)
+        self.assertEqual(getrefcount(a),3)
+        self.assertEqual(getrefcount(b),2)
+        b[:]=5
+        d=DataArrayFloat(b)
+        #
+        e=DataArrayFloat(sz*2) ; e.fillWithValue(5)
+        self.assertTrue(d.isEqual(e,1e-7))
+        pass
+    
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test31(self):
+        """Same as test11 with float32"""
+        sz=10
+        a=array(0,dtype=float32)
+        a.resize(sz,2)
+        b=a.reshape(2*sz)
+        c=a.reshape(2,sz)
+        b[:]=6
+        b[7:17]=7
+        d=DataArrayFloat(b)
+        self.assertTrue(d.isEqual(DataArrayFloat([6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,6,6,6]),1e-7))
+        #
+        a=zeros((10,2),dtype=float32)
+        b=a.T
+        c=b.view()
+        a.shape=20
+        a[3:]=10.
+        d=DataArrayFloat(a)
+        self.assertTrue(d.isEqual(DataArrayFloat([0,0,0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]),1e-7))
+        pass
+    
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test32(self):
+        """Same as test12 with float32"""
+        a=zeros(20,dtype=float32)
+        b = a[::-1]
+        self.assertRaises(InterpKernelException,DataArrayFloat.New,b) # b is not contiguous in memory
+        pass
+    
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test33(self):
+        """Same as test13 with float32"""
+        a=arange(20,dtype=float32)
+        self.assertEqual(weakref.getweakrefcount(a),0)
+        d=DataArrayFloat(a)
+        self.assertEqual(weakref.getweakrefcount(a),1)
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(d.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
+        self.assertEqual(len(d),20)
+        a[:]=2 # modifying a and d because a and d share the same chunk of data
+        self.assertTrue(d.isUniform(2,1e-7))
+        del d # d is destroyed, a retrieves its ownership of its initial chunk of data
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
+        import gc
+        gc.collect()
+        self.assertTrue(a.flags["OWNDATA"])
+        a[:]=4 # a can be used has usual
+        self.assertTrue(DataArrayFloat(a).isUniform(4,1e-7))
+        pass
+    
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test34(self):
+        """Same as test14 with float32"""
+        a=arange(20,dtype=float32)
+        d=DataArrayFloat(a) # d owns data of a
+        e=DataArrayFloat(a) # a not owned -> e only an access to chunk of a 
+        self.assertTrue(d.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
+        self.assertTrue(e.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
+        a[:]=6
+        self.assertTrue(d.isUniform(6,1e-7))
+        self.assertTrue(e.isUniform(6,1e-7))
+        del a # a destroyed -> d no change because owned and e array is has no more data set
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
+        import gc
+        gc.collect()
+        self.assertTrue(d.isUniform(6,1e-7))
+        self.assertTrue(not e.isAllocated())
+        pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test35(self):
+        """Same as test15 with float32"""
+        a=array(0,dtype=float32) ; a.resize(10,2)
+        b=a.reshape(20)
+        c=a.reshape(2,10)
+        d=DataArrayFloat(b) # d owns data of a
+        e=DataArrayFloat(b) # a not owned -> e only an access to chunk of a
+        f=DataArrayFloat(b) # a not owned -> e only an access to chunk of a
+        del d # d removed -> a ownes again data
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
+        import gc
+        gc.collect()
+        self.assertTrue(e.isUniform(0,1e-7))
+        e[:]=6
+        self.assertTrue(e.isUniform(6,1e-7))
+        self.assertTrue(f.isUniform(6,1e-7))
+        self.assertEqual(b.tolist(),[6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6])
+        self.assertEqual(a.tolist(),[[6,6],[6,6],[6,6],[6,6],[6,6],[6,6],[6,6],[6,6],[6,6],[6,6]])
+        b[:]=arange(20)
+        del b # no impact on e and f because a is the base of a.
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
+        gc.collect()
+        self.assertTrue(f.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
+        self.assertTrue(e.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
+        del a # a destroyed, but as c has its base set to a, a exists -> e and f not allocated
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
+        gc.collect()
+        self.assertTrue(f.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
+        self.assertTrue(e.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
+        del c # c killed -> a killed -> e and d are put into not allocated state
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
+        gc.collect()
+        self.assertTrue(not e.isAllocated())
+        self.assertTrue(not f.isAllocated())
+        pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test36(self):
+        """Same as test16 with float32"""
+        a=arange(20,dtype=float32)
+        self.assertTrue(a.flags["OWNDATA"])
+        d=DataArrayFloat(a) # d owns data of a
+        self.assertTrue(not a.flags["OWNDATA"])
+        d.pushBackSilent(20)# d pushBack so release of chunk of data -> a becomes owner of its data again
+        self.assertTrue(a.flags["OWNDATA"])
+        self.assertTrue(d.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]),1e-7))
+        self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19])
+        pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test37(self):
+        """Same as test20 with float32"""
+        sz=20
+        a=array(0,dtype=float32)
+        a.resize(sz/2,2)
+        a[:]=4
+        self.assertEqual(getrefcount(a),2)
+        d=DataArrayFloat(a)
+        self.assertEqual(10,d.getNumberOfTuples())
+        self.assertEqual(2,d.getNumberOfComponents())
+        self.assertEqual(sz,d.getNbOfElems())
+        self.assertTrue(d.isEqual(DataArrayFloat([(4.,4.),(4.,4.),(4.,4.),(4.,4.),(4.,4.),(4.,4.),(4.,4.),(4.,4.),(4.,4.),(4.,4.)]),1e-7))
+        a[:]=7
+        self.assertTrue(d.isEqual(DataArrayFloat([(7.,7.),(7.,7.),(7.,7.),(7.,7.),(7.,7.),(7.,7.),(7.,7.),(7.,7.),(7.,7.),(7.,7.)]),1e-7))
+        #
+        b=a.reshape((2,5,2))
+        self.assertRaises(InterpKernelException,DataArrayFloat.New,b) # b has not dimension in [0,1] !
+        pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test38(self):
+        """Same as test22 with float32"""
+        d=DataArrayFloat(10)
+        d.iota()
+        a=d.toNumPyArray()
+        self.assertTrue(not a.flags["OWNDATA"])
+        del d
+        gc.collect()
+        self.assertTrue(a.flags["OWNDATA"])
+        self.assertEqual(a.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        #
+        d=DataArrayInt(10)
+        d.iota()
+        a=d.toNumPyArray()
+        self.assertTrue(not a.flags["OWNDATA"])
+        del d
+        gc.collect()
+        self.assertTrue(a.flags["OWNDATA"])
+        self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test39(self):
+        """Same as test23 with float32"""
+        d=DataArrayFloat(10)
+        d.iota()
+        a=d.toNumPyArray()
+        b=d.toNumPyArray()
+        c=d.toNumPyArray()
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(not b.flags["OWNDATA"])
+        self.assertTrue(not c.flags["OWNDATA"])
+        self.assertEqual(a.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertEqual(c.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        del d
+        gc.collect()
+        self.assertTrue(a.flags["OWNDATA"])
+        self.assertTrue(not b.flags["OWNDATA"])
+        self.assertTrue(not c.flags["OWNDATA"])
+        self.assertEqual(a.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertEqual(c.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        #
+        d=DataArrayInt(10)
+        d.iota()
+        a=d.toNumPyArray()
+        b=d.toNumPyArray()
+        c=d.toNumPyArray()
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(not b.flags["OWNDATA"])
+        self.assertTrue(not c.flags["OWNDATA"])
+        self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        self.assertEqual(b.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        self.assertEqual(c.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        del d
+        gc.collect()
+        self.assertTrue(a.flags["OWNDATA"])
+        self.assertTrue(not b.flags["OWNDATA"])
+        self.assertTrue(not c.flags["OWNDATA"])
+        self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        self.assertEqual(b.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        self.assertEqual(c.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test40(self):
+        """Same as test24 with float32"""
+        d=DataArrayFloat(10)
+        d.iota()
+        a=d.toNumPyArray()
+        self.assertEqual(a.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(a.base is None)
+        del a
+        gc.collect()
+        a=d.toNumPyArray()
+        self.assertEqual(a.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(a.base is None)
+        b=d.toNumPyArray()
+        self.assertEqual(a.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(not b.flags["OWNDATA"])
+        self.assertTrue(b.base is a)
+        del a
+        gc.collect()
+        self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertTrue(not b.flags["OWNDATA"])
+        del d
+        gc.collect()
+        self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertTrue(not b.flags["OWNDATA"])
+        #
+        d=DataArrayInt(10)
+        d.iota()
+        a=d.toNumPyArray()
+        self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(a.base is None)
+        del a
+        gc.collect()
+        a=d.toNumPyArray()
+        self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(a.base is None)
+        b=d.toNumPyArray()
+        self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        self.assertEqual(b.tolist(),[0,1,2,3,4,5,6,7,8,9])
+        self.assertTrue(not a.flags["OWNDATA"])
+        self.assertTrue(not b.flags["OWNDATA"])
+        self.assertTrue(b.base is a)
+        del a
+        gc.collect()
+        self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertTrue(not b.flags["OWNDATA"])
+        del d
+        gc.collect()
+        self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
+        self.assertTrue(not b.flags["OWNDATA"])
+        pass
+
     def setUp(self):
         pass
     pass

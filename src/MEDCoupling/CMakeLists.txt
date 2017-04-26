@@ -41,6 +41,7 @@ SET(medcoupling_SOURCES
   MEDCouplingUMesh_intersection.cxx
   MEDCoupling1GTUMesh.cxx
   MEDCouplingMemArray.cxx
+  MEDCouplingMemArrayFloat.cxx
   MEDCouplingMemArrayChar.cxx
   MEDCouplingTraits.cxx
   MEDCouplingTimeLabel.cxx

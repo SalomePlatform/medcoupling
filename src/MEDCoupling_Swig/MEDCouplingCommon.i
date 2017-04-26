@@ -173,6 +173,8 @@ using namespace INTERP_KERNEL;
 %init %{ import_array(); %}
 #endif
 
+%init %{ initializeMe(); %}
+
 %feature("autodoc", "1");
 %feature("docstring");
 
@@ -459,6 +461,15 @@ using namespace INTERP_KERNEL;
 
 %include "MEDCouplingRefCountObject.i"
 %include "MEDCouplingMemArray.i"
+
+%inline
+{
+  void initializeMe()
+  {
+    SWIGTITraits<double>::TI=SWIGTYPE_p_MEDCoupling__DataArrayDouble;
+    SWIGTITraits<float>::TI=SWIGTYPE_p_MEDCoupling__DataArrayFloat;
+  }
+}
 
 namespace INTERP_KERNEL
 { 
@@ -824,7 +835,7 @@ namespace MEDCoupling
            int spaceDim=self->getSpaceDimension();
            INTERP_KERNEL::AutoPtr<double> tmp=new double[2*spaceDim];
            self->getBoundingBox(tmp);
-           PyObject *ret=convertDblArrToPyListOfTuple(tmp,2,spaceDim);
+           PyObject *ret=convertDblArrToPyListOfTuple<double>(tmp,2,spaceDim);
            return ret;
          }
 
@@ -2618,7 +2629,7 @@ namespace MEDCoupling
         double vals[6];
         std::copy(vec,vec+3,vals);
         std::copy(pos,pos+3,vals+3);
-        return convertDblArrToPyListOfTuple(vals,3,2);
+        return convertDblArrToPyListOfTuple<double>(vals,3,2);
       }
       
       static MEDCouplingUMesh *MergeUMeshes(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -4165,7 +4176,7 @@ namespace MEDCoupling
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> res=new double[sz];
         self->getValueOn(spaceLoc,res);
-        return convertDblArrToPyList(res,sz);
+        return convertDblArrToPyList<double>(res,sz);
       }
 
        PyObject *getValueOnPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception)
@@ -4173,7 +4184,7 @@ namespace MEDCoupling
          int sz=self->getNumberOfComponents();
          INTERP_KERNEL::AutoPtr<double> res=new double[sz];
          self->getValueOnPos(i,j,k,res);
-         return convertDblArrToPyList(res,sz);
+         return convertDblArrToPyList<double>(res,sz);
        }
 
       DataArrayDouble *getValueOnMulti(PyObject *locs) const throw(INTERP_KERNEL::Exception)
@@ -4207,7 +4218,7 @@ namespace MEDCoupling
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> res=new double[sz];
         self->getValueOn(spaceLoc,time,res);
-        return convertDblArrToPyList(res,sz);
+        return convertDblArrToPyList<double>(res,sz);
       }
 
       void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
@@ -4259,35 +4270,35 @@ namespace MEDCoupling
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->accumulate(tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
       PyObject *integral(bool isWAbs) const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->integral(isWAbs,tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
       PyObject *getWeightedAverageValue(bool isWAbs=true) const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->getWeightedAverageValue(tmp,isWAbs);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
       PyObject *normL1() const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL1(tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
       PyObject *normL2() const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL2(tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
       void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
       {

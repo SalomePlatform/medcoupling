@@ -40,6 +40,7 @@ template class MEDCoupling::MemArray<int>;
 template class MEDCoupling::MemArray<double>;
 template class MEDCoupling::DataArrayTemplate<int>;
 template class MEDCoupling::DataArrayTemplate<double>;
+template class MEDCoupling::DataArrayTemplateFP<double>;
 
 template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const
@@ -831,50 +832,6 @@ void DataArrayDouble::fillWithZero()
 }
 
 /*!
- * Set all values in \a this array so that the i-th element equals to \a init + i
- * (i starts from zero). To know more on filling arrays see \ref MEDCouplingArrayFill.
- *  \param [in] init - value to assign to the first element of array.
- *  \throw If \a this->getNumberOfComponents() != 1
- *  \throw If \a this is not allocated.
- */
-void DataArrayDouble::iota(double init)
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
-  double *ptr=getPointer();
-  int ntuples=getNumberOfTuples();
-  for(int i=0;i<ntuples;i++)
-    ptr[i]=init+double(i);
-  declareAsNew();
-}
-
-/*!
- * Checks if all values in \a this array are equal to \a val at precision \a eps.
- *  \param [in] val - value to check equality of array values to.
- *  \param [in] eps - precision to check the equality.
- *  \return bool - \a true if all values are in range (_val_ - _eps_; _val_ + _eps_),
- *                 \a false else.
- *  \throw If \a this->getNumberOfComponents() != 1
- *  \throw If \a this is not allocated.
- */
-bool DataArrayDouble::isUniform(double val, double eps) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::isUniform : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
-  int nbOfTuples=getNumberOfTuples();
-  const double *w=getConstPointer();
-  const double *end2=w+nbOfTuples;
-  const double vmin=val-eps;
-  const double vmax=val+eps;
-  for(;w!=end2;w++)
-    if(*w<vmin || *w>vmax)
-      return false;
-  return true;
-}
-
-/*!
  * Checks that \a this array is consistently **increasing** or **decreasing** in value,
  * with at least absolute difference value of |\a eps| at each step.
  * If not an exception is thrown.
@@ -1051,8 +1008,8 @@ void DataArrayDouble::reprNotTooLongWithoutNameStream(std::ostream& stream) cons
 
 void DataArrayDouble::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
-  int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
-  const double *data=getConstPointer();
+  int nbTuples(getNumberOfTuples()),nbComp(getNumberOfComponents());
+  const double *data(getConstPointer());
   stream.precision(17);
   stream << "DataArrayDouble *" << varName << "=DataArrayDouble::New();" << std::endl;
   if(nbTuples*nbComp>=1)

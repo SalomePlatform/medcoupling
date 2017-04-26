@@ -16,12 +16,13 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #ifndef __MEDCOUPLINGDATAARRAYTYPEMAPS_I__
 #define __MEDCOUPLINGDATAARRAYTYPEMAPS_I__
 
 #include "InterpKernelAutoPtr.hxx"
+#include "MEDCouplingDataArrayTraits.hxx"
 
 #include <sstream>
 
@@ -71,245 +72,6 @@ int InterpreteNegativeInt(int val, int nbelem)
   else
     return val;
 }
-
-#ifdef WITH_NUMPY
-#include <numpy/arrayobject.h>
-#if NPY_API_VERSION <= 0x00000006
-#  define MED_NUMPY_OWNDATA NPY_OWNDATA
-#else
-#  define MED_NUMPY_OWNDATA NPY_ARRAY_OWNDATA
-#endif
-
-// specific DataArray deallocator callback. This deallocator is used both in the constructor of DataArray and in the toNumPyArr
-// method. This dellocator uses weakref to determine if the linked numArr is still alive or not. If alive the ownership is given to it.
-// if no more alive the "standart" DataArray deallocator is called.
-void numarrdeal(void *pt, void *wron)
-{
-  void **wronc=(void **)wron;
-  PyObject *weakRefOnOwner=reinterpret_cast<PyObject *>(wronc[0]);
-  PyObject *obj=PyWeakref_GetObject(weakRefOnOwner);
-  if(obj!=Py_None)
-    {
-      Py_XINCREF(obj);
-      PyArrayObject *objC=reinterpret_cast<PyArrayObject *>(obj);
-      objC->flags|=MED_NUMPY_OWNDATA;
-      Py_XDECREF(weakRefOnOwner);
-      Py_XDECREF(obj);
-    }
-  else
-    {
-      typedef void (*MyDeallocator)(void *,void *);
-      MyDeallocator deall=(MyDeallocator)wronc[1];
-      deall(pt,NULL);
-      Py_XDECREF(weakRefOnOwner);
-    }
-  delete [] wronc;
-}
-
-template<class MCData>
-struct PyCallBackDataArraySt {
-    PyObject_HEAD
-    MCData *_pt_mc;
-};
-
-typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayByte> PyCallBackDataArrayChar;
-typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt> PyCallBackDataArrayInt;
-typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayDouble> PyCallBackDataArrayDouble;
-
-extern "C"
-{
-  static int callbackmcdataarray___init__(PyObject *self, PyObject *args, PyObject *kwargs) { return 0; }
-  
-  static PyObject *callbackmcdataarraychar___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
-  {
-    PyCallBackDataArrayChar *self = (PyCallBackDataArrayChar *) ( type->tp_alloc(type, 0) );
-    return (PyObject *)self;
-  }
-
-  static PyObject *callbackmcdataarrayint___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
-  {
-    PyCallBackDataArrayInt *self = (PyCallBackDataArrayInt *) ( type->tp_alloc(type, 0) );
-    return (PyObject *)self;
-  }
-
-  static PyObject *callbackmcdataarraydouble___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
-  {
-    PyCallBackDataArrayDouble *self = (PyCallBackDataArrayDouble *) ( type->tp_alloc(type, 0) );
-    return (PyObject *)self;
-  }
-  
-  static void callbackmcdataarray_dealloc(PyObject *self)
-  {
-    Py_TYPE(self)->tp_free(self);
-  }
-
-  
-  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
-  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarraychar_call(PyCallBackDataArrayChar *self, PyObject *args, PyObject *kw)
-  {
-    if(self->_pt_mc)
-      {
-        MEDCoupling::MemArray<char>& mma=self->_pt_mc->accessToMemArray();
-        mma.destroy();
-      }
-    Py_XINCREF(Py_None);
-    return Py_None;
-  }
-
-  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
-  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarrayint_call(PyCallBackDataArrayInt *self, PyObject *args, PyObject *kw)
-  {
-    if(self->_pt_mc)
-      {
-        MEDCoupling::MemArray<int>& mma=self->_pt_mc->accessToMemArray();
-        mma.destroy();
-      }
-    Py_XINCREF(Py_None);
-    return Py_None;
-  }
-  
-  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
-  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarraydouble_call(PyCallBackDataArrayDouble *self, PyObject *args, PyObject *kw)
-  {
-    if(self->_pt_mc)
-      {
-        MEDCoupling::MemArray<double>& mma=self->_pt_mc->accessToMemArray();
-        mma.destroy();
-      }
-    Py_XINCREF(Py_None);
-    return Py_None;
-  }
-}
-
-PyTypeObject PyCallBackDataArrayChar_RefType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarraychar",
-  sizeof(PyCallBackDataArrayChar),
-  0,
-  callbackmcdataarray_dealloc,            /*tp_dealloc*/
-  0,                          /*tp_print*/
-  0,                          /*tp_getattr*/
-  0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
-  0,                          /*tp_repr*/
-  0,                          /*tp_as_number*/
-  0,                          /*tp_as_sequence*/
-  0,                          /*tp_as_mapping*/
-  0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarraychar_call,  /*tp_call*/
-  0,                          /*tp_str*/
-  0,                          /*tp_getattro*/
-  0,                          /*tp_setattro*/
-  0,                          /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
-  0,                          /*tp_doc*/
-  0,                          /*tp_traverse*/
-  0,                          /*tp_clear*/
-  0,                          /*tp_richcompare*/
-  0,                          /*tp_weaklistoffset*/
-  0,                          /*tp_iter*/
-  0,                          /*tp_iternext*/
-  0,                          /*tp_methods*/
-  0,                          /*tp_members*/
-  0,                          /*tp_getset*/
-  0,                          /*tp_base*/
-  0,                          /*tp_dict*/
-  0,                          /*tp_descr_get*/
-  0,                          /*tp_descr_set*/
-  0,                          /*tp_dictoffset*/
-  callbackmcdataarray___init__,           /*tp_init*/
-  PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarraychar___new__,            /*tp_new*/
-  PyObject_GC_Del,            /*tp_free*/
-};
-
-
-PyTypeObject PyCallBackDataArrayInt_RefType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarrayint",
-  sizeof(PyCallBackDataArrayInt),
-  0,
-  callbackmcdataarray_dealloc,            /*tp_dealloc*/
-  0,                          /*tp_print*/
-  0,                          /*tp_getattr*/
-  0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
-  0,                          /*tp_repr*/
-  0,                          /*tp_as_number*/
-  0,                          /*tp_as_sequence*/
-  0,                          /*tp_as_mapping*/
-  0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarrayint_call,  /*tp_call*/
-  0,                          /*tp_str*/
-  0,                          /*tp_getattro*/
-  0,                          /*tp_setattro*/
-  0,                          /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
-  0,                          /*tp_doc*/
-  0,                          /*tp_traverse*/
-  0,                          /*tp_clear*/
-  0,                          /*tp_richcompare*/
-  0,                          /*tp_weaklistoffset*/
-  0,                          /*tp_iter*/
-  0,                          /*tp_iternext*/
-  0,                          /*tp_methods*/
-  0,                          /*tp_members*/
-  0,                          /*tp_getset*/
-  0,                          /*tp_base*/
-  0,                          /*tp_dict*/
-  0,                          /*tp_descr_get*/
-  0,                          /*tp_descr_set*/
-  0,                          /*tp_dictoffset*/
-  callbackmcdataarray___init__,           /*tp_init*/
-  PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarrayint___new__,            /*tp_new*/
-  PyObject_GC_Del,            /*tp_free*/
-};
-
-PyTypeObject PyCallBackDataArrayDouble_RefType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarraydouble",
-  sizeof(PyCallBackDataArrayDouble),
-  0,
-  callbackmcdataarray_dealloc,            /*tp_dealloc*/
-  0,                          /*tp_print*/
-  0,                          /*tp_getattr*/
-  0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
-  0,                          /*tp_repr*/
-  0,                          /*tp_as_number*/
-  0,                          /*tp_as_sequence*/
-  0,                          /*tp_as_mapping*/
-  0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarraydouble_call,  /*tp_call*/
-  0,                          /*tp_str*/
-  0,                          /*tp_getattro*/
-  0,                          /*tp_setattro*/
-  0,                          /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
-  0,                          /*tp_doc*/
-  0,                          /*tp_traverse*/
-  0,                          /*tp_clear*/
-  0,                          /*tp_richcompare*/
-  0,                          /*tp_weaklistoffset*/
-  0,                          /*tp_iter*/
-  0,                          /*tp_iternext*/
-  0,                          /*tp_methods*/
-  0,                          /*tp_members*/
-  0,                          /*tp_getset*/
-  0,                          /*tp_base*/
-  0,                          /*tp_dict*/
-  0,                          /*tp_descr_get*/
-  0,                          /*tp_descr_set*/
-  0,                          /*tp_dictoffset*/
-  callbackmcdataarray___init__,           /*tp_init*/
-  PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarraydouble___new__,            /*tp_new*/
-  PyObject_GC_Del,            /*tp_free*/
-};
 
 // this is the second type of specific deallocator, only valid for the constructor of DataArrays taking numpy array
 // in input when an another DataArray is already client of this.
@@ -587,8 +349,6 @@ PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols) t
   return ret;
 }
 
-#endif
-
 static PyObject *convertDataArrayChar(MEDCoupling::DataArrayChar *dac, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
@@ -618,6 +378,8 @@ static PyObject *convertDataArray(MEDCoupling::DataArray *dac, int owner) throw(
     ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayDouble,owner);
   if(dynamic_cast<MEDCoupling::DataArrayInt *>(dac))
     ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayInt,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayFloat *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayFloat,owner);
   if(dynamic_cast<MEDCoupling::DataArrayByte *>(dac))
     ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayByte,owner);
   if(dynamic_cast<MEDCoupling::DataArrayAsciiChar *>(dac))
@@ -1251,9 +1013,10 @@ static void convertPyToVectorPairStringVecString(PyObject *pyLi, std::vector< st
     throw INTERP_KERNEL::Exception(msg);
 }
 
-static PyObject *convertDblArrToPyList(const double *ptr, int size) throw(INTERP_KERNEL::Exception)
+template<class T>
+PyObject *convertDblArrToPyList(const T *ptr, int size) throw(INTERP_KERNEL::Exception)
 {
-  PyObject *ret=PyList_New(size);
+  PyObject *ret(PyList_New(size));
   for(int i=0;i<size;i++)
     PyList_SetItem(ret,i,PyFloat_FromDouble(ptr[i]));
   return ret;
@@ -1261,16 +1024,17 @@ static PyObject *convertDblArrToPyList(const double *ptr, int size) throw(INTERP
 
 static PyObject *convertDblArrToPyList2(const std::vector<double>& v) throw(INTERP_KERNEL::Exception)
 {
-  int size=v.size();
-  PyObject *ret=PyList_New(size);
+  int size(v.size());
+  PyObject *ret(PyList_New(size));
   for(int i=0;i<size;i++)
     PyList_SetItem(ret,i,PyFloat_FromDouble(v[i]));
   return ret;
 }
 
-static PyObject *convertDblArrToPyListOfTuple(const double *vals, int nbOfComp, int nbOfTuples) throw(INTERP_KERNEL::Exception)
+template<class T>
+PyObject *convertDblArrToPyListOfTuple(const T *vals, int nbOfComp, int nbOfTuples) throw(INTERP_KERNEL::Exception)
 {
-  PyObject *ret=PyList_New(nbOfTuples);
+  PyObject *ret(PyList_New(nbOfTuples));
   for(int i=0;i<nbOfTuples;i++)
     {
       PyObject *t=PyTuple_New(nbOfComp);
@@ -1582,18 +1346,19 @@ static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std:
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, std::vector<double>& stdvecTyypp, MEDCoupling::DataArrayDouble *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+template<class T>
+void convertObjToPossibleCpp4(PyObject *value, int& sw, T& iTyypp, std::vector<T>& stdvecTyypp, typename MEDCoupling::Traits<T>::ArrayType *& daIntTyypp, swig_type_info *ti) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyFloat_Check(value))
     {
-      iTyypp=PyFloat_AS_DOUBLE(value);
+      iTyypp=(T)PyFloat_AS_DOUBLE(value);
       sw=1;
       return;
     }
   if(PyInt_Check(value))
     {
-      iTyypp=(double)PyInt_AS_LONG(value);
+      iTyypp=(T)PyInt_AS_LONG(value);
       sw=1;
       return;
     }
@@ -1605,9 +1370,9 @@ static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, s
         {
           PyObject *o=PyTuple_GetItem(value,i);
           if(PyFloat_Check(o))
-            stdvecTyypp[i]=PyFloat_AS_DOUBLE(o);
+            stdvecTyypp[i]=(T)PyFloat_AS_DOUBLE(o);
           else if(PyInt_Check(o))
-            stdvecTyypp[i]=(double)PyInt_AS_LONG(o);
+            stdvecTyypp[i]=(T)PyInt_AS_LONG(o);
           else
             {
               std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
@@ -1625,9 +1390,9 @@ static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, s
         {
           PyObject *o=PyList_GetItem(value,i);
           if(PyFloat_Check(o))
-            stdvecTyypp[i]=PyFloat_AS_DOUBLE(o);
+            stdvecTyypp[i]=(T)PyFloat_AS_DOUBLE(o);
           else if(PyInt_Check(o))
-            stdvecTyypp[i]=(double)PyInt_AS_LONG(o);
+            stdvecTyypp[i]=(T)PyInt_AS_LONG(o);
           else
             {
               std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
@@ -1638,10 +1403,10 @@ static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, s
       return;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,ti,0|0);
   if(!SWIG_IsOK(status))
     throw INTERP_KERNEL::Exception("5 types accepted : double float, integer, tuple of double float or int, list of double float or int, DataArrayDouble");
-  daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
+  daIntTyypp=reinterpret_cast< typename MEDCoupling::Traits<T>::ArrayType * >(argp);
   sw=3;
 }
 
@@ -2677,5 +2442,583 @@ static PyObject *convertPartDefinition(MEDCoupling::PartDefinition *pd, int owne
   return ret;
 }
 
+template<class T>
+static typename MEDCoupling::Traits<T>::ArrayType *DataArrayT_New(PyObject *elt0, PyObject *nbOfTuples, PyObject *elt2)
+{
+  const char *msgBase="MEDCoupling::DataArrayDouble::New : Available API are : \n-DataArrayDouble.New()\n-DataArrayDouble.New([1.,3.,4.])\n-DataArrayDouble.New([1.,3.,4.],3)\n-DataArrayDouble.New([1.,3.,4.,5.],2,2)\n-DataArrayDouble.New([1.,3.,4.,5.,7,8.],3,2)\n-DataArrayDouble.New([(1.,3.),(4.,5.),(7,8.)])\n-DataArrayDouble.New(5)\n-DataArrayDouble.New(5,2)";
+  std::string msg(msgBase);
+#ifdef WITH_NUMPY
+  msg+="\n-DataArrayDouble.New(numpy array with dtype=float64)";
 #endif
+  msg+=" !";
+  if(PyList_Check(elt0) || PyTuple_Check(elt0))
+    {
+      if(nbOfTuples)
+        {
+          if(PyInt_Check(nbOfTuples))
+            {
+              int nbOfTuples1=PyInt_AS_LONG(nbOfTuples);
+              if(nbOfTuples1<0)
+                throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive set of allocated memory !");
+              if(elt2)
+                {
+                  if(PyInt_Check(elt2))
+                    {//DataArrayDouble.New([1.,3.,4.,5.],2,2)
+                      int nbOfCompo=PyInt_AS_LONG(elt2);
+                      if(nbOfCompo<0)
+                        throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
+                      MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > ret(MEDCoupling::Traits<T>::ArrayType::New());
+                      std::vector<double> tmp(fillArrayWithPyListDbl2(elt0,nbOfTuples1,nbOfCompo));
+                      ret->alloc(nbOfTuples1,nbOfCompo); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
+                      return ret.retn();
+                    }
+                  else
+                    throw INTERP_KERNEL::Exception(msg.c_str());
+                }
+              else
+                {//DataArrayDouble.New([1.,3.,4.],3)
+                  MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > ret(MEDCoupling::Traits<T>::ArrayType::New());
+                  int tmpp1(-1);
+                  std::vector<double> tmp(fillArrayWithPyListDbl2(elt0,nbOfTuples1,tmpp1));
+                  ret->alloc(nbOfTuples1,tmpp1); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
+                  return ret.retn();
+                }
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg.c_str());
+        }
+      else
+        {// DataArrayDouble.New([1.,3.,4.])
+          MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > ret(MEDCoupling::Traits<T>::ArrayType::New());
+          int tmpp1(-1),tmpp2(-1);
+          std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,tmpp1,tmpp2);
+          ret->alloc(tmpp1,tmpp2); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
+          return ret.retn();
+        }
+    }
+  else if(PyInt_Check(elt0))
+    {
+      int nbOfTuples1(PyInt_AS_LONG(elt0));
+      if(nbOfTuples1<0)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive set of allocated memory !");
+      if(nbOfTuples)
+        {
+          if(!elt2)
+            {
+              if(PyInt_Check(nbOfTuples))
+                {//DataArrayDouble.New(5,2)
+                  int nbOfCompo=PyInt_AS_LONG(nbOfTuples);
+                  if(nbOfCompo<0)
+                    throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
+                  MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > ret(MEDCoupling::Traits<T>::ArrayType::New());
+                  ret->alloc(nbOfTuples1,nbOfCompo);
+                  return ret.retn();
+                }
+              else
+                throw INTERP_KERNEL::Exception(msg.c_str());
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg.c_str());
+        }
+      else
+        {//DataArrayDouble.New(5)
+          MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > ret(MEDCoupling::Traits<T>::ArrayType::New());
+          ret->alloc(nbOfTuples1,1);
+          return ret.retn();
+        }
+    }
+#ifdef WITH_NUMPY
+  else if(PyArray_Check(elt0) && nbOfTuples==NULL && elt2==NULL)
+    {//DataArrayDouble.New(numpyArray)
+      return BuildNewInstance< typename MEDCoupling::Traits<T>::ArrayType , T >(elt0,NPYTraits<T>::NPYObjectType,NPYTraits<T>::NPYFunc,MEDCoupling::Traits<T>::NPYStr);
+    }
+#endif
+  else
+    throw INTERP_KERNEL::Exception(msg.c_str());
+  throw INTERP_KERNEL::Exception(msg.c_str());//to make g++ happy
+}
 
+template<class T>
+typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typename MEDCoupling::Traits<T>::ArrayType *self, PyObject *obj, PyObject *value, swig_type_info *ti)
+{
+  self->checkAllocated();
+  const char msg[]="Unexpected situation in DataArrayDouble::__setitem__ !";
+  int nbOfTuples(self->getNumberOfTuples()),nbOfComponents(self->getNumberOfComponents());
+  int sw1,sw2;
+  T i1;
+  std::vector<T> v1;
+  typename MEDCoupling::Traits<T>::ArrayType *d1=0;
+  convertObjToPossibleCpp4<T>(value,sw1,i1,v1,d1,ti);
+  int it1,ic1;
+  std::vector<int> vt1,vc1;
+  std::pair<int, std::pair<int,int> > pt1,pc1;
+  MEDCoupling::DataArrayInt *dt1=0,*dc1=0;
+  convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw2,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
+  MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > tmp;
+  switch(sw2)
+    {
+    case 1:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple1(i1,it1,it1+1,1,0,nbOfComponents,1);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues1(tmp,it1,it1+1,1,0,nbOfComponents,1,false);
+            return self;
+          case 3:
+            self->setPartOfValues1(d1,it1,it1+1,1,0,nbOfComponents,1);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 2:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1,false);
+            return self;
+          case 3:
+            self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 3:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1,false);
+            return self;
+          case 3:
+            self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 4:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1,false);
+            return self;
+          case 3:
+            self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 5:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple1(i1,it1,it1+1,1,ic1,ic1+1,1);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues1(tmp,it1,it1+1,1,ic1,ic1+1,1,false);
+            return self;
+          case 3:
+            self->setPartOfValues1(d1,it1,it1+1,1,ic1,ic1+1,1);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 6:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1,false);
+            return self;
+          case 3:
+            self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 7:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1,false);
+            return self;
+          case 3:
+            self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 8:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1,false);
+            return self;
+          case 3:
+            self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 9:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple2(i1,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues2(tmp,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size(),false);
+            return self;
+          case 3:
+            self->setPartOfValues2(d1,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 10:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple2(i1,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues2(tmp,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size(),false);
+            return self;
+          case 3:
+            self->setPartOfValues2(d1,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 11:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple4(i1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues4(tmp,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size(),false);
+            return self;
+          case 3:
+            self->setPartOfValues4(d1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 12:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple2(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues2(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size(),false);
+            return self;
+          case 3:
+            self->setPartOfValues2(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 13:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple1(i1,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues1(tmp,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second,false);
+            return self;
+          case 3:
+            self->setPartOfValues1(d1,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 14:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second,false);
+            return self;
+          case 3:
+            self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 15:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second,false);
+            return self;
+          case 3:
+            self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    case 16:
+      {
+        switch(sw1)
+          {
+          case 1:
+            self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
+            return self;
+          case 2:
+            tmp=MEDCoupling::Traits<T>::ArrayType::New();
+            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second,false);
+            return self;
+          case 3:
+            self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
+            return self;
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception(msg);
+    }
+  return self;
+}
+
+template<class T>
+PyObject *DataArrayT__getitem__internal(const typename MEDCoupling::Traits<T>::ArrayType *self, PyObject *obj, swig_type_info *ti)
+{
+  const char msg[]="Unexpected situation in DataArrayDouble::__getitem__ !";
+  const char msg2[]="DataArrayDouble::__getitem__ : Mismatch of slice values in 2nd parameter (components) !";
+  self->checkAllocated();
+  int nbOfTuples(self->getNumberOfTuples()),nbOfComponents(self->getNumberOfComponents());
+  int it1,ic1;
+  std::vector<int> vt1,vc1;
+  std::pair<int, std::pair<int,int> > pt1,pc1;
+  MEDCoupling::DataArrayInt *dt1=0,*dc1=0;
+  int sw;
+  convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
+  MEDCoupling::MCAuto<typename MEDCoupling::Traits<T>::ArrayType > ret;
+  switch(sw)
+    {
+    case 1:
+      if(nbOfComponents==1)
+        return PyFloat_FromDouble((T)self->getIJSafe(it1,0));
+      return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&it1,&it1+1)),ti, SWIG_POINTER_OWN | 0 );
+    case 2:
+      return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),ti, SWIG_POINTER_OWN | 0 );
+    case 3:
+      return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second)),ti, SWIG_POINTER_OWN | 0 );
+    case 4:
+      return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),ti, SWIG_POINTER_OWN | 0 );
+    case 5:
+      return PyFloat_FromDouble((T)self->getIJSafe(it1,ic1));
+    case 6:
+      {
+        ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
+        std::vector<int> v2(1,ic1);
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 7:
+      {
+        ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
+        std::vector<int> v2(1,ic1);
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 8:
+      {
+        ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
+        std::vector<int> v2(1,ic1);
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 9:
+      {
+        ret=self->selectByTupleIdSafe(&it1,&it1+1);
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 10:
+      {
+        ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 11:
+      {
+        ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 12:
+      {
+        ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 13:
+      {
+        ret=self->selectByTupleIdSafe(&it1,&it1+1);
+        int nbOfComp(MEDCoupling::DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2));
+        std::vector<int> v2(nbOfComp);
+        for(int i=0;i<nbOfComp;i++)
+          v2[i]=pc1.first+i*pc1.second.second;
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 14:
+      {
+        ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
+        int nbOfComp(MEDCoupling::DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2));
+        std::vector<int> v2(nbOfComp);
+        for(int i=0;i<nbOfComp;i++)
+          v2[i]=pc1.first+i*pc1.second.second;
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 15:
+      {
+        ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
+        int nbOfComp(MEDCoupling::DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2));
+        std::vector<int> v2(nbOfComp);
+        for(int i=0;i<nbOfComp;i++)
+          v2[i]=pc1.first+i*pc1.second.second;
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    case 16:
+      {
+        ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
+        int nbOfComp(MEDCoupling::DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2));
+        std::vector<int> v2(nbOfComp);
+        for(int i=0;i<nbOfComp;i++)
+          v2[i]=pc1.first+i*pc1.second.second;
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),ti, SWIG_POINTER_OWN | 0 );
+      }
+    default:
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
+template<class T>
+struct SWIGTITraits
+{ };
+
+template<>
+struct SWIGTITraits<double>
+{ static swig_type_info *TI; };
+
+template<>
+struct SWIGTITraits<float>
+{ static swig_type_info *TI; };
+
+swig_type_info *SWIGTITraits<double>::TI=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayDouble is null when called here ! Postpone initialization at inlined initializeMe()
+swig_type_info *SWIGTITraits<float>::TI=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayFloat is null when called here ! Postpone initialization at inlined initializeMe()
+
+PyTypeObject *NPYTraits<double>::NPYFunc=&PyCallBackDataArrayDouble_RefType;
+
+PyTypeObject *NPYTraits<float>::NPYFunc=&PyCallBackDataArrayFloat_RefType;
+
+template<class T>
+typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__(typename MEDCoupling::Traits<T>::ArrayType *self, PyObject *obj, PyObject *value)
+{
+  return DataArrayT__setitem__internal<T>(self,obj,value,SWIGTITraits<T>::TI);
+}
+
+template<class T>
+PyObject *DataArrayT__getitem(const typename MEDCoupling::Traits<T>::ArrayType *self, PyObject *obj)
+{
+  return DataArrayT__getitem__internal<T>(self,obj,SWIGTITraits<T>::TI);
+}
+
+#endif

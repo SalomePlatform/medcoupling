@@ -121,7 +121,7 @@ namespace MEDCoupling
         int sz(arr->getNumberOfComponents());
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL1(mesh,arr,tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
 
       virtual PyObject *normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
@@ -131,7 +131,7 @@ namespace MEDCoupling
         int sz(arr->getNumberOfComponents());
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL2(mesh,arr,tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
 
       virtual PyObject *integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs) const throw(INTERP_KERNEL::Exception)
@@ -141,7 +141,7 @@ namespace MEDCoupling
         int sz(arr->getNumberOfComponents());
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->integral(mesh,arr,isWAbs,tmp);
-        return convertDblArrToPyList(tmp,sz);
+        return convertDblArrToPyList<double>(tmp,sz);
       }
 
       virtual PyObject *getCellIdsHavingGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
@@ -196,7 +196,7 @@ namespace MEDCoupling
         //
         INTERP_KERNEL::AutoPtr<double> res(new double[spaceDim]);
         self->getValueOn(arr,mesh,spaceLoc,res);
-        return convertDblArrToPyList(res,spaceDim);
+        return convertDblArrToPyList<double>(res,spaceDim);
       }
 
       virtual PyObject *getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k) const throw(INTERP_KERNEL::Exception)
@@ -206,7 +206,7 @@ namespace MEDCoupling
         int sz(arr->getNumberOfComponents());
          INTERP_KERNEL::AutoPtr<double> res=new double[sz];
          self->getValueOnPos(arr,mesh,i,j,k,res);
-         return convertDblArrToPyList(res,sz);
+         return convertDblArrToPyList<double>(res,sz);
        }
       
       virtual DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, PyObject *loc) const throw(INTERP_KERNEL::Exception)
@@ -353,21 +353,21 @@ namespace MEDCoupling
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(geoType,sz));
-        return convertDblArrToPyList(ret,sz);
+        return convertDblArrToPyList<double>(ret,sz);
       }
       
       static PyObject *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(geoType,sz));
-        return convertDblArrToPyList(ret,sz);
+        return convertDblArrToPyList<double>(ret,sz);
       }
       
       static PyObject *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(geoType,sz));
-        return convertDblArrToPyList(ret,sz);
+        return convertDblArrToPyList<double>(ret,sz);
       }
     }
   };
