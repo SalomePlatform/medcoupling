@@ -4549,6 +4549,22 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(d.findIdsLowerThan(3).isEqual(DataArrayInt([2,5])))
         self.assertTrue(d.findIdsLowerOrEqualTo(3).isEqual(DataArrayInt([2,3,5])))
         pass
+
+    def testDAFacto1(self):
+        """Test focused of new wrapped methods for MEDCouplingFieldInt thanks to code factorization."""
+        d=DataArrayDouble(7) ; d.iota()
+        m=MEDCouplingUMesh.Build1DMeshFromCoords(d)
+        f=MEDCouplingFieldInt(ON_CELLS) ; f.setMesh(m) ; arr=DataArrayInt(6) ; arr.iota() ; f.setArray(arr) ; f.checkConsistencyLight()
+        f_0=f[::2] # test is here
+        self.assertTrue(f_0.getArray().isEqual(DataArrayInt([0,2,4])))
+        self.assertTrue(f_0.getMesh().isEqual(m[[0,2,4]],1e-12))
+        #
+        f2=MEDCouplingFieldInt(ON_NODES) ; f2.setMesh(m) ; arr=DataArrayInt(7) ; arr.iota() ; f2.setArray(arr) ; f2.checkConsistencyLight()
+        f_1=f2[::2] # test is here
+        self.assertTrue(f_1.getArray().isEqual(DataArrayInt([0,1,2,3,4,5])))
+        m_1=m[[0,2,4]] ; m_1.zipCoords()
+        self.assertTrue(f_1.getMesh().isEqual(m_1,1e-12))
+        pass
     
     pass
 
