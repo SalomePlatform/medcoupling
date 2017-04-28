@@ -30,9 +30,10 @@
 using namespace MEDCoupling;
 
 template class MEDCoupling::MEDCouplingTimeDiscretizationTemplate<double>;
+template class MEDCoupling::MEDCouplingTimeDiscretizationTemplate<float>;
+template class MEDCoupling::MEDCouplingTimeDiscretizationSimple<float>;
 template class MEDCoupling::MEDCouplingTimeDiscretizationTemplate<int>;
-
-const char MEDCouplingTimeDiscretizationInt::REPR[]="One time label.";
+template class MEDCoupling::MEDCouplingTimeDiscretizationSimple<int>;
 
 const char MEDCouplingNoTimeLabel::EXCEPTION_MSG[]="MEDCouplingNoTimeLabel::setTime : no time info attached.";
 
@@ -760,20 +761,8 @@ void MEDCouplingTimeKeeper::checkTimePresence(double time, double eps) const
 
 ////////////////////////
 
-MEDCouplingTimeDiscretizationInt::MEDCouplingTimeDiscretizationInt()
+MEDCouplingTimeDiscretizationInt::MEDCouplingTimeDiscretizationInt(const MEDCouplingTimeDiscretizationInt& other, bool deepCopy):MEDCouplingTimeDiscretizationSimple<int>(other,deepCopy)
 {
-}
-
-MEDCouplingTimeDiscretizationInt::MEDCouplingTimeDiscretizationInt(const MEDCouplingTimeDiscretizationInt& other, bool deepCopy):MEDCouplingTimeDiscretizationTemplate<int>(other,deepCopy),_tk(other._tk)
-{
-}
-
-std::string MEDCouplingTimeDiscretizationInt::getStringRepr() const
-{
-  std::ostringstream stream;
-  stream << REPR << " Time is defined by iteration=" << _tk.getIteration() << " order=" << _tk.getOrder() << " and time=" << _tk.getTimeValue() << ".";
-  stream << "\nTime unit is : \"" << _time_unit << "\"";
-  return stream.str();
 }
 
 MEDCouplingTimeDiscretizationInt *MEDCouplingTimeDiscretizationInt::performCopyOrIncrRef(bool deepCopy) const
@@ -831,29 +820,65 @@ bool MEDCouplingTimeDiscretizationInt::isEqualWithoutConsideringStr(const MEDCou
   return _array->isEqualWithoutConsideringStr(*(other->getArray()));
 }
 
-double MEDCouplingTimeDiscretizationInt::getEndTime(int& iteration, int& order) const
+////////////////////////
+
+MEDCouplingTimeDiscretizationFloat::MEDCouplingTimeDiscretizationFloat(const MEDCouplingTimeDiscretizationFloat& other, bool deepCopy):MEDCouplingTimeDiscretizationSimple<float>(other,deepCopy)
 {
-  throw INTERP_KERNEL::Exception("getEndTime : invalid for this type of time discr !");
 }
 
-void MEDCouplingTimeDiscretizationInt::setEndIteration(int it)
+MEDCouplingTimeDiscretizationFloat *MEDCouplingTimeDiscretizationFloat::performCopyOrIncrRef(bool deepCopy) const
 {
-  throw INTERP_KERNEL::Exception("setEndIteration : invalid for this type of time discr !");
+  return new MEDCouplingTimeDiscretizationFloat(*this,deepCopy);
 }
 
-void MEDCouplingTimeDiscretizationInt::setEndOrder(int order)
+MEDCouplingTimeDiscretizationFloat *MEDCouplingTimeDiscretizationFloat::New(TypeOfTimeDiscretization type)
 {
-  throw INTERP_KERNEL::Exception("setEndOrder : invalid for this type of time discr !");
+  switch(type)
+  {
+    case MEDCouplingTimeDiscretizationFloat::DISCRETIZATION:
+      return new MEDCouplingTimeDiscretizationFloat;
+    default:
+      throw INTERP_KERNEL::Exception("Time discretization not implemented yet for intergers !");
+  }
 }
 
-void MEDCouplingTimeDiscretizationInt::setEndTimeValue(double time)
+bool MEDCouplingTimeDiscretizationFloat::isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<int> *other, float prec, std::string& reason) const
 {
-  throw INTERP_KERNEL::Exception("setEndTimeValue : invalid for this type of time discr !");
+  if(prec!=0)
+    throw INTERP_KERNEL::Exception("isEqualIfNotWhy : only precision equal to 0 supported for int !");
+  if(!other)
+    {
+      reason="Time discretization is NULL.";
+      return false;
+    }
+  const MEDCouplingTimeDiscretizationFloat *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationFloat *>(other));
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("isEqualIfNotWhy : other is not a MEDCouplingTimeDiscretizationFloat !");
+  if(!MEDCouplingTimeDiscretizationTemplate<int>::areStrictlyCompatible(other,reason))
+    return false;
+  if(!_tk.isEqualIfNotWhy(otherC->_tk,_time_tolerance,reason))
+    return false;
+  if(_array==other->getArray())
+    return true;
+  return _array->isEqualIfNotWhy(*other->getArray(),reason);
 }
 
-void MEDCouplingTimeDiscretizationInt::setEndTime(double time, int iteration, int order)
+bool MEDCouplingTimeDiscretizationFloat::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<int> *other, float prec) const
 {
-  throw INTERP_KERNEL::Exception("setEndTime : invalid for this type of time discr !");
+  if(prec!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingTimeDiscretizationFloat::isEqualWithoutConsideringStr : only precision 0 is supported !");
+  const MEDCouplingTimeDiscretizationFloat *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationFloat *>(other));
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("isEqualWithoutConsideringStr : other is not a MEDCouplingTimeDiscretizationFloat !");
+  std::string tmp;
+  if(!areStrictlyCompatible(other,tmp))
+    return false;
+  std::string reason;
+  if(!_tk.isEqualIfNotWhy(otherC->_tk,_time_tolerance,reason))
+    return false;
+  if(_array==other->getArray())
+    return true;
+  return _array->isEqualWithoutConsideringStr(*(other->getArray()));
 }
 
 ////////////////////////

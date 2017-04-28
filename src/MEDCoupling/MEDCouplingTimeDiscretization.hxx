@@ -199,13 +199,12 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void fillFromAnalyticCompo(const DataArrayDouble *loc, int nbOfComp, const std::string& func);
     MEDCOUPLING_EXPORT virtual void fillFromAnalyticNamedCompo(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
   };
-  
-  class MEDCouplingTimeDiscretizationInt : public MEDCouplingTimeDiscretizationTemplate<int>
+
+  template<class T>
+  class MEDCouplingTimeDiscretizationSimple : public MEDCouplingTimeDiscretizationTemplate<T>
   {
   public:
-    MEDCouplingTimeDiscretizationInt();
-    MEDCouplingTimeDiscretizationInt(const MEDCouplingTimeDiscretizationInt& other, bool deepCopy);
-    static MEDCouplingTimeDiscretizationInt *New(TypeOfTimeDiscretization type);
+    std::string getStringRepr() const;
     double getStartTime(int& iteration, int& order) const { return _tk.getAllInfo(iteration,order); }
     void setStartIteration(int it) { _tk.setIteration(it); }
     void setStartOrder(int order) { _tk.setOrder(order); }
@@ -216,16 +215,40 @@ namespace MEDCoupling
     void setEndOrder(int order);
     void setEndTimeValue(double time);
     void setEndTime(double time, int iteration, int order);
-    std::string getStringRepr() const;
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+  protected:
+    MEDCouplingTimeDiscretizationSimple(const MEDCouplingTimeDiscretizationSimple<T>& other, bool deepCopy);
+    MEDCouplingTimeDiscretizationSimple() { }
+  protected:
+    MEDCouplingTimeKeeper _tk;
+  private:
+    MEDCOUPLING_EXPORT static const char REPR[];
+  protected:
+    static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
+  };
+  
+  class MEDCouplingTimeDiscretizationInt : public MEDCouplingTimeDiscretizationSimple<int>
+  {
+  public:
+    MEDCouplingTimeDiscretizationInt() { }
+    MEDCouplingTimeDiscretizationInt(const MEDCouplingTimeDiscretizationInt& other, bool deepCopy);
+    static MEDCouplingTimeDiscretizationInt *New(TypeOfTimeDiscretization type);
     MEDCouplingTimeDiscretizationInt *performCopyOrIncrRef(bool deepCopy) const;
     bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<int> *other, int prec, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<int> *other, int prec) const;
+  };
+
+  class MEDCouplingTimeDiscretizationFloat : public MEDCouplingTimeDiscretizationSimple<float>
+  {
+  public:
+    MEDCouplingTimeDiscretizationFloat() { }
+    MEDCouplingTimeDiscretizationFloat(const MEDCouplingTimeDiscretizationFloat& other, bool deepCopy);
+    static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
+    MEDCouplingTimeDiscretizationFloat *performCopyOrIncrRef(bool deepCopy) const;
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec, std::string& reason) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<int> *other, float prec) const;
   private:
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
-    MEDCOUPLING_EXPORT static const char REPR[];
-  protected:
-    MEDCouplingTimeKeeper _tk;
   };
   
   class MEDCouplingNoTimeLabel : public MEDCouplingTimeDiscretization

@@ -29,6 +29,9 @@
 namespace MEDCoupling
 {
   template<class T>
+  const char MEDCouplingTimeDiscretizationSimple<T>::REPR[]="One time label.";
+
+  template<class T>
   const double MEDCouplingTimeDiscretizationTemplate<T>::TIME_TOLERANCE_DFT=1.e-12;
   
   template<class T>
@@ -218,6 +221,50 @@ namespace MEDCoupling
   {
     arrays.resize(1);
     arrays[0]=_array;
+  }
+  
+  template<class T>
+  std::string MEDCouplingTimeDiscretizationSimple<T>::getStringRepr() const
+  {
+    std::ostringstream stream;
+    stream << REPR << " Time is defined by iteration=" << _tk.getIteration() << " order=" << _tk.getOrder() << " and time=" << _tk.getTimeValue() << ".";
+    stream << "\nTime unit is : \"" << this->_time_unit << "\"";
+    return stream.str();
+  }
+  
+  template<class T>
+  double MEDCouplingTimeDiscretizationSimple<T>::getEndTime(int& iteration, int& order) const
+  {
+    throw INTERP_KERNEL::Exception("getEndTime : invalid for this type of time discr !");
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationSimple<T>::setEndIteration(int it)
+  {
+    throw INTERP_KERNEL::Exception("setEndIteration : invalid for this type of time discr !");
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationSimple<T>::setEndOrder(int order)
+  {
+    throw INTERP_KERNEL::Exception("setEndOrder : invalid for this type of time discr !");
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationSimple<T>::setEndTimeValue(double time)
+  {
+    throw INTERP_KERNEL::Exception("setEndTimeValue : invalid for this type of time discr !");
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationSimple<T>::setEndTime(double time, int iteration, int order)
+  {
+    throw INTERP_KERNEL::Exception("setEndTime : invalid for this type of time discr !");
+  }
+
+  template<class T>
+  MEDCouplingTimeDiscretizationSimple<T>::MEDCouplingTimeDiscretizationSimple(const MEDCouplingTimeDiscretizationSimple<T>& other, bool deepCopy):MEDCouplingTimeDiscretizationTemplate<T>(other,deepCopy),_tk(other._tk)
+  {
   }
 }
 
