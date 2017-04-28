@@ -462,14 +462,13 @@ using namespace INTERP_KERNEL;
 %include "MEDCouplingRefCountObject.i"
 %include "MEDCouplingMemArray.i"
 
-%inline
-{
+%{
   void initializeMe()
-  {
+  {// AGY : here initialization of C++ traits in MEDCouplingDataArrayTypemaps.i for code factorization. Awful, I know, but no other solutions.
     SWIGTITraits<double>::TI=SWIGTYPE_p_MEDCoupling__DataArrayDouble;
     SWIGTITraits<float>::TI=SWIGTYPE_p_MEDCoupling__DataArrayFloat;
   }
-}
+%}
 
 namespace INTERP_KERNEL
 { 
