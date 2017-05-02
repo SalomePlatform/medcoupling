@@ -50,6 +50,8 @@
 %newobject MEDCoupling::DataArray::selectByTupleIdSafeSlice;
 %newobject MEDCoupling::DataArray::Aggregate;
 %newobject MEDCoupling::DataArrayFloat::New;
+%newobject MEDCoupling::DataArrayFloat::iterator;
+%newobject MEDCoupling::DataArrayFloat::__iter__;
 %newobject MEDCoupling::DataArrayInt::New;
 %newobject MEDCoupling::DataArrayInt::__iter__;
 %newobject MEDCoupling::DataArrayInt::selectPartDef;
@@ -671,6 +673,7 @@ namespace MEDCoupling
     bool isUniform(float val, float eps) const throw(INTERP_KERNEL::Exception);
     void pushBackSilent(float val) throw(INTERP_KERNEL::Exception);
     void iota(float init=0.) throw(INTERP_KERNEL::Exception);
+    DataArrayFloatIterator *iterator() throw(INTERP_KERNEL::Exception);
     %extend
     {
       DataArrayFloat() throw(INTERP_KERNEL::Exception)
@@ -686,6 +689,11 @@ namespace MEDCoupling
       DataArrayFloat(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling_DataArrayFloat_New__SWIG_1(elt0,nbOfTuples,elt2);
+      }
+      
+      DataArrayFloatIterator *__iter__() throw(INTERP_KERNEL::Exception)
+      {
+        return self->iterator();
       }
 
       std::string __repr__() const throw(INTERP_KERNEL::Exception)
@@ -734,6 +742,11 @@ namespace MEDCoupling
       {
         return DataArrayT__setitem__<float>(self,obj,value);
       }
+
+      PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayT_imul<float>(trueSelf,obj,self);
+      }
       
 #ifdef WITH_NUMPY
       PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
@@ -742,6 +755,66 @@ namespace MEDCoupling
       }
 #endif
       
+    }
+  };
+
+  class DataArrayFloatTuple;
+
+  class DataArrayFloatIterator
+  {
+  public:
+    DataArrayFloatIterator(DataArrayFloat *da);
+    ~DataArrayFloatIterator();
+    %extend
+    {
+      PyObject *next()
+      {
+        DataArrayFloatTuple *ret=self->nextt();
+        if(ret)
+          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayFloatTuple,SWIG_POINTER_OWN|0);
+        else
+          {
+            PyErr_SetString(PyExc_StopIteration,"No more data.");
+            return 0;
+          }
+      }
+    }
+  };
+
+  class DataArrayFloatTuple
+  {
+  public:
+    int getNumberOfCompo() const throw(INTERP_KERNEL::Exception);
+    DataArrayFloat *buildDAFloat(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->repr();
+      }
+
+      float __float__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->floatValue();
+      }
+
+      DataArrayFloat *buildDAFloat() throw(INTERP_KERNEL::Exception)
+      {
+        return self->buildDAFloat(1,self->getNumberOfCompo());
+      }
+  
+      /*PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayFloat> ret=self->buildDAFloat(1,self->getNumberOfCompo());
+        MEDCoupling_DataArrayFloat____imul___(ret,0,obj);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+        }*/
+
+      PyObject *__len__() throw(INTERP_KERNEL::Exception)
+      {
+        return PyInt_FromLong(self->getNumberOfCompo());
+      }
     }
   };
   
@@ -1685,44 +1758,7 @@ namespace MEDCoupling
 
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        const char msg[]="Unexpected situation in __imul__ !";
-        double val;
-        DataArrayDouble *a;
-        DataArrayDoubleTuple *aa;
-        std::vector<double> bb;
-        int sw;
-        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
-        switch(sw)
-          {
-          case 1:
-            {
-              self->applyLin(val,0.);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 2:
-            {
-              self->multiplyEqual(a);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 3:
-            {
-              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              self->multiplyEqual(aaa);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 4:
-            {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              self->multiplyEqual(aaa);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          default:
-            throw INTERP_KERNEL::Exception(msg);
-          }
+        return DataArrayT_imul<double>(trueSelf,obj,self);
       }
 
       PyObject *__div__(PyObject *obj) throw(INTERP_KERNEL::Exception)

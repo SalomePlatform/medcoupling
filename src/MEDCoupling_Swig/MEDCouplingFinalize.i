@@ -36,6 +36,8 @@ DataArrayInt.__ipow__=MEDCouplingDataArrayIntIpow
 
 DataArrayByte.__new__=classmethod(MEDCouplingDataArrayBytenew)
 
+DataArrayFloat.__imul__=MEDCouplingDataArrayFloatImul
+
 MEDCouplingFieldDouble.__iadd__=MEDCouplingFieldDoubleIadd
 MEDCouplingFieldDouble.__isub__=MEDCouplingFieldDoubleIsub
 MEDCouplingFieldDouble.__imul__=MEDCouplingFieldDoubleImul

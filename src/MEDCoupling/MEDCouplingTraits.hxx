@@ -40,6 +40,7 @@ namespace MEDCoupling
   class MEDCouplingFieldFloat;
   class MEDCouplingFieldInt;
   class DataArrayIntTuple;
+  class DataArrayFloatTuple;
   class DataArrayDoubleTuple;
   
   template<>
@@ -63,6 +64,7 @@ namespace MEDCoupling
     typedef DataArrayFloat ArrayType;
     typedef DataArrayFloat ArrayTypeCh;
     typedef MEDCouplingFieldFloat FieldType;
+    typedef DataArrayFloatTuple ArrayTuple;
   };
   
   template<>

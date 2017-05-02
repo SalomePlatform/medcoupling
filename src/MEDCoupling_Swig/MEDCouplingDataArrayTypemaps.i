@@ -1564,15 +1564,8 @@ static void convertDoubleStarLikePyObjToCpp(PyObject *value, int& sw, double& iT
   sw=3;
 }
 
-/*!
- * if value int -> cpp val sw=1
- * if value double -> cpp val sw=1
- * if value DataArrayDouble -> cpp DataArrayDouble sw=2
- * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
- * if value list[int,double] -> cpp std::vector<double> sw=4
- * if value tuple[int,double] -> cpp std::vector<double> sw=4
- */
-static void convertDoubleStarLikePyObjToCpp_2(PyObject *value, int& sw, double& val, MEDCoupling::DataArrayDouble *&d, MEDCoupling::DataArrayDoubleTuple *&e, std::vector<double>& f)
+template<class T>
+void convertFPStarLikePyObjToCpp_2(PyObject *value, int& sw, T& val, typename MEDCoupling::Traits<T>::ArrayType *&d, typename MEDCoupling::Traits<T>::ArrayTuple *&e, std::vector<T>& f, swig_type_info *ti_da, swig_type_info *ti_tuple)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -1583,7 +1576,7 @@ static void convertDoubleStarLikePyObjToCpp_2(PyObject *value, int& sw, double& 
     }
   if(PyInt_Check(value))
     {
-      val=(double)PyInt_AS_LONG(value);
+      val=(T)PyInt_AS_LONG(value);
       sw=1;
       return;
     }
@@ -1597,7 +1590,7 @@ static void convertDoubleStarLikePyObjToCpp_2(PyObject *value, int& sw, double& 
           if(PyFloat_Check(o))
             f[i]=PyFloat_AS_DOUBLE(o);
           else if(PyInt_Check(o))
-            f[i]=(double)PyInt_AS_LONG(o);
+            f[i]=(T)PyInt_AS_LONG(o);
           else
             {
               std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
@@ -1617,7 +1610,7 @@ static void convertDoubleStarLikePyObjToCpp_2(PyObject *value, int& sw, double& 
           if(PyFloat_Check(o))
             f[i]=PyFloat_AS_DOUBLE(o);
           else if(PyInt_Check(o))
-            f[i]=(double)PyInt_AS_LONG(o);
+            f[i]=(T)PyInt_AS_LONG(o);
           else
             {
               std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
@@ -1628,21 +1621,34 @@ static void convertDoubleStarLikePyObjToCpp_2(PyObject *value, int& sw, double& 
       return;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,ti_da,0|0);
   if(SWIG_IsOK(status))
     {  
-      d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
+      d=reinterpret_cast< typename MEDCoupling::Traits<T>::ArrayType * >(argp);
       sw=2;
       return ;
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
+  status=SWIG_ConvertPtr(value,&argp,ti_tuple,0|0);
   if(SWIG_IsOK(status))
     {  
-      e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
+      e=reinterpret_cast< typename MEDCoupling::Traits<T>::ArrayTuple * >(argp);
       sw=3;
       return ;
     }
   throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
+}
+
+/*!
+ * if value int -> cpp val sw=1
+ * if value double -> cpp val sw=1
+ * if value DataArrayDouble -> cpp DataArrayDouble sw=2
+ * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
+ * if value list[int,double] -> cpp std::vector<double> sw=4
+ * if value tuple[int,double] -> cpp std::vector<double> sw=4
+ */
+static void convertDoubleStarLikePyObjToCpp_2(PyObject *value, int& sw, double& val, MEDCoupling::DataArrayDouble *&d, MEDCoupling::DataArrayDoubleTuple *&e, std::vector<double>& f)
+{
+  convertFPStarLikePyObjToCpp_2<double>(value,sw,val,d,e,f,SWIGTYPE_p_MEDCoupling__DataArrayDouble,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple);
 }
 
 /*!
@@ -2991,6 +2997,50 @@ PyObject *DataArrayT__getitem__internal(const typename MEDCoupling::Traits<T>::A
 }
 
 template<class T>
+PyObject *DataArrayT_imul__internal(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self, swig_type_info *ti_da, swig_type_info *ti_tuple)
+{
+  const char msg[]="Unexpected situation in __imul__ !";
+  T val;
+  typename MEDCoupling::Traits<T>::ArrayType *a;
+  typename MEDCoupling::Traits<T>::ArrayTuple *aa;
+  std::vector<T> bb;
+  int sw;
+  convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
+  convertFPStarLikePyObjToCpp_2<T>(obj,sw,val,a,aa,bb,ti_da,ti_tuple);
+  switch(sw)
+    {
+    case 1:
+      {
+        self->applyLin(val,0.);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 2:
+      {
+        self->multiplyEqual(a);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 3:
+      {
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(aa->buildDA(1,self->getNumberOfComponents()));
+        self->multiplyEqual(aaa);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 4:
+      {
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        self->multiplyEqual(aaa);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    default:
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
+template<class T>
 struct SWIGTITraits
 { };
 
@@ -3027,6 +3077,12 @@ template<class T>
 PyObject *DataArrayT__getitem(const typename MEDCoupling::Traits<T>::ArrayType *self, PyObject *obj)
 {
   return DataArrayT__getitem__internal<T>(self,obj,SWIGTITraits<T>::TI);
+}
+
+template<class T>
+PyObject *DataArrayT_imul(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self)
+{
+  return DataArrayT_imul__internal<T>(trueSelf,obj,self,SWIGTITraits<T>::TI,SWIGTITraits<T>::TI_TUPLE);
 }
 
 #endif

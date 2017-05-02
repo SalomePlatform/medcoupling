@@ -477,7 +477,9 @@ using namespace INTERP_KERNEL;
   {// AGY : here initialization of C++ traits in MEDCouplingDataArrayTypemaps.i for code factorization. Awful, I know, but no other solutions.
     SWIGTITraits<double>::TI=SWIGTYPE_p_MEDCoupling__DataArrayDouble;
     SWIGTITraits<float>::TI=SWIGTYPE_p_MEDCoupling__DataArrayFloat;
+    SWIGTITraits<int>::TI=SWIGTYPE_p_MEDCoupling__DataArrayInt;
     SWIGTITraits<double>::TI_TUPLE=SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple;
+    SWIGTITraits<float>::TI_TUPLE=SWIGTYPE_p_MEDCoupling__DataArrayFloatTuple;
     SWIGTITraits<int>::TI_TUPLE=SWIGTYPE_p_MEDCoupling__DataArrayIntTuple;
   }
 %}

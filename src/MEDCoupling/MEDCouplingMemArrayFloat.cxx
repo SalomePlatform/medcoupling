@@ -26,6 +26,7 @@ template class MEDCoupling::MemArray<float>;
 template class MEDCoupling::DataArrayTemplate<float>;
 template class MEDCoupling::DataArrayTemplateClassic<float>;
 template class MEDCoupling::DataArrayTemplateFP<float>;
+template class MEDCoupling::DataArrayIterator<float>;
 
 DataArrayFloat *DataArrayFloat::New()
 {
@@ -179,4 +180,42 @@ bool DataArrayFloat::isEqualWithoutConsideringStr(const DataArrayFloat& other, f
 DataArrayFloat *DataArrayFloat::performCopyOrIncrRef(bool dCpy) const
 {
   return DataArrayTemplateClassic<float>::PerformCopyOrIncrRef(dCpy,*this);
+}
+
+DataArrayFloatIterator *DataArrayFloat::iterator()
+{
+  return new DataArrayFloatIterator(this);
+}
+
+DataArrayFloatIterator::DataArrayFloatIterator(DataArrayFloat *da):DataArrayIterator<float>(da)
+{
+}
+
+DataArrayFloatTuple::DataArrayFloatTuple(float *pt, int nbOfComp):DataArrayTuple<float>(pt,nbOfComp)
+{
+}
+
+std::string DataArrayFloatTuple::repr() const
+{
+  std::ostringstream oss; oss.precision(7); oss << "(";
+  for(int i=0;i<_nb_of_compo-1;i++)
+    oss << _pt[i] << ", ";
+  oss << _pt[_nb_of_compo-1] << ")";
+  return oss.str();
+}
+
+float DataArrayFloatTuple::floatValue() const
+{
+  return this->zeValue();
+}
+
+/*!
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayFloat::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayFloat::useArray with ownership set to \b false.
+ * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
+ * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
+ */
+DataArrayFloat *DataArrayFloatTuple::buildDAFloat(int nbOfTuples, int nbOfCompo) const
+{
+  return this->buildDA(nbOfTuples,nbOfCompo);
 }

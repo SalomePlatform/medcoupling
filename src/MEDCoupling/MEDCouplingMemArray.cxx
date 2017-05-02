@@ -44,6 +44,7 @@ template class MEDCoupling::DataArrayTemplateClassic<int>;
 template class MEDCoupling::DataArrayTemplateClassic<double>;
 template class MEDCoupling::DataArrayTemplateFP<double>;
 template class MEDCoupling::DataArrayIterator<double>;
+template class MEDCoupling::DataArrayIterator<int>;
 
 template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const
@@ -4585,9 +4586,7 @@ std::string DataArrayDoubleTuple::repr() const
 
 double DataArrayDoubleTuple::doubleValue() const
 {
-  if(_nb_of_compo==1)
-    return *_pt;
-  throw INTERP_KERNEL::Exception("DataArrayDoubleTuple::doubleValue : DataArrayDoubleTuple instance has not exactly 1 component -> Not possible to convert it into a double precision float !");
+  return this->zeValue();
 }
 
 /*!
@@ -4598,18 +4597,7 @@ double DataArrayDoubleTuple::doubleValue() const
  */
 DataArrayDouble *DataArrayDoubleTuple::buildDADouble(int nbOfTuples, int nbOfCompo) const
 {
-  if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
-    {
-      DataArrayDouble *ret=DataArrayDouble::New();
-      ret->useExternalArrayWithRWAccess(_pt,nbOfTuples,nbOfCompo);
-      return ret;
-    }
-  else
-    {
-      std::ostringstream oss; oss << "DataArrayDoubleTuple::buildDADouble : unable to build a requested DataArrayDouble instance with nbofTuple=" << nbOfTuples << " and nbOfCompo=" << nbOfCompo;
-      oss << ".\nBecause the number of elements in this is " << _nb_of_compo << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
+  return this->buildDA(nbOfTuples,nbOfCompo);
 }
 
 /*!
@@ -9129,9 +9117,7 @@ std::string DataArrayIntTuple::repr() const
 
 int DataArrayIntTuple::intValue() const
 {
-  if(_nb_of_compo==1)
-    return *_pt;
-  throw INTERP_KERNEL::Exception("DataArrayIntTuple::intValue : DataArrayIntTuple instance has not exactly 1 component -> Not possible to convert it into an integer !");
+  return this->zeValue();
 }
 
 /*!
@@ -9142,16 +9128,5 @@ int DataArrayIntTuple::intValue() const
  */
 DataArrayInt *DataArrayIntTuple::buildDAInt(int nbOfTuples, int nbOfCompo) const
 {
-  if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
-    {
-      DataArrayInt *ret=DataArrayInt::New();
-      ret->useExternalArrayWithRWAccess(_pt,nbOfTuples,nbOfCompo);
-      return ret;
-    }
-  else
-    {
-      std::ostringstream oss; oss << "DataArrayIntTuple::buildDAInt : unable to build a requested DataArrayInt instance with nbofTuple=" << nbOfTuples << " and nbOfCompo=" << nbOfCompo;
-      oss << ".\nBecause the number of elements in this is " << _nb_of_compo << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
+  return this->buildDA(nbOfTuples,nbOfCompo);
 }

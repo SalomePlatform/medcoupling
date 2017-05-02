@@ -322,6 +322,7 @@ namespace MEDCoupling
 
 namespace MEDCoupling
 {
+  class DataArrayFloatIterator;
   class DataArrayFloat : public DataArrayTemplateFP<float>
   {
   public:
@@ -348,6 +349,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayFloat& other, float prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayFloat& other, float prec) const;
     MEDCOUPLING_EXPORT DataArrayFloat *performCopyOrIncrRef(bool deepCopy) const;
+  public:
+    MEDCOUPLING_EXPORT DataArrayFloatIterator *iterator();
   private:
     ~DataArrayFloat() { }
     DataArrayFloat() { }
@@ -821,6 +824,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
     MEDCOUPLING_EXPORT const T *getConstPointer() const { return  _pt; }
     MEDCOUPLING_EXPORT T *getPointer() { return _pt; }
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *buildDA(int nbOfTuples, int nbOfCompo) const;
+  protected:
+    T zeValue() const;
   protected:
     T *_pt;
     int _nb_of_compo;
@@ -842,6 +848,24 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT double doubleValue() const;
     MEDCOUPLING_EXPORT DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const;
+  };
+
+  class DataArrayFloatTuple;
+
+  class DataArrayFloatIterator : public DataArrayIterator<float>
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayFloatIterator(DataArrayFloat *da);
+    MEDCOUPLING_EXPORT ~DataArrayFloatIterator() { }
+  };
+
+  class DataArrayFloatTuple : public DataArrayTuple<float>
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayFloatTuple(float *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const;
+    MEDCOUPLING_EXPORT float floatValue() const;
+    MEDCOUPLING_EXPORT DataArrayFloat *buildDAFloat(int nbOfTuples, int nbOfCompo) const;
   };
   
   class DataArrayIntTuple;

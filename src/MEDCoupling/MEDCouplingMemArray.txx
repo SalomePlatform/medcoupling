@@ -523,6 +523,31 @@ namespace MEDCoupling
   {
   }
   
+  template<class T>
+  T DataArrayTuple<T>::zeValue() const
+  {
+    if(_nb_of_compo==1)
+      return *_pt;
+    throw INTERP_KERNEL::Exception("DataArrayTuple<T>::zeValue : DataArrayTuple instance has not exactly 1 component -> Not possible to convert it into a single value !");
+  }
+  
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTuple<T>::buildDA(int nbOfTuples, int nbOfCompo) const
+  {
+    if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
+    {
+      typename Traits<T>::ArrayType *ret=Traits<T>::ArrayType::New();
+      ret->useExternalArrayWithRWAccess(_pt,nbOfTuples,nbOfCompo);
+      return ret;
+    }
+  else
+    {
+      std::ostringstream oss; oss << "DataArrayTuple<T>::buildDA : unable to build a requested DataArrayDouble instance with nbofTuple=" << nbOfTuples << " and nbOfCompo=" << nbOfCompo;
+      oss << ".\nBecause the number of elements in this is " << _nb_of_compo << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  }
+  
   //////////////////////////////////
 
   template<class T>
