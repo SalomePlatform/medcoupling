@@ -842,7 +842,7 @@ MEDCouplingTimeDiscretizationFloat *MEDCouplingTimeDiscretizationFloat::New(Type
   }
 }
 
-bool MEDCouplingTimeDiscretizationFloat::isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<int> *other, float prec, std::string& reason) const
+bool MEDCouplingTimeDiscretizationFloat::isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec, std::string& reason) const
 {
   if(prec!=0)
     throw INTERP_KERNEL::Exception("isEqualIfNotWhy : only precision equal to 0 supported for int !");
@@ -854,16 +854,16 @@ bool MEDCouplingTimeDiscretizationFloat::isEqualIfNotWhy(const MEDCouplingTimeDi
   const MEDCouplingTimeDiscretizationFloat *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationFloat *>(other));
   if(!otherC)
     throw INTERP_KERNEL::Exception("isEqualIfNotWhy : other is not a MEDCouplingTimeDiscretizationFloat !");
-  if(!MEDCouplingTimeDiscretizationTemplate<int>::areStrictlyCompatible(other,reason))
+  if(!MEDCouplingTimeDiscretizationTemplate<float>::areStrictlyCompatible(other,reason))
     return false;
   if(!_tk.isEqualIfNotWhy(otherC->_tk,_time_tolerance,reason))
     return false;
   if(_array==other->getArray())
     return true;
-  return _array->isEqualIfNotWhy(*other->getArray(),reason);
+  return _array->isEqualIfNotWhy(*other->getArray(),prec,reason);
 }
 
-bool MEDCouplingTimeDiscretizationFloat::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<int> *other, float prec) const
+bool MEDCouplingTimeDiscretizationFloat::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec) const
 {
   if(prec!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingTimeDiscretizationFloat::isEqualWithoutConsideringStr : only precision 0 is supported !");
@@ -878,7 +878,7 @@ bool MEDCouplingTimeDiscretizationFloat::isEqualWithoutConsideringStr(const MEDC
     return false;
   if(_array==other->getArray())
     return true;
-  return _array->isEqualWithoutConsideringStr(*(other->getArray()));
+  return _array->isEqualWithoutConsideringStr(*(other->getArray()),prec);
 }
 
 ////////////////////////

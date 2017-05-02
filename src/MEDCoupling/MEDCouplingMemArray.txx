@@ -2252,6 +2252,76 @@ namespace MEDCoupling
       std::reverse(work,work+nbOfCompo);
     std::reverse(_info_on_compo.begin(),_info_on_compo.end());
   }
+
+  template<class T>
+  template<class U>
+  MCAuto< typename Traits<U>::ArrayType > DataArrayTemplateClassic<T>::convertToOtherTypeOfArr() const
+  {
+    this->checkAllocated();
+    MCAuto<typename Traits<U>::ArrayType> ret(Traits<U>::ArrayType::New());
+    ret->alloc(this->getNumberOfTuples(),this->getNumberOfComponents());
+    std::size_t nbOfVals(this->getNbOfElems());
+    const T *src(this->begin());
+    U *dest(ret->getPointer());
+    // to make Visual C++ happy : instead of std::size_t nbOfVals=getNbOfElems(); std::copy(src,src+nbOfVals,dest);
+    //for(const T *src=this->begin();src!=this->end();src++,dest++)
+    //  *dest=(int)*src;
+    std::copy(src,src+nbOfVals,dest);
+    ret->copyStringInfoFrom(*this);
+    return ret;
+  }
+  
+  /*!
+   * Creates a new DataArrayDouble and assigns all (textual and numerical) data of \a this
+   * array to the new one.
+   *  \return DataArrayDouble * - the new instance of DataArrayInt.
+   */
+  template<class T>
+  MCAuto<DataArrayDouble> DataArrayTemplateClassic<T>::convertToDblArr() const
+  {
+    return convertToOtherTypeOfArr<double>();
+  }
+
+  /*!
+   * Creates a new DataArrayInt and assigns all (textual and numerical) data of \a this
+   * array to the new one.
+   *  \return DataArrayInt * - the new instance of DataArrayInt.
+   */
+  template<class T>
+  MCAuto<DataArrayInt> DataArrayTemplateClassic<T>::convertToIntArr() const
+  {
+    return convertToOtherTypeOfArr<int>();
+  }
+
+  /*!
+   * Creates a new DataArrayFloat and assigns all (textual and numerical) data of \a this
+   * array to the new one.
+   *  \return DataArrayFloat * - the new instance of DataArrayInt.
+   */
+  template<class T>
+  MCAuto<DataArrayFloat> DataArrayTemplateClassic<T>::convertToFloatArr() const
+  {
+    return convertToOtherTypeOfArr<float>();
+  }
+  
+  /*!
+   * Returns either a \a deep or \a shallow copy of this array. For more info see
+   * \ref MEDCouplingArrayBasicsCopyDeep and \ref MEDCouplingArrayBasicsCopyShallow.
+   *  \param [in] dCpy - if \a true, a deep copy is returned, else, a shallow one.
+   *  \return DataArrayDouble * - either a new instance of DataArrayDouble (if \a dCpy
+   *          == \a true) or \a this instance (if \a dCpy == \a false).
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self)
+  {
+    if(dCpy)
+      return self.deepCopy();
+    else
+      {
+        self.incrRef();
+        return const_cast<typename Traits<T>::ArrayType *>(&self);
+      }
+  }
   
   /*!
    * Checks if all values in \a this array are equal to \a val at precision \a eps.

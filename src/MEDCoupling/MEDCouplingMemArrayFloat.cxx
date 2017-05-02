@@ -24,6 +24,7 @@ using namespace MEDCoupling;
 
 template class MEDCoupling::MemArray<float>;
 template class MEDCoupling::DataArrayTemplate<float>;
+template class MEDCoupling::DataArrayTemplateClassic<float>;
 template class MEDCoupling::DataArrayTemplateFP<float>;
 
 DataArrayFloat *DataArrayFloat::New()
@@ -166,4 +167,16 @@ bool DataArrayFloat::isEqualWithoutConsideringStr(const DataArrayFloat& other, f
 {
   std::string tmp;
   return _mem.isEqual(other._mem,prec,tmp);
+}
+
+/*!
+ * Returns either a \a deep or \a shallow copy of this array. For more info see
+ * \ref MEDCouplingArrayBasicsCopyDeep and \ref MEDCouplingArrayBasicsCopyShallow.
+ *  \param [in] dCpy - if \a true, a deep copy is returned, else, a shallow one.
+ *  \return DataArrayDouble * - either a new instance of DataArrayDouble (if \a dCpy
+ *          == \a true) or \a this instance (if \a dCpy == \a false).
+ */
+DataArrayFloat *DataArrayFloat::performCopyOrIncrRef(bool dCpy) const
+{
+  return DataArrayTemplateClassic<float>::PerformCopyOrIncrRef(dCpy,*this);
 }

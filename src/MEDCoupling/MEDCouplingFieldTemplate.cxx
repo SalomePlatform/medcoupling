@@ -21,6 +21,7 @@
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 
@@ -29,6 +30,11 @@
 using namespace MEDCoupling;
 
 MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldDouble& f)
+{
+  return new MEDCouplingFieldTemplate(f);
+}
+
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldFloat& f)
 {
   return new MEDCouplingFieldTemplate(f);
 }
@@ -47,6 +53,12 @@ MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(TypeOfField type)
 }
 
 MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f):MEDCouplingField(f,false) 
+{
+  forceTimeOfThis(f);
+  checkConsistencyLight();
+}
+
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f):MEDCouplingField(f,false) 
 {
   forceTimeOfThis(f);
   checkConsistencyLight();

@@ -26,6 +26,7 @@
 namespace MEDCoupling
 {
   class MEDCouplingFieldInt;
+  class MEDCouplingFieldFloat;
   class MEDCouplingFieldDouble;
   /*!
    * \brief A field template can be seen as a field without the array of values.
@@ -41,6 +42,7 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldFloat& f);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt& f);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(TypeOfField type);
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
@@ -57,6 +59,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
   private:
     MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f);
     MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f);
     MEDCouplingFieldTemplate(TypeOfField type);
   };

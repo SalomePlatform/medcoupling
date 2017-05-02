@@ -34,6 +34,7 @@ INCLUDE_DIRECTORIES(
 
 SET(medcoupling_SOURCES
   MEDCouplingField.cxx
+  MEDCouplingFieldFloat.cxx
   MEDCouplingFieldDouble.cxx
   MEDCouplingFieldInt.cxx
   MEDCouplingUMesh.cxx

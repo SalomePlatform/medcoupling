@@ -37,6 +37,7 @@ namespace MEDCoupling
   class DataArrayChar;
   class DataArrayByte;
   class MEDCouplingFieldDouble;
+  class MEDCouplingFieldFloat;
   class MEDCouplingFieldInt;
   
   template<>
@@ -58,7 +59,7 @@ namespace MEDCoupling
     static const char NPYStr[];
     typedef DataArrayFloat ArrayType;
     typedef DataArrayFloat ArrayTypeCh;
-    //typedef MEDCouplingFieldFloat FieldType;
+    typedef MEDCouplingFieldFloat FieldType;
   };
   
   template<>

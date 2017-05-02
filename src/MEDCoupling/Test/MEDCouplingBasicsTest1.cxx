@@ -77,11 +77,9 @@ void MEDCouplingBasicsTest1::testArray2()
   arr->setInfoOnComponent(1,"hhhh");
   arr->setInfoOnComponent(2,"jj");
   arr->setInfoOnComponent(3,"kkkkkk");
-  DataArrayInt *arr2=arr->convertToIntArr();
-  DataArrayDouble *arr3=arr2->convertToDblArr();
-  arr2->decrRef();
+  MCAuto<DataArrayInt> arr2(arr->convertToIntArr());
+  MCAuto<DataArrayDouble> arr3(arr2->convertToDblArr());
   CPPUNIT_ASSERT(arr->isEqual(*arr3,1e-14));
-  arr3->decrRef();
   arr->decrRef();
 }
 

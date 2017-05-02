@@ -54,6 +54,7 @@
 %newobject MEDCoupling::DataArrayInt::__iter__;
 %newobject MEDCoupling::DataArrayInt::selectPartDef;
 %newobject MEDCoupling::DataArrayInt::convertToDblArr;
+%newobject MEDCoupling::DataArrayInt::convertToFloatArr;
 %newobject MEDCoupling::DataArrayInt::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayInt::subArray;
 %newobject MEDCoupling::DataArrayInt::changeNbOfComponents;
@@ -150,6 +151,7 @@
 %newobject MEDCoupling::DataArrayDouble::__iter__;
 %newobject MEDCoupling::DataArrayDouble::selectPartDef;
 %newobject MEDCoupling::DataArrayDouble::convertToIntArr;
+%newobject MEDCoupling::DataArrayDouble::convertToFloatArr;
 %newobject MEDCoupling::DataArrayDouble::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayDouble::Aggregate;
 %newobject MEDCoupling::DataArrayDouble::Meld;
@@ -773,7 +775,6 @@ namespace MEDCoupling
     std::string reprNotTooLong() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *toNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
@@ -887,6 +888,18 @@ namespace MEDCoupling
       DataArrayDouble *cumSum() const throw(INTERP_KERNEL::Exception)
       {
         MCAuto<DataArrayDouble> ret(self->cumSum());
+        return ret.retn();
+      }
+
+      DataArrayFloat *convertToFloatArr() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayFloat> ret(self->convertToFloatArr());
+        return ret.retn();
+      }
+      
+      DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayInt> ret(self->convertToIntArr());
         return ret.retn();
       }
 
@@ -2341,7 +2354,6 @@ namespace MEDCoupling
     DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *indicesOfSubPart(const DataArrayInt& partOfThis) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *toNoInterlace() const throw(INTERP_KERNEL::Exception);
@@ -2543,6 +2555,18 @@ namespace MEDCoupling
         {
           return MEDCoupling_DataArrayInt_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
+      
+      DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayDouble> ret(self->convertToDblArr());
+        return ret.retn();
+      }
+      
+      DataArrayFloat *convertToFloatArr() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayFloat> ret(self->convertToFloatArr());
+        return ret.retn();
+      }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {

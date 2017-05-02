@@ -998,7 +998,7 @@ void MEDCouplingBasicsTest4::testDACpyFrom1()
   d1->deepCopyFrom(*d);
   CPPUNIT_ASSERT(d->isEqual(*d1,1e-12));
   //
-  DataArrayInt *d2=d->convertToIntArr();
+  MCAuto<DataArrayInt> d2=d->convertToIntArr();
   DataArrayInt *d4=DataArrayInt::New();
   CPPUNIT_ASSERT(!d2->isEqual(*d4));
   d4->deepCopyFrom(*d2);
@@ -1012,7 +1012,6 @@ void MEDCouplingBasicsTest4::testDACpyFrom1()
   //
   d->decrRef();
   d1->decrRef();
-  d2->decrRef();
   d4->decrRef();
 }
 

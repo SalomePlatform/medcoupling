@@ -681,7 +681,7 @@ void MEDCouplingBasicsTest3::testKeepSetSelectedComponent1()
   const double expected1[30]={2.,3.,2.,3.,1.,1., 12.,13.,12.,13.,11.,11., 22.,23.,22.,23.,21.,21., 32.,33.,32.,33.,31.,31., 42.,43.,42.,43.,41.,41.};
   for(int i=0;i<30;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],a2->getIJ(0,i),1e-14);
-  DataArrayInt *a3=a1->convertToIntArr();
+  MCAuto<DataArrayInt> a3(a1->convertToIntArr());
   DataArrayInt *a4=static_cast<DataArrayInt *>(a3->keepSelectedComponents(arr2V));
   CPPUNIT_ASSERT_EQUAL(6,(int)a4->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(5,(int)a4->getNumberOfTuples());
@@ -713,7 +713,7 @@ void MEDCouplingBasicsTest3::testKeepSetSelectedComponent1()
   const double expected2[30]={2.,4.,3.,3.,1.,1., 12.,14.,13.,13.,11.,11., 22.,24.,23.,23.,21.,21., 32.,34.,33.,33.,31.,31., 42.,44.,43.,43.,41.,41.};
   for(int i=0;i<30;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],a2->getIJ(0,i),1e-14);
-  DataArrayInt *a6=a5->convertToIntArr();
+  MCAuto<DataArrayInt> a6=a5->convertToIntArr();
   a6->setInfoOnComponent(0,"eeee");
   a6->setInfoOnComponent(1,"ffff");
   a4->setSelectedComponents(a6,arr4V);
@@ -740,10 +740,8 @@ void MEDCouplingBasicsTest3::testKeepSetSelectedComponent1()
   arr7V.resize(3);
   CPPUNIT_ASSERT_THROW(a2->setSelectedComponents(a1,arr7V),INTERP_KERNEL::Exception);
   //
-  a6->decrRef();
   a5->decrRef();
   a4->decrRef();
-  a3->decrRef();
   a2->decrRef();
   a1->decrRef();
 }
@@ -1066,14 +1064,13 @@ void MEDCouplingBasicsTest3::testDAFromNoInterlace1()
   CPPUNIT_ASSERT_EQUAL(5,(int)da2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(3,(int)da2->getNumberOfComponents());// it's not a bug. Avoid to have 1 million components !
   CPPUNIT_ASSERT(std::equal(expected1,expected1+15,da2->getConstPointer()));
-  DataArrayDouble *da3=da->convertToDblArr();
+  MCAuto<DataArrayDouble> da3=da->convertToDblArr();
   DataArrayDouble *da4=da3->fromNoInterlace();
   CPPUNIT_ASSERT_EQUAL(5,(int)da4->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(3,(int)da4->getNumberOfComponents());// it's not a bug. Avoid to have 1 million components !
   for(int i=0;i<15;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL((double)expected1[i],da4->getIJ(0,i),1e-14);
   da4->decrRef();
-  da3->decrRef();
   da2->decrRef();
   da->decrRef();
 }
@@ -1089,14 +1086,13 @@ void MEDCouplingBasicsTest3::testDAToNoInterlace1()
   CPPUNIT_ASSERT_EQUAL(5,(int)da2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(3,(int)da2->getNumberOfComponents());// it's not a bug. Avoid to have 1 million components !
   CPPUNIT_ASSERT(std::equal(expected1,expected1+15,da2->getConstPointer()));
-  DataArrayDouble *da3=da->convertToDblArr();
+  MCAuto<DataArrayDouble> da3=da->convertToDblArr();
   DataArrayDouble *da4=da3->toNoInterlace();
   CPPUNIT_ASSERT_EQUAL(5,(int)da4->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(3,(int)da4->getNumberOfComponents());// it's not a bug. Avoid to have 1 million components !
   for(int i=0;i<15;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL((double)expected1[i],da4->getIJ(0,i),1e-14);
   da4->decrRef();
-  da3->decrRef();
   da2->decrRef();
   da->decrRef();
 }
@@ -1112,13 +1108,12 @@ void MEDCouplingBasicsTest3::testDAIsUniform1()
   CPPUNIT_ASSERT(!da->isUniform(1));
   da->setIJ(2,0,1);
   CPPUNIT_ASSERT(da->isUniform(1));
-  DataArrayDouble *da2=da->convertToDblArr();
+  MCAuto<DataArrayDouble> da2=da->convertToDblArr();
   CPPUNIT_ASSERT(da2->isUniform(1.,1e-12));
   da2->setIJ(1,0,1.+1.e-13);
   CPPUNIT_ASSERT(da2->isUniform(1.,1e-12));
   da2->setIJ(1,0,1.+1.e-11);
   CPPUNIT_ASSERT(!da2->isUniform(1.,1e-12));
-  da2->decrRef();
   da->decrRef();
 }
 
@@ -1648,7 +1643,7 @@ void MEDCouplingBasicsTest3::testDAMeld1()
   //
   da1->fillWithValue(7.);
   da2->iota(0.);
-  DataArrayDouble *da3=da2->applyFunc(3,"10*x*IVec+100*x*JVec+1000*x*KVec");
+  MCAuto<DataArrayDouble> da3=da2->applyFunc(3,"10*x*IVec+100*x*JVec+1000*x*KVec");
   //
   da1->setInfoOnComponent(0,"c0da1");
   da1->setInfoOnComponent(1,"c1da1");
@@ -1670,8 +1665,8 @@ void MEDCouplingBasicsTest3::testDAMeld1()
   for(int i=0;i<35;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],da1->getIJ(0,i),1e-10);
   //
-  DataArrayInt *dai1=da1C->convertToIntArr();
-  DataArrayInt *dai3=da3->convertToIntArr();
+  MCAuto<DataArrayInt> dai1=da1C->convertToIntArr();
+  MCAuto<DataArrayInt> dai3=da3->convertToIntArr();
   dai1->meldWith(dai3);
   CPPUNIT_ASSERT_EQUAL(5,(int)dai1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(7,(int)dai1->getNumberOfTuples());
@@ -1694,7 +1689,6 @@ void MEDCouplingBasicsTest3::testDAMeld1()
   for(int i=0;i<35;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],da4->getIJ(0,i),1e-10);
   // test of static method DataArrayInt::meld
-  dai1->decrRef();
   dai1=da1C->convertToIntArr();
   DataArrayInt *dai4=DataArrayInt::Meld(dai1,dai3);
   CPPUNIT_ASSERT_EQUAL(5,(int)dai4->getNumberOfComponents());
@@ -1709,12 +1703,9 @@ void MEDCouplingBasicsTest3::testDAMeld1()
   //
   dai4->decrRef();
   da4->decrRef();
-  dai3->decrRef();
-  dai1->decrRef();
   da1C->decrRef();
   da1->decrRef();
   da2->decrRef();
-  da3->decrRef();
 }
 
 void MEDCouplingBasicsTest3::testFieldMeld1()
@@ -2140,7 +2131,7 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(i,da1->getIJ(0,i));
   //double
-  DataArrayDouble *da2=da1->convertToDblArr();
+  MCAuto<DataArrayDouble> da2=da1->convertToDblArr();
   da1->decrRef();
   const double *ptr2=da2->getConstPointer();
   //
@@ -2180,7 +2171,6 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   CPPUNIT_ASSERT_EQUAL(4,(int)da2->getNumberOfTuples());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL((double)i,da2->getIJ(0,i),1e-14);
-  da2->decrRef();
 }
 
 void MEDCouplingBasicsTest3::testGetDifferentValues1()
@@ -2224,7 +2214,7 @@ void MEDCouplingBasicsTest3::testDAIBuildPermutationArr1()
   c=a->buildPermutationArr(*b);
   const int expect2[5]={1,3,4,2,3};
   CPPUNIT_ASSERT(std::equal(expect2,expect2+5,c->getConstPointer()));
-  DataArrayDouble *d=b->convertToDblArr();
+  MCAuto<DataArrayDouble> d=b->convertToDblArr();
   b->sort();
   const int expect3[5]={4,4,5,6,8};
   CPPUNIT_ASSERT(std::equal(expect3,expect3+5,b->getConstPointer()));
@@ -2234,10 +2224,9 @@ void MEDCouplingBasicsTest3::testDAIBuildPermutationArr1()
   for(int i=0;i<5;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(double(expect3[i]),d->getIJ(i,0),1e-14);
   //
-  d->decrRef();
+  b->decrRef();
   c->decrRef();
   a->decrRef();
-  b->decrRef();
 }
 
 void MEDCouplingBasicsTest3::testAreCellsIncludedIn2()

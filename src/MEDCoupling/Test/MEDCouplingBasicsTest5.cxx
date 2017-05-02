@@ -601,7 +601,7 @@ void MEDCouplingBasicsTest5::testDataArrayAbs1()
   const double expected1[12]={2.,3.,5.,6.,7.,8.,9.,10.,11.,12.,13.,15.};
   d1->alloc(6,2);
   std::copy(val1,val1+12,d1->getPointer());
-  DataArrayInt *d2=d1->convertToIntArr();
+  MCAuto<DataArrayInt> d2=d1->convertToIntArr();
   //
   d1->abs();
   for(int i=0;i<12;i++)
@@ -612,7 +612,6 @@ void MEDCouplingBasicsTest5::testDataArrayAbs1()
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected2[i],d2->getIJ(0,i));
   //
-  d2->decrRef();
   d1->decrRef();
 }
 

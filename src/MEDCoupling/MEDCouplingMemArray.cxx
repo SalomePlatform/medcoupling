@@ -40,6 +40,8 @@ template class MEDCoupling::MemArray<int>;
 template class MEDCoupling::MemArray<double>;
 template class MEDCoupling::DataArrayTemplate<int>;
 template class MEDCoupling::DataArrayTemplate<double>;
+template class MEDCoupling::DataArrayTemplateClassic<int>;
+template class MEDCoupling::DataArrayTemplateClassic<double>;
 template class MEDCoupling::DataArrayTemplateFP<double>;
 
 template<int SPACEDIM>
@@ -812,13 +814,7 @@ DataArrayDouble *DataArrayDouble::deepCopy() const
  */
 DataArrayDouble *DataArrayDouble::performCopyOrIncrRef(bool dCpy) const
 {
-  if(dCpy)
-    return deepCopy();
-  else
-    {
-      incrRef();
-      return const_cast<DataArrayDouble *>(this);
-    }
+  return DataArrayTemplateClassic<double>::PerformCopyOrIncrRef(dCpy,*this);
 }
 
 /*!
@@ -1123,23 +1119,6 @@ bool DataArrayDouble::isEqualWithoutConsideringStr(const DataArrayDouble& other,
 {
   std::string tmp;
   return _mem.isEqual(other._mem,prec,tmp);
-}
-
-/*!
- * Creates a new DataArrayInt and assigns all (textual and numerical) data of \a this
- * array to the new one.
- *  \return DataArrayInt * - the new instance of DataArrayInt.
- */
-DataArrayInt *DataArrayDouble::convertToIntArr() const
-{
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(getNumberOfTuples(),getNumberOfComponents());
-  int *dest=ret->getPointer();
-  // to make Visual C++ happy : instead of std::size_t nbOfVals=getNbOfElems(); std::copy(src,src+nbOfVals,dest);
-  for(const double *src=begin();src!=end();src++,dest++)
-    *dest=(int)*src;
-  ret->copyStringInfoFrom(*this);
-  return ret;
 }
 
 /*!
@@ -4731,13 +4710,7 @@ DataArrayInt *DataArrayInt::deepCopy() const
  */
 DataArrayInt *DataArrayInt::performCopyOrIncrRef(bool dCpy) const
 {
-  if(dCpy)
-    return deepCopy();
-  else
-    {
-      incrRef();
-      return const_cast<DataArrayInt *>(this);
-    }
+  return DataArrayTemplateClassic<int>::PerformCopyOrIncrRef(dCpy,*this);
 }
 
 /*!
@@ -6028,24 +6001,6 @@ bool DataArrayInt::hasUniqueValues() const
   if (s.size() != nbOfTuples)
     return false;
   return true;
-}
-
-/*!
- * Creates a new DataArrayDouble and assigns all (textual and numerical) data of \a this
- * array to the new one.
- *  \return DataArrayDouble * - the new instance of DataArrayInt.
- */
-DataArrayDouble *DataArrayInt::convertToDblArr() const
-{
-  checkAllocated();
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->alloc(getNumberOfTuples(),getNumberOfComponents());
-  std::size_t nbOfVals=getNbOfElems();
-  const int *src=getConstPointer();
-  double *dest=ret->getPointer();
-  std::copy(src,src+nbOfVals,dest);
-  ret->copyStringInfoFrom(*this);
-  return ret;
 }
 
 /*!

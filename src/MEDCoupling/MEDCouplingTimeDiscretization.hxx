@@ -243,10 +243,10 @@ namespace MEDCoupling
   public:
     MEDCouplingTimeDiscretizationFloat() { }
     MEDCouplingTimeDiscretizationFloat(const MEDCouplingTimeDiscretizationFloat& other, bool deepCopy);
-    static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
+    static MEDCouplingTimeDiscretizationFloat *New(TypeOfTimeDiscretization type);
     MEDCouplingTimeDiscretizationFloat *performCopyOrIncrRef(bool deepCopy) const;
     bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec, std::string& reason) const;
-    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<int> *other, float prec) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec) const;
   private:
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
   };

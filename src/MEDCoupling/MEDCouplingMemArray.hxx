@@ -298,7 +298,21 @@ namespace MEDCoupling
   };
 
   template<class T>
-  class DataArrayTemplateFP : public DataArrayTemplate<T>
+  class DataArrayTemplateClassic : public DataArrayTemplate<T>
+  {
+  public:
+    MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> convertToDblArr() const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> convertToIntArr() const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayFloat> convertToFloatArr() const;
+  protected:
+    static typename Traits<T>::ArrayType *PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self);
+  private:
+    template<class U>
+    MCAuto< typename Traits<U>::ArrayType > convertToOtherTypeOfArr() const;
+  };
+  
+  template<class T>
+  class DataArrayTemplateFP : public DataArrayTemplateClassic<T>
   {
   public:
     MEDCOUPLING_EXPORT bool isUniform(T val, T eps) const;
@@ -326,14 +340,14 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void reprCppStream(const std::string& varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
-  public:
+  public:// non abstract but essential
     MEDCOUPLING_EXPORT std::string reprNotTooLong() const;
     MEDCOUPLING_EXPORT void reprNotTooLongStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprNotTooLongWithoutNameStream(std::ostream& stream) const;
-  public:
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayFloat& other, float prec) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayFloat& other, float prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayFloat& other, float prec) const;
+    MEDCOUPLING_EXPORT DataArrayFloat *performCopyOrIncrRef(bool deepCopy) const;
   private:
     ~DataArrayFloat() { }
     DataArrayFloat() { }
@@ -370,7 +384,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const;
-    MEDCOUPLING_EXPORT DataArrayInt *convertToIntArr() const;
     MEDCOUPLING_EXPORT DataArrayDouble *fromNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayDouble *toNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplateFP<double>::mySelectByTupleId(new2OldBg,new2OldEnd); }
@@ -527,7 +540,7 @@ namespace MEDCoupling
 
   class DataArrayIntIterator;
 
-  class DataArrayInt : public DataArrayTemplate<int>
+  class DataArrayInt : public DataArrayTemplateClassic<int>
   {
   public:
     MEDCOUPLING_EXPORT static DataArrayInt *New();
@@ -573,7 +586,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *convertToDblArr() const;
     MEDCOUPLING_EXPORT DataArrayInt *fromNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayInt *toNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<int>::mySelectByTupleId(new2OldBg,new2OldEnd); }
