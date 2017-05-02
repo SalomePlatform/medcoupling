@@ -1272,7 +1272,7 @@ static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, cons
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, MEDCoupling::DataArrayInt *& daIntTyypp, MEDCoupling::DataArrayIntTuple *&daIntTuple) throw(INTERP_KERNEL::Exception)
+static void convertIntStarLikePyObjToCpp(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, MEDCoupling::DataArrayInt *& daIntTyypp, MEDCoupling::DataArrayIntTuple *&daIntTuple) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyInt_Check(value))
@@ -1336,6 +1336,86 @@ static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std:
 }
 
 /*!
+ * if python int -> cpp int sw=1
+ * if python list[int] -> cpp vector<int> sw=2
+ * if python tuple[int] -> cpp vector<int> sw=2
+ * if python DataArrayInt -> cpp DataArrayInt sw=3
+ * if python DataArrayIntTuple -> cpp DataArrayIntTuple sw=4
+ *
+ * switch between (int,vector<int>,DataArrayInt)
+ */
+static const int *convertIntStarLikePyObjToCppIntStar(PyObject *value, int& sw, int& sz, int& iTyypp, std::vector<int>& stdvecTyypp) throw(INTERP_KERNEL::Exception)
+{
+  sw=-1;
+  if(PyInt_Check(value))
+    {
+      iTyypp=(int)PyInt_AS_LONG(value);
+      sw=1; sz=1;
+      return &iTyypp;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not integer ! only tuples of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2; sz=size;
+      return &stdvecTyypp[0];
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not integer ! only lists of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2; sz=size;
+      return &stdvecTyypp[0];
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0);
+  if(SWIG_IsOK(status))
+    {
+      MEDCoupling::DataArrayInt *daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayInt * >(argp);
+      if(daIntTyypp)
+        {
+          sw=3; sz=daIntTyypp->getNbOfElems();
+          return daIntTyypp->begin();
+        }
+      else
+        {
+          sz=0;
+          return 0;
+        }
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      MEDCoupling::DataArrayIntTuple *daIntTuple=reinterpret_cast< MEDCoupling::DataArrayIntTuple * >(argp);
+      sw=4; sz=daIntTuple->getNumberOfCompo();
+      return daIntTuple->getConstPointer();
+    }
+  throw INTERP_KERNEL::Exception("5 types accepted : integer, tuple of integer, list of integer, DataArrayInt, DataArrayIntTuple");
+}
+
+/*!
  * if python double -> cpp double sw=1
  * if python int -> cpp double sw=1
  * if python list[double] -> cpp vector<double> sw=2
@@ -1347,7 +1427,7 @@ static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std:
  * switch between (int,vector<int>,DataArrayInt)
  */
 template<class T>
-void convertObjToPossibleCpp4(PyObject *value, int& sw, T& iTyypp, std::vector<T>& stdvecTyypp, typename MEDCoupling::Traits<T>::ArrayType *& daIntTyypp, swig_type_info *ti) throw(INTERP_KERNEL::Exception)
+void considerPyObjAsATStarLikeObject(PyObject *value, int& sw, T& iTyypp, std::vector<T>& stdvecTyypp, typename MEDCoupling::Traits<T>::ArrayType *& daIntTyypp, swig_type_info *ti) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -1421,7 +1501,7 @@ void convertObjToPossibleCpp4(PyObject *value, int& sw, T& iTyypp, std::vector<T
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, std::vector<double>& stdvecTyypp, MEDCoupling::DataArrayDoubleTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertDoubleStarLikePyObjToCpp(PyObject *value, int& sw, double& iTyypp, std::vector<double>& stdvecTyypp, MEDCoupling::DataArrayDoubleTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -1485,6 +1565,87 @@ static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, 
 }
 
 /*!
+ * if value int -> cpp val sw=1
+ * if value double -> cpp val sw=1
+ * if value DataArrayDouble -> cpp DataArrayDouble sw=2
+ * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
+ * if value list[int,double] -> cpp std::vector<double> sw=4
+ * if value tuple[int,double] -> cpp std::vector<double> sw=4
+ */
+static void convertDoubleStarLikePyObjToCpp_2(PyObject *value, int& sw, double& val, MEDCoupling::DataArrayDouble *&d, MEDCoupling::DataArrayDoubleTuple *&e, std::vector<double>& f)
+{
+  sw=-1;
+  if(PyFloat_Check(value))
+    {
+      val=PyFloat_AS_DOUBLE(value);
+      sw=1;
+      return;
+    }
+  if(PyInt_Check(value))
+    {
+      val=(double)PyInt_AS_LONG(value);
+      sw=1;
+      return;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      f.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyFloat_Check(o))
+            f[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            f[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=4;
+      return;
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      f.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyFloat_Check(o))
+            f[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            f[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=4;
+      return;
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
+      sw=2;
+      return ;
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
+      sw=3;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
+}
+
+/*!
  * if python int -> cpp int sw=1
  * if python list[int] -> cpp vector<int> sw=2
  * if python tuple[int] -> cpp vector<int> sw=2
@@ -1493,7 +1654,7 @@ static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, 
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, MEDCoupling::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertIntStarOrSliceLikePyObjToCpp(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, MEDCoupling::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
   const char *msg="5 types accepted : integer, tuple of integer, list of integer, slice, DataArrayInt, DataArrayIntTuple";
   sw=-1;
@@ -1581,11 +1742,11 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
 }
 
 /*!
- * Idem than convertObjToPossibleCpp2
+ * Idem than convertIntStarOrSliceLikePyObjToCpp
  */
-static void convertObjToPossibleCpp2WithNegIntInterp(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, MEDCoupling::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, MEDCoupling::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
-  convertObjToPossibleCpp2(value,nbelem,sw,iTyypp,stdvecTyypp,p,daIntTyypp);
+  convertIntStarOrSliceLikePyObjToCpp(value,nbelem,sw,iTyypp,stdvecTyypp,p,daIntTyypp);
   if(sw==1)
     {
       iTyypp=InterpreteNegativeInt(iTyypp,nbelem);
@@ -1778,7 +1939,7 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
 {
   if(!PyTuple_Check(value))
     {
-      convertObjToPossibleCpp2WithNegIntInterp(value,nbTuple,sw,it,vt,pt,dt);
+      convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(value,nbTuple,sw,it,vt,pt,dt);
       return ;
     }
   else
@@ -1788,92 +1949,11 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
         throw INTERP_KERNEL::Exception("Unexpected nb of slice element : 1 or 2 expected !\n1st is for tuple selection, 2nd for component selection !");
       PyObject *ob0=PyTuple_GetItem(value,0);
       int sw1,sw2;
-      convertObjToPossibleCpp2WithNegIntInterp(ob0,nbTuple,sw1,it,vt,pt,dt);
+      convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(ob0,nbTuple,sw1,it,vt,pt,dt);
       PyObject *ob1=PyTuple_GetItem(value,1);
-      convertObjToPossibleCpp2WithNegIntInterp(ob1,nbCompo,sw2,ic,vc,pc,dc);
+      convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(ob1,nbCompo,sw2,ic,vc,pc,dc);
       sw=4*sw2+sw1;
     }
-}
-
-/*!
- * if value int -> cpp val sw=1
- * if value double -> cpp val sw=1
- * if value DataArrayDouble -> cpp DataArrayDouble sw=2
- * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
- * if value list[int,double] -> cpp std::vector<double> sw=4
- * if value tuple[int,double] -> cpp std::vector<double> sw=4
- */
-static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, MEDCoupling::DataArrayDouble *&d, MEDCoupling::DataArrayDoubleTuple *&e, std::vector<double>& f)
-{
-  sw=-1;
-  if(PyFloat_Check(value))
-    {
-      val=PyFloat_AS_DOUBLE(value);
-      sw=1;
-      return;
-    }
-  if(PyInt_Check(value))
-    {
-      val=(double)PyInt_AS_LONG(value);
-      sw=1;
-      return;
-    }
-  if(PyTuple_Check(value))
-    {
-      int size=PyTuple_Size(value);
-      f.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyTuple_GetItem(value,i);
-          if(PyFloat_Check(o))
-            f[i]=PyFloat_AS_DOUBLE(o);
-          else if(PyInt_Check(o))
-            f[i]=(double)PyInt_AS_LONG(o);
-          else
-            {
-              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
-        }
-      sw=4;
-      return;
-    }
-  if(PyList_Check(value))
-    {
-      int size=PyList_Size(value);
-      f.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyList_GetItem(value,i);
-          if(PyFloat_Check(o))
-            f[i]=PyFloat_AS_DOUBLE(o);
-          else if(PyInt_Check(o))
-            f[i]=(double)PyInt_AS_LONG(o);
-          else
-            {
-              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
-        }
-      sw=4;
-      return;
-    }
-  void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
-  if(SWIG_IsOK(status))
-    {  
-      d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
-      sw=2;
-      return ;
-    }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
-  if(SWIG_IsOK(status))
-    {  
-      e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
-      sw=3;
-      return ;
-    }
-  throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
 }
 
 /*!
@@ -2257,86 +2337,6 @@ static const double *convertObjToPossibleCpp5_SingleCompo(PyObject *value, int& 
   throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
 }
 
-/*!
- * if python int -> cpp int sw=1
- * if python list[int] -> cpp vector<int> sw=2
- * if python tuple[int] -> cpp vector<int> sw=2
- * if python DataArrayInt -> cpp DataArrayInt sw=3
- * if python DataArrayIntTuple -> cpp DataArrayIntTuple sw=4
- *
- * switch between (int,vector<int>,DataArrayInt)
- */
-static const int *convertObjToPossibleCpp1_Safe(PyObject *value, int& sw, int& sz, int& iTyypp, std::vector<int>& stdvecTyypp) throw(INTERP_KERNEL::Exception)
-{
-  sw=-1;
-  if(PyInt_Check(value))
-    {
-      iTyypp=(int)PyInt_AS_LONG(value);
-      sw=1; sz=1;
-      return &iTyypp;
-    }
-  if(PyTuple_Check(value))
-    {
-      int size=PyTuple_Size(value);
-      stdvecTyypp.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyTuple_GetItem(value,i);
-          if(PyInt_Check(o))
-            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
-          else
-            {
-              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not integer ! only tuples of integers accepted !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
-        }
-      sw=2; sz=size;
-      return &stdvecTyypp[0];
-    }
-  if(PyList_Check(value))
-    {
-      int size=PyList_Size(value);
-      stdvecTyypp.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyList_GetItem(value,i);
-          if(PyInt_Check(o))
-            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
-          else
-            {
-              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not integer ! only lists of integers accepted !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
-        }
-      sw=2; sz=size;
-      return &stdvecTyypp[0];
-    }
-  void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0);
-  if(SWIG_IsOK(status))
-    {
-      MEDCoupling::DataArrayInt *daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayInt * >(argp);
-      if(daIntTyypp)
-        {
-          sw=3; sz=daIntTyypp->getNbOfElems();
-          return daIntTyypp->begin();
-        }
-      else
-        {
-          sz=0;
-          return 0;
-        }
-    }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,0|0);
-  if(SWIG_IsOK(status))
-    {  
-      MEDCoupling::DataArrayIntTuple *daIntTuple=reinterpret_cast< MEDCoupling::DataArrayIntTuple * >(argp);
-      sw=4; sz=daIntTuple->getNumberOfCompo();
-      return daIntTuple->getConstPointer();
-    }
-  throw INTERP_KERNEL::Exception("5 types accepted : integer, tuple of integer, list of integer, DataArrayInt, DataArrayIntTuple");
-}
-
 static MEDCoupling::DataArray *CheckAndRetrieveDataArrayInstance(PyObject *obj, const char *msg)
 {
   void *aBasePtrVS=0;
@@ -2548,7 +2548,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
   T i1;
   std::vector<T> v1;
   typename MEDCoupling::Traits<T>::ArrayType *d1=0;
-  convertObjToPossibleCpp4<T>(value,sw1,i1,v1,d1,ti);
+  considerPyObjAsATStarLikeObject<T>(value,sw1,i1,v1,d1,ti);
   int it1,ic1;
   std::vector<int> vt1,vc1;
   std::pair<int, std::pair<int,int> > pt1,pc1;
@@ -2996,14 +2996,22 @@ struct SWIGTITraits
 
 template<>
 struct SWIGTITraits<double>
-{ static swig_type_info *TI; };
+{ static swig_type_info *TI; static swig_type_info *TI_TUPLE; };
 
 template<>
 struct SWIGTITraits<float>
-{ static swig_type_info *TI; };
+{ static swig_type_info *TI; static swig_type_info *TI_TUPLE; };
+
+template<>
+struct SWIGTITraits<int>
+{ static swig_type_info *TI; static swig_type_info *TI_TUPLE; };
 
 swig_type_info *SWIGTITraits<double>::TI=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayDouble is null when called here ! Postpone initialization at inlined initializeMe()
 swig_type_info *SWIGTITraits<float>::TI=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayFloat is null when called here ! Postpone initialization at inlined initializeMe()
+swig_type_info *SWIGTITraits<int>::TI=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayFloat is null when called here ! Postpone initialization at inlined initializeMe()
+swig_type_info *SWIGTITraits<double>::TI_TUPLE=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayDouble is null when called here ! Postpone initialization at inlined initializeMe()
+swig_type_info *SWIGTITraits<float>::TI_TUPLE=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayFloat is null when called here ! Postpone initialization at inlined initializeMe()
+swig_type_info *SWIGTITraits<int>::TI_TUPLE=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayFloat is null when called here ! Postpone initialization at inlined initializeMe()
 
 PyTypeObject *NPYTraits<double>::NPYFunc=&PyCallBackDataArrayDouble_RefType;
 

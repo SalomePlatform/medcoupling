@@ -481,6 +481,51 @@ namespace MEDCoupling
   //////////////////////////////////
 
   template<class T>
+  DataArrayIterator<T>::DataArrayIterator(typename Traits<T>::ArrayType *da):_da(da),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
+  {
+    if(_da)
+      {
+        _da->incrRef();
+        if(_da->isAllocated())
+          {
+            _nb_comp=da->getNumberOfComponents();
+            _nb_tuple=da->getNumberOfTuples();
+            _pt=da->getPointer();
+          }
+      }
+  }
+  
+  template<class T>
+  DataArrayIterator<T>::~DataArrayIterator()
+  {
+    if(_da)
+      _da->decrRef();
+  }
+
+  template<class T>
+  typename Traits<T>::ArrayTuple *DataArrayIterator<T>::nextt()
+  {
+    if(_tuple_id<_nb_tuple)
+      {
+        _tuple_id++;
+        typename Traits<T>::ArrayTuple *ret=new typename Traits<T>::ArrayTuple(_pt,_nb_comp);
+        _pt+=_nb_comp;
+        return ret;
+      }
+    else
+      return 0;
+  }
+
+  //////////////////////////////////
+
+  template<class T>
+  DataArrayTuple<T>::DataArrayTuple(T *pt, int nbOfComp):_pt(pt),_nb_of_compo(nbOfComp)
+  {
+  }
+  
+  //////////////////////////////////
+
+  template<class T>
   MCAuto< typename Traits<T>::ArrayTypeCh > DataArrayTemplate<T>::NewFromStdVector(const typename std::vector<T>& v)
   {
     std::size_t sz(v.size());

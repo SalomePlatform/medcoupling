@@ -168,7 +168,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
   MEDCoupling::DataArrayDoubleTuple *aa;
   std::vector<double> bb;
   int sw;
-  convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+  convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   switch(sw)
     {
     case 1:
@@ -240,7 +240,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
   MEDCoupling::DataArrayDoubleTuple *aa;
   std::vector<double> bb;
   int sw;
-  convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+  convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   switch(sw)
     {
     case 1:
@@ -307,7 +307,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
   MEDCoupling::DataArrayDoubleTuple *aa;
   std::vector<double> bb;
   int sw;
-  convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+  convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   switch(sw)
     {
     case 1:
@@ -379,7 +379,7 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
   MEDCoupling::DataArrayDoubleTuple *aa;
   std::vector<double> bb;
   int sw;
-  convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+  convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   switch(sw)
     {
     case 1:
@@ -438,7 +438,7 @@ typename MEDCoupling::Traits<T>::FieldType *fieldT_buildSubPart(const MEDCouplin
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : field lies on a null mesh !");
   int nbc=mesh->getNumberOfCells();
-  convertObjToPossibleCpp2(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+  convertIntStarOrSliceLikePyObjToCpp(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
   switch(sw)
     {
     case 1:
@@ -504,7 +504,7 @@ typename MEDCoupling::Traits<T>::FieldType *fieldT__getitem__(const MEDCoupling:
       if(!self->getArray())
         throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::__getitem__ : no array set on field to deduce number of components !");
       try
-        { convertObjToPossibleCpp2(elt1,self->getArray()->getNumberOfComponents(),sw,singleVal,multiVal,slic,daIntTyypp); }
+        { convertIntStarOrSliceLikePyObjToCpp(elt1,self->getArray()->getNumberOfComponents(),sw,singleVal,multiVal,slic,daIntTyypp); }
       catch(INTERP_KERNEL::Exception& e)
         { std::ostringstream oss; oss << "MEDCouplingFieldDouble::__getitem__ : invalid type in 2nd parameter (compo) !" << e.what(); throw INTERP_KERNEL::Exception(oss.str().c_str()); }
       typename MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::FieldType > ret0(fieldT_buildSubPart<T>(self,elt0));

@@ -69,7 +69,7 @@ namespace MEDCoupling
       {
         int sz=0,sw=-1,val1=-1;
         std::vector<int> val2;
-        const int *inp=convertObjToPossibleCpp1_Safe(li,sw,sz,val1,val2);
+        const int *inp=convertIntStarLikePyObjToCppIntStar(li,sw,sz,val1,val2);
         return self->clonePart(inp,inp+sz);
       }
       
@@ -103,7 +103,7 @@ namespace MEDCoupling
       {
         std::vector<int> vVal; int iVal=-1;
         int sz=-1,sw=0;
-        const int *tupleIdsBg=convertObjToPossibleCpp1_Safe(tupleIds,sw,sz,iVal,vVal);
+        const int *tupleIdsBg=convertIntStarLikePyObjToCppIntStar(tupleIds,sw,sz,iVal,vVal);
         if(sw==0)
           throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::computeMeshRestrictionFromTupleIds : none parameter in input !");
         DataArrayInt *ret0=0,*ret1=0;
@@ -225,7 +225,7 @@ namespace MEDCoupling
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
-        const int *ids(convertObjToPossibleCpp1_Safe(li,sw,sz,v0,v1));
+        const int *ids(convertIntStarLikePyObjToCppIntStar(li,sw,sz,v0,v1));
         self->renumberCells(ids,check);
       }
 
@@ -237,7 +237,7 @@ namespace MEDCoupling
         //
         int sw,sz(-1);
         int v0; std::vector<int> v1;
-        const int *old2NewBg(convertObjToPossibleCpp1_Safe(old2New,sw,sz,v0,v1));
+        const int *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
         //
         self->renumberArraysForCell(mesh,input1,old2NewBg,check);
       }
@@ -246,7 +246,7 @@ namespace MEDCoupling
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
-        const int *cellIdsBg(convertObjToPossibleCpp1_Safe(cellIds,sw,sz,v0,v1));
+        const int *cellIdsBg(convertIntStarLikePyObjToCppIntStar(cellIds,sw,sz,v0,v1));
         return self->computeTupleIdsToSelectFromCellIds(mesh,cellIdsBg,cellIdsBg+sz);
       }
 
@@ -254,7 +254,7 @@ namespace MEDCoupling
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
-        const int *idsBg(convertObjToPossibleCpp1_Safe(ids,sw,sz,v0,v1));
+        const int *idsBg(convertIntStarLikePyObjToCppIntStar(ids,sw,sz,v0,v1));
         DataArrayInt *di(0);
         MEDCouplingMesh *ret0=self->buildSubMeshData(mesh,idsBg,idsBg+sz,di);
         PyObject *ret=PyTuple_New(2);
@@ -267,7 +267,7 @@ namespace MEDCoupling
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
-        const int *old2NewBg(convertObjToPossibleCpp1_Safe(old2New,sw,sz,v0,v1));
+        const int *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
         self->renumberValuesOnNodes(epsOnVals,old2NewBg,newNbOfNodes,arr);
       }
 
@@ -275,7 +275,7 @@ namespace MEDCoupling
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
-        const int *old2NewBg(convertObjToPossibleCpp1_Safe(old2New,sw,sz,v0,v1));
+        const int *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
         self->renumberValuesOnCells(epsOnVals,mesh,old2NewBg,newSz,arr);
       }
 
@@ -283,7 +283,7 @@ namespace MEDCoupling
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
-        const int *new2oldBg(convertObjToPossibleCpp1_Safe(new2old,sw,sz,v0,v1));
+        const int *new2oldBg(convertIntStarLikePyObjToCppIntStar(new2old,sw,sz,v0,v1));
         self->renumberValuesOnCellsR(mesh,new2oldBg,newSz,arr);
       }
     }

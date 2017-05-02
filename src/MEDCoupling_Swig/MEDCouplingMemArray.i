@@ -1225,7 +1225,7 @@ namespace MEDCoupling
       {
         int sw,sz,val;
         std::vector<int> val2;
-        const int *bg=convertObjToPossibleCpp1_Safe(indexArr,sw,sz,val,val2);
+        const int *bg=convertIntStarLikePyObjToCppIntStar(indexArr,sw,sz,val,val2);
         return self->accumulatePerChunck(bg,bg+sz);
       }
 
@@ -1367,7 +1367,7 @@ namespace MEDCoupling
           }
 #endif
         //
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1403,7 +1403,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1435,7 +1435,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1495,7 +1495,7 @@ namespace MEDCoupling
           }
 #endif
         //
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1531,7 +1531,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1563,7 +1563,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1623,7 +1623,7 @@ namespace MEDCoupling
           }
 #endif
         //
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1659,7 +1659,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1691,7 +1691,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1751,7 +1751,7 @@ namespace MEDCoupling
           }
 #endif
         //
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1789,7 +1789,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1821,7 +1821,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1865,7 +1865,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1901,7 +1901,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -1933,7 +1933,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -2107,7 +2107,7 @@ namespace MEDCoupling
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         const double *pt=self->getConstPointer();
         int nbc=self->getNumberOfCompo();
-        convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2171,13 +2171,13 @@ namespace MEDCoupling
         std::vector<double> multiValV;
         MEDCoupling::DataArrayDoubleTuple *daIntTyyppV=0;
         int nbc=self->getNumberOfCompo();
-        convertObjToPossibleCpp44(value,sw1,singleValV,multiValV,daIntTyyppV);
+        convertDoubleStarLikePyObjToCpp(value,sw1,singleValV,multiValV,daIntTyyppV);
         int singleVal;
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         double *pt=self->getPointer();
-        convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
         switch(sw2)
           {
           case 1:
@@ -2643,7 +2643,7 @@ namespace MEDCoupling
       {
         int sw,sz,val;
         std::vector<int> val2;
-        const int *bg=convertObjToPossibleCpp1_Safe(indexArr,sw,sz,val,val2);
+        const int *bg=convertIntStarLikePyObjToCppIntStar(indexArr,sw,sz,val,val2);
         return self->accumulatePerChunck(bg,bg+sz);
       }
 
@@ -2651,7 +2651,7 @@ namespace MEDCoupling
       {
         int sw,sz,val;
         std::vector<int> val2;
-        const int *bg(convertObjToPossibleCpp1_Safe(inputTuple,sw,sz,val,val2));
+        const int *bg(convertIntStarLikePyObjToCppIntStar(inputTuple,sw,sz,val,val2));
         return self->findIdsEqualTuple(bg,bg+sz);
       }
 
@@ -2691,8 +2691,8 @@ namespace MEDCoupling
         int newNbOfTuples=-1;
         int szArr,szArrI,sw,iTypppArr,iTypppArrI;
         std::vector<int> stdvecTyyppArr,stdvecTyyppArrI;
-        const int *arrPtr=convertObjToPossibleCpp1_Safe(arr,sw,szArr,iTypppArr,stdvecTyyppArr);
-        const int *arrIPtr=convertObjToPossibleCpp1_Safe(arrI,sw,szArrI,iTypppArrI,stdvecTyyppArrI);
+        const int *arrPtr=convertIntStarLikePyObjToCppIntStar(arr,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *arrIPtr=convertIntStarLikePyObjToCppIntStar(arrI,sw,szArrI,iTypppArrI,stdvecTyyppArrI);
         DataArrayInt *ret0=MEDCoupling::DataArrayInt::ConvertIndexArrayToO2N(nbOfOldTuples,arrPtr,arrIPtr,arrIPtr+szArrI,newNbOfTuples);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_MEDCoupling__DataArrayInt,SWIG_POINTER_OWN | 0));
@@ -2705,7 +2705,7 @@ namespace MEDCoupling
         MCAuto<DataArrayInt> ret(DataArrayInt::New());
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *arrPtr(convertObjToPossibleCpp1_Safe(arr,sw,szArr,iTypppArr,stdvecTyyppArr));
+        const int *arrPtr(convertIntStarLikePyObjToCppIntStar(arr,sw,szArr,iTypppArr,stdvecTyyppArr));
         int *pt(MEDCoupling::DataArrayInt::CheckAndPreparePermutation(arrPtr,arrPtr+szArr));
         ret->useArray(pt,true,MEDCoupling::C_DEALLOC,szArr,1);
         return ret.retn();
@@ -2830,7 +2830,7 @@ namespace MEDCoupling
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
-        convertObjToPossibleCpp2(obj,self->getNumberOfTuples(),sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(obj,self->getNumberOfTuples(),sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2851,7 +2851,7 @@ namespace MEDCoupling
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
-        convertObjToPossibleCpp2(obj,self->getNumberOfTuples(),sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(obj,self->getNumberOfTuples(),sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -3256,7 +3256,7 @@ namespace MEDCoupling
         std::vector<int> v1;
         DataArrayInt *d1=0;
         DataArrayIntTuple *dd1=0;
-        convertObjToPossibleCpp1(value,sw1,i1,v1,d1,dd1);
+        convertIntStarLikePyObjToCpp(value,sw1,i1,v1,d1,dd1);
         int it1,ic1;
         std::vector<int> vt1,vc1;
         std::pair<int, std::pair<int,int> > pt1,pc1;
@@ -3668,7 +3668,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3704,7 +3704,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3736,7 +3736,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3778,7 +3778,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3814,7 +3814,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3846,7 +3846,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3888,7 +3888,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3924,7 +3924,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3956,7 +3956,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -3998,7 +3998,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4034,7 +4034,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4066,7 +4066,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4108,7 +4108,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4144,7 +4144,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4180,7 +4180,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4215,7 +4215,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4251,7 +4251,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4287,7 +4287,7 @@ namespace MEDCoupling
         std::vector<int> aa;
         DataArrayIntTuple *aaa;
         int sw;
-        convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
+        convertIntStarLikePyObjToCpp(obj,sw,val,aa,a,aaa);
         switch(sw)
           {
           case 1:
@@ -4325,7 +4325,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->pushBackValsSilent(tmp,tmp+szArr);
       }
       
@@ -4503,7 +4503,7 @@ namespace MEDCoupling
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         const int *pt=self->getConstPointer();
         int nbc=self->getNumberOfCompo();
-        convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -4574,7 +4574,7 @@ namespace MEDCoupling
         std::pair<int, std::pair<int,int> > slic;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         int *pt=self->getPointer();
-        convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
         switch(sw2)
           {
           case 1:
@@ -5042,7 +5042,7 @@ namespace MEDCoupling
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
-        const int *pt=convertObjToPossibleCpp1_Safe(tupl,sw,sz,ival,ivval);
+        const int *pt=convertIntStarLikePyObjToCppIntStar(tupl,sw,sz,ival,ivval);
         std::vector<char> vals(sz);
         std::copy(pt,pt+sz,vals.begin());
         return self->presenceOfTuple(vals);
@@ -5052,7 +5052,7 @@ namespace MEDCoupling
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
-        const int *pt=convertObjToPossibleCpp1_Safe(vals,sw,sz,ival,ivval);
+        const int *pt=convertIntStarLikePyObjToCppIntStar(vals,sw,sz,ival,ivval);
         std::vector<char> vals2(sz);
         std::copy(pt,pt+sz,vals2.begin());
         return self->presenceOfValue(vals2);
@@ -5062,7 +5062,7 @@ namespace MEDCoupling
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
-        const int *pt=convertObjToPossibleCpp1_Safe(vals,sw,sz,ival,ivval);
+        const int *pt=convertIntStarLikePyObjToCppIntStar(vals,sw,sz,ival,ivval);
         std::vector<char> vals2(sz);
         std::copy(pt,pt+sz,vals2.begin());
         return self->findIdFirstEqual(vals2);
@@ -5072,7 +5072,7 @@ namespace MEDCoupling
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
-        const int *pt=convertObjToPossibleCpp1_Safe(tupl,sw,sz,ival,ivval);
+        const int *pt=convertIntStarLikePyObjToCppIntStar(tupl,sw,sz,ival,ivval);
         std::vector<char> vals(sz);
         std::copy(pt,pt+sz,vals.begin());
         return self->findIdFirstEqualTuple(vals);
@@ -5082,7 +5082,7 @@ namespace MEDCoupling
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
-        const int *pt=convertObjToPossibleCpp1_Safe(strOrListOfInt,sw,sz,ival,ivval);
+        const int *pt=convertIntStarLikePyObjToCppIntStar(strOrListOfInt,sw,sz,ival,ivval);
         std::vector<char> vals(sz);
         std::copy(pt,pt+sz,vals.begin());
         return self->findIdSequence(vals);
@@ -5202,7 +5202,7 @@ namespace MEDCoupling
         std::vector<int> v1;
         DataArrayInt *d1=0;
         DataArrayIntTuple *dd1=0;
-        convertObjToPossibleCpp1(value,sw1,i1,v1,d1,dd1);
+        convertIntStarLikePyObjToCpp(value,sw1,i1,v1,d1,dd1);
         int it1,ic1;
         std::vector<int> vt1,vc1;
         std::pair<int, std::pair<int,int> > pt1,pc1;
@@ -5757,7 +5757,7 @@ namespace MEDCoupling
         std::vector<int> stdvecTyyppArr;
         std::pair<int, std::pair<int,int> > sTyyppArr;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
-        convertObjToPossibleCpp2WithNegIntInterp(obj,self->getNumberOfTuples(),sw,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(obj,self->getNumberOfTuples(),sw,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -5782,7 +5782,7 @@ namespace MEDCoupling
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         int nbOfCompo=self->getNumberOfComponents();
         int nbOfTuples=self->getNumberOfTuples();
-        convertObjToPossibleCpp2WithNegIntInterp(obj,nbOfTuples,sw1,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCppWithNegIntInterp(obj,nbOfTuples,sw1,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
         int sw2;
         char vc; std::string sc; std::vector<std::string> vsc; DataArrayChar *dacc=0;
         convertObjToPossibleCpp6(value,sw2,vc,sc,vsc,dacc);

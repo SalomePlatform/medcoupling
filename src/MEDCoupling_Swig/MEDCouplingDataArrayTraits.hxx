@@ -345,6 +345,7 @@ struct NPYTraits<float>
 {
   static const int NPYObjectType=NPY_FLOAT;
   static PyTypeObject *NPYFunc;
+  static PyObject *Array_SWIGTYPE;
 };
 
 #endif

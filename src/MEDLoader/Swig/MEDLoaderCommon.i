@@ -2656,7 +2656,7 @@ namespace MEDCoupling
         std::vector<int> pos2;
         DataArrayInt *pos3=0;
         DataArrayIntTuple *pos4=0;
-        convertObjToPossibleCpp1(li,sw,pos1,pos2,pos3,pos4);
+        convertIntStarLikePyObjToCpp(li,sw,pos1,pos2,pos3,pos4);
         switch(sw)
           {
           case 1:
@@ -3483,7 +3483,7 @@ namespace MEDCoupling
         std::vector<int> pos2;
         DataArrayInt *pos3=0;
         DataArrayIntTuple *pos4=0;
-        convertObjToPossibleCpp1(ids,sw,pos1,pos2,pos3,pos4);
+        convertIntStarLikePyObjToCpp(ids,sw,pos1,pos2,pos3,pos4);
         switch(sw)
           {
           case 1:

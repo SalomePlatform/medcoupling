@@ -39,6 +39,8 @@ namespace MEDCoupling
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldFloat;
   class MEDCouplingFieldInt;
+  class DataArrayIntTuple;
+  class DataArrayDoubleTuple;
   
   template<>
   struct MEDCOUPLING_EXPORT Traits<double>
@@ -49,6 +51,7 @@ namespace MEDCoupling
     typedef DataArrayDouble ArrayType;
     typedef DataArrayDouble ArrayTypeCh;
     typedef MEDCouplingFieldDouble FieldType;
+    typedef DataArrayDoubleTuple ArrayTuple;
   };
 
   template<>
@@ -70,6 +73,7 @@ namespace MEDCoupling
     typedef DataArrayInt ArrayType;
     typedef DataArrayInt ArrayTypeCh;
     typedef MEDCouplingFieldInt FieldType;
+    typedef DataArrayIntTuple ArrayTuple;
   };
 
   template<>

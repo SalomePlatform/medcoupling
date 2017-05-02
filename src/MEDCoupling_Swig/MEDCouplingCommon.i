@@ -38,6 +38,7 @@
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MCAuto.hxx"
@@ -244,6 +245,15 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldInt::buildSubPart;
 %newobject MEDCoupling::MEDCouplingFieldInt::buildSubPartRange;
 %newobject MEDCoupling::MEDCouplingFieldInt::__getitem__;
+%newobject MEDCoupling::MEDCouplingFieldFloat::New;
+%newobject MEDCoupling::MEDCouplingFieldFloat::convertToDblField;
+%newobject MEDCoupling::MEDCouplingFieldFloat::getArray;
+%newobject MEDCoupling::MEDCouplingFieldFloat::deepCopy;
+%newobject MEDCoupling::MEDCouplingFieldFloat::clone;
+%newobject MEDCoupling::MEDCouplingFieldFloat::cloneWithMesh;
+%newobject MEDCoupling::MEDCouplingFieldFloat::buildSubPart;
+%newobject MEDCoupling::MEDCouplingFieldFloat::buildSubPartRange;
+%newobject MEDCoupling::MEDCouplingFieldFloat::__getitem__;
 %newobject MEDCoupling::MEDCouplingFieldTemplate::New;
 %newobject MEDCoupling::MEDCouplingMesh::deepCopy;
 %newobject MEDCoupling::MEDCouplingMesh::clone;
@@ -467,6 +477,8 @@ using namespace INTERP_KERNEL;
   {// AGY : here initialization of C++ traits in MEDCouplingDataArrayTypemaps.i for code factorization. Awful, I know, but no other solutions.
     SWIGTITraits<double>::TI=SWIGTYPE_p_MEDCoupling__DataArrayDouble;
     SWIGTITraits<float>::TI=SWIGTYPE_p_MEDCoupling__DataArrayFloat;
+    SWIGTITraits<double>::TI_TUPLE=SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple;
+    SWIGTITraits<int>::TI_TUPLE=SWIGTYPE_p_MEDCoupling__DataArrayIntTuple;
   }
 %}
 
@@ -752,7 +764,7 @@ namespace MEDCoupling
          {
            int sw,sz(-1);
            int v0; std::vector<int> v1;
-           const int *ids(convertObjToPossibleCpp1_Safe(li,sw,sz,v0,v1));
+           const int *ids(convertIntStarLikePyObjToCppIntStar(li,sw,sz,v0,v1));
            self->renumberCells(ids,check);
          }
 
@@ -854,7 +866,7 @@ namespace MEDCoupling
          {
            int szArr,sw,iTypppArr;
            std::vector<int> stdvecTyyppArr;
-           const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+           const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
            MEDCouplingMesh *ret=self->buildPart(tmp,tmp+szArr);
            if(sw==3)//DataArrayInt
              { 
@@ -872,7 +884,7 @@ namespace MEDCoupling
            int szArr,sw,iTypppArr;
            std::vector<int> stdvecTyyppArr;
            DataArrayInt *arr=0;
-           const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+           const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
            MEDCouplingMesh *ret=self->buildPartAndReduceNodes(tmp,tmp+szArr,arr);
            if(sw==3)//DataArrayInt
              { 
@@ -1365,7 +1377,7 @@ namespace MEDCoupling
            {
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;
-             const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+             const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
              MEDCouplingPointSet *ret=self->buildPartOfMySelf(tmp,tmp+szArr,keepCoords);
              if(sw==3)//DataArrayInt
                { 
@@ -1382,7 +1394,7 @@ namespace MEDCoupling
            {
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;
-             const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+             const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
              MEDCouplingPointSet *ret=self->buildPartOfMySelfNode(tmp,tmp+szArr,fullyIn);
              if(sw==3)//DataArrayInt
                { 
@@ -1399,7 +1411,7 @@ namespace MEDCoupling
            {
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;
-             const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+             const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
              MEDCouplingPointSet *ret=self->buildPartOfMySelfKeepCoords(tmp,tmp+szArr);
              if(sw==3)//DataArrayInt
                { 
@@ -1422,7 +1434,7 @@ namespace MEDCoupling
            {
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;
-             const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+             const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
              MEDCouplingPointSet *ret=self->buildFacePartOfMySelfNode(tmp,tmp+szArr,fullyIn);
              if(sw==3)//DataArrayInt
                { 
@@ -1439,7 +1451,7 @@ namespace MEDCoupling
            {
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;
-             const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+             const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
              self->renumberNodes(tmp,newNbOfNodes);
            }
 
@@ -1447,7 +1459,7 @@ namespace MEDCoupling
            {
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;
-             const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+             const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
              self->renumberNodesCenter(tmp,newNbOfNodes);
            }
 
@@ -1564,7 +1576,7 @@ namespace MEDCoupling
              std::vector<int> multiVal;
              std::pair<int, std::pair<int,int> > slic;
              MEDCoupling::DataArrayInt *daIntTyypp=0;
-             convertObjToPossibleCpp2(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
+             convertIntStarOrSliceLikePyObjToCpp(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
              switch(sw)
                {
                case 1:
@@ -1625,7 +1637,7 @@ namespace MEDCoupling
              //
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;
-             const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+             const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
              self->fillCellIdsToKeepFromNodeIds(tmp,tmp+szArr,fullyIn,ret);
              return ret;
            }
@@ -1682,7 +1694,7 @@ namespace MEDCoupling
              std::pair<int, std::pair<int,int> > slic;
              MEDCoupling::DataArrayInt *daIntTyypp=0;
              int nbc=self->getNumberOfCells();
-             convertObjToPossibleCpp2(listOrDataArrI,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+             convertIntStarOrSliceLikePyObjToCpp(listOrDataArrI,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
              switch(sw)
                {
                case 1:
@@ -2003,7 +2015,7 @@ namespace MEDCoupling
         std::pair<int, std::pair<int,int> > slic;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         int nbc=self->getNumberOfCells();
-        convertObjToPossibleCpp2(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2061,7 +2073,7 @@ namespace MEDCoupling
         std::pair<int, std::pair<int,int> > slic;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         int nbc=self->getNumberOfCells();
-        convertObjToPossibleCpp2(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2120,7 +2132,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         if(size>szArr)
           {
             std::ostringstream oss; oss << "Wrap of MEDCouplingUMesh::insertNextCell : request of connectivity with length " << size << " whereas the length of input is " << szArr << " !";
@@ -2133,7 +2145,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->insertNextCell(type,szArr,tmp);
       }
       
@@ -2156,7 +2168,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *seedPtr=convertObjToPossibleCpp1_Safe(seed,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *seedPtr=convertIntStarLikePyObjToCppIntStar(seed,sw,szArr,iTypppArr,stdvecTyyppArr);
         int nbOfDepthPeelingPerformed=0;
         DataArrayInt *ret0=MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(seedPtr,seedPtr+szArr,arrIn,arrIndxIn,nbOfDepthPeeling,nbOfDepthPeelingPerformed);
         PyObject *res=PyTuple_New(2);
@@ -2307,7 +2319,7 @@ namespace MEDCoupling
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
-        convertObjToPossibleCpp2(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2328,7 +2340,7 @@ namespace MEDCoupling
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
         MEDCoupling::DataArrayInt *daIntTyypp=0;
-        convertObjToPossibleCpp2(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2425,7 +2437,7 @@ namespace MEDCoupling
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         if(!arrIndx)
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : null pointer as arrIndex !");
-        convertObjToPossibleCpp2(li,arrIndx->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(li,arrIndx->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2449,7 +2461,7 @@ namespace MEDCoupling
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         if(!arrIndxIn)
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : null pointer as arrIndxIn !");
-        convertObjToPossibleCpp2(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2518,7 +2530,7 @@ namespace MEDCoupling
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         if(!arrIndxIn)
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays : null pointer as arrIndex !");
-        convertObjToPossibleCpp2(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2555,7 +2567,7 @@ namespace MEDCoupling
         MEDCoupling::DataArrayInt *daIntTyypp=0;
         if(!arrIndxIn)
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : null pointer as arrIndex !");
-        convertObjToPossibleCpp2(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertIntStarOrSliceLikePyObjToCpp(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2962,7 +2974,7 @@ namespace MEDCoupling
         std::vector<int> pos2;
         DataArrayInt *pos3=0;
         DataArrayIntTuple *pos4=0;
-        convertObjToPossibleCpp1(li,sw,pos1,pos2,pos3,pos4);
+        convertIntStarLikePyObjToCpp(li,sw,pos1,pos2,pos3,pos4);
         switch(sw)
           {
           case 1:
@@ -3080,7 +3092,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->insertNextCell(tmp,tmp+szArr);
       }
 
@@ -3327,7 +3339,7 @@ namespace MEDCoupling
         //
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp4=convertObjToPossibleCpp1_Safe(st,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp4=convertIntStarLikePyObjToCppIntStar(st,sw,szArr,iTypppArr,stdvecTyyppArr);
         std::vector<int> tmp5(tmp4,tmp4+szArr);
         //
         return MEDCouplingStructuredMesh::BuildExplicitIdsFrom(tmp5,inp);
@@ -3385,7 +3397,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         return MEDCouplingStructuredMesh::Build1GTNodalConnectivity(tmp,tmp+szArr);
       }
 
@@ -3393,7 +3405,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp(convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr));
+        const int *tmp(convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr));
         return MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh(tmp,tmp+szArr);
       }
 
@@ -3447,10 +3459,10 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         int szArr2,sw2,iTypppArr2;
         std::vector<int> stdvecTyyppArr2;
-        const int *tmp2=convertObjToPossibleCpp1_Safe(st,sw2,szArr2,iTypppArr2,stdvecTyyppArr2);
+        const int *tmp2=convertIntStarLikePyObjToCppIntStar(st,sw2,szArr2,iTypppArr2,stdvecTyyppArr2);
         std::vector<int> tmp3(tmp2,tmp2+szArr2);
         std::vector< std::pair<int,int> > partCompactFormat;
         bool ret0=MEDCouplingStructuredMesh::IsPartStructured(tmp,tmp+szArr,tmp3,partCompactFormat);
@@ -3621,7 +3633,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(gridStruct,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(gridStruct,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->setNodeGridStructure(tmp,tmp+szArr);
       }
     }
@@ -3661,7 +3673,7 @@ namespace MEDCoupling
         const double *originPtr(0),*dxyzPtr(0);
         int sw,sz,val0;
         std::vector<int> bb0;
-        nodeStrctPtr=convertObjToPossibleCpp1_Safe(nodeStrct,sw,sz,val0,bb0);
+        nodeStrctPtr=convertIntStarLikePyObjToCppIntStar(nodeStrct,sw,sz,val0,bb0);
         //
         double val,val2;
         std::vector<double> bb,bb2;
@@ -3686,7 +3698,7 @@ namespace MEDCoupling
       {
         int sw,sz,val0;
         std::vector<int> bb0;
-        const int *nodeStrctPtr(convertObjToPossibleCpp1_Safe(nodeStrct,sw,sz,val0,bb0));
+        const int *nodeStrctPtr(convertIntStarLikePyObjToCppIntStar(nodeStrct,sw,sz,val0,bb0));
         self->setNodeStruct(nodeStrctPtr,nodeStrctPtr+sz);
       }
 
@@ -3879,7 +3891,7 @@ namespace MEDCoupling
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
-        const int *cellIdsBg(convertObjToPossibleCpp1_Safe(cellIds,sw,sz,v0,v1));
+        const int *cellIdsBg(convertIntStarLikePyObjToCppIntStar(cellIds,sw,sz,v0,v1));
         return self->computeTupleIdsToSelectFromCellIds(cellIdsBg,cellIdsBg+sz);
       }
 
@@ -3929,6 +3941,7 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldFloat& f) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt& f) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
@@ -3940,6 +3953,11 @@ namespace MEDCoupling
            return MEDCouplingFieldTemplate::New(f);
          }
 
+         MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDCouplingFieldTemplate::New(f);
+         }
+         
          MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f) throw(INTERP_KERNEL::Exception)
          {
            return MEDCouplingFieldTemplate::New(f);
@@ -4303,7 +4321,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->renumberCells(tmp,check);
       }
       
@@ -4311,7 +4329,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->renumberCellsWithoutMesh(tmp,check);
       }
       
@@ -4319,7 +4337,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->renumberNodes(tmp,eps);
       }
 
@@ -4327,7 +4345,7 @@ namespace MEDCoupling
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
-        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        const int *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->renumberNodesWithoutMesh(tmp,newNbOfNodes,eps);
       }
 
@@ -4421,7 +4439,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -4503,7 +4521,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -4577,7 +4595,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -4653,7 +4671,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -4719,7 +4737,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -4785,7 +4803,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -4851,7 +4869,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -4919,7 +4937,7 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
         int sw;
-        convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
+        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
         switch(sw)
           {
           case 1:
@@ -5355,6 +5373,74 @@ namespace MEDCoupling
         }
     }
   };
+
+  class MEDCouplingFieldFloat : public MEDCouplingField
+  {
+  public:
+    static MEDCouplingFieldFloat *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
+    static MEDCouplingFieldFloat *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+    void setTimeUnit(const std::string& unit) throw(INTERP_KERNEL::Exception);
+    std::string getTimeUnit() const throw(INTERP_KERNEL::Exception);
+    void setTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
+    void setArray(DataArrayFloat *array) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *deepCopy() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *clone(bool recDeepCpy) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *cloneWithMesh(bool recDeepCpy) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *convertToDblField() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *buildSubPartRange(int begin, int end, int step) const throw(INTERP_KERNEL::Exception);
+    %extend {
+      MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME)
+      {
+        return MEDCouplingFieldFloat::New(type,td);
+      }
+
+      MEDCouplingFieldFloat(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME)
+      {
+        return MEDCouplingFieldFloat::New(ft,td);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss;
+        self->reprQuickOverview(oss);
+        return oss.str();
+      }
+
+      MEDCouplingFieldFloat *buildSubPart(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        return fieldT_buildSubPart(self,li);
+      }
+
+      MEDCouplingFieldFloat *__getitem__(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        return fieldT__getitem__(self,li);
+      }
+
+      DataArrayFloat *getArray() throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayFloat *ret=self->getArray();
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+      
+      PyObject *getTime() throw(INTERP_KERNEL::Exception)
+        {
+        int tmp1,tmp2;
+        double tmp0=self->getTime(tmp1,tmp2);
+        PyObject *res = PyList_New(3);
+        PyList_SetItem(res,0,SWIG_From_double(tmp0));
+        PyList_SetItem(res,1,SWIG_From_int(tmp1));
+        PyList_SetItem(res,2,SWIG_From_int(tmp2));
+        return res;
+        }
+    }
+  };
   
   class MEDCouplingDefinitionTime
   {
@@ -5724,7 +5810,7 @@ namespace MEDCoupling
         const double *originPtr(0),*dxyzPtr(0);
         int sw,sz,val0;
         std::vector<int> bb0;
-        nodeStrctPtr=convertObjToPossibleCpp1_Safe(nodeStrct,sw,sz,val0,bb0);
+        nodeStrctPtr=convertIntStarLikePyObjToCppIntStar(nodeStrct,sw,sz,val0,bb0);
         //
         double val,val2;
         std::vector<double> bb,bb2;

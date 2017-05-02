@@ -507,37 +507,6 @@ namespace MEDCoupling
     DataArrayDouble() { }
   };
 
-  class DataArrayDoubleTuple;
-
-  class DataArrayDoubleIterator
-  {
-  public:
-    MEDCOUPLING_EXPORT DataArrayDoubleIterator(DataArrayDouble *da);
-    MEDCOUPLING_EXPORT ~DataArrayDoubleIterator();
-    MEDCOUPLING_EXPORT DataArrayDoubleTuple *nextt();
-  private:
-    DataArrayDouble *_da;
-    double *_pt;
-    int _tuple_id;
-    int _nb_comp;
-    int _nb_tuple;
-  };
-
-  class DataArrayDoubleTuple
-  {
-  public:
-    MEDCOUPLING_EXPORT DataArrayDoubleTuple(double *pt, int nbOfComp);
-    MEDCOUPLING_EXPORT std::string repr() const;
-    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
-    MEDCOUPLING_EXPORT const double *getConstPointer() const { return  _pt; }
-    MEDCOUPLING_EXPORT double *getPointer() { return _pt; }
-    MEDCOUPLING_EXPORT double doubleValue() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const;
-  private:
-    double *_pt;
-    int _nb_of_compo;
-  };
-
   class DataArrayIntIterator;
 
   class DataArrayInt : public DataArrayTemplateClassic<int>
@@ -725,38 +694,6 @@ namespace MEDCoupling
     return ret;
   }
 
-  
-  class DataArrayIntTuple;
-
-  class DataArrayIntIterator
-  {
-  public:
-    MEDCOUPLING_EXPORT DataArrayIntIterator(DataArrayInt *da);
-    MEDCOUPLING_EXPORT ~DataArrayIntIterator();
-    MEDCOUPLING_EXPORT DataArrayIntTuple *nextt();
-  private:
-    DataArrayInt *_da;
-    int *_pt;
-    int _tuple_id;
-    int _nb_comp;
-    int _nb_tuple;
-  };
-
-  class DataArrayIntTuple
-  {
-  public:
-    MEDCOUPLING_EXPORT DataArrayIntTuple(int *pt, int nbOfComp);
-    MEDCOUPLING_EXPORT std::string repr() const;
-    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
-    MEDCOUPLING_EXPORT const int *getConstPointer() const { return  _pt; }
-    MEDCOUPLING_EXPORT int *getPointer() { return _pt; }
-    MEDCOUPLING_EXPORT int intValue() const;
-    MEDCOUPLING_EXPORT DataArrayInt *buildDAInt(int nbOfTuples, int nbOfCompo) const;
-  private:
-    int *_pt;
-    int _nb_of_compo;
-  };
-
   class DataArrayChar : public DataArrayTemplate<char>
   {
   public:
@@ -831,37 +768,6 @@ namespace MEDCoupling
     DataArrayByte() { }
   };
 
-  class DataArrayByteTuple;
-
-  class DataArrayByteIterator
-  {
-  public:
-    MEDCOUPLING_EXPORT DataArrayByteIterator(DataArrayByte *da);
-    MEDCOUPLING_EXPORT ~DataArrayByteIterator();
-    MEDCOUPLING_EXPORT DataArrayByteTuple *nextt();
-  private:
-    DataArrayByte *_da;
-    char *_pt;
-    int _tuple_id;
-    int _nb_comp;
-    int _nb_tuple;
-  };
-
-  class DataArrayByteTuple
-  {
-  public:
-    MEDCOUPLING_EXPORT DataArrayByteTuple(char *pt, int nbOfComp);
-    MEDCOUPLING_EXPORT std::string repr() const;
-    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
-    MEDCOUPLING_EXPORT const char *getConstPointer() const { return  _pt; }
-    MEDCOUPLING_EXPORT char *getPointer() { return _pt; }
-    MEDCOUPLING_EXPORT char byteValue() const;
-    MEDCOUPLING_EXPORT DataArrayByte *buildDAByte(int nbOfTuples, int nbOfCompo) const;
-  private:
-    char *_pt;
-    int _nb_of_compo;
-  };
-
   class DataArrayAsciiCharIterator;
 
   class DataArrayAsciiChar : public DataArrayChar
@@ -891,6 +797,71 @@ namespace MEDCoupling
     DataArrayAsciiChar(const std::vector<std::string>& vst, char defaultChar);
   };
 
+  template<class T>
+  class DataArrayIterator
+  {
+  public:
+    DataArrayIterator(typename Traits<T>::ArrayType *da);
+    ~DataArrayIterator();
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayTuple *nextt();
+  private:
+    typename Traits<T>::ArrayType *_da;
+    T *_pt;
+    int _tuple_id;
+    int _nb_comp;
+    int _nb_tuple;
+  };
+
+  template<class T>
+  class DataArrayTuple
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayTuple(T *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const;
+    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
+    MEDCOUPLING_EXPORT const T *getConstPointer() const { return  _pt; }
+    MEDCOUPLING_EXPORT T *getPointer() { return _pt; }
+  protected:
+    T *_pt;
+    int _nb_of_compo;
+  };
+
+  class DataArrayDoubleTuple;
+
+  class DataArrayDoubleIterator : public DataArrayIterator<double>
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayDoubleIterator(DataArrayDouble *da);
+    MEDCOUPLING_EXPORT ~DataArrayDoubleIterator() { }
+  };
+
+  class DataArrayDoubleTuple : public DataArrayTuple<double>
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayDoubleTuple(double *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const;
+    MEDCOUPLING_EXPORT double doubleValue() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const;
+  };
+  
+  class DataArrayIntTuple;
+
+  class DataArrayIntIterator : public DataArrayIterator<int>
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayIntIterator(DataArrayInt *da);
+    MEDCOUPLING_EXPORT ~DataArrayIntIterator() { }
+  };
+
+  class DataArrayIntTuple : public DataArrayTuple<int>
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayIntTuple(int *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const;
+    MEDCOUPLING_EXPORT int intValue() const;
+    MEDCOUPLING_EXPORT DataArrayInt *buildDAInt(int nbOfTuples, int nbOfCompo) const;
+  };
+
   class DataArrayAsciiCharTuple;
 
   class DataArrayAsciiCharIterator
@@ -917,6 +888,37 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT char *getPointer() { return _pt; }
     MEDCOUPLING_EXPORT char asciiCharValue() const;
     MEDCOUPLING_EXPORT DataArrayAsciiChar *buildDAAsciiChar(int nbOfTuples, int nbOfCompo) const;
+  private:
+    char *_pt;
+    int _nb_of_compo;
+  };
+  
+  class DataArrayByteTuple;
+
+  class DataArrayByteIterator
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayByteIterator(DataArrayByte *da);
+    MEDCOUPLING_EXPORT ~DataArrayByteIterator();
+    MEDCOUPLING_EXPORT DataArrayByteTuple *nextt();
+  private:
+    DataArrayByte *_da;
+    char *_pt;
+    int _tuple_id;
+    int _nb_comp;
+    int _nb_tuple;
+  };
+
+  class DataArrayByteTuple
+  {
+  public:
+    MEDCOUPLING_EXPORT DataArrayByteTuple(char *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const;
+    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
+    MEDCOUPLING_EXPORT const char *getConstPointer() const { return  _pt; }
+    MEDCOUPLING_EXPORT char *getPointer() { return _pt; }
+    MEDCOUPLING_EXPORT char byteValue() const;
+    MEDCOUPLING_EXPORT DataArrayByte *buildDAByte(int nbOfTuples, int nbOfCompo) const;
   private:
     char *_pt;
     int _nb_of_compo;

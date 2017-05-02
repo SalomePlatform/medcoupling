@@ -43,6 +43,7 @@ template class MEDCoupling::DataArrayTemplate<double>;
 template class MEDCoupling::DataArrayTemplateClassic<int>;
 template class MEDCoupling::DataArrayTemplateClassic<double>;
 template class MEDCoupling::DataArrayTemplateFP<double>;
+template class MEDCoupling::DataArrayIterator<double>;
 
 template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const
@@ -4564,40 +4565,11 @@ void DataArrayDouble::Rotate2DAlg(const double *center, double angle, int nbNode
     }
 }
 
-DataArrayDoubleIterator::DataArrayDoubleIterator(DataArrayDouble *da):_da(da),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
+DataArrayDoubleIterator::DataArrayDoubleIterator(DataArrayDouble *da):DataArrayIterator<double>(da)
 {
-  if(_da)
-    {
-      _da->incrRef();
-      if(_da->isAllocated())
-        {
-          _nb_comp=da->getNumberOfComponents();
-          _nb_tuple=da->getNumberOfTuples();
-          _pt=da->getPointer();
-        }
-    }
 }
 
-DataArrayDoubleIterator::~DataArrayDoubleIterator()
-{
-  if(_da)
-    _da->decrRef();
-}
-
-DataArrayDoubleTuple *DataArrayDoubleIterator::nextt()
-{
-  if(_tuple_id<_nb_tuple)
-    {
-      _tuple_id++;
-      DataArrayDoubleTuple *ret=new DataArrayDoubleTuple(_pt,_nb_comp);
-      _pt+=_nb_comp;
-      return ret;
-    }
-  else
-    return 0;
-}
-
-DataArrayDoubleTuple::DataArrayDoubleTuple(double *pt, int nbOfComp):_pt(pt),_nb_of_compo(nbOfComp)
+DataArrayDoubleTuple::DataArrayDoubleTuple(double *pt, int nbOfComp):DataArrayTuple<double>(pt,nbOfComp)
 {
 }
 
@@ -9138,40 +9110,11 @@ void DataArrayInt::finishUnserialization(const std::vector<int>& tinyInfoI, cons
     }
 }
 
-DataArrayIntIterator::DataArrayIntIterator(DataArrayInt *da):_da(da),_pt(0),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
+DataArrayIntIterator::DataArrayIntIterator(DataArrayInt *da):DataArrayIterator<int>(da)
 {
-  if(_da)
-    {
-      _da->incrRef();
-      if(_da->isAllocated())
-        {
-          _nb_comp=da->getNumberOfComponents();
-          _nb_tuple=da->getNumberOfTuples();
-          _pt=da->getPointer();
-        }
-    }
 }
 
-DataArrayIntIterator::~DataArrayIntIterator()
-{
-  if(_da)
-    _da->decrRef();
-}
-
-DataArrayIntTuple *DataArrayIntIterator::nextt()
-{
-  if(_tuple_id<_nb_tuple)
-    {
-      _tuple_id++;
-      DataArrayIntTuple *ret=new DataArrayIntTuple(_pt,_nb_comp);
-      _pt+=_nb_comp;
-      return ret;
-    }
-  else
-    return 0;
-}
-
-DataArrayIntTuple::DataArrayIntTuple(int *pt, int nbOfComp):_pt(pt),_nb_of_compo(nbOfComp)
+DataArrayIntTuple::DataArrayIntTuple(int *pt, int nbOfComp):DataArrayTuple<int>(pt,nbOfComp)
 {
 }
 

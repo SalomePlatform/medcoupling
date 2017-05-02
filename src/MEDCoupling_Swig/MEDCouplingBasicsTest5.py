@@ -4565,6 +4565,71 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         m_1=m[[0,2,4]] ; m_1.zipCoords()
         self.assertTrue(f_1.getMesh().isEqual(m_1,1e-12))
         pass
+class MEDCouplingBasicsTest5(unittest.TestCase):
+
+    def testFieldFloatIsOnStage1(self):
+        """ My first test with field int."""
+        m=MEDCouplingCMesh()
+        m.setName("mesh")
+        arrX=DataArrayDouble([0,1,2,3])
+        m.setCoords(arrX,arrX)
+        f=MEDCouplingFieldFloat(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayFloat(8) ; arr.iota() ;f.setArray(arr)
+        self.assertRaises(InterpKernelException,f.checkConsistencyLight)
+        arr=DataArrayFloat(9) ; arr.iota() ;f.setArray(arr)
+        f.checkConsistencyLight()
+        f.setTimeUnit("ms")
+        self.assertEqual(f.getTimeUnit(),"ms")
+        f.setTime(3.2,5,6)
+        a,b,c=f.getTime()
+        self.assertEqual(b,5)
+        self.assertEqual(c,6)
+        self.assertEqual(a,3.2,12)
+        pass
+
+    def testFieldFloatIsOnStage2(self):
+        """ Very important test to check that isEqual of MEDCouplingFieldFloat is OK !"""
+        m1=MEDCouplingCMesh() ; m1.setCoords(DataArrayDouble([0,1,2,3]),DataArrayDouble([0,1,2,3,4]))
+        m1=m1.buildUnstructured() ; m1.setName("mesh")
+        f1=MEDCouplingFieldFloat(ON_CELLS) ; f1.setMesh(m1)
+        arr1=DataArrayFloat([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr1.setInfoOnComponents(["aa","bbb"])
+        f1.setArray(arr1) ; f1.setName("f1") ; f1.setTime(2.,3,4)
+        #
+        m2=MEDCouplingCMesh() ; m2.setCoords(DataArrayDouble([0,1,2,3]),DataArrayDouble([0,1,2,3,4]))
+        m2=m2.buildUnstructured() ; m2.setName("mesh")
+        f2=MEDCouplingFieldFloat(ON_CELLS) ; f2.setMesh(m2)
+        arr2=DataArrayFloat([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr2.setInfoOnComponents(["aa","bbb"])
+        f2.setArray(arr2) ; f2.setName("f1") ; f2.setTime(2.,3,4)
+        #
+        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        f1.getArray()[:]*=2
+        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(not f1.isEqualWithoutConsideringStr(f2,1e-12,0.))
+        f1.getArray()[:]/=2
+        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        #
+        f1.setName("F1")
+        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
+        f1.setName("f1")
+        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        #
+        f1.getArray().setInfoOnComponents(["aa","bbbb"])
+        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(f1.isEqualWithoutConsideringStr(f2,1e-12,0.))
+        f1.getArray().setInfoOnComponents(["aa","bbb"])
+        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        #
+        f3=f2.deepCopy()
+        self.assertTrue(f1.isEqual(f3,1e-12,0.))
+        #
+        for fd,expected in ((ON_NODES,False),(ON_CELLS,True)):
+            f4=MEDCouplingFieldFloat(fd) ; f4.setMesh(m2) ; f4.setTime(2.,3,4)
+            arr4=DataArrayFloat([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr4.setInfoOnComponents(["aa","bbb"])
+            f4.setArray(arr4) ; f4.setName("f1")
+            self.assertEqual(f1.isEqual(f4,1e-12,0.),expected)
+            pass
+        pass
     
     pass
 
