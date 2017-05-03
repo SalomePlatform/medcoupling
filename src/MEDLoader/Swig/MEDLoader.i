@@ -60,9 +60,18 @@ def MEDCouplingFieldDoubleIpow(self,*args):
 def MEDCouplingDataArrayBytenew(cls,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayByte____new___(cls,args)
+def MEDCouplingDataArrayFloatIadd(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayFloat____iadd___(self, self, *args)
+def MEDCouplingDataArrayFloatIsub(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayFloat____isub___(self, self, *args)
 def MEDCouplingDataArrayFloatImul(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayFloat____imul___(self, self, *args)
+def MEDCouplingDataArrayFloatIdiv(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayFloat____idiv___(self, self, *args)
 def MEDCouplingDataArrayIntnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayInt____new___(cls,args)

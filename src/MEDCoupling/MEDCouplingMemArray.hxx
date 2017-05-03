@@ -307,15 +307,21 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void applyLin(T a, T b, int compoId);
     MEDCOUPLING_EXPORT void applyLin(T a, T b);
     MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *negate() const;
+    MEDCOUPLING_EXPORT void addEqual(const typename Traits<T>::ArrayType *other);
+    MEDCOUPLING_EXPORT void substractEqual(const typename Traits<T>::ArrayType *other);
     MEDCOUPLING_EXPORT void multiplyEqual(const typename Traits<T>::ArrayType *other);
+    MEDCOUPLING_EXPORT void divideEqual(const typename Traits<T>::ArrayType *other);
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Substract(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Divide(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
+    MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Add(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Multiply(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
   protected:
     static typename Traits<T>::ArrayType *PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self);
   private:
     template<class U>
     MCAuto< typename Traits<U>::ArrayType > convertToOtherTypeOfArr() const;
+    template<class FCT>
+    void somethingEqual(const typename Traits<T>::ArrayType *other);
   };
   
   template<class T>
@@ -481,10 +487,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayDouble *CrossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *Max(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *Min(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT static DataArrayDouble *Add(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT void addEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT void substractEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT static DataArrayDouble *Pow(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT void powEqual(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT std::vector<bool> toVectorOfBool(double eps) const;
@@ -649,10 +651,6 @@ namespace MEDCoupling
     void insertAtTheEnd(InputIterator first, InputIterator last);
     MEDCOUPLING_EXPORT void aggregate(const DataArrayInt *other);
     MEDCOUPLING_EXPORT void writeOnPlace(std::size_t id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
-    MEDCOUPLING_EXPORT static DataArrayInt *Add(const DataArrayInt *a1, const DataArrayInt *a2);
-    MEDCOUPLING_EXPORT void addEqual(const DataArrayInt *other);
-    MEDCOUPLING_EXPORT void substractEqual(const DataArrayInt *other);
-    MEDCOUPLING_EXPORT void divideEqual(const DataArrayInt *other);
     MEDCOUPLING_EXPORT static DataArrayInt *Modulus(const DataArrayInt *a1, const DataArrayInt *a2);
     MEDCOUPLING_EXPORT void modulusEqual(const DataArrayInt *other);
     MEDCOUPLING_EXPORT static DataArrayInt *Pow(const DataArrayInt *a1, const DataArrayInt *a2);

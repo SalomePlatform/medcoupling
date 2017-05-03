@@ -742,10 +742,25 @@ namespace MEDCoupling
       {
         return DataArrayT__setitem__<float>(self,obj,value);
       }
+      
+      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayT_iadd<float>(trueSelf,obj,self);
+      }
+
+      PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayT_isub<float>(trueSelf,obj,self);
+      }
 
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         return DataArrayT_imul<float>(trueSelf,obj,self);
+      }
+
+      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayT_idiv<float>(trueSelf,obj,self);
       }
       
 #ifdef WITH_NUMPY
@@ -1502,44 +1517,7 @@ namespace MEDCoupling
    
       PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        const char msg[]="Unexpected situation in __iadd__ !";
-        double val;
-        DataArrayDouble *a;
-        DataArrayDoubleTuple *aa;
-        std::vector<double> bb;
-        int sw;
-        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
-        switch(sw)
-          {
-          case 1:
-            {
-              self->applyLin(1.,val);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 2:
-            {
-              self->addEqual(a);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 3:
-            {
-              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              self->addEqual(aaa);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 4:
-            {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              self->addEqual(aaa);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          default:
-            throw INTERP_KERNEL::Exception(msg);
-          }
+        return DataArrayT_iadd<double>(trueSelf,obj,self);
       }
 
       PyObject *__sub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
@@ -1630,44 +1608,7 @@ namespace MEDCoupling
 
       PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        const char msg[]="Unexpected situation in __isub__ !";
-        double val;
-        DataArrayDouble *a;
-        DataArrayDoubleTuple *aa;
-        std::vector<double> bb;
-        int sw;
-        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
-        switch(sw)
-          {
-          case 1:
-            {
-              self->applyLin(1,-val);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 2:
-            {
-              self->substractEqual(a);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 3:
-            {
-              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              self->substractEqual(aaa);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 4:
-            {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              self->substractEqual(aaa);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          default:
-            throw INTERP_KERNEL::Exception(msg);
-          }
+        return DataArrayT_isub<double>(trueSelf,obj,self);
       }
 
       PyObject *__mul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
@@ -1851,46 +1792,7 @@ namespace MEDCoupling
 
       PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        const char msg[]="Unexpected situation in __idiv__ !";
-        double val;
-        DataArrayDouble *a;
-        DataArrayDoubleTuple *aa;
-        std::vector<double> bb;
-        int sw;
-        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
-        switch(sw)
-          {
-          case 1:
-            {
-              if(val==0.)
-                throw INTERP_KERNEL::Exception("DataArrayDouble::__div__ : trying to divide by zero !");
-              self->applyLin(1./val,0.);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 2:
-            {
-              self->divideEqual(a);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 3:
-            {
-              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              self->divideEqual(aaa);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          case 4:
-            {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              self->divideEqual(aaa);
-              Py_XINCREF(trueSelf);
-              return trueSelf;
-            }
-          default:
-            throw INTERP_KERNEL::Exception(msg);
-          }
+        return DataArrayT_idiv<double>(trueSelf,obj,self);
       }
    
       DataArrayDouble *__pow__(PyObject *obj) throw(INTERP_KERNEL::Exception)

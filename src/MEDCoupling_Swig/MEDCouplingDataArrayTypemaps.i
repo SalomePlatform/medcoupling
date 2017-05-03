@@ -3040,6 +3040,137 @@ PyObject *DataArrayT_imul__internal(PyObject *trueSelf, PyObject *obj, typename 
 }
 
 template<class T>
+PyObject *DataArrayT_idiv__internal(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self, swig_type_info *ti_da, swig_type_info *ti_tuple)
+{
+  const char msg[]="Unexpected situation in __idiv__ !";
+  T val;
+  typename MEDCoupling::Traits<T>::ArrayType *a;
+  typename MEDCoupling::Traits<T>::ArrayTuple *aa;
+  std::vector<T> bb;
+  int sw;
+  convertFPStarLikePyObjToCpp_2<T>(obj,sw,val,a,aa,bb,ti_da,ti_tuple);
+  switch(sw)
+    {
+    case 1:
+      {
+        if(val==0.)
+          throw INTERP_KERNEL::Exception("DataArrayDouble::__div__ : trying to divide by zero !");
+        self->applyLin(1./val,0.);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 2:
+      {
+        self->divideEqual(a);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 3:
+      {
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(aa->buildDA(1,self->getNumberOfComponents()));
+        self->divideEqual(aaa);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 4:
+      {
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        self->divideEqual(aaa);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    default:
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
+template<class T>
+PyObject *DataArrayT_iadd__internal(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self, swig_type_info *ti_da, swig_type_info *ti_tuple)
+{
+  const char msg[]="Unexpected situation in __iadd__ !";
+  T val;
+  typename MEDCoupling::Traits<T>::ArrayType *a;
+  typename MEDCoupling::Traits<T>::ArrayTuple *aa;
+  std::vector<T> bb;
+  int sw;
+  convertFPStarLikePyObjToCpp_2<T>(obj,sw,val,a,aa,bb,ti_da,ti_tuple);
+  switch(sw)
+    {
+    case 1:
+      {
+        self->applyLin(1.,val);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 2:
+      {
+        self->addEqual(a);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 3:
+      {
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(aa->buildDA(1,self->getNumberOfComponents()));
+        self->addEqual(aaa);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 4:
+      {
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        self->addEqual(aaa);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    default:
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+  
+template<class T>
+PyObject *DataArrayT_isub__internal(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self, swig_type_info *ti_da, swig_type_info *ti_tuple)
+{
+  const char msg[]="Unexpected situation in __isub__ !";
+  T val;
+  typename MEDCoupling::Traits<T>::ArrayType *a;
+  typename MEDCoupling::Traits<T>::ArrayTuple *aa;
+  std::vector<T> bb;
+  int sw;
+  convertFPStarLikePyObjToCpp_2<T>(obj,sw,val,a,aa,bb,ti_da,ti_tuple);
+  switch(sw)
+    {
+    case 1:
+      {
+        self->applyLin(1.,-val);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 2:
+      {
+        self->substractEqual(a);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 3:
+      {
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(aa->buildDA(1,self->getNumberOfComponents()));
+        self->substractEqual(aaa);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    case 4:
+      {
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        self->substractEqual(aaa);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+    default:
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
+template<class T>
 struct SWIGTITraits
 { };
 
@@ -3082,6 +3213,24 @@ template<class T>
 PyObject *DataArrayT_imul(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self)
 {
   return DataArrayT_imul__internal<T>(trueSelf,obj,self,SWIGTITraits<T>::TI,SWIGTITraits<T>::TI_TUPLE);
+}
+
+template<class T>
+PyObject *DataArrayT_idiv(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self)
+{
+  return DataArrayT_idiv__internal<T>(trueSelf,obj,self,SWIGTITraits<T>::TI,SWIGTITraits<T>::TI_TUPLE);
+}
+
+template<class T>
+PyObject *DataArrayT_iadd(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self)
+{
+  return DataArrayT_iadd__internal<T>(trueSelf,obj,self,SWIGTITraits<T>::TI,SWIGTITraits<T>::TI_TUPLE);
+}
+
+template<class T>
+PyObject *DataArrayT_isub(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self)
+{
+  return DataArrayT_isub__internal<T>(trueSelf,obj,self,SWIGTITraits<T>::TI,SWIGTITraits<T>::TI_TUPLE);
 }
 
 #endif

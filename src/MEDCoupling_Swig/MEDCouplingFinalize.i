@@ -36,7 +36,10 @@ DataArrayInt.__ipow__=MEDCouplingDataArrayIntIpow
 
 DataArrayByte.__new__=classmethod(MEDCouplingDataArrayBytenew)
 
+DataArrayFloat.__iadd__=MEDCouplingDataArrayFloatIadd
+DataArrayFloat.__isub__=MEDCouplingDataArrayFloatIsub
 DataArrayFloat.__imul__=MEDCouplingDataArrayFloatImul
+DataArrayFloat.__idiv__=MEDCouplingDataArrayFloatIdiv
 
 MEDCouplingFieldDouble.__iadd__=MEDCouplingFieldDoubleIadd
 MEDCouplingFieldDouble.__isub__=MEDCouplingFieldDoubleIsub
@@ -85,6 +88,10 @@ del MEDCouplingDataArrayIntImul
 del MEDCouplingDataArrayIntIdiv
 del MEDCouplingDataArrayIntImod
 del MEDCouplingDataArrayBytenew
+del MEDCouplingDataArrayFloatIadd
+del MEDCouplingDataArrayFloatIsub
+del MEDCouplingDataArrayFloatImul
+del MEDCouplingDataArrayFloatIdiv
 del MEDCouplingDataArrayDoubleTupleIadd
 del MEDCouplingDataArrayDoubleTupleIsub
 del MEDCouplingDataArrayDoubleTupleImul

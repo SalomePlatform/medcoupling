@@ -62,9 +62,18 @@ def MEDCouplingDataArrayIntIpow(self,*args):
 def MEDCouplingDataArrayBytenew(cls,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayByte____new___(cls,args)
+def MEDCouplingDataArrayFloatIadd(self,*args):
+    import _MEDRenumber
+    return _MEDRenumber.DataArrayFloat____iadd___(self, self, *args)
+def MEDCouplingDataArrayFloatIsub(self,*args):
+    import _MEDRenumber
+    return _MEDRenumber.DataArrayFloat____isub___(self, self, *args)
 def MEDCouplingDataArrayFloatImul(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayFloat____imul___(self, self, *args)
+def MEDCouplingDataArrayFloatIdiv(self,*args):
+    import _MEDRenumber
+    return _MEDRenumber.DataArrayFloat____idiv___(self, self, *args)
 def MEDCouplingDataArrayDoubleTupleIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDoubleTuple____iadd___(self, self, *args)
