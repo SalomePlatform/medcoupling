@@ -52,6 +52,7 @@
 %newobject MEDCoupling::DataArrayFloat::New;
 %newobject MEDCoupling::DataArrayFloat::iterator;
 %newobject MEDCoupling::DataArrayFloat::__iter__;
+%newobject MEDCoupling::DataArrayFloat::convertToDblArr;
 %newobject MEDCoupling::DataArrayInt::New;
 %newobject MEDCoupling::DataArrayInt::__iter__;
 %newobject MEDCoupling::DataArrayInt::selectPartDef;
@@ -663,6 +664,8 @@ namespace MEDCoupling
     }
   };
 
+  class DataArrayDouble;
+
   class DataArrayFloat : public DataArray
   {
   public:
@@ -731,6 +734,12 @@ namespace MEDCoupling
         const float *vals(self->begin());
         int nbOfComp(self->getNumberOfComponents()),nbOfTuples(self->getNumberOfTuples());
         return convertDblArrToPyListOfTuple<float>(vals,nbOfComp,nbOfTuples);
+      }
+      
+      DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<DataArrayDouble> ret(self->convertToDblArr());
+        return ret.retn();
       }
 
       PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
