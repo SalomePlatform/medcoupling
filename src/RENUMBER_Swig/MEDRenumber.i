@@ -62,6 +62,9 @@ def MEDCouplingDataArrayIntIpow(self,*args):
 def MEDCouplingDataArrayBytenew(cls,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayByte____new___(cls,args)
+def MEDCouplingDataArrayFloatnew(cls,*args):
+    import _MEDRenumber
+    return _MEDRenumber.DataArrayFloat____new___(cls,args)
 def MEDCouplingDataArrayFloatIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayFloat____iadd___(self, self, *args)

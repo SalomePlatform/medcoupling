@@ -36,11 +36,13 @@ DataArrayInt.__ipow__=MEDCouplingDataArrayIntIpow
 
 DataArrayByte.__new__=classmethod(MEDCouplingDataArrayBytenew)
 
+DataArrayFloat.__new__=MEDCouplingDataArrayFloatnew
 DataArrayFloat.__iadd__=MEDCouplingDataArrayFloatIadd
 DataArrayFloat.__isub__=MEDCouplingDataArrayFloatIsub
 DataArrayFloat.__imul__=MEDCouplingDataArrayFloatImul
 DataArrayFloat.__idiv__=MEDCouplingDataArrayFloatIdiv
 
+MEDCouplingFieldDouble.__new__=classmethod(MEDCouplingFieldDoublenew)
 MEDCouplingFieldDouble.__iadd__=MEDCouplingFieldDoubleIadd
 MEDCouplingFieldDouble.__isub__=MEDCouplingFieldDoubleIsub
 MEDCouplingFieldDouble.__imul__=MEDCouplingFieldDoubleImul
@@ -68,7 +70,6 @@ MEDCouplingCurveLinearMesh.__new__=classmethod(MEDCouplingCurveLinearMeshnew)
 MEDCouplingCMesh.__new__=classmethod(MEDCouplingCMeshnew)
 MEDCouplingIMesh.__new__=classmethod(MEDCouplingIMeshnew)
 MEDCouplingMappedExtrudedMesh.__new__=classmethod(MEDCouplingExtrudedMeshnew)
-MEDCouplingFieldDouble.__new__=classmethod(MEDCouplingFieldDoublenew)
 
 del INTERPKERNELExceptionReduce
 del MEDCouplingDataArrayDoublenew
@@ -88,6 +89,7 @@ del MEDCouplingDataArrayIntImul
 del MEDCouplingDataArrayIntIdiv
 del MEDCouplingDataArrayIntImod
 del MEDCouplingDataArrayBytenew
+del MEDCouplingDataArrayFloatnew
 del MEDCouplingDataArrayFloatIadd
 del MEDCouplingDataArrayFloatIsub
 del MEDCouplingDataArrayFloatImul

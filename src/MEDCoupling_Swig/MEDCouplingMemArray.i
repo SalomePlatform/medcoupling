@@ -697,7 +697,7 @@ namespace MEDCoupling
       {
         return MEDCoupling_DataArrayFloat_New__SWIG_1(elt0,nbOfTuples,elt2);
       }
-      
+
       DataArrayFloatIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->iterator();
@@ -776,7 +776,31 @@ namespace MEDCoupling
         return ToNumPyArray<DataArrayFloat,float>(self,NPY_FLOAT,"DataArrayFloat");
       }
 #endif
+
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"DataArrayFloat");
+      }
       
+      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+      {
+#ifdef WITH_NUMPY
+        if(!self->isAllocated())
+          throw INTERP_KERNEL::Exception("PyWrap of DataArrayFloat.__getnewargs__ : self is not allocated !");
+        PyObject *ret(PyTuple_New(1));
+        PyObject *ret0(PyDict_New());
+        PyObject *numpyArryObj(MEDCoupling_DataArrayFloat_toNumPyArray(self));
+        {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
+          PyObject *tmp1(PyInt_FromLong(0));
+          PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
+          PyTuple_SetItem(ret,0,ret0);
+        }
+        return ret;
+#else
+        throw INTERP_KERNEL::Exception("PyWrap of DataArrayByte.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
+#endif
+      }
     }
   };
 
