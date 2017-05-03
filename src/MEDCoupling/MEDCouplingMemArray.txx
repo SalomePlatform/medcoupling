@@ -2373,6 +2373,381 @@ namespace MEDCoupling
   {
     return convertToOtherTypeOfArr<float>();
   }
+
+  /*!
+   * Apply a linear function to a given component of \a this array, so that
+   * an array element <em>(x)</em> becomes \f$ a * x + b \f$.
+   *  \param [in] a - the first coefficient of the function.
+   *  \param [in] b - the second coefficient of the function.
+   *  \param [in] compoId - the index of component to modify.
+   *  \throw If \a this is not allocated, or \a compoId is not in [0,\c this->getNumberOfComponents() ).
+   */
+  template<class T>
+  void DataArrayTemplateClassic<T>::applyLin(T a, T b, int compoId)
+  {
+    this->checkAllocated();
+    T *ptr(this->getPointer()+compoId);
+    int nbOfComp(this->getNumberOfComponents()),nbOfTuple(this->getNumberOfTuples());
+    if(compoId<0 || compoId>=nbOfComp)
+      {
+        std::ostringstream oss; oss << "DataArrayDouble::applyLin : The compoId requested (" << compoId << ") is not valid ! Must be in [0," << nbOfComp << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
+      *ptr=a*(*ptr)+b;
+    this->declareAsNew();
+  }
+
+  /*!
+   * Apply a linear function to all elements of \a this array, so that
+   * an element _x_ becomes \f$ a * x + b \f$.
+   *  \param [in] a - the first coefficient of the function.
+   *  \param [in] b - the second coefficient of the function.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  void DataArrayTemplateClassic<T>::applyLin(T a, T b)
+  {
+    this->checkAllocated();
+    T *ptr(this->getPointer());
+    std::size_t nbOfElems(this->getNbOfElems());
+    for(std::size_t i=0;i<nbOfElems;i++,ptr++)
+      *ptr=a*(*ptr)+b;
+    this->declareAsNew();
+  }
+  
+  /*!
+   * Returns a full copy of \a this array except that sign of all elements is reversed.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
+   *          same number of tuples and component as \a this array.
+   *          The caller is to delete this result array using decrRef() as it is no more
+   *          needed.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::negate() const
+  {
+    this->checkAllocated();
+    MCAuto<typename Traits<T>::ArrayType> newArr(Traits<T>::ArrayType::New());
+    int nbOfTuples(this->getNumberOfTuples()),nbOfComp(this->getNumberOfComponents());
+    newArr->alloc(nbOfTuples,nbOfComp);
+    const T *cptr(this->begin());
+    std::transform(cptr,cptr+nbOfTuples*nbOfComp,newArr->getPointer(),std::negate<T>());
+    newArr->copyStringInfoFrom(*this);
+    return newArr.retn();
+  }
+
+  /*!
+   * Multiply values of another DataArrayDouble to values of \a this one. There are 3
+   * valid cases.
+   * 1.  The arrays have same number of tuples and components. Then each value of
+   *   \a other array is multiplied to the corresponding value of \a this array, i.e.
+   *   _this_ [ i, j ] *= _other_ [ i, j ].
+   * 2.  The arrays have same number of tuples and \a other array has one component. Then
+   *   _this_ [ i, j ] *= _other_ [ i, 0 ].
+   * 3.  The arrays have same number of components and \a other array has one tuple. Then
+   *   _this_ [ i, j ] *= _a2_ [ 0, j ].
+   *
+   *  \param [in] other - an array to multiply to \a this one.
+   *  \throw If \a other is NULL.
+   *  \throw If \a this->getNumberOfTuples() != \a other->getNumberOfTuples() and
+   *         \a this->getNumberOfComponents() != \a other->getNumberOfComponents() and
+   *         \a other has number of both tuples and components not equal to 1.
+   */
+  template<class T>
+  void DataArrayTemplateClassic<T>::multiplyEqual(const typename Traits<T>::ArrayType *other)
+  {
+    if(!other)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::multiplyEqual : input DataArrayDouble instance is NULL !");
+    const char *msg="Nb of tuples mismatch for DataArrayDouble::multiplyEqual !";
+    this->checkAllocated();
+    other->checkAllocated();
+    int nbOfTuple(this->getNumberOfTuples()),nbOfTuple2(other->getNumberOfTuples());
+    int nbOfComp(this->getNumberOfComponents()),nbOfComp2(other->getNumberOfComponents());
+    if(nbOfTuple==nbOfTuple2)
+      {
+        if(nbOfComp==nbOfComp2)
+          {
+            std::transform(this->begin(),this->end(),other->begin(),this->getPointer(),std::multiplies<T>());
+          }
+        else if(nbOfComp2==1)
+          {
+            T *ptr(this->getPointer());
+            const T *ptrc(other->begin());
+            for(int i=0;i<nbOfTuple;i++)
+              std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::multiplies<T>(),*ptrc++));
+          }
+        else
+          throw INTERP_KERNEL::Exception(msg);
+      }
+    else if(nbOfTuple2==1)
+      {
+        if(nbOfComp2==nbOfComp)
+          {
+            T *ptr(this->getPointer());
+            const T *ptrc(other->begin());
+            for(int i=0;i<nbOfTuple;i++)
+              std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::multiplies<T>());
+          }
+        else
+          throw INTERP_KERNEL::Exception(msg);
+      }
+    else
+      throw INTERP_KERNEL::Exception(msg);
+    this->declareAsNew();
+  }
+
+  /*!
+   * Returns a new DataArrayDouble that is a subtraction of two given arrays. There are 3
+   * valid cases.
+   * 1.  The arrays have same number of tuples and components. Then each value of
+   *   the result array (_a_) is a subtraction of the corresponding values of \a a1 and
+   *   \a a2, i.e.: _a_ [ i, j ] = _a1_ [ i, j ] - _a2_ [ i, j ].
+   * 2.  The arrays have same number of tuples and one array, say _a2_, has one
+   *   component. Then
+   *   _a_ [ i, j ] = _a1_ [ i, j ] - _a2_ [ i, 0 ].
+   * 3.  The arrays have same number of components and one array, say _a2_, has one
+   *   tuple. Then
+   *   _a_ [ i, j ] = _a1_ [ i, j ] - _a2_ [ 0, j ].
+   *
+   * Info on components is copied either from the first array (in the first case) or from
+   * the array with maximal number of elements (getNbOfElems()).
+   *  \param [in] a1 - an array to subtract from.
+   *  \param [in] a2 - an array to subtract.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble.
+   *          The caller is to delete this result array using decrRef() as it is no more
+   *          needed.
+   *  \throw If either \a a1 or \a a2 is NULL.
+   *  \throw If \a a1->getNumberOfTuples() != \a a2->getNumberOfTuples() and
+   *         \a a1->getNumberOfComponents() != \a a2->getNumberOfComponents() and
+   *         none of them has number of tuples or components equal to 1.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::Substract(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2)
+  {
+    if(!a1 || !a2)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::Substract : input DataArrayDouble instance is NULL !");
+    int nbOfTuple1(a1->getNumberOfTuples()),nbOfTuple2(a2->getNumberOfTuples());
+    int nbOfComp1(a1->getNumberOfComponents()),nbOfComp2(a2->getNumberOfComponents());
+    if(nbOfTuple2==nbOfTuple1)
+      {
+        if(nbOfComp1==nbOfComp2)
+          {
+            MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+            ret->alloc(nbOfTuple2,nbOfComp1);
+            std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<T>());
+            ret->copyStringInfoFrom(*a1);
+            return ret.retn();
+          }
+        else if(nbOfComp2==1)
+          {
+            MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+            ret->alloc(nbOfTuple1,nbOfComp1);
+            const T *a2Ptr(a2->begin());
+            const T *a1Ptr(a1->begin());
+            T *res(ret->getPointer());
+            for(int i=0;i<nbOfTuple1;i++)
+              res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(std::minus<T>(),a2Ptr[i]));
+            ret->copyStringInfoFrom(*a1);
+            return ret.retn();
+          }
+        else
+          {
+            a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Substract !");
+            return 0;
+          }
+      }
+    else if(nbOfTuple2==1)
+      {
+        a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Substract !");
+        MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+        ret->alloc(nbOfTuple1,nbOfComp1);
+        const T *a1ptr(a1->begin()),*a2ptr(a2->begin());
+        T *pt(ret->getPointer());
+        for(int i=0;i<nbOfTuple1;i++)
+          pt=std::transform(a1ptr+i*nbOfComp1,a1ptr+(i+1)*nbOfComp1,a2ptr,pt,std::minus<T>());
+        ret->copyStringInfoFrom(*a1);
+      return ret.retn();
+      }
+    else
+      {
+        a1->checkNbOfTuples(nbOfTuple2,"Nb of tuples mismatch for array Substract !");//will always throw an exception
+        return 0;
+    }
+  }
+  
+  /*!
+   * Returns a new DataArrayDouble that is a division of two given arrays. There are 3
+   * valid cases.
+   * 1.  The arrays have same number of tuples and components. Then each value of
+   *   the result array (_a_) is a division of the corresponding values of \a a1 and
+   *   \a a2, i.e.: _a_ [ i, j ] = _a1_ [ i, j ] / _a2_ [ i, j ].
+   * 2.  The arrays have same number of tuples and one array, say _a2_, has one
+   *   component. Then
+   *   _a_ [ i, j ] = _a1_ [ i, j ] / _a2_ [ i, 0 ].
+   * 3.  The arrays have same number of components and one array, say _a2_, has one
+   *   tuple. Then
+   *   _a_ [ i, j ] = _a1_ [ i, j ] / _a2_ [ 0, j ].
+   *
+   * Info on components is copied either from the first array (in the first case) or from
+   * the array with maximal number of elements (getNbOfElems()).
+   *  \warning No check of division by zero is performed!
+   *  \param [in] a1 - a numerator array.
+   *  \param [in] a2 - a denominator array.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble.
+   *          The caller is to delete this result array using decrRef() as it is no more
+   *          needed.
+   *  \throw If either \a a1 or \a a2 is NULL.
+   *  \throw If \a a1->getNumberOfTuples() != \a a2->getNumberOfTuples() and
+   *         \a a1->getNumberOfComponents() != \a a2->getNumberOfComponents() and
+   *         none of them has number of tuples or components equal to 1.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::Divide(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2)
+  {
+    if(!a1 || !a2)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::Divide : input DataArrayDouble instance is NULL !");
+    int nbOfTuple1(a1->getNumberOfTuples()),nbOfTuple2(a2->getNumberOfTuples());
+    int nbOfComp1(a1->getNumberOfComponents()),nbOfComp2(a2->getNumberOfComponents());
+    if(nbOfTuple2==nbOfTuple1)
+      {
+        if(nbOfComp1==nbOfComp2)
+          {
+            MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+            ret->alloc(nbOfTuple2,nbOfComp1);
+            std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<T>());
+            ret->copyStringInfoFrom(*a1);
+            return ret.retn();
+          }
+        else if(nbOfComp2==1)
+          {
+            MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+            ret->alloc(nbOfTuple1,nbOfComp1);
+            const T *a2Ptr(a2->begin()),*a1Ptr(a1->begin());
+            T *res(ret->getPointer());
+            for(int i=0;i<nbOfTuple1;i++)
+              res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(std::divides<T>(),a2Ptr[i]));
+            ret->copyStringInfoFrom(*a1);
+            return ret.retn();
+          }
+        else
+          {
+            a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Divide !");
+            return 0;
+          }
+      }
+    else if(nbOfTuple2==1)
+      {
+        a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Divide !");
+        MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+        ret->alloc(nbOfTuple1,nbOfComp1);
+        const T *a1ptr=a1->begin(),*a2ptr(a2->begin());
+        T *pt(ret->getPointer());
+        for(int i=0;i<nbOfTuple1;i++)
+          pt=std::transform(a1ptr+i*nbOfComp1,a1ptr+(i+1)*nbOfComp1,a2ptr,pt,std::divides<T>());
+        ret->copyStringInfoFrom(*a1);
+        return ret.retn();
+      }
+    else
+      {
+        a1->checkNbOfTuples(nbOfTuple2,"Nb of tuples mismatch for array Divide !");//will always throw an exception
+        return 0;
+      }
+  }
+  
+  /*!
+   * Returns a new DataArrayDouble that is a product of two given arrays. There are 3
+   * valid cases.
+   * 1.  The arrays have same number of tuples and components. Then each value of
+   *   the result array (_a_) is a product of the corresponding values of \a a1 and
+   *   \a a2, i.e. _a_ [ i, j ] = _a1_ [ i, j ] * _a2_ [ i, j ].
+   * 2.  The arrays have same number of tuples and one array, say _a2_, has one
+   *   component. Then
+   *   _a_ [ i, j ] = _a1_ [ i, j ] * _a2_ [ i, 0 ].
+   * 3.  The arrays have same number of components and one array, say _a2_, has one
+   *   tuple. Then
+   *   _a_ [ i, j ] = _a1_ [ i, j ] * _a2_ [ 0, j ].
+   *
+   * Info on components is copied either from the first array (in the first case) or from
+   * the array with maximal number of elements (getNbOfElems()).
+   *  \param [in] a1 - a factor array.
+   *  \param [in] a2 - another factor array.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble.
+   *          The caller is to delete this result array using decrRef() as it is no more
+   *          needed.
+   *  \throw If either \a a1 or \a a2 is NULL.
+   *  \throw If \a a1->getNumberOfTuples() != \a a2->getNumberOfTuples() and
+   *         \a a1->getNumberOfComponents() != \a a2->getNumberOfComponents() and
+   *         none of them has number of tuples or components equal to 1.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::Multiply(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2)
+  {
+    if(!a1 || !a2)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::Multiply : input DataArrayDouble instance is NULL !");
+    int nbOfTuple(a1->getNumberOfTuples()),nbOfTuple2(a2->getNumberOfTuples());
+    int nbOfComp(a1->getNumberOfComponents()),nbOfComp2(a2->getNumberOfComponents());
+    MCAuto<typename Traits<T>::ArrayType> ret=0;
+    if(nbOfTuple==nbOfTuple2)
+      {
+        if(nbOfComp==nbOfComp2)
+          {
+            ret=Traits<T>::ArrayType::New();
+            ret->alloc(nbOfTuple,nbOfComp);
+            std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::multiplies<T>());
+            ret->copyStringInfoFrom(*a1);
+          }
+        else
+          {
+            int nbOfCompMin,nbOfCompMax;
+            const typename Traits<T>::ArrayType *aMin, *aMax;
+            if(nbOfComp>nbOfComp2)
+              {
+                nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
+                aMin=a2; aMax=a1;
+              }
+            else
+              {
+                nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
+                aMin=a1; aMax=a2;
+              }
+            if(nbOfCompMin==1)
+              {
+                ret=Traits<T>::ArrayType::New();
+                ret->alloc(nbOfTuple,nbOfCompMax);
+                const T *aMinPtr(aMin->begin());
+                const T *aMaxPtr(aMax->begin());
+                T *res=ret->getPointer();
+                for(int i=0;i<nbOfTuple;i++)
+                  res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::multiplies<T>(),aMinPtr[i]));
+                ret->copyStringInfoFrom(*aMax);
+              }
+            else
+              throw INTERP_KERNEL::Exception("Nb of components mismatch for array Multiply !");
+          }
+      }
+    else if((nbOfTuple==1 && nbOfTuple2>1) || (nbOfTuple>1 && nbOfTuple2==1))
+      {
+        if(nbOfComp==nbOfComp2)
+          {
+            int nbOfTupleMax=std::max(nbOfTuple,nbOfTuple2);
+            const typename Traits<T>::ArrayType *aMin(nbOfTuple>nbOfTuple2?a2:a1);
+            const typename Traits<T>::ArrayType *aMax(nbOfTuple>nbOfTuple2?a1:a2);
+            const T *aMinPtr(aMin->begin()),*aMaxPtr(aMax->begin());
+            ret=Traits<T>::ArrayType::New();
+            ret->alloc(nbOfTupleMax,nbOfComp);
+            T *res(ret->getPointer());
+            for(int i=0;i<nbOfTupleMax;i++)
+              res=std::transform(aMaxPtr+i*nbOfComp,aMaxPtr+(i+1)*nbOfComp,aMinPtr,res,std::multiplies<T>());
+            ret->copyStringInfoFrom(*aMax);
+          }
+        else
+          throw INTERP_KERNEL::Exception("Nb of components mismatch for array Multiply !");
+      }
+    else
+      throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Multiply !");
+    return ret.retn();
+  }
   
   /*!
    * Returns either a \a deep or \a shallow copy of this array. For more info see

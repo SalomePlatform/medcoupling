@@ -4565,7 +4565,6 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         m_1=m[[0,2,4]] ; m_1.zipCoords()
         self.assertTrue(f_1.getMesh().isEqual(m_1,1e-12))
         pass
-class MEDCouplingBasicsTest5(unittest.TestCase):
 
     def testFieldFloatIsOnStage1(self):
         """ My first test with field int."""
@@ -4588,6 +4587,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(a,3.2,12)
         pass
 
+class MEDCouplingBasicsTest6:#5(unittest.TestCase):
     def testFieldFloatIsOnStage2(self):
         """ Very important test to check that isEqual of MEDCouplingFieldFloat is OK !"""
         m1=MEDCouplingCMesh() ; m1.setCoords(DataArrayDouble([0,1,2,3]),DataArrayDouble([0,1,2,3,4]))

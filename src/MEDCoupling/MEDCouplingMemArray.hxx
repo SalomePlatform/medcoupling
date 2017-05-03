@@ -304,6 +304,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> convertToDblArr() const;
     MEDCOUPLING_EXPORT MCAuto<DataArrayInt> convertToIntArr() const;
     MEDCOUPLING_EXPORT MCAuto<DataArrayFloat> convertToFloatArr() const;
+    MEDCOUPLING_EXPORT void applyLin(T a, T b, int compoId);
+    MEDCOUPLING_EXPORT void applyLin(T a, T b);
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *negate() const;
+    MEDCOUPLING_EXPORT void multiplyEqual(const typename Traits<T>::ArrayType *other);
+    MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Substract(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
+    MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Divide(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
+    MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Multiply(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
   protected:
     static typename Traits<T>::ArrayType *PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self);
   private:
@@ -452,12 +459,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void sortPerTuple(bool asc);
     MEDCOUPLING_EXPORT void abs();
     MEDCOUPLING_EXPORT DataArrayDouble *computeAbs() const;
-    MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
-    MEDCOUPLING_EXPORT void applyLin(double a, double b);
     MEDCOUPLING_EXPORT void applyInv(double numerator);
     MEDCOUPLING_EXPORT void applyPow(double val);
     MEDCOUPLING_EXPORT void applyRPow(double val);
-    MEDCOUPLING_EXPORT DataArrayDouble *negate() const;
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const;
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const std::string& func, bool isSafe=true) const;
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(const std::string& func, bool isSafe=true) const;
@@ -479,11 +483,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayDouble *Min(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *Add(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT void addEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT static DataArrayDouble *Substract(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT void substractEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT static DataArrayDouble *Multiply(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT static DataArrayDouble *Divide(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT static DataArrayDouble *Pow(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT void powEqual(const DataArrayDouble *other);
@@ -599,10 +599,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void getMinMaxValues(int& minValue, int& maxValue) const;
     MEDCOUPLING_EXPORT void abs();
     MEDCOUPLING_EXPORT DataArrayInt *computeAbs() const;
-    MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId);
-    MEDCOUPLING_EXPORT void applyLin(int a, int b);
     MEDCOUPLING_EXPORT void applyInv(int numerator);
-    MEDCOUPLING_EXPORT DataArrayInt *negate() const;
     MEDCOUPLING_EXPORT void applyDivideBy(int val);
     MEDCOUPLING_EXPORT void applyModulus(int val);
     MEDCOUPLING_EXPORT void applyRModulus(int val);
@@ -654,11 +651,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void writeOnPlace(std::size_t id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT static DataArrayInt *Add(const DataArrayInt *a1, const DataArrayInt *a2);
     MEDCOUPLING_EXPORT void addEqual(const DataArrayInt *other);
-    MEDCOUPLING_EXPORT static DataArrayInt *Substract(const DataArrayInt *a1, const DataArrayInt *a2);
     MEDCOUPLING_EXPORT void substractEqual(const DataArrayInt *other);
-    MEDCOUPLING_EXPORT static DataArrayInt *Multiply(const DataArrayInt *a1, const DataArrayInt *a2);
-    MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayInt *other);
-    MEDCOUPLING_EXPORT static DataArrayInt *Divide(const DataArrayInt *a1, const DataArrayInt *a2);
     MEDCOUPLING_EXPORT void divideEqual(const DataArrayInt *other);
     MEDCOUPLING_EXPORT static DataArrayInt *Modulus(const DataArrayInt *a1, const DataArrayInt *a2);
     MEDCOUPLING_EXPORT void modulusEqual(const DataArrayInt *other);

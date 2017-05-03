@@ -3005,7 +3005,6 @@ PyObject *DataArrayT_imul__internal(PyObject *trueSelf, PyObject *obj, typename 
   typename MEDCoupling::Traits<T>::ArrayTuple *aa;
   std::vector<T> bb;
   int sw;
-  convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   convertFPStarLikePyObjToCpp_2<T>(obj,sw,val,a,aa,bb,ti_da,ti_tuple);
   switch(sw)
     {
