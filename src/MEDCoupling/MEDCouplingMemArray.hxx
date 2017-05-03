@@ -315,8 +315,15 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Divide(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Add(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Multiply(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
+    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(T val) const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsGreaterThan(T val) const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsLowerOrEqualTo(T val) const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsLowerThan(T val) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsStrictlyNegative() const;
   protected:
     static typename Traits<T>::ArrayType *PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self);
+    template<class OP>
+    MCAuto<DataArrayInt> findIdsAdv(const OP& op) const;
   private:
     template<class U>
     MCAuto< typename Traits<U>::ArrayType > convertToOtherTypeOfArr() const;
@@ -609,12 +616,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void applyRPow(int val);
     MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(int vmin, int vmax) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsNotInRange(int vmin, int vmax) const;
-    MEDCOUPLING_EXPORT DataArrayInt *findIdsStricltyNegative() const;
     MEDCOUPLING_EXPORT bool checkAllIdsInRange(int vmin, int vmax) const;
-    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(int val) const;
-    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsGreaterThan(int val) const;
-    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsLowerOrEqualTo(int val) const;
-    MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsLowerThan(int val) const;
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& arr);
     MEDCOUPLING_EXPORT static DataArrayInt *AggregateIndexes(const std::vector<const DataArrayInt *>& arrs);
@@ -666,22 +668,20 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   private:
-    template<class OP>
-    MCAuto<DataArrayInt> findIdsAdv(const OP& op) const;
-  private:
     ~DataArrayInt() { }
     DataArrayInt() { }
   };
 
+  template<class T>
   template<class OP>
-  MCAuto<DataArrayInt> DataArrayInt::findIdsAdv(const OP& op) const
+  MCAuto<DataArrayInt> DataArrayTemplateClassic<T>::findIdsAdv(const OP& op) const
   {
-    checkAllocated();
-    if(getNumberOfComponents()!=1)
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayInt::findIdsAdv : this must have exactly one component !");
-    const int *cptr(getConstPointer());
+    const T *cptr(this->begin());
     MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
-    int nbOfTuples(getNumberOfTuples());
+    int nbOfTuples(this->getNumberOfTuples());
     for(int i=0;i<nbOfTuples;i++,cptr++)
       if(op(*cptr))
         ret->pushBackSilent(i);

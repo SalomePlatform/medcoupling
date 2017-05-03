@@ -1788,7 +1788,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   MCAuto<MEDCouplingUMesh> ret2D(MEDCouplingUMesh::MergeUMeshesOnSameCoords(tmp));
   // To finish - filter ret3 - std::numeric_limits<int>::max() -> -1 - negate values must be resolved.
   ret3->rearrange(1);
-  MCAuto<DataArrayInt> edgesToDealWith(ret3->findIdsStricltyNegative());
+  MCAuto<DataArrayInt> edgesToDealWith(ret3->findIdsStrictlyNegative());
   for(const int *it=edgesToDealWith->begin();it!=edgesToDealWith->end();it++)
     {
       int old2DCellId(-ret3->getIJ(*it,0)-1);

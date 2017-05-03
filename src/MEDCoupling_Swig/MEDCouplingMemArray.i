@@ -40,6 +40,21 @@
 {
   $result=convertDataArrayChar($1,$owner);
 }
+
+%typemap(out) MCAuto<MEDCoupling::DataArrayInt>
+{
+  $result=SWIG_NewPointerObj(SWIG_as_voidptr($1.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt,SWIG_POINTER_OWN|0);
+}
+
+%typemap(out) MCAuto<MEDCoupling::DataArrayDouble>
+{
+  $result=SWIG_NewPointerObj(SWIG_as_voidptr($1.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble,SWIG_POINTER_OWN|0);
+}
+
+%typemap(out) MCAuto<MEDCoupling::DataArrayFloat>
+{
+  $result=SWIG_NewPointerObj(SWIG_as_voidptr($1.retn()),SWIGTYPE_p_MEDCoupling__DataArrayFloat,SWIG_POINTER_OWN|0);
+}
 //$$$$$$$$$$$$$$$$$$
 
 %newobject MEDCoupling::DataArray::deepCopy;
@@ -52,12 +67,8 @@
 %newobject MEDCoupling::DataArrayFloat::New;
 %newobject MEDCoupling::DataArrayFloat::iterator;
 %newobject MEDCoupling::DataArrayFloat::__iter__;
-%newobject MEDCoupling::DataArrayFloat::convertToDblArr;
 %newobject MEDCoupling::DataArrayInt::New;
 %newobject MEDCoupling::DataArrayInt::__iter__;
-%newobject MEDCoupling::DataArrayInt::selectPartDef;
-%newobject MEDCoupling::DataArrayInt::convertToDblArr;
-%newobject MEDCoupling::DataArrayInt::convertToFloatArr;
 %newobject MEDCoupling::DataArrayInt::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayInt::subArray;
 %newobject MEDCoupling::DataArrayInt::changeNbOfComponents;
@@ -80,7 +91,7 @@
 %newobject MEDCoupling::DataArrayInt::computeAbs;
 %newobject MEDCoupling::DataArrayInt::findIdsInRange;
 %newobject MEDCoupling::DataArrayInt::findIdsNotInRange;
-%newobject MEDCoupling::DataArrayInt::findIdsStricltyNegative;
+%newobject MEDCoupling::DataArrayInt::findIdsStrictlyNegative;
 %newobject MEDCoupling::DataArrayInt::Aggregate;
 %newobject MEDCoupling::DataArrayInt::AggregateIndexes;
 %newobject MEDCoupling::DataArrayInt::Meld;
@@ -102,11 +113,6 @@
 %newobject MEDCoupling::DataArrayInt::buildIntersection;
 %newobject MEDCoupling::DataArrayInt::buildUnique;
 %newobject MEDCoupling::DataArrayInt::buildUniqueNotSorted;
-%newobject MEDCoupling::DataArrayInt::fromLinkedListOfPairToList;
-%newobject MEDCoupling::DataArrayInt::findIdsGreaterOrEqualTo;
-%newobject MEDCoupling::DataArrayInt::findIdsGreaterThan;
-%newobject MEDCoupling::DataArrayInt::findIdsLowerOrEqualTo;
-%newobject MEDCoupling::DataArrayInt::findIdsLowerThan;
 %newobject MEDCoupling::DataArrayInt::deltaShiftIndex;
 %newobject MEDCoupling::DataArrayInt::buildExplicitArrByRanges;
 %newobject MEDCoupling::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
@@ -152,9 +158,6 @@
 %newobject MEDCoupling::DataArrayAsciiCharTuple::buildDAAsciiChar;
 %newobject MEDCoupling::DataArrayDouble::New;
 %newobject MEDCoupling::DataArrayDouble::__iter__;
-%newobject MEDCoupling::DataArrayDouble::selectPartDef;
-%newobject MEDCoupling::DataArrayDouble::convertToIntArr;
-%newobject MEDCoupling::DataArrayDouble::convertToFloatArr;
 %newobject MEDCoupling::DataArrayDouble::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayDouble::Aggregate;
 %newobject MEDCoupling::DataArrayDouble::Meld;
@@ -169,9 +172,9 @@
 %newobject MEDCoupling::DataArrayDouble::subArray;
 %newobject MEDCoupling::DataArrayDouble::changeNbOfComponents;
 %newobject MEDCoupling::DataArrayDouble::accumulatePerChunck;
-%newobject MEDCoupling::DataArrayDouble::cumSum;
 %newobject MEDCoupling::DataArrayDouble::findIdsInRange;
 %newobject MEDCoupling::DataArrayDouble::findIdsNotInRange;
+%newobject MEDCoupling::DataArrayDouble::findIdsStrictlyNegative;
 %newobject MEDCoupling::DataArrayDouble::negate;
 %newobject MEDCoupling::DataArrayDouble::computeAbs;
 %newobject MEDCoupling::DataArrayDouble::applyFunc;
@@ -677,6 +680,7 @@ namespace MEDCoupling
     void pushBackSilent(float val) throw(INTERP_KERNEL::Exception);
     void iota(float init=0.) throw(INTERP_KERNEL::Exception);
     DataArrayFloatIterator *iterator() throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayDouble> convertToDblArr() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       DataArrayFloat() throw(INTERP_KERNEL::Exception)
@@ -736,12 +740,6 @@ namespace MEDCoupling
         return convertDblArrToPyListOfTuple<float>(vals,nbOfComp,nbOfTuples);
       }
       
-      DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayDouble> ret(self->convertToDblArr());
-        return ret.retn();
-      }
-
       PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         return DataArrayT__getitem<float>(self,obj);
@@ -943,6 +941,7 @@ namespace MEDCoupling
     void applyFuncFast64(const std::string& func) throw(INTERP_KERNEL::Exception);
     DataArrayInt *findIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findIdsNotInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsStrictlyNegative() const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
@@ -959,6 +958,14 @@ namespace MEDCoupling
     void divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Pow(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     void powEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(double val) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> findIdsGreaterThan(double val) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> findIdsLowerOrEqualTo(double val) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> findIdsLowerThan(double val) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> convertToIntArr() const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayDouble> selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayDouble> cumSum() const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayFloat> convertToFloatArr() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       DataArrayDouble() throw(INTERP_KERNEL::Exception)
@@ -974,30 +981,6 @@ namespace MEDCoupling
       DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
-      }
-
-      DataArrayDouble *selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayDouble> ret(self->selectPartDef(pd));
-        return ret.retn();
-      }
-
-      DataArrayDouble *cumSum() const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayDouble> ret(self->cumSum());
-        return ret.retn();
-      }
-
-      DataArrayFloat *convertToFloatArr() const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayFloat> ret(self->convertToFloatArr());
-        return ret.retn();
-      }
-      
-      DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayInt> ret(self->convertToIntArr());
-        return ret.retn();
       }
 
       void pushBackValsSilent(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -2358,7 +2341,7 @@ namespace MEDCoupling
     void applyRPow(int val) throw(INTERP_KERNEL::Exception);
     DataArrayInt *findIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findIdsNotInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsStricltyNegative() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsStrictlyNegative() const throw(INTERP_KERNEL::Exception);
     bool checkAllIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
@@ -2394,6 +2377,14 @@ namespace MEDCoupling
     void modulusEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Pow(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
     void powEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> fromLinkedListOfPairToList() const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(int val) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> findIdsGreaterThan(int val) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> findIdsLowerOrEqualTo(int val) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> findIdsLowerThan(int val) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayInt> selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayDouble> convertToDblArr() const throw(INTERP_KERNEL::Exception);
+    MCAuto<DataArrayFloat> convertToFloatArr() const throw(INTERP_KERNEL::Exception);
   public:
     static DataArrayInt *Range(int begin, int end, int step) throw(INTERP_KERNEL::Exception);
     %extend
@@ -2503,18 +2494,6 @@ namespace MEDCoupling
           return MEDCoupling_DataArrayInt_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
       
-      DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayDouble> ret(self->convertToDblArr());
-        return ret.retn();
-      }
-      
-      DataArrayFloat *convertToFloatArr() const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayFloat> ret(self->convertToFloatArr());
-        return ret.retn();
-      }
-
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->reprNotTooLong();
@@ -2540,42 +2519,6 @@ namespace MEDCoupling
       DataArrayIntIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->iterator();
-      }
-
-      DataArrayInt *fromLinkedListOfPairToList() const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayInt> ret(self->fromLinkedListOfPairToList());
-        return ret.retn();
-      }
-      
-      DataArrayInt *findIdsGreaterOrEqualTo(int val) const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayInt> ret(self->findIdsGreaterOrEqualTo(val));
-        return ret.retn();
-      }
-      
-      DataArrayInt *findIdsGreaterThan(int val) const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayInt> ret(self->findIdsGreaterThan(val));
-        return ret.retn();
-      }
-      
-      DataArrayInt *findIdsLowerOrEqualTo(int val) const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayInt> ret(self->findIdsLowerOrEqualTo(val));
-        return ret.retn();
-      }
-      
-      DataArrayInt *findIdsLowerThan(int val) const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayInt> ret(self->findIdsLowerThan(val));
-        return ret.retn();
-      }
-
-      DataArrayInt *selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception)
-      {
-        MCAuto<DataArrayInt> ret(self->selectPartDef(pd));
-        return ret.retn();
       }
    
       PyObject *accumulate() const throw(INTERP_KERNEL::Exception)

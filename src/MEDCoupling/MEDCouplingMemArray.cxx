@@ -6080,41 +6080,6 @@ void DataArrayInt::applyModulus(int val)
   declareAsNew();
 }
 
-struct GreatEqual
-{
-  GreatEqual(int v):_v(v) { }
-  bool operator()(int v) const { return v>=_v; }
-  int _v;
-};
-
-struct GreaterThan
-{
-  GreaterThan(int v):_v(v) { }
-  bool operator()(int v) const { return v>_v; }
-  int _v;
-};
-
-struct LowerEqual
-{
-  LowerEqual(int v):_v(v) { }
-  bool operator()(int v) const { return v<=_v; }
-  int _v;
-};
-
-struct LowerThan
-{
-  LowerThan(int v):_v(v) { }
-  bool operator()(int v) const { return v<_v; }
-  int _v;
-};
-
-struct InRange
-{
-  InRange(int a, int b):_a(a),_b(b) { }
-  bool operator()(int v) const { return v>=_a && v<_b; }
-  int _a,_b;
-};
-
 /*!
  * This method works only on data array with one component.
  * This method returns a newly allocated array storing stored ascendantly tuple ids in \b this so that
@@ -6128,17 +6093,10 @@ struct InRange
  */
 DataArrayInt *DataArrayInt::findIdsInRange(int vmin, int vmax) const
 {
-  InRange ir(vmin,vmax);
+  InRange<int> ir(vmin,vmax);
   MCAuto<DataArrayInt> ret(findIdsAdv(ir));
   return ret.retn();
 }
-
-struct NotInRange
-{
-  NotInRange(int a, int b):_a(a),_b(b) { }
-  bool operator()(int v) const { return v<_a || v>=_b; }
-  int _a,_b;
-};
 
 /*!
  * This method works only on data array with one component.
@@ -6153,46 +6111,9 @@ struct NotInRange
  */
 DataArrayInt *DataArrayInt::findIdsNotInRange(int vmin, int vmax) const
 {
-  NotInRange nir(vmin,vmax);
+  NotInRange<int> nir(vmin,vmax);
   MCAuto<DataArrayInt> ret(findIdsAdv(nir));
   return ret.retn();
-}
-
-/*!
- * This method works only on data array with one component. This method returns a newly allocated array storing stored ascendantly of tuple ids in \a this so that this[id]<0.
- *
- * \return a newly allocated data array that the caller should deal with.
- * \sa DataArrayInt::findIdsInRange
- */
-DataArrayInt *DataArrayInt::findIdsStricltyNegative() const
-{
-  LowerThan lt(0);
-  MCAuto<DataArrayInt> ret(findIdsAdv(lt));
-  return ret.retn();
-}
-
-MCAuto<DataArrayInt> DataArrayInt::findIdsGreaterOrEqualTo(int val) const
-{
-  GreatEqual ge(val);
-  return findIdsAdv(ge);
-}
-
-MCAuto<DataArrayInt> DataArrayInt::findIdsGreaterThan(int val) const
-{
-  GreaterThan gt(val);
-  return findIdsAdv(gt);
-}
-
-MCAuto<DataArrayInt> DataArrayInt::findIdsLowerOrEqualTo(int val) const
-{
-  LowerEqual le(val);
-  return findIdsAdv(le);
-}
-
-MCAuto<DataArrayInt> DataArrayInt::findIdsLowerThan(int val) const
-{
-  LowerThan lt(val);
-  return findIdsAdv(lt);
 }
 
 /*!

@@ -2839,6 +2839,96 @@ namespace MEDCoupling
         return const_cast<typename Traits<T>::ArrayType *>(&self);
       }
   }
+
+  template<class T>
+  struct GreatEqual
+  {
+    GreatEqual(T v):_v(v) { }
+    bool operator()(T v) const { return v>=_v; }
+    T _v;
+  };
+  
+  template<class T>
+  struct GreaterThan
+  {
+    GreaterThan(T v):_v(v) { }
+    bool operator()(T v) const { return v>_v; }
+    T _v;
+  };
+  
+  template<class T>
+  struct LowerEqual
+  {
+    LowerEqual(T v):_v(v) { }
+    bool operator()(T v) const { return v<=_v; }
+    T _v;
+  };
+  
+  template<class T>
+  struct LowerThan
+  {
+    LowerThan(T v):_v(v) { }
+    bool operator()(T v) const { return v<_v; }
+    T _v;
+  };
+  
+  template<class T>
+  struct InRange
+  {
+    InRange(T a, T b):_a(a),_b(b) { }
+    bool operator()(T v) const { return v>=_a && v<_b; }
+    T _a,_b;
+  };
+
+template<class T>
+struct NotInRange
+{
+  NotInRange(T a, T b):_a(a),_b(b) { }
+  bool operator()(T v) const { return v<_a || v>=_b; }
+  T _a,_b;
+};
+
+  /*!
+   * This method works only on data array with one component. This method returns a newly allocated array storing stored ascendantly of tuple ids in \a this so that this[id]<0.
+   *
+   * \return a newly allocated data array that the caller should deal with.
+   * \sa DataArrayInt::findIdsInRange
+   */
+  template<class T>
+  DataArrayInt *DataArrayTemplateClassic<T>::findIdsStrictlyNegative() const
+  {
+    LowerThan<T> lt((T)0);
+    MCAuto<DataArrayInt> ret(findIdsAdv(lt));
+    return ret.retn();
+  }
+  
+  template<class T>
+  MCAuto<DataArrayInt> DataArrayTemplateClassic<T>::findIdsGreaterOrEqualTo(T val) const
+  {
+    GreatEqual<T> ge(val);
+    return findIdsAdv(ge);
+  }
+  
+  template<class T>
+  MCAuto<DataArrayInt> DataArrayTemplateClassic<T>::findIdsGreaterThan(T val) const
+  {
+    GreaterThan<T> gt(val);
+    return findIdsAdv(gt);
+  }
+  
+  template<class T>
+  MCAuto<DataArrayInt> DataArrayTemplateClassic<T>::findIdsLowerOrEqualTo(T val) const
+  {
+    LowerEqual<T> le(val);
+    return findIdsAdv(le);
+  }
+  
+  template<class T>
+  MCAuto<DataArrayInt> DataArrayTemplateClassic<T>::findIdsLowerThan(T val) const
+  {
+    LowerThan<T> lt(val);
+    return findIdsAdv(lt);
+  }
   
   /*!
    * Checks if all values in \a this array are equal to \a val at precision \a eps.

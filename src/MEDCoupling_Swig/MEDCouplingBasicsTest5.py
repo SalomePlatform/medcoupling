@@ -3261,7 +3261,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
 
     def testSwig2DAIGetIdsStrictlyNegative1(self):
         d=DataArrayInt([4,-5,-1,0,3,99,-7])
-        self.assertTrue(d.findIdsStricltyNegative().isEqual(DataArrayInt([1,2,6])))
+        self.assertTrue(d.findIdsStrictlyNegative().isEqual(DataArrayInt([1,2,6])))
         pass
 
     def testSwig2DAIReplaceOneValByInThis1(self):
@@ -4629,7 +4629,17 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
             self.assertEqual(f1.isEqual(f4,1e-12,0.),expected)
             pass
         pass
-    
+
+    def testLTGTDAD1(self):
+        d=DataArrayDouble(10) ; d.iota()
+        self.assertTrue(d.findIdsLowerThan(0).empty())
+        self.assertTrue(d.findIdsLowerThan(1).isEqual(DataArrayInt([0])))
+        d-=5.
+        self.assertTrue(d.findIdsStrictlyNegative().isEqual(DataArrayInt([0,1,2,3,4])))
+        self.assertTrue(d.findIdsGreaterThan(0.).isEqual(DataArrayInt([6,7,8,9])))
+        self.assertTrue(d.convertToFloatArr().isEqual(DataArrayFloat([-5,-4,-3,-2,-1,0,1,2,3,4]),1e-7))
+        self.assertTrue(d.convertToFloatArr().convertToDblArr().isEqual(d,1e-12))
+        pass
     pass
 
 if __name__ == '__main__':
