@@ -2396,7 +2396,8 @@ static PyObject *NewMethWrapCallInitOnlyIfEmptyDictInInput(PyObject *cls, PyObje
   return instance;
 }
 
-static PyObject *NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(PyObject *cls, PyObject *args, const char *clsName)
+template<class T>
+static PyObject *NewMethWrapCallInitOnlyIfDictWithSingleEltInInputGeneral(PyObject *cls, PyObject *args, const char *clsName)
 {
   if(!PyTuple_Check(args))
     {
@@ -2421,16 +2422,58 @@ static PyObject *NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(PyObject *cls
        zeNumpyRepr=PyDict_GetItem(PyTuple_GetItem(args,1),tmp1);//borrowed
         Py_DECREF(tmp1);
       }
+      if(!zeNumpyRepr)
+        {
+          std::ostringstream oss; oss << clsName << ".__new__ : the args in input is expected to be a tuple !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      T tt;
       {
-        PyObject *tmp3(PyTuple_New(1));
-        PyTuple_SetItem(tmp3,0,zeNumpyRepr); Py_XINCREF(zeNumpyRepr);
-        PyObject *tmp2(PyObject_CallObject(initMeth,tmp3));
-        Py_XDECREF(tmp2);
+        PyObject *tmp3(0);
+        try
+          {
+            tmp3=tt(zeNumpyRepr);
+          }
+        catch(INTERP_KERNEL::Exception& e)
+          {
+            std::ostringstream oss; oss << clsName << ".__new__ : Invalid type in input " << " : " << e.what();
+            throw INTERP_KERNEL::Exception(oss.str());
+          }
+        {
+          PyObject *tmp2(PyObject_CallObject(initMeth,tmp3));
+          Py_XDECREF(tmp2);
+        }
         Py_DECREF(tmp3);
       }
       Py_DECREF(initMeth);
     }
   return instance;
+}
+
+struct SinglePyObjToBePutInATuple
+{
+  PyObject *operator()(PyObject *zeNumpyRepr)
+  {
+    PyObject *tmp3(PyTuple_New(1));
+    PyTuple_SetItem(tmp3,0,zeNumpyRepr); Py_XINCREF(zeNumpyRepr);
+    return tmp3;
+  }
+};
+
+struct SinglePyObjExpectToBeAListOfSz2
+{
+  PyObject *operator()(PyObject *uniqueElt)
+  {
+    if(!PyTuple_Check(uniqueElt) || PyTuple_Size(uniqueElt)!=2)
+      throw INTERP_KERNEL::Exception("Not a tuple of size 2 !");
+    Py_XINCREF(uniqueElt);
+    return uniqueElt;
+  }
+};
+
+static PyObject *NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(PyObject *cls, PyObject *args, const char *clsName)
+{
+  return NewMethWrapCallInitOnlyIfDictWithSingleEltInInputGeneral<SinglePyObjToBePutInATuple>(cls,args,clsName);
 }
 
 static PyObject *convertPartDefinition(MEDCoupling::PartDefinition *pd, int owner) throw(INTERP_KERNEL::Exception)

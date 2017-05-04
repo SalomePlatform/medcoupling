@@ -5040,35 +5040,7 @@ namespace MEDCoupling
 
       static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
       {
-        static const char MSG[]="MEDCouplingFieldDouble.__new__ : the args in input is expected to be a tuple !";
-        if(!PyTuple_Check(args))
-          throw INTERP_KERNEL::Exception(MSG);
-        PyObject *builtinsd(PyEval_GetBuiltins());//borrowed
-        PyObject *obj(PyDict_GetItemString(builtinsd,"object"));//borrowed
-        PyObject *selfMeth(PyObject_GetAttrString(obj,"__new__"));
-        //
-        PyObject *tmp0(PyTuple_New(1));
-        PyTuple_SetItem(tmp0,0,cls); Py_XINCREF(cls);
-        PyObject *instance(PyObject_CallObject(selfMeth,tmp0));
-        Py_DECREF(tmp0);
-        Py_DECREF(selfMeth);
-        if(PyTuple_Size(args)==2 && PyDict_Check(PyTuple_GetItem(args,1)) && PyDict_Size(PyTuple_GetItem(args,1))==1 )
-          {// NOT general case. only true if in unpickeling context ! call __init__. Because for all other cases, __init__ is called right after __new__ !
-            PyObject *initMeth(PyObject_GetAttrString(instance,"__init__"));
-            ////
-            PyObject *a(PyInt_FromLong(0));
-            PyObject *uniqueElt(PyDict_GetItem(PyTuple_GetItem(args,1),a));
-            Py_DECREF(a);
-            if(!uniqueElt)
-              throw INTERP_KERNEL::Exception(MSG);
-            if(!PyTuple_Check(uniqueElt) || PyTuple_Size(uniqueElt)!=2)
-              throw INTERP_KERNEL::Exception(MSG);
-            PyObject *tmp2(PyObject_CallObject(initMeth,uniqueElt));
-            Py_XDECREF(tmp2);
-            ////
-            Py_DECREF(initMeth);
-          }
-        return instance;
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInputGeneral<SinglePyObjExpectToBeAListOfSz2>(cls,args,"MEDCouplingFieldDouble");
       }
 
       PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
