@@ -2323,6 +2323,25 @@ namespace MEDCoupling
     std::reverse(_info_on_compo.begin(),_info_on_compo.end());
   }
 
+  /*!
+   * Assign pointer to one array to a pointer to another appay. Reference counter of
+   * \a arrayToSet is incremented / decremented.
+   *  \param [in] newArray - the pointer to array to assign to \a arrayToSet.
+   *  \param [in,out] arrayToSet - the pointer to array to assign to.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::SetArrayIn(typename Traits<T>::ArrayType *newArray, typename Traits<T>::ArrayType* &arrayToSet)
+  {
+    if(newArray!=arrayToSet)
+      {
+        if(arrayToSet)
+          arrayToSet->decrRef();
+        arrayToSet=newArray;
+        if(arrayToSet)
+          arrayToSet->incrRef();
+      }
+  }
+
   template<class T>
   template<class U>
   MCAuto< typename Traits<U>::ArrayType > DataArrayTemplateClassic<T>::convertToOtherTypeOfArr() const
@@ -3009,6 +3028,125 @@ struct NotInRange
       for(int j=0;j<nbc[i];j++,k++)
         ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j));
     return ret;
+  }
+
+  /*!
+   * Returns a new DataArrayDouble holding the same values as \a this array but differently
+   * arranged in memory. If \a this array holds 2 components of 3 values:
+   * \f$ x_0,x_1,x_2,y_0,y_1,y_2 \f$, then the result array holds these values arranged
+   * as follows: \f$ x_0,y_0,x_1,y_1,x_2,y_2 \f$.
+   *  \warning Do not confuse this method with transpose()!
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::fromNoInterlace() const
+  {
+    if(this->_mem.isNull())
+      throw INTERP_KERNEL::Exception("DataArrayDouble::fromNoInterlace : Not defined array !");
+    T *tab(this->_mem.fromNoInterlace(this->getNumberOfComponents()));
+    MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+    ret->useArray(tab,true,C_DEALLOC,this->getNumberOfTuples(),this->getNumberOfComponents());
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a new DataArrayDouble holding the same values as \a this array but differently
+   * arranged in memory. If \a this array holds 2 components of 3 values:
+   * \f$ x_0,y_0,x_1,y_1,x_2,y_2 \f$, then the result array holds these values arranged
+   * as follows: \f$ x_0,x_1,x_2,y_0,y_1,y_2 \f$.
+   *  \warning Do not confuse this method with transpose()!
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+   *          is to delete using decrRef() as it is no more needed.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::toNoInterlace() const
+  {
+    if(this->_mem.isNull())
+      throw INTERP_KERNEL::Exception("DataArrayDouble::toNoInterlace : Not defined array !");
+    T *tab(this->_mem.toNoInterlace(this->getNumberOfComponents()));
+    MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+    ret->useArray(tab,true,C_DEALLOC,this->getNumberOfTuples(),this->getNumberOfComponents());
+    return ret.retn();
+  }
+  
+  /*!
+   * Appends components of another array to components of \a this one, tuple by tuple.
+   * So that the number of tuples of \a this array remains the same and the number of 
+   * components increases.
+   *  \param [in] other - the DataArrayDouble to append to \a this one.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a this and \a other arrays have different number of tuples.
+   *
+   *  \if ENABLE_EXAMPLES
+   *  \ref cpp_mcdataarraydouble_meldwith "Here is a C++ example".
+   *
+   *  \ref py_mcdataarraydouble_meldwith "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  void DataArrayTemplateClassic<T>::meldWith(const typename Traits<T>::ArrayType *other)
+  {
+    this->checkAllocated();
+    other->checkAllocated();
+    int nbOfTuples(this->getNumberOfTuples());
+    if(nbOfTuples!=other->getNumberOfTuples())
+      throw INTERP_KERNEL::Exception("DataArrayDouble::meldWith : mismatch of number of tuples !");
+    int nbOfComp1(this->getNumberOfComponents()),nbOfComp2(other->getNumberOfComponents());
+    T *newArr=(T *)malloc((nbOfTuples*(nbOfComp1+nbOfComp2))*sizeof(T));
+    T *w=newArr;
+    const T *inp1(this->begin()),*inp2(other->begin());
+    for(int i=0;i<nbOfTuples;i++,inp1+=nbOfComp1,inp2+=nbOfComp2)
+      {
+        w=std::copy(inp1,inp1+nbOfComp1,w);
+        w=std::copy(inp2,inp2+nbOfComp2,w);
+      }
+    this->useArray(newArr,true,C_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
+    std::vector<int> compIds(nbOfComp2);
+    for(int i=0;i<nbOfComp2;i++)
+      compIds[i]=nbOfComp1+i;
+    this->copyPartOfStringInfoFrom2(compIds,*other);
+  }
+
+  /*!
+   * 
+   * \param [in] nbTimes specifies the nb of times each tuples in \a this will be duplicated contiguouly in returned DataArrayDouble instance.
+   *             \a nbTimes  should be at least equal to 1.
+   * \return a newly allocated DataArrayDouble having one component and number of tuples equal to \a nbTimes * \c this->getNumberOfTuples.
+   * \throw if \a this is not allocated or if \a this has not number of components set to one or if \a nbTimes is lower than 1.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::duplicateEachTupleNTimes(int nbTimes) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::duplicateEachTupleNTimes : this should have only one component !");
+    if(nbTimes<1)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::duplicateEachTupleNTimes : nb times should be >= 1 !");
+    int nbTuples(this->getNumberOfTuples());
+    const T *inPtr(this->begin());
+    MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New()); ret->alloc(nbTimes*nbTuples,1);
+    T *retPtr(ret->getPointer());
+    for(int i=0;i<nbTuples;i++,inPtr++)
+      {
+        T val(*inPtr);
+        for(int j=0;j<nbTimes;j++,retPtr++)
+          *retPtr=val;
+      }
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
+  }
+  
+  template<class T>
+  void DataArrayTemplateClassic<T>::aggregate(const typename Traits<T>::ArrayType *other)
+  {
+    if(!other)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::aggregate : null pointer !");
+    if(this->getNumberOfComponents()!=other->getNumberOfComponents())
+      throw INTERP_KERNEL::Exception("DataArrayDouble::aggregate : mismatch number of components !");
+    this->_mem.insertAtTheEnd(other->begin(),other->end());
   }
   
   /*!

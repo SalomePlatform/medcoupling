@@ -283,6 +283,11 @@ namespace MEDCoupling
     T getMaxValueInArray() const;
     T getMinValue(int& tupleId) const;
     T getMinValueInArray() const;
+    MEDCOUPLING_EXPORT void getTuple(int tupleId, T *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
+    template<class InputIterator>
+    void insertAtTheEnd(InputIterator first, InputIterator last);
+    MEDCOUPLING_EXPORT static void SetArrayIn(typename Traits<T>::ArrayType *newArray, typename Traits<T>::ArrayType* &arrayToSet);
+    MEDCOUPLING_EXPORT void writeOnPlace(std::size_t id, T element0, const T *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
   public:
     MEDCOUPLING_EXPORT MemArray<T>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<T>& accessToMemArray() const { return _mem; }
@@ -322,6 +327,11 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsLowerOrEqualTo(T val) const;
     MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsLowerThan(T val) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsStrictlyNegative() const;
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *fromNoInterlace() const;
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *toNoInterlace() const;
+    MEDCOUPLING_EXPORT void meldWith(const typename Traits<T>::ArrayType *other);
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *duplicateEachTupleNTimes(int nbTimes) const;
+    MEDCOUPLING_EXPORT void aggregate(const typename Traits<T>::ArrayType *other);
   protected:
     static typename Traits<T>::ArrayType *PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self);
     template<class OP>
@@ -409,30 +419,20 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *fromNoInterlace() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *toNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplateFP<double>::mySelectByTupleId(new2OldBg,new2OldEnd); }
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const DataArrayInt& di) const { return DataArrayTemplateFP<double>::mySelectByTupleId(di); }
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplateFP<double>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
     MEDCOUPLING_EXPORT DataArrayDouble *keepSelectedComponents(const std::vector<int>& compoIds) const { return DataArrayTemplateFP<double>::myKeepSelectedComponents(compoIds); }
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafeSlice(int bg, int end2, int step) const { return DataArrayTemplateFP<double>::mySelectByTupleIdSafeSlice(bg,end2,step); }
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplateFP<double>::mySelectByTupleRanges(ranges); }
-    MEDCOUPLING_EXPORT void meldWith(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT bool areIncludedInMe(const DataArrayDouble *other, double prec, DataArrayInt *&tupleIds) const;
     MEDCOUPLING_EXPORT void findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
     MEDCOUPLING_EXPORT double minimalDistanceTo(const DataArrayDouble *other, int& thisTupleId, int& otherTupleId) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *duplicateEachTupleNTimes(int nbTimes) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getDifferentValues(double prec, int limitTupleId=-1) const;
     MEDCOUPLING_EXPORT DataArrayInt *findClosestTupleId(const DataArrayDouble *other) const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrmt, double eps) const;
     MEDCOUPLING_EXPORT void setSelectedComponents(const DataArrayDouble *a, const std::vector<int>& compoIds);
-    MEDCOUPLING_EXPORT void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
     MEDCOUPLING_EXPORT DataArrayDoubleIterator *iterator();
-    template<class InputIterator>
-    void insertAtTheEnd(InputIterator first, InputIterator last);
-    MEDCOUPLING_EXPORT void aggregate(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT void writeOnPlace(std::size_t id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const;
     MEDCOUPLING_EXPORT void getMinMaxPerComponent(double *bounds) const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeBBoxPerTuple(double epsilon=0.0) const;
@@ -567,8 +567,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const;
-    MEDCOUPLING_EXPORT DataArrayInt *fromNoInterlace() const;
-    MEDCOUPLING_EXPORT DataArrayInt *toNoInterlace() const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<int>::mySelectByTupleId(new2OldBg,new2OldEnd); }
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const DataArrayInt& di) const { return DataArrayTemplate<int>::mySelectByTupleId(di); }
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<int>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
@@ -583,10 +581,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isIota(int sizeExpected) const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
     MEDCOUPLING_EXPORT bool hasUniqueValues() const;
-    MEDCOUPLING_EXPORT void meldWith(const DataArrayInt *other);
     MEDCOUPLING_EXPORT void setSelectedComponents(const DataArrayInt *a, const std::vector<int>& compoIds);
-    MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT DataArrayIntIterator *iterator();
     MEDCOUPLING_EXPORT DataArrayInt *findIdsEqual(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsNotEqual(int val) const;
@@ -643,14 +638,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *findIdInRangeForEachTuple(const DataArrayInt *ranges) const;
     MEDCOUPLING_EXPORT void sortEachPairToMakeALinkedList();
     MEDCOUPLING_EXPORT MCAuto<DataArrayInt> fromLinkedListOfPairToList() const;
-    MEDCOUPLING_EXPORT DataArrayInt *duplicateEachTupleNTimes(int nbTimes) const;
     MEDCOUPLING_EXPORT DataArrayInt *getDifferentValues() const;
     MEDCOUPLING_EXPORT std::vector<DataArrayInt *> partitionByDifferentValues(std::vector<int>& differentIds) const;
     MEDCOUPLING_EXPORT std::vector< std::pair<int,int> > splitInBalancedSlices(int nbOfSlices) const;
-    template<class InputIterator>
-    void insertAtTheEnd(InputIterator first, InputIterator last);
-    MEDCOUPLING_EXPORT void aggregate(const DataArrayInt *other);
-    MEDCOUPLING_EXPORT void writeOnPlace(std::size_t id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT static DataArrayInt *Modulus(const DataArrayInt *a1, const DataArrayInt *a2);
     MEDCOUPLING_EXPORT void modulusEqual(const DataArrayInt *other);
     MEDCOUPLING_EXPORT static DataArrayInt *Pow(const DataArrayInt *a1, const DataArrayInt *a2);
@@ -706,7 +696,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isUniform(char val) const;
     MEDCOUPLING_EXPORT void meldWith(const DataArrayChar *other);
     MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const { return DataArrayTemplate<char>::mySelectByTupleRanges(ranges); }
-    MEDCOUPLING_EXPORT void getTuple(int tupleId, char *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT DataArrayInt *findIdsEqual(char val) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsNotEqual(char val) const;
     MEDCOUPLING_EXPORT int findIdSequence(const std::vector<char>& vals) const;
@@ -721,8 +710,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayChar *Aggregate(const std::vector<const DataArrayChar *>& arr);
     MEDCOUPLING_EXPORT static DataArrayChar *Meld(const DataArrayChar *a1, const DataArrayChar *a2);
     MEDCOUPLING_EXPORT static DataArrayChar *Meld(const std::vector<const DataArrayChar *>& arr);
-    template<class InputIterator>
-    void insertAtTheEnd(InputIterator first, InputIterator last);
     MEDCOUPLING_EXPORT MemArray<char>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<char>& accessToMemArray() const { return _mem; }
   public:
@@ -955,50 +942,21 @@ namespace MEDCoupling
         pointer[_nb_of_elem++]=*first++;
       }
   }
-  
+
+  template<class T>
   template<class InputIterator>
-  void DataArrayDouble::insertAtTheEnd(InputIterator first, InputIterator last)
+  void DataArrayTemplate<T>::insertAtTheEnd(InputIterator first, InputIterator last)
   {
-    int nbCompo(getNumberOfComponents());
+    int nbCompo(this->getNumberOfComponents());
     if(nbCompo==1)
-      _mem.insertAtTheEnd(first,last);
+      this->_mem.insertAtTheEnd(first,last);
     else if(nbCompo==0)
       {
-        _info_on_compo.resize(1);
-        _mem.insertAtTheEnd(first,last);
+        this->_info_on_compo.resize(1);
+        this->_mem.insertAtTheEnd(first,last);
       }
     else
       throw INTERP_KERNEL::Exception("DataArrayDouble::insertAtTheEnd : not available for DataArrayDouble with number of components different than 1 !");
-  }
-
-  template<class InputIterator>
-  void DataArrayInt::insertAtTheEnd(InputIterator first, InputIterator last)
-  {
-    int nbCompo(getNumberOfComponents());
-    if(nbCompo==1)
-      _mem.insertAtTheEnd(first,last);
-    else if(nbCompo==0)
-      {
-        _info_on_compo.resize(1);
-        _mem.insertAtTheEnd(first,last);
-      }
-    else
-      throw INTERP_KERNEL::Exception("DataArrayInt::insertAtTheEnd : not available for DataArrayInt with number of components different than 1 !");
-  }
-
-  template<class InputIterator>
-  void DataArrayChar::insertAtTheEnd(InputIterator first, InputIterator last)
-  {
-    int nbCompo(getNumberOfComponents());
-    if(nbCompo==1)
-      _mem.insertAtTheEnd(first,last);
-    else if(nbCompo==0)
-      {
-        _info_on_compo.resize(1);
-        _mem.insertAtTheEnd(first,last);
-      }
-    else
-      throw INTERP_KERNEL::Exception("DataArrayChar::insertAtTheEnd : not available for DataArrayChar with number of components different than 1 !");
   }
 }
 

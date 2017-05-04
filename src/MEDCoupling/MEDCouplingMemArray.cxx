@@ -1124,85 +1124,6 @@ bool DataArrayDouble::isEqualWithoutConsideringStr(const DataArrayDouble& other,
 }
 
 /*!
- * Returns a new DataArrayDouble holding the same values as \a this array but differently
- * arranged in memory. If \a this array holds 2 components of 3 values:
- * \f$ x_0,x_1,x_2,y_0,y_1,y_2 \f$, then the result array holds these values arranged
- * as follows: \f$ x_0,y_0,x_1,y_1,x_2,y_2 \f$.
- *  \warning Do not confuse this method with transpose()!
- *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
- *          is to delete using decrRef() as it is no more needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayDouble *DataArrayDouble::fromNoInterlace() const
-{
-  if(_mem.isNull())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromNoInterlace : Not defined array !");
-  double *tab=_mem.fromNoInterlace(getNumberOfComponents());
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->useArray(tab,true,C_DEALLOC,getNumberOfTuples(),getNumberOfComponents());
-  return ret;
-}
-
-/*!
- * Returns a new DataArrayDouble holding the same values as \a this array but differently
- * arranged in memory. If \a this array holds 2 components of 3 values:
- * \f$ x_0,y_0,x_1,y_1,x_2,y_2 \f$, then the result array holds these values arranged
- * as follows: \f$ x_0,x_1,x_2,y_0,y_1,y_2 \f$.
- *  \warning Do not confuse this method with transpose()!
- *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
- *          is to delete using decrRef() as it is no more needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayDouble *DataArrayDouble::toNoInterlace() const
-{
-  if(_mem.isNull())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::toNoInterlace : Not defined array !");
-  double *tab=_mem.toNoInterlace(getNumberOfComponents());
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->useArray(tab,true,C_DEALLOC,getNumberOfTuples(),getNumberOfComponents());
-  return ret;
-}
-
-/*!
- * Appends components of another array to components of \a this one, tuple by tuple.
- * So that the number of tuples of \a this array remains the same and the number of 
- * components increases.
- *  \param [in] other - the DataArrayDouble to append to \a this one.
- *  \throw If \a this is not allocated.
- *  \throw If \a this and \a other arrays have different number of tuples.
- *
- *  \if ENABLE_EXAMPLES
- *  \ref cpp_mcdataarraydouble_meldwith "Here is a C++ example".
- *
- *  \ref py_mcdataarraydouble_meldwith "Here is a Python example".
- *  \endif
- */
-void DataArrayDouble::meldWith(const DataArrayDouble *other)
-{
-  checkAllocated();
-  other->checkAllocated();
-  int nbOfTuples=getNumberOfTuples();
-  if(nbOfTuples!=other->getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::meldWith : mismatch of number of tuples !");
-  int nbOfComp1=getNumberOfComponents();
-  int nbOfComp2=other->getNumberOfComponents();
-  double *newArr=(double *)malloc((nbOfTuples*(nbOfComp1+nbOfComp2))*sizeof(double));
-  double *w=newArr;
-  const double *inp1=getConstPointer();
-  const double *inp2=other->getConstPointer();
-  for(int i=0;i<nbOfTuples;i++,inp1+=nbOfComp1,inp2+=nbOfComp2)
-    {
-      w=std::copy(inp1,inp1+nbOfComp1,w);
-      w=std::copy(inp2,inp2+nbOfComp2,w);
-    }
-  useArray(newArr,true,C_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
-  std::vector<int> compIds(nbOfComp2);
-  for(int i=0;i<nbOfComp2;i++)
-    compIds[i]=nbOfComp1+i;
-  copyPartOfStringInfoFrom2(compIds,*other);
-}
-
-/*!
  * This method checks that all tuples in \a other are in \a this.
  * If true, the output param \a tupleIds contains the tuples ids of \a this that correspond to tupes in \a this.
  * For each i in [ 0 , other->getNumberOfTuples() ) tuple #i in \a other is equal ( regarding input precision \a prec ) to tuple tupleIds[i] in \a this.
@@ -1291,34 +1212,6 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
   }
   comm=c.retn();
   commIndex=cI.retn();
-}
-
-/*!
- * 
- * \param [in] nbTimes specifies the nb of times each tuples in \a this will be duplicated contiguouly in returned DataArrayDouble instance.
- *             \a nbTimes  should be at least equal to 1.
- * \return a newly allocated DataArrayDouble having one component and number of tuples equal to \a nbTimes * \c this->getNumberOfTuples.
- * \throw if \a this is not allocated or if \a this has not number of components set to one or if \a nbTimes is lower than 1.
- */
-DataArrayDouble *DataArrayDouble::duplicateEachTupleNTimes(int nbTimes) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::duplicateEachTupleNTimes : this should have only one component !");
-  if(nbTimes<1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::duplicateEachTupleNTimes : nb times should be >= 1 !");
-  int nbTuples=getNumberOfTuples();
-  const double *inPtr=getConstPointer();
-  MCAuto<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(nbTimes*nbTuples,1);
-  double *retPtr=ret->getPointer();
-  for(int i=0;i<nbTuples;i++,inPtr++)
-    {
-      double val=*inPtr;
-      for(int j=0;j<nbTimes;j++,retPtr++)
-        *retPtr=val;
-    }
-  ret->copyStringInfoFrom(*this);
-  return ret.retn();
 }
 
 /*!
@@ -1530,27 +1423,6 @@ void DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std:
   for(int i=0;i<nbOfTuples;i++)
     for(std::size_t j=0;j<partOfCompoSz;j++,ac++)
       nc[nbOfCompo*i+compoIds[j]]=*ac;
-}
-
-void DataArrayDouble::SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
-{
-  if(newArray!=arrayToSet)
-    {
-      if(arrayToSet)
-        arrayToSet->decrRef();
-      arrayToSet=newArray;
-      if(arrayToSet)
-        arrayToSet->incrRef();
-    }
-}
-
-void DataArrayDouble::aggregate(const DataArrayDouble *other)
-{
-  if(!other)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::aggregate : null pointer !");
-  if(getNumberOfComponents()!=other->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::aggregate : mismatch number of components !");
-  _mem.insertAtTheEnd(other->begin(),other->end());
 }
 
 /*!
@@ -4855,57 +4727,6 @@ DataArrayInt *DataArrayInt::indicesOfSubPart(const DataArrayInt& partOfThis) con
   return ret.retn();
 }
 
-void DataArrayInt::aggregate(const DataArrayInt *other)
-{
-  if(!other)
-    throw INTERP_KERNEL::Exception("DataArrayInt::aggregate : null pointer !");
-  if(getNumberOfComponents()!=other->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("DataArrayInt::aggregate : mismatch number of components !");
-  _mem.insertAtTheEnd(other->begin(),other->end());
-}
-
-/*!
- * Returns a new DataArrayInt holding the same values as \a this array but differently
- * arranged in memory. If \a this array holds 2 components of 3 values:
- * \f$ x_0,x_1,x_2,y_0,y_1,y_2 \f$, then the result array holds these values arranged
- * as follows: \f$ x_0,y_0,x_1,y_1,x_2,y_2 \f$.
- *  \warning Do not confuse this method with transpose()!
- *  \return DataArrayInt * - the new instance of DataArrayInt that the caller
- *          is to delete using decrRef() as it is no more needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayInt *DataArrayInt::fromNoInterlace() const
-{
-  checkAllocated();
-  if(_mem.isNull())
-    throw INTERP_KERNEL::Exception("DataArrayInt::fromNoInterlace : Not defined array !");
-  int *tab=_mem.fromNoInterlace(getNumberOfComponents());
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->useArray(tab,true,C_DEALLOC,getNumberOfTuples(),getNumberOfComponents());
-  return ret;
-}
-
-/*!
- * Returns a new DataArrayInt holding the same values as \a this array but differently
- * arranged in memory. If \a this array holds 2 components of 3 values:
- * \f$ x_0,y_0,x_1,y_1,x_2,y_2 \f$, then the result array holds these values arranged
- * as follows: \f$ x_0,x_1,x_2,y_0,y_1,y_2 \f$.
- *  \warning Do not confuse this method with transpose()!
- *  \return DataArrayInt * - the new instance of DataArrayInt that the caller
- *          is to delete using decrRef() as it is no more needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayInt *DataArrayInt::toNoInterlace() const
-{
-  checkAllocated();
-  if(_mem.isNull())
-    throw INTERP_KERNEL::Exception("DataArrayInt::toNoInterlace : Not defined array !");
-  int *tab=_mem.toNoInterlace(getNumberOfComponents());
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->useArray(tab,true,C_DEALLOC,getNumberOfTuples(),getNumberOfComponents());
-  return ret;
-}
-
 /*!
  * Returns a new DataArrayInt containing a renumbering map in "Old to New" mode.
  * This map, if applied to \a this array, would make it sorted. For example, if
@@ -5228,47 +5049,6 @@ bool DataArrayInt::hasUniqueValues() const
 }
 
 /*!
- * Appends components of another array to components of \a this one, tuple by tuple.
- * So that the number of tuples of \a this array remains the same and the number of 
- * components increases.
- *  \param [in] other - the DataArrayInt to append to \a this one.
- *  \throw If \a this is not allocated.
- *  \throw If \a this and \a other arrays have different number of tuples.
- *
- *  \if ENABLE_EXAMPLES
- *  \ref cpp_mcdataarrayint_meldwith "Here is a C++ example".
- *
- *  \ref py_mcdataarrayint_meldwith "Here is a Python example".
- *  \endif
- */
-void DataArrayInt::meldWith(const DataArrayInt *other)
-{
-  if(!other)
-    throw INTERP_KERNEL::Exception("DataArrayInt::meldWith : DataArrayInt pointer in input is NULL !");
-  checkAllocated();
-  other->checkAllocated();
-  int nbOfTuples=getNumberOfTuples();
-  if(nbOfTuples!=other->getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("DataArrayInt::meldWith : mismatch of number of tuples !");
-  int nbOfComp1=getNumberOfComponents();
-  int nbOfComp2=other->getNumberOfComponents();
-  int *newArr=(int *)malloc(nbOfTuples*(nbOfComp1+nbOfComp2)*sizeof(int));
-  int *w=newArr;
-  const int *inp1=getConstPointer();
-  const int *inp2=other->getConstPointer();
-  for(int i=0;i<nbOfTuples;i++,inp1+=nbOfComp1,inp2+=nbOfComp2)
-    {
-      w=std::copy(inp1,inp1+nbOfComp1,w);
-      w=std::copy(inp2,inp2+nbOfComp2,w);
-    }
-  useArray(newArr,true,C_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
-  std::vector<int> compIds(nbOfComp2);
-  for(int i=0;i<nbOfComp2;i++)
-    compIds[i]=nbOfComp1+i;
-  copyPartOfStringInfoFrom2(compIds,*other);
-}
-
-/*!
  * Copy all components in a specified order from another DataArrayInt.
  * The specified components become the first ones in \a this array.
  * Both numerical and textual data is copied. The number of tuples in \a this and
@@ -5299,24 +5079,6 @@ void DataArrayInt::setSelectedComponents(const DataArrayInt *a, const std::vecto
   for(int i=0;i<nbOfTuples;i++)
     for(std::size_t j=0;j<partOfCompoSz;j++,ac++)
       nc[nbOfCompo*i+compoIds[j]]=*ac;
-}
-
-/*!
- * Assign pointer to one array to a pointer to another appay. Reference counter of
- * \a arrayToSet is incremented / decremented.
- *  \param [in] newArray - the pointer to array to assign to \a arrayToSet.
- *  \param [in,out] arrayToSet - the pointer to array to assign to.
- */
-void DataArrayInt::SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)
-{
-  if(newArray!=arrayToSet)
-    {
-      if(arrayToSet)
-        arrayToSet->decrRef();
-      arrayToSet=newArray;
-      if(arrayToSet)
-        arrayToSet->incrRef();
-    }
 }
 
 DataArrayIntIterator *DataArrayInt::iterator()
@@ -7071,34 +6833,6 @@ MCAuto<DataArrayInt> DataArrayInt::fromLinkedListOfPairToList() const
           }
     }
   return ret;
-}
-
-/*!
- * 
- * \param [in] nbTimes specifies the nb of times each tuples in \a this will be duplicated contiguouly in returned DataArrayInt instance.
- *             \a nbTimes  should be at least equal to 1.
- * \return a newly allocated DataArrayInt having one component and number of tuples equal to \a nbTimes * \c this->getNumberOfTuples.
- * \throw if \a this is not allocated or if \a this has not number of components set to one or if \a nbTimes is lower than 1.
- */
-DataArrayInt *DataArrayInt::duplicateEachTupleNTimes(int nbTimes) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::duplicateEachTupleNTimes : this should have only one component !");
-  if(nbTimes<1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::duplicateEachTupleNTimes : nb times should be >= 1 !");
-  int nbTuples=getNumberOfTuples();
-  const int *inPtr=getConstPointer();
-  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTimes*nbTuples,1);
-  int *retPtr=ret->getPointer();
-  for(int i=0;i<nbTuples;i++,inPtr++)
-    {
-      int val=*inPtr;
-      for(int j=0;j<nbTimes;j++,retPtr++)
-        *retPtr=val;
-    }
-  ret->copyStringInfoFrom(*this);
-  return ret.retn();
 }
 
 /*!
