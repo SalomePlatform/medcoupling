@@ -530,6 +530,133 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("const FieldT : Null type of time discr !");
     return ret;
   }
+
+  template<class T>
+  void MEDCouplingFieldT<T>::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
+  {
+    tinyInfo.clear();
+    timeDiscrSafe()->getTinySerializationStrInformation(tinyInfo);
+    tinyInfo.push_back(_name);
+    tinyInfo.push_back(_desc);
+    tinyInfo.push_back(getTimeUnit());
+  }
+
+  /*!
+   * This method retrieves some critical values to resize and prepare remote instance.
+   * The first two elements returned in tinyInfo correspond to the parameters to give in constructor.
+   * @param tinyInfo out parameter resized correctly after the call. The length of this vector is tiny.
+   */
+  template<class T>
+  void MEDCouplingFieldT<T>::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+  {
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform getTinySerializationIntInformation !");
+    tinyInfo.clear();
+    tinyInfo.push_back((int)_type->getEnum());
+    tinyInfo.push_back((int)timeDiscrSafe()->getEnum());
+    tinyInfo.push_back((int)_nature);
+    timeDiscrSafe()->getTinySerializationIntInformation(tinyInfo);
+    std::vector<int> tinyInfo2;
+    _type->getTinySerializationIntInformation(tinyInfo2);
+    tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
+    tinyInfo.push_back((int)tinyInfo2.size());
+  }
+
+  /*!
+   * This method retrieves some critical values to resize and prepare remote instance.
+   * @param tinyInfo out parameter resized correctly after the call. The length of this vector is tiny.
+   */
+  template<class T>
+  void MEDCouplingFieldT<T>::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
+  {
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform getTinySerializationDbleInformation !");
+    tinyInfo.clear();
+    timeDiscrSafe()->getTinySerializationDbleInformation(tinyInfo);
+    std::vector<double> tinyInfo2;
+    _type->getTinySerializationDbleInformation(tinyInfo2);
+    tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
+    tinyInfo.push_back((int)tinyInfo2.size());//very bad, lack of time to improve it
+  }
+
+  /*!
+   * This method has to be called to the new instance filled by CORBA, MPI, File...
+   * @param tinyInfoI is the value retrieves from distant result of getTinySerializationIntInformation on source instance to be copied.
+   * @param dataInt out parameter. If not null the pointer is already owned by \a this after the call of this method. In this case no decrRef must be applied.
+   * @param arrays out parameter is a vector resized to the right size. The pointers in the vector is already owned by \a this after the call of this method.
+   *               No decrRef must be applied to every instances in returned vector.
+   * \sa checkForUnserialization
+   */
+  template<class T>
+  void MEDCouplingFieldT<T>::resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays)
+  {
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform resizeForUnserialization !");
+    dataInt=0;
+    std::vector<int> tinyInfoITmp(tinyInfoI);
+    int sz=tinyInfoITmp.back();
+    tinyInfoITmp.pop_back();
+    std::vector<int> tinyInfoITmp2(tinyInfoITmp.begin(),tinyInfoITmp.end()-sz);
+    std::vector<int> tinyInfoI2(tinyInfoITmp2.begin()+3,tinyInfoITmp2.end());
+    timeDiscrSafe()->resizeForUnserialization(tinyInfoI2,arrays);
+    std::vector<int> tinyInfoITmp3(tinyInfoITmp.end()-sz,tinyInfoITmp.end());
+    _type->resizeForUnserialization(tinyInfoITmp3,dataInt);
+  }
+
+  /*!
+   * This method is extremely close to resizeForUnserialization except that here the arrays in \a dataInt and in \a arrays are attached in \a this
+   * after having checked that size is correct. This method is used in python pickeling context to avoid copy of data.
+   * \sa resizeForUnserialization
+   */
+  template<class T>
+  void MEDCouplingFieldT<T>::checkForUnserialization(const std::vector<int>& tinyInfoI, const DataArrayInt *dataInt, const std::vector<typename Traits<T>::ArrayType *>& arrays)
+  {
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform resizeForUnserialization !");
+    std::vector<int> tinyInfoITmp(tinyInfoI);
+    int sz=tinyInfoITmp.back();
+    tinyInfoITmp.pop_back();
+    std::vector<int> tinyInfoITmp2(tinyInfoITmp.begin(),tinyInfoITmp.end()-sz);
+    std::vector<int> tinyInfoI2(tinyInfoITmp2.begin()+3,tinyInfoITmp2.end());
+    timeDiscrSafe()->checkForUnserialization(tinyInfoI2,arrays);
+    std::vector<int> tinyInfoITmp3(tinyInfoITmp.end()-sz,tinyInfoITmp.end());
+    _type->checkForUnserialization(tinyInfoITmp3,dataInt);
+  }
+
+  template<class T>
+  void MEDCouplingFieldT<T>::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+  {
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform finishUnserialization !");
+    std::vector<int> tinyInfoI2(tinyInfoI.begin()+3,tinyInfoI.end());
+    //
+    std::vector<double> tmp(tinyInfoD);
+    int sz=(int)tinyInfoD.back();//very bad, lack of time to improve it
+    tmp.pop_back();
+    std::vector<double> tmp1(tmp.begin(),tmp.end()-sz);
+    std::vector<double> tmp2(tmp.end()-sz,tmp.end());
+    //
+    timeDiscrSafe()->finishUnserialization(tinyInfoI2,tmp1,tinyInfoS);
+    _nature=(NatureOfField)tinyInfoI[2];
+    _type->finishUnserialization(tmp2);
+    int nbOfElemS=(int)tinyInfoS.size();
+    _name=tinyInfoS[nbOfElemS-3];
+    _desc=tinyInfoS[nbOfElemS-2];
+    setTimeUnit(tinyInfoS[nbOfElemS-1]);
+  }
+
+  /*!
+   * Contrary to MEDCouplingPointSet class the returned arrays are \b not the responsabilities of the caller.
+   * The values returned must be consulted only in readonly mode.
+   */
+  template<class T>
+  void MEDCouplingFieldT<T>::serialize(DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays) const
+  {
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform serialize !");
+    timeDiscrSafe()->getArrays(arrays);
+    _type->getSerializationIntArray(dataInt);
+  }
 }
 
 #endif

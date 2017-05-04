@@ -96,14 +96,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     //
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays);
-    MEDCOUPLING_EXPORT void checkForUnserialization(const std::vector<int>& tinyInfoI, const DataArrayInt *dataInt, const std::vector<DataArrayDouble *>& arrays);
-    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
-    MEDCOUPLING_EXPORT void serialize(DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays) const;
-    //
     MEDCOUPLING_EXPORT void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps=1e-15);
     MEDCOUPLING_EXPORT void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps=1e-15);
     MEDCOUPLING_EXPORT bool mergeNodes(double eps, double epsOnVals=1e-15);

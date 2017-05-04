@@ -33,7 +33,7 @@
 #include "MEDCouplingPartDefinition.hxx"
 #include "MEDCouplingCartesianAMRMesh.hxx"
 
-static PyObject *convertMesh(MEDCoupling::MEDCouplingMesh *mesh, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMesh(MEDCoupling::MEDCouplingMesh *mesh, int owner)
 {
   PyObject *ret=0;
   if(!mesh)
@@ -60,7 +60,7 @@ static PyObject *convertMesh(MEDCoupling::MEDCouplingMesh *mesh, int owner) thro
   return ret;
 }
 
-static PyObject *convertFieldDiscretization(MEDCoupling::MEDCouplingFieldDiscretization *fd, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertFieldDiscretization(MEDCoupling::MEDCouplingFieldDiscretization *fd, int owner)
 {
   PyObject *ret=0;
   if(!fd)
@@ -83,7 +83,7 @@ static PyObject *convertFieldDiscretization(MEDCoupling::MEDCouplingFieldDiscret
   return ret;
 }
 
-static PyObject* convertMultiFields(MEDCoupling::MEDCouplingMultiFields *mfs, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject* convertMultiFields(MEDCoupling::MEDCouplingMultiFields *mfs, int owner)
 {
   PyObject *ret=0;
   if(!mfs)
@@ -98,7 +98,7 @@ static PyObject* convertMultiFields(MEDCoupling::MEDCouplingMultiFields *mfs, in
   return ret;
 }
 
-static PyObject *convertCartesianAMRMesh(MEDCoupling::MEDCouplingCartesianAMRMeshGen *mesh, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertCartesianAMRMesh(MEDCoupling::MEDCouplingCartesianAMRMeshGen *mesh, int owner)
 {
   if(!mesh)
     {
@@ -116,7 +116,7 @@ static PyObject *convertCartesianAMRMesh(MEDCoupling::MEDCouplingCartesianAMRMes
   throw INTERP_KERNEL::Exception("convertCartesianAMRMesh wrap : unrecognized type of cartesian AMR mesh !");
 }
 
-static PyObject *convertDataForGodFather(MEDCoupling::MEDCouplingDataForGodFather *data, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertDataForGodFather(MEDCoupling::MEDCouplingDataForGodFather *data, int owner)
 {
   if(!data)
     {
@@ -544,5 +544,130 @@ typename MEDCoupling::Traits<T>::FieldType *fieldT__getitem__(const MEDCoupling:
     return fieldT_buildSubPart<T>(self,li);
 }
 
+template<class FIELDT>
+PyObject *field_getTinySerializationInformation(const FIELDT *self)
+{
+  std::vector<double> a0;
+  std::vector<int> a1;
+  std::vector<std::string> a2;
+  self->getTinySerializationDbleInformation(a0);
+  self->getTinySerializationIntInformation(a1);
+  self->getTinySerializationStrInformation(a2);
+  //
+  PyObject *ret(PyTuple_New(3));
+  PyTuple_SetItem(ret,0,convertDblArrToPyList2(a0));
+  PyTuple_SetItem(ret,1,convertIntArrToPyList2(a1));
+  int sz(a2.size());
+  PyObject *ret2(PyList_New(sz));
+  {
+    for(int i=0;i<sz;i++)
+      PyList_SetItem(ret2,i,PyString_FromString(a2[i].c_str()));
+  }
+  PyTuple_SetItem(ret,2,ret2);
+  return ret;
+}
+
+template<class T>
+PyObject *field_serialize(const typename MEDCoupling::Traits<T>::FieldType *self)
+{
+  MEDCoupling::DataArrayInt *ret0(0);
+  std::vector<typename MEDCoupling::Traits<T>::ArrayType *> ret1;
+  self->serialize(ret0,ret1);
+  if(ret0)
+    ret0->incrRef();
+  std::size_t sz(ret1.size());
+  PyObject *ret(PyTuple_New(2));
+  PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+  PyObject *ret1Py(PyList_New(sz));
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(ret1[i])
+        ret1[i]->incrRef();
+      PyList_SetItem(ret1Py,i,convertArray(ret1[i],SWIG_POINTER_OWN | 0));
+    }
+  PyTuple_SetItem(ret,1,ret1Py);
+  return ret;
+}
+
+template<class FIELDT>
+PyObject *field__getnewargs__(FIELDT *self)
+{
+  self->checkConsistencyLight();
+  PyObject *ret(PyTuple_New(1));
+  PyObject *ret0(PyDict_New());
+  {
+    PyObject *a(PyInt_FromLong(0)),*b(PyInt_FromLong(self->getTypeOfField())),*c(PyInt_FromLong(self->getTimeDiscretization()));
+    PyObject *d(PyTuple_New(2)); PyTuple_SetItem(d,0,b); PyTuple_SetItem(d,1,c);
+    PyDict_SetItem(ret0,a,d);
+    Py_DECREF(a); Py_DECREF(d);
+  }
+  PyTuple_SetItem(ret,0,ret0);
+  return ret;
+}
+
+template<class FIELDT>
+PyObject *field__getstate__(const FIELDT *self, PyObject *(*tinyserial)(const FIELDT *), PyObject *(*bigserial)(const FIELDT *))
+{
+  self->checkConsistencyLight();
+  PyObject *ret0(tinyserial(self));
+  PyObject *ret1(bigserial(self));
+  const MEDCoupling::MEDCouplingMesh *mesh(self->getMesh());
+  if(mesh)
+    mesh->incrRef();
+  PyObject *ret(PyTuple_New(3));
+  PyTuple_SetItem(ret,0,ret0);
+  PyTuple_SetItem(ret,1,ret1);
+  PyTuple_SetItem(ret,2,convertMesh(const_cast<MEDCoupling::MEDCouplingMesh *>(mesh),SWIG_POINTER_OWN | 0 ));
+  return ret;
+}
+
+template<class T>
+void field__setstate__(typename MEDCoupling::Traits<T>::FieldType *self, PyObject *inp)
+{
+  static const char MSG[]="MEDCouplingFieldDouble.__setstate__ : expected input is a tuple of size 3 !";
+  if(!PyTuple_Check(inp))
+    throw INTERP_KERNEL::Exception(MSG);
+  int sz(PyTuple_Size(inp));
+  if(sz!=3)
+    throw INTERP_KERNEL::Exception(MSG);
+  // mesh
+  PyObject *elt2(PyTuple_GetItem(inp,2));
+  void *argp=0;
+  int status(SWIG_ConvertPtr(elt2,&argp,SWIGTYPE_p_MEDCoupling__MEDCouplingMesh,0|0));
+  if(!SWIG_IsOK(status))
+    throw INTERP_KERNEL::Exception(MSG);
+  self->setMesh(reinterpret_cast< const MEDCoupling::MEDCouplingMesh * >(argp));
+  //
+  PyObject *elt0(PyTuple_GetItem(inp,0));
+  PyObject *elt1(PyTuple_GetItem(inp,1));
+  std::vector<double> a0;
+  std::vector<int> a1;
+  std::vector<std::string> a2;
+  MEDCoupling::DataArrayInt *b0(0);
+  std::vector<typename MEDCoupling::Traits<T>::ArrayType *>b1;
+  {
+    if(!PyTuple_Check(elt0) && PyTuple_Size(elt0)!=3)
+      throw INTERP_KERNEL::Exception(MSG);
+    PyObject *a0py(PyTuple_GetItem(elt0,0)),*a1py(PyTuple_GetItem(elt0,1)),*a2py(PyTuple_GetItem(elt0,2));
+    int tmp(-1);
+    fillArrayWithPyListDbl3(a0py,tmp,a0);
+    convertPyToNewIntArr3(a1py,a1);
+    fillStringVector(a2py,a2);
+  }
+  {
+    if(!PyTuple_Check(elt1) && PyTuple_Size(elt1)!=2)
+      throw INTERP_KERNEL::Exception(MSG);
+    PyObject *b0py(PyTuple_GetItem(elt1,0)),*b1py(PyTuple_GetItem(elt1,1));
+    void *argp(0);
+    int status(SWIG_ConvertPtr(b0py,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0));
+    if(!SWIG_IsOK(status))
+      throw INTERP_KERNEL::Exception(MSG);
+    b0=reinterpret_cast<MEDCoupling::DataArrayInt *>(argp);
+    convertFromPyObjVectorOfObj<typename MEDCoupling::Traits<T>::ArrayType *>(b1py,SWIGTITraits<T>::TI,MEDCoupling::Traits<T>::ArrayTypeName,b1);
+  }
+  self->checkForUnserialization(a1,b0,b1);
+  // useless here to call resizeForUnserialization because arrays are well resized.
+  self->finishUnserialization(a1,a0,a2);
+}
 
 #endif

@@ -87,6 +87,12 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<T> *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<T> *other) const;
     MEDCOUPLING_EXPORT virtual ~MEDCouplingTimeDiscretizationTemplate();
+    MEDCOUPLING_EXPORT virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    MEDCOUPLING_EXPORT virtual void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<typename Traits<T>::ArrayType *>& arrays);
+    MEDCOUPLING_EXPORT virtual void checkForUnserialization(const std::vector<int>& tinyInfoI, const std::vector<typename Traits<T>::ArrayType *>& arrays);
+    MEDCOUPLING_EXPORT virtual void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
   protected:
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretizationTemplate();
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretizationTemplate(const MEDCouplingTimeDiscretizationTemplate<T>& other, bool deepCopy);
@@ -150,12 +156,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void divideEqual(const MEDCouplingTimeDiscretization *other) = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const = 0;
     MEDCOUPLING_EXPORT virtual void powEqual(const MEDCouplingTimeDiscretization *other) = 0;
-    MEDCOUPLING_EXPORT virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    MEDCOUPLING_EXPORT virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    MEDCOUPLING_EXPORT virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    MEDCOUPLING_EXPORT virtual void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
-    MEDCOUPLING_EXPORT virtual void checkForUnserialization(const std::vector<int>& tinyInfoI, const std::vector<DataArrayDouble *>& arrays);
-    MEDCOUPLING_EXPORT virtual void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     MEDCOUPLING_EXPORT virtual void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const = 0;
     MEDCOUPLING_EXPORT virtual void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const = 0;
     MEDCOUPLING_EXPORT virtual void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) = 0;

@@ -56,6 +56,12 @@ def MEDCouplingFieldDoubleIdiv(self,*args):
 def MEDCouplingFieldDoubleIpow(self,*args):
     import _MEDCoupling
     return _MEDCoupling.MEDCouplingFieldDouble____ipow___(self, self, *args)
+def MEDCouplingFieldIntnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingFieldInt____new___(cls,args)
+def MEDCouplingFieldFloatnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingFieldFloat____new___(cls,args)
 def MEDCouplingDataArrayIntnew(cls,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayInt____new___(cls,args)

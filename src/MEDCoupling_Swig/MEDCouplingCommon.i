@@ -4997,45 +4997,12 @@ namespace MEDCoupling
 
       PyObject *getTinySerializationInformation() const throw(INTERP_KERNEL::Exception)
       {
-        std::vector<double> a0;
-        std::vector<int> a1;
-        std::vector<std::string> a2;
-        self->getTinySerializationDbleInformation(a0);
-        self->getTinySerializationIntInformation(a1);
-        self->getTinySerializationStrInformation(a2);
-        //
-        PyObject *ret(PyTuple_New(3));
-        PyTuple_SetItem(ret,0,convertDblArrToPyList2(a0));
-        PyTuple_SetItem(ret,1,convertIntArrToPyList2(a1));
-        int sz(a2.size());
-        PyObject *ret2(PyList_New(sz));
-        {
-          for(int i=0;i<sz;i++)
-            PyList_SetItem(ret2,i,PyString_FromString(a2[i].c_str()));
-        }
-        PyTuple_SetItem(ret,2,ret2);
-        return ret;
+        return field_getTinySerializationInformation<MEDCouplingFieldDouble>(self);
       }
       
       PyObject *serialize() const throw(INTERP_KERNEL::Exception)
       {
-        DataArrayInt *ret0(0);
-        std::vector<DataArrayDouble *> ret1;
-        self->serialize(ret0,ret1);
-        if(ret0)
-          ret0->incrRef();
-        std::size_t sz(ret1.size());
-        PyObject *ret(PyTuple_New(2));
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyObject *ret1Py(PyList_New(sz));
-        for(std::size_t i=0;i<sz;i++)
-          {
-            if(ret1[i])
-              ret1[i]->incrRef();
-            PyList_SetItem(ret1Py,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret1[i]),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
-          }
-        PyTuple_SetItem(ret,1,ret1Py);
-        return ret;
+        return field_serialize<double>(self);
       }
 
       static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
@@ -5045,80 +5012,17 @@ namespace MEDCoupling
 
       PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
       {// put an empty dict in input to say to __new__ to call __init__...
-        self->checkConsistencyLight();
-        PyObject *ret(PyTuple_New(1));
-        PyObject *ret0(PyDict_New());
-        {
-          PyObject *a(PyInt_FromLong(0)),*b(PyInt_FromLong(self->getTypeOfField())),*c(PyInt_FromLong(self->getTimeDiscretization()));
-          PyObject *d(PyTuple_New(2)); PyTuple_SetItem(d,0,b); PyTuple_SetItem(d,1,c);
-          PyDict_SetItem(ret0,a,d);
-          Py_DECREF(a); Py_DECREF(d);
-        }
-        PyTuple_SetItem(ret,0,ret0);
-        return ret;
+        return field__getnewargs__<MEDCouplingFieldDouble>(self);
       }
 
       PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
       {
-        self->checkConsistencyLight();
-        PyObject *ret0(MEDCoupling_MEDCouplingFieldDouble_getTinySerializationInformation(self));
-        PyObject *ret1(MEDCoupling_MEDCouplingFieldDouble_serialize(self));
-        const MEDCouplingMesh *mesh(self->getMesh());
-        if(mesh)
-          mesh->incrRef();
-        PyObject *ret(PyTuple_New(3));
-        PyTuple_SetItem(ret,0,ret0);
-        PyTuple_SetItem(ret,1,ret1);
-        PyTuple_SetItem(ret,2,convertMesh(const_cast<MEDCouplingMesh *>(mesh),SWIG_POINTER_OWN | 0 ));
-        return ret;
+        return field__getstate__<MEDCouplingFieldDouble>(self,MEDCoupling_MEDCouplingFieldDouble_getTinySerializationInformation,MEDCoupling_MEDCouplingFieldDouble_serialize);
       }
       
       void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
       {
-        static const char MSG[]="MEDCouplingFieldDouble.__setstate__ : expected input is a tuple of size 3 !";
-        if(!PyTuple_Check(inp))
-          throw INTERP_KERNEL::Exception(MSG);
-        int sz(PyTuple_Size(inp));
-        if(sz!=3)
-          throw INTERP_KERNEL::Exception(MSG);
-        // mesh
-        PyObject *elt2(PyTuple_GetItem(inp,2));
-        void *argp=0;
-        int status(SWIG_ConvertPtr(elt2,&argp,SWIGTYPE_p_MEDCoupling__MEDCouplingMesh,0|0));
-        if(!SWIG_IsOK(status))
-          throw INTERP_KERNEL::Exception(MSG);
-        self->setMesh(reinterpret_cast< const MEDCouplingUMesh * >(argp));
-        //
-        PyObject *elt0(PyTuple_GetItem(inp,0));
-        PyObject *elt1(PyTuple_GetItem(inp,1));
-        std::vector<double> a0;
-        std::vector<int> a1;
-        std::vector<std::string> a2;
-        DataArrayInt *b0(0);
-        std::vector<DataArrayDouble *>b1;
-        {
-          if(!PyTuple_Check(elt0) && PyTuple_Size(elt0)!=3)
-            throw INTERP_KERNEL::Exception(MSG);
-          PyObject *a0py(PyTuple_GetItem(elt0,0)),*a1py(PyTuple_GetItem(elt0,1)),*a2py(PyTuple_GetItem(elt0,2));
-          int tmp(-1);
-          fillArrayWithPyListDbl3(a0py,tmp,a0);
-          convertPyToNewIntArr3(a1py,a1);
-          fillStringVector(a2py,a2);
-        }
-        {
-          if(!PyTuple_Check(elt1) && PyTuple_Size(elt1)!=2)
-            throw INTERP_KERNEL::Exception(MSG);
-          PyObject *b0py(PyTuple_GetItem(elt1,0)),*b1py(PyTuple_GetItem(elt1,1));
-          void *argp(0);
-          int status(SWIG_ConvertPtr(b0py,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0));
-          if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception(MSG);
-          b0=reinterpret_cast<DataArrayInt *>(argp);
-          convertFromPyObjVectorOfObj<MEDCoupling::DataArrayDouble *>(b1py,SWIGTYPE_p_MEDCoupling__DataArrayDouble,"DataArrayDouble",b1);
-        }
-        self->checkForUnserialization(a1,b0,b1);
-        // useless here to call resizeForUnserialization because arrays are well resized.
-        self->finishUnserialization(a1,a0,a2);
+        field__setstate__<double>(self,inp);
       }
     }
   };
@@ -5345,6 +5249,36 @@ namespace MEDCoupling
         PyList_SetItem(res,2,SWIG_From_int(tmp2));
         return res;
         }
+
+      PyObject *getTinySerializationInformation() const throw(INTERP_KERNEL::Exception)
+      {
+        return field_getTinySerializationInformation<MEDCouplingFieldInt>(self);
+      }
+      
+      PyObject *serialize() const throw(INTERP_KERNEL::Exception)
+      {
+        return field_serialize<int>(self);
+      }
+
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInputGeneral<SinglePyObjExpectToBeAListOfSz2>(cls,args,"MEDCouplingFieldInt");
+      }
+
+      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+      {// put an empty dict in input to say to __new__ to call __init__...
+        return field__getnewargs__<MEDCouplingFieldInt>(self);
+      }
+
+      PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
+      {
+        return field__getstate__<MEDCouplingFieldInt>(self,MEDCoupling_MEDCouplingFieldInt_getTinySerializationInformation,MEDCoupling_MEDCouplingFieldInt_serialize);
+      }
+      
+      void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+      {
+        field__setstate__<int>(self,inp);
+      }
     }
   };
 
@@ -5404,7 +5338,7 @@ namespace MEDCoupling
       }
       
       PyObject *getTime() throw(INTERP_KERNEL::Exception)
-        {
+      {
         int tmp1,tmp2;
         double tmp0=self->getTime(tmp1,tmp2);
         PyObject *res = PyList_New(3);
@@ -5412,7 +5346,37 @@ namespace MEDCoupling
         PyList_SetItem(res,1,SWIG_From_int(tmp1));
         PyList_SetItem(res,2,SWIG_From_int(tmp2));
         return res;
-        }
+      }
+
+      PyObject *getTinySerializationInformation() const throw(INTERP_KERNEL::Exception)
+      {
+        return field_getTinySerializationInformation<MEDCouplingFieldFloat>(self);
+      }
+      
+      PyObject *serialize() const throw(INTERP_KERNEL::Exception)
+      {
+        return field_serialize<float>(self);
+      }
+        
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInputGeneral<SinglePyObjExpectToBeAListOfSz2>(cls,args,"MEDCouplingFieldFloat");
+      }
+      
+      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+      {// put an empty dict in input to say to __new__ to call __init__...
+        return field__getnewargs__<MEDCouplingFieldFloat>(self);
+      }
+      
+      PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
+      {
+        return field__getstate__<MEDCouplingFieldFloat>(self,MEDCoupling_MEDCouplingFieldFloat_getTinySerializationInformation,MEDCoupling_MEDCouplingFieldFloat_serialize);
+      }
+        
+      void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+      {
+        field__setstate__<float>(self,inp);
+      }
     }
   };
   

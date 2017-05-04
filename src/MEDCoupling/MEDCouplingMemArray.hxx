@@ -315,6 +315,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Divide(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Add(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
     MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Multiply(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
+    MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Meld(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2);
+    MEDCOUPLING_EXPORT static typename Traits<T>::ArrayType *Meld(const std::vector<const typename Traits<T>::ArrayType *>& arr);
     MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(T val) const;
     MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsGreaterThan(T val) const;
     MEDCOUPLING_EXPORT MCAuto<DataArrayInt> findIdsLowerOrEqualTo(T val) const;
@@ -488,8 +490,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *findIdsNotInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const std::vector<const DataArrayDouble *>& arr);
-    MEDCOUPLING_EXPORT static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT static DataArrayDouble *Meld(const std::vector<const DataArrayDouble *>& arr);
     MEDCOUPLING_EXPORT static DataArrayDouble *Dot(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *CrossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *Max(const DataArrayDouble *a1, const DataArrayDouble *a2);
@@ -620,8 +620,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& arr);
     MEDCOUPLING_EXPORT static DataArrayInt *AggregateIndexes(const std::vector<const DataArrayInt *>& arrs);
-    MEDCOUPLING_EXPORT static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2);
-    MEDCOUPLING_EXPORT static DataArrayInt *Meld(const std::vector<const DataArrayInt *>& arr);
     MEDCOUPLING_EXPORT static DataArrayInt *MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups);
     MEDCOUPLING_EXPORT static DataArrayInt *BuildUnion(const std::vector<const DataArrayInt *>& arr);
     MEDCOUPLING_EXPORT static DataArrayInt *BuildIntersection(const std::vector<const DataArrayInt *>& arr);

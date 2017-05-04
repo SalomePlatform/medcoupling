@@ -49,6 +49,10 @@ MEDCouplingFieldDouble.__imul__=MEDCouplingFieldDoubleImul
 MEDCouplingFieldDouble.__idiv__=MEDCouplingFieldDoubleIdiv
 MEDCouplingFieldDouble.__ipow__=MEDCouplingFieldDoubleIpow
 
+MEDCouplingFieldInt.__new__=classmethod(MEDCouplingFieldIntnew)
+  
+MEDCouplingFieldFloat.__new__=classmethod(MEDCouplingFieldFloatnew)
+
 DataArrayDoubleTuple.__iadd__=MEDCouplingDataArrayDoubleTupleIadd
 DataArrayDoubleTuple.__isub__=MEDCouplingDataArrayDoubleTupleIsub
 DataArrayDoubleTuple.__imul__=MEDCouplingDataArrayDoubleTupleImul

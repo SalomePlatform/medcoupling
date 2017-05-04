@@ -317,6 +317,51 @@ class MEDCouplingPickleTest(unittest.TestCase):
         self.assertTrue(x2.isEqual(x,1e-7))
         pass
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test16(self):
+        """  Test of MEDCouplingFieldInt lying on MEDCouplingCMesh pickeling. """
+        arrX=DataArrayDouble(10) ; arrX.iota() ; arrX.setInfoOnComponents(["aa"])
+        arrY=DataArrayDouble(5) ; arrY.iota() ; arrY.setInfoOnComponents(["bbb"])
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY)
+        f=m.getMeasureField(True)
+        f=f.convertToIntField()
+        self.assertTrue(isinstance(f,MEDCouplingFieldInt))
+        f.setName("aname")
+        a=f.getArray()
+        b=a[:] ; b.iota(7000)
+        f.setArray(DataArrayInt.Meld(a,b))
+        f.getArray().setInfoOnComponents(["u1","vv2"])
+        f.checkConsistencyLight();
+        #
+        st=cPickle.dumps(f,cPickle.HIGHEST_PROTOCOL)
+        f2=cPickle.loads(st)
+        self.assertTrue(f2.isEqual(f,1e-16,0))
+        self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
+        pass
+    
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test17(self):
+        """  Test of MEDCouplingFieldInt lying on MEDCouplingCMesh pickeling. """
+        arrX=DataArrayDouble(10) ; arrX.iota() ; arrX.setInfoOnComponents(["aa"])
+        arrY=DataArrayDouble(5) ; arrY.iota() ; arrY.setInfoOnComponents(["bbb"])
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY)
+        f2=m.getMeasureField(True)
+        f=MEDCouplingFieldFloat(ON_CELLS)
+        f.setMesh(m) ; f.setArray(f2.getArray().convertToFloatArr())
+        self.assertTrue(isinstance(f,MEDCouplingFieldFloat))
+        f.setName("aname")
+        a=f.getArray()
+        b=a[:] ; b.iota(7000.)
+        f.setArray(DataArrayFloat.Meld(a,b))
+        f.getArray().setInfoOnComponents(["u1","vv2"])
+        f.checkConsistencyLight();
+        #
+        st=cPickle.dumps(f,cPickle.HIGHEST_PROTOCOL)
+        f2=cPickle.loads(st)
+        self.assertTrue(f2.isEqual(f,1e-16,0))
+        self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
+        pass
+
     def setUp(self):
         pass
     pass

@@ -26,6 +26,25 @@
 
 #include <sstream>
 
+static PyObject *convertArray(MEDCoupling::DataArray *array, int owner)
+{
+  PyObject *ret(NULL);
+  if(!array)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<MEDCoupling::DataArrayDouble *>(array))
+    ret=SWIG_NewPointerObj((void*)array,SWIGTYPE_p_MEDCoupling__DataArrayDouble,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayInt *>(array))
+    ret=SWIG_NewPointerObj((void*)array,SWIGTYPE_p_MEDCoupling__DataArrayInt,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayFloat *>(array))
+    ret=SWIG_NewPointerObj((void*)array,SWIGTYPE_p_MEDCoupling__DataArrayFloat,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of array on downcast !");
+  return ret;
+}
+
 /*!
  * This method is an extention of PySlice_GetIndices but less
  * open than PySlice_GetIndicesEx that accepts too many situations.

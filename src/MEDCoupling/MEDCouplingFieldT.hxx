@@ -87,6 +87,14 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool areCompatibleForDiv(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingFieldT<T> *other);
     MEDCOUPLING_EXPORT void copyAllTinyAttrFrom(const MEDCouplingFieldT<T> *other);
+    //
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays);
+    MEDCOUPLING_EXPORT void checkForUnserialization(const std::vector<int>& tinyInfoI, const DataArrayInt *dataInt, const std::vector<typename Traits<T>::ArrayType *>& arrays);
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void serialize(DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays) const;
   protected:
     const MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe() const;
     MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe();

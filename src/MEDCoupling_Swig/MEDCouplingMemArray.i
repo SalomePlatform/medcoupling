@@ -67,6 +67,7 @@
 %newobject MEDCoupling::DataArrayFloat::New;
 %newobject MEDCoupling::DataArrayFloat::iterator;
 %newobject MEDCoupling::DataArrayFloat::__iter__;
+%newobject MEDCoupling::DataArrayFloat::Meld;
 %newobject MEDCoupling::DataArrayInt::New;
 %newobject MEDCoupling::DataArrayInt::__iter__;
 %newobject MEDCoupling::DataArrayInt::performCopyOrIncrRef;
@@ -681,6 +682,7 @@ namespace MEDCoupling
     void iota(float init=0.) throw(INTERP_KERNEL::Exception);
     DataArrayFloatIterator *iterator() throw(INTERP_KERNEL::Exception);
     MCAuto<DataArrayDouble> convertToDblArr() const throw(INTERP_KERNEL::Exception);
+    static DataArrayFloat *Meld(const DataArrayFloat *a1, const DataArrayFloat *a2) throw(INTERP_KERNEL::Exception);
     %extend
     {
       DataArrayFloat() throw(INTERP_KERNEL::Exception)

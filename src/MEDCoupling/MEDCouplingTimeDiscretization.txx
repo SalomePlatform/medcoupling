@@ -22,6 +22,7 @@
 #define __MEDCOUPLINGTIMEDISCRETIZATION_TXX__
 
 #include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingMemArray.txx"
 
 #include <cmath>
 #include <sstream>
@@ -222,6 +223,81 @@ namespace MEDCoupling
     arrays.resize(1);
     arrays[0]=_array;
   }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+  {
+    if(_array)
+      {
+        tinyInfo.push_back(_array->getNumberOfTuples());
+        tinyInfo.push_back(_array->getNumberOfComponents());
+      }
+    else
+      {
+        tinyInfo.push_back(-1);
+        tinyInfo.push_back(-1);
+      }
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
+  {
+    tinyInfo.push_back(_time_tolerance);
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
+  {
+    int nbOfCompo(_array->getNumberOfComponents());
+    for(int i=0;i<nbOfCompo;i++)
+      tinyInfo.push_back(_array->getInfoOnComponent(i));
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<typename Traits<T>::ArrayType *>& arrays)
+  {
+    arrays.resize(1);
+    if(_array!=0)
+      _array->decrRef();
+    typename Traits<T>::ArrayType *arr=0;
+    if(tinyInfoI[0]!=-1 && tinyInfoI[1]!=-1)
+      {
+        arr=Traits<T>::ArrayType::New();
+        arr->alloc(tinyInfoI[0],tinyInfoI[1]);
+      }
+    _array=arr;
+    arrays[0]=arr;
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::checkForUnserialization(const std::vector<int>& tinyInfoI, const std::vector<typename Traits<T>::ArrayType *>& arrays)
+  {
+    static const char MSG[]="MEDCouplingTimeDiscretization::checkForUnserialization : arrays in input is expected to have size one !";
+    if(arrays.size()!=1)
+      throw INTERP_KERNEL::Exception(MSG);
+    if(_array!=0)
+      _array->decrRef();
+    _array=0;
+    if(tinyInfoI[0]!=-1 && tinyInfoI[1]!=-1)
+      {
+        if(!arrays[0])
+          throw INTERP_KERNEL::Exception(MSG);
+        arrays[0]->checkNbOfTuplesAndComp(tinyInfoI[0],tinyInfoI[1],MSG);
+        _array=arrays[0];
+        _array->incrRef();
+      }
+  }
+  
+  template<class T>
+  void MEDCouplingTimeDiscretizationTemplate<T>::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+  {
+    _time_tolerance=tinyInfoD[0];
+    int nbOfCompo=_array->getNumberOfComponents();
+    for(int i=0;i<nbOfCompo;i++)
+      _array->setInfoOnComponent(i,tinyInfoS[i]);
+  }
+  
+  /////////////////////////
   
   template<class T>
   std::string MEDCouplingTimeDiscretizationSimple<T>::getStringRepr() const

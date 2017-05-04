@@ -2929,6 +2929,87 @@ struct NotInRange
     LowerThan<T> lt(val);
     return findIdsAdv(lt);
   }
+
+  /*!
+   * Returns a new DataArrayDouble by aggregating two given arrays, so that (1) the number
+   * of components in the result array is a sum of the number of components of given arrays
+   * and (2) the number of tuples in the result array is same as that of each of given
+   * arrays. In other words the i-th tuple of result array includes all components of
+   * i-th tuples of all given arrays.
+   * Number of tuples in the given arrays must be  the same.
+   *  \param [in] a1 - an array to include in the result array.
+   *  \param [in] a2 - another array to include in the result array.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble.
+   *          The caller is to delete this result array using decrRef() as it is no more
+   *          needed.
+   *  \throw If both \a a1 and \a a2 are NULL.
+   *  \throw If any given array is not allocated.
+   *  \throw If \a a1->getNumberOfTuples() != \a a2->getNumberOfTuples()
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::Meld(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2)
+  {
+    std::vector<const typename Traits<T>::ArrayType *> arr(2);
+    arr[0]=a1; arr[1]=a2;
+    return Meld(arr);
+  }
+
+  /*!
+   * Returns a new DataArrayDouble by aggregating all given arrays, so that (1) the number
+   * of components in the result array is a sum of the number of components of given arrays
+   * and (2) the number of tuples in the result array is same as that of each of given
+   * arrays. In other words the i-th tuple of result array includes all components of
+   * i-th tuples of all given arrays.
+   * Number of tuples in the given arrays must be  the same.
+   *  \param [in] arr - a sequence of arrays to include in the result array.
+   *  \return DataArrayDouble * - the new instance of DataArrayDouble.
+   *          The caller is to delete this result array using decrRef() as it is no more
+   *          needed.
+   *  \throw If all arrays within \a arr are NULL.
+   *  \throw If any given array is not allocated.
+   *  \throw If getNumberOfTuples() of arrays within \a arr is different.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::Meld(const std::vector<const typename Traits<T>::ArrayType *>& arr)
+  {
+    std::vector<const typename Traits<T>::ArrayType *> a;
+    for(typename std::vector<const typename Traits<T>::ArrayType *>::const_iterator it4=arr.begin();it4!=arr.end();it4++)
+      if(*it4)
+        a.push_back(*it4);
+    if(a.empty())
+      throw INTERP_KERNEL::Exception("DataArrayDouble::Meld : input list must contain at least one NON EMPTY DataArrayDouble !");
+    typename std::vector<const typename Traits<T>::ArrayType *>::const_iterator it;
+    for(it=a.begin();it!=a.end();it++)
+      (*it)->checkAllocated();
+    it=a.begin();
+    int nbOfTuples((*it)->getNumberOfTuples());
+    std::vector<int> nbc(a.size());
+    std::vector<const T *> pts(a.size());
+    nbc[0]=(*it)->getNumberOfComponents();
+    pts[0]=(*it++)->getConstPointer();
+    for(int i=1;it!=a.end();it++,i++)
+      {
+        if(nbOfTuples!=(*it)->getNumberOfTuples())
+          throw INTERP_KERNEL::Exception("DataArrayDouble::Meld : mismatch of number of tuples !");
+        nbc[i]=(*it)->getNumberOfComponents();
+        pts[i]=(*it)->getConstPointer();
+      }
+    int totalNbOfComp=std::accumulate(nbc.begin(),nbc.end(),0);
+    typename Traits<T>::ArrayType *ret(Traits<T>::ArrayType::New());
+    ret->alloc(nbOfTuples,totalNbOfComp);
+    T *retPtr(ret->getPointer());
+    for(int i=0;i<nbOfTuples;i++)
+      for(int j=0;j<(int)a.size();j++)
+        {
+          retPtr=std::copy(pts[j],pts[j]+nbc[j],retPtr);
+          pts[j]+=nbc[j];
+        }
+    int k=0;
+    for(int i=0;i<(int)a.size();i++)
+      for(int j=0;j<nbc[i];j++,k++)
+        ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j));
+    return ret;
+  }
   
   /*!
    * Checks if all values in \a this array are equal to \a val at precision \a eps.
