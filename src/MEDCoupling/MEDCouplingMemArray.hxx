@@ -332,6 +332,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void meldWith(const typename Traits<T>::ArrayType *other);
     MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *duplicateEachTupleNTimes(int nbTimes) const;
     MEDCOUPLING_EXPORT void aggregate(const typename Traits<T>::ArrayType *other);
+    MEDCOUPLING_EXPORT void abs();
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *computeAbs() const;
   protected:
     static typename Traits<T>::ArrayType *PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self);
     template<class OP>
@@ -472,8 +474,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrix() const;
     MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const;
     MEDCOUPLING_EXPORT void sortPerTuple(bool asc);
-    MEDCOUPLING_EXPORT void abs();
-    MEDCOUPLING_EXPORT DataArrayDouble *computeAbs() const;
     MEDCOUPLING_EXPORT void applyInv(double numerator);
     MEDCOUPLING_EXPORT void applyPow(double val);
     MEDCOUPLING_EXPORT void applyRPow(double val);
@@ -601,8 +601,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int accumulate(int compId) const;
     MEDCOUPLING_EXPORT DataArrayInt *accumulatePerChunck(const int *bgOfIndex, const int *endOfIndex) const;
     MEDCOUPLING_EXPORT void getMinMaxValues(int& minValue, int& maxValue) const;
-    MEDCOUPLING_EXPORT void abs();
-    MEDCOUPLING_EXPORT DataArrayInt *computeAbs() const;
     MEDCOUPLING_EXPORT void applyInv(int numerator);
     MEDCOUPLING_EXPORT void applyDivideBy(int val);
     MEDCOUPLING_EXPORT void applyModulus(int val);

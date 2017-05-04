@@ -3148,6 +3148,48 @@ struct NotInRange
       throw INTERP_KERNEL::Exception("DataArrayDouble::aggregate : mismatch number of components !");
     this->_mem.insertAtTheEnd(other->begin(),other->end());
   }
+
+  /*!
+   * Converts every value of \a this array to its absolute value.
+   * \b WARNING this method is non const. If a new DataArrayDouble instance should be built containing the result of abs DataArrayDouble::computeAbs
+   * should be called instead.
+   *
+   * \throw If \a this is not allocated.
+   * \sa DataArrayDouble::computeAbs
+   */
+  template<class T>
+  void DataArrayTemplateClassic<T>::abs()
+  {
+    this->checkAllocated();
+    T *ptr(this->getPointer());
+    std::size_t nbOfElems(this->getNbOfElems());
+    std::transform(ptr,ptr+nbOfElems,ptr,std::ptr_fun<T,T>(std::abs));
+    this->declareAsNew();
+  }
+
+  /*!
+   * This method builds a new instance of \a this object containing the result of std::abs applied of all elements in \a this.
+   * This method is a const method (that do not change any values in \a this) contrary to  DataArrayDouble::abs method.
+   *
+   * \return DataArrayDouble * - the new instance of DataArrayDouble containing the
+   *         same number of tuples and component as \a this array.
+   *         The caller is to delete this result array using decrRef() as it is no more
+   *         needed.
+   * \throw If \a this is not allocated.
+   * \sa DataArrayDouble::abs
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::computeAbs() const
+  {
+    this->checkAllocated();
+    MCAuto<typename Traits<T>::ArrayType> newArr(Traits<T>::ArrayType::New());
+    int nbOfTuples(this->getNumberOfTuples());
+    int nbOfComp(this->getNumberOfComponents());
+    newArr->alloc(nbOfTuples,nbOfComp);
+    std::transform(this->begin(),this->end(),newArr->getPointer(),std::ptr_fun<T,T>(std::abs));
+    newArr->copyStringInfoFrom(*this);
+    return newArr.retn();
+  }
   
   /*!
    * Checks if all values in \a this array are equal to \a val at precision \a eps.
