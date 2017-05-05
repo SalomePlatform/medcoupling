@@ -22,6 +22,7 @@
 
 #include "InterpKernelException.hxx"
 #include "DiameterCalculator.hxx"
+#include "OrientationInverter.hxx"
 
 #include <algorithm>
 #include <sstream>
@@ -950,6 +951,46 @@ namespace INTERP_KERNEL
         }
       default:
         throw Exception("CellModel::buildInstanceOfDiameterCalulator : implemented only for TRI3, QUAD4, TETRA4, HEXA8, PENTA6, PYRA5 !");
+      }
+  }
+
+  OrientationInverter *CellModel::buildOrientationInverter() const
+  {
+    switch(_type)
+      {
+      case NORM_SEG2:
+        return new OrientationInverterSEG2;
+      case NORM_SEG3:
+        return new OrientationInverterSEG3;
+      case NORM_TRI3:
+      case NORM_QUAD4:
+        return new OrientationInverter2DLinear(getNumberOfNodes());
+      case NORM_TRI6:
+      case NORM_QUAD8:
+        return new OrientationInverter2DQuadratic(getNumberOfNodes());
+      case NORM_POLYGON:
+        return new OrientationInverterPolygon;
+      case NORM_QPOLYG:
+        return new OrientationInverterQPolygon;
+      case NORM_TETRA4:
+        return new OrientationInverterTetra4;
+      case NORM_PYRA5:
+        return new OrientationInverterPyra5;
+      case NORM_TETRA10:
+        return new OrientationInverterTetra10;
+      case NORM_PYRA13:
+        return new OrientationInverterPyra13;
+      case NORM_PENTA6:
+      case NORM_HEXA8:
+        return new OrientationInverter3DExtrusionLinear(getNumberOfNodes());
+      case NORM_PENTA15:
+      case NORM_HEXA20:
+        return new OrientationInverter3DExtrusionQuadratic(getNumberOfNodes());
+      default:
+        {
+          std::ostringstream oss; oss << "CellModel::buildOrientationInverter : not managed geometric type " << getRepr() << " yet !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
       }
   }
 }
