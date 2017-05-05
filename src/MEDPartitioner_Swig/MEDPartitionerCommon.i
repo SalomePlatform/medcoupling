@@ -38,6 +38,8 @@ using namespace MEDPARTITIONER;
 
 %newobject MEDPARTITIONER::MEDPartitioner::New;
 %newobject MEDPARTITIONER::MEDPartitioner::Graph;
+%newobject MEDPARTITIONER::MEDPartitioner::Graph::getGraph;
+%newobject MEDPARTITIONER::MEDPartitioner::Graph::getPartition;
 %newobject MEDPARTITIONER::MEDPartitioner::getMEDFileData;
 %feature("unref") MEDCoupling::MEDFileData "$this->decrRef();"
 
@@ -53,8 +55,20 @@ namespace MEDPARTITIONER
     typedef enum {METIS,SCOTCH} splitter_type;
   public:
     virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) throw(INTERP_KERNEL::Exception);
-    const MEDCoupling::MEDCouplingSkyLineArray *getGraph() const;
-    const MEDCoupling::MEDCouplingSkyLineArray *getPartition() const;
+    MEDCoupling::MEDCouplingSkyLineArray *getGraph() const
+    {
+      const MEDCoupling::MEDCouplingSkyLineArray *ret(self->getGraph());
+      if(ret)
+        ret->incrRef();
+      return const_cast<MEDCoupling::MEDCouplingSkyLineArray *>(ret);
+    }
+    const MEDCoupling::MEDCouplingSkyLineArray *getPartition() const
+    {
+      const MEDCoupling::MEDCouplingSkyLineArray *ret(self->getPartition());
+      if(ret)
+        ret->incrRef();
+      return const_cast<MEDCoupling::MEDCouplingSkyLineArray *>(ret);
+    }
     int nbVertices() const;
   };
 

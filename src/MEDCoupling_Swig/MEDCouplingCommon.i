@@ -427,6 +427,9 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell;
 %newobject MEDCoupling::MEDCouplingGaussLocalization::buildRefCell;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::BuildFromPolyhedronConn;
+%newobject MEDCoupling::MEDCouplingSkyLineArray::getSuperIndexArray;
+%newobject MEDCoupling::MEDCouplingSkyLineArray::getIndexArray;
+%newobject MEDCoupling::MEDCouplingSkyLineArray::getValuesArray;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -1216,10 +1219,6 @@ namespace MEDCoupling
     int getNumberOf() const;
     int getLength() const;
     
-    DataArrayInt* getSuperIndexArray() const;
-    DataArrayInt* getIndexArray() const;
-    DataArrayInt* getValuesArray() const;
-
     void deletePack(const int i, const int j) throw(INTERP_KERNEL::Exception);
     
     %extend 
@@ -1247,6 +1246,30 @@ namespace MEDCoupling
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
+      }
+      
+      DataArrayInt *getSuperIndexArray() const
+      {
+        DataArrayInt *ret(self->getSuperIndexArray());
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+      
+      DataArrayInt *getIndexArray() const
+      {
+        DataArrayInt *ret(self->getIndexArray());
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+      
+      DataArrayInt *getValuesArray() const
+      {
+        DataArrayInt *ret(self->getValuesArray());
+        if(ret)
+          ret->incrRef();
+        return ret;
       }
      
       PyObject *getSimplePackSafe(int absolutePackId) const throw(INTERP_KERNEL::Exception)
