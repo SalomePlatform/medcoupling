@@ -3985,38 +3985,6 @@ void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNb
 }
 
 /*!
- * Modifies in place \a this one-dimensional array so that each value \a v = \a indArrBg[ \a v ],
- * i.e. a current value is used as in index to get a new value from \a indArrBg.
- *  \param [in] indArrBg - pointer to the first element of array of new values to assign
- *         to \a this array.
- *  \param [in] indArrEnd - specifies the end of the array \a indArrBg, so that
- *              the last value of \a indArrBg is \a indArrEnd[ -1 ].
- *  \throw If \a this->getNumberOfComponents() != 1
- *  \throw If any value of \a this can't be used as a valid index for 
- *         [\a indArrBg, \a indArrEnd).
- *
- *  \sa changeValue
- */
-void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd)
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
-  int nbElemsIn((int)std::distance(indArrBg,indArrEnd)),nbOfTuples(getNumberOfTuples()),*pt(getPointer());
-  for(int i=0;i<nbOfTuples;i++,pt++)
-    {
-      if(*pt>=0 && *pt<nbElemsIn)
-        *pt=indArrBg[*pt];
-      else
-        {
-          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " of this value is " << *pt << ", should be in [0," << nbElemsIn << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-    }
-  declareAsNew();
-}
-
-/*!
  * Computes distribution of values of \a this one-dimensional array between given value
  * ranges (casts). This method is typically useful for entity number spliting by types,
  * for example. 
@@ -4162,6 +4130,60 @@ bool DataArrayInt::isRange(int& strt, int& sttoopp, int& stteepp) const
     }
 }
 
+
+/*!
+ * Modifies in place \a this one-dimensional array so that each value \a v = \a indArrBg[ \a v ],
+ * i.e. a current value is used as in index to get a new value from \a indArrBg.
+ *  \param [in] indArrBg - pointer to the first element of array of new values to assign
+ *         to \a this array.
+ *  \param [in] indArrEnd - specifies the end of the array \a indArrBg, so that
+ *              the last value of \a indArrBg is \a indArrEnd[ -1 ].
+ *  \throw If \a this->getNumberOfComponents() != 1
+ *  \throw If any value of \a this can't be used as a valid index for 
+ *         [\a indArrBg, \a indArrEnd).
+ *
+ *  \sa changeValue
+ */
+void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd)
+{
+  this->checkAllocated();
+  if(this->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  int nbElemsIn((int)std::distance(indArrBg,indArrEnd)),nbOfTuples(getNumberOfTuples()),*pt(getPointer());
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    {
+      if(*pt>=0 && *pt<nbElemsIn)
+        *pt=indArrBg[*pt];
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " of this value is " << *pt << ", should be in [0," << nbElemsIn << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  this->declareAsNew();
+}
+
+void DataArrayInt::transformWithIndArr(const MapKeyVal<int>& m)
+{
+  this->checkAllocated();
+  if(this->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  const std::map<int,int> dat(m.data());
+  int nbOfTuples(getNumberOfTuples()),*pt(getPointer());
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    {
+      std::map<int,int>::const_iterator it(dat.find(*pt));
+      if(it!=dat.end())
+        *pt=(*it).second;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " of this value is " << *pt << " not in map !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  this->declareAsNew();
+}
+
 /*!
  * Creates a one-dimensional DataArrayInt (\a res) whose contents are computed from 
  * values of \a this (\a a) and the given (\a indArr) arrays as follows:
@@ -4229,11 +4251,11 @@ DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int 
  */
 DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
 {
-  MCAuto<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
   ret->alloc(newNbOfElem,1);
-  int nbOfOldNodes=getNumberOfTuples();
-  const int *old2New=getConstPointer();
-  int *pt=ret->getPointer();
+  int nbOfOldNodes(this->getNumberOfTuples());
+  const int *old2New(begin());
+  int *pt(ret->getPointer());
   for(int i=0;i!=nbOfOldNodes;i++)
     {
       int newp(old2New[i]);
@@ -4293,6 +4315,7 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2OBis(int newNbOfElem) const
  *  \ref cpp_mcdataarrayint_invertarrayn2o2o2n "Here is a C++ example".
  *
  *  \ref py_mcdataarrayint_invertarrayn2o2o2n "Here is a Python example".
+ *  \sa invertArrayN2O2O2NOptimized
  *  \endif
  */
 DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
@@ -4316,6 +4339,36 @@ DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
         }
     }
   return ret.retn();
+}
+
+/*!
+ * Creates a map, whose contents are computed
+ * from values of \a this array, which is supposed to contain a renumbering map in 
+ * "New to Old" mode. The result array contains a renumbering map in "Old to New" mode.
+ * To know how to use the renumbering maps see \ref numbering.
+ *  \param [in] newNbOfElem - the number of tuples in the result array.
+ *  \return MapII  - the new instance of Map.
+ * 
+ *  \if ENABLE_EXAMPLES
+ *  \ref cpp_mcdataarrayint_invertarrayn2o2o2n "Here is a C++ example".
+ *
+ *  \ref py_mcdataarrayint_invertarrayn2o2o2n "Here is a Python example".
+ *  \sa invertArrayN2O2O2N
+ *  \endif
+ */
+MCAuto< MapKeyVal<int> > DataArrayInt::invertArrayN2O2O2NOptimized() const
+{
+  checkAllocated();
+  MCAuto< MapKeyVal<int> > ret(MapKeyVal<int>::New());
+  std::map<int,int>& m(ret->data());
+  const int *new2Old(begin());
+  int nbOfNewElems(this->getNumberOfTuples());
+  for(int i=0;i<nbOfNewElems;i++)
+    {
+      int v(new2Old[i]);
+      m[v]=i;
+    }
+  return ret;
 }
 
 /*!

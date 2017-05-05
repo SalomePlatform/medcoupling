@@ -55,6 +55,11 @@
 {
   $result=SWIG_NewPointerObj(SWIG_as_voidptr($1.retn()),SWIGTYPE_p_MEDCoupling__DataArrayFloat,SWIG_POINTER_OWN|0);
 }
+
+%typemap(out) MCAuto<MEDCoupling::MapII>
+{
+  $result=SWIG_NewPointerObj(SWIG_as_voidptr($1.retn()),SWIGTYPE_p_MEDCoupling__MapII,SWIG_POINTER_OWN|0);
+}
 //$$$$$$$$$$$$$$$$$$
 
 %newobject MEDCoupling::DataArray::deepCopy;
@@ -236,6 +241,7 @@
 %feature("unref") DataArrayAsciiChar "$this->decrRef();"
 %feature("unref") DataArrayByte "$this->decrRef();"
 
+%feature("unref") MapII "$this->decrRef();"
 %feature("unref") PartDefinition "$this->decrRef();"
 %feature("unref") DataArrayPartDefinition "$this->decrRef();"
 %feature("unref") SlicePartDefinition "$this->decrRef();"
@@ -250,6 +256,12 @@ namespace MEDCoupling
     } MEDCouplingAxisType;
 
   class DataArrayInt;
+
+  class MapII : public RefCountObject, public TimeLabel
+  {
+  public:
+    static MCAuto< MapII > New();
+  };
   
   class PartDefinition : public RefCountObject, public TimeLabel
   {

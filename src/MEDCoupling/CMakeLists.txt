@@ -44,6 +44,7 @@ SET(medcoupling_SOURCES
   MEDCouplingMemArray.cxx
   MEDCouplingMemArrayFloat.cxx
   MEDCouplingMemArrayChar.cxx
+  MEDCouplingMap.cxx
   MEDCouplingTraits.cxx
   MEDCouplingTimeLabel.cxx
   MEDCouplingCMesh.cxx
