@@ -4640,6 +4640,16 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(d.convertToFloatArr().isEqual(DataArrayFloat([-5,-4,-3,-2,-1,0,1,2,3,4]),1e-7))
         self.assertTrue(d.convertToFloatArr().convertToDblArr().isEqual(d,1e-12))
         pass
+
+    def testMapII1(self):
+        """ Test optimized maps for renumbering. Typical usage local to global in parallel mode"""
+        d=DataArrayInt([1003,1007])
+        m=d.invertArrayN2O2O2NOptimized()
+        d2=DataArrayInt([1003,1003,1007,1003,1007])
+        d2.transformWithIndArr(m)
+        self.assertTrue(d2.isEqual(DataArrayInt([0,0,1,0,1])))
+        pass
+    
     pass
 
 if __name__ == '__main__':
