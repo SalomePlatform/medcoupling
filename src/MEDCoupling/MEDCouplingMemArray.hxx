@@ -583,6 +583,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *buildPermArrPerLevel() const;
     MEDCOUPLING_EXPORT bool isIota(int sizeExpected) const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
+    MEDCOUPLING_EXPORT int checkUniformAndGuess() const;
     MEDCOUPLING_EXPORT bool hasUniqueValues() const;
     MEDCOUPLING_EXPORT void setSelectedComponents(const DataArrayInt *a, const std::vector<int>& compoIds);
     MEDCOUPLING_EXPORT DataArrayIntIterator *iterator();

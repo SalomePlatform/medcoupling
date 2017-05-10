@@ -2331,6 +2331,7 @@ namespace MEDCoupling
     DataArrayInt *buildPermArrPerLevel() const throw(INTERP_KERNEL::Exception);
     bool isIota(int sizeExpected) const throw(INTERP_KERNEL::Exception);
     bool isUniform(int val) const throw(INTERP_KERNEL::Exception);
+    int checkUniformAndGuess() const throw(INTERP_KERNEL::Exception);
     bool hasUniqueValues() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     void transpose() throw(INTERP_KERNEL::Exception);

@@ -4649,6 +4649,21 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         d2.transformWithIndArr(m)
         self.assertTrue(d2.isEqual(DataArrayInt([0,0,1,0,1])))
         pass
+
+    def testDAICheckUniformAndGuess1(self):
+        d=DataArrayInt([3,3],1,2)
+        self.assertRaises(InterpKernelException,d.checkUniformAndGuess)# non single compo
+        d=DataArrayInt([])
+        self.assertRaises(InterpKernelException,d.checkUniformAndGuess)# empty
+        d=DataArrayInt()
+        self.assertRaises(InterpKernelException,d.checkUniformAndGuess)# non allocated
+        d=DataArrayInt([3,3,3])
+        self.assertEqual(3,d.checkUniformAndGuess())
+        d=DataArrayInt([7])
+        self.assertEqual(7,d.checkUniformAndGuess())
+        d=DataArrayInt([3,4,3])
+        self.assertRaises(InterpKernelException,d.checkUniformAndGuess)# non uniform
+        pass
     
     pass
 

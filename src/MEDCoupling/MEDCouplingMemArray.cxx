@@ -5028,19 +5028,43 @@ bool DataArrayInt::isIota(int sizeExpected) const
  *  \return bool - \a true if all values are \a val.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1
+ *  \sa DataArrayInt::checkUniformAndGuess
  */
 bool DataArrayInt::isUniform(int val) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::isUniform : must be applied on DataArrayInt with only one component, you can call 'rearrange' method before !");
-  int nbOfTuples=getNumberOfTuples();
-  const int *w=getConstPointer();
-  const int *end2=w+nbOfTuples;
+  const int *w(begin()),*end2(end());
   for(;w!=end2;w++)
     if(*w!=val)
       return false;
   return true;
+}
+
+/*!
+ * This method checks that \a this is uniform. If not and exception will be thrown.
+ * In case of uniformity the corresponding value is returned.
+ *
+ * \return int - the unique value contained in this
+ * \throw If \a this is not allocated.
+ * \throw If \a this->getNumberOfComponents() != 1
+ * \throw If \a this is not uniform.
+ * \sa DataArrayInt::isUniform
+ */
+int DataArrayInt::checkUniformAndGuess() const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::checkUniformAndGuess : must be applied on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  if(empty())
+    throw INTERP_KERNEL::Exception("DataArrayInt::checkUniformAndGuess : this is empty !");
+  const int *w(begin()),*end2(end());
+  int ret(*w);
+  for(;w!=end2;w++)
+    if(*w!=ret)
+      throw INTERP_KERNEL::Exception("DataArrayInt::checkUniformAndGuess : this is not uniform !");
+  return ret;
 }
 
 /*!
