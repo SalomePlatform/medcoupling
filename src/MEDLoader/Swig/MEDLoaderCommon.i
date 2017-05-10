@@ -239,12 +239,17 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileJointCorrespondence::New;
 %newobject MEDCoupling::MEDFileJointCorrespondence::deepCopy;
 %newobject MEDCoupling::MEDFileJointCorrespondence::shallowCpy;
+%newobject MEDCoupling::MEDFileJointCorrespondence::getCorrespondence;
 %newobject MEDCoupling::MEDFileJointOneStep::New;
 %newobject MEDCoupling::MEDFileJointOneStep::deepCopy;
 %newobject MEDCoupling::MEDFileJointOneStep::shallowCpy;
+%newobject MEDCoupling::MEDFileJointOneStep::getCorrespondenceAtPos;
+%newobject MEDCoupling::MEDFileJointOneStep::__getitem__;
 %newobject MEDCoupling::MEDFileJoint::New;
 %newobject MEDCoupling::MEDFileJoint::deepCopy;
 %newobject MEDCoupling::MEDFileJoint::shallowCpy;
+%newobject MEDCoupling::MEDFileJoint::getStepAtPos;
+%newobject MEDCoupling::MEDFileJoint::__getitem__;
 %newobject MEDCoupling::MEDFileJoints::New;
 %newobject MEDCoupling::MEDFileJoints::deepCopy;
 %newobject MEDCoupling::MEDFileJoints::getJointAtPos;
@@ -675,7 +680,6 @@ namespace MEDCoupling
     void setRemoteGeometryType(INTERP_KERNEL::NormalizedCellType type);
     INTERP_KERNEL::NormalizedCellType getRemoteGeometryType() const;
     void setCorrespondence(DataArrayInt *corr) throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getCorrespondence() const throw(INTERP_KERNEL::Exception);
     void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     %extend
@@ -699,6 +703,14 @@ namespace MEDCoupling
       {
         return self->simpleRepr();
       }
+      
+      DataArrayInt *getCorrespondence() const throw(INTERP_KERNEL::Exception)
+      {
+        const DataArrayInt *ret(self->getCorrespondence());
+        if(ret)
+          ret->incrRef();
+        return const_cast<DataArrayInt *>(ret);
+      }
     }
   };
 
@@ -716,7 +728,6 @@ namespace MEDCoupling
     int getIteration() const;
     void pushCorrespondence(MEDFileJointCorrespondence* correspondence);
     int getNumberOfCorrespondences() const;
-    MEDFileJointCorrespondence *getCorrespondenceAtPos(int i) const;
     void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName) const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     %extend
@@ -734,6 +745,19 @@ namespace MEDCoupling
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
+      }
+      
+      MEDFileJointCorrespondence *getCorrespondenceAtPos(int i) const throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileJointCorrespondence *ret(self->getCorrespondenceAtPos(i));
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      MEDFileJointCorrespondence *__getitem__(int i) const throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCoupling_MEDFileJointOneStep_getCorrespondenceAtPos(self,i);
       }
     }
   };
@@ -760,7 +784,6 @@ namespace MEDCoupling
     int getDomainNumber() const;
     void pushStep(MEDFileJointOneStep* step);
     int getNumberOfSteps() const;
-    MEDFileJointOneStep *getStepAtPos(int i) const;
     std::string simpleRepr() const;
     %extend
     {
@@ -782,6 +805,19 @@ namespace MEDCoupling
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
+      }
+      
+      MEDFileJointOneStep *getStepAtPos(int i) const throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileJointOneStep *ret(self->getStepAtPos(i));
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      MEDFileJointOneStep *__getitem__(int i) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCoupling_MEDFileJoint_getStepAtPos(self,i);
       }
     }
   };
