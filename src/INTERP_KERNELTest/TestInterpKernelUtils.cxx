@@ -45,7 +45,9 @@ namespace INTERP_TEST
         return resourceFile;
     }
     // else
-    resourceFile = getcwd(NULL, 0);
+    char * tmp_c = getcwd(NULL, 0);
+    resourceFile = tmp_c;
+    free(tmp_c);
     resourceFile += "/";
     for(int i=0; i<levelUp; i++)
       resourceFile += "../";
