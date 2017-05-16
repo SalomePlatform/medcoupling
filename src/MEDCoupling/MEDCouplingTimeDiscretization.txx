@@ -60,14 +60,14 @@ namespace MEDCoupling
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<T>& other)
   {
+    TimeHolder::copyTinyAttrFrom(other);
     _time_tolerance=other._time_tolerance;
-    _time_unit=other._time_unit;
   }
   
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::copyTinyStringsFrom(const MEDCouplingTimeDiscretizationTemplate<T>& other)
   {
-    _time_unit=other._time_unit;
+    TimeHolder::copyTinyAttrFrom(other);
     if(_array && other._array)
       _array->copyStringInfoFrom(*other._array);
   }
@@ -75,7 +75,7 @@ namespace MEDCoupling
   template<class T>
   std::size_t MEDCouplingTimeDiscretizationTemplate<T>::getHeapMemorySizeWithoutChildren() const
   {
-    return _time_unit.capacity();
+    return getTimeUnit().capacity();
   }
   
   template<class T>
@@ -99,9 +99,9 @@ namespace MEDCoupling
   bool MEDCouplingTimeDiscretizationTemplate<T>::areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<T> *other, std::string& reason) const
   {
     std::ostringstream oss; oss.precision(15);
-    if(_time_unit!=other->_time_unit)
+    if(getTimeUnit()!=other->getTimeUnit())
       {
-        oss << "Field discretizations differ : this time unit = \"" << _time_unit << "\" and other time unit = \"" << other->_time_unit << "\" !";
+        oss << "Field discretizations differ : this time unit = \"" << getTimeUnit() << "\" and other time unit = \"" << other->getTimeUnit() << "\" !";
         reason=oss.str();
         return false;
       }
@@ -176,7 +176,7 @@ namespace MEDCoupling
   }
 
   template<class T>
-  MEDCouplingTimeDiscretizationTemplate<T>::MEDCouplingTimeDiscretizationTemplate(const MEDCouplingTimeDiscretizationTemplate<T>& other, bool deepCopy):_time_unit(other._time_unit),_time_tolerance(other._time_tolerance)
+  MEDCouplingTimeDiscretizationTemplate<T>::MEDCouplingTimeDiscretizationTemplate(const MEDCouplingTimeDiscretizationTemplate<T>& other, bool deepCopy):TimeHolder(other),_time_tolerance(other._time_tolerance)
   {
     if(other._array)
       _array=other._array->performCopyOrIncrRef(deepCopy);
@@ -304,7 +304,7 @@ namespace MEDCoupling
   {
     std::ostringstream stream;
     stream << REPR << " Time is defined by iteration=" << _tk.getIteration() << " order=" << _tk.getOrder() << " and time=" << _tk.getTimeValue() << ".";
-    stream << "\nTime unit is : \"" << this->_time_unit << "\"";
+    stream << "\nTime unit is : \"" << this->getTimeUnit() << "\"";
     return stream.str();
   }
   

@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #ifndef __PARAMEDMEM_MEDCOUPLINGFIELDTEMPLATE_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGFIELDTEMPLATE_HXX__
@@ -48,6 +48,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingFieldTemplate> clone(bool recDeepCpy) const;
     //
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
@@ -62,6 +63,7 @@ namespace MEDCoupling
     MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f);
     MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f);
     MEDCouplingFieldTemplate(TypeOfField type);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldTemplate& other, bool deepCopy);
   };
 }
 

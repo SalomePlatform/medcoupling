@@ -95,8 +95,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkForUnserialization(const std::vector<int>& tinyInfoI, const DataArrayInt *dataInt, const std::vector<typename Traits<T>::ArrayType *>& arrays);
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     MEDCOUPLING_EXPORT void serialize(DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays) const;
+    MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe() const;
   protected:
-    const MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe() const;
     MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe();
   protected:
     MEDCouplingTimeDiscretizationTemplate<T> *_time_discr;

@@ -828,7 +828,7 @@ std::string MEDCouplingNoTimeLabel::getStringRepr() const
 {
   std::ostringstream stream;
   stream << REPR;
-  stream << "\nTime unit is : \"" << _time_unit << "\"";
+  stream << "\nTime unit is : \"" << getTimeUnit() << "\"";
   return stream.str();
 }
 
@@ -1217,7 +1217,7 @@ std::string MEDCouplingWithTimeStep::getStringRepr() const
 {
   std::ostringstream stream;
   stream << REPR << " Time is defined by iteration=" << _tk.getIteration() << " order=" << _tk.getOrder() << " and time=" << _tk.getTimeValue() << ".";
-  stream << "\nTime unit is : \"" << _time_unit << "\"";
+  stream << "\nTime unit is : \"" << getTimeUnit() << "\"";
   return stream.str();
 }
 
@@ -1228,8 +1228,8 @@ void MEDCouplingWithTimeStep::synchronizeTimeWith(const MEDCouplingMesh *mesh)
   int it=-1,order=-1;
   double val=mesh->getTime(it,order);
   _tk.setAllInfo(val,it,order);
-  std::string tUnit=mesh->getTimeUnit();
-  _time_unit=tUnit;
+  std::string tUnit(mesh->getTimeUnit());
+  setTimeUnit(tUnit);
 }
 
 void MEDCouplingWithTimeStep::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
@@ -1705,7 +1705,7 @@ std::string MEDCouplingConstOnTimeInterval::getStringRepr() const
   std::ostringstream stream;
   stream << REPR << " Time interval is defined by :\niteration_start=" << _start.getIteration() << " order_start=" << _start.getOrder() << " and time_start=" << _start.getTimeValue() << "\n";
   stream << "iteration_end=" << _end.getIteration() << " order_end=" << _end.getOrder() << " and end_time=" << _end.getTimeValue() << "\n";
-  stream << "\nTime unit is : \"" << _time_unit << "\"";
+  stream << "\nTime unit is : \"" << getTimeUnit() << "\"";
   return stream.str();
 }
 
@@ -1718,7 +1718,7 @@ void MEDCouplingConstOnTimeInterval::synchronizeTimeWith(const MEDCouplingMesh *
   _start.setAllInfo(val,it,order);
   _end.setAllInfo(val,it,order);
   std::string tUnit(mesh->getTimeUnit());
-  _time_unit=tUnit;
+  setTimeUnit(tUnit);
 }
 
 MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::performCopyOrIncrRef(bool deepCopy) const
@@ -2090,8 +2090,8 @@ void MEDCouplingTwoTimeSteps::synchronizeTimeWith(const MEDCouplingMesh *mesh)
   double val=mesh->getTime(it,order);
   _start.setAllInfo(val,it,order);
   _end.setAllInfo(val,it,order);
-  std::string tUnit=mesh->getTimeUnit();
-  _time_unit=tUnit;
+  std::string tUnit(mesh->getTimeUnit());
+  setTimeUnit(tUnit);
 }
 
 std::size_t MEDCouplingTwoTimeSteps::getHeapMemorySizeWithoutChildren() const
@@ -2399,7 +2399,7 @@ std::string MEDCouplingLinearTime::getStringRepr() const
   std::ostringstream stream;
   stream << REPR << " Time interval is defined by :\niteration_start=" << _start.getIteration() << " order_start=" << _start.getOrder() << " and time_start=" << _start.getTimeValue() << "\n";
   stream << "iteration_end=" << _end.getIteration() << " order_end=" << _end.getOrder() << " and end_time=" << _end.getTimeValue() << "\n";
-  stream << "Time unit is : \"" << _time_unit << "\"";
+  stream << "Time unit is : \"" << getTimeUnit() << "\"";
   return stream.str();
 }
 

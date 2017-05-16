@@ -74,6 +74,10 @@ MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(TypeOfField type):MEDCoupling
 {
 }
 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldTemplate& other, bool deepCopy):MEDCouplingField(other,deepCopy)
+{
+}
+
 void MEDCouplingFieldTemplate::checkConsistencyLight() const
 {
   if(_mesh==0)
@@ -180,4 +184,10 @@ void MEDCouplingFieldTemplate::reprQuickOverview(std::ostream& stream) const
       std::string tmp(oss.str());
       stream << "\nMesh info : " << tmp.substr(0,tmp.find('\n'));
     }
+}
+
+MCAuto<MEDCouplingFieldTemplate> MEDCouplingFieldTemplate::clone(bool recDeepCpy) const
+{
+  MCAuto<MEDCouplingFieldTemplate> ret(new MEDCouplingFieldTemplate(*this,recDeepCpy));
+  return ret;
 }

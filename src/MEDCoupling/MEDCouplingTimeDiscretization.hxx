@@ -35,24 +35,35 @@ namespace MEDCoupling
   class DataArrayDouble;
   class TimeLabel;
 
+  class TimeHolder
+  {
+  public:
+    MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
+    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_unit=unit; }
+    MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const { return getStartTime(iteration,order); }
+    MEDCOUPLING_EXPORT virtual double getStartTime(int& iteration, int& order) const = 0;
+    void copyTinyAttrFrom(const TimeHolder& other) { _time_unit=other._time_unit; }
+  protected:
+    TimeHolder() { }
+    TimeHolder(const TimeHolder& other):_time_unit(other._time_unit) { }
+  private:
+    std::string _time_unit;
+  };
+
   template<class T>
-  class MEDCouplingTimeDiscretizationTemplate : public TimeLabel, public BigMemoryObject
+  class MEDCouplingTimeDiscretizationTemplate : public TimeLabel, public BigMemoryObject, public TimeHolder
   {
   public:
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT virtual void setArray(typename Traits<T>::ArrayType *array, TimeLabel *owner);
     MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *getArray() { return _array; }
     MEDCOUPLING_EXPORT const typename Traits<T>::ArrayType *getArray() const { return _array; }
-    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_unit=unit; }
-    MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
     MEDCOUPLING_EXPORT void setTimeTolerance(double val) { _time_tolerance=val; }
     MEDCOUPLING_EXPORT double getTimeTolerance() const { return _time_tolerance; }
-    MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const { return getStartTime(iteration,order); }
     MEDCOUPLING_EXPORT void setTime(double time, int iteration, int order) { setStartTime(time,iteration,order); }
     MEDCOUPLING_EXPORT void setIteration(int it) { setStartIteration(it); }
     MEDCOUPLING_EXPORT void setOrder(int order) { setStartOrder(order); }
     MEDCOUPLING_EXPORT void setTimeValue(double val) { setStartTimeValue(val); }
-    MEDCOUPLING_EXPORT virtual double getStartTime(int& iteration, int& order) const = 0;
     MEDCOUPLING_EXPORT virtual void setStartIteration(int it) = 0;
     MEDCOUPLING_EXPORT virtual void setStartOrder(int order) = 0;
     MEDCOUPLING_EXPORT virtual void setStartTime(double time, int iteration, int order) = 0;
@@ -97,7 +108,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretizationTemplate();
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretizationTemplate(const MEDCouplingTimeDiscretizationTemplate<T>& other, bool deepCopy);
   protected:
-    std::string _time_unit;
     double _time_tolerance;
     typename Traits<T>::ArrayType *_array;
   protected:
