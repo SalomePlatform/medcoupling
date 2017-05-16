@@ -68,6 +68,8 @@ static PyObject *convertMEDFileField1TS(MEDCoupling::MEDFileAnyTypeField1TS *p, 
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileField1TS,owner);
   if(dynamic_cast<MEDFileIntField1TS *>(p))
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileIntField1TS,owner);
+  if(dynamic_cast<MEDFileFloatField1TS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileFloatField1TS,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of MEDFileAnyTypeField1TS on downcast !");
   return ret;
@@ -85,6 +87,8 @@ static PyObject *convertMEDFileFieldMultiTS(MEDCoupling::MEDFileAnyTypeFieldMult
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileFieldMultiTS,owner);
   if(dynamic_cast<MEDFileIntFieldMultiTS *>(p))
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileIntFieldMultiTS,owner);
+  if(dynamic_cast<MEDFileFloatFieldMultiTS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileFloatFieldMultiTS,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of MEDFileAnyTypeFieldMultiTS on downcast !");
   return ret;
@@ -144,6 +148,18 @@ static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi)
   else
     throw INTERP_KERNEL::Exception("convertTimePairIdsFromPy : not a list");
   return ret;
+}
+
+static std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > convertVecPairIntToVecPairTOFCT(const std::vector<std::pair<int,int> >& tmp)
+{
+  std::size_t sz(tmp.size());
+  std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      entitiesCpp[i].first=(TypeOfField)tmp[i].first;
+      entitiesCpp[i].second=(INTERP_KERNEL::NormalizedCellType)tmp[i].second;
+    }
+  return entitiesCpp;
 }
 
 static void converPyListToVecString(PyObject *pyLi, std::vector<std::string>& v)

@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 %module MEDLoader
 
@@ -182,6 +182,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getFieldAtLevelOld;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileFieldMultiTS::convertToInt;
+
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::field;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::LoadSpecificEntities;
@@ -191,6 +192,16 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtTopLevel;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel;
 %newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtLevelOld;
+
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::New;
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::field;
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::LoadSpecificEntities;
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::getUndergroundDataArray;
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::convertToDouble;
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::getFieldAtLevel;
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::getFieldAtTopLevel;
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::getFieldOnMeshAtLevel;
+%newobject MEDCoupling::MEDFileFloatFieldMultiTS::getFieldAtLevelOld;
 
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::New;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::NewAdv;
@@ -214,6 +225,15 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileIntField1TS::getFieldAtLevelOld;
 %newobject MEDCoupling::MEDFileIntField1TS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileIntField1TS::convertToDouble;
+
+%newobject MEDCoupling::MEDFileFloatField1TS::New;
+%newobject MEDCoupling::MEDFileFloatField1TS::field;
+%newobject MEDCoupling::MEDFileFloatField1TS::getFieldAtLevel;
+%newobject MEDCoupling::MEDFileFloatField1TS::getFieldAtTopLevel;
+%newobject MEDCoupling::MEDFileFloatField1TS::getFieldOnMeshAtLevel;
+%newobject MEDCoupling::MEDFileFloatField1TS::getFieldAtLevelOld;
+%newobject MEDCoupling::MEDFileFloatField1TS::getUndergroundDataArray;
+%newobject MEDCoupling::MEDFileFloatField1TS::convertToDouble;
 
 %newobject MEDCoupling::MEDFileData::New;
 %newobject MEDCoupling::MEDFileData::deepCopy;
@@ -285,9 +305,11 @@ using namespace MEDCoupling;
 %feature("unref") MEDFileAnyTypeField1TS "$this->decrRef();"
 %feature("unref") MEDFileField1TS "$this->decrRef();"
 %feature("unref") MEDFileIntField1TS "$this->decrRef();"
+%feature("unref") MEDFileFloatField1TS "$this->decrRef();"
 %feature("unref") MEDFileAnyTypeFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileIntFieldMultiTS "$this->decrRef();"
+%feature("unref") MEDFileFloatFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileMeshSupports "$this->decrRef();"
 %feature("unref") MEDFileStructureElements "$this->decrRef();"
 %feature("unref") MEDFileFields "$this->decrRef();"
@@ -2473,6 +2495,82 @@ namespace MEDCoupling
     }
   };
 
+  class MEDFileFloatField1TS : public MEDFileAnyTypeField1TS
+  {
+  public:
+    static MEDFileFloatField1TS *New();
+    static MEDFileFloatField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileFloatField1TS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
+    static MEDFileFloatField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileFloatField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    //
+    void setFieldNoProfileSBT(const MEDCouplingFieldFloat *field) throw(INTERP_KERNEL::Exception);
+    void setFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      MEDFileFloatField1TS() throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileFloatField1TS::New();
+      }
+
+      MEDFileFloatField1TS(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileFloatField1TS::New(fileName,loadAll);
+      }
+
+      MEDFileFloatField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileFloatField1TS::New(fileName,fieldName,loadAll);
+      }
+
+      MEDFileFloatField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileFloatField1TS::New(fileName,fieldName,iteration,order,loadAll);
+      }
+
+      MEDFileFloatField1TS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileFloatField1TS::New(db);
+      }
+
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileFloatField1TS");
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+
+      PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      {
+         DataArrayInt *ret1=0;
+         DataArrayFloat *ret0=self->getFieldWithProfile(type,meshDimRelToMax,mesh,ret1);
+         PyObject *ret=PyTuple_New(2);
+         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayFloat, SWIG_POINTER_OWN | 0 ));
+         return ret;
+      }
+      
+      DataArrayFloat *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayFloat *ret=self->getUndergroundDataArray();
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+    }
+  };
+
   class MEDFileAnyTypeFieldMultiTSIterator
   {
   public:
@@ -2863,6 +2961,8 @@ namespace MEDCoupling
     }
   };
 
+  class MEDFileIntFieldMultiTS;
+  
   class MEDFileFieldMultiTS : public MEDFileAnyTypeFieldMultiTS
   {
   public:
@@ -2876,11 +2976,11 @@ namespace MEDCoupling
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    MEDCoupling::MEDFileIntFieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    MEDFileIntFieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileFieldMultiTS()
@@ -3074,13 +3174,7 @@ namespace MEDCoupling
       static MEDFileIntFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
       {
         std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
-        std::size_t sz(tmp.size());
-        std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(sz);
-        for(std::size_t i=0;i<sz;i++)
-          {
-            entitiesCpp[i].first=(TypeOfField)tmp[i].first;
-            entitiesCpp[i].second=(INTERP_KERNEL::NormalizedCellType)tmp[i].second;
-          }
+        std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(convertVecPairIntToVecPairTOFCT(tmp));
         return MEDFileIntFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
       }
 
@@ -3102,6 +3196,83 @@ namespace MEDCoupling
       DataArrayInt *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *ret=self->getUndergroundDataArray(iteration,order);
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+    }
+  };
+
+  class MEDFileFloatFieldMultiTS : public MEDFileAnyTypeFieldMultiTS
+  {
+  public:
+    static MEDFileFloatFieldMultiTS *New();
+    static MEDFileFloatFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileFloatFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileFloatFieldMultiTS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
+    //
+    void appendFieldNoProfileSBT(const MEDCouplingFieldFloat *field) throw(INTERP_KERNEL::Exception);
+    void appendFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *field(int iteration, int order, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      MEDFileFloatFieldMultiTS()
+      {
+        return MEDFileFloatFieldMultiTS::New();
+      }
+      
+      MEDFileFloatFieldMultiTS(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileFloatFieldMultiTS::New(fileName,loadAll);
+      }
+      
+      MEDFileFloatFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileFloatFieldMultiTS::New(fileName,fieldName,loadAll);
+      }
+
+      MEDFileFloatFieldMultiTS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileFloatFieldMultiTS::New(db);
+      }
+      
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileFloatFieldMultiTS");
+      }
+      
+      static MEDFileFloatFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
+      {
+        std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
+        std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(convertVecPairIntToVecPairTOFCT(tmp));
+        return MEDFileFloatFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+
+      PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      {
+         DataArrayInt *ret1=0;
+         DataArrayFloat *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
+         PyObject *ret=PyTuple_New(2);
+         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayFloat, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         return ret;
+      }
+
+      DataArrayFloat *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayFloat *ret=self->getUndergroundDataArray(iteration,order);
         if(ret)
           ret->incrRef();
         return ret;

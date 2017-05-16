@@ -31,17 +31,32 @@ using namespace MEDCoupling;
 
 MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldDouble& f)
 {
-  return new MEDCouplingFieldTemplate(f);
+  return new MEDCouplingFieldTemplate(f,true);
 }
 
 MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldFloat& f)
 {
-  return new MEDCouplingFieldTemplate(f);
+  return new MEDCouplingFieldTemplate(f,true);
 }
 
 MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldInt& f)
 {
-  return new MEDCouplingFieldTemplate(f);
+  return new MEDCouplingFieldTemplate(f,true);
+}
+
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::NewWithoutCheck(const MEDCouplingFieldDouble& f)
+{
+  return new MEDCouplingFieldTemplate(f,false);
+}
+
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::NewWithoutCheck(const MEDCouplingFieldFloat& f)
+{
+  return new MEDCouplingFieldTemplate(f,false);
+}
+
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::NewWithoutCheck(const MEDCouplingFieldInt& f)
+{
+  return new MEDCouplingFieldTemplate(f,false);
 }
 
 /*!
@@ -52,22 +67,25 @@ MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(TypeOfField type)
   return new MEDCouplingFieldTemplate(type);
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f, bool isChecked):MEDCouplingField(f,false) 
 {
   forceTimeOfThis(f);
-  checkConsistencyLight();
+  if(isChecked)
+    checkConsistencyLight();
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f, bool isChecked):MEDCouplingField(f,false) 
 {
   forceTimeOfThis(f);
-  checkConsistencyLight();
+  if(isChecked)
+    checkConsistencyLight();
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f, bool isChecked):MEDCouplingField(f,false) 
 {
   forceTimeOfThis(f);
-  checkConsistencyLight();
+  if(isChecked)
+    checkConsistencyLight();
 }
 
 MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(TypeOfField type):MEDCouplingField(type)

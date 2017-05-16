@@ -45,6 +45,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldFloat& f);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt& f);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(TypeOfField type);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldDouble& f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldFloat& f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldInt& f);
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
@@ -59,9 +62,9 @@ namespace MEDCoupling
     //
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
   private:
-    MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f);
-    MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f);
-    MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f, bool isChecked=true);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f, bool isChecked=true);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f, bool isChecked=true);
     MEDCouplingFieldTemplate(TypeOfField type);
     MEDCouplingFieldTemplate(const MEDCouplingFieldTemplate& other, bool deepCopy);
   };

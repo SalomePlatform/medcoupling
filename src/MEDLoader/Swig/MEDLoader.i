@@ -189,6 +189,12 @@ def MEDCouplingMEDFileIntField1TSnew(cls,*args):
 def MEDCouplingMEDFileIntFieldMultiTSnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDFileIntFieldMultiTS____new___(cls,args)
+def MEDCouplingMEDFileFloatField1TSnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileFloatField1TS____new___(cls,args)
+def MEDCouplingMEDFileFloatFieldMultiTSnew(cls,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDFileFloatFieldMultiTS____new___(cls,args)
 def MEDCouplingMEDFileParametersnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDFileParameters____new___(cls,args)
@@ -217,6 +223,10 @@ MEDFileIntField1TS.__new__=classmethod(MEDCouplingMEDFileIntField1TSnew)
 del MEDCouplingMEDFileIntField1TSnew
 MEDFileIntFieldMultiTS.__new__=classmethod(MEDCouplingMEDFileIntFieldMultiTSnew)
 del MEDCouplingMEDFileIntFieldMultiTSnew
+MEDFileFloatField1TS.__new__=classmethod(MEDCouplingMEDFileFloatField1TSnew)
+del MEDCouplingMEDFileFloatField1TSnew
+MEDFileFloatFieldMultiTS.__new__=classmethod(MEDCouplingMEDFileFloatFieldMultiTSnew)
+del MEDCouplingMEDFileFloatFieldMultiTSnew
 MEDFileParameters.__new__=classmethod(MEDCouplingMEDFileParametersnew)
 del MEDCouplingMEDFileParametersnew
 %}

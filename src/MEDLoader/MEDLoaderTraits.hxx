@@ -35,14 +35,19 @@ namespace MEDCoupling
   class MEDFileField1TS;
   class MEDFileIntFieldMultiTS;
   class MEDFileIntField1TS;
+  class MEDFileFloatFieldMultiTS;
   class MEDFileFloatField1TS;
   class MEDFileField1TSWithoutSDA;
   class MEDFileIntField1TSWithoutSDA;
   class MEDFileFloatField1TSWithoutSDA;
+  class MEDFileFieldMultiTSWithoutSDA;
+  class MEDFileIntFieldMultiTSWithoutSDA;
+  class MEDFileFloatFieldMultiTSWithoutSDA;
   
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<double>
   {
+    typedef MEDFileFieldMultiTSWithoutSDA FMTSWSDAType;
     typedef MEDFileFieldMultiTS FMTSType;
     typedef MEDFileField1TS F1TSType;
     typedef MEDFileField1TSWithoutSDA F1TSWSDAType;
@@ -51,7 +56,8 @@ namespace MEDCoupling
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<float>
   {
-    //typedef MEDFileFloatFieldMultiTS FMTSType;
+    typedef MEDFileFloatFieldMultiTSWithoutSDA FMTSWSDAType;
+    typedef MEDFileFloatFieldMultiTS FMTSType;
     typedef MEDFileFloatField1TS F1TSType;
     typedef MEDFileFloatField1TSWithoutSDA F1TSWSDAType;
   };
@@ -59,6 +65,7 @@ namespace MEDCoupling
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<int>
   {
+    typedef MEDFileIntFieldMultiTSWithoutSDA FMTSWSDAType;
     typedef MEDFileIntFieldMultiTS FMTSType;
     typedef MEDFileIntField1TS F1TSType;
     typedef MEDFileIntField1TSWithoutSDA F1TSWSDAType;
