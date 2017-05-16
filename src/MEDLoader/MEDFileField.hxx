@@ -747,6 +747,26 @@ namespace MEDCoupling
   };
 
   /*!
+   * SDA is for Shared Data Arrays such as profiles.
+   */
+  class MEDFileFloatField1TSWithoutSDA : public MEDFileField1TSTemplateWithoutSDA<float>
+  {
+  public:
+    MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA();
+    MEDLOADER_EXPORT static MEDFileFloatField1TSWithoutSDA *New(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos);
+    MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA *deepCopy() const;
+    MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA *shallowCpy() const;
+    MEDLOADER_EXPORT const char *getTypeStr() const;
+    MEDLOADER_EXPORT DataArray *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
+    MEDLOADER_EXPORT DataArrayFloat *getUndergroundDataArrayFloatExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
+    MEDLOADER_EXPORT MEDFileField1TSWithoutSDA *convertToDouble() const;
+  protected:
+    MEDFileFloatField1TSWithoutSDA(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos);
+  public:
+    MEDLOADER_EXPORT static const char TYPE_STR[];
+  };
+
+  /*!
    * User class.
    */
   class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileWritableStandAlone, public MEDFileFieldGlobsReal
@@ -845,21 +865,37 @@ namespace MEDCoupling
 
   class MEDFileIntField1TS;
 
+  template<class T>
+  class MEDFileTemplateField1TS : public MEDFileAnyTypeField1TS
+  {
+  public:
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New();
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(const std::string& fileName, bool loadAll=true);
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(med_idt fid, bool loadAll=true);
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(DataArrayByte *db) { return BuildFromMemoryChunk<typename MLFieldTraits<T>::F1TSType>(db); }
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(const typename MLFieldTraits<T>::F1TSWSDAType& other, bool shallowCopyOfContent);
+  protected:
+    ~MEDFileTemplateField1TS() { }
+    MEDFileTemplateField1TS();
+    MEDFileTemplateField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms):MEDFileAnyTypeField1TS(fid,loadAll,ms) { }
+    MEDFileTemplateField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms):MEDFileAnyTypeField1TS(fid,fieldName,loadAll,ms) { }
+    MEDFileTemplateField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms):MEDFileAnyTypeField1TS(fid,fieldName,iteration,order,loadAll,ms) { }
+    MEDFileTemplateField1TS(const typename MLFieldTraits<T>::F1TSWSDAType& other, bool shallowCopyOfContent):MEDFileAnyTypeField1TS(other,shallowCopyOfContent) { }
+    const typename MLFieldTraits<T>::F1TSWSDAType *contentNotNull() const;
+    typename MLFieldTraits<T>::F1TSWSDAType *contentNotNull();
+  };
+
   /*!
    * User class.
    */
-  class MEDFileField1TS : public MEDFileAnyTypeField1TS
+  class MEDFileField1TS : public MEDFileTemplateField1TS<double>
   {
+    friend class MEDFileTemplateField1TS<double>;
   public:
-    MEDLOADER_EXPORT static MEDFileField1TS *New(const std::string& fileName, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileField1TS *New(med_idt fid, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileField1TS *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileField1TS>(db); }
-    MEDLOADER_EXPORT static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileField1TS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileField1TS *New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileField1TS *New(const MEDFileField1TSWithoutSDA& other, bool shallowCopyOfContent);
-    MEDLOADER_EXPORT static MEDFileField1TS *New();
     MEDLOADER_EXPORT MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const;
     //
     MEDLOADER_EXPORT MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const;
@@ -887,29 +923,19 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileField1TS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
   private:
     med_field_type getMEDFileFieldType() const { return MED_FLOAT64; }
-    const MEDFileField1TSWithoutSDA *contentNotNull() const;
-    MEDFileField1TSWithoutSDA *contentNotNull();
   private:
     ~MEDFileField1TS() { }
     MEDFileField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms);
     MEDFileField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms);
     MEDFileField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms);
     MEDFileField1TS(const MEDFileField1TSWithoutSDA& other, bool shallowCopyOfContent);
-    MEDFileField1TS();
+    MEDFileField1TS() { }
   };
 
-  class MEDFileIntField1TS : public MEDFileAnyTypeField1TS
+  class MEDFileIntField1TS : public MEDFileTemplateField1TS<int>
   {
+    friend class MEDFileTemplateField1TS<int>;
   public:
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New();
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileIntField1TS>(db); }
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, const std::string& fieldName, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll=true);
-    MEDLOADER_EXPORT static MEDFileIntField1TS *New(const MEDFileIntField1TSWithoutSDA& other, bool shallowCopyOfContent);
     MEDLOADER_EXPORT MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     MEDLOADER_EXPORT MEDFileIntField1TS *shallowCpy() const;
     //
@@ -932,11 +958,9 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileIntField1TS *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
   private:
     med_field_type getMEDFileFieldType() const { return MED_INT32; }
-    const MEDFileIntField1TSWithoutSDA *contentNotNull() const;
-    MEDFileIntField1TSWithoutSDA *contentNotNull();
   private:
     ~MEDFileIntField1TS() { }
-    MEDFileIntField1TS();
+    MEDFileIntField1TS() { }
     MEDFileIntField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms);
     MEDFileIntField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms);
     MEDFileIntField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms);

@@ -167,6 +167,145 @@ namespace MEDCoupling
         start+=(*it).second.second-(*it).second.first;
       }
   }
+
+  template<class T>
+  MEDFileTemplateField1TS<T>::MEDFileTemplateField1TS()
+  {
+    _content=new typename MLFieldTraits<T>::F1TSWSDAType;
+  }
+
+  /*!
+   * Returns a new empty instance of MEDFileField1TS.
+   *  \return MEDFileField1TS * - a new instance of MEDFileField1TS. The caller
+   *          is to delete this field using decrRef() as it is no more needed.
+   */
+  template<class T>
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New()
+  {
+    MCAuto<typename MLFieldTraits<T>::F1TSType> ret(new typename MLFieldTraits<T>::F1TSType);
+    ret->contentNotNull();
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a new instance of MEDFileField1TS holding data of the first time step of 
+   * the first field that has been read from a specified MED file.
+   *  \param [in] fileName - the name of the MED file to read.
+   *  \return MEDFileField1TS * - a new instance of MEDFileFieldMultiTS. The caller
+   *          is to delete this field using decrRef() as it is no more needed.
+   *  \throw If reading the file fails.
+   */
+  template<class T>
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(const std::string& fileName, bool loadAll)
+  {
+    MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+    return New(fid,loadAll);
+  }
+  
+  template<class T>
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(med_idt fid, bool loadAll)
+  {
+    MCAuto<typename MLFieldTraits<T>::F1TSType> ret(new typename MLFieldTraits<T>::F1TSType(fid,loadAll,0));
+    ret->contentNotNull();
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a new instance of MEDFileField1TS holding data of the first time step of 
+   * a given field that has been read from a specified MED file.
+   *  \param [in] fileName - the name of the MED file to read.
+   *  \param [in] fieldName - the name of the field to read.
+   *  \return MEDFileField1TS * - a new instance of MEDFileFieldMultiTS. The caller
+   *          is to delete this field using decrRef() as it is no more needed.
+   *  \throw If reading the file fails.
+   *  \throw If there is no field named \a fieldName in the file.
+   */
+  template<class T>
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
+  {
+    MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+    return New(fid,fieldName,loadAll);
+  }
+
+  template<class T>
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(med_idt fid, const std::string& fieldName, bool loadAll)
+  {
+    MCAuto<typename MLFieldTraits<T>::F1TSType> ret(new typename MLFieldTraits<T>::F1TSType(fid,fieldName,loadAll,0));
+    ret->contentNotNull();
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a new instance of MEDFileField1TS holding data of a given time step of 
+   * a given field that has been read from a specified MED file.
+   *  \param [in] fileName - the name of the MED file to read.
+   *  \param [in] fieldName - the name of the field to read.
+   *  \param [in] iteration - the iteration number of a required time step.
+   *  \param [in] order - the iteration order number of required time step.
+   *  \return MEDFileField1TS * - a new instance of MEDFileFieldMultiTS. The caller
+   *          is to delete this field using decrRef() as it is no more needed.
+   *  \throw If reading the file fails.
+   *  \throw If there is no field named \a fieldName in the file.
+   *  \throw If the required time step is missing from the file.
+   */
+  template<class T>
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
+  {
+    MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+    return New(fid,fieldName,iteration,order,loadAll);
+  }
+  
+  template<class T>
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll)
+  {
+    MCAuto<typename MLFieldTraits<T>::F1TSType> ret(new typename MLFieldTraits<T>::F1TSType(fid,fieldName,iteration,order,loadAll,0));
+    ret->contentNotNull();
+    return ret.retn();
+  }
+
+  /*!
+   * Returns a new instance of MEDFileField1TS. If \a shallowCopyOfContent is true the content of \a other is shallow copied.
+   * If \a shallowCopyOfContent is false, \a other is taken to be the content of \a this.
+   *
+   * Returns a new instance of MEDFileField1TS holding either a shallow copy
+   * of a given MEDFileField1TSWithoutSDA ( \a other ) or \a other itself.
+   * \warning this is a shallow copy constructor
+   *  \param [in] other - a MEDFileField1TSWithoutSDA to copy.
+   *  \param [in] shallowCopyOfContent - if \c true, a shallow copy of \a other is created.
+   *  \return MEDFileField1TS * - a new instance of MEDFileField1TS. The caller
+   *          is to delete this field using decrRef() as it is no more needed.
+   */
+  template<class T>
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(const typename MLFieldTraits<T>::F1TSWSDAType& other, bool shallowCopyOfContent)
+  {
+    MCAuto<typename MLFieldTraits<T>::F1TSType> ret(new typename MLFieldTraits<T>::F1TSType(other,shallowCopyOfContent));
+    ret->contentNotNull();
+    return ret.retn();
+  }
+  
+  template<class T>
+  const typename MLFieldTraits<T>::F1TSWSDAType *MEDFileTemplateField1TS<T>::contentNotNull() const
+  {
+    const MEDFileAnyTypeField1TSWithoutSDA *pt(_content);
+    if(!pt)
+      throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the content pointer is null !");
+    const typename MLFieldTraits<T>::F1TSWSDAType *ret(dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(pt));
+    if(!ret)
+      throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type FLOAT64 !");
+    return ret;
+  }
+  
+  template<class T>
+  typename MLFieldTraits<T>::F1TSWSDAType *MEDFileTemplateField1TS<T>::contentNotNull()
+  {
+    MEDFileAnyTypeField1TSWithoutSDA *pt(_content);
+    if(!pt)
+      throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the non const content pointer is null !");
+    typename MLFieldTraits<T>::F1TSWSDAType *ret(dynamic_cast<typename MLFieldTraits<T>::F1TSWSDAType *>(pt));
+    if(!ret)
+      throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the non const content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type FLOAT64 !");
+    return ret;
+  }
 }
 
 #endif
