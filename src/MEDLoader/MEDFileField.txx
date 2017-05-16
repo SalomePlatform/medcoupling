@@ -107,6 +107,33 @@ namespace MEDCoupling
   }
   
   /*!
+   * Returns a pointer to the underground DataArrayDouble instance and a
+   * sequence describing parameters of a support of each part of \a this field. The
+   * caller should not decrRef() the returned DataArrayDouble. This method allows for a
+   * direct access to the field values. This method is intended for the field lying on one
+   * mesh only.
+   *  \param [in,out] entries - the sequence describing parameters of a support of each
+   *         part of \a this field. Each item of this sequence consists of two parts. The
+   *         first part describes a type of mesh entity and an id of discretization of a
+   *         current field part. The second part describes a range of values [begin,end)
+   *         within the returned array relating to the current field part.
+   *  \return DataArrayDouble * - the pointer to the field values array.
+   *  \throw If the number of underlying meshes is not equal to 1.
+   *  \throw If no field values are available.
+   *  \sa getUndergroundDataArrayTemplate()
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *MEDFileField1TSTemplateWithoutSDA<T>::getUndergroundDataArrayTemplateExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
+  {
+    if(this->_field_per_mesh.size()!=1)
+      throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : field lies on several meshes, this method has no sense !");
+    if(this->_field_per_mesh[0]==0)
+      throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : no field specified !");
+    this->_field_per_mesh[0]->getUndergroundDataArrayExt(entries);
+    return getUndergroundDataArrayTemplate();
+  }
+  
+  /*!
    * Returns a pointer to the underground DataArrayDouble instance. So the
    * caller should not decrRef() it. This method allows for a direct access to the field
    * values. This method is quite unusable if there is more than a nodal field or a cell
@@ -291,7 +318,10 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the content pointer is null !");
     const typename MLFieldTraits<T>::F1TSWSDAType *ret(dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(pt));
     if(!ret)
-      throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type FLOAT64 !");
+      {
+        std::ostringstream oss; oss << "MEDFileTemplateField1TS<T>::contentNotNull : the content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
+        throw INTERP_KERNEL::Exception(oss.str());
+      }
     return ret;
   }
   
@@ -303,8 +333,58 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the non const content pointer is null !");
     typename MLFieldTraits<T>::F1TSWSDAType *ret(dynamic_cast<typename MLFieldTraits<T>::F1TSWSDAType *>(pt));
     if(!ret)
-      throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the non const content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type FLOAT64 !");
+      {
+        std::ostringstream oss; oss << "MEDFileTemplateField1TS<T>::contentNotNull : the non const content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
+        throw INTERP_KERNEL::Exception(oss.str());
+      }
     return ret;
+  }
+  
+  template<class T>
+  typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::ReturnSafelyTypedDataArray(MCAuto<DataArray>& arr)
+  {
+    if(arr.isNull())
+      throw INTERP_KERNEL::Exception("MEDFileField1TS::ReturnSafelyTypedDataArray : no array !");
+    typename Traits<T>::ArrayType *arrOutC(dynamic_cast<typename Traits<T>::ArrayType *>((DataArray*)arr));
+    if(!arrOutC)
+      throw INTERP_KERNEL::Exception("MEDFileField1TS::ReturnSafelyTypedDataArray : mismatch between dataArrays type and MEDFileField1TS ! Expected double !");
+    arrOutC->incrRef();
+    return arrOutC;
+  }
+
+  /*!
+   * Returns values and a profile of the field of a given type lying on a given support.
+   * For more info, see \ref AdvMEDLoaderAPIFieldRW
+   *  \param [in] type - a spatial discretization of the field.
+   *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
+   *  \param [in] mesh - the supporting mesh.
+   *  \param [out] pfl - a new instance of DataArrayInt holding ids of mesh entities the
+   *          field of interest lies on. If the field lies on all entities of the given
+   *          dimension, all ids in \a pfl are zero. The caller is to delete this array
+   *          using decrRef() as it is no more needed.  
+   *  \return DataArrayInt * - a new instance of DataArrayInt holding values of the
+   *          field. The caller is to delete this array using decrRef() as it is no more needed.
+   *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
+   *  \throw If no field of \a this is lying on \a mesh.
+   *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const
+  {
+    MCAuto<DataArray> arr(contentNotNull()->getFieldWithProfile(type,meshDimRelToMax,mesh,pfl,this,*contentNotNull()));
+    return ReturnSafelyTypedDataArray(arr);
+  }
+
+  template<class T>
+  typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getUndergroundDataArray() const
+  {
+    return contentNotNull()->getUndergroundDataArrayTemplate();
+  }
+  
+  template<class T>
+  typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
+  {
+    return contentNotNull()->getUndergroundDataArrayTemplateExt(entries);
   }
 }
 

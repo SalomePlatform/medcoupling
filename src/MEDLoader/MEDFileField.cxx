@@ -5737,35 +5737,9 @@ MEDFileIntField1TSWithoutSDA *MEDFileField1TSWithoutSDA::convertToInt() const
  *  \throw If no field values are available.
  *  \sa getUndergroundDataArray()
  */
-DataArrayDouble *MEDFileField1TSWithoutSDA::getUndergroundDataArrayDoubleExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
-{
-  if(_field_per_mesh.size()!=1)
-    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : field lies on several meshes, this method has no sense !");
-  if(_field_per_mesh[0]==0)
-    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : no field specified !");
-  _field_per_mesh[0]->getUndergroundDataArrayExt(entries);
-  return getUndergroundDataArrayTemplate();
-}
-
-/*!
- * Returns a pointer to the underground DataArrayDouble instance and a
- * sequence describing parameters of a support of each part of \a this field. The
- * caller should not decrRef() the returned DataArrayDouble. This method allows for a
- * direct access to the field values. This method is intended for the field lying on one
- * mesh only.
- *  \param [in,out] entries - the sequence describing parameters of a support of each
- *         part of \a this field. Each item of this sequence consists of two parts. The
- *         first part describes a type of mesh entity and an id of discretization of a
- *         current field part. The second part describes a range of values [begin,end)
- *         within the returned array relating to the current field part.
- *  \return DataArrayDouble * - the pointer to the field values array.
- *  \throw If the number of underlying meshes is not equal to 1.
- *  \throw If no field values are available.
- *  \sa getUndergroundDataArray()
- */
 DataArray *MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
 {
-  return getUndergroundDataArrayDoubleExt(entries);
+  return getUndergroundDataArrayTemplateExt(entries);
 }
 
 MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos):MEDFileField1TSTemplateWithoutSDA<double>(fieldName,meshName,csit,iteration,order)
@@ -6865,17 +6839,6 @@ void MEDFileField1TS::SetDataArrayDoubleInField(MEDCouplingFieldDouble *f, MCAut
   f->setArray(arrOutC);
 }
 
-DataArrayDouble *MEDFileField1TS::ReturnSafelyDataArrayDouble(MCAuto<DataArray>& arr)
-{
-  if(arr.isNull())
-    throw INTERP_KERNEL::Exception("MEDFileField1TS::ReturnSafelyDataArrayDouble : no array !");
-  DataArrayDouble *arrOutC(dynamic_cast<DataArrayDouble *>((DataArray*)arr));
-  if(!arrOutC)
-    throw INTERP_KERNEL::Exception("MEDFileField1TS::ReturnSafelyDataArrayDouble : mismatch between dataArrays type and MEDFileField1TS ! Expected double !");
-  arrOutC->incrRef();
-  return arrOutC;
-}
-
 /*!
  * Return an extraction of \a this using \a extractDef map to specify the extraction.
  * The keys of \a extractDef is level relative to max ext of \a mm mesh.
@@ -7138,28 +7101,6 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevelOld(TypeOfField type, co
 }
 
 /*!
- * Returns values and a profile of the field of a given type lying on a given support.
- * For more info, see \ref AdvMEDLoaderAPIFieldRW
- *  \param [in] type - a spatial discretization of the field.
- *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
- *  \param [in] mesh - the supporting mesh.
- *  \param [out] pfl - a new instance of DataArrayInt holding ids of mesh entities the
- *          field of interest lies on. If the field lies on all entities of the given
- *          dimension, all ids in \a pfl are zero. The caller is to delete this array
- *          using decrRef() as it is no more needed.  
- *  \return DataArrayDouble * - a new instance of DataArrayDouble holding values of the
- *          field. The caller is to delete this array using decrRef() as it is no more needed.
- *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
- *  \throw If no field of \a this is lying on \a mesh.
- *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
- */
-DataArrayDouble *MEDFileField1TS::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const
-{
-  MCAuto<DataArray> ret=contentNotNull()->getFieldWithProfile(type,meshDimRelToMax,mesh,pfl,this,*contentNotNull());
-  return MEDFileField1TS::ReturnSafelyDataArrayDouble(ret);
-}
-
-/*!
  * Adds a MEDCouplingFieldDouble to \a this. The underlying mesh of the given field is
  * checked if its elements are sorted suitable for writing to MED file ("STB" stands for
  * "Sort By Type"), if not, an exception is thrown. 
@@ -7209,16 +7150,6 @@ void MEDFileField1TS::setFieldProfile(const MEDCouplingFieldDouble *field, const
 MEDFileField1TS *MEDFileField1TS::shallowCpy() const
 {
   return new MEDFileField1TS(*this);
-}
-
-DataArrayDouble *MEDFileField1TS::getUndergroundDataArray() const
-{
-  return contentNotNull()->getUndergroundDataArrayTemplate();
-}
-
-DataArrayDouble *MEDFileField1TS::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
-{
-  return contentNotNull()->getUndergroundDataArrayDoubleExt(entries);
 }
 
 std::vector< std::vector<DataArrayDouble *> > MEDFileField1TS::getFieldSplitedByType2(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
@@ -7341,17 +7272,6 @@ void MEDFileIntField1TS::setFieldProfile(const MEDCouplingFieldInt *field, const
   MCAuto<MEDCouplingFieldDouble> field2(ConvertFieldIntToFieldDouble(field));
   setFileName("");
   contentNotNull()->setFieldProfile(field2,field->getArray(),mesh,meshDimRelToMax,profile,*this,*contentNotNull());
-}
-
-DataArrayInt *MEDFileIntField1TS::ReturnSafelyDataArrayInt(MCAuto<DataArray>& arr)
-{
-  if(arr.isNull())
-    throw INTERP_KERNEL::Exception("MEDFileIntField1TS::ReturnSafelyDataArrayInt : input DataArray is NULL !");
-  DataArrayInt *arrC(dynamic_cast<DataArrayInt *>((DataArray *)arr));
-  if(!arrC)
-    throw INTERP_KERNEL::Exception("MEDFileIntField1TS::ReturnSafelyDataArrayInt : input DataArray is not of type INT32 !");
-  arrC->incrRef();
-  return arrC;
 }
 
 MEDCouplingFieldInt *MEDFileIntField1TS::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol) const
@@ -7534,32 +7454,30 @@ MEDCouplingFieldInt *MEDFileIntField1TS::getFieldAtLevelOld(TypeOfField type, co
   return ret2.retn();
 }
 
-/*!
- * Returns values and a profile of the field of a given type lying on a given support.
- * For more info, see \ref AdvMEDLoaderAPIFieldRW
- *  \param [in] type - a spatial discretization of the field.
- *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
- *  \param [in] mesh - the supporting mesh.
- *  \param [out] pfl - a new instance of DataArrayInt holding ids of mesh entities the
- *          field of interest lies on. If the field lies on all entities of the given
- *          dimension, all ids in \a pfl are zero. The caller is to delete this array
- *          using decrRef() as it is no more needed.  
- *  \return DataArrayInt * - a new instance of DataArrayInt holding values of the
- *          field. The caller is to delete this array using decrRef() as it is no more needed.
- *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
- *  \throw If no field of \a this is lying on \a mesh.
- *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
- */
-DataArrayInt *MEDFileIntField1TS::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const
-{
-  MCAuto<DataArray> arr=contentNotNull()->getFieldWithProfile(type,meshDimRelToMax,mesh,pfl,this,*contentNotNull());
-  return MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
-}
+//= MEDFileFloatField1TS
 
-DataArrayInt *MEDFileIntField1TS::getUndergroundDataArray() const
+MEDFileFloatField1TS::MEDFileFloatField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileTemplateField1TS<float>(fid,loadAll,ms)
 {
-  return contentNotNull()->getUndergroundDataArrayTemplate();
 }
+catch(INTERP_KERNEL::Exception& e)
+{ throw e; }
+
+MEDFileFloatField1TS::MEDFileFloatField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileTemplateField1TS<float>(fid,fieldName,loadAll,ms)
+{
+}
+catch(INTERP_KERNEL::Exception& e)
+{ throw e; }
+
+MEDFileFloatField1TS::MEDFileFloatField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms)
+try:MEDFileTemplateField1TS<float>(fid,fieldName,iteration,order,loadAll,ms)
+{
+}
+catch(INTERP_KERNEL::Exception& e)
+{ throw e; }
+
+//= MEDFileFloatField1TS
 
 //= MEDFileAnyTypeFieldMultiTSWithoutSDA
 
@@ -10024,7 +9942,7 @@ DataArrayDouble *MEDFileFieldMultiTS::getFieldWithProfile(TypeOfField type, int 
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::getFieldWithProfile : mismatch of type of field !");
   MCAuto<DataArray> ret=myF1TSC->getFieldWithProfile(type,meshDimRelToMax,mesh,pfl,this,*contentNotNullBase());
-  return MEDFileField1TS::ReturnSafelyDataArrayDouble(ret);
+  return MEDFileField1TS::ReturnSafelyTypedDataArray(ret);
 }
 
 const MEDFileFieldMultiTSWithoutSDA *MEDFileFieldMultiTS::contentNotNull() const
@@ -10495,7 +10413,7 @@ DataArrayInt *MEDFileIntFieldMultiTS::getFieldWithProfile(TypeOfField type, int 
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::getFieldWithProfile : mismatch of type of field ! INT32 expected !");
   MCAuto<DataArray> ret=myF1TSC->getFieldWithProfile(type,meshDimRelToMax,mesh,pfl,this,*contentNotNullBase());
-  return MEDFileIntField1TS::ReturnSafelyDataArrayInt(ret);
+  return MEDFileIntField1TS::ReturnSafelyTypedDataArray(ret);
 }
 
 /*!
