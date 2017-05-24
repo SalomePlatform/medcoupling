@@ -301,12 +301,12 @@ namespace INTERP_KERNEL
     for(int k=0;k<n-1;k++)
       {
         //  Find L=pivot index.
-        l=idamax(n-k-1,a+k+k*lda,1)+k;
+        l=idamax(n-k,a+k+k*lda,1)+k;
         ipvt[k]=l;
         // Zero pivot implies this column already triangularized.
         if(a[l+k*lda]==0.0)
           {
-            info=k+1;
+            info=k;
             continue;
           }
         //Interchange if necessary.
@@ -323,7 +323,7 @@ namespace INTERP_KERNEL
         for(int j=k+1;j<n;j++)
           {
             t=a[l+j*lda];
-            if(l!=k-1)
+            if(l!=k)
               {
                 a[l+j*lda]=a[k+j*lda];
                 a[k+j*lda]=t;

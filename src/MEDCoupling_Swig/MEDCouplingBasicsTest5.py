@@ -4664,6 +4664,17 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         d=DataArrayInt([3,4,3])
         self.assertRaises(InterpKernelException,d.checkUniformAndGuess)# non uniform
         pass
+
+    def testUMComputePlaneEquationOf3DFaces1(self):
+        """ Consequence of an invalid traduction of matrix inversion transposition."""
+        m=MEDCoupling1SGTUMesh("msh",NORM_QUAD4)
+        m.setCoords(DataArrayDouble([(0,0,0),(1,0,0),(2,0,0),(0,2,0),(1,2,0),(2,2,0),(0,4,0),(1,4,0),(2,4,0),(0,0,3),(1,0,3),(2,0,3),(0,2,3),(1,2,3),(2,2,3),(0,4,3),(1,4,3),(2,4,3)]))
+        m.setNodalConnectivity(DataArrayInt([0,1,4,3,9,12,13,10,0,9,10,1,1,10,13,4,4,13,12,3,3,12,9,0,1,2,5,4,10,13,14,11,1,10,11,2,2,11,14,5,5,14,13,4,3,4,7,6,12,15,16,13,4,13,16,7,7,16,15,6,6,15,12,3,4,5,8,7,13,16,17,14,5,14,17,8,8,17,16,7]))
+        m=m.buildUnstructured()
+        ref=DataArrayDouble([(0,0,1,0),(0,0,1,-3),(0,1,0,0),(1,0,0,-1),(0,1,0,-2),(1,0,0,0),(0,0,1,0),(0,0,1,-3),(0,1,0,0),(1,0,0,-2),(0,1,0,-2),(0,0,1,0),(0,0,1,-3),(1,0,0,-1),(0,1,0,-4),(1,0,0,0),(0,0,1,0),(0,0,1,-3),(1,0,0,-2),(0,1,0,-4)])
+        res=m.computePlaneEquationOf3DFaces()
+        self.assertTrue(res.isEqual(ref,1e-12))
+        pass
     
     pass
 
