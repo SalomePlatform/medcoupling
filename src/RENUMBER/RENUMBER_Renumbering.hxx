@@ -19,7 +19,10 @@
 
 #ifndef RENUMBERING_HXX_
 #define RENUMBERING_HXX_
+
 #include "RENUMBERDefines.hxx"
+#include "MCType.hxx"
+
 #include <vector>
 
 namespace MEDCoupling

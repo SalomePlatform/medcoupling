@@ -22,6 +22,7 @@
 #define __PARAMEDMEM_MEDCOUPLINGMESH_HXX__
 
 #include "MEDCoupling.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"

@@ -39,3 +39,9 @@ const char Traits<int>::ArrayTypeName[]="DataArrayInt";
 const char Traits<int>::FieldTypeName[]="MEDCouplingFieldInt";
 
 const char Traits<char>::ArrayTypeName[]="DataArrayChar";
+
+const char Traits<Int64>::ArrayTypeName[]="DataArrayInt64";
+
+const char Traits<Int64>::FieldTypeName[]="MEDCouplingFieldInt64";
+
+const char Traits<Int64>::NPYStr[]="INT64";

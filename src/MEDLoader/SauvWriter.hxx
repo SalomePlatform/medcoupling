@@ -28,6 +28,7 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "SauvUtilities.hxx"
 #include "MCAuto.hxx"
+#include "MCType.hxx"
 
 #include <vector>
 #include <string>

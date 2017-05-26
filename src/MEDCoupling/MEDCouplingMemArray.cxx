@@ -808,18 +808,6 @@ DataArrayDouble *DataArrayDouble::deepCopy() const
 }
 
 /*!
- * Returns either a \a deep or \a shallow copy of this array. For more info see
- * \ref MEDCouplingArrayBasicsCopyDeep and \ref MEDCouplingArrayBasicsCopyShallow.
- *  \param [in] dCpy - if \a true, a deep copy is returned, else, a shallow one.
- *  \return DataArrayDouble * - either a new instance of DataArrayDouble (if \a dCpy
- *          == \a true) or \a this instance (if \a dCpy == \a false).
- */
-DataArrayDouble *DataArrayDouble::performCopyOrIncrRef(bool dCpy) const
-{
-  return DataArrayTemplateClassic<double>::PerformCopyOrIncrRef(dCpy,*this);
-}
-
-/*!
  * Assign zero to all values in \a this array. To know more on filling arrays see
  * \ref MEDCouplingArrayFill.
  * \throw If \a this is not allocated.
@@ -3755,18 +3743,6 @@ int DataArrayInt::getHashCode() const
 DataArrayInt *DataArrayInt::deepCopy() const
 {
   return new DataArrayInt(*this);
-}
-
-/*!
- * Returns either a \a deep or \a shallow copy of this array. For more info see
- * \ref MEDCouplingArrayBasicsCopyDeep and \ref MEDCouplingArrayBasicsCopyShallow.
- *  \param [in] dCpy - if \a true, a deep copy is returned, else, a shallow one.
- *  \return DataArrayInt * - either a new instance of DataArrayInt (if \a dCpy
- *          == \a true) or \a this instance (if \a dCpy == \a false).
- */
-DataArrayInt *DataArrayInt::performCopyOrIncrRef(bool dCpy) const
-{
-  return DataArrayTemplateClassic<int>::PerformCopyOrIncrRef(dCpy,*this);
 }
 
 /*!
@@ -7292,7 +7268,7 @@ DataArrayIntIterator::DataArrayIntIterator(DataArrayInt *da):DataArrayIterator<i
 {
 }
 
-DataArrayIntTuple::DataArrayIntTuple(int *pt, int nbOfComp):DataArrayTuple<int>(pt,nbOfComp)
+DataArrayInt32Tuple::DataArrayInt32Tuple(int *pt, int nbOfComp):DataArrayTuple<int>(pt,nbOfComp)
 {
 }
 

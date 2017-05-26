@@ -3191,6 +3191,20 @@ struct NotInRange
     newArr->copyStringInfoFrom(*this);
     return newArr.retn();
   }
+
+  /*!
+   * Returns either a \a deep or \a shallow copy of this array. For more info see
+   * \ref MEDCouplingArrayBasicsCopyDeep and \ref MEDCouplingArrayBasicsCopyShallow.
+   *  \param [in] dCpy - if \a true, a deep copy is returned, else, a shallow one.
+   *  \return DataArrayDouble * - either a new instance of DataArrayDouble (if \a dCpy
+   *          == \a true) or \a this instance (if \a dCpy == \a false).
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::performCopyOrIncrRef(bool dCpy) const
+  {
+    const typename Traits<T>::ArrayType *thisC(static_cast<const typename Traits<T>::ArrayType *>(this));
+    return DataArrayTemplateClassic<T>::PerformCopyOrIncrRef(dCpy,*thisC);
+  }
   
   /*!
    * Checks if all values in \a this array are equal to \a val at precision \a eps.

@@ -28,6 +28,7 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "SauvUtilities.hxx"
+#include "MCType.hxx"
 
 #include <vector>
 #include <set>

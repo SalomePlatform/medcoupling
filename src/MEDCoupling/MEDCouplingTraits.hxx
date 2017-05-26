@@ -22,6 +22,7 @@
 #define __MEDCOUPLINGTRAITS_HXX__
 
 #include "MEDCoupling.hxx"
+#include "MCType.hxx"
 
 namespace MEDCoupling
 {
@@ -31,15 +32,16 @@ namespace MEDCoupling
     typedef T EltType;
   };
 
-  class DataArrayInt;
+  class DataArrayInt32;
   class DataArrayFloat;
   class DataArrayDouble;
   class DataArrayChar;
   class DataArrayByte;
+  class DataArrayInt64;
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldFloat;
   class MEDCouplingFieldInt;
-  class DataArrayIntTuple;
+  class DataArrayInt32Tuple;
   class DataArrayFloatTuple;
   class DataArrayDoubleTuple;
   
@@ -68,14 +70,26 @@ namespace MEDCoupling
   };
   
   template<>
-  struct MEDCOUPLING_EXPORT Traits<int>
+  struct MEDCOUPLING_EXPORT Traits<Int32>
   {
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
-    typedef DataArrayInt ArrayType;
-    typedef DataArrayInt ArrayTypeCh;
+    typedef DataArrayInt32 ArrayType;
+    typedef DataArrayInt32 ArrayTypeCh;
     typedef MEDCouplingFieldInt FieldType;
-    typedef DataArrayIntTuple ArrayTuple;
+    typedef DataArrayInt32Tuple ArrayTuple;
+  };
+
+  template<>
+  struct MEDCOUPLING_EXPORT Traits<Int64>
+  {
+    static const char ArrayTypeName[];
+    static const char FieldTypeName[];
+    static const char NPYStr[];
+    typedef DataArrayInt64 ArrayType;
+    typedef DataArrayInt64 ArrayTypeCh;
+    //typedef MEDCouplingFieldInt64 FieldType;
+    //typedef DataArrayInt64Tuple ArrayTuple;
   };
 
   template<>

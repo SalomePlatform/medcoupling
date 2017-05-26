@@ -25,6 +25,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "MCAuto.hxx"
+#include "MCType.hxx"
 
 #include "BoxSplittingOptions.hxx"
 #include "InterpKernelException.hxx"

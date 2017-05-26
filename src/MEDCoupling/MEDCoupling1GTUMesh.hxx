@@ -22,6 +22,7 @@
 #define __PARAMEDMEM_MEDCOUPLING1GTUMESH_HXX__
 
 #include "MEDCoupling.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
