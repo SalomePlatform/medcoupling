@@ -3084,7 +3084,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(not ff0.getUndergroundDataArray().isAllocated())
         self.assertEqual(ff0.getUndergroundDataArray().getInfoOnComponents(),['X [km]','YY [mm]'])
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref, list(range(182, 465 + 2 * strMulFac)))
+        self.assertIn(heap_memory_ref, list(range(182, 540 + 2 * strMulFac)))
         ff0.loadArrays() ##
         arr=DataArrayDouble(140) ; arr.iota() ; arr.rearrange(2)
         self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
@@ -3093,7 +3093,7 @@ class MEDLoaderTest3(unittest.TestCase):
         ff0=MEDFileField1TS(fname,"FieldCellPfl",False)
         self.assertEqual(ff0.getUndergroundDataArray().getInfoOnComponents(),["XX [pm]","YYY [hm]"])
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref, list(range(350, 520 + 6 * strMulFac)))
+        self.assertIn(heap_memory_ref, list(range(350, 600 + 6 * strMulFac)))
         ff0.loadArrays() ##
         arr=DataArrayDouble(100) ; arr.iota() ; arr.rearrange(2)
         self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
@@ -3111,7 +3111,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(ff0.getUndergroundDataArray().getIJ(30,1),5.5)
         self.assertTrue(not ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref, list(range(1100, 1384 + 2 * strMulFac)))
+        self.assertIn(heap_memory_ref, list(range(1100, 1400 + 2 * strMulFac)))
         ff0.unloadArrays()
         hmd=ff0.getHeapMemorySize()-heap_memory_ref
         self.assertEqual(hmd,-800) # -50*8*2
@@ -3120,7 +3120,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         ff0=MEDFileField1TS(fname,"FieldCellPfl",-1,-1,False)
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref, list(range(299, 520 + 6 * strMulFac)))
+        self.assertIn(heap_memory_ref, list(range(299, 620 + 6 * strMulFac)))
         ff0.loadArrays() ##
         self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
         self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,50*8*2)
@@ -3137,14 +3137,14 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         ff0=MEDFileAnyTypeFieldMultiTS.New(fname,fieldName,False)
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref, list(range(5536, 8212 + (80 + 26 + 1) * strMulFac)))
+        self.assertIn(heap_memory_ref, list(range(5536, 9212 + (80 + 26 + 1) * strMulFac)))
         ff0.loadArrays()
         self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,20*70*8*2)
         del ff0
         #
         ffs=MEDFileFields(fname,False)
         heap_memory_ref=ffs.getHeapMemorySize()
-        self.assertIn(heap_memory_ref, list(range(5335, 9031 + (80 + 50 + len(ffs)) * strMulFac)))
+        self.assertIn(heap_memory_ref, list(range(5335, 10031 + (80 + 50 + len(ffs)) * strMulFac)))
         ffs.loadArrays()
         self.assertEqual(ffs.getHeapMemorySize()-heap_memory_ref,20*70*8*2+70*8*2+50*8*2)
         pass
@@ -4678,7 +4678,9 @@ class MEDLoaderTest3(unittest.TestCase):
             def __del__(self):
                 import os,sys
                 sys.stderr=self.origPyVal
-                self.fdOfSinkFile.close()
+                if sys.version_info.major >= 3:
+                    self.fdOfSinkFile.close()
+                    pass
                 #os.fsync(self.fdOfSinkFile)
                 os.fsync(2)
                 os.dup2(self.stdoutOld,2)
@@ -4732,7 +4734,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mm=MEDFileCMesh(fname)
         self.assertTrue(mm.getUnivName()!="")
         pass
-
+    
     def testEmptyMesh(self):
       """ MEDLoader should be able to consistently write and read an empty mesh (coords array
       with 0 tuples """
