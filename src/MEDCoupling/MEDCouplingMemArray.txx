@@ -3307,7 +3307,23 @@ struct NotInRange
     b->sort();
     return a->isEqualWithoutConsideringStr(*b);
   }
-
+  
+  template<class T>
+  template<class ALG>
+  void DataArrayDiscrete<T>::switchOnTupleAlg(T val, std::vector<bool>& vec, ALG algo) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleEqualTo : number of components of this should be equal to one !");
+    int nbOfTuples(this->getNumberOfTuples());
+    if(nbOfTuples!=(int)vec.size())
+      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleEqualTo : number of tuples of this should be equal to size of input vector of bool !");
+    const T *pt(this->begin());
+    for(int i=0;i<nbOfTuples;i++)
+      if(algo(pt[i],val))
+        vec[i]=true;
+  }
+  
   /*!
    * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple equal to \a val
    * put True to the corresponding entry in \a vec.
@@ -3318,16 +3334,7 @@ struct NotInRange
   template<class T>
   void DataArrayDiscrete<T>::switchOnTupleEqualTo(T val, std::vector<bool>& vec) const
   {
-    this->checkAllocated();
-    if(this->getNumberOfComponents()!=1)
-      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleEqualTo : number of components of this should be equal to one !");
-    int nbOfTuples(this->getNumberOfTuples());
-    if(nbOfTuples!=(int)vec.size())
-      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleEqualTo : number of tuples of this should be equal to size of input vector of bool !");
-    const T *pt(this->begin());
-    for(int i=0;i<nbOfTuples;i++)
-      if(pt[i]==val)
-        vec[i]=true;
+    switchOnTupleAlg(val,vec,std::equal_to<T>());
   }
 
   /*!
@@ -3340,16 +3347,7 @@ struct NotInRange
   template<class T>
   void DataArrayDiscrete<T>::switchOnTupleNotEqualTo(T val, std::vector<bool>& vec) const
   {
-    this->checkAllocated();
-    if(this->getNumberOfComponents()!=1)
-      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleNotEqualTo : number of components of this should be equal to one !");
-    int nbOfTuples(this->getNumberOfTuples());
-    if(nbOfTuples!=(int)vec.size())
-      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleNotEqualTo : number of tuples of this should be equal to size of input vector of bool !");
-    const T *pt(this->begin());
-    for(int i=0;i<nbOfTuples;i++)
-      if(pt[i]!=val)
-        vec[i]=true;
+    switchOnTupleAlg(val,vec,std::not_equal_to<T>());
   }
 
   /*!

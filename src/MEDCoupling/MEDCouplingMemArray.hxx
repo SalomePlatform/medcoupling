@@ -531,6 +531,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void switchOnTupleEqualTo(T val, std::vector<bool>& vec) const;
     MEDCOUPLING_EXPORT void switchOnTupleNotEqualTo(T val, std::vector<bool>& vec) const;
   protected:
+    template<class ALG>
+    void switchOnTupleAlg(T val, std::vector<bool>& vec, ALG algo) const;
+  protected:
     ~DataArrayDiscrete() { }
   };
   
