@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #ifndef __MEDCOUPLING_MEDCOUPLINGMEMARRAY_HXX__
 #define __MEDCOUPLING_MEDCOUPLINGMEMARRAY_HXX__
@@ -520,23 +520,39 @@ namespace MEDCoupling
     DataArrayDouble() { }
   };
 
+  template<class T>
+  class DataArrayDiscrete : public DataArrayTemplateClassic<T>
+  {
+  public:
+    MEDCOUPLING_EXPORT bool isEqual(const DataArrayDiscrete<T>& other) const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayDiscrete<T>& other, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayDiscrete<T>& other) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const typename Traits<T>::ArrayType& other) const;
+    MEDCOUPLING_EXPORT void switchOnTupleEqualTo(T val, std::vector<bool>& vec) const;
+    MEDCOUPLING_EXPORT void switchOnTupleNotEqualTo(T val, std::vector<bool>& vec) const;
+  protected:
+    ~DataArrayDiscrete() { }
+  };
+  
+  template<class T>
+  class DataArrayDiscreteSigned : public DataArrayDiscrete<T>
+  {
+  public:
+    MEDCOUPLING_EXPORT bool isFittingWith(const std::vector<bool>& v) const;
+  protected:
+    ~DataArrayDiscreteSigned() { }
+  };
+
   class DataArrayInt32Iterator;
 
-  class DataArrayInt32 : public DataArrayTemplateClassic<Int32>
+  class DataArrayInt32 : public DataArrayDiscreteSigned<Int32>
   {
   public:
     MEDCOUPLING_EXPORT static DataArrayInt32 *New();
     MEDCOUPLING_EXPORT int intValue() const;
     MEDCOUPLING_EXPORT int getHashCode() const;
-    MEDCOUPLING_EXPORT DataArrayInt32 *deepCopy() const;
-    MEDCOUPLING_EXPORT DataArrayInt32 *buildNewEmptyInstance() const { return DataArrayInt32::New(); }
-    MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt32& other) const;
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayInt32& other, std::string& reason) const;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt32& other) const;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt32& other) const;
-    MEDCOUPLING_EXPORT bool isFittingWith(const std::vector<bool>& v) const;
-    MEDCOUPLING_EXPORT void switchOnTupleEqualTo(int val, std::vector<bool>& vec) const;
-    MEDCOUPLING_EXPORT void switchOnTupleNotEqualTo(int val, std::vector<bool>& vec) const;
+    MEDCOUPLING_EXPORT DataArrayInt32 *deepCopy() const;//ok
+    MEDCOUPLING_EXPORT DataArrayInt32 *buildNewEmptyInstance() const { return DataArrayInt32::New(); }//ok
     MEDCOUPLING_EXPORT DataArrayInt32 *buildPermutationArr(const DataArrayInt32& other) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *indicesOfSubPart(const DataArrayInt32& partOfThis) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *sumPerTuple() const;
@@ -661,7 +677,7 @@ namespace MEDCoupling
     DataArrayInt32() { }
   };
 
-  class DataArrayInt64 : public DataArrayTemplateClassic<Int64>
+  class DataArrayInt64 : public DataArrayDiscrete<Int64>
   {
   };
   

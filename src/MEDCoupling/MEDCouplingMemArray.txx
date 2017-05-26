@@ -3249,6 +3249,155 @@ struct NotInRange
       ptr[i]=init+T(i);
     this->declareAsNew();
   }
+
+  /*!
+   * Equivalent to DataArrayInt::isEqual except that if false the reason of
+   * mismatch is given.
+   * 
+   * \param [in] other the instance to be compared with \a this
+   * \param [out] reason In case of inequality returns the reason.
+   * \sa DataArrayInt::isEqual
+   */
+  template<class T>
+  bool DataArrayDiscrete<T>::isEqualIfNotWhy(const DataArrayDiscrete<T>& other, std::string& reason) const
+  {
+    if(!this->areInfoEqualsIfNotWhy(other,reason))
+      return false;
+    return this->_mem.isEqual(other._mem,0,reason);
+  }
+
+  /*!
+   * Checks if \a this and another DataArrayInt are fully equal. For more info see
+   * \ref MEDCouplingArrayBasicsCompare.
+   *  \param [in] other - an instance of DataArrayInt to compare with \a this one.
+   *  \return bool - \a true if the two arrays are equal, \a false else.
+   */
+  template<class T>
+  bool DataArrayDiscrete<T>::isEqual(const DataArrayDiscrete<T>& other) const
+  {
+    std::string tmp;
+    return isEqualIfNotWhy(other,tmp);
+  }
+
+  /*!
+   * Checks if values of \a this and another DataArrayInt are equal. For more info see
+   * \ref MEDCouplingArrayBasicsCompare.
+   *  \param [in] other - an instance of DataArrayInt to compare with \a this one.
+   *  \return bool - \a true if the values of two arrays are equal, \a false else.
+   */
+  template<class T>
+  bool DataArrayDiscrete<T>::isEqualWithoutConsideringStr(const DataArrayDiscrete<T>& other) const
+  {
+    std::string tmp;
+    return this->_mem.isEqual(other._mem,0,tmp);
+  }
+
+  /*!
+   * Checks if values of \a this and another DataArrayInt are equal. Comparison is
+   * performed on sorted value sequences.
+   * For more info see\ref MEDCouplingArrayBasicsCompare.
+   *  \param [in] other - an instance of DataArrayInt to compare with \a this one.
+   *  \return bool - \a true if the sorted values of two arrays are equal, \a false else.
+   */
+  template<class T>
+  bool DataArrayDiscrete<T>::isEqualWithoutConsideringStrAndOrder(const typename Traits<T>::ArrayType& other) const
+  {
+    MCAuto<DataArrayInt> a(static_cast<const typename Traits<T>::ArrayType *>(this)->deepCopy()),b(other.deepCopy());
+    a->sort();
+    b->sort();
+    return a->isEqualWithoutConsideringStr(*b);
+  }
+
+  /*!
+   * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple equal to \a val
+   * put True to the corresponding entry in \a vec.
+   * \a vec is expected to be with the same size than the number of tuples of \a this.
+   *
+   *  \sa DataArrayInt::switchOnTupleNotEqualTo.
+   */
+  template<class T>
+  void DataArrayDiscrete<T>::switchOnTupleEqualTo(T val, std::vector<bool>& vec) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleEqualTo : number of components of this should be equal to one !");
+    int nbOfTuples(this->getNumberOfTuples());
+    if(nbOfTuples!=(int)vec.size())
+      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleEqualTo : number of tuples of this should be equal to size of input vector of bool !");
+    const T *pt(this->begin());
+    for(int i=0;i<nbOfTuples;i++)
+      if(pt[i]==val)
+        vec[i]=true;
+  }
+
+  /*!
+   * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple different from \a val
+   * put True to the corresponding entry in \a vec.
+   * \a vec is expected to be with the same size than the number of tuples of \a this.
+   * 
+   *  \sa DataArrayInt::switchOnTupleEqualTo.
+   */
+  template<class T>
+  void DataArrayDiscrete<T>::switchOnTupleNotEqualTo(T val, std::vector<bool>& vec) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleNotEqualTo : number of components of this should be equal to one !");
+    int nbOfTuples(this->getNumberOfTuples());
+    if(nbOfTuples!=(int)vec.size())
+      throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleNotEqualTo : number of tuples of this should be equal to size of input vector of bool !");
+    const T *pt(this->begin());
+    for(int i=0;i<nbOfTuples;i++)
+      if(pt[i]!=val)
+        vec[i]=true;
+  }
+
+  /*!
+   * This method compares content of input vector \a v and \a this.
+   * If for each id in \a this v[id]==True and for all other ids id2 not in \a this v[id2]==False, true is returned.
+   * For performance reasons \a this is expected to be sorted ascendingly. If not an exception will be thrown.
+   *
+   * \param [in] v - the vector of 'flags' to be compared with \a this.
+   *
+   * \throw If \a this is not sorted ascendingly.
+   * \throw If \a this has not exactly one component.
+   * \throw If \a this is not allocated.
+   */
+  template<class T>
+  bool DataArrayDiscreteSigned<T>::isFittingWith(const std::vector<bool>& v) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::isFittingWith : number of components of this should be equal to one !");
+    const T *w(this->begin()),*end2(this->end());
+    T refVal=-std::numeric_limits<T>::max();
+    int i=0;
+    std::vector<bool>::const_iterator it(v.begin());
+    for(;it!=v.end();it++,i++)
+      {
+        if(*it)
+          {
+            if(w!=end2)
+              {
+                if(*w++==i)
+                  {
+                    if(i>refVal)
+                      refVal=i;
+                    else
+                      {
+                        std::ostringstream oss; oss << "DataArrayInt::isFittingWith : At pos #" << std::distance(this->begin(),w-1) << " this is not sorted ascendingly !";
+                        throw INTERP_KERNEL::Exception(oss.str().c_str());
+                      }
+                  }
+                else
+                  return false;
+              }
+            else
+              return false;
+          }
+      }
+    return w==end2;
+  }
 }
 
 #endif

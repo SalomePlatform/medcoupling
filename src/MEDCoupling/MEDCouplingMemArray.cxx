@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingMemArray.txx"
 
@@ -45,6 +45,8 @@ template class MEDCoupling::DataArrayTemplateClassic<double>;
 template class MEDCoupling::DataArrayTemplateFP<double>;
 template class MEDCoupling::DataArrayIterator<double>;
 template class MEDCoupling::DataArrayIterator<int>;
+template class MEDCoupling::DataArrayDiscrete<Int32>;
+template class MEDCoupling::DataArrayDiscreteSigned<Int32>;
 
 template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const
@@ -3740,9 +3742,9 @@ int DataArrayInt::getHashCode() const
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayInt * - a new instance of DataArrayInt.
  */
-DataArrayInt *DataArrayInt::deepCopy() const
+DataArrayInt32 *DataArrayInt32::deepCopy() const
 {
-  return new DataArrayInt(*this);
+  return new DataArrayInt32(*this);
 }
 
 /*!
@@ -4345,149 +4347,6 @@ MCAuto< MapKeyVal<int> > DataArrayInt::invertArrayN2O2O2NOptimized() const
       m[v]=i;
     }
   return ret;
-}
-
-/*!
- * Equivalent to DataArrayInt::isEqual except that if false the reason of
- * mismatch is given.
- * 
- * \param [in] other the instance to be compared with \a this
- * \param [out] reason In case of inequality returns the reason.
- * \sa DataArrayInt::isEqual
- */
-bool DataArrayInt::isEqualIfNotWhy(const DataArrayInt& other, std::string& reason) const
-{
-  if(!areInfoEqualsIfNotWhy(other,reason))
-    return false;
-  return _mem.isEqual(other._mem,0,reason);
-}
-
-/*!
- * Checks if \a this and another DataArrayInt are fully equal. For more info see
- * \ref MEDCouplingArrayBasicsCompare.
- *  \param [in] other - an instance of DataArrayInt to compare with \a this one.
- *  \return bool - \a true if the two arrays are equal, \a false else.
- */
-bool DataArrayInt::isEqual(const DataArrayInt& other) const
-{
-  std::string tmp;
-  return isEqualIfNotWhy(other,tmp);
-}
-
-/*!
- * Checks if values of \a this and another DataArrayInt are equal. For more info see
- * \ref MEDCouplingArrayBasicsCompare.
- *  \param [in] other - an instance of DataArrayInt to compare with \a this one.
- *  \return bool - \a true if the values of two arrays are equal, \a false else.
- */
-bool DataArrayInt::isEqualWithoutConsideringStr(const DataArrayInt& other) const
-{
-  std::string tmp;
-  return _mem.isEqual(other._mem,0,tmp);
-}
-
-/*!
- * Checks if values of \a this and another DataArrayInt are equal. Comparison is
- * performed on sorted value sequences.
- * For more info see\ref MEDCouplingArrayBasicsCompare.
- *  \param [in] other - an instance of DataArrayInt to compare with \a this one.
- *  \return bool - \a true if the sorted values of two arrays are equal, \a false else.
- */
-bool DataArrayInt::isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const
-{
-  MCAuto<DataArrayInt> a=deepCopy();
-  MCAuto<DataArrayInt> b=other.deepCopy();
-  a->sort();
-  b->sort();
-  return a->isEqualWithoutConsideringStr(*b);
-}
-
-/*!
- * This method compares content of input vector \a v and \a this.
- * If for each id in \a this v[id]==True and for all other ids id2 not in \a this v[id2]==False, true is returned.
- * For performance reasons \a this is expected to be sorted ascendingly. If not an exception will be thrown.
- *
- * \param [in] v - the vector of 'flags' to be compared with \a this.
- *
- * \throw If \a this is not sorted ascendingly.
- * \throw If \a this has not exactly one component.
- * \throw If \a this is not allocated.
- */
-bool DataArrayInt::isFittingWith(const std::vector<bool>& v) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::isFittingWith : number of components of this should be equal to one !");
-  const int *w(begin()),*end2(end());
-  int refVal=-std::numeric_limits<int>::max();
-  int i=0;
-  std::vector<bool>::const_iterator it(v.begin());
-  for(;it!=v.end();it++,i++)
-    {
-      if(*it)
-        {
-          if(w!=end2)
-            {
-              if(*w++==i)
-                {
-                  if(i>refVal)
-                    refVal=i;
-                  else
-                    {
-                      std::ostringstream oss; oss << "DataArrayInt::isFittingWith : At pos #" << std::distance(begin(),w-1) << " this is not sorted ascendingly !";
-                      throw INTERP_KERNEL::Exception(oss.str().c_str());
-                    }
-                }
-              else
-                return false;
-            }
-          else
-            return false;
-        }
-    }
-  return w==end2;
-}
-
-/*!
- * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple equal to \a val
- * put True to the corresponding entry in \a vec.
- * \a vec is expected to be with the same size than the number of tuples of \a this.
- *
- *  \sa DataArrayInt::switchOnTupleNotEqualTo.
- */
-void DataArrayInt::switchOnTupleEqualTo(int val, std::vector<bool>& vec) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleEqualTo : number of components of this should be equal to one !");
-  int nbOfTuples(getNumberOfTuples());
-  if(nbOfTuples!=(int)vec.size())
-    throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleEqualTo : number of tuples of this should be equal to size of input vector of bool !");
-  const int *pt(begin());
-  for(int i=0;i<nbOfTuples;i++)
-    if(pt[i]==val)
-      vec[i]=true;
-}
-
-/*!
- * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple different from \a val
- * put True to the corresponding entry in \a vec.
- * \a vec is expected to be with the same size than the number of tuples of \a this.
- * 
- *  \sa DataArrayInt::switchOnTupleEqualTo.
- */
-void DataArrayInt::switchOnTupleNotEqualTo(int val, std::vector<bool>& vec) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleNotEqualTo : number of components of this should be equal to one !");
-  int nbOfTuples(getNumberOfTuples());
-  if(nbOfTuples!=(int)vec.size())
-    throw INTERP_KERNEL::Exception("DataArrayInt::switchOnTupleNotEqualTo : number of tuples of this should be equal to size of input vector of bool !");
-  const int *pt(begin());
-  for(int i=0;i<nbOfTuples;i++)
-    if(pt[i]!=val)
-      vec[i]=true;
 }
 
 /*!
