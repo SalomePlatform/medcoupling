@@ -194,6 +194,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void changeOrientationOfCells();
     MEDCOUPLING_EXPORT void arePolyhedronsNotCorrectlyOriented(std::vector<int>& cells) const;
     MEDCOUPLING_EXPORT void orientCorrectlyPolyhedrons();
+    MEDCOUPLING_EXPORT void invertOrientationOfAllCells();
     MEDCOUPLING_EXPORT void getFastAveragePlaneOfThis(double *vec, double *pos) const;
     //Mesh quality
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getEdgeRatioField() const;

@@ -41,6 +41,7 @@
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "OrientationInverter.hxx"
 #include "MEDCouplingUMesh_internal.hxx"
 
 #include <sstream>
@@ -4850,6 +4851,27 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons()
               throw INTERP_KERNEL::Exception(oss.str());
           }
         }
+    }
+  updateTime();
+}
+
+/*!
+ * This method invert orientation of all cells in \a this. 
+ * After calling this method the absolute value of measure of cells in \a this are the same than before calling.
+ * This method only operates on the connectivity so coordinates are not touched at all.
+ */
+void MEDCouplingUMesh::invertOrientationOfAllCells()
+{
+  checkConnectivityFullyDefined();
+  std::set<INTERP_KERNEL::NormalizedCellType> gts(getAllGeoTypes());
+  int *conn(_nodal_connec->getPointer());
+  const int *conni(_nodal_connec_index->begin());
+  for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator gt=gts.begin();gt!=gts.end();gt++)
+    {
+      INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::OrientationInverter> oi(INTERP_KERNEL::OrientationInverter::BuildInstanceFrom(*gt));
+      MCAuto<DataArrayInt> cwt(giveCellsWithType(*gt));
+      for(const int *it=cwt->begin();it!=cwt->end();it++)
+        oi->operate(conn+conni[*it]+1,conn+conni[*it+1]);
     }
   updateTime();
 }

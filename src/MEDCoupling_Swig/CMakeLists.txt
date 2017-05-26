@@ -42,6 +42,7 @@ SET (MC_pyTestFiles
     MEDCouplingBasicsTest3.py
     MEDCouplingBasicsTest4.py
     MEDCouplingBasicsTest5.py
+    MEDCouplingBasicsTest6.py
     MEDCouplingIntersectTest.py
     MEDCouplingRemapperTest.py
     MEDCouplingDataForTest.py
@@ -136,6 +137,8 @@ ADD_TEST(MEDCouplingBasicsTest4 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}
 SET_TESTS_PROPERTIES(MEDCouplingBasicsTest4 PROPERTIES ENVIRONMENT "${tests_env}")
 ADD_TEST(MEDCouplingBasicsTest5 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest5.py)
 SET_TESTS_PROPERTIES(MEDCouplingBasicsTest5 PROPERTIES ENVIRONMENT "${tests_env}")
+ADD_TEST(MEDCouplingBasicsTest6 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest6.py)
+SET_TESTS_PROPERTIES(MEDCouplingBasicsTest6 PROPERTIES ENVIRONMENT "${tests_env}")
 ADD_TEST(MEDCouplingIntersectTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingIntersectTest.py)
 SET_TESTS_PROPERTIES(MEDCouplingIntersectTest PROPERTIES ENVIRONMENT "${tests_env}")
 ADD_TEST(MEDCouplingExamplesTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingExamplesTest.py)

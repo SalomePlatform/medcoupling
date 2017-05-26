@@ -22,12 +22,14 @@
 #define __ORIENTATIONINVERTER_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "NormalizedGeometricTypes"
 
 namespace INTERP_KERNEL
 {
   class OrientationInverter
   {
   public:
+    INTERPKERNEL_EXPORT static OrientationInverter *BuildInstanceFrom(NormalizedCellType gt);
     INTERPKERNEL_EXPORT virtual ~OrientationInverter() { }
     INTERPKERNEL_EXPORT virtual void operate(int *beginPt, int *endPt) const = 0;
   };
@@ -96,7 +98,7 @@ namespace INTERP_KERNEL
   class OrientationInverterTetra10 : public OrientationInverterChecker
   {
   public:
-    OrientationInverterTetra10():OrientationInverterChecker(4u) { }
+    OrientationInverterTetra10():OrientationInverterChecker(10u) { }
     void operateAndShutUp(int *beginPt) const;
   };
 

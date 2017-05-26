@@ -23,6 +23,7 @@ SET(TEST_NAMES
   MEDCouplingBasicsTest3
   MEDCouplingBasicsTest4
   MEDCouplingBasicsTest5
+  MEDCouplingBasicsTest6
   MEDCouplingIntersectTest
   MEDCouplingExamplesTest
   MEDCouplingRemapperTest

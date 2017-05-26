@@ -1363,6 +1363,7 @@ namespace MEDCoupling
       virtual void renumberNodesWithOffsetInConn(int offset) throw(INTERP_KERNEL::Exception);
       virtual bool areAllNodesFetched() const throw(INTERP_KERNEL::Exception);
       virtual MEDCouplingFieldDouble *computeDiameterField() const throw(INTERP_KERNEL::Exception);
+      virtual void invertOrientationOfAllCells() throw(INTERP_KERNEL::Exception);
       %extend 
          {
            std::string __str__() const throw(INTERP_KERNEL::Exception)

@@ -139,6 +139,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const;
+    MEDCOUPLING_EXPORT void invertOrientationOfAllCells();
     // overload of MEDCoupling1GTUMesh
     MEDCOUPLING_EXPORT void checkConsistencyOfConnectivity() const;
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0);
@@ -234,6 +235,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const;
+    MEDCOUPLING_EXPORT void invertOrientationOfAllCells();
     // overload of MEDCoupling1GTUMesh
     MEDCOUPLING_EXPORT void checkConsistencyOfConnectivity() const;
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0);

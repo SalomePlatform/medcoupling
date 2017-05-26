@@ -25,6 +25,7 @@
 
 #include "SplitterTetra.hxx"
 #include "DiameterCalculator.hxx"
+#include "OrientationInverter.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
 using namespace MEDCoupling;
@@ -2138,6 +2139,22 @@ MEDCouplingFieldDouble *MEDCoupling1SGTUMesh::computeDiameterField() const
   return ret.retn();
 }
 
+/*!
+ * This method invert orientation of all cells in \a this. 
+ * After calling this method the absolute value of measure of cells in \a this are the same than before calling.
+ * This method only operates on the connectivity so coordinates are not touched at all.
+ */
+void MEDCoupling1SGTUMesh::invertOrientationOfAllCells()
+{
+  checkConsistencyOfConnectivity();
+  INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::OrientationInverter> oi(INTERP_KERNEL::OrientationInverter::BuildInstanceFrom(getCellModelEnum()));
+  int nbOfNodesPerCell((int)_cm->getNumberOfNodes()),nbCells(getNumberOfCells());
+  int *conn(_conn->getPointer());
+  for(int i=0;i<nbCells;i++)
+    oi->operate(conn+i*nbOfNodesPerCell,conn+(i+1)*nbOfNodesPerCell);
+  updateTime();
+}
+
 //== 
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New()
@@ -3645,6 +3662,23 @@ std::vector<int> MEDCoupling1DGTUMesh::BuildAPolygonFromParts(const std::vector<
   if(ret.back()==ret.front())
     ret.pop_back();
   return ret;
+}
+
+/*!
+ * This method invert orientation of all cells in \a this. 
+ * After calling this method the absolute value of measure of cells in \a this are the same than before calling.
+ * This method only operates on the connectivity so coordinates are not touched at all.
+ */
+void MEDCoupling1DGTUMesh::invertOrientationOfAllCells()
+{
+  checkConsistencyOfConnectivity();
+  INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::OrientationInverter> oi(INTERP_KERNEL::OrientationInverter::BuildInstanceFrom(getCellModelEnum()));
+  int nbCells(getNumberOfCells());
+  const int *connI(_conn_indx->begin());
+  int *conn(_conn->getPointer());
+  for(int i=0;i<nbCells;i++)
+    oi->operate(conn+connI[i],conn+connI[i+1]);
+  updateTime();
 }
 
 /*!

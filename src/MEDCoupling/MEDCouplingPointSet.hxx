@@ -129,6 +129,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT virtual void renumberNodesCenter(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const = 0;
+    MEDCOUPLING_EXPORT virtual void invertOrientationOfAllCells() = 0;
     MEDCOUPLING_EXPORT virtual void checkFullyDefined() const = 0;
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
