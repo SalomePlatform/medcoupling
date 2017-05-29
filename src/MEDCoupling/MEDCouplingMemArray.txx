@@ -3351,6 +3351,59 @@ struct NotInRange
   }
 
   /*!
+   * Creates a new one-dimensional DataArrayInt of the same size as \a this and a given
+   * one-dimensional arrays that must be of the same length. The result array describes
+   * correspondence between \a this and \a other arrays, so that 
+   * <em> other.getIJ(i,0) == this->getIJ(ret->getIJ(i),0)</em>. If such a permutation is
+   * not possible because some element in \a other is not in \a this, an exception is thrown.
+   *  \param [in] other - an array to compute permutation to.
+   *  \return DataArrayInt * - a new instance of DataArrayInt, which is a permutation array
+   * from \a this to \a other. The caller is to delete this array using decrRef() as it is
+   * no more needed.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \throw If \a other->getNumberOfComponents() != 1.
+   *  \throw If \a this->getNumberOfTuples() != \a other->getNumberOfTuples().
+   *  \throw If \a other includes a value which is not in \a this array.
+   * 
+   *  \if ENABLE_EXAMPLES
+   *  \ref cpp_mcdataarrayint_buildpermutationarr "Here is a C++ example".
+   *
+   *  \ref py_mcdataarrayint_buildpermutationarr "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  DataArrayIdType *DataArrayDiscrete<T>::buildPermutationArr(const DataArrayDiscrete<T>& other) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1 || other.getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' have to have exactly ONE component !");
+    int nbTuple(this->getNumberOfTuples());
+    other.checkAllocated();
+    if(nbTuple!=other.getNumberOfTuples())
+      throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' must have the same number of tuple !");
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(nbTuple,1);
+    ret->fillWithValue(-1);
+    const T *pt(this->begin());
+    std::map<int,int> mm;
+    for(int i=0;i<nbTuple;i++)
+      mm[pt[i]]=i;
+    pt=other.begin();
+    mcIdType *retToFill(ret->getPointer());
+    for(int i=0;i<nbTuple;i++)
+      {
+        std::map<int,int>::const_iterator it=mm.find(pt[i]);
+        if(it==mm.end())
+          {
+            std::ostringstream oss; oss << "DataArrayInt::buildPermutationArr : Arrays mismatch : element (" << pt[i] << ") in 'other' not findable in 'this' !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+        retToFill[i]=(*it).second;
+      }
+    return ret.retn();
+  }
+
+  /*!
    * This method compares content of input vector \a v and \a this.
    * If for each id in \a this v[id]==True and for all other ids id2 not in \a this v[id2]==False, true is returned.
    * For performance reasons \a this is expected to be sorted ascendingly. If not an exception will be thrown.

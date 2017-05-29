@@ -219,6 +219,8 @@ namespace MEDCoupling
   class DataArrayTemplate : public DataArray
   {
   public:
+    typedef T Type;
+  public:
     MEDCOUPLING_EXPORT static MCAuto< typename Traits<T>::ArrayTypeCh > NewFromStdVector(const typename std::vector<T>& v);
     MEDCOUPLING_EXPORT std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > explodeComponents() const;
     //
@@ -530,6 +532,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const typename Traits<T>::ArrayType& other) const;
     MEDCOUPLING_EXPORT void switchOnTupleEqualTo(T val, std::vector<bool>& vec) const;
     MEDCOUPLING_EXPORT void switchOnTupleNotEqualTo(T val, std::vector<bool>& vec) const;
+    MEDCOUPLING_EXPORT DataArrayIdType *buildPermutationArr(const DataArrayDiscrete<T>& other) const;
   protected:
     template<class ALG>
     void switchOnTupleAlg(T val, std::vector<bool>& vec, ALG algo) const;
@@ -556,7 +559,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getHashCode() const;
     MEDCOUPLING_EXPORT DataArrayInt32 *deepCopy() const;//ok
     MEDCOUPLING_EXPORT DataArrayInt32 *buildNewEmptyInstance() const { return DataArrayInt32::New(); }//ok
-    MEDCOUPLING_EXPORT DataArrayInt32 *buildPermutationArr(const DataArrayInt32& other) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *indicesOfSubPart(const DataArrayInt32& partOfThis) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *sumPerTuple() const;
     MEDCOUPLING_EXPORT void checkMonotonic(bool increasing) const;

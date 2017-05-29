@@ -21,11 +21,15 @@
 #ifndef __MEDCOUPLING_MCTYPE_HXX__
 #define __MEDCOUPLING_MCTYPE_HXX__
 
-typedef long Int64;
-
-typedef int Int32;
+namespace MEDCoupling
+{
+  typedef long Int64;
+  typedef int Int32;
+  typedef int mcIdType;
+}
 
 #define DataArrayInt DataArrayInt32
+#define DataArrayIdType DataArrayInt32
 
 #define DataArrayIntIterator DataArrayInt32Iterator
 
