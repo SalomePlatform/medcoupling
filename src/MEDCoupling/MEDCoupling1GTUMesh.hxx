@@ -53,7 +53,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
     //
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT int getNodalConnectivityLength() const;
+    MEDCOUPLING_EXPORT std::size_t getNodalConnectivityLength() const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
@@ -109,7 +109,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCells() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeEffectiveNbOfNodesPerCell() const;
@@ -205,7 +205,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCells() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeEffectiveNbOfNodesPerCell() const;

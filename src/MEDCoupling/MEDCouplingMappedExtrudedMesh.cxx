@@ -146,7 +146,7 @@ MEDCouplingMappedExtrudedMesh::MEDCouplingMappedExtrudedMesh(const MEDCouplingMa
     }
 }
 
-int MEDCouplingMappedExtrudedMesh::getNumberOfCells() const
+std::size_t MEDCouplingMappedExtrudedMesh::getNumberOfCells() const
 {
   return _mesh2D->getNumberOfCells()*_mesh1D->getNumberOfCells();
 }

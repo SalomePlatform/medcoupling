@@ -86,7 +86,7 @@ namespace MEDCoupling
     //
     MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
     MEDCOUPLING_EXPORT virtual void checkConsistency(double eps=1e-12) const = 0;
-    MEDCOUPLING_EXPORT virtual int getNumberOfCells() const = 0;
+    MEDCOUPLING_EXPORT virtual std::size_t getNumberOfCells() const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfNodes() const = 0;
     MEDCOUPLING_EXPORT virtual int getSpaceDimension() const = 0;
     MEDCOUPLING_EXPORT virtual int getMeshDimension() const = 0;

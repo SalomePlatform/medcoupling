@@ -81,7 +81,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string reprConnectivityOfThis() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const;
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
-    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
     MEDCOUPLING_EXPORT int getNodalConnectivityArrayLen() const;
     MEDCOUPLING_EXPORT void computeTypes();

@@ -44,7 +44,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
-    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getNumberOfNodes() const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;

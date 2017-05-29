@@ -3077,7 +3077,7 @@ void MEDCouplingUMesh::computeTypes()
  *  \return int - the number of cells in \a this mesh.
  *  \throw If the nodal connectivity of cells is not defined.
  */
-int MEDCouplingUMesh::getNumberOfCells() const
+std::size_t MEDCouplingUMesh::getNumberOfCells() const
 { 
   if(_nodal_connec_index)
     return _nodal_connec_index->getNumberOfTuples()-1;

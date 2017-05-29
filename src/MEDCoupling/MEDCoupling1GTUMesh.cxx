@@ -387,7 +387,7 @@ void MEDCoupling1GTUMesh::findCommonCells(int compType, int startCellId, DataArr
   m->findCommonCells(compType,startCellId,commonCellsArr,commonCellsIArr);
 }
 
-int MEDCoupling1GTUMesh::getNodalConnectivityLength() const
+std::size_t MEDCoupling1GTUMesh::getNodalConnectivityLength() const
 {
   const DataArrayInt *c1(getNodalConnectivity());
   if(!c1)
@@ -700,10 +700,10 @@ void MEDCoupling1SGTUMesh::checkConsistency(double eps) const
       }
 }
 
-int MEDCoupling1SGTUMesh::getNumberOfCells() const
+std::size_t MEDCoupling1SGTUMesh::getNumberOfCells() const
 {
-  int nbOfTuples=getNodalConnectivityLength();
-  int nbOfNodesPerCell=getNumberOfNodesPerCell();
+  std::size_t nbOfTuples(getNodalConnectivityLength());
+  int nbOfNodesPerCell(getNumberOfNodesPerCell());
   if(nbOfTuples%nbOfNodesPerCell!=0)
     {
       std::ostringstream oss; oss << "MEDCoupling1SGTUMesh:getNumberOfCells: : the nb of tuples in conn is " << nbOfTuples << " and number of nodes per cell is " << nbOfNodesPerCell << ". But " << nbOfTuples << "%" << nbOfNodesPerCell << " !=0 !";
@@ -2441,7 +2441,7 @@ void MEDCoupling1DGTUMesh::checkConsistency(double eps) const
     }
 }
 
-int MEDCoupling1DGTUMesh::getNumberOfCells() const
+std::size_t MEDCoupling1DGTUMesh::getNumberOfCells() const
 {
   checkConsistencyOfConnectivity();//do not remove
   return _conn_indx->getNumberOfTuples()-1;

@@ -1248,7 +1248,7 @@ void CppExample_MEDCouplingUMesh_buildPartOfMySelfNode()
     (MEDCouplingUMesh*)mesh->buildPartOfMySelfNode( &nodes[0], &nodes[0]+nodes.size(), allNodes);
   MCAuto<MEDCouplingUMesh> mesh2 =
     (MEDCouplingUMesh*)mesh->buildPartOfMySelfNode( &nodes[0], &nodes[0]+nodes.size(),!allNodes);
-  CPPUNIT_ASSERT_EQUAL( mesh1->getNumberOfCells(), 1 );
+  CPPUNIT_ASSERT_EQUAL( (int)mesh1->getNumberOfCells(), 1 );
   CPPUNIT_ASSERT_EQUAL( mesh2->getNumberOfCells(), mesh->getNumberOfCells() );
   //! [CppSnippet_MEDCouplingUMesh_buildPartOfMySelfNode_2]
 }
@@ -1280,7 +1280,7 @@ void CppExample_MEDCouplingUMesh_getCellIdsLyingOnNodes()
   DataArrayInt* cellIdsArr1 = mesh->getCellIdsLyingOnNodes( &nodes[0], &nodes[0]+nodes.size(), allNodes);
   DataArrayInt* cellIdsArr2 = mesh->getCellIdsLyingOnNodes( &nodes[0], &nodes[0]+nodes.size(),!allNodes);
   CPPUNIT_ASSERT_EQUAL( (int)cellIdsArr1->getNumberOfTuples(), 1 );
-  CPPUNIT_ASSERT_EQUAL( (int)cellIdsArr2->getNumberOfTuples(), mesh->getNumberOfCells() );
+  CPPUNIT_ASSERT_EQUAL( (int)cellIdsArr2->getNumberOfTuples(), (int)mesh->getNumberOfCells() );
   //! [CppSnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_2]
   cellIdsArr1->decrRef();
   cellIdsArr2->decrRef();
@@ -1425,7 +1425,7 @@ void CppExample_MEDCouplingUMesh_zipConnectivityTraducer()
   //! [CppSnippet_MEDCouplingUMesh_zipConnectivityTraducer_2]
   const int oldNbCells = mesh->getNumberOfCells();
   DataArrayInt *arr = mesh->zipConnectivityTraducer(0);
-  CPPUNIT_ASSERT_EQUAL( oldNbCells-2, mesh->getNumberOfCells() );
+  CPPUNIT_ASSERT_EQUAL( oldNbCells-2, (int)mesh->getNumberOfCells() );
   const int idsExpected[5] = {0, 1, 1, 0, 2};
   CPPUNIT_ASSERT(std::equal(idsExpected,idsExpected+5,arr->getPointer()));
   //! [CppSnippet_MEDCouplingUMesh_zipConnectivityTraducer_2]
@@ -2102,7 +2102,7 @@ void CppExampleFieldDoubleBuildSubPart1()
   MEDCoupling::MEDCouplingFieldDouble *f2=f1->buildSubPart(part1,part1+3);
   //! [CppSnippetFieldDoubleBuildSubPart1_2]
   f2->zipCoords();
-  CPPUNIT_ASSERT_EQUAL(3,f2->getMesh()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,(int)f2->getMesh()->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(6,f2->getMesh()->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getMeshDimension());
@@ -2204,7 +2204,7 @@ void CppSnippetCMeshStdBuild1()
   arrY->decrRef();
   //! [CppSnippetCMeshStdBuild1_2]
   //! [CppSnippetCMeshStdBuild1_3]
-  CPPUNIT_ASSERT_EQUAL(8*6,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(8*6,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(9*7,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
@@ -2219,7 +2219,7 @@ void CppSnippetCMeshStdBuild1()
   mesh->setCoordsAt(1,arrY);
   arrY->decrRef();
   //! [CppSnippetCMeshStdBuild1_2bis]
-  CPPUNIT_ASSERT_EQUAL(8*6,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(8*6,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(9*7,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());

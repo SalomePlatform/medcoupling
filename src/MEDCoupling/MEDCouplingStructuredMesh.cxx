@@ -1239,10 +1239,10 @@ int MEDCouplingStructuredMesh::getNodeIdFromPos(int i, int j, int k) const
 }
 
 
-int MEDCouplingStructuredMesh::getNumberOfCells() const
+std::size_t MEDCouplingStructuredMesh::getNumberOfCells() const
 {
   std::vector<int> ngs(getNodeGridStructure());
-  int ret(1);
+  std::size_t ret(1);
   bool isCatched(false);
   std::size_t ii(0);
   for(std::vector<int>::const_iterator it=ngs.begin();it!=ngs.end();it++,ii++)

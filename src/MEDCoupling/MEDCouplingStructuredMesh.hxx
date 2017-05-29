@@ -61,7 +61,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *build1SGTSubLevelMesh() const;
     MEDCOUPLING_EXPORT int getCellIdFromPos(int i, int j, int k) const;
     MEDCOUPLING_EXPORT int getNodeIdFromPos(int i, int j, int k) const;
-    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getNumberOfNodes() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsOfSubLevelMesh() const;

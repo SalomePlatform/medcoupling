@@ -950,7 +950,7 @@ void MEDCouplingRemapperTest::testExtruded2()
     1000.,1000.,1020.,1030.,1040.,1000.,1000.,1070.,1080.,1090.,1000.,1000.,1120.,1130.,1140.,1000.,1000.,1170.,1180.,1190.,
     2000.,2000.,2020.,2030.,2040.,2000.,2000.,2070.,2080.,2090.,2000.,2000.,2120.,2130.,2140.,2000.,2000.,2170.,2180.,2190.,
   };
-  CPPUNIT_ASSERT_EQUAL((int)(sizeof(vals1)/sizeof(double)),meshNE->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL((int)(sizeof(vals1)/sizeof(double)),(int)meshNE->getNumberOfCells());
   std::copy(vals1,vals1+meshNE->getNumberOfCells(),array->getPointer());
   array->decrRef();
   MEDCouplingFieldDouble *trgField=remapper.transferField(srcField,4.220173);
