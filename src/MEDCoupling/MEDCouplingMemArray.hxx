@@ -158,7 +158,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual bool isAllocated() const = 0;
     MEDCOUPLING_EXPORT virtual void checkAllocated() const = 0;
     MEDCOUPLING_EXPORT virtual void desallocate() = 0;
-    MEDCOUPLING_EXPORT virtual int getNumberOfTuples() const = 0;
+    MEDCOUPLING_EXPORT virtual std::size_t getNumberOfTuples() const = 0;
     MEDCOUPLING_EXPORT virtual std::size_t getNbOfElems() const = 0;
     MEDCOUPLING_EXPORT virtual std::size_t getNbOfElemAllocated() const = 0;
     MEDCOUPLING_EXPORT virtual void alloc(std::size_t nbOfTuple, std::size_t nbOfCompo=1) = 0;
@@ -227,7 +227,7 @@ namespace MEDCoupling
     std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT void updateTime() const { }
     //
-    MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
+    MEDCOUPLING_EXPORT std::size_t getNumberOfTuples() const { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
     MEDCOUPLING_EXPORT std::size_t getNbOfElems() const { return _mem.getNbOfElem(); }
     bool empty() const;
     MEDCOUPLING_EXPORT void *getVoidStarPointer() { return getPointer(); }

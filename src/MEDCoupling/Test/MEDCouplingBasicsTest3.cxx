@@ -2181,7 +2181,7 @@ void MEDCouplingBasicsTest3::testGetDifferentValues1()
   std::copy(arr,arr+12,da1->getPointer());
   DataArrayInt *s=da1->getDifferentValues();
   const int expected1[4]={1,2,3,5};
-  CPPUNIT_ASSERT_EQUAL(4,s->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(4,(int)s->getNumberOfTuples());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+4,s->begin()));
   da1->decrRef();
   s->decrRef();

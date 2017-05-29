@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingBasicsTest.hxx"
 #include "MEDCouplingUMesh.hxx"
@@ -1279,8 +1279,8 @@ void CppExample_MEDCouplingUMesh_getCellIdsLyingOnNodes()
   const bool allNodes = true;
   DataArrayInt* cellIdsArr1 = mesh->getCellIdsLyingOnNodes( &nodes[0], &nodes[0]+nodes.size(), allNodes);
   DataArrayInt* cellIdsArr2 = mesh->getCellIdsLyingOnNodes( &nodes[0], &nodes[0]+nodes.size(),!allNodes);
-  CPPUNIT_ASSERT_EQUAL( cellIdsArr1->getNumberOfTuples(), 1 );
-  CPPUNIT_ASSERT_EQUAL( cellIdsArr2->getNumberOfTuples(), mesh->getNumberOfCells() );
+  CPPUNIT_ASSERT_EQUAL( (int)cellIdsArr1->getNumberOfTuples(), 1 );
+  CPPUNIT_ASSERT_EQUAL( (int)cellIdsArr2->getNumberOfTuples(), mesh->getNumberOfCells() );
   //! [CppSnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_2]
   cellIdsArr1->decrRef();
   cellIdsArr2->decrRef();
@@ -1457,7 +1457,7 @@ void CppExample_MEDCouplingUMesh_zipCoordsTraducer()
   MEDCouplingUMesh* mesh2=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,true);
   DataArrayInt *arr=mesh2->zipCoordsTraducer();
   CPPUNIT_ASSERT_EQUAL( 4, mesh2->getNumberOfNodes() ); // nb of nodes decreased
-  CPPUNIT_ASSERT_EQUAL( mesh->getNumberOfNodes(), arr->getNumberOfTuples() );
+  CPPUNIT_ASSERT_EQUAL( (int)mesh->getNumberOfNodes(), (int)arr->getNumberOfTuples() );
   const int idsExpected[9] = {-1,0,1,-1,2,3,-1,-1,-1}; // -1 for unused nodes
   CPPUNIT_ASSERT(std::equal(idsExpected,idsExpected+9,arr->getPointer()));
   //! [CppSnippet_MEDCouplingUMesh_zipCoordsTraducer_2]
@@ -1844,7 +1844,7 @@ void CppExample_MEDCouplingPointSet_getNodeIdsNearPoint()
   // check found ids
   const int expectedIDs[3] = {0,2,4};
   DataArrayInt * okIDs = ids->findIdsEqualList ( expectedIDs, expectedIDs+3 );
-  CPPUNIT_ASSERT_EQUAL(3, okIDs->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3, (int)okIDs->getNumberOfTuples());
 
   // release data
   ids->decrRef();
@@ -1879,7 +1879,7 @@ void CppExample_MEDCouplingPointSet_getNodeIdsNearPoints()
   // check found ids (i.e. contents of 'ids' array)
   const int expectedIDs[4] = {1, 3, 4, 5};
   DataArrayInt * okIDs = ids->findIdsEqualList ( expectedIDs, expectedIDs+4 );
-  CPPUNIT_ASSERT_EQUAL(4, okIDs->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(4, (int)okIDs->getNumberOfTuples());
 
   // release data
   ids->decrRef();
@@ -1906,10 +1906,10 @@ void CppExample_MEDCouplingPointSet_findCommonNodes()
   //! [CppSnippet_MEDCouplingPointSet_findCommonNodes_2]
   DataArrayInt *com, *comI;
   mesh->findCommonNodes(1e-13,-1,com,comI);
-  CPPUNIT_ASSERT_EQUAL(2, com->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2, (int)com->getNumberOfTuples());
   com->decrRef(); comI->decrRef();
   mesh->findCommonNodes(0.004,-1,com,comI);
-  CPPUNIT_ASSERT_EQUAL(5, com->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(5, (int)com->getNumberOfTuples());
   //! [CppSnippet_MEDCouplingPointSet_findCommonNodes_2]
   com->decrRef(); comI->decrRef();
 }
