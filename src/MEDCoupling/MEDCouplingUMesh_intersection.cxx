@@ -1400,7 +1400,7 @@ void MEDCouplingUMesh::buildSubCellsFromCut(const std::vector< std::pair<int,int
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSubCellsFromCut works only with single cell presently !");
   for(int i=0;i<nbOfCells;i++)
     {
-      int offset(descIndx[i]),nbOfFaces(descIndx[i+1]-offset),start(-1),end(-1);
+      int offset(descIndx[i]),nbOfFaces(descIndx[i+1]-offset);
       for(int j=0;j<nbOfFaces;j++)
         {
           const std::pair<int,int>& p=cut3DSurf[desc[offset+j]];
@@ -2123,7 +2123,6 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
   if(_types.size() != 1 || *(_types.begin()) != INTERP_KERNEL::NORM_POLYHED)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::conformize3D : This method only works for polyhedrons! Call convertAllToPoly first.");
 
-  int *c(getNodalConnectivity()->getPointer()),*cI(getNodalConnectivityIndex()->getPointer());
   MCAuto<MEDCouplingSkyLineArray> connSla(MEDCouplingSkyLineArray::BuildFromPolyhedronConn(getNodalConnectivity(), getNodalConnectivityIndex()));
   const double * coo(_coords->begin());
   MCAuto<DataArrayInt> ret(DataArrayInt::New());
@@ -2140,8 +2139,8 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
 
     // Build BBTree
     MCAuto<DataArrayDouble> bboxArr(mDesc->getBoundingBoxForBBTree());
-    const double *bbox(bboxArr->begin()),*coords(getCoords()->begin());
-    int nCell=getNumberOfCells(), nDescCell=mDesc->getNumberOfCells();
+    const double *bbox(bboxArr->begin()); getCoords()->begin();
+    int nDescCell(mDesc->getNumberOfCells());
     BBTree<SPACEDIM,int> myTree(bbox,0,0,nDescCell,-eps);
     // Surfaces - handle biggest first
     MCAuto<MEDCouplingFieldDouble> surfF = mDesc->getMeasureField(true);
@@ -2170,11 +2169,11 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
         vector<int> candidates, cands2;
         myTree.getIntersectingElems(bbox+faceIdx*2*SPACEDIM,candidates);
         // Keep only candidates whose normal matches the normal of current face
-        for(vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+        for(vector<int>::const_iterator it2=candidates.begin();it2!=candidates.end();it2++)
           {
-            bool col = INTERP_KERNEL::isColinear3D(normalsP + faceIdx*SPACEDIM, normalsP + *(it)*SPACEDIM, eps);
-            if (*it != faceIdx && col)
-              cands2.push_back(*it);
+            bool col = INTERP_KERNEL::isColinear3D(normalsP + faceIdx*SPACEDIM, normalsP + *(it2)*SPACEDIM, eps);
+            if (*it2 != faceIdx && col)
+              cands2.push_back(*it2);
           }
         if (!cands2.size())
           continue;
@@ -2233,9 +2232,9 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
         const int * idsGoodPlaneP(idsGoodPlane->begin());
         for (const int * ii = ids->begin(); ii != ids->end(); ii++)
           {
-            int faceIdx = cands2[idsGoodPlaneP[*ii]];
-            hit[faceIdx] = true;
-            checkSurf += surfs->begin()[faceIdx];
+            int faceIdx2 = cands2[idsGoodPlaneP[*ii]];
+            hit[faceIdx2] = true;
+            checkSurf += surfs->begin()[faceIdx2];
           }
         if (fabs(checkSurf - surfs->begin()[faceIdx]) > eps)
           {
@@ -2256,7 +2255,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
         connSla->findPackIds(polyIndices, sIdxConn, sIdxConnE, packsIds);
         // Deletion of old faces
         int jj=0;
-        for (vector<int>::const_iterator it=polyIndices.begin(); it!=polyIndices.end(); ++it, ++jj)
+        for (vector<int>::const_iterator it2=polyIndices.begin(); it2!=polyIndices.end(); ++it2, ++jj)
           {
             if (packsIds[jj] == -1)
               // The below should never happen - if a face is used several times, with a different layout of the nodes
@@ -2264,18 +2263,18 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
               // faces which are actually used only once, by a single cell. This is different for edges below.
               throw INTERP_KERNEL::Exception("MEDCouplingUMesh::conformize3D: Could not find face in connectivity! Internal error.");
             else
-              connSla->deletePack(*it, packsIds[jj]);
+              connSla->deletePack(*it2, packsIds[jj]);
           }
         // Insertion of new faces:
         for (const int * ii = ids->begin(); ii != ids->end(); ii++)
           {
             // Build pack from the face to insert:
-            int faceIdx = cands2[idsGoodPlane->getIJ(*ii,0)];
+            int faceIdx2 = cands2[idsGoodPlane->getIJ(*ii,0)];
             int facePack2Sz;
-            const int * facePack2 = connSlaDesc->getSimplePackSafePtr(faceIdx, facePack2Sz); // contains the type!
+            const int * facePack2 = connSlaDesc->getSimplePackSafePtr(faceIdx2, facePack2Sz); // contains the type!
             // Insert it in all hit polyhedrons:
-            for (vector<int>::const_iterator it=polyIndices.begin(); it!=polyIndices.end(); ++it)
-              connSla->pushBackPack(*it, facePack2+1, facePack2+facePack2Sz);  // without the type
+            for (vector<int>::const_iterator it2=polyIndices.begin(); it2!=polyIndices.end(); ++it2)
+              connSla->pushBackPack(*it2, facePack2+1, facePack2+facePack2Sz);  // without the type
           }
       }
   }  // end step1
@@ -2288,7 +2287,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
   {
     /************************
      *  STEP 2 -- edges
-    /************************/
+     ************************/
     // Now we have a face-conform mesh.
 
     // Recompute descending
@@ -2341,17 +2340,17 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
         unsigned start = cDesc2[cIDesc2[eIdx]+1], end = cDesc2[cIDesc2[eIdx]+2];
         for (int i3=0; i3 < 3; i3++)  // TODO: use fillSonCellNodalConnectivity2 or similar?
           vCurr[i3] = coo[start*SPACEDIM+i3] - coo[end*SPACEDIM+i3];
-        for(vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+        for(vector<int>::const_iterator it2=candidates.begin();it2!=candidates.end();it2++)
           {
             double vOther[3];
-            unsigned start2 = cDesc2[cIDesc2[*it]+1], end2 = cDesc2[cIDesc2[*it]+2];
+            unsigned start2 = cDesc2[cIDesc2[*it2]+1], end2 = cDesc2[cIDesc2[*it2]+2];
             for (int i3=0; i3 < 3; i3++)
               vOther[i3] = coo[start2*SPACEDIM+i3] - coo[end2*SPACEDIM+i3];
             bool col = INTERP_KERNEL::isColinear3D(vCurr, vOther, eps);
             // Warning: different from faces: we need to keep eIdx in the final list of candidates because we need
             // to have its nodes inside the sub mesh mPartCand below (needed in OrderPointsAlongLine())
             if (col)
-              cands2.push_back(*it);
+              cands2.push_back(*it2);
           }
         if (cands2.size() == 1 && cands2[0] == eIdx)  // see warning above
           continue;

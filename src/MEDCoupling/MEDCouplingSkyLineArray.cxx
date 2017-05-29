@@ -24,7 +24,7 @@
 using namespace MEDCoupling;
 
 MEDCouplingSkyLineArray::MEDCouplingSkyLineArray():
-  _index( DataArrayInt::New() ), _values( DataArrayInt::New() ), _super_index( DataArrayInt::New() )
+  _super_index( DataArrayInt::New() ), _index( DataArrayInt::New() ), _values( DataArrayInt::New() )
 {
 }
 
@@ -76,9 +76,9 @@ MEDCouplingSkyLineArray * MEDCouplingSkyLineArray::BuildFromPolyhedronConn( cons
 
   const int * cP(c->begin()), * cIP(cI->begin());
   int prev = -1;
-  if (c->getNbOfElems() != *(cI->end()-1))
+  if ((int)c->getNbOfElems() != *(cI->end()-1))
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::BuildFromDynamicConn: misformatted connectivity (wrong nb of tuples)!");
-  for (int i=0; i < cI->getNbOfElems(); i++)
+  for (std::size_t i=0; i < cI->getNbOfElems(); i++)
     {
       int j = cIP[i];
       if (cIP[i] < prev)
@@ -95,7 +95,7 @@ MEDCouplingSkyLineArray * MEDCouplingSkyLineArray::BuildFromPolyhedronConn( cons
   superIdx.push_back(0);
   idx.push_back(0);
   vals.resize(c->getNbOfElems()); // too much because of the type and the -1, but still better than push_back().
-  for (int i=0; i < cI->getNbOfElems()-1; i++)
+  for (std::size_t i=0; i < cI->getNbOfElems()-1; i++)
     {
       int start = cIP[i]+1, end = cIP[i+1];
       int * work = vals.data() + cnt;
@@ -145,7 +145,7 @@ void MEDCouplingSkyLineArray::convertToPolyhedronConn( MCAuto<DataArrayInt>& c, 
   c->alloc(sz, 1);
   int * cVecP(c->getPointer());
 
-  for (int i=0; i < _super_index->getNbOfElems()-1; i++)
+  for ( std::size_t i=0; i < _super_index->getNbOfElems()-1; i++)
      {
        cIVecP[i]= cnt;
        int endId = siP[i+1];
@@ -197,18 +197,18 @@ void MEDCouplingSkyLineArray::set3( DataArrayInt* superIndex, DataArrayInt* inde
 
 DataArrayInt* MEDCouplingSkyLineArray::getSuperIndexArray() const
 {
-  return ((MEDCouplingSkyLineArray*)this)->_super_index;
+  return const_cast<MEDCouplingSkyLineArray*>(this)->_super_index;
 }
 
 
 DataArrayInt* MEDCouplingSkyLineArray::getIndexArray() const
 {
-  return ((MEDCouplingSkyLineArray*)this)->_index;
+  return const_cast<MEDCouplingSkyLineArray*>(this)->_index;
 }
 
 DataArrayInt* MEDCouplingSkyLineArray::getValuesArray() const
 {
-  return ((MEDCouplingSkyLineArray*)this)->_values;
+  return const_cast<MEDCouplingSkyLineArray*>(this)->_values;
 }
 
 void MEDCouplingSkyLineArray::checkSuperIndex(const std::string& func) const
@@ -223,7 +223,7 @@ void MEDCouplingSkyLineArray::checkSuperIndex(const std::string& func) const
 
 void MEDCouplingSkyLineArray::validSuperIndex(const std::string& func, int superIndex) const
 {
-  if(superIndex < 0 || superIndex >= _super_index->getNbOfElems())
+  if(superIndex < 0 || superIndex >= (int)_super_index->getNbOfElems())
     {
       std::ostringstream oss;
       oss << "MEDCouplingSkyLineArray::" << func <<  ": invalid super index!";
@@ -233,7 +233,7 @@ void MEDCouplingSkyLineArray::validSuperIndex(const std::string& func, int super
 
 void MEDCouplingSkyLineArray::validIndex(const std::string& func, int idx) const
 {
-  if(idx < 0 || idx >= _index->getNbOfElems())
+  if(idx < 0 || idx >= (int)_index->getNbOfElems())
     {
       std::ostringstream oss;
       oss << "MEDCouplingSkyLineArray::" << func <<  ": invalid index!";
@@ -245,7 +245,7 @@ void MEDCouplingSkyLineArray::validSuperIndexAndIndex(const std::string& func, i
 {
   validSuperIndex(func, superIndex);
   int idx = _super_index->begin()[superIndex] + index;
-  if(idx < 0 || idx >= _index->getNbOfElems())
+  if(idx < 0 || idx >= (int)_index->getNbOfElems())
     {
       std::ostringstream oss;
       oss << "MEDCouplingSkyLineArray::" << func <<  ": invalid index!";
@@ -315,7 +315,7 @@ std::string MEDCouplingSkyLineArray::simpleRepr() const
  */
 void MEDCouplingSkyLineArray::getSimplePackSafe(const int absolutePackId, std::vector<int> & pack) const
 {
-  if(absolutePackId < 0 || absolutePackId >= _index->getNbOfElems())
+  if(absolutePackId < 0 || absolutePackId >= (int)_index->getNbOfElems())
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::getPackSafe: invalid index!");
   const int * iP(_index->begin()), *vP(_values->begin());
   int sz = iP[absolutePackId+1]-iP[absolutePackId];
@@ -328,7 +328,7 @@ void MEDCouplingSkyLineArray::getSimplePackSafe(const int absolutePackId, std::v
  */
 const int * MEDCouplingSkyLineArray::getSimplePackSafePtr(const int absolutePackId, int & packSize) const
 {
-  if(absolutePackId < 0 || absolutePackId >= _index->getNbOfElems())
+  if(absolutePackId < 0 || absolutePackId >= (int)_index->getNbOfElems())
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::getPackSafe: invalid index!");
   const int * iP(_index->begin()), *vP(_values->begin());
   packSize = iP[absolutePackId+1]-iP[absolutePackId];
@@ -404,7 +404,7 @@ void MEDCouplingSkyLineArray::deletePack(const int superIdx, const int idx)
     iP[ii] -= (end-start);
 
   // _super_index
-  for(int ii = superIdx+1; ii < _super_index->getNbOfElems(); ii++)
+  for(int ii = superIdx+1; ii < (int)_super_index->getNbOfElems(); ii++)
     (siP[ii])--;
 }
 
@@ -438,7 +438,7 @@ void MEDCouplingSkyLineArray::pushBackPack(const int superIdx, const int * packB
     iP[ii] += sz;
 
   // _super_index
-  for(int ii = superIdx+1; ii < _super_index->getNbOfElems(); ii++)
+  for(int ii = superIdx+1; ii < (int)_super_index->getNbOfElems(); ii++)
     (siP[ii])++;
 }
 
@@ -473,7 +473,7 @@ void MEDCouplingSkyLineArray::replaceSimplePack(const int idx, const int * packB
   copy(packBg, packEnd, _values->getPointer()+start);
 
   // _index
-  for(int ii = idx+1; ii < _index->getNbOfElems(); ii++)
+  for(int ii = idx+1; ii < (int)_index->getNbOfElems(); ii++)
     iP[ii] += deltaSz;
 }
 
@@ -509,6 +509,6 @@ void MEDCouplingSkyLineArray::replacePack(const int superIdx, const int idx, con
   copy(packBg, packEnd, _values->getPointer()+start);
 
   // _index
-  for(int ii = siP[superIdx]+idx+1; ii < _index->getNbOfElems(); ii++)
+  for(int ii = siP[superIdx]+idx+1; ii < (int)_index->getNbOfElems(); ii++)
     iP[ii] += deltaSz;
 }
