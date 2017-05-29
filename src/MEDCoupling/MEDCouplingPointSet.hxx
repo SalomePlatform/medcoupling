@@ -50,7 +50,7 @@ namespace MEDCoupling
   {
   protected:
     MEDCOUPLING_EXPORT MEDCouplingPointSet();
-    MEDCOUPLING_EXPORT MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCopy);
+    MEDCOUPLING_EXPORT MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCpy);
     MEDCOUPLING_EXPORT ~MEDCouplingPointSet();
   public:
     MEDCOUPLING_EXPORT void updateTime() const;

@@ -88,7 +88,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
   private:
     MEDCouplingCMesh();
-    MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCopy);
+    MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy);
     ~MEDCouplingCMesh();
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
     std::string getVTKDataSetType() const;

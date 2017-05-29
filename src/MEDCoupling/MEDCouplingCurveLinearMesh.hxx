@@ -94,7 +94,7 @@ namespace MEDCoupling
     void getBarycenterAndOwnerMeshDim1(DataArrayDouble *bary) const;
   private:
     MEDCouplingCurveLinearMesh();
-    MEDCouplingCurveLinearMesh(const MEDCouplingCurveLinearMesh& other, bool deepCopy);
+    MEDCouplingCurveLinearMesh(const MEDCouplingCurveLinearMesh& other, bool deepCpy);
     ~MEDCouplingCurveLinearMesh();
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
     std::string getVTKDataSetType() const;

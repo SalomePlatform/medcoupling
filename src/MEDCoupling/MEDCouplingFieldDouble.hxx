@@ -48,7 +48,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *nodeToCellDiscretization() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cellToNodeDiscretization() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt *convertToIntField() const;
@@ -156,7 +156,7 @@ namespace MEDCoupling
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
-    MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy);
+    MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
     MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
     MCAuto<MEDCouplingFieldDouble> voronoizeGen(const Voronizer *vor, double eps) const;
     MEDCouplingTimeDiscretization *timeDiscr();

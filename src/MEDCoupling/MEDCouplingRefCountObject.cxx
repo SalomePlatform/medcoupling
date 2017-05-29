@@ -330,7 +330,7 @@ void GlobalDict::clear()
   _my_map.clear();
 }
 
-void GlobalDict::setKeyValue(const std::string& key, const std::string& value)
+void GlobalDict::setKeyValue(const std::string& key, const std::string& val)
 {
   std::map<std::string, std::string>::const_iterator it(_my_map.find(key));
   if(it!=_my_map.end())
@@ -339,12 +339,12 @@ void GlobalDict::setKeyValue(const std::string& key, const std::string& value)
       oss << "GlobalDict::setKeyValue : key \"" << key << "\" already exists !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  _my_map[key]=value;
+  _my_map[key]=val;
 }
 
-void GlobalDict::setKeyValueForce(const std::string& key, const std::string& value)
+void GlobalDict::setKeyValueForce(const std::string& key, const std::string& val)
 {
-  _my_map[key]=value;
+  _my_map[key]=val;
 }
 
 std::string GlobalDict::printSelf() const

@@ -33,7 +33,7 @@ MEDCouplingStructuredMesh::MEDCouplingStructuredMesh()
 {
 }
 
-MEDCouplingStructuredMesh::MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCopy):MEDCouplingMesh(other)
+MEDCouplingStructuredMesh::MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCpy):MEDCouplingMesh(other)
 {
 }
 
@@ -984,8 +984,8 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *
   conn->alloc(4*n1*n2,1);
   int *cp(conn->getPointer());
   std::size_t pos(0);
-  for(int j=0;j<n2;j++)
-    for(int i=0;i<n1;i++,pos++)
+  for(std::size_t j=0;j<n2;j++)
+    for(std::size_t i=0;i<n1;i++,pos++)
       {
         cp[4*pos+0]=i+1+j*(n1+1);
         cp[4*pos+1]=i+j*(n1+1);
@@ -1002,9 +1002,9 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *
   conn->alloc(8*n1*n2*n3,1);
   int *cp(conn->getPointer());
   std::size_t pos(0);
-  for(int k=0;k<n3;k++)
-    for(int j=0;j<n2;j++)
-      for(int i=0;i<n1;i++,pos++)
+  for(std::size_t k=0;k<n3;k++)
+    for(std::size_t j=0;j<n2;j++)
+      for(std::size_t i=0;i<n1;i++,pos++)
         {
           int tmp=(n1+1)*(n2+1);
           cp[8*pos+0]=i+1+j*(n1+1)+k*tmp;

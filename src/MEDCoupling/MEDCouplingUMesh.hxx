@@ -285,7 +285,7 @@ namespace MEDCoupling
   private: // all private methods are impl in MEDCouplingUMesh_internal.cxx
 
     MEDCouplingUMesh();
-    MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCopy);
+    MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);
     ~MEDCouplingUMesh();
     void checkFullyDefined() const;
     void checkConnectivityFullyDefined() const;

@@ -405,7 +405,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
             newCoords=a->getCoords()->selectByTupleId(tmp->begin(),tmp->end());
           }
           const double *cPtr(newCoords->begin());
-          for(int i=0;i<newCoords->getNumberOfTuples();i++,cPtr+=2)
+          for(int j=0;j<newCoords->getNumberOfTuples();j++,cPtr+=2)
             {
               std::set<int> zeCandidates;
               {
@@ -530,9 +530,9 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
                           zeCandidates.insert(*it4);
                       }
                   }
-              std::set<int> tmp,newElementsToDo;
-              std::set_difference(zeCandidates.begin(),zeCandidates.end(),elemsDone.begin(),elemsDone.end(),std::inserter(tmp,tmp.begin()));
-              std::set_union(elemsToDo.begin(),elemsToDo.end(),tmp.begin(),tmp.end(),std::inserter(newElementsToDo,newElementsToDo.begin()));
+              std::set<int> tmp2,newElementsToDo;
+              std::set_difference(zeCandidates.begin(),zeCandidates.end(),elemsDone.begin(),elemsDone.end(),std::inserter(tmp2,tmp2.begin()));
+              std::set_union(elemsToDo.begin(),elemsToDo.end(),tmp2.begin(),tmp2.end(),std::inserter(newElementsToDo,newElementsToDo.begin()));
               elemsToDo=newElementsToDo;
             }
           //

@@ -196,12 +196,12 @@ void DataArray::copyPartOfStringInfoFrom(const DataArray& other, const std::vect
 
 void DataArray::copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, const DataArray& other)
 {
-  int nbOfCompo=getNumberOfComponents();
+  std::size_t nbOfCompo(getNumberOfComponents());
   std::size_t partOfCompoToSet=compoIds.size();
-  if((int)partOfCompoToSet!=other.getNumberOfComponents())
+  if(partOfCompoToSet!=other.getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Given compoIds has not the same size as number of components of given array !");
   for(std::size_t i=0;i<partOfCompoToSet;i++)
-    if(compoIds[i]>=nbOfCompo || compoIds[i]<0)
+    if(compoIds[i]>=(int)nbOfCompo || compoIds[i]<0)
       {
         std::ostringstream oss; oss << "Specified component id is out of range (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompo << ")";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -273,7 +273,7 @@ std::string DataArray::cppRepr(const std::string& varName) const
  */
 void DataArray::setInfoOnComponents(const std::vector<std::string>& info)
 {
-  if(getNumberOfComponents()!=(int)info.size())
+  if(getNumberOfComponents()!=info.size())
     {
       std::ostringstream oss; oss << "DataArray::setInfoOnComponents : input is of size " << info.size() << " whereas number of components is equal to " << getNumberOfComponents() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -556,7 +556,7 @@ void DataArray::setInfoOnComponent(int i, const std::string& info)
  */
 void DataArray::setInfoAndChangeNbOfCompo(const std::vector<std::string>& info)
 {
-  if(getNumberOfComponents()!=(int)info.size())
+  if(getNumberOfComponents()!=info.size())
     {
       if(!isAllocated())
         _info_on_compo=info;
@@ -581,7 +581,7 @@ void DataArray::checkNbOfTuples(int nbOfTuples, const std::string& msg) const
 
 void DataArray::checkNbOfComps(int nbOfCompo, const std::string& msg) const
 {
-  if(getNumberOfComponents()!=nbOfCompo)
+  if((int)getNumberOfComponents()!=nbOfCompo)
     {
       std::ostringstream oss; oss << msg << " : mismatch number of components : expected " << nbOfCompo << " having " << getNumberOfComponents() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -1246,7 +1246,7 @@ DataArrayInt *DataArrayDouble::findClosestTupleId(const DataArrayDouble *other) 
   if(!other)
     throw INTERP_KERNEL::Exception("DataArrayDouble::findClosestTupleId : other instance is NULL !");
   checkAllocated(); other->checkAllocated();
-  int nbOfCompo=getNumberOfComponents();
+  std::size_t nbOfCompo(getNumberOfComponents());
   if(nbOfCompo!=other->getNumberOfComponents())
     {
       std::ostringstream oss; oss << "DataArrayDouble::findClosestTupleId : number of components in this is " << nbOfCompo;
@@ -1309,7 +1309,8 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
     throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : input array is NULL !");
   if(!isAllocated() || !otherBBoxFrmt->isAllocated())
     throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : this and input array must be allocated !");
-  int nbOfComp(getNumberOfComponents()),nbOfTuples(getNumberOfTuples());
+  std::size_t nbOfComp(getNumberOfComponents());
+  int nbOfTuples(getNumberOfTuples());
   if(nbOfComp!=otherBBoxFrmt->getNumberOfComponents())
     {
       std::ostringstream oss; oss << "DataArrayDouble::computeNbOfInteractionsWith : this number of components (" << nbOfComp << ") must be equal to the number of components of input array (" << otherBBoxFrmt->getNumberOfComponents() << ") !";
@@ -3189,7 +3190,7 @@ DataArrayDouble *DataArrayDouble::Aggregate(const std::vector<const DataArrayDou
   if(a.empty())
     throw INTERP_KERNEL::Exception("DataArrayDouble::Aggregate : input list must contain at least one NON EMPTY DataArrayDouble !");
   std::vector<const DataArrayDouble *>::const_iterator it=a.begin();
-  int nbOfComp=(*it)->getNumberOfComponents();
+  std::size_t nbOfComp((*it)->getNumberOfComponents());
   int nbt=(*it++)->getNumberOfTuples();
   for(int i=1;it!=a.end();it++,i++)
     {
@@ -3228,7 +3229,7 @@ DataArrayDouble *DataArrayDouble::Dot(const DataArrayDouble *a1, const DataArray
     throw INTERP_KERNEL::Exception("DataArrayDouble::Dot : input DataArrayDouble instance is NULL !");
   a1->checkAllocated();
   a2->checkAllocated();
-  int nbOfComp=a1->getNumberOfComponents();
+  std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array Dot !");
   int nbOfTuple=a1->getNumberOfTuples();
@@ -3242,7 +3243,7 @@ DataArrayDouble *DataArrayDouble::Dot(const DataArrayDouble *a1, const DataArray
   for(int i=0;i<nbOfTuple;i++)
     {
       double sum=0.;
-      for(int j=0;j<nbOfComp;j++)
+      for(std::size_t j=0;j<nbOfComp;j++)
         sum+=a1Ptr[i*nbOfComp+j]*a2Ptr[i*nbOfComp+j];
       retPtr[i]=sum;
     }
@@ -3272,7 +3273,7 @@ DataArrayDouble *DataArrayDouble::CrossProduct(const DataArrayDouble *a1, const 
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayDouble::CrossProduct : input DataArrayDouble instance is NULL !");
-  int nbOfComp=a1->getNumberOfComponents();
+  std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array crossProduct !");
   if(nbOfComp!=3)
@@ -3312,7 +3313,7 @@ DataArrayDouble *DataArrayDouble::Max(const DataArrayDouble *a1, const DataArray
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayDouble::Max : input DataArrayDouble instance is NULL !");
-  int nbOfComp=a1->getNumberOfComponents();
+  std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array Max !");
   int nbOfTuple=a1->getNumberOfTuples();
@@ -3347,7 +3348,7 @@ DataArrayDouble *DataArrayDouble::Min(const DataArrayDouble *a1, const DataArray
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayDouble::Min : input DataArrayDouble instance is NULL !");
-  int nbOfComp=a1->getNumberOfComponents();
+  std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array min !");
   int nbOfTuple=a1->getNumberOfTuples();
@@ -4559,7 +4560,7 @@ DataArrayInt *DataArrayInt::indicesOfSubPart(const DataArrayInt& partOfThis) con
   std::map<int,int> m;
   for(int i=0;i<thisNbTuples;i++,thisPt++)
     m[*thisPt]=i;
-  if(m.size()!=thisNbTuples)
+  if((int)m.size()!=thisNbTuples)
     throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : some elements appears more than once !");
   for(int i=0;i<nbTuples;i++,retPt++,pt++)
     {
@@ -4915,7 +4916,7 @@ bool DataArrayInt::hasUniqueValues() const
     throw INTERP_KERNEL::Exception("DataArrayInt::hasOnlyUniqueValues: must be applied on DataArrayInt with only one component, you can call 'rearrange' method before !");
   int nbOfTuples(getNumberOfTuples());
   std::set<int> s(begin(),end());  // in C++11, should use unordered_set (O(1) complexity)
-  if (s.size() != nbOfTuples)
+  if ((int)s.size() != nbOfTuples)
     return false;
   return true;
 }
@@ -5022,7 +5023,7 @@ DataArrayInt *DataArrayInt::findIdsEqualTuple(const int *tupleBg, const int *tup
 {
   std::size_t nbOfCompoExp(std::distance(tupleBg,tupleEnd));
   checkAllocated();
-  if(getNumberOfComponents()!=(int)nbOfCompoExp)
+  if(getNumberOfComponents()!=nbOfCompoExp)
     {
       std::ostringstream oss; oss << "DataArrayInt::findIdsEqualTuple : mismatch of number of components. Input tuple has " << nbOfCompoExp << " whereas this array has " << getNumberOfComponents() << " components !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -5397,7 +5398,7 @@ DataArrayInt *DataArrayInt::Aggregate(const DataArrayInt *a1, const DataArrayInt
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : input DataArrayInt instance is NULL !");
-  int nbOfComp=a1->getNumberOfComponents();
+  std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array Aggregation !");
   int nbOfTuple1=a1->getNumberOfTuples();
@@ -5434,7 +5435,7 @@ DataArrayInt *DataArrayInt::Aggregate(const std::vector<const DataArrayInt *>& a
   if(a.empty())
     throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : input list must be NON EMPTY !");
   std::vector<const DataArrayInt *>::const_iterator it=a.begin();
-  int nbOfComp=(*it)->getNumberOfComponents();
+  std::size_t nbOfComp((*it)->getNumberOfComponents());
   int nbt=(*it++)->getNumberOfTuples();
   for(int i=1;it!=a.end();it++,i++)
     {

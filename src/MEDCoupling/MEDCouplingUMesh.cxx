@@ -2363,7 +2363,7 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   DAInt neighIInit00(tmp11);
   // Neighbor information of the mesh WITH the crack (some neighbors are removed):
   DataArrayInt *idsTmp=0;
-  bool b=m01->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsTmp);
+  m01->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsTmp);
   DAInt ids(idsTmp);
   // In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
   // of the frontier given in parameter (i.e. the cells of low dimension from the group delimiting the crack):
@@ -3044,14 +3044,14 @@ void MEDCouplingUMesh::setConnectivity(DataArrayInt *conn, DataArrayInt *connInd
  * Copy constructor. If 'deepCopy' is false \a this is a shallow copy of other.
  * If 'deeCpy' is true all arrays (coordinates and connectivities) are deeply copied.
  */
-MEDCouplingUMesh::MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCopy):MEDCouplingPointSet(other,deepCopy),_mesh_dim(other._mesh_dim),
+MEDCouplingUMesh::MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy):MEDCouplingPointSet(other,deepCpy),_mesh_dim(other._mesh_dim),
     _nodal_connec(0),_nodal_connec_index(0),
     _types(other._types)
 {
   if(other._nodal_connec)
-    _nodal_connec=other._nodal_connec->performCopyOrIncrRef(deepCopy);
+    _nodal_connec=other._nodal_connec->performCopyOrIncrRef(deepCpy);
   if(other._nodal_connec_index)
-    _nodal_connec_index=other._nodal_connec_index->performCopyOrIncrRef(deepCopy);
+    _nodal_connec_index=other._nodal_connec_index->performCopyOrIncrRef(deepCpy);
 }
 
 MEDCouplingUMesh::~MEDCouplingUMesh()
@@ -3716,7 +3716,7 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::clipSingle3DCellByPlane(const double 
   std::vector<std::vector<int> > res;
   buildSubCellsFromCut(cut3DSurf,desc2->begin(),descIndx2->begin(),mDesc1->getCoords()->begin(),eps,res);
   std::size_t sz(res.size());
-  if(res.size()==mDesc1->getNumberOfCells() && sameNbNodes)
+  if((int)res.size()==mDesc1->getNumberOfCells() && sameNbNodes)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::clipSingle3DCellByPlane : cell is not clipped !");
   for(std::size_t i=0;i<sz;i++)
     {
@@ -3972,7 +3972,7 @@ DataArrayDouble *MEDCouplingUMesh::distanceToPoints(const DataArrayDouble *pts, 
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::distanceToPoints works only for spaceDim=meshDim+1 !");
   if(meshDim!=2 && meshDim!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::distanceToPoints : only mesh dimension 2 and 1 are implemented !");
-  if(pts->getNumberOfComponents()!=spaceDim)
+  if((int)pts->getNumberOfComponents()!=spaceDim)
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::distanceToPoints : input pts DataArrayDouble has " << pts->getNumberOfComponents() << " components whereas it should be equal to " << spaceDim << " (mesh spaceDimension) !";
       throw INTERP_KERNEL::Exception(oss.str());

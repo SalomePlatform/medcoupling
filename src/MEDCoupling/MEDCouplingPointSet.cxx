@@ -40,10 +40,10 @@ MEDCouplingPointSet::MEDCouplingPointSet():_coords(0)
 {
 }
 
-MEDCouplingPointSet::MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCopy):MEDCouplingMesh(other),_coords(0)
+MEDCouplingPointSet::MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCpy):MEDCouplingMesh(other),_coords(0)
 {
   if(other._coords)
-    _coords=other._coords->performCopyOrIncrRef(deepCopy);
+    _coords=other._coords->performCopyOrIncrRef(deepCpy);
 }
 
 MEDCouplingPointSet::~MEDCouplingPointSet()

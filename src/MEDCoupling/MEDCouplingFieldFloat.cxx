@@ -42,7 +42,7 @@ MEDCouplingFieldFloat::MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscret
 {
 }
 
-MEDCouplingFieldFloat::MEDCouplingFieldFloat(const MEDCouplingFieldFloat& other, bool deepCopy):MEDCouplingFieldT<float>(other,deepCopy)
+MEDCouplingFieldFloat::MEDCouplingFieldFloat(const MEDCouplingFieldFloat& other, bool deepCpy):MEDCouplingFieldT<float>(other,deepCpy)
 {
 }
 

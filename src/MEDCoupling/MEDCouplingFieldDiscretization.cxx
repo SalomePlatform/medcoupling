@@ -1701,7 +1701,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
   _discr_per_cell->checkAllocated();
   if(_discr_per_cell->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : no discr per cell array defined but with nb of components different from 1 !");
-  if(_discr_per_cell->getNumberOfTuples()!=vol->getNumberOfTuples())
+  if(_discr_per_cell->getNumberOfTuples()!=(int)vol->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : no discr per cell array defined but mismatch between nb of cells of mesh and size of spatial disr array !");
   MCAuto<DataArrayInt> offset=getOffsetArr(mesh);
   MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); arr->alloc(getNumberOfTuples(mesh),1);

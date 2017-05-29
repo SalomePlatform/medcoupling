@@ -174,9 +174,9 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCopy() const
  * \endif
  * \sa clone()
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const
 {
-  MEDCouplingTimeDiscretization *tdo=timeDiscr()->buildNewTimeReprFromThis(td,deepCopy);
+  MEDCouplingTimeDiscretization *tdo=timeDiscr()->buildNewTimeReprFromThis(td,deepCpy);
   MCAuto<MEDCouplingFieldDiscretization> disc;
   if(_type)
     disc=_type->clone();
@@ -548,7 +548,7 @@ MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& f
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy):MEDCouplingFieldT<double>(other,deepCopy)
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingFieldT<double>(other,deepCpy)
 {
 }
 
@@ -2016,7 +2016,6 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::convertQuadraticCellsToLi
         if(!disc2)
           throw INTERP_KERNEL::Exception("convertQuadraticCellsToLinear : Not a ON_GAUSS_PT field");
         std::set<INTERP_KERNEL::NormalizedCellType> gt2(umesh->getAllGeoTypes());
-        const DataArrayDouble *arr(getArray());
         std::vector< MCAuto<DataArrayInt> > cellIdsV;
         std::vector< MCAuto<MEDCouplingUMesh> > meshesV;
         std::vector< MEDCouplingGaussLocalization > glV;
@@ -2980,12 +2979,12 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
         ptsInReal=gl.localizePtsInRefCooForEachCell(vorCellsForCurDisc->getCoords(),subMesh);
       }
       int nbPtsPerCell(vorCellsForCurDisc->getNumberOfNodes());
-      for(std::size_t i=0;i<ids.size();i++)
+      for(std::size_t j=0;j<ids.size();j++)
         {
           MCAuto<MEDCouplingUMesh> elt(vorCellsForCurDisc->clone(false));
-          MCAuto<DataArrayDouble> coo(ptsInReal->selectByTupleIdSafeSlice(i*nbPtsPerCell,(i+1)*nbPtsPerCell,1));
-          elt->setCoords(coo);
-          cells[ids[i]]=elt;
+          MCAuto<DataArrayDouble> coo4(ptsInReal->selectByTupleIdSafeSlice(j*nbPtsPerCell,(j+1)*nbPtsPerCell,1));
+          elt->setCoords(coo4);
+          cells[ids[j]]=elt;
         }
     }
   std::vector< const MEDCouplingUMesh * > cellsPtr(VecAutoToVecOfCstPt(cells));

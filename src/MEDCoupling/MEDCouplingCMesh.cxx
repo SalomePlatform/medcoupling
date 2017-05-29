@@ -36,9 +36,9 @@ MEDCouplingCMesh::MEDCouplingCMesh():_x_array(0),_y_array(0),_z_array(0)
 {
 }
 
-MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCopy):MEDCouplingStructuredMesh(other,deepCopy)
+MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy):MEDCouplingStructuredMesh(other,deepCpy)
 {
-  if(deepCopy)
+  if(deepCpy)
     {
       if(other._x_array)
         _x_array=other._x_array->deepCopy();

@@ -222,7 +222,7 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::localizePtsInRefCooForEach
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbPts*nbCells,outDim);
   double *retPtr(ret->getPointer());
-  if(dim!=ptsInRefCoo->getNumberOfComponents())
+  if(dim!=(int)ptsInRefCoo->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell : number of components of input coo is not equal to dim of element !");
   const std::vector<double>& wg(getWeights());
   INTERP_KERNEL::GaussCoords calculator;
@@ -240,7 +240,7 @@ MCAuto<MEDCouplingUMesh> MEDCouplingGaussLocalization::buildRefCell() const
 {
   MCAuto<DataArrayDouble> coo(DataArrayDouble::New());
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getType()));
-  if(getDimension()!=cm.getDimension())
+  if(getDimension()!=(int)cm.getDimension())
     throw INTERP_KERNEL::Exception("BuildRefCell : dimension mistmatch !");
   coo->alloc(cm.getNumberOfNodes(),getDimension());
   std::copy(_ref_coord.begin(),_ref_coord.end(),coo->getPointer());

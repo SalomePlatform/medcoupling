@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingIMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
@@ -37,7 +37,7 @@ MEDCouplingIMesh::MEDCouplingIMesh():_space_dim(-1)
   _structure[0]=0; _structure[1]=0; _structure[2]=0;
 }
 
-MEDCouplingIMesh::MEDCouplingIMesh(const MEDCouplingIMesh& other, bool deepCopy):MEDCouplingStructuredMesh(other,deepCopy),_space_dim(other._space_dim),_axis_unit(other._axis_unit)
+MEDCouplingIMesh::MEDCouplingIMesh(const MEDCouplingIMesh& other, bool deepCpy):MEDCouplingStructuredMesh(other,deepCpy),_space_dim(other._space_dim),_axis_unit(other._axis_unit)
 {
   _origin[0]=other._origin[0]; _origin[1]=other._origin[1]; _origin[2]=other._origin[2];
   _dxyz[0]=other._dxyz[0]; _dxyz[1]=other._dxyz[1]; _dxyz[2]=other._dxyz[2];
@@ -289,7 +289,7 @@ void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<int>& coarseSt, co
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the parameters 1 or 3 are NULL or not allocated !");
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseSt)),nbOfTuplesInFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(fineLocInCoarse));
   int nbCompo(fineDA->getNumberOfComponents());
-  if(coarseDA->getNumberOfComponents()!=nbCompo)
+  if((int)coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
@@ -419,7 +419,7 @@ void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<int>& coarseS
   std::vector<int> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
   int nbCompo(fineDA->getNumberOfComponents());
-  if(coarseDA->getNumberOfComponents()!=nbCompo)
+  if((int)coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
@@ -548,7 +548,7 @@ void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the parameters 1 or 3 are NULL or not allocated !");
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseSt)),nbOfTuplesInFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(fineLocInCoarse));
   int nbCompo(fineDA->getNumberOfComponents());
-  if(coarseDA->getNumberOfComponents()!=nbCompo)
+  if((int)coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
@@ -654,7 +654,7 @@ void MEDCouplingIMesh::SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, 
   std::vector<int> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
   int nbCompo(fineDA->getNumberOfComponents());
-  if(coarseDA->getNumberOfComponents()!=nbCompo)
+  if((int)coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
@@ -746,7 +746,7 @@ void MEDCouplingIMesh::SpreadCoarseToFineGhostZone(const DataArrayDouble *coarse
   std::vector<int> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
   int nbCompo(fineDA->getNumberOfComponents());
-  if(coarseDA->getNumberOfComponents()!=nbCompo)
+  if((int)coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhostZone : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhostZone : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");

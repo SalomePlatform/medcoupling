@@ -114,8 +114,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::vector<std::string> keys() const;
     MEDCOUPLING_EXPORT void erase(const std::string& key);
     MEDCOUPLING_EXPORT void clear();
-    MEDCOUPLING_EXPORT void setKeyValue(const std::string& key, const std::string& value);
-    MEDCOUPLING_EXPORT void setKeyValueForce(const std::string& key, const std::string& value);
+    MEDCOUPLING_EXPORT void setKeyValue(const std::string& key, const std::string& val);
+    MEDCOUPLING_EXPORT void setKeyValueForce(const std::string& key, const std::string& val);
     MEDCOUPLING_EXPORT std::string printSelf() const;
   private:
     GlobalDict() { }

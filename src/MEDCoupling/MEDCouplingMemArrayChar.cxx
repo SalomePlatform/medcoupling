@@ -453,7 +453,7 @@ DataArrayChar *DataArrayChar::Aggregate(const std::vector<const DataArrayChar *>
   if(a.empty())
     throw INTERP_KERNEL::Exception("DataArrayChar::Aggregate : input list must be NON EMPTY !");
   std::vector<const DataArrayChar *>::const_iterator it=a.begin();
-  int nbOfComp=(*it)->getNumberOfComponents();
+  std::size_t nbOfComp((*it)->getNumberOfComponents());
   int nbt=(*it++)->getNumberOfTuples();
   for(int i=1;it!=a.end();it++,i++)
     {

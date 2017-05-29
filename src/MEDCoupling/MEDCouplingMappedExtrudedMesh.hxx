@@ -113,7 +113,7 @@ namespace MEDCoupling
   private:
     MEDCouplingMappedExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId);
     MEDCouplingMappedExtrudedMesh(const MEDCouplingCMesh *mesh3D);
-    MEDCouplingMappedExtrudedMesh(const MEDCouplingMappedExtrudedMesh& other, bool deepCopy);
+    MEDCouplingMappedExtrudedMesh(const MEDCouplingMappedExtrudedMesh& other, bool deepCpy);
     MEDCouplingMappedExtrudedMesh();
     void computeExtrusion(const MEDCouplingUMesh *mesh3D);
     void computeExtrusionAlg(const MEDCouplingUMesh *mesh3D);

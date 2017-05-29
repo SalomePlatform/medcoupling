@@ -42,7 +42,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
   protected:
     MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscretization td);
-    MEDCouplingFieldFloat(const MEDCouplingFieldFloat& other, bool deepCopy);
+    MEDCouplingFieldFloat(const MEDCouplingFieldFloat& other, bool deepCpy);
     MEDCouplingFieldFloat(NatureOfField n, MEDCouplingTimeDiscretizationFloat *td, MEDCouplingFieldDiscretization *type);
     MEDCouplingFieldFloat(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
     ~MEDCouplingFieldFloat() { }

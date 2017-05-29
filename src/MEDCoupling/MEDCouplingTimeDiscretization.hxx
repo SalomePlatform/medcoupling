@@ -46,6 +46,7 @@ namespace MEDCoupling
   protected:
     TimeHolder() { }
     TimeHolder(const TimeHolder& other):_time_unit(other._time_unit) { }
+    virtual ~TimeHolder() { }
   private:
     std::string _time_unit;
   };

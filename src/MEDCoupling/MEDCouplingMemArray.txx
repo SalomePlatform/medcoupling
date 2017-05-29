@@ -659,7 +659,7 @@ namespace MEDCoupling
         std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::getIJSafe : request for tupleId " << tupleId << " should be in [0," << getNumberOfTuples() << ") !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    if(compoId<0 || compoId>=getNumberOfComponents())
+    if(compoId<0 || compoId>=(int)getNumberOfComponents())
       {
         std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::getIJSafe : request for compoId " << compoId << " should be in [0," << getNumberOfComponents() << ") !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -825,7 +825,7 @@ namespace MEDCoupling
   {
     if(isAllocated())
       {
-        if(nbOfTuple!=getNumberOfTuples() || nbOfCompo!=getNumberOfComponents())
+        if(nbOfTuple!=getNumberOfTuples() || nbOfCompo!=(int)getNumberOfComponents())
           alloc(nbOfTuple,nbOfCompo);
       }
     else
@@ -1136,21 +1136,21 @@ namespace MEDCoupling
           {
             DataArrayTemplate<T> *directRet(const_cast<DataArrayTemplate<T> *>(this));
             directRet->incrRef();
-            MCAuto<DataArrayTemplate<T> > ret(directRet);
-            return DynamicCastSafe<DataArrayTemplate<T>,typename Traits<T>::ArrayTypeCh>(ret);
+            MCAuto<DataArrayTemplate<T> > ret2(directRet);
+            return DynamicCastSafe<DataArrayTemplate<T>,typename Traits<T>::ArrayTypeCh>(ret2);
           }
         else
           {
-            MCAuto<DataArray> ret(selectByTupleIdSafeSlice(a,b,c));
-            return DynamicCastSafe<DataArray,typename Traits<T>::ArrayTypeCh>(ret);
+            MCAuto<DataArray> ret2(selectByTupleIdSafeSlice(a,b,c));
+            return DynamicCastSafe<DataArray,typename Traits<T>::ArrayTypeCh>(ret2);
           }
       }
     const DataArrayPartDefinition *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
     if(dpd)
       {
         MCAuto<DataArrayInt> arr(dpd->toDAI());
-        MCAuto<DataArray> ret(selectByTupleIdSafe(arr->begin(),arr->end()));
-        return DynamicCastSafe<DataArray,typename Traits<T>::ArrayTypeCh>(ret);
+        MCAuto<DataArray> ret2(selectByTupleIdSafe(arr->begin(),arr->end()));
+        return DynamicCastSafe<DataArray,typename Traits<T>::ArrayTypeCh>(ret2);
         
       }
     throw INTERP_KERNEL::Exception("DataArrayTemplate<T>::selectPartDef : unrecognized part def !");
@@ -1928,7 +1928,7 @@ namespace MEDCoupling
     checkAllocated();
     a->checkAllocated();
     tuplesSelec->checkAllocated();
-    int nbOfComp=getNumberOfComponents();
+    std::size_t nbOfComp(getNumberOfComponents());
     if(nbOfComp!=a->getNumberOfComponents())
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setPartOfValuesAdv : This and a do not have the same number of components !");
     if(tuplesSelec->getNumberOfComponents()!=2)
@@ -1993,7 +1993,7 @@ namespace MEDCoupling
     checkAllocated();
     a->checkAllocated();
     tuplesSelec->checkAllocated();
-    int nbOfComp(getNumberOfComponents());
+    std::size_t nbOfComp(getNumberOfComponents());
     if(nbOfComp!=a->getNumberOfComponents())
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : This and a do not have the same number of components !");
     if(tuplesSelec->getNumberOfComponents()!=1)
@@ -2058,7 +2058,7 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValuesSlice : input DataArray aBase is not a DataArrayDouble !");
     checkAllocated();
     a->checkAllocated();
-    int nbOfComp(getNumberOfComponents());
+    std::size_t nbOfComp(getNumberOfComponents());
     const char msg[]="DataArrayDouble::setContigPartOfSelectedValuesSlice";
     int nbOfTupleToWrite(DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg));
     if(nbOfComp!=a->getNumberOfComponents())
@@ -3221,7 +3221,6 @@ struct NotInRange
     this->checkAllocated();
     if(this->getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayDouble::isUniform : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
-    int nbOfTuples(this->getNumberOfTuples());
     const T *w(this->begin()),*end2(this->end());
     const T vmin(val-eps),vmax(val+eps);
     for(;w!=end2;w++)

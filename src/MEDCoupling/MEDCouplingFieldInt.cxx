@@ -42,7 +42,7 @@ MEDCouplingFieldInt::MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretizat
 {
 }
 
-MEDCouplingFieldInt::MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCopy):MEDCouplingFieldT<int>(other,deepCopy)
+MEDCouplingFieldInt::MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCpy):MEDCouplingFieldT<int>(other,deepCpy)
 {
 }
 
