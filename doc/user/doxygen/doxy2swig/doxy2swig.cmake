@@ -34,7 +34,7 @@ SET(_classes_MEDCoupling
    MEDCoupling_1_1MEDCouplingCMesh
    MEDCoupling_1_1MEDCouplingRemapper
    MEDCoupling_1_1DataArray
-   MEDCoupling_1_1DataArrayInt
+   #MEDCoupling_1_1DataArrayInt
    MEDCoupling_1_1DataArrayDouble
     )
 
