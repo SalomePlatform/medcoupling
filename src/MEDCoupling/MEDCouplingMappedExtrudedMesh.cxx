@@ -246,15 +246,15 @@ void MEDCouplingMappedExtrudedMesh::checkDeepEquivalOnSameNodesWith(const MEDCou
   throw INTERP_KERNEL::Exception("MEDCouplingMappedExtrudedMesh::checkDeepEquivalOnSameNodesWith : not implemented yet !");
 }
 
-INTERP_KERNEL::NormalizedCellType MEDCouplingMappedExtrudedMesh::getTypeOfCell(int cellId) const
+INTERP_KERNEL::NormalizedCellType MEDCouplingMappedExtrudedMesh::getTypeOfCell(std::size_t cellId) const
 {
   const int *ids(_mesh3D_ids->begin());
-  int nbOf3DCells(_mesh3D_ids->getNumberOfTuples());
+  std::size_t nbOf3DCells(_mesh3D_ids->getNumberOfTuples());
   const int *where(std::find(ids,ids+nbOf3DCells,cellId));
   if(where==ids+nbOf3DCells)
     throw INTERP_KERNEL::Exception("Invalid cellId specified >= getNumberOfCells() !");
-  int nbOfCells2D(_mesh2D->getNumberOfCells());
-  int locId(((int)std::distance(ids,where))%nbOfCells2D);
+  std::size_t nbOfCells2D(_mesh2D->getNumberOfCells());
+  std::size_t locId((std::distance(ids,where))%nbOfCells2D);
   INTERP_KERNEL::NormalizedCellType tmp(_mesh2D->getTypeOfCell(locId));
   return INTERP_KERNEL::CellModel::GetCellModel(tmp).getExtrudedType();
 }
@@ -322,11 +322,11 @@ DataArrayInt *MEDCouplingMappedExtrudedMesh::computeEffectiveNbOfNodesPerCell() 
   return computeNbOfNodesPerCell();
 }
 
-int MEDCouplingMappedExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+std::size_t MEDCouplingMappedExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  int ret(0);
-  int nbOfCells2D(_mesh2D->getNumberOfCells());
-  for(int i=0;i<nbOfCells2D;i++)
+  std::size_t ret(0);
+  std::size_t nbOfCells2D(_mesh2D->getNumberOfCells());
+  for(std::size_t i=0;i<nbOfCells2D;i++)
     {
       INTERP_KERNEL::NormalizedCellType t(_mesh2D->getTypeOfCell(i));
       if(INTERP_KERNEL::CellModel::GetCellModel(t).getExtrudedType()==type)

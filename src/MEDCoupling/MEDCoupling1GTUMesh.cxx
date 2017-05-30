@@ -108,7 +108,7 @@ DataArrayInt *MEDCoupling1GTUMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCe
 /*!
  * Returns nb of cells having the geometric type \a type. No throw if no cells in \a this has the geometric type \a type.
  */
-int MEDCoupling1GTUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+std::size_t MEDCoupling1GTUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   return type==getCellModelEnum()?getNumberOfCells():0;
 }
@@ -119,7 +119,7 @@ int MEDCoupling1GTUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellT
  *  \return INTERP_KERNEL::NormalizedCellType - enumeration item describing the cell type.
  *  \throw If \a cellId is invalid. Valid range is [0, \a this->getNumberOfCells() ).
  */
-INTERP_KERNEL::NormalizedCellType MEDCoupling1GTUMesh::getTypeOfCell(int cellId) const
+INTERP_KERNEL::NormalizedCellType MEDCoupling1GTUMesh::getTypeOfCell(std::size_t cellId) const
 {
   if(cellId>=0 && cellId<getNumberOfCells())
     return getCellModelEnum();

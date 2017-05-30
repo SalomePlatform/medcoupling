@@ -2406,7 +2406,7 @@ void MEDCouplingBasicsTest1::testCMesh1()
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_HEXA8,mesh1->getTypeOfCell(1));
   
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_HEXA8,*((mesh1->getAllGeoTypes()).begin()));
-  CPPUNIT_ASSERT_EQUAL(27,mesh1->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
+  CPPUNIT_ASSERT_EQUAL(27,(int)mesh1->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
   CPPUNIT_ASSERT_THROW(mesh1->getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4),INTERP_KERNEL::Exception);
   
   std::vector<double> coo;
@@ -2502,7 +2502,7 @@ void MEDCouplingBasicsTest1::testCMesh2()
   MEDCouplingUMesh *partMesh1=
     dynamic_cast<MEDCouplingUMesh *>(mesh1->buildPart(cells1,cells1+4));
   CPPUNIT_ASSERT(partMesh1);
-  CPPUNIT_ASSERT_EQUAL(4,partMesh1->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
+  CPPUNIT_ASSERT_EQUAL(4,(int)partMesh1->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
   CPPUNIT_ASSERT_EQUAL(64,mesh1->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(64,partMesh1->getNumberOfNodes());
   
@@ -2511,7 +2511,7 @@ void MEDCouplingBasicsTest1::testCMesh2()
   MEDCouplingCMesh *partMesh2=
     dynamic_cast<MEDCouplingCMesh *>(mesh1->buildPartAndReduceNodes(cells2,cells2+2,arr1));
   CPPUNIT_ASSERT(partMesh2);
-  CPPUNIT_ASSERT_EQUAL(2,partMesh2->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
+  CPPUNIT_ASSERT_EQUAL(2,(int)partMesh2->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
   CPPUNIT_ASSERT_EQUAL(12,partMesh2->getNumberOfNodes());
   
   int cells3[2]={2,3};
@@ -2519,7 +2519,7 @@ void MEDCouplingBasicsTest1::testCMesh2()
   MEDCouplingUMesh *partMesh3=
     dynamic_cast<MEDCouplingUMesh *>(partMesh1->buildPartAndReduceNodes(cells3,cells3+2,arr2));
   CPPUNIT_ASSERT(partMesh3);
-  CPPUNIT_ASSERT_EQUAL(2,partMesh3->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
+  CPPUNIT_ASSERT_EQUAL(2,(int)partMesh3->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
   CPPUNIT_ASSERT_EQUAL(12,partMesh3->getNumberOfNodes());
   
   CPPUNIT_ASSERT_THROW(mesh1->simplexize(0),INTERP_KERNEL::Exception);

@@ -42,8 +42,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getCellModelEnum() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
     MEDCOUPLING_EXPORT DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
+    MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(std::size_t cellId) const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDCOUPLING_EXPORT std::vector<int> getDistributionOfTypes() const;
     MEDCOUPLING_EXPORT void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const;

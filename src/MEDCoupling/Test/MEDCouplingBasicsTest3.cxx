@@ -1403,8 +1403,8 @@ void MEDCouplingBasicsTest3::testExtrudedMesh5()
   i->checkConsistencyLight();
   CPPUNIT_ASSERT_EQUAL(36,(int)i->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(37,i->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(12,i->getNumberOfCellsWithType(INTERP_KERNEL::NORM_TRI3));
-  CPPUNIT_ASSERT_EQUAL(24,i->getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4));
+  CPPUNIT_ASSERT_EQUAL(12,(int)i->getNumberOfCellsWithType(INTERP_KERNEL::NORM_TRI3));
+  CPPUNIT_ASSERT_EQUAL(24,(int)i->getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4));
   const double expected1[3]={0.25,0.75,2.0625};
   MEDCouplingFieldDouble *j=i->getMeasureField(true);
   for(int ii=0;ii<12;ii++)

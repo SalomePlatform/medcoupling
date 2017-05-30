@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
@@ -2775,11 +2775,10 @@ DataArrayInt *MEDCouplingUMesh::getCellsInBoundingBox(const INTERP_KERNEL::Direc
  *  \return INTERP_KERNEL::NormalizedCellType - enumeration item describing the cell type.
  *  \throw If \a cellId is invalid. Valid range is [0, \a this->getNumberOfCells() ).
  */
-INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) const
+INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(std::size_t cellId) const
 {
-  const int *ptI=_nodal_connec_index->getConstPointer();
-  const int *pt=_nodal_connec->getConstPointer();
-  if(cellId>=0 && cellId<(int)_nodal_connec_index->getNbOfElems()-1)
+  const int *ptI(_nodal_connec_index->begin()),*pt(_nodal_connec->begin());
+  if(cellId>=0 && cellId<_nodal_connec_index->getNbOfElems()-1)
     return (INTERP_KERNEL::NormalizedCellType) pt[ptI[cellId]];
   else
     {
@@ -2821,13 +2820,11 @@ DataArrayInt *MEDCouplingUMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellT
 /*!
  * Returns nb of cells having the geometric type \a type. No throw if no cells in \a this has the geometric type \a type.
  */
-int MEDCouplingUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+std::size_t MEDCouplingUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  const int *ptI=_nodal_connec_index->getConstPointer();
-  const int *pt=_nodal_connec->getConstPointer();
-  int nbOfCells=getNumberOfCells();
-  int ret=0;
-  for(int i=0;i<nbOfCells;i++)
+  const int *ptI(_nodal_connec_index->begin()),*pt(_nodal_connec->begin());
+  std::size_t nbOfCells(getNumberOfCells()),ret(0);
+  for(std::size_t i=0;i<nbOfCells;i++)
     if((INTERP_KERNEL::NormalizedCellType) pt[ptI[i]]==type)
       ret++;
   return ret;

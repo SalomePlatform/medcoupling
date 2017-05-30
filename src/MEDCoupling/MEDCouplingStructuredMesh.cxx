@@ -56,7 +56,7 @@ bool MEDCouplingStructuredMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, do
   return MEDCouplingMesh::isEqualIfNotWhy(other,prec,reason);
 }
 
-INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(int cellId) const
+INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(std::size_t cellId) const
 {
   return GetGeoTypeGivenMeshDimension(getMeshDimension());
 }
@@ -85,12 +85,12 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingStructuredMesh::getAllGeo
   return ret2;
 }
 
-int MEDCouplingStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+std::size_t MEDCouplingStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  int ret=getNumberOfCells();
+  std::size_t ret(getNumberOfCells());
   if(type==getTypeOfCell(0))
     return ret;
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0));
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0)));
   std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getNumberOfCellsWithType : no specified type ! Type available is " << cm.getRepr() << " !";
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
