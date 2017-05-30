@@ -292,6 +292,7 @@ namespace MEDCoupling
     void insertAtTheEnd(InputIterator first, InputIterator last);
     MEDCOUPLING_EXPORT static void SetArrayIn(typename Traits<T>::ArrayType *newArray, typename Traits<T>::ArrayType* &arrayToSet);
     MEDCOUPLING_EXPORT void writeOnPlace(std::size_t id, T element0, const T *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
+    MEDCOUPLING_EXPORT void fillWithZero();
   public:
     MEDCOUPLING_EXPORT MemArray<T>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<T>& accessToMemArray() const { return _mem; }
@@ -339,6 +340,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void abs();
     MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *computeAbs() const;
     MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *performCopyOrIncrRef(bool dCpy) const;
+    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *sumPerTuple() const;
+    MEDCOUPLING_EXPORT void iota(T init=(T)0);
   protected:
     static typename Traits<T>::ArrayType *PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self);
     template<class OP>
@@ -355,7 +358,6 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT bool isUniform(T val, T eps) const;
-    MEDCOUPLING_EXPORT void iota(T init=0.);
   };
 }
 
@@ -405,7 +407,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT double doubleValue() const;
     MEDCOUPLING_EXPORT DataArrayDouble *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayDouble *buildNewEmptyInstance() const { return DataArrayDouble::New(); }
-    MEDCOUPLING_EXPORT void fillWithZero();
     MEDCOUPLING_EXPORT void checkMonotonic(bool increasing, double eps) const;
     MEDCOUPLING_EXPORT bool isMonotonic(bool increasing, double eps) const;
     MEDCOUPLING_EXPORT std::string repr() const;
@@ -471,7 +472,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *trace() const;
     MEDCOUPLING_EXPORT DataArrayDouble *deviator() const;
     MEDCOUPLING_EXPORT DataArrayDouble *magnitude() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *sumPerTuple() const;
     MEDCOUPLING_EXPORT DataArrayDouble *maxPerTuple() const;
     MEDCOUPLING_EXPORT DataArrayDouble *maxPerTupleWithCompoId(DataArrayInt32* &compoIdOfMaxPerTuple) const;
     MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrix() const;
@@ -533,6 +533,11 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void switchOnTupleEqualTo(T val, std::vector<bool>& vec) const;
     MEDCOUPLING_EXPORT void switchOnTupleNotEqualTo(T val, std::vector<bool>& vec) const;
     MEDCOUPLING_EXPORT DataArrayIdType *buildPermutationArr(const DataArrayDiscrete<T>& other) const;
+    MEDCOUPLING_EXPORT DataArrayIdType *indicesOfSubPart(const DataArrayDiscrete<T>& partOfThis) const;
+    MEDCOUPLING_EXPORT void checkMonotonic(bool increasing) const;
+    MEDCOUPLING_EXPORT bool isMonotonic(bool increasing) const;
+    MEDCOUPLING_EXPORT void checkStrictlyMonotonic(bool increasing) const;
+    MEDCOUPLING_EXPORT bool isStrictlyMonotonic(bool increasing) const;
   protected:
     template<class ALG>
     void switchOnTupleAlg(T val, std::vector<bool>& vec, ALG algo) const;
@@ -559,14 +564,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getHashCode() const;
     MEDCOUPLING_EXPORT DataArrayInt32 *deepCopy() const;//ok
     MEDCOUPLING_EXPORT DataArrayInt32 *buildNewEmptyInstance() const { return DataArrayInt32::New(); }//ok
-    MEDCOUPLING_EXPORT DataArrayInt32 *indicesOfSubPart(const DataArrayInt32& partOfThis) const;
-    MEDCOUPLING_EXPORT DataArrayInt32 *sumPerTuple() const;
-    MEDCOUPLING_EXPORT void checkMonotonic(bool increasing) const;
-    MEDCOUPLING_EXPORT bool isMonotonic(bool increasing) const;
-    MEDCOUPLING_EXPORT void checkStrictlyMonotonic(bool increasing) const;
-    MEDCOUPLING_EXPORT bool isStrictlyMonotonic(bool increasing) const;
-    MEDCOUPLING_EXPORT void fillWithZero();
-    MEDCOUPLING_EXPORT void iota(int init=0);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
     MEDCOUPLING_EXPORT std::string reprNotTooLong() const;
@@ -710,7 +707,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayChar& other) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayChar& other) const;
-    MEDCOUPLING_EXPORT void fillWithZero();
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
     MEDCOUPLING_EXPORT DataArrayInt *convertToIntArr() const;

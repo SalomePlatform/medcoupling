@@ -810,16 +810,6 @@ DataArrayDouble *DataArrayDouble::deepCopy() const
 }
 
 /*!
- * Assign zero to all values in \a this array. To know more on filling arrays see
- * \ref MEDCouplingArrayFill.
- * \throw If \a this is not allocated.
- */
-void DataArrayDouble::fillWithZero()
-{
-  fillWithValue(0.);
-}
-
-/*!
  * Checks that \a this array is consistently **increasing** or **decreasing** in value,
  * with at least absolute difference value of |\a eps| at each step.
  * If not an exception is thrown.
@@ -2406,28 +2396,6 @@ DataArrayDouble *DataArrayDouble::magnitude() const
 }
 
 /*!
- * Computes for each tuple the sum of number of components values in the tuple and return it.
- * 
- * \return DataArrayDouble * - the new instance of DataArrayDouble containing the
- *          same number of tuples as \a this array and one component.
- *          The caller is to delete this result array using decrRef() as it is no more
- *          needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayDouble *DataArrayDouble::sumPerTuple() const
-{
-  checkAllocated();
-  int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  ret->alloc(nbOfTuple,1);
-  const double *src(getConstPointer());
-  double *dest(ret->getPointer());
-  for(int i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
-    *dest=std::accumulate(src,src+nbOfComp,0.);
-  return ret.retn();
-}
-
-/*!
  * Computes the maximal value within every tuple of \a this array.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples as \a this array and one component.
@@ -3748,35 +3716,6 @@ DataArrayInt32 *DataArrayInt32::deepCopy() const
 }
 
 /*!
- * Assign zero to all values in \a this array. To know more on filling arrays see
- * \ref MEDCouplingArrayFill.
- * \throw If \a this is not allocated.
- */
-void DataArrayInt::fillWithZero()
-{
-  fillWithValue(0);
-}
-
-/*!
- * Set all values in \a this array so that the i-th element equals to \a init + i
- * (i starts from zero). To know more on filling arrays see \ref MEDCouplingArrayFill.
- *  \param [in] init - value to assign to the first element of array.
- *  \throw If \a this->getNumberOfComponents() != 1
- *  \throw If \a this is not allocated.
- */
-void DataArrayInt::iota(int init)
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
-  int *ptr=getPointer();
-  int ntuples=getNumberOfTuples();
-  for(int i=0;i<ntuples;i++)
-    ptr[i]=init+i;
-  declareAsNew();
-}
-
-/*!
  * Returns a textual and human readable representation of \a this instance of
  * DataArrayInt. This text is shown when a DataArrayInt is printed in Python.
  * \return std::string - text describing \a this DataArrayInt.
@@ -4347,180 +4286,6 @@ MCAuto< MapKeyVal<int> > DataArrayInt::invertArrayN2O2O2NOptimized() const
       m[v]=i;
     }
   return ret;
-}
-
-/*!
- * Computes for each tuple the sum of number of components values in the tuple and return it.
- * 
- * \return DataArrayInt * - the new instance of DataArrayInt containing the
- *          same number of tuples as \a this array and one component.
- *          The caller is to delete this result array using decrRef() as it is no more
- *          needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayInt *DataArrayInt::sumPerTuple() const
-{
-  checkAllocated();
-  int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
-  MCAuto<DataArrayInt> ret(DataArrayInt::New());
-  ret->alloc(nbOfTuple,1);
-  const int *src(getConstPointer());
-  int *dest(ret->getPointer());
-  for(int i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
-    *dest=std::accumulate(src,src+nbOfComp,0);
-  return ret.retn();
-}
-
-/*!
- * Checks that \a this array is consistently **increasing** or **decreasing** in value.
- * If not an exception is thrown.
- *  \param [in] increasing - if \a true, the array values should be increasing.
- *  \throw If sequence of values is not strictly monotonic in agreement with \a
- *         increasing arg.
- *  \throw If \a this->getNumberOfComponents() != 1.
- *  \throw If \a this is not allocated.
- */
-void DataArrayInt::checkMonotonic(bool increasing) const
-{
-  if(!isMonotonic(increasing))
-    {
-      if (increasing)
-        throw INTERP_KERNEL::Exception("DataArrayInt::checkMonotonic : 'this' is not INCREASING monotonic !");
-      else
-        throw INTERP_KERNEL::Exception("DataArrayInt::checkMonotonic : 'this' is not DECREASING monotonic !");
-    }
-}
-
-/*!
- * Checks that \a this array is consistently **increasing** or **decreasing** in value.
- *  \param [in] increasing - if \a true, array values should be increasing.
- *  \return bool - \a true if values change in accordance with \a increasing arg.
- *  \throw If \a this->getNumberOfComponents() != 1.
- *  \throw If \a this is not allocated.
- */
-bool DataArrayInt::isMonotonic(bool increasing) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::isMonotonic : only supported with 'this' array with ONE component !");
-  int nbOfElements=getNumberOfTuples();
-  const int *ptr=getConstPointer();
-  if(nbOfElements==0)
-    return true;
-  int ref=ptr[0];
-  if(increasing)
-    {
-      for(int i=1;i<nbOfElements;i++)
-        {
-          if(ptr[i]>=ref)
-            ref=ptr[i];
-          else
-            return false;
-        }
-    }
-  else
-    {
-      for(int i=1;i<nbOfElements;i++)
-        {
-          if(ptr[i]<=ref)
-            ref=ptr[i];
-          else
-            return false;
-        }
-    }
-  return true;
-}
-
-/*!
- * This method check that array consistently INCREASING or DECREASING in value.
- */
-bool DataArrayInt::isStrictlyMonotonic(bool increasing) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::isStrictlyMonotonic : only supported with 'this' array with ONE component !");
-  int nbOfElements=getNumberOfTuples();
-  const int *ptr=getConstPointer();
-  if(nbOfElements==0)
-    return true;
-  int ref=ptr[0];
-  if(increasing)
-    {
-      for(int i=1;i<nbOfElements;i++)
-        {
-          if(ptr[i]>ref)
-            ref=ptr[i];
-          else
-            return false;
-        }
-    }
-  else
-    {
-      for(int i=1;i<nbOfElements;i++)
-        {
-          if(ptr[i]<ref)
-            ref=ptr[i];
-          else
-            return false;
-        }
-    }
-  return true;
-}
-
-/*!
- * This method check that array consistently INCREASING or DECREASING in value.
- */
-void DataArrayInt::checkStrictlyMonotonic(bool increasing) const
-{
-  if(!isStrictlyMonotonic(increasing))
-    {
-      if (increasing)
-        throw INTERP_KERNEL::Exception("DataArrayInt::checkStrictlyMonotonic : 'this' is not strictly INCREASING monotonic !");
-      else
-        throw INTERP_KERNEL::Exception("DataArrayInt::checkStrictlyMonotonic : 'this' is not strictly DECREASING monotonic !");
-    }
-}
-
-/*!
- * Elements of \a partOfThis are expected to be included in \a this.
- * The returned array \a ret is so that this[ret]==partOfThis
- *
- * For example, if \a this array contents are [9,10,0,6,4,11,3,8] and if \a partOfThis contains [6,0,11,8]
- * the return array will contain [3,2,5,7].
- *
- * \a this is expected to be a 1 compo allocated array.
- * \param [in] partOfThis - A 1 compo allocated array
- * \return - A newly allocated array to be dealed by caller having the same number of tuples than \a partOfThis.
- * \throw if two same element is present twice in \a this
- * \throw if an element in \a partOfThis is \b NOT in \a this.
- */
-DataArrayInt *DataArrayInt::indicesOfSubPart(const DataArrayInt& partOfThis) const
-{
-  if(getNumberOfComponents()!=1 || partOfThis.getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : this and input array must be one component array !");
-  checkAllocated(); partOfThis.checkAllocated();
-  int thisNbTuples(getNumberOfTuples()),nbTuples(partOfThis.getNumberOfTuples());
-  const int *thisPt(begin()),*pt(partOfThis.begin());
-  MCAuto<DataArrayInt> ret(DataArrayInt::New());
-  ret->alloc(nbTuples,1);
-  int *retPt(ret->getPointer());
-  std::map<int,int> m;
-  for(int i=0;i<thisNbTuples;i++,thisPt++)
-    m[*thisPt]=i;
-  if(m.size()!=thisNbTuples)
-    throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : some elements appears more than once !");
-  for(int i=0;i<nbTuples;i++,retPt++,pt++)
-    {
-      std::map<int,int>::const_iterator it(m.find(*pt));
-      if(it!=m.end())
-        *retPt=(*it).second;
-      else
-        {
-          std::ostringstream oss; oss << "DataArrayInt::indicesOfSubPart : At pos #" << i << " of input array value is " << *pt << " not in this !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  return ret.retn();
 }
 
 /*!
