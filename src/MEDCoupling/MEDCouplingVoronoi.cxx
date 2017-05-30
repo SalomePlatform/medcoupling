@@ -150,6 +150,40 @@ MCAuto<MEDCouplingUMesh> MergeVorCells(const std::vector< MCAuto<MEDCouplingUMes
   return MergeVorCells2D(p,eps,true);
 }
 
+/*!
+ * suppress additional sub points on edges
+ */
+MCAuto<MEDCouplingUMesh> SimplifyPolygon(const MEDCouplingUMesh *m, double eps)
+{
+  if(m->getNumberOfCells()!=1)
+    throw INTERP_KERNEL::Exception("SimplifyPolygon : internal error !");
+  const int *conn(m->getNodalConnectivity()->begin()),*conni(m->getNodalConnectivityIndex()->begin());
+  int nbPtsInPolygon(conni[1]-conni[0]-1);
+  const double *coo(m->getCoords()->begin());
+  std::vector<int> resConn;
+  for(int i=0;i<nbPtsInPolygon;i++)
+    {
+      int prev(conn[(i+nbPtsInPolygon-1)%nbPtsInPolygon+1]),current(conn[i%nbPtsInPolygon+1]),zeNext(conn[(i+1)%nbPtsInPolygon+1]);
+      double a[3]={
+        coo[3*prev+0]-coo[3*current+0],
+        coo[3*prev+1]-coo[3*current+1],
+        coo[3*prev+2]-coo[3*current+2],
+      },b[3]={
+        coo[3*current+0]-coo[3*zeNext+0],
+        coo[3*current+1]-coo[3*zeNext+1],
+        coo[3*current+2]-coo[3*zeNext+2],
+      };
+      double c[3]={a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]};
+      if(sqrt(c[0]*c[0]+c[1]*c[1]+c[2]*c[2])>eps)
+        resConn.push_back(current);
+    }
+  MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::New("",2));
+  ret->setCoords(m->getCoords());
+  ret->allocateCells();
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYGON,resConn.size(),&resConn[0]);
+  return ret;
+}
+
 MCAuto<MEDCouplingUMesh> MergeVorCells3D(const std::vector< MCAuto<MEDCouplingUMesh> >& vcs, double eps)
 {
   std::size_t sz(vcs.size());
@@ -199,6 +233,7 @@ MCAuto<MEDCouplingUMesh> MergeVorCells3D(const std::vector< MCAuto<MEDCouplingUM
         tmp2=tmp;
       else
         tmp2=MergeVorCells2D(tmp,eps,false);
+      tmp2=SimplifyPolygon(tmp2,eps);
       const int *cPtr(tmp2->getNodalConnectivity()->begin()),*ciPtr(tmp2->getNodalConnectivityIndex()->begin());
       conn.insert(conn.end(),cPtr+1,cPtr+ciPtr[1]);
     }
@@ -537,7 +572,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
             }
           //
           newVorCells.push_back(newVorCell);
-          ii++;
+          l0[poly]=modifiedCell;
         }
       l0.push_back(MergeVorCells3D(newVorCells,eps));
     }

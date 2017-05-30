@@ -6479,8 +6479,15 @@ DataArrayDouble *MEDCouplingUMesh::computePlaneEquationOf3DFaces() const
   for(int i=0;i<nbOfCells;i++,nodalI++,retPtr+=4)
     {
       double matrix[16]={0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,0},matrix2[16];
-      if(nodalI[1]-nodalI[0]>=3)
+      if(nodalI[1]-nodalI[0]>=4)
         {
+          double aa[3]={coor[nodal[nodalI[0]+1+1]*3+0]-coor[nodal[nodalI[0]+1+0]*3+0],
+                        coor[nodal[nodalI[0]+1+1]*3+1]-coor[nodal[nodalI[0]+1+0]*3+1],
+                        coor[nodal[nodalI[0]+1+1]*3+2]-coor[nodal[nodalI[0]+1+0]*3+2]}
+          ,bb[3]={coor[nodal[nodalI[0]+1+2]*3+0]-coor[nodal[nodalI[0]+1+0]*3+0],
+                        coor[nodal[nodalI[0]+1+2]*3+1]-coor[nodal[nodalI[0]+1+0]*3+1],
+                        coor[nodal[nodalI[0]+1+2]*3+2]-coor[nodal[nodalI[0]+1+0]*3+2]};
+          double cc[3]={aa[1]*bb[2]-aa[2]*bb[1],aa[2]*bb[0]-aa[0]*bb[2],aa[0]*bb[1]-aa[1]*bb[0]};
           for(int j=0;j<3;j++)
             {
               int nodeId(nodal[nodalI[0]+1+j]);
@@ -6492,14 +6499,34 @@ DataArrayDouble *MEDCouplingUMesh::computePlaneEquationOf3DFaces() const
                   throw INTERP_KERNEL::Exception(oss.str());
                 }
             }
+          if(sqrt(cc[0]*cc[0]+cc[1]*cc[1]+cc[2]*cc[2])>1e-7)
+            {
+              INTERP_KERNEL::inverseMatrix(matrix,4,matrix2);
+              retPtr[0]=matrix2[3]; retPtr[1]=matrix2[7]; retPtr[2]=matrix2[11]; retPtr[3]=matrix2[15];
+            }
+          else
+            {
+              if(nodalI[1]-nodalI[0]==4)
+                {
+                  std::ostringstream oss; oss << "MEDCouplingUMesh::computePlaneEquationOf3DFaces : cell" << i << " : Presence of The 3 colinear points !";
+                  throw INTERP_KERNEL::Exception(oss.str());
+                }
+              //
+              double dd[3]={0.,0.,0.};
+              for(int offset=nodalI[0]+1;offset<nodalI[1];offset++)
+                std::transform(coor+3*nodal[offset],coor+3*(nodal[offset]+1),dd,dd,std::plus<double>());
+              int nbOfNodesInCell(nodalI[1]-nodalI[0]-1);
+              std::transform(dd,dd+3,dd,std::bind2nd(std::multiplies<double>(),1./(double)nbOfNodesInCell));
+              std::copy(dd,dd+3,matrix+4*2);
+              INTERP_KERNEL::inverseMatrix(matrix,4,matrix2);
+              retPtr[0]=matrix2[3]; retPtr[1]=matrix2[7]; retPtr[2]=matrix2[11]; retPtr[3]=matrix2[15];
+            }
         }
       else
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::computePlaneEquationOf3DFaces : invalid 2D cell #" << i << " ! Must be constitued by more than 3 nodes !";
           throw INTERP_KERNEL::Exception(oss.str());
         }
-      INTERP_KERNEL::inverseMatrix(matrix,4,matrix2);
-      retPtr[0]=matrix2[3]; retPtr[1]=matrix2[7]; retPtr[2]=matrix2[11]; retPtr[3]=matrix2[15];
     }
   return ret.retn();
 }
