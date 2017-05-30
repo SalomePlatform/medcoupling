@@ -896,18 +896,6 @@ std::string DataArrayDouble::reprZip() const
   return ret.str();
 }
 
-/*!
- * This method is close to repr method except that when \a this has more than 1000 tuples, all tuples are not
- * printed out to avoid to consume too much space in interpretor.
- * \sa repr
- */
-std::string DataArrayDouble::reprNotTooLong() const
-{
-  std::ostringstream ret;
-  reprNotTooLongStream(ret);
-  return ret.str();
-}
-
 void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const std::string& nameInFile, DataArrayByte *byteArr) const
 {
   static const char SPACE[4]={' ',' ',' ',' '};
@@ -943,45 +931,6 @@ void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const std::string&
       std::copy(begin(),end(),std::ostream_iterator<double>(ofs," "));
     }
   ofs << std::endl << idt << "</DataArray>\n";
-}
-
-void DataArrayDouble::reprStream(std::ostream& stream) const
-{
-  stream << "Name of double array : \"" << _name << "\"\n";
-  reprWithoutNameStream(stream);
-}
-
-void DataArrayDouble::reprZipStream(std::ostream& stream) const
-{
-  stream << "Name of double array : \"" << _name << "\"\n";
-  reprZipWithoutNameStream(stream);
-}
-
-void DataArrayDouble::reprNotTooLongStream(std::ostream& stream) const
-{
-  stream << "Name of double array : \"" << _name << "\"\n";
-  reprNotTooLongWithoutNameStream(stream);
-}
-
-void DataArrayDouble::reprWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(17);
-  _mem.repr(getNumberOfComponents(),stream);
-}
-
-void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(17);
-  _mem.reprZip(getNumberOfComponents(),stream);
-}
-
-void DataArrayDouble::reprNotTooLongWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(17);
-  _mem.reprNotTooLong(getNumberOfComponents(),stream);
 }
 
 void DataArrayDouble::reprCppStream(const std::string& varName, std::ostream& stream) const
@@ -3736,18 +3685,6 @@ std::string DataArrayInt::reprZip() const
   return ret.str();
 }
 
-/*!
- * This method is close to repr method except that when \a this has more than 1000 tuples, all tuples are not
- * printed out to avoid to consume too much space in interpretor.
- * \sa repr
- */
-std::string DataArrayInt::reprNotTooLong() const
-{
-  std::ostringstream ret;
-  reprNotTooLongStream(ret);
-  return ret.str();
-}
-
 void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const std::string& type, const std::string& nameInFile, DataArrayByte *byteArr) const
 {
   static const char SPACE[4]={' ',' ',' ',' '};
@@ -3787,43 +3724,6 @@ void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const std::string& ty
       std::copy(begin(),end(),std::ostream_iterator<int>(ofs," "));
     }
   ofs << std::endl << idt << "</DataArray>\n";
-}
-
-void DataArrayInt::reprStream(std::ostream& stream) const
-{
-  stream << "Name of int array : \"" << _name << "\"\n";
-  reprWithoutNameStream(stream);
-}
-
-void DataArrayInt::reprZipStream(std::ostream& stream) const
-{
-  stream << "Name of int array : \"" << _name << "\"\n";
-  reprZipWithoutNameStream(stream);
-}
-
-void DataArrayInt::reprNotTooLongStream(std::ostream& stream) const
-{
-  stream << "Name of int array : \"" << _name << "\"\n";
-  reprNotTooLongWithoutNameStream(stream);
-}
-
-void DataArrayInt::reprWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  _mem.repr(getNumberOfComponents(),stream);
-}
-
-void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  _mem.reprZip(getNumberOfComponents(),stream);
-}
-
-void DataArrayInt::reprNotTooLongWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(17);
-  _mem.reprNotTooLong(getNumberOfComponents(),stream);
 }
 
 void DataArrayInt::reprCppStream(const std::string& varName, std::ostream& stream) const

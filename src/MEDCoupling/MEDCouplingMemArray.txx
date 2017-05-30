@@ -3261,6 +3261,73 @@ struct NotInRange
       ptr[i]=init+(T)i;
     this->declareAsNew();
   }
+
+  template<class T>
+  struct ImplReprTraits { static void SetPrecision(std::ostream& oss) { } };
+
+  template<>
+  struct ImplReprTraits<double> {  static void SetPrecision(std::ostream& oss) { oss.precision(17); } };
+  
+  template<>
+  struct ImplReprTraits<float> {  static void SetPrecision(std::ostream& oss) { oss.precision(7); } };
+  
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprStream(std::ostream& stream) const
+  {
+    stream << "Name of " << Traits<T>::ReprStr << " array : \"" << this->_name << "\"\n";
+    reprWithoutNameStream(stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprZipStream(std::ostream& stream) const
+  {
+    stream << "Name of " << Traits<T>::ReprStr << " array : \"" << this->_name << "\"\n";
+    reprZipWithoutNameStream(stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprNotTooLongStream(std::ostream& stream) const
+  {
+    stream << "Name of "<< Traits<T>::ReprStr << " array : \"" << this->_name << "\"\n";
+    reprNotTooLongWithoutNameStream(stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprWithoutNameStream(std::ostream& stream) const
+  {
+    DataArray::reprWithoutNameStream(stream);
+    ImplReprTraits<T>::SetPrecision(stream);
+    this->_mem.repr(this->getNumberOfComponents(),stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprZipWithoutNameStream(std::ostream& stream) const
+  {
+    DataArray::reprWithoutNameStream(stream);
+    ImplReprTraits<T>::SetPrecision(stream);
+    this->_mem.reprZip(this->getNumberOfComponents(),stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprNotTooLongWithoutNameStream(std::ostream& stream) const
+  {
+    DataArray::reprWithoutNameStream(stream);
+    ImplReprTraits<T>::SetPrecision(stream);
+    this->_mem.reprNotTooLong(this->getNumberOfComponents(),stream);
+  }
+
+  /*!
+   * This method is close to repr method except that when \a this has more than 1000 tuples, all tuples are not
+   * printed out to avoid to consume too much space in interpretor.
+   * \sa repr
+   */
+  template<class T>
+  std::string DataArrayTemplateClassic<T>::reprNotTooLong() const
+  {
+    std::ostringstream ret;
+    reprNotTooLongStream(ret);
+    return ret.str();
+  }
   
   /////////////////////////////////
   
