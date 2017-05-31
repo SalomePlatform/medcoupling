@@ -139,7 +139,7 @@ class MEDLoaderTest3(unittest.TestCase):
         g1_2=DataArrayInt.New()
         g1_2.setValues([1,3],2,1)
         g1_2.setName("G1")
-        g2_2=DataArrayInt.New()getCellsContainingPoint
+        g2_2=DataArrayInt.New()
         g2_2.setValues([1,2,3],3,1)
         g2_2.setName("G2")
         mm.setGroupsAtLevel(0,[g1_2,g2_2],False)
