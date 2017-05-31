@@ -696,7 +696,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertRaises(InterpKernelException,m.buildUnstructured().splitProfilePerType,invalidPfl)
         ##
         pfl1=DataArrayInt([1,2,3])
-        a=m.getCellsContainingPointcheckTypeConsistencyAndContig([NORM_QUAD4,3,0],[pfl1])
+        a=m.checkTypeConsistencyAndContig([NORM_QUAD4,3,0],[pfl1])
         b=m.buildUnstructured().checkTypeConsistencyAndContig([NORM_QUAD4,3,0],[pfl1])
         self.assertTrue(a.isEqual(b) and pfl1.getHiddenCppPointer(),a.getHiddenCppPointer())
         #
