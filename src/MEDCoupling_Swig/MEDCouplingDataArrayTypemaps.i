@@ -108,6 +108,7 @@ int InterpreteNegativeInt(int val, int nbelem)
     return val;
 }
 
+#ifdef WITH_NUMPY
 // this is the second type of specific deallocator, only valid for the constructor of DataArrays taking numpy array
 // in input when an another DataArray is already client of this.
 template<class MCData>
@@ -342,6 +343,9 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
 SWIGINTERN PyObject *MEDCoupling_DataArrayInt_toNumPyArray(MEDCoupling::DataArrayInt *self);
 SWIGINTERN PyObject *MEDCoupling_DataArrayDouble_toNumPyArray(MEDCoupling::DataArrayDouble *self);
 
+#endif
+
+#ifdef WITH_SCIPY
 PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols)
 {
   int nbRows((int)m.size());
@@ -383,6 +387,8 @@ PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols)
   Py_DECREF(pdict); Py_XDECREF(tmp); Py_DECREF(args); Py_DECREF(kw);
   return ret;
 }
+
+#endif
 
 static PyObject *convertDataArrayChar(MEDCoupling::DataArrayChar *dac, int owner)
 {
