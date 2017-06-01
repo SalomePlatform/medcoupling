@@ -448,9 +448,9 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
                 vorTess->getCellsContainingPoint(cPtr,eps,zeCandidatesTmp);
                 zeCandidates.insert(zeCandidatesTmp.begin(),zeCandidatesTmp.end());
               }
-              std::set<int> tmp,newElementsToDo;
-              std::set_difference(zeCandidates.begin(),zeCandidates.end(),elemsDone.begin(),elemsDone.end(),std::inserter(tmp,tmp.begin()));
-              std::set_union(elemsToDo.begin(),elemsToDo.end(),tmp.begin(),tmp.end(),std::inserter(newElementsToDo,newElementsToDo.begin()));
+              std::set<int> tmp2,newElementsToDo;
+              std::set_difference(zeCandidates.begin(),zeCandidates.end(),elemsDone.begin(),elemsDone.end(),std::inserter(tmp2,tmp2.begin()));
+              std::set_union(elemsToDo.begin(),elemsToDo.end(),tmp2.begin(),tmp2.end(),std::inserter(newElementsToDo,newElementsToDo.begin()));
               elemsToDo=newElementsToDo;
             }
           newVorCells.push_back(newVorCell);
@@ -509,15 +509,9 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
       vorTess->getCellsContainingPoint(pt,eps,polygsToIterOn);
       if(polygsToIterOn.size()<1)
         throw INTERP_KERNEL::Exception("Voronoize3D : presence of a point outside the given cell !");
-      std::set<int> elemsToDo(polygsToIterOn.begin(),polygsToIterOn.end()),elemsDone;
-      std::size_t ii(0);
       std::vector< MCAuto<MEDCouplingUMesh> > newVorCells;
-      MCAuto<DataArrayInt> d(DataArrayInt::New()),dI(DataArrayInt::New()),rd(DataArrayInt::New()),rdI(DataArrayInt::New());
-      MCAuto<MEDCouplingUMesh> faces(vorTess->buildDescendingConnectivity(d,dI,rd,rdI));
-      //
-      while(!elemsToDo.empty())
+      for(int poly=0;poly<vorTess->getNumberOfCells();poly++)
         {
-          int poly(*elemsToDo.begin()); elemsToDo.erase(elemsToDo.begin()); elemsDone.insert(poly);
           const double *seed(pts+3*poly);
           MCAuto<MEDCouplingUMesh> tile(l0[poly]);
           tile->zipCoords();
@@ -535,42 +529,6 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
           newVorCell->zipCoords();
           MCAuto<MEDCouplingUMesh> modifiedCell(cells->buildPartOfMySelfSlice(0,1,1,true));
           modifiedCell->zipCoords();
-          l0[poly]=modifiedCell;
-          if(std::find(polygsToIterOn.begin(),polygsToIterOn.end(),poly)!=polygsToIterOn.end())// we iterate on a polyhedron containg the point to add pt -> add cells sharing faces with just computed newVorCell
-            {
-              MCAuto<MEDCouplingUMesh> faces2;
-              {
-                MCAuto<DataArrayInt> d2(DataArrayInt::New()),d2I(DataArrayInt::New()),rd2(DataArrayInt::New()),rd2I(DataArrayInt::New());
-                faces2=newVorCell->buildDescendingConnectivity(d2,d2I,rd2,rd2I);
-              }
-              MCAuto<MEDCouplingUMesh> faces3(faces2->buildPartOfMySelfSlice(1,faces2->getNumberOfCells(),1,true));// suppress internal face
-              MCAuto<MEDCouplingUMesh> facesOfCurSplitPol(faces->buildPartOfMySelf(d->begin()+dI->getIJ(poly,0),d->begin()+dI->getIJ(poly+1,0),true));
-              // intersection between the out faces of newVorCell and the neighbor faces of poly polyhedron -> candidates
-              MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(facesOfCurSplitPol);
-              MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(faces3);
-              INTERP_KERNEL::Interpolation3DSurf interpolation;
-              interpolation.setMinDotBtwPlane3DSurfIntersect(eps2);
-              interpolation.setMaxDistance3DSurfIntersect(eps);
-              interpolation.setPrecision(1e-12);
-              std::vector<std::map<int,double> > matrix;
-              interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix,"P0P0");
-              std::set<int> zeCandidates;
-              for(std::vector<std::map<int,double> >::const_iterator it2=matrix.begin();it2!=matrix.end();it2++)
-                for(std::map<int,double>::const_iterator it3=(*it2).begin();it3!=(*it2).end();it3++)
-                  {
-                    int faceIdInVorTess(d->getIJ(dI->getIJ(poly,0)+(*it3).first,0));
-                    for(const int *it4=rd->begin()+rdI->getIJ(faceIdInVorTess,0);it4!=rd->begin()+rdI->getIJ(faceIdInVorTess+1,0);it4++)
-                      {
-                        if(*it4!=poly)
-                          zeCandidates.insert(*it4);
-                      }
-                  }
-              std::set<int> tmp2,newElementsToDo;
-              std::set_difference(zeCandidates.begin(),zeCandidates.end(),elemsDone.begin(),elemsDone.end(),std::inserter(tmp2,tmp2.begin()));
-              std::set_union(elemsToDo.begin(),elemsToDo.end(),tmp2.begin(),tmp2.end(),std::inserter(newElementsToDo,newElementsToDo.begin()));
-              elemsToDo=newElementsToDo;
-            }
-          //
           newVorCells.push_back(newVorCell);
           l0[poly]=modifiedCell;
         }

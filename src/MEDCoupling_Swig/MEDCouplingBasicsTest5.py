@@ -4729,6 +4729,15 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         res=m.computePlaneEquationOf3DFaces()
         self.assertTrue(res.isEqual(ref,1e-12))
         pass
+
+    def testBugInComputationOfEqOfPlane1(self):
+        coo=DataArrayDouble([-1.0, 1.0, -0.3872983455657959, -1.0, 1.0, 0.3872983455657959, -1.0, 1.0, 0.693649172782898, 1.0, 1.0, 0.693649172782898, 1.0, 1.0, 0.3872983455657959, 1.0, 1.0, -0.3872983455657959],6,3)
+        m=MEDCouplingUMesh("",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_POLYGON,[0,1,2,3,4,5])
+        self.assertTrue(m.computePlaneEquationOf3DFaces().isEqual(DataArrayDouble([0,1,0,-1],1,4),1e-12))
+        pass
     
     pass
 
