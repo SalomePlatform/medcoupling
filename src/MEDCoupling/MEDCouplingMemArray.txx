@@ -2343,6 +2343,19 @@ namespace MEDCoupling
       }
   }
 
+    /*!
+   * Assign zero to all values in \a this array. To know more on filling arrays see
+   * \ref MEDCouplingArrayFill.
+   * \throw If \a this is not allocated.
+   */
+  template<class T>
+  void DataArrayTemplate<T>::fillWithZero()
+  {
+    fillWithValue((T)0);
+  }
+
+  //////////////////////////////
+
   template<class T>
   template<class U>
   MCAuto< typename Traits<U>::ArrayType > DataArrayTemplateClassic<T>::convertToOtherTypeOfArr() const
@@ -3205,6 +3218,118 @@ struct NotInRange
     const typename Traits<T>::ArrayType *thisC(static_cast<const typename Traits<T>::ArrayType *>(this));
     return DataArrayTemplateClassic<T>::PerformCopyOrIncrRef(dCpy,*thisC);
   }
+
+  /*!
+   * Computes for each tuple the sum of number of components values in the tuple and return it.
+   * 
+   * \return DataArrayDouble * - the new instance of DataArrayDouble containing the
+   *          same number of tuples as \a this array and one component.
+   *          The caller is to delete this result array using decrRef() as it is no more
+   *          needed.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  typename Traits<T>::ArrayType *DataArrayTemplateClassic<T>::sumPerTuple() const
+  {
+    this->checkAllocated();
+    std::size_t nbOfComp(this->getNumberOfComponents()),nbOfTuple(this->getNumberOfTuples());
+    MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
+    ret->alloc(nbOfTuple,1);
+    const T *src(this->begin());
+    T *dest(ret->getPointer());
+    for(std::size_t i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
+      *dest=std::accumulate(src,src+nbOfComp,(T)0);
+    return ret.retn();
+  }
+
+  /*!
+   * Set all values in \a this array so that the i-th element equals to \a init + i
+   * (i starts from zero). To know more on filling arrays see \ref MEDCouplingArrayFill.
+   *  \param [in] init - value to assign to the first element of array.
+   *  \throw If \a this->getNumberOfComponents() != 1
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  void DataArrayTemplateClassic<T>::iota(T init)
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
+    T *ptr(this->getPointer());
+    std::size_t ntuples(this->getNumberOfTuples());
+    for(std::size_t i=0;i<ntuples;i++)
+      ptr[i]=init+(T)i;
+    this->declareAsNew();
+  }
+
+  template<class T>
+  struct ImplReprTraits { static void SetPrecision(std::ostream& oss) { } };
+
+  template<>
+  struct ImplReprTraits<double> {  static void SetPrecision(std::ostream& oss) { oss.precision(17); } };
+  
+  template<>
+  struct ImplReprTraits<float> {  static void SetPrecision(std::ostream& oss) { oss.precision(7); } };
+  
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprStream(std::ostream& stream) const
+  {
+    stream << "Name of " << Traits<T>::ReprStr << " array : \"" << this->_name << "\"\n";
+    reprWithoutNameStream(stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprZipStream(std::ostream& stream) const
+  {
+    stream << "Name of " << Traits<T>::ReprStr << " array : \"" << this->_name << "\"\n";
+    reprZipWithoutNameStream(stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprNotTooLongStream(std::ostream& stream) const
+  {
+    stream << "Name of "<< Traits<T>::ReprStr << " array : \"" << this->_name << "\"\n";
+    reprNotTooLongWithoutNameStream(stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprWithoutNameStream(std::ostream& stream) const
+  {
+    DataArray::reprWithoutNameStream(stream);
+    ImplReprTraits<T>::SetPrecision(stream);
+    this->_mem.repr(this->getNumberOfComponents(),stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprZipWithoutNameStream(std::ostream& stream) const
+  {
+    DataArray::reprWithoutNameStream(stream);
+    ImplReprTraits<T>::SetPrecision(stream);
+    this->_mem.reprZip(this->getNumberOfComponents(),stream);
+  }
+
+  template<class T>
+  void DataArrayTemplateClassic<T>::reprNotTooLongWithoutNameStream(std::ostream& stream) const
+  {
+    DataArray::reprWithoutNameStream(stream);
+    ImplReprTraits<T>::SetPrecision(stream);
+    this->_mem.reprNotTooLong(this->getNumberOfComponents(),stream);
+  }
+
+  /*!
+   * This method is close to repr method except that when \a this has more than 1000 tuples, all tuples are not
+   * printed out to avoid to consume too much space in interpretor.
+   * \sa repr
+   */
+  template<class T>
+  std::string DataArrayTemplateClassic<T>::reprNotTooLong() const
+  {
+    std::ostringstream ret;
+    reprNotTooLongStream(ret);
+    return ret.str();
+  }
+  
+  /////////////////////////////////
   
   /*!
    * Checks if all values in \a this array are equal to \a val at precision \a eps.
@@ -3227,26 +3352,6 @@ struct NotInRange
       if(*w<vmin || *w>vmax)
         return false;
     return true;
-  }
-
-  /*!
-   * Set all values in \a this array so that the i-th element equals to \a init + i
-   * (i starts from zero). To know more on filling arrays see \ref MEDCouplingArrayFill.
-   *  \param [in] init - value to assign to the first element of array.
-   *  \throw If \a this->getNumberOfComponents() != 1
-   *  \throw If \a this is not allocated.
-   */
-  template<class T>
-  void DataArrayTemplateFP<T>::iota(T init)
-  {
-    this->checkAllocated();
-    if(this->getNumberOfComponents()!=1)
-      throw INTERP_KERNEL::Exception("DataArrayDouble::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
-    T *ptr(this->getPointer());
-    int ntuples(this->getNumberOfTuples());
-    for(int i=0;i<ntuples;i++)
-      ptr[i]=init+T(i);
-    this->declareAsNew();
   }
 
   /*!
@@ -3348,6 +3453,218 @@ struct NotInRange
   {
     switchOnTupleAlg(val,vec,std::not_equal_to<T>());
   }
+
+  /*!
+   * Creates a new one-dimensional DataArrayInt of the same size as \a this and a given
+   * one-dimensional arrays that must be of the same length. The result array describes
+   * correspondence between \a this and \a other arrays, so that 
+   * <em> other.getIJ(i,0) == this->getIJ(ret->getIJ(i),0)</em>. If such a permutation is
+   * not possible because some element in \a other is not in \a this, an exception is thrown.
+   *  \param [in] other - an array to compute permutation to.
+   *  \return DataArrayInt * - a new instance of DataArrayInt, which is a permutation array
+   * from \a this to \a other. The caller is to delete this array using decrRef() as it is
+   * no more needed.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \throw If \a other->getNumberOfComponents() != 1.
+   *  \throw If \a this->getNumberOfTuples() != \a other->getNumberOfTuples().
+   *  \throw If \a other includes a value which is not in \a this array.
+   * 
+   *  \if ENABLE_EXAMPLES
+   *  \ref cpp_mcdataarrayint_buildpermutationarr "Here is a C++ example".
+   *
+   *  \ref py_mcdataarrayint_buildpermutationarr "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  DataArrayIdType *DataArrayDiscrete<T>::buildPermutationArr(const DataArrayDiscrete<T>& other) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1 || other.getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' have to have exactly ONE component !");
+    int nbTuple(this->getNumberOfTuples());
+    other.checkAllocated();
+    if(nbTuple!=other.getNumberOfTuples())
+      throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' must have the same number of tuple !");
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(nbTuple,1);
+    ret->fillWithValue(-1);
+    const T *pt(this->begin());
+    std::map<int,int> mm;
+    for(int i=0;i<nbTuple;i++)
+      mm[pt[i]]=i;
+    pt=other.begin();
+    mcIdType *retToFill(ret->getPointer());
+    for(int i=0;i<nbTuple;i++)
+      {
+        std::map<int,int>::const_iterator it=mm.find(pt[i]);
+        if(it==mm.end())
+          {
+            std::ostringstream oss; oss << "DataArrayInt::buildPermutationArr : Arrays mismatch : element (" << pt[i] << ") in 'other' not findable in 'this' !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+        retToFill[i]=(*it).second;
+      }
+    return ret.retn();
+  }
+
+  /*!
+   * Elements of \a partOfThis are expected to be included in \a this.
+   * The returned array \a ret is so that this[ret]==partOfThis
+   *
+   * For example, if \a this array contents are [9,10,0,6,4,11,3,8] and if \a partOfThis contains [6,0,11,8]
+   * the return array will contain [3,2,5,7].
+   *
+   * \a this is expected to be a 1 compo allocated array.
+   * \param [in] partOfThis - A 1 compo allocated array
+   * \return - A newly allocated array to be dealed by caller having the same number of tuples than \a partOfThis.
+   * \throw if two same element is present twice in \a this
+   * \throw if an element in \a partOfThis is \b NOT in \a this.
+   */
+  template<class T>
+  DataArrayIdType *DataArrayDiscrete<T>::indicesOfSubPart(const DataArrayDiscrete<T>& partOfThis) const
+  {
+    if(this->getNumberOfComponents()!=1 || partOfThis.getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : this and input array must be one component array !");
+    this->checkAllocated(); partOfThis.checkAllocated();
+    std::size_t thisNbTuples(this->getNumberOfTuples()),nbTuples(partOfThis.getNumberOfTuples());
+    const T *thisPt(this->begin()),*pt(partOfThis.begin());
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(nbTuples,1);
+    T *retPt(ret->getPointer());
+    std::map<int,mcIdType> m;
+    for(mcIdType i=0;i<thisNbTuples;i++,thisPt++)
+      m[*thisPt]=i;
+    if(m.size()!=thisNbTuples)
+      throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : some elements appears more than once !");
+    for(mcIdType i=0;i<nbTuples;i++,retPt++,pt++)
+      {
+        std::map<int,mcIdType>::const_iterator it(m.find(*pt));
+        if(it!=m.end())
+          *retPt=(*it).second;
+        else
+          {
+            std::ostringstream oss; oss << "DataArrayInt::indicesOfSubPart : At pos #" << i << " of input array value is " << *pt << " not in this !";
+            throw INTERP_KERNEL::Exception(oss.str());
+          }
+      }
+    return ret.retn();
+  }
+
+  /*!
+   * Checks that \a this array is consistently **increasing** or **decreasing** in value.
+   * If not an exception is thrown.
+   *  \param [in] increasing - if \a true, the array values should be increasing.
+   *  \throw If sequence of values is not strictly monotonic in agreement with \a
+   *         increasing arg.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  void DataArrayDiscrete<T>::checkMonotonic(bool increasing) const
+  {
+    if(!isMonotonic(increasing))
+      {
+        if (increasing)
+          throw INTERP_KERNEL::Exception("DataArrayInt::checkMonotonic : 'this' is not INCREASING monotonic !");
+        else
+          throw INTERP_KERNEL::Exception("DataArrayInt::checkMonotonic : 'this' is not DECREASING monotonic !");
+      }
+  }
+
+  /*!
+   * Checks that \a this array is consistently **increasing** or **decreasing** in value.
+   *  \param [in] increasing - if \a true, array values should be increasing.
+   *  \return bool - \a true if values change in accordance with \a increasing arg.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \throw If \a this is not allocated.
+   */
+  template<class T>
+  bool DataArrayDiscrete<T>::isMonotonic(bool increasing) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::isMonotonic : only supported with 'this' array with ONE component !");
+    std::size_t nbOfElements(this->getNumberOfTuples());
+    const T *ptr(this->begin());
+    if(nbOfElements==0)
+      return true;
+    T ref(ptr[0]);
+    if(increasing)
+      {
+        for(std::size_t i=1;i<nbOfElements;i++)
+          {
+            if(ptr[i]>=ref)
+              ref=ptr[i];
+            else
+              return false;
+          }
+      }
+    else
+      {
+        for(std::size_t i=1;i<nbOfElements;i++)
+          {
+            if(ptr[i]<=ref)
+              ref=ptr[i];
+            else
+              return false;
+          }
+      }
+    return true;
+  }
+
+  /*!
+   * This method check that array consistently INCREASING or DECREASING in value.
+   */
+  template<class T>
+  bool DataArrayDiscrete<T>::isStrictlyMonotonic(bool increasing) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::isStrictlyMonotonic : only supported with 'this' array with ONE component !");
+    std::size_t nbOfElements(this->getNumberOfTuples());
+    const T *ptr(this->begin());
+    if(nbOfElements==0)
+      return true;
+    T ref(ptr[0]);
+    if(increasing)
+      {
+        for(std::size_t i=1;i<nbOfElements;i++)
+          {
+            if(ptr[i]>ref)
+              ref=ptr[i];
+            else
+              return false;
+          }
+      }
+    else
+      {
+        for(std::size_t i=1;i<nbOfElements;i++)
+          {
+            if(ptr[i]<ref)
+              ref=ptr[i];
+            else
+              return false;
+          }
+      }
+    return true;
+  }
+
+  /*!
+   * This method check that array consistently INCREASING or DECREASING in value.
+   */
+  template<class T>
+  void DataArrayDiscrete<T>::checkStrictlyMonotonic(bool increasing) const
+  {
+    if(!isStrictlyMonotonic(increasing))
+      {
+        if (increasing)
+          throw INTERP_KERNEL::Exception("DataArrayInt::checkStrictlyMonotonic : 'this' is not strictly INCREASING monotonic !");
+        else
+          throw INTERP_KERNEL::Exception("DataArrayInt::checkStrictlyMonotonic : 'this' is not strictly DECREASING monotonic !");
+      }
+  }
+
+  ////////////////////////////////////
 
   /*!
    * This method compares content of input vector \a v and \a this.

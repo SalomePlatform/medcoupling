@@ -575,7 +575,7 @@ void MEDLoaderTest::testMultiFieldShuffleRW1()
 {
   const char fileName[]="file17.med";
   MEDCouplingUMesh *m=build3DMesh_2();
-  CPPUNIT_ASSERT_EQUAL(20,m->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(20,(int)m->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(45,m->getNumberOfNodes());
   const int polys[3]={1,4,6};
   std::vector<int> poly2(polys,polys+3);
@@ -785,7 +785,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   MEDCouplingUMesh *mesh=ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(16,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(16,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
@@ -809,7 +809,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   mesh=ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(2,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(0));
@@ -832,7 +832,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   mesh=ReadUMeshFromGroups(fileName.c_str(),meshNames[0].c_str(),0,groups2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(7,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(7,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<6;i++)
@@ -871,7 +871,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(16,constMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(16,(int)constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
@@ -900,7 +900,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(16,constMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(16,(int)constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
@@ -954,7 +954,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(16,constMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(16,(int)constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
@@ -982,7 +982,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(16,constMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(16,(int)constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
@@ -1011,7 +1011,7 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   mesh->checkConsistencyLight();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(538,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(538,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(579,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<514;i++)
@@ -1045,7 +1045,7 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT(constMesh);
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,constMesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(538,constMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(538,(int)constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(579,constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<514;i++)
@@ -1077,7 +1077,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   mesh->checkConsistencyLight();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(3,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(0));
@@ -1093,7 +1093,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   mesh->checkConsistencyLight();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(17,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(17,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_POLYGON,mesh->getTypeOfCell(0));
@@ -1130,7 +1130,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   mesh->checkConsistencyLight();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(3,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(1,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<3;i++)
@@ -1141,7 +1141,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   //
   mesh=ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
-  CPPUNIT_ASSERT_EQUAL(0,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(0,(int)mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(0,(int)mesh->getAllGeoTypes().size());

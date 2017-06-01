@@ -1064,14 +1064,14 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(std
   int nbcells=0;
   for (std::size_t i = 0; i < cellMeshes.size(); i++)
     nbcells+=cellMeshes[i]->getNumberOfCells();
-  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
+  CPPUNIT_ASSERT_EQUAL((int)cellMesh->getNumberOfCells(), nbcells);
 
   std::vector<MEDCoupling::MEDCouplingUMesh*>faceMeshes=collection.getFaceMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) faceMeshes.size());
   int nbfaces=0;
   for (std::size_t i=0; i < faceMeshes.size(); i++)
     nbfaces+=faceMeshes[i]->getNumberOfCells();
-  CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), nbfaces);
+  CPPUNIT_ASSERT_EQUAL((int)faceMesh->getNumberOfCells(), nbfaces);
 
   //merge split meshes and test equality
   cmd=execName+" --ndomains=1 --split-method="+MetisOrScotch;  //on same proc
@@ -1183,7 +1183,7 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
   MCAuto<MEDCouplingFieldDouble> field2=ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
 
   int nbcells=corr[1]->getNumberOfTuples();
-  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
+  CPPUNIT_ASSERT_EQUAL((int)cellMesh->getNumberOfCells(), nbcells);
   //use corr to test equality of field
   DataArrayDouble* f1=field1->getArray();
   DataArrayDouble* f2=field2->getArray();
@@ -1270,7 +1270,7 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
   MCAuto<MEDCouplingFieldDouble> field2=ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
 
   int nbcells=corr[1]->getNumberOfTuples();
-  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
+  CPPUNIT_ASSERT_EQUAL((int)cellMesh->getNumberOfCells(), nbcells);
   //use corr to test equality of field
   DataArrayDouble* f1=field1->getArray();
   DataArrayDouble* f2=field2->getArray();

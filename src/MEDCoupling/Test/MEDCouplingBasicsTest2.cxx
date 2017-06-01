@@ -199,7 +199,7 @@ void MEDCouplingBasicsTest2::testCellOrientation2()
   m2->arePolyhedronsNotCorrectlyOriented(res1);
   CPPUNIT_ASSERT(res1.empty());
   m2->checkConsistencyLight();
-  CPPUNIT_ASSERT_EQUAL(18,m2->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(18,(int)m2->getNumberOfCells());
   int cellIds[3]={0,6,12};
   std::vector<int> cellIds2(cellIds,cellIds+3);
   m2->convertToPolyTypes(&cellIds2[0],&cellIds2[0]+cellIds2.size());
@@ -1344,8 +1344,8 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   const double expected1[6]={5.,105.,4.,104.,7.,107.};
   for(int i=0;i<6;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(f2->getIJ(0,i),expected1[i],1e-12);
-  CPPUNIT_ASSERT_EQUAL(3,f2->getMesh()->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(6,f2->getMesh()->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(3,(int)f2->getMesh()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(6,(int)f2->getMesh()->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getMeshDimension());
   MEDCouplingUMesh *m2C=dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f2->getMesh()));
@@ -1376,7 +1376,7 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   const double expected5[8]={4.,104.,5.,105.,7.,107.,8.,108.};
   for(int i=0;i<8;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(f2->getIJ(0,i),expected5[i],1e-12);
-  CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(2,(int)f2->getMesh()->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(4,f2->getMesh()->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getMeshDimension());
@@ -1399,7 +1399,7 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   CPPUNIT_ASSERT_EQUAL(2,(int)f2->getNumberOfComponents());
   for(int i=0;i<8;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(f2->getIJ(0,i),expected5[i],1e-12);
-  CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(2,(int)f2->getMesh()->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(4,f2->getMesh()->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getMeshDimension());
@@ -1419,7 +1419,7 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   const double expected6[12]={4.,104.,5.,105.,7.,107.,8.,108.,10.,110.,11.,111.};
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(f2->getIJ(0,i),expected6[i],1e-12);
-  CPPUNIT_ASSERT_EQUAL(3,f2->getMesh()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,(int)f2->getMesh()->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(6,f2->getMesh()->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getMeshDimension());
@@ -2040,7 +2040,7 @@ void MEDCouplingBasicsTest2::testGetEdgeRatioField1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.4,f1->getTime(a,b),1.e-14);
   CPPUNIT_ASSERT_EQUAL(5,a); CPPUNIT_ASSERT_EQUAL(6,b);
   CPPUNIT_ASSERT_EQUAL(std::string(f1->getTimeUnit()),std::string("us"));
-  CPPUNIT_ASSERT_EQUAL(m1->getNumberOfCells(),(int)f1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((int)m1->getNumberOfCells(),(int)f1->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(5,(int)f1->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,(int)f1->getNumberOfComponents());
   const double expected1[5]={1.,1.4142135623730951, 1.4142135623730951,1.,1.};
@@ -2051,7 +2051,7 @@ void MEDCouplingBasicsTest2::testGetEdgeRatioField1()
   //
   m1=build3DSurfTargetMesh_1();
   f1=m1->getEdgeRatioField();
-  CPPUNIT_ASSERT_EQUAL(m1->getNumberOfCells(),(int)f1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((int)m1->getNumberOfCells(),(int)f1->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(5,(int)f1->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,(int)f1->getNumberOfComponents());
   const double expected2[5]={1.4142135623730951, 1.7320508075688772, 1.7320508075688772, 1.4142135623730951, 1.4142135623730951};

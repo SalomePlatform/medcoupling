@@ -42,8 +42,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getCellModelEnum() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
     MEDCOUPLING_EXPORT DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
+    MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(std::size_t cellId) const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDCOUPLING_EXPORT std::vector<int> getDistributionOfTypes() const;
     MEDCOUPLING_EXPORT void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const;
@@ -53,7 +53,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
     //
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT int getNodalConnectivityLength() const;
+    MEDCOUPLING_EXPORT std::size_t getNodalConnectivityLength() const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
@@ -109,7 +109,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCells() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeEffectiveNbOfNodesPerCell() const;
@@ -205,7 +205,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT std::size_t getNumberOfCells() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeEffectiveNbOfNodesPerCell() const;

@@ -51,6 +51,7 @@ namespace MEDCoupling
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     static const char NPYStr[];
+    static const char ReprStr[];
     typedef DataArrayDouble ArrayType;
     typedef DataArrayDouble ArrayTypeCh;
     typedef MEDCouplingFieldDouble FieldType;
@@ -63,6 +64,7 @@ namespace MEDCoupling
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     static const char NPYStr[];
+    static const char ReprStr[];
     typedef DataArrayFloat ArrayType;
     typedef DataArrayFloat ArrayTypeCh;
     typedef MEDCouplingFieldFloat FieldType;
@@ -74,6 +76,8 @@ namespace MEDCoupling
   {
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
+    static const char NPYStr[];
+    static const char ReprStr[];
     typedef DataArrayInt32 ArrayType;
     typedef DataArrayInt32 ArrayTypeCh;
     typedef MEDCouplingFieldInt FieldType;
@@ -86,6 +90,7 @@ namespace MEDCoupling
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     static const char NPYStr[];
+    static const char ReprStr[];
     typedef DataArrayInt64 ArrayType;
     typedef DataArrayInt64 ArrayTypeCh;
     //typedef MEDCouplingFieldInt64 FieldType;

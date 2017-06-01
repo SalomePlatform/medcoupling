@@ -94,16 +94,6 @@ bool DataArrayChar::isEqualWithoutConsideringStr(const DataArrayChar& other) con
 }
 
 /*!
- * Assign zero to all values in \a this array. To know more on filling arrays see
- * \ref MEDCouplingArrayFill.
- * \throw If \a this is not allocated.
- */
-void DataArrayChar::fillWithZero()
-{
-  fillWithValue(0);
-}
-
-/*!
  * Returns a textual and human readable representation of \a this instance of
  * DataArrayChar. This text is shown when a DataArrayChar is printed in Python.
  *  \return std::string - text describing \a this DataArrayChar.

@@ -810,16 +810,6 @@ DataArrayDouble *DataArrayDouble::deepCopy() const
 }
 
 /*!
- * Assign zero to all values in \a this array. To know more on filling arrays see
- * \ref MEDCouplingArrayFill.
- * \throw If \a this is not allocated.
- */
-void DataArrayDouble::fillWithZero()
-{
-  fillWithValue(0.);
-}
-
-/*!
  * Checks that \a this array is consistently **increasing** or **decreasing** in value,
  * with at least absolute difference value of |\a eps| at each step.
  * If not an exception is thrown.
@@ -906,18 +896,6 @@ std::string DataArrayDouble::reprZip() const
   return ret.str();
 }
 
-/*!
- * This method is close to repr method except that when \a this has more than 1000 tuples, all tuples are not
- * printed out to avoid to consume too much space in interpretor.
- * \sa repr
- */
-std::string DataArrayDouble::reprNotTooLong() const
-{
-  std::ostringstream ret;
-  reprNotTooLongStream(ret);
-  return ret.str();
-}
-
 void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const std::string& nameInFile, DataArrayByte *byteArr) const
 {
   static const char SPACE[4]={' ',' ',' ',' '};
@@ -953,45 +931,6 @@ void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const std::string&
       std::copy(begin(),end(),std::ostream_iterator<double>(ofs," "));
     }
   ofs << std::endl << idt << "</DataArray>\n";
-}
-
-void DataArrayDouble::reprStream(std::ostream& stream) const
-{
-  stream << "Name of double array : \"" << _name << "\"\n";
-  reprWithoutNameStream(stream);
-}
-
-void DataArrayDouble::reprZipStream(std::ostream& stream) const
-{
-  stream << "Name of double array : \"" << _name << "\"\n";
-  reprZipWithoutNameStream(stream);
-}
-
-void DataArrayDouble::reprNotTooLongStream(std::ostream& stream) const
-{
-  stream << "Name of double array : \"" << _name << "\"\n";
-  reprNotTooLongWithoutNameStream(stream);
-}
-
-void DataArrayDouble::reprWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(17);
-  _mem.repr(getNumberOfComponents(),stream);
-}
-
-void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(17);
-  _mem.reprZip(getNumberOfComponents(),stream);
-}
-
-void DataArrayDouble::reprNotTooLongWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(17);
-  _mem.reprNotTooLong(getNumberOfComponents(),stream);
 }
 
 void DataArrayDouble::reprCppStream(const std::string& varName, std::ostream& stream) const
@@ -1309,8 +1248,7 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
     throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : input array is NULL !");
   if(!isAllocated() || !otherBBoxFrmt->isAllocated())
     throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : this and input array must be allocated !");
-  std::size_t nbOfComp(getNumberOfComponents());
-  int nbOfTuples(getNumberOfTuples());
+  std::size_t nbOfComp(getNumberOfComponents()),nbOfTuples(getNumberOfTuples());
   if(nbOfComp!=otherBBoxFrmt->getNumberOfComponents())
     {
       std::ostringstream oss; oss << "DataArrayDouble::computeNbOfInteractionsWith : this number of components (" << nbOfComp << ") must be equal to the number of components of input array (" << otherBBoxFrmt->getNumberOfComponents() << ") !";
@@ -2404,28 +2342,6 @@ DataArrayDouble *DataArrayDouble::magnitude() const
       *dest=sqrt(sum);
     }
   return ret;
-}
-
-/*!
- * Computes for each tuple the sum of number of components values in the tuple and return it.
- * 
- * \return DataArrayDouble * - the new instance of DataArrayDouble containing the
- *          same number of tuples as \a this array and one component.
- *          The caller is to delete this result array using decrRef() as it is no more
- *          needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayDouble *DataArrayDouble::sumPerTuple() const
-{
-  checkAllocated();
-  int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  ret->alloc(nbOfTuple,1);
-  const double *src(getConstPointer());
-  double *dest(ret->getPointer());
-  for(int i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
-    *dest=std::accumulate(src,src+nbOfComp,0.);
-  return ret.retn();
 }
 
 /*!
@@ -3749,35 +3665,6 @@ DataArrayInt32 *DataArrayInt32::deepCopy() const
 }
 
 /*!
- * Assign zero to all values in \a this array. To know more on filling arrays see
- * \ref MEDCouplingArrayFill.
- * \throw If \a this is not allocated.
- */
-void DataArrayInt::fillWithZero()
-{
-  fillWithValue(0);
-}
-
-/*!
- * Set all values in \a this array so that the i-th element equals to \a init + i
- * (i starts from zero). To know more on filling arrays see \ref MEDCouplingArrayFill.
- *  \param [in] init - value to assign to the first element of array.
- *  \throw If \a this->getNumberOfComponents() != 1
- *  \throw If \a this is not allocated.
- */
-void DataArrayInt::iota(int init)
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
-  int *ptr=getPointer();
-  int ntuples=getNumberOfTuples();
-  for(int i=0;i<ntuples;i++)
-    ptr[i]=init+i;
-  declareAsNew();
-}
-
-/*!
  * Returns a textual and human readable representation of \a this instance of
  * DataArrayInt. This text is shown when a DataArrayInt is printed in Python.
  * \return std::string - text describing \a this DataArrayInt.
@@ -3795,18 +3682,6 @@ std::string DataArrayInt::reprZip() const
 {
   std::ostringstream ret;
   reprZipStream(ret);
-  return ret.str();
-}
-
-/*!
- * This method is close to repr method except that when \a this has more than 1000 tuples, all tuples are not
- * printed out to avoid to consume too much space in interpretor.
- * \sa repr
- */
-std::string DataArrayInt::reprNotTooLong() const
-{
-  std::ostringstream ret;
-  reprNotTooLongStream(ret);
   return ret.str();
 }
 
@@ -3849,43 +3724,6 @@ void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const std::string& ty
       std::copy(begin(),end(),std::ostream_iterator<int>(ofs," "));
     }
   ofs << std::endl << idt << "</DataArray>\n";
-}
-
-void DataArrayInt::reprStream(std::ostream& stream) const
-{
-  stream << "Name of int array : \"" << _name << "\"\n";
-  reprWithoutNameStream(stream);
-}
-
-void DataArrayInt::reprZipStream(std::ostream& stream) const
-{
-  stream << "Name of int array : \"" << _name << "\"\n";
-  reprZipWithoutNameStream(stream);
-}
-
-void DataArrayInt::reprNotTooLongStream(std::ostream& stream) const
-{
-  stream << "Name of int array : \"" << _name << "\"\n";
-  reprNotTooLongWithoutNameStream(stream);
-}
-
-void DataArrayInt::reprWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  _mem.repr(getNumberOfComponents(),stream);
-}
-
-void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  _mem.reprZip(getNumberOfComponents(),stream);
-}
-
-void DataArrayInt::reprNotTooLongWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(17);
-  _mem.reprNotTooLong(getNumberOfComponents(),stream);
 }
 
 void DataArrayInt::reprCppStream(const std::string& varName, std::ostream& stream) const
@@ -4351,232 +4189,6 @@ MCAuto< MapKeyVal<int> > DataArrayInt::invertArrayN2O2O2NOptimized() const
 }
 
 /*!
- * Computes for each tuple the sum of number of components values in the tuple and return it.
- * 
- * \return DataArrayInt * - the new instance of DataArrayInt containing the
- *          same number of tuples as \a this array and one component.
- *          The caller is to delete this result array using decrRef() as it is no more
- *          needed.
- *  \throw If \a this is not allocated.
- */
-DataArrayInt *DataArrayInt::sumPerTuple() const
-{
-  checkAllocated();
-  int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
-  MCAuto<DataArrayInt> ret(DataArrayInt::New());
-  ret->alloc(nbOfTuple,1);
-  const int *src(getConstPointer());
-  int *dest(ret->getPointer());
-  for(int i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
-    *dest=std::accumulate(src,src+nbOfComp,0);
-  return ret.retn();
-}
-
-/*!
- * Checks that \a this array is consistently **increasing** or **decreasing** in value.
- * If not an exception is thrown.
- *  \param [in] increasing - if \a true, the array values should be increasing.
- *  \throw If sequence of values is not strictly monotonic in agreement with \a
- *         increasing arg.
- *  \throw If \a this->getNumberOfComponents() != 1.
- *  \throw If \a this is not allocated.
- */
-void DataArrayInt::checkMonotonic(bool increasing) const
-{
-  if(!isMonotonic(increasing))
-    {
-      if (increasing)
-        throw INTERP_KERNEL::Exception("DataArrayInt::checkMonotonic : 'this' is not INCREASING monotonic !");
-      else
-        throw INTERP_KERNEL::Exception("DataArrayInt::checkMonotonic : 'this' is not DECREASING monotonic !");
-    }
-}
-
-/*!
- * Checks that \a this array is consistently **increasing** or **decreasing** in value.
- *  \param [in] increasing - if \a true, array values should be increasing.
- *  \return bool - \a true if values change in accordance with \a increasing arg.
- *  \throw If \a this->getNumberOfComponents() != 1.
- *  \throw If \a this is not allocated.
- */
-bool DataArrayInt::isMonotonic(bool increasing) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::isMonotonic : only supported with 'this' array with ONE component !");
-  int nbOfElements=getNumberOfTuples();
-  const int *ptr=getConstPointer();
-  if(nbOfElements==0)
-    return true;
-  int ref=ptr[0];
-  if(increasing)
-    {
-      for(int i=1;i<nbOfElements;i++)
-        {
-          if(ptr[i]>=ref)
-            ref=ptr[i];
-          else
-            return false;
-        }
-    }
-  else
-    {
-      for(int i=1;i<nbOfElements;i++)
-        {
-          if(ptr[i]<=ref)
-            ref=ptr[i];
-          else
-            return false;
-        }
-    }
-  return true;
-}
-
-/*!
- * This method check that array consistently INCREASING or DECREASING in value.
- */
-bool DataArrayInt::isStrictlyMonotonic(bool increasing) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::isStrictlyMonotonic : only supported with 'this' array with ONE component !");
-  int nbOfElements=getNumberOfTuples();
-  const int *ptr=getConstPointer();
-  if(nbOfElements==0)
-    return true;
-  int ref=ptr[0];
-  if(increasing)
-    {
-      for(int i=1;i<nbOfElements;i++)
-        {
-          if(ptr[i]>ref)
-            ref=ptr[i];
-          else
-            return false;
-        }
-    }
-  else
-    {
-      for(int i=1;i<nbOfElements;i++)
-        {
-          if(ptr[i]<ref)
-            ref=ptr[i];
-          else
-            return false;
-        }
-    }
-  return true;
-}
-
-/*!
- * This method check that array consistently INCREASING or DECREASING in value.
- */
-void DataArrayInt::checkStrictlyMonotonic(bool increasing) const
-{
-  if(!isStrictlyMonotonic(increasing))
-    {
-      if (increasing)
-        throw INTERP_KERNEL::Exception("DataArrayInt::checkStrictlyMonotonic : 'this' is not strictly INCREASING monotonic !");
-      else
-        throw INTERP_KERNEL::Exception("DataArrayInt::checkStrictlyMonotonic : 'this' is not strictly DECREASING monotonic !");
-    }
-}
-
-/*!
- * Creates a new one-dimensional DataArrayInt of the same size as \a this and a given
- * one-dimensional arrays that must be of the same length. The result array describes
- * correspondence between \a this and \a other arrays, so that 
- * <em> other.getIJ(i,0) == this->getIJ(ret->getIJ(i),0)</em>. If such a permutation is
- * not possible because some element in \a other is not in \a this, an exception is thrown.
- *  \param [in] other - an array to compute permutation to.
- *  \return DataArrayInt * - a new instance of DataArrayInt, which is a permutation array
- * from \a this to \a other. The caller is to delete this array using decrRef() as it is
- * no more needed.
- *  \throw If \a this->getNumberOfComponents() != 1.
- *  \throw If \a other->getNumberOfComponents() != 1.
- *  \throw If \a this->getNumberOfTuples() != \a other->getNumberOfTuples().
- *  \throw If \a other includes a value which is not in \a this array.
- * 
- *  \if ENABLE_EXAMPLES
- *  \ref cpp_mcdataarrayint_buildpermutationarr "Here is a C++ example".
- *
- *  \ref py_mcdataarrayint_buildpermutationarr "Here is a Python example".
- *  \endif
- */
-DataArrayInt *DataArrayInt::buildPermutationArr(const DataArrayInt& other) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1 || other.getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' have to have exactly ONE component !");
-  int nbTuple=getNumberOfTuples();
-  other.checkAllocated();
-  if(nbTuple!=other.getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' must have the same number of tuple !");
-  MCAuto<DataArrayInt> ret=DataArrayInt::New();
-  ret->alloc(nbTuple,1);
-  ret->fillWithValue(-1);
-  const int *pt=getConstPointer();
-  std::map<int,int> mm;
-  for(int i=0;i<nbTuple;i++)
-    mm[pt[i]]=i;
-  pt=other.getConstPointer();
-  int *retToFill=ret->getPointer();
-  for(int i=0;i<nbTuple;i++)
-    {
-      std::map<int,int>::const_iterator it=mm.find(pt[i]);
-      if(it==mm.end())
-        {
-          std::ostringstream oss; oss << "DataArrayInt::buildPermutationArr : Arrays mismatch : element (" << pt[i] << ") in 'other' not findable in 'this' !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      retToFill[i]=(*it).second;
-    }
-  return ret.retn();
-}
-
-/*!
- * Elements of \a partOfThis are expected to be included in \a this.
- * The returned array \a ret is so that this[ret]==partOfThis
- *
- * For example, if \a this array contents are [9,10,0,6,4,11,3,8] and if \a partOfThis contains [6,0,11,8]
- * the return array will contain [3,2,5,7].
- *
- * \a this is expected to be a 1 compo allocated array.
- * \param [in] partOfThis - A 1 compo allocated array
- * \return - A newly allocated array to be dealed by caller having the same number of tuples than \a partOfThis.
- * \throw if two same element is present twice in \a this
- * \throw if an element in \a partOfThis is \b NOT in \a this.
- */
-DataArrayInt *DataArrayInt::indicesOfSubPart(const DataArrayInt& partOfThis) const
-{
-  if(getNumberOfComponents()!=1 || partOfThis.getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : this and input array must be one component array !");
-  checkAllocated(); partOfThis.checkAllocated();
-  int thisNbTuples(getNumberOfTuples()),nbTuples(partOfThis.getNumberOfTuples());
-  const int *thisPt(begin()),*pt(partOfThis.begin());
-  MCAuto<DataArrayInt> ret(DataArrayInt::New());
-  ret->alloc(nbTuples,1);
-  int *retPt(ret->getPointer());
-  std::map<int,int> m;
-  for(int i=0;i<thisNbTuples;i++,thisPt++)
-    m[*thisPt]=i;
-  if((int)m.size()!=thisNbTuples)
-    throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : some elements appears more than once !");
-  for(int i=0;i<nbTuples;i++,retPt++,pt++)
-    {
-      std::map<int,int>::const_iterator it(m.find(*pt));
-      if(it!=m.end())
-        *retPt=(*it).second;
-      else
-        {
-          std::ostringstream oss; oss << "DataArrayInt::indicesOfSubPart : At pos #" << i << " of input array value is " << *pt << " not in this !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  return ret.retn();
-}
-
-/*!
  * Returns a new DataArrayInt containing a renumbering map in "Old to New" mode.
  * This map, if applied to \a this array, would make it sorted. For example, if
  * \a this array contents are [9,10,0,6,4,11,3,7] then the contents of the result array
@@ -4916,7 +4528,7 @@ bool DataArrayInt::hasUniqueValues() const
     throw INTERP_KERNEL::Exception("DataArrayInt::hasOnlyUniqueValues: must be applied on DataArrayInt with only one component, you can call 'rearrange' method before !");
   int nbOfTuples(getNumberOfTuples());
   std::set<int> s(begin(),end());  // in C++11, should use unordered_set (O(1) complexity)
-  if ((int)s.size() != nbOfTuples)
+  if (s.size() != nbOfTuples)
     return false;
   return true;
 }
@@ -5023,7 +4635,7 @@ DataArrayInt *DataArrayInt::findIdsEqualTuple(const int *tupleBg, const int *tup
 {
   std::size_t nbOfCompoExp(std::distance(tupleBg,tupleEnd));
   checkAllocated();
-  if(getNumberOfComponents()!=nbOfCompoExp)
+  if(getNumberOfComponents()!=(int)nbOfCompoExp)
     {
       std::ostringstream oss; oss << "DataArrayInt::findIdsEqualTuple : mismatch of number of components. Input tuple has " << nbOfCompoExp << " whereas this array has " << getNumberOfComponents() << " components !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -5398,7 +5010,7 @@ DataArrayInt *DataArrayInt::Aggregate(const DataArrayInt *a1, const DataArrayInt
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : input DataArrayInt instance is NULL !");
-  std::size_t nbOfComp(a1->getNumberOfComponents());
+  int nbOfComp=a1->getNumberOfComponents();
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array Aggregation !");
   int nbOfTuple1=a1->getNumberOfTuples();
@@ -5435,7 +5047,7 @@ DataArrayInt *DataArrayInt::Aggregate(const std::vector<const DataArrayInt *>& a
   if(a.empty())
     throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : input list must be NON EMPTY !");
   std::vector<const DataArrayInt *>::const_iterator it=a.begin();
-  std::size_t nbOfComp((*it)->getNumberOfComponents());
+  int nbOfComp=(*it)->getNumberOfComponents();
   int nbt=(*it++)->getNumberOfTuples();
   for(int i=1;it!=a.end();it++,i++)
     {

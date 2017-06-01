@@ -86,7 +86,7 @@ namespace MEDCoupling
     //
     MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
     MEDCOUPLING_EXPORT virtual void checkConsistency(double eps=1e-12) const = 0;
-    MEDCOUPLING_EXPORT virtual int getNumberOfCells() const = 0;
+    MEDCOUPLING_EXPORT virtual std::size_t getNumberOfCells() const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfNodes() const = 0;
     MEDCOUPLING_EXPORT virtual int getSpaceDimension() const = 0;
     MEDCOUPLING_EXPORT virtual int getMeshDimension() const = 0;
@@ -97,8 +97,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual DataArrayInt *computeNbOfNodesPerCell() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *computeEffectiveNbOfNodesPerCell() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *computeNbOfFacesPerCell() const = 0;
-    MEDCOUPLING_EXPORT virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
-    MEDCOUPLING_EXPORT virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
+    MEDCOUPLING_EXPORT virtual std::size_t getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
+    MEDCOUPLING_EXPORT virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(std::size_t cellId) const = 0;
     MEDCOUPLING_EXPORT virtual std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const = 0;
     MEDCOUPLING_EXPORT virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;

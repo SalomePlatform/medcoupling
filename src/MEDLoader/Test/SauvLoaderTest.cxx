@@ -251,11 +251,11 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"maa1") != groups.end() );
   CPPUNIT_ASSERT_EQUAL(16,m->getSizeAtLevel(0));
   MCAuto<MEDCouplingMesh> um0 = m->getMeshAtLevel(0);
-  CPPUNIT_ASSERT_EQUAL(12, um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TETRA4 ));
-  CPPUNIT_ASSERT_EQUAL(2,  um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PYRA5 ));
-  CPPUNIT_ASSERT_EQUAL(2,  um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
+  CPPUNIT_ASSERT_EQUAL(12, (int)um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TETRA4 ));
+  CPPUNIT_ASSERT_EQUAL(2,  (int)um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PYRA5 ));
+  CPPUNIT_ASSERT_EQUAL(2,  (int)um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
   MCAuto<MEDCouplingMesh> um1 = m->getMeshAtLevel(-1);
-  CPPUNIT_ASSERT_EQUAL(1, um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
+  CPPUNIT_ASSERT_EQUAL(1, (int)um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
   //CPPUNIT_ASSERT_EQUAL(2, um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
   MCAuto<MEDCouplingUMesh> pointeUM0 =
     static_cast<MEDCouplingUMesh*>( pointeMedMesh->getMeshAtLevel(0));

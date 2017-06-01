@@ -205,7 +205,7 @@ void MEDCouplingCurveLinearMesh::checkConsistency(double eps) const
   checkConsistencyLight();
 }
 
-int MEDCouplingCurveLinearMesh::getNumberOfCells() const
+std::size_t MEDCouplingCurveLinearMesh::getNumberOfCells() const
 {
   checkConsistencyLight();
   return MEDCouplingStructuredMesh::getNumberOfCells();

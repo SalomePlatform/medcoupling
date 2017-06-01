@@ -24,10 +24,12 @@
 namespace MEDCoupling
 {
   typedef long Int64;
-  typedef int  Int32;
+  typedef int Int32;
+  typedef int mcIdType;
 }
 
 #define DataArrayInt DataArrayInt32
+#define DataArrayIdType DataArrayInt32
 
 #define DataArrayIntIterator DataArrayInt32Iterator
 

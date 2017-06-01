@@ -38,25 +38,6 @@ DataArrayFloat *DataArrayFloat::deepCopy() const
   return new DataArrayFloat(*this);
 }
 
-void DataArrayFloat::reprStream(std::ostream& stream) const
-{
-  stream << "Name of float array : \"" << _name << "\"\n";
-  reprWithoutNameStream(stream);
-}
-
-void DataArrayFloat::reprZipStream(std::ostream& stream) const
-{
-  stream << "Name of float array : \"" << _name << "\"\n";
-  reprZipWithoutNameStream(stream);
-}
-
-void DataArrayFloat::reprZipWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(7);
-  _mem.repr(getNumberOfComponents(),stream);
-}
-
 void DataArrayFloat::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
   int nbTuples(getNumberOfTuples()),nbComp(getNumberOfComponents());
@@ -129,26 +110,6 @@ void DataArrayFloat::reprQuickOverviewData(std::ostream& stream, std::size_t max
   if(!isFinished)
     stream << "... ";
   stream << "]";
-}
-
-std::string DataArrayFloat::reprNotTooLong() const
-{
-  std::ostringstream ret;
-  reprNotTooLongStream(ret);
-  return ret.str();
-}
-
-void DataArrayFloat::reprNotTooLongStream(std::ostream& stream) const
-{
-  stream << "Name of float array : \"" << _name << "\"\n";
-  reprNotTooLongWithoutNameStream(stream);
-}
-
-void DataArrayFloat::reprNotTooLongWithoutNameStream(std::ostream& stream) const
-{
-  DataArray::reprWithoutNameStream(stream);
-  stream.precision(7);
-  _mem.reprNotTooLong(getNumberOfComponents(),stream);
 }
 
 bool DataArrayFloat::isEqualIfNotWhy(const DataArrayFloat& other, float prec, std::string& reason) const
