@@ -395,7 +395,7 @@ void MEDCouplingUMesh::tessellate2DCurveInternal(double eps)
           newConnIPtr[1]=newConnIPtr[0]+3;
         }
     }
-  if(addCoo.empty() && ((int)newConn.size())==_nodal_connec->getNumberOfTuples())//nothing happens during tessellation : no update needed
+  if(addCoo.empty() && newConn.size()==_nodal_connec->getNumberOfTuples())//nothing happens during tessellation : no update needed
     return ;
   _types=types;
   DataArrayInt::SetArrayIn(newConnI,_nodal_connec_index);

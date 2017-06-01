@@ -572,7 +572,7 @@ void DataArray::setInfoAndChangeNbOfCompo(const std::vector<std::string>& info)
 
 void DataArray::checkNbOfTuples(int nbOfTuples, const std::string& msg) const
 {
-  if(getNumberOfTuples()!=nbOfTuples)
+  if((int)getNumberOfTuples()!=nbOfTuples)
     {
       std::ostringstream oss; oss << msg << " : mismatch number of tuples : expected " <<  nbOfTuples << " having " << getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -1267,21 +1267,21 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
     case 3:
       {
         BBTree<3,int> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
-        for(int i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
+        for(std::size_t i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
           *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
         break;
       }
     case 2:
       {
         BBTree<2,int> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
-        for(int i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
+        for(std::size_t i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
           *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
         break;
       }
     case 1:
       {
         BBTree<1,int> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
-        for(int i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
+        for(std::size_t i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
           *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
         break;
       }
@@ -2041,7 +2041,7 @@ DataArrayDouble *DataArrayDouble::fromCartToCylGiven(const DataArrayDouble *coor
     throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : input coords are NULL !");
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   checkAllocated(); coords->checkAllocated();
-  int nbOfComp(getNumberOfComponents()),nbTuples(getNumberOfTuples());
+  std::size_t nbOfComp(getNumberOfComponents()),nbTuples(getNumberOfTuples());
   if(nbOfComp!=3)
     throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : must be an array with exactly 3 components !");
   if(coords->getNumberOfComponents()!=3)
@@ -3148,15 +3148,14 @@ DataArrayDouble *DataArrayDouble::Dot(const DataArrayDouble *a1, const DataArray
   std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array Dot !");
-  int nbOfTuple=a1->getNumberOfTuples();
+  std::size_t nbOfTuple(a1->getNumberOfTuples());
   if(nbOfTuple!=a2->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Dot !");
   DataArrayDouble *ret=DataArrayDouble::New();
   ret->alloc(nbOfTuple,1);
   double *retPtr=ret->getPointer();
-  const double *a1Ptr=a1->getConstPointer();
-  const double *a2Ptr=a2->getConstPointer();
-  for(int i=0;i<nbOfTuple;i++)
+  const double *a1Ptr=a1->begin(),*a2Ptr(a2->begin());
+  for(std::size_t i=0;i<nbOfTuple;i++)
     {
       double sum=0.;
       for(std::size_t j=0;j<nbOfComp;j++)
@@ -3194,15 +3193,14 @@ DataArrayDouble *DataArrayDouble::CrossProduct(const DataArrayDouble *a1, const 
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array crossProduct !");
   if(nbOfComp!=3)
     throw INTERP_KERNEL::Exception("Nb of components must be equal to 3 for array crossProduct !");
-  int nbOfTuple=a1->getNumberOfTuples();
+  std::size_t nbOfTuple(a1->getNumberOfTuples());
   if(nbOfTuple!=a2->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array crossProduct !");
   DataArrayDouble *ret=DataArrayDouble::New();
   ret->alloc(nbOfTuple,3);
   double *retPtr=ret->getPointer();
-  const double *a1Ptr=a1->getConstPointer();
-  const double *a2Ptr=a2->getConstPointer();
-  for(int i=0;i<nbOfTuple;i++)
+  const double *a1Ptr(a1->begin()),*a2Ptr(a2->begin());
+  for(std::size_t i=0;i<nbOfTuple;i++)
     {
       retPtr[3*i]=a1Ptr[3*i+1]*a2Ptr[3*i+2]-a1Ptr[3*i+2]*a2Ptr[3*i+1];
       retPtr[3*i+1]=a1Ptr[3*i+2]*a2Ptr[3*i]-a1Ptr[3*i]*a2Ptr[3*i+2];
@@ -3232,19 +3230,18 @@ DataArrayDouble *DataArrayDouble::Max(const DataArrayDouble *a1, const DataArray
   std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array Max !");
-  int nbOfTuple=a1->getNumberOfTuples();
+  std::size_t nbOfTuple(a1->getNumberOfTuples());
   if(nbOfTuple!=a2->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Max !");
-  DataArrayDouble *ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbOfTuple,nbOfComp);
-  double *retPtr=ret->getPointer();
-  const double *a1Ptr=a1->getConstPointer();
-  const double *a2Ptr=a2->getConstPointer();
-  int nbElem=nbOfTuple*nbOfComp;
-  for(int i=0;i<nbElem;i++)
+  double *retPtr(ret->getPointer());
+  const double *a1Ptr(a1->begin()),*a2Ptr(a2->begin());
+  std::size_t nbElem(nbOfTuple*nbOfComp);
+  for(std::size_t i=0;i<nbElem;i++)
     retPtr[i]=std::max(a1Ptr[i],a2Ptr[i]);
   ret->copyStringInfoFrom(*a1);
-  return ret;
+  return ret.retn();
 }
 
 /*!
@@ -3267,19 +3264,18 @@ DataArrayDouble *DataArrayDouble::Min(const DataArrayDouble *a1, const DataArray
   std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array min !");
-  int nbOfTuple=a1->getNumberOfTuples();
+  std::size_t nbOfTuple(a1->getNumberOfTuples());
   if(nbOfTuple!=a2->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array min !");
-  DataArrayDouble *ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbOfTuple,nbOfComp);
-  double *retPtr=ret->getPointer();
-  const double *a1Ptr=a1->getConstPointer();
-  const double *a2Ptr=a2->getConstPointer();
-  int nbElem=nbOfTuple*nbOfComp;
-  for(int i=0;i<nbElem;i++)
+  double *retPtr(ret->getPointer());
+  const double *a1Ptr(a1->begin()),*a2Ptr(a2->begin());
+  std::size_t nbElem(nbOfTuple*nbOfComp);
+  for(std::size_t i=0;i<nbElem;i++)
     retPtr[i]=std::min(a1Ptr[i],a2Ptr[i]);
   ret->copyStringInfoFrom(*a1);
-  return ret;
+  return ret.retn();
 }
 
 /*!
@@ -4526,7 +4522,7 @@ bool DataArrayInt::hasUniqueValues() const
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::hasOnlyUniqueValues: must be applied on DataArrayInt with only one component, you can call 'rearrange' method before !");
-  int nbOfTuples(getNumberOfTuples());
+  std::size_t nbOfTuples(getNumberOfTuples());
   std::set<int> s(begin(),end());  // in C++11, should use unordered_set (O(1) complexity)
   if (s.size() != nbOfTuples)
     return false;
@@ -4635,7 +4631,7 @@ DataArrayInt *DataArrayInt::findIdsEqualTuple(const int *tupleBg, const int *tup
 {
   std::size_t nbOfCompoExp(std::distance(tupleBg,tupleEnd));
   checkAllocated();
-  if(getNumberOfComponents()!=(int)nbOfCompoExp)
+  if(getNumberOfComponents()!=nbOfCompoExp)
     {
       std::ostringstream oss; oss << "DataArrayInt::findIdsEqualTuple : mismatch of number of components. Input tuple has " << nbOfCompoExp << " whereas this array has " << getNumberOfComponents() << " components !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -5010,17 +5006,16 @@ DataArrayInt *DataArrayInt::Aggregate(const DataArrayInt *a1, const DataArrayInt
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : input DataArrayInt instance is NULL !");
-  int nbOfComp=a1->getNumberOfComponents();
+  std::size_t nbOfComp(a1->getNumberOfComponents());
   if(nbOfComp!=a2->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Nb of components mismatch for array Aggregation !");
-  int nbOfTuple1=a1->getNumberOfTuples();
-  int nbOfTuple2=a2->getNumberOfTuples();
-  DataArrayInt *ret=DataArrayInt::New();
+  std::size_t nbOfTuple1(a1->getNumberOfTuples()),nbOfTuple2(a2->getNumberOfTuples());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
   ret->alloc(nbOfTuple1+nbOfTuple2-offsetA2,nbOfComp);
-  int *pt=std::copy(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple1*nbOfComp,ret->getPointer());
+  int *pt=std::copy(a1->begin(),a1->end(),ret->getPointer());
   std::copy(a2->getConstPointer()+offsetA2*nbOfComp,a2->getConstPointer()+nbOfTuple2*nbOfComp,pt);
   ret->copyStringInfoFrom(*a1);
-  return ret;
+  return ret.retn();
 }
 
 /*!
@@ -5047,8 +5042,7 @@ DataArrayInt *DataArrayInt::Aggregate(const std::vector<const DataArrayInt *>& a
   if(a.empty())
     throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : input list must be NON EMPTY !");
   std::vector<const DataArrayInt *>::const_iterator it=a.begin();
-  int nbOfComp=(*it)->getNumberOfComponents();
-  int nbt=(*it++)->getNumberOfTuples();
+  std::size_t nbOfComp((*it)->getNumberOfComponents()),nbt((*it++)->getNumberOfTuples());
   for(int i=1;it!=a.end();it++,i++)
     {
       if((*it)->getNumberOfComponents()!=nbOfComp)

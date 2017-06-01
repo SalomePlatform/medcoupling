@@ -865,7 +865,7 @@ public:
   VectorOfCellInfo(const std::vector<int>& edges, const std::vector< MCAuto<INTERP_KERNEL::Edge> >& edgesPtr);
   std::size_t size() const { return _pool.size(); }
   int getPositionOf(double eps, const MEDCouplingUMesh *mesh) const;
-  void setMeshAt(int pos, const MCAuto<MEDCouplingUMesh>& mesh, int istart, int iend, const MCAuto<MEDCouplingUMesh>& mesh1DInCase, const std::vector< std::vector<int> >& edges, const std::vector< std::vector< MCAuto<INTERP_KERNEL::Edge> > >& edgePtrs);
+  void setMeshAt(std::size_t pos, const MCAuto<MEDCouplingUMesh>& mesh, int istart, int iend, const MCAuto<MEDCouplingUMesh>& mesh1DInCase, const std::vector< std::vector<int> >& edges, const std::vector< std::vector< MCAuto<INTERP_KERNEL::Edge> > >& edgePtrs);
   const std::vector<int>& getConnOf(int pos) const { return get(pos)._edges; }
   const std::vector< MCAuto<INTERP_KERNEL::Edge> >& getEdgePtrOf(int pos) const { return get(pos)._edges_ptr; }
   MCAuto<MEDCouplingUMesh> getZeMesh() const { return _ze_mesh; }
@@ -900,7 +900,7 @@ int VectorOfCellInfo::getPositionOf(double eps, const MEDCouplingUMesh *mesh) co
   return zeMesh->getCellContainingPoint(barys->begin(),eps);
 }
 
-void VectorOfCellInfo::setMeshAt(int pos, const MCAuto<MEDCouplingUMesh>& mesh, int istart, int iend, const MCAuto<MEDCouplingUMesh>& mesh1DInCase, const std::vector< std::vector<int> >& edges, const std::vector< std::vector< MCAuto<INTERP_KERNEL::Edge> > >& edgePtrs)
+void VectorOfCellInfo::setMeshAt(std::size_t pos, const MCAuto<MEDCouplingUMesh>& mesh, int istart, int iend, const MCAuto<MEDCouplingUMesh>& mesh1DInCase, const std::vector< std::vector<int> >& edges, const std::vector< std::vector< MCAuto<INTERP_KERNEL::Edge> > >& edgePtrs)
 {
   get(pos);//to check pos
   bool isFast(pos==0 && _pool.size()==1);
@@ -912,7 +912,7 @@ void VectorOfCellInfo::setMeshAt(int pos, const MCAuto<MEDCouplingUMesh>& mesh, 
     _edge_info.push_back(EdgeInfo(istart,iend,pos,edgePtrs[0].back()));
   //
   std::vector<CellInfo> pool(_pool.size()-1+sz);
-  for(int i=0;i<pos;i++)
+  for(std::size_t i=0;i<pos;i++)
     pool[i]=_pool[i];
   for(std::size_t j=0;j<sz;j++)
     pool[pos+j]=CellInfo(edges[j],edgePtrs[j]);
@@ -1775,7 +1775,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
       MCAuto<MEDCouplingUMesh> splitOfOneCell(BuildMesh2DCutFrom(eps,*it,m1Desc,partOfMesh1CuttingCur2DCell,dd1->begin()+dd2->getIJ(*it,0),dd1->begin()+dd2->getIJ((*it)+1,0),intersectEdge1,ret2->getNumberOfTuples(),partOfRet3));
       ret3->setPartOfValues3(partOfRet3,idsNonColPerCell2->begin(),idsNonColPerCell2->end(),0,2,1,true);
       outMesh2DSplit.push_back(splitOfOneCell);
-      for(int i=0;i<splitOfOneCell->getNumberOfCells();i++)
+      for(std::size_t i=0;i<splitOfOneCell->getNumberOfCells();i++)
         ret2->pushBackSilent(*it);
     }
   //
@@ -2151,11 +2151,12 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
     const double * normalsP = normals->getConstPointer();
 
     // Sort faces by decreasing surface:
-    vector<pair<double,int>> S;
-    for(int i=0;i < surfs->getNumberOfTuples();i++){
+    vector< pair<double,int> > S;
+    for(std::size_t i=0;i < surfs->getNumberOfTuples();i++)
+      {
         pair<double,int> p = make_pair(surfs->begin()[i], i);
         S.push_back(p);
-    }
+      }
     sort(S.rbegin(),S.rend()); // reverse sort
     vector<bool> hit(nDescCell);
     fill(hit.begin(), hit.end(), false);
@@ -2188,9 +2189,9 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
         MCAuto<MEDCouplingUMesh> mPartCand(mDesc->buildPartOfMySelf(&cands2[0], &cands2[0]+cands2.size(), false)); // false=zipCoords is called
         double * cooPartRef(mPartRef->_coords->getPointer());
         double * cooPartCand(mPartCand->_coords->getPointer());
-        for (int ii = 0; ii < mPartRef->_coords->getNumberOfTuples(); ii++)
+        for (std::size_t ii = 0; ii < mPartRef->_coords->getNumberOfTuples(); ii++)
           rotation.transform_vector(cooPartRef+SPACEDIM*ii);
-        for (int ii = 0; ii < mPartCand->_coords->getNumberOfTuples(); ii++)
+        for (std::size_t ii = 0; ii < mPartCand->_coords->getNumberOfTuples(); ii++)
           rotation.transform_vector(cooPartCand+SPACEDIM*ii);
 
         // Localize faces in 2D thanks to barycenters
@@ -2318,10 +2319,11 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
 
     // Sort edges by decreasing length:
     vector<pair<double,int>> S;
-    for(int i=0;i < lens->getNumberOfTuples();i++){
+    for(std::size_t i=0;i < lens->getNumberOfTuples();i++)
+      {
         pair<double,int> p = make_pair(lens->getIJ(i, 0), i);
         S.push_back(p);
-    }
+      }
     sort(S.rbegin(),S.rend()); // reverse sort
 
     vector<bool> hit(nDesc2Cell);
@@ -2371,9 +2373,9 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
         MCAuto<DataArrayInt>  nodeMapInv = nodeMap->invertArrayO2N2N2O(nbElemsNotM1);
         double * cooPartRef(mPartRef->_coords->getPointer());
         double * cooPartCand(mPartCand->_coords->getPointer());
-        for (int ii = 0; ii < mPartRef->_coords->getNumberOfTuples(); ii++)
+        for (std::size_t ii = 0; ii < mPartRef->_coords->getNumberOfTuples(); ii++)
           rotation.transform_vector(cooPartRef+SPACEDIM*ii);
-        for (int ii = 0; ii < mPartCand->_coords->getNumberOfTuples(); ii++)
+        for (std::size_t ii = 0; ii < mPartCand->_coords->getNumberOfTuples(); ii++)
           rotation.transform_vector(cooPartCand+SPACEDIM*ii);
 
 
@@ -2431,7 +2433,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
     MCAuto<DataArrayInt> idx(DataArrayInt::New());       idx->alloc(1);                         idx->fillWithValue(0);
     MCAuto<DataArrayInt> vals(DataArrayInt::New());      vals->alloc(0);
     newConn->set3(superIdx, idx, vals);
-    for(int ii = 0; ii < getNumberOfCells(); ii++)
+    for(std::size_t ii = 0; ii < getNumberOfCells(); ii++)
       for (int jj=descIP[ii]; jj < descIP[ii+1]; jj++)
         {
           int sz, faceIdx = abs(descP[jj])-1;

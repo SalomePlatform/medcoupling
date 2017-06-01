@@ -100,7 +100,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual std::size_t getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
     MEDCOUPLING_EXPORT virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(std::size_t cellId) const = 0;
     MEDCOUPLING_EXPORT virtual std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const = 0;
-    MEDCOUPLING_EXPORT virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
+    MEDCOUPLING_EXPORT virtual void getNodeIdsOfCell(std::size_t cellId, std::vector<int>& conn) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
     MEDCOUPLING_EXPORT virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const = 0;
     MEDCOUPLING_EXPORT virtual std::string simpleRepr() const = 0;

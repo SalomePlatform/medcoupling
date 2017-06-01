@@ -121,7 +121,7 @@ std::size_t MEDCoupling1GTUMesh::getNumberOfCellsWithType(INTERP_KERNEL::Normali
  */
 INTERP_KERNEL::NormalizedCellType MEDCoupling1GTUMesh::getTypeOfCell(std::size_t cellId) const
 {
-  if(cellId>=0 && cellId<getNumberOfCells())
+  if(cellId<getNumberOfCells())
     return getCellModelEnum();
   std::ostringstream oss; oss << "MEDCoupling1GTUMesh::getTypeOfCell : Requesting type of cell #" << cellId << " but it should be in [0," << getNumberOfCells() << ") !";
   throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -758,11 +758,11 @@ DataArrayInt *MEDCoupling1SGTUMesh::computeEffectiveNbOfNodesPerCell() const
   return ret.retn();
 }
 
-void MEDCoupling1SGTUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+void MEDCoupling1SGTUMesh::getNodeIdsOfCell(std::size_t cellId, std::vector<int>& conn) const
 {
   int sz=getNumberOfNodesPerCell();
   conn.resize(sz);
-  if(cellId>=0 && cellId<getNumberOfCells())
+  if(cellId<getNumberOfCells())
     std::copy(_conn->begin()+cellId*sz,_conn->begin()+(cellId+1)*sz,conn.begin());
   else
     {
@@ -2536,10 +2536,10 @@ DataArrayInt *MEDCoupling1DGTUMesh::computeEffectiveNbOfNodesPerCell() const
   return ret.retn();
 }
 
-void MEDCoupling1DGTUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+void MEDCoupling1DGTUMesh::getNodeIdsOfCell(std::size_t cellId, std::vector<int>& conn) const
 {
-  int nbOfCells(getNumberOfCells());//performs checks
-  if(cellId>=0 && cellId<nbOfCells)
+  std::size_t nbOfCells(getNumberOfCells());//performs checks
+  if(cellId<nbOfCells)
     {
       int strt=_conn_indx->getIJ(cellId,0),stp=_conn_indx->getIJ(cellId+1,0);
       int nbOfNodes=stp-strt;
@@ -3306,12 +3306,12 @@ void MEDCoupling1DGTUMesh::allocateCells(int nbOfCells)
  */
 void MEDCoupling1DGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd)
 {
-  int sz=(int)std::distance(nodalConnOfCellBg,nodalConnOfCellEnd);
+  std::size_t sz(std::distance(nodalConnOfCellBg,nodalConnOfCellEnd));
   DataArrayInt *c(_conn),*c2(_conn_indx);
   if(c && c2)
     {
       int pos=c2->back();
-      if(pos==c->getNumberOfTuples())
+      if(pos==(int)c->getNumberOfTuples())
         {
           c->pushBackValsSilent(nodalConnOfCellBg,nodalConnOfCellEnd);
           c2->pushBackSilent(pos+sz);
@@ -3428,7 +3428,7 @@ bool MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity(DataArrayInt *&nodalC
 bool MEDCoupling1DGTUMesh::isPacked() const
 {
   checkConsistencyLight();
-  return _conn_indx->front()==0 && _conn_indx->back()==_conn->getNumberOfTuples();
+  return _conn_indx->front()==0 && _conn_indx->back()==(int)_conn->getNumberOfTuples();
 }
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(const MEDCoupling1DGTUMesh *mesh1, const MEDCoupling1DGTUMesh *mesh2)

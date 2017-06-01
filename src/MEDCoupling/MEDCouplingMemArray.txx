@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 #define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
@@ -1132,7 +1132,7 @@ namespace MEDCoupling
       {
         int a,b,c;
         spd->getSlice(a,b,c);
-        if(a==0 && b==getNumberOfTuples() && c==1)
+        if(a==0 && b==(int)getNumberOfTuples() && c==1)
           {
             DataArrayTemplate<T> *directRet(const_cast<DataArrayTemplate<T> *>(this));
             directRet->incrRef();
@@ -3015,7 +3015,7 @@ struct NotInRange
     for(it=a.begin();it!=a.end();it++)
       (*it)->checkAllocated();
     it=a.begin();
-    int nbOfTuples((*it)->getNumberOfTuples());
+    std::size_t nbOfTuples((*it)->getNumberOfTuples());
     std::vector<int> nbc(a.size());
     std::vector<const T *> pts(a.size());
     nbc[0]=(*it)->getNumberOfComponents();
@@ -3031,8 +3031,8 @@ struct NotInRange
     typename Traits<T>::ArrayType *ret(Traits<T>::ArrayType::New());
     ret->alloc(nbOfTuples,totalNbOfComp);
     T *retPtr(ret->getPointer());
-    for(int i=0;i<nbOfTuples;i++)
-      for(int j=0;j<(int)a.size();j++)
+    for(std::size_t i=0;i<nbOfTuples;i++)
+      for(std::size_t j=0;j<a.size();j++)
         {
           retPtr=std::copy(pts[j],pts[j]+nbc[j],retPtr);
           pts[j]+=nbc[j];
@@ -3105,14 +3105,14 @@ struct NotInRange
   {
     this->checkAllocated();
     other->checkAllocated();
-    int nbOfTuples(this->getNumberOfTuples());
+    std::size_t nbOfTuples(this->getNumberOfTuples());
     if(nbOfTuples!=other->getNumberOfTuples())
       throw INTERP_KERNEL::Exception("DataArrayDouble::meldWith : mismatch of number of tuples !");
     int nbOfComp1(this->getNumberOfComponents()),nbOfComp2(other->getNumberOfComponents());
     T *newArr=(T *)malloc((nbOfTuples*(nbOfComp1+nbOfComp2))*sizeof(T));
     T *w=newArr;
     const T *inp1(this->begin()),*inp2(other->begin());
-    for(int i=0;i<nbOfTuples;i++,inp1+=nbOfComp1,inp2+=nbOfComp2)
+    for(std::size_t i=0;i<nbOfTuples;i++,inp1+=nbOfComp1,inp2+=nbOfComp2)
       {
         w=std::copy(inp1,inp1+nbOfComp1,w);
         w=std::copy(inp2,inp2+nbOfComp2,w);
@@ -3481,7 +3481,7 @@ struct NotInRange
     this->checkAllocated();
     if(this->getNumberOfComponents()!=1 || other.getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' have to have exactly ONE component !");
-    int nbTuple(this->getNumberOfTuples());
+    std::size_t nbTuple(this->getNumberOfTuples());
     other.checkAllocated();
     if(nbTuple!=other.getNumberOfTuples())
       throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' must have the same number of tuple !");
@@ -3489,12 +3489,12 @@ struct NotInRange
     ret->alloc(nbTuple,1);
     ret->fillWithValue(-1);
     const T *pt(this->begin());
-    std::map<int,int> mm;
-    for(int i=0;i<nbTuple;i++)
-      mm[pt[i]]=i;
+    std::map<int,mcIdType> mm;
+    for(std::size_t i=0;i<nbTuple;i++)
+      mm[pt[i]]=(mcIdType)i;
     pt=other.begin();
     mcIdType *retToFill(ret->getPointer());
-    for(int i=0;i<nbTuple;i++)
+    for(std::size_t i=0;i<nbTuple;i++)
       {
         std::map<int,int>::const_iterator it=mm.find(pt[i]);
         if(it==mm.end())
@@ -3532,11 +3532,11 @@ struct NotInRange
     ret->alloc(nbTuples,1);
     T *retPt(ret->getPointer());
     std::map<int,mcIdType> m;
-    for(mcIdType i=0;i<thisNbTuples;i++,thisPt++)
-      m[*thisPt]=i;
+    for(std::size_t i=0;i<thisNbTuples;i++,thisPt++)
+      m[*thisPt]=(mcIdType)i;
     if(m.size()!=thisNbTuples)
       throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : some elements appears more than once !");
-    for(mcIdType i=0;i<nbTuples;i++,retPt++,pt++)
+    for(std::size_t i=0;i<nbTuples;i++,retPt++,pt++)
       {
         std::map<int,mcIdType>::const_iterator it(m.find(*pt));
         if(it!=m.end())

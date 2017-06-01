@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingCMesh.hxx"
@@ -288,8 +288,7 @@ void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::integral : input array is NULL !");
   MCAuto<MEDCouplingFieldDouble> vol=getMeasureField(mesh,isWAbs);
-  int nbOfCompo=arr->getNumberOfComponents();
-  int nbOfElems=getNumberOfTuples(mesh);
+  std::size_t nbOfCompo(arr->getNumberOfComponents()),nbOfElems(getNumberOfTuples(mesh));
   if(nbOfElems!=arr->getNumberOfTuples())
     {
       std::ostringstream oss; oss << "MEDCouplingFieldDiscretization::integral : field is not correct ! number of tuples in array is " << arr->getNumberOfTuples();
@@ -297,10 +296,9 @@ void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   std::fill(res,res+nbOfCompo,0.);
-  const double *arrPtr=arr->getConstPointer();
-  const double *volPtr=vol->getArray()->getConstPointer();
+  const double *arrPtr(arr->begin()),*volPtr(vol->getArray()->begin());
   INTERP_KERNEL::AutoPtr<double> tmp=new double[nbOfCompo];
-  for (int i=0;i<nbOfElems;i++)
+  for(std::size_t i=0;i<nbOfElems;i++)
     {
       std::transform(arrPtr+i*nbOfCompo,arrPtr+(i+1)*nbOfCompo,(double *)tmp,std::bind2nd(std::multiplies<double>(),volPtr[i]));
       std::transform((double *)tmp,(double *)tmp+nbOfCompo,res,res,std::plus<double>());
@@ -555,7 +553,7 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode(con
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
           const DataArrayInt *ids(idsPerType[pos]);
-          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
+          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || (int)ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
             {
               std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode : input pfl chunck at pos " << pos << " should have " << i << " tuples and one component and with ids all >=0 !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -799,7 +797,7 @@ int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCod
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
           const DataArrayInt *ids(idsPerType[pos]);
-          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
+          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || (int)ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
             {
               std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode : input pfl chunck at pos " << pos << " should have " << i << " tuples and one component and with ids all >=0 !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -862,7 +860,7 @@ void MEDCouplingFieldDiscretizationOnNodes::checkCoherencyBetween(const MEDCoupl
 {
   if(!mesh || !da)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationNodes::checkCoherencyBetween : NULL input mesh or DataArray !");
-  if(mesh->getNumberOfNodes()!=da->getNumberOfTuples())
+  if(mesh->getNumberOfNodes()!=(int)da->getNumberOfTuples())
     {
       std::ostringstream message;
       message << "Field on nodes invalid because there are " << mesh->getNumberOfNodes();
@@ -1143,7 +1141,7 @@ void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCoupl
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell has no discretization per cell !");
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween : NULL input mesh or DataArray !");
-  int nbOfTuples=_discr_per_cell->getNumberOfTuples();
+  std::size_t nbOfTuples(_discr_per_cell->getNumberOfTuples());
   if(nbOfTuples!=mesh->getNumberOfCells())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell has a discretization per cell but it's not matching the underlying mesh !");
 }
@@ -1395,7 +1393,7 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
   int nbOfSplit=(int)idsPerType.size();
   int nbOfTypes=(int)code.size()/3;
-  int ret=0;
+  std::size_t ret(0);
   for(int i=0;i<nbOfTypes;i++)
     {
       int nbOfEltInChunk=code[3*i+1];
@@ -1410,7 +1408,7 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
           const DataArrayInt *ids(idsPerType[pos]);
-          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
+          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || (int)ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
             {
               std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : input pfl chunck at pos " << pos << " should have " << i << " tuples and one component and with ids all >=0 !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -1462,16 +1460,16 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::getOffsetArr(const MEDCouplin
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getOffsetArr : NULL input mesh !");
-  int nbOfTuples=mesh->getNumberOfCells();
+  std::size_t nbOfTuples(mesh->getNumberOfCells());
   MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfTuples+1,1);
-  int *retPtr=ret->getPointer();
-  const int *start=_discr_per_cell->getConstPointer();
+  int *retPtr(ret->getPointer());
+  const int *start(_discr_per_cell->begin());
   if(_discr_per_cell->getNumberOfTuples()!=nbOfTuples)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getOffsetArr : mismatch between the mesh and the discretization ids array length !");
   int maxPossible=(int)_loc.size();
   retPtr[0]=0;
-  for(int i=0;i<nbOfTuples;i++,start++)
+  for(std::size_t i=0;i<nbOfTuples;i++,start++)
     {
       if(*start>=0 && *start<maxPossible)
         retPtr[i+1]=retPtr[i]+_loc[*start].getNumberOfGaussPt();
@@ -1679,7 +1677,7 @@ void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplin
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  int nbOfTuples(getNumberOfTuples(mesh));
+  std::size_t nbOfTuples(getNumberOfTuples(mesh));
   if(nbOfTuples!=da->getNumberOfTuples())
     {
       std::ostringstream oss; oss << "Invalid number of tuples in the array : expecting " << nbOfTuples << " having " << da->getNumberOfTuples() << " !";
@@ -1701,7 +1699,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
   _discr_per_cell->checkAllocated();
   if(_discr_per_cell->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : no discr per cell array defined but with nb of components different from 1 !");
-  if(_discr_per_cell->getNumberOfTuples()!=(int)vol->getNumberOfTuples())
+  if(_discr_per_cell->getNumberOfTuples()!=vol->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : no discr per cell array defined but mismatch between nb of cells of mesh and size of spatial disr array !");
   MCAuto<DataArrayInt> offset=getOffsetArr(mesh);
   MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); arr->alloc(getNumberOfTuples(mesh),1);
@@ -1820,7 +1818,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCe
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds : null mesh !");
   MCAuto<DataArrayInt> nbOfNodesPerCell=buildNbOfGaussPointPerCellField();//check of _discr_per_cell not NULL pointer
-  int nbOfCells=mesh->getNumberOfCells();
+  std::size_t nbOfCells(mesh->getNumberOfCells());
   if(_discr_per_cell->getNumberOfTuples()!=nbOfCells)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds : mismatch of nb of tuples of cell ids array and number of cells !");
   nbOfNodesPerCell->computeOffsetsFull();
@@ -2165,7 +2163,7 @@ int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCod
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
           const DataArrayInt *ids(idsPerType[pos]);
-          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
+          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || (int)ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
             {
               std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : input pfl chunck at pos " << pos << " should have " << i << " tuples and one component and with ids all >=0 !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -2586,7 +2584,7 @@ double MEDCouplingFieldDiscretizationGaussNE::getIJK(const MEDCouplingMesh *mesh
 
 void MEDCouplingFieldDiscretizationGaussNE::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const
 {
-  int nbOfTuples=getNumberOfTuples(mesh);
+  std::size_t nbOfTuples(getNumberOfTuples(mesh));
   if(nbOfTuples!=da->getNumberOfTuples())
     {
       std::ostringstream oss; oss << "Invalid number of tuples in the array : expecting " << nbOfTuples << " !";
@@ -2796,7 +2794,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const Da
 {
   if(!arr || !arr->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::getValueOnMulti : input array is null or not allocated !");
-  int nbOfRows(getNumberOfMeshPlaces(mesh));
+  std::size_t nbOfRows(getNumberOfMeshPlaces(mesh));
   if(arr->getNumberOfTuples()!=nbOfRows)
     {
       std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationKriging::getValueOnMulti : input array does not have correct number of tuples ! Excepted " << nbOfRows << " having " << arr->getNumberOfTuples() << " !";
@@ -3026,9 +3024,9 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::PerformDriftOfVec(const 
  */
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta) const
 {
-  int spaceDimension=arr->getNumberOfComponents();
+  std::size_t spaceDimension(arr->getNumberOfComponents());
   delta=spaceDimension+1;
-  int szOfMatrix=arr->getNumberOfTuples();
+  std::size_t szOfMatrix(arr->getNumberOfTuples());
   if(szOfMatrix*szOfMatrix!=matr->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::performDrift : invalid size");
   MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
@@ -3036,7 +3034,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataA
   const double *srcWork=matr->getConstPointer();
   const double *srcWork2=arr->getConstPointer();
   double *destWork=ret->getPointer();
-  for(int i=0;i<szOfMatrix;i++)
+  for(std::size_t i=0;i<szOfMatrix;i++)
     {
       destWork=std::copy(srcWork,srcWork+szOfMatrix,destWork);
       srcWork+=szOfMatrix;
@@ -3048,7 +3046,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataA
   std::fill(destWork,destWork+spaceDimension+1,0.); destWork+=spaceDimension+1;
   MCAuto<DataArrayDouble> arrNoI=arr->toNoInterlace();
   srcWork2=arrNoI->getConstPointer();
-  for(int i=0;i<spaceDimension;i++)
+  for(std::size_t i=0;i<spaceDimension;i++)
     {
       destWork=std::copy(srcWork2,srcWork2+szOfMatrix,destWork);
       srcWork2+=szOfMatrix;

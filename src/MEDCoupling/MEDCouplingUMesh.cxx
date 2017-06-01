@@ -1984,19 +1984,19 @@ void MEDCouplingUMesh::setPartOfMySelf(const int *cellIdsBg, const int *cellIdsE
       oss << ", whereas other mesh dimension is set equal to " << otherOnSameCoordsThanThis.getMeshDimension() << " !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
-  int nbOfCellsToModify=(int)std::distance(cellIdsBg,cellIdsEnd);
+  std::size_t nbOfCellsToModify(std::distance(cellIdsBg,cellIdsEnd));
   if(nbOfCellsToModify!=otherOnSameCoordsThanThis.getNumberOfCells())
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelf : cells ids length (" <<  nbOfCellsToModify << ") do not match the number of cells of other mesh (" << otherOnSameCoordsThanThis.getNumberOfCells() << ") !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
-  int nbOfCells=getNumberOfCells();
-  bool easyAssign=true;
-  const int *connI=_nodal_connec_index->getConstPointer();
-  const int *connIOther=otherOnSameCoordsThanThis._nodal_connec_index->getConstPointer();
+  std::size_t nbOfCells(getNumberOfCells());
+  bool easyAssign(true);
+  const int *connI(_nodal_connec_index->begin());
+  const int *connIOther=otherOnSameCoordsThanThis._nodal_connec_index->begin();
   for(const int *it=cellIdsBg;it!=cellIdsEnd && easyAssign;it++,connIOther++)
     {
-      if(*it>=0 && *it<nbOfCells)
+      if(*it>=0 && *it<(int)nbOfCells)
         {
           easyAssign=(connIOther[1]-connIOther[0])==(connI[*it+1]-connI[*it]);
         }
@@ -2034,7 +2034,7 @@ void MEDCouplingUMesh::setPartOfMySelfSlice(int start, int end, int step, const 
       throw INTERP_KERNEL::Exception(oss.str());
     }
   int nbOfCellsToModify=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCouplingUMesh::setPartOfMySelfSlice : ");
-  if(nbOfCellsToModify!=otherOnSameCoordsThanThis.getNumberOfCells())
+  if(nbOfCellsToModify!=(int)otherOnSameCoordsThanThis.getNumberOfCells())
     {
       std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelfSlice : cells ids length (" <<  nbOfCellsToModify << ") do not match the number of cells of other mesh (" << otherOnSameCoordsThanThis.getNumberOfCells() << ") !";
       throw INTERP_KERNEL::Exception(oss.str());
@@ -2390,7 +2390,7 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
       // Connex zone without the crack (to compute the next seed really)
       int dnu;
       DAInt connexCheck = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neighInit00,neighIInit00, -1, dnu);
-      int cnt = 0;
+      std::size_t cnt(0);
       for (int * ptr = connexCheck->getPointer(); cnt < connexCheck->getNumberOfTuples(); ptr++, cnt++)
         hitCells->setIJ(*ptr,0,1);
       // Connex zone WITH the crack (to identify cells lying on either part of the crack)
@@ -2778,7 +2778,7 @@ DataArrayInt *MEDCouplingUMesh::getCellsInBoundingBox(const INTERP_KERNEL::Direc
 INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(std::size_t cellId) const
 {
   const int *ptI(_nodal_connec_index->begin()),*pt(_nodal_connec->begin());
-  if(cellId>=0 && cellId<_nodal_connec_index->getNbOfElems()-1)
+  if(cellId<_nodal_connec_index->getNbOfElems()-1)
     return (INTERP_KERNEL::NormalizedCellType) pt[ptI[cellId]];
   else
     {
@@ -2839,10 +2839,9 @@ std::size_t MEDCouplingUMesh::getNumberOfCellsWithType(INTERP_KERNEL::Normalized
  *         cleared before the appending.
  *  \throw If \a cellId is invalid. Valid range is [0, \a this->getNumberOfCells() ).
  */
-void MEDCouplingUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+void MEDCouplingUMesh::getNodeIdsOfCell(std::size_t cellId, std::vector<int>& conn) const
 {
-  const int *ptI=_nodal_connec_index->getConstPointer();
-  const int *pt=_nodal_connec->getConstPointer();
+  const int *ptI(_nodal_connec_index->begin()),*pt(_nodal_connec->begin());
   for(const int *w=pt+ptI[cellId]+1;w!=pt+ptI[cellId+1];w++)
     if(*w>=0)
       conn.push_back(*w);
@@ -3713,7 +3712,7 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::clipSingle3DCellByPlane(const double 
   std::vector<std::vector<int> > res;
   buildSubCellsFromCut(cut3DSurf,desc2->begin(),descIndx2->begin(),mDesc1->getCoords()->begin(),eps,res);
   std::size_t sz(res.size());
-  if((int)res.size()==mDesc1->getNumberOfCells() && sameNbNodes)
+  if(res.size()==mDesc1->getNumberOfCells() && sameNbNodes)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::clipSingle3DCellByPlane : cell is not clipped !");
   for(std::size_t i=0;i<sz;i++)
     {
@@ -3879,7 +3878,7 @@ void MEDCouplingUMesh::project1D(const double *pt, const double *v, double eps, 
   MCAuto<MEDCouplingFieldDouble> f=buildDirectionVectorField();
   const double *fPtr=f->getArray()->getConstPointer();
   double tmp[3];
-  for(int i=0;i<getNumberOfCells();i++)
+  for(std::size_t i=0;i<getNumberOfCells();i++)
     {
       const double *tmp1=fPtr+3*i;
       tmp[0]=tmp1[1]*v[2]-tmp1[2]*v[1];
@@ -7727,7 +7726,7 @@ bool MEDCouplingUMesh::RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, cons
       previousArrI=*arrIPtr;
       *arrIPtr=(int)arrOut.size();
     }
-  if(arr->getNumberOfTuples()==(int)arrOut.size())
+  if(arr->getNumberOfTuples()==arrOut.size())
     return false;
   arr->alloc((int)arrOut.size(),1);
   std::copy(arrOut.begin(),arrOut.end(),arr->getPointer());

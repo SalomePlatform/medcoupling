@@ -140,7 +140,7 @@ DataArrayInt *MEDCouplingStructuredMesh::computeEffectiveNbOfNodesPerCell() cons
   return computeNbOfNodesPerCell();
 }
 
-void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+void MEDCouplingStructuredMesh::getNodeIdsOfCell(std::size_t cellId, std::vector<int>& conn) const
 {
   int meshDim=getMeshDimension();
   int tmpCell[3],tmpNode[3];

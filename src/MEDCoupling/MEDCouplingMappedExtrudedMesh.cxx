@@ -335,7 +335,7 @@ std::size_t MEDCouplingMappedExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNE
   return ret*_mesh1D->getNumberOfCells();
 }
 
-void MEDCouplingMappedExtrudedMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+void MEDCouplingMappedExtrudedMesh::getNodeIdsOfCell(std::size_t cellId, std::vector<int>& conn) const
 {
   int nbOfCells2D(_mesh2D->getNumberOfCells());
   int nbOfNodes2D(_mesh2D->getNumberOfNodes());

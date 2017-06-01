@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
@@ -1852,7 +1852,7 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals)
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform zipConnectivity !");
   MCAuto<MEDCouplingUMesh> meshC2((MEDCouplingUMesh *)meshC->deepCopy());
-  int oldNbOfCells=meshC2->getNumberOfCells();
+  std::size_t oldNbOfCells(meshC2->getNumberOfCells());
   MCAuto<DataArrayInt> arr=meshC2->zipConnectivityTraducer(compType);
   if(meshC2->getNumberOfCells()!=oldNbOfCells)
     {
