@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2016  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2017  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,8 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
+INCLUDE(tests.set)
 
 INCLUDE(${SWIG_USE_FILE})
 
@@ -37,17 +39,8 @@ SET (MEDCoupling_SWIG_DPYS_FILES
     MEDCouplingTypemaps.i)
 
 SET (MC_pyTestFiles
-    MEDCouplingBasicsTest1.py
-    MEDCouplingBasicsTest2.py
-    MEDCouplingBasicsTest3.py
-    MEDCouplingBasicsTest4.py
-    MEDCouplingBasicsTest5.py
-    MEDCouplingBasicsTest6.py
-    MEDCouplingIntersectTest.py
-    MEDCouplingRemapperTest.py
+    ${ALL_TESTS}
     MEDCouplingDataForTest.py
-    MEDCouplingNumPyTest.py
-    MEDCouplingPickleTest.py
 )
 
 SET (MC_Swig_interf
@@ -123,40 +116,28 @@ SALOME_INSTALL_SCRIPTS("${PYFILES_TO_INSTALL}" ${MEDCOUPLING_INSTALL_PYTHON})
 
 INSTALL(FILES ${MC_Swig_interf} DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
 INSTALL(FILES ${MC_pyTestFiles} DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
-INSTALL(FILES MEDCouplingExamplesTest.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
 
 SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
 
-ADD_TEST(MEDCouplingBasicsTest1 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest1.py)
-SET_TESTS_PROPERTIES(MEDCouplingBasicsTest1 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(MEDCouplingBasicsTest2 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest2.py)
-SET_TESTS_PROPERTIES(MEDCouplingBasicsTest2 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(MEDCouplingBasicsTest3 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest3.py)
-SET_TESTS_PROPERTIES(MEDCouplingBasicsTest3 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(MEDCouplingBasicsTest4 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest4.py)
-SET_TESTS_PROPERTIES(MEDCouplingBasicsTest4 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(MEDCouplingBasicsTest5 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest5.py)
-SET_TESTS_PROPERTIES(MEDCouplingBasicsTest5 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(MEDCouplingBasicsTest6 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest6.py)
-SET_TESTS_PROPERTIES(MEDCouplingBasicsTest6 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(MEDCouplingIntersectTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingIntersectTest.py)
-SET_TESTS_PROPERTIES(MEDCouplingIntersectTest PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(MEDCouplingExamplesTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingExamplesTest.py)
-SET_TESTS_PROPERTIES(MEDCouplingExamplesTest PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(MEDCouplingRemapperTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingRemapperTest.py)
-SET_TESTS_PROPERTIES(MEDCouplingRemapperTest PROPERTIES ENVIRONMENT "${tests_env}")
+FOREACH(test ${BASE_TESTS})
+  GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
+  ADD_TEST(NAME ${testname}
+           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test})
+  SET_TESTS_PROPERTIES(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
+ENDFOREACH()
 
 IF(NUMPY_FOUND)
-  ADD_TEST(MEDCouplingNumPyTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingNumPyTest.py)
-  SET_TESTS_PROPERTIES(MEDCouplingNumPyTest PROPERTIES ENVIRONMENT "${tests_env}")
-  ADD_TEST(MEDCouplingPickleTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingPickleTest.py)
-  SET_TESTS_PROPERTIES(MEDCouplingPickleTest PROPERTIES ENVIRONMENT "${tests_env}")
+  FOREACH(test ${NUMPY_TESTS})
+    GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
+    ADD_TEST(NAME ${testname}
+             COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test})
+    SET_TESTS_PROPERTIES(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
+  ENDFOREACH()
 ENDIF(NUMPY_FOUND)
 
 # Application tests
 
 SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDCoupling_Swig)
-LIST(APPEND MC_pyTestFiles MEDCouplingExamplesTest.py)
 INSTALL(FILES ${MC_pyTestFiles} DESTINATION ${TEST_INSTALL_DIRECTORY})
 
 INSTALL(FILES CTestTestfileInstall.cmake

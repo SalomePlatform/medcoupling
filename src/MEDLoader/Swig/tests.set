@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017  CEA/DEN, EDF R&D
+# Copyright (C) 2017  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,14 +17,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(tests.set)
+SET(BASE_TESTS
+  MEDLoaderTest123.py
+  MEDLoaderTest4.py
+  MEDLoaderExamplesTest.py
+  SauvLoaderTest.py
+)
 
-FOREACH(tfile ${ALL_TESTS})
-  GET_FILENAME_COMPONENT(BASE_NAME ${tfile} NAME_WE)
-  SET(TEST_NAME ${COMPONENT_NAME}_${BASE_NAME})
-  ADD_TEST(${TEST_NAME} python ${tfile})
-  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
-    LABELS "${COMPONENT_NAME}"
-    TIMEOUT ${TIMEOUT}
-    )
-ENDFOREACH()
+# if numpy is used
+SET(NUMPY_TESTS
+  MEDLoaderCouplingTrainingSession.py
+)
+
+SET(ALL_TESTS ${BASE_TESTS} ${NUMPY_TESTS})
