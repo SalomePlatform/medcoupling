@@ -18,7 +18,6 @@
 # Author : Anthony Geay (EDF R&D)
 
 import re
-import sys
 
 s1=2709
 s2=2848

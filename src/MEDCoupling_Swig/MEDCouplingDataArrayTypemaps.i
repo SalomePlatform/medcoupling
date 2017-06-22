@@ -489,7 +489,7 @@ static std::string convertPyObjectToStr(PyObject *obj, const char *msg=NULL)
       if(msg)
         oss << msg;
       else
-        oss << "PyWrap convertPyObjectToStr : expect a sting like py object !";
+        oss << "PyWrap convertPyObjectToStr : expect a string like py object !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
   return ret;
