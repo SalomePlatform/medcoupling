@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2016  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2017  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -236,27 +236,27 @@ int NumpyArrSetBaseObjectExt(PyArrayObject *arr, PyObject *obj)
 
     /*
      * Don't allow infinite chains of views, always set the base
-     * to the first owner of the data.  
-     * That is, either the first object which isn't an array, 
+     * to the first owner of the data.
+     * That is, either the first object which isn't an array,
      * or the first object which owns its own data.
      */
 
     while (PyArray_Check(obj) && (PyObject *)arr != obj) {
         PyArrayObject *obj_arr = (PyArrayObject *)obj;
         PyObject *tmp;
- 
+
 
         /* If this array owns its own data, stop collapsing */
-        if (PyArray_CHKFLAGS(obj_arr, MED_NUMPY_OWNDATA )) { 
+        if (PyArray_CHKFLAGS(obj_arr, MED_NUMPY_OWNDATA )) {
             break;
-        }   
+        }
 
         tmp = PyArray_BASE(obj_arr);
         /* If there's no base, stop collapsing */
         if (tmp == NULL) {
             break;
         }
-        /* Stop the collapse new base when the would not be of the same 
+        /* Stop the collapse new base when the would not be of the same
          * type (i.e. different subclass).
          */
         if (Py_TYPE(tmp) != Py_TYPE(arr)) {
@@ -293,7 +293,7 @@ PyObject *ToNumPyArrayUnderground(MCData *self, int npyObjectType, const char *M
   MEDCoupling::MemArray<T>& mem=self->accessToMemArray();
   if(nbComp==0)
     {
-      std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : number of components of this is 0 ! Should be > 0 !"; 
+      std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : number of components of this is 0 ! Should be > 0 !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   int nbDims=nbComp==1?1:2;
@@ -1394,7 +1394,7 @@ static void convertIntStarLikePyObjToCpp(PyObject *value, int& sw, int& iTyypp, 
     }
   status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       daIntTuple=reinterpret_cast< MEDCoupling::DataArrayIntTuple * >(argp);
       sw=4;
       return ;
@@ -1474,7 +1474,7 @@ static const int *convertIntStarLikePyObjToCppIntStar(PyObject *value, int& sw, 
     }
   status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       MEDCoupling::DataArrayIntTuple *daIntTuple=reinterpret_cast< MEDCoupling::DataArrayIntTuple * >(argp);
       sw=4; sz=daIntTuple->getNumberOfCompo();
       return daIntTuple->getConstPointer();
@@ -1690,14 +1690,14 @@ void convertFPStarLikePyObjToCpp_2(PyObject *value, int& sw, T& val, typename ME
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,ti_da,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       d=reinterpret_cast< typename MEDCoupling::Traits<T>::ArrayType * >(argp);
       sw=2;
       return ;
     }
   status=SWIG_ConvertPtr(value,&argp,ti_tuple,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       e=reinterpret_cast< typename MEDCoupling::Traits<T>::ArrayTuple * >(argp);
       sw=3;
       return ;
@@ -2068,7 +2068,7 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
       sw=1;
       if(nbTuplesExpected*nbCompExpected!=1)
         {
-          std::ostringstream oss; oss << msg << "dimension expected to be " << nbTuplesExpected*nbCompExpected << " , and your data in input has dimension one (single PyFloat) !"; 
+          std::ostringstream oss; oss << msg << "dimension expected to be " << nbTuplesExpected*nbCompExpected << " , and your data in input has dimension one (single PyFloat) !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       return &val;
@@ -2079,7 +2079,7 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
       sw=1;
       if(nbTuplesExpected*nbCompExpected!=1)
         {
-          std::ostringstream oss; oss << msg << "dimension expected to be " << nbTuplesExpected*nbCompExpected << " , and your data in input has dimension one (single PyInt) !"; 
+          std::ostringstream oss; oss << msg << "dimension expected to be " << nbTuplesExpected*nbCompExpected << " , and your data in input has dimension one (single PyInt) !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       return &val;
@@ -2099,7 +2099,7 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
       sw=2;
       if(d)
@@ -2135,7 +2135,7 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
     }
   status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
       sw=3;
       if(e->getNumberOfCompo()==nbCompExpected)
@@ -2175,7 +2175,7 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
       sw=1;
       if(nbCompExpected!=1)
         {
-          std::ostringstream oss; oss << msg << "dimension expected to be " << nbCompExpected << " , and your data in input has dimension one (single PyFloat) !"; 
+          std::ostringstream oss; oss << msg << "dimension expected to be " << nbCompExpected << " , and your data in input has dimension one (single PyFloat) !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       nbTuples=1;
@@ -2187,7 +2187,7 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
       sw=1;
       if(nbCompExpected!=1)
         {
-          std::ostringstream oss; oss << msg << "dimension expected to be " << nbCompExpected << " , and your data in input has dimension one (single PyInt) !"; 
+          std::ostringstream oss; oss << msg << "dimension expected to be " << nbCompExpected << " , and your data in input has dimension one (single PyInt) !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       nbTuples=1;
@@ -2213,7 +2213,7 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
       sw=4;
       if(size%nbCompExpected!=0)
         {
-          std::ostringstream oss; oss << msg << "dimension expected to be a multiple of " << nbCompExpected << " , and your data in input has dimension " << f.size() << " !"; 
+          std::ostringstream oss; oss << msg << "dimension expected to be a multiple of " << nbCompExpected << " , and your data in input has dimension " << f.size() << " !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       nbTuples=size/nbCompExpected;
@@ -2239,7 +2239,7 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
       sw=4;
       if(size%nbCompExpected!=0)
         {
-          std::ostringstream oss; oss << msg << "dimension expected to be a multiple of " << nbCompExpected << " , and your data in input has dimension " << f.size() << " !"; 
+          std::ostringstream oss; oss << msg << "dimension expected to be a multiple of " << nbCompExpected << " , and your data in input has dimension " << f.size() << " !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       nbTuples=size/nbCompExpected;
@@ -2248,7 +2248,7 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
       sw=2;
       if(d)
@@ -2277,7 +2277,7 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
     }
   status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
       sw=3;
       if(e)
@@ -2380,7 +2380,7 @@ static const double *convertObjToPossibleCpp5_SingleCompo(PyObject *value, int& 
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
       sw=2;
       if(d)
@@ -2409,7 +2409,7 @@ static const double *convertObjToPossibleCpp5_SingleCompo(PyObject *value, int& 
     }
   status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
   if(SWIG_IsOK(status))
-    {  
+    {
       e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
       sw=3;
       if(e)
@@ -3257,7 +3257,7 @@ PyObject *DataArrayT_iadd__internal(PyObject *trueSelf, PyObject *obj, typename 
       throw INTERP_KERNEL::Exception(msg);
     }
 }
-  
+
 template<class T>
 PyObject *DataArrayT_isub__internal(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self, swig_type_info *ti_da, swig_type_info *ti_tuple)
 {
@@ -3324,9 +3324,11 @@ swig_type_info *SWIGTITraits<double>::TI_TUPLE=NULL;//unfortunately SWIGTYPE_p_M
 swig_type_info *SWIGTITraits<float>::TI_TUPLE=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayFloat is null when called here ! Postpone initialization at inlined initializeMe()
 swig_type_info *SWIGTITraits<int>::TI_TUPLE=NULL;//unfortunately SWIGTYPE_p_MEDCoupling__DataArrayFloat is null when called here ! Postpone initialization at inlined initializeMe()
 
+#ifdef WITH_NUMPY
 PyTypeObject *NPYTraits<double>::NPYFunc=&PyCallBackDataArrayDouble_RefType;
 
 PyTypeObject *NPYTraits<float>::NPYFunc=&PyCallBackDataArrayFloat_RefType;
+#endif
 
 template<class T>
 typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__(typename MEDCoupling::Traits<T>::ArrayType *self, PyObject *obj, PyObject *value)
