@@ -349,7 +349,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       delete intersector; e2->decrRef(); e1->decrRef();
     }
   // Tangent intersection
-  QUADRATIC_PLANAR::setPrecision(1e-5);
+  QuadraticPlanarPrecision::setPrecision(1e-5);
   for(unsigned k=0;k<8;k++)
     {
       double center2[2]; center[0]=0.; center[1]=0.;
@@ -370,7 +370,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       v4.clear(); v4.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
-  QUADRATIC_PLANAR::setPrecision(1e-14);
+  QuadraticPlanarPrecision::setPrecision(1e-14);
   // Extremities # 1
   for(unsigned k=0;k<8;k++)
     {

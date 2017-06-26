@@ -1170,8 +1170,8 @@ void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const M
                                          std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2, std::vector<double>& addCoo, std::map<int,int>& mergedNodes)
 {
   static const int SPACEDIM=2;
-  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
-  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
   const int *c1(m1Desc->getNodalConnectivity()->begin()),*ci1(m1Desc->getNodalConnectivityIndex()->begin());
   // Build BB tree of all edges in the tool mesh (second mesh)
   MCAuto<DataArrayDouble> bbox1Arr(m1Desc->getBoundingBoxForBBTree()),bbox2Arr(m2Desc->getBoundingBoxForBBTree());
@@ -1567,6 +1567,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshes : input meshes must be not NULL !");
   m1->checkFullyDefined();
   m2->checkFullyDefined();
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
   if(m1->getMeshDimension()!=2 || m1->getSpaceDimension()!=2 || m2->getMeshDimension()!=2 || m2->getSpaceDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshes works on umeshes m1 AND m2  with meshdim equal to 2 and spaceDim equal to 2 too!");
 
@@ -1647,8 +1649,8 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   // Step 1: compute all edge intersections (new nodes)
   std::vector< std::vector<int> > intersectEdge1, colinear2, subDiv2;
   std::vector<double> addCoo,addCoordsQuadratic;  // coordinates of newly created nodes
-  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
-  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
   //
   // Build desc connectivity
   DataArrayInt *desc1(DataArrayInt::New()),*descIndx1(DataArrayInt::New()),*revDesc1(DataArrayInt::New()),*revDescIndx1(DataArrayInt::New());
@@ -1842,8 +1844,8 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
   std::vector< std::vector<int> > intersectEdge(nDescCell),overlapEdge(nDescCell);
   std::vector<double> addCoo;
   BBTree<SPACEDIM,int> myTree(bbox,0,0,nDescCell,-eps);
-  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
-  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
   for(int i=0;i<nDescCell;i++)
     {
       std::vector<int> candidates;
@@ -1970,8 +1972,8 @@ DataArrayInt *MEDCouplingUMesh::colinearize2D(double eps)
   checkConsistencyLight();
   if(getSpaceDimension()!=2 || getMeshDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::colinearize2D : This method only works for meshes with spaceDim=2 and meshDim=2 !");
-  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
-  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
   int nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
   const int *cptr(_nodal_connec->begin()),*ciptr(_nodal_connec_index->begin());
   MCAuto<DataArrayInt> newc(DataArrayInt::New()),newci(DataArrayInt::New()); newci->alloc(nbOfCells+1,1); newc->alloc(0,1); newci->setIJ(0,0,0);

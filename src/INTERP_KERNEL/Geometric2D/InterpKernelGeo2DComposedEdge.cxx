@@ -541,14 +541,14 @@ bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
   std::set<Node *> nodes;
   getAllNodes(nodes);
   for(std::set<Node *>::const_iterator iter=nodes.begin();iter!=nodes.end();iter++)
-    if(sqrt((*iter)->distanceWithSq(*nodeToTest))<QUADRATIC_PLANAR::_precision)
+    if(sqrt((*iter)->distanceWithSq(*nodeToTest))<QuadraticPlanarPrecision::getPrecision())
       return true;
   double ref(isInOrOutAlg(nodeToTest,nodes,inOutSwitch));
   bool ret(false);
   for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
       double val((*iter4).getVal1());
-      if(fabs(val-ref)>=QUADRATIC_PLANAR::_precision)
+      if(fabs(val-ref)>=QuadraticPlanarPrecision::getPrecision())
         {
           if(val<ref)
             {

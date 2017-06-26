@@ -5417,6 +5417,8 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTreeFast() const
 DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arcDetEps) const
 {
   checkFullyDefined();
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(arcDetEps);
+
   int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells());
   if(spaceDim!=2 || mDim!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic : This method should be applied on mesh with mesh dimension equal to 2 and space dimension also equal to 2!");
@@ -5428,7 +5430,6 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arc
     {
       const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[*connI]));
       int sz(connI[1]-connI[0]-1);
-      INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=arcDetEps;
       std::vector<INTERP_KERNEL::Node *> nodes(sz);
       INTERP_KERNEL::QuadraticPolygon *pol(0);
       for(int j=0;j<sz;j++)
@@ -5465,6 +5466,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic(double arc
   int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells());
   if(spaceDim!=2 || mDim!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic : This method should be applied on mesh with mesh dimension equal to 1 and space dimension also equal to 2!");
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(arcDetEps);
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
   double *bbox(ret->getPointer());
   const double *coords(_coords->begin());
@@ -5473,7 +5475,6 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic(double arc
     {
       const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[*connI]));
       int sz(connI[1]-connI[0]-1);
-      INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=arcDetEps;
       std::vector<INTERP_KERNEL::Node *> nodes(sz);
       INTERP_KERNEL::Edge *edge(0);
       for(int j=0;j<sz;j++)

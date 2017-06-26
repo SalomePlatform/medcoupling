@@ -1181,6 +1181,9 @@ void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *end
  */
 bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad, double eps)
 {
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
+
   std::size_t nbOfNodes(res.size()/2);
   std::vector<INTERP_KERNEL::Node *> nodes(nbOfNodes);
   for(std::size_t i=0;i<nbOfNodes;i++)
@@ -1188,8 +1191,6 @@ bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool
       INTERP_KERNEL::Node *tmp=new INTERP_KERNEL::Node(res[2*i],res[2*i+1]);
       nodes[i]=tmp;
     }
-  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
-  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
   INTERP_KERNEL::QuadraticPolygon *pol=0;
   if(isQuad)
     pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);

@@ -102,6 +102,10 @@ template<int SPACEDIM>
 void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                                    double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const
 {
+  // Override precision for this method only:
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
+
   elts=DataArrayInt::New(); eltsIndex=DataArrayInt::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
   int *eltsIndexPtr(eltsIndex->getPointer());
   MCAuto<DataArrayDouble> bboxArr(getBoundingBoxForBBTree(eps));
@@ -132,8 +136,6 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
             {
               if(SPACEDIM!=2)
                 throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellsContainingPointsAlg : not implemented yet for POLYGON and QPOLYGON in spaceDim 3 !");
-              INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
-              INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
               std::vector<INTERP_KERNEL::Node *> nodes(sz);
               INTERP_KERNEL::QuadraticPolygon *pol(0);
               for(int j=0;j<sz;j++)

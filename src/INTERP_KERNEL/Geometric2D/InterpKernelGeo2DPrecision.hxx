@@ -25,14 +25,50 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT QUADRATIC_PLANAR
+  /* !!TODO: a more global review of the code should be done, so that eps is always a parameter of all methods
+     instead of being stored as a static attribute.
+  */
+
+  /** Class storing the precision for the detection of colinear segments, coincident points, etc ...
+   * in Geometric2D computations.
+   *
+   * RAII pattern allowing to temporarily override Geometric2D precision.
+   * When the instance is destroyed, the previous precision is set back.
+   *
+   */
+  class QuadraticPlanarPrecision
   {
   public:
-    static double _precision;
-    static double _arc_detection_precision;
+    QuadraticPlanarPrecision(double prec);
+    virtual ~QuadraticPlanarPrecision();
+
     static void setPrecision(double precision);
+    inline static double getPrecision() { return _precision; }
+  private:
+    static double _precision;
+    double _initial_precision;
+  };
+
+  /** Class storing the precision for the detection of degenerated arc of circles
+   * in Geometric2D computations.
+   *
+   * RAII pattern allowing to temporarily override Geometric2D precision.
+   * When the instance is destroyed, the previous precision is set back.
+   */
+  class QuadraticPlanarArcDetectionPrecision
+  {
+  public:
+    QuadraticPlanarArcDetectionPrecision(double prec);
+    virtual ~QuadraticPlanarArcDetectionPrecision();
+
     static void setArcDetectionPrecision(double precision);
+    inline static double getArcDetectionPrecision() { return _arc_detection_precision; }
+  private:
+    static double _arc_detection_precision;
+    double _initial_arc_detection_precision;
+
   };
 }
 
 #endif
+

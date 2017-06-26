@@ -495,8 +495,8 @@ void QuadraticPlanarInterpTest::checkBarycenterCalculations()
  */
 void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
 {
-  QUADRATIC_PLANAR::setPrecision(1e-12);
-  QUADRATIC_PLANAR::setArcDetectionPrecision(1e-9);
+  QuadraticPlanarPrecision::setPrecision(1e-12);
+  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-9);
   double coords[]={
     8.8334591186000004, 5.0999999999999996,
     7.1014083111000001, 6.0999999999999996,
@@ -581,13 +581,13 @@ void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
   pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
   pol->getBarycenter(tmp,tmp2);
   delete pol;
-  QUADRATIC_PLANAR::setPrecision(1e-14);
+  QuadraticPlanarPrecision::setPrecision(1e-14);
 }
 
 void QuadraticPlanarInterpTest::check1DInterpLin()
 {
-  QUADRATIC_PLANAR::setPrecision(1e-7);
-  QUADRATIC_PLANAR::setArcDetectionPrecision(1e-9);
+  QuadraticPlanarPrecision::setPrecision(1e-7);
+  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-9);
   const int NB_OF_CELL_AXIAL_1=30;
   static const double Z_VALS_1[NB_OF_CELL_AXIAL_1+1]=
     { -0.1550 , -0.1356, -0.1162, -0.0969, -0.0775 ,-0.0581, -0.0387, -0.0194,  0.0000 , 0.0500, 
@@ -631,7 +631,7 @@ void QuadraticPlanarInterpTest::check1DInterpLin()
       CPPUNIT_ASSERT_EQUAL(1,(int)m[i+2].size());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,m[i+2][i+9],1e-12);
     }
-  QUADRATIC_PLANAR::setPrecision(1e-14);
+  QuadraticPlanarPrecision::setPrecision(1e-14);
 }
 
 /*!
@@ -639,8 +639,8 @@ void QuadraticPlanarInterpTest::check1DInterpLin()
  */
 void QuadraticPlanarInterpTest::checkEpsilonCoherency1()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-12);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-5);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-12);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-5);
 
   const double pol1[]={
     -2.1083388455000001, 1.2172499999999999,
@@ -709,8 +709,8 @@ void QuadraticPlanarInterpTest::checkNonRegression1()
 
 void QuadraticPlanarInterpTest::checkNonRegression2()
 {
-  QUADRATIC_PLANAR::setPrecision(1e-12);
-  QUADRATIC_PLANAR::setArcDetectionPrecision(1e-9);
+  QuadraticPlanarPrecision::setPrecision(1e-12);
+  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-9);
   double coords1[]=
     {
       15.141499999899999, -26.226033271399999,
@@ -801,8 +801,8 @@ void QuadraticPlanarInterpTest::checkNonRegression3()
 
 void QuadraticPlanarInterpTest::checkNonRegression4()
 {
-  QUADRATIC_PLANAR::setPrecision(1e-12);
-  QUADRATIC_PLANAR::setArcDetectionPrecision(1e-9);
+  QuadraticPlanarPrecision::setPrecision(1e-12);
+  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-9);
   double coords1[]=
     {
       10.962340811000001, -22.417749999000002,
@@ -857,8 +857,8 @@ void QuadraticPlanarInterpTest::checkNonRegression4()
 
 void QuadraticPlanarInterpTest::checkNonRegression5()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-12);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-5);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-12);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-5);
   double coords1[]=
     {
       -1.7320508075000001, 1,
@@ -913,8 +913,8 @@ void QuadraticPlanarInterpTest::checkNonRegression5()
 
 void QuadraticPlanarInterpTest::checkNonRegression6()
 {
-  QUADRATIC_PLANAR::setPrecision(1e-12);
-  QUADRATIC_PLANAR::setArcDetectionPrecision(1e-5);
+  QuadraticPlanarPrecision::setPrecision(1e-12);
+  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-5);
   double coords1[]=
     {
       10.962340811000001, -22.417749999000002,
@@ -965,8 +965,8 @@ void QuadraticPlanarInterpTest::checkNonRegression6()
 
 void QuadraticPlanarInterpTest::checkNonRegression7()
 {
-  QUADRATIC_PLANAR::setPrecision(1e-5);
-  QUADRATIC_PLANAR::setArcDetectionPrecision(1e-5);
+  QuadraticPlanarPrecision::setPrecision(1e-5);
+  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-5);
   double coords1[]=
     {
       -2., 0,
@@ -1017,8 +1017,8 @@ void QuadraticPlanarInterpTest::checkNonRegression7()
 
 void QuadraticPlanarInterpTest::checkNonRegression8()
 {
-  QUADRATIC_PLANAR::setPrecision(1e-3);
-  QUADRATIC_PLANAR::setArcDetectionPrecision(1e-5);
+  QuadraticPlanarPrecision::setPrecision(1e-3);
+  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-5);
   double coords1[]=
     {
       -13.933240959000001, -28.559499999,
@@ -1068,8 +1068,8 @@ void QuadraticPlanarInterpTest::checkNonRegression8()
 
 void QuadraticPlanarInterpTest::checkNonRegression9()
 {
-  QUADRATIC_PLANAR::setPrecision(1e-7);
-  QUADRATIC_PLANAR::setArcDetectionPrecision(1e-8);
+  QuadraticPlanarPrecision::setPrecision(1e-7);
+  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-8);
   double coords1[]=
     {
       -0.04476229252902969, -0.085118027765365603,
@@ -1119,8 +1119,8 @@ void QuadraticPlanarInterpTest::checkNonRegression9()
 
 void QuadraticPlanarInterpTest::checkNonRegression10()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-7);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords1[]=
     { -0.002269581957210453, -0.09851030343724453,
       -0.004268022334182935, -0.1059685844580936,
@@ -1149,8 +1149,8 @@ void QuadraticPlanarInterpTest::checkNonRegression10()
 
 void QuadraticPlanarInterpTest::checkNonRegression11()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-7);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords1[]=
     { -0.002269581957210453, -0.09851030343724453,
       -0.004268022334182935, -0.1059685844580936,
@@ -1200,8 +1200,8 @@ void QuadraticPlanarInterpTest::checkNonRegression11()
 
 void QuadraticPlanarInterpTest::checkNonRegression12()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-6);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-6);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords1[]=
     { -0.5032251558760915, -0.8716087994449138,
       -0.4695268343089433, -0.8806382374805872,
@@ -1252,8 +1252,8 @@ void QuadraticPlanarInterpTest::checkNonRegression12()
 
 void QuadraticPlanarInterpTest::checkNonRegression13()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-7);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-6);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-6);
 
   double coords_1[194]={ 
     0, 0, 0.304375, -7.454791178893722e-17, 0.2152256265236553, -0.2152256265236555, -5.591093384170291e-17, -0.304375, 
@@ -1348,8 +1348,8 @@ void QuadraticPlanarInterpTest::checkNonRegression13()
 */
 void QuadraticPlanarInterpTest::checkNonRegression14()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-7);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-6);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-6);
 
   double coords[72]={
     1.,0.,1.3,0.,-1.3,0.,-1.,0.,1.15,0.,0.,1.3,-1.15,0.,0.,1.,
@@ -1418,8 +1418,8 @@ void QuadraticPlanarInterpTest::checkNonRegression14()
  */
 void QuadraticPlanarInterpTest::checkNonRegression15()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-7);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-6);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-6);
 
   double coords[72]={
     1.,0.,1.3,0.,-1.3,0.,-1.,0.,1.15,0.,0.,1.3,-1.15,0.,0.,1.,
@@ -1494,8 +1494,8 @@ private:
  */
 void QuadraticPlanarInterpTest::checkNonRegression16()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-7);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords1[194]={ 
     0, 0, 0.304375, 0, 0.2152256265236554, 0.2152256265236554, 1.86369779472343e-17, 0.304375, 
     -0.2152256265236554, 0.2152256265236554, -0.304375, 3.727395589446861e-17, -0.2152256265236555, -0.2152256265236554, -5.591093384170291e-17, -0.304375, 
@@ -1574,8 +1574,8 @@ void QuadraticPlanarInterpTest::checkNonRegression16()
  */
 void QuadraticPlanarInterpTest::checkNonRegression17()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-7);
-  INTERP_KERNEL::QUADRATIC_PLANAR::setArcDetectionPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -1., 0., 1., 0. , 1.5, 0., -1.5, 0., 
     0. , 1., 1.25, 0., 0., 1.5, -1.25, 0.};
@@ -1614,7 +1614,7 @@ void QuadraticPlanarInterpTest::checkNonRegression17()
 
 void QuadraticPlanarInterpTest::checkNormalize()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-14);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-14);
   Node *n1=new Node(0.,0.);                Node *n4=new Node(0.,-3.);
   Node *n2=new Node(10.,0.);               Node *n5=new Node(10.,-3.);
   Node *n3=new Node(5.,10.);               Node *n6=new Node(5.,7.);
@@ -1665,7 +1665,7 @@ void QuadraticPlanarInterpTest::checkNormalize()
 
 void QuadraticPlanarInterpTest::checkMakePartitionAbs1()
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-14);
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-14);
   Node *n0=new Node(0.,0.);                Node *n4=new Node(0.5,0.25);
   Node *n1=new Node(0.,0.5);               Node *n5=new Node(0.3,1.2);
   Node *n2=new Node(1.,0.5);               Node *n6=new Node(1.1,1.3);

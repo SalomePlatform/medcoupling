@@ -108,20 +108,20 @@ std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicV
 bool SegSegIntersector::areColinears() const
 {
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
-  return fabs(determinant)<QUADRATIC_PLANAR::_arc_detection_precision;
+  return fabs(determinant)<QuadraticPlanarArcDetectionPrecision::getArcDetectionPrecision();
 }
 
 /*!
  * Should be called \b once ! non const method.
  * \param whereToFind specifies the box where final seek should be done. Essentially it is used for caracteristic reason.
- * \param colinearity returns if regarding QUADRATIC_PLANAR::_precision ; e1 and e2 are colinears
+ * \param colinearity returns if regarding QuadraticPlanarPrecision::getPrecision() ; e1 and e2 are colinears
  *                    If true 'this' is modified ! So this method be called once above all if true is returned for this parameter.
  * \param areOverlapped if colinearity if true, this parameter looks if e1 and e2 are overlapped.
  */
 void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& colinearity, bool& areOverlapped)
 {
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
-  if(fabs(determinant)>2.*QUADRATIC_PLANAR::_precision)//2*_precision due to max of offset on _start and _end
+  if(fabs(determinant)>2.*QuadraticPlanarPrecision::getPrecision())//2*_precision due to max of offset on _start and _end
     {
       colinearity=false; areOverlapped=false;
       _matrix[0]/=determinant; _matrix[1]/=determinant; _matrix[2]/=determinant; _matrix[3]/=determinant;
@@ -136,7 +136,7 @@ void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, 
       double deno=sqrt(_matrix[0]*_matrix[0]+_matrix[1]*_matrix[1]);
       double x=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
       double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];
-      areOverlapped=fabs((_matrix[1]*y+_matrix[0]*x)/deno)<QUADRATIC_PLANAR::_precision;
+      areOverlapped=fabs((_matrix[1]*y+_matrix[0]*x)/deno)<QuadraticPlanarPrecision::getPrecision();
     }
 }
 

@@ -96,12 +96,12 @@ void INTERP_KERNEL::InterpolationOptions::init()
 
 double INTERP_KERNEL::InterpolationOptions::getArcDetectionPrecision() const
 {
-  return INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision;
+  return INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::getArcDetectionPrecision();
 }
 
 void INTERP_KERNEL::InterpolationOptions::setArcDetectionPrecision(double p)
 {
-  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=p;
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(p);
 }
 
 std::string INTERP_KERNEL::InterpolationOptions::getIntersectionTypeRepr() const

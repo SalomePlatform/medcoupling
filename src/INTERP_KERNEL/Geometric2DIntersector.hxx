@@ -54,6 +54,8 @@ namespace INTERP_KERNEL
     QuadraticPolygon *buildPolygonOfOneEdgeFrom(const std::vector<double>& coords, NormalizedCellType type);
     QuadraticPolygon *buildPolygonAFrom(ConnType cell, int nbOfPoints, NormalizedCellType type);
     QuadraticPolygon *buildPolygonBFrom(ConnType cell, int nbOfPoints, NormalizedCellType type);
+
+    QuadraticPlanarPrecision _precision;
   };
 }
 

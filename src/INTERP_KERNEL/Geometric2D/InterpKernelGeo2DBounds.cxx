@@ -148,15 +148,16 @@ double Bounds::fitYForXFigD(double val, int res) const
 
 Bounds *Bounds::nearlyAmIIntersectingWith(const Bounds& other) const
 {
-  if( (other._x_min > _x_max+QUADRATIC_PLANAR::_precision) || (other._x_max < _x_min-QUADRATIC_PLANAR::_precision) || (other._y_min > _y_max+QUADRATIC_PLANAR::_precision) 
-      || (other._y_max < _y_min-QUADRATIC_PLANAR::_precision) )
+  double eps = QuadraticPlanarPrecision::getPrecision();
+  if( (other._x_min > _x_max+eps) || (other._x_max < _x_min-eps) || (other._y_min > _y_max+eps)
+      || (other._y_max < _y_min-eps) )
     return 0;
   if( (other._x_min >= _x_max ) || (other._x_max <= _x_min) || (other._y_min >= _y_max) || (other._y_max <= _y_min) )
     {
-      return new Bounds(std::max(_x_min-QUADRATIC_PLANAR::_precision,other._x_min),
-          std::min(_x_max+QUADRATIC_PLANAR::_precision,other._x_max),
-          std::max(_y_min-QUADRATIC_PLANAR::_precision,other._y_min),
-          std::min(_y_max+QUADRATIC_PLANAR::_precision,other._y_max));//In approx cases.
+      return new Bounds(std::max(_x_min-eps,other._x_min),
+          std::min(_x_max+eps,other._x_max),
+          std::max(_y_min-eps,other._y_min),
+          std::min(_y_max+eps,other._y_max));//In approx cases.
     }
   else
     return new Bounds(std::max(_x_min,other._x_min),std::min(_x_max,other._x_max),std::max(_y_min,other._y_min),std::min(_y_max,other._y_max));
@@ -183,7 +184,7 @@ Position Bounds::nearlyWhere(double x, double y) const
   bool thinY=Node::areDoubleEquals(_y_min,_y_max);
   if(!thinX)
     {
-      if((Node::areDoubleEquals(x,_x_min) || Node::areDoubleEquals(x,_x_max)) && ((y<_y_max+QUADRATIC_PLANAR::_precision) && (y>_y_min-QUADRATIC_PLANAR::_precision)))
+      if((Node::areDoubleEquals(x,_x_min) || Node::areDoubleEquals(x,_x_max)) && ((y<_y_max+QuadraticPlanarPrecision::getPrecision()) && (y>_y_min-QuadraticPlanarPrecision::getPrecision())))
         return ON_BOUNDARY_POS;
     }
   else
@@ -191,7 +192,7 @@ Position Bounds::nearlyWhere(double x, double y) const
       return OUT;
   if(!thinY)
     {
-      if((Node::areDoubleEquals(y,_y_min) || Node::areDoubleEquals(y,_y_max)) && ((x<_x_max+QUADRATIC_PLANAR::_precision) && (x>_x_min-QUADRATIC_PLANAR::_precision)))
+      if((Node::areDoubleEquals(y,_y_min) || Node::areDoubleEquals(y,_y_max)) && ((x<_x_max+QuadraticPlanarPrecision::getPrecision()) && (x>_x_min-QuadraticPlanarPrecision::getPrecision())))
         return ON_BOUNDARY_POS;
     }
   else

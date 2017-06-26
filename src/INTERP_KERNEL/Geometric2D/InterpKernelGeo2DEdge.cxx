@@ -930,7 +930,7 @@ bool Edge::isEqual(const Edge& other) const
 
 inline bool eqpair(const std::pair<double,Node *>& p1, const std::pair<double,Node *>& p2)
 {
-  return fabs(p1.first-p2.first)<QUADRATIC_PLANAR::_precision;
+  return fabs(p1.first-p2.first)<QuadraticPlanarPrecision::getPrecision();
 }
 
 /**
@@ -1005,12 +1005,12 @@ void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const 
   for(std::vector< std::pair<double,Node *> >::const_iterator it=an2.begin();it!=itend;it++)
     {
       int idd=(*mapp2.find((*it).second)).second;
-      if((*it).first<QUADRATIC_PLANAR::_precision)
+      if((*it).first<QuadraticPlanarPrecision::getPrecision())
         {
           startId=idd;
           continue;
         }
-      if((*it).first>1-QUADRATIC_PLANAR::_precision)
+      if((*it).first>1-QuadraticPlanarPrecision::getPrecision())
         {
           endId=idd;
           continue;

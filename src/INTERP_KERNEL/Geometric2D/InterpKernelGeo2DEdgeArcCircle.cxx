@@ -174,7 +174,7 @@ void ArcCArcCIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind
 {
   _dist=Node::distanceBtw2Pt(getE1().getCenter(),getE2().getCenter());
   double radius1=getE1().getRadius(); double radius2=getE2().getRadius();
-  if(_dist>radius1+radius2+QUADRATIC_PLANAR::_precision || _dist+std::min(radius1,radius2)+QUADRATIC_PLANAR::_precision<std::max(radius1,radius2))
+  if(_dist>radius1+radius2+QuadraticPlanarPrecision::getPrecision() || _dist+std::min(radius1,radius2)+QuadraticPlanarPrecision::getPrecision()<std::max(radius1,radius2))
     {
       obviousNoIntersection=true;
       areOverlapped=false;
@@ -328,7 +328,7 @@ void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind,
       ((*(_e2.getStartNode()))[0]-center[0])*((*(_e2.getEndNode()))[1]-center[1])-
       ((*(_e2.getStartNode()))[1]-center[1])*((*(_e2.getEndNode()))[0]-center[0]);
   _determinant=getE1().getRadius()*getE1().getRadius()/_drSq-_cross*_cross/(_drSq*_drSq);
-  if(_determinant>-2*QUADRATIC_PLANAR::_precision)//QUADRATIC_PLANAR::_precision*QUADRATIC_PLANAR::_precision*_drSq*_drSq/(2.*_dx*_dx))
+  if(_determinant>-2*QuadraticPlanarPrecision::getPrecision())//QuadraticPlanarPrecision::getPrecision()*QuadraticPlanarPrecision::getPrecision()*_drSq*_drSq/(2.*_dx*_dx))
     obviousNoIntersection=false;
   else
     obviousNoIntersection=true;   
@@ -351,7 +351,7 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
 {
   std::list< IntersectElement > ret;
   const double *center=getE1().getCenter();
-  if(!(fabs(_determinant)<(2.*QUADRATIC_PLANAR::_precision)))//QUADRATIC_PLANAR::_precision*QUADRATIC_PLANAR::_precision*_drSq*_drSq/(2.*_dx*_dx))
+  if(!(fabs(_determinant)<(2.*QuadraticPlanarPrecision::getPrecision())))//QuadraticPlanarPrecision::getPrecision()*QuadraticPlanarPrecision::getPrecision()*_drSq*_drSq/(2.*_dx*_dx))
     {
       double determinant=EdgeArcCircle::SafeSqrt(_determinant);
       double x1=(_cross*_dy/_drSq+Node::sign(_dy)*_dx*determinant)+center[0];
@@ -644,9 +644,9 @@ void EdgeArcCircle::getMiddleOfPoints(const double *p1, const double *p2, double
   //
   double myDelta1(angle1-_angle0),myDelta2(angle2-_angle0);
   if(_angle>0.)
-    { myDelta1=myDelta1>-QUADRATIC_PLANAR::_precision?myDelta1:myDelta1+2.*M_PI; myDelta2=myDelta2>-QUADRATIC_PLANAR::_precision?myDelta2:myDelta2+2.*M_PI; }
+    { myDelta1=myDelta1>-QuadraticPlanarPrecision::getPrecision()?myDelta1:myDelta1+2.*M_PI; myDelta2=myDelta2>-QuadraticPlanarPrecision::getPrecision()?myDelta2:myDelta2+2.*M_PI; }
   else
-    { myDelta1=myDelta1<QUADRATIC_PLANAR::_precision?myDelta1:myDelta1-2.*M_PI; myDelta2=myDelta2<QUADRATIC_PLANAR::_precision?myDelta2:myDelta2-2.*M_PI; }
+    { myDelta1=myDelta1<QuadraticPlanarPrecision::getPrecision()?myDelta1:myDelta1-2.*M_PI; myDelta2=myDelta2<QuadraticPlanarPrecision::getPrecision()?myDelta2:myDelta2-2.*M_PI; }
   ////
   mid[0]=_center[0]+_radius*cos(_angle0+(myDelta1+myDelta2)/2.);
   mid[1]=_center[1]+_radius*sin(_angle0+(myDelta1+myDelta2)/2.);
@@ -703,14 +703,14 @@ bool EdgeArcCircle::isLower(double val1, double val2) const
   double myDelta2=val2-_angle0;
   if(_angle>0.)
     {
-      myDelta1=myDelta1>-(_radius*QUADRATIC_PLANAR::_precision)?myDelta1:myDelta1+2.*M_PI;//in some cases val1 or val2 are so close to angle0 that myDelta is close to 0. but negative.
-      myDelta2=myDelta2>-(_radius*QUADRATIC_PLANAR::_precision)?myDelta2:myDelta2+2.*M_PI;
+      myDelta1=myDelta1>-(_radius*QuadraticPlanarPrecision::getPrecision())?myDelta1:myDelta1+2.*M_PI;//in some cases val1 or val2 are so close to angle0 that myDelta is close to 0. but negative.
+      myDelta2=myDelta2>-(_radius*QuadraticPlanarPrecision::getPrecision())?myDelta2:myDelta2+2.*M_PI;
       return myDelta1<myDelta2;
     }
   else
     {
-      myDelta1=myDelta1<(_radius*QUADRATIC_PLANAR::_precision)?myDelta1:myDelta1-2.*M_PI;
-      myDelta2=myDelta2<(_radius*QUADRATIC_PLANAR::_precision)?myDelta2:myDelta2-2.*M_PI;
+      myDelta1=myDelta1<(_radius*QuadraticPlanarPrecision::getPrecision())?myDelta1:myDelta1-2.*M_PI;
+      myDelta2=myDelta2<(_radius*QuadraticPlanarPrecision::getPrecision())?myDelta2:myDelta2-2.*M_PI;
       return myDelta2<myDelta1;
     }
 }
