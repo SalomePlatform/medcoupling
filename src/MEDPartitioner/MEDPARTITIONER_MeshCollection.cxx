@@ -71,7 +71,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection()
     _domain_selector( 0 ),
     _i_non_empty_mesh(-1),
     _driver_type(MEDPARTITIONER::MedXml),
-    _subdomain_boundary_creates( MyGlobals::_Creates_Boundary_Faces ),
+    _subdomain_boundary_creates( MyGlobals::_Create_Boundary_Faces ),
     _family_splitting(false),
     _create_empty_groups(false),
     _joint_finder(0)
@@ -100,7 +100,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
     _i_non_empty_mesh(-1),
     _name(initialCollection._name),
     _driver_type(MEDPARTITIONER::MedXml),
-    _subdomain_boundary_creates(MyGlobals::_Creates_Boundary_Faces),
+    _subdomain_boundary_creates(MyGlobals::_Create_Boundary_Faces),
     _family_splitting(family_splitting),
     _create_empty_groups(create_empty_groups),
     _joint_finder(0)
@@ -1508,7 +1508,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename)
     _domain_selector( 0 ),
     _i_non_empty_mesh(-1),
     _driver_type(MEDPARTITIONER::Undefined),
-    _subdomain_boundary_creates(MyGlobals::_Creates_Boundary_Faces),
+    _subdomain_boundary_creates(MyGlobals::_Create_Boundary_Faces),
     _family_splitting(false),
     _create_empty_groups(false),
     _joint_finder(0)
@@ -1552,7 +1552,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
     _domain_selector( &domainSelector ),
     _i_non_empty_mesh(-1),
     _driver_type(MEDPARTITIONER::Undefined),
-    _subdomain_boundary_creates(MyGlobals::_Creates_Boundary_Faces),
+    _subdomain_boundary_creates(MyGlobals::_Create_Boundary_Faces),
     _family_splitting(false),
     _create_empty_groups(false),
     _joint_finder(0)
@@ -1712,7 +1712,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, cons
     _i_non_empty_mesh(-1),
     _name(meshname),
     _driver_type(MEDPARTITIONER::MedXml),
-    _subdomain_boundary_creates(MyGlobals::_Creates_Boundary_Faces),
+    _subdomain_boundary_creates(MyGlobals::_Create_Boundary_Faces),
     _family_splitting(false),
     _create_empty_groups(false),
     _joint_finder(0)

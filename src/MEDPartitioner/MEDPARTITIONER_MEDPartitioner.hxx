@@ -39,16 +39,16 @@ namespace MEDPARTITIONER
   class MEDPARTITIONER_EXPORT MEDPartitioner
   {
   public:
-    MEDPartitioner(const std::string& filename, int ndomains=1, const std::string& library="metis",bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
-    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
-    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
+    MEDPartitioner(const std::string& filename, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
+    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
+    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
     static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0);
     void write(const std::string& filename);
     MEDCoupling::MEDFileData* getMEDFileData();
     ~MEDPartitioner();
 
     MEDCoupling::MEDFileData *convertToMEDFileData(MeshCollection* meshcollection);
-    void createPartitionCollection(int ndomains, const std::string& library,bool creates_boundary_faces, bool create_joints, bool mesure_memory);
+    void createPartitionCollection(int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory);
 
   private:
     MeshCollection* _input_collection;

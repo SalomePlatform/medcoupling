@@ -38,12 +38,12 @@
 #include <iostream>
 #include <vector>
 
-MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const std::string& filename, int ndomains, const std::string& library,bool creates_boundary_faces, bool create_joints, bool mesure_memory):
+MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const std::string& filename, int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory):
   _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
   MyGlobals::_World_Size = 1;
   MyGlobals::_Rank = 0;
-  MyGlobals::_Creates_Boundary_Faces = creates_boundary_faces;
+  MyGlobals::_Create_Boundary_Faces = create_boundary_faces;
   MyGlobals::_Create_Joints = create_joints;
 
   ParaDomainSelector parallelizer(mesure_memory);
@@ -54,17 +54,17 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const std::string& filename, int 
     (MEDPARTITIONER::ParallelTopology*) _input_collection->getTopology();
   aPT->setGlobalNumerotationDefault( _input_collection->getParaDomainSelector() );
   _input_collection->prepareFieldDescriptions();
-  createPartitionCollection(ndomains, library, creates_boundary_faces, create_joints, mesure_memory);
+  createPartitionCollection(ndomains, library, create_boundary_faces, create_joints, mesure_memory);
 
   parallelizer.evaluateMemory();
 }
 
-MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* filedata, int ndomains, const std::string& library,bool creates_boundary_faces, bool create_joints, bool mesure_memory):
+MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* filedata, int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory):
   _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
   MyGlobals::_World_Size = 1;
   MyGlobals::_Rank = 0;
-  MyGlobals::_Creates_Boundary_Faces = creates_boundary_faces;
+  MyGlobals::_Create_Boundary_Faces = create_boundary_faces;
   MyGlobals::_Create_Joints = create_joints;
 
   ParaDomainSelector parallelizer(mesure_memory);
@@ -76,17 +76,17 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* f
     (MEDPARTITIONER::ParallelTopology*) _input_collection->getTopology();
   aPT->setGlobalNumerotationDefault( _input_collection->getParaDomainSelector() );
   _input_collection->prepareFieldDescriptions();
-  createPartitionCollection(ndomains, library, creates_boundary_faces, create_joints, mesure_memory);
+  createPartitionCollection(ndomains, library, create_boundary_faces, create_joints, mesure_memory);
 
   parallelizer.evaluateMemory();
 }
 
-MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* filedata, MEDPARTITIONER ::Graph* graph, bool creates_boundary_faces, bool create_joints, bool mesure_memory):
+MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* filedata, MEDPARTITIONER ::Graph* graph, bool create_boundary_faces, bool create_joints, bool mesure_memory):
   _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
   MyGlobals::_World_Size = 1;
   MyGlobals::_Rank = 0;
-  MyGlobals::_Creates_Boundary_Faces = creates_boundary_faces;
+  MyGlobals::_Create_Boundary_Faces = create_boundary_faces;
   MyGlobals::_Create_Joints = create_joints;
 
   ParaDomainSelector parallelizer(mesure_memory);
@@ -113,7 +113,7 @@ MEDPARTITIONER::MEDPartitioner::~MEDPartitioner()
   delete _new_topology; _new_topology = 0;
 }
 
-void MEDPARTITIONER::MEDPartitioner::createPartitionCollection(int ndomains, const std::string& library,bool creates_boundary_faces, bool create_joints, bool mesure_memory)
+void MEDPARTITIONER::MEDPartitioner::createPartitionCollection(int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory)
 {
   //ParallelTopology* aPT = (ParallelTopology*) _input_collection->getTopology();
   if (library == "metis")

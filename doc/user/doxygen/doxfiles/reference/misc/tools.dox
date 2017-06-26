@@ -55,7 +55,7 @@ Available options:
         --meshname=<string>    : name of the input mesh (not used with --distributed option)
         --ndomains=<number>    : number of subdomains in the output file, default is 1
         --plain-master         : creates a plain masterfile instead of an XML file
-        --creates-boundary-faces: creates the necessary faces so that faces joints are created in the output files
+        --create-boundary-faces: creates the necessary faces so that faces joints are created in the output files
         --family-splitting     : preserves the family names instead of focusing on the groups
 \endcode
 

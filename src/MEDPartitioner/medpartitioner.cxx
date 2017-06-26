@@ -72,7 +72,7 @@ int main(int argc, char** argv)
   //sequential : no MPI
   MyGlobals::_World_Size=1;
   MyGlobals::_Rank=0;
-  MyGlobals::_Creates_Boundary_Faces=0;
+  MyGlobals::_Create_Boundary_Faces=0;
   MyGlobals::_Create_Joints=0;
 
   // Primitive parsing of command-line options
@@ -86,8 +86,8 @@ int main(int argc, char** argv)
   //user can choose!
                "\t--split-method=<string>  : name of the splitting library (metis/scotch), default is metis\n"
 #endif
-               "\t--creates-boundary-faces : creates boundary faces mesh in the output files\n"
-               "\t--creates-joints         : creates joints in the output files\n"
+               "\t--create-boundary-faces  : creates boundary faces mesh in the output files\n"
+               "\t--create-joints          : creates joints in the output files\n"
                "\t--dump-cpu-memory        : dumps passed CPU time and maximal increase of used memory\n"
                );
 
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
       else if (TestArg(argv[i],"--output-file",value)) output=value;
       else if (TestArg(argv[i],"--split-method",value)) library=value;
       else if (TestArg(argv[i],"--ndomains",value)) ndomains=atoi(value.c_str());
-      else if (TestArg(argv[i],"--creates-boundary-faces",value)) MyGlobals::_Creates_Boundary_Faces=1;
+      else if (TestArg(argv[i],"--create-boundary-faces",value)) MyGlobals::_Create_Boundary_Faces=1;
       else if (TestArg(argv[i],"--create-joints",value)) MyGlobals::_Create_Joints=1;
       else if (TestArg(argv[i],"--dump-cpu-memory",value)) mesure_memory=true;
       else 
@@ -153,7 +153,7 @@ int main(int argc, char** argv)
       cout << "  output-file = " << output << endl;
       cout << "  split-method = " << library << endl;
       cout << "  ndomains = " << ndomains << endl;
-      cout << "  creates_boundary_faces = " << MyGlobals::_Creates_Boundary_Faces << endl;
+      cout << "  create_boundary_faces = " << MyGlobals::_Create_Boundary_Faces << endl;
       cout << "  create-joints = " << MyGlobals::_Create_Joints<< endl;
       cout << "  dump-cpu-memory = " << mesure_memory<< endl;
       cout << "  verbose = " << MyGlobals::_Verbose << endl;
@@ -267,7 +267,7 @@ int main(int argc, char** argv)
       if (MyGlobals::_Is0verbose) 
         cout << "generalInformations : \n"<<ReprVectorOfString(finalInformations);
     
-      //new_collection.setSubdomainBoundaryCreates(creates_boundary_faces);
+      //new_collection.setSubdomainBoundaryCreates(create_boundary_faces);
       if (MyGlobals::_Is0verbose) cout << "Writing "<<ndomains<<" output files "<<output<<"xx.med"<<" and "<<output<<".xml"<<endl;
       new_collection.write(output);
   

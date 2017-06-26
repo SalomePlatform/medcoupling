@@ -1421,7 +1421,7 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
 
   const char xmlName[] = "tmp_testCreateBoundaryFaces2D";
   {
-    MyGlobals::_Creates_Boundary_Faces = true;
+    MyGlobals::_Create_Boundary_Faces = true;
     MeshCollection new_collection(collection,new_topo.get());
 
     CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfLocalMeshes());

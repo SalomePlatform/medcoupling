@@ -234,7 +234,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
     }
 
   // MEDCoupling::MEDCouplingUMesh* boundaryMesh=0;
-  // if (MyGlobals::_Creates_Boundary_Faces>0)
+  // if (MyGlobals::_Create_Boundary_Faces>0)
   //   {
   //     //try to write Boundary meshes
   //     bool keepCoords=false; //TODO or true
