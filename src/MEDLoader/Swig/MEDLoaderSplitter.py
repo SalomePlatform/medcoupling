@@ -26,7 +26,7 @@ class MEDLoaderSplitter:
     @classmethod
     def New(cls,mfd,idsLst):
         """ mfd is a MEDFileData instance containing only one mesh. idsLst is a list of DataArrayInt containing each the ids per processor """
-        return MEDLoaderSplitter(fileName)
+        return MEDLoaderSplitter(mfd,idsLst)
         pass
 
     def __init__(self,mfd,idsLst):
