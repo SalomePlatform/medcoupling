@@ -17,7 +17,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-# Author : Anthony Geay (CEA/DEN)
+# Author : Anthony Geay (EDF R&D)
 
 from MEDLoader import *
 import unittest
@@ -5515,6 +5515,74 @@ class MEDLoaderTest4(unittest.TestCase):
         assert(v1.isEqual(DataArrayDouble([101,102,103,104,106,107,108,109,111,112,113,114,116,117,118,119,121,122,123,124]),1e-12))
         pass
 
+    def test42(self):
+        """ EDF14869 - SEG4 """
+        fname="ForMEDReader42.med"
+        meshName="mesh"
+        #
+        a0exp=DataArrayDouble([0.,1.,0.3,0.7])
+        m=MEDCouplingUMesh("mesh",1)
+        m.setCoords(a0exp)
+        m.allocateCells()
+        m.insertNextCell(NORM_SEG4,[0,1,2,3])
+        mm=MEDFileUMesh() ; mm[0]=m
+        #
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(m) ; f.setName("Field")
+        arr=DataArrayDouble(m.getNumberOfCells()) ; arr.iota() ; arr*=0.1 ; f.setArray(arr) ; f.checkConsistencyLight()
+        ff=MEDFileField1TS() ; ff.setFieldNoProfileSBT(f)
+        fmts=MEDFileFieldMultiTS() ; fmts.pushBackTimeStep(ff)
+        #
+        ms=MEDFileMeshes() ; ms.pushMesh(mm)
+        fields=MEDFileFields() ; fields.pushField(fmts)
+        ms.write(fname,2) ; fields.write(fname,0)
+        #
+        ms=MEDFileMeshes(fname) 
+        fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        #
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),1)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1)
+        allFMTSLeavesPerCommonSupport1=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1),1)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
+        self.assertTrue(a0.isEqual(a0exp.changeNbOfComponents(3,0.),1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([35])))# VTK_CUBIC_LINE
+        self.assertTrue(a2.isEqual(DataArrayInt([0])))
+        self.assertTrue(a3.isEqual(DataArrayInt([4,0,1,2,3])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
+        for i in range(1):
+            ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
+            ffCell.loadArraysIfNecessary()
+            v=mml2.buildDataArray(fsst,fields,ffCell.getUndergroundDataArray())
+            self.assertEqual(v.getHiddenCppPointer(),ffCell.getUndergroundDataArray().getHiddenCppPointer())
+            self.assertTrue(v.isEqual(DataArrayDouble([0.0]),1e-14))
+        pass
+    
     pass
 
 if __name__ == "__main__":
