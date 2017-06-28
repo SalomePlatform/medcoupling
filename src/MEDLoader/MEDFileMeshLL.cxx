@@ -331,7 +331,7 @@ void MEDFileMeshL2::WriteFamiliesAndGrps(med_idt fid, const std::string& mname, 
       INTERP_KERNEL::AutoPtr<char> groName=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE*ngro);
       int i=0;
       for(std::vector<std::string>::const_iterator it2=(*it).second.second.begin();it2!=(*it).second.second.end();it2++,i++)
-        MEDLoaderBase::safeStrCpy2((*it2).c_str(),MED_LNAME_SIZE-1,groName+i*MED_LNAME_SIZE,tooLongStrPol);
+        MEDLoaderBase::safeStrCpy2((*it2).c_str(),MED_LNAME_SIZE,groName+i*MED_LNAME_SIZE,tooLongStrPol);
       INTERP_KERNEL::AutoPtr<char> famName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
       MEDLoaderBase::safeStrCpy((*it).first.c_str(),MED_NAME_SIZE,famName,tooLongStrPol);
       int ret=MEDfamilyCr(fid,mname.c_str(),famName,(*it).second.first,ngro,groName);
