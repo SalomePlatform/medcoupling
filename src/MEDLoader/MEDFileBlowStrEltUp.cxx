@@ -341,6 +341,8 @@ private:
   static MCAuto<DataArrayDouble> BuildMeshFromStructure(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
 public:
   static const char ANGLE_DE_VRILLE[];
+  static const char ANGLE[];
+  static const char SCALE[];
   static const char EPAISSEUR[];
 private:
   std::vector<std::string> _locs;
@@ -349,6 +351,10 @@ private:
 };
 
 const char LocInfo::ANGLE_DE_VRILLE[]="ANGLE DE VRILLE";
+
+const char LocInfo::ANGLE[]="ANGLE";
+
+const char LocInfo::SCALE[]="SCALE";
 
 const char LocInfo::EPAISSEUR[]="EPAISSEUR";
 
@@ -506,9 +512,9 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromStructure(INTERP_KERNEL::Normalize
   MCAuto<DataArrayDouble> zeArr2(DynamicCast<DataArray,DataArrayDouble>(zeArr));
   if(zeArr2.isNull())
     throw INTERP_KERNEL::Exception(MSG1);
-  if(zeArr2->getName()==ANGLE_DE_VRILLE)
+  if(zeArr2->getName()==ANGLE_DE_VRILLE || zeArr2->getName()==ANGLE)
     return BuildMeshFromAngleVrille(gt,zeArr2,pfl,loc,zeStr,mesh,section,globs);
-  if(zeArr2->getName()==EPAISSEUR)
+  if(zeArr2->getName()==EPAISSEUR || zeArr2->getName()==SCALE)
     return BuildMeshFromEpaisseur(gt,zeArr2,pfl,loc,zeStr,mesh,section,globs);
   throw INTERP_KERNEL::Exception(MSG1);
 }
