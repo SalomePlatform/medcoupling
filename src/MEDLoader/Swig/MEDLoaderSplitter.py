@@ -96,17 +96,25 @@ class MEDLoaderSplitter:
 
     def __splitMesh(self,mfm,idsLst):
         ret0 = [MEDFileMeshes() for i in range(len(idsLst))]
-        m=mfm.getMeshAtLevel(0)
+        m=mfm[0]
+        addlevs=list(mfm.getNonEmptyLevels())[1:]
+        dAddlevs={k:mfm[k] for k in addlevs}
         for ret,ids in zip(ret0,idsLst):
             mlPart=mfm.createNewEmpty()
-            mPart=m[ids] ; trad=mPart.zipCoordsTraducer()
-            trad=trad.invertArrayO2N2N2O(mPart.getNumberOfNodes())
-            mlPart.setMeshAtLevel(0,mPart)
+            mPart=m[ids] ; trado2n=mPart.zipCoordsTraducer()
+            trad=trado2n.invertArrayO2N2N2O(mPart.getNumberOfNodes())
+            mlPart[0]=mPart
             if 0 in mfm.getFamArrNonEmptyLevelsExt():
                 mlPart.setFamilyFieldArr(0,mfm.getFamilyFieldAtLevel(0)[ids])
                 pass
             if 1 in mfm.getFamArrNonEmptyLevelsExt():
                 mlPart.setFamilyFieldArr(1,mfm.getFamilyFieldAtLevel(1)[trad])
+                pass
+            for k,v in dAddlevs.iteritems():
+                part=v.getCellIdsFullyIncludedInNodeIds(trad)
+                mSubPart=v[part] ; mSubPart.renumberNodesInConn(trado2n) ; mSubPart.setCoords(mPart.getCoords())
+                mlPart[k]=mSubPart
+                mlPart.setFamilyFieldArr(k,mfm.getFamilyFieldAtLevel(k)[part])
                 pass
             mlPart.copyFamGrpMapsFrom(mfm)
             ret.pushMesh(mlPart)
