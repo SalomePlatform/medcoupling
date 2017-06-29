@@ -895,6 +895,29 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(3,0),(3,4),(-1,-1)])))
         pass
 
+    def testSwig2Intersect2DMeshWith1DLine17(self):
+        """ Single colinear intersection - a deltaShiftIndex() was improperly tested. """
+        eps = 1.0e-12
+        mesh = MEDCouplingUMesh('dummy_layer', 2)
+        coo = DataArrayDouble([(-0.5,-0.5),(-0.5,0.5),(0.5,0.5),(0.5,-0.5),(-0.25,-0.25),(-0.25,0.25),(0.25,0.25),(0.25,-0.25)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([5, 4, 5, 6, 7, 5, 0, 1, 5, 4, 5, 1, 2, 3, 0, 4, 7, 6, 5])
+        cI = DataArrayInt([0, 5, 10, 19])
+        mesh.setConnectivity(c, cI)
+        m_line = MEDCouplingUMesh('segment', 1)
+        coo = DataArrayDouble([(-0.5,0.5),(-0.25,0.25)])
+        m_line.setCoords(coo)
+        c = DataArrayInt([1, 0, 1])
+        cI = DataArrayInt([0, 3])
+        m_line.setConnectivity(c, cI)
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, m_line, eps)
+        self.assertEqual(mesh.getNodalConnectivity().getValues(),a.getNodalConnectivity().getValues())
+        self.assertEqual(mesh.getNodalConnectivityIndex().getValues(),a.getNodalConnectivityIndex().getValues())
+        self.assertEqual([1,1,5],b.getNodalConnectivity().getValues())
+        self.assertEqual(m_line.getNodalConnectivityIndex().getValues(),b.getNodalConnectivityIndex().getValues())
+        self.assertTrue([0,1,2], c.getValues())
+        self.assertEqual([2,1], d.getValues())
+
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8
         coo = [0.,-0.5,0.,0.,0.5,0.,0.5,-0.5,0.25,

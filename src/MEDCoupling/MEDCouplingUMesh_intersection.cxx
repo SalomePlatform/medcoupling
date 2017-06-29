@@ -1704,7 +1704,9 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   MCAuto<DataArrayDouble> baryRet1(ret1NonCol->computeCellCenterOfMass());
   MCAuto<DataArrayInt> elts,eltsIndex;
   mesh2D->getCellsContainingPoints(baryRet1->begin(),baryRet1->getNumberOfTuples(),eps,elts,eltsIndex);
-  MCAuto<DataArrayInt> eltsIndex2(eltsIndex->deltaShiftIndex());
+  MCAuto<DataArrayInt> eltsIndex2(DataArrayInt::New()); eltsIndex2->alloc(0,1);
+  if (eltsIndex->getNumberOfTuples() > 1)
+    eltsIndex2 = eltsIndex->deltaShiftIndex();
   MCAuto<DataArrayInt> eltsIndex3(eltsIndex2->findIdsEqual(1));
   if(eltsIndex2->count(0)+eltsIndex3->getNumberOfTuples()!=ret1NonCol->getNumberOfCells())
     throw INTERP_KERNEL::Exception("Intersect2DMeshWith1DLine : internal error 1 !");
