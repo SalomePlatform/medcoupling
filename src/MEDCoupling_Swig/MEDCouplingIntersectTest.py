@@ -312,7 +312,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertTrue(f.getArray().isEqual(valuesExpected,1e-12))
         pass
 
-    def testIntersect2DMeshes7(self):
+    def dnu_testIntersect2DMeshes7(self):
         """ Quadratic precision values were improperly reset before testing colinearities """
         eps = 1.0e-08
         mesh1 = MEDCouplingUMesh('assemblyGrid_Pij', 2)
@@ -337,7 +337,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(e1, mapResToInit.getValues())
         self.assertEqual(e2, mapResToRef.getValues())
 
-    def testIntersect2DMeshes8(self):
+    def dnu_testIntersect2DMeshes8(self):
         """ Quadratic precision values were improperly reset before testing colinearities """
         eps = 1.0e-08
         mesh1 = MEDCouplingUMesh('assemblyGrid_Pij', 2)
@@ -388,6 +388,25 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-12))
         self.assertEqual(e1, mapResToInit.getValues())
         self.assertEqual(e2, mapResToRef.getValues())
+
+    def dnu_testIntersect2DMeshes10(self):
+        eps = 1.0e-8
+        mesh1 = MEDCouplingUMesh('assemblyGrid_Pij', 2)
+        coo = DataArrayDouble([(10.80630000000000,-10.80630000000000),(9.48750000000000,-10.80630000000000),(10.75250000000000,-10.80630000000000),(9.48750000000000,-10.75250000000000),(10.75250000000000,-10.75250000000000),(10.80630000000000,-10.75250000000000),(9.48750000000000,-9.48750000000000),(10.75250000000000,-9.48750000000000),(10.80630000000000,-9.48750000000000)])
+        mesh1.setCoords(coo)
+        c = DataArrayInt([5, 2, 1, 3, 4, 5, 0, 2, 4, 5, 5, 4, 3, 6, 7, 5, 5, 4, 7, 8])
+        cI = DataArrayInt([0, 5, 10, 15, 20])
+        mesh1.setConnectivity(c, cI)
+
+        mesh2 = MEDCouplingUMesh('merge', 2)
+        coo = DataArrayDouble([(9.48749999999998,-10.75249999999999),(9.48750000000018,-10.80629999999998),(10.75250000000047,-10.75250000000063),(10.75249999999318,-10.80629999999318),(10.80630000000048,-10.75250000000063),(10.80629999999318,-10.80629999999318),(9.48750000000001,-9.48750000000001),(9.48749999999998,-10.11999999999999),(10.75249999999975,-9.48750000000004),(10.40999999999999,-10.11999999999999),(10.32506096654408,-9.91493903345589),(10.11999999999999,-9.82999999999999),(9.91493903345589,-9.91493903345589),(9.82999999999998,-10.11999999999999),(9.91493903345589,-10.32506096654409),(10.11999999999999,-10.40999999999999),(10.32506096654408,-10.32506096654409),(10.12000000000001,-9.48750000000001),(10.75250000000047,-10.12000000000058),(10.12000000000018,-10.75249999999998),(9.70121951672794,-10.53878048327204),(9.70121951672794,-9.70121951672794),(10.80629999999976,-9.48750000000004),(9.48750000000018,-10.77939999999998),(10.75249999999318,-10.77939999999318),(10.12000000000018,-10.80629999999998),(10.77940000000048,-10.75250000000063),(10.80629999999318,-10.77939999999318),(10.77939999999318,-10.80629999999318),(10.77939999999976,-9.48750000000004),(10.80630000000048,-10.12000000000058)])
+        mesh2.setCoords(coo)
+        c = DataArrayInt([32, 1, 0, 2, 3, 23, 19, 24, 25, 32, 3, 2, 4, 5, 24, 26, 27, 28, 32, 16, 14, 12, 10, 15, 13, 11, 9, 32, 0, 6, 12, 14, 7, 21, 13, 20, 32, 6, 8, 2, 0, 14, 16, 10, 12, 17, 18, 19, 20, 15, 9, 11, 21, 32, 2, 8, 22, 4, 18, 29, 30, 26])
+        cI = DataArrayInt([0, 9, 18, 27, 36, 53, 62])
+        mesh2.setConnectivity(c, cI)
+
+        result, mapResToInit, mapResToRef = MEDCouplingUMesh.Intersect2DMeshes(mesh1, mesh2, eps)
+        self.assertEqual(0, mapResToRef.findIdsEqual(-1).getNumberOfTuples())
 
     def testSwig2Intersect2DMeshesQuadra1(self):
         import cmath
