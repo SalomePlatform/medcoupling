@@ -1042,7 +1042,7 @@ DataArrayInt *MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells(const MED
 {
   if(!srcMesh || !trgMesh)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells : the input meshes must be not NULL !");
-  MCAuto<DataArrayDouble> sbbox(srcMesh->getBoundingBoxForBBTree()),tbbox(trgMesh->getBoundingBoxForBBTree());
+  MCAuto<DataArrayDouble> sbbox(srcMesh->getBoundingBoxForBBTree(eps)),tbbox(trgMesh->getBoundingBoxForBBTree(eps));
   return tbbox->computeNbOfInteractionsWith(sbbox,eps);
 }
 

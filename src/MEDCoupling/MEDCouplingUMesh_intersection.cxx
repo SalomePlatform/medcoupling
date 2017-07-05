@@ -1174,7 +1174,7 @@ void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const M
   INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
   const int *c1(m1Desc->getNodalConnectivity()->begin()),*ci1(m1Desc->getNodalConnectivityIndex()->begin());
   // Build BB tree of all edges in the tool mesh (second mesh)
-  MCAuto<DataArrayDouble> bbox1Arr(m1Desc->getBoundingBoxForBBTree()),bbox2Arr(m2Desc->getBoundingBoxForBBTree());
+  MCAuto<DataArrayDouble> bbox1Arr(m1Desc->getBoundingBoxForBBTree(eps)),bbox2Arr(m2Desc->getBoundingBoxForBBTree(eps));
   const double *bbox1(bbox1Arr->begin()),*bbox2(bbox2Arr->begin());
   int nDescCell1(m1Desc->getNumberOfCells()),nDescCell2(m2Desc->getNumberOfCells());
   intersectEdge1.resize(nDescCell1);
@@ -1269,7 +1269,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
   const int *conn2(m2->getNodalConnectivity()->begin()),*connI2(m2->getNodalConnectivityIndex()->begin());
   int offset2(offset1+m2->getNumberOfNodes());
   int offset3(offset2+((int)addCoords.size())/2);
-  MCAuto<DataArrayDouble> bbox1Arr(m1->getBoundingBoxForBBTree()),bbox2Arr(m2->getBoundingBoxForBBTree());
+  MCAuto<DataArrayDouble> bbox1Arr(m1->getBoundingBoxForBBTree(eps)),bbox2Arr(m2->getBoundingBoxForBBTree(eps));
   const double *bbox1(bbox1Arr->begin()),*bbox2(bbox2Arr->begin());
   // Here a BBTree on 2D-cells, not on segments:
   BBTree<SPACEDIM,int> myTree(bbox2,0,0,m2->getNumberOfCells(),eps);
@@ -1840,7 +1840,7 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
   MCAuto<DataArrayInt> desc1(DataArrayInt::New()),descIndx1(DataArrayInt::New()),revDesc1(DataArrayInt::New()),revDescIndx1(DataArrayInt::New());
   MCAuto<MEDCouplingUMesh> mDesc(buildDescendingConnectivity(desc1,descIndx1,revDesc1,revDescIndx1));
   const int *c(mDesc->getNodalConnectivity()->begin()),*ci(mDesc->getNodalConnectivityIndex()->begin()),*rd(revDesc1->begin()),*rdi(revDescIndx1->begin());
-  MCAuto<DataArrayDouble> bboxArr(mDesc->getBoundingBoxForBBTree());
+  MCAuto<DataArrayDouble> bboxArr(mDesc->getBoundingBoxForBBTree(eps));
   const double *bbox(bboxArr->begin()),*coords(getCoords()->begin());
   int nCell(getNumberOfCells()),nDescCell(mDesc->getNumberOfCells());
   std::vector< std::vector<int> > intersectEdge(nDescCell),overlapEdge(nDescCell);
@@ -2142,7 +2142,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
     MCAuto<MEDCouplingSkyLineArray> connSlaDesc(MEDCouplingSkyLineArray::New(mDesc->getNodalConnectivityIndex(), mDesc->getNodalConnectivity()));
 
     // Build BBTree
-    MCAuto<DataArrayDouble> bboxArr(mDesc->getBoundingBoxForBBTree());
+    MCAuto<DataArrayDouble> bboxArr(mDesc->getBoundingBoxForBBTree(eps));
     const double *bbox(bboxArr->begin()); getCoords()->begin();
     int nDescCell(mDesc->getNumberOfCells());
     BBTree<SPACEDIM,int> myTree(bbox,0,0,nDescCell,-eps);
@@ -2312,7 +2312,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
 //    mDesc2->writeVTK("/tmp/toto_desc2_confInter.vtu");
     const int *revDescIP2(revDescI2->getConstPointer()), *revDescP2(revDesc2->getConstPointer());
     const int *cDesc2(mDesc2->getNodalConnectivity()->begin()),*cIDesc2(mDesc2->getNodalConnectivityIndex()->begin());
-    MCAuto<DataArrayDouble> bboxArr(mDesc2->getBoundingBoxForBBTree());
+    MCAuto<DataArrayDouble> bboxArr(mDesc2->getBoundingBoxForBBTree(eps));
     const double *bbox2(bboxArr->begin());
     int nDesc2Cell=mDesc2->getNumberOfCells();
     BBTree<SPACEDIM,int> myTree2(bbox2,0,0,nDesc2Cell,-eps);
