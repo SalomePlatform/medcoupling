@@ -22,6 +22,7 @@
 
 #include "InterpolationOptions.hxx"
 #include "MEDCouplingNatureOfField.hxx"
+#include "MCType.hxx"
 
 #include <mpi.h>
 #include <vector>
