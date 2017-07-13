@@ -46,7 +46,7 @@ using namespace ICoCo;
 void afficheGauthier1(const ParaFIELD& field, const double *vals, int lgth)
 {
   const DataArrayDouble *valsOfField(field.getField()->getArray());
-  CPPUNIT_ASSERT_EQUAL(lgth,valsOfField->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(lgth,(int)valsOfField->getNumberOfTuples());
   for (int ele=0;ele<valsOfField->getNumberOfTuples();ele++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(vals[ele],valsOfField->getIJ(ele,0),1e-12);
 }
