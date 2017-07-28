@@ -981,7 +981,7 @@ namespace MEDCoupling
   {
     friend class MEDFileTemplateField1TS<float>;
   private:
-    med_field_type getMEDFileFieldType() const { return MED_INT32; }//6432
+    med_field_type getMEDFileFieldType() const { return MED_FLOAT32; }
     MEDLOADER_EXPORT MEDFileFloatField1TS *shallowCpy() const { return new MEDFileFloatField1TS(*this); }
   private:
     ~MEDFileFloatField1TS() { }
@@ -1150,7 +1150,7 @@ namespace MEDCoupling
   protected:
     MEDFileFloatFieldMultiTSWithoutSDA(const std::string& fieldName, const std::string& meshName):MEDFileNDTemplateFieldMultiTSWithoutSDA<float>(fieldName,meshName) { }
     MEDFileFloatFieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, const std::string& meshName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileNDTemplateFieldMultiTSWithoutSDA<float>(fid,fieldName,meshName,fieldTyp,infos,nbOfStep,dtunit,loadAll,ms,entities) { }
-    med_field_type getMEDFileFieldType() const { return MED_INT32; }//6432
+    med_field_type getMEDFileFieldType() const { return MED_FLOAT32; }
   public:
     MEDLOADER_EXPORT MEDFileFloatFieldMultiTSWithoutSDA() { }
   };

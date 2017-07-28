@@ -48,9 +48,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatible(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;
-    MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const;
-    MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
-    MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingField *other);
     MEDCOUPLING_EXPORT void setMesh(const MEDCoupling::MEDCouplingMesh *mesh);
     MEDCOUPLING_EXPORT const MEDCoupling::MEDCouplingMesh *getMesh() const { return _mesh; }
@@ -96,6 +93,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingField(const MEDCouplingField& other, bool deepCopy=true);
     MEDCOUPLING_EXPORT MEDCouplingField(MEDCouplingFieldDiscretization *type, NatureOfField nature=NoNature);
     MEDCOUPLING_EXPORT virtual ~MEDCouplingField();
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhyProtected(const MEDCouplingField *other, double meshPrec, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrProtected(const MEDCouplingField *other, double meshPrec) const;
   protected:
     std::string _name;
     std::string _desc;

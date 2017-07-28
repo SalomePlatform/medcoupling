@@ -1719,6 +1719,19 @@ static void convertDoubleStarLikePyObjToCpp_2(PyObject *value, int& sw, double& 
 }
 
 /*!
+ * if value int -> cpp val sw=1
+ * if value double -> cpp val sw=1
+ * if value DataArrayDouble -> cpp DataArrayDouble sw=2
+ * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
+ * if value list[int,double] -> cpp std::vector<double> sw=4
+ * if value tuple[int,double] -> cpp std::vector<double> sw=4
+ */
+static void convertFloatStarLikePyObjToCpp_2(PyObject *value, int& sw, float& val, MEDCoupling::DataArrayFloat *&d, MEDCoupling::DataArrayFloatTuple *&e, std::vector<float>& f)
+{
+  convertFPStarLikePyObjToCpp_2<float>(value,sw,val,d,e,f,SWIGTYPE_p_MEDCoupling__DataArrayFloat,SWIGTYPE_p_MEDCoupling__DataArrayFloatTuple);
+}
+
+/*!
  * if python int -> cpp int sw=1
  * if python list[int] -> cpp vector<int> sw=2
  * if python tuple[int] -> cpp vector<int> sw=2
@@ -3364,6 +3377,39 @@ template<class T>
 PyObject *DataArrayT_isub(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self)
 {
   return DataArrayT_isub__internal<T>(trueSelf,obj,self,SWIGTITraits<T>::TI,SWIGTITraits<T>::TI_TUPLE);
+}
+
+template<class T>
+typename MEDCoupling::Traits<T>::ArrayType *DataArrayFPT_rmul(typename MEDCoupling::Traits<T>::ArrayType *self, PyObject *obj)
+{
+  const char msg[]="Unexpected situation in __rmul__ !";
+  T val;
+  typename MEDCoupling::Traits<T>::ArrayType *a;
+  typename MEDCoupling::Traits<T>::ArrayTuple *aa;
+  std::vector<T> bb;
+  int sw;
+  convertFPStarLikePyObjToCpp_2<T>(obj,sw,val,a,aa,bb,SWIGTITraits<T>::TI,SWIGTITraits<T>::TI_TUPLE);
+  switch(sw)
+    {
+    case 1:
+      {
+        typename MEDCoupling::MCAuto<typename MEDCoupling::Traits<T>::ArrayType> ret(self->deepCopy());
+        ret->applyLin(val,0.);
+        return ret.retn();
+      }
+    case 3:
+      {
+        typename MEDCoupling::MCAuto<typename MEDCoupling::Traits<T>::ArrayType> aaa(aa->buildDA(1,self->getNumberOfComponents()));
+        return MEDCoupling::Traits<T>::ArrayType::Multiply(self,aaa);
+      }
+    case 4:
+      {
+        typename MEDCoupling::MCAuto<typename MEDCoupling::Traits<T>::ArrayType> aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        return MEDCoupling::Traits<T>::ArrayType::Multiply(self,aaa);
+      }
+    default:
+      throw INTERP_KERNEL::Exception(msg);
+    }
 }
 
 #endif

@@ -22,6 +22,7 @@
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldT.txx"
 #include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
@@ -522,19 +523,30 @@ DataArrayInt *MEDCouplingFieldDouble::findIdsInRange(double vmin, double vmax) c
   return getArray()->findIdsInRange(vmin,vmax);
 }
 
-MEDCouplingFieldInt *MEDCouplingFieldDouble::convertToIntField() const
+template<class U>
+typename Traits<U>::FieldType *ConvertToUField(const MEDCouplingFieldDouble *self)
 {
-  MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*this));
+  MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*self));
   int t1,t2;
-  double t0(getTime(t1,t2));
-  MCAuto<MEDCouplingFieldInt> ret(MEDCouplingFieldInt::New(*tmp,getTimeDiscretization()));
+  double t0(self->getTime(t1,t2));
+  MCAuto<typename Traits<U>::FieldType > ret(Traits<U>::FieldType::New(*tmp,self->getTimeDiscretization()));
   ret->setTime(t0,t1,t2);
-  if(getArray())
+  if(self->getArray())
     {
-      MCAuto<DataArrayInt> arr(getArray()->convertToIntArr());
+      MCAuto<typename Traits<U>::ArrayType> arr(self->getArray()->convertToOtherTypeOfArr<U>());
       ret->setArray(arr);
     }
   return ret.retn();
+}
+
+MEDCouplingFieldInt *MEDCouplingFieldDouble::convertToIntField() const
+{
+  return ConvertToUField<int>(this);
+}
+
+MEDCouplingFieldFloat *MEDCouplingFieldDouble::convertToFloatField() const
+{
+  return ConvertToUField<float>(this);
 }
 
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingFieldT<double>(type,MEDCouplingTimeDiscretization::New(td))

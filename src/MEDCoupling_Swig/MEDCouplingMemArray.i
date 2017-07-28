@@ -73,6 +73,7 @@
 %newobject MEDCoupling::DataArrayFloat::iterator;
 %newobject MEDCoupling::DataArrayFloat::__iter__;
 %newobject MEDCoupling::DataArrayFloat::Meld;
+%newobject MEDCoupling::DataArrayFloat::__rmul__;
 %newobject MEDCoupling::DataArrayInt::New;
 %newobject MEDCoupling::DataArrayInt::__iter__;
 %newobject MEDCoupling::DataArrayInt::performCopyOrIncrRef;
@@ -745,6 +746,18 @@ namespace MEDCoupling
         int nbOfComp(self->getNumberOfComponents()),nbOfTuples(self->getNumberOfTuples());
         return convertDblArrToPyListOfTuple<float>(vals,nbOfComp,nbOfTuples);
       }
+
+      PyObject *isEqualIfNotWhy(const DataArrayFloat& other, float prec) const throw(INTERP_KERNEL::Exception)
+      {
+        std::string ret1;
+        bool ret0=self->isEqualIfNotWhy(other,prec,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
+      }
       
       PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
@@ -769,6 +782,11 @@ namespace MEDCoupling
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         return DataArrayT_imul<float>(trueSelf,obj,self);
+      }
+
+      DataArrayFloat *__rmul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayFPT_rmul<float>(self,obj);
       }
 
       PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
@@ -1689,34 +1707,7 @@ namespace MEDCoupling
 
       DataArrayDouble *__rmul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        const char msg[]="Unexpected situation in __rmul__ !";
-        double val;
-        DataArrayDouble *a;
-        DataArrayDoubleTuple *aa;
-        std::vector<double> bb;
-        int sw;
-        convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
-        switch(sw)
-          {
-          case 1:
-            {
-              MCAuto<DataArrayDouble> ret=self->deepCopy();
-              ret->applyLin(val,0.);
-              return ret.retn();
-            }
-          case 3:
-            {
-              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              return DataArrayDouble::Multiply(self,aaa);
-            }
-          case 4:
-            {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              return DataArrayDouble::Multiply(self,aaa);
-            }
-          default:
-            throw INTERP_KERNEL::Exception(msg);
-          }
+        return DataArrayFPT_rmul<double>(self,obj);
       }
 
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)

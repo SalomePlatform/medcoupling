@@ -777,8 +777,6 @@ MEDCouplingTimeDiscretizationFloat *MEDCouplingTimeDiscretizationFloat::New(Type
 
 bool MEDCouplingTimeDiscretizationFloat::isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec, std::string& reason) const
 {
-  if(prec!=0)
-    throw INTERP_KERNEL::Exception("isEqualIfNotWhy : only precision equal to 0 supported for int !");
   if(!other)
     {
       reason="Time discretization is NULL.";

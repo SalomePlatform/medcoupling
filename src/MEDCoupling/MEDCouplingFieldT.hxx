@@ -75,8 +75,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const { return _time_discr->getStartTime(iteration,order); }
     MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const { return _time_discr->getEndTime(iteration,order); }
     MEDCOUPLING_EXPORT T getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
+    MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;
+    MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec, std::string& reason) const;
+    MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingField *other);
     MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;

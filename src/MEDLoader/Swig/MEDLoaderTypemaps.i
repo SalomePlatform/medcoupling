@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include <vector>
 
@@ -400,5 +400,16 @@ void convertToMapIntDataArrayInt(PyObject *pyMap, std::map<int, MCAuto<DataArray
         arg->incrRef();
       cppMap[k]=arg2;
     }
+}
+
+template<class T>
+PyObject *MEDFileField1TS_getFieldWithProfile(const typename MLFieldTraits<T>::F1TSType *self, TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) 
+{
+  DataArrayInt *ret1(NULL);
+  typename MEDCoupling::Traits<T>::ArrayType *ret0(self->getFieldWithProfile(type,meshDimRelToMax,mesh,ret1));
+  PyObject *ret(PyTuple_New(2));
+  PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<T>::TI, SWIG_POINTER_OWN | 0 ));
+  PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+  return ret;
 }
 

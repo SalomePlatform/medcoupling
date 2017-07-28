@@ -723,7 +723,14 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, const MEDFileF
       goReadZeValuesInFile(fid,fieldName,nbOfCompo,iteration,order,menti,mgeoti,reinterpret_cast<unsigned char*>(startFeeding));
       return ;
     }
-  throw INTERP_KERNEL::Exception("Error on array reading ! Unrecognized type of field ! Should be in FLOAT64 or INT32 !");
+  DataArrayFloat *arrF(dynamic_cast<DataArrayFloat *>(arr));
+  if(arrF)
+    {
+      float *startFeeding(arrF->getPointer()+_start*nbOfCompo);
+      goReadZeValuesInFile(fid,fieldName,nbOfCompo,iteration,order,menti,mgeoti,reinterpret_cast<unsigned char*>(startFeeding));
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("Error on array reading ! Unrecognized type of field ! Should be in FLOAT64 FLOAT32 or INT32 !");
 }
 
 /*!
@@ -897,15 +904,18 @@ void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid, const MEDFileFieldN
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : no array set !");
   if(!arr->isAllocated())
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : the array to be written is not allocated !");
-  const DataArrayDouble *arrD=dynamic_cast<const DataArrayDouble *>(arr);
-  const DataArrayInt *arrI=dynamic_cast<const DataArrayInt *>(arr);
+  const DataArrayDouble *arrD(dynamic_cast<const DataArrayDouble *>(arr));
+  const DataArrayInt *arrI(dynamic_cast<const DataArrayInt *>(arr));
+  const DataArrayFloat *arrF(dynamic_cast<const DataArrayFloat *>(arr));
   const unsigned char *locToWrite=0;
   if(arrD)
     locToWrite=reinterpret_cast<const unsigned char *>(arrD->getConstPointer()+_start*arr->getNumberOfComponents());
   else if(arrI)
     locToWrite=reinterpret_cast<const unsigned char *>(arrI->getConstPointer()+_start*arr->getNumberOfComponents());
+  else if(arrF)
+    locToWrite=reinterpret_cast<const unsigned char *>(arrF->getConstPointer()+_start*arr->getNumberOfComponents());
   else
-    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : not recognized type of values ! Supported are FLOAT64 and INT32 !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : not recognized type of values ! Supported are FLOAT64 FLOAT32 and INT32 !");
   MEDFILESAFECALLERWR0(MEDfieldValueWithProfileWr,(fid,nasc.getName().c_str(),getIteration(),getOrder(),getTime(),menti,mgeoti,
                                                    MED_COMPACT_PFLMODE,_profile.c_str(),_localization.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,_nval,
                                                    locToWrite));
@@ -5973,7 +5983,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
         ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
         break;
       }
-    case MED_NODE://6432
+    case MED_FLOAT32:
       {
         ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
         break;
@@ -6033,7 +6043,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
         ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
         break;
       }
-    case MED_NODE://6432
+    case MED_FLOAT32:
       {
         ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
         break;
@@ -6093,7 +6103,13 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDF
       ret->_content=c; c->incrRef();
       return ret.retn();
     }
-  throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 and INT32 has been built but not intercepted !");
+  if(dynamic_cast<const MEDFileFloatField1TSWithoutSDA *>(c))
+    {
+      MCAuto<MEDFileFloatField1TS> ret(MEDFileFloatField1TS::New());
+      ret->_content=c; c->incrRef();
+      return ret.retn();
+    }
+  throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 FLOAT32 and INT32 has been built but not intercepted !");
 }
 
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c, med_idt fid)
@@ -6179,7 +6195,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
         ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
         break;
       }
-    case MED_NODE://6432
+    case MED_FLOAT32:
       {
         ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
         break;
@@ -7346,7 +7362,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysR
             _time_steps[i]=MEDFileIntField1TSWithoutSDA::New(getName(),getMeshName(),i+1,numdt,numo,_infos);
             break;
           }
-        case MED_NODE://6432
+        case MED_FLOAT32:
           {
             _time_steps[i]=MEDFileFloatField1TSWithoutSDA::New(getName(),getMeshName(),i+1,numdt,numo,_infos);
             break;
@@ -7996,7 +8012,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
         ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
         break;
       }
-    case MED_NODE://6432
+    case MED_FLOAT32:
       {
         ret=new MEDFileFloatFieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
         break;
@@ -8032,7 +8048,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
         ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
         break;
       }
-    case MED_NODE://6432
+    case MED_FLOAT32:
       {
         ret=new MEDFileFloatFieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
         break;
@@ -8064,7 +8080,13 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromCont
       ret->_content=c;  c->incrRef();
       return ret.retn();
     }
-  throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 and INT32 has been built but not intercepted !");
+  if(dynamic_cast<const MEDFileFloatFieldMultiTSWithoutSDA *>(c))
+    {
+      MCAuto<MEDFileFloatFieldMultiTS> ret(MEDFileFloatFieldMultiTS::New());
+      ret->_content=c;  c->incrRef();
+      return ret.retn();
+    }
+  throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 FLOAT32 and INT32 has been built but not intercepted !");
 }
 
 MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c, med_idt fid)
@@ -9187,7 +9209,7 @@ try:MEDFileFieldGlobsReal(fid)
             _fields[i]=MEDFileIntFieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
             break;
           }
-        case MED_NODE://6432
+        case MED_FLOAT32:
           {
             _fields[i]=MEDFileFloatFieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
             break;
@@ -9523,13 +9545,16 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const
   MCAuto<MEDFileAnyTypeFieldMultiTS> ret;
   const MEDFileFieldMultiTSWithoutSDA *fmtsC(dynamic_cast<const MEDFileFieldMultiTSWithoutSDA *>(fmts));
   const MEDFileIntFieldMultiTSWithoutSDA *fmtsC2(dynamic_cast<const MEDFileIntFieldMultiTSWithoutSDA *>(fmts));
+  const MEDFileFloatFieldMultiTSWithoutSDA *fmtsC3(dynamic_cast<const MEDFileFloatFieldMultiTSWithoutSDA *>(fmts));
   if(fmtsC)
     ret=MEDFileFieldMultiTS::New(*fmtsC,false);
   else if(fmtsC2)
     ret=MEDFileIntFieldMultiTS::New(*fmtsC2,false);
+  else if(fmtsC3)
+    ret=MEDFileFloatFieldMultiTS::New(*fmtsC3,false);
   else
     {
-      std::ostringstream oss; oss << "MEDFileFields::getFieldAtPos : At pos #" << i << " field is neither double (FLOAT64) nor integer (INT32) !";
+      std::ostringstream oss; oss << "MEDFileFields::getFieldAtPos : At pos #" << i << " field is neither double (FLOAT64) nor float (FLOAT32) nor integer (INT32) !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
   ret->shallowCpyGlobs(*this);

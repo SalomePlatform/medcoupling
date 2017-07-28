@@ -2332,12 +2332,7 @@ namespace MEDCoupling
          
          PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
          {
-           DataArrayInt *ret1=0;
-           DataArrayDouble *ret0=self->getFieldWithProfile(type,meshDimRelToMax,mesh,ret1);
-           PyObject *ret=PyTuple_New(2);
-           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
-           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-           return ret;
+           return MEDFileField1TS_getFieldWithProfile<double>(self,type,meshDimRelToMax,mesh);
          }
 
          PyObject *getFieldSplitedByType2(const std::string& mname=std::string()) const throw(INTERP_KERNEL::Exception)
@@ -2469,12 +2464,7 @@ namespace MEDCoupling
 
       PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
       {
-         DataArrayInt *ret1=0;
-         DataArrayInt *ret0=self->getFieldWithProfile(type,meshDimRelToMax,mesh,ret1);
-         PyObject *ret=PyTuple_New(2);
-         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         return ret;
+         return MEDFileField1TS_getFieldWithProfile<int>(self,type,meshDimRelToMax,mesh);
       }
       
       DataArrayInt *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
@@ -2545,12 +2535,7 @@ namespace MEDCoupling
 
       PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
       {
-         DataArrayInt *ret1=0;
-         DataArrayFloat *ret0=self->getFieldWithProfile(type,meshDimRelToMax,mesh,ret1);
-         PyObject *ret=PyTuple_New(2);
-         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayFloat, SWIG_POINTER_OWN | 0 ));
-         return ret;
+         return MEDFileField1TS_getFieldWithProfile<float>(self,type,meshDimRelToMax,mesh);
       }
       
       DataArrayFloat *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)

@@ -349,13 +349,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprNotTooLongWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT std::string reprNotTooLong() const;
+    template<class U>
+    MCAuto< typename Traits<U>::ArrayType > convertToOtherTypeOfArr() const;
   protected:
     static typename Traits<T>::ArrayType *PerformCopyOrIncrRef(bool dCpy, const typename Traits<T>::ArrayType& self);
     template<class OP>
     MCAuto<DataArrayInt32> findIdsAdv(const OP& op) const;
   private:
-    template<class U>
-    MCAuto< typename Traits<U>::ArrayType > convertToOtherTypeOfArr() const;
     template<class FCT>
     void somethingEqual(const typename Traits<T>::ArrayType *other);
   };

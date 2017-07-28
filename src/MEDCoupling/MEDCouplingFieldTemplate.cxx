@@ -59,6 +59,22 @@ MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::NewWithoutCheck(const MEDCou
   return new MEDCouplingFieldTemplate(f,false);
 }
 
+bool MEDCouplingFieldTemplate::isEqualIfNotWhy(const MEDCouplingFieldTemplate *other, double meshPrec, std::string& reason) const
+{
+  return isEqualIfNotWhyProtected(other,meshPrec,reason);
+}
+
+bool MEDCouplingFieldTemplate::isEqual(const MEDCouplingFieldTemplate *other, double meshPrec) const
+{
+  std::string tmp;
+  return isEqualIfNotWhyProtected(other,meshPrec,tmp);
+}
+
+bool MEDCouplingFieldTemplate::isEqualWithoutConsideringStr(const MEDCouplingFieldTemplate *other, double meshPrec) const
+{
+  return isEqualWithoutConsideringStrProtected(other,meshPrec);
+}
+
 /*!
  * The user should \b not use this method. Only useful for CORBA serialization/unserialization.
  */

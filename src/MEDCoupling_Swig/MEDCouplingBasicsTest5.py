@@ -3902,32 +3902,32 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         arr2=DataArrayInt([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr2.setInfoOnComponents(["aa","bbb"])
         f2.setArray(arr2) ; f2.setName("f1") ; f2.setTime(2.,3,4)
         #
-        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(f1.isEqual(f2,1e-12,0))
         f1.getArray()[:]*=2
-        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
-        self.assertTrue(not f1.isEqualWithoutConsideringStr(f2,1e-12,0.))
+        self.assertTrue(not f1.isEqual(f2,1e-12,0))
+        self.assertTrue(not f1.isEqualWithoutConsideringStr(f2,1e-12,0))
         f1.getArray()[:]/=2
-        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(f1.isEqual(f2,1e-12,0))
         #
         f1.setName("F1")
-        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(not f1.isEqual(f2,1e-12,0))
         f1.setName("f1")
-        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(f1.isEqual(f2,1e-12,0))
         #
         f1.getArray().setInfoOnComponents(["aa","bbbb"])
-        self.assertTrue(not f1.isEqual(f2,1e-12,0.))
-        self.assertTrue(f1.isEqualWithoutConsideringStr(f2,1e-12,0.))
+        self.assertTrue(not f1.isEqual(f2,1e-12,0))
+        self.assertTrue(f1.isEqualWithoutConsideringStr(f2,1e-12,0))
         f1.getArray().setInfoOnComponents(["aa","bbb"])
-        self.assertTrue(f1.isEqual(f2,1e-12,0.))
+        self.assertTrue(f1.isEqual(f2,1e-12,0))
         #
         f3=f2.deepCopy()
-        self.assertTrue(f1.isEqual(f3,1e-12,0.))
+        self.assertTrue(f1.isEqual(f3,1e-12,0))
         #
         for fd,expected in ((ON_NODES,False),(ON_CELLS,True)):
             f4=MEDCouplingFieldInt(fd) ; f4.setMesh(m2) ; f4.setTime(2.,3,4)
             arr4=DataArrayInt([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr4.setInfoOnComponents(["aa","bbb"])
             f4.setArray(arr4) ; f4.setName("f1")
-            self.assertEqual(f1.isEqual(f4,1e-12,0.),expected)
+            self.assertEqual(f1.isEqual(f4,1e-12,0),expected)
             pass
         pass
 

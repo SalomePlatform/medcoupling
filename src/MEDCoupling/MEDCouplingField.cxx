@@ -34,7 +34,7 @@ void MEDCouplingField::checkConsistencyLight() const
     throw INTERP_KERNEL::Exception("MEDCouplingField::checkConsistencyLight : no spatial discretization !");
 }
 
-bool MEDCouplingField::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const
+bool MEDCouplingField::isEqualIfNotWhyProtected(const MEDCouplingField *other, double meshPrec, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingField::isEqualIfNotWhy : other instance is NULL !");
@@ -57,7 +57,7 @@ bool MEDCouplingField::isEqualIfNotWhy(const MEDCouplingField *other, double mes
       reason=oss.str();
       return false;
     }
-  if(!_type->isEqualIfNotWhy(other->_type,valsPrec,reason))
+  if(!_type->isEqualIfNotWhy(other->_type,meshPrec,reason))
     {
       reason.insert(0,"Spatial discretizations differ :");
       return false;
@@ -78,36 +78,21 @@ bool MEDCouplingField::isEqualIfNotWhy(const MEDCouplingField *other, double mes
 }
 
 /*!
- * Checks if \a this and another MEDCouplingField are fully equal.
- *  \param [in] other - the field to compare with \a this one.
- *  \param [in] meshPrec - precision used to compare node coordinates of the underlying mesh.
- *  \param [in] valsPrec - precision used to compare field values.
- *  \return bool - \c true if the two fields are equal, \c false else.
- *  \throw If \a other is NULL.
- */
-bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
-{
-  std::string tmp;
-  return isEqualIfNotWhy(other,meshPrec,valsPrec,tmp);
-}
-
-/*!
  * Checks if \a this and another MEDCouplingField are equal. The textual
  * information like names etc. is not considered.
  *  \param [in] other - the field to compare with \a this one.
  *  \param [in] meshPrec - precision used to compare node coordinates of the underlying mesh.
- *  \param [in] valsPrec - precision used to compare field values.
  *  \return bool - \c true if the two fields are equal, \c false else.
  *  \throw If \a other is NULL.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-bool MEDCouplingField::isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const
+bool MEDCouplingField::isEqualWithoutConsideringStrProtected(const MEDCouplingField *other, double meshPrec) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingField::isEqualWithoutConsideringStr : input field is NULL !");
   if(!_type)
     throw INTERP_KERNEL::Exception("MEDCouplingField::isEqualWithoutConsideringStr : spatial discretization of this is NULL !");
-  if(!_type->isEqualWithoutConsideringStr(other->_type,valsPrec))
+  if(!_type->isEqualWithoutConsideringStr(other->_type,meshPrec))
     return false;
   if(_nature!=other->_nature)
     return false;

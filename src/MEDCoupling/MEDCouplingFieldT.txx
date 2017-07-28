@@ -117,21 +117,22 @@ namespace MEDCoupling
       }
     return ret.retn();
   }
+
+  template<class T>
+  bool MEDCouplingFieldT<T>::isEqual(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const
+  {
+    std::string tmp;
+    return isEqualIfNotWhy(other,meshPrec,valsPrec,tmp);
+  }
   
   template<class T>
-  bool MEDCouplingFieldT<T>::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const
+  bool MEDCouplingFieldT<T>::isEqualIfNotWhy(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec, std::string& reason) const
   {
     if(!other)
       throw INTERP_KERNEL::Exception("MEDCouplingFieldT::isEqualIfNotWhy : other instance is NULL !");
-    const MEDCouplingFieldT<T> *otherC(dynamic_cast<const MEDCouplingFieldT<T> *>(other));
-    if(!otherC)
-      {
-        reason="field given in input is not castable in MEDCouplingFieldT !";
-        return false;
-      }
-    if(!MEDCouplingField::isEqualIfNotWhy(other,meshPrec,valsPrec,reason))
+    if(!isEqualIfNotWhyProtected(other,meshPrec,reason))
       return false;
-    if(!_time_discr->isEqualIfNotWhy(otherC->_time_discr,T(valsPrec),reason))
+    if(!_time_discr->isEqualIfNotWhy(other->_time_discr,T(valsPrec),reason))
       {
         reason.insert(0,"In FieldT time discretizations differ :");
         return false;
@@ -150,14 +151,13 @@ namespace MEDCoupling
    *  \throw If the spatial discretization of \a this field is NULL.
    */
   template<class T>
-  bool MEDCouplingFieldT<T>::isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const
+  bool MEDCouplingFieldT<T>::isEqualWithoutConsideringStr(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const
   {
-    const MEDCouplingFieldT<T> *otherC(dynamic_cast<const MEDCouplingFieldT<T> *>(other));
-    if(!otherC)
+    if(!other)
       return false;
-    if(!MEDCouplingField::isEqualWithoutConsideringStr(other,meshPrec,valsPrec))
+    if(!isEqualWithoutConsideringStrProtected(other,meshPrec))
       return false;
-    if(!_time_discr->isEqualWithoutConsideringStr(otherC->_time_discr,T(valsPrec)))
+    if(!_time_discr->isEqualWithoutConsideringStr(other->_time_discr,valsPrec))
       return false;
     return true;
   }

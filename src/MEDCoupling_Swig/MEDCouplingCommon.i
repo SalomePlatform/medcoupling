@@ -188,6 +188,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::MergeFields;
 %newobject MEDCoupling::MEDCouplingFieldDouble::MeldFields;
 %newobject MEDCoupling::MEDCouplingFieldDouble::convertToIntField;
+%newobject MEDCoupling::MEDCouplingFieldDouble::convertToFloatField;
 %newobject MEDCoupling::MEDCouplingFieldDouble::doublyContractedProduct;
 %newobject MEDCoupling::MEDCouplingFieldDouble::determinant;
 %newobject MEDCoupling::MEDCouplingFieldDouble::eigenValues;
@@ -3810,8 +3811,6 @@ namespace MEDCoupling
   public:
     virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
     virtual bool areCompatibleForMerge(const MEDCouplingField *other) const throw(INTERP_KERNEL::Exception);
-    virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
-    virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
     virtual void copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception);
     void setMesh(const MEDCoupling::MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     void setName(const char *name) throw(INTERP_KERNEL::Exception);
@@ -3855,18 +3854,6 @@ namespace MEDCoupling
       {
         std::set<int> ret=self->getGaussLocalizationIdsOfOneType(type);
         return convertIntArrToPyList3(ret);
-      }
-
-      PyObject *isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception)
-      {
-        std::string ret1;
-        bool ret0=self->isEqualIfNotWhy(other,meshPrec,valsPrec,ret1);
-        PyObject *ret=PyTuple_New(2);
-        PyObject *ret0Py=ret0?Py_True:Py_False;
-        Py_XINCREF(ret0Py);
-        PyTuple_SetItem(ret,0,ret0Py);
-        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
-        return ret;
       }
 
       PyObject *buildSubMeshData(PyObject *li) const throw(INTERP_KERNEL::Exception)
@@ -3971,6 +3958,8 @@ namespace MEDCoupling
     static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
+    bool isEqual(const MEDCouplingFieldTemplate *other, double meshPrec) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const MEDCouplingFieldTemplate *other, double meshPrec) const throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception)
@@ -4004,16 +3993,31 @@ namespace MEDCoupling
            self->reprQuickOverview(oss);
            return oss.str();
          }
+
+         PyObject *isEqualIfNotWhy(const MEDCouplingFieldTemplate *other, double meshPrec) const throw(INTERP_KERNEL::Exception)
+         {
+           std::string ret1;
+           bool ret0=self->isEqualIfNotWhy(other,meshPrec,ret1);
+           PyObject *ret=PyTuple_New(2);
+           PyObject *ret0Py=ret0?Py_True:Py_False;
+           Py_XINCREF(ret0Py);
+           PyTuple_SetItem(ret,0,ret0Py);
+           PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+           return ret;
+         }
        }
   };
   
   class MEDCouplingFieldInt;
+  class MEDCouplingFieldFloat;
   
   class MEDCouplingFieldDouble : public MEDCoupling::MEDCouplingField
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+    bool isEqual(const MEDCouplingFieldDouble *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const MEDCouplingFieldDouble *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
     void setTimeUnit(const std::string& unit);
     std::string getTimeUnit() const;
     void synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception);
@@ -4023,6 +4027,7 @@ namespace MEDCoupling
     std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
     std::string  writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldInt *convertToIntField() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldFloat *convertToFloatField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *deepCopy() const;
@@ -4129,6 +4134,18 @@ namespace MEDCoupling
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
+      }
+
+      PyObject *isEqualIfNotWhy(const MEDCouplingFieldDouble *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception)
+      {
+        std::string ret1;
+        bool ret0=self->isEqualIfNotWhy(other,meshPrec,valsPrec,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
       }
       
       MEDCouplingFieldDouble *voronoize(double eps) const throw(INTERP_KERNEL::Exception)
@@ -5212,6 +5229,8 @@ namespace MEDCoupling
   public:
     static MEDCouplingFieldInt *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     static MEDCouplingFieldInt *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+    bool isEqual(const MEDCouplingFieldInt *other, double meshPrec, int valsPrec) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const MEDCouplingFieldInt *other, double meshPrec, int valsPrec) const throw(INTERP_KERNEL::Exception);
     void setTimeUnit(const std::string& unit) throw(INTERP_KERNEL::Exception);
     std::string getTimeUnit() const throw(INTERP_KERNEL::Exception);
     void setTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -5232,6 +5251,18 @@ namespace MEDCoupling
         return MEDCouplingFieldInt::New(ft,td);
       }
 
+      PyObject *isEqualIfNotWhy(const MEDCouplingFieldInt *other, double meshPrec, int valsPrec) const throw(INTERP_KERNEL::Exception)
+      {
+        std::string ret1;
+        bool ret0=self->isEqualIfNotWhy(other,meshPrec,valsPrec,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
+      }
+      
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -5310,6 +5341,8 @@ namespace MEDCoupling
   public:
     static MEDCouplingFieldFloat *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     static MEDCouplingFieldFloat *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+    bool isEqual(const MEDCouplingFieldFloat *other, double meshPrec, float valsPrec) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const MEDCouplingFieldFloat *other, double meshPrec, float valsPrec) const throw(INTERP_KERNEL::Exception);
     void setTimeUnit(const std::string& unit) throw(INTERP_KERNEL::Exception);
     std::string getTimeUnit() const throw(INTERP_KERNEL::Exception);
     void setTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -5328,6 +5361,18 @@ namespace MEDCoupling
       MEDCouplingFieldFloat(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME)
       {
         return MEDCouplingFieldFloat::New(ft,td);
+      }
+
+      PyObject *isEqualIfNotWhy(const MEDCouplingFieldFloat *other, double meshPrec, float valsPrec) const throw(INTERP_KERNEL::Exception)
+      {
+        std::string ret1;
+        bool ret0=self->isEqualIfNotWhy(other,meshPrec,valsPrec,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
