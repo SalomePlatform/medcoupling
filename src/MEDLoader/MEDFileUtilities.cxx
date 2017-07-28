@@ -190,7 +190,7 @@ void MEDCoupling::MEDFileWritableStandAlone::write(const std::string& fileName, 
 void MEDCoupling::MEDFileWritableStandAlone::write30(const std::string& fileName, int mode) const
 {
   med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
-#if MED_NUM_MAJEUR>=3 && MED_NUM_MINEUR>=2 && MED_NUM_RELEASE>=1
+#if MED_NUM_MAJEUR>3 || ( MED_NUM_MAJEUR==3 && ( (MED_NUM_MINEUR==2 && MED_NUM_RELEASE>=1) || MED_NUM_MINEUR>=3) )
   MEDFileUtilities::AutoFid fid(MEDfileVersionOpen(fileName.c_str(),medmod,3,0,0));
   writeLL(fid);
 #else

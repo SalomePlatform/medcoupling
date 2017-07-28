@@ -308,7 +308,7 @@ std::string MEDCoupling::MEDFileVersionStr()
 
 std::string MEDCoupling::MEDFileVersionOfFileStr(const std::string& fileName)
 {
-#if MED_NUM_MAJEUR>=3 && MED_NUM_MINEUR>=2 && MED_NUM_RELEASE>=1
+#if MED_NUM_MAJEUR>3 || ( MED_NUM_MAJEUR==3 && ( (MED_NUM_MINEUR==2 && MED_NUM_RELEASE>=1) || MED_NUM_MINEUR>=3) )
   MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   const int SZ=20;
   const char START_EXPECTED[]="MED-";
