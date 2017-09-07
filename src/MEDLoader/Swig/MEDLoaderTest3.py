@@ -2596,7 +2596,7 @@ class MEDLoaderTest3(unittest.TestCase):
         ff1.setFieldNoProfileSBT(f1)
         a=ff1.getFieldOnMeshAtLevel(0,ON_CELLS,mm1)
         self.assertEqual(a.getArray().getInfoOnComponents(),['power [MW/m^3]','density [g/cm^3]','temperature [K]'])
-        self.assertTrue(a.isEqual(f1,1e-12,1e-12))
+        self.assertTrue(a.isEqual(f1,1e-12,0))
         ff1.write(fname,0)
         ff2=MEDFileAnyTypeField1TS.New(fname)
         self.assertEqual(ff2.getName(),"VectorFieldOnCells")
@@ -2604,7 +2604,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(isinstance(ff2,MEDFileIntField1TS))
         a=ff1.getFieldOnMeshAtLevel(ON_CELLS,0,mm1)
         self.assertEqual(a.getArray().getInfoOnComponents(),['power [MW/m^3]','density [g/cm^3]','temperature [K]'])
-        self.assertTrue(a.isEqual(f1,1e-12,1e-12))
+        self.assertTrue(a.isEqual(f1,1e-12,0))
         ff2.setTime(1,2,3.)
         c=ff2.getUndergroundDataArray() ; c*=2
         ff2.write(fname,0) # 2 time steps in 
@@ -2613,14 +2613,14 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(len(ffs1),2)
         self.assertTrue(isinstance(ffs1,MEDFileIntFieldMultiTS))
         a=ffs1[2.].getFieldOnMeshAtLevel(ON_CELLS,0,mm1)
-        self.assertTrue(a.isEqual(f1,1e-12,1e-12))
+        self.assertTrue(a.isEqual(f1,1e-12,0))
         a=ffs1.getFieldOnMeshAtLevel(ON_CELLS,0,1,0,mm1)
-        self.assertTrue(a.isEqual(f1,1e-12,1e-12))
+        self.assertTrue(a.isEqual(f1,1e-12,0))
         it=ffs1.__iter__() ; it.next() ; ff2bis=it.next()
         a=ff2bis.getFieldOnMeshAtLevel(0,ON_CELLS,mm1)
         self.assertTrue(a.getArray().isEqual(2*f1.getArray()))
         f1.setTime(3.,1,2) ; f1.getArray()[:]*=2
-        self.assertTrue(a.isEqual(f1,1e-12,1e-12)) ; f1.getArray()[:]/=2
+        self.assertTrue(a.isEqual(f1,1e-12,0)) ; f1.getArray()[:]/=2
         bc=DataArrayInt(6,3) ; bc[:]=0 ; bc.setInfoOnComponents(['power [MW/m^3]','density [g/cm^3]','temperature [K]'])
         for it in ffs1:
             a=it.getFieldOnMeshAtLevel(ON_CELLS,0,mm1)
@@ -5230,12 +5230,12 @@ class MEDLoaderTest3(unittest.TestCase):
         mm=MEDFileMesh.New(fname)
         f1ts=MEDFileIntField1TS(fname,fieldName,6,7)
         ftst0=f1ts.field(mm)
-        self.assertTrue(f0.isEqual(ftst0,1e-12,1e-12))
+        self.assertTrue(f0.isEqual(ftst0,1e-12,0))
         f1ts=MEDFileIntField1TS(fname,fieldName,8,9)
         ftst1=f1ts.field(mm)
-        self.assertTrue(f1.isEqual(ftst1,1e-12,1e-12))
+        self.assertTrue(f1.isEqual(ftst1,1e-12,0))
         fmts=MEDFileIntFieldMultiTS(fname,fieldName)
-        self.assertTrue(f1.isEqual(fmts.field(8,9,mm),1e-12,1e-12))
+        self.assertTrue(f1.isEqual(fmts.field(8,9,mm),1e-12,0))
         ## Basic test on nodes on top level
         f2=MEDCouplingFieldInt(ON_NODES) ; arr2=DataArrayInt([200,201,202]) ; arr2.setInfoOnComponent(0,"tutu") ; f2.setArray(arr2) ; f2.setMesh(m) ; f2.setTime(22.,23,24)
         f2.setName(fieldName)
@@ -5244,9 +5244,9 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         mm=MEDFileMesh.New(fname)
         f1ts=MEDFileIntField1TS(fname,fieldName,23,24)
-        self.assertTrue(f2.isEqual(f1ts.field(mm),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(f1ts.field(mm),1e-12,0))
         fmts=MEDFileIntFieldMultiTS(fname,fieldName)
-        self.assertTrue(f2.isEqual(fmts.field(23,24,mm),1e-12,1e-12))
+        self.assertTrue(f2.isEqual(fmts.field(23,24,mm),1e-12,0))
         ## Node on elements
         f3=MEDCouplingFieldInt(ON_GAUSS_NE) ; f3.setMesh(m) ; arr3=DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]) ; f3.setArray(arr3) ; f3.setTime(0.5,2,3)
         f3.setName(fieldName) ; f3.checkConsistencyLight()
@@ -5254,7 +5254,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         mm=MEDFileMesh.New(fname)
         f1ts=MEDFileIntField1TS(fname,fieldName,2,3)
-        self.assertTrue(f3.isEqual(f1ts.field(mm),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(f1ts.field(mm),1e-12,0))
         ## Gauss
         f4=MEDCouplingFieldInt(ON_GAUSS_PT) ; f4.setMesh(m) ; f4.setName(fieldName)
         f4.setGaussLocalizationOnType(NORM_TRI3,[0.,0.,1.,0.,1.,1.],[0.1,0.1, 0.2,0.2, 0.3,0.3, 0.4,0.4, 0.5,0.5],[0.2,0.3,0.1,0.05,0.35])
@@ -5265,7 +5265,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         mm=MEDFileMesh.New(fname)
         f1ts=MEDFileIntField1TS(fname,fieldName,4,5)
-        self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,1e-12))
+        self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,0))
         pass
 
     def testMEDFileFieldEasyField3(self):
@@ -5353,7 +5353,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f1ts=MEDFileIntField1TS() ; f1ts.setFieldNoProfileSBT(f1) ; f1ts.write(fname,0)
         #
         mm=MEDFileMesh.New(fname) ; f1ts=MEDFileIntField1TS(fname,fieldName,1,2)
-        self.assertTrue(f1.isEqual(f1ts.field(mm),1e-12,1e-12))
+        self.assertTrue(f1.isEqual(f1ts.field(mm),1e-12,0))
         # here f1 lying on level -1 not 0 check if "field" method detect it !
         f1=MEDCouplingFieldInt(ON_CELLS) ; f1.setName(fieldName) ; f1.setArray(DataArrayInt([(0,100),(1,101),(0,100),(1,101),(0,100),(1,101)]))
         f1.setMesh(mm[-1]) # -1 is very important
@@ -5363,7 +5363,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f1ts=MEDFileIntField1TS() ; f1ts.setFieldNoProfileSBT(f1) ; f1ts.write(fname,0)
         #
         mm=MEDFileMesh.New(fname) ; f1ts=MEDFileIntField1TS(fname,fieldName,3,4)
-        self.assertTrue(f1.isEqual(f1ts.field(mm),1e-12,1e-12))
+        self.assertTrue(f1.isEqual(f1ts.field(mm),1e-12,0))
         # nodes on elements
         f3=MEDCouplingFieldInt(ON_GAUSS_NE)
         f3.setMesh(mm[-1]) # this line is important
@@ -5372,7 +5372,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.write(fname,2) ; ff=MEDFileIntField1TS() ; ff.setFieldNoProfileSBT(f3) ; ff.write(fname,0)
         #
         mm=MEDFileMesh.New(fname) ; f1ts=MEDFileIntField1TS(fname,fieldName,2,3)
-        self.assertTrue(f3.isEqual(f1ts.field(mm),1e-12,1e-12))
+        self.assertTrue(f3.isEqual(f1ts.field(mm),1e-12,0))
         # gauss
         f4=MEDCouplingFieldInt(ON_GAUSS_PT)
         f4.setMesh(mm[-1]) # this line is important
@@ -5383,7 +5383,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f4.checkConsistencyLight()
         mm.write(fname,2) ; ff=MEDFileIntField1TS() ; ff.setFieldNoProfileSBT(f4) ; ff.write(fname,0)
         mm=MEDFileMesh.New(fname) ; f1ts=MEDFileIntField1TS(fname,fieldName,4,5)
-        self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,1e-12))
+        self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,0))
         pass
 
     def testMEDFileFieldEasyField5(self):
@@ -5900,12 +5900,12 @@ class MEDLoaderTest3(unittest.TestCase):
         fmts5=pickle.loads(st)
         self.assertEqual(len(fs4[0]),len(fmts5))
         self.assertTrue(isinstance(fmts5,MEDFileIntFieldMultiTS))
-        self.assertTrue(fmts5[0].field(ms4[0]).isEqual((fs4[0][0]).field(ms4[0]),1e-12,1e-12))
+        self.assertTrue(fmts5[0].field(ms4[0]).isEqual((fs4[0][0]).field(ms4[0]),1e-12,0))
         # MEDFileIntField1TS
         st=pickle.dumps(fs4[0][0],pickle.HIGHEST_PROTOCOL)
         f1ts6=pickle.loads(st)
         self.assertTrue(isinstance(f1ts6,MEDFileIntField1TS))
-        self.assertTrue(f1ts6.field(ms4[0]).isEqual((fs4[0][0]).field(ms4[0]),1e-12,1e-12))
+        self.assertTrue(f1ts6.field(ms4[0]).isEqual((fs4[0][0]).field(ms4[0]),1e-12,0))
         # MEDFileParameters
         self.testParameters1()# generates Pyfile56.med
         params=MEDFileParameters("Pyfile56.med")
