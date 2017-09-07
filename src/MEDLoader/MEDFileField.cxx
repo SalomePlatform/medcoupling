@@ -580,15 +580,28 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
   const PartDefinition *pd(_pd);
   if(!pd)
     {
+      med_entity_type mentiCpy(menti);
       INTERP_KERNEL::AutoPtr<char> locname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
       int nbi,tmp1;
       med_int nbValsInFile(MEDfieldnValueWithProfileByName(fid,fieldName.c_str(),iteration,order,menti,mgeoti,_profile.c_str(),MED_COMPACT_PFLMODE,&tmp1,locname,&nbi));
+      if(nbValsInFile==0 && menti==MED_CELL)
+        {//
+          nbValsInFile=MEDfieldnValueWithProfileByName(fid,fieldName.c_str(),iteration,order,MED_DESCENDING_FACE,mgeoti,_profile.c_str(),MED_COMPACT_PFLMODE,&tmp1,locname,&nbi);
+          if(nbValsInFile==0)
+            {
+              nbValsInFile=MEDfieldnValueWithProfileByName(fid,fieldName.c_str(),iteration,order,MED_DESCENDING_EDGE,mgeoti,_profile.c_str(),MED_COMPACT_PFLMODE,&tmp1,locname,&nbi);
+              if(nbValsInFile!=0)
+                { mentiCpy=MED_DESCENDING_EDGE; }
+            }
+          else
+            { mentiCpy=MED_DESCENDING_FACE; }
+        }
       if(_end-_start!=nbValsInFile*nbi)
         {
           std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile : The number of tuples to read is " << nbValsInFile << "*" << nbi <<  " (nb integration points) ! But in data structure it values " << _end-_start << " is expected !";
           throw INTERP_KERNEL::Exception(oss.str());
         }
-      MEDFILESAFECALLERRD0(MEDfieldValueWithProfileRd,(fid,fieldName.c_str(),iteration,order,menti,mgeoti,MED_COMPACT_PFLMODE,_profile.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,startFeedingPtr));
+      MEDFILESAFECALLERRD0(MEDfieldValueWithProfileRd,(fid,fieldName.c_str(),iteration,order,mentiCpy,mgeoti,MED_COMPACT_PFLMODE,_profile.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,startFeedingPtr));
     }
   else
     {
@@ -657,6 +670,20 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_i
   med_entity_type menti;
   _father->entriesForMEDfile(type,mgeoti,menti);
   int zeNVal(MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,menti,mgeoti,_profile_it+1,MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi));
+  if(zeNVal==0 && type==ON_CELLS)
+    {//eheh maybe there's a surprise :)
+      int zeNVal1(MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,MED_DESCENDING_FACE,mgeoti,_profile_it+1,MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi));
+      if(zeNVal1==0)
+        {
+          int zeNVal2(MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,MED_DESCENDING_EDGE,mgeoti,_profile_it+1,MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi));
+          if(zeNVal2!=0)
+            zeNVal=zeNVal2;
+        }
+      else
+        {
+          zeNVal=zeNVal1;
+        }
+    }
   _profile=MEDLoaderBase::buildStringFromFortran(pflname,MED_NAME_SIZE);
   _localization=MEDLoaderBase::buildStringFromFortran(locname,MED_NAME_SIZE);
   const PartDefinition *pd(_pd);
@@ -1810,6 +1837,20 @@ MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(med_idt fid, MEDFileField
       for(int i=0;i<nbProfiles2;i++)
         _field_pm_pt_pd.push_back(MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,ON_GAUSS_NE,i,pd));
     }
+  if(!_field_pm_pt_pd.empty() || type!=ON_CELLS)
+    return ;
+  // dark side of the force.
+  {
+    int nbProfiles1(MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_DESCENDING_FACE,mgeoti,pflName,locName));
+    int nbProfiles2(MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_DESCENDING_EDGE,mgeoti,pflName,locName));
+    if(nbProfiles1==0 && nbProfiles2==0)
+      return ;// OK definitely nothing in field
+    menti=nbProfiles1>=nbProfiles2?MED_DESCENDING_FACE:MED_DESCENDING_EDGE;//not enough words to describe the beauty
+    nbProfiles=std::max(nbProfiles1,nbProfiles2);
+    _field_pm_pt_pd.resize(nbProfiles);
+    for(int i=0;i<nbProfiles;i++)
+      _field_pm_pt_pd[i]=MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,ON_CELLS,i,pd);
+  }
 }
 
 MCAuto<MEDFileFieldPerMeshPerType> MEDFileFieldPerMeshPerType::Aggregate(int &start, const std::vector<std::pair<int,const MEDFileFieldPerMeshPerType *> >& pms, const std::vector< std::vector< std::pair<int,int> > >& dts, INTERP_KERNEL::NormalizedCellType gt, MEDFileFieldPerMesh *father, std::vector<std::pair< int, std::pair<int,int> > >& extractInfo)
@@ -3126,6 +3167,25 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
         {
           _field_pm_pt.push_back(MEDFileFieldPerMeshPerTypeDyn::NewOnRead(fid,this,entities,*it,nasc));
           setMeshName(MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE));
+        }
+    }
+  if(!_field_pm_pt.empty())
+    return;
+  //for vicious users using MED_ARETE MED_FACE in fields. the last try. For Others not overhead to pay.
+  iter0=MFFPMIter::NewCell(entities);
+  for(iter0->begin();!iter0->finished();iter0->next())
+    {
+      int nbProfile (MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_DESCENDING_FACE,typmai[iter0->current()],meshCsit+1,meshName,pflName,locName));
+      std::string name0(MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1));
+      int nbProfile2(MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_DESCENDING_EDGE,typmai[iter0->current()],meshCsit+1,meshName,pflName,locName));
+      std::string name1(MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1));
+      if(nbProfile>0 || nbProfile2>0)
+        {
+          _field_pm_pt.push_back(MEDFileFieldPerMeshPerType::NewOnRead(fid,this,ON_CELLS,typmai2[iter0->current()],nasc,NULL));
+          if(nbProfile>0)
+            setMeshName(name0);
+          else
+            setMeshName(name1);
         }
     }
 }
