@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "CellModel.hxx"
 
@@ -36,7 +36,7 @@ namespace INTERP_KERNEL
                                             "NORM_SEG4", "", "", "", "NORM_TETRA4",//10->14
                                             "NORM_PYRA5", "NORM_PENTA6", "", "NORM_HEXA8", "",//15->19
                                             "NORM_TETRA10", "", "NORM_HEXGP12", "NORM_PYRA13", "",//20->24
-                                            "NORM_PENTA15", "", "NORM_HEXA27", "", "",//25->29
+                                            "NORM_PENTA15", "", "NORM_HEXA27", "", "NORM_PENTA18",//25->29
                                             "NORM_HEXA20", "NORM_POLYHED", "NORM_QPOLYG", "NORM_POLYL", "",//30->34
                                             "", "", "", "", "",//35->39
                                             "NORM_ERROR"};
@@ -100,6 +100,7 @@ namespace INTERP_KERNEL
     _map_of_unique_instance.insert(std::make_pair(NORM_HEXGP12,CellModel(NORM_HEXGP12)));
     _map_of_unique_instance.insert(std::make_pair(NORM_PYRA13,CellModel(NORM_PYRA13)));
     _map_of_unique_instance.insert(std::make_pair(NORM_PENTA15,CellModel(NORM_PENTA15)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_PENTA18,CellModel(NORM_PENTA18)));
     _map_of_unique_instance.insert(std::make_pair(NORM_HEXA20,CellModel(NORM_HEXA20)));
     _map_of_unique_instance.insert(std::make_pair(NORM_HEXA27,CellModel(NORM_HEXA27)));
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYGON,CellModel(NORM_POLYGON)));
@@ -349,6 +350,26 @@ namespace INTERP_KERNEL
           _sons_con[2][0]=0; _sons_con[2][1]=3; _sons_con[2][2]=4; _sons_con[2][3]=1; _sons_con[2][4]=12; _sons_con[2][5]=9; _sons_con[2][6]=13; _sons_con[2][7]=6; _nb_of_sons_con[2]=8;
           _sons_con[3][0]=1; _sons_con[3][1]=4; _sons_con[3][2]=5; _sons_con[3][3]=2; _sons_con[3][4]=13; _sons_con[3][5]=10; _sons_con[3][6]=14; _sons_con[3][7]=7; _nb_of_sons_con[3]=8;
           _sons_con[4][0]=2; _sons_con[4][1]=4; _sons_con[4][2]=5; _sons_con[4][3]=0; _sons_con[4][4]=14; _sons_con[4][5]=11; _sons_con[4][6]=12; _sons_con[4][7]=8; _nb_of_sons_con[4]=8; _quadratic=true;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1; _little_sons_con[0][2]=6;  _nb_of_little_sons=9;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2; _little_sons_con[1][2]=7;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=0; _little_sons_con[2][2]=8;
+          _little_sons_con[3][0]=3; _little_sons_con[3][1]=4; _little_sons_con[3][2]=9;
+          _little_sons_con[4][0]=4; _little_sons_con[4][1]=5; _little_sons_con[4][2]=10;
+          _little_sons_con[5][0]=5; _little_sons_con[5][1]=3; _little_sons_con[5][2]=11;
+          _little_sons_con[6][0]=0; _little_sons_con[6][1]=3; _little_sons_con[6][2]=12;
+          _little_sons_con[7][0]=1; _little_sons_con[7][1]=4; _little_sons_con[7][2]=13;
+          _little_sons_con[8][0]=2; _little_sons_con[8][1]=5; _little_sons_con[8][2]=14;
+        }
+        break;
+      case NORM_PENTA18:
+        {
+          _nb_of_pts=18; _nb_of_sons=5; _dim=3; _linear_type=NORM_PENTA6; _is_simplex=false;
+          _sons_type[0]=NORM_TRI6; _sons_type[1]=NORM_TRI6; _sons_type[2]=NORM_QUAD9; _sons_type[3]=NORM_QUAD9; _sons_type[4]=NORM_QUAD9;
+          _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=2; _sons_con[0][3]=6; _sons_con[0][4]=7; _sons_con[0][5]=8; _nb_of_sons_con[0]=6;
+          _sons_con[1][0]=3; _sons_con[1][1]=5; _sons_con[1][2]=4; _sons_con[1][3]=11; _sons_con[1][4]=10; _sons_con[1][5]=9; _nb_of_sons_con[1]=6;
+          _sons_con[2][0]=0; _sons_con[2][1]=3; _sons_con[2][2]=4; _sons_con[2][3]=1; _sons_con[2][4]=12; _sons_con[2][5]=9; _sons_con[2][6]=13; _sons_con[2][7]=6; _sons_con[2][8]=15; _nb_of_sons_con[2]=9;
+          _sons_con[3][0]=1; _sons_con[3][1]=4; _sons_con[3][2]=5; _sons_con[3][3]=2; _sons_con[3][4]=13; _sons_con[3][5]=10; _sons_con[3][6]=14; _sons_con[3][7]=7; _sons_con[3][8]=16; _nb_of_sons_con[3]=9;
+          _sons_con[4][0]=2; _sons_con[4][1]=4; _sons_con[4][2]=5; _sons_con[4][3]=0; _sons_con[4][4]=14; _sons_con[4][5]=11; _sons_con[4][6]=12; _sons_con[4][7]=8; _sons_con[4][8]=17; _nb_of_sons_con[4]=9; _quadratic=true;
           _little_sons_con[0][0]=0; _little_sons_con[0][1]=1; _little_sons_con[0][2]=6;  _nb_of_little_sons=9;
           _little_sons_con[1][0]=1; _little_sons_con[1][1]=2; _little_sons_con[1][2]=7;
           _little_sons_con[2][0]=2; _little_sons_con[2][1]=0; _little_sons_con[2][2]=8;

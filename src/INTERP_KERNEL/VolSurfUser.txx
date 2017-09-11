@@ -156,6 +156,7 @@ namespace INTERP_KERNEL
             
       case INTERP_KERNEL::NORM_PENTA6 :
       case INTERP_KERNEL::NORM_PENTA15 :
+      case INTERP_KERNEL::NORM_PENTA18 :
         {
           int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);

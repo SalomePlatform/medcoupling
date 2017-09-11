@@ -47,6 +47,7 @@ namespace INTERP_KERNEL
       NORM_HEXGP12 = 22,
       NORM_PYRA13  = 23,
       NORM_PENTA15 = 25,
+      NORM_PENTA18 = 28,
       NORM_HEXA20  = 30,
       NORM_HEXA27  = 27,
       NORM_POLYHED = 31,

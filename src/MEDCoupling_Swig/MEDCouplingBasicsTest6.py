@@ -106,6 +106,43 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         level3(self)
         gtumesh(self)
         pass
+
+    def testPenta18_1(self):
+        arr=DataArrayDouble([
+            (0.,1.,1.),(0.,0.,1.),(1.,0.,1.),
+            (0.,1.,0.),(0.,0.,0.),(1.,0.,0.),
+            (0.,0.5,1.),(0.5,0.,1.),(0.5,0.5,1.),
+            (0.,0.5,0.),(0.5,0.,0.),(0.5,0.5,0.),
+            (0.,1.,0.5),(0.,0.,0.5),(1.,0.,0.5),
+            (0.,0.5,0.5),(0.5,0.,0.5),(0.5,0.5,0.5)])
+        m=MEDCouplingUMesh("mesh",3)
+        m.setCoords(arr)
+        m.allocateCells(1)
+        m.insertNextCell(NORM_PENTA18,list(range(18)))
+        m.checkConsistencyLight()
+        self.assertTrue(m.getMeasureField(True).getArray().isEqual(DataArrayDouble([0.5]),1e-12))
+        #
+        f=MEDCouplingFieldDouble(ON_NODES)
+        f.setMesh(m)
+        f.setName("FieldOnPenta18")
+        f.setArray(DataArrayDouble(list(range(18))))
+        f.checkConsistencyLight()
+        #
+        m2,d,di,rd,rdi=m.buildDescendingConnectivity()
+        self.assertTrue(m2.getNodalConnectivity().isEqual(DataArrayInt([6,0,1,2,6,7,8,6,3,5,4,11,10,9,9,0,3,4,1,12,9,13,6,15,9,1,4,5,2,13,10,14,7,16,9,2,4,5,0,14,11,12,8,17])))
+        self.assertTrue(m2.getNodalConnectivityIndex().isEqual(DataArrayInt([0,7,14,24,34,44])))
+        self.assertTrue(d.isEqual(DataArrayInt([0,1,2,3,4])))
+        self.assertTrue(di.isEqual(DataArrayInt([0,5])))
+        self.assertTrue(rd.isEqual(DataArrayInt([0,0,0,0,0])))
+        self.assertTrue(rdi.isEqual(DataArrayInt([0,1,2,3,4,5])))
+        #
+        f2=MEDCouplingFieldDouble(ON_NODES)
+        f2.setMesh(m)
+        f2.setName("FieldOnPenta18Sub")
+        f2.setArray(DataArrayDouble(list(range(18))))
+        f2.checkConsistencyLight()
+        pass
+    
     pass
 
 if __name__ == '__main__':
