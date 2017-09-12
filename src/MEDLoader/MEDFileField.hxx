@@ -662,6 +662,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void loadStructureAndBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc, const MEDFileMeshes *ms, const MEDFileEntities *entities);
     MEDLOADER_EXPORT void unloadArrays();
     MEDLOADER_EXPORT void writeLL(med_idt fid, const MEDFileWritable& opts, const MEDFileFieldNameScope& nasc) const;
+    MEDLOADER_EXPORT static std::string FieldNameToMEDFileConvention(const std::string& nonCorrectFieldName);
   protected:
     int getMeshIdFromMeshName(const std::string& mName) const;
     int addNewEntryIfNecessary(const MEDCouplingMesh *mesh);

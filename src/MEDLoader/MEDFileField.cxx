@@ -5078,6 +5078,19 @@ void MEDFileAnyTypeField1TSWithoutSDA::writeLL(med_idt fid, const MEDFileWritabl
 }
 
 /*!
+ * MED file does not support ' ' at the end of the field name. This method corrects the possibly invalid input \a nonCorrectFieldName to a correct one by right stripping input.
+ */
+std::string MEDFileAnyTypeField1TSWithoutSDA::FieldNameToMEDFileConvention(const std::string& nonCorrectFieldName)
+{
+  std::string::size_type pos0(nonCorrectFieldName.find_last_not_of(' '));
+  if(pos0==std::string::npos)
+    return nonCorrectFieldName;
+  if(pos0+1==nonCorrectFieldName.length())
+    return nonCorrectFieldName;
+  return nonCorrectFieldName.substr(0,pos0+1);
+}
+
+/*!
  * This methods returns true is the allocation has been needed leading to a modification of state in \a this->_nb_of_tuples_to_be_allocated.
  * If false is returned the memory allocation is not required.
  */
