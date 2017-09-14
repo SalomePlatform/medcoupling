@@ -6061,6 +6061,14 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
         ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
         break;
       }
+    case MED_INT:
+      {
+        if(sizeof(med_int)==sizeof(int))
+          {
+            ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+            break;
+          }
+      }
     default:
       {
         std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32] !";
@@ -6120,6 +6128,14 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       {
         ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
         break;
+      }
+    case MED_INT:
+      {
+        if(sizeof(med_int)==sizeof(int))
+          {
+            ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+            break;
+          }
       }
     default:
       {
@@ -6272,6 +6288,14 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       {
         ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
         break;
+      }
+    case MED_INT:
+      {
+        if(sizeof(med_int)==sizeof(int))
+          {
+            ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
+            break;
+          }
       }
     default:
       {
@@ -7440,6 +7464,14 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysR
             _time_steps[i]=MEDFileFloatField1TSWithoutSDA::New(getName(),getMeshName(),i+1,numdt,numo,_infos);
             break;
           }
+        case MED_INT:
+          {
+            if(sizeof(med_int)==sizeof(int))
+              {
+                _time_steps[i]=MEDFileIntField1TSWithoutSDA::New(getName(),getMeshName(),i+1,numdt,numo,_infos);
+                break;
+              }
+          }
         default:
           throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysRecursively : managed field type are : FLOAT64, INT32, FLOAT32 !");
       }
@@ -8090,6 +8122,14 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
         ret=new MEDFileFloatFieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
         break;
       }
+    case MED_INT:
+      {
+        if(sizeof(med_int)==sizeof(int))
+          {
+            ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
+            break;
+          }
+      }
     default:
       {
         std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32] !";
@@ -8125,6 +8165,14 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
       {
         ret=new MEDFileFloatFieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
         break;
+      }
+    case MED_INT:
+      {
+        if(sizeof(med_int)==sizeof(int))
+          {
+            ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
+            break;
+          }
       }
     default:
       {
@@ -9286,6 +9334,14 @@ try:MEDFileFieldGlobsReal(fid)
           {
             _fields[i]=MEDFileFloatFieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
             break;
+          }
+        case MED_INT:
+          {
+            if(sizeof(med_int)==sizeof(int))
+              {
+                _fields[i]=MEDFileIntFieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
+                break;
+              }
           }
         default:
           {
