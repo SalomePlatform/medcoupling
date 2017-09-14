@@ -357,7 +357,7 @@ bool MEDFileJointOneStep::isEqual(const MEDFileJointOneStep *other) const
   if ( getNumberOfCorrespondences() != other->getNumberOfCorrespondences() )
     return false;
 
-  std::vector<int> found( getNumberOfCorrespondences(), false );
+  std::vector<bool> found( getNumberOfCorrespondences(), false );
   for(int i=0; i<getNumberOfCorrespondences(); i++)
     {
       int j;
@@ -410,6 +410,7 @@ std::string MEDFileJointOneStep::simpleRepr() const
     }
   return oss.str();
 }
+
 INTERP_KERNEL::NormalizedCellType MEDFileJointOneStep::convertGeometryType(med_geometry_type geotype)
 {
   INTERP_KERNEL::NormalizedCellType result=INTERP_KERNEL::NORM_ERROR;
@@ -423,6 +424,7 @@ INTERP_KERNEL::NormalizedCellType MEDFileJointOneStep::convertGeometryType(med_g
     }
   return result;
 }
+
 std::size_t MEDFileJoint::getHeapMemorySizeWithoutChildren() const
 {
   return _joint.capacity()*sizeof(MCAuto<MEDFileJointOneStep>);
@@ -545,20 +547,22 @@ bool MEDFileJoint::isEqual(const MEDFileJoint *other) const
     return false;
   if(_domain_number!=other->_domain_number)
     return false;
-  std::vector<int> found( getNumberOfSteps(), false );
-  for(int i=0; i<getNumberOfSteps(); i++)
+  int nbTS(getNumberOfSteps());
+  if(nbTS!=other->getNumberOfSteps())
+    return false;
+  std::vector<bool> found(nbTS,false);
+  for(int i=0;i<nbTS;i++)
     {
       int j;
-      for(j=0; j<getNumberOfSteps(); j++)
+      for(j=0;j<nbTS;j++)
         {
-          if ( !found[ j ] &&
-            getStepAtPos(i)->isEqual(other->getStepAtPos(j)))
+          if(!found[j] && getStepAtPos(i)->isEqual(other->getStepAtPos(j)))
             {
-              found[ j ] = true;
+              found[j]=true;
               break;
             }
         }
-      if ( j == getNumberOfSteps() )
+      if(j==nbTS)
         return false;
     }
   return true;

@@ -357,7 +357,7 @@ namespace MEDCoupling
                                       const std::vector<int>& insidePoints, std::vector<int>& modifiedFace);
   public:
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeRangesFromTypeDistribution(const std::vector<int>& code);
-    MEDCOUPLING_EXPORT static const int N_MEDMEM_ORDER=24;
+    MEDCOUPLING_EXPORT static const int N_MEDMEM_ORDER=25;
     MEDCOUPLING_EXPORT static const INTERP_KERNEL::NormalizedCellType MEDMEM_ORDER[N_MEDMEM_ORDER];
     MEDCOUPLING_EXPORT static const int MEDCOUPLING2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1];
     /// @endcond

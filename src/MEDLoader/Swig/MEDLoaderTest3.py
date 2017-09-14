@@ -4523,8 +4523,7 @@ class MEDLoaderTest3(unittest.TestCase):
             grpExp=grp+delta ; grpExp.setName("%s_node"%grp.getName())
             self.assertTrue(mm.getGroupArr(1,"%s_node"%grp.getName()).isEqual(grpExp))
         pass
-
-    pass
+    
     def testMEDFileJoint1(self):
         fileName="Pyfile92.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
@@ -4562,8 +4561,8 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertRaises( InterpKernelException, jointsR.getJointAtPos,1)
         self.assertRaises( InterpKernelException, jointsR.destroyJointAtPos,1)
         jointsR.destroyJointAtPos(0)
-        
-    pass
+        pass
+    
     def testMEDFileJoint2(self):
         fileNameWr="Pyfile93.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
@@ -6099,6 +6098,42 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(fs.changeMeshNames([('3DSurfMesh_1','3DSurfMesh')]))
         self.assertEqual(fs.getMeshesNames(),('3DSurfMesh','3DSurfMesh','3DSurfMesh','3DSurfMesh'))
         self.assertTrue(not fs.changeMeshNames([('3DSurfMesh_1','3DSurfMesh')]))
+        pass
+
+    def testPenta18_1(self):
+        """EDF8478 : Test of read/write of penta18"""
+        fname="Pyfile115.med"
+        arr=DataArrayDouble([
+            (0.,1.,1.),(0.,0.,1.),(1.,0.,1.),
+            (0.,1.,0.),(0.,0.,0.),(1.,0.,0.),
+            (0.,0.5,1.),(0.5,0.,1.),(0.5,0.5,1.),
+            (0.,0.5,0.),(0.5,0.,0.),(0.5,0.5,0.),
+            (0.,1.,0.5),(0.,0.,0.5),(1.,0.,0.5),
+            (0.,0.5,0.5),(0.5,0.,0.5),(0.5,0.5,0.5)])
+        m=MEDCouplingUMesh("mesh",3)
+        m.setCoords(arr)
+        m.allocateCells(1)
+        m.insertNextCell(NORM_PENTA18,list(range(18)))
+        m.checkConsistencyLight()
+        #
+        f=MEDCouplingFieldDouble(ON_NODES)
+        f.setMesh(m)
+        f.setName("FieldOnPenta18")
+        f.setArray(DataArrayDouble(list(range(18))))
+        f.checkConsistencyLight()
+        #
+        m2,d,di,rd,rdi=m.buildDescendingConnectivity()
+        #
+        f2=MEDCouplingFieldDouble(ON_NODES)
+        f2.setMesh(m)
+        f2.setName("FieldOnPenta18Sub")
+        f2.setArray(DataArrayDouble(list(range(18))))
+        f2.checkConsistencyLight()
+        WriteField(fname,f2,True)
+        f3=ReadField(fname)
+        self.assertTrue(f2.isEqual(f3,1e-12,1e-12))
+        self.assertEqual(f3.getMesh().getNumberOfCells(),1)
+        self.assertEqual(f3.getMesh().getTypeOfCell(0),NORM_PENTA18)
         pass
     
     pass

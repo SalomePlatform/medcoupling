@@ -36,7 +36,7 @@ namespace INTERP_KERNEL
                                             "NORM_SEG4", "", "", "", "NORM_TETRA4",//10->14
                                             "NORM_PYRA5", "NORM_PENTA6", "", "NORM_HEXA8", "",//15->19
                                             "NORM_TETRA10", "", "NORM_HEXGP12", "NORM_PYRA13", "",//20->24
-                                            "NORM_PENTA15", "", "NORM_HEXA27", "", "NORM_PENTA18",//25->29
+                                            "NORM_PENTA15", "", "NORM_HEXA27", "NORM_PENTA18", "",//25->29
                                             "NORM_HEXA20", "NORM_POLYHED", "NORM_QPOLYG", "NORM_POLYL", "",//30->34
                                             "", "", "", "", "",//35->39
                                             "NORM_ERROR"};
