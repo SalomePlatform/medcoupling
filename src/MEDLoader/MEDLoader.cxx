@@ -29,6 +29,8 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldFloat.hxx"
+#include "MEDCouplingFieldInt.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MCAuto.hxx"
 
@@ -1155,7 +1157,7 @@ MEDCoupling::MEDCouplingUMesh *MEDCoupling::ReadUMeshFromGroups(const std::strin
   return mmuPtr->getGroups(meshDimRelToMax,grps,true);
 }
 
-MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(const std::string& fileName)
+MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(const std::string& fileName)
 {
   std::vector<std::string> fieldNames(GetAllFieldNames(fileName));
   std::size_t sz(fieldNames.size());
@@ -1178,7 +1180,7 @@ MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(const std::st
   return ReadField(fileName,fieldNames[0]);
 }
 
-MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(const std::string& fileName, const std::string& fieldName)
+MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(const std::string& fileName, const std::string& fieldName)
 {
   std::vector< std::pair< std::pair<int,int>, double> > iterations(GetAllFieldIterations(fileName,fieldName));
   std::size_t sz(iterations.size());
@@ -1201,12 +1203,38 @@ MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(const std::st
   return ReadField(fileName,fieldName,iterations[0].first.first,iterations[0].first.second);
 }
 
-MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(const std::string& fileName, const std::string& fieldName, int iteration, int order)
+MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(const std::string& fileName, const std::string& fieldName, int iteration, int order)
 {
-  MCAuto<MEDFileField1TS> f(MEDFileField1TS::New(fileName,fieldName,iteration,order));
+  MCAuto<MEDFileAnyTypeField1TS> f(MEDFileAnyTypeField1TS::New(fileName,fieldName,iteration,order));
   MCAuto<MEDFileMesh> mesh(MEDFileMesh::New(fileName,f->getMeshName()));
-  MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(f->field(mesh));
-  return ret;
+  {
+    MCAuto<MEDFileField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileField1TS>(f));
+    if(f1.isNotNull())
+      {
+        MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(f1->field(mesh));
+        return MEDCoupling::DynamicCast<MEDCouplingFieldDouble,MEDCouplingField>(ret);
+      }
+  }
+  {
+    MCAuto<MEDFileIntField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileIntField1TS>(f));
+    if(f1.isNotNull())
+      {
+        MCAuto<MEDCoupling::MEDCouplingFieldInt> ret(f1->field(mesh));
+        return MEDCoupling::DynamicCast<MEDCouplingFieldInt,MEDCouplingField>(ret);
+      }
+  }
+  {
+    MCAuto<MEDFileFloatField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileFloatField1TS>(f));
+    if(f1.isNotNull())
+      {
+        MCAuto<MEDCoupling::MEDCouplingFieldFloat> ret(f1->field(mesh));
+        return MEDCoupling::DynamicCast<MEDCouplingFieldFloat,MEDCouplingField>(ret);
+      }
+  }
+  throw INTERP_KERNEL::Exception("MEDCoupling::ReadField : only FLOAT32, FLOAT64 and INT32 supported for the moment !");
+  //MCAuto<MEDFileMesh> mesh(MEDFileMesh::New(fileName,f->getMeshName()));
+  //MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(f->field(mesh));
+  //return ret;
 }
 
 MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)

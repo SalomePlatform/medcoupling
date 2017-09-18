@@ -147,6 +147,18 @@ using namespace INTERP_KERNEL;
 //$$$$$$$$$$$$$$$$$$
 
 ////////////////////
+%typemap(out) MEDCoupling::MEDCouplingField*
+{
+  $result=convertField($1,$owner);
+}
+
+%typemap(out) MEDCouplingField*
+{
+  $result=convertField($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
 %typemap(out) MEDCoupling::MEDCouplingMultiFields*
 {
   $result=convertMultiFields($1,$owner);

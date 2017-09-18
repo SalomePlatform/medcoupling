@@ -83,6 +83,25 @@ static PyObject *convertFieldDiscretization(MEDCoupling::MEDCouplingFieldDiscret
   return ret;
 }
 
+static PyObject *convertField(MEDCoupling::MEDCouplingField *f, int owner)
+{
+  PyObject *ret(NULL);
+  if(!f)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<MEDCoupling::MEDCouplingFieldDouble *>(f))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble,owner);
+  if(dynamic_cast<MEDCoupling::MEDCouplingFieldInt *>(f))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldInt,owner);
+  if(dynamic_cast<MEDCoupling::MEDCouplingFieldFloat *>(f))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldFloat,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of field on downcast !");
+  return ret;
+}
+
 static PyObject* convertMultiFields(MEDCoupling::MEDCouplingMultiFields *mfs, int owner)
 {
   PyObject *ret=0;

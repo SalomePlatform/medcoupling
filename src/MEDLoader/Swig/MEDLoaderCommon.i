@@ -406,21 +406,21 @@ namespace MEDCoupling
     return ret;
   }
 
-  MEDCoupling::MEDCouplingFieldDouble *ReadFieldSwig(const std::string& fileName) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName) throw(INTERP_KERNEL::Exception)
   {
-    MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(MEDCoupling::ReadField(fileName));
+    MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName));
     return ret.retn();
   }
 
-  MEDCoupling::MEDCouplingFieldDouble *ReadFieldSwig(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
   {
-    MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(MEDCoupling::ReadField(fileName,fieldName));
+    MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName,fieldName));
     return ret.retn();
   }
   
-  MEDCoupling::MEDCouplingFieldDouble *ReadFieldSwig(const std::string& fileName, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
   {
-    MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(MEDCoupling::ReadField(fileName,fieldName,iteration,order));
+    MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName,fieldName,iteration,order));
     return ret.retn();
   }
   
