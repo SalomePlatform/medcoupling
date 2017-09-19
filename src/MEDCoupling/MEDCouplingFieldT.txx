@@ -204,6 +204,78 @@ namespace MEDCoupling
   }
   
   /*!
+   * Permutes values of \a this field according to a given permutation array for cells
+   * renumbering. The underlying mesh is deeply copied and its cells are also permuted. 
+   * The number of cells remains the same; for that the permutation array \a old2NewBg
+   * should not contain equal ids.
+   * ** Warning, this method modifies the mesh aggreagated by \a this (by performing a deep copy ) **.
+   *
+   *  \param [in] old2NewBg - the permutation array in "Old to New" mode. Its length is
+   *         to be equal to \a this->getMesh()->getNumberOfCells().
+   *  \param [in] check - if \c true, \a old2NewBg is transformed to a new permutation
+   *         array, so that its maximal cell id to correspond to (be less than) the number
+   *         of cells in mesh. This new array is then used for the renumbering. If \a 
+   *         check == \c false, \a old2NewBg is used as is, that is less secure as validity 
+   *         of ids in \a old2NewBg is not checked.
+   *  \throw If the mesh is not set.
+   *  \throw If the spatial discretization of \a this field is NULL.
+   *  \throw If \a check == \c true and \a old2NewBg contains equal ids.
+   *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
+   * 
+   *  \if ENABLE_EXAMPLES
+   *  \ref cpp_mcfielddouble_renumberCells "Here is a C++ example".<br>
+   *  \ref  py_mcfielddouble_renumberCells "Here is a Python example".
+   *  \endif
+   */
+  template<class T>
+  void MEDCouplingFieldT<T>::renumberCells(const int *old2NewBg, bool check)
+  {
+    renumberCellsWithoutMesh(old2NewBg,check);
+    MCAuto<MEDCouplingMesh> m(_mesh->deepCopy());
+    m->renumberCells(old2NewBg,check);
+    setMesh(m);
+    updateTime();
+  }
+
+  /*!
+   * Permutes values of \a this field according to a given permutation array for cells
+   * renumbering. The underlying mesh is \b not permuted. 
+   * The number of cells remains the same; for that the permutation array \a old2NewBg
+   * should not contain equal ids.
+   * This method performs a part of job of renumberCells(). The reasonable use of this
+   * method is only for multi-field instances lying on the same mesh to avoid a
+   * systematic duplication and renumbering of _mesh attribute. 
+   * \warning Use this method with a lot of care!
+   *  \param [in] old2NewBg - the permutation array in "Old to New" mode. Its length is
+   *         to be equal to \a this->getMesh()->getNumberOfCells().
+   *  \param [in] check - if \c true, \a old2NewBg is transformed to a new permutation
+   *         array, so that its maximal cell id to correspond to (be less than) the number
+   *         of cells in mesh. This new array is then used for the renumbering. If \a 
+   *         check == \c false, \a old2NewBg is used as is, that is less secure as validity 
+   *         of ids in \a old2NewBg is not checked.
+   *  \throw If the mesh is not set.
+   *  \throw If the spatial discretization of \a this field is NULL.
+   *  \throw If \a check == \c true and \a old2NewBg contains equal ids.
+   *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
+   */
+  template<class T>
+  void MEDCouplingFieldT<T>::renumberCellsWithoutMesh(const int *old2NewBg, bool check)
+  {
+    if(!_mesh)
+      throw INTERP_KERNEL::Exception("Expecting a defined mesh to be able to operate a renumbering !");
+    if(_type.isNull())
+      throw INTERP_KERNEL::Exception("Expecting a spatial discretization to be able to operate a renumbering !");
+    //
+    _type->renumberCells(old2NewBg,check);
+    std::vector< typename MEDCoupling::Traits<T>::ArrayType *> arrays;
+    timeDiscrSafe()->getArrays(arrays);
+    std::vector<DataArray *> arrays2(arrays.size()); std::copy(arrays.begin(),arrays.end(),arrays2.begin());
+    _type->renumberArraysForCell(_mesh,arrays2,old2NewBg,check);
+    //
+    updateTime();
+  }
+  
+  /*!
    * This method is more strict than MEDCouplingField::areCompatibleForMerge method.
    * This method is used for operation on fields to operate a first check before attempting operation.
    */

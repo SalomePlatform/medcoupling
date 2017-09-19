@@ -97,9 +97,9 @@ namespace MEDCoupling
   MEDLOADER_EXPORT void WriteUMeshesPartition(const std::string& fileName, const std::string& meshName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
   MEDLOADER_EXPORT void WriteUMeshesPartitionDep(const std::string& fileName, const std::string& meshName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
   MEDLOADER_EXPORT void WriteUMeshes(const std::string& fileName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
-  MEDLOADER_EXPORT void WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch);
-  MEDLOADER_EXPORT void WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch);
-  MEDLOADER_EXPORT void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f);
+  MEDLOADER_EXPORT void WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch);
+  MEDLOADER_EXPORT void WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch);
+  MEDLOADER_EXPORT void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingField *f);
 
   MEDLOADER_EXPORT void AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj);
 }

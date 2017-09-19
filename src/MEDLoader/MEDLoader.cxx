@@ -32,6 +32,7 @@
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldInt.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
+#include "MEDCouplingTraits.hxx"
 #include "MCAuto.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -1493,25 +1494,26 @@ void MEDCoupling::WriteUMeshesPartitionDep(const std::string& fileName, const st
 
 void MEDCoupling::WriteUMeshes(const std::string& fileName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
-  int mod=writeFromScratch?2:0;
+  int mod(writeFromScratch?2:0);
   MCAuto<MEDFileUMesh> m(MEDFileUMesh::New());
   AssignStaticWritePropertiesTo(*m);
   m->setMeshes(meshes,true);
   m->write(fileName,mod);
 }
 
-void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
+template<class T>
+void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const typename MEDCoupling::Traits<T>::FieldType *f, bool writeFromScratch)
 {
-  MCAuto<MEDFileField1TS> ff(MEDFileField1TS::New());
+  MCAuto< typename MLFieldTraits<T>::F1TSType > ff(MLFieldTraits<T>::F1TSType::New());
   AssignStaticWritePropertiesTo(*ff);
-  MCAuto<MEDCouplingFieldDouble> f2(f->deepCopy());
+  MCAuto<typename MEDCoupling::Traits<T>::FieldType> f2(f->deepCopy());
   const MEDCouplingMesh *m(f2->getMesh());
   const MEDCouplingUMesh *um(dynamic_cast<const MEDCouplingUMesh *>(m));
   const MEDCoupling1GTUMesh *um2(dynamic_cast<const MEDCoupling1GTUMesh *>(m));
   const MEDCouplingCMesh *um3(dynamic_cast<const MEDCouplingCMesh *>(m));
   const MEDCouplingCurveLinearMesh *um4(dynamic_cast<const MEDCouplingCurveLinearMesh *>(m));
   MCAuto<MEDFileMesh> mm;
-  int mod=writeFromScratch?2:0;
+  int mod(writeFromScratch?2:0);
   if(um)
     {
       MCAuto<MEDFileUMesh> mmu(MEDFileUMesh::New());
@@ -1553,12 +1555,13 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::stri
   ff->write(fileName,0);
 }
 
-void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
+template<class T>
+void WriteFieldT(const std::string& fileName, const typename MEDCoupling::Traits<T>::FieldType *f, bool writeFromScratch)
 {
   if(!f)
     throw INTERP_KERNEL::Exception("WriteField : input field is NULL !");
   f->checkConsistencyLight();
-  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  int status(MEDLoaderBase::getStatusOfFile(fileName));
   if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
     {
       std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
@@ -1566,44 +1569,44 @@ void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MED
     }
   if(writeFromScratch || (!writeFromScratch && status==MEDLoaderBase::NOT_EXIST))
     {
-      MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(fileName,f,true);
+      MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile<T>(fileName,f,true);
     }
   else
     {
-      std::vector<std::string> meshNames=GetMeshNames(fileName);
+      std::vector<std::string> meshNames(GetMeshNames(fileName));
       if(!f->getMesh())
         throw INTERP_KERNEL::Exception("WriteField : trying to write a field with no mesh !");
       std::string fileNameCpp(f->getMesh()->getName());
       if(std::find(meshNames.begin(),meshNames.end(),fileNameCpp)==meshNames.end())
-        MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(fileName,f,false);
+        MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile<T>(fileName,f,false);
       else
         {
           MCAuto<MEDFileMesh> mm(MEDFileMesh::New(fileName,f->getMesh()->getName().c_str()));
           AssignStaticWritePropertiesTo(*mm);
           const MEDFileMesh *mmPtr(mm);
-          const MEDFileUMesh *mmuPtr=dynamic_cast<const MEDFileUMesh *>(mmPtr);
+          const MEDFileUMesh *mmuPtr(dynamic_cast<const MEDFileUMesh *>(mmPtr));
           if(!mmuPtr)
             throw INTERP_KERNEL::Exception("WriteField : only umeshes are supported now !");
-          MCAuto<MEDCouplingFieldDouble> f2(f->deepCopy());
-          MEDCouplingUMesh *m=dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f2->getMesh()));
+          MCAuto< typename MEDCoupling::Traits<T>::FieldType > f2(f->deepCopy());
+          MEDCouplingUMesh *m(dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f2->getMesh())));
           if(!m)
             throw INTERP_KERNEL::Exception("WriteField : only umesh in input field supported !");
-          MCAuto<DataArrayInt> o2n=m->getRenumArrForMEDFileFrmt();
+          MCAuto<DataArrayInt> o2n(m->getRenumArrForMEDFileFrmt());
           f2->renumberCells(o2n->begin(),false);
           m=static_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f2->getMesh()));
-          MCAuto<MEDCouplingUMesh> mread=mmuPtr->getMeshAtLevel(m->getMeshDimension()-mm->getMeshDimension());
+          MCAuto<MEDCouplingUMesh> mread(mmuPtr->getMeshAtLevel(m->getMeshDimension()-mm->getMeshDimension()));
           if(f2->getTypeOfField()!=ON_NODES)
             {
               m->tryToShareSameCoordsPermute(*mread,_EPS_FOR_NODE_COMP);
-              DataArrayInt *part=0;
-              bool b=mread->areCellsIncludedIn(m,_COMP_FOR_CELL,part);
+              DataArrayInt *part(NULL);
+              bool b(mread->areCellsIncludedIn(m,_COMP_FOR_CELL,part));
               MCAuto<DataArrayInt> partSafe(part);
               if(!b)
                 {
                   std::ostringstream oss; oss << "WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart) with the mesh you intend to write ! This is maybe due to a too strict policy ! Try with to lease it by calling SetCompPolicyForCell !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
-              MCAuto<MEDFileField1TS> f1ts(MEDFileField1TS::New());
+              MCAuto< typename MLFieldTraits<T>::F1TSType > f1ts(MLFieldTraits<T>::F1TSType::New());
               AssignStaticWritePropertiesTo(*f1ts);
               if(part->isIota(mread->getNumberOfCells()))
                 f1ts->setFieldNoProfileSBT(f2);
@@ -1617,15 +1620,15 @@ void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MED
             }
           else
             {
-              DataArrayInt *part=0;
-              bool b=mread->getCoords()->areIncludedInMe(m->getCoords(),_EPS_FOR_NODE_COMP,part);
+              DataArrayInt *part(NULL);
+              bool b(mread->getCoords()->areIncludedInMe(m->getCoords(),_EPS_FOR_NODE_COMP,part));
               MCAuto<DataArrayInt> partSafe(part);
               if(!b)
                 {
                   std::ostringstream oss; oss << "WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart regarding nodes) with the mesh you intend to write ! This is maybe due to a too strict epsilon ! Try with to lease it by calling SetEpsilonForNodeComp !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
-              MCAuto<MEDFileField1TS> f1ts(MEDFileField1TS::New());
+              MCAuto< typename MLFieldTraits<T>::F1TSType > f1ts(MLFieldTraits<T>::F1TSType::New());
               AssignStaticWritePropertiesTo(*f1ts);
               if(part->isIota(mread->getNumberOfNodes()))
                 f1ts->setFieldNoProfileSBT(f2);
@@ -1640,33 +1643,84 @@ void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MED
     }
 }
 
-void MEDCoupling::WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
+void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch)
+{
+  if(!f)
+    throw INTERP_KERNEL::Exception("WriteField : input field is null !");
+  {
+    const MEDCoupling::MEDCouplingFieldDouble *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldDouble *>(f));
+    if(f1)
+      WriteFieldT<double>(fileName,f1,writeFromScratch);
+    return ;
+  }
+  {
+    const MEDCoupling::MEDCouplingFieldInt *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt *>(f));
+    if(f1)
+      WriteFieldT<int>(fileName,f1,writeFromScratch);
+    return ;
+  }
+  {
+    const MEDCoupling::MEDCouplingFieldFloat *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldFloat *>(f));
+    if(f1)
+      WriteFieldT<float>(fileName,f1,writeFromScratch);
+    return ;
+  }
+  throw INTERP_KERNEL::Exception("WriteField : input field is not in FLOAT32, FLOAT64, INT32 !");
+}
+
+void MEDCoupling::WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch)
 {
   WriteField(fileName,f,writeFromScratch);
 }
 
-void MEDCoupling::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f)
+template<class T>
+void WriteFieldUsingAlreadyWrittenMeshT(const std::string& fileName, const typename MEDCoupling::Traits<T>::FieldType *f)
 {
   if(!f)
-    throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMesh : input field is null !");
+    throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMeshT : input field is null !");
   f->checkConsistencyLight();
-  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  int status(MEDLoaderBase::getStatusOfFile(fileName));
   if(status!=MEDLoaderBase::EXIST_RW)
     {
       std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions or not exists !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MCAuto<MEDFileField1TS> f1ts(MEDFileField1TS::New());
+  MCAuto< typename MLFieldTraits<T>::F1TSType > f1ts(MLFieldTraits<T>::F1TSType::New());
   AssignStaticWritePropertiesTo(*f1ts);
   MEDCouplingUMesh *m(dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f->getMesh())));
   if(m)
     {
       MCAuto<DataArrayInt> o2n(m->getRenumArrForMEDFileFrmt());
-      MCAuto<MEDCouplingFieldDouble> f2(f->deepCopy());
+      MCAuto< typename MEDCoupling::Traits<T>::FieldType > f2(f->deepCopy());
       f2->renumberCells(o2n->begin(),false);
       f1ts->setFieldNoProfileSBT(f2);
     }
   else
     f1ts->setFieldNoProfileSBT(f);
   f1ts->write(fileName,0);
+}
+
+void MEDCoupling::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingField *f)
+{
+  if(!f)
+    throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMesh : input field is null !");
+  {
+    const MEDCoupling::MEDCouplingFieldDouble *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldDouble *>(f));
+    if(f1)
+      WriteFieldUsingAlreadyWrittenMeshT<double>(fileName,f1);
+    return ;
+  }
+  {
+    const MEDCoupling::MEDCouplingFieldInt *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt *>(f));
+    if(f1)
+      WriteFieldUsingAlreadyWrittenMeshT<int>(fileName,f1);
+    return ;
+  }
+  {
+    const MEDCoupling::MEDCouplingFieldFloat *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldFloat *>(f));
+    if(f1)
+      WriteFieldUsingAlreadyWrittenMeshT<float>(fileName,f1);
+    return ;
+  }
+  throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMesh : input field is not in FLOAT32, FLOAT64, INT32 !");
 }

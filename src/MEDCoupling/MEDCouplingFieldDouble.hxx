@@ -41,8 +41,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string writeVTK(const std::string& fileName, bool isBinary=true) const;
     MEDCOUPLING_EXPORT bool areCompatibleForMerge(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingFieldDouble *other) const;
-    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
-    MEDCOUPLING_EXPORT void renumberCellsWithoutMesh(const int *old2NewBg, bool check=true);
     MEDCOUPLING_EXPORT void renumberNodes(const int *old2NewBg, double eps=1e-15);
     MEDCOUPLING_EXPORT void renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps=1e-15);
     MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(double vmin, double vmax) const;

@@ -35,7 +35,8 @@ namespace MEDLoaderNS
 {
   int readUMeshDimFromFile(const std::string& fileName, const std::string& meshName, std::vector<int>& possibilities);
   void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entity_type& whichEntity);
-  void writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch);
+  template<class T>
+  void writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const typename MEDCoupling::Traits<T>::FieldType *f, bool writeFromScratch);
   med_int getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName);
   std::vector<std::string> getMeshNamesFid(med_idt fid);
 }
