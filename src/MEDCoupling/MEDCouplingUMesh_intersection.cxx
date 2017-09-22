@@ -2166,7 +2166,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
     fill(hit.begin(), hit.end(), false);
     vector<int> hitPoly; // the final result: which 3D cells have been modified.
 
-    for( vector<pair<double,int>>::const_iterator it = S.begin(); it != S.end(); it++)
+    for( vector<pair<double,int> >::const_iterator it = S.begin(); it != S.end(); it++)
       {
         int faceIdx = (*it).second;
         if (hit[faceIdx]) continue;
@@ -2322,7 +2322,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
     DataArrayDouble * lens = lenF->getArray();
 
     // Sort edges by decreasing length:
-    vector<pair<double,int>> S;
+    vector<pair<double,int> > S;
     for(std::size_t i=0;i < lens->getNumberOfTuples();i++)
       {
         pair<double,int> p = make_pair(lens->getIJ(i, 0), i);
@@ -2333,7 +2333,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
     vector<bool> hit(nDesc2Cell);
     fill(hit.begin(), hit.end(), false);
 
-    for( vector<pair<double,int>>::const_iterator it = S.begin(); it != S.end(); it++)
+    for( vector<pair<double,int> >::const_iterator it = S.begin(); it != S.end(); it++)
       {
         int eIdx = (*it).second;
         if (hit[eIdx])
