@@ -23,7 +23,7 @@
 import numpy as np
 from MEDLoader import *
 from CaseIO import CaseIO
-import sys,re
+import sys,re,os
 
 class CaseReader(CaseIO):
     """ Converting a file in the Case format (Ensight) to the MED format.
@@ -77,7 +77,7 @@ class CaseReader(CaseIO):
         arr0mc2=DataArrayInt(len(arr0),2) ; arr0mc2[:,0]=DataArrayInt(arr0)-1 ; arr0mc2[:,1]=1 ; arr0mc2.rearrange(1) ; arr0mc2.computeOffsetsFull()
         arr0mc3=DataArrayInt.Range(0,2*len(arr0),2).buildExplicitArrByRanges(arr0mc2)
         arr1mc0=DataArrayInt(arr1) ; arr1mc0.computeOffsetsFull()
-        arr1mc1=arr1mc0[arr0mc0] ; arr1mc1[1:]+=arr0mc0[1:] 
+        arr1mc1=arr1mc0[arr0mc0] ; arr1mc1[1:]+=arr0mc0[1:]
         arr1mc2=DataArrayInt(arr1).deepCopy() ; arr1mc2+=1 ; arr1mc2.computeOffsetsFull()
         arr2mc0=(arr1mc2[1:])[arr0mc3]
         #
@@ -182,7 +182,7 @@ class CaseReader(CaseIO):
             mcmeshes2.append(self.__traduceMesh(meshName,zeK,coo,nodalConn))
             pos+=nbNodesPerCell*nbCellsOfType*4
             if abs(pos-end)>8:
-                fd.seek(pos) ;elt=fd.read(80) ; typ=elt[:] ; pos+=80 
+                fd.seek(pos) ;elt=fd.read(80) ; typ=elt[:] ; pos+=80
                 pass
             nbOfTurn+=1
             pass
@@ -193,8 +193,10 @@ class CaseReader(CaseIO):
         return mcmeshes2
 
     def __convertGeo2MEDC(self,fd,end):
-        fd.readline()
-        name=fd.readline().strip() ; fd.readline() ; fd.readline()
+        #fd.readline()
+        #name=fd.readline().strip() ; fd.readline() ; fd.readline()
+        name=fd.read(80)
+        descrip=fd.read(80).strip() ; fd.read(80) ; fd.read(80)
         pos=fd.tell()
         mcmeshes=[]
         elt=fd.read(80) ; elt=elt.strip() ; pos+=80
@@ -254,15 +256,15 @@ class CaseReader(CaseIO):
                 mcmeshes.append(m)
             pass
         return mcmeshes
-        
-    
+
+
     def __convertField(self,mlfields, mcmeshes, fileName, fieldName, discr, nbCompo, locId, it):
         """ Convert the fields. """
         stars=re.search("[\*]+",fileName).group()
         st="%0"+str(len(stars))+"i"
         trueFileName=fileName.replace(stars,st%(it))
         fd=open(os.path.join(self._dirName,trueFileName),"r+b") ; fd.seek(0,2) ; end=fd.tell() ; fd.seek(0)
-        name=fd.readline().strip().split(" ")[0]
+        name=fd.read(80).strip().split(" ")[0]
         if name!=fieldName:
             raise Exception("ConvertField : mismatch")
         pos=fd.tell()
@@ -351,7 +353,7 @@ class CaseReader(CaseIO):
             nbTurn+=1
             pass
         pass
-    
+
     def loadInMEDFileDS(self):
         """ Load a CASE file into a MEDFileData object. """
         f=file(self._fileName)
@@ -368,16 +370,17 @@ class CaseReader(CaseIO):
             if "TIME\n" in lines:
                 end=lines.index("TIME\n")
                 pass
-            for i in range(ind + 1, end):
-                m=re.match("^([\w]+)[\s]+\per[\s]+([\w]+)[\s]*\:[\s]*([\w]+)[\s]+([\S]+)$",lines[i])
+            for i in xrange(ind + 1,end):
+                m=re.match("^([\w]+)[\s]+\per[\s]+([\w]+)[\s]*\:[\s]*[0-9]*[\s]*([\w]+)[\s]+([\S]+)$",lines[i])
                 if m:
                     if m.groups()[0]=="constant":
                         continue
                     spatialDisc=m.groups()[1] ; fieldName=m.groups()[2] ; nbOfCompo=self.dictCompo2[m.groups()[0]] ; fieldFileName=m.groups()[3]
-                    fieldsInfo.append((fieldName,spatialDisc,nbOfCompo,fieldFileName))
+                    if fieldFileName.endswith("*"):
+                      fieldsInfo.append((fieldName,spatialDisc,nbOfCompo,fieldFileName))
                     pass
                 pass
-            
+
             expr=re.compile("number[\s]+of[\s]+steps[\s]*\:[\s]*([\d]+)")
             tmp = [line for line in lines if expr.search(line)]
             if tmp:
