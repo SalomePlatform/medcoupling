@@ -20,7 +20,7 @@
 %module ParaMEDMEM
 
 %include "ParaMEDMEM.typemap"
-%include "MEDLoaderCommon.i"
+%include "MEDCouplingCommon.i"
 
 %{
 #include "CommInterface.hxx"
@@ -259,36 +259,24 @@ int MPI_Finalize();
   %}
 
 %pythoncode %{
-def ParaMEDMEMDataArrayDoublenew(cls,*args):
+def MEDCouplingDataArrayDoublenew(cls,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____new___(cls,args)
-def ParaMEDMEMDataArrayDoubleIadd(self,*args):
+def MEDCouplingDataArrayDoubleIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____iadd___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleIsub(self,*args):
+def MEDCouplingDataArrayDoubleIsub(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____isub___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleImul(self,*args):
+def MEDCouplingDataArrayDoubleImul(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____imul___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleIdiv(self,*args):
+def MEDCouplingDataArrayDoubleIdiv(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____idiv___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleIpow(self,*args):
+def MEDCouplingDataArrayDoubleIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____ipow___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleTupleIadd(self,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayDoubleTuple____iadd___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleTupleIsub(self,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayDoubleTuple____isub___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleTupleImul(self,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayDoubleTuple____imul___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleTupleIdiv(self,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayDoubleTuple____idiv___(self, self, *args)
 def MEDCouplingFieldDoublenew(cls,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____new___(cls,args)
@@ -307,42 +295,105 @@ def MEDCouplingFieldDoubleIdiv(self,*args):
 def MEDCouplingFieldDoubleIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____ipow___(self, self, *args)
-def ParaMEDMEMDataArrayIntnew(cls,*args):
+def MEDCouplingFieldIntnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingFieldInt____new___(cls,args)
+def MEDCouplingFieldFloatnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingFieldFloat____new___(cls,args)
+def MEDCouplingDataArrayIntnew(cls,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____new___(cls,args)
-def ParaMEDMEMDataArrayIntIadd(self,*args):
+def MEDCouplingDataArrayIntIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____iadd___(self, self, *args)
-def ParaMEDMEMDataArrayIntIsub(self,*args):
+def MEDCouplingDataArrayIntIsub(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____isub___(self, self, *args)
-def ParaMEDMEMDataArrayIntImul(self,*args):
+def MEDCouplingDataArrayIntImul(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____imul___(self, self, *args)
-def ParaMEDMEMDataArrayIntIdiv(self,*args):
+def MEDCouplingDataArrayIntIdiv(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____idiv___(self, self, *args)
-def ParaMEDMEMDataArrayIntImod(self,*args):
+def MEDCouplingDataArrayIntImod(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____imod___(self, self, *args)
-def ParaMEDMEMDataArrayIntIpow(self,*args):
+def MEDCouplingDataArrayIntIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____ipow___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleIadd(self,*args):
+def MEDCouplingDataArrayBytenew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayByte____new___(cls,args)
+def MEDCouplingDataArrayFloatnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayFloat____new___(cls,args)
+def MEDCouplingDataArrayFloatIadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayFloat____iadd___(self, self, *args)
+def MEDCouplingDataArrayFloatIsub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayFloat____isub___(self, self, *args)
+def MEDCouplingDataArrayFloatImul(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayFloat____imul___(self, self, *args)
+def MEDCouplingDataArrayFloatIdiv(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayFloat____idiv___(self, self, *args)
+def MEDCouplingDataArrayDoubleTupleIadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDoubleTuple____iadd___(self, self, *args)
+def MEDCouplingDataArrayDoubleTupleIsub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDoubleTuple____isub___(self, self, *args)
+def MEDCouplingDataArrayDoubleTupleImul(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDoubleTuple____imul___(self, self, *args)
+def MEDCouplingDataArrayDoubleTupleIdiv(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDoubleTuple____idiv___(self, self, *args)
+def MEDCouplingDataArrayIntTupleIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayIntTuple____iadd___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleIsub(self,*args):
+def MEDCouplingDataArrayIntTupleIsub(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayIntTuple____isub___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleImul(self,*args):
+def MEDCouplingDataArrayIntTupleImul(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayIntTuple____imul___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleIdiv(self,*args):
+def MEDCouplingDataArrayIntTupleIdiv(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayIntTuple____idiv___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleImod(self,*args):
+def MEDCouplingDataArrayIntTupleImod(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayIntTuple____imod___(self, self, *args)
+def ParaMEDMEMDenseMatrixIadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DenseMatrix____iadd___(self, self, *args)
+def ParaMEDMEMDenseMatrixIsub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DenseMatrix____isub___(self, self, *args)
+def MEDCouplingUMeshnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingUMesh____new___(cls,args)
+def MEDCoupling1DGTUMeshnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCoupling1DGTUMesh____new___(cls,args)
+def MEDCoupling1SGTUMeshnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCoupling1SGTUMesh____new___(cls,args)
+def MEDCouplingCurveLinearMeshnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingCurveLinearMesh____new___(cls,args)
+def MEDCouplingCMeshnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingCMesh____new___(cls,args)
+def MEDCouplingIMeshnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingIMesh____new___(cls,args)
+def MEDCouplingExtrudedMeshnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingMappedExtrudedMesh____new___(cls,args)
 %}
 
 %include "MEDCouplingFinalize.i"
