@@ -1308,12 +1308,14 @@ void MEDCouplingUMesh::simplifyPolyhedra(double eps)
   connINew->alloc(nbOfCells+1,1);
   int *connINewPtr=connINew->getPointer(); *connINewPtr++=0;
   MCAuto<DataArrayInt> connNew=DataArrayInt::New(); connNew->alloc(0,1);
+  MCAuto<DataArrayInt> E_Fi(DataArrayInt::New()), E_F(DataArrayInt::New()), F_Ei(DataArrayInt::New()), F_E(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> m_faces(buildDescendingConnectivity(E_F, E_Fi, F_E, F_Ei));
   bool changed=false;
   for(int i=0;i<nbOfCells;i++,connINewPtr++)
     {
       if(conn[index[i]]==(int)INTERP_KERNEL::NORM_POLYHED)
         {
-          SimplifyPolyhedronCell(eps,coords,conn+index[i],conn+index[i+1],connNew);
+          SimplifyPolyhedronCell(eps,coords, i,connNew, m_faces, E_Fi, E_F, F_Ei, F_E);
           changed=true;
         }
       else
@@ -7020,32 +7022,39 @@ bool MEDCouplingUMesh::IsPyra5WellOriented(const int *begin, const int *end, con
  * \param [in] end end of nodal connectivity of a single polyhedron cell (excluded)
  * \param [out] res the result is put at the end of the vector without any alteration of the data.
  */
-void MEDCouplingUMesh::SimplifyPolyhedronCell(double eps, const DataArrayDouble *coords, const int *begin, const int *end, DataArrayInt *res)
+void MEDCouplingUMesh::SimplifyPolyhedronCell(double eps, const DataArrayDouble *coords, int index, DataArrayInt *res, MEDCouplingUMesh *faces,
+                                              DataArrayInt *E_Fi, DataArrayInt *E_F, DataArrayInt *F_Ei, DataArrayInt *F_E)
 {
-  int nbFaces=std::count(begin+1,end,-1)+1;
+  int nbFaces = E_Fi->getIJ(index + 1, 0) - E_Fi->getIJ(index, 0);
   MCAuto<DataArrayDouble> v=DataArrayDouble::New(); v->alloc(nbFaces,3);
   double *vPtr=v->getPointer();
-  MCAuto<DataArrayDouble> p=DataArrayDouble::New(); p->alloc(nbFaces,1);
+  MCAuto<DataArrayDouble> p=DataArrayDouble::New(); p->alloc(nbFaces,2);
   double *pPtr=p->getPointer();
-  const int *stFaceConn=begin+1;
+  int *e_fi = E_Fi->getPointer(), *e_f = E_F->getPointer(), *f_ei = F_Ei->getPointer(), *f_e = F_E->getPointer();
+  const int *f_idx = faces->getNodalConnectivityIndex()->getPointer(), *f_cnn = faces->getNodalConnectivity()->getPointer();
   for(int i=0;i<nbFaces;i++,vPtr+=3,pPtr++)
     {
-      const int *endFaceConn=std::find(stFaceConn,end,-1);
-      ComputeVecAndPtOfFace(eps,coords->begin(),stFaceConn,endFaceConn,vPtr,pPtr);
-      stFaceConn=endFaceConn+1;
+      int face = e_f[e_fi[index] + i];
+      ComputeVecAndPtOfFace(eps, coords->begin(), f_cnn + f_idx[face] + 1, f_cnn + f_idx[face + 1], vPtr, pPtr);
+      // to differentiate faces going to different cells:
+      pPtr++, *pPtr = 0;
+      for (int j = f_ei[face]; j < f_ei[face + 1]; j++)
+        *pPtr += f_e[j];
     }
   pPtr=p->getPointer(); vPtr=v->getPointer();
   DataArrayInt *comm1=0,*commI1=0;
   v->findCommonTuples(eps,-1,comm1,commI1);
+  for (int i = 0; i < nbFaces; i++)
+    if (comm1->findIdFirstEqual(i) < 0)
+      {
+        comm1->pushBackSilent(i);
+        commI1->pushBackSilent(comm1->getNumberOfTuples());
+      }
   MCAuto<DataArrayInt> comm1Auto(comm1),commI1Auto(commI1);
   const int *comm1Ptr=comm1->begin();
   const int *commI1Ptr=commI1->begin();
   int nbOfGrps1=commI1Auto->getNumberOfTuples()-1;
   res->pushBackSilent((int)INTERP_KERNEL::NORM_POLYHED);
-  //
-  MCAuto<MEDCouplingUMesh> mm=MEDCouplingUMesh::New("",3);
-  mm->setCoords(const_cast<DataArrayDouble *>(coords)); mm->allocateCells(1); mm->insertNextCell(INTERP_KERNEL::NORM_POLYHED,(int)std::distance(begin+1,end),begin+1);
-  mm->finishInsertingCells();
   //
   for(int i=0;i<nbOfGrps1;i++)
     {
@@ -7053,15 +7062,22 @@ void MEDCouplingUMesh::SimplifyPolyhedronCell(double eps, const DataArrayDouble 
       MCAuto<DataArrayDouble> tmpgrp2=p->selectByTupleId(comm1Ptr+commI1Ptr[i],comm1Ptr+commI1Ptr[i+1]);
       DataArrayInt *comm2=0,*commI2=0;
       tmpgrp2->findCommonTuples(eps,-1,comm2,commI2);
+      for (int j = 0; j < commI1Ptr[i+1] - commI1Ptr[i]; j++)
+        if (comm2->findIdFirstEqual(j) < 0)
+          {
+            comm2->pushBackSilent(j);
+            commI2->pushBackSilent(comm2->getNumberOfTuples());
+          }
       MCAuto<DataArrayInt> comm2Auto(comm2),commI2Auto(commI2);
       const int *comm2Ptr=comm2->begin();
       const int *commI2Ptr=commI2->begin();
       int nbOfGrps2=commI2Auto->getNumberOfTuples()-1;
       for(int j=0;j<nbOfGrps2;j++)
         {
-          if(commI2Ptr[j+1]-commI2Ptr[j]<=1)
+          if(commI2Ptr[j+1] == commI2Ptr[j] + 1)
             {
-              res->insertAtTheEnd(begin,end);
+              int face = e_f[e_fi[index] + comm1Ptr[commI1Ptr[i] + comm2Ptr[commI2Ptr[j]]]]; //hmmm
+              res->insertAtTheEnd(f_cnn + f_idx[face] + 1, f_cnn + f_idx[face + 1]);
               res->pushBackSilent(-1);
             }
           else
@@ -7069,13 +7085,12 @@ void MEDCouplingUMesh::SimplifyPolyhedronCell(double eps, const DataArrayDouble 
               int pointId=comm1Ptr[commI1Ptr[i]+comm2Ptr[commI2Ptr[j]]];
               MCAuto<DataArrayInt> ids2=comm2->selectByTupleIdSafeSlice(commI2Ptr[j],commI2Ptr[j+1],1);
               ids2->transformWithIndArr(comm1Ptr+commI1Ptr[i],comm1Ptr+commI1Ptr[i+1]);
-              DataArrayInt *tmp0=DataArrayInt::New(),*tmp1=DataArrayInt::New(),*tmp2=DataArrayInt::New(),*tmp3=DataArrayInt::New();
-              MCAuto<MEDCouplingUMesh> mm2=mm->buildDescendingConnectivity(tmp0,tmp1,tmp2,tmp3); tmp0->decrRef(); tmp1->decrRef(); tmp2->decrRef(); tmp3->decrRef();
-              MCAuto<MEDCouplingUMesh> mm3=static_cast<MEDCouplingUMesh *>(mm2->buildPartOfMySelf(ids2->begin(),ids2->end(),true));
+              ids2->transformWithIndArr(e_f + e_fi[index], e_f + e_fi[index + 1]);
+              MCAuto<MEDCouplingUMesh> mm3=static_cast<MEDCouplingUMesh *>(faces->buildPartOfMySelf(ids2->begin(),ids2->end(),true));
               MCAuto<DataArrayInt> idsNodeTmp=mm3->zipCoordsTraducer();
               MCAuto<DataArrayInt> idsNode=idsNodeTmp->invertArrayO2N2N2O(mm3->getNumberOfNodes());
               const int *idsNodePtr=idsNode->begin();
-              double center[3]; center[0]=pPtr[pointId]*vPtr[3*vecId]; center[1]=pPtr[pointId]*vPtr[3*vecId+1]; center[2]=pPtr[pointId]*vPtr[3*vecId+2];
+              double center[3]; center[0]=pPtr[2*pointId]*vPtr[3*vecId]; center[1]=pPtr[2*pointId]*vPtr[3*vecId+1]; center[2]=pPtr[2*pointId]*vPtr[3*vecId+2];
               double vec[3]; vec[0]=vPtr[3*vecId+1]; vec[1]=-vPtr[3*vecId]; vec[2]=0.;
               double norm=vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2];
               if(std::abs(norm)>eps)
