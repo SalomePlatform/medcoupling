@@ -17,7 +17,6 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-
 from MEDCoupling import *
 import unittest
 from math import pi,e,sqrt,cos,sin
@@ -4304,7 +4303,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         mea=fieldOnCell.getMesh().getMeasureField(True).getArray(); mea.rearrange(48); mea2 = mea.sumPerTuple()
         self.assertTrue(mea2.isEqual(meaRef2,1e-9))
         pass
-    
+
     def testVoronoi3DSurf_1(self):
         tmp=MEDCouplingCMesh("mesh")
         arr=DataArrayDouble(5) ; arr.iota()
@@ -4474,7 +4473,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(f3.getMesh().getMeasureField(False).getArray().isEqual(ref,1e-12))
         self.assertTrue(f3.getArray().isEqual(DataArrayDouble([0,1,2,3]),1e-12))
         pass
-    
+
     def testVoronoi3D_4(self):
         """Idem testVoronoi3D_3 except that here quadratic cells are considered"""
         coo=DataArrayDouble([0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.5,0.0,0.5,0.5,0.5,0.5,0.0,0.5,0.0,0.0,0.5,0.0,0.5],10,3)
@@ -4767,7 +4766,22 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         m.insertNextCell(NORM_POLYGON,[0,1,2,3,4,5])
         self.assertTrue(m.computePlaneEquationOf3DFaces().isEqual(DataArrayDouble([0,1,0,-1],1,4),1e-12))
         pass
-    
+
+    def testSimplifyPolyhedra(self):
+        mesh = MEDCouplingUMesh('mesh', 3)
+        coo = DataArrayDouble([(-0.01225,-0.0212176,0.02),(-0.00634107,-0.0236652,0.02),(1.50019e-18,-0.0245,0.02),(0.00634107,-0.0236652,0.02),(0.01225,-0.0212176,0.02),(-0.0153864,-0.02665,0),(-0.00714085,-0.02665,0),(1.63184e-18,-0.02665,0),(0.00714085,-0.02665,0),(0.0153864,-0.02665,0),(-0.00714085,-0.02665,0.0101475),(1.63184e-18,-0.02665,0.013145),(0.00714085,-0.02665,0.0101475),(-0.013,-0.0225167,0.02),(-0.0067293,-0.0251141,0.02),(1.59204e-18,-0.026,0.02),(0.0067293,-0.0251141,0.02),(0.013,-0.0225167,0.02),(-0.0161658,-0.028,0),(-0.00750258,-0.028,0),(1.71451e-18,-0.028,0),(0.00750258,-0.028,0),(0.0161658,-0.028,0),(-0.00750258,-0.028,0.0105625),(1.71451e-18,-0.028,0.0136825),(0.00750258,-0.028,0.0105625)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([31, 13, 14, 15, 16, 17, 4, 3, 2, 1, 0, -1, 18, 5, 6, 7, 8, 9, 22, 21, 20, 19, -1, 19, 23, 18, -1, 23, 14, 13, 18, -1, 20, 24, 23, 19, -1, 24, 15, 14, 23, -1, 21, 25, 24, 20, -1, 25, 16, 15, 24, -1, 22, 25, 21, -1, 22, 17, 16, 25, -1, 9, 4, 17, 22, -1, 8, 12, 9, -1, 12, 3, 4, 9, -1, 7, 11, 12, 8, -1, 11, 2, 3, 12, -1, 6, 10, 11, 7, -1, 10, 1, 2, 11, -1, 5, 10, 6, -1, 5, 0, 1, 10, -1, 18, 13, 0, 5])
+        cI = DataArrayInt([0, 108])
+        mesh.setConnectivity(c, cI)
+        mesh.simplifyPolyhedra(1.0e-8)
+        c, cI = mesh.getNodalConnectivity(), mesh.getNodalConnectivityIndex()
+        tgt_c = DataArrayInt([31, 23, 18, 19, 20, 21, 22, 25, 24, -1, 12, 9, 8, 7, 6, 5, 10, 11, -1, 13, 14, 15, 16, 17, 4, 3, 2, 1, 0, -1, 18, 5, 6, 7, 8, 9, 22, 21, 20, 19, -1, 23, 14, 13, 18, -1, 24, 15, 14, 23, -1, 25, 16, 15, 24, -1, 22, 17, 16, 25, -1, 9, 4, 17, 22, -1, 12, 3, 4, 9, -1, 11, 2, 3, 12, -1, 10, 1, 2, 11, -1, 5, 0, 1, 10, -1, 18, 13, 0, 5])
+        tgt_cI = DataArrayInt([0, 90])
+        self.assertEqual(c.getValues(), tgt_c.getValues())
+        self.assertEqual(cI.getValues(), tgt_cI.getValues())
+        pass
+
     pass
 
 if __name__ == '__main__':
