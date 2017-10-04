@@ -32,6 +32,36 @@ if sys.version_info.major < 3:
 else:
     import pickle
 
+class StdOutRedirect(object):
+    def __init__(self,fileName):
+        import os,sys
+        sys.stderr.flush()
+        self.stdoutOld=os.dup(2)
+        self.fdOfSinkFile=os.open(fileName,os.O_CREAT | os.O_RDWR)
+        fd2=os.dup2(self.fdOfSinkFile,2)
+        self.origPyVal=sys.stderr
+        class FlushFile(object):
+            def __init__(self,f):
+                self.f=f
+            def write(self,st):
+                self.f.write(st)
+                self.f.flush()
+            def flush(self):
+                return self.f.flush()
+            def isatty(self):
+                return self.f.isatty()
+        sys.stderr=FlushFile(os.fdopen(self.fdOfSinkFile,"w"))
+    def __del__(self):
+        import os,sys
+        sys.stderr=self.origPyVal
+        if sys.version_info.major >= 3:
+            self.fdOfSinkFile.close()
+            pass
+        #os.fsync(self.fdOfSinkFile)
+        os.fsync(2)
+        os.dup2(self.stdoutOld,2)
+        os.close(self.stdoutOld)
+
 class MEDLoaderTest3(unittest.TestCase):
     def testMEDMesh1(self):
         fileName="Pyfile18.med"
@@ -4655,35 +4685,7 @@ class MEDLoaderTest3(unittest.TestCase):
         """ EDF11242 : check status of MED file calls to detect problems immediately. Sorry this test generates awful messages !"""
         fname="Pyfile94.med"
         errfname="Pyfile94.err"
-        class StdOutRedirect(object):
-            def __init__(self,fileName):
-                import os,sys
-                sys.stderr.flush()
-                self.stdoutOld=os.dup(2)
-                self.fdOfSinkFile=os.open(fileName,os.O_CREAT | os.O_RDWR)
-                fd2=os.dup2(self.fdOfSinkFile,2)
-                self.origPyVal=sys.stderr
-                class FlushFile(object):
-                    def __init__(self,f):
-                        self.f=f
-                    def write(self,st):
-                        self.f.write(st)
-                        self.f.flush()
-                    def flush(self):
-                        return self.f.flush()
-                    def isatty(self):
-                        return self.f.isatty()
-                sys.stderr=FlushFile(os.fdopen(self.fdOfSinkFile,"w"))
-            def __del__(self):
-                import os,sys
-                sys.stderr=self.origPyVal
-                if sys.version_info.major >= 3:
-                    self.fdOfSinkFile.close()
-                    pass
-                #os.fsync(self.fdOfSinkFile)
-                os.fsync(2)
-                os.dup2(self.stdoutOld,2)
-                os.close(self.stdoutOld)
+        
         import os
         # first clean file if needed
         if os.path.exists(fname):
@@ -6134,6 +6136,42 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f2.isEqual(f3,1e-12,1e-12))
         self.assertEqual(f3.getMesh().getNumberOfCells(),1)
         self.assertEqual(f3.getMesh().getTypeOfCell(0),NORM_PENTA18)
+        pass
+
+    @unittest.skipUnless('linux'==platform.system().lower(),"stderr redirection not ported on Windows ?")
+    def testMedFileCapabilityToCryOnNewFeatureWritingIntoOldFiles(self):
+        fname="Pyfile116.med"
+        errfname="Pyfile116.err"
+        c=DataArrayDouble([0,1,2,3])
+        m=MEDCouplingCMesh()
+        m.setCoords(c,c)
+        m=m.buildUnstructured()
+        m.setName("mesh")
+        mm=MEDFileUMesh()
+        mm[0]=m
+        f=MEDCouplingFieldInt(ON_CELLS)
+        f.setMesh(m) ; arr2=DataArrayInt(m.getNumberOfCells()) ; arr2.iota()
+        f.setArray(arr2)
+        f.setName("field")
+        f1ts=MEDFileIntField1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        mm.write30(fname,2)
+        f1ts.write30(fname,0)
+        #
+        f=MEDCouplingFieldFloat(ON_CELLS)
+        f.setMesh(m) ; arr2=DataArrayFloat(m.getNumberOfCells()) ; arr2.iota()
+        f.setArray(arr2)
+        f.setName("field2")
+        f1ts=MEDFileFloatField1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        #
+        import os,gc
+        tmp=StdOutRedirect(errfname)
+        self.assertRaises(InterpKernelException,f1ts.write30,fname,0)
+        del tmp
+        gc.collect(0)
+        if os.path.exists(errfname):
+            os.remove(errfname)
         pass
     
     pass
