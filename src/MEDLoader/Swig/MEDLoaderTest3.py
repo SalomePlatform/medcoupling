@@ -2628,6 +2628,9 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(a.getArray().getInfoOnComponents(),['power [MW/m^3]','density [g/cm^3]','temperature [K]'])
         self.assertTrue(a.isEqual(f1,1e-12,0))
         ff1.write(fname,0)
+        a,b=ff1.getUndergroundDataArrayExt()
+        self.assertEqual(a.getHiddenCppPointer(),ff1.getUndergroundDataArray().getHiddenCppPointer())
+        self.assertEqual(b,[((3,0),(0,2)),((4,0),(2,4)),((6,0),(4,5)),((5,0),(5,6))])
         ff2=MEDFileAnyTypeField1TS.New(fname)
         self.assertEqual(ff2.getName(),"VectorFieldOnCells")
         self.assertEqual(ff2.getTime(),[0,1,2.0])
@@ -2637,7 +2640,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(a.isEqual(f1,1e-12,0))
         ff2.setTime(1,2,3.)
         c=ff2.getUndergroundDataArray() ; c*=2
-        ff2.write(fname,0) # 2 time steps in 
+        ff2.write(fname,0) # 2 time steps in
         ffs1=MEDFileAnyTypeFieldMultiTS.New(fname,"VectorFieldOnCells")
         self.assertEqual(ffs1.getTimeSteps(),[(0, 1, 2.0), (1, 2, 3.0)])
         self.assertEqual(len(ffs1),2)
@@ -6007,6 +6010,9 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(a.getArray().getInfoOnComponents(),['power [MW/m^3]','density [g/cm^3]','temperature [K]'])
         self.assertTrue(a.isEqual(f1,1e-12,1e-12))
         ff1.write(fname,0)
+        a,b=ff1.getUndergroundDataArrayExt()
+        self.assertEqual(a.getHiddenCppPointer(),ff1.getUndergroundDataArray().getHiddenCppPointer())
+        self.assertEqual(b,[((3,0),(0,2)),((4,0),(2,4)),((6,0),(4,5)),((5,0),(5,6))])
         ff2=MEDFileAnyTypeField1TS.New(fname)
         self.assertEqual(ff2.getName(),"VectorFieldOnCells")
         self.assertEqual(ff2.getTime(),[0,1,2.0])

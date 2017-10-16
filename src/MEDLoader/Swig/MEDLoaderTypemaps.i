@@ -413,3 +413,30 @@ PyObject *MEDFileField1TS_getFieldWithProfile(const typename MLFieldTraits<T>::F
   return ret;
 }
 
+template<class T>
+PyObject *MEDFileField1TS_getUndergroundDataArrayExt(const typename MLFieldTraits<T>::F1TSType *self)
+{
+  std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > elt1Cpp;
+  typename MEDCoupling::Traits<T>::ArrayType *elt0=self->getUndergroundDataArrayExt(elt1Cpp);
+  if(elt0)
+    elt0->incrRef();
+  PyObject *ret=PyTuple_New(2);
+  PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elt0),SWIGTITraits<T>::TI, SWIG_POINTER_OWN | 0 ));
+  std::size_t sz=elt1Cpp.size();
+  PyObject *elt=PyList_New(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      PyObject *elt1=PyTuple_New(2);
+      PyObject *elt2=PyTuple_New(2);
+      PyTuple_SetItem(elt2,0,SWIG_From_int((int)elt1Cpp[i].first.first));
+      PyTuple_SetItem(elt2,1,SWIG_From_int(elt1Cpp[i].first.second));
+      PyObject *elt3=PyTuple_New(2);
+      PyTuple_SetItem(elt3,0,SWIG_From_int(elt1Cpp[i].second.first));
+      PyTuple_SetItem(elt3,1,SWIG_From_int(elt1Cpp[i].second.second));
+      PyTuple_SetItem(elt1,0,elt2);
+      PyTuple_SetItem(elt1,1,elt3);
+      PyList_SetItem(elt,i,elt1);
+    }
+  PyTuple_SetItem(ret,1,elt);
+  return ret;
+}
