@@ -31,8 +31,8 @@ DataArrayDouble.__rtruediv__=DataArrayDouble.__rdiv__
 DataArrayDouble.__floordiv__=DataArrayDouble.__div__
 DataArrayDouble.__ifloordiv__=MEDCouplingDataArrayDoubleIdiv
 DataArrayDouble.__rfloordiv__=DataArrayDouble.__rdiv__
-
-DataArrayInt.__new__=classmethod(MEDCouplingDataArrayIntnew)
+  
+DataArrayInt.__reduce__=MEDCouplingDataArrayIntReduce
 DataArrayInt.__iadd__=MEDCouplingDataArrayIntIadd
 DataArrayInt.__isub__=MEDCouplingDataArrayIntIsub
 DataArrayInt.__imul__=MEDCouplingDataArrayIntImul
