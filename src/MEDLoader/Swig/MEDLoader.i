@@ -39,9 +39,6 @@ def MEDCouplingDataArrayDoubleIdiv(self,*args):
 def MEDCouplingDataArrayDoubleIpow(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayDouble____ipow___(self, self, *args)
-def MEDCouplingFieldDoublenew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCouplingFieldDouble____new___(cls,args)
 def MEDCouplingFieldDoubleIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____iadd___(self, self, *args)
@@ -57,18 +54,6 @@ def MEDCouplingFieldDoubleIdiv(self,*args):
 def MEDCouplingFieldDoubleIpow(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____ipow___(self, self, *args)
-def MEDCouplingFieldIntnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCouplingFieldInt____new___(cls,args)
-def MEDCouplingFieldFloatnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCouplingFieldFloat____new___(cls,args)
-def MEDCouplingDataArrayBytenew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.DataArrayByte____new___(cls,args)
-def MEDCouplingDataArrayFloatnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.DataArrayFloat____new___(cls,args)
 def MEDCouplingDataArrayFloatIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayFloat____iadd___(self, self, *args)
@@ -81,9 +66,6 @@ def MEDCouplingDataArrayFloatImul(self,*args):
 def MEDCouplingDataArrayFloatIdiv(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayFloat____idiv___(self, self, *args)
-def MEDCouplingDataArrayIntnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.DataArrayInt____new___(cls,args)
 def MEDCouplingDataArrayIntIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayInt____iadd___(self, self, *args)
@@ -135,45 +117,12 @@ def ParaMEDMEMDenseMatrixIadd(self,*args):
 def ParaMEDMEMDenseMatrixIsub(self,*args):
     import _MEDLoader
     return _MEDLoader.DenseMatrix____isub___(self, self, *args)
-def MEDCouplingUMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCouplingUMesh____new___(cls,args)
-def MEDCoupling1DGTUMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCoupling1DGTUMesh____new___(cls,args)
-def MEDCoupling1SGTUMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCoupling1SGTUMesh____new___(cls,args)
-def MEDCouplingCurveLinearMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCouplingCurveLinearMesh____new___(cls,args)
-def MEDCouplingCMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCouplingCMesh____new___(cls,args)
-def MEDCouplingIMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCouplingIMesh____new___(cls,args)
-def MEDCouplingExtrudedMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDCouplingMappedExtrudedMesh____new___(cls,args)
 %}
 
 %pythoncode %{
-def MEDCouplingMEDFileUMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileUMesh____new___(cls,args)
-def MEDCouplingMEDFileCMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileCMesh____new___(cls,args)
-def MEDCouplingMEDFileCurveLinearMeshnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileCurveLinearMesh____new___(cls,args)
 def MEDCouplingMEDFileMeshesnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDFileMeshes____new___(cls,args)
-def MEDCouplingMEDFileDatanew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileData____new___(cls,args)
 def MEDCouplingMEDFileFieldsnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDFileFields____new___(cls,args)
@@ -209,30 +158,54 @@ MEDFileFieldsIterator.__next__ = MEDFileFieldsIterator.next
 %}
 
 %pythoncode %{
-MEDFileUMesh.__new__=classmethod(MEDCouplingMEDFileUMeshnew)
-del MEDCouplingMEDFileUMeshnew
-MEDFileCMesh.__new__=classmethod(MEDCouplingMEDFileCMeshnew)
-del MEDCouplingMEDFileCMeshnew
-MEDFileCurveLinearMesh.__new__=classmethod(MEDCouplingMEDFileCurveLinearMeshnew)
-del MEDCouplingMEDFileCurveLinearMeshnew
-MEDFileData.__new__=classmethod(MEDCouplingMEDFileDatanew)
-del MEDCouplingMEDFileDatanew
-MEDFileMeshes.__new__=classmethod(MEDCouplingMEDFileMeshesnew)
-del MEDCouplingMEDFileMeshesnew
-MEDFileFields.__new__=classmethod(MEDCouplingMEDFileFieldsnew)
-del MEDCouplingMEDFileFieldsnew
-MEDFileField1TS.__new__=classmethod(MEDCouplingMEDFileField1TSnew)
-del MEDCouplingMEDFileField1TSnew
-MEDFileFieldMultiTS.__new__=classmethod(MEDCouplingMEDFileFieldMultiTSnew)
-del MEDCouplingMEDFileFieldMultiTSnew
-MEDFileIntField1TS.__new__=classmethod(MEDCouplingMEDFileIntField1TSnew)
-del MEDCouplingMEDFileIntField1TSnew
-MEDFileIntFieldMultiTS.__new__=classmethod(MEDCouplingMEDFileIntFieldMultiTSnew)
-del MEDCouplingMEDFileIntFieldMultiTSnew
-MEDFileFloatField1TS.__new__=classmethod(MEDCouplingMEDFileFloatField1TSnew)
-del MEDCouplingMEDFileFloatField1TSnew
-MEDFileFloatFieldMultiTS.__new__=classmethod(MEDCouplingMEDFileFloatFieldMultiTSnew)
-del MEDCouplingMEDFileFloatFieldMultiTSnew
-MEDFileParameters.__new__=classmethod(MEDCouplingMEDFileParametersnew)
-del MEDCouplingMEDFileParametersnew
+def MEDCouplingMEDFileUMeshReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileUMesh,((),(self.__getstate__()),))
+MEDFileUMesh.__reduce__=MEDCouplingMEDFileUMeshReduce
+del MEDCouplingMEDFileUMeshReduce
+def MEDCouplingMEDFileCMeshReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileCMesh,((self.serialize(),),(self.__getstate__()),))
+MEDFileCMesh.__reduce__=MEDCouplingMEDFileCMeshReduce
+del MEDCouplingMEDFileCMeshReduce
+def MEDCouplingMEDFileCurveLinearMeshReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileCurveLinearMesh,((self.serialize(),),(self.__getstate__()),))
+MEDFileCurveLinearMesh.__reduce__=MEDCouplingMEDFileCurveLinearMeshReduce
+del MEDCouplingMEDFileCurveLinearMeshReduce
+def MEDCouplingMEDFileDataReduce(self):#"PyWrap of MEDFileData.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !"
+  return MEDCouplingStdReduceFunct,(MEDFileData,((self.serialize(),),(self.__getstate__()),))
+MEDFileData.__reduce__=MEDCouplingMEDFileDataReduce
+del MEDCouplingMEDFileDataReduce
+def MEDCouplingMEDFileMeshesReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileMeshes,((self.serialize(),),(self.__getstate__()),))
+MEDFileMeshes.__reduce__=MEDCouplingMEDFileMeshesReduce
+del MEDCouplingMEDFileMeshesReduce
+def MEDCouplingMEDFileFieldsReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileFields,((self.serialize(),),(self.__getstate__()),))
+MEDFileFields.__reduce__=MEDCouplingMEDFileFieldsReduce
+del MEDCouplingMEDFileFieldsReduce
+def MEDCouplingMEDFileField1TSReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileField1TS,((self.serialize(),),(self.__getstate__()),))
+MEDFileField1TS.__reduce__=MEDCouplingMEDFileField1TSReduce
+del MEDCouplingMEDFileField1TSReduce
+def MEDCouplingMEDFileFieldMultiTSReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileFieldMultiTS,((self.serialize(),),(self.__getstate__()),))
+MEDFileFieldMultiTS.__reduce__=MEDCouplingMEDFileFieldMultiTSReduce
+del MEDCouplingMEDFileFieldMultiTSReduce
+def MEDCouplingMEDFileIntField1TSReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileIntField1TS,((self.serialize(),),(self.__getstate__()),))
+MEDFileIntField1TS.__reduce__=MEDCouplingMEDFileIntField1TSReduce
+def MEDCouplingMEDFileIntFieldMultiTSReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileIntFieldMultiTS,((self.serialize(),),(self.__getstate__()),))
+MEDFileIntFieldMultiTS.__reduce__=MEDCouplingMEDFileIntFieldMultiTSReduce
+del MEDCouplingMEDFileIntFieldMultiTSReduce
+def MEDCouplingMEDFileFloatField1TSReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileFloatField1TS,((self.serialize(),),(self.__getstate__()),))
+MEDFileFloatField1TS.__reduce__=MEDCouplingMEDFileFloatField1TSReduce
+def MEDCouplingMEDFileFloatFieldMultiTSReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileFloatFieldMultiTS,((self.serialize(),),(self.__getstate__()),))
+MEDFileFloatFieldMultiTS.__reduce__=MEDCouplingMEDFileFloatFieldMultiTSReduce
+del MEDCouplingMEDFileFloatFieldMultiTSReduce
+def MEDCouplingMEDFileParametersReduce(self):
+  return MEDCouplingStdReduceFunct,(MEDFileParameters,((self.serialize(),),(self.__getstate__()),))
+MEDFileParameters.__reduce__=MEDCouplingMEDFileParametersReduce
+del MEDCouplingMEDFileParametersReduce
 %}

@@ -622,24 +622,6 @@ namespace MEDCoupling
          void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
          {
          }
-
-         PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-         {
-#ifdef WITH_NUMPY
-           PyObject *ret(PyTuple_New(1));
-           PyObject *ret0(PyDict_New());
-           DataArrayByte *retCpp(MEDCoupling_MEDFileWritableStandAlone_serialize(self));
-           PyObject *numpyArryObj=SWIG_NewPointerObj(SWIG_as_voidptr(retCpp),SWIGTYPE_p_MEDCoupling__DataArrayByte, SWIG_POINTER_OWN | 0 );
-           {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
-             PyObject *tmp1(PyInt_FromLong(0));
-             PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
-             PyTuple_SetItem(ret,0,ret0);
-           }
-           return ret;
-#else
-           throw INTERP_KERNEL::Exception("PyWrap of MEDFileData.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
-#endif
-         }
        }
   };
   
@@ -1440,12 +1422,6 @@ namespace MEDCoupling
            return MEDFileUMesh::New();
          }
 
-         // serialization
-         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-         {
-           return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDFileUMesh");
-         }
-
          static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
            std::vector<int> typesCpp1;
@@ -1455,14 +1431,6 @@ namespace MEDCoupling
            for(std::size_t ii=0;ii<sz;ii++)
              typesCpp2[ii]=(INTERP_KERNEL::NormalizedCellType)typesCpp1[ii];
            return MEDFileUMesh::LoadPartOf(fileName,mName,typesCpp2,slicPerTyp,dt,it,mrs);
-         }
-
-         PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-         {// put an empty dict in input to say to __new__ to call __init__...
-           PyObject *ret(PyTuple_New(1));
-           PyObject *ret0(PyDict_New());
-           PyTuple_SetItem(ret,0,ret0);
-           return ret;
          }
 
          PyObject *__getstate__() throw(INTERP_KERNEL::Exception)
@@ -1724,12 +1692,6 @@ namespace MEDCoupling
          {
            return MEDFileCMesh::New(db);
          }
-
-         // serialization
-         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-         {
-           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileCMesh");
-         }
          
          PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
          {
@@ -1769,12 +1731,6 @@ namespace MEDCoupling
          MEDFileCurveLinearMesh(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileCurveLinearMesh::New(db);
-         }
-
-         // serialization
-         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-         {
-           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileCurveLinearMesh");
          }
          
          PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
@@ -1877,12 +1833,6 @@ namespace MEDCoupling
          MEDFileMeshes(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileMeshes::New(db);
-         }
-
-         // serialization
-         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-         {
-           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileMeshes");
          }
 
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2310,12 +2260,6 @@ namespace MEDCoupling
          {
            return MEDFileField1TS::New();
          }
-
-         // serialization
-         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-         {
-           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileField1TS");
-         }
          
          void copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception)
          {
@@ -2429,12 +2373,6 @@ namespace MEDCoupling
         return MEDFileIntField1TS::New(db);
       }
 
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileIntField1TS");
-      }
-
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -2503,12 +2441,6 @@ namespace MEDCoupling
       MEDFileFloatField1TS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
       {
         return MEDFileFloatField1TS::New(db);
-      }
-
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileFloatField1TS");
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2965,12 +2897,6 @@ namespace MEDCoupling
          {
            return MEDFileFieldMultiTS::New(db);
          }
-         
-         // serialization
-         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-         {
-           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileFieldMultiTS");
-         }
 
          static MEDFileFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
          {
@@ -3128,12 +3054,6 @@ namespace MEDCoupling
         return MEDFileIntFieldMultiTS::New(db);
       }
       
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileIntFieldMultiTS");
-      }
-      
       static MEDFileIntFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
       {
         std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
@@ -3203,12 +3123,6 @@ namespace MEDCoupling
       MEDFileFloatFieldMultiTS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
       {
         return MEDFileFloatFieldMultiTS::New(db);
-      }
-      
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileFloatFieldMultiTS");
       }
       
       static MEDFileFloatFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
@@ -3323,12 +3237,6 @@ namespace MEDCoupling
          MEDFileFields(const std::string& fileName, bool loadAll, const MEDFileEntities *entities) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileFields::NewAdv(fileName,loadAll,entities);
-         }
-         
-         // serialization
-         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-         {
-           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileFields");
          }
          
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -3820,12 +3728,6 @@ namespace MEDCoupling
       {
         return MEDFileParameters::New(db);
       }
-
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileParameters");
-      }
       
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
@@ -3961,12 +3863,6 @@ namespace MEDCoupling
            convertFromPyObjVectorOfObj<const MEDCoupling::MEDFileData *>(mfds,SWIGTYPE_p_MEDCoupling__MEDFileData,"MEDFileData",mfdsCpp);
            MCAuto<MEDFileData> ret(MEDFileData::Aggregate(mfdsCpp));
            return ret.retn();
-         }
-
-         // serialization
-         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-         {
-           return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"MEDFileData");
          }
        }
   };
