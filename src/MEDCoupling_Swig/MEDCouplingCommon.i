@@ -461,6 +461,8 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingFieldDiscretizationGaussNE "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationKriging "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
+%feature("unref") MEDCouplingFieldFloat "$this->decrRef();"
+%feature("unref") MEDCouplingFieldInt "$this->decrRef();"
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 %feature("unref") MEDCouplingFieldTemplate "$this->decrRef();"
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
@@ -3976,11 +3978,25 @@ namespace MEDCoupling
          }
        }
   };
+
+  template<class T>
+ class MEDCouplingFieldT : public MEDCoupling::MEDCouplingField
+  {
+  public:
+    TypeOfTimeDiscretization getTimeDiscretization() const throw(INTERP_KERNEL::Exception);
+  protected:
+    MEDCouplingFieldT();
+    ~MEDCouplingFieldT();
+  };
+
+  %template(DTC3) MEDCoupling::MEDCouplingFieldT<double>;
+  %template(MEDCouplingFieldTfloat) MEDCoupling::MEDCouplingFieldT<float>;
+  %template(MEDCouplingFieldTint) MEDCoupling::MEDCouplingFieldT<int>;
   
   class MEDCouplingFieldInt;
   class MEDCouplingFieldFloat;
   
-  class MEDCouplingFieldDouble : public MEDCoupling::MEDCouplingField
+  class MEDCouplingFieldDouble : public MEDCouplingFieldT<double>
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
@@ -4003,7 +4019,6 @@ namespace MEDCoupling
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *nodeToCellDiscretization() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *cellToNodeDiscretization() const throw(INTERP_KERNEL::Exception);
-    TypeOfTimeDiscretization getTimeDiscretization() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     double getIJK(int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
     void synchronizeTimeWithMesh() throw(INTERP_KERNEL::Exception);
@@ -5183,7 +5198,7 @@ namespace MEDCoupling
        }
   };
 
-  class MEDCouplingFieldInt : public MEDCouplingField
+  class MEDCouplingFieldInt : public MEDCouplingFieldT<int>
   {
   public:
     static MEDCouplingFieldInt *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
@@ -5285,7 +5300,7 @@ namespace MEDCoupling
     }
   };
 
-  class MEDCouplingFieldFloat : public MEDCouplingField
+  class MEDCouplingFieldFloat : public MEDCouplingFieldT<float>
   {
   public:
     static MEDCouplingFieldFloat *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
@@ -6000,16 +6015,16 @@ def MEDCoupling1DGTUMeshReduce(self):
     return MEDCouplingStdReduceFunct,(MEDCoupling1DGTUMesh,((),(self.__getstate__()),))
 def MEDCouplingFieldDoubleReduce(self):
     self.checkConsistencyLight()
-    d={0:(self.getTypeOfField(),self.getTimeDiscretization())}
-    return MEDCouplingStdReduceFunct,(MEDCouplingFieldDouble,((d,),(self.__getstate__()),))
+    d=(self.getTypeOfField(),self.getTimeDiscretization())
+    return MEDCouplingStdReduceFunct,(MEDCouplingFieldDouble,(d,(self.__getstate__()),))
 def MEDCouplingFieldIntReduce(self):
     self.checkConsistencyLight()
-    d={0:(self.getTypeOfField(),self.getTimeDiscretization())}
-    return MEDCouplingStdReduceFunct,(MEDCouplingFieldInt,((d,),(self.__getstate__()),))
+    d=(self.getTypeOfField(),self.getTimeDiscretization())
+    return MEDCouplingStdReduceFunct,(MEDCouplingFieldInt,(d,(self.__getstate__()),))
 def MEDCouplingFieldFloatReduce(self):
     self.checkConsistencyLight()
-    d={0:(self.getTypeOfField(),self.getTimeDiscretization())}
-    return MEDCouplingStdReduceFunct,(MEDCouplingFieldFloat,((d,),(self.__getstate__()),))
+    d=(self.getTypeOfField(),self.getTimeDiscretization())
+    return MEDCouplingStdReduceFunct,(MEDCouplingFieldFloat,(d,(self.__getstate__()),))
 %}
 
 %pythoncode %{

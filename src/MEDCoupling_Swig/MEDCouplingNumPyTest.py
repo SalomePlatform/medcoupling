@@ -386,7 +386,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
     def test19(self):
         sz=20
         a=array(0,dtype=int32)
-        a.resize(sz/2,2)
+        a.resize(sz//2,2)
         a[:]=4
         self.assertEqual(getrefcount(a),2)
         d=DataArrayInt(a)
@@ -405,7 +405,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
     def test20(self):
         sz=20
         a=array(0,dtype=float64)
-        a.resize(sz/2,2)
+        a.resize(sz//2,2)
         a[:]=4
         self.assertEqual(getrefcount(a),2)
         d=DataArrayDouble(a)
@@ -918,7 +918,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         """Same as test20 with float32"""
         sz=20
         a=array(0,dtype=float32)
-        a.resize(sz/2,2)
+        a.resize(sz//2,2)
         a[:]=4
         self.assertEqual(getrefcount(a),2)
         d=DataArrayFloat(a)
