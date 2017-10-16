@@ -800,31 +800,6 @@ namespace MEDCoupling
         return ToNumPyArray<DataArrayFloat,float>(self,NPY_FLOAT,"DataArrayFloat");
       }
 #endif
-
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"DataArrayFloat");
-      }
-      
-      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-      {
-#ifdef WITH_NUMPY
-        if(!self->isAllocated())
-          throw INTERP_KERNEL::Exception("PyWrap of DataArrayFloat.__getnewargs__ : self is not allocated !");
-        PyObject *ret(PyTuple_New(1));
-        PyObject *ret0(PyDict_New());
-        PyObject *numpyArryObj(MEDCoupling_DataArrayFloat_toNumPyArray(self));
-        {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
-          PyObject *tmp1(PyInt_FromLong(0));
-          PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
-          PyTuple_SetItem(ret,0,ret0);
-        }
-        return ret;
-#else
-        throw INTERP_KERNEL::Exception("PyWrap of DataArrayByte.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
-#endif
-      }
     }
   };
 
@@ -1937,31 +1912,6 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
-      }
-
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"DataArrayDouble");
-      }
-
-      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-      {
-#ifdef WITH_NUMPY
-        if(!self->isAllocated())
-          throw INTERP_KERNEL::Exception("PyWrap of DataArrayDouble.__getnewargs__ : self is not allocated !");
-        PyObject *ret(PyTuple_New(1));
-        PyObject *ret0(PyDict_New());
-        PyObject *numpyArryObj(MEDCoupling_DataArrayDouble_toNumPyArray(self));
-        {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
-          PyObject *tmp1(PyInt_FromLong(0));
-          PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
-          PyTuple_SetItem(ret,0,ret0);
-        }
-        return ret;
-#else
-        throw INTERP_KERNEL::Exception("PyWrap of DataArrayDouble.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
-#endif
       }
     }
   };
@@ -5062,31 +5012,6 @@ namespace MEDCoupling
       }
 #endif
 
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInput(cls,args,"DataArrayByte");
-      }
-
-      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-      {
-#ifdef WITH_NUMPY
-        if(!self->isAllocated())
-          throw INTERP_KERNEL::Exception("PyWrap of DataArrayByte.__getnewargs__ : self is not allocated !");
-        PyObject *ret(PyTuple_New(1));
-        PyObject *ret0(PyDict_New());
-        PyObject *numpyArryObj(MEDCoupling_DataArrayByte_toNumPyArray(self));
-        {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
-          PyObject *tmp1(PyInt_FromLong(0));
-          PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
-          PyTuple_SetItem(ret,0,ret0);
-        }
-        return ret;
-#else
-        throw INTERP_KERNEL::Exception("PyWrap of DataArrayByte.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
-#endif
-      }
-
       DataArrayByte *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
       {
         self->checkAllocated();
@@ -5952,14 +5877,30 @@ namespace MEDCoupling
 }
 
 %pythoncode %{
-def MEDCouplingDataArrayIntReduceFunct(cls,params):
+def MEDCouplingStdReduceFunct(cls,params):
     a,b=params
-    ret=DataArrayInt.__new__(cls)
+    ret=object.__new__(cls)
     ret.__init__(*a)
     ret.__setstate__(b)
     return ret
+
+def MEDCouplingDataArrayDoubleReduce(self):
+    if not MEDCouplingHasNumPyBindings():
+      raise InterpKernelException("PyWrap of DataArrayDouble.__reduce__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !")
+    return MEDCouplingStdReduceFunct,(DataArrayDouble,((self.toNumPyArray(),),(self.__getstate__()),))
+
 def MEDCouplingDataArrayIntReduce(self):
     if not MEDCouplingHasNumPyBindings():
-      raise InterpKernelException("PyWrap of DataArrayInt.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !")
-    return MEDCouplingDataArrayIntReduceFunct,(DataArrayInt,((self.toNumPyArray(),),(self.__getstate__()),))
+      raise InterpKernelException("PyWrap of DataArrayInt.__reduce__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !")
+    return MEDCouplingStdReduceFunct,(DataArrayInt,((self.toNumPyArray(),),(self.__getstate__()),))
+
+def MEDCouplingDataArrayByteReduce(self):
+    if not MEDCouplingHasNumPyBindings():
+      raise InterpKernelException("PyWrap of DataArrayByte.__reduce__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !")
+    return MEDCouplingStdReduceFunct,(DataArrayByte,((self.toNumPyArray(),),(self.__getstate__()),))
+
+def MEDCouplingDataArrayFloatReduce(self):
+    if not MEDCouplingHasNumPyBindings():
+      raise InterpKernelException("PyWrap of DataArrayFloat.__reduce__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !")
+    return MEDCouplingStdReduceFunct,(DataArrayFloat,((self.toNumPyArray(),),(self.__getstate__()),))
 %}

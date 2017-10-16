@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 %module MEDCoupling
 
@@ -1083,14 +1083,6 @@ namespace MEDCoupling
            self->resizeForUnserialization(tinyInfo,a1,a2,littleStrings);
          }
          
-         PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-         {// put an empty dict in input to say to __new__ to call __init__...
-           PyObject *ret(PyTuple_New(1));
-           PyObject *ret0(PyDict_New());
-           PyTuple_SetItem(ret,0,ret0);
-           return ret;
-         }
-         
          PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
          {
            PyObject *ret0(MEDCoupling_MEDCouplingMesh_getTinySerializationInformation(self));
@@ -2005,12 +1997,6 @@ namespace MEDCoupling
       MEDCouplingUMesh(const char *meshName, int meshDim) throw(INTERP_KERNEL::Exception)
       {
         return MEDCouplingUMesh::New(meshName,meshDim);
-      }
-
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingUMesh");
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -3071,11 +3057,6 @@ namespace MEDCoupling
       {
         return MEDCouplingMappedExtrudedMesh::New();
       }
-
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingMappedExtrudedMesh");
-      }
       
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
@@ -3181,11 +3162,6 @@ namespace MEDCoupling
         return MEDCoupling1SGTUMesh::New(m);
       }
 
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCoupling1SGTUMesh");
-      }
-
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -3251,11 +3227,6 @@ namespace MEDCoupling
       MEDCoupling1DGTUMesh(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling1DGTUMesh::New(m);
-      }
-
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCoupling1DGTUMesh");
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -3602,11 +3573,6 @@ namespace MEDCoupling
       {
         return MEDCouplingCMesh::New(meshName);
       }
-      // serialization
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingCMesh");
-      }
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -3645,10 +3611,6 @@ namespace MEDCoupling
       MEDCouplingCurveLinearMesh(const std::string& meshName) throw(INTERP_KERNEL::Exception)
       {
         return MEDCouplingCurveLinearMesh::New(meshName);
-      }
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingCurveLinearMesh");
       }
       std::string __str__() const throw(INTERP_KERNEL::Exception) 
       {
@@ -3725,11 +3687,6 @@ namespace MEDCoupling
       MEDCouplingIMesh(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling_MEDCouplingIMesh_New__SWIG_1(meshName,spaceDim,nodeStrct,origin,dxyz);
-      }
-
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingIMesh");
       }
 
       void setNodeStruct(PyObject *nodeStrct) throw(INTERP_KERNEL::Exception)
@@ -5057,16 +5014,6 @@ namespace MEDCoupling
         return field_serialize<double>(self);
       }
 
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInputGeneral<SinglePyObjExpectToBeAListOfSz2>(cls,args,"MEDCouplingFieldDouble");
-      }
-
-      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-      {// put an empty dict in input to say to __new__ to call __init__...
-        return field__getnewargs__<MEDCouplingFieldDouble>(self);
-      }
-
       PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
       {
         return field__getstate__<MEDCouplingFieldDouble>(self,MEDCoupling_MEDCouplingFieldDouble_getTinySerializationInformation,MEDCoupling_MEDCouplingFieldDouble_serialize);
@@ -5326,16 +5273,6 @@ namespace MEDCoupling
         return field_serialize<int>(self);
       }
 
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInputGeneral<SinglePyObjExpectToBeAListOfSz2>(cls,args,"MEDCouplingFieldInt");
-      }
-
-      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-      {// put an empty dict in input to say to __new__ to call __init__...
-        return field__getnewargs__<MEDCouplingFieldInt>(self);
-      }
-
       PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
       {
         return field__getstate__<MEDCouplingFieldInt>(self,MEDCoupling_MEDCouplingFieldInt_getTinySerializationInformation,MEDCoupling_MEDCouplingFieldInt_serialize);
@@ -5436,16 +5373,6 @@ namespace MEDCoupling
       PyObject *serialize() const throw(INTERP_KERNEL::Exception)
       {
         return field_serialize<float>(self);
-      }
-        
-      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
-      {
-        return NewMethWrapCallInitOnlyIfDictWithSingleEltInInputGeneral<SinglePyObjExpectToBeAListOfSz2>(cls,args,"MEDCouplingFieldFloat");
-      }
-      
-      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
-      {// put an empty dict in input to say to __new__ to call __init__...
-        return field__getnewargs__<MEDCouplingFieldFloat>(self);
       }
       
       PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
@@ -6055,6 +5982,35 @@ namespace MEDCoupling
     }
   };
 }
+
+%pythoncode %{
+def MEDCouplingUMeshReduce(self):
+    return MEDCouplingStdReduceFunct,(MEDCouplingUMesh,((),(self.__getstate__()),))
+def MEDCouplingCMeshReduce(self):
+    return MEDCouplingStdReduceFunct,(MEDCouplingCMesh,((),(self.__getstate__()),))
+def MEDCouplingIMeshReduce(self):
+    return MEDCouplingStdReduceFunct,(MEDCouplingIMesh,((),(self.__getstate__()),))
+def MEDCouplingMappedExtrudedMeshReduce(self):
+    return MEDCouplingStdReduceFunct,(MEDCouplingMappedExtrudedMesh,((),(self.__getstate__()),))
+def MEDCouplingCurveLinearMeshReduce(self):
+    return MEDCouplingStdReduceFunct,(MEDCouplingCurveLinearMesh,((),(self.__getstate__()),))
+def MEDCoupling1SGTUMeshReduce(self):
+    return MEDCouplingStdReduceFunct,(MEDCoupling1SGTUMesh,((),(self.__getstate__()),))
+def MEDCoupling1DGTUMeshReduce(self):
+    return MEDCouplingStdReduceFunct,(MEDCoupling1DGTUMesh,((),(self.__getstate__()),))
+def MEDCouplingFieldDoubleReduce(self):
+    self.checkConsistencyLight()
+    d={0:(self.getTypeOfField(),self.getTimeDiscretization())}
+    return MEDCouplingStdReduceFunct,(MEDCouplingFieldDouble,((d,),(self.__getstate__()),))
+def MEDCouplingFieldIntReduce(self):
+    self.checkConsistencyLight()
+    d={0:(self.getTypeOfField(),self.getTimeDiscretization())}
+    return MEDCouplingStdReduceFunct,(MEDCouplingFieldInt,((d,),(self.__getstate__()),))
+def MEDCouplingFieldFloatReduce(self):
+    self.checkConsistencyLight()
+    d={0:(self.getTypeOfField(),self.getTimeDiscretization())}
+    return MEDCouplingStdReduceFunct,(MEDCouplingFieldFloat,((d,),(self.__getstate__()),))
+%}
 
 %pythoncode %{
 import os
