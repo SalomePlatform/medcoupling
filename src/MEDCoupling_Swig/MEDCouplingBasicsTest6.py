@@ -142,7 +142,23 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         f2.setArray(DataArrayDouble(list(range(18))))
         f2.checkConsistencyLight()
         pass
-    
+
+    def testSKLAReplaceDeletePacks(self):
+        index=DataArrayInt([0,3,5,6,6])
+        value=DataArrayInt([1,2,3, 2,3, 3  ])
+        sla=MEDCouplingSkyLineArray(index,value)
+        idx=DataArrayInt([0,3])
+        packs=[DataArrayInt([4,5]),DataArrayInt([6,7,8])]
+        sla.replaceSimplePacks(idx,packs)
+        self.assertTrue(sla.getIndexArray().isEqual(DataArrayInt([0,2,4,5,8])))
+        self.assertTrue(sla.getValuesArray().isEqual(DataArrayInt([4,5, 2,3, 3, 6,7,8])))
+        sla.deleteSimplePacks(idx)
+        self.assertTrue(sla.getIndexArray().isEqual(DataArrayInt([0,2,3])))
+        self.assertTrue(sla.getValuesArray().isEqual(DataArrayInt([2,3, 3])))
+        sla.deleteSimplePack(1)
+        self.assertTrue(sla.getIndexArray().isEqual(DataArrayInt([0,2])))
+        self.assertTrue(sla.getValuesArray().isEqual(DataArrayInt([2,3])))
+        pass    
     pass
 
 if __name__ == '__main__':

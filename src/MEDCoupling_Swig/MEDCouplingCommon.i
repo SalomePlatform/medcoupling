@@ -1228,6 +1228,9 @@ namespace MEDCoupling
     
     void deletePack(const int i, const int j) throw(INTERP_KERNEL::Exception);
     
+    void deleteSimplePack(const int i) throw(INTERP_KERNEL::Exception);
+    void deleteSimplePacks(const DataArrayInt* idx) throw(INTERP_KERNEL::Exception);
+    
     %extend 
     {
       MEDCouplingSkyLineArray() throw(INTERP_KERNEL::Exception)
@@ -1309,6 +1312,13 @@ namespace MEDCoupling
           std::vector<int> vpack;
           convertPyToNewIntArr3(pack,vpack);
           self->replaceSimplePack(idx, vpack.data(), vpack.data()+vpack.size());
+        }
+        
+      void replaceSimplePacks(const DataArrayInt* idx, PyObject *listePacks) throw(INTERP_KERNEL::Exception)
+        {
+          std::vector<const DataArrayInt*> packs;
+          convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt*>(listePacks,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",packs);
+          self->replaceSimplePacks(idx, packs);
         }
         
       void replacePack(const int superIdx, const int idx, PyObject *pack) throw(INTERP_KERNEL::Exception)

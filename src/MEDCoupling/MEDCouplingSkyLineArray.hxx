@@ -90,11 +90,15 @@ namespace MEDCoupling
                      std::vector<int>& out) const;
 
     void deletePack(const int superIdx, const int idx);
+    void deleteSimplePack(const int idx);
     void pushBackPack(const int superIdx, const int * packBg, const int * packEnd);
 
     void replaceSimplePack(const int idx, const int * packBg, const int * packEnd);
     void replacePack(const int superIdx, const int idx, const int * packBg, const int * packEnd);
 
+    void deleteSimplePacks(const DataArrayInt* idx);
+    void replaceSimplePacks(const DataArrayInt* idx, const std::vector<const DataArrayInt*>& packs);
+    
     void convertToPolyhedronConn( MCAuto<DataArrayInt>& c,  MCAuto<DataArrayInt>& cI) const;
 
   private:

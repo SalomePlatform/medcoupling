@@ -20,6 +20,8 @@
 #include "MEDCouplingSkyLineArray.hxx"
 
 #include <sstream>
+#include <deque>
+#include <set>
 
 using namespace MEDCoupling;
 
@@ -384,8 +386,6 @@ void MEDCouplingSkyLineArray::findPackIds(const std::vector<int> & superPackIndi
  */
 void MEDCouplingSkyLineArray::deletePack(const int superIdx, const int idx)
 {
-  using namespace std;
-
   checkSuperIndex("deletePack");
   validSuperIndexAndIndex("deletePack", superIdx, idx);
 
@@ -393,12 +393,12 @@ void MEDCouplingSkyLineArray::deletePack(const int superIdx, const int idx)
   int * siP(_super_index->getPointer()), *iP(_index->getPointer());
   const int start = iP[siP[superIdx]+idx], end = iP[siP[superIdx]+idx+1];
   // _values
-  copy(vP+end, vP+_values->getNbOfElems(), vP+start);
+  std::copy(vP+end, vP+_values->getNbOfElems(), vP+start);
   _values->reAlloc(_values->getNbOfElems() - (end-start));
 
   // _index
   int nt = _index->getNbOfElems();
-  copy(iP+siP[superIdx]+idx+1, iP+nt, iP+siP[superIdx]+idx);
+  std::copy(iP+siP[superIdx]+idx+1, iP+nt, iP+siP[superIdx]+idx);
   _index->reAlloc(nt-1); iP = _index->getPointer();  // better not forget this ...
   for(int ii = siP[superIdx]+idx; ii < nt-1; ii++)
     iP[ii] -= (end-start);
@@ -406,6 +406,128 @@ void MEDCouplingSkyLineArray::deletePack(const int superIdx, const int idx)
   // _super_index
   for(int ii = superIdx+1; ii < (int)_super_index->getNbOfElems(); ii++)
     (siP[ii])--;
+}
+
+void MEDCouplingSkyLineArray::deleteSimplePack(const int idx)
+{
+  validIndex("deleteSimplePack", idx);
+  
+  int* iP(_index->getPointer());
+  const int start(iP[idx]), end(iP[idx+1]);
+
+  // _values
+  int initValSz( _values->getNbOfElems() );
+  int deltaSz( start-end );  // should be negative
+  int *vP(_values->getPointer());
+  if (deltaSz < 0)
+    {
+      std::copy(vP+end, vP+initValSz, vP+start);
+      _values->reAlloc(initValSz+deltaSz);
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::deleteSimplePack");
+  // _index
+  int nt(_index->getNbOfElems());
+  std::copy(iP+idx+1, iP+nt, iP+idx);
+  for(int ii = idx; ii < nt-1; ii++)
+    iP[ii] += deltaSz;
+  _index->reAlloc(nt-1);
+}
+
+void MEDCouplingSkyLineArray::replaceSimplePacks(const DataArrayInt* idx, const std::vector<const DataArrayInt*>& packs)
+{    
+  if (idx->empty())
+    return;
+    
+  for (const int * id = idx->begin(); id != idx->end(); id++)
+    validIndex("deleteSimplePacks", *id);
+    
+  if (idx->getNbOfElems() != packs.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::deleteSimplePacks: size of list of pack is incorrect");
+    
+  // copy _index, _values into a deque<set<int>>
+  std::deque< std::set<int> > valuesByIdx;
+  int* vP(_values->getPointer());
+  int* iP(_index->getPointer());
+  std::size_t nt ( _index->getNbOfElems() );
+  for (int ii = 0; ii < nt-1; ii++)
+    valuesByIdx.push_back(std::set<int>(vP+iP[ii], vP+iP[ii+1]));
+    
+  // modify the deque<set<int>> according to idx and packs
+  int ii(0);
+  for (const int *id = idx->begin(); id != idx->end(); id++)
+    {
+      valuesByIdx[*id] = std::set<int>(packs[ii]->begin(), packs[ii]->end());
+      ii++;
+    }
+  // copy back the deque<set<int>> into _index, _values
+  int valSz(0);
+  *iP = 0;
+  for (std::deque< std::set<int> >::const_iterator values=valuesByIdx.begin();values!=valuesByIdx.end();values++)
+    {
+      valSz += (*values).size();
+      *(++iP) = valSz;
+    }
+  _values->reAlloc(valSz);
+  iP = _index->getPointer();
+  vP = _values->getPointer();
+  for (auto values : valuesByIdx)
+    {
+      std::copy(values.begin(), values.end(), vP+(*iP));
+      iP++;
+    }
+}
+
+void MEDCouplingSkyLineArray::deleteSimplePacks(const DataArrayInt* idx)
+{    
+  for (auto id = idx->begin(); id != idx->end(); id++)
+    validIndex("deleteSimplePacks", *id);
+  
+  std::set<int> packsToDelete(idx->begin(), idx->end());
+    
+  // _values
+  int* iP(_index->getPointer());
+  int initValSz = _values->getNbOfElems();
+  int *vP(_values->getPointer());
+  int end_prec(0),start_prec(0);
+  for(std::set<int>::const_iterator ii=packsToDelete.begin();ii!=packsToDelete.end();ii++)
+    {
+      int start = iP[*ii];
+      if (end_prec != 0)
+        std::copy(vP+end_prec, vP+start, vP+start_prec);
+      start_prec += start-end_prec;
+      end_prec = iP[*ii+1];
+    }
+  if (end_prec != 0)
+    std::copy(vP+end_prec, vP+initValSz, vP+start_prec);
+  _values->reAlloc(initValSz-(end_prec-start_prec));
+    
+  // _index
+  int nt = _index->getNbOfElems();
+  int offset = 0;
+  end_prec = 0;
+  start_prec = 0;
+  int deleted = 0;
+  for(std::set<int>::const_iterator ii=packsToDelete.begin();ii!=packsToDelete.end();ii++)
+    {
+      if (end_prec != 0)
+        {
+          std::copy(iP+end_prec, iP+*ii, iP+start_prec);
+          for (int i=start_prec; i<*ii; i++)
+            iP[i] -= offset;
+        }
+      offset += iP[*ii+1] - iP[*ii];
+      start_prec = *ii-deleted;
+      end_prec = *ii+1;
+      deleted += 1;
+    }
+  if (end_prec != 0)
+    {
+      std::copy(iP+end_prec, iP+nt, iP+start_prec);
+      for (int i=start_prec; i<nt; i++)
+        iP[i] -= offset;
+    }
+  _index->reAlloc(nt-deleted);
 }
 
 /**!
@@ -448,12 +570,10 @@ void MEDCouplingSkyLineArray::pushBackPack(const int superIdx, const int * packB
  */
 void MEDCouplingSkyLineArray::replaceSimplePack(const int idx, const int * packBg, const int * packEnd)
 {
-  using namespace std;
-
   validIndex("replaceSimplePack", idx);
 
   int * iP(_index->getPointer());
-  int newSz = distance(packBg, packEnd);
+  int newSz = std::distance(packBg, packEnd);
   const int start = iP[idx], end = iP[idx+1];
 
   // _values
@@ -464,13 +584,13 @@ void MEDCouplingSkyLineArray::replaceSimplePack(const int idx, const int * packB
       if (deltaSz > 0)
         _values->reAlloc(initValSz+deltaSz);
       int *vP(_values->getPointer());
-      copy(vP+end, vP+initValSz, vP+end+deltaSz);
+      std::copy(vP+end, vP+initValSz, vP+end+deltaSz);
       if (deltaSz < 0)
         _values->reAlloc(initValSz+deltaSz);
     }
 
   // copy new pack
-  copy(packBg, packEnd, _values->getPointer()+start);
+  std::copy(packBg, packEnd, _values->getPointer()+start);
 
   // _index
   for(int ii = idx+1; ii < (int)_index->getNbOfElems(); ii++)
@@ -481,15 +601,13 @@ void MEDCouplingSkyLineArray::replaceSimplePack(const int idx, const int * packB
  * Replace pack with super index 'superIdx' and index 'idx' with the provided new pack.
  * Function can be used only for 3-level SkyLine.
  */
-void MEDCouplingSkyLineArray::replacePack(const int superIdx, const int idx, const int * packBg, const int * packEnd)
+void MEDCouplingSkyLineArray::replacePack(const int superIdx, const int idx, const int *packBg, const int *packEnd)
 {
-  using namespace std;
-
   checkSuperIndex("replacePack");
   validSuperIndexAndIndex("replacePack", superIdx, idx);
 
   int * siP(_super_index->getPointer()), *iP(_index->getPointer());
-  int newSz = distance(packBg, packEnd);
+  int newSz = std::distance(packBg, packEnd);
   const int start = iP[siP[superIdx]+idx], end = iP[siP[superIdx]+idx+1];
 
   // _values
@@ -500,13 +618,13 @@ void MEDCouplingSkyLineArray::replacePack(const int superIdx, const int idx, con
       if (deltaSz > 0)
         _values->reAlloc(initValSz+deltaSz);
       int *vP(_values->getPointer());
-      copy(vP+end, vP+initValSz, vP+end+deltaSz);
+      std::copy(vP+end, vP+initValSz, vP+end+deltaSz);
       if (deltaSz < 0)
         _values->reAlloc(initValSz+deltaSz);
     }
 
   // copy new pack
-  copy(packBg, packEnd, _values->getPointer()+start);
+  std::copy(packBg, packEnd, _values->getPointer()+start);
 
   // _index
   for(int ii = siP[superIdx]+idx+1; ii < (int)_index->getNbOfElems(); ii++)

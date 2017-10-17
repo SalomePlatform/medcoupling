@@ -975,7 +975,12 @@ void MEDCouplingUMesh::computeEnlargedNeighborsOfNodes(MCAuto<DataArrayInt> &nei
   {
     int *neighIdx(neighborsIdx->getPointer());
     for(std::vector< std::set<int> >::const_iterator it=st0.begin();it!=st0.end();it++,neighIdx++)
-      neighIdx[1]=neighIdx[0]+(*it).size()-1;
+      {
+        if ((*it).empty())
+          neighIdx[1]=neighIdx[0];
+        else
+          neighIdx[1]=neighIdx[0]+(*it).size()-1;
+      }
   }
   neighbors=DataArrayInt::New(); neighbors->alloc(neighborsIdx->back(),1);
   {
