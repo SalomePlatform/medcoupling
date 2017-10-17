@@ -29,6 +29,7 @@
 #include "MCAuto.txx"
 #include "MEDCouplingVoronoi.hxx"
 #include "MEDCouplingNatureOfField.hxx"
+#include "MEDCouplingMemArray.txx"
 
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelGaussCoords.hxx"
