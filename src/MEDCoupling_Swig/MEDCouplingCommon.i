@@ -3999,7 +3999,7 @@ namespace MEDCoupling
     ~MEDCouplingFieldT();
   };
 
-  %template(DTC3) MEDCoupling::MEDCouplingFieldT<double>;
+  %template(MEDCouplingFieldTdouble) MEDCoupling::MEDCouplingFieldT<double>;
   %template(MEDCouplingFieldTfloat) MEDCoupling::MEDCouplingFieldT<float>;
   %template(MEDCouplingFieldTint) MEDCoupling::MEDCouplingFieldT<int>;
   
