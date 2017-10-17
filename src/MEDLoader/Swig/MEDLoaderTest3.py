@@ -50,14 +50,14 @@ class StdOutRedirect(object):
                 return self.f.flush()
             def isatty(self):
                 return self.f.isatty()
+            def close(self):
+                os.fsync(self.f)
+                self.f.close();
         sys.stderr=FlushFile(os.fdopen(self.fdOfSinkFile,"w"))
     def __del__(self):
         import os,sys
+        sys.stderr.close()
         sys.stderr=self.origPyVal
-        if sys.version_info.major >= 3:
-            self.fdOfSinkFile.close()
-            pass
-        #os.fsync(self.fdOfSinkFile)
         os.fsync(2)
         os.dup2(self.stdoutOld,2)
         os.close(self.stdoutOld)
