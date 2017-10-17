@@ -21,9 +21,6 @@
 %include "MEDLoaderCommon.i"
 
 %pythoncode %{
-def MEDCouplingDataArrayDoublenew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.DataArrayDouble____new___(cls,args)
 def MEDCouplingDataArrayDoubleIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayDouble____iadd___(self, self, *args)
@@ -119,36 +116,6 @@ def ParaMEDMEMDenseMatrixIsub(self,*args):
     return _MEDLoader.DenseMatrix____isub___(self, self, *args)
 %}
 
-%pythoncode %{
-def MEDCouplingMEDFileMeshesnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileMeshes____new___(cls,args)
-def MEDCouplingMEDFileFieldsnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileFields____new___(cls,args)
-def MEDCouplingMEDFileField1TSnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileField1TS____new___(cls,args)
-def MEDCouplingMEDFileFieldMultiTSnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileFieldMultiTS____new___(cls,args)
-def MEDCouplingMEDFileIntField1TSnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileIntField1TS____new___(cls,args)
-def MEDCouplingMEDFileIntFieldMultiTSnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileIntFieldMultiTS____new___(cls,args)
-def MEDCouplingMEDFileFloatField1TSnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileFloatField1TS____new___(cls,args)
-def MEDCouplingMEDFileFloatFieldMultiTSnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileFloatFieldMultiTS____new___(cls,args)
-def MEDCouplingMEDFileParametersnew(cls,*args):
-    import _MEDLoader
-    return _MEDLoader.MEDFileParameters____new___(cls,args)
-%}
-
 %include "MEDCouplingFinalize.i"
 
 %pythoncode %{
@@ -170,7 +137,7 @@ def MEDCouplingMEDFileCurveLinearMeshReduce(self):
   return MEDCouplingStdReduceFunct,(MEDFileCurveLinearMesh,((self.serialize(),),(self.__getstate__()),))
 MEDFileCurveLinearMesh.__reduce__=MEDCouplingMEDFileCurveLinearMeshReduce
 del MEDCouplingMEDFileCurveLinearMeshReduce
-def MEDCouplingMEDFileDataReduce(self):#"PyWrap of MEDFileData.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !"
+def MEDCouplingMEDFileDataReduce(self):
   return MEDCouplingStdReduceFunct,(MEDFileData,((self.serialize(),),(self.__getstate__()),))
 MEDFileData.__reduce__=MEDCouplingMEDFileDataReduce
 del MEDCouplingMEDFileDataReduce

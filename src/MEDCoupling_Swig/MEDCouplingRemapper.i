@@ -103,9 +103,6 @@ namespace MEDCoupling
 }
 
 %pythoncode %{
-def MEDCouplingDataArrayDoublenew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.DataArrayDouble____new___(cls,args)
 def MEDCouplingDataArrayDoubleIadd(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayDouble____iadd___(self, self, *args)
@@ -121,9 +118,6 @@ def MEDCouplingDataArrayDoubleIdiv(self,*args):
 def MEDCouplingDataArrayDoubleIpow(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayDouble____ipow___(self, self, *args)
-def MEDCouplingFieldDoublenew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingFieldDouble____new___(cls,args)
 def MEDCouplingFieldDoubleIadd(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____iadd___(self, self, *args)
@@ -139,18 +133,6 @@ def MEDCouplingFieldDoubleIdiv(self,*args):
 def MEDCouplingFieldDoubleIpow(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____ipow___(self, self, *args)
-def MEDCouplingFieldIntnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingFieldInt____new___(cls,args)
-def MEDCouplingFieldFloatnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingFieldFloat____new___(cls,args)
-def MEDCouplingDataArrayBytenew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.DataArrayByte____new___(cls,args)
-def MEDCouplingDataArrayFloatnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.DataArrayFloat____new___(cls,args)
 def MEDCouplingDataArrayFloatIadd(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayFloat____iadd___(self, self, *args)
@@ -163,9 +145,6 @@ def MEDCouplingDataArrayFloatImul(self,*args):
 def MEDCouplingDataArrayFloatIdiv(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayFloat____idiv___(self, self, *args)
-def MEDCouplingDataArrayIntnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.DataArrayInt____new___(cls,args)
 def MEDCouplingDataArrayIntIadd(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayInt____iadd___(self, self, *args)
@@ -217,27 +196,6 @@ def ParaMEDMEMDenseMatrixIadd(self,*args):
 def ParaMEDMEMDenseMatrixIsub(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DenseMatrix____isub___(self, self, *args)
-def MEDCouplingUMeshnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingUMesh____new___(cls,args)
-def MEDCoupling1DGTUMeshnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCoupling1DGTUMesh____new___(cls,args)
-def MEDCoupling1SGTUMeshnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCoupling1SGTUMesh____new___(cls,args)
-def MEDCouplingCurveLinearMeshnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingCurveLinearMesh____new___(cls,args)
-def MEDCouplingCMeshnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingCMesh____new___(cls,args)
-def MEDCouplingIMeshnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingIMesh____new___(cls,args)
-def MEDCouplingExtrudedMeshnew(cls,*args):
-    import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingMappedExtrudedMesh____new___(cls,args)
 %}
 
 %include "MEDCouplingFinalize.i"

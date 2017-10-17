@@ -20,9 +20,6 @@
 %include "MEDRenumberCommon.i"
 
 %pythoncode %{
-def MEDCouplingDataArrayDoublenew(cls,*args):
-    import _MEDRenumber
-    return _MEDRenumber.DataArrayDouble____new___(cls,args)
 def MEDCouplingDataArrayDoubleIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDouble____iadd___(self, self, *args)
@@ -38,9 +35,6 @@ def MEDCouplingDataArrayDoubleIdiv(self,*args):
 def MEDCouplingDataArrayDoubleIpow(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDouble____ipow___(self, self, *args)
-def MEDCouplingDataArrayIntnew(cls,*args):
-    import _MEDRenumber
-    return _MEDRenumber.DataArrayInt____new___(cls,args)
 def MEDCouplingDataArrayIntIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____iadd___(self, self, *args)
@@ -59,12 +53,6 @@ def MEDCouplingDataArrayIntImod(self,*args):
 def MEDCouplingDataArrayIntIpow(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____ipow___(self, self, *args)
-def MEDCouplingDataArrayBytenew(cls,*args):
-    import _MEDRenumber
-    return _MEDRenumber.DataArrayByte____new___(cls,args)
-def MEDCouplingDataArrayFloatnew(cls,*args):
-    import _MEDRenumber
-    return _MEDRenumber.DataArrayFloat____new___(cls,args)
 def MEDCouplingDataArrayFloatIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayFloat____iadd___(self, self, *args)
@@ -109,14 +97,14 @@ def MEDCouplingDataArrayIntTupleImod(self,*args):
 
 %pythoncode %{
 InterpKernelException.__reduce__=INTERPKERNELExceptionReduce
-DataArrayDouble.__new__=classmethod(MEDCouplingDataArrayDoublenew)
+DataArrayDouble.__reduce__=MEDCouplingDataArrayDoubleReduce
 DataArrayDouble.__iadd__=MEDCouplingDataArrayDoubleIadd
 DataArrayDouble.__isub__=MEDCouplingDataArrayDoubleIsub
 DataArrayDouble.__imul__=MEDCouplingDataArrayDoubleImul
 DataArrayDouble.__idiv__=MEDCouplingDataArrayDoubleIdiv
 DataArrayDouble.__ipow__=MEDCouplingDataArrayDoubleIpow
 
-DataArrayInt.__new__=classmethod(MEDCouplingDataArrayIntnew)
+DataArrayInt.__reduce__=MEDCouplingDataArrayIntReduce
 DataArrayInt.__iadd__=MEDCouplingDataArrayIntIadd
 DataArrayInt.__isub__=MEDCouplingDataArrayIntIsub
 DataArrayInt.__imul__=MEDCouplingDataArrayIntImul
@@ -136,12 +124,12 @@ DataArrayIntTuple.__idiv__=MEDCouplingDataArrayIntTupleIdiv
 DataArrayIntTuple.__imod__=MEDCouplingDataArrayIntTupleImod
 
 del INTERPKERNELExceptionReduce
-del MEDCouplingDataArrayDoublenew
+del MEDCouplingDataArrayDoubleReduce
+del MEDCouplingDataArrayIntReduce
 del MEDCouplingDataArrayDoubleIadd
 del MEDCouplingDataArrayDoubleIsub
 del MEDCouplingDataArrayDoubleImul
 del MEDCouplingDataArrayDoubleIdiv
-del MEDCouplingDataArrayIntnew
 del MEDCouplingDataArrayIntIadd
 del MEDCouplingDataArrayIntIsub
 del MEDCouplingDataArrayIntImul

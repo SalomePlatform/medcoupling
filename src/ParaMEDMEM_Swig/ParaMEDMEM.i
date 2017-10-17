@@ -259,9 +259,6 @@ int MPI_Finalize();
   %}
 
 %pythoncode %{
-def MEDCouplingDataArrayDoublenew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayDouble____new___(cls,args)
 def MEDCouplingDataArrayDoubleIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____iadd___(self, self, *args)
@@ -277,9 +274,6 @@ def MEDCouplingDataArrayDoubleIdiv(self,*args):
 def MEDCouplingDataArrayDoubleIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____ipow___(self, self, *args)
-def MEDCouplingFieldDoublenew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCouplingFieldDouble____new___(cls,args)
 def MEDCouplingFieldDoubleIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____iadd___(self, self, *args)
@@ -295,15 +289,6 @@ def MEDCouplingFieldDoubleIdiv(self,*args):
 def MEDCouplingFieldDoubleIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____ipow___(self, self, *args)
-def MEDCouplingFieldIntnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCouplingFieldInt____new___(cls,args)
-def MEDCouplingFieldFloatnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCouplingFieldFloat____new___(cls,args)
-def MEDCouplingDataArrayIntnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayInt____new___(cls,args)
 def MEDCouplingDataArrayIntIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____iadd___(self, self, *args)
@@ -322,12 +307,6 @@ def MEDCouplingDataArrayIntImod(self,*args):
 def MEDCouplingDataArrayIntIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____ipow___(self, self, *args)
-def MEDCouplingDataArrayBytenew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayByte____new___(cls,args)
-def MEDCouplingDataArrayFloatnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayFloat____new___(cls,args)
 def MEDCouplingDataArrayFloatIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayFloat____iadd___(self, self, *args)
@@ -373,27 +352,6 @@ def ParaMEDMEMDenseMatrixIadd(self,*args):
 def ParaMEDMEMDenseMatrixIsub(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DenseMatrix____isub___(self, self, *args)
-def MEDCouplingUMeshnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCouplingUMesh____new___(cls,args)
-def MEDCoupling1DGTUMeshnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCoupling1DGTUMesh____new___(cls,args)
-def MEDCoupling1SGTUMeshnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCoupling1SGTUMesh____new___(cls,args)
-def MEDCouplingCurveLinearMeshnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCouplingCurveLinearMesh____new___(cls,args)
-def MEDCouplingCMeshnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCouplingCMesh____new___(cls,args)
-def MEDCouplingIMeshnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCouplingIMesh____new___(cls,args)
-def MEDCouplingExtrudedMeshnew(cls,*args):
-    import _ParaMEDMEM
-    return _ParaMEDMEM.MEDCouplingMappedExtrudedMesh____new___(cls,args)
 %}
 
 %include "MEDCouplingFinalize.i"
