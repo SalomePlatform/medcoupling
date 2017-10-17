@@ -110,6 +110,7 @@ del INTERPKERNELExceptionReduce
 del MEDCouplingDataArrayDoubleReduce
 del MEDCouplingDataArrayFloatReduce
 del MEDCouplingDataArrayIntReduce
+del MEDCouplingDataArrayByteReduce
 del MEDCouplingUMeshReduce
 del MEDCouplingCMeshReduce
 del MEDCouplingIMeshReduce
