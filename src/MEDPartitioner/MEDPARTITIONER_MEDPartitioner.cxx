@@ -30,6 +30,9 @@
 #ifdef MED_ENABLE_SCOTCH
 #  include "MEDPARTITIONER_ScotchGraph.hxx"
 #endif
+#ifdef MED_ENABLE_PTSCOTCH
+#  include "MEDPARTITIONER_PTScotchGraph.hxx"
+#endif
 #include "MEDPARTITIONER_MeshCollectionDriver.hxx"
 
 #include "MEDCouplingUMesh.hxx"
@@ -137,7 +140,7 @@ MEDCoupling::MEDFileData* MEDPARTITIONER::MEDPartitioner::getMEDFileData()
   return _output_collection->retrieveDriver()->getMEDFileData();
 }
 
-MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split, int* edgeweight)
+MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split, int* edgeweight, DataArrayInt *vlbloctab)
 {
   MEDPARTITIONER::Graph* cellGraph=0;
   // will be destroyed by XXXGraph class:
@@ -158,7 +161,11 @@ MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCou
 #ifdef MED_ENABLE_SCOTCH
       cellGraph=new SCOTCHGraph(arr,edgeweight);
 #else
-      throw INTERP_KERNEL::Exception("MEDPartitioner::Graph : SCOTCH is not available. Check your products, please.");
+#ifdef MED_ENABLE_PTSCOTCH
+      cellGraph=new PTSCOTCHGraph(arr,edgeweight,vlbloctab);
+#else
+      throw INTERP_KERNEL::Exception("MEDPartitioner::Graph : PTSCOTCH/SCOTCH is not available. Check your products, please.");
+#endif
 #endif
       break;
     }

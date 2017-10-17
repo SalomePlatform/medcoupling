@@ -78,7 +78,7 @@ namespace MEDPARTITIONER
     MEDPartitioner(const std::string& filename, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
     MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
     MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
-    static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0) throw(INTERP_KERNEL::Exception);
+    static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0, MEDCoupling::DataArrayInt* vlbloctab=0) throw(INTERP_KERNEL::Exception);
     MEDCoupling::MEDFileData* getMEDFileData() throw(INTERP_KERNEL::Exception);
     void write(const std::string& filename) throw(INTERP_KERNEL::Exception);
   };
