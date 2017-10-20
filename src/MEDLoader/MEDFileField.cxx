@@ -157,7 +157,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const std::string& locName):_name(
   _ref_coo.resize(_dim*_nb_node_per_cell);
   _gs_coo.resize(_dim*_nb_gauss_pt);
   _w.resize(_nb_gauss_pt);
-  MEDlocalizationRd(fid,locName.c_str(),MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
+  MEDFILESAFECALLERRD0(MEDlocalizationRd,(fid,locName.c_str(),MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]));
 }
 
 MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id, const MEDFileEntities *entities)
@@ -168,7 +168,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id, const MEDFileEntities *ent
   INTERP_KERNEL::AutoPtr<char> locName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> geointerpname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> sectionmeshname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
-  MEDlocalizationInfo(fid,id+1,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
+  MEDFILESAFECALLERRD0(MEDlocalizationInfo,(fid,id+1,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype));
   _name=locName;
   std::string sectionName(MEDLoaderBase::buildStringFromFortran(sectionmeshname,MED_NAME_SIZE));
   if(sectionName.empty())
@@ -191,13 +191,13 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id, const MEDFileEntities *ent
       _gt=new MEDFileGTKeeperDyn(um,section,se);
       {
         int dummy;
-        MEDFILESAFECALLERWR0(MEDmeshGeotypeParameter,(fid,geotype,&dummy,&_nb_node_per_cell));
+        MEDFILESAFECALLERRD0(MEDmeshGeotypeParameter,(fid,geotype,&dummy,&_nb_node_per_cell));
       }
     }
   _ref_coo.resize(_dim*_nb_node_per_cell);
   _gs_coo.resize(_dim*_nb_gauss_pt);
   _w.resize(_nb_gauss_pt);
-  MEDlocalizationRd(fid,locName,MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
+  MEDFILESAFECALLERRD0(MEDlocalizationRd,(fid,locName,MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]));
 }
 
 MEDFileFieldLoc::MEDFileFieldLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType,
@@ -280,7 +280,7 @@ bool MEDFileFieldLoc::isEqual(const MEDFileFieldLoc& other, double eps) const
 
 void MEDFileFieldLoc::writeLL(med_idt fid) const
 {
-  MEDlocalizationWr(fid,_name.c_str(),typmai3[(int)getGeoType()],_dim,&_ref_coo[0],MED_FULL_INTERLACE,_nb_gauss_pt,&_gs_coo[0],&_w[0],MED_NO_INTERPOLATION,MED_NO_MESH_SUPPORT);
+  MEDFILESAFECALLERWR0(MEDlocalizationWr,(fid,_name.c_str(),typmai3[(int)getGeoType()],_dim,&_ref_coo[0],MED_FULL_INTERLACE,_nb_gauss_pt,&_gs_coo[0],&_w[0],MED_NO_INTERPOLATION,MED_NO_MESH_SUPPORT));
 }
 
 std::string MEDFileFieldLoc::repr() const
@@ -617,10 +617,10 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
           spd->getSlice(start,stop,step);
           int nbOfEltsToLoad(DataArray::GetNumberOfItemGivenBES(start,stop,step,"MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile"));
           med_filter filter=MED_FILTER_INIT;
-          MEDfilterBlockOfEntityCr(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
-                                   MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
-                                   /*start*/start+1,/*stride*/step,/*count*/1,/*blocksize*/nbOfEltsToLoad,
-                                   /*lastblocksize=useless because count=1*/0,&filter);
+          MEDFILESAFECALLERRD0(MEDfilterBlockOfEntityCr,(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
+                                                         MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
+                                                         /*start*/start+1,/*stride*/step,/*count*/1,/*blocksize*/nbOfEltsToLoad,
+                                                         /*lastblocksize=useless because count=1*/0,&filter));
           MEDFILESAFECALLERRD0(MEDfieldValueAdvancedRd,(fid,fieldName.c_str(),iteration,order,menti,mgeoti,&filter,startFeedingPtr));
           MEDfilterClose(&filter);
           return ;
@@ -638,10 +638,10 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
           {//TODO : manage int32 !
             MCAuto<DataArrayDouble> tmp(DataArrayDouble::New());
             tmp->alloc(nbOfEltsToLoad,nbOfCompo);
-            MEDfilterBlockOfEntityCr(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
-                                     MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
-                                     /*start*/a+1,/*stride*/1,/*count*/1,/*blocksize*/nbOfEltsToLoad,
-                                     /*lastblocksize=useless because count=1*/0,&filter);
+            MEDFILESAFECALLERRD0(MEDfilterBlockOfEntityCr,(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
+                                                           MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
+                                                           /*start*/a+1,/*stride*/1,/*count*/1,/*blocksize*/nbOfEltsToLoad,
+                                                           /*lastblocksize=useless because count=1*/0,&filter));
             MEDFILESAFECALLERRD0(MEDfieldValueAdvancedRd,(fid,fieldName.c_str(),iteration,order,menti,mgeoti,&filter,reinterpret_cast<unsigned char *>(tmp->getPointer())));
             MCAuto<DataArrayDouble> feeder(DataArrayDouble::New());
             feeder->useExternalArrayWithRWAccess(reinterpret_cast<double *>(startFeedingPtr),_nval,nbOfCompo);
