@@ -2057,8 +2057,16 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.setFamiliesOnGroup("grp0",["MyOtherFam"])
         mm.setFamiliesOnGroup("grpA",["MyOther-1"])
         #
+        self.assertTrue(mm.getNodeFamiliesArr(["MyFam","MyOtherFam"]).isEqual(DataArrayInt([1,3,4,12]))) # find family id 2 and 3 into famCoo
+        #
         daTest=DataArrayInt([1,3,4,6,9,10,12]) ; daTest.setName("grp1")
         mm.addNodeGroup(daTest)
+        self.assertTrue(mm.getNodeGroupArr(daTest.getName()).isEqual(daTest)) # the node group has been pushed right before -> now read it
+        self.assertTrue(mm.getNodeGroupsArr(["grp1","grpA"]).isEqual(DataArrayInt([1,3,4,6,9,10,11,12])))#daTest+[11] because 11 is the rank of -1 (MyOther-1) in famCoo
+        #
+        expect1=DataArrayInt([1,4]) ; expect1.setName("MyFam")
+        self.assertTrue(mm.getNodeFamilyArr(expect1.getName()).isEqual(expect1))
+        #
         self.assertTrue(mm.getGroupArr(1,daTest.getName()).isEqual(daTest))
         self.assertTrue(mm.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([6,2,6,8,2,6,5,6,6,7,7,4,8])))
         for lev,arr in [(0,da0),(-1,da1),(-2,da2)]:
