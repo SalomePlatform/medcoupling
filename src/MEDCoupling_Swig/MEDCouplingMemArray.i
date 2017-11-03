@@ -1045,6 +1045,22 @@ namespace MEDCoupling
           }
       }
 
+      PyObject *asArcOfCircle() const throw(INTERP_KERNEL::Exception)
+      {
+        double center[2],radius,ang;
+        self->asArcOfCircle(center,radius,ang);
+        PyObject *ret(PyTuple_New(3));
+        {
+          PyObject *ret0(PyList_New(2));
+          PyList_SetItem(ret0,0,PyFloat_FromDouble(center[0]));
+          PyList_SetItem(ret0,1,PyFloat_FromDouble(center[1]));
+          PyTuple_SetItem(ret,0,ret0);
+        }
+        PyTuple_SetItem(ret,1,PyFloat_FromDouble(radius));
+        PyTuple_SetItem(ret,2,PyFloat_FromDouble(ang));        
+        return ret;
+      }
+
       DataArrayDoubleIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->iterator();

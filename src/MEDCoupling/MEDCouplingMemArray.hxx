@@ -470,6 +470,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *maxPerTupleWithCompoId(DataArrayInt32* &compoIdOfMaxPerTuple) const;
     MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrix() const;
     MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const;
+    MEDCOUPLING_EXPORT void asArcOfCircle(double center[2], double& radius, double& ang) const;
     MEDCOUPLING_EXPORT void sortPerTuple(bool asc);
     MEDCOUPLING_EXPORT void applyInv(double numerator);
     MEDCOUPLING_EXPORT void applyPow(double val);

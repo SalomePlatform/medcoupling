@@ -25,6 +25,12 @@
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelExprParser.hxx"
 
+#include "InterpKernelAutoPtr.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelAutoPtr.hxx"
+#include "InterpKernelGeo2DNode.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
+
 #include <set>
 #include <cmath>
 #include <limits>
@@ -2487,6 +2493,38 @@ DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrixWith(const Da
         }
     }
   return ret.retn();
+}
+
+/*!
+ * This method expects that \a this stores 3 tuples containing 2 components each.
+ * Each of this tuples represent a point into 2D space.
+ * This method tries to find an arc of circle starting from first point (tuple) to 2nd and middle point (tuple) along 3nd and last point (tuple).
+ * If such arc of circle exists, the corresponding center, radius of circle is returned. And additionnaly the length of arc expressed with an \a ang output variable in ]0,2*pi[.
+ *  
+ *  \throw If \a this is not allocated.
+ *  \throw If \a this has not 3 tuples of 2 components
+ *  \throw If tuples/points in \a this are aligned
+ */
+void DataArrayDouble::asArcOfCircle(double center[2], double& radius, double& ang) const
+{
+  checkAllocated();
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(1e-14);
+  if(getNumberOfTuples()!=3 && getNumberOfComponents()!=2)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::asArcCircle : this method expects");
+  const double *pt(begin());
+  MCAuto<INTERP_KERNEL::Node> n0(new INTERP_KERNEL::Node(pt[0],pt[1])),n1(new INTERP_KERNEL::Node(pt[2],pt[3])),n2(new INTERP_KERNEL::Node(pt[4],pt[5]));
+  {
+    INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::EdgeLin> e1(new INTERP_KERNEL::EdgeLin(n0,n2)),e2(new INTERP_KERNEL::EdgeLin(n2,n1));
+    INTERP_KERNEL::SegSegIntersector inters(*e1,*e2);
+    bool colinearity(inters.areColinears());
+    if(colinearity)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::asArcOfCircle : 3 points in this have been detected as colinear !");
+  }
+  INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::EdgeArcCircle> ret(new INTERP_KERNEL::EdgeArcCircle(n0,n2,n1));
+  const double *c(ret->getCenter());
+  center[0]=c[0]; center[1]=c[1];
+  radius=ret->getRadius();
+  ang=ret->getAngle();
 }
 
 /*!

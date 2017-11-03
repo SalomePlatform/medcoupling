@@ -158,7 +158,15 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         sla.deleteSimplePack(1)
         self.assertTrue(sla.getIndexArray().isEqual(DataArrayInt([0,2])))
         self.assertTrue(sla.getValuesArray().isEqual(DataArrayInt([2,3])))
-        pass    
+        pass
+
+    def testDADAsArcOfCircle(self):
+        d=DataArrayDouble([3.06915124862645,2.1464466094067824,2.85355345827285,2.3620444674400574,2.637955532559882,2.1464467447661937],3,2)
+        center,radius,ang=d.asArcOfCircle()
+        self.assertTrue((d-center).magnitude().isUniform(radius,1e-10))
+        self.assertAlmostEqual(ang,-4.712389294301196,12)
+        pass
+    
     pass
 
 if __name__ == '__main__':
