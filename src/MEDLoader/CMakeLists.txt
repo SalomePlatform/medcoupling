@@ -63,6 +63,10 @@ SET(medloader_SOURCES
   MEDFileBasis.cxx
   MEDFileMeshLL.cxx
   MEDFileField.cxx
+  MEDFileFieldInternal.cxx
+  MEDFileFieldGlobs.cxx
+  MEDFileField1TS.cxx
+  MEDFileFieldMultiTS.cxx
   MEDFileJoint.cxx
   MEDFileEquivalence.cxx
   MEDFileParameter.cxx
