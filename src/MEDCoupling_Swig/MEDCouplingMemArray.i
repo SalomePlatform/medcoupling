@@ -916,9 +916,8 @@ namespace MEDCoupling
     void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *computeBBoxPerTuple(double epsilon=0.0) const throw(INTERP_KERNEL::Exception);
     void recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception);
-    double getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     double getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
-    double getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    double getMaxAbsValueInArray() const throw(INTERP_KERNEL::Exception);
     double getMinValueInArray() const throw(INTERP_KERNEL::Exception);
     int count(double value, double eps) const throw(INTERP_KERNEL::Exception);
     double getAverageValue() const throw(INTERP_KERNEL::Exception);
@@ -1287,6 +1286,16 @@ namespace MEDCoupling
       {
         int tmp;
         double r1=self->getMaxValue(tmp);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
+        PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
+        return ret;
+      }
+
+	  PyObject *getMaxAbsValue() const throw(INTERP_KERNEL::Exception)
+      {
+        std::size_t tmp;
+        double r1=self->getMaxAbsValue(tmp);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
         PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
@@ -2313,9 +2322,8 @@ namespace MEDCoupling
     bool presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     int count(int value) const throw(INTERP_KERNEL::Exception);
     int accumulate(int compId) const throw(INTERP_KERNEL::Exception);
-    int getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     int getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
-    int getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    int getMaxAbsValueInArray() const throw(INTERP_KERNEL::Exception);
     int getMinValueInArray() const throw(INTERP_KERNEL::Exception);
     void abs() throw(INTERP_KERNEL::Exception);
     DataArrayInt *computeAbs() const throw(INTERP_KERNEL::Exception);
@@ -2957,6 +2965,16 @@ namespace MEDCoupling
       {
         int tmp;
         int r1=self->getMaxValue(tmp);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,PyInt_FromLong(r1));
+        PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
+        return ret;
+      }
+    
+      PyObject *getMaxAbsValue(std::size_t& tupleId) const throw(INTERP_KERNEL::Exception)
+      {
+      	std::size_t tmp;
+        int r1=self->getMaxAbsValue(tmp);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,PyInt_FromLong(r1));
         PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));

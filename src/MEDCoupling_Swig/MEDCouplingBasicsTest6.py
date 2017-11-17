@@ -166,6 +166,17 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         self.assertTrue((d-center).magnitude().isUniform(radius,1e-10))
         self.assertAlmostEqual(ang,-4.712389294301196,12)
         pass
+
+    def testDAMaxAbsValue(self):
+        d=DataArrayDouble([-2,3,1.2,-2.9])
+        a,b=d.getMaxAbsValue()
+        self.assertAlmostEqual(a,3.,13)
+        self.assertEqual(b,1)
+        a,b=(-d).getMaxAbsValue()
+        self.assertAlmostEqual(a,-3.,13)
+        self.assertEqual(b,1)
+        self.assertAlmostEqual((-d).getMaxAbsValueInArray(),-3.,13)
+        pass
     
     pass
 

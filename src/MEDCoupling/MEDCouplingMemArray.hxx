@@ -285,6 +285,8 @@ namespace MEDCoupling
     void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
     T getMaxValue(int& tupleId) const;
     T getMaxValueInArray() const;
+    T getMaxAbsValue(std::size_t& tupleId) const;
+    T getMaxAbsValueInArray() const;
     T getMinValue(int& tupleId) const;
     T getMinValueInArray() const;
     MEDCOUPLING_EXPORT void getTuple(int tupleId, T *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }

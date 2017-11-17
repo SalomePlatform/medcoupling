@@ -2185,6 +2185,7 @@ namespace MEDCoupling
    *  \return double - the maximal value among all values of \a this array.
    *  \throw If \a this->getNumberOfComponents() != 1
    *  \throw If \a this->getNumberOfTuples() < 1
+   *  \sa getMaxAbsValue, getMinValue
    */
   template<class T>
   T DataArrayTemplate<T>::getMaxValue(int& tupleId) const
@@ -2206,6 +2207,7 @@ namespace MEDCoupling
    *  one component.
    *  \return double - the maximal value among all values of \a this array.
    *  \throw If \a this is not allocated.
+   *  \sa getMaxAbsValueInArray, getMinValueInArray
    */
   template<class T>
   T DataArrayTemplate<T>::getMaxValueInArray() const
@@ -2215,6 +2217,50 @@ namespace MEDCoupling
     return *loc;
   }
   
+  /*!
+   * Returns the maximal absolute value in \a this and the first occurrence location associated to it.
+   * \return the element in this (positive or negative) having the max abs value in \a this.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a this is non one component array.
+   *  \throw If \a this is empty.
+   */
+  template<class T>
+  T DataArrayTemplate<T>::getMaxAbsValue(std::size_t& tupleId) const
+  {
+    checkAllocated();
+    if(getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxAbsValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before or call 'getMaxValueInArray' method !");
+    std::size_t nbTuples(this->getNumberOfTuples());
+    if(nbTuples==0)
+      throw INTERP_KERNEL::Exception("DataArrayTemplate<T>::getMaxAbsValue : empty array !");
+    T ret((T)-1);
+    tupleId=0;
+    const T *pt(begin());
+    for(std::size_t i=0;i<nbTuples;i++,pt++)
+      {
+        T cand(std::abs(*pt));
+        if(cand>ret)
+          {
+            ret=cand;
+            tupleId=i;
+          }
+      }
+    return this->getIJ(tupleId,0);
+  }
+
+  /*!
+   * Returns the maximal absolute value in \a this.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a this is non one component array.
+   *  \throw If \a this is empty.
+   */
+  template<class T>
+  T DataArrayTemplate<T>::getMaxAbsValueInArray() const
+  {
+    std::size_t dummy;
+    return getMaxAbsValue(dummy);
+  }
+
   /*!
    * Returns the minimal value and its location within \a this one-dimensional array.
    *  \param [out] tupleId - index of the tuple holding the minimal value.
