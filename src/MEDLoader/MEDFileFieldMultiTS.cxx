@@ -702,9 +702,9 @@ std::vector< std::pair<int,int> > MEDFileAnyTypeFieldMultiTSWithoutSDA::getItera
  *
  * If 'this' is empty this method will throw an INTERP_KERNEL::Exception.
  * If there is \b only node fields defined in 'this' -1 is returned and 'levs' output parameter will be empty. In this
- * case the caller has to know the underlying mesh it refers to. By defaut it is the level 0 of the corresponding mesh.
+ * case the caller has to know the underlying mesh it refers to. By default it is the level 0 of the corresponding mesh.
  *
- * This method is usefull to make the link between meshDimension of the underlying mesh in 'this' and the levels on 'this'.
+ * This method is useful to make the link between meshDimension of the underlying mesh in 'this' and the levels on 'this'.
  * It is possible (even if it is not common) that the highest level in 'this' were not equal to the meshDimension of the underlying mesh in 'this'.
  * 
  * Let's consider the typical following case :
@@ -885,7 +885,7 @@ std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > MEDFileAnyTypeFieldM
 
 /*!
  * This method splits into discretization each time steps in \a this.
- * ** WARNING ** the returned instances are not compulsary defined on the same time steps series !
+ * ** WARNING ** the returned instances are not compulsory defined on the same time steps series !
  */
 std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > MEDFileAnyTypeFieldMultiTSWithoutSDA::splitDiscretizations() const
 {
@@ -1608,7 +1608,7 @@ void MEDFileAnyTypeFieldMultiTS::unloadArrays()
 
 /*!
  * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
- * This method is the symetrical method of MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary.
+ * This method is the symmetrical method of MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary.
  * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
  * 
  * \sa MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary
@@ -1641,8 +1641,8 @@ std::vector<const BigMemoryObject *> MEDFileAnyTypeFieldMultiTS::getDirectChildr
 
 /*!
  * This method returns as MEDFileAnyTypeFieldMultiTS new instances as number of components in \a this.
- * The returned instances are deep copy of \a this except that for globals that are share with those contained in \a this.
- * ** WARNING ** do no forget to rename the ouput instances to avoid to write n-times in the same MED file field !
+ * The returned instances are deep copy of \a this except that for globals that are shared with those contained in \a this.
+ * ** WARNING ** do no forget to rename the output instances to avoid to write n-times in the same MED file field !
  */
 std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > MEDFileAnyTypeFieldMultiTS::splitComponents() const
 {
@@ -1662,7 +1662,7 @@ std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > MEDFileAnyTypeFieldMultiTS::
 
 /*!
  * This method returns as MEDFileAnyTypeFieldMultiTS new instances as number of discretizations over time steps in \a this.
- * The returned instances are shallow copied of \a this included globals that are share with those contained in \a this.
+ * The returned instances are shallow copied of \a this included globals that are shared with those contained in \a this.
  */
 std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > MEDFileAnyTypeFieldMultiTS::splitDiscretizations() const
 {
@@ -1682,7 +1682,7 @@ std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > MEDFileAnyTypeFieldMultiTS::
 
 /*!
  * This method returns as MEDFileAnyTypeFieldMultiTS new instances as number of sub-discretizations over time steps in \a this.
- * The returned instances are shallow copied of \a this included globals that are share with those contained in \a this.
+ * The returned instances are shallow copied of \a this included globals that are shared with those contained in \a this.
  */
 std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > MEDFileAnyTypeFieldMultiTS::splitMultiDiscrPerGeoTypes() const
 {

@@ -109,7 +109,7 @@ class CaseReader(CaseIO):
         return m
 
     def __convertGeo2MED(self,geoFileName):
-        """ Convert all the geometry (all the meshes) contained in teh CASE file into MEDCouplingUMesh'es. """
+        """ Convert all the geometry (all the meshes) contained in the CASE file into MEDCouplingUMesh'es. """
         fd=open(os.path.join(self._dirName,geoFileName),"r+b") ; fd.seek(0,2) ; end=fd.tell() ; fd.seek(0) ; title=fd.read(80)
         title=title.strip().lower()
         if "binary" not in title:

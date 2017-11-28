@@ -172,7 +172,7 @@ namespace MEDCoupling
    * This method returns, if it exists, an array with only one component and as many as tuples as _field has.
    * This array gives for every element on which this->_field lies, its global number, if this->_field is nodal.
    * For example if _field is a nodal field : returned array will be the nodal global numbers.
-   * The content of this method is used to inform Working side to accumulate data recieved by lazy side.
+   * The content of this method is used to inform Working side to accumulate data received by lazy side.
    */
   DataArrayInt* ParaFIELD::returnCumulativeGlobalNumbering() const
   {

@@ -365,7 +365,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int& start, int off
 }
 
 /*!
- * Leaf method of field with profile assignement. This method is the most general one. No optimization is done here.
+ * Leaf method of field with profile assignment. This method is the most general one. No optimization is done here.
  * \param [in] pflName input containing name of profile if any. 0 if no profile (except for GAUSS_PT where a no profile can hide a profile when splitted by loc_id).
  * \param [in] multiTypePfl is the end user profile specified in high level API
  * \param [in] idsInPfl is the selection into the \a multiTypePfl whole profile that corresponds to the current geometric type.
@@ -676,7 +676,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_i
   start=_end;
   if(type==ON_CELLS && !_localization.empty())
     {
-      if(_localization!="MED_GAUSS_ELNO")//For compatibily with MED2.3
+      if(_localization!="MED_GAUSS_ELNO")//For compatibility with MED2.3
         setType(ON_GAUSS_PT);
       else
         {
@@ -1024,7 +1024,7 @@ std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> > MEDFileFi
 /*!
  * - \c this->_loc_id mutable attribute is used for elt id in mesh offsets.
  * 
- * \param [in] offset the offset id used to take into account that \a result is not compulsary empty in input
+ * \param [in] offset the offset id used to take into account that \a result is not compulsory empty in input
  * \param [in] entriesOnSameDisc some entries **on same localization** if not the result can be invalid. The _start and _end on them are relative to \a arr parameter.
  * \param [in] explicitIdsInMesh ids in mesh of the considered chunk.
  * \param [in] newCode one of the input parameter to explicit the new geo type dispatch (in classical format same than those asked by MEDFileFields::renumberEntitiesLyingOnMesh)
@@ -2734,7 +2734,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId
     }
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
   std::ostringstream oss; oss << "MEDFileFieldPerMesh::getLeafGivenTypeAndLocId : no such geometric type \"" << cm.getRepr() << "\" in this !" << std::endl;
-  oss << "Possiblities are : ";
+  oss << "Possibilities are : ";
   for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel((*it)->getGeoType());
@@ -2752,7 +2752,7 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAn
     }
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
   std::ostringstream oss; oss << "MEDFileFieldPerMesh::getLeafGivenTypeAndLocId : no such geometric type \"" << cm.getRepr() << "\" in this !" << std::endl;
-  oss << "Possiblities are : ";
+  oss << "Possibilities are : ";
   for(std::vector< MCAuto< MEDFileFieldPerMeshPerTypeCommon > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     {
       const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel((*it)->getGeoType());

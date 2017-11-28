@@ -302,7 +302,7 @@ int main(int argc, char** argv)
     }
   catch(...)
     {
-      cerr<<"an unknown type exception error was occured"<<endl;
+      cerr<<"an unknown type exception error has occurred"<<endl;
       fflush(stderr);
       return 1;
     }

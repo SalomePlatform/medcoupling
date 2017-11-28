@@ -1170,7 +1170,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
               fcount.stop();
             }
         }
-    } // loop on fiels
+    } // loop on files
 }
 
 //================================================================================

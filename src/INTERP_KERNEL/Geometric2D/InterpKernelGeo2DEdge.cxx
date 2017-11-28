@@ -288,7 +288,7 @@ void IntersectElement::performMerging(MergePoints& commonNode) const
 }
 
 /*!
- * This methode is const because 'node' is supposed to be equal geomitrically to _node.
+ * This method is const because 'node' is supposed to be equal geometrically to _node.
  */
 void IntersectElement::setNode(Node *node) const
 {
@@ -746,7 +746,7 @@ bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersecto
   if(intersector->intersect(whereToFind,newNodes,order,commonNode))
     {
       if(newNodes.empty())
-        throw Exception("Internal error occured - error in intersector implementation!");// This case should never happen
+        throw Exception("Internal error occurred - error in intersector implementation!");// This case should never happen
       std::vector<Node *>::iterator iter=newNodes.begin();
       std::vector<Node *>::reverse_iterator iterR=newNodes.rbegin();
       f1->addSubEdgeInVector(f1->getStartNode(),*iter,outValForF1);

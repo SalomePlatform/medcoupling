@@ -346,7 +346,7 @@ void MEDCoupling::MEDFileVersion(int& major, int& minor, int& release)
 }
 
 /*!
- * This method sets the epsilon value used for node comparison when trying to buid a profile for a field on node/cell on an already written mesh.
+ * This method sets the epsilon value used for node comparison when trying to build a profile for a field on node/cell on an already written mesh.
  */
 void MEDCoupling::SetEpsilonForNodeComp(double val)
 {

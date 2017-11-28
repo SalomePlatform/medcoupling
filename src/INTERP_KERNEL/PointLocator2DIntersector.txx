@@ -118,7 +118,7 @@ namespace INTERP_KERNEL
                                                const double *             sourceTria,
                                                std::vector<double>&       res)
   {
-    throw INTERP_KERNEL::Exception("intersectGeoBary incompatible with PointLocator. Desactivate P1P0Bary to avoid the problem");
+    throw INTERP_KERNEL::Exception("intersectGeoBary incompatible with PointLocator. Deactivate P1P0Bary to avoid the problem");
     return 0.;
   }
 

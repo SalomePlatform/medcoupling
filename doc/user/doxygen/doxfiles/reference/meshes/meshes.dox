@@ -6,7 +6,7 @@
 
 Several types of meshes are available in MEDCoupling:
 
-- \subpage MEDCouplingPointSetPage "Point set mesh" (abstract, can not be instanciated)
+- \subpage MEDCouplingPointSetPage "Point set mesh" (abstract, can not be instantiated)
 - \subpage MEDCouplingUMeshPage "Unstructured meshes"
 - \subpage MEDCouplingCMeshPage "Cartesian meshes"
 - \subpage MEDCouplingExtrudedPage "3D Extruded meshes"

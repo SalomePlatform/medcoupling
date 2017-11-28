@@ -379,7 +379,7 @@ void MEDFileFields::unloadArrays()
 
 /*!
  * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
- * This method is the symetrical method of MEDFileFields::loadArraysIfNecessary.
+ * This method is the symmetrical method of MEDFileFields::loadArraysIfNecessary.
  * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
  * 
  * \sa MEDFileFields::loadArraysIfNecessary
@@ -553,7 +553,7 @@ bool MEDFileFields::changeMeshNames(const std::vector< std::pair<std::string,std
  *             This code corresponds to the distribution of types in the corresponding mesh.
  * \param [in] newCode idem to param \a oldCode except that here the new distribution is given.
  * \param [in] renumO2N the old to new renumber array.
- * \return If true a renumbering has been performed. The structure in \a this has been modified. If false, nothing has been done: it is typically the case if \a meshName is not refered by any 
+ * \return If true a renumbering has been performed. The structure in \a this has been modified. If false, nothing has been done: it is typically the case if \a meshName is not referred by any 
  *         field in \a this.
  */
 bool MEDFileFields::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N)

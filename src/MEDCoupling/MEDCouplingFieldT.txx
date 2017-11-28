@@ -441,7 +441,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * Builds a newly created field, that the caller will have the responsability to deal with.
+   * Builds a newly created field, that the caller will have the responsibility to deal with.
    * \n This method makes the assumption that \a this field is correctly defined when this method is called (\a this->checkConsistencyLight() returns without any exception thrown), **no check of this will be done**.
    * \n This method returns a restriction of \a this so that only tuple ids specified in [ \a partBg , \a partEnd ) will be contained in the returned field.
    * \n Parameter [\a partBg, \a partEnd ) specifies **cell ids whatever the spatial discretization** of \a this (
@@ -504,7 +504,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * Builds a newly created field, that the caller will have the responsability to deal with (decrRef()).
+   * Builds a newly created field, that the caller will have the responsibility to deal with (decrRef()).
    * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
    * This method returns a restriction of \a this so that only tuples with ids specified in \a part will be contained in the returned field.
    * Parameter \a part specifies **cell ids whatever the spatial discretization of this** (

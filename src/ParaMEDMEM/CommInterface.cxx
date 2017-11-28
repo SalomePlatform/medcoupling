@@ -29,7 +29,7 @@ namespace MEDCoupling
     (but this is not strictly respected overall in practice ...). It is used in all
     the \ref parallel "DEC related classes".
 
-    It is typically instanciated after the MPI_Init() call in a program and is afterwards passed as a
+    It is typically instantiated after the MPI_Init() call in a program and is afterwards passed as a
     parameter to the constructors of various \ref parallel "parallel objects" so that they access the
     MPI library via this common interface.
 

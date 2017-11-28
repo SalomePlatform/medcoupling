@@ -301,9 +301,10 @@ void MEDCouplingUMesh::setMeshDimension(int meshDim)
 }
 
 /*!
- * Allocates memory to store an estimation of the given number of cells. The closer is the estimation to the number of cells effectively inserted,
- * the less will the library need to reallocate memory. If the number of cells to be inserted is not known simply put 0 to this parameter.
- * If a nodal connectivity previouly existed before the call of this method, it will be reset.
+ * Allocates memory to store an estimation of the given number of cells. 
+ * The closer the estimation to the number of cells effectively inserted, the less need the library requires
+ * to reallocate memory. If the number of cells to be inserted is not known simply assign 0 to this parameter.
+ * If a nodal connectivity previously existed before the call of this method, it will be reset.
  *
  *  \param [in] nbOfCells - estimation of the number of cell \a this mesh will contain.
  *
@@ -1902,7 +1903,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplin
 /*!
  * Build a sub part of \b this lying or not on the same coordinates than \b this (regarding value of \b keepCoords).
  * By default coordinates are kept. This method is close to MEDCouplingUMesh::buildPartOfMySelf except that here input
- * cellIds is not given explicitely but by a range python like.
+ * cellIds is not given explicitly but by a range python like.
  * 
  * \param start
  * \param end
@@ -2284,7 +2285,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const
  * This method expects that \b this and \b otherDimM1OnSameCoords share the same coordinates array.
  * otherDimM1OnSameCoords->getMeshDimension() is expected to be equal to this->getMeshDimension()-1.
  * This method searches for nodes needed to be duplicated. These nodes are nodes fetched by \b otherDimM1OnSameCoords which are not part of the boundary of \b otherDimM1OnSameCoords.
- * If a node is in the boundary of \b this \b and in the boundary of \b otherDimM1OnSameCoords this node is considerd as needed to be duplicated.
+ * If a node is in the boundary of \b this \b and in the boundary of \b otherDimM1OnSameCoords this node is considered as needed to be duplicated.
  * When the set of node ids \b nodeIdsToDuplicate is computed, cell ids in \b this is searched so that their connectivity includes at least 1 node in \b nodeIdsToDuplicate.
  *
  * \param [in] otherDimM1OnSameCoords a mesh lying on the same coords than \b this and with a mesh dimension equal to those of \b this minus 1. WARNING this input
@@ -2429,7 +2430,7 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
  * This method operates a modification of the connectivity and coords in \b this.
  * Every time that a node id in [ \b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd ) will append in nodal connectivity of \b this 
  * its ids will be modified to id this->getNumberOfNodes()+std::distance(nodeIdsToDuplicateBg,std::find(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd,id)).
- * More explicitely the renumber array in nodes is not explicitely given in old2new to avoid to build a big array of renumbering whereas typically few node ids needs to be
+ * More explicitly the renumber array in nodes is not explicitly given in old2new to avoid to build a big array of renumbering whereas typically few node ids needs to be
  * renumbered. The node id nodeIdsToDuplicateBg[0] will have id this->getNumberOfNodes()+0, node id nodeIdsToDuplicateBg[1] will have id this->getNumberOfNodes()+1,
  * node id nodeIdsToDuplicateBg[2] will have id this->getNumberOfNodes()+2...
  * 
@@ -2570,7 +2571,7 @@ void MEDCouplingUMesh::shiftNodeNumbersInConn(int delta)
  * Coordinates are \b NOT considered here and will remain unchanged by this method. this->_coords can ever been null for the needs of this method.
  * Every time that a node id in [ \b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd ) will append in nodal connectivity of \b this 
  * its ids will be modified to id offset+std::distance(nodeIdsToDuplicateBg,std::find(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd,id)).
- * More explicitely the renumber array in nodes is not explicitely given in old2new to avoid to build a big array of renumbering whereas typically few node ids needs to be
+ * More explicitly the renumber array in nodes is not explicitly given in old2new to avoid to build a big array of renumbering whereas typically few node ids needs to be
  * renumbered. The node id nodeIdsToDuplicateBg[0] will have id offset+0, node id nodeIdsToDuplicateBg[1] will have id offset+1,
  * node id nodeIdsToDuplicateBg[2] will have id offset+2...
  * 
@@ -2941,7 +2942,7 @@ std::string MEDCouplingUMesh::reprConnectivityOfThis() const
 }
 
 /*!
- * This method builds a newly allocated instance (with the same name than \a this) that the caller has the responsability to deal with.
+ * This method builds a newly allocated instance (with the same name than \a this) that the caller has the responsibility to deal with.
  * This method returns an instance with all arrays allocated (connectivity, connectivity index, coordinates)
  * but with length of these arrays set to 0. It allows to define an "empty" mesh (with nor cells nor nodes but compliant with
  * some algos).
@@ -3003,7 +3004,7 @@ int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
 
 /*!
  * Returns types of cells of the specified part of \a this mesh.
- * This method avoids computing sub-mesh explicitely to get its types.
+ * This method avoids computing sub-mesh explicitly to get its types.
  *  \param [in] begin - an array of cell ids of interest.
  *  \param [in] end - the end of \a begin, i.e. a pointer to its (last+1)-th element.
  *  \return std::set<INTERP_KERNEL::NormalizedCellType> - a set of enumeration items
@@ -3846,7 +3847,7 @@ DataArrayInt *MEDCouplingUMesh::getCellIdsCrossingPlane(const double *origin, co
  * If not an exception will thrown. If this is an empty mesh with no cell an exception will be thrown too.
  * No consideration of coordinate is done by this method.
  * A 1D mesh is said contiguous if : a cell i with nodal connectivity (k,p) the cell i+1 the nodal connectivity should be (p,m)
- * If not false is returned. In case that false is returned a call to MEDCoupling::MEDCouplingUMesh::mergeNodes could be usefull.
+ * If not false is returned. In case that false is returned a call to MEDCoupling::MEDCouplingUMesh::mergeNodes could be useful.
  */
 bool MEDCouplingUMesh::isContiguous1D() const
 {
@@ -5532,7 +5533,7 @@ namespace MEDCouplingImpl
  * \a this is composed in cell types.
  * The returned array is of size 3*n where n is the number of different types present in \a this. 
  * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here. 
- * This parameter is kept only for compatibility with other methode listed above.
+ * This parameter is kept only for compatibility with other method listed above.
  */
 std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const
 {
@@ -5577,7 +5578,7 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const
  * 
  * If all geometric types in \a code are exactly those in \a this null pointer is returned.
  * If it exists a geometric type in \a this \b not in \a code \b no exception is thrown 
- * and a DataArrayInt instance is returned that the user has the responsability to deallocate.
+ * and a DataArrayInt instance is returned that the user has the responsibility to deallocate.
  */
 DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
@@ -5888,7 +5889,7 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::No
 /*!
  * This method returns 2 newly allocated DataArrayInt instances. The first is an array of size 'this->getNumberOfCells()' with one component,
  * that tells for each cell the pos of its type in the array on type given in input parameter. The 2nd output parameter is an array with the same
- * number of tuples than input type array and with one component. This 2nd output array gives type by type the number of occurence of type in 'this'.
+ * number of tuples than input type array and with one component. This 2nd output array gives type by type the number of occurrence of type in 'this'.
  */
 DataArrayInt *MEDCouplingUMesh::getLevArrPerCellTypes(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd, DataArrayInt *&nbPerType) const
 {
@@ -6129,7 +6130,7 @@ void MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayInt
 /*!
  * This method takes in input a vector of MEDCouplingUMesh instances lying on the same coordinates with same mesh dimensions.
  * Each mesh in \b ms must be sorted by type with the same order (typically using MEDCouplingUMesh::sortCellsInMEDFileFrmt).
- * This method is particulary useful for MED file interaction. It allows to aggregate several meshes and keeping the type sorting
+ * This method is particularly useful for MED file interaction. It allows to aggregate several meshes and keeping the type sorting
  * and the track of the permutation by chunk of same geotype cells to retrieve it. The traditional formats old2new and new2old
  * are not used here to avoid the build of big permutation array.
  *
@@ -6792,7 +6793,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
  * Makes all given meshes share the nodal connectivity array. The common connectivity
  * array is created by concatenating the connectivity arrays of all given meshes. All
  * the given meshes must be of the same space dimension but dimension of cells **can
- * differ**. This method is particulary useful in MEDLoader context to build a \ref
+ * differ**. This method is particularly useful in MEDLoader context to build a \ref
  * MEDCoupling::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
  * MEDCouplingUMesh'es of different dimension share the same nodal connectivity array.
  *  \param [in,out] meshes - a vector of meshes to update.
@@ -6846,7 +6847,7 @@ void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCou
 /*!
  * Merges nodes coincident with a given precision within all given meshes that share
  * the nodal connectivity array. The given meshes **can be of different** mesh
- * dimension. This method is particulary useful in MEDLoader context to build a \ref
+ * dimension. This method is particularly useful in MEDLoader context to build a \ref
  * MEDCoupling::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
  * MEDCouplingUMesh'es of different dimension share the same nodal connectivity array. 
  *  \param [in,out] meshes - a vector of meshes to update.
@@ -7905,7 +7906,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArraysSlice(int idsOfSelectStart, int i
  * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
  * This method builds an output pair (\b arrOut,\b arrIndexOut) that is a copy from \b arrIn for all cell ids \b not \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) and for
  * cellIds \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) a copy coming from the corresponding values in input pair (\b srcArr, \b srcArrIndex).
- * This method is an generalization of MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitely a result output arrays.
+ * This method is an generalization of MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitly a result output arrays.
  *
  * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
  * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
@@ -7971,7 +7972,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const in
 
 /*!
  * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
- * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignement do not modify the index in \b arrIndxIn.
+ * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignment do not modify the index in \b arrIndxIn.
  *
  * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
  * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
@@ -8068,7 +8069,7 @@ DataArrayInt *MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(const int *se
  * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
  * This method builds an output pair (\b arrOut,\b arrIndexOut) that is a copy from \b arrIn for all cell ids \b not \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) and for
  * cellIds \b in [\b idsOfSelectBg, \b idsOfSelectEnd) a copy coming from the corresponding values in input pair (\b srcArr, \b srcArrIndex).
- * This method is an generalization of MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitely a result output arrays.
+ * This method is an generalization of MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitly a result output arrays.
  *
  * \param [in] start begin of set of ids of the input extraction (included)
  * \param [in] end end of set of ids of the input extraction (excluded)
@@ -8133,7 +8134,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSlice(int start, int end, int step,
 
 /*!
  * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
- * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignement do not modify the index in \b arrIndxIn.
+ * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignment do not modify the index in \b arrIndxIn.
  *
  * \param [in] start begin of set of ids of the input extraction (included)
  * \param [in] end end of set of ids of the input extraction (excluded)
@@ -8303,7 +8304,7 @@ DataArrayInt *MEDCouplingUMesh::ComputeRangesFromTypeDistribution(const std::vec
  *         decrRef() as it is no more needed.
  * \return MEDCoupling1SGTUMesh * - the mesh containing only INTERP_KERNEL::NORM_TETRA4 cells.
  *
- * \warning This method operates on each cells in this independantly ! So it can leads to non conform mesh in returned value ! If you expect to have a conform mesh in output
+ * \warning This method operates on each cells in this independently ! So it can leads to non conform mesh in returned value ! If you expect to have a conform mesh in output
  * the policy PLANAR_FACE_6 should be used on a mesh sorted with MEDCoupling1SGTUMesh::sortHexa8EachOther.
  * 
  * \throw If \a this is not a 3D mesh (spaceDim==3 and meshDim==3).

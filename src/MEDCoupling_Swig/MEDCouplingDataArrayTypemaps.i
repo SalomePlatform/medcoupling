@@ -50,7 +50,7 @@ static PyObject *convertArray(MEDCoupling::DataArray *array, int owner)
 }
 
 /*!
- * This method is an extention of PySlice_GetIndices but less
+ * This method is an extension of PySlice_GetIndices but less
  * open than PySlice_GetIndicesEx that accepts too many situations.
  */
 void GetIndicesOfSlice(PyObject *slice, Py_ssize_t length, Py_ssize_t *start, Py_ssize_t *stop, Py_ssize_t *step, const char *msgInCaseOfFailure)
@@ -2157,7 +2157,7 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
             return e->getConstPointer();
           else
             {
-              std::ostringstream oss; oss << msg << "nb of tuples expected to be " << nbTuplesExpected << " , and input DataArrayDoubleTuple has always one tuple by contruction !";
+              std::ostringstream oss; oss << msg << "nb of tuples expected to be " << nbTuplesExpected << " , and input DataArrayDoubleTuple has always one tuple by construction !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }

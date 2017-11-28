@@ -48,7 +48,7 @@ namespace INTERP_KERNEL
      - Values: positive real number.
      - Default: 1.0E-12.
      -# printLevel: Level of verboseness during the computations.
-     - Values: interger between 0 and 3.
+     - Values: integer between 0 and 3.
      - Default: 0.
   */
   void Interpolation3DSurf::setOptions(double precision, int printLevel, double medianPlan, 

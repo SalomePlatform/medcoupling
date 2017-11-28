@@ -1,5 +1,5 @@
 /*!
-  \page cpp Note for C++ developpers
+  \page cpp Note for C++ developers
   
 Using the C++ API provided by MED requires you to be familiar with some specificities which are not
 visible to the Python user.

@@ -23,10 +23,10 @@ A field can be supported by:
     - Kriging points:  built with \ref MEDCoupling::TypeOfField "ON_NODES_KR"
 
 The spatial discretization is at the center of the \ref interpolation "interpolation" mechanisms,
-since one of the main interpolation paramter is indeed specifying from which source discretization
+since one of the main interpolation parameter is indeed specifying from which source discretization
 to which target discretization one wants to go. For example:
-- a P0->P0 interpolation means that a field on cells will be transfered to another cell-based field;
-- a P1->P0 interpolation means that a field on nodes this time will be transfered to a cell-based field. 
+- a P0->P0 interpolation means that a field on cells will be transferred to another cell-based field;
+- a P1->P0 interpolation means that a field on nodes this time will be transferred to a cell-based field. 
 - etc ...
 
 Finally, in the code itself, the class \ref MEDCoupling::MEDCouplingFieldDiscretization "MEDCouplingFieldDiscretization"

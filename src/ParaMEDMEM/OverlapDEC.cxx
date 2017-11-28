@@ -135,7 +135,7 @@ namespace MEDCoupling
     seen in \ref ParaMEDMEMOverlapDECAlgoStep2 "here in Step2".
 
     As will be dealt in Step 6, for final matrix-vector computations, the resulting matrix of the
-    couple (k,m) whereever it is computed (proc \#k or proc \#m)
+    couple (k,m) wherever it is computed (proc \#k or proc \#m)
     will be stored in \b proc\#m.
 
     - If proc \#k is in charge (performs the matrix computation) for this couple (k,m), target ids
@@ -154,7 +154,7 @@ namespace MEDCoupling
      in charge of the matrix, proc \#m receives the source ids
     from remote proc \#k, and thus the matrix is directly correct, no need for renumbering as
      in \ref ParaMEDMEMOverlapDECAlgoStep5 "Step 5". However proc \#k must
-    keep track of the ids sent to proc \#m for te matrix-vector computation.
+    keep track of the ids sent to proc \#m for the matrix-vector computation.
     This is incarnated by OverlapMapping::keepTracksOfSourceIds in proc k.
 
     This step is performed in MEDCoupling::OverlapElementLocator::exchangeMeshes method.

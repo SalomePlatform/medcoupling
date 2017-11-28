@@ -93,7 +93,7 @@ namespace INTERP_KERNEL
   }
 
   /*!
-    Computes the bouding box of a given element. iP in numPol mode.
+    Computes the bounding box of a given element. iP in numPol mode.
   */
   template<class MyMeshType, class MyMatrix>
   void PlanarIntersector<MyMeshType,MyMatrix>::getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes)
@@ -380,7 +380,7 @@ namespace INTERP_KERNEL
               Coords_B[SPACEDIM*i_B+idim] -=  proj*linear_comb[idim];
           }
         
-        //Buid the matrix sending  A into the Oxy plane and apply it to A and B  
+        //Build the matrix sending  A into the Oxy plane and apply it to A and B  
         if(do_rotate)
           {
             TranslationRotationMatrix rotation;

@@ -203,7 +203,7 @@ Fields defined partially on a meshes can been read using 2 main approaches :
 \ref medcoupling "MEDCoupling" allows to make bridges between the approaches. For example \a pfl \ref MEDCoupling::DataArrayInt "DataArrayInt instance" retrieved directly
 from the file in the second approach can be retrieved starting from first approach.
 
-Starting from mesh \a firstApproachMesh of read field in first approach \a fread, whith the whole mesh \a wholeMesh the profile \a pflComputed can be computed :
+Starting from mesh \a firstApproachMesh of read field in first approach \a fread, with the whole mesh \a wholeMesh the profile \a pflComputed can be computed :
 
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldPartial1_5
 

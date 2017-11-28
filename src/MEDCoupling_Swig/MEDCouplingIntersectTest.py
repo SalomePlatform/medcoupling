@@ -427,7 +427,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         m1.finishInsertingCells()
 
         m2 = MEDCouplingDataForTest.buildCircle(0.25, 0.2, 0.4)
-        # Was looping indefinitly:
+        # Was looping indefinitely:
         m_intersec, resToM1, resToM2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, eps)
         m_intersec.zipCoords()
         coo_tgt = DataArrayDouble([-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.03284271247461901, 0.4828427124746191,

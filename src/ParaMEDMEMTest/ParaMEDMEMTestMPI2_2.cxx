@@ -63,7 +63,7 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
       return;
     }
 
-  /* Connection to remote programm */
+  /* Connection to remote program */
   MPI2Connector *mpio = new MPI2Connector;
   gcom = mpio->remoteMPI2Connect(service);
   
@@ -113,7 +113,7 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   const double *expected=targetResults[grank-(gsize-lsize)];
   CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
-  /* Deconnection of remote programm */
+  /* Deconnection of remote program */
   mpio->remoteMPI2Disconnect(service);
   /* clean-up */
   delete mpio;

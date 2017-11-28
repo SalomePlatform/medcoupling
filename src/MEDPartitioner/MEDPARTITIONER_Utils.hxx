@@ -89,7 +89,7 @@ namespace MEDPARTITIONER
   std::vector<std::string> GetInfosOfField(const char *fileName, const char *meshName, const int idomain );
 
 #ifdef HAVE_MPI
-  //not adviced, interblocking, use sendAndReceive
+  //not advised, interblocking, use sendAndReceive
   //void SendVectorOfString(const std::vector<std::string>& vec, const int target);
   //std::vector<std::string> RecvVectorOfString(const int source);
   //TODO void sendRecvVectorOfString(const std::vector<std::string>& vec, const int source, const int target);

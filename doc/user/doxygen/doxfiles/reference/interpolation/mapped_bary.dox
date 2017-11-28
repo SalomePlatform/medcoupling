@@ -46,7 +46,7 @@ In case where \f$A_yN_x -N_yA_x = 0 \f$ we have a degenerated unique solution fo
 
 \subsection{Rectangle}
 
-Finally it is worth puting aside the case \f$\mathbf{N} = 0\f$ (rectangle), which boils down to solving an ordinary
+Finally it is worth putting aside the case \f$\mathbf{N} = 0\f$ (rectangle), which boils down to solving an ordinary
 2-unknows system:
 \f[ x = \frac{p_x A_y - p_y A_x}{C_x A_y - C_y A_x}, y = \frac{C_x p_y-C_y p_x}{C_x A_y - C_y A_x} \f]
 

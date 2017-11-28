@@ -106,7 +106,7 @@ The method in charge of that is INTERP_KERNEL::QuadraticPolygon::performLocating
 \subsection interpkernelGeo2DBoolOpStep3 Step3 : Result polygon building.
 
 This stage links each edge with wanted loc. \b Contrary to last 2 steps it is obviously boolean
-operation dependant. Let's take the case of the intersection that is used in
+operation dependent. Let's take the case of the intersection that is used in
 P0->P0 interpolation. \n The principle of result polygon building is to build polygon by taking
 edges localized as \b in or \b on.
 

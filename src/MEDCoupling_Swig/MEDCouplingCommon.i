@@ -1514,8 +1514,8 @@ namespace MEDCoupling
                DataArrayDoubleTuple *aa,*aa2;
                std::vector<double> bb,bb2;
                int sw;
-               const char msg[]="Python wrap of MEDCouplingPointSet::findNodesOnLine : 1st paramater for point.";
-               const char msg2[]="Python wrap of MEDCouplingPointSet::findNodesOnLine : 2nd paramater for vector.";
+               const char msg[]="Python wrap of MEDCouplingPointSet::findNodesOnLine : 1st parameter for point.";
+               const char msg2[]="Python wrap of MEDCouplingPointSet::findNodesOnLine : 2nd parameter for vector.";
                const double *p=convertObjToPossibleCpp5_Safe(pt,sw,val,a,aa,bb,msg,1,spaceDim,true);
                const double *v=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,spaceDim,true);
                std::vector<int> nodes;
@@ -1533,8 +1533,8 @@ namespace MEDCoupling
                DataArrayDoubleTuple *aa,*aa2;
                std::vector<double> bb,bb2;
                int sw;
-               const char msg[]="Python wrap of MEDCouplingPointSet::findNodesOnPlane : 1st paramater for point.";
-               const char msg2[]="Python wrap of MEDCouplingPointSet::findNodesOnPlane : 2nd paramater for vector.";
+               const char msg[]="Python wrap of MEDCouplingPointSet::findNodesOnPlane : 1st parameter for point.";
+               const char msg2[]="Python wrap of MEDCouplingPointSet::findNodesOnPlane : 2nd parameter for vector.";
                const double *p=convertObjToPossibleCpp5_Safe(pt,sw,val,a,aa,bb,msg,1,spaceDim,true);
                const double *v=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,spaceDim,true);
                std::vector<int> nodes;
@@ -2935,8 +2935,8 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa,*aa2;
         std::vector<double> bb,bb2;
         int sw;
-        const char msg[]="Python wrap of MEDCouplingUMesh::buildSlice3D : 1st paramater for origin.";
-        const char msg2[]="Python wrap of MEDCouplingUMesh::buildSlice3D : 2nd paramater for vector.";
+        const char msg[]="Python wrap of MEDCouplingUMesh::buildSlice3D : 1st parameter for origin.";
+        const char msg2[]="Python wrap of MEDCouplingUMesh::buildSlice3D : 2nd parameter for vector.";
         const double *orig=convertObjToPossibleCpp5_Safe(origin,sw,val,a,aa,bb,msg,1,spaceDim,true);
         const double *vect=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,spaceDim,true);
         //
@@ -2958,8 +2958,8 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa,*aa2;
         std::vector<double> bb,bb2;
         int sw;
-        const char msg[]="Python wrap of MEDCouplingUMesh::buildSlice3DSurf : 1st paramater for origin.";
-        const char msg2[]="Python wrap of MEDCouplingUMesh::buildSlice3DSurf : 2nd paramater for vector.";
+        const char msg[]="Python wrap of MEDCouplingUMesh::buildSlice3DSurf : 1st parameter for origin.";
+        const char msg2[]="Python wrap of MEDCouplingUMesh::buildSlice3DSurf : 2nd parameter for vector.";
         const double *orig=convertObjToPossibleCpp5_Safe(origin,sw,val,a,aa,bb,msg,1,spaceDim,true);
         const double *vect=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,spaceDim,true);
         //
@@ -2978,8 +2978,8 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa,*aa2;
         std::vector<double> bb,bb2;
         int sw;
-        const char msg[]="Python wrap of MEDCouplingUMesh::clipSingle3DCellByPlane : 1st paramater for origin.";
-        const char msg2[]="Python wrap of MEDCouplingUMesh::clipSingle3DCellByPlane : 2nd paramater for vector.";
+        const char msg[]="Python wrap of MEDCouplingUMesh::clipSingle3DCellByPlane : 1st parameter for origin.";
+        const char msg2[]="Python wrap of MEDCouplingUMesh::clipSingle3DCellByPlane : 2nd parameter for vector.";
         const double *orig=convertObjToPossibleCpp5_Safe(origin,sw,val,a,aa,bb,msg,1,3,true);
         const double *vect=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,3,true);
         MCAuto<MEDCouplingUMesh> ret(self->clipSingle3DCellByPlane(orig,vect,eps));
@@ -2996,8 +2996,8 @@ namespace MEDCoupling
         DataArrayDoubleTuple *aa,*aa2;
         std::vector<double> bb,bb2;
         int sw;
-        const char msg[]="Python wrap of MEDCouplingUMesh::getCellIdsCrossingPlane : 1st paramater for origin.";
-        const char msg2[]="Python wrap of MEDCouplingUMesh::getCellIdsCrossingPlane : 2nd paramater for vector.";
+        const char msg[]="Python wrap of MEDCouplingUMesh::getCellIdsCrossingPlane : 1st parameter for origin.";
+        const char msg2[]="Python wrap of MEDCouplingUMesh::getCellIdsCrossingPlane : 2nd parameter for vector.";
         const double *orig=convertObjToPossibleCpp5_Safe(origin,sw,val,a,aa,bb,msg,1,spaceDim,true);
         const double *vect=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,spaceDim,true);
         return self->getCellIdsCrossingPlane(orig,vect,eps);
@@ -4437,8 +4437,8 @@ namespace MEDCoupling
         std::vector<double> bb,bb2;
         int sw;
         int spaceDim=3;
-        const char msg[]="Python wrap of MEDCouplingFieldDouble::extractSlice3D : 1st paramater for origin.";
-        const char msg2[]="Python wrap of MEDCouplingFieldDouble::extractSlice3D : 2nd paramater for vector.";
+        const char msg[]="Python wrap of MEDCouplingFieldDouble::extractSlice3D : 1st parameter for origin.";
+        const char msg2[]="Python wrap of MEDCouplingFieldDouble::extractSlice3D : 2nd parameter for vector.";
         const double *orig=convertObjToPossibleCpp5_Safe(origin,sw,val,a,aa,bb,msg,1,spaceDim,true);
         const double *vect=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,spaceDim,true);
         //

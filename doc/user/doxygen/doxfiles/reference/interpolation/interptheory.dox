@@ -257,7 +257,7 @@ If we apply the formula \ref TableNatureOfField "above" it leads to the followin
     \end{tabular}\right]
 \f]
 
-This type of nature is particulary recommended to interpolate an intensive \b density
+This type of nature is particularly recommended to interpolate an intensive \b density
 field (moderator density, power density).
 The difference with \ref TableNatureOfFieldExampleConservVol "conservative volumic" seen above is that here the
 target field is homogenized to the \b whole target cell. It explains why this nature of field does not follow the maximum principle.

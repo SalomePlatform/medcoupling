@@ -201,7 +201,7 @@ namespace MEDCoupling
       {
         //locate the distant meshes
         ElementLocator locator(*_local_field, *_target_group, *_source_group);
-        //transfering option from InterpKernelDEC to ElementLocator   
+        //transferring option from InterpKernelDEC to ElementLocator   
         locator.copyOptions(*this);
         MEDCouplingPointSet* distant_mesh=0; 
         int* distant_ids=0;
@@ -232,7 +232,7 @@ namespace MEDCoupling
     if (_target_group->containsMyRank())
       {
         ElementLocator locator(*_local_field, *_source_group, *_target_group);
-        //transfering option from InterpKernelDEC to ElementLocator
+        //transferring option from InterpKernelDEC to ElementLocator
         locator.copyOptions(*this);
         MEDCouplingPointSet* distant_mesh=0;
         int* distant_ids=0;

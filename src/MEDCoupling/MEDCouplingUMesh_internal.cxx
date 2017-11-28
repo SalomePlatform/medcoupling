@@ -414,7 +414,7 @@ void MEDCouplingUMesh::tessellate2DCurveInternal(double eps)
 
 /*!
  * This private method is used to subdivide edges of a mesh with meshdim==2. If \a this has no a meshdim equal to 2 an exception will be thrown.
- * This method completly ignore coordinates.
+ * This method completely ignores coordinates.
  * \param nodeSubdived is the nodal connectivity of subdivision of edges
  * \param nodeIndxSubdived is the nodal connectivity index of subdivision of edges
  * \param desc is descending connectivity in format specified in MEDCouplingUMesh::buildDescendingConnectivity2
@@ -1585,7 +1585,7 @@ void MEDCouplingUMesh::AppendExtrudedCell(const int *connBg, const int *connEnd,
  * This method is part of the Slice3D algorithm. It is the first step of assembly process, ones coordinates have been computed (by MEDCouplingUMesh::split3DCurveWithPlane method).
  * This method allows to compute given the status of 3D curve cells and the descending connectivity 3DSurf->3DCurve to deduce the intersection of each 3D surf cells
  * with a plane. The result will be put in 'cut3DSuf' out parameter.
- * \param [in] cut3DCurve  input paramter that gives for each 3DCurve cell if it owns fully to the plane or partially.
+ * \param [in] cut3DCurve  input parameter that gives for each 3DCurve cell if it owns fully to the plane or partially.
  * \param [out] nodesOnPlane, returns all the nodes that are on the plane.
  * \param [in] nodal3DSurf is the nodal connectivity of 3D surf mesh.
  * \param [in] nodalIndx3DSurf is the nodal connectivity index of 3D surf mesh.
@@ -1663,7 +1663,7 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<int>& cut3D
  * This method is part of the Slice3D algorithm. It is the second step of assembly process, ones coordinates have been computed (by MEDCouplingUMesh::split3DCurveWithPlane method).
  * This method allows to compute given the result of 3D surf cells with plane and the descending connectivity 3D->3DSurf to deduce the intersection of each 3D cells
  * with a plane. The result will be put in 'nodalRes' 'nodalResIndx' and 'cellIds' out parameters.
- * \param cut3DSurf  input paramter that gives for each 3DSurf its intersection with plane (result of MEDCouplingUMesh::AssemblyForSplitFrom3DCurve).
+ * \param cut3DSurf  input parameter that gives for each 3DSurf its intersection with plane (result of MEDCouplingUMesh::AssemblyForSplitFrom3DCurve).
  * \param desc is the descending connectivity 3D->3DSurf
  * \param descIndx is the descending connectivity index 3D->3DSurf
  */

@@ -402,7 +402,7 @@ namespace INTERP_TEST
    * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
    * @param  mesh2       the name of the target mesh
    * @param  correctVol  the total volume of the intersection of the two meshes
-   * @param  prec        maximum relative error to be tolerated in volume comparisions
+   * @param  prec        maximum relative error to be tolerated in volume comparisons
    * @param  doubleTest  if false, only the test with mesh 1 as the source mesh and mesh 2 as the target mesh will be performed
    *
    */
@@ -467,7 +467,7 @@ namespace INTERP_TEST
    * @param  mesh1       the name of the source mesh
    * @param  mesh2       the name of the target mesh
    * @param  correctVol  the total volume of the intersection of the two meshes
-   * @param  prec        maximum relative error to be tolerated in volume comparisions
+   * @param  prec        maximum relative error to be tolerated in volume comparisons
    * @param  doubleTest  if false, only the test with mesh 1 as the source mesh and mesh 2 as the target mesh will be performed
    *
    */

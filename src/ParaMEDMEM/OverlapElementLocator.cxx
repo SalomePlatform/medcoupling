@@ -481,8 +481,8 @@ namespace MEDCoupling
   }
 
   /*!
-   * This method recieves source remote mesh on proc 'procId' if sourceOrTarget==True
-   * This method recieves target remote mesh on proc 'procId' if sourceOrTarget==False
+   * This method receives source remote mesh on proc 'procId' if sourceOrTarget==True
+   * This method receives target remote mesh on proc 'procId' if sourceOrTarget==False
    */
   void OverlapElementLocator::receiveRemoteMeshFrom(int procId, bool sourceOrTarget)
   {

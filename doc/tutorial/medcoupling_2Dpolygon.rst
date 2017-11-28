@@ -20,7 +20,7 @@ To implement this exercice we use the python language script and import the MEDC
 
 	from math import *
 
-Then we must instanciate a meshing object::
+Then we must instantiate a meshing object::
 
 	mesh=MEDCouplingUMesh.New()
 	mesh.setMeshDimension(2)

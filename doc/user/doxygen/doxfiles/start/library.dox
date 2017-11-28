@@ -8,7 +8,7 @@ this situation.
 
 "MED" can (unfortunately) refer to:
 - <b>\ref med-file "MED file format"</b>: the file format used to save a mesh (".med" extension)
-- <b>\ref med-file "MED-file library"</b>: the C++ library developped by EdF R&D (and provided
+- <b>\ref med-file "MED-file library"</b>: the C++ library developed by EdF R&D (and provided
  with SALOME) to read/write MED file (warning: for advanced users only!)
 - <b> \ref medcoupling "MEDCoupling"</b>: the (relatively) high level API to deal with mesh and fields in memory
 - <b>\ref medloader MEDLoader</b>: part of the library dedicated to file I/O = a more user-friendly API than the MED-file library API
@@ -19,7 +19,7 @@ this situation.
 
 The most common confusion is between the MED library (what you are reading at present) and
 the MED-file library ("MED fichier").
-The MED-file library is part of the prerequisites of the MED libary, and its only purpose is to read and write
+The MED-file library is part of the prerequisites of the MED library, and its only purpose is to read and write
 MED files. This is a low level API written in C, and giving a fine-grain access to the structure
 of the MED files (.med). The architecture diagramm below details those points further.
 

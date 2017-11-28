@@ -908,7 +908,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
     # Tricky test of the case of in a MED file containing a Field on GAUSS_NE is lying on a profile that is reality represents all the geom entities of a level.
     # By default when using setFieldProfile method such profile is not created because it is not useful ! So here a trick is used to force MEDLoader to do that
-    # for the necessity of the test ! The idea is too create artificially a mesh having one more fictious cell per type and to roll back right after !
+    # for the necessity of the test ! The idea is too create artificially a mesh having one more fictitious cell per type and to roll back right after !
     def testMEDField15(self):
         fname="Pyfile36.med"
         m0=MEDLoaderDataForTest.build2DMesh_1()
@@ -3749,7 +3749,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     def testMEDFileUMeshSetName(self):
-        """ This test is a small but important one for MEDReader in sauv mode. When .sauv file is loaded the convertion is performed in memory and a preparation is done then.
+        """ This test is a small but important one for MEDReader in sauv mode. When .sauv file is loaded the conversion is performed in memory and a preparation is done then.
         This preparation makes access to internal MEDCouplingMesh pointers whose name must be updated.
         """
         fname="Pyfile79.med"
@@ -4867,7 +4867,7 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertEqual(mm.getFamiliesIdsOnGroup("RID"),(-4,3))
       mm.write(fileName,2)
       # now read such funny file !
-      mm2=MEDFileMesh.New(fileName) # <- normaly mdump of Pyfile98.med must contain only RID and FAMILLE_ZERO families.
+      mm2=MEDFileMesh.New(fileName) # <- normally mdump of Pyfile98.med must contain only RID and FAMILLE_ZERO families.
       self.assertTrue(mm.isEqual(mm2,1e-16))
       self.assertEqual(mm2.getFamiliesNames(),("FAMILLE_ZERO",'RIDF!/__\\!0000','RIDF!/__\\!0001'))
       self.assertEqual(mm2.getFamiliesNamesWithFilePointOfView(),("FAMILLE_ZERO","RIDF","RIDF"))

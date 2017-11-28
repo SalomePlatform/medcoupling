@@ -255,7 +255,7 @@ std::string MEDCouplingCurveLinearMesh::simpleRepr() const
   double tt=getTime(tmpp1,tmpp2);
   ret << "Time attached to the mesh [unit] : " << tt << " [" << getTimeUnit() << "]\n";
   ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
-  ret << "The nodal stucture of curve linear mesh is : [";
+  ret << "The nodal structure of curve linear mesh is : [";
   std::copy(_structure.begin(),_structure.end(),std::ostream_iterator<int>(ret,",")); ret << "]\n";
   ret << "The coords array is this : ";
   if((const DataArrayDouble *)_coords)
@@ -794,7 +794,7 @@ void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim1(DataArrayDouble *
 
 void MEDCouplingCurveLinearMesh::renumberCells(const int *old2NewBg, bool check)
 {
-  throw INTERP_KERNEL::Exception("Functionnality of renumbering cell not available for CurveLinear Mesh !");
+  throw INTERP_KERNEL::Exception("Functionality of renumbering cell not available for CurveLinear Mesh !");
 }
 
 void MEDCouplingCurveLinearMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const

@@ -234,7 +234,7 @@ int MPI_Finalize();
         delete [] intBuf; delete [] dblBuf;
         return NULL;
       }
-    // put recieved data into the list
+    // put received data into the list
     int pyerr = 0;
     if ( type == MPI_DOUBLE )
       {

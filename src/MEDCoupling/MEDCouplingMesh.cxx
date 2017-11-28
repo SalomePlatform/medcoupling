@@ -237,7 +237,7 @@ void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double 
 }
 
 /*!
- * This method is very poor and looks only if \a this and \a other are candidate for merge of fields lying repectively on them.
+ * This method is very poor and looks only if \a this and \a other are candidate for merge of fields lying respectively on them.
  */
 bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
 {

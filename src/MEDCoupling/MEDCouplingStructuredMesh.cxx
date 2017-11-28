@@ -1956,7 +1956,7 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
  * \param [in] st - the structure of grid ( \b without considering ghost cells).
  * \param [in] part - the part in the structure ( \b without considering ghost cells) contained in grid whose structure is defined by \a st.
  * \param [in] factor - the factor, the tuples in \a da will be multiply by.
- * \param [in,out] da - The DataArray in wich only tuples specified by \a part will be modified.
+ * \param [in,out] da - The DataArray in which only tuples specified by \a part will be modified.
  *
  * \sa BuildExplicitIdsFrom
  */
@@ -2037,7 +2037,7 @@ void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<int>& st, const
  * \param [in] part - the part in the structure ( \b without considering ghost cells) contained in grid whose structure is defined by \a st.
  * \param [in] ghostSize - \a ghostSize must be >= 0.
  * \param [in] factor - the factor, the tuples in \a da will be multiply by.
- * \param [in,out] da - The DataArray in wich only tuples specified by \a part will be modified.
+ * \param [in,out] da - The DataArray in which only tuples specified by \a part will be modified.
  *
  * \sa MultiplyPartOf, PutInGhostFormat
  */

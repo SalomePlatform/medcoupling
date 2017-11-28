@@ -34,9 +34,9 @@ The namespace ParaMEDMEM has been turned into MEDCoupling, and now contains MEDL
 The MEDLoader high level API is hence accessible:
  - at the MEDCoupling namespace level in C++ (direct static functions, no more MEDLoader class)
  - at the MEDLoader module level in Python. Scripts using the high level API of the MEDLoader
-typically need to get read of all the occurences of "MEDLoader." in their code.  
+typically need to get read of all the occurrences of "MEDLoader." in their code.  
 
-Note that on the Python side the module MEDLoader is still here, but doesn't containt the MEDLoader class anymore.
+Note that on the Python side the module MEDLoader is still here, but doesn't contain the MEDLoader class anymore.
 As before it re-includes all of MEDCoupling classes, plus the low level MEDLoader classes (MEDFile* classes).
 
 \section port-full-ref Name changes - Reference list

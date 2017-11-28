@@ -63,7 +63,7 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
       return;
     }
 
-  /* Connection to remote programm */
+  /* Connection to remote program */
   MPI2Connector *mpio = new MPI2Connector;
   gcom = mpio->remoteMPI2Connect(service);
   MPI_Comm_size( gcom, &gsize );
@@ -108,7 +108,7 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   dec.synchronize();
   dec.setForcedRenormalization(false);
   dec.sendData();
-  /* Deconnection of remote programm */
+  /* Deconnection of remote program */
   mpio->remoteMPI2Disconnect(service);
   /* clean-up */
   delete mpio;

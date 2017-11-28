@@ -60,7 +60,7 @@ SET (MC_Swig_interf
 INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
   ${NUMPY_INCLUDE_DIR}
-  ${PTHREAD_INCLUDE_DIR} # pthread dependancy due to python2.7 library
+  ${PTHREAD_INCLUDE_DIR} # pthread dependency due to python2.7 library
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling

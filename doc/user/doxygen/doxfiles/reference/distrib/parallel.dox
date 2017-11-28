@@ -12,8 +12,8 @@ For historical reasons, all those items are in the same namespace as the non-par
 The core elements of the API are:
 - \ref CommInterface-det "CommInterface", this is the wrapper around the MPI library, and an instance
 of this object is required in many constructors of the following objects.  
-- \ref ParaMESH-det "ParaMESH", the parallel instanciation of a \ref meshes "MEDCoupling mesh" 
-- \ref ParaFIELD-det "ParaFIELD", the parallel instanciation of a \ref fields "MEDCoupling field"
+- \ref ParaMESH-det "ParaMESH", the parallel instantiation of a \ref meshes "MEDCoupling mesh" 
+- \ref ParaFIELD-det "ParaFIELD", the parallel instantiation of a \ref fields "MEDCoupling field"
 - \ref MPIProcessorGroup-det "MPIProcessorGroup" (which inherits from the abstract 
 \ref MEDCoupling::ProcessorGroup "ProcessorGroup"), a group of processors (typically MPI nodes)
 

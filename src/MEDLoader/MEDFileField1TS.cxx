@@ -2061,7 +2061,7 @@ int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fieldNam
  * This method as MEDFileField1TSW::setLocNameOnLeaf, is dedicated for advanced user that a want a very fine control on their data structure
  * without overhead. This method can be called only regarding information returned by MEDFileField1TSWithoutSDA::getFieldSplitedByType or MEDFileField1TSWithoutSDA::getFieldSplitedByType2.
  * This method changes the attribute (here it's profile name) of the leaf datastructure (MEDFileFieldPerMeshPerTypePerDisc instance).
- * It is the responsability of the caller to invoke MEDFileFieldGlobs::appendProfile or MEDFileFieldGlobs::getProfile
+ * It is the responsibility of the caller to invoke MEDFileFieldGlobs::appendProfile or MEDFileFieldGlobs::getProfile
  * to keep a valid instance.
  * If \b this do not have any leaf that correspond to the request of the input parameter (\b mName, \b typ, \b locId) an INTERP_KERNEL::Exception will be thrown.
  * If \b newPflName profile name does not already exist the profile with old name will be renamed with name \b newPflName.
@@ -2098,7 +2098,7 @@ void MEDFileAnyTypeField1TS::setProfileNameOnLeaf(const std::string& mName, INTE
  * This method as MEDFileField1TSW::setProfileNameOnLeaf, is dedicated for advanced user that a want a very fine control on their data structure
  * without overhead. This method can be called only regarding information returned by MEDFileField1TSWithoutSDA::getFieldSplitedByType or MEDFileField1TSWithoutSDA::getFieldSplitedByType2.
  * This method changes the attribute (here it's localization name) of the leaf datastructure (MEDFileFieldPerMeshPerTypePerDisc instance).
- * It is the responsability of the caller to invoke MEDFileFieldGlobs::appendProfile or MEDFileFieldGlobs::getProfile
+ * It is the responsibility of the caller to invoke MEDFileFieldGlobs::appendProfile or MEDFileFieldGlobs::getProfile
  * to keep a valid instance.
  * If \b this do not have any leaf that correspond to the request of the input parameter (\b mName, \b typ, \b locId) an INTERP_KERNEL::Exception will be thrown.
  * This method is an extension of MEDFileField1TSWithoutSDA::setProfileNameOnLeafExt method because it performs a modification of global info.
@@ -2194,7 +2194,7 @@ void MEDFileAnyTypeField1TS::unloadArrays()
 
 /*!
  * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
- * This method is the symetrical method of MEDFileAnyTypeField1TS::loadArraysIfNecessary.
+ * This method is the symmetrical method of MEDFileAnyTypeField1TS::loadArraysIfNecessary.
  * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
  * 
  * \sa MEDFileAnyTypeField1TS::loadArraysIfNecessary
@@ -2453,8 +2453,8 @@ std::vector< std::vector<std::pair<int,int> > > MEDFileAnyTypeField1TS::getField
 
 /*!
  * This method returns as MEDFileAnyTypeField1TS new instances as number of components in \a this.
- * The returned instances are deep copy of \a this except that for globals that are share with those contained in \a this.
- * ** WARNING ** do no forget to rename the ouput instances to avoid to write n-times in the same MED file field !
+ * The returned instances are deep copy of \a this except that for globals that are shared with those contained in \a this.
+ * ** WARNING ** do no forget to rename the output instances to avoid to write n-times in the same MED file field !
  */
 std::vector< MCAuto< MEDFileAnyTypeField1TS > > MEDFileAnyTypeField1TS::splitComponents() const
 {
@@ -2474,7 +2474,7 @@ std::vector< MCAuto< MEDFileAnyTypeField1TS > > MEDFileAnyTypeField1TS::splitCom
 
 /*!
  * This method returns as MEDFileAnyTypeField1TS new instances as number of spatial discretizations in \a this.
- * The returned instances are shallowed copied of \a this except that for globals that are share with those contained in \a this.
+ * The returned instances are shallowed copied of \a this except that for globals that are shared with those contained in \a this.
  */
 std::vector< MCAuto< MEDFileAnyTypeField1TS > > MEDFileAnyTypeField1TS::splitDiscretizations() const
 {
@@ -2494,7 +2494,7 @@ std::vector< MCAuto< MEDFileAnyTypeField1TS > > MEDFileAnyTypeField1TS::splitDis
 
 /*!
  * This method returns as MEDFileAnyTypeField1TS new instances as number of maximal number of discretization in \a this.
- * The returned instances are shallowed copied of \a this except that for globals that are share with those contained in \a this.
+ * The returned instances are shallowed copied of \a this except that for globals that are shared with those contained in \a this.
  */
 std::vector< MCAuto< MEDFileAnyTypeField1TS > > MEDFileAnyTypeField1TS::splitMultiDiscrPerGeoTypes() const
 {

@@ -1461,7 +1461,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(f4.getMesh(),None)
         pass
 
-    # test a simple node to cell convertion of a field
+    # test a simple node to cell conversion of a field
     def testSwig2NodeToCellDiscretization1(self):
         f=MEDCouplingFieldDouble(ON_NODES) ; f.setTime(1.1,2,3)
         a1=DataArrayDouble(4) ; a1.iota()
@@ -2122,7 +2122,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         pass
 
     def testSwig2Colinearize2D3(self):
-        """ colinearize was too agressive, potentially producing cells with one edge """
+        """ colinearize was too aggressive, potentially producing cells with one edge """
         # Flat polygon  with 3 edges - nothing should happen (min number of edges for a linear polyg)
         coo = DataArrayDouble([0.0,0.0,  2.0,0.0,   1.5,0.0,  1.0,0.0,  0.5,0.0], 5,2)
         m = MEDCouplingUMesh("m", 2)

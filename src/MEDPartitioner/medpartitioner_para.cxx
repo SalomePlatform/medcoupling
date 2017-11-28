@@ -343,7 +343,7 @@ int main(int argc, char** argv)
     }
   catch(...)
     {
-      cerr<<"proc "<<MyGlobals::_Rank<<" : an unknown type exception error was occured"<<endl;
+      cerr<<"proc "<<MyGlobals::_Rank<<" : an unknown type exception error has occurred"<<endl;
       fflush(stderr);
       MPI_Finalize();
       return 1;

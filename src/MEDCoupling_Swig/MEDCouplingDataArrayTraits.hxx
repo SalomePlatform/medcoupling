@@ -37,7 +37,7 @@
 #ifdef WITH_NUMPY
 // specific DataArray deallocator callback. This deallocator is used both in the constructor of DataArray and in the toNumPyArr
 // method. This dellocator uses weakref to determine if the linked numArr is still alive or not. If alive the ownership is given to it.
-// if no more alive the "standart" DataArray deallocator is called.
+// if no more alive the "standard" DataArray deallocator is called.
 void numarrdeal(void *pt, void *wron)
 {
   void **wronc=(void **)wron;

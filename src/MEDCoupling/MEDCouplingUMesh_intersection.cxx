@@ -282,7 +282,7 @@ namespace MEDCoupling
   }
 
   /**
-   * Construct a mapping between set of Nodes and the standart MEDCoupling connectivity format (c, cI).
+   * Construct a mapping between set of Nodes and the standard MEDCoupling connectivity format (c, cI).
    */
   void MEDCouplingUMeshBuildQPFromMesh3(const double *coo1, int offset1, const double *coo2, int offset2, const std::vector<double>& addCoo,
                                         const int *desc1Bg, const int *desc1End, const std::vector<std::vector<int> >& intesctEdges1,
@@ -337,7 +337,7 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
       // This initializes posBaseElt.
       if(nbOfTurn==0)
         {
-          for(unsigned i=1;i<nbs && nbOfHit<maxNbOfHit;i++) // 2nd condition is to avoid ending with a cell wih one single edge
+          for(unsigned i=1;i<nbs && nbOfHit<maxNbOfHit;i++) // 2nd condition is to avoid ending with a cell with one single edge
             {
               cm.fillSonCellNodalConnectivity2(nbs-i,connBg+1,sz,tmpConn,typeOfSon);
               INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
@@ -357,7 +357,7 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
         }
       // Now move forward:
       const unsigned fwdStart = (nbOfTurn == 0 ? 0 : posBaseElt);  // the first element to be inspected going forward
-      for(unsigned j=fwdStart+1;j<nbs && nbOfHit<maxNbOfHit;j++)  // 2nd condition is to avoid ending with a cell wih one single edge
+      for(unsigned j=fwdStart+1;j<nbs && nbOfHit<maxNbOfHit;j++)  // 2nd condition is to avoid ending with a cell with one single edge
         {
           cm.fillSonCellNodalConnectivity2((int)j,connBg+1,sz,tmpConn,typeOfSon); // get edge #j's connectivity
           INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
@@ -375,9 +375,9 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
               break;
         }
       //push [posBaseElt,posEndElt) in newConnOfCell using e
-      // The if clauses below are (volontary) not mutually exclusive: on a quad cell with 2 edges, the end of the connectivity is also its begining!
+      // The if clauses below are (voluntary) not mutually exclusive: on a quad cell with 2 edges, the end of the connectivity is also its beginning!
       if(nbOfTurn==0)
-        // at the begining of the connectivity (insert type)
+        // at the beginning of the connectivity (insert type)
         EnterTheResultOf2DCellFirst(e,posBaseElt,posEndElt,(int)nbs,cm.isQuadratic(),coords,connBg+1,offset,newConnOfCell,appendedCoords,middles);
       else if((nbOfHit+nbOfTurn) != (nbs-1))
         // in the middle
@@ -1431,7 +1431,7 @@ void MEDCouplingUMesh::buildSubCellsFromCut(const std::vector< std::pair<int,int
 }
 
 /*!
- * It is the linear part of MEDCouplingUMesh::split2DCells. Here no additionnal nodes will be added in \b this. So coordinates pointer remain unchanged (is not even touch).
+ * It is the linear part of MEDCouplingUMesh::split2DCells. Here no additional nodes will be added in \b this. So coordinates pointer remain unchanged (is not even touch).
  *
  * \sa MEDCouplingUMesh::split2DCells
  */
@@ -1467,7 +1467,7 @@ void MEDCouplingUMesh::split2DCellsLinear(const DataArrayInt *desc, const DataAr
 
 
 /*!
- * It is the quadratic part of MEDCouplingUMesh::split2DCells. Here some additionnal nodes can be added at the end of coordinates array object.
+ * It is the quadratic part of MEDCouplingUMesh::split2DCells. Here some additional nodes can be added at the end of coordinates array object.
  *
  * \return  int - the number of new nodes created.
  * \sa MEDCouplingUMesh::split2DCells
@@ -1619,7 +1619,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
 /*!
  * Partitions the first given 2D mesh using the second given 1D mesh as a tool.
  * Thus the final result contains the aggregation of nodes of \a mesh2D, then nodes of \a mesh1D, then new nodes that are the result of the intersection
- * and finaly, in case of quadratic polygon the centers of edges new nodes.
+ * and finally, in case of quadratic polygon the centers of edges new nodes.
  * The meshes should be in 2D space. In addition, returns two arrays mapping cells of the resulting mesh to cells of the input.
  *
  * \param [in] mesh2D - the 2D mesh (spacedim=meshdim=2) to be intersected using \a mesh1D tool. The mesh must be so that each point in the space covered by \a mesh2D
@@ -2088,7 +2088,7 @@ void MEDCouplingUMesh::ReplaceEdgeInFace(const int * sIdxConn, const int * sIdxC
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ReplaceEdgeInFace: internal error, should never happen!");
   int d = distance(startPos, endPos);
   if (d == 1 || d == (1-dst)) // don't use modulo, for neg numbers, result is implementation defined ...
-    modifiedFace.insert(++startPos, ++insidePoints.begin(), --insidePoints.end());  // insidePoints also contains start and end node. Those dont need to be inserted.
+    modifiedFace.insert(++startPos, ++insidePoints.begin(), --insidePoints.end());  // insidePoints also contains start and end node. Those don't need to be inserted.
   else
     modifiedFace.insert(++endPos, ++insidePoints.rbegin(), --insidePoints.rend());
 }
@@ -2401,7 +2401,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
             mPartCand->getNodalConnectivity()->begin(), mPartCand->getNodalConnectivityIndex()->begin(),
             idsGoodLine->begin(), idsGoodLine->end(),
             /*out*/insidePoints, hitSegs);
-        // Optim: smaller segments completly included in eIdx and not split won't need any further treatment:
+        // Optim: smaller segments completely included in eIdx and not split won't need any further treatment:
         for (vector<int>::const_iterator its=hitSegs.begin(); its != hitSegs.end(); ++its)
           hit[cands2[*its]] = true;
 

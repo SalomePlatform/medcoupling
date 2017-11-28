@@ -52,7 +52,7 @@ INCLUDE(SalomeSetupPlatform)
 # User options
 # ============
 INCLUDE(CMakeDependentOption)
-OPTION(MEDCOUPLING_MICROMED "Build MED without MED file dependancy." OFF)
+OPTION(MEDCOUPLING_MICROMED "Build MED without MED file dependency." OFF)
 OPTION(MEDCOUPLING_ENABLE_PYTHON "Build PYTHON bindings." ON)
 OPTION(MEDCOUPLING_ENABLE_PARTITIONER "Build MEDPartitioner." ON)
 OPTION(MEDCOUPLING_ENABLE_RENUMBER "Build Renumber." ON)

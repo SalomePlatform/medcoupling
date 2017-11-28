@@ -53,7 +53,7 @@ namespace MEDCoupling
    * \c ICoCo::Field, or directly a \c MEDCoupling::MEDCouplingFieldDouble instance.
    * See the various signatures of the method DisjointDEC::attachLocalField()
    *
-   * The derivations of this class should be considered for practical instanciation:
+   * The derivations of this class should be considered for practical instantiation:
    * - \ref InterpKernelDEC-det "InterpKernelDEC"
    * - \ref ExplicitCoincidentDEC-det "ExplicitCoincidentDEC"
    * - \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC"
@@ -221,7 +221,7 @@ namespace MEDCoupling
 
   /**
    * Check that the sources and targets procs form a partition of the world communicator referenced in the groups.
-   * This world communicator is not necessarily MPI_WORLD_COMM, but it has to be covered completly for the DECs to work.
+   * This world communicator is not necessarily MPI_WORLD_COMM, but it has to be covered completely for the DECs to work.
    */
   void DisjointDEC::checkPartitionGroup() const
   {

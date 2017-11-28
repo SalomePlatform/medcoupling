@@ -79,7 +79,7 @@ namespace INTERP_KERNEL
    *   - Values: positive real number.
    *   - Default: 1.0E-12.
    *  -# PrintLevel: Level of verboseness during the computations.
-   *   - Values: interger between 0 and 3.
+   *   - Values: integer between 0 and 3.
    *   - Default: 0.
    */
   template<class RealPlanar>
@@ -376,7 +376,7 @@ namespace INTERP_KERNEL
       throw INTERP_KERNEL::Exception("Invalid method specified or intersection type ! Must be in : \"P0P0\" \"P0P1\" \"P1P0\" or \"P1P1\"");
     /****************************************************************/
     /* Create a search tree based on the bounding boxes             */
-    /* Instanciate the intersector and initialise the result vector */
+    /* Instantiate the intersector and initialise the result vector */
     /****************************************************************/
  
     long start_filtering=clock();

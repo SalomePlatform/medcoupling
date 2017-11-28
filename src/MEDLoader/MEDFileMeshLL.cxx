@@ -354,7 +354,7 @@ void MEDFileMeshL2::RenameFamiliesPatternInternal(std::vector< std::pair<std::st
 
 /*!
  * This method is dedicated to the killers that use a same family name to store different family ids. MED file API authorizes it.
- * So this method renames families (if needed generaly not !) in order to have a discriminant name for families.
+ * So this method renames families (if needed generally not !) in order to have a discriminant name for families.
  */
 void MEDFileMeshL2::RenameFamiliesFromFileToMemInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams)
 {
@@ -387,7 +387,7 @@ bool MEDFileMeshL2::RenameFamiliesFromFileToMem(std::vector< std::string >& famN
 
 /*!
  * This method is dedicated to the killers that use a same family name to store different family ids. MED file API authorizes it.
- * So this method renames families (if needed generaly not !) in order to have a discriminant name for families.
+ * So this method renames families (if needed generally not !) in order to have a discriminant name for families.
  */
 void MEDFileMeshL2::RenameFamiliesFromMemToFileInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams)
 {

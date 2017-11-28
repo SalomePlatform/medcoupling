@@ -34,7 +34,7 @@ SET (MEDPartitioner_SWIG_DPYS_FILES
 
 INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
-  ${PTHREAD_INCLUDE_DIR} # pthread dependancy due to python2.7 library
+  ${PTHREAD_INCLUDE_DIR} # pthread dependency due to python2.7 library
   ${NUMPY_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}

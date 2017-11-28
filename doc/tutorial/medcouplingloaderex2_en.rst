@@ -102,7 +102,7 @@ Name this new instance "zone1Mobm", remove all orphan nodes and display. ::
 .. image:: images/zone1Mobm.jpg
 
 From now on we work on "zone1Mobm". We will reduce the working area of "fixm" around "zone1Mobm".
-To achive this: reduce "fixm" taking only "fixm" cells located in the bounding box of "zone1Mobm" (MEDCouplingUMesh.getBoundingBox() and MEDCouplingUMesh.getCellsInBoundingBox()).
+To achieve this: reduce "fixm" taking only "fixm" cells located in the bounding box of "zone1Mobm" (MEDCouplingUMesh.getBoundingBox() and MEDCouplingUMesh.getCellsInBoundingBox()).
 Name this object "partFixm", remove its orphan nodes and display it. ::
 
 	ids2=fixm.getCellsInBoundingBox(zone1Mobm.getBoundingBox(),1e-10)

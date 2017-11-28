@@ -1925,7 +1925,7 @@ int ASCIIReader::getInt() const
   // 53619905   |       1       2       6       8
   // 53619906   |                                                                SCALAIRE
   // 53619907   |    -63312600499       1       0       0       0      -2       0       2
-  //   where -63312600499 is actualy -633 and 12600499
+  //   where -63312600499 is actually -633 and 12600499
   char hold=_curPos[_width];
   _curPos[_width] = '\0';
   int result = atoi( _curPos );
@@ -2311,7 +2311,7 @@ void IntermediateMED::checkDataAvailability() const
 
 Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsToFix)
 {
-  if ( _groups.size() == _groups.capacity() ) // re-allocation would occure
+  if ( _groups.size() == _groups.capacity() ) // re-allocation would occur
     {
       std::vector<Group> newGroups( _groups.size() );
       newGroups.push_back( Group() );
@@ -3843,7 +3843,7 @@ CellsByDimIterator::CellsByDimIterator( const IntermediateMED & medi, int dimm)
   init( dimm );
 }
 /*!
- * \brief Initialize iteration on cells of given dimention
+ * \brief Initialize iteration on cells of given dimension
  */
 void CellsByDimIterator::init(const int  dimm)
 {

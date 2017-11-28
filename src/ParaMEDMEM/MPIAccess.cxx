@@ -170,7 +170,7 @@ namespace MEDCoupling
     "_MapOfRequestStruct".
     That structure RequestStruct give the possibility to manage
     the structures MPI_Request and MPI_Status * of MPI. It give
-    also the possibility to get informations about that request :
+    also the possibility to get information about that request :
     target, send/recv, tag, [a]synchronous, type, outcount.
 
     . That identifier is used to control an asynchronous request
@@ -391,7 +391,7 @@ namespace MEDCoupling
   // Receive (read) in synchronous mode count values of type datatype in buffer from source
   // (returns RequestId identifier even if the corresponding structure is deleted :
   // it is only in order to have the same signature as the asynchronous mode)
-  // The output argument OutCount is optionnal : *OutCount <= count
+  // The output argument OutCount is optional : *OutCount <= count
   int MPIAccess::recv(void* buffer, int count, MPI_Datatype datatype, int source, int &RequestId, int *OutCount)
   {
     int sts = MPI_SUCCESS ;
@@ -1003,7 +1003,7 @@ namespace MEDCoupling
     return _comm_interface.requestFree( request ) ;
   }
   
-  // Print all informations of all known requests for debugging purpose
+  // Print all information of all known requests for debugging purpose
   void MPIAccess::check() const
   {
     int i = 0 ;

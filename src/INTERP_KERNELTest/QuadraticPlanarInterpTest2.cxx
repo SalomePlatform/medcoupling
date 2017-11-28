@@ -361,7 +361,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       bool obvious,areOverlapped;
       intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order); // order has no sence here because v4.size() expected to 1 but for valgrind serenity test.
+      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order); // order has no sense here because v4.size() expected to 1 but for valgrind serenity test.
       CPPUNIT_ASSERT_EQUAL(1,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);

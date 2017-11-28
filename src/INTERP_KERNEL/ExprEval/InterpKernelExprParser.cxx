@@ -547,7 +547,7 @@ void ExprParser::parseDeeper()
 }
 
 /*!
- * This method has the responsability to see if this->_expr can be seen as a unary function of something.
+ * This method has the responsibility to see if this->_expr can be seen as a unary function of something.
  * Something defined as the contain of highest level barckets.
  * Typically '(3*x+2)' and 'cos(4*l+p*n)' will be intercepted by this method whereas '3*x+2' not...etc..
  */
@@ -594,9 +594,9 @@ void ExprParser::parseUnaryFunc()
 }
 
 /*!
- *  This method has the responsability to see if this->_expr is interpretable without any recursion.
+ *  This method has the responsibility to see if this->_expr is interpretable without any recursion.
  * \return true if no recursion needed, false if this->_expr is too complex to be interpreted at this level.
- * \throw exception if this->_expr is simple enough to try to interprate this and this expression contains an error.
+ * \throw exception if this->_expr is simple enough to try to interpret this and this expression contains an error.
  */
 bool ExprParser::tryToInterpALeaf()
 {
@@ -941,7 +941,7 @@ void ExprParser::checkBracketsParity() const
  */
 double ExprParser::ReplaceAndTraduce(std::string& expr, int id, std::size_t bg, std::size_t end, int& delta)
 {
-  static const char MSG[]="Interal error : A string expected to be a float is not one ! Bug to signal !";
+  static const char MSG[]="Internal error : A string expected to be a float is not one ! Bug to signal !";
   std::istringstream stream;
   std::ostringstream oss;
   std::size_t end2=end!=std::string::npos?end-bg:end;

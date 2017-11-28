@@ -35,7 +35,7 @@ def ConvertTo30(nameOfMEDFile):
     #
     finalVersion=ml.MEDFileVersionOfFileStr(realFnOut)
     #
-    print(("File \"%s\" has been converted to 3.0 successfuly ( %s -> %s ) !\nOutput file is here : \"%s\" !"%(fn,initalVersion,finalVersion,realFnOut)))
+    print(("File \"%s\" has been converted to 3.0 successfully ( %s -> %s ) !\nOutput file is here : \"%s\" !"%(fn,initalVersion,finalVersion,realFnOut)))
     pass
 
 if __name__=="__main__":

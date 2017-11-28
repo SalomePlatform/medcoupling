@@ -94,7 +94,7 @@ namespace INTERP_KERNEL
 
     /****************************************************************/
     /* Create a search tree based on the bounding boxes             */
-    /* Instanciate the intersector and initialise the result vector */
+    /* Instantiate the intersector and initialise the result vector */
     /****************************************************************/
 
     long start_filtering=clock();

@@ -130,7 +130,7 @@ void MEDLoaderBase::strip(std::string& s)
 
 /*!
  * This method operates a safe copy from 'src' to 'dest' by checking the size of 'src' before trying to copy.
- * If size of 'src' string is higher than 'maxLgth' the behaviour is dependant from 'behaviour' parameter.
+ * If size of 'src' string is higher than 'maxLgth' the behaviour is dependent from 'behaviour' parameter.
  * If 'behaviour' equals 0 an exception is thrown. If 'behaviour' equals 1 an attempt of zipping of string will be done
  * ( see zipString to have more details).
  */

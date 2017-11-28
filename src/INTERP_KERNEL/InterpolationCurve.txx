@@ -168,7 +168,7 @@ namespace INTERP_KERNEL
       throw INTERP_KERNEL::Exception("Invalid method specified ! Must be in : \"P0P0\" \"P0P1\" \"P1P0\" or \"P1P1\"");
     /****************************************************************/
     /* Create a search tree based on the bounding boxes             */
-    /* Instanciate the intersector and initialise the result vector */
+    /* Instantiate the intersector and initialise the result vector */
     /****************************************************************/
  
     long start_filtering=clock();

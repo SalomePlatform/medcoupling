@@ -1768,7 +1768,7 @@ MEDPARTITIONER::MeshCollection::~MeshCollection()
  * 
  * The method creates as many MED-files as there are domains in the 
  * collection. It also creates a master file that lists all the MED files.
- * The MED files created in ths manner contain joints that describe the 
+ * The MED files created in this manner contain joints that describe the 
  * connectivity between subdomains.
  * 
  * \param filename name of the master file that will contain the list of the MED files

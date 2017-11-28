@@ -84,7 +84,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test4(self):
-        """ Idem test3 except that here serialization/deserialization is done explicitely."""
+        """ Idem test3 except that here serialization/deserialization is done explicitly."""
         arr=DataArrayDouble(10) ; arr.iota()
         m=MEDCouplingCMesh() ; m.setCoords(arr,arr,arr)
         m=m.buildUnstructured()

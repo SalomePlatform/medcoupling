@@ -372,7 +372,7 @@ namespace MEDCoupling
     int nbcomp = _local_field->getField()->getNumberOfComponents();
     double* distant_values = new double [_nb_distant_points*nbcomp];
 
-    //cheap interpolation :  the value of the cell is transfered to the point
+    //cheap interpolation :  the value of the cell is transferred to the point
     for (int i=0; i<_nb_distant_points; i++)
       for (int j=0; j <nbcomp; j++)
         distant_values[i*nbcomp+j]=values[(_distant_locations[i]-1)*nbcomp+j];

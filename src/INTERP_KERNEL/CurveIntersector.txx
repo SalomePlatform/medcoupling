@@ -104,7 +104,7 @@ namespace INTERP_KERNEL
   }
 
   /*!
-    Computes the bouding box of a given element. iP in numPol mode.
+    Computes the bounding box of a given element. iP in numPol mode.
   */
   template<class MyMeshType, class MyMatrix>
   void CurveIntersector<MyMeshType,MyMatrix>::getElemBB (double*           bb,

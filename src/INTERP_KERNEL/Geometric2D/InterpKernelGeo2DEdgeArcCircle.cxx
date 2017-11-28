@@ -131,7 +131,7 @@ bool ArcCArcCIntersector::internalAreColinears(const EdgeArcCircle& a1, const Ed
       a2.getCenter(centerL); radiusL=a2.getRadius();
       a1.getCenter(centerB); radiusB=a1.getRadius();
     }
-  // dividing from the begining by radiusB^2 to keep precision
+  // dividing from the beginning by radiusB^2 to keep precision
   distBetweenCenters=Node::distanceBtw2PtSq(centerL,centerB);
   cst=distBetweenCenters/(radiusB*radiusB);
   cst+=radiusL*radiusL/(radiusB*radiusB);
@@ -466,7 +466,7 @@ void EdgeArcCircle::unApplySimilarity(double xBary, double yBary, double dimChar
 /*!
  * 'eps' is expected to be > 0.
  * 'conn' is of size 3. conn[0] is start id, conn[1] is end id and conn[2] is middle id.
- * 'offset' is typically the number of nodes already existing in global 2D curve mesh. Additionnal coords 'addCoo' ids will be put after the already existing.
+ * 'offset' is typically the number of nodes already existing in global 2D curve mesh. Additional coords 'addCoo' ids will be put after the already existing.
  */
 void EdgeArcCircle::tesselate(const int *conn, int offset, double eps, std::vector<int>& newConn, std::vector<double>& addCoo) const
 {

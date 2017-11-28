@@ -637,7 +637,7 @@ void DataArray::CheckValueInRange(int ref, int value, const std::string& msg)
 
 /*!
  * This method checks that [\b start, \b end) is compliant with ref length \b value.
- * typicaly start in [0,\b value) and end in [0,\b value). If value==start and start==end, it is supported.
+ * typically start in [0,\b value) and end in [0,\b value). If value==start and start==end, it is supported.
  */
 void DataArray::CheckValueInRangeEx(int value, int start, int end, const std::string& msg)
 {
@@ -1617,7 +1617,7 @@ double DataArrayDouble::norm2() const
 
 /*!
  * Returns the maximum norm of the vector defined by \a this array.
- * This method works even if the number of components is diferent from one.
+ * This method works even if the number of components is different from one.
  * If the number of elements in \a this is 0, -1. is returned.
  *  \return double - the value of the maximum norm, i.e.
  *          the maximal absolute value among values of \a this array (whatever its number of components).
@@ -1640,7 +1640,7 @@ double DataArrayDouble::normMax() const
 
 /*!
  * Returns the minimum norm (absolute value) of the vector defined by \a this array.
- * This method works even if the number of components is diferent from one.
+ * This method works even if the number of components is different from one.
  * If the number of elements in \a this is 0, std::numeric_limits<double>::max() is returned.
  *  \return double - the value of the minimum norm, i.e.
  *          the minimal absolute value among values of \a this array (whatever its number of components).
@@ -4250,7 +4250,7 @@ DataArrayInt *DataArrayInt::checkAndPreparePermutation() const
 }
 
 /*!
- * This method tries to find the permutation to apply to the first input \a ids1 to obtain the same array (without considering strings informations) the second
+ * This method tries to find the permutation to apply to the first input \a ids1 to obtain the same array (without considering strings information) the second
  * input array \a ids2.
  * \a ids1 and \a ids2 are expected to be both a list of ids (both with number of components equal to one) not sorted and with values that can be negative.
  * This method will throw an exception is no such permutation array can be obtained. It is typically the case if there is some ids in \a ids1 not in \a ids2 or
@@ -5605,7 +5605,7 @@ DataArrayInt *DataArrayInt::BuildListOfSwitchedOff(const std::vector<bool>& v)
 }
 
 /*!
- * This method allows to put a vector of vector of integer into a more compact data stucture (skyline). 
+ * This method allows to put a vector of vector of integer into a more compact data structure (skyline). 
  * This method is not available into python because no available optimized data structure available to map std::vector< std::vector<int> >.
  *
  * \param [in] v the input data structure to be translate into skyline format.
@@ -5829,7 +5829,7 @@ DataArrayInt *DataArrayInt::buildUniqueNotSorted() const
  * "MEDCouplingUMesh::buildDescendingConnectivity" and
  * \ref MEDCoupling::MEDCouplingUMesh::getNodalConnectivityIndex
  * "MEDCouplingUMesh::getNodalConnectivityIndex" etc.
- * This method preforms the reverse operation of DataArrayInt::computeOffsetsFull.
+ * This method performs the reverse operation of DataArrayInt::computeOffsetsFull.
  *  \return DataArrayInt * - a new instance of DataArrayInt, whose number of tuples
  *          equals to \a this->getNumberOfComponents() - 1, and number of components is 1.
  *          The caller is to delete this array using decrRef() as it is no more needed. 
@@ -5905,7 +5905,7 @@ void DataArrayInt::computeOffsets()
  * components remains the same and number of tuples is inceamented by one.<br>
  * This method is useful for allToAllV in MPI with contiguous policy. This method
  * differs from computeOffsets() in that the number of tuples is changed by this one.
- * This method preforms the reverse operation of DataArrayInt::deltaShiftIndex.
+ * This method performs the reverse operation of DataArrayInt::deltaShiftIndex.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  *

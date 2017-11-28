@@ -837,7 +837,7 @@ namespace INTERP_KERNEL
   }
 
   /*! Function that compares two angles from the values of the pairs (sin,cos)*/
-  /*! Angles are considered in [0, 2Pi] bt are not computed explicitely */
+  /*! Angles are considered in [0, 2Pi] bt are not computed explicitly */
   class AngleLess
   {
   public:
@@ -1048,9 +1048,9 @@ namespace INTERP_KERNEL
     // just to be able to compile
   }
   
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
-  /* Checks wether point A is inside the quadrangle BCDE */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
+  /* Checks whether point A is inside the quadrangle BCDE */
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
   template<int dim> inline double check_inside(const double* A,const double* B,const double* C,const double* D,
                                                const double* E,double* ABC, double* ADE)

@@ -311,14 +311,14 @@ bool MEDCouplingRemapper::setOptionString(const std::string& key, const std::str
 }
 
 /*!
- * This method returns the interpolation matrix policy. This policy specifies which interpolation matrix method to keep or prefered.
+ * This method returns the interpolation matrix policy. This policy specifies which interpolation matrix method to keep or preferred.
  * If interpolation matrix policy is :
  *
- * - set to IK_ONLY_PREFERED (0) (the default) : the INTERP_KERNEL only method is prefered. That is to say, if it is possible to treat the case
+ * - set to IK_ONLY_PREFERED (0) (the default) : the INTERP_KERNEL only method is preferred. That is to say, if it is possible to treat the case
  *   regarding spatial discretization of source and target with INTERP_KERNEL only method, INTERP_KERNEL only method will be performed.
  *   If not, the \b not only INTERP_KERNEL method will be attempt.
  * 
- * - set to NOT_IK_ONLY_PREFERED (1) : the \b NOT only INTERP_KERNEL method is prefered. That is to say, if it is possible to treat the case
+ * - set to NOT_IK_ONLY_PREFERED (1) : the \b NOT only INTERP_KERNEL method is preferred. That is to say, if it is possible to treat the case
  *   regarding spatial discretization of source and target with \b NOT only INTERP_KERNEL method, \b NOT only INTERP_KERNEL method, will be performed.
  *   If not, the INTERP_KERNEL only method will be attempt.
  * 
@@ -340,11 +340,11 @@ int MEDCouplingRemapper::getInterpolationMatrixPolicy() const
  *
  * If interpolation matrix policy is :
  *
- * - set to IK_ONLY_PREFERED (0) (the default) : the INTERP_KERNEL only method is prefered. That is to say, if it is possible to treat the case
+ * - set to IK_ONLY_PREFERED (0) (the default) : the INTERP_KERNEL only method is preferred. That is to say, if it is possible to treat the case
  *   regarding spatial discretization of source and target with INTERP_KERNEL only method, INTERP_KERNEL only method will be performed.
  *   If not, the \b not only INTERP_KERNEL method will be attempt.
  * 
- * - set to NOT_IK_ONLY_PREFERED (1) : the \b NOT only INTERP_KERNEL method is prefered. That is to say, if it is possible to treat the case
+ * - set to NOT_IK_ONLY_PREFERED (1) : the \b NOT only INTERP_KERNEL method is preferred. That is to say, if it is possible to treat the case
  *   regarding spatial discretization of source and target with \b NOT only INTERP_KERNEL method, \b NOT only INTERP_KERNEL method, will be performed.
  *   If not, the INTERP_KERNEL only method will be attempt.
  * 
@@ -507,7 +507,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
           if(!duplicateFaces.empty())
             {
-              std::ostringstream oss; oss << "An unexpected situation happend ! For the following 1D Cells are part of edges shared by 2D cells :\n";
+              std::ostringstream oss; oss << "An unexpected situation happened ! For the following 1D Cells are part of edges shared by 2D cells :\n";
               for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
                 {
                   oss << "1D Cell #" << (*it).first << " is part of common edge of following 2D cells ids : ";
@@ -526,7 +526,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
       if(!duplicateFaces.empty())
         {
-          std::ostringstream oss; oss << "An unexpected situation happend ! For the following 2D Cells are part of edges shared by 3D cells :\n";
+          std::ostringstream oss; oss << "An unexpected situation happened ! For the following 2D Cells are part of edges shared by 3D cells :\n";
           for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
             {
               oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
@@ -557,7 +557,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
           if(!duplicateFaces.empty())
             {
-              std::ostringstream oss; oss << "An unexpected situation happend ! For the following 2D Cells are part of edges shared by 3D cells :\n";
+              std::ostringstream oss; oss << "An unexpected situation happened ! For the following 2D Cells are part of edges shared by 3D cells :\n";
               for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
                 {
                   oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
@@ -951,7 +951,7 @@ void MEDCouplingRemapper::checkPrepare() const
 
 /*!
  * This method builds a code considering already set field discretization int \a this : \a _src_ft and \a _target_ft.
- * This method returns 3 informations (2 in ouput parameters and 1 in return).
+ * This method returns 3 information (2 in output parameters and 1 in return).
  * 
  * \param [out] srcMeth the string code of the discretization of source field template
  * \param [out] trgMeth the string code of the discretization of target field template

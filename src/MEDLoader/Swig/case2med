@@ -46,7 +46,7 @@ cr=CaseReader(fname)
 try:
     medfd=cr.loadInMEDFileDS()
 except:
-    print "An error occured during the conversion!"
+    print "An error occurred during the conversion!"
     print "#######################################"
     raise
 medfd.write(fOut,2)

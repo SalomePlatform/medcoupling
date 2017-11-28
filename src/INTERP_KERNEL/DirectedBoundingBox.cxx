@@ -201,7 +201,7 @@ namespace INTERP_KERNEL
 
   //================================================================================
   /*!
-   * \brief Creates empty box intended to further initalization via setData()
+   * \brief Creates empty box intended to further initialization via setData()
    */
   //================================================================================
 

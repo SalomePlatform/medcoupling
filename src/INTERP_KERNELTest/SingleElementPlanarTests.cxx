@@ -231,7 +231,7 @@ namespace INTERP_TEST
   {
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     /*
-      ////////////////// TEST DESACTIVATED by A. GEAY because memory fault : 
+      ////////////////// TEST DEACTIVATED by A. GEAY because memory fault : 
       // conditional jump INTERP_KERNEL::PolygonAlgorithms<2>::intersectConvexPolygons(double const*, double const*, int, int) (PolygonAlgorithms.txx:629)
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_square1,_square1,4,4);
     std::deque< double > expected_result;

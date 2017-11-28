@@ -205,7 +205,7 @@ namespace MEDCoupling
     int _nval;
     std::string _profile;
     std::string _localization;
-    //! only on assignement -3 : ON_NODES, -2 : ON_CELLS, -1 : ON_GAUSS_NE, 0..* : ON_GAUSS_PT
+    //! only on assignment -3 : ON_NODES, -2 : ON_CELLS, -1 : ON_GAUSS_NE, 0..* : ON_GAUSS_PT
     mutable int _loc_id;
     mutable int _profile_it;
     MCAuto<PartDefinition> _pd;

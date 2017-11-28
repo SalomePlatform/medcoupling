@@ -145,7 +145,7 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCoupling1GTUMesh::getAllGeoTypes(
  * \a this is composed in cell types.
  * The returned array is of size 3*n where n is the number of different types present in \a this. 
  * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here. 
- * This parameter is kept only for compatibility with other methode listed above.
+ * This parameter is kept only for compatibility with other method listed above.
  */
 std::vector<int> MEDCoupling1GTUMesh::getDistributionOfTypes() const
 {
@@ -1635,7 +1635,7 @@ void MEDCoupling1SGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn)
 }
 
 /*!
- * \return DataArrayInt * - the internal reference to the nodal connectivity. The caller is not reponsible to deallocate it.
+ * \return DataArrayInt * - the internal reference to the nodal connectivity. The caller is not responsible to deallocate it.
  */
 DataArrayInt *MEDCoupling1SGTUMesh::getNodalConnectivity() const
 {
@@ -1646,7 +1646,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::getNodalConnectivity() const
 /*!
  * Allocates memory to store an estimation of the given number of cells. Closer is the estimation to the number of cells effectively inserted,
  * less will be the needs to realloc. If the number of cells to be inserted is not known simply put 0 to this parameter.
- * If a nodal connectivity previouly existed before the call of this method, it will be reset.
+ * If a nodal connectivity previously existed before the call of this method, it will be reset.
  *
  *  \param [in] nbOfCells - estimation of the number of cell \a this mesh will contain.
  */
@@ -1666,7 +1666,7 @@ void MEDCoupling1SGTUMesh::allocateCells(int nbOfCells)
  * \param [in] nodalConnOfCellEnd - the end (excluded) of nodal connectivity of the cell to add.
  * \throw If the length of the input nodal connectivity array of the cell to add is not equal to number of nodes per cell relative to the unique geometric type
  *        attached to \a this.
- * \thow If the nodal connectivity array in \a this is null (call MEDCoupling1SGTUMesh::allocateCells before).
+ * \throw If the nodal connectivity array in \a this is null (call MEDCoupling1SGTUMesh::allocateCells before).
  */
 void MEDCoupling1SGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd)
 {
@@ -3302,7 +3302,7 @@ void MEDCoupling1DGTUMesh::allocateCells(int nbOfCells)
  * \param [in] nodalConnOfCellEnd - the end (excluded) of nodal connectivity of the cell to add.
  * \throw If the length of the input nodal connectivity array of the cell to add is not equal to number of nodes per cell relative to the unique geometric type
  *        attached to \a this.
- * \thow If the nodal connectivity array in \a this is null (call MEDCoupling1SGTUMesh::allocateCells before).
+ * \throw If the nodal connectivity array in \a this is null (call MEDCoupling1SGTUMesh::allocateCells before).
  */
 void MEDCoupling1DGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd)
 {
@@ -3338,7 +3338,7 @@ void MEDCoupling1DGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn, DataArr
 }
 
 /*!
- * \return DataArrayInt * - the internal reference to the nodal connectivity. The caller is not reponsible to deallocate it.
+ * \return DataArrayInt * - the internal reference to the nodal connectivity. The caller is not responsible to deallocate it.
  */
 DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivity() const
 {
@@ -3347,7 +3347,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivity() const
 }
 
 /*!
- * \return DataArrayInt * - the internal reference to the nodal connectivity index. The caller is not reponsible to deallocate it.
+ * \return DataArrayInt * - the internal reference to the nodal connectivity index. The caller is not responsible to deallocate it.
  */
 DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivityIndex() const
 {

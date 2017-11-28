@@ -404,7 +404,7 @@ namespace MEDCoupling
   /*!
    * This method performs systematically an allocation of \a newNbOfElements elements in \a this.
    * \a _nb_of_elem and \a _nb_of_elem_alloc will be equal even if only std::min<std::size_t>(_nb_of_elem,newNbOfElements) come from the .
-   * The remaing part of the new allocated chunk are available but not set previouly !
+   * The remaining part of the new allocated chunk are available but not set previously !
    * 
    * So this method should not be confused with MemArray<T>::reserve that is close to MemArray<T>::reAlloc but not same.
    */
@@ -704,7 +704,7 @@ namespace MEDCoupling
   }
   
   /*!
-   * This method desallocated \a this without modification of informations relative to the components.
+   * This method deallocated \a this without modification of information relative to the components.
    * After call of this method, DataArrayDouble::isAllocated will return false.
    * If \a this is already not allocated, \a this is let unchanged.
    */

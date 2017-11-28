@@ -246,7 +246,7 @@ namespace INTERP_KERNEL
   }
 
   /*!
-   * \param [out] matrix contain a dense matrix of size 12 with 3 rows containing each 4 colums. This matrix is the reduction of 4x4 matrix but the last
+   * \param [out] matrix contain a dense matrix of size 12 with 3 rows containing each 4 columns. This matrix is the reduction of 4x4 matrix but the last
    *              line containing [0,0,0,1] is omitted.
    */
   bool ComputeRotTranslationMatrixToPut3PointsOnOXY(const double *p0, const double *p1, const double *p2, double *matrix)

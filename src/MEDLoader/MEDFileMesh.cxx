@@ -795,7 +795,7 @@ void MEDFileMesh::removeFamiliesReferedByNoGroups()
 }
 
 /*!
- * This method has no impact on groups. This method only works on families. This method firstly removes families not refered by any groups in \a this, then all unused entities
+ * This method has no impact on groups. This method only works on families. This method firstly removes families not referred by any groups in \a this, then all unused entities
  * are put as belonging to family 0 ("FAMILLE_ZERO"). Finally, all orphanFamilies are killed.
  * This method raises an exception if "FAMILLE_ZERO" is already belonging to a group.
  *
@@ -2282,7 +2282,7 @@ MEDFileUMesh *MEDFileUMesh::New(med_idt fid, MEDFileMeshReadSelector *mrs)
 }
 
 /*!
- * \b WARNING this implementation is dependant from MEDCouplingMappedExtrudedMesh::buildUnstructured !
+ * \b WARNING this implementation is dependent from MEDCouplingMappedExtrudedMesh::buildUnstructured !
  * \sa MEDCouplingMappedExtrudedMesh::buildUnstructured , MEDCouplingMappedExtrudedMesh::build3DUnstructuredMesh
  */
 MEDFileUMesh *MEDFileUMesh::New(const MEDCouplingMappedExtrudedMesh *mem)
@@ -2776,7 +2776,7 @@ void MEDFileMesh::checkCartesian() const
   if(getAxisType()!=AX_CART)
     {
       std::ostringstream oss; oss << "MEDFileMesh::checkCartesian : request for method that is dedicated to a cartesian convention ! But you are not in cartesian convention (" << DataArray::GetAxisTypeRepr(getAxisType()) << ").";
-      oss << std::endl << "To perform operation you have two possiblities :" << std::endl;
+      oss << std::endl << "To perform operation you have two possibilities :" << std::endl;
       oss << " - call setAxisType(AX_CART)" << std::endl;
       oss << " - call cartesianize()";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -3635,7 +3635,7 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM3Mesh(bool renum) const
 /*!
  * This method is for advanced users. There is two storing strategy of mesh in \a this.
  * Either MEDCouplingUMesh, or vector of MEDCoupling1GTUMesh instances.
- * When assignement is done the first one is done, which is not optimal in write mode for MED file.
+ * When assignment is done the first one is done, which is not optimal in write mode for MED file.
  * This method allows to switch from MEDCouplingUMesh mode to MEDCoupling1GTUMesh mode.
  */
 void MEDFileUMesh::forceComputationOfParts() const
@@ -6095,7 +6095,7 @@ void MEDFileStructuredMesh::deepCpyAttributes()
 }
 
 /*!
- * Returns a pointer to mesh at the specified level (here 0 is compulsary for cartesian mesh).
+ * Returns a pointer to mesh at the specified level (here 0 is compulsory for cartesian mesh).
  * 
  * \return a pointer to cartesian mesh that need to be managed by the caller.
  * \warning the returned pointer has to be managed by the caller.

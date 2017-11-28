@@ -1680,7 +1680,7 @@ const DataArrayInt *MEDFileField1TSStructItem2::getPfl(const MEDFileFieldGlobsRe
 }
 
 /*!
- * \param [in] nbOfEntity - number of entity that can be either cells or nodes. Not other possiblity.
+ * \param [in] nbOfEntity - number of entity that can be either cells or nodes. Not other possibility.
  * \param [in] nip - number of integration points. 1 for ON_CELLS and NO_NODES
  */
 void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs)

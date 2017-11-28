@@ -441,7 +441,7 @@ namespace MEDCoupling
     . We assume that buffers are allocated with a new double[]. so a
     delete [] is done.
 
-    . The structure SendBuffStruct permit to keep the adress of the buffer
+    . The structure SendBuffStruct permit to keep the address of the buffer
     and to manage a reference counter of that buffer. It contains
     also MPI_Datatype for the delete [] (double *) ... when the counter
     is null.

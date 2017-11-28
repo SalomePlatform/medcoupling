@@ -32,7 +32,7 @@ Reading, Writing a MED file using MEDLoader basic API
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
 	ml.WriteField("MyFirstField.med",f,True)
-	# Re-read it ans test equality
+	# Re-read it and test equality
 	f2 = ml.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
 	print "Is the read field identical to 'f' ?", f2.isEqual(f,1e-12,1e-12)
 	# Writing in several steps 

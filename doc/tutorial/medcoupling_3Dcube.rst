@@ -39,7 +39,7 @@ You must define 3 variables for space dimension, number of nodes on each dimensi
 Classical method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First instanciate a meshing object. Therefore, we need to define :
+First instantiate a meshing object. Therefore, we need to define :
 
  * its name
  * its dimension
@@ -248,7 +248,7 @@ First you need to create a CouplingField and initialize some data:
  * its values
 
  
-The field will be a sin function dependant of distance of the barycenter of each cell from origin. So we need to create a barycenter field on the 3D mesh::
+The field will be a sin function dependent of distance of the barycenter of each cell from origin. So we need to create a barycenter field on the 3D mesh::
 
 	# Creation of field : with following definition
 	# => Definition of the mesh support

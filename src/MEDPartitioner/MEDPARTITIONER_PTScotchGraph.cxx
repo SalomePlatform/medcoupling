@@ -80,7 +80,7 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
                      xadj[n],       // edgelocnbr            , number of edges
                      xadj[n],       // edgelocsiz            , same as edgelocnbr if edgeloctab is compact
                      adjncy,        // edgeloctab[edgelocnbr], global indexes of edges
-                     0,             // edgegsttab            , optionnal, should be computed internally, set to zero
+                     0,             // edgegsttab            , optional, should be computed internally, set to zero
                      _edge_weight); // edloloctab            , graph edges loads, set to zero
   
   SCOTCH_Strat scotch_strategy;

@@ -385,7 +385,7 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(int ghost
 
 /*!
  * \a p1 is expected to be more refined than \a p2. \a p1 and \a p2 have to share a common ancestor. Compared to UpdateNeighborsOfOneWithTwoExt here \a p1 and \a p2 are \b not at the same level !
- * This method has 3 outputs. 2 two first are the resp the position of \a p1 and \a p2 relative to \a p1. And \a factToApplyOn2 is the coeff of refinement to be applied on \a p2 to be virtualy
+ * This method has 3 outputs. 2 two first are the resp the position of \a p1 and \a p2 relative to \a p1. And \a factToApplyOn2 is the coeff of refinement to be applied on \a p2 to be virtually
  * on the same level as \a p1.
  */
 void MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, std::vector< std::pair<int,int> >& p1Zone, std::vector< std::pair<int,int> >& p2Zone, std::vector<int>& factToApplyOn2)

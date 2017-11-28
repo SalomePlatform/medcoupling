@@ -4119,7 +4119,7 @@ class MEDLoaderTest4(unittest.TestCase):
         pass
 
     def test28(self):
-        """ This test defines 2 fields f0,f1,f2,f3 lying on an unstructured mesh whith cells including NORM_POINT1.
+        """ This test defines 2 fields f0,f1,f2,f3 lying on an unstructured mesh with cells including NORM_POINT1.
         Both f0 and f1 are on NODES and f2 and f3 are on cells. f1 and f2 share the same support.
         f0 is on a nodal support that is not matchable with any cells (including NORM_POINT1)
         This test is a more aggressive version of test26.
@@ -4959,7 +4959,7 @@ class MEDLoaderTest4(unittest.TestCase):
         pass
 
     def test35(self):
-        """ Emulate MEDReader in // mode context. Here a Simple mesh having more nodes than really needed. This test focuses on that point particulary."""
+        """ Emulate MEDReader in // mode context. Here a Simple mesh having more nodes than really needed. This test focuses on that point particularly."""
         fname="ForMEDReader35.med"
         arrX=DataArrayDouble(7) ; arrX.iota()
         arrY=DataArrayDouble([0.,1.])

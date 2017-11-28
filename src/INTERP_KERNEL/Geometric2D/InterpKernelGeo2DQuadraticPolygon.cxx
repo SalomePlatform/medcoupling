@@ -270,8 +270,8 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
  * This method splits 'this' with 'other' into smaller pieces localizable. 'mapThis' is a map that gives the correspondance
  * between nodes contained in 'this' and node ids in a global mesh.
  * In the same way, 'mapOther' gives the correspondance between nodes contained in 'other' and node ids in a
- * global mesh from wich 'other' is extracted.
- * This method has 1 out paramater : 'edgesThis', After the call of this method, it contains the nodal connectivity (including type)
+ * global mesh from which 'other' is extracted.
+ * This method has 1 out parameter : 'edgesThis', After the call of this method, it contains the nodal connectivity (including type)
  * of 'this' into globlal "this mesh".
  * This method has 2 in/out parameters : 'subDivOther' and 'addCoo'.'otherEdgeIds' is useful to put values in
  * 'edgesThis', 'subDivOther' and 'addCoo'.
@@ -1140,7 +1140,7 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
   if(!direction)
     it.previousLoop();
   Node *nodeToTest;
-  int szMax(pol1Splitted.size()+1),ii(0);// here a protection against agressive users of IntersectMeshes of invalid input meshes
+  int szMax(pol1Splitted.size()+1),ii(0);// here a protection against aggressive users of IntersectMeshes of invalid input meshes
   std::list<QuadraticPolygon *>::iterator ret;
   do
     {
@@ -1157,7 +1157,7 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
       ii++;
     }
   while(ret==iEnd && ii<szMax);
-  if(ii==szMax)// here a protection against agressive users of IntersectMeshes of invalid input meshes
+  if(ii==szMax)// here a protection against aggressive users of IntersectMeshes of invalid input meshes
     throw INTERP_KERNEL::Exception("QuadraticPolygon::fillAsMuchAsPossibleWith : Something is invalid with input polygons !");
   return ret;
 }

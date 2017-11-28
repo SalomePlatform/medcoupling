@@ -79,7 +79,7 @@ namespace INTERP_TEST
     MEDCouplingNormalizedUnstructuredMesh<2,2> wrap_target_mesh(target_mesh_mc);
     // Go for interpolation...
     INTERP_KERNEL::Interpolation2D myInterpolator;
-    //optionnal call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
+    //optional call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
     myInterpolator.setPrecision(1e-7);
     myInterpolator.setPrintLevel(1);
     source_mesh->decrRef();

@@ -1232,7 +1232,7 @@ DataArrayDouble *MEDCouplingIMesh::computeIsoBarycenterOfNodesPerCell() const
 
 void MEDCouplingIMesh::renumberCells(const int *old2NewBg, bool check)
 {
-  throw INTERP_KERNEL::Exception("Functionnality of renumbering cell not available for IMesh !");
+  throw INTERP_KERNEL::Exception("Functionality of renumbering cell not available for IMesh !");
 }
 
 void MEDCouplingIMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const

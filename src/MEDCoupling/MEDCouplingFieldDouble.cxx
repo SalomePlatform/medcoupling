@@ -190,8 +190,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
 }
 
 /*!
- * This method converts a field on nodes (\a this) to a cell field (returned field). The convertion is a \b non \b conservative remapping !
- * This method is useful only for users that need a fast convertion from node to cell spatial discretization. The algorithm applied is simply to attach
+ * This method converts a field on nodes (\a this) to a cell field (returned field). The conversion is a \b non \b conservative remapping !
+ * This method is useful only for users that need a fast conversion from node to cell spatial discretization. The algorithm applied is simply to attach
  * to each cell the average of values on nodes constituting this cell.
  *
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
@@ -246,8 +246,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
 }
 
 /*!
- * This method converts a field on cell (\a this) to a node field (returned field). The convertion is a \b non \b conservative remapping !
- * This method is useful only for users that need a fast convertion from cell to node spatial discretization. The algorithm applied is simply to attach
+ * This method converts a field on cell (\a this) to a node field (returned field). The conversion is a \b non \b conservative remapping !
+ * This method is useful only for users that need a fast conversion from cell to node spatial discretization. The algorithm applied is simply to attach
  * to each node the average of values on cell sharing this node. If \a this lies on a mesh having orphan nodes the values applied on them will be NaN (division by 0.).
  *
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
@@ -2013,7 +2013,7 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::convertQuadraticCellsToLi
 
 /*!
  * This is expected to be a 3 components vector field on nodes (if not an exception will be thrown). \a this is also expected to lie on a MEDCouplingPointSet mesh.
- * Finaly \a this is also expected to be consistent.
+ * Finally \a this is also expected to be consistent.
  * In these conditions this method returns a newly created field (to be dealed by the caller).
  * The returned field will also 3 compo vector field be on nodes lying on the same mesh than \a this.
  * 
