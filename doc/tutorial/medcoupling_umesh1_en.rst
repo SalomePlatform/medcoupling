@@ -189,7 +189,7 @@ Then aggregate mesh3DSlice2 with its translated copy, using MEDCouplingUMesh.Mer
         mesh3DSlice2bis.translate([0.,1000.,0.])
         mesh3DSlice2All=MEDCouplingUMesh.MergeUMeshes([mesh3DSlice2,mesh3DSlice2bis])
 
-.. note:: My apologies for the name of the method MEDCouplingUMesh.MergeUMeshes. In future version it will be called AggregateUMeshes. For information, to merge two (or more) unstructured meshes, one has to invoke MergeUMeshes(), then mergeNodes() on the result, and finally zipConnectivity().
+.. note:: My apologies for the name of the method MEDCouplingUMesh.MergeUMeshes. In future version it will be called AggregateUMeshes. For information, to merge two (or more) unstructured meshes, one has to invoke MergeUMeshes(), then mergeNodes() on the result, and finally zipConnectivityTraducer().
 
 
 Descending connectivity

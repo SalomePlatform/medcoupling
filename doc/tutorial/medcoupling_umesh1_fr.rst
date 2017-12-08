@@ -248,7 +248,7 @@ Puis aggréger ``mesh3DSlice2`` avec sa copie translatée ``mesh3DSlice2bis``, e
 	mesh3DSlice2All.writeVTK("mesh3DSlice2All.vtu")
 
 .. note:: Pour information pour merger deux (ou plus) maillages non structurés, il faut invoquer ``MEDCouplingUMesh.MergeUMeshes()``
-	puis ``MEDCouplingUMesh.mergeNodes()`` sur le résultat, et enfin ``MEDCouplingUMesh.zipConnectivity()``.
+	puis ``MEDCouplingUMesh.mergeNodes()`` sur le résultat, et enfin ``MEDCouplingUMesh.zipConnectivityTraducer()``.
 
 .. _exo-umesh-desc-connec:
 
