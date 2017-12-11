@@ -67,14 +67,13 @@ Le premier élément du tuple est la partie du maillage ``m2`` considérée. Le 
 L'idée est d'interpoler ``m`` avec ``m2Part``.
 
 On récupèrera ensuite la matrice sparse ``myMat`` issue de ``m`` avec ``m2Part``.
-Ensuite l'idée et de générer une matrice sparse ``mat2`` à partir de ``myMat`` avec les ids globaux de ``m2``. ::
+Ensuite l'idée est de générer une matrice sparse ``mat2`` à partir de ``myMat`` avec les ids globaux de ``m2``. ::
 
 	def work(inp):
             m2Part,partToGlob=inp
 	    myRemap=mr.MEDCouplingRemapper()
 	    assert(myRemap.prepare(m,m2Part,"P0P0")==1)
 	    myMat=myRemap.getCrudeCSRMatrix()
-	    a=mc.DataArrayInt.Range(s.start,s.stop,s.step)
 	    indptrnew=mc.DataArrayInt(m2.getNumberOfCells())
 	    indptrnew.fillWithZero()
 	    d=mc.DataArrayInt(myMat.indptr).deltaShiftIndex()

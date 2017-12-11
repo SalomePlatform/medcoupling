@@ -179,7 +179,7 @@ On a ainsi récupéré dans ``c`` l'ensemble des m=12 groupes de noeuds communs 
 La méthode ``findCommonTuples()`` retourne ainsi 2 paramètres: un tableau contenant la liste des tuples communs 
 et un tableau d'index qui permet de naviguer dans le premier tableau.    
 Il s'agit d'une forme de retour très classique dans MEDCoupling, appelée *indirect indexing*. Cela apparaît souvent dans la manipulation des 
-maillages non structurés. Cette représentation est rappelée sur l'image ci-dessous, où le premier tableau et en haut, 
+maillages non structurés. Cette représentation est rappelée sur l'image ci-dessous, où le premier tableau est en haut, 
 et le deuxième tableau permettant de la parcourir en bas:
 
 .. image:: images/IndirectIndex.jpg
@@ -288,7 +288,7 @@ Tous les tuples (ou nodes) sont à translater du vecteur [3.3,4.4] afin de recen
 
 	d3 += [3.3,4.4]
 
-Constuire un maillage non strucuturé
+Constuire un maillage non structuré
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On chercher maintenant à créer le maillage final montré dans la figure. Nous avons déjà construit le tableau

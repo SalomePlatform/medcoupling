@@ -111,8 +111,6 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 	critères géométriques.
 	Il s'agit d'abord de calculer les barycentres des cellules 3D de ``mesh3D`` (méthode 
 	``MEDCouplingUMesh.computeCellCenterOfMass()``).
-	(*Note*: le nom -- un peu trop long -- de cette méthode hérite du passé. Le "AndOwner" indique le fait qu'en C++
-	l'appelant est responsable de la désallocation de l'objet retourné : il prend l'*ownership* du résultat). 
 	
 	Ensuite sélectionner la composante #2 des barycentres des cellules et mettre le résultat dans ``baryZ``.
 	Ensuite il suffit de selectionner dans ``baryZ`` les tuples qui sont dans l'intervalle ``[zLev[1], zLev[2]]``. 
