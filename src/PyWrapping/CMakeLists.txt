@@ -1,0 +1,84 @@
+# Copyright (C) 2017  CEA/DEN, EDF R&D
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+# Author : Anthony Geay (EDF R&D)
+
+FIND_PACKAGE(SWIG REQUIRED)
+INCLUDE(${SWIG_USE_FILE})
+
+ADD_DEFINITIONS(${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS})
+
+SET_SOURCE_FILES_PROPERTIES(medcoupling.i PROPERTIES CPLUSPLUS ON)
+IF ("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
+  SET_SOURCE_FILES_PROPERTIES(medcoupling.i PROPERTIES SWIG_FLAGS "-py3")
+ELSE()
+  SET_SOURCE_FILES_PROPERTIES(medcoupling.i PROPERTIES SWIG_DEFINITIONS "-shadow")
+ENDIF()
+SET(SWIG_MODULE_medcoupling_EXTRA_FLAGS "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
+
+SET(medcoupling_SWIG_DPYS_FILES medcoupling.i)
+
+INCLUDE_DIRECTORIES(
+  ${PYTHON_INCLUDE_DIRS}
+  ${NUMPY_INCLUDE_DIR}
+  ${MEDFILE_INCLUDE_DIRS}
+  ${HDF5_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader/Swig
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling_Swig
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
+  ${CMAKE_CURRENT_SOURCE_DIR}/../RENUMBER
+  ${CMAKE_CURRENT_SOURCE_DIR}/../RENUMBER_Swig
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDPartitioner
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDPartitioner_Swig
+  ${PROJECT_BINARY_DIR}/doc
+  )
+
+SET(medcoupling_LIB_dependancies ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingremapper)
+
+IF(NOT MEDCOUPLING_MICROMED)
+  LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_MED_FILE)
+  LIST(APPEND medcoupling_LIB_dependancies medloader)
+ENDIF(NOT MEDCOUPLING_MICROMED)
+
+IF(MEDCOUPLING_ENABLE_RENUMBER)
+  LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_RENUMBER)
+  LIST(APPEND medcoupling_LIB_dependancies renumbercpp)
+ENDIF(MEDCOUPLING_ENABLE_RENUMBER)
+
+IF(MEDCOUPLING_ENABLE_PARTITIONER)
+  LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_PARTITIONER)
+  LIST(APPEND medcoupling_LIB_dependancies medpartitionercpp)
+ENDIF(MEDCOUPLING_ENABLE_PARTITIONER)
+
+SWIG_ADD_MODULE(medcoupling python medcoupling.i)
+SWIG_LINK_LIBRARIES(medcoupling ${medcoupling_LIB_dependancies})
+SWIG_CHECK_GENERATION(medcoupling)
+IF(WIN32)
+  SET_TARGET_PROPERTIES(_medcoupling PROPERTIES DEBUG_OUTPUT_NAME _medcoupling_d)
+ENDIF(WIN32)
+
+INSTALL(TARGETS _medcoupling DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
+INSTALL(FILES medcoupling.i medcoupling_pycode DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
+SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/medcoupling.py ${MEDCOUPLING_INSTALL_PYTHON})

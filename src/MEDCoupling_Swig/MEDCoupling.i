@@ -17,6 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+%module MEDCoupling
+
 %include "MEDCouplingCommon.i"
 
 %pythoncode %{
@@ -107,10 +109,10 @@ def MEDCouplingDataArrayIntTupleIdiv(self,*args):
 def MEDCouplingDataArrayIntTupleImod(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayIntTuple____imod___(self, self, *args)
-def ParaMEDMEMDenseMatrixIadd(self,*args):
+def MEDCouplingDenseMatrixIadd(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DenseMatrix____iadd___(self, self, *args)
-def ParaMEDMEMDenseMatrixIsub(self,*args):
+def MEDCouplingDenseMatrixIsub(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DenseMatrix____isub___(self, self, *args)
 %}

@@ -57,7 +57,7 @@ SET(TestMEDCouplingExamples_SOURCES
 SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
 
 ADD_EXECUTABLE(TestMEDCoupling ${TestMEDCoupling_SOURCES})
-TARGET_LINK_LIBRARIES(TestMEDCoupling medcoupling ${CPPUNIT_LIBRARIES} ${PLATFORM_LIBS})
+TARGET_LINK_LIBRARIES(TestMEDCoupling medcouplingcpp ${CPPUNIT_LIBRARIES} ${PLATFORM_LIBS})
 ADD_TEST(TestMEDCoupling TestMEDCoupling)
 SET_TESTS_PROPERTIES(TestMEDCoupling PROPERTIES ENVIRONMENT "${tests_env}")
 
@@ -67,7 +67,7 @@ ADD_TEST(TestMEDCouplingRemapper TestMEDCouplingRemapper)
 SET_TESTS_PROPERTIES(TestMEDCouplingRemapper PROPERTIES ENVIRONMENT "${tests_env}")
 
 ADD_EXECUTABLE(TestMEDCouplingExamples ${TestMEDCouplingExamples_SOURCES})
-TARGET_LINK_LIBRARIES(TestMEDCouplingExamples medcoupling ${CPPUNIT_LIBRARIES} ${PLATFORM_LIBS})
+TARGET_LINK_LIBRARIES(TestMEDCouplingExamples medcouplingcpp ${CPPUNIT_LIBRARIES} ${PLATFORM_LIBS})
 ADD_TEST(TestMEDCouplingExamples TestMEDCouplingExamples)
 SET_TESTS_PROPERTIES(TestMEDCouplingExamples PROPERTIES ENVIRONMENT "${tests_env}")
 

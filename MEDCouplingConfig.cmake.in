@@ -30,7 +30,7 @@
 # Load the dependencies for the libraries of @PROJECT_NAME@ 
 # (contains definitions for IMPORTED targets). This is only 
 # imported if we are not built as a subproject (in this case targets are already there)
-IF(NOT TARGET medcoupling AND NOT @PROJECT_NAME@_BINARY_DIR)
+IF(NOT TARGET medcouplingcpp AND NOT @PROJECT_NAME@_BINARY_DIR)
   INCLUDE("@PACKAGE_MEDCOUPLING_INSTALL_CMAKE_LOCAL@/@PROJECT_NAME@Targets.cmake")
 ENDIF()   
 
@@ -114,7 +114,8 @@ SET(MEDCOUPLING_INSTALL_DOC "@MEDCOUPLING_INSTALL_BINS@")
 
 # Exposed MEDCoupling targets:
 SET(MEDCoupling_interpkernel interpkernel)
-SET(MEDCoupling_medcoupling medcoupling)
+SET(MEDCoupling_medcouplingcpp medcouplingcpp)
+SET(MEDCoupling_medcoupling    medcouplingcpp)
 SET(MEDCoupling_medcouplingremapper medcouplingremapper)
 SET(MEDCoupling_medloader medloader)
 SET(MEDCoupling_renumbercpp renumbercpp)

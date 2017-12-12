@@ -31,16 +31,16 @@
 using namespace std;
 
 namespace MED_RENUMBER
-{
+{ 
   Renumbering* RenumberingFactory(const string &s)
   {
 #ifdef MED_ENABLE_METIS
 #ifdef ENABLE_BOOST
-    if (s=="METIS")
+    if (s==METIS_ALG)
       {
         return new METISRenumbering;
       }
-    else if(s=="BOOST")
+    else if(s==BOOST_ALG)
       {
         return new BOOSTRenumbering;
       }
@@ -51,7 +51,7 @@ namespace MED_RENUMBER
       }
 #endif
 #ifndef ENABLE_BOOST
-    if (s=="METIS")
+    if (s==METIS_ALG)
       {
         return new METISRenumbering;
       }
@@ -64,7 +64,7 @@ namespace MED_RENUMBER
 #endif
 #ifndef MED_ENABLE_METIS
 #ifdef ENABLE_BOOST
-    if (s=="BOOST")
+    if (s==BOOST_ALG)
       {
         return new BOOSTRenumbering;
       }
@@ -79,5 +79,25 @@ namespace MED_RENUMBER
     return 0;
 #endif
 #endif
+  }
+
+  std::vector<std::string> AllRenumberMethods()
+  {
+    std::vector<std::string> ret;
+    ret.push_back(std::string(BOOST_ALG));
+    ret.push_back(std::string(METIS_ALG));
+    return ret;
+  }
+  
+  std::vector<std::string> RenumberAvailableMethods()
+  {
+    std::vector<std::string> ret;
+#ifdef ENABLE_BOOST
+    ret.push_back(std::string(BOOST_ALG));
+#endif
+#ifdef MED_ENABLE_METIS
+    ret.push_back(std::string(METIS_ALG));
+#endif
+    return ret;
   }
 }

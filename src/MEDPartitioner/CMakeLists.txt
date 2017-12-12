@@ -108,7 +108,7 @@ SET(medpartitionercpp_LDFLAGS
   ${STDLIB}
   ${LIBXML2_LIBRARIES}
   interpkernel
-  medcoupling
+  medcouplingcpp
   medloader
 )
 IF(MEDCOUPLING_PARTITIONER_PARMETIS)

@@ -89,7 +89,7 @@ ADD_LIBRARY(InterpKernelTestUtils ${InterpKernelTestUtils_SOURCES})
 TARGET_LINK_LIBRARIES(InterpKernelTestUtils interpkernel)
 ADD_LIBRARY(InterpKernelTest ${InterpKernelTest_SOURCES})
 
-SET(InterpKernelTest_LIBS medcoupling interpkernel ${CPPUNIT_LIBRARIES})
+SET(InterpKernelTest_LIBS medcouplingcpp interpkernel ${CPPUNIT_LIBRARIES})
 IF(NOT MEDCOUPLING_MICROMED)
   SET(InterpKernelTest_LIBS medloader ${InterpKernelTest_LIBS})
 ENDIF(NOT MEDCOUPLING_MICROMED)

@@ -17,35 +17,21 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module MEDPartitioner
-
-%include std_string.i
-
 %{
-#include "MEDFileData.hxx"
-
 #include "MEDPARTITIONER_MEDPartitioner.hxx"
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 
-using namespace MEDCoupling;
-using namespace INTERP_KERNEL;
 using namespace MEDPARTITIONER;
 %}
 
-%feature("autodoc", "1");
-%feature("docstring");
+
 
 %newobject MEDPARTITIONER::MEDPartitioner::New;
 %newobject MEDPARTITIONER::MEDPartitioner::Graph;
 %newobject MEDPARTITIONER::MEDPartitioner::Graph::getGraph;
 %newobject MEDPARTITIONER::MEDPartitioner::Graph::getPartition;
 %newobject MEDPARTITIONER::MEDPartitioner::getMEDFileData;
-%feature("unref") MEDCoupling::MEDFileData "$this->decrRef();"
-
-%nodefaultctor;
-
-%rename (InterpKernelException) INTERP_KERNEL::Exception;
 
 namespace MEDPARTITIONER
 {
@@ -79,6 +65,8 @@ namespace MEDPARTITIONER
     MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
     MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
     static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0, MEDCoupling::DataArrayInt* vlbloctab=0) throw(INTERP_KERNEL::Exception);
+    static std::vector<std::string> AvailableAlgorithms();
+    static std::vector<std::string> AllAlgorithms();
     MEDCoupling::MEDFileData* getMEDFileData() throw(INTERP_KERNEL::Exception);
     void write(const std::string& filename) throw(INTERP_KERNEL::Exception);
   };

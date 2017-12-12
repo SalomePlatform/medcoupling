@@ -18,8 +18,6 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-%module MEDRenumber
-
 %include std_vector.i
 %include std_string.i
 
@@ -28,12 +26,8 @@
 #include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
 
-#include "RenumberingFactory.hxx"
-#include "RENUMBER_Renumbering.hxx"
-
 using namespace MEDCoupling;
 using namespace INTERP_KERNEL;
- using namespace MED_RENUMBER;
 %}
 
 %template(ivec) std::vector<int>;
@@ -48,8 +42,6 @@ using namespace INTERP_KERNEL;
 
 %feature("autodoc", "1");
 %feature("docstring");
-
-%newobject MED_RENUMBER::RenumberingFactory;
 
 %nodefaultctor;
 
@@ -66,47 +58,7 @@ using namespace INTERP_KERNEL;
   }
 %}
 
-class Renumbering
-{
-public:
-  %extend
-  {
-    virtual PyObject *renumber(const MEDCoupling::DataArrayInt *graph, const MEDCoupling::DataArrayInt *index_graph) throw(INTERP_KERNEL::Exception)
-    {
-      if(!graph || !index_graph)
-        throw INTERP_KERNEL::Exception("wrap of Renumbering::renumber : One of the input arrays is NULL !");
-      if(!graph->isAllocated() || !index_graph->isAllocated())
-        throw INTERP_KERNEL::Exception("wrap of Renumbering::renumber : One of the input arrays is not allocated !");
-      MEDCoupling::DataArrayInt *out0(0),*out1(0);
-      self->renumber(graph->begin(),index_graph->begin(),index_graph->getNumberOfTuples()-1,out0,out1);
-      PyObject *ret=PyTuple_New(2);
-      PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(out0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-      PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(out1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-      return ret;
-    }
-  }
-  virtual ~Renumbering();
-};
-
-namespace MED_RENUMBER
-{
-  Renumbering *RenumberingFactory(const std::string& s) throw(INTERP_KERNEL::Exception);
-}
-
-%inline
-{
-  std::vector<std::string> RenumberAvailableMethods()throw(INTERP_KERNEL::Exception)
-  {
-    std::vector<std::string> ret;
-#ifdef HAS_BOOST
-    ret.push_back(std::string("BOOST"));
-#endif
-#ifdef HAS_METIS
-    ret.push_back(std::string("METIS"));
-#endif
-    return ret;
-  }
-}
+%include "MEDRenumberImpl.i"
 
 %pythoncode %{
 import os

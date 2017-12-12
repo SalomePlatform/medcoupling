@@ -45,6 +45,8 @@ namespace MEDPARTITIONER
     MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
     MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
     static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0, DataArrayInt* vlbloctab=0);
+    static std::vector<std::string> AvailableAlgorithms();
+    static std::vector<std::string> AllAlgorithms();
     void write(const std::string& filename);
     MEDCoupling::MEDFileData* getMEDFileData();
     ~MEDPartitioner();
@@ -56,6 +58,10 @@ namespace MEDPARTITIONER
     MeshCollection* _input_collection;
     MeshCollection* _output_collection;
     Topology*       _new_topology;
+  public:
+    static const char METIS_PART_ALG[];
+    static const char SCOTCH_PART_ALG[];
+    static const char PTSCOTCH_PART_ALG[];
   };
 }
 #endif

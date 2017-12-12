@@ -258,7 +258,7 @@ INCLUDE(CMakePackageConfigHelpers)
 # List of targets in this project we want to make visible to the rest of the world.
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 SET(_${PROJECT_NAME}_exposed_targets
-   interpkernel medcoupling medcouplingremapper)
+   interpkernel medcouplingcpp medcouplingremapper)
 
 IF(NOT MEDCOUPLING_MICROMED)
   LIST(APPEND _${PROJECT_NAME}_exposed_targets medloader)

@@ -41,6 +41,10 @@
 #include <iostream>
 #include <vector>
 
+const char MEDPARTITIONER::MEDPartitioner::METIS_PART_ALG[]="Metis";
+const char MEDPARTITIONER::MEDPartitioner::SCOTCH_PART_ALG[]="Scotch";
+const char MEDPARTITIONER::MEDPartitioner::PTSCOTCH_PART_ALG[]="PTScotch";
+
 MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const std::string& filename, int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory):
   _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
@@ -170,4 +174,28 @@ MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCou
       break;
     }
   return cellGraph;
+}
+
+std::vector<std::string> MEDPARTITIONER::MEDPartitioner::AvailableAlgorithms()
+{
+  std::vector<std::string> ret;
+#ifdef MED_ENABLE_METIS
+  ret.push_back(std::string(METIS_PART_ALG));
+#endif
+#ifdef MED_ENABLE_SCOTCH
+  ret.push_back(std::string(SCOTCH_PART_ALG));
+#endif
+#ifdef MED_ENABLE_PTSCOTCH
+  ret.push_back(std::string(PTSCOTCH_PART_ALG));
+#endif
+  return ret;
+}
+
+std::vector<std::string> MEDPARTITIONER::MEDPartitioner::AllAlgorithms()
+{
+  std::vector<std::string> ret;
+  ret.push_back(std::string(METIS_PART_ALG));
+  ret.push_back(std::string(SCOTCH_PART_ALG));
+  ret.push_back(std::string(PTSCOTCH_PART_ALG));
+  return ret;
 }

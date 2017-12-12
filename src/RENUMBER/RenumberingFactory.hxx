@@ -28,6 +28,10 @@
 namespace MED_RENUMBER
 {
   RENUMBER_EXPORT Renumbering* RenumberingFactory(const std::string& s);
+  RENUMBER_EXPORT std::vector<std::string> RenumberAvailableMethods();
+  RENUMBER_EXPORT std::vector<std::string> AllRenumberMethods();
+  const char METIS_ALG[]="Metis";
+  const char BOOST_ALG[]="Boost";
 }
 
 #endif /*RENUMBERINGFACTORY_HXX_*/

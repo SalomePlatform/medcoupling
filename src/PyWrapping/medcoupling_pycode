@@ -1,0 +1,60 @@
+// Copyright (C) 2017  CEA/DEN, EDF R&D
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
+// Author : Anthony Geay (EDF R&D)
+
+%pythoncode %{
+
+def ExtensionsStr(sz=60):
+    tab=["No","Yes"]
+    isOK=[(elt,tab[int(elt in ActiveExtensions())]) for elt in AllPossibleExtensions()]
+    return "\n".join([a+" "+('{:.>%d}'%(sz-len(a)-1)).format(' %s'%b) for a,b in isOK])
+
+def ShowExtensions(sz=60):
+    print(ExtensionsStr(sz))
+    pass
+
+def AdvancedExtensionsStr(sz=60):
+    def SubExtension(allPossibilities,extensionsActivated,pad,tab, sts):
+        for elt2 in allPossibilities:
+            elt3="%s algorithm for %s"%(elt2,elt)
+            sts.append(pad+elt3+" "+('{:.>%d}'%(sz-len(pad)-len(elt3)-1)).format(' %s'%tab[int(elt2 in extensionsActivated)]))
+            pass
+        pass
+    pad="    "
+    tab=["No","Yes"]
+    aext=ActiveExtensions()
+    sts=[]
+    for elt in AllPossibleExtensions():
+        isOK=elt in aext
+        tab[int(isOK)]
+        sts.append(elt+" "+('{:.>%d}'%(sz-len(elt)-1)).format(' %s'%tab[isOK]))
+        if "Renumb" in elt:
+            SubExtension(AllRenumberMethods(),RenumberAvailableMethods(),pad,tab, sts)
+            pass
+        if "Partit" in elt:
+            SubExtension(MEDPartitioner.AllAlgorithms(),MEDPartitioner.AvailableAlgorithms(),pad,tab, sts)
+            pass
+        pass
+    return "\n".join(sts)
+
+def ShowAdvancedExtensions(sz=60):
+    print(AdvancedExtensionsStr(sz))
+
+%}

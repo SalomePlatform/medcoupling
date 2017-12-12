@@ -46,6 +46,7 @@ SET (MC_pyTestFiles
 SET (MC_Swig_interf
     MEDCoupling.i
     MEDCouplingCommon.i
+    MEDCouplingRemapperCommon.i
     MEDCouplingRefCountObject.i
     MEDCouplingMemArray.i
     MEDCouplingFieldDiscretization.i
@@ -87,7 +88,7 @@ IF(MEDCOUPLING_BUILD_DOC)
 ENDIF()
 
 SWIG_ADD_MODULE(MEDCoupling python MEDCoupling.i)
-SWIG_LINK_LIBRARIES(MEDCoupling ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcoupling)
+SWIG_LINK_LIBRARIES(MEDCoupling ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingcpp)
 SWIG_CHECK_GENERATION(MEDCoupling)
 SET_SOURCE_FILES_PROPERTIES(MEDCouplingRemapper.i PROPERTIES CPLUSPLUS ON)
 IF ("${PYTHON_VERSION_MAJOR}" STREQUAL "3")

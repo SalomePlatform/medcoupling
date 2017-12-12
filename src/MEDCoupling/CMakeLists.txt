@@ -80,12 +80,13 @@ SET(medcouplingremapper_SOURCES
   MEDCouplingRemapper.cxx
   )
 
-ADD_LIBRARY(medcoupling ${medcoupling_SOURCES})
-TARGET_LINK_LIBRARIES(medcoupling interpkernel)
-INSTALL(TARGETS medcoupling EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
+ADD_LIBRARY(medcouplingcpp ${medcoupling_SOURCES})
+SET_TARGET_PROPERTIES(medcouplingcpp PROPERTIES OUTPUT_NAME "medcoupling")
+TARGET_LINK_LIBRARIES(medcouplingcpp interpkernel)
+INSTALL(TARGETS medcouplingcpp EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
 ADD_LIBRARY(medcouplingremapper ${medcouplingremapper_SOURCES})
-TARGET_LINK_LIBRARIES(medcouplingremapper medcoupling)
+TARGET_LINK_LIBRARIES(medcouplingremapper medcouplingcpp)
 INSTALL(TARGETS medcouplingremapper EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
 FILE(GLOB medcoupling_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

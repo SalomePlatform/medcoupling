@@ -89,8 +89,8 @@ DataArrayIntTuple.__itruediv__=MEDCouplingDataArrayIntTupleIdiv
 DataArrayIntTuple.__ifloordiv__=MEDCouplingDataArrayIntTupleIdiv
 DataArrayIntTuple.__imod__=MEDCouplingDataArrayIntTupleImod
 
-DenseMatrix.__iadd__=ParaMEDMEMDenseMatrixIadd
-DenseMatrix.__isub__=ParaMEDMEMDenseMatrixIsub
+DenseMatrix.__iadd__=MEDCouplingDenseMatrixIadd
+DenseMatrix.__isub__=MEDCouplingDenseMatrixIsub
 
 MEDCouplingUMesh.__reduce__=MEDCouplingUMeshReduce
 MEDCoupling1DGTUMesh.__reduce__=MEDCoupling1DGTUMeshReduce
@@ -148,6 +148,6 @@ del MEDCouplingDataArrayIntTupleIsub
 del MEDCouplingDataArrayIntTupleImul
 del MEDCouplingDataArrayIntTupleIdiv
 del MEDCouplingDataArrayIntTupleImod
-del ParaMEDMEMDenseMatrixIadd
-del ParaMEDMEMDenseMatrixIsub
+del MEDCouplingDenseMatrixIadd
+del MEDCouplingDenseMatrixIsub
 %}

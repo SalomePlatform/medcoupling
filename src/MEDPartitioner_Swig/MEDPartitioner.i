@@ -17,5 +17,25 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+%module MEDPartitioner
+
+%{
+#include "MEDFileData.hxx"
+
+using namespace MEDCoupling;
+using namespace INTERP_KERNEL;
+%}
+
+%include std_string.i
+
+%feature("autodoc", "1");
+%feature("docstring");
+
+%feature("unref") MEDCoupling::MEDFileData "$this->decrRef();"
+
+%nodefaultctor;
+
+%rename (InterpKernelException) INTERP_KERNEL::Exception;
+
 %include "MEDPartitionerCommon.i"
 
