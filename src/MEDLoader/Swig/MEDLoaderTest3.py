@@ -5779,6 +5779,8 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
     
     @unittest.skipUnless(LooseVersion(MEDFileVersionStr())>=LooseVersion('3.2.1'),"This test requires at least MEDFile version 3.2.1")
+    @unittest.skipUnless(LooseVersion(MEDFileVersionStr())<LooseVersion('4.0.0'),
+                         "This test is not compatible with MEDFile version 4.0.0 and above")
     def testWriteInto30(self):
         fname="Pyfile108.med"
         fname2="Pyfile109.med"
@@ -6153,6 +6155,8 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     @unittest.skipUnless('linux'==platform.system().lower(),"stderr redirection not ported on Windows ?")
+    @unittest.skipUnless(LooseVersion(MEDFileVersionStr())<LooseVersion('4.0.0'),
+                         "This test is not compatible with MEDFile version 4.0.0 and above")
     def testMedFileCapabilityToCryOnNewFeatureWritingIntoOldFiles(self):
         fname="Pyfile116.med"
         errfname="Pyfile116.err"
