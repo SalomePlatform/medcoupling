@@ -58,7 +58,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         filename_xml1 = os.path.join(data_dir, "share/resources/med/square1_split")
         filename_xml2 = os.path.join(data_dir, "share/resources/med/square2_split")
 
-        MPI_Barrier(MPI_COMM_WORLD)
+        MPI.COMM_WORLD.Barrier()
         if source_group.containsMyRank():
             filename = filename_xml1 + str(rank+1) + ".med"
             meshname = "Mesh_2_" + str(rank+1)
@@ -113,8 +113,8 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         paramesh   =0
         parafield  =0
         icocofield =0
-        MPI_Barrier(MPI_COMM_WORLD)
-        MPI_Finalize()
+        MPI.COMM_WORLD.Barrier()
+        MPI.Finalize()
         pass
     pass
 
