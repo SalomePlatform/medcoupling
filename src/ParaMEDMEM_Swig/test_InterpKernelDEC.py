@@ -20,15 +20,17 @@
 #
 
 from ParaMEDMEM import *
+from MEDLoader import ReadUMeshFromFile
 import sys, os
 import unittest
 import math
+from mpi4py import MPI
+
 
 class ParaMEDMEMBasicsTest(unittest.TestCase):
     def testInterpKernelDEC_2D(self):
-        MPI_Init(sys.argv)
-        size = MPI_Comm_size(MPI_COMM_WORLD)
-        rank = MPI_Comm_rank(MPI_COMM_WORLD)
+        size = MPI.COMM_WORLD.size
+        rank = MPI.COMM_WORLD.rank
         if size != 5:
             raise RuntimeError("Expect MPI_COMM_WORLD size == 5")
         print(rank)
@@ -68,8 +70,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             nb_local=mesh.getNumberOfCells()
             value = [1.0]*nb_local
             parafield.getField().setValues(value)
-            icocofield = ICoCoMEDField(mesh,parafield.getField())
-            dec.setMethod("P0")
+            icocofield = ICoCoMEDField(parafield.getField())
             dec.attachLocalField(icocofield)
             pass
         else:
@@ -83,8 +84,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             nb_local=mesh.getNumberOfCells()
             value = [0.0]*nb_local
             parafield.getField().setValues(value)
-            icocofield = ICoCoMEDField(mesh,parafield.getField())
-            dec.setMethod("P0")
+            icocofield = ICoCoMEDField(parafield.getField())
             dec.attachLocalField(icocofield)
             pass
 

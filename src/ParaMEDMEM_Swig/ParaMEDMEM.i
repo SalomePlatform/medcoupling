@@ -19,6 +19,9 @@
 
 %module ParaMEDMEM
 
+#define MEDCOUPLING_EXPORT
+#define INTERPKERNEL_EXPORT
+
 %include "ParaMEDMEM.typemap"
 %include "MEDCouplingCommon.i"
 
@@ -38,12 +41,14 @@
 
 #include <mpi.h>
 
+using namespace INTERP_KERNEL;
 using namespace MEDCoupling;
 using namespace ICoCo;
       
 enum mpi_constants { mpi_comm_world, mpi_comm_self, mpi_double, mpi_int };
 %}
 
+%include "InterpolationOptions.hxx"
 %include "CommInterface.hxx"
 %include "ProcessorGroup.hxx"
 %include "DECOptions.hxx"
@@ -52,9 +57,11 @@ enum mpi_constants { mpi_comm_world, mpi_comm_self, mpi_double, mpi_int };
 %include "MPIProcessorGroup.hxx"
 %include "ComponentTopology.hxx"
 %include "DEC.hxx"
+%include "DisjointDEC.hxx"
 %include "InterpKernelDEC.hxx"
 %include "StructuredCoincidentDEC.hxx"
 
+%include "ICoCoField.hxx"
 %rename(ICoCoMEDField) ICoCo::MEDField;
 %include "ICoCoMEDField.hxx"
 
