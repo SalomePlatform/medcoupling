@@ -197,10 +197,10 @@ def MEDCouplingDataArrayIntTupleIdiv(self,*args):
 def MEDCouplingDataArrayIntTupleImod(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayIntTuple____imod___(self, self, *args)
-def ParaMEDMEMDenseMatrixIadd(self,*args):
+def MEDCouplingDenseMatrixIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DenseMatrix____iadd___(self, self, *args)
-def ParaMEDMEMDenseMatrixIsub(self,*args):
+def MEDCouplingDenseMatrixIsub(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DenseMatrix____isub___(self, self, *args)
 %}
