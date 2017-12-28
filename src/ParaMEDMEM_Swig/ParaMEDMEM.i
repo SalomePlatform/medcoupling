@@ -17,6 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+// Author : Anthony Geay (EDF R&D)
+
 %module ParaMEDMEM
 
 #define MEDCOUPLING_EXPORT
@@ -24,90 +26,7 @@
 
 %include "MEDCouplingCommon.i"
 
-%include std_set.i
-%include std_string.i
-
-%template() std::set<int>;
-
-%{
-#include "CommInterface.hxx"
-#include "ProcessorGroup.hxx"
-#include "Topology.hxx"
-#include "MPIProcessorGroup.hxx"
-#include "DEC.hxx"
-#include "InterpKernelDEC.hxx"
-#include "NonCoincidentDEC.hxx"
-#include "StructuredCoincidentDEC.hxx"
-#include "ParaMESH.hxx"
-#include "ParaFIELD.hxx"
-#include "ICoCoMEDField.hxx"
-#include "ComponentTopology.hxx"
-
-using namespace INTERP_KERNEL;
-using namespace MEDCoupling;
-using namespace ICoCo;
-%}
-
-%include "InterpolationOptions.hxx"
-%include "CommInterface.hxx"
-%include "ProcessorGroup.hxx"
-%include "DECOptions.hxx"
-%include "ParaMESH.hxx"
-%include "ParaFIELD.hxx"
-%include "MPIProcessorGroup.hxx"
-%include "ComponentTopology.hxx"
-%include "DEC.hxx"
-%include "DisjointDEC.hxx"
-%include "InterpKernelDEC.hxx"
-%include "StructuredCoincidentDEC.hxx"
-
-%include "ICoCoField.hxx"
-%rename(ICoCoMEDField) ICoCo::MEDField;
-%include "ICoCoMEDField.hxx"
-
-%nodefaultctor;
-
-/* This object can be used only if MED_ENABLE_FVM is defined*/
-#ifdef MED_ENABLE_FVM
-class NonCoincidentDEC : public DEC
-{
-public:
-  NonCoincidentDEC(ProcessorGroup& source, ProcessorGroup& target);
-};
-#endif
-
-%extend MEDCoupling::ParaMESH
-{
-  PyObject *getGlobalNumberingCell2() const
-  {
-    const int *tmp=self->getGlobalNumberingCell();
-    int size=self->getCellMesh()->getNumberOfCells();
-    PyObject *ret=PyList_New(size);
-    for(int i=0;i<size;i++)
-      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
-    return ret;
-  }
-
-  PyObject *getGlobalNumberingFace2() const
-  {
-    const int *tmp=self->getGlobalNumberingFace();
-    int size=self->getFaceMesh()->getNumberOfCells();
-    PyObject *ret=PyList_New(size);
-    for(int i=0;i<size;i++)
-      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
-    return ret;
-  }
-
-  PyObject *getGlobalNumberingNode2() const
-  {
-    const int *tmp=self->getGlobalNumberingNode();
-    int size=self->getCellMesh()->getNumberOfNodes();
-    PyObject *ret=PyList_New(size);
-    for(int i=0;i<size;i++)
-      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
-    return ret;
-  }
-}
+%include "ParaMEDMEMCommon.i"
 
 %pythoncode %{
 def MEDCouplingDataArrayDoubleIadd(self,*args):
