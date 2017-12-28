@@ -43,8 +43,9 @@ def AdvancedExtensionsStr(sz=60):
     sts=[]
     for elt in AllPossibleExtensions():
         isOK=elt in aext
-        tab[int(isOK)]
         sts.append(elt+" "+('{:.>%d}'%(sz-len(elt)-1)).format(' %s'%tab[isOK]))
+        if not isOK:
+            continue
         if "Renumb" in elt:
             SubExtension(AllRenumberMethods(),RenumberAvailableMethods(),pad,tab, sts)
             pass
