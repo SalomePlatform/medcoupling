@@ -86,17 +86,16 @@ class medcouplingTest(unittest.TestCase):
 
     @unittest.skipUnless(HasPartitionerExt(),"Requires Partitioner activation")
     def test3(self):
+        algoSelected=eval("Graph.%s"%MEDPartitioner.AvailableAlgorithms()[0].upper())
         arr=DataArrayDouble(10) ; arr.iota()
         m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
         m=m.buildUnstructured() ; m.setName("mesh")
-        m.write("all.med")
         a,b=m.computeNeighborsOfCells()
         sk=MEDCouplingSkyLineArray(b,a)
-        g=MEDPartitioner.Graph(sk)
+        g=MEDPartitioner.Graph(sk,algoSelected)
         g.partGraph(4)
         procIdOnCells=g.getPartition().getValuesArray()
         m0=m[procIdOnCells.findIdsEqual(0)] ; m0.setName("m0")
-        m0.write("part0.med")
         pass
     
     @unittest.skipUnless(HasParallelInterpolatorExt(),"Requires // interpolator activated")
@@ -107,4 +106,12 @@ class medcouplingTest(unittest.TestCase):
     pass
 
 if __name__ == "__main__":
+    if HasParallelInterpolatorExt():
+        try:
+            from mpi4py import MPI # if not imported test3 may failed due to MPI call of partitioner algorithms.
+        except:
+            pass
+        pass
     unittest.main()
+    pass
+

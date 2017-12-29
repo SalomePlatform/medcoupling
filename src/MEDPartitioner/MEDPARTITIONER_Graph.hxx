@@ -38,7 +38,7 @@ namespace MEDPARTITIONER
   class MEDPARTITIONER_EXPORT Graph
   {
   public:
-    typedef enum {METIS,SCOTCH} splitter_type;
+    typedef enum {METIS,SCOTCH,PTSCOTCH} splitter_type;
 
     Graph();
     //creates a graph from a SKYLINEARRAY- WARNING!! Graph takes ownership of the array.

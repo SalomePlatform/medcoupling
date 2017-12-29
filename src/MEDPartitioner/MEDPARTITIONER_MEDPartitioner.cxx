@@ -148,14 +148,14 @@ MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCou
 {
   MEDPARTITIONER::Graph* cellGraph=0;
   // will be destroyed by XXXGraph class:
-  MEDCoupling::MEDCouplingSkyLineArray* arr = MEDCoupling::MEDCouplingSkyLineArray::New(graph->getIndexArray(), graph->getValuesArray());
+  MEDCoupling::MCAuto<MEDCoupling::MEDCouplingSkyLineArray> arr(MEDCoupling::MEDCouplingSkyLineArray::New(graph->getIndexArray(), graph->getValuesArray()));
   switch (split)
     {
     case Graph::METIS:
       if ( !cellGraph )
         {
 #ifdef MED_ENABLE_METIS
-          cellGraph=new METISGraph(arr,edgeweight);
+          cellGraph=new METISGraph(arr.retn(),edgeweight);
 #endif
         }
       if ( !cellGraph )
@@ -163,15 +163,22 @@ MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCou
       break;
     case Graph::SCOTCH:
 #ifdef MED_ENABLE_SCOTCH
-      cellGraph=new SCOTCHGraph(arr,edgeweight);
+      cellGraph=new SCOTCHGraph(arr.retn(),edgeweight);
 #else
-#ifdef MED_ENABLE_PTSCOTCH
-      cellGraph=new PTSCOTCHGraph(arr,edgeweight,vlbloctab);
-#else
-      throw INTERP_KERNEL::Exception("MEDPartitioner::Graph : PTSCOTCH/SCOTCH is not available. Check your products, please.");
-#endif
+      throw INTERP_KERNEL::Exception("MEDPartitioner::Graph : SCOTCH is not available. Check your products, please.");
 #endif
       break;
+    case Graph::PTSCOTCH:
+      {
+#ifdef MED_ENABLE_PTSCOTCH
+        cellGraph=new PTSCOTCHGraph(arr.retn(),edgeweight,vlbloctab);
+#else
+        throw INTERP_KERNEL::Exception("MEDPartitioner::Graph : PTSCOTCH is not available. Check your products, please.");
+#endif
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDPartitioner::Graph : Not managed split type engine !");
     }
   return cellGraph;
 }
