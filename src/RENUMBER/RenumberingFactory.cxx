@@ -27,20 +27,27 @@
 #endif
 
 #include <iostream>
-
-using namespace std;
+#include <algorithm>
 
 namespace MED_RENUMBER
-{ 
-  Renumbering* RenumberingFactory(const string &s)
+{
+  bool CompareRenumMeth(const std::string& s1, const char *s2)
+  {
+    std::string ss1(s1),ss2(s2);
+    std::transform(ss1.begin(), ss1.end(), ss1.begin(), ::tolower);
+    std::transform(ss2.begin(), ss2.end(), ss2.begin(), ::tolower);
+    return ss1==ss2;
+  }
+  
+  Renumbering* RenumberingFactory(const std::string &s)
   {
 #ifdef MED_ENABLE_METIS
 #ifdef ENABLE_BOOST
-    if (s==METIS_ALG)
+    if ( CompareRenumMeth(s,METIS_ALG) )
       {
         return new METISRenumbering;
       }
-    else if(s==BOOST_ALG)
+    else if( CompareRenumMeth(s,BOOST_ALG) )
       {
         return new BOOSTRenumbering;
       }
@@ -51,7 +58,7 @@ namespace MED_RENUMBER
       }
 #endif
 #ifndef ENABLE_BOOST
-    if (s==METIS_ALG)
+    if ( CompareRenumMeth(s,METIS_ALG) )
       {
         return new METISRenumbering;
       }
@@ -64,7 +71,7 @@ namespace MED_RENUMBER
 #endif
 #ifndef MED_ENABLE_METIS
 #ifdef ENABLE_BOOST
-    if (s==BOOST_ALG)
+    if ( CompareRenumMeth(s,BOOST_ALG) )
       {
         return new BOOSTRenumbering;
       }

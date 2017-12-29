@@ -92,7 +92,7 @@
 #endif
   }
 
-  bool HasParallelInterpolator()
+  bool HasParallelInterpolatorExt()
   {
 #ifdef WITH_PARALLEL_INTERPOLATOR
     return true;
