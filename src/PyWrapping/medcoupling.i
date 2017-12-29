@@ -64,6 +64,42 @@
     std::vector<std::string> ret(EXTENSIONS,EXTENSIONS+NB_OF_EXTENSIONS);
     return ret;
   }
+
+  bool HasMEDFileExt()
+  {
+#ifdef WITH_MED_FILE
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  bool HasRenumberExt()
+  {
+#ifdef WITH_RENUMBER
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  bool HasPartitionerExt()
+  {
+#ifdef WITH_PARTITIONER
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  bool HasParallelInterpolator()
+  {
+#ifdef WITH_PARALLEL_INTERPOLATOR
+    return true;
+#else
+    return false;
+#endif
+  }
   
   std::vector<std::string> ActiveExtensions()
   {

@@ -58,4 +58,34 @@ def AdvancedExtensionsStr(sz=60):
 def ShowAdvancedExtensions(sz=60):
     print(AdvancedExtensionsStr(sz))
 
+def MEDCouplingWriterHelper(mci,fileName,medFunc):
+    import os
+    fileWithoutExt,ext=os.path.splitext(fileName)
+    if ext in [".med",".rmed",""]:
+        outFileName=fileName
+        if ext=="":
+            outFileName=fileWithoutExt+".med"
+        if HasMEDFileExt():
+            medFunc(outFileName,mci,True)
+            pass
+        else:
+            raise InterpKernelException("Request for writing \"%s\" MED file, but MED file is not activated in your medcoupling !")
+        pass
+    elif ext[:3]==".vt" and len(ext)==4:
+        mci.writeVTK(fileName)
+    else:
+        raise InterpKernelException("The extension \"%s\" of input file \"%s\" is not recognized !"%(ext,fileName))
+    pass
+
+def MEDCouplingMesh_write(self,fileName):
+    MEDCouplingWriterHelper(self,fileName,WriteMesh)
+
+def MEDCouplingField_write(self,fileName):
+    MEDCouplingWriterHelper(self,fileName,WriteField)
+        
+MEDCouplingMesh.write=MEDCouplingMesh_write
+del MEDCouplingMesh_write
+MEDCouplingField.write=MEDCouplingField_write
+del MEDCouplingField_write
+
 %}
