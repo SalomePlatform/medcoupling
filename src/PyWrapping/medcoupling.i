@@ -42,6 +42,9 @@
 %include "MEDPartitionerCommon.i"
 #endif
 
+#ifdef WITH_PARALLEL_INTERPOLATOR
+%include "ParaMEDMEMCommon.i"
+#endif
 
 %{
   static const char SEQ_INTERPOL_EXT[]="Sequential interpolator";
@@ -74,6 +77,9 @@
 #endif
 #ifdef WITH_PARTITIONER
     ret.push_back(std::string(PART_EXT));
+#endif
+#ifdef WITH_PARALLEL_INTERPOLATOR
+    ret.push_back(std::string(PAR_INTERPOL_EXT));
 #endif
     return ret;
   }
