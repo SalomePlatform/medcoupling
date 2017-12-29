@@ -47,6 +47,9 @@ namespace MEDPARTITIONER
     static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0, DataArrayInt* vlbloctab=0);
     static std::vector<std::string> AvailableAlgorithms();
     static std::vector<std::string> AllAlgorithms();
+    static bool HasMetisAlg();
+    static bool HasScotchAlg();
+    static bool HasPTScotchAlg();
     void write(const std::string& filename);
     MEDCoupling::MEDFileData* getMEDFileData();
     ~MEDPartitioner();

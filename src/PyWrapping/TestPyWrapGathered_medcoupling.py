@@ -86,7 +86,19 @@ class medcouplingTest(unittest.TestCase):
 
     @unittest.skipUnless(HasPartitionerExt(),"Requires Partitioner activation")
     def test3(self):
-        algoSelected=eval("Graph.%s"%MEDPartitioner.AvailableAlgorithms()[0].upper())
+        for alg in MEDPartitioner.AvailableAlgorithms():
+            st="Graph.%s"%alg.upper()
+            print(st)
+            self.partitionerTesterHelper(eval(st))
+            pass
+        pass
+    
+    @unittest.skipUnless(HasParallelInterpolatorExt(),"Requires // interpolator activated")
+    def test4(self):
+        interface=CommInterface()
+        pass
+
+    def partitionerTesterHelper(self,algoSelected):
         arr=DataArrayDouble(10) ; arr.iota()
         m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
         m=m.buildUnstructured() ; m.setName("mesh")
@@ -96,11 +108,6 @@ class medcouplingTest(unittest.TestCase):
         g.partGraph(4)
         procIdOnCells=g.getPartition().getValuesArray()
         m0=m[procIdOnCells.findIdsEqual(0)] ; m0.setName("m0")
-        pass
-    
-    @unittest.skipUnless(HasParallelInterpolatorExt(),"Requires // interpolator activated")
-    def test4(self):
-        interface=CommInterface()
         pass
     
     pass

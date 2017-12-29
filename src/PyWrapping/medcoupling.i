@@ -92,6 +92,33 @@
 #endif
   }
 
+  bool HasScotchPartitionerAlg()
+  {
+#ifdef WITH_PARTITIONER
+    return MEDPartitioner::HasScotchAlg();
+#else
+    return false;
+#endif    
+  }
+
+  bool HasPTScotchPartitionerAlg()
+  {
+#ifdef WITH_PARTITIONER
+    return MEDPartitioner::HasPTScotchAlg();
+#else
+    return false;
+#endif    
+  }
+
+  bool HasMetisPartitionerAlg()
+  {
+#ifdef WITH_PARTITIONER
+    return MEDPartitioner::HasMetisAlg();
+#else
+    return false;
+#endif    
+  }
+  
   bool HasParallelInterpolatorExt()
   {
 #ifdef WITH_PARALLEL_INTERPOLATOR

@@ -198,6 +198,33 @@ std::vector<std::string> MEDPARTITIONER::MEDPartitioner::AvailableAlgorithms()
   return ret;
 }
 
+bool MEDPARTITIONER::MEDPartitioner::HasMetisAlg()
+{
+#ifdef MED_ENABLE_METIS
+  return true;
+#else
+  return false;
+#endif
+}
+
+bool MEDPARTITIONER::MEDPartitioner::HasScotchAlg()
+{
+#ifdef MED_ENABLE_SCOTCH
+  return true;
+#else
+  return false;
+#endif
+}
+
+bool MEDPARTITIONER::MEDPartitioner::HasPTScotchAlg()
+{
+#ifdef MED_ENABLE_PTSCOTCH
+  return true;
+#else
+  return false;
+#endif
+}
+
 std::vector<std::string> MEDPARTITIONER::MEDPartitioner::AllAlgorithms()
 {
   std::vector<std::string> ret;
