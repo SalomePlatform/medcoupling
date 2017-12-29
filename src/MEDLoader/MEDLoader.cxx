@@ -1650,20 +1650,26 @@ void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MED
   {
     const MEDCoupling::MEDCouplingFieldDouble *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldDouble *>(f));
     if(f1)
-      WriteFieldT<double>(fileName,f1,writeFromScratch);
-    return ;
+      {
+        WriteFieldT<double>(fileName,f1,writeFromScratch);
+        return ;
+      }
   }
   {
     const MEDCoupling::MEDCouplingFieldInt *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt *>(f));
     if(f1)
-      WriteFieldT<int>(fileName,f1,writeFromScratch);
-    return ;
+      {
+        WriteFieldT<int>(fileName,f1,writeFromScratch);
+        return ;
+      }
   }
   {
     const MEDCoupling::MEDCouplingFieldFloat *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldFloat *>(f));
     if(f1)
-      WriteFieldT<float>(fileName,f1,writeFromScratch);
-    return ;
+      {
+        WriteFieldT<float>(fileName,f1,writeFromScratch);
+        return ;
+      }
   }
   throw INTERP_KERNEL::Exception("WriteField : input field is not in FLOAT32, FLOAT64, INT32 !");
 }
