@@ -53,6 +53,8 @@ namespace INTERP_KERNEL
 
     inline void dumpCoords() const;
 
+    void toCompactData(double data[6]) const;
+
   private:
     
     bool isValid() const;

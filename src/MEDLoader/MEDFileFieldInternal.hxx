@@ -162,6 +162,7 @@ namespace MEDCoupling
     int getEnd() const { return _end; }
     void setEnd(int endd) { _end=endd; }
     int getNumberOfVals() const { return _nval; }
+    void incrementNbOfVals(int deltaNbVal);
     DataArray *getOrCreateAndGetArray();
     const DataArray *getOrCreateAndGetArray() const;
     const std::vector<std::string>& getInfo() const;
@@ -252,6 +253,7 @@ namespace MEDCoupling
     MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenLocId(int locId);
     const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenLocId(int locId) const;
     int getNumberOfLoc() const { return _field_pm_pt_pd.size(); }
+    int locIdOfLeaf(const MEDFileFieldPerMeshPerTypePerDisc *leaf) const;
     void fillValues(int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
     void setLeaves(const std::vector< MCAuto< MEDFileFieldPerMeshPerTypePerDisc > >& leaves);
     bool keepOnlySpatialDiscretization(TypeOfField tof, int &globalNum, std::vector< std::pair<int,int> >& its);

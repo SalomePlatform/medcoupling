@@ -75,6 +75,15 @@ const char *MEDCoupling::MEDCouplingByteOrderStr()
     return BIGENDIAN_STR;
 }
 
+bool MEDCoupling::IsCXX11Compiled()
+{
+#if __cplusplus >= 201103L
+  return true;
+#else
+  return false;
+#endif
+}
+
 //=
 
 std::size_t BigMemoryObject::getHeapMemorySize() const

@@ -22,6 +22,7 @@
 #define __MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_TXX__
 
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
+#include "InterpKernelAssert.hxx"
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
@@ -124,6 +125,7 @@ MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::~MEDCouplingNormalizedU
 template<int SPACEDIM,int MESHDIM>
 void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
 {
+  IKAssert(_mesh->getSpaceDimension()==SPACEDIM);
   const MEDCoupling::MEDCouplingUMesh *m1(dynamic_cast<const MEDCoupling::MEDCouplingUMesh *>(_mesh));
   if(m1)
     {

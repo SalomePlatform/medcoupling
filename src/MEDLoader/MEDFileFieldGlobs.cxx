@@ -432,7 +432,7 @@ MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const std::string& locName)
 }
 
 /*!
- * The returned value is never null.
+ * The returned value is never null. Borrowed reference returned.
  */
 DataArrayInt *MEDFileFieldGlobs::getProfile(const std::string& pflName)
 {
@@ -1119,7 +1119,7 @@ MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalization(const std::string& locNa
 /*!
  * Returns a profile array, apt for modification, by its name.
  *  \param [in] pflName - the name of the profile of interest.
- *  \return DataArrayInt * - a non-const pointer to the profile array having the name \a pflName.
+ *  \return DataArrayInt * - Borrowed reference - a non-const pointer to the profile array having the name \a pflName.
  *  \throw If there is no a profile named \a pflName.
  */
 DataArrayInt *MEDFileFieldGlobsReal::getProfile(const std::string& pflName)
@@ -1130,7 +1130,7 @@ DataArrayInt *MEDFileFieldGlobsReal::getProfile(const std::string& pflName)
 /*!
  * Returns a profile array, apt for modification, by its id.
  *  \param [in] pflId - the id of the profile of interest.
- *  \return DataArrayInt * - a non-const pointer to the profile array having the id \a pflId.
+ *  \return DataArrayInt * - Borrowed reference - a non-const pointer to the profile array having the id \a pflId.
  *  \throw If there is no a profile with id \a pflId.
  */
 DataArrayInt *MEDFileFieldGlobsReal::getProfileFromId(int pflId)

@@ -199,6 +199,16 @@ namespace MEDCoupling
       }
   }
 
+  template<class T>
+  void MEDFileField1TSTemplateWithoutSDA<T>::copyTimeInfoFrom(const typename Traits<T>::FieldType *mcf)
+  {
+    if(!mcf)
+      throw INTERP_KERNEL::Exception("MEDFileField1TSTemplateWithoutSDA<T>::copyTimeInfoFrom : input field is nullptr !");
+    int b(0),c(0);
+    double a(mcf->getTime(b,c));
+    setTime(b,c,a);
+  }
+
   ///////////////////////////////////////////////////////
 
   template<class T>
@@ -398,6 +408,12 @@ namespace MEDCoupling
   }
 
   template<class T>
+  void MEDFileTemplateField1TS<T>::setArray(DataArray *arr)
+  {
+    return contentNotNull()->setArray(arr);
+  }
+
+  template<class T>
   typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getUndergroundDataArray() const
   {
     return contentNotNull()->getUndergroundDataArrayTemplate();
@@ -436,6 +452,12 @@ namespace MEDCoupling
     MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(*ft));
     ret->setTime(t0,t1,t2); ret->setTimeUnit(tu);
     return ret.retn();
+  }
+
+  template<class T>
+  void MEDFileTemplateField1TS<T>::copyTimeInfoFrom(const typename Traits<T>::FieldType *mcf)
+  {
+    contentNotNull()->copyTimeInfoFrom(mcf);
   }
 
   /*!

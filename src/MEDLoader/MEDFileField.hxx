@@ -123,6 +123,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     MEDLOADER_EXPORT bool renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N);
     MEDLOADER_EXPORT void accept(MEDFileFieldVisitor& visitor) const;
+    MEDLOADER_EXPORT MCAuto<MEDFileFields> linearToQuadratic(const MEDFileMeshes *oldLin, const MEDFileMeshes *newQuad) const;
   public:
     MEDLOADER_EXPORT MEDFileFields *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
   public:

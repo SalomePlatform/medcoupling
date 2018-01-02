@@ -160,6 +160,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT const DataArray *getOrCreateAndGetArray() const;
     MEDLOADER_EXPORT DataArray *getUndergroundDataArray() const;
     MEDLOADER_EXPORT void aggregate(const typename std::vector< typename MLFieldTraits<T>::F1TSWSDAType const * >& f1tss, const std::vector< std::vector< std::pair<int,int> > >& dts);
+    MEDLOADER_EXPORT void copyTimeInfoFrom(const typename Traits<T>::FieldType *mcf);
   protected:
     MCAuto< typename Traits<T>::ArrayType > _arr;
   };
@@ -349,11 +350,13 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static typename Traits<T>::ArrayType *ReturnSafelyTypedDataArray(MCAuto<DataArray>& arr);
     MEDLOADER_EXPORT typename Traits<T>::ArrayType *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const;
+    MEDLOADER_EXPORT void setArray(DataArray *arr);
     MEDLOADER_EXPORT typename Traits<T>::ArrayType *getUndergroundDataArray() const;
     MEDLOADER_EXPORT typename Traits<T>::ArrayType *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
     MEDLOADER_EXPORT static MCAuto<typename Traits<T>::FieldType> SetDataArrayInField(MEDCouplingFieldDouble *f, MCAuto<DataArray>& arr);
     MEDLOADER_EXPORT static MCAuto<MEDCouplingFieldDouble> ToFieldTemplateWithTime(const typename Traits<T>::FieldType *f);
   public:
+    MEDLOADER_EXPORT void copyTimeInfoFrom(const typename Traits<T>::FieldType *mcf);
     MEDLOADER_EXPORT typename Traits<T>::FieldType *field(const MEDFileMesh *mesh) const;
     MEDLOADER_EXPORT typename Traits<T>::FieldType *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
     MEDLOADER_EXPORT typename Traits<T>::FieldType *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;

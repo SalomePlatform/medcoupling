@@ -68,7 +68,7 @@ namespace INTERP_KERNEL
   /*   calcul la surface d'un triangle                  */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
-  inline double Surf_Tri(const double* P_1,const double* P_2,const double* P_3)
+  inline double Surf_Tri(const double *P_1,const double *P_2,const double *P_3)
   {
     double A=(P_3[1]-P_1[1])*(P_2[0]-P_1[0])-(P_2[1]-P_1[1])*(P_3[0]-P_1[0]);
     double Surface = 0.5*fabs(A);
@@ -83,9 +83,9 @@ namespace INTERP_KERNEL
   //fonction qui calcul le determinant des vecteurs: P3P1 et P3P2
   //(cf doc CGAL).
 
-  inline double mon_determinant(const double* P_1,
-                                const double*  P_2,
-                                const double* P_3)
+  inline double mon_determinant(const double *P_1,
+                                const double *P_2,
+                                const double *P_3)
   {
     double mon_det=(P_1[0]-P_3[0])*(P_2[1]-P_3[1])-(P_2[0]-P_3[0])*(P_1[1]-P_3[1]);
     return mon_det;
@@ -98,8 +98,7 @@ namespace INTERP_KERNEL
   {
     double X=P_1[0]-P_2[0];
     double Y=P_1[1]-P_2[1];
-    double norme=sqrt(X*X+Y*Y);
-    return norme;
+    return sqrt(X*X+Y*Y);
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
@@ -534,6 +533,29 @@ namespace INTERP_KERNEL
       default:
         throw INTERP_KERNEL::Exception("INTERP_KERNEL::barycentric_coords : unrecognized simplex !");
       }
+  }
+
+  /*!
+   * Compute barycentric coords of point \a point relative to segment S [segStart,segStop] in 3D space.
+   * If point \a point is further from S than eps false is returned.
+   * If point \a point projection on S is outside S false is also returned.
+   * If point \a point is closer from S than eps and its projection inside S true is returned and \a bc0 and \a bc1 output parameter set.
+   */
+  inline bool IsPointOn3DSeg(const double segStart[3], const double segStop[3], const double point[3], double eps, double& bc0, double& bc1)
+  {
+    double AB[3]={segStop[0]-segStart[0],segStop[1]-segStart[1],segStop[2]-segStart[2]},AP[3]={point[0]-segStart[0],point[1]-segStart[1],point[2]-segStart[2]};
+    double l_AB(sqrt(AB[0]*AB[0]+AB[1]*AB[1]+AB[2]*AB[2]));
+    double AP_dot_AB((AP[0]*AB[0]+AP[1]*AB[1]+AP[2]*AB[2])/(l_AB*l_AB));
+    double projOfPOnAB[3]={segStart[0]+AP_dot_AB*AB[0],segStart[1]+AP_dot_AB*AB[1],segStart[2]+AP_dot_AB*AB[2]};
+    double V_dist_P_AB[3]={point[0]-projOfPOnAB[0],point[1]-projOfPOnAB[1],point[2]-projOfPOnAB[2]};
+    double dist_P_AB(sqrt(V_dist_P_AB[0]*V_dist_P_AB[0]+V_dist_P_AB[1]*V_dist_P_AB[1]+V_dist_P_AB[2]*V_dist_P_AB[2]));
+    if(dist_P_AB>=eps)
+      return false;//to far from segment [segStart,segStop]
+    if(AP_dot_AB<-eps || AP_dot_AB>1.+eps)
+      return false;
+    AP_dot_AB=std::max(AP_dot_AB,0.); AP_dot_AB=std::min(AP_dot_AB,1.);
+    bc0=1.-AP_dot_AB; bc1=AP_dot_AB;
+    return true;
   }
 
   /*!

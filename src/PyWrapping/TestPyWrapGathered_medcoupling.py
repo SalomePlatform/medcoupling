@@ -98,6 +98,27 @@ class medcouplingTest(unittest.TestCase):
         interface=CommInterface()
         pass
 
+    def test5(self):
+        f=MEDCouplingFieldDouble(ON_NODES)
+        f.setTime(1.25,3,6)
+        a,b,c=f.getTime()
+        self.assertEqual(b,3) ; self.assertEqual(c,6) ; self.assertAlmostEqual(a,1.25,14);
+        f1ts=MEDFileField1TS()
+        f1ts.setTime(10,13,10.75)
+        f.copyTimeInfoFrom(f1ts)
+        a,b,c=f.getTime()
+        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14);
+        f2=MEDCouplingFieldInt(ON_NODES)
+        f2.copyTimeInfoFrom(f1ts)
+        a,b,c=f2.getTime()
+        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14);
+        f3=MEDCouplingFieldFloat(ON_NODES)
+        f3.copyTimeInfoFrom(f1ts)
+        a,b,c=f3.getTime()
+        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14);
+        pass
+        
+
     def partitionerTesterHelper(self,algoSelected):
         arr=DataArrayDouble(10) ; arr.iota()
         m=MEDCouplingCMesh() ; m.setCoords(arr,arr)

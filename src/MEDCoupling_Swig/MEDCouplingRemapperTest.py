@@ -1155,6 +1155,51 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1, len(rmp.getCrudeMatrix()[0]))
         pass
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings() and IsCXX11Compiled(),"requires numpy AND scipy AND C++11")
+    def testP1P1PL3DSpaceFrom1DTo0D(self):
+        from scipy.sparse import csr_matrix
+        from numpy import array
+
+        def generateTrg(eps):
+            trgArr=DataArrayDouble([(0.5,0.5,0.5),(0.2,0.2,0.2),(0.9,0.9,0.9),(0.7+eps*sqrt(3),0.7-eps*sqrt(3),0.7)])
+            trg=MEDCouplingUMesh("trg",0) ; trg.setCoords(trgArr)
+            trg.allocateCells()
+            RenumTrg=[2,3,0,1]
+            for rt in RenumTrg:
+                trg.insertNextCell(NORM_POINT1,[rt])
+            return trg
+
+        srcArr=DataArrayDouble([(0.,0.,1.),(0.,0.,0.),(1.,1.,1.)])
+        src=MEDCouplingUMesh("src",1) ; src.setCoords(srcArr)
+        src.allocateCells()
+        src.insertNextCell(NORM_SEG2,[1,2])
+        #
+        trg=generateTrg(1e-7)# trg point 3 of trg cell 1 is NOT closer enough to source edge #1 -> not intercepted
+        #
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        self.assertEqual(rem.prepare(src,trg,"P1P1"),1)
+        mat=rem.getCrudeCSRMatrix()
+        row=array([2,2, 0,0, 1,1]) # here no ref to point 3 !
+        col=array([1,2, 1,2, 1,2])
+        data=array([0.1,0.9, 0.5,0.5, 0.8,0.2])
+        mExp=csr_matrix((data,(row,col)),shape=(4,3))
+        delta=abs(mExp-mat)
+        self.assertAlmostEqual(delta.sum(),0.,14)
+        #
+        trg=generateTrg(1e-14) # trg point 3 of trg cell 1 is closer enough to source edge #1 -> intercepted
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        self.assertEqual(rem.prepare(src,trg,"P1P1"),1)
+        mat=rem.getCrudeCSRMatrix()
+        row=array([2,2, 3,3, 0,0, 1,1]) # here ref to target point 3 
+        col=array([1,2, 1,2, 1,2, 1,2])
+        data=array([0.1,0.9, 0.3,0.7, 0.5,0.5, 0.8,0.2])
+        mExp2=csr_matrix((data,(row,col)),shape=(4,3))
+        delta2=abs(mExp2-mat)
+        self.assertAlmostEqual(delta2.sum(),0.,14)
+        pass
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):

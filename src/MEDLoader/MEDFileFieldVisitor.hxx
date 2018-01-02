@@ -48,6 +48,7 @@ namespace MEDCoupling
     virtual void endPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) = 0;
     //
     virtual void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd) = 0;
+    virtual ~MEDFileFieldVisitor() { }
   };
 }
 

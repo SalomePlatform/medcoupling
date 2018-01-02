@@ -1465,7 +1465,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0Empty()
   sourceMesh->allocateCells(0);
   sourceMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
-  myCoords->alloc(0,0);
+  myCoords->alloc(0,2);
   sourceMesh->setCoords(myCoords);
   myCoords->decrRef();
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();

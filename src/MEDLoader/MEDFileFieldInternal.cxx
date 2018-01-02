@@ -807,6 +807,13 @@ int MEDFileFieldPerMeshPerTypePerDisc::getNumberOfTuples() const
   return _end-_start;
 }
 
+void MEDFileFieldPerMeshPerTypePerDisc::incrementNbOfVals(int deltaNbVal)
+{
+  int nbi((_end-_start)/_nval);
+  _nval+=deltaNbVal;
+  _end+=nbi*deltaNbVal;
+}
+
 DataArray *MEDFileFieldPerMeshPerTypePerDisc::getOrCreateAndGetArray()
 {
   return _father->getOrCreateAndGetArray();
@@ -1603,6 +1610,18 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypeCommon::getLe
   oss2 << ") for geometric type \"" << getGeoTypeRepr() << "\" It should be in [0," << _field_pm_pt_pd.size() << ") !";
   throw INTERP_KERNEL::Exception(oss2.str().c_str());
   return static_cast<const MEDFileFieldPerMeshPerTypePerDisc*>(0);
+}
+
+int MEDFileFieldPerMeshPerTypeCommon::locIdOfLeaf(const MEDFileFieldPerMeshPerTypePerDisc *leaf) const
+{
+  int ret(0);
+  for(std::vector< MCAuto<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,ret++)
+    {
+      const MEDFileFieldPerMeshPerTypePerDisc *cand(*it);
+      if(cand==leaf)
+        return ret;
+    }
+  throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypeCommon::locIdOfLeaf : not found such a leaf in this !");
 }
 
 void MEDFileFieldPerMeshPerTypeCommon::fillValues(int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const

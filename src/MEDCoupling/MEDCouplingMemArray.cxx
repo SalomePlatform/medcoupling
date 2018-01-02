@@ -4257,6 +4257,11 @@ DataArrayInt *DataArrayInt::checkAndPreparePermutation() const
  * inversely.
  * In case of success (no throw) : \c ids1->renumber(ret)->isEqual(ids2) where \a ret is the return of this method.
  *
+ * \b Example:
+ * - \a ids1 : [3,1,103,4,6,10,-7,205]
+ * - \a ids2 : [-7,1,205,10,6,3,103,4]
+ * - \a return is : [5,1,6,7,4,3,0,2] because ids2[5]==ids1[0], ids2[1]==ids1[1], ids2[6]==ids1[2]...
+ *
  * \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
  *          array using decrRef() as it is no more needed.
  * \throw If either ids1 or ids2 is null not allocated or not with one components.

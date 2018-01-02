@@ -576,6 +576,10 @@ class MEDLoaderTest3(unittest.TestCase):
         ff1.setTime(3,4,2.3)
         itt,orr,ti=ff1.getTime()
         self.assertEqual(3,itt); self.assertEqual(4,orr); self.assertAlmostEqual(2.3,ti,14);
+        f1.setTime(5.5,7,8)
+        ff1.copyTimeInfoFrom(f1)
+        itt,orr,ti=ff1.getTime()
+        self.assertEqual(7,itt); self.assertEqual(8,orr); self.assertAlmostEqual(5.5,ti,14);
         da,infos=ff1.getUndergroundDataArrayExt()
         f2.getArray().setName(da.getName())#da has the same name than f2
         self.assertTrue(da.isEqual(f2.getArray(),1e-12))
@@ -6190,6 +6194,44 @@ class MEDLoaderTest3(unittest.TestCase):
         gc.collect(0)
         if os.path.exists(errfname):
             os.remove(errfname)
+        pass
+
+    def testFieldsLinearToQuadratic(self):
+        arr=DataArrayDouble([0,1])
+        m=MEDCouplingCMesh();
+        m.setCoords(arr,arr,arr)
+        m=m.buildUnstructured()
+        m2=m.deepCopy()
+        m2.translate([2,0,0])
+        m3=MEDCouplingUMesh.MergeUMeshes([m,m2])
+        m3.setName("mesh")
+        mm=MEDFileUMesh()
+        mm[0]=m3
+        mmq=mm.linearToQuadratic(0)
+        mms=MEDFileMeshes() ; mms.pushMesh(mm)
+        mmsq=MEDFileMeshes() ; mmsq.pushMesh(mmq)
+        #
+        f=MEDCouplingFieldDouble(ON_NODES)
+        f.setName("field")
+        f.setMesh(m3)
+        f.setTime(3.,1,2)
+        arr=DataArrayDouble(m3.getNumberOfNodes())
+        arr.iota()
+        f.setArray(arr)
+        f1ts=MEDFileField1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        fmts=MEDFileFieldMultiTS()
+        fmts.pushBackTimeStep(f1ts)
+        fs=MEDFileFields()
+        fs.pushField(fmts)
+        fs2=fs.linearToQuadratic(mms,mmsq)
+        #
+        fToTest=fs2[0][0].field(mmq)
+        self.assertEqual(fToTest.getTime(),[3.,1,2])
+        mTest=MEDCoupling1SGTUMesh(fToTest.getMesh())
+        self.assertTrue(mTest.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,16,17,18,19,20,21,22,23,24,25,26,27,9,8,10,11,13,12,14,15,28,29,30,31,32,33,34,35,36,37,38,39])))
+        self.assertTrue(mTest.getCoords().isEqual(DataArrayDouble([0.,0.,0.,1.,0.,0.,0.,1.,0.,1.,1.,0.,0.,0.,1.,1.,0.,1.,0.,1.,1.,1.,1.,1.,2.,0.,0.,3.,0.,0.,2.,1.,0.,3.,1.,0.,2.,0.,1.,3.,0.,1.,2.,1.,1.,3.,1.,1.,0.5, 0.,0.,0.,0.5, 0.,0.5, 1.,0.,1.,0.5, 0.,0.5, 0.,1.,0.,0.5, 1.,0.5, 1.,1.,1.,0.5, 1.,1.,0.,0.5, 0.,0.,0.5, 0.,1.,0.5, 1.,1.,0.5, 2.5, 0.,0.,2.,0.5, 0.,2.5, 1.,0.,3.,0.5, 0.,2.5, 0.,1.,2.,0.5, 1.,2.5, 1.,1.,3.,0.5, 1.,3.,0.,0.5, 2.,0.,0.5, 2.,1.,0.5, 3.,1.,0.5],40,3),1e-12))
+        self.assertTrue(fToTest.getArray().isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0.5,1,2.5,2,4.5,5,6.5,6,3,2,4,5,8.5,9,10.5,10,12.5,13,14.5,14,11,10,12,13]),1e-12))
         pass
     
     pass

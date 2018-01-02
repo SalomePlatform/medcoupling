@@ -160,6 +160,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFields::partOfThisOnStructureElements;
 %newobject MEDCoupling::MEDFileFields::__iter__;
 %newobject MEDCoupling::MEDFileFields::extractPart;
+%newobject MEDCoupling::MEDFileFields::linearToQuadratic;
 
 %newobject MEDCoupling::MEDFileWritableStandAlone::serialize;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::New;
@@ -2221,6 +2222,7 @@ namespace MEDCoupling
     static MEDFileField1TS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New();
     MEDCoupling::MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    void copyTimeInfoFrom(MEDCouplingFieldDouble *mcf) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -2338,6 +2340,7 @@ namespace MEDCoupling
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldInt *field) throw(INTERP_KERNEL::Exception);
     void setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    void copyTimeInfoFrom(MEDCouplingFieldInt *mcf) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldInt *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -2408,6 +2411,7 @@ namespace MEDCoupling
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldFloat *field) throw(INTERP_KERNEL::Exception);
     void setFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    void copyTimeInfoFrom(MEDCouplingFieldFloat *mcf) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldFloat *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldFloat *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -3407,6 +3411,12 @@ namespace MEDCoupling
            std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
            convertToMapIntDataArrayInt(extractDef,extractDefCpp);
            return self->extractPart(extractDefCpp,mm);
+         }
+
+         MEDFileFields *linearToQuadratic(const MEDFileMeshes *oldLin, const MEDFileMeshes *newQuad) const throw(INTERP_KERNEL::Exception)
+         {
+           MCAuto<MEDFileFields> ret(self->linearToQuadratic(oldLin,newQuad));
+           return ret.retn();
          }
        }
   };

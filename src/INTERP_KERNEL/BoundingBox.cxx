@@ -162,4 +162,14 @@ namespace INTERP_KERNEL
     return valid;
   }
 
+  void BoundingBox::toCompactData(double data[6]) const
+  {
+    data[0]=_coords[XMIN];
+    data[1]=_coords[XMAX];
+    data[2]=_coords[YMIN];
+    data[3]=_coords[YMAX];
+    data[4]=_coords[ZMIN];
+    data[5]=_coords[ZMAX];
+  }
+
 }

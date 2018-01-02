@@ -607,6 +607,212 @@ void MEDFileFields::accept(MEDFileFieldVisitor& visitor) const
       }
 }
 
+class MEDFileFieldLin2QuadVisitor : public MEDFileFieldVisitor
+{
+public:
+  MEDFileFieldLin2QuadVisitor(const MEDFileUMesh *lin, const MEDFileUMesh *quad, const MEDFileFieldGlobsReal *linGlobs, MEDFileFields* outFs):_lin(lin),_quad(quad),_lin_globs(linGlobs),_out_fs(outFs),_gt(INTERP_KERNEL::NORM_ERROR),_1ts_update_requested(false) { }
+  void newFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) { if(field->getMeshName()!=_lin->getName()) return; _cur_fmts=MEDFileFieldMultiTS::New(); }
+  void endFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) { if(_cur_fmts.isNotNull()) { if(_cur_fmts->getNumberOfTS()>0) _out_fs->pushField(_cur_fmts); } }
+  //
+  void newTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts);
+  void endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts);
+  //
+  void newMeshEntry(const MEDFileFieldPerMesh *fpm);
+  void endMeshEntry(const MEDFileFieldPerMesh *fpm) { }
+  //
+  void newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt);
+  void endPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) { }
+  //
+  void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd);
+private:
+  void updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd);
+private:
+  const MEDFileUMesh *_lin;
+  const MEDFileUMesh *_quad;
+  const MEDFileFieldGlobsReal *_lin_globs;
+  MEDFileFields *_out_fs;
+  MCAuto<MEDFileFieldMultiTS> _cur_fmts;
+  MCAuto<MEDFileField1TS> _cur_f1ts;
+  INTERP_KERNEL::NormalizedCellType _gt;
+  // Info on 1TS modification
+  bool _1ts_update_requested;
+  // Cache of matrix to compute faster the values on newly created points
+  std::string _pfl;
+  MCAuto<DataArrayInt> _matrix;
+  MCAuto<DataArrayInt> _new_pts_ids;
+};
+
+void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd)
+{
+  if(_cur_f1ts.isNull())
+    return;
+  if(pmptpd->getType()!=ON_NODES)
+    throw INTERP_KERNEL::Exception("Not managed yet for ON_CELLS ON_GAUSS_NE and ON_GAUSS_PT");
+  _1ts_update_requested=true;
+  MEDFileAnyTypeField1TSWithoutSDA *ct(_cur_f1ts->contentNotNullBase());
+  int locId(pmptpd->getFather()->locIdOfLeaf(pmptpd));
+  MEDFileFieldPerMeshPerTypePerDisc *pmtdToModify(ct->getLeafGivenMeshAndTypeAndLocId(_lin->getName(),_gt,locId));
+  std::string pflName(pmptpd->getProfile());
+  if(pflName==_pfl && _matrix.isNotNull())
+    {
+      updateData(pmtdToModify);
+      return ;
+    }
+  _pfl=pflName; _matrix.nullify(); _new_pts_ids.nullify();
+  MCAuto<DataArrayInt> pfl;
+  if(pflName.empty())
+    pfl=DataArrayInt::Range(0,pmptpd->getNumberOfVals(),1);
+  else
+    pfl=_lin_globs->getProfile(pflName)->deepCopy();
+  {
+     MCAuto<MEDCouplingUMesh> mesh3D(_lin->getMeshAtLevel(0)),mesh3DQuadratic(_quad->getMeshAtLevel(0));
+     MCAuto<DataArrayInt> cellIds(mesh3D->getCellIdsLyingOnNodes(pfl->begin(),pfl->end(),true));
+     MCAuto<MEDCouplingUMesh> mesh3DQuadraticRestricted(mesh3DQuadratic->buildPartOfMySelf(cellIds->begin(),cellIds->end(),true));
+     MCAuto<DataArrayInt> mesh3DQuadraticRestrictedNodeIds(mesh3DQuadraticRestricted->computeFetchedNodeIds());
+     MCAuto<DataArrayInt> orphansNodes;
+     {
+       MCAuto<MEDCouplingUMesh> tmp1(mesh3D->buildPartOfMySelf(cellIds->begin(),cellIds->end(),true));
+       MCAuto<DataArrayInt> tmp2(tmp1->computeFetchedNodeIds());
+       orphansNodes=pfl->buildSubstraction(tmp2);
+     }
+     mesh3DQuadraticRestrictedNodeIds->checkMonotonic(true);
+     _new_pts_ids=mesh3DQuadraticRestrictedNodeIds->buildSubstraction(pfl);
+     MCAuto<MEDCoupling1SGTUMesh> allSeg3;
+     {
+       MCAuto<DataArrayInt> a,b,c,d;
+       MCAuto<MEDCouplingUMesh> seg3Tmp(mesh3DQuadraticRestricted->explodeIntoEdges(a,b,c,d));
+       allSeg3=MEDCoupling1SGTUMesh::New(seg3Tmp);
+     }
+     if(allSeg3->getCellModelEnum()!=INTERP_KERNEL::NORM_SEG3)
+       throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc : invalid situation where SEG3 expected !");
+     MCAuto<DataArrayInt> midPts,cellSeg3Ids;
+     {
+       DataArrayInt *nodeConn(allSeg3->getNodalConnectivity());
+       nodeConn->rearrange(3);
+       {
+         std::vector<int> v(1,2);
+         midPts=nodeConn->keepSelectedComponents(v);
+       }
+       cellSeg3Ids=DataArrayInt::FindPermutationFromFirstToSecond(midPts,_new_pts_ids);
+       {
+         std::vector<int> v(2); v[0]=0; v[1]=1;
+         MCAuto<DataArrayInt> tmp(nodeConn->keepSelectedComponents(v));
+         _matrix=tmp->selectByTupleId(cellSeg3Ids->begin(),cellSeg3Ids->end());
+       }
+       nodeConn->rearrange(1);
+     }
+     updateData(pmtdToModify);
+  }
+}
+
+void MEDFileFieldLin2QuadVisitor::updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd)
+{
+  pmtd->incrementNbOfVals(_new_pts_ids->getNumberOfTuples());
+}
+
+void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt)
+{
+  const MEDFileFieldPerMeshPerType *pmpt2(dynamic_cast<const MEDFileFieldPerMeshPerType *>(pmpt));
+  if(!pmpt2)
+    throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::newPerMeshPerTypeEntry : not managed for structure elements !");
+  if(pmpt2->getNumberOfLoc()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::newPerMeshPerTypeEntry : not managed for multi discr per timestep !");
+  _gt=pmpt->getGeoType();
+}
+
+void MEDFileFieldLin2QuadVisitor::newMeshEntry(const MEDFileFieldPerMesh *fpm)
+{
+  if(fpm->getMeshName()!=_lin->getName())
+    throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::newMeshEntry : mismatch into meshName !");
+}
+
+void MEDFileFieldLin2QuadVisitor::newTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts)
+{
+  _1ts_update_requested=false;
+  if(!ts)
+    return ;
+  const MEDFileField1TSWithoutSDA *tsd(dynamic_cast<const MEDFileField1TSWithoutSDA *>(ts));
+  if(!tsd)
+    return ;
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> contentCpy(ts->deepCopy());
+  MCAuto<MEDFileField1TSWithoutSDA> contentCpy2(DynamicCastSafe<MEDFileAnyTypeField1TSWithoutSDA,MEDFileField1TSWithoutSDA>(contentCpy));
+  if(contentCpy2.isNull())
+    return;
+  _cur_f1ts=MEDFileField1TS::New(*contentCpy2,true);
+  _cur_f1ts->shallowCpyGlobs(*_lin_globs);
+}
+
+void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts)
+{
+  if(_cur_f1ts.isNull())
+    return ;
+  if(_1ts_update_requested)
+    {
+      if(!_pfl.empty())
+        {
+          int locId(_cur_f1ts->getLocalizationId(_pfl));
+          DataArrayInt *pfl(_cur_f1ts->getProfile(_pfl));
+          MCAuto<DataArrayInt> newPfl;
+          {
+            std::vector<const DataArrayInt *> vs(2);
+            vs[0]=pfl; vs[1]=_new_pts_ids;
+            newPfl=DataArrayInt::Aggregate(vs);
+          }
+          newPfl->setName(_pfl);
+          {
+            std::vector<int> locToKill(1,locId);
+            _cur_f1ts->killLocalizationIds(locToKill);
+          }
+          _cur_f1ts->appendProfile(newPfl);
+        }
+      DataArrayDouble *arr(_cur_f1ts->getUndergroundDataArray());
+      MCAuto<DataArrayDouble> res;
+      {
+        std::vector<int> v(1,0),v2(1,1);
+        MCAuto<DataArrayInt> pts0(_matrix->keepSelectedComponents(v));
+        MCAuto<DataArrayInt> pts1(_matrix->keepSelectedComponents(v2));
+        MCAuto<DataArrayDouble> part0(arr->selectByTupleId(*pts0));
+        MCAuto<DataArrayDouble> part1(arr->selectByTupleId(*pts1));
+        res=DataArrayDouble::Add(part0,part1);
+        res->applyLin(0.5,0.);
+      }
+      res=DataArrayDouble::Aggregate(arr,res);
+      _cur_f1ts->setArray(res);
+    }
+  if(_cur_fmts.isNotNull())
+    { _cur_fmts->pushBackTimeStep(_cur_f1ts); }
+  _1ts_update_requested=false;
+}
+
+/*!
+ * \a newQuad is expected to be the result of MEDFileUMesh::linearToQuadratic of \a oldLin
+ */
+MCAuto<MEDFileFields> MEDFileFields::linearToQuadratic(const MEDFileMeshes *oldLin, const MEDFileMeshes *newQuad) const
+{
+  if(!oldLin || !newQuad)
+    throw INTERP_KERNEL::Exception("MEDFileFields::linearToQuadratic : input meshes must be non NULL !");
+  MCAuto<MEDFileFields> ret(MEDFileFields::New());
+  for(int i=0;i<oldLin->getNumberOfMeshes();i++)
+    {
+      MEDFileMesh *mm(oldLin->getMeshAtPos(i));
+      if(!mm)
+        continue;
+      MEDFileUMesh *mmu(dynamic_cast<MEDFileUMesh *>(mm));
+      if(!mmu)
+        continue;
+      MEDFileMesh *mmq(newQuad->getMeshWithName(mmu->getName()));
+      MEDFileUMesh *mmqu(dynamic_cast<MEDFileUMesh *>(mmq));
+      if(!mmqu)
+        {
+          std::ostringstream oss; oss << "MEDFileFields::linearToQuadratic : mismatch of name between input meshes for name \"" << mmu->getName() << "\"";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+      MEDFileFieldLin2QuadVisitor vis(mmu,mmqu,this,ret);
+      accept(vis);
+    }
+  return ret;
+}
+
 MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const
 {
   if(i<0 || i>=(int)_fields.size())

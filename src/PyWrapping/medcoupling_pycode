@@ -82,10 +82,19 @@ def MEDCouplingMesh_write(self,fileName):
 
 def MEDCouplingField_write(self,fileName):
     MEDCouplingWriterHelper(self,fileName,WriteField)
+    
+def MEDCouplingFieldT_copyTimeInfoFrom(self,mlf1ts):
+    assert(isinstance(mlf1ts,MEDFileAnyTypeField1TS))
+    a,b,c=mlf1ts.getTime()
+    self.setTime(c,a,b)
+    pass
         
 MEDCouplingMesh.write=MEDCouplingMesh_write
 del MEDCouplingMesh_write
 MEDCouplingField.write=MEDCouplingField_write
 del MEDCouplingField_write
-
+MEDCouplingFieldDouble.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
+MEDCouplingFieldInt.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
+MEDCouplingFieldFloat.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
+del MEDCouplingFieldT_copyTimeInfoFrom
 %}

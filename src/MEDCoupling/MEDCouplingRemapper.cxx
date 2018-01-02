@@ -36,6 +36,7 @@
 #include "Interpolation2D1D.txx"
 #include "Interpolation2D3D.txx"
 #include "Interpolation3D1D.txx"
+#include "Interpolation1D0D.txx"
 #include "InterpolationCU.txx"
 #include "InterpolationCC.txx"
 
@@ -438,6 +439,15 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D1D interpolation(*this);
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
+  else if(srcMeshDim==1 && trgMeshDim==0 && srcSpaceDim==3)
+    {
+      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
+        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 1D and 0D into 3D space ! Select PointLocator as intersection type !");
+      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation1D0D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
   else if(srcMeshDim==1 && trgMeshDim==3 && srcSpaceDim==3)

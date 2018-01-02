@@ -62,7 +62,8 @@ namespace MEDCoupling
   int MEDCouplingSizeOfVoidStar();
   bool MEDCouplingByteOrder();
   const char *MEDCouplingByteOrderStr();
-
+  bool IsCXX11Compiled();
+  
   class BigMemoryObject
   {
   public:
