@@ -3993,7 +3993,7 @@ bool DataArrayInt::isRange(int& strt, int& sttoopp, int& stteepp) const
  *  \throw If any value of \a this can't be used as a valid index for 
  *         [\a indArrBg, \a indArrEnd).
  *
- *  \sa changeValue
+ *  \sa changeValue, findIdForEach
  */
 void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd)
 {
@@ -4008,7 +4008,7 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
       else
         {
           std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " of this value is " << *pt << ", should be in [0," << nbElemsIn << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   this->declareAsNew();
@@ -4019,7 +4019,7 @@ void DataArrayInt::transformWithIndArr(const MapKeyVal<int>& m)
   this->checkAllocated();
   if(this->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
-  const std::map<int,int> dat(m.data());
+  const std::map<int,int>& dat(m.data());
   int nbOfTuples(getNumberOfTuples()),*pt(getPointer());
   for(int i=0;i<nbOfTuples;i++,pt++)
     {
@@ -4029,7 +4029,7 @@ void DataArrayInt::transformWithIndArr(const MapKeyVal<int>& m)
       else
         {
           std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " of this value is " << *pt << " not in map !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          throw INTERP_KERNEL::Exception(oss.str());
         }
     }
   this->declareAsNew();
@@ -4207,14 +4207,16 @@ DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
  *  \sa invertArrayN2O2O2N
  *  \endif
  */
-MCAuto< MapKeyVal<int> > DataArrayInt::invertArrayN2O2O2NOptimized() const
+MCAuto< MapKeyVal<int> > DataArrayInt32::invertArrayN2O2O2NOptimized() const
 {
   checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt32::invertArrayN2O2O2NOptimized : single component expected !");
   MCAuto< MapKeyVal<int> > ret(MapKeyVal<int>::New());
   std::map<int,int>& m(ret->data());
   const int *new2Old(begin());
-  int nbOfNewElems(this->getNumberOfTuples());
-  for(int i=0;i<nbOfNewElems;i++)
+  std::size_t nbOfNewElems(this->getNumberOfTuples());
+  for(std::size_t i=0;i<nbOfNewElems;i++)
     {
       int v(new2Old[i]);
       m[v]=i;
@@ -4255,7 +4257,9 @@ DataArrayInt *DataArrayInt::checkAndPreparePermutation() const
  * \a ids1 and \a ids2 are expected to be both a list of ids (both with number of components equal to one) not sorted and with values that can be negative.
  * This method will throw an exception is no such permutation array can be obtained. It is typically the case if there is some ids in \a ids1 not in \a ids2 or
  * inversely.
- * In case of success (no throw) : \c ids1->renumber(ret)->isEqual(ids2) where \a ret is the return of this method.
+ * In case of success both assertion will be true (no throw) :
+ * \c ids1->renumber(ret)->isEqual(ids2) where \a ret is the return of this method.
+ * \c ret->transformWithIndArr(ids2)->isEqual(ids1)
  *
  * \b Example:
  * - \a ids1 : [3,1,103,4,6,10,-7,205]
@@ -4266,6 +4270,7 @@ DataArrayInt *DataArrayInt::checkAndPreparePermutation() const
  *          array using decrRef() as it is no more needed.
  * \throw If either ids1 or ids2 is null not allocated or not with one components.
  * 
+ * \sa DataArrayInt32::findIdForEach
  */
 DataArrayInt *DataArrayInt::FindPermutationFromFirstToSecond(const DataArrayInt *ids1, const DataArrayInt *ids2)
 {
@@ -4695,6 +4700,47 @@ DataArrayInt *DataArrayInt::findIdsEqualTuple(const int *tupleBg, const int *tup
         }
     }
   return ret.retn();
+}
+
+/*!
+ * This method finds for each element \a ELT in [valsBg,valsEnd) elements in \a this equal to it. Associated to ELT
+ * this method will return the tuple id of last element found. If there is no element in \a this equal to ELT
+ * an exception will be thrown.
+ *
+ * In case of success this[ret]==vals. Samely ret->transformWithIndArr(this->begin(),this->end())==vals.
+ * Where \a vals is the [valsBg,valsEnd) array and \a ret the array returned by this method.
+ * This method can be seen as an extension of FindPermutationFromFirstToSecond.
+ * <br>
+ * \b Example: <br>
+ * - \a this: [17,27,2,10,-4,3,12,27,16]
+ * - \a val : [3,16,-4,27,17]
+ * - result: [5,8,4,7,0]
+ *
+ * \return - An array of size std::distance(valsBg,valsEnd)
+ *
+ * \sa DataArrayInt32::FindPermutationFromFirstToSecond
+ */
+MCAuto<DataArrayInt32> DataArrayInt32::findIdForEach(const int *valsBg, const int *valsEnd) const
+{
+  MCAuto<DataArrayInt32> ret(DataArrayInt32::New());
+  std::size_t nbOfTuplesOut(std::distance(valsBg,valsEnd));
+  ret->alloc(nbOfTuplesOut,1);
+  MCAuto< MapKeyVal<int> > zeMap(invertArrayN2O2O2NOptimized());
+  const std::map<int,int>& dat(zeMap->data());
+  int *ptToFeed(ret->getPointer());
+  for(const int *pt=valsBg;pt!=valsEnd;pt++)
+    {
+      std::map<int,int>::const_iterator it(dat.find(*pt));
+      if(it!=dat.end())
+        *ptToFeed++=(*it).second;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt32::findIdForEach : error for element at place " << std::distance(valsBg,pt);
+          oss << " of input array value is " << *pt << " which is not in this !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+  return ret;
 }
 
 /*!

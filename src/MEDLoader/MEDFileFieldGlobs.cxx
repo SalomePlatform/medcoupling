@@ -375,9 +375,9 @@ namespace MEDCouplingImpl
   {
   public:
     PflFinder(const std::string& pfl):_pfl(pfl) { }
-    bool operator() (const MCAuto<DataArrayInt>& pfl) { return _pfl==pfl->getName(); }
+    bool operator() (const MCAuto<DataArrayInt>& loc) { return loc->getName()==_pfl; }
   private:
-    const std::string& _pfl;
+    const std::string _pfl;
   };
 }
 /// @endcond
@@ -395,21 +395,25 @@ int MEDFileFieldGlobs::getLocalizationId(const std::string& loc) const
   return std::distance(_locs.begin(),it);
 }
 
+int MEDFileFieldGlobs::getProfileId(const std::string& pfl) const
+{
+  std::vector< MCAuto<DataArrayInt> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),MEDCouplingImpl::PflFinder(pfl));
+  if(it==_pfls.end())
+    {
+      std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfileId : no such profile name : \"" << pfl << "\" Possible localizations are : ";
+      for(it=_pfls.begin();it!=_pfls.end();it++)
+        oss << "\"" << (*it)->getName() << "\", ";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  return std::distance(_pfls.begin(),it);
+}
+
 /*!
  * The returned value is never null.
  */
 const DataArrayInt *MEDFileFieldGlobs::getProfile(const std::string& pflName) const
 {
-  std::string pflNameCpp(pflName);
-  std::vector< MCAuto<DataArrayInt> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),MEDCouplingImpl::PflFinder(pflNameCpp));
-  if(it==_pfls.end())
-    {
-      std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
-      for(it=_pfls.begin();it!=_pfls.end();it++)
-        oss << "\"" << (*it)->getName() << "\", ";
-      throw INTERP_KERNEL::Exception(oss.str());
-    }
-  return *it;
+  return getProfileFromId(getProfileId(pflName));
 }
 
 const DataArrayInt *MEDFileFieldGlobs::getProfileFromId(int pflId) const
@@ -1037,6 +1041,17 @@ int MEDFileFieldGlobsReal::getNbOfGaussPtPerCell(int locId) const
 int MEDFileFieldGlobsReal::getLocalizationId(const std::string& loc) const
 {
   return contentNotNull()->getLocalizationId(loc);
+}
+
+/*!
+ * Returns an id of a profile by its name.
+ *  \param [in] loc - the profile name of interest.
+ *  \return int - the id of the profile.
+ *  \throw If there is no a profile named \a loc.
+ */
+int MEDFileFieldGlobsReal::getProfileId(const std::string& pfl) const
+{
+  return contentNotNull()->getProfileId(pfl);
 }
 
 /*!

@@ -177,6 +177,18 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         self.assertEqual(b,1)
         self.assertAlmostEqual((-d).getMaxAbsValueInArray(),-3.,13)
         pass
+
+    def testDAIFindIdForEach1(self):
+        a1=DataArrayInt([17,27,2,10,-4,3,12,27,16])
+        b1=DataArrayInt([3,16,-4,27,17])
+        ret=a1.findIdForEach(b1)
+        self.assertTrue(ret.isEqual(DataArrayInt([5,8,4,7,0])))
+        self.assertTrue(a1[ret].isEqual(b1))
+        b2=DataArrayInt([3,16,22,27,17])
+        self.assertRaises(InterpKernelException,a1.findIdForEach,b2) # 22 not in a1 !
+        a1.rearrange(3)
+        self.assertRaises(InterpKernelException,a1.findIdForEach,b1) # a1 is not single component
+        pass
     
     pass
 

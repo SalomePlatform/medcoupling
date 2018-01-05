@@ -669,12 +669,6 @@ void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPer
      MCAuto<DataArrayInt> cellIds(mesh3D->getCellIdsLyingOnNodes(pfl->begin(),pfl->end(),true));
      MCAuto<MEDCouplingUMesh> mesh3DQuadraticRestricted(mesh3DQuadratic->buildPartOfMySelf(cellIds->begin(),cellIds->end(),true));
      MCAuto<DataArrayInt> mesh3DQuadraticRestrictedNodeIds(mesh3DQuadraticRestricted->computeFetchedNodeIds());
-     MCAuto<DataArrayInt> orphansNodes;
-     {
-       MCAuto<MEDCouplingUMesh> tmp1(mesh3D->buildPartOfMySelf(cellIds->begin(),cellIds->end(),true));
-       MCAuto<DataArrayInt> tmp2(tmp1->computeFetchedNodeIds());
-       orphansNodes=pfl->buildSubstraction(tmp2);
-     }
      mesh3DQuadraticRestrictedNodeIds->checkMonotonic(true);
      _new_pts_ids=mesh3DQuadraticRestrictedNodeIds->buildSubstraction(pfl);
      MCAuto<MEDCoupling1SGTUMesh> allSeg3;
@@ -748,10 +742,11 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
     return ;
   if(_1ts_update_requested)
     {
+      const DataArrayInt *pfl(NULL);
       if(!_pfl.empty())
         {
-          int locId(_cur_f1ts->getLocalizationId(_pfl));
-          DataArrayInt *pfl(_cur_f1ts->getProfile(_pfl));
+          int locId(_cur_f1ts->getProfileId(_pfl));
+          pfl=_cur_f1ts->getProfile(_pfl);
           MCAuto<DataArrayInt> newPfl;
           {
             std::vector<const DataArrayInt *> vs(2);
@@ -761,7 +756,7 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
           newPfl->setName(_pfl);
           {
             std::vector<int> locToKill(1,locId);
-            _cur_f1ts->killLocalizationIds(locToKill);
+            _cur_f1ts->killProfileIds(locToKill);
           }
           _cur_f1ts->appendProfile(newPfl);
         }
@@ -771,6 +766,11 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
         std::vector<int> v(1,0),v2(1,1);
         MCAuto<DataArrayInt> pts0(_matrix->keepSelectedComponents(v));
         MCAuto<DataArrayInt> pts1(_matrix->keepSelectedComponents(v2));
+        if(pfl)
+          {
+            pts0=pfl->findIdForEach(pts0->begin(),pts0->end());
+            pts1=pfl->findIdForEach(pts1->begin(),pts1->end());
+          }
         MCAuto<DataArrayDouble> part0(arr->selectByTupleId(*pts0));
         MCAuto<DataArrayDouble> part1(arr->selectByTupleId(*pts1));
         res=DataArrayDouble::Add(part0,part1);

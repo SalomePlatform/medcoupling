@@ -1938,6 +1938,7 @@ namespace MEDCoupling
     void changeLocName(const std::string& oldName, const std::string& newName) throw(INTERP_KERNEL::Exception);
     int getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception);
     int getLocalizationId(const std::string& loc) const throw(INTERP_KERNEL::Exception);
+    int getProfileId(const std::string& pfl) const throw(INTERP_KERNEL::Exception);
     void killStructureElementsInGlobs() throw(INTERP_KERNEL::Exception);
   %extend
      {

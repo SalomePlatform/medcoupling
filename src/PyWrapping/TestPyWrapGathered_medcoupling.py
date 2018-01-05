@@ -98,6 +98,7 @@ class medcouplingTest(unittest.TestCase):
         interface=CommInterface()
         pass
 
+    @unittest.skipUnless(HasMEDFileExt(),"Requires link to MED file")
     def test5(self):
         f=MEDCouplingFieldDouble(ON_NODES)
         f.setTime(1.25,3,6)

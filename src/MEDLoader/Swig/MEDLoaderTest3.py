@@ -6233,6 +6233,84 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mTest.getCoords().isEqual(DataArrayDouble([0.,0.,0.,1.,0.,0.,0.,1.,0.,1.,1.,0.,0.,0.,1.,1.,0.,1.,0.,1.,1.,1.,1.,1.,2.,0.,0.,3.,0.,0.,2.,1.,0.,3.,1.,0.,2.,0.,1.,3.,0.,1.,2.,1.,1.,3.,1.,1.,0.5, 0.,0.,0.,0.5, 0.,0.5, 1.,0.,1.,0.5, 0.,0.5, 0.,1.,0.,0.5, 1.,0.5, 1.,1.,1.,0.5, 1.,1.,0.,0.5, 0.,0.,0.5, 0.,1.,0.5, 1.,1.,0.5, 2.5, 0.,0.,2.,0.5, 0.,2.5, 1.,0.,3.,0.5, 0.,2.5, 0.,1.,2.,0.5, 1.,2.5, 1.,1.,3.,0.5, 1.,3.,0.,0.5, 2.,0.,0.5, 2.,1.,0.5, 3.,1.,0.5],40,3),1e-12))
         self.assertTrue(fToTest.getArray().isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0.5,1,2.5,2,4.5,5,6.5,6,3,2,4,5,8.5,9,10.5,10,12.5,13,14.5,14,11,10,12,13]),1e-12))
         pass
+
+    def testFieldsLinearToQuadratic2(self):
+        """Same than testFieldsLinearToQuadratic but with profile on NODES"""
+        arr=DataArrayDouble([0,1])
+        m=MEDCouplingCMesh();
+        m.setCoords(arr,arr,arr)
+        m=m.buildUnstructured()
+        m2=m.deepCopy()
+        m2.translate([2,0,0])
+        m3=MEDCouplingUMesh.MergeUMeshes([m,m2])
+        m3.setName("mesh")
+        # add a point for fun
+        m3.setCoords(DataArrayDouble.Aggregate(m3.getCoords(),DataArrayDouble([1.5,1.5,1.5],1,3)))
+        #
+        mm=MEDFileUMesh()
+        mm[0]=m3
+        mmq=mm.linearToQuadratic(0)
+        mms=MEDFileMeshes() ; mms.pushMesh(mm)
+        mmsq=MEDFileMeshes() ; mmsq.pushMesh(mmq)
+        #
+        f=MEDCouplingFieldDouble(ON_NODES)
+        f.setName("field")
+        f.setMesh(m3)
+        f.setTime(3.,1,2)
+        arr=DataArrayDouble(8) ; arr.iota()
+        arr.iota()
+        f.setArray(arr)
+        f1ts=MEDFileField1TS()
+        pfl=DataArrayInt([8,9,10,11,12,13,14,15]) ; pfl.setName("pfl")
+        f1ts.setFieldProfile(f,mm,0,pfl) # f lying on 8 nodes of cell #1
+        fmts=MEDFileFieldMultiTS()
+        fmts.pushBackTimeStep(f1ts)
+        fs=MEDFileFields()
+        fs.pushField(fmts)
+        fs2=fs.linearToQuadratic(mms,mmsq)
+        #
+        pflExpected=DataArrayInt([8,9,10,11,12,13,14,15,29,30,31,32,33,34,35,36,37,38,39,40]) ; pflExpected.setName("pfl_NODE")
+        f1tsToTest=fs2[0][0]
+        exp1=DataArrayDouble([0,1,2,3,4,5,6,7,0.5,1,2.5,2,4.5,5,6.5,6,3,2,4,5])
+        self.assertTrue(f1tsToTest.getProfile("pfl_NODE").isEqual(pflExpected))
+        self.assertTrue(f1tsToTest.getUndergroundDataArray().isEqual(exp1,1e-12))
+        self.assertEqual(f1tsToTest.getFieldSplitedByType(),[(NORM_ERROR,[(1,(0,20),'pfl_NODE','')])])
+        fToTest=fs2[0][0].field(mmq)
+        self.assertEqual(fToTest.getTime(),[3.,1,2])
+        mTest=MEDCoupling1SGTUMesh(fToTest.getMesh())
+        self.assertTrue(mTest.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19])))
+        self.assertTrue(mTest.getCoords().isEqual(DataArrayDouble([(2,0,0),(3,0,0),(2,1,0),(3,1,0),(2,0,1),(3,0,1),(2,1,1),(3,1,1),(2.5,0,0),(2,0.5,0),(2.5,1,0),(3,0.5,0),(2.5,0,1),(2,0.5,1),(2.5,1,1),(3,0.5,1),(3,0,0.5),(2,0,0.5),(2,1,0.5),(3,1,0.5)],20,3),1e-12))
+        self.assertTrue(fToTest.getArray().isEqual(exp1,1e-12))
+        ## More vicious add single node 16
+        mm=MEDFileUMesh()
+        mm[0]=m3
+        mmq=mm.linearToQuadratic(0)
+        mms=MEDFileMeshes() ; mms.pushMesh(mm)
+        mmsq=MEDFileMeshes() ; mmsq.pushMesh(mmq)
+        #
+        f=MEDCouplingFieldDouble(ON_NODES)
+        f.setName("field")
+        f.setMesh(m3)
+        f.setTime(3.,1,2)
+        arr=DataArrayDouble(9) ; arr.iota()
+        arr.iota()
+        f.setArray(arr)
+        f1ts=MEDFileField1TS()
+        pfl=DataArrayInt([8,9,10,11,12,13,14,15,16]) ; pfl.setName("pfl")
+        f1ts.setFieldProfile(f,mm,0,pfl) # f lying on 9 nodes of cell #1 + orphan node
+        fmts=MEDFileFieldMultiTS()
+        fmts.pushBackTimeStep(f1ts)
+        fs=MEDFileFields()
+        fs.pushField(fmts)
+        fs2=fs.linearToQuadratic(mms,mmsq)
+        #
+        pflExpected=DataArrayInt([8,9,10,11,12,13,14,15,16,29,30,31,32,33,34,35,36,37,38,39,40]) ; pflExpected.setName("pfl_NODE")
+        f1tsToTest=fs2[0][0]
+        exp1=DataArrayDouble([0,1,2,3,4,5,6,7,8,0.5,1,2.5,2,4.5,5,6.5,6,3,2,4,5])
+        assert(f1tsToTest.getProfile("pfl_NODE").isEqual(pflExpected))
+        assert(f1tsToTest.getUndergroundDataArray().isEqual(exp1,1e-12))
+        assert(f1tsToTest.getFieldSplitedByType()==[(40,[(1,(0,21),'pfl_NODE','')])])
+        pass
     
     pass
 

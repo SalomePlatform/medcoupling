@@ -93,6 +93,7 @@
 %newobject MEDCoupling::DataArrayInt::findIdsEqualList;
 %newobject MEDCoupling::DataArrayInt::findIdsNotEqualList;
 %newobject MEDCoupling::DataArrayInt::findIdsEqualTuple;
+%newobject MEDCoupling::DataArrayInt::findIdForEach;
 %newobject MEDCoupling::DataArrayInt::sumPerTuple;
 %newobject MEDCoupling::DataArrayInt::negate;
 %newobject MEDCoupling::DataArrayInt::computeAbs;
@@ -2540,6 +2541,15 @@ namespace MEDCoupling
         std::vector<int> val2;
         const int *bg(convertIntStarLikePyObjToCppIntStar(inputTuple,sw,sz,val,val2));
         return self->findIdsEqualTuple(bg,bg+sz);
+      }
+
+      DataArrayInt *findIdForEach(PyObject *vals) const throw(INTERP_KERNEL::Exception)
+      {
+        int sw,sz,val;
+        std::vector<int> val2;
+        const int *bg(convertIntStarLikePyObjToCppIntStar(vals,sw,sz,val,val2));
+        MCAuto<DataArrayInt> ret(self->findIdForEach(bg,bg+sz));
+        return ret.retn();
       }
 
       PyObject *splitInBalancedSlices(int nbOfSlices) const throw(INTERP_KERNEL::Exception)

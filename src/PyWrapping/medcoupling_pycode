@@ -77,24 +77,26 @@ def MEDCouplingWriterHelper(mci,fileName,medFunc):
         raise InterpKernelException("The extension \"%s\" of input file \"%s\" is not recognized !"%(ext,fileName))
     pass
 
-def MEDCouplingMesh_write(self,fileName):
-    MEDCouplingWriterHelper(self,fileName,WriteMesh)
+if HasMEDFileExt():
+    def MEDCouplingMesh_write(self,fileName):
+        MEDCouplingWriterHelper(self,fileName,WriteMesh)
 
-def MEDCouplingField_write(self,fileName):
-    MEDCouplingWriterHelper(self,fileName,WriteField)
-    
-def MEDCouplingFieldT_copyTimeInfoFrom(self,mlf1ts):
-    assert(isinstance(mlf1ts,MEDFileAnyTypeField1TS))
-    a,b,c=mlf1ts.getTime()
-    self.setTime(c,a,b)
+    def MEDCouplingField_write(self,fileName):
+        MEDCouplingWriterHelper(self,fileName,WriteField)
+
+    def MEDCouplingFieldT_copyTimeInfoFrom(self,mlf1ts):
+        assert(isinstance(mlf1ts,MEDFileAnyTypeField1TS))
+        a,b,c=mlf1ts.getTime()
+        self.setTime(c,a,b)
+        pass
+
+    MEDCouplingMesh.write=MEDCouplingMesh_write
+    del MEDCouplingMesh_write
+    MEDCouplingField.write=MEDCouplingField_write
+    del MEDCouplingField_write
+    MEDCouplingFieldDouble.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
+    MEDCouplingFieldInt.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
+    MEDCouplingFieldFloat.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
+    del MEDCouplingFieldT_copyTimeInfoFrom
     pass
-        
-MEDCouplingMesh.write=MEDCouplingMesh_write
-del MEDCouplingMesh_write
-MEDCouplingField.write=MEDCouplingField_write
-del MEDCouplingField_write
-MEDCouplingFieldDouble.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
-MEDCouplingFieldInt.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
-MEDCouplingFieldFloat.copyTimeInfoFrom=MEDCouplingFieldT_copyTimeInfoFrom
-del MEDCouplingFieldT_copyTimeInfoFrom
 %}

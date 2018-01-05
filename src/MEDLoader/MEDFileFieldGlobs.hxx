@@ -68,6 +68,7 @@ namespace MEDCoupling
     void changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
     int getNbOfGaussPtPerCell(int locId) const;
     int getLocalizationId(const std::string& loc) const;
+    int getProfileId(const std::string& pfl) const;
     std::string getFileName() const { return _file_name; }
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const;
     const MEDFileFieldLoc& getLocalization(const std::string& locName) const;
@@ -147,6 +148,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::vector< std::pair<std::vector<std::string>, std::string > > zipLocsNames(double eps);
     MEDLOADER_EXPORT int getNbOfGaussPtPerCell(int locId) const;
     MEDLOADER_EXPORT int getLocalizationId(const std::string& loc) const;
+    MEDLOADER_EXPORT int getProfileId(const std::string& pfl) const;
     MEDLOADER_EXPORT std::string getFileName() const;
     MEDLOADER_EXPORT const MEDFileFieldLoc& getLocalizationFromId(int locId) const;
     MEDLOADER_EXPORT const MEDFileFieldLoc& getLocalization(const std::string& locName) const;

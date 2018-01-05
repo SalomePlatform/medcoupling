@@ -599,6 +599,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsEqualList(const int *valsBg, const int *valsEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsNotEqualList(const int *valsBg, const int *valsEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsEqualTuple(const int *tupleBg, const int *tupleEnd) const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayInt32> findIdForEach(const int *valsBg, const int *valsEnd) const;
     MEDCOUPLING_EXPORT int changeValue(int oldValue, int newValue);
     MEDCOUPLING_EXPORT int findIdFirstEqualTuple(const std::vector<int>& tupl) const;
     MEDCOUPLING_EXPORT int findIdFirstEqual(int value) const;
