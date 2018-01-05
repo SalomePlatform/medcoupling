@@ -742,11 +742,11 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
     return ;
   if(_1ts_update_requested)
     {
-      const DataArrayInt *pfl(NULL);
+      MCAuto<DataArrayInt> pfl;
       if(!_pfl.empty())
         {
           int locId(_cur_f1ts->getProfileId(_pfl));
-          pfl=_cur_f1ts->getProfile(_pfl);
+          pfl.takeRef(_cur_f1ts->getProfile(_pfl));
           MCAuto<DataArrayInt> newPfl;
           {
             std::vector<const DataArrayInt *> vs(2);
@@ -766,7 +766,7 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
         std::vector<int> v(1,0),v2(1,1);
         MCAuto<DataArrayInt> pts0(_matrix->keepSelectedComponents(v));
         MCAuto<DataArrayInt> pts1(_matrix->keepSelectedComponents(v2));
-        if(pfl)
+        if(pfl.isNotNull())
           {
             pts0=pfl->findIdForEach(pts0->begin(),pts0->end());
             pts1=pfl->findIdForEach(pts1->begin(),pts1->end());
