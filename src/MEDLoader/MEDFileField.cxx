@@ -607,6 +607,24 @@ void MEDFileFields::accept(MEDFileFieldVisitor& visitor) const
       }
 }
 
+class PFLData
+{
+public:
+  PFLData():_add_pts_in_pfl(0),_is_treated(false) { }
+  PFLData(const MCAuto<DataArrayInt>& mat, const MCAuto<DataArrayInt>& pfl, int nbOfNewPts):_matrix(mat),_pfl(pfl),_add_pts_in_pfl(nbOfNewPts),_is_treated(false) { }
+  std::string getPflName() const { if(_pfl.isNull()) { return std::string(); } else { return _pfl->getName(); } }
+  int getNbOfAddPtsInPfl() const { return _add_pts_in_pfl; }
+  bool isTreated() const { return _is_treated; }
+  void declareTreated() const { _is_treated=true; }
+  MCAuto<DataArrayInt> getProfile() const { return _pfl; }
+  MCAuto<DataArrayInt> getMatrix() const { return _matrix; }
+private:
+  MCAuto<DataArrayInt> _matrix;
+  MCAuto<DataArrayInt> _pfl;
+  int _add_pts_in_pfl;
+  mutable bool _is_treated;
+};
+
 class MEDFileFieldLin2QuadVisitor : public MEDFileFieldVisitor
 {
 public:
@@ -625,7 +643,7 @@ public:
   //
   void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd);
 private:
-  void updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd);
+  void updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd, int deltaNbNodes);
 private:
   const MEDFileUMesh *_lin;
   const MEDFileUMesh *_quad;
@@ -637,9 +655,8 @@ private:
   // Info on 1TS modification
   bool _1ts_update_requested;
   // Cache of matrix to compute faster the values on newly created points
-  std::string _pfl;
-  MCAuto<DataArrayInt> _matrix;
-  MCAuto<DataArrayInt> _new_pts_ids;
+  std::map< std::string, PFLData > _cache;
+  std::vector<std::string> _pfls_to_be_updated;
 };
 
 void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd)
@@ -653,55 +670,65 @@ void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPer
   int locId(pmptpd->getFather()->locIdOfLeaf(pmptpd));
   MEDFileFieldPerMeshPerTypePerDisc *pmtdToModify(ct->getLeafGivenMeshAndTypeAndLocId(_lin->getName(),_gt,locId));
   std::string pflName(pmptpd->getProfile());
-  if(pflName==_pfl && _matrix.isNotNull())
+  _pfls_to_be_updated.push_back(pflName);
+  std::map< std::string, PFLData >::iterator itCache(_cache.find(pflName));
+  if(itCache!=_cache.end())
     {
-      updateData(pmtdToModify);
+      updateData(pmtdToModify,(*itCache).second.getNbOfAddPtsInPfl());
       return ;
     }
-  _pfl=pflName; _matrix.nullify(); _new_pts_ids.nullify();
   MCAuto<DataArrayInt> pfl;
   if(pflName.empty())
     pfl=DataArrayInt::Range(0,pmptpd->getNumberOfVals(),1);
   else
     pfl=_lin_globs->getProfile(pflName)->deepCopy();
+  //
+  MCAuto<MEDCouplingUMesh> mesh3D(_lin->getMeshAtLevel(0)),mesh3DQuadratic(_quad->getMeshAtLevel(0));
+  MCAuto<DataArrayInt> cellIds(mesh3D->getCellIdsLyingOnNodes(pfl->begin(),pfl->end(),true));
+  MCAuto<MEDCouplingUMesh> mesh3DQuadraticRestricted(mesh3DQuadratic->buildPartOfMySelf(cellIds->begin(),cellIds->end(),true));
+  MCAuto<DataArrayInt> mesh3DQuadraticRestrictedNodeIds(mesh3DQuadraticRestricted->computeFetchedNodeIds());
+  mesh3DQuadraticRestrictedNodeIds->checkMonotonic(true);
+  MCAuto<DataArrayInt> newPtsIds(mesh3DQuadraticRestrictedNodeIds->buildSubstraction(pfl));
+  MCAuto<MEDCoupling1SGTUMesh> allSeg3;
   {
-     MCAuto<MEDCouplingUMesh> mesh3D(_lin->getMeshAtLevel(0)),mesh3DQuadratic(_quad->getMeshAtLevel(0));
-     MCAuto<DataArrayInt> cellIds(mesh3D->getCellIdsLyingOnNodes(pfl->begin(),pfl->end(),true));
-     MCAuto<MEDCouplingUMesh> mesh3DQuadraticRestricted(mesh3DQuadratic->buildPartOfMySelf(cellIds->begin(),cellIds->end(),true));
-     MCAuto<DataArrayInt> mesh3DQuadraticRestrictedNodeIds(mesh3DQuadraticRestricted->computeFetchedNodeIds());
-     mesh3DQuadraticRestrictedNodeIds->checkMonotonic(true);
-     _new_pts_ids=mesh3DQuadraticRestrictedNodeIds->buildSubstraction(pfl);
-     MCAuto<MEDCoupling1SGTUMesh> allSeg3;
-     {
-       MCAuto<DataArrayInt> a,b,c,d;
-       MCAuto<MEDCouplingUMesh> seg3Tmp(mesh3DQuadraticRestricted->explodeIntoEdges(a,b,c,d));
-       allSeg3=MEDCoupling1SGTUMesh::New(seg3Tmp);
-     }
-     if(allSeg3->getCellModelEnum()!=INTERP_KERNEL::NORM_SEG3)
-       throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc : invalid situation where SEG3 expected !");
-     MCAuto<DataArrayInt> midPts,cellSeg3Ids;
-     {
-       DataArrayInt *nodeConn(allSeg3->getNodalConnectivity());
-       nodeConn->rearrange(3);
-       {
-         std::vector<int> v(1,2);
-         midPts=nodeConn->keepSelectedComponents(v);
-       }
-       cellSeg3Ids=DataArrayInt::FindPermutationFromFirstToSecond(midPts,_new_pts_ids);
-       {
-         std::vector<int> v(2); v[0]=0; v[1]=1;
-         MCAuto<DataArrayInt> tmp(nodeConn->keepSelectedComponents(v));
-         _matrix=tmp->selectByTupleId(cellSeg3Ids->begin(),cellSeg3Ids->end());
-       }
-       nodeConn->rearrange(1);
-     }
-     updateData(pmtdToModify);
+    MCAuto<DataArrayInt> a,b,c,d;
+    MCAuto<MEDCouplingUMesh> seg3Tmp(mesh3DQuadraticRestricted->explodeIntoEdges(a,b,c,d));
+    allSeg3=MEDCoupling1SGTUMesh::New(seg3Tmp);
   }
+  if(allSeg3->getCellModelEnum()!=INTERP_KERNEL::NORM_SEG3)
+    throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc : invalid situation where SEG3 expected !");
+  MCAuto<DataArrayInt> midPts,cellSeg3Ids,matrix;
+  {
+    DataArrayInt *nodeConn(allSeg3->getNodalConnectivity());
+    nodeConn->rearrange(3);
+    {
+      std::vector<int> v(1,2);
+      midPts=nodeConn->keepSelectedComponents(v);
+    }
+    cellSeg3Ids=DataArrayInt::FindPermutationFromFirstToSecond(midPts,newPtsIds);
+    {
+      std::vector<int> v(2); v[0]=0; v[1]=1;
+      MCAuto<DataArrayInt> tmp(nodeConn->keepSelectedComponents(v));
+      matrix=tmp->selectByTupleId(cellSeg3Ids->begin(),cellSeg3Ids->end());
+    }
+    nodeConn->rearrange(1);
+  }
+  MCAuto<DataArrayInt> pflq;
+  if(!pflName.empty())
+    {
+      std::vector<const DataArrayInt *> vs(2);
+      vs[0]=pfl; vs[1]=newPtsIds;
+      pflq=DataArrayInt::Aggregate(vs);
+      pflq->setName(pflName);
+    }
+  PFLData pdata(matrix,pflq,newPtsIds->getNumberOfTuples());
+  _cache[pflName]=pdata;
+  updateData(pmtdToModify,pdata.getNbOfAddPtsInPfl());
 }
 
-void MEDFileFieldLin2QuadVisitor::updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd)
+void MEDFileFieldLin2QuadVisitor::updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd, int deltaNbNodes)
 {
-  pmtd->incrementNbOfVals(_new_pts_ids->getNumberOfTuples());
+  pmtd->incrementNbOfVals(deltaNbNodes);
 }
 
 void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt)
@@ -722,7 +749,7 @@ void MEDFileFieldLin2QuadVisitor::newMeshEntry(const MEDFileFieldPerMesh *fpm)
 
 void MEDFileFieldLin2QuadVisitor::newTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts)
 {
-  _1ts_update_requested=false;
+  _1ts_update_requested=false; _pfls_to_be_updated.clear();
   if(!ts)
     return ;
   const MEDFileField1TSWithoutSDA *tsd(dynamic_cast<const MEDFileField1TSWithoutSDA *>(ts));
@@ -742,34 +769,36 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
     return ;
   if(_1ts_update_requested)
     {
-      MCAuto<DataArrayInt> pfl;
-      if(!_pfl.empty())
+      MCAuto<DataArrayInt> matrix,oldPfl;
+      for(std::vector<std::string>::const_iterator it=_pfls_to_be_updated.begin();it!=_pfls_to_be_updated.end();it++)
         {
-          int locId(_cur_f1ts->getProfileId(_pfl));
-          pfl.takeRef(_cur_f1ts->getProfile(_pfl));
-          MCAuto<DataArrayInt> newPfl;
-          {
-            std::vector<const DataArrayInt *> vs(2);
-            vs[0]=pfl; vs[1]=_new_pts_ids;
-            newPfl=DataArrayInt::Aggregate(vs);
-          }
-          newPfl->setName(_pfl);
+          std::map< std::string, PFLData >::const_iterator it2(_cache.find(*it));
+          if(it2==_cache.end())
+            throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::endTimeStepEntry : invalid situation !");
+          matrix=(*it2).second.getMatrix();
+          if((*it).empty())
+            continue;
+          if((*it2).second.isTreated())
+            continue;
+          int locId(_cur_f1ts->getProfileId(*it));
+          oldPfl.takeRef(_cur_f1ts->getProfile(*it));
           {
             std::vector<int> locToKill(1,locId);
             _cur_f1ts->killProfileIds(locToKill);
           }
-          _cur_f1ts->appendProfile(newPfl);
+          _cur_f1ts->appendProfile((*it2).second.getProfile());
+          (*it2).second.declareTreated();
         }
       DataArrayDouble *arr(_cur_f1ts->getUndergroundDataArray());
       MCAuto<DataArrayDouble> res;
       {
         std::vector<int> v(1,0),v2(1,1);
-        MCAuto<DataArrayInt> pts0(_matrix->keepSelectedComponents(v));
-        MCAuto<DataArrayInt> pts1(_matrix->keepSelectedComponents(v2));
-        if(pfl.isNotNull())
+        MCAuto<DataArrayInt> pts0(matrix->keepSelectedComponents(v));
+        MCAuto<DataArrayInt> pts1(matrix->keepSelectedComponents(v2));
+        if(oldPfl.isNotNull())
           {
-            pts0=pfl->findIdForEach(pts0->begin(),pts0->end());
-            pts1=pfl->findIdForEach(pts1->begin(),pts1->end());
+            pts0=oldPfl->findIdForEach(pts0->begin(),pts0->end());
+            pts1=oldPfl->findIdForEach(pts1->begin(),pts1->end());
           }
         MCAuto<DataArrayDouble> part0(arr->selectByTupleId(*pts0));
         MCAuto<DataArrayDouble> part1(arr->selectByTupleId(*pts1));
