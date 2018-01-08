@@ -610,19 +610,16 @@ void MEDFileFields::accept(MEDFileFieldVisitor& visitor) const
 class PFLData
 {
 public:
-  PFLData():_add_pts_in_pfl(0),_is_treated(false) { }
-  PFLData(const MCAuto<DataArrayInt>& mat, const MCAuto<DataArrayInt>& pfl, int nbOfNewPts):_matrix(mat),_pfl(pfl),_add_pts_in_pfl(nbOfNewPts),_is_treated(false) { }
+  PFLData():_add_pts_in_pfl(0) { }
+  PFLData(const MCAuto<DataArrayInt>& mat, const MCAuto<DataArrayInt>& pfl, int nbOfNewPts):_matrix(mat),_pfl(pfl),_add_pts_in_pfl(nbOfNewPts) { }
   std::string getPflName() const { if(_pfl.isNull()) { return std::string(); } else { return _pfl->getName(); } }
   int getNbOfAddPtsInPfl() const { return _add_pts_in_pfl; }
-  bool isTreated() const { return _is_treated; }
-  void declareTreated() const { _is_treated=true; }
   MCAuto<DataArrayInt> getProfile() const { return _pfl; }
   MCAuto<DataArrayInt> getMatrix() const { return _matrix; }
 private:
   MCAuto<DataArrayInt> _matrix;
   MCAuto<DataArrayInt> _pfl;
   int _add_pts_in_pfl;
-  mutable bool _is_treated;
 };
 
 class MEDFileFieldLin2QuadVisitor : public MEDFileFieldVisitor
@@ -760,7 +757,7 @@ void MEDFileFieldLin2QuadVisitor::newTimeStepEntry(const MEDFileAnyTypeField1TSW
   if(contentCpy2.isNull())
     return;
   _cur_f1ts=MEDFileField1TS::New(*contentCpy2,true);
-  _cur_f1ts->shallowCpyGlobs(*_lin_globs);
+  _cur_f1ts->deepCpyGlobs(*_lin_globs);
 }
 
 void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts)
@@ -778,8 +775,6 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
           matrix=(*it2).second.getMatrix();
           if((*it).empty())
             continue;
-          if((*it2).second.isTreated())
-            continue;
           int locId(_cur_f1ts->getProfileId(*it));
           oldPfl.takeRef(_cur_f1ts->getProfile(*it));
           {
@@ -787,7 +782,6 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
             _cur_f1ts->killProfileIds(locToKill);
           }
           _cur_f1ts->appendProfile((*it2).second.getProfile());
-          (*it2).second.declareTreated();
         }
       DataArrayDouble *arr(_cur_f1ts->getUndergroundDataArray());
       MCAuto<DataArrayDouble> res;

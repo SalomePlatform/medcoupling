@@ -6197,6 +6197,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     def testFieldsLinearToQuadratic(self):
+        fname="Pyfile117.med"
         arr=DataArrayDouble([0,1])
         m=MEDCouplingCMesh();
         m.setCoords(arr,arr,arr)
@@ -6222,20 +6223,44 @@ class MEDLoaderTest3(unittest.TestCase):
         f1ts.setFieldNoProfileSBT(f)
         fmts=MEDFileFieldMultiTS()
         fmts.pushBackTimeStep(f1ts)
+        f1ts_2=f1ts.deepCopy()
+        f1ts_2.setTime(3,4,5.)
+        f1ts_2.getUndergroundDataArray()[:]*=2.
+        fmts.pushBackTimeStep(f1ts_2)
         fs=MEDFileFields()
         fs.pushField(fmts)
         fs2=fs.linearToQuadratic(mms,mmsq)
-        #
+        self.myTester1(fs2,mmsq[0])
+        # A small Write/Read and test again
+        mms.write(fname,2) ; fs.write(fname,0)
+        mms=MEDFileMeshes(fname) ; fs=MEDFileFields(fname)
+        mmq=mms[0].linearToQuadratic(0) ; mmqs=MEDFileMeshes() ; mmqs.pushMesh(mmq)
+        fs2=fs.linearToQuadratic(mms,mmqs)
+        self.myTester1(fs2,mmqs[0])
+        pass
+    
+    def myTester1(self,fs2,mmq):
+        dataExp=DataArrayDouble([0.,0.,0.,1.,0.,0.,0.,1.,0.,1.,1.,0.,0.,0.,1.,1.,0.,1.,0.,1.,1.,1.,1.,1.,2.,0.,0.,3.,0.,0.,2.,1.,0.,3.,1.,0.,2.,0.,1.,3.,0.,1.,2.,1.,1.,3.,1.,1.,0.5, 0.,0.,0.,0.5, 0.,0.5, 1.,0.,1.,0.5, 0.,0.5, 0.,1.,0.,0.5, 1.,0.5, 1.,1.,1.,0.5, 1.,1.,0.,0.5, 0.,0.,0.5, 0.,1.,0.5, 1.,1.,0.5, 2.5, 0.,0.,2.,0.5, 0.,2.5, 1.,0.,3.,0.5, 0.,2.5, 0.,1.,2.,0.5, 1.,2.5, 1.,1.,3.,0.5, 1.,3.,0.,0.5, 2.,0.,0.5, 2.,1.,0.5, 3.,1.,0.5],40,3)
+        dataExp1=DataArrayInt([1,0,2,3,5,4,6,7,16,17,18,19,20,21,22,23,24,25,26,27,9,8,10,11,13,12,14,15,28,29,30,31,32,33,34,35,36,37,38,39])
+        dataExp2=DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0.5,1,2.5,2,4.5,5,6.5,6,3,2,4,5,8.5,9,10.5,10,12.5,13,14.5,14,11,10,12,13])
         fToTest=fs2[0][0].field(mmq)
         self.assertEqual(fToTest.getTime(),[3.,1,2])
         mTest=MEDCoupling1SGTUMesh(fToTest.getMesh())
-        self.assertTrue(mTest.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,16,17,18,19,20,21,22,23,24,25,26,27,9,8,10,11,13,12,14,15,28,29,30,31,32,33,34,35,36,37,38,39])))
-        self.assertTrue(mTest.getCoords().isEqual(DataArrayDouble([0.,0.,0.,1.,0.,0.,0.,1.,0.,1.,1.,0.,0.,0.,1.,1.,0.,1.,0.,1.,1.,1.,1.,1.,2.,0.,0.,3.,0.,0.,2.,1.,0.,3.,1.,0.,2.,0.,1.,3.,0.,1.,2.,1.,1.,3.,1.,1.,0.5, 0.,0.,0.,0.5, 0.,0.5, 1.,0.,1.,0.5, 0.,0.5, 0.,1.,0.,0.5, 1.,0.5, 1.,1.,1.,0.5, 1.,1.,0.,0.5, 0.,0.,0.5, 0.,1.,0.5, 1.,1.,0.5, 2.5, 0.,0.,2.,0.5, 0.,2.5, 1.,0.,3.,0.5, 0.,2.5, 0.,1.,2.,0.5, 1.,2.5, 1.,1.,3.,0.5, 1.,3.,0.,0.5, 2.,0.,0.5, 2.,1.,0.5, 3.,1.,0.5],40,3),1e-12))
-        self.assertTrue(fToTest.getArray().isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0.5,1,2.5,2,4.5,5,6.5,6,3,2,4,5,8.5,9,10.5,10,12.5,13,14.5,14,11,10,12,13]),1e-12))
+        self.assertTrue(mTest.getNodalConnectivity().isEqual(dataExp1))
+        self.assertTrue(mTest.getCoords().isEqual(dataExp,1e-12))
+        self.assertTrue(fToTest.getArray().isEqual(dataExp2,1e-12))
+        # testing 2nd timestep
+        fToTest=fs2[0][1].field(mmq)
+        self.assertEqual(fToTest.getTime(),[5.,3,4])
+        mTest=MEDCoupling1SGTUMesh(fToTest.getMesh())
+        self.assertTrue(mTest.getNodalConnectivity().isEqual(dataExp1))
+        self.assertTrue(mTest.getCoords().isEqual(dataExp,1e-12))
+        self.assertTrue(fToTest.getArray().isEqual(2*dataExp2,1e-12))
         pass
 
     def testFieldsLinearToQuadratic2(self):
         """Same than testFieldsLinearToQuadratic but with profile on NODES"""
+        fname="Pyfile118.med"
         arr=DataArrayDouble([0,1])
         m=MEDCouplingCMesh();
         m.setCoords(arr,arr,arr)
@@ -6263,24 +6288,23 @@ class MEDLoaderTest3(unittest.TestCase):
         f1ts=MEDFileField1TS()
         pfl=DataArrayInt([8,9,10,11,12,13,14,15]) ; pfl.setName("pfl")
         f1ts.setFieldProfile(f,mm,0,pfl) # f lying on 8 nodes of cell #1
+        f1ts_2=f1ts.deepCopy()
+        f1ts_2.setTime(3,4,5.)
+        f1ts_2.getUndergroundDataArray()[:]*=4.
         fmts=MEDFileFieldMultiTS()
         fmts.pushBackTimeStep(f1ts)
+        fmts.pushBackTimeStep(f1ts_2)
         fs=MEDFileFields()
         fs.pushField(fmts)
         fs2=fs.linearToQuadratic(mms,mmsq)
+        mms.write(fname,2) ; fs.write(fname,0)
         #
-        pflExpected=DataArrayInt([8,9,10,11,12,13,14,15,29,30,31,32,33,34,35,36,37,38,39,40]) ; pflExpected.setName("pfl_NODE")
-        f1tsToTest=fs2[0][0]
-        exp1=DataArrayDouble([0,1,2,3,4,5,6,7,0.5,1,2.5,2,4.5,5,6.5,6,3,2,4,5])
-        self.assertTrue(f1tsToTest.getProfile("pfl_NODE").isEqual(pflExpected))
-        self.assertTrue(f1tsToTest.getUndergroundDataArray().isEqual(exp1,1e-12))
-        self.assertEqual(f1tsToTest.getFieldSplitedByType(),[(NORM_ERROR,[(1,(0,20),'pfl_NODE','')])])
-        fToTest=fs2[0][0].field(mmq)
-        self.assertEqual(fToTest.getTime(),[3.,1,2])
-        mTest=MEDCoupling1SGTUMesh(fToTest.getMesh())
-        self.assertTrue(mTest.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19])))
-        self.assertTrue(mTest.getCoords().isEqual(DataArrayDouble([(2,0,0),(3,0,0),(2,1,0),(3,1,0),(2,0,1),(3,0,1),(2,1,1),(3,1,1),(2.5,0,0),(2,0.5,0),(2.5,1,0),(3,0.5,0),(2.5,0,1),(2,0.5,1),(2.5,1,1),(3,0.5,1),(3,0,0.5),(2,0,0.5),(2,1,0.5),(3,1,0.5)],20,3),1e-12))
-        self.assertTrue(fToTest.getArray().isEqual(exp1,1e-12))
+        self.myTester2(fs2,mmq)
+        # Read/write
+        mms=MEDFileMeshes(fname) ; fs=MEDFileFields(fname)
+        mmq=mms[0].linearToQuadratic(0) ; mmqs=MEDFileMeshes() ; mmqs.pushMesh(mmq)
+        fs2=fs.linearToQuadratic(mms,mmqs)
+        self.myTester2(fs2,mmq)
         ## More vicious add single node 16
         mm=MEDFileUMesh()
         mm[0]=m3
@@ -6310,6 +6334,33 @@ class MEDLoaderTest3(unittest.TestCase):
         assert(f1tsToTest.getProfile("pfl_NODE").isEqual(pflExpected))
         assert(f1tsToTest.getUndergroundDataArray().isEqual(exp1,1e-12))
         assert(f1tsToTest.getFieldSplitedByType()==[(40,[(1,(0,21),'pfl_NODE','')])])
+        pass
+
+    def myTester2(self,fs2,mmq):
+        pflExpected=DataArrayInt([8,9,10,11,12,13,14,15,29,30,31,32,33,34,35,36,37,38,39,40]) ; pflExpected.setName("pfl_NODE")
+        f1tsToTest=fs2[0][0]
+        exp1=DataArrayDouble([0,1,2,3,4,5,6,7,0.5,1,2.5,2,4.5,5,6.5,6,3,2,4,5])
+        self.assertTrue(f1tsToTest.getProfile("pfl_NODE").isEqual(pflExpected))
+        self.assertTrue(f1tsToTest.getUndergroundDataArray().isEqual(exp1,1e-12))
+        self.assertEqual(f1tsToTest.getFieldSplitedByType(),[(NORM_ERROR,[(1,(0,20),'pfl_NODE','')])])
+        fToTest=fs2[0][0].field(mmq)
+        self.assertEqual(fToTest.getTime(),[3.,1,2])
+        mTest=MEDCoupling1SGTUMesh(fToTest.getMesh())
+        self.assertTrue(mTest.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19])))
+        self.assertTrue(mTest.getCoords().isEqual(DataArrayDouble([(2,0,0),(3,0,0),(2,1,0),(3,1,0),(2,0,1),(3,0,1),(2,1,1),(3,1,1),(2.5,0,0),(2,0.5,0),(2.5,1,0),(3,0.5,0),(2.5,0,1),(2,0.5,1),(2.5,1,1),(3,0.5,1),(3,0,0.5),(2,0,0.5),(2,1,0.5),(3,1,0.5)],20,3),1e-12))
+        self.assertTrue(fToTest.getArray().isEqual(exp1,1e-12))
+        # 2nd Time step
+        f1tsToTest=fs2[0][1]
+        self.assertTrue(f1tsToTest.getProfile("pfl_NODE").isEqual(pflExpected))
+        self.assertTrue(f1tsToTest.getUndergroundDataArray().isEqual(4*exp1,1e-12))
+        self.assertEqual(f1tsToTest.getFieldSplitedByType(),[(NORM_ERROR,[(1,(0,20),'pfl_NODE','')])])
+        fToTest=fs2[0][1].field(mmq)
+        self.assertEqual(fToTest.getTime(),[5.,3,4])
+        mTest=MEDCoupling1SGTUMesh(fToTest.getMesh())
+        self.assertTrue(mTest.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19])))
+        self.assertTrue(mTest.getCoords().isEqual(DataArrayDouble([(2,0,0),(3,0,0),(2,1,0),(3,1,0),(2,0,1),(3,0,1),(2,1,1),(3,1,1),(2.5,0,0),(2,0.5,0),(2.5,1,0),(3,0.5,0),(2.5,0,1),(2,0.5,1),(2.5,1,1),(3,0.5,1),(3,0,0.5),(2,0,0.5),(2,1,0.5),(3,1,0.5)],20,3),1e-12))
+        self.assertTrue(fToTest.getArray().isEqual(4*exp1,1e-12))
+        
         pass
     
     pass
