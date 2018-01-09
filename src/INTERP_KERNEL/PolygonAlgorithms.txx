@@ -123,7 +123,7 @@ namespace INTERP_KERNEL
                 return true;
               }
             else if( same_side > _epsilon ) _terminus= !_is_in_intersection;//reflexion
-            else //separation of overlaping edges
+            else //separation of overlapping edges
               {
                 if(_Inter.empty() ) _terminus=true;
                 else if(!_is_in_intersection)
@@ -147,7 +147,7 @@ namespace INTERP_KERNEL
                 return true;
               }
             else if(fabs(in_between)<=_epsilon && dotprod<DIM>(Vdoublebis,Vdoublebis) > _epsilon)
-              //ie _vdouble=0, separation of overlaping edges at a double point
+              //ie _vdouble=0, separation of overlapping edges at a double point
               {
                 //crossprod<DIM>(A,E,B,_vdouble); 
                 if(dotprod<DIM>(_vdouble,Vdoublebis) >=_epsilon )//crossing
@@ -405,7 +405,7 @@ namespace INTERP_KERNEL
 
     std::multimap< int, std::pair< int,bool> >::iterator mi;
 
-    /********** Initalisation of events with P1 and P2 vertices ************/
+    /********** Initialisation of events with P1 and P2 vertices ************/
     for(i_loc=0;i_loc<N1;i_loc++)
       mmap_events.insert(std::make_pair(&P_1[DIM*i_loc],i_loc));
     for(i_loc=0;i_loc<N2;i_loc++)

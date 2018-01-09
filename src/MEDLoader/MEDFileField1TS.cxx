@@ -700,7 +700,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::writeLL(med_idt fid, const MEDFileWritabl
   if(_field_per_mesh.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::writeLL : empty field !");
   if(_field_per_mesh.size()>1)
-    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::writeLL : In MED3.0 mode in writting mode only ONE underlying mesh supported !");
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::writeLL : In MED3.0 mode in writing mode only ONE underlying mesh supported !");
   _field_per_mesh[0]->copyOptionsFrom(opts);
   _field_per_mesh[0]->writeLL(fid,nasc);
 }

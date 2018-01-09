@@ -802,7 +802,7 @@ MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMes
 
 /*!
  * Assign the info on components for all DataArrayDouble instance recursively stored in \a this.
- * The first dim of input \a compNames is the field id in the same order than those implicitely specified in \a fieldNames parameter of MEDCouplingAMRAttribute::New.
+ * The first dim of input \a compNames is the field id in the same order than those implicitly specified in \a fieldNames parameter of MEDCouplingAMRAttribute::New.
  * The second dim of \a compNames represent the component names component per component corresponding to the field. The size of this 2nd dimension has
  * to perfectly fit with those specified in MEDCouplingAMRAttribute::New.
  */

@@ -5938,7 +5938,7 @@ DataArrayInt *MEDCouplingUMesh::getRenumArrForMEDFileFrmt() const
 }
 
 /*!
- * This method is similar to method MEDCouplingUMesh::rearrange2ConsecutiveCellTypes except that the type order is specfied by [ \a orderBg , \a orderEnd ) (as MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder method) and that this method is \b const and performs \b NO permutation in \a this.
+ * This method is similar to method MEDCouplingUMesh::rearrange2ConsecutiveCellTypes except that the type order is specified by [ \a orderBg , \a orderEnd ) (as MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder method) and that this method is \b const and performs \b NO permutation in \a this.
  * This method returns an array of size getNumberOfCells() that gives a renumber array old2New that can be used as input of MEDCouplingMesh::renumberCells.
  * The mesh after this call to MEDCouplingMesh::renumberCells will pass the test of MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder with the same inputs.
  * The returned array minimizes the permutations that is to say the order of cells inside same geometric type remains the same.
@@ -6898,7 +6898,7 @@ void MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(const std::vector<ME
 
 
 /*!
- * This static operates only for coords in 3D. The polygon is specfied by its connectivity nodes in [ \a begin , \a end ).
+ * This static operates only for coords in 3D. The polygon is specified by its connectivity nodes in [ \a begin , \a end ).
  */
 bool MEDCouplingUMesh::IsPolygonWellOriented(bool isQuadratic, const double *vec, const int *begin, const int *end, const double *coords)
 {
@@ -6942,7 +6942,7 @@ bool MEDCouplingUMesh::IsPolygonWellOriented(bool isQuadratic, const double *vec
 }
 
 /*!
- * The polyhedron is specfied by its connectivity nodes in [ \a begin , \a end ).
+ * The polyhedron is specified by its connectivity nodes in [ \a begin , \a end ).
  */
 bool MEDCouplingUMesh::IsPolyhedronWellOriented(const int *begin, const int *end, const double *coords)
 {

@@ -127,7 +127,7 @@ namespace INTERP_KERNEL
           }
       }
   
-    // -- (2) check that each double product statisfies Grandy, [47], else set to 0
+    // -- (2) check that each double product satisfies Grandy, [47], else set to 0
     for(TriSegment seg = PQ ; seg <= RP ; seg = TriSegment(seg + 1))
       {
         for(DoubleProduct dp = C_YZ ; dp <=  C_10 ; dp = DoubleProduct(dp + 1))

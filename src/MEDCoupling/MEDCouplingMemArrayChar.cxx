@@ -845,7 +845,7 @@ DataArrayAsciiChar::DataArrayAsciiChar(const std::string& st)
 {
   std::size_t lgth=st.length();
   if(lgth==0)
-    throw INTERP_KERNEL::Exception("DataArrayAsciiChar contructor with string ! Size of input string is null !");
+    throw INTERP_KERNEL::Exception("DataArrayAsciiChar constructor with string ! Size of input string is null !");
   alloc(1,lgth);
   std::copy(st.begin(),st.begin()+lgth,getPointer());
 }
@@ -882,12 +882,12 @@ DataArrayAsciiChar *DataArrayAsciiChar::New(const std::vector<std::string>& vst,
 DataArrayAsciiChar::DataArrayAsciiChar(const std::vector<std::string>& vst, char defaultChar)
 {
   if(vst.empty())
-    throw INTERP_KERNEL::Exception("DataArrayAsciiChar contructor with vector of strings ! Empty array !");
+    throw INTERP_KERNEL::Exception("DataArrayAsciiChar constructor with vector of strings ! Empty array !");
   std::size_t nbCompo=0;
   for(std::vector<std::string>::const_iterator it=vst.begin();it!=vst.end();it++)
     nbCompo=std::max(nbCompo,(*it).length());
   if(nbCompo==0)
-    throw INTERP_KERNEL::Exception("DataArrayAsciiChar contructor with vector of strings ! All strings in not empty vector are empty !");
+    throw INTERP_KERNEL::Exception("DataArrayAsciiChar constructor with vector of strings ! All strings in not empty vector are empty !");
   int nbTuples=(int)vst.size();
   alloc(nbTuples,(int)nbCompo);
   char *pt=getPointer();

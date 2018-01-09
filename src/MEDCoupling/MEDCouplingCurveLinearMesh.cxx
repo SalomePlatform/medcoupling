@@ -375,7 +375,7 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::getMeasureField(bool isAbs) 
 }
 
 /*!
- * \param [in,out] f field feeded with good values.
+ * \param [in,out] f field fed with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCouplingFieldDouble *field) const
@@ -401,7 +401,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCoupling
 }
 
 /*!
- * \param [in,out] f field feeded with good values.
+ * \param [in,out] f field fed with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCouplingFieldDouble *field) const
@@ -427,7 +427,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCoupling
 }
 
 /*!
- * \param [in,out] f field feeded with good values.
+ * \param [in,out] f field fed with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3(bool isAbs, MEDCouplingFieldDouble *field) const
@@ -733,7 +733,7 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::computeIsoBarycenterOfNodesPerCell(
 }
 
 /*!
- * \param [in,out] bary Barycenter array feeded with good values.
+ * \param [in,out] bary Barycenter array fed with good values.
  * \sa MEDCouplingCurveLinearMesh::computeCellCenterOfMass
  */
 void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim3(DataArrayDouble *bary) const
@@ -759,7 +759,7 @@ void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim3(DataArrayDouble *
 }
 
 /*!
- * \param [in,out] bary Barycenter array feeded with good values.
+ * \param [in,out] bary Barycenter array fed with good values.
  * \sa MEDCouplingCurveLinearMesh::computeCellCenterOfMass
  */
 void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim2(DataArrayDouble *bary) const
@@ -782,7 +782,7 @@ void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim2(DataArrayDouble *
 }
 
 /*!
- * \param [in,out] bary Barycenter array feeded with good values.
+ * \param [in,out] bary Barycenter array fed with good values.
  * \sa MEDCouplingCurveLinearMesh::computeCellCenterOfMass
  */
 void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim1(DataArrayDouble *bary) const

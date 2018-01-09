@@ -146,7 +146,7 @@ namespace INTERP_KERNEL
   class INTERPKERNEL_EXPORT EdgeIntersector
   {
   protected:
-    //! All non symetric methods are relative to 'e1'.
+    //! All non symmetric methods are relative to 'e1'.
     EdgeIntersector(const Edge& e1, const Edge& e2):_e1(e1),_e2(e2) { }
   public:
     virtual ~EdgeIntersector() { }

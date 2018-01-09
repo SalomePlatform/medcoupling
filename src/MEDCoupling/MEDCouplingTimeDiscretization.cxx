@@ -710,7 +710,7 @@ MEDCouplingTimeDiscretizationInt *MEDCouplingTimeDiscretizationInt::New(TypeOfTi
     case MEDCouplingTimeDiscretizationInt::DISCRETIZATION:
       return new MEDCouplingTimeDiscretizationInt;
     default:
-      throw INTERP_KERNEL::Exception("Time discretization not implemented yet for intergers !");
+      throw INTERP_KERNEL::Exception("Time discretization not implemented yet for integers !");
   }
 }
 
@@ -771,7 +771,7 @@ MEDCouplingTimeDiscretizationFloat *MEDCouplingTimeDiscretizationFloat::New(Type
     case MEDCouplingTimeDiscretizationFloat::DISCRETIZATION:
       return new MEDCouplingTimeDiscretizationFloat;
     default:
-      throw INTERP_KERNEL::Exception("Time discretization not implemented yet for intergers !");
+      throw INTERP_KERNEL::Exception("Time discretization not implemented yet for integers !");
   }
 }
 

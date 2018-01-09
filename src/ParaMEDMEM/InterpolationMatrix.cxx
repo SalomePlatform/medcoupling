@@ -81,7 +81,7 @@ namespace MEDCoupling
      \brief Adds the contribution of a distant subdomain to the*
      interpolation matrix.
      The method adds contribution to the interpolation matrix.
-     For each row of the matrix, elements are addded as
+     For each row of the matrix, elements are added as
      a (column, coeff) pair in the _coeffs array. This column number refers
      to an element on the target side via the _col_offsets array.
      It is made of a series of (iproc, ielem) pairs.

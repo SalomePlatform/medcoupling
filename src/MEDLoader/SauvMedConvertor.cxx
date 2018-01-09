@@ -2741,7 +2741,7 @@ void IntermediateMED::orientElements2D()
       //       if (( x = nodeCoords( elemIt->_nodes[ iNode ])[ 0 ]) < minX )
       //         minX = x, iLeft = iNode;
 
-      //     // indeces of the nodes neighboring the most left one
+      //     // indices of the nodes neighboring the most left one
       //     int iPrev = ( iLeft - 1 < 0 ) ? nbNodes - 1 : iLeft - 1;
       //     int iNext = ( iLeft + 1 == nbNodes ) ? 0 : iLeft + 1;
       //     // find components of prev-left and left-next vectors

@@ -364,7 +364,7 @@ std::map< std::string,std::vector<std::string> > MEDPARTITIONER::DevectorizeToMa
       iss >> sizeVector;
       std::string keymap=enTete.substr(foundKey+7,foundSizeVector-foundKey-7);
       for (int ii=1; ii<=sizeVector; ii++)
-        res[keymap].push_back(vs[ii]); //add unconditionnaly,so merge duplicates in second vector
+        res[keymap].push_back(vs[ii]); //add unconditionally,so merge duplicates in second vector
     }
   return res;
 }

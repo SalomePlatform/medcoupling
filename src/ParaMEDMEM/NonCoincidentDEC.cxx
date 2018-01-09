@@ -217,7 +217,7 @@ namespace MEDCoupling
           {
             elem_numbers = const_cast<fvm_lnum_t*> (support->getNumber(types[itype]));
            
-            //creating work arrays to store list of elems for partial suports
+            //creating work arrays to store list of elems for partial supports
             if (itype>0)
               {
                 fvm_lnum_t* temp = new int[nbelems];

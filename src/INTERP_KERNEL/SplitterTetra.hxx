@@ -88,7 +88,7 @@ namespace INTERP_KERNEL
     };
   
   // Each sub-node is the barycenter of 4 other nodes.
-  // For the faces, these are on the orignal mesh.
+  // For the faces, these are on the original mesh.
   // For the barycenter, the four face sub-nodes are used.
   static const int GENERAL_24_SUB_NODES[28] = 
     {

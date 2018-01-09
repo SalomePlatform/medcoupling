@@ -2378,7 +2378,7 @@ void CppSnippetFieldDoubleBuild1()
   fieldOnCells->setMesh(mesh);
   mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnCells
   MEDCoupling::DataArrayDouble *array=MEDCoupling::DataArrayDouble::New();
-  array->alloc(fieldOnCells->getMesh()->getNumberOfCells(),9);//Implicitely fieldOnCells will be a 9 components field.
+  array->alloc(fieldOnCells->getMesh()->getNumberOfCells(),9);//Implicitly fieldOnCells will be a 9 components field.
   array->fillWithValue(7.);
   fieldOnCells->setArray(array);
   array->decrRef();
@@ -2430,7 +2430,7 @@ void CppSnippetFieldDoubleBuild2()
   fieldOnNodes->setMesh(mesh);
   mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnNodes
   MEDCoupling::DataArrayDouble *array=MEDCoupling::DataArrayDouble::New();
-  array->alloc(fieldOnNodes->getMesh()->getNumberOfNodes(),1);//Implicitely fieldOnNodes will be a 1 component field.
+  array->alloc(fieldOnNodes->getMesh()->getNumberOfNodes(),1);//Implicitly fieldOnNodes will be a 1 component field.
   array->fillWithValue(8.);
   fieldOnNodes->setArray(array);
   array->decrRef();
@@ -2457,7 +2457,7 @@ void CppSnippetFieldDoubleBuild3()
   fieldOnCells->setMesh(mesh);
   mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnCells
   MEDCoupling::DataArrayDouble *array=MEDCoupling::DataArrayDouble::New();
-  array->alloc(fieldOnCells->getMesh()->getNumberOfCells(),2);//Implicitely fieldOnCells will be a 2 components field.
+  array->alloc(fieldOnCells->getMesh()->getNumberOfCells(),2);//Implicitly fieldOnCells will be a 2 components field.
   array->fillWithValue(7.);
   fieldOnCells->setArray(array);
   array->decrRef();
@@ -2485,7 +2485,7 @@ void CppSnippetFieldDoubleBuild4()
   fieldOnNodes->setMesh(mesh);
   mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnNodes
   MEDCoupling::DataArrayDouble *array=MEDCoupling::DataArrayDouble::New();
-  array->alloc(fieldOnNodes->getMesh()->getNumberOfNodes(),3);//Implicitely fieldOnNodes will be a 3 components field.
+  array->alloc(fieldOnNodes->getMesh()->getNumberOfNodes(),3);//Implicitly fieldOnNodes will be a 3 components field.
   array->fillWithValue(8.);
   fieldOnNodes->setArray(array);
   array->decrRef();

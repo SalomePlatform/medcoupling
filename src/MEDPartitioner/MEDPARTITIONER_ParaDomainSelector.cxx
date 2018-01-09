@@ -56,7 +56,7 @@ MEDPARTITIONER::ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
   _world_size=1;
   _rank=0;
   if (MyGlobals::_Verbose>10)
-    std::cout << "WARNING : ParaDomainSelector contructor without parallel_mode World_Size=1 by default" << std::endl;
+    std::cout << "WARNING : ParaDomainSelector constructor without parallel_mode World_Size=1 by default" << std::endl;
 #endif
   MyGlobals::_World_Size=_world_size;
   MyGlobals::_Rank=_rank;

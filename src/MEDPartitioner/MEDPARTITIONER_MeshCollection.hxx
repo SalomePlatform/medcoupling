@@ -222,7 +222,7 @@ namespace MEDPARTITIONER
     std::map<std::string, int> _family_info;
     std::map<std::string, std::vector<std::string> > _group_info;
   
-    //list of groups that are not to be splitted
+    //list of groups that are not to be split
     std::vector<std::string> _indivisible_regions;
 
     //name of global mesh

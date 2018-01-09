@@ -1360,7 +1360,7 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTE
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : null input pointer !");
   if(gts.size()!=1 || pfls.size()!=1)
-    throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : lengthes of gts and pfls must be equal to one !");
+    throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : lengths of gts and pfls must be equal to one !");
   int mdim(m->getMeshDimension());
   INTERP_KERNEL::NormalizedCellType gt(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(mdim));
   if(gt==gts[0])
@@ -1456,7 +1456,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
 }
 
 /*!
- * \a param [out] isInternal if true the returned pointers are those in main data structure. If false those pointers have been built espacially for that method.
+ * \a param [out] isInternal if true the returned pointers are those in main data structure. If false those pointers have been built especially for that method.
  */
 std::vector< DataArrayDouble * > MEDCMeshMultiLev::buildVTUArrays(bool& isInternal) const
 {
@@ -1502,7 +1502,7 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearM
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : null input pointer !");
   if(gts.size()!=1 || pfls.size()!=1)
-    throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : lengthes of gts and pfls must be equal to one !");
+    throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : lengths of gts and pfls must be equal to one !");
   INTERP_KERNEL::NormalizedCellType gt(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(m->getMeshDimension()));
   if(gt==gts[0])
     {
@@ -2272,7 +2272,7 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileField1TSStruct::getGeoType
 
 /*!
  * Returns true if presence in \a this of discretization ON_CELLS, ON_GAUSS_PT, ON_GAUSS_NE.
- * If true is returned the pos of the easiest is returned. The easiest is the first element in \a this having the less splitted subparts.
+ * If true is returned the pos of the easiest is returned. The easiest is the first element in \a this having the less split subparts.
  */
 bool MEDFileField1TSStruct::presenceOfCellDiscr(int& pos) const
 {

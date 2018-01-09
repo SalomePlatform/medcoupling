@@ -415,7 +415,7 @@ int OverlapMapping::serializeMatrixStep1ST(const int *nbOfElemsSrc, const int *r
  * This is the last step after all2Alls for matrix exchange.
  * _the_matrix_st is the final matrix : 
  *      - The first entry is srcId in current proc.
- *      - The second is the pseudo id of source proc (correspondance with true id is in attribute _the_matrix_st_source_proc_id and _the_matrix_st_source_ids)
+ *      - The second is the pseudo id of source proc (correspondence with true id is in attribute _the_matrix_st_source_proc_id and _the_matrix_st_source_ids)
  *      - the third is the srcId in the pseudo source proc
  */
 void OverlapMapping::unserializationST(int nbOfTrgElems,

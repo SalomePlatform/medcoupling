@@ -671,9 +671,9 @@ void DataArray::CheckClosingParInRange(int ref, int value, const std::string& ms
  *
  * The input \a sliceId should be an id in [0, \a nbOfSlices) that specifies the slice of work.
  *
- * \param [in] start - the start of the input slice of the whole work to perform splitted into slices.
- * \param [in] stop - the stop of the input slice of the whole work to perform splitted into slices.
- * \param [in] step - the step (that can be <0) of the input slice of the whole work to perform splitted into slices.
+ * \param [in] start - the start of the input slice of the whole work to perform split into slices.
+ * \param [in] stop - the stop of the input slice of the whole work to perform split into slices.
+ * \param [in] step - the step (that can be <0) of the input slice of the whole work to perform split into slices.
  * \param [in] sliceId - the slice id considered
  * \param [in] nbOfSlices - the number of slices (typically the number of cores on which the work is expected to be sliced)
  * \param [out] startSlice - the start of the slice considered
@@ -1523,7 +1523,7 @@ void DataArrayDouble::recenterForMaxPrecision(double eps)
 
 /*!
  * Returns the maximal value and all its locations within \a this one-dimensional array.
- *  \param [out] tupleIds - a new instance of DataArrayInt containg indices of
+ *  \param [out] tupleIds - a new instance of DataArrayInt containing indices of
  *               tuples holding the maximal value. The caller is to delete it using
  *               decrRef() as it is no more needed.
  *  \return double - the maximal value among all values of \a this array.
@@ -1541,7 +1541,7 @@ double DataArrayDouble::getMaxValue2(DataArrayInt*& tupleIds) const
 
 /*!
  * Returns the minimal value and all its locations within \a this one-dimensional array.
- *  \param [out] tupleIds - a new instance of DataArrayInt containg indices of
+ *  \param [out] tupleIds - a new instance of DataArrayInt containing indices of
  *               tuples holding the minimal value. The caller is to delete it using
  *               decrRef() as it is no more needed.
  *  \return double - the minimal value among all values of \a this array.
@@ -3043,7 +3043,7 @@ DataArrayDoubleIterator *DataArrayDouble::iterator()
 }
 
 /*!
- * Returns a new DataArrayInt contating indices of tuples of \a this one-dimensional
+ * Returns a new DataArrayInt containing indices of tuples of \a this one-dimensional
  * array whose values are within a given range. Textual data is not copied.
  *  \param [in] vmin - a lowest acceptable value (included).
  *  \param [in] vmax - a greatest acceptable value (included).
@@ -3074,7 +3074,7 @@ DataArrayInt *DataArrayDouble::findIdsInRange(double vmin, double vmax) const
 }
 
 /*!
- * Returns a new DataArrayInt contating indices of tuples of \a this one-dimensional
+ * Returns a new DataArrayInt containing indices of tuples of \a this one-dimensional
  * array whose values are not within a given range. Textual data is not copied.
  *  \param [in] vmin - a lowest not acceptable value (excluded).
  *  \param [in] vmax - a greatest not acceptable value (excluded).

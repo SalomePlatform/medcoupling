@@ -430,7 +430,7 @@ bool IsColinearOfACellOf(const std::vector< std::vector<int> >& intersectEdge1, 
  * (Only present for its coords in case of 'subDiv' shares some nodes of 'm1')
  * \param m2 is expected to be a mesh of meshDimension equal to 1 and spaceDim equal to 2. No check of that is performed by this method.
  * \param addCoo input parameter with additional nodes linked to intersection of the 2 meshes.
- * \param[out] intersectEdge the same content as subDiv, but correclty oriented.
+ * \param[out] intersectEdge the same content as subDiv, but correctly oriented.
  */
 void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
                                            const std::vector<double>& addCoo,
@@ -1206,7 +1206,7 @@ void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const M
           for(std::size_t iii=0;iii<szz;iii++,itt++)
             { (*itt)->incrRef(); nodesSafe[iii]=*itt; }
           // end of protection
-          // Performs egde cutting:
+          // Performs edge cutting:
           pol1->splitAbs(*pol2,map1,map2,offset1,offset2,candidates2,intersectEdge1[i],i,colinear2,subDiv2,addCoo,mergedNodes);
           delete pol2;
           delete pol1;
@@ -1813,7 +1813,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
  * \b WARNING this method lead to have a non geometric type sorted mesh (for MED file users) !
  * This method performs a conformization of \b this. So if a edge in \a this can be split into entire edges in \a this this method
  * will suppress such edges to use sub edges in \a this. So this method does not add nodes in \a this if merged edges are both linear (INTERP_KERNEL::NORM_SEG2).
- * In the other cases new nodes can be created. If any are created, they will be appended at the end of the coordinates object before the invokation of this method.
+ * In the other cases new nodes can be created. If any are created, they will be appended at the end of the coordinates object before the invocation of this method.
  *
  * Whatever the returned value, this method does not alter the order of cells in \a this neither the orientation of cells.
  * The modified cells, if any, are systematically declared as NORM_POLYGON or NORM_QPOLYG depending on the initial quadraticness of geometric type.
@@ -1952,7 +1952,7 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
  * If yes, the cell is "repaired" to minimize at most its number of edges. So this method do not change the overall shape of cells in \a this (with eps precision).
  * This method do not take care of shared edges between cells, so this method can lead to a non conform mesh (\a this). If a conform mesh is required you're expected
  * to invoke MEDCouplingUMesh::mergeNodes and MEDCouplingUMesh::conformize2D right after this call.
- * This method works on any 2D geometric types of cell (even static one). If a cell is touched its type becomes dynamic automaticaly. For 2D "repaired" quadratic cells
+ * This method works on any 2D geometric types of cell (even static one). If a cell is touched its type becomes dynamic automatically. For 2D "repaired" quadratic cells
  * new nodes for center of merged edges is are systematically created and appended at the end of the previously existing nodes.
  *
  * If the returned array is empty it means that nothing has changed in \a this (as if it were a const method). If the array is not empty the connectivity of \a this is modified
@@ -2264,7 +2264,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
           {
             if (packsIds[jj] == -1)
               // The below should never happen - if a face is used several times, with a different layout of the nodes
-              // it means that is is already conform, so it is *not* hit by the algorithm. The algorithm only hits
+              // it means that it is already conform, so it is *not* hit by the algorithm. The algorithm only hits
               // faces which are actually used only once, by a single cell. This is different for edges below.
               throw INTERP_KERNEL::Exception("MEDCouplingUMesh::conformize3D: Could not find face in connectivity! Internal error.");
             else

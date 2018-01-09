@@ -63,7 +63,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
     parallel_mode = (!meshes[idomain]);
 
   if (MyGlobals::_Is0verbose>20 && !parallel_mode)
-    std::cout << "WARNING : ParallelTopology contructor without parallel_mode" << std::endl;
+    std::cout << "WARNING : ParallelTopology constructor without parallel_mode" << std::endl;
   for (int idomain=0; idomain<_nb_domain; idomain++)
     {
       if ( !meshes[idomain] ) continue;

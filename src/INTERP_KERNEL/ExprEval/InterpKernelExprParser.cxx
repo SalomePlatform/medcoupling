@@ -917,7 +917,7 @@ void ExprParser::checkBracketsParity() const
           if(curLevel==0)
             {
               std::ostringstream errMsg;
-              char MSGTYP1[]="Error in brackets : closing brackets ')' before openning '('";
+              char MSGTYP1[]="Error in brackets : closing brackets ')' before opening '('";
               errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1;
               LocateError(errMsg,_expr,(int)std::distance(_expr.begin(),iter));
               throw INTERP_KERNEL::Exception(errMsg.str().c_str());

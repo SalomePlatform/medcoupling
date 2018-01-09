@@ -141,7 +141,7 @@ bool MEDFileUMeshPerType::isExisting(med_idt fid, const char *mName, int dt, int
           nbOfElt=tmp;
           whichEntity=entities[i];
           if(i>0)
-            std::cerr << "WARNING : MEDFile has been detected to be no compilant with MED 3 : Please change entity in MEDFile for geotype " <<  geoElt << std::endl;
+            std::cerr << "WARNING : MEDFile has been detected to be noncompliant with MED 3 : Please change entity in MEDFile for geotype " <<  geoElt << std::endl;
         }
     }
   return nbOfElt>0;

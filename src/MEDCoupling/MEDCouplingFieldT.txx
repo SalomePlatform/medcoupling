@@ -718,7 +718,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * Contrary to MEDCouplingPointSet class the returned arrays are \b not the responsabilities of the caller.
+   * Contrary to MEDCouplingPointSet class the returned arrays are \b not the responsibilities of the caller.
    * The values returned must be consulted only in readonly mode.
    */
   template<class T>

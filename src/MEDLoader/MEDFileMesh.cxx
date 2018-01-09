@@ -5005,7 +5005,7 @@ MCAuto<MEDFileUMeshSplitL1>& MEDFileUMesh::checkAndGiveEntryInSplitL1(int meshDi
  *
  * \param [in] ms - List of unstructured meshes lying on the same coordinates and having different mesh dimesnion.
  * \param [in] renum - the parameter (set to false by default) that tells the beheviour if there is a mesh on \a ms that is not geo type sorted.
- *                     If false, an exception ois thrown. If true the mesh is reordered automatically. It is highly recommanded to let this parameter to false.
+ *                     If false, an exception is thrown. If true the mesh is reordered automatically. It is highly recommended to let this parameter to false.
  *
  * \throw If \a there is a null pointer in \a ms.
  * \sa MEDFileUMesh::setMeshAtLevel

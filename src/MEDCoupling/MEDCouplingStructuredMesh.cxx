@@ -1887,7 +1887,7 @@ std::vector<int> MEDCouplingStructuredMesh::FindTranslationFrom(const std::vecto
 
 /*!
  * This method builds the explicit entity array from the structure in \a st and the range in \a partCompactFormat.
- * If the range contains invalid values regarding sructure an exception will be thrown.
+ * If the range contains invalid values regarding structure an exception will be thrown.
  *
  * \return DataArrayInt * - a new object.
  * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt, SwitchOnIdsFrom, ExtractFieldOfBoolFrom, ExtractFieldOfDoubleFrom, MultiplyPartOf

@@ -102,7 +102,7 @@ twice with these nodes and with varying last parameter \b allNodes as input.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_2
 <br>If the last parameter is \c true
 \ref MEDCoupling::MEDCouplingUMesh::buildFacePartOfMySelfNode "buildFacePartOfMySelfNode()" looks
-for segements whose all nodes are given to it, hence it finds segments bounding the cell #0 only.
+for segments whose all nodes are given to it, hence it finds segments bounding the cell #0 only.
 <br>If the last parameter is \c false
 \ref MEDCoupling::MEDCouplingUMesh::buildFacePartOfMySelfNode "buildFacePartOfMySelfNode()" looks
 for any segment whose nodes are given to it, hence it adds more segments to \b mesh2.
@@ -549,7 +549,7 @@ The contents of the result arrays \b desc and \b descIndx mean the following.
   - #4 (== \b desc[ \b descIndx[ 0 ] + 3 ]).
   <br>Ids are positive since order of nodes in the corresponding cells of \b mesh and \b mesh2
   are same. For example nodes of SEG2 #3 are [4,1] and nodes of QUAD4 #0 are [0,3,\b 4,\b 1].
-- The cell #1 of \b mesh (TRI3) is bound by 3 (== \b descIndx[2] - \b descIndx[1]) segements of
+- The cell #1 of \b mesh (TRI3) is bound by 3 (== \b descIndx[2] - \b descIndx[1]) segments of
   \b mesh2 whose ids in FORTRAN mode are:
   - #-3 (== \b desc[ \b descIndx[ 1 ]]),
   - #5 (== \b desc[ \b descIndx[ 1 ] + 1 ]) and
@@ -582,7 +582,7 @@ The contents of the result arrays \b desc and \b descIndx mean the following.
   - #1 (== \b desc[ \b descIndx[ 0 ] + 1 ]),
   - #2 (== \b desc[ \b descIndx[ 0 ] + 2 ]) and
   - #3 (== \b desc[ \b descIndx[ 0 ] + 3 ]).
-- The cell #1 of \b mesh (TRI3) is bound by 3 (== \b descIndx[2] - \b descIndx[1]) segements of
+- The cell #1 of \b mesh (TRI3) is bound by 3 (== \b descIndx[2] - \b descIndx[1]) segments of
   \b mesh2 whose ids are:
   - #2 (== \b desc[ \b descIndx[ 1 ]]),
   - #4 (== \b desc[ \b descIndx[ 1 ] + 1 ]) and

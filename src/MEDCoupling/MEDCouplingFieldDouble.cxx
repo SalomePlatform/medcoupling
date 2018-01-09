@@ -381,7 +381,7 @@ bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If \a check == \c true and \a old2NewBg contains equal ids.
  *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
- *  \throw If values at merged nodes deffer more than \a eps.
+ *  \throw If values at merged nodes differ more than \a eps.
  * 
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_renumberNodes "Here is a C++ example".<br>
@@ -421,7 +421,7 @@ void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg, double eps)
  *         the values differ more than \a eps, an exception is thrown.
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If values at merged nodes deffer more than \a eps.
+ *  \throw If values at merged nodes differ more than \a eps.
  */
 void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps)
 {
@@ -559,7 +559,7 @@ double MEDCouplingFieldDouble::getMaxValue() const
 /*!
  * Returns the maximal value and all its locations within \a this scalar field.
  * Only the first of available data arrays is checked.
- *  \param [out] tupleIds - a new instance of DataArrayInt containg indices of
+ *  \param [out] tupleIds - a new instance of DataArrayInt containing indices of
  *               tuples holding the maximal value. The caller is to delete it using
  *               decrRef() as it is no more needed.
  *  \return double - the maximal value among all values of the first array of \a this filed.
@@ -623,7 +623,7 @@ double MEDCouplingFieldDouble::getMinValue() const
 /*!
  * Returns the minimal value and all its locations within \a this scalar field.
  * Only the first of available data arrays is checked.
- *  \param [out] tupleIds - a new instance of DataArrayInt containg indices of
+ *  \param [out] tupleIds - a new instance of DataArrayInt containing indices of
  *               tuples holding the minimal value. The caller is to delete it using
  *               decrRef() as it is no more needed.
  *  \return double - the minimal value among all values of the first array of \a this filed.
@@ -1587,7 +1587,7 @@ double MEDCouplingFieldDouble::getIJK(int cellId, int nodeIdInCell, int compoId)
  *  \throw If \a other == NULL.
  *  \throw If any of the meshes is not well defined.
  *  \throw If the two meshes do not match.
- *  \throw If field values at merged nodes (if any) deffer more than \a eps.
+ *  \throw If field values at merged nodes (if any) differ more than \a eps.
  *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_changeUnderlyingMesh "Here is a C++ example".<br>
@@ -1635,7 +1635,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
  *  \throw If any of the meshes is not set or is not well defined.
  *  \throw If the two meshes do not match.
  *  \throw If the two fields are not coherent for merge.
- *  \throw If field values at merged nodes (if any) deffer more than \a eps.
+ *  \throw If field values at merged nodes (if any) differ more than \a eps.
  *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_substractInPlaceDM "Here is a C++ example".<br>
@@ -1668,7 +1668,7 @@ void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f,
  *  \throw If the mesh is not well defined.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the data array is not set.
- *  \throw If field values at merged nodes (if any) deffer more than \a epsOnVals.
+ *  \throw If field values at merged nodes (if any) differ more than \a epsOnVals.
  */
 bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals)
 {
@@ -1707,7 +1707,7 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals)
  *  \throw If the mesh is not well defined.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the data array is not set.
- *  \throw If field values at merged nodes (if any) deffer more than \a epsOnVals.
+ *  \throw If field values at merged nodes (if any) differ more than \a epsOnVals.
  */
 bool MEDCouplingFieldDouble::mergeNodesCenter(double eps, double epsOnVals)
 {
@@ -1744,7 +1744,7 @@ bool MEDCouplingFieldDouble::mergeNodesCenter(double eps, double epsOnVals)
  *  \throw If the mesh is not well defined.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the data array is not set.
- *  \throw If field values at merged nodes (if any) deffer more than \a epsOnVals.
+ *  \throw If field values at merged nodes (if any) differ more than \a epsOnVals.
  */
 bool MEDCouplingFieldDouble::zipCoords(double epsOnVals)
 {
@@ -1785,7 +1785,7 @@ bool MEDCouplingFieldDouble::zipCoords(double epsOnVals)
  *  \throw If the mesh is not well defined.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the data array is not set.
- *  \throw If field values at merged cells (if any) deffer more than \a epsOnVals.
+ *  \throw If field values at merged cells (if any) differ more than \a epsOnVals.
  */
 bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals)
 {

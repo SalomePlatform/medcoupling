@@ -718,7 +718,7 @@ namespace MEDCoupling
    * This method reserve nbOfElems elements in memory ( nbOfElems*8 bytes ) \b without impacting the number of tuples in \a this.
    * If \a this has already been allocated, this method checks that \a this has only one component. If not an INTERP_KERNEL::Exception will be thrown.
    * If \a this has not already been allocated, number of components is set to one.
-   * This method allows to reduce number of reallocations on invokation of DataArrayDouble::pushBackSilent and DataArrayDouble::pushBackValsSilent on \a this.
+   * This method allows to reduce number of reallocations on invocation of DataArrayDouble::pushBackSilent and DataArrayDouble::pushBackValsSilent on \a this.
    * 
    * \sa DataArrayDouble::pack, DataArrayDouble::pushBackSilent, DataArrayDouble::pushBackValsSilent
    */
@@ -769,7 +769,7 @@ namespace MEDCoupling
   }
   
   /*!
-   * This method adds at the end of \a this a serie of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
+   * This method adds at the end of \a this a series of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
    * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
    *
    *  \param [in] valsBg - an array of values to push at the end of \c this.

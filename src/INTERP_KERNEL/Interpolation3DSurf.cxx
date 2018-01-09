@@ -42,7 +42,7 @@ namespace INTERP_KERNEL
      - Values: between 0 and 1.
      - Default: 0.5.
      -# doRotat: rotate the coordinate system such that the target cell is in the Oxy plane.
-     - Values: true (necessarilly if Intersection_type=Triangle), false.
+     - Values: true (necessarily if Intersection_type=Triangle), false.
      - Default: true (as default Intersection_type=Triangle)
      -# precision: Level of precision of the computations is precision times the characteristic size of the mesh.
      - Values: positive real number.

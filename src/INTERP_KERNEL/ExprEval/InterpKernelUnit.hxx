@@ -83,7 +83,7 @@ namespace INTERP_KERNEL
 
   /*!
    * This class deals with units.
-   * This class has two main responsabilities :
+   * This class has two main responsibilities :
    *      - interprete units by giving simply their representation in string type.
    *      - performing operations on these units.
    *

@@ -937,7 +937,7 @@ void MEDCouplingBasicsTest4::testCheckCoherencyDeeper1()
   m->checkConsistency();//OK because we are in polyhedron connec
   m->getNodalConnectivity()->setIJ(36,0,14);
   m->checkConsistencyLight();
-  CPPUNIT_ASSERT_THROW(m->checkConsistency(),INTERP_KERNEL::Exception);//Throw beacause now cell 5 is a TETRA4 (14) so mimatch of number index and static type.
+  CPPUNIT_ASSERT_THROW(m->checkConsistency(),INTERP_KERNEL::Exception);//Throw because now cell 5 is a TETRA4 (14) so mimatch of number index and static type.
   m->decrRef();
 }
 

@@ -170,7 +170,7 @@ namespace SauvUtilities
   };
   // ==============================================================================
   /*!
-   * \if developper
+   * \if developer
    * Iterator on set of Cell's of given dimension
    * \endif
    */
@@ -195,7 +195,7 @@ namespace SauvUtilities
 
   // ==============================================================================
   /*!
-   * \if developper
+   * \if developer
    * Container of Node's. Prevents re-allocation at addition of Node's
    * \endif
    */
@@ -226,7 +226,7 @@ namespace SauvUtilities
 
   // ==============================================================================
   /*!
-   * \if developper
+   * \if developer
    * Intermediate structure used to store data read from the Sauve format file.
    * The structure provides functions that transform the stored data to the MED format
    *
