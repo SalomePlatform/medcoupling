@@ -248,6 +248,58 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove(sauvFile)
         pass
 
+    def testSauvReaderOnBigMesh(self):
+        # create a box with 1 million cells
+        mesh_dim = 3
+        nb_segs = [100, 100, 100]
+        box_sizes = [1., 1., 1.]
+        compo_names = ["x", "y", "z"]
+        box_steps = [box_sizes[i]/nb_segs[i] for i in xrange(mesh_dim)]
+        mesh = MEDCouplingCMesh.New("Mesh_box")
+
+        # axes coords
+        axes_arrays = []
+        for i in xrange(mesh_dim):
+          axe_coords = [j*box_steps[i] for j in xrange(nb_segs[i]+1)]
+
+          axe_arr = DataArrayDouble.New(axe_coords)
+          axe_arr.setInfoOnComponent(0,compo_names[i])
+
+          axes_arrays.append(axe_arr)
+
+        mesh.setCoords(*axes_arrays)
+        umesh = mesh.buildUnstructured()
+
+        m=MEDFileUMesh.New()
+        m.setMeshAtLevel(0,umesh)
+
+        # MED file data
+        ms=MEDFileMeshes.New()
+        ms.setMeshAtPos(0,m)
+        meddata=MEDFileData.New()
+        meddata.setMeshes(ms)
+
+        # write to SAUV
+        sauvFile = "box.sauv"
+        sw=SauvWriter();
+        sw.setMEDFileDS(meddata);
+        sw.write(sauvFile);
+
+        # read SAUV
+        sr=SauvReader(sauvFile);
+        d2=sr.loadInMEDFileDS();
+        mm = d2.getMeshes()
+        m = mm.getMeshAtPos(0)
+
+        # check
+        coords = m.getCoords()
+        nb_coords_values = coords.getNbOfElems()
+        nb_coords_values_expected = mesh_dim*((nb_segs[0]+1)*(nb_segs[1]+1)*(nb_segs[2]+1))
+        self.assertEqual(nb_coords_values, nb_coords_values_expected)
+
+        os.remove( sauvFile )
+        pass
+
     @unittest.skipUnless(HasXDR(),"requires XDR")
     def testMissingGroups(self):
         """test for issue 0021749: [CEA 601] Some missing groups in mesh after reading a SAUV file with SauvReader."""

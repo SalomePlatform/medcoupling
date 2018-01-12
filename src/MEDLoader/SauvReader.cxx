@@ -220,7 +220,7 @@ void SauvReader::readRecord7()
 
 int SauvReader::readPileNumber(int& nbNamedObjects, int& nbObjects)
 {
-  // FORMAT(' PILE NUMERO',I4,'NBRE ObjectS NOMMES',I8,'NBRE ObjectS',I8)
+  // FORMAT(' PILE NUMERO',I4,'NBRE OBJETS NOMMES',I8,'NBRE OBJETS',I8)
   int pileNumber;
   if ( !isASCII() )
     {
@@ -233,7 +233,7 @@ int SauvReader::readPileNumber(int& nbNamedObjects, int& nbObjects)
     {
       char* line;
       getNextLine(line);
-      const char *s1 = " PILE NUMERO", *s2 = "NBRE ObjectS NOMMES", *s3 = "NBRE ObjectS";
+      const char *s1 = " PILE NUMERO", *s2 = "NBRE OBJETS NOMMES", *s3 = "NBRE OBJETS";
       if ( ! GIBI_EQUAL( line, s1 ) )
         THROW_IK_EXCEPTION("Could not read the pile number " << lineNb() );
       line           = line + strlen(s1);
