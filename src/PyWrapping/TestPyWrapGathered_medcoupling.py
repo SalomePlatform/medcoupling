@@ -48,6 +48,15 @@ class FileCreator(object):
         pass
         
 class medcouplingTest(unittest.TestCase):
+
+    def test0(self):
+        """ Unconditionnal test : medcoupling "kernel" classes """
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        g=DataArrayDouble(10,2)
+        h=MEDCouplingUMesh("mesh",3)
+        hh=MEDCouplingRemapper()
+        ee=InterpKernelException("ee")
+        pass
     
     @unittest.skipUnless(HasMEDFileExt(),"Requires link to MED file")
     def test1(self):
