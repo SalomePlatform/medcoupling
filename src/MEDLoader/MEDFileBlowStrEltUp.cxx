@@ -467,7 +467,6 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
   if(!pfl.empty())
     {
       const DataArrayInt *pflArr(globs->getProfile(pfl));
-      geoMesh=geoMesh->buildPartOfMySelf(pflArr->begin(),pflArr->end(),true);
       zeThikness=thikness->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
     }
   else
