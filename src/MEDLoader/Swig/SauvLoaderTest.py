@@ -254,13 +254,13 @@ class SauvLoaderTest(unittest.TestCase):
         nb_segs = [100, 100, 100]
         box_sizes = [1., 1., 1.]
         compo_names = ["x", "y", "z"]
-        box_steps = [box_sizes[i]/nb_segs[i] for i in xrange(mesh_dim)]
+        box_steps = [box_sizes[i]/nb_segs[i] for i in range(mesh_dim)]
         mesh = MEDCouplingCMesh.New("Mesh_box")
 
         # axes coords
         axes_arrays = []
-        for i in xrange(mesh_dim):
-          axe_coords = [j*box_steps[i] for j in xrange(nb_segs[i]+1)]
+        for i in range(mesh_dim):
+          axe_coords = [j*box_steps[i] for j in range(nb_segs[i]+1)]
 
           axe_arr = DataArrayDouble.New(axe_coords)
           axe_arr.setInfoOnComponent(0,compo_names[i])

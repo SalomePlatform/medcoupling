@@ -370,7 +370,7 @@ class CaseReader(CaseIO):
             if "TIME\n" in lines:
                 end=lines.index("TIME\n")
                 pass
-            for i in xrange(ind + 1,end):
+            for i in range(ind + 1,end):
                 m=re.match("^([\w]+)[\s]+\per[\s]+([\w]+)[\s]*\:[\s]*[0-9]*[\s]*([\w]+)[\s]+([\S]+)$",lines[i])
                 if m:
                     if m.groups()[0]=="constant":
