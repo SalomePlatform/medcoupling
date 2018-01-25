@@ -374,7 +374,7 @@ void MEDCouplingTimeDiscretization::setSelectedComponents(const MEDCouplingTimeD
       if(arrays1[i]!=0 && arrays2[i]!=0)
         arrays1[i]->setSelectedComponents(arrays2[i],compoIds);
       else if(arrays1[i]!=0 || arrays2[i]!=0)
-        throw INTERP_KERNEL::Exception("TimeDiscretization::setSelectedComponents : some time array in correspondance are not defined symmetrically !");
+        throw INTERP_KERNEL::Exception("TimeDiscretization::setSelectedComponents : some time array in correspondence are not defined symmetrically !");
     }
 }
 

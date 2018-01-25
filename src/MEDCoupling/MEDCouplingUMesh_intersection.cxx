@@ -1252,7 +1252,7 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
  * (newly created) nodes corresponding to the edge intersections.
  * Output params:
  * @param[out] cr, crI connectivity of the resulting mesh
- * @param[out] cNb1, cNb2 correspondance arrays giving for the merged mesh the initial cells IDs in m1 / m2
+ * @param[out] cNb1, cNb2 correspondence arrays giving for the merged mesh the initial cells IDs in m1 / m2
  * TODO: describe input parameters
  */
 void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const int *desc1, const int *descIndx1,

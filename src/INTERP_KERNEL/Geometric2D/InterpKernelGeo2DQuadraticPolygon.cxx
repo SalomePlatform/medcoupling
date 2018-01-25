@@ -267,9 +267,9 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
 }
 
 /*!
- * This method splits 'this' with 'other' into smaller pieces localizable. 'mapThis' is a map that gives the correspondance
+ * This method splits 'this' with 'other' into smaller pieces localizable. 'mapThis' is a map that gives the correspondence
  * between nodes contained in 'this' and node ids in a global mesh.
- * In the same way, 'mapOther' gives the correspondance between nodes contained in 'other' and node ids in a
+ * In the same way, 'mapOther' gives the correspondence between nodes contained in 'other' and node ids in a
  * global mesh from which 'other' is extracted.
  * This method has 1 out parameter : 'edgesThis', After the call of this method, it contains the nodal connectivity (including type)
  * of 'this' into globlal "this mesh".
@@ -1090,7 +1090,7 @@ bool QuadraticPolygon::haveIAChanceToBeCompletedBy(const QuadraticPolygon& pol1S
     }
   if(!found)
     throw Exception("Internal error: polygons incompatible with each others. Should never happen!");
-  //Ok we found correspondance between this and pol1. Searching for right direction to close polygon.
+  //Ok we found correspondence between this and pol1. Searching for right direction to close polygon.
   ElementaryEdge *e=_sub_edges.back();
   if(e->getLoc()==FULL_ON_1)
     {

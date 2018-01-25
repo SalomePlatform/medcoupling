@@ -28,10 +28,10 @@ namespace INTERP_KERNEL
 {
 
   // ----------------------------------------------------------------------------------
-  //  Correspondance tables describing all the variations of formulas. 
+  //  Correspondence tables describing all the variations of formulas. 
   // ----------------------------------------------------------------------------------
 
-  /// \brief Correspondance between facets and double products.
+  /// \brief Correspondence between facets and double products.
   ///
   /// This table encodes Grandy, table IV. Use 3*facet + {0,1,2} as index
   const TransformedTriangle::DoubleProduct TransformedTriangle::DP_FOR_SEG_FACET_INTERSECTION[12] = 
@@ -78,7 +78,7 @@ namespace INTERP_KERNEL
       9, 10, 11  // XYZ
     };
 
-  /// \brief Correspondance edge - corners.
+  /// \brief Correspondence edge - corners.
   ///
   /// Gives the two corners associated with each edge
   /// Use 2*edge + {0, 1} as index
@@ -92,7 +92,7 @@ namespace INTERP_KERNEL
       Z, X  // ZX
     };
 
-  /// \brief Correspondance edge - facets.
+  /// \brief Correspondence edge - facets.
   ///
   /// Gives the two facets shared by and edge. Use 2*facet + {0, 1} as index
   const TransformedTriangle::TetraFacet TransformedTriangle::FACET_FOR_EDGE[12] =
@@ -105,7 +105,7 @@ namespace INTERP_KERNEL
       OZX, XYZ  // ZX
     };
 
-  /// \brief Correspondance corners - edges.
+  /// \brief Correspondence corners - edges.
   ///
   /// Gives edges meeting at a given corner. Use 3*corner + {0,1,2} as index
   const TransformedTriangle::TetraEdge TransformedTriangle::EDGES_FOR_CORNER[12] =

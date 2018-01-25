@@ -52,8 +52,8 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv() {
   MPI_Comm_rank(MPI_COMM_WORLD,&myrank) ;
 
   if ( size < 2 ) {
-      cerr << "test_MPI_Access_ISend_IRecv must be runned with 2 procs" << endl ;
-    //CPPUNIT_FAIL("test_MPI_Access_ISend_IRecv must be runned with 2 procs") ;
+      cerr << "test_MPI_Access_ISend_IRecv must be run with 2 procs" << endl ;
+    //CPPUNIT_FAIL("test_MPI_Access_ISend_IRecv must be run with 2 procs") ;
     return;
   }
 

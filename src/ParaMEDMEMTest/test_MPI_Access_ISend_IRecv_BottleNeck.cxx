@@ -54,7 +54,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_BottleNeck() {
 
   if ( size < 2 ) {
     ostringstream strstream ;
-    strstream << "test_MPI_Access_ISend_IRecv_BottleNeck must be runned with 2 procs"
+    strstream << "test_MPI_Access_ISend_IRecv_BottleNeck must be run with 2 procs"
               << endl ;
     cerr << strstream.str() << endl ;
     //CPPUNIT_FAIL( strstream.str() ) ;

@@ -28,7 +28,7 @@ import sys,re,os,mmap
 
 class CaseWriter(CaseIO):
     """ Converting MED file format in memory to a the Case file format (Ensight).
-    A new file with the same base name and the .case extension is created with its depencies (.geo ...).
+    A new file with the same base name and the .case extension is created with its dependencies (.geo ...).
     """
 
     header="""FORMAT

@@ -991,7 +991,7 @@ int MEDFileAnyTypeField1TSWithoutSDA::getNumberOfComponents() const
 void MEDFileAnyTypeField1TSWithoutSDA::setInfo(const std::vector<std::string>& infos)
 {
   DataArray *arr=getOrCreateAndGetArray();
-  arr->setInfoOnComponents(infos);//will throw an exception if number of components mimatches
+  arr->setInfoOnComponents(infos);//will throw an exception if number of components mismatches
 }
 
 /*!

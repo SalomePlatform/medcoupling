@@ -175,7 +175,7 @@ namespace INTERP_KERNEL
 
   // Define 8 hexahedral subzones as in Grandy, p449
   // the values correspond to the nodes that correspond to nodes 1,2,3,4,5,6,7,8 in the subcell
-  // For the correspondance of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
+  // For the correspondence of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
   static const int GENERAL_48_SUBZONES[64] = 
     {
       0,8,21,12,9,20,26,22,

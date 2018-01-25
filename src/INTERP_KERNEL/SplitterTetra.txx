@@ -1108,7 +1108,7 @@ namespace INTERP_KERNEL
   {
     // The two nodes of the original mesh cell used in each tetrahedron.
     // The tetrahedra all have nodes (cellCenter, faceCenter, edgeNode1, edgeNode2)
-    // For the correspondance of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
+    // For the correspondence of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
     
     // nodes to use for tetrahedron
     const double* nodes[4];

@@ -170,7 +170,7 @@ inline bool TransformedTriangle::testEdgeIntersectsTriangle(const TetraEdge edge
   
   //  assert(edge < H01);
   
-  // correspondance edge - triple products
+  // correspondence edge - triple products
   // for edges OX, ..., ZX (Grandy, table III)
   static const TetraCorner TRIPLE_PRODUCTS[12] = 
     {
@@ -212,8 +212,8 @@ inline bool TransformedTriangle::testFacetSurroundsSegment(const TriSegment seg,
 
 inline bool TransformedTriangle::testSegmentIntersectsFacet(const TriSegment seg, const TetraFacet facet) const
 {
-  // use correspondance facet a = 0 <=> offset for coordinate a in _coords
-  // and also correspondance segment AB => corner A
+  // use correspondence facet a = 0 <=> offset for coordinate a in _coords
+  // and also correspondence segment AB => corner A
   const double coord1 = _coords[5*seg + facet];
   const double coord2 = _coords[5*( (seg + 1) % 3) + facet];
   

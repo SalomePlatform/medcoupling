@@ -1890,7 +1890,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         gaussCoords=refCoords[:] ; gaussCoords[14]=0.9999999999999 # change z of point #4 0.999... instead of 1. because with shape function it leads to division by 0. !
         fGauss.setGaussLocalizationOnType(NORM_PYRA13,refCoords,gaussCoords,weights)
         arrOfDisc2=fGauss.getLocalizationOfDiscr()
-        self.assertTrue(arrOfDisc2.isEqual(coo,1e-10)) # be less exigent 1e-10 instead of 1e-12 due to shape function sensitivity arount 0.,0.,1. !
+        self.assertTrue(arrOfDisc2.isEqual(coo,1e-10)) # be less exigent 1e-10 instead of 1e-12 due to shape function sensitivity around 0.,0.,1. !
         pass
 
     def testSwig2Tri7GP1(self):

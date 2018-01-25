@@ -74,7 +74,7 @@ void MPIAccessTest::test_MPI_Access_Time_0() {
     strstream << "usage :" << endl
               << "mpirun -np <nbprocs> test_MPI_Access_Time_0" <<endl
               << " nbprocs =2" << endl
-              << "test must be runned with 2 procs" << endl ;
+              << "test must be run with 2 procs" << endl ;
     cerr << strstream.str() << endl ;
     //CPPUNIT_FAIL( strstream.str() ) ;
     return;

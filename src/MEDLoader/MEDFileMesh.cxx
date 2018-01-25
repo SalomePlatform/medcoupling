@@ -4133,12 +4133,12 @@ struct MEDLoaderAccVisit1
 /*! \endcond */
 
 /*!
- * Array returned is the correspondance in \b old \b to \b new format. The returned array is newly created and should be dealt by the caller.
+ * Array returned is the correspondence in \b old \b to \b new format. The returned array is newly created and should be dealt by the caller.
  * The maximum value stored in returned array is the number of nodes of \a this minus 1 after call of this method.
  * The size of returned array is the number of nodes of the old (previous to the call of this method) number of nodes.
  * -1 values in returned array means that the corresponding old node is no more used.
  *
- * \return newly allocated array containing correspondance in \b old \b to \b new format. If all nodes in \a this are fetched \c NULL pointer is returned and nothing
+ * \return newly allocated array containing correspondence in \b old \b to \b new format. If all nodes in \a this are fetched \c NULL pointer is returned and nothing
  *         is modified in \a this.
  * \throw If no coordinates are set in \a this or if there is in any available mesh in \a this a cell having a nodal connectivity containing a node id not in the range of
  *  set coordinates.

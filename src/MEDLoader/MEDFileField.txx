@@ -1294,7 +1294,7 @@ namespace MEDCoupling
     typename Traits<T>::ArrayType *ret2(dynamic_cast<typename Traits<T>::ArrayType *>(ret));
     if(!ret2)
       {
-        std::ostringstream oss; oss << "MEDFileTemplateFieldMultiTS<T>::getUndergroundDataArray : invalid type of data dectected ! Expecting " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
+        std::ostringstream oss; oss << "MEDFileTemplateFieldMultiTS<T>::getUndergroundDataArray : invalid type of data detected ! Expecting " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
         throw INTERP_KERNEL::Exception(oss.str());
       }
     return ret2;
@@ -1309,7 +1309,7 @@ namespace MEDCoupling
     typename Traits<T>::ArrayType *ret2(dynamic_cast<typename Traits<T>::ArrayType *>(ret));
     if(!ret2)
       {
-        std::ostringstream oss; oss << "MEDFileTemplateFieldMultiTS<T>::getUndergroundDataArrayExt : invalid type of data dectected ! Expecting " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
+        std::ostringstream oss; oss << "MEDFileTemplateFieldMultiTS<T>::getUndergroundDataArrayExt : invalid type of data detected ! Expecting " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
         throw INTERP_KERNEL::Exception(oss.str());
       }
     return ret2;

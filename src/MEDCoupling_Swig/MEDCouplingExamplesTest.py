@@ -2220,7 +2220,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fieldOnCells.setName("MyTensorFieldOnCellNoTime")
         fieldOnCells.setMesh(mesh)
         array=DataArrayDouble()
-        array.alloc(fieldOnCells.getMesh().getNumberOfCells(),9) # Implicitely fieldOnCells will be a 9 components field.
+        array.alloc(fieldOnCells.getMesh().getNumberOfCells(),9) # Implicitly fieldOnCells will be a 9 components field.
         array.fillWithValue(7.)
         fieldOnCells.setArray(array)
         # fieldOnCells is now usable
@@ -2252,7 +2252,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fieldOnNodes.setName("MyScalarFieldOnNodeNoTime")
         fieldOnNodes.setMesh(mesh)
         array=DataArrayDouble()
-        array.alloc(fieldOnNodes.getMesh().getNumberOfNodes(),1) # Implicitely fieldOnNodes will be a 1 component field.
+        array.alloc(fieldOnNodes.getMesh().getNumberOfNodes(),1) # Implicitly fieldOnNodes will be a 1 component field.
         array.fillWithValue(7.)
         fieldOnNodes.setArray(array)
         # fieldOnNodes is now usable
@@ -2272,7 +2272,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fieldOnCells.setTime(4.22,2,-1) # Time attached is 4.22 ms, iteration id is 2 and order id (or sub iteration id) is -1
         fieldOnCells.setMesh(mesh)
         array=DataArrayDouble()
-        array.alloc(fieldOnCells.getMesh().getNumberOfCells(),2) # Implicitely fieldOnCells will be a 2 components field.
+        array.alloc(fieldOnCells.getMesh().getNumberOfCells(),2) # Implicitly fieldOnCells will be a 2 components field.
         array.fillWithValue(7.)
         fieldOnCells.setArray(array)
         # fieldOnCells is now usable
@@ -2293,7 +2293,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fieldOnNodes.setEndTime(6.44,4,-1)# fieldOnNodes is defined in interval [4.22 ms,6.44 ms]
         fieldOnNodes.setMesh(mesh)
         array=DataArrayDouble()
-        array.alloc(fieldOnNodes.getMesh().getNumberOfNodes(),3) # Implicitely fieldOnNodes will be a 3 components field.
+        array.alloc(fieldOnNodes.getMesh().getNumberOfNodes(),3) # Implicitly fieldOnNodes will be a 3 components field.
         array.fillWithValue(7.)
         fieldOnNodes.setArray(array)
         # fieldOnNodes is now usable

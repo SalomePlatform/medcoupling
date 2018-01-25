@@ -50,8 +50,8 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
   MPI_Comm_rank(MPI_COMM_WORLD,&myrank) ;
 
   if ( size < 2 ) {
-    cerr << "test_MPI_Access_Send_Recv must be runned with 2 procs" << endl ;
-    //CPPUNIT_FAIL("test_MPI_Access_Send_Recv must be runned with 2 procs") ;
+    cerr << "test_MPI_Access_Send_Recv must be run with 2 procs" << endl ;
+    //CPPUNIT_FAIL("test_MPI_Access_Send_Recv must be run with 2 procs") ;
     return;
   }
 

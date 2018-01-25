@@ -89,7 +89,7 @@ namespace INTERP_KERNEL
    * For the other two halfstrips (above the xy and yz edges), other double products are used, which 
    * are stored in the table DP_FOR_HALFSTRIP_INTERSECTION. This allows us to treat
    * all the edges equally, avoiding switch() - statements. It is the careful choice of order of the enumeration types that makes this
-   * possible. Notably, there is a correspondance between the TetraEdge type and the DoubleProduct type (see Grandy, table III) that
+   * possible. Notably, there is a correspondence between the TetraEdge type and the DoubleProduct type (see Grandy, table III) that
    * is used throughout the code, permitting statements such as DoubleProduct(some_edge) to work.
    *    When an intersection point has been detected it is calculated with a corresponding calc* - method in the cases where it
    * is not known directly. It is then added to the polygon A and/or B as necessary.
@@ -347,7 +347,7 @@ namespace INTERP_KERNEL
 
     static const double TRIPLE_PRODUCT_ANGLE_THRESHOLD;
 
-    // correspondance facet - double product
+    // correspondence facet - double product
     // Grandy, table IV
     static const DoubleProduct DP_FOR_SEG_FACET_INTERSECTION[12];
 
@@ -362,14 +362,14 @@ namespace INTERP_KERNEL
     // for Segment-Facet and Segment-Edge intersections
     static const int DP_INDEX[12];
 
-    // correspondance edge - corners
+    // correspondence edge - corners
     static const TetraCorner CORNERS_FOR_EDGE[12];
 
-    // correspondance edge - facets
+    // correspondence edge - facets
     // facets shared by each edge
     static const TetraFacet FACET_FOR_EDGE[12];
 
-    // correspondance edge - corners
+    // correspondence edge - corners
     static const TetraEdge EDGES_FOR_CORNER[12];
    
     // double products used in segment-halfstrip test

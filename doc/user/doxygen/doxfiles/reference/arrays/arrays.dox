@@ -15,7 +15,7 @@ MEDCoupling, \ref parallel "ParaMEDMEM", and \ref medloader "MEDLoader" modules 
 understood to efficiently deal with \ref meshes "Meshes" and \ref fields "Fields".
 
 \ref MEDCoupling::DataArray "DataArrays" are the atomic element of potentially heavy-memory objects in 
-the 3 modules mentionned above.
+the 3 modules mentioned above.
 
 There are for the moment two types of arrays :
  - double precision float (64 bits) array incarnated by \ref MEDCoupling::DataArrayDouble "DataArrayDouble class".

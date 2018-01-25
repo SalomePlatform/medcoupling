@@ -422,7 +422,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test21(self):
-        #tests that only DataArray*(npArray) contructor is available
+        #tests that only DataArray*(npArray) constructor is available
         a=array(0,dtype=int32)
         a.resize(20)
         DataArrayInt(a)

@@ -84,7 +84,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
     strstream << "usage :" << endl
               << "mpirun -np <nbprocs> test_AllToAllTimeDEC" << endl
               << " (nbprocs >=2)" << endl
-              << "test must be runned with more than 1 proc and less than 12 procs"
+              << "test must be run with more than 1 proc and less than 12 procs"
               << endl ;
     cerr << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;

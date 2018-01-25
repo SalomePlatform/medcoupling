@@ -371,7 +371,7 @@ void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfPoints
 /*!
  * @param comm in param in the same format than one returned by findCommonNodes method (\ref numbering-indirect).
  * @param commI in param in the same format than one returned by findCommonNodes method (\ref numbering-indirect).
- * @return the old to new correspondance array.
+ * @return the old to new correspondence array.
  */
 DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
                                                                           int& newNbOfNodes) const
@@ -1112,7 +1112,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(int beginCellIds, int endCe
  * \param [out] beginOut valid only if \a arr not NULL !
  * \param [out] endOut valid only if \a arr not NULL !
  * \param [out] stepOut valid only if \a arr not NULL !
- * \param [out] arr correspondance old to new in node ids.
+ * \param [out] arr correspondence old to new in node ids.
  * 
  * \sa MEDCouplingUMesh::buildPartOfMySelfSlice
  */

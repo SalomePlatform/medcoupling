@@ -270,7 +270,7 @@ namespace INTERP_KERNEL
           {
             const DoubleProduct dp = DP_FOR_DETERMINANT_EXPANSION[3*corner + (row - 1)];
 
-            // get edge by using correspondance between Double Product and Edge
+            // get edge by using correspondence between Double Product and Edge
             TetraEdge edge = TetraEdge(dp);
            
             // use edge only if it is surrounded by the surface

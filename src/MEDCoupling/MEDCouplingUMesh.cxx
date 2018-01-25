@@ -1706,7 +1706,7 @@ int MEDCouplingUMesh::AreCellsEqualPolicy7(const int *conn, const int *connI, in
  * \param [in] startCellId specifies the cellId starting from which the equality computation will be carried out. By default it is 0, which it means that all cells in \a this will be scanned.
  * \param [out] commonCellsArr common cells ids (\ref numbering-indirect)
  * \param [out] commonCellsIArr common cells ids (\ref numbering-indirect)
- * \return the correspondance array old to new in a newly allocated array.
+ * \return the correspondence array old to new in a newly allocated array.
  * 
  */
 void MEDCouplingUMesh::findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const
@@ -5928,7 +5928,7 @@ DataArrayInt *MEDCouplingUMesh::getLevArrPerCellTypes(const INTERP_KERNEL::Norma
 /*!
  * This method behaves exactly as MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec but the order is those defined in MED file spec.
  *
- * \return a new object containing the old to new correspondance.
+ * \return a new object containing the old to new correspondence.
  *
  * \sa MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec, MEDCouplingUMesh::sortCellsInMEDFileFrmt.
  */
@@ -5957,7 +5957,7 @@ DataArrayInt *MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec(const INT
  * This method tries to minimizes the number of needed permutations. So, this method behaves not exactly as
  * MEDCouplingUMesh::sortCellsInMEDFileFrmt.
  *
- * \return the array giving the correspondance old to new.
+ * \return the array giving the correspondence old to new.
  */
 DataArrayInt *MEDCouplingUMesh::rearrange2ConsecutiveCellTypes()
 {

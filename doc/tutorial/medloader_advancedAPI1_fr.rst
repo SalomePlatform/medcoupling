@@ -180,7 +180,7 @@ Lire le champ ``fPart`` du fichier "TargetMesh2.med" et les identifiants de cell
 
 	fMEDFileRead2 = ml.MEDFileField1TS("TargetMesh2.med",fPart.getName(),7,8)
 	fPartRead, pflRead = fMEDFileRead2.getFieldWithProfile(ml.ON_CELLS,0,meshMEDFileRead)
-	print "Is the partial field correclty read?", fPartRead.isEqualWithoutConsideringStr(fPart.getArray(),1e-12)
+	print "Is the partial field correctly read?", fPartRead.isEqualWithoutConsideringStr(fPart.getArray(),1e-12)
 	print "Is the list of cell identifiers matching?", pflRead.isEqualWithoutConsideringStr(pfl)
 
 Solution

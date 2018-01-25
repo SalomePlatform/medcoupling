@@ -51,7 +51,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
 
   if ( size < 2 ) {
     ostringstream strstream ;
-    strstream << "test_MPI_Access_ISend_IRecv_Length_1 must be runned with 2 procs" << endl ;
+    strstream << "test_MPI_Access_ISend_IRecv_Length_1 must be run with 2 procs" << endl ;
     cerr << strstream.str() << endl ;
     //CPPUNIT_FAIL( strstream.str() ) ;
     return;

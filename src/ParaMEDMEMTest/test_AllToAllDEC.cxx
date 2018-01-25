@@ -77,7 +77,7 @@ void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
     strstream << "usage :" << endl
               << "mpirun -np <nbprocs> test_AllToAllDEC" << endl
               << " (nbprocs >=2)" << endl
-              << "test must be runned with more than 1 proc and less than 12 procs"
+              << "test must be run with more than 1 proc and less than 12 procs"
               << endl ;
     cerr << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;

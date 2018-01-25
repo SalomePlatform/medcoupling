@@ -46,7 +46,7 @@ Take a look at \ref terminology
 Take a look at \ref library
 
 \subsubsection f-visu How can I visualize a mesh and/or a field?
-Use the PARAVIS module of SALOME to visualize your MED file. The following dedicated fitlers have been 
+Use the PARAVIS module of SALOME to visualize your MED file. The following dedicated filters have been 
 written specifically for MED files: Extract group, Extract cell types, ELNO Mesh, ELNO Points, ELNO Surface.
 
 \subsubsection f-p0p1 What does a P0- (or P1-) field mean?

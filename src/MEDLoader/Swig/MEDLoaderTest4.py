@@ -4792,7 +4792,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
-        self.assertTrue(not ncc)# false beacause 2D in MED file
+        self.assertTrue(not ncc)# false because 2D in MED file
         self.assertTrue(a0.isEqual(DataArrayDouble([(5.5,0.5,0),(5.5,-0.5,0),(6.5,0.5,0),(6.5,-0.5,0),(6.5,1.5,0),(7.5,0.5,0),(7.5,-0.5,0),(7.5,1.5,0),(7.5,2.5,0),(8.5,0.5,0),(8.5,-0.5,0),(8.5,1.5,0),(8.5,2.5,0),(8.5,3.5,0),(8.55,0.5,0),(8.55,-0.5,0),(8.55,1.5,0),(8.55,2.5,0),(8.55,3.5,0)]),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([9,9,9,9,9,9,7,7,7,7])))
         self.assertTrue(a2.isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,45])))# the bug was here.

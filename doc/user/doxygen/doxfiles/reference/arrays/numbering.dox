@@ -16,7 +16,7 @@ This application is defined using an instance of
 
 \section MEDCouplingArrayRenumberingO2N Old-to-new mode
 
-The old to new mode is particularly recommanded for surjective and bijective applications. This 
+The old to new mode is particularly recommended for surjective and bijective applications. This 
 is typically the case of \ref MEDCoupling::MEDCouplingUMesh::mergeNodes "MEDCouplingUMesh::mergeNodes" method.
 Let's consider a call to \ref MEDCoupling::MEDCouplingUMesh::mergeNodes "mergeNodes" that reduces the 
 number of nodes from 5 nodes to 3 nodes.\n
