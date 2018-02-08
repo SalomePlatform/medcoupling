@@ -85,7 +85,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void simpleRepr(int bkOffset, std::ostream& oss, int fmtsId) const;
     MEDLOADER_EXPORT int getNonEmptyLevels(int iteration, int order, const std::string& mname, std::vector<int>& levs) const;
     MEDLOADER_EXPORT void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArray *arr, MEDFileFieldGlobsReal& glob);
-    MEDLOADER_EXPORT void appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArray *arr, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFileFieldGlobsReal& glob);
+    MEDLOADER_EXPORT void appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArray *arr, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFileFieldGlobsReal& glob, bool smartPflKiller);
     MEDLOADER_EXPORT std::vector< std::vector< std::pair<int,int> > > getFieldSplitedByType(int iteration, int order, const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
     MEDLOADER_EXPORT std::vector< std::vector<TypeOfField> > getTypesOfFieldAvailable() const;
     MEDLOADER_EXPORT DataArray *getUndergroundDataArray(int iteration, int order) const;
@@ -312,6 +312,7 @@ namespace MEDCoupling
     //
     MEDLOADER_EXPORT void appendFieldNoProfileSBT(const typename Traits<T>::FieldType *field);
     MEDLOADER_EXPORT void appendFieldProfile(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    MEDLOADER_EXPORT void appendFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
     //
     MEDLOADER_EXPORT typename MLFieldTraits<T>::F1TSType *getTimeStepAtPos(int pos) const;
     MEDLOADER_EXPORT typename Traits<T>::ArrayType *getUndergroundDataArray(int iteration, int order) const;
@@ -321,6 +322,7 @@ namespace MEDCoupling
   protected:
     const typename MLFieldTraits<T>::FMTSWSDAType *contentNotNull() const;
     typename MLFieldTraits<T>::FMTSWSDAType *contentNotNull();
+    void appendFieldProfileGeneral(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, bool smartPflKiller);
   protected:
     ~MEDFileTemplateFieldMultiTS() { }
     MEDFileTemplateFieldMultiTS();

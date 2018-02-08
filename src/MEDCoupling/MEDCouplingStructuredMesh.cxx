@@ -310,7 +310,7 @@ DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std
  *          - After \a code contains [NORM_...,nbCells,0], \a idsInPflPerType [[0,1]] and \a idsPerType is [[1,2]] <br>
 
  */
-void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const
+void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType, bool smartPflKiller) const
 {
   if(!profile || !profile->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile is NULL or not allocated !");
@@ -321,7 +321,7 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
   code.resize(3); idsInPflPerType.resize(1);
   code[0]=(int)getTypeOfCell(0); code[1]=nbOfCells;
   idsInPflPerType.resize(1);
-  if(profile->isIota(nbOfCells))
+  if(smartPflKiller && profile->isIota(nbOfCells))
     {
       code[2]=-1;
       idsInPflPerType[0]=profile->deepCopy();

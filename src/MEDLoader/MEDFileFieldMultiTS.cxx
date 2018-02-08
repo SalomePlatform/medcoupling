@@ -1040,30 +1040,28 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldNoProfileSBT(const MEDCoup
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldNoProfileSBT : input field is NULL !");
   if(!_time_steps.empty())
     checkCoherencyOfTinyInfo(field,arr);
-  MEDFileAnyTypeField1TSWithoutSDA *objC(createNew1TSWithoutSDAEmptyInstance());
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> obj(objC);
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> obj(createNew1TSWithoutSDAEmptyInstance());
   {
     MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::New(*field));
-    objC->setFieldNoProfileSBT(field->timeDiscrSafe(),ft,arr,glob,*this);
+    obj->setFieldNoProfileSBT(field->timeDiscrSafe(),ft,arr,glob,*this);
   }
   copyTinyInfoFrom(field,arr);
   _time_steps.push_back(obj);
 }
 
-void MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArray *arr, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFileFieldGlobsReal& glob)
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArray *arr, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFileFieldGlobsReal& glob, bool smartPflKiller)
 {
   if(!field)
     throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTSWithoutSDA::appendFieldNoProfileSBT : input field is NULL !");
   if(!_time_steps.empty())
     checkCoherencyOfTinyInfo(field,arr);
-  MEDFileAnyTypeField1TSWithoutSDA *objC=createNew1TSWithoutSDAEmptyInstance();
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> obj(objC);
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> obj(createNew1TSWithoutSDAEmptyInstance());
   {
     MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::NewWithoutCheck(*field));
-    objC->setFieldProfile(field->timeDiscrSafe(),ft,arr,mesh,meshDimRelToMax,profile,glob,*this);
+    obj->setFieldProfile(field->timeDiscrSafe(),ft,arr,mesh,meshDimRelToMax,profile,glob,*this,smartPflKiller);
   }
   copyTinyInfoFrom(field,arr);
-  setMeshName(objC->getMeshName());
+  setMeshName(obj->getMeshName());
   _time_steps.push_back(obj);
 }
 

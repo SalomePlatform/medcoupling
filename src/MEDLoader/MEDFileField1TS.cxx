@@ -861,6 +861,8 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldNoProfileSBT(const TimeHolder *th
  *  \param [in] profile - ids of mesh entities on which corresponding field values lie.
  *  \param [in,out] glob - the global data where profiles and localization present in
  *          \a field, if any, are added.
+ *  \param [in] nasc - the name scope used to assign names. Depends on the caller on the top call stack
+ *  \param [in] smartPflKiller - specifies if this method tries at most to avoid profiles
  *  \throw If either \a field or \a mesh or \a profile has an empty name.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
  *  \throw If the data array of \a field is not set.
@@ -869,7 +871,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldNoProfileSBT(const TimeHolder *th
  *  \throw If elements in \a mesh are not in the order suitable for writing to the MED file.
  *  \sa setFieldNoProfileSBT()
  */
-void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const TimeHolder *th, const MEDCouplingFieldTemplate *field, const DataArray *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFileFieldGlobsReal& glob, const MEDFileFieldNameScope& nasc)
+void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const TimeHolder *th, const MEDCouplingFieldTemplate *field, const DataArray *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFileFieldGlobsReal& glob, const MEDFileFieldNameScope& nasc, bool smartPflKiller)
 {
   if(!field)
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : input field is null !");
@@ -882,7 +884,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const TimeHolder *th, con
   MCAuto<MEDCouplingMesh> m(mesh->getMeshAtLevel(meshDimRelToMax));
   if(type!=ON_NODES)
     {
-      m->splitProfilePerType(profile,code,idsInPflPerType,idsPerType);
+      m->splitProfilePerType(profile,code,idsInPflPerType,idsPerType,smartPflKiller);
       std::vector< MCAuto<DataArrayInt> > idsInPflPerType2(idsInPflPerType.size()); std::copy(idsInPflPerType.begin(),idsInPflPerType.end(),idsInPflPerType2.begin());
       std::vector< MCAuto<DataArrayInt> > idsPerType2(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType2.begin()); 
       std::vector<const DataArrayInt *> idsPerType3(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType3.begin());

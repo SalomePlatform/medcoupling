@@ -5681,7 +5681,7 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
  *              This vector can be empty in case of all geometric type cells are fully covered in ascending in the given input \a profile.
  * \throw if \a profile has not exactly one component. It throws too, if \a profile contains some values not in [0,getNumberOfCells()) or if \a this is not fully defined
  */
-void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const
+void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType, bool smartPflKiller) const
 {
   if(!profile)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::splitProfilePerType : input profile is NULL !");
@@ -5723,7 +5723,7 @@ void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vec
       code[3*i]=(int)types[castId];
       code[3*i+1]=tmp3->getNumberOfTuples();
       MCAuto<DataArrayInt> tmp4=rankInsideCast->selectByTupleId(tmp3->begin(),tmp3->begin()+tmp3->getNumberOfTuples());
-      if(!tmp4->isIota(typeRangeVals[castId+1]-typeRangeVals[castId]))
+      if(!smartPflKiller || !tmp4->isIota(typeRangeVals[castId+1]-typeRangeVals[castId]))
         {
           tmp4->copyStringInfoFrom(*profile);
           idsPerType2.push_back(tmp4);

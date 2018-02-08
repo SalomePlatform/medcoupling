@@ -178,7 +178,7 @@ std::vector<int> MEDCoupling1GTUMesh::getDistributionOfTypes() const
  *          - After \a code contains [NORM_...,nbCells,0], \a idsInPflPerType [[0,1]] and \a idsPerType is [[1,2]] <br>
 
  */
-void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const
+void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType, bool smartPflKiller) const
 {
   if(!profile)
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::splitProfilePerType : input profile is NULL !");
@@ -188,7 +188,7 @@ void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::
   code.resize(3); idsInPflPerType.resize(1);
   code[0]=(int)getCellModelEnum(); code[1]=nbTuples;
   idsInPflPerType.resize(1);
-  if(profile->isIota(nbOfCells))
+  if(smartPflKiller && profile->isIota(nbOfCells))
     {
       code[2]=-1;
       idsInPflPerType[0]=const_cast<DataArrayInt *>(profile); idsInPflPerType[0]->incrRef();

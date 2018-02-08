@@ -109,7 +109,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual const DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const = 0;
     MEDCOUPLING_EXPORT virtual std::vector<int> getDistributionOfTypes() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const = 0;
-    MEDCOUPLING_EXPORT virtual void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const = 0;
+    MEDCOUPLING_EXPORT virtual void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType, bool smartPflKiller=true) const = 0;
     MEDCOUPLING_EXPORT virtual void getBoundingBox(double *bbox) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;

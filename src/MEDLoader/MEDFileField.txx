@@ -682,16 +682,32 @@ namespace MEDCoupling
    *  \throw If the data array of \a this is already allocated but has different number of
    *         components than \a field.
    *  \throw If elements in \a mesh are not in the order suitable for writing to the MED file.
-   *  \sa setFieldNoProfileSBT()
+   *  \sa setFieldNoProfileSBT, setFieldProfileFlatly
    */
   template<class T>
   void MEDFileTemplateField1TS<T>::setFieldProfile(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
   {
-    setFileName("");
-    MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::NewWithoutCheck(*field));
-    contentNotNull()->setFieldProfile(field->timeDiscrSafe(),ft,field->getArray(),mesh,meshDimRelToMax,profile,*this,*contentNotNull());
+    setFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,true);
   }
 
+  /*!
+   * Same as setFieldProfile except that here profile will be created un
+   * \sa setFieldProfile
+   */
+  template<class T>
+  void setFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+  {
+    setFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,false);
+  }
+
+  template<class T>
+  void MEDFileTemplateField1TS<T>::setFieldProfileGeneral(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, bool smartPflKiller)
+  {
+    setFileName("");
+    MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::NewWithoutCheck(*field));
+    contentNotNull()->setFieldProfile(field->timeDiscrSafe(),ft,field->getArray(),mesh,meshDimRelToMax,profile,*this,*contentNotNull(),smartPflKiller);
+  }
+  
   /*!
    * Return an extraction of \a this using \a extractDef map to specify the extraction.
    * The keys of \a extractDef is level relative to max ext of \a mm mesh.
@@ -1222,18 +1238,33 @@ namespace MEDCoupling
    *  \throw If the data array of \a this is already allocated but has different number of
    *         components than \a field.
    *  \throw If elements in \a mesh are not in the order suitable for writing to the MED file.
-   *  \sa setFieldNoProfileSBT()
+   *  \sa setFieldNoProfileSBT, appendFieldProfileFlatly
    */
   template<class T>
   void MEDFileTemplateFieldMultiTS<T>::appendFieldProfile(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+  {
+    appendFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,true);
+  }
+
+  /*!
+   * same as appendFieldProfile except that here profile is created unconditionaly
+   */
+  template<class T>
+  void MEDFileTemplateFieldMultiTS<T>::appendFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+  {
+    appendFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,false);
+  }
+
+  template<class T>
+  void MEDFileTemplateFieldMultiTS<T>::appendFieldProfileGeneral(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, bool smartPflKiller)
   {
     const typename Traits<T>::ArrayType *arr(NULL);
     if(field)
       arr=field->getArray();
     MCAuto<MEDCouplingFieldDouble> field2(MEDFileTemplateField1TS<T>::ToFieldTemplateWithTime(field));
-    contentNotNull()->appendFieldProfile(field2,arr,mesh,meshDimRelToMax,profile,*this);
+    contentNotNull()->appendFieldProfile(field2,arr,mesh,meshDimRelToMax,profile,*this,smartPflKiller);
   }
-
+  
   template<class T>
   const typename MLFieldTraits<T>::FMTSWSDAType *MEDFileTemplateFieldMultiTS<T>::contentNotNull() const
   {

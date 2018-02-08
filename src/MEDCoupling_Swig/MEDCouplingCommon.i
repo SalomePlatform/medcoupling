@@ -964,12 +964,12 @@ namespace MEDCoupling
           return self->checkTypeConsistencyAndContig(code,idsPerType);
         }
 
-        PyObject *splitProfilePerType(const DataArrayInt *profile) const throw(INTERP_KERNEL::Exception)
+        PyObject *splitProfilePerType(const DataArrayInt *profile, bool smartPflKiller=true) const throw(INTERP_KERNEL::Exception)
         {
           std::vector<int> code;
           std::vector<DataArrayInt *> idsInPflPerType;
           std::vector<DataArrayInt *> idsPerType;
-          self->splitProfilePerType(profile,code,idsInPflPerType,idsPerType);
+          self->splitProfilePerType(profile,code,idsInPflPerType,idsPerType,smartPflKiller);
           PyObject *ret=PyTuple_New(3);
           //
           if(code.size()%3!=0)
