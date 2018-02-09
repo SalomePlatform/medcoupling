@@ -79,11 +79,11 @@ namespace MEDCoupling
     Starting from the global interaction previously computed in \ref ParaMEDMEMOverlapDECAlgoStep1
     "Step 1", each proc computes the TODO list per proc.
     The following rules is chosen : a pair (x,y) can be treated by either proc \#x or proc \#y,
-    in order to reduce the amount of data transfert among
+    in order to reduce the amount of data transfers among
     processors. The algorithm chosen for load balancing is the following : Each processor has
     an empty \b local TODO list at the beginning. Then for each pair (k,m) in
     \b global TODO list, if proc\#k has less temporary local list than proc\#m pair, (k,m) is added
-    to temparary local TODO list of proc\#k.
+    to temporary local TODO list of proc\#k.
     If proc\#m has less temporary local TODO list than proc\#k pair, (k,m) is added to temporary
     local TODO list of proc\#m.
     If proc\#k and proc\#m have the same amount of temporary local TODO list pair, (k,m) is added to

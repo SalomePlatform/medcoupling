@@ -53,9 +53,9 @@ MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(const MEDCou
         return new MEDCouplingDefinitionTimeSliceLT(f,meshId,arrId[0],arrId[1],fieldId);
       }
     case NO_TIME:
-      throw INTERP_KERNEL::Exception("Invalide time discretization ! NO_TIME ! Impossible to build a definition time slice !");
+      throw INTERP_KERNEL::Exception("Invalid time discretization ! NO_TIME ! Impossible to build a definition time slice !");
     default:
-      throw INTERP_KERNEL::Exception("Invalide time discretization : Not recognized !");
+      throw INTERP_KERNEL::Exception("Invalid time discretization : Not recognized !");
   }
 }
 

@@ -446,7 +446,7 @@ namespace MEDCoupling
     also MPI_Datatype for the delete [] (double *) ... when the counter
     is null.
 
-    . The map _MapOfSendBuffers etablish the correspondence between each
+    . The map _MapOfSendBuffers establish the correspondence between each
     RequestId given by a MPI_Access->ISend(...) and a SendBuffStruct
     for each "target" of a part of the buffer.
 

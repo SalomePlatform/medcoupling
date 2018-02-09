@@ -1415,7 +1415,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.write(fname,2)   
 
     def testBuildInnerBoundaryAlongM1Group4(self):
-        """ Test case where cells touch the M1 group on some nodes only and not on full egdes (triangle mesh for ex)
+        """ Test case where cells touch the M1 group on some nodes only and not on full edges (triangle mesh for ex)
         """
         coo = DataArrayDouble([0.,0., 1.,0., 2.,0., 3.,0.,
                                0.,1., 1.,1., 2.,1., 3.,1.,

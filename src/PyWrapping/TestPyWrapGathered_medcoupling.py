@@ -50,7 +50,7 @@ class FileCreator(object):
 class medcouplingTest(unittest.TestCase):
 
     def test0(self):
-        """ Unconditionnal test : medcoupling "kernel" classes """
+        """ Unconditional test : medcoupling "kernel" classes """
         f=MEDCouplingFieldDouble(ON_CELLS)
         g=DataArrayDouble(10,2)
         h=MEDCouplingUMesh("mesh",3)
