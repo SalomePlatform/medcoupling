@@ -691,11 +691,11 @@ namespace MEDCoupling
   }
 
   /*!
-   * Same as setFieldProfile except that here profile will be created un
+   * Same as setFieldProfile except that here profile will be created unconditionally
    * \sa setFieldProfile
    */
   template<class T>
-  void setFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+  void MEDFileTemplateField1TS<T>::setFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
   {
     setFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,false);
   }

@@ -6362,6 +6362,44 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(fToTest.getArray().isEqual(4*exp1,1e-12))
         
         pass
+
+    def testSetFieldProfileFlatly1(self):
+        """ Sometimes for downstream code fan of profiles, profile are requested unconditionally. setFieldProfile try to reduce at most profile usage. So setFieldProfileFlatly has been added to always create
+        a profile."""
+        arr=DataArrayDouble(10) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        m2=m.deepCopy()
+        m2.simplexize(0)
+        m=MEDCouplingUMesh.MergeUMeshes(m2,m)
+        m.setName("mesh")
+        mm=MEDFileUMesh()
+        mm[0]=m
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(m.getNumberOfCells())
+        arr.iota()
+        f.setArray(arr)
+        f.setName("field")
+        pfl=DataArrayInt(m.getNumberOfCells()) ; pfl.iota() ; pfl.setName("pfl")
+        #
+        refSp=[(3,[(0,(0,162),'','')]),(4,[(0,(162,243),'','')])]
+        refSp1=[(3,[(0,(0,162),'pfl_NORM_TRI3','')]),(4,[(0,(162,243),'pfl_NORM_QUAD4','')])]
+        #
+        f1ts=MEDFileField1TS()
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        self.assertEqual(f1ts.getPfls(),()) # here setFieldProfile has detected useless pfl -> no pfl
+        self.assertEqual(f1ts.getFieldSplitedByType(),refSp)
+        self.assertTrue(f1ts.field(mm).isEqual(f,1e-12,1e-12)) # the essential
+        #
+        f1ts=MEDFileField1TS()
+        f1ts.setFieldProfileFlatly(f,mm,0,pfl) # no optimization attempt. Create pfl unconditionally
+        self.assertEqual(f1ts.getPfls(),("%s_NORM_TRI3"%pfl.getName(),"%s_NORM_QUAD4"%pfl.getName()))
+        self.assertEqual(f1ts.getFieldSplitedByType(),refSp1)
+        self.assertTrue(f1ts.field(mm).isEqual(f,1e-12,1e-12)) # the essential
+        self.assertTrue(f1ts.getProfile("pfl_NORM_TRI3").isIota(162))
+        self.assertTrue(f1ts.getProfile("pfl_NORM_QUAD4").isIota(81))
+        pass
     
     pass
 
