@@ -6400,6 +6400,53 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f1ts.getProfile("pfl_NORM_TRI3").isIota(162))
         self.assertTrue(f1ts.getProfile("pfl_NORM_QUAD4").isIota(81))
         pass
+
+    def testRmGroupAtSpeLevelAndMultiLevGrpCreation(self):
+        """ Here multi level groups are created"""
+        arr=DataArrayDouble(11) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        m.setName("mesh")
+        m1=m.buildDescendingConnectivity()[0]
+        mm=MEDFileUMesh()
+        mm[0]=m ; mm[-1]=m1
+        ################
+        grpName="grp0"
+        grp0_0=DataArrayInt([0,1,2,6]) ; grp0_0.setName(grpName)
+        grp0_1=DataArrayInt([0,1,2,7]) ; grp0_1.setName(grpName)
+        grp1=DataArrayInt([1,2,3,5,6]) ; grp1.setName("grp1")
+        grp2=DataArrayInt([2,3,5,8]) ; grp2.setName("grp2")
+        ################ ajouter un groupe sur plusieurs niveau
+        mm.addGroup(0,grp1)
+        mm.addGroup(-1,grp2)
+        mm.addGroup(0,grp0_0)
+        mm.addGroup(-1,grp0_1)
+        self.assertEqual(mm.getGrpNonEmptyLevels(grpName),(0,-1))
+        self.assertTrue(mm.getGroupArr(0,grpName).isEqual(grp0_0))
+        self.assertTrue(mm.getGroupArr(-1,grpName).isEqual(grp0_1))
+        self.assertTrue(mm.getGroupArr(0,"grp1").isEqual(grp1))
+        self.assertTrue(mm.getGroupArr(-1,"grp2").isEqual(grp2))
+        self.assertRaises(InterpKernelException,mm.addGroup,-1,grp0_1) # raise
+        self.assertTrue(mm.getGroupArr(0,grpName).isEqual(grp0_0))
+        self.assertTrue(mm.getGroupArr(-1,grpName).isEqual(grp0_1))
+        self.assertTrue(mm.getGroupArr(0,"grp1").isEqual(grp1))
+        self.assertTrue(mm.getGroupArr(-1,"grp2").isEqual(grp2))
+        mm.removeGroupAtLevel(0,grpName)
+        self.assertEqual(mm.getGrpNonEmptyLevels(grpName),(-1,))
+        self.assertTrue(mm.getGroupArr(-1,grpName).isEqual(grp0_1))
+        self.assertTrue(mm.getGroupArr(0,"grp1").isEqual(grp1))
+        self.assertTrue(mm.getGroupArr(-1,"grp2").isEqual(grp2))
+        mm.removeGroupAtLevel(-1,grpName)
+        self.assertEqual(mm.getGrpNonEmptyLevels(grpName),())
+        self.assertRaises(InterpKernelException,mm.removeGroupAtLevel,-2,grpName)
+        mm.addGroup(-1,grp0_1)
+        mm.addGroup(0,grp0_0)
+        self.assertEqual(mm.getGrpNonEmptyLevels(grpName),(0,-1))
+        self.assertTrue(mm.getGroupArr(0,grpName).isEqual(grp0_0))
+        self.assertTrue(mm.getGroupArr(-1,grpName).isEqual(grp0_1))
+        self.assertTrue(mm.getGroupArr(0,"grp1").isEqual(grp1))
+        self.assertTrue(mm.getGroupArr(-1,"grp2").isEqual(grp2))
+        pass
     
     pass
 

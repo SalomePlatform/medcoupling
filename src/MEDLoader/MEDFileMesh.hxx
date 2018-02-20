@@ -136,6 +136,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static std::string GetMagicFamilyStr();
     MEDLOADER_EXPORT void assignFamilyNameWithGroupName();
     MEDLOADER_EXPORT std::vector<std::string> removeEmptyGroups();
+    MEDLOADER_EXPORT void removeGroupAtLevel(int meshDimRelToMaxExt, const std::string& name);
     MEDLOADER_EXPORT void removeGroup(const std::string& name);
     MEDLOADER_EXPORT void removeFamily(const std::string& name);
     MEDLOADER_EXPORT std::vector<std::string> removeOrphanGroups();
@@ -227,6 +228,7 @@ namespace MEDCoupling
     bool areEquivalencesEqual(const MEDFileMesh *other, std::string& what) const;
     void getEquivalencesRepr(std::ostream& oss) const;
     void checkCartesian() const;
+    void checkNoGroupClash(const DataArrayInt *famArr, const std::string& grpName) const;
   private:
     virtual void writeMeshLL(med_idt fid) const = 0;
   protected:

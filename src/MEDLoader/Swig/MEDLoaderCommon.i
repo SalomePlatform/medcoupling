@@ -1111,6 +1111,7 @@ namespace MEDCoupling
     static std::string GetMagicFamilyStr();
     void assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception);
     std::vector<std::string> removeEmptyGroups() throw(INTERP_KERNEL::Exception);
+    void removeGroupAtLevel(int meshDimRelToMaxExt, const std::string& name) throw(INTERP_KERNEL::Exception);
     void removeGroup(const std::string& name) throw(INTERP_KERNEL::Exception);
     void removeFamily(const std::string& name) throw(INTERP_KERNEL::Exception);
     std::vector<std::string> removeOrphanGroups() throw(INTERP_KERNEL::Exception);

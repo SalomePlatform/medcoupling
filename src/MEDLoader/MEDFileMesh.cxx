@@ -673,6 +673,35 @@ std::vector<std::string> MEDFileMesh::removeEmptyGroups()
   return ret;
 }
 
+void MEDFileMesh::removeGroupAtLevel(int meshDimRelToMaxExt, const std::string& name)
+{
+  std::map<std::string, std::vector<std::string> >::iterator it(_groups.find(name));
+  std::vector<std::string> grps(getGroupsNames());
+  if(it==_groups.end())
+    {
+      std::ostringstream oss; oss << "No such groupname \"" << name << "\" !\nAvailable groups are :";
+      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const std::vector<std::string> &famsOnGrp((*it).second);
+  std::vector<int> famIds(getFamiliesIdsOnGroup(name));
+  const DataArrayInt *famArr(getFamilyFieldAtLevel(meshDimRelToMaxExt));
+  if(!famArr)
+    return ;
+  MCAuto<DataArrayInt> vals(famArr->getDifferentValues());
+  MCAuto<DataArrayInt> famIds2(DataArrayInt::NewFromStdVector(famIds));
+  MCAuto<DataArrayInt> idsToKill(famIds2->buildIntersection(vals));
+  if(idsToKill->empty())
+    return ;
+  std::vector<std::string> newFamsOnGrp;
+  for(std::vector<std::string>::const_iterator it=famsOnGrp.begin();it!=famsOnGrp.end();it++)
+    {
+      if(!idsToKill->presenceOfValue(getFamilyId(*it)))
+         newFamsOnGrp.push_back(*it);
+    }
+  (*it).second=newFamsOnGrp;
+}
+
 /*!
  * Removes a group from \a this mesh.
  *  \param [in] name - the name of the group to remove.
@@ -680,9 +709,8 @@ std::vector<std::string> MEDFileMesh::removeEmptyGroups()
  */
 void MEDFileMesh::removeGroup(const std::string& name)
 {
-  std::string oname(name);
-  std::map<std::string, std::vector<std::string> >::iterator it=_groups.find(oname);
-  std::vector<std::string> grps=getGroupsNames();
+  std::map<std::string, std::vector<std::string> >::iterator it=_groups.find(name);
+  std::vector<std::string> grps(getGroupsNames());
   if(it==_groups.end())
     {
       std::ostringstream oss; oss << "No such groupname \"" << name << "\" !\nAvailable groups are :";
@@ -1256,6 +1284,19 @@ void MEDFileMesh::addFamilyOnAllGroupsHaving(const std::string& famName, const s
     }
 }
 
+void MEDFileMesh::checkNoGroupClash(const DataArrayInt *famArr, const std::string& grpName) const
+{
+  std::vector<std::string> grpsNames(getGroupsNames());
+  if(std::find(grpsNames.begin(),grpsNames.end(),grpName)==grpsNames.end())
+    return ;
+  std::vector<int> famIds(getFamiliesIdsOnGroup(grpName));
+  if(famArr->presenceOfValue(famIds))
+    {
+      std::ostringstream oss; oss << "MEDFileUMesh::addGroup : Group with name \"" << grpName << "\" already exists at specified level ! Destroy it before calling this method !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
 /*!
  * \param [in] ids ids and group name of the new group to add. The ids should be sorted and different each other (MED file norm).
  * \parma [in,out] famArr family array on level of interest to be renumbered. The input pointer should be not \c NULL (no check of that will be performed)
@@ -1268,13 +1309,8 @@ void MEDFileMesh::addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids,
   if(grpName.empty())
     throw INTERP_KERNEL::Exception("MEDFileUMesh::addGroup : empty group name ! MED file format do not accept empty group name !");
   ids->checkStrictlyMonotonic(true);
-  famArr->incrRef(); MCAuto<DataArrayInt> famArrTmp(famArr);
-  std::vector<std::string> grpsNames=getGroupsNames();
-  if(std::find(grpsNames.begin(),grpsNames.end(),grpName)!=grpsNames.end())
-    {
-      std::ostringstream oss; oss << "MEDFileUMesh::addGroup : Group with name \"" << grpName << "\" already exists ! Destroy it before calling this method !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
+  checkNoGroupClash(famArr,grpName);
+  MCAuto<DataArrayInt> famArrTmp; famArrTmp.takeRef(famArr);
   std::list< MCAuto<DataArrayInt> > allFamIds(getAllNonNullFamilyIds());
   allFamIds.erase(std::find(allFamIds.begin(),allFamIds.end(),famArrTmp));
   MCAuto<DataArrayInt> famIds=famArr->selectByTupleIdSafe(ids->begin(),ids->end());
@@ -1331,8 +1367,15 @@ void MEDFileMesh::addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids,
       famArr->setPartOfValuesSimple3(familyIds[i],da->begin(),da->end(),0,1,1);
     }
   _families=families;
+  std::map<std::string, std::vector<std::string> >::iterator itt(groups.find(grpName));
+  if(itt!=groups.end())
+    {
+      std::vector<std::string>& famsOnGrp((*itt).second);
+      famsOnGrp.insert(famsOnGrp.end(),fams.begin(),fams.end());
+    }
+  else
+    groups[grpName]=fams;
   _groups=groups;
-  _groups[grpName]=fams;
 }
 
 void MEDFileMesh::changeAllGroupsContainingFamily(const std::string& familyNameToChange, const std::vector<std::string>& newFamiliesNames)
@@ -4874,7 +4917,7 @@ void MEDFileUMesh::addNodeGroup(const DataArrayInt *ids)
   if(!coords)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::addNodeGroup : no coords set !");
   int nbOfNodes(coords->getNumberOfTuples());
-  if(!((DataArrayInt *)_fam_coords))
+  if(_fam_coords.isNull())
     { _fam_coords=DataArrayInt::New(); _fam_coords->alloc(nbOfNodes,1); _fam_coords->fillWithZero(); }
   //
   addGroupUnderground(true,ids,_fam_coords);
