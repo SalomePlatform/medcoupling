@@ -110,6 +110,7 @@ SET(medpartitionercpp_LDFLAGS
   interpkernel
   medcouplingcpp
   medloader
+  -lpthread
 )
 IF(MEDCOUPLING_PARTITIONER_PARMETIS)
   SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_ParMetisGraph.hxx)
