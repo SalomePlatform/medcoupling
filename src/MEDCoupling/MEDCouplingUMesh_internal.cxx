@@ -1754,3 +1754,88 @@ void MEDCouplingUMesh::ComputeAllTypesInternal(std::set<INTERP_KERNEL::Normalize
           types.insert((INTERP_KERNEL::NormalizedCellType)conn[*pt]);
     }
 }
+
+/*!
+ * This method expects that \a this a quadratic 1D, 2D or 3D mesh.
+ * This method will 'attract' middle points of seg3 (deduced from this by explosion if needed) of cells connected to nodes specified in [\a nodeIdsBg, \a nodeIdsEnd )
+ * For those selected mid points, their coordinates will be modified by applying a dilation between node in input [\a nodeIdsBg, \a nodeIdsEnd ) and the corresponding mid points using \a ratio input value.
+ * So this method is non const because coordinates are modified.
+ * If there is a couple of 2 points in [\a nodeIdsBg, \a nodeIdsEnd ) that are boundaries of a seg3, the corresponding mid point will remain untouched.
+ *
+ * \param [in] ratio - ratio of dilation
+ * \param [in] nodeIdsBg - start (included) of input node list
+ * \param [in] nodeIdsEnd - end (excluded) of input node list
+ * \throw if there is a point in [\a nodeIdsBg, \a nodeIdsEnd ) that is a mid point of a seg3
+ * \warning in case of throw the coordinates may be partially modified before the exception arises
+ */
+void MEDCouplingUMesh::attractSeg3MidPtsAroundNodes(double ratio, const int *nodeIdsBg, const int *nodeIdsEnd)
+{
+  checkFullyDefined();
+  int mdim(getMeshDimension());
+  if(mdim==2 || mdim==3)
+    {
+      MCAuto<MEDCouplingUMesh> edges;
+      {
+        MCAuto<DataArrayInt> a,b,c,d;
+        edges=this->explodeIntoEdges(a,b,c,d);
+      }
+      return edges->attractSeg3MidPtsAroundNodesUnderground(ratio,nodeIdsBg,nodeIdsEnd);
+    }
+  if(mdim==1)
+    return attractSeg3MidPtsAroundNodesUnderground(ratio,nodeIdsBg,nodeIdsEnd);
+  throw INTERP_KERNEL::Exception("MEDCouplingUMesh::attractSeg3MidPtsAroundNodes : not managed dimension ! Should be in [1,2,3] !");
+}
+
+/*!
+ * \a this is expected to have meshdim==1.
+ */
+void MEDCouplingUMesh::attractSeg3MidPtsAroundNodesUnderground(double ratio, const int *nodeIdsBg, const int *nodeIdsEnd)
+{
+#if __cplusplus >= 201103L
+  int spaceDim(getSpaceDimension());
+  double *coords(getCoords()->getPointer());
+  auto nbNodes(getNumberOfNodes());
+  auto nbCells(getNumberOfCells());
+  std::vector<bool> fastFinder(nbNodes,false);
+  for(auto work=nodeIdsBg;work!=nodeIdsEnd;work++)
+    if(*work>=0 && *work<nbNodes)
+      fastFinder[*work]=true;
+  MCAuto<DataArrayInt> cellsIds(getCellIdsLyingOnNodes(nodeIdsBg,nodeIdsEnd,false));
+  const int *nc(_nodal_connec->begin()),*nci(_nodal_connec_index->begin());
+  for(auto cellId=0;cellId<nbCells;cellId++,nci++)
+    {
+      const int *isSelected(std::find_if(nc+nci[0]+1,nc+nci[1],[&fastFinder](int v) { return fastFinder[v]; }));
+      if(isSelected!=nc+nci[1])
+        {
+          if((INTERP_KERNEL::NormalizedCellType)nc[nci[0]]==INTERP_KERNEL::NORM_SEG3 && nci[1]-nci[0]==4)
+            {
+              bool aa(fastFinder[nc[*nci+1]]),bb(fastFinder[nc[*nci+2]]),cc(fastFinder[nc[*nci+3]]);
+              if(!cc)
+                {
+                  if(aa^bb)
+                    {
+                      auto ptToMove(nc[*nci+3]);
+                      auto attractor(aa?nc[*nci+1]:nc[*nci+2]);
+                      std::transform(coords+spaceDim*ptToMove,coords+spaceDim*(ptToMove+1),coords+spaceDim*attractor,
+                                     coords+spaceDim*ptToMove,[ratio](const double& mvp, const double& attp) { return attp+ratio*(mvp-attp); });
+                    }
+                  else
+                    continue;
+                }
+              else
+                {
+                  std::ostringstream oss; oss << "MEDCouplingUMesh::attractSeg3MidPtsAroundNodes : cell #" << cellId << " has a mid point " << nc[*nci+3] << " ! This node is in input list !";
+                  throw INTERP_KERNEL::Exception(oss.str());
+                }
+            }
+          else
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::attractSeg3MidPtsAroundNodes : cell #" << cellId << " sharing one of the input nodes list its geo type is NOT SEG3 !";
+              throw INTERP_KERNEL::Exception(oss.str());
+            }
+        }
+    }
+#else
+  throw INTERP_KERNEL::Exception("MEDCouplingUMesh::attractSeg3MidPtsAroundNodes : for your information new compiler have arrived since Fortran66 compiler :)");
+#endif 
+}

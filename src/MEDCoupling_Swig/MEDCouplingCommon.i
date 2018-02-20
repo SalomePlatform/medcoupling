@@ -2389,6 +2389,14 @@ namespace MEDCoupling
           }
       }
 
+      void attractSeg3MidPtsAroundNodes(double ratio, PyObject *nodeIds) throw(INTERP_KERNEL::Exception)
+      {
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *nodeIdsPtr(convertIntStarLikePyObjToCppIntStar(nodeIds,sw,szArr,iTypppArr,stdvecTyyppArr));
+        self->attractSeg3MidPtsAroundNodes(ratio,nodeIdsPtr,nodeIdsPtr+szArr);
+      }
+
       PyObject *getLevArrPerCellTypes(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         int sz;

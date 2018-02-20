@@ -196,6 +196,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void orientCorrectlyPolyhedrons();
     MEDCOUPLING_EXPORT void invertOrientationOfAllCells();
     MEDCOUPLING_EXPORT void getFastAveragePlaneOfThis(double *vec, double *pos) const;
+    MEDCOUPLING_EXPORT void attractSeg3MidPtsAroundNodes(double ratio, const int *nodeIdsBg, const int *nodeIdsEnd);
     //Mesh quality
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getEdgeRatioField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getAspectRatioField() const;
@@ -356,6 +357,7 @@ namespace MEDCoupling
                                                 std::vector<int> & pointIds, std::vector<int> & hitSegs);
     static void ReplaceEdgeInFace(const int * sIdxConn, const int * sIdxConnE, int startNode, int endNode,
                                       const std::vector<int>& insidePoints, std::vector<int>& modifiedFace);
+    void attractSeg3MidPtsAroundNodesUnderground(double ratio, const int *nodeIdsBg, const int *nodeIdsEnd);
   public:
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeRangesFromTypeDistribution(const std::vector<int>& code);
     MEDCOUPLING_EXPORT static const int N_MEDMEM_ORDER=25;
