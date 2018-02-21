@@ -189,6 +189,27 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         a1.rearrange(3)
         self.assertRaises(InterpKernelException,a1.findIdForEach,b1) # a1 is not single component
         pass
+
+    def testAttractSeg3MidPtsAroundNodes1(self):
+        """ Test of MEDCouplingUMesh.attractSeg3MidPtsAroundNodes methods """
+        ptsExpToBeModified=DataArrayInt([95,96,97,98,101,103,104,106,108,110])
+        eps=1e-12
+        a=2./3.
+        b=1./3.
+        coo=DataArrayDouble([10,0,0,10,10,0,10,0,3.+b,10,0,6.+a,10,10,3.+b,10,10,6.+a,10,3.+b,0,10,6.+a,0,3.+b,0,0,6.+a,0,0,3.+b,10,0,6.+a,10,0,10,3.+b,6.+a,10,6.+a,6.+a,10,3.+b,3.+b,10,6.+a,3.+b,3.+b,0,3.+b,3.+b,0,6.+a,6.+a,0,3.+b,6.+a,0,6.+a,6.+a,10,3.+b,6.+a,10,6.+a,3.+b,10,3.+b,3.+b,10,6.+a,3.+b,3.+b,0,6.+a,3.+b,0,3.+b,6.+a,0,6.+a,6.+a,0,3.+b,3.+b,6.+a,6.+a,3.+b,6.+a,3.+b,6.+a,6.+a,6.+a,6.+a,6.+a,3.+b,3.+b,3.+b,6.+a,3.+b,3.+b,3.+b,6.+a,3.+b,6.+a,6.+a,3.+b,10,0,1.+a,10,0,5.,10,10,1.+a,10,10,5.,10,1.+a,0,10,5.,0,10,8.+b,0,5.,0,0,8.+b,0,0,5.,10,0,8.+b,10,0,10,1.+a,6.+a,10,5.,6.+a,10,8.+b,6.+a,10,1.+a,3.+b,10,3.+b,5.,10,5.,3.+b,10,6.+a,5.,10,8.+b,3.+b,10,3.+b,1.+a,10,6.+a,1.+a,3.+b,0,1.+a,3.+b,0,5.,6.+a,0,1.+a,5.,0,3.+b,6.+a,0,5.,5.,0,6.+a,8.+b,0,3.+b,8.+b,0,6.+a,6.+a,10,1.+a,8.+b,10,3.+b,6.+a,10,5.,8.+b,10,6.+a,3.+b,10,1.+a,5.,10,3.+b,3.+b,10,5.,5.,10,6.+a,3.+b,1.+a,0,5.,3.+b,0,6.+a,1.+a,0,8.+b,3.+b,0,3.+b,5.,0,5.,6.+a,0,6.+a,5.,0,8.+b,6.+a,0,3.+b,8.+b,0,6.+a,8.+b,0,3.+b,1.+a,6.+a,6.+a,1.+a,6.+a,5.,3.+b,6.+a,8.+b,3.+b,6.+a,3.+b,5.,6.+a,6.+a,5.,6.+a,5.,6.+a,6.+a,8.+b,6.+a,6.+a,3.+b,8.+b,6.+a,6.+a,8.+b,6.+a,3.+b,3.+b,5,3.+b,1.+a,3.+b,6.+a,3.+b,5.,6.+a,1.+a,3.+b,5.,3.+b,3.+b,8.+b,3.+b,3.+b,3.+b,6.+a,5.,3.+b,5.,3.+b,6.+a,6.+a,5.,6.+a,5.,3.+b,5.,6.+a,3.+b,8.+b,6.+a,3.+b,3.+b,8.+b,3.+b,6.+a,8.+b,3.+b,3.+b,3.+b,1.+a,6.+a,3.+b,1.+a,3.+b,6.+a,1.+a,6.+a,6.+a,1.+a],111,3)
+        conn=DataArrayInt([30,17,28,32,16,19,29,33,18,83,93,94,58,84,95,96,61,62,85,97,60,30,19,29,33,18,3,12,14,2,84,95,96,61,47,51,50,37,64,86,98,63,30,28,30,34,32,29,31,35,33,87,99,100,93,88,101,102,95,85,89,103,97,30,29,31,35,33,12,13,15,14,88,101,102,95,48,53,52,51,86,90,104,98,30,30,23,22,34,31,21,20,35,91,71,105,99,92,67,106,101,89,72,70,103,30,31,21,20,35,13,5,4,15,92,67,106,101,49,39,54,53,90,68,66,104,30,16,32,24,8,18,33,25,9,94,107,73,57,96,108,75,59,60,97,74,43,30,18,33,25,9,2,14,6,0,96,108,75,59,50,55,40,36,63,98,76,44,30,32,34,26,24,33,35,27,25,100,109,77,107,102,110,79,108,97,103,78,74,30,33,35,27,25,14,15,7,6,102,110,79,108,52,56,41,55,98,104,80,76,30,34,22,10,26,35,20,11,27,105,69,81,109,106,65,82,110,103,70,45,78,30,35,20,11,27,15,4,1,7,106,65,82,110,54,38,42,56,104,66,46,80])
+        connI=DataArrayInt([0,21,42,63,84,105,126,147,168,189,210,231,252])
+        m=MEDCouplingUMesh("mesh",3)
+        m.setConnectivity(conn,connI,True)
+        m.setCoords(coo.deepCopy())# deep copy coo because next line is going to modify it, if it works normaly
+        m.attractSeg3MidPtsAroundNodes(0.1,DataArrayInt([33,35])) # ze call is here !
+        self.assertTrue(not m.getCoords().isEqual(coo,eps)) # some points have had their position changed...
+        ptsExpNotToBeModified=ptsExpToBeModified.buildComplement(len(coo))
+        self.assertTrue(m.getCoords()[ptsExpNotToBeModified].isEqual(coo[ptsExpNotToBeModified],eps))
+        self.assertTrue((m.getCoords()[ptsExpToBeModified]-coo[ptsExpToBeModified]).magnitude().isUniform(4./3.,1e-12))
+        ptsPosExp=DataArrayDouble([6.+a,3.+b,3.+a,6.+a,3.,3.+b,6.+b,3.+b,3.+b,7.,3.+b,3.+b,6.+a,6.+a,3.+a,6.+b,6.+a,3.+b,7.,6.+a,3.+b,6.+a,7.,3.+b,6.+a,3.+b,3.,6.+a,6.+a,3.],10,3)
+        self.assertTrue(m.getCoords()[ptsExpToBeModified].isEqual(ptsPosExp,1e-12))
+        pass
     
     pass
 

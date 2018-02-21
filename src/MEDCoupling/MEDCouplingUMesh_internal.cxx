@@ -1815,12 +1815,12 @@ void MEDCouplingUMesh::attractSeg3MidPtsAroundNodesUnderground(double ratio, con
                   if(aa^bb)
                     {
                       auto ptToMove(nc[*nci+3]);
-                      auto attractor(aa?nc[*nci+1]:nc[*nci+2]);
-                      std::transform(coords+spaceDim*ptToMove,coords+spaceDim*(ptToMove+1),coords+spaceDim*attractor,
-                                     coords+spaceDim*ptToMove,[ratio](const double& mvp, const double& attp) { return attp+ratio*(mvp-attp); });
+                      auto attractor(aa?nc[*nci+1]:nc[*nci+2]),endPt(aa?nc[*nci+2]:nc[*nci+1]);
+                      std::transform(coords+spaceDim*attractor,coords+spaceDim*(attractor+1),coords+spaceDim*endPt,
+                                     coords+spaceDim*ptToMove,[ratio](const double& stPt, const double& endPt) { return stPt+ratio*(endPt-stPt); });
                     }
                   else
-                    continue;
+                    continue;//both 2 boundary nodes of current seg3 are un nodeIds input list -> skip it.
                 }
               else
                 {
