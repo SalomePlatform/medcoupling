@@ -404,7 +404,7 @@ MEDCouplingUMeshCellIterator *MEDCouplingUMesh::cellIterator()
 
 /*!
  * Entry point for iteration over cells groups geo types per geotypes. Warning the returned cell iterator should be deallocated.
- * If \a this is not so that that cells are grouped by geo types this method will throw an exception.
+ * If \a this is not so that the cells are grouped by geo types, this method will throw an exception.
  * In this case MEDCouplingUMesh::sortCellsInMEDFileFrmt or MEDCouplingUMesh::rearrange2ConsecutiveCellTypes methods for example can be called before invoking this method.
  * Useful for python users.
  */

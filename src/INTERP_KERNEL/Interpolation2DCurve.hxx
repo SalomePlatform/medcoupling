@@ -31,7 +31,7 @@ namespace INTERP_KERNEL
   public:
     Interpolation2DCurve();
     Interpolation2DCurve(const InterpolationOptions& io);
-    // geometric precision, intersection tolerance, coice of the median line,
+    // geometric precision, intersection tolerance, choice of the median line,
     void setOptions(double precision, double tolerance, double medianLine);
   };
 }
