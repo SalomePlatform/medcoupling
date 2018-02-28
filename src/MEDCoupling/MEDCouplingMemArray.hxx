@@ -234,6 +234,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const T *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT const T *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const T *end() const { return getConstPointer()+getNbOfElems(); }
+    MEDCOUPLING_EXPORT T *rwBegin() { return getPointer(); }
+    MEDCOUPLING_EXPORT T *rwEnd() { return getPointer()+getNbOfElems(); }
     void alloc(std::size_t nbOfTuple, std::size_t nbOfCompo=1);
     void useArray(const T *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void useExternalArrayWithRWAccess(const T *array, int nbOfTuple, int nbOfCompo);

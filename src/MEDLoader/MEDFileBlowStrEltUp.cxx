@@ -460,6 +460,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
 
 MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thikness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
 {
+#if __cplusplus >= 201103L
   MCAuto<DataArrayDouble> ptsForLoc;
   MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(gt,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
   int nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
@@ -482,11 +483,14 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
   std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
   for(int j=0;j<nbCells;j++)
     {
-      double thck(zeThikness->getIJ(j,0));
-      MCAuto<DataArrayDouble> fact(DataArrayDouble::New()); fact->alloc(1,nbCompo);
+      double thck(zeThikness->getIJ(j,0)),eccentricity(zeThikness->getIJ(j,1));
+      MCAuto<DataArrayDouble> fact(DataArrayDouble::New()),fact2(DataArrayDouble::New()); fact->alloc(1,nbCompo); fact2->alloc(1,nbCompo);
       std::copy(orthoArr->begin()+j*nbCompo,orthoArr->begin()+(j+1)*nbCompo,fact->getPointer());
-      std::transform(fact->begin(),fact->end(),fact->getPointer(),std::bind2nd(std::multiplies<double>(),thck/2.));
+      std::copy(orthoArr->begin()+j*nbCompo,orthoArr->begin()+(j+1)*nbCompo,fact2->getPointer());
+      std::for_each(fact2->rwBegin(),fact2->rwEnd(),[eccentricity](double& val){ val*=eccentricity; });
+      std::transform(fact->begin(),fact->end(),fact->getPointer(),[thck](const double& val){ return val*thck/2.; });
       MCAuto<DataArrayDouble> p(DataArrayDouble::Multiply(secPts,fact));
+      p=DataArrayDouble::Add(p,fact2);
       for(int l=0;l<nbg;l++)
         {
           MCAuto<DataArrayDouble> p2(p->deepCopy());
@@ -498,6 +502,9 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
   std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
   MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
   return resu;
+#else
+  throw INTERP_KERNEL::Exception("Broken news : 10% off for C++11 compiler :)");
+#endif
 }
 
 MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle, const DataArrayDouble *scale, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
@@ -510,7 +517,6 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
   if(!pfl.empty())
     {
       const DataArrayInt *pflArr(globs->getProfile(pfl));
-      geoMesh=geoMesh->buildPartOfMySelf(pflArr->begin(),pflArr->end(),true);
       zeAngle=angle->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
       zeScale=scale->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
     }
