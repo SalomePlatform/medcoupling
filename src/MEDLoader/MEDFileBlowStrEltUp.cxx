@@ -509,6 +509,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
 
 MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle, const DataArrayDouble *scale, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
 {
+#if __cplusplus >= 201103L
   static const char MSG1[]="BuildMeshPipeSEG3 : not recognized pattern ! Send mail to anthony.geay@edf.fr with corresponding MED file !";
   MCAuto<DataArrayDouble> ptsForLoc;
   MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(INTERP_KERNEL::NORM_SEG3,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
@@ -546,8 +547,20 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
   std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
   for(int j=0;j<nbCells;j++)
     {
+      constexpr int DIM=3;
       MCAuto<DataArrayDouble> p(secPts->deepCopy());
       double ang0(rot->getIJ(j,2));
+      double rmin(zeScale->getIJ(j,0)),rmax(zeScale->getIJ(j,1));
+      {
+        auto pt(p->rwBegin());
+        for(int i=0;i<nbSecPts;i++)
+          {
+            auto nrm(sqrt(std::accumulate(pt,pt+DIM,0.,[](double sum, double v) { return sum+v*v; } )));
+            auto sca(rmin+2.*(nrm-0.5)*(rmax-rmin));
+            std::for_each(pt,pt+3,[sca](double& val) { val*=sca; } );
+            std::advance(pt,DIM);
+          }
+      }
       DataArrayDouble::Rotate3DAlg(CENTER,AX0,ang0,nbSecPts,p->begin(),p->getPointer());
       AX1[0]=-sin(ang0); AX1[1]=cos(ang0);// rot Oy around OZ
       double ang1(M_PI/2.-rot->getIJ(j,1));
@@ -565,6 +578,9 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
   std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
   MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
   return resu;
+#else
+  throw INTERP_KERNEL::Exception("Broken news : 10% off for C++11 compiler :)");
+#endif
 }
 
 MCAuto<DataArrayDouble> LocInfo::BuildMeshFromStructure(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
