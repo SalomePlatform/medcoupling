@@ -23,6 +23,7 @@
 #include "MEDFileFieldVisitor.hxx"
 #include "MEDCouplingPartDefinition.hxx"
 #include "MCAuto.txx"
+#include <numeric>
 
 using namespace MEDCoupling;
 
