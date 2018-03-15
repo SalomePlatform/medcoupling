@@ -120,9 +120,9 @@ void EnterTheResultOf2DCellEnd(const INTERP_KERNEL::Edge *e, int start, int stp,
   // only the quadratic point to deal with:
   if(linOrArc)
     {
-      if(stp-start>1)
+      if(stp-start>1)  // if we are covering more than one segment we need to create a new mid point
         {
-          int tmpSrt(connBg[start]),tmpEnd(connBg[stp]);
+          int tmpSrt(connBg[start]),tmpEnd(connBg[stp % nbOfEdges]);  // % to handle last seg.
           int tmp2(0),tmp3(appendedCoords->getNumberOfTuples()/2);
           InternalAddPointOriented(e,-1,coords,tmpSrt,tmpEnd,*appendedCoords,tmp2);
           middles.push_back(tmp3+offset);
