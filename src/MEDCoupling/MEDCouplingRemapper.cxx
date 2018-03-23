@@ -71,14 +71,8 @@ MEDCouplingRemapper::~MEDCouplingRemapper()
  */
 int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method)
 {
-  if(!srcMesh || !targetMesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepare : presence of NULL input pointer !");
-  std::string srcMethod,targetMethod;
-  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::CheckAndSplitInterpolationMethod(method,srcMethod,targetMethod);
-  MCAuto<MEDCouplingFieldTemplate> src=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(srcMethod));
-  src->setMesh(srcMesh);
-  MCAuto<MEDCouplingFieldTemplate> target=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(targetMethod));
-  target->setMesh(targetMesh);
+  MCAuto<MEDCouplingFieldTemplate> src,target;
+  BuildFieldTemplatesFrom(srcMesh,targetMesh,method,src,target);
   return prepareEx(src,target);
 }
 
@@ -93,17 +87,46 @@ int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCoupli
  */
 int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target)
 {
-  if(!src || !target)
-    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareEx : presence of NULL input pointer !");
-  if(!src->getMesh() || !target->getMesh())
-    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareEx : presence of NULL mesh pointer in given field template !");
-  releaseData(true);
-  _src_ft=const_cast<MEDCouplingFieldTemplate *>(src); _src_ft->incrRef();
-  _target_ft=const_cast<MEDCouplingFieldTemplate *>(target); _target_ft->incrRef();
+  restartUsing(src,target);
   if(isInterpKernelOnlyOrNotOnly())
     return prepareInterpKernelOnly();
   else
     return prepareNotInterpKernelOnly();
+}
+
+void MEDCouplingRemapper::setMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<int,double> >& m)
+{
+  MCAuto<MEDCouplingFieldTemplate> src,target;
+  BuildFieldTemplatesFrom(srcMesh,targetMesh,method,src,target);
+  setMatrixEx(src,target,m);
+}
+
+void MEDCouplingRemapper::setMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<int,double> >& m)
+{
+#if __cplusplus >= 201103L
+  restartUsing(src,target);
+  if(m.size()!=target->getNumberOfTuplesExpected())
+    {
+      std::ostringstream oss; oss << "MEDCouplingRemapper::setMatrixEx : input matrix has " << m.size() << " rows whereas there are " << target->getNumberOfTuplesExpected() << " expected !";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  auto srcNbElem(src->getNumberOfTuplesExpected());
+  for(auto it: m)
+    {
+      for(auto it2: it)
+        {
+          auto idToTest(it2.first);
+          if(idToTest<0 || idToTest>=srcNbElem)
+            {
+              std::ostringstream oss; oss << "MEDCouplingRemapper::setMatrixEx : presence of elt #" << idToTest << " ! not in [0," << srcNbElem << ") !";
+              throw INTERP_KERNEL::Exception(oss.str());
+            }
+        }
+    }
+  _matrix=m;
+#else
+  throw INTERP_KERNEL::Exception("Breaking news : 10% off for C++11 compiler :)");
+#endif
 }
 
 int MEDCouplingRemapper::prepareInterpKernelOnly()
@@ -985,6 +1008,18 @@ std::string MEDCouplingRemapper::BuildMethodFrom(const std::string& meth1, const
   return method;
 }
 
+void MEDCouplingRemapper::BuildFieldTemplatesFrom(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, MCAuto<MEDCouplingFieldTemplate>& src, MCAuto<MEDCouplingFieldTemplate>& target)
+{
+  if(!srcMesh || !targetMesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::BuildFieldTemplatesFrom : presence of NULL input pointer !");
+  std::string srcMethod,targetMethod;
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::CheckAndSplitInterpolationMethod(method,srcMethod,targetMethod);
+  src=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(srcMethod));
+  src->setMesh(srcMesh);
+  target=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(targetMethod));
+  target->setMesh(targetMesh);
+}
+
 void MEDCouplingRemapper::releaseData(bool matrixSuppression)
 {
   _src_ft=0;
@@ -995,6 +1030,17 @@ void MEDCouplingRemapper::releaseData(bool matrixSuppression)
       _deno_multiply.clear();
       _deno_reverse_multiply.clear();
     }
+}
+
+void MEDCouplingRemapper::restartUsing(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target)
+{
+  if(!src || !target)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::restartUsingData : presence of NULL input pointer !");
+  if(!src->getMesh() || !target->getMesh())
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareEx : presence of NULL mesh pointer in given field template !");
+  releaseData(true);
+  _src_ft.takeRef(const_cast<MEDCouplingFieldTemplate *>(src));
+  _target_ft.takeRef(const_cast<MEDCouplingFieldTemplate *>(target));
 }
 
 void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, bool isDftVal, double dftValue)

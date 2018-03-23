@@ -88,6 +88,12 @@ namespace MEDCoupling
              return ToCSRMatrix(self->getCrudeMatrix(),self->getNumberOfColsOfMatrix());
            }
 #endif
+           void setMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, PyObject *m) throw(INTERP_KERNEL::Exception)
+           {
+             std::vector<std::map<int,double> > mCpp;
+             convertToVectMapIntDouble(m,mCpp);
+             self->setMatrix(srcMesh,targetMesh,mCpp);
+           }
          }
     };
 }

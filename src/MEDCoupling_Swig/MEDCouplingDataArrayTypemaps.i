@@ -3032,6 +3032,41 @@ PyObject *DataArrayT__getitem__internal(const typename MEDCoupling::Traits<T>::A
     }
 }
 
+void convertToVectMapIntDouble(PyObject *pyobj, std::vector<std::map<int,double> >& mCpp)
+{
+  if(!PyList_Check(pyobj))
+    throw INTERP_KERNEL::Exception("convertToVectMapIntDouble : input is not a python list !");
+  mCpp.clear();
+  Py_ssize_t sz(PyList_Size(pyobj));
+  mCpp.resize(sz);
+  for(Py_ssize_t i=0;i<sz;i++)
+    {
+      PyObject *elt(PyList_GetItem(pyobj,i));
+      if(!PyDict_Check(elt))
+        {
+          std::ostringstream oss; oss << "convertToVectMapIntDouble : at pos # " << i << " of pylist a dict is exepect !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+      PyObject *key, *value;
+      Py_ssize_t pos(0);
+      std::map<int,double>& mapCpp(mCpp[i]);
+      while(PyDict_Next(elt,&pos,&key,&value))
+        {
+          if(!PyInt_Check(key))
+            {
+              std::ostringstream oss; oss << "convertToVectMapIntDouble : at pos # " << i << " of pylist the dict contains at pos " << pos << " a key not mappable to pyint !";
+              throw INTERP_KERNEL::Exception(oss.str());
+            }
+          if(!PyFloat_Check(value))
+            {
+              std::ostringstream oss; oss << "convertToVectMapIntDouble : at pos # " << i << " of pylist the dict contains at pos " << pos << " the value not mappable to pyfloat !";
+              throw INTERP_KERNEL::Exception(oss.str());
+            }
+          mapCpp[(int)PyInt_AS_LONG(key)]=PyFloat_AS_DOUBLE(value);
+        }
+    }
+}
+
 template<class T>
 PyObject *DataArrayT_imul__internal(PyObject *trueSelf, PyObject *obj, typename MEDCoupling::Traits<T>::ArrayType *self, swig_type_info *ti_da, swig_type_info *ti_tuple)
 {
