@@ -3032,6 +3032,48 @@ PyObject *DataArrayT__getitem__internal(const typename MEDCoupling::Traits<T>::A
     }
 }
 
+bool isCSRMatrix(PyObject *m)
+{
+#if defined(WITH_NUMPY) && defined(WITH_SCIPY)
+  PyObject* pdict(PyDict_New());
+  PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
+  PyObject *tmp(PyRun_String("from scipy.sparse import csr_matrix", Py_single_input, pdict, pdict));
+  if(!tmp)
+    throw INTERP_KERNEL::Exception("Problem during loading csr_matrix in scipy.sparse ! Is Scipy module available in present ?");
+  PyObject *csrMatrixCls=PyDict_GetItemString(pdict,"csr_matrix");
+  if(!csrMatrixCls)
+    throw INTERP_KERNEL::Exception("csr_matrix not found in scipy.sparse ! Is Scipy module available in present ?");
+  bool ret(PyObject_IsInstance(m,csrMatrixCls));
+  Py_DECREF(pdict); Py_XDECREF(tmp);
+  return ret;
+#else
+  return false;
+#endif
+}
+
+void convertCSR_MCDataToVectMapIntDouble(const MEDCoupling::DataArrayInt *indptrPtr, const MEDCoupling::DataArrayInt *indicesPtr, const MEDCoupling::DataArrayDouble *dataPtr, std::vector<std::map<int,double> >& mCpp)
+{
+#if __cplusplus >= 201103L
+  auto nbOfRows(indptrPtr->getNumberOfTuples()-1);
+  if(nbOfRows<0)
+    throw INTERP_KERNEL::Exception("pywrap of MEDCouplingRemapper::setMatrix : input CSR matrix looks bad regarding indptr array !");
+  mCpp.resize(nbOfRows);
+  auto indPtrCPtr(indptrPtr->begin());
+  auto indicesCPtr(indicesPtr->begin());
+  auto dataCPtr(dataPtr->begin());
+  for(auto i=0;i<nbOfRows;i++)
+    {
+      auto& line(mCpp[i]);
+      for(auto j=indPtrCPtr[i];j<indPtrCPtr[i+1];j++)
+        {
+          line[indicesCPtr[j]]=dataCPtr[j];
+        }
+    }
+#else
+  throw INTERP_KERNEL::Exception("Breaking news : 10% off for C++11 compiler :)");
+#endif
+}
+
 void convertToVectMapIntDouble(PyObject *pyobj, std::vector<std::map<int,double> >& mCpp)
 {
   if(!PyList_Check(pyobj))

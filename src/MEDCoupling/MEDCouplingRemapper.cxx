@@ -94,14 +94,14 @@ int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const ME
     return prepareNotInterpKernelOnly();
 }
 
-void MEDCouplingRemapper::setMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<int,double> >& m)
+void MEDCouplingRemapper::setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<int,double> >& m)
 {
   MCAuto<MEDCouplingFieldTemplate> src,target;
   BuildFieldTemplatesFrom(srcMesh,targetMesh,method,src,target);
-  setMatrixEx(src,target,m);
+  setCrudeMatrixEx(src,target,m);
 }
 
-void MEDCouplingRemapper::setMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<int,double> >& m)
+void MEDCouplingRemapper::setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<int,double> >& m)
 {
 #if __cplusplus >= 201103L
   restartUsing(src,target);
@@ -124,6 +124,10 @@ void MEDCouplingRemapper::setMatrixEx(const MEDCouplingFieldTemplate *src, const
         }
     }
   _matrix=m;
+  _deno_multiply.clear();
+  _deno_multiply.resize(_matrix.size());
+  _deno_reverse_multiply.clear();
+  _deno_reverse_multiply.resize(srcNbElem);
 #else
   throw INTERP_KERNEL::Exception("Breaking news : 10% off for C++11 compiler :)");
 #endif

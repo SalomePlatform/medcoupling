@@ -88,11 +88,34 @@ namespace MEDCoupling
              return ToCSRMatrix(self->getCrudeMatrix(),self->getNumberOfColsOfMatrix());
            }
 #endif
-           void setMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, PyObject *m) throw(INTERP_KERNEL::Exception)
+           void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, PyObject *m) throw(INTERP_KERNEL::Exception)
+           {
+             std::vector<std::map<int,double> > mCpp;
+             if(isCSRMatrix(m))
+               {
+#if defined(WITH_NUMPY) && defined(WITH_SCIPY)
+                 PyObject *indptr(PyObject_GetAttrString(m,"indptr"));
+                 PyObject *indices(PyObject_GetAttrString(m,"indices"));
+                 PyObject *data(PyObject_GetAttrString(m,"data"));
+                 MCAuto<DataArrayInt> indptrPtr(MEDCoupling_DataArrayInt_New__SWIG_1(indptr,NULL,NULL));
+                 MCAuto<DataArrayInt> indicesPtr(MEDCoupling_DataArrayInt_New__SWIG_1(indices,NULL,NULL));
+                 MCAuto<DataArrayDouble> dataPtr(MEDCoupling_DataArrayDouble_New__SWIG_1(data,NULL,NULL));
+                 convertCSR_MCDataToVectMapIntDouble(indptrPtr,indicesPtr,dataPtr,mCpp);
+                 Py_XDECREF(data); Py_XDECREF(indptr); Py_XDECREF(indices);
+#else
+                 throw INTERP_KERNEL::Exception("pywrap of MEDCouplingRemapper::setCrudeMatrix : unexpected situation regarding numpy/scipy !");
+#endif
+               }
+             else
+               convertToVectMapIntDouble(m,mCpp);
+             self->setCrudeMatrix(srcMesh,targetMesh,method,mCpp);
+           }
+
+           void setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, PyObject *m) throw(INTERP_KERNEL::Exception)
            {
              std::vector<std::map<int,double> > mCpp;
              convertToVectMapIntDouble(m,mCpp);
-             self->setMatrix(srcMesh,targetMesh,method,mCpp);
+             self->setCrudeMatrixEx(src,target,mCpp);
            }
          }
     };
