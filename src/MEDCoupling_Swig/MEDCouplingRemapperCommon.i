@@ -92,7 +92,7 @@ namespace MEDCoupling
            {
              std::vector<std::map<int,double> > mCpp;
              convertToVectMapIntDouble(m,mCpp);
-             self->setMatrix(srcMesh,targetMesh,mCpp);
+             self->setMatrix(srcMesh,targetMesh,method,mCpp);
            }
          }
     };
