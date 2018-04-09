@@ -2159,7 +2159,7 @@ DataArrayInt *MEDCouplingUMesh::conformize3D(double eps)
 
   MCAuto<MEDCouplingSkyLineArray> connSla(MEDCouplingSkyLineArray::BuildFromPolyhedronConn(getNodalConnectivity(), getNodalConnectivityIndex()));
   const double * coo(_coords->begin());
-  MCAuto<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
 
   {
     /*************************
