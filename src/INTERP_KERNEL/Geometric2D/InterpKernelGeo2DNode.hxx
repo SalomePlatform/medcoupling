@@ -90,7 +90,9 @@ namespace INTERP_KERNEL
     static double norm(const double *vect) { return sqrt(vect[0]*vect[0]+vect[1]*vect[1]); }
     static bool areDoubleEquals(double a, double b) { return fabs(a-b) < QuadraticPlanarPrecision::getPrecision(); }
     //! idem areDoubleEquals except that precision of comparison is modified.
-    static bool areDoubleEqualsWP(double a, double b, double k) { return fabs(a-b) < k*QuadraticPlanarPrecision::getPrecision(); }
+    static bool areDoubleEqualsWPLeft(double a, double b, double k) { return k*fabs(a-b) < QuadraticPlanarPrecision::getPrecision(); }
+    //! idem areDoubleEquals except that precision of comparison is modified.
+    static bool areDoubleEqualsWPRight(double a, double b, double k) { return fabs(a-b) < k*QuadraticPlanarPrecision::getPrecision(); }
     static double distanceBtw2Pt(const double *a, const double *b) { return sqrt((a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1])); }
     static double distanceBtw2PtSq(const double *a, const double *b) { return (a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]); }
     //

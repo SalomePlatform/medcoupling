@@ -126,11 +126,13 @@ namespace INTERP_KERNEL
     void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
                             std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const;
   protected:
-    //!Value between -2Pi and 2Pi
-    double _angle;
-    //!Value between -Pi and Pi
+    //! Absolute angle where the arc starts. Value between -Pi and Pi
     double _angle0;
+    //! Angular span of the arc. Value between -2Pi and 2Pi
+    double _angle;
+    //! Radius of the arc of circle
     double _radius;
+    //! Center of the arc of circle
     double _center[2];
   };
 }

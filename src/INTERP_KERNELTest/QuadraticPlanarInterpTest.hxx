@@ -110,6 +110,8 @@ namespace INTERP_TEST
     CPPUNIT_TEST( checkIsInOrOut );
     CPPUNIT_TEST( checkGetMiddleOfPoints );
     CPPUNIT_TEST( checkGetMiddleOfPointsOriented );
+    CPPUNIT_TEST( checkArcArcIntersection1 );
+
     CPPUNIT_TEST_SUITE_END();
   public:  
     void setUp();
@@ -202,6 +204,7 @@ namespace INTERP_TEST
     void checkIsInOrOut();
     void checkGetMiddleOfPoints();
     void checkGetMiddleOfPointsOriented();
+    void checkArcArcIntersection1();
 
   private:
     INTERP_KERNEL::QuadraticPolygon *buildQuadraticPolygonCoarseInfo(const double *coords, const int *conn, int lgth);
