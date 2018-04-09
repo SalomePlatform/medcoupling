@@ -1682,4 +1682,37 @@ void QuadraticPlanarInterpTest::checkMakePartitionAbs1()
   pol1.dumpInXfigFileWithOther(pol2,"tony.fig");
 }
 
+/**
+ * Arc/arc intersection was buggy: a point was detected OFF when used in a linear segment, but
+ * detected ON when used in an (almost flat) arc of circle.
+ */
+void QuadraticPlanarInterpTest::checkArcArcIntersection1()
+{
+  double eps=1.0e-8;
+  INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(eps);
+  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(eps);
+
+  Node *n0=new Node(6.37533,38.8928);            Node *n3=new Node(6.29194,39.2789);
+  Node *n1=new Node(6.13158,38.8308);            Node *n4=new Node(6.31919,38.7607);
+  Node *n2=new Node(6.25346,38.8618);            Node *n5=new Node(6.38778,39.0241);
+
+  Node *n6=new Node(6.2534549999999998, 38.861800000000002);  // to have a linear edge e1
+
+  //EdgeArcCircle *e1=new EdgeArcCircle(n0, n2, n6, true);  // to have a linear edge e1
+  EdgeArcCircle *e1=new EdgeArcCircle(n0, n2, n1, true);
+  EdgeArcCircle *e2=new EdgeArcCircle(n3, n5, n4, true);
+
+  MergePoints merge;
+  QuadraticPolygon c1,c2;
+  e1->intersectWith(e2,merge,c1,c2);
+  CPPUNIT_ASSERT_EQUAL(2,c1.size());
+  CPPUNIT_ASSERT_EQUAL(2,c2.size());
+  //clean-up
+  n0->decrRef(); n1->decrRef(); n2->decrRef(); n3->decrRef(); n4->decrRef(); n5->decrRef(); n6->decrRef();
+  e1->decrRef(); e2->decrRef();
 }
+
+
+}
+
+
