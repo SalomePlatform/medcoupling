@@ -423,7 +423,7 @@ bool IsColinearOfACellOf(const std::vector< std::vector<int> >& intersectEdge1, 
  * This method has 4 inputs :
  *  - a mesh 'm1' with meshDim==1 and a SpaceDim==2
  *  - a mesh 'm2' with meshDim==1 and a SpaceDim==2
- *  - subDiv of size 'm2->getNumberOfCells()' that lists for each seg cell in 'm' the splitting node ids randomly sorted.
+ *  - subDiv of size 'm2->getNumberOfCells()' that lists for each seg cell in 'm2' the splitting node ids randomly sorted.
  * The aim of this method is to sort the splitting nodes, if any, and to put them in 'intersectEdge' output parameter based on edges of mesh 'm2'
  * Nodes end up lying consecutively on a cutted edge.
  * \param m1 is expected to be a mesh of meshDimension equal to 1 and spaceDim equal to 2. No check of that is performed by this method.
@@ -998,9 +998,9 @@ CellInfo& VectorOfCellInfo::get(int pos)
  *
  * Algorithm : \a splitMesh1D is cut into contiguous parts. Each contiguous parts will build incrementally the output 2D cells.
  *
- * \param [in] allEdges a list of pairs (beginNode, endNode). Linked with \a allEdgesPtr to get the equation of edge.
+ * \param [in] allEdges a list of pairs (beginNode, endNode). Represents all edges (already cut) in the single 2D cell being handled here. Linked with \a allEdgesPtr to get the equation of edge.
  */
-MEDCouplingUMesh *BuildMesh2DCutInternal(double eps, const MEDCouplingUMesh *splitMesh1D, const std::vector<int>& allEdges, const std::vector< MCAuto<INTERP_KERNEL::Edge> >& allEdgesPtr, int offset,
+MEDCouplingUMesh *BuildMesh2DCutInternal(double eps, MEDCouplingUMesh *splitMesh1D, const std::vector<int>& allEdges, const std::vector< MCAuto<INTERP_KERNEL::Edge> >& allEdgesPtr, int offset,
                                          MCAuto<DataArrayInt>& idsLeftRight)
 {
   int nbCellsInSplitMesh1D(splitMesh1D->getNumberOfCells());
@@ -1020,6 +1020,32 @@ MEDCouplingUMesh *BuildMesh2DCutInternal(double eps, const MEDCouplingUMesh *spl
   idsLeftRight=DataArrayInt::New(); idsLeftRight->alloc(nbCellsInSplitMesh1D*2); idsLeftRight->fillWithValue(-2); idsLeftRight->rearrange(2);
   int *idsLeftRightPtr(idsLeftRight->getPointer());
   VectorOfCellInfo pool(edge1Bis,edge1BisPtr);
+
+  // Compute contiguous parts of splitMesh1D. We can not make the full assumption that segments are consecutive in the connectivity
+  // (even if the user correctly called orderConsecutiveCells1D()). Indeed the tool might be a closed line whose junction point is in
+  // splitMesh1D. There can be only one such a point, and if this happens this is necessarily at the start
+  // of the connectivity.
+  MCAuto <DataArrayInt> renumb(DataArrayInt::New());
+  renumb->alloc(nbCellsInSplitMesh1D,1);
+  const int * renumbP(renumb->begin());
+
+  int i, first=cSplitPtr[1];
+  // Follow 1D line backward as long as it is connected:
+  for (i=nbCellsInSplitMesh1D-1; cSplitPtr[ciSplitPtr[i]+2] == first; i--)
+    first=cSplitPtr[ciSplitPtr[i]+1];
+  if (i < nbCellsInSplitMesh1D-1)
+    {
+      // Build circular permutation to shift consecutive edges together
+      renumb->iota(i+1);
+      renumb->applyModulus(nbCellsInSplitMesh1D);
+      splitMesh1D->renumberCells(renumbP, false);
+      cSplitPtr = splitMesh1D->getNodalConnectivity()->begin();
+      ciSplitPtr = splitMesh1D->getNodalConnectivityIndex()->begin();
+    }
+  else
+    renumb->iota();
+  //
+
   for(int iStart=0;iStart<nbCellsInSplitMesh1D;)
     {// split [0:nbCellsInSplitMesh1D) in contiguous parts [iStart:iEnd)
       int iEnd(iStart);
@@ -1033,7 +1059,7 @@ MEDCouplingUMesh *BuildMesh2DCutInternal(double eps, const MEDCouplingUMesh *spl
         }
       if(iEnd<nbCellsInSplitMesh1D)
         iEnd++;
-      //
+
       MCAuto<MEDCouplingUMesh> partOfSplitMesh1D(static_cast<MEDCouplingUMesh *>(splitMesh1D->buildPartOfMySelfSlice(iStart,iEnd,1,true)));
       int pos(pool.getPositionOf(eps,partOfSplitMesh1D));
       //
@@ -1052,11 +1078,15 @@ MEDCouplingUMesh *BuildMesh2DCutInternal(double eps, const MEDCouplingUMesh *spl
       iStart=iEnd;
     }
   for(int mm=0;mm<nbCellsInSplitMesh1D;mm++)
-    pool.feedEdgeInfoAt(eps,mm,offset,idsLeftRightPtr+2*mm);
+    pool.feedEdgeInfoAt(eps,renumbP[mm],offset,idsLeftRightPtr+2*mm);
+
   return pool.getZeMesh().retn();
 }
 
-MEDCouplingUMesh *BuildMesh2DCutFrom(double eps, int cellIdInMesh2D, const MEDCouplingUMesh *mesh2DDesc, const MEDCouplingUMesh *splitMesh1D,
+/*
+ * splitMesh1D is an input parameter but might have its cells renumbered.
+ */
+MEDCouplingUMesh *BuildMesh2DCutFrom(double eps, int cellIdInMesh2D, const MEDCouplingUMesh *mesh2DDesc, MEDCouplingUMesh *splitMesh1D,
                                      const int *descBg, const int *descEnd, const std::vector< std::vector<int> >& intersectEdge1, int offset,
                                      MCAuto<DataArrayInt>& idsLeftRight)
 {
