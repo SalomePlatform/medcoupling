@@ -293,6 +293,7 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other,
 {
   double xBaryBB, yBaryBB;
   double fact=normalizeExt(&other, xBaryBB, yBaryBB);
+
   //
   IteratorOnComposedEdge it1(this),it3(&other);
   MergePoints merge;
@@ -300,13 +301,13 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other,
   ComposedEdge *c2=new ComposedEdge;
   int i=0;
   std::map<INTERP_KERNEL::Node *,int> mapAddCoo;
-  for(it3.first();!it3.finished();it3.next(),i++)//iteration over 'other' _sub_edges
+  for(it3.first();!it3.finished();it3.next(),i++)//iteration over 'other->_sub_edges'
     {
       QuadraticPolygon otherTmp;
       ElementaryEdge* curE3=it3.current();
       otherTmp.pushBack(new ElementaryEdge(curE3->getPtr(),curE3->getDirection())); curE3->getPtr()->incrRef();
       IteratorOnComposedEdge it2(&otherTmp);
-      for(it2.first();!it2.finished();it2.next())//iteration on subedges of 'other->_sub_edge'
+      for(it2.first();!it2.finished();it2.next())//iteration on subedges of 'otherTmp->_sub_edge'
         {
           ElementaryEdge* curE2=it2.current();
           if(!curE2->isThereStartPoint())
