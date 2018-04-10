@@ -557,7 +557,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
         for(int i=0;i<nbSecPts;i++)
           {
             auto nrm(sqrt(std::accumulate(pt,pt+DIM,0.,[](double sum, double v) { return sum+v*v; } )));
-            auto sca(rmin+2.*(nrm-0.5)*(rmax-rmin));
+            auto sca((rmin+2.*(nrm-0.5)*(rmax-rmin))/nrm);
             std::for_each(pt,pt+3,[sca](double& val) { val*=sca; } );
             std::advance(pt,DIM);
           }
