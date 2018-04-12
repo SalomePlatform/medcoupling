@@ -107,8 +107,14 @@ std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicV
  */
 bool SegSegIntersector::areColinears() const
 {
+  Bounds b;
+  b.prepareForAggregation();
+  b.aggregate(_e1.getBounds());
+  b.aggregate(_e2.getBounds());
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
-  return fabs(determinant)<QuadraticPlanarArcDetectionPrecision::getArcDetectionPrecision();
+  double dimChar=b.getCaracteristicDim();
+
+  return fabs(determinant)< dimChar*QuadraticPlanarArcDetectionPrecision::getArcDetectionPrecision();  // TODO [ABN]: should be QuadraticPlanarPrecision::getPrecision() ...
 }
 
 /*!
