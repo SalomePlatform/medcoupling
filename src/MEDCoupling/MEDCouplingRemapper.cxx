@@ -703,14 +703,16 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUC()
   std::string srcMeth,trgMeth;
   std::string methodCpp=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
   if(methodCpp!="P0P0")
-    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC : only P0P0 interpolation supported for the moment !");
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC: only P0P0 interpolation supported for the moment !");
+  if(InterpolationOptions::getIntersectionType()!=INTERP_KERNEL::Triangulation)
+      throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC: only 'Triangulation' intersection type supported!");
   const MEDCouplingUMesh *src_mesh=static_cast<const MEDCouplingUMesh *>(_src_ft->getMesh());
   const MEDCouplingCMesh *target_mesh=static_cast<const MEDCouplingCMesh *>(_target_ft->getMesh());
   const int srcMeshDim=src_mesh->getMeshDimension();
   const int srcSpceDim=src_mesh->getSpaceDimension();
   const int trgMeshDim=target_mesh->getMeshDimension();
   if(srcMeshDim!=srcSpceDim || srcMeshDim!=trgMeshDim)
-    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC : space dim of src unstructured should be equal to mesh dim of src unstructured and should be equal also equal to trg cartesian dimension !");
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC: space dimension of unstructured source mesh should be equal to mesh dimension of unstructured source mesh, and should also be equal to target cartesian dimension!");
   std::vector<std::map<int,double> > res;
   switch(srcMeshDim)
   {
@@ -758,13 +760,15 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCU()
   std::string methodCpp=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
   if(methodCpp!="P0P0")
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCU : only P0P0 interpolation supported for the moment !");
+  if(InterpolationOptions::getIntersectionType()!=INTERP_KERNEL::Triangulation)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCU: only 'Triangulation' intersection type supported!");
   const MEDCouplingCMesh *src_mesh=static_cast<const MEDCouplingCMesh *>(_src_ft->getMesh());
   const MEDCouplingUMesh *target_mesh=static_cast<const MEDCouplingUMesh *>(_target_ft->getMesh());
   const int srcMeshDim=src_mesh->getMeshDimension();
   const int trgMeshDim=target_mesh->getMeshDimension();
   const int trgSpceDim=target_mesh->getSpaceDimension();
   if(trgMeshDim!=trgSpceDim || trgMeshDim!=srcMeshDim)
-    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCU : space dim of target unstructured should be equal to mesh dim of target unstructured and should be equal also equal to source cartesian dimension !");
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC: space dimension of unstructured target mesh should be equal to mesh dimension of unstructured target mesh, and should also be equal to source cartesian dimension!");
   switch(srcMeshDim)
   {
     case 1:
@@ -810,12 +814,14 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCC()
   std::string methodCpp=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
   if(methodCpp!="P0P0")
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCC : only P0P0 interpolation supported for the moment !");
+  if(InterpolationOptions::getIntersectionType()!=INTERP_KERNEL::Triangulation)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCC: only 'Triangulation' intersection type supported!");
   const MEDCouplingCMesh *src_mesh=static_cast<const MEDCouplingCMesh *>(_src_ft->getMesh());
   const MEDCouplingCMesh *target_mesh=static_cast<const MEDCouplingCMesh *>(_target_ft->getMesh());
   const int srcMeshDim=src_mesh->getMeshDimension();
   const int trgMeshDim=target_mesh->getMeshDimension();
   if(trgMeshDim!=srcMeshDim)
-    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCC : dim of target cartesian should be equal to dim of source cartesian dimension !");
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCC : dimension of target cartesian mesh should be equal to dimension of source cartesian mesh !");
   switch(srcMeshDim)
   {
     case 1:
