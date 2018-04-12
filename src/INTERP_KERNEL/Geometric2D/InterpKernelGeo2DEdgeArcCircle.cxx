@@ -334,8 +334,8 @@ void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind,
   _cross=
       ((*(_e2.getStartNode()))[0]-center[0])*((*(_e2.getEndNode()))[1]-center[1])-
       ((*(_e2.getStartNode()))[1]-center[1])*((*(_e2.getEndNode()))[0]-center[0]);
-  _determinant=getE1().getRadius()*getE1().getRadius()/_drSq-_cross*_cross/(_drSq*_drSq);
-  if(_determinant>-2*QuadraticPlanarPrecision::getPrecision())//QuadraticPlanarPrecision::getPrecision()*QuadraticPlanarPrecision::getPrecision()*_drSq*_drSq/(2.*_dx*_dx))
+  _determinant = (getE1().getRadius()*getE1().getRadius()-_cross*_cross/_drSq) / _drSq;
+  if(_determinant > -2*QuadraticPlanarPrecision::getPrecision())//QuadraticPlanarPrecision::getPrecision()*QuadraticPlanarPrecision::getPrecision()*_drSq*_drSq/(2.*_dx*_dx))
     obviousNoIntersection=false;
   else
     obviousNoIntersection=true;   
