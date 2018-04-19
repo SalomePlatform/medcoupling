@@ -124,10 +124,10 @@ namespace INTERP_KERNEL
     Node *getNodeAndReleaseIt() { Node *tmp=_node; _node=0; return tmp; }
     ~IntersectElement();
   private:
-    bool _1S;
-    bool _1E;
-    bool _2S;
-    bool _2E;
+    bool _1S;  // true if starting point of edge 1 is located exactly on edge 2 (not nearby)
+    bool _1E;  // true if ending point of edge 1 is located exactly on edge 2 (not nearby)
+    bool _2S;  // true if starting point of edge 2 is located exactly on edge 1 (not nearby)
+    bool _2E;  // true if ending point of edge 2 is located exactly on edge 1 (not nearby)
     double _chararct_val_for_e1;
     double _chararct_val_for_e2;
     Node *_node;

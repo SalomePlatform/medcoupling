@@ -2170,6 +2170,23 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue( m.getCoords()[8].isEqual( DataArrayDouble([(1.0,0.0)]), 1.0e-12 ) )
         self.assertEqual([0,5], m.getNodalConnectivityIndex().getValues())
 
+    def testSwig2Colinearize2D4(self):
+        """ From ALAMOS. Colinearize around last seg in the connectivity was buggy. """
+        mesh = MEDCouplingUMesh('C3', 2)
+        coo = DataArrayDouble([(-31.838400909874,21.557335816426),(-34.588400909874,16.794196095611),(-33.298676775512,19.225000000000),(-33.547226066398,19.368500000000),(-32.750140188627,22.083728734445),(-35.500140188627,17.320589013630),
+                               (-35.044270549250,17.057392554621),(-32.619779010901,22.008464673393),(-32.554667298175,21.970872408523),(-32.745177043525,22.080863261284),(-32.747658616076,22.082295997864),(-32.682478027213,22.044663967338)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([32, 0, 1, 5, 4, 9, 7, 2, 6, 3, 10, 11, 8])
+        cI = DataArrayInt([0, 13])
+        mesh.setConnectivity(c, cI)
+        mesh.colinearize2D(1.0e-8)
+        coo = mesh.getCoords()
+        self.assertEqual(coo.getNumberOfTuples(), 13)
+        lstPt = coo[12]
+        self.assertAlmostEqual(lstPt[0,0], -32.29427054925)
+        self.assertAlmostEqual(lstPt[0,1], 21.8205322754351)
+        pass
+
     def testSwig2CheckAndPreparePermutation2(self):
         a=DataArrayInt([10003,9999999,5,67])
         self.assertTrue(DataArrayInt.CheckAndPreparePermutation(a).isEqual(DataArrayInt([2,3,0,1])))

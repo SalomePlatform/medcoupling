@@ -47,6 +47,9 @@ namespace INTERP_KERNEL
     double _dist;
   };
 
+  /**
+   * Cross-type intersector: edge1 is the arc of circle, edge2 is the segment.
+   */
   class INTERPKERNEL_EXPORT ArcCSegIntersector : public CrossTypeEdgeIntersector
   {
   public:
@@ -60,11 +63,11 @@ namespace INTERP_KERNEL
     const EdgeArcCircle& getE1() const { return (const EdgeArcCircle&)_e1; }
     const EdgeLin& getE2() const { return (const EdgeLin&)_e2; }
   private:
-    double _dx;
-    double _dy;
-    double _drSq;
-    double _cross;
-    double _determinant;
+    double _dx;           //!< X extent of the segment
+    double _dy;           //!< Y extent of the segment
+    double _drSq;         //!< Square of the norm of the seg
+    double _cross;        //!< See areOverlappedOrOnlyColinears()
+    double _determinant;  //!< See areOverlappedOrOnlyColinears()
   };
 
   class INTERPKERNEL_EXPORT EdgeArcCircle : public Edge
@@ -126,11 +129,13 @@ namespace INTERP_KERNEL
     void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
                             std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const;
   protected:
-    //!Value between -2Pi and 2Pi
-    double _angle;
-    //!Value between -Pi and Pi
+    //! Absolute angle where the arc starts. Value between -Pi and Pi
     double _angle0;
+    //! Angular span of the arc. Value between -2Pi and 2Pi
+    double _angle;
+    //! Radius of the arc of circle
     double _radius;
+    //! Center of the arc of circle
     double _center[2];
   };
 }

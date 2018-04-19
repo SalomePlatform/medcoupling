@@ -444,6 +444,32 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(res1_tgt, resToM1.getValues())
         self.assertEqual(res2_tgt, resToM2.getValues())
 
+    def testIntersect2DMeshesTmp8(self):
+        """ Arc of circle #5 in m2 was wrongly linearized and this was crashing the intersector. """
+        m1 = MEDCouplingUMesh('mesh', 2)
+        coo = DataArrayDouble([(-18.20296424065728,-16.39845900000000),(-18.15483625715243,-16.37067229576792),(-18.17890024890485,-16.38456564788396),(-18.86345900000000,-13.93345900000000),(-18.80788559153584,-13.93345900000000),(-18.64179353311466,-15.19505343584364),(-18.83567229576791,-13.93345900000000),(-18.69547332360511,-15.20943689235543)])
+        m1.setCoords(coo)
+        c = DataArrayInt([32, 0, 3, 4, 1, 7, 6, 5, 2])
+        cI = DataArrayInt([0, 9])
+        m1.setConnectivity(c, cI)
+
+        m2 = MEDCouplingUMesh('tool', 2)
+        coo = DataArrayDouble([-18.863459, -13.933459, -18.71895791290684, -15.11832192648871, -18.76569937343606, -12.95654908944806, -9.00470518045063,
+                                  -13.8226177338691, -17.88089225139922, -16.8868757883568, -18.3878542250287, -16.04610264700759, -18.71815899226182, -15.12154400708064,
+                                  -18.83895821216178, -13.44256442936377, -18.15535493732867, -16.47914057756773, -18.57607919534293, -15.59206616319266, -18.82720039287268, -14.53027989414214, -18.71855872378567, -15.11993303402953,
+                                  0.,0.,0.,0.], 14, 2)
+        m2.setCoords(coo)
+        c = DataArrayInt([32, 1, 0, 2, 4, 5, 6,      #  offset 8:  9, 8, 10, 12, 13, 14
+                            10, 7, 3, 8, 9, 11])     #            18, 15, 11, 16, 17, 19
+        cI = DataArrayInt([0, 13])
+        m2.setConnectivity(c, cI)
+        inter, map1, map2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, 1.0e-8)
+        self.assertEqual(inter.getNodalConnectivity().getValues(), [32, 13, 14, 9, 8, 4, 1, 0, 22, 23, 24, 25, 26, 27, 28])
+        self.assertEqual(inter.getNodalConnectivityIndex().getValues(), [0,15])
+        self.assertEqual(map1.getValues(), [0])
+        self.assertEqual(map2.getValues(), [0])
+        pass
+
     def testSwig2Intersect2DMeshWith1DLine1(self):
         """A basic test with no colinearity between m1 and m2."""
         i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
@@ -891,6 +917,33 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(m_line.getNodalConnectivityIndex().getValues(),b.getNodalConnectivityIndex().getValues())
         self.assertTrue([0,1,2], c.getValues())
         self.assertEqual([2,1], d.getValues())
+
+    def testSwig2Intersect2DMeshWith1DLine18(self):
+        """ Rare case: a *closed* line used as a tool, with the closing point inside a 2D cell ... """
+        tool = MEDCouplingUMesh('circle', 1)
+        coo = DataArrayDouble([(39.35,0),(27.8247,27.8247),(2.40949e-15,39.35),(-27.8247,27.8247),(-39.35,4.81899e-15),(-27.8247,-27.8247),(-7.22848e-15,-39.35),(27.8247,-27.8247),(39.35,7.39805e-15)])
+        tool.setCoords(coo)
+        c = DataArrayInt([2, 3, 5, 8,    2, 5, 3, 4])
+        cI = DataArrayInt([0, 4, 8])
+        tool.setConnectivity(c, cI)
+
+        meh = MEDCouplingUMesh('meh', 2)
+        coo = DataArrayDouble([(-26.4275,36.6199),(-23.5868,31.6996),(-34.1861,41.0993),(-30.3383,25.0214),(-40.1861,30.707),(-35.2622,27.8642),(-37.1861,35.9032),(-30.3068,38.8596),(-25.0071,34.1598),(-26.9625,28.3605),(-25.7138,32.5128),(-27.354,36.4726),(-36.9138,32.5128),(-27.354,28.553),(-26.8908,36.5462),(-28.8461,26.7872)])
+        meh.setCoords(coo)
+        c = DataArrayInt([32, 0, 1, 3, 13, 11, 8, 9, 15, 10, 14,
+                             32, 3, 4, 2, 0, 11, 13, 5, 6, 7, 14, 12, 15])
+        cI = DataArrayInt([0, 11, 24])
+        meh.setConnectivity(c, cI)
+
+        res2D, res1D, m1, m2 = MEDCouplingUMesh.Intersect2DMeshWith1DLine(meh, tool, 1e-12)
+        self.assertEqual(4, res2D.getNumberOfCells())
+        self.assertEqual(res2D.getNodalConnectivity().getValues(),[32, 13, 11, 0, 1, 25, 19, 26, 33, 34, 35, 36, 37, 38, 39, 32, 3, 26, 19, 25, 40, 41, 42, 43,
+                                                                   32, 4, 2, 0, 11, 13, 26, 27, 44, 45, 46, 47, 48, 49, 50, 32, 3, 27, 26, 51, 52, 53])
+        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(),[0, 15, 24, 39, 46])
+        self.assertEqual(res1D.getNodalConnectivity().getValues(),[2, 19, 25, 28, 2, 25, 21, 29, 2, 21, 27, 30, 2, 27, 26, 31, 2, 26, 19, 32])
+        self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 4, 8, 12, 16, 20])
+        self.assertEqual(m1.getValues(), [0,0,1,1])
+        self.assertEqual(m2.getValues(), [0,1,   -1,-1,  -1,-1,   2,3,  0,1])
 
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8
