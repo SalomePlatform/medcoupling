@@ -17,4 +17,27 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(doxygen)
+INCLUDE(UseSphinx)
+
+SALOME_CONFIGURE_FILE(conf.py.in conf.py)
+
+IF(MEDCOUPLING_BUILD_FRENCH_DOC)
+  SET(BUILD_LANGUAGE_SWITCHER "true")
+  SALOME_CONFIGURE_FILE(static/switchers.js.in static/switchers.js)
+  ADD_MULTI_LANG_DOCUMENTATION(TARGET_NAME usr_doc MODULE html LANGUAGES fr)
+ELSE()
+  SET(BUILD_LANGUAGE_SWITCHER "false")
+  SALOME_CONFIGURE_FILE(static/switchers.js.in static/switchers.js)
+  ADD_MULTI_LANG_DOCUMENTATION(TARGET_NAME usr_doc MODULE html)
+ENDIF()
+
+#ADD_DEPENDENCIES(usr_doc dev_docs)
+
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_doc)")
+INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION ${MEDCOUPLING_INSTALL_DOC}/user)
+IF(MEDCOUPLING_BUILD_FRENCH_DOC)
+  INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html_fr DESTINATION ${MEDCOUPLING_INSTALL_DOC}/user)
+ENDIF()
+
+SET(make_clean_files html html_fr doctrees locale potfiles static)
+SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${make_clean_files}")

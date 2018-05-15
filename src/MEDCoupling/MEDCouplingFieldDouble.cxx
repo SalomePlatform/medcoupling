@@ -1283,7 +1283,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
  *   - "2*x + z"               produces (5.,5.,5.,5.)
  *   - "2*x + 0*y + z"         produces (9.,9.,9.,9.)
  *   - "2*x*IVec + (x+z)*LVec" produces (2.,0.,0.,4.)
- *   - "2*y*IVec + z*KVec + x" produces (7.,1.,1.,4.)
+ *   - "2*y*IVec + z*KVec + x" produces (7.,1.,8.,1.)
  *
  *  \param [in] nbOfComp - the number of components for \a this field to have.
  *  \param [in] func - the function used to compute values of \a this field.
@@ -1323,7 +1323,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func)
  *   - "2*x + z"               produces (5.,5.,5.,5.)
  *   - "2*x + 0*y + z"         produces (9.,9.,9.,9.)
  *   - "2*x*IVec + (x+z)*LVec" produces (2.,0.,0.,4.)
- *   - "2*y*IVec + z*KVec + x" produces (7.,1.,1.,4.)
+ *   - "2*y*IVec + z*KVec + x" produces (7.,1.,8.,1.)
  *
  *  \param [in] nbOfComp - the number of components for \a this field to have.
  *  \param [in] func - the function used to compute values of \a this field.

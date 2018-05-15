@@ -1,4 +1,5 @@
-# Copyright (C) 2017  CEA/DEN, EDF R&D
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,17 +18,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(BASE_TESTS
-  MEDLoaderTest123.py
-  MEDLoaderTest4.py
-  MEDLoaderExamplesTest.py
-  SauvLoaderTest.py
-  UsersGuideExamplesTest.py
-)
+from MEDCoupling import *
+from math import pi, sqrt
 
-# if numpy is used
-SET(NUMPY_TESTS
-  MEDLoaderCouplingTrainingSession.py
-)
-
-SET(ALL_TESTS ${BASE_TESTS} ${NUMPY_TESTS})
+import numpy
+import MEDCoupling
+#! [UG_DataArrayNumpy_0]
+# NumPy is an optional pre-requisite!
+assert(MEDCoupling.MEDCouplingHasNumPyBindings())
+a=numpy.arange(20,dtype=numpy.int32)
+d=DataArrayInt(a) # d owns data of a
+e=DataArrayInt(a) # a not owned -> e only an access to chunk of a
+a1=d.toNumPyArray()
+#! [UG_DataArrayNumpy_0]

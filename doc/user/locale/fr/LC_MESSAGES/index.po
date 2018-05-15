@@ -1,0 +1,80 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015-2017, Geay, Bruneton
+# This file is distributed under the same license as the MEDCoupling User's
+# Guide package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: MEDCoupling User's Guide 8.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-14 14:14+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.0\n"
+
+# d5fd546e5eed4ca6b9ae64e0bc6f82ae
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:6
+msgid "medcoupling user's manual"
+msgstr ""
+
+# d7e07c0e3e2c4ad8946fc5f5e9b6076c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:8
+msgid ""
+"medcoupling gathers several powerful functionalities around the input and"
+" output data of field-physics-oriented simulation codes. Data manipulated"
+" by medcoupling are objects relative to fields for simulation codes."
+msgstr ""
+
+# e2b0b08deb9140f5aec2281f5a92406e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:10
+msgid "medcoupling functionalities are accessible through python modules."
+msgstr ""
+
+# a5d7fa06dcc54e7cba06044177d32d31
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:16
+msgid "medcoupling functionalities can be split into 4 categories:"
+msgstr ""
+
+# f7ecb5f67bcd4e7d81d3bf38908470db
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:13
+msgid ""
+":doc:`Data movement <data_movement>`: read/write from/to file, reduce, "
+"extract, duplicate, aggregate, compare, exchange data memory to memory "
+"across process (image of multifile to file)"
+msgstr ""
+
+# e70dacb1f9c34b239f4299dae290d659
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:14
+msgid ""
+":doc:`Data analysis <data_analysis>`: extract/gather information in data "
+"to transform it in a condensate workable data (not necessarely field "
+"linked) for further use."
+msgstr ""
+
+# 812aefee67c649e1a01e529c27d913d3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:15
+msgid ""
+":doc:`Data conversion <data_conversion>`: interpolate, project, repare, "
+"decimate, format convertion to make discuss simulation codes each other"
+msgstr ""
+
+# 9e2f1999a5a34f94ad6da630d258b134
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:16
+msgid ""
+":doc:`Data optimization <data_optimization>` for simulation code : "
+"renumbering, partition for multiprocessor codes"
+msgstr ""
+
+# d7e99791163646238a89c6829f62817d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/index.rst:18
+msgid ""
+"First, this documentation introduces :doc:`fundamental concepts/objects "
+"<basic_concepts>`  of medcoupling for a better understanding of examples."
+msgstr ""
+

@@ -22,7 +22,8 @@
 ## the docstrings built from the C++ doxygen documentation.
 ##
 
-SET(_DOXY2SWIG ${PROJECT_SOURCE_DIR}/doc/user/doxygen/doxy2swig/doxy2swig.py)
+SET(_DOXY2SWIG ${PROJECT_SOURCE_DIR}/doc/developer/doxygen/doxy2swig/doxy2swig.py)
+
 SET(_SWIG_DOC_SUFFIX "doc_class_")
 
 #
@@ -61,7 +62,7 @@ MACRO(MEDCOUPLING_SWIG_DOCSTRING_GENERATE target_doc target_swig cls_list swig_m
     # List of generated SWIG files (.i) for doc purposes only:
     SET(${swig_files})
     FOREACH(_cls IN LISTS ${cls_list})
-      SET(_xml_file "${CMAKE_CURRENT_BINARY_DIR}/../doxygen/doc_ref_user/xml/class${_cls}.xml")
+      SET(_xml_file "${CMAKE_CURRENT_BINARY_DIR}/../doxygen/doc_ref_dev/xml/class${_cls}.xml")
       SET(_swig_file_base "${_SWIG_DOC_SUFFIX}${_cls}.i")
       SET(_swig_file "${PROJECT_BINARY_DIR}/doc/${_swig_file_base}" )
 

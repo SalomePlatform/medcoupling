@@ -1,0 +1,202 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015-2017, Geay, Bruneton
+# This file is distributed under the same license as the MEDCoupling User's
+# Guide package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: MEDCoupling User's Guide 8.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-14 14:40+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.0\n"
+
+# cfbfaa23fcb74920ad39b2a002dabf91
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:2
+msgid "Basic concepts"
+msgstr ""
+
+# 517aa380d10f4b3690dd3b749f16287c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:4
+msgid "Your're invited to start here."
+msgstr ""
+
+# 251cf1ab37e046c3b8fa04be4295a22e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:6
+msgid ""
+"This section explains in a concise way fundamental concepts (incarnated "
+"by classes) for a better understanding of examples in FAQ_."
+msgstr ""
+
+# df5965e7cb4147859327c5afcefd15c8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:11
+msgid ""
+"The objects presented in this section are objects dedicated to data "
+"manipulation."
+msgstr ""
+
+# 9bf426c44d3b4d4c88a71ac13872b7ba
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:13
+msgid ""
+"Later in advanced section, other objects will be presented to more "
+"complex data, as composite of objects presented here."
+msgstr ""
+
+# 23aae352230044ee94f7a9e43f3012fb
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:16
+msgid "medcoupling Fields"
+msgstr ""
+
+# 18e55a020e54424dbbfc0c93f26ba867
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:17
+msgid ""
+"The most fundamental object is field. Fields are incarnated by "
+"MEDCouplingFieldDouble_."
+msgstr ""
+
+# 5f9fd793f91d4f5e821603ef61f7977d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:21
+msgid ""
+"A field is an object able to give a value on every points geometrically "
+"covered by its support. The field support is a :ref:`mesh "
+"<medcoupling_Meshes>`."
+msgstr ""
+
+# 8c7b87a517864e20a52dbbaffad8172b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:23
+msgid ""
+"Depending on the physics relative to the field, medcoupling fields "
+"proposes different spatial discretizations : cells, nodes, Gauss points."
+msgstr ""
+
+# 2482663f8b264b60b6d897f68d7599dd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:25
+msgid ""
+"The spatial discretization defines an algorithm giving the value of field"
+" on point given the position of a point inside the domain covered by the "
+":ref:`mesh <medcoupling_Meshes>` and an :ref:`array <medcoupling_Arrays>`"
+" of float, integers located on specific location of mesh."
+msgstr ""
+
+# e4f8d9093bad410082e7494d203348cb
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:35
+msgid "medcoupling Meshes"
+msgstr ""
+
+# aa9618d4b3174993a3e1ab47e975a3ba
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:37
+msgid ""
+"Meshes are incarnated by MEDCouplingMesh_ (and their subclasses). A mesh "
+"contains cells and nodes (indifferently called points). A cell has a "
+"geometric type (TRI3, QUAD4, TETRA4)."
+msgstr ""
+
+# f5172584eb9543bd86b2323b70acb064
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:43
+msgid ""
+"All cells contained in a medcoupling mesh must have the same dimension. "
+"This dimension is called meshdimension."
+msgstr ""
+
+# e95bedddd27a43edb5ae12d469a26270
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:46
+msgid ""
+"The set of points of a medcoupling mesh are stored into coordinates "
+":ref:`array <medcoupling_Arrays>`. The number of components of "
+"coordinates of coordinates array is called the space dimension."
+msgstr ""
+
+# cfcd9a42cb9944f0a0183f7ff5c682f9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:50
+msgid "The space dimension is always greater or equal to mesh dimension."
+msgstr ""
+
+# abcf69c8e43b4bc6aee65dd6791ff004
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:55
+msgid "medcoupling Arrays"
+msgstr ""
+
+# 56f65c32b87f40dc8189cbf6c0ba91aa
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:57
+msgid ""
+"One of the challenges faced by medcoupling is the reduction of memory "
+"footprints. In medcoupling, memory expensive attributes are arrays or "
+"composite of arrays."
+msgstr ""
+
+# 3cd78be9383d4e10924d580e1579673a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:61
+msgid ""
+"To do so, medcoupling arrays represent contiguous arrays in the most "
+"compact way to guaranty at most locality."
+msgstr ""
+
+# f7f85726bd9a458a87919b26eff18d89
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:64
+msgid ""
+"The type of elements contained in arrays is fix. Today int32, float32 and"
+" float64 arrays are available. Elements in arrays are grouped into fixed "
+"size packets called tuple."
+msgstr ""
+
+# f5dc316a0137438f84241b77ef6ad4b4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:68
+msgid "This size of every tuple is called number of components."
+msgstr ""
+
+# c88aefb15985489a9ea3324ec02d2340
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:70
+msgid ""
+"Consequently number of elements in an array is equal to number of tuples "
+"times number of components."
+msgstr ""
+
+# 2305b7d811364b75a5df79724e19c34a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:73
+msgid ""
+"A typical usage of medcoupling array is for coordinates of points "
+"storage. Number of components will be equal to space dimension and number"
+" of tuples will be equal to number of points."
+msgstr ""
+
+# daa1bc42632a47d2a76e850b671ed8c6
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:77
+msgid ""
+"A medcoupling array has a name. And each component of array has also a "
+"name. The component name use the following convention to put an optional "
+"unity (\"X cote [mm]\")."
+msgstr ""
+
+# f87aeadedf314281a857c8ec7b0cc732
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:81
+msgid ""
+"If you are already a fan of `numpy <http://docs.scipy.org/doc/>`_ (you're"
+" right it's an amazing/wonderful standard package), medcoupling arrays "
+"behaves just like numpy arrays and anyway there are zero copy gateways "
+"between medcoupling arrays and numpy."
+msgstr ""
+
+# 2e8e2c32c72543f69a342507118ced99
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/basic_concepts.rst:86
+msgid ""
+"medcoupling arrays implement different algorithms like reordering, cloud "
+"comparisons, arithmetic, geometry helpers in addition to algorithms "
+"proposed by numpy."
+msgstr ""
+
+# aa9618d4b3174993a3e1ab47e975a3ba
+#~ msgid ""
+#~ "Meshes are incarnated by MEDCouplingMesh "
+#~ "(and their subclasses). A mesh contains"
+#~ " cells and nodes (indifferently called "
+#~ "points). A cell has a geometric "
+#~ "type (TRI3, QUAD4, TETRA4)."
+#~ msgstr ""
+

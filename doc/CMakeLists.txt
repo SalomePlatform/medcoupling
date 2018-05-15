@@ -17,5 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(user)
+ADD_SUBDIRECTORY(developer)
 ADD_SUBDIRECTORY(tutorial)
+ADD_SUBDIRECTORY(user)

@@ -1,4 +1,4 @@
-# Copyright (C) 2017  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,17 +17,4 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(BASE_TESTS
-  MEDLoaderTest123.py
-  MEDLoaderTest4.py
-  MEDLoaderExamplesTest.py
-  SauvLoaderTest.py
-  UsersGuideExamplesTest.py
-)
-
-# if numpy is used
-SET(NUMPY_TESTS
-  MEDLoaderCouplingTrainingSession.py
-)
-
-SET(ALL_TESTS ${BASE_TESTS} ${NUMPY_TESTS})
+ADD_SUBDIRECTORY(doxygen)
