@@ -67,7 +67,7 @@ namespace INTERP_KERNEL
     double _dy;           //!< Y extent of the segment
     double _drSq;         //!< Square of the norm of the seg
     double _cross;        //!< See areOverlappedOrOnlyColinears()
-    double _determinant;  //!< See areOverlappedOrOnlyColinears()
+    double _deltaRoot_div_dr;    //!< See areOverlappedOrOnlyColinears()
   };
 
   class INTERPKERNEL_EXPORT EdgeArcCircle : public Edge

@@ -900,7 +900,9 @@ int VectorOfCellInfo::getPositionOf(double eps, const MEDCouplingUMesh *mesh) co
   return zeMesh->getCellContainingPoint(barys->begin(),eps);
 }
 
-void VectorOfCellInfo::setMeshAt(std::size_t pos, const MCAuto<MEDCouplingUMesh>& mesh, int istart, int iend, const MCAuto<MEDCouplingUMesh>& mesh1DInCase, const std::vector< std::vector<int> >& edges, const std::vector< std::vector< MCAuto<INTERP_KERNEL::Edge> > >& edgePtrs)
+void VectorOfCellInfo::setMeshAt(std::size_t pos, const MCAuto<MEDCouplingUMesh>& mesh, int istart, int iend,
+                                 const MCAuto<MEDCouplingUMesh>& mesh1DInCase, const std::vector< std::vector<int> >& edges,
+                                 const std::vector< std::vector< MCAuto<INTERP_KERNEL::Edge> > >& edgePtrs)
 {
   get(pos);//to check pos
   bool isFast(pos==0 && _pool.size()==1);
@@ -967,7 +969,7 @@ int VectorOfCellInfo::getZePosOfEdgeGivenItsGlobalId(int pos) const
 
 void VectorOfCellInfo::updateEdgeInfo(int pos, const std::vector< MCAuto<INTERP_KERNEL::Edge> >& newLeft, const std::vector< MCAuto<INTERP_KERNEL::Edge> >& newRight)
 {
-  get(pos);//to check;
+  get(pos);//to perform the sanity check;
   if(_edge_info.empty())
     return ;
   std::size_t sz(_edge_info.size()-1);

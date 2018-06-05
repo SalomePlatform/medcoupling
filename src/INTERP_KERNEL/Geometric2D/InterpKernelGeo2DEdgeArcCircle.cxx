@@ -26,6 +26,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <limits>
 
 using namespace INTERP_KERNEL;
 
@@ -324,21 +325,41 @@ ArcCSegIntersector::ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e
 {
 }
 
+/**
+  See http://mathworld.wolfram.com/Circle-LineIntersection.html
+  _cross is 'D', the computation is done with the translation to put back the circle at the origin.s
+*/
 void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
 {
   areOverlapped=false;//No overlapping by construction
   const double *center=getE1().getCenter();
+  const double R = getE1().getRadius();
   _dx=(*(_e2.getEndNode()))[0]-(*(_e2.getStartNode()))[0];
   _dy=(*(_e2.getEndNode()))[1]-(*(_e2.getStartNode()))[1];
   _drSq=_dx*_dx+_dy*_dy;
   _cross=
       ((*(_e2.getStartNode()))[0]-center[0])*((*(_e2.getEndNode()))[1]-center[1])-
       ((*(_e2.getStartNode()))[1]-center[1])*((*(_e2.getEndNode()))[0]-center[0]);
-  _determinant = (getE1().getRadius()*getE1().getRadius()-_cross*_cross/_drSq) / _drSq;
-  if(_determinant > -2*QuadraticPlanarPrecision::getPrecision())//QuadraticPlanarPrecision::getPrecision()*QuadraticPlanarPrecision::getPrecision()*_drSq*_drSq/(2.*_dx*_dx))
+
+  // We need to compute d = R*R-_cross*_cross/_drSq
+  // In terms of numerical precision, this can trigger 'catastrophic cancellation' and is hence better expressed as:
+  double _dr = sqrt(_drSq);
+  double diff = (R-_cross/_dr), add=(R+_cross/_dr);
+  // Ah ah: we will be taking a square root later. If we want the user to be able to use an epsilon finer than 1.0e-8, then we need
+  // to prevent ourselves going below machine precision (typ. 1.0e-16 for double).
+  const double eps_machine = std::numeric_limits<double>::epsilon();
+  diff = fabs(diff) < 10*eps_machine ? 0.0 : diff;
+  add  = fabs(add)  < 10*eps_machine ? 0.0 : add;
+  double d = add*diff;
+  // Compute deltaRoot_div_dr := sqrt(delta)/dr, where delta has the meaning of Wolfram.
+  // Then 2*deltaRoot_div_dr is the distance between the two intersection points of the line with the circle. This is what we compare to eps.
+  // We compute it in such a way that it can be used in tests too (a very negative value means we're far apart from intersection)
+  _deltaRoot_div_dr = Node::sign(d)*sqrt(fabs(d));
+
+  if( 2*_deltaRoot_div_dr > -QuadraticPlanarPrecision::getPrecision())
     obviousNoIntersection=false;
   else
-    obviousNoIntersection=true;   
+    obviousNoIntersection=true;
 }
 
 /*!
@@ -358,9 +379,9 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
 {
   std::list< IntersectElement > ret;
   const double *center=getE1().getCenter();
-  if(!(fabs(_determinant)<(2.*QuadraticPlanarPrecision::getPrecision())))//QuadraticPlanarPrecision::getPrecision()*QuadraticPlanarPrecision::getPrecision()*_drSq*_drSq/(2.*_dx*_dx))
+  if(!(2*fabs(_deltaRoot_div_dr) < QuadraticPlanarPrecision::getPrecision())) // see comments in areOverlappedOrOnlyColinears()
     {
-      double determinant=EdgeArcCircle::SafeSqrt(_determinant);
+      double determinant=fabs(_deltaRoot_div_dr)/sqrt(_drSq);
       double x1=(_cross*_dy/_drSq+Node::sign(_dy)*_dx*determinant)+center[0];
       double y1=(-_cross*_dx/_drSq+fabs(_dy)*determinant)+center[1];
       Node *intersect1=new Node(x1,y1); intersect1->declareOn();

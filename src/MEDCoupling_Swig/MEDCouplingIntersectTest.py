@@ -945,6 +945,34 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(m1.getValues(), [0,0,1,1])
         self.assertEqual(m2.getValues(), [0,1,   -1,-1,  -1,-1,   2,3,  0,1])
 
+    def testSwig2Intersect2DMeshWith1DLine19(self):
+        """ Intersection arc of circle / segment was not properly detecting tangent cases """
+        eps=1.0e-5  # was working at 1.0e-8, but should also really work with 1.0e-5
+        mesh = MEDCouplingUMesh('layer_1', 2)
+        coo = DataArrayDouble([(55.4,3.7239),(61.4,7.188),(61.4,13.943),(49.55,7.1014),
+                                  (61.4,10.5655),(58.4,5.45595),(52.475,5.41265),(55.475,10.5222),
+                                  (56.9,9.34),(56.3343,7.97431),(56.9,7.74),(57.4657,7.97431),(59.4328,7.58116),
+                                  (55.8672,5.84911),    (0.,0.)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([32, 0, 3, 2, 1, 11, 9,     6, 7, 4, 12, 8, 13])
+        cI = DataArrayInt([0, 13])
+        mesh.setConnectivity(c, cI)
+        tool = MEDCouplingUMesh('segment', 1)
+        coo = DataArrayDouble([(-166.611,-119.951),(269.611,131.902)])
+        tool.setCoords(coo)
+        c = DataArrayInt([1, 0, 1])
+        cI = DataArrayInt([0, 3])
+        tool.setConnectivity(c, cI)
+
+        res2D, res1D, m1, m2 = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
+
+        self.assertEqual(res2D.getNodalConnectivity().getValues(),[32, 19, 17, 3, 2, 18, 20, 33, 34, 35, 36, 37, 38, 32, 1, 11, 20, 18, 39, 40, 41, 42, 32, 9, 0, 17, 19, 29, 30, 31, 32])
+        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(),[0, 13, 22, 31])
+        self.assertEqual(res1D.getNodalConnectivity().getValues(),[1, 15, 17, 1, 17, 19, 1, 19, 20, 1, 20, 18, 1, 18, 16])
+        self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 3, 6, 9, 12, 15])
+        self.assertEqual(m1.getValues(), [0, 0, 0])
+        self.assertEqual(m2.getValues(), [-1, -1, 0, 2, -1, -1, 0, 1, -1, -1])
+
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8
         coo = [0.,-0.5,0.,0.,0.5,0.,0.5,-0.5,0.25,
