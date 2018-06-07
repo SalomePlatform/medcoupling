@@ -348,8 +348,8 @@ void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind,
   // Ah ah: we will be taking a square root later. If we want the user to be able to use an epsilon finer than 1.0e-8, then we need
   // to prevent ourselves going below machine precision (typ. 1.0e-16 for double).
   const double eps_machine = std::numeric_limits<double>::epsilon();
-  diff = fabs(diff) < 10*eps_machine ? 0.0 : diff;
-  add  = fabs(add)  < 10*eps_machine ? 0.0 : add;
+  diff = fabs(diff/R) < eps_machine ? 0.0 : diff;
+  add  = fabs(add/R)  < eps_machine ? 0.0 : add;
   double d = add*diff;
   // Compute deltaRoot_div_dr := sqrt(delta)/dr, where delta has the meaning of Wolfram.
   // Then 2*deltaRoot_div_dr is the distance between the two intersection points of the line with the circle. This is what we compare to eps.
