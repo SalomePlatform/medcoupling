@@ -103,7 +103,6 @@ void MEDCouplingRemapper::setCrudeMatrix(const MEDCouplingMesh *srcMesh, const M
 
 void MEDCouplingRemapper::setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<int,double> >& m)
 {
-#if __cplusplus >= 201103L
   restartUsing(src,target);
   if(m.size()!=target->getNumberOfTuplesExpected())
     {
@@ -128,9 +127,6 @@ void MEDCouplingRemapper::setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, 
   _deno_multiply.resize(_matrix.size());
   _deno_reverse_multiply.clear();
   _deno_reverse_multiply.resize(srcNbElem);
-#else
-  throw INTERP_KERNEL::Exception("Breaking news : 10% off for C++11 compiler :)");
-#endif
 }
 
 int MEDCouplingRemapper::prepareInterpKernelOnly()

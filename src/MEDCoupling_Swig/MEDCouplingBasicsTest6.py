@@ -190,7 +190,6 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         self.assertRaises(InterpKernelException,a1.findIdForEach,b1) # a1 is not single component
         pass
     
-    @unittest.skipUnless(IsCXX11Compiled(),"requires C++11")
     def testAttractSeg3MidPtsAroundNodes1(self):
         """ Test of MEDCouplingUMesh.attractSeg3MidPtsAroundNodes methods """
         ptsExpToBeModified=DataArrayInt([95,96,97,98,101,103,104,106,108,110])

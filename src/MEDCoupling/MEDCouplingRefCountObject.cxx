@@ -77,11 +77,7 @@ const char *MEDCoupling::MEDCouplingByteOrderStr()
 
 bool MEDCoupling::IsCXX11Compiled()
 {
-#if __cplusplus >= 201103L
   return true;
-#else
-  return false;
-#endif
 }
 
 //=
