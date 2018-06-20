@@ -4629,8 +4629,9 @@ bool MEDCouplingUMesh::areOnlySimplexCells() const
 /*!
  * Converts degenerated 2D or 3D linear cells of \a this mesh into cells of simpler
  * type. For example an INTERP_KERNEL::NORM_QUAD4 cell having only three unique nodes in
- * its connectivity is transformed into an INTERP_KERNEL::NORM_TRI3 cell. This method
- * does \b not perform geometrical checks and checks only nodal connectivity of cells,
+ * its connectivity is transformed into an INTERP_KERNEL::NORM_TRI3 cell.
+ * Quadratic cells in 2D are also handled. In those cells edges where start=end=midpoint are removed.
+ * This method does \b not perform geometrical checks and checks only nodal connectivity of cells,
  * so it can be useful to call mergeNodes() before calling this method.
  *  \throw If \a this->getMeshDimension() <= 1.
  *  \throw If the coordinates array is not set.
@@ -4666,6 +4667,62 @@ void MEDCouplingUMesh::convertDegeneratedCells()
     _nodal_connec->reAlloc(newPos);
   computeTypes();
 }
+
+/*!
+ * Same as MEDCouplingUMesh::convertDegeneratedCells() plus deletion of the flat cells.
+ * A cell is flat in the following cases:
+ *   - for a linear cell, all points in the connectivity are equal
+ *   - for a quadratic cell, either the above, or a quadratic polygon with two (linear) points and two
+ *   identical quadratic points
+ * \return a new instance of DataArrayInt holding ids of removed cells. The caller is to delete
+ *      this array using decrRef() as it is no more needed.
+ */
+DataArrayInt *MEDCouplingUMesh::convertDegeneratedCellsAndRemoveFlatOnes()
+{
+  checkFullyDefined();
+  if(getMeshDimension()<=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertDegeneratedCells works on umeshes with meshdim equals to 2 or 3 !");
+  int nbOfCells=getNumberOfCells();
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  if(nbOfCells<1)
+    return ret;
+  int initMeshLgth=getNodalConnectivityArrayLen();
+  int *conn=_nodal_connec->getPointer();
+  int *index=_nodal_connec_index->getPointer();
+  int posOfCurCell=0;
+  int newPos=0;
+  int lgthOfCurCell, nbDelCells(0);
+  for(int i=0;i<nbOfCells;i++)
+    {
+      lgthOfCurCell=index[i+1]-posOfCurCell;
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[posOfCurCell];
+      int newLgth;
+      INTERP_KERNEL::NormalizedCellType newType=INTERP_KERNEL::CellSimplify::simplifyDegeneratedCell(type,conn+posOfCurCell+1,lgthOfCurCell-1,
+                                                                                                     conn+newPos+1,newLgth);
+      // Shall we delete the cell if it is completely degenerated:
+      bool delCell=INTERP_KERNEL::CellSimplify::isFlatCell(conn, newPos, newLgth, newType);
+      if (delCell)
+        {
+          nbDelCells++;
+          ret->pushBackSilent(i);
+        }
+      else   //if the cell is to be deleted, simply stay at the same place
+        {
+          conn[newPos]=newType;
+          newPos+=newLgth+1;
+        }
+      posOfCurCell=index[i+1];
+      index[i+1-nbDelCells]=newPos;
+    }
+  if(newPos!=initMeshLgth)
+    _nodal_connec->reAlloc(newPos);
+  const int nCellDel=ret->getNumberOfTuples();
+  if (nCellDel)
+    _nodal_connec_index->reAlloc(nbOfCells-nCellDel+1);
+  computeTypes();
+  return ret.retn();
+}
+
 
 /*!
  * Finds incorrectly oriented cells of this 2D mesh in 3D space.

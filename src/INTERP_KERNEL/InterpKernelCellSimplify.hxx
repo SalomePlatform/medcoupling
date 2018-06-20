@@ -43,6 +43,7 @@ namespace INTERP_KERNEL
     static bool tryToArrangeOppositeFace(const int *conn, int lgth, int lgthBaseFace, const int *baseFace, const int *oppFaceId, int nbOfFaces, int *retConnOfOppFace);
     static bool isWellOriented(const int *baseFace, int *retConn, const int *sideFace, int lgthBaseFace);
     static bool orientOppositeFace(const int *baseFace, int *retConn, const int *sideFace, int lgthBaseFace);
+    static bool isFlatCell(const int* conn, int pos, int lgth, NormalizedCellType type);
   };
 }
 

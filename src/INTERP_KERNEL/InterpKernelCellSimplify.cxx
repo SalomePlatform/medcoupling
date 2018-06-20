@@ -44,8 +44,8 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
   std::set<int> c(conn,conn+lgth);
   c.erase(-1);
   bool isObviousNonDegeneratedCell=((int)c.size()==lgth);
-  if(cm.isQuadratic() || isObviousNonDegeneratedCell)
-    {//quadratic do nothing for the moment.
+  if((cm.getDimension()==3 && cm.isQuadratic()) || isObviousNonDegeneratedCell)
+    {//quadratic 3D, do nothing for the moment.
       retLgth=lgth;
       int *tmp=new int[lgth];//no direct std::copy ! overlapping of conn and retConn !
       std::copy(conn,conn+lgth,tmp);
@@ -56,11 +56,28 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
   if(cm.getDimension()==2)
     {
       int *tmp=new int[lgth];
-      tmp[0]=conn[0];
-      int newPos=1;
-      for(int i=1;i<lgth;i++)
-        if(std::find(tmp,tmp+newPos,conn[i])==tmp+newPos)
-          tmp[newPos++]=conn[i];
+      int newPos=0;
+      if(!cm.isQuadratic())
+        {
+          for(int i = 0; i < lgth; i++)
+            if(conn[i] != conn[(i+1)%lgth])  // zip nul segments/arcs
+              tmp[newPos++] = conn[i];
+        }
+      else
+        {
+          int quadOff = lgth/2;
+          int *tmpQuad = new int[quadOff];
+          for(int i = 0; i < quadOff; i++)
+            if(conn[i] != conn[(i+1)%quadOff] || conn[i] != conn[i+quadOff])  // zip nul segments/arcs (quad point must match too)
+              {
+              tmp[newPos]=conn[i];
+              tmpQuad[newPos++]=conn[(i+quadOff)%lgth];
+              }
+          // Merge linear and quad points into tmp
+          std::copy(tmpQuad, tmpQuad+newPos, tmp+newPos);
+          delete [] tmpQuad;
+          newPos *= 2; // take in quad points in the final length
+        }
       INTERP_KERNEL::NormalizedCellType ret=tryToUnPoly2D(cm.isQuadratic(),tmp,newPos,retConn,retLgth);
       delete [] tmp;
       return ret;
@@ -508,4 +525,21 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyTetra4(const int *con
   retLgth=lgth;
   std::copy(conn,conn+lgth,retConn);
   return INTERP_KERNEL::NORM_POLYHED;
+}
+
+/*!
+ * Tell whether a cell is exactly flat.
+ * For the moment only handle:
+ *  - fully degenerated polygons (polygon with 1 point, or 2 if quadratic)
+ *  - quad polygon with 2 points and two identical quad points
+ */
+bool CellSimplify::isFlatCell(const int* conn, int pos, int lgth, NormalizedCellType type)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  if ( lgth <= 2 ) // a polygon with a single, or two points has been returned. This check also captures degenerated quadratics
+    return true;
+  if (cm.isQuadratic() && lgth==4)  // test for flat quadratic polygon with 2 edges ...
+      if (conn[pos+1+lgth/2] == conn[pos+1+lgth/2+1])  // the only 2 quad points are equal
+        return true;
+  return false;
 }

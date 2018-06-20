@@ -189,6 +189,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy);
     MEDCOUPLING_EXPORT bool areOnlySimplexCells() const;
     MEDCOUPLING_EXPORT void convertDegeneratedCells();
+    MEDCOUPLING_EXPORT DataArrayInt *convertDegeneratedCellsAndRemoveFlatOnes();
     MEDCOUPLING_EXPORT void are2DCellsNotCorrectlyOriented(const double *vec, bool polyOnly, std::vector<int>& cells) const;
     MEDCOUPLING_EXPORT void orientCorrectly2DCells(const double *vec, bool polyOnly);
     MEDCOUPLING_EXPORT void changeOrientationOfCells();

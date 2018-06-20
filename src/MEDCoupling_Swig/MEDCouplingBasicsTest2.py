@@ -1987,6 +1987,46 @@ class MEDCouplingBasicsTest2(unittest.TestCase):
             pass
         pass
 
+    def testConvertDegeneratedCellsAndRemoveFlatOnes1(self):
+          coo = DataArrayDouble([0.0]*10) # Just to have some. Values do not matter.
+          mesh = MEDCouplingUMesh("m", 2)
+          mesh.setCoords(coo)
+          
+          # Linear
+          c = [NORM_QUAD4, 0,1,0,2, NORM_TRI3, 0,1,1, NORM_TRI3, 0,1,2, NORM_QUAD4, 1,0,2,1, NORM_POLYGON, 1,0,1,1]
+          cI = [0, 5, 9, 13, 18, 23]
+          mesh.setConnectivity(DataArrayInt(c),DataArrayInt(cI))
+          mesh2 = mesh.deepCopy(); mesh3 = mesh.deepCopy();
+          mesh.convertDegeneratedCells()
+          c, cI = mesh.getNodalConnectivity().getValues(), mesh.getNodalConnectivityIndex().getValues()
+          self.assertEqual(c, [NORM_QUAD4, 0,1,0,2, NORM_POLYGON, 0,1, NORM_TRI3, 0,1,2, NORM_TRI3, 1,0,2, NORM_POLYGON, 1,0])
+          self.assertEqual(cI, [0, 5, 8, 12, 16, 19])
+          
+          res = mesh2.convertDegeneratedCellsAndRemoveFlatOnes()
+          c, cI = mesh2.getNodalConnectivity().getValues(), mesh2.getNodalConnectivityIndex().getValues()
+          self.assertEqual(c, [NORM_QUAD4, 0,1,0,2, NORM_TRI3, 0,1,2, NORM_TRI3, 1,0,2])
+          self.assertEqual(cI, [0, 5, 9, 13])
+          self.assertEqual(res.getValues(), [1,4])
+          
+          # Quadratics now:
+          c = [NORM_TRI6, 0,1,0, 2,3,0, NORM_QUAD8, 0,1,1,3,  4,1,6,7, NORM_QPOLYG, 0,1, NORM_QPOLYG, 0,1,2,2, NORM_TRI6, 0,1,2,  3,4,5]
+          cI = [0, 7, 16, 19, 24, 31]
+          mesh3.setConnectivity(DataArrayInt(c),DataArrayInt(cI))
+          
+          mesh3.convertDegeneratedCells()
+          c, cI = mesh3.getNodalConnectivity().getValues(), mesh3.getNodalConnectivityIndex().getValues()
+          self.assertEqual(c, [NORM_QPOLYG, 0,1, 2,3, NORM_TRI6, 0,1,3,  4,6,7, NORM_QPOLYG, 0,1, NORM_QPOLYG, 0,1,2,2, NORM_TRI6, 0,1,2,  3,4,5])
+          self.assertEqual(cI, [0, 5, 12, 15, 20, 27])
+          mesh4 = mesh3.deepCopy()
+          
+          res = mesh4.convertDegeneratedCellsAndRemoveFlatOnes()
+          c, cI = mesh4.getNodalConnectivity().getValues(), mesh4.getNodalConnectivityIndex().getValues()
+          self.assertEqual(c, [NORM_QPOLYG, 0,1, 2,3, NORM_TRI6, 0,1,3,  4,6,7, NORM_TRI6, 0,1,2,  3,4,5])
+          self.assertEqual(cI, [0, 5, 12, 19])
+          self.assertEqual(res.getValues(), [2,3])
+          
+          pass
+
     def testGetNodeIdsNearPoints1(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
         coords=mesh.getCoords();

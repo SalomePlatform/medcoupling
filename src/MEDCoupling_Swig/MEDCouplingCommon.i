@@ -361,6 +361,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingUMesh::getBoundingBoxForBBTreeFast;
 %newobject MEDCoupling::MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic;
 %newobject MEDCoupling::MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic;
+%newobject MEDCoupling::MEDCouplingUMesh::convertDegeneratedCellsAndRemoveFlatOnes;
 %newobject MEDCoupling::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject MEDCoupling::MEDCouplingUMeshCellEntry::__iter__;
 %newobject MEDCoupling::MEDCoupling1GTUMesh::New;
@@ -1972,6 +1973,7 @@ namespace MEDCoupling
     void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertLinearCellsToQuadratic(int conversionType=0) throw(INTERP_KERNEL::Exception);
     void convertDegeneratedCells() throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convertDegeneratedCellsAndRemoveFlatOnes() throw(INTERP_KERNEL::Exception);
     bool areOnlySimplexCells() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getEdgeRatioField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getAspectRatioField() const throw(INTERP_KERNEL::Exception);
