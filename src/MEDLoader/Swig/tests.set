@@ -22,6 +22,7 @@ SET(BASE_TESTS
   MEDLoaderTest4.py
   MEDLoaderExamplesTest.py
   SauvLoaderTest.py
+  UsersGuideExamplesTest.py
 )
 
 # if numpy is used

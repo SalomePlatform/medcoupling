@@ -17,7 +17,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SALOME_CONFIGURE_FILE(Doxyfile_med_user.in Doxyfile_med_user)
+# Set MEDCOUPLING_SERVER_BASED_SEARCH=ON when building docs for putting on www.salome-platform.org
+# MEDCOUPLING_SERVER_BASED_SEARCH is used in Doxyfile_med_dev
+#
+IF(MEDCOUPLING_SERVER_BASED_SEARCH)
+  SET(MEDCOUPLING_SERVER_BASED_SEARCH "YES")
+ELSE()
+  SET(MEDCOUPLING_SERVER_BASED_SEARCH "NO")
+ENDIF()
+
+SALOME_CONFIGURE_FILE(Doxyfile_med_dev.in Doxyfile_med_dev)
 SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
 
@@ -39,7 +48,7 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
     doxfiles/examples/medcouplingexamplesarrays.doxy
     doxfiles/examples/medcouplingexamplesother.doxy
     doxfiles/examples/medcouplingexamplesfooter.doxy
-  )
+    )
 
   # This function adds IN_FILE contents to the end of OUT_FILE
   FUNCTION(concat IN_FILE OUT_FILE)
@@ -57,28 +66,28 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
   # gets updated if its content has changed.
 
   # Here is the "standard" procedure, as if ${input} was hand-written.
-  ADD_CUSTOM_TARGET(usr_docs ALL
+  ADD_CUSTOM_TARGET(dev_docs ALL
     COMMAND ${PYTHON_EXECUTABLE} ${pythondocexamplesgenerator} ${input} ${output}
-    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_user
+    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_dev
     VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 
   # Create dummy target gathering the generation of all .i files:
   ADD_CUSTOM_TARGET(swig_ready)
-  ADD_DEPENDENCIES(swig_ready usr_docs)
+  ADD_DEPENDENCIES(swig_ready dev_docs)
 
-  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(usr_docs swig_ready MEDCoupling)
-  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(usr_docs swig_ready MEDLoader)
+  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(dev_docs swig_ready MEDCoupling)
+  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(dev_docs swig_ready MEDLoader)
 
-  SET(doxyfile_med_user ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_med_user)
-  FILE(STRINGS ${doxyfile_med_user} enabled_sections REGEX "ENABLED_SECTIONS")
+  SET(doxyfile_med_dev ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_med_dev)
+  FILE(STRINGS ${doxyfile_med_dev} enabled_sections REGEX "ENABLED_SECTIONS")
   IF(enabled_sections)
-    FILE(READ ${doxyfile_med_user} doxy_file)
+    FILE(READ ${doxyfile_med_dev} doxy_file)
     STRING(REPLACE ${enabled_sections} "${enabled_sections} ENABLE_EXAMPLES" new_doxy_file ${doxy_file})
-    FILE(WRITE ${doxyfile_med_user} ${new_doxy_file})
+    FILE(WRITE ${doxyfile_med_dev} ${new_doxy_file})
   ELSE()
-    FILE(APPEND ${doxyfile_med_user}
+    FILE(APPEND ${doxyfile_med_dev}
       "#Temporary variable to enable python documentation sections\nENABLED_SECTIONS = ENABLE_EXAMPLES")
   ENDIF()
 
@@ -86,16 +95,16 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
   INCLUDE(doxy2swig/doxy2swig.cmake)
 
 ELSE()
-  ADD_CUSTOM_TARGET(usr_docs ALL
-    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_user
+  ADD_CUSTOM_TARGET(dev_docs ALL
+    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_dev
     VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 ENDIF()
 
-#INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_docs)")
-INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc_ref_user/html/ DESTINATION ${MEDCOUPLING_INSTALL_DOC})
-INSTALL(FILES images/head.png DESTINATION ${MEDCOUPLING_INSTALL_DOC})
+#INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target dev_docs)")
+INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc_ref_dev/html/ DESTINATION ${MEDCOUPLING_INSTALL_DOC}/developer)
+INSTALL(FILES images/head.png DESTINATION ${MEDCOUPLING_INSTALL_DOC}/developer)
 
-SET(MAKE_CLEAN_FILES doc_ref_user tmp)
+SET(MAKE_CLEAN_FILES doc_ref_dev tmp)
 SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MAKE_CLEAN_FILES}")

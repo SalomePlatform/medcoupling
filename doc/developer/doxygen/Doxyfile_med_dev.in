@@ -22,9 +22,9 @@
 # General configuration options
 #---------------------------------------------------------------------------
 #
-PROJECT_NAME           = "MEDCoupling Users' Guide"
+PROJECT_NAME           = "MEDCoupling Developers' Guide"
 PROJECT_NUMBER         =
-OUTPUT_DIRECTORY       = doc_ref_user
+OUTPUT_DIRECTORY       = doc_ref_dev
 OUTPUT_LANGUAGE        = English
 EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = NO
@@ -66,7 +66,7 @@ QUIET                  = NO
 WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = YES
 WARN_FORMAT            = "$file:$line: $text"
-WARN_LOGFILE           = log_user
+WARN_LOGFILE           = log_dev
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
@@ -109,7 +109,6 @@ FILE_PATTERNS          = InterpKernelDEC.*xx \
                          ExplicitCoincidentDEC.*xx \
                          NonCoincidentDEC.*xx \
                          CommInterface.*xx \
-                         ICoCo*.*xx \
                          NormalizedGeometricTypes \
                          NormalizedUnstructuredMesh.*xx \
                          Interpolation2D.*xx \
@@ -153,7 +152,6 @@ FILE_PATTERNS          = InterpKernelDEC.*xx \
                          MEDCouplingCartesianAMRMesh.*xx \
                          MEDCouplingTimeLabel.*xx \
                          MEDCouplingRefCountObject.*xx \
-                         MCAuto.*xx \
                          MEDCouplingMemArray.*xx \
                          MEDCouplingGaussLocalization.*xx \
                          MEDCouplingRemapper.*xx \
@@ -172,6 +170,7 @@ FILE_PATTERNS          = InterpKernelDEC.*xx \
 RECURSIVE              = YES
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
+EXCLUDE_SYMBOLS        = ICoCo
 EXAMPLE_PATH           = @PROJECT_SOURCE_DIR@/src/ParaMEDMEM \
                          @PROJECT_SOURCE_DIR@/src/MEDCoupling/Test \
                          @PROJECT_SOURCE_DIR@/src/MEDCoupling_Swig \
@@ -290,3 +289,5 @@ DOT_CLEANUP            = YES
 # Configuration::additions related to the search engine
 #---------------------------------------------------------------------------
 SEARCHENGINE           = YES
+SERVER_BASED_SEARCH    = @MEDCOUPLING_SERVER_BASED_SEARCH@
+EXTERNAL_SEARCH        = NO

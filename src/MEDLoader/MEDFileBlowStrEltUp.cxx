@@ -461,7 +461,6 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
 
 MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thikness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
 {
-#if __cplusplus >= 201103L
   MCAuto<DataArrayDouble> ptsForLoc;
   MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(gt,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
   int nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
@@ -503,14 +502,10 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
   std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
   MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
   return resu;
-#else
-  throw INTERP_KERNEL::Exception("Broken news : 10% off for C++11 compiler :)");
-#endif
 }
 
 MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle, const DataArrayDouble *scale, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
 {
-#if __cplusplus >= 201103L
   static const char MSG1[]="BuildMeshPipeSEG3 : not recognized pattern ! Send mail to anthony.geay@edf.fr with corresponding MED file !";
   MCAuto<DataArrayDouble> ptsForLoc;
   MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(INTERP_KERNEL::NORM_SEG3,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
@@ -579,9 +574,6 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
   std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
   MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
   return resu;
-#else
-  throw INTERP_KERNEL::Exception("Broken news : 10% off for C++11 compiler :)");
-#endif
 }
 
 MCAuto<DataArrayDouble> LocInfo::BuildMeshFromStructure(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)

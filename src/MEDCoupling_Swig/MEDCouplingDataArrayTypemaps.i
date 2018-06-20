@@ -3053,7 +3053,6 @@ bool isCSRMatrix(PyObject *m)
 
 void convertCSR_MCDataToVectMapIntDouble(const MEDCoupling::DataArrayInt *indptrPtr, const MEDCoupling::DataArrayInt *indicesPtr, const MEDCoupling::DataArrayDouble *dataPtr, std::vector<std::map<int,double> >& mCpp)
 {
-#if __cplusplus >= 201103L
   auto nbOfRows(indptrPtr->getNumberOfTuples()-1);
   if(nbOfRows<0)
     throw INTERP_KERNEL::Exception("pywrap of MEDCouplingRemapper::setMatrix : input CSR matrix looks bad regarding indptr array !");
@@ -3069,9 +3068,6 @@ void convertCSR_MCDataToVectMapIntDouble(const MEDCoupling::DataArrayInt *indptr
           line[indicesCPtr[j]]=dataCPtr[j];
         }
     }
-#else
-  throw INTERP_KERNEL::Exception("Breaking news : 10% off for C++11 compiler :)");
-#endif
 }
 
 void convertToVectMapIntDouble(PyObject *pyobj, std::vector<std::map<int,double> >& mCpp)

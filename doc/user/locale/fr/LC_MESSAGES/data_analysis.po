@@ -1,0 +1,842 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015-2017, Geay, Bruneton
+# This file is distributed under the same license as the MEDCoupling User's
+# Guide package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: MEDCoupling User's Guide 8.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-14 14:14+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.0\n"
+
+# ccc0f4502971404bb98ef4ff2f7901f4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:2
+msgid "Data analysis"
+msgstr ""
+
+# 48552fbfd5ea49b78aea30fa83d9a9f2
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:5
+msgid "Object size in memory"
+msgstr ""
+
+# a47ff2b84ce24947b5f909bcb8d884a2
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:7
+msgid ""
+"medcoupling provides information on memory occupied by every object: "
+"mesh, field, array etc.:"
+msgstr ""
+
+# 8824315c08944d6bb207964f13d518cd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:14
+msgid "Extract data"
+msgstr ""
+
+# 358bb088780342e6a5d2542e6a5dffee
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:19
+msgid "Extract for meshes"
+msgstr ""
+
+# aff67f901cae4028ad0c1859dfd1b334
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:21
+msgid ""
+"If *m* is a mesh (MEDCouplingUMesh) and *Ids* a list of cell ids, you can"
+" extract the mesh ids by simply doing :"
+msgstr ""
+
+# cff3cbd7d4fc4abb9c7cc2724c87c290
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:30
+msgid ""
+"*m* (to the left) and *part* extracted by calling m[1,2,4,5,7,8] (to the "
+"right)"
+msgstr ""
+
+# e0b1ec21292b43c0a8155200cae7bb00
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:32
+msgid "in medcoupling ids count from zero unlike SMESH where they count from one."
+msgstr ""
+
+# 4ce9bac3df0c4908be951ec654317ffe
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:34
+msgid ""
+"*part* is also a MEDCouplingUMesh with same coordinates than *m*. Reason "
+"is that medcoupling tries to reduce memory effort."
+msgstr ""
+
+# 819727e2481b4868981c0abc8c083284
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:36
+msgid ""
+"But it's highly likely that some nodes in part will be not fetched by "
+"part."
+msgstr ""
+
+# 4eba3e39bfae4854b2ea36c8d3be6ad1
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:38
+msgid "It can be interesting to locate the fetched nodes."
+msgstr ""
+
+# a058f4f2a5d1425b98ae4785cd743561
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:47
+msgid ""
+"part.computeFetchedNodeIds() returns [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, "
+"12, 13, 14, 15, 16]. Ids 0 and 17 are not fetched"
+msgstr ""
+
+# cfa0842d7650425e989358c11032c5b8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:49
+msgid "To extract coordinates, simply invoke"
+msgstr ""
+
+# df1b4205d6e14d39b8676331153baa1a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:55
+msgid ""
+"It can be interesting to reduce set of points *part* is lying on. Simply "
+"by doing."
+msgstr ""
+
+# 2385a00c95e44f1d88b3aa7ae88e8373
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:61
+msgid ""
+"Or it can be interesting for further data handling to have both reduction"
+" and array."
+msgstr ""
+
+# 8bf3c07be8ac48bbafb0ed4848fb647c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:67
+msgid "To have more information about *o2n* read renumbering_ section."
+msgstr ""
+
+# 9184686efb5c4dcfa24ad90f20641649
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:71
+msgid ""
+"Extraction in meshes often leads to locate cells/nodes regarding their "
+"neighborhood."
+msgstr ""
+
+# 92332ed062ac4fe8ba1be6ae5eb2e5de
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:73
+msgid "Let's consider *m2* 3D mesh. To locate nodes on boundaries simply invoke :"
+msgstr ""
+
+# facd3e1c4cff4cc49b606ce00cc1029a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:79
+msgid "And now to extract cells lying on boundary nodes simply call :"
+msgstr ""
+
+# 6e5940d6180e4737896b080686d44304
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:85
+msgid ""
+"False means if a cell has at least one node in *bn*, take it. True means "
+"if all nodes of cell are in *bn*, take it."
+msgstr ""
+
+# 5942293262a1405da7ae131187372966
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:87
+msgid ""
+"If a mesh consists of several contiguous zones of cells, it is possible "
+"to retrieve cell ids of each zone:"
+msgstr ""
+
+# 192b40a09d6e4f089ff1684f967af715
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:92
+msgid "A mesh with two zones"
+msgstr ""
+
+# 2beed69cf53d46589263f237228926ee
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:98
+msgid "Zones returned by partitionBySpreadZone are::"
+msgstr ""
+
+# 457ad15813134b65840368d746309b2b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:103
+msgid "Extract for arrays"
+msgstr ""
+
+# f609934b9fec46df8d194e6526d52888
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:105
+msgid ""
+"Arrays are the common entry point to selection. If *arr* is a 2 component"
+" DataArrayDouble you can locate tuple ids by finding those whose first "
+"component is in [a,b):"
+msgstr ""
+
+# e7393446b08347febd75786cbcce74bb
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:111
+msgid "Or you can find tuples whose magnitude is in [c,d):"
+msgstr ""
+
+# e44ff0cf176547a994d679ccd0d6d763
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:117
+msgid "To find which of *tupleIds* are missing from *tupleIds1*, call"
+msgstr ""
+
+# b1c2e151b0714c178f903a90d5a475da
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:125
+msgid "Extract for fields"
+msgstr ""
+
+# 0c6debe20e13486daa6e13354b67ccde
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:127
+msgid ""
+"If *field4* is a MEDCouplingFieldDouble, you can extract a sub-part of "
+"*field4* on a specified cell ids *ids4* by doing"
+msgstr ""
+
+# c24189fc03e649989f6f791a8c89e48b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:133
+msgid "It works whatever the spatial discretization of *field4*"
+msgstr ""
+
+# 35cbd297f40d4be4a3803e421735b9c8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:138
+msgid ""
+"A field on nodes (to the left) and its sub-field on a half of nodes (to "
+"the right)"
+msgstr ""
+
+# bbe4aa2431e14578970b9404d5698f99
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:140
+msgid "You can extract a field on plane by cutting *field5* like this:"
+msgstr ""
+
+# 632193d8ffea4b73a52bba73a4391516
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:146
+msgid ""
+"The plane is defined by its *origin* and its normal vector *normvec*. The"
+" last argument is a half-thickness of the plane."
+msgstr ""
+
+# 6db3a5fbf32c4e989362e222b35dc3cd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:148
+msgid "It works for fields on cells only"
+msgstr ""
+
+# edc2927c5ee2479594c2437be7421716
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:153
+msgid "A field on cells (to the left) and a sub-field on a plane (to the right)"
+msgstr ""
+
+# 9831255d19864f77b5f223c3462a85cb
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:159
+msgid "Geometric handling of unstructured meshes"
+msgstr ""
+
+# 5e2faf5cfdd14b1788772f03a399dacd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:161
+msgid ""
+"Consider *m2* as a 3D MEDCouplingUMesh instance. You can translate it by "
+"simply"
+msgstr ""
+
+# cf0c3af4895849299a1700292a6f33c8
+# 9ac56283057e4ab1a0c041de99ed465e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:167
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:179
+msgid "Which is equivalent to"
+msgstr ""
+
+# 2936437cde6341e59cd47aa99d7843cf
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:173
+msgid ""
+"Samely you can simply rotate it around the point [1,2,1] along Y axis "
+"with an angle of pi/3 by doing"
+msgstr ""
+
+# d1c1cacf9a9d4163b77f7786fbdea457
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:185
+msgid "To scale *m2* relative to point [1,2,4] by a factor of 6, call"
+msgstr ""
+
+# 5744c0eec4a6487c92e18c3acd7701e6
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:191
+msgid ""
+"It can also interesting to retrieve volume of cells in m2 (resp area, "
+"length in 2D, 1D):"
+msgstr ""
+
+# 91a5f984e9474f29b80fd7a8a57a2557
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:197
+msgid ""
+"*volPerCell* is a field on cell (MEDCouplingFieldDouble). *True* means I "
+"don't care of cell orientation. *False* tells I care of cell orientation "
+"using signed values."
+msgstr ""
+
+# 06fc9120bd4b4fba9416271ba5be33f5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:202
+msgid "Area field of a cartesian mesh"
+msgstr ""
+
+# 62e7fe979c3a4ee88ef1a6b434ea1d51
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:204
+msgid "You can compute total volume covered by mesh by doing"
+msgstr ""
+
+# 9bdd0a1e57714495b2f7c3eae95d5e0d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:210
+msgid ""
+"You also can locate cells (using *cellIds*) having volume greater than a "
+"threshold *t1*:"
+msgstr ""
+
+# 1294aa862e81419b9ebd476cb496499c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:216
+msgid ""
+"In this case it is easy to :ref:`build a sub-mesh<extract_for_meshes>` "
+"containing cells having a volume higher than *t1*:"
+msgstr ""
+
+# 4eaf169e0eb6407493f5232d0e303203
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:222
+msgid "There are other common geometric methods on meshes:"
+msgstr ""
+
+# f2a89143b81b428f86be275a6b178b91
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:228
+msgid ""
+"*centers* will be a DataArrayDouble giving for each cell of *m2* its "
+"center of mass."
+msgstr ""
+
+# 2040297dab7f434aaf8d5a50adabdbab
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:230
+msgid ""
+"It's possible to compute a DataArrayDouble giving the center of mass of "
+"*m2* simply by doing"
+msgstr ""
+
+# d35aee9d090349929fe0f06b3d884734
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:236
+msgid "Iso barycenter of nodes constituting each cell can be computed by calling"
+msgstr ""
+
+# cc9cb665bce14af49a2f43a011a2d49f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:242
+msgid "*ibc* will be a DataArrayDouble."
+msgstr ""
+
+# 525e5b78edbb4371abe23f10dc01ec93
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:244
+msgid ""
+"You can retrieve a field (MEDCouplingFieldDouble) of unitary vectors "
+"normal to cells:"
+msgstr ""
+
+# c3e083095f174584933fd5ca8d9b3c6d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:253
+msgid ""
+"A skin mesh with a normal field on it computed by buildOrthogonalField "
+"method"
+msgstr ""
+
+# b46f8b1f9059453ea7fdeec97022d9ed
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:255
+msgid ""
+"You also have a set of methods to caracterize mesh quality: "
+"getEdgeRatioField, getAspectRatioField, getWarpField, getSkewField, "
+"computeDiameterField."
+msgstr ""
+
+# 53047aa31028496cbcc6be12565fa692
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:258
+msgid ""
+"medcoupling provides methods to intersect 2D meshes in 2D space. "
+"MEDCouplingUMesh.Intersect2DMeshWith1DLine partitions a 2D and a 1D mesh:"
+msgstr ""
+
+# 942fde1e54ca4299ac545024ffd19e91
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:264
+msgid ""
+"The last argument is a precision used to perform intersections and "
+"localization operations."
+msgstr ""
+
+# 0b09a0881fbd4513b67c0747d8fdfe80
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:269
+msgid "2D and 1D meshes before and after intersection"
+msgstr ""
+
+# 81ad5cfdbc8641dcbb670c243d1d6bbb
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:271
+msgid ""
+"Intersect2DMeshWith1DLine returns new 2D and 1D meshes and two arrays. "
+"*a2d* gives for each cell in *m2d* the id in *mesh2d* it comes from. "
+"*a1d* is an array of pair that gives for each cell id i in *m1d* the cell"
+" in *md2* on the left for the 1st component and the cell in *m2d* on the "
+"right for the 2nd component. -1 means no cell."
+msgstr ""
+
+# 967d6c9dc64f42a1a5946e41c9c7bd7b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:273
+msgid "For the example in the picture above *a2d* is::"
+msgstr ""
+
+# 7014ddb55ea249a688e2d85eedc2d298
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:277
+msgid "and *a1d* is::"
+msgstr ""
+
+# ae51d6687aa04888b29987eef1f2b135
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:281
+msgid "There also a method to partition a 2D mesh by another 2D mesh:"
+msgstr ""
+
+# fa4718067f704d5e9e65ba9c2753c6ab
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:290
+msgid ""
+"Two 2D meshes before partitioning (to the left) and a result mesh after "
+"partitioning (to the right)"
+msgstr ""
+
+# 625a1767d1704712af9a6883503ba150
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:292
+msgid ""
+"Intersect2DMeshes returns a new 2D mesh and two arrays. *a1* gives for "
+"each result cell an id of the cell of *mesh1* it comes from. *a2* for "
+"each result cell gives an id of the cell of *mesh2* it comes from."
+msgstr ""
+
+# db5ca252adf54438b222a1e8bd76ed8a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:294
+msgid ""
+"You can compute distance from a set of points to cells of a mesh by "
+"calling"
+msgstr ""
+
+# f5a657b58eae45549766808f8aaa4a78
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:300
+msgid ""
+"This method returns distance and a closest cell id for each of given "
+"*points*. *points* is a DataArrayDouble with 3 components. Returned "
+"*dist* is a DataArrayDouble and *cells* is a DataArrayInt."
+msgstr ""
+
+# 6ca71e019ada4e3d9e867ea016754e69
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:303
+msgid "Mesh comparison"
+msgstr ""
+
+# 219cbe7a55bf4a8e8d4ea2a3fe76805a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:305
+msgid ""
+"It is a common question. You have two meshes *m1* and *m2* coming from 2 "
+"different sources (2 files) and expected to be more or less equivalent."
+msgstr ""
+
+# e01c6ae4e7dc466f82e5b61b43a37ffc
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:307
+msgid ""
+"medcoupling proposes some methods to help to caracterize equivalence of "
+"these 2 meshes."
+msgstr ""
+
+# 9ad14ff7da9c42728f14369025b553f0
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:309
+msgid "The first, the strongest, is informatical equality:"
+msgstr ""
+
+# 0cac768b3c0c4068980bf1289df5fd3d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:315
+msgid "*eps* is the tolerance in coordinates."
+msgstr ""
+
+# 2e94e699afbf4254a0af799517f5e3d4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:317
+msgid "If true is returned, you are lucky."
+msgstr ""
+
+# 12a398bbc2a243158f9243b2945dfea0
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:319
+msgid "Sometimes only names (and or component names or units) are not the same:"
+msgstr ""
+
+# bff6d14773744daaa1f037cc5f234c3d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:325
+msgid ""
+"But sometime the last call also returns False. It may mean that there is "
+"a permutation of nodes and or cells."
+msgstr ""
+
+# f01d328afb914c4e8feecb25e3599ff8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:327
+msgid ""
+"If you know by construction that *m1* and *m2* share the same coords "
+"object:"
+msgstr ""
+
+# e7e7df8dfebd4e76b797661493c4fea3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:333
+msgid ""
+"checkGeoEquivalWith returns 2 elements. The first one is relative to "
+"cells and the second one is relative to nodes."
+msgstr ""
+
+# 081cdffbfe0a4a79a9712a0fae92e01f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:335
+msgid ""
+"If the mapping between *m1* and *m2* is impossible regarding the "
+"specified code an exception is thrown. Code meaning:"
+msgstr ""
+
+# c3323332ab6b42a4b62f3bf6b490a9b9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:338
+msgid ""
+"20=2*10+0. 2 tells I know that coords are the same. 0 tells two cells are"
+" equal if and only if their connectivity is exactly the same."
+msgstr ""
+
+# d19fb1e351d74b61a1f78a7dd51641a6
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:339
+msgid ""
+"21=2*10+1. 2 tells I know that coords are the same. 1 tells two cells are"
+" equal if and only if their connectivity is equal within a circular "
+"permutation."
+msgstr ""
+
+# 00a3c108006e431ba8484bfea37c4ea0
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:340
+msgid ""
+"22=2*10+2 . 2 tells I know that coords are the same. 2 tells two cells "
+"are equal if and only if nodes set is the same independently from "
+":ref:`order <renumber_for_MED>`."
+msgstr ""
+
+# 028a6030afb94053b1a36bb667b6b4e4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:342
+msgid ""
+"If you expect that two meshes are geometrically the same without knowing "
+"if there is any cell/node permutation use code 12:"
+msgstr ""
+
+# 70e30890cc2b4ea58f979e56484d58dd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:348
+msgid ""
+"Code meaning: 12=1*10+2. 1 tells coords can be different. 2 tells two "
+"cells are equal if and only if nodes set is the same independently from "
+"order."
+msgstr ""
+
+# 31d650961eb04249b76864746e75f644
+# de9c3317cf72475e8ccc61e2619b8331
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:350
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:369
+msgid "Remark"
+msgstr ""
+
+# db4203bc3df24c7db4b77e513cad9d25
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:352
+msgid ""
+"*a* and/or *b* may be *None*. It's not a bug it only means that "
+"renumbering is equal to identity, meaning that no associated permutation "
+"is needed."
+msgstr ""
+
+# ce729fd6a7af43b3a3c3d37ab2898ffa
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:355
+msgid "Common handling mesh"
+msgstr ""
+
+# eb7ac9dea5494b3f93654d58e926e46a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:357
+msgid ""
+"*field1* is a node field containing non simplex cells. simplexize on "
+"field1.getMesh() can help to overpass this limitation."
+msgstr ""
+
+# 9e4f6908d5634bf4866da2e95184933c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:367
+msgid "Initial mesh (to the left) and its simplexization (to the right)"
+msgstr ""
+
+# b879d71bdf444e6795cc5e133a089d2a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:371
+msgid ""
+"The mesh has been modified by simplexize. This method of simplexization "
+"is fast but leads to non conform mesh that can be a problem in some "
+"context"
+msgstr ""
+
+# 71404e6d56fb40d2bbb40016f2ebf82d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:373
+msgid ""
+"tetrahedrize method is dedicated to simplexization of 3D meshes only. It "
+"can create a conform mesh. Unlike simplexize method, tetrahedrize method "
+"can add new points to the result mesh."
+msgstr ""
+
+# f35b4cbdaf8a458c834cc3f9968b3f12
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:379
+msgid ""
+"The argument specifies how to split hexahedral cells. it must be in "
+"(PLANAR_FACE_5, PLANAR_FACE_6, GENERAL_24, GENERAL_48). *n2ocells* is a "
+"DataArrayInt holding, for each new cell, an id of old cell producing it. "
+"*np* is a number of new points."
+msgstr ""
+
+# 4c4252426c0241cd9dd7f1e0fccafb89
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:383
+msgid ""
+"Using medcoupling you can create a 3D extruded mesh. To do that you need "
+"a 2D mesh and a 1D mesh, which defines the vector of extrusion and the "
+"number of steps. The both meshes must be in 3D space. To extrude a 2D "
+"mesh *m2* along a 1D mesh *m1*, call"
+msgstr ""
+
+# 4f1da84836374e3aa73a2187ab679566
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:389
+msgid "The last argument is a policy defining the type of extrusion:"
+msgstr ""
+
+# e8a4d82d1c734e328efb9471525fd10f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:391
+msgid ""
+"0 means \"translation only\": the cells of the 1D mesh represent the "
+"vectors along which the 2D mesh will be repeated to build each level."
+msgstr ""
+
+# 2bfacb219712433ebc79f4e1c17c78eb
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:392
+msgid ""
+"1 means \"translation and rotation\": the translation is done as above. "
+"For each level, an arc of circle is fitted on the 3 preceding points of "
+"the 1D mesh. The center of the arc is the center of rotation for each "
+"level, the rotation is done along an axis normal to the plane containing "
+"the arc, and finally the angle of rotation is defined by the first two "
+"points on the arc."
+msgstr ""
+
+# 37bf817efcb04ffb8fd98354b7d6a3f3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:398
+msgid ""
+"A 2D mesh and an 1D mesh (to the left), an extrusion mesh built with "
+"policy=0 (in the middle) and with policy=1 (to the right)"
+msgstr ""
+
+# 408fcfdb7c4040c6941eb2e6655f82ef
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:401
+msgid ""
+"In order to aggregate several meshes of the same dimension into one mesh,"
+" call"
+msgstr ""
+
+# 76f1412967b84d72a5eb1d609b446c05
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:407
+msgid "To transform a linear mesh into a quadratic one, call"
+msgstr ""
+
+# be7ff7ac30bd42c5a089720cff825303
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:413
+msgid "A parameter of convertLinearCellsToQuadratic provides type of conversion:"
+msgstr ""
+
+# 62e7b1ee31e7420b8b3595188e08af71
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:415
+msgid "0 creates cells of simple quadratic types, e.g. NORM_TRI6 and NORM_QUAD8"
+msgstr ""
+
+# ce879de72e6b443b92ca65ed6ed33094
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:416
+msgid "1 creates cells of complex quadratic types, e.g. NORM_TRI7 and NORM_QUAD9"
+msgstr ""
+
+# bad055d04747446a87eb3f23a849ea6f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:421
+msgid ""
+"Result quadratic 2D meshes converted with typeOfConversion=0 (to the "
+"left) and typeOfConversion=1 (to the right)"
+msgstr ""
+
+# db113d3d38e54939b557d6cf56e674f5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:423
+msgid "It's common to deduce skin of a mesh *m1*:"
+msgstr ""
+
+# 3d4ec07a1ed44ba9946e6dd6a365a88f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:429
+msgid "*skin* and *m1* share the same coordinate array."
+msgstr ""
+
+# fa0441823ce3400283377bc1142eb982
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:434
+msgid "A 2D mesh (to the left) and its skin (to the right)"
+msgstr ""
+
+# 936f7ba80493444fb116740386d10873
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:438
+msgid "In order to get a 1D mesh from a given 2D or 3D mesh, call"
+msgstr ""
+
+# e66ce51e7a494f28bb576511d07a0c1d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:444
+msgid ""
+"In addition to *mesh1d*, explodeIntoEdges method returns four arrays "
+"describing descending connectivity and reverse descending connectivity in"
+" indirect-indexing_ format. *d* and *di* describe the descending "
+"connectivity, i.e. enumerate cells of *mesh1d* bounding each cell of "
+"*mesh3d*. *r* and *ri* describe the reverse descending connectivity, i.e."
+" enumerate cells of *mesh3d* bounded by each cell of *mesh1d*."
+msgstr ""
+
+# 114011e35261476b81abc3b7b5133de7
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:451
+msgid ""
+"A 2D mesh (to the left) and a 1D mesh returned by explodeIntoEdges (to "
+"the right)"
+msgstr ""
+
+# 3cbd0097f88540c88ee0a3509715b185
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:453
+msgid ""
+"There is also a method similar to explodeIntoEdges_ which returns a mesh "
+"of one less dimensions than a given mesh, i.e. 3D->2D or 2D->1D:"
+msgstr ""
+
+# cec04dc5eb174a27b2d5b1387e425121
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:459
+msgid ""
+"If a mesh is non-conformal, medcoupling can make it conformal. "
+"conformize2D method is to conformize a 2D mesh in 2D space, conformize3D "
+"is to conformize a 3D mesh in 3D space:"
+msgstr ""
+
+# 7540d0c02b1c4ae19e93f5c1f74cc0ac
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:465
+msgid ""
+"*changedCells* is an array of ids of changed cells. The changed cells "
+"become polygons in 2D and polyhedrons in 3D. *eps* is the relative error "
+"to detect merged edges."
+msgstr ""
+
+# ae9c14efacaa422ba1678fec271fce3f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:467
+msgid "You can duplicate some nodes in a mesh by calling"
+msgstr ""
+
+# fba2db54d418445587cd81be1df9d1b8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:473
+msgid ""
+"This will create new nodes at locations of nodes #3 and #4, the new nodes"
+" will replace nodes #3 and #4 within cells so that the nodes #3 and #4 "
+"will become orphan."
+msgstr ""
+
+# 8c9fee34bea74ad3a18d33f92085bc1a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:475
+msgid "Inversly it is possible to merges nodes equal within a given precision:"
+msgstr ""
+
+# 1204d037405e4dc8b910cc4dda1b4b50
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:481
+msgid ""
+"If your 2D mesh in 3D space includes incorrectly oriented cells, you can "
+"fix their orientation by calling:"
+msgstr ""
+
+# 06ebadb9784a437da89a8ef36cb9cf45
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:487
+msgid ""
+"The last argument if True, only polygons are checked, else, all cells are"
+" checked."
+msgstr ""
+
+# f983944be9ef41c6a35e2d220966d19b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:492
+msgid ""
+"A mesh before applying orientCorrectly2DCells (to the left) and after (to"
+" the right)"
+msgstr ""
+
+# 7bfa2f0def7841078cff03023f328edd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:494
+msgid ""
+"If your mesh includes incorrectly oriented polyhedra, the following "
+"method can help to fix your mesh:"
+msgstr ""
+
+# 833104bfec2b4dc49e90423cdfad3fdc
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:500
+msgid ""
+"If *m1d* is a 1D line mesh, you can ensure consecutive order of its "
+"segments by calling"
+msgstr ""
+
+# 41c0d95f0ec043e189edabd63af48aa3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:509
+msgid "1D mesh before and after renumbering"
+msgstr ""
+
+# 7c6126f3e2364deeb90321d5fcb5f368
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:511
+msgid ""
+"orderConsecutiveCells1D method returns a permutation map in new-to-old_ "
+"mode but renumberCells method requires the map in old-to-new_ mode, hence"
+" we use invertArrayN2O2O2N method to fit to that requirement."
+msgstr ""
+
+# dc9a64e66f73459a834f9c4e7a4dd87b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:519
+msgid ""
+"To arrange cells to comply with MED format requirement you can call "
+"either of the following methods:"
+msgstr ""
+
+# ed1a5d48791742c0873ccbd0bc598c55
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:526
+msgid ""
+"It is also possible to rearrange, and even remove, nodes by calling "
+"renumberNodes:"
+msgstr ""
+
+# 754edb49fbf44278abeb714d0b84b58c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:532
+msgid ""
+"The code above rearranges a mesh  with 4 nodes so that old node #0 "
+"becomes #2, old node #1 remains #1, old node #2 becomes #0, old node #3 "
+"is removed. The last argument 3 means that number of nodes becomes 3."
+msgstr ""
+
+# d2ffd70e9a1e418bb891bc73f9f537f9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:537
+msgid ""
+"The mesh before renumberNodes (to the left) and after (to the right). "
+"Shown Ids are a unit more than Ids in medcoupling"
+msgstr ""
+
+# d0f1ae55b5f14f95a2bc771ab9e1f361
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:540
+msgid "Operations on fields"
+msgstr ""
+
+# df5f52750c4640928b649f5834a54ca5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:542
+msgid "Integral of a *field* can be computed by calling"
+msgstr ""
+
+# 110625252a644bf7b94503e54ed48d30
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:548
+msgid ""
+"The first call returns a list of integrals of all components. The second,"
+" returns integral of 0-th component. True means that abs is applied to "
+"support size used for computing the integral."
+msgstr ""
+
+# 223abe29aa81459783bc324283294cee
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:550
+msgid ""
+"deviator method returns the stress deviator tensor field of a stress "
+"tensor *field* (with 6 components):"
+msgstr ""
+
+# fb6cd2a195b04ded862302ccd288416d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:556
+msgid "To get value of a *field* at certain *points* call"
+msgstr ""
+

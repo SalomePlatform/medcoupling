@@ -2115,11 +2115,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 # ! [PySnippetUMeshStdBuild1_2]
 # ! [PySnippetUMeshStdBuild1_3]
         mesh.allocateCells(5)#You can put more than 5 if you want but not less.
+        # adding cells
         mesh.insertNextCell(NORM_QUAD4,nodalConnPerCell[:4])
         mesh.insertNextCell(NORM_TRI3,nodalConnPerCell[4:7])
         mesh.insertNextCell(NORM_TRI3,nodalConnPerCell[7:10])
         mesh.insertNextCell(NORM_QUAD4,nodalConnPerCell[10:14])
         mesh.insertNextCell(NORM_QUAD4,nodalConnPerCell[14:])
+        # compacting
         mesh.finishInsertingCells()
 # ! [PySnippetUMeshStdBuild1_3]
 # ! [PySnippetUMeshStdBuild1_4]
@@ -2127,8 +2129,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setCoords(coordsArr)#coordsArr contains 9 tuples, that is to say mesh contains 9 nodes.
 # ! [PySnippetUMeshStdBuild1_4]
 # ! [PySnippetUMeshStdBuild1_5]
-# ! [PySnippetUMeshStdBuild1_5]
         mesh.checkConsistencyLight()
+# ! [PySnippetUMeshStdBuild1_5]
         return
 
     def testExampleCMeshStdBuild1(self):

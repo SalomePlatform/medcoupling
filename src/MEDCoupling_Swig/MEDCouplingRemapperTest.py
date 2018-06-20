@@ -1155,7 +1155,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1, len(rmp.getCrudeMatrix()[0]))
         pass
 
-    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings() and IsCXX11Compiled(),"requires numpy AND scipy AND C++11")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy AND C++11")
     def testP1P1PL3DSpaceFrom1DTo0D(self):
         from scipy.sparse import csr_matrix
         from numpy import array

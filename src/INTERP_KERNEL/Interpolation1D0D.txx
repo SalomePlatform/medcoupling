@@ -43,7 +43,6 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MatrixType>
   int Interpolation1D0D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method)
   {
-#if __cplusplus >= 201103L
     constexpr int SPACEDIM=MyMeshType::MY_SPACEDIM;
     using ConnType=typename MyMeshType::MyConnType;
     IKAssert(SPACEDIM==3);
@@ -115,9 +114,6 @@ namespace INTERP_KERNEL
       delete srcElems[i];
     return srcMesh.getNumberOfNodes();
   }
-#else
-  throw INTERP_KERNEL::Exception("Go buying a C++11 compiler :)");
-#endif
 }
 
 #endif

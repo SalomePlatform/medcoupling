@@ -1,0 +1,476 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015-2017, Geay, Bruneton
+# This file is distributed under the same license as the MEDCoupling User's
+# Guide package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: MEDCoupling User's Guide 8.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-14 14:14+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.0\n"
+
+# ec21659471944b0e9d49afe7c0ef3d3c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:2
+msgid "Data conversion"
+msgstr ""
+
+# ed2e929565c142b7879b359b50f9189e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:4
+msgid ""
+"medcoupling includes MEDCouplingRemapper object that allows given a "
+"source field and a target mesh to produce a field lying on target mesh."
+msgstr ""
+
+# 9712a29c4da7401caa4e08467813f8f5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:8
+msgid ""
+"MEDCouplingRemapper goal is to compute a projection by minimizing "
+"diffusive effects and conserve at most the magnitude of key variables."
+msgstr ""
+
+# c88d0a7d25c4451a85bbfe148faf1b7f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:12
+msgid ""
+"The MEDCouplingRemapper object computes a remap function that allows to "
+"transform source field into target field."
+msgstr ""
+
+# 75f649f765a740d782aa12f2be1a387d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:15
+msgid "The function is represented using sparse matrix given:"
+msgstr ""
+
+# a6f66dceae4547cdb5d56e73fb19bb99
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:17
+msgid "a source mesh"
+msgstr ""
+
+# bdb022e70a8a475a9b7fc785053e9984
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:18
+msgid "a target mesh"
+msgstr ""
+
+# d1ede143dd5b40adb2b037344eaf7835
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:19
+msgid ""
+"a source spatial discretization (\"P0\" means ON_CELLS and \"P1\" means "
+"ON_NODES)"
+msgstr ""
+
+# 94e2aa215a6d491985a0f8549615184e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:20
+msgid "a target spatial discretization"
+msgstr ""
+
+# 0b5a5f6f0e5c4165a75072f2311e7dd4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:22
+msgid "Apply a projection is then equivalent to apply matrix vector multiply."
+msgstr ""
+
+# d284de6c2fae4b67bcd54d7448abc1e6
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:25
+msgid ""
+"As projection requires mathematically to compute for every cell in target"
+" mesh, the contribution relative to each of cell in source mesh. So "
+"projection is computation-intensive task."
+msgstr ""
+
+# e717e6336a49409da6f596c3dac59ab9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:29
+msgid ""
+"To optimize time spent by MEDCouplingRemapper, it implements a fast "
+"algorithm that select coarsely the pairs of cells that have a chance to "
+"be in interaction each other. It allows to drop from O(n^2) to O(n) the "
+"complexity of algorithm. The algorithm is based on rectilinear bounding "
+"boxes of cells along axis. 2 cells in interaction have their respective "
+"bounding boxes in interaction."
+msgstr ""
+
+# f58c6a80d4c049cb821a515e102ff93f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:37
+msgid ""
+"Unfortunately it works well mathematically but in the real life "
+"projections especially when spacedim and meshdim are not the same it can "
+"be harder to set."
+msgstr ""
+
+# 2553d23221a04d0e8eb3c14c4df64c3d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:44
+msgid ""
+"Projection cells/cells with meshes having same mesh dimension/space "
+"dimension"
+msgstr ""
+
+# 433ab94995c741a7bea716229f3b05a4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:46
+msgid ""
+"Let us create meshes for sample projection: a source mesh consisting of "
+"two quadrangles and a target mesh consisting of a triangle:"
+msgstr ""
+
+# 4f5be11efd024c11977ac51631af0683
+# e6fee0a106d645aab263e5b03d068f90
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:51
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:115
+msgid "Two source quadrangles in blue and a target triangle in red"
+msgstr ""
+
+# 1c90fbc8ccb94011a428c94e6a8205f0
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:57
+msgid "Now perform projection:"
+msgstr ""
+
+# 17d1824812b440ff98c3456107b49b68
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:63
+msgid ""
+"Here \"P0P0\" specifies spatial discretization of both source and target "
+"field. \"P0\" is for cell discretization (ON_CELLS). \"P1\" is for node "
+"discretization (ON_NODES). For example, \"P0P1\" means from a source cell"
+" field (lying on a source mesh) to a target node field (lying on a target"
+" mesh)."
+msgstr ""
+
+# 53fbf0ca08de49039d3d01fd7e01538e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:65
+msgid ""
+"Remapper *rem* has just performed intersection of *src* and *tgt* meshes."
+" Result of intersection is stored in a matrix which is returned by "
+"getCrudeMatrix method. Each element of the matrix is size of intersection"
+" of two cells i and j of the source and target meshes correspondingly."
+msgstr ""
+
+# a2a200d8dc3a491493cffae6bed1f8ba
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:67
+msgid ""
+"Generally the matrix is sparse. To reduce memory usage, the space matrix "
+"is represented by an array whose i-th element is a map storing indices "
+"and intersection sizes of source cells intersecting i-th target cell."
+msgstr ""
+
+# 816b2803bec54c0db5aada90c45e28d8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:69
+msgid "Here is a sample sparse matrix:"
+msgstr ""
+
+# 4b9459bebb64493f82b0d2a6ca4bafd5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:81
+msgid "and a corresponding array, which stores only non-zero matrix elements:"
+msgstr ""
+
+# 4aa945440c524c0e97aa8b1c35fa2c45
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:87
+msgid ""
+"Now we create a field on all cells of *src* mesh and call "
+"rem.transferField() to transfer the field to the cells of *tgt* mesh"
+msgstr ""
+
+# 61927b7c70104e97b2ffb36e9ec20b00
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:93
+msgid ""
+"The last argument -1 is a default value that will be assigned in *trgF* "
+"to each entity of *tgt* mesh that is not intercepted by any entity of "
+"*src* mesh."
+msgstr ""
+
+# 02bdfa1173af4fb697d93e8937a74eb3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:95
+msgid ""
+"It is crucial to setNature() of the field by which an adequate "
+"interpolation formula is chosen. The field nature is expressed by one of "
+"the following values:  ExtensiveMaximum, IntensiveMaximum, "
+"ExtensiveConservation, IntensiveConservation."
+msgstr ""
+
+# 6fb68a3e07534e89a7478d41d6b162f9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:97
+msgid ""
+"The field is represented by a vector with a discrete value on each cell. "
+"This value can represent either"
+msgstr ""
+
+# 658affd5f2754c2eb1d4aa0d6eb387b3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:99
+msgid ""
+"an average value of the field in the cell (average density, velocity or "
+"temperature in the cell) in which case the representation is said to be "
+"**intensive**,"
+msgstr ""
+
+# 0b33b21dc7fb4f8b9bd0ad9d00fc89d9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:100
+msgid ""
+"an integrated value over the cell (total mass, power of the cell) in "
+"which case the representation is said to be **extensive**."
+msgstr ""
+
+# 59934de0ad7145f48ce7f8191b2c67f1
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:102
+msgid ""
+"In the case where the source and target meshes are not fully overlapping,"
+" it is important to make a correct choice between Maximum and "
+"Conservation."
+msgstr ""
+
+# c84b543196a14f79a177991119372992
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:104
+msgid ""
+"**Conservation** means that the interpolation algorithm preserves the "
+"integral of the field over a domain."
+msgstr ""
+
+# a6306bd8f1cd4a269cc41e0721ea0d93
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:105
+msgid ""
+"**Maximum** means that the field values resulting from the interpolation "
+"remain between the upper and lower bounds of the original field."
+msgstr ""
+
+# 946c50ad6d5c41b39646f7319d6d7fc4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:108
+msgid ""
+"Projection cells/nodes nodes/cells nodes/nodes with meshes having same "
+"mesh dimension/space dimension"
+msgstr ""
+
+# d7046415343a4c9ab79e4b83b5b6ac14
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:110
+msgid ""
+"Suppose we have the same source and target meshes as in the "
+":ref:`previous chapter <projection_P0P0>`. I.e. the source mesh consists "
+"of two quadrangles and the target mesh consists of a triangle."
+msgstr ""
+
+# 58ce1c66df2d4d0a93b7a98862c4aa23
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:117
+msgid ""
+"The source field is also on cells but the target field is on **nodes** of"
+" target mesh. In such a case we do the following:"
+msgstr ""
+
+# e58671bc77eb4b56aaf5de47cbbf21a3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:123
+msgid ""
+"Here \"P0P1\" specifies support of the source (P0=ON_CELLS) and the "
+"target (P1=ON_NODES) fields. The computed martix is::"
+msgstr ""
+
+# 3406399c8f704734a0413ac0d5b05d38
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:127
+msgid ""
+"The result matrix contains values for each of the three nodes of the "
+"target mesh. In order to be able to compute these values by means of "
+"intersection of cells, an algorithm constructs an auxiliary target mesh. "
+"This auxiliary mesh is a dual mesh of the actual target mesh, hence it "
+"includes cells corresponding to each actual target node."
+msgstr ""
+
+# 5321e1a5876e4fd1a5e5ed587042c258
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:132
+msgid ""
+"The target mesh used for projection is a dual one of the actual target "
+"mesh"
+msgstr ""
+
+# a1c99f08bd1b4500ad461442d4da0e7c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:134
+msgid ""
+"If the case is reverse, i.e. the source field is on nodes and the target "
+"one should be on cells, we change \"P0P1\" to \"P1P0\":"
+msgstr ""
+
+# 8733c1f80be0426193c6c4c603906dc9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:140
+msgid "The computed martix is::"
+msgstr ""
+
+# 2190f951252445a09dd3f58aa67245d4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:144
+msgid ""
+"In the same way as in \"P0P1\" case, an auxiliary dual mesh is internally"
+" constructed for a mesh supporting a field on nodes (the source field in "
+"our case). But since the source cells are not simplexes, simplexization "
+"of quadrangles is perfrormed on the fly to be able to construct the dual "
+"mesh. Cell #0 (0,3,4,1) is split into (0,3,4) and (0,4,1)"
+msgstr ""
+
+# 1db2464216be42b8806857b55695c1cc
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:149
+msgid ""
+"The source mesh used for projection is a dual one of simplexized actual "
+"source mesh"
+msgstr ""
+
+# cda2159f8b074b8e9cf862e76b599722
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:155
+msgid ""
+"in present implementation of Remapper, the projection of fields on nodes "
+"lying on quadratic meshes is not available. If you are in this case you "
+"have 2 choices :|br| 1) you accept to lose precision by converting your "
+"mesh (MEDCouplingUMesh.convertLinearCellsToQuadratic) |br| 2) you "
+"subdivide your mesh."
+msgstr ""
+
+# 6e73dd503f6e4a6685870b6ebb562b19
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:160
+msgid "Projection cell/cell when meshdim != spacedim"
+msgstr ""
+
+# 27f4c2c6fee346aa909952f1164128cd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:162
+msgid ""
+"When meshdim is not equal to spacedim some additional important "
+"parameters should be considered."
+msgstr ""
+
+# 4ba851aa30a54ebf9b1a6839de105bfe
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:164
+msgid "Consider a simple case with spacedim=3 and meshdim=2 where :"
+msgstr ""
+
+# 9a82b0079f0341278719826874f6c4fa
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:166
+msgid "source mesh contains one triangle cell [0.,0.,0.], [1,0,0], [0,1,0]"
+msgstr ""
+
+# cc5766d4d7834f1aaef59168f5ddc0eb
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:167
+msgid ""
+"target mesh also contains one triange cell [0.,0.,0.], [1,0,0], [0,1,0], "
+"which coincides with the source triangle."
+msgstr ""
+
+# ac2d70338d034f17b0dcc25790e5d315
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:169
+msgid ""
+"Only \"P0P0\" projection (ON_CELLS->ON_CELLS) will be considered here but"
+" all elements presented here are applicable for other spatial "
+"discretizations projections."
+msgstr ""
+
+# 5f0366eb5c574524bade568306c0ebc3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:175
+msgid "A remapper returns the following correct matrix::"
+msgstr ""
+
+# dfe61422dfe345fb8dd20a124de466e6
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:179
+msgid "where 0.5 is equal to area of the source (or target) triangle."
+msgstr ""
+
+# d777fb098267490ba77b702aeb8dca86
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:181
+msgid ""
+"Let us see what the remapper will return if the meshes are not "
+"overlapping. To this end we translate  the source mesh along its normal "
+"by a small distance (1e-3):"
+msgstr ""
+
+# c9162ed4c71c457a81f2ae8ad62e8763
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:187
+msgid ""
+"The remapper returns the following matrix, which means that it have not "
+"found any intersection of the meshes::"
+msgstr ""
+
+# f568cb6e2df04afdada3bc9395326b03
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:191
+msgid ""
+"This happens because bounding boxes of cells used to detect possibly "
+"intersecting cells do not intersect. In order to get a correct result of "
+"intersection we can increase those bounding boxes. The remapper provides "
+"two ways to do that:"
+msgstr ""
+
+# 003ff0073d9d47cca9444f4f2cf39bd3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:193
+msgid ""
+"rem.setBoundingBoxAdjustmentAbs( *thickness* ) expands a bounding box by "
+"*thickness*."
+msgstr ""
+
+# 878448da6eea484193da5b41895b7b87
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:194
+msgid ""
+"rem.setBoundingBoxAdjustment( *factor* ) expands a bounding box by "
+"thickness computed by multiplying a maximal bounding box size by "
+"*factor*."
+msgstr ""
+
+# 2ee8d94a11a1486f9340a9a77573a669
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:199
+msgid ""
+"If source and target meshes do not overlap we can increase their bounding"
+" boxes to help remapper to detect intersecting cells"
+msgstr ""
+
+# 0255d7eac2e34e20bd63677fad79745f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:205
+msgid "With bounding box tuning we obtain the correct result matrix::"
+msgstr ""
+
+# 0d3d2f4c186248c4a33d7de79fab9f72
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:209
+msgid ""
+"The bounding box tuning has a disadvantage in the case where a cell has "
+"large angle with either of planes OXY, OYZ or OXZ. In such a case cells "
+"that are rather far one from another can be detected as possibly "
+"intersecting since their bounding boxes are too large. "
+"setMaxDistance3DSurfIntersect method helps avoiding excess intersections."
+" If a distance between fast barycenter of target cell and medium source "
+"plane is more than the value specified via setMaxDistance3DSurfIntersect "
+"then cell intersection is not performed."
+msgstr ""
+
+# f16cf58b64ea4cdcb3570ea3dd8cf3e2
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:214
+msgid ""
+"If the tuned bounding box is too large we can use "
+"setMaxDistance3DSurfIntersect to exclude unnecessary intersections"
+msgstr ""
+
+# 7f4338f23d1a45ddba3581a51f348acf
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:216
+msgid ""
+"Let us rotate the source mesh by pi/4 angle around Y axis. The result "
+"matrix is"
+msgstr ""
+
+# 11af138e8ebe4fa4b31ef3eb6b4ecaa9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:226
+msgid ""
+"If we use setMaxDistance3DSurfIntersect, the result matrix shows that no "
+"intersection found:"
+msgstr ""
+
+# 2407d4c239fd4385b703695cbf774dbd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:235
+msgid ""
+"Another function useful to avoid unnecessary intersection is "
+"setMinDotBtwPlane3DSurfIntersect. It tells the remapper not to intersect "
+"cells whose normals are too much different. "
+"setMinDotBtwPlane3DSurfIntersect specifies minimal dot product of unitary"
+" normal vectors of a source and target cells."
+msgstr ""
+
+# 090de9cdb96e4ac4811be5c2d31aa4d9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:237
+msgid ""
+"Let us switch off setMaxDistance3DSurfIntersect by passing a negative "
+"value. And use setMinDotBtwPlane3DSurfIntersect to avoid intersecting "
+"cells that has 45 degrees angle between their normals in our case."
+msgstr ""
+
+# 7347cdbff8ff4adda77b7da33f919e1d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:243
+msgid "Result matrix is::"
+msgstr ""
+

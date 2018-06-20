@@ -23,7 +23,7 @@ SET(_cmd_options -c ${CMAKE_CURRENT_BINARY_DIR} -b html -d doctrees -D latex_pap
 SALOME_GENERATE_ENVIRONMENT_SCRIPT(_cmd env_script "${SPHINX_EXECUTABLE}" "${_cmd_options}")      
 
 ADD_CUSTOM_TARGET(tutorial_doc COMMAND ${_cmd})
-ADD_DEPENDENCIES(usr_docs tutorial_doc)
+ADD_DEPENDENCIES(dev_docs tutorial_doc)
 
 #INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target tutorial_doc)")
 INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION ${MEDCOUPLING_INSTALL_DOC}/tutorial)

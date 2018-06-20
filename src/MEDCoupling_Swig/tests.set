@@ -27,12 +27,14 @@ SET(BASE_TESTS
   MEDCouplingIntersectTest.py
   MEDCouplingExamplesTest.py
   MEDCouplingRemapperTest.py
+  UsersGuideExamplesTest.py
 )
 
 # if numpy is used
 SET(NUMPY_TESTS
   MEDCouplingNumPyTest.py
   MEDCouplingPickleTest.py
+  UsersGuideExamplesTest_numpy.py
 )
 
 SET(ALL_TESTS ${BASE_TESTS} ${NUMPY_TESTS})

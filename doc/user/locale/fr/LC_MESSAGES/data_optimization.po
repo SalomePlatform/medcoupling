@@ -1,0 +1,94 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015-2017, Geay, Bruneton
+# This file is distributed under the same license as the MEDCoupling User's
+# Guide package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: MEDCoupling User's Guide 8.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-14 18:39+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.0\n"
+
+# 3d45553b7a9f40fdb450a39e729da240
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:2
+msgid "Data optimization for numerical codes"
+msgstr ""
+
+# 4f02edff745949ce87a74a871528f90c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:7
+msgid "Renumbering to improve locality"
+msgstr ""
+
+# 04d6971564954432bbdb709e798ae9ae
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:9
+msgid ""
+"A mesher (like SMESH) often generates a scattered cell distribution in "
+"output unstructured mesh. So a common task for simulation codes is the "
+"reordering for a better locality."
+msgstr ""
+
+# 23a9adae715e4927ba607baeee4e9bd8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:12
+msgid "medcoupling can do that simply by doing"
+msgstr ""
+
+# 08624425429c47838b823e56be5654d5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:21
+msgid ""
+"Numbering by MEFISTO mesher (to the left) and the same mesh after "
+"renumbering (to the right)"
+msgstr ""
+
+# 252654c1033f4c7d84871817dfd303f8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:23
+msgid ""
+"RenumberingFactory method creates a renumbering algorithm of a specified "
+"type: either \"Boost\" or \"Metis\"."
+msgstr ""
+
+# 3fd45665c486463fb673adf2960ab93c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:26
+msgid "Partitionning for multi procs"
+msgstr ""
+
+# 19047110285f45c0850349ca56a3b89a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:28
+msgid ""
+"For simulation codes following the SPMD paradigm, the partitionning is a "
+"key step. medcoupling can perform this partition. Here is an example of "
+"partitioning mesh *m* into 4 parts and retrieving the first part:"
+msgstr ""
+
+# de69e5f7020f4018ba02c0750e22e1f5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:38
+msgid ""
+"A whole mesh *m* (to the left) and one fourth of it *part0* (to the "
+"right) got using the above code"
+msgstr ""
+
+# 1880202f2f36423783e4985b9ee5f3a5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:40
+msgid "It's then possible to add a layer or more of cells."
+msgstr ""
+
+# d857084c15fa4a249a2d30a064924b61
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_optimization.rst:49
+msgid "*part0* (to the left) and *part0_with_layer* (to the right)"
+msgstr ""
+
+# 252654c1033f4c7d84871817dfd303f8
+#~ msgid ""
+#~ "RenumberingFactory method creates a "
+#~ "renumbering algorithm of a specified "
+#~ "type, either \"Boost\" or \"Metis\"."
+#~ msgstr ""
+

@@ -1,0 +1,823 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2015-2017, Geay, Bruneton
+# This file is distributed under the same license as the MEDCoupling User's
+# Guide package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: MEDCoupling User's Guide 8.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-14 15:16+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.0\n"
+
+# e67d9ce3cc234d94bd461f009d0af087
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:2
+msgid "Data movement (mesh/field construction)"
+msgstr ""
+
+# 246b1381bdc74c1589489d328d3ab114
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:5
+msgid "Read Mesh from file"
+msgstr ""
+
+# 9a15bc029c0d481d97fd0a8d21f0309e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:7
+msgid "To read a mesh from a MED file simply invoke"
+msgstr ""
+
+# f5ffa1c362e64fa49787851152033b56
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:13
+msgid ""
+"If the file contains more than one mesh, the previous call will return "
+"the first one."
+msgstr ""
+
+# 4a574d168619414db44b5a8c6fb62f76
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:16
+msgid "You can access to a precise mesh by doing"
+msgstr ""
+
+# d3ff361801e9401ca42842a19c22eda7
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:23
+msgid "Read field from file"
+msgstr ""
+
+# 718d2e8817264ca497b2fd916f95dcf3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:29
+msgid ""
+"This command will succeed if there is exactly one field in \"file.med\" "
+"and only one time step attached to it."
+msgstr ""
+
+# 9f704e58244c4b8abe77f9226190a741
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:32
+msgid ""
+"If there are more than one field in \"file.med\" you are expected to "
+"specify the field name."
+msgstr ""
+
+# 25ef114af80f4d44841d35ad571872df
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:35
+msgid ""
+"To know all fields in \"file.med\" either you read exception thrown or "
+"you can invoke"
+msgstr ""
+
+# 2457598c17f4485cb2217da21603c4d5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:41
+msgid "When you have the fieldName you can safely invoke."
+msgstr ""
+
+# ee829a4f141f4c16b74308c7b1b8fe42
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:47
+msgid ""
+"This command will succeed if there are exactly one time step attached on "
+"it. If no you are expected to specify the time step attached on it."
+msgstr ""
+
+# 02fc906d66bb4dd09ffea63223b9ca7a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:51
+msgid "A time step is identified by two piece of information :"
+msgstr ""
+
+# f6e2d1ffb7c0458cacfa85b46b16a7aa
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:53
+msgid "pair of integers specifying without ambiguity a key for access"
+msgstr ""
+
+# 3f6c1edd91e541679523a11e69a7d8d7
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:54
+msgid "floating point (physical time step)"
+msgstr ""
+
+# b784a46f06cb4ab8aac023fe15c9dfd8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:56
+msgid "To retrieve list of time step of a field invoke"
+msgstr ""
+
+# 52c037c232ac460dba0967fda54b3e6b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:62
+msgid ""
+"This method returns a list of triplet. The first 2 elements of triplets "
+"is pair of integers of time step and the last element in the triplet is "
+"the physical time step."
+msgstr ""
+
+# c757a055cb5e45cda9734d93e651e7dd
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:66
+msgid ""
+"To read a field \"Field1\" at time step defined by pair \"(ts0,ts1)\" you"
+" can invoke"
+msgstr ""
+
+# a6a36d3dc2fc4233ae67506c5ed796a6
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:73
+msgid ""
+"If you do not succeed reading field in \"file.med\" using this method it "
+"means that your MED file is complex and requires more information to be "
+"extracted. :ref:`Go to advanced reading<medcoupling_AdvancedReading>`."
+msgstr ""
+
+# 01e891823a4d40f3b2c94b4cfaa243e8
+# 675e4529dc4e40a7be3851306307481b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:77
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:138
+msgid "Remark"
+msgstr ""
+
+# e036a2180b334d45886d30a81253351d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:79
+msgid ""
+"the method is concise but by calling this method several times it leads "
+"to a several mesh loads."
+msgstr ""
+
+# 31a1c35e46dd46eb8e895e973e5000ba
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:86
+msgid "Write mesh into file"
+msgstr ""
+
+# f2e6f62f07be4adf8d86ca0f48eb8526
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:88
+msgid ""
+"MED file format expects a mesh sorted by geometric type. You are "
+"responsible to reorder, if needed, cells to match MED file format "
+"requirements."
+msgstr ""
+
+# f0c5a5ef4fc4423a9122ed5701189c79
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:92
+msgid "This responsability is let to the end user to avoid misrenumbering effect."
+msgstr ""
+
+# 23f92f8c6e204fceb066853679784c4d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:94
+msgid "You can check this by invoking:"
+msgstr ""
+
+# f9103a0494784668ba5dbd5c847d2ac2
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:100
+msgid ""
+"To reorder cells you are encouraged to read :ref:`this "
+"<renumber_for_MED>`."
+msgstr ""
+
+# cab03f12ca224311a7ec5225f10b5647
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:102
+msgid "If *m* is well numbered, you can dump it into a file by doing :"
+msgstr ""
+
+# 8e5d6b8ed2dd43b087a4db3f25573bf5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:108
+msgid ""
+"The last element specifies the behavior in case if \"file2.med\" would "
+"already exist. True means, scratch it and write it from scratch. False "
+"means do not scratch try to append it."
+msgstr ""
+
+# 78119970b7fe47d5a75bc19253a37cce
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:114
+msgid "Write field into file"
+msgstr ""
+
+# 767fb41d2862453c821cbc3c970993eb
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:116
+msgid ""
+"You are expected to have a field *f* with a mesh :ref:`correctly "
+"numbered.<medcoupling_Write_mesh>`"
+msgstr ""
+
+# e568773de7d94f4f9c37a8776b71f48c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:118
+msgid ""
+"If *f* is a valid MEDCouplingFieldDouble you can dump it into a MED file "
+"by simply :"
+msgstr ""
+
+# 306adfa291374198964e06b048cb4a82
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:124
+msgid ""
+"The last element specifies the behavior in case if \"file.med\" would "
+"already exist. The same meaning than for :ref:`writing "
+"mesh.<medcoupling_Write_mesh>`"
+msgstr ""
+
+# 0a6711f916a6461fa9ed128e83c9da82
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:127
+msgid "The typical usecase is to store a multi time step field."
+msgstr ""
+
+# 02ecd9a8bf154daeb156ae7154e6ddbe
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:129
+msgid ""
+"To do that, let's consider that *fs* store a list of "
+"MEDCouplingFieldDouble with at least one element in it."
+msgstr ""
+
+# 33c0295741c74641a3a49060589f4651
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:132
+msgid "All meshes of elements in *fs* are expected to be the same"
+msgstr ""
+
+# 554f89cecad4468c8e3f6eef6b512d3b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:140
+msgid "f.getTime()[1:3] returns the pair of integer that specifies the time step."
+msgstr ""
+
+# a3fe816f844e4c369a117ded08e291e9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:142
+msgid ""
+"f.getTime()[1:3] should be different each other. If two elements in *fs* "
+"have the same pair of integer time step key, the second one will take the"
+" place of the first !"
+msgstr ""
+
+# 55d609e9ae3847f48610ffc4f94a5d0f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:147
+msgid "Create an array from scratch"
+msgstr ""
+
+# e3c5d7efc65b4d48a2ec82a70b271b19
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:149
+msgid ""
+"There are several simple ways to create a medcoupling array from a Python"
+" list."
+msgstr ""
+
+# 025a57241b3a4c38a61b40e830245023
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:151
+msgid ""
+"The following call creates an array of double values consisting of 3 "
+"tuples with 2 components:"
+msgstr ""
+
+# be02aa243f90479292ef9bd302eccfdc
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:157
+msgid "The next call creates an array equivalent to one create above:"
+msgstr ""
+
+# 73d3fe22f0824607af7f91fec683da6e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:163
+msgid ""
+"The call below creates an array holding the same but differently arranged"
+" values: 2 tuples with 3 components:"
+msgstr ""
+
+# 11e34a21bd1747e3857c372c35b237ca
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:169
+msgid ""
+"You can change number of components in *d* so that it holds 3 tuples with"
+" 2 components again:"
+msgstr ""
+
+# fa02e23c375e488d86d35aaaa3cecb57
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:175
+msgid ""
+"Arrays of different types (DataArrayInt, DataArrayFloat) can be created "
+"in the same way as DataArrayDouble:"
+msgstr ""
+
+# 207899b627574f3e9e7d943501f0cd8d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:181
+msgid ""
+"A medcoupling array can be created from a numpy array and can be "
+"transformed to a numpy array:"
+msgstr ""
+
+# 443ed2d9b51a4678ad1960f4c9fe800a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:190
+msgid "Create an unstructured mesh from scratch"
+msgstr ""
+
+# 1ce78fc586044bfc97257484d6c9b46d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:193
+msgid "MEDCouplingUMesh"
+msgstr ""
+
+# b61ac138c6a642709e6c29b98a76f155
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:195
+msgid ""
+"MEDCouplingUMesh class represents a general case unstructured mesh. Data "
+"of MEDCouplingUMesh is defined in several steps."
+msgstr ""
+
+# 7dcfe12d791a4c8899e76a216a049002
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:197
+msgid ""
+"Firstly define basic mesh data in full interlace mode for coordinates and"
+" nodal connectivity cell per cell."
+msgstr ""
+
+# eb9e63f3834640af8b37923607838ca1
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:203
+msgid ""
+"Then create MEDCouplingUMesh instance giving its mesh dimension (2 here) "
+"and a name."
+msgstr ""
+
+# 532968ee9b9547f6a294c062feab3189
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:209
+msgid "Then add cells to the mesh. This step includes"
+msgstr ""
+
+# 81309f2dbe124a53a5124f59ee8cc27a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:211
+msgid ""
+"giving an upper bound of the number of cells to be inserted into the "
+"unstructured mesh."
+msgstr ""
+
+# fbed0fdd23e7464a9e9aa51433f1c24b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:212
+msgid ""
+"entering nodal connectivity of all cells, cell per cell using "
+"MEDCouplingUMesh.insertNextCell method."
+msgstr ""
+
+# df2e3d1dac1449f4b3a2bfd3a85947c0
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:213
+msgid ""
+"compacting connectivity arrays by calling "
+"MEDCouplingUMesh.finishInsertingCells method."
+msgstr ""
+
+# 7cb26b02e4784fe388cef5ff77193a89
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:219
+msgid ""
+"As the connectivity of the mesh has been defined, let's set the "
+"coordinates using array *coords* defined above."
+msgstr ""
+
+# 8992e272bd524909a73dfdbcb3e7e49d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:225
+msgid "Now the mesh is usable. To assure this, call"
+msgstr ""
+
+# b897f62298b84881add9b74270f74a8d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:232
+msgid "MEDCoupling1SGTUMesh"
+msgstr ""
+
+# 2ef0d99a6cae408bbbcf9f7559142a34
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:234
+msgid ""
+"MEDCoupling1SGTUMesh class represents an unstructured mesh composed of "
+"cells of same geometric type. It is more optimal due to this simplicity."
+msgstr ""
+
+# b61bfdac872240639deca3fb8b96c06f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:236
+msgid ""
+"Basically a MEDCoupling1SGTUMesh is defined in the same way as "
+"MEDCouplingUMesh. A difference is that the geometric type of cells is "
+"specified at construction, and not specified later e.g. in insertNextCell"
+" method:"
+msgstr ""
+
+# 29eb44ba9ddc4303aeac0a94e201d3b5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:243
+msgid "MEDCoupling1DGTUMesh"
+msgstr ""
+
+# a7d82f09f4524d6ea9b600b27d662ea2
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:245
+msgid ""
+"MEDCoupling1DGTUMesh also represents an unstructured mesh composed of "
+"cells of same geometric type but it is specialized for cell of "
+"\"dynamic\" geometric type only: NORM_POLYHED and NORM_POLYG."
+msgstr ""
+
+# f0474e64bf8f4ba5b1e281574a7629e4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:251
+msgid ""
+"When connectivity of a polyhedron is defined, facets are separated one "
+"from another by -1."
+msgstr ""
+
+# 2b433ca7fdd344d1a9f71c3f777229db
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:254
+msgid "Create a cartesian mesh from scratch"
+msgstr ""
+
+# bc7bb0da009449ed8d2eb44d757ae017
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:256
+msgid ""
+"We are going to build a 2D cartesian mesh, constituted from 9 nodes along"
+" X axis, and 7 nodes along Y axis."
+msgstr ""
+
+# 55bb3330e0524684b808fcc8cba94be3
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:258
+msgid ""
+"Firstly define for each direction the discretization and build a "
+"DataArrayDouble on the corresponding direction."
+msgstr ""
+
+# 73f083039c6e4d36850c69c0851e9905
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:264
+msgid ""
+"Then create MEDCoupling.MEDCouplingCMesh instance giving the 2 instances "
+"of DataArrayDouble defined above."
+msgstr ""
+
+# 65bbb71b96d342dab722a134b31ec48c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:270
+msgid "The mesh is now usable."
+msgstr ""
+
+# 0d3227bbd7b3472fa946abb75fcc2cc5
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:275
+msgid "A cartesian mesh created by the code above"
+msgstr ""
+
+# 45976ca6e83848519e2d9114f984f6c0
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:278
+msgid "Create a curvelinear mesh from scratch"
+msgstr ""
+
+# 704877cdb2a74695b035ea75fb585974
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:280
+msgid ""
+"First we create a curvelinear mesh and define its structure, for instance"
+" a 2-dimensional mesh with 2 nodes in one direction and 3 nodes in the "
+"other direction:"
+msgstr ""
+
+# 243bc72ac9574d9b9a72d5e629fcfdb9
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:286
+msgid "Then define coordinates of 6 nodes in 2D space:"
+msgstr ""
+
+# f063b4553e6a4736ba992d7c439a2d2d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:292
+msgid "The mesh is now usable. It's a good habit to assure this:"
+msgstr ""
+
+# 85bcab7c30f54290a482b80d23ca078f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:301
+msgid "A curvelinear mesh created by the code above"
+msgstr ""
+
+# 47997d79fac342f3bfc9c89322f16d86
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:306
+msgid "Create a field on cell from scratch"
+msgstr ""
+
+# 972be5585f304182bdc25607e9d0494d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:308
+msgid "Assume we already have a mesh. We create a field on all cells of the mesh."
+msgstr ""
+
+# d6a7e2c29eb9495693cfd614d380c02c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:314
+msgid ""
+"ONE_TIME indicates that the field data relates to a single time step. Now"
+" define this time moment."
+msgstr ""
+
+# 969154aa76ba47d992b16d0dbc9ec04a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:320
+msgid "Then define field values:"
+msgstr ""
+
+# df16450afc23486b8f17e7c73092da38
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:328
+msgid "Create a field on node from scratch"
+msgstr ""
+
+# 2c125d2673414ce1a82940ad478b7874
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:330
+msgid ""
+"Assume we already have a mesh. We create a field on all nodes of the "
+"mesh. The procedure is same as for a :ref:`field on cells "
+"<MEDCouplingFieldDoubleOnCells>` except two points:"
+msgstr ""
+
+# f0efbf433429419894c7eba379b4330e
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:332
+msgid "Spatial discretization in the field constructor is ON_NODES"
+msgstr ""
+
+# aed2f45d675e435a8b1db3da914a6c36
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:333
+msgid "Number of tuples in an array of values is equal to mesh.getNumberOfNodes()"
+msgstr ""
+
+# 000eb0a00f564cbe97af514a2875bb24
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:341
+msgid "Create a field on Gauss points from scratch"
+msgstr ""
+
+# 63e1b2defbf14395878f64f154102b1b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:343
+msgid ""
+"Assume we already have a 2D mesh consisting of triangle and quadrangle "
+"cells. We create a field on Gauss points. First, a field is constructed "
+"with use of ON_GAUSS_PT and its basic attributes are set:"
+msgstr ""
+
+# e30d7037b93f43a68f910cd38421bc4c
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:349
+msgid ""
+"Now define localization of Gauss points on cells. In this example, we "
+"define two Gauss points on triangle cells and four Gauss points on "
+"quadrangle cells. Localization of Gauss points is defined by three lists "
+"of float values:"
+msgstr ""
+
+# 461a616a577d4e34b53747d6071e685a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:351
+msgid "Coordinates of nodes of the reference cell."
+msgstr ""
+
+# f822f729a50f435d90cb96ac6e2b8577
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:352
+msgid "Coordinates of Gauss points on the reference cell."
+msgstr ""
+
+# a2b0c36419b14585b82c04cef8a0cf1f
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:353
+msgid "Weights of Gauss points."
+msgstr ""
+
+# 81e839a5effc4993962af0f4d96e7e64
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:359
+msgid "Finally set field values:"
+msgstr ""
+
+# a8c1e116229f4a5f8b8fed19e7adfec8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:366
+msgid "Modify field values"
+msgstr ""
+
+# c27903629cf64a6fbc449c4de31baa7d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:368
+msgid ""
+"applyFunc method modifies all tuples of a field at once. It changes both "
+"values and number of components, only number of tuples remains the same."
+msgstr ""
+
+# 98bb6f5261034a2896e919c7fe145767
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:370
+msgid ""
+"To set value *val* to all tuples of the field *f* and to make it have "
+"*nbComp* components, call:"
+msgstr ""
+
+# 6a45b2d83f5e4d558463348c111474d6
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:376
+msgid ""
+"It is also possible to compute new values basing on current values. To do"
+" so you can specify a function by which a new value will be computed. For"
+" more info on supported expressions that can be used in the function, see"
+" `expressions supported`_."
+msgstr ""
+
+# 38a8b80a8a29499ca5dae45728856e44
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:380
+msgid ""
+"You can use some letters, for example \"x\", \"y\", \"z\" etc., to refer "
+"to current component values. For example, to transform a 3D vector field "
+"to its magnitude, call:"
+msgstr ""
+
+# 4c2fd1542b3a4c9a9b697ec3566ec9f8
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:386
+msgid ""
+"This way a value resulting from the function evaluation is assigned to "
+"all components."
+msgstr ""
+
+# 5e9ec40bfec34bcdad67c77fb9db2673
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:388
+msgid ""
+"But you can have its own expression for each component within one "
+"function. For this purpose, there are predefined variable names (IVec, "
+"JVec, KVec, LVec etc) each dedicated to a certain component (IVec, to the"
+" component #0 etc). A factor of such a variable is added to the "
+"corresponding component only."
+msgstr ""
+
+# b9e6c5a3a98a4eb4b93a9c7ef9930942
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:390
+msgid ""
+"Using this feature, you can set a magnitude of a 3D vector as the fourth "
+"component and swap X and Y components by calling:"
+msgstr ""
+
+# 9ce2da073b674bf2a2be50e54d7aa1ad
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:397
+msgid "Define groups and write mesh using advanced API"
+msgstr ""
+
+# 0e48dc2e04b74ad99b48aca15457b965
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:399
+msgid ""
+"To get access to full power of MED file, for example to define groups of "
+"cells, it is necessary to use the advanced medcoupling API, namely class "
+"MEDFileUMesh_."
+msgstr ""
+
+# 191a7256f4954e3589d812be357e9daf
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:404
+msgid ""
+"First of all we populate a MEDFileUMesh with meshes (MEDCouplingUMesh) of"
+" different dimensions, if present:"
+msgstr ""
+
+# e010d9d7026849d8bbe6ebd1206717db
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:410
+msgid ""
+"Level must be 0 for a mesh of highest dimension, -1 for a mesh of "
+"dimension a unit less than highest dimension etc."
+msgstr ""
+
+# a6b6131acf5b42b6bc76a7f59aab758b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:412
+msgid ""
+"If cells are not yet sorted by geometric type, we can pass True as the "
+"third argument of setMeshAtLevel to make them sorted:"
+msgstr ""
+
+# d6e3a7b83dce4187a312d571f5d48ebe
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:418
+msgid ""
+"meshes of different dimension must share the same point coordinate array "
+"and have the same name"
+msgstr ""
+
+# 8fa3cd0a641c47f1a83f97ae773b6707
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:420
+msgid "We can change point coordinates as soon as all meshes are added:"
+msgstr ""
+
+# b50b810715f545978ee184d4a1aa7915
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:426
+msgid "To define groups we call, for example:"
+msgstr ""
+
+# 31a7efbc167745c3857fd93b8b4faf77
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:432
+msgid ""
+"The first argument of addGroup defines a type of group. 1 stands for "
+"nodes. 0,-1,-2 and -3 have the same meaning as the level in "
+"setMeshAtLevel method. Note that a name of DataArrayInt defines a group "
+"name."
+msgstr ""
+
+# e1e8c2c5448d46e797dd602e7caa9378
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:434
+msgid "It is possible to change name of a group or a family by calling:"
+msgstr ""
+
+# 95f15e21ada1419898b129bdacdd4876
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:440
+msgid "Finally we write all data added to *mm* to a file:"
+msgstr ""
+
+# dc6358ee4c7645f298c82f7973bcf33a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:446
+msgid ""
+"The last argument defines behavior if a file exists. 2 means remove. 1 "
+"means append; if data with same ID present, an exception is thrown. 0 "
+"means overwrite data with same ID; that can lead to a file corruption."
+msgstr ""
+
+# d066000d61554077b0efb67d96339e6a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:451
+msgid "Read/write fields using advanced API"
+msgstr ""
+
+# 1076773b668d4033bc6b04bc321b1391
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:453
+msgid ""
+"Having *field* on *mesh* we can write it using MEDFileField1TS_ class, "
+"which is a part of advanced medcoupling API, as following:"
+msgstr ""
+
+# dd2c654fce8c4aa3a411dbc410a4bcb4
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:461
+msgid ""
+"The last argument of write method defines behavior if a file exists. 2 "
+"means remove. 1 means append; if data with same ID present, an exception "
+"is thrown. 0 means overwrite data with same ID; that can lead to a file "
+"corruption."
+msgstr ""
+
+# 8cebc9ef0a124b8dbd9565b02c312936
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:463
+msgid ""
+"If there is a need to write a field lying only on a part of a mesh, the "
+"following code gives an example of this:"
+msgstr ""
+
+# 0d38542aea844ae8b1a2ad549f1652be
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:469
+msgid ""
+"*profile* defines entities on which *fieldPartial* lies. *level* defines "
+"entities the field lies on: 1 stands for nodes, 0 is for entities of "
+"dimension equal to the mesh dimension, -1 is for entities of dimension a "
+"unit less than the mesh dimension etc."
+msgstr ""
+
+# 65202750b0e24cb68f8a656c29b7feed
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:471
+msgid "MEDFileField1TS also can be used to read a field:"
+msgstr ""
+
+# 3d0b0fbfad73448e96e8b138e9af490b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:477
+msgid ""
+"field method can be used if field support is simple: one spatial "
+"discretization and one *level*."
+msgstr ""
+
+# 9fb494d8a74d4e6aae22f4c3a0b4167b
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:478
+msgid ""
+"getFieldAtLevel method allows to choose spatial discretization and "
+"*level*."
+msgstr ""
+
+# 7717ca9ada944decb537036d716a4444
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:479
+msgid ""
+"getFieldOnMeshAtLevel method allows to specify spatial discretization, "
+"*level* and mesh."
+msgstr ""
+
+# eaf9f44c913f45c68483b2f769dbb14d
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:481
+msgid "*level* of a field, if unknown, can be defined by calling:"
+msgstr ""
+
+# e1d1d64e6e8e4159b00bead9c116b797
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:487
+msgid ""
+"*maxDim* is the maximal absolute dimension of entities the field lies on."
+" *maxRelDims* is a sequence returning the dimensions relative to the "
+"maximal absolute one."
+msgstr ""
+
+# 0dc17f012fd74505a297b3c0f4b3974a
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:489
+msgid ""
+"To read/write fields including several time steps medcoupling provides "
+"MEDFileFieldMultiTS_ class. To write all time steps it is necessary just "
+"to append them to MEDFileFieldMultiTS:"
+msgstr ""
+
+# 06c612fe69ff4f86abd4620ac21a2732
+#: ../../../../MEDCOUPLING_SRC/doc/user/input/data_movement.rst:497
+msgid ""
+"To read a time step with a known *iteration* and *order* MEDFileField1TS "
+"can be used as shown above. To iterate through all time steps, use "
+"MEDFileFieldMultiTS as following:"
+msgstr ""
+
+# b61ac138c6a642709e6c29b98a76f155
+#~ msgid ""
+#~ msgstr ""
+
+# b61ac138c6a642709e6c29b98a76f155
+#~ msgid ""
+#~ "MEDCouplingUMesh_ class represents a general"
+#~ " case unstructured mesh. Data of "
+#~ "MEDCouplingUMesh is defined in several "
+#~ "steps."
+#~ msgstr ""
+
+# 0e48dc2e04b74ad99b48aca15457b965
+#~ msgid ""
+#~ "To get access to full power of "
+#~ "MED file, for example to define "
+#~ "groups of cells, it is necessary "
+#~ "to use the advanced medcoupling API, "
+#~ "namely class MEDFileUMesh."
+#~ msgstr ""
+
+# 1076773b668d4033bc6b04bc321b1391
+#~ msgid ""
+#~ "Having *field* on *mesh* we can "
+#~ "write it using MEDFileField1TS class, "
+#~ "which is a part of advanced "
+#~ "medcoupling API, as following:"
+#~ msgstr ""
+
+# 0dc17f012fd74505a297b3c0f4b3974a
+#~ msgid ""
+#~ "To read/write fields including several "
+#~ "time steps medcoupling provides "
+#~ "MEDFileFieldMultiTS class. To write all "
+#~ "time steps it is necessary just to"
+#~ " append them to MEDFileFieldMultiTS:"
+#~ msgstr ""
+

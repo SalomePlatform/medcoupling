@@ -1791,7 +1791,6 @@ void MEDCouplingUMesh::attractSeg3MidPtsAroundNodes(double ratio, const int *nod
  */
 void MEDCouplingUMesh::attractSeg3MidPtsAroundNodesUnderground(double ratio, const int *nodeIdsBg, const int *nodeIdsEnd)
 {
-#if __cplusplus >= 201103L
   int spaceDim(getSpaceDimension());
   double *coords(getCoords()->getPointer());
   auto nbNodes(getNumberOfNodes());
@@ -1835,7 +1834,4 @@ void MEDCouplingUMesh::attractSeg3MidPtsAroundNodesUnderground(double ratio, con
             }
         }
     }
-#else
-  throw INTERP_KERNEL::Exception("MEDCouplingUMesh::attractSeg3MidPtsAroundNodes : for your information new compiler have arrived since Fortran66 compiler :)");
-#endif 
 }
