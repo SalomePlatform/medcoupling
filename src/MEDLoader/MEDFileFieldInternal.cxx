@@ -2912,7 +2912,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField(TypeOfField type, const
 /*!
  * This method is an extension of MEDFileFieldPerMesh::finishField method. It deals with profiles. This method should be called when type is different from ON_NODES.
  * 'dads', 'locs' and 'geoTypes' input parameters have the same number of elements.
- * No check of this is performed. 'da' array contains an array in old2New style to be applyied to mesh to obtain the right support.
+ * No check of this is performed. 'da' array contains an array in old2New style to be applied to mesh to obtain the right support.
  * The order of cells in the returned field is those imposed by the profile.
  * \param [in] mesh is the global mesh.
  */
@@ -2979,7 +2979,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishFieldNode2(const MEDFileField
   else
     {
       std::ostringstream oss; oss << "MEDFileFieldPerMesh::finishFieldNode2 : The field on nodes lies on a node profile so that it is impossible to find a submesh having exactly the same nodes of that profile !!!";
-      oss << "So it is impossible to return a well definied MEDCouplingFieldDouble instance on specified mesh on a specified meshDim !" << std::endl;
+      oss << "So it is impossible to return a well defined MEDCouplingFieldDouble instance on specified mesh on a specified meshDim !" << std::endl;
       oss << "To retrieve correctly such a field you have 3 possibilities :" << std::endl;
       oss << " - use an another meshDim compatible with the field on nodes (MED file does not have such information)" << std::endl;
       oss << " - use an another a meshDimRelToMax equal to 1 -> it will return a mesh with artificial cell POINT1 containing the profile !" << std::endl;

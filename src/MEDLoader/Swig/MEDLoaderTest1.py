@@ -692,7 +692,7 @@ class MEDLoaderTest1(unittest.TestCase):
         d=MEDLoader.DataArrayDouble.New()
         d.alloc(1,1)
         d.iota(1.)
-        # seting a long name
+        # setting a long name
         d.setInfoOnComponent(0,"CONCENTRATION of I129")
         f.setArray(d)
         f.setName("field")

@@ -1160,7 +1160,7 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf3D(const std::vector<int>& st, c
  * std::distance( \a nodeStBg, \a nodeStEnd ) is equal to the space dimension. The returned value is equal to
  * the meshDimension (or the zipped spaceDimension).
  *
- * \param [out] zipNodeSt - The zipped node strucutre
+ * \param [out] zipNodeSt - The zipped node structure
  * \return int - the
  */
 int MEDCouplingStructuredMesh::ZipNodeStructure(const int *nodeStBg, const int *nodeStEnd, int zipNodeSt[3])

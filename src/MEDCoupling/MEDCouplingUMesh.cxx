@@ -687,7 +687,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::explode3DMeshTo1D(DataArrayInt *desc, DataAr
 
 /*!
  * This method computes the micro edges constituting each cell in \a this. Micro edge is an edge for non quadratic cells. Micro edge is an half edge for quadratic cells.
- * This method works for both meshes with mesh dimenstion equal to 2 or 3. Dynamical cells are not supported (polygons, polyhedrons...)
+ * This method works for both meshes with mesh dimension equal to 2 or 3. Dynamical cells are not supported (polygons, polyhedrons...)
  * 
  * \sa explode3DMeshTo1D, buildDescendingConnectiviy
  */
@@ -6373,7 +6373,7 @@ MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other)
 /*!
  * Returns a new DataArrayDouble holding barycenters of all cells. The barycenter is
  * computed by averaging coordinates of cell nodes, so this method is not a right
- * choice for degnerated meshes (not well oriented, cells with measure close to zero).
+ * choice for degenerated meshes (not well oriented, cells with measure close to zero).
  *  \return DataArrayDouble * - a new instance of DataArrayDouble, of size \a
  *          this->getNumberOfCells() tuples per \a this->getSpaceDimension()
  *          components. The caller is to delete this array using decrRef() as it is

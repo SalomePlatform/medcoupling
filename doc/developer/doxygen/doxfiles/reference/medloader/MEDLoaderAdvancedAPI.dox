@@ -184,7 +184,7 @@ Generally speaking traduce get* methods with set* methods have corresponding wri
 
 Some differences still exist :
 
-- \c setMeshAtLevel, \c setMeshAtLevelOld simply call \c setMeshAtLevelGen with repectively \c newOrOld parameter
+- \c setMeshAtLevel, \c setMeshAtLevelOld simply calls \c setMeshAtLevelGen with subsequent \c newOrOld parameter
 set to true and false. These methods specify if a renumbering computation is needed or not. \c setMeshAtLevelOld is faster
 than \c setMeshAtLevel because no renumbering computation is done. If the user is not warranty about the order of its meshes to enter
 it is better to use \c setMeshAtLevel method.

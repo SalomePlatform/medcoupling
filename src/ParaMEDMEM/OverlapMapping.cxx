@@ -152,7 +152,7 @@ void OverlapMapping::prepare(const std::vector< int >& procsToSendField, int nbO
 
   //updating _src_ids_zip_st2 and _src_ids_zip_st2 with received matrix.
   fillSourceIdsZipReceivedForMultiply();
-  // Prepare proc list for future field data exchange (mutliply()):
+  // Prepare proc list for future field data exchange (multiply()):
   _proc_ids_to_send_vector_st = procsToSendField;
   // Make some space on local proc:
   _matrixes_st.clear();

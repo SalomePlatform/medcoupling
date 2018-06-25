@@ -114,7 +114,7 @@ const MEDFileUMesh *MEDFileMeshSupports::getSupMeshWithName(const std::string& n
         }
     }
   std::ostringstream oss;
-  oss << "MEDFileMeshSupports::getSupMeshWithName : no such name \"" << name << "\". Possibilitities are :";
+  oss << "MEDFileMeshSupports::getSupMeshWithName : no such name \"" << name << "\". Possibilities are :";
   std::copy(mns.begin(),mns.end(),std::ostream_iterator<std::string>(oss,","));
   oss << " !";
   throw INTERP_KERNEL::Exception(oss.str());

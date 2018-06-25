@@ -2078,7 +2078,7 @@ DataArrayDouble *DataArrayDouble::fromCartToCylGiven(const DataArrayDouble *coor
 
 /*!
  * Computes the doubly contracted product of every tensor defined by the tuple of \a this
- * array contating 6 components.
+ * array containing 6 components.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble, whose each tuple
  *          is calculated from the tuple <em>(t)</em> of \a this array as follows:
  *          \f$ t[0]^2+t[1]^2+t[2]^2+2*t[3]^2+2*t[4]^2+2*t[5]^2\f$.
@@ -3837,7 +3837,7 @@ void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNb
 
 /*!
  * Computes distribution of values of \a this one-dimensional array between given value
- * ranges (casts). This method is typically useful for entity number spliting by types,
+ * ranges (casts). This method is typically useful for entity number splitting by types,
  * for example. 
  *  \warning The values contained in \a arrBg should be sorted ascendently. No
  *           check of this is be done. If not, the result is not warranted. 
@@ -6274,7 +6274,7 @@ DataArrayInt *DataArrayInt::findIdInRangeForEachTuple(const DataArrayInt *ranges
  * If this method has correctly worked, \a this will be able to be considered as a linked list.
  * This method does nothing if number of tuples is lower of equal to 1.
  *
- * This method is useful for users having an unstructured mesh having only SEG2 to rearrange internaly the connectibity without any coordinates consideration.
+ * This method is useful for users having an unstructured mesh having only SEG2 to rearrange internally the connectibity without any coordinates consideration.
  *
  * \sa MEDCouplingUMesh::orderConsecutiveCells1D, DataArrayInt::fromLinkedListOfPairToList
  */

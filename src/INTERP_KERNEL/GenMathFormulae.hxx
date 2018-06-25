@@ -28,7 +28,7 @@
 namespace INTERP_KERNEL
 {
   /*!
-   * This method computes eigenvalues of a 3x3 symmetric matrix stored with 6 values in 'matrix'. The convension chosen for 'matrix' is described here:
+   * This method computes eigenvalues of a 3x3 symmetric matrix stored with 6 values in 'matrix'. The convention chosen for 'matrix' is described here:
    * matrix[0]=m_xx, matrix[1]=m_yy, matrix[2]=m_zz,
    * matrix[3]=m_xy, matrix[4]=m_yz, matrix[5]=m_xz
    * This method returns the 3 eigenvalues in 'eigenVals'.
@@ -55,7 +55,7 @@ namespace INTERP_KERNEL
   }
   
   /*!
-   * This method computes one eigenvector of a 3x3 symmetric matrix stored with 6 values in 'matrix'. The convension chosen for 'matrix' is described here:
+   * This method computes one eigenvector of a 3x3 symmetric matrix stored with 6 values in 'matrix'. The convention chosen for 'matrix' is described here:
    * matrix[0]=m_xx, matrix[1]=m_yy, matrix[2]=m_zz,
    * matrix[3]=m_xy, matrix[4]=m_yz, matrix[5]=m_xz
    * This method returns the eigenvector of the corresponding eigenvalue in 'eigenVal'. The returned eigenValue is normalized.

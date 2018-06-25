@@ -1223,7 +1223,7 @@ class MEDLoaderTest3(unittest.TestCase):
         del tes0
         #
         tes1=f.getFieldOnMeshAtLevel(ON_NODES,1,m)
-        self.assertEqual(ON_CELLS,tes1.getTypeOfField())# it is not a bug even if ON_NODES has been sepecified
+        self.assertEqual(ON_CELLS,tes1.getTypeOfField())# it is not a bug even if ON_NODES has been specified
         self.assertEqual(0,tes1.getMesh().getMeshDimension())
         self.assertEqual(2,tes1.getMesh().getNumberOfCells())
         self.assertEqual(135,tes1.getMesh().getNumberOfNodes())
@@ -1259,7 +1259,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         #
         tes3=f.getFieldOnMeshAtLevel(ON_NODES,1,m)
-        self.assertEqual(ON_CELLS,tes3.getTypeOfField())# it is not a bug even if ON_NODES has been sepecified
+        self.assertEqual(ON_CELLS,tes3.getTypeOfField())# it is not a bug even if ON_NODES has been specified
         self.assertEqual(0,tes3.getMesh().getMeshDimension())
         self.assertEqual(2,tes3.getMesh().getNumberOfCells())
         self.assertEqual(135,tes3.getMesh().getNumberOfNodes())
@@ -3852,7 +3852,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     def testMEDFileUMeshLoadPart1(self):
-        """ This method tests MEDFileUMesh.LoadPart that loads only a part of a specified mesh in a MED file. The part is specfied using a slice of cell ids. Only nodes on which cells lies are loaded to reduce at most the amount of
+        """ This method tests MEDFileUMesh.LoadPart that loads only a part of a specified mesh in a MED file. The part is specified using a slice of cell ids. Only nodes on which cells lies are loaded to reduce at most the amount of
         memory of the returned instance.
         """
         fileName="Pyfile81.med"

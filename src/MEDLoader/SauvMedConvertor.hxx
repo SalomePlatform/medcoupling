@@ -70,7 +70,7 @@ namespace SauvUtilities
   struct Cell
   {
     std::vector< Node* > _nodes;
-    mutable bool         _reverse; // to reverse orienation of a face only
+    mutable bool         _reverse; // to reverse orientation of a face only
     mutable TID*         _sortedNodeIDs; // for comparison
     mutable TID          _number;
 

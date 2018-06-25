@@ -599,7 +599,7 @@ std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> > MEDFileAnyTypeField1TSWi
 }
 
 /*!
- * This method performs a sub splitting as splitDiscretizations does but finer. This is the finest spliting level that can be done.
+ * This method performs a sub splitting as splitDiscretizations does but finer. This is the finest splitting level that can be done.
  * This method implements the minimal splitting so that each returned elements are mono Gauss discretization per geometric type.
  *
  * \sa splitDiscretizations

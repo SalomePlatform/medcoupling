@@ -11,7 +11,7 @@ visible to the Python user.
  \ref MEDCoupling "MEDCoupling namespace".
 The true parallel functionalities of the \ref library "MED library" are detailed here: \ref parallel
 
-The memory management of the various strucutres is eased by the class 
+The memory management of the various structures is eased by the class 
 \ref MEDCoupling::MCAuto "MCAuto". It acts as an auto pointer and takes care of deleting the
 memory automatically when going out of scope. See an example usage in \ref cpp_mcfielddouble_WriteVTK .
 Beware however that not all functions return a pointer that should be deleted when going out of scope.

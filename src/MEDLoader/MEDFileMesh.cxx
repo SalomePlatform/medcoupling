@@ -513,7 +513,7 @@ std::vector<std::string> MEDFileMesh::getFamiliesNames() const
  * Returns names of all families of \a this mesh but like they would be in file.
  * This method is here only for MED file families gurus. If you are a kind user forget this method :-)
  * This method is only useful for aggressive users that want to have in their file a same family lying both on cells and on nodes. This is not a good idea for lisibility !
- * For your information internaly in memory such families are renamed to have a nicer API.
+ * For your information internally in memory such families are renamed to have a nicer API.
  */
 std::vector<std::string> MEDFileMesh::getFamiliesNamesWithFilePointOfView() const
 {
@@ -3987,7 +3987,7 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
 
   std::vector<int> levs=getNonEmptyLevels();
   if(std::find(levs.begin(),levs.end(),0)==levs.end() || std::find(levs.begin(),levs.end(),-1)==levs.end())
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group : This method works only for mesh definied on level 0 and -1 !");
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group : This method works only for mesh defined on level 0 and -1 !");
   MUMesh m0=getMeshAtLevel(0);
   MUMesh m1=getMeshAtLevel(-1);
   int nbNodes=m0->getNumberOfNodes();

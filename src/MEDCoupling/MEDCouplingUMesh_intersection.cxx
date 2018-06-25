@@ -1196,7 +1196,7 @@ int FindRightCandidateAmong(const MEDCouplingUMesh *mesh2DSplit, const int *cand
  * \param [out] subDiv2 - for each cell in \a m2Desc returns nodes that split it using convention \a m1Desc first, then \a m2Desc, then addCoo
  * \param [out] colinear2 - for each cell in \a m2Desc returns the edges in \a m1Desc that are colinear to it.
  * \param [out] addCoo - nodes to be append at the end
- * \param [out] mergedNodes - gives all pair of nodes of \a m2Desc that have same location than some nodes in \a m1Desc. key is id in \a m2Desc offseted and value is id in \a m1Desc.
+ * \param [out] mergedNodes - gives all pair of nodes of \a m2Desc that have same location than some nodes in \a m1Desc. key is id in \a m2Desc offsetted and value is id in \a m1Desc.
  */
 void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const MEDCouplingUMesh *m2Desc, double eps,
                                          std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2, std::vector<double>& addCoo, std::map<int,int>& mergedNodes)
@@ -1843,7 +1843,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
 /*!
  * \b WARNING this method is \b potentially \b non \b const (if returned array is empty).
  * \b WARNING this method lead to have a non geometric type sorted mesh (for MED file users) !
- * This method performs a conformization of \b this. So if a edge in \a this can be split into entire edges in \a this this method
+ * This method performs a conformization of \b this. So if a edge in \a this can be split into entire edges in \a this method
  * will suppress such edges to use sub edges in \a this. So this method does not add nodes in \a this if merged edges are both linear (INTERP_KERNEL::NORM_SEG2).
  * In the other cases new nodes can be created. If any are created, they will be appended at the end of the coordinates object before the invocation of this method.
  *

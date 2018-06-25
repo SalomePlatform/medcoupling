@@ -3381,7 +3381,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool
 
 /*!
  * This method allows to compute, if needed, the packed nodal connectivity pair.
- * Indeed, it is possible to store in \a this a nodal connectivity array bigger than ranges convered by nodal connectivity index array.
+ * Indeed, it is possible to store in \a this a nodal connectivity array bigger than ranges covered by nodal connectivity index array.
  * It is typically the case when nodalConnIndx starts with an id greater than 0, and finishes with id less than number of tuples in \c this->_conn.
  * 
  * If \a this looks packed (the front of nodal connectivity index equal to 0 and back of connectivity index equal to number of tuple of nodal connectivity array)

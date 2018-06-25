@@ -12,7 +12,7 @@
 
 	from math import *
 
-	# Definition of environnement variables
+	# Definition of environment variables
 	spaceDimension = 3
 	N = 4
 	nbOfNodes = N*N*N

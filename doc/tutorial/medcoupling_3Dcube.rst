@@ -45,7 +45,7 @@ First instantiate a meshing object. Therefore, we need to define :
  * its dimension
  * its number of cells
 
-.. note:: All this initialisation are necessary. If one lacks, you will have a segmentation fault!.
+.. note:: All this initialisation is necessary. If one is missing, you'll have a segmentation fault!.
 
 ::
 
@@ -290,7 +290,7 @@ General Case
 Multi mesh Case
 ````````````````
 
-In spite of a MEDCoupling mesh has only one dimension, it's possible to genrate a file with multi dimension.
+In spite of a MEDCoupling mesh has only one dimension, it's possible to generate a file with multi dimension.
 Therefore, you need to create as meshes as necessary dimensions.
 
 You have to give the connectivity of the faces on the bottom face of the 3D cube: the list of the nodes which belong to the face.

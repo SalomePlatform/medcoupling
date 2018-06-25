@@ -1375,7 +1375,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDCurveLinearMeshMultiLev)) # here the 2nd support is a part of CMesh that is also a CMesh -> CMesh not a UMesh
         a,b,c=mml2.buildVTUArrays()
-        self.assertTrue(not c)#False here because a is the result of a computation not the internal strucutre
+        self.assertTrue(not c)#False here because a is the result of a computation not the internal structure
         self.assertTrue(a.isEqual(a0Exp[pfl2],1e-12))
         self.assertEqual(b,[3,3])
         a6,a7=mml2.retrieveFamilyIdsOnCells()
@@ -4877,7 +4877,7 @@ class MEDLoaderTest4(unittest.TestCase):
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
-        # Here 2 MED fields in input and at the end 5 ! 1+4 ! 4 fields have been built from zeField0 due to subspliting per dis / per geo type
+        # Here 2 MED fields in input and at the end 5 ! 1+4 ! 4 fields have been built from zeField0 due to subsplitting per dis / per geo type
         self.assertEqual(len(allFMTSLeavesToDisplay),1)
         self.assertEqual(len(allFMTSLeavesToDisplay[0]),5)
         allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))

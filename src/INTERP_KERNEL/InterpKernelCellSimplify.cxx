@@ -280,7 +280,7 @@ bool CellSimplify::isWellOriented(const int *baseFace, int *retConn, const int *
 /*!
  * This method is trying to permute the connectivity of 'oppFace' face so that the k_th node of 'baseFace' is associated to the 
  * k_th node in retConnOfOppFace. Excluded faces 'baseFace' and 'oppFace' all the other faces in 'conn' must be QUAD4 faces.
- * If the arragement process succeeds true is returned and retConnOfOppFace is filled.
+ * If the arrangement process succeeds true is returned and retConnOfOppFace is filled.
  */
 bool CellSimplify::tryToArrangeOppositeFace(const int *conn, int lgth, int lgthBaseFace, const int *baseFace, const int *oppFace, int nbOfFaces, int *retConnOfOppFace)
 {

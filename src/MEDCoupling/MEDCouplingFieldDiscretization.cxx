@@ -1742,7 +1742,7 @@ void MEDCouplingFieldDiscretizationGauss::getValueOn(const DataArrayDouble *arr,
 
 void MEDCouplingFieldDiscretizationGauss::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
 {
-  throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applyable for Gauss points !");
+  throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applicable for Gauss points !");
 }
 
 DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
@@ -2634,7 +2634,7 @@ void MEDCouplingFieldDiscretizationGaussNE::getValueOn(const DataArrayDouble *ar
 
 void MEDCouplingFieldDiscretizationGaussNE::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
 {
-  throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applyable for Gauss points !");
+  throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applicable for Gauss points !");
 }
 
 DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const

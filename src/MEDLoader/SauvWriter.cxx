@@ -848,7 +848,7 @@ void SauvWriter::writeNodes()
   MCAuto< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel( 1 );
   MCAuto< MEDCouplingUMesh > umesh = mesh->buildUnstructured();
 
-  // write the index connecting nodes with their coodrinates
+  // write the index connecting nodes with their coordinates
 
   const int nbNodes = umesh->getNumberOfNodes();
   *_sauvFile << " ENREGISTREMENT DE TYPE   2" << endl

@@ -406,7 +406,7 @@ namespace INTERP_KERNEL
     double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
     // vector
     double r11 = p[0]-triaCoords[2*SPACEDIM], r12 = p[1]-triaCoords[2*SPACEDIM+1];
-    // barycentric coordinates: mutiply matrix by vector
+    // barycentric coordinates: multiply matrix by vector
     bc[0] = (t11 * r11 + t12 * r12)/Tdet;
     bc[1] = (t21 * r11 + t22 * r12)/Tdet;
     bc[2] = 1. - bc[0] - bc[1];
@@ -448,7 +448,7 @@ namespace INTERP_KERNEL
           double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
           // vector
           double r11 = p[_XX]-n[2][_XX], r12 = p[_YY]-n[2][_YY];
-          // barycentric coordinates: mutiply matrix by vector
+          // barycentric coordinates: multiply matrix by vector
           bc[0] = (t11 * r11 + t12 * r12)/Tdet;
           bc[1] = (t21 * r11 + t22 * r12)/Tdet;
           bc[2] = 1. - bc[0] - bc[1];
@@ -1208,7 +1208,7 @@ namespace INTERP_KERNEL
       (XA[0]*XB[1]-XA[1]*XB[0])*XC[2];
   }
   
-  /*! Subroutine of checkEqualPolygins that tests if two list of nodes (not necessarily distincts) describe the same polygon, assuming they share a comon point.*/
+  /*! Subroutine of checkEqualPolygins that tests if two list of nodes (not necessarily distincts) describe the same polygon, assuming they share a common point.*/
   /*! Indexes istart1 and istart2 designate two points P1 in L1 and P2 in L2 that have identical coordinates. Generally called with istart1=0.*/
   /*! Integer sign ( 1 or -1) indicate the direction used in going all over L2. */
   template<class T, int dim> 
