@@ -101,9 +101,10 @@ std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicV
 }
 
 /*!
- * retrieves if segs are colinears.
- * WARNING !!! Contrary to areOverlappedOrOnlyColinears method, this method use an
- * another precision to detect colinearity !
+ * Retrieves if segs are colinears.
+ * Same philosophy as in other intersectors: we use epsilon as an absolute distance.
+ * If one puts the two vectors starting at the origin, determinant/dimChar is a close representative of the absolute distance between the tip of one vector
+ * to the other vector.
  */
 bool SegSegIntersector::areColinears() const
 {
@@ -114,7 +115,7 @@ bool SegSegIntersector::areColinears() const
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
   double dimChar=b.getCaracteristicDim();
 
-  return fabs(determinant)< dimChar*QuadraticPlanarArcDetectionPrecision::getArcDetectionPrecision();  // TODO [ABN]: should be QuadraticPlanarPrecision::getPrecision() ...
+  return fabs(determinant)< 2.*dimChar*QuadraticPlanarPrecision::getPrecision(); // same criteria as in areOverlappedOrOnlyColinears, see comment below
 }
 
 /*!
@@ -127,7 +128,15 @@ bool SegSegIntersector::areColinears() const
 void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& colinearity, bool& areOverlapped)
 {
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
-  if(fabs(determinant)>2.*QuadraticPlanarPrecision::getPrecision())//2*_precision due to max of offset on _start and _end
+  Bounds b;
+  b.prepareForAggregation();
+  b.aggregate(_e1.getBounds());
+  b.aggregate(_e2.getBounds());
+  double dimChar=b.getCaracteristicDim();
+
+  // Same criteria as in areColinears(), see doc.
+  // [ABN] the 2 is not really justified, but the initial tests from Tony were written so closely to precision that I can't bother to change all of them ...
+  if(fabs(determinant)>2.*dimChar*QuadraticPlanarPrecision::getPrecision())
     {
       colinearity=false; areOverlapped=false;
       _matrix[0]/=determinant; _matrix[1]/=determinant; _matrix[2]/=determinant; _matrix[3]/=determinant;
@@ -139,10 +148,10 @@ void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, 
       double tmp=_matrix[0]; _matrix[0]=_matrix[3]; _matrix[3]=tmp;
       _matrix[1]=-_matrix[1]; _matrix[2]=-_matrix[2];
       //
-      double deno=sqrt(_matrix[0]*_matrix[0]+_matrix[1]*_matrix[1]);
+      double deno=sqrt(_matrix[0]*_matrix[0]+_matrix[1]*_matrix[1]);    // norm of e2
       double x=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
-      double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];
-      areOverlapped=fabs((_matrix[1]*y+_matrix[0]*x)/deno)<QuadraticPlanarPrecision::getPrecision();
+      double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];   // (x,y) is the vector between the two start points of e1 and e2
+      areOverlapped=fabs((_matrix[1]*y+_matrix[0]*x)/deno)<QuadraticPlanarPrecision::getPrecision(); // test colinearity of (x,y) with e2
     }
 }
 

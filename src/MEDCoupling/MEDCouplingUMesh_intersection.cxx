@@ -1885,7 +1885,7 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
       std::vector<int> candidates;
       myTree.getIntersectingElems(bbox+i*2*SPACEDIM,candidates);
       for(std::vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
-        if(*it>i)
+        if(*it>i)  // we're dealing with pair of edges, no need to treat the same pair twice
           {
             std::map<MCAuto<INTERP_KERNEL::Node>,int> m;
             INTERP_KERNEL::Edge *e1(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)c[ci[i]],c+ci[i]+1,coords,m)),

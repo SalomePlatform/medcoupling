@@ -495,8 +495,7 @@ void QuadraticPlanarInterpTest::checkBarycenterCalculations()
  */
 void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
 {
-  QuadraticPlanarPrecision::setPrecision(1e-12);
-  QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-9);
+  QuadraticPlanarPrecision::setPrecision(1e-10);
   double coords[]={
     8.8334591186000004, 5.0999999999999996,
     7.1014083111000001, 6.0999999999999996,
