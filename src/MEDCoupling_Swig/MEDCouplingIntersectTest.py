@@ -1069,6 +1069,23 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,13,20,27])))
         pass
 
+    def testSwig2Conformize2D6(self):
+        """ Was raising an internal error on the tiny cell #1. SegSegIntersector was faulty (eps misinterpreted)."""
+        eps=1.0e-6
+        mesh = MEDCouplingUMesh('Intersect2D', 2)
+        coo = DataArrayDouble([(-8.575398341058831,39.144034061751867),(-7.163839075265572,39.460696499553713),(-8.555240716524352,39.000452491656162),(-8.575381177420400,39.143911806168589),(-8.575389759239616,39.143972933960228),(-8.565310946972376,39.072182148912376),(-8.429007892596994,39.323429450193125),(-7.276475921428452,39.552916149667766),(-7.853580170499488,39.442382740946520),(-8.501337660834821,39.233025525494369),(-8.451698830704938,39.023021732647329),(-8.575293095466966,39.143931102458232),(-7.321160265208347,39.250835031152391),(-7.193377962393479,39.421292562742188),(-8.503477261299500,39.011771463728323),(-7.257269113800913,39.336063796947286),(-8.575337136449106,39.143921454338184),(-8.513495963085951,39.083476417552781),(-7.178608518829526,39.440994531147950),(-8.575345718262898,39.143982582105053),(-7.887252103212342,39.141010366774864),(-7.885555090015171,39.288688127112323),(-7.223911296170824,39.502221445493511)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([32, 2, 3, 11, 10, 5, 16, 17, 14, 32, 3, 0, 11, 4, 19, 16, 32, 13, 12, 10, 11, 15, 20, 17, 21, 32, 7, 1, 13, 11, 0, 6, 22, 18, 21, 19, 9, 8])
+        cI = DataArrayInt([0, 9, 16, 25, 38])
+        mesh.setConnectivity(c, cI)     
+        
+        mesh.conformize2D(eps)  # internal error was here
+        
+        c2, cI2 = mesh.getNodalConnectivity().getValues(), mesh.getNodalConnectivityIndex().getValues()
+        self.assertEqual(c2, c.getValues())
+        self.assertEqual(cI2, cI.getValues())
+        pass
+
     def testSwig2Conformize3D1(self):
         """ Simple test where no edge merge is required, only face merging (first part of the algo) """
         mesh = MEDCouplingUMesh('merge', 3)

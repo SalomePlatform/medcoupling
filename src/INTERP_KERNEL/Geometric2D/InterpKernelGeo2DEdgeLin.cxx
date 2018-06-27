@@ -123,9 +123,10 @@ bool SegSegIntersector::areColinears() const
  * \param whereToFind specifies the box where final seek should be done. Essentially it is used for caracteristic reason.
  * \param colinearity returns if regarding QuadraticPlanarPrecision::getPrecision() ; e1 and e2 are colinears
  *                    If true 'this' is modified ! So this method be called once above all if true is returned for this parameter.
- * \param areOverlapped if colinearity if true, this parameter looks if e1 and e2 are overlapped.
+ * \param areOverlapped if colinearity if true, this parameter looks if e1 and e2 are overlapped, i.e. is they lie on the same line (= this is different from
+ * a true intersection, two segments can be in "overlap" mode, without intersecting)
  */
-void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& colinearity, bool& areOverlapped)
+void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
 {
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
   Bounds b;
@@ -138,20 +139,22 @@ void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, 
   // [ABN] the 2 is not really justified, but the initial tests from Tony were written so closely to precision that I can't bother to change all of them ...
   if(fabs(determinant)>2.*dimChar*QuadraticPlanarPrecision::getPrecision())
     {
-      colinearity=false; areOverlapped=false;
+      obviousNoIntersection=false; areOverlapped=false;
       _matrix[0]/=determinant; _matrix[1]/=determinant; _matrix[2]/=determinant; _matrix[3]/=determinant;
     }
-  else
+  else  // colinear vectors
     {
-      colinearity=true;
-      //retrieving initial matrix
+      //retrieving initial matrix and shuffling it (will be used in getIntersectionsCharacteristicVal())
       double tmp=_matrix[0]; _matrix[0]=_matrix[3]; _matrix[3]=tmp;
       _matrix[1]=-_matrix[1]; _matrix[2]=-_matrix[2];
       //
-      double deno=sqrt(_matrix[0]*_matrix[0]+_matrix[1]*_matrix[1]);    // norm of e2
       double x=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
       double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];   // (x,y) is the vector between the two start points of e1 and e2
-      areOverlapped=fabs((_matrix[1]*y+_matrix[0]*x)/deno)<QuadraticPlanarPrecision::getPrecision(); // test colinearity of (x,y) with e2
+      areOverlapped = fabs(_matrix[1]*y+_matrix[0]*x) < dimChar*QuadraticPlanarPrecision::getPrecision(); // test colinearity of (x,y) with e1
+
+      // explanation: if areOverlapped is true, we don't know yet if there will be an intersection (see meaning of areOverlapped in method doxy above)
+      // if areOverlapped is false, we have two colinear vectors, not lying on the same line, so we're sure there is no intersec
+      obviousNoIntersection = !areOverlapped;
     }
 }
 
