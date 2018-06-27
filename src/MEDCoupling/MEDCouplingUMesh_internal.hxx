@@ -104,7 +104,6 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
 {
   // Override precision for this method only:
   INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(eps);
 
   elts=DataArrayInt::New(); eltsIndex=DataArrayInt::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
   int *eltsIndexPtr(eltsIndex->getPointer());

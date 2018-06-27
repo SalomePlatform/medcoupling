@@ -46,7 +46,6 @@ private:
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0000()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.383022221559489, 0.3213938048432697, -0.5745333323392334, 0.4820907072649046, 0.5745333323392335, 0.4820907072649044, 0.383022221559489, 0.3213938048432696,
     -0.4787777769493612, 0.4017422560540872, 4.592273826833915e-17, 0.75, 0.4787777769493612, 0.401742256054087, 3.061515884555943e-17, 0.5 };
@@ -72,7 +71,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0000()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0001()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.383022221559489, 0.3213938048432697, -0.5745333323392334, 0.4820907072649046, 0.5745333323392335, 0.4820907072649044, 0.383022221559489, 0.3213938048432696,
     -0.4787777769493612, 0.4017422560540872, 4.592273826833915e-17, 0.75, 0.4787777769493612, 0.401742256054087, 3.061515884555943e-17, 0.5 };
@@ -98,7 +96,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0001()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0002()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.383022221559489, 0.3213938048432697, -0.5745333323392334, 0.4820907072649046, 0.5745333323392335, 0.4820907072649044, 0.383022221559489, 0.3213938048432696,
     -0.4787777769493612, 0.4017422560540872, 4.592273826833915e-17, 0.75, 0.4787777769493612, 0.401742256054087, 3.061515884555943e-17, 0.5 };
@@ -124,7 +121,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0002()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0003()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.3535533905932737, 0.3535533905932738, -0.5303300858899106, 0.5303300858899107, 0.5303300858899107, 0.5303300858899106, 0.3535533905932738, 0.3535533905932737,
     -0.4419417382415922, 0.4419417382415922, 4.592273826833915e-17, 0.75, 0.4419417382415922, 0.4419417382415922, 3.061515884555943e-17, 0.5 };
@@ -150,7 +146,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0003()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0004()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.4596194077712559, 0.4596194077712559, -0.5303300858899106, 0.5303300858899107, 0.5303300858899107, 0.5303300858899106, 0.4596194077712559, 0.4596194077712559,
     -0.4949747468305832, 0.4949747468305833, 4.592273826833915e-17, 0.75, 0.4949747468305833, 0.4949747468305832, 3.979970649922726e-17, 0.65 };
@@ -176,7 +171,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0004()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0005()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.383022221559489, 0.3213938048432697, -0.6128355544951823, 0.5142300877492316, 0.6128355544951825, 0.5142300877492314, 0.383022221559489, 0.3213938048432696,
     -0.4979288880273356, 0.4178119462962507, 4.898425415289509e-17, 0.8, 0.4979288880273357, 0.4178119462962505, 3.061515884555943e-17, 0.5 };
@@ -202,7 +196,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0005()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0006()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.383022221559489, 0.3213938048432697, -0.5362311101832845, 0.4499513267805776, 0.5362311101832846, 0.4499513267805774, 0.383022221559489, 0.3213938048432696,
     -0.4596266658713867, 0.3856725658119237, 4.28612223837832e-17, 0.7, 0.4596266658713868, 0.3856725658119236, 3.061515884555943e-17, 0.5 };
@@ -228,7 +221,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0006()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0007()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.383022221559489, 0.3213938048432697, -0.5362311101832845, 0.4499513267805776, 0.5362311101832846, 0.4499513267805774, 0.383022221559489, 0.3213938048432696,
     -0.4596266658713867, 0.3856725658119237, 4.28612223837832e-17, 0.7, 0.4596266658713868, 0.3856725658119236, 3.061515884555943e-17, 0.5 };
@@ -254,7 +246,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0007()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0008()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.383022221559489, 0.3213938048432697, -0.5362311101832845, 0.4499513267805776, 0.5362311101832846, 0.4499513267805774, 0.383022221559489, 0.3213938048432696,
     -0.4596266658713867, 0.3856725658119237, 4.28612223837832e-17, 0.7, 0.4596266658713868, 0.3856725658119236, 3.061515884555943e-17, 0.5 };
@@ -280,7 +271,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0008()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0009()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.3863703305156274, -0.1035276180410081, -0.4829629131445342, -0.1294095225512602, 0.4829629131445342, -0.1294095225512604, 0.3863703305156274, -0.1035276180410083,
     -0.4346666218300808, -0.1164685702961342, 1.416374613080751e-16, 0.5, 0.4346666218300808, -0.1164685702961343, 1.133099690464601e-16, 0.4 };
@@ -305,7 +295,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0009()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0010()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.3863703305156274, -0.1035276180410081, -0.4829629131445342, -0.1294095225512602, 0.4829629131445342, -0.1294095225512604, 0.3863703305156274, -0.1035276180410083,
 -0.4346666218300808, -0.1164685702961342, 1.416374613080751e-16, 0.5, 0.4346666218300808, -0.1164685702961343, 1.133099690464601e-16, 0.4 };
@@ -330,7 +319,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0010()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0011()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.3863703305156274, -0.1035276180410081, -0.4829629131445342, -0.1294095225512602, 0.4829629131445342, -0.1294095225512604, 0.3863703305156274, -0.1035276180410083,
 -0.4346666218300808, -0.1164685702961342, 1.416374613080751e-16, 0.5, 0.4346666218300808, -0.1164685702961343, 1.133099690464601e-16, 0.4 };
@@ -373,7 +361,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0011()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar2511()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.3863703305156274, -0.1035276180410081, -0.4829629131445342, -0.1294095225512602, 0.4829629131445342, -0.1294095225512604, 0.3863703305156274, -0.1035276180410083,
     -0.4346666218300808, -0.1164685702961342, 1.416374613080751e-16, 0.5, 0.4346666218300808, -0.1164685702961343, 1.133099690464601e-16, 0.4, };
@@ -417,7 +404,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar2511()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0012()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -1, 1.224606353822377e-16, -1.6, 1.959370166115804e-16, 9.796850830579018e-17, 1.6, 6.123031769111886e-17, 1,
     -1.3, 1.591988259969091e-16, -1.131370849898476, 1.131370849898476, 7.959941299845453e-17, 1.3, -0.7071067811865475, 0.7071067811865476 };
@@ -451,7 +437,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0012()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0013()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -1, 1.224606353822377e-16, -1.6, 1.959370166115804e-16, 9.796850830579018e-17, 1.6, 6.123031769111886e-17, 1,
     -1.3, 1.591988259969091e-16, -1.131370849898476, 1.131370849898476, 7.959941299845453e-17, 1.3, -0.7071067811865475, 0.7071067811865476 };
@@ -485,7 +470,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0013()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0014()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -1, 1.224606353822377e-16, -1.6, 1.959370166115804e-16, 9.796850830579018e-17, 1.6, 6.123031769111886e-17, 1,
 -1.3, 1.591988259969091e-16, -1.131370849898476, 1.131370849898476, 7.959941299845453e-17, 1.3, -0.7071067811865475, 0.7071067811865476 };
@@ -529,7 +513,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0014()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0015()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -1, 1.224606353822377e-16, -1.6, 1.959370166115804e-16, 9.796850830579018e-17, 1.6, 6.123031769111886e-17, 1,
 -1.3, 1.591988259969091e-16, -1.131370849898476, 1.131370849898476, 7.959941299845453e-17, 1.3, -0.7071067811865475, 0.7071067811865476 };
@@ -573,7 +556,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0015()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0016()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -1, 1.224606353822377e-16, -1.6, 1.959370166115804e-16, 9.796850830579018e-17, 1.6, 6.123031769111886e-17, 1,
 -1.3, 1.591988259969091e-16, -1.131370849898476, 1.131370849898476, 7.959941299845453e-17, 1.3, -0.7071067811865475, 0.7071067811865476 };
@@ -617,7 +599,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0016()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0017()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -1, 1.224606353822377e-16, -1.6, 1.959370166115804e-16, 9.796850830579018e-17, 1.6, 6.123031769111886e-17, 1,
     -1.3, 1.591988259969091e-16, -1.131370849898476, 1.131370849898476, 7.959941299845453e-17, 1.3, -0.7071067811865475, 0.7071067811865476 };
@@ -662,7 +644,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0017()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0018()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -1, 1.224606353822377e-16, -1.6, 1.959370166115804e-16, 9.796850830579018e-17, 1.6, 6.123031769111886e-17, 1,
     -1.3, 1.591988259969091e-16, -1.131370849898476, 1.131370849898476, 7.959941299845453e-17, 1.3, -0.7071067811865475, 0.7071067811865476 };
@@ -707,7 +689,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0018()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0019()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.5, 6.123031769111886e-17, -0.8, 9.796850830579018e-17, 0.8, 0, 0.5, 0,
     -0.65, 7.959941299845453e-17, 4.898425415289509e-17, 0.8, 0.65, 0, 3.061515884555943e-17, 0.5 };
@@ -733,7 +715,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0019()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0020()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.5, 6.123031769111886e-17, -0.8, 9.796850830579018e-17, 0.8, 0, 0.5, 0,
     -0.65, 7.959941299845453e-17, 4.898425415289509e-17, 0.8, 0.65, 0, 3.061515884555943e-17, 0.5 };
@@ -778,7 +760,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0020()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0021()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.5, 6.123031769111886e-17, -0.8, 9.796850830579018e-17, 0.8, 0, 0.5, 0,
     -0.65, 7.959941299845453e-17, 4.898425415289509e-17, 0.8, 0.65, 0, 3.061515884555943e-17, 0.5 };
@@ -822,7 +804,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0021()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0022()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.5, 6.123031769111886e-17, -0.8, 9.796850830579018e-17, 0.8, 0, 0.5, 0,
     -0.65, 7.959941299845453e-17, 4.898425415289509e-17, 0.8, 0.65, 0, 3.061515884555943e-17, 0.5 };
@@ -848,7 +830,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0022()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0023()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.5, 6.123031769111886e-17, -0.8, 9.796850830579018e-17, 0.8, 0, 0.5, 0,
     -0.65, 7.959941299845453e-17, 4.898425415289509e-17, 0.8, 0.65, 0, 3.061515884555943e-17, 0.5, };
@@ -874,7 +856,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0023()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0024()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.5, 6.123031769111886e-17, -0.8, 9.796850830579018e-17, 0.8, 0, 0.5, 0,
 -0.65, 7.959941299845453e-17, 4.898425415289509e-17, 0.8, 0.65, 0, 3.061515884555943e-17, 0.5 };
@@ -899,7 +881,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0024()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar2524()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.5, 6.123031769111886e-17, -0.8, 9.796850830579018e-17, 0.8, 0, 0.5, 0,
 -0.65, 7.959941299845453e-17, 4.898425415289509e-17, 0.8, 0.65, 0, 3.061515884555943e-17, 0.5 };
@@ -924,7 +906,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar2524()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0025()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.5, 6.123031769111886e-17, -0.8, 9.796850830579018e-17, 0.8, 0, 0.5, 0,
     -0.65, 7.959941299845453e-17, 4.898425415289509e-17, 0.8, 0.65, 0, 3.061515884555943e-17, 0.5 };
@@ -959,7 +941,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0025()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0026()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.4, 4.898425415289509e-17, -0.75, 9.184547653667829e-17, 0.75, 0, 0.4, 0,
     -0.575, 7.041486534478669e-17, 4.592273826833915e-17, 0.75, 0.575, 0, 2.449212707644755e-17, 0.4 };
@@ -994,7 +976,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0026()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0027()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.4, 4.898425415289509e-17, -0.75, 9.184547653667829e-17, 0.75, 0, 0.4, 0,
     -0.575, 7.041486534478669e-17, 4.592273826833915e-17, 0.75, 0.575, 0, 2.449212707644755e-17, 0.4 };
@@ -1039,7 +1021,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0027()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0028()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
+
   double coords[16]={
     -0.4, 4.898425415289509e-17, -0.75, 9.184547653667829e-17, 0.75, 0, 0.4, 0,
     -0.575, 7.041486534478669e-17, 4.592273826833915e-17, 0.75, 0.575, 0, 2.449212707644755e-17, 0.4 };
@@ -1084,7 +1066,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0028()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0029()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.4, 4.898425415289509e-17, -0.75, 9.184547653667829e-17, 0.75, 0, 0.4, 0,
     -0.575, 7.041486534478669e-17, 4.592273826833915e-17, 0.75, 0.575, 0, 2.449212707644755e-17, 0.4 };
@@ -1129,7 +1110,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0029()
 void QuadraticPlanarInterpTest::checkNonRegressionOmar0030()
 {
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(1e-7);
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(1e-7);
   double coords[16]={
     -0.4, 4.898425415289509e-17, -0.75, 9.184547653667829e-17, 0.75, 0, 0.4, 0,
     -0.575, 7.041486534478669e-17, 4.592273826833915e-17, 0.75, 0.575, 0, 2.449212707644755e-17, 0.4 };

@@ -66,9 +66,6 @@ namespace INTERP_KERNEL
     double getPrecision() const { return _precision; }
     void setPrecision(double p) { _precision=p; }
 
-    double getArcDetectionPrecision() const;
-    void setArcDetectionPrecision(double p);
-
     double getMedianPlane() const { return _median_plane; }
     void setMedianPlane(double mp) { _median_plane=mp; }
     
@@ -126,7 +123,6 @@ namespace INTERP_KERNEL
     static const double DFT_MIN_DOT_BTW_3DSURF_INTERSECT;
   public:
     static const char PRECISION_STR[];
-    static const char ARC_DETECTION_PRECISION_STR[];
     static const char MEDIANE_PLANE_STR[];
     static const char BOUNDING_BOX_ADJ_STR[];
     static const char BOUNDING_BOX_ADJ_ABS_STR[];

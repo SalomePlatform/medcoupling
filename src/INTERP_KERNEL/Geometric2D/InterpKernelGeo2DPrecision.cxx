@@ -21,7 +21,6 @@
 #include "InterpKernelGeo2DPrecision.hxx"
 
 double INTERP_KERNEL::QuadraticPlanarPrecision::_precision=1e-14;
-double INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::_arc_detection_precision=1e-14;
 
 INTERP_KERNEL::QuadraticPlanarPrecision::QuadraticPlanarPrecision(double precision):
     _initial_precision(_precision)
@@ -34,24 +33,7 @@ INTERP_KERNEL::QuadraticPlanarPrecision::~QuadraticPlanarPrecision()
   _precision = _initial_precision;
 }
 
-INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::QuadraticPlanarArcDetectionPrecision(double precision):
-    _initial_arc_detection_precision(_arc_detection_precision)
-{
-  _arc_detection_precision=precision;
-}
-
-INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::~QuadraticPlanarArcDetectionPrecision()
-{
-  _arc_detection_precision = _initial_arc_detection_precision;
-}
-
-
 void INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(double precision)
 { 
   _precision=precision;
-}
-
-void INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision::setArcDetectionPrecision(double precision)
-{
-  _arc_detection_precision=precision;
 }
