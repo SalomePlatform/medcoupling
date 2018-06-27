@@ -49,25 +49,6 @@ namespace INTERP_KERNEL
     double _initial_precision;
   };
 
-  /** Class storing the precision for the detection of degenerated arc of circles
-   * in Geometric2D computations.
-   *
-   * RAII pattern allowing to temporarily override Geometric2D precision.
-   * When the instance is destroyed, the previous precision is set back.
-   */
-  class QuadraticPlanarArcDetectionPrecision
-  {
-  public:
-    QuadraticPlanarArcDetectionPrecision(double prec);
-    virtual ~QuadraticPlanarArcDetectionPrecision();
-
-    static void setArcDetectionPrecision(double precision);
-    inline static double getArcDetectionPrecision() { return _arc_detection_precision; }
-  private:
-    static double _arc_detection_precision;
-    double _initial_arc_detection_precision;
-
-  };
 }
 
 #endif

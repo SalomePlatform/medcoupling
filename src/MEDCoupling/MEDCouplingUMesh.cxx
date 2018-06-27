@@ -5482,7 +5482,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTreeFast() const
 DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arcDetEps) const
 {
   checkFullyDefined();
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(arcDetEps);
+  INTERP_KERNEL::QuadraticPlanarPrecision arcPrec(arcDetEps);
 
   int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells());
   if(spaceDim!=2 || mDim!=2)
@@ -5531,7 +5531,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic(double arc
   int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells());
   if(spaceDim!=2 || mDim!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic : This method should be applied on mesh with mesh dimension equal to 1 and space dimension also equal to 2!");
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(arcDetEps);
+  INTERP_KERNEL::QuadraticPlanarPrecision arcPrec(arcDetEps);
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
   double *bbox(ret->getPointer());
   const double *coords(_coords->begin());

@@ -101,9 +101,10 @@ std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicV
 }
 
 /*!
- * retrieves if segs are colinears.
- * WARNING !!! Contrary to areOverlappedOrOnlyColinears method, this method use an
- * another precision to detect colinearity !
+ * Retrieves if segs are colinears.
+ * Same philosophy as in other intersectors: we use epsilon as an absolute distance.
+ * If one puts the two vectors starting at the origin, determinant/dimChar is a close representative of the absolute distance between the tip of one vector
+ * to the other vector.
  */
 bool SegSegIntersector::areColinears() const
 {
@@ -114,7 +115,7 @@ bool SegSegIntersector::areColinears() const
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
   double dimChar=b.getCaracteristicDim();
 
-  return fabs(determinant)< dimChar*QuadraticPlanarArcDetectionPrecision::getArcDetectionPrecision();  // TODO [ABN]: should be QuadraticPlanarPrecision::getPrecision() ...
+  return fabs(determinant)< 2.*dimChar*QuadraticPlanarPrecision::getPrecision(); // same criteria as in areOverlappedOrOnlyColinears, see comment below
 }
 
 /*!
@@ -122,27 +123,38 @@ bool SegSegIntersector::areColinears() const
  * \param whereToFind specifies the box where final seek should be done. Essentially it is used for caracteristic reason.
  * \param colinearity returns if regarding QuadraticPlanarPrecision::getPrecision() ; e1 and e2 are colinears
  *                    If true 'this' is modified ! So this method be called once above all if true is returned for this parameter.
- * \param areOverlapped if colinearity if true, this parameter looks if e1 and e2 are overlapped.
+ * \param areOverlapped if colinearity if true, this parameter looks if e1 and e2 are overlapped, i.e. is they lie on the same line (= this is different from
+ * a true intersection, two segments can be in "overlap" mode, without intersecting)
  */
-void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& colinearity, bool& areOverlapped)
+void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
 {
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
-  if(fabs(determinant)>2.*QuadraticPlanarPrecision::getPrecision())//2*_precision due to max of offset on _start and _end
+  Bounds b;
+  b.prepareForAggregation();
+  b.aggregate(_e1.getBounds());
+  b.aggregate(_e2.getBounds());
+  double dimChar=b.getCaracteristicDim();
+
+  // Same criteria as in areColinears(), see doc.
+  // [ABN] the 2 is not really justified, but the initial tests from Tony were written so closely to precision that I can't bother to change all of them ...
+  if(fabs(determinant)>2.*dimChar*QuadraticPlanarPrecision::getPrecision())
     {
-      colinearity=false; areOverlapped=false;
+      obviousNoIntersection=false; areOverlapped=false;
       _matrix[0]/=determinant; _matrix[1]/=determinant; _matrix[2]/=determinant; _matrix[3]/=determinant;
     }
-  else
+  else  // colinear vectors
     {
-      colinearity=true;
-      //retrieving initial matrix
+      //retrieving initial matrix and shuffling it (will be used in getIntersectionsCharacteristicVal())
       double tmp=_matrix[0]; _matrix[0]=_matrix[3]; _matrix[3]=tmp;
       _matrix[1]=-_matrix[1]; _matrix[2]=-_matrix[2];
       //
-      double deno=sqrt(_matrix[0]*_matrix[0]+_matrix[1]*_matrix[1]);
       double x=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
-      double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];
-      areOverlapped=fabs((_matrix[1]*y+_matrix[0]*x)/deno)<QuadraticPlanarPrecision::getPrecision();
+      double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];   // (x,y) is the vector between the two start points of e1 and e2
+      areOverlapped = fabs(_matrix[1]*y+_matrix[0]*x) < dimChar*QuadraticPlanarPrecision::getPrecision(); // test colinearity of (x,y) with e1
+
+      // explanation: if areOverlapped is true, we don't know yet if there will be an intersection (see meaning of areOverlapped in method doxy above)
+      // if areOverlapped is false, we have two colinear vectors, not lying on the same line, so we're sure there is no intersec
+      obviousNoIntersection = !areOverlapped;
     }
 }
 

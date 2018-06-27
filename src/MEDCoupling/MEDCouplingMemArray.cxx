@@ -2508,7 +2508,7 @@ DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrixWith(const Da
 void DataArrayDouble::asArcOfCircle(double center[2], double& radius, double& ang) const
 {
   checkAllocated();
-  INTERP_KERNEL::QuadraticPlanarArcDetectionPrecision arcPrec(1e-14);
+  INTERP_KERNEL::QuadraticPlanarPrecision arcPrec(1e-14);
   if(getNumberOfTuples()!=3 && getNumberOfComponents()!=2)
     throw INTERP_KERNEL::Exception("DataArrayDouble::asArcCircle : this method expects");
   const double *pt(begin());
