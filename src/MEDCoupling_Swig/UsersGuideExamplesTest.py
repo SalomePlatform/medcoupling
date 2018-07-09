@@ -61,7 +61,7 @@ mesh=MEDCouplingCMesh("My2D_CMesh")
 mesh.setCoords(arrX,arrY)
 # ! [PySnippetCMeshStdBuild1_2]
 
-nodalConnPerCell=range(4*4)
+nodalConnPerCell=list(range(4*4))
 # ! [GU_MEDCoupling1SGTUMesh_0]
 mesh=MEDCoupling1SGTUMesh("myQuadMesh",NORM_QUAD4)
 mesh.allocateCells(3)
@@ -211,7 +211,7 @@ fieldGauss.checkConsistencyLight();
 
 from MEDCouplingDataForTest import MEDCouplingDataForTest
 m=MEDCouplingDataForTest.build2DTargetMesh_1();
-Ids=range(1,3)
+Ids=list(range(1,3))
 #! [UG_ExtractForMeshes_0]
 part=m[Ids]
 #! [UG_ExtractForMeshes_0]
@@ -284,7 +284,7 @@ ibc=m2.computeIsoBarycenterOfNodesPerCell()
 
 #! [UG_ExtractForMeshes_20]
 # make a structured mesh 1x5
-coords=DataArrayDouble(range(6))
+coords=DataArrayDouble(list(range(6)))
 cmesh=MEDCouplingCMesh("cmesh")
 cmesh.setCoords(coords,coords[:2])
 
@@ -296,7 +296,7 @@ zoneArrays=zmesh.partitionBySpreadZone()
 print([ ids.getValues() for ids in zoneArrays])
 #! [UG_ExtractForMeshes_20]
 
-coordsArr=DataArrayDouble(range(6))
+coordsArr=DataArrayDouble(list(range(6)))
 mesh2d=MEDCouplingCMesh("mesh2d")
 mesh2d.setCoords(coordsArr,coordsArr[:2])
 mesh2d=mesh2d.buildUnstructured()
@@ -338,7 +338,7 @@ tupleIds1 = arr.magnitude().findIdsInRange(c,d)
 tupleIds2 = DataArrayInt.buildSubstraction(tupleIds,tupleIds1)
 #! [UG_ExtractForArrays_2]
 
-valsArr1=DataArrayDouble(range(9*2),9,2)
+valsArr1=DataArrayDouble(list(range(9*2)),9,2)
 field4 = MEDCouplingFieldDouble(ON_NODES)
 field4.setArray(valsArr1)
 mesh=MEDCouplingCMesh("My2D_CMesh")
@@ -351,7 +351,7 @@ subField = field4[ids4]
 #! [UG_ExtractForFields_0]
 
 m4=MEDCouplingCMesh("box")
-coo=DataArrayDouble(range(7))
+coo=DataArrayDouble(list(range(7)))
 m4.setCoords(coo[:5],coo[:5],coo)
 m4=m4.buildUnstructured()
 valsArr1=m4.computeCellCenterOfMass()
