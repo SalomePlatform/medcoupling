@@ -6447,7 +6447,47 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getGroupArr(0,"grp1").isEqual(grp1))
         self.assertTrue(mm.getGroupArr(-1,"grp2").isEqual(grp2))
         pass
-    
+
+    def testYutaka(self):
+        """ Thank you to Yutaka Nishizawa for having report this bug. At level -1, adding a first group on all entities leads to a group lying on family 0...
+        Then rearrange method removes unused entites by putting 0 on them -> Previously group has been modified by rearrange. Should not !"""
+        mn="mesh"
+        m=MEDCouplingCMesh()
+        arr=DataArrayDouble(4) ; arr.iota()
+        m.setCoords(arr,arr,arr)
+        m=m.buildUnstructured()
+        m.setName(mn)
+        #
+        m=m.buildUnstructured()
+        m1=m.buildDescendingConnectivity()[0]
+        #
+        mm=MEDFileUMesh()
+        mm[0]=m
+        mm[-1]=m1
+        #
+        grp0=DataArrayInt([0,1,2]) ; grp0.setName("grp0")
+        mm.addGroup(0,grp0)
+        grp1=DataArrayInt([3,4,5,6]) ; grp1.setName("grp1")
+        mm.addGroup(0,grp1)
+        grp2=DataArrayInt([7,8,9]) ; grp2.setName("grp2")
+        mm.addGroup(0,grp2)
+        grp3=DataArrayInt.Range(0,m1.getNumberOfCells(),1) ; grp3.setName("grp3")
+        mm.addGroup(-1,grp3)
+        assert(0 not in mm.getFamiliesIdsOnGroup("grp3")) # bug was here !
+        grp4=DataArrayInt([3,5,8,10]) ; grp4.setName("grp4")
+        mm.addNodeGroup(grp4)
+        mm.rearrangeFamilies()
+        assert(mm.getGrpNonEmptyLevelsExt("grp0")==(0,))
+        assert(mm.getGrpNonEmptyLevelsExt("grp1")==(0,))
+        assert(mm.getGrpNonEmptyLevelsExt("grp2")==(0,))
+        assert(mm.getGrpNonEmptyLevelsExt("grp3")==(-1,))
+        assert(mm.getGrpNonEmptyLevelsExt("grp4")==(1,))
+
+        for grp in [grp0,grp1,grp2,grp3,grp4]:
+            assert(mm.getGroupArr(mm.getGrpNonEmptyLevelsExt(grp.getName())[0],grp.getName()).isEqual(grp))
+            pass
+        pass
+
     pass
 
 if __name__ == "__main__":

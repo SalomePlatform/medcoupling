@@ -1333,7 +1333,7 @@ void MEDFileMesh::addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids,
           bool isFamPresent=false;
           for(std::list< MCAuto<DataArrayInt> >::const_iterator itl=allFamIds.begin();itl!=allFamIds.end() && !isFamPresent;itl++)
             isFamPresent=(*itl)->presenceOfValue(*famId);
-          if(!isFamPresent)
+          if(!isFamPresent && *famId!=0)
             { familyIds.push_back(*famId); idsPerfamiliyIds.push_back(ret0); fams.push_back(FindOrCreateAndGiveFamilyWithId(families,*famId,created)); } // adding *famId in grp
           else
             {
