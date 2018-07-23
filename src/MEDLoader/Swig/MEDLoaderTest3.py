@@ -6473,18 +6473,18 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.addGroup(0,grp2)
         grp3=DataArrayInt.Range(0,m1.getNumberOfCells(),1) ; grp3.setName("grp3")
         mm.addGroup(-1,grp3)
-        assert(0 not in mm.getFamiliesIdsOnGroup("grp3")) # bug was here !
+        self.assertNotIn(0,mm.getFamiliesIdsOnGroup("grp3")) # bug was here !
         grp4=DataArrayInt([3,5,8,10]) ; grp4.setName("grp4")
         mm.addNodeGroup(grp4)
         mm.rearrangeFamilies()
-        assert(mm.getGrpNonEmptyLevelsExt("grp0")==(0,))
-        assert(mm.getGrpNonEmptyLevelsExt("grp1")==(0,))
-        assert(mm.getGrpNonEmptyLevelsExt("grp2")==(0,))
-        assert(mm.getGrpNonEmptyLevelsExt("grp3")==(-1,))
-        assert(mm.getGrpNonEmptyLevelsExt("grp4")==(1,))
+        self.assertEqual(mm.getGrpNonEmptyLevelsExt("grp0"),(0,))
+        self.assertEqual(mm.getGrpNonEmptyLevelsExt("grp1"),(0,))
+        self.assertEqual(mm.getGrpNonEmptyLevelsExt("grp2"),(0,))
+        self.assertEqual(mm.getGrpNonEmptyLevelsExt("grp3"),(-1,))
+        self.assertEqual(mm.getGrpNonEmptyLevelsExt("grp4"),(1,))
 
         for grp in [grp0,grp1,grp2,grp3,grp4]:
-            assert(mm.getGroupArr(mm.getGrpNonEmptyLevelsExt(grp.getName())[0],grp.getName()).isEqual(grp))
+            self.assertTrue(mm.getGroupArr(mm.getGrpNonEmptyLevelsExt(grp.getName())[0],grp.getName()).isEqual(grp))
             pass
         pass
 

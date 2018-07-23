@@ -826,6 +826,8 @@ void MEDFileMesh::removeFamiliesReferedByNoGroups()
  * This method has no impact on groups. This method only works on families. This method firstly removes families not referred by any groups in \a this, then all unused entities
  * are put as belonging to family 0 ("FAMILLE_ZERO"). Finally, all orphanFamilies are killed.
  * This method raises an exception if "FAMILLE_ZERO" is already belonging to a group.
+ * 
+ * This method also raises an exception if a family belonging to a group has also id 0 (which is not right in MED file format). You should never encounter this case using addGroup method.
  *
  * \sa MEDFileMesh::removeOrphanFamilies
  */
@@ -837,7 +839,17 @@ void MEDFileMesh::rearrangeFamilies()
   std::vector<int> levels(getNonEmptyLevelsExt());
   std::set<int> idsRefed;
   for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
-    idsRefed.insert((*it).second);
+    {
+      idsRefed.insert((*it).second);
+      if((*it).second==0)
+        {
+          if(!getGroupsOnFamily((*it).first).empty())
+            {
+              std::ostringstream oss; oss << "MEDFileMesh::rearrangeFamilies : Not orphan family \"" << (*it).first << "\" has id 0 ! This method may alterate groups in this for such a case !";
+              throw INTERP_KERNEL::Exception(oss.str());
+            }
+        }
+    }
   for(std::vector<int>::const_iterator it=levels.begin();it!=levels.end();it++)
     {
       const DataArrayInt *fams(0);
