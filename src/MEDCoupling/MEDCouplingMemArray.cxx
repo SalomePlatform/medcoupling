@@ -54,6 +54,12 @@ template class MEDCoupling::DataArrayIterator<int>;
 template class MEDCoupling::DataArrayDiscrete<Int32>;
 template class MEDCoupling::DataArrayDiscreteSigned<Int32>;
 
+// [ABN] : Newest Intel compilers need this:
+template Traits<Int32>::ArrayType* MEDCoupling::DataArrayTuple<Int32>::buildDA(int, int) const;
+template Traits<double>::ArrayType* MEDCoupling::DataArrayTuple<double>::buildDA(int, int) const;
+template Traits<float>::ArrayType* MEDCoupling::DataArrayTuple<float>::buildDA(int, int) const;
+
+
 template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const
 {
