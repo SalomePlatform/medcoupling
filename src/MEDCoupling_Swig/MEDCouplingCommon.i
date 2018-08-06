@@ -325,6 +325,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingUMesh::conformize2D;
 %newobject MEDCoupling::MEDCouplingUMesh::conformize3D;
 %newobject MEDCoupling::MEDCouplingUMesh::colinearize2D;
+%newobject MEDCoupling::MEDCouplingUMesh::colinearizeKeepingConform2D;
 %newobject MEDCoupling::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject MEDCoupling::MEDCouplingUMesh::sortCellsInMEDFileFrmt;
 %newobject MEDCoupling::MEDCouplingUMesh::getRenumArrForMEDFileFrmt;
@@ -1950,6 +1951,7 @@ namespace MEDCoupling
     DataArrayInt *conformize2D(double eps) throw(INTERP_KERNEL::Exception);
     DataArrayInt *conformize3D(double eps) throw(INTERP_KERNEL::Exception);
     DataArrayInt *colinearize2D(double eps) throw(INTERP_KERNEL::Exception);
+    DataArrayInt *colinearizeKeepingConform2D(double eps) throw(INTERP_KERNEL::Exception);
     void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findCellIdsOnBoundary() const throw(INTERP_KERNEL::Exception);

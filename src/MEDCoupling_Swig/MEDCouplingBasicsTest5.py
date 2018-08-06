@@ -2001,6 +2001,26 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,7])))
         pass
 
+    def testSwig2ColinearizeKeepingConform2D1(self):
+        eps = 1.0e-6
+        # Just to get a nice coords array ...
+        mm = MEDCouplingCMesh(); arr = DataArrayDouble([0.0, 1.0,2.0])
+        mm.setCoords(arr, arr);  mm = mm.buildUnstructured();   coo = mm.getCoords()
+         
+        mesh = MEDCouplingUMesh("M", 2)
+        mesh.setCoords(coo)
+        c = [NORM_POLYGON, 0,1,4,7,6,3,  NORM_QUAD4, 1,2,5,4,  NORM_QUAD4,4,5,8,7]
+        cI = [0, 7,12,17]
+        mm.setConnectivity(DataArrayInt(c),DataArrayInt(cI))
+        mm.checkConsistencyLight()
+        
+        mm.colinearizeKeepingConform2D(eps)
+        c = mm.getNodalConnectivity().getValues()
+        cI = mm.getNodalConnectivityIndex().getValues()
+        self.assertEqual(c, [NORM_POLYGON, 0, 1, 4, 7, 6, NORM_POLYGON, 1, 2, 5, 4, NORM_POLYGON, 4, 5, 8, 7])
+        self.assertEqual(cI, [0,6,11,16])
+        pass
+
     def testSwig2BoundingBoxForBBTree1(self):
         """ This test appears simple but it checks that bounding box are correctly computed for quadratic polygons. It can help a lot to reduce the amount of intersections !
         """

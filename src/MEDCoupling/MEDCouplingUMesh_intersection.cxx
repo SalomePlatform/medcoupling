@@ -310,14 +310,18 @@ namespace MEDCoupling
 /*!
  * Returns true if a colinearization has been found in the given cell. If false is returned the content pushed in \a newConnOfCell is equal to [ \a connBg , \a connEnd ) .
  * \a appendedCoords is a DataArrayDouble instance with number of components equal to one (even if the items are pushed by pair).
+ * \param forbiddenPoints the list of points that should not be removed in the process
  */
-bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg, const int *connEnd, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords)
+bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg, const int *connEnd, int offset,
+                                         const std::map<int, bool>& forbiddenPoints,
+                                         DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords)
 {
   std::size_t sz(std::distance(connBg,connEnd));
   if(sz<3)//3 because 2+1(for the cell type) and 2 is the minimal number of edges of 2D cell.
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Colinearize2DCell : the input cell has invalid format !");
   sz--;
   INTERP_KERNEL::AutoPtr<int> tmpConn(new int[sz]);
+  INTERP_KERNEL::AutoPtr<int> tmpConn2(new int[sz]);
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)connBg[0]));
   unsigned nbs(cm.getNumberOfSons2(connBg+1,sz));
   unsigned nbOfHit(0); // number of fusions operated
@@ -339,8 +343,13 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
         {
           for(unsigned i=1;i<nbs && nbOfHit<maxNbOfHit;i++) // 2nd condition is to avoid ending with a cell with one single edge
             {
-              cm.fillSonCellNodalConnectivity2(nbs-i,connBg+1,sz,tmpConn,typeOfSon);
-              INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
+              cm.fillSonCellNodalConnectivity2(nbs-i,connBg+1,sz,tmpConn2,typeOfSon);
+              // Identify common point:
+              int commPoint = std::find((int *)tmpConn, tmpConn+2, tmpConn2[0]) != tmpConn+2 ? tmpConn2[0] : tmpConn2[1];
+              auto itE(forbiddenPoints.end());
+              if (forbiddenPoints.find(commPoint) != itE) // is the junction point in the list of points we can not remove?
+                break;
+              INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn2,coords,m));
               INTERP_KERNEL::EdgeIntersector *eint(INTERP_KERNEL::Edge::BuildIntersectorWith(e,eCand));
               bool isColinear=eint->areColinears();
               if(isColinear)
@@ -353,14 +362,21 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
               eCand->decrRef();
               if(!isColinear)
                 break;
+              // Update last connectivity
+              std::copy((int *)tmpConn2, tmpConn2+sz, (int *)tmpConn);
             }
         }
       // Now move forward:
       const unsigned fwdStart = (nbOfTurn == 0 ? 0 : posBaseElt);  // the first element to be inspected going forward
       for(unsigned j=fwdStart+1;j<nbs && nbOfHit<maxNbOfHit;j++)  // 2nd condition is to avoid ending with a cell with one single edge
         {
-          cm.fillSonCellNodalConnectivity2((int)j,connBg+1,sz,tmpConn,typeOfSon); // get edge #j's connectivity
-          INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
+          cm.fillSonCellNodalConnectivity2((int)j,connBg+1,sz,tmpConn2,typeOfSon); // get edge #j's connectivity
+          // Identify common point:
+          int commPoint = std::find((int *)tmpConn, tmpConn+2, tmpConn2[0]) != tmpConn+2 ? tmpConn2[0] : tmpConn2[1];
+          auto itE(forbiddenPoints.end());
+          if (forbiddenPoints.find(commPoint) != itE) // is the junction point in the list of points we can not remove?
+            break;
+          INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn2,coords,m));
           INTERP_KERNEL::EdgeIntersector *eint(INTERP_KERNEL::Edge::BuildIntersectorWith(e,eCand));
           bool isColinear(eint->areColinears());
           if(isColinear)
@@ -373,6 +389,8 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
           eCand->decrRef();
           if(!isColinear)
               break;
+          // Update last connectivity
+          std::copy((int *)tmpConn2, tmpConn2+sz, (int *)tmpConn);
         }
       //push [posBaseElt,posEndElt) in newConnOfCell using e
       // The if clauses below are (voluntary) not mutually exclusive: on a quad cell with 2 edges, the end of the connectivity is also its beginning!
@@ -1998,6 +2016,27 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
  */
 DataArrayInt *MEDCouplingUMesh::colinearize2D(double eps)
 {
+  internalColinearize2D(eps, false);
+}
+
+/*!
+ * Performs exactly the same job as colinearize2D, except that this function does not create new non-conformal cells.
+ * In a given 2D cell, if two edges are colinear and the junction point is used by a third edge, the two edges will not be
+ * merged, contrary to colinearize2D().
+ *
+ * \sa MEDCouplingUMesh::colinearize2D
+ */
+DataArrayInt *MEDCouplingUMesh::colinearizeKeepingConform2D(double eps)
+{
+  internalColinearize2D(eps, true);
+}
+
+
+/*!
+ * \param stayConform is set to True, will not fuse two edges sharing a node that has (strictly) more than 2 egdes connected to it
+ */
+DataArrayInt *MEDCouplingUMesh::internalColinearize2D(double eps, bool stayConform)
+{
   MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   checkConsistencyLight();
   if(getSpaceDimension()!=2 || getMeshDimension()!=2)
@@ -2006,12 +2045,27 @@ DataArrayInt *MEDCouplingUMesh::colinearize2D(double eps)
   int nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
   const int *cptr(_nodal_connec->begin()),*ciptr(_nodal_connec_index->begin());
   MCAuto<DataArrayInt> newc(DataArrayInt::New()),newci(DataArrayInt::New()); newci->alloc(nbOfCells+1,1); newc->alloc(0,1); newci->setIJ(0,0,0);
+  std::map<int, bool> forbiddenPoints;  // list of points that can not be removed (or it will break conformity)
+  if(stayConform) //
+    {
+      // A point that is used by more than 2 edges can not be removed without breaking conformity:
+      MCAuto<DataArrayInt> desc1(DataArrayInt::New()),descI1(DataArrayInt::New()),revDesc1(DataArrayInt::New()),revDescI1(DataArrayInt::New());
+      MCAuto<MEDCouplingUMesh> mDesc1D(buildDescendingConnectivity(desc1,descI1,revDesc1,revDescI1));
+      MCAuto<DataArrayInt> desc2(DataArrayInt::New()),descI2(DataArrayInt::New()),revDesc2(DataArrayInt::New()),revDescI2(DataArrayInt::New());
+      MCAuto<MEDCouplingUMesh> mDesc0D(mDesc1D->buildDescendingConnectivity(desc2,descI2,revDesc2,revDescI2));
+      MCAuto<DataArrayInt> dsi(revDescI2->deltaShiftIndex());
+      MCAuto<DataArrayInt> ids(dsi->findIdsGreaterThan(2));
+      const int * cPtr(mDesc0D->getNodalConnectivity()->begin());
+      for(auto it = ids->begin(); it != ids->end(); it++)
+         forbiddenPoints[cPtr[2*(*it)+1]] = true;  // we know that a 0D mesh has a connectivity of the form [NORM_POINT1, i1, NORM_POINT1, i2, ...]
+    }
+
   MCAuto<DataArrayDouble> appendedCoords(DataArrayDouble::New()); appendedCoords->alloc(0,1);//1 not 2 it is not a bug.
   const double *coords(_coords->begin());
   int *newciptr(newci->getPointer());
   for(int i=0;i<nbOfCells;i++,newciptr++,ciptr++)
     {
-      if(Colinearize2DCell(coords,cptr+ciptr[0],cptr+ciptr[1],nbOfNodes,newc,appendedCoords))
+      if(Colinearize2DCell(coords,cptr+ciptr[0],cptr+ciptr[1],nbOfNodes,forbiddenPoints, /*out*/ newc,appendedCoords))
         ret->pushBackSilent(i);
       newciptr[1]=newc->getNumberOfTuples();
     }

@@ -573,7 +573,7 @@ namespace INTERP_KERNEL
                 sonNodalConn[1]=nodalConn[(sonId+1)%lgth];
                 return 2;
               }
-            else
+            else  // NORM_QPOLYG
               {
                 sonNodalConn[0]=nodalConn[sonId];
                 sonNodalConn[1]=nodalConn[(sonId+1)%(lgth/2)];
