@@ -100,7 +100,7 @@ namespace MEDCoupling
 
 template<int SPACEDIM>
 void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
-                                                   double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const
+                                                   double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex, std::function<bool(INTERP_KERNEL::NormalizedCellType,int)> sensibilityTo2DQuadraticLinearCellsFunc) const
 {
   // Override precision for this method only:
   INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
@@ -129,7 +129,8 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
           int sz(connI[(*iter)+1]-connI[*iter]-1);
           INTERP_KERNEL::NormalizedCellType ct((INTERP_KERNEL::NormalizedCellType)conn[connI[*iter]]);
           bool status(false);
-          if(ct!=INTERP_KERNEL::NORM_POLYGON && ct!=INTERP_KERNEL::NORM_QPOLYG)
+          // [ABN] : point locator algorithms are only properly working for linear cells.
+          if(ct!=INTERP_KERNEL::NORM_POLYGON && !sensibilityTo2DQuadraticLinearCellsFunc(ct,_mesh_dim))
             status=INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<SPACEDIM> >::isElementContainsPoint(pos+i*SPACEDIM,ct,coords,conn+connI[*iter]+1,sz,eps);
           else
             {

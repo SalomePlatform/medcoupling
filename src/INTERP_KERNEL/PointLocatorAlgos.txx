@@ -163,6 +163,9 @@ namespace INTERP_KERNEL
       return ret;
     }
 
+    /*!
+     * Precondition : spacedim==meshdim. To be checked upstream to this call.
+     */
     static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const typename MyMeshType::MyConnType *conn_elem, int conn_elem_sz, double eps)
     {
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;

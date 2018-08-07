@@ -663,6 +663,18 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
 }
 
 /*!
+ * Behaves like MEDCouplingMesh::getCellsContainingPoints for cells in \a this that are linear.
+ * For quadratic cells in \a this, this method behaves by just considering linear part of cells.
+ * This method is here only for backward compatibility (interpolation GaussPoints to GaussPoints).
+ * 
+ * \sa MEDCouplingMesh::getCellsContainingPoints, MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss
+ */
+void MEDCouplingMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const
+{
+  this->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
+}
+
+/*!
  * Writes \a this mesh into a VTK format file named as specified.
  *  \param [in] fileName - the name of the file to write in. If the extension is OK the fileName will be used directly.
  *                         If extension is invalid or no extension the right extension will be appended.

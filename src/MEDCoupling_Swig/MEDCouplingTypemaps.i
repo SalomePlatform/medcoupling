@@ -689,4 +689,41 @@ void field__setstate__(typename MEDCoupling::Traits<T>::FieldType *self, PyObjec
   self->finishUnserialization(a1,a0,a2);
 }
 
+PyObject *Mesh_getCellsContainingPointsLike(PyObject *p, double eps, const MEDCoupling::MEDCouplingMesh *self, std::function<void(const double *,int,double,MEDCoupling::MCAuto<MEDCoupling::DataArrayInt>&,MEDCoupling::MCAuto<MEDCoupling::DataArrayInt>&)> func)
+{
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayInt> elts,eltsIndex;
+  int spaceDim=self->getSpaceDimension();
+  void *da=0;
+  int res1=SWIG_ConvertPtr(p,&da,SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 |  0 );
+  if (!SWIG_IsOK(res1))
+    {
+      int size;
+      INTERP_KERNEL::AutoCPtr<double> tmp=convertPyToNewDblArr2(p,&size);
+      int nbOfPoints=size/spaceDim;
+      if(size%spaceDim!=0)
+        {
+          throw INTERP_KERNEL::Exception("MEDCouplingMesh::getCellsContainingPoints : Invalid list length ! Must be a multiple of self.getSpaceDimension() !");
+        }
+      func(tmp,nbOfPoints,eps,elts,eltsIndex);
+    }
+  else
+    {
+      MEDCoupling::DataArrayDouble *da2=reinterpret_cast< MEDCoupling::DataArrayDouble * >(da);
+      if(!da2)
+        throw INTERP_KERNEL::Exception("MEDCouplingMesh::getCellsContainingPoints : Not null DataArrayDouble instance expected !");
+      da2->checkAllocated();
+      int size=da2->getNumberOfTuples();
+      int nbOfCompo=da2->getNumberOfComponents();
+      if(nbOfCompo!=spaceDim)
+        {
+          throw INTERP_KERNEL::Exception("MEDCouplingMesh::getCellsContainingPoints : Invalid DataArrayDouble nb of components ! Expected same as self.getSpaceDimension() !");
+        }
+      func(da2->getConstPointer(),size,eps,elts,eltsIndex);
+    }
+  PyObject *ret=PyTuple_New(2);
+  PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elts.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+  PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(eltsIndex.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+  return ret;
+}
+
 #endif
