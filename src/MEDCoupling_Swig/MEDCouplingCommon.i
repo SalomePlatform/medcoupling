@@ -4094,12 +4094,12 @@ namespace MEDCoupling
     double getMinValue() const throw(INTERP_KERNEL::Exception);
     double getAverageValue() const throw(INTERP_KERNEL::Exception);
     double norm2() const throw(INTERP_KERNEL::Exception);
-    double normMax() const throw(INTERP_KERNEL::Exception);
     //do not put a default value to isWAbs because confusion in python with overloaded getWeightedAverageValue method
     double getWeightedAverageValue(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     double normL1(int compId) const throw(INTERP_KERNEL::Exception);
     double normL2(int compId) const throw(INTERP_KERNEL::Exception);
+    double normMax(int compId) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildSubPartRange(int begin, int end, int step) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
@@ -4361,6 +4361,13 @@ namespace MEDCoupling
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL2(tmp);
+        return convertDblArrToPyList<double>(tmp,sz);
+      }
+      PyObject *normMax() const throw(INTERP_KERNEL::Exception)
+      {
+        int sz=self->getNumberOfComponents();
+        INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
+        self->normMax(tmp);
         return convertDblArrToPyList<double>(tmp,sz);
       }
       void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)

@@ -448,6 +448,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT double getAverageValue() const;
     MEDCOUPLING_EXPORT double norm2() const;
     MEDCOUPLING_EXPORT double normMax() const;
+    MEDCOUPLING_EXPORT void normMaxPerComponent(double * res) const;
     MEDCOUPLING_EXPORT double normMin() const;
     MEDCOUPLING_EXPORT void accumulate(double *res) const;
     MEDCOUPLING_EXPORT double accumulate(int compId) const;
