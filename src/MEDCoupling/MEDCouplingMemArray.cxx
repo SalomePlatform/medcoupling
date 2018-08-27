@@ -4234,7 +4234,7 @@ DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
  *  \ref cpp_mcdataarrayint_invertarrayn2o2o2n "Here is a C++ example".
  *
  *  \ref py_mcdataarrayint_invertarrayn2o2o2n "Here is a Python example".
- *  \sa invertArrayN2O2O2N
+ *  \sa invertArrayN2O2O2N, giveN2OOptimized, MEDCouplingPointSet::renumberNodesInConn
  *  \endif
  */
 MCAuto< MapKeyVal<int> > DataArrayInt32::invertArrayN2O2O2NOptimized() const
@@ -4250,6 +4250,30 @@ MCAuto< MapKeyVal<int> > DataArrayInt32::invertArrayN2O2O2NOptimized() const
     {
       int v(new2Old[i]);
       m[v]=i;
+    }
+  return ret;
+}
+
+/*!
+ * Creates a map, whose contents are computed
+ * from values of \a this array, which is supposed to contain a renumbering map in 
+ * "New to Old" mode. The result array contains a renumbering map in "New to Old" mode as C++ map for performance reasons.
+ *
+ * \sa invertArrayN2O2O2NOptimized, MEDCouplingPointSet::renumberNodesInConn
+ */
+MCAuto< MapKeyVal<int> > DataArrayInt32::giveN2OOptimized() const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt32::giveN2OOptimized : single component expected !");
+  MCAuto< MapKeyVal<int> > ret(MapKeyVal<int>::New());
+  std::map<int,int>& m(ret->data());
+  const int *new2Old(begin());
+  std::size_t nbOfNewElems(this->getNumberOfTuples());
+  for(std::size_t i=0;i<nbOfNewElems;i++)
+    {
+      int v(new2Old[i]);
+      m[i]=v;
     }
   return ret;
 }

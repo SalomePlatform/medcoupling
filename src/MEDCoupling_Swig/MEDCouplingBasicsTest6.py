@@ -210,6 +210,63 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         ptsPosExp=DataArrayDouble([6.+a,3.+b,3.+a,6.+a,3.,3.+b,6.+b,3.+b,3.+b,7.,3.+b,3.+b,6.+a,6.+a,3.+a,6.+b,6.+a,3.+b,7.,6.+a,3.+b,6.+a,7.,3.+b,6.+a,3.+b,3.,6.+a,6.+a,3.],10,3)
         self.assertTrue(m.getCoords()[ptsExpToBeModified].isEqual(ptsPosExp,1e-12))
         pass
+
+    def testRenumberNodesInConnOpt(self):
+        """ Test of MEDCouplingPointSet.renumberNodesInConn with map as input coming from DataArrayInt.invertArrayN2O2O2NOptimized
+        """
+        m=MEDCouplingUMesh("mesh",2)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[10000,10002,10001,10003])
+        coo=DataArrayDouble([(0,0),(1,1),(1,0),(0,1)])
+        m.setCoords(coo)
+        m.checkConsistencyLight()
+        #
+        d=DataArrayInt([10000,10001,10002,10003])
+        myMap=d.invertArrayN2O2O2NOptimized()
+        myMap2=d.giveN2OOptimized()
+        m.checkConsistencyLight()
+        #
+        m.renumberNodesInConn(myMap) # <- test is here for UMesh
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([4,0,2,1,3])))
+        m.renumberNodesInConn(myMap2) # <- test is here for UMesh
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([4,10000,10002,10001,10003])))
+        #
+        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4)
+        m.setNodalConnectivity(DataArrayInt([10000,10002,10001,10003]))
+        m.setCoords(coo)
+        m.checkConsistencyLight()
+        m.renumberNodesInConn(myMap) # <- test is here for 1SGTUMesh
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([0,2,1,3])))
+        #
+        m=MEDCoupling1DGTUMesh("mesh",NORM_POLYGON)
+        m.setCoords(coo)
+        m.setNodalConnectivity(DataArrayInt([10000,10002,10001,10003]),DataArrayInt([0,4]))
+        m.checkConsistencyLight()
+        m.renumberNodesInConn(myMap) # <- test is here for 1DGTUMesh
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([0,2,1,3])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4])))
+        pass
+
+    def testSeg2bGP(self):
+        """Test of Gauss points on SEG2 using SEG2B style as ref coords
+        """
+        coo=DataArrayDouble([[0.,0.,0.],[1.,1.,1.]])
+        m=MEDCouplingUMesh("mesh",1) ; m.setCoords(coo)
+        m.allocateCells()
+        # the cell description is exactly those described in the description of HEXA27 in MED file 3.0.7 documentation
+        m.insertNextCell(NORM_SEG2,[0,1])
+        refCoo=[0.,1.]
+        weights=[0.8,0.1,0.1]
+        gCoords=[0.2,0.5,0.9]
+        fGauss=MEDCouplingFieldDouble(ON_GAUSS_PT) ; fGauss.setName("fGauss")
+        fGauss.setMesh(m)
+        fGauss.setGaussLocalizationOnType(NORM_SEG2,refCoo,gCoords,weights)
+        arr=DataArrayDouble(fGauss.getNumberOfTuplesExpected()) ; arr.iota()
+        fGauss.setArray(arr)
+        fGauss.checkConsistencyLight()
+        arrOfDisc=fGauss.getLocalizationOfDiscr()
+        self.assertTrue(arrOfDisc.isEqual(DataArrayDouble([0.2,0.2,0.2,0.5,0.5,0.5,0.9,0.9,0.9],3,3),1e-12))
+        pass
     
     pass
 

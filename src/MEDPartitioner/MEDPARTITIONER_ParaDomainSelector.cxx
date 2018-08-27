@@ -285,7 +285,7 @@ int MEDPARTITIONER::ParaDomainSelector::getProcNodeShift() const
 /*!
  * \brief Gather graphs from all processors into one
  */
-std::auto_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherGraph(const Graph* graph) const
+std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherGraph(const Graph* graph) const
 {
   Graph* glob_graph = 0;
 
@@ -382,7 +382,7 @@ std::auto_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherG
 
 #endif // HAVE_MPI
 
-  return std::auto_ptr<Graph>( glob_graph );
+  return std::unique_ptr<Graph>( glob_graph );
 }
 
 

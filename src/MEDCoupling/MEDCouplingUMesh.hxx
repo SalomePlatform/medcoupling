@@ -149,6 +149,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void renumberNodesWithOffsetInConn(int offset);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
+    MEDCOUPLING_EXPORT void renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N) override;
     MEDCOUPLING_EXPORT void shiftNodeNumbersInConn(int delta);
     MEDCOUPLING_EXPORT void duplicateNodesInConn(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd, int offset);
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
@@ -361,6 +362,8 @@ namespace MEDCoupling
                                       const std::vector<int>& insidePoints, std::vector<int>& modifiedFace);
     void attractSeg3MidPtsAroundNodesUnderground(double ratio, const int *nodeIdsBg, const int *nodeIdsEnd);
     DataArrayInt *internalColinearize2D(double eps, bool stayConform);
+    template<class MAPCLS>
+    void renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N);
   public:
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeRangesFromTypeDistribution(const std::vector<int>& code);
     MEDCOUPLING_EXPORT static const int N_MEDMEM_ORDER=25;

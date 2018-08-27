@@ -28,7 +28,9 @@
 
 using namespace INTERP_KERNEL;
 
-const double GaussInfo::SEG2_REF[2]={-1.0, 1.0};
+const double GaussInfo::SEG2A_REF[2]={-1.0, 1.0};
+
+const double GaussInfo::SEG2B_REF[2]={0., 1.0};
 
 const double GaussInfo::SEG3_REF[3]={-1.0, 1.0, 0.0};
 
@@ -226,7 +228,7 @@ GaussInfo GaussInfo::convertToLinear() const
         std::vector<double> a(SEG3_REF,SEG3_REF+3);
         if(IsSatisfy(a,_my_reference_coord))
           {
-            std::vector<double> c(SEG2_REF,SEG2_REF+2);
+            std::vector<double> c(SEG2A_REF,SEG2A_REF+2);
             return GaussInfo(NORM_SEG2,_my_gauss_coord,getNbGauss(),c,2);
           }
         throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for SEG3 !");
@@ -454,9 +456,14 @@ void GaussInfo::initLocalInfo()
     case NORM_SEG2:
       _my_local_ref_dim = 1;
       _my_local_nb_ref  = 2;
-      seg2Init();
+      seg2aInit();
       aSatify = isSatisfy();
-      CHECK_MACRO;
+      if(!aSatify)
+        {
+          seg2bInit();
+          aSatify = isSatisfy();
+          CHECK_MACRO;
+        }
       break;
 
     case NORM_SEG3:
@@ -700,20 +707,37 @@ void GaussInfo::point1Init()
 /*!
  * Init Segment 2 Reference coordinates ans Shape function.
  */
-void GaussInfo::seg2Init() 
+void GaussInfo::seg2aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
   case 0:
-    coords[0] = SEG2_REF[0];
+    coords[0] = SEG2A_REF[0];
     break;
   case 1:
-    coords[0] = SEG2_REF[1];
+    coords[0] = SEG2A_REF[1];
     break;
   LOCAL_COORD_MACRO_END;
   
   SHAPE_FUN_MACRO_BEGIN;
   funValue[0] = 0.5*(1.0 - gc[0]);
   funValue[1] = 0.5*(1.0 + gc[0]);
+  SHAPE_FUN_MACRO_END;
+}
+
+void GaussInfo::seg2bInit() 
+{
+  LOCAL_COORD_MACRO_BEGIN;
+  case 0:
+    coords[0] = SEG2B_REF[0];
+    break;
+  case 1:
+    coords[0] = SEG2B_REF[1];
+    break;
+  LOCAL_COORD_MACRO_END;
+  
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = 1.0 - gc[0];
+  funValue[1] = gc[0];
   SHAPE_FUN_MACRO_END;
 }
 
@@ -1023,7 +1047,7 @@ void GaussInfo::quad4cInit()
 }
 
 /*!
- * This shapefunc map is same as degenerated seg2Init
+ * This shapefunc map is same as degenerated seg2aInit
  */
 void GaussInfo::quad4DegSeg2Init()
 {

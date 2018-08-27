@@ -649,7 +649,8 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     if (_verbose) cout<<endl<<name<<" created"<<endl;
     if (_ntot<1000000) //too long
       {
-        MCAuto<MEDCouplingFieldDouble> f2=ReadFieldCell(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+        MCAuto<MEDCoupling::MEDCouplingField> f2Tmp(ReadFieldCell(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1));
+        MCAuto<MEDCoupling::MEDCouplingFieldDouble> f2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(f2Tmp));
         //DataArrayDouble *res=f2->getArray();
         if (_verbose) cout<<name<<" reread"<<endl;
         //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
@@ -706,7 +707,8 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     f1->decrRef();
     if (_ntot<1000000) //too long
       {
-        MCAuto<MEDCouplingFieldDouble> f4=ReadField(ON_GAUSS_NE, name.c_str(), f3->getMesh()->getName().c_str(), 0, "MyFieldOnGaussNE", 5, 6);
+        MCAuto<MEDCoupling::MEDCouplingField> f4Tmp(ReadField(ON_GAUSS_NE, name.c_str(), f3->getMesh()->getName().c_str(), 0, "MyFieldOnGaussNE", 5, 6));
+        MCAuto<MEDCoupling::MEDCouplingFieldDouble> f4(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(f4Tmp));
         if (_verbose) cout<<"MyFieldOnGaussNE reread"<<endl;
       }
     f3->decrRef();
@@ -719,7 +721,8 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     if (_verbose) cout<<endl<<name<<" created"<<endl;
     if (_ntot<1000000) //too long
       {
-        MCAuto<MEDCouplingFieldDouble> f2=ReadFieldCell(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+        MCAuto<MEDCouplingField> f2Tmp=ReadFieldCell(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+        MCAuto<MEDCoupling::MEDCouplingFieldDouble> f2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(f2Tmp));
         if (_verbose) cout<<name<<" reread"<<endl;
         //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12)); assertion failed!!
       }
@@ -736,7 +739,7 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnNodes()
   if (_verbose) cout<<endl<<name<<" created"<<endl;
   if (_ntot<1000000) //too long
     {
-      MCAuto<MEDCouplingFieldDouble> f2=ReadFieldNode(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+      MCAuto<MEDCouplingField> f2=ReadFieldNode(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
       if (_verbose) cout<<name<<" reread"<<endl;
       //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12)); assertion failed!!
     }
@@ -879,7 +882,7 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
   for (int ndomains=2 ; ndomains<=16 ; ndomains++)
     {
       //Creating the graph and partitioning it
-      auto_ptr< MEDPARTITIONER::Topology > new_topo;
+      std::unique_ptr< MEDPARTITIONER::Topology > new_topo;
       new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::METIS) );
       //Creating a new mesh collection from the partitioning
       MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
@@ -925,7 +928,7 @@ void MEDPARTITIONERTest::testMeshCollectionSinglePartitionScotch()
   MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
   aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
   //Creating the graph and partitioning it
-  auto_ptr< MEDPARTITIONER::Topology > new_topo;
+  std::unique_ptr< MEDPARTITIONER::Topology > new_topo;
   new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::SCOTCH) );
   //Creating a new mesh collection from the partitioning
   MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
@@ -961,7 +964,7 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionScotch()
   for (int ndomains=2 ; ndomains<=16 ; ndomains++)
     {
       //Creating the graph and partitioning it
-      auto_ptr< MEDPARTITIONER::Topology > new_topo;
+      std::unique_ptr< MEDPARTITIONER::Topology > new_topo;
       new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::SCOTCH) );
       //Creating a new mesh collection from the partitioning
       MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
@@ -1179,8 +1182,9 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
 
-  MCAuto<MEDCouplingFieldDouble> field1=ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
-  MCAuto<MEDCouplingFieldDouble> field2=ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
+  MCAuto<MEDCouplingField> field1Tmp(ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1));
+  MCAuto<MEDCouplingField> field2Tmp(ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1));
+  MCAuto<MEDCouplingFieldDouble> field1(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(field1Tmp)),field2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(field2Tmp));
 
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL((int)cellMesh->getNumberOfCells(), nbcells);
@@ -1266,8 +1270,9 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
 
-  MCAuto<MEDCouplingFieldDouble> field1=ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
-  MCAuto<MEDCouplingFieldDouble> field2=ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MCAuto<MEDCouplingField> field1Tmp=ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MCAuto<MEDCouplingField> field2Tmp=ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MCAuto<MEDCouplingFieldDouble> field1(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(field1Tmp)),field2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(field2Tmp));
 
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL((int)cellMesh->getNumberOfCells(), nbcells);
@@ -1406,7 +1411,7 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
   ParallelTopology* aPT = (ParallelTopology*) collection.getTopology();
   aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
 
-  std::auto_ptr< Topology > new_topo;
+  std::unique_ptr< Topology > new_topo;
 #if defined(MED_ENABLE_METIS) || defined(MED_ENABLE_PARMETIS)
   new_topo.reset( collection.createPartition(ndomains,Graph::METIS) );
 #endif

@@ -1233,24 +1233,21 @@ MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(const std::string& 
       }
   }
   throw INTERP_KERNEL::Exception("MEDCoupling::ReadField : only FLOAT32, FLOAT64 and INT32 supported for the moment !");
-  //MCAuto<MEDFileMesh> mesh(MEDFileMesh::New(fileName,f->getMeshName()));
-  //MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(f->field(mesh));
-  //return ret;
 }
 
-MCAuto<MEDCoupling::MEDCouplingFieldDouble> MEDCoupling::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCoupling::CheckFileForRead(fileName);
   switch(type)
   {
     case ON_CELLS:
-      return MCAuto<MEDCoupling::MEDCouplingFieldDouble>(ReadFieldCell(fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+      return ReadFieldCell(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     case ON_NODES:
-      return MCAuto<MEDCoupling::MEDCouplingFieldDouble>(ReadFieldNode(fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+      return ReadFieldNode(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     case ON_GAUSS_PT:
-      return MCAuto<MEDCoupling::MEDCouplingFieldDouble>(ReadFieldGauss(fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+      return ReadFieldGauss(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     case ON_GAUSS_NE:
-      return MCAuto<MEDCoupling::MEDCouplingFieldDouble>(ReadFieldGaussNE(fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+      return ReadFieldGaussNE(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     default:
       throw INTERP_KERNEL::Exception("Type of field specified not managed ! manages are ON_NODES, ON_CELLS, ON_GAUSS_PT or ON_GAUSS_NE !");
   }
@@ -1317,97 +1314,139 @@ std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDCoupling::ReadFieldsGaussN
   return ReadFieldsOnSameMesh(ON_GAUSS_NE,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+namespace MEDCoupling
 {
-  MCAuto<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
-  MCAuto<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
-  MCAuto<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
-  MEDFileMesh *mPtr(mm);
-  MEDFileUMesh *muPtr=dynamic_cast<MEDFileUMesh *>(mPtr);
-  MCAuto<MEDCouplingFieldDouble> ret(ff->getFieldOnMeshAtLevel(ON_CELLS,m));
-  if(muPtr)
-    {
-      const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
-      if(num)
-        ret->renumberCells(num->begin());
-    }
-  return ret.retn();
-}
+  template<class T>
+  MCAuto<typename Traits<T>::FieldType> ReadFieldCellLikeT(typename MLFieldTraits<T>::F1TSType *ff, MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+  {
+    MCAuto<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
+    MCAuto<MEDFileUMesh> muPtr(MEDCoupling::DynamicCast<MEDFileMesh,MEDFileUMesh>(mm));
+    MCAuto<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
+    MCAuto<typename Traits<T>::FieldType> ret(ff->getFieldOnMeshAtLevel(type,m));
+    if(muPtr.isNotNull())
+      {
+        const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
+        if(num)
+          ret->renumberCells(num->begin());
+      }
+    return ret;
+  }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
-{
-  MCAuto<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
-  MCAuto<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
-  MCAuto<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
-  MEDFileMesh *mPtr(mm);
-  MCAuto<MEDCouplingFieldDouble> ret(ff->getFieldOnMeshAtLevel(ON_NODES,m));
-  MEDFileUMesh *muPtr=dynamic_cast<MEDFileUMesh *>(mPtr);
-  if(ff->getPflsReallyUsed().empty())
+  MEDCoupling::MEDCouplingField *ReadFieldCellLike(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+  {
+    MCAuto<MEDFileAnyTypeField1TS> f(MEDFileAnyTypeField1TS::New(fileName,fieldName,iteration,order));
     {
-      if(muPtr)
+      MCAuto<MEDFileField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileField1TS>(f));
+      if(f1.isNotNull())
         {
-          const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
-          if(num)
-            ret->renumberCells(num->begin());
+          MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(ReadFieldCellLikeT<double>(f1,type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+          return ret.retn();
         }
     }
-  else
     {
-      DataArrayInt *pfl=0,*arr2=0;
-      MCAuto<DataArrayDouble> arr(ff->getFieldWithProfile(ON_NODES,meshDimRelToMax,mm,pfl));
-      MCAuto<DataArrayInt> pflSafe(pfl);
-      MCAuto<DataArrayInt> mp(m->getCellIdsFullyIncludedInNodeIds(pfl->begin(),pfl->end()));
-      MCAuto<MEDCouplingUMesh> mzip(static_cast<MEDCouplingUMesh *>(m->buildPartAndReduceNodes(mp->begin(),mp->end(),arr2)));
-      MCAuto<DataArrayInt> arr2Safe(arr2);
-      MCAuto<DataArrayInt> arr3(arr2->invertArrayO2N2N2O(mzip->getNumberOfNodes()));
-      MCAuto<DataArrayInt> pflSorted(pflSafe->deepCopy()); pflSorted->sort(true);
-      if(!arr3->isEqualWithoutConsideringStr(*pflSorted))
-        throw INTERP_KERNEL::Exception("ReadFieldNode : not implemented yet !");
-      if(!arr3->isEqualWithoutConsideringStr(*pflSafe))
+      MCAuto<MEDFileIntField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileIntField1TS>(f));
+      if(f1.isNotNull())
         {
-          MCAuto<DataArrayInt> o2n2(pflSafe->checkAndPreparePermutation());
-          MCAuto<DataArrayInt> n2o2(o2n2->invertArrayO2N2N2O(o2n2->getNumberOfTuples()));
-          mzip->renumberNodes(n2o2->begin(),n2o2->getNumberOfTuples());
-          arr->setName("");
-          ret->setArray(arr);
+          MCAuto<MEDCoupling::MEDCouplingFieldInt> ret(ReadFieldCellLikeT<int>(f1,type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+          return ret.retn();
         }
-      ret->setMesh(mzip);
     }
-  return ret.retn();
+    {
+      MCAuto<MEDFileFloatField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileFloatField1TS>(f));
+      if(f1.isNotNull())
+        {
+          MCAuto<MEDCoupling::MEDCouplingFieldFloat> ret(ReadFieldCellLikeT<float>(f1,type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+          return ret.retn();
+        }
+    }
+    throw INTERP_KERNEL::Exception("MEDCoupling::ReadFieldCell : only FLOAT32, FLOAT64 and INT32 supported for the moment !");
+  }
+
+  template<class T>
+  MCAuto<typename Traits<T>::FieldType> ReadFieldNodeT(typename MLFieldTraits<T>::F1TSType *ff, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+  {
+    MCAuto<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
+    MCAuto<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
+    MCAuto<typename Traits<T>::FieldType> ret(ff->getFieldOnMeshAtLevel(ON_NODES,m));
+    MCAuto<MEDFileUMesh> muPtr(MEDCoupling::DynamicCast<MEDFileMesh,MEDFileUMesh>(mm));
+    if(ff->getPflsReallyUsed().empty())
+      {
+        if(muPtr.isNotNull())
+          {
+            const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
+            if(num)
+              ret->renumberCells(num->begin());
+          }
+      }
+    else
+      {
+        DataArrayInt *pfl(nullptr),*arr2(nullptr);
+        MCAuto<typename Traits<T>::ArrayType> arr(ff->getFieldWithProfile(ON_NODES,meshDimRelToMax,mm,pfl));
+        MCAuto<DataArrayInt> pflSafe(pfl);
+        MCAuto<DataArrayInt> mp(m->getCellIdsFullyIncludedInNodeIds(pfl->begin(),pfl->end()));
+        MCAuto<MEDCouplingUMesh> mzip(static_cast<MEDCouplingUMesh *>(m->buildPartAndReduceNodes(mp->begin(),mp->end(),arr2)));
+        MCAuto<DataArrayInt> arr2Safe(arr2);
+        MCAuto<DataArrayInt> arr3(arr2->invertArrayO2N2N2O(mzip->getNumberOfNodes()));
+        MCAuto<DataArrayInt> pflSorted(pflSafe->deepCopy()); pflSorted->sort(true);
+        if(!arr3->isEqualWithoutConsideringStr(*pflSorted))
+          throw INTERP_KERNEL::Exception("ReadFieldNode : not implemented yet !");
+        if(!arr3->isEqualWithoutConsideringStr(*pflSafe))
+          {
+            MCAuto<DataArrayInt> o2n2(pflSafe->checkAndPreparePermutation());
+            MCAuto<DataArrayInt> n2o2(o2n2->invertArrayO2N2N2O(o2n2->getNumberOfTuples()));
+            mzip->renumberNodes(n2o2->begin(),n2o2->getNumberOfTuples());
+            arr->setName("");
+            ret->setArray(arr);
+          }
+        ret->setMesh(mzip);
+      }
+    return ret;
+  }
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingField *MEDCoupling::ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
-  MCAuto<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
-  MCAuto<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
-  MCAuto<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
-  MEDFileMesh *mPtr(mm);
-  MEDFileUMesh *muPtr=dynamic_cast<MEDFileUMesh *>(mPtr);
-  MCAuto<MEDCouplingFieldDouble> ret(ff->getFieldOnMeshAtLevel(ON_GAUSS_PT,m));
-  if(muPtr)
-    {
-      const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
-      if(num)
-        ret->renumberCells(num->begin());
-    }
-  return ret.retn();
+  return ReadFieldCellLike(ON_CELLS,fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingField *MEDCoupling::ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
-  MCAuto<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
-  MCAuto<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
-  MCAuto<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
-  MEDFileMesh *mPtr(mm);
-  MEDFileUMesh *muPtr=dynamic_cast<MEDFileUMesh *>(mPtr);
-  MCAuto<MEDCouplingFieldDouble> ret(ff->getFieldOnMeshAtLevel(ON_GAUSS_NE,m));
-  if(muPtr)
-    {
-      const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
-      if(num)
-        ret->renumberCells(num->begin());
-    }
-  return ret.retn();
+  MCAuto<MEDFileAnyTypeField1TS> f(MEDFileAnyTypeField1TS::New(fileName,fieldName,iteration,order));
+  {
+    MCAuto<MEDFileField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileField1TS>(f));
+    if(f1.isNotNull())
+      {
+        MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(ReadFieldNodeT<double>(f1,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+        return ret.retn();
+      }
+  }
+  {
+    MCAuto<MEDFileIntField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileIntField1TS>(f));
+    if(f1.isNotNull())
+      {
+        MCAuto<MEDCoupling::MEDCouplingFieldInt> ret(ReadFieldNodeT<int>(f1,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+        return ret.retn();
+      }
+  }
+  {
+    MCAuto<MEDFileFloatField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileFloatField1TS>(f));
+    if(f1.isNotNull())
+      {
+        MCAuto<MEDCoupling::MEDCouplingFieldFloat> ret(ReadFieldNodeT<float>(f1,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+        return ret.retn();
+      }
+  }
+  throw INTERP_KERNEL::Exception("MEDCoupling::ReadFieldNode : only FLOAT32, FLOAT64 and INT32 supported for the moment !");
+}
+
+MEDCoupling::MEDCouplingField *MEDCoupling::ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+{
+  return ReadFieldCellLike(ON_GAUSS_PT,fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+}
+
+MEDCoupling::MEDCouplingField *MEDCoupling::ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+{
+  return ReadFieldCellLike(ON_GAUSS_NE,fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
 }
 
 void MEDCoupling::WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch)

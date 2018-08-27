@@ -2290,6 +2290,7 @@ namespace MEDCoupling
     DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
     MCAuto< MapII > invertArrayN2O2O2NOptimized() const throw(INTERP_KERNEL::Exception);
+    MCAuto< MapII > giveN2OOptimized() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *indicesOfSubPart(const DataArrayInt& partOfThis) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *toNoInterlace() const throw(INTERP_KERNEL::Exception);

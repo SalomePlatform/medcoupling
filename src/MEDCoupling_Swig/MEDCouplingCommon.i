@@ -1635,7 +1635,7 @@ namespace MEDCoupling
 
            virtual PyObject *findCommonCells(int compType, int startCellId=0) const throw(INTERP_KERNEL::Exception)
            {
-             DataArrayInt *v0=0,*v1=0;
+             DataArrayInt *v0(nullptr),*v1(nullptr);
              self->findCommonCells(compType,startCellId,v0,v1);
              PyObject *res = PyList_New(2);
              PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(v0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -1646,8 +1646,17 @@ namespace MEDCoupling
       
            virtual void renumberNodesInConn(PyObject *li) throw(INTERP_KERNEL::Exception)
            {
-             void *da=0;
-             int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 | 0 );
+             void *da(nullptr);
+             {
+               int res1(SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__MapII, 0 |  0 ));
+               if(SWIG_IsOK(res1))
+                 {
+                   MapII *da2(reinterpret_cast<MapII *>(da));
+                   self->renumberNodesInConn(da2->data());
+                   return ;
+                 }
+             }
+             int res1(SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 | 0 ));
              if (!SWIG_IsOK(res1))
                {
                  int size;
@@ -1656,7 +1665,7 @@ namespace MEDCoupling
                }
              else
                {
-                 DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+                 DataArrayInt *da2(reinterpret_cast< DataArrayInt * >(da));
                  if(!da2)
                    throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
                  da2->checkAllocated();
@@ -1676,7 +1685,7 @@ namespace MEDCoupling
 
            virtual DataArrayInt *fillCellIdsToKeepFromNodeIds(PyObject *li, bool fullyIn) const
            {
-             DataArrayInt *ret=0;
+             DataArrayInt *ret(nullptr);
              //
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;

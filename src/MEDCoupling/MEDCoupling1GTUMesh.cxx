@@ -16,9 +16,9 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
-#include "MEDCoupling1GTUMesh.hxx"
+#include "MEDCoupling1GTUMesh.txx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingCMesh.hxx"
@@ -1095,24 +1095,17 @@ void MEDCoupling1SGTUMesh::renumberNodesWithOffsetInConn(int offset)
  */
 void MEDCoupling1SGTUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N)
 {
-  getNumberOfCells();//only to check that all is well defined.
-  int *begPtr(_conn->getPointer());
-  int nbElt(_conn->getNumberOfTuples());
-  int *endPtr(begPtr+nbElt);
-  for(int *it=begPtr;it!=endPtr;it++)
-    {
-      INTERP_KERNEL::HashMap<int,int>::const_iterator it2(newNodeNumbersO2N.find(*it));
-      if(it2!=newNodeNumbersO2N.end())
-        {
-          *it=(*it2).second;
-        }
-      else
-        {
-          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::renumberNodesInConn : At pos #" << std::distance(begPtr,it) << " of nodal connectivity value is " << *it << ". Not in map !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-    }
-  updateTime();
+  this->renumberNodesInConnT< INTERP_KERNEL::HashMap<int,int> >(newNodeNumbersO2N);
+}
+
+/*!
+ *  Same than renumberNodesInConn(const int *) except that here the format of old-to-new traducer is using map instead
+ *  of array. This method is dedicated for renumbering from a big set of nodes the a tiny set of nodes which is the case during extraction
+ *  of a big mesh.
+ */
+void MEDCoupling1SGTUMesh::renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N)
+{
+  this->renumberNodesInConnT< std::map<int,int> >(newNodeNumbersO2N);
 }
 
 /*!
@@ -3175,32 +3168,17 @@ void MEDCoupling1DGTUMesh::renumberNodesWithOffsetInConn(int offset)
  */
 void MEDCoupling1DGTUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N)
 {
-  getNumberOfCells();//only to check that all is well defined.
-  //
-  int nbElemsIn(getNumberOfNodes()),nbOfTuples(_conn->getNumberOfTuples());
-  int *pt(_conn->getPointer());
-  for(int i=0;i<nbOfTuples;i++,pt++)
-    {
-      if(*pt==-1) continue;
-      if(*pt>=0 && *pt<nbElemsIn)
-        {
-          INTERP_KERNEL::HashMap<int,int>::const_iterator it(newNodeNumbersO2N.find(*pt));
-          if(it!=newNodeNumbersO2N.end())
-            *pt=(*it).second;
-          else
-            {
-              std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::renumberNodesInConn : At pos #" << i << " of connectivity, node id is " << *pt << ". Not in keys of input map !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
-        }
-      else
-        {
-          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::renumberNodesInConn : error on tuple #" << i << " value is " << *pt << " and indirectionnal array as a size equal to " << nbElemsIn;
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-    }
-  //
-  updateTime();
+  this->renumberNodesInConnT< INTERP_KERNEL::HashMap<int,int> >(newNodeNumbersO2N);
+}
+
+/*!
+ *  Same than renumberNodesInConn(const int *) except that here the format of old-to-new traducer is using map instead
+ *  of array. This method is dedicated for renumbering from a big set of nodes the a tiny set of nodes which is the case during extraction
+ *  of a big mesh.
+ */
+void MEDCoupling1DGTUMesh::renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N)
+{
+  this->renumberNodesInConnT< std::map<int,int> >(newNodeNumbersO2N);
 }
 
 /*!

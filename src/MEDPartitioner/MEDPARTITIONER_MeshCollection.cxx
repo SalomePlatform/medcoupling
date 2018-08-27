@@ -2273,9 +2273,9 @@ MEDCoupling::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::stri
     std::cout << "proc " << MyGlobals::_Rank << " : in " << fileName << " " << iold << " " << descriptionIold << std::endl;
   FieldShortDescriptionToData(descriptionIold, fieldName, typeField, entity, DT, IT);
   meshName=MyGlobals::_Mesh_Names[iold];
-  
-  MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> f2=ReadField((MEDCoupling::TypeOfField) typeField,
-                                                                        fileName, meshName, 0, fieldName, DT, IT);
+
+  MCAuto<MEDCoupling::MEDCouplingField> f2Tmp(ReadField((MEDCoupling::TypeOfField) typeField, fileName, meshName, 0, fieldName, DT, IT));
+  MCAuto<MEDCoupling::MEDCouplingFieldDouble> f2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(f2Tmp));
   
   MEDCoupling::DataArrayDouble* res=f2->getArray();
   //to know names of components

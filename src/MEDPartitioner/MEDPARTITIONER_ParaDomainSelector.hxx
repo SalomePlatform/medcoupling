@@ -77,7 +77,7 @@ namespace MEDPARTITIONER
     int getDomainNodeShift(int domainIndex) const;
 
     //Gather graphs from all processors into one
-    std::auto_ptr<Graph> gatherGraph(const Graph* graph) const;
+    std::unique_ptr<Graph> gatherGraph(const Graph* graph) const;
 
     //Set nb of cell/cell pairs in a joint between domains
     void setNbCellPairs( int nb_cell_pairs, int dist_domain, int loc_domain );

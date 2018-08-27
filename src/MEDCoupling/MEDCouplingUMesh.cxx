@@ -18,7 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingUMesh.txx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
@@ -2480,30 +2480,17 @@ void MEDCouplingUMesh::renumberNodesWithOffsetInConn(int offset)
  */
 void MEDCouplingUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N)
 {
-  checkConnectivityFullyDefined();
-  int *conn(getNodalConnectivity()->getPointer());
-  const int *connIndex(getNodalConnectivityIndex()->getConstPointer());
-  int nbOfCells(getNumberOfCells());
-  for(int i=0;i<nbOfCells;i++)
-    for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
-      {
-        int& node=conn[iconn];
-        if(node>=0)//avoid polyhedron separator
-          {
-            INTERP_KERNEL::HashMap<int,int>::const_iterator it(newNodeNumbersO2N.find(node));
-            if(it!=newNodeNumbersO2N.end())
-              {
-                node=(*it).second;
-              }
-            else
-              {
-                std::ostringstream oss; oss << "MEDCouplingUMesh::renumberNodesInConn(map) : presence in connectivity for cell #" << i << " of node #" << node << " : Not in map !";
-                throw INTERP_KERNEL::Exception(oss.str());
-              }
-          }
-      }
-  _nodal_connec->declareAsNew();
-  updateTime();
+  this->renumberNodesInConnT< INTERP_KERNEL::HashMap<int,int> >(newNodeNumbersO2N);
+}
+
+/*!
+ *  Same than renumberNodesInConn(const int *) except that here the format of old-to-new traducer is using map instead
+ *  of array. This method is dedicated for renumbering from a big set of nodes the a tiny set of nodes which is the case during extraction
+ *  of a big mesh.
+ */
+void MEDCouplingUMesh::renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N)
+{
+  this->renumberNodesInConnT< std::map<int,int> >(newNodeNumbersO2N);
 }
 
 /*!

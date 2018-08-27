@@ -579,6 +579,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt32 *invertArrayO2N2N2O(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *invertArrayN2O2O2N(int oldNbOfElem) const;
     MEDCOUPLING_EXPORT MCAuto< MapKeyVal<int> > invertArrayN2O2O2NOptimized() const;
+    MEDCOUPLING_EXPORT MCAuto< MapKeyVal<int> > giveN2OOptimized() const;
     MEDCOUPLING_EXPORT DataArrayInt32 *invertArrayO2N2N2OBis(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const { return DataArrayTemplate<int>::mySelectByTupleId(new2OldBg,new2OldEnd); }
     MEDCOUPLING_EXPORT DataArrayInt32 *selectByTupleId(const DataArrayInt32& di) const { return DataArrayTemplate<int>::mySelectByTupleId(di); }

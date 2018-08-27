@@ -364,10 +364,10 @@ namespace MEDCoupling
   MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   int ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingFieldDouble *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingFieldDouble *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingFieldDouble *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingFieldDouble *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingField *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingField *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingField *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingField *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   void WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   void WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   void WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
@@ -423,9 +423,9 @@ namespace MEDCoupling
     return ret.retn();
   }
   
-  MEDCoupling::MEDCouplingFieldDouble *ReadFieldSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingField *ReadFieldSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
   {
-    MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret(MEDCoupling::ReadField(type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+    MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
     return ret.retn();
   }
 

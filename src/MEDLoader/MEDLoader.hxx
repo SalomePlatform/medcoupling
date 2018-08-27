@@ -76,7 +76,7 @@ namespace MEDCoupling
   MEDLOADER_EXPORT MCAuto<MEDCoupling::MEDCouplingField> ReadField(const std::string& fileName);
   MEDLOADER_EXPORT MCAuto<MEDCoupling::MEDCouplingField> ReadField(const std::string& fileName, const std::string& fieldName);
   MEDLOADER_EXPORT MCAuto<MEDCoupling::MEDCouplingField> ReadField(const std::string& fileName, const std::string& fieldName, int iteration, int order);
-  MEDLOADER_EXPORT MCAuto<MEDCoupling::MEDCouplingFieldDouble> ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  MEDLOADER_EXPORT MCAuto<MEDCoupling::MEDCouplingField> ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
   MEDLOADER_EXPORT std::vector<MEDCoupling::MEDCouplingFieldDouble *> ReadFieldsOnSameMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                            const std::vector<std::pair<int,int> >& its);
   MEDLOADER_EXPORT std::vector<MEDCoupling::MEDCouplingFieldDouble *> ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
@@ -87,10 +87,10 @@ namespace MEDCoupling
                                                                                                 const std::vector<std::pair<int,int> >& its);
   MEDLOADER_EXPORT std::vector<MEDCoupling::MEDCouplingFieldDouble *> ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                                   const std::vector<std::pair<int,int> >& its);
-  MEDLOADER_EXPORT MEDCoupling::MEDCouplingFieldDouble *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
-  MEDLOADER_EXPORT MEDCoupling::MEDCouplingFieldDouble *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
-  MEDLOADER_EXPORT MEDCoupling::MEDCouplingFieldDouble *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
-  MEDLOADER_EXPORT MEDCoupling::MEDCouplingFieldDouble *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  MEDLOADER_EXPORT MEDCoupling::MEDCouplingField *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  MEDLOADER_EXPORT MEDCoupling::MEDCouplingField *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  MEDLOADER_EXPORT MEDCoupling::MEDCouplingField *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  MEDLOADER_EXPORT MEDCoupling::MEDCouplingField *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
   MEDLOADER_EXPORT void WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch);
   MEDLOADER_EXPORT void WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch);
   MEDLOADER_EXPORT void WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch);

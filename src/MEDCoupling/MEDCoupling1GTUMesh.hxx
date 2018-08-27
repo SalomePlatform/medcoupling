@@ -135,6 +135,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *getNodeIdsInUse(int& nbrOfNodesInUse) const;
     MEDCOUPLING_EXPORT void renumberNodesWithOffsetInConn(int offset);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N);
+    MEDCOUPLING_EXPORT void renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N) override;
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
@@ -176,6 +177,8 @@ namespace MEDCoupling
     DataArrayInt *simplexizePlanarFace6();
     MEDCoupling1DGTUMesh *computeDualMesh3D() const;
     MEDCoupling1DGTUMesh *computeDualMesh2D() const;
+    template<class MAPCLS>
+    void renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N);
   private:
     MCAuto<DataArrayInt> _conn;
   public:
@@ -231,6 +234,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *getNodeIdsInUse(int& nbrOfNodesInUse) const;
     MEDCOUPLING_EXPORT void renumberNodesWithOffsetInConn(int offset);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N);
+    MEDCOUPLING_EXPORT void renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N) override;
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
@@ -267,6 +271,8 @@ namespace MEDCoupling
   private:
     void checkDynamicGeoT2ype() const;
     static MEDCoupling1DGTUMesh *Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a);
+    template<class MAPCLS>
+    void renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N);
   private:
     MCAuto<DataArrayInt> _conn_indx;
     MCAuto<DataArrayInt> _conn;

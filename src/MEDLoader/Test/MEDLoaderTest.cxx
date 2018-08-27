@@ -93,14 +93,14 @@ void MEDLoaderTest::testFieldRW1()
 {
   MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
   WriteField("file6.med",f1,true);
-  MEDCouplingFieldDouble *f2=ReadFieldCell("file6.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+  MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell("file6.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1));
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f1->decrRef();
   f2->decrRef();
   //
   f1=buildVecFieldOnNodes_1();
   WriteField("file7.med",f1,true);
-  f2=ReadFieldNode("file7.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3);
+  f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode("file7.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3));
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   // testing kind message on error of field type.
   CPPUNIT_ASSERT_THROW(ReadFieldCell("file7.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3),INTERP_KERNEL::Exception);
@@ -127,17 +127,17 @@ void MEDLoaderTest::testFieldRW2()
   tmp[0]=VAL2;
   WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   //retrieving time steps...
-  MEDCouplingFieldDouble *f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),8,9);
+  MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),8,9));
   f1->setTime(10.,8,9);
   tmp[0]=VAL1;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
-  f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+  f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1));
   MEDCouplingFieldDouble *f3=buildVecFieldOnCells_1();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
   f2->decrRef();
-  f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),18,19);
+  f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),18,19));
   f1->setTime(10.14,18,19);
   tmp[0]=VAL2;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
@@ -156,17 +156,17 @@ void MEDLoaderTest::testFieldRW2()
   f1->setTime(210.,208,209);
   tmp[3]=VAL2;
   WriteFieldUsingAlreadyWrittenMesh(fileName2,f1);
-  f2=ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),108,109);
+  f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),108,109));
   f1->setTime(110.,108,109);
   tmp[3]=VAL1;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
-  f2=ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3);
+  f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3));
   f3=buildVecFieldOnNodes_1();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
   f2->decrRef();
-  f2=ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),208,209);
+  f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),208,209));
   f1->setTime(210.,208,209);
   tmp[3]=VAL2;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
@@ -233,29 +233,29 @@ void MEDLoaderTest::testFieldRW3()
   //
   f1->decrRef();
   //
-  f1=ReadFieldCell(fileName,name3,0,name1,8,9);
+  f1=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,name3,0,name1,8,9));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL1,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=ReadFieldCell(fileName,name3,0,name1,18,19);
+  f1=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,name3,0,name1,18,19));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=ReadFieldCell(fileName,name3,0,name1,28,29);
+  f1=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,name3,0,name1,28,29));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3*VAL1,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=ReadFieldCell(fileName,name3,0,name1,38,39);
+  f1=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,name3,0,name1,38,39));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3*VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=ReadFieldCell(fileName,name3,0,name1,48,49);
+  f1=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,name3,0,name1,48,49));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(4*VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
   //
-  f1=ReadFieldNode(fileName,name3,0,name1,8,9);
+  f1=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName,name3,0,name1,8,9));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(71.,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
-  f1=ReadFieldNode(fileName,name3,0,name1,108,109);
+  f1=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName,name3,0,name1,108,109));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL1,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
-  f1=ReadFieldNode(fileName,name3,0,name1,208,209);
+  f1=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName,name3,0,name1,208,209));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL2,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
 }
@@ -377,7 +377,7 @@ void MEDLoaderTest::testFieldProfilRW1()
   //
   WriteField(fileName,f1,false);//<- false important for the test
   //
-  MEDCouplingFieldDouble *f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
+  MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7));
   std::vector<MEDCoupling::TypeOfField> types=GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)types.size());
   CPPUNIT_ASSERT(types[0]==ON_CELLS);
@@ -418,7 +418,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   (const_cast<MEDCouplingMesh *>(f2->getMesh()))->setName(f1->getMesh()->getName().c_str());
   WriteField(fileName,f2,false);//<- false important for the test
   //
-  MEDCouplingFieldDouble *f3=ReadFieldNode(fileName,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7);
+  MEDCouplingFieldDouble *f3=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7));
   f3->checkConsistencyLight();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
@@ -427,7 +427,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   f2->renumberNodes(arr3);
   WriteUMesh(fileName2,m,true);
   WriteField(fileName2,f2,false);//<- false important for the test
-  f3=ReadFieldNode(fileName2,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7);
+  f3=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName2,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7));
   f3->checkConsistencyLight();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
@@ -464,7 +464,7 @@ void MEDLoaderTest::testFieldNodeProfilRW2()
   f1->renumberNodes(renumArr);
   f1->checkConsistencyLight();
   WriteField(fileName,f1,false);//<- false important for the test
-  MEDCouplingFieldDouble *f2=ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
+  MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7));
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   //
   f2->decrRef();
@@ -477,7 +477,8 @@ void MEDLoaderTest::testFieldGaussRW1()
   const char fileName[]="file13.med";
   MEDCouplingFieldDouble *f1=buildVecFieldOnGauss_1();
   WriteField(fileName,f1,true);
-  MCAuto<MEDCouplingFieldDouble> f2(ReadField(ON_GAUSS_PT,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5));
+  MCAuto<MEDCouplingField> f2Tmp(ReadField(ON_GAUSS_PT,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5));
+  MCAuto<MEDCouplingFieldDouble> f2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(f2Tmp));
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f1->decrRef();
 }
@@ -490,7 +491,8 @@ void MEDLoaderTest::testFieldGaussNERW1()
   std::vector<MEDCoupling::TypeOfField> tof(GetTypesOfField(fileName,"2DMesh_2","MyFieldOnGaussNE"));
   CPPUNIT_ASSERT_EQUAL(1,(int)tof.size());
   CPPUNIT_ASSERT(ON_GAUSS_NE==tof[0]);
-  MCAuto<MEDCouplingFieldDouble> f2(ReadField(ON_GAUSS_NE,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5));
+  MCAuto<MEDCouplingField> f2Tmp(ReadField(ON_GAUSS_NE,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5));
+  MCAuto<MEDCouplingFieldDouble> f2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(f2Tmp));
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f1->decrRef();
 }
@@ -560,7 +562,7 @@ void MEDLoaderTest::testFieldShuffleRW1()
   const int renumber1[6]={2,1,5,0,3,4};
   f1->renumberCells(renumber1,false);
   WriteField(fileName,f1,true);
-  MEDCouplingFieldDouble *f2=ReadFieldCell(fileName,mesh->getName().c_str(),0,f1->getName().c_str(),2,7);
+  MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldCell(fileName,mesh->getName().c_str(),0,f1->getName().c_str(),2,7));
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   f2->decrRef();
   //
@@ -661,7 +663,7 @@ void MEDLoaderTest::testWriteUMeshesRW1()
   f1->setTime(3.14,2,7);
   f1->checkConsistencyLight();
   WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-  MEDCouplingFieldDouble *f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),-1,f1->getName().c_str(),2,7);
+  MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),-1,f1->getName().c_str(),2,7));
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   f1->decrRef();
   f2->decrRef();
@@ -726,10 +728,10 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
   CPPUNIT_ASSERT_EQUAL(ON_NODES,ts[0]);
   CPPUNIT_ASSERT_EQUAL(ON_CELLS,ts[1]);
   //
-  MEDCouplingFieldDouble *f3=ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
+  MEDCouplingFieldDouble *f3=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7));
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
-  f3=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
+  f3=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7));
   CPPUNIT_ASSERT(f3->isEqual(f1,1e-12,1e-12));
   f3->decrRef();
   //
@@ -857,7 +859,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].second);
   //
-  MEDCouplingFieldDouble *field0=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
+  MEDCouplingFieldDouble *field0=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second));
   field0->checkConsistencyLight();
   CPPUNIT_ASSERT(field0->getName()==fieldsName[0]);
  CPPUNIT_ASSERT_EQUAL(1,(int)field0->getNumberOfComponents());
@@ -886,11 +888,11 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field0->decrRef();
   //
-  MEDCouplingFieldDouble *field1=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
+  MEDCouplingFieldDouble *field1=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second));
   field1->checkConsistencyLight();
   CPPUNIT_ASSERT(field1->getName()==fieldsName[1]);
- CPPUNIT_ASSERT_EQUAL(3,(int)field1->getNumberOfComponents());
- CPPUNIT_ASSERT_EQUAL(16,(int)field1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,(int)field1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(16,(int)field1->getNumberOfTuples());
   const double expectedValues2[48]={1.,0.,1.,1.,0.,1.,1.,0.,1.,2.,1.,0.,2.,1.,0.,2.,1.,0.,3.,0.,1.,3.,0.,1.,3.,0.,1.,4.,1.,0.,4.,1.,0.,4.,1.,0.,5.,0.,0.,6.,1.,1.,6.,0.,0.,5.,1.,1.};
   double diffValue2[48];
   std::transform(field1->getArray()->getPointer(),field1->getArray()->getPointer()+48,expectedValues2,diffValue2,std::minus<double>());
@@ -927,7 +929,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[1].second);
   CPPUNIT_ASSERT_EQUAL(2,its0Node[2].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].second);
-  MEDCouplingFieldDouble *field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
+  MEDCouplingFieldDouble *field0Nodes=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second));
   field0Nodes->checkConsistencyLight();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
  CPPUNIT_ASSERT_EQUAL(1,(int)field0Nodes->getNumberOfComponents());
@@ -941,7 +943,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   field0Nodes->decrRef();
   //
-  field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
+  field0Nodes=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second));
   field0Nodes->checkConsistencyLight();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
  CPPUNIT_ASSERT_EQUAL(1,(int)field0Nodes->getNumberOfComponents());
@@ -969,7 +971,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field0Nodes->decrRef();
   //
-  field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
+  field0Nodes=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second));
   field0Nodes->checkConsistencyLight();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
  CPPUNIT_ASSERT_EQUAL(1,(int)field0Nodes->getNumberOfComponents());
@@ -1036,7 +1038,7 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT(fieldsName[2]=="bord_:_non-ortho");
   std::vector<std::pair<int,int> > its0=GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[0].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its0.size());
-  MEDCouplingFieldDouble *field=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
+  MEDCouplingFieldDouble *field=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second));
   field->checkConsistencyLight();
   CPPUNIT_ASSERT(field->getName()==fieldsName[0]);
  CPPUNIT_ASSERT_EQUAL(1,(int)field->getNumberOfComponents());

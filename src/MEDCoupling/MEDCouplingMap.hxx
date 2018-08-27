@@ -48,7 +48,7 @@ namespace MEDCoupling
     std::map<T,T> _m;
   };
 
-  typedef MapKeyVal<int> MapII;
+  using MapII = MapKeyVal<int>;
 }
 
 #endif

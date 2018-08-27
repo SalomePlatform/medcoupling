@@ -63,7 +63,8 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray);
 
   public:
-    static const double SEG2_REF[2];
+    static const double SEG2A_REF[2];
+    static const double SEG2B_REF[2];
     static const double SEG3_REF[3];
     static const double TRIA3A_REF[6];
     static const double TRIA3B_REF[6];
@@ -99,7 +100,8 @@ namespace INTERP_KERNEL
     void point1Init();
     
     //1D
-    void seg2Init();
+    void seg2aInit();
+    void seg2bInit();
     void seg3Init();
 
     //2D

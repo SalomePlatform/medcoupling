@@ -125,6 +125,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const = 0;
     MEDCOUPLING_EXPORT virtual void renumberNodesInConn(const int *newNodeNumbersO2N) = 0;
     MEDCOUPLING_EXPORT virtual void renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N) = 0;
+    MEDCOUPLING_EXPORT virtual void renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N) = 0;
     MEDCOUPLING_EXPORT virtual void renumberNodesWithOffsetInConn(int offset) = 0;
     MEDCOUPLING_EXPORT virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT virtual void renumberNodesCenter(const int *newNodeNumbers, int newNbOfNodes);
