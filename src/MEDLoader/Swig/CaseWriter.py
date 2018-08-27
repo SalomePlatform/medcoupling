@@ -319,7 +319,7 @@ time values:
     def __str80(cls,st):
         if len(st)>79:
             raise Exception("String \"%s\" is too long (>79) !"%(st))
-        return st.ljust(79)+"\n"
+        return bytes(str(st).ljust(79)+"\n", "ascii")
 
     def __computeSizeOfGeoFile(self,listOfMeshes,nn):
         sz=0
