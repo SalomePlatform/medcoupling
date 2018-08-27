@@ -1560,16 +1560,31 @@ void MEDCouplingBasicsTest4::testNormMax1()
   f->setMesh(m);
   m->decrRef();
   //
-  DataArrayDouble *d=DataArrayDouble::New();
+  DataArrayDouble *d=DataArrayDouble::New(); d->alloc(0,2);
+  double res[2];
+  d->normMaxPerComponent(res);
+
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.0,res[0],1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.0,res[1],1e-14);
+
   const double tab[10]={2.3,-1.2,6.3,-7.8,2.9,7.7,2.1,0.,3.6,-7.6};
   d->alloc(5,2);
   std::copy(tab,tab+10,d->getPointer());
+
+  d->normMaxPerComponent(res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(6.3,res[0],1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.8,res[1],1e-14);
+
   f->setArray(d);
   d->decrRef();
   f->checkConsistencyLight();
   //
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.8,f->normMax(),1e-14);
+  f->normMax(res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(6.3,res[0],1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.8,res[1],1e-14);
   //
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(6.3,f->normMax(0),1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.8,f->normMax(1),1e-14);
   f->decrRef();
 }
 

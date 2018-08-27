@@ -1962,14 +1962,28 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
         f.setMesh(m);
         #
-        d=DataArrayDouble.New();
+        d=DataArrayDouble.New(); d.alloc(0,2)
+        res = d.normMaxPerComponent()
+        self.assertAlmostEqual(-1.0, res[0],14)
+        self.assertAlmostEqual(-1.0, res[1],14)
+        
         tab=[2.3,-1.2,6.3,-7.8,2.9,7.7,2.1,0.,3.6,-7.6]
         d.setValues(tab,5,2);
+        
+        res = d.normMaxPerComponent()
+        self.assertAlmostEqual(6.3, res[0],14)
+        self.assertAlmostEqual(7.8, res[1],14)
+        
         f.setArray(d);
         f.checkConsistencyLight();
         #
-        self.assertAlmostEqual(7.8,f.normMax(),14);
+        res = f.normMax()
+        self.assertAlmostEqual(6.3,res[0],14);
+        self.assertAlmostEqual(7.8,res[1],14);
         #
+        self.assertAlmostEqual(6.3,f.normMax(0),14);
+        self.assertAlmostEqual(7.8,f.normMax(1),14);
+        
         pass
 
     def testFindAndCorrectBadOriented3DExtrudedCells1(self):

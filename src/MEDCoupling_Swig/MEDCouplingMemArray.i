@@ -1341,6 +1341,14 @@ namespace MEDCoupling
         PyObject *ret=convertDblArrToPyListOfTuple<double>(tmp,2,nbOfCompo);
         return ret;
       }
+      
+      PyObject *normMaxPerComponent() const throw(INTERP_KERNEL::Exception)
+      {
+        int nbOfCompo(self->getNumberOfComponents());
+        INTERP_KERNEL::AutoPtr<double> tmp(new double[nbOfCompo]);
+        self->normMaxPerComponent(tmp);
+        return convertDblArrToPyList<double>(tmp,nbOfCompo);
+      }
 
       PyObject *accumulate() const throw(INTERP_KERNEL::Exception)
       {
