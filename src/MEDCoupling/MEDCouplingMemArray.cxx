@@ -1645,6 +1645,30 @@ double DataArrayDouble::normMax() const
 }
 
 /*!
+ * Returns the maximum norm of for each component of \a this array.
+ * If the number of elements in \a this is 0, -1. is returned.
+*  \param [out] res - pointer to an array of result values, of size at least \a
+ *         this->getNumberOfComponents(), that is to be allocated by the caller.
+ *  \throw If \a this is not allocated.
+ */
+void DataArrayDouble::normMaxPerComponent(double * res) const
+{
+  checkAllocated();
+  std::size_t nbOfTuples(getNumberOfTuples());
+  int nbOfCompos(getNumberOfComponents());
+  std::fill(res, res+nbOfCompos, -1.0);
+  const double *pt(getConstPointer());
+  for(std::size_t i=0;i<nbOfTuples;i++)
+    for (int j=0; j<nbOfCompos; j++, pt++)
+      {
+        double val(std::abs(*pt));
+        if(val>res[j])
+          res[j]=val;
+      }
+}
+
+
+/*!
  * Returns the minimum norm (absolute value) of the vector defined by \a this array.
  * This method works even if the number of components is different from one.
  * If the number of elements in \a this is 0, std::numeric_limits<double>::max() is returned.

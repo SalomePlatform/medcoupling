@@ -683,19 +683,6 @@ double MEDCouplingFieldDouble::norm2() const
   return getArray()->norm2();
 }
 
-/*!
- * This method returns the max norm of \a this field.
- * \f[
- * \max_{0 \leq i < nbOfEntity}{abs(val[i])}
- * \f]
- *  \throw If the data array is not set.
- */
-double MEDCouplingFieldDouble::normMax() const
-{
-  if(getArray()==0)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::normMax : no default array defined !");
-  return getArray()->normMax();
-}
 
 /*!
  * Computes the weighted average of values of each component of \a this field, the weights being the
@@ -840,6 +827,48 @@ void MEDCouplingFieldDouble::normL2(double *res) const
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform normL2 !");
   _type->normL2(_mesh,getArray(),res);
+}
+
+/*!
+ * Returns the \c infinite norm of values of a given component of \a this field:
+* \f[
+ * \max_{0 \leq i < nbOfEntity}{abs(val[i])}
+ * \f]
+ *  \param [in] compId - an index of the component of interest.
+ *  \throw If \a compId is not valid.
+           A valid range is ( 0 <= \a compId < \a this->getNumberOfComponents() ).
+ *  \throw If the data array is not set.
+ */
+double MEDCouplingFieldDouble::normMax(int compId) const
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::normMax : no default array defined !");
+  int nbComps=getArray()->getNumberOfComponents();
+  if(compId<0 || compId>=nbComps)
+    {
+      std::ostringstream oss; oss << "MEDCouplingFieldDouble::normMax : Invalid compId specified : No such nb of components ! Should be in [0," << nbComps << ") !";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+  INTERP_KERNEL::AutoPtr<double> res=new double[nbComps];
+  getArray()->normMaxPerComponent(res);
+  return res[compId];
+}
+
+/*!
+ * Returns the \c infinite norm of values of each component of \a this field:
+ * \f[
+ * \max_{0 \leq i < nbOfEntity}{abs(val[i])}
+ * \f]
+ *  \param [out] res - pointer to an array of result values, of size at least \a
+ *         this->getNumberOfComponents(), that is to be allocated by the caller.
+ *  \throw If the data array is not set.
+ *
+ */
+void MEDCouplingFieldDouble::normMax(double *res) const
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::normMax : no default array defined !");
+  getArray()->normMaxPerComponent(res);
 }
 
 /*!
