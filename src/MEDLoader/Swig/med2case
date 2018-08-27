@@ -53,11 +53,11 @@ try:
     cw.setMEDFileDS(mfd)
     listOfWrittenFileNames=cw.write(fOut)
 except InterpKernelException as e:
-    print "An error occurred during the conversion!"
-    print "#######################################"
+    print("An error occurred during the conversion!")
+    print("#######################################")
     raise e
-print "#########"
+print("#########")
 for l in listOfWrittenFileNames:
-    print "File \"%s\" successfully written !"%(l)
+    print("File \"%s\" successfully written !"%(l))
     pass
-print "#########"
+print("#########")
