@@ -28,6 +28,9 @@
 
 #include <algorithm>
 
+#include <functional>
+
+
 using namespace INTERP_KERNEL;
 
 MergePoints::MergePoints():_ass1Start1(0),_ass1End1(0),_ass1Start2(0),_ass1End2(0),

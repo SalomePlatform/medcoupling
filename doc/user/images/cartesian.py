@@ -64,8 +64,12 @@ ipar.append("VTKViewer_1", """<?xml version="1.0"?>
 # fill list AP_MODULES_LIST
 ipar.append("AP_MODULES_LIST", "Mesh")
 
+import sys
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
 
-from MEDCoupling import *
 from MEDLoader import WriteMesh
 
 XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] # 9 values along X

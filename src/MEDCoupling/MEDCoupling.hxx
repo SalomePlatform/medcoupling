@@ -22,7 +22,7 @@
 #define _MEDCOUPLING_HXX_
 
 #ifdef WIN32
-#  if defined medcoupling_EXPORTS
+#  if defined(medcoupling_EXPORTS) || defined(medcouplingcpp_EXPORTS) || defined(MEDCOUPLING_WIN32_SWIG)
 #    define MEDCOUPLING_EXPORT __declspec( dllexport )
 #  else
 #    define MEDCOUPLING_EXPORT __declspec( dllimport )

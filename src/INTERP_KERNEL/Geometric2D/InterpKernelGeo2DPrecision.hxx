@@ -36,7 +36,7 @@ namespace INTERP_KERNEL
    * When the instance is destroyed, the previous precision is set back.
    *
    */
-  class QuadraticPlanarPrecision
+  class INTERPKERNEL_EXPORT QuadraticPlanarPrecision
   {
   public:
     QuadraticPlanarPrecision(double prec);

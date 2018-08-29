@@ -31,6 +31,7 @@
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingIMesh.hxx"
+#include "MEDCouplingMap.txx"
 #include "MEDCouplingCurveLinearMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingField.hxx"

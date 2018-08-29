@@ -4,7 +4,11 @@
 ### This script is intended to be launched in a new SALOME study
 ###
 
-from MEDCoupling import *
+import sys
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
 
 coordsArr=DataArrayDouble(range(3))
 mesh1=MEDCouplingCMesh("mesh")

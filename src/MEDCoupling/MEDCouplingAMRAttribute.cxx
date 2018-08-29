@@ -26,6 +26,10 @@
 #include <sstream>
 #include <fstream>
 
+#ifdef WIN32
+#include <functional>
+#endif
+
 using namespace MEDCoupling;
 
 /// @cond INTERNAL

@@ -22,6 +22,9 @@
 %include std_string.i
 
 %{
+#ifdef WIN32
+#define MEDCOUPLING_WIN32_SWIG
+#endif
 #include "MEDCouplingMemArray.txx"
 #include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
@@ -38,7 +41,7 @@ using namespace INTERP_KERNEL;
 %init %{ import_array(); %}
 #endif
 
-%init %{ initializeMe(); %}
+%init %{ initializeMe_renumber(); %}
 
 %feature("autodoc", "1");
 %feature("docstring");
@@ -51,7 +54,7 @@ using namespace INTERP_KERNEL;
 %include "MEDCouplingMemArray.i"
 
 %{
-  void initializeMe()
+  void initializeMe_renumber()
   {// AGY : here initialization of C++ traits in MEDCouplingDataArrayTypemaps.i for code factorization. Awful, I know, but no other solutions.
     SWIGTITraits<double>::TI=SWIGTYPE_p_MEDCoupling__DataArrayDouble;
     SWIGTITraits<float>::TI=SWIGTYPE_p_MEDCoupling__DataArrayFloat;

@@ -10,7 +10,12 @@ import salome
 salome.salome_init()
 theStudy = salome.myStudy
 
-from MEDCoupling import *
+import sys
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
+
 from MEDLoader import WriteMesh, WriteFieldUsingAlreadyWrittenMesh
 
 medfile="mesh1.med"

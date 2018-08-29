@@ -26,7 +26,12 @@ ipar.append("ParaView_1", "empty")
 # fill list AP_MODULES_LIST
 ipar.append("AP_MODULES_LIST", "ParaViS")
 
-from MEDCoupling import *
+import sys
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
+
 from MEDLoader import WriteMesh, WriteFieldUsingAlreadyWrittenMesh
 
 medfile1="mesh1.med"

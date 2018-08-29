@@ -18,7 +18,12 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from MEDCoupling import *
+
+import sys
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
 from MEDCouplingDataForTest import MEDCouplingDataForTest
 
 if MEDCouplingHasNumPyBindings():

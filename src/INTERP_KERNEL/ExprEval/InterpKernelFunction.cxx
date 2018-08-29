@@ -21,6 +21,7 @@
 #include "InterpKernelFunction.hxx"
 #include "InterpKernelValue.hxx"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 

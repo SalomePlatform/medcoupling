@@ -64,8 +64,11 @@ ipar.append("VTKViewer_1", """<?xml version="1.0"?>
 # fill list AP_MODULES_LIST
 ipar.append("AP_MODULES_LIST", "Mesh")
 
-
-from MEDCoupling import *
+import sys
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
 
 srcCoo=DataArrayDouble([(0,0),(1,0),(3,0),(0,1),(1,1),(3,1)])
 src=MEDCouplingUMesh("src",2)

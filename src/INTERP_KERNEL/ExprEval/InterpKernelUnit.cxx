@@ -21,6 +21,7 @@
 #include "InterpKernelUnit.hxx"
 #include "InterpKernelExprParser.hxx"
 
+#include <algorithm>
 #include <cmath>
 #include <sstream>
 #include <iomanip>

@@ -17,12 +17,20 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+import sys
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
 
-from MEDCoupling import *
 from math import pi, sqrt
 
 import numpy
-import MEDCoupling
+if sys.platform == "win32":
+    import MEDCouplingCompat as MEDCoupling
+else:
+    import MEDCoupling
+
 #! [UG_DataArrayNumpy_0]
 # NumPy is an optional pre-requisite!
 assert(MEDCoupling.MEDCouplingHasNumPyBindings())

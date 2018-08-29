@@ -18,10 +18,19 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from MEDCoupling import *
+import sys
+
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
+
 from math import pi, sqrt
 
-import MEDCoupling
+if sys.platform == "win32":
+    import MEDCouplingCompat as MEDCoupling
+else:
+    import MEDCoupling
 
 from MEDCouplingDataForTest import MEDCouplingDataForTest
 m=MEDCouplingDataForTest.build2DTargetMesh_1();
@@ -34,7 +43,6 @@ mrenum=m[n2o]
 #! [UG_Optimization_0]
 
 #! [UG_Optimization_1]
-from MEDCoupling import MEDCouplingSkyLineArray
 import MEDPartitioner
 # prepare a MEDPartitioner
 a,b=m.computeNeighborsOfCells()

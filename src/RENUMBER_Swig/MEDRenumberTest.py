@@ -19,12 +19,17 @@
 
 from MEDRenumber import *
 import unittest
+import sys
 
 class MEDRenumberTest(unittest.TestCase):
 
     @unittest.skipUnless("BOOST" in RenumberAvailableMethods(),"requires BOOST prerequisite !")
     def test1(self):
-        from MEDCoupling import MEDCouplingCMesh
+        if sys.platform == "win32":
+            from MEDCouplingCompat import MEDCouplingCMesh
+        else:
+            from MEDCoupling import MEDCouplingCMesh
+
         ren=RenumberingFactory("BOOST")
         arr=DataArrayDouble(10) ; arr.iota()
         c=MEDCouplingCMesh() ; c.setCoords(arr,arr)

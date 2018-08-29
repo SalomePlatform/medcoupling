@@ -20,6 +20,7 @@
 
 #include "MEDCouplingPartDefinition.hxx"
 
+#include <functional>
 #include <sstream>
 
 using namespace MEDCoupling;

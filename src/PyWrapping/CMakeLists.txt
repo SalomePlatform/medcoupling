@@ -82,7 +82,12 @@ IF(MEDCOUPLING_USE_MPI)
   LIST(APPEND medcoupling_LIB_dependancies paramedmem)
 ENDIF(MEDCOUPLING_USE_MPI)
 
-SWIG_ADD_MODULE(medcoupling python medcoupling.i)
+IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")     
+  SWIG_ADD_MODULE(medcoupling python medcoupling.i)
+ELSE()
+  SWIG_ADD_LIBRARY(medcoupling LANGUAGE python SOURCES medcoupling.i)
+ENDIF()
+
 SWIG_LINK_LIBRARIES(medcoupling ${medcoupling_LIB_dependancies})
 SWIG_CHECK_GENERATION(medcoupling)
 IF(WIN32)

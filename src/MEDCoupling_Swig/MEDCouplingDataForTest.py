@@ -18,7 +18,12 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from MEDCoupling import *
+
+import sys
+if sys.platform == "win32":
+    from MEDCouplingCompat import *
+else:
+    from MEDCoupling import *
 
 class MEDCouplingDataForTest:
     def build2DTargetMesh_1(cls):

@@ -21,6 +21,7 @@
 #include "InterpKernelCellSimplify.hxx"
 #include "CellModel.hxx"
 
+#include <functional>
 #include <algorithm>
 #include <iterator>
 #include <sstream>

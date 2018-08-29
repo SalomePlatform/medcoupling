@@ -20,11 +20,13 @@
 #ifndef __VECTORUTILS_HXX__
 #define __VECTORUTILS_HXX__
 
+#include <algorithm>
 #include <sstream>
 #include <numeric>
 #include <string>
 #include <cmath>
 #include <map>
+
 
 namespace INTERP_KERNEL
 {

@@ -2016,7 +2016,7 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
  */
 DataArrayInt *MEDCouplingUMesh::colinearize2D(double eps)
 {
-  internalColinearize2D(eps, false);
+  return internalColinearize2D(eps, false);
 }
 
 /*!
@@ -2028,7 +2028,7 @@ DataArrayInt *MEDCouplingUMesh::colinearize2D(double eps)
  */
 DataArrayInt *MEDCouplingUMesh::colinearizeKeepingConform2D(double eps)
 {
-  internalColinearize2D(eps, true);
+  return internalColinearize2D(eps, true);
 }
 
 

@@ -25,6 +25,10 @@
 #include <limits>
 #include <algorithm>
 
+#ifdef WIN32
+#include <functional>
+#endif 
+
 using namespace INTERP_KERNEL;
 
 ValueDouble::ValueDouble():_data(std::numeric_limits<double>::max())

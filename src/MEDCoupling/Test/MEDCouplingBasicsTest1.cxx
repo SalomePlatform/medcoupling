@@ -23,16 +23,10 @@
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingMemArray.hxx"
-
 #include <sstream>
 #include <cmath>
 #include <algorithm>
 #include <functional>
-
-#ifdef WIN32
-#include "MEDCouplingMemArray.txx"
-#endif
 
 using namespace MEDCoupling;
 

@@ -52,7 +52,12 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
   )
 
-SWIG_ADD_MODULE(MEDPartitioner python MEDPartitioner.i)
+IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")     
+  SWIG_ADD_MODULE(MEDPartitioner python MEDPartitioner.i)
+ELSE()
+  SWIG_ADD_LIBRARY(MEDPartitioner LANGUAGE python SOURCES MEDPartitioner.i)
+ENDIF()
+
 SWIG_LINK_LIBRARIES(MEDPartitioner ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medpartitionercpp)
 SWIG_CHECK_GENERATION(MEDPartitioner)
 
