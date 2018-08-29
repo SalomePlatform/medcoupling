@@ -118,3 +118,13 @@ def MEDCouplingDenseMatrixIsub(self,*args):
 %}
 
 %include "MEDCouplingFinalize.i"
+
+%pythoncode %{
+print("""**************************************************************************************************
+"MEDCoupling" python module as been replaced by "medcoupling" for Salome9.
+
+"MEDCoupling" python module is still here for backwards compatibility reason but it is deprecated.
+
+Please replace "MEDCoupling" by "medcoupling" in you import line right now to remove this message.
+**************************************************************************************************""")
+%}
