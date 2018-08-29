@@ -268,6 +268,28 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         self.assertTrue(arrOfDisc.isEqual(DataArrayDouble([0.2,0.2,0.2,0.5,0.5,0.5,0.9,0.9,0.9],3,3),1e-12))
         pass
     
+    def testUMeshGetCellsContainingPtOn2DNonDynQuadraticCells(self):
+        """getCellsContainingPoint is now dealing curves of quadratic 2D elements.
+This test is a mesh containing 2 QUAD8 cells. The input point is located at a special loc.
+If true geometry (with curve as edges) is considered the result of getCellsContainingPoint is not the same as if only linear part of cells is considered."""
+        coords=DataArrayDouble([-0.9428090415820631,0.9428090415820631,-1.06066017177982,1.06066017177982,-1.1785113019775801,1.1785113019775801,-1.2963624321753402,1.2963624321753402,-1.4142135623731,1.41421356237309,-0.7653668647301801,1.8477590650225701,-0.6378057206084831,1.53979922085214,-0.510244576486786,1.23183937668172,-0.701586292669331,1.6937791429373599,-0.574025148547635,1.38581929876693,-0.9259503883660041,1.38578268717091,-0.740760310692803,1.10862614973673,-1.1111404660392,1.66293922460509],13,2)
+        m=MEDCouplingUMesh("mesh",2)
+        m.setCoords(coords)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD8,[4,2,6,5,3,10,8,12])
+        m.insertNextCell(NORM_QUAD8,[2,0,7,6,1,11,9,10])
+        #
+        zePt=DataArrayDouble([-0.85863751450784975,1.4203162316045934],1,2)
+        a,b=m.getCellsContainingPoints(zePt,1e-12)
+        self.assertTrue(b.isEqual(DataArrayInt([0,1])))
+        self.assertTrue(a.isEqual(DataArrayInt([1]))) # <- test is here. 0 if only linear parts are considered.
+        #
+        a,b=m.getCellsContainingPointsLinearPartOnlyOnNonDynType(zePt,1e-12)
+        self.assertTrue(b.isEqual(DataArrayInt([0,1])))
+        self.assertTrue(a.isEqual(DataArrayInt([0]))) # <- like before
+        pass
+    
+
     pass
 
 if __name__ == '__main__':

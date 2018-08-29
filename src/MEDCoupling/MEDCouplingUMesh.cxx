@@ -4068,6 +4068,45 @@ void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, st
   elts.clear(); elts.insert(elts.end(),eltsUg->begin(),eltsUg->end());
 }
 
+void MEDCouplingUMesh::getCellsContainingPointsZeAlg(const double *pos, int nbOfPoints, double eps,
+                                                     MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex,
+                                                     std::function<bool(INTERP_KERNEL::NormalizedCellType,int)> sensibilityTo2DQuadraticLinearCellsFunc) const
+{
+  int spaceDim(getSpaceDimension()),mDim(getMeshDimension());
+  if(spaceDim==3)
+    {
+      if(mDim==3)
+        {
+          const double *coords=_coords->getConstPointer();
+          getCellsContainingPointsAlg<3>(coords,pos,nbOfPoints,eps,elts,eltsIndex,sensibilityTo2DQuadraticLinearCellsFunc);
+        }
+      else
+        throw INTERP_KERNEL::Exception("For spaceDim==3 only meshDim==3 implemented for getelementscontainingpoints !");
+    }
+  else if(spaceDim==2)
+    {
+      if(mDim==2)
+        {
+          const double *coords=_coords->getConstPointer();
+          getCellsContainingPointsAlg<2>(coords,pos,nbOfPoints,eps,elts,eltsIndex,sensibilityTo2DQuadraticLinearCellsFunc);
+        }
+      else
+        throw INTERP_KERNEL::Exception("For spaceDim==2 only meshDim==2 implemented for getelementscontainingpoints !");
+    }
+  else if(spaceDim==1)
+    {
+      if(mDim==1)
+        {
+          const double *coords=_coords->getConstPointer();
+          getCellsContainingPointsAlg<1>(coords,pos,nbOfPoints,eps,elts,eltsIndex,sensibilityTo2DQuadraticLinearCellsFunc);
+        }
+      else
+        throw INTERP_KERNEL::Exception("For spaceDim==1 only meshDim==1 implemented for getelementscontainingpoints !");
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellsContainingPoints : not managed for mdim not in [1,2,3] !");
+}
+
 /*!
  * Finds cells in contact with several balls (i.e. points with precision).
  * This method is an extension of getCellContainingPoint() and
@@ -4100,44 +4139,21 @@ void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, st
 void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps,
                                                 MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const
 {
-  int spaceDim=getSpaceDimension();
-  int mDim=getMeshDimension();
-  if(spaceDim==3)
-    {
-      if(mDim==3)
-        {
-          const double *coords=_coords->getConstPointer();
-          getCellsContainingPointsAlg<3>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
-        }
-      /*else if(mDim==2)
-        {
+  auto yesImSensibleTo2DQuadraticLinearCellsFunc([](INTERP_KERNEL::NormalizedCellType ct, int mdim) { return INTERP_KERNEL::CellModel::GetCellModel(ct).isQuadratic() && mdim == 2; } );
+  this->getCellsContainingPointsZeAlg(pos,nbOfPoints,eps,elts,eltsIndex,yesImSensibleTo2DQuadraticLinearCellsFunc);
+}
 
-        }*/
-      else
-        throw INTERP_KERNEL::Exception("For spaceDim==3 only meshDim==3 implemented for getelementscontainingpoints !");
-    }
-  else if(spaceDim==2)
-    {
-      if(mDim==2)
-        {
-          const double *coords=_coords->getConstPointer();
-          getCellsContainingPointsAlg<2>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
-        }
-      else
-        throw INTERP_KERNEL::Exception("For spaceDim==2 only meshDim==2 implemented for getelementscontainingpoints !");
-    }
-  else if(spaceDim==1)
-    {
-      if(mDim==1)
-        {
-          const double *coords=_coords->getConstPointer();
-          getCellsContainingPointsAlg<1>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
-        }
-      else
-        throw INTERP_KERNEL::Exception("For spaceDim==1 only meshDim==1 implemented for getelementscontainingpoints !");
-    }
-  else
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellsContainingPoints : not managed for mdim not in [1,2,3] !");
+/*!
+ * Behaves like MEDCouplingMesh::getCellsContainingPoints for cells in \a this that are linear.
+ * For quadratic cells in \a this, this method behaves by just considering linear part of cells.
+ * This method is here only for backward compatibility (interpolation GaussPoints to GaussPoints).
+ * 
+ * \sa MEDCouplingUMesh::getCellsContainingPoints, MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss
+ */
+void MEDCouplingUMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const
+{
+  auto noImNotSensibleTo2DQuadraticLinearCellsFunc([](INTERP_KERNEL::NormalizedCellType,int) { return false; } );
+  this->getCellsContainingPointsZeAlg(pos,nbOfPoints,eps,elts,eltsIndex,noImNotSensibleTo2DQuadraticLinearCellsFunc);
 }
 
 /*!

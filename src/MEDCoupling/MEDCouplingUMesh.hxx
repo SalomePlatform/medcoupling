@@ -171,7 +171,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *distanceToPoints(const DataArrayDouble *pts, DataArrayInt *& cellIds) const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
     MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
-    MEDCOUPLING_EXPORT void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const;
+    MEDCOUPLING_EXPORT void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const override;
+    MEDCOUPLING_EXPORT void getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const override;
     MEDCOUPLING_EXPORT void checkButterflyCells(std::vector<int>& cells, double eps=1e-12) const;
     MEDCOUPLING_EXPORT DataArrayInt *convexEnvelop2D();
     MEDCOUPLING_EXPORT DataArrayInt *findAndCorrectBadOriented3DExtrudedCells();
@@ -323,7 +324,10 @@ namespace MEDCoupling
     DataArrayInt *buildUnionOf2DMeshQuadratic(const MEDCouplingUMesh *skin, const DataArrayInt *n2o) const;
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
-                                     double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const;
+                                     double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex, std::function<bool(INTERP_KERNEL::NormalizedCellType,int)> sensibilityTo2DQuadraticLinearCellsFunc) const;
+    void getCellsContainingPointsZeAlg(const double *pos, int nbOfPoints, double eps,
+                                       MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex,
+                                       std::function<bool(INTERP_KERNEL::NormalizedCellType,int)> sensibilityTo2DQuadraticLinearCellsFunc) const;
 /// @cond INTERNAL
     static MEDCouplingUMesh *MergeUMeshesLL(const std::vector<const MEDCouplingUMesh *>& a);
     typedef int (*DimM1DescNbrer)(int id, unsigned nb, const INTERP_KERNEL::CellModel& cm, bool compute, const int *conn1, const int *conn2);

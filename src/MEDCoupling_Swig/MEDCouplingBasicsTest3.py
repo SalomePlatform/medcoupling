@@ -1259,6 +1259,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         vals1=[1.1,2.1,3.1,4.1,5.2,6.2,7.2,8.2,9.2,10.2]
         da.setValues(vals1,10,1);
         f.setArray(da);
+        f.checkConsistencyLight()
         #
         loc=[0.64637931739890486, -0.16185896817550552, 0.22678966365273748]
         locs=f.getValueOnMulti(loc);

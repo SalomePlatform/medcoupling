@@ -878,7 +878,7 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
   MCAuto<DataArrayInt> eltsArr,eltsIndexArr;
   int trgNbOfGaussPts=trgLoc->getNumberOfTuples();
   _matrix.resize(trgNbOfGaussPts);
-  _src_ft->getMesh()->getCellsContainingPoints(trgLoc->begin(),trgNbOfGaussPts,getPrecision(),eltsArr,eltsIndexArr);
+  _src_ft->getMesh()->getCellsContainingPointsLinearPartOnlyOnNonDynType(trgLoc->begin(),trgNbOfGaussPts,getPrecision(),eltsArr,eltsIndexArr);
   const int *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
   MCAuto<DataArrayInt> nbOfSrcCellsShTrgPts(eltsIndexArr->deltaShiftIndex());
   MCAuto<DataArrayInt> ids0=nbOfSrcCellsShTrgPts->findIdsNotEqual(0);

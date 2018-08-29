@@ -116,6 +116,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual int getCellContainingPoint(const double *pos, double eps) const = 0;
     MEDCOUPLING_EXPORT virtual void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const = 0;
     MEDCOUPLING_EXPORT virtual void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const;
+    MEDCOUPLING_EXPORT virtual void getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalyticCompo(TypeOfField t, int nbOfComp, const std::string& func) const;
