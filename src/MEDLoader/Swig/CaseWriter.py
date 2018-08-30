@@ -158,7 +158,7 @@ time values:
                         typ=MEDCouplingMesh.GetCorrespondingPolyType(typ)
                         pass
                     mp=m[i:i+nbelem]
-                    mm.write(self.__str80(self.dictMCTyp[typ]))
+                    mm.write(self.__str80(self.dictMCTyp_str[typ]))
                     a=np.memmap(f,dtype='int32',mode='w+',offset=mm.tell(),shape=(1,))
                     a[0]=nbelem ; a.flush() ; mm.seek(mm.tell()+4)
                     if typ!=NORM_POLYHED and typ!=NORM_POLYGON:
@@ -270,7 +270,7 @@ time values:
                         if typ==curTyp:
                             arr=ff.getUndergroundDataArray()[bg:end].changeNbOfComponents(nbCompo,0.) ; arr=arr.toNoInterlace()
                             if typ==ON_CELLS:
-                                mm.write(self.__str80(self.dictMCTyp[geo]))
+                                mm.write(self.__str80(self.dictMCTyp_str[geo]))
                                 pass
                             elif typ==ON_NODES:
                                 mm.write(self.__str80("coordinates"))
