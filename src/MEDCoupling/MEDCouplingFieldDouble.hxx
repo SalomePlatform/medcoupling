@@ -154,13 +154,13 @@ namespace MEDCoupling
   protected:
     ~MEDCouplingFieldDouble() { }
   private:
-    MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
-    MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
-    MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
-    MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
-    MCAuto<MEDCouplingFieldDouble> voronoizeGen(const Voronizer *vor, double eps) const;
-    MEDCouplingTimeDiscretization *timeDiscr();
-    const MEDCouplingTimeDiscretization *timeDiscr() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingFieldDouble> voronoizeGen(const Voronizer *vor, double eps) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *timeDiscr();
+    MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *timeDiscr() const;
   };
 }
 

@@ -25,6 +25,11 @@
 #ifdef WIN32
 #define MEDCOUPLING_WIN32_SWIG
 #endif
+%}
+
+%include "MEDCouplingCommon.i"
+
+%{
 #include "MEDCouplingMemArray.txx"
 #include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
