@@ -1144,6 +1144,28 @@ namespace MEDCoupling
         return convertDblArrToPyListOfTuple<double>(vals,nbOfComp,nbOfTuples);
       }
 
+      static PyObject *ComputeIntegralOfSeg2IntoTri3(PyObject *seg2, PyObject *tri3) throw(INTERP_KERNEL::Exception)
+      {
+        const char msg[]="Python wrap of DataArrayDouble::ComputeIntegralOfSeg2IntoTri3 : ";
+        double val,val2;
+        DataArrayDouble *a,*a2;
+        DataArrayDoubleTuple *aa,*aa2;
+        std::vector<double> bb,bb2;
+        int sw;
+        const double *seg2Ptr(convertObjToPossibleCpp5_Safe(seg2,sw,val,a,aa,bb,msg,2,2,true));
+        const double *tri3Ptr(convertObjToPossibleCpp5_Safe(tri3,sw,val2,a2,aa2,bb2,msg,3,2,true));
+        //
+        double res0[3],res1;
+        DataArrayDouble::ComputeIntegralOfSeg2IntoTri3(seg2Ptr,tri3Ptr,res0,res1);
+        PyObject *ret(PyTuple_New(2)),*ret0(PyTuple_New(3));
+        PyTuple_SetItem(ret0,0,PyFloat_FromDouble(res0[0]));
+        PyTuple_SetItem(ret0,1,PyFloat_FromDouble(res0[1]));
+        PyTuple_SetItem(ret0,2,PyFloat_FromDouble(res0[2]));
+        PyTuple_SetItem(ret,0,ret0);
+        PyTuple_SetItem(ret,1,PyFloat_FromDouble(res1));
+        return ret;
+      }
+      
       DataArrayDouble *symmetry3DPlane(PyObject *point, PyObject *normalVector) throw(INTERP_KERNEL::Exception)
       {
         const char msg[]="Python wrap of DataArrayDouble::symmetry3DPlane : ";

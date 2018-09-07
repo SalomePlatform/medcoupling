@@ -101,6 +101,12 @@ namespace INTERP_KERNEL
     return sqrt(X*X+Y*Y);
   }
 
+  inline void mid_of_seg2(const double P1[2], const double P2[2], double MID[2])
+  {
+    MID[0]=(P1[0]+P2[0])/2.;
+    MID[1]=(P1[1]+P1[1])/2.;
+  }
+
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
   /*         calcul le cos et le sin de l'angle P1P2,P1P3     */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
