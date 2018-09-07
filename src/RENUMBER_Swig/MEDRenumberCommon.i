@@ -21,16 +21,12 @@
 %include std_vector.i
 %include std_string.i
 
-%{
-#ifdef WIN32
-#define MEDCOUPLING_WIN32_SWIG
-#endif
-%}
-
 %include "MEDCouplingCommon.i"
 
 %{
+#ifndef WIN32
 #include "MEDCouplingMemArray.txx"
+#endif
 #include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
 
