@@ -45,11 +45,12 @@ class CaseReader(CaseIO):
 
     def __traduceMesh(self,name,typ,coords,cells):
         """ Convert a CASE mesh into a MEDCouplingUMesh. """
+        name = name.decode("ascii")
         nbCoords=len(coords)
         coo=np.array(coords,dtype="float64") ; coo=coo.reshape(nbCoords,3)
         coo=DataArrayDouble(coo) ; coo=coo.fromNoInterlace()
         ct=self.dictMCTyp2[typ]
-        m=MEDCouplingUMesh(str(name),MEDCouplingUMesh.GetDimensionOfGeometricType(ct))
+        m=MEDCouplingUMesh(name,MEDCouplingUMesh.GetDimensionOfGeometricType(ct))
         m.setCoords(coo)
         nbNodesPerCell=MEDCouplingMesh.GetNumberOfNodesOfGeometricType(ct)
         cI=DataArrayInt(len(cells)+1) ; cI.iota() ; cI*=nbNodesPerCell+1
@@ -218,7 +219,7 @@ class CaseReader(CaseIO):
             typ=fd.read(80).strip() ; pos=fd.tell()
             mcmeshes2=[]
             while pos!=end and typ!=b"part":
-                if typ[0]=='\0': pos+=1; continue
+                if typ[0]==0: pos+=1; continue
                 mctyp=self.dictMCTyp2[typ]
                 nbCellsOfType=np.memmap(fd,dtype='int32',mode='r',offset=int(pos),shape=(1,)).tolist()[0]
                 pos+=4
@@ -265,7 +266,7 @@ class CaseReader(CaseIO):
         st="%0"+str(len(stars))+"i"
         trueFileName=fileName.replace(stars,st%(it))
         fd=open(os.path.join(self._dirName,trueFileName),"r+b") ; fd.seek(0,2) ; end=fd.tell() ; fd.seek(0)
-        name=fd.read(80).strip().split(b" ")[0]
+        name=fd.read(80).strip().split(b" ")[0].decode("ascii")
         if name!=fieldName:
             raise Exception("ConvertField : mismatch")
         pos=fd.tell()
@@ -377,7 +378,7 @@ class CaseReader(CaseIO):
                     if m.groups()[0]=="constant":
                         continue
                     spatialDisc=m.groups()[1] ; fieldName=m.groups()[2] ; nbOfCompo=self.dictCompo2[m.groups()[0]] ; fieldFileName=m.groups()[3]
-                    if fieldFileName.endswith("*"):
+                    if "*" in fieldFileName:
                       fieldsInfo.append((fieldName,spatialDisc,nbOfCompo,fieldFileName))
                     pass
                 pass
