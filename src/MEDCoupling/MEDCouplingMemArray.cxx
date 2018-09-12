@@ -3620,33 +3620,9 @@ void DataArrayDouble::GiveBaseForPlane(const double normalVector[3], double base
 void DataArrayDouble::ComputeIntegralOfSeg2IntoTri3(const double seg2[4], const double tri3[6], double coeffs[3], double& length)
 {
   length=INTERP_KERNEL::norme_vecteur(seg2,seg2+2);
-  constexpr double eps(std::numeric_limits<double>::min());
-  double n2(INTERP_KERNEL::norme_vecteur(tri3,tri3+2));
-  n2=std::min(n2,INTERP_KERNEL::norme_vecteur(tri3+2,tri3+4)); n2=std::min(n2,INTERP_KERNEL::norme_vecteur(tri3+4,tri3));
-  double myeps(eps*n2);
-  if(length>myeps*1000.)
-    {
-      constexpr unsigned NB_EVAL=10;
-      constexpr double NB_EVAL_FL=(double)NB_EVAL;
-      constexpr double INTEG_LEN(1./NB_EVAL_FL);
-      double curPt[2],curBaryCoo[3];
-      double dirVect[2]={seg2[2]-seg2[0],seg2[3]-seg2[1]};
-      coeffs[0]=0.; coeffs[1]=0.; coeffs[2]=0.;
-      for(unsigned i=0;i<NB_EVAL;i++)
-        {
-          curPt[0]=seg2[0]+(0.5+(double)i)*INTEG_LEN*dirVect[0];
-          curPt[1]=seg2[1]+(0.5+(double)i)*INTEG_LEN*dirVect[1];
-          INTERP_KERNEL::barycentric_coords<2>(tri3,curPt,curBaryCoo);
-          curBaryCoo[0]*=INTEG_LEN; curBaryCoo[1]*=INTEG_LEN; curBaryCoo[2]*=INTEG_LEN;
-          coeffs[0]+=curBaryCoo[0]; coeffs[1]+=curBaryCoo[1]; coeffs[2]+=curBaryCoo[2];
-        }
-    }
-  else
-    {
-      double mid[2];
-      INTERP_KERNEL::mid_of_seg2(seg2,seg2+2,mid);
-      INTERP_KERNEL::barycentric_coords<2>(tri3,mid,coeffs);
-    }
+  double mid[2];
+  INTERP_KERNEL::mid_of_seg2(seg2,seg2+2,mid);
+  INTERP_KERNEL::barycentric_coords<2>(tri3,mid,coeffs); // integral along seg2 is equal to value at the center of SEG2 !
 }
 
 /*!
