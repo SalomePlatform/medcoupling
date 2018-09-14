@@ -293,7 +293,17 @@ If true geometry (with curve as edges) is considered the result of getCellsConta
         self.assertTrue(b.isEqual(DataArrayInt([0,1])))
         self.assertTrue(a.isEqual(DataArrayInt([0]))) # <- like before
         pass
-    
+
+    def testComputeIntegralOfSeg2IntoTri3_1(self):
+        seg2 = [(90453.702115782813, 36372.66281307926), (90457.969790110554, 36373.365088601546)]
+        tri3 = [(90466.90625, 36376.9375), (90446.5, 36404), (90453.1875, 36365.75)]
+        a,b=DataArrayDouble.ComputeIntegralOfSeg2IntoTri3(seg2,tri3)
+        self.assertEqual(len(a),3)
+        self.assertAlmostEqual(a[0],0.2460689650955214,12)
+        self.assertAlmostEqual(a[1],0.10875598777133343,12)
+        self.assertAlmostEqual(a[2],0.6451750471331451,12)
+        self.assertAlmostEqual(b,4.32507052854159,12)
+        pass
 
     pass
 
