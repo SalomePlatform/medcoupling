@@ -4688,7 +4688,7 @@ DataArrayInt *MEDCouplingUMesh::convertDegeneratedCellsAndRemoveFlatOnes()
   int nbOfCells=getNumberOfCells();
   MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   if(nbOfCells<1)
-    return ret;
+    return ret.retn();
   int initMeshLgth=getNodalConnectivityArrayLen();
   int *conn=_nodal_connec->getPointer();
   int *index=_nodal_connec_index->getPointer();
