@@ -4726,6 +4726,52 @@ DataArrayInt *MEDCouplingUMesh::convertDegeneratedCellsAndRemoveFlatOnes()
   return ret.retn();
 }
 
+/*!
+ * This method remove null 1D cells from \a this. A 1D cell is considered null if start node is equal to end node.
+ * Only connectivity is considered here.
+ */
+bool MEDCouplingUMesh::removeDegenerated1DCells()
+{
+  checkConnectivityFullyDefined();
+  if(getMeshDimension()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::removeDegenerated1DCells works on umeshes with meshdim equals to 1 !");
+  std::size_t nbCells(getNumberOfCells()),newSize(0),newSize2(0);
+  const int *conn(getNodalConnectivity()->begin()),*conni(getNodalConnectivityIndex()->begin());
+  {
+    for(std::size_t i=0;i<nbCells;i++)
+      {
+        INTERP_KERNEL::NormalizedCellType ct((INTERP_KERNEL::NormalizedCellType)conn[conni[i]]);
+        if(ct==INTERP_KERNEL::NORM_SEG2 || ct==INTERP_KERNEL::NORM_SEG3)
+          {
+            if(conn[conni[i]+1]!=conn[conni[i]+2])
+              {
+                newSize++;
+                newSize2+=conni[i+1]-conni[i];
+              }
+          }
+        else
+          {
+            std::ostringstream oss; oss << "MEDCouplingUMesh::removeDegenerated1DCells : cell #" << i << " in this is not of type SEG2/SEG3 !";
+            throw INTERP_KERNEL::Exception(oss.str());
+          }
+      }
+  }
+  if(newSize==nbCells)//no cells has been removed -> do nothing
+    return false;
+  MCAuto<DataArrayInt> newConn(DataArrayInt::New()),newConnI(DataArrayInt::New()); newConnI->alloc(newSize+1,1); newConn->alloc(newSize2,1);
+  int *newConnPtr(newConn->getPointer()),*newConnIPtr(newConnI->getPointer()); newConnIPtr[0]=0;
+  for(std::size_t i=0;i<nbCells;i++)
+    {
+      if(conn[conni[i]+1]!=conn[conni[i]+2])
+        {
+          newConnIPtr[1]=newConnIPtr[0]+conni[i+1]-conni[i];
+          newConnPtr=std::copy(conn+conni[i],conn+conni[i+1],newConnPtr);
+          newConnIPtr++;
+        }
+    }
+  setConnectivity(newConn,newConnI,true);
+  return true;
+}
 
 /*!
  * Finds incorrectly oriented cells of this 2D mesh in 3D space.

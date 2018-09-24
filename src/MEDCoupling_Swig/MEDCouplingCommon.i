@@ -1979,6 +1979,7 @@ namespace MEDCoupling
     DataArrayInt *convertLinearCellsToQuadratic(int conversionType=0) throw(INTERP_KERNEL::Exception);
     void convertDegeneratedCells() throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertDegeneratedCellsAndRemoveFlatOnes() throw(INTERP_KERNEL::Exception);
+    bool removeDegenerated1DCells() throw(INTERP_KERNEL::Exception);
     bool areOnlySimplexCells() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getEdgeRatioField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getAspectRatioField() const throw(INTERP_KERNEL::Exception);
