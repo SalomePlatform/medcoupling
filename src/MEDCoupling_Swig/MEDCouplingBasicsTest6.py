@@ -305,6 +305,26 @@ If true geometry (with curve as edges) is considered the result of getCellsConta
         self.assertAlmostEqual(b,4.32507052854159,12)
         pass
 
+    def testRemoveDegenerated1DCells1(self):
+        m=MEDCoupling1SGTUMesh("mesh",NORM_SEG2)
+        conn=DataArrayInt([1,2, 3,4, 5,5, 5,6, 6,6, 6,7, 19,19, 7,8])
+        m.setNodalConnectivity(conn) # no coords set. It s not a bug. removeDegenerated1DCells doesn't care
+        m=m.buildUnstructured()
+        aa=m.getNodalConnectivity().getHiddenCppPointer()
+        self.assertTrue(m.removeDegenerated1DCells()) # <- test is here
+        bb=m.getNodalConnectivity().getHiddenCppPointer()
+        self.assertNotEqual(aa,bb)
+        expConn=DataArrayInt([1,1,2,1,3,4,1,5,6,1,6,7,1,7,8])
+        expConnI=DataArrayInt.Range(0,16,3)
+        self.assertTrue(m.getNodalConnectivity().isEqual(expConn))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(expConnI))
+        self.assertTrue(not m.removeDegenerated1DCells())
+        cc=m.getNodalConnectivity().getHiddenCppPointer()
+        self.assertEqual(bb,cc)
+        self.assertTrue(m.getNodalConnectivity().isEqual(expConn))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(expConnI))
+        pass
+
     pass
 
 if __name__ == '__main__':
