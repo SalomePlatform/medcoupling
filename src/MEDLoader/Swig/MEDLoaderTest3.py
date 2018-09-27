@@ -6488,6 +6488,35 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
+    def tessContxtMger1TS(self):
+        fname="Pyfile119.med"
+        coo=DataArrayDouble(1000) ; coo.iota()
+        m=MEDCouplingUMesh.Build0DMeshFromCoords(coo)
+        m.setName("mesh")
+        WriteMesh(fname,m,True)
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        f.setName("Field")
+        arr=DataArrayDouble(m.getNumberOfCells())
+        f.setArray(arr)
+        f.checkConsistencyLight()
+        for i in range(10):
+            arr[:]=float(i+1)
+            f.setTime(float(i),i,0)
+            WriteFieldUsingAlreadyWrittenMesh(fname,f)
+            pass
+        #
+        mm=MEDFileMesh.New(fname)
+        fmts=MEDFileFieldMultiTS(fname,False)
+        refSize=fmts.getHeapMemorySize()
+        for f1ts in fmts:
+            with f1ts:
+                f=f1ts.field(mm)
+                pass
+            pass
+        self.assertIn(fmts.getHeapMemorySize(),range(refSize,refSize+refSize//10))
+        pass
+
     pass
 
 if __name__ == "__main__":

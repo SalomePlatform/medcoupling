@@ -4113,3 +4113,14 @@ namespace MEDCoupling
     }
   };
 }
+
+%pythoncode %{
+def enter1TS(self):
+    self.loadArrays()
+    pass
+def exit1TS(self, exctype, exc, tb):
+    self.unloadArrays()
+    pass
+MEDFileAnyTypeField1TS.__enter__=enter1TS
+MEDFileAnyTypeField1TS.__exit__=exit1TS
+%}
