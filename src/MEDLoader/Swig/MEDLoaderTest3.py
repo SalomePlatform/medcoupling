@@ -5783,8 +5783,6 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
     
     @unittest.skipUnless(LooseVersion(MEDFileVersionStr())>=LooseVersion('3.2.1'),"This test requires at least MEDFile version 3.2.1")
-    @unittest.skipUnless(LooseVersion(MEDFileVersionStr())<LooseVersion('4.0.0'),
-                         "This test is not compatible with MEDFile version 4.0.0 and above")
     def testWriteInto30(self):
         fname="Pyfile108.med"
         fname2="Pyfile109.med"
@@ -5792,8 +5790,8 @@ class MEDLoaderTest3(unittest.TestCase):
         mm=MEDFileUMesh() ; mm[0]=m
         mm.setFamilyId("FAMILLE_ZERO",0)
         #
-        mm.write30(fname,2)
-        assert(LooseVersion(MEDFileVersionOfFileStr(fname)).version[:2]==[3,0]) # checks that just written MED file has a version == 3.0.x
+        mm.write33(fname,2)
+        assert(LooseVersion(MEDFileVersionOfFileStr(fname)).version[:2]==[3,3]) # checks that just written MED file has a version == 3.0.x
         mm2=MEDFileUMesh(fname)
         self.assertTrue(mm.isEqual(mm2,1e-12))
         #
@@ -6156,44 +6154,6 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f2.isEqual(f3,1e-12,1e-12))
         self.assertEqual(f3.getMesh().getNumberOfCells(),1)
         self.assertEqual(f3.getMesh().getTypeOfCell(0),NORM_PENTA18)
-        pass
-
-    @unittest.skipUnless('linux'==platform.system().lower(),"stderr redirection not ported on Windows ?")
-    @unittest.skipUnless(LooseVersion(MEDFileVersionStr())<LooseVersion('4.0.0'),
-                         "This test is not compatible with MEDFile version 4.0.0 and above")
-    def testMedFileCapabilityToCryOnNewFeatureWritingIntoOldFiles(self):
-        fname="Pyfile116.med"
-        errfname="Pyfile116.err"
-        c=DataArrayDouble([0,1,2,3])
-        m=MEDCouplingCMesh()
-        m.setCoords(c,c)
-        m=m.buildUnstructured()
-        m.setName("mesh")
-        mm=MEDFileUMesh()
-        mm[0]=m
-        f=MEDCouplingFieldInt(ON_CELLS)
-        f.setMesh(m) ; arr2=DataArrayInt(m.getNumberOfCells()) ; arr2.iota()
-        f.setArray(arr2)
-        f.setName("field")
-        f1ts=MEDFileIntField1TS()
-        f1ts.setFieldNoProfileSBT(f)
-        mm.write30(fname,2)
-        f1ts.write30(fname,0)
-        #
-        f=MEDCouplingFieldFloat(ON_CELLS)
-        f.setMesh(m) ; arr2=DataArrayFloat(m.getNumberOfCells()) ; arr2.iota()
-        f.setArray(arr2)
-        f.setName("field2")
-        f1ts=MEDFileFloatField1TS()
-        f1ts.setFieldNoProfileSBT(f)
-        #
-        import os,gc
-        tmp=StdOutRedirect(errfname)
-        self.assertRaises(InterpKernelException,f1ts.write30,fname,0)
-        del tmp
-        gc.collect(0)
-        if os.path.exists(errfname):
-            os.remove(errfname)
         pass
 
     def testFieldsLinearToQuadratic(self):

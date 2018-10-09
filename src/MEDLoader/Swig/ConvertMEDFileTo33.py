@@ -23,26 +23,26 @@
 import MEDLoader as ml
 import os
 
-def ConvertTo30(nameOfMEDFile):
+def ConvertTo33(nameOfMEDFile):
     fn,ext=os.path.splitext(nameOfMEDFile)
     assert(ext in [".med",".rmed"])
-    realFnOut=fn+"_30.med"
+    realFnOut=fn+"_33.med"
     #
     initalVersion=ml.MEDFileVersionOfFileStr(nameOfMEDFile)
     #
     mfd=ml.MEDFileData(nameOfMEDFile)
-    mfd.write30(realFnOut,2)
+    mfd.write33(realFnOut,2)
     #
     finalVersion=ml.MEDFileVersionOfFileStr(realFnOut)
     #
-    print(("File \"%s\" has been converted to 3.0 successfully ( %s -> %s ) !\nOutput file is here : \"%s\" !"%(fn,initalVersion,finalVersion,realFnOut)))
+    print(("File \"%s\" has been successfully converted to 3.3 ( %s -> %s ) !\nOutput file is here : \"%s\" !"%(fn,initalVersion,finalVersion,realFnOut)))
     pass
 
 if __name__=="__main__":
     import argparse
-    parser=argparse.ArgumentParser(description='Convert a MED file into a MED file with 3.0 version (3.0.8)')
-    parser.add_argument('nameOfMEDFile', type=str, nargs=1,help='File name of the MED file to be converted into 3.0.')
+    parser=argparse.ArgumentParser(description='Convert a MED file into a MED file with 3.3 version (3.3.1)')
+    parser.add_argument('nameOfMEDFile', type=str, nargs=1,help='File name of the MED file to be converted into 3.3.')
     args=parser.parse_args()
     nameOfMEDFile=args.nameOfMEDFile[0]
-    ConvertTo30(nameOfMEDFile)
+    ConvertTo33(nameOfMEDFile)
     pass

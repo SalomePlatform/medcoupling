@@ -70,7 +70,7 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT virtual void writeLL(med_idt fid) const = 0;
     MEDLOADER_EXPORT virtual void write(const std::string& fileName, int mode) const;
-    MEDLOADER_EXPORT virtual void write30(const std::string& fileName, int mode) const;
+    MEDLOADER_EXPORT virtual void write33(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT MCAuto<DataArrayByte> serialize() const;
     MEDLOADER_EXPORT static std::string GenerateUniqueDftFileNameInMem();
   public:

@@ -603,7 +603,7 @@ namespace MEDCoupling
   {
   public:
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    void write30(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void write33(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     %extend
        {
          DataArrayByte *serialize() const throw(INTERP_KERNEL::Exception)
