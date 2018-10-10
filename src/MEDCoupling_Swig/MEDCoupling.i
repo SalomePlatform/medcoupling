@@ -17,7 +17,11 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#ifdef WIN32
+%module MEDCouplingCompat
+#else 
 %module MEDCoupling
+#endif
 
 %include "MEDCouplingCommon.i"
 
