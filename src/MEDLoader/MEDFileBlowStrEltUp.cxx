@@ -337,7 +337,7 @@ public:
 private:
   void checkUniqueLoc(const std::string& loc) const;
   static MCAuto<DataArrayDouble> BuildMeshFromAngleVrille(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *angleDeVrille, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
-  static MCAuto<DataArrayDouble> BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thikness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
+  static MCAuto<DataArrayDouble> BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thickness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
   static MCAuto<DataArrayDouble> BuildMeshPipeSEG3(const DataArrayDouble *angle, const DataArrayDouble *scale, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
   static MCAuto<MEDCouplingUMesh> BuildMeshCommon(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs, MCAuto<DataArrayDouble>& ptsForLoc);
   static MCAuto<DataArrayDouble> BuildMeshFromStructure(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
@@ -459,19 +459,19 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
   return resu;
 }
 
-MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thikness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
+MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thickness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
 {
   MCAuto<DataArrayDouble> ptsForLoc;
   MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(gt,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
   int nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
-  MCConstAuto<DataArrayDouble> zeThikness;
+  MCConstAuto<DataArrayDouble> zeThickness;
   if(!pfl.empty())
     {
       const DataArrayInt *pflArr(globs->getProfile(pfl));
-      zeThikness=thikness->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
+      zeThickness=thickness->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
     }
   else
-    zeThikness.takeRef(thikness);
+    zeThickness.takeRef(thickness);
   MCAuto<DataArrayDouble> orthoArr;
   {
     MCAuto<MEDCouplingFieldDouble> ortho(geoMesh->buildOrthogonalField());
@@ -483,7 +483,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
   std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
   for(int j=0;j<nbCells;j++)
     {
-      double thck(zeThikness->getIJ(j,0)),eccentricity(zeThikness->getIJ(j,1));
+      double thck(zeThickness->getIJ(j,0)),eccentricity(zeThickness->getIJ(j,1));
       MCAuto<DataArrayDouble> fact(DataArrayDouble::New()),fact2(DataArrayDouble::New()); fact->alloc(1,nbCompo); fact2->alloc(1,nbCompo);
       std::copy(orthoArr->begin()+j*nbCompo,orthoArr->begin()+(j+1)*nbCompo,fact->getPointer());
       std::copy(orthoArr->begin()+j*nbCompo,orthoArr->begin()+(j+1)*nbCompo,fact2->getPointer());

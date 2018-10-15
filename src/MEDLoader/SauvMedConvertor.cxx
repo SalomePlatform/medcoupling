@@ -281,9 +281,9 @@ namespace // define default GAUSS points
      *  \param geomType - element geometry (EGeometrieElement or med_geometrie_element)
      *  \param nbPoints - nb gauss point
      *  \param variant - [1-3] to choose the variant of definition
-     * 
+     *
      * Throws in case of invalid parameters
-     * variant == 1 refers to "Fonctions de forme et points d'integration 
+     * variant == 1 refers to "Fonctions de forme et points d'integration
      *              des elements finis" v7.4 by J. PELLET, X. DESROCHES, 15/09/05
      * variant == 2 refers to the same doc v6.4 by J.P. LEFEBVRE, X. DESROCHES, 03/07/03
      * variant == 3 refers to the same doc v6.4, second variant for 2D elements
@@ -877,7 +877,7 @@ namespace // define default GAUSS points
     TInt aNbRef = myRefCoord.size();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
-      switch(aRefId){        
+      switch(aRefId){
       case  0: aCoord[0] =  1.0;  aCoord[1] =  0.0;  aCoord[2] =  0.0; break;
       case  3: aCoord[0] =  0.0;  aCoord[1] =  1.0;  aCoord[2] =  0.0; break;
       case  2: aCoord[0] = -1.0;  aCoord[1] =  0.0;  aCoord[2] =  0.0; break;
@@ -966,7 +966,7 @@ namespace // define default GAUSS points
         const double P1 = 1./1.8;
         const double P2 = 1./1.125;
         add( -a,  P1 );
-        add(  0,  P2 ); 
+        add(  0,  P2 );
         add(  a,  P1 ); break;
       }
       case 4: {
@@ -974,7 +974,7 @@ namespace // define default GAUSS points
         const double P1 = 0.652145154862546, P2 = 0.347854845137454 ;
         add(  a,  P1 );
         add( -a,  P1 );
-        add(  b,  P2 ); 
+        add(  b,  P2 );
         add( -b,  P2 ); break;
       }
       default:
@@ -1006,11 +1006,11 @@ namespace // define default GAUSS points
         case 6: { // FPG6
           const double P1 = 0.11169079483905, P2 = 0.0549758718227661;
           const double a  = 0.445948490915965, b = 0.091576213509771;
-          add(     b,     b, P2 ); 
+          add(     b,     b, P2 );
           add( 1-2*b,     b, P2 );
           add(     b, 1-2*b, P2 );
           add(     a, 1-2*a, P1 );
-          add(     a,     a, P1 ); 
+          add(     a,     a, P1 );
           add( 1-2*a,     a, P1 ); break;
         }
         case 7: { // FPG7
@@ -1018,11 +1018,11 @@ namespace // define default GAUSS points
           const double B  = 0.101286507323456;
           const double P1 = 0.066197076394253;
           const double P2 = 0.062969590272413;
-          add(  1/3.,  1/3., 9/80. ); 
-          add(     A,     A, P1 ); 
+          add(  1/3.,  1/3., 9/80. );
+          add(     A,     A, P1 );
           add( 1-2*A,     A, P1 );
           add(     A, 1-2*A, P1 );
-          add(     B,     B, P2 ); 
+          add(     B,     B, P2 );
           add( 1-2*B,     B, P2 );
           add(     B, 1-2*B, P2 ); break;
         }
@@ -1034,10 +1034,10 @@ namespace // define default GAUSS points
           const double P1 = 0.025422453185103;
           const double P2 = 0.058393137863189;
           const double P3 = 0.041425537809187;
-          add(     A,     A, P1 ); 
+          add(     A,     A, P1 );
           add( 1-2*A,     A, P1 );
           add(     A, 1-2*A, P1 );
-          add(     B,     B, P2 ); 
+          add(     B,     B, P2 );
           add( 1-2*B,     B, P2 );
           add(     B, 1-2*B, P2 );
           add(     C,     D, P3 );
@@ -1067,11 +1067,11 @@ namespace // define default GAUSS points
         case 6: {
           const double P1 = 0.11169079483905, P2 = 0.0549758718227661;
           const double A  = 0.445948490915965, B = 0.091576213509771;
-          add( 2*B-1, 1-4*B, 4*P2 ); 
+          add( 2*B-1, 1-4*B, 4*P2 );
           add( 2*B-1, 2*B-1, 4*P2 );
           add( 1-4*B, 2*B-1, 4*P2 );
           add( 1-4*A, 2*A-1, 4*P1 );
-          add( 2*A-1, 1-4*A, 4*P1 ); 
+          add( 2*A-1, 1-4*A, 4*P1 );
           add( 2*A-1, 2*A-1, 4*P1 ); break;
         }
         default:
@@ -1274,12 +1274,12 @@ namespace // define default GAUSS points
         add( 0., 0.,  h3,  p3 ); break;
       }
       case 27: { // FPG27
-        const double a1  = 0.788073483; 
-        const double b6  = 0.499369002; 
-        const double b1  = 0.848418011; 
-        const double c8  = 0.478508449; 
-        const double c1  = 0.652816472; 
-        const double d12 = 0.032303742; 
+        const double a1  = 0.788073483;
+        const double b6  = 0.499369002;
+        const double b1  = 0.848418011;
+        const double c8  = 0.478508449;
+        const double c1  = 0.652816472;
+        const double d12 = 0.032303742;
         const double d1  = 1.106412899;
         double z = 1/2., fz = b1/2*(1 - z);
         add(  0.,  0.,   z,  a1 ); // 1
@@ -1443,7 +1443,7 @@ namespace // define default GAUSS points
       THROW_IK_EXCEPTION("TGaussDef: Not all gauss points defined");
   }
 }
-  
+
 //================================================================================
 /*!
  * \brief Return dimension for the given cell type
@@ -2014,7 +2014,7 @@ XDRReader::XDRReader(const char* fileName) :FileReader(fileName), _xdrs_file(NUL
 
 XDRReader::~XDRReader()
 {
-#ifdef HAS_XDR  
+#ifdef HAS_XDR
   if ( _xdrs_file )
     {
       xdr_destroy((XDR*)_xdrs);
@@ -2048,7 +2048,7 @@ bool XDRReader::open()
 #ifdef HAS_XDR
 #ifdef WIN32
   if ((_xdrs_file = ::fopen(_fileName.c_str(), "rb")))
-#else 
+#else
     if ((_xdrs_file = ::fopen(_fileName.c_str(), "r")))
 #endif
       {
@@ -3439,7 +3439,7 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
           fld->setValues( valPtr, iSub );
           setTS( fld, values, medFields, mesh, iSub++ );
 
-          std::cout << fld->_name << " with compoments";
+          std::cout << fld->_name << " with components";
           for ( size_t i = 0; i < (size_t)fld->_sub[iSub-1].nbComponents(); ++i )
             std::cout << " " << fld->_sub[iSub-1]._comp_names[ i ];
           std::cout << std::endl;
@@ -3873,4 +3873,3 @@ int CellsByDimIterator::dim(const bool last) const
   return typp < myTypeEnd ? getDimension( TCellType( typp )) : 4;
 }
 // END CellsByDimIterator ========================================================
-

@@ -669,7 +669,7 @@ void DataArray::CheckClosingParInRange(int ref, int value, const std::string& ms
 }
 
 /*!
- * This method is useful to slice work among a pool of threads or processes. \a begin, \a end \a step is the input whole slice of work to perform, 
+ * This method is useful to slice work among a pool of threads or processes. \a begin, \a end \a step is the input whole slice of work to perform,
  * typically it is a whole slice of tuples of DataArray or cells, nodes of a mesh...
  *
  * The input \a sliceId should be an id in [0, \a nbOfSlices) that specifies the slice of work.
@@ -681,7 +681,7 @@ void DataArray::CheckClosingParInRange(int ref, int value, const std::string& ms
  * \param [in] nbOfSlices - the number of slices (typically the number of cores on which the work is expected to be sliced)
  * \param [out] startSlice - the start of the slice considered
  * \param [out] stopSlice - the stop of the slice consided
- * 
+ *
  * \throw If \a step == 0
  * \throw If \a nbOfSlices not > 0
  * \throw If \a sliceId not in [0,nbOfSlices)
@@ -779,7 +779,7 @@ int DataArray::GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end
 
 /*!
  * Returns a new instance of DataArrayDouble. The caller is to delete this array
- * using decrRef() as it is no more needed. 
+ * using decrRef() as it is no more needed.
  */
 DataArrayDouble *DataArrayDouble::New()
 {
@@ -811,7 +811,7 @@ double DataArrayDouble::doubleValue() const
  * Returns a full copy of \a this. For more info on copying data arrays see
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayDouble * - a new instance of DataArrayDouble. The caller is to
- *          delete this array using decrRef() as it is no more needed. 
+ *          delete this array using decrRef() as it is no more needed.
  */
 DataArrayDouble *DataArrayDouble::deepCopy() const
 {
@@ -823,7 +823,7 @@ DataArrayDouble *DataArrayDouble::deepCopy() const
  * with at least absolute difference value of |\a eps| at each step.
  * If not an exception is thrown.
  *  \param [in] increasing - if \a true, the array values should be increasing.
- *  \param [in] eps - minimal absolute difference between the neighbor values at which 
+ *  \param [in] eps - minimal absolute difference between the neighbor values at which
  *                    the values are considered different.
  *  \throw If sequence of values is not strictly monotonic in agreement with \a
  *         increasing arg.
@@ -845,7 +845,7 @@ void DataArrayDouble::checkMonotonic(bool increasing, double eps) const
  * Checks that \a this array is consistently **increasing** or **decreasing** in value,
  * with at least absolute difference value of |\a eps| at each step.
  *  \param [in] increasing - if \a true, array values should be increasing.
- *  \param [in] eps - minimal absolute difference between the neighbor values at which 
+ *  \param [in] eps - minimal absolute difference between the neighbor values at which
  *                    the values are considered different.
  *  \return bool - \a true if values change in accordance with \a increasing arg.
  *  \throw If \a this->getNumberOfComponents() != 1.
@@ -1022,7 +1022,7 @@ void DataArrayDouble::reprQuickOverviewData(std::ostream& stream, std::size_t ma
 /*!
  * Equivalent to DataArrayDouble::isEqual except that if false the reason of
  * mismatch is given.
- * 
+ *
  * \param [in] other the instance to be compared with \a this
  * \param [in] prec the precision to compare numeric data of the arrays.
  * \param [out] reason In case of inequality returns the reason.
@@ -1102,8 +1102,8 @@ bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec,
  *              considered not coincident.
  *  \param [in] limitTupleId - limit tuple id. If all tuples within a group of coincident
  *              tuples have id strictly lower than \a limitTupleId then they are not returned.
- *  \param [out] comm - the array holding ids (== indices) of coincident tuples. 
- *               \a comm->getNumberOfComponents() == 1. 
+ *  \param [out] comm - the array holding ids (== indices) of coincident tuples.
+ *               \a comm->getNumberOfComponents() == 1.
  *               \a comm->getNumberOfTuples() == \a commIndex->back().
  *  \param [out] commIndex - the array dividing all indices stored in \a comm into
  *               groups of (indices of) coincident tuples. Its every value is a tuple
@@ -1397,7 +1397,7 @@ void DataArrayDouble::getMinMaxPerComponent(double *bounds) const
     {
       bounds[idim*2]=std::numeric_limits<double>::max();
       bounds[idim*2+1]=-std::numeric_limits<double>::max();
-    } 
+    }
   const double *ptr=getConstPointer();
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++)
@@ -1418,7 +1418,7 @@ void DataArrayDouble::getMinMaxPerComponent(double *bounds) const
 
 /*!
  * This method retrieves a newly allocated DataArrayDouble instance having same number of tuples than \a this and twice number of components than \a this
- * to store both the min and max per component of each tuples. 
+ * to store both the min and max per component of each tuples.
  * \param [in] epsilon the width of the bbox (identical in each direction) - 0.0 by default
  *
  * \return a newly created DataArrayDouble instance having \c this->getNumberOfTuples() tuples and 2 * \c this->getNumberOfComponent() components
@@ -1448,7 +1448,7 @@ DataArrayDouble *DataArrayDouble::computeBBoxPerTuple(double epsilon) const
 /*!
  * For each tuples **t** in \a other, this method retrieves tuples in \a this that are equal to **t**.
  * Two tuples are considered equal if the euclidian distance between the two tuples is lower than \a eps.
- * 
+ *
  * \param [in] other a DataArrayDouble having same number of components than \a this.
  * \param [in] eps absolute precision representing distance (using infinite norm) between 2 tuples behind which 2 tuples are considered equal.
  * \param [out] c will contain the set of tuple ids in \a this that are equal to to the tuple ids in \a other contiguously.
@@ -1504,7 +1504,7 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
 /*!
  * This method recenter tuples in \b this in order to be centered at the origin to benefit about the advantages of maximal precision to be around the box
  * around origin of 'radius' 1.
- * 
+ *
  * \param [in] eps absolute epsilon. under that value of delta between max and min no scale is performed.
  */
 void DataArrayDouble::recenterForMaxPrecision(double eps)
@@ -1690,7 +1690,7 @@ double DataArrayDouble::normMin() const
 
 /*!
  * Accumulates values of each component of \a this array.
- *  \param [out] res - an array of length \a this->getNumberOfComponents(), allocated 
+ *  \param [out] res - an array of length \a this->getNumberOfComponents(), allocated
  *         by the caller, that is filled by this method with sum value for each
  *         component.
  *  \throw If \a this is not allocated.
@@ -1735,7 +1735,7 @@ double DataArrayDouble::distanceToTuple(const double *tupleBg, const double *tup
   for(int i=0;i<nbTuple;i++)
     {
       double val=0.;
-      for(int j=0;j<nbComps;j++,work++) 
+      for(int j=0;j<nbComps;j++,work++)
         val+=(*work-tupleBg[j])*((*work-tupleBg[j]));
       if(val>=ret0)
         continue;
@@ -1778,7 +1778,7 @@ double DataArrayDouble::accumulate(int compId) const
  * \param [in] bgOfIndex - begin (included) of the input index array.
  * \param [in] endOfIndex - end (excluded) of the input index array.
  * \return DataArrayDouble * - the new instance having the same number of components than \a this.
- * 
+ *
  * \throw If bgOfIndex or end is NULL.
  * \throw If input index array is not ascendingly sorted.
  * \throw If there is an id in [ \a bgOfIndex, \a endOfIndex ) not in [0, \c this->getNumberOfTuples).
@@ -1850,7 +1850,7 @@ MCAuto<DataArrayDouble> DataArrayDouble::cumSum() const
 
 /*!
  * Converts each 2D point defined by the tuple of \a this array from the Polar to the
- * Cartesian coordinate system. The two components of the tuple of \a this array are 
+ * Cartesian coordinate system. The two components of the tuple of \a this array are
  * considered to contain (1) radius and (2) angle of the point in the Polar CS.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble, whose each tuple
  *          contains X and Y coordinates of the point in the Cartesian CS. The caller
@@ -1880,13 +1880,13 @@ DataArrayDouble *DataArrayDouble::fromPolarToCart() const
 
 /*!
  * Converts each 3D point defined by the tuple of \a this array from the Cylindrical to
- * the Cartesian coordinate system. The three components of the tuple of \a this array 
+ * the Cartesian coordinate system. The three components of the tuple of \a this array
  * are considered to contain (1) radius, (2) azimuth and (3) altitude of the point in
  * the Cylindrical CS.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble, whose each tuple
  *          contains X, Y and Z coordinates of the point in the Cartesian CS. The info
  *          on the third component is copied from \a this array. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() != 3.
  * \sa fromCartToCyl
  */
@@ -1913,7 +1913,7 @@ DataArrayDouble *DataArrayDouble::fromCylToCart() const
 
 /*!
  * Converts each 3D point defined by the tuple of \a this array from the Spherical to
- * the Cartesian coordinate system. The three components of the tuple of \a this array 
+ * the Cartesian coordinate system. The three components of the tuple of \a this array
  * are considered to contain (1) radius, (2) polar angle and (3) azimuthal angle of the
  * point in the Cylindrical CS.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble, whose each tuple
@@ -2135,7 +2135,7 @@ DataArrayDouble *DataArrayDouble::doublyContractedProduct() const
  *  \return DataArrayDouble * - the new instance of DataArrayDouble, whose each tuple
  *          is the determinant of matrix of the corresponding tuple of \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
- *          needed. 
+ *          needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  */
 DataArrayDouble *DataArrayDouble::determinant() const
@@ -2171,9 +2171,9 @@ DataArrayDouble *DataArrayDouble::determinant() const
  * \a this array, which contains 6 components.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing 3
  *          components, whose each tuple contains the eigenvalues of the matrix of
- *          corresponding tuple of \a this array. 
+ *          corresponding tuple of \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
- *          needed. 
+ *          needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  */
 DataArrayDouble *DataArrayDouble::eigenValues() const
@@ -2229,9 +2229,9 @@ DataArrayDouble *DataArrayDouble::eigenVectors() const
  * corresponds to that of the upper triangular matrix.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of components as \a this one, whose each tuple is the inverse
- *          matrix of the matrix of corresponding tuple of \a this array. 
+ *          matrix of the matrix of corresponding tuple of \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
- *          needed. 
+ *          needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  */
 DataArrayDouble *DataArrayDouble::inverse() const
@@ -2286,11 +2286,11 @@ DataArrayDouble *DataArrayDouble::inverse() const
  * Computes the trace of every matrix defined by the tuple of \a this
  * array, which contains either 4, 6 or 9 components. The case of 6 components
  * corresponds to that of the upper triangular matrix.
- *  \return DataArrayDouble * - the new instance of DataArrayDouble containing 
+ *  \return DataArrayDouble * - the new instance of DataArrayDouble containing
  *          1 component, whose each tuple is the trace of
- *          the matrix of corresponding tuple of \a this array. 
+ *          the matrix of corresponding tuple of \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
- *          needed. 
+ *          needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  */
 DataArrayDouble *DataArrayDouble::trace() const
@@ -2403,7 +2403,7 @@ DataArrayDouble *DataArrayDouble::maxPerTuple() const
 /*!
  * Computes the maximal value within every tuple of \a this array and it returns the first component
  * id for each tuple that corresponds to the maximal value within the tuple.
- * 
+ *
  *  \param [out] compoIdOfMaxPerTuple - the new new instance of DataArrayInt containing the
  *          same number of tuples and only one component.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
@@ -2435,12 +2435,12 @@ DataArrayDouble *DataArrayDouble::maxPerTupleWithCompoId(DataArrayInt* &compoIdO
 
 /*!
  * This method returns a newly allocated DataArrayDouble instance having one component and \c this->getNumberOfTuples() * \c this->getNumberOfTuples() tuples.
- * \n This returned array contains the euclidian distance for each tuple in \a this. 
+ * \n This returned array contains the euclidian distance for each tuple in \a this.
  * \n So the returned array can be seen as a dense symmetrical matrix whose diagonal elements are equal to 0.
  * \n The returned array has only one component (and **not** \c this->getNumberOfTuples() components to avoid the useless memory consumption due to components info in returned DataArrayDouble)
  *
  * \warning use this method with care because it can leads to big amount of consumed memory !
- * 
+ *
  * \return A newly allocated (huge) MEDCoupling::DataArrayDouble instance that the caller should deal with.
  *
  * \throw If \a this is not allocated.
@@ -2474,13 +2474,13 @@ DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrix() const
 
 /*!
  * This method returns a newly allocated DataArrayDouble instance having one component and \c this->getNumberOfTuples() * \c other->getNumberOfTuples() tuples.
- * \n This returned array contains the euclidian distance for each tuple in \a other with each tuple in \a this. 
+ * \n This returned array contains the euclidian distance for each tuple in \a other with each tuple in \a this.
  * \n So the returned array can be seen as a dense rectangular matrix with \c other->getNumberOfTuples() rows and \c this->getNumberOfTuples() columns.
  * \n Output rectangular matrix is sorted along rows.
  * \n The returned array has only one component (and **not** \c this->getNumberOfTuples() components to avoid the useless memory consumption due to components info in returned DataArrayDouble)
  *
  * \warning use this method with care because it can leads to big amount of consumed memory !
- * 
+ *
  * \param [in] other DataArrayDouble instance having same number of components than \a this.
  * \return A newly allocated (huge) MEDCoupling::DataArrayDouble instance that the caller should deal with.
  *
@@ -2527,7 +2527,7 @@ DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrixWith(const Da
  * Each of this tuples represent a point into 2D space.
  * This method tries to find an arc of circle starting from first point (tuple) to 2nd and middle point (tuple) along 3nd and last point (tuple).
  * If such arc of circle exists, the corresponding center, radius of circle is returned. And additionnaly the length of arc expressed with an \a ang output variable in ]0,2*pi[.
- *  
+ *
  *  \throw If \a this is not allocated.
  *  \throw If \a this has not 3 tuples of 2 components
  *  \throw If tuples/points in \a this are aligned
@@ -2578,7 +2578,7 @@ void DataArrayDouble::sortPerTuple(bool asc)
 /*!
  * Modify all elements of \a this array, so that
  * an element _x_ becomes \f$ numerator / x \f$.
- *  \warning If an exception is thrown because of presence of 0.0 element in \a this 
+ *  \warning If an exception is thrown because of presence of 0.0 element in \a this
  *           array, all elements processed before detection of the zero element remain
  *           modified.
  *  \param [in] numerator - the numerator used to modify array elements.
@@ -2612,7 +2612,7 @@ void DataArrayDouble::applyInv(double numerator)
  * all values in \a this have to be >= 0 if val is \b not integer.
  *  \param [in] val - the value used to apply pow on all array elements.
  *  \throw If \a this is not allocated.
- *  \warning If an exception is thrown because of presence of 0 element in \a this 
+ *  \warning If an exception is thrown because of presence of 0 element in \a this
  *           array and \a val is \b not integer, all elements processed before detection of the zero element remain
  *           modified.
  */
@@ -2650,7 +2650,7 @@ void DataArrayDouble::applyPow(double val)
  *  \param [in] val - the value used to apply pow on all array elements.
  *  \throw If \a this is not allocated.
  *  \throw If \a val < 0.
- *  \warning If an exception is thrown because of presence of 0 element in \a this 
+ *  \warning If an exception is thrown because of presence of 0 element in \a this
  *           array, all elements processed before detection of the zero element remain
  *           modified.
  */
@@ -2671,8 +2671,8 @@ void DataArrayDouble::applyRPow(double val)
  * FunctionToEvaluate to every tuple of \a this array. Textual data is not copied.
  * For more info see \ref MEDCouplingArrayApplyFunc
  *  \param [in] nbOfComp - number of components in the result array.
- *  \param [in] func - the \a FunctionToEvaluate declared as 
- *              \c bool (*\a func)(\c const \c double *\a pos, \c double *\a res), 
+ *  \param [in] func - the \a FunctionToEvaluate declared as
+ *              \c bool (*\a func)(\c const \c double *\a pos, \c double *\a res),
  *              where \a pos points to the first component of a tuple of \a this array
  *              and \a res points to the first component of a tuple of the result array.
  *              Note that length (number of components) of \a pos can differ from
@@ -3680,7 +3680,7 @@ DataArrayDouble *DataArrayDoubleTuple::buildDADouble(int nbOfTuples, int nbOfCom
 
 /*!
  * Returns a new instance of DataArrayInt. The caller is to delete this array
- * using decrRef() as it is no more needed. 
+ * using decrRef() as it is no more needed.
  */
 DataArrayInt *DataArrayInt::New()
 {
@@ -3743,7 +3743,7 @@ DataArrayInt32 *DataArrayInt32::deepCopy() const
  * Returns a textual and human readable representation of \a this instance of
  * DataArrayInt. This text is shown when a DataArrayInt is printed in Python.
  * \return std::string - text describing \a this DataArrayInt.
- * 
+ *
  * \sa reprNotTooLong, reprZip
  */
 std::string DataArrayInt::repr() const
@@ -3890,7 +3890,7 @@ void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNb
  *  \param [in] arrEnd - specifies the end of the array \a arrBg, so that
  *              the last value of \a arrBg is \a arrEnd[ -1 ].
  *  \param [out] castArr - a new instance of DataArrayInt, of same size as \a this array
- *         (same number of tuples and components), the caller is to delete 
+ *         (same number of tuples and components), the caller is to delete
  *         using decrRef() as it is no more needed.
  *         This array contains indices of ranges for every value of \a this array. I.e.
  *         the i-th value of \a castArr gives the index of range the i-th value of \a this
@@ -3901,7 +3901,7 @@ void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNb
  *         This array contains ranks of values of \a this array within ranges
  *         they belongs to. I.e. the i-th value of \a rankInsideCast gives the rank of
  *         the i-th value of \a this array within the \a castArr[ i ]-th range, to which
- *         the i-th value of \a this belongs to. Or, in other words, this param contains 
+ *         the i-th value of \a this belongs to. Or, in other words, this param contains
  *         for each tuple its rank inside its cast. The rank is computed as difference
  *         between the value and the lowest value of range.
  *  \param [out] castsPresent - a new instance of DataArrayInt, containing indices of
@@ -3910,7 +3910,7 @@ void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNb
  *         The caller is to delete this array using decrRef() as it is no more needed.
  *
  * \b Example: If \a this contains [6,5,0,3,2,7,8,1,4] and \a arrBg contains [0,4,9] then
- *            the output of this method will be : 
+ *            the output of this method will be :
  * - \a castArr       : [1,1,0,0,0,1,1,0,1]
  * - \a rankInsideCast: [2,1,0,3,2,3,4,1,0]
  * - \a castsPresent  : [0,1]
@@ -3990,7 +3990,7 @@ bool DataArrayInt::isRange(int& strt, int& sttoopp, int& stteepp) const
   if(nbTuples==0)
     { strt=0; sttoopp=0; stteepp=1; return true; }
   const int *pt(begin());
-  strt=*pt; 
+  strt=*pt;
   if(nbTuples==1)
     { sttoopp=strt+1; stteepp=1; return true; }
   strt=*pt; sttoopp=pt[nbTuples-1];
@@ -4031,7 +4031,7 @@ bool DataArrayInt::isRange(int& strt, int& sttoopp, int& stteepp) const
  *  \param [in] indArrEnd - specifies the end of the array \a indArrBg, so that
  *              the last value of \a indArrBg is \a indArrEnd[ -1 ].
  *  \throw If \a this->getNumberOfComponents() != 1
- *  \throw If any value of \a this can't be used as a valid index for 
+ *  \throw If any value of \a this can't be used as a valid index for
  *         [\a indArrBg, \a indArrEnd).
  *
  *  \sa changeValue, findIdForEach
@@ -4077,7 +4077,7 @@ void DataArrayInt::transformWithIndArr(const MapKeyVal<int>& m)
 }
 
 /*!
- * Creates a one-dimensional DataArrayInt (\a res) whose contents are computed from 
+ * Creates a one-dimensional DataArrayInt (\a res) whose contents are computed from
  * values of \a this (\a a) and the given (\a indArr) arrays as follows:
  * \a res[ \a indArr[ \a a[ i ]]] = i. I.e. for each value in place i \a v = \a a[ i ],
  * new value in place \a indArr[ \a v ] is i.
@@ -4128,14 +4128,14 @@ DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int 
 
 /*!
  * Creates a one-dimensional DataArrayInt of given length, whose contents are computed
- * from values of \a this array, which is supposed to contain a renumbering map in 
+ * from values of \a this array, which is supposed to contain a renumbering map in
  * "Old to New" mode. The result array contains a renumbering map in "New to Old" mode.
  * To know how to use the renumbering maps see \ref numbering.
  *  \param [in] newNbOfElem - the number of tuples in the result array.
  *  \return DataArrayInt * - the new instance of DataArrayInt.
  *          The caller is to delete this result array using decrRef() as it is no more
  *          needed.
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarrayint_invertarrayo2n2n2o "Here is a C++ example".<br>
  *  \ref py_mcdataarrayint_invertarrayo2n2n2o  "Here is a Python example".
@@ -4166,7 +4166,7 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
 }
 
 /*!
- * This method is similar to DataArrayInt::invertArrayO2N2N2O except that 
+ * This method is similar to DataArrayInt::invertArrayO2N2N2O except that
  * Example : If \a this contains [0,1,2,0,3,4,5,4,6,4] this method will return [0,1,2,4,5,6,8] whereas DataArrayInt::invertArrayO2N2N2O returns [3,1,2,4,9,6,8]
  */
 DataArrayInt *DataArrayInt::invertArrayO2N2N2OBis(int newNbOfElem) const
@@ -4195,14 +4195,14 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2OBis(int newNbOfElem) const
 
 /*!
  * Creates a one-dimensional DataArrayInt of given length, whose contents are computed
- * from values of \a this array, which is supposed to contain a renumbering map in 
+ * from values of \a this array, which is supposed to contain a renumbering map in
  * "New to Old" mode. The result array contains a renumbering map in "Old to New" mode.
  * To know how to use the renumbering maps see \ref numbering.
  *  \param [in] newNbOfElem - the number of tuples in the result array.
  *  \return DataArrayInt * - the new instance of DataArrayInt.
  *          The caller is to delete this result array using decrRef() as it is no more
  *          needed.
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarrayint_invertarrayn2o2o2n "Here is a C++ example".
  *
@@ -4235,12 +4235,12 @@ DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
 
 /*!
  * Creates a map, whose contents are computed
- * from values of \a this array, which is supposed to contain a renumbering map in 
+ * from values of \a this array, which is supposed to contain a renumbering map in
  * "New to Old" mode. The result array contains a renumbering map in "Old to New" mode.
  * To know how to use the renumbering maps see \ref numbering.
  *  \param [in] newNbOfElem - the number of tuples in the result array.
  *  \return MapII  - the new instance of Map.
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarrayint_invertarrayn2o2o2n "Here is a C++ example".
  *
@@ -4334,7 +4334,7 @@ DataArrayInt *DataArrayInt::checkAndPreparePermutation() const
  * \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
  *          array using decrRef() as it is no more needed.
  * \throw If either ids1 or ids2 is null not allocated or not with one components.
- * 
+ *
  * \sa DataArrayInt32::findIdForEach
  */
 DataArrayInt *DataArrayInt::FindPermutationFromFirstToSecond(const DataArrayInt *ids1, const DataArrayInt *ids2)
@@ -4364,7 +4364,7 @@ DataArrayInt *DataArrayInt::FindPermutationFromFirstToSecond(const DataArrayInt 
 
 /*!
  * Returns two arrays describing a surjective mapping from \a this set of values (\a A)
- * onto a set of values of size \a targetNb (\a B). The surjective function is 
+ * onto a set of values of size \a targetNb (\a B). The surjective function is
  * \a B[ \a A[ i ]] = i. That is to say that for each \a id in [0,\a targetNb), where \a
  * targetNb < \a this->getNumberOfTuples(), there exists at least one tupleId (\a tid) so
  * that <em> this->getIJ( tid, 0 ) == id</em>. <br>
@@ -4383,7 +4383,7 @@ DataArrayInt *DataArrayInt::FindPermutationFromFirstToSecond(const DataArrayInt 
  * the element of \a B 0 encounters within \a A once (\a arrI[ 0+1 ] - \a arrI[ 0 ]) and
  * its index within \a A is 0 ( \a arr[ 0:1 ] == \a arr[ \a arrI[ 0 ] : \a arrI[ 0+1 ]]);<br>
  * the element of \a B 2 encounters within \a A 4 times (\a arrI[ 2+1 ] - \a arrI[ 2 ]) and
- * its indices within \a A are [2,4,5,7] ( \a arr[ 2:6 ] == \a arr[ \a arrI[ 2 ] : 
+ * its indices within \a A are [2,4,5,7] ( \a arr[ 2:6 ] == \a arr[ \a arrI[ 2 ] :
  * \a arrI[ 2+1 ]]); <br> etc.
  *  \param [in] targetNb - the size of the set \a B. \a targetNb must be equal or more
  *         than the maximal value of \a A.
@@ -4441,7 +4441,7 @@ void DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, Data
  * for example). The result array minimizes the permutation. <br>
  * For more info on renumbering see \ref numbering. <br>
  * \b Example: <br>
- * - \a nbOfOldTuples: 10 
+ * - \a nbOfOldTuples: 10
  * - \a arr          : [0,3, 5,7,9]
  * - \a arrIBg       : [0,2,5]
  * - \a newNbOfTuples: 7
@@ -4504,7 +4504,7 @@ DataArrayInt *DataArrayInt::ConvertIndexArrayToO2N(int nbOfOldTuples, const int 
  * \b Example: <br>
  * - \a this: [2,0,1,1,0,1,2,0,1,1,0,0]
  * - result: [10,0,5,6,1,7,11,2,8,9,3,4]
- * - after applying result to \a this: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2] 
+ * - after applying result to \a this: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2]
  *
  *  \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
  *          array using decrRef() as it is no more needed.
@@ -4706,7 +4706,7 @@ DataArrayInt *DataArrayInt::findIdsEqual(int val) const
 
 /*!
  * Creates a new DataArrayInt containing IDs (indices) of tuples holding value \b not
- * equal to a given one. 
+ * equal to a given one.
  *  \param [in] val - the value to ignore within \a this.
  *  \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
  *          array using decrRef() as it is no more needed.
@@ -4894,7 +4894,7 @@ DataArrayInt *DataArrayInt::findIdsNotEqualList(const int *valsBg, const int *va
  * any number of components excepted 0 (an INTERP_KERNEL::Exception is thrown in this case).
  * This method searches in \b this is there is a tuple that matched the input parameter \b tupl.
  * If any the tuple id is returned. If not -1 is returned.
- * 
+ *
  * This method throws an INTERP_KERNEL::Exception if the number of components in \b this mismatches with the size of
  * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
  *
@@ -5050,7 +5050,7 @@ bool DataArrayInt::presenceOfValue(const std::vector<int>& vals) const
 
 /*!
  * Accumulates values of each component of \a this array.
- *  \param [out] res - an array of length \a this->getNumberOfComponents(), allocated 
+ *  \param [out] res - an array of length \a this->getNumberOfComponents(), allocated
  *         by the caller, that is filled by this method with sum value for each
  *         component.
  *  \throw If \a this is not allocated.
@@ -5090,7 +5090,7 @@ int DataArrayInt::accumulate(int compId) const
  * \param [in] bgOfIndex - begin (included) of the input index array.
  * \param [in] endOfIndex - end (excluded) of the input index array.
  * \return DataArrayInt * - the new instance having the same number of components than \a this.
- * 
+ *
  * \throw If bgOfIndex or end is NULL.
  * \throw If input index array is not ascendingly sorted.
  * \throw If there is an id in [ \a bgOfIndex, \a endOfIndex ) not in [0, \c this->getNumberOfTuples).
@@ -5217,7 +5217,7 @@ DataArrayInt *DataArrayInt::Aggregate(const std::vector<const DataArrayInt *>& a
  * A packed index array is an allocated array with one component, and at least one tuple. The first element
  * of each array in \a arrs must be 0. Each array in \a arrs is expected to be increasingly monotonic.
  * This method is useful for users that want to aggregate a pair of DataArrayInt representing an indexed data (typically nodal connectivity index in unstructured meshes.
- * 
+ *
  * \return DataArrayInt * - a new object to be managed by the caller.
  */
 DataArrayInt *DataArrayInt::AggregateIndexes(const std::vector<const DataArrayInt *>& arrs)
@@ -5292,7 +5292,7 @@ void DataArrayInt::getMinMaxValues(int& minValue, int& maxValue) const
 /*!
  * Modify all elements of \a this array, so that
  * an element _x_ becomes \f$ numerator / x \f$.
- *  \warning If an exception is thrown because of presence of 0 element in \a this 
+ *  \warning If an exception is thrown because of presence of 0 element in \a this
  *           array, all elements processed before detection of the zero element remain
  *           modified.
  *  \param [in] numerator - the numerator used to modify array elements.
@@ -5360,7 +5360,7 @@ void DataArrayInt::applyModulus(int val)
  * This method works only on data array with one component.
  * This method returns a newly allocated array storing stored ascendantly tuple ids in \b this so that
  * this[*id] in [\b vmin,\b vmax)
- * 
+ *
  * \param [in] vmin begin of range. This value is included in range (included).
  * \param [in] vmax end of range. This value is \b not included in range (excluded).
  * \return a newly allocated data array that the caller should deal with.
@@ -5378,11 +5378,11 @@ DataArrayInt *DataArrayInt::findIdsInRange(int vmin, int vmax) const
  * This method works only on data array with one component.
  * This method returns a newly allocated array storing stored ascendantly tuple ids in \b this so that
  * this[*id] \b not in [\b vmin,\b vmax)
- * 
+ *
  * \param [in] vmin begin of range. This value is \b not included in range (excluded).
  * \param [in] vmax end of range. This value is included in range (included).
  * \return a newly allocated data array that the caller should deal with.
- * 
+ *
  * \sa DataArrayInt::findIdsInRange , DataArrayInt::findIdsStricltyNegative
  */
 DataArrayInt *DataArrayInt::findIdsNotInRange(int vmin, int vmax) const
@@ -5395,7 +5395,7 @@ DataArrayInt *DataArrayInt::findIdsNotInRange(int vmin, int vmax) const
 /*!
  * This method works only on data array with one component.
  * This method checks that all ids in \b this are in [ \b vmin, \b vmax ). If there is at least one element in \a this not in [ \b vmin, \b vmax ) an exception will be thrown.
- * 
+ *
  * \param [in] vmin begin of range. This value is included in range (included).
  * \param [in] vmax end of range. This value is \b not included in range (excluded).
  * \return if all ids in \a this are so that (*this)[i]==i for all i in [ 0, \c this->getNumberOfTuples() ). */
@@ -5423,7 +5423,7 @@ bool DataArrayInt::checkAllIdsInRange(int vmin, int vmax) const
 /*!
  * Modify all elements of \a this array, so that
  * an element _x_ becomes <em> val % x </em>.
- *  \warning If an exception is thrown because of presence of an element <= 0 in \a this 
+ *  \warning If an exception is thrown because of presence of an element <= 0 in \a this
  *           array, all elements processed before detection of the zero element remain
  *           modified.
  *  \param [in] val - the divident used to modify array elements.
@@ -5486,7 +5486,7 @@ void DataArrayInt::applyPow(int val)
  *  \param [in] val - the value used to apply pow on all array elements.
  *  \throw If \a this is not allocated.
  *  \throw If there is an element < 0 in \a this array.
- *  \warning If an exception is thrown because of presence of 0 element in \a this 
+ *  \warning If an exception is thrown because of presence of 0 element in \a this
  *           array, all elements processed before detection of the zero element remain
  *           modified.
  */
@@ -5721,7 +5721,7 @@ DataArrayInt *DataArrayInt::BuildListOfSwitchedOff(const std::vector<bool>& v)
 }
 
 /*!
- * This method allows to put a vector of vector of integer into a more compact data structure (skyline). 
+ * This method allows to put a vector of vector of integer into a more compact data structure (skyline).
  * This method is not available into python because no available optimized data structure available to map std::vector< std::vector<int> >.
  *
  * \param [in] v the input data structure to be translate into skyline format.
@@ -5819,7 +5819,7 @@ DataArrayInt *DataArrayInt::buildSubstraction(const DataArrayInt *other) const
 /*!
  * \a this is expected to have one component and to be sorted ascendingly (as for \a other).
  * \a other is expected to be a part of \a this. If not DataArrayInt::buildSubstraction should be called instead.
- * 
+ *
  * \param [in] other an array with one component and expected to be sorted ascendingly.
  * \ret list of ids in \a this but not in \a other.
  * \sa DataArrayInt::buildSubstraction
@@ -5886,7 +5886,7 @@ DataArrayInt *DataArrayInt::buildIntersection(const DataArrayInt *other) const
  * This method can be applied on allocated with one component DataArrayInt instance.
  * This method is typically relevant for sorted arrays. All consecutive duplicated items in \a this will appear only once in returned DataArrayInt instance.
  * Example : if \a this contains [1,2,2,3,3,3,3,4,5,5,7,7,7,19] the returned array will contain [1,2,3,4,5,7,19]
- * 
+ *
  * \return a newly allocated array that contain the result of the unique operation applied on \a this.
  * \throw if \a this is not allocated or if \a this has not exactly one component.
  * \sa DataArrayInt::buildUniqueNotSorted
@@ -5940,7 +5940,7 @@ DataArrayInt *DataArrayInt::buildUniqueNotSorted() const
 
 /*!
  * Returns a new DataArrayInt which contains size of every of groups described by \a this
- * "index" array. Such "index" array is returned for example by 
+ * "index" array. Such "index" array is returned for example by
  * \ref MEDCoupling::MEDCouplingUMesh::buildDescendingConnectivity
  * "MEDCouplingUMesh::buildDescendingConnectivity" and
  * \ref MEDCoupling::MEDCouplingUMesh::getNodalConnectivityIndex
@@ -5948,12 +5948,12 @@ DataArrayInt *DataArrayInt::buildUniqueNotSorted() const
  * This method performs the reverse operation of DataArrayInt::computeOffsetsFull.
  *  \return DataArrayInt * - a new instance of DataArrayInt, whose number of tuples
  *          equals to \a this->getNumberOfComponents() - 1, and number of components is 1.
- *          The caller is to delete this array using decrRef() as it is no more needed. 
+ *          The caller is to delete this array using decrRef() as it is no more needed.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  *  \throw If \a this->getNumberOfTuples() < 2.
  *
- *  \b Example: <br> 
+ *  \b Example: <br>
  *         - this contains [1,3,6,7,7,9,15]
  *         - result array contains [2,3,1,0,2,6],
  *          where 2 = 3 - 1, 3 = 6 - 3, 1 = 7 - 6 etc.
@@ -6119,8 +6119,8 @@ void DataArrayInt::findIdsRangesInListOfIds(const DataArrayInt *listOfIds, DataA
  *          - \a offsets: [0,3,6,10,14,20]
  *          - result array: [0,1,2,6,7,8,9,10,11,12,13] == <br>
  *            \c range(0,3) + \c range(6,10) + \c range(10,14) ==<br>
- *            \c range( \a offsets[ \a this[0] ], offsets[ \a this[0]+1 ]) + 
- *            \c range( \a offsets[ \a this[1] ], offsets[ \a this[1]+1 ]) + 
+ *            \c range( \a offsets[ \a this[0] ], offsets[ \a this[0]+1 ]) +
+ *            \c range( \a offsets[ \a this[1] ], offsets[ \a this[1]+1 ]) +
  *            \c range( \a offsets[ \a this[2] ], offsets[ \a this[2]+1 ])
  */
 DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets) const
@@ -6174,7 +6174,7 @@ DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets
 }
 
 /*!
- * Returns a new DataArrayInt whose contents is computed using \a this that must be a 
+ * Returns a new DataArrayInt whose contents is computed using \a this that must be a
  * scaled array (monotonically increasing).
 from that of \a this and \a
  * offsets arrays as follows. \a offsets is a one-dimensional array considered as an
@@ -6214,11 +6214,11 @@ DataArrayInt *DataArrayInt::buildExplicitArrOfSliceOnScaledArr(int bg, int stop,
             {
               std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrOfSliceOnScaledArr : At pos #" << i << " of input slice, value is " << pos << " and at this pos this is not monotonically increasing !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }          
+            }
         }
       else
         {
-          std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrOfSliceOnScaledArr : At pos #" << i << " of input slice, value is " << pos << " should be in [0," << nbOfTuples-1 << ") !";  
+          std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrOfSliceOnScaledArr : At pos #" << i << " of input slice, value is " << pos << " should be in [0," << nbOfTuples-1 << ") !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
@@ -6242,12 +6242,12 @@ DataArrayInt *DataArrayInt::buildExplicitArrOfSliceOnScaledArr(int bg, int stop,
  *
  * For example if \a this contains : [1,24,7,8,10,17] and \a ranges contains [(0,3),(3,8),(8,15),(15,22),(22,30)]
  * The return DataArrayInt will contain : **[0,4,1,2,2,3]**
- * 
+ *
  * \param [in] ranges typically come from output of MEDCouplingUMesh::ComputeRangesFromTypeDistribution. Each range is specified like this : 1st component is
  *             for lower value included and 2nd component is the upper value of corresponding range **excluded**.
  * \throw If offsets is a null pointer or does not have 2 components or if \a this is not allocated or \a this do not have exactly one component. To finish an exception
  *        is thrown if no ranges in \a ranges contains value in \a this.
- * 
+ *
  * \sa DataArrayInt::findIdInRangeForEachTuple
  */
 DataArrayInt *DataArrayInt::findRangeIdForEachTuple(const DataArrayInt *ranges) const
@@ -6292,7 +6292,7 @@ DataArrayInt *DataArrayInt::findRangeIdForEachTuple(const DataArrayInt *ranges) 
  * For example if \a this contains : [1,24,7,8,10,17] and \a ranges contains [(0,3),(3,8),(8,15),(15,22),(22,30)]
  * The return DataArrayInt will contain : **[1,2,4,0,2,2]**
  * This method is often called in pair with DataArrayInt::findRangeIdForEachTuple method.
- * 
+ *
  * \param [in] ranges typically come from output of MEDCouplingUMesh::ComputeRangesFromTypeDistribution. Each range is specified like this : 1st component is
  *             for lower value included and 2nd component is the upper value of corresponding range **excluded**.
  * \throw If offsets is a null pointer or does not have 2 components or if \a this is not allocated or \a this do not have exactly one component. To finish an exception
@@ -6339,7 +6339,7 @@ DataArrayInt *DataArrayInt::findIdInRangeForEachTuple(const DataArrayInt *ranges
  * If this method has correctly worked, \a this will be able to be considered as a linked list.
  * This method does nothing if number of tuples is lower of equal to 1.
  *
- * This method is useful for users having an unstructured mesh having only SEG2 to rearrange internally the connectibity without any coordinates consideration.
+ * This method is useful for users having an unstructured mesh having only SEG2 to rearrange internally the connectivity without any coordinates consideration.
  *
  * \sa MEDCouplingUMesh::orderConsecutiveCells1D, DataArrayInt::fromLinkedListOfPairToList
  */
@@ -6401,7 +6401,7 @@ void DataArrayInt::sortEachPairToMakeALinkedList()
 
 /*!
  * \a this is expected to be a correctly linked list of pairs.
- * 
+ *
  * \sa DataArrayInt::sortEachPairToMakeALinkedList
  */
 MCAuto<DataArrayInt> DataArrayInt::fromLinkedListOfPairToList() const
@@ -6485,7 +6485,7 @@ std::vector<DataArrayInt *> DataArrayInt::partitionByDifferentValues(std::vector
  *
  * \param [in] nbOfSlices - number of slices expected.
  * \return - a vector having a size equal to \a nbOfSlices giving the start (included) and the stop (excluded) of each chunks.
- * 
+ *
  * \sa DataArray::GetSlice
  * \throw If \a this is not allocated or not with exactly one component.
  * \throw If an element in \a this if < 0.

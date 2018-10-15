@@ -1030,7 +1030,7 @@ std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> > MEDFileFi
 
 /*!
  * - \c this->_loc_id mutable attribute is used for elt id in mesh offsets.
- * 
+ *
  * \param [in] offset the offset id used to take into account that \a result is not compulsory empty in input
  * \param [in] entriesOnSameDisc some entries **on same localization** if not the result can be invalid. The _start and _end on them are relative to \a arr parameter.
  * \param [in] explicitIdsInMesh ids in mesh of the considered chunk.
@@ -1641,7 +1641,7 @@ void MEDFileFieldPerMeshPerTypeCommon::setLeaves(const std::vector< MCAuto< MEDF
 }
 
 /*!
- *  \param [in,out] globalNum a global numbering counter for the renumbering. 
+ *  \param [in,out] globalNum a global numbering counter for the renumbering.
  *  \param [out] its - list of pair (start,stop) kept
  *  \return bool - false if the type of field \a tof is not contained in \a this.
  */
@@ -2782,7 +2782,7 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAn
 
 /*!
  * \param [in,out] start - Integer that gives the current position in the final aggregated array
- * \param [in] pms - list of elements to aggregate. integer gives the mesh id 
+ * \param [in] pms - list of elements to aggregate. integer gives the mesh id
  * \param [in] dts - (Distribution of types) = level 1 : meshes to aggregate. Level 2 : all geo type. Level 3 pair specifying geo type and number of elem in geotype.
  * \param [out] extractInfo - Gives information about the where the data comes from. It is a vector of triplet. First element in the triplet the mesh pos. The 2nd one the start pos. The 3rd the end pos.
  */

@@ -249,7 +249,7 @@ std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const
 /*!
  * This method tries to minimize at most the number of deep copy.
  * So if \a idsPerType is not empty it can be returned directly (without copy, but with ref count incremented) in return.
- * 
+ *
  * See MEDCouplingUMesh::checkTypeConsistencyAndContig for more information
  */
 DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
@@ -290,13 +290,13 @@ DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std
  * This method is the opposite of MEDCouplingUMesh::checkTypeConsistencyAndContig method. Given a list of cells in \a profile it returns a list of sub-profiles sorted by geo type.
  * The result is put in the array \a idsPerType. In the returned parameter \a code, foreach i \a code[3*i+2] refers (if different from -1) to a location into the \a idsPerType.
  * This method has 1 input \a profile and 3 outputs \a code \a idsInPflPerType and \a idsPerType.
- * 
+ *
  * \param [out] code is a vector of size 3*n where n is the number of different geometric type in \a this \b reduced to the profile \a profile. \a code has exactly the same semantic than in MEDCouplingUMesh::checkTypeConsistencyAndContig method.
  * \param [out] idsInPflPerType is a vector of size of different geometric type in the subpart defined by \a profile of \a this ( equal to \a code.size()/3). For each i,
  *              \a idsInPflPerType[i] stores the tuple ids in \a profile that correspond to the geometric type code[3*i+0]
  * \param [out] idsPerType is a vector of size of different sub profiles needed to be defined to represent the profile \a profile for a given geometric type.
  *              This vector can be empty in case of all geometric type cells are fully covered in ascending in the given input \a profile.
- * 
+ *
  * \warning for performance reasons no deep copy will be performed, if \a profile can been used as this in output parameters \a idsInPflPerType and \a idsPerType.
  *
  * \throw if \a profile has not exactly one component. It throws too, if \a profile contains some values not in [0,getNumberOfCells()) or if \a this is not fully defined
@@ -304,7 +304,7 @@ DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std
  *  \b Example1: <br>
  *          - Before \a this has 3 cells \a profile contains [0,1,2]
  *          - After \a code contains [NORM_...,nbCells,-1], \a idsInPflPerType [[0,1,2]] and \a idsPerType is empty <br>
- * 
+ *
  *  \b Example2: <br>
  *          - Before \a this has 3 cells \a profile contains [1,2]
  *          - After \a code contains [NORM_...,nbCells,0], \a idsInPflPerType [[0,1]] and \a idsPerType is [[1,2]] <br>
@@ -343,7 +343,7 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
  * and the cells are ordered with the same logic, i.e. in (i,j) notation: (0,0), (1,0), (2,0), ... (0,1), (1,1), ...
  *
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is to
- * delete this array using decrRef() as it is no more needed. 
+ * delete this array using decrRef() as it is no more needed.
  *  \throw If \a this->getMeshDimension() is not among [1,2,3].
  */
 MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
@@ -366,8 +366,8 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
 /*!
  * This method returns the unstructured mesh (having single geometric type) of the sub level mesh of \a this.
  * This method is equivalent to computing MEDCouplingUMesh::buildDescendingConnectivity on the unstructurized \a this mesh.
- * 
- * The caller is to delete the returned mesh using decrRef() as it is no more needed. 
+ *
+ * The caller is to delete the returned mesh using decrRef() as it is no more needed.
  */
 MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTSubLevelMesh() const
 {
@@ -390,7 +390,7 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTSubLevelMesh() const
  * and the cells are ordered with the same logic, i.e. in (i,j) notation: (0,0), (1,0), (2,0), ... (0,1), (1,1), ...
  *
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is to
- * delete this array using decrRef() as it is no more needed. 
+ * delete this array using decrRef() as it is no more needed.
  *  \throw If \a this->getMeshDimension() is not among [1,2,3].
  */
 MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const
@@ -407,7 +407,7 @@ MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const
  *  \param [in] end - specifies the end of the array \a start, so that
  *              the last value of \a start is \a end[ -1 ].
  *  \return MEDCouplingMesh * - a new instance of MEDCouplingUMesh. The caller is to
- *         delete this mesh using decrRef() as it is no more needed. 
+ *         delete this mesh using decrRef() as it is no more needed.
  */
 MEDCouplingMesh *MEDCouplingStructuredMesh::buildPart(const int *start, const int *end) const
 {
@@ -1273,7 +1273,7 @@ int MEDCouplingStructuredMesh::getNumberOfNodes() const
 
 /*!
  * This method returns for a cell which id is \a cellId the location (locX,locY,locZ) of this cell in \a this.
- * 
+ *
  * \param [in] cellId
  * \return - A vector of size this->getMeshDimension()
  * \throw if \a cellId not in [ 0, this->getNumberOfCells() )
@@ -1296,7 +1296,7 @@ std::vector<int> MEDCouplingStructuredMesh::getLocationFromCellId(int cellId) co
 
 /*!
  * This method returns for a node which id is \a nodeId the location (locX,locY,locZ) of this node in \a this.
- * 
+ *
  * \param [in] nodeId
  * \return - A vector of size this->getSpaceDimension()
  * \throw if \a cellId not in [ 0, this->getNumberOfNodes() )

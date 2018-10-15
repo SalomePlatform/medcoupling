@@ -972,7 +972,7 @@ int MEDCouplingOrientationSensitiveNbrer(int id, unsigned nb, const INTERP_KERNE
 
 
 /*!
- * Implementes \a conversionType 0 for meshes with meshDim = 1, of MEDCouplingUMesh::convertLinearCellsToQuadratic method.
+ * Implements \a conversionType 0 for meshes with meshDim = 1, of MEDCouplingUMesh::convertLinearCellsToQuadratic method.
  * \return a newly created DataArrayInt instance that the caller should deal with containing cell ids of converted cells.
  * \sa MEDCouplingUMesh::convertLinearCellsToQuadratic.
  */
@@ -1060,7 +1060,7 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic2DAnd3D0(const MEDC
 }
 
 /*!
- * Implementes \a conversionType 0 for meshes with meshDim = 2, of MEDCouplingUMesh::convertLinearCellsToQuadratic method.
+ * Implements \a conversionType 0 for meshes with meshDim = 2, of MEDCouplingUMesh::convertLinearCellsToQuadratic method.
  * \return a newly created DataArrayInt instance that the caller should deal with containing cell ids of converted cells.
  * \sa MEDCouplingUMesh::convertLinearCellsToQuadratic.
  */
@@ -1124,7 +1124,7 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic2D1(DataArrayInt *&
 }
 
 /*!
- * Implementes \a conversionType 0 for meshes with meshDim = 3, of MEDCouplingUMesh::convertLinearCellsToQuadratic method.
+ * Implements \a conversionType 0 for meshes with meshDim = 3, of MEDCouplingUMesh::convertLinearCellsToQuadratic method.
  * \return a newly created DataArrayInt instance that the caller should deal with containing cell ids of converted cells.
  * \sa MEDCouplingUMesh::convertLinearCellsToQuadratic.
  */

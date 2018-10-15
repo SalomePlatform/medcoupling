@@ -77,7 +77,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::New(const std::string& meshName, int meshDim
  * Returns a new MEDCouplingUMesh which is a full copy of \a this one. No data is shared
  * between \a this and the new mesh.
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingMesh. The caller is to
- *          delete this mesh using decrRef() as it is no more needed. 
+ *          delete this mesh using decrRef() as it is no more needed.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::deepCopy() const
 {
@@ -90,7 +90,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::deepCopy() const
  *  \param [in] recDeepCpy - if \a true, the copy is deep, else all data arrays of \a
  * this mesh are shared by the new mesh.
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingMesh. The caller is to
- *          delete this mesh using decrRef() as it is no more needed. 
+ *          delete this mesh using decrRef() as it is no more needed.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
 {
@@ -100,7 +100,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
 /*!
  * This method behaves mostly like MEDCouplingUMesh::deepCopy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
- * 
+ *
  * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCouplingUMesh::deepCopy
  */
@@ -301,7 +301,7 @@ void MEDCouplingUMesh::setMeshDimension(int meshDim)
 }
 
 /*!
- * Allocates memory to store an estimation of the given number of cells. 
+ * Allocates memory to store an estimation of the given number of cells.
  * The closer the estimation to the number of cells effectively inserted, the less need the library requires
  * to reallocate memory. If the number of cells to be inserted is not known simply assign 0 to this parameter.
  * If a nodal connectivity previously existed before the call of this method, it will be reset.
@@ -340,7 +340,7 @@ void MEDCouplingUMesh::allocateCells(int nbOfCells)
  *  \param [in] type - type of cell to add.
  *  \param [in] size - number of nodes constituting this cell.
  *  \param [in] nodalConnOfCell - the connectivity of the cell to add.
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref medcouplingcppexamplesUmeshStdBuild1 "Here is a C++ example".<br>
  *  \ref medcouplingpyexamplesUmeshStdBuild1 "Here is a Python example".
@@ -378,7 +378,7 @@ void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, in
 /*!
  * Compacts data arrays to release unused memory. This method is to be called after
  * finishing cell insertion using \a this->insertNextCell().
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref medcouplingcppexamplesUmeshStdBuild1 "Here is a C++ example".<br>
  *  \ref medcouplingpyexamplesUmeshStdBuild1 "Here is a Python example".
@@ -432,7 +432,7 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypes() c
  * having the same geometric type. So a same geometric type can appear more than once if the cells are not sorted per geometric type.
  *
  * \throw if connectivity in \a this is not correctly defined.
- *  
+ *
  * \sa MEDCouplingMesh::getAllGeoTypes
  */
 std::vector<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypesSorted() const
@@ -562,7 +562,7 @@ void MEDCouplingUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double
   MEDCouplingPointSet::checkFastEquivalWith(other,prec);
   const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
   if(!otherC)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkFastEquivalWith : Two meshes are not not unstructured !"); 
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkFastEquivalWith : Two meshes are not not unstructured !");
 }
 
 /*!
@@ -574,15 +574,15 @@ void MEDCouplingUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double
  * \param [in,out] revNodalIndx - an array, of length \a this->getNumberOfNodes() + 1,
  *        dividing cell ids in \a revNodal into groups each referring to one
  *        node. Its every element (except the last one) is an index pointing to the
- *         first id of a group of cells. For example cells sharing the node #1 are 
- *        described by following range of indices: 
+ *         first id of a group of cells. For example cells sharing the node #1 are
+ *        described by following range of indices:
  *        [ \a revNodalIndx[1], \a revNodalIndx[2] ) and the cell ids are
  *        \a revNodal[ \a revNodalIndx[1] ], \a revNodal[ \a revNodalIndx[1] + 1], ...
  *        Number of cells sharing the *i*-th node is
  *        \a revNodalIndx[ *i*+1 ] - \a revNodalIndx[ *i* ].
  * \throw If the coordinates array is not set.
  * \throw If the nodal connectivity of cells is not defined.
- * 
+ *
  * \if ENABLE_EXAMPLES
  * \ref cpp_mcumesh_getReverseNodalConnectivity "Here is a C++ example".<br>
  * \ref  py_mcumesh_getReverseNodalConnectivity "Here is a Python example".
@@ -628,7 +628,7 @@ void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataA
  * returned. The arrays \a desc and \a descIndx (\ref numbering-indirect) describe the descending connectivity,
  * i.e. enumerate cells of the result mesh bounding each cell of \a this mesh. The
  * arrays \a revDesc and \a revDescIndx (\ref numbering-indirect) describe the reverse descending connectivity,
- * i.e. enumerate cells of  \a this mesh bounded by each cell of the result mesh. 
+ * i.e. enumerate cells of  \a this mesh bounded by each cell of the result mesh.
  * \warning For speed reasons, this method does not check if node ids in the nodal
  *          connectivity correspond to the size of node coordinates array.
  * \warning Cells of the result mesh are \b not sorted by geometric type, hence,
@@ -658,7 +658,7 @@ void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataA
  *  \throw If the nodal connectivity of cells is node defined.
  *  \throw If \a desc == NULL || \a descIndx == NULL || \a revDesc == NULL || \a
  *         revDescIndx == NULL.
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildDescendingConnectivity "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildDescendingConnectivity "Here is a Python example".
@@ -718,7 +718,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::explodeMeshIntoMicroEdges(DataArrayInt *desc
  * cell with id #0 can't be negative, the array \a desc returns ids in FORTRAN mode,
  * i.e. cell ids are one-based.
  * Arrays \a revDesc and \a revDescIndx (\ref numbering-indirect) describe the reverse descending connectivity,
- * i.e. enumerate cells of  \a this mesh bounded by each cell of the result mesh. 
+ * i.e. enumerate cells of  \a this mesh bounded by each cell of the result mesh.
  * \warning For speed reasons, this method does not check if node ids in the nodal
  *          connectivity correspond to the size of node coordinates array.
  * \warning Cells of the result mesh are \b not sorted by geometric type, hence,
@@ -749,7 +749,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::explodeMeshIntoMicroEdges(DataArrayInt *desc
  *  \throw If the nodal connectivity of cells is node defined.
  *  \throw If \a desc == NULL || \a descIndx == NULL || \a revDesc == NULL || \a
  *         revDescIndx == NULL.
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildDescendingConnectivity2 "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildDescendingConnectivity2 "Here is a Python example".
@@ -905,7 +905,7 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::explodeIntoEdges(MCAuto<DataArrayInt>
  * The number of tuples is equal to the last values in \b neighborsIndx.
  * \param [out] neighborsIdx is an array of size this->getNumberOfCells()+1 newly allocated and should
  * be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
- * 
+ *
  * \sa MEDCouplingUMesh::computeEnlargedNeighborsOfNodes
  */
 void MEDCouplingUMesh::computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const
@@ -955,7 +955,7 @@ void MEDCouplingUMesh::computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArr
  * Computes enlarged neighbors for each nodes in \a this. The behavior of this method is close to MEDCouplingUMesh::computeNeighborsOfNodes except that the neighborhood of each node is wider here.
  * A node j is considered to be in the neighborhood of i if and only if there is a cell in \a this containing in its nodal connectivity both i and j.
  * This method is useful to find ghost cells of a part of a mesh with a code based on fields on nodes.
- * 
+ *
  * \sa MEDCouplingUMesh::computeNeighborsOfNodes
  */
 void MEDCouplingUMesh::computeEnlargedNeighborsOfNodes(MCAuto<DataArrayInt> &neighbors, MCAuto<DataArrayInt>& neighborsIdx) const
@@ -1294,9 +1294,9 @@ bool MEDCouplingUMesh::unPolyze()
 /*!
  * This method expects that spaceDimension is equal to 3 and meshDimension equal to 3.
  * This method performs operation only on polyhedrons in \b this. If no polyhedrons exists in \b this, \b this remains unchanged.
- * This method allows to merge if any coplanar 3DSurf cells that may appear in some polyhedrons cells. 
+ * This method allows to merge if any coplanar 3DSurf cells that may appear in some polyhedrons cells.
  *
- * \param [in] eps is a relative precision that allows to establish if some 3D plane are coplanar or not. This epsilon is used to recenter around origin to have maximal 
+ * \param [in] eps is a relative precision that allows to establish if some 3D plane are coplanar or not. This epsilon is used to recenter around origin to have maximal
  *             precision.
  */
 void MEDCouplingUMesh::simplifyPolyhedra(double eps)
@@ -1336,7 +1336,7 @@ void MEDCouplingUMesh::simplifyPolyhedra(double eps)
  * This method returns all node ids used in the connectivity of \b this. The data array returned has to be dealt by the caller.
  * The returned node ids are sorted ascendingly. This method is close to MEDCouplingUMesh::getNodeIdsInUse except
  * the format of the returned DataArrayInt instance.
- * 
+ *
  * \return a newly allocated DataArrayInt sorted ascendingly of fetched node ids.
  * \sa MEDCouplingUMesh::getNodeIdsInUse, areAllNodesFetched
  */
@@ -1386,12 +1386,12 @@ struct MEDCouplingAccVisit
 /*!
  * Finds nodes not used in any cell and returns an array giving a new id to every node
  * by excluding the unused nodes, for which the array holds -1. The result array is
- * a mapping in "Old to New" mode. 
+ * a mapping in "Old to New" mode.
  *  \param [out] nbrOfNodesInUse - number of node ids present in the nodal connectivity.
  *  \return DataArrayInt * - a new instance of DataArrayInt. Its length is \a
  *          this->getNumberOfNodes(). It holds for each node of \a this mesh either -1
  *          if the node is unused or a new id else. The caller is to delete this
- *          array using decrRef() as it is no more needed.  
+ *          array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
@@ -1435,7 +1435,7 @@ DataArrayInt *MEDCouplingUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
  * For each cell in \b this the number of nodes constituting cell is computed.
  * For each polyhedron cell, the sum of the number of nodes of each face constituting polyhedron cell is returned.
  * So for pohyhedrons some nodes can be counted several times in the returned result.
- * 
+ *
  * \return a newly allocated array
  * \sa MEDCouplingUMesh::computeEffectiveNbOfNodesPerCell
  */
@@ -1491,7 +1491,7 @@ DataArrayInt *MEDCouplingUMesh::computeEffectiveNbOfNodesPerCell() const
 /*!
  * This method returns a newly allocated array containing this->getNumberOfCells() tuples and 1 component.
  * For each cell in \b this the number of faces constituting (entity of dimension this->getMeshDimension()-1) cell is computed.
- * 
+ *
  * \return a newly allocated array
  */
 DataArrayInt *MEDCouplingUMesh::computeNbOfFacesPerCell() const
@@ -1514,10 +1514,10 @@ DataArrayInt *MEDCouplingUMesh::computeNbOfFacesPerCell() const
 /*!
  * Removes unused nodes (the node coordinates array is shorten) and returns an array
  * mapping between new and old node ids in "Old to New" mode. -1 values in the returned
- * array mean that the corresponding old node is no more used. 
+ * array mean that the corresponding old node is no more used.
  *  \return DataArrayInt * - a new instance of DataArrayInt of length \a
  *           this->getNumberOfNodes() before call of this method. The caller is to
- *           delete this array using decrRef() as it is no more needed. 
+ *           delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
@@ -1707,7 +1707,7 @@ int MEDCouplingUMesh::AreCellsEqualPolicy7(const int *conn, const int *connI, in
  * \param [out] commonCellsArr common cells ids (\ref numbering-indirect)
  * \param [out] commonCellsIArr common cells ids (\ref numbering-indirect)
  * \return the correspondence array old to new in a newly allocated array.
- * 
+ *
  */
 void MEDCouplingUMesh::findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const
 {
@@ -1803,7 +1803,7 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, int startCellId, const D
  * than \a this->getNumberOfCells() in the returned array means that there is no
  * corresponding cell in \a this mesh.
  * It is expected that \a this and \a other meshes share the same node coordinates
- * array, if it is not so an exception is thrown. 
+ * array, if it is not so an exception is thrown.
  *  \param [in] other - the mesh to compare with.
  *  \param [in] compType - specifies a cell comparison technique. For meaning of its
  *         valid values [0,1,2], see zipConnectivityTraducer().
@@ -1904,13 +1904,13 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplin
  * Build a sub part of \b this lying or not on the same coordinates than \b this (regarding value of \b keepCoords).
  * By default coordinates are kept. This method is close to MEDCouplingUMesh::buildPartOfMySelf except that here input
  * cellIds is not given explicitly but by a range python like.
- * 
+ *
  * \param start
  * \param end
  * \param step
  * \param keepCoords that specifies if you want or not to keep coords as this or zip it (see MEDCoupling::MEDCouplingUMesh::zipCoords). If true zipCoords is \b NOT called, if false, zipCoords is called.
  * \return a newly allocated
- * 
+ *
  * \warning This method modifies can generate an unstructured mesh whose cells are not sorted by geometric type order.
  * In view of the MED file writing, a renumbering of cells of returned unstructured mesh (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
@@ -1943,7 +1943,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfSlice(int start, int end, i
  *         array of \a this mesh, else "free" nodes are removed from the result mesh
  *         by calling zipCoords().
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is
- *         to delete this mesh using decrRef() as it is no more needed. 
+ *         to delete this mesh using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If any cell id in the array \a begin is not valid.
@@ -2077,7 +2077,7 @@ void MEDCouplingUMesh::setPartOfMySelfSlice(int start, int end, int step, const 
       MCAuto<DataArrayInt> arrOutAuto(arrOut),arrIOutAuto(arrIOut);
       setConnectivity(arrOut,arrIOut,true);
     }
-}                      
+}
 
 
 /*!
@@ -2087,14 +2087,14 @@ void MEDCouplingUMesh::setPartOfMySelfSlice(int start, int end, int step, const 
  * specified node ids and the value of \a fullyIn parameter. If \a fullyIn ==\c true, a
  * cell is copied if its all nodes are in the array \a begin of node ids. If \a fullyIn
  * ==\c false, a cell is copied if any its node is in the array of node ids. The
- * created mesh shares the node coordinates array with \a this mesh. 
+ * created mesh shares the node coordinates array with \a this mesh.
  *  \param [in] begin - the array of node ids.
  *  \param [in] end - a pointer to the (last+1)-th element of \a begin.
  *  \param [in] fullyIn - if \c true, then cells whose all nodes are in the
  *         array \a begin are added, else cells whose any node is in the
  *         array \a begin are added.
  *  \return MEDCouplingUMesh * - new instance of MEDCouplingUMesh. The caller is
- *         to delete this mesh using decrRef() as it is no more needed. 
+ *         to delete this mesh using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If any node id in \a begin is not valid.
@@ -2120,7 +2120,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begin, 
  *         array of \a this mesh, else "free" nodes are removed from the result mesh
  *         by calling zipCoords().
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is
- *         to delete this mesh using decrRef() as it is no more needed. 
+ *         to delete this mesh using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
@@ -2154,7 +2154,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
 /*!
  * This method returns a newly created DataArrayInt instance containing ids of cells located in boundary.
  * A cell is detected to be on boundary if it contains one or more than one face having only one father.
- * This method makes the assumption that \a this is fully defined (coords,connectivity). If not an exception will be thrown. 
+ * This method makes the assumption that \a this is fully defined (coords,connectivity). If not an exception will be thrown.
  */
 DataArrayInt *MEDCouplingUMesh::findCellIdsOnBoundary() const
 {
@@ -2239,7 +2239,7 @@ void MEDCouplingUMesh::findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSa
 /*!
  * This method computes the skin of \b this. That is to say the consituting meshdim-1 mesh is built and only the boundary subpart is
  * returned. This subpart of meshdim-1 mesh is built using meshdim-1 cells in it shared only one cell in \b this.
- * 
+ *
  * \return a newly allocated mesh lying on the same coordinates than \b this. The caller has to deal with returned mesh.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::computeSkin() const
@@ -2428,14 +2428,14 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
 
 /*!
  * This method operates a modification of the connectivity and coords in \b this.
- * Every time that a node id in [ \b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd ) will append in nodal connectivity of \b this 
+ * Every time that a node id in [ \b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd ) will append in nodal connectivity of \b this
  * its ids will be modified to id this->getNumberOfNodes()+std::distance(nodeIdsToDuplicateBg,std::find(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd,id)).
  * More explicitly the renumber array in nodes is not explicitly given in old2new to avoid to build a big array of renumbering whereas typically few node ids needs to be
  * renumbered. The node id nodeIdsToDuplicateBg[0] will have id this->getNumberOfNodes()+0, node id nodeIdsToDuplicateBg[1] will have id this->getNumberOfNodes()+1,
  * node id nodeIdsToDuplicateBg[2] will have id this->getNumberOfNodes()+2...
- * 
+ *
  * As a consequence nodal connectivity array length will remain unchanged by this method, and nodal connectivity index array will remain unchanged by this method.
- * 
+ *
  * \param [in] nodeIdsToDuplicateBg begin of node ids (included) to be duplicated in connectivity only
  * \param [in] nodeIdsToDuplicateEnd end of node ids (excluded) to be duplicated in connectivity only
  */
@@ -2499,7 +2499,7 @@ void MEDCouplingUMesh::renumberNodesInConn(const std::map<int,int>& newNodeNumbe
  * This method is a generalization of shiftNodeNumbersInConn().
  *  \warning This method performs no check of validity of new ids. **Use it with care !**
  *  \param [in] newNodeNumbersO2N - a permutation array, of length \a
- *         this->getNumberOfNodes(), in "Old to New" mode. 
+ *         this->getNumberOfNodes(), in "Old to New" mode.
  *         See \ref numbering for more info on renumbering modes.
  *  \throw If the nodal connectivity of cells is not defined.
  *
@@ -2531,7 +2531,7 @@ void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
  * This method renumbers nodes \b in \b connectivity \b only \b without \b any \b reference \b to \b coords.
  * This method performs no check on the fact that new coordinate ids are valid. \b Use \b it \b with \b care !
  * This method is an specialization of \ref MEDCoupling::MEDCouplingUMesh::renumberNodesInConn "renumberNodesInConn method".
- * 
+ *
  * \param [in] delta specifies the shift size applied to nodeId in nodal connectivity in \b this.
  */
 void MEDCouplingUMesh::shiftNodeNumbersInConn(int delta)
@@ -2556,18 +2556,18 @@ void MEDCouplingUMesh::shiftNodeNumbersInConn(int delta)
 /*!
  * This method operates a modification of the connectivity in \b this.
  * Coordinates are \b NOT considered here and will remain unchanged by this method. this->_coords can ever been null for the needs of this method.
- * Every time that a node id in [ \b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd ) will append in nodal connectivity of \b this 
+ * Every time that a node id in [ \b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd ) will append in nodal connectivity of \b this
  * its ids will be modified to id offset+std::distance(nodeIdsToDuplicateBg,std::find(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd,id)).
  * More explicitly the renumber array in nodes is not explicitly given in old2new to avoid to build a big array of renumbering whereas typically few node ids needs to be
  * renumbered. The node id nodeIdsToDuplicateBg[0] will have id offset+0, node id nodeIdsToDuplicateBg[1] will have id offset+1,
  * node id nodeIdsToDuplicateBg[2] will have id offset+2...
- * 
+ *
  * As a consequence nodal connectivity array length will remain unchanged by this method, and nodal connectivity index array will remain unchanged by this method.
  * As an another consequense after the call of this method \b this can be transiently non cohrent.
- * 
+ *
  * \param [in] nodeIdsToDuplicateBg begin of node ids (included) to be duplicated in connectivity only
  * \param [in] nodeIdsToDuplicateEnd end of node ids (excluded) to be duplicated in connectivity only
- * \param [in] offset the offset applied to all node ids in connectivity that are in [ \a nodeIdsToDuplicateBg, \a nodeIdsToDuplicateEnd ). 
+ * \param [in] offset the offset applied to all node ids in connectivity that are in [ \a nodeIdsToDuplicateBg, \a nodeIdsToDuplicateEnd ).
  */
 void MEDCouplingUMesh::duplicateNodesInConn(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd, int offset)
 {
@@ -2606,7 +2606,7 @@ void MEDCouplingUMesh::duplicateNodesInConn(const int *nodeIdsToDuplicateBg, con
  * If 'check' equals false the method will not check the content of [ \a old2NewBg ; \a old2NewEnd ).
  * To avoid any throw of SIGSEGV when 'check' equals false, the elements in [ \a old2NewBg ; \a old2NewEnd ) should be unique and
  * should be contained in[0;this->getNumberOfCells()).
- * 
+ *
  * \param [in] old2NewBg is expected to be a dynamically allocated pointer of size at least equal to this->getNumberOfCells()
  * \param check
  */
@@ -2652,13 +2652,13 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check)
  * Finds cells whose bounding boxes intersect a given bounding box.
  *  \param [in] bbox - an array defining the bounding box via coordinates of its
  *         extremum points in "no interlace" mode, i.e. xMin, xMax, yMin, yMax, zMin,
- *         zMax (if in 3D). 
+ *         zMax (if in 3D).
  *  \param [in] eps - a factor used to increase size of the bounding box of cell
  *         before comparing it with \a bbox. This factor is multiplied by the maximal
  *         extent of the bounding box of cell to produce an addition to this bounding box.
  *  \return DataArrayInt * - a new instance of DataArrayInt holding ids for found
  *         cells. The caller is to delete this array using decrRef() as it is no more
- *         needed. 
+ *         needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
@@ -2933,7 +2933,7 @@ std::string MEDCouplingUMesh::reprConnectivityOfThis() const
  * This method returns an instance with all arrays allocated (connectivity, connectivity index, coordinates)
  * but with length of these arrays set to 0. It allows to define an "empty" mesh (with nor cells nor nodes but compliant with
  * some algos).
- * 
+ *
  * This method expects that \a this has a mesh dimension set and higher or equal to 0. If not an exception will be thrown.
  * This method analyzes the 3 arrays of \a this. For each the following behaviour is done : if the array is null a newly one is created
  * with number of tuples set to 0, if not the array is taken as this in the returned instance.
@@ -2995,7 +2995,7 @@ int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
  *  \param [in] begin - an array of cell ids of interest.
  *  \param [in] end - the end of \a begin, i.e. a pointer to its (last+1)-th element.
  *  \return std::set<INTERP_KERNEL::NormalizedCellType> - a set of enumeration items
- *         describing the cell types. 
+ *         describing the cell types.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \sa getAllGeoTypes()
@@ -3014,10 +3014,10 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getTypesOfPart(con
 /*!
  * Defines the nodal connectivity using given connectivity arrays in \ref numbering-indirect format.
  * Optionally updates
- * a set of types of cells constituting \a this mesh. 
+ * a set of types of cells constituting \a this mesh.
  * This method is for advanced users having prepared their connectivity before. For
  * more info on using this method see \ref MEDCouplingUMeshAdvBuild.
- *  \param [in] conn - the nodal connectivity array. 
+ *  \param [in] conn - the nodal connectivity array.
  *  \param [in] connIndex - the nodal connectivity index array.
  *  \param [in] isComputingTypes - if \c true, the set of types constituting \a this
  *         mesh is updated.
@@ -3064,12 +3064,12 @@ void MEDCouplingUMesh::computeTypes()
 
 
 /*!
- * Returns a number of cells constituting \a this mesh. 
+ * Returns a number of cells constituting \a this mesh.
  *  \return int - the number of cells in \a this mesh.
  *  \throw If the nodal connectivity of cells is not defined.
  */
 std::size_t MEDCouplingUMesh::getNumberOfCells() const
-{ 
+{
   if(_nodal_connec_index)
     return _nodal_connec_index->getNumberOfTuples()-1;
   else
@@ -3245,7 +3245,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
  *  \param [in] end - the end of \a begin, i.e. a pointer to its (last+1)-th element.
  *  \return DataArrayDouble * - a new instance of DataArrayDouble. The caller is to
  *          delete this array using decrRef() as it is no more needed.
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getPartMeasureField "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getPartMeasureField "Here is a Python example".
@@ -3331,10 +3331,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) cons
  * mesh. The returned normal vectors to each cell have a norm2 equal to 1.
  * The computed vectors have <em> this->getMeshDimension()+1 </em> components
  * and are normalized.
- * <br> \a this can be either 
- * - a  2D mesh in 2D or 3D space or 
+ * <br> \a this can be either
+ * - a  2D mesh in 2D or 3D space or
  * - an 1D mesh in 2D space.
- * 
+ *
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on
  *          cells and one time. The caller is to delete this field using decrRef() as
  *          it is no more needed.
@@ -3401,10 +3401,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
  * Returns a new MEDCouplingFieldDouble holding normal vectors to specified cells of
  * \a this mesh. The computed vectors have <em> this->getMeshDimension()+1 </em> components
  * and are normalized.
- * <br> \a this can be either 
- * - a  2D mesh in 2D or 3D space or 
+ * <br> \a this can be either
+ * - a  2D mesh in 2D or 3D space or
  * - an 1D mesh in 2D space.
- * 
+ *
  * This method avoids building explicitly a part of \a this mesh to perform the work.
  *  \param [in] begin - an array of cell ids of interest.
  *  \param [in] end - the end of \a begin, i.e. a pointer to its (last+1)-th element.
@@ -3528,7 +3528,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildDirectionVectorField() const
  *         using decrRef() as it is no more needed.
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. This mesh does
  *         not share the node coordinates array with \a this mesh. The caller is to
- *         delete this mesh using decrRef() as it is no more needed.  
+ *         delete this mesh using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If \a this->getMeshDimension() != 3 or \a this->getSpaceDimension() != 3.
@@ -3594,7 +3594,7 @@ the result mesh.
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. This is an 1D
  *         mesh in 3D space. This mesh does not share the node coordinates array with
  *         \a this mesh. The caller is to delete this mesh using decrRef() as it is
- *         no more needed. 
+ *         no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If \a this->getMeshDimension() != 2 or \a this->getSpaceDimension() != 3.
@@ -3894,7 +3894,7 @@ void MEDCouplingUMesh::project1D(const double *pt, const double *v, double eps, 
 }
 
 /*!
- * This method computes the distance from a point \a pt to \a this and the first \a cellId in \a this corresponding to the returned distance. 
+ * This method computes the distance from a point \a pt to \a this and the first \a cellId in \a this corresponding to the returned distance.
  * \a this is expected to be a mesh so that its space dimension is equal to its
  * mesh dimension + 1. Furthermore only mesh dimension 1 and 2 are supported for the moment.
  * Distance from \a ptBg to \a ptEnd is expected to be equal to the space dimension. \a this is also expected to be fully defined (connectivity and coordinates).
@@ -3934,11 +3934,11 @@ double MEDCouplingUMesh::distanceToPoint(const double *ptBg, const double *ptEnd
 
 /*!
  * This method computes the distance from each point of points serie \a pts (stored in a DataArrayDouble in which each tuple represents a point)
- *  to \a this  and the first \a cellId in \a this corresponding to the returned distance. 
+ *  to \a this  and the first \a cellId in \a this corresponding to the returned distance.
  * WARNING, if there is some orphan nodes in \a this (nodes not fetched by any cells in \a this ( see MEDCouplingUMesh::zipCoords ) ) these nodes will ** not ** been taken
  * into account in this method. Only cells and nodes lying on them are considered in the algorithm (even if one of these orphan nodes is closer than returned distance).
  * A user that needs to consider orphan nodes should invoke DataArrayDouble::minimalDistanceTo method on the coordinates array of \a this.
- * 
+ *
  * \a this is expected to be a mesh so that its space dimension is equal to its
  * mesh dimension + 1. Furthermore only mesh dimension 1 and 2 are supported for the moment.
  * Number of components of \a pts is expected to be equal to the space dimension. \a this is also expected to be fully defined (connectivity and coordinates).
@@ -4019,13 +4019,13 @@ DataArrayDouble *MEDCouplingUMesh::distanceToPoints(const DataArrayDouble *pts, 
 /// @endcond
 
 /*!
- * Finds cells in contact with a ball (i.e. a point with precision). 
+ * Finds cells in contact with a ball (i.e. a point with precision).
  * For speed reasons, the INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6 and INTERP_KERNEL::NORM_QUAD8 cells are considered as convex cells to detect if a point is IN or OUT.
  * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
  *
  * \warning This method is suitable if the caller intends to evaluate only one
  *          point, for more points getCellsContainingPoints() is recommended as it is
- *          faster. 
+ *          faster.
  *  \param [in] pos - array of coordinates of the ball central point.
  *  \param [in] eps - ball radius.
  *  \return int - a smallest id of cells being in contact with the ball, -1 in case
@@ -4048,7 +4048,7 @@ int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) cons
  * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
  * \warning This method is suitable if the caller intends to evaluate only one
  *          point, for more points getCellsContainingPoints() is recommended as it is
- *          faster. 
+ *          faster.
  *  \param [in] pos - array of coordinates of the ball central point.
  *  \param [in] eps - ball radius.
  *  \param [out] elts - vector returning ids of the found cells. It is cleared
@@ -4115,7 +4115,7 @@ void MEDCouplingUMesh::getCellsContainingPointsZeAlg(const double *pos, int nbOf
  * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
  *  \param [in] pos - an array of coordinates of points in full interlace mode :
  *         X0,Y0,Z0,X1,Y1,Z1,... Size of the array must be \a
- *         this->getSpaceDimension() * \a nbOfPoints 
+ *         this->getSpaceDimension() * \a nbOfPoints
  *  \param [in] nbOfPoints - number of points to locate within \a this mesh.
  *  \param [in] eps - radius of balls (i.e. the precision).
  *  \param [out] elts - vector returning ids of found cells.
@@ -4197,7 +4197,7 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells, double eps) 
  *
  * This method expects that space dimension is equal to 2 and mesh dimension is equal to 2 too. If it is not the case an INTERP_KERNEL::Exception will be thrown.
  * This method works only for linear 2D cells. If there is any of non linear cells (INTERP_KERNEL::NORM_QUAD8 for example) an INTERP_KERNEL::Exception will be thrown too.
- * 
+ *
  * For each 2D linear cell in \b this, this method builds the convex envelop (or the convex hull) of the current cell.
  * This convex envelop is computed using Jarvis march algorithm.
  * The coordinates and the number of cells of \b this remain unchanged on invocation of this method.
@@ -4250,7 +4250,7 @@ DataArrayInt *MEDCouplingUMesh::convexEnvelop2D()
  *   the 3 preceding points of the 1D mesh. The center of the arc is the center of rotation for each level, the rotation is done
  *   along an axis normal to the plane containing the arc, and finally the angle of rotation is defined by the first two points on the
  *   arc.
- * \return an unstructured mesh with meshDim==3 and spaceDim==3. The returned mesh has the same coords than \a this.  
+ * \return an unstructured mesh with meshDim==3 and spaceDim==3. The returned mesh has the same coords than \a this.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy)
 {
@@ -4404,11 +4404,11 @@ void MEDCouplingUMesh::convertQuadraticCellsToLinear()
  * or to INTERP_KERNEL::NORM_TRI7 if \a conversionType is equal to 1. All non linear cells and polyhedron in \a this are let untouched.
  * Contrary to MEDCouplingUMesh::convertQuadraticCellsToLinear method, the coordinates in \a this can be become bigger. All created nodes will be put at the
  * end of the existing coordinates.
- * 
+ *
  * \param [in] conversionType specifies the type of conversion expected. Only 0 (default) and 1 are supported presently. 0 those that creates the 'most' simple
  *             corresponding quadratic cells. 1 is those creating the 'most' complex.
  * \return a newly created DataArrayInt instance that the caller should deal with containing cell ids of converted cells.
- * 
+ *
  * \throw if \a this is not fully defined. It throws too if \a conversionType is not in [0,1].
  *
  * \sa MEDCouplingUMesh::convertQuadraticCellsToLinear
@@ -4563,7 +4563,7 @@ void MEDCouplingUMesh::splitSomeEdgesOf2DMesh(const DataArrayInt *nodeIdsToAdd, 
  *
  *  \throw If \a policy is 0 or 1 and \a this->getMeshDimension() != 2.
  *  \throw If \a policy is INTERP_KERNEL::PLANAR_FACE_5 or INTERP_KERNEL::PLANAR_FACE_6
- *          and \a this->getMeshDimension() != 3. 
+ *          and \a this->getMeshDimension() != 3.
  *  \throw If \a policy is not one of the four discussed above.
  *  \throw If the nodal connectivity of cells is not defined.
  * \sa MEDCouplingUMesh::tetrahedrize, MEDCoupling1SGTUMesh::sortHexa8EachOther
@@ -4768,7 +4768,7 @@ bool MEDCouplingUMesh::removeDegenerated1DCells()
  * A cell is considered to be oriented correctly if an angle between its
  * normal vector and a given vector is less than \c PI / \c 2.
  *  \param [in] vec - 3 components of the vector specifying the correct orientation of
- *         cells. 
+ *         cells.
  *  \param [in] polyOnly - if \c true, only polygons are checked, else, all cells are
  *         checked.
  *  \param [in,out] cells - a vector returning ids of incorrectly oriented cells. It
@@ -4804,9 +4804,9 @@ void MEDCouplingUMesh::are2DCellsNotCorrectlyOriented(const double *vec, bool po
 /*!
  * Reverse connectivity of 2D cells whose orientation is not correct. A cell is
  * considered to be oriented correctly if an angle between its normal vector and a
- * given vector is less than \c PI / \c 2. 
+ * given vector is less than \c PI / \c 2.
  *  \param [in] vec - 3 components of the vector specifying the correct orientation of
- *         cells. 
+ *         cells.
  *  \param [in] polyOnly - if \c true, only polygons are checked, else, all cells are
  *         checked.
  *  \throw If \a this->getMeshDimension() != 2.
@@ -4914,7 +4914,7 @@ void MEDCouplingUMesh::arePolyhedronsNotCorrectlyOriented(std::vector<int>& cell
 
 /*!
  * Tries to fix connectivity of polyhedra, so that normal vector of all facets to point
- * out of the cell. 
+ * out of the cell.
  *  \throw If \a this->getMeshDimension() != 3.
  *  \throw If \a this->getSpaceDimension() != 3.
  *  \throw If the coordinates array is not set.
@@ -4956,7 +4956,7 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons()
 }
 
 /*!
- * This method invert orientation of all cells in \a this. 
+ * This method invert orientation of all cells in \a this.
  * After calling this method the absolute value of measure of cells in \a this are the same than before calling.
  * This method only operates on the connectivity so coordinates are not touched at all.
  */
@@ -4983,7 +4983,7 @@ void MEDCouplingUMesh::invertOrientationOfAllCells()
  * pointing out of cell.
  *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of fixed
  *         cells. The caller is to delete this array using decrRef() as it is no more
- *         needed. 
+ *         needed.
  *  \throw If \a this->getMeshDimension() != 3.
  *  \throw If \a this->getSpaceDimension() != 3.
  *  \throw If the coordinates array is not set.
@@ -5028,9 +5028,9 @@ DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells()
  * This method is a faster method to correct orientation of all 3D cells in \a this.
  * This method works only if \a this is a 3D mesh, that is to say a mesh with mesh dimension 3 and a space dimension 3.
  * This method makes the hypothesis that \a this a coherent that is to say MEDCouplingUMesh::checkConsistency should throw no exception.
- * 
+ *
  * \return a newly allocated int array with one components containing cell ids renumbered to fit the convention of MED (MED file and MEDCoupling)
- * \sa MEDCouplingUMesh::orientCorrectlyPolyhedrons, 
+ * \sa MEDCouplingUMesh::orientCorrectlyPolyhedrons,
  */
 DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DCells()
 {
@@ -5116,13 +5116,13 @@ void MEDCouplingUMesh::getFastAveragePlaneOfThis(double *vec, double *pos) const
  * INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4 and INTERP_KERNEL::NORM_TETRA4.
  * For a cell of other type an exception is thrown.
  * Space dimension of a 2D mesh can be either 2 or 3.
- * The Edge Ratio of a cell \f$t\f$ is: 
+ * The Edge Ratio of a cell \f$t\f$ is:
  *  \f$\frac{|t|_\infty}{|t|_0}\f$,
  *  where \f$|t|_\infty\f$ and \f$|t|_0\f$ respectively denote the greatest and
  *  the smallest edge lengths of \f$t\f$.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on
  *          cells and one time, lying on \a this mesh. The caller is to delete this
- *          field using decrRef() as it is no more needed. 
+ *          field using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If \a this mesh contains elements of dimension different from the mesh dimension.
  *  \throw If the connectivity data array has more than one component.
@@ -5194,7 +5194,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getEdgeRatioField() const
  * Space dimension of a 2D mesh can be either 2 or 3.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on
  *          cells and one time, lying on \a this mesh. The caller is to delete this
- *          field using decrRef() as it is no more needed. 
+ *          field using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If \a this mesh contains elements of dimension different from the mesh dimension.
  *  \throw If the connectivity data array has more than one component.
@@ -5275,7 +5275,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getAspectRatioField() const
  *  \f]
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on
  *          cells and one time, lying on \a this mesh. The caller is to delete this
- *          field using decrRef() as it is no more needed. 
+ *          field using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If \a this mesh contains elements of dimension different from the mesh dimension.
  *  \throw If the connectivity data array has more than one component.
@@ -5342,7 +5342,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getWarpField() const
  * For a cell of other type an exception is thrown.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on
  *          cells and one time, lying on \a this mesh. The caller is to delete this
- *          field using decrRef() as it is no more needed. 
+ *          field using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If \a this mesh contains elements of dimension different from the mesh dimension.
  *  \throw If the connectivity data array has more than one component.
@@ -5424,11 +5424,11 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::computeDiameterField() const
 
 /*!
  * This method aggregate the bbox of each cell and put it into bbox parameter (xmin,xmax,ymin,ymax,zmin,zmax).
- * 
+ *
  * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
  *                         For all other cases this input parameter is ignored.
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
- * 
+ *
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
  * \sa MEDCouplingUMesh::getBoundingBoxForBBTreeFast, MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic
@@ -5460,9 +5460,9 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree(double arcDetEps) con
 /*!
  * This method aggregate the bbox of each cell only considering the nodes constituting each cell and put it into bbox parameter.
  * So meshes having quadratic cells the computed bounding boxes can be invalid !
- * 
+ *
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
- * 
+ *
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
  */
@@ -5510,7 +5510,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTreeFast() const
  * useful for 2D meshes having quadratic cells
  * because for this type of cells getBoundingBoxForBBTreeFast method may return invalid bounding boxes (since it just considers
  * the two extremities of the arc of circle).
- * 
+ *
  * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
  * \throw If \a this is not fully defined.
@@ -5546,7 +5546,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arc
       else
         pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
       INTERP_KERNEL::Bounds b; b.prepareForAggregation(); pol->fillBounds(b); delete pol;
-      bbox[0]=b.getXMin(); bbox[1]=b.getXMax(); bbox[2]=b.getYMin(); bbox[3]=b.getYMax(); 
+      bbox[0]=b.getXMin(); bbox[1]=b.getXMax(); bbox[2]=b.getYMin(); bbox[3]=b.getYMax();
     }
   return ret.retn();
 }
@@ -5556,7 +5556,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arc
  * useful for 2D meshes having quadratic cells
  * because for this type of cells getBoundingBoxForBBTreeFast method may return invalid bounding boxes (since it just considers
  * the two extremities of the arc of circle).
- * 
+ *
  * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
  * \throw If \a this is not fully defined.
@@ -5627,8 +5627,8 @@ namespace MEDCouplingImpl
  * This method expects that \a this is sorted by types. If not an exception will be thrown.
  * This method returns in the same format as code (see MEDCouplingUMesh::checkTypeConsistencyAndContig or MEDCouplingUMesh::splitProfilePerType) how
  * \a this is composed in cell types.
- * The returned array is of size 3*n where n is the number of different types present in \a this. 
- * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here. 
+ * The returned array is of size 3*n where n is the number of different types present in \a this.
+ * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here.
  * This parameter is kept only for compatibility with other method listed above.
  */
 std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const
@@ -5671,9 +5671,9 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const
  * If it exists k so that 3*k geometric type is not in geometric types of this an exception will be thrown.
  * If it exists k so that 3*k geometric type exists but the number of consecutive cell types does not match,
  * an exception is thrown too.
- * 
+ *
  * If all geometric types in \a code are exactly those in \a this null pointer is returned.
- * If it exists a geometric type in \a this \b not in \a code \b no exception is thrown 
+ * If it exists a geometric type in \a this \b not in \a code \b no exception is thrown
  * and a DataArrayInt instance is returned that the user has the responsibility to deallocate.
  */
 DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
@@ -5768,7 +5768,7 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
  * This method is the opposite of MEDCouplingUMesh::checkTypeConsistencyAndContig method. Given a list of cells in \a profile it returns a list of sub-profiles sorted by geo type.
  * The result is put in the array \a idsPerType. In the returned parameter \a code, foreach i \a code[3*i+2] refers (if different from -1) to a location into the \a idsPerType.
  * This method has 1 input \a profile and 3 outputs \a code \a idsInPflPerType and \a idsPerType.
- * 
+ *
  * \param [in] profile
  * \param [out] code is a vector of size 3*n where n is the number of different geometric type in \a this \b reduced to the profile \a profile. \a code has exactly the same semantic than in MEDCouplingUMesh::checkTypeConsistencyAndContig method.
  * \param [out] idsInPflPerType is a vector of size of different geometric type in the subpart defined by \a profile of \a this ( equal to \a code.size()/3). For each i,
@@ -5932,7 +5932,7 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
 /*!
  * This method is a specialization of MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder method that is called here.
  * The geometric type order is specified by MED file.
- * 
+ *
  * \sa  MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder
  */
 bool MEDCouplingUMesh::checkConsecutiveCellTypesForMEDFileFrmt() const
@@ -6443,11 +6443,11 @@ DataArrayDouble *MEDCouplingUMesh::computeCellCenterOfMass() const
 
 /*!
  * This method computes for each cell in \a this, the location of the iso barycenter of nodes constituting
- * the cell. Contrary to badly named MEDCouplingUMesh::computeCellCenterOfMass method that returns the center of inertia of the 
- * 
- * \return a newly allocated DataArrayDouble instance that the caller has to deal with. The returned 
+ * the cell. Contrary to badly named MEDCouplingUMesh::computeCellCenterOfMass method that returns the center of inertia of the
+ *
+ * \return a newly allocated DataArrayDouble instance that the caller has to deal with. The returned
  *          DataArrayDouble instance will have \c this->getNumberOfCells() tuples and \c this->getSpaceDimension() components.
- * 
+ *
  * \sa MEDCouplingUMesh::computeCellCenterOfMass
  * \throw If \a this is not fully defined (coordinates and connectivity)
  * \throw If there is presence in nodal connectivity in \a this of node ids not in [0, \c this->getNumberOfNodes() )
@@ -6518,14 +6518,14 @@ DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const
 /*!
  * Returns a new DataArrayDouble holding barycenters of specified cells. The
  * barycenter is computed by averaging coordinates of cell nodes. The cells to treat
- * are specified via an array of cell ids. 
- *  \warning Validity of the specified cell ids is not checked! 
+ * are specified via an array of cell ids.
+ *  \warning Validity of the specified cell ids is not checked!
  *           Valid range is [ 0, \a this->getNumberOfCells() ).
  *  \param [in] begin - an array of cell ids of interest.
  *  \param [in] end - the end of \a begin, i.e. a pointer to its (last+1)-th element.
  *  \return DataArrayDouble * - a new instance of DataArrayDouble, of size ( \a
  *          end - \a begin ) tuples per \a this->getSpaceDimension() components. The
- *          caller is to delete this array using decrRef() as it is no more needed. 
+ *          caller is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
@@ -6561,7 +6561,7 @@ DataArrayDouble *MEDCouplingUMesh::getPartBarycenterAndOwner(const int *begin, c
  * So this method expects that \a this has a spaceDimension equal to 3 and meshDimension equal to 2.
  * The computation of the plane equation is done using each time the 3 first nodes of 2D cells.
  * This method is useful to detect 2D cells in 3D space that are not coplanar.
- * 
+ *
  * \return DataArrayDouble * - a new instance of DataArrayDouble having 4 components and a number of tuples equal to number of cells in \a this.
  * \throw If spaceDim!=3 or meshDim!=2.
  * \throw If connectivity of \a this is invalid.
@@ -6634,7 +6634,7 @@ DataArrayDouble *MEDCouplingUMesh::computePlaneEquationOf3DFaces() const
 
 /*!
  * This method expects as input a DataArrayDouble non nul instance 'da' that should be allocated. If not an exception is thrown.
- * 
+ *
  */
 MEDCouplingUMesh *MEDCouplingUMesh::Build0DMeshFromCoords(DataArrayDouble *da)
 {
@@ -6945,7 +6945,7 @@ void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCou
  * the nodal connectivity array. The given meshes **can be of different** mesh
  * dimension. This method is particularly useful in MEDLoader context to build a \ref
  * MEDCoupling::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
- * MEDCouplingUMesh'es of different dimension share the same nodal connectivity array. 
+ * MEDCouplingUMesh'es of different dimension share the same nodal connectivity array.
  *  \param [in,out] meshes - a vector of meshes to update.
  *  \param [in] eps - the precision used to detect coincident nodes (infinite norm).
  *  \throw If any of \a meshes is NULL.
@@ -6989,7 +6989,7 @@ void MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(const std::vector<ME
     {
       (*it)->renumberNodesInConn(o2n->begin());
       (*it)->setCoords(newCoords);
-    } 
+    }
 }
 
 
@@ -7098,7 +7098,7 @@ bool MEDCouplingUMesh::IsTetra4WellOriented(const int *begin, const int *end, co
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsTetra4WellOriented : Tetra4 cell with not 4 nodes ! Call checkConsistency !");
   double vec0[3],vec1[3];
   const double *pt0=coords+3*begin[0],*pt1=coords+3*begin[1],*pt2=coords+3*begin[2],*pt3=coords+3*begin[3];
-  vec0[0]=pt1[0]-pt0[0]; vec0[1]=pt1[1]-pt0[1]; vec0[2]=pt1[2]-pt0[2]; vec1[0]=pt2[0]-pt0[0]; vec1[1]=pt2[1]-pt0[1]; vec1[2]=pt2[2]-pt0[2]; 
+  vec0[0]=pt1[0]-pt0[0]; vec0[1]=pt1[1]-pt0[1]; vec0[2]=pt1[2]-pt0[2]; vec1[0]=pt2[0]-pt0[0]; vec1[1]=pt2[1]-pt0[1]; vec1[2]=pt2[2]-pt0[2];
   return ((vec0[1]*vec1[2]-vec0[2]*vec1[1])*(pt3[0]-pt0[0])+(vec0[2]*vec1[0]-vec0[0]*vec1[2])*(pt3[1]-pt0[1])+(vec0[0]*vec1[1]-vec0[1]*vec1[0])*(pt3[2]-pt0[2]))<0;
 }
 
@@ -7114,7 +7114,7 @@ bool MEDCouplingUMesh::IsPyra5WellOriented(const int *begin, const int *end, con
 }
 
 /*!
- * This method performs a simplyfication of a single polyedron cell. To do that each face of cell whose connectivity is defined by [ \b begin , \b end ) 
+ * This method performs a simplyfication of a single polyedron cell. To do that each face of cell whose connectivity is defined by [ \b begin , \b end )
  * is compared with the others in order to find faces in the same plane (with approx of eps). If any, the cells are grouped together and projected to
  * a 2D space.
  *
@@ -7221,7 +7221,7 @@ void MEDCouplingUMesh::SimplifyPolyhedronCell(double eps, const DataArrayDouble 
 /*!
  * This method computes the normalized vector of the plane and the pos of the point belonging to the plane and the line defined by the vector going
  * through origin. The plane is defined by its nodal connectivity [ \b begin, \b end ).
- * 
+ *
  * \param [in] eps below that value the dot product of 2 vectors is considered as colinears
  * \param [in] coords coordinates expected to have 3 components.
  * \param [in] begin start of the nodal connectivity of the face.
@@ -7305,7 +7305,7 @@ void MEDCouplingUMesh::TryToCorrectPolyhedronOrientation(int *begin, int *end, c
                   if(b1 || b2) { b=b2; isPerm[i]=true; smthChanged++; break; }
                 }
               if(isPerm[i])
-                { 
+                {
                   if(!b)
                     std::reverse(bgFace+1,endFace);
                   for(std::size_t j=0;j<nbOfEdgesInFace;j++)
@@ -7350,7 +7350,7 @@ void MEDCouplingUMesh::TryToCorrectPolyhedronOrientation(int *begin, int *end, c
 /*!
  * This method makes the assumption spacedimension == meshdimension == 2.
  * This method works only for linear cells.
- * 
+ *
  * \return a newly allocated array containing the connectivity of a polygon type enum included (NORM_POLYGON in pos#0)
  */
 DataArrayInt *MEDCouplingUMesh::buildUnionOf2DMesh() const
@@ -7374,7 +7374,7 @@ DataArrayInt *MEDCouplingUMesh::buildUnionOf2DMesh() const
 /*!
  * This method makes the assumption spacedimension == meshdimension == 3.
  * This method works only for linear cells.
- * 
+ *
  * \return a newly allocated array containing the connectivity of a polygon type enum included (NORM_POLYHED in pos#0)
  */
 DataArrayInt *MEDCouplingUMesh::buildUnionOf3DMesh() const
@@ -7685,7 +7685,7 @@ DataArrayInt *MEDCouplingUMesh::orderConsecutiveCells1D() const
  * avoid to have a non conform mesh.
  *
  * \return int - the number of new nodes created (in most of cases 0).
- * 
+ *
  * \throw If \a this is not coherent.
  * \throw If \a this has not spaceDim equal to 2.
  * \throw If \a this has not meshDim equal to 2.
@@ -7716,7 +7716,7 @@ int MEDCouplingUMesh::split2DCells(const DataArrayInt *desc, const DataArrayInt 
  * the geometric cell type set to INTERP_KERNEL::NORM_POLYGON.
  * This method excepts that \b coords parameter is expected to be in dimension 2. [ \b nodalConnBg , \b nodalConnEnd ) is the nodal connectivity of the input
  * cell (geometric cell type included at the position 0). If the meshdimension of the input cell is not equal to 2 an INTERP_KERNEL::Exception will be thrown.
- * 
+ *
  * \return false if the input connectivity represents already the convex hull, true if the input cell needs to be reordered.
  */
 bool MEDCouplingUMesh::BuildConvexEnvelopOf2DCellJarvis(const double *coords, const int *nodalConnBg, const int *nodalConnEnd, DataArrayInt *nodalConnecOut)
@@ -7810,7 +7810,7 @@ bool MEDCouplingUMesh::BuildConvexEnvelopOf2DCellJarvis(const double *coords, co
 /*!
  * This method works on an input pair (\b arr, \b arrIndx) where \b arr indexes is in \b arrIndx.
  * This method will not impact the size of inout parameter \b arrIndx but the size of \b arr will be modified in case of suppression.
- * 
+ *
  * \param [in] idsToRemoveBg begin of set of ids to remove in \b arr (included)
  * \param [in] idsToRemoveEnd end of set of ids to remove in \b arr (excluded)
  * \param [in,out] arr array in which the remove operation will be done.
@@ -8012,7 +8012,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArraysSlice(int idsOfSelectStart, int i
  * \param [in] srcArrIndex index array of \b srcArr
  * \param [out] arrOut the resulting array
  * \param [out] arrIndexOut the index array of the resulting array \b arrOut
- * 
+ *
  * \sa MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx
  */
 void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
@@ -8076,7 +8076,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const in
  * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
  * \param [in] srcArr input array that will be used as source of copy for ids in [ \b idsOfSelectBg , \b idsOfSelectEnd )
  * \param [in] srcArrIndex index array of \b srcArr
- * 
+ *
  * \sa MEDCouplingUMesh::SetPartOfIndexedArrays
  */
 void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, const int *idsOfSelectEnd, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
@@ -8116,7 +8116,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, c
  * Then it is repeated recursively until either all ids are fetched or no more ids are reachable step by step.
  * A negative value in \b arrIn means that it is ignored.
  * This method is useful to see if a mesh is contiguous regarding its connectivity. If it is not the case the size of returned array is different from arrIndxIn->getNumberOfTuples()-1.
- * 
+ *
  * \param [in] arrIn arr origin array from which the extraction will be done.
  * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
  * \return a newly allocated DataArray that stores all ids fetched by the gradually spread process.
@@ -8176,7 +8176,7 @@ DataArrayInt *MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(const int *se
  * \param [in] srcArrIndex index array of \b srcArr
  * \param [out] arrOut the resulting array
  * \param [out] arrIndexOut the index array of the resulting array \b arrOut
- * 
+ *
  * \sa MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx MEDCouplingUMesh::SetPartOfIndexedArrays
  */
 void MEDCouplingUMesh::SetPartOfIndexedArraysSlice(int start, int end, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
@@ -8239,7 +8239,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSlice(int start, int end, int step,
  * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
  * \param [in] srcArr input array that will be used as source of copy for ids in [\b idsOfSelectBg, \b idsOfSelectEnd)
  * \param [in] srcArrIndex index array of \b srcArr
- * 
+ *
  * \sa MEDCouplingUMesh::SetPartOfIndexedArraysSlice MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx
  */
 void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
@@ -8280,7 +8280,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice(int start, int end, in
  * The returned mesh contains as poly cells as number of contiguous zone (regarding connectivity).
  * A spread contiguous zone is built using poly cells (polyhedra in 3D, polygons in 2D and polyline in 1D).
  * The sum of measure field of returned mesh is equal to the sum of measure field of this.
- * 
+ *
  * \return a newly allocated mesh lying on the same coords than \b this with same meshdimension than \b this.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const
@@ -8389,12 +8389,12 @@ DataArrayInt *MEDCouplingUMesh::ComputeRangesFromTypeDistribution(const std::vec
  * This method will split **all** 3D cells in \a this into INTERP_KERNEL::NORM_TETRA4 cells and put them in the returned mesh.
  * It leads to an increase to number of cells.
  * This method contrary to MEDCouplingUMesh::simplexize can append coordinates in \a this to perform its work.
- * The \a nbOfAdditionalPoints returned value informs about it. If > 0, the coordinates array in returned mesh will have \a nbOfAdditionalPoints 
+ * The \a nbOfAdditionalPoints returned value informs about it. If > 0, the coordinates array in returned mesh will have \a nbOfAdditionalPoints
  * more tuples (nodes) than in \a this. Anyway, all the nodes in \a this (with the same order) will be in the returned mesh.
  *
  * \param [in] policy - the policy of splitting that must be in (PLANAR_FACE_5, PLANAR_FACE_6, GENERAL_24, GENERAL_48). The policy will be used only for INTERP_KERNEL::NORM_HEXA8 cells.
  *                      For all other cells, the splitting policy will be ignored. See INTERP_KERNEL::SplittingPolicy for the images.
- * \param [out] nbOfAdditionalPoints - number of nodes added to \c this->_coords. If > 0 a new coordinates object will be constructed result of the aggregation of the old one and the new points added. 
+ * \param [out] nbOfAdditionalPoints - number of nodes added to \c this->_coords. If > 0 a new coordinates object will be constructed result of the aggregation of the old one and the new points added.
  * \param [out] n2oCells - A new instance of DataArrayInt holding, for each new cell,
  *          an id of old cell producing it. The caller is to delete this array using
  *         decrRef() as it is no more needed.
@@ -8402,7 +8402,7 @@ DataArrayInt *MEDCouplingUMesh::ComputeRangesFromTypeDistribution(const std::vec
  *
  * \warning This method operates on each cells in this independently ! So it can leads to non conform mesh in returned value ! If you expect to have a conform mesh in output
  * the policy PLANAR_FACE_6 should be used on a mesh sorted with MEDCoupling1SGTUMesh::sortHexa8EachOther.
- * 
+ *
  * \throw If \a this is not a 3D mesh (spaceDim==3 and meshDim==3).
  * \throw If \a this is not fully constituted with linear 3D cells.
  * \sa MEDCouplingUMesh::simplexize, MEDCoupling1SGTUMesh::sortHexa8EachOther

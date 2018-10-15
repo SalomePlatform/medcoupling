@@ -869,7 +869,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
         pass
-    
+
     def test5(self):
         """ This test plays with profiles both cell profiles and node profiles. Two first fields (resp on cells and on nodes) lie on the same mesh support whereas the third
         mesh lies on a different mesh.
@@ -1022,7 +1022,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
         pass
-    
+
     def test6(self):
         """ This test plays with cartesian mesh and profiles. When a sub cartesian mesh can also be considered as a cartesian mesh it is done.
         """
@@ -1160,13 +1160,13 @@ class MEDLoaderTest4(unittest.TestCase):
             vExp=DataArrayDouble(15*2) ; vExp.iota(400+i*1000) ; vExp.rearrange(2) ; vExp.setInfoOnComponents(['Comp1_4 [m]','Com2_4 [s^2]'])
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
-        
+
         fcscp=allFMTSLeavesPerCommonSupport[1][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDCMeshMultiLev)) # here the 2nd support is a part of CMesh that is also a CMesh -> CMesh not a UMesh
         (a,b),c=mml2.buildVTUArrays()
-        self.assertTrue(not c)# c is False because this a sub support specialy built for buildVTUArrays
+        self.assertTrue(not c)# c is False because this a sub support specially built for buildVTUArrays
         self.assertTrue(a.isEqual(coordsX[[2,3,4]],1e-12))
         self.assertTrue(b.isEqual(coordsY,1e-12))
         a6,a7=mml2.retrieveFamilyIdsOnCells()
@@ -1735,7 +1735,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
         pass
-    
+
     def test10(self):
         """ This test plays with fields only on nodes containing profiles.
         """
@@ -1860,7 +1860,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
         pass
-    
+
     def test11(self):
         """ This test is the ultimate test for the profiles with gauss points. It tests that even if there is non contiguous parts in definition of gauss points, it works !
         WARNING here, as no other discretizations exists, the priority is given to the field -> the mesh is renumbered to accelerate the build of array of field.
@@ -2765,7 +2765,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp1[i],1e-12))
             pass
         pass
-    
+
     def test18(self):
         """ First test on GAUSS_PT. Here no Profiles. 2 times steps.
         """
@@ -2951,7 +2951,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp1[i],1e-12))
             pass
         pass
-    
+
     def test19(self):
         """
         This test is a simple non profile CELL field but lying on cells of dimension -1 (not 0 as "usual").
@@ -2963,7 +2963,7 @@ class MEDLoaderTest4(unittest.TestCase):
         m0=m.buildUnstructured() ; del m
         m1=m0.computeSkin()
         #
-        mm=MEDFileUMesh()                                
+        mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m0)
         mm.setMeshAtLevel(-1,m1)
         ff=MEDFileFieldMultiTS()
@@ -3448,8 +3448,8 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
         vExp=DataArrayDouble(9) ; vExp.iota() ; vExp.setInfoOnComponents(["zeInfo"]) ; vExp.reverse()
         self.assertTrue(v.isEqual(vExp,1e-12))
-        pass 
-    
+        pass
+
     def test23(self):
         """ Non regression test 2219 of modes. Idem than test22 except that here the node field is on profile.
         """
@@ -4730,7 +4730,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(myarr,1e-12))
             pass
         pass
-    
+
     def test33(self):
         """Non regression test concerning polygons. Thanks Adrien. This bug can't be shown by simply reading an displaying a MED file containing only polygons. A filter must be applied on it to show it. The a2 array was responsible of that bug."""
         fname="ForMEDReader33.med"
@@ -5464,7 +5464,7 @@ class MEDLoaderTest4(unittest.TestCase):
         arr1=DataArrayDouble(nx*nx) ; arr1.iota() ; arr1+=100 ; f1.setArray(arr1)
         ff1=MEDFileField1TS() ; ff1.setFieldNoProfileSBT(f1)
         ff0.write(fname,0) ; ff1.write(fname,0)
-        # 
+        #
         a=8 ; b=16
         ms=MEDFileMeshes()
         mm=MEDFileUMesh.LoadPartOf(fname,meshName,[NORM_QUAD4],[a,b,1],-1,-1)
@@ -5536,7 +5536,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fields=MEDFileFields() ; fields.pushField(fmts)
         ms.write(fname,2) ; fields.write(fname,0)
         #
-        ms=MEDFileMeshes(fname) 
+        ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
         fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
@@ -5582,7 +5582,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertEqual(v.getHiddenCppPointer(),ffCell.getUndergroundDataArray().getHiddenCppPointer())
             self.assertTrue(v.isEqual(DataArrayDouble([0.0]),1e-14))
         pass
-    
+
     pass
 
 if __name__ == "__main__":

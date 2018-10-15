@@ -612,7 +612,7 @@ class MEDLoaderTest1(unittest.TestCase):
         fRead=MEDLoader.ReadFieldCell(fname,"mesh",0,f.getName(),-1,-1)
         self.assertTrue(f.isEqual(fRead,1e-12,1e-12))
         pass
-    
+
     def testMultiMeshTypeWrite1(self):
         fname="Pyfile74.med"
         m=MEDLoader.MEDCoupling1SGTUMesh("mesh",MEDLoader.NORM_QUAD4) ; m.allocateCells()
@@ -871,7 +871,7 @@ class MEDLoaderTest1(unittest.TestCase):
         self.assertTrue(f3.isEqual(MEDLoader.ReadField(MEDLoader.ON_CELLS,fname,"mesh",0,"field2",4,5),1e-12,1e-12))
         self.assertRaises(Exception,MEDLoader.ReadField,MEDLoader.ON_CELLS,fname,"mesh",0,"field2",5,5) # invalid time step
         pass
-    
+
     pass
 
 if __name__ == "__main__":

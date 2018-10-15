@@ -528,7 +528,7 @@ med_target_mesh->decrRef();
 
 \subsubsection cpp_mcfield_remapper_middlelevel Using interpolation tools - Middle level usage
 
-- The simplest way to use the interpolator with \ref medcoupling "MEDCoupling data struture" is illustrated in the following example.
+- The simplest way to use the interpolator with \ref medcoupling "MEDCoupling data structure" is illustrated in the following example.
 
 \code
 ...
