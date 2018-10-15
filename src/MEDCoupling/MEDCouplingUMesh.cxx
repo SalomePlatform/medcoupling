@@ -4502,16 +4502,6 @@ void MEDCouplingUMesh::tessellate2D(double eps)
       throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2D : mesh dimension must be in [1,2] !");
     }
 }
-/*!
- * Tessellates \a this 1D mesh in 2D space by dividing not straight quadratic edges.
- * \warning This method can lead to a huge amount of nodes if \a eps is very low.
- *  \param [in] eps - specifies the maximal angle (in radian) between 2 sub-edges of
- *         a sub-divided edge.
- *  \throw If the coordinates array is not set.
- *  \throw If the nodal connectivity of cells is not defined.
- *  \throw If \a this->getMeshDimension() != 1.
- *  \throw If \a this->getSpaceDimension() != 2.
- */
 
 #if 0
 /*!
