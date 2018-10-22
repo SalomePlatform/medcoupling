@@ -1218,6 +1218,8 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
   for(std::list<QuadraticPolygon *>::const_iterator itMNT=pol1Zip.begin();itMNT!=pol1Zip.end();itMNT++,iiMNT++)
     nbOfTurn+=(*itMNT)->size();
   maxNbOfTurn=maxNbOfTurn*nbOfTurn; maxNbOfTurn*=maxNbOfTurn;
+  // [ABN] at least 3 turns for very small cases (typically one (quad) edge against one (quad or lin) edge forming a new cell)!
+  maxNbOfTurn = maxNbOfTurn<3 ? 3 : maxNbOfTurn;
   nbOfTurn=0;
   while(nbOfTurn<maxNbOfTurn && ((!pol1Zip.empty() || !edgesInPol2OnBoundaryL.empty())))
     {
