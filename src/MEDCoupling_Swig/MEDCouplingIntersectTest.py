@@ -369,7 +369,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(e1, mapResToInit.getValues())
         self.assertEqual(e2, mapResToRef.getValues())
         pass
-        
+
     def testIntersect2DMeshes9(self):
         """ Last part of the intersection algorithm was not properly dealing with residual cells when 
         it was a quad polygon just made of 2 edges. Was throwing an exception. """
@@ -386,13 +386,51 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         c = DataArrayInt([5, 1, 0, 2])
         cI = DataArrayInt([0, 4])
         tool.setConnectivity(c, cI)
-        
+
         result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
         exp_coo = [71.61874999999999, -10.6521, 71.09373705108025, -12.611475000000002, 71.48522183177026, -11.666347132995506, 72.05416666666666, -10.6521, 71.83645833333333, -10.6521, 71.47081894564474, -12.829183333333336, 71.2822779983625, -12.72032916666667, 71.90580203530058, -11.779041258883959, 71.57377672466278, -14.01228181339933, 72.59202444904491, -7.039001537097847, 47.77800866288004, -4.632870883130628, 72.05352566581652, -10.726810361986129, 71.8931109163297, -11.825380957175156, 71.71347100577636, -12.340536509586565, 71.2822779983625, -12.72032916666667, 71.48522183177026, -11.666347132995508, 71.83645833333333, -10.6521, 72.0540064135051, -10.689456555884437, 71.97331829107311, -11.276095659580642, 72.0084757809432, -11.281229403333473, 71.97331829107311, -11.276095659580642]
         c = [32, 12, 5, 1, 0, 3, 11, 13, 14, 15, 16, 17, 18, 32, 11, 12, 19, 20]
         cI = [0, 13, 18]
         e1 = [0, 0]
-        e2 = [0, -1]        
+        e2 = [0, -1]
+        valuesExpected = DataArrayDouble(exp_coo, len(exp_coo)//2, 2)
+        self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-10))
+        self.assertEqual(c, result.getNodalConnectivity().getValues())
+        self.assertEqual(cI, result.getNodalConnectivityIndex().getValues())
+        self.assertEqual(e1, res2Back.getValues())
+        self.assertEqual(e2, res2Tool.getValues())
+        pass
+
+    def testIntersect2DMeshes10(self):
+        """ Edge::sortIdAbs() was merging points too agressively. This is not the job of the intersector,
+        user should call mergeNodes afterwards. Was throwing an exception later in the algorithm because
+        it had to deal with a degenerated cell.
+        """
+        eps = 1e-6
+        back = MEDCouplingUMesh('crh7_rse1', 2)
+        coo = DataArrayDouble([(-31.31375453845049250,-32.51281383633234157),(-31.69083643301495812,-32.73052216966566874),(-31.50229548573272353,-32.62166800299900871),(-31.53146287178381968,-32.88989573089681073),(-31.62164061609212951,-32.82069991397399633),(-31.42260870511715609,-32.70135478361457615)])
+        back.setCoords(coo)
+        c = DataArrayInt([32, 0, 3, 1, 5, 4, 2])
+        cI = DataArrayInt([0, 7])
+        back.setConnectivity(c, cI)
+        tool = MEDCouplingUMesh('merge', 2)
+        coo = DataArrayDouble([(-29.70769086373595513,-38.08598700945959337),(-27.13627518201525746,-36.53626696210140778),(-35.49132481798474714,-28.48933303789858940)])
+        tool.setCoords(coo)
+        c = DataArrayInt([5, 0, 2, 1])
+        cI = DataArrayInt([0, 4])
+        tool.setConnectivity(c, cI)
+
+        result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
+#         print result.getCoords().getValues()
+#         print result.getNodalConnectivity().getValues()
+#         print result.getNodalConnectivityIndex().getValues()
+#         print res2Back.getValues()
+#         print res2Tool.getValues()
+        exp_coo = [-31.313754538450493, -32.51281383633234, -31.690836433014958, -32.73052216966567, -31.502295485732724, -32.62166800299901, -31.53146287178382, -32.88989573089681, -31.62164061609213, -32.820699913973996, -31.422608705117156, -32.701354783614576, -29.707690863735955, -38.08598700945959, -27.136275182015257, -36.53626696210141, -35.49132481798475, -28.48933303789859, -31.31376565042576, -32.51283308283808, -31.313773979690932, -32.51282506073775, -31.42261426110479, -32.70136440686744, -31.62164061609211, -32.82069991397398, -31.502305206352943, -32.62167361520171, -31.313769815058347, -32.51282907178791]
+        c = [32, 9, 3, 1, 10, 11, 12, 13, 14, 5, 10, 0, 9]
+        cI = [0, 9, 13]
+        e1 = [0, 0]
+        e2 = [0, -1]
         valuesExpected = DataArrayDouble(exp_coo, len(exp_coo)//2, 2)
         self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-10))
         self.assertEqual(c, result.getNodalConnectivity().getValues())
@@ -1117,10 +1155,10 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         mesh.setCoords(coo)
         c = DataArrayInt([32, 2, 3, 11, 10, 5, 16, 17, 14, 32, 3, 0, 11, 4, 19, 16, 32, 13, 12, 10, 11, 15, 20, 17, 21, 32, 7, 1, 13, 11, 0, 6, 22, 18, 21, 19, 9, 8])
         cI = DataArrayInt([0, 9, 16, 25, 38])
-        mesh.setConnectivity(c, cI)     
-        
+        mesh.setConnectivity(c, cI)
+
         mesh.conformize2D(eps)  # internal error was here
-        
+
         c2, cI2 = mesh.getNodalConnectivity().getValues(), mesh.getNodalConnectivityIndex().getValues()
         self.assertEqual(c2, c.getValues())
         self.assertEqual(cI2, cI.getValues())

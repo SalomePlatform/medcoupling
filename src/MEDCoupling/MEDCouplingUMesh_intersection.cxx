@@ -455,14 +455,14 @@ void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MED
                                            const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge)
 {
   int offset1=m1->getNumberOfNodes();
-  int ncell=m2->getNumberOfCells();
+  int ncell2=m2->getNumberOfCells();
   const int *c=m2->getNodalConnectivity()->begin();
   const int *cI=m2->getNodalConnectivityIndex()->begin();
   const double *coo=m2->getCoords()->begin();
   const double *cooBis=m1->getCoords()->begin();
   int offset2=offset1+m2->getNumberOfNodes();
-  intersectEdge.resize(ncell);
-  for(int i=0;i<ncell;i++,cI++)
+  intersectEdge.resize(ncell2);
+  for(int i=0;i<ncell2;i++,cI++)
     {
       const std::vector<int>& divs=subDiv[i];
       int nnode=cI[1]-cI[0]-1;

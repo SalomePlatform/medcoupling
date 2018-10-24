@@ -931,11 +931,6 @@ bool Edge::isEqual(const Edge& other) const
   return _start->isEqual(*other._start) && _end->isEqual(*other._end);
 }
 
-inline bool eqpair(const std::pair<double,Node *>& p1, const std::pair<double,Node *>& p2)
-{
-  return fabs(p1.first-p2.first)<QuadraticPlanarPrecision::getPrecision();
-}
-
 /**
  * This method takes in input nodes in \a subNodes (using \a coo)
  *
@@ -985,6 +980,15 @@ bool Edge::sortSubNodesAbs(const double *coo, std::vector<int>& subNodes)
 void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1,
                       const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis)
 {
+  int startId=(*mapp1.find(_start)).second;
+  int endId=(*mapp1.find(_end)).second;
+  if (! addNodes.size()) // quick way out, no new node to add.
+    {
+      edgesThis.push_back(startId);
+      edgesThis.push_back(endId);
+      return;
+    }
+
   Bounds b;
   b.prepareForAggregation();
   b.aggregate(getBounds());
@@ -1001,11 +1005,8 @@ void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const 
   for(std::size_t i=0;i<sz;i++)
     an2[i]=std::pair<double,Node *>(getCharactValueBtw0And1(*addNodes[i]),addNodes[i]);
   std::sort(an2.begin(),an2.end());
-  int startId=(*mapp1.find(_start)).second;
-  int endId=(*mapp1.find(_end)).second;
   std::vector<int> tmpp;
-  std::vector< std::pair<double,Node *> >::const_iterator itend=std::unique(an2.begin(),an2.end(),eqpair);
-  for(std::vector< std::pair<double,Node *> >::const_iterator it=an2.begin();it!=itend;it++)
+  for(std::vector< std::pair<double,Node *> >::const_iterator it=an2.begin();it!=an2.end();it++)
     {
       int idd=(*mapp2.find((*it).second)).second;
       if((*it).first<QuadraticPlanarPrecision::getPrecision())
