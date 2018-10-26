@@ -341,6 +341,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-12))
         self.assertEqual(e1, mapResToInit.getValues())
         self.assertEqual(e2, mapResToRef.getValues())
+        pass
 
     def testIntersect2DMeshes8(self):
         """ Quadratic precision values were improperly reset before testing colinearities 
@@ -367,6 +368,38 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-10))
         self.assertEqual(e1, mapResToInit.getValues())
         self.assertEqual(e2, mapResToRef.getValues())
+        pass
+        
+    def testIntersect2DMeshes9(self):
+        """ Last part of the intersection algorithm was not properly dealing with residual cells when 
+        it was a quad polygon just made of 2 edges. Was throwing an exception. """
+        eps = 1e-6
+        back = MEDCouplingUMesh('crh7_rse1', 2)
+        coo = DataArrayDouble([(71.6187499999999915,-10.6521000000000008),(71.0937370510802538,-12.6114750000000022),(71.4852218317702608,-11.6663471329955062),(72.0541666666666600,-10.6521000000000008),(71.8364583333333258,-10.6521000000000008),(71.4708189456447371,-12.8291833333333365),(71.2822779983625026,-12.7203291666666694),(71.9058020353005816,-11.7790412588839590)])
+        back.setCoords(coo)
+        c = DataArrayInt([32, 1, 0, 3, 5, 2, 4, 7, 6])
+        cI = DataArrayInt([0, 9])
+        back.setConnectivity(c, cI)
+        tool = MEDCouplingUMesh('merge', 2)
+        coo = DataArrayDouble([(71.5737767246627783,-14.0122818133993299),(72.5920244490449136,-7.0390015370978469),(47.7780086628800404,-4.6328708831306278)])
+        tool.setCoords(coo)
+        c = DataArrayInt([5, 1, 0, 2])
+        cI = DataArrayInt([0, 4])
+        tool.setConnectivity(c, cI)
+        
+        result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
+        exp_coo = [71.61874999999999, -10.6521, 71.09373705108025, -12.611475000000002, 71.48522183177026, -11.666347132995506, 72.05416666666666, -10.6521, 71.83645833333333, -10.6521, 71.47081894564474, -12.829183333333336, 71.2822779983625, -12.72032916666667, 71.90580203530058, -11.779041258883959, 71.57377672466278, -14.01228181339933, 72.59202444904491, -7.039001537097847, 47.77800866288004, -4.632870883130628, 72.05352566581652, -10.726810361986129, 71.8931109163297, -11.825380957175156, 71.71347100577636, -12.340536509586565, 71.2822779983625, -12.72032916666667, 71.48522183177026, -11.666347132995508, 71.83645833333333, -10.6521, 72.0540064135051, -10.689456555884437, 71.97331829107311, -11.276095659580642, 72.0084757809432, -11.281229403333473, 71.97331829107311, -11.276095659580642]
+        c = [32, 12, 5, 1, 0, 3, 11, 13, 14, 15, 16, 17, 18, 32, 11, 12, 19, 20]
+        cI = [0, 13, 18]
+        e1 = [0, 0]
+        e2 = [0, -1]        
+        valuesExpected = DataArrayDouble(exp_coo, len(exp_coo)//2, 2)
+        self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-10))
+        self.assertEqual(c, result.getNodalConnectivity().getValues())
+        self.assertEqual(cI, result.getNodalConnectivityIndex().getValues())
+        self.assertEqual(e1, res2Back.getValues())
+        self.assertEqual(e2, res2Tool.getValues())
+        pass
 
     def testSwig2Intersect2DMeshesQuadra1(self):
         import cmath
@@ -419,6 +452,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         m5.mergeNodes(eps)
         # Check coordinates:
         self.assertTrue(m3.getCoords().isEqual(m5.getCoords(), eps))
+        pass
 
     def testIntersect2DMeshesTmp7(self):
         eps = 1.0e-8
@@ -448,6 +482,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(connI_tgt, m_intersec.getNodalConnectivityIndex().getValues())
         self.assertEqual(res1_tgt, resToM1.getValues())
         self.assertEqual(res2_tgt, resToM2.getValues())
+        pass
 
     def testIntersect2DMeshesTmp8(self):
         """ Arc of circle #5 in m2 was wrongly linearized and this was crashing the intersector. """
