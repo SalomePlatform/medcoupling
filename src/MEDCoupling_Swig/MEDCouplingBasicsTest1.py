@@ -31,6 +31,14 @@ from MEDCouplingDataForTest import MEDCouplingDataForTest
 import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@edf.fr
 
 class MEDCouplingBasicsTest1(unittest.TestCase):
+    def setUp(self):
+      unittest.TestCase.setUp(self)
+      print "start %s" % self.id()
+
+    def tearDown(self):
+      unittest.TestCase.tearDown(self)
+      print "finish %s" % self.id()
+
     def testArray2(self):
         arr=DataArrayDouble.New()
         arr.setValues([12.,11.,10.,9.,8.,7.,6.,5.,4.,3.,2.,1.],3,4)
@@ -93,7 +101,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         coords=[ 0.024155, 0.04183768725682622, -0.305, 0.04831000000000001, -1.015761910347357e-17,
                  -0.305, 0.09662000000000001, -1.832979297858306e-18, -0.305, 0.120775, 0.04183768725682623,
                  -0.305, 0.09662000000000001, 0.08367537451365245, -0.305, 0.04831000000000001, 0.08367537451365246,
-                 -0.305, 0.024155, 0.04183768725682622, -0.2863, 0.04831000000000001, -1.015761910347357e-17, -0.2863, 
+                 -0.305, 0.024155, 0.04183768725682622, -0.2863, 0.04831000000000001, -1.015761910347357e-17, -0.2863,
                  0.09662000000000001, -1.832979297858306e-18, -0.2863, 0.120775, 0.04183768725682623, -0.2863, 0.09662000000000001,
                  0.08367537451365245, -0.2863, 0.04831000000000001, 0.08367537451365246, -0.2863 ]
         self.assertEqual(MEDCouplingMesh.GetNumberOfNodesOfGeometricType(NORM_TRI3),3)
@@ -155,7 +163,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         field3=mesh3.fillFromAnalytic(ON_CELLS,2,"x*IVec+(y+z)*JVec")
         field3.applyFunc("u*u*u+cos(u)")
         pass
-        
+
     def testMeshPointsCloud(self):
         targetCoords=[-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5,
                       -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5]
@@ -203,7 +211,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         fieldOnCells.setArray(array);
         fieldOnCells.checkConsistencyLight();
         pass
-    
+
     def testDeepCopy(self):
         array=DataArrayDouble.New();
         array.setValues(5*3*[7.],5,3);
@@ -217,7 +225,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         array4=array3.deepCopy();
         self.assertEqual(array4.getIJ(3,2),17);
         pass
-    
+
     def testRevNodal(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1()
         revNodal,revNodalIndx=mesh.getReverseNodalConnectivity();
@@ -228,7 +236,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(list(revNodal.getValues()),revNodalExpected)
         self.assertEqual(list(revNodalIndx.getValues()),revNodalIndexExpected)
         pass
-    
+
     def testConvertToPolyTypes(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
         elts=[1,3];
@@ -305,7 +313,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(expected5,list(connIndex.getValues()));
         self.assertEqual(expected6,list(conn.getValues()));
         pass
-    
+
     def testDescConn3D(self):
         mesh=MEDCouplingDataForTest.build3DTargetMesh_1();
         desc=DataArrayInt.New();
@@ -334,7 +342,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
                    5, 5, 5, 14, 13, 4, 4, 3, 4, 7, 6, 4, 12, 15, 16, 13, 4, 4, 13, 16, 7, 4, 7, 16, 15, 6, 4, 6, 15, 12, 3, 5, 4, 5, 8, 7, 5, 13, 16, 17, 14, 5, 5, 14, 17, 8, 5, 8,
                    17, 16, 7, 4, 18, 21, 22, 19, 4, 9, 18, 19, 10, 4, 10, 19, 22, 13, 4, 13, 22, 21, 12, 4, 12, 21, 18, 9, 4, 19, 22, 23, 20, 4, 10, 19, 20, 11, 4, 11, 20, 23, 14, 4,
                    14, 23, 22, 13, 4, 21, 24, 25, 22, 4, 13, 22, 25, 16, 4, 16, 25, 24, 15, 4, 15, 24, 21, 12, 4, 22, 25, 26, 23, 4, 14, 23, 26, 17, 4, 17, 26, 25, 16]
-        
+
         self.assertEqual(expected1,list(descIndx.getValues()));
         self.assertEqual(expected2,list(desc.getValues()));
         self.assertEqual(expected3,list(revDescIndx.getValues()));
@@ -425,7 +433,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         subMesh=subMesh.buildPartOfMySelf(dd,True);
         self.assertEqual("coucou",subMesh.getName());
         pass
-    
+
     def testBuildPartOfMySelfNode(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
         tab1=[5,7,8,4]
@@ -466,7 +474,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(NORM_QUAD4,subMesh.getAllGeoTypes()[1]);
         self.assertEqual(3,subMesh.getNumberOfCells());
         pass
-    
+
     def testZipCoords(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
         self.assertEqual(2,len(mesh.getAllGeoTypes()));
@@ -511,7 +519,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(subConn,list(subMesh.getNodalConnectivity().getValues()));
         self.assertEqual(subConnIndex,list(subMesh.getNodalConnectivityIndex().getValues()));
         pass
-    
+
     def testZipConnectivity(self):
         m1=MEDCouplingDataForTest.build2DTargetMesh_1();
         m2=MEDCouplingDataForTest.build2DTargetMesh_1();
@@ -536,7 +544,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(m7.isEqual(m6,1e-12));
         self.assertEqual(7,m6.getNumberOfCells());
         pass
-    
+
     def testEqualMesh(self):
         mesh1=MEDCouplingDataForTest.build2DTargetMesh_1();
         mesh2=MEDCouplingDataForTest.build2DTargetMesh_1();
@@ -586,7 +594,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(mesh1.isEqual(mesh2,1e-12));
         self.assertTrue(mesh2.isEqual(mesh1,1e-12));
         pass
-    
+
     def testEqualFieldDouble(self):
         mesh1=MEDCouplingDataForTest.build2DTargetMesh_1();
         mesh2=MEDCouplingDataForTest.build2DTargetMesh_1();
@@ -675,7 +683,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertRaises(InterpKernelException,field.setNature,ExtensiveMaximum);
         self.assertRaises(InterpKernelException,field.setNature,ExtensiveConservation);
         pass
-      
+
     def testNatureOperations(self):
         """ Check nature constraints on field operations """
         m = MEDCouplingCMesh()
@@ -687,7 +695,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f2.setNature(IntensiveMaximum)
         self.assertEqual(ExtensiveMaximum, f1.getNature())
         self.assertEqual(IntensiveMaximum, f2.getNature())
-        
+
         da = DataArrayDouble([1.0,2.0,3.0,4.0])
         f1.setMesh(m); f2.setMesh(m)
         f1.setArray(da); f2.setArray(da.deepCopy())
@@ -725,7 +733,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(NoNature, f3.getNature())
         f3 = f1.dot(f2)
         self.assertEqual(NoNature, f3.getNature())
-        
+
         da = DataArrayDouble.Meld([da, da, da])
         f1.setArray(da); f2.setArray(da.deepCopy())
         f3 = MEDCouplingFieldDouble.CrossProductFields(f1,f2)
@@ -759,7 +767,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         expected=[1,2,4,5,7,8]
         self.assertEqual(expected,list(toCheck));
         pass
-    
+
     def testExtrudedMesh1(self):
         mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
         ext=MEDCouplingMappedExtrudedMesh.New(mesh3D,mesh2D,1);
@@ -925,8 +933,8 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
                     200., 50., 0.,   0., 200., 0., 50., 200., 0. , 200., 200., 0. ,
                     0., 0., 50., 50., 0., 50. , 200., 0., 50.  , 0., 50., 50., 50.,
                     50., 50. , 200., 50., 50.,   0., 200., 50., 50., 200., 50. ,
-                    200., 200., 50. , 0., 0., 200., 50., 0., 200. , 200., 0., 200.  
-                    , 0., 50., 200., 50., 50., 200. , 200., 50., 200., 
+                    200., 200., 50. , 0., 0., 200., 50., 0., 200. , 200., 0., 200.
+                    , 0., 50., 200., 50., 50., 200. , 200., 50., 200.,
                     0., 200., 200., 50., 200., 200. , 200., 200., 200. ]
         self.assertEqual(coordsExp,targetMesh.getCoords().getValues());
         # 2D
@@ -1051,7 +1059,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f1=m.fillFromAnalytic(ON_CELLS,1,"x+y");
         self.assertAlmostEqual(3.4,f1.getTime()[0],12) ; self.assertEqual(5,f1.getTime()[1]) ; self.assertEqual(6,f1.getTime()[2])
         self.assertEqual("us",f1.getTimeUnit())
-        f1.checkConsistencyLight();                    
+        f1.checkConsistencyLight();
         self.assertEqual(f1.getTypeOfField(),ON_CELLS);
         self.assertEqual(f1.getTimeDiscretization(),ONE_TIME);
         self.assertEqual(1,f1.getNumberOfComponents());
@@ -1455,7 +1463,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(abs(42.075-res[1])<1.e-12);
         self.assertTrue(abs(72.075-res[2])<1.e-12);
         pass
-    
+
     def testMergeNodesOnField(self):
         targetMesh=MEDCouplingDataForTest.build3DTargetMeshMergeNode_1();
         f1=targetMesh.fillFromAnalytic(ON_NODES,1,"x+y+z");
@@ -1749,7 +1757,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         mesh=MEDCouplingCMesh.New();
         meshEmpty=mesh.clone(True);
         self.assertTrue(meshEmpty.isEqual(mesh, 1e-12));
-        
+
         coordsX=DataArrayDouble.New();
         arrX=[ -1., 1., 2., 4. ]
         coordsX.setValues(arrX, 4, 1);
@@ -1768,7 +1776,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
                     4., 1., 3., 4., 6., 2., 4., 5., 7., 4., 6., 7., 9., 0., 2., 3., 5., 2., 4., 5.,
                     7., 3., 5., 6., 8., 5., 7., 8., 10., 2., 4., 5.,
                     7., 4., 6., 7., 9., 5., 7., 8., 10., 7., 9., 10., 12.];
-        
+
         val=fieldOnNodes.getArray().getValues();
         for i in range(64):
           self.assertAlmostEqual(expected1[i], val[i], 12)
@@ -1788,16 +1796,16 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         #
         meshDeepCopy=mesh.deepCopy();
         meshClone=mesh.clone(False);
-        
+
         meshEmpty.copyTinyStringsFrom(mesh);
         #no data in meshEmpty, expected False
         self.assertTrue(not meshEmpty.isEqual(mesh, 1e-12));
-        
+
         self.assertTrue(meshDeepCopy.isEqual(mesh, 1e-12));
         meshDeepCopy.copyTinyStringsFrom(mesh);
         self.assertTrue(meshDeepCopy.isEqual(mesh, 1e-12));
         self.assertTrue(meshClone.isEqual(mesh, 1e-12));
-        
+
         self.assertEqual(CARTESIAN, mesh.getType());
         self.assertEqual(CARTESIAN, meshEmpty.getType());
         self.assertEqual(CARTESIAN, meshDeepCopy.getType());
@@ -1816,7 +1824,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         arrZ1=[ -3., 3., 6., 12. ]
         coordsZ1.setValues(arrZ1, 4, 1);
         mesh1.setCoords(coordsX1, coordsY1, coordsZ1);
-        
+
         mesh2=MEDCouplingCMesh.New();
         coordsX2=DataArrayDouble.New();
         arrX2=[ -1., 1., 2., 4. ]
@@ -1828,7 +1836,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         arrZ2=[ -3., 3., 6., 12.+1e-6 ]
         coordsZ2.setValues(arrZ2, 4, 1);
         mesh2.setCoords(coordsX2, coordsY2, coordsZ2);
-        
+
         mesh3=MEDCouplingCMesh.New();
         coordsX3=DataArrayDouble.New();
         arrX3=[-1.]
@@ -1840,24 +1848,24 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         arrZ3=[-3.]
         coordsZ3.setValues(arrZ3, 1, 1);
         mesh3.setCoords(coordsX3, coordsY3, coordsZ3);
-        
+
         self.assertEqual(3, mesh1.getSpaceDimension());
         self.assertEqual(3, mesh1.getMeshDimension());
-        
+
         self.assertTrue(not mesh1.isEqual(mesh2, 1e-12));
         self.assertTrue(not mesh2.isEqual(mesh1, 1e-12));
         self.assertTrue(not mesh2.isEqualWithoutConsideringStr(mesh1, 1e-12));
         self.assertTrue(mesh1.isEqual(mesh2, 1e-5));
         self.assertTrue(not mesh1.isEqual(mesh2, 1e-7));
-        
+
         self.assertRaises(InterpKernelException, mesh3.checkConsistency, 1e-12);
         mesh1.checkConsistency(1e-12);
         self.assertEqual(NORM_HEXA8, mesh1.getTypeOfCell(1));
-        
+
         self.assertEqual(NORM_HEXA8, mesh1.getAllGeoTypes()[0]);
         self.assertEqual(27, mesh1.getNumberOfCellsWithType(NORM_HEXA8));
         self.assertRaises(InterpKernelException, mesh1.getNumberOfCellsWithType, NORM_QUAD4);
-        
+
         coo=mesh1.getCoordinatesOfNode(0);
         self.assertEqual(3, len(coo));
         self.assertAlmostEqual(-1., coo[0], 14);
@@ -1868,7 +1876,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertAlmostEqual(4., coo[0], 14);
         self.assertAlmostEqual(8., coo[1], 14);
         self.assertAlmostEqual(12., coo[2], 14);
-        
+
         a=str(mesh1)
         repr=mesh1.simpleRepr();
         repr=mesh1.advancedRepr();
@@ -1890,13 +1898,13 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         arrZ1=[ -3., 3., 6., 12. ]
         coordsZ1.setValues(arrZ1, 4, 1);
         mesh1.setCoords(coordsX1, coordsY1, coordsZ1);
-        
+
         dis=mesh1.getDistributionOfTypes();
         self.assertEqual(1, len(dis));
         self.assertEqual(NORM_HEXA8, dis[0][0]);
         self.assertEqual(27, dis[0][1]);
         self.assertEqual(-1, dis[0][2]);
-        
+
         idsPerType=[]
         self.assertTrue(not mesh1.checkTypeConsistencyAndContig(dis, idsPerType));
         dis[0][0]=NORM_QUAD4;
@@ -1910,7 +1918,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         check=mesh1.checkTypeConsistencyAndContig(dis, idsPerType);
         self.assertTrue(check);
         self.assertTrue(check.isEqual(ids));
-        
+
         code, idsInPflPerType, pfls=mesh1.splitProfilePerType(ids);
         self.assertEqual(1, len(code));
         self.assertEqual(NORM_HEXA8, code[0][0]);
@@ -1920,29 +1928,29 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(1, len(pfls));
         self.assertTrue(idsInPflPerType[0].isEqual(DataArrayInt([0,1,2,3,4,5,6,7,8,9])));
         self.assertTrue(pfls[0].isEqual(ids));
-        
+
         cells1=[0, 1, 25, 26]
         partMesh1=mesh1.buildPart(cells1)
         self.assertTrue(isinstance(partMesh1,MEDCouplingMesh))
         self.assertEqual(4, partMesh1.getNumberOfCellsWithType(NORM_HEXA8));
         self.assertEqual(64, mesh1.getNumberOfNodes());
         self.assertEqual(64, partMesh1.getNumberOfNodes());
-        
+
         cells2=[25, 26]
         partMesh2, arr1=mesh1.buildPartAndReduceNodes(cells2)
         self.assertTrue(isinstance(partMesh2,MEDCouplingCMesh))
         self.assertEqual(2,partMesh2.getNumberOfCellsWithType(NORM_HEXA8));
         self.assertEqual(12,partMesh2.getNumberOfNodes());
-        
+
         cells3=[2, 3]
         partMesh3, arr2=partMesh1.buildPartAndReduceNodes(cells3)
         self.assertTrue(isinstance(partMesh3,MEDCouplingUMesh))
         self.assertEqual(2, partMesh3.getNumberOfCellsWithType(NORM_HEXA8));
         self.assertEqual(12, partMesh3.getNumberOfNodes());
-        
+
         self.assertRaises(InterpKernelException, mesh1.simplexize, 0);
         self.assertRaises(InterpKernelException, mesh1.getMeasureFieldOnNode, True);
-        
+
         #double bbox1[6];
         #double bbox2[6];
         bbox1=mesh1.getBoundingBox(); #[(-1.0, 4.0), (-2.0, 8.0), (-3.0, 12.0)]
@@ -1951,12 +1959,12 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         bbox1=partMesh3.getBoundingBox();
         bbox2=partMesh2.getBoundingBox();
         self.assertTrue(bbox1==bbox2);
-        
+
         self.assertRaises(InterpKernelException, mesh1.buildOrthogonalField);
         mesh2d=MEDCouplingCMesh.New();
         mesh2d.setCoords(coordsX1, coordsY1);
         f1=mesh2d.buildOrthogonalField();
-        
+
         pass
 
     def testScale(self):
@@ -2247,25 +2255,43 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         pass
 
     def testCellOrientation3(self):
-        from cmath import rect  
+        from cmath import rect
 
         c = [rect(1.0, i * pi / 4.0) for i in range(8)]
         coords = [c[-1].real,c[-1].imag,  c[3].real,c[3].imag,
                    c[5].real,c[5].imag,  c[1].real,c[1].imag]
-        connec = [0,1,2,3] 
-        baseMesh = MEDCouplingUMesh.New("circle", 2)  
+        connec = [0,1,2,3]
+        baseMesh = MEDCouplingUMesh.New("circle", 2)
         baseMesh.allocateCells(1)
         meshCoords = DataArrayDouble.New(coords, 4, 2)
         baseMesh.setCoords(meshCoords)
         baseMesh.insertNextCell(NORM_QPOLYG, connec)  # a circle
-        baseMesh.finishInsertingCells()  
+        baseMesh.finishInsertingCells()
         baseMesh.changeSpaceDimension(3)
-        Oz = [0.0, 0.0, -1.0] 
+        Oz = [0.0, 0.0, -1.0]
         cell_lst = baseMesh.are2DCellsNotCorrectlyOriented(Oz, False)
         self.assertEqual(cell_lst.getNumberOfTuples(), 0)
         Oz[2] = 1.0
         cell_lst = baseMesh.are2DCellsNotCorrectlyOriented(Oz, False)
         self.assertEqual(cell_lst.getNumberOfTuples(), 1)
+
+    def testCellOrientation4(self):
+        """ Non regression for NORM_QPOLYG whose linear version is self-intersecting. """
+        mesh = MEDCouplingUMesh('merge', 2)
+        coo = DataArrayDouble([(38.45,0),(37.8659,6.67677),(38.57,0),(38.51,0),(38.3563,2.68214),(38.4266,1.34189),(38.0758,5.35121),(38.2394,4.01912),(37.6098,7.9942),(37.1398,9.95159),(37.2558,9.98265),(38.24,5.0344),(37.1978,9.96712),(37.3876,8.97597)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([32, 9, 8, 6, 4, 0, 2, 10, 13, 1, 7, 5, 3, 11, 12])
+        cI = DataArrayInt([0, 15])
+        mesh.setConnectivity(c, cI)
+        vec = [0., 0., -1.]
+        mesh.changeSpaceDimension(3)
+        mesh.orientCorrectly2DCells(vec, False)
+        mesh.changeSpaceDimension(2)
+        cRef = [32, 9, 10, 2, 0, 4, 6, 8, 12, 11, 3, 5, 7, 1, 13]
+        cIRef = [0, 15]
+        self.assertEqual(mesh.getNodalConnectivity().getValues(), cRef)
+        self.assertEqual(mesh.getNodalConnectivityIndex().getValues(), cIRef)
+        pass
 
     def testPolyhedronBarycenter(self):
         connN=[0,3,2,1, -1, 4,5,6,7, -1, 0,4,7,3, -1, 3,7,6,2, -1, 2,6,5,1, -1, 1,5,4,0];
@@ -2522,7 +2548,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
                  0.0719302438309 , -0.178468260473 , -0.211432157345 , 0.142871843159 , -0.208769948542 , 0.0454101128246 ,
                  0.167803379307 , -0.207851396623 , -0.088802726124 , 0.12868717152 , -0.230920439715 , 0.00760508389036 ,
                  -0.0372812069535 , -0.286740286332 , 0.00963701291166 ]
-        
+
         connN = [ #polyhedron 0
             0 , 1 , 3 , 4 , 2 , -1 , 1 , 5 , 6 , 7 , 0 , -1 , 0 , 7 , 8 , 10 , 11 , 9 , 2 , -1 , 1 , 5 , 12 , 14 , 15 , 13 , 3 , -1 , 16 , 9 , 2 , 4 , 17 , -1
             , 4 , 3 , 13 , 18 , 17 , -1 , 5 , 6 , 19 , 21 , 20 , 12 , -1 , 6 , 7 , 8 , 23 , 22 , 19 , -1 , 23 , 24 , 10 , 8 , -1 , 25 , 11 , 9 , 16 , -1
@@ -2541,7 +2567,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
             , 60 , 61 , 21 , 19 , 38 , 49 , -1 , 62 , 50 , 48 , 58 , -1 , 60 , 63 , 64 , 62 , 50 , 49 , -1 , 5 , 6 , 19 , 21 , 20 , 12 , -1
             , 55 , 5 , 12 , 65 , -1 , 66 , 67 , 65 , 55 , 56 , 57 , -1 , 63 , 66 , 57 , 59 , 64 , -1 , 64 , 62 , 58 , 59 , -1
             , 60 , 63 , 66 , 67 , 68 , 61 , -1 , 61 , 68 , 20 , 21 , -1 , 67 , 68 , 20 , 12 , 65]
-        
+
         barys = [ -0.0165220465527 , -0.0190922868195 , 0.158882733414 ,
                   0.0287618656076 , 0.135874379934 , -0.14601588119 ,
                   -0.147128055553 , 0.0465995097041 , -0.049391174453 ,
@@ -2833,7 +2859,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
             self.assertEqual(expected1[i],nodeCor.getIJ(i,0));
             pass
         pass
-      
+
     def testSwig2CheckDeepEquivalWith1(self):
         eps = 1.0e-8
         mcart = MEDCouplingCMesh()
