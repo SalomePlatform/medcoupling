@@ -31,14 +31,6 @@ from MEDCouplingDataForTest import MEDCouplingDataForTest
 import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@edf.fr
 
 class MEDCouplingBasicsTest1(unittest.TestCase):
-    def setUp(self):
-      unittest.TestCase.setUp(self)
-      print("start %s" % self.id())
-
-    def tearDown(self):
-      unittest.TestCase.tearDown(self)
-      print("finish %s" % self.id())
-
     def testArray2(self):
         arr=DataArrayDouble.New()
         arr.setValues([12.,11.,10.,9.,8.,7.,6.,5.,4.,3.,2.,1.],3,4)
