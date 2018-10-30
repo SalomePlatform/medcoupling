@@ -33,11 +33,11 @@ import rlcompleter,readline # this line has to be here, to ensure a usability of
 class MEDCouplingBasicsTest1(unittest.TestCase):
     def setUp(self):
       unittest.TestCase.setUp(self)
-      print "start %s" % self.id()
+      print("start %s" % self.id())
 
     def tearDown(self):
       unittest.TestCase.tearDown(self)
-      print "finish %s" % self.id()
+      print("finish %s" % self.id())
 
     def testArray2(self):
         arr=DataArrayDouble.New()
