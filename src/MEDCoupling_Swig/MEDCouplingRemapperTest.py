@@ -1278,6 +1278,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         rem2.setCrudeMatrix(ms,mt,"P0P0",mat)
         self.assertTrue(rem2.transferField(fs,1e300).getArray().isEqual(DataArrayDouble([54.25,11.75,79.25,16.75]),1e-12))
         pass
+
+    def testSmallTetraCell(self):
+        """This test is a non regression test. When using tetra/tetra P0P0 interpolation on very small cells the
+        3x3 matrix in the TetraAffine contains very small values and so the determinant is small (cubic).
+        So the tetra was detected as flat. Now the infinite norm of matrix is considered to establish if matrix is inversible or not."""
+        coords = [(-0.019866666666666668, 0.02, 0.002), (-0.020000073463967143, 0.019999926535763005, 0.0018666666666666673), (-0.020000073463967143, 0.019999926535763005, 0.002), (-0.020000072974206463, 0.019866593202430387, 0.002)]
+        m=MEDCouplingUMesh("mesh",3)
+        m.allocateCells()
+        m.insertNextCell(NORM_TETRA4,[0,1,2,3])
+        m.setCoords(DataArrayDouble(coords))
+        rem=MEDCouplingRemapper()
+        rem.setPrecision(1e-12)
+        rem.prepare(m,m,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertTrue(len(mat)==1)
+        self.assertTrue(len(mat[0])==1)
+        self.assertTrue(list(mat[0].keys())==[0])
+        res=list(mat[0].values())[0]
+        ref=float(m.getMeasureField(True).getArray())
+        self.assertTrue(abs(res-ref)/ref<1e-12)
+        pass
         
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
