@@ -62,10 +62,14 @@ namespace INTERP_KERNEL
     calculateDeterminant();
     
     LOG(3, "determinant before inverse = " << _determinant);
+
+    double ni(1./INTERP_KERNEL::normInf(_linear_transform));
+    ni = ni*ni*ni;
     
     // check that tetra is non-planar -> determinant is not zero
+    // AGY : the check to 0. must integrate the infinite norm of _linear_transform matrix.
     // otherwise set _determinant to zero to signal caller that transformation did not work
-    if(epsilonEqual(_determinant, 0.0))
+    if(epsilonEqual(ni*_determinant, 0.0))
       {
         _determinant = 0.0;
         return;

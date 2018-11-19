@@ -185,6 +185,23 @@ namespace INTERP_KERNEL
     return relError < relTol;
   }
 
+  inline double sumOfAbsoluteValues(const double row[3])
+  {
+    double ret(0.);
+    std::for_each(row,row+3,[&ret](double v) { ret += std::abs(v); });
+    return ret;
+  }
+
+  /*!
+   * Returns the infinite norm of a 3x3 input matrix \a mat.
+   * The max of absolute value of row sum.
+   */
+  inline double normInf(const double mat[9])
+  {
+    double ret(std::max(sumOfAbsoluteValues(mat),sumOfAbsoluteValues(mat+3)));
+    return std::max(ret,sumOfAbsoluteValues(mat+6));
+  }
+
 }
 
 #endif
