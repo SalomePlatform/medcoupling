@@ -1367,7 +1367,7 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
 
     int nbv=coor.size()/2; //nb of vertices
     DataArrayDouble *myCoords=DataArrayDouble::New();
-    myCoords->useArray( &coor[0], /*ownership=*/false, CPP_DEALLOC, nbv, 2 );
+    myCoords->useArray( &coor[0], /*ownership=*/false, DeallocType::CPP_DEALLOC, nbv, 2 );
     mesh->setCoords(myCoords);
     mesh->setName("FacesIn2D");
     myCoords->decrRef();

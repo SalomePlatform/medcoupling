@@ -31,11 +31,12 @@
 
 namespace MEDCoupling
 {
-  typedef enum
+  enum class DeallocType
   {
     C_DEALLOC = 2,
-    CPP_DEALLOC = 3
-  } DeallocType;
+    CPP_DEALLOC = 3,
+    C_DEALLOC_WITH_OFFSET = 4
+  };
 
   //! The various spatial discretization of a field
   typedef enum

@@ -2275,7 +2275,7 @@ void CppSnippetDataArrayBuild1()
   //
   //! [CppSnippetDataArrayBuild1_1]
   coordsArr=MEDCoupling::DataArrayDouble::New();
-  coordsArr->useArray(coords,false,MEDCoupling::CPP_DEALLOC,nbOfNodes,3);
+  coordsArr->useArray(coords,false,MEDCoupling::DeallocType::CPP_DEALLOC,nbOfNodes,3);
   //now use coordsArr as you need
   //...
   //coordsArr is no more useful here : release it
@@ -2285,7 +2285,7 @@ void CppSnippetDataArrayBuild1()
   coordsArr=MEDCoupling::DataArrayDouble::New();
   tmp=new double[3*nbOfNodes];
   std::copy(coords,coords+3*nbOfNodes,tmp);
-  coordsArr->useArray(tmp,true,MEDCoupling::CPP_DEALLOC,nbOfNodes,3);
+  coordsArr->useArray(tmp,true,MEDCoupling::DeallocType::CPP_DEALLOC,nbOfNodes,3);
   //now use coordsArr as you need
   //...
   //coordsArr is no more useful, release it
@@ -2295,7 +2295,7 @@ void CppSnippetDataArrayBuild1()
   coordsArr=MEDCoupling::DataArrayDouble::New();
   tmp=(double *)malloc(3*nbOfNodes*sizeof(double));
   std::copy(coords,coords+3*nbOfNodes,tmp);
-  coordsArr->useArray(tmp,true,MEDCoupling::C_DEALLOC,nbOfNodes,3);
+  coordsArr->useArray(tmp,true,MEDCoupling::DeallocType::C_DEALLOC,nbOfNodes,3);
   //now use coordsArr as you need
   //...
   //coordsArr is no more useful here : release it

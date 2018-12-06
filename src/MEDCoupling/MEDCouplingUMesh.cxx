@@ -593,7 +593,7 @@ void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataA
   checkFullyDefined();
   int nbOfNodes(getNumberOfNodes());
   int *revNodalIndxPtr=(int *)malloc((nbOfNodes+1)*sizeof(int));
-  revNodalIndx->useArray(revNodalIndxPtr,true,C_DEALLOC,nbOfNodes+1,1);
+  revNodalIndx->useArray(revNodalIndxPtr,true,DeallocType::C_DEALLOC,nbOfNodes+1,1);
   std::fill(revNodalIndxPtr,revNodalIndxPtr+nbOfNodes+1,0);
   const int *conn(_nodal_connec->begin()),*connIndex(_nodal_connec_index->begin());
   int nbOfCells(getNumberOfCells()),nbOfEltsInRevNodal(0);
@@ -609,7 +609,7 @@ void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataA
     }
   std::transform(revNodalIndxPtr+1,revNodalIndxPtr+nbOfNodes+1,revNodalIndxPtr,revNodalIndxPtr+1,std::plus<int>());
   int *revNodalPtr=(int *)malloc((nbOfEltsInRevNodal)*sizeof(int));
-  revNodal->useArray(revNodalPtr,true,C_DEALLOC,nbOfEltsInRevNodal,1);
+  revNodal->useArray(revNodalPtr,true,DeallocType::C_DEALLOC,nbOfEltsInRevNodal,1);
   std::fill(revNodalPtr,revNodalPtr+nbOfEltsInRevNodal,-1);
   for(int eltId=0;eltId<nbOfCells;eltId++)
     {
@@ -2620,7 +2620,7 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check)
   //
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
-  MCAuto<DataArrayInt> o2n=DataArrayInt::New(); o2n->useArray(array,false,C_DEALLOC,nbCells,1);
+  MCAuto<DataArrayInt> o2n=DataArrayInt::New(); o2n->useArray(array,false,DeallocType::C_DEALLOC,nbCells,1);
   MCAuto<DataArrayInt> n2o=o2n->invertArrayO2N2N2O(nbCells);
   const int *n2oPtr=n2o->begin();
   MCAuto<DataArrayInt> newConn=DataArrayInt::New();
@@ -3925,7 +3925,7 @@ double MEDCouplingUMesh::distanceToPoint(const double *ptBg, const double *ptEnd
   if((int)std::distance(ptBg,ptEnd)!=spaceDim)
     { std::ostringstream oss; oss << "MEDCouplingUMesh::distanceToPoint : input point has to have dimension equal to the space dimension of this (" << spaceDim << ") !"; throw INTERP_KERNEL::Exception(oss.str()); }
   DataArrayInt *ret1=0;
-  MCAuto<DataArrayDouble> pts=DataArrayDouble::New(); pts->useArray(ptBg,false,C_DEALLOC,1,spaceDim);
+  MCAuto<DataArrayDouble> pts=DataArrayDouble::New(); pts->useArray(ptBg,false,DeallocType::C_DEALLOC,1,spaceDim);
   MCAuto<DataArrayDouble> ret0=distanceToPoints(pts,ret1);
   MCAuto<DataArrayInt> ret1Safe(ret1);
   cellId=*ret1Safe->begin();

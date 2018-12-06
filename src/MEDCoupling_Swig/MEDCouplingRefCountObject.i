@@ -51,11 +51,11 @@ namespace MEDCoupling
 
 namespace MEDCoupling
 {
-  typedef enum
+  enum class DeallocType
     {
       C_DEALLOC = 2,
       CPP_DEALLOC = 3
-    } DeallocType;
+    };
 
   const char *MEDCouplingVersionStr();
   int MEDCouplingVersion();

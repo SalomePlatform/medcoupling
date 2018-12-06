@@ -112,6 +112,7 @@ namespace MEDCoupling
   public:
     static void CPPDeallocator(void *pt, void *param);
     static void CDeallocator(void *pt, void *param);
+    static void COffsetDeallocator(void *pt, void *param);
   private:
     static void DestroyPointer(T *pt, Deallocator dealloc, void *param);
     static Deallocator BuildFromType(DeallocType type);

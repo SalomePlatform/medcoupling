@@ -1822,7 +1822,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCe
   if(_discr_per_cell->getNumberOfTuples()!=nbOfCells)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds : mismatch of nb of tuples of cell ids array and number of cells !");
   nbOfNodesPerCell->computeOffsetsFull();
-  MCAuto<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
+  MCAuto<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,DeallocType::CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
   return sel->buildExplicitArrByRanges(nbOfNodesPerCell);
 }
 
@@ -2702,7 +2702,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGaussNE::computeTupleIdsToSelectFrom
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::computeTupleIdsToSelectFromCellIds : null mesh !");
   MCAuto<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
   nbOfNodesPerCell->computeOffsetsFull();
-  MCAuto<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
+  MCAuto<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,DeallocType::CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
   return sel->buildExplicitArrByRanges(nbOfNodesPerCell);
 }
 
@@ -2826,7 +2826,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixO
   MCAuto<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
   int nbOfPts(coords->getNumberOfTuples()),dimension(coords->getNumberOfComponents());
   MCAuto<DataArrayDouble> locArr=DataArrayDouble::New();
-  locArr->useArray(loc,false,CPP_DEALLOC,nbOfTargetPoints,dimension);
+  locArr->useArray(loc,false,DeallocType::CPP_DEALLOC,nbOfTargetPoints,dimension);
   nbCols=nbOfPts;
   //
   MCAuto<DataArrayDouble> matrix2=coords->buildEuclidianDistanceDenseMatrixWith(locArr);

@@ -23,7 +23,7 @@ import sys
 if sys.platform == "win32":
     from MEDCouplingCompat import *
 else:
-    from MEDCoupling import *
+    from medcoupling import *
 
 if MEDCouplingHasNumPyBindings():
     from numpy import *
@@ -1060,6 +1060,22 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         gc.collect()
         self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
         self.assertTrue(not b.flags["OWNDATA"])
+        pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test41(self):
+        """ This non regression test is focused on a numpy subarray of a bigger numpy array. Typically a 1D array coming from a 2D array. When medcoupling takes the ownership, medcoupling must store an offset to deallocate correctly the pointer. The pointer of medcoupling array is NOT the pointer to be transmited to free. The offset is typically the distance between the start of the main 2D array and the start of 1D array medcouplingized."""
+        import numpy as np
+        array = np.array([[1,2,3,10],[4,5,6,20],[7,8,9,30]],dtype=np.float64) # create a 2D array 
+        b = array[2] # b data pointer starts at array+2*4*sizeof(float64) so offset is expected to be equal to -2*4*sizeof(float64)=-64
+        self.assertTrue(array.flags["OWNDATA"])
+        self.assertTrue(not b.flags["OWNDATA"])
+        d=DataArrayDouble(b)
+        self.assertTrue(not array.flags["OWNDATA"])
+        self.assertTrue(not b.flags["OWNDATA"])
+        del b ; gc.collect()
+        del array ; gc.collect()
+        del d ; gc.collect() # important : destroy d after b and array to be sure to let the ownership to d.
         pass
 
     def setUp(self):

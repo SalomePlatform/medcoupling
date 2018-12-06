@@ -1738,13 +1738,13 @@ void MEDCouplingBasicsTest4::testChangeUnderlyingMeshWithCMesh1()
   MEDCouplingCMesh* mesh=MEDCouplingCMesh::New();
   DataArrayDouble* coordsX=DataArrayDouble::New();
   double arrX[4] = { -1., 1., 2., 4. };
-  coordsX->useArray(arrX,false, CPP_DEALLOC,4,1);
+  coordsX->useArray(arrX,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsY=DataArrayDouble::New();
   double arrY[4] = { -2., 2., 4., 8. };
-  coordsY->useArray(arrY,false, CPP_DEALLOC,4,1);
+  coordsY->useArray(arrY,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsZ=DataArrayDouble::New();
   double arrZ[4] = { -3., 3., 6., 12. };
-  coordsZ->useArray(arrZ,false, CPP_DEALLOC,4,1);
+  coordsZ->useArray(arrZ,false, DeallocType::CPP_DEALLOC,4,1);
   mesh->setCoords(coordsX,coordsY,coordsZ);
   coordsX->decrRef();
   coordsY->decrRef();

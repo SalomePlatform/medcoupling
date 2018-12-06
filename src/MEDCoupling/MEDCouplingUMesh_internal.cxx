@@ -898,9 +898,9 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin
       connRetWork=std::copy(conn+connIndex[*work],conn+connIndex[*work+1],connRetWork);
     }
   MCAuto<DataArrayInt> connRetArr=DataArrayInt::New();
-  connRetArr->useArray(connRet,true,C_DEALLOC,connIndexRet[nbOfElemsRet],1);
+  connRetArr->useArray(connRet,true,DeallocType::C_DEALLOC,connIndexRet[nbOfElemsRet],1);
   MCAuto<DataArrayInt> connIndexRetArr=DataArrayInt::New();
-  connIndexRetArr->useArray(connIndexRet,true,C_DEALLOC,(int)nbOfElemsRet+1,1);
+  connIndexRetArr->useArray(connIndexRet,true,DeallocType::C_DEALLOC,(int)nbOfElemsRet+1,1);
   ret->setConnectivity(connRetArr,connIndexRetArr,false);
   ret->_types=types;
   ret->copyTinyInfoFrom(this);

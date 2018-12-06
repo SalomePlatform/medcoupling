@@ -36,7 +36,7 @@ void MEDCouplingBasicsTest1::testArray()
   const int tmp2[3]={8,9,10};
   {
     MemArray<int> mem;
-    mem.useArray(tmp1,false,CPP_DEALLOC,6);
+    mem.useArray(tmp1,false,DeallocType::CPP_DEALLOC,6);
     CPPUNIT_ASSERT(tmp1==mem.getConstPointer());
     CPPUNIT_ASSERT_THROW(mem.getPointer(),INTERP_KERNEL::Exception);
     CPPUNIT_ASSERT_THROW(mem[2]=7,INTERP_KERNEL::Exception);
@@ -47,7 +47,7 @@ void MEDCouplingBasicsTest1::testArray()
     int *tmp3=new int[6];
     std::copy(tmp1,tmp1+6,tmp3);
     MemArray<int> mem2;
-    mem2.useArray(tmp3,true,CPP_DEALLOC,6);
+    mem2.useArray(tmp3,true,DeallocType::CPP_DEALLOC,6);
     CPPUNIT_ASSERT(tmp3==mem2.getConstPointer());
     CPPUNIT_ASSERT(tmp3==mem2.getPointer());
     CPPUNIT_ASSERT_EQUAL(5,mem2[2]);
@@ -161,7 +161,7 @@ void MEDCouplingBasicsTest1::testMesh()
   CPPUNIT_ASSERT_EQUAL(nbOfCells,(int)mesh->getNumberOfCells());
   //test 0 - no copy no ownership
   DataArrayDouble *myCoords=DataArrayDouble::New();
-  myCoords->useArray(coords,false,CPP_DEALLOC,nbOfNodes,3);
+  myCoords->useArray(coords,false,DeallocType::CPP_DEALLOC,nbOfNodes,3);
   mesh->setCoords(myCoords);
   mesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -171,7 +171,7 @@ void MEDCouplingBasicsTest1::testMesh()
   myCoords=DataArrayDouble::New();
   double *tmp=new double[3*nbOfNodes];
   std::copy(coords,coords+3*nbOfNodes,tmp);
-  myCoords->useArray(tmp,true,CPP_DEALLOC,nbOfNodes,3);
+  myCoords->useArray(tmp,true,DeallocType::CPP_DEALLOC,nbOfNodes,3);
   mesh->setCoords(myCoords);
   myCoords->decrRef();
   CPPUNIT_ASSERT_EQUAL(nbOfCells,(int)mesh->getNumberOfCells());
@@ -180,7 +180,7 @@ void MEDCouplingBasicsTest1::testMesh()
   myCoords=DataArrayDouble::New();
   tmp=(double *)malloc(3*nbOfNodes*sizeof(double));
   std::copy(coords,coords+3*nbOfNodes,tmp);
-  myCoords->useArray(tmp,true,C_DEALLOC,nbOfNodes,3);
+  myCoords->useArray(tmp,true,DeallocType::C_DEALLOC,nbOfNodes,3);
   mesh->setCoords(myCoords);
   myCoords->decrRef();
   CPPUNIT_ASSERT_EQUAL(nbOfNodes,mesh->getNumberOfNodes());
@@ -2284,13 +2284,13 @@ void MEDCouplingBasicsTest1::testCMesh0()
   
   DataArrayDouble* coordsX=DataArrayDouble::New();
   double arrX[4] = { -1., 1., 2., 4. };
-  coordsX->useArray(arrX,false, CPP_DEALLOC,4,1);
+  coordsX->useArray(arrX,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsY=DataArrayDouble::New();
   double arrY[4] = { -2., 2., 4., 8. };
-  coordsY->useArray(arrY,false, CPP_DEALLOC,4,1);
+  coordsY->useArray(arrY,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsZ=DataArrayDouble::New();
   double arrZ[4] = { -3., 3., 6., 12. };
-  coordsZ->useArray(arrZ,false, CPP_DEALLOC,4,1);
+  coordsZ->useArray(arrZ,false, DeallocType::CPP_DEALLOC,4,1);
   mesh->setCoords(coordsX,coordsY,coordsZ);
   coordsX->decrRef();
   coordsY->decrRef();
@@ -2353,37 +2353,37 @@ void MEDCouplingBasicsTest1::testCMesh1()
   mesh1=MEDCouplingCMesh::New();
   DataArrayDouble* coordsX1=DataArrayDouble::New();
   double arrX1[4] = { -1., 1., 2., 4. };
-  coordsX1->useArray(arrX1,false, CPP_DEALLOC,4,1);
+  coordsX1->useArray(arrX1,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsY1=DataArrayDouble::New();
   double arrY1[4] = { -2., 2., 4., 8. };
-  coordsY1->useArray(arrY1,false, CPP_DEALLOC,4,1);
+  coordsY1->useArray(arrY1,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsZ1=DataArrayDouble::New();
   double arrZ1[4] = { -3., 3., 6., 12. };
-  coordsZ1->useArray(arrZ1,false, CPP_DEALLOC,4,1);
+  coordsZ1->useArray(arrZ1,false, DeallocType::CPP_DEALLOC,4,1);
   mesh1->setCoords(coordsX1,coordsY1,coordsZ1);
   
   mesh2=MEDCouplingCMesh::New();
   DataArrayDouble* coordsX2=DataArrayDouble::New();
   double arrX2[4] = { -1., 1., 2., 4. };
-  coordsX2->useArray(arrX2,false, CPP_DEALLOC,4,1);
+  coordsX2->useArray(arrX2,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsY2=DataArrayDouble::New();
   double arrY2[4] = { -2., 2., 4., 8. };
-  coordsY2->useArray(arrY2,false, CPP_DEALLOC,4,1);
+  coordsY2->useArray(arrY2,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsZ2=DataArrayDouble::New();
   double arrZ2[4] = { -3., 3., 6., 12.+1e-6 };   //here is not equal
-  coordsZ2->useArray(arrZ2,false, CPP_DEALLOC,4,1);
+  coordsZ2->useArray(arrZ2,false, DeallocType::CPP_DEALLOC,4,1);
   mesh2->setCoords(coordsX2,coordsY2,coordsZ2);
   
   mesh3=MEDCouplingCMesh::New();
   DataArrayDouble* coordsX3=DataArrayDouble::New();
   double arrX3[1] = { -1.};
-  coordsX3->useArray(arrX3,false, CPP_DEALLOC,1,1);
+  coordsX3->useArray(arrX3,false, DeallocType::CPP_DEALLOC,1,1);
   DataArrayDouble* coordsY3=DataArrayDouble::New();
   double arrY3[1] = { -2.};
-  coordsY3->useArray(arrY3,false, CPP_DEALLOC,1,1);
+  coordsY3->useArray(arrY3,false, DeallocType::CPP_DEALLOC,1,1);
   DataArrayDouble* coordsZ3=DataArrayDouble::New();
   double arrZ3[1] = { -3.};
-  coordsZ3->useArray(arrZ3,false, CPP_DEALLOC,1,1);
+  coordsZ3->useArray(arrZ3,false, DeallocType::CPP_DEALLOC,1,1);
   mesh3->setCoords(coordsX3,coordsY3,coordsZ3);
   
   CPPUNIT_ASSERT_EQUAL(3,mesh1->getSpaceDimension());
@@ -2443,13 +2443,13 @@ void MEDCouplingBasicsTest1::testCMesh2()
   mesh1=MEDCouplingCMesh::New();
   DataArrayDouble* coordsX1=DataArrayDouble::New();
   double arrX1[4] = { -1., 1., 2., 4. };
-  coordsX1->useArray(arrX1,false, CPP_DEALLOC,4,1);
+  coordsX1->useArray(arrX1,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsY1=DataArrayDouble::New();
   double arrY1[4] = { -2., 2., 4., 8. };
-  coordsY1->useArray(arrY1,false, CPP_DEALLOC,4,1);
+  coordsY1->useArray(arrY1,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble* coordsZ1=DataArrayDouble::New();
   double arrZ1[4] = { -3., 3., 6., 12. };
-  coordsZ1->useArray(arrZ1,false, CPP_DEALLOC,4,1);
+  coordsZ1->useArray(arrZ1,false, DeallocType::CPP_DEALLOC,4,1);
   mesh1->setCoords(coordsX1,coordsY1,coordsZ1);
   
   std::vector<int> dis=mesh1->getDistributionOfTypes();

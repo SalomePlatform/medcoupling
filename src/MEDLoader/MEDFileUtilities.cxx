@@ -228,7 +228,7 @@ MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> MEDCoupling::MEDFileWritableStan
   }
   //
   MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> ret(MEDCoupling::DataArrayByte::New());
-  ret->useArray(reinterpret_cast<char *>(memfile.app_image_ptr),true,C_DEALLOC,memfile.app_image_size,1);
+  ret->useArray(reinterpret_cast<char *>(memfile.app_image_ptr),true,DeallocType::C_DEALLOC,memfile.app_image_size,1);
   return ret;
 }
 

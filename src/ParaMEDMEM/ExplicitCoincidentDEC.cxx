@@ -423,7 +423,7 @@ namespace MEDCoupling
           value[ielem*ncomp+icomp]=_recvbuffer[counters[iproc]*ncomp+icomp];
         counters[iproc]++;
       }  
-    _local_field->getField()->getArray()->useArray(value,true,CPP_DEALLOC,nb_local,_topotarget->getNbComponents());
+    _local_field->getField()->getArray()->useArray(value,true,DeallocType::CPP_DEALLOC,nb_local,_topotarget->getNbComponents());
   }
 
   void ExplicitCoincidentDEC::sendData()

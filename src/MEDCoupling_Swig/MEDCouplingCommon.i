@@ -4532,7 +4532,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               MCAuto<DataArrayDouble> ret=DataArrayDouble::Substract(self->getArray(),aaa);
               MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
@@ -4616,7 +4616,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               MCAuto<DataArrayDouble> ret=DataArrayDouble::Divide(self->getArray(),aaa);
               MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
@@ -4688,7 +4688,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               MCAuto<DataArrayDouble> ret=DataArrayDouble::Pow(self->getArray(),aaa);
               MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
@@ -4760,7 +4760,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->addEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4826,7 +4826,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->substractEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4892,7 +4892,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->multiplyEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4960,7 +4960,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->divideEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -5026,7 +5026,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->powEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;

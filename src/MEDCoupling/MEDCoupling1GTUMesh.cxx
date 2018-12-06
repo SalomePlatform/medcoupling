@@ -892,7 +892,7 @@ void MEDCoupling1SGTUMesh::renumberCells(const int *old2NewBg, bool check)
 {
   int nbCells=getNumberOfCells();
   MCAuto<DataArrayInt> o2n=DataArrayInt::New();
-  o2n->useArray(old2NewBg,false,C_DEALLOC,nbCells,1);
+  o2n->useArray(old2NewBg,false,DeallocType::C_DEALLOC,nbCells,1);
   if(check)
     o2n=o2n->checkAndPreparePermutation();
   //
@@ -1580,7 +1580,7 @@ void MEDCoupling1SGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, D
   checkFullyDefined();
   int nbOfNodes=getNumberOfNodes();
   int *revNodalIndxPtr=(int *)malloc((nbOfNodes+1)*sizeof(int));
-  revNodalIndx->useArray(revNodalIndxPtr,true,C_DEALLOC,nbOfNodes+1,1);
+  revNodalIndx->useArray(revNodalIndxPtr,true,DeallocType::C_DEALLOC,nbOfNodes+1,1);
   std::fill(revNodalIndxPtr,revNodalIndxPtr+nbOfNodes+1,0);
   const int *conn=_conn->begin();
   int nbOfCells=getNumberOfCells();
@@ -1605,7 +1605,7 @@ void MEDCoupling1SGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, D
   std::transform(revNodalIndxPtr+1,revNodalIndxPtr+nbOfNodes+1,revNodalIndxPtr,revNodalIndxPtr+1,std::plus<int>());
   conn=_conn->begin();
   int *revNodalPtr=(int *)malloc((nbOfEltsInRevNodal)*sizeof(int));
-  revNodal->useArray(revNodalPtr,true,C_DEALLOC,nbOfEltsInRevNodal,1);
+  revNodal->useArray(revNodalPtr,true,DeallocType::C_DEALLOC,nbOfEltsInRevNodal,1);
   std::fill(revNodalPtr,revNodalPtr+nbOfEltsInRevNodal,-1);
   for(int eltId=0;eltId<nbOfCells;eltId++)
     {
@@ -2714,7 +2714,7 @@ void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check)
 {
   int nbCells=getNumberOfCells();
   MCAuto<DataArrayInt> o2n=DataArrayInt::New();
-  o2n->useArray(old2NewBg,false,C_DEALLOC,nbCells,1);
+  o2n->useArray(old2NewBg,false,DeallocType::C_DEALLOC,nbCells,1);
   if(check)
     o2n=o2n->checkAndPreparePermutation();
   //
@@ -2893,7 +2893,7 @@ void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, D
   checkFullyDefined();
   int nbOfNodes=getNumberOfNodes();
   int *revNodalIndxPtr=(int *)malloc((nbOfNodes+1)*sizeof(int));
-  revNodalIndx->useArray(revNodalIndxPtr,true,C_DEALLOC,nbOfNodes+1,1);
+  revNodalIndx->useArray(revNodalIndxPtr,true,DeallocType::C_DEALLOC,nbOfNodes+1,1);
   std::fill(revNodalIndxPtr,revNodalIndxPtr+nbOfNodes+1,0);
   const int *conn=_conn->begin(),*conni=_conn_indx->begin();
   int nbOfCells=getNumberOfCells();
@@ -2928,7 +2928,7 @@ void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, D
   std::transform(revNodalIndxPtr+1,revNodalIndxPtr+nbOfNodes+1,revNodalIndxPtr,revNodalIndxPtr+1,std::plus<int>());
   conn=_conn->begin();
   int *revNodalPtr=(int *)malloc((nbOfEltsInRevNodal)*sizeof(int));
-  revNodal->useArray(revNodalPtr,true,C_DEALLOC,nbOfEltsInRevNodal,1);
+  revNodal->useArray(revNodalPtr,true,DeallocType::C_DEALLOC,nbOfEltsInRevNodal,1);
   std::fill(revNodalPtr,revNodalPtr+nbOfEltsInRevNodal,-1);
   for(int eltId=0;eltId<nbOfCells;eltId++)
     {

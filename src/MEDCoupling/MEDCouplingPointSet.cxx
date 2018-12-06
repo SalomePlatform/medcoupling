@@ -364,7 +364,7 @@ void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfPoints
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : no coordiantes set !");
   int spaceDim=getSpaceDimension();
   MCAuto<DataArrayDouble> points=DataArrayDouble::New();
-  points->useArray(pos,false,CPP_DEALLOC,nbOfPoints,spaceDim);
+  points->useArray(pos,false,DeallocType::CPP_DEALLOC,nbOfPoints,spaceDim);
   _coords->computeTupleIdsNearTuples(points,eps,c,cI);
 }
 

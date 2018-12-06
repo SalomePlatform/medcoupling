@@ -58,7 +58,7 @@ namespace MEDCoupling
         _nb_of_elem_alloc=other._nb_of_elem;
         T *pointer=(T*)malloc(_nb_of_elem_alloc*sizeof(T));
         std::copy(other._pointer.getConstPointer(),other._pointer.getConstPointer()+other._nb_of_elem,pointer);
-        useArray(pointer,true,C_DEALLOC,other._nb_of_elem);
+        useArray(pointer,true,DeallocType::C_DEALLOC,other._nb_of_elem);
       }
   }
 
@@ -438,14 +438,24 @@ namespace MEDCoupling
   }
 
   template<class T>
+  void MemArray<T>::COffsetDeallocator(void *pt, void *param)
+  {
+    int64_t *offset(reinterpret_cast<int64_t *>(param));
+    char *ptcast(reinterpret_cast<char *>(pt));
+    free(ptcast+*offset);
+  }
+
+  template<class T>
   typename MemArray<T>::Deallocator MemArray<T>::BuildFromType(DeallocType type)
   {
     switch(type)
     {
-      case CPP_DEALLOC:
+      case DeallocType::CPP_DEALLOC:
         return CPPDeallocator;
-      case C_DEALLOC:
+      case DeallocType::C_DEALLOC:
         return CDeallocator;
+      case DeallocType::C_DEALLOC_WITH_OFFSET:
+        return COffsetDeallocator;
       default:
         throw INTERP_KERNEL::Exception("Invalid deallocation requested ! Unrecognized enum DeallocType !");
     }
@@ -3107,7 +3117,7 @@ struct NotInRange
       throw INTERP_KERNEL::Exception("DataArrayDouble::fromNoInterlace : Not defined array !");
     T *tab(this->_mem.fromNoInterlace(this->getNumberOfComponents()));
     MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
-    ret->useArray(tab,true,C_DEALLOC,this->getNumberOfTuples(),this->getNumberOfComponents());
+    ret->useArray(tab,true,DeallocType::C_DEALLOC,this->getNumberOfTuples(),this->getNumberOfComponents());
     return ret.retn();
   }
 
@@ -3128,7 +3138,7 @@ struct NotInRange
       throw INTERP_KERNEL::Exception("DataArrayDouble::toNoInterlace : Not defined array !");
     T *tab(this->_mem.toNoInterlace(this->getNumberOfComponents()));
     MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New());
-    ret->useArray(tab,true,C_DEALLOC,this->getNumberOfTuples(),this->getNumberOfComponents());
+    ret->useArray(tab,true,DeallocType::C_DEALLOC,this->getNumberOfTuples(),this->getNumberOfComponents());
     return ret.retn();
   }
   
@@ -3163,7 +3173,7 @@ struct NotInRange
         w=std::copy(inp1,inp1+nbOfComp1,w);
         w=std::copy(inp2,inp2+nbOfComp2,w);
       }
-    this->useArray(newArr,true,C_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
+    this->useArray(newArr,true,DeallocType::C_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
     std::vector<int> compIds(nbOfComp2);
     for(int i=0;i<nbOfComp2;i++)
       compIds[i]=nbOfComp1+i;

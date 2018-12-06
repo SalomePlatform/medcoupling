@@ -1477,7 +1477,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
           DataArrayInt *da=DataArrayInt::New();
           const int globalNumberingP2[5]={0,1,2,3,4};
-          da->useArray(globalNumberingP2,false,CPP_DEALLOC,5,1);
+          da->useArray(globalNumberingP2,false,DeallocType::CPP_DEALLOC,5,1);
           paramesh->setNodeGlobal(da);
           da->decrRef();
         }
@@ -1498,7 +1498,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
           DataArrayInt *da=DataArrayInt::New();
           const int globalNumberingP3[3]={4,2,5};
-          da->useArray(globalNumberingP3,false,CPP_DEALLOC,3,1);
+          da->useArray(globalNumberingP3,false,DeallocType::CPP_DEALLOC,3,1);
           paramesh->setNodeGlobal(da);
           da->decrRef();
         }
@@ -1520,7 +1520,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
           DataArrayInt *da=DataArrayInt::New();
           const int globalNumberingP4[6]={3,6,7,4,8,5};
-          da->useArray(globalNumberingP4,false,CPP_DEALLOC,6,1);
+          da->useArray(globalNumberingP4,false,DeallocType::CPP_DEALLOC,6,1);
           paramesh->setNodeGlobal(da);
           da->decrRef();
         }

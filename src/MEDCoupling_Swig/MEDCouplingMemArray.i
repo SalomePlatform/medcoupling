@@ -1464,7 +1464,7 @@ namespace MEDCoupling
         int nbComp=self->getNumberOfComponents(),nbTuples=-1;
         const char msg[]="Python wrap of DataArrayDouble::computeTupleIdsNearTuples : ";
         const double *pos=convertObjToPossibleCpp5_Safe2(pt,sw,val,a,aa,bb,msg,nbComp,true,nbTuples);
-        MCAuto<DataArrayDouble> inpu=DataArrayDouble::New(); inpu->useArray(pos,false,CPP_DEALLOC,nbTuples,nbComp);
+        MCAuto<DataArrayDouble> inpu=DataArrayDouble::New(); inpu->useArray(pos,false,DeallocType::CPP_DEALLOC,nbTuples,nbComp);
         DataArrayInt *c=0,*cI=0;
         self->computeTupleIdsNearTuples(inpu,eps,c,cI);
         PyObject *ret=PyTuple_New(2);
@@ -1546,7 +1546,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
@@ -1578,7 +1578,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Add(self,aaa);
             }
           default:
@@ -1637,7 +1637,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
@@ -1669,7 +1669,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Substract(aaa,self);
             }
           default:
@@ -1728,7 +1728,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
@@ -1794,7 +1794,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
@@ -1826,7 +1826,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Divide(aaa,self);
             }
           default:
@@ -1867,7 +1867,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Pow(self,aaa);
             }
           default:
@@ -1899,7 +1899,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Pow(aaa,self);
             }
           default:
@@ -1939,7 +1939,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,DeallocType::CPP_DEALLOC,1,(int)bb.size());
               self->powEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -2634,7 +2634,7 @@ namespace MEDCoupling
         std::vector<int> stdvecTyyppArr;
         const int *arrPtr(convertIntStarLikePyObjToCppIntStar(arr,sw,szArr,iTypppArr,stdvecTyyppArr));
         int *pt(MEDCoupling::DataArrayInt::CheckAndPreparePermutation(arrPtr,arrPtr+szArr));
-        ret->useArray(pt,true,MEDCoupling::C_DEALLOC,szArr,1);
+        ret->useArray(pt,true,MEDCoupling::DeallocType::C_DEALLOC,szArr,1);
         return ret.retn();
       }
 
@@ -3220,7 +3220,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues1(tmp,it1,it1+1,1,0,nbOfComponents,1,false);
                   return self;
                 case 3:
@@ -3244,7 +3244,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1,false);
                   return self;
                 case 3:
@@ -3268,7 +3268,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1,false);
                   return self;
                 case 3:
@@ -3292,7 +3292,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1,false);
                   return self;
                 case 3:
@@ -3316,7 +3316,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues1(tmp,it1,it1+1,1,ic1,ic1+1,1,false);
                   return self;
                 case 3:
@@ -3340,7 +3340,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1,false);
                   return self;
                 case 3:
@@ -3364,7 +3364,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1,false);
                   return self;
                 case 3:
@@ -3388,7 +3388,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1,false);
                   return self;
                 case 3:
@@ -3412,7 +3412,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues2(tmp,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size(),false);
                   return self;
                 case 3:
@@ -3436,7 +3436,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues2(tmp,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size(),false);
                   return self;
                 case 3:
@@ -3460,7 +3460,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues4(tmp,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size(),false);
                   return self;
                 case 3:
@@ -3484,7 +3484,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues2(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size(),false);
                   return self;
                 case 3:
@@ -3508,7 +3508,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues1(tmp,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second,false);
                   return self;
                 case 3:
@@ -3532,7 +3532,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second,false);
                   return self;
                 case 3:
@@ -3556,7 +3556,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second,false);
                   return self;
                 case 3:
@@ -3580,7 +3580,7 @@ namespace MEDCoupling
                   return self;
                 case 2:
                   tmp=DataArrayInt::New();
-                  tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
+                  tmp->useArray(&v1[0],false,DeallocType::CPP_DEALLOC,1,v1.size());
                   self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second,false);
                   return self;
                 case 3:
@@ -3625,7 +3625,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Add(self,aaaa);
             }
           case 3:
@@ -3661,7 +3661,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Add(self,aaaa);
             }
           case 4:
@@ -3693,7 +3693,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               self->addEqual(bb);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -3735,7 +3735,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Substract(self,aaaa);
             }
           case 3:
@@ -3771,7 +3771,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Substract(aaaa,self);
             }
           case 4:
@@ -3803,7 +3803,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               self->substractEqual(bb);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -3845,7 +3845,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Multiply(self,aaaa);
             }
           case 3:
@@ -3881,7 +3881,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Multiply(self,aaaa);
             }
           case 4:
@@ -3913,7 +3913,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               self->multiplyEqual(bb);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -3955,7 +3955,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Divide(self,aaaa);
             }
           case 3:
@@ -3991,7 +3991,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Divide(aaaa,self);
             }
           case 4:
@@ -4023,7 +4023,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               self->divideEqual(bb);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4065,7 +4065,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Modulus(self,aaaa);
             }
           case 3:
@@ -4101,7 +4101,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Modulus(aaaa,self);
             }
           case 3:
@@ -4172,7 +4172,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Pow(self,aaaa);
             }
           case 3:
@@ -4208,7 +4208,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,DeallocType::CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Pow(aaaa,self);
             }
           case 3:

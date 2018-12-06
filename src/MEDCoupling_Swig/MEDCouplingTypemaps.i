@@ -223,7 +223,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Add(self->getArray(),aaa);
         MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
@@ -295,7 +295,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Substract(aaa,self->getArray());
         MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
@@ -362,7 +362,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Multiply(self->getArray(),aaa);
         MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
@@ -434,7 +434,7 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Divide(aaa,self->getArray());
         MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);

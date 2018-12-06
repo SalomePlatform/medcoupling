@@ -185,7 +185,7 @@ void DataArrayChar::meldWith(const DataArrayChar *other)
       w=std::copy(inp1,inp1+nbOfComp1,w);
       w=std::copy(inp2,inp2+nbOfComp2,w);
     }
-  useArray(newArr,true,C_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
+  useArray(newArr,true,DeallocType::C_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
   std::vector<int> compIds(nbOfComp2);
   for(int i=0;i<nbOfComp2;i++)
     compIds[i]=nbOfComp1+i;

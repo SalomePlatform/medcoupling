@@ -4312,7 +4312,7 @@ DataArrayInt *DataArrayInt::checkAndPreparePermutation() const
   const int *pt=getConstPointer();
   int *pt2=CheckAndPreparePermutation(pt,pt+nbTuples);
   DataArrayInt *ret=DataArrayInt::New();
-  ret->useArray(pt2,true,C_DEALLOC,nbTuples,1);
+  ret->useArray(pt2,true,DeallocType::C_DEALLOC,nbTuples,1);
   return ret;
 }
 
@@ -6041,7 +6041,7 @@ void DataArrayInt::computeOffsetsFull()
   ret[0]=0;
   for(int i=0;i<nbOfTuples;i++)
     ret[i+1]=work[i]+ret[i];
-  useArray(ret,true,C_DEALLOC,nbOfTuples+1,1);
+  useArray(ret,true,DeallocType::C_DEALLOC,nbOfTuples+1,1);
   declareAsNew();
 }
 

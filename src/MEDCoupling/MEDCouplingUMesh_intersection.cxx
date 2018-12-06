@@ -566,8 +566,8 @@ MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::
   MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::New(mesh1D->getName(),1));
   ret->setConnectivity(cOut,ciOut,true);
   MCAuto<DataArrayDouble> arr3(DataArrayDouble::New());
-  arr3->useArray(&addCoo[0],false,C_DEALLOC,(int)addCoo.size()/2,2);
-  MCAuto<DataArrayDouble> arr4(DataArrayDouble::New()); arr4->useArray(&addCooQuad[0],false,C_DEALLOC,(int)addCooQuad.size()/2,2);
+  arr3->useArray(&addCoo[0],false,DeallocType::C_DEALLOC,(int)addCoo.size()/2,2);
+  MCAuto<DataArrayDouble> arr4(DataArrayDouble::New()); arr4->useArray(&addCooQuad[0],false,DeallocType::C_DEALLOC,(int)addCooQuad.size()/2,2);
   std::vector<const DataArrayDouble *> coordss(4);
   coordss[0]=coords1; coordss[1]=mesh1D->getCoords(); coordss[2]=arr3; coordss[3]=arr4;
   MCAuto<DataArrayDouble> arr(DataArrayDouble::Aggregate(coordss));
@@ -1720,7 +1720,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
     }
   //
   MCAuto<DataArrayDouble> addCooDa(DataArrayDouble::New());
-  addCooDa->useArray(&addCoo[0],false,C_DEALLOC,(int)addCoo.size()/2,2);
+  addCooDa->useArray(&addCoo[0],false,DeallocType::C_DEALLOC,(int)addCoo.size()/2,2);
   // Step 2: re-order newly created nodes according to the ordering found in m2
   std::vector< std::vector<int> > intersectEdge2;
   BuildIntersectEdges(m1Desc,mesh1D,addCoo,subDiv2,intersectEdge2);

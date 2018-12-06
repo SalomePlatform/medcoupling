@@ -657,13 +657,13 @@ void MEDCouplingBasicsTest5::testGetNodeIdsOfCell2()
   MEDCouplingCMesh *m1c=MEDCouplingCMesh::New();
   DataArrayDouble *coordsX=DataArrayDouble::New();
   double arrX[5] = { -1., 1., 2., 4., 4.5 };
-  coordsX->useArray(arrX,false, CPP_DEALLOC,5,1);
+  coordsX->useArray(arrX,false, DeallocType::CPP_DEALLOC,5,1);
   DataArrayDouble *coordsY=DataArrayDouble::New();
   double arrY[4] = { -2., 2., 4., 8. };
-  coordsY->useArray(arrY,false, CPP_DEALLOC,4,1);
+  coordsY->useArray(arrY,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble *coordsZ=DataArrayDouble::New();
   double arrZ[3] = { -2., 2., 4. };
-  coordsZ->useArray(arrZ,false, CPP_DEALLOC,3,1);  
+  coordsZ->useArray(arrZ,false, DeallocType::CPP_DEALLOC,3,1);  
   // test in 1D
   m1c->setCoordsAt(0,coordsX);
   CPPUNIT_ASSERT_EQUAL(4,(int)m1c->getNumberOfCells());
@@ -1331,11 +1331,11 @@ void MEDCouplingBasicsTest5::testComputeTupleIdsToSelectFromCellIds1()
   DataArrayInt *cI=m->computeNbOfNodesPerCell();
   cI->computeOffsetsFull();
   const int sel1[3]={1,5,9};
-  DataArrayInt *sel=DataArrayInt::New(); sel->useArray(sel1,false,CPP_DEALLOC,3,1);
+  DataArrayInt *sel=DataArrayInt::New(); sel->useArray(sel1,false,DeallocType::CPP_DEALLOC,3,1);
   DataArrayInt *res=sel->buildExplicitArrByRanges(cI);
   DataArrayDouble *arr2=arr->selectByTupleIdSafe(res->begin(),res->end());
   const double expected1[30]={13.,14.,15.,16.,17.,18.,19.,20.,59.,60.,61.,62.,63.,64.,95.,96.,97.,98.,99.,100.,101.,102.,103.,104.,105.,106.,107.,108.,109.,110.};
-  DataArrayDouble *arr3=DataArrayDouble::New(); arr3->useArray(expected1,false,CPP_DEALLOC,15,2);
+  DataArrayDouble *arr3=DataArrayDouble::New(); arr3->useArray(expected1,false,DeallocType::CPP_DEALLOC,15,2);
   CPPUNIT_ASSERT(arr2->isEqual(*arr3,1e-12));
   CPPUNIT_ASSERT(arr2->isEqual(*f2->getArray(),1e-12));
   //
@@ -1559,19 +1559,19 @@ void MEDCouplingBasicsTest5::testKrSpatialDiscretization1()
 void MEDCouplingBasicsTest5::testDuplicateEachTupleNTimes1()
 {
   const double vals0[4]={9.,8.,7.,6.};
-  DataArrayDouble *d=DataArrayDouble::New(); d->useArray(vals0,false,CPP_DEALLOC,4,1); d->setInfoOnComponent(0,"mass [kg]"); d->setName("aname");
+  DataArrayDouble *d=DataArrayDouble::New(); d->useArray(vals0,false,DeallocType::CPP_DEALLOC,4,1); d->setInfoOnComponent(0,"mass [kg]"); d->setName("aname");
   DataArrayDouble *d2=d->duplicateEachTupleNTimes(3);
   const double vals1[12]={9.,9.,9.,8.,8.,8.,7.,7.,7.,6.,6.,6.};
-  DataArrayDouble *d3=DataArrayDouble::New(); d3->useArray(vals1,false,CPP_DEALLOC,4*3,1); d3->setName("aname"); d3->setInfoOnComponent(0,"mass [kg]");
+  DataArrayDouble *d3=DataArrayDouble::New(); d3->useArray(vals1,false,DeallocType::CPP_DEALLOC,4*3,1); d3->setName("aname"); d3->setInfoOnComponent(0,"mass [kg]");
   CPPUNIT_ASSERT(d2->isEqual(*d2,1e-14)); d3->decrRef();
   d->decrRef();
   d2->decrRef();
   //
   const int vals2[4]={9,8,7,6};
-  DataArrayInt *d4=DataArrayInt::New(); d4->useArray(vals2,false,CPP_DEALLOC,4,1); d4->setInfoOnComponent(0,"mass [kg]") ; d4->setName("aname");
+  DataArrayInt *d4=DataArrayInt::New(); d4->useArray(vals2,false,DeallocType::CPP_DEALLOC,4,1); d4->setInfoOnComponent(0,"mass [kg]") ; d4->setName("aname");
   DataArrayInt *d5=d4->duplicateEachTupleNTimes(3);
   const int vals3[12]={9,9,9,8,8,8,7,7,7,6,6,6};
-  DataArrayInt *d6=DataArrayInt::New(); d6->useArray(vals3,false,CPP_DEALLOC,4*3,1); d6->setName("aname"); d6->setInfoOnComponent(0,"mass [kg]");
+  DataArrayInt *d6=DataArrayInt::New(); d6->useArray(vals3,false,DeallocType::CPP_DEALLOC,4*3,1); d6->setName("aname"); d6->setInfoOnComponent(0,"mass [kg]");
   CPPUNIT_ASSERT(d5->isEqual(*d6)); d6->decrRef();
   d4->decrRef();
   d5->decrRef();
@@ -1582,15 +1582,15 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp5()
   // coordinates
   DataArrayDouble *coords=DataArrayDouble::New();
   const double coordsData[376]={41,0,42,0,0,42,0,41,41.5,0,29.698484809834998,29.698484809834994,0,41.5,28.991378028648452,28.991378028648445,-42,0,-41,0,-29.698484809834994,29.698484809834998,-41.5,0,-28.991378028648445,28.991378028648452,0,-42,0,-41,-29.698484809835001,-29.698484809834994,0,-41.5,-28.991378028648455,-28.991378028648445,29.698484809834987,-29.698484809835001,28.991378028648441,-28.991378028648455,43,0,0,43,42.5,0,30.405591591021544,30.40559159102154,0,42.5,-43,0,-30.40559159102154,30.405591591021544,-42.5,0,0,-43,-30.405591591021551,-30.40559159102154,0,-42.5,30.405591591021537,-30.405591591021551,44,0,0,44,43.5,0,31.112698372208094,31.112698372208087,0,43.5,-44,0,-31.112698372208087,31.112698372208094,-43.5,0,0,-44,-31.112698372208097,-31.112698372208087,0,-43.5,31.112698372208083,-31.112698372208097,45,0,0,45,44.5,0,31.81980515339464,31.819805153394636,0,44.5,-45,0,-31.819805153394636,31.81980515339464,-44.5,0,0,-45,-31.819805153394647,-31.819805153394636,0,-44.5,31.819805153394629,-31.819805153394647,47,0,0,47,46,0,33.234018715767739,33.234018715767732,0,46,-47,0,-33.234018715767732,33.234018715767739,-46,0,0,-47,-33.234018715767739,-33.234018715767732,0,-46,33.234018715767725,-33.234018715767739,49,0,0,49,48,0,34.648232278140831,34.648232278140824,0,48,-49,0,-34.648232278140824,34.648232278140831,-48,0,0,-49,-34.648232278140839,-34.648232278140824,0,-48,34.648232278140817,-34.648232278140839,51,0,0,51,50,0,36.062445840513924,36.062445840513924,0,50,-51,0,-36.062445840513924,36.062445840513924,-50,0,0,-51,-36.062445840513931,-36.062445840513924,0,-50,36.062445840513917,-36.062445840513931,53,0,0,53,52,0,37.476659402887023,37.476659402887016,0,52,-53,0,-37.476659402887016,37.476659402887023,-52,0,0,-53,-37.47665940288703,-37.476659402887016,0,-52,37.476659402887009,-37.47665940288703,55,0,0,55,54,0,38.890872965260115,38.890872965260108,0,54,-55,0,-38.890872965260108,38.890872965260115,-54,0,0,-55,-38.890872965260122,-38.890872965260108,0,-54,38.890872965260101,-38.890872965260122,59,0,0,59,57,0,41.719300090006307,41.7193000900063,0,57,-59,0,-41.7193000900063,41.719300090006307,-57,0,0,-59,-41.719300090006314,-41.7193000900063,0,-57,41.719300090006293,-41.719300090006314,63,0,0,63,61,0,44.547727214752499,44.547727214752491,0,61,-63,0,-44.547727214752491,44.547727214752499,-61,0,0,-63,-44.547727214752506,-44.547727214752491,0,-61,44.547727214752484,-44.547727214752506,67,0,0,67,65,0,47.37615433949869,47.376154339498683,0,65,-67,0,-47.376154339498683,47.37615433949869,-65,0,0,-67,-47.376154339498697,-47.376154339498683,0,-65,47.376154339498676,-47.376154339498697,71,0,0,71,69,0,50.204581464244875,50.204581464244868,0,69,-71,0,-50.204581464244868,50.204581464244875,-69,0,0,-71,-50.204581464244889,-50.204581464244868,0,-69,50.20458146424486,-50.204581464244889,75,0,0,75,73,0,53.033008588991066,53.033008588991059,0,73,-75,0,-53.033008588991059,53.033008588991066,-73,0,0,-75,-53.033008588991073,-53.033008588991059,0,-73,53.033008588991052,-53.033008588991073,80,0,0,80,77.5,0,56.568542494923804,56.568542494923797,0,77.5,-80,0,-56.568542494923797,56.568542494923804,-77.5,0,0,-80,-56.568542494923818,-56.568542494923797,0,-77.5,56.56854249492379,-56.568542494923818};
-  coords->useArray(coordsData,false,CPP_DEALLOC,188,2);
+  coords->useArray(coordsData,false,DeallocType::CPP_DEALLOC,188,2);
   coords->setName("");
   DataArrayInt *conn=DataArrayInt::New();
   const int connData[540]={8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12,8,9,8,13,14,11,15,16,17,8,14,13,1,0,16,18,4,19,8,1,20,21,2,22,23,24,5,8,2,21,25,8,24,26,27,10,8,8,25,28,13,27,29,30,15,8,13,28,20,1,30,31,22,18,8,20,32,33,21,34,35,36,23,8,21,33,37,25,36,38,39,26,8,25,37,40,28,39,41,42,29,8,28,40,32,20,42,43,34,31,8,32,44,45,33,46,47,48,35,8,33,45,49,37,48,50,51,38,8,37,49,52,40,51,53,54,41,8,40,52,44,32,54,55,46,43,8,44,56,57,45,58,59,60,47,8,45,57,61,49,60,62,63,50,8,49,61,64,52,63,65,66,53,8,52,64,56,44,66,67,58,55,8,56,68,69,57,70,71,72,59,8,57,69,73,61,72,74,75,62,8,61,73,76,64,75,77,78,65,8,64,76,68,56,78,79,70,67,8,68,80,81,69,82,83,84,71,8,69,81,85,73,84,86,87,74,8,73,85,88,76,87,89,90,77,8,76,88,80,68,90,91,82,79,8,80,92,93,81,94,95,96,83,8,81,93,97,85,96,98,99,86,8,85,97,100,88,99,101,102,89,8,88,100,92,80,102,103,94,91,8,92,104,105,93,106,107,108,95,8,93,105,109,97,108,110,111,98,8,97,109,112,100,111,113,114,101,8,100,112,104,92,114,115,106,103,8,104,116,117,105,118,119,120,107,8,105,117,121,109,120,122,123,110,8,109,121,124,112,123,125,126,113,8,112,124,116,104,126,127,118,115,8,116,128,129,117,130,131,132,119,8,117,129,133,121,132,134,135,122,8,121,133,136,124,135,137,138,125,8,124,136,128,116,138,139,130,127,8,128,140,141,129,142,143,144,131,8,129,141,145,133,144,146,147,134,8,133,145,148,136,147,149,150,137,8,136,148,140,128,150,151,142,139,8,140,152,153,141,154,155,156,143,8,141,153,157,145,156,158,159,146,8,145,157,160,148,159,161,162,149,8,148,160,152,140,162,163,154,151,8,152,164,165,153,166,167,168,155,8,153,165,169,157,168,170,171,158,8,157,169,172,160,171,173,174,161,8,160,172,164,152,174,175,166,163,8,164,176,177,165,178,179,180,167,8,165,177,181,169,180,182,183,170,8,169,181,184,172,183,185,186,173,8,172,184,176,164,186,187,178,175};
-  conn->useArray(connData,false,CPP_DEALLOC,540,1);
+  conn->useArray(connData,false,DeallocType::CPP_DEALLOC,540,1);
   conn->setName("");
   DataArrayInt *connI=DataArrayInt::New();
   const int connIData[61]={0,9,18,27,36,45,54,63,72,81,90,99,108,117,126,135,144,153,162,171,180,189,198,207,216,225,234,243,252,261,270,279,288,297,306,315,324,333,342,351,360,369,378,387,396,405,414,423,432,441,450,459,468,477,486,495,504,513,522,531,540};
-  connI->useArray(connIData,false,CPP_DEALLOC,61,1);
+  connI->useArray(connIData,false,DeallocType::CPP_DEALLOC,61,1);
   connI->setName("");
   //
   MEDCouplingUMesh *m1=MEDCouplingUMesh::New("Fix",2);
@@ -1600,16 +1600,16 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp5()
   //
   coords=DataArrayDouble::New();
   const double coordsData2[84]={46.5,-2.5,53.5,-2.5,53.5,2.5,46.5,2.5,50,-2.5,53.5,0,50,2.5,46.5,0,60.5,-2.5,60.5,2.5,57,-2.5,60.5,0,57,2.5,53.5,7.5,46.5,7.5,53.5,5,50,7.5,46.5,5,60.5,7.5,60.5,5,57,7.5,-2,47,2,47,2,53,-2,53,0,47,2,50,0,53,-2,50,6,47,6,53,4,47,6,50,4,53,2,59,-2,59,2,56,0,59,-2,56,6,59,6,56,4,59};
-  coords->useArray(coordsData2,false,CPP_DEALLOC,42,2);  
+  coords->useArray(coordsData2,false,DeallocType::CPP_DEALLOC,42,2);  
   coords->setName("");
   // connectivity
   conn=DataArrayInt::New();
   const int connData2[72]={8,0,1,2,3,4,5,6,7,8,1,8,9,2,10,11,12,5,8,3,2,13,14,6,15,16,17,8,2,9,18,13,12,19,20,15,8,21,22,23,24,25,26,27,28,8,22,29,30,23,31,32,33,26,8,24,23,34,35,27,36,37,38,8,23,30,39,34,33,40,41,36};
-  conn->useArray(connData2,false,CPP_DEALLOC,72,1);
+  conn->useArray(connData2,false,DeallocType::CPP_DEALLOC,72,1);
   conn->setName("");
   connI=DataArrayInt::New();
   const int connIData2[9]={0,9,18,27,36,45,54,63,72};
-  connI->useArray(connIData2,false,CPP_DEALLOC,9,1);
+  connI->useArray(connIData2,false,DeallocType::CPP_DEALLOC,9,1);
   connI->setName("");
   MEDCouplingUMesh *m2=MEDCouplingUMesh::New("Mobile",2);
   m2->setCoords(coords);
@@ -1647,7 +1647,7 @@ void MEDCouplingBasicsTest5::testDAIBuildUnique1()
 {
   DataArrayInt *d=DataArrayInt::New();
   const int dData[14]={1,2,2,3,3,3,3,4,5,5,7,7,7,19};
-  d->useArray(dData,false,CPP_DEALLOC,14,1);
+  d->useArray(dData,false,DeallocType::CPP_DEALLOC,14,1);
   const int expectedData[7]={1,2,3,4,5,7,19};
   //
   DataArrayInt *e=d->buildUnique();
@@ -1669,7 +1669,7 @@ void MEDCouplingBasicsTest5::testDAIPartitionByDifferentValues1()
   const int expected2_2[2]={0,2};
   const int expected2_3[4]={3,5,6,8};
   DataArrayInt *d=DataArrayInt::New();
-  d->useArray(data,false,CPP_DEALLOC,9,1);
+  d->useArray(data,false,DeallocType::CPP_DEALLOC,9,1);
   std::vector<int> f;
   static const int nbOfOutputsExpected=4;
   std::vector<DataArrayInt *> e=d->partitionByDifferentValues(f);
@@ -1702,32 +1702,32 @@ void MEDCouplingBasicsTest5::testDAICheckMonotonic1()
   const int data3[6]={-1,0,3,2,4,6};
   const int data4[6]={7,5,2,3,0,-6};
   DataArrayInt *d=DataArrayInt::New();
-  d->useArray(data1,false,CPP_DEALLOC,6,1);
+  d->useArray(data1,false,DeallocType::CPP_DEALLOC,6,1);
   CPPUNIT_ASSERT(d->isMonotonic(true));
   CPPUNIT_ASSERT(!d->isMonotonic(false));
   d->checkMonotonic(true);
   CPPUNIT_ASSERT_THROW(d->checkMonotonic(false),INTERP_KERNEL::Exception);
-  d->useArray(data2,false,CPP_DEALLOC,6,1);
+  d->useArray(data2,false,DeallocType::CPP_DEALLOC,6,1);
   CPPUNIT_ASSERT(d->isMonotonic(false));
   CPPUNIT_ASSERT(!d->isMonotonic(true));
   d->checkMonotonic(false);
   CPPUNIT_ASSERT_THROW(d->checkMonotonic(true),INTERP_KERNEL::Exception);
-  d->useArray(data3,false,CPP_DEALLOC,6,1);
+  d->useArray(data3,false,DeallocType::CPP_DEALLOC,6,1);
   CPPUNIT_ASSERT(!d->isMonotonic(false));
   CPPUNIT_ASSERT(!d->isMonotonic(true));
   CPPUNIT_ASSERT_THROW(d->checkMonotonic(true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(d->checkMonotonic(false),INTERP_KERNEL::Exception);
-  d->useArray(data4,false,CPP_DEALLOC,6,1);
+  d->useArray(data4,false,DeallocType::CPP_DEALLOC,6,1);
   CPPUNIT_ASSERT(!d->isMonotonic(false));
   CPPUNIT_ASSERT(!d->isMonotonic(true));
   CPPUNIT_ASSERT_THROW(d->checkMonotonic(true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(d->checkMonotonic(false),INTERP_KERNEL::Exception);
-  d->useArray(data4,false,CPP_DEALLOC,0,1);
+  d->useArray(data4,false,DeallocType::CPP_DEALLOC,0,1);
   CPPUNIT_ASSERT(d->isMonotonic(true));
   CPPUNIT_ASSERT(d->isMonotonic(false));
   d->checkMonotonic(true);
   d->checkMonotonic(false);
-  d->useArray(data4,false,CPP_DEALLOC,3,2);//throw because nbComp!=1
+  d->useArray(data4,false,DeallocType::CPP_DEALLOC,3,2);//throw because nbComp!=1
   CPPUNIT_ASSERT_THROW(d->isMonotonic(true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(d->isMonotonic(false),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(d->checkMonotonic(true),INTERP_KERNEL::Exception);
@@ -1740,14 +1740,14 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp6()
   // coordinates
   DataArrayDouble *coords=DataArrayDouble::New();
   const double coordsData[16]={2.7554552980815448e-15,45,-45,5.5109105961630896e-15,-31.819805153394636,31.81980515339464,2.8779199779962799e-15,47,2.8166876380389124e-15,46,-47,5.7558399559925599e-15,-33.234018715767732,33.234018715767739,-46,5.6333752760778247e-15};
-  coords->useArray(coordsData,false,CPP_DEALLOC,8,2);
+  coords->useArray(coordsData,false,DeallocType::CPP_DEALLOC,8,2);
   // connectivity
   DataArrayInt *conn=DataArrayInt::New();
   const int connData[9]={8,0,3,5,1,4,6,7,2};
-  conn->useArray(connData,false,CPP_DEALLOC,9,1);
+  conn->useArray(connData,false,DeallocType::CPP_DEALLOC,9,1);
   DataArrayInt *connI=DataArrayInt::New();
   const int connIData[2]={0,9};
-  connI->useArray(connIData,false,CPP_DEALLOC,2,1);
+  connI->useArray(connIData,false,DeallocType::CPP_DEALLOC,2,1);
   MEDCouplingUMesh *m1=MEDCouplingUMesh::New("Fixe",2);
   m1->setCoords(coords);
   m1->setConnectivity(conn,connI,true);
@@ -1755,14 +1755,14 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp6()
   //
   coords=DataArrayDouble::New();
   const double coordsData2[26]={-7.3800475508445391,41.854329503018846,-3.7041190667754655,42.338274668899189,-3.7041190667754655,45.338274668899189,-7.3800475508445382,44.854329503018839,-5.5473631693521845,42.136406608386956,-3.7041190667754655,43.838274668899189,-5.5420833088100014,45.09630208595901,-7.3800475508445382,43.354329503018839,-3.7041190667754651,52.338274668899189,-7.3800475508445382,51.854329503018839,-3.7041190667754655,48.838274668899189,-5.5420833088100014,52.09630208595901,-7.3800475508445382,48.354329503018839};
-  coords->useArray(coordsData2,false,CPP_DEALLOC,13,2);
+  coords->useArray(coordsData2,false,DeallocType::CPP_DEALLOC,13,2);
   // connectivity
   conn=DataArrayInt::New();
   const int connData2[18]={8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12};
-  conn->useArray(connData2,false,CPP_DEALLOC,18,1);
+  conn->useArray(connData2,false,DeallocType::CPP_DEALLOC,18,1);
   connI=DataArrayInt::New();
   const int connIData2[3]={0,9,18};
-  connI->useArray(connIData2,false,CPP_DEALLOC,3,1);
+  connI->useArray(connIData2,false,DeallocType::CPP_DEALLOC,3,1);
   //
   MEDCouplingUMesh *m2=MEDCouplingUMesh::New("Mobile",2);
   m2->setCoords(coords);
@@ -1802,14 +1802,14 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp7()
   // coordinates circle - SEE getCircle() on the Python side
   DataArrayDouble *coords1=DataArrayDouble::New();
   const double coordsData1[16]={0.5328427124746189, -0.08284271247461905, -0.03284271247461901, 0.4828427124746191, -0.03284271247461906, -0.082842712474619, 0.5328427124746191, 0.482842712474619};
-  coords1->useArray(coordsData1,false,CPP_DEALLOC,8,2);
+  coords1->useArray(coordsData1,false,DeallocType::CPP_DEALLOC,8,2);
   // connectivity
   DataArrayInt *conn1=DataArrayInt::New();
   const int connData1[5]={INTERP_KERNEL::NORM_QPOLYG,0,1,2,3};
-  conn1->useArray(connData1,false,CPP_DEALLOC,5,1);
+  conn1->useArray(connData1,false,DeallocType::CPP_DEALLOC,5,1);
   DataArrayInt *connI1=DataArrayInt::New();
   const int connIData1[2]={0,5};
-  connI1->useArray(connIData1,false,CPP_DEALLOC,2,1);
+  connI1->useArray(connIData1,false,DeallocType::CPP_DEALLOC,2,1);
   MEDCouplingUMesh *m1=MEDCouplingUMesh::New("circle",2);
   m1->setCoords(coords1);
   m1->setConnectivity(conn1,connI1,true);
@@ -1818,14 +1818,14 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp7()
   // square
   DataArrayDouble *coords2=DataArrayDouble::New();
   const double coordsData2[8]={-0.5,-0.5,   -0.5, 0.5, 0.5, 0.5,    0.5,-0.5};
-  coords2->useArray(coordsData2,false,CPP_DEALLOC,4,2);
+  coords2->useArray(coordsData2,false,DeallocType::CPP_DEALLOC,4,2);
   // connectivity
   DataArrayInt *conn2=DataArrayInt::New();
   const int connData2[5]={INTERP_KERNEL::NORM_POLYGON, 0,1,2,3};
-  conn2->useArray(connData2,false,CPP_DEALLOC,5,1);
+  conn2->useArray(connData2,false,DeallocType::CPP_DEALLOC,5,1);
   DataArrayInt *connI2=DataArrayInt::New();
   const int connIData2[2]={0,5};
-  connI2->useArray(connIData2,false,CPP_DEALLOC,2,1);
+  connI2->useArray(connIData2,false,DeallocType::CPP_DEALLOC,2,1);
   MEDCouplingUMesh *m2=MEDCouplingUMesh::New("square",2);
   m2->setCoords(coords2);
   m2->setConnectivity(conn2,connI2,true);
@@ -1859,10 +1859,10 @@ void MEDCouplingBasicsTest5::testDAIBuildSubstractionOptimized1()
   const int tab1[7]={1,3,5,6,7,9,13};
   const int tab2[3]={3,5,9};
   const int tab3[3]={1,3,5};
-  DataArrayInt *da1=DataArrayInt::New(); da1->useArray(tab1,false,CPP_DEALLOC,7,1);
-  DataArrayInt *da2=DataArrayInt::New(); da2->useArray(tab2,false,CPP_DEALLOC,3,1);
-  DataArrayInt *da3=DataArrayInt::New(); da3->useArray(tab3,false,CPP_DEALLOC,3,1);
-  DataArrayInt *da4=DataArrayInt::New(); da4->useArray(tab1,false,CPP_DEALLOC,7,1);
+  DataArrayInt *da1=DataArrayInt::New(); da1->useArray(tab1,false,DeallocType::CPP_DEALLOC,7,1);
+  DataArrayInt *da2=DataArrayInt::New(); da2->useArray(tab2,false,DeallocType::CPP_DEALLOC,3,1);
+  DataArrayInt *da3=DataArrayInt::New(); da3->useArray(tab3,false,DeallocType::CPP_DEALLOC,3,1);
+  DataArrayInt *da4=DataArrayInt::New(); da4->useArray(tab1,false,DeallocType::CPP_DEALLOC,7,1);
   //
   DataArrayInt *a=0;
   a=da1->buildSubstractionOptimized(da2);
@@ -1893,7 +1893,7 @@ void MEDCouplingBasicsTest5::testDAIBuildSubstractionOptimized1()
 void MEDCouplingBasicsTest5::testDAIIsStrictlyMonotonic1()
 {
   const int tab1[7]={1,3,5,6,7,9,13};
-  DataArrayInt *da1=DataArrayInt::New(); da1->useArray(tab1,false,CPP_DEALLOC,7,1);
+  DataArrayInt *da1=DataArrayInt::New(); da1->useArray(tab1,false,DeallocType::CPP_DEALLOC,7,1);
   CPPUNIT_ASSERT(da1->isStrictlyMonotonic(true));
   da1->checkStrictlyMonotonic(true);
   CPPUNIT_ASSERT(da1->isMonotonic(true));
@@ -1905,7 +1905,7 @@ void MEDCouplingBasicsTest5::testDAIIsStrictlyMonotonic1()
   da1->decrRef();
   //
   int tab2[7]={1,3,5,6,6,9,13};
-  da1=DataArrayInt::New(); da1->useArray(tab2,false,CPP_DEALLOC,7,1);
+  da1=DataArrayInt::New(); da1->useArray(tab2,false,DeallocType::CPP_DEALLOC,7,1);
   CPPUNIT_ASSERT(!da1->isStrictlyMonotonic(true));
   CPPUNIT_ASSERT_THROW(da1->checkStrictlyMonotonic(true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT(da1->isMonotonic(true));
@@ -1917,7 +1917,7 @@ void MEDCouplingBasicsTest5::testDAIIsStrictlyMonotonic1()
   da1->decrRef();
   //
   const int tab3[7]={1,3,5,6,5,9,13};
-  da1=DataArrayInt::New(); da1->useArray(tab3,false,CPP_DEALLOC,7,1);
+  da1=DataArrayInt::New(); da1->useArray(tab3,false,DeallocType::CPP_DEALLOC,7,1);
   CPPUNIT_ASSERT(!da1->isStrictlyMonotonic(true));
   CPPUNIT_ASSERT_THROW(da1->checkStrictlyMonotonic(true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT(!da1->isMonotonic(true));
@@ -1929,7 +1929,7 @@ void MEDCouplingBasicsTest5::testDAIIsStrictlyMonotonic1()
   da1->decrRef();
   //
   const int tab4[7]={13,9,7,6,5,3,1};
-  da1=DataArrayInt::New(); da1->useArray(tab4,false,CPP_DEALLOC,7,1);
+  da1=DataArrayInt::New(); da1->useArray(tab4,false,DeallocType::CPP_DEALLOC,7,1);
   CPPUNIT_ASSERT(!da1->isStrictlyMonotonic(true));
   CPPUNIT_ASSERT_THROW(da1->checkStrictlyMonotonic(true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT(!da1->isMonotonic(true));
@@ -1941,7 +1941,7 @@ void MEDCouplingBasicsTest5::testDAIIsStrictlyMonotonic1()
   da1->decrRef();
   //
   const int tab5[7]={13,9,6,6,5,3,1};
-  da1=DataArrayInt::New(); da1->useArray(tab5,false,CPP_DEALLOC,7,1);
+  da1=DataArrayInt::New(); da1->useArray(tab5,false,DeallocType::CPP_DEALLOC,7,1);
   CPPUNIT_ASSERT(!da1->isStrictlyMonotonic(true));
   CPPUNIT_ASSERT_THROW(da1->checkStrictlyMonotonic(true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT(!da1->isMonotonic(true));
@@ -1953,7 +1953,7 @@ void MEDCouplingBasicsTest5::testDAIIsStrictlyMonotonic1()
   da1->decrRef();
   //
   const int tab6[7]={13,9,5,6,5,3,1};
-  da1=DataArrayInt::New(); da1->useArray(tab6,false,CPP_DEALLOC,7,1);
+  da1=DataArrayInt::New(); da1->useArray(tab6,false,DeallocType::CPP_DEALLOC,7,1);
   CPPUNIT_ASSERT(!da1->isStrictlyMonotonic(true));
   CPPUNIT_ASSERT_THROW(da1->checkStrictlyMonotonic(true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT(!da1->isMonotonic(true));
@@ -1964,7 +1964,7 @@ void MEDCouplingBasicsTest5::testDAIIsStrictlyMonotonic1()
   CPPUNIT_ASSERT_THROW(da1->checkMonotonic(false),INTERP_KERNEL::Exception);
   da1->decrRef();
   //
-  da1=DataArrayInt::New(); da1->useArray(tab1,false,CPP_DEALLOC,0,1);
+  da1=DataArrayInt::New(); da1->useArray(tab1,false,DeallocType::CPP_DEALLOC,0,1);
   CPPUNIT_ASSERT(da1->isStrictlyMonotonic(true));
   da1->checkStrictlyMonotonic(true);
   CPPUNIT_ASSERT(da1->isMonotonic(true));
@@ -1975,7 +1975,7 @@ void MEDCouplingBasicsTest5::testDAIIsStrictlyMonotonic1()
   da1->checkMonotonic(false);
   da1->decrRef();
   //
-  da1=DataArrayInt::New(); da1->useArray(tab1,false,CPP_DEALLOC,1,1);
+  da1=DataArrayInt::New(); da1->useArray(tab1,false,DeallocType::CPP_DEALLOC,1,1);
   CPPUNIT_ASSERT(da1->isStrictlyMonotonic(true));
   da1->checkStrictlyMonotonic(true);
   CPPUNIT_ASSERT(da1->isMonotonic(true));
@@ -1998,7 +1998,7 @@ void MEDCouplingBasicsTest5::testSimplexize3()
   m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn+20);
   const double coords[72]={0.,0.,0.,0.,1.,0.,1.,0.,0.,0.,0.,1.,2.,0.,0.,2.,1.,0.,3.,1.,0.,3.,0.,0.,2.,0.,1.,2.,1.,1.,3.,1.,1.,3.,0.,1.,4.,0.,0.,4.,1.,0.,5.,1.,0.,5.,0.,0.,4.,0.,1.,4.,1.,1.,5.,1.,1.,5.,0.,1.,6.,0.,0.,6.,1.,0.,7.,0.,0.,6.,0.,1.};
   DataArrayDouble *c=DataArrayDouble::New();
-  c->useArray(coords,false,CPP_DEALLOC,24,3);
+  c->useArray(coords,false,DeallocType::CPP_DEALLOC,24,3);
   m->setCoords(c);
   c->decrRef();
   m->checkConsistency();

@@ -1278,12 +1278,12 @@ void MEDCouplingRemapperTest::testBugNonRegression1()
   // source
   DataArrayDouble *coordsSrc(DataArrayDouble::New());
   const double coordsSrcData[18]={-6.25,3.6084391824351605,264.85199999999998,-6.25,3.6084391824351605,289.05200000000002,-6.2499999999999991,-3.6084391824351618,264.85199999999998,-6.2499999999999991,-3.6084391824351618,289.05200000000002,-1.7763568394002505e-15,4.4408920985006262e-15,264.85199999999998,-1.7763568394002505e-15,4.4408920985006262e-15,289.05200000000002};
-  coordsSrc->useArray(coordsSrcData,false,CPP_DEALLOC,6,3);
+  coordsSrc->useArray(coordsSrcData,false,DeallocType::CPP_DEALLOC,6,3);
   DataArrayInt *connSrc(DataArrayInt::New()),*connISrc(DataArrayInt::New());
   const int connSrcData[7]={16,2,0,4,3,1,5};
-  connSrc->useArray(connSrcData,false,CPP_DEALLOC,7,1);
+  connSrc->useArray(connSrcData,false,DeallocType::CPP_DEALLOC,7,1);
   const int connISrcData[2]={0,7};
-  connISrc->useArray(connISrcData,false,CPP_DEALLOC,2,1);
+  connISrc->useArray(connISrcData,false,DeallocType::CPP_DEALLOC,2,1);
   MEDCouplingUMesh *srcMesh(MEDCouplingUMesh::New("source",3));
   srcMesh->setCoords(coordsSrc);
   srcMesh->setConnectivity(connSrc,connISrc,true);
@@ -1291,13 +1291,13 @@ void MEDCouplingRemapperTest::testBugNonRegression1()
   // target
   DataArrayDouble *coordsTrg(DataArrayDouble::New());
 const double coordsTrgData[36]={-2,1.1547005383792521,264.85199999999998,-2,0.57735026918962618,264.85199999999998,-2.5,0.2886751345948132,264.85199999999998,-2.5,1.443375672974065,264.85199999999998,-3.0000000000000004,1.1547005383792526,264.85199999999998,-3.0000000000000004,0.57735026918962662,264.85199999999998,-2,1.1547005383792521,289.05200000000002,-2,0.57735026918962618,289.05200000000002,-2.5,0.2886751345948132,289.05200000000002,-2.5,1.443375672974065,289.05200000000002,-3.0000000000000004,1.1547005383792526,289.05200000000002,-3.0000000000000004,0.57735026918962662,289.05200000000002};
- coordsTrg->useArray(coordsTrgData,false,CPP_DEALLOC,12,3);
+ coordsTrg->useArray(coordsTrgData,false,DeallocType::CPP_DEALLOC,12,3);
  DataArrayInt *connTrg=DataArrayInt::New();
  const int connTrgData[44]={31,0,1,2,5,4,3,-1,7,6,9,10,11,8,-1,3,9,6,0,-1,4,10,9,3,-1,5,11,10,4,-1,2,8,11,5,-1,1,7,8,2,-1,0,6,7,1};
- connTrg->useArray(connTrgData,false,CPP_DEALLOC,44,1);
+ connTrg->useArray(connTrgData,false,DeallocType::CPP_DEALLOC,44,1);
  DataArrayInt *connITrg=DataArrayInt::New();
  const int connITrgData[2]={0,44};
- connITrg->useArray(connITrgData,false,CPP_DEALLOC,2,1);
+ connITrg->useArray(connITrgData,false,DeallocType::CPP_DEALLOC,2,1);
  MEDCouplingUMesh *trgMesh=MEDCouplingUMesh::New("target",3);
  trgMesh->setCoords(coordsTrg);
  trgMesh->setConnectivity(connTrg,connITrg,true);

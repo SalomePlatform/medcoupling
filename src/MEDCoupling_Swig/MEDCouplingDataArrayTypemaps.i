@@ -182,7 +182,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
           std::size_t nbOfElems(sz0*sz1);
           T *dataCpy=(T*)malloc(sizeof(T)*nbOfElems);
           std::copy(reinterpret_cast<const T*>(data),reinterpret_cast<const T*>(data)+nbOfElems,dataCpy);
-          ret->useArray(dataCpy,true,MEDCoupling::C_DEALLOC,sz0,sz1);
+          ret->useArray(dataCpy,true,MEDCoupling::DeallocType::C_DEALLOC,sz0,sz1);
           return ret.retn();
         }
       typename MEDCoupling::MemArray<T>& mma=ret->accessToMemArray();
@@ -190,7 +190,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
         {
           PyCallBackDataArraySt<MCData> *cb=PyObject_GC_New(PyCallBackDataArraySt<MCData>,pytype);
           cb->_pt_mc=ret;
-          ret->useArray(reinterpret_cast<const T *>(data),true,MEDCoupling::C_DEALLOC,sz0,sz1);
+          ret->useArray(reinterpret_cast<const T *>(data),true,MEDCoupling::DeallocType::C_DEALLOC,sz0,sz1);
           PyObject *ref=PyWeakref_NewRef(deepestObj,(PyObject *)cb);
           void **objs=new void *[2]; objs[0]=cb; objs[1]=ref;
           mma.setParameterForDeallocator(objs);
@@ -199,17 +199,23 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
         }
       else
         {
-          ret->useArray(reinterpret_cast<const T *>(data),true,MEDCoupling::C_DEALLOC,sz0,sz1);
+          ret->useArray(reinterpret_cast<const T *>(data),true,MEDCoupling::DeallocType::C_DEALLOC_WITH_OFFSET,sz0,sz1);
           PyObject *ref=PyWeakref_NewRef(reinterpret_cast<PyObject *>(eltOwning),NULL);
-          typename MEDCoupling::MemArray<T>::Deallocator tmp(MEDCoupling::MemArray<T>::CDeallocator);
+          typename MEDCoupling::MemArray<T>::Deallocator tmp(MEDCoupling::MemArray<T>::COffsetDeallocator);
           void **tmp2 = reinterpret_cast<void**>(&tmp); // MSVC2010 does not support constructor()
-          void **objs=new void *[2]; objs[0]=ref; objs[1]=*tmp2;
+          const char *dataEltOwning(PyArray_BYTES(eltOwning));//In case of input array is a sub array of a 2D,3D... array there is an offset
+          int64_t offset(0);
+          if(data!=dataEltOwning)
+            {
+              offset=data>dataEltOwning?-((int64_t)(std::distance(dataEltOwning,data))):(int64_t)std::distance(data,dataEltOwning);
+            }
+          void **objs=new void *[3]; objs[0]=ref; objs[1]=*tmp2; objs[2]=new int64_t(offset);
           mma.setParameterForDeallocator(objs);
           mma.setSpecificDeallocator(numarrdeal);
         }
     }
   else if(PyArray_ISBEHAVED_RO(elt0))
-    ret->useArray(reinterpret_cast<const T *>(data),false,MEDCoupling::CPP_DEALLOC,sz0,sz1);
+    ret->useArray(reinterpret_cast<const T *>(data),false,MEDCoupling::DeallocType::CPP_DEALLOC,sz0,sz1);
   return ret.retn();
 }
 
@@ -308,7 +314,7 @@ PyObject *ToNumPyArrayUnderground(MCData *self, int npyObjectType, const char *M
           PyObject *ref(PyWeakref_NewRef(ret,NULL));
           typename MEDCoupling::MemArray<T>::Deallocator tmp(mem.getDeallocator());
           void **tmp2 = reinterpret_cast<void**>(&tmp); // MSVC2010 does not support constructor()
-          void **objs=new void *[2]; objs[0]=reinterpret_cast<void*>(ref); objs[1]=*tmp2;
+          void **objs=new void *[3]; objs[0]=reinterpret_cast<void*>(ref); objs[1]=*tmp2; objs[2]=new int64_t(0);
           mem.setParameterForDeallocator(objs);
           mem.setSpecificDeallocator(numarrdeal);
           return ret;
@@ -2608,7 +2614,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues1(tmp,it1,it1+1,1,0,nbOfComponents,1,false);
             return self;
           case 3:
@@ -2628,7 +2634,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1,false);
             return self;
           case 3:
@@ -2648,7 +2654,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1,false);
             return self;
           case 3:
@@ -2668,7 +2674,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1,false);
             return self;
           case 3:
@@ -2688,7 +2694,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues1(tmp,it1,it1+1,1,ic1,ic1+1,1,false);
             return self;
           case 3:
@@ -2708,7 +2714,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1,false);
             return self;
           case 3:
@@ -2728,7 +2734,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1,false);
             return self;
           case 3:
@@ -2748,7 +2754,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1,false);
             return self;
           case 3:
@@ -2768,7 +2774,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues2(tmp,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size(),false);
             return self;
           case 3:
@@ -2788,7 +2794,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues2(tmp,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size(),false);
             return self;
           case 3:
@@ -2808,7 +2814,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues4(tmp,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size(),false);
             return self;
           case 3:
@@ -2828,7 +2834,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues2(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size(),false);
             return self;
           case 3:
@@ -2848,7 +2854,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues1(tmp,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second,false);
             return self;
           case 3:
@@ -2868,7 +2874,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second,false);
             return self;
           case 3:
@@ -2888,7 +2894,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second,false);
             return self;
           case 3:
@@ -2908,7 +2914,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayT__setitem__internal(typena
             return self;
           case 2:
             tmp=MEDCoupling::Traits<T>::ArrayType::New();
-            tmp->useArray(&v1[0],false,MEDCoupling::CPP_DEALLOC,1,v1.size());
+            tmp->useArray(&v1[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,v1.size());
             self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second,false);
             return self;
           case 3:
@@ -3138,7 +3144,7 @@ PyObject *DataArrayT_imul__internal(PyObject *trueSelf, PyObject *obj, typename 
       }
     case 4:
       {
-        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         self->multiplyEqual(aaa);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -3183,7 +3189,7 @@ PyObject *DataArrayT_idiv__internal(PyObject *trueSelf, PyObject *obj, typename 
       }
     case 4:
       {
-        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         self->divideEqual(aaa);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -3226,7 +3232,7 @@ PyObject *DataArrayT_iadd__internal(PyObject *trueSelf, PyObject *obj, typename 
       }
     case 4:
       {
-        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         self->addEqual(aaa);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -3269,7 +3275,7 @@ PyObject *DataArrayT_isub__internal(PyObject *trueSelf, PyObject *obj, typename 
       }
     case 4:
       {
-        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         self->substractEqual(aaa);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -3369,7 +3375,7 @@ typename MEDCoupling::Traits<T>::ArrayType *DataArrayFPT_rmul(typename MEDCoupli
       }
     case 4:
       {
-        typename MEDCoupling::MCAuto<typename MEDCoupling::Traits<T>::ArrayType> aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        typename MEDCoupling::MCAuto<typename MEDCoupling::Traits<T>::ArrayType> aaa(MEDCoupling::Traits<T>::ArrayType::New()); aaa->useArray(&bb[0],false,MEDCoupling::DeallocType::CPP_DEALLOC,1,(int)bb.size());
         return MEDCoupling::Traits<T>::ArrayType::Multiply(self,aaa);
       }
     default:

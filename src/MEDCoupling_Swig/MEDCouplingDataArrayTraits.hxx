@@ -55,7 +55,9 @@ void numarrdeal(void *pt, void *wron)
     {
       typedef void (*MyDeallocator)(void *,void *);
       MyDeallocator deall=(MyDeallocator)wronc[1];
-      deall(pt,NULL);
+      int64_t *offset=reinterpret_cast<int64_t*>(wronc[2]);
+      deall(pt,offset);
+      delete offset;
       Py_XDECREF(weakRefOnOwner);
     }
   delete [] wronc;
