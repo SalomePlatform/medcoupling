@@ -32,14 +32,24 @@ namespace INTERP_KERNEL
 
 SegSegIntersector::SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2):SameTypeEdgeIntersector(e1,e2)
 {
-  _matrix[0]=(*(e2.getStartNode()))[0]-(*(e2.getEndNode()))[0];
-  _matrix[1]=(*(e1.getEndNode()))[0]-(*(e1.getStartNode()))[0];
-  _matrix[2]=(*(e2.getStartNode()))[1]-(*(e2.getEndNode()))[1];
-  _matrix[3]=(*(e1.getEndNode()))[1]-(*(e1.getStartNode()))[1];
-  _col[0]=_matrix[3]*(*(e1.getStartNode()))[0]-_matrix[1]*(*(e1.getStartNode()))[1];
-  _col[1]=-_matrix[2]*(*(e2.getStartNode()))[0]+_matrix[0]*(*(e2.getStartNode()))[1];
+//  _matrix[0]=(*(e2.getStartNode()))[0]-(*(e2.getEndNode()))[0];
+//  _matrix[1]=(*(e1.getEndNode()))[0]-(*(e1.getStartNode()))[0];
+//  _matrix[2]=(*(e2.getStartNode()))[1]-(*(e2.getEndNode()))[1];
+//  _matrix[3]=(*(e1.getEndNode()))[1]-(*(e1.getStartNode()))[1];
+
+  _matrix[0]=(*(e1.getEndNode()))[0]-(*(e1.getStartNode()))[0];
+  _matrix[1]=(*(e1.getEndNode()))[1]-(*(e1.getStartNode()))[1];
+  _matrix[2]=(*(e2.getEndNode()))[0]-(*(e2.getStartNode()))[0];
+  _matrix[3]=(*(e2.getEndNode()))[1]-(*(e2.getStartNode()))[1];
+
+
+//  _col[0]=_matrix[3]*(*(e1.getStartNode()))[0]-_matrix[1]*(*(e1.getStartNode()))[1];
+//  _col[1]=-_matrix[2]*(*(e2.getStartNode()))[0]+_matrix[0]*(*(e2.getStartNode()))[1];
+  _col[0]=_matrix[1]*(*(e1.getStartNode()))[0]-_matrix[0]*(*(e1.getStartNode()))[1];
+  _col[1]=_matrix[3]*(*(e2.getStartNode()))[0]-_matrix[2]*(*(e2.getStartNode()))[1];
+
   //Little trick to avoid problems if 'e1' and 'e2' are colinears and along Ox or Oy axes.
-  if(fabs(_matrix[3])>fabs(_matrix[1]))
+  if(fabs(_matrix[1])>fabs(_matrix[0]))
     _ind=0;
   else
     _ind=1;
@@ -47,12 +57,10 @@ SegSegIntersector::SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2):SameT
 
 /*!
  * Must be called when 'this' and 'other' have been detected to be at least colinear. Typically they are overlapped.
- * Must be called after call of areOverlappedOrOnlyColinears.
  */
 bool SegSegIntersector::haveTheySameDirection() const
 {
-  return (_matrix[3]*_matrix[1]+_matrix[2]*_matrix[0])>0.;
-  //return (_matrix[_ind?1:0]>0. && _matrix[_ind?3:2]>0.) || (_matrix[_ind?1:0]<0. && _matrix[_ind?3:2]<0.);
+  return (_matrix[0]*_matrix[2]+_matrix[1]*_matrix[3])>0.;
 }
 
 /*!
@@ -85,8 +93,8 @@ void SegSegIntersector::getCurveAbscisse(Node *node, TypeOfLocInEdge& where, Mer
 std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicVal() const
 {
   std::list< IntersectElement > ret;
-  double x=_matrix[0]*_col[0]+_matrix[1]*_col[1];
-  double y=_matrix[2]*_col[0]+_matrix[3]*_col[1];
+  double x=-_matrix[2]*_col[0]+_matrix[0]*_col[1];
+  double y=-_matrix[3]*_col[0]+_matrix[1]*_col[1];
   //Only one intersect point possible
   Node *node=new Node(x,y);
   node->declareOn();
@@ -144,13 +152,9 @@ void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, 
     }
   else  // colinear vectors
     {
-      //retrieving initial matrix and shuffling it (will be used in getIntersectionsCharacteristicVal())
-      double tmp=_matrix[0]; _matrix[0]=_matrix[3]; _matrix[3]=tmp;
-      _matrix[1]=-_matrix[1]; _matrix[2]=-_matrix[2];
-      //
       double x=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
       double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];   // (x,y) is the vector between the two start points of e1 and e2
-      areOverlapped = fabs(_matrix[1]*y+_matrix[0]*x) < dimChar*QuadraticPlanarPrecision::getPrecision(); // test colinearity of (x,y) with e1
+      areOverlapped = fabs(-_matrix[0]*y+_matrix[1]*x) < dimChar*QuadraticPlanarPrecision::getPrecision(); // test colinearity of (x,y) with e1
 
       // explanation: if areOverlapped is true, we don't know yet if there will be an intersection (see meaning of areOverlapped in method doxy above)
       // if areOverlapped is false, we have two colinear vectors, not lying on the same line, so we're sure there is no intersec
