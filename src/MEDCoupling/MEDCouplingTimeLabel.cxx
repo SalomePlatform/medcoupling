@@ -26,7 +26,7 @@
 
 using namespace MEDCoupling;
 
-std::size_t TimeLabel::GLOBAL_TIME=0;
+std::atomic<std::size_t> TimeLabel::GLOBAL_TIME(0);
 
 TimeLabel::TimeLabel():_time(GLOBAL_TIME++)
 {

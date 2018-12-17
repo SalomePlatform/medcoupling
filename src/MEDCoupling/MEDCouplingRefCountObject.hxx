@@ -25,6 +25,7 @@
 
 #include <set>
 #include <map>
+#include <atomic>
 #include <vector>
 #include <string>
 #include <cstddef>
@@ -96,7 +97,7 @@ namespace MEDCoupling
   protected:
     virtual ~RefCountObjectOnly();
   private:
-    mutable int _cnt;
+    mutable std::atomic<int> _cnt;
   };
 
   class RefCountObject : public RefCountObjectOnly, public BigMemoryObject

@@ -23,6 +23,7 @@
 
 #include "MEDCoupling.hxx"
 
+#include <atomic>
 #include <cstddef>
 
 namespace MEDCoupling
@@ -46,7 +47,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void updateTimeWith(const TimeLabel& other) const;
     MEDCOUPLING_EXPORT void forceTimeOfThis(const TimeLabel& other) const;
   private:
-    static std::size_t GLOBAL_TIME;
+    static std::atomic<std::size_t> GLOBAL_TIME;
     mutable std::size_t _time;
   };
 
