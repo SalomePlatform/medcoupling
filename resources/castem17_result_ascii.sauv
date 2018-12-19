@@ -1,0 +1,109 @@
+ ENREGISTREMENT DE TYPE   4
+ NIVEAU  19 NIVEAU ERREUR   0 DIMENSION   3
+ DENSITE 0.00000E+00
+ ENREGISTREMENT DE TYPE   7
+ NOMBRE INFO CASTEM2000   8
+ IFOUR   2 NIFOUR   0 IFOMOD   2 ILGNI  10 IIMPI   0 IOSPI   0 ISOTYP   1
+ NSDPGE     0
+ ENREGISTREMENT DE TYPE   8
+       4      64
+ UX  UY  UZ  RX  RY  RZ  UR  UT  RT  LX  ALFABETAFBETP   PI  T   RR  TIN
+ FTSUPTH  FC  IUX IUY IUZ IRX IRY IRZ IUR IUT IRT PQ  TP  IP  IPI AX  AY
+   AZ  B1X B1Y B1Z C1X C1Y C1Z D1X D1Y D1Z E1X E1Y E1Z B2X B2Y B2Z C2X C
+                             2Y C2Z D2X D2Y D2Z E2X E2Y E2Z PG  PC  VEL 
+       4      64
+ FX  FY  FZ  MX  MY  MZ  FR  FT  MT  FLX FALFFBETBETAFP  FPI Q   MR  QIN
+ FQSUPFLUXED  IFX IFY IFZ IMX IMY IMZ IFR IFT IMT FPQ FTP IFP IFPIFAX FA
+ Y FAZ FB1XFB1YFB1ZFC1XFC1YFC1ZFD1XFD1YFD1ZFE1XFE1YFE1ZFB2XFB2YFB2ZFC2XF
+                             C2YFC2ZFD2XFD2YFD2ZFE2XFE2YFE2ZQG  QC  QEL 
+ ENREGISTREMENT DE TYPE   2
+ PILE NUMERO   1NBRE OBJETS NOMMES       6NBRE OBJETS      12
+ ENTREE   NOT_I001 NOT_I002 NOT_I003 PIECE    SORTIE  
+       2       4       6       8      10      11
+       1       0       0       1      12
+       0       0       0       0       0       0       0       0       0       0
+       0       0
+       1       2       3       4       5       6       7       8       9      10
+      11      12
+       0       1       0       0       0
+       3
+       8       0       0       4       1
+       0
+       3       4       2       1
+       0       1       0       0       0
+       5
+       2       0       0       2      16
+       0       0       0       0       0       0       0       0       0       0
+       0       0       0       0       0       0
+       3       8       8      10      10       9       4       7       7       9
+       3       4       1       5       5      11      11      12       2       6
+       6      12       1       2       3       1      10      11       4       2
+       9      12
+       0       1       0       0       0
+       7
+       8       0       0       4       8
+       0       0       0       0       0       0       0       0
+       3       8       7       4       8      10       9       7      11       5
+       6      12       5       1       2       6       3       1       5       8
+       8       5      11      10       2       4       7       6       6       7
+       9      12
+       0       1       0       0       0
+       9
+      14       0       0       8       2
+       0       0
+      10       9       7       8      11      12       6       5       8       7
+       4       3       5       6       2       1
+       0       1       0       0       0
+       9
+       0       1       0       0       0
+      12
+       8       0       0       4       1
+       0
+       9      10      11      12
+ ENREGISTREMENT DE TYPE   2
+ PILE NUMERO   2NBRE OBJETS NOMMES       1NBRE OBJETS       1
+ TEMP1   
+       1
+       1       1       2       2
+      -1      12       1
+ SCAL
+       0
+ SCAL AIRE  chp oint  cre e pa r EX COMP                                        
+                    
+       1       0
+  2.38461538461538E+02  2.38461538461539E+02  2.38461538461539E+02
+  2.38461538461538E+02  1.69230769230769E+02  1.69230769230769E+02
+  1.69230769230769E+02  1.69230769230769E+02  1.00000000000000E+02
+  1.00000000000000E+02  1.00000000000000E+02  1.00000000000000E+02
+ ENREGISTREMENT DE TYPE   2
+ PILE NUMERO  32NBRE OBJETS NOMMES       0NBRE OBJETS      12
+      12
+       6       8       2       4      11      12      10       9       3       1
+       5       7
+ ENREGISTREMENT DE TYPE   2
+ PILE NUMERO  33NBRE OBJETS NOMMES       0NBRE OBJETS       1
+      64
+  0.00000000000000E+00  0.00000000000000E+00  2.00000000000000E+00
+  0.00000000000000E+00  0.00000000000000E+00  0.00000000000000E+00
+  0.00000000000000E+00  0.00000000000000E+00  0.00000000000000E+00
+  1.00000000000000E+00  2.00000000000000E+00  0.00000000000000E+00
+  0.00000000000000E+00  1.00000000000000E+00  0.00000000000000E+00
+  0.00000000000000E+00  1.00000000000000E+00  0.00000000000000E+00
+  2.00000000000000E+00  0.00000000000000E+00  1.00000000000000E+00
+  0.00000000000000E+00  0.00000000000000E+00  0.00000000000000E+00
+  1.00000000000000E+00  1.00000000000000E+00  2.00000000000000E+00
+  0.00000000000000E+00  1.00000000000000E+00  1.00000000000000E+00
+  0.00000000000000E+00  0.00000000000000E+00  0.00000000000000E+00
+  0.00000000000000E+00  1.00000000000000E+00  0.00000000000000E+00
+  0.00000000000000E+00  1.00000000000000E+00  1.00000000000000E+00
+  0.00000000000000E+00  1.00000000000000E+00  0.00000000000000E+00
+  1.00000000000000E+00  0.00000000000000E+00  1.00000000000000E+00
+  1.00000000000000E+00  1.00000000000000E+00  0.00000000000000E+00
+  0.00000000000000E+00  1.00000000000000E+00  2.00000000000000E+00
+  0.00000000000000E+00  0.00000000000000E+00  0.00000000000000E+00
+  2.00000000000000E+00  0.00000000000000E+00  1.00000000000000E+00
+  0.00000000000000E+00  2.00000000000000E+00  0.00000000000000E+00
+  1.00000000000000E+00  1.00000000000000E+00  2.00000000000000E+00
+  0.00000000000000E+00
+ ENREGISTREMENT DE TYPE   5
+LABEL_AUTOMATIQUE_1                                                     

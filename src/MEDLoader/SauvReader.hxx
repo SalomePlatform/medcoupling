@@ -56,6 +56,7 @@ class SauvReader : public MEDCoupling::RefCountObject
   void readRecord2();
   void readRecord4();
   void readRecord7();
+  void readRecord8();
 
   int readPileNumber(int& nbNamedObjects, int& nbObjects);
   void read_PILE_SOUS_MAILLAGE(const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);

@@ -89,6 +89,8 @@ SET(MED_other_FILES
   portico_3subs.sauv
   agitateur.med
   test_MED_MAIL.sauv
+  castem17_result_xdr.sauv
+  castem17_result_ascii.sauv
   )
 
 SET(MED_RESOURCES_FILES ${MED_test_fig_files})

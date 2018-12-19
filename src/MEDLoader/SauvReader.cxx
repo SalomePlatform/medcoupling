@@ -139,6 +139,8 @@ MEDCoupling::MEDFileData * SauvReader::loadInMEDFileDS()
         readRecord4();
       else if (recordNumber == 7 )
         readRecord7();
+      else if (recordNumber == 8 )
+        readRecord8();
       else if (recordNumber == 5 )
         break; // stop reading
       else
@@ -209,6 +211,38 @@ void SauvReader::readRecord7()
       getNextLine(line);
       getNextLine(line);
       getNextLine(line);
+    }
+}
+
+//================================================================================
+/*!
+ * \brief Reads "ENREGISTREMENT DE TYPE 8"
+ */
+//================================================================================
+
+void SauvReader::readRecord8()
+{
+  // This record is useless (a constant table)
+  // => we skip it
+  int info;
+  int nbIntToSkip;
+  if ( !isASCII() )
+    {
+      getInt();
+      info = getInt();
+      int i = 0;
+      if (info == 3) {
+        // castem >= 18
+        // 1 more line
+        nbIntToSkip = 145;
+      }
+      else
+        nbIntToSkip = 141;
+
+      while (i <= nbIntToSkip) {
+        getInt();
+        i ++;
+      }
     }
 }
 
