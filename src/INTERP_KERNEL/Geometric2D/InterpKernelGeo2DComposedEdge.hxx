@@ -105,6 +105,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT bool changeEndNodeWith(Node *node) const;
     INTERPKERNEL_EXPORT bool changeStartNodeWith(Node *node) const;
     INTERPKERNEL_EXPORT void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
+    INTERPKERNEL_EXPORT void dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp) const;
     INTERPKERNEL_EXPORT bool isInOrOut(Node *nodeToTest) const;
     INTERPKERNEL_EXPORT bool isInOrOut2(Node *nodeToTest) const;
     INTERPKERNEL_EXPORT bool getDirection() const;

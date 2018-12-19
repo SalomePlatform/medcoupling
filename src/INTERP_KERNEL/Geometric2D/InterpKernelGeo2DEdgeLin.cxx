@@ -155,7 +155,6 @@ void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, 
       double x=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
       double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];   // (x,y) is the vector between the two start points of e1 and e2
       areOverlapped = fabs(-_matrix[0]*y+_matrix[1]*x) < dimChar*QuadraticPlanarPrecision::getPrecision(); // test colinearity of (x,y) with e1
-
       // explanation: if areOverlapped is true, we don't know yet if there will be an intersection (see meaning of areOverlapped in method doxy above)
       // if areOverlapped is false, we have two colinear vectors, not lying on the same line, so we're sure there is no intersec
       obviousNoIntersection = !areOverlapped;
@@ -329,29 +328,4 @@ double EdgeLin::getCharactValueEng(const double *node) const
   double car1_1x=node[0]-(*(_start))[0]; double car1_2x=(*(_end))[0]-(*(_start))[0];
   double car1_1y=node[1]-(*(_start))[1]; double car1_2y=(*(_end))[1]-(*(_start))[1];
   return (car1_1x*car1_2x+car1_1y*car1_2y)/(car1_2x*car1_2x+car1_2y*car1_2y);
-}
-
-void EdgeLin::fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                                std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
-{
-  int tmp[2];
-  _start->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,tmp);
-  _end->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,tmp+1);
-  if(direction)
-    {
-      edgesThis.push_back(tmp[0]);
-      edgesThis.push_back(tmp[1]);
-    }
-  else
-    {
-      edgesThis.push_back(tmp[1]);
-      edgesThis.push_back(tmp[0]);
-    }
-}
-
-void EdgeLin::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                                 std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const
-{
-  _start->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
-  _end->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
 }

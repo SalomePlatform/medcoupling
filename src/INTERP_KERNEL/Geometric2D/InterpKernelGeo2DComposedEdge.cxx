@@ -310,6 +310,29 @@ void ComposedEdge::dumpInXfigFile(std::ostream& stream, int resolution, const Bo
     (*iter)->dumpInXfigFile(stream,resolution,box);
 }
 
+void ComposedEdge::dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp) const
+{
+  int i=0;
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++, i++)
+    {
+      const ElementaryEdge& e(*(*iter));
+      auto sI(mapp.find(e.getStartNode())), eI(mapp.find(e.getEndNode()));
+      int start = (sI == mapp.end() ? -1 : sI->second), end = (eI == mapp.end() ? -1 : eI->second);
+      std::string locs;
+      switch (e.getLoc())
+      {
+        case FULL_IN_1: locs="FULL_IN_1"; break;
+        case FULL_ON_1: locs="FULL_ON_1"; break;
+        case FULL_OUT_1: locs="FULL_OUT_1"; break;
+        case FULL_UNKNOWN: locs="FULL_UNKNOWN"; break;
+        default: locs="oh my God! This is so wrong.";
+      }
+      std::cout << "Edge [" << i << "] : ("<<  std::hex << &e << std::dec << ") -> (" << start << ", " << end << ")\t" << locs << std::endl;
+    }
+  std::cout << std::endl;
+}
+
+
 Node *ComposedEdge::getEndNode() const
 {
   return _sub_edges.back()->getEndNode();

@@ -1335,7 +1335,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
       // Populate mapp and mappRev with nodes from the current cell (i) from mesh1 - this also builds the Node* objects:
       MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */mapp,mappRev);
-      // pol1 is the full cell from mesh2, in QP format, with all the additional intersecting nodes.
+      // pol1 is the full cell from mesh1, in QP format, with all the additional intersecting nodes.
       pol1.buildFromCrudeDataArray(mappRev,cm.isQuadratic(),conn1+connI1[i]+1,coo1,
           desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
       //
@@ -1348,6 +1348,8 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> > edgesIn2ForShare; // common edges
       std::vector<INTERP_KERNEL::QuadraticPolygon> pol2s(candidates2.size());
       int ii=0;
+      // Build, for each intersecting cell candidate from mesh2, the corresponding QP.
+      // Again all the additional intersecting nodes are there.
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)
         {
           INTERP_KERNEL::NormalizedCellType typ2=(INTERP_KERNEL::NormalizedCellType)conn2[connI2[*it2]];
@@ -1359,6 +1361,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
               pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2, /* output */ edgesIn2ForShare);
         }
       ii=0;
+      // Now rebuild intersected cells from all this:
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)
         {
           INTERP_KERNEL::ComposedEdge::InitLocationsWithOther(pol1,pol2s[ii]);

@@ -90,17 +90,18 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void performLocatingOperationSlow(QuadraticPolygon& pol2) const;
     INTERPKERNEL_EXPORT static void SplitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits);
     INTERPKERNEL_EXPORT std::vector<QuadraticPolygon *> buildIntersectionPolygons(const QuadraticPolygon& pol1, const QuadraticPolygon& pol2) const;
-    INTERPKERNEL_EXPORT bool haveIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Splitted, const QuadraticPolygon& pol2NotSplitted, bool& direction);
+    INTERPKERNEL_EXPORT bool haveIAChanceToBeCompletedBy(const QuadraticPolygon& pol1NotSplitted, const QuadraticPolygon& pol2Splitted, bool& direction) const;
     INTERPKERNEL_EXPORT static void ComputeResidual(const QuadraticPolygon& pol1, const std::set<Edge *>& notUsedInPol1, const std::set<Edge *>& edgesInPol2OnBoundary, const std::map<INTERP_KERNEL::Node *,int>& mapp, int offset, int idThis,
                                                     std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
   protected:
     std::list<QuadraticPolygon *> zipConsecutiveInSegments() const;
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
-    static void ClosePolygons(std::list<QuadraticPolygon *>& pol2Zip, const QuadraticPolygon& pol1, const QuadraticPolygon& pol2, std::vector<QuadraticPolygon *>& results);
+    static void ClosePolygons(std::list<QuadraticPolygon *>& pol1Zip, const QuadraticPolygon& pol1, const QuadraticPolygon& pol2,
+                              std::vector<QuadraticPolygon *>& results);
     template<class EDGES>
     static void UpdateNeighbours(const MergePoints& merger, IteratorOnComposedEdge it1, IteratorOnComposedEdge it2,
                                  const EDGES *e1, const EDGES *e2);
-    std::list<QuadraticPolygon *>::iterator fillAsMuchAsPossibleWith(const QuadraticPolygon& pol1Splitted,
+    std::list<QuadraticPolygon *>::iterator fillAsMuchAsPossibleWith(const QuadraticPolygon& pol2Splitted,
                                                                      std::list<QuadraticPolygon *>::iterator iStart,
                                                                      std::list<QuadraticPolygon *>::iterator iEnd,
                                                                      bool direction);
