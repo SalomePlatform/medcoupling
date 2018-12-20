@@ -53,6 +53,8 @@ template class MEDCoupling::DataArrayIterator<double>;
 template class MEDCoupling::DataArrayIterator<int>;
 template class MEDCoupling::DataArrayDiscrete<Int32>;
 template class MEDCoupling::DataArrayDiscreteSigned<Int32>;
+template class MEDCoupling::DataArrayDiscrete<Int64>;
+template class MEDCoupling::DataArrayDiscreteSigned<Int64>;
 template class MEDCoupling::DataArrayTuple<int>;
 template class MEDCoupling::DataArrayTuple<double>;
 template class MEDCoupling::DataArrayTuple<float>;
@@ -884,27 +886,6 @@ bool DataArrayDouble::isMonotonic(bool increasing, double eps) const
     }
 }
 
-/*!
- * Returns a textual and human readable representation of \a this instance of
- * DataArrayDouble. This text is shown when a DataArrayDouble is printed in Python.
- * \return std::string - text describing \a this DataArrayDouble.
- *
- * \sa reprNotTooLong, reprZip
- */
-std::string DataArrayDouble::repr() const
-{
-  std::ostringstream ret;
-  reprStream(ret);
-  return ret.str();
-}
-
-std::string DataArrayDouble::reprZip() const
-{
-  std::ostringstream ret;
-  reprZipStream(ret);
-  return ret.str();
-}
-
 void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const std::string& nameInFile, DataArrayByte *byteArr) const
 {
   static const char SPACE[4]={' ',' ',' ',' '};
@@ -969,10 +950,10 @@ void DataArrayDouble::reprQuickOverview(std::ostream& stream) const
   stream << "DataArrayDouble C++ instance at " << this << ". ";
   if(isAllocated())
     {
-      int nbOfCompo=(int)_info_on_compo.size();
+      std::size_t nbOfCompo(_info_on_compo.size());
       if(nbOfCompo>=1)
         {
-          int nbOfTuples=getNumberOfTuples();
+          std::size_t nbOfTuples(getNumberOfTuples());
           stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
           reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
         }
@@ -3679,15 +3660,6 @@ DataArrayDouble *DataArrayDoubleTuple::buildDADouble(int nbOfTuples, int nbOfCom
 }
 
 /*!
- * Returns a new instance of DataArrayInt. The caller is to delete this array
- * using decrRef() as it is no more needed.
- */
-DataArrayInt *DataArrayInt::New()
-{
-  return new DataArrayInt;
-}
-
-/*!
  * Returns the only one value in \a this, if and only if number of elements
  * (nb of tuples * nb of components) is equal to 1, and that \a this is allocated.
  *  \return double - the sole value stored in \a this array.
@@ -3709,27 +3681,6 @@ int DataArrayInt::intValue() const
 }
 
 /*!
- * Returns an integer value characterizing \a this array, which is useful for a quick
- * comparison of many instances of DataArrayInt.
- *  \return int - the hash value.
- *  \throw If \a this is not allocated.
- */
-int DataArrayInt::getHashCode() const
-{
-  checkAllocated();
-  std::size_t nbOfElems=getNbOfElems();
-  int ret=nbOfElems*65536;
-  int delta=3;
-  if(nbOfElems>48)
-    delta=nbOfElems/8;
-  int ret0=0;
-  const int *pt=begin();
-  for(std::size_t i=0;i<nbOfElems;i+=delta)
-    ret0+=pt[i] & 0x1FFF;
-  return ret+ret0;
-}
-
-/*!
  * Returns a full copy of \a this. For more info on copying data arrays see
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayInt * - a new instance of DataArrayInt.
@@ -3737,143 +3688,6 @@ int DataArrayInt::getHashCode() const
 DataArrayInt32 *DataArrayInt32::deepCopy() const
 {
   return new DataArrayInt32(*this);
-}
-
-/*!
- * Returns a textual and human readable representation of \a this instance of
- * DataArrayInt. This text is shown when a DataArrayInt is printed in Python.
- * \return std::string - text describing \a this DataArrayInt.
- *
- * \sa reprNotTooLong, reprZip
- */
-std::string DataArrayInt::repr() const
-{
-  std::ostringstream ret;
-  reprStream(ret);
-  return ret.str();
-}
-
-std::string DataArrayInt::reprZip() const
-{
-  std::ostringstream ret;
-  reprZipStream(ret);
-  return ret.str();
-}
-
-void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const std::string& type, const std::string& nameInFile, DataArrayByte *byteArr) const
-{
-  static const char SPACE[4]={' ',' ',' ',' '};
-  checkAllocated();
-  std::string idt(indent,' ');
-  ofs << idt << "<DataArray type=\"" << type << "\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
-  if(byteArr)
-    {
-      ofs << " format=\"appended\" offset=\"" << byteArr->getNumberOfTuples() << "\">";
-      if(std::string(type)=="Int32")
-        {
-          const char *data(reinterpret_cast<const char *>(begin()));
-          std::size_t sz(getNbOfElems()*sizeof(int));
-          byteArr->insertAtTheEnd(data,data+sz);
-          byteArr->insertAtTheEnd(SPACE,SPACE+4);
-        }
-      else if(std::string(type)=="Int8")
-        {
-          INTERP_KERNEL::AutoPtr<char> tmp(new char[getNbOfElems()]);
-          std::copy(begin(),end(),(char *)tmp);
-          byteArr->insertAtTheEnd((char *)tmp,(char *)tmp+getNbOfElems());
-          byteArr->insertAtTheEnd(SPACE,SPACE+4);
-        }
-      else if(std::string(type)=="UInt8")
-        {
-          INTERP_KERNEL::AutoPtr<unsigned char> tmp(new unsigned char[getNbOfElems()]);
-          std::copy(begin(),end(),(unsigned char *)tmp);
-          byteArr->insertAtTheEnd((unsigned char *)tmp,(unsigned char *)tmp+getNbOfElems());
-          byteArr->insertAtTheEnd(SPACE,SPACE+4);
-        }
-      else
-        throw INTERP_KERNEL::Exception("DataArrayInt::writeVTK : Only Int32, Int8 and UInt8 supported !");
-    }
-  else
-    {
-      ofs << " RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\" format=\"ascii\">\n" << idt;
-      std::copy(begin(),end(),std::ostream_iterator<int>(ofs," "));
-    }
-  ofs << std::endl << idt << "</DataArray>\n";
-}
-
-void DataArrayInt::reprCppStream(const std::string& varName, std::ostream& stream) const
-{
-  int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
-  const int *data=getConstPointer();
-  stream << "DataArrayInt *" << varName << "=DataArrayInt::New();" << std::endl;
-  if(nbTuples*nbComp>=1)
-    {
-      stream << "const int " << varName << "Data[" << nbTuples*nbComp << "]={";
-      std::copy(data,data+nbTuples*nbComp-1,std::ostream_iterator<int>(stream,","));
-      stream << data[nbTuples*nbComp-1] << "};" << std::endl;
-      stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");" << std::endl;
-    }
-  else
-    stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
-  stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
-}
-
-/*!
- * Method that gives a quick overvien of \a this for python.
- */
-void DataArrayInt::reprQuickOverview(std::ostream& stream) const
-{
-  static const std::size_t MAX_NB_OF_BYTE_IN_REPR=300;
-  stream << "DataArrayInt C++ instance at " << this << ". ";
-  if(isAllocated())
-    {
-      int nbOfCompo=(int)_info_on_compo.size();
-      if(nbOfCompo>=1)
-        {
-          int nbOfTuples=getNumberOfTuples();
-          stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
-          reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
-        }
-      else
-        stream << "Number of components : 0.";
-    }
-  else
-    stream << "*** No data allocated ****";
-}
-
-void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const
-{
-  const int *data=begin();
-  int nbOfTuples=getNumberOfTuples();
-  int nbOfCompo=(int)_info_on_compo.size();
-  std::ostringstream oss2; oss2 << "[";
-  std::string oss2Str(oss2.str());
-  bool isFinished=true;
-  for(int i=0;i<nbOfTuples && isFinished;i++)
-    {
-      if(nbOfCompo>1)
-        {
-          oss2 << "(";
-          for(int j=0;j<nbOfCompo;j++,data++)
-            {
-              oss2 << *data;
-              if(j!=nbOfCompo-1) oss2 << ", ";
-            }
-          oss2 << ")";
-        }
-      else
-        oss2 << *data++;
-      if(i!=nbOfTuples-1) oss2 << ", ";
-      std::string oss3Str(oss2.str());
-      if(oss3Str.length()<maxNbOfByteInRepr)
-        oss2Str=oss3Str;
-      else
-        isFinished=false;
-    }
-  stream << oss2Str;
-  if(!isFinished)
-    stream << "... ";
-  stream << "]";
 }
 
 /*!
@@ -4020,60 +3834,6 @@ bool DataArrayInt::isRange(int& strt, int& sttoopp, int& stteepp) const
           return false;
       return true;
     }
-}
-
-
-/*!
- * Modifies in place \a this one-dimensional array so that each value \a v = \a indArrBg[ \a v ],
- * i.e. a current value is used as in index to get a new value from \a indArrBg.
- *  \param [in] indArrBg - pointer to the first element of array of new values to assign
- *         to \a this array.
- *  \param [in] indArrEnd - specifies the end of the array \a indArrBg, so that
- *              the last value of \a indArrBg is \a indArrEnd[ -1 ].
- *  \throw If \a this->getNumberOfComponents() != 1
- *  \throw If any value of \a this can't be used as a valid index for
- *         [\a indArrBg, \a indArrEnd).
- *
- *  \sa changeValue, findIdForEach
- */
-void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd)
-{
-  this->checkAllocated();
-  if(this->getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
-  int nbElemsIn((int)std::distance(indArrBg,indArrEnd)),nbOfTuples(getNumberOfTuples()),*pt(getPointer());
-  for(int i=0;i<nbOfTuples;i++,pt++)
-    {
-      if(*pt>=0 && *pt<nbElemsIn)
-        *pt=indArrBg[*pt];
-      else
-        {
-          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " of this value is " << *pt << ", should be in [0," << nbElemsIn << ") !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  this->declareAsNew();
-}
-
-void DataArrayInt::transformWithIndArr(const MapKeyVal<int>& m)
-{
-  this->checkAllocated();
-  if(this->getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
-  const std::map<int,int>& dat(m.data());
-  int nbOfTuples(getNumberOfTuples()),*pt(getPointer());
-  for(int i=0;i<nbOfTuples;i++,pt++)
-    {
-      std::map<int,int>::const_iterator it(dat.find(*pt));
-      if(it!=dat.end())
-        *pt=(*it).second;
-      else
-        {
-          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " of this value is " << *pt << " not in map !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  this->declareAsNew();
 }
 
 /*!
@@ -6915,4 +6675,9 @@ int DataArrayIntTuple::intValue() const
 DataArrayInt *DataArrayIntTuple::buildDAInt(int nbOfTuples, int nbOfCompo) const
 {
   return this->buildDA(nbOfTuples,nbOfCompo);
+}
+
+DataArrayInt64 *DataArrayInt64::deepCopy() const
+{
+  return new DataArrayInt64(*this);
 }

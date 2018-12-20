@@ -46,6 +46,8 @@ const char Traits<int>::NPYStr[]="INT32";
 
 const char Traits<int>::ReprStr[]="int";
 
+const char Traits<int>::VTKReprStr[]="Int32";
+
 const char Traits<char>::ArrayTypeName[]="DataArrayChar";
 
 const char Traits<Int64>::ArrayTypeName[]="DataArrayInt64";
@@ -55,3 +57,5 @@ const char Traits<Int64>::FieldTypeName[]="MEDCouplingFieldInt64";
 const char Traits<Int64>::NPYStr[]="INT64";
 
 const char Traits<Int64>::ReprStr[]="int64";
+
+const char Traits<Int64>::VTKReprStr[]="Int64";
