@@ -110,7 +110,7 @@ class MEDLoaderSplitter:
             if 1 in mfm.getFamArrNonEmptyLevelsExt():
                 mlPart.setFamilyFieldArr(1,mfm.getFamilyFieldAtLevel(1)[trad])
                 pass
-            for k,v in dAddlevs.iteritems():
+            for k,v in dAddlevs.items():
                 part=v.getCellIdsFullyIncludedInNodeIds(trad)
                 mSubPart=v[part] ; mSubPart.renumberNodesInConn(trado2n) ; mSubPart.setCoords(mPart.getCoords())
                 mlPart[k]=mSubPart
