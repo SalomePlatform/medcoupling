@@ -2361,24 +2361,9 @@ void MEDCouplingFieldDouble::sortPerTuple(bool asc)
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
-  if(!f1->areCompatibleForMerge(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MergeFields on them ! Check support mesh, field nature, and spatial and time discretisation.");
-  const MEDCouplingMesh *m1(f1->getMesh()),*m2(f2->getMesh());
-  if(!f1->timeDiscr())
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : no time discr of f1 !");
-  if(!f1->_type)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : no spatial discr of f1 !");
-  MEDCouplingTimeDiscretization *td(f1->timeDiscr()->aggregate(f2->timeDiscr()));
-  td->copyTinyAttrFrom(*f1->timeDiscr());
-  MCAuto<MEDCouplingFieldDouble> ret(new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone()));
-  ret->setName(f1->getName());
-  ret->setDescription(f1->getDescription());
-  if(m1)
-    {
-      MCAuto<MEDCouplingMesh> m=m1->mergeMyselfWith(m2);
-      ret->setMesh(m);
-    }
-  return ret.retn();
+  std::vector<const MEDCouplingFieldDouble *> a(2);
+  a[0]=f1; a[1]=f2;
+  return MergeFields(a);
 }
 
 /*!
@@ -2402,29 +2387,36 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a)
 {
-  if(a.size()<1)
-    throw INTERP_KERNEL::Exception("FieldDouble::MergeFields : size of array must be >= 1 !");
+  if(a.empty())
+    throw INTERP_KERNEL::Exception("FieldDouble::MergeFields : input array is empty !");
   std::vector< MCAuto<MEDCouplingUMesh> > ms(a.size());
   std::vector< const MEDCouplingUMesh *> ms2(a.size());
   std::vector< const MEDCouplingTimeDiscretization *> tds(a.size());
-  std::vector<const MEDCouplingFieldDouble *>::const_iterator it=a.begin();
-  const MEDCouplingFieldDouble *ref=(*it++);
+  std::vector< const MEDCouplingFieldDouble *>::const_iterator it=a.begin();
+  std::vector<const MEDCouplingFieldDiscretization *> fds(a.size());
+  const MEDCouplingFieldDouble *ref((*it++));
   if(!ref)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : presence of NULL instance in first place of input vector !");
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : presence of nullptr instance in first place of input vector !");
+  if(!ref->getDiscretization())
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : nullptr spatial discretization !");
   for(;it!=a.end();it++)
     if(!ref->areCompatibleForMerge(*it))
       throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MergeFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   for(int i=0;i<(int)a.size();i++)
     {
+      if(!a[i])
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : presence of nullptr instance in input vector !");
       if(a[i]->getMesh())
         { ms[i]=a[i]->getMesh()->buildUnstructured(); ms2[i]=ms[i]; }
       else
         { ms[i]=0; ms2[i]=0; }
       tds[i]=a[i]->timeDiscr();
+      fds[i]=a[i]->getDiscretization();
     }
   MEDCouplingTimeDiscretization *td(tds[0]->aggregate(tds));
+  MCAuto<MEDCouplingFieldDiscretization> fda(fds[0]->aggregate(fds));
   td->copyTinyAttrFrom(*(a[0]->timeDiscr()));
-  MCAuto<MEDCouplingFieldDouble> ret(new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone()));
+  MCAuto<MEDCouplingFieldDouble> ret(new MEDCouplingFieldDouble(a[0]->getNature(),td,fda.retn()));
   ret->setName(a[0]->getName());
   ret->setDescription(a[0]->getDescription());
   if(ms2[0])

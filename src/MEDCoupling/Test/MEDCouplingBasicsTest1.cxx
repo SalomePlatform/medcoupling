@@ -1373,6 +1373,7 @@ void MEDCouplingBasicsTest1::testMergeField1()
   MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::MergeFields(f1,f2);
   f3->checkConsistencyLight();
   MEDCouplingUMesh *m4=build2DTargetMeshMerged_1();
+  m4->setName(f1->getMesh()->getName());
   CPPUNIT_ASSERT(f3->getMesh()->isEqual(m4,1.e-12));
   std::string name=f3->getName();
   CPPUNIT_ASSERT(name=="MeasureOfMesh_");

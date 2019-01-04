@@ -476,6 +476,20 @@ void MEDCouplingFieldDiscretization::RenumberEntitiesFromN2OArr(const int *new2O
     }
 }
 
+template<class FIELD_DISC>
+MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretization::EasyAggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds)
+{
+  if(fds.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::aggregate : input array is empty");
+  for(const MEDCouplingFieldDiscretization * it : fds)
+    {
+      const FIELD_DISC *itc(dynamic_cast<const FIELD_DISC *>(it));
+      if(!itc)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::aggregate : same field discretization expected for all input discretizations !");
+    }
+  return fds[0]->clone();
+}
+
 MEDCouplingFieldDiscretization::~MEDCouplingFieldDiscretization()
 {
 }
@@ -761,6 +775,11 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshDataRange(const M
   MCAuto<MEDCouplingMesh> ret=mesh->buildPartRange(beginCellIds,endCellIds,stepCellIds);
   di=0; beginOut=beginCellIds; endOut=endCellIds; stepOut=stepCellIds;
   return ret.retn();
+}
+
+MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretizationP0::aggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds) const
+{
+  return EasyAggregate<MEDCouplingFieldDiscretizationP0>(fds);
 }
 
 int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMesh *mesh) const
@@ -1082,6 +1101,11 @@ void MEDCouplingFieldDiscretizationP1::reprQuickOverview(std::ostream& stream) c
   stream << "P1 spatial discretization.";
 }
 
+MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretizationP1::aggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds) const
+{
+  return EasyAggregate<MEDCouplingFieldDiscretizationP1>(fds);
+}
+
 MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell():_discr_per_cell(0)
 {
 }
@@ -1114,6 +1138,12 @@ MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(con
     {
       _discr_per_cell=arr->selectByTupleIdSafeSlice(beginCellIds,endCellIds,stepCellIds);
     }
+}
+
+MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(DataArrayInt *dpc):_discr_per_cell(dpc)
+{
+  if(_discr_per_cell)
+    _discr_per_cell->incrRef();
 }
 
 void MEDCouplingFieldDiscretizationPerCell::updateTime() const
@@ -1841,6 +1871,50 @@ void MEDCouplingFieldDiscretizationGauss::renumberValuesOnCells(double epsOnVals
 void MEDCouplingFieldDiscretizationGauss::renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const
 {
   throw INTERP_KERNEL::Exception("Number of cells has changed and becomes higher with some cells that have been split ! Unable to conserve the Gauss field !");
+}
+
+MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretizationGauss::aggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds) const
+{
+  if(fds.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::aggregate : input array is empty");
+  std::vector<MEDCouplingGaussLocalization> loc;//store the localizations for the output GaussDiscretization object
+  std::vector< MCAuto<DataArrayInt> > discPerCells(fds.size());
+  std::size_t i(0);
+  for(auto it=fds.begin();it!=fds.end();++it,++i)
+    {
+      const MEDCouplingFieldDiscretizationGauss *itc(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(*it));
+      if(!itc)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::aggregate : same field discretization expected for all input discretizations !");
+      //
+      std::vector<MEDCouplingGaussLocalization> loc2(itc->_loc);
+      std::vector<int> newLocId(loc2.size());
+      for(std::size_t j=0;j<loc2.size();++j)
+        {
+          std::size_t k(0);
+          for(;k<loc.size();++k)
+            {
+              if(loc2[j].isEqual(loc[k],1e-10))
+                {
+                  newLocId[j]=(int)k;
+                  break;
+                }
+            }
+          if(k==loc.size())// current loc2[j]
+            {
+              newLocId[j]=(int)loc.size();
+              loc.push_back(loc2[j]);
+            }
+        }
+      const DataArrayInt *dpc(itc->_discr_per_cell);
+      if(!dpc)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::aggregate : Presence of nullptr array of disc per cell !");
+      MCAuto<DataArrayInt> dpc2(dpc->deepCopy());
+      dpc2->transformWithIndArr(newLocId.data(),newLocId.data()+newLocId.size());
+      discPerCells[i]=dpc2;
+    }
+  MCAuto<DataArrayInt> dpc3(DataArrayInt::Aggregate(ToConstVect(discPerCells)));
+  MCAuto<MEDCouplingFieldDiscretizationGauss> ret(new MEDCouplingFieldDiscretizationGauss(dpc3,loc));
+  return DynamicCast<MEDCouplingFieldDiscretizationGauss,MEDCouplingFieldDiscretization>(ret);
 }
 
 void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(const MEDCouplingMesh *mesh, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
@@ -2718,6 +2792,11 @@ void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnCells(double epsOnVa
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
+MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretizationGaussNE::aggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds) const
+{
+  return EasyAggregate<MEDCouplingFieldDiscretizationGaussNE>(fds);
+}
+
 void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
@@ -2811,6 +2890,11 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const Da
 void MEDCouplingFieldDiscretizationKriging::reprQuickOverview(std::ostream& stream) const
 {
   stream << "Kriging spatial discretization.";
+}
+
+MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretizationKriging::aggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds) const
+{
+  return EasyAggregate<MEDCouplingFieldDiscretizationKriging>(fds);
 }
 
 /*!

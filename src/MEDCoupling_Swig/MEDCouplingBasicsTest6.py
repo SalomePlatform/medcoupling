@@ -325,6 +325,77 @@ If true geometry (with curve as edges) is considered the result of getCellsConta
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(expConnI))
         pass
 
+    def testMergeFieldsOnGauss1(self):
+        mName="mesh"
+        fieldName="field"
+        #
+        _a=0.446948490915965;
+        _b=0.091576213509771;
+        _p1=0.11169079483905;
+        _p2=0.0549758718227661;
+        refCoo1=[ 0.,0., 1.,0., 0.,1. ]
+        gsCoo1=[ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b,
+                 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ]
+        wg1=[ 4*_p2, 4*_p2, 4*_p2, 4*_p1, 4*_p1, 4*_p1 ]
+        #
+        refCoo2=[ -1.,-1., 1.,-1., 1.,1., -1.,1. ]
+        gsCoo2=[0.1,0.1, 0.2,0.2, 0.5,0.5, 0.6,0.6, 0.7,0.7]
+        wg2=[0.1,0.2,0.3,0.4,0.5]
+        #
+        coo=DataArrayDouble([0,0,1,0,2,0,0,1,1,1,2,1,0,2,1,2,2,2],9,2)
+        m1=MEDCouplingUMesh(mName,2)
+        m1.allocateCells() ; m1.setCoords(coo)
+        m1.insertNextCell(NORM_TRI3,[1,4,2])
+        m1.insertNextCell(NORM_TRI3,[4,5,2])
+        m1.insertNextCell(NORM_QUAD4,[4,7,8,5])
+        f1=MEDCouplingFieldDouble(ON_GAUSS_PT) ; f1.setName(fieldName)
+        f1.setMesh(m1)
+        f1.setGaussLocalizationOnType(NORM_TRI3,refCoo1,gsCoo1,wg1)
+        f1.setGaussLocalizationOnType(NORM_QUAD4,refCoo2,gsCoo2,wg2)
+        arr=DataArrayDouble(f1.getNumberOfTuplesExpected())
+        arr.iota()
+        f1.setArray(arr)
+        f1.checkConsistencyLight()
+        #
+        m2=MEDCouplingUMesh(mName,2)
+        m2.allocateCells() ; m2.setCoords(coo)
+        m2.insertNextCell(NORM_QUAD4,[0,3,4,1])
+        m2.insertNextCell(NORM_QUAD4,[3,6,7,4])
+        ###################
+        self.assertTrue(f1.getMesh().getCoords().isEqual(m2.getCoords(),1e-12))
+        f1.getMesh().setCoords(m2.getCoords())
+        #
+        f2=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f2.setMesh(m2)
+        for gt in m2.getAllGeoTypes(): # on recopie les localisation en utilisant f1
+            glt=f1.getGaussLocalizationIdOfOneType(gt)
+            gloc=f1.getGaussLocalization(glt)
+            f2.setGaussLocalizationOnType(gt,gloc.getRefCoords(),gloc.getGaussCoords(),gloc.getWeights())
+        arr2=DataArrayDouble(f2.getNumberOfTuplesExpected())
+        arr2[:]=0
+        f2.setArray(arr2)
+        f2.checkConsistencyLight()
+        #
+        fout1=MEDCouplingFieldDouble.MergeFields([f1,f2])
+        fout2=MEDCouplingFieldDouble.MergeFields(f1,f2)
+        #
+        fOut=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        mOut=MEDCouplingUMesh.MergeUMeshes([f1.getMesh(),m2])
+        mOut.setName(f1.getMesh().getName())
+        fOut.setMesh(mOut)
+        for gt in f1.getMesh().getAllGeoTypes(): # on recopie les localisation en utilisant f1
+            glt=f1.getGaussLocalizationIdOfOneType(gt)
+            gloc=f1.getGaussLocalization(glt)
+            fOut.setGaussLocalizationOnType(gt,gloc.getRefCoords(),gloc.getGaussCoords(),gloc.getWeights())
+        fOut.setArray(DataArrayDouble.Aggregate([f1.getArray(),arr2]))
+        fOut.checkConsistencyLight()
+        fOut.setName(f1.getName())
+        fOut.getMesh().setName(f1.getMesh().getName())
+        #
+        self.assertTrue(fout1.isEqual(fOut,1e-12,1e-12))
+        self.assertTrue(fout2.isEqual(fOut,1e-12,1e-12))
+        pass
+
     pass
 
 if __name__ == '__main__':

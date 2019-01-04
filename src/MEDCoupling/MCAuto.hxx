@@ -24,6 +24,8 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
+#include <vector>
+
 namespace MEDCoupling
 {
   template<class T>
@@ -80,6 +82,16 @@ namespace MEDCoupling
     return ret;
   }
 
+  template<class T>
+  typename std::vector<const T *> ToConstVect(const typename std::vector< MCAuto<T> >& vec)
+  {
+    std::size_t sz(vec.size());
+    std::vector<const T *> ret(sz);
+    for(std::size_t i=0;i<sz;i++)
+      ret[i]=(const T *)vec[i];
+    return ret;
+  }
+  
   template<class T>
   class MCConstAuto
   {

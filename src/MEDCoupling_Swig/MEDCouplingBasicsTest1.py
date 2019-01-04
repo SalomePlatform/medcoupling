@@ -1030,6 +1030,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         f3=MEDCouplingFieldDouble.MergeFields(f1,f2);
         f3.checkConsistencyLight();
         m4=MEDCouplingDataForTest.build2DTargetMeshMerged_1();
+        m4.setName(f1.getMesh().getName())
         self.assertTrue(f3.getMesh().isEqual(m4,1.e-12));
         name=f3.getName();
         self.assertEqual(name,"MeasureOfMesh_");
