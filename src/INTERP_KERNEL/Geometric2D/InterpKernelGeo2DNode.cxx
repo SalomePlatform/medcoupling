@@ -185,7 +185,9 @@ void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis
   int tmp;
   std::size_t sz1=addCoo.size();
   fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,&tmp);
-  if(sz1!=addCoo.size())
+  if(sz1!=addCoo.size()
+      || (tmp >= offset2
+          && (pointsOther.size() == 0 || pointsOther.back() != tmp)))
     {
       pointsOther.push_back(tmp);
       return ;
