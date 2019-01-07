@@ -116,14 +116,16 @@ std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicV
  */
 bool SegSegIntersector::areColinears() const
 {
-  Bounds b;
-  b.prepareForAggregation();
-  b.aggregate(_e1.getBounds());
-  b.aggregate(_e2.getBounds());
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
-  double dimChar=b.getCaracteristicDim();
+  Bounds b1, b2;
+  b1.prepareForAggregation();
+  b2.prepareForAggregation();
+  b1.aggregate(_e1.getBounds());
+  b2.aggregate(_e2.getBounds());
+  double dimCharE1(b1.getCaracteristicDim()) ,dimCharE2(b2.getCaracteristicDim());
 
-  return fabs(determinant)< 2.*dimChar*QuadraticPlanarPrecision::getPrecision(); // same criteria as in areOverlappedOrOnlyColinears, see comment below
+  // same criteria as in areOverlappedOrOnlyColinears, see comment below
+  return fabs(determinant)<dimCharE1*dimCharE2*QuadraticPlanarPrecision::getPrecision();
 }
 
 /*!
@@ -137,24 +139,33 @@ bool SegSegIntersector::areColinears() const
 void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
 {
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
-  Bounds b;
-  b.prepareForAggregation();
-  b.aggregate(_e1.getBounds());
-  b.aggregate(_e2.getBounds());
-  double dimChar=b.getCaracteristicDim();
+  Bounds b1, b2;
+  b1.prepareForAggregation();
+  b2.prepareForAggregation();
+  b1.aggregate(_e1.getBounds());
+  b2.aggregate(_e2.getBounds());
+  double dimCharE1(b1.getCaracteristicDim()) ,dimCharE2(b2.getCaracteristicDim());
 
   // Same criteria as in areColinears(), see doc.
-  // [ABN] the 2 is not really justified, but the initial tests from Tony were written so closely to precision that I can't bother to change all of them ...
-  if(fabs(determinant)>2.*dimChar*QuadraticPlanarPrecision::getPrecision())
+  if(fabs(determinant)>dimCharE1*dimCharE2*QuadraticPlanarPrecision::getPrecision())
     {
       obviousNoIntersection=false; areOverlapped=false;
       _matrix[0]/=determinant; _matrix[1]/=determinant; _matrix[2]/=determinant; _matrix[3]/=determinant;
     }
   else  // colinear vectors
     {
-      double x=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
-      double y=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];   // (x,y) is the vector between the two start points of e1 and e2
-      areOverlapped = fabs(-_matrix[0]*y+_matrix[1]*x) < dimChar*QuadraticPlanarPrecision::getPrecision(); // test colinearity of (x,y) with e1
+      // Compute vectors joining tips of e1 and e2
+      double xS=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
+      double yS=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];
+      double xE=(*(_e1.getEndNode()))[0]-(*(_e2.getEndNode()))[0];
+      double yE=(*(_e1.getEndNode()))[1]-(*(_e2.getEndNode()))[1];
+      double maxDimS(std::max(fabs(xS),fabs(yS))), maxDimE(std::max(fabs(xE), fabs(yE)));
+      bool isS = (maxDimS > maxDimE), isE1 = (dimCharE1 >= dimCharE2);
+      double x = isS ? xS : xE;
+      double y = isS ? yS : yE;
+      unsigned shift = isE1 ? 0 : 2;
+      // test colinearity of the greatest tip-joining vector and greatest vector among {e1, e2}
+      areOverlapped = fabs(x*_matrix[1+shift]-y*_matrix[0+shift]) < dimCharE1*dimCharE2*QuadraticPlanarPrecision::getPrecision();
       // explanation: if areOverlapped is true, we don't know yet if there will be an intersection (see meaning of areOverlapped in method doxy above)
       // if areOverlapped is false, we have two colinear vectors, not lying on the same line, so we're sure there is no intersec
       obviousNoIntersection = !areOverlapped;

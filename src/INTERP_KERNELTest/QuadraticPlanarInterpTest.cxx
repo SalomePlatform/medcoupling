@@ -210,6 +210,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
 {
   ComposedEdge& v1=*(new ComposedEdge);
   ComposedEdge& v2=*(new ComposedEdge);
+  QuadraticPlanarPrecision::setPrecision(5.0e-14); // [ABN] man, those tests are really close to epsilon! I need to relax this a bit.
   MergePoints v3;
   //Testing merge of geometric equals seg2.
   Edge *e1=new EdgeLin(0.5,0.5,1.,1.); Edge *e2=new EdgeLin(0.5,0.5,1.,1.);
@@ -235,7 +236,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
   //Test 0
-  //Test 1 - OUT_AFTER - OUT_AFTER | same dir. - 0°
+  //Test 1 - OUT_AFTER - OUT_AFTER | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(1.5,0.,2.,0.);
   CPPUNIT_ASSERT(!e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -243,7 +244,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(0,(int)v2.size());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 2 - INSIDE - OUT_AFTER | same dir. - 0°
+  //Test 2 - INSIDE - OUT_AFTER | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(0.5,0.,1.5,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -256,7 +257,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 2 - INSIDE - OUT_AFTER | same dir. - 90°
+  //Test 2 - INSIDE - OUT_AFTER | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,1.); e2=new EdgeLin(0.,0.5,0.,1.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -269,7 +270,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 2 - INSIDE - OUT_AFTER | same dir. - 45°
+  //Test 2 - INSIDE - OUT_AFTER | same dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(0.5,0.5,1.5,1.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -280,7 +281,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(v2[0]->getEndNode()==v2[1]->getStartNode()); CPPUNIT_ASSERT(e2->getStartNode()==v2[0]->getStartNode()); CPPUNIT_ASSERT(e2->getEndNode()==v2[1]->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 2 - INSIDE - OUT_AFTER | opp. dir. - 45°
+  //Test 2 - INSIDE - OUT_AFTER | opp. dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(1.5,1.5,0.5,0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -293,7 +294,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 3 - INSIDE - INSIDE | same dir. - 0°
+  //Test 3 - INSIDE - INSIDE | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(0.25,0.,0.75,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -307,7 +308,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 3 - INSIDE - INSIDE | same dir. - 90°
+  //Test 3 - INSIDE - INSIDE | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,1.); e2=new EdgeLin(0.,0.25,0.,0.75);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -321,7 +322,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 3 - INSIDE - INSIDE | same dir. - 45°
+  //Test 3 - INSIDE - INSIDE | same dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(0.25,0.25,0.75,0.75);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -335,7 +336,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 3 - INSIDE - INSIDE | opp dir. - 45°
+  //Test 3 - INSIDE - INSIDE | opp dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(0.75,0.75,0.25,0.25);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -427,7 +428,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(v1[1]->getEndNode()==e2->getStartNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 4 - OUT_BEFORE - OUT_BEFORE | same dir. - 0 °
+  //Test 4 - OUT_BEFORE - OUT_BEFORE | same dir. - 0 deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(-1.,0.,-0.5,0.);
   CPPUNIT_ASSERT(!e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -435,7 +436,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(0,(int)v2.size());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 5 - OUT_BEFORE - INSIDE | same dir. - 0°
+  //Test 5 - OUT_BEFORE - INSIDE | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(-0.5,0.,0.5,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -447,7 +448,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 5 - OUT_BEFORE - INSIDE | same dir. - 90°
+  //Test 5 - OUT_BEFORE - INSIDE | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,1.); e2=new EdgeLin(0,-0.5,0.,0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -459,7 +460,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 5 - OUT_BEFORE - INSIDE | same dir. - 45°
+  //Test 5 - OUT_BEFORE - INSIDE | same dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(-0.5,-0.5,0.5,0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -471,7 +472,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 5 - OUT_BEFORE - INSIDE | opp dir. - 45°
+  //Test 5 - OUT_BEFORE - INSIDE | opp dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(0.5,0.5,-0.5,-0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -483,7 +484,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 6 - OUT_BEFORE - OUT_AFTER | same dir. - 0°
+  //Test 6 - OUT_BEFORE - OUT_AFTER | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(-0.5,0.,1.5,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -496,7 +497,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 6 - OUT_BEFORE - OUT_AFTER | same dir. - 90°
+  //Test 6 - OUT_BEFORE - OUT_AFTER | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,1.); e2=new EdgeLin(0.,-0.5,0.,1.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -509,7 +510,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 6 - OUT_BEFORE - OUT_AFTER | same dir. - 45°
+  //Test 6 - OUT_BEFORE - OUT_AFTER | same dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(-0.5,-0.5,1.5,1.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -522,7 +523,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 6 - OUT_BEFORE - OUT_AFTER | opp dir. - 45°
+  //Test 6 - OUT_BEFORE - OUT_AFTER | opp dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(1.5,1.5,-0.5,-0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
@@ -535,7 +536,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 7 - END - OUT_AFTER | same dir. - 0°
+  //Test 7 - END - OUT_AFTER | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(1.,0.,1.5,0.);
   CPPUNIT_ASSERT(!e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -543,7 +544,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(0,(int)v2.size());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 7 - END - OUT_AFTER | opp dir. - 0°
+  //Test 7 - END - OUT_AFTER | opp dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(1.5,0.,1.,0.);
   CPPUNIT_ASSERT(!e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -552,7 +553,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e1->getEndNode()==e2->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 8 - START - END | same dir. - 0°
+  //Test 8 - START - END | same dir. - 0deg
   e1=new EdgeLin(0.,0.,0.7,0.); e2=new EdgeLin(0.,0.,0.7,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(2,(int)v3.getNumberOfAssociations());
@@ -564,7 +565,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 8 - START - END | same dir. - 90°
+  //Test 8 - START - END | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,0.7); e2=new EdgeLin(0.,0.,0.,0.7);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(2,(int)v3.getNumberOfAssociations());
@@ -576,7 +577,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 8 - START - END | same dir. - 45°
+  //Test 8 - START - END | same dir. - 45deg
   e1=new EdgeLin(0.,0.,0.7,0.7); e2=new EdgeLin(0.,0.,0.7,0.7);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(2,(int)v3.getNumberOfAssociations());
@@ -588,7 +589,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 8 - START - END | opp. dir. - 45°
+  //Test 8 - START - END | opp. dir. - 45deg
   e1=new EdgeLin(0.,0.,0.7,0.7); e2=new EdgeLin(0.7,0.7,0.,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(2,(int)v3.getNumberOfAssociations());
@@ -609,7 +610,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getEndNode()==e1->getStartNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 10 - START - OUT_AFTER | same dir. - 0°
+  //Test 10 - START - OUT_AFTER | same dir. - 0deg
   e1=new EdgeLin(0.,0.,0.7,0.); e2=new EdgeLin(0.,0.,1.,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -622,7 +623,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 10 - START - OUT_AFTER | same dir. - 90°
+  //Test 10 - START - OUT_AFTER | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,0.7); e2=new EdgeLin(0.,0.,0.,1.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -635,7 +636,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 10 - START - OUT_AFTER | same dir. - 45°
+  //Test 10 - START - OUT_AFTER | same dir. - 45deg
   e1=new EdgeLin(0.,0.,0.7,0.7); e2=new EdgeLin(0.,0.,1.,1.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -648,7 +649,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 10 - START - OUT_AFTER | opp dir. - 45°
+  //Test 10 - START - OUT_AFTER | opp dir. - 45deg
   e1=new EdgeLin(0.,0.,0.7,0.7); e2=new EdgeLin(1.,1.,0.,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -661,7 +662,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 11 - INSIDE - END | same dir. - 0°
+  //Test 11 - INSIDE - END | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(0.7,0.,1.,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -674,7 +675,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 11 - INSIDE - END | same dir. - 90°
+  //Test 11 - INSIDE - END | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,1.); e2=new EdgeLin(0.,0.7,0.,1.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -687,7 +688,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 11 - INSIDE - END | same dir. - 45°
+  //Test 11 - INSIDE - END | same dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(0.7,0.7,1.,1.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -700,7 +701,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 11 - INSIDE - END | opp dir. - 45°
+  //Test 11 - INSIDE - END | opp dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(1.,1.,0.7,0.7);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -713,7 +714,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 12 - OUT_BEFORE - END | same dir. - 0°
+  //Test 12 - OUT_BEFORE - END | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(-0.5,0.,1.,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -726,7 +727,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 12 - OUT_BEFORE - END | same dir. - 90°
+  //Test 12 - OUT_BEFORE - END | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,1.); e2=new EdgeLin(0.,-0.5,0.,1.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -739,7 +740,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 12 - OUT_BEFORE - END | same dir. - 45°
+  //Test 12 - OUT_BEFORE - END | same dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(-0.5,-0.5,1.,1.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -752,7 +753,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 12 - OUT_BEFORE - END | opp dir. - 45°
+  //Test 12 - OUT_BEFORE - END | opp dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(1.,1.,-0.5,-0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -765,7 +766,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 13 - START - INSIDE | same dir. - 0°
+  //Test 13 - START - INSIDE | same dir. - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(0.,0.,0.5,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -778,7 +779,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 13 - START - INSIDE | same dir. - 90°
+  //Test 13 - START - INSIDE | same dir. - 90deg
   e1=new EdgeLin(0.,0.,0.,1.); e2=new EdgeLin(0.,0.,0.,0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -791,7 +792,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 13 - START - INSIDE | same dir. - 45°
+  //Test 13 - START - INSIDE | same dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(0.,0.,0.5,0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -804,7 +805,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 13 - START - INSIDE | opp dir. - 45°
+  //Test 13 - START - INSIDE | opp dir. - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(0.5,0.5,0.,0.);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
@@ -896,7 +897,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
  */
 void QuadraticPlanarInterpTest::IntersectionPointOnlyUnitarySegSeg()
 {
-  // 0° - classical
+  // 0deg - classical
   EdgeLin *e1=new EdgeLin(0.,0.,1.,0.);
   EdgeLin *e2=new EdgeLin(0.3,0.3,0.5,-0.3);
   ComposedEdge& v1=*(new ComposedEdge);
@@ -912,7 +913,7 @@ void QuadraticPlanarInterpTest::IntersectionPointOnlyUnitarySegSeg()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,(*v1[0]->getEndNode())[1],ADMISSIBLE_ERROR);
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  // 90° - classical
+  // 90deg - classical
   e1=new EdgeLin(0.,0.,0.,1.);
   e2=new EdgeLin(-0.3,0.3,0.3,0.5);
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
@@ -926,21 +927,21 @@ void QuadraticPlanarInterpTest::IntersectionPointOnlyUnitarySegSeg()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.4,(*v1[0]->getEndNode())[1],ADMISSIBLE_ERROR);
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 1 - 0°
+  //Test 1 - 0deg
   e1=new EdgeLin(0.,0.,1.,0.); e2=new EdgeLin(0.,0.,0.,1.);
   CPPUNIT_ASSERT(!e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT(v3.isStart1(0)); CPPUNIT_ASSERT(v3.isStart2(0));
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 1 - 90°
+  //Test 1 - 90deg
   e1=new EdgeLin(0.,0.,0.,1.); e2=new EdgeLin(0.,0.,1.,0.);
   CPPUNIT_ASSERT(!e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT(v3.isStart1(0)); CPPUNIT_ASSERT(v3.isStart2(0));
   e2->decrRef(); e1->decrRef();
   v1.clear(); v2.clear(); v3.clear();
-  //Test 1 - 45°
+  //Test 1 - 45deg
   e1=new EdgeLin(0.,0.,1.,1.); e2=new EdgeLin(0.,0.,1.,-1.);
   CPPUNIT_ASSERT(!e1->intersectWith(e2,v3,v1,v2));
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
