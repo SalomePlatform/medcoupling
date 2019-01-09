@@ -548,6 +548,37 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(map2.getValues(), [0])
         pass
 
+    def testIntersect2DMeshesTmp9(self):
+        """ Tricky case: two triangular shapes intersecting, but not perfectly, at their tips. Several issues fixed:
+            - Bug fix: seg seg intersector epsilon is to be taken absolutely for colinearity test (even for very small vectors 
+            we don't want to have false positive on colinearity. So go back to a comparison with an angle.)
+            - when intersecting nodes are merged, they were not properly added on pol2.
+            - bug fix in compute residual: the stop condition is really on pol1Zip only.
+            - correcting polygons with flat corners, they were crashing residual computation
+        """
+        eps = 1.0e-6  # This is the key parameter. DO NOT CHANGE IT.
+        back = MEDCouplingUMesh('crh8_rse3', 2)
+        coo = DataArrayDouble([(-31.313754538446631,-32.512813836330515),(-31.531462871779969,-32.135731941766032),(-31.422608705113298,-32.324272889048274),(-31.690836433011114,-32.295105502997181),(-31.621640616088342,-32.204927758688783),(-31.502295485728872,-32.403959669663848)])
+        back.setCoords(coo)
+        c = DataArrayInt([32, 0, 3, 1, 5, 4, 2])
+        cI = DataArrayInt([0, 7])
+        back.setConnectivity(c, cI)
+
+        tool = MEDCouplingUMesh('TA-536193G_expl_20181022_merged', 2)
+        coo = DataArrayDouble([(-29.918137808525149,-26.883223901634544),(-32.919909136264039,-26.939612990540404),(-27.866900000000001,-28.016680435212603),(-31.313800000000001,-32.512799999999999),(-27.866900000000001,-28.933918793630923)])
+        tool.setCoords(coo)
+        c = DataArrayInt([5, 1, 0, 3, 5, 0, 2, 3, 5, 4, 3, 2])
+        cI = DataArrayInt([0, 4, 8, 12])
+        tool.setConnectivity(c, cI)
+
+        inter, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
+
+        self.assertEqual(inter.getNodalConnectivity().getValues(), [5, 14, 13, 11, 12, 5, 13, 15, 11, 32, 12, 3, 1, 14, 16, 17, 18, 19, 5, 15, 0, 11])
+        self.assertEqual(inter.getNodalConnectivityIndex().getValues(), [0, 5, 9, 18, 22])
+        self.assertEqual(res2Back.getValues(), [0, 0, 0, 0])
+        self.assertEqual(res2Tool.getValues(), [0, 1, -1, -1])
+        pass
+
     def testSwig2Intersect2DMeshWith1DLine1(self):
         """A basic test with no colinearity between m1 and m2."""
         i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])

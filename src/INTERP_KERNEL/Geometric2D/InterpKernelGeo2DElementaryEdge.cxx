@@ -72,6 +72,14 @@ void ElementaryEdge::getAllNodes(std::set<Node *>& output) const
   output.insert(_ptr->getEndNode());
 }
 
+bool ElementaryEdge::hasSameExtremities(const ElementaryEdge& other) const
+{
+  std::set<Node *> s1, s2;
+  getAllNodes(s1);
+  other.getAllNodes(s2);
+  return (s1 == s2);
+}
+
 void ElementaryEdge::getBarycenter(double *bary, double& weigh) const
 {
   _ptr->getBarycenter(bary);

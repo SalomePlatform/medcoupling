@@ -1360,6 +1360,11 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
           pol2s[ii].buildFromCrudeDataArray2(mappRev,cm2.isQuadratic(),conn2+connI2[*it2]+1,coo2,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
               pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2, /* output */ edgesIn2ForShare);
         }
+      // The cleaning below must be done after the full construction of all pol2s to correctly deal with shared edges:
+      for (auto &p: pol2s)
+        p.cleanDegeneratedConsecutiveEdges();
+      edgesIn2ForShare.clear();  // removing temptation to use it further since it might now contain invalid edges.
+      ///
       ii=0;
       // Now rebuild intersected cells from all this:
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)

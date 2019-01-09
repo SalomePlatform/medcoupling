@@ -50,6 +50,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void applySimilarity(double xBary, double yBary, double dimChar) { _ptr->applySimilarity(xBary,yBary,dimChar); }
     INTERPKERNEL_EXPORT void unApplySimilarity(double xBary, double yBary, double dimChar) { _ptr->unApplySimilarity(xBary,yBary,dimChar); }
     INTERPKERNEL_EXPORT void getAllNodes(std::set<Node *>& output) const;
+    INTERPKERNEL_EXPORT bool hasSameExtremities(const ElementaryEdge& other) const;
     INTERPKERNEL_EXPORT void getBarycenter(double *bary, double& weigh) const;
     INTERPKERNEL_EXPORT ElementaryEdge *clone() const;
     INTERPKERNEL_EXPORT void initLocations() const;

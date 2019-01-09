@@ -463,7 +463,7 @@ void QuadraticPolygon::appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size
  * This method builds from descending conn of a quadratic polygon stored in crude mode (MEDCoupling). Descending conn is in FORTRAN relative mode in order to give the
  * orientation of edge.
  */
-void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
+void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges2,
                                                 const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1,
                                                 const std::vector< std::vector<int> >& colinear1,
                                                 std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> >& alreadyExistingIn2)
@@ -518,7 +518,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
       if(directos)
         {//no subpart of edge 'edgeId' of pol2 is in pol1 so let's operate the same thing that QuadraticPolygon::buildFromCrudeDataArray method
           std::size_t oldSz=_sub_edges.size();
-          appendEdgeFromCrudeDataArray(i,mapp,isQuad,nodalBg,coords,descBg,descEnd,intersectEdges);
+          appendEdgeFromCrudeDataArray(i,mapp,isQuad,nodalBg,coords,descBg,descEnd,intersectEdges2);
           std::size_t newSz=_sub_edges.size();
           std::size_t zeSz=newSz-oldSz;
           alreadyExistingIn2[descBg[i]].resize(zeSz);
@@ -528,7 +528,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
         }
       else
         {//there is subpart of edge 'edgeId' of pol2 inside pol1
-          const std::vector<int>& subEdge=intersectEdges[edgeId];
+          const std::vector<int>& subEdge=intersectEdges2[edgeId];
           std::size_t nbOfSubEdges=subEdge.size()/2;
           for(std::size_t j=0;j<nbOfSubEdges;j++)
             {
@@ -701,6 +701,33 @@ void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, std::set<INTE
       delete *it;
     }
   unApplyGlobalSimilarityExt(other,xBaryBB,yBaryBB,fact);
+}
+
+/*!
+ * Remove the two 'identical' edges from the list, and drecRef the objects.
+ */
+void QuadraticPolygon::cleanDegeneratedConsecutiveEdges()
+{
+  IteratorOnComposedEdge it2ii(this);
+  ElementaryEdge * prevEdge = 0;
+  int kk = 0;
+  if  (recursiveSize() > 2)
+    for(it2ii.first();!it2ii.finished();it2ii.next())
+      {
+        ElementaryEdge * cur = it2ii.current();
+        if (prevEdge && prevEdge->hasSameExtremities(*cur))
+          {
+            // Delete the two 'identical' edges:
+            it2ii.previousLoop(); it2ii.previousLoop();
+            erase(--kk); erase(kk);
+            prevEdge = it2ii.current();
+          }
+        else
+          {
+            kk++;
+            prevEdge = cur;
+          }
+      }
 }
 
 /*!
