@@ -32,19 +32,11 @@ namespace INTERP_KERNEL
 
 SegSegIntersector::SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2):SameTypeEdgeIntersector(e1,e2)
 {
-//  _matrix[0]=(*(e2.getStartNode()))[0]-(*(e2.getEndNode()))[0];
-//  _matrix[1]=(*(e1.getEndNode()))[0]-(*(e1.getStartNode()))[0];
-//  _matrix[2]=(*(e2.getStartNode()))[1]-(*(e2.getEndNode()))[1];
-//  _matrix[3]=(*(e1.getEndNode()))[1]-(*(e1.getStartNode()))[1];
-
   _matrix[0]=(*(e1.getEndNode()))[0]-(*(e1.getStartNode()))[0];
   _matrix[1]=(*(e1.getEndNode()))[1]-(*(e1.getStartNode()))[1];
   _matrix[2]=(*(e2.getEndNode()))[0]-(*(e2.getStartNode()))[0];
   _matrix[3]=(*(e2.getEndNode()))[1]-(*(e2.getStartNode()))[1];
 
-
-//  _col[0]=_matrix[3]*(*(e1.getStartNode()))[0]-_matrix[1]*(*(e1.getStartNode()))[1];
-//  _col[1]=-_matrix[2]*(*(e2.getStartNode()))[0]+_matrix[0]*(*(e2.getStartNode()))[1];
   _col[0]=_matrix[1]*(*(e1.getStartNode()))[0]-_matrix[0]*(*(e1.getStartNode()))[1];
   _col[1]=_matrix[3]*(*(e2.getStartNode()))[0]-_matrix[2]*(*(e2.getStartNode()))[1];
 

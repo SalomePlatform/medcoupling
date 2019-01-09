@@ -926,6 +926,22 @@ bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
   }
 }
 
+void Edge::dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp, int index) const
+{
+  auto sI(mapp.find(getStartNode())), eI(mapp.find(getEndNode()));
+  int start = (sI == mapp.end() ? -1 : sI->second), end = (eI == mapp.end() ? -1 : eI->second);
+  std::string locs;
+  switch (getLoc())
+  {
+    case FULL_IN_1: locs="FULL_IN_1"; break;
+    case FULL_ON_1: locs="FULL_ON_1"; break;
+    case FULL_OUT_1: locs="FULL_OUT_1"; break;
+    case FULL_UNKNOWN: locs="FULL_UNKNOWN"; break;
+    default: locs="oh my God! This is so wrong.";
+  }
+  std::cout << "Edge [" << index << "] : ("<<  std::hex << this << std::dec << ") -> (" << start << ", " << end << ")\t" << locs << std::endl;
+}
+
 bool Edge::isEqual(const Edge& other) const
 {
   return _start->isEqual(*other._start) && _end->isEqual(*other._end);

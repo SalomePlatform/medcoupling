@@ -183,6 +183,11 @@ void ElementaryEdge::dumpInXfigFile(std::ostream& stream, int resolution, const 
   _ptr->dumpInXfigFile(stream,_direction,resolution,box);
 }
 
+void ElementaryEdge::dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp, int index) const
+{
+  _ptr->dumpToCout(mapp, index);
+}
+
 bool ElementaryEdge::intresicEqual(const ElementaryEdge *other) const
 {
   return _ptr==other->_ptr;

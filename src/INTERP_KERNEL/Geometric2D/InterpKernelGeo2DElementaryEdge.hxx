@@ -64,6 +64,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT bool intresicEqual(const ElementaryEdge *other) const;
     INTERPKERNEL_EXPORT bool intresicEqualDirSensitive(const ElementaryEdge *other) const;
     INTERPKERNEL_EXPORT void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
+    INTERPKERNEL_EXPORT void dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp, int index) const;
     INTERPKERNEL_EXPORT bool getDirection() const { return _direction; }
     INTERPKERNEL_EXPORT bool intresincEqCoarse(const Edge *other) const;
     INTERPKERNEL_EXPORT bool isEqual(const ElementaryEdge& other) const;

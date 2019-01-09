@@ -276,6 +276,7 @@ namespace INTERP_KERNEL
     static void Interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2,
                                  std::map<int, std::map<int,double> >& result);
     virtual void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const = 0;
+    void dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp, int index) const;
     bool isEqual(const Edge& other) const;
   public:
     bool sortSubNodesAbs(const double *coo, std::vector<int>& subNodes);
