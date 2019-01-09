@@ -1193,6 +1193,15 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::CheckInList(Node *n, s
   return iEnd;
 }
 
+/*!
+* Compute the remaining parts of the intersection of mesh1 by mesh2.
+* The general algorithm is to :
+*   - either return full cells from pol1 that were simply not touched by mesh2
+*   - or to:
+*      - concatenate pieces from pol1 into consecutive pieces (a bit like zipConsecutiveSegments())
+*      - complete those pieces by edges found in edgesInPol2OnBoundary, which are edges from pol2 located on the boundary of the previously built
+*      intersecting cells
+*/
 void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::set<Edge *>& notUsedInPol1, const std::set<Edge *>& edgesInPol2OnBoundary,
                                        const std::map<INTERP_KERNEL::Node *,int>& mapp, int offset, int idThis,
                                        std::vector<double>& addCoordsQuadratic, std::vector<int>& conn,
@@ -1218,7 +1227,7 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
   // Zip consecutive edges found in notUsedInPol1L and which are not overlapping with boundary edge from edgesInPol2OnBoundary:
   while(!notUsedInPol1L.empty())
     {
-      // If all nodes are IN or ON (why ON?) then error
+      // If all nodes are IN or edge is ON (i.e. as initialised at the begining of the method) then error
       for(int i=0;i<sz && (itPol1.current()->getStartNode()->getLoc()!=IN_1 || itPol1.current()->getLoc()!=FULL_ON_1);i++)
         itPol1.nextLoop();
       if(itPol1.current()->getStartNode()->getLoc()!=IN_1 || itPol1.current()->getLoc()!=FULL_ON_1)
@@ -1249,7 +1258,7 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
   // [ABN] at least 3 turns for very small cases (typically one (quad) edge against one (quad or lin) edge forming a new cell)!
   maxNbOfTurn = maxNbOfTurn<3 ? 3 : maxNbOfTurn;
   nbOfTurn=0;
-  while(nbOfTurn<maxNbOfTurn && ((!pol1Zip.empty() || !edgesInPol2OnBoundaryL.empty())))
+  while(nbOfTurn<maxNbOfTurn)  // the 'normal' way out of this loop is the break towards the end when pol1Zip is empty.
     {
       // retPolsUnderConstruction initially empty -> see if(!pol1Zip.empty()) below ...
       for(std::list<QuadraticPolygon *>::iterator itConstr=retPolsUnderContruction.begin();itConstr!=retPolsUnderContruction.end();)
@@ -1313,6 +1322,8 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
           retPolsUnderContruction.push_back(tmp);
           pol1Zip.erase(pol1Zip.begin());
         }
+      else
+        break;
       nbOfTurn++;
     }
   if(nbOfTurn==maxNbOfTurn)
