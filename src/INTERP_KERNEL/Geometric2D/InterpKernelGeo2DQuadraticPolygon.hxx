@@ -35,6 +35,9 @@ namespace INTERP_KERNEL
   class Edge;
   class MergePoints;
 
+  enum NodeUsage { USAGE_UNKNOWN, USAGE_LINEAR, USAGE_QUADRATIC_ONLY };
+  typedef std::pair<INTERP_KERNEL::Node *,NodeUsage> NodeWithUsage;
+
   /**
    * A set of quadratic or linear edges, not necessarily connected to form a closed polygon.
    * Some methods however requires a closed form.
