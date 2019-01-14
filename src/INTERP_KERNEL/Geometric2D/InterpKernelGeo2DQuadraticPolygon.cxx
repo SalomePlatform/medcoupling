@@ -362,8 +362,14 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other,
       // Converting back to integer connectivity:
       if(otherTmp._sub_edges.size()>1)   // only if a new point has been added (i.e. an actual intersection was done)
         {
-          for(std::list<ElementaryEdge *>::const_iterator it=otherTmp._sub_edges.begin();it!=otherTmp._sub_edges.end();it++)
-            (*it)->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,/**/fact,xBaryBB,yBaryBB,/**/subDivOther[otherEdgeIds[i]],addCoo,mapAddCoo);
+          int jj = 0;
+          for(std::list<ElementaryEdge *>::const_iterator it=otherTmp._sub_edges.begin();it!=otherTmp._sub_edges.end();it++, jj++)
+            {
+              unsigned skipStartOrEnd = jj == 0 ? 1 : (jj == _sub_edges.size()-1 ? 2 : -1);  // 1 means START, 2 means END, -1 other
+              (*it)->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,
+                                      fact,xBaryBB,yBaryBB, skipStartOrEnd,
+                                      /*out*/ subDivOther[otherEdgeIds[i]],addCoo,mapAddCoo);
+            }
         }
     }
   Delete(cThis);

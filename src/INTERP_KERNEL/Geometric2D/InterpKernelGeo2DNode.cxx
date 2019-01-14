@@ -185,8 +185,8 @@ void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis
   int tmp;
   std::size_t sz1=addCoo.size();
   fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,&tmp);
-  if(sz1!=addCoo.size()
-      || (tmp >= offset2
+  if(sz1!=addCoo.size()     // newly created point
+      || (tmp >= offset2    // or previously created point merged with a neighbour
           && (pointsOther.size() == 0 || pointsOther.back() != tmp)))
     {
       pointsOther.push_back(tmp);
@@ -195,6 +195,5 @@ void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis
   std::vector<int>::const_iterator it=std::find(pointsOther.begin(),pointsOther.end(),tmp);
   if(it!=pointsOther.end())
     return ;
-  if(tmp<offset1)
-    pointsOther.push_back(tmp);
+  pointsOther.push_back(tmp);
 }

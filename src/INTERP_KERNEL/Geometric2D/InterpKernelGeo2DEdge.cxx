@@ -1070,8 +1070,11 @@ void Edge::fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node 
 }
 
 void Edge::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                                 std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const
+                              unsigned skipStartOrEnd,
+                              std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const
 {
-  _start->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
+  if (skipStartOrEnd != 1) // see meaning in splitAbs()
+    _start->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
+  if (skipStartOrEnd != 2)
   _end->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
 }
