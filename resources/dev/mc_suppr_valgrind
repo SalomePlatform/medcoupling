@@ -1,0 +1,66 @@
+#
+# SWIG suppressions for MEDCoupling
+#
+
+{
+   <malloc>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+}
+
+{
+   <realloc_unicode>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:PyUnicode_*
+}
+
+{
+   <swig_py_client_data>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:SwigPyClientData_New
+}
+
+{
+   <dic2>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:*PyDict_*
+}
+
+{
+   <py_gc>
+   Memcheck:Leak
+   fun:realloc
+   fun:_PyObject_GC_Resize
+}
+{
+   <call>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyObject_Call
+}
+{
+   <load_mod>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:_PyImport_LoadDynamicModule
+}
+
+{
+   <load_mod>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:*PyInit*
+}
+
+
+
