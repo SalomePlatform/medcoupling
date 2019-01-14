@@ -1059,7 +1059,8 @@ void MEDCouplingFieldDiscretizationP1::getValueInCell(const MEDCouplingMesh *mes
   for(std::size_t i=0;i<nbOfNodes;i++)
     vec[i]=&coo[i*spaceDim];
   INTERP_KERNEL::AutoPtr<double> tmp=new double[nbOfNodes];
-  INTERP_KERNEL::barycentric_coords(vec,loc,tmp);
+  INTERP_KERNEL::NormalizedCellType ct(mesh->getTypeOfCell(cellId));
+  INTERP_KERNEL::barycentric_coords(ct,vec,loc,tmp);
   int sz=arr->getNumberOfComponents();
   INTERP_KERNEL::AutoPtr<double> tmp2=new double[sz];
   std::fill(res,res+sz,0.);

@@ -418,6 +418,113 @@ namespace INTERP_KERNEL
     bc[2] = 1. - bc[0] - bc[1];
   }
 
+  inline void barycentric_coords_seg2(const std::vector<const double*>& n, const double *p, double *bc)
+  {
+    double delta=n[0][0]-n[1][0];
+    bc[0]=fabs((*p-n[1][0])/delta);
+    bc[1]=fabs((*p-n[0][0])/delta);
+  }
+  
+  inline void barycentric_coords_tri3(const std::vector<const double*>& n, const double *p, double *bc)
+  {
+    enum { _XX=0, _YY, _ZZ };
+    // matrix 2x2
+    double
+      T11 = n[0][_XX]-n[2][_XX], T12 = n[1][_XX]-n[2][_XX],
+      T21 = n[0][_YY]-n[2][_YY], T22 = n[1][_YY]-n[2][_YY];
+    // matrix determinant
+    double Tdet = T11*T22 - T12*T21;
+    if ( (std::fabs( Tdet) ) < (std::numeric_limits<double>::min()) )
+      {
+        bc[0]=1; bc[1]=bc[2]=0; // no solution
+        return;
+      }
+    // matrix inverse
+    double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
+    // vector
+    double r11 = p[_XX]-n[2][_XX], r12 = p[_YY]-n[2][_YY];
+    // barycentric coordinates: multiply matrix by vector
+    bc[0] = (t11 * r11 + t12 * r12)/Tdet;
+    bc[1] = (t21 * r11 + t22 * r12)/Tdet;
+    bc[2] = 1. - bc[0] - bc[1];
+  }
+
+  inline void barycentric_coords_quad4(const std::vector<const double*>& n, const double *p, double *bc)
+  {
+    enum { _XX=0, _YY, _ZZ };
+    // Find bc by solving system of 3 equations using Gaussian elimination algorithm
+    // bc1*( x1 - x4 ) + bc2*( x2 - x4 ) + bc3*( x3 - x4 ) = px - x4
+    // bc1*( y1 - y4 ) + bc2*( y2 - y4 ) + bc3*( y3 - y4 ) = px - y4
+    // bc1*( z1 - z4 ) + bc2*( z2 - z4 ) + bc3*( z3 - z4 ) = px - z4
+          
+    double T[3][4]=
+      {{ n[0][_XX]-n[3][_XX], n[1][_XX]-n[3][_XX], n[2][_XX]-n[3][_XX], p[_XX]-n[3][_XX] },
+       { n[0][_YY]-n[3][_YY], n[1][_YY]-n[3][_YY], n[2][_YY]-n[3][_YY], p[_YY]-n[3][_YY] },
+       { n[0][_ZZ]-n[3][_ZZ], n[1][_ZZ]-n[3][_ZZ], n[2][_ZZ]-n[3][_ZZ], p[_ZZ]-n[3][_ZZ] }};
+          
+    if ( !solveSystemOfEquations<3>( T, bc ) )
+      bc[0]=1., bc[1] = bc[2] = bc[3] = 0;
+    else
+      bc[ 3 ] = 1. - bc[0] - bc[1] - bc[2];
+  }
+
+  inline void barycentric_coords_tri6(const std::vector<const double*>& n, const double *p, double *bc)
+  {
+    double matrix2[48]={1., 0., 0., 0., 0., 0., 0., 0.,
+                        1., 0., 0., 0., 0., 0., 1., 0., 
+                        1., 0., 0., 0., 0., 0., 0., 1.,
+                        1., 0., 0., 0., 0., 0., 0.5, 0.,
+                        1., 0., 0., 0., 0., 0., 0.5, 0.5,
+                        1., 0., 0., 0., 0., 0., 0.,0.5};
+    for(int i=0;i<6;i++)
+      {
+        matrix2[8*i+1]=n[i][0];
+        matrix2[8*i+2]=n[i][1];
+        matrix2[8*i+3]=n[i][0]*n[i][0];
+        matrix2[8*i+4]=n[i][0]*n[i][1];
+        matrix2[8*i+5]=n[i][1]*n[i][1];
+      }
+    double res[12];
+    solveSystemOfEquations2<6,2>(matrix2,res,std::numeric_limits<double>::min());
+    double refCoo[2];
+    refCoo[0]=computeTria6RefBase(res,p);
+    refCoo[1]=computeTria6RefBase(res+6,p);
+    computeWeightedCoeffsInTria6FromRefBase(refCoo,bc);
+  }
+
+  inline void barycentric_coords_tetra10(const std::vector<const double*>& n, const double *p, double *bc)
+  {
+    double matrix2[130]={1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0.,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0.5, 0.,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,0.5, 0.,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0.5,
+                         1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0.5};
+    for(int i=0;i<10;i++)
+      {
+        matrix2[13*i+1]=n[i][0];
+        matrix2[13*i+2]=n[i][1];
+        matrix2[13*i+3]=n[i][2];
+        matrix2[13*i+4]=n[i][0]*n[i][0];
+        matrix2[13*i+5]=n[i][0]*n[i][1];
+        matrix2[13*i+6]=n[i][0]*n[i][2];
+        matrix2[13*i+7]=n[i][1]*n[i][1];
+        matrix2[13*i+8]=n[i][1]*n[i][2];
+        matrix2[13*i+9]=n[i][2]*n[i][2];
+      }
+    double res[30];
+    solveSystemOfEquations2<10,3>(matrix2,res,std::numeric_limits<double>::min());
+    double refCoo[3];
+    refCoo[0]=computeTetra10RefBase(res,p);
+    refCoo[1]=computeTetra10RefBase(res+10,p);
+    refCoo[2]=computeTetra10RefBase(res+20,p);
+    computeWeightedCoeffsInTetra10FromRefBase(refCoo,bc);
+  }
+  
   /*!
    * Calculate barycentric coordinates of a point p with respect to triangle or tetra vertices.
    * This method makes 2 assumptions :
@@ -427,113 +534,67 @@ namespace INTERP_KERNEL
    */
   inline void barycentric_coords(const std::vector<const double*>& n, const double *p, double *bc)
   {
-    enum { _XX=0, _YY, _ZZ };
     switch(n.size())
       {
       case 2:
         {// SEG 2
-          double delta=n[0][0]-n[1][0];
-          bc[0]=fabs((*p-n[1][0])/delta);
-          bc[1]=fabs((*p-n[0][0])/delta);
+          barycentric_coords_seg2(n,p,bc);
           break;
         }
       case 3:
         { // TRIA3
-          // matrix 2x2
-          double
-            T11 = n[0][_XX]-n[2][_XX], T12 = n[1][_XX]-n[2][_XX],
-            T21 = n[0][_YY]-n[2][_YY], T22 = n[1][_YY]-n[2][_YY];
-          // matrix determinant
-          double Tdet = T11*T22 - T12*T21;
-          if ( (std::fabs( Tdet) ) < (std::numeric_limits<double>::min()) )
-            {
-              bc[0]=1; bc[1]=bc[2]=0; // no solution
-              return;
-            }
-          // matrix inverse
-          double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
-          // vector
-          double r11 = p[_XX]-n[2][_XX], r12 = p[_YY]-n[2][_YY];
-          // barycentric coordinates: multiply matrix by vector
-          bc[0] = (t11 * r11 + t12 * r12)/Tdet;
-          bc[1] = (t21 * r11 + t22 * r12)/Tdet;
-          bc[2] = 1. - bc[0] - bc[1];
+          barycentric_coords_tri3(n,p,bc);
           break;
         }
       case 4:
         { // TETRA4
-          // Find bc by solving system of 3 equations using Gaussian elimination algorithm
-          // bc1*( x1 - x4 ) + bc2*( x2 - x4 ) + bc3*( x3 - x4 ) = px - x4
-          // bc1*( y1 - y4 ) + bc2*( y2 - y4 ) + bc3*( y3 - y4 ) = px - y4
-          // bc1*( z1 - z4 ) + bc2*( z2 - z4 ) + bc3*( z3 - z4 ) = px - z4
-          
-          double T[3][4]=
-            {{ n[0][_XX]-n[3][_XX], n[1][_XX]-n[3][_XX], n[2][_XX]-n[3][_XX], p[_XX]-n[3][_XX] },
-             { n[0][_YY]-n[3][_YY], n[1][_YY]-n[3][_YY], n[2][_YY]-n[3][_YY], p[_YY]-n[3][_YY] },
-             { n[0][_ZZ]-n[3][_ZZ], n[1][_ZZ]-n[3][_ZZ], n[2][_ZZ]-n[3][_ZZ], p[_ZZ]-n[3][_ZZ] }};
-          
-          if ( !solveSystemOfEquations<3>( T, bc ) )
-            bc[0]=1., bc[1] = bc[2] = bc[3] = 0;
-          else
-            bc[ 3 ] = 1. - bc[0] - bc[1] - bc[2];
+          barycentric_coords_quad4(n,p,bc);
           break;
         }
       case 6:
         {
           // TRIA6
-          double matrix2[48]={1., 0., 0., 0., 0., 0., 0., 0.,
-                              1., 0., 0., 0., 0., 0., 1., 0., 
-                              1., 0., 0., 0., 0., 0., 0., 1.,
-                              1., 0., 0., 0., 0., 0., 0.5, 0.,
-                              1., 0., 0., 0., 0., 0., 0.5, 0.5,
-                              1., 0., 0., 0., 0., 0., 0.,0.5};
-          for(int i=0;i<6;i++)
-            {
-              matrix2[8*i+1]=n[i][0];
-              matrix2[8*i+2]=n[i][1];
-              matrix2[8*i+3]=n[i][0]*n[i][0];
-              matrix2[8*i+4]=n[i][0]*n[i][1];
-              matrix2[8*i+5]=n[i][1]*n[i][1];
-            }
-          double res[12];
-          solveSystemOfEquations2<6,2>(matrix2,res,std::numeric_limits<double>::min());
-          double refCoo[2];
-          refCoo[0]=computeTria6RefBase(res,p);
-          refCoo[1]=computeTria6RefBase(res+6,p);
-          computeWeightedCoeffsInTria6FromRefBase(refCoo,bc);
+          barycentric_coords_tri6(n,p,bc);
           break;
         }
       case 10:
         {//TETRA10
-          double matrix2[130]={1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0.,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0.5, 0.,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,0.5, 0.,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0.5,
-                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0.5};
-          for(int i=0;i<10;i++)
-            {
-              matrix2[13*i+1]=n[i][0];
-              matrix2[13*i+2]=n[i][1];
-              matrix2[13*i+3]=n[i][2];
-              matrix2[13*i+4]=n[i][0]*n[i][0];
-              matrix2[13*i+5]=n[i][0]*n[i][1];
-              matrix2[13*i+6]=n[i][0]*n[i][2];
-              matrix2[13*i+7]=n[i][1]*n[i][1];
-              matrix2[13*i+8]=n[i][1]*n[i][2];
-              matrix2[13*i+9]=n[i][2]*n[i][2];
-            }
-          double res[30];
-          solveSystemOfEquations2<10,3>(matrix2,res,std::numeric_limits<double>::min());
-          double refCoo[3];
-          refCoo[0]=computeTetra10RefBase(res,p);
-          refCoo[1]=computeTetra10RefBase(res+10,p);
-          refCoo[2]=computeTetra10RefBase(res+20,p);
-          computeWeightedCoeffsInTetra10FromRefBase(refCoo,bc);
+          barycentric_coords_tetra10(n,p,bc);
+          break;
+        }
+      default:
+        throw INTERP_KERNEL::Exception("INTERP_KERNEL::barycentric_coords : unrecognized simplex !");
+      }
+  }
+
+  inline void barycentric_coords(INTERP_KERNEL::NormalizedCellType ct, const std::vector<const double*>& n, const double *p, double *bc)
+  {
+    switch(ct)
+      {
+      case NORM_SEG2:
+        {// SEG 2
+          barycentric_coords_seg2(n,p,bc);
+          break;
+        }
+      case NORM_TRI3:
+        { // TRIA3
+          barycentric_coords_tri3(n,p,bc);
+          break;
+        }
+      case NORM_TETRA4:
+        { // TETRA4
+          barycentric_coords_quad4(n,p,bc);
+          break;
+        }
+      case NORM_TRI6:
+        {
+          // TRIA6
+          barycentric_coords_tri6(n,p,bc);
+          break;
+        }
+      case NORM_TETRA10:
+        {//TETRA10
+          barycentric_coords_tetra10(n,p,bc);
           break;
         }
       default:
