@@ -97,18 +97,6 @@ void ComposedEdge::pushBack(ComposedEdge *elem)
   _sub_edges.insert(_sub_edges.end(),elemsOfElem->begin(),elemsOfElem->end());
 }
 
-/*!
- * Warning! This is highly inefficient ...
- */
-void ComposedEdge::erase(int index)
-{
-  // Not the most efficient thing to do, but rarely called ...
-  std::list<ElementaryEdge *>::const_iterator it = _sub_edges.begin();  // we want const!
-  for (int i=0; i < index; i++, it++);
-  delete (*it);
-  _sub_edges.erase(it++, it);
-}
-
 ElementaryEdge *ComposedEdge::operator[](int i) const
 {
   std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();

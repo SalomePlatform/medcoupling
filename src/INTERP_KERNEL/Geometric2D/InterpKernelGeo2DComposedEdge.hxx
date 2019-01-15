@@ -98,7 +98,6 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void pushBack(Edge *edge, bool direction=true);
     INTERPKERNEL_EXPORT void pushBack(ElementaryEdge *elem);
     INTERPKERNEL_EXPORT void pushBack(ComposedEdge *elem);
-    INTERPKERNEL_EXPORT void erase(int index);
     INTERPKERNEL_EXPORT int size() const { return (int)_sub_edges.size(); }
     INTERPKERNEL_EXPORT ElementaryEdge *operator[](int i) const;
     INTERPKERNEL_EXPORT Node *getEndNode() const;

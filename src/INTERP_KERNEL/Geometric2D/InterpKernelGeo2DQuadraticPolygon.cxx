@@ -714,25 +714,20 @@ void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, std::set<INTE
  */
 void QuadraticPolygon::cleanDegeneratedConsecutiveEdges()
 {
-  IteratorOnComposedEdge it2ii(this);
+  IteratorOnComposedEdge it(this);
   ElementaryEdge * prevEdge = 0;
-  int kk = 0;
   if  (recursiveSize() > 2)
-    for(it2ii.first();!it2ii.finished();it2ii.next())
+    for(it.first();!it.finished();it.next())
       {
-        ElementaryEdge * cur = it2ii.current();
+        ElementaryEdge * cur = it.current();
         if (prevEdge && prevEdge->hasSameExtremities(*cur))
           {
-            // Delete the two 'identical' edges:
-            it2ii.previousLoop(); it2ii.previousLoop();
-            erase(--kk); erase(kk);
-            prevEdge = it2ii.current();
+            it.eraseCurrent();
+            it.eraseCurrent();
+            prevEdge = it.current();
           }
         else
-          {
-            kk++;
             prevEdge = cur;
-          }
       }
 }
 

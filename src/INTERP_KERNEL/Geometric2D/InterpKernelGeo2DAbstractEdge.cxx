@@ -116,3 +116,13 @@ void IteratorOnComposedEdge::insertElemEdges(ComposedEdge *elems, bool changeMyS
     }
 }
 
+/*!
+ * Erase current element and place iterator onto the PREVIOUS element (eventually looping)
+ */
+void IteratorOnComposedEdge::eraseCurrent()
+{
+  delete(*_deep_it);
+  _deep_it = _list_handle->erase(_deep_it);
+  // By default erase place the iterator after the removed element:
+  previousLoop();
+}
