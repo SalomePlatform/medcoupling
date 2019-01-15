@@ -1474,8 +1474,9 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,values4[0],1.e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.2,values4[1],1.e-12);
   f1->integral(true,values4);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,values4[0],1.e-12);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,values4[1],1.e-12);
+  //0.4 == 0.25/4*-0.6+(0.25/4+0.125/3)*-0.1+0.4*(0.125/3.+0.125/3)+(-0.1)*(0.25/4+0.25/4)+0.4*(0.25/4+0.125/3+0.125/3+0.25/4+0.25/4)+0.9*(0.25/4+0.125/3)+0.4*0.25/4+0.9*(0.25/4+0.25/4)+1.4*0.25/4
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.4,values4[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.8,values4[1],1.e-12);
   f1->decrRef();
   //
   CPPUNIT_ASSERT_THROW(f1=m->fillFromAnalytic(ON_NODES,1,func3),INTERP_KERNEL::Exception);
@@ -1544,8 +1545,8 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic2()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,values4[0],1.e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.2,values4[1],1.e-12);
   f1->integral(true,values4);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,values4[0],1.e-12);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,values4[1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.4,values4[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.8,values4[1],1.e-12);
   f1->decrRef();
   //
   CPPUNIT_ASSERT_THROW(f1=m->fillFromAnalytic(ON_NODES,1,"1./(x-0.2)"),INTERP_KERNEL::Exception);

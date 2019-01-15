@@ -820,8 +820,8 @@ class MEDCouplingBasicsTest2(unittest.TestCase):
         self.assertTrue(abs(3.6-values4[0])<1.e-12);
         self.assertTrue(abs(7.2-values4[1])<1.e-12);
         values4=f1.integral(True);
-        self.assertTrue(abs(0.5-values4[0])<1.e-12);
-        self.assertTrue(abs(1.-values4[1])<1.e-12);
+        self.assertTrue(abs(0.4-values4[0])<1.e-12);
+        self.assertTrue(abs(0.8-values4[1])<1.e-12);
         #
         f1=MEDCouplingFieldDouble.New(ON_NODES,NO_TIME);
         f1.setMesh(m);

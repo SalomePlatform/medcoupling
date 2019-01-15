@@ -2141,8 +2141,8 @@ void MEDCouplingBasicsTest2::testFillFromAnalytic3()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,values4[0],1.e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.2,values4[1],1.e-12);
   f1->integral(true,values4);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,values4[0],1.e-12);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,values4[1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.4,values4[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.8,values4[1],1.e-12);
   f1->decrRef();
   //
   f1=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);

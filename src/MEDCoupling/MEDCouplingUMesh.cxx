@@ -3306,8 +3306,14 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) cons
   std::string name="MeasureOnNodeOfMesh_";
   name+=getName();
   int nbNodes=getNumberOfNodes();
+  MCAuto<DataArrayDouble> nnpc;
+  {
+    MCAuto<DataArrayInt> tmp(computeNbOfNodesPerCell());
+    nnpc=tmp->convertToDblArr();
+  }
+  std::for_each(nnpc->rwBegin(),nnpc->rwEnd(),[](double& v) { v=1./v; });
+  const double *nnpcPtr(nnpc->begin());
   MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_NODES);
-  double cst=1./((double)getMeshDimension()+1.);
   MCAuto<DataArrayDouble> array=DataArrayDouble::New();
   array->alloc(nbNodes,1);
   double *valsToFill=array->getPointer();
@@ -3320,7 +3326,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) cons
   const int *daIPtr=daInd->getConstPointer();
   for(int i=0;i<nbNodes;i++)
     for(const int *cell=daPtr+daIPtr[i];cell!=daPtr+daIPtr[i+1];cell++)
-      valsToFill[i]+=cst*values[*cell];
+      valsToFill[i]+=nnpcPtr[*cell]*values[*cell];
   ret->setMesh(this);
   ret->setArray(array);
   return ret.retn();
