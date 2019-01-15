@@ -1094,9 +1094,10 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(abs(3.6-values4[0])<1.e-12);
         self.assertTrue(abs(7.2-values4[1])<1.e-12);
         values4=f1.integral(True);
+        #0.4 == 0.25/4*-0.6+(0.25/4+0.125/3)*-0.1+0.4*(0.125/3.+0.125/3)+(-0.1)*(0.25/4+0.25/4)+0.4*(0.25/4+0.125/3+0.125/3+0.25/4+0.25/4)+0.9*(0.25/4+0.125/3)+0.4*0.25/4+0.9*(0.25/4+0.25/4)+1.4*0.25/4
         self.assertEqual(2,len(values4))
-        self.assertTrue(abs(0.5-values4[0])<1.e-12);
-        self.assertTrue(abs(1.-values4[1])<1.e-12);
+        self.assertTrue(abs(0.4-values4[0])<1.e-12);
+        self.assertTrue(abs(0.8-values4[1])<1.e-12);
         #
         self.assertRaises(InterpKernelException,m.fillFromAnalytic,ON_NODES,1,"1./(x-0.2)");
         pass
@@ -1157,8 +1158,8 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(abs(3.6-values4[0])<1.e-12);
         self.assertTrue(abs(7.2-values4[1])<1.e-12);
         values4=f1.integral(True);
-        self.assertTrue(abs(0.5-values4[0])<1.e-12);
-        self.assertTrue(abs(1.-values4[1])<1.e-12);
+        self.assertTrue(abs(0.4-values4[0])<1.e-12);
+        self.assertTrue(abs(0.8-values4[1])<1.e-12);
         pass
 
     def testApplyFunc(self):
