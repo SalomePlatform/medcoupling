@@ -2287,6 +2287,30 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(mesh.getNodalConnectivityIndex().getValues(), cIRef)
         pass
 
+    def testCellOrientation5(self):
+        """ Non regression for NORM_QPOLYG  """
+        mesh = MEDCouplingUMesh('Mesh_3', 2)
+        coo = DataArrayDouble([(-34.3035,5.1),(-35.2018,4.59163),(-34.9509,6.21985),(-35.0858,5.4072),(-34.7527,4.84582),(-34.6641,5.63857)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([6, 2, 1, 0, 3, 4, 5])
+        cI = DataArrayInt([0, 7])
+        mesh.setConnectivity(c, cI)
+        vec = [0., 0., -1.]
+        mesh.changeSpaceDimension(3)
+        mesh.orientCorrectly2DCells(vec, False)
+        mesh.changeSpaceDimension(2)
+        cRef = [6, 2, 0, 1, 5, 4, 3]
+        cIRef = [0, 7]
+        self.assertEqual(mesh.getNodalConnectivity().getValues(), cRef)
+        self.assertEqual(mesh.getNodalConnectivityIndex().getValues(), cIRef)
+        # Second call doest not change anything:
+        mesh.changeSpaceDimension(3)
+        mesh.orientCorrectly2DCells(vec, False)
+        mesh.changeSpaceDimension(2)
+        self.assertEqual(mesh.getNodalConnectivity().getValues(), cRef)
+        self.assertEqual(mesh.getNodalConnectivityIndex().getValues(), cIRef)
+        pass
+
     def testPolyhedronBarycenter(self):
         connN=[0,3,2,1, -1, 4,5,6,7, -1, 0,4,7,3, -1, 3,7,6,2, -1, 2,6,5,1, -1, 1,5,4,0];
         coords=[0.,0.,0., 1.,0.,0., 1.,1.,0., 0.,1.,0., 0.,0.,1., 1.,0.,1., 1.,1.,1., 0.,1.,1., 0.5, 0.5, 0.5];

@@ -7010,26 +7010,29 @@ bool MEDCouplingUMesh::IsPolygonWellOriented(bool isQuadratic, const double *vec
   if(!isQuadratic)
     for(i=0;i<sz;i++)
       {
+        // Algorithm: sum in v the cross products of (e1, e2) where e_i it the vector between (0,0,0) and point i
+        // and e2 is linear point directly following e1 in the connectivity. All points are used.
         v[0]+=coords[3*begin[i]+1]*coords[3*begin[(i+1)%sz]+2]-coords[3*begin[i]+2]*coords[3*begin[(i+1)%sz]+1];
         v[1]+=coords[3*begin[i]+2]*coords[3*begin[(i+1)%sz]]-coords[3*begin[i]]*coords[3*begin[(i+1)%sz]+2];
         v[2]+=coords[3*begin[i]]*coords[3*begin[(i+1)%sz]+1]-coords[3*begin[i]+1]*coords[3*begin[(i+1)%sz]];
       }
   else
     {
-      // Use all points if quadratic (taking only linear points might lead to issues if the linearized version of the
+      // Same algorithm as above but also using intermediate quadratic points.
+      // (taking only linear points might lead to issues if the linearized version of the
       // polygon is not convex or self-intersecting ... see testCellOrientation4)
-      sz /= 2;
+      int hsz = sz/2;
       for(std::size_t j=0;j<sz;j++)
         {
           if (j%2)  // current point i is quadratic, next point i+1 is standard
             {
-              i = sz+j;
-              ip1 = (j+1)%sz; // ip1 = "i+1"
+              i = hsz+(j-1)/2;
+              ip1 = ((j-1)/2 + 1)%hsz; // ip1 means "i+1", i.e. next point
             }
           else      // current point i is standard, next point i+1 is quadratic
             {
-              i = j;
-              ip1 = j+sz;
+              i = j/2;
+              ip1 = j/2+hsz;
             }
           v[0]+=coords[3*begin[i]+1]*coords[3*begin[ip1]+2]-coords[3*begin[i]+2]*coords[3*begin[ip1]+1];
           v[1]+=coords[3*begin[i]+2]*coords[3*begin[ip1]]-coords[3*begin[i]]*coords[3*begin[ip1]+2];
