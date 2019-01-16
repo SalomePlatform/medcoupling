@@ -1363,8 +1363,9 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
   // Convert to integer connectivity:
   for(std::list<QuadraticPolygon *>::iterator itConstr=retPolsUnderContruction.begin();itConstr!=retPolsUnderContruction.end();itConstr++)
     {
-      if((*itConstr)->getStartNode()==(*itConstr)->getEndNode())  // take only fully closed reconstructed polygon (?? might there be others??)
+      if((*itConstr)->getStartNode()==(*itConstr)->getEndNode())  // take only fully closed reconstructed polygon
         {
+          (*itConstr)->cleanDegeneratedConsecutiveEdges();
           (*itConstr)->appendCrudeData(mapp,0.,0.,1.,offset,addCoordsQuadratic,conn,connI); nb1.push_back(idThis); nb2.push_back(-1);
           for(std::list<QuadraticPolygon *>::iterator it6=pol1ZipConsumed[*itConstr].begin();it6!=pol1ZipConsumed[*itConstr].end();it6++)
             delete *it6;
