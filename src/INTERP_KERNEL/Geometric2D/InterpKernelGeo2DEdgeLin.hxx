@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
     bool areColinears() const;
     bool haveTheySameDirection() const;
     void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped);
+    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
     std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
   private:
     void getCurveAbscisse(Node *node, TypeOfLocInEdge& where, MergePoints& commonNode) const;

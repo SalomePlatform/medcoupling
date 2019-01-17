@@ -33,7 +33,7 @@ namespace INTERP_KERNEL
     bool haveTheySameDirection() const;
     bool areColinears() const;
     void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped);
+    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
     std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
   private:
     //! return angle in ]-Pi;Pi[ - 'node' must be on curve of '_e1'
@@ -57,7 +57,7 @@ namespace INTERP_KERNEL
     //virtual overloading
     bool areColinears() const;
     void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped);
+    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
     std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
   private:
     const EdgeArcCircle& getE1() const { return (const EdgeArcCircle&)_e1; }

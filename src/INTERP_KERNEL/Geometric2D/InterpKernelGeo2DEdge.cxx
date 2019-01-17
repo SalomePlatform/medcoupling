@@ -340,7 +340,7 @@ bool IntersectElement::isIncludedByBoth() const
   return _e1.isIn(_chararct_val_for_e1) && _e2.isIn(_chararct_val_for_e2);
 }
 
-bool EdgeIntersector::intersect(const Bounds *whereToFind, std::vector<Node *>& newNodes, bool& order, MergePoints& commonNode)
+bool EdgeIntersector::intersect(std::vector<Node *>& newNodes, bool& order, MergePoints& commonNode)
 {
   std::list< IntersectElement > listOfIntesc=getIntersectionsCharacteristicVal();
   std::list< IntersectElement >::iterator iter;
@@ -631,7 +631,7 @@ bool Edge::intersectWith(const Edge *other, MergePoints& commonNode,
   delete merge;
   merge=0;
   EdgeIntersector *intersector=BuildIntersectorWith(this,other);
-  ret=Intersect(this,other,intersector,merge,commonNode,outVal1,outVal2);
+  ret=Intersect(this,other,intersector,commonNode,outVal1,outVal2);
   delete intersector;
   return ret;
 }
@@ -674,7 +674,7 @@ void Edge::Interpolate1DLin(const std::vector<double>& distrib1, const std::vect
                   ComposedEdge *f2=new ComposedEdge;
                   SegSegIntersector inters(*e1,*e2);
                   bool b1,b2;
-                  inters.areOverlappedOrOnlyColinears(0,b1,b2);
+                  inters.areOverlappedOrOnlyColinears(b1,b2);
                   if(IntersectOverlapped(e1,e2,&inters,commonNode,*f1,*f2))
                     {
                       result[i][j]=f1->getCommonLengthWith(*f2)/e1->getCurveLength();
@@ -734,19 +734,19 @@ void Edge::getMiddleOfPointsOriented(const double *p1, const double *p2, double 
   return getMiddleOfPoints(p1, p2, mid);
 }
 
-bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
+bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
                      ComposedEdge& outValForF1, ComposedEdge& outValForF2)
 {
   bool obviousNoIntersection;
   bool areOverlapped;
-  intersector->areOverlappedOrOnlyColinears(whereToFind,obviousNoIntersection,areOverlapped);
+  intersector->areOverlappedOrOnlyColinears(obviousNoIntersection,areOverlapped);
   if(areOverlapped)
     return IntersectOverlapped(f1,f2,intersector,commonNode,outValForF1,outValForF2);
   if(obviousNoIntersection)
     return false;
   std::vector<Node *> newNodes;
   bool order;
-  if(intersector->intersect(whereToFind,newNodes,order,commonNode))
+  if(intersector->intersect(newNodes,order,commonNode))
     {
       if(newNodes.empty())
         throw Exception("Internal error occurred - error in intersector implementation!");// This case should never happen
@@ -771,7 +771,7 @@ bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersecto
         }
       return true;
     }
-  else//no intersection inside whereToFind
+  else
     return false;
 }
 

@@ -157,9 +157,9 @@ namespace INTERP_KERNEL
     //!to call only if 'areOverlapped' have been set to true when areOverlappedOrOnlyColinears was called
     virtual void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const = 0;
     //! When true is returned, newNodes should contains at least 1 element. All merging nodes betw _e1 and _e2 extremities must be done.
-    bool intersect(const Bounds *whereToFind, std::vector<Node *>& newNodes, bool& order, MergePoints& commonNode);
+    bool intersect(std::vector<Node *>& newNodes, bool& order, MergePoints& commonNode);
     //! Should be called only once per association.
-    virtual void areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped) = 0;
+    virtual void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped) = 0;
     //! The size of returned vector is equal to number of potential intersections point. The values are so that their are interpretable by virtual Edge::isIn method.
     virtual std::list< IntersectElement > getIntersectionsCharacteristicVal() const = 0;
   protected:
@@ -292,7 +292,7 @@ namespace INTERP_KERNEL
     Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(0),_end(0) { }
     virtual ~Edge();
     static int CombineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2);
-    static bool Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
+    static bool Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
                           ComposedEdge& outValForF1, ComposedEdge& outValForF2);
     //! The code 'code' is built by method combineCodes
     static bool SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,

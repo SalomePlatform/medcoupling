@@ -171,7 +171,7 @@ bool ArcCArcCIntersector::areArcsOverlapped(const EdgeArcCircle& a1, const EdgeA
   return Node::areDoubleEqualsWPRight(a,1.,2.);
 }
 
-void ArcCArcCIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
+void ArcCArcCIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped)
 {
   _dist=Node::distanceBtw2Pt(getE1().getCenter(),getE2().getCenter());
   double radius1=getE1().getRadius(); double radius2=getE2().getRadius();
@@ -329,7 +329,7 @@ ArcCSegIntersector::ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e
   See http://mathworld.wolfram.com/Circle-LineIntersection.html
   _cross is 'D', the computation is done with the translation to put back the circle at the origin.s
 */
-void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
+void ArcCSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped)
 {
   areOverlapped=false;//No overlapping by construction
   const double *center=getE1().getCenter();

@@ -599,7 +599,7 @@ double ComposedEdge::isInOrOutAlg(Node *nodeToTest, const std::set<Node*>& nodes
           Edge *e=val->getPtr();
           std::auto_ptr<EdgeIntersector> intersc(Edge::BuildIntersectorWith(e1,e));
           bool obviousNoIntersection,areOverlapped;
-          intersc->areOverlappedOrOnlyColinears(0,obviousNoIntersection,areOverlapped);  // first parameter never used
+          intersc->areOverlappedOrOnlyColinears(obviousNoIntersection,areOverlapped);
           if(obviousNoIntersection)
             {
               continue;

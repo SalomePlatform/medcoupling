@@ -158,9 +158,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(!order);
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(!order);
       CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -183,9 +183,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order);
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order);
       CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -208,9 +208,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order);
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order);
       CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -233,9 +233,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(!order);
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(!order);
       CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -258,9 +258,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(!order);
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(!order);
       CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -283,9 +283,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order);
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order);
       CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -308,9 +308,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order);
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order);
       CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -333,9 +333,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(!order);
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(!order);
       CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -359,9 +359,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order); // order has no sense here because v4.size() expected to 1 but for valgrind serenity test.
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order); // order has no sense here because v4.size() expected to 1 but for valgrind serenity test.
       CPPUNIT_ASSERT_EQUAL(1,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
@@ -381,9 +381,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(!intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT_EQUAL(0,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(2,(int)v3.getNumberOfAssociations());
+      CPPUNIT_ASSERT(!intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT_EQUAL(0,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(2,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT(e1->getStartNode()==e2->getEndNode()); CPPUNIT_ASSERT(e2->getStartNode()==e1->getEndNode());
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
@@ -397,9 +397,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(!intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT_EQUAL(0,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(2,(int)v3.getNumberOfAssociations());
+      CPPUNIT_ASSERT(!intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT_EQUAL(0,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(2,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT(e1->getStartNode()==e2->getStartNode()); CPPUNIT_ASSERT(e2->getEndNode()==e1->getEndNode());
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
@@ -414,9 +414,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3));
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3));
       CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(1,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT(e1->getStartNode()==e2->getStartNode()); CPPUNIT_ASSERT(e1->getEndNode()==v4[0]);
       v4[0]->decrRef();
@@ -433,9 +433,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT(e1->getStartNode()==v4[0]); CPPUNIT_ASSERT(e1->getEndNode()==v4[1]);
       v4[0]->decrRef(); v4[1]->decrRef();
       v4.clear(); v3.clear();
@@ -457,9 +457,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(1,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(1,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT(e1->getStartNode()==v4[0]);
       v4[0]->decrRef();
       v4.clear(); v3.clear();
@@ -481,9 +481,9 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       intersector=new ArcCArcCIntersector(*e1,*e2);
       bool order;
       bool obvious,areOverlapped;
-      intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+      intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
       CPPUNIT_ASSERT(!obvious && !areOverlapped);
-      CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
+      CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT(e1->getStartNode()==v4[0]);
       v4[0]->decrRef(); v4[1]->decrRef();
       v4.clear(); v3.clear();
@@ -609,33 +609,33 @@ void QuadraticPlanarInterpTest::IntersectArcCircleSegumentBase()
   EdgeIntersector *intersector=new ArcCSegIntersector(*e1,*e2);
   bool order;
   bool obvious,areOverlapped;
-  intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped);
+  intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped);
   CPPUNIT_ASSERT(!obvious && !areOverlapped);
   std::vector<Node *> v4;
   MergePoints v3;
-  CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(!order); CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
+  CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(!order); CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,(*v4[0])[0],1e-10); CPPUNIT_ASSERT_DOUBLES_EQUAL(4.3,(*v4[0])[1],1e-10);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.3,(*v4[1])[0],1e-10); CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,(*v4[1])[1],1e-10);
   v4[0]->decrRef(); v4[1]->decrRef(); e2->decrRef(); v3.clear(); v4.clear(); delete intersector;
   //
   e2=new EdgeLin(3.,5.3,-1.3,1.);
   intersector=new ArcCSegIntersector(*e1,*e2);
-  intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped); CPPUNIT_ASSERT(!obvious && !areOverlapped);
-  CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
+  intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped); CPPUNIT_ASSERT(!obvious && !areOverlapped);
+  CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(2,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,(*v4[0])[0],1e-10); CPPUNIT_ASSERT_DOUBLES_EQUAL(4.3,(*v4[0])[1],1e-10);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.3,(*v4[1])[0],1e-10); CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,(*v4[1])[1],1e-10);
   v4[0]->decrRef(); v4[1]->decrRef(); e2->decrRef(); v3.clear(); v4.clear(); delete intersector;
   // tangent intersection
   e2=new EdgeLin(-1.,4.3,3.,4.3);
   intersector=new ArcCSegIntersector(*e1,*e2);
-  intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped); CPPUNIT_ASSERT(!obvious && !areOverlapped);
-  CPPUNIT_ASSERT(intersector->intersect(0,v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(1,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
+  intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped); CPPUNIT_ASSERT(!obvious && !areOverlapped);
+  CPPUNIT_ASSERT(intersector->intersect(v4,order,v3)); CPPUNIT_ASSERT(order); CPPUNIT_ASSERT_EQUAL(1,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,(*v4[0])[0],1e-10); CPPUNIT_ASSERT_DOUBLES_EQUAL(4.3,(*v4[0])[1],1e-10);
   v4[0]->decrRef(); e2->decrRef(); v3.clear(); delete intersector;
   // no intersection
   e2=new EdgeLin(-2.,-2.,-1.,-3.);
   intersector=new ArcCSegIntersector(*e1,*e2);
-  intersector->areOverlappedOrOnlyColinears(0,obvious,areOverlapped); CPPUNIT_ASSERT(obvious && !areOverlapped);
+  intersector->areOverlappedOrOnlyColinears(obvious,areOverlapped); CPPUNIT_ASSERT(obvious && !areOverlapped);
   e2->decrRef(); v3.clear(); delete intersector;
   //
   e1->decrRef();

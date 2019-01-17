@@ -128,7 +128,7 @@ bool SegSegIntersector::areColinears() const
  * \param areOverlapped if colinearity if true, this parameter looks if e1 and e2 are overlapped, i.e. is they lie on the same line (= this is different from
  * a true intersection, two segments can be in "overlap" mode, without intersecting)
  */
-void SegSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
+void SegSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped)
 {
   double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
   Bounds b1, b2;
