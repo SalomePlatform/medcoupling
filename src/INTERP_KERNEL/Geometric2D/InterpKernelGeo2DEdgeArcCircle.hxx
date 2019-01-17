@@ -68,6 +68,7 @@ namespace INTERP_KERNEL
     double _drSq;         //!< Square of the norm of the seg
     double _cross;        //!< See areOverlappedOrOnlyColinears()
     double _deltaRoot_div_dr;    //!< See areOverlappedOrOnlyColinears()
+    bool _i1S2E,_i1E2E;
   };
 
   class INTERPKERNEL_EXPORT EdgeArcCircle : public Edge

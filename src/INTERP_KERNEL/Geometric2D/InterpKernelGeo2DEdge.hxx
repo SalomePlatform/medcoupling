@@ -147,9 +147,9 @@ namespace INTERP_KERNEL
   {
   protected:
     //! All non symmetric methods are relative to 'e1'.
-    EdgeIntersector(const Edge& e1, const Edge& e2):_e1(e1),_e2(e2) { }
+    EdgeIntersector(const Edge& e1, const Edge& e2):_e1(e1),_e2(e2), _earlyInter(0) { }
   public:
-    virtual ~EdgeIntersector() { }
+    virtual ~EdgeIntersector() { if(_earlyInter) delete(_earlyInter); }
     virtual bool keepOrder() const = 0;
     virtual bool areColinears() const = 0;
     //!to call only if 'areOverlapped' have been set to true when areOverlappedOrOnlyColinears was called
@@ -164,9 +164,11 @@ namespace INTERP_KERNEL
     virtual std::list< IntersectElement > getIntersectionsCharacteristicVal() const = 0;
   protected:
     void obviousCaseForCurvAbscisse(Node *node, TypeOfLocInEdge& where, MergePoints& commonNode, bool& obvious) const;
+    virtual void identifyEarlyIntersection(bool& , bool&, bool&, bool&);
   protected:
     const Edge& _e1;
     const Edge& _e2;
+    IntersectElement *_earlyInter;   // Non null if the intersection can be determined early -> see areOverlappedOrOnlyColinears()
   };
 
   class INTERPKERNEL_EXPORT SameTypeEdgeIntersector : public EdgeIntersector

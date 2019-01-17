@@ -42,7 +42,8 @@ namespace INTERP_KERNEL
     //! index on which all single index op will be performed. Filled in case colinearity is equal to true.
     int _ind;
     double _col[2];
-    double _matrix[4];//SPACEDIM*SPACEDIM  = [e1_x, e1_y, e2_x, e2_y]
+    double _matrix[4];               //SPACEDIM*SPACEDIM  = [e1_x, e1_y, e2_x, e2_y]
+    double _determinant;
   };
 
   class INTERPKERNEL_EXPORT EdgeLin : public Edge

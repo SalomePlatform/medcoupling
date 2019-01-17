@@ -321,25 +321,33 @@ std::list< IntersectElement > ArcCArcCIntersector::getIntersectionsCharacteristi
   }
   return ret;*/
 
-ArcCSegIntersector::ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e2, bool reverse):CrossTypeEdgeIntersector(e1,e2,reverse)
+ArcCSegIntersector::ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e2, bool reverse):
+    CrossTypeEdgeIntersector(e1,e2,reverse),
+    _deltaRoot_div_dr(0.),
+    _i1S2E(false),_i1E2E(false)
 {
-}
-
-/**
-  See http://mathworld.wolfram.com/Circle-LineIntersection.html
-  _cross is 'D', the computation is done with the translation to put back the circle at the origin.s
-*/
-void ArcCSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped)
-{
-  areOverlapped=false;//No overlapping by construction
   const double *center=getE1().getCenter();
-  const double R = getE1().getRadius();
   _dx=(*(_e2.getEndNode()))[0]-(*(_e2.getStartNode()))[0];
   _dy=(*(_e2.getEndNode()))[1]-(*(_e2.getStartNode()))[1];
   _drSq=_dx*_dx+_dy*_dy;
   _cross=
       ((*(_e2.getStartNode()))[0]-center[0])*((*(_e2.getEndNode()))[1]-center[1])-
       ((*(_e2.getStartNode()))[1]-center[1])*((*(_e2.getEndNode()))[0]-center[0]);
+}
+
+/**
+  See http://mathworld.wolfram.com/Circle-LineIntersection.html
+  _cross is 'D', the computation is done with the translation to put back the circle at the origin
+*/
+void ArcCSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped)
+{
+  areOverlapped=false;//No overlapping by construction
+
+  // Similar optimisation than SegSegIntersector::areOverlappedOrOnlyColinears()
+  bool dnu1, dnu2;
+  identifyEarlyIntersection(dnu1, dnu2, _i1S2E, _i1E2E);
+
+  const double R = getE1().getRadius();
 
   // We need to compute d = R*R-_cross*_cross/_drSq
   // In terms of numerical precision, this can trigger 'catastrophic cancellation' and is hence better expressed as:
@@ -353,7 +361,7 @@ void ArcCSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersectio
   double d = add*diff;
   // Compute deltaRoot_div_dr := sqrt(delta)/dr, where delta has the meaning of Wolfram.
   // Then 2*deltaRoot_div_dr is the distance between the two intersection points of the line with the circle. This is what we compare to eps.
-  // We compute it in such a way that it can be used in tests too (a very negative value means we're far apart from intersection)
+  // We compute it in such a way that it can be used in boolean tests too (a very negative value means we're far apart from intersection)
   _deltaRoot_div_dr = Node::sign(d)*sqrt(fabs(d));
 
   if( 2*_deltaRoot_div_dr > -QuadraticPlanarPrecision::getPrecision())
@@ -380,28 +388,70 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
   std::list< IntersectElement > ret;
   const double *center=getE1().getCenter();
   if(!(2*fabs(_deltaRoot_div_dr) < QuadraticPlanarPrecision::getPrecision())) // see comments in areOverlappedOrOnlyColinears()
-    {
+    {   // Two intersection nodes
+      // -> if a common node found, there is a chance that this is the only one (i.e. second intersection point is outside e1 and e2)
+      if(_earlyInter)
+        {
+          // Check tangent vector of the arc circle at the common node with the linear segment.
+          // There we can tell if the arc of circle is 'moving away' from the seg, or if it might intersect it twice
+          const Node &n(*_earlyInter->getNodeOnly());
+          const double * center(getE1().getCenter());
+
+          double tang[2] = {-(n[1]-center[1]), n[0]-center[0]};  // (-y, x) is the tangent vector in the trigo direction with (x,y) = (center->node)
+          bool invSeg = _i1S2E || _i1E2E;
+          double linEdge[2] = {invSeg ? (-_dx) : _dx, invSeg ? (-_dy) : _dy};
+          if(tang[1]*linEdge[0]-tang[0]*linEdge[1] < 0)
+            {
+              ret.push_back(*_earlyInter);
+              return ret;
+            }
+        }
+
       double determinant=fabs(_deltaRoot_div_dr)/sqrt(_drSq);
       double x1=(_cross*_dy/_drSq+Node::sign(_dy)*_dx*determinant)+center[0];
       double y1=(-_cross*_dx/_drSq+fabs(_dy)*determinant)+center[1];
       Node *intersect1=new Node(x1,y1); intersect1->declareOn();
-      bool i1_1S=_e1.getStartNode()->isEqual(*intersect1);
-      bool i1_1E=_e1.getEndNode()->isEqual(*intersect1);
-      bool i1_2S=_e2.getStartNode()->isEqual(*intersect1);
-      bool i1_2E=_e2.getEndNode()->isEqual(*intersect1);
-      ret.push_back(IntersectElement(getE1().getCharactValue(*intersect1),getE2().getCharactValue(*intersect1),i1_1S,i1_1E,i1_2S,i1_2E,intersect1,_e1,_e2,keepOrder()));
-      //
       double x2=(_cross*_dy/_drSq-Node::sign(_dy)*_dx*determinant)+center[0];
       double y2=(-_cross*_dx/_drSq-fabs(_dy)*determinant)+center[1];
       Node *intersect2=new Node(x2,y2); intersect2->declareOn();
-      bool i2_1S=_e1.getStartNode()->isEqual(*intersect2);
-      bool i2_1E=_e1.getEndNode()->isEqual(*intersect2);
-      bool i2_2S=_e2.getStartNode()->isEqual(*intersect2);
-      bool i2_2E=_e2.getEndNode()->isEqual(*intersect2);
-      ret.push_back(IntersectElement(getE1().getCharactValue(*intersect2),getE2().getCharactValue(*intersect2),i2_1S,i2_1E,i2_2S,i2_2E,intersect2,_e1,_e2,keepOrder()));
+
+      bool isN1(false), isN2(false);
+      if (_earlyInter)
+        {
+          // Which node do we actually already found? Assume this is the closest ...
+          const Node &iN = *(_earlyInter->getNodeOnly());
+          const Node &n1(*intersect1), &n2(*intersect2);
+          double d1 = std::max(fabs(iN[0]-n1[0]), fabs(iN[1]-n1[1]));
+          double d2 = std::max(fabs(iN[0]-n2[0]), fabs(iN[1]-n2[1]));
+          isN1 = d1 < d2; isN2 = !isN1;
+          if (isN1) intersect1->decrRef();
+          if (isN2) intersect2->decrRef();
+          ret.push_back(*_earlyInter);
+        }
+      if (!isN1)
+        {
+          bool i1_1S=_e1.getStartNode()->isEqual(*intersect1);
+          bool i1_1E=_e1.getEndNode()->isEqual(*intersect1);
+          bool i1_2S=_e2.getStartNode()->isEqual(*intersect1);
+          bool i1_2E=_e2.getEndNode()->isEqual(*intersect1);
+          ret.push_back(IntersectElement(getE1().getCharactValue(*intersect1),getE2().getCharactValue(*intersect1),i1_1S,i1_1E,i1_2S,i1_2E,intersect1,_e1,_e2,keepOrder()));
+        }
+      if(!isN2)
+        {
+          bool i2_1S=_e1.getStartNode()->isEqual(*intersect2);
+          bool i2_1E=_e1.getEndNode()->isEqual(*intersect2);
+          bool i2_2S=_e2.getStartNode()->isEqual(*intersect2);
+          bool i2_2E=_e2.getEndNode()->isEqual(*intersect2);
+          ret.push_back(IntersectElement(getE1().getCharactValue(*intersect2),getE2().getCharactValue(*intersect2),i2_1S,i2_1E,i2_2S,i2_2E,intersect2,_e1,_e2,keepOrder()));
+        }
     }
   else//tangent intersection
     {
+      if (_earlyInter)
+        {
+          ret.push_back(*_earlyInter);
+          return ret;
+        }
       double x=(_cross*_dy)/_drSq+center[0];
       double y=(-_cross*_dx)/_drSq+center[1];
       Node *intersect3=new Node(x,y); intersect3->declareOnTangent();

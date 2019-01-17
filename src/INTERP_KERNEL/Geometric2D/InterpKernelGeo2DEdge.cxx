@@ -391,6 +391,37 @@ bool EdgeIntersector::intersect(std::vector<Node *>& newNodes, bool& order, Merg
   return true;
 }
 
+/*! If the 2 edges share one extremity, we can optimize since we already know where is the intersection.
+ *  In the case of ArcCSegIntersector, this also helps avoid degenerated cases.
+ */
+void EdgeIntersector::identifyEarlyIntersection(bool& i1S2S, bool& i1E2S, bool& i1S2E, bool& i1E2E)
+{
+  i1S2S = _e1.getStartNode() == _e2.getStartNode();
+  i1E2S = _e1.getEndNode() == _e2.getStartNode();
+  i1S2E = _e1.getStartNode() == _e2.getEndNode();
+  i1E2E = _e1.getEndNode() == _e2.getEndNode();
+  if (i1S2S || i1E2S || i1S2E || i1E2E)
+    {
+      Node * node;
+      bool i_1S(false),i_1E(false),i_2S(false),i_2E(false);
+      if (i1S2S || i1E2S)   // Common node is e2 start
+        {
+          node = _e2.getStartNode();
+          i_1S = i1S2S;        i_2S = true;
+          i_1E = i1E2S;        i_2E = false;
+        }
+      else                  // Common node is e2 end
+        {
+          node = _e2.getEndNode();
+          i_1S = i1S2E;        i_2S = false;
+          i_1E = i1E2E;        i_2E = true;
+        }
+      node->incrRef();
+      _earlyInter = new IntersectElement(_e1.getCharactValue(*node), _e2.getCharactValue(*node),
+          i_1S,i_1E,i_2S,i_2E,node,_e1,_e2,keepOrder());
+    }
+}
+
 /*!
  * Locates 'node' regarding edge this->_e1. If node is located close to (with distant lt epsilon) start or end point of _e1,
  * 'node' takes its place. In this case 'obvious' is set to true and 'commonNode' stores information of merge point and finally 'where' is set.

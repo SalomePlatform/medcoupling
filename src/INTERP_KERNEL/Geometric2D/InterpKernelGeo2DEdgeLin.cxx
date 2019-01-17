@@ -30,12 +30,15 @@ namespace INTERP_KERNEL
   extern const unsigned MAX_SIZE_OF_LINE_XFIG_FILE=1024;
 }
 
-SegSegIntersector::SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2):SameTypeEdgeIntersector(e1,e2)
+SegSegIntersector::SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2):
+        SameTypeEdgeIntersector(e1,e2)
 {
   _matrix[0]=(*(e1.getEndNode()))[0]-(*(e1.getStartNode()))[0];
   _matrix[1]=(*(e1.getEndNode()))[1]-(*(e1.getStartNode()))[1];
   _matrix[2]=(*(e2.getEndNode()))[0]-(*(e2.getStartNode()))[0];
   _matrix[3]=(*(e2.getEndNode()))[1]-(*(e2.getStartNode()))[1];
+
+  _determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
 
   _col[0]=_matrix[1]*(*(e1.getStartNode()))[0]-_matrix[0]*(*(e1.getStartNode()))[1];
   _col[1]=_matrix[3]*(*(e2.getStartNode()))[0]-_matrix[2]*(*(e2.getStartNode()))[1];
@@ -85,8 +88,15 @@ void SegSegIntersector::getCurveAbscisse(Node *node, TypeOfLocInEdge& where, Mer
 std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicVal() const
 {
   std::list< IntersectElement > ret;
-  double x=-_matrix[2]*_col[0]+_matrix[0]*_col[1];
-  double y=-_matrix[3]*_col[0]+_matrix[1]*_col[1];
+  if (_earlyInter)
+    {
+      // Intersection was already found: it is a common node shared by _e1 and _e2 - see areOverlappedOrOnlyColinears()
+      ret.push_back(*_earlyInter);
+      return ret;
+    }
+
+  double x= (-_matrix[2]*_col[0]+_matrix[0]*_col[1]) / _determinant;
+  double y= (-_matrix[3]*_col[0]+_matrix[1]*_col[1]) / _determinant;
   //Only one intersect point possible
   Node *node=new Node(x,y);
   node->declareOn();
@@ -108,7 +118,6 @@ std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicV
  */
 bool SegSegIntersector::areColinears() const
 {
-  double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
   Bounds b1, b2;
   b1.prepareForAggregation();
   b2.prepareForAggregation();
@@ -117,7 +126,7 @@ bool SegSegIntersector::areColinears() const
   double dimCharE1(b1.getCaracteristicDim()) ,dimCharE2(b2.getCaracteristicDim());
 
   // same criteria as in areOverlappedOrOnlyColinears, see comment below
-  return fabs(determinant)<dimCharE1*dimCharE2*QuadraticPlanarPrecision::getPrecision();
+  return fabs(_determinant)<dimCharE1*dimCharE2*QuadraticPlanarPrecision::getPrecision();
 }
 
 /*!
@@ -130,7 +139,6 @@ bool SegSegIntersector::areColinears() const
  */
 void SegSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped)
 {
-  double determinant=_matrix[0]*_matrix[3]-_matrix[1]*_matrix[2];
   Bounds b1, b2;
   b1.prepareForAggregation();
   b2.prepareForAggregation();
@@ -139,12 +147,16 @@ void SegSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection
   double dimCharE1(b1.getCaracteristicDim()) ,dimCharE2(b2.getCaracteristicDim());
 
   // Same criteria as in areColinears(), see doc.
-  if(fabs(determinant)>dimCharE1*dimCharE2*QuadraticPlanarPrecision::getPrecision())
+  if(fabs(_determinant)>dimCharE1*dimCharE2*QuadraticPlanarPrecision::getPrecision())  // Non colinear vectors
     {
-      obviousNoIntersection=false; areOverlapped=false;
-      _matrix[0]/=determinant; _matrix[1]/=determinant; _matrix[2]/=determinant; _matrix[3]/=determinant;
+      areOverlapped=false;
+      obviousNoIntersection=false;
+
+      // If they share one extremity, we can optimize since we already know where is the intersection:
+      bool a,b,c,d;
+      identifyEarlyIntersection(a,b,c,d);
     }
-  else  // colinear vectors
+  else  // Colinear vectors
     {
       // Compute vectors joining tips of e1 and e2
       double xS=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
