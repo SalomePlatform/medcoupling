@@ -1025,16 +1025,6 @@ void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const 
   for(std::vector< std::pair<double,Node *> >::const_iterator it=an2.begin();it!=an2.end();it++)
     {
       int idd=(*mapp2.find((*it).second)).second;
-      if((*it).first<QuadraticPlanarPrecision::getPrecision())
-        {
-          startId=idd;
-          continue;
-        }
-      if((*it).first>1-QuadraticPlanarPrecision::getPrecision())
-        {
-          endId=idd;
-          continue;
-        }
       tmpp.push_back(idd);
     }
   std::vector<int> tmpp2(tmpp.size()+2);

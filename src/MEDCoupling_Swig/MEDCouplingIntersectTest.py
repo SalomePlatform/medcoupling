@@ -608,6 +608,39 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(res2Tool.getValues(), [0, 2, -1])
         pass
 
+    def testIntersect2DMeshesTmp11(self):
+        """ BuildIntersectMeshes() was merging points too aggressively (again). """
+        eps = 1.0e-6
+        back = MEDCouplingUMesh('TA-536193G_expl_20180605_merged', 2)
+        coo = DataArrayDouble([(10.19999332472057,-27.86690000000001),(12.56691001291914,-29.23343998708087),(13.93345000000000,-24.13344332472058)])
+        back.setCoords(coo)
+        c = DataArrayInt([5, 2, 1, 0])
+        cI = DataArrayInt([0, 4])
+        back.setConnectivity(c, cI)
+
+        tool = MEDCouplingUMesh('layer_1', 2)
+        cooT = DataArrayDouble([(10.44742256875032,-27.61949543124968),(18.71050449103792,-25.35195658988450),(19.05428526420611,-25.33852836835490),(18.88239487762202,-25.34524247911970),(12.62880992941098,-19.37921975458838),(18.06779356578989,-20.52447528153846),(19.22203188321684,-22.45963506363725),(19.48103923179737,-24.51987105082425),(10.50946417376372,-28.13689270184920),(13.33582148027124,-18.82710073137066),(14.70572820761054,-18.80259652845168),(17.10708000587671,-19.67863183066471),(8.97033515262005,-22.58570640281439),(15.95921032839811,-19.09586394516776),(19.45191696393912,-23.47713337575327),(17.61005728815709,-20.07586106738862),(18.53287284946306,-21.55888206618472),(19.21102524614600,-24.89967567708313),(10.47844337125702,-27.87819406654944),(14.02163025718330,-18.86267048150560)])
+        tool.setCoords(cooT)
+        c = DataArrayInt([32, 2, 1, 0, 8, 9, 3, 4, 18, 12, 11])
+        cI = DataArrayInt([0, 11])
+        tool.setConnectivity(c, cI)
+
+        result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
+        self.assertEqual(result.getNodalConnectivity().getValues(), [32, 26, 25, 3, 23, 24, 27, 28, 29, 30, 31, 32, 24, 0, 26, 32, 33, 34, 32, 25, 2, 1, 23, 3, 35, 36, 37, 38, 39])
+        self.assertEqual(result.getNodalConnectivityIndex().getValues(), [0, 11, 18, 29])
+        self.assertEqual(res2Back.getValues(), [0, 0, 0])
+        self.assertEqual(res2Tool.getValues(), [0, -1, -1])
+
+        # Now the same with point #0 shifted so to almost match intersection point: the intersector should then merge
+        # with point from mesh 1:
+        cooT[0,:] = [10.44741058, -27.61948395]
+        result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
+        self.assertEqual(result.getNodalConnectivity().getValues(), [32, 25, 3, 23, 24, 26, 27, 28, 29, 32, 24, 0, 25, 30, 31, 32, 32, 3, 2, 1, 23, 33, 34, 35, 36])
+        self.assertEqual(result.getNodalConnectivityIndex().getValues(), [0, 9, 16, 25])
+        self.assertEqual(res2Back.getValues(), [0, 0, 0])
+        self.assertEqual(res2Tool.getValues(), [0, -1, -1])
+        pass
+
     def testSwig2Intersect2DMeshWith1DLine1(self):
         """A basic test with no colinearity between m1 and m2."""
         i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
