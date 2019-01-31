@@ -3956,6 +3956,31 @@ struct NotInRange
     this->declareAsNew();
   }
 
+  /*!
+   * Creates a new DataArrayInt containing IDs (indices) of tuples holding value equal to a
+   * given one. The ids are sorted in the ascending order.
+   *  \param [in] val - the value to find within \a this.
+   *  \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
+   *          array using decrRef() as it is no more needed.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \sa DataArrayInt::findIdsEqualTuple
+   */
+  template<class T>
+  DataArrayIdType *DataArrayDiscrete<T>::findIdsEqual(T val) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::findIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
+    const T *cptr(this->getConstPointer());
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
+    std::size_t nbOfTuples(this->getNumberOfTuples());
+    for(std::size_t i=0;i<nbOfTuples;i++,cptr++)
+      if(*cptr==val)
+        ret->pushBackSilent(ToIdType(i));
+    return ret.retn();
+  }
+
   ////////////////////////////////////
 
   /*!

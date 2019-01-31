@@ -4441,30 +4441,6 @@ DataArrayIntIterator *DataArrayInt::iterator()
 }
 
 /*!
- * Creates a new DataArrayInt containing IDs (indices) of tuples holding value equal to a
- * given one. The ids are sorted in the ascending order.
- *  \param [in] val - the value to find within \a this.
- *  \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
- *          array using decrRef() as it is no more needed.
- *  \throw If \a this is not allocated.
- *  \throw If \a this->getNumberOfComponents() != 1.
- *  \sa DataArrayInt::findIdsEqualTuple
- */
-DataArrayIdType *DataArrayInt::findIdsEqual(int val) const
-{
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
-  const int *cptr(getConstPointer());
-  MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
-  std::size_t nbOfTuples(getNumberOfTuples());
-  for(std::size_t i=0;i<nbOfTuples;i++,cptr++)
-    if(*cptr==val)
-      ret->pushBackSilent(ToIdType(i));
-  return ret.retn();
-}
-
-/*!
  * Creates a new DataArrayInt containing IDs (indices) of tuples holding value \b not
  * equal to a given one.
  *  \param [in] val - the value to ignore within \a this.

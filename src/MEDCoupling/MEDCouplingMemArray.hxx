@@ -548,6 +548,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const std::string& type, const std::string& nameInFile, DataArrayByte *byteArr) const;
     MEDCOUPLING_EXPORT void transformWithIndArr(const T *indArrBg, const T *indArrEnd);
     MEDCOUPLING_EXPORT void transformWithIndArr(const MapKeyVal<T>& m);
+    MEDCOUPLING_EXPORT DataArrayIdType *findIdsEqual(T val) const;
   protected:
     template<class ALG>
     void switchOnTupleAlg(T val, std::vector<bool>& vec, ALG algo) const;
@@ -599,7 +600,6 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool hasUniqueValues() const;
     MEDCOUPLING_EXPORT void setSelectedComponents(const DataArrayInt32 *a, const std::vector<int>& compoIds);
     MEDCOUPLING_EXPORT DataArrayInt32Iterator *iterator();
-    MEDCOUPLING_EXPORT DataArrayIdType *findIdsEqual(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsNotEqual(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsEqualList(const int *valsBg, const int *valsEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsNotEqualList(const int *valsBg, const int *valsEnd) const;
