@@ -21,11 +21,13 @@
 #ifndef __MEDCOUPLING_MCTYPE_HXX__
 #define __MEDCOUPLING_MCTYPE_HXX__
 
+#include <cstdint>
+
 namespace MEDCoupling
 {
-  typedef long Int64;
-  typedef int Int32;
-  typedef int mcIdType;
+  using Int64 = std::int64_t;
+  using Int32 = std::int32_t;
+  using mcIdType = std::int32_t;
 }
 
 #define DataArrayInt DataArrayInt32
