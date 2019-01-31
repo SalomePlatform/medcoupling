@@ -4457,8 +4457,8 @@ DataArrayInt *DataArrayInt::findIdsEqual(int val) const
     throw INTERP_KERNEL::Exception("DataArrayInt::findIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
   const int *cptr(getConstPointer());
   MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
-  int nbOfTuples=getNumberOfTuples();
-  for(int i=0;i<nbOfTuples;i++,cptr++)
+  std::size_t nbOfTuples(getNumberOfTuples());
+  for(std::size_t i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr==val)
       ret->pushBackSilent(i);
   return ret.retn();
