@@ -599,7 +599,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool hasUniqueValues() const;
     MEDCOUPLING_EXPORT void setSelectedComponents(const DataArrayInt32 *a, const std::vector<int>& compoIds);
     MEDCOUPLING_EXPORT DataArrayInt32Iterator *iterator();
-    MEDCOUPLING_EXPORT DataArrayInt32 *findIdsEqual(int val) const;
+    MEDCOUPLING_EXPORT DataArrayIdType *findIdsEqual(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsNotEqual(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsEqualList(const int *valsBg, const int *valsEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt32 *findIdsNotEqualList(const int *valsBg, const int *valsEnd) const;

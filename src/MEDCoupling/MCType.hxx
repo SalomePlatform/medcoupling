@@ -28,6 +28,8 @@ namespace MEDCoupling
   using Int64 = std::int64_t;
   using Int32 = std::int32_t;
   using mcIdType = std::int32_t;
+
+  inline mcIdType ToIdType(std::size_t val) { return mcIdType(val); }
 }
 
 #define DataArrayInt DataArrayInt32
