@@ -377,8 +377,8 @@ namespace MEDCoupling
     /// @endcond
   private:
     int _mesh_dim;
-    DataArrayInt *_nodal_connec;
-    DataArrayInt *_nodal_connec_index;
+    DataArrayIdType *_nodal_connec;
+    DataArrayIdType *_nodal_connec_index;
     std::set<INTERP_KERNEL::NormalizedCellType> _types;
   public:
     static double EPS_FOR_POLYH_ORIENTATION;
