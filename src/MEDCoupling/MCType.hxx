@@ -27,8 +27,11 @@ namespace MEDCoupling
 {
   using Int64 = std::int64_t;
   using Int32 = std::int32_t;
+#ifndef MEDCOUPLING_USE_64BIT_IDS
   using mcIdType = std::int32_t;
-
+#else
+  using mcIdType = std::int64_t;
+#endif
   inline mcIdType ToIdType(std::size_t val) { return mcIdType(val); }
 }
 

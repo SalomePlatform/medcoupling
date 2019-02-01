@@ -60,6 +60,7 @@ namespace MEDCoupling
   const char *MEDCouplingVersionStr();
   int MEDCouplingVersion();
   int MEDCouplingSizeOfVoidStar();
+  int MEDCouplingSizeOfIDs();
   bool MEDCouplingByteOrder();
   const char *MEDCouplingByteOrderStr();
   bool IsCXX11Compiled();

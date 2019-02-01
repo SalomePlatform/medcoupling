@@ -20,6 +20,7 @@
 
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCoupling_version.h"
+#include "MCType.hxx"
 
 #include "InterpKernelException.hxx"
 
@@ -51,6 +52,11 @@ void MEDCoupling::MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas)
 int MEDCoupling::MEDCouplingSizeOfVoidStar()
 {
   return 8*sizeof(std::size_t);
+}
+
+std::size_t MEDCoupling::MEDCouplingSizeOfIDs()
+{
+  return 8*sizeof(mcIdType);
 }
 
 /*!
