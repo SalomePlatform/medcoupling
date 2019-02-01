@@ -1108,17 +1108,17 @@ namespace MEDCoupling
    *          is to delete using decrRef() as it is no more needed.
    */
   template<class T>
-  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleId(const int *new2OldBg, const int *new2OldEnd) const
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const
   {
     checkAllocated();
     MCAuto<DataArray> ret0(buildNewEmptyInstance());
     MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
-    int nbComp(getNumberOfComponents());
-    ret->alloc((int)std::distance(new2OldBg,new2OldEnd),nbComp);
+    std::size_t nbComp(getNumberOfComponents());
+    ret->alloc(std::distance(new2OldBg,new2OldEnd),nbComp);
     ret->copyStringInfoFrom(*this);
     T *pt(ret->getPointer());
     const T *srcPt(getConstPointer());
-    int i(0);
+    std::size_t i(0);
     for(const int *w=new2OldBg;w!=new2OldEnd;w++,i++)
       std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
     ret->copyStringInfoFrom(*this);
@@ -1126,7 +1126,7 @@ namespace MEDCoupling
   }
 
   template<class T>
-  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleId(const DataArrayInt& di) const
+  typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleId(const DataArrayIdType& di) const
   {
     return this->mySelectByTupleId(di.begin(),di.end());
   }
