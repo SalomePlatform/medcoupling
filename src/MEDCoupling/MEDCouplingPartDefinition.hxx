@@ -74,7 +74,7 @@ namespace MEDCoupling
     DataArrayPartDefinition *add2(const SlicePartDefinition *other) const;
     virtual ~DataArrayPartDefinition();
   private:
-    MCAuto<DataArrayInt> _arr;
+    MCAuto<DataArrayIdType> _arr;
   };
 
   class SlicePartDefinition : public PartDefinition
@@ -103,9 +103,9 @@ namespace MEDCoupling
     PartDefinition *add2(const SlicePartDefinition *other) const;
     virtual ~SlicePartDefinition();
   private:
-    int _start;
-    int _stop;
-    int _step;
+    mcIdType _start;
+    mcIdType _stop;
+    mcIdType _step;
   };
 }
 

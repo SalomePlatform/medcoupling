@@ -226,7 +226,7 @@ namespace MEDCoupling
   protected:
     void buildDiscrPerCellIfNecessary(const MEDCouplingMesh *mesh);
   protected:
-    DataArrayInt *_discr_per_cell;
+    DataArrayIdType *_discr_per_cell;
     static const int DFT_INVALID_LOCID_VALUE;
   };
 

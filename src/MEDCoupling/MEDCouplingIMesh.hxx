@@ -118,7 +118,7 @@ namespace MEDCoupling
     int _space_dim;
     double _origin[3];
     double _dxyz[3];
-    int _structure[3];
+    mcIdType _structure[3];
     std::string _axis_unit;
   };
 }

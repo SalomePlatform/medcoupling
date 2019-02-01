@@ -132,8 +132,8 @@ namespace MEDCoupling
     MCAuto<MEDCouplingUMesh> _mesh2D;
     MCAuto<MEDCouplingUMesh> _mesh1D;
     //! New to old 3D cell Ids Array
-    MCAuto<DataArrayInt> _mesh3D_ids;
-    int _cell_2D_id;
+    MCAuto<DataArrayIdType> _mesh3D_ids;
+    mcIdType _cell_2D_id;
   };
 }
 

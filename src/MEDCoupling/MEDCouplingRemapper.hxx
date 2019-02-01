@@ -25,6 +25,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "InterpolationOptions.hxx"
 #include "MEDCouplingNatureOfField.hxx"
+#include "MCType.hxx"
 #include "MCAuto.hxx"
 
 #include "InterpKernelException.hxx"
@@ -118,9 +119,9 @@ namespace MEDCoupling
     InterpolationMatrixPolicy _interp_matrix_pol;
     NatureOfField _nature_of_deno;
     unsigned int _time_deno_update;
-    std::vector<std::map<int,double> > _matrix;
-    std::vector<std::map<int,double> > _deno_multiply;
-    std::vector<std::map<int,double> > _deno_reverse_multiply;
+    std::vector<std::map<mcIdType,double> > _matrix;
+    std::vector<std::map<mcIdType,double> > _deno_multiply;
+    std::vector<std::map<mcIdType,double> > _deno_reverse_multiply;
   };
 }
 

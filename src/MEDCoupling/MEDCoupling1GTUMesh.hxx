@@ -180,7 +180,7 @@ namespace MEDCoupling
     template<class MAPCLS>
     void renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N);
   private:
-    MCAuto<DataArrayInt> _conn;
+    MCAuto<DataArrayIdType> _conn;
   public:
     static const int HEXA8_FACE_PAIRS[6];
   };
@@ -274,8 +274,8 @@ namespace MEDCoupling
     template<class MAPCLS>
     void renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N);
   private:
-    MCAuto<DataArrayInt> _conn_indx;
-    MCAuto<DataArrayInt> _conn;
+    MCAuto<DataArrayIdType> _conn_indx;
+    MCAuto<DataArrayIdType> _conn;
   };
 }
 

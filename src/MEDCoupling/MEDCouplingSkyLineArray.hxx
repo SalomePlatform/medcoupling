@@ -110,9 +110,9 @@ namespace MEDCoupling
     void validIndex(const std::string& func, int index) const;
     void validSuperIndexAndIndex(const std::string& func, int superIndex, int index) const;
 
-    MCAuto<DataArrayInt> _super_index;
-    MCAuto<DataArrayInt> _index;
-    MCAuto<DataArrayInt> _values;
+    MCAuto<DataArrayIdType> _super_index;
+    MCAuto<DataArrayIdType> _index;
+    MCAuto<DataArrayIdType> _values;
   };
 
 }
