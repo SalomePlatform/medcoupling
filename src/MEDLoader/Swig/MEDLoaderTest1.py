@@ -872,6 +872,27 @@ class MEDLoaderTest1(unittest.TestCase):
         self.assertRaises(Exception,MEDLoader.ReadField,MEDLoader.ON_CELLS,fname,"mesh",0,"field2",5,5) # invalid time step
         pass
 
+    def testMultiWriteFieldOnMergeableNodesMeshes(self):
+        fname="Pyfile120.med"
+        arr=MEDLoader.DataArrayDouble([(0,0),(1,0),(0,1),(0,0),(1,0),(0,1)])
+        m=MEDLoader.MEDCouplingUMesh("mesh",2)
+        m.setCoords(arr)
+        m.allocateCells()
+        m.insertNextCell(MEDLoader.NORM_TRI3,[0,4,2])
+        m.insertNextCell(MEDLoader.NORM_TRI3,[3,1,5])
+        m.setName("mesh")
+        #
+        f=MEDLoader.MEDCouplingFieldDouble(MEDLoader.ON_CELLS)
+        f.setMesh(m)
+        f.setArray(MEDLoader.DataArrayDouble([5,6]))
+        f.setName("field")
+        #
+        f.setTime(0.,0,0)
+        MEDLoader.WriteField(fname,f,True)
+        f.setTime(1.,1,0)
+        MEDLoader.WriteField(fname,f,False)
+        pass
+
     pass
 
 if __name__ == "__main__":
