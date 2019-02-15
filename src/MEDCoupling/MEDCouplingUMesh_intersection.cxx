@@ -271,6 +271,57 @@ namespace MEDCoupling
     return ret;
   }
 
+  INTERP_KERNEL::QuadraticPolygon *MEDCouplingUMeshBuildQPFromMeshWithTree(const MEDCouplingUMesh *mDesc, const std::vector<int>& candidates,
+                                                                   std::map<INTERP_KERNEL::Node *,int>& mapp,
+                                                                   const BBTreePts<2,int> & nodeTree,
+                                                                   const std::map<int, INTERP_KERNEL::Node *>& mapRev)
+  {
+    mapp.clear();
+    std::map<int, INTERP_KERNEL::NodeWithUsage > mapp2;  // the last var is a flag specifying if node is an extreme node of the seg (LINEAR) or only a middle for SEG3 (QUADRATIC_ONLY).
+    const double *coo=mDesc->getCoords()->getConstPointer();
+    const int *c=mDesc->getNodalConnectivity()->getConstPointer();
+    const int *cI=mDesc->getNodalConnectivityIndex()->getConstPointer();
+    std::set<int> s;
+    for(std::vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+      s.insert(c+cI[*it]+1,c+cI[(*it)+1]);
+    for(std::set<int>::const_iterator it2=s.begin();it2!=s.end();it2++)
+      {
+        INTERP_KERNEL::Node *n;
+        // Look for a potential node to merge
+        std::vector<int> candNode;
+        nodeTree.getElementsAroundPoint(coo+2*(*it2), candNode);
+        if (candNode.size() > 2)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::MEDCouplingUMeshBuildQPFromMeshWithTree(): some nodes are not properly merged (within eps) in input mesh!");
+        bool node_created=false;
+        if  (candNode.size())
+          {
+            auto itt=mapRev.find(candNode[0]);
+            if (itt != mapRev.end())  // we might hit a node which is in the coords array but not used in the connectivity in which case it won't be in the revMap
+              {
+                node_created=true;
+                n = (*itt).second;
+                n->incrRef();
+              }
+          }
+        if(!node_created)
+          n = new INTERP_KERNEL::Node(coo[2*(*it2)],coo[2*(*it2)+1]);
+        mapp2[*it2]=INTERP_KERNEL::NodeWithUsage(n,INTERP_KERNEL::USAGE_UNKNOWN);
+      }
+    INTERP_KERNEL::QuadraticPolygon *ret=new INTERP_KERNEL::QuadraticPolygon;
+    for(std::vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+      {
+        INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)c[cI[*it]];
+        ret->pushBack(MEDCouplingUMeshBuildQPFromEdge(typ,mapp2,c+cI[*it]+1));  // this call will set quad points to false in the map
+      }
+    for(std::map<int, INTERP_KERNEL::NodeWithUsage >::const_iterator it2=mapp2.begin();it2!=mapp2.end();it2++)
+      {
+        if((*it2).second.second == INTERP_KERNEL::USAGE_LINEAR)
+          mapp[(*it2).second.first]=(*it2).first;
+        ((*it2).second.first)->decrRef();
+      }
+    return ret;
+  }
+
   INTERP_KERNEL::Node *MEDCouplingUMeshBuildQPNode(int nodeId, const double *coo1, int offset1, const double *coo2, int offset2, const std::vector<double>& addCoo)
   {
     if(nodeId>=offset2)
@@ -1235,6 +1286,7 @@ void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const M
   colinear2.resize(nDescCell2);
   subDiv2.resize(nDescCell2);
   BBTree<SPACEDIM,int> myTree(bbox2,0,0,m2Desc->getNumberOfCells(),-eps);
+  BBTreePts<SPACEDIM,int> treeNodes2(m2Desc->getCoords()->begin(),0,0,m2Desc->getCoords()->getNumberOfTuples(),eps);
 
   std::vector<int> candidates1(1);
   int offset1(m1Desc->getNumberOfNodes());
@@ -1246,10 +1298,15 @@ void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const M
       if(!candidates2.empty()) // candidates2 holds edges from the second mesh potentially intersecting current edge i in mesh1
         {
           std::map<INTERP_KERNEL::Node *,int> map1,map2;
+          std::map<int, INTERP_KERNEL::Node *> revMap2;
           // pol2 is not necessarily a closed polygon: just a set of (quadratic) edges (same as candidates2) in the Geometric DS format
           INTERP_KERNEL::QuadraticPolygon *pol2=MEDCouplingUMeshBuildQPFromMesh(m2Desc,candidates2,map2);
+          // Build revMap2
+          for (auto& kv : map2)
+            revMap2[kv.second] = kv.first;
           candidates1[0]=i;
-          INTERP_KERNEL::QuadraticPolygon *pol1=MEDCouplingUMeshBuildQPFromMesh(m1Desc,candidates1,map1);
+          // In the construction of pol1 we might reuse nodes from pol2, that we have identified as to be merged.
+          INTERP_KERNEL::QuadraticPolygon *pol1=MEDCouplingUMeshBuildQPFromMeshWithTree(m1Desc,candidates1,map1,treeNodes2, revMap2);
           // This following part is to avoid that some removed nodes (for example due to a merge between pol1 and pol2) are replaced by a newly created one
           // This trick guarantees that Node * are discriminant (i.e. form a unique identifier)
           std::set<INTERP_KERNEL::Node *> nodes;

@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
     const EdgeArcCircle& getE1() const { return (const EdgeArcCircle&)_e1; }
     const EdgeArcCircle& getE2() const { return (const EdgeArcCircle&)_e2; }
   private:
-    double _dist;
+    double _dist;       // distance between the two arc centers
   };
 
   /**

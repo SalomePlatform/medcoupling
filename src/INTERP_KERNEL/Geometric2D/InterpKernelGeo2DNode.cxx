@@ -151,16 +151,16 @@ void Node::unApplySimilarity(double xBary, double yBary, double dimChar)
 void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
                              std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo, int *nodeId) const
 {
-  std::map<INTERP_KERNEL::Node *,int>::const_iterator it=mapThis.find(const_cast<Node *>(this));
+  std::map<INTERP_KERNEL::Node *,int>::const_iterator it=mapOther.find(const_cast<Node *>(this));
+  if(it!=mapOther.end())     // order matters, try in mapOther first.
+    {
+      *nodeId=(*it).second+offset1;
+      return;
+    }
+  it=mapThis.find(const_cast<Node *>(this));
   if(it!=mapThis.end())
     {
       *nodeId=(*it).second;
-      return;
-    }
-  it=mapOther.find(const_cast<Node *>(this));
-  if(it!=mapOther.end())
-    {
-      *nodeId=(*it).second+offset1;
       return;
     }
   it=mapAddCoo.find(const_cast<Node *>(this));
