@@ -2003,6 +2003,7 @@ namespace MEDCoupling
     DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const;
     DataArrayDouble *getBoundingBoxForBBTree1DQuadratic(double arcDetEps=1e-12) const;
     void changeOrientationOfCells();
+    DataArrayDouble *computeCellCenterOfMassWithPrecision(double eps);
     int split2DCells(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *midOpt=0, const DataArrayInt *midOptI=0);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);

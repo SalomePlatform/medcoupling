@@ -234,6 +234,7 @@ namespace MEDCoupling
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMassWithPrecision(double eps) const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getPartBarycenterAndOwner(const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT DataArrayDouble *computePlaneEquationOf3DFaces() const;

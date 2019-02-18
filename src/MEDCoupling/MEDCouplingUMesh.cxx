@@ -6419,6 +6419,8 @@ MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other)
  * Returns a new DataArrayDouble holding barycenters of all cells. The barycenter is
  * computed by averaging coordinates of cell nodes, so this method is not a right
  * choice for degenerated meshes (not well oriented, cells with measure close to zero).
+ * Beware also that for quadratic meshes, degenerated arc of circles are turned into linear edges for the computation.
+ * This happens with a default detection precision of eps=1.0e-14. If you need control over this use computeCellCenterOfMassWithPrecision().
  *  \return DataArrayDouble * - a new instance of DataArrayDouble, of size \a
  *          this->getNumberOfCells() tuples per \a this->getSpaceDimension()
  *          components. The caller is to delete this array using decrRef() as it is
@@ -6426,6 +6428,7 @@ MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other)
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \sa MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell
+ *  \sa MEDCouplingUMesh::computeCellCenterOfMassWithPrecision
  */
 DataArrayDouble *MEDCouplingUMesh::computeCellCenterOfMass() const
 {
@@ -6446,6 +6449,27 @@ DataArrayDouble *MEDCouplingUMesh::computeCellCenterOfMass() const
     }
   return ret.retn();
 }
+
+
+/*!
+ * See computeCellCenterOfMass().
+ *  \param eps a precision for the detection of degenerated arc of circles.
+ *  \return DataArrayDouble * - a new instance of DataArrayDouble, of size \a
+ *          this->getNumberOfCells() tuples per \a this->getSpaceDimension()
+ *          components. The caller is to delete this array using decrRef() as it is
+ *          no more needed.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \sa MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell
+ *  \sa MEDCouplingUMesh::computeCellCenterOfMassWithPrecision
+ */
+DataArrayDouble *MEDCouplingUMesh::computeCellCenterOfMassWithPrecision(double eps) const
+{
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+  MCAuto<DataArrayDouble> ret = computeCellCenterOfMass();
+  return ret.retn();
+}
+
 
 /*!
  * This method computes for each cell in \a this, the location of the iso barycenter of nodes constituting
