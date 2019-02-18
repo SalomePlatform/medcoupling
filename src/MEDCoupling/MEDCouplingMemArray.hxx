@@ -663,6 +663,21 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MemArray<int>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<int>& accessToMemArray() const { return _mem; }
   public:
+    MEDCOUPLING_EXPORT static void ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                    DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
+    MEDCOUPLING_EXPORT static void ExtractFromIndexedArraysSlice(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                     DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
+    MEDCOUPLING_EXPORT static void SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                  const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
+                                                  DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
+    MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSlice(int start, int end, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                   const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
+                                                   DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
+    MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, const int *idsOfSelectEnd, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
+                                                         const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex);
+    MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSameIdxSlice(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
+                                                          const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex);
+    MEDCOUPLING_EXPORT static bool RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, const int *idsToRemoveEnd, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval=0);
     MEDCOUPLING_EXPORT static int *CheckAndPreparePermutation(const int *start, const int *end);
     MEDCOUPLING_EXPORT static DataArrayInt32 *Range(int begin, int end, int step);
   public:

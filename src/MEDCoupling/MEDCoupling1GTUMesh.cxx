@@ -2851,7 +2851,7 @@ MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords(const int
   MCAuto<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
   ret->setCoords(_coords);
   DataArrayInt *c=0,*ci=0;
-  MEDCouplingUMesh::ExtractFromIndexedArrays(begin,end,_conn,_conn_indx,c,ci);
+  DataArrayInt::ExtractFromIndexedArrays(begin,end,_conn,_conn_indx,c,ci);
   MCAuto<DataArrayInt> cSafe(c),ciSafe(ci);
   ret->setNodalConnectivity(c,ci);
   return ret.retn();
@@ -2863,7 +2863,7 @@ MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoordsSlice(int 
   MCAuto<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
   ret->setCoords(_coords);
   DataArrayInt *c=0,*ci=0;
-  MEDCouplingUMesh::ExtractFromIndexedArraysSlice(start,end,step,_conn,_conn_indx,c,ci);
+  DataArrayInt::ExtractFromIndexedArraysSlice(start,end,step,_conn,_conn_indx,c,ci);
   MCAuto<DataArrayInt> cSafe(c),ciSafe(ci);
   ret->setNodalConnectivity(c,ci);
   return ret.retn();

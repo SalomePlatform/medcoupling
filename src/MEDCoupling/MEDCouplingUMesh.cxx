@@ -2016,13 +2016,13 @@ void MEDCouplingUMesh::setPartOfMySelf(const int *cellIdsBg, const int *cellIdsE
     }
   if(easyAssign)
     {
-      MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(cellIdsBg,cellIdsEnd,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index);
+      DataArrayInt::SetPartOfIndexedArraysSameIdx(cellIdsBg,cellIdsEnd,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index);
       computeTypes();
     }
   else
     {
       DataArrayInt *arrOut=0,*arrIOut=0;
-      MEDCouplingUMesh::SetPartOfIndexedArrays(cellIdsBg,cellIdsEnd,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index,
+      DataArrayInt::SetPartOfIndexedArrays(cellIdsBg,cellIdsEnd,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index,
                                                arrOut,arrIOut);
       MCAuto<DataArrayInt> arrOutAuto(arrOut),arrIOutAuto(arrIOut);
       setConnectivity(arrOut,arrIOut,true);
@@ -2066,13 +2066,13 @@ void MEDCouplingUMesh::setPartOfMySelfSlice(int start, int end, int step, const 
     }
   if(easyAssign)
     {
-      MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice(start,end,step,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index);
+      DataArrayInt::SetPartOfIndexedArraysSameIdxSlice(start,end,step,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index);
       computeTypes();
     }
   else
     {
       DataArrayInt *arrOut=0,*arrIOut=0;
-      MEDCouplingUMesh::SetPartOfIndexedArraysSlice(start,end,step,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index,
+      DataArrayInt::SetPartOfIndexedArraysSlice(start,end,step,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index,
                                                 arrOut,arrIOut);
       MCAuto<DataArrayInt> arrOutAuto(arrOut),arrIOutAuto(arrIOut);
       setConnectivity(arrOut,arrIOut,true);
@@ -2375,7 +2375,7 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   DAInt ids(idsTmp);
   // In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
   // of the frontier given in parameter (i.e. the cells of low dimension from the group delimiting the crack):
-  MEDCouplingUMesh::RemoveIdsFromIndexedArrays(ids->begin(),ids->end(),desc00,descI00);
+  DataArrayInt::RemoveIdsFromIndexedArrays(ids->begin(),ids->end(),desc00,descI00);
   DataArrayInt *tmp0=0,*tmp1=0;
   // Compute the neighbor of each cell in m0Part2, taking into account the broken link above. Two
   // cells on either side of the crack (defined by the mesh of low dimension) are not neighbor anymore.
@@ -7838,308 +7838,6 @@ bool MEDCouplingUMesh::BuildConvexEnvelopOf2DCellJarvis(const double *coords, co
 }
 
 /*!
- * This method works on an input pair (\b arr, \b arrIndx) where \b arr indexes is in \b arrIndx.
- * This method will not impact the size of inout parameter \b arrIndx but the size of \b arr will be modified in case of suppression.
- *
- * \param [in] idsToRemoveBg begin of set of ids to remove in \b arr (included)
- * \param [in] idsToRemoveEnd end of set of ids to remove in \b arr (excluded)
- * \param [in,out] arr array in which the remove operation will be done.
- * \param [in,out] arrIndx array in the remove operation will modify
- * \param [in] offsetForRemoval (by default 0) offset so that for each i in [0,arrIndx->getNumberOfTuples()-1) removal process will be performed in the following range [arr+arrIndx[i]+offsetForRemoval,arr+arr[i+1])
- * \return true if \b arr and \b arrIndx have been modified, false if not.
- */
-bool MEDCouplingUMesh::RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, const int *idsToRemoveEnd, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval)
-{
-  if(!arrIndx || !arr)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : some input arrays are empty !");
-  if(offsetForRemoval<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : offsetForRemoval should be >=0 !");
-  std::set<int> s(idsToRemoveBg,idsToRemoveEnd);
-  int nbOfGrps=arrIndx->getNumberOfTuples()-1;
-  int *arrIPtr=arrIndx->getPointer();
-  *arrIPtr++=0;
-  int previousArrI=0;
-  const int *arrPtr=arr->begin();
-  std::vector<int> arrOut;//no utility to switch to DataArrayInt because copy always needed
-  for(int i=0;i<nbOfGrps;i++,arrIPtr++)
-    {
-      if(*arrIPtr-previousArrI>offsetForRemoval)
-        {
-          for(const int *work=arrPtr+previousArrI+offsetForRemoval;work!=arrPtr+*arrIPtr;work++)
-            {
-              if(s.find(*work)==s.end())
-                arrOut.push_back(*work);
-            }
-        }
-      previousArrI=*arrIPtr;
-      *arrIPtr=(int)arrOut.size();
-    }
-  if(arr->getNumberOfTuples()==arrOut.size())
-    return false;
-  arr->alloc((int)arrOut.size(),1);
-  std::copy(arrOut.begin(),arrOut.end(),arr->getPointer());
-  return true;
-}
-
-/*!
- * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn
- * (\ref numbering-indirect).
- * This method returns the result of the extraction ( specified by a set of ids in [\b idsOfSelectBg , \b idsOfSelectEnd ) ).
- * The selection of extraction is done standardly in new2old format.
- * This method returns indexed arrays (\ref numbering-indirect) using 2 arrays (arrOut,arrIndexOut).
- *
- * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
- * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
- * \param [in] arrIn arr origin array from which the extraction will be done.
- * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
- * \param [out] arrOut the resulting array
- * \param [out] arrIndexOut the index array of the resulting array \b arrOut
- * \sa MEDCouplingUMesh::ExtractFromIndexedArraysSlice
- */
-void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                                DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
-{
-  if(!arrIn || !arrIndxIn)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : input pointer is NULL !");
-  arrIn->checkAllocated(); arrIndxIn->checkAllocated();
-  if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : input arrays must have exactly one component !");
-  std::size_t sz=std::distance(idsOfSelectBg,idsOfSelectEnd);
-  const int *arrInPtr=arrIn->begin();
-  const int *arrIndxPtr=arrIndxIn->begin();
-  int nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
-  if(nbOfGrps<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : The format of \"arrIndxIn\" is invalid ! Its nb of tuples should be >=1 !");
-  int maxSizeOfArr=arrIn->getNumberOfTuples();
-  MCAuto<DataArrayInt> arro=DataArrayInt::New();
-  MCAuto<DataArrayInt> arrIo=DataArrayInt::New();
-  arrIo->alloc((int)(sz+1),1);
-  const int *idsIt=idsOfSelectBg;
-  int *work=arrIo->getPointer();
-  *work++=0;
-  int lgth=0;
-  for(std::size_t i=0;i<sz;i++,work++,idsIt++)
-    {
-      if(*idsIt>=0 && *idsIt<nbOfGrps)
-        lgth+=arrIndxPtr[*idsIt+1]-arrIndxPtr[*idsIt];
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " ! Must be in [0," << nbOfGrps << ") !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-      if(lgth>=work[-1])
-        *work=lgth;
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " and at this pos arrIndxIn[" << *idsIt;
-          oss << "+1]-arrIndxIn[" << *idsIt << "] < 0 ! The input index array is bugged !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  arro->alloc(lgth,1);
-  work=arro->getPointer();
-  idsIt=idsOfSelectBg;
-  for(std::size_t i=0;i<sz;i++,idsIt++)
-    {
-      if(arrIndxPtr[*idsIt]>=0 && arrIndxPtr[*idsIt+1]<=maxSizeOfArr)
-        work=std::copy(arrInPtr+arrIndxPtr[*idsIt],arrInPtr+arrIndxPtr[*idsIt+1],work);
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " arrIndx[" << *idsIt << "] must be >= 0 and arrIndx[";
-          oss << *idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  arrOut=arro.retn();
-  arrIndexOut=arrIo.retn();
-}
-
-/*!
- * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn
- * (\ref numbering-indirect).
- * This method returns the result of the extraction ( specified by a set of ids with a slice given by \a idsOfSelectStart, \a idsOfSelectStop and \a idsOfSelectStep ).
- * The selection of extraction is done standardly in new2old format.
- * This method returns indexed arrays (\ref numbering-indirect) using 2 arrays (arrOut,arrIndexOut).
- *
- * \param [in] idsOfSelectStart begin of set of ids of the input extraction (included)
- * \param [in] idsOfSelectStop end of set of ids of the input extraction (excluded)
- * \param [in] idsOfSelectStep
- * \param [in] arrIn arr origin array from which the extraction will be done.
- * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
- * \param [out] arrOut the resulting array
- * \param [out] arrIndexOut the index array of the resulting array \b arrOut
- * \sa MEDCouplingUMesh::ExtractFromIndexedArrays
- */
-void MEDCouplingUMesh::ExtractFromIndexedArraysSlice(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                                 DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
-{
-  if(!arrIn || !arrIndxIn)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArraysSlice : input pointer is NULL !");
-  arrIn->checkAllocated(); arrIndxIn->checkAllocated();
-  if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArraysSlice : input arrays must have exactly one component !");
-  int sz=DataArrayInt::GetNumberOfItemGivenBESRelative(idsOfSelectStart,idsOfSelectStop,idsOfSelectStep,"MEDCouplingUMesh::ExtractFromIndexedArraysSlice : Input slice ");
-  const int *arrInPtr=arrIn->begin();
-  const int *arrIndxPtr=arrIndxIn->begin();
-  int nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
-  if(nbOfGrps<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArraysSlice : The format of \"arrIndxIn\" is invalid ! Its nb of tuples should be >=1 !");
-  int maxSizeOfArr=arrIn->getNumberOfTuples();
-  MCAuto<DataArrayInt> arro=DataArrayInt::New();
-  MCAuto<DataArrayInt> arrIo=DataArrayInt::New();
-  arrIo->alloc((int)(sz+1),1);
-  int idsIt=idsOfSelectStart;
-  int *work=arrIo->getPointer();
-  *work++=0;
-  int lgth=0;
-  for(int i=0;i<sz;i++,work++,idsIt+=idsOfSelectStep)
-    {
-      if(idsIt>=0 && idsIt<nbOfGrps)
-        lgth+=arrIndxPtr[idsIt+1]-arrIndxPtr[idsIt];
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " ! Must be in [0," << nbOfGrps << ") !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-      if(lgth>=work[-1])
-        *work=lgth;
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " and at this pos arrIndxIn[" << idsIt;
-          oss << "+1]-arrIndxIn[" << idsIt << "] < 0 ! The input index array is bugged !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  arro->alloc(lgth,1);
-  work=arro->getPointer();
-  idsIt=idsOfSelectStart;
-  for(int i=0;i<sz;i++,idsIt+=idsOfSelectStep)
-    {
-      if(arrIndxPtr[idsIt]>=0 && arrIndxPtr[idsIt+1]<=maxSizeOfArr)
-        work=std::copy(arrInPtr+arrIndxPtr[idsIt],arrInPtr+arrIndxPtr[idsIt+1],work);
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " arrIndx[" << idsIt << "] must be >= 0 and arrIndx[";
-          oss << idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  arrOut=arro.retn();
-  arrIndexOut=arrIo.retn();
-}
-
-/*!
- * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
- * This method builds an output pair (\b arrOut,\b arrIndexOut) that is a copy from \b arrIn for all cell ids \b not \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) and for
- * cellIds \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) a copy coming from the corresponding values in input pair (\b srcArr, \b srcArrIndex).
- * This method is an generalization of MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitly a result output arrays.
- *
- * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
- * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
- * \param [in] arrIn arr origin array from which the extraction will be done.
- * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
- * \param [in] srcArr input array that will be used as source of copy for ids in [ \b idsOfSelectBg, \b idsOfSelectEnd )
- * \param [in] srcArrIndex index array of \b srcArr
- * \param [out] arrOut the resulting array
- * \param [out] arrIndexOut the index array of the resulting array \b arrOut
- *
- * \sa MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx
- */
-void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                              const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
-                                              DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
-{
-  if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays : presence of null pointer in input parameter !");
-  MCAuto<DataArrayInt> arro=DataArrayInt::New();
-  MCAuto<DataArrayInt> arrIo=DataArrayInt::New();
-  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
-  std::vector<bool> v(nbOfTuples,true);
-  int offset=0;
-  const int *arrIndxInPtr=arrIndxIn->begin();
-  const int *srcArrIndexPtr=srcArrIndex->begin();
-  for(const int *it=idsOfSelectBg;it!=idsOfSelectEnd;it++,srcArrIndexPtr++)
-    {
-      if(*it>=0 && *it<nbOfTuples)
-        {
-          v[*it]=false;
-          offset+=(srcArrIndexPtr[1]-srcArrIndexPtr[0])-(arrIndxInPtr[*it+1]-arrIndxInPtr[*it]);
-        }
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArrays : On pos #" << std::distance(idsOfSelectBg,it) << " value is " << *it << " not in [0," << nbOfTuples << ") !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  srcArrIndexPtr=srcArrIndex->begin();
-  arrIo->alloc(nbOfTuples+1,1);
-  arro->alloc(arrIn->getNumberOfTuples()+offset,1);
-  const int *arrInPtr=arrIn->begin();
-  const int *srcArrPtr=srcArr->begin();
-  int *arrIoPtr=arrIo->getPointer(); *arrIoPtr++=0;
-  int *arroPtr=arro->getPointer();
-  for(int ii=0;ii<nbOfTuples;ii++,arrIoPtr++)
-    {
-      if(v[ii])
-        {
-          arroPtr=std::copy(arrInPtr+arrIndxInPtr[ii],arrInPtr+arrIndxInPtr[ii+1],arroPtr);
-          *arrIoPtr=arrIoPtr[-1]+(arrIndxInPtr[ii+1]-arrIndxInPtr[ii]);
-        }
-      else
-        {
-          std::size_t pos=std::distance(idsOfSelectBg,std::find(idsOfSelectBg,idsOfSelectEnd,ii));
-          arroPtr=std::copy(srcArrPtr+srcArrIndexPtr[pos],srcArrPtr+srcArrIndexPtr[pos+1],arroPtr);
-          *arrIoPtr=arrIoPtr[-1]+(srcArrIndexPtr[pos+1]-srcArrIndexPtr[pos]);
-        }
-    }
-  arrOut=arro.retn();
-  arrIndexOut=arrIo.retn();
-}
-
-/*!
- * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
- * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignment do not modify the index in \b arrIndxIn.
- *
- * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
- * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
- * \param [in,out] arrInOut arr origin array from which the extraction will be done.
- * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
- * \param [in] srcArr input array that will be used as source of copy for ids in [ \b idsOfSelectBg , \b idsOfSelectEnd )
- * \param [in] srcArrIndex index array of \b srcArr
- *
- * \sa MEDCouplingUMesh::SetPartOfIndexedArrays
- */
-void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, const int *idsOfSelectEnd, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
-                                                     const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex)
-{
-  if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : presence of null pointer in input parameter !");
-  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
-  const int *arrIndxInPtr=arrIndxIn->begin();
-  const int *srcArrIndexPtr=srcArrIndex->begin();
-  int *arrInOutPtr=arrInOut->getPointer();
-  const int *srcArrPtr=srcArr->begin();
-  for(const int *it=idsOfSelectBg;it!=idsOfSelectEnd;it++,srcArrIndexPtr++)
-    {
-      if(*it>=0 && *it<nbOfTuples)
-        {
-          if(srcArrIndexPtr[1]-srcArrIndexPtr[0]==arrIndxInPtr[*it+1]-arrIndxInPtr[*it])
-            std::copy(srcArrPtr+srcArrIndexPtr[0],srcArrPtr+srcArrIndexPtr[1],arrInOutPtr+arrIndxInPtr[*it]);
-          else
-            {
-              std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : On pos #" << std::distance(idsOfSelectBg,it) << " id (idsOfSelectBg[" << std::distance(idsOfSelectBg,it)<< "]) is " << *it << " arrIndxIn[id+1]-arrIndxIn[id]!=srcArrIndex[pos+1]-srcArrIndex[pos] !";
-              throw INTERP_KERNEL::Exception(oss.str());
-            }
-        }
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : On pos #" << std::distance(idsOfSelectBg,it) << " value is " << *it << " not in [0," << nbOfTuples << ") !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-}
-
-/*!
  * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arr indexes is in \b arrIndxIn.
  * This method expects that these two input arrays come from the output of MEDCouplingUMesh::computeNeighborsOfCells method.
  * This method start from id 0 that will be contained in output DataArrayInt. It searches then all neighbors of id0 looking at arrIn[arrIndxIn[0]:arrIndxIn[0+1]].
@@ -8191,118 +7889,6 @@ DataArrayInt *MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(const int *se
 }
 
 
-/*!
- * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
- * This method builds an output pair (\b arrOut,\b arrIndexOut) that is a copy from \b arrIn for all cell ids \b not \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) and for
- * cellIds \b in [\b idsOfSelectBg, \b idsOfSelectEnd) a copy coming from the corresponding values in input pair (\b srcArr, \b srcArrIndex).
- * This method is an generalization of MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitly a result output arrays.
- *
- * \param [in] start begin of set of ids of the input extraction (included)
- * \param [in] end end of set of ids of the input extraction (excluded)
- * \param [in] step step of the set of ids in range mode.
- * \param [in] arrIn arr origin array from which the extraction will be done.
- * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
- * \param [in] srcArr input array that will be used as source of copy for ids in [\b idsOfSelectBg, \b idsOfSelectEnd)
- * \param [in] srcArrIndex index array of \b srcArr
- * \param [out] arrOut the resulting array
- * \param [out] arrIndexOut the index array of the resulting array \b arrOut
- *
- * \sa MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx MEDCouplingUMesh::SetPartOfIndexedArrays
- */
-void MEDCouplingUMesh::SetPartOfIndexedArraysSlice(int start, int end, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                               const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
-                                               DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
-{
-  if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSlice : presence of null pointer in input parameter !");
-  MCAuto<DataArrayInt> arro=DataArrayInt::New();
-  MCAuto<DataArrayInt> arrIo=DataArrayInt::New();
-  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
-  int offset=0;
-  const int *arrIndxInPtr=arrIndxIn->begin();
-  const int *srcArrIndexPtr=srcArrIndex->begin();
-  int nbOfElemsToSet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCouplingUMesh::SetPartOfIndexedArraysSlice : ");
-  int it=start;
-  for(int i=0;i<nbOfElemsToSet;i++,srcArrIndexPtr++,it+=step)
-    {
-      if(it>=0 && it<nbOfTuples)
-        offset+=(srcArrIndexPtr[1]-srcArrIndexPtr[0])-(arrIndxInPtr[it+1]-arrIndxInPtr[it]);
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSlice : On pos #" << i << " value is " << it << " not in [0," << nbOfTuples << ") !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-  srcArrIndexPtr=srcArrIndex->begin();
-  arrIo->alloc(nbOfTuples+1,1);
-  arro->alloc(arrIn->getNumberOfTuples()+offset,1);
-  const int *arrInPtr=arrIn->begin();
-  const int *srcArrPtr=srcArr->begin();
-  int *arrIoPtr=arrIo->getPointer(); *arrIoPtr++=0;
-  int *arroPtr=arro->getPointer();
-  for(int ii=0;ii<nbOfTuples;ii++,arrIoPtr++)
-    {
-      int pos=DataArray::GetPosOfItemGivenBESRelativeNoThrow(ii,start,end,step);
-      if(pos<0)
-        {
-          arroPtr=std::copy(arrInPtr+arrIndxInPtr[ii],arrInPtr+arrIndxInPtr[ii+1],arroPtr);
-          *arrIoPtr=arrIoPtr[-1]+(arrIndxInPtr[ii+1]-arrIndxInPtr[ii]);
-        }
-      else
-        {
-          arroPtr=std::copy(srcArrPtr+srcArrIndexPtr[pos],srcArrPtr+srcArrIndexPtr[pos+1],arroPtr);
-          *arrIoPtr=arrIoPtr[-1]+(srcArrIndexPtr[pos+1]-srcArrIndexPtr[pos]);
-        }
-    }
-  arrOut=arro.retn();
-  arrIndexOut=arrIo.retn();
-}
-
-/*!
- * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
- * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignment do not modify the index in \b arrIndxIn.
- *
- * \param [in] start begin of set of ids of the input extraction (included)
- * \param [in] end end of set of ids of the input extraction (excluded)
- * \param [in] step step of the set of ids in range mode.
- * \param [in,out] arrInOut arr origin array from which the extraction will be done.
- * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
- * \param [in] srcArr input array that will be used as source of copy for ids in [\b idsOfSelectBg, \b idsOfSelectEnd)
- * \param [in] srcArrIndex index array of \b srcArr
- *
- * \sa MEDCouplingUMesh::SetPartOfIndexedArraysSlice MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx
- */
-void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
-                                                      const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex)
-{
-  if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice : presence of null pointer in input parameter !");
-  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
-  const int *arrIndxInPtr=arrIndxIn->begin();
-  const int *srcArrIndexPtr=srcArrIndex->begin();
-  int *arrInOutPtr=arrInOut->getPointer();
-  const int *srcArrPtr=srcArr->begin();
-  int nbOfElemsToSet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice : ");
-  int it=start;
-  for(int i=0;i<nbOfElemsToSet;i++,srcArrIndexPtr++,it+=step)
-    {
-      if(it>=0 && it<nbOfTuples)
-        {
-          if(srcArrIndexPtr[1]-srcArrIndexPtr[0]==arrIndxInPtr[it+1]-arrIndxInPtr[it])
-            std::copy(srcArrPtr+srcArrIndexPtr[0],srcArrPtr+srcArrIndexPtr[1],arrInOutPtr+arrIndxInPtr[it]);
-          else
-            {
-              std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice : On pos #" << i << " id (idsOfSelectBg[" << i << "]) is " << it << " arrIndxIn[id+1]-arrIndxIn[id]!=srcArrIndex[pos+1]-srcArrIndex[pos] !";
-              throw INTERP_KERNEL::Exception(oss.str());
-            }
-        }
-      else
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArraysSameIdxSlice : On pos #" << i << " value is " << it << " not in [0," << nbOfTuples << ") !";
-          throw INTERP_KERNEL::Exception(oss.str());
-        }
-    }
-}
 
 /*!
  * \b this is expected to be a mesh fully defined whose spaceDim==meshDim.

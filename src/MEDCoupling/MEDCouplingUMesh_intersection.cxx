@@ -1810,7 +1810,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   if(!idsInDesc2DToBeRefined->empty())
     {
       DataArrayInt *out0(0),*outi0(0);
-      MEDCouplingUMesh::ExtractFromIndexedArrays(idsInDesc2DToBeRefined->begin(),idsInDesc2DToBeRefined->end(),dd3,dd4,out0,outi0);
+      DataArrayInt::ExtractFromIndexedArrays(idsInDesc2DToBeRefined->begin(),idsInDesc2DToBeRefined->end(),dd3,dd4,out0,outi0);
       MCAuto<DataArrayInt> outi0s(outi0);
       out0s=out0;
       out0s=out0s->buildUnique();
@@ -2047,7 +2047,7 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
   //
   MCAuto<DataArrayInt> mSafe,nSafe,oSafe,pSafe,qSafe,rSafe;
   DataArrayInt *m(0),*n(0),*o(0),*p(0),*q(0),*r(0);
-  MEDCouplingUMesh::ExtractFromIndexedArrays(ret->begin(),ret->end(),desc1,descIndx1,m,n); mSafe=m; nSafe=n;
+  DataArrayInt::ExtractFromIndexedArrays(ret->begin(),ret->end(),desc1,descIndx1,m,n); mSafe=m; nSafe=n;
   DataArrayInt::PutIntoToSkylineFrmt(intersectEdge,o,p); oSafe=o; pSafe=p;
   if(middleNeedsToBeUsed)
     { DataArrayInt::PutIntoToSkylineFrmt(middle,q,r); qSafe=q; rSafe=r; }

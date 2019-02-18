@@ -6481,6 +6481,424 @@ void DataArrayInt::powEqual(const DataArrayInt *other)
 }
 
 /*!
+ * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn
+ * (\ref numbering-indirect).
+ * This method returns the result of the extraction ( specified by a set of ids in [\b idsOfSelectBg , \b idsOfSelectEnd ) ).
+ * The selection of extraction is done standardly in new2old format.
+ * This method returns indexed arrays (\ref numbering-indirect) using 2 arrays (arrOut,arrIndexOut).
+ *
+ * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
+ * \param [in] arrIn arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [out] arrOut the resulting array
+ * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+ * \sa DataArrayInt::ExtractFromIndexedArraysSlice
+ */
+void DataArrayInt::ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
+{
+  if(!arrIn || !arrIndxIn)
+    throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArrays : input pointer is NULL !");
+  arrIn->checkAllocated(); arrIndxIn->checkAllocated();
+  if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArrays : input arrays must have exactly one component !");
+  std::size_t sz=std::distance(idsOfSelectBg,idsOfSelectEnd);
+  const int *arrInPtr=arrIn->begin();
+  const int *arrIndxPtr=arrIndxIn->begin();
+  int nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
+  if(nbOfGrps<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArrays : The format of \"arrIndxIn\" is invalid ! Its nb of tuples should be >=1 !");
+  int maxSizeOfArr=arrIn->getNumberOfTuples();
+  MCAuto<DataArrayInt> arro=DataArrayInt::New();
+  MCAuto<DataArrayInt> arrIo=DataArrayInt::New();
+  arrIo->alloc((int)(sz+1),1);
+  const int *idsIt=idsOfSelectBg;
+  int *work=arrIo->getPointer();
+  *work++=0;
+  int lgth=0;
+  for(std::size_t i=0;i<sz;i++,work++,idsIt++)
+    {
+      if(*idsIt>=0 && *idsIt<nbOfGrps)
+        lgth+=arrIndxPtr[*idsIt+1]-arrIndxPtr[*idsIt];
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " ! Must be in [0," << nbOfGrps << ") !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+      if(lgth>=work[-1])
+        *work=lgth;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " and at this pos arrIndxIn[" << *idsIt;
+          oss << "+1]-arrIndxIn[" << *idsIt << "] < 0 ! The input index array is bugged !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+  arro->alloc(lgth,1);
+  work=arro->getPointer();
+  idsIt=idsOfSelectBg;
+  for(std::size_t i=0;i<sz;i++,idsIt++)
+    {
+      if(arrIndxPtr[*idsIt]>=0 && arrIndxPtr[*idsIt+1]<=maxSizeOfArr)
+        work=std::copy(arrInPtr+arrIndxPtr[*idsIt],arrInPtr+arrIndxPtr[*idsIt+1],work);
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " arrIndx[" << *idsIt << "] must be >= 0 and arrIndx[";
+          oss << *idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+  arrOut=arro.retn();
+  arrIndexOut=arrIo.retn();
+}
+
+/*!
+ * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn
+ * (\ref numbering-indirect).
+ * This method returns the result of the extraction ( specified by a set of ids with a slice given by \a idsOfSelectStart, \a idsOfSelectStop and \a idsOfSelectStep ).
+ * The selection of extraction is done standardly in new2old format.
+ * This method returns indexed arrays (\ref numbering-indirect) using 2 arrays (arrOut,arrIndexOut).
+ *
+ * \param [in] idsOfSelectStart begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectStop end of set of ids of the input extraction (excluded)
+ * \param [in] idsOfSelectStep
+ * \param [in] arrIn arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [out] arrOut the resulting array
+ * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+ * \sa DataArrayInt::ExtractFromIndexedArrays
+ */
+void DataArrayInt::ExtractFromIndexedArraysSlice(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                 DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
+{
+  if(!arrIn || !arrIndxIn)
+    throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArraysSlice : input pointer is NULL !");
+  arrIn->checkAllocated(); arrIndxIn->checkAllocated();
+  if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArraysSlice : input arrays must have exactly one component !");
+  int sz=DataArrayInt::GetNumberOfItemGivenBESRelative(idsOfSelectStart,idsOfSelectStop,idsOfSelectStep,"MEDCouplingUMesh::ExtractFromIndexedArraysSlice : Input slice ");
+  const int *arrInPtr=arrIn->begin();
+  const int *arrIndxPtr=arrIndxIn->begin();
+  int nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
+  if(nbOfGrps<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArraysSlice : The format of \"arrIndxIn\" is invalid ! Its nb of tuples should be >=1 !");
+  int maxSizeOfArr=arrIn->getNumberOfTuples();
+  MCAuto<DataArrayInt> arro=DataArrayInt::New();
+  MCAuto<DataArrayInt> arrIo=DataArrayInt::New();
+  arrIo->alloc((int)(sz+1),1);
+  int idsIt=idsOfSelectStart;
+  int *work=arrIo->getPointer();
+  *work++=0;
+  int lgth=0;
+  for(int i=0;i<sz;i++,work++,idsIt+=idsOfSelectStep)
+    {
+      if(idsIt>=0 && idsIt<nbOfGrps)
+        lgth+=arrIndxPtr[idsIt+1]-arrIndxPtr[idsIt];
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " ! Must be in [0," << nbOfGrps << ") !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+      if(lgth>=work[-1])
+        *work=lgth;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " and at this pos arrIndxIn[" << idsIt;
+          oss << "+1]-arrIndxIn[" << idsIt << "] < 0 ! The input index array is bugged !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+  arro->alloc(lgth,1);
+  work=arro->getPointer();
+  idsIt=idsOfSelectStart;
+  for(int i=0;i<sz;i++,idsIt+=idsOfSelectStep)
+    {
+      if(arrIndxPtr[idsIt]>=0 && arrIndxPtr[idsIt+1]<=maxSizeOfArr)
+        work=std::copy(arrInPtr+arrIndxPtr[idsIt],arrInPtr+arrIndxPtr[idsIt+1],work);
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::ExtractFromIndexedArraysSlice : id located on pos #" << i << " value is " << idsIt << " arrIndx[" << idsIt << "] must be >= 0 and arrIndx[";
+          oss << idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+  arrOut=arro.retn();
+  arrIndexOut=arrIo.retn();
+}
+
+/*!
+ * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method builds an output pair (\b arrOut,\b arrIndexOut) that is a copy from \b arrIn for all cell ids \b not \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) and for
+ * cellIds \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) a copy coming from the corresponding values in input pair (\b srcArr, \b srcArrIndex).
+ * This method is an generalization of MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitly a result output arrays.
+ *
+ * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
+ * \param [in] arrIn arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [in] srcArr input array that will be used as source of copy for ids in [ \b idsOfSelectBg, \b idsOfSelectEnd )
+ * \param [in] srcArrIndex index array of \b srcArr
+ * \param [out] arrOut the resulting array
+ * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+ *
+ * \sa DataArrayInt::SetPartOfIndexedArraysSameIdx
+ */
+void DataArrayInt::SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                              const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
+                                              DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
+{
+  if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::SetPartOfIndexedArrays : presence of null pointer in input parameter !");
+  MCAuto<DataArrayInt> arro=DataArrayInt::New();
+  MCAuto<DataArrayInt> arrIo=DataArrayInt::New();
+  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+  std::vector<bool> v(nbOfTuples,true);
+  int offset=0;
+  const int *arrIndxInPtr=arrIndxIn->begin();
+  const int *srcArrIndexPtr=srcArrIndex->begin();
+  for(const int *it=idsOfSelectBg;it!=idsOfSelectEnd;it++,srcArrIndexPtr++)
+    {
+      if(*it>=0 && *it<nbOfTuples)
+        {
+          v[*it]=false;
+          offset+=(srcArrIndexPtr[1]-srcArrIndexPtr[0])-(arrIndxInPtr[*it+1]-arrIndxInPtr[*it]);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::SetPartOfIndexedArrays : On pos #" << std::distance(idsOfSelectBg,it) << " value is " << *it << " not in [0," << nbOfTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+  srcArrIndexPtr=srcArrIndex->begin();
+  arrIo->alloc(nbOfTuples+1,1);
+  arro->alloc(arrIn->getNumberOfTuples()+offset,1);
+  const int *arrInPtr=arrIn->begin();
+  const int *srcArrPtr=srcArr->begin();
+  int *arrIoPtr=arrIo->getPointer(); *arrIoPtr++=0;
+  int *arroPtr=arro->getPointer();
+  for(int ii=0;ii<nbOfTuples;ii++,arrIoPtr++)
+    {
+      if(v[ii])
+        {
+          arroPtr=std::copy(arrInPtr+arrIndxInPtr[ii],arrInPtr+arrIndxInPtr[ii+1],arroPtr);
+          *arrIoPtr=arrIoPtr[-1]+(arrIndxInPtr[ii+1]-arrIndxInPtr[ii]);
+        }
+      else
+        {
+          std::size_t pos=std::distance(idsOfSelectBg,std::find(idsOfSelectBg,idsOfSelectEnd,ii));
+          arroPtr=std::copy(srcArrPtr+srcArrIndexPtr[pos],srcArrPtr+srcArrIndexPtr[pos+1],arroPtr);
+          *arrIoPtr=arrIoPtr[-1]+(srcArrIndexPtr[pos+1]-srcArrIndexPtr[pos]);
+        }
+    }
+  arrOut=arro.retn();
+  arrIndexOut=arrIo.retn();
+}
+
+
+/*!
+ * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method builds an output pair (\b arrOut,\b arrIndexOut) that is a copy from \b arrIn for all cell ids \b not \b in [ \b idsOfSelectBg , \b idsOfSelectEnd ) and for
+ * cellIds \b in [\b idsOfSelectBg, \b idsOfSelectEnd) a copy coming from the corresponding values in input pair (\b srcArr, \b srcArrIndex).
+ * This method is an generalization of DataArrayInt::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitly a result output arrays.
+ *
+ * \param [in] start begin of set of ids of the input extraction (included)
+ * \param [in] end end of set of ids of the input extraction (excluded)
+ * \param [in] step step of the set of ids in range mode.
+ * \param [in] arrIn arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [in] srcArr input array that will be used as source of copy for ids in [\b idsOfSelectBg, \b idsOfSelectEnd)
+ * \param [in] srcArrIndex index array of \b srcArr
+ * \param [out] arrOut the resulting array
+ * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+ *
+ * \sa DataArrayInt::SetPartOfIndexedArraysSameIdx DataArrayInt::SetPartOfIndexedArrays
+ */
+void DataArrayInt::SetPartOfIndexedArraysSlice(int start, int end, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                               const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
+                                               DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
+{
+  if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::SetPartOfIndexedArraysSlice : presence of null pointer in input parameter !");
+  MCAuto<DataArrayInt> arro=DataArrayInt::New();
+  MCAuto<DataArrayInt> arrIo=DataArrayInt::New();
+  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+  int offset=0;
+  const int *arrIndxInPtr=arrIndxIn->begin();
+  const int *srcArrIndexPtr=srcArrIndex->begin();
+  int nbOfElemsToSet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"DataArrayInt::SetPartOfIndexedArraysSlice : ");
+  int it=start;
+  for(int i=0;i<nbOfElemsToSet;i++,srcArrIndexPtr++,it+=step)
+    {
+      if(it>=0 && it<nbOfTuples)
+        offset+=(srcArrIndexPtr[1]-srcArrIndexPtr[0])-(arrIndxInPtr[it+1]-arrIndxInPtr[it]);
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::SetPartOfIndexedArraysSlice : On pos #" << i << " value is " << it << " not in [0," << nbOfTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+  srcArrIndexPtr=srcArrIndex->begin();
+  arrIo->alloc(nbOfTuples+1,1);
+  arro->alloc(arrIn->getNumberOfTuples()+offset,1);
+  const int *arrInPtr=arrIn->begin();
+  const int *srcArrPtr=srcArr->begin();
+  int *arrIoPtr=arrIo->getPointer(); *arrIoPtr++=0;
+  int *arroPtr=arro->getPointer();
+  for(int ii=0;ii<nbOfTuples;ii++,arrIoPtr++)
+    {
+      int pos=DataArray::GetPosOfItemGivenBESRelativeNoThrow(ii,start,end,step);
+      if(pos<0)
+        {
+          arroPtr=std::copy(arrInPtr+arrIndxInPtr[ii],arrInPtr+arrIndxInPtr[ii+1],arroPtr);
+          *arrIoPtr=arrIoPtr[-1]+(arrIndxInPtr[ii+1]-arrIndxInPtr[ii]);
+        }
+      else
+        {
+          arroPtr=std::copy(srcArrPtr+srcArrIndexPtr[pos],srcArrPtr+srcArrIndexPtr[pos+1],arroPtr);
+          *arrIoPtr=arrIoPtr[-1]+(srcArrIndexPtr[pos+1]-srcArrIndexPtr[pos]);
+        }
+    }
+  arrOut=arro.retn();
+  arrIndexOut=arrIo.retn();
+}
+
+
+/*!
+ * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignment do not modify the index in \b arrIndxIn.
+ *
+ * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
+ * \param [in,out] arrInOut arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [in] srcArr input array that will be used as source of copy for ids in [ \b idsOfSelectBg , \b idsOfSelectEnd )
+ * \param [in] srcArrIndex index array of \b srcArr
+ *
+ * \sa DataArrayInt::SetPartOfIndexedArrays
+ */
+void DataArrayInt::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, const int *idsOfSelectEnd, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
+                                                     const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex)
+{
+  if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::SetPartOfIndexedArraysSameIdx : presence of null pointer in input parameter !");
+  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+  const int *arrIndxInPtr=arrIndxIn->begin();
+  const int *srcArrIndexPtr=srcArrIndex->begin();
+  int *arrInOutPtr=arrInOut->getPointer();
+  const int *srcArrPtr=srcArr->begin();
+  for(const int *it=idsOfSelectBg;it!=idsOfSelectEnd;it++,srcArrIndexPtr++)
+    {
+      if(*it>=0 && *it<nbOfTuples)
+        {
+          if(srcArrIndexPtr[1]-srcArrIndexPtr[0]==arrIndxInPtr[*it+1]-arrIndxInPtr[*it])
+            std::copy(srcArrPtr+srcArrIndexPtr[0],srcArrPtr+srcArrIndexPtr[1],arrInOutPtr+arrIndxInPtr[*it]);
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayInt::SetPartOfIndexedArraysSameIdx : On pos #" << std::distance(idsOfSelectBg,it) << " id (idsOfSelectBg[" << std::distance(idsOfSelectBg,it)<< "]) is " << *it << " arrIndxIn[id+1]-arrIndxIn[id]!=srcArrIndex[pos+1]-srcArrIndex[pos] !";
+              throw INTERP_KERNEL::Exception(oss.str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::SetPartOfIndexedArraysSameIdx : On pos #" << std::distance(idsOfSelectBg,it) << " value is " << *it << " not in [0," << nbOfTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+}
+
+/*!
+ * This method works on an input pair (\b arr, \b arrIndx) where \b arr indexes is in \b arrIndx.
+ * This method will not impact the size of inout parameter \b arrIndx but the size of \b arr will be modified in case of suppression.
+ *
+ * \param [in] idsToRemoveBg begin of set of ids to remove in \b arr (included)
+ * \param [in] idsToRemoveEnd end of set of ids to remove in \b arr (excluded)
+ * \param [in,out] arr array in which the remove operation will be done.
+ * \param [in,out] arrIndx array in the remove operation will modify
+ * \param [in] offsetForRemoval (by default 0) offset so that for each i in [0,arrIndx->getNumberOfTuples()-1) removal process will be performed in the following range [arr+arrIndx[i]+offsetForRemoval,arr+arr[i+1])
+ * \return true if \b arr and \b arrIndx have been modified, false if not.
+ */
+bool DataArrayInt::RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, const int *idsToRemoveEnd, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval)
+{
+  if(!arrIndx || !arr)
+    throw INTERP_KERNEL::Exception("DataArrayInt::RemoveIdsFromIndexedArrays : some input arrays are empty !");
+  if(offsetForRemoval<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::RemoveIdsFromIndexedArrays : offsetForRemoval should be >=0 !");
+  std::set<int> s(idsToRemoveBg,idsToRemoveEnd);
+  int nbOfGrps=arrIndx->getNumberOfTuples()-1;
+  int *arrIPtr=arrIndx->getPointer();
+  *arrIPtr++=0;
+  int previousArrI=0;
+  const int *arrPtr=arr->begin();
+  std::vector<int> arrOut;//no utility to switch to DataArrayInt because copy always needed
+  for(int i=0;i<nbOfGrps;i++,arrIPtr++)
+    {
+      if(*arrIPtr-previousArrI>offsetForRemoval)
+        {
+          for(const int *work=arrPtr+previousArrI+offsetForRemoval;work!=arrPtr+*arrIPtr;work++)
+            {
+              if(s.find(*work)==s.end())
+                arrOut.push_back(*work);
+            }
+        }
+      previousArrI=*arrIPtr;
+      *arrIPtr=(int)arrOut.size();
+    }
+  if(arr->getNumberOfTuples()==arrOut.size())
+    return false;
+  arr->alloc((int)arrOut.size(),1);
+  std::copy(arrOut.begin(),arrOut.end(),arr->getPointer());
+  return true;
+}
+
+/*!
+ * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignment do not modify the index in \b arrIndxIn.
+ *
+ * \param [in] start begin of set of ids of the input extraction (included)
+ * \param [in] end end of set of ids of the input extraction (excluded)
+ * \param [in] step step of the set of ids in range mode.
+ * \param [in,out] arrInOut arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [in] srcArr input array that will be used as source of copy for ids in [\b idsOfSelectBg, \b idsOfSelectEnd)
+ * \param [in] srcArrIndex index array of \b srcArr
+ *
+ * \sa DataArrayInt::SetPartOfIndexedArraysSlice DataArrayInt::SetPartOfIndexedArraysSameIdx
+ */
+void DataArrayInt::SetPartOfIndexedArraysSameIdxSlice(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
+                                                      const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex)
+{
+  if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::SetPartOfIndexedArraysSameIdxSlice : presence of null pointer in input parameter !");
+  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+  const int *arrIndxInPtr=arrIndxIn->begin();
+  const int *srcArrIndexPtr=srcArrIndex->begin();
+  int *arrInOutPtr=arrInOut->getPointer();
+  const int *srcArrPtr=srcArr->begin();
+  int nbOfElemsToSet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"DataArrayInt::SetPartOfIndexedArraysSameIdxSlice : ");
+  int it=start;
+  for(int i=0;i<nbOfElemsToSet;i++,srcArrIndexPtr++,it+=step)
+    {
+      if(it>=0 && it<nbOfTuples)
+        {
+          if(srcArrIndexPtr[1]-srcArrIndexPtr[0]==arrIndxInPtr[it+1]-arrIndxInPtr[it])
+            std::copy(srcArrPtr+srcArrIndexPtr[0],srcArrPtr+srcArrIndexPtr[1],arrInOutPtr+arrIndxInPtr[it]);
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayInt::SetPartOfIndexedArraysSameIdxSlice : On pos #" << i << " id (idsOfSelectBg[" << i << "]) is " << it << " arrIndxIn[id+1]-arrIndxIn[id]!=srcArrIndex[pos+1]-srcArrIndex[pos] !";
+              throw INTERP_KERNEL::Exception(oss.str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::SetPartOfIndexedArraysSameIdxSlice : On pos #" << i << " value is " << it << " not in [0," << nbOfTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+}
+
+
+/*!
  * Returns a C array which is a renumbering map in "Old to New" mode for the input array.
  * This map, if applied to \a start array, would make it sorted. For example, if
  * \a start array contents are [9,10,0,6,4,11,3,7] then the contents of the result array is

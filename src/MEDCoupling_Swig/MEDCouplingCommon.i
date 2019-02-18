@@ -2483,167 +2483,6 @@ namespace MEDCoupling
         MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(meshes,eps);
       }
 
-      static bool RemoveIdsFromIndexedArrays(PyObject *li, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval=0)
-      {
-        int sw;
-        int singleVal;
-        std::vector<int> multiVal;
-        std::pair<int, std::pair<int,int> > slic;
-        MEDCoupling::DataArrayInt *daIntTyypp=0;
-        if(!arrIndx)
-          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : null pointer as arrIndex !");
-        convertIntStarOrSliceLikePyObjToCpp(li,arrIndx->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
-        switch(sw)
-          {
-          case 1:
-            return MEDCouplingUMesh::RemoveIdsFromIndexedArrays(&singleVal,&singleVal+1,arr,arrIndx,offsetForRemoval);
-          case 2:
-            return MEDCouplingUMesh::RemoveIdsFromIndexedArrays(&multiVal[0],&multiVal[0]+multiVal.size(),arr,arrIndx,offsetForRemoval);
-          case 4:
-            return MEDCouplingUMesh::RemoveIdsFromIndexedArrays(daIntTyypp->begin(),daIntTyypp->end(),arr,arrIndx,offsetForRemoval);
-          default:
-            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
-          }
-      }
-      
-      static PyObject *ExtractFromIndexedArrays(PyObject *li, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn)
-      {
-        DataArrayInt *arrOut=0,*arrIndexOut=0;
-        int sw;
-        int singleVal;
-        std::vector<int> multiVal;
-        std::pair<int, std::pair<int,int> > slic;
-        MEDCoupling::DataArrayInt *daIntTyypp=0;
-        if(!arrIndxIn)
-          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : null pointer as arrIndxIn !");
-        convertIntStarOrSliceLikePyObjToCpp(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
-        switch(sw)
-          {
-          case 1:
-            {
-              MEDCouplingUMesh::ExtractFromIndexedArrays(&singleVal,&singleVal+1,arrIn,arrIndxIn,arrOut,arrIndexOut);
-              break;
-            }
-          case 2:
-            {
-              MEDCouplingUMesh::ExtractFromIndexedArrays(&multiVal[0],&multiVal[0]+multiVal.size(),arrIn,arrIndxIn,arrOut,arrIndexOut);
-              break;
-            }
-          case 4:
-            {
-              MEDCouplingUMesh::ExtractFromIndexedArrays(daIntTyypp->begin(),daIntTyypp->end(),arrIn,arrIndxIn,arrOut,arrIndexOut);
-              break;
-            }
-          default:
-            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
-          }
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-
-      static PyObject *ExtractFromIndexedArraysSlice(int strt, int stp, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn)
-      {
-        DataArrayInt *arrOut=0,*arrIndexOut=0;
-        MEDCouplingUMesh::ExtractFromIndexedArraysSlice(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-
-      static PyObject *ExtractFromIndexedArraysSlice(PyObject *slic, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn)
-      {
-        if(!PySlice_Check(slic))
-          throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : the first param is not a pyslice !");
-        Py_ssize_t strt=2,stp=2,step=2;
-        if(!arrIndxIn)
-          throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : last array is null !");
-        arrIndxIn->checkAllocated();
-        if(arrIndxIn->getNumberOfComponents()!=1)
-          throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : number of components of last argument must be equal to one !");
-        GetIndicesOfSlice(slic,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step,"ExtractFromIndexedArraysSlice (wrap) : Invalid slice regarding nb of elements !");
-        DataArrayInt *arrOut=0,*arrIndexOut=0;
-        MEDCouplingUMesh::ExtractFromIndexedArraysSlice(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-
-      static PyObject *SetPartOfIndexedArrays(PyObject *li,
-                                              const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                              const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex)
-      {
-        DataArrayInt *arrOut=0,*arrIndexOut=0;
-        int sw;
-        int singleVal;
-        std::vector<int> multiVal;
-        std::pair<int, std::pair<int,int> > slic;
-        MEDCoupling::DataArrayInt *daIntTyypp=0;
-        if(!arrIndxIn)
-          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays : null pointer as arrIndex !");
-        convertIntStarOrSliceLikePyObjToCpp(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
-        switch(sw)
-          {
-          case 1:
-            {
-              MEDCouplingUMesh::SetPartOfIndexedArrays(&singleVal,&singleVal+1,arrIn,arrIndxIn,srcArr,srcArrIndex,arrOut,arrIndexOut);
-              break;
-            }
-          case 2:
-            {
-              MEDCouplingUMesh::SetPartOfIndexedArrays(&multiVal[0],&multiVal[0]+multiVal.size(),arrIn,arrIndxIn,srcArr,srcArrIndex,arrOut,arrIndexOut);
-              break;
-            }
-          case 4:
-            {
-              MEDCouplingUMesh::SetPartOfIndexedArrays(daIntTyypp->begin(),daIntTyypp->end(),arrIn,arrIndxIn,srcArr,srcArrIndex,arrOut,arrIndexOut);
-              break;
-            }
-          default:
-            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
-          }
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        return ret;
-      }
-
-      static void SetPartOfIndexedArraysSameIdx(PyObject *li, DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                                const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex)
-      {
-        int sw;
-        int singleVal;
-        std::vector<int> multiVal;
-        std::pair<int, std::pair<int,int> > slic;
-        MEDCoupling::DataArrayInt *daIntTyypp=0;
-        if(!arrIndxIn)
-          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : null pointer as arrIndex !");
-        convertIntStarOrSliceLikePyObjToCpp(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
-        switch(sw)
-          {
-          case 1:
-            {
-              MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(&singleVal,&singleVal+1,arrIn,arrIndxIn,srcArr,srcArrIndex);
-              break;
-            }
-          case 2:
-            {
-              MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(&multiVal[0],&multiVal[0]+multiVal.size(),arrIn,arrIndxIn,srcArr,srcArrIndex);
-              break;
-            }
-          case 4:
-            {
-              MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(daIntTyypp->begin(),daIntTyypp->end(),arrIn,arrIndxIn,srcArr,srcArrIndex);
-              break;
-            }
-          default:
-            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
-          }
-      }
-
       PyObject *are2DCellsNotCorrectlyOriented(PyObject *vec, bool polyOnly) const
       {
         double val;
@@ -6060,6 +5899,18 @@ def MEDCouplingFieldFloatReduce(self):
     self.checkConsistencyLight()
     d=(self.getTypeOfField(),self.getTimeDiscretization())
     return MEDCouplingStdReduceFunct,(MEDCouplingFieldFloat,(d,(self.__getstate__()),))
+
+#
+# Forwarding DataArrayInt functions to MEDCouplingUMesh:
+#
+MEDCouplingUMesh.ExtractFromIndexedArrays           = DataArrayInt.ExtractFromIndexedArrays
+MEDCouplingUMesh.ExtractFromIndexedArraysSlice      = DataArrayInt.ExtractFromIndexedArraysSlice
+MEDCouplingUMesh.SetPartOfIndexedArrays             = DataArrayInt.SetPartOfIndexedArrays
+##MEDCouplingUMesh.SetPartOfIndexedArraysSlice        = DataArrayInt.SetPartOfIndexedArraysSlice
+MEDCouplingUMesh.SetPartOfIndexedArraysSameIdx      = DataArrayInt.SetPartOfIndexedArraysSameIdx
+MEDCouplingUMesh.RemoveIdsFromIndexedArrays         = DataArrayInt.RemoveIdsFromIndexedArrays
+##MEDCouplingUMesh.SetPartOfIndexedArraysSameIdxSlice = DataArrayInt.SetPartOfIndexedArraysSameIdxSlice
+
 %}
 
 %pythoncode %{
