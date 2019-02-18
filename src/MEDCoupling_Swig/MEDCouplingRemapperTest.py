@@ -998,8 +998,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(rem.getCrudeMatrix(),[{0: 1.0}, {1: 1.0}])
         rem2=MEDCouplingRemapper()
         rem2.setIntersectionType(PointLocator)
-        rem2.prepare(mt,ms,"P0P0") # reverse mt<->ms
-        self.assertEqual(rem2.getCrudeMatrix(),[{0: 1.0}, {1: 1.0}])
+        ##
+        # 2D to 3D with point locator does not make sense:
+        ##
+        self.assertRaises(InterpKernelException, rem2.prepare,mt,ms,"P0P0")
         pass
 
     def test2D1Dand1D2DPointLocator1(self):
@@ -1192,7 +1194,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         rem.setIntersectionType(PointLocator)
         self.assertEqual(rem.prepare(src,trg,"P1P1"),1)
         mat=rem.getCrudeCSRMatrix()
-        row=array([2,2, 3,3, 0,0, 1,1]) # here ref to target point 3 
+        row=array([2,2, 3,3, 0,0, 1,1]) # here ref to target point 3
         col=array([1,2, 1,2, 1,2, 1,2])
         data=array([0.1,0.9, 0.3,0.7, 0.5,0.5, 0.8,0.2])
         mExp2=csr_matrix((data,(row,col)),shape=(4,3))
@@ -1299,7 +1301,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ref=float(m.getMeasureField(True).getArray())
         self.assertTrue(abs(res-ref)/ref<1e-12)
         pass
-        
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):

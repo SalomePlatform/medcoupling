@@ -552,19 +552,24 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
     }
   else if(srcMeshDim==2 && trgMeshDim==3 && srcSpaceDim==3)
     {
-      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
-      INTERP_KERNEL::Interpolation2D3D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
-      INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
-      if(!duplicateFaces.empty())
+      if(getIntersectionType()==INTERP_KERNEL::PointLocator)
+        throw INTERP_KERNEL::Exception("Using point locator to transfer a mesh of dim 2 to a mesh of dim 3 does not make sense: 3D centers of mass can not be localized in a mesh having mesh-dim=2, space-dim=3!!");
+      else
         {
-          std::ostringstream oss; oss << "An unexpected situation happened ! For the following 2D Cells are part of edges shared by 3D cells :\n";
-          for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+          MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+          MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation2D3D interpolation(*this);
+          nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+          INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
+          if(!duplicateFaces.empty())
             {
-              oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
-              std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
-              oss << std::endl;
+              std::ostringstream oss; oss << "An unexpected situation happened ! For the following 2D Cells are part of edges shared by 3D cells :\n";
+              for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+                {
+                  oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
+                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+                  oss << std::endl;
+                }
             }
         }
     }
