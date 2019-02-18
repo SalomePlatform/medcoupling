@@ -23,7 +23,7 @@ import sys
 if sys.platform == "win32":
     from MEDCouplingCompat import *
 else:
-    from MEDCoupling import *
+    from medcoupling import *
 import unittest
 from math import pi,e,sqrt,cos,sin
 from datetime import datetime
@@ -49,7 +49,7 @@ def checkFreeMemory(size):
             dic['free'] = tmp
             dic['used'] = int(dic['total']) - int(dic['free'])
             ret = dic['free'] > size
-    #TODO: extend this method for Windows OS            
+    #TODO: extend this method for Windows OS
     return ret
 
 
@@ -565,7 +565,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             pass
         #
         pass
-    
+
     def testComputeNeighborsOfCells1(self):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
         d1,d2=m.computeNeighborsOfCells();
@@ -671,7 +671,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(subMesh.isEqual(m5,1e-12))
         self.assertRaises(InterpKernelException,m.buildPartOfMySelf,[1,5],True);
         pass
-    
+
     def testSwigGetItem3(self):
         da=DataArrayInt.New([4,5,6])
         self.assertEqual(5,da[1])
@@ -926,14 +926,14 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d-=2
         d%=7
         pass
-        
+
     def testSwigDAIOp5(self):
         d=DataArrayInt.New([4,5,6,10,3,-1],2,3)
         self.toSeeIfDaIIopsAreOK(d)
         dExp=DataArrayInt.New([2,4,6,0,0,6],2,3)
         self.assertTrue(d.isEqual(dExp));
         pass
-    
+
     def toSeeIfDaDIopsAreOK(self,d):
         d+=5
         d*=6
@@ -1044,7 +1044,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             self.assertAlmostEqual(expected4[i],ard2.getIJ(i,0),12)
             pass
         pass
-    
+
     def testPartitionBySpreadZone1(self):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
         m4=MEDCouplingUMesh.MergeUMeshes([m,m[-3:],m[0:2]]);
@@ -1862,7 +1862,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #
         m0=MEDCouplingUMesh("m",3) ; m0.allocateCells(0); m0.insertNextCell(NORM_TETRA4,[0,1,2,3]); #Well oriented
         m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,1,2,3,4]); #Well oriented
-        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented 
+        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented
         m3=MEDCouplingUMesh("m",3) ; m3.allocateCells(0); m3.insertNextCell(NORM_HEXA8,[0,1,2,3,4,5,6,7]); #Well oriented
         m4=MEDCouplingUMesh("m",3) ; m4.allocateCells(0)
         self.assertRaises(InterpKernelException,m4.insertNextCell,NORM_HEXGP12,[0,1,2,3,4,5,6,7,8,9,10,11,12]);
@@ -1890,8 +1890,8 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #
         mOK=m.deepCopy()
         m0=MEDCouplingUMesh("m",3) ; m0.allocateCells(0); m0.insertNextCell(NORM_TETRA4,[0,2,1,3]); #Not well oriented
-        m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,1,2,3,4]); #Well oriented 
-        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented 
+        m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,1,2,3,4]); #Well oriented
+        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented
         m3=MEDCouplingUMesh("m",3) ; m3.allocateCells(0); m3.insertNextCell(NORM_HEXA8,[0,3,2,1,4,7,6,5]); #Not well oriented
         m4=MEDCouplingUMesh("m",3) ; m4.allocateCells(0); m4.insertNextCell(NORM_HEXGP12,[0,5,4,3,2,1,6,11,10,9,8,7]); #Not well oriented
         m0.setCoords(c0) ; m1.setCoords(c1) ; m2.setCoords(c2) ; m3.setCoords(c3) ; m4.setCoords(c4)
@@ -1916,8 +1916,8 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             pass
         #
         m0=MEDCouplingUMesh("m",3) ; m0.allocateCells(0); m0.insertNextCell(NORM_TETRA4,[0,1,2,3]); #Well oriented
-        m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,3,2,1,4]); #Not well oriented 
-        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,2,1,3,5,4]); #Not well oriented 
+        m1=MEDCouplingUMesh("m",3) ; m1.allocateCells(0); m1.insertNextCell(NORM_PYRA5,[0,3,2,1,4]); #Not well oriented
+        m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,2,1,3,5,4]); #Not well oriented
         m3=MEDCouplingUMesh("m",3) ; m3.allocateCells(0); m3.insertNextCell(NORM_HEXA8,[0,1,2,3,4,5,6,7]); #Well oriented
         m4 = MEDCouplingUMesh("m", 3) ; m4.allocateCells(0); m4.insertNextCell(NORM_HEXGP12, list(range(12)));  # Well oriented
         m0.setCoords(c0) ; m1.setCoords(c1) ; m2.setCoords(c2) ; m3.setCoords(c3) ; m4.setCoords(c4)
@@ -2272,7 +2272,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         pass
 
     def testSwigSetItem3(self):
-        # 1-2 
+        # 1-2
         d=DataArrayDouble([0,0,0,0,0,0,0,0,0,0,0,0],6,2)
         d[3]=[1,2]
         self.assertTrue(d.isEqual(DataArrayDouble([0,0,0,0,0,0,1,2,0,0,0,0],6,2),1e-14))
@@ -2332,7 +2332,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d=DataArrayDouble([0,0,0,0,0,0,0,0,0,0,0,0],6,2)
         d[1::2,:]=[3,9]
         self.assertTrue(d.isEqual(DataArrayDouble([0,0,3,9,0,0,3,9,0,0,3,9],6,2),1e-14))
-        # 1-2 
+        # 1-2
         d=DataArrayInt([0,0,0,0,0,0,0,0,0,0,0,0],6,2)
         d[3]=[1,2]
         self.assertTrue(d.isEqual(DataArrayInt([0,0,0,0,0,0,1,2,0,0,0,0],6,2)))
@@ -2889,7 +2889,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d4**=d3
         self.assertTrue(d4.isEqual(DataArrayDouble([1.,sqrt(2.),1.4422495703074083,sqrt(2.)]),1e-14))
         pass
-    
+
     def testSwig2Baryenter3DForCellsWithVolumeZero1(self):
         coo=DataArrayDouble([0.,0.,0.,1.,0.,0.,0.,1.,0.],3,3)
         m2=MEDCouplingUMesh("mesh",2)
@@ -2970,7 +2970,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d.alloc(1000,3) ; d.fillWithValue(127)
         self.assertTrue(len(d.__repr__())<500)
         pass
-    
+
     def testSwig2MeshComputeIsoBarycenterOfNodesPerCell1(self):
         coo=DataArrayDouble([26.17509821414239,5.0374,200.,26.175098214142388,-5.0374,200.,17.450065476094927,20.1496,200.,8.725032738047464,25.187,200.,43.62516369023732,5.0374,200.,34.90013095218986,10.0748,200.,34.900130952189855,-10.0748,200.,43.625163690237315,-5.0374,200.,26.175098214142402,25.187,200.,26.175098214142395,35.2618,200.,17.45006547609493,40.2992,200.,8.725032738047469,35.2618,200.,26.17509821414239,5.0374,200.,26.175098214142388,-5.0374,200.,17.450065476094927,20.1496,200.,8.725032738047464,25.187,200.,43.62516369023732,5.0374,200.,34.90013095218986,10.0748,200.,34.900130952189855,-10.0748,200.,43.625163690237315,-5.0374,200.,26.175098214142402,25.187,200.,26.175098214142395,35.2618,200.,17.45006547609493,40.2992,200.,8.725032738047469,35.2618,200.],24,3)
         m=MEDCouplingUMesh.New("toto",3)
@@ -3043,7 +3043,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([0,0,0,0,0,0])))
         self.assertTrue(e.isEqual(DataArrayInt([0,1,2,3,4,5,6])))
         pass
-    
+
     def testSwigAdvGauss(self):
         f=MEDCouplingFieldTemplate(ON_GAUSS_PT)
         f.setDiscretization(None)

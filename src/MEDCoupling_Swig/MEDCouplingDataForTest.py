@@ -23,7 +23,7 @@ import sys
 if sys.platform == "win32":
     from MEDCouplingCompat import *
 else:
-    from MEDCoupling import *
+    from medcoupling import *
 
 class MEDCouplingDataForTest:
     def build2DTargetMesh_1(cls):
@@ -42,7 +42,7 @@ class MEDCouplingDataForTest:
         myCoords.setValues(targetCoords,9,2);
         targetMesh.setCoords(myCoords);
         return targetMesh;
-    
+
     def build2DSourceMesh_1(cls):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
         sourceConn=[0,3,1,0,2,3]
@@ -55,7 +55,7 @@ class MEDCouplingDataForTest:
         myCoords.setValues(sourceCoords,4,2);
         sourceMesh.setCoords(myCoords);
         return sourceMesh;
-        
+
     def build3DTargetMesh_1(cls):
         targetCoords=[ 0., 0., 0., 50., 0., 0. , 200., 0., 0.  , 0., 50., 0., 50., 50., 0. , 200., 50., 0.,   0., 200., 0., 50., 200., 0. , 200., 200., 0. ,
                        0., 0., 50., 50., 0., 50. , 200., 0., 50.  , 0., 50., 50., 50., 50., 50. , 200., 50., 50.,   0., 200., 50., 50., 200., 50. , 200., 200., 50. ,
@@ -98,7 +98,7 @@ class MEDCouplingDataForTest:
         myCoords.setValues(sourceCoords,9,3);
         sourceMesh.setCoords(myCoords);
         return sourceMesh;
-        
+
 
     def build3DSurfTargetMesh_1(self):
         targetCoords=[-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5]
@@ -143,7 +143,7 @@ class MEDCouplingDataForTest:
             30,41,31,33,45,56,46,48,  31,32,34,37,43,36,-1,31,46,51,36,-1,36,51,58,43,-1,43,37,52,58,-1,37,34,49,52,-1,34,32,47,49,-1,32,31,46,47,-1,46,51,58,52,49,47,
             31,36,35,33,46,51,50,48,  43,40,39,36,58,55,54,51,
             41,38,37,34,32,31,-1,41,56,46,31,-1,31,46,47,32,-1,32,47,49,34,-1,34,49,52,37,-1,37,38,53,52,-1,38,41,56,53,-1,56,46,47,49,52,53,
-            37,42,44,43,52,57,59,58]            
+            37,42,44,43,52,57,59,58]
         conn2=[7,12,14,13, 11,8,7,4,2,1, 13,10,9,6, 1,6,5,3, 1,2,4,7,13,6, 0,11,1,3]
         #
         ret=MEDCouplingUMesh.New();
@@ -188,7 +188,7 @@ class MEDCouplingDataForTest:
         mesh2D.finishInsertingCells();
         mesh2D.setCoords(myCoords);
         return ret,mesh2D
-    
+
     def buildCU1DMesh_U(self):
         coords=[ 0.0, 0.3, 0.75, 1.0 ]
         conn=[ 0,1, 1,2, 2,3 ]
@@ -284,7 +284,7 @@ class MEDCouplingDataForTest:
         myCoords.setValues(targetCoords,9,2);
         targetMesh.setCoords(myCoords);
         return targetMesh;
-    
+
     def build1DSourceMesh_2(cls):
         ret=MEDCouplingUMesh.New("1DSourceMesh",1);
         ret.allocateCells(4);
@@ -581,7 +581,7 @@ class MEDCouplingDataForTest:
         mesh2.insertNextCell(NORM_QUAD4,4,conn2[16:20])
         mesh2.finishInsertingCells();
         return [mesh,mesh2]
-    
+
     # 2D usecase1 for interpolation Gauss Pt-> Gauss Pt. Coming from ASTER : Please, do not touch
     def buildFieldOnGauss_1(self):
         coo=DataArrayDouble([1.0,0.0,1.33333333333333,0.0,1.66666666666667,0.0,0.923879532511287,0.38268343236509006,1.23183937668172,0.510244576486786,1.53979922085214,0.6378057206084831,2.0,0.0,1.8477590650225701,0.7653668647301801,0.9428090415820631,0.9428090415820631,1.1785113019775801,1.1785113019775801,1.4142135623731,1.41421356237309,0.707106781186548,0.707106781186547,0.38268343236509006,0.923879532511287,0.510244576486786,1.23183937668172,0.6378057206084831,1.53979922085214,0.7653668647301801,1.8477590650225701,3.1550283219328204e-17,1.33333333333333,1.16009632455949e-17,1.66666666666667,-2.7620050344068196e-16,2.0,-1.3810025172034098e-16,1.0,-2.0,0.0,-1.53979922085214,0.6378057206084831,-1.66666666666667,0.0,-1.33333333333333,0.0,-0.923879532511287,0.38268343236509006,-1.8477590650225701,0.7653668647301801,-0.9428090415820631,0.9428090415820631,-1.23183937668172,0.510244576486786,-1.83333333333333,0.0,-1.6937791429373599,0.701586292669331,-1.5,0.0,-1.30771370720431,0.26012042935483803,-1.16666666666667,0.0,-1.0778594545965,0.44646400442593803,-1.38578268717091,0.9259503883660041,-1.38581929876693,0.574025148547635,-1.06066017177982,1.06066017177982,-0.8314696123025451,0.5555702330196021,-1.0,0.0,-1.1785113019775801,1.1785113019775801,-0.707106781186548,0.707106781186547,-1.63464213400538,0.325150536693547,-1.9615705608064598,0.390180644032256,-1.47117792060485,0.292635483024192,-0.9807852804032301,0.19509032201612803,-1.524360955888,1.0185454272026,-1.2963624321753402,1.2963624321753402,-1.10862614973673,0.740760310692803,-0.970047881019636,0.6481652718562021,-0.824957911384305,0.824957911384305,-1.4142135623731,1.41421356237309,-1.7981063474059198,0.357665590362902,-1.1442494938037702,0.227605375685483,-1.66293922460509,1.1111404660392,-1.24720441845382,0.833355349529403,-0.7653668647301801,1.8477590650225701,-0.6378057206084831,1.53979922085214,-0.510244576486786,1.23183937668172,-0.701586292669331,1.6937791429373599,-0.574025148547635,1.38581929876693,-0.44646400442593803,1.0778594545965,-0.38268343236509006,0.923879532511287,-0.9259503883660041,1.38578268717091,-0.740760310692803,1.10862614973673,-0.5555702330196021,0.8314696123025451,-0.325150536693547,1.63464213400538,-0.26012042935483803,1.30771370720431,-0.19509032201612803,0.9807852804032301,1.6805133673525298e-18,1.83333333333333,-2.4643915380595496e-16,1.5,-1.4799359654427099e-16,1.16666666666667,-1.1111404660392,1.66293922460509,-0.39018064403225705,1.9615705608064598],73,2)
@@ -690,40 +690,40 @@ class MEDCouplingDataForTest:
 
     def buildCircle(self, center_X, center_Y, radius):
       from cmath import rect
-      from math import pi  
-  
+      from math import pi
+
       c = [rect(radius, i * pi / 4.0) for i in range(8)]
       coords = [c[-1].real,c[-1].imag,  c[3].real,c[3].imag,
                  c[5].real,c[5].imag,  c[1].real,c[1].imag]
       connec = list(range(4))
-      baseMesh = MEDCouplingUMesh.New("circle", 2)  
+      baseMesh = MEDCouplingUMesh.New("circle", 2)
       baseMesh.allocateCells(1)
       meshCoords = DataArrayDouble.New(coords, len(coords) // 2, 2)
       meshCoords += (center_X, center_Y)
       baseMesh.setCoords(meshCoords)
-  
-      baseMesh.insertNextCell(NORM_QPOLYG, connec)  
-      baseMesh.finishInsertingCells()  
+
+      baseMesh.insertNextCell(NORM_QPOLYG, connec)
+      baseMesh.finishInsertingCells()
       return baseMesh
 
-    def buildCircle2(self, center_X, center_Y, radius):  
+    def buildCircle2(self, center_X, center_Y, radius):
       from cmath import rect
-      from math import pi  
-  
+      from math import pi
+
       c = [rect(radius, i * pi / 4.0) for i in range(8)]
       coords = []
       for i in range(8):
           coords.extend([c[i].real,c[i].imag])
       connec = [7,5,3,1,  6,4,2,0]
-      baseMesh = MEDCouplingUMesh.New("circle", 2)  
+      baseMesh = MEDCouplingUMesh.New("circle", 2)
       baseMesh.allocateCells(1)
       meshCoords = DataArrayDouble.New(coords, len(coords) // 2, 2)
       meshCoords += (center_X, center_Y)
       baseMesh.setCoords(meshCoords)
-  
-      baseMesh.insertNextCell(NORM_QPOLYG, connec)  
-      baseMesh.finishInsertingCells()  
-      return baseMesh  
+
+      baseMesh.insertNextCell(NORM_QPOLYG, connec)
+      baseMesh.finishInsertingCells()
+      return baseMesh
 
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)

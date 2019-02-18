@@ -23,7 +23,7 @@ import sys
 if sys.platform == "win32":
     from MEDCouplingCompat import *
 else:
-    from MEDCoupling import *
+    from medcoupling import *
 import unittest
 from math import pi,e,sqrt,cos,sin
 from datetime import datetime
@@ -194,7 +194,7 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         a1.rearrange(3)
         self.assertRaises(InterpKernelException,a1.findIdForEach,b1) # a1 is not single component
         pass
-    
+
     def testAttractSeg3MidPtsAroundNodes1(self):
         """ Test of MEDCouplingUMesh.attractSeg3MidPtsAroundNodes methods """
         ptsExpToBeModified=DataArrayInt([95,96,97,98,101,103,104,106,108,110])
@@ -272,7 +272,7 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
         arrOfDisc=fGauss.getLocalizationOfDiscr()
         self.assertTrue(arrOfDisc.isEqual(DataArrayDouble([0.2,0.2,0.2,0.5,0.5,0.5,0.9,0.9,0.9],3,3),1e-12))
         pass
-    
+
     def testUMeshGetCellsContainingPtOn2DNonDynQuadraticCells(self):
         """getCellsContainingPoint is now dealing curves of quadratic 2D elements.
 This test is a mesh containing 2 QUAD8 cells. The input point is located at a special loc.

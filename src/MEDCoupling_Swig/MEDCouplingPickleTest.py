@@ -23,7 +23,7 @@ import sys
 if sys.platform == "win32":
     from MEDCouplingCompat import *
 else:
-    from MEDCoupling import *
+    from medcoupling import *
 from MEDCouplingDataForTest import MEDCouplingDataForTest
 
 if MEDCouplingHasNumPyBindings():
@@ -72,7 +72,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         xx=pickle.loads(pickled)
         self.assertTrue(xx.isEqual(x))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test3(self):
         """ Test of a MEDCouplingUMesh pickeling."""
@@ -119,7 +119,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         self.assertTrue(m2.isEqual(m,1e-16))
         self.assertTrue(m2.getCoordsAt(0).isEqual(arrX,1e-16))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test6(self):
         """ Test of a MEDCoupling1SGTUMesh pickeling."""
@@ -131,7 +131,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         m2=pickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test7(self):
         """ Test of a MEDCoupling1DGTUMesh pickeling."""
@@ -348,7 +348,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         self.assertTrue(f2.isEqual(f,1e-16,0))
         self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test17(self):
         """  Test of MEDCouplingFieldInt lying on MEDCouplingCMesh pickeling. """

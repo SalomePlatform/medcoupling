@@ -22,7 +22,7 @@ import sys
 if sys.platform == "win32":
     from MEDCouplingCompat import *
 else:
-    from MEDCoupling import *
+    from medcoupling import *
 
 import unittest
 from math import pi,e,sqrt,cos,sin

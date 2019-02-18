@@ -23,7 +23,7 @@ import sys
 if sys.platform == "win32":
     from MEDCouplingCompat import *
 else:
-    from MEDCoupling import *
+    from medcoupling import *
 import unittest
 from math import pi, sqrt
 
@@ -72,11 +72,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field2 = MEDCouplingFieldDouble( ON_NODES )
         field2.setArray( valsArr2 )
 
-        # max field 
+        # max field
         fieldMax = MEDCouplingFieldDouble.MaxFields( field1, field2 )
         self.assertTrue( fieldMax.getArray().getValues() == valsMax )
 
-        # min field 
+        # min field
         fieldMin = MEDCouplingFieldDouble.MinFields( field1, field2 )
         self.assertTrue( fieldMin.getArray().getValues() == valsMin )
         #! [PySnippet_MEDCouplingFieldDouble_MaxFields_1]
@@ -182,7 +182,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # transform the field to a 3D vector field
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
         varNames=["a","b"] # names used to refer to X and Y components
-        field.applyFuncNamedCompo( 3, varNames, func ) # require 3 components 
+        field.applyFuncNamedCompo( 3, varNames, func ) # require 3 components
         self.assertTrue( field.getNumberOfComponents() == 3 ) # 3 components as required
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc3_1]
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc3_2]
@@ -205,7 +205,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field.setArray( array )
         # transform the field to a 3D vector field
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
-        field.applyFuncCompo( 3, func ) # require 3 components 
+        field.applyFuncCompo( 3, func ) # require 3 components
         self.assertTrue( field.getNumberOfComponents() == 3 ) # 3 components as required
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc2_1]
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc2_2]
@@ -226,7 +226,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field.setArray( array )
         # transform the field to a 3D vector field
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
-        field.applyFunc( 3, func ) # require 3 components 
+        field.applyFunc( 3, func ) # require 3 components
         self.assertTrue( field.getNumberOfComponents() == 3 ) # 3 components as required
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc_1]
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc_2]
@@ -730,9 +730,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2)
         mesh.allocateCells(5)
         conn=[0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4]
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]) 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10])
         mesh.insertNextCell(NORM_QUAD4,4,conn[10:14])
         mesh.insertNextCell(NORM_QUAD4,4,conn[14:18])
         mesh.finishInsertingCells()
@@ -876,9 +876,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2)
         mesh.allocateCells(5)
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]) 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10])
         mesh.insertNextCell(NORM_QUAD4,4,conn[10:14])
         mesh.insertNextCell(NORM_QUAD4,4,conn[14:18])
         mesh.finishInsertingCells()
@@ -888,7 +888,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingUMesh_findBoundaryNodes_1]
         #! [PySnippet_MEDCouplingUMesh_findBoundaryNodes_2]
         nodeIdsArr=mesh.findBoundaryNodes()
-        assert nodeIdsArr.getNumberOfTuples() == mesh.getNumberOfNodes() - 1 
+        assert nodeIdsArr.getNumberOfTuples() == mesh.getNumberOfNodes() - 1
         #! [PySnippet_MEDCouplingUMesh_findBoundaryNodes_2]
         return
 
@@ -898,9 +898,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2)
         mesh.allocateCells(5)
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]) 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10])
         mesh.insertNextCell(NORM_QUAD4,4,conn[10:14])
         mesh.insertNextCell(NORM_QUAD4,4,conn[14:18])
         mesh.finishInsertingCells()
@@ -1003,9 +1003,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2)
         mesh.allocateCells(5)
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]) 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10])
         mesh.insertNextCell(NORM_QUAD4,4,conn[10:14])
         mesh.insertNextCell(NORM_QUAD4,4,conn[14:18])
         mesh.finishInsertingCells()
@@ -1058,8 +1058,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2)
         mesh.allocateCells(5)
         conn=[0,3,4,1, 1,4,2, 4,5,2]
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]) 
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]) 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])
         mesh.insertNextCell(NORM_TRI3,3, conn[7:10])
         mesh.finishInsertingCells()
         coords=[0.3,-0.301, # 0
@@ -1121,9 +1121,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2)
         mesh.allocateCells(5)
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]) 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10])
         mesh.insertNextCell(NORM_QUAD4,4,conn[10:14])
         mesh.insertNextCell(NORM_QUAD4,4,conn[14:18])
         mesh.finishInsertingCells()
@@ -1146,9 +1146,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2)
         mesh.allocateCells(5)
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])  
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]) 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7])
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10])
         mesh.insertNextCell(NORM_QUAD4,4,conn[10:14])
         mesh.insertNextCell(NORM_QUAD4,4,conn[14:18])
         mesh.finishInsertingCells()
@@ -1904,7 +1904,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testExample_DataArrayDouble_findCommonTuples1(self):
 #! [PySnippet_DataArrayDouble_findCommonTuples1]
         array2=[2.3,2.3, 1.2,1.2, 1.3,1.3, 2.3,2.3, 2.301,2.301, 0.8,0.8]
-        da=DataArrayDouble(array2,6,2)        
+        da=DataArrayDouble(array2,6,2)
 #! [PySnippet_DataArrayDouble_findCommonTuples1]
 #! [PySnippet_DataArrayDouble_findCommonTuples2]
         c,cI=da.findCommonTuples(1.01e-1)
@@ -1976,7 +1976,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 #! [SnippeDataArrayIntKeepSelectedComponents1_1]
         arr1=[1,2,3,4,     # tuple 0
               11,12,13,14, # tuple 1
-              21,22,23,24, # 
+              21,22,23,24, #
               31,32,33,34,
               41,42,43,44]
         a1=DataArrayInt()
@@ -2111,7 +2111,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
     def testExampleUMeshStdBuild1(self):
 # ! [PySnippetUMeshStdBuild1_1]
-        coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
+        coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0.,
                  0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. ]
         nodalConnPerCell=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
 # ! [PySnippetUMeshStdBuild1_1]
@@ -2130,7 +2130,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.finishInsertingCells()
 # ! [PySnippetUMeshStdBuild1_3]
 # ! [PySnippetUMeshStdBuild1_4]
-        coordsArr=DataArrayDouble(coords,9,3)#here coordsArr are declared to have 3 components, mesh will deduce that its spaceDim==3. 
+        coordsArr=DataArrayDouble(coords,9,3)#here coordsArr are declared to have 3 components, mesh will deduce that its spaceDim==3.
         mesh.setCoords(coordsArr)#coordsArr contains 9 tuples, that is to say mesh contains 9 nodes.
 # ! [PySnippetUMeshStdBuild1_4]
 # ! [PySnippetUMeshStdBuild1_5]
@@ -2172,7 +2172,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
     def testExampleUMeshAdvBuild1(self):
 # ! [PySnippetUMeshAdvBuild1_1]
-        coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
+        coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0.,
                  0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. ]
         nodalConnPerCell=[4,0,3,4,1, 3,1,4,2, 3,4,5,2, 4,6,7,4,3, 4,7,8,5,4]
         nodalConnPerCellIndex=[0,5,9,13,18,23]
