@@ -486,6 +486,9 @@ using namespace INTERP_KERNEL;
 
 %nodefaultctor;
 
+// ABN: Instruct SWIG that INTERP_KERNEL::Exception is an exception class and that it should inherit Exception
+// on the Python side. Must be put BEFORE the %rename clause:
+%exceptionclass INTERP_KERNEL::Exception;
 %rename (InterpKernelException) INTERP_KERNEL::Exception;
 
 %include "MEDCouplingRefCountObject.i"

@@ -149,7 +149,7 @@ static PyObject *convertDataForGodFather(MEDCoupling::MEDCouplingDataForGodFathe
   throw INTERP_KERNEL::Exception("convertDataForGodFather wrap : unrecognized data type for AMR !");
 }
 
-static PyObject *convertCartesianAMRPatch(MEDCoupling::MEDCouplingCartesianAMRPatchGen *patch, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertCartesianAMRPatch(MEDCoupling::MEDCouplingCartesianAMRPatchGen *patch, int owner)
 {
   if(!patch)
     {
@@ -167,7 +167,7 @@ static PyObject *convertCartesianAMRPatch(MEDCoupling::MEDCouplingCartesianAMRPa
   throw INTERP_KERNEL::Exception("convertCartesianAMRPatch wrap : unrecognized type of cartesian AMR patch !");
 }
 
-static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___add__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
+static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___add__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj)
 {
   const char msg[]="Unexpected situation in MEDCouplingFieldDouble.__add__ ! Expecting a not null MEDCouplingFieldDouble or DataArrayDouble or DataArrayDoubleTuple instance, or a list of double, or a double.";
   const char msg2[]="in MEDCouplingFieldDouble.__add__ : self field has no Array of values set !";
@@ -234,12 +234,12 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
     }
 }
 
-static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___radd__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
+static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___radd__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj)
 {
   return MEDCoupling_MEDCouplingFieldDouble___add__Impl(self,obj);
 }
 
-static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rsub__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
+static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rsub__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj)
 {
   const char msg[]="Unexpected situation in MEDCouplingFieldDouble.__rsub__ ! Expecting a not null MEDCouplingFieldDouble or DataArrayDouble or DataArrayDoubleTuple instance, or a list of double, or a double.";
   const char msg2[]="in MEDCouplingFieldDouble.__rsub__ : self field has no Array of values set !";
@@ -306,7 +306,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
     }
 }
 
-static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___mul__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
+static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___mul__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj)
 {
   const char msg[]="Unexpected situation in MEDCouplingFieldDouble.__mul__ ! Expecting a not null MEDCouplingFieldDouble or DataArrayDouble or DataArrayDoubleTuple instance, or a list of double, or a double.";
   const char msg2[]="in MEDCouplingFieldDouble.__mul__ : self field has no Array of values set !";
@@ -373,12 +373,12 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
     }
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rmul__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
+MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rmul__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj)
 {
   return MEDCoupling_MEDCouplingFieldDouble___mul__Impl(self,obj);
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
+MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__Impl(MEDCoupling::MEDCouplingFieldDouble *self, PyObject *obj)
 {
   const char msg[]="Unexpected situation in MEDCouplingFieldDouble.__rdiv__ ! Expecting a not null MEDCouplingFieldDouble or DataArrayDouble or DataArrayDoubleTuple instance, or a list of double, or a double.";
   const char msg2[]="in MEDCouplingFieldDouble.__div__ : self field has no Array of values set !";

@@ -36,6 +36,21 @@ namespace INTERP_KERNEL
   };
 }
 
+/*
+ * ABN: Install default exception handler: this catches all INTERP_KERNEL::Exception (even when no
+ * except declaration was added to the function declaration) and propagates it to the Python level.
+ */
+%exception {
+  try {
+    $action
+  }
+  catch (INTERP_KERNEL::Exception& _e) {
+    // Reraise with SWIG_Python_Raise
+    SWIG_Python_Raise(SWIG_NewPointerObj((new INTERP_KERNEL::Exception(static_cast< const INTERP_KERNEL::Exception& >(_e))),SWIGTYPE_p_INTERP_KERNEL__Exception,SWIG_POINTER_OWN), "INTERP_KERNEL::Exception", SWIGTYPE_p_INTERP_KERNEL__Exception);
+    SWIG_fail;
+  }
+}
+
 namespace MEDCoupling
 {
   class TimeLabel
@@ -173,7 +188,7 @@ namespace MEDCoupling
 #endif
   }
 
-  std::string MEDCouplingCompletionScript() throw(INTERP_KERNEL::Exception)
+  std::string MEDCouplingCompletionScript()
   {
     static const char script[]="import rlcompleter,readline\nreadline.parse_and_bind('tab:complete')";
     std::ostringstream oss; oss << "MEDCouplingCompletionScript : error when trying to activate completion ! readline not present ?\nScript is :\n" << script;

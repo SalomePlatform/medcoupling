@@ -20,7 +20,7 @@
 
 #include <vector>
 
-static PyObject *convertMEDFileMesh(MEDCoupling::MEDFileMesh* mesh, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDFileMesh(MEDCoupling::MEDFileMesh* mesh, int owner)
 {
   PyObject *ret=0;
   if(!mesh)
@@ -39,7 +39,7 @@ static PyObject *convertMEDFileMesh(MEDCoupling::MEDFileMesh* mesh, int owner) t
   return ret;
 }
 
-static PyObject *convertMEDFileParameter1TS(MEDCoupling::MEDFileParameter1TS* p1ts, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDFileParameter1TS(MEDCoupling::MEDFileParameter1TS* p1ts, int owner)
 {
   PyObject *ret=0;
   if(!p1ts)
@@ -56,7 +56,7 @@ static PyObject *convertMEDFileParameter1TS(MEDCoupling::MEDFileParameter1TS* p1
   return ret;
 }
 
-static PyObject *convertMEDFileField1TS(MEDCoupling::MEDFileAnyTypeField1TS *p, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDFileField1TS(MEDCoupling::MEDFileAnyTypeField1TS *p, int owner)
 {
   PyObject *ret=0;
   if(!p)
@@ -75,7 +75,7 @@ static PyObject *convertMEDFileField1TS(MEDCoupling::MEDFileAnyTypeField1TS *p, 
   return ret;
 }
 
-static PyObject *convertMEDFileFieldMultiTS(MEDCoupling::MEDFileAnyTypeFieldMultiTS *p, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDFileFieldMultiTS(MEDCoupling::MEDFileAnyTypeFieldMultiTS *p, int owner)
 {
   PyObject *ret=0;
   if(!p)
@@ -94,7 +94,7 @@ static PyObject *convertMEDFileFieldMultiTS(MEDCoupling::MEDFileAnyTypeFieldMult
   return ret;
 }
 
-static PyObject *convertMEDMeshMultiLev(MEDCoupling::MEDMeshMultiLev *p, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDMeshMultiLev(MEDCoupling::MEDMeshMultiLev *p, int owner)
 {
   PyObject *ret=0;
   if(!p)
@@ -113,7 +113,7 @@ static PyObject *convertMEDMeshMultiLev(MEDCoupling::MEDMeshMultiLev *p, int own
   return ret;
 }
 
-static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi) throw(INTERP_KERNEL::Exception)
+static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi)
 {
   std::vector<std::pair<int,int> > ret;
   if(PyList_Check(pyLi))
@@ -328,7 +328,7 @@ std::vector< std::pair<std::vector<std::string>, std::string > > convertVecPairV
  * Called by MEDFileAnyTypeFieldMultiTS::__getitem__ when \a elt0 is neither a list nor a slice.
  * In this case a MEDFileAnyTypeField1TS object is returned.
  */
-int MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(const MEDFileAnyTypeFieldMultiTS *self, PyObject *elt0) throw(INTERP_KERNEL::Exception)
+int MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(const MEDFileAnyTypeFieldMultiTS *self, PyObject *elt0)
 {
   if(elt0 && PyInt_Check(elt0))
     {//fmts[3]
@@ -365,7 +365,7 @@ int MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(const MEDFileAnyTypeFieldMultiTS
  * Called by MEDFileAnyTypeFieldMultiTS::__getitem__ when \a obj is neither a list nor a slice.
  * In this case a MEDFileAnyTypeField1TS object is returned.
  */
-int MEDFileFieldsgetitemSingleTS__(const MEDFileFields *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
+int MEDFileFieldsgetitemSingleTS__(const MEDFileFields *self, PyObject *obj)
 {
   static const char msg[]="MEDFileFields::__getitem__ : only integer or string with fieldname supported !";
   if(PyInt_Check(obj))

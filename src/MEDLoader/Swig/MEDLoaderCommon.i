@@ -394,7 +394,7 @@ namespace MEDCoupling
 
 %inline
 {
-  PyObject *MEDFileVersionSwig() throw(INTERP_KERNEL::Exception)
+  PyObject *MEDFileVersionSwig()
   {
     int major,minor,release;
     MEDCoupling::MEDFileVersion(major,minor,release);
@@ -405,31 +405,31 @@ namespace MEDCoupling
     return ret;
   }
 
-  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName));
     return ret.retn();
   }
 
-  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName, const std::string& fieldName)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName,fieldName));
     return ret.retn();
   }
   
-  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName, const std::string& fieldName, int iteration, int order)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName,fieldName,iteration,order));
     return ret.retn();
   }
   
-  MEDCoupling::MEDCouplingField *ReadFieldSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingField *ReadFieldSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
     return ret.retn();
   }
 
-  PyObject *GetFieldIterationsSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  PyObject *GetFieldIterationsSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName)
   {
     std::vector< std::pair<int,int> > res=MEDCoupling::GetFieldIterations(type,fileName,meshName,fieldName);
     PyObject *ret=PyList_New(res.size());
@@ -444,7 +444,7 @@ namespace MEDCoupling
     return ret;
   }
   
-  PyObject *GetAllFieldIterationsSwig(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  PyObject *GetAllFieldIterationsSwig(const std::string& fileName, const std::string& fieldName)
     {
       std::vector< std::pair< std::pair<int,int>, double> > res=MEDCoupling::GetAllFieldIterations(fileName,fieldName);
       PyObject *ret=PyList_New(res.size());
@@ -460,7 +460,7 @@ namespace MEDCoupling
       return ret;
     }
   
-  PyObject *GetCellFieldIterationsSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  PyObject *GetCellFieldIterationsSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
     {
       std::vector< std::pair<int,int> > res=MEDCoupling::GetCellFieldIterations(fileName,meshName,fieldName);
       PyObject *ret=PyList_New(res.size());
@@ -475,7 +475,7 @@ namespace MEDCoupling
       return ret;
     }
 
-  PyObject *GetNodeFieldIterationsSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  PyObject *GetNodeFieldIterationsSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
     {
       std::vector< std::pair<int,int> > res=MEDCoupling::GetNodeFieldIterations(fileName,meshName,fieldName);
       PyObject *ret=PyList_New(res.size());
@@ -490,7 +490,7 @@ namespace MEDCoupling
       return ret;
     }
 
-  PyObject *GetComponentsNamesOfFieldSwig(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  PyObject *GetComponentsNamesOfFieldSwig(const std::string& fileName, const std::string& fieldName)
     {
       std::vector< std::pair<std::string,std::string> > res=MEDCoupling::GetComponentsNamesOfField(fileName,fieldName);
       PyObject *ret=PyList_New(res.size());
@@ -505,7 +505,7 @@ namespace MEDCoupling
       return ret;
     }
 
-  PyObject *GetUMeshGlobalInfoSwig(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception)
+  PyObject *GetUMeshGlobalInfoSwig(const std::string& fileName, const std::string& meshName)
     {
       int meshDim,spaceDim,numberOfNodes;
       std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > res=MEDCoupling::GetUMeshGlobalInfo(fileName,meshName,meshDim,spaceDim,numberOfNodes);
@@ -534,35 +534,35 @@ namespace MEDCoupling
     }
   
   PyObject *ReadFieldsOnSameMeshSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax,
-                                     const std::string& fieldName, PyObject *liIts) throw(INTERP_KERNEL::Exception)
+                                     const std::string& fieldName, PyObject *liIts)
     {
       std::vector<std::pair<int,int> > its=convertTimePairIdsFromPy(liIts);
       std::vector<MEDCoupling::MEDCouplingFieldDouble *> res=MEDCoupling::ReadFieldsOnSameMesh(type,fileName,meshName,meshDimRelToMax,fieldName,its);
       return convertFieldDoubleVecToPy(res);
     }
   
-  void WriteUMeshesPartitionSwig(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+  void WriteUMeshesPartitionSwig(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch)
   {
     std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
     convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
     MEDCoupling::WriteUMeshesPartition(fileName,meshName,v,writeFromScratch);
   }
   
-  void WriteUMeshesPartitionDepSwig(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+  void WriteUMeshesPartitionDepSwig(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch)
   {
     std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
     convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
     MEDCoupling::WriteUMeshesPartitionDep(fileName,meshName,v,writeFromScratch);
   }
   
-  void WriteUMeshesSwig(const std::string& fileName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+  void WriteUMeshesSwig(const std::string& fileName, PyObject *li, bool writeFromScratch)
   {
     std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
     convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
     MEDCoupling::WriteUMeshes(fileName,v,writeFromScratch);
   }
   
-  PyObject *GetTypesOfFieldSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+  PyObject *GetTypesOfFieldSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
     {
       std::vector< MEDCoupling::TypeOfField > v=MEDCoupling::GetTypesOfField(fileName,meshName,fieldName);
       int size=v.size();
@@ -572,14 +572,14 @@ namespace MEDCoupling
       return ret;
     }
   
-  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromGroupsSwig(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromGroupsSwig(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li)
     {
       std::vector<std::string> grps;
       converPyListToVecString(li,grps);
       return MEDCoupling::ReadUMeshFromGroups(fileName,meshName,meshDimRelToMax,grps);
     }
 
-  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFamiliesSwig(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li) throw(INTERP_KERNEL::Exception)
+  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFamiliesSwig(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li)
     {
       std::vector<std::string> fams;
       converPyListToVecString(li,fams);
