@@ -1071,14 +1071,14 @@ namespace MEDCoupling
         const char *msg="MEDCoupling::DataArrayDouble::setValues : Available API are : \n-DataArrayDouble.setValues([1.,3.,4.])\n-DataArrayDouble.setValues([1.,3.,4.],3)\n-DataArrayDouble.setValues([1.,3.,4.,5.],2,2)\n-DataArrayDouble.setValues([(1.,1.7),(3.,3.7),(4.,4.7)])\n !";
         if(PyList_Check(li) || PyTuple_Check(li))
           {
-            if(nbOfTuples)
+            if(nbOfTuples && nbOfTuples != Py_None)
               {
                 if(PyInt_Check(nbOfTuples))
                   {
                     int nbOfTuples1=PyInt_AS_LONG(nbOfTuples);
                     if(nbOfTuples1<0)
                       throw INTERP_KERNEL::Exception("DataArrayDouble::setValues : should be a positive set of allocated memory !");
-                    if(nbOfComp)
+                    if(nbOfComp && nbOfComp != Py_None)
                       {
                         if(PyInt_Check(nbOfComp))
                           {//DataArrayDouble.setValues([1.,3.,4.,5.],2,2)
