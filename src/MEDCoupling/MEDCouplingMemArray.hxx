@@ -110,8 +110,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void destroy();
     MEDCOUPLING_EXPORT ~MemArray() { destroy(); }
   public:
-    static void CPPDeallocator(void *pt, void *param);
-    static void CDeallocator(void *pt, void *param);
+    MEDCOUPLING_EXPORT static void CPPDeallocator(void *pt, void *param);
+    MEDCOUPLING_EXPORT static void CDeallocator(void *pt, void *param);
   private:
     static void DestroyPointer(T *pt, Deallocator dealloc, void *param);
     static Deallocator BuildFromType(DeallocType type);
