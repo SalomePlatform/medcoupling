@@ -47,27 +47,27 @@ namespace MEDCoupling
     public:
       MEDCouplingRemapper();
       ~MEDCouplingRemapper();
-      int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method) throw(INTERP_KERNEL::Exception);
-      int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target) throw(INTERP_KERNEL::Exception);
-      void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
-      void partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField) throw(INTERP_KERNEL::Exception);
-      void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
-      MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue) throw(INTERP_KERNEL::Exception);
-      MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
-      bool setOptionInt(const std::string& key, int value) throw(INTERP_KERNEL::Exception);
-      bool setOptionDouble(const std::string& key, double value) throw(INTERP_KERNEL::Exception);
-      bool setOptionString(const std::string& key, const std::string& value) throw(INTERP_KERNEL::Exception);
-      int getInterpolationMatrixPolicy() const throw(INTERP_KERNEL::Exception);
-      void setInterpolationMatrixPolicy(int newInterpMatPol) throw(INTERP_KERNEL::Exception);
+      int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method);
+      int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target);
+      void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
+      void partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField);
+      void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
+      MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
+      MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue);
+      bool setOptionInt(const std::string& key, int value);
+      bool setOptionDouble(const std::string& key, double value);
+      bool setOptionString(const std::string& key, const std::string& value);
+      int getInterpolationMatrixPolicy() const;
+      void setInterpolationMatrixPolicy(int newInterpMatPol);
       //
-      int nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs) throw(INTERP_KERNEL::Exception);
-      int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) throw(INTERP_KERNEL::Exception);
-      double getMaxValueInCrudeMatrix() const throw(INTERP_KERNEL::Exception);
-      int getNumberOfColsOfMatrix() const throw(INTERP_KERNEL::Exception);
-      static std::string BuildMethodFrom(const std::string& meth1, const std::string& meth2) throw(INTERP_KERNEL::Exception);
+      int nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs);
+      int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor);
+      double getMaxValueInCrudeMatrix() const;
+      int getNumberOfColsOfMatrix() const;
+      static std::string BuildMethodFrom(const std::string& meth1, const std::string& meth2);
       %extend
          {
-           PyObject *getCrudeMatrix() const throw(INTERP_KERNEL::Exception)
+           PyObject *getCrudeMatrix() const
            {
              const std::vector<std::map<int,double> >& m=self->getCrudeMatrix();
              std::size_t sz=m.size();
@@ -83,12 +83,12 @@ namespace MEDCoupling
              return ret;
            }
 #if defined(WITH_NUMPY) && defined(WITH_SCIPY)
-           PyObject *getCrudeCSRMatrix() const throw(INTERP_KERNEL::Exception)
+           PyObject *getCrudeCSRMatrix() const
            {
              return ToCSRMatrix(self->getCrudeMatrix(),self->getNumberOfColsOfMatrix());
            }
 #endif
-           void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, PyObject *m) throw(INTERP_KERNEL::Exception)
+           void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, PyObject *m)
            {
              std::vector<std::map<int,double> > mCpp;
              if(isCSRMatrix(m))
@@ -111,7 +111,7 @@ namespace MEDCoupling
              self->setCrudeMatrix(srcMesh,targetMesh,method,mCpp);
            }
 
-           void setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, PyObject *m) throw(INTERP_KERNEL::Exception)
+           void setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, PyObject *m)
            {
              std::vector<std::map<int,double> > mCpp;
              convertToVectMapIntDouble(m,mCpp);

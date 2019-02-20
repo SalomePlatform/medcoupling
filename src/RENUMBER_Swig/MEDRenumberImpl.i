@@ -32,7 +32,7 @@ class Renumbering
 public:
   %extend
   {
-    virtual PyObject *renumber(const MEDCoupling::DataArrayInt *graph, const MEDCoupling::DataArrayInt *index_graph) throw(INTERP_KERNEL::Exception)
+    virtual PyObject *renumber(const MEDCoupling::DataArrayInt *graph, const MEDCoupling::DataArrayInt *index_graph)
     {
       if(!graph || !index_graph)
         throw INTERP_KERNEL::Exception("wrap of Renumbering::renumber : One of the input arrays is NULL !");
@@ -51,7 +51,7 @@ public:
 
 namespace MED_RENUMBER
 {
-  Renumbering *RenumberingFactory(const std::string& s) throw(INTERP_KERNEL::Exception);
+  Renumbering *RenumberingFactory(const std::string& s);
   std::vector<std::string> RenumberAvailableMethods();
   std::vector<std::string> AllRenumberMethods();
 }

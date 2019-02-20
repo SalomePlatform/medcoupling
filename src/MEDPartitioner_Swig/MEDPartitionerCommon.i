@@ -40,7 +40,7 @@ namespace MEDPARTITIONER
   public:
     typedef enum {METIS,SCOTCH,PTSCOTCH} splitter_type;
   public:
-    virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) throw(INTERP_KERNEL::Exception);
+    virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0);
     MEDCoupling::MEDCouplingSkyLineArray *getGraph() const
     {
       const MEDCoupling::MEDCouplingSkyLineArray *ret(self->getGraph());
@@ -61,14 +61,14 @@ namespace MEDPARTITIONER
   class MEDPartitioner
   {
   public:
-    MEDPartitioner(const std::string& filename, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
-    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
-    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
-    static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0, MEDCoupling::DataArrayInt* vlbloctab=0) throw(INTERP_KERNEL::Exception);
+    MEDPartitioner(const std::string& filename, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
+    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
+    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
+    static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0, MEDCoupling::DataArrayInt* vlbloctab=0);
     static std::vector<std::string> AvailableAlgorithms();
     static std::vector<std::string> AllAlgorithms();
-    MEDCoupling::MEDFileData* getMEDFileData() throw(INTERP_KERNEL::Exception);
-    void write(const std::string& filename) throw(INTERP_KERNEL::Exception);
+    MEDCoupling::MEDFileData* getMEDFileData();
+    void write(const std::string& filename);
   };
 }
 

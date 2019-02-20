@@ -340,40 +340,40 @@ using namespace MEDCoupling;
 namespace MEDCoupling
 {
   bool HasXDR();
-  std::string MEDFileVersionStr() throw(INTERP_KERNEL::Exception);
-  std::string MEDFileVersionOfFileStr(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-  void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
-  void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
-  void SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
-  void CheckFileForRead(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetMeshNames(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetMeshGroupsNames(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetMeshFamiliesNames(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetMeshFamiliesNamesOnGroup(const std::string& fileName, const std::string& meshName, const std::string& grpName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetMeshGroupsNamesOnFamily(const std::string& fileName, const std::string& meshName, const std::string& famName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetAllFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetAllFieldNames(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetFieldNamesOnMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  std::vector<std::string> GetNodeFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  double GetTimeAttachedOnFieldIteration(const std::string& fileName, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  void AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  int ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingField *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingField *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingField *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  MEDCoupling::MEDCouplingField *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  void WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  void WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  void WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  void WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  void WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingField *f) throw(INTERP_KERNEL::Exception);
+  std::string MEDFileVersionStr();
+  std::string MEDFileVersionOfFileStr(const std::string& fileName);
+  void SetEpsilonForNodeComp(double val);
+  void SetCompPolicyForCell(int val);
+  void SetTooLongStrPolicy(int val);
+  void CheckFileForRead(const std::string& fileName);
+  std::vector<std::string> GetMeshNames(const std::string& fileName);
+  std::vector<std::string> GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName);
+  std::vector<std::string> GetMeshGroupsNames(const std::string& fileName, const std::string& meshName);
+  std::vector<std::string> GetMeshFamiliesNames(const std::string& fileName, const std::string& meshName);
+  std::vector<std::string> GetMeshFamiliesNamesOnGroup(const std::string& fileName, const std::string& meshName, const std::string& grpName);
+  std::vector<std::string> GetMeshGroupsNamesOnFamily(const std::string& fileName, const std::string& meshName, const std::string& famName);
+  std::vector<std::string> GetAllFieldNamesOnMesh(const std::string& fileName, const std::string& meshName);
+  std::vector<std::string> GetAllFieldNames(const std::string& fileName);
+  std::vector<std::string> GetFieldNamesOnMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName);
+  std::vector<std::string> GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName);
+  std::vector<std::string> GetNodeFieldNamesOnMesh(const std::string& fileName, const std::string& meshName);
+  double GetTimeAttachedOnFieldIteration(const std::string& fileName, const std::string& fieldName, int iteration, int order);
+  void AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj);
+  MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0);
+  MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax=0);
+  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0);
+  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax=0);
+  int ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName);
+  MEDCoupling::MEDCouplingField *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  MEDCoupling::MEDCouplingField *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  MEDCoupling::MEDCouplingField *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  MEDCoupling::MEDCouplingField *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  void WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch);
+  void WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch);
+  void WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch);
+  void WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch);
+  void WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch);
+  void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingField *f);
 }
 
 %rename (MEDFileVersion) MEDFileVersionSwig;
@@ -593,32 +593,32 @@ namespace MEDCoupling
   {
   public:
     void copyOptionsFrom(const MEDFileWritable& other) const;
-    int getTooLongStrPolicy() const throw(INTERP_KERNEL::Exception);
-    void setTooLongStrPolicy(int newVal) throw(INTERP_KERNEL::Exception);
-    int getZipConnPolicy() throw(INTERP_KERNEL::Exception);
-    void setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+    int getTooLongStrPolicy() const;
+    void setTooLongStrPolicy(int newVal);
+    int getZipConnPolicy();
+    void setZipConnPolicy(int newVal);
   };
   
   class MEDFileWritableStandAlone : public MEDFileWritable
   {
   public:
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    void write33(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void write(const std::string& fileName, int mode) const;
+    void write33(const std::string& fileName, int mode) const;
     %extend
        {
-         DataArrayByte *serialize() const throw(INTERP_KERNEL::Exception)
+         DataArrayByte *serialize() const
          {
            MCAuto<DataArrayByte> ret(self->serialize());
            return ret.retn();
          }
 
-         PyObject *__getstate__() throw(INTERP_KERNEL::Exception)
+         PyObject *__getstate__()
          {
            PyObject *ret(PyList_New(0));
            return ret;
          }
 
-         void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+         void __setstate__(PyObject *inp)
          {
          }
        }
@@ -647,14 +647,14 @@ namespace MEDCoupling
     void setGlobalNodeNumFieldReading(bool b);
     %extend
     {
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         std::ostringstream oss;
         self->reprAll(oss);
         return oss.str();
       }
       
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      std::string __repr__() const
       {
         std::ostringstream oss; oss << "MEDFileMeshReadSelector C++ instance at " << self << " (with code=" << self->getCode() << ").";
         return oss.str();
@@ -665,13 +665,13 @@ namespace MEDCoupling
   class MEDFileJointCorrespondence : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileJointCorrespondence *New() throw(INTERP_KERNEL::Exception);
+    static MEDFileJointCorrespondence *New();
     static MEDFileJointCorrespondence *New(DataArrayInt* correspondence) // nodes
-      throw(INTERP_KERNEL::Exception);
+     ;
     static MEDFileJointCorrespondence *New(DataArrayInt* correspondence,  // cells
                                            INTERP_KERNEL::NormalizedCellType loc_geo_type,
                                            INTERP_KERNEL::NormalizedCellType rem_geo_type)
-      throw(INTERP_KERNEL::Exception);
+     ;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileJointCorrespondence *deepCopy() const;
     MEDFileJointCorrespondence *shallowCpy() const;
@@ -682,32 +682,32 @@ namespace MEDCoupling
     INTERP_KERNEL::NormalizedCellType getLocalGeometryType() const;
     void setRemoteGeometryType(INTERP_KERNEL::NormalizedCellType type);
     INTERP_KERNEL::NormalizedCellType getRemoteGeometryType() const;
-    void setCorrespondence(DataArrayInt *corr) throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
+    void setCorrespondence(DataArrayInt *corr);
+    void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const;
+    std::string simpleRepr() const;
     %extend
     {
       MEDFileJointCorrespondence()
       {
         return MEDFileJointCorrespondence::New();
       }
-      MEDFileJointCorrespondence(DataArrayInt* correspondence) throw(INTERP_KERNEL::Exception)
+      MEDFileJointCorrespondence(DataArrayInt* correspondence)
       {
         return MEDFileJointCorrespondence::New(correspondence);
       }
       MEDFileJointCorrespondence(DataArrayInt* correspondence,  // cells
                                  INTERP_KERNEL::NormalizedCellType loc_geo_type,
-                                 INTERP_KERNEL::NormalizedCellType rem_geo_type) throw(INTERP_KERNEL::Exception)
+                                 INTERP_KERNEL::NormalizedCellType rem_geo_type)
       {
         return MEDFileJointCorrespondence::New(correspondence, loc_geo_type, rem_geo_type);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
       
-      DataArrayInt *getCorrespondence() const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *getCorrespondence() const
       {
         const DataArrayInt *ret(self->getCorrespondence());
         if(ret)
@@ -720,8 +720,8 @@ namespace MEDCoupling
   class MEDFileJointOneStep : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileJointOneStep *New(int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
-    static MEDFileJointOneStep *New(const std::string& fileName, const std::string& mName, const std::string& jointName, int number=1) throw(INTERP_KERNEL::Exception);
+    static MEDFileJointOneStep *New(int dt=-1, int it=-1);
+    static MEDFileJointOneStep *New(const std::string& fileName, const std::string& mName, const std::string& jointName, int number=1);
     MEDFileJointOneStep *deepCopy() const;
     MEDFileJointOneStep *shallowCpy() const;
     bool isEqual(const MEDFileJointOneStep *other) const;
@@ -731,8 +731,8 @@ namespace MEDCoupling
     int getIteration() const;
     void pushCorrespondence(MEDFileJointCorrespondence* correspondence);
     int getNumberOfCorrespondences() const;
-    void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName) const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
+    void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName) const;
+    std::string simpleRepr() const;
     %extend
     {
       MEDFileJointOneStep()
@@ -740,17 +740,17 @@ namespace MEDCoupling
         return MEDFileJointOneStep::New();
       }
 
-      MEDFileJointOneStep(const std::string& fileName, const std::string& mName, const std::string& jointName, int number) throw(INTERP_KERNEL::Exception)
+      MEDFileJointOneStep(const std::string& fileName, const std::string& mName, const std::string& jointName, int number)
       {
         return MEDFileJointOneStep::New(fileName,mName,jointName,number);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
       
-      MEDFileJointCorrespondence *getCorrespondenceAtPos(int i) const throw(INTERP_KERNEL::Exception)
+      MEDFileJointCorrespondence *getCorrespondenceAtPos(int i) const
       {
         MEDFileJointCorrespondence *ret(self->getCorrespondenceAtPos(i));
         if(ret)
@@ -758,7 +758,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      MEDFileJointCorrespondence *__getitem__(int i) const throw(INTERP_KERNEL::Exception)
+      MEDFileJointCorrespondence *__getitem__(int i) const
       {
         return MEDCoupling_MEDFileJointOneStep_getCorrespondenceAtPos(self,i);
       }
@@ -768,9 +768,9 @@ namespace MEDCoupling
   class MEDFileJoint : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileJoint *New() throw(INTERP_KERNEL::Exception);
-    static MEDFileJoint *New(const std::string& fileName, const std::string& mName, int num) throw(INTERP_KERNEL::Exception);
-    static MEDFileJoint *New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum) throw(INTERP_KERNEL::Exception);
+    static MEDFileJoint *New();
+    static MEDFileJoint *New(const std::string& fileName, const std::string& mName, int num);
+    static MEDFileJoint *New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum);
     MEDFileJoint *deepCopy() const;
     MEDFileJoint *shallowCpy() const;
     bool isEqual(const MEDFileJoint *other) const;
@@ -782,7 +782,7 @@ namespace MEDCoupling
     std::string getDescription() const;
     void setJointName(const std::string& name);
     std::string getJointName() const;
-    bool changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    bool changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     void setDomainNumber(const int& number);
     int getDomainNumber() const;
     void pushStep(MEDFileJointOneStep* step);
@@ -795,22 +795,22 @@ namespace MEDCoupling
         return MEDFileJoint::New();
       }
       
-      MEDFileJoint(const std::string& fileName, const std::string& mName, int num) throw(INTERP_KERNEL::Exception)
+      MEDFileJoint(const std::string& fileName, const std::string& mName, int num)
       {
         return MEDFileJoint::New(fileName,mName,num);
       }
 
-      MEDFileJoint(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum) throw(INTERP_KERNEL::Exception)
+      MEDFileJoint(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum)
       {
         return MEDFileJoint::New(jointName,locMeshName,remoteMeshName,remoteMeshNum);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
       
-      MEDFileJointOneStep *getStepAtPos(int i) const throw(INTERP_KERNEL::Exception)
+      MEDFileJointOneStep *getStepAtPos(int i) const
       {
         MEDFileJointOneStep *ret(self->getStepAtPos(i));
         if(ret)
@@ -818,7 +818,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      MEDFileJointOneStep *__getitem__(int i) throw(INTERP_KERNEL::Exception)
+      MEDFileJointOneStep *__getitem__(int i)
       {
         return MEDCoupling_MEDFileJoint_getStepAtPos(self,i);
       }
@@ -828,18 +828,18 @@ namespace MEDCoupling
   class MEDFileJoints : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileJoints *New() throw(INTERP_KERNEL::Exception);
-    static MEDFileJoints *New(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+    static MEDFileJoints *New();
+    static MEDFileJoints *New(const std::string& fileName, const std::string& meshName);
     MEDFileJoints *deepCopy() const;
     std::string simpleRepr() const;
     std::string getMeshName() const;
     int getNumberOfJoints() const;
     std::vector<std::string> getJointsNames() const;
-    bool changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
-    void resize(int newSize) throw(INTERP_KERNEL::Exception);
+    bool changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
+    void resize(int newSize);
     void pushJoint(MEDFileJoint *joint);
-    void setJointAtPos(int i, MEDFileJoint *joint) throw(INTERP_KERNEL::Exception);
-    void destroyJointAtPos(int i) throw(INTERP_KERNEL::Exception);
+    void setJointAtPos(int i, MEDFileJoint *joint);
+    void destroyJointAtPos(int i);
     %extend
     {
       MEDFileJoints()
@@ -847,17 +847,17 @@ namespace MEDCoupling
         return MEDFileJoints::New();
       }
       
-      MEDFileJoints(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception)
+      MEDFileJoints(const std::string& fileName, const std::string& meshName)
       {
         return MEDFileJoints::New(fileName,meshName);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
 
-      MEDFileJoint *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      MEDFileJoint *__getitem__(PyObject *obj)
       {
         static const char msg[]="MEDFileJoints::__getitem__ : only integer or string with meshname supported !";
         if(PyInt_Check(obj))
@@ -873,12 +873,12 @@ namespace MEDCoupling
         return ret;
       }
 
-      int __len__() const throw(INTERP_KERNEL::Exception)
+      int __len__() const
       {
         return self->getNumberOfJoints();
       }
 
-      MEDFileJoint *getJointAtPos(int i) const throw(INTERP_KERNEL::Exception)
+      MEDFileJoint *getJointAtPos(int i) const
       {
         MEDFileJoint *ret=self->getJointAtPos(i);
         if(ret)
@@ -886,7 +886,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      MEDFileJoint *getJointWithName(const std::string& paramName) const throw(INTERP_KERNEL::Exception)
+      MEDFileJoint *getJointWithName(const std::string& paramName) const
       {
         MEDFileJoint *ret=self->getJointWithName(paramName);
         if(ret)
@@ -932,18 +932,18 @@ namespace MEDCoupling
   public:
     void clear();
     std::size_t size() const;
-    void setArray(int meshDimRelToMax, DataArrayInt *da) throw(INTERP_KERNEL::Exception);
-    void setArrayForType(INTERP_KERNEL::NormalizedCellType type, DataArrayInt *da) throw(INTERP_KERNEL::Exception);
+    void setArray(int meshDimRelToMax, DataArrayInt *da);
+    void setArrayForType(INTERP_KERNEL::NormalizedCellType type, DataArrayInt *da);
     %extend
     {
-      DataArrayInt *getArray(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *getArray(INTERP_KERNEL::NormalizedCellType type)
       {
         DataArrayInt *ret(self->getArray(type));
         if(ret) ret->incrRef();
         return ret;
       }
       
-      PyObject *getTypes() const throw(INTERP_KERNEL::Exception)
+      PyObject *getTypes() const
       {
         std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getTypes());
         std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
@@ -1003,26 +1003,26 @@ namespace MEDCoupling
     MEDFileEquivalences();
   public:
     int size() const;
-    std::vector<std::string> getEquivalenceNames() const throw(INTERP_KERNEL::Exception);
-    void killEquivalenceWithName(const std::string& name) throw(INTERP_KERNEL::Exception);
-    void killEquivalenceAt(int i) throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getEquivalenceNames() const;
+    void killEquivalenceWithName(const std::string& name);
+    void killEquivalenceAt(int i);
     void clear();
     %extend
     {
-      MEDFileEquivalencePair *getEquivalence(int i) throw(INTERP_KERNEL::Exception)
+      MEDFileEquivalencePair *getEquivalence(int i)
       {
         MEDFileEquivalencePair *ret(self->getEquivalence(i));
         if(ret) ret->incrRef();
         return ret;
       }
-      MEDFileEquivalencePair *getEquivalenceWithName(const std::string& name) throw(INTERP_KERNEL::Exception)
+      MEDFileEquivalencePair *getEquivalenceWithName(const std::string& name)
       {
         MEDFileEquivalencePair *ret(self->getEquivalenceWithName(name));
         if(ret) ret->incrRef();
         return ret;
       }
 
-      MEDFileEquivalencePair *appendEmptyEquivalenceWithName(const std::string& name) throw(INTERP_KERNEL::Exception)
+      MEDFileEquivalencePair *appendEmptyEquivalenceWithName(const std::string& name)
       {
         MEDFileEquivalencePair *ret(self->appendEmptyEquivalenceWithName(name));
         if(ret) ret->incrRef();
@@ -1034,13 +1034,13 @@ namespace MEDCoupling
   class MEDFileMesh : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileMesh *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    virtual MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
-    virtual MEDFileMesh *deepCopy() const throw(INTERP_KERNEL::Exception);
-    virtual MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
-    virtual void clearNonDiscrAttributes() const throw(INTERP_KERNEL::Exception);
+    static MEDFileMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileMesh *New(DataArrayByte *db);
+    virtual MEDFileMesh *createNewEmpty() const;
+    virtual MEDFileMesh *deepCopy() const;
+    virtual MEDFileMesh *shallowCpy() const;
+    virtual void clearNonDiscrAttributes() const;
     void setName(const std::string& name);
     std::string getName();
     std::string getUnivName() const;
@@ -1059,128 +1059,128 @@ namespace MEDCoupling
     std::string getTimeUnit() const;
     void setAxisType(MEDCouplingAxisType at);
     MEDCouplingAxisType getAxisType() const;
-    virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
-    virtual int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    virtual bool hasImplicitPart() const throw(INTERP_KERNEL::Exception);
-    virtual int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
-    virtual void releaseImplicitPartIfAny() const throw(INTERP_KERNEL::Exception);
-    virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const throw(INTERP_KERNEL::Exception);
-    virtual std::vector<int> getFamArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
-    virtual std::vector<int> getNumArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
-    virtual std::vector<int> getNameArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
-    virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
-    virtual MEDFileMesh *cartesianize() const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getNonEmptyLevels() const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
-    int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    virtual int getNumberOfNodes() const;
+    virtual int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const;
+    virtual bool hasImplicitPart() const;
+    virtual int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const;
+    virtual void releaseImplicitPartIfAny() const;
+    virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
+    virtual std::vector<int> getFamArrNonEmptyLevelsExt() const;
+    virtual std::vector<int> getNumArrNonEmptyLevelsExt() const;
+    virtual std::vector<int> getNameArrNonEmptyLevelsExt() const;
+    virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const;
+    virtual MEDFileMesh *cartesianize() const;
+    std::vector<int> getNonEmptyLevels() const;
+    std::vector<int> getNonEmptyLevelsExt() const;
+    int getSizeAtLevel(int meshDimRelToMaxExt) const;
     //
-    bool existsGroup(const std::string& groupName) const throw(INTERP_KERNEL::Exception);
-    bool existsFamily(int famId) const throw(INTERP_KERNEL::Exception);
-    bool existsFamily(const std::string& familyName) const throw(INTERP_KERNEL::Exception);
-    void setFamilyId(const std::string& familyName, int id) throw(INTERP_KERNEL::Exception);
-    void setFamilyIdUnique(const std::string& familyName, int id) throw(INTERP_KERNEL::Exception);
-    void addFamily(const std::string& familyName, int id) throw(INTERP_KERNEL::Exception);
-    void addFamilyOnGrp(const std::string& grpName, const std::string& famName) throw(INTERP_KERNEL::Exception);
-    virtual void createGroupOnAll(int meshDimRelToMaxExt, const std::string& groupName) throw(INTERP_KERNEL::Exception);
-    virtual bool keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
-    void copyFamGrpMapsFrom(const MEDFileMesh& other) throw(INTERP_KERNEL::Exception);
-    void clearGrpMap() throw(INTERP_KERNEL::Exception);
-    void clearFamMap() throw(INTERP_KERNEL::Exception);
-    void clearFamGrpMaps() throw(INTERP_KERNEL::Exception);
-    const std::map<std::string,int>& getFamilyInfo() const throw(INTERP_KERNEL::Exception);
-    const std::map<std::string, std::vector<std::string> >& getGroupInfo() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getFamiliesOnGroup(const std::string& name) const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getFamiliesOnGroups(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamiliesIdsOnGroup(const std::string& name) const throw(INTERP_KERNEL::Exception);
-    void setFamiliesOnGroup(const std::string& name, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception);
-    void setFamiliesIdsOnGroup(const std::string& name, const std::vector<int>& famIds) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getGroupsOnFamily(const std::string& name) const throw(INTERP_KERNEL::Exception);
-    void setGroupsOnFamily(const std::string& famName, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getGroupsNames() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getFamiliesNames() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpNonEmptyLevelsExt(const std::string& grp) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpNonEmptyLevels(const std::string& grp) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamNonEmptyLevels(const std::string& fam) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamNonEmptyLevelsExt(const std::string& fam) const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getFamiliesNamesWithFilePointOfView() const throw(INTERP_KERNEL::Exception);
+    bool existsGroup(const std::string& groupName) const;
+    bool existsFamily(int famId) const;
+    bool existsFamily(const std::string& familyName) const;
+    void setFamilyId(const std::string& familyName, int id);
+    void setFamilyIdUnique(const std::string& familyName, int id);
+    void addFamily(const std::string& familyName, int id);
+    void addFamilyOnGrp(const std::string& grpName, const std::string& famName);
+    virtual void createGroupOnAll(int meshDimRelToMaxExt, const std::string& groupName);
+    virtual bool keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs);
+    void copyFamGrpMapsFrom(const MEDFileMesh& other);
+    void clearGrpMap();
+    void clearFamMap();
+    void clearFamGrpMaps();
+    const std::map<std::string,int>& getFamilyInfo() const;
+    const std::map<std::string, std::vector<std::string> >& getGroupInfo() const;
+    std::vector<std::string> getFamiliesOnGroup(const std::string& name) const;
+    std::vector<std::string> getFamiliesOnGroups(const std::vector<std::string>& grps) const;
+    std::vector<int> getFamiliesIdsOnGroup(const std::string& name) const;
+    void setFamiliesOnGroup(const std::string& name, const std::vector<std::string>& fams);
+    void setFamiliesIdsOnGroup(const std::string& name, const std::vector<int>& famIds);
+    std::vector<std::string> getGroupsOnFamily(const std::string& name) const;
+    void setGroupsOnFamily(const std::string& famName, const std::vector<std::string>& grps);
+    std::vector<std::string> getGroupsNames() const;
+    std::vector<std::string> getFamiliesNames() const;
+    std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const;
+    std::vector<int> getGrpNonEmptyLevelsExt(const std::string& grp) const;
+    std::vector<int> getGrpNonEmptyLevels(const std::string& grp) const;
+    std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const;
+    std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const;
+    std::vector<int> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const;
+    std::vector<int> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const;
+    std::vector<int> getFamNonEmptyLevels(const std::string& fam) const;
+    std::vector<int> getFamNonEmptyLevelsExt(const std::string& fam) const;
+    std::vector<std::string> getFamiliesNamesWithFilePointOfView() const;
     static std::string GetMagicFamilyStr();
-    void assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> removeEmptyGroups() throw(INTERP_KERNEL::Exception);
-    void removeGroupAtLevel(int meshDimRelToMaxExt, const std::string& name) throw(INTERP_KERNEL::Exception);
-    void removeGroup(const std::string& name) throw(INTERP_KERNEL::Exception);
-    void removeFamily(const std::string& name) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> removeOrphanGroups() throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> removeOrphanFamilies() throw(INTERP_KERNEL::Exception);
-    void removeFamiliesReferedByNoGroups() throw(INTERP_KERNEL::Exception);
-    void rearrangeFamilies() throw(INTERP_KERNEL::Exception);
-    void checkOrphanFamilyZero() const throw(INTERP_KERNEL::Exception);
-    void changeGroupName(const std::string& oldName, const std::string& newName) throw(INTERP_KERNEL::Exception);
-    void changeFamilyName(const std::string& oldName, const std::string& newName) throw(INTERP_KERNEL::Exception);
-    void changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception);
-    void changeAllGroupsContainingFamily(const std::string& familyNameToChange, const std::vector<std::string>& newFamiliesNames) throw(INTERP_KERNEL::Exception);
+    void assignFamilyNameWithGroupName();
+    std::vector<std::string> removeEmptyGroups();
+    void removeGroupAtLevel(int meshDimRelToMaxExt, const std::string& name);
+    void removeGroup(const std::string& name);
+    void removeFamily(const std::string& name);
+    std::vector<std::string> removeOrphanGroups();
+    std::vector<std::string> removeOrphanFamilies();
+    void removeFamiliesReferedByNoGroups();
+    void rearrangeFamilies();
+    void checkOrphanFamilyZero() const;
+    void changeGroupName(const std::string& oldName, const std::string& newName);
+    void changeFamilyName(const std::string& oldName, const std::string& newName);
+    void changeFamilyId(int oldId, int newId);
+    void changeAllGroupsContainingFamily(const std::string& familyNameToChange, const std::vector<std::string>& newFamiliesNames);
     void setFamilyInfo(const std::map<std::string,int>& info);
     void setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
-    int getFamilyId(const std::string& name) const throw(INTERP_KERNEL::Exception);
-    int getMaxAbsFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getMinFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getTheMaxAbsFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getTheMaxFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getTheMinFamilyId() const throw(INTERP_KERNEL::Exception);
-    virtual int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    virtual int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    virtual int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getAllFamiliesIdsReferenced() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *computeAllFamilyIdsInUse() const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
-    std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
-    bool ensureDifferentFamIdsPerLevel() throw(INTERP_KERNEL::Exception);
-    void normalizeFamIdsTrio() throw(INTERP_KERNEL::Exception);
-    void normalizeFamIdsMEDFile() throw(INTERP_KERNEL::Exception);
-    virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception);
-    virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
-    virtual std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
+    int getFamilyId(const std::string& name) const;
+    int getMaxAbsFamilyId() const;
+    int getMaxFamilyId() const;
+    int getMinFamilyId() const;
+    int getTheMaxAbsFamilyId() const;
+    int getTheMaxFamilyId() const;
+    int getTheMinFamilyId() const;
+    virtual int getMaxAbsFamilyIdInArrays() const;
+    virtual int getMaxFamilyIdInArrays() const;
+    virtual int getMinFamilyIdInArrays() const;
+    DataArrayInt *getAllFamiliesIdsReferenced() const;
+    DataArrayInt *computeAllFamilyIdsInUse() const;
+    std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const;
+    std::string getFamilyNameGivenId(int id) const;
+    bool ensureDifferentFamIdsPerLevel();
+    void normalizeFamIdsTrio();
+    void normalizeFamIdsMEDFile();
+    virtual int getMeshDimension() const;
+    virtual std::string simpleRepr() const;
+    virtual std::string advancedRepr() const;
     //
-    virtual MEDCouplingMesh *getMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
-    virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
-    virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception);
-    virtual void setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr) throw(INTERP_KERNEL::Exception);
-    virtual void addNodeGroup(const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
-    virtual void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getFamilyArr(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getNodeGroupArr(const std::string& grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getNodeFamilyArr(const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingMesh *getMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
+    virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr);
+    virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr);
+    virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr);
+    virtual void setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr);
+    virtual void addNodeGroup(const DataArrayInt *ids);
+    virtual void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids);
+    virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
+    virtual DataArrayInt *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const;
+    virtual DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const;
+    virtual DataArrayInt *getFamilyArr(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const;
+    virtual DataArrayInt *getNodeGroupArr(const std::string& grp, bool renum=false) const;
+    virtual DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const;
+    virtual DataArrayInt *getNodeFamilyArr(const std::string& fam, bool renum=false) const;
+    virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const;
     int getNumberOfJoints();
     MEDFileJoints *getJoints();
     void setJoints( MEDFileJoints* joints );
     void initializeEquivalences();
     void killEquivalences();
-    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
-    void killStructureElements() throw(INTERP_KERNEL::Exception);
+    bool presenceOfStructureElements() const;
+    void killStructureElements();
     %extend
        {
-         std::string __str__() const throw(INTERP_KERNEL::Exception)
+         std::string __str__() const
          {
            return self->simpleRepr();
          }
 
-         MEDCouplingMesh *__getitem__(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         MEDCouplingMesh *__getitem__(int meshDimRelToMaxExt) const
          {
            return self->getMeshAtLevel(meshDimRelToMaxExt,false);
          }
 
-         PyObject *getTime() throw(INTERP_KERNEL::Exception)
+         PyObject *getTime()
          {
            int tmp1,tmp2;
            double tmp0=self->getTime(tmp1,tmp2);
@@ -1191,7 +1191,7 @@ namespace MEDCoupling
            return res;
          }
 
-         virtual PyObject *isEqual(const MEDFileMesh *other, double eps) const throw(INTERP_KERNEL::Exception)
+         virtual PyObject *isEqual(const MEDFileMesh *other, double eps) const
          {
            std::string what;
            bool ret0=self->isEqual(other,eps,what);
@@ -1203,14 +1203,14 @@ namespace MEDCoupling
            return res;
          }
 
-         void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
+         void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=false)
          {
            std::vector<const DataArrayInt *> grps;
            convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",grps);
            self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
          }
          
-         PyObject *areFamsEqual(const MEDFileMesh *other) const throw(INTERP_KERNEL::Exception)
+         PyObject *areFamsEqual(const MEDFileMesh *other) const
          {
            std::string what;
            bool ret0=self->areFamsEqual(other,what);
@@ -1222,7 +1222,7 @@ namespace MEDCoupling
            return res;
          }
 
-         PyObject *areGrpsEqual(const MEDFileMesh *other) const throw(INTERP_KERNEL::Exception)
+         PyObject *areGrpsEqual(const MEDFileMesh *other) const
          {
            std::string what;
            bool ret0=self->areGrpsEqual(other,what);
@@ -1234,7 +1234,7 @@ namespace MEDCoupling
            return res;
          }
 
-         PyObject *getAllGeoTypes() const throw(INTERP_KERNEL::Exception)
+         PyObject *getAllGeoTypes() const
          {
            std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getAllGeoTypes());
            std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
@@ -1244,7 +1244,7 @@ namespace MEDCoupling
            return res;
          }
 
-         PyObject *getGeoTypesAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+         PyObject *getGeoTypesAtLevel(int meshDimRelToMax) const
          {
            std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getGeoTypesAtLevel(meshDimRelToMax));
            std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
@@ -1254,7 +1254,7 @@ namespace MEDCoupling
            return res;
          }
 
-         PyObject *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         PyObject *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const
          {
            const DataArrayInt *tmp=self->getFamilyFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
@@ -1262,7 +1262,7 @@ namespace MEDCoupling
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
 
-         PyObject *getOrCreateAndGetFamilyFieldAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception)
+         PyObject *getOrCreateAndGetFamilyFieldAtLevel(int meshDimRelToMaxExt)
          {
            const DataArrayInt *tmp=self->getOrCreateAndGetFamilyFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
@@ -1270,7 +1270,7 @@ namespace MEDCoupling
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
 
-         PyObject *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         PyObject *getNumberFieldAtLevel(int meshDimRelToMaxExt) const
          {
            const DataArrayInt *tmp=self->getNumberFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
@@ -1278,7 +1278,7 @@ namespace MEDCoupling
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
 
-         PyObject *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         PyObject *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const
          {
            const DataArrayInt *tmp=self->getRevNumberFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
@@ -1286,7 +1286,7 @@ namespace MEDCoupling
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
          
-         PyObject *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         PyObject *getNameFieldAtLevel(int meshDimRelToMaxExt) const
          {
            const DataArrayAsciiChar *tmp=self->getNameFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
@@ -1294,7 +1294,7 @@ namespace MEDCoupling
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayAsciiChar, SWIG_POINTER_OWN | 0 );
          }
 
-         PyObject *findOrCreateAndGiveFamilyWithId(int id, bool& created) throw(INTERP_KERNEL::Exception)
+         PyObject *findOrCreateAndGiveFamilyWithId(int id, bool& created)
          {
            bool ret1;
            std::string ret0=self->findOrCreateAndGiveFamilyWithId(id,ret1);
@@ -1304,7 +1304,7 @@ namespace MEDCoupling
            return ret;
          }
          
-         PyObject *unPolyze() throw(INTERP_KERNEL::Exception)
+         PyObject *unPolyze()
          {
            DataArrayInt *ret3=0;
            std::vector<int> ret1,ret2;
@@ -1338,14 +1338,14 @@ namespace MEDCoupling
            return ret;
          }
 
-         MEDFileEquivalences *getEquivalences() throw(INTERP_KERNEL::Exception)
+         MEDFileEquivalences *getEquivalences()
          {
            MEDFileEquivalences *ret(self->getEquivalences());
            if(ret) ret->incrRef();
            return ret;
          }
 
-         virtual DataArrayInt *getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         virtual DataArrayInt *getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const
          {
            MCAuto<DataArrayInt> ret(self->getGlobalNumFieldAtLevel(meshDimRelToMaxExt));
            return ret.retn();
@@ -1356,63 +1356,63 @@ namespace MEDCoupling
   class MEDFileUMesh : public MEDFileMesh
   {
   public:
-    static MEDFileUMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileUMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileUMesh *New(const MEDCouplingMappedExtrudedMesh *mem) throw(INTERP_KERNEL::Exception);
-    static MEDFileUMesh *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
+    static MEDFileUMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileUMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileUMesh *New(const MEDCouplingMappedExtrudedMesh *mem);
+    static MEDFileUMesh *New(DataArrayByte *db);
     static MEDFileUMesh *New();
     static const char *GetSpeStr4ExtMesh();
     ~MEDFileUMesh();
-    int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
-    int getRelativeLevOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
-    void checkConsistency() const throw(INTERP_KERNEL::Exception);
-    void checkSMESHConsistency() const throw(INTERP_KERNEL::Exception);
+    int getSpaceDimension() const;
+    int getRelativeLevOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    void checkConsistency() const;
+    void checkSMESHConsistency() const;
     void clearNodeAndCellNumbers();
     //
-    MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
-    void forceComputationOfParts() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const;
+    MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const;
+    MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const;
+    MEDCouplingUMesh *getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
+    DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const;
+    MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const;
+    MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const;
+    MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const;
+    MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const;
+    void forceComputationOfParts() const;
     //
-    void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
-    void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
-    void setCoordsForced(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
-    void eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception);
-    void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
-    void setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m) throw(INTERP_KERNEL::Exception);
-    void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
-    void optimizeFamilies() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
-    MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const throw(INTERP_KERNEL::Exception);
-    MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const throw(INTERP_KERNEL::Exception);
-    MEDFileUMesh *quadraticToLinear(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingMappedExtrudedMesh *convertToExtrudedMesh() const throw(INTERP_KERNEL::Exception);
+    void setFamilyNameAttachedOnId(int id, const std::string& newFamName);
+    void setCoords(DataArrayDouble *coords);
+    void setCoordsForced(DataArrayDouble *coords);
+    void eraseGroupsAtLevel(int meshDimRelToMaxExt);
+    void removeMeshAtLevel(int meshDimRelToMax);
+    void setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m);
+    void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false);
+    void optimizeFamilies();
+    DataArrayInt *zipCoords();
+    DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const;
+    MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const;
+    MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;
+    MEDCouplingMappedExtrudedMesh *convertToExtrudedMesh() const;
     %extend
        { 
-         MEDFileUMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
          {
            return MEDFileUMesh::New(fileName,mName,dt,it,mrs);
          }
 
-         MEDFileUMesh(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh(const std::string& fileName, MEDFileMeshReadSelector *mrs=0)
          {
            return MEDFileUMesh::New(fileName,mrs);
          }
 
-         MEDFileUMesh(const MEDCouplingMappedExtrudedMesh *mem) throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh(const MEDCouplingMappedExtrudedMesh *mem)
          {
            return MEDFileUMesh::New(mem);
          }
 
-         MEDFileUMesh(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh(DataArrayByte *db)
          {
            return MEDFileUMesh::New(db);
          }
@@ -1422,7 +1422,7 @@ namespace MEDCoupling
            return MEDFileUMesh::New();
          }
 
-         static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
+         static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
          {
            std::vector<int> typesCpp1;
            convertPyToNewIntArr3(types,typesCpp1);
@@ -1433,7 +1433,7 @@ namespace MEDCoupling
            return MEDFileUMesh::LoadPartOf(fileName,mName,typesCpp2,slicPerTyp,dt,it,mrs);
          }
 
-         PyObject *__getstate__() throw(INTERP_KERNEL::Exception)
+         PyObject *__getstate__()
          {
            std::vector<double> a0;
            std::vector<int> a1;
@@ -1466,7 +1466,7 @@ namespace MEDCoupling
            return ret;
          }
 
-         void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+         void __setstate__(PyObject *inp)
          {
            static const char MSG[]="MEDFileUMesh.__setstate__ : expected input is a tuple of size 4 !";
            if(!PyTuple_Check(inp))
@@ -1509,7 +1509,7 @@ namespace MEDCoupling
            }
          }
 
-         void __setitem__(int meshDimRelToMax, MEDCouplingPointSet *mesh) throw(INTERP_KERNEL::Exception)
+         void __setitem__(int meshDimRelToMax, MEDCouplingPointSet *mesh)
          {
            if(!mesh)
              throw INTERP_KERNEL::Exception("MEDFileUMesh::__setitem__ : Input mesh is NULL !");
@@ -1528,12 +1528,12 @@ namespace MEDCoupling
            throw INTERP_KERNEL::Exception("MEDFileUMesh::__setitem__ : Not recognized input mesh !");
          }
 
-         void __delitem__(int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
+         void __delitem__(int meshDimRelToMax)
          {
            self->removeMeshAtLevel(meshDimRelToMax);
          }
 
-         MEDFileUMesh *symmetry3DPlane(PyObject *point, PyObject *normalVector) const throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh *symmetry3DPlane(PyObject *point, PyObject *normalVector) const
          {
            const char msg[]="Python wrap of MEDFileUMesh::symmetry3DPlane : ";
            double val,val2;
@@ -1547,7 +1547,7 @@ namespace MEDCoupling
            return ret.retn();
          }
 
-         static MEDFileUMesh *Aggregate(PyObject *meshes) throw(INTERP_KERNEL::Exception)
+         static MEDFileUMesh *Aggregate(PyObject *meshes)
          {
            std::vector<const MEDFileUMesh *> meshesCpp;
            convertFromPyObjVectorOfObj<const MEDCoupling::MEDFileUMesh *>(meshes,SWIGTYPE_p_MEDCoupling__MEDFileUMesh,"MEDFileUMesh",meshesCpp);
@@ -1555,48 +1555,48 @@ namespace MEDCoupling
            return ret.retn();
          }
 
-         PyObject *getAllDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+         PyObject *getAllDistributionOfTypes() const
          {
            std::vector< std::pair<int,int> > ret(self->getAllDistributionOfTypes());
            return convertVecPairIntToPy(ret);
          }
          
-         DataArrayInt *deduceNodeSubPartFromCellSubPart(PyObject *extractDef) const throw(INTERP_KERNEL::Exception)
+         DataArrayInt *deduceNodeSubPartFromCellSubPart(PyObject *extractDef) const
          {
            std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
            convertToMapIntDataArrayInt(extractDef,extractDefCpp);
            return self->deduceNodeSubPartFromCellSubPart(extractDefCpp);
          }
 
-         MEDFileUMesh *extractPart(PyObject *extractDef) const throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh *extractPart(PyObject *extractDef) const
          {
            std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
            convertToMapIntDataArrayInt(extractDef,extractDefCpp);
            return self->extractPart(extractDefCpp);
          }
 
-         void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
+         void setMeshes(PyObject *li, bool renum=false)
          {
            std::vector<const MEDCouplingUMesh *> ms;
            convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",ms);
            self->setMeshes(ms,renum);
          }
 
-         void setGroupsFromScratch(int meshDimRelToMax, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
+         void setGroupsFromScratch(int meshDimRelToMax, PyObject *li, bool renum=false)
          {
            std::vector<const MEDCouplingUMesh *> ms;
            convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",ms);
            self->setGroupsFromScratch(meshDimRelToMax,ms,renum);
          }
          
-         void setGroupsOnSetMesh(int meshDimRelToMax, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
+         void setGroupsOnSetMesh(int meshDimRelToMax, PyObject *li, bool renum=false)
          {
            std::vector<const MEDCouplingUMesh *> ms;
            convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",ms);
            self->setGroupsOnSetMesh(meshDimRelToMax,ms,renum);
          }
 
-         DataArrayDouble *getCoords() const throw(INTERP_KERNEL::Exception)
+         DataArrayDouble *getCoords() const
          {
            DataArrayDouble *ret=self->getCoords();
            if(ret)
@@ -1604,7 +1604,7 @@ namespace MEDCoupling
            return ret;
          }
 
-         PartDefinition *getPartDefAtLevel(int meshDimRelToMaxExt, INTERP_KERNEL::NormalizedCellType gt=INTERP_KERNEL::NORM_ERROR) const throw(INTERP_KERNEL::Exception)
+         PartDefinition *getPartDefAtLevel(int meshDimRelToMaxExt, INTERP_KERNEL::NormalizedCellType gt=INTERP_KERNEL::NORM_ERROR) const
          {
            const PartDefinition *ret(self->getPartDefAtLevel(meshDimRelToMaxExt,gt));
            if(ret)
@@ -1612,7 +1612,7 @@ namespace MEDCoupling
            return const_cast<PartDefinition *>(ret);
          }
 
-         PyObject *buildInnerBoundaryAlongM1Group(const std::string& grpNameM1) throw(INTERP_KERNEL::Exception)
+         PyObject *buildInnerBoundaryAlongM1Group(const std::string& grpNameM1)
          {
            DataArrayInt *ret0=0,*ret1=0,*ret2=0;
            self->buildInnerBoundaryAlongM1Group(grpNameM1,ret0,ret1,ret2);
@@ -1623,7 +1623,7 @@ namespace MEDCoupling
            return ret;
          }
          
-         MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception)
+         MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const
          {
            MEDCoupling1GTUMesh *ret(self->getDirectUndergroundSingleGeoTypeMesh(gt));
            if(ret)
@@ -1631,7 +1631,7 @@ namespace MEDCoupling
            return ret;
          }
 
-         PyObject *getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+         PyObject *getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const
          {
            std::vector<MEDCoupling1GTUMesh *> tmp(self->getDirectUndergroundSingleGeoTypeMeshes(meshDimRelToMax));
            std::size_t sz(tmp.size());
@@ -1652,7 +1652,7 @@ namespace MEDCoupling
   public:
     %extend
     {
-      MEDCoupling1SGTUMesh *getImplicitFaceMesh() const throw(INTERP_KERNEL::Exception)
+      MEDCoupling1SGTUMesh *getImplicitFaceMesh() const
       {
         MEDCoupling1SGTUMesh *ret(self->getImplicitFaceMesh());
         if(ret)
@@ -1666,11 +1666,11 @@ namespace MEDCoupling
   {
   public:
     static MEDFileCMesh *New();
-    static MEDFileCMesh *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    static MEDFileCMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileCMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
-    int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
+    static MEDFileCMesh *New(DataArrayByte *db);
+    static MEDFileCMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileCMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    void setMesh(MEDCouplingCMesh *m);
+    int getSpaceDimension() const;
     %extend
        {
          MEDFileCMesh()
@@ -1678,22 +1678,22 @@ namespace MEDCoupling
            return MEDFileCMesh::New();
          }
 
-         MEDFileCMesh(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
+         MEDFileCMesh(const std::string& fileName, MEDFileMeshReadSelector *mrs=0)
          {
            return MEDFileCMesh::New(fileName,mrs);
          }
 
-         MEDFileCMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
+         MEDFileCMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
          {
            return MEDFileCMesh::New(fileName,mName,dt,it,mrs);
          }
 
-         MEDFileCMesh(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         MEDFileCMesh(DataArrayByte *db)
          {
            return MEDFileCMesh::New(db);
          }
          
-         PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
+         PyObject *getMesh() const
          {
            const MEDCouplingCMesh *tmp=self->getMesh();
            if(tmp)
@@ -1707,10 +1707,10 @@ namespace MEDCoupling
   {
   public:
     static MEDFileCurveLinearMesh *New();
-    static MEDFileCurveLinearMesh *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    static MEDFileCurveLinearMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileCurveLinearMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    void setMesh(MEDCouplingCurveLinearMesh *m) throw(INTERP_KERNEL::Exception);
+    static MEDFileCurveLinearMesh *New(DataArrayByte *db);
+    static MEDFileCurveLinearMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileCurveLinearMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    void setMesh(MEDCouplingCurveLinearMesh *m);
     %extend
        {
          MEDFileCurveLinearMesh()
@@ -1718,22 +1718,22 @@ namespace MEDCoupling
            return MEDFileCurveLinearMesh::New();
          }
 
-         MEDFileCurveLinearMesh(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
+         MEDFileCurveLinearMesh(const std::string& fileName, MEDFileMeshReadSelector *mrs=0)
          {
            return MEDFileCurveLinearMesh::New(fileName,mrs);
          }
 
-         MEDFileCurveLinearMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
+         MEDFileCurveLinearMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
          {
            return MEDFileCurveLinearMesh::New(fileName,mName,dt,it,mrs);
          }
 
-         MEDFileCurveLinearMesh(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         MEDFileCurveLinearMesh(DataArrayByte *db)
          {
            return MEDFileCurveLinearMesh::New(db);
          }
          
-         PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
+         PyObject *getMesh() const
          {
            const MEDCouplingCurveLinearMesh *tmp=self->getMesh();
            if(tmp)
@@ -1747,12 +1747,12 @@ namespace MEDCoupling
   {
   public:
     static MEDFileMeshMultiTS *New();
-    static MEDFileMeshMultiTS *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileMeshMultiTS *New(const std::string& fileName, const std::string& mName) throw(INTERP_KERNEL::Exception);
-    MEDFileMeshMultiTS *deepCopy() const throw(INTERP_KERNEL::Exception);
-    std::string getName() const throw(INTERP_KERNEL::Exception);
-    void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
-    void cartesianizeMe() throw(INTERP_KERNEL::Exception);
+    static MEDFileMeshMultiTS *New(const std::string& fileName);
+    static MEDFileMeshMultiTS *New(const std::string& fileName, const std::string& mName);
+    MEDFileMeshMultiTS *deepCopy() const;
+    std::string getName() const;
+    void setOneTimeStep(MEDFileMesh *mesh1TimeStep);
+    void cartesianizeMe();
     %extend
        { 
          MEDFileMeshMultiTS()
@@ -1760,17 +1760,17 @@ namespace MEDCoupling
            return MEDFileMeshMultiTS::New();
          }
 
-         MEDFileMeshMultiTS(const std::string& fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileMeshMultiTS(const std::string& fileName)
          {
            return MEDFileMeshMultiTS::New(fileName);
          }
 
-         MEDFileMeshMultiTS(const std::string& fileName, const std::string& mName) throw(INTERP_KERNEL::Exception)
+         MEDFileMeshMultiTS(const std::string& fileName, const std::string& mName)
          {
            return MEDFileMeshMultiTS::New(fileName,mName);
          }
 
-         MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception)
+         MEDFileMesh *getOneTimeStep() const
            {
              MEDFileMesh *ret=self->getOneTimeStep();
              if(ret)
@@ -1785,7 +1785,7 @@ namespace MEDCoupling
   public:
     %extend
     {
-      PyObject *next() throw(INTERP_KERNEL::Exception)
+      PyObject *next()
       {
         MEDFileMesh *ret=self->nextt();
         if(ret)
@@ -1806,18 +1806,18 @@ namespace MEDCoupling
   {
   public:
     static MEDFileMeshes *New();
-    static MEDFileMeshes *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    MEDFileMeshes *deepCopy() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
+    static MEDFileMeshes *New(DataArrayByte *db);
+    MEDFileMeshes *deepCopy() const;
+    int getNumberOfMeshes() const;
+    std::vector<std::string> getMeshesNames() const;
     //
-    void resize(int newSize) throw(INTERP_KERNEL::Exception);
-    void pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
-    void setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
-    void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
-    void cartesianizeMe() throw(INTERP_KERNEL::Exception);
-    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
-    void killStructureElements() throw(INTERP_KERNEL::Exception);
+    void resize(int newSize);
+    void pushMesh(MEDFileMesh *mesh);
+    void setMeshAtPos(int i, MEDFileMesh *mesh);
+    void destroyMeshAtPos(int i);
+    void cartesianizeMe();
+    bool presenceOfStructureElements() const;
+    void killStructureElements();
     %extend
        {
          MEDFileMeshes()
@@ -1825,22 +1825,22 @@ namespace MEDCoupling
            return MEDFileMeshes::New();
          }
 
-         MEDFileMeshes(const std::string& fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileMeshes(const std::string& fileName)
          {
            return MEDFileMeshes::New(fileName);
          }
 
-         MEDFileMeshes(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         MEDFileMeshes(DataArrayByte *db)
          {
            return MEDFileMeshes::New(db);
          }
 
-         std::string __str__() const throw(INTERP_KERNEL::Exception)
+         std::string __str__() const
            {
              return self->simpleRepr();
            }
 
-         MEDFileMesh *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+         MEDFileMesh *__getitem__(PyObject *obj)
          {
            static const char msg[]="MEDFileMeshes::__getitem__ : only integer or string with meshname supported !";
              if(PyInt_Check(obj))
@@ -1856,30 +1856,30 @@ namespace MEDCoupling
            return ret;
          }
 
-         MEDFileMeshes *__setitem__(int obj, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
+         MEDFileMeshes *__setitem__(int obj, MEDFileMesh *mesh)
          {
            self->setMeshAtPos(obj,mesh);
            return self;
          }
 
-         MEDFileMeshesIterator *__iter__() throw(INTERP_KERNEL::Exception)
+         MEDFileMeshesIterator *__iter__()
          {
            return self->iterator();
          }
 
-         int __len__() const throw(INTERP_KERNEL::Exception)
+         int __len__() const
          {
            return self->getNumberOfMeshes();
          }
          
-         MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception)
+         MEDFileMesh *getMeshAtPos(int i) const
            {
              MEDFileMesh *ret=self->getMeshAtPos(i);
              if(ret)
                ret->incrRef();
              return ret;
            }
-         MEDFileMesh *getMeshWithName(const std::string& mname) const throw(INTERP_KERNEL::Exception)
+         MEDFileMesh *getMeshWithName(const std::string& mname) const
            {
              MEDFileMesh *ret=self->getMeshWithName(mname);
              if(ret)
@@ -1899,10 +1899,10 @@ namespace MEDCoupling
     const std::vector<double>& getRefCoords() const;
     const std::vector<double>& getGaussCoords() const;
     const std::vector<double>& getGaussWeights() const;
-    bool isEqual(const MEDFileFieldLoc& other, double eps) const throw(INTERP_KERNEL::Exception);
+    bool isEqual(const MEDFileFieldLoc& other, double eps) const;
   %extend
     {
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->repr();
       }
@@ -1913,37 +1913,37 @@ namespace MEDCoupling
   {
   public:
     void resetContent();
-    void shallowCpyGlobs(const MEDFileFieldGlobsReal& other) throw(INTERP_KERNEL::Exception);
-    void deepCpyGlobs(const MEDFileFieldGlobsReal& other) throw(INTERP_KERNEL::Exception);
-    void shallowCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other) throw(INTERP_KERNEL::Exception);
-    void deepCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other) throw(INTERP_KERNEL::Exception);
-    void appendGlobs(const MEDFileFieldGlobsReal& other, double eps) throw(INTERP_KERNEL::Exception);
-    void checkGlobsCoherency() const throw(INTERP_KERNEL::Exception);
-    void checkGlobsPflsPartCoherency() const throw(INTERP_KERNEL::Exception);
-    void checkGlobsLocsPartCoherency() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getPfls() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getLocs() const throw(INTERP_KERNEL::Exception);
-    bool existsPfl(const std::string& pflName) const throw(INTERP_KERNEL::Exception);
-    bool existsLoc(const std::string& locName) const throw(INTERP_KERNEL::Exception);
-    std::string createNewNameOfPfl() const throw(INTERP_KERNEL::Exception);
-    std::string createNewNameOfLoc() const throw(INTERP_KERNEL::Exception);
-    std::vector< std::vector<int> > whichAreEqualProfiles() const throw(INTERP_KERNEL::Exception);
-    std::vector< std::vector<int> > whichAreEqualLocs(double eps) const throw(INTERP_KERNEL::Exception);
-    virtual std::vector<std::string> getPflsReallyUsed() const throw(INTERP_KERNEL::Exception);
-    virtual std::vector<std::string> getLocsReallyUsed() const throw(INTERP_KERNEL::Exception);
-    virtual std::vector<std::string> getPflsReallyUsedMulti() const throw(INTERP_KERNEL::Exception);
-    virtual std::vector<std::string> getLocsReallyUsedMulti() const throw(INTERP_KERNEL::Exception);
-    void killProfileIds(const std::vector<int>& pflIds) throw(INTERP_KERNEL::Exception);
-    void killLocalizationIds(const std::vector<int>& locIds) throw(INTERP_KERNEL::Exception);
-    void changePflName(const std::string& oldName, const std::string& newName) throw(INTERP_KERNEL::Exception);
-    void changeLocName(const std::string& oldName, const std::string& newName) throw(INTERP_KERNEL::Exception);
-    int getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception);
-    int getLocalizationId(const std::string& loc) const throw(INTERP_KERNEL::Exception);
-    int getProfileId(const std::string& pfl) const throw(INTERP_KERNEL::Exception);
-    void killStructureElementsInGlobs() throw(INTERP_KERNEL::Exception);
+    void shallowCpyGlobs(const MEDFileFieldGlobsReal& other);
+    void deepCpyGlobs(const MEDFileFieldGlobsReal& other);
+    void shallowCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other);
+    void deepCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other);
+    void appendGlobs(const MEDFileFieldGlobsReal& other, double eps);
+    void checkGlobsCoherency() const;
+    void checkGlobsPflsPartCoherency() const;
+    void checkGlobsLocsPartCoherency() const;
+    std::vector<std::string> getPfls() const;
+    std::vector<std::string> getLocs() const;
+    bool existsPfl(const std::string& pflName) const;
+    bool existsLoc(const std::string& locName) const;
+    std::string createNewNameOfPfl() const;
+    std::string createNewNameOfLoc() const;
+    std::vector< std::vector<int> > whichAreEqualProfiles() const;
+    std::vector< std::vector<int> > whichAreEqualLocs(double eps) const;
+    virtual std::vector<std::string> getPflsReallyUsed() const;
+    virtual std::vector<std::string> getLocsReallyUsed() const;
+    virtual std::vector<std::string> getPflsReallyUsedMulti() const;
+    virtual std::vector<std::string> getLocsReallyUsedMulti() const;
+    void killProfileIds(const std::vector<int>& pflIds);
+    void killLocalizationIds(const std::vector<int>& locIds);
+    void changePflName(const std::string& oldName, const std::string& newName);
+    void changeLocName(const std::string& oldName, const std::string& newName);
+    int getNbOfGaussPtPerCell(int locId) const;
+    int getLocalizationId(const std::string& loc) const;
+    int getProfileId(const std::string& pfl) const;
+    void killStructureElementsInGlobs();
   %extend
      {
-       PyObject *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception)
+       PyObject *getProfile(const std::string& pflName) const
        {
          const DataArrayInt *ret=self->getProfile(pflName);
          if(ret)
@@ -1951,7 +1951,7 @@ namespace MEDCoupling
          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
        }
 
-       PyObject *getProfileFromId(int pflId) const throw(INTERP_KERNEL::Exception)
+       PyObject *getProfileFromId(int pflId) const
        {
          const DataArrayInt *ret=self->getProfileFromId(pflId);
          if(ret)
@@ -1959,7 +1959,7 @@ namespace MEDCoupling
          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
        }
 
-       PyObject *getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
+       PyObject *getLocalizationFromId(int locId) const
        {
          const MEDFileFieldLoc *loc=&self->getLocalizationFromId(locId);
          if(loc)
@@ -1967,7 +1967,7 @@ namespace MEDCoupling
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_MEDCoupling__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
        
-       PyObject *getLocalization(const std::string& locName) const throw(INTERP_KERNEL::Exception)
+       PyObject *getLocalization(const std::string& locName) const
        {
          const MEDFileFieldLoc *loc=&self->getLocalization(locName);
          if(loc)
@@ -1975,55 +1975,55 @@ namespace MEDCoupling
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_MEDCoupling__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
        
-       PyObject *zipPflsNames() throw(INTERP_KERNEL::Exception)
+       PyObject *zipPflsNames()
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > ret=self->zipPflsNames();
          return convertVecPairVecStToPy(ret);
        }
 
-       PyObject *zipLocsNames(double eps) throw(INTERP_KERNEL::Exception)
+       PyObject *zipLocsNames(double eps)
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > ret=self->zipLocsNames(eps);
          return convertVecPairVecStToPy(ret);
        }
 
-       void changePflsNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+       void changePflsNames(PyObject *li)
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
          self->changePflsNames(v);
        }
 
-       void changePflsRefsNamesGen(PyObject *li) throw(INTERP_KERNEL::Exception)
+       void changePflsRefsNamesGen(PyObject *li)
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
          self->changePflsRefsNamesGen(v);
        }
 
-       void changePflsNamesInStruct(PyObject *li) throw(INTERP_KERNEL::Exception)
+       void changePflsNamesInStruct(PyObject *li)
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
          self->changePflsNamesInStruct(v);
        }
 
-       void changeLocsNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+       void changeLocsNames(PyObject *li)
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
          self->changeLocsNames(v);
        }
 
-       void changeLocsRefsNamesGen(PyObject *li) throw(INTERP_KERNEL::Exception)
+       void changeLocsRefsNamesGen(PyObject *li)
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
          self->changeLocsRefsNamesGen(v);
        }
        
-       void changeLocsNamesInStruct(PyObject *li) throw(INTERP_KERNEL::Exception)
+       void changeLocsNamesInStruct(PyObject *li)
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
          self->changeLocsNamesInStruct(v);
        }
 
-       std::string simpleReprGlobs() const throw(INTERP_KERNEL::Exception)
+       std::string simpleReprGlobs() const
        {
          std::ostringstream oss;
          self->simpleReprGlobs(oss);
@@ -2037,7 +2037,7 @@ namespace MEDCoupling
   public:
     %extend
       {
-        static MEDFileEntities *BuildFrom(PyObject *entities) throw(INTERP_KERNEL::Exception)
+        static MEDFileEntities *BuildFrom(PyObject *entities)
         {
           std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > inp;
           std::vector< std::pair<int,int> > inp0(convertTimePairIdsFromPy(entities));
@@ -2057,36 +2057,36 @@ namespace MEDCoupling
   class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileAnyTypeField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileAnyTypeField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileAnyTypeField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileAnyTypeField1TS *NewAdv(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileEntities *entities) throw(INTERP_KERNEL::Exception);
-    void loadArrays() throw(INTERP_KERNEL::Exception);
-    void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void unloadArrays() throw(INTERP_KERNEL::Exception);
-    void unloadArraysWithoutDataLoss() throw(INTERP_KERNEL::Exception);
-    int getDimension() const throw(INTERP_KERNEL::Exception);
-    int getIteration() const throw(INTERP_KERNEL::Exception);
-    int getOrder() const throw(INTERP_KERNEL::Exception);
-    std::string getName() throw(INTERP_KERNEL::Exception);
-    void setName(const std::string& name) throw(INTERP_KERNEL::Exception);
-    std::string getMeshName() throw(INTERP_KERNEL::Exception);
-    void setMeshName(const std::string& newMeshName) throw(INTERP_KERNEL::Exception);
-    int getMeshIteration() const throw(INTERP_KERNEL::Exception);
-    int getMeshOrder() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
-    bool isDealingTS(int iteration, int order) const throw(INTERP_KERNEL::Exception);
-    void setInfo(const std::vector<std::string>& infos) throw(INTERP_KERNEL::Exception);
-    const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
-    bool presenceOfMultiDiscPerGeoType() const throw(INTERP_KERNEL::Exception);
-    void setTime(int iteration, int order, double val) throw(INTERP_KERNEL::Exception);
-    virtual MEDFileAnyTypeField1TS *shallowCpy() const throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeField1TS *deepCopy() const throw(INTERP_KERNEL::Exception);
-    std::string getDtUnit() const throw(INTERP_KERNEL::Exception);
-    void setDtUnit(const std::string& dtUnit) throw(INTERP_KERNEL::Exception);
+    static MEDFileAnyTypeField1TS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileAnyTypeField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileAnyTypeField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    static MEDFileAnyTypeField1TS *NewAdv(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileEntities *entities);
+    void loadArrays();
+    void loadArraysIfNecessary();
+    void unloadArrays();
+    void unloadArraysWithoutDataLoss();
+    int getDimension() const;
+    int getIteration() const;
+    int getOrder() const;
+    std::string getName();
+    void setName(const std::string& name);
+    std::string getMeshName();
+    void setMeshName(const std::string& newMeshName);
+    int getMeshIteration() const;
+    int getMeshOrder() const;
+    int getNumberOfComponents() const;
+    bool isDealingTS(int iteration, int order) const;
+    void setInfo(const std::vector<std::string>& infos);
+    const std::vector<std::string>& getInfo() const;
+    bool presenceOfMultiDiscPerGeoType() const;
+    void setTime(int iteration, int order, double val);
+    virtual MEDFileAnyTypeField1TS *shallowCpy() const;
+    MEDFileAnyTypeField1TS *deepCopy() const;
+    std::string getDtUnit() const;
+    void setDtUnit(const std::string& dtUnit);
     %extend
     {
-      PyObject *getTime() throw(INTERP_KERNEL::Exception)
+      PyObject *getTime()
       {
         int tmp1,tmp2;
         double tmp0=self->getTime(tmp1,tmp2);
@@ -2097,7 +2097,7 @@ namespace MEDCoupling
         return res;
       }
 
-      PyObject *getDtIt() const throw(INTERP_KERNEL::Exception)
+      PyObject *getDtIt() const
       {
         std::pair<int,int> res=self->getDtIt();
         PyObject *elt=PyTuple_New(2);
@@ -2106,23 +2106,23 @@ namespace MEDCoupling
         return elt;
       }
 
-      void setProfileNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newPflName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception)
+      void setProfileNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newPflName, bool forceRenameOnGlob=false)
       {
         self->setProfileNameOnLeaf(0,typ,locId,newPflName,forceRenameOnGlob);
       }
       
-      void setLocNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newLocName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception)
+      void setLocNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newLocName, bool forceRenameOnGlob=false)
       {
         self->setLocNameOnLeaf(0,typ,locId,newLocName,forceRenameOnGlob);
       }
 
-      bool changeMeshNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+      bool changeMeshNames(PyObject *li)
       {
         std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
         return self->changeMeshNames(modifTab);
       }
       
-      PyObject *getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception)
+      PyObject *getTypesOfFieldAvailable() const
       {
         std::vector<TypeOfField> ret=self->getTypesOfFieldAvailable();
         PyObject *ret2=PyList_New(ret.size());
@@ -2131,7 +2131,7 @@ namespace MEDCoupling
         return ret2;
       }
 
-      PyObject *getNonEmptyLevels(const std::string& mname=std::string()) const throw(INTERP_KERNEL::Exception)
+      PyObject *getNonEmptyLevels(const std::string& mname=std::string()) const
       {
         std::vector<int> ret1;
         int ret0=self->getNonEmptyLevels(mname,ret1);
@@ -2141,7 +2141,7 @@ namespace MEDCoupling
         return elt;
       }
 
-      PyObject *getFieldSplitedByType(const std::string& mname=std::string()) const throw(INTERP_KERNEL::Exception)
+      PyObject *getFieldSplitedByType(const std::string& mname=std::string()) const
       {
         std::vector<INTERP_KERNEL::NormalizedCellType> types;
         std::vector< std::vector<TypeOfField> > typesF;
@@ -2176,7 +2176,7 @@ namespace MEDCoupling
            return ret2;
       }
 
-      PyObject *splitComponents() const throw(INTERP_KERNEL::Exception)
+      PyObject *splitComponents() const
       {
         std::vector< MCAuto< MEDFileAnyTypeField1TS > > ret=self->splitComponents();
         std::size_t sz=ret.size();
@@ -2186,7 +2186,7 @@ namespace MEDCoupling
         return retPy;
       }
 
-      PyObject *splitDiscretizations() const throw(INTERP_KERNEL::Exception)
+      PyObject *splitDiscretizations() const
       {
         std::vector< MCAuto< MEDFileAnyTypeField1TS > > ret=self->splitDiscretizations();
         std::size_t sz=ret.size();
@@ -2196,7 +2196,7 @@ namespace MEDCoupling
         return retPy;
       }
 
-      PyObject *splitMultiDiscrPerGeoTypes() const throw(INTERP_KERNEL::Exception)
+      PyObject *splitMultiDiscrPerGeoTypes() const
       {
         std::vector< MCAuto< MEDFileAnyTypeField1TS > > ret=self->splitMultiDiscrPerGeoTypes();
         std::size_t sz=ret.size();
@@ -2206,7 +2206,7 @@ namespace MEDCoupling
         return retPy;
       }
 
-      MEDFileAnyTypeField1TS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const throw(INTERP_KERNEL::Exception)
+      MEDFileAnyTypeField1TS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const
       {
         std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
         convertToMapIntDataArrayInt(extractDef,extractDefCpp);
@@ -2218,43 +2218,43 @@ namespace MEDCoupling
   class MEDFileField1TS : public MEDFileAnyTypeField1TS
   {
   public:
-    static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileField1TS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    static MEDFileField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileField1TS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileField1TS *New(DataArrayByte *db);
     static MEDFileField1TS *New();
-    MEDCoupling::MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
-    void copyTimeInfoFrom(MEDCouplingFieldDouble *mcf) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCoupling::MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const;
+    void copyTimeInfoFrom(MEDCouplingFieldDouble *mcf);
+    MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const;
+    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     //
-    void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
-    void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    void setFieldProfileFlatly(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    void setProfileNameOnLeaf(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newPflName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
-    void setLocNameOnLeaf(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newLocName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
+    void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field);
+    void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void setFieldProfileFlatly(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void setProfileNameOnLeaf(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newPflName, bool forceRenameOnGlob=false);
+    void setLocNameOnLeaf(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newLocName, bool forceRenameOnGlob=false);
     %extend
        {
-         MEDFileField1TS(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+         MEDFileField1TS(const std::string& fileName, bool loadAll=true)
          {
            return MEDFileField1TS::New(fileName,loadAll);
          }
          
-         MEDFileField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+         MEDFileField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
          {
            return MEDFileField1TS::New(fileName,fieldName,loadAll);
          }
 
-         MEDFileField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+         MEDFileField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true)
          {
            return MEDFileField1TS::New(fileName,fieldName,iteration,order,loadAll);
          }
 
-         MEDFileField1TS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         MEDFileField1TS(DataArrayByte *db)
          {
            return MEDFileField1TS::New(db);
          }
@@ -2264,7 +2264,7 @@ namespace MEDCoupling
            return MEDFileField1TS::New();
          }
          
-         void copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception)
+         void copyTinyInfoFrom(const MEDCouplingFieldDouble *field)
          {
            const DataArrayDouble *arr=0;
            if(field)
@@ -2272,17 +2272,17 @@ namespace MEDCoupling
            self->copyTinyInfoFrom(field,arr);
          }
          
-         std::string __str__() const throw(INTERP_KERNEL::Exception)
+         std::string __str__() const
          {
            return self->simpleRepr();
          }
          
-         PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+         PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const
          {
            return MEDFileField1TS_getFieldWithProfile<double>(self,type,meshDimRelToMax,mesh);
          }
 
-         PyObject *getFieldSplitedByType2(const std::string& mname=std::string()) const throw(INTERP_KERNEL::Exception)
+         PyObject *getFieldSplitedByType2(const std::string& mname=std::string()) const
          {
            std::vector<INTERP_KERNEL::NormalizedCellType> types;
            std::vector< std::vector<TypeOfField> > typesF;
@@ -2316,7 +2316,7 @@ namespace MEDCoupling
            return ret2;
          }
 
-         DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+         DataArrayDouble *getUndergroundDataArray() const
          {
            DataArrayDouble *ret=self->getUndergroundDataArray();
            if(ret)
@@ -2324,7 +2324,7 @@ namespace MEDCoupling
            return ret;
          }
 
-         PyObject *getUndergroundDataArrayExt() const throw(INTERP_KERNEL::Exception)
+         PyObject *getUndergroundDataArrayExt() const
          {
            return MEDFileField1TS_getUndergroundDataArrayExt<double>(self);
          }
@@ -2335,60 +2335,60 @@ namespace MEDCoupling
   {
   public:
     static MEDFileIntField1TS *New();
-    static MEDFileIntField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileIntField1TS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    static MEDFileIntField1TS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileIntField1TS *New(DataArrayByte *db);
+    static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     //
-    void setFieldNoProfileSBT(const MEDCouplingFieldInt *field) throw(INTERP_KERNEL::Exception);
-    void setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    void setFieldProfileFlatly(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    void copyTimeInfoFrom(MEDCouplingFieldInt *mcf) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    void setFieldNoProfileSBT(const MEDCouplingFieldInt *field);
+    void setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void setFieldProfileFlatly(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void copyTimeInfoFrom(MEDCouplingFieldInt *mcf);
+    MEDCouplingFieldInt *field(const MEDFileMesh *mesh) const;
+    MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
+    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     %extend
     {
-      MEDFileIntField1TS() throw(INTERP_KERNEL::Exception)
+      MEDFileIntField1TS()
       {
         return MEDFileIntField1TS::New();
       }
 
-      MEDFileIntField1TS(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileIntField1TS(const std::string& fileName, bool loadAll=true)
       {
         return MEDFileIntField1TS::New(fileName,loadAll);
       }
 
-      MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
         return MEDFileIntField1TS::New(fileName,fieldName,loadAll);
       }
 
-      MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true)
       {
         return MEDFileIntField1TS::New(fileName,fieldName,iteration,order,loadAll);
       }
 
-      MEDFileIntField1TS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      MEDFileIntField1TS(DataArrayByte *db)
       {
         return MEDFileIntField1TS::New(db);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
 
-      PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const
       {
          return MEDFileField1TS_getFieldWithProfile<int>(self,type,meshDimRelToMax,mesh);
       }
       
-      DataArrayInt *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *getUndergroundDataArray() const
       {
         DataArrayInt *ret=self->getUndergroundDataArray();
         if(ret)
@@ -2396,7 +2396,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getUndergroundDataArrayExt() const throw(INTERP_KERNEL::Exception)
+      PyObject *getUndergroundDataArrayExt() const
       {
         return MEDFileField1TS_getUndergroundDataArrayExt<int>(self);
       }
@@ -2407,60 +2407,60 @@ namespace MEDCoupling
   {
   public:
     static MEDFileFloatField1TS *New();
-    static MEDFileFloatField1TS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileFloatField1TS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    static MEDFileFloatField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileFloatField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    static MEDFileFloatField1TS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileFloatField1TS *New(DataArrayByte *db);
+    static MEDFileFloatField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileFloatField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     //
-    void setFieldNoProfileSBT(const MEDCouplingFieldFloat *field) throw(INTERP_KERNEL::Exception);
-    void setFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    void setFieldProfileFlatly(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    void copyTimeInfoFrom(MEDCouplingFieldFloat *mcf) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *field(const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    void setFieldNoProfileSBT(const MEDCouplingFieldFloat *field);
+    void setFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void setFieldProfileFlatly(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void copyTimeInfoFrom(MEDCouplingFieldFloat *mcf);
+    MEDCouplingFieldFloat *field(const MEDFileMesh *mesh) const;
+    MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldFloat *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
+    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldFloat *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     %extend
     {
-      MEDFileFloatField1TS() throw(INTERP_KERNEL::Exception)
+      MEDFileFloatField1TS()
       {
         return MEDFileFloatField1TS::New();
       }
 
-      MEDFileFloatField1TS(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileFloatField1TS(const std::string& fileName, bool loadAll=true)
       {
         return MEDFileFloatField1TS::New(fileName,loadAll);
       }
 
-      MEDFileFloatField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileFloatField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
         return MEDFileFloatField1TS::New(fileName,fieldName,loadAll);
       }
 
-      MEDFileFloatField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileFloatField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true)
       {
         return MEDFileFloatField1TS::New(fileName,fieldName,iteration,order,loadAll);
       }
 
-      MEDFileFloatField1TS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      MEDFileFloatField1TS(DataArrayByte *db)
       {
         return MEDFileFloatField1TS::New(db);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
 
-      PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const
       {
          return MEDFileField1TS_getFieldWithProfile<float>(self,type,meshDimRelToMax,mesh);
       }
       
-      DataArrayFloat *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+      DataArrayFloat *getUndergroundDataArray() const
       {
         DataArrayFloat *ret=self->getUndergroundDataArray();
         if(ret)
@@ -2468,7 +2468,7 @@ namespace MEDCoupling
         return ret;
       }
       
-      PyObject *getUndergroundDataArrayExt() const throw(INTERP_KERNEL::Exception)
+      PyObject *getUndergroundDataArrayExt() const
       {
         return MEDFileField1TS_getUndergroundDataArrayExt<float>(self);
       }
@@ -2480,7 +2480,7 @@ namespace MEDCoupling
   public:
     %extend
     {
-      PyObject *next() throw(INTERP_KERNEL::Exception)
+      PyObject *next()
       {
         MEDFileAnyTypeField1TS *ret=self->nextt();
         if(ret)
@@ -2497,42 +2497,42 @@ namespace MEDCoupling
   class MEDFileAnyTypeFieldMultiTS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeFieldMultiTS *deepCopy() const throw(INTERP_KERNEL::Exception);
-    virtual MEDFileAnyTypeFieldMultiTS *shallowCpy() const throw(INTERP_KERNEL::Exception);
-    std::string getName() const throw(INTERP_KERNEL::Exception);
-    void setName(const std::string& name) throw(INTERP_KERNEL::Exception);
-    std::string getDtUnit() const throw(INTERP_KERNEL::Exception);
-    void setDtUnit(const std::string& dtUnit) throw(INTERP_KERNEL::Exception);
-    std::string getMeshName() const throw(INTERP_KERNEL::Exception);
-    void setMeshName(const std::string& newMeshName) throw(INTERP_KERNEL::Exception);
-    const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
-    bool presenceOfMultiDiscPerGeoType() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfTS() const throw(INTERP_KERNEL::Exception);
-    void eraseEmptyTS() throw(INTERP_KERNEL::Exception);
-    int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
-    int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
-    void loadArrays() throw(INTERP_KERNEL::Exception);
-    void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void unloadArrays() throw(INTERP_KERNEL::Exception);
-    void unloadArraysWithoutDataLoss() throw(INTERP_KERNEL::Exception);
+    static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    MEDFileAnyTypeFieldMultiTS *deepCopy() const;
+    virtual MEDFileAnyTypeFieldMultiTS *shallowCpy() const;
+    std::string getName() const;
+    void setName(const std::string& name);
+    std::string getDtUnit() const;
+    void setDtUnit(const std::string& dtUnit);
+    std::string getMeshName() const;
+    void setMeshName(const std::string& newMeshName);
+    const std::vector<std::string>& getInfo() const;
+    bool presenceOfMultiDiscPerGeoType() const;
+    int getNumberOfComponents() const;
+    int getNumberOfTS() const;
+    void eraseEmptyTS();
+    int getPosOfTimeStep(int iteration, int order) const;
+    int getPosGivenTime(double time, double eps=1e-8) const;
+    void loadArrays();
+    void loadArraysIfNecessary();
+    void unloadArrays();
+    void unloadArraysWithoutDataLoss();
     //
-    virtual MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeField1TS *getTimeStepGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
-    void pushBackTimeStep(MEDFileAnyTypeField1TS *f1ts) throw(INTERP_KERNEL::Exception);
-    void synchronizeNameScope() throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeFieldMultiTS *buildNewEmpty() const throw(INTERP_KERNEL::Exception);
+    virtual MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const;
+    MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const;
+    MEDFileAnyTypeField1TS *getTimeStepGivenTime(double time, double eps=1e-8) const;
+    void pushBackTimeStep(MEDFileAnyTypeField1TS *f1ts);
+    void synchronizeNameScope();
+    MEDFileAnyTypeFieldMultiTS *buildNewEmpty() const;
     %extend
     {
-      int __len__() const throw(INTERP_KERNEL::Exception)
+      int __len__() const
       {
         return self->getNumberOfTS();
       }
 
-      int getTimeId(PyObject *elt0) const throw(INTERP_KERNEL::Exception)
+      int getTimeId(PyObject *elt0) const
       {
         if(elt0 && PyInt_Check(elt0))
           {//fmts[3]
@@ -2566,13 +2566,13 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::__getitem__ : invalid input params ! expected fmts[int], fmts[int,int] or fmts[double] to request time step !");
       }
       
-      PyObject *getIterations() const throw(INTERP_KERNEL::Exception)
+      PyObject *getIterations() const
       {
         std::vector< std::pair<int,int> > res(self->getIterations());
         return convertVecPairIntToPy(res);
       }
       
-      PyObject *getTimeSteps() const throw(INTERP_KERNEL::Exception)
+      PyObject *getTimeSteps() const
       {
         std::vector<double> ret1;
         std::vector< std::pair<int,int> > ret=self->getTimeSteps(ret1);
@@ -2589,7 +2589,7 @@ namespace MEDCoupling
         return ret2;
       }
       
-      PyObject *getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception)
+      PyObject *getTypesOfFieldAvailable() const
       {
         std::vector< std::vector<TypeOfField> > ret=self->getTypesOfFieldAvailable();
         PyObject *ret2=PyList_New(ret.size());
@@ -2604,7 +2604,7 @@ namespace MEDCoupling
         return ret2;
       }
       
-      PyObject *getNonEmptyLevels(int iteration, int order, const std::string& mname=std::string()) const throw(INTERP_KERNEL::Exception)
+      PyObject *getNonEmptyLevels(int iteration, int order, const std::string& mname=std::string()) const
       {
         std::vector<int> ret1;
         int ret0=self->getNonEmptyLevels(iteration,order,mname,ret1);
@@ -2614,7 +2614,7 @@ namespace MEDCoupling
         return elt;
       }
       
-      PyObject *getFieldSplitedByType(int iteration, int order, const std::string& mname=std::string()) const throw(INTERP_KERNEL::Exception)
+      PyObject *getFieldSplitedByType(int iteration, int order, const std::string& mname=std::string()) const
       {
         std::vector<INTERP_KERNEL::NormalizedCellType> types;
         std::vector< std::vector<TypeOfField> > typesF;
@@ -2649,7 +2649,7 @@ namespace MEDCoupling
         return ret2;
       }
 
-      std::vector<int> getTimeIds(PyObject *elts) const throw(INTERP_KERNEL::Exception)
+      std::vector<int> getTimeIds(PyObject *elts) const
       {
         if(PyList_Check(elts))
           {
@@ -2670,7 +2670,7 @@ namespace MEDCoupling
           }
       }
       
-      void __delitem__(PyObject *elts) throw(INTERP_KERNEL::Exception)
+      void __delitem__(PyObject *elts)
       {
         if(PySlice_Check(elts))
           {
@@ -2686,7 +2686,7 @@ namespace MEDCoupling
           }
       }
       
-      void eraseTimeStepIds(PyObject *li) throw(INTERP_KERNEL::Exception)
+      void eraseTimeStepIds(PyObject *li)
       {
         int sw;
         int pos1;
@@ -2718,12 +2718,12 @@ namespace MEDCoupling
           }
       }
 
-      MEDFileAnyTypeFieldMultiTSIterator *__iter__() throw(INTERP_KERNEL::Exception)
+      MEDFileAnyTypeFieldMultiTSIterator *__iter__()
       {
         return self->iterator();
       }
 
-      PyObject *__getitem__(PyObject *elt0) const throw(INTERP_KERNEL::Exception)
+      PyObject *__getitem__(PyObject *elt0) const
       {
         if(elt0 && PyList_Check(elt0))
           {
@@ -2747,13 +2747,13 @@ namespace MEDCoupling
           return convertMEDFileField1TS(self->getTimeStepAtPos(MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(self,elt0)),SWIG_POINTER_OWN | 0);
       }
 
-      bool changeMeshNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+      bool changeMeshNames(PyObject *li)
       {
         std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
         return self->changeMeshNames(modifTab);
       }
 
-      PyObject *splitComponents() const throw(INTERP_KERNEL::Exception)
+      PyObject *splitComponents() const
       {
         std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > ret=self->splitComponents();
         std::size_t sz=ret.size();
@@ -2763,7 +2763,7 @@ namespace MEDCoupling
         return retPy;
       }
 
-      PyObject *splitDiscretizations() const throw(INTERP_KERNEL::Exception)
+      PyObject *splitDiscretizations() const
       {
         std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > ret=self->splitDiscretizations();
         std::size_t sz=ret.size();
@@ -2773,7 +2773,7 @@ namespace MEDCoupling
         return retPy;
       }
 
-      PyObject *splitMultiDiscrPerGeoTypes() const throw(INTERP_KERNEL::Exception)
+      PyObject *splitMultiDiscrPerGeoTypes() const
       {
         std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > ret=self->splitMultiDiscrPerGeoTypes();
         std::size_t sz=ret.size();
@@ -2783,7 +2783,7 @@ namespace MEDCoupling
         return retPy;
       }
 
-      void pushBackTimeSteps(PyObject *li) throw(INTERP_KERNEL::Exception)
+      void pushBackTimeSteps(PyObject *li)
       {
         void *argp(0);
         int status(SWIG_ConvertPtr(li,&argp,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeFieldMultiTS,0|0));
@@ -2799,14 +2799,14 @@ namespace MEDCoupling
           }
       }
 
-      MEDFileAnyTypeFieldMultiTS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const throw(INTERP_KERNEL::Exception)
+      MEDFileAnyTypeFieldMultiTS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const
       {
         std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
         convertToMapIntDataArrayInt(extractDef,extractDefCpp);
         return self->extractPart(extractDefCpp,mm);
       }
 
-      static PyObject *MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(PyObject *li) throw(INTERP_KERNEL::Exception)
+      static PyObject *MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(PyObject *li)
       {
         std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTS;
         convertFromPyObjVectorOfObj<MEDCoupling::MEDFileAnyTypeFieldMultiTS *>(li,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",vectFMTS);
@@ -2829,7 +2829,7 @@ namespace MEDCoupling
         return retPy;
       }
       
-      static PyObject *MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(PyObject *li, const MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
+      static PyObject *MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(PyObject *li, const MEDFileMesh *mesh)
       {
         std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTS;
         convertFromPyObjVectorOfObj<MEDCoupling::MEDFileAnyTypeFieldMultiTS *>(li,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",vectFMTS);
@@ -2868,21 +2868,21 @@ namespace MEDCoupling
   class MEDFileFieldMultiTS : public MEDFileAnyTypeFieldMultiTS
   {
   public:
-    static MEDFileFieldMultiTS *New() throw(INTERP_KERNEL::Exception);
-    static MEDFileFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileFieldMultiTS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
+    static MEDFileFieldMultiTS *New();
+    static MEDFileFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileFieldMultiTS *New(DataArrayByte *db);
     //
-    MEDCouplingFieldDouble *field(int iteration, int order, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *field(int iteration, int order, const MEDFileMesh *mesh) const;
+    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const;
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     //
-    void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
-    void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    MEDFileIntFieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field);
+    void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    MEDFileIntFieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const;
     %extend
        {
          MEDFileFieldMultiTS()
@@ -2890,17 +2890,17 @@ namespace MEDCoupling
            return MEDFileFieldMultiTS::New();
          }
 
-         MEDFileFieldMultiTS(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+         MEDFileFieldMultiTS(const std::string& fileName, bool loadAll=true)
          {
            return MEDFileFieldMultiTS::New(fileName,loadAll);
          }
 
-         MEDFileFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+         MEDFileFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
          {
            return MEDFileFieldMultiTS::New(fileName,fieldName,loadAll);
          }
          
-         MEDFileFieldMultiTS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         MEDFileFieldMultiTS(DataArrayByte *db)
          {
            return MEDFileFieldMultiTS::New(db);
          }
@@ -2918,12 +2918,12 @@ namespace MEDCoupling
            return MEDFileFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
          }
          
-         std::string __str__() const throw(INTERP_KERNEL::Exception)
+         std::string __str__() const
          {
            return self->simpleRepr();
          }
 
-         PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+         PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const
          {
            DataArrayInt *ret1=0;
            DataArrayDouble *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
@@ -2933,7 +2933,7 @@ namespace MEDCoupling
            return ret;
          }
 
-         PyObject *getFieldSplitedByType2(int iteration, int order, const std::string& mname=std::string()) const throw(INTERP_KERNEL::Exception)
+         PyObject *getFieldSplitedByType2(int iteration, int order, const std::string& mname=std::string()) const
          {
            std::vector<INTERP_KERNEL::NormalizedCellType> types;
            std::vector< std::vector<TypeOfField> > typesF;
@@ -2966,7 +2966,7 @@ namespace MEDCoupling
              }
            return ret2;
          }
-         DataArrayDouble *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+         DataArrayDouble *getUndergroundDataArray(int iteration, int order) const
          {
            DataArrayDouble *ret=self->getUndergroundDataArray(iteration,order);
            if(ret)
@@ -2974,7 +2974,7 @@ namespace MEDCoupling
            return ret;
          }
          
-         PyObject *getUndergroundDataArrayExt(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+         PyObject *getUndergroundDataArrayExt(int iteration, int order) const
          {
            std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > elt1Cpp;
            DataArrayDouble *elt0=self->getUndergroundDataArrayExt(iteration,order,elt1Cpp);
@@ -3008,7 +3008,7 @@ namespace MEDCoupling
   public:
     %extend
     {
-      PyObject *next() throw(INTERP_KERNEL::Exception)
+      PyObject *next()
       {
         MEDFileAnyTypeFieldMultiTS *ret=self->nextt();
         if(ret)
@@ -3026,19 +3026,19 @@ namespace MEDCoupling
   {
   public:
     static MEDFileIntFieldMultiTS *New();
-    static MEDFileIntFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileIntFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileIntFieldMultiTS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
+    static MEDFileIntFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileIntFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileIntFieldMultiTS *New(DataArrayByte *db);
     //
-    void appendFieldNoProfileSBT(const MEDCouplingFieldInt *field) throw(INTERP_KERNEL::Exception);
-    void appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *field(int iteration, int order, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    void appendFieldNoProfileSBT(const MEDCouplingFieldInt *field);
+    void appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const;
+    MEDCouplingFieldInt *field(int iteration, int order, const MEDFileMesh *mesh) const;
+    MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const;
+    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     %extend
     {
       MEDFileIntFieldMultiTS()
@@ -3046,17 +3046,17 @@ namespace MEDCoupling
         return MEDFileIntFieldMultiTS::New();
       }
       
-      MEDFileIntFieldMultiTS(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileIntFieldMultiTS(const std::string& fileName, bool loadAll=true)
       {
         return MEDFileIntFieldMultiTS::New(fileName,loadAll);
       }
       
-      MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
         return MEDFileIntFieldMultiTS::New(fileName,fieldName,loadAll);
       }
 
-      MEDFileIntFieldMultiTS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      MEDFileIntFieldMultiTS(DataArrayByte *db)
       {
         return MEDFileIntFieldMultiTS::New(db);
       }
@@ -3068,12 +3068,12 @@ namespace MEDCoupling
         return MEDFileIntFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
 
-      PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const
       {
          DataArrayInt *ret1=0;
          DataArrayInt *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
@@ -3083,7 +3083,7 @@ namespace MEDCoupling
          return ret;
       }
 
-      DataArrayInt *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *getUndergroundDataArray(int iteration, int order) const
       {
         DataArrayInt *ret=self->getUndergroundDataArray(iteration,order);
         if(ret)
@@ -3097,19 +3097,19 @@ namespace MEDCoupling
   {
   public:
     static MEDFileFloatFieldMultiTS *New();
-    static MEDFileFloatFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileFloatFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileFloatFieldMultiTS *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
+    static MEDFileFloatFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileFloatFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileFloatFieldMultiTS *New(DataArrayByte *db);
     //
-    void appendFieldNoProfileSBT(const MEDCouplingFieldFloat *field) throw(INTERP_KERNEL::Exception);
-    void appendFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *field(int iteration, int order, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldFloat *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    void appendFieldNoProfileSBT(const MEDCouplingFieldFloat *field);
+    void appendFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const;
+    MEDCouplingFieldFloat *field(int iteration, int order, const MEDFileMesh *mesh) const;
+    MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldFloat *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const;
+    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldFloat *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldFloat *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     %extend
     {
       MEDFileFloatFieldMultiTS()
@@ -3117,17 +3117,17 @@ namespace MEDCoupling
         return MEDFileFloatFieldMultiTS::New();
       }
       
-      MEDFileFloatFieldMultiTS(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileFloatFieldMultiTS(const std::string& fileName, bool loadAll=true)
       {
         return MEDFileFloatFieldMultiTS::New(fileName,loadAll);
       }
       
-      MEDFileFloatFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+      MEDFileFloatFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
         return MEDFileFloatFieldMultiTS::New(fileName,fieldName,loadAll);
       }
 
-      MEDFileFloatFieldMultiTS(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      MEDFileFloatFieldMultiTS(DataArrayByte *db)
       {
         return MEDFileFloatFieldMultiTS::New(db);
       }
@@ -3139,12 +3139,12 @@ namespace MEDCoupling
         return MEDFileFloatFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
 
-      PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const
       {
          DataArrayInt *ret1=0;
          DataArrayFloat *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
@@ -3154,7 +3154,7 @@ namespace MEDCoupling
          return ret;
       }
 
-      DataArrayFloat *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+      DataArrayFloat *getUndergroundDataArray(int iteration, int order) const
       {
         DataArrayFloat *ret=self->getUndergroundDataArray(iteration,order);
         if(ret)
@@ -3167,11 +3167,11 @@ namespace MEDCoupling
   class MEDFileMeshSupports : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileMeshSupports *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getSupMeshNames() const throw(INTERP_KERNEL::Exception);
+    static MEDFileMeshSupports *New(const std::string& fileName);
+    std::vector<std::string> getSupMeshNames() const;
     %extend
        {
-         MEDFileUMesh *getSupMeshWithName(const std::string& name) const throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh *getSupMeshWithName(const std::string& name) const
          {
            const MEDFileUMesh *ret(self->getSupMeshWithName(name));
            MEDFileUMesh *ret2(const_cast<MEDFileUMesh *>(ret));
@@ -3185,7 +3185,7 @@ namespace MEDCoupling
   class MEDFileStructureElements : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileStructureElements *New(const std::string& fileName, const MEDFileMeshSupports *ms) throw(INTERP_KERNEL::Exception);
+    static MEDFileStructureElements *New(const std::string& fileName, const MEDFileMeshSupports *ms);
   private:
     MEDFileStructureElements();
   };
@@ -3193,37 +3193,37 @@ namespace MEDCoupling
   class MEDFileFields : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileFields *New() throw(INTERP_KERNEL::Exception);
-    static MEDFileFields *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileFields *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    static MEDFileFields *NewAdv(const std::string& fileName, bool loadAll, const MEDFileEntities *entities) throw(INTERP_KERNEL::Exception);
-    static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileFields *NewWithDynGT(const std::string& fileName, const MEDFileStructureElements *se, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    MEDFileFields *deepCopy() const throw(INTERP_KERNEL::Exception);
-    MEDFileFields *shallowCpy() const throw(INTERP_KERNEL::Exception);
-    void loadArrays() throw(INTERP_KERNEL::Exception);
-    void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void unloadArrays() throw(INTERP_KERNEL::Exception);
-    void unloadArraysWithoutDataLoss() throw(INTERP_KERNEL::Exception);
+    static MEDFileFields *New();
+    static MEDFileFields *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileFields *New(DataArrayByte *db);
+    static MEDFileFields *NewAdv(const std::string& fileName, bool loadAll, const MEDFileEntities *entities);
+    static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0);
+    static MEDFileFields *NewWithDynGT(const std::string& fileName, const MEDFileStructureElements *se, bool loadAll=true);
+    MEDFileFields *deepCopy() const;
+    MEDFileFields *shallowCpy() const;
+    void loadArrays();
+    void loadArraysIfNecessary();
+    void unloadArrays();
+    void unloadArraysWithoutDataLoss();
     int getNumberOfFields() const;
-    std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getFieldsNames() const;
+    std::vector<std::string> getMeshesNames() const;
     //
-    void resize(int newSize) throw(INTERP_KERNEL::Exception);
-    void pushField(MEDFileAnyTypeFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
-    void setFieldAtPos(int i, MEDFileAnyTypeFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
-    int getPosFromFieldName(const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeFieldMultiTS *getFieldAtPos(int i) const throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeFieldMultiTS *getFieldWithName(const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
-    MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const throw(INTERP_KERNEL::Exception);
-    bool presenceOfStructureElements() const throw(INTERP_KERNEL::Exception);
-    void aggregate(const MEDFileFields& other) throw(INTERP_KERNEL::Exception);
-    void killStructureElements() throw(INTERP_KERNEL::Exception);
-    void keepOnlyStructureElements() throw(INTERP_KERNEL::Exception);
-    void keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName) throw(INTERP_KERNEL::Exception);
-    void blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *ses) throw(INTERP_KERNEL::Exception);
-    void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
-    bool removeFieldsWithoutAnyTimeStep() throw(INTERP_KERNEL::Exception);
+    void resize(int newSize);
+    void pushField(MEDFileAnyTypeFieldMultiTS *field);
+    void setFieldAtPos(int i, MEDFileAnyTypeFieldMultiTS *field);
+    int getPosFromFieldName(const std::string& fieldName) const;
+    MEDFileAnyTypeFieldMultiTS *getFieldAtPos(int i) const;
+    MEDFileAnyTypeFieldMultiTS *getFieldWithName(const std::string& fieldName) const;
+    MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const;
+    bool presenceOfStructureElements() const;
+    void aggregate(const MEDFileFields& other);
+    void killStructureElements();
+    void keepOnlyStructureElements();
+    void keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName);
+    void blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *ses);
+    void destroyFieldAtPos(int i);
+    bool removeFieldsWithoutAnyTimeStep();
     %extend
        {
          MEDFileFields()
@@ -3231,39 +3231,39 @@ namespace MEDCoupling
            return MEDFileFields::New();
          }
 
-         MEDFileFields(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+         MEDFileFields(const std::string& fileName, bool loadAll=true)
          {
            return MEDFileFields::New(fileName,loadAll);
          }
 
-         MEDFileFields(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         MEDFileFields(DataArrayByte *db)
          {
            return MEDFileFields::New(db);
          }
 
-         MEDFileFields(const std::string& fileName, bool loadAll, const MEDFileEntities *entities) throw(INTERP_KERNEL::Exception)
+         MEDFileFields(const std::string& fileName, bool loadAll, const MEDFileEntities *entities)
          {
            return MEDFileFields::NewAdv(fileName,loadAll,entities);
          }
          
-         std::string __str__() const throw(INTERP_KERNEL::Exception)
+         std::string __str__() const
          {
            return self->simpleRepr();
          }
          
-         MEDFileFields *partOfThisOnStructureElements() const throw(INTERP_KERNEL::Exception)
+         MEDFileFields *partOfThisOnStructureElements() const
          {
            MCAuto<MEDFileFields> ret(self->partOfThisOnStructureElements());
            return ret.retn();
          }
 
-         MEDFileFields *partOfThisLyingOnSpecifiedMeshSEName(const std::string& meshName, const std::string& seName) const throw(INTERP_KERNEL::Exception)
+         MEDFileFields *partOfThisLyingOnSpecifiedMeshSEName(const std::string& meshName, const std::string& seName) const
          {
            MCAuto<MEDFileFields> ret(self->partOfThisLyingOnSpecifiedMeshSEName(meshName,seName));
            return ret.retn();
          }
          
-         static MEDFileFields *LoadSpecificEntities(const std::string& fileName, PyObject *entities, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+         static MEDFileFields *LoadSpecificEntities(const std::string& fileName, PyObject *entities, bool loadAll=true)
          {
            std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
            std::size_t sz(tmp.size());
@@ -3276,14 +3276,14 @@ namespace MEDCoupling
            return MEDFileFields::LoadSpecificEntities(fileName,entitiesCpp,loadAll);
          }
 
-         PyObject *getMeshSENames() const throw(INTERP_KERNEL::Exception)
+         PyObject *getMeshSENames() const
          {
            std::vector< std::pair<std::string,std::string> > ps;
            self->getMeshSENames(ps);
            return convertVectPairStToPy(ps);
          }
 
-         PyObject *getCommonIterations() const throw(INTERP_KERNEL::Exception)
+         PyObject *getCommonIterations() const
          {
            bool ret1;
            std::vector< std::pair<int,int> > ret0=self->getCommonIterations(ret1);
@@ -3303,19 +3303,19 @@ namespace MEDCoupling
            return ret;
          }
 
-         MEDFileFields *partOfThisLyingOnSpecifiedTimeSteps(PyObject *timeSteps) const throw(INTERP_KERNEL::Exception)
+         MEDFileFields *partOfThisLyingOnSpecifiedTimeSteps(PyObject *timeSteps) const
          {
            std::vector< std::pair<int,int> > ts=convertTimePairIdsFromPy(timeSteps);
            return self->partOfThisLyingOnSpecifiedTimeSteps(ts);
          }
 
-         MEDFileFields *partOfThisNotLyingOnSpecifiedTimeSteps(PyObject *timeSteps) const throw(INTERP_KERNEL::Exception)
+         MEDFileFields *partOfThisNotLyingOnSpecifiedTimeSteps(PyObject *timeSteps) const
          {
            std::vector< std::pair<int,int> > ts=convertTimePairIdsFromPy(timeSteps);
            return self->partOfThisNotLyingOnSpecifiedTimeSteps(ts);
          }
          
-         PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+         PyObject *__getitem__(PyObject *obj)
          {
            if(obj && PyList_Check(obj))
              {
@@ -3333,29 +3333,29 @@ namespace MEDCoupling
              return convertMEDFileFieldMultiTS(self->getFieldAtPos(MEDFileFieldsgetitemSingleTS__(self,obj)), SWIG_POINTER_OWN | 0 );
          }
 
-         MEDFileFields *__setitem__(int obj, MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception)
+         MEDFileFields *__setitem__(int obj, MEDFileFieldMultiTS *field)
          {
            self->setFieldAtPos(obj,field);
            return self;
          }
 
-         int __len__() const throw(INTERP_KERNEL::Exception)
+         int __len__() const
          {
            return self->getNumberOfFields();
          }
 
-         MEDFileFieldsIterator *__iter__() throw(INTERP_KERNEL::Exception)
+         MEDFileFieldsIterator *__iter__()
          {
            return self->iterator();
          }
          
-         bool changeMeshNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+         bool changeMeshNames(PyObject *li)
          {
            std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
            return self->changeMeshNames(modifTab);
          }
 
-         int getPosOfField(PyObject *elt0) const throw(INTERP_KERNEL::Exception)
+         int getPosOfField(PyObject *elt0) const
          {
            static const char msg[]="MEDFileFields::getPosOfField : invalid input params ! expected fields[int], fields[string_of_field_name] !";
            if(!elt0)
@@ -3367,7 +3367,7 @@ namespace MEDCoupling
            return self->getPosFromFieldName(convertPyObjectToStr(elt0,msg));
          }
          
-         std::vector<int> getPosOfFields(PyObject *elts) const throw(INTERP_KERNEL::Exception)
+         std::vector<int> getPosOfFields(PyObject *elts) const
          {
            if(PyList_Check(elts))
              {
@@ -3388,14 +3388,14 @@ namespace MEDCoupling
              }
          }
 
-         void pushFields(PyObject *fields) throw(INTERP_KERNEL::Exception)
+         void pushFields(PyObject *fields)
          {
            std::vector<MEDFileAnyTypeFieldMultiTS *> tmp;
            convertFromPyObjVectorOfObj<MEDCoupling::MEDFileAnyTypeFieldMultiTS *>(fields,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",tmp);
            self->pushFields(tmp);
          }
          
-         void __delitem__(PyObject *elts) throw(INTERP_KERNEL::Exception)
+         void __delitem__(PyObject *elts)
          {
            if(elts && PySlice_Check(elts))
              {
@@ -3411,14 +3411,14 @@ namespace MEDCoupling
              }
          }
 
-         MEDFileFields *extractPart(PyObject *extractDef, MEDFileMesh *mm) const throw(INTERP_KERNEL::Exception)
+         MEDFileFields *extractPart(PyObject *extractDef, MEDFileMesh *mm) const
          {
            std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
            convertToMapIntDataArrayInt(extractDef,extractDefCpp);
            return self->extractPart(extractDefCpp,mm);
          }
 
-         MEDFileFields *linearToQuadratic(const MEDFileMeshes *oldLin, const MEDFileMeshes *newQuad) const throw(INTERP_KERNEL::Exception)
+         MEDFileFields *linearToQuadratic(const MEDFileMeshes *oldLin, const MEDFileMeshes *newQuad) const
          {
            MCAuto<MEDFileFields> ret(self->linearToQuadratic(oldLin,newQuad));
            return ret.retn();
@@ -3442,12 +3442,12 @@ namespace MEDCoupling
   class MEDFileParameterDouble1TSWTI : public MEDFileParameter1TS
   {
   public:
-    void setValue(double val) throw(INTERP_KERNEL::Exception);
-    double getValue() const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
+    void setValue(double val);
+    double getValue() const;
+    std::string simpleRepr() const;
     %extend
     {
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
@@ -3467,14 +3467,14 @@ namespace MEDCoupling
   {
   public:
     static MEDFileParameterDouble1TS *New();
-    static MEDFileParameterDouble1TS *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName) throw(INTERP_KERNEL::Exception);
-    static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName, int dt, int it) throw(INTERP_KERNEL::Exception);
-    virtual MEDFileParameter1TS *deepCopy() const throw(INTERP_KERNEL::Exception);
-    virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
-    void setName(const std::string& name) throw(INTERP_KERNEL::Exception);
-    std::string getName() const throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    static MEDFileParameterDouble1TS *New(const std::string& fileName);
+    static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName);
+    static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName, int dt, int it);
+    virtual MEDFileParameter1TS *deepCopy() const;
+    virtual std::string simpleRepr() const;
+    void setName(const std::string& name);
+    std::string getName() const;
+    void write(const std::string& fileName, int mode) const;
     %extend
     {
       MEDFileParameterDouble1TS()
@@ -3482,27 +3482,27 @@ namespace MEDCoupling
         return MEDFileParameterDouble1TS::New();
       }
       
-      MEDFileParameterDouble1TS(const std::string& fileName) throw(INTERP_KERNEL::Exception)
+      MEDFileParameterDouble1TS(const std::string& fileName)
       {
         return MEDFileParameterDouble1TS::New(fileName);
       }
 
-      MEDFileParameterDouble1TS(const std::string& fileName, const std::string& paramName) throw(INTERP_KERNEL::Exception)
+      MEDFileParameterDouble1TS(const std::string& fileName, const std::string& paramName)
       {
         return MEDFileParameterDouble1TS::New(fileName,paramName);
       }
 
-      MEDFileParameterDouble1TS(const std::string& fileName, const std::string& paramName, int dt, int it) throw(INTERP_KERNEL::Exception)
+      MEDFileParameterDouble1TS(const std::string& fileName, const std::string& paramName, int dt, int it)
       {
         return MEDFileParameterDouble1TS::New(fileName,paramName,dt,it);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
 
-      PyObject *isEqual(const MEDFileParameter1TS *other, double eps) const throw(INTERP_KERNEL::Exception)
+      PyObject *isEqual(const MEDFileParameter1TS *other, double eps) const
       {
         std::string what;
         bool ret0=self->isEqual(other,eps,what);
@@ -3520,18 +3520,18 @@ namespace MEDCoupling
   {
   public:
     static MEDFileParameterMultiTS *New();
-    static MEDFileParameterMultiTS *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileParameterMultiTS *New(const std::string& fileName, const std::string& paramName) throw(INTERP_KERNEL::Exception);
+    static MEDFileParameterMultiTS *New(const std::string& fileName);
+    static MEDFileParameterMultiTS *New(const std::string& fileName, const std::string& paramName);
     std::string getName() const;
     void setName(const std::string& name);
-    MEDFileParameterMultiTS *deepCopy() const throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
-    void appendValue(int dt, int it, double time, double val) throw(INTERP_KERNEL::Exception);
-    double getDoubleValue(int iteration, int order) const throw(INTERP_KERNEL::Exception);
-    int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
-    int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfTS() const throw(INTERP_KERNEL::Exception);
+    MEDFileParameterMultiTS *deepCopy() const;
+    void write(const std::string& fileName, int mode) const;
+    std::string simpleRepr() const;
+    void appendValue(int dt, int it, double time, double val);
+    double getDoubleValue(int iteration, int order) const;
+    int getPosOfTimeStep(int iteration, int order) const;
+    int getPosGivenTime(double time, double eps=1e-8) const;
+    int getNumberOfTS() const;
     %extend
     {
       MEDFileParameterMultiTS()
@@ -3549,12 +3549,12 @@ namespace MEDCoupling
         return MEDFileParameterMultiTS::New(fileName,paramName);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
       
-      PyObject *isEqual(const MEDFileParameterMultiTS *other, double eps) const throw(INTERP_KERNEL::Exception)
+      PyObject *isEqual(const MEDFileParameterMultiTS *other, double eps) const
       {
         std::string what;
         bool ret0=self->isEqual(other,eps,what);
@@ -3566,7 +3566,7 @@ namespace MEDCoupling
         return res;
       }
       
-      void eraseTimeStepIds(PyObject *ids) throw(INTERP_KERNEL::Exception)
+      void eraseTimeStepIds(PyObject *ids)
       {
         int sw;
         int pos1;
@@ -3598,7 +3598,7 @@ namespace MEDCoupling
           }
       }
 
-      int getTimeStepId(PyObject *elt0) const throw(INTERP_KERNEL::Exception)
+      int getTimeStepId(PyObject *elt0) const
       {
         if(elt0 && PyInt_Check(elt0))
           {//fmts[3]
@@ -3632,7 +3632,7 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("MEDFileParameterMultiTS::getTimeStepId : invalid input params ! expected fmts[int], fmts[int,int] or fmts[double] to request time step !");
       }
 
-      MEDFileParameter1TS *__getitem__(PyObject *elt0) const throw(INTERP_KERNEL::Exception)
+      MEDFileParameter1TS *__getitem__(PyObject *elt0) const
       {
         MEDFileParameter1TS *ret=self->getTimeStepAtPos(MEDCoupling_MEDFileParameterMultiTS_getTimeStepId(self,elt0));
         if(ret)
@@ -3640,7 +3640,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      std::vector<int> getTimeStepIds(PyObject *elts) const throw(INTERP_KERNEL::Exception)
+      std::vector<int> getTimeStepIds(PyObject *elts) const
       {
         if(PyList_Check(elts))
           {
@@ -3661,14 +3661,14 @@ namespace MEDCoupling
           }
       }
 
-      void __delitem__(PyObject *elts) throw(INTERP_KERNEL::Exception)
+      void __delitem__(PyObject *elts)
       {
         std::vector<int> idsToRemove=MEDCoupling_MEDFileParameterMultiTS_getTimeStepIds(self,elts);
         if(!idsToRemove.empty())
           self->eraseTimeStepIds(&idsToRemove[0],&idsToRemove[0]+idsToRemove.size());
       }
       
-      MEDFileParameter1TS *getTimeStepAtPos(int posId) const throw(INTERP_KERNEL::Exception)
+      MEDFileParameter1TS *getTimeStepAtPos(int posId) const
       {
         MEDFileParameter1TS *ret=self->getTimeStepAtPos(posId);
         if(ret)
@@ -3676,7 +3676,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getIterations() const throw(INTERP_KERNEL::Exception)
+      PyObject *getIterations() const
       {
         std::vector< std::pair<int,int> > res=self->getIterations();
         PyObject *ret=PyList_New(res.size());
@@ -3691,7 +3691,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getTimeSteps() const throw(INTERP_KERNEL::Exception)
+      PyObject *getTimeSteps() const
       {
         std::vector<double> res2;
         std::vector< std::pair<int,int> > res=self->getTimeSteps(res2);
@@ -3714,17 +3714,17 @@ namespace MEDCoupling
   {
   public:
     static MEDFileParameters *New();
-    static MEDFileParameters *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileParameters *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    MEDFileParameters *deepCopy() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getParamsNames() const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
-    void resize(int newSize) throw(INTERP_KERNEL::Exception);
-    void pushParam(MEDFileParameterMultiTS *param) throw(INTERP_KERNEL::Exception);
-    void setParamAtPos(int i, MEDFileParameterMultiTS *param) throw(INTERP_KERNEL::Exception);
-    void destroyParamAtPos(int i) throw(INTERP_KERNEL::Exception);
-    int getPosFromParamName(const std::string& paramName) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfParams() const throw(INTERP_KERNEL::Exception);
+    static MEDFileParameters *New(const std::string& fileName);
+    static MEDFileParameters *New(DataArrayByte *db);
+    MEDFileParameters *deepCopy() const;
+    std::vector<std::string> getParamsNames() const;
+    std::string simpleRepr() const;
+    void resize(int newSize);
+    void pushParam(MEDFileParameterMultiTS *param);
+    void setParamAtPos(int i, MEDFileParameterMultiTS *param);
+    void destroyParamAtPos(int i);
+    int getPosFromParamName(const std::string& paramName) const;
+    int getNumberOfParams() const;
     %extend
     {
       MEDFileParameters()
@@ -3737,17 +3737,17 @@ namespace MEDCoupling
         return MEDFileParameters::New(fileName);
       }
 
-      MEDFileParameters(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+      MEDFileParameters(DataArrayByte *db)
       {
         return MEDFileParameters::New(db);
       }
       
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->simpleRepr();
       }
 
-      MEDFileParameterMultiTS *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      MEDFileParameterMultiTS *__getitem__(PyObject *obj)
       {
         static const char msg[]="MEDFileParameters::__getitem__ : only integer or string with meshname supported !";
         if(PyInt_Check(obj))
@@ -3763,12 +3763,12 @@ namespace MEDCoupling
         return ret;
       }
 
-      int __len__() const throw(INTERP_KERNEL::Exception)
+      int __len__() const
       {
         return self->getNumberOfParams();
       }
       
-      MEDFileParameterMultiTS *getParamAtPos(int i) const throw(INTERP_KERNEL::Exception)
+      MEDFileParameterMultiTS *getParamAtPos(int i) const
       {
         MEDFileParameterMultiTS *ret=self->getParamAtPos(i);
         if(ret)
@@ -3776,7 +3776,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      MEDFileParameterMultiTS *getParamWithName(const std::string& paramName) const throw(INTERP_KERNEL::Exception)
+      MEDFileParameterMultiTS *getParamWithName(const std::string& paramName) const
       {
         MEDFileParameterMultiTS *ret=self->getParamWithName(paramName);
         if(ret)
@@ -3784,7 +3784,7 @@ namespace MEDCoupling
         return ret;
       }
       
-      PyObject *isEqual(const MEDFileParameters *other, double eps) const throw(INTERP_KERNEL::Exception)
+      PyObject *isEqual(const MEDFileParameters *other, double eps) const
       {
         std::string what;
         bool ret0=self->isEqual(other,eps,what);
@@ -3801,31 +3801,31 @@ namespace MEDCoupling
   class MEDFileData : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
-    static MEDFileData *New(DataArrayByte *db) throw(INTERP_KERNEL::Exception);
-    static MEDFileData *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileData *New(DataArrayByte *db);
+    static MEDFileData *New(const std::string& fileName);
     static MEDFileData *New();
-    MEDFileData *deepCopy() const throw(INTERP_KERNEL::Exception);
-    void setFields(MEDFileFields *fields) throw(INTERP_KERNEL::Exception);
-    void setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception);
-    void setParams(MEDFileParameters *params) throw(INTERP_KERNEL::Exception);
-    int getNumberOfFields() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfParams() const throw(INTERP_KERNEL::Exception);
+    MEDFileData *deepCopy() const;
+    void setFields(MEDFileFields *fields);
+    void setMeshes(MEDFileMeshes *meshes);
+    void setParams(MEDFileParameters *params);
+    int getNumberOfFields() const;
+    int getNumberOfMeshes() const;
+    int getNumberOfParams() const;
     //
-    bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName) throw(INTERP_KERNEL::Exception);
-    bool unPolyzeMeshes() throw(INTERP_KERNEL::Exception);
-    void dealWithStructureElements() throw(INTERP_KERNEL::Exception);
-    std::string getHeader() const throw(INTERP_KERNEL::Exception);
-    void setHeader(const std::string& header) throw(INTERP_KERNEL::Exception);
+    bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName);
+    bool unPolyzeMeshes();
+    void dealWithStructureElements();
+    std::string getHeader() const;
+    void setHeader(const std::string& header);
     //
     %extend
        {
-         MEDFileData(const std::string& fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileData(const std::string& fileName)
          {
            return MEDFileData::New(fileName);
          }
 
-         MEDFileData(DataArrayByte *db) throw(INTERP_KERNEL::Exception)
+         MEDFileData(DataArrayByte *db)
          {
            return MEDFileData::New(db);
          }
@@ -3835,12 +3835,12 @@ namespace MEDCoupling
            return MEDFileData::New();
          }
 
-         std::string __str__() const throw(INTERP_KERNEL::Exception)
+         std::string __str__() const
          {
            return self->simpleRepr();
          }
 
-         MEDFileMeshes *getMeshes() const throw(INTERP_KERNEL::Exception)
+         MEDFileMeshes *getMeshes() const
          {
            MEDFileMeshes *ret=self->getMeshes();
            if(ret)
@@ -3848,7 +3848,7 @@ namespace MEDCoupling
            return ret;
          }
 
-         MEDFileParameters *getParams() const throw(INTERP_KERNEL::Exception)
+         MEDFileParameters *getParams() const
          {
            MEDFileParameters *ret=self->getParams();
            if(ret)
@@ -3856,7 +3856,7 @@ namespace MEDCoupling
            return ret;
          }
 
-         MEDFileFields *getFields() const throw(INTERP_KERNEL::Exception)
+         MEDFileFields *getFields() const
          {
            MEDFileFields *ret=self->getFields();
            if(ret)
@@ -3864,13 +3864,13 @@ namespace MEDCoupling
            return ret;
          }
 
-         bool changeMeshNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+         bool changeMeshNames(PyObject *li)
          {
            std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
            return self->changeMeshNames(modifTab);
          }
 
-         static MEDFileData *Aggregate(PyObject *mfds) throw(INTERP_KERNEL::Exception)
+         static MEDFileData *Aggregate(PyObject *mfds)
          {
            std::vector<const MEDFileData *> mfdsCpp;
            convertFromPyObjVectorOfObj<const MEDCoupling::MEDFileData *>(mfds,SWIGTYPE_p_MEDCoupling__MEDFileData,"MEDFileData",mfdsCpp);
@@ -3883,11 +3883,11 @@ namespace MEDCoupling
   class SauvReader : public RefCountObject
   {
   public:
-    static SauvReader* New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    MEDFileData * loadInMEDFileDS() throw(INTERP_KERNEL::Exception);
+    static SauvReader* New(const std::string& fileName);
+    MEDFileData * loadInMEDFileDS();
     %extend
     {
-      SauvReader(const std::string& fileName) throw(INTERP_KERNEL::Exception)
+      SauvReader(const std::string& fileName)
       {
         return SauvReader::New(fileName);
       }
@@ -3898,13 +3898,13 @@ namespace MEDCoupling
   {
   public:
     static SauvWriter * New();
-    void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0) throw(INTERP_KERNEL::Exception);
-    void write(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    void setCpyGrpIfOnASingleFamilyStatus(bool status) throw(INTERP_KERNEL::Exception);
-    bool getCpyGrpIfOnASingleFamilyStatus() const throw(INTERP_KERNEL::Exception);
+    void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0);
+    void write(const std::string& fileName);
+    void setCpyGrpIfOnASingleFamilyStatus(bool status);
+    bool getCpyGrpIfOnASingleFamilyStatus() const;
     %extend
     {
-      SauvWriter() throw(INTERP_KERNEL::Exception)
+      SauvWriter()
       {
         return SauvWriter::New();
       }
@@ -3918,13 +3918,13 @@ namespace MEDCoupling
   class MEDFileField1TSStructItem
   {
   public:
-    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
   };
 
   class MEDFileMeshStruct : public RefCountObject
   {
   public:
-    static MEDFileMeshStruct *New(const MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
+    static MEDFileMeshStruct *New(const MEDFileMesh *mesh);
   protected:
     ~MEDFileMeshStruct();
   };
@@ -3932,15 +3932,15 @@ namespace MEDCoupling
   class MEDMeshMultiLev : public RefCountObject
   {
   public:
-    virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
-    DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *retrieveGlobalNodeIdsIfAny() const throw(INTERP_KERNEL::Exception);
+    virtual MEDMeshMultiLev *prepare() const;
+    DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
+    DataArrayInt *retrieveGlobalNodeIdsIfAny() const;
   protected:
     ~MEDMeshMultiLev();
   public:
     %extend
     {
-      PyObject *retrieveFamilyIdsOnCells() const throw(INTERP_KERNEL::Exception)
+      PyObject *retrieveFamilyIdsOnCells() const
       {
         DataArrayInt *famIds(0);
         bool isWithoutCopy(false);
@@ -3953,7 +3953,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *retrieveNumberIdsOnCells() const throw(INTERP_KERNEL::Exception)
+      PyObject *retrieveNumberIdsOnCells() const
       {
         DataArrayInt *numIds(0);
         bool isWithoutCopy(false);
@@ -3966,7 +3966,7 @@ namespace MEDCoupling
         return ret;
       }
       
-      PyObject *retrieveFamilyIdsOnNodes() const throw(INTERP_KERNEL::Exception)
+      PyObject *retrieveFamilyIdsOnNodes() const
       {
         DataArrayInt *famIds(0);
         bool isWithoutCopy(false);
@@ -3979,7 +3979,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *retrieveNumberIdsOnNodes() const throw(INTERP_KERNEL::Exception)
+      PyObject *retrieveNumberIdsOnNodes() const
       {
         DataArrayInt *numIds(0);
         bool isWithoutCopy(false);
@@ -3992,7 +3992,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getGeoTypes() const throw(INTERP_KERNEL::Exception)
+      PyObject *getGeoTypes() const
       {
         std::vector< INTERP_KERNEL::NormalizedCellType > result(self->getGeoTypes());
         std::vector< INTERP_KERNEL::NormalizedCellType >::const_iterator iL(result.begin());
@@ -4011,7 +4011,7 @@ namespace MEDCoupling
   public:
     %extend
      {
-       PyObject *buildVTUArrays() const throw(INTERP_KERNEL::Exception)
+       PyObject *buildVTUArrays() const
        {
          DataArrayDouble *coords(0); DataArrayByte *types(0); DataArrayInt *cellLocations(0),*cells(0),*faceLocations(0),*faces(0);
          bool ncc(self->buildVTUArrays(coords,types,cellLocations,cells,faceLocations,faces));
@@ -4043,7 +4043,7 @@ namespace MEDCoupling
   public:
     %extend
     {
-      PyObject *buildVTUArrays() const throw(INTERP_KERNEL::Exception)
+      PyObject *buildVTUArrays() const
       {
         bool isInternal;
         std::vector< DataArrayDouble * > objs(self->buildVTUArrays(isInternal));
@@ -4068,7 +4068,7 @@ namespace MEDCoupling
   public:
     %extend
     {
-      PyObject *buildVTUArrays() const throw(INTERP_KERNEL::Exception)
+      PyObject *buildVTUArrays() const
       {
         DataArrayDouble *ret0(0);
         std::vector<int> ret1;
@@ -4092,16 +4092,16 @@ namespace MEDCoupling
   class MEDFileFastCellSupportComparator : public RefCountObject
   {
   public:
-    static MEDFileFastCellSupportComparator *New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref) throw(INTERP_KERNEL::Exception);
-    MEDMeshMultiLev *buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
-    bool isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfTS() const throw(INTERP_KERNEL::Exception);
+    static MEDFileFastCellSupportComparator *New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref);
+    MEDMeshMultiLev *buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const;
+    bool isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const;
+    int getNumberOfTS() const;
   protected:
     ~MEDFileFastCellSupportComparator();
   public:
     %extend
     {
-      PyObject *getGeoTypesAt(int timeStepId, const MEDFileMesh *m) const throw(INTERP_KERNEL::Exception)
+      PyObject *getGeoTypesAt(int timeStepId, const MEDFileMesh *m) const
       {
         std::vector< INTERP_KERNEL::NormalizedCellType > result(self->getGeoTypesAt(timeStepId,m));
         std::vector< INTERP_KERNEL::NormalizedCellType >::const_iterator iL(result.begin());

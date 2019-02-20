@@ -35,34 +35,34 @@ namespace MEDCoupling
   class MEDCouplingFieldDiscretization : public RefCountObject, public TimeLabel
   {
   public:
-    static MEDCouplingFieldDiscretization *New(TypeOfField type) throw(INTERP_KERNEL::Exception);
-    double getPrecision() const throw(INTERP_KERNEL::Exception);
-    void setPrecision(double val) throw(INTERP_KERNEL::Exception);
-    static TypeOfField GetTypeOfFieldFromStringRepr(const std::string& repr) throw(INTERP_KERNEL::Exception);
-    virtual TypeOfField getEnum() const throw(INTERP_KERNEL::Exception);
-    virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const throw(INTERP_KERNEL::Exception);
-    virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const throw(INTERP_KERNEL::Exception);
-    virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDiscretization *deepCopy() const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDiscretization *clone() const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception);
-    virtual std::string getStringRepr() const throw(INTERP_KERNEL::Exception);
-    virtual const char *getRepr() const throw(INTERP_KERNEL::Exception);
-    virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    virtual void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
-    virtual double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDiscretization *New(TypeOfField type);
+    double getPrecision() const;
+    void setPrecision(double val);
+    static TypeOfField GetTypeOfFieldFromStringRepr(const std::string& repr);
+    virtual TypeOfField getEnum() const;
+    virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
+    virtual MEDCouplingFieldDiscretization *deepCopy() const;
+    virtual MEDCouplingFieldDiscretization *clone() const;
+    virtual MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
+    virtual std::string getStringRepr() const;
+    virtual const char *getRepr() const;
+    virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
+    virtual DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
+    virtual void checkCompatibilityWithNature(NatureOfField nat) const;
+    virtual double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const;
+    virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const;
+    virtual MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
     virtual void setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                            const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
-    virtual void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
-    virtual int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
-    virtual int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
-    virtual int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+                                            const std::vector<double>& gsCoo, const std::vector<double>& wg);
+    virtual void clearGaussLocalizations();
+    virtual MEDCouplingGaussLocalization& getGaussLocalization(int locId);
+    virtual int getNbOfGaussLocalization() const;
+    virtual int getGaussLocalizationIdOfOneCell(int cellId) const;
+    virtual int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const;
     %extend
     {
       virtual MEDCouplingFieldDiscretization *clonePart(PyObject *li)
@@ -73,7 +73,7 @@ namespace MEDCoupling
         return self->clonePart(inp,inp+sz);
       }
       
-      virtual PyObject *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const
       {
         DataArrayInt *ret1=0;
         int bb,ee,ss;
@@ -90,7 +90,7 @@ namespace MEDCoupling
         return res;
       }
 
-      virtual int getNumberOfTuplesExpectedRegardingCode(PyObject *code, PyObject *idsPerType) const throw(INTERP_KERNEL::Exception)
+      virtual int getNumberOfTuplesExpectedRegardingCode(PyObject *code, PyObject *idsPerType) const
       {
         std::vector<int> inp0;
         convertPyToNewIntArr4(code,1,3,inp0);
@@ -99,7 +99,7 @@ namespace MEDCoupling
         return self->getNumberOfTuplesExpectedRegardingCode(inp0,inp1);
       }
 
-      virtual PyObject *computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, PyObject *tupleIds) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, PyObject *tupleIds) const
       {
         std::vector<int> vVal; int iVal=-1;
         int sz=-1,sw=0;
@@ -114,7 +114,7 @@ namespace MEDCoupling
         return pyRet;
       }
 
-      virtual PyObject *normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const
       {
         if(!arr)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretization::normL1 : input array is null !");
@@ -124,7 +124,7 @@ namespace MEDCoupling
         return convertDblArrToPyList<double>(tmp,sz);
       }
 
-      virtual PyObject *normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const
       {
         if(!arr)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretization::normL2 : input array is null !");
@@ -134,7 +134,7 @@ namespace MEDCoupling
         return convertDblArrToPyList<double>(tmp,sz);
       }
 
-      virtual PyObject *integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs) const
       {
         if(!arr)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretization::integral : input array is null !");
@@ -144,7 +144,7 @@ namespace MEDCoupling
         return convertDblArrToPyList<double>(tmp,sz);
       }
 
-      virtual PyObject *getCellIdsHavingGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *getCellIdsHavingGaussLocalization(int locId) const
       {
         std::vector<int> tmp;
         self->getCellIdsHavingGaussLocalization(locId,tmp);
@@ -155,7 +155,7 @@ namespace MEDCoupling
       }
 
       virtual void setGaussLocalizationOnCells(const MEDCouplingMesh *m, PyObject *li, const std::vector<double>& refCoo,
-                                               const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+                                               const std::vector<double>& gsCoo, const std::vector<double>& wg)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -175,13 +175,13 @@ namespace MEDCoupling
           }
       }
 
-      virtual PyObject *getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const
       {
         std::set<int> ret=self->getGaussLocalizationIdsOfOneType(type);
         return convertIntArrToPyList3(ret);
       }
 
-      virtual PyObject *getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, PyObject *sl) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, PyObject *sl) const
       {
         double val;
         DataArrayDouble *a;
@@ -199,7 +199,7 @@ namespace MEDCoupling
         return convertDblArrToPyList<double>(res,spaceDim);
       }
 
-      virtual PyObject *getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k) const
       {
         if(!arr)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretization::getValueOnPos : input array is null !");
@@ -209,7 +209,7 @@ namespace MEDCoupling
          return convertDblArrToPyList<double>(res,sz);
        }
       
-      virtual DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, PyObject *loc) const throw(INTERP_KERNEL::Exception)
+      virtual DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, PyObject *loc) const
       {
         if(!mesh)
           throw INTERP_KERNEL::Exception("Python wrap MEDCouplingFieldDiscretization::getValueOnMulti : null input mesh !");
@@ -221,7 +221,7 @@ namespace MEDCoupling
         return self->getValueOnMulti(arr,mesh,inp,nbPts);
       }
 
-      virtual void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
+      virtual void renumberCells(PyObject *li, bool check=true)
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
@@ -230,7 +230,7 @@ namespace MEDCoupling
       }
 
       virtual void renumberArraysForCell(const MEDCouplingMesh *mesh, PyObject *arrays,
-                                         PyObject *old2New, bool check) throw(INTERP_KERNEL::Exception)
+                                         PyObject *old2New, bool check)
       {
         std::vector<DataArray *> input1;
         convertFromPyObjVectorOfObj<MEDCoupling::DataArray *>(arrays,SWIGTYPE_p_MEDCoupling__DataArray,"DataArray",input1);
@@ -242,7 +242,7 @@ namespace MEDCoupling
         self->renumberArraysForCell(mesh,input1,old2NewBg,check);
       }
       
-      virtual DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, PyObject *cellIds) const throw(INTERP_KERNEL::Exception)
+      virtual DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, PyObject *cellIds) const
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
@@ -250,7 +250,7 @@ namespace MEDCoupling
         return self->computeTupleIdsToSelectFromCellIds(mesh,cellIdsBg,cellIdsBg+sz);
       }
 
-      virtual PyObject *buildSubMeshData(const MEDCouplingMesh *mesh, PyObject *ids) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *buildSubMeshData(const MEDCouplingMesh *mesh, PyObject *ids)
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
@@ -263,7 +263,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      virtual void renumberValuesOnNodes(double epsOnVals, PyObject *old2New, int newNbOfNodes, DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
+      virtual void renumberValuesOnNodes(double epsOnVals, PyObject *old2New, int newNbOfNodes, DataArrayDouble *arr) const
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
@@ -271,7 +271,7 @@ namespace MEDCoupling
         self->renumberValuesOnNodes(epsOnVals,old2NewBg,newNbOfNodes,arr);
       }
 
-      virtual void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, PyObject *old2New, int newSz, DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
+      virtual void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, PyObject *old2New, int newSz, DataArrayDouble *arr) const
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
@@ -279,7 +279,7 @@ namespace MEDCoupling
         self->renumberValuesOnCells(epsOnVals,mesh,old2NewBg,newSz,arr);
       }
 
-      virtual void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, PyObject *new2old, int newSz, DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
+      virtual void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, PyObject *new2old, int newSz, DataArrayDouble *arr) const
       {
         int sw,sz(-1);
         int v0; std::vector<int> v1;
@@ -304,8 +304,8 @@ namespace MEDCoupling
   class MEDCouplingFieldDiscretizationPerCell : public MEDCouplingFieldDiscretization
   {
   public:
-    void setArrayOfDiscIds(const DataArrayInt *adids) throw(INTERP_KERNEL::Exception);
-    void checkNoOrphanCells() const throw(INTERP_KERNEL::Exception);
+    void setArrayOfDiscIds(const DataArrayInt *adids);
+    void checkNoOrphanCells() const;
     %extend
     {
       PyObject *getArrayOfDiscIds() const
@@ -316,7 +316,7 @@ namespace MEDCoupling
         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
       }
 
-      PyObject *splitIntoSingleGaussDicrPerCellType() const throw(INTERP_KERNEL::Exception)
+      PyObject *splitIntoSingleGaussDicrPerCellType() const
       {
         std::vector<int> ret1;
         std::vector<DataArrayInt *> ret0=self->splitIntoSingleGaussDicrPerCellType(ret1);
@@ -349,21 +349,21 @@ namespace MEDCoupling
   public:
     %extend
     {
-      static PyObject *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      static PyObject *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType)
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(geoType,sz));
         return convertDblArrToPyList<double>(ret,sz);
       }
       
-      static PyObject *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      static PyObject *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType)
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(geoType,sz));
         return convertDblArrToPyList<double>(ret,sz);
       }
       
-      static PyObject *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      static PyObject *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType)
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(geoType,sz));
@@ -375,10 +375,10 @@ namespace MEDCoupling
   class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes
   {
   public:
-    static DataArrayDouble *PerformDriftOfVec(const DataArrayDouble *arr, int isDrift) throw(INTERP_KERNEL::Exception);
+    static DataArrayDouble *PerformDriftOfVec(const DataArrayDouble *arr, int isDrift);
     %extend
     {
-      PyObject *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
+      PyObject *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const
       {
         int ret1;
         DataArrayDouble *ret0=self->computeVectorOfCoefficients(mesh,arr,ret1);
@@ -388,7 +388,7 @@ namespace MEDCoupling
         return ret;
       }
       
-      PyObject *computeInverseMatrix(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      PyObject *computeInverseMatrix(const MEDCouplingMesh *mesh) const
       {
         int ret1(-1),ret2(-1);
         DataArrayDouble *ret0=self->computeInverseMatrix(mesh,ret1,ret2);
@@ -399,7 +399,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *computeMatrix(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      PyObject *computeMatrix(const MEDCouplingMesh *mesh) const
       {
         int ret1(-1),ret2(-1);
         DataArrayDouble *ret0=self->computeMatrix(mesh,ret1,ret2);
@@ -410,7 +410,7 @@ namespace MEDCoupling
         return ret;
       }
       
-      PyObject *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, PyObject *locs) const throw(INTERP_KERNEL::Exception)
+      PyObject *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, PyObject *locs) const
       {
         if(!mesh)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixOnGivenPts : input mesh is empty !");
@@ -427,14 +427,14 @@ namespace MEDCoupling
         return ret;
       }
 
-      void operateOnDenseMatrix(int spaceDimension, DataArrayDouble *myMatrix) const throw(INTERP_KERNEL::Exception)
+      void operateOnDenseMatrix(int spaceDimension, DataArrayDouble *myMatrix) const
       {
         if(!myMatrix || !myMatrix->isAllocated() || myMatrix->getNumberOfComponents()!=1)
           throw INTERP_KERNEL::Exception("Wrap of MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix : invalid input matrix as DataArrayDouble ! Must be allocated with one component !");
         self->operateOnDenseMatrix(spaceDimension,myMatrix->getNumberOfTuples(),myMatrix->getPointer());
       }
 
-      PyObject *performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
+      PyObject *performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr) const
       {
         int ret1(-1);
         DataArrayDouble *ret0(self->performDrift(matr,arr,ret1));
@@ -444,7 +444,7 @@ namespace MEDCoupling
         return res;
       }
 
-      static PyObject *PerformDriftRect(const DataArrayDouble *matr, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception)
+      static PyObject *PerformDriftRect(const DataArrayDouble *matr, const DataArrayDouble *arr)
       {
         int ret1(-1);
         DataArrayDouble *ret0(MEDCouplingFieldDiscretizationKriging::PerformDriftRect(matr,arr,ret1));
@@ -454,14 +454,14 @@ namespace MEDCoupling
         return res;
       }
 
-      static void OperateOnDenseMatrixH3(DataArrayDouble *myMatrix) throw(INTERP_KERNEL::Exception)
+      static void OperateOnDenseMatrixH3(DataArrayDouble *myMatrix)
       {
         if(!myMatrix || !myMatrix->isAllocated() || myMatrix->getNumberOfComponents()!=1)
           throw INTERP_KERNEL::Exception("Wrap of MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH3 : invalid input matrix as DataArrayDouble ! Must be allocated with one component !");
         MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH3(myMatrix->getNumberOfTuples(),myMatrix->getPointer());
       }
       
-      static void OperateOnDenseMatrixH2Ln(DataArrayDouble *myMatrix) throw(INTERP_KERNEL::Exception)
+      static void OperateOnDenseMatrixH2Ln(DataArrayDouble *myMatrix) //throw(INTERP_KERNEL::Exception)
       {
         if(!myMatrix || !myMatrix->isAllocated() || myMatrix->getNumberOfComponents()!=1)
           throw INTERP_KERNEL::Exception("Wrap of MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH2Ln : invalid input matrix as DataArrayDouble ! Must be allocated with one component !");

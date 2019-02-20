@@ -268,22 +268,22 @@ namespace MEDCoupling
   class PartDefinition : public RefCountObject, public TimeLabel
   {
   public:
-    static PartDefinition *New(int start, int stop, int step) throw(INTERP_KERNEL::Exception);
-    static PartDefinition *New(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *toDAI() const throw(INTERP_KERNEL::Exception);
-    virtual int getNumberOfElems() const throw(INTERP_KERNEL::Exception);
-    virtual std::string getRepr() const throw(INTERP_KERNEL::Exception);
-    virtual PartDefinition *composeWith(const PartDefinition *other) const throw(INTERP_KERNEL::Exception);
-    virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
-    virtual PartDefinition *tryToSimplify() const throw(INTERP_KERNEL::Exception);
+    static PartDefinition *New(int start, int stop, int step);
+    static PartDefinition *New(DataArrayInt *listOfIds);
+    virtual DataArrayInt *toDAI() const;
+    virtual int getNumberOfElems() const;
+    virtual std::string getRepr() const;
+    virtual PartDefinition *composeWith(const PartDefinition *other) const;
+    virtual void checkConsistencyLight() const;
+    virtual PartDefinition *tryToSimplify() const;
     %extend
     {
-      virtual PartDefinition *__add__(const PartDefinition& other) const throw(INTERP_KERNEL::Exception)
+      virtual PartDefinition *__add__(const PartDefinition& other) const
       {
         return (*self)+other;
       }
 
-      virtual PyObject *isEqual(const PartDefinition *other) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *isEqual(const PartDefinition *other) const
       {
         std::string ret1;
         bool ret0(self->isEqual(other,ret1));
@@ -295,7 +295,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      virtual PyObject *deepCopy() const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *deepCopy() const
       {
         return convertPartDefinition(self->deepCopy(),SWIG_POINTER_OWN | 0);
       }
@@ -307,20 +307,20 @@ namespace MEDCoupling
   class DataArrayPartDefinition : public PartDefinition
   {
   public:
-    static DataArrayPartDefinition *New(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception);
+    static DataArrayPartDefinition *New(DataArrayInt *listOfIds);
     %extend
     {
-      DataArrayPartDefinition(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception)
+      DataArrayPartDefinition(DataArrayInt *listOfIds)
       {
         return DataArrayPartDefinition::New(listOfIds);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->getRepr();
       }
       
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      std::string __repr__() const
       {
         std::ostringstream oss; oss << "DataArrayPartDefinition C++ instance at " << self << "." << std::endl;
         oss << self->getRepr();
@@ -334,28 +334,28 @@ namespace MEDCoupling
   class SlicePartDefinition : public PartDefinition
   {
   public:
-    static SlicePartDefinition *New(int start, int stop, int step) throw(INTERP_KERNEL::Exception);
-    int getEffectiveStop() const throw(INTERP_KERNEL::Exception);
+    static SlicePartDefinition *New(int start, int stop, int step);
+    int getEffectiveStop() const;
     %extend
     {
-      SlicePartDefinition(int start, int stop, int step) throw(INTERP_KERNEL::Exception)
+      SlicePartDefinition(int start, int stop, int step)
       {
         return SlicePartDefinition::New(start,stop,step);
       }
 
-      PyObject *getSlice() const throw(INTERP_KERNEL::Exception)
+      PyObject *getSlice() const
       {
         int a,b,c;
         self->getSlice(a,b,c);
         return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(c));
       }
       
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->getRepr();
       }
       
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      std::string __repr__() const
       {
         std::ostringstream oss; oss << "SlicePartDefinition C++ instance at " << self << "." << std::endl;
         oss << self->getRepr();
@@ -370,53 +370,53 @@ namespace MEDCoupling
   {
   public:
     void setName(const std::string& name);
-    void copyStringInfoFrom(const DataArray& other) throw(INTERP_KERNEL::Exception);
-    void copyPartOfStringInfoFrom(const DataArray& other, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
-    void copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, const DataArray& other) throw(INTERP_KERNEL::Exception);
-    bool areInfoEqualsIfNotWhy(const DataArray& other, std::string& reason) const throw(INTERP_KERNEL::Exception);
-    bool areInfoEquals(const DataArray& other) const throw(INTERP_KERNEL::Exception);
-    std::string cppRepr(const std::string& varName) const throw(INTERP_KERNEL::Exception);
+    void copyStringInfoFrom(const DataArray& other);
+    void copyPartOfStringInfoFrom(const DataArray& other, const std::vector<int>& compoIds);
+    void copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, const DataArray& other);
+    bool areInfoEqualsIfNotWhy(const DataArray& other, std::string& reason) const;
+    bool areInfoEquals(const DataArray& other) const;
+    std::string cppRepr(const std::string& varName) const;
     std::string getName() const;
-    void setInfoOnComponents(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
-    void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getVarsOnComponent() const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getUnitsOnComponent() const throw(INTERP_KERNEL::Exception);
-    std::string getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exception);
-    std::string getVarOnComponent(int i) const throw(INTERP_KERNEL::Exception);
-    std::string getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exception);
-    void setInfoOnComponent(int i, const std::string& info) throw(INTERP_KERNEL::Exception);
+    void setInfoOnComponents(const std::vector<std::string>& info);
+    void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info);
+    std::vector<std::string> getVarsOnComponent() const;
+    std::vector<std::string> getUnitsOnComponent() const;
+    std::string getInfoOnComponent(int i) const;
+    std::string getVarOnComponent(int i) const;
+    std::string getUnitOnComponent(int i) const;
+    void setInfoOnComponent(int i, const std::string& info);
     int getNumberOfComponents() const;
-    virtual void alloc(int nbOfTuple, int nbOfCompo=1) throw(INTERP_KERNEL::Exception);
-    virtual void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
-    virtual bool isAllocated() const throw(INTERP_KERNEL::Exception);
-    virtual void checkAllocated() const throw(INTERP_KERNEL::Exception);
-    virtual void desallocate() throw(INTERP_KERNEL::Exception);
-    virtual int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
-    virtual std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception);
-    virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception);
-    virtual DataArray *deepCopy() const throw(INTERP_KERNEL::Exception);
-    virtual DataArray *buildNewEmptyInstance() const throw(INTERP_KERNEL::Exception);
-    virtual DataArray *selectByTupleIdSafeSlice(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
-    virtual void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
-    virtual void circularPermutation(int nbOfShift=1) throw(INTERP_KERNEL::Exception);
-    virtual void circularPermutationPerTuple(int nbOfShift=1) throw(INTERP_KERNEL::Exception);
-    virtual void reversePerTuple() throw(INTERP_KERNEL::Exception);
-    void checkNbOfTuples(int nbOfTuples, const std::string& msg) const throw(INTERP_KERNEL::Exception);
-    void checkNbOfComps(int nbOfCompo, const std::string& msg) const throw(INTERP_KERNEL::Exception);
-    void checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const throw(INTERP_KERNEL::Exception);
-    void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const std::string& msg) const throw(INTERP_KERNEL::Exception);
-    void checkNbOfElems(std::size_t nbOfElems, const std::string& msg) const throw(INTERP_KERNEL::Exception);
-    static int GetNumberOfItemGivenBES(int begin, int end, int step, const std::string& msg) throw(INTERP_KERNEL::Exception);
-    static int GetNumberOfItemGivenBESRelative(int begin, int end, int step, const std::string& msg) throw(INTERP_KERNEL::Exception);
-    static int GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step) throw(INTERP_KERNEL::Exception);
-    static std::string GetVarNameFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
-    static std::string GetUnitFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
-    static std::string BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit) throw(INTERP_KERNEL::Exception);
-    static std::string GetAxisTypeRepr(MEDCouplingAxisType at) throw(INTERP_KERNEL::Exception);
+    virtual void alloc(int nbOfTuple, int nbOfCompo=1);
+    virtual void reAlloc(int nbOfTuples);
+    virtual bool isAllocated() const;
+    virtual void checkAllocated() const;
+    virtual void desallocate();
+    virtual int getNumberOfTuples() const;
+    virtual std::size_t getNbOfElems() const;
+    virtual std::size_t getNbOfElemAllocated() const;
+    virtual DataArray *deepCopy() const;
+    virtual DataArray *buildNewEmptyInstance() const;
+    virtual DataArray *selectByTupleIdSafeSlice(int bg, int end2, int step) const;
+    virtual void rearrange(int newNbOfCompo);
+    virtual void circularPermutation(int nbOfShift=1);
+    virtual void circularPermutationPerTuple(int nbOfShift=1);
+    virtual void reversePerTuple();
+    void checkNbOfTuples(int nbOfTuples, const std::string& msg) const;
+    void checkNbOfComps(int nbOfCompo, const std::string& msg) const;
+    void checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const;
+    void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const std::string& msg) const;
+    void checkNbOfElems(std::size_t nbOfElems, const std::string& msg) const;
+    static int GetNumberOfItemGivenBES(int begin, int end, int step, const std::string& msg);
+    static int GetNumberOfItemGivenBESRelative(int begin, int end, int step, const std::string& msg);
+    static int GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step);
+    static std::string GetVarNameFromInfo(const std::string& info);
+    static std::string GetUnitFromInfo(const std::string& info);
+    static std::string BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit);
+    static std::string GetAxisTypeRepr(MEDCouplingAxisType at);
     void updateTime() const;
     %extend
     {
-      PyObject *getInfoOnComponents() const throw(INTERP_KERNEL::Exception)
+      PyObject *getInfoOnComponents() const
       {
         const std::vector<std::string>& comps=self->getInfoOnComponents();
         PyObject *ret=PyList_New((int)comps.size());
@@ -425,21 +425,21 @@ namespace MEDCoupling
         return ret;
       }
       
-      void copyPartOfStringInfoFrom(const DataArray& other, PyObject *li) throw(INTERP_KERNEL::Exception)
+      void copyPartOfStringInfoFrom(const DataArray& other, PyObject *li)
       {
         std::vector<int> tmp;
         convertPyToNewIntArr3(li,tmp);
         self->copyPartOfStringInfoFrom(other,tmp);
       }
 
-      void copyPartOfStringInfoFrom2(PyObject *li, const DataArray& other) throw(INTERP_KERNEL::Exception)
+      void copyPartOfStringInfoFrom2(PyObject *li, const DataArray& other)
       {
         std::vector<int> tmp;
         convertPyToNewIntArr3(li,tmp);
         self->copyPartOfStringInfoFrom2(tmp,other);
       }
 
-      virtual void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
+      virtual void renumberInPlace(PyObject *li)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -468,7 +468,7 @@ namespace MEDCoupling
           }
       }
 
-      virtual void renumberInPlaceR(PyObject *li) throw(INTERP_KERNEL::Exception)
+      virtual void renumberInPlaceR(PyObject *li)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -498,7 +498,7 @@ namespace MEDCoupling
       }
 
       //tuplesSelec in PyObject * because DataArrayInt is not already existing !
-      virtual void setContigPartOfSelectedValues(int tupleIdStart, PyObject *aBase, PyObject *tuplesSelec) throw(INTERP_KERNEL::Exception)
+      virtual void setContigPartOfSelectedValues(int tupleIdStart, PyObject *aBase, PyObject *tuplesSelec)
       {
         static const char msg[]="DataArray::setContigPartOfSelectedValuesSlice : 4th parameter \"tuplesSelec\" should be of type DataArrayInt";
           DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValuesSlice : 3rd parameter \"aBase\" should be of type DataArray");
@@ -513,20 +513,20 @@ namespace MEDCoupling
         self->setContigPartOfSelectedValues(tupleIdStart,a,tuplesSelecPtr2);
       }
       
-      virtual void setContigPartOfSelectedValuesSlice(int tupleIdStart, PyObject *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
+      virtual void setContigPartOfSelectedValuesSlice(int tupleIdStart, PyObject *aBase, int bg, int end2, int step)
       {
         DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValuesSlice : 2nd parameter \"aBase\" should be of type DataArray");
         self->setContigPartOfSelectedValuesSlice(tupleIdStart,a,bg,end2,step);
       }
 
-      virtual DataArray *selectByTupleRanges(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      virtual DataArray *selectByTupleRanges(PyObject *li) const
       {
         std::vector<std::pair<int,int> > ranges;
         convertPyToVectorPairInt(li,ranges);
         return self->selectByTupleRanges(ranges);
       }
 
-      virtual DataArray *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      virtual DataArray *selectByTupleId(PyObject *li) const
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -546,7 +546,7 @@ namespace MEDCoupling
           }
       }
 
-      virtual DataArray *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      virtual DataArray *selectByTupleIdSafe(PyObject *li) const
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -566,7 +566,7 @@ namespace MEDCoupling
           }
       }
 
-      virtual PyObject *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *keepSelectedComponents(PyObject *li) const
       {
         std::vector<int> tmp;
         convertPyToNewIntArr3(li,tmp);
@@ -574,7 +574,7 @@ namespace MEDCoupling
         return convertDataArray(ret,SWIG_POINTER_OWN | 0 );
       }
 
-      static PyObject *GetSlice(PyObject *slic, int sliceId, int nbOfSlices) throw(INTERP_KERNEL::Exception)
+      static PyObject *GetSlice(PyObject *slic, int sliceId, int nbOfSlices)
       {
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::GetSlice (wrap) : expecting a pyslice as second (first) parameter !");
@@ -585,7 +585,7 @@ namespace MEDCoupling
         return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
       }
 
-      PyObject *getSlice(PyObject *slic, int sliceId, int nbOfSlices) const throw(INTERP_KERNEL::Exception)
+      PyObject *getSlice(PyObject *slic, int sliceId, int nbOfSlices) const
       {
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::getSlice (wrap) : expecting a pyslice as second (first) parameter !");
@@ -596,7 +596,7 @@ namespace MEDCoupling
         return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
       }
 
-      static int GetNumberOfItemGivenBES(PyObject *slic) throw(INTERP_KERNEL::Exception)
+      static int GetNumberOfItemGivenBES(PyObject *slic)
       {
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES (wrap) : expecting a pyslice as second (first) parameter !");
@@ -605,7 +605,7 @@ namespace MEDCoupling
         return DataArray::GetNumberOfItemGivenBES(strt,stp,step,"");
       }
 
-      static int GetNumberOfItemGivenBESRelative(PyObject *slic) throw(INTERP_KERNEL::Exception)
+      static int GetNumberOfItemGivenBESRelative(PyObject *slic)
       {
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : expecting a pyslice as second (first) parameter !");
@@ -614,14 +614,14 @@ namespace MEDCoupling
         return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
       }
       
-      static DataArray *Aggregate(PyObject *arrs) throw(INTERP_KERNEL::Exception)
+      static DataArray *Aggregate(PyObject *arrs)
       {
         std::vector<const DataArray *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArray *>(arrs,SWIGTYPE_p_MEDCoupling__DataArray,"DataArray",tmp);
         return DataArray::Aggregate(tmp);
       }
 
-      int getNumberOfItemGivenBES(PyObject *slic) const throw(INTERP_KERNEL::Exception)
+      int getNumberOfItemGivenBES(PyObject *slic) const
       {
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBES (wrap) : expecting a pyslice as second (first) parameter !");
@@ -630,7 +630,7 @@ namespace MEDCoupling
         return DataArray::GetNumberOfItemGivenBES(strt,stp,step,"");
       }
 
-      int getNumberOfItemGivenBESRelative(PyObject *slic) throw(INTERP_KERNEL::Exception)
+      int getNumberOfItemGivenBESRelative(PyObject *slic)
       {
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBESRelative (wrap) : expecting a pyslice as second (first) parameter !");
@@ -639,7 +639,7 @@ namespace MEDCoupling
         return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
       }
 
-      PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
+      PyObject *__getstate__() const
       {
         PyObject *ret(PyTuple_New(2));
         std::string a0(self->getName());
@@ -655,7 +655,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+      void __setstate__(PyObject *inp)
       {
         static const char MSG[]="DataArrayDouble.__setstate__ : expected input is a tuple of size 2 with string as 1st arg and list of string as 2nd arg !";
         if(!PyTuple_Check(inp))
@@ -680,50 +680,50 @@ namespace MEDCoupling
   {
   public:
     static DataArrayFloat *New();
-    void fillWithValue(float val) throw(INTERP_KERNEL::Exception);
-    bool isEqual(const DataArrayFloat& other, float prec) const throw(INTERP_KERNEL::Exception);
-    bool isEqualWithoutConsideringStr(const DataArrayFloat& other, float prec) const throw(INTERP_KERNEL::Exception);
-    bool isUniform(float val, float eps) const throw(INTERP_KERNEL::Exception);
-    void pushBackSilent(float val) throw(INTERP_KERNEL::Exception);
-    void iota(float init=0.) throw(INTERP_KERNEL::Exception);
-    DataArrayFloatIterator *iterator() throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayDouble> convertToDblArr() const throw(INTERP_KERNEL::Exception);
-    static DataArrayFloat *Meld(const DataArrayFloat *a1, const DataArrayFloat *a2) throw(INTERP_KERNEL::Exception);
+    void fillWithValue(float val);
+    bool isEqual(const DataArrayFloat& other, float prec) const;
+    bool isEqualWithoutConsideringStr(const DataArrayFloat& other, float prec) const;
+    bool isUniform(float val, float eps) const;
+    void pushBackSilent(float val);
+    void iota(float init=0.);
+    DataArrayFloatIterator *iterator();
+    MCAuto<DataArrayDouble> convertToDblArr() const;
+    static DataArrayFloat *Meld(const DataArrayFloat *a1, const DataArrayFloat *a2);
     %extend
     {
-      DataArrayFloat() throw(INTERP_KERNEL::Exception)
+      DataArrayFloat()
       {
         return DataArrayFloat::New();
       }
 
-      static DataArrayFloat *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
+      static DataArrayFloat *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0)
       {
         return DataArrayT_New<float>(elt0,nbOfTuples,elt2);
       }
    
-      DataArrayFloat(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
+      DataArrayFloat(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0)
       {
         return MEDCoupling_DataArrayFloat_New__SWIG_1(elt0,nbOfTuples,elt2);
       }
 
-      DataArrayFloatIterator *__iter__() throw(INTERP_KERNEL::Exception)
+      DataArrayFloatIterator *__iter__()
       {
         return self->iterator();
       }
 
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      std::string __repr__() const
       {
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->reprNotTooLong();
       }
 
-      int __len__() const throw(INTERP_KERNEL::Exception)
+      int __len__() const
       {
         if(self->isAllocated())
           {
@@ -735,20 +735,20 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *getValues() const throw(INTERP_KERNEL::Exception)
+      PyObject *getValues() const
       {
         const float *vals(self->begin());
         return convertDblArrToPyList<float>(vals,self->getNbOfElems());
       }
 
-      PyObject *getValuesAsTuple() const throw(INTERP_KERNEL::Exception)
+      PyObject *getValuesAsTuple() const
       {
         const float *vals(self->begin());
         int nbOfComp(self->getNumberOfComponents()),nbOfTuples(self->getNumberOfTuples());
         return convertDblArrToPyListOfTuple<float>(vals,nbOfComp,nbOfTuples);
       }
 
-      PyObject *isEqualIfNotWhy(const DataArrayFloat& other, float prec) const throw(INTERP_KERNEL::Exception)
+      PyObject *isEqualIfNotWhy(const DataArrayFloat& other, float prec) const
       {
         std::string ret1;
         bool ret0=self->isEqualIfNotWhy(other,prec,ret1);
@@ -760,43 +760,43 @@ namespace MEDCoupling
         return ret;
       }
       
-      PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__getitem__(PyObject *obj)
       {
         return DataArrayT__getitem<float>(self,obj);
       }
 
-      DataArrayFloat *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      DataArrayFloat *__setitem__(PyObject *obj, PyObject *value)
       {
         return DataArrayT__setitem__<float>(self,obj,value);
       }
       
-      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_iadd<float>(trueSelf,obj,self);
       }
 
-      PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___isub___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_isub<float>(trueSelf,obj,self);
       }
 
-      PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_imul<float>(trueSelf,obj,self);
       }
 
-      DataArrayFloat *__rmul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayFloat *__rmul__(PyObject *obj)
       {
         return DataArrayFPT_rmul<float>(self,obj);
       }
 
-      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_idiv<float>(trueSelf,obj,self);
       }
       
 #ifdef WITH_NUMPY
-      PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      PyObject *toNumPyArray() // not const. It is not a bug !
       {
         return ToNumPyArray<DataArrayFloat,float>(self,NPY_FLOAT,"DataArrayFloat");
       }
@@ -830,26 +830,26 @@ namespace MEDCoupling
   class DataArrayFloatTuple
   {
   public:
-    int getNumberOfCompo() const throw(INTERP_KERNEL::Exception);
-    DataArrayFloat *buildDAFloat(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCompo() const;
+    DataArrayFloat *buildDAFloat(int nbOfTuples, int nbOfCompo) const;
     %extend
     {
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->repr();
       }
 
-      float __float__() const throw(INTERP_KERNEL::Exception)
+      float __float__() const
       {
         return self->floatValue();
       }
 
-      DataArrayFloat *buildDAFloat() throw(INTERP_KERNEL::Exception)
+      DataArrayFloat *buildDAFloat()
       {
         return self->buildDAFloat(1,self->getNumberOfCompo());
       }
   
-      /*PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      /*PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayFloat> ret=self->buildDAFloat(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayFloat____imul___(ret,0,obj);
@@ -857,7 +857,7 @@ namespace MEDCoupling
         return trueSelf;
         }*/
 
-      PyObject *__len__() throw(INTERP_KERNEL::Exception)
+      PyObject *__len__()
       {
         return PyInt_FromLong(self->getNumberOfCompo());
       }
@@ -871,142 +871,142 @@ namespace MEDCoupling
   {
   public:
     static DataArrayDouble *New();
-    double doubleValue() const throw(INTERP_KERNEL::Exception);
-    bool empty() const throw(INTERP_KERNEL::Exception);
-    void aggregate(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
-    void deepCopyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
-    void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
-    void pushBackSilent(double val) throw(INTERP_KERNEL::Exception);
-    double popBackSilent() throw(INTERP_KERNEL::Exception);
-    void pack() const throw(INTERP_KERNEL::Exception);
-    void allocIfNecessary(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
-    void fillWithZero() throw(INTERP_KERNEL::Exception);
-    void fillWithValue(double val) throw(INTERP_KERNEL::Exception);
-    void iota(double init=0.) throw(INTERP_KERNEL::Exception);
-    bool isUniform(double val, double eps) const throw(INTERP_KERNEL::Exception);
-    void sort(bool asc=true) throw(INTERP_KERNEL::Exception);
-    void reverse() throw(INTERP_KERNEL::Exception);
-    void checkMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception);
-    bool isMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception);
-    std::string repr() const throw(INTERP_KERNEL::Exception);
-    std::string reprZip() const throw(INTERP_KERNEL::Exception);
-    std::string reprNotTooLong() const throw(INTERP_KERNEL::Exception);
-    bool isEqual(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
-    bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *toNoInterlace() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
-    void transpose() throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const throw(INTERP_KERNEL::Exception);
-    void meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getDifferentValues(double prec, int limitTupleId=-1) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findClosestTupleId(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrmt, double eps) const throw(INTERP_KERNEL::Exception);
-    void setPartOfValues1(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
-    void setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
-    void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
-    double front() const throw(INTERP_KERNEL::Exception);
-    double back() const throw(INTERP_KERNEL::Exception);
-    double getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
-    void setIJ(int tupleId, int compoId, double newVal) throw(INTERP_KERNEL::Exception);
-    void setIJSilent(int tupleId, int compoId, double newVal) throw(INTERP_KERNEL::Exception);
-    double *getPointer() throw(INTERP_KERNEL::Exception);
-    void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *computeBBoxPerTuple(double epsilon=0.0) const throw(INTERP_KERNEL::Exception);
-    void recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception);
-    double getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
-    double getMaxAbsValueInArray() const throw(INTERP_KERNEL::Exception);
-    double getMinValueInArray() const throw(INTERP_KERNEL::Exception);
-    int count(double value, double eps) const throw(INTERP_KERNEL::Exception);
-    double getAverageValue() const throw(INTERP_KERNEL::Exception);
-    double norm2() const throw(INTERP_KERNEL::Exception);
-    double normMax() const throw(INTERP_KERNEL::Exception);
-    double normMin() const throw(INTERP_KERNEL::Exception);
-    double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *fromPolarToCart() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *fromCylToCart() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *fromSpherToCart() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *fromCartToPolar() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *fromCartToCyl() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *fromCartToSpher() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *cartesianize(MEDCouplingAxisType atOfThis) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *determinant() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *eigenValues() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *eigenVectors() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *inverse() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *trace() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *deviator() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *magnitude() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *sumPerTuple() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *buildEuclidianDistanceDenseMatrix() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception);
-    void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
-    void abs() throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *computeAbs() const throw(INTERP_KERNEL::Exception);
-    void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
-    void applyLin(double a, double b) throw(INTERP_KERNEL::Exception);
-    void applyInv(double numerator) throw(INTERP_KERNEL::Exception);
-    void applyPow(double val) throw(INTERP_KERNEL::Exception);
-    void applyRPow(double val) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *negate() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc(int nbOfComp, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc(const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
-    void applyFuncOnThis(const std::string& func, bool isSafe=true) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFuncCompo(int nbOfComp, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
-    void applyFuncFast32(const std::string& func) throw(INTERP_KERNEL::Exception);
-    void applyFuncFast64(const std::string& func) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsNotInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsStrictlyNegative() const throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *CrossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Max(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Min(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Add(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    void addEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Substract(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    void substractEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Multiply(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    void multiplyEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Divide(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    void divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Pow(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    void powEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(double val) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> findIdsGreaterThan(double val) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> findIdsLowerOrEqualTo(double val) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> findIdsLowerThan(double val) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> convertToIntArr() const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayDouble> selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayDouble> cumSum() const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayFloat> convertToFloatArr() const throw(INTERP_KERNEL::Exception);
+    double doubleValue() const;
+    bool empty() const;
+    void aggregate(const DataArrayDouble *other);
+    DataArrayDouble *performCopyOrIncrRef(bool deepCopy) const;
+    void deepCopyFrom(const DataArrayDouble& other);
+    void reserve(std::size_t nbOfElems);
+    void pushBackSilent(double val);
+    double popBackSilent();
+    void pack() const;
+    void allocIfNecessary(int nbOfTuple, int nbOfCompo);
+    void fillWithZero();
+    void fillWithValue(double val);
+    void iota(double init=0.);
+    bool isUniform(double val, double eps) const;
+    void sort(bool asc=true);
+    void reverse();
+    void checkMonotonic(bool increasing, double eps) const;
+    bool isMonotonic(bool increasing, double eps) const;
+    std::string repr() const;
+    std::string reprZip() const;
+    std::string reprNotTooLong() const;
+    bool isEqual(const DataArrayDouble& other, double prec) const;
+    bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const;
+    DataArrayDouble *fromNoInterlace() const;
+    DataArrayDouble *toNoInterlace() const;
+    DataArrayDouble *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
+    void transpose();
+    DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const;
+    void meldWith(const DataArrayDouble *other);
+    DataArrayDouble *duplicateEachTupleNTimes(int nbTimes) const;
+    DataArrayDouble *getDifferentValues(double prec, int limitTupleId=-1) const;
+    DataArrayInt *findClosestTupleId(const DataArrayDouble *other) const;
+    DataArrayInt *computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrmt, double eps) const;
+    void setPartOfValues1(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
+    void setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp);
+    void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec);
+    double getIJ(int tupleId, int compoId) const;
+    double front() const;
+    double back() const;
+    double getIJSafe(int tupleId, int compoId) const;
+    void setIJ(int tupleId, int compoId, double newVal);
+    void setIJSilent(int tupleId, int compoId, double newVal);
+    double *getPointer();
+    void checkNoNullValues() const;
+    DataArrayDouble *computeBBoxPerTuple(double epsilon=0.0) const;
+    void recenterForMaxPrecision(double eps);
+    double getMaxValueInArray() const;
+    double getMaxAbsValueInArray() const;
+    double getMinValueInArray() const;
+    int count(double value, double eps) const;
+    double getAverageValue() const;
+    double norm2() const;
+    double normMax() const;
+    double normMin() const;
+    double accumulate(int compId) const;
+    DataArrayDouble *fromPolarToCart() const;
+    DataArrayDouble *fromCylToCart() const;
+    DataArrayDouble *fromSpherToCart() const;
+    DataArrayDouble *fromCartToPolar() const;
+    DataArrayDouble *fromCartToCyl() const;
+    DataArrayDouble *fromCartToSpher() const;
+    DataArrayDouble *cartesianize(MEDCouplingAxisType atOfThis) const;
+    DataArrayDouble *doublyContractedProduct() const;
+    DataArrayDouble *determinant() const;
+    DataArrayDouble *eigenValues() const;
+    DataArrayDouble *eigenVectors() const;
+    DataArrayDouble *inverse() const;
+    DataArrayDouble *trace() const;
+    DataArrayDouble *deviator() const;
+    DataArrayDouble *magnitude() const;
+    DataArrayDouble *maxPerTuple() const;
+    DataArrayDouble *sumPerTuple() const;
+    DataArrayDouble *buildEuclidianDistanceDenseMatrix() const;
+    DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const;
+    void sortPerTuple(bool asc);
+    void abs();
+    DataArrayDouble *computeAbs() const;
+    void applyLin(double a, double b, int compoId);
+    void applyLin(double a, double b);
+    void applyInv(double numerator);
+    void applyPow(double val);
+    void applyRPow(double val);
+    DataArrayDouble *negate() const;
+    DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const;
+    DataArrayDouble *applyFunc(int nbOfComp, const std::string& func, bool isSafe=true) const;
+    DataArrayDouble *applyFunc(const std::string& func, bool isSafe=true) const;
+    void applyFuncOnThis(const std::string& func, bool isSafe=true);
+    DataArrayDouble *applyFuncCompo(int nbOfComp, const std::string& func, bool isSafe=true) const;
+    DataArrayDouble *applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const;
+    void applyFuncFast32(const std::string& func);
+    void applyFuncFast64(const std::string& func);
+    DataArrayInt *findIdsInRange(double vmin, double vmax) const;
+    DataArrayInt *findIdsNotInRange(double vmin, double vmax) const;
+    DataArrayInt *findIdsStrictlyNegative() const;
+    static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *Dot(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *CrossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *Max(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *Min(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *Add(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    void addEqual(const DataArrayDouble *other);
+    static DataArrayDouble *Substract(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    void substractEqual(const DataArrayDouble *other);
+    static DataArrayDouble *Multiply(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    void multiplyEqual(const DataArrayDouble *other);
+    static DataArrayDouble *Divide(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    void divideEqual(const DataArrayDouble *other);
+    static DataArrayDouble *Pow(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    void powEqual(const DataArrayDouble *other);
+    MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(double val) const;
+    MCAuto<DataArrayInt> findIdsGreaterThan(double val) const;
+    MCAuto<DataArrayInt> findIdsLowerOrEqualTo(double val) const;
+    MCAuto<DataArrayInt> findIdsLowerThan(double val) const;
+    MCAuto<DataArrayInt> convertToIntArr() const;
+    MCAuto<DataArrayDouble> selectPartDef(const PartDefinition* pd) const;
+    MCAuto<DataArrayDouble> cumSum() const;
+    MCAuto<DataArrayFloat> convertToFloatArr() const;
     %extend
     {
-      DataArrayDouble() throw(INTERP_KERNEL::Exception)
+      DataArrayDouble()
       {
         return DataArrayDouble::New();
       }
 
-      static DataArrayDouble *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
+      static DataArrayDouble *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0)
       {
         return DataArrayT_New<double>(elt0,nbOfTuples,elt2);
       }
    
-      DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0)
       {
         return MEDCoupling_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
       }
 
-      void pushBackValsSilent(PyObject *li) throw(INTERP_KERNEL::Exception)
+      void pushBackValsSilent(PyObject *li)
       {
         double val;
         std::vector<double> bb;
@@ -1016,24 +1016,24 @@ namespace MEDCoupling
         self->pushBackValsSilent(tmp,tmp+nbTuples);
       }
 
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      std::string __repr__() const
       {
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->reprNotTooLong();
       }
 
-      double __float__() const throw(INTERP_KERNEL::Exception)
+      double __float__() const
       {
         return self->doubleValue();
       }
 
-      int __len__() const throw(INTERP_KERNEL::Exception)
+      int __len__() const
       {
         if(self->isAllocated())
           {
@@ -1045,7 +1045,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *asArcOfCircle() const throw(INTERP_KERNEL::Exception)
+      PyObject *asArcOfCircle() const
       {
         double center[2],radius,ang;
         self->asArcOfCircle(center,radius,ang);
@@ -1061,12 +1061,12 @@ namespace MEDCoupling
         return ret;
       }
 
-      DataArrayDoubleIterator *__iter__() throw(INTERP_KERNEL::Exception)
+      DataArrayDoubleIterator *__iter__()
       {
         return self->iterator();
       }
    
-      void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
+      void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
       {
         const char *msg="MEDCoupling::DataArrayDouble::setValues : Available API are : \n-DataArrayDouble.setValues([1.,3.,4.])\n-DataArrayDouble.setValues([1.,3.,4.],3)\n-DataArrayDouble.setValues([1.,3.,4.,5.],2,2)\n-DataArrayDouble.setValues([(1.,1.7),(3.,3.7),(4.,4.7)])\n !";
         if(PyList_Check(li) || PyTuple_Check(li))
@@ -1112,20 +1112,20 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception(msg);
       }
 
-      PyObject *getValues() const throw(INTERP_KERNEL::Exception)
+      PyObject *getValues() const
       {
         const double *vals(self->begin());
         return convertDblArrToPyList<double>(vals,self->getNbOfElems());
       }
 
 #ifdef WITH_NUMPY
-      PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      PyObject *toNumPyArray() // not const. It is not a bug !
       {
         return ToNumPyArray<DataArrayDouble,double>(self,NPY_DOUBLE,"DataArrayDouble");
       }
 #endif
 
-      PyObject *isEqualIfNotWhy(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception)
+      PyObject *isEqualIfNotWhy(const DataArrayDouble& other, double prec) const
       {
         std::string ret1;
         bool ret0=self->isEqualIfNotWhy(other,prec,ret1);
@@ -1137,14 +1137,14 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getValuesAsTuple() const throw(INTERP_KERNEL::Exception)
+      PyObject *getValuesAsTuple() const
       {
         const double *vals(self->begin());
         int nbOfComp(self->getNumberOfComponents()),nbOfTuples(self->getNumberOfTuples());
         return convertDblArrToPyListOfTuple<double>(vals,nbOfComp,nbOfTuples);
       }
 
-      static PyObject *ComputeIntegralOfSeg2IntoTri3(PyObject *seg2, PyObject *tri3) throw(INTERP_KERNEL::Exception)
+      static PyObject *ComputeIntegralOfSeg2IntoTri3(PyObject *seg2, PyObject *tri3)
       {
         const char msg[]="Python wrap of DataArrayDouble::ComputeIntegralOfSeg2IntoTri3 : ";
         double val,val2;
@@ -1166,7 +1166,7 @@ namespace MEDCoupling
         return ret;
       }
       
-      DataArrayDouble *symmetry3DPlane(PyObject *point, PyObject *normalVector) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *symmetry3DPlane(PyObject *point, PyObject *normalVector)
       {
         const char msg[]="Python wrap of DataArrayDouble::symmetry3DPlane : ";
         double val,val2;
@@ -1180,7 +1180,7 @@ namespace MEDCoupling
         return ret.retn();
       }
 
-      static PyObject *GiveBaseForPlane(PyObject *normalVector) throw(INTERP_KERNEL::Exception)
+      static PyObject *GiveBaseForPlane(PyObject *normalVector)
       {
         const char msg[]="Python wrap of DataArrayDouble::GiveBaseForPlane : ";
         double val,val2;
@@ -1207,7 +1207,7 @@ namespace MEDCoupling
         return self->fromCartToCylGiven(coords,centerPtr,vectorPtr);
       }
       
-      DataArrayDouble *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *renumber(PyObject *li)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -1236,7 +1236,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayDouble *renumberR(PyObject *li) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *renumberR(PyObject *li)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -1265,7 +1265,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayDouble *renumberAndReduce(PyObject *li, int newNbOfTuple) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *renumberAndReduce(PyObject *li, int newNbOfTuple)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -1294,7 +1294,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *minimalDistanceTo(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception)
+      PyObject *minimalDistanceTo(const DataArrayDouble *other) const
       {
         int thisTupleId,otherTupleId;
         double r0=self->minimalDistanceTo(other,thisTupleId,otherTupleId);
@@ -1305,7 +1305,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMaxValue() const
       {
         int tmp;
         double r1=self->getMaxValue(tmp);
@@ -1315,7 +1315,7 @@ namespace MEDCoupling
         return ret;
       }
 
-	  PyObject *getMaxAbsValue() const throw(INTERP_KERNEL::Exception)
+	  PyObject *getMaxAbsValue() const
       {
         std::size_t tmp;
         double r1=self->getMaxAbsValue(tmp);
@@ -1325,7 +1325,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMaxValue2() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMaxValue2() const
       {
         DataArrayInt *tmp;
         double r1=self->getMaxValue2(tmp);
@@ -1335,7 +1335,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMinValue() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMinValue() const
       {
         int tmp;
         double r1=self->getMinValue(tmp);
@@ -1345,7 +1345,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMinValue2() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMinValue2() const
       {
         DataArrayInt *tmp;
         double r1=self->getMinValue2(tmp);
@@ -1355,7 +1355,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMinMaxPerComponent() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMinMaxPerComponent() const
       {
         int nbOfCompo(self->getNumberOfComponents());
         INTERP_KERNEL::AutoPtr<double> tmp(new double[2*nbOfCompo]);
@@ -1364,7 +1364,7 @@ namespace MEDCoupling
         return ret;
       }
       
-      PyObject *normMaxPerComponent() const throw(INTERP_KERNEL::Exception)
+      PyObject *normMaxPerComponent() const
       {
         int nbOfCompo(self->getNumberOfComponents());
         INTERP_KERNEL::AutoPtr<double> tmp(new double[nbOfCompo]);
@@ -1372,7 +1372,7 @@ namespace MEDCoupling
         return convertDblArrToPyList<double>(tmp,nbOfCompo);
       }
 
-      PyObject *accumulate() const throw(INTERP_KERNEL::Exception)
+      PyObject *accumulate() const
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
@@ -1380,7 +1380,7 @@ namespace MEDCoupling
         return convertDblArrToPyList<double>(tmp,sz);
       }
 
-      DataArrayDouble *accumulatePerChunck(PyObject *indexArr) const throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *accumulatePerChunck(PyObject *indexArr) const
       {
         int sw,sz,val;
         std::vector<int> val2;
@@ -1388,7 +1388,7 @@ namespace MEDCoupling
         return self->accumulatePerChunck(bg,bg+sz);
       }
 
-      PyObject *findCommonTuples(double prec, int limitNodeId=-1) const throw(INTERP_KERNEL::Exception)
+      PyObject *findCommonTuples(double prec, int limitNodeId=-1) const
       {
         DataArrayInt *comm, *commIndex;
         self->findCommonTuples(prec,limitNodeId,comm,commIndex);
@@ -1398,7 +1398,7 @@ namespace MEDCoupling
         return res;
       }
 
-      PyObject *distanceToTuple(PyObject *tuple) const throw(INTERP_KERNEL::Exception)
+      PyObject *distanceToTuple(PyObject *tuple) const
       {
         double val;
         DataArrayDouble *a;
@@ -1415,14 +1415,14 @@ namespace MEDCoupling
         return ret;
       }
 
-      void setSelectedComponents(const DataArrayDouble *a, PyObject *li) throw(INTERP_KERNEL::Exception)
+      void setSelectedComponents(const DataArrayDouble *a, PyObject *li)
       {
         std::vector<int> tmp;
         convertPyToNewIntArr3(li,tmp);
         self->setSelectedComponents(a,tmp);
       }
 
-      PyObject *explodeComponents() const throw(INTERP_KERNEL::Exception)
+      PyObject *explodeComponents() const
       {
         std::vector< MCAuto<DataArrayDouble> > retCpp(self->explodeComponents());
         std::size_t sz(retCpp.size());
@@ -1432,7 +1432,7 @@ namespace MEDCoupling
         return res;
       }
    
-      PyObject *getTuple(int tupleId) throw(INTERP_KERNEL::Exception)
+      PyObject *getTuple(int tupleId)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
@@ -1440,21 +1440,21 @@ namespace MEDCoupling
         return convertDblArrToPyList<double>(tmp,sz);
       }
 
-      static DataArrayDouble *Aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
+      static DataArrayDouble *Aggregate(PyObject *li)
       {
         std::vector<const DataArrayDouble *> tmp;
         convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_MEDCoupling__DataArrayDouble,"DataArrayDouble",tmp);
         return DataArrayDouble::Aggregate(tmp);
       }
 
-      static DataArrayDouble *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
+      static DataArrayDouble *Meld(PyObject *li)
       {
         std::vector<const DataArrayDouble *> tmp;
         convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_MEDCoupling__DataArrayDouble,"DataArrayDouble",tmp);
         return DataArrayDouble::Meld(tmp);
       }
 
-      PyObject *computeTupleIdsNearTuples(PyObject *pt, double eps) const throw(INTERP_KERNEL::Exception)
+      PyObject *computeTupleIdsNearTuples(PyObject *pt, double eps) const
       {
         double val;
         DataArrayDouble *a;
@@ -1473,7 +1473,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *areIncludedInMe(const DataArrayDouble *other, double prec) const throw(INTERP_KERNEL::Exception)
+      PyObject *areIncludedInMe(const DataArrayDouble *other, double prec) const
       {
         DataArrayInt *ret1=0;
         bool ret0=self->areIncludedInMe(other,prec,ret1);
@@ -1485,22 +1485,22 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__getitem__(PyObject *obj)
       {
         return DataArrayT__getitem<double>(self,obj);
       }
 
-      DataArrayDouble *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *__setitem__(PyObject *obj, PyObject *value)
       {
         return DataArrayT__setitem__<double>(self,obj,value);
       }
 
-      DataArrayDouble *__neg__() const throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *__neg__() const
       {
         return self->negate();
       }
 
-      PyObject *__add__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__add__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in DataArrayDouble.__add__ !";
         double val;
@@ -1554,7 +1554,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayDouble *__radd__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *__radd__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __radd__ !";
         double val;
@@ -1586,12 +1586,12 @@ namespace MEDCoupling
           }
       }
    
-      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_iadd<double>(trueSelf,obj,self);
       }
 
-      PyObject *__sub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__sub__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __sub__ !";
         double val;
@@ -1645,7 +1645,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayDouble *__rsub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *__rsub__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __rsub__ !";
         double val;
@@ -1677,12 +1677,12 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___isub___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_isub<double>(trueSelf,obj,self);
       }
 
-      PyObject *__mul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__mul__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __mul__ !";
         double val;
@@ -1736,17 +1736,17 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayDouble *__rmul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *__rmul__(PyObject *obj)
       {
         return DataArrayFPT_rmul<double>(self,obj);
       }
 
-      PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_imul<double>(trueSelf,obj,self);
       }
 
-      PyObject *__div__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__div__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __div__ !";
         double val;
@@ -1802,7 +1802,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayDouble *__rdiv__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *__rdiv__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __rdiv__ !";
         double val;
@@ -1834,12 +1834,12 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_idiv<double>(trueSelf,obj,self);
       }
    
-      DataArrayDouble *__pow__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *__pow__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __pow__ !";
         double val;
@@ -1875,7 +1875,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayDouble *__rpow__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *__rpow__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __rpow__ !";
         double val;
@@ -1907,7 +1907,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *___ipow___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___ipow___(PyObject *trueSelf, PyObject *obj)
       {
         const char msg[]="Unexpected situation in __ipow__ !";
         double val;
@@ -1960,7 +1960,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *maxPerTupleWithCompoId() const throw(INTERP_KERNEL::Exception)
+      PyObject *maxPerTupleWithCompoId() const
       {
         DataArrayInt *ret1=0;
         DataArrayDouble *ret0=self->maxPerTupleWithCompoId(ret1);
@@ -1998,26 +1998,26 @@ namespace MEDCoupling
   class DataArrayDoubleTuple
   {
   public:
-    int getNumberOfCompo() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCompo() const;
+    DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const;
     %extend
     {
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->repr();
       }
 
-      double __float__() const throw(INTERP_KERNEL::Exception)
+      double __float__() const
       {
         return self->doubleValue();
       }
 
-      DataArrayDouble *buildDADouble() throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *buildDADouble()
       {
         return self->buildDADouble(1,self->getNumberOfCompo());
       }
 
-      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayDouble____iadd___(ret,0,obj);
@@ -2025,7 +2025,7 @@ namespace MEDCoupling
         return trueSelf;
       }
   
-      PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___isub___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayDouble____isub___(ret,0,obj);
@@ -2033,7 +2033,7 @@ namespace MEDCoupling
         return trueSelf;
       }
   
-      PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayDouble____imul___(ret,0,obj);
@@ -2041,7 +2041,7 @@ namespace MEDCoupling
         return trueSelf;
       }
 
-      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayDouble____idiv___(ret,0,obj);
@@ -2049,12 +2049,12 @@ namespace MEDCoupling
         return trueSelf;
       }
 
-      PyObject *__len__() throw(INTERP_KERNEL::Exception)
+      PyObject *__len__()
       {
         return PyInt_FromLong(self->getNumberOfCompo());
       }
 
-      PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__getitem__(PyObject *obj)
       {
         const char msg2[]="DataArrayDoubleTuple::__getitem__ : Mismatch of slice values in 2nd parameter (components) !";
         int sw;
@@ -2119,7 +2119,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayDoubleTuple *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      DataArrayDoubleTuple *__setitem__(PyObject *obj, PyObject *value)
       {
         const char msg[]="DataArrayDoubleTuple::__setitem__ : unrecognized type entered, int, slice, list<int>, tuple<int> !";
         const char msg2[]="DataArrayDoubleTuple::__setitem__ : Mismatch of slice values in 2nd parameter (components) !";
@@ -2280,150 +2280,150 @@ namespace MEDCoupling
   {
   public:
     static DataArrayInt *New();
-    int intValue() const throw(INTERP_KERNEL::Exception);
-    int getHashCode() const throw(INTERP_KERNEL::Exception);
-    bool empty() const throw(INTERP_KERNEL::Exception);
-    void aggregate(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
-    void deepCopyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);
-    void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
-    void pushBackSilent(int val) throw(INTERP_KERNEL::Exception);
-    int popBackSilent() throw(INTERP_KERNEL::Exception);
-    void pack() const throw(INTERP_KERNEL::Exception);
-    void allocIfNecessary(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
-    bool isEqual(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
-    bool isEqualWithoutConsideringStr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
-    bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildPermutationArr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *sumPerTuple() const throw(INTERP_KERNEL::Exception);
-    void sort(bool asc=true) throw(INTERP_KERNEL::Exception);
-    void reverse() throw(INTERP_KERNEL::Exception);
-    void checkMonotonic(bool increasing) const throw(INTERP_KERNEL::Exception);
-    bool isMonotonic(bool increasing) const throw(INTERP_KERNEL::Exception);
-    void checkStrictlyMonotonic(bool increasing) const throw(INTERP_KERNEL::Exception);
-    bool isStrictlyMonotonic(bool increasing) const throw(INTERP_KERNEL::Exception);
-    void fillWithZero() throw(INTERP_KERNEL::Exception);
-    void fillWithValue(int val) throw(INTERP_KERNEL::Exception);
-    void iota(int init=0) throw(INTERP_KERNEL::Exception);
-    std::string repr() const throw(INTERP_KERNEL::Exception);
-    std::string reprZip() const throw(INTERP_KERNEL::Exception);
-    std::string reprNotTooLong() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
-    MCAuto< MapII > invertArrayN2O2O2NOptimized() const throw(INTERP_KERNEL::Exception);
-    MCAuto< MapII > giveN2OOptimized() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *indicesOfSubPart(const DataArrayInt& partOfThis) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *toNoInterlace() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *selectByTupleIdSafeSlice(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildPermArrPerLevel() const throw(INTERP_KERNEL::Exception);
-    bool isIota(int sizeExpected) const throw(INTERP_KERNEL::Exception);
-    bool isUniform(int val) const throw(INTERP_KERNEL::Exception);
-    int checkUniformAndGuess() const throw(INTERP_KERNEL::Exception);
-    bool hasUniqueValues() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
-    void transpose() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *changeNbOfComponents(int newNbOfComp, int dftValue) const throw(INTERP_KERNEL::Exception);
-    void meldWith(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    void setPartOfValues1(const DataArrayInt *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
-    void setPartOfValuesSimple1(int a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
-    void setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    void getTuple(int tupleId, int *res) const throw(INTERP_KERNEL::Exception);
-    int getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
-    int getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
-    int front() const throw(INTERP_KERNEL::Exception);
-    int back() const throw(INTERP_KERNEL::Exception);
-    void setIJ(int tupleId, int compoId, int newVal) throw(INTERP_KERNEL::Exception);
-    void setIJSilent(int tupleId, int compoId, int newVal) throw(INTERP_KERNEL::Exception);
-    int *getPointer() throw(INTERP_KERNEL::Exception);
-    const int *getConstPointer() const throw(INTERP_KERNEL::Exception);
-    DataArrayIntIterator *iterator() throw(INTERP_KERNEL::Exception);
-    const int *begin() const throw(INTERP_KERNEL::Exception);
-    const int *end() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsEqual(int val) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception);
-    int changeValue(int oldValue, int newValue) throw(INTERP_KERNEL::Exception);
-    int findIdFirstEqualTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
-    int findIdFirstEqual(int value) const throw(INTERP_KERNEL::Exception);
-    int findIdFirstEqual(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
-    int findIdSequence(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
-    bool presenceOfTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
-    bool presenceOfValue(int value) const throw(INTERP_KERNEL::Exception);
-    bool presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
-    int count(int value) const throw(INTERP_KERNEL::Exception);
-    int accumulate(int compId) const throw(INTERP_KERNEL::Exception);
-    int getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
-    int getMaxAbsValueInArray() const throw(INTERP_KERNEL::Exception);
-    int getMinValueInArray() const throw(INTERP_KERNEL::Exception);
-    void abs() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *computeAbs() const throw(INTERP_KERNEL::Exception);
-    void applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception);
-    void applyLin(int a, int b) throw(INTERP_KERNEL::Exception);
-    void applyInv(int numerator) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *negate() const throw(INTERP_KERNEL::Exception);
-    void applyDivideBy(int val) throw(INTERP_KERNEL::Exception);
-    void applyModulus(int val) throw(INTERP_KERNEL::Exception);
-    void applyRModulus(int val) throw(INTERP_KERNEL::Exception);
-    void applyPow(int val) throw(INTERP_KERNEL::Exception);
-    void applyRPow(int val) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsNotInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsStrictlyNegative() const throw(INTERP_KERNEL::Exception);
-    bool checkAllIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *BuildUnion(const std::vector<const DataArrayInt *>& arr) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *BuildIntersection(const std::vector<const DataArrayInt *>& arr) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *FindPermutationFromFirstToSecond(const DataArrayInt *ids1, const DataArrayInt *ids2) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildComplement(int nbOfElement) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildSubstraction(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildSubstractionOptimized(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildUnion(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildIntersection(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildUnique() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildUniqueNotSorted() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *deltaShiftIndex() const throw(INTERP_KERNEL::Exception);
-    void computeOffsets() throw(INTERP_KERNEL::Exception);
-    void computeOffsetsFull() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildExplicitArrByRanges(const DataArrayInt *offsets) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findRangeIdForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdInRangeForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception);
-    void sortEachPairToMakeALinkedList() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getDifferentValues() const throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Add(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    void addEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Substract(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    void substractEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Multiply(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    void multiplyEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Divide(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    void divideEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Modulus(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    void modulusEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Pow(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    void powEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> fromLinkedListOfPairToList() const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(int val) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> findIdsGreaterThan(int val) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> findIdsLowerOrEqualTo(int val) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> findIdsLowerThan(int val) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayInt> selectPartDef(const PartDefinition* pd) const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayDouble> convertToDblArr() const throw(INTERP_KERNEL::Exception);
-    MCAuto<DataArrayFloat> convertToFloatArr() const throw(INTERP_KERNEL::Exception);
+    int intValue() const;
+    int getHashCode() const;
+    bool empty() const;
+    void aggregate(const DataArrayInt *other);
+    DataArrayInt *performCopyOrIncrRef(bool deepCopy) const;
+    void deepCopyFrom(const DataArrayInt& other);
+    void reserve(std::size_t nbOfElems);
+    void pushBackSilent(int val);
+    int popBackSilent();
+    void pack() const;
+    void allocIfNecessary(int nbOfTuple, int nbOfCompo);
+    bool isEqual(const DataArrayInt& other) const;
+    bool isEqualWithoutConsideringStr(const DataArrayInt& other) const;
+    bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const;
+    DataArrayInt *buildPermutationArr(const DataArrayInt& other) const;
+    DataArrayInt *sumPerTuple() const;
+    void sort(bool asc=true);
+    void reverse();
+    void checkMonotonic(bool increasing) const;
+    bool isMonotonic(bool increasing) const;
+    void checkStrictlyMonotonic(bool increasing) const;
+    bool isStrictlyMonotonic(bool increasing) const;
+    void fillWithZero();
+    void fillWithValue(int val);
+    void iota(int init=0);
+    std::string repr() const;
+    std::string reprZip() const;
+    std::string reprNotTooLong() const;
+    DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
+    DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
+    DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const;
+    MCAuto< MapII > invertArrayN2O2O2NOptimized() const;
+    MCAuto< MapII > giveN2OOptimized() const;
+    DataArrayInt *indicesOfSubPart(const DataArrayInt& partOfThis) const;
+    DataArrayInt *fromNoInterlace() const;
+    DataArrayInt *toNoInterlace() const;
+    DataArrayInt *selectByTupleIdSafeSlice(int bg, int end, int step) const;
+    DataArrayInt *checkAndPreparePermutation() const;
+    DataArrayInt *buildPermArrPerLevel() const;
+    bool isIota(int sizeExpected) const;
+    bool isUniform(int val) const;
+    int checkUniformAndGuess() const;
+    bool hasUniqueValues() const;
+    DataArrayInt *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
+    void transpose();
+    DataArrayInt *changeNbOfComponents(int newNbOfComp, int dftValue) const;
+    void meldWith(const DataArrayInt *other);
+    void setPartOfValues1(const DataArrayInt *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
+    void setPartOfValuesSimple1(int a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp);
+    void setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt *tuplesSelec);
+    void getTuple(int tupleId, int *res) const;
+    int getIJ(int tupleId, int compoId) const;
+    int getIJSafe(int tupleId, int compoId) const;
+    int front() const;
+    int back() const;
+    void setIJ(int tupleId, int compoId, int newVal);
+    void setIJSilent(int tupleId, int compoId, int newVal);
+    int *getPointer();
+    const int *getConstPointer() const;
+    DataArrayIntIterator *iterator();
+    const int *begin() const;
+    const int *end() const;
+    DataArrayInt *findIdsEqual(int val) const;
+    DataArrayInt *findIdsNotEqual(int val) const;
+    int changeValue(int oldValue, int newValue);
+    int findIdFirstEqualTuple(const std::vector<int>& tupl) const;
+    int findIdFirstEqual(int value) const;
+    int findIdFirstEqual(const std::vector<int>& vals) const;
+    int findIdSequence(const std::vector<int>& vals) const;
+    bool presenceOfTuple(const std::vector<int>& tupl) const;
+    bool presenceOfValue(int value) const;
+    bool presenceOfValue(const std::vector<int>& vals) const;
+    int count(int value) const;
+    int accumulate(int compId) const;
+    int getMaxValueInArray() const;
+    int getMaxAbsValueInArray() const;
+    int getMinValueInArray() const;
+    void abs();
+    DataArrayInt *computeAbs() const;
+    void applyLin(int a, int b, int compoId);
+    void applyLin(int a, int b);
+    void applyInv(int numerator);
+    DataArrayInt *negate() const;
+    void applyDivideBy(int val);
+    void applyModulus(int val);
+    void applyRModulus(int val);
+    void applyPow(int val);
+    void applyRPow(int val);
+    DataArrayInt *findIdsInRange(int vmin, int vmax) const;
+    DataArrayInt *findIdsNotInRange(int vmin, int vmax) const;
+    DataArrayInt *findIdsStrictlyNegative() const;
+    bool checkAllIdsInRange(int vmin, int vmax) const;
+    static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
+    static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2);
+    static DataArrayInt *MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups);
+    static DataArrayInt *BuildUnion(const std::vector<const DataArrayInt *>& arr);
+    static DataArrayInt *BuildIntersection(const std::vector<const DataArrayInt *>& arr);
+    static DataArrayInt *FindPermutationFromFirstToSecond(const DataArrayInt *ids1, const DataArrayInt *ids2);
+    DataArrayInt *buildComplement(int nbOfElement) const;
+    DataArrayInt *buildSubstraction(const DataArrayInt *other) const;
+    DataArrayInt *buildSubstractionOptimized(const DataArrayInt *other) const;
+    DataArrayInt *buildUnion(const DataArrayInt *other) const;
+    DataArrayInt *buildIntersection(const DataArrayInt *other) const;
+    DataArrayInt *buildUnique() const;
+    DataArrayInt *buildUniqueNotSorted() const;
+    DataArrayInt *deltaShiftIndex() const;
+    void computeOffsets();
+    void computeOffsetsFull();
+    DataArrayInt *buildExplicitArrByRanges(const DataArrayInt *offsets) const;
+    DataArrayInt *findRangeIdForEachTuple(const DataArrayInt *ranges) const;
+    DataArrayInt *findIdInRangeForEachTuple(const DataArrayInt *ranges) const;
+    void sortEachPairToMakeALinkedList();
+    DataArrayInt *duplicateEachTupleNTimes(int nbTimes) const;
+    DataArrayInt *getDifferentValues() const;
+    static DataArrayInt *Add(const DataArrayInt *a1, const DataArrayInt *a2);
+    void addEqual(const DataArrayInt *other);
+    static DataArrayInt *Substract(const DataArrayInt *a1, const DataArrayInt *a2);
+    void substractEqual(const DataArrayInt *other);
+    static DataArrayInt *Multiply(const DataArrayInt *a1, const DataArrayInt *a2);
+    void multiplyEqual(const DataArrayInt *other);
+    static DataArrayInt *Divide(const DataArrayInt *a1, const DataArrayInt *a2);
+    void divideEqual(const DataArrayInt *other);
+    static DataArrayInt *Modulus(const DataArrayInt *a1, const DataArrayInt *a2);
+    void modulusEqual(const DataArrayInt *other);
+    static DataArrayInt *Pow(const DataArrayInt *a1, const DataArrayInt *a2);
+    void powEqual(const DataArrayInt *other);
+    MCAuto<DataArrayInt> fromLinkedListOfPairToList() const;
+    MCAuto<DataArrayInt> findIdsGreaterOrEqualTo(int val) const;
+    MCAuto<DataArrayInt> findIdsGreaterThan(int val) const;
+    MCAuto<DataArrayInt> findIdsLowerOrEqualTo(int val) const;
+    MCAuto<DataArrayInt> findIdsLowerThan(int val) const;
+    MCAuto<DataArrayInt> selectPartDef(const PartDefinition* pd) const;
+    MCAuto<DataArrayDouble> convertToDblArr() const;
+    MCAuto<DataArrayFloat> convertToFloatArr() const;
   public:
-    static DataArrayInt *Range(int begin, int end, int step) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *Range(int begin, int end, int step);
     %extend
     {
-      DataArrayInt() throw(INTERP_KERNEL::Exception)
+      DataArrayInt()
         {
           return DataArrayInt::New();
         }
 
-      static DataArrayInt *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
+      static DataArrayInt *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
       {
         const char *msgBase="MEDCoupling::DataArrayInt::New : Available API are : \n-DataArrayInt.New()\n-DataArrayInt.New([1,3,4])\n-DataArrayInt.New([1,3,4],3)\n-DataArrayInt.New([1,3,4,5],2,2)\n-DataArrayInt.New([1,3,4,5,7,8],3,2)\n-DataArrayInt.New([(1,3),(4,5),(7,8)])\n-DataArrayInt.New(5)\n-DataArrayInt.New(5,2)";
         std::string msg(msgBase);
@@ -2518,17 +2518,17 @@ namespace MEDCoupling
         throw INTERP_KERNEL::Exception(msg.c_str());//to make g++ happy
       }
 
-      DataArrayInt(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
+      DataArrayInt(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
         {
           return MEDCoupling_DataArrayInt_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
       
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->reprNotTooLong();
       }
 
-      int __len__() const throw(INTERP_KERNEL::Exception)
+      int __len__() const
       {
         if(self->isAllocated())
           {
@@ -2540,17 +2540,17 @@ namespace MEDCoupling
           }
       }
 
-      int __int__() const throw(INTERP_KERNEL::Exception)
+      int __int__() const
       {
         return self->intValue();
       }
 
-      DataArrayIntIterator *__iter__() throw(INTERP_KERNEL::Exception)
+      DataArrayIntIterator *__iter__()
       {
         return self->iterator();
       }
    
-      PyObject *accumulate() const throw(INTERP_KERNEL::Exception)
+      PyObject *accumulate() const
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<int> tmp=new int[sz];
@@ -2558,7 +2558,7 @@ namespace MEDCoupling
         return convertIntArrToPyList(tmp,sz);
       }
 
-      DataArrayInt *accumulatePerChunck(PyObject *indexArr) const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *accumulatePerChunck(PyObject *indexArr) const
       {
         int sw,sz,val;
         std::vector<int> val2;
@@ -2566,7 +2566,7 @@ namespace MEDCoupling
         return self->accumulatePerChunck(bg,bg+sz);
       }
 
-      DataArrayInt *findIdsEqualTuple(PyObject *inputTuple) const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *findIdsEqualTuple(PyObject *inputTuple) const
       {
         int sw,sz,val;
         std::vector<int> val2;
@@ -2574,7 +2574,7 @@ namespace MEDCoupling
         return self->findIdsEqualTuple(bg,bg+sz);
       }
 
-      DataArrayInt *findIdForEach(PyObject *vals) const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *findIdForEach(PyObject *vals) const
       {
         int sw,sz,val;
         std::vector<int> val2;
@@ -2583,7 +2583,7 @@ namespace MEDCoupling
         return ret.retn();
       }
 
-      PyObject *splitInBalancedSlices(int nbOfSlices) const throw(INTERP_KERNEL::Exception)
+      PyObject *splitInBalancedSlices(int nbOfSlices) const
       {
         std::vector< std::pair<int,int> > slcs(self->splitInBalancedSlices(nbOfSlices));
         PyObject *ret=PyList_New(slcs.size());
@@ -2592,7 +2592,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      DataArrayInt *buildExplicitArrOfSliceOnScaledArr(PyObject *slic) const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *buildExplicitArrOfSliceOnScaledArr(PyObject *slic) const
       {
         if(!PySlice_Check(slic))
           throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : expecting a pyslice as second (first) parameter !");
@@ -2603,7 +2603,7 @@ namespace MEDCoupling
         return self->buildExplicitArrOfSliceOnScaledArr(strt,stp,step);
       }
 
-      PyObject *getMinMaxValues() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMinMaxValues() const
       {
         int a,b;
         self->getMinMaxValues(a,b);
@@ -2613,7 +2613,7 @@ namespace MEDCoupling
         return ret;
       }
    
-      static PyObject *ConvertIndexArrayToO2N(int nbOfOldTuples, PyObject *arr, PyObject *arrI) throw(INTERP_KERNEL::Exception)
+      static PyObject *ConvertIndexArrayToO2N(int nbOfOldTuples, PyObject *arr, PyObject *arrI)
       {
         int newNbOfTuples=-1;
         int szArr,szArrI,sw,iTypppArr,iTypppArrI;
@@ -2627,7 +2627,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      static DataArrayInt *CheckAndPreparePermutation(PyObject *arr) throw(INTERP_KERNEL::Exception)
+      static DataArrayInt *CheckAndPreparePermutation(PyObject *arr)
       {
         MCAuto<DataArrayInt> ret(DataArrayInt::New());
         int szArr,sw,iTypppArr;
@@ -2638,7 +2638,7 @@ namespace MEDCoupling
         return ret.retn();
       }
 
-      void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
+      void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
       {
         const char *msg="MEDCoupling::DataArrayInt::setValues : Available API are : \n-DataArrayInt.setValues([1,3,4])\n-DataArrayInt.setValues([1,3,4],3)\n-DataArrayInt.setValues([1,3,4,5],2,2)\n-DataArrayInt.New(5)\n !";
         if(PyList_Check(li) || PyTuple_Check(li))
@@ -2684,20 +2684,20 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception(msg);
       }
 
-      PyObject *getValues() const throw(INTERP_KERNEL::Exception)
+      PyObject *getValues() const
       {
         const int *vals=self->getConstPointer();
         return convertIntArrToPyList(vals,self->getNbOfElems());
       }
 
 #ifdef WITH_NUMPY
-      PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      PyObject *toNumPyArray() // not const. It is not a bug !
       {
         return ToNumPyArray<DataArrayInt,int>(self,NPY_INT32,"DataArrayInt");
       }
 #endif
 
-      PyObject *isEqualIfNotWhy(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception)
+      PyObject *isEqualIfNotWhy(const DataArrayInt& other) const
       {
         std::string ret1;
         bool ret0=self->isEqualIfNotWhy(other,ret1);
@@ -2709,7 +2709,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getValuesAsTuple() const throw(INTERP_KERNEL::Exception)
+      PyObject *getValuesAsTuple() const
       {
         const int *vals=self->getConstPointer();
         int nbOfComp=self->getNumberOfComponents();
@@ -2717,7 +2717,7 @@ namespace MEDCoupling
         return convertIntArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
       }
 
-      static PyObject *MakePartition(PyObject *gps, int newNb) throw(INTERP_KERNEL::Exception)
+      static PyObject *MakePartition(PyObject *gps, int newNb)
       {
         std::vector<const DataArrayInt *> groups;
         std::vector< std::vector<int> > fidsOfGroups;
@@ -2733,7 +2733,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      void transformWithIndArr(PyObject *li) throw(INTERP_KERNEL::Exception)
+      void transformWithIndArr(PyObject *li)
       {
         void *da=0;
         int res1(SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 ));
@@ -2759,7 +2759,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *findIdsEqualList(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *findIdsEqualList(PyObject *obj)
       {
         int sw;
         int singleVal;
@@ -2780,7 +2780,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *findIdsNotEqualList(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *findIdsNotEqualList(PyObject *obj)
       {
         int sw;
         int singleVal;
@@ -2801,7 +2801,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *splitByValueRange(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      PyObject *splitByValueRange(PyObject *li) const
       {
         DataArrayInt *ret0=0,*ret1=0,*ret2=0;
         void *da=0;
@@ -2827,7 +2827,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      DataArrayInt *transformWithIndArrR(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *transformWithIndArrR(PyObject *li) const
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -2844,7 +2844,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *renumberAndReduce(PyObject *li, int newNbOfTuple) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *renumberAndReduce(PyObject *li, int newNbOfTuple)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -2873,7 +2873,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *renumber(PyObject *li)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -2902,7 +2902,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *renumberR(PyObject *li) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *renumberR(PyObject *li)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -2931,14 +2931,14 @@ namespace MEDCoupling
           }
       }
 
-      void setSelectedComponents(const DataArrayInt *a, PyObject *li) throw(INTERP_KERNEL::Exception)
+      void setSelectedComponents(const DataArrayInt *a, PyObject *li)
       {
         std::vector<int> tmp;
         convertPyToNewIntArr3(li,tmp);
         self->setSelectedComponents(a,tmp);
       }
 
-      PyObject *explodeComponents() const throw(INTERP_KERNEL::Exception)
+      PyObject *explodeComponents() const
       {
         std::vector< MCAuto<DataArrayInt> > retCpp(self->explodeComponents());
         std::size_t sz(retCpp.size());
@@ -2948,7 +2948,7 @@ namespace MEDCoupling
         return res;
       }
 
-      PyObject *getTuple(int tupleId) throw(INTERP_KERNEL::Exception)
+      PyObject *getTuple(int tupleId)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<int> tmp=new int[sz];
@@ -2956,7 +2956,7 @@ namespace MEDCoupling
         return convertIntArrToPyList(tmp,sz);
       }
 
-      PyObject *changeSurjectiveFormat(int targetNb) const throw(INTERP_KERNEL::Exception)
+      PyObject *changeSurjectiveFormat(int targetNb) const
       {
         DataArrayInt *arr=0;
         DataArrayInt *arrI=0;
@@ -2967,42 +2967,42 @@ namespace MEDCoupling
         return res;
       }
 
-      static DataArrayInt *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
+      static DataArrayInt *Meld(PyObject *li)
       {
         std::vector<const DataArrayInt *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::Meld(tmp);
       }
 
-      static DataArrayInt *Aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
+      static DataArrayInt *Aggregate(PyObject *li)
       {
         std::vector<const DataArrayInt *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::Aggregate(tmp);
       }
 
-      static DataArrayInt *AggregateIndexes(PyObject *li) throw(INTERP_KERNEL::Exception)
+      static DataArrayInt *AggregateIndexes(PyObject *li)
       {
         std::vector<const DataArrayInt *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::AggregateIndexes(tmp);
       }
 
-      static DataArrayInt *BuildUnion(PyObject *li) throw(INTERP_KERNEL::Exception)
+      static DataArrayInt *BuildUnion(PyObject *li)
       {
         std::vector<const DataArrayInt *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::BuildUnion(tmp);
       }
 
-      static DataArrayInt *BuildIntersection(PyObject *li) throw(INTERP_KERNEL::Exception)
+      static DataArrayInt *BuildIntersection(PyObject *li)
       {
         std::vector<const DataArrayInt *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::BuildIntersection(tmp);
       }
 
-      PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMaxValue() const
       {
         int tmp;
         int r1=self->getMaxValue(tmp);
@@ -3012,7 +3012,7 @@ namespace MEDCoupling
         return ret;
       }
     
-      PyObject *getMaxAbsValue(std::size_t& tupleId) const throw(INTERP_KERNEL::Exception)
+      PyObject *getMaxAbsValue(std::size_t& tupleId) const
       {
       	std::size_t tmp;
         int r1=self->getMaxAbsValue(tmp);
@@ -3022,7 +3022,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMinValue() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMinValue() const
       {
         int tmp;
         int r1=self->getMinValue(tmp);
@@ -3032,7 +3032,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      int index(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+      int index(PyObject *obj) const
       {
         int nbOfCompo=self->getNumberOfComponents();
         switch(nbOfCompo)
@@ -3056,7 +3056,7 @@ namespace MEDCoupling
           }
       }
 
-      bool __contains__(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+      bool __contains__(PyObject *obj) const
       {
         int nbOfCompo=self->getNumberOfComponents();
         switch(nbOfCompo)
@@ -3082,7 +3082,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__getitem__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in DataArrayInt::__getitem__ !";
         const char msg2[]="DataArrayInt::__getitem__ : Mismatch of slice values in 2nd parameter (components) !";
@@ -3191,7 +3191,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__setitem__(PyObject *obj, PyObject *value)
       {
         self->checkAllocated();
         const char msg[]="Unexpected situation in __setitem__ !";
@@ -3601,12 +3601,12 @@ namespace MEDCoupling
         return self;
       }
 
-      DataArrayInt *__neg__() const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__neg__() const
       {
         return self->negate();
       }
  
-      DataArrayInt *__add__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__add__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __add__ !";
         int val;
@@ -3642,7 +3642,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__radd__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__radd__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __radd__ !";
         int val;
@@ -3674,7 +3674,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj)
       {
         const char msg[]="Unexpected situation in __iadd__ !";
         int val;
@@ -3716,7 +3716,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__sub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__sub__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __sub__ !";
         int val;
@@ -3752,7 +3752,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__rsub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__rsub__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __rsub__ !";
         int val;
@@ -3784,7 +3784,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___isub___(PyObject *trueSelf, PyObject *obj)
       {
         const char msg[]="Unexpected situation in __isub__ !";
         int val;
@@ -3826,7 +3826,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__mul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__mul__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __mul__ !";
         int val;
@@ -3862,7 +3862,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__rmul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__rmul__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __rmul__ !";
         int val;
@@ -3894,7 +3894,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         const char msg[]="Unexpected situation in __imul__ !";
         int val;
@@ -3936,7 +3936,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__div__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__div__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __div__ !";
         int val;
@@ -3972,7 +3972,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__rdiv__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__rdiv__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __rdiv__ !";
         int val;
@@ -4004,7 +4004,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj)
       {
         const char msg[]="Unexpected situation in __idiv__ !";
         int val;
@@ -4046,7 +4046,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__mod__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__mod__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __mod__ !";
         int val;
@@ -4082,7 +4082,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__rmod__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__rmod__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __rmod__ !";
         int val;
@@ -4118,7 +4118,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *___imod___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___imod___(PyObject *trueSelf, PyObject *obj)
       {
         const char msg[]="Unexpected situation in __imod__ !";
         int val;
@@ -4153,7 +4153,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__pow__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__pow__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __pow__ !";
         int val;
@@ -4189,7 +4189,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *__rpow__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *__rpow__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __rpow__ !";
         int val;
@@ -4225,7 +4225,7 @@ namespace MEDCoupling
           }
       }
    
-      PyObject *___ipow___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___ipow___(PyObject *trueSelf, PyObject *obj)
       {
         const char msg[]="Unexpected situation in __ipow__ !";
         int val;
@@ -4260,14 +4260,14 @@ namespace MEDCoupling
           }
       }
 
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      std::string __repr__() const
       {
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
       }
       
-      void pushBackValsSilent(PyObject *li) throw(INTERP_KERNEL::Exception)
+      void pushBackValsSilent(PyObject *li)
       {
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
@@ -4275,7 +4275,7 @@ namespace MEDCoupling
         self->pushBackValsSilent(tmp,tmp+szArr);
       }
       
-      PyObject *partitionByDifferentValues() const throw(INTERP_KERNEL::Exception)
+      PyObject *partitionByDifferentValues() const
       {
         std::vector<int> ret1;
         std::vector<DataArrayInt *> ret0=self->partitionByDifferentValues(ret1);
@@ -4293,7 +4293,7 @@ namespace MEDCoupling
         return pyRet;
       }
       
-      PyObject *findIdsRangesInListOfIds(const DataArrayInt *listOfIds) const throw(INTERP_KERNEL::Exception)
+      PyObject *findIdsRangesInListOfIds(const DataArrayInt *listOfIds) const
       {
         DataArrayInt *ret0=0,*ret1=0;
         self->findIdsRangesInListOfIds(listOfIds,ret0,ret1);
@@ -4303,7 +4303,7 @@ namespace MEDCoupling
         return pyRet;
       }
 
-      PyObject *isRange() const throw(INTERP_KERNEL::Exception)
+      PyObject *isRange() const
       {
         int a(0),b(0),c(0);
         bool ret(self->isRange(a,b,c));
@@ -4350,26 +4350,26 @@ namespace MEDCoupling
   class DataArrayIntTuple
   {
   public:
-    int getNumberOfCompo() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildDAInt(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCompo() const;
+    DataArrayInt *buildDAInt(int nbOfTuples, int nbOfCompo) const;
     %extend
     {
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->repr();
       }
 
-      int __int__() const throw(INTERP_KERNEL::Exception)
+      int __int__() const
       {
         return self->intValue();
       }
 
-      DataArrayInt *buildDAInt() throw(INTERP_KERNEL::Exception)
+      DataArrayInt *buildDAInt()
       {
         return self->buildDAInt(1,self->getNumberOfCompo());
       }
 
-      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___iadd___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____iadd___(ret,0,obj);
@@ -4377,7 +4377,7 @@ namespace MEDCoupling
         return trueSelf;
       }
   
-      PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___isub___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____isub___(ret,0,obj);
@@ -4385,14 +4385,14 @@ namespace MEDCoupling
         return trueSelf;
       }
   
-      PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____imul___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
-      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___idiv___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____idiv___(ret,0,obj);
@@ -4400,7 +4400,7 @@ namespace MEDCoupling
         return trueSelf;
       }
 
-      PyObject *___imod___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *___imod___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____imod___(ret,0,obj);
@@ -4408,12 +4408,12 @@ namespace MEDCoupling
         return trueSelf;
       }
 
-      PyObject *__len__() throw(INTERP_KERNEL::Exception)
+      PyObject *__len__()
       {
         return PyInt_FromLong(self->getNumberOfCompo());
       }
   
-      PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      PyObject *__getitem__(PyObject *obj)
       {
         const char msg2[]="DataArrayIntTuple::__getitem__ : Mismatch of slice values in 2nd parameter (components) !";
         int sw;
@@ -4478,7 +4478,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayIntTuple *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      DataArrayIntTuple *__setitem__(PyObject *obj, PyObject *value)
       {
         const char msg[]="DataArrayIntTuple::__setitem__ : unrecognized type entered, int, slice, list<int>, tuple<int> !";
         const char msg2[]="DataArrayIntTuple::__setitem__ : Mismatch of slice values in 2nd parameter (components) !";
@@ -4637,51 +4637,51 @@ namespace MEDCoupling
   class DataArrayChar : public DataArray
   {
   public:
-    virtual DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
-    int getHashCode() const throw(INTERP_KERNEL::Exception);
-    bool empty() const throw(INTERP_KERNEL::Exception);
-    void deepCopyFrom(const DataArrayChar& other) throw(INTERP_KERNEL::Exception);
-    void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
-    void pushBackSilent(char val) throw(INTERP_KERNEL::Exception);
-    char popBackSilent() throw(INTERP_KERNEL::Exception);
-    void pack() const throw(INTERP_KERNEL::Exception);
-    void allocIfNecessary(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
-    bool isEqual(const DataArrayChar& other) const throw(INTERP_KERNEL::Exception);
-    bool isEqualWithoutConsideringStr(const DataArrayChar& other) const throw(INTERP_KERNEL::Exception);
-    void reverse() throw(INTERP_KERNEL::Exception);
-    void fillWithZero() throw(INTERP_KERNEL::Exception);
-    void fillWithValue(char val) throw(INTERP_KERNEL::Exception);
-    std::string repr() const throw(INTERP_KERNEL::Exception);
-    std::string reprZip() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
-    DataArrayChar *renumber(const int *old2New) const throw(INTERP_KERNEL::Exception);
-    DataArrayChar *renumberR(const int *new2Old) const throw(INTERP_KERNEL::Exception);
-    DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const throw(INTERP_KERNEL::Exception);
-    bool isUniform(char val) const throw(INTERP_KERNEL::Exception);
-    void sort(bool asc=true) throw(INTERP_KERNEL::Exception);
-    DataArrayChar *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
-    DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const throw(INTERP_KERNEL::Exception);
-    void meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Exception);
-    void setPartOfValuesAdv(const DataArrayChar *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    char front() const throw(INTERP_KERNEL::Exception);
-    char back() const throw(INTERP_KERNEL::Exception);
-    void setIJ(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);
-    void setIJSilent(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);
-    char *getPointer() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsEqual(char val) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsNotEqual(char val) const throw(INTERP_KERNEL::Exception);
-    int findIdFirstEqualTuple(const std::vector<char>& tupl) const throw(INTERP_KERNEL::Exception);
-    bool presenceOfTuple(const std::vector<char>& tupl) const throw(INTERP_KERNEL::Exception);
-    char getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
-    char getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
-    char getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
-    char getMinValueInArray() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findIdsInRange(char vmin, char vmax) const throw(INTERP_KERNEL::Exception);
-    static DataArrayChar *Aggregate(const DataArrayChar *a1, const DataArrayChar *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayChar *Meld(const DataArrayChar *a1, const DataArrayChar *a2) throw(INTERP_KERNEL::Exception);
+    virtual DataArrayChar *buildEmptySpecializedDAChar() const;
+    int getHashCode() const;
+    bool empty() const;
+    void deepCopyFrom(const DataArrayChar& other);
+    void reserve(std::size_t nbOfElems);
+    void pushBackSilent(char val);
+    char popBackSilent();
+    void pack() const;
+    void allocIfNecessary(int nbOfTuple, int nbOfCompo);
+    bool isEqual(const DataArrayChar& other) const;
+    bool isEqualWithoutConsideringStr(const DataArrayChar& other) const;
+    void reverse();
+    void fillWithZero();
+    void fillWithValue(char val);
+    std::string repr() const;
+    std::string reprZip() const;
+    DataArrayInt *convertToIntArr() const;
+    DataArrayChar *renumber(const int *old2New) const;
+    DataArrayChar *renumberR(const int *new2Old) const;
+    DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const;
+    bool isUniform(char val) const;
+    void sort(bool asc=true);
+    DataArrayChar *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
+    DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const;
+    void meldWith(const DataArrayChar *other);
+    void setPartOfValuesAdv(const DataArrayChar *a, const DataArrayInt *tuplesSelec);
+    char front() const;
+    char back() const;
+    void setIJ(int tupleId, int compoId, char newVal);
+    void setIJSilent(int tupleId, int compoId, char newVal);
+    char *getPointer();
+    DataArrayInt *findIdsEqual(char val) const;
+    DataArrayInt *findIdsNotEqual(char val) const;
+    int findIdFirstEqualTuple(const std::vector<char>& tupl) const;
+    bool presenceOfTuple(const std::vector<char>& tupl) const;
+    char getMaxValue(int& tupleId) const;
+    char getMaxValueInArray() const;
+    char getMinValue(int& tupleId) const;
+    char getMinValueInArray() const;
+    DataArrayInt *findIdsInRange(char vmin, char vmax) const;
+    static DataArrayChar *Aggregate(const DataArrayChar *a1, const DataArrayChar *a2);
+    static DataArrayChar *Meld(const DataArrayChar *a1, const DataArrayChar *a2);
     %extend
     {
-      int __len__() const throw(INTERP_KERNEL::Exception)
+      int __len__() const
       {
         if(self->isAllocated())
           {
@@ -4693,7 +4693,7 @@ namespace MEDCoupling
           }
       }
       
-      PyObject *isEqualIfNotWhy(const DataArrayChar& other) const throw(INTERP_KERNEL::Exception)
+      PyObject *isEqualIfNotWhy(const DataArrayChar& other) const
       {
         std::string ret1;
         bool ret0=self->isEqualIfNotWhy(other,ret1);
@@ -4705,7 +4705,7 @@ namespace MEDCoupling
         return ret;
       }
       
-      DataArrayChar *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
+      DataArrayChar *renumber(PyObject *li)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -4734,7 +4734,7 @@ namespace MEDCoupling
           }
       }
       
-      DataArrayChar *renumberR(PyObject *li) throw(INTERP_KERNEL::Exception)
+      DataArrayChar *renumberR(PyObject *li)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -4763,7 +4763,7 @@ namespace MEDCoupling
           }
       }
       
-      DataArrayChar *renumberAndReduce(PyObject *li, int newNbOfTuple) throw(INTERP_KERNEL::Exception)
+      DataArrayChar *renumberAndReduce(PyObject *li, int newNbOfTuple)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
@@ -4792,14 +4792,14 @@ namespace MEDCoupling
           }
       }
       
-      static DataArrayChar *Aggregate(PyObject *dachs) throw(INTERP_KERNEL::Exception)
+      static DataArrayChar *Aggregate(PyObject *dachs)
       {
         std::vector<const MEDCoupling::DataArrayChar *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayChar *>(dachs,SWIGTYPE_p_MEDCoupling__DataArrayChar,"DataArrayChar",tmp);
         return DataArrayChar::Aggregate(tmp);
       }
       
-      static DataArrayChar *Meld(PyObject *dachs) throw(INTERP_KERNEL::Exception)
+      static DataArrayChar *Meld(PyObject *dachs)
       {
         std::vector<const MEDCoupling::DataArrayChar *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayChar *>(dachs,SWIGTYPE_p_MEDCoupling__DataArrayChar,"DataArrayChar",tmp);
@@ -4814,17 +4814,17 @@ namespace MEDCoupling
   {
   public:
     static DataArrayByte *New();
-    DataArrayByteIterator *iterator() throw(INTERP_KERNEL::Exception);
-    DataArrayByte *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
-    char byteValue() const throw(INTERP_KERNEL::Exception);
+    DataArrayByteIterator *iterator();
+    DataArrayByte *performCopyOrIncrRef(bool deepCopy) const;
+    char byteValue() const;
     %extend
     {
-      DataArrayByte() throw(INTERP_KERNEL::Exception)
+      DataArrayByte()
         {
           return DataArrayByte::New();
         }
 
-      static DataArrayByte *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
+      static DataArrayByte *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
       {
         const char *msg="MEDCoupling::DataArrayByte::New : Available API are : \n-DataArrayByte.New()\n--DataArrayByte.New([1,3,4])\n-DataArrayByte.New([1,3,4],3)\n-DataArrayByte.New([1,3,4,5],2,2)\n-DataArrayByte.New(5)\n-DataArrayByte.New(5,2) !";
         if(PyList_Check(elt0) || PyTuple_Check(elt0))
@@ -4913,44 +4913,44 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception(msg);
       }
 
-      DataArrayByte(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
+      DataArrayByte(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
         {
           return MEDCoupling_DataArrayByte_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
    
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      std::string __repr__() const
       {
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
       }
   
-      int __int__() const throw(INTERP_KERNEL::Exception)
+      int __int__() const
       {
         return (int) self->byteValue();
       }
 
-      DataArrayByteIterator *__iter__() throw(INTERP_KERNEL::Exception)
+      DataArrayByteIterator *__iter__()
       {
         return self->iterator();
       }
 
-      int getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception)
+      int getIJ(int tupleId, int compoId) const
       {
         return (int)self->getIJ(tupleId,compoId);
       }
       
-      int getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception)
+      int getIJSafe(int tupleId, int compoId) const
       {
         return (int)self->getIJSafe(tupleId,compoId);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->repr();
       }
 
-      PyObject *toStrList() const throw(INTERP_KERNEL::Exception)
+      PyObject *toStrList() const
       {
         const char *vals=self->getConstPointer();
         int nbOfComp=self->getNumberOfComponents();
@@ -4958,7 +4958,7 @@ namespace MEDCoupling
         return convertCharArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
       }
    
-      bool presenceOfTuple(PyObject *tupl) const throw(INTERP_KERNEL::Exception)
+      bool presenceOfTuple(PyObject *tupl) const
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
@@ -4968,7 +4968,7 @@ namespace MEDCoupling
         return self->presenceOfTuple(vals);
       }
 
-      bool presenceOfValue(PyObject *vals) const throw(INTERP_KERNEL::Exception)
+      bool presenceOfValue(PyObject *vals) const
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
@@ -4978,7 +4978,7 @@ namespace MEDCoupling
         return self->presenceOfValue(vals2);
       }
 
-      int findIdFirstEqual(PyObject *vals) const throw(INTERP_KERNEL::Exception)
+      int findIdFirstEqual(PyObject *vals) const
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
@@ -4988,7 +4988,7 @@ namespace MEDCoupling
         return self->findIdFirstEqual(vals2);
       }
 
-      int findIdFirstEqualTuple(PyObject *tupl) const throw(INTERP_KERNEL::Exception)
+      int findIdFirstEqualTuple(PyObject *tupl) const
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
@@ -4998,7 +4998,7 @@ namespace MEDCoupling
         return self->findIdFirstEqualTuple(vals);
       }
 
-      int findIdSequence(PyObject *strOrListOfInt) const throw(INTERP_KERNEL::Exception)
+      int findIdSequence(PyObject *strOrListOfInt) const
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
@@ -5008,7 +5008,7 @@ namespace MEDCoupling
         return self->findIdSequence(vals);
       }
 
-      PyObject *getTuple(int tupleId) throw(INTERP_KERNEL::Exception)
+      PyObject *getTuple(int tupleId)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<char> tmp=new char[sz];
@@ -5018,7 +5018,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMaxValue() const
       {
         int tmp;
         int r1=(int)self->getMaxValue(tmp);
@@ -5028,7 +5028,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMinValue() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMinValue() const
       {
         int tmp;
         int r1=(int)self->getMinValue(tmp);
@@ -5038,7 +5038,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      int index(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+      int index(PyObject *obj) const
       {
         int nbOfCompo=self->getNumberOfComponents();
         switch(nbOfCompo)
@@ -5058,7 +5058,7 @@ namespace MEDCoupling
           }
       }
 
-      bool __contains__(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+      bool __contains__(PyObject *obj) const
       {
         int nbOfCompo=self->getNumberOfComponents();
         switch(nbOfCompo)
@@ -5081,13 +5081,13 @@ namespace MEDCoupling
       }
       
 #ifdef WITH_NUMPY
-      PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      PyObject *toNumPyArray() // not const. It is not a bug !
       {
         return ToNumPyArray<DataArrayByte,char>(self,NPY_INT8,"DataArrayByte");
       }
 #endif
 
-      DataArrayByte *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      DataArrayByte *__setitem__(PyObject *obj, PyObject *value)
       {
         self->checkAllocated();
         const char msg[]="Unexpected situation in __setitem__ !";
@@ -5318,21 +5318,21 @@ namespace MEDCoupling
   class DataArrayByteTuple
   {
   public:
-    std::string repr() const throw(INTERP_KERNEL::Exception);
-    DataArrayByte *buildDAByte(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    std::string repr() const;
+    DataArrayByte *buildDAByte(int nbOfTuples, int nbOfCompo) const;
     %extend
     {
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->repr();
       }
       
-      char __int__() const throw(INTERP_KERNEL::Exception)
+      char __int__() const
       {
         return self->byteValue();
       }
       
-      DataArrayByte *buildDAByte() throw(INTERP_KERNEL::Exception)
+      DataArrayByte *buildDAByte()
       {
         return self->buildDAByte(1,self->getNumberOfCompo());
       }
@@ -5345,17 +5345,17 @@ namespace MEDCoupling
   {
   public:
     static DataArrayAsciiChar *New();
-    DataArrayAsciiCharIterator *iterator() throw(INTERP_KERNEL::Exception);
-    DataArrayAsciiChar *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
-    char asciiCharValue() const throw(INTERP_KERNEL::Exception);
+    DataArrayAsciiCharIterator *iterator();
+    DataArrayAsciiChar *performCopyOrIncrRef(bool deepCopy) const;
+    char asciiCharValue() const;
     %extend
     {
-      DataArrayAsciiChar() throw(INTERP_KERNEL::Exception)
+      DataArrayAsciiChar()
         {
           return DataArrayAsciiChar::New();
         }
 
-      static DataArrayAsciiChar *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
+      static DataArrayAsciiChar *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
       {
         const char *msg="MEDCoupling::DataArrayAsciiChar::New : Available API are : \n-DataArrayAsciiChar.New()\n-DataArrayAsciiChar.New([1,3,4])\n-DataArrayAsciiChar.New([\"abc\",\"de\",\"fghi\"])\n-DataArrayAsciiChar.New([\"abc\",\"de\",\"fghi\"],\"t\")\n-DataArrayAsciiChar.New([1,3,4],3)\n-DataArrayAsciiChar.New([1,3,4,5],2,2)\n-DataArrayAsciiChar.New(5)\n-DataArrayAsciiChar.New(5,2) !";
         if(PyList_Check(elt0) || PyTuple_Check(elt0))
@@ -5470,43 +5470,43 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception(msg);
       }
 
-      DataArrayAsciiChar(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
+      DataArrayAsciiChar(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
         {
           return MEDCoupling_DataArrayAsciiChar_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
 
-      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      std::string __repr__() const
       {
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
       }
 
-      DataArrayAsciiCharIterator *__iter__() throw(INTERP_KERNEL::Exception)
+      DataArrayAsciiCharIterator *__iter__()
       {
         return self->iterator();
       }
 
-      std::string getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception)
+      std::string getIJ(int tupleId, int compoId) const
       {
         char tmp[2]; tmp[1]='\0';
         tmp[0]=self->getIJ(tupleId,compoId);
         return std::string(tmp);
       }
    
-      std::string getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception)
+      std::string getIJSafe(int tupleId, int compoId) const
       {
         char tmp[2]; tmp[1]='\0';
         tmp[0]=self->getIJSafe(tupleId,compoId);
         return std::string(tmp);
       }
 
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->repr();
       }
 
-      PyObject *toStrList() const throw(INTERP_KERNEL::Exception)
+      PyObject *toStrList() const
       {
         const char *vals=self->getConstPointer();
         int nbOfComp=self->getNumberOfComponents();
@@ -5514,7 +5514,7 @@ namespace MEDCoupling
         return convertCharArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
       }
 
-      bool presenceOfTuple(PyObject *tupl) const throw(INTERP_KERNEL::Exception)
+      bool presenceOfTuple(PyObject *tupl) const
       {
         if(PyString_Check(tupl))
           {
@@ -5536,7 +5536,7 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::presenceOfTuple : only strings in input supported !");
       }
    
-      bool presenceOfValue(PyObject *vals) const throw(INTERP_KERNEL::Exception)
+      bool presenceOfValue(PyObject *vals) const
       {
         if(PyString_Check(vals))
           {
@@ -5558,7 +5558,7 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::presenceOfValue : only strings in input supported !");
       }
 
-      int findIdFirstEqual(PyObject *vals) const throw(INTERP_KERNEL::Exception)
+      int findIdFirstEqual(PyObject *vals) const
       {
         if(PyString_Check(vals))
           {
@@ -5580,7 +5580,7 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::findIdFirstEqual : only strings in input supported !");
       }
 
-      int findIdFirstEqualTuple(PyObject *tupl) const throw(INTERP_KERNEL::Exception)
+      int findIdFirstEqualTuple(PyObject *tupl) const
       {
         if(PyString_Check(tupl))
           {
@@ -5602,7 +5602,7 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::findIdFirstEqualTuple : only strings in input supported !");
       }
 
-      int findIdSequence(PyObject *strOrListOfInt) const throw(INTERP_KERNEL::Exception)
+      int findIdSequence(PyObject *strOrListOfInt) const
       {
         if(PyString_Check(strOrListOfInt))
           {
@@ -5624,7 +5624,7 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::search : only strings in input supported !");
       }
    
-      PyObject *getTuple(int tupleId) const throw(INTERP_KERNEL::Exception)
+      PyObject *getTuple(int tupleId) const
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<char> tmp=new char[sz+1]; tmp[sz]='\0';
@@ -5632,7 +5632,7 @@ namespace MEDCoupling
         return PyString_FromString(tmp);
       }
 
-      PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMaxValue() const
       {
         int tmp;
         char tmp2[2]; tmp2[1]='\0';
@@ -5643,7 +5643,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getMinValue() const throw(INTERP_KERNEL::Exception)
+      PyObject *getMinValue() const
       {
         int tmp;
         char tmp2[2]; tmp2[1]='\0';
@@ -5654,7 +5654,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      int index(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+      int index(PyObject *obj) const
       {
         int nbOfCompo=self->getNumberOfComponents();
         switch(nbOfCompo)
@@ -5689,7 +5689,7 @@ namespace MEDCoupling
           }
       }
 
-      bool __contains__(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+      bool __contains__(PyObject *obj) const
       {
         int nbOfCompo=self->getNumberOfComponents();
         switch(nbOfCompo)
@@ -5726,7 +5726,7 @@ namespace MEDCoupling
           }
       }
 
-      PyObject *__getitem__(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+      PyObject *__getitem__(PyObject *obj) const
       {
         int sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
@@ -5748,7 +5748,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayAsciiChar *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      DataArrayAsciiChar *__setitem__(PyObject *obj, PyObject *value)
       {
         static const char msg[]="DataArrayAsciiChar::__setitem__ : supporting int, list of int, tuple of int, DataArrayInt and slice in input, and 4 types accepted in value : string, list or tuple of strings having same size, not null DataArrayChar instance.";
         int sw1,iTypppArr;
@@ -5934,16 +5934,16 @@ namespace MEDCoupling
   class DataArrayAsciiCharTuple
   {
   public:
-    int getNumberOfCompo() const throw(INTERP_KERNEL::Exception);
-    DataArrayAsciiChar *buildDAAsciiChar(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCompo() const;
+    DataArrayAsciiChar *buildDAAsciiChar(int nbOfTuples, int nbOfCompo) const;
     %extend
     {
-      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      std::string __str__() const
       {
         return self->repr();
       }
       
-      DataArrayAsciiChar *buildDAAsciiChar() throw(INTERP_KERNEL::Exception)
+      DataArrayAsciiChar *buildDAAsciiChar()
       {
         return self->buildDAAsciiChar(1,self->getNumberOfCompo());
       }

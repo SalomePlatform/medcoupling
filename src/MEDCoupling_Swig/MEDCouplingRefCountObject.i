@@ -83,14 +83,14 @@ namespace MEDCoupling
   class BigMemoryObject
   {
   public:
-    std::size_t getHeapMemorySize() const throw(INTERP_KERNEL::Exception);
-    std::string getHeapMemorySizeStr() const throw(INTERP_KERNEL::Exception);
-    bool isObjectInTheProgeny(const BigMemoryObject *obj) const throw(INTERP_KERNEL::Exception);
-    virtual std::size_t getHeapMemorySizeWithoutChildren() const throw(INTERP_KERNEL::Exception);
+    std::size_t getHeapMemorySize() const;
+    std::string getHeapMemorySizeStr() const;
+    bool isObjectInTheProgeny(const BigMemoryObject *obj) const;
+    virtual std::size_t getHeapMemorySizeWithoutChildren() const;
     virtual ~BigMemoryObject();
     %extend
     {
-      virtual PyObject *getDirectChildren() const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *getDirectChildren() const
       {
         std::vector<const BigMemoryObject *> c(self->getDirectChildren());
         PyObject *ret(PyList_New(c.size()));
@@ -99,7 +99,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *getAllTheProgeny() const throw(INTERP_KERNEL::Exception)
+      PyObject *getAllTheProgeny() const
       {
         std::vector<const BigMemoryObject *> c(self->getAllTheProgeny());
         PyObject *ret(PyList_New(c.size()));
@@ -108,7 +108,7 @@ namespace MEDCoupling
         return ret;
       }
 
-      static std::size_t GetHeapMemorySizeOfObjs(PyObject *objs) throw(INTERP_KERNEL::Exception)
+      static std::size_t GetHeapMemorySizeOfObjs(PyObject *objs)
       {
         std::vector<const BigMemoryObject *> cppObjs;
         convertFromPyObjVectorOfObj<const MEDCoupling::BigMemoryObject *>(objs,SWIGTYPE_p_MEDCoupling__BigMemoryObject,"BigMemoryObject",cppObjs);
@@ -136,14 +136,14 @@ namespace MEDCoupling
   class GlobalDict
   {
   public:
-    static GlobalDict *GetInstance() throw(INTERP_KERNEL::Exception);
-    bool hasKey(const std::string& key) const throw(INTERP_KERNEL::Exception);
-    std::string value(const std::string& key) const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> keys() const throw(INTERP_KERNEL::Exception);
-    void erase(const std::string& key) throw(INTERP_KERNEL::Exception);
-    void clear() throw(INTERP_KERNEL::Exception);
-    void setKeyValue(const std::string& key, const std::string& value) throw(INTERP_KERNEL::Exception);
-    void setKeyValueForce(const std::string& key, const std::string& value) throw(INTERP_KERNEL::Exception);
+    static GlobalDict *GetInstance();
+    bool hasKey(const std::string& key) const;
+    std::string value(const std::string& key) const;
+    std::vector<std::string> keys() const;
+    void erase(const std::string& key);
+    void clear();
+    void setKeyValue(const std::string& key, const std::string& value);
+    void setKeyValueForce(const std::string& key, const std::string& value);
   private:
     GlobalDict();
   public:
