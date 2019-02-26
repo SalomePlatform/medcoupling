@@ -22,6 +22,7 @@
 #define __MEDCOUPLING_MCTYPE_HXX__
 
 #include <cstdint>
+#include <stddef.h>
 
 namespace MEDCoupling
 {
