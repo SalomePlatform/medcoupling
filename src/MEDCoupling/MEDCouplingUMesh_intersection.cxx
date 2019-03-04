@@ -876,6 +876,8 @@ void EdgeInfo::somethingHappendAt(int pos, const std::vector< MCAuto<INTERP_KERN
     return ;
   if(_left>pos)
     { _left++; _right++; return ; }
+  if (_right > pos && _left != pos)
+    { _right++; return ; }
   if(_right==pos)
     {
       bool isLeft(std::find(newLeft.begin(),newLeft.end(),_edge)!=newLeft.end()),isRight(std::find(newRight.begin(),newRight.end(),_edge)!=newRight.end());

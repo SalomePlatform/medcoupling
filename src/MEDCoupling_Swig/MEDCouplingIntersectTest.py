@@ -1174,6 +1174,33 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(m1.getValues(), [0, 0, 0])
         self.assertEqual(m2.getValues(), [-1, -1, 0, 2, -1, -1, 0, 1, -1, -1])
 
+    def testSwig2Intersect2DMeshWith1DLine20(self):
+        """ A line intersecting a cell more than 3 times was triggering an internal error. """
+        mesh = MEDCouplingUMesh('merge', 2)
+        coo = DataArrayDouble([(0,0),(0,9),(3,9),(3,0),(0,1),(2,1),(0,2),(2,2),(3,3),(1,3),(3,4),(1,4),(0,5),(2,5),(0,6),(2,6),(3,7),(1,7),(3,8),(1,8)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([5, 3, 0, 4, 5, 7, 6, 12, 13, 15, 14, 1, 2, 18, 19, 17, 16, 10, 11, 9, 8]) # offset 20
+        cI = DataArrayInt([0, 21])
+        mesh.setConnectivity(c, cI)
+
+        tool = MEDCouplingUMesh('tool', 1)
+        coo = DataArrayDouble([(1.5, 9.5),  (1.5, 1.5)])  # line crossing 4 times
+        tool.setCoords(coo)
+        c = DataArrayInt([NORM_SEG2,0,1])
+        cI = DataArrayInt([0, 3])
+        tool.setConnectivity(c, cI)
+
+        eps=1.0e-4 # not the pb here
+        res2D, res1D, resToSelf, mapLeftRight = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
+        self.assertEqual(res1D.getNodalConnectivity().getValues(),[1, 20, 25,   1, 25, 26,   1, 26, 27,   1, 27, 24,   1, 24, 23,   1, 23, 28,   1, 28, 29,   1, 29, 22,   1, 22, 21])
+        self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 3, 6, 9, 12, 15, 18, 21, 24, 27])
+        self.assertEqual(res2D.getNodalConnectivity().getValues(),[5, 2, 18, 26, 25,   5, 13, 15, 24, 27, 16, 10, 28, 23,   5, 8, 3, 0, 4, 5, 7, 22, 29,   5, 6, 12, 23, 28, 11, 9, 29, 22,   5, 14, 1, 25, 26, 19, 17, 27, 24])
+        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(),[0, 5, 14, 23, 32, 41])
+
+        self.assertEqual(resToSelf.getValues(), [0, 0, 0, 0, 0])
+        self.assertEqual(mapLeftRight.getValues(), [-1, -1, 0, 4, -1, -1, 1, 4, -1, -1, 1, 3, -1, -1, 2, 3, -1, -1])
+        pass
+
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8
         coo = [0.,-0.5,0.,0.,0.5,0.,0.5,-0.5,0.25,
