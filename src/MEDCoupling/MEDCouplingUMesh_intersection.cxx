@@ -863,10 +863,13 @@ private:
   int _iend;
   MCAuto<MEDCouplingUMesh> _mesh;
   MCAuto<INTERP_KERNEL::Edge> _edge;
-  int _left;
-  int _right;
+  int _left;    // index (local numbering) of the left 2D cell bordering the edge '_edge'
+  int _right;   // same as above, right side.
 };
 
+/*
+ * Update indices of left and right 2D cell bordering the current edge.
+ */
 void EdgeInfo::somethingHappendAt(int pos, const std::vector< MCAuto<INTERP_KERNEL::Edge> >& newLeft, const std::vector< MCAuto<INTERP_KERNEL::Edge> >& newRight)
 {
   const MEDCouplingUMesh *mesh(_mesh);
@@ -952,9 +955,9 @@ private:
   const CellInfo& get(int pos) const;
   CellInfo& get(int pos);
 private:
-  std::vector<CellInfo> _pool;
-  MCAuto<MEDCouplingUMesh> _ze_mesh;
-  std::vector<EdgeInfo> _edge_info;
+  std::vector<CellInfo> _pool;         // for a newly created 2D cell, the list of edges (int) and edges ptr constiuing it
+  MCAuto<MEDCouplingUMesh> _ze_mesh;   // the aggregated mesh
+  std::vector<EdgeInfo> _edge_info;    // for each new edge added when cuting the 2D cell, the information on left and right bordering 2D cell
 };
 
 VectorOfCellInfo::VectorOfCellInfo(const std::vector<int>& edges, const std::vector< MCAuto<INTERP_KERNEL::Edge> >& edgesPtr):_pool(1)
@@ -1123,7 +1126,12 @@ MEDCouplingUMesh *BuildMesh2DCutInternal(double eps, MEDCouplingUMesh *splitMesh
   else
     renumb->iota();
   //
-
+  // The 1D first piece is used to intersect the 2D cell resulting in max two 2D cells.
+  // The next 1D piece is localised (getPositionOf()) into this previous cut.
+  // The result of the next intersection replaces the former single 2D cell that has been cut in the
+  // pool. The neighbourhood information detained by pool._edge_info is also updated so that left and right
+  // adjacent 2D cell of a 1D piece is kept up to date.
+  // And so on and so forth.
   for(int iStart=0;iStart<nbCellsInSplitMesh1D;)
     {// split [0:nbCellsInSplitMesh1D) in contiguous parts [iStart:iEnd)
       int iEnd(iStart);
