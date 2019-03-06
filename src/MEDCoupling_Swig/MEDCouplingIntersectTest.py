@@ -439,6 +439,32 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(e2, res2Tool.getValues())
         pass
 
+    def testIntersect2DMeshes11(self):
+        """ Dealing properly with respective polygon orientation in QuadraticPolygon::haveIAChanceToBeCompletedBy()
+        The two polygons below have same orientation, but one edge of pol1 is colinear to pol2 in opposite directions.
+        """
+        eps = 1.0e-8
+        back = MEDCouplingUMesh('lback', 2)
+        coo = DataArrayDouble([(-2.5,-2.5),(-2.5,2.5),(2.5,2.5),(2.5,-2.5),(0,0),(0,1.66667),(1.66667,1.66667),(1.66667,0)])
+        back.setCoords(coo)
+        c = DataArrayInt([5, 6, 7, 4, 5, 2, 3, 7, 6, 5, 3, 0, 1, 2, 6, 4, 7])
+        cI = DataArrayInt([0, 4, 9, 17])
+        back.setConnectivity(c, cI)
+
+        tool = MEDCouplingUMesh('ltool', 2)
+        coo = DataArrayDouble([(0,0),(0,2.5),(2.5,2.5),(2.5,0)])
+        tool.setCoords(coo)
+        c = DataArrayInt([5, 0, 1, 2, 3])
+        cI = DataArrayInt([0, 5])
+        tool.setConnectivity(c, cI)
+
+        result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
+        self.assertEqual(result.getNodalConnectivity().getValues(), [5, 7, 8, 6, 5, 7, 6, 10, 11, 5, 11, 3, 7, 5, 9, 10, 6, 8, 5, 8, 7, 3, 0, 1, 9])
+        self.assertEqual(result.getNodalConnectivityIndex().getValues(), [0, 4, 9, 13, 18, 25])
+        self.assertEqual(res2Back.getValues(), [0, 1, 1, 2, 2])
+        self.assertEqual(res2Tool.getValues(), [0, 0, -1, 0, -1])
+        pass
+
     def testSwig2Intersect2DMeshesQuadra1(self):
         import cmath
         def createDiagCircle(lX, lY, R, cells=[0,1]):

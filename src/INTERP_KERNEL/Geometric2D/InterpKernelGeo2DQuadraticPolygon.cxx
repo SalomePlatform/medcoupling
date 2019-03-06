@@ -1090,6 +1090,7 @@ void QuadraticPolygon::ClosePolygons(std::list<QuadraticPolygon *>& pol1Zip, con
 {
   bool directionKnownInPol2=false;
   bool directionInPol2;
+  bool needCleaning = false;
   for(std::list<QuadraticPolygon *>::iterator iter=pol1Zip.begin();iter!=pol1Zip.end();)
     {
       // Build incrementally the full closed cells from the consecutive line parts already built in pol1Zip.
@@ -1097,14 +1098,17 @@ void QuadraticPolygon::ClosePolygons(std::list<QuadraticPolygon *>& pol1Zip, con
       // This process can produce several cells.
       if((*iter)->completed())
         {
+          if (needCleaning)
+            (*iter)->cleanDegeneratedConsecutiveEdges();
           results.push_back(*iter);
           directionKnownInPol2=false;
+          needCleaning=false;
           iter=pol1Zip.erase(iter);
           continue;
         }
       if(!directionKnownInPol2)
         {
-          if(!(*iter)->haveIAChanceToBeCompletedBy(pol1,pol2,directionInPol2))
+          if(!(*iter)->haveIAChanceToBeCompletedBy(pol1,pol2,directionInPol2, needCleaning))
             { delete *iter; iter=pol1Zip.erase(iter); continue; }
           else
             directionKnownInPol2=true;
@@ -1125,12 +1129,15 @@ void QuadraticPolygon::ClosePolygons(std::list<QuadraticPolygon *>& pol1Zip, con
 /*!
  * 'this' is expected to be set of edges (not closed) of pol1 split.
  */
-bool QuadraticPolygon::haveIAChanceToBeCompletedBy(const QuadraticPolygon& pol1NotSplitted, const QuadraticPolygon& pol2Splitted, bool& direction) const
+bool QuadraticPolygon::haveIAChanceToBeCompletedBy(const QuadraticPolygon& pol1NotSplitted, const QuadraticPolygon& pol2Splitted,
+                                                   bool& direction, bool& needCleaning) const
 {
+  needCleaning = false;
   IteratorOnComposedEdge it2(const_cast<QuadraticPolygon *>(&pol2Splitted));
   bool found=false;
   Node *n=getEndNode();
   ElementaryEdge *cur=it2.current();
+  // Find edge in pol2 whose start node is the end node of the current piece in pol1Zip (*this)
   for(it2.first();!it2.finished() && !found;)
     {
       cur=it2.current();
@@ -1146,20 +1153,26 @@ bool QuadraticPolygon::haveIAChanceToBeCompletedBy(const QuadraticPolygon& pol1N
     {
       if(e->getPtr()==cur->getPtr())
         {
-          direction=false;
-          it2.previousLoop();
+          // if we have the same edge, several possibilities:
+          //    - either this means that pol1 and pol2 have opposite orientation (since we matched end node with start node before)
+          //    - or (more tricky, see testIntersect2DMeshes11()) that pol1 and pol2 have same orientation but 'this' turns in such
+          //    a way that it attaches to pol2 on an edge in opposite orientation.
+          // To sort this out, inspect localisation of next edge in pol2 wrt pol1NotSplitted.
+          it2.nextLoop();
           cur=it2.current();
           Node *repr=cur->getPtr()->buildRepresentantOfMySelf();
           bool ret=pol1NotSplitted.isInOrOut(repr);
           repr->decrRef();
+          direction = ret;
+          needCleaning = ret; // if true we are in tricky case 2 above, we know that we will produce two consecutive overlapping edges in result
           return ret;
         }
-      else
+      else  // here we don't need to go prev or next:
         {
-          direction=true;
           Node *repr=cur->getPtr()->buildRepresentantOfMySelf();
           bool ret=pol1NotSplitted.isInOrOut(repr);
           repr->decrRef();
+          direction = ret;
           return ret;
         }
     }
