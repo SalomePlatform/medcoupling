@@ -337,7 +337,11 @@ void SauvLoaderTest::testCellsWithLingNames()
 void SauvLoaderTest::tearDown()
 {
   const int nbFilesToRemove = 3;
+#if defined(WIN32) && defined(UNICODE)
+  const wchar_t* fileToRemove[nbFilesToRemove] = { L"allPillesTest.med", L"pointe.sauv", L"mesh_with_void_family.sauv" };
+#else
   const char* fileToRemove[nbFilesToRemove] = { "allPillesTest.med", "pointe.sauv", "mesh_with_void_family.sauv" };
+#endif
   for ( int i = 0; i < nbFilesToRemove; ++i )
   {
 #ifdef WIN32
@@ -345,6 +349,10 @@ void SauvLoaderTest::tearDown()
 #else
       if (access(fileToRemove[i], F_OK) == 0)
 #endif
+#if defined(WIN32) && defined(UNICODE)
+		_wremove(fileToRemove[i]);
+#else
         remove(fileToRemove[i]);
+#endif
   }
 }
