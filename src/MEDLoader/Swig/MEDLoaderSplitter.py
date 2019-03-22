@@ -19,7 +19,7 @@
 #
 # Author : Anthony GEAY (CEA/DEN/DM2S/STMF/LGLS)
 
-from MEDLoader import *
+from medcoupling import *
 import os
 
 class MEDLoaderSplitter:
@@ -36,8 +36,8 @@ class MEDLoaderSplitter:
         if len(mfmsh)!=1:
             raise InterpKernelException("Works only with one mesh !")
         mfflds=mfflds.partOfThisLyingOnSpecifiedMeshName(mfmsh[0].getName())
-        retf=self.__splitFields(mfmsh[0],mfflds,idsLst)
         retm=self.__splitMesh(mfmsh[0],idsLst)
+        retf=self.__splitFields(mfmsh[0],retm,mfflds,idsLst)
         self._mfd_splitted=[MEDFileData() for i in range(len(idsLst))]
         for a,b,c in zip(self._mfd_splitted,retf,retm):
             a.setFields(b) ; a.setMeshes(c)
@@ -48,48 +48,93 @@ class MEDLoaderSplitter:
         return self._mfd_splitted
     
     @classmethod
-    def __splitMEDFileField1TSNode(cls,f,f1ts,ids):
-        fRet=f[ids]
-        f1ts.setFieldNoProfileSBT(fRet)
+    def __splitMEDFileField1TSNode(cls,t,mm,mmOut,f1tsIn,f1tsOut,ids):
+        if len(f1tsIn.getPflsReallyUsed())!=0:
+            arr,pfl=f1tsIn.getFieldWithProfile(ON_NODES,0,mm)
+            zeLev = None
+            for lev in reversed(mm.getNonEmptyLevels()):
+                cellIds = mm[lev].getCellIdsLyingOnNodes(pfl,True)
+                if mm[lev][cellIds].computeFetchedNodeIds().isEqualWithoutConsideringStr(pfl):
+                    zeLev = lev
+            assert(zeLev is not None)
+            f_medcoupling=f1tsIn.getFieldOnMeshAtLevel(ON_NODES,zeLev,mm)
+            m0Part=mm[0][ids]
+            mLev=mm[-1]
+            #
+            trado2n=m0Part.zipCoordsTraducer()
+            trad=trado2n.invertArrayO2N2N2O(m0Part.getNumberOfNodes())
+            part=mLev.getCellIdsFullyIncludedInNodeIds(trad)
+            mSubPart=mLev[part]
+            mSubPartReducedNode=mSubPart.deepCopy() ; mSubPartReducedNode.renumberNodesInConn(trado2n) ; mSubPartReducedNode.setCoords(m0Part.getCoords())
+            #
+            cellsInSubPartFetchedByProfile = mSubPart.getCellIdsFullyIncludedInNodeIds(pfl)
+            mSubPartFetchedByPfl=mSubPart[cellsInSubPartFetchedByProfile]
+            subProfileInProc=mSubPartFetchedByPfl.computeFetchedNodeIds()
+            mSubPartFetchedByPfl.zipCoords()
+            #
+            res=pfl.findIdForEach(subProfileInProc)
+            subProfileInProcReducedNode=subProfileInProc.deepCopy() ; subProfileInProcReducedNode.transformWithIndArr(trado2n)
+            subProfileInProcReducedNode.setName(pfl.getName())
+            #
+            fRes=MEDCouplingFieldDouble(ON_NODES)
+            fRes.setArray(arr[res])
+            fRes.setMesh(mSubPartFetchedByPfl)
+            fRes.copyAllTinyAttrFrom(f_medcoupling)
+            fRes.checkConsistencyLight()
+            #
+            f1tsOut.setFieldProfile(fRes,mmOut,zeLev,subProfileInProcReducedNode)
+            pass
+            #raise RuntimeError("Field \"%s\" contains profiles ! Not supported yet ! This field will be ignored !" % (f1tsIn.getName()))
+        else:
+            f=f1tsIn.getFieldOnMeshAtLevel(t,0,mm)
+            fRet=f[ids]
+            f1tsOut.setFieldNoProfileSBT(fRet)
+            pass
         pass
     
     @classmethod
-    def __splitMEDFileField1TSCell(cls,f,f1ts,ids):
+    def __splitMEDFileField1TSCell(cls,t,mm,mmOut,f1tsIn,f1tsOut,ids):
+        f=f1tsIn.getFieldOnMeshAtLevel(t,0,mm)
         fRet=f[ids]
         m=fRet.getMesh() ; m.zipCoords()
         o2n=m.getRenumArrForMEDFileFrmt() ; fRet.renumberCells(o2n,False)
-        f1ts.setFieldNoProfileSBT(fRet)
+        f1tsOut.setFieldNoProfileSBT(fRet)
         pass
     
-    def __splitMEDFileField1TS(self,mm,f1ts,idsLst):
+    def __splitMEDFileField1TS(self,mm,mmOutList,f1ts,idsLst):
+        """
+           Split input f1ts into parts defined by idsLst.
+
+           :param mm: The underlying mesh of f1ts
+           :param f1ts: The field to be split
+           :param idsLst: For each proc the cell ids at level 0
+           :return: A list of fields.
+        """
         ret=[f1ts.__class__() for i in range(len(idsLst))]
-        dico={ON_CELLS:self.__splitMEDFileField1TSCell,
-              ON_NODES:self.__splitMEDFileField1TSNode,
-              ON_GAUSS_PT:self.__splitMEDFileField1TSCell,
-              ON_GAUSS_NE:self.__splitMEDFileField1TSCell}
+        dico={ON_CELLS:MEDLoaderSplitter.__splitMEDFileField1TSCell,
+              ON_NODES:MEDLoaderSplitter.__splitMEDFileField1TSNode,
+              ON_GAUSS_PT:MEDLoaderSplitter.__splitMEDFileField1TSCell,
+              ON_GAUSS_NE:MEDLoaderSplitter.__splitMEDFileField1TSCell}
         for t in f1ts.getTypesOfFieldAvailable():
-            f=f1ts.getFieldOnMeshAtLevel(t,0,mm)
             for i,f0 in enumerate(ret):
-                dico[t](f,f0,idsLst[i])
+                dico[t](t,mm,mmOutList[i][0],f1ts,f0,idsLst[i])
                 pass
             pass
         return ret
     
-    def __splitFields(self,mm,mfflds,idsLst):
+    def __splitFields(self,mm,mmOutList,mfflds,idsLst):
         ret0 = [MEDFileFields() for i in range(len(idsLst))]
         for fmts in mfflds:
-            if len(fmts.getPflsReallyUsed())!=0:
-                print("Field \"%s\" contains profiles ! Not supported yet ! This field will be ignored !" % (fmts.getName()))
-                continue
-            pass
             ret1=[fmts.__class__() for i in range(len(idsLst))]
             for f1ts in fmts:
-                for fmtsPart,f1tsPart in zip(ret1,self.__splitMEDFileField1TS(mm,f1ts,idsLst)):
-                    fmtsPart.pushBackTimeStep(f1tsPart)
+                for fmtsPart,f1tsPart in zip(ret1,self.__splitMEDFileField1TS(mm,mmOutList,f1ts,idsLst)):
+                    if len(f1tsPart.getUndergroundDataArray())!=0 :
+                        fmtsPart.pushBackTimeStep(f1tsPart)
                     pass
                 pass
             for fieldsPart,fmtsPart in zip(ret0,ret1):
-                fieldsPart.pushField(fmtsPart);
+                if len(fmtsPart) != 0 :
+                    fieldsPart.pushField(fmtsPart);
                 pass
             pass
         return ret0
