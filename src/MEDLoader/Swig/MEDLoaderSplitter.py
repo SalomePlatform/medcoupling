@@ -48,42 +48,65 @@ class MEDLoaderSplitter:
         return self._mfd_splitted
     
     @classmethod
-    def __splitMEDFileField1TSNode(cls,t,mm,mmOut,f1tsIn,f1tsOut,ids):
+    def __splitMEDFileField1TSNodePfl(cls,mm,fieldName,pfl,ids,cache,procID):
+        zeLev = None
+        for lev in reversed(mm.getNonEmptyLevels()):
+            cellIds = mm[lev].getCellIdsLyingOnNodes(pfl,True)
+            if mm[lev][cellIds].computeFetchedNodeIds().isEqualWithoutConsideringStr(pfl):
+                zeLev = lev
+                break
+        assert(zeLev is not None)
+        cache[(fieldName,procID)]["zeLev"]=zeLev
+        #
+        m0Part=mm[0][ids]
+        mLev=mm[zeLev]
+        #
+        trado2n=m0Part.zipCoordsTraducer() # 3D part of nodes o2n
+        trad=trado2n.invertArrayO2N2N2O(m0Part.getNumberOfNodes()) # 3D part of nodes n2o
+        part=mLev.getCellIdsFullyIncludedInNodeIds(trad)
+        mSubPart=mLev[part] # 2D part lying on 3D part
+        mSubPartReducedNode=mSubPart.deepCopy() ; mSubPartReducedNode.renumberNodesInConn(trado2n) ; mSubPartReducedNode.setCoords(m0Part.getCoords()) # 2D part lying on 3D part node zipped 
+        #
+        if mSubPart.getNumberOfCells()==0:
+            cache[(fieldName,procID)]["res"] = None
+            cache[(fieldName,procID)]["subProfileInProcReducedNode"] = None
+            return
+        cellsInSubPartFetchedByProfile = mSubPart.getCellIdsFullyIncludedInNodeIds(pfl)
+        mSubPartFetchedByPfl=mSubPart[cellsInSubPartFetchedByProfile]
+        subProfileInProc=mSubPartFetchedByPfl.computeFetchedNodeIds()
+        mSubPartFetchedByPfl.zipCoords()
+        #
+        res=pfl.findIdForEach(subProfileInProc)
+        subProfileInProcReducedNode=subProfileInProc.deepCopy() ; subProfileInProcReducedNode.transformWithIndArr(trado2n)
+        subProfileInProcReducedNode.setName(pfl.getName())
+        #
+        cache[(fieldName,procID)]["res"] = res
+        cache[(fieldName,procID)]["subProfileInProcReducedNode"] = subProfileInProcReducedNode
+        pass
+
+    
+    @classmethod
+    def __splitMEDFileField1TSNode(cls,t,mm,mmOut,f1tsIn,f1tsOut,ids,cache,procID):
         if len(f1tsIn.getPflsReallyUsed())!=0:
             arr,pfl=f1tsIn.getFieldWithProfile(ON_NODES,0,mm)
-            zeLev = None
-            for lev in reversed(mm.getNonEmptyLevels()):
-                cellIds = mm[lev].getCellIdsLyingOnNodes(pfl,True)
-                if mm[lev][cellIds].computeFetchedNodeIds().isEqualWithoutConsideringStr(pfl):
-                    zeLev = lev
-            assert(zeLev is not None)
-            f_medcoupling=f1tsIn.getFieldOnMeshAtLevel(ON_NODES,zeLev,mm)
-            m0Part=mm[0][ids]
-            mLev=mm[-1]
             #
-            trado2n=m0Part.zipCoordsTraducer()
-            trad=trado2n.invertArrayO2N2N2O(m0Part.getNumberOfNodes())
-            part=mLev.getCellIdsFullyIncludedInNodeIds(trad)
-            mSubPart=mLev[part]
-            mSubPartReducedNode=mSubPart.deepCopy() ; mSubPartReducedNode.renumberNodesInConn(trado2n) ; mSubPartReducedNode.setCoords(m0Part.getCoords())
-            #
-            cellsInSubPartFetchedByProfile = mSubPart.getCellIdsFullyIncludedInNodeIds(pfl)
-            mSubPartFetchedByPfl=mSubPart[cellsInSubPartFetchedByProfile]
-            subProfileInProc=mSubPartFetchedByPfl.computeFetchedNodeIds()
-            mSubPartFetchedByPfl.zipCoords()
-            #
-            res=pfl.findIdForEach(subProfileInProc)
-            subProfileInProcReducedNode=subProfileInProc.deepCopy() ; subProfileInProcReducedNode.transformWithIndArr(trado2n)
-            subProfileInProcReducedNode.setName(pfl.getName())
-            #
-            fRes=MEDCouplingFieldDouble(ON_NODES)
-            fRes.setArray(arr[res])
-            fRes.setMesh(mSubPartFetchedByPfl)
-            fRes.copyAllTinyAttrFrom(f_medcoupling)
-            fRes.checkConsistencyLight()
-            #
-            f1tsOut.setFieldProfile(fRes,mmOut,zeLev,subProfileInProcReducedNode)
-            pass
+            if (f1tsIn.getName(),procID) not in cache:
+                cls.__splitMEDFileField1TSNodePfl(mm,f1tsIn.getName(),pfl,ids,cache,procID)
+                pass
+            zeLev = cache[(f1tsIn.getName(),procID)]["zeLev"]
+            res = cache[(f1tsIn.getName(),procID)]["res"]
+            subProfileInProcReducedNode = cache[(f1tsIn.getName(),procID)]["subProfileInProcReducedNode"]
+            if (zeLev is None) or (res is None) or (subProfileInProcReducedNode is None):
+                return
+            if len(res)>0:
+                fRes=MEDCouplingFieldDouble(ON_NODES)
+                fRes.setArray(arr[res])
+                fRes.setName(f1tsIn.getName())
+                #fRes.setMesh(mSubPartFetchedByPfl)
+                #fRes.copyAllTinyAttrFrom(f_medcoupling)
+                a,b,c=f1tsIn.getTime(); fRes.setTime(c,a,b)
+                f1tsOut.setFieldProfile(fRes,mmOut,zeLev,subProfileInProcReducedNode)
+                pass
             #raise RuntimeError("Field \"%s\" contains profiles ! Not supported yet ! This field will be ignored !" % (f1tsIn.getName()))
         else:
             f=f1tsIn.getFieldOnMeshAtLevel(t,0,mm)
@@ -93,7 +116,7 @@ class MEDLoaderSplitter:
         pass
     
     @classmethod
-    def __splitMEDFileField1TSCell(cls,t,mm,mmOut,f1tsIn,f1tsOut,ids):
+    def __splitMEDFileField1TSCell(cls,t,mm,mmOut,f1tsIn,f1tsOut,ids,cache,procID):
         f=f1tsIn.getFieldOnMeshAtLevel(t,0,mm)
         fRet=f[ids]
         m=fRet.getMesh() ; m.zipCoords()
@@ -101,7 +124,7 @@ class MEDLoaderSplitter:
         f1tsOut.setFieldNoProfileSBT(fRet)
         pass
     
-    def __splitMEDFileField1TS(self,mm,mmOutList,f1ts,idsLst):
+    def __splitMEDFileField1TS(self,mm,mmOutList,f1ts,idsLst,cache):
         """
            Split input f1ts into parts defined by idsLst.
 
@@ -116,20 +139,23 @@ class MEDLoaderSplitter:
               ON_GAUSS_PT:MEDLoaderSplitter.__splitMEDFileField1TSCell,
               ON_GAUSS_NE:MEDLoaderSplitter.__splitMEDFileField1TSCell}
         for t in f1ts.getTypesOfFieldAvailable():
-            for i,f0 in enumerate(ret):
-                dico[t](t,mm,mmOutList[i][0],f1ts,f0,idsLst[i])
+            for procID,f0 in enumerate(ret):
+                dico[t](t,mm,mmOutList[procID][0],f1ts,f0,idsLst[procID],cache,procID)
                 pass
             pass
         return ret
     
     def __splitFields(self,mm,mmOutList,mfflds,idsLst):
         ret0 = [MEDFileFields() for i in range(len(idsLst))]
+        from collections import defaultdict
+        cache = defaultdict(dict)
         for fmts in mfflds:
             ret1=[fmts.__class__() for i in range(len(idsLst))]
             for f1ts in fmts:
-                for fmtsPart,f1tsPart in zip(ret1,self.__splitMEDFileField1TS(mm,mmOutList,f1ts,idsLst)):
-                    if len(f1tsPart.getUndergroundDataArray())!=0 :
-                        fmtsPart.pushBackTimeStep(f1tsPart)
+                for fmtsPart,f1tsPart in zip(ret1,self.__splitMEDFileField1TS(mm,mmOutList,f1ts,idsLst,cache)):
+                    if f1tsPart.getUndergroundDataArray():
+                        if len(f1tsPart.getUndergroundDataArray())!=0 :
+                            fmtsPart.pushBackTimeStep(f1tsPart)
                     pass
                 pass
             for fieldsPart,fmtsPart in zip(ret0,ret1):
