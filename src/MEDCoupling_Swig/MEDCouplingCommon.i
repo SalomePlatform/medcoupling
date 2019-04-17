@@ -506,6 +506,40 @@ using namespace INTERP_KERNEL;
   }
 %}
 
+%inline
+{
+  PyObject *med2vtk_cell_types()
+  {
+    Py_ssize_t sz(sizeof(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER)/sizeof(decltype(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER[0])));
+    PyObject *ret(PyList_New(sz));
+    for(Py_ssize_t i=0;i<sz;i++)
+      {
+        PyList_SetItem(ret,i,PyInt_FromLong(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER[i]));
+      }
+    return ret;
+  }
+
+  PyObject *vtk2med_cell_types()
+  {
+    Py_ssize_t sz(sizeof(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER)/sizeof(decltype(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER[0])));
+    auto maxElt(*std::max_element(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER,MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER+sz));
+    auto szOut(maxElt+1);
+    std::vector< int > retCpp(szOut,-1);
+    mcIdType id(0);
+    for(const int *it=MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER;it!=MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER+sz;it++,id++)
+      {
+        if(*it!=-1)
+          retCpp[*it]=id;
+      }
+    //
+    PyObject *ret(PyList_New(szOut));
+    id = 0;
+    for(auto it=retCpp.begin();it!=retCpp.end();it++,id++)
+      PyList_SetItem(ret,id,PyInt_FromLong(*it));
+    return ret;
+  }
+}
+
 namespace INTERP_KERNEL
 { 
   /*!
