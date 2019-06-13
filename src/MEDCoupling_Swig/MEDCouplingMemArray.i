@@ -2648,7 +2648,7 @@ namespace MEDCoupling
                 if(PyInt_Check(nbOfTuples))
                   {
                     int nbOfTuples1=PyInt_AS_LONG(nbOfTuples);
-                    if(nbOfTuples<0)
+                    if(nbOfTuples1<0)
                       throw INTERP_KERNEL::Exception("DataArrayInt::setValue : should be a positive set of allocated memory !");
                     if(nbOfComp && nbOfComp != Py_None)
                       {
