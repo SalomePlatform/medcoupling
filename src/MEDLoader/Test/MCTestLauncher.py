@@ -1,4 +1,5 @@
-# Copyright (C) 2015-2019  CEA/DEN, EDF R&D
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2019  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -16,25 +17,15 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (EDF R&D)
 
-SET(TEST_NAMES
-  MEDRenumberTest
-)
+import subprocess as sp
+import sys
+import tempfile,os
 
-FOREACH(tfile ${TEST_NAMES})
-  SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
-  ADD_TEST(${TEST_NAME} python ${tfile}.py)
-  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
-    LABELS "${COMPONENT_NAME}"
-    TIMEOUT ${TIMEOUT}
-    ENVIRONMENT "PYTHONPATH=../../bin:$ENV{PYTHONPATH}"
-    )
-ENDFOREACH()
-
-SET(TEST_NAME ${COMPONENT_NAME}_RENUMBER_Swig_UsersGuideExamplesTest)
-ADD_TEST(${TEST_NAME} python UsersGuideExamplesTest.py)
-SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
-  LABELS "${COMPONENT_NAME}"
-  TIMEOUT ${TIMEOUT}
-  ENVIRONMENT "PYTHONPATH=../../bin:$ENV{PYTHONPATH}"
-  )
+full_path = os.path.abspath(sys.argv[1])
+with tempfile.TemporaryDirectory() as tmpdirname:
+    os.chdir(tmpdirname)
+    p = sp.check_output(full_path)
+    print(p.decode())
+    pass

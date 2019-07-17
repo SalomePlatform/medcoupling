@@ -22,9 +22,11 @@
 from MEDLoader import *
 import unittest
 from math import pi,e,sqrt
-from MEDLoaderDataForTest import MEDLoaderDataForTest
+from MEDLoaderDataForTest import MEDLoaderDataForTest,WriteInTmpDir
+from MEDLoaderDataForTest import TestWriteUMeshesRW1,TestMultiFieldShuffleRW1
 
 class MEDLoaderTest2(unittest.TestCase):
+    @WriteInTmpDir
     def testMesh1DRW(self):
         mesh=MEDLoaderDataForTest.build1DMesh_1();
         mesh.checkConsistencyLight();
@@ -33,6 +35,7 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
         pass
 
+    @WriteInTmpDir
     def testMesh2DCurveRW(self):
         mesh=MEDLoaderDataForTest.build2DCurveMesh_1();
         mesh.checkConsistencyLight();
@@ -41,6 +44,7 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
         pass
 
+    @WriteInTmpDir
     def testMesh2DRW(self):
         mesh=MEDLoaderDataForTest.build2DMesh_1();
         mesh.checkConsistencyLight();
@@ -49,6 +53,7 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
         pass
 
+    @WriteInTmpDir
     def testMesh3DSurfRW(self):
         mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
         mesh.checkConsistencyLight();
@@ -57,6 +62,7 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
         pass
 
+    @WriteInTmpDir
     def testMesh3DRW(self):
         mesh=MEDLoaderDataForTest.build3DMesh_1();
         mesh.checkConsistencyLight();
@@ -65,6 +71,7 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
         pass
 
+    @WriteInTmpDir
     def testFieldRW1(self):
         f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
         WriteFieldDep("Pyfile6.med",f1,False);
@@ -77,6 +84,7 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
         pass
 
+    @WriteInTmpDir
     def testFieldRW2(self):
         fileName="Pyfile8.med";
         VAL1=12345.67890314;
@@ -128,6 +136,7 @@ class MEDLoaderTest2(unittest.TestCase):
     #
     # Multi field in a same file, but this field has several
     #
+    @WriteInTmpDir
     def testFieldRW3(self):
         fileName="Pyfile11.med";
         VAL1=12345.67890314;
@@ -201,6 +210,7 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertAlmostEqual(VAL2,f1.getArray().getIJ(0,3),13);
         pass
 
+    @WriteInTmpDir
     def testMultiMeshRW1(self):
         fileName="Pyfile10.med";
         mesh1=MEDLoaderDataForTest.build3DMesh_1();
@@ -255,6 +265,7 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertTrue(mesh2_2.isEqual(mesh2,1e-12));
         pass
 
+    @WriteInTmpDir
     def testMesh3DSurfShuffleRW(self):
         fileName="Pyfile15.med";
         mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
@@ -266,74 +277,14 @@ class MEDLoaderTest2(unittest.TestCase):
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
         pass
 
+    @WriteInTmpDir
     def testMultiFieldShuffleRW1(self):
-        fileName="Pyfile17.med";
-        m=MEDLoaderDataForTest.build3DMesh_2();
-        self.assertEqual(20,m.getNumberOfCells());
-        self.assertEqual(45,m.getNumberOfNodes());
-        polys=[1,4,6]
-        m.convertToPolyTypes(polys);
-        renum=[1,3,2,8,9,12,13,16,19,0,4,7,5,15,14,17,10,18,6,11]
-        m.renumberCells(renum,False);
-        m.orientCorrectlyPolyhedrons();
-        # Writing
-        WriteUMeshDep(fileName,m,False);
-        f1Tmp=m.getMeasureField(False);
-        f1=f1Tmp.buildNewTimeReprFromThis(ONE_TIME,False);
-        f1.setTime(0.,1,2);
-        f_1=f1.cloneWithMesh(True);
-        WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-        f1.applyFunc("2*x");
-        f1.setTime(0.01,3,4);
-        f_2=f1.cloneWithMesh(True);
-        WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-        f1.applyFunc("2*x/3");
-        f1.setTime(0.02,5,6);
-        f_3=f1.cloneWithMesh(True);
-        WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-        # Reading
-        its=[(1,2),(3,4),(5,6)];
-        fs=ReadFieldsOnSameMesh(ON_CELLS,fileName,f_1.getMesh().getName(),0,f_1.getName(),its);
-        self.assertEqual(3,len(fs));
-        self.assertTrue(fs[0].isEqual(f_1,1e-12,1e-12));
-        self.assertTrue(fs[1].isEqual(f_2,1e-12,1e-12));
-        self.assertTrue(fs[2].isEqual(f_3,1e-12,1e-12));
+        TestMultiFieldShuffleRW1(self)
         pass
 
+    @WriteInTmpDir
     def testWriteUMeshesRW1(self):
-        fileName="Pyfile18.med";
-        m3d=MEDLoaderDataForTest.build3DMesh_2();
-        pt=[0.,0.,-0.3]
-        vec=[0.,0.,1.]
-        nodes=m3d.findNodesOnPlane(pt,vec,1e-12);
-        m2d=m3d.buildFacePartOfMySelfNode(nodes,True);
-        renumber=[1,2,0,4,3]
-        m2d.renumberCells(renumber,False);
-        m2d.setName("ExampleOfMultiDimW");
-        meshes=[m2d,m3d]
-        WriteUMeshes(fileName,meshes,False);
-        m3d_bis=ReadUMeshFromFile(fileName,m2d.getName(),0);
-        self.assertTrue(not m3d_bis.isEqual(m3d,1e-12));
-        m3d_bis.setName(m3d.getName());
-        self.assertTrue(m3d_bis.isEqual(m3d,1e-12));
-        m2d_bis=ReadUMeshFromFile(fileName,m2d.getName(),-1);#-1 for faces
-        self.assertTrue(m2d_bis.isEqual(m2d,1e-12));
-        # Creation of a field on faces.
-        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
-        f1.setName("FieldOnFacesShuffle");
-        f1.setMesh(m2d);
-        array=DataArrayDouble.New();
-        arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
-        array.setValues(arr1,m2d.getNumberOfCells(),2);
-        array.setInfoOnComponent(0,"plkj [mm]");
-        array.setInfoOnComponent(1,"pqqqss [mm]");
-        f1.setArray(array);
-        tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
-        f1.setTime(3.14,2,7);
-        f1.checkConsistencyLight();
-        WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-        f2=ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
-        self.assertTrue(f2.isEqual(f1,1e-12,1e-12));
+        TestWriteUMeshesRW1(self)
         pass
     pass
 

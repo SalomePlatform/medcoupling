@@ -21,7 +21,7 @@
 
 from MEDLoader import *
 import unittest, os
-from MEDLoaderDataForTest import MEDLoaderDataForTest
+from MEDLoaderDataForTest import MEDLoaderDataForTest,WriteInTmpDir
 
 class SauvLoaderTest(unittest.TestCase):
 
@@ -37,7 +37,8 @@ class SauvLoaderTest(unittest.TestCase):
           raise Exception("SauvLoaderTest: Unable to get resource directory")
         return pth
         pass
-
+    
+    @WriteInTmpDir
     def testSauv2Med(self):
         # get a file containing all types of readable piles
         sauvFile = os.path.join( self.__getResourcesDirectory(),"allPillesTest.sauv")
@@ -59,6 +60,7 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove( medFile )
         pass
 
+    @WriteInTmpDir
     def testMed2Sauv(self):
         # read pointe.med
         medFile = os.path.join(self.__getResourcesDirectory(),"pointe.med")
@@ -171,6 +173,7 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove( sauvFile )
         pass
 
+    @WriteInTmpDir
     def testSauv2MedWONodeFamilyNum(self):
         """test for issue 0021673: [CEA 566] Bug in SauvWriter when writing meshes
         having no family ids on nodes."""
@@ -208,6 +211,7 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove( medFile )
         pass
 
+    @WriteInTmpDir
     def testSauv2MedOnPipe1D(self):
         """test for issue 0021745: [CEA 600] Some missing groups in mesh after reading a SAUV file with SauvReader."""
         sauvFile="Test_sauve_1D.sauv"
@@ -248,6 +252,7 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove(sauvFile)
         pass
 
+    @WriteInTmpDir
     def testSauvReaderOnBigMesh(self):
         # create a box with 1 million cells
         mesh_dim = 3
@@ -301,6 +306,7 @@ class SauvLoaderTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(HasXDR(),"requires XDR")
+    @WriteInTmpDir
     def testMissingGroups(self):
         """test for issue 0021749: [CEA 601] Some missing groups in mesh after reading a SAUV file with SauvReader."""
         sauvFile = os.path.join(self.__getResourcesDirectory(),"BDC-714.sauv")
@@ -323,6 +329,7 @@ class SauvLoaderTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(HasXDR(),"requires XDR")
+    @WriteInTmpDir
     def testReadSauvXDRCastem17(self):
         """test reading Castem17 XDR sauv with 'ENREGISTREMENT DE TYPE 8'"""
         sauvFile = os.path.join(self.__getResourcesDirectory(),"castem17_result_xdr.sauv")
@@ -344,6 +351,7 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertTrue( fieldArray.isEqualWithoutConsideringStr( expectedArray, 1e-12 ))
         pass
 
+    @WriteInTmpDir
     def testReadSauvAsciiCastem17(self):
         """test reading Castem17 ascii sauv with 'ENREGISTREMENT DE TYPE 8'"""
         sauvFile = os.path.join(self.__getResourcesDirectory(),"castem17_result_ascii.sauv")
@@ -365,6 +373,7 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertTrue( fieldArray.isEqualWithoutConsideringStr( expectedArray, 1e-12 ))
         pass
 
+    @WriteInTmpDir
     def testGaussPt(self):
         """issue 22321: [CEA 933] Bug when reading a sauve file containing field on Gauss Pt.
         The problem was that a field ON_GAUSS_PT was created but no Gauss Localization
@@ -426,6 +435,7 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove( sauvFile )
         pass
 
+    @WriteInTmpDir
     def testSauvWriterGroupWithOneFamily(self):
         """
         This test checks an option for sauv writing. It is requested here to copy a group from a family if a group is lying on a single family.

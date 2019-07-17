@@ -22,6 +22,10 @@
 from MEDLoader import *
 from MEDCouplingRemapper import *
 import math, os
+import tempfile,os,shutil
+
+zeDir = tempfile.mkdtemp()
+os.chdir(zeDir)
 
 d=DataArrayDouble.New(6,2)
 d[:,0]=3.
@@ -596,3 +600,4 @@ omega=sum(angle2)/(ts[-1][2]-ts[0][2])
 print(sum(angle2)) ; assert abs(sum(angle2)-1.12)<1e-2
 print("Au pdt (%d,%d) a %r s le couple est de : %r N.m, power/omega=%r N.m"%(ts[2][0],ts[2][1],ts[2][2],zeTorque[2],power/omega))
 assert abs(power/omega-0.37)<1e-2
+shutil.rmtree(zeDir)

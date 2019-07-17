@@ -22,11 +22,13 @@
 from MEDLoader import *
 import unittest
 from math import pi,e,sqrt
+from MEDLoaderDataForTest import WriteInTmpDir
 
 class MEDLoaderTest4(unittest.TestCase):
     """
     Test series to emulate the future MEDReader plugin for PARAVIS.
     """
+    @WriteInTmpDir
     def test1(self):
         """
         This test is the most simple one. One time serie of one field with only cell fields with no profiles.
@@ -212,6 +214,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test2(self):
         """
         One time serie of one field with cell and node discretization in the same field with no profiles.
@@ -432,6 +435,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test3(self):
         """ This test is more advanced a same field is defined on CELLS for time steps 0, 2 and 4, and on NODES for time steps 1 and 3.
         So two time step series on the same field. No profile here neither on cells nor on nodes.
@@ -619,6 +623,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test4(self):
         """ This test defines 3 fields on nodes on the same mesh. All of these fields have no profile.
         """
@@ -870,6 +875,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test5(self):
         """ This test plays with profiles both cell profiles and node profiles. Two first fields (resp on cells and on nodes) lie on the same mesh support whereas the third
         mesh lies on a different mesh.
@@ -1023,6 +1029,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test6(self):
         """ This test plays with cartesian mesh and profiles. When a sub cartesian mesh can also be considered as a cartesian mesh it is done.
         """
@@ -1235,6 +1242,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test7(self):
         """ This test plays with curvilinear mesh and profiles. When a sub curvilinear mesh can also be considered as a cartesian mesh it is done.
         This test is very similar to the test6.
@@ -1441,6 +1449,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test8(self):
         """ This test plays with with gauss fields with no profiles.
         """
@@ -1588,6 +1597,7 @@ class MEDLoaderTest4(unittest.TestCase):
         #
         pass
 
+    @WriteInTmpDir
     def test9(self):
         """ This test plays with with gauss fields with profiles.
         """
@@ -1736,6 +1746,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test10(self):
         """ This test plays with fields only on nodes containing profiles.
         """
@@ -1861,6 +1872,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test11(self):
         """ This test is the ultimate test for the profiles with gauss points. It tests that even if there is non contiguous parts in definition of gauss points, it works !
         WARNING here, as no other discretizations exists, the priority is given to the field -> the mesh is renumbered to accelerate the build of array of field.
@@ -1948,6 +1960,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test12(self):
         """ This test is the second ultimate test for the profiles with gauss points.
         This test is close to test11 but here a 2nd field on cells without profile. So here the mesh is expected to be the same than m.
@@ -2051,6 +2064,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
 
+    @WriteInTmpDir
     def test13(self):
             """ Testing polyhedrons mixed with hexa8"""
             fname="ForMEDReader13.med"
@@ -2228,6 +2242,7 @@ class MEDLoaderTest4(unittest.TestCase):
                 pass
             pass
 
+    @WriteInTmpDir
     def test14(self):
             """ Testing only polyhedrons"""
             fname="ForMEDReader14.med"
@@ -2334,6 +2349,7 @@ class MEDLoaderTest4(unittest.TestCase):
                 pass
             pass
 
+    @WriteInTmpDir
     def test15(self):
         """
         "ForMEDReader15.med" file has a spaceDim 3 mesh "mesh" (it is important !)
@@ -2475,6 +2491,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(mml2.retrieveGlobalNodeIdsIfAny() is None)
         pass
 
+    @WriteInTmpDir
     def test16(self):
         """ Here 2 meshes "mesh1" and "mesh2" and 4 fields (no profiles here) :
         - "zeField1_0" (CELLS) and "zeField2_0" (NODES) on "mesh1"
@@ -2650,6 +2667,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerCommonSupport2[0][0]),2)
         pass
 
+    @WriteInTmpDir
     def test17(self):
         """ First test on GAUSS_NE (Elno). Here no Profiles.
         2 times steps.
@@ -2766,6 +2784,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test18(self):
         """ First test on GAUSS_PT. Here no Profiles. 2 times steps.
         """
@@ -2952,6 +2971,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test19(self):
         """
         This test is a simple non profile CELL field but lying on cells of dimension -1 (not 0 as "usual").
@@ -3058,6 +3078,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test20(self):
         """ This test works with groups/families on cells AND on nodes. Here 4 fields each on same time steps (2).
         1 field on CELLS without profile, 1 field on CELLS with profile, 1 field on NODES without profile, 1 field on NODES with profile.
@@ -3305,6 +3326,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test21(self):
         """ Here the created MED file contains only a mesh. The aim here is to test capability of MEDReader to support no fields.
         This test checks nothing but write a MED file to be used by MEDReader tests.
@@ -3337,6 +3359,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mm.write(fname,2)
         pass
 
+    @WriteInTmpDir
     def test22(self):
         """ Use case where a field on nodes (ANodeField) on a mesh defined both in meshdim 2 and meshdim 1.
         The only possible geometrical support that suits the field is those with meshdim equal to 1 (-1 in relative).
@@ -3450,6 +3473,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(v.isEqual(vExp,1e-12))
         pass
 
+    @WriteInTmpDir
     def test23(self):
         """ Non regression test 2219 of modes. Idem than test22 except that here the node field is on profile.
         """
@@ -3560,6 +3584,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(v.isEqual(vExp,1e-12))
         pass
 
+    @WriteInTmpDir
     def test24(self):
         """ Non regression test for cartesian mesh whose the 3rd direction has only one node. It a false 3D mesh.
         """
@@ -3648,6 +3673,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test25(self):
         """ A tricky test that reproduces an invalid behaviour
         Here a same field is defined both on CELLS and GAUSS_PT, with a profile for each.
@@ -3852,6 +3878,7 @@ class MEDLoaderTest4(unittest.TestCase):
         del fff0
         pass
 
+    @WriteInTmpDir
     def test26(self):
         """ Test focused on field on nodes (here f0Node and f1Node) lying on a profile of nodes that do not match perfectly a sub set of cells of its underlying mesh. See bug EDF 2405 and 2177.
         For this type of fields the support will contain only vertices.
@@ -3999,6 +4026,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(v.isEqual(vExp,1e-12)) # <- THE test is here !!!
         pass
 
+    @WriteInTmpDir
     def test27(self):
         """ This test defines 2 fields f0 and f1 on nodes lying on an unstructured mesh with no cells.
         f0 is a field on all nodes. f1 is a partial field on nodes.
@@ -4118,6 +4146,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(v.isEqual(vExp,1e-12))
         pass
 
+    @WriteInTmpDir
     def test28(self):
         """ This test defines 2 fields f0,f1,f2,f3 lying on an unstructured mesh with cells including NORM_POINT1.
         Both f0 and f1 are on NODES and f2 and f3 are on cells. f1 and f2 share the same support.
@@ -4307,6 +4336,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(v.isEqual(vExp,1e-12))
         pass
 
+    @WriteInTmpDir
     def test29(self):
         """ This test focused on HEXA27 cell for which the MED numbering is not equal to the VTK numbering. So here the HEXA27 cell is those in MED file documentation (reference element).
         """
@@ -4392,6 +4422,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ffGauss=allFMTSLeavesPerCommonSupport1[0][0][1][0]
         pass
 
+    @WriteInTmpDir
     def test30(self):
         """ This test is focused on cartesian meshes. Here the cartesian mesh "CartMesh" has a field on HEXA8 (FieldOnCells) and a field on QUAD4 (FieldOnFaces).
         So the first one (FieldOnCells) lies on a cartesian mesh whereas the second one lies on unstructured one.
@@ -4516,6 +4547,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test31(self):
         """non regression test of EDF 7972"""
         fname="ForMEDReader31.med"
@@ -4605,6 +4637,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test32(self):
         """ This test is close to test30 except that here the profiles on dim-1 of structured mesh is considered here."""
         fname="ForMEDReader32.med"
@@ -4731,6 +4764,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test33(self):
         """Non regression test concerning polygons. Thanks Adrien. This bug can't be shown by simply reading an displaying a MED file containing only polygons. A filter must be applied on it to show it. The a2 array was responsible of that bug."""
         fname="ForMEDReader33.med"
@@ -4812,6 +4846,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test34(self):
         """ This test is the thirs ultimate test (base on test12) for the profiles with gauss points.
         This test highlight the hidden imp linked to bug #8655.
@@ -4958,6 +4993,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test35(self):
         """ Emulate MEDReader in // mode context. Here a Simple mesh having more nodes than really needed. This test focuses on that point particularly."""
         fname="ForMEDReader35.med"
@@ -5031,6 +5067,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(v.isEqual(vExp,1e-12))
         pass
 
+    @WriteInTmpDir
     def test36(self):
         """Bug EDF11027. Here mesh at level 0 (TRI3) does not fetch all the nodes. Level -1 (SEG2) does not fetch all the nodes neither. But all TRI3 + all SEG2 fetch all nodes.
         aaa field on GAUSSPoints lying only on TRI3 share the same support than profile node field ccc.
@@ -5171,6 +5208,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test37(self):
         """ Introduction of non cartesian meshes management. Here cylindrical."""
         fname="ForMEDReader37.med"
@@ -5241,6 +5279,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test38(self):
         """ Introduction of non cartesian meshes management. Here spherical."""
         fname="ForMEDReader38.med"
@@ -5311,6 +5350,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def test39(self):
         """Idem test37, test38, test39, test40 except that here it is an unstructured mesh."""
         fname="ForMEDReader39.med"
@@ -5380,6 +5420,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(DataArrayDouble([0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3]),1e-14))
         pass
 
+    @WriteInTmpDir
     def test40(self):
         """Idem test37, test38, test39, test40 except that here it is a CL mesh."""
         fname="ForMEDReader40.med"
@@ -5446,6 +5487,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(DataArrayDouble([0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3]),1e-14))
         pass
 
+    @WriteInTmpDir
     def test41(self):
         """This test focused on bug revealed with // load of multi nodes field with no profile. The error was the first node field (dataarray partdef) change the partdef for the others ! """
         fname="ForMEDReader41.med"
@@ -5515,6 +5557,7 @@ class MEDLoaderTest4(unittest.TestCase):
         assert(v1.isEqual(DataArrayDouble([101,102,103,104,106,107,108,109,111,112,113,114,116,117,118,119,121,122,123,124]),1e-12))
         pass
 
+    @WriteInTmpDir
     def test42(self):
         """ EDF14869 - SEG4 """
         fname="ForMEDReader42.med"

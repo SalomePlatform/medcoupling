@@ -20,6 +20,10 @@
 
 from MEDLoader import *
 import os
+import tempfile,os,shutil
+
+zeDir = tempfile.mkdtemp()
+os.chdir(zeDir)
 
 from MEDLoaderDataForTest import MEDLoaderDataForTest
 m = MEDLoaderDataForTest.build1DMesh_1()
@@ -184,3 +188,4 @@ for ff1TS in ff:
     field=ff1TS.getFieldAtLevel(ON_CELLS,level)
     field=ff1TS.getFieldOnMeshAtLevel(ON_CELLS,level,mm)
 #! [UG_RWFieldAdv_5]
+shutil.rmtree(zeDir)

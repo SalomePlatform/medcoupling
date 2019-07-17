@@ -22,8 +22,10 @@
 from MEDLoader import *
 import unittest
 import os
+from MEDLoaderDataForTest import WriteInTmpDir
 
 class MEDLoaderBasicsTest(unittest.TestCase):
+    @WriteInTmpDir
     def testExampleReadFieldOnAllEntity1(self):
         from MEDLoaderDataForTest import MEDLoaderDataForTest
 #! [PySnippetReadFieldOnAllEntity1_1]
@@ -78,6 +80,7 @@ class MEDLoaderBasicsTest(unittest.TestCase):
 #! [PySnippetReadFieldOnAllEntity1_5]
         pass
 
+    @WriteInTmpDir
     def testExampleReadFieldPartial1(self):
         from MEDLoaderDataForTest import MEDLoaderDataForTest
 #! [PySnippetReadFieldPartial1_1]
@@ -155,6 +158,7 @@ class MEDLoaderBasicsTest(unittest.TestCase):
 #! [PySnippetReadFieldPartial1_6]
         pass
 
+    @WriteInTmpDir
     def testExampleMeshAdvAPI1(self):
         da=DataArrayDouble.New([0.,1.1,2.3,3.6])
         meshName="Example2"

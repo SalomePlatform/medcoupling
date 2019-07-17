@@ -23,7 +23,8 @@ from MEDLoader import *
 import unittest
 import platform
 from math import pi,e,sqrt
-from MEDLoaderDataForTest import MEDLoaderDataForTest
+from MEDLoaderDataForTest import MEDLoaderDataForTest,WriteInTmpDir
+from MEDLoaderDataForTest import TestWriteUMeshesRW1,TestMultiFieldShuffleRW1,GeneratePyfile7,GeneratePyfile10,GeneratePyfile12,GeneratePyfile13,GeneratePyfile14,GeneratePyfile18,GeneratePyfile19
 from distutils.version import LooseVersion
 
 import sys
@@ -63,7 +64,9 @@ class StdOutRedirect(object):
         os.close(self.stdoutOld)
 
 class MEDLoaderTest3(unittest.TestCase):
+    @WriteInTmpDir
     def testMEDMesh1(self):
+        GeneratePyfile18(self)
         fileName="Pyfile18.med"
         mname="ExampleOfMultiDimW"
         medmesh=MEDFileMesh.New(fileName,mname)
@@ -77,7 +80,9 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(m2_0.isEqual(m2_1,1e-12));
         pass
 
+    @WriteInTmpDir
     def testMEDMesh2(self):
+        GeneratePyfile10(self)
         fileName="Pyfile10.med"
         mname="3DToto"
         outFileName="MEDFileMesh1.med"
@@ -120,6 +125,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # this tests emulates MEDMEM ( Except that it works ! ) The permutation are NOT taken into account
+    @WriteInTmpDir
     def testMEDMesh3(self):
         outFileName="MEDFileMesh3.med"
         c=DataArrayDouble.New()
@@ -235,6 +241,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # this test is the testMEDMesh3 except that permutation is dealed here
+    @WriteInTmpDir
     def testMEDMesh4(self):
         outFileName="MEDFileMesh4.med"
         c=DataArrayDouble.New()
@@ -342,7 +349,9 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     #testing persistence of retrieved arrays
+    @WriteInTmpDir
     def testMEDMesh5(self):
+        GeneratePyfile18(self)
         fileName="Pyfile18.med"
         mname="ExampleOfMultiDimW"
         medmesh=MEDFileUMesh.New(fileName,mname)
@@ -353,7 +362,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(20,da1.getNumberOfTuples())
         pass
 
-    def testMEDMesh6(self):
+    def internalMEDMesh6(self):
         outFileName="MEDFileMesh5.med"
         m=MEDFileCMesh.New()
         m.setTime(-1,-1,2.3)
@@ -400,8 +409,13 @@ class MEDLoaderTest3(unittest.TestCase):
         m1.setTimeUnit(m.getTimeUnit())
         m1.setDescription(m.getDescription())
         self.assertTrue(m2.isEqual(m1,1e-12));
+        
+    @WriteInTmpDir
+    def testMEDMesh6(self):
+        self.internalMEDMesh6()
         pass
 
+    @WriteInTmpDir
     def testMEDMesh7(self):
         fileName="Pyfile24.med"
         m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
@@ -447,7 +461,9 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     #emulation of pointe.med file.
+    @WriteInTmpDir
     def testMEDField1(self):
+        TestMultiFieldShuffleRW1(self)
         mm=MEDFileMesh.New("Pyfile17.med")
         mm.write("Pyfile17_bis.med",2)
         ff=MEDFileFieldMultiTS("Pyfile17.med")
@@ -471,7 +487,9 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     #profiles
+    @WriteInTmpDir
     def testMEDField2(self):
+        GeneratePyfile19(self)
         mm=MEDFileMesh.New("Pyfile19.med")
         mm.write("Pyfile19_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile19.med")
@@ -480,7 +498,9 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     #gauss points
+    @WriteInTmpDir
     def testMEDField3(self):
+        GeneratePyfile13(self)
         mm=MEDFileMesh.New("Pyfile13.med")
         mm.write("Pyfile13_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile13.med","MyFirstFieldOnGaussPoint")
@@ -498,7 +518,9 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     #gauss NE
+    @WriteInTmpDir
     def testMEDField4(self):
+        GeneratePyfile14(self)
         mm=MEDFileMesh.New("Pyfile14.med")
         mm.write("Pyfile14_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile14.med","MyFieldOnGaussNE")
@@ -510,7 +532,9 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # MEDField get/set on pointe.med
+    @WriteInTmpDir
     def testMEDField5(self):
+        TestMultiFieldShuffleRW1(self)
         ff=MEDFileField1TS.New("Pyfile17.med","MeasureOfMesh_Extruded",1,2)
         f=ff.getFieldAtLevel(ON_CELLS,0)
         f2=ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
@@ -531,13 +555,16 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # MEDField get/set on profiles nodes
+    @WriteInTmpDir
     def testMEDField6(self):
+        GeneratePyfile7(self)
         ff=MEDFileFieldMultiTS.New("Pyfile7.med","VectorFieldOnNodes")
         its=ff.getIterations()
         self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_CELLS,its[0][0],its[0][1],0)# request on cell and it is not on cells
         f=ff.getFieldAtLevel(ON_NODES,its[0][0],its[0][1],0)
         f2=ReadFieldNode("Pyfile7.med",'3DSurfMesh_1',0,"VectorFieldOnNodes",its[0][0],its[0][1])
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        GeneratePyfile19(self)
         ff=MEDFileFieldMultiTS.New("Pyfile19.med","VFieldOnNodes")
         its=ff.getIterations()
         f=ff.getFieldAtLevel(ON_NODES,its[0][0],its[0][1],0)
@@ -548,7 +575,9 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # MEDField get/set on profiles cells
+    @WriteInTmpDir
     def testMEDField7(self):
+        GeneratePyfile12(self)
         ff=MEDFileFieldMultiTS.New("Pyfile12.med","VectorFieldOnCells")
         its=ff.getIterations()
         f=ff.getFieldAtLevel(ON_CELLS,its[0][0],its[0][1],0)
@@ -557,6 +586,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     #first test of assignation. No profile and types sorted by type.
+    @WriteInTmpDir
     def testMEDField8(self):
         fname="Pyfile25.med"
         f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
@@ -657,6 +687,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         pass
     
+    @WriteInTmpDir
     def testMEDFileData1(self):
         fname="Pyfile29.med"
         d=MEDFileData.New()
@@ -714,6 +745,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual([(-1,-1,0.0)],d2.getFields()["f21"].getTimeSteps())
         pass
     
+    @WriteInTmpDir
     def testMEDField9(self):
         # first test field profile WR. Full type but with some type missing
         fname="Pyfile30.med"
@@ -753,6 +785,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
     
+    @WriteInTmpDir
     def testMEDField10(self):
         fname="Pyfile31.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
@@ -789,6 +822,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
     
     # idem testMEDField9 method except that here testing profile on nodes and not on cells.
+    @WriteInTmpDir
     def testMEDField11(self):
         fname="Pyfile32.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
@@ -815,6 +849,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
 
+    @WriteInTmpDir
     def testMEDField12(self):
         fname="Pyfile33.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
@@ -848,6 +883,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
 
+    @WriteInTmpDir
     def testMEDField13(self):
         fname="Pyfile34.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
@@ -875,6 +911,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
 
+    @WriteInTmpDir
     def testMEDField14(self):
         fname="Pyfile35.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
@@ -913,6 +950,7 @@ class MEDLoaderTest3(unittest.TestCase):
     # Tricky test of the case of in a MED file containing a Field on GAUSS_NE is lying on a profile that is reality represents all the geom entities of a level.
     # By default when using setFieldProfile method such profile is not created because it is not useful ! So here a trick is used to force MEDLoader to do that
     # for the necessity of the test ! The idea is too create artificially a mesh having one more fictitious cell per type and to roll back right after !
+    @WriteInTmpDir
     def testMEDField15(self):
         fname="Pyfile36.med"
         m0=MEDLoaderDataForTest.build2DMesh_1()
@@ -936,6 +974,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f1.getArray().isEqual(f2,1e-12))
         pass
     # Test for getFieldAtTopLevel method
+    @WriteInTmpDir
     def testMEDField16(self):
         fname="Pyfile37.med"
         f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
@@ -983,6 +1022,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # Non regression test to check that globals are correctly appended on MEDFileFields::setFieldAtPos
+    @WriteInTmpDir
     def testMEDField17(self):
         fname="Pyfile39.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
@@ -1011,6 +1051,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # Non regression test to check that globals are correctly appended on MEDFileFields::setFieldAtPos
+    @WriteInTmpDir
     def testMEDField18(self):
         fname="Pyfile40.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
@@ -1036,12 +1077,15 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f4.getArray().isEqual(f1.getArray(),1e-12))
         pass
 
+    @WriteInTmpDir
     def testMEDFieldBug1(self):
+        GeneratePyfile13(self)
         fname="Pyfile13.med"
         d=MEDFileData.New(fname)
         self.assertEqual(('Loc_MyFirstFieldOnGaussPoint_NORM_QUAD4_1','Loc_MyFirstFieldOnGaussPoint_NORM_TRI3_0','Loc_MyFirstFieldOnGaussPoint_NORM_TRI6_2'),d.getFields().getFieldAtPos(0).getLocs())
         pass
 
+    @WriteInTmpDir
     def testMEDMesh8(self):
         m=MEDLoaderDataForTest.build1DMesh_1()
         m.convertQuadraticCellsToLinear()
@@ -1085,6 +1129,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
     
     # bug detected by gauthier
+    @WriteInTmpDir
     def testMEDLoaderMEDLoaderNSReadFieldDoubleDataInMedFile(self):
         fname="Pyfile41.med"
         f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
@@ -1117,6 +1162,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f4.isEqual(f2,1e-12,1e-12))
         pass
 
+    @WriteInTmpDir
     def testMEDLoaderMultiLevelCellField1(self):
         fname="Pyfile42.med"
         m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
@@ -1187,6 +1233,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(ff2.getFieldSplitedByType(),[(0, [(0, (0, 4), '', '')]), (1, [(0, (4, 84), '', '')])])
         pass
 
+    @WriteInTmpDir
     def testFieldOnPflRetrieveOnMdimRelMax1(self):
         fname="Pyfile43.med"
         m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
@@ -1272,6 +1319,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group1(self):
         fname="Pyfile44.med"
         m=MEDCouplingCMesh.New()
@@ -1322,6 +1370,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.write(fname,2)
         pass
 
+    @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group2(self):
         fname="Pyfile45.med"
         m=MEDCouplingCMesh.New()
@@ -1372,6 +1421,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.write(fname,2)       
         pass
 
+    @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group3(self):
         """ Test buildInnerBoundaryAlongM1Group() with *non-connex* cracks """
         fname = "Pyfile73.med"
@@ -1414,6 +1464,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
         mm.write(fname,2)   
 
+    @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group4(self):
         """ Test case where cells touch the M1 group on some nodes only and not on full edges (triangle mesh for ex)
         """
@@ -1467,6 +1518,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m_desc, _, _, _, _ = m_bis0.buildDescendingConnectivity()
         m_bis0.checkDeepEquivalOnSameNodesWith(mfu.getMeshAtLevel(-1), 2, 9.9999999)
 
+    @WriteInTmpDir
     def testBuildInnerBoundary5(self):
         """ Full 3D test with tetras only. In this case a tri from the group is not duplicated because it is made only
         of non duplicated nodes. The tri in question is hence not part of the final new "dup" group. """
@@ -1527,15 +1579,18 @@ class MEDLoaderTest3(unittest.TestCase):
         m_bis0.checkDeepEquivalOnSameNodesWith(mfu.getMeshAtLevel(-1), 2, 9.9999999)
         pass
 
+    @WriteInTmpDir
     def testBasicConstructors(self):
+        GeneratePyfile18(self)
         fname="Pyfile18.med"
+        TestWriteUMeshesRW1(self)
         m=MEDFileMesh.New(fname)
         m=MEDFileMesh.New(fname,"ExampleOfMultiDimW",-1,-1)
         m=MEDFileMesh.New(fname)
         m=MEDFileUMesh(fname,"ExampleOfMultiDimW",-1,-1)
         m=MEDFileUMesh(fname)
         m=MEDFileUMesh()
-        self.testMEDMesh6()
+        self.internalMEDMesh6()
         m=MEDFileCMesh("MEDFileMesh5.med")
         m=MEDFileCMesh("MEDFileMesh5.med","myFirstCartMesh",-1,-1)
         m=MEDFileCMesh()
@@ -1564,6 +1619,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # This is a non regression test. When a field lies partially on a mesh but fully on one of its geometric type.
+    @WriteInTmpDir
     def testBugSemiPartialField(self):
         fname="Pyfile46.med"
         m=MEDLoaderDataForTest.build2DMesh_3()
@@ -1593,6 +1649,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(fread2.isEqual(f1,1e-12,1e-12))
         pass
 
+    @WriteInTmpDir
     def testUnPolyze1(self):
         fname="Pyfile47.med"
         mm=MEDLoaderDataForTest.buildMLMeshUnPolyze(self)
@@ -1613,6 +1670,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.setFamilyFieldArr(-1,None)
         pass
 
+    @WriteInTmpDir
     def testUnPolyze2(self):
         fname="Pyfile48.med"
         mfd=MEDFileData.New()
@@ -1678,6 +1736,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mfd.write(fname,2)
         pass
 
+    @WriteInTmpDir
     def testGaussWriteOnPfl1(self):
         fname="Pyfile49.med"
         fname2="Pyfile50.med"
@@ -1834,6 +1893,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # Testing profile on nodes when the profile is identity but not on all nodes.
+    @WriteInTmpDir
     def testMEDFieldPflOnNode1(self):
         fname="Pyfile51.med"
         coo=DataArrayDouble([0.,0.,0.5,0.,1.,0.,0.,0.5,0.5,0.5,1.,0.5,0.,1.,0.5,1.,1.,1.],9,2)
@@ -1924,6 +1984,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
     
         # Testing profile on nodes when the profile is identity but not on all nodes.
+    @WriteInTmpDir
     def testMEDFieldPflOnCell1(self):
         fname="Pyfile52.med"
         coo=DataArrayDouble([0.,0.,0.5,0.,1.,0.,0.,0.5,0.5,0.5,1.,0.5,0.,1.,0.5,1.,1.,1.],9,2)
@@ -2013,6 +2074,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(pfl1_r.isEqual(pfl1))
         pass
 
+    @WriteInTmpDir
     def testMEDFileUMeshZipCoords1(self):
         m=MEDFileUMesh()
         coo=DataArrayDouble(30) ; coo.iota(1.) ; coo.rearrange(3) ; coo.setInfoOnComponents(["aaa [b]","cc [dd]", "e [fff]"])
@@ -2039,6 +2101,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(m.getMeshAtLevel(-2).getNodalConnectivityIndex().isEqual(DataArrayInt([0,2,4,6])))
         pass
 
+    @WriteInTmpDir
     def testMEDUMeshAddNodeGroup1(self):
         fname="Pyfile53.med"
         m=MEDFileUMesh()
@@ -2109,6 +2172,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getGroupArr(-1,"grp0").isEqual(da))
         pass
 
+    @WriteInTmpDir
     def testMEDUMeshAddGroup1(self):
         fname="Pyfile54.med"
         m=MEDFileUMesh()
@@ -2180,6 +2244,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getGroupArr(-1,"grp0").isEqual(da))
         pass
 
+    @WriteInTmpDir
     def testHeapMem1(self):
         a=DataArrayInt() ; aa=a.getHeapMemorySize()
         a.alloc(0,1)
@@ -2217,7 +2282,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertIn(fff[1, -1].getHeapMemorySize(), list(range(738 - 50, 838 + 30 + 4 * strMulFac)))
         pass
 
-    def testCurveLinearMesh1(self):
+    def internalCurveLinearMesh1(self):
         fname="Pyfile55.med"
         mesh=MEDCouplingCurveLinearMesh();
         mesh.setTime(2.3,4,5);
@@ -2256,8 +2321,16 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(len(m1.getUnivName())!=0)
         self.assertTrue(m1.getMesh().isEqual(mesh,1e-12))
         pass
+    
+    @WriteInTmpDir
+    def testCurveLinearMesh1(self):
+        self.internalCurveLinearMesh1()
 
+    @WriteInTmpDir
     def testParameters1(self):
+        self.internalParameters1()
+        
+    def internalParameters1(self):
         fname="Pyfile56.med"
         m=MEDCouplingCMesh() ; arr=DataArrayDouble([0.,1.2,3.5]) ; m.setCoords(arr,arr) ; m.setName("mesh")
         mm=MEDFileCMesh() ; mm.setMesh(m)
@@ -2311,6 +2384,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertAlmostEqual(data2.getParams()["B"][1,2].getValue(),567.89,13)
         pass
 
+    @WriteInTmpDir
     def testNamesOnCellAndNodesInMeshes1(self):
         fname="Pyfile58.med"
         fname2="Pyfile59.med"
@@ -2376,6 +2450,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(cc.isEqual(ccCpy,1e-12)[0])
         pass
 
+    @WriteInTmpDir
     def testToExportInExamples1(self):
         m=MEDCouplingCMesh()
         arr=DataArrayDouble([0.,1.,2.,3.,4.])
@@ -2415,6 +2490,7 @@ class MEDLoaderTest3(unittest.TestCase):
         splitOfM1[1].isEqual(DataArrayInt([4,5,7,9,14,15]))
         pass
 
+    @WriteInTmpDir
     def testBugCorrection1(self):
         fs=MEDFileFields()
         fs.resize(3)
@@ -2422,6 +2498,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(3,len(fs))
         pass
 
+    @WriteInTmpDir
     def testCompareMEDFilesContainingOnlyFieldsOnCell1(self):
         f1Name="Pyfile60.med"
         f2Name="Pyfile61.med"
@@ -2468,6 +2545,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def testNonRegBugNormalizeFamIdsMEDFile1(self):
         m=MEDCouplingCMesh()
         arr=DataArrayDouble([0.,1.,2.,3.,4.])
@@ -2580,6 +2658,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
     
+    @WriteInTmpDir
     def testNonRegressionMantis22212ChangeGrpName(self):
         fileName="Pyfile62.med"
         m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
@@ -2624,7 +2703,11 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def testInt32InMEDFileFieldStar1(self):
+        self.internalInt32InMEDFileFieldStar1()
+
+    def internalInt32InMEDFileFieldStar1(self):
         fname="Pyfile63.med"
         f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
         f1=f1.convertToIntField()
@@ -2738,6 +2821,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(not fs.changeMeshNames([('3DSurfMesh_1','3DSurfMesh')]))
         pass
 
+    @WriteInTmpDir
     def testMEDFileFields1(self):
         fname="Pyfile64.med"
         f1=MEDCouplingFieldDouble(ON_NODES)
@@ -2770,6 +2854,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # Multi time steps and multi fields management without Globals (profiles, locs) aspects
+    @WriteInTmpDir
     def testMEDFileFields2(self):
         fname="Pyfile65.med"
         # to check that all is initialize 
@@ -2851,6 +2936,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     # Multi time steps and multi fields management with Globals (profiles, locs) aspects
+    @WriteInTmpDir
     def testMEDFileFields3(self):
         fname="Pyfile66.med"
         # building a mesh containing 4 tri3 + 5 quad4
@@ -2916,6 +3002,7 @@ class MEDLoaderTest3(unittest.TestCase):
         fs0.write(fname,0)
         pass
     
+    @WriteInTmpDir
     def testSplitComponents1(self):
         fname="Pyfile67.med"
         # building a mesh containing 4 tri3 + 5 quad4
@@ -2985,6 +3072,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def testMEDFileFieldConvertTo1(self):
         fname="Pyfile68.med"
         # building a mesh containing 4 tri3 + 5 quad4
@@ -3083,6 +3171,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(ff1.getPfls(),('pfl_NORM_QUAD4',))
         pass
 
+    @WriteInTmpDir
     def testMEDFileFieldPartialLoading(self):
         fname="Pyfile69.med"
         #
@@ -3194,6 +3283,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(ffs.getHeapMemorySize()-heap_memory_ref,20*70*8*2+70*8*2+50*8*2)
         pass
 
+    @WriteInTmpDir
     def testMEDFileMeshReadSelector1(self):
         mrs=MEDFileMeshReadSelector()
         self.assertTrue(mrs.isCellFamilyFieldReading() and mrs.isNodeFamilyFieldReading() and mrs.isCellNameFieldReading() and mrs.isNodeNameFieldReading() and mrs.isCellNumFieldReading() and mrs.isNodeNumFieldReading())
@@ -3355,6 +3445,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(mrs.getCode(),63)
         pass
     
+    @WriteInTmpDir
     def testPartialReadOfMeshes(self):
         fname="Pyfile70.med"
         # building a mesh containing 4 tri3 + 5 quad4
@@ -3471,6 +3562,7 @@ class MEDLoaderTest3(unittest.TestCase):
     # this test checks that setFieldProfile perform a check of the array length
     # compared to the profile length. This test also checks that mesh attribute of field
     # is not used by setFieldProfile (because across this test mesh is equal to None)
+    @WriteInTmpDir
     def testCheckCompatibilityPfl1(self):
         # building a mesh containing 4 tri3 + 5 quad4
         tri=MEDCouplingUMesh("tri",2)
@@ -3553,6 +3645,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f1ts.setFieldProfile(f,mm,0,pfl)
         pass
     
+    @WriteInTmpDir
     def testWRMeshWithNoCells(self):
         fname="Pyfile71.med"
         a=DataArrayDouble(4) ; a.iota()
@@ -3572,6 +3665,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(m.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,0,-1,-3,-3,-3])))
         pass
 
+    @WriteInTmpDir
     def testWRQPolyg1(self):
         fname="Pyfile72.med"
         m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.allocateCells()
@@ -3627,6 +3721,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f_read.isEqual(f,1e-12,1e-12))
         pass
 
+    @WriteInTmpDir
     def testLoadIfNecessaryOnFromScratchFields0(self):
         """
         This test checks that a call to loadArraysIfNecessary works (does nothing) on field data structure whatever its level 1TS, MTS, Fields.
@@ -3682,6 +3777,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
     
+    @WriteInTmpDir
     def testField1TSSetFieldNoProfileSBTPerGeoTypes(self):
         """ This test is very important, because the same mechanism is used by the MEDReader to generate a field on all the mesh without any processing and memory.
         """
@@ -3751,7 +3847,8 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(f1ts.getFieldSplitedByType(),[(0,[(0,(0,4),'','')]),(3,[(0,(4,6),'','')]),(4,[(0,(6,9),'','')]),(14,[(0,(9,15),'','')]),(15,[(0,(15,20),'','')]),(16,[(0,(20,24),'','')])])
         self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0,1,2,3,0,1,0,1,2,0,1,2,3,4,5,0,1,2,3,4,0,1,2,3]),1e-12))
         pass
-
+    
+    @WriteInTmpDir
     def testMEDFileUMeshSetName(self):
         """ This test is a small but important one for MEDReader in sauv mode. When .sauv file is loaded the conversion is performed in memory and a preparation is done then.
         This preparation makes access to internal MEDCouplingMesh pointers whose name must be updated.
@@ -3788,6 +3885,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(mm.getMeshAtLevel(0).getName(),"abc")
         pass
 
+    @WriteInTmpDir
     def testMEDFileFieldsUnloadArraysWithoutDataLoss1(self):
         fileName="Pyfile80.med"
         m=MEDCouplingCMesh() ; m.setName("cmesh")
@@ -3851,6 +3949,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
         pass
 
+    @WriteInTmpDir
     def testMEDFileUMeshLoadPart1(self):
         """ This method tests MEDFileUMesh.LoadPart that loads only a part of a specified mesh in a MED file. The part is specified using a slice of cell ids. Only nodes on which cells lies are loaded to reduce at most the amount of
         memory of the returned instance.
@@ -3934,6 +4033,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm2.getNameFieldAtLevel(1).isEqual(namesNodes[:18]))
         pass
 
+    @WriteInTmpDir
     def testMEDFileFieldsLoadPart1(self):
         """This method tests partial loading on fields on CELL. It is the same principle than those in testMEDFileUMeshLoadPart1.
         """
@@ -3985,6 +4085,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
         pass
 
+    @WriteInTmpDir
     def testMEDFileWithoutCells1(self):
         fileName="Pyfile83.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
@@ -3999,6 +4100,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getCoords().isEqual(coo,1e-12))
         pass
 
+    @WriteInTmpDir
     def testZipCoordsWithLoadPart1(self):
         """ Test close to Pyfile82.med except that here zipCoords on MEDFileUMesh is invoked here to see if the PartDef is correctly updated.
         """
@@ -4054,6 +4156,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
         pass
 
+    @WriteInTmpDir
     def testMEDFileCMeshSetGroupsAtLevel(self):
         """ Non regression test to check that setGroupsAtLevel is available with MEDFileCMesh.
         """
@@ -4065,6 +4168,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getFamilyFieldAtLevel(0).isEqual(DataArrayInt([-1,-2,-1,-2,-2,-2,-1,-2,-1,-1,-1,-1,-1,-1,-1,-1])))
         pass
 
+    @WriteInTmpDir
     def testMEDFileUMeshBuildExtrudedMesh1(self):
         """ New functionality of MEDFileUMesh.buildExtrudedMesh."""
         fileName="Pyfile85.med"
@@ -4147,6 +4251,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @WriteInTmpDir
     def testMEDFileUMeshPickeling1(self):
         outFileName="Pyfile86.med"
         c=DataArrayDouble([-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ],9,2)
@@ -4244,6 +4349,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(mm2.getAxisType(),AX_CYL)
         pass
 
+    @WriteInTmpDir
     def testMEDFileFieldsLoadSpecificEntities1(self):
         nbNodes=11
         fieldName="myField"
@@ -4313,6 +4419,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def testMEDFileLotsOfTSRW1(self):
         nbNodes=11
         fieldName="myField"
@@ -4389,6 +4496,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(fs2[0].getTimeSteps(), [(i, 0, float(i)) for i in range(nbPdt)])
         pass
     
+    @WriteInTmpDir
     def testMEDFileMeshRearrangeFamIds1(self):
         """ Test for bug EDF10720. The aim of this test is the call of MEDFileMesh.rearrangeFamilies."""
         fileName="Pyfile89.med"
@@ -4448,6 +4556,7 @@ class MEDLoaderTest3(unittest.TestCase):
             self.assertEqual(mm.getFamilyId(elt),eltId)
         pass
 
+    @WriteInTmpDir
     def testNonRegrCMeshSetFieldPfl1(self):
         """ Non regression test. For structured mesh, push a false partial field in MEDFileField1TS using setFieldProfile."""
         ff=MEDFileField1TS()
@@ -4489,6 +4598,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(field.isEqual(field2,1e-12,1e-12))
         pass
 
+    @WriteInTmpDir
     def testMEDFileUMeshLinearToQuadraticAndRev1(self):
         meshName="mesh"
         fileName="Pyfile90.med"
@@ -4532,6 +4642,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.isEqual(mmOut2,1e-12)[0])
         pass
 
+    @WriteInTmpDir
     def testMEDFileMeshAddGroup1(self):
         m=MEDCouplingCMesh()
         arrX=DataArrayDouble(9) ; arrX.iota()
@@ -4569,6 +4680,7 @@ class MEDLoaderTest3(unittest.TestCase):
             self.assertTrue(mm.getGroupArr(1,"%s_node"%grp.getName()).isEqual(grpExp))
         pass
     
+    @WriteInTmpDir
     def testMEDFileJoint1(self):
         fileName="Pyfile92.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
@@ -4608,6 +4720,7 @@ class MEDLoaderTest3(unittest.TestCase):
         jointsR.destroyJointAtPos(0)
         pass
     
+    @WriteInTmpDir
     def testMEDFileJoint2(self):
         fileNameWr="Pyfile93.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
@@ -4656,6 +4769,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue( jointR2.isEqual( two_joint ))
         pass
 
+    @WriteInTmpDir
     def testMEDFileJoint1(self):
         node_correspond=MEDFileJointCorrespondence(DataArrayInt([1,2,3,4,5,6,7,8]))
         cell_correspond=MEDFileJointCorrespondence(DataArrayInt([9,10,11,12]),NORM_TRI3,NORM_TRI3)
@@ -4696,6 +4810,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     @unittest.skipUnless('linux'==platform.system().lower(),"stderr redirection not ported on Windows ?")
+    @WriteInTmpDir
     def testMEDFileSafeCall0(self):
         """ EDF11242 : check status of MED file calls to detect problems immediately. Sorry this test generates awful messages !"""
         fname="Pyfile94.med"
@@ -4735,6 +4850,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         pass
 
+    @WriteInTmpDir
     def testUnivStatus1(self):
         """ Non regression test to check the effectiveness of univ write status."""
         fname="Pyfile95.med"
@@ -4751,6 +4867,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getUnivName()!="")
         pass
     
+    @WriteInTmpDir
     def testEmptyMesh(self):
       """ MEDLoader should be able to consistently write and read an empty mesh (coords array
       with 0 tuples """
@@ -4791,6 +4908,7 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertTrue(mesh.isEqual(mm2,1e-12)[0])
       pass
 
+    @WriteInTmpDir
     def testMEDFileEquivalence1(self):
       """ First check of equivalence implementation in MEDFileMesh"""
       fileName="Pyfile97.med"
@@ -4847,6 +4965,7 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertTrue(mm.isEqual(mm3,1e-12)[0])
       pass
 
+    @WriteInTmpDir
     def testMEDFileForFamiliesPlayer1(self):
       """Non regression bug EDF11911. For serial killers using same family name to store both cells and nodes ! Only sky is the limit."""
       fileName="Pyfile98.med"
@@ -4878,6 +4997,7 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertEqual(mm2.getFamiliesIdsOnGroup("RID"),(-4,3))# <- very important too !
       pass
 
+    @WriteInTmpDir
     def testCartesianizer1(self):
       """ This test is advanced to be sure that no unnecessary copies had been made during cartesianization process. """
       # UMesh non cart
@@ -4984,6 +5104,7 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertTrue(mm.getHiddenCppPointer()==mm2.getHiddenCppPointer()) # optimization
       pass
 
+    @WriteInTmpDir
     def testCheckCoherency(self):
       m2 = MEDCouplingUMesh("2d", 2)
       m2.setCoords(DataArrayDouble([(0.0, 1.0)] * 4, 4,2))  # whatever
@@ -5045,6 +5166,7 @@ class MEDLoaderTest3(unittest.TestCase):
       mum.setNameFieldAtLevel(-1, arr); arr.reAlloc(35);
       self.assertRaises(InterpKernelException, mum.checkConsistency)
 
+    @WriteInTmpDir
     def testCheckSMESHConsistency(self):
       m2 = MEDCouplingUMesh("2d", 2)
       m2.setCoords(DataArrayDouble([(0.0, 1.0)] * 4, 4,2))  # whatever
@@ -5064,6 +5186,7 @@ class MEDLoaderTest3(unittest.TestCase):
       mum.checkSMESHConsistency()
       pass
 
+    @WriteInTmpDir
     def testClearNodeAndCellNumbers(self):
       m2 = MEDCouplingUMesh("2d", 2)
       m2.setCoords(DataArrayDouble([(0.0, 1.0)] * 4, 4,2))  # whatever
@@ -5081,6 +5204,7 @@ class MEDLoaderTest3(unittest.TestCase):
       mum.checkSMESHConsistency()
       pass
 
+    @WriteInTmpDir
     def testCMeshSetFamilyFieldArrNull(self):
       meshName="mesh"
       fname="Pyfile99.med"
@@ -5108,7 +5232,8 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertTrue(mm2.getFamilyFieldAtLevel(0) is None)
       self.assertTrue(mm2.getFamilyFieldAtLevel(1) is None)
       pass
-
+  
+    @WriteInTmpDir
     def testAppendFieldProfileOnIntField(self):
       fname="Pyfile100.med"
       arrX=DataArrayDouble([0,1,2,3])
@@ -5145,6 +5270,7 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertEqual(ftest2.getMesh().getNumberOfCells(),len(arr))
       pass
 
+    @WriteInTmpDir
     def testMEDFileFieldEasyField1(self):
       """Check for all spatial discretization of field (cells,nodes,elno,gauss) for double field that all is OK. Here no profile and only top level is considered."""
       ## Basic test on cells on top level
@@ -5214,6 +5340,7 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,1e-12))
       pass
   
+    @WriteInTmpDir
     def testMEDFileFieldEasyField2(self):
         """Same thantestMEDFileFieldEasyField1 except that here intfields are considered.
         Check for all spatial discretization of field (cells,nodes,elno,gauss) for int field that all is OK. Here no profile and only top level is considered."""
@@ -5284,6 +5411,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,0))
         pass
 
+    @WriteInTmpDir
     def testMEDFileFieldEasyField3(self):
         """Here a multi level mesh. And field on cells lying on different level of this mesh. Show how "field" method deal with that. Here on field double are considered."""
         fname="Pyfile103.med"
@@ -5343,6 +5471,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,1e-12))
         pass
 
+    @WriteInTmpDir
     def testMEDFileFieldEasyField4(self):
         """ Same than testMEDFileFieldEasyField3 but with integers"""
         fname="Pyfile104.med"
@@ -5402,6 +5531,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,0))
         pass
 
+    @WriteInTmpDir
     def testMEDFileFieldEasyField5(self):
         """More and more difficult now look at how profiles are managed by "field" method."""
         fname="Pyfile105.med"
@@ -5443,6 +5573,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f.isEqual(f1ts.field(mm),1e-12,1e-12))
         pass
 
+    @WriteInTmpDir
     def testExtractPart1(self):
         coo=DataArrayDouble([(0,0),(1,0),(2,0),(3,0),(4,0),(0,1),(1,1),(2,1),(3,1),(4,1),(0,2),(1,2),(2,2),(3,2),(4,2)])
         meshName="mesh"
@@ -5552,6 +5683,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def testSymmetryPlusAggregationMFD1(self):
         """ Testing of MEDFileData::Aggregate and MEDFileUMesh::Aggregate and MEDFileUMesh::getAllDistributionOfType """
         fname1="Pyfile106_1.med"
@@ -5768,6 +5900,7 @@ class MEDLoaderTest3(unittest.TestCase):
         CheckMFD(self,mfd)
         pass
 
+    @WriteInTmpDir
     def testExtrudedMesh1(self):
         fname="Pyfile107.med"
         arrX=DataArrayDouble([0,1,2,3]) ; arrY=DataArrayDouble([0,1,2,3,4]) ; arrZ=DataArrayDouble([0,1,2,3,4,5])
@@ -5783,6 +5916,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
     
     @unittest.skipUnless(LooseVersion(MEDFileVersionStr())>=LooseVersion('3.2.1'),"This test requires at least MEDFile version 3.2.1")
+    @WriteInTmpDir
     def testWriteInto30(self):
         fname="Pyfile108.med"
         fname2="Pyfile109.med"
@@ -5800,6 +5934,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @WriteInTmpDir
     def testPickelizationOfMEDFileObjects1(self):
         fname="Pyfile110.med"
         coo=DataArrayDouble([0.,0.,0.5,0.,1.,0.,0.,0.5,0.5,0.5,1.,0.5,0.,1.,0.5,1.,1.,1.],9,2)
@@ -5890,9 +6025,10 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @WriteInTmpDir
     def testPickelizationOfMEDFileObjects2(self):
         # CMesh
-        self.testMEDMesh6() # generates MEDFileMesh5.med file
+        self.internalMEDMesh6() # generates MEDFileMesh5.med file
         mm=MEDFileMesh.New("MEDFileMesh5.med")
         self.assertTrue(isinstance(mm,MEDFileCMesh))
         st=pickle.dumps(mm,pickle.HIGHEST_PROTOCOL)
@@ -5900,14 +6036,14 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(isinstance(mm2,MEDFileCMesh))
         self.assertTrue(mm.getMesh().isEqual(mm2.getMesh(),1e-12))
         # CurveLinear
-        self.testCurveLinearMesh1() # generates Pyfile55.med
+        self.internalCurveLinearMesh1() # generates Pyfile55.med
         mm=MEDFileMesh.New("Pyfile55.med")
         self.assertTrue(isinstance(mm,MEDFileCurveLinearMesh))
         st=pickle.dumps(mm,pickle.HIGHEST_PROTOCOL)
         mm3=pickle.loads(st)
         self.assertTrue(isinstance(mm3,MEDFileCurveLinearMesh))
         self.assertTrue(mm.getMesh().isEqual(mm3.getMesh(),1e-12))
-        self.testInt32InMEDFileFieldStar1()# generates Pyfile63.med
+        self.internalInt32InMEDFileFieldStar1()# generates Pyfile63.med
         # MEDFileIntFieldMultiTS
         fs4=MEDFileFields("Pyfile63.med")
         ms4=MEDFileMeshes("Pyfile63.med")
@@ -5923,7 +6059,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(isinstance(f1ts6,MEDFileIntField1TS))
         self.assertTrue(f1ts6.field(ms4[0]).isEqual((fs4[0][0]).field(ms4[0]),1e-12,0))
         # MEDFileParameters
-        self.testParameters1()# generates Pyfile56.med
+        self.internalParameters1()# generates Pyfile56.med
         params=MEDFileParameters("Pyfile56.med")
         st=pickle.dumps(params,pickle.HIGHEST_PROTOCOL)
         params7=pickle.loads(st)
@@ -5933,6 +6069,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
+    @WriteInTmpDir
     def testGlobalNumOnNodes1(self):
         """Test global number on nodes here. Used by partitionners."""
         fname="Pyfile112.med"
@@ -5960,6 +6097,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.isEqual(mm2,1e-12)[0])
         pass
 
+    @WriteInTmpDir
     def testPartialReadOfEntities1(self):
         """Test for advanced API on read to speed up read phase for users with "huge" number of time steps (more than 10 000)."""
         fname="Pyfile113.med"
@@ -6005,6 +6143,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(ff1.field(mm).isEqual(f3,1e-12,1e-12))
         pass
     
+    @WriteInTmpDir
     def testFloat32InMEDFileFieldStar1(self):
         """Like testInt32InMEDFileFieldStar1 but with float32 :)"""
         fname="Pyfile114.med"
@@ -6120,6 +6259,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(not fs.changeMeshNames([('3DSurfMesh_1','3DSurfMesh')]))
         pass
 
+    @WriteInTmpDir
     def testPenta18_1(self):
         """EDF8478 : Test of read/write of penta18"""
         fname="Pyfile115.med"
@@ -6156,6 +6296,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(f3.getMesh().getTypeOfCell(0),NORM_PENTA18)
         pass
 
+    @WriteInTmpDir
     def testFieldsLinearToQuadratic(self):
         fname="Pyfile117.med"
         arr=DataArrayDouble([0,1])
@@ -6218,8 +6359,10 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(fToTest.getArray().isEqual(2*dataExp2,1e-12))
         pass
 
+    @WriteInTmpDir
     def testFieldsLinearToQuadratic2(self):
         """Same than testFieldsLinearToQuadratic but with profile on NODES"""
+        GeneratePyfile18(self)
         fname="Pyfile118.med"
         arr=DataArrayDouble([0,1])
         m=MEDCouplingCMesh();
@@ -6323,6 +6466,7 @@ class MEDLoaderTest3(unittest.TestCase):
         
         pass
 
+    @WriteInTmpDir
     def testSetFieldProfileFlatly1(self):
         """ Sometimes for downstream code fan of profiles, profile are requested unconditionally. setFieldProfile try to reduce at most profile usage. So setFieldProfileFlatly has been added to always create
         a profile."""
@@ -6361,6 +6505,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f1ts.getProfile("pfl_NORM_QUAD4").isIota(81))
         pass
 
+    @WriteInTmpDir
     def testRmGroupAtSpeLevelAndMultiLevGrpCreation(self):
         """ Here multi level groups are created"""
         arr=DataArrayDouble(11) ; arr.iota()
@@ -6408,6 +6553,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getGroupArr(-1,"grp2").isEqual(grp2))
         pass
 
+    @WriteInTmpDir
     def testYutaka(self):
         """ Thank you to Yutaka Nishizawa for having report this bug. At level -1, adding a first group on all entities leads to a group lying on family 0...
         Then rearrange method removes unused entites by putting 0 on them -> Previously group has been modified by rearrange. Should not !"""
@@ -6448,7 +6594,8 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         pass
 
-    def tessContxtMger1TS(self):
+    @WriteInTmpDir
+    def testContxtMger1TS(self):
         fname="Pyfile119.med"
         coo=DataArrayDouble(1000) ; coo.iota()
         m=MEDCouplingUMesh.Build0DMeshFromCoords(coo)

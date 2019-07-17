@@ -20,9 +20,10 @@
 from MEDPartitioner import *
 from MEDLoader import *
 import unittest
-from MEDLoaderDataForTest import MEDLoaderDataForTest
+from MEDLoaderDataForTest import MEDLoaderDataForTest,WriteInTmpDir
 
 class MEDPartitionerTest(unittest.TestCase):
+    @WriteInTmpDir
     def testPartition(self):
         fname="PyPartitionTest.med"
         data=MEDLoaderDataForTest.buildACompleteMEDDataStructureWithFieldsOnCells_1()
@@ -38,7 +39,8 @@ class MEDPartitionerTest(unittest.TestCase):
         m1d=data1.getMeshes().getMeshAtPos(0)
         m2d=data2.getMeshes().getMeshAtPos(0)
         self.assertTrue(m1d.isEqual(m2d,1e-12))
-    pass
+        pass
+    @WriteInTmpDir
     def testPartitionGraph(self):
         data=MEDLoaderDataForTest.buildACompleteMEDDataStructureWithFieldsOnCells_1()
         m=data.getMeshes().getMeshAtPos(0)
@@ -47,7 +49,8 @@ class MEDPartitionerTest(unittest.TestCase):
         tool=MEDPartitioner(data,graph)
         data2=tool.getMEDFileData()
         self.assertEqual( 2, data2.getMeshes().getNumberOfMeshes() )
-    pass
+        pass
+    @WriteInTmpDir
     def testPartitionWithJoints(self):
         # cartesian mesh 4x4
         arr=DataArrayDouble(5) ; arr.iota()
@@ -90,6 +93,7 @@ class MEDPartitionerTest(unittest.TestCase):
         pass
         self.assertEqual(1,found)
     pass
+    @WriteInTmpDir
     def testPartitionPartGraph(self):
         arr=DataArrayDouble(5) ; arr.iota()
         c=MEDCouplingCMesh() ; c.setCoords(arr,arr)

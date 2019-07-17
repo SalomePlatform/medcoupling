@@ -22,6 +22,17 @@
 from MEDLoader import *
 from math import pi,e,sqrt
 
+def WriteInTmpDir(func):
+    def decaratedFunc(*args,**kwargs):
+        import tempfile,os
+        ret = None
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir(tmpdirname)
+            ret = func(*args,**kwargs)
+            pass
+        return ret
+    return decaratedFunc
+
 class MEDLoaderDataForTest:
     def build1DMesh_1(cls):
         coords=[ 0.0, 0.3, 0.75, 1.0, 1.4, 1.3 ]
@@ -726,3 +737,269 @@ class MEDLoaderDataForTest:
     buildACompleteMEDDataStructureWithFieldsOnCells_1=classmethod(buildACompleteMEDDataStructureWithFieldsOnCells_1)
     buildAMEDFileDataWithGroupOnOneFamilyForSauv=classmethod(buildAMEDFileDataWithGroupOnOneFamilyForSauv)
     pass
+
+def TestWriteUMeshesRW1(tester):
+    fileName="Pyfile18.med";
+    m3d=MEDLoaderDataForTest.build3DMesh_2();
+    pt=[0.,0.,-0.3]
+    vec=[0.,0.,1.]
+    nodes=m3d.findNodesOnPlane(pt,vec,1e-12);
+    m2d=m3d.buildFacePartOfMySelfNode(nodes,True);
+    renumber=[1,2,0,4,3]
+    m2d.renumberCells(renumber,False);
+    m2d.setName("ExampleOfMultiDimW");
+    meshes=[m2d,m3d]
+    WriteUMeshes(fileName,meshes,False);
+    m3d_bis=ReadUMeshFromFile(fileName,m2d.getName(),0);
+    tester.assertTrue(not m3d_bis.isEqual(m3d,1e-12));
+    m3d_bis.setName(m3d.getName());
+    tester.assertTrue(m3d_bis.isEqual(m3d,1e-12));
+    m2d_bis=ReadUMeshFromFile(fileName,m2d.getName(),-1);#-1 for faces
+    tester.assertTrue(m2d_bis.isEqual(m2d,1e-12));
+    # Creation of a field on faces.
+    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+    f1.setName("FieldOnFacesShuffle");
+    f1.setMesh(m2d);
+    array=DataArrayDouble.New();
+    arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
+    array.setValues(arr1,m2d.getNumberOfCells(),2);
+    array.setInfoOnComponent(0,"plkj [mm]");
+    array.setInfoOnComponent(1,"pqqqss [mm]");
+    f1.setArray(array);
+    tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
+    f1.setTime(3.14,2,7);
+    f1.checkConsistencyLight();
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+    f2=ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
+    tester.assertTrue(f2.isEqual(f1,1e-12,1e-12));
+    pass
+
+def TestMultiFieldShuffleRW1(tester):
+    fileName="Pyfile17.med";
+    m=MEDLoaderDataForTest.build3DMesh_2();
+    tester.assertEqual(20,m.getNumberOfCells());
+    tester.assertEqual(45,m.getNumberOfNodes());
+    polys=[1,4,6]
+    m.convertToPolyTypes(polys);
+    renum=[1,3,2,8,9,12,13,16,19,0,4,7,5,15,14,17,10,18,6,11]
+    m.renumberCells(renum,False);
+    m.orientCorrectlyPolyhedrons();
+    # Writing
+    WriteUMeshDep(fileName,m,False);
+    f1Tmp=m.getMeasureField(False);
+    f1=f1Tmp.buildNewTimeReprFromThis(ONE_TIME,False);
+    f1.setTime(0.,1,2);
+    f_1=f1.cloneWithMesh(True);
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+    f1.applyFunc("2*x");
+    f1.setTime(0.01,3,4);
+    f_2=f1.cloneWithMesh(True);
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+    f1.applyFunc("2*x/3");
+    f1.setTime(0.02,5,6);
+    f_3=f1.cloneWithMesh(True);
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+    # Reading
+    its=[(1,2),(3,4),(5,6)];
+    fs=ReadFieldsOnSameMesh(ON_CELLS,fileName,f_1.getMesh().getName(),0,f_1.getName(),its);
+    tester.assertEqual(3,len(fs));
+    tester.assertTrue(fs[0].isEqual(f_1,1e-12,1e-12));
+    tester.assertTrue(fs[1].isEqual(f_2,1e-12,1e-12));
+    tester.assertTrue(fs[2].isEqual(f_3,1e-12,1e-12));
+
+def GeneratePyfile13(tester):
+    fileName="Pyfile13.med";
+    f1=MEDLoaderDataForTest.buildVecFieldOnGauss_1();
+    WriteField(fileName,f1,True);
+    f2=ReadField(ON_GAUSS_PT,fileName,f1.getMesh().getName(),0,f1.getName(),1,5);
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+    pass
+
+def GeneratePyfile14(tester):
+    fileName="Pyfile14.med";
+    f1=MEDLoaderDataForTest.buildVecFieldOnGaussNE_1();
+    WriteField(fileName,f1,True);
+    tester.assertEqual([ON_GAUSS_NE],GetTypesOfField(fileName,'2DMesh_2','MyFieldOnGaussNE')) #Bug 22/5/2014
+    f2=ReadField(ON_GAUSS_NE,fileName,f1.getMesh().getName(),0,f1.getName(),1,5);
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+
+
+def GeneratePyfile18(tester):
+    fileName="Pyfile18.med";
+    m3d=MEDLoaderDataForTest.build3DMesh_2();
+    pt=[0.,0.,-0.3]
+    vec=[0.,0.,1.]
+    nodes=m3d.findNodesOnPlane(pt,vec,1e-12);
+    m2d=m3d.buildFacePartOfMySelfNode(nodes,True);
+    renumber=[1,2,0,4,3]
+    m2d.renumberCells(renumber,False);
+    m2d.setName("ExampleOfMultiDimW");
+    meshes=[m2d,m3d]
+    WriteUMeshes(fileName,meshes,True);
+    m3d_bis=ReadUMeshFromFile(fileName,m2d.getName(),0);
+    tester.assertTrue(not m3d_bis.isEqual(m3d,1e-12));
+    m3d_bis.setName(m3d.getName());
+    tester.assertTrue(m3d_bis.isEqual(m3d,1e-12));
+    m2d_bis=ReadUMeshFromFile(fileName,m2d.getName(),-1);#-1 for faces
+    tester.assertTrue(m2d_bis.isEqual(m2d,1e-12));
+    # Creation of a field on faces.
+    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+    f1.setName("FieldOnFacesShuffle");
+    f1.setMesh(m2d);
+    array=DataArrayDouble.New();
+    arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
+    array.setValues(arr1,m2d.getNumberOfCells(),2);
+    array.setInfoOnComponent(0,"plkj [mm]");
+    array.setInfoOnComponent(1,"pqqqss [mm]");
+    f1.setArray(array);
+    tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
+    f1.setTime(3.14,2,7);
+    f1.checkConsistencyLight();
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+    f2=ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
+    tester.assertTrue(f2.isEqual(f1,1e-12,1e-12));
+    
+def GeneratePyfile19(tester):
+    fileName="Pyfile19.med";
+    fileName2="Pyfile20.med";
+    m=MEDLoaderDataForTest.build2DMesh_1();
+    nbOfNodes=m.getNumberOfNodes();
+    WriteUMesh(fileName,m,True);
+    f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME);
+    f1.setName("VFieldOnNodes");
+    f1.setMesh(m);
+    array=DataArrayDouble.New();
+    arr1=[1.,101.,2.,102.,3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.,12.,112.]
+    array.setValues(arr1,nbOfNodes,2);
+    f1.setArray(array);
+    array.setInfoOnComponent(0,"tyty [mm]");
+    array.setInfoOnComponent(1,"uiop [MW]");
+    f1.setTime(3.14,2,7);
+    f1.checkConsistencyLight();
+    arr2=[1,4]
+    f2=f1.buildSubPart(arr2);
+    f2.getMesh().setName(f1.getMesh().getName());
+    WriteField(fileName,f2,False);#<- False important for the test
+    #
+    f3=ReadFieldNode(fileName,f2.getMesh().getName(),0,f2.getName(),2,7);
+    f3.checkConsistencyLight();
+    tester.assertTrue(f3.isEqual(f2,1e-12,1e-12));
+    #
+    arr3=[1,3,0,5,2,4]
+    f2.renumberNodes(arr3);
+    WriteUMesh(fileName2,m,True);
+    WriteField(fileName2,f2,False);#<- False important for the test
+    f3=ReadFieldNode(fileName2,f2.getMesh().getName(),0,f2.getName(),2,7);
+    f3.checkConsistencyLight();
+    tester.assertTrue(f3.isEqual(f2,1e-12,1e-12));
+    #
+    pass
+
+def GeneratePyfile7(tester):
+    f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+    WriteField("Pyfile6.med",f1,True);
+    f2=ReadFieldCell("Pyfile6.med",f1.getMesh().getName(),0,f1.getName(),0,1);
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+    #
+    f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
+    WriteField("Pyfile7.med",f1,True);
+    f2=ReadFieldNode("Pyfile7.med",f1.getMesh().getName(),0,f1.getName(),2,3);
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+    tester.assertRaises(Exception,ReadFieldCell,"Pyfile7.med",f1.getMesh().getName(),0,f1.getName(),2,3);
+    pass
+
+def GeneratePyfile12(tester):
+    fileName="Pyfile12.med";
+    mesh1=MEDLoaderDataForTest.build3DMesh_1();
+    da,b,newNbOfNodes=mesh1.mergeNodes(1e-12);
+    WriteUMesh(fileName,mesh1,True);
+    part1=[1,2,4,13,15]
+    mesh2=mesh1.buildPartOfMySelf(part1,True);
+    mesh2.setName(mesh1.getName());#<- important for the test
+    #
+    nbOfCells=mesh2.getNumberOfCells();
+    tester.assertEqual(5,nbOfCells);
+    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+    f1.setName("VectorFieldOnCells");
+    f1.setMesh(mesh2);
+    array=DataArrayDouble.New();
+    array.alloc(nbOfCells,2);
+    f1.setArray(array);
+    arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
+    array.setValues(arr1,nbOfCells,2);
+    f1.setTime(3.14,2,7);
+    f1.checkConsistencyLight();
+    #
+    WriteField(fileName,f1,False);#<- False important for the test
+    #
+    f2=ReadFieldCell(fileName,f1.getMesh().getName(),0,f1.getName(),2,7);
+    tt=GetTypesOfField(fileName,f1.getMesh().getName(),f1.getName());
+    tester.assertEqual(tt,[ON_CELLS]);
+    f2.checkConsistencyLight();
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+
+def GeneratePyfile10(tester):
+    fileName="Pyfile10.med";
+    mesh1=MEDLoaderDataForTest.build3DMesh_1();
+    part1=[1,2,4,13,15]
+    mesh2=mesh1.buildPartOfMySelf(part1,True);
+    mesh2.setName("mesh2");
+    part2=[3,4,13,14]
+    mesh3=mesh1.buildPartOfMySelf(part2,True);
+    mesh3.setName("mesh3");
+    mesh4=MEDCouplingUMesh.New();
+    mesh4.setName("mesh4");
+    mesh4.setMeshDimension(3);
+    mesh4.allocateCells(1);
+    conn=[0,11,1,3]
+    mesh4.insertNextCell(NORM_TETRA4,4,conn[0:4])
+    mesh4.finishInsertingCells();
+    mesh4.setCoords(mesh1.getCoords());
+    meshes=[mesh1,mesh2,mesh3,mesh4]
+    mnane="3DToto";
+    WriteUMeshesPartition(fileName,mnane,meshes,True);
+    #
+    mesh5=ReadUMeshFromFile(fileName,mnane);
+    mesh1.setName(mnane);
+    part3=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+    mesh6=mesh5.buildPartOfMySelf(part3,True);
+    mesh6.setName(mnane);
+    tester.assertTrue(mesh6.isEqual(mesh1,1e-12));
+    grps=GetMeshGroupsNames(fileName,mnane);
+    tester.assertEqual(4,len(grps));
+    grps.index("mesh2");
+    grps.index("mesh3");
+    grps.index("mesh4");
+    grps.index("3DMesh_1");
+    #
+    vec=("mesh2",);
+    mesh2_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
+    tester.assertTrue(mesh2_2.isEqual(mesh2,1e-12));
+    vec=["mesh3"];
+    mesh3_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
+    tester.assertTrue(mesh3_2.isEqual(mesh3,1e-12));
+    vec=["mesh4"];
+    mesh4_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
+    tester.assertTrue(mesh4_2.isEqual(mesh4,1e-12));
+    vec="3DMesh_1";
+    mesh1_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
+    mesh1.setName("3DMesh_1");
+    tester.assertTrue(mesh1_2.isEqual(mesh1,1e-12));
+    #
+    vec=["Family_-3","Family_-5"];
+    mesh2_2=ReadUMeshFromFamilies(fileName,mnane,0,vec);
+    mesh2_2.setName("mesh2");
+    tester.assertTrue(mesh2_2.isEqual(mesh2,1e-12));
+    #
+    ret=GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1");
+    tester.assertEqual(4,len(ret));
+    ref=['Family_-3','Family_-4','Family_-2','Family_-5']
+    tester.assertIn(ref[0],ret);
+    tester.assertIn(ref[1],ret);
+    tester.assertIn(ref[2],ret);
+    tester.assertIn(ref[3],ret);
+    #
+    ret1=GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3");
+    tester.assertEqual(2,len(ret1));
+    tester.assertEqual(ret1[0],"3DMesh_1");
+    tester.assertEqual(ret1[1],"mesh2");
