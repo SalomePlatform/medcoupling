@@ -58,8 +58,13 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_BINARY_DIR}/doc
   )
 
-SET(medcoupling_LIB_dependancies ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingremapper)
-
+IF(WIN32)
+  SET(medcoupling_LIB_dependancies ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingremapper)
+ELSE(WIN32)
+  # ${PYTHON_LIBRARIES} not needed see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
+  SET(medcoupling_LIB_dependancies ${PLATFORM_LIBS} medcouplingremapper)
+ENDIF(WIN32)
+  
 IF(NOT MEDCOUPLING_MICROMED)
   LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_MED_FILE)
   LIST(APPEND medcoupling_LIB_dependancies medloader)
