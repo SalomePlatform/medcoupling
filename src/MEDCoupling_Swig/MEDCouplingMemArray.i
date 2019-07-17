@@ -5836,7 +5836,7 @@ namespace MEDCoupling
               if(PyUnicode_Check(obj))
                 {
                   Py_ssize_t sz;
-                  char *pt=PyUnicode_AsUTF8AndSize(obj, &sz);
+                  const char *pt=PyUnicode_AsUTF8AndSize(obj, &sz);
                   if(sz==1)
                     return self->findIdFirstEqual(pt[0]);
                   else
@@ -5873,7 +5873,7 @@ namespace MEDCoupling
               if(PyUnicode_Check(obj))
                 {
                   Py_ssize_t sz;
-                  char *pt=PyUnicode_AsUTF8AndSize(obj, &sz);
+                  const char *pt=PyUnicode_AsUTF8AndSize(obj, &sz);
                   if(sz==1)
                     return self->presenceOfValue(pt[0]);
                   else
