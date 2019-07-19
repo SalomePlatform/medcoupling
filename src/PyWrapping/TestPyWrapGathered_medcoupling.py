@@ -20,7 +20,19 @@
 # Author : Anthony Geay (EDF R&D)
 
 from medcoupling import *
+
 import unittest
+
+def WriteInTmpDir(func):
+    def decoratedFunc(*args,**kwargs):
+        import tempfile,os
+        ret = None
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir(tmpdirname)
+            ret = func(*args,**kwargs)
+            pass
+        return ret
+    return decoratedFunc
 
 class FileCreator(object):
     def __init__(self,tester,fname):
@@ -59,6 +71,7 @@ class medcouplingTest(unittest.TestCase):
         pass
     
     @unittest.skipUnless(HasMEDFileExt(),"Requires link to MED file")
+    @WriteInTmpDir
     def test1(self):
         import sys
         fname="mctest1.med"

@@ -27,8 +27,20 @@ else:
 import unittest
 from math import pi, sqrt
 
+def WriteInTmpDir(func):
+    def decoratedFunc(*args,**kwargs):
+        import tempfile,os
+        ret = None
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir(tmpdirname)
+            ret = func(*args,**kwargs)
+            pass
+        return ret
+    return decoratedFunc
+
 class MEDCouplingBasicsTest(unittest.TestCase):
 
+    @WriteInTmpDir
     def testExample_MEDCouplingFieldDouble_WriteVTK(self):
         #! [PySnippet_MEDCouplingFieldDouble_WriteVTK_1]
         # mesh
