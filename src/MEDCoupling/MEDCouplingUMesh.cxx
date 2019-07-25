@@ -6619,6 +6619,7 @@ DataArrayDouble *MEDCouplingUMesh::computePlaneEquationOf3DFaces() const
                         coor[nodal[nodalI[0]+1+2]*3+1]-coor[nodal[nodalI[0]+1+0]*3+1],
                         coor[nodal[nodalI[0]+1+2]*3+2]-coor[nodal[nodalI[0]+1+0]*3+2]};
           double cc[3]={aa[1]*bb[2]-aa[2]*bb[1],aa[2]*bb[0]-aa[0]*bb[2],aa[0]*bb[1]-aa[1]*bb[0]};
+          double aa_norm(sqrt(aa[0]*aa[0]+aa[1]*aa[1]+aa[2]*aa[2])),bb_norm(sqrt(bb[0]*bb[0]+bb[1]*bb[1]+bb[2]*bb[2]));
           for(int j=0;j<3;j++)
             {
               int nodeId(nodal[nodalI[0]+1+j]);
@@ -6630,7 +6631,7 @@ DataArrayDouble *MEDCouplingUMesh::computePlaneEquationOf3DFaces() const
                   throw INTERP_KERNEL::Exception(oss.str());
                 }
             }
-          if(sqrt(cc[0]*cc[0]+cc[1]*cc[1]+cc[2]*cc[2])>1e-7)
+          if(sqrt(cc[0]*cc[0]+cc[1]*cc[1]+cc[2]*cc[2])>(1e-3*aa_norm*bb_norm))
             {
               INTERP_KERNEL::inverseMatrix(matrix,4,matrix2);
               retPtr[0]=matrix2[3]; retPtr[1]=matrix2[7]; retPtr[2]=matrix2[11]; retPtr[3]=matrix2[15];
