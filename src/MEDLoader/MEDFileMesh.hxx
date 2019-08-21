@@ -389,7 +389,7 @@ namespace MEDCoupling
   private:
     std::vector< MCAuto<MEDFileUMeshSplitL1> > _ms;
     MCAuto<DataArrayDouble> _coords;
-    MCAuto<DataArrayInt> _fam_coords;
+    MCAuto<DataArrayInt> _fam_coords;     ///< Node family indices
     MCAuto<DataArrayInt> _num_coords;
     MCAuto<DataArrayInt> _global_num_coords;
     MCAuto<DataArrayAsciiChar> _name_coords;

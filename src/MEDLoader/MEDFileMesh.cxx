@@ -4673,7 +4673,7 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
   std::size_t sz(meshes.size()),i(0);
   std::vector<const DataArrayDouble *> coos(sz);
   std::vector<const DataArrayInt *> fam_coos(sz),num_coos(sz);
-  for(std::vector<const MEDFileUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++,i++)
+  for(auto it=meshes.begin();it!=meshes.end();it++,i++)
     {
       if(!(*it))
         throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : presence of NULL pointer in input vector !");
@@ -4687,29 +4687,108 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
   std::map<int, std::vector<const DataArrayInt *> > m_fam,m_renum;
   std::map<int, std::vector< MCAuto< MEDCouplingUMesh > > > m_mesh2;
   std::map<int, std::vector<const MEDCouplingUMesh *> > m_mesh;
-  std::map<std::string,int> map1;
-  std::map<std::string, std::vector<std::string> > map2;
-  for(std::vector<const MEDFileUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++,i++)
+  std::map<std::string,int> famNumMap;
+  std::map<int, std::string> famNumMap_rev;
+  std::map<std::string, std::vector<std::string> > grpFamMap;
+
+  // Identify min family number used:
+  int min_fam_num(0);
+  for(const auto& msh : meshes)
     {
-      if((*it)->getSpaceDimension()!=spaceDim)
+      const std::map<std::string,int>& locMap1(msh->getFamilyInfo());
+      for(const auto& it3 : locMap1)
+        if(it3.second < min_fam_num)
+          min_fam_num = it3.second;
+    }
+
+  for(const auto& msh : meshes)
+    {
+      if(msh->getSpaceDimension()!=spaceDim)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : space dimension must be homogeneous !");
-      if((*it)->getMeshDimension()!=meshDim)
+      if(msh->getMeshDimension()!=meshDim)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : mesh dimension must be homogeneous !");
-      if((*it)->getNonEmptyLevels()!=levs)
+      if(msh->getNonEmptyLevels()!=levs)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : levels must be the same for elements in input vector !");
-      for(std::vector<int>::const_iterator it2=levs.begin();it2!=levs.end();it2++)
+
+      const std::map<std::string,int>& locMap1(msh->getFamilyInfo());
+      std::map<std::string, std::string> substitute;
+      std::map<int, int> substituteN;
+      bool fam_conflict(false);
+      for(const auto& it3 : locMap1)
         {
-          MCAuto<MEDCouplingUMesh> locMesh((*it)->getMeshAtLevel(*it2));
-          m_mesh[*it2].push_back(locMesh); m_mesh2[*it2].push_back(locMesh);
-          m_fam[*it2].push_back((*it)->getFamilyFieldAtLevel(*it2));
-          m_renum[*it2].push_back((*it)->getNumberFieldAtLevel(*it2));
+          const std::string& famName = it3.first;
+          int famNum = it3.second;
+          if (famNumMap_rev.find(famNum) != famNumMap_rev.end()) // Family number is already used!
+            {
+              // Is it used by a group of the current mesh or a group from a previous mesh?
+              // If not, this is OK (typically -1 familly).
+              bool used = false;
+              //    Current mesh
+              const std::map<std::string, std::vector<std::string> >& locMap2(msh->getGroupInfo());
+              for(const auto& it4 : locMap2)
+                {
+                  const auto& famLst = it4.second;
+                  if (std::find(famLst.begin(), famLst.end(), famName) != famLst.end())
+                    { used = true; break; }
+                }
+              //    Previous meshes ...
+              if (!used)
+                for(const auto& it4 : grpFamMap)
+                  {
+                    const auto& famLst = it4.second;
+                    if (std::find(famLst.begin(), famLst.end(), famName) != famLst.end())
+                      { used = true; break; }
+                  }
+
+              if(used)
+                { // Generate a new family name, and a new family number
+                  fam_conflict = true;
+                  std::ostringstream oss;
+                  oss << "Family_" << --min_fam_num;  // New ID
+                  std::string new_name(oss.str());
+                  substitute[famName] = new_name;
+                  substituteN[famNum] = min_fam_num;
+                  famNumMap[new_name] = min_fam_num;
+                  famNumMap_rev[min_fam_num] = new_name;
+                }
+            }
+          famNumMap[famName] = famNum;
+          famNumMap_rev[famNum] = famName;
         }
-      const std::map<std::string,int>& locMap1((*it)->getFamilyInfo());
-      for(std::map<std::string,int>::const_iterator it3=locMap1.begin();it3!=locMap1.end();it3++)
-        map1[(*it3).first]=(*it3).second;
-      const std::map<std::string, std::vector<std::string> >& locMap2((*it)->getGroupInfo());
-      for(std::map<std::string, std::vector<std::string> >::const_iterator it4=locMap2.begin();it4!=locMap2.end();it4++)
-        map2[(*it4).first]=(*it4).second;
+
+      for(const auto& level : levs)
+        {
+          MCAuto<MEDCouplingUMesh> locMesh(msh->getMeshAtLevel(level));
+          m_mesh[level].push_back(locMesh); m_mesh2[level].push_back(locMesh);
+          m_renum[level].push_back(msh->getNumberFieldAtLevel(level));
+
+          // Family field - substitute new family number if needed:
+          if(fam_conflict)
+            {
+              DataArrayInt *dai(msh->getFamilyFieldAtLevel(level)->deepCopy());  // Need a copy
+              for (const auto& subN : substituteN)
+                dai->changeValue(subN.first, subN.second);
+              m_fam[level].push_back(dai);
+            }
+          else
+            m_fam[level].push_back(msh->getFamilyFieldAtLevel(level));      // No copy needed
+        }
+
+      const std::map<std::string, std::vector<std::string> >& locMap2(msh->getGroupInfo());
+      for(const auto& grpItem : locMap2)
+        {
+          const auto& famLst = grpItem.second;
+          // Substitute family name in group description if needed:
+          if (fam_conflict)
+            {
+              std::vector<std::string> newLst(famLst);   // Copy needed.
+              for (const auto& sub : substitute)
+                std::replace(newLst.begin(), newLst.end(), sub.first, sub.second);
+              grpFamMap[grpItem.first]=newLst;
+            }
+          else
+            grpFamMap[grpItem.first]=famLst;
+        }
     }
   // Easy part : nodes
   MCAuto<MEDFileUMesh> ret(MEDFileUMesh::New());
@@ -4726,40 +4805,40 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
       ret->setRenumFieldArr(1,num_coo);
     }
   // cells
-  for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
+  for(const auto& level : levs)
     {
-      std::map<int, std::vector<const MEDCouplingUMesh *> >::const_iterator it2(m_mesh.find(*it));
+      auto it2(m_mesh.find(level));
       if(it2==m_mesh.end())
         throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : internal error 1 !");
       MCAuto<MEDCouplingUMesh> mesh(MEDCouplingUMesh::MergeUMeshes((*it2).second));
       mesh->setCoords(coo); mesh->setName(ref->getName());
       MCAuto<DataArrayInt> renum(mesh->sortCellsInMEDFileFrmt());
-      ret->setMeshAtLevel(*it,mesh);
-      std::map<int, std::vector<const DataArrayInt *> >::const_iterator it3(m_fam.find(*it)),it4(m_renum.find(*it));
-      if(it3!=m_fam.end())
+      ret->setMeshAtLevel(level,mesh);
+      auto it3(m_fam.find(level)),it4(m_renum.find(level));
+      if(it3==m_fam.end()) // Should never happen (all levels exist for all meshes)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : internal error 2!");
+      if(it4==m_renum.end())
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : internal error 3!");
+      // Set new family field if it was defined for all input meshes
+      const std::vector<const DataArrayInt *>& fams((*it3).second);
+      if(std::find(fams.begin(),fams.end(),(const DataArrayInt *)0)==fams.end())
         {
-          const std::vector<const DataArrayInt *>& fams((*it3).second);
-          if(std::find(fams.begin(),fams.end(),(const DataArrayInt *)0)==fams.end())
-            {
-              MCAuto<DataArrayInt> famm(DataArrayInt::Aggregate(fams));
-              famm->renumberInPlace(renum->begin());
-              ret->setFamilyFieldArr(*it,famm);
-            }
+          MCAuto<DataArrayInt> famm(DataArrayInt::Aggregate(fams));
+          famm->renumberInPlace(renum->begin());
+          ret->setFamilyFieldArr(level,famm);
         }
-      if(it4!=m_renum.end())
+      // Set optional number field if defined for all input meshes:
+      const std::vector<const DataArrayInt *>& renums((*it4).second);
+      if(std::find(renums.begin(),renums.end(),(const DataArrayInt *)0)==renums.end())
         {
-          const std::vector<const DataArrayInt *>& renums((*it4).second);
-          if(std::find(renums.begin(),renums.end(),(const DataArrayInt *)0)==renums.end())
-            {
-              MCAuto<DataArrayInt> renumm(DataArrayInt::Aggregate(renums));
-              renumm->renumberInPlace(renum->begin());
-              ret->setRenumFieldArr(*it,renumm);
-            }
+          MCAuto<DataArrayInt> renumm(DataArrayInt::Aggregate(renums));
+          renumm->renumberInPlace(renum->begin());
+          ret->setRenumFieldArr(level,renumm);
         }
     }
   //
-  ret->setFamilyInfo(map1);
-  ret->setGroupInfo(map2);
+  ret->setFamilyInfo(famNumMap);
+  ret->setGroupInfo(grpFamMap);
   ret->setName(ref->getName());
   return ret;
 }

@@ -5901,6 +5901,37 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     @WriteInTmpDir
+    def testAggregateWithGroups(self):
+        """ Testing MEDFileUMesh::Aggretate when groups are present. """
+        def generate(grp_name, offset):
+            coo = DataArrayDouble([0., 1., 2.])
+            coo += offset
+            m = MEDCouplingCMesh("toto")
+            m.setCoords(coo, coo)
+            m = m.buildUnstructured()
+            mu = MEDFileUMesh.New()
+            mu.setMeshAtLevel(0, m)
+            g = DataArrayInt([0])
+            g.setName(grp_name)
+            mu.setGroupsAtLevel(0, [g])
+            return mu
+
+        m1 = generate("A", 0.)
+        m2 = generate("B", 2.)
+        mm = MEDFileUMesh.Aggregate([m1,m2])
+
+        self.assertEqual(mm.getFamilyFieldAtLevel(0).getValues(), [-2, -1, -1, -1, -3, -1, -1, -1])
+        self.assertEqual(mm.getNumberFieldAtLevel(0), None)
+        refFamIds=[('Family_-1',-1),('Family_-2',-2),('Family_-3',-3)]
+        self.assertEqual(set(mm.getFamiliesNames()),set([elt[0] for elt in refFamIds]))
+        self.assertEqual(set([mm.getFamilyId(elt) for elt in mm.getFamiliesNames()]),set([elt[1] for elt in refFamIds]))
+        self.assertEqual(mm.getGroupsNames(),('A','B'))
+        self.assertEqual(mm.getGroupArr(0, 'A').getValues(), [0])
+        self.assertEqual(mm.getGroupArr(0, 'B').getValues(), [4])
+
+        pass
+
+    @WriteInTmpDir
     def testExtrudedMesh1(self):
         fname="Pyfile107.med"
         arrX=DataArrayDouble([0,1,2,3]) ; arrY=DataArrayDouble([0,1,2,3,4]) ; arrZ=DataArrayDouble([0,1,2,3,4,5])
