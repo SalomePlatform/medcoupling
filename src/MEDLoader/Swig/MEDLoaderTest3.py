@@ -409,7 +409,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m1.setTimeUnit(m.getTimeUnit())
         m1.setDescription(m.getDescription())
         self.assertTrue(m2.isEqual(m1,1e-12));
-        
+
     @WriteInTmpDir
     def testMEDMesh6(self):
         self.internalMEDMesh6()
@@ -686,7 +686,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual([((3, 0), (0, 18)), ((3, 1), (18, 30)), ((3, 2), (30, 36)), ((4, 0), (36, 42)), ((4, 1), (42, 44)), ((6, 0), (44, 53))],infos)
         #
         pass
-    
+
     @WriteInTmpDir
     def testMEDFileData1(self):
         fname="Pyfile29.med"
@@ -744,7 +744,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual([(-1,-1,0.0)],d2.getFields().getFieldWithName("f21").getTimeSteps())
         self.assertEqual([(-1,-1,0.0)],d2.getFields()["f21"].getTimeSteps())
         pass
-    
+
     @WriteInTmpDir
     def testMEDField9(self):
         # first test field profile WR. Full type but with some type missing
@@ -784,7 +784,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
-    
+
     @WriteInTmpDir
     def testMEDField10(self):
         fname="Pyfile31.med"
@@ -820,7 +820,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
-    
+
     # idem testMEDField9 method except that here testing profile on nodes and not on cells.
     @WriteInTmpDir
     def testMEDField11(self):
@@ -1127,7 +1127,7 @@ class MEDLoaderTest3(unittest.TestCase):
         g=mm.getGroupArr(0,"g1")
         self.assertTrue(g.isEqual(g1));
         pass
-    
+
     # bug detected by gauthier
     @WriteInTmpDir
     def testMEDLoaderMEDLoaderNSReadFieldDoubleDataInMedFile(self):
@@ -1418,7 +1418,7 @@ class MEDLoaderTest3(unittest.TestCase):
         refValues2=refValues[:] ; refValues2[7:9]=[1.365,1.47]
         valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues2) ; delta.abs()
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
-        mm.write(fname,2)       
+        mm.write(fname,2)
         pass
 
     @WriteInTmpDir
@@ -1431,9 +1431,9 @@ class MEDLoaderTest3(unittest.TestCase):
         m = m.buildUnstructured(); m.setName("simple")
         m2 = m.buildDescendingConnectivity()[0]
         m2.setName(m.getName())
-            
+
         # A crack in two non connected parts of the mesh:
-        grpSeg = DataArrayInt([3,19]) ; grpSeg.setName("Grp") 
+        grpSeg = DataArrayInt([3,19]) ; grpSeg.setName("Grp")
 
         mm = MEDFileUMesh.New()
         mm.setMeshAtLevel(0,m)
@@ -1462,7 +1462,7 @@ class MEDLoaderTest3(unittest.TestCase):
         refValues2=refValues[:] ; refValues2[0] = 1.265; refValues2[6] = 1.105
         valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ;     delta=(valsToTest-refValues2) ; delta.abs()
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
-        mm.write(fname,2)   
+        mm.write(fname,2)
 
     @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group4(self):
@@ -1522,15 +1522,15 @@ class MEDLoaderTest3(unittest.TestCase):
     def testBuildInnerBoundary5(self):
         """ Full 3D test with tetras only. In this case a tri from the group is not duplicated because it is made only
         of non duplicated nodes. The tri in question is hence not part of the final new "dup" group. """
-        coo = DataArrayDouble([200.0, 200.0, 0.0, 200.0, 200.0, 200.0, 200.0, 0.0, 200.0, 200.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 200.0, 200.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+        coo = DataArrayDouble([200.0, 200.0, 0.0, 200.0, 200.0, 200.0, 200.0, 0.0, 200.0, 200.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 200.0, 200.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         200.0, 400.0, 200.0, 0.0, 400.0, 200.0, 200.0, 400.0, 0.0, 0.0, 400.0, 0.0, 200.0, 0.0, 100.00000000000016, 200.0, 63.15203310314546, 200.0, 200.0, 134.45205700643342,
-         200.0, 200.0, 200.0, 100.00000000000016, 200.0, 63.15203310314546, 0.0, 200.0, 134.45205700643342, 0.0, 200.0, 0.0, 100.00000000000016, 0.0, 63.15203310314546, 
-         200.0, 0.0, 134.45205700643342, 200.0, 0.0, 200.0, 100.00000000000016, 0.0, 63.15203310314546, 0.0, 0.0, 134.45205700643342, 0.0, 0.0, 200.0, 200.0, 100.02130053568538, 
-         0.0, 200.0, 100.00938163175135, 200.0, 0.0, 100.02130053568538, 0.0, 0.0, 100.00938163175135, 299.3058739933347, 200.0, 200.0, 400.0, 98.68100542924483, 
-         200.0, 302.8923433403344, 0.0, 200.0, 302.8923433403344, 200.0, 0.0, 400.0, 100.00000000000016, 0.0, 302.8923433403344, 0.0, 0.0, 400.0, 200.0, 98.55126825835082, 
+         200.0, 200.0, 200.0, 100.00000000000016, 200.0, 63.15203310314546, 0.0, 200.0, 134.45205700643342, 0.0, 200.0, 0.0, 100.00000000000016, 0.0, 63.15203310314546,
+         200.0, 0.0, 134.45205700643342, 200.0, 0.0, 200.0, 100.00000000000016, 0.0, 63.15203310314546, 0.0, 0.0, 134.45205700643342, 0.0, 0.0, 200.0, 200.0, 100.02130053568538,
+         0.0, 200.0, 100.00938163175135, 200.0, 0.0, 100.02130053568538, 0.0, 0.0, 100.00938163175135, 299.3058739933347, 200.0, 200.0, 400.0, 98.68100542924483,
+         200.0, 302.8923433403344, 0.0, 200.0, 302.8923433403344, 200.0, 0.0, 400.0, 100.00000000000016, 0.0, 302.8923433403344, 0.0, 0.0, 400.0, 200.0, 98.55126825835082,
          400.0, 0.0, 100.02162286181577, 99.31624553977466, 99.99999998882231, 200.0, 99.31624576683302, 100.00000010178034, 0.0, 99.31624560596512, 200.0, 100.0050761312483,
-         99.31624560612883, 0.0, 100.00507613125338, 200.0, 99.99999995813045, 100.00950673487786, 0.0, 99.99999989928207, 100.0041870621175, 301.29063354383015, 
-         100.0000000093269, 0.0, 301.29063360689975, 0.0, 100.00957769061164, 140.52853868782435, 99.99999963972768, 100.00509135751312, 297.87779091770784, 
+         99.31624560612883, 0.0, 100.00507613125338, 200.0, 99.99999995813045, 100.00950673487786, 0.0, 99.99999989928207, 100.0041870621175, 301.29063354383015,
+         100.0000000093269, 0.0, 301.29063360689975, 0.0, 100.00957769061164, 140.52853868782435, 99.99999963972768, 100.00509135751312, 297.87779091770784,
          97.16750463405486, 97.18018457127863], 46, 3)
         c0 = [14, 45, 31, 21, 42, 14, 37, 38, 20, 44, 14, 39, 36, 41, 44, 14, 5, 25, 12, 13, 14, 38, 36, 44, 41, 14, 21, 20, 24, 44, 14, 38, 25, 41, 19, 14, 37, 38, 44, 41, 14, 16, 27,
          39, 41, 14, 21, 45, 26, 40, 14, 39, 37, 44, 41, 14, 14, 15, 24, 44, 14, 25, 38, 41, 13, 14, 27, 18, 6, 22, 14, 38, 36, 41, 13, 14, 44, 14, 15, 36, 14, 44, 23, 39, 26, 14,
@@ -1544,7 +1544,7 @@ class MEDLoaderTest3(unittest.TestCase):
          21, 26, 33, 3, 14, 35, 45, 32, 29, 14, 29, 34, 9, 28, 14, 15, 45, 24, 40, 14, 29, 45, 28, 15, 14, 21, 24, 45, 40, 14, 24, 15, 1, 28, 14, 35, 45, 29, 30, 14, 26, 15,
          30, 2]
         cI0 = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185,
-         190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325, 330, 335, 340, 345, 350, 355, 
+         190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325, 330, 335, 340, 345, 350, 355,
          360, 365, 370, 375, 380, 385, 390, 395, 400, 405, 410, 415, 420, 425, 430]
         m3 = MEDCouplingUMesh("3D", 3)
         m3.setCoords(coo)
@@ -1753,7 +1753,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mT3.allocateCells(1)
         mT3.insertNextCell(NORM_TRI3,list(range(3)))
         mT3.finishInsertingCells()
-        
+
         tr=[[0.,4.],[2.,4.],[4.,4.],[6.,4.],[8.,4.],[10.,4.],[12.,4.],[14.,4.],[16.,4.],[18.,4.],[20.,4.],[0.,0.],[2.,0.], [0.,2.],[2.,2.],[4.,2.],[6.,2.],[8.,2.],[10.,2.],[12.,2.]]
         ms=11*[mT3]+2*[mQ4]+7*[mQ8]
         ms[:]=(elt.deepCopy() for elt in ms)
@@ -1865,7 +1865,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f.setGaussLocalizationOnCells([16,19],[0.,0.,1.,0.,1.,1.,0.,1.,0.5,0.,1.,0.5,0.5,1.,0.,0.5],[0.3,0.3,0.7,0.7,0.8,0.8],[0.8,0.1,0.1])
         f.checkConsistencyLight()
         mm=MEDFileUMesh()
-        mm.setMeshAtLevel(0,m) 
+        mm.setMeshAtLevel(0,m)
         f1ts=MEDFileField1TS.New()
         f1ts.setFieldNoProfileSBT(f)
         self.assertEqual(f1ts.getPfls(),('Pfl_fieldCellWithoutPfl_NORM_TRI3_0','Pfl_fieldCellWithoutPfl_NORM_TRI3_1','Pfl_fieldCellWithoutPfl_NORM_QUAD8_3','Pfl_fieldCellWithoutPfl_NORM_QUAD8_4'))
@@ -1982,7 +1982,7 @@ class MEDLoaderTest3(unittest.TestCase):
         pfl1_r.setName(pfl1.getName())
         self.assertTrue(pfl1_r.isEqual(pfl1))
         pass
-    
+
         # Testing profile on nodes when the profile is identity but not on all nodes.
     @WriteInTmpDir
     def testMEDFieldPflOnCell1(self):
@@ -2321,7 +2321,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(len(m1.getUnivName())!=0)
         self.assertTrue(m1.getMesh().isEqual(mesh,1e-12))
         pass
-    
+
     @WriteInTmpDir
     def testCurveLinearMesh1(self):
         self.internalCurveLinearMesh1()
@@ -2329,7 +2329,7 @@ class MEDLoaderTest3(unittest.TestCase):
     @WriteInTmpDir
     def testParameters1(self):
         self.internalParameters1()
-        
+
     def internalParameters1(self):
         fname="Pyfile56.med"
         m=MEDCouplingCMesh() ; arr=DataArrayDouble([0.,1.2,3.5]) ; m.setCoords(arr,arr) ; m.setName("mesh")
@@ -2657,7 +2657,7 @@ class MEDLoaderTest3(unittest.TestCase):
                 pass
             pass
         pass
-    
+
     @WriteInTmpDir
     def testNonRegressionMantis22212ChangeGrpName(self):
         fileName="Pyfile62.med"
@@ -2857,7 +2857,7 @@ class MEDLoaderTest3(unittest.TestCase):
     @WriteInTmpDir
     def testMEDFileFields2(self):
         fname="Pyfile65.med"
-        # to check that all is initialize 
+        # to check that all is initialize
         MEDFileField1TS().__str__()
         MEDFileFieldMultiTS().__str__()
         # building a mesh containing 4 tri3 + 5 quad4
@@ -3001,7 +3001,7 @@ class MEDLoaderTest3(unittest.TestCase):
         fs0.checkGlobsCoherency()
         fs0.write(fname,0)
         pass
-    
+
     @WriteInTmpDir
     def testSplitComponents1(self):
         fname="Pyfile67.med"
@@ -3444,7 +3444,7 @@ class MEDLoaderTest3(unittest.TestCase):
         mrs.setNodeNumFieldReading(True)
         self.assertEqual(mrs.getCode(),63)
         pass
-    
+
     @WriteInTmpDir
     def testPartialReadOfMeshes(self):
         fname="Pyfile70.med"
@@ -3644,7 +3644,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f.setArray(vals)
         f1ts.setFieldProfile(f,mm,0,pfl)
         pass
-    
+
     @WriteInTmpDir
     def testWRMeshWithNoCells(self):
         fname="Pyfile71.med"
@@ -3776,7 +3776,7 @@ class MEDLoaderTest3(unittest.TestCase):
             self.assertTrue(fs[0][i].getUndergroundDataArray().isEqual(arr,1e-12))
             pass
         pass
-    
+
     @WriteInTmpDir
     def testField1TSSetFieldNoProfileSBTPerGeoTypes(self):
         """ This test is very important, because the same mechanism is used by the MEDReader to generate a field on all the mesh without any processing and memory.
@@ -3847,7 +3847,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(f1ts.getFieldSplitedByType(),[(0,[(0,(0,4),'','')]),(3,[(0,(4,6),'','')]),(4,[(0,(6,9),'','')]),(14,[(0,(9,15),'','')]),(15,[(0,(15,20),'','')]),(16,[(0,(20,24),'','')])])
         self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0,1,2,3,0,1,0,1,2,0,1,2,3,4,5,0,1,2,3,4,0,1,2,3]),1e-12))
         pass
-    
+
     @WriteInTmpDir
     def testMEDFileUMeshSetName(self):
         """ This test is a small but important one for MEDReader in sauv mode. When .sauv file is loaded the conversion is performed in memory and a preparation is done then.
@@ -3965,7 +3965,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m.checkConsistency()
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m)
-        m1=MEDCouplingCMesh() ; m1.setCoords(arr) ; m1.setName("Mesh") 
+        m1=MEDCouplingCMesh() ; m1.setCoords(arr) ; m1.setName("Mesh")
         m1=m1.buildUnstructured() ; m1.setCoords(m.getCoords())
         mm.setMeshAtLevel(-1,m1)
         renum0=DataArrayInt([3,6,7,10,11,0,2,1,9,8,5,4,12,13,14,24,23,22,21,20,19,18,17,16,15])
@@ -4495,7 +4495,7 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         self.assertEqual(fs2[0].getTimeSteps(), [(i, 0, float(i)) for i in range(nbPdt)])
         pass
-    
+
     @WriteInTmpDir
     def testMEDFileMeshRearrangeFamIds1(self):
         """ Test for bug EDF10720. The aim of this test is the call of MEDFileMesh.rearrangeFamilies."""
@@ -4679,7 +4679,7 @@ class MEDLoaderTest3(unittest.TestCase):
             grpExp=grp+delta ; grpExp.setName("%s_node"%grp.getName())
             self.assertTrue(mm.getGroupArr(1,"%s_node"%grp.getName()).isEqual(grpExp))
         pass
-    
+
     @WriteInTmpDir
     def testMEDFileJoint1(self):
         fileName="Pyfile92.med"
@@ -4719,7 +4719,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertRaises( InterpKernelException, jointsR.destroyJointAtPos,1)
         jointsR.destroyJointAtPos(0)
         pass
-    
+
     @WriteInTmpDir
     def testMEDFileJoint2(self):
         fileNameWr="Pyfile93.med"
@@ -4815,7 +4815,7 @@ class MEDLoaderTest3(unittest.TestCase):
         """ EDF11242 : check status of MED file calls to detect problems immediately. Sorry this test generates awful messages !"""
         fname="Pyfile94.med"
         errfname="Pyfile94.err"
-        
+
         import os
         # first clean file if needed
         if os.path.exists(fname):
@@ -4866,12 +4866,12 @@ class MEDLoaderTest3(unittest.TestCase):
         mm=MEDFileCMesh(fname)
         self.assertTrue(mm.getUnivName()!="")
         pass
-    
+
     @WriteInTmpDir
     def testEmptyMesh(self):
       """ MEDLoader should be able to consistently write and read an empty mesh (coords array
       with 0 tuples """
-      fname = "Pyfile96.med" 
+      fname = "Pyfile96.med"
       m = MEDCouplingUMesh('toto', 2)
       m.setCoords(DataArrayDouble([], 0, 2))
       m.setConnectivity(DataArrayInt([]), DataArrayInt([0]))
@@ -4900,7 +4900,7 @@ class MEDLoaderTest3(unittest.TestCase):
       grp1=bary1.findIdsInRange(hauteur-1e-12,hauteur+1e-12) ; grp1.setName(grpName1)
       grp2=bary1.findIdsInRange(0.-1e-12,0.+1e-12) ; grp2.setName(grpName2)
       mesh.setGroupsAtLevel(-1,[grp1,grp2])
-      
+
       st=pickle.dumps(mesh,2)
       mm=pickle.loads(st)
       st2=pickle.dumps(mm,2)
@@ -4926,7 +4926,7 @@ class MEDLoaderTest3(unittest.TestCase):
       mm.addFamily("HOMARD________-2",-2)
       mm.addFamily("HOMARD________-3",-3)
       mm.setFamiliesIdsOnGroup("HOMARD",[-1,-2,-3])
-      
+
       eqName="MAILLES_A_RECOLLER_APRES_HOMARD"
       descEq="Cette equivalence decrit les mailles a recoller. Dans chaque correspondance, le premier numero est celui de la maille coupee ; le second numero est celui d'une des petites mailles en regard."
       mm.initializeEquivalences()
@@ -5232,7 +5232,7 @@ class MEDLoaderTest3(unittest.TestCase):
       self.assertTrue(mm2.getFamilyFieldAtLevel(0) is None)
       self.assertTrue(mm2.getFamilyFieldAtLevel(1) is None)
       pass
-  
+
     @WriteInTmpDir
     def testAppendFieldProfileOnIntField(self):
       fname="Pyfile100.med"
@@ -5339,7 +5339,7 @@ class MEDLoaderTest3(unittest.TestCase):
       f1ts=MEDFileField1TS(fname,fieldName,4,5)
       self.assertTrue(f4.isEqual(f1ts.field(mm),1e-12,1e-12))
       pass
-  
+
     @WriteInTmpDir
     def testMEDFileFieldEasyField2(self):
         """Same thantestMEDFileFieldEasyField1 except that here intfields are considered.
@@ -5914,7 +5914,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(ex.isEqual(ex2,1e-12))
         self.assertTrue(ex.isEqual(ex3,1e-12))
         pass
-    
+
     @unittest.skipUnless(LooseVersion(MEDFileVersionStr())>=LooseVersion('3.2.1'),"This test requires at least MEDFile version 3.2.1")
     @WriteInTmpDir
     def testWriteInto30(self):
@@ -6142,7 +6142,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f3=f1.deepCopy() ; f3+=2. ; f3.setTime(6.,3,4)
         self.assertTrue(ff1.field(mm).isEqual(f3,1e-12,1e-12))
         pass
-    
+
     @WriteInTmpDir
     def testFloat32InMEDFileFieldStar1(self):
         """Like testInt32InMEDFileFieldStar1 but with float32 :)"""
@@ -6173,7 +6173,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(a.isEqual(f1,1e-12,1e-12))
         ff2.setTime(1,2,3.)
         c=ff2.getUndergroundDataArray() ; c*=2
-        ff2.write(fname,0) # 2 time steps in 
+        ff2.write(fname,0) # 2 time steps in
         ffs1=MEDFileAnyTypeFieldMultiTS.New(fname,"VectorFieldOnCells")
         self.assertEqual(ffs1.getTimeSteps(),[(0, 1, 2.0), (1, 2, 3.0)])
         self.assertEqual(len(ffs1),2)
@@ -6339,7 +6339,7 @@ class MEDLoaderTest3(unittest.TestCase):
         fs2=fs.linearToQuadratic(mms,mmqs)
         self.myTester1(fs2,mmqs[0])
         pass
-    
+
     def myTester1(self,fs2,mmq):
         dataExp=DataArrayDouble([0.,0.,0.,1.,0.,0.,0.,1.,0.,1.,1.,0.,0.,0.,1.,1.,0.,1.,0.,1.,1.,1.,1.,1.,2.,0.,0.,3.,0.,0.,2.,1.,0.,3.,1.,0.,2.,0.,1.,3.,0.,1.,2.,1.,1.,3.,1.,1.,0.5, 0.,0.,0.,0.5, 0.,0.5, 1.,0.,1.,0.5, 0.,0.5, 0.,1.,0.,0.5, 1.,0.5, 1.,1.,1.,0.5, 1.,1.,0.,0.5, 0.,0.,0.5, 0.,1.,0.5, 1.,1.,0.5, 2.5, 0.,0.,2.,0.5, 0.,2.5, 1.,0.,3.,0.5, 0.,2.5, 0.,1.,2.,0.5, 1.,2.5, 1.,1.,3.,0.5, 1.,3.,0.,0.5, 2.,0.,0.5, 2.,1.,0.5, 3.,1.,0.5],40,3)
         dataExp1=DataArrayInt([1,0,2,3,5,4,6,7,16,17,18,19,20,21,22,23,24,25,26,27,9,8,10,11,13,12,14,15,28,29,30,31,32,33,34,35,36,37,38,39])
@@ -6463,7 +6463,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mTest.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19])))
         self.assertTrue(mTest.getCoords().isEqual(DataArrayDouble([(2,0,0),(3,0,0),(2,1,0),(3,1,0),(2,0,1),(3,0,1),(2,1,1),(3,1,1),(2.5,0,0),(2,0.5,0),(2.5,1,0),(3,0.5,0),(2.5,0,1),(2,0.5,1),(2.5,1,1),(3,0.5,1),(3,0,0.5),(2,0,0.5),(2,1,0.5),(3,1,0.5)],20,3),1e-12))
         self.assertTrue(fToTest.getArray().isEqual(4*exp1,1e-12))
-        
+
         pass
 
     @WriteInTmpDir
