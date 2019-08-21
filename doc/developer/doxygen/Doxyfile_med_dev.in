@@ -75,6 +75,7 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/index.dox \
                          @PROJECT_SOURCE_DIR@/src/INTERP_KERNEL/Bases \
                          @PROJECT_SOURCE_DIR@/src/INTERP_KERNEL/Geometric2D \
                          @PROJECT_SOURCE_DIR@/src/MEDCoupling \
+                         @PROJECT_SOURCE_DIR@/src/ICoCo \
                          @PROJECT_SOURCE_DIR@/src/MEDLoader
 
 FILE_PATTERNS          = InterpKernelDEC.*xx \
@@ -121,8 +122,8 @@ FILE_PATTERNS          = InterpKernelDEC.*xx \
                          MEDCouplingCurveLinearMesh.*xx \
                          MEDCouplingMappedExtrudedMesh.*xx \
                          MEDCouplingFieldDouble.*xx \
-			 MEDCouplingFieldInt.*xx \
-			 MEDCouplingFieldT.*xx \
+                         MEDCouplingFieldInt.*xx \
+                         MEDCouplingFieldT.*xx \
                          MEDCouplingField.*xx \
                          MEDCouplingNatureOfFieldEnum \
                          MEDCouplingNatureOfField.hxx \
@@ -140,18 +141,19 @@ FILE_PATTERNS          = InterpKernelDEC.*xx \
                          MEDFileData.*xx \
                          MEDFileParameter.*xx \
                          MEDFileMesh.*xx \
-			 MEDFileFieldGlobs.*xx \
-			 MEDFileFieldInternal.*xx \
-			 MEDFileField1TS.*xx \
-			 MEDFileFieldMultiTS.*xx \
+                         MEDFileFieldGlobs.*xx \
+                         MEDFileFieldInternal.*xx \
+                         MEDFileField1TS.*xx \
+                         MEDFileFieldMultiTS.*xx \
                          MEDFileField.*xx \
-			 MEDFileFieldVisitor.hxx \
-			 *Servant.*xx \
+                         MEDFileFieldVisitor.hxx \
+                         *Servant.*xx \
+                         ICoCo*.hxx \
                          *.dox
 RECURSIVE              = YES
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
-EXCLUDE_SYMBOLS        = ICoCo
+EXCLUDE_SYMBOLS        =
 EXAMPLE_PATH           = @PROJECT_SOURCE_DIR@/src/ParaMEDMEM \
                          @PROJECT_SOURCE_DIR@/src/MEDCoupling/Test \
                          @PROJECT_SOURCE_DIR@/src/MEDCoupling_Swig \

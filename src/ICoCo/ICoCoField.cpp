@@ -17,46 +17,36 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "ICoCoMEDField.hxx"
-//#include "ProcessorGroup.hxx"
-#include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingFieldDouble.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
+// WARNING: this file is part of the official ICoCo API and should not be modified.
+// The official version can be found at the following URL:
+//
+//    https://github.com/cea-trust-platform/icoco-coupling
+
+#include "ICoCoField.hxx"
+
+#include <string>
 
 namespace ICoCo
 {
 
-  /*! Constructor directly attaching a MEDCouplingFieldDouble
-    the object does not take the control the objects pointed by 
-    \a field.
-  */
-    
-  MEDField::MEDField(MEDCoupling::MEDCouplingFieldDouble *field):_field(field)
-  {
-    if(_field)
-      _field->incrRef();
-  }
- MEDField::MEDField(const MEDField& field):_field(field.getField())
-  {
-    if(_field)
-      _field->incrRef();
+  Field::Field() {
+    _name = new std::string;
   }
 
-  MEDField::~MEDField()
-  {
-    if(_field)
-      _field->decrRef();
+  Field::~Field() {
+    delete _name;
   }
 
-
-  MEDField& MEDField::operator=(const MEDField& field)
-  {
-    if (_field)
-      _field->decrRef();
-     
-    _field=field.getField();
-    if(_field)
-      _field->incrRef();
-    return *this;
+  void Field::setName(const std::string& name) {
+    *_name = name;
   }
+
+  const std::string& Field::getName() const {
+    return *_name;
+  }
+
+  const char* Field::getCharName() const {
+    return _name->c_str();
+  }
+
 }

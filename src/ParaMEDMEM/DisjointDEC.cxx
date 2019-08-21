@@ -25,7 +25,7 @@
 #include "ParaFIELD.hxx"
 #include "ParaMESH.hxx"
 #include "ICoCoField.hxx"
-#include "ICoCoMEDField.hxx"
+#include "ICoCoMEDDoubleField.hxx"
 #include "MPIProcessorGroup.hxx"
 
 #include <cmath>
@@ -269,16 +269,16 @@ namespace MEDCoupling
     will be updated by a recvData() call.
     Reversely, if the processor is on the sending end, the field will be read, possibly transformed, and sent appropriately to the other side.
     The field type is a generic ICoCo Field, so that the DEC can couple a number of different fields :
-    - a ICoCo::MEDField, that is created from a MEDCoupling structure
+    - a ICoCo::MEDDoubleField, that is created from a MEDCoupling structure
     
   */
-  void DisjointDEC::attachLocalField(const ICoCo::MEDField *field)
+  void DisjointDEC::attachLocalField(const ICoCo::MEDDoubleField *field)
   {
     if(!isInUnion())
       return ;
     if(!field)
-      throw INTERP_KERNEL::Exception("DisjointDEC::attachLocalField : ICoCo::MEDField pointer is NULL !");
-    attachLocalField(field->getField());
+      throw INTERP_KERNEL::Exception("DisjointDEC::attachLocalField : ICoCo::MEDDoubleField pointer is NULL !");
+    attachLocalField(field->getMCField());
   }
   
   /*!

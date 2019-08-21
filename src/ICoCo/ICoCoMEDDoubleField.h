@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2020  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -22,41 +22,4 @@
 //
 //    https://github.com/cea-trust-platform/icoco-coupling
 
-#ifndef ICoCoField_included
-#define ICoCoField_included
-#include <string>
-
-namespace ICoCo
-{
-  /*! @brief Top abstract class defining field objects that can be exchanged via the ICoCo interface.
-   *
-   * The Field class holds the name of the field.
-   */
-  class Field
-  {
-  public:
-    /*! @brief Set the name of the field.
-     * @param name name of the field
-     */
-    void setName(const std::string& name);
-
-    /*! @brief Retrieves the name of the field.
-     * @return name of the field.
-     */
-    const std::string& getName() const;
-
-    /*!
-     * @brief Retrieves the name of the field as a char *
-     * @return name of the field.
-     */
-    const char* getCharName() const;
-
-  protected:
-    Field();
-    virtual ~Field();
-
-  private:
-    std::string* _name;
-  };
-} // namespace ICoCo
-#endif
+#include "ICoCoMEDDoubleField.hxx"

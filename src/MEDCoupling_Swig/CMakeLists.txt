@@ -44,7 +44,9 @@ SET (MEDCoupling_SWIG_DPYS_FILES
     DataArrayInt.i
     MEDCouplingFieldDiscretization.i
     MEDCouplingFinalize.i
-    MEDCouplingTypemaps.i)
+    MEDCouplingTypemaps.i
+    ../ICoCo/Swig/ICoCoMEDField.i
+)
 
 SET (MC_pyTestFiles
     ${ALL_TESTS}
@@ -65,6 +67,7 @@ SET (MC_Swig_interf
     MEDCouplingTypemaps.i
     MEDCouplingDataArrayTypemaps.i
     MEDCouplingDataArrayTraits.hxx
+    ../ICoCo/Swig/ICoCoMEDField.i
 )
 
 INCLUDE_DIRECTORIES(
@@ -79,6 +82,8 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo/Swig
   ${PROJECT_BINARY_DIR}/doc
   )
 

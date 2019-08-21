@@ -181,7 +181,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
             nb_local=mesh.getNumberOfCells()
             value = [1.0]*nb_local
             parafield.getField().setValues(value)
-            icocofield = ICoCoMEDField(parafield.getField())
+            icocofield = ICoCoMEDDoubleField(parafield.getField())
             dec.attachLocalField(icocofield)
             pass
         else:
@@ -195,7 +195,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
             nb_local=mesh.getNumberOfCells()
             value = [0.0]*nb_local
             parafield.getField().setValues(value)
-            icocofield = ICoCoMEDField(parafield.getField())
+            icocofield = ICoCoMEDDoubleField(parafield.getField())
             dec.attachLocalField(icocofield)
             pass
 

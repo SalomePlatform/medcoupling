@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021  CEA/DEN, EDF R&D
+// Copyright (C) 2017-2019  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,31 +16,19 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Adrien Bruneton (CEA)
 
-#include "CommInterface.hxx"
-#include "Topology.hxx"
-#include "BlockTopology.hxx"
-#include "ComponentTopology.hxx"
-#include "ParaFIELD.hxx"
-#include "ParaMESH.hxx"
-#include "DEC.hxx"
+%{
 #include "ICoCoMEDDoubleField.hxx"
-#include "MPIProcessorGroup.hxx"
+#include "ICoCoMEDIntField.hxx"
+%}
 
-#include <cmath>
+%include "std_string.i"
+%include "ICoCoField.hxx"
 
-namespace MEDCoupling
-{
-  DEC::DEC():_comm_interface(0)
-  {
-  }
+// %rename has to be before %include ... !!
+%rename (ICoCoMEDDoubleField) ICoCo::MEDDoubleField;
+%rename (ICoCoMEDIntField) ICoCo::MEDIntField;
 
-  void DEC::copyFrom(const DEC& other)
-  {
-    _comm_interface=other._comm_interface;
-  }
-  
-  DEC::~DEC()
-  {
-  }
-}
+%include "ICoCoMEDDoubleField.hxx"
+%include "ICoCoMEDIntField.hxx"

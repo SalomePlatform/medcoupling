@@ -33,11 +33,13 @@
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ComponentTopology.hxx"
-#include "ICoCoMEDField.hxx"
 #include "MEDLoader.hxx"
+#include "ICoCoMEDDoubleField.hxx"
+#include "MEDCouplingUMesh.hxx"
  
 #include <string>
 #include <cstring>
+
 
 // use this define to enable lines, execution of which leads to Segmentation Fault
 #define ENABLE_FAULTS
@@ -149,7 +151,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
   MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
   MEDCoupling::ParaMESH* paramesh = nullptr;
   MEDCoupling::ParaFIELD* parafield = nullptr;
-  ICoCo::MEDField* icocofield = nullptr;
+  ICoCo::MEDDoubleField* icocofield = nullptr;
   
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;
@@ -187,7 +189,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     for(int ielem=0; ielem<nb_local;ielem++)
       value[ielem]=1.0;
     
-    icocofield=new ICoCo::MEDField(parafield->getField());
+    icocofield=new ICoCo::MEDDoubleField(parafield->getField());
      
     dec.attachLocalField(icocofield);
   }
@@ -219,7 +221,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     double *value=parafield->getField()->getArray()->getPointer();
     for(int ielem=0; ielem<nb_local;ielem++)
       value[ielem]=0.0;
-    icocofield=new ICoCo::MEDField(parafield->getField());
+    icocofield=new ICoCo::MEDDoubleField(parafield->getField());
       
     dec.attachLocalField(icocofield);
   }

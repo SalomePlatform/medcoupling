@@ -29,7 +29,7 @@
 
 namespace ICoCo
 {
-  class MEDField;
+  class MEDDoubleField;
 }
 
 namespace MEDCoupling
@@ -84,8 +84,8 @@ namespace MEDCoupling
     void setNature(NatureOfField nature);
     void attachLocalField( MEDCouplingFieldDouble *field);
     void attachLocalField(const ParaFIELD *field, bool ownPt=false);
-    void attachLocalField(const ICoCo::MEDField *field);
-
+    void attachLocalField(const ICoCo::MEDDoubleField *field);
+    
     virtual void prepareSourceDE() = 0;
     virtual void prepareTargetDE() = 0;
     virtual void recvData() = 0;

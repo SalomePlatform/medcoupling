@@ -25,6 +25,7 @@
 #define INTERPKERNEL_EXPORT
 
 %include "MEDCouplingCommon.i"
+%include "ICoCoMEDField.i"
 
 %include "ParaMEDMEMCommon.i"
 

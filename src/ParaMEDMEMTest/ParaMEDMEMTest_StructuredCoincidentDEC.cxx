@@ -29,8 +29,9 @@
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ComponentTopology.hxx"
-#include "ICoCoMEDField.hxx"
+#include "ICoCoMEDDoubleField.hxx"
 #include "MEDLoader.hxx"
+#include "MEDCouplingUMesh.hxx"
 #include "TestInterpKernelUtils.hxx"
 
 #include <string>
