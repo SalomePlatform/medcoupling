@@ -5951,6 +5951,6 @@ MEDCouplingUMesh.RemoveIdsFromIndexedArrays         = DataArrayInt.RemoveIdsFrom
 import os
 __filename=os.environ.get('PYTHONSTARTUP')
 if __filename and os.path.isfile(__filename):
-  exec(open(__filename).read())
-  pass
+    with(open(__filename) as __fp):
+        exec(__fp.read())
 %}
