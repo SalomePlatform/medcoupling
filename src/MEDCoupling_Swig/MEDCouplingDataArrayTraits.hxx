@@ -43,6 +43,7 @@ void numarrdeal(void *pt, void *wron)
   void **wronc=(void **)wron;
   PyObject *weakRefOnOwner=reinterpret_cast<PyObject *>(wronc[0]);
   PyObject *obj=PyWeakref_GetObject(weakRefOnOwner);
+  int64_t *offset=reinterpret_cast<int64_t*>(wronc[2]);
   if(obj!=Py_None)
     {
       Py_XINCREF(obj);
@@ -55,11 +56,10 @@ void numarrdeal(void *pt, void *wron)
     {
       typedef void (*MyDeallocator)(void *,void *);
       MyDeallocator deall=(MyDeallocator)wronc[1];
-      int64_t *offset=reinterpret_cast<int64_t*>(wronc[2]);
       deall(pt,offset);
-      delete offset;
       Py_XDECREF(weakRefOnOwner);
     }
+  delete offset;
   delete [] wronc;
 }
 #endif

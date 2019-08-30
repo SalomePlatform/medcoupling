@@ -70,6 +70,8 @@ MEDCouplingFieldDouble.__floordiv__=MEDCouplingFieldDouble.__div__
 MEDCouplingFieldDouble.__rfloordiv__=MEDCouplingFieldDouble.__rdiv__
 MEDCouplingFieldDouble.__ifloordiv__=MEDCouplingFieldDoubleIdiv
 
+MEDCouplingFieldTemplate.__reduce__=MEDCouplingFieldTemplateReduce
+
 MEDCouplingFieldInt.__reduce__=MEDCouplingFieldIntReduce
   
 MEDCouplingFieldFloat.__reduce__=MEDCouplingFieldFloatReduce
@@ -121,6 +123,7 @@ del MEDCoupling1DGTUMeshReduce
 del MEDCouplingFieldDoubleReduce
 del MEDCouplingFieldFloatReduce
 del MEDCouplingFieldIntReduce
+del MEDCouplingFieldTemplateReduce
 del MEDCouplingDataArrayDoubleIadd
 del MEDCouplingDataArrayDoubleIsub
 del MEDCouplingDataArrayDoubleImul

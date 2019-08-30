@@ -5933,7 +5933,18 @@ def MEDCouplingFieldFloatReduce(self):
     self.checkConsistencyLight()
     d=(self.getTypeOfField(),self.getTimeDiscretization())
     return MEDCouplingStdReduceFunct,(MEDCouplingFieldFloat,(d,(self.__getstate__()),))
-
+def MEDCouplingFTReduceFunct(cls,params):
+    a,b=params
+    ret=object.__new__(cls)
+    ret.__init__(*a)
+    return ret
+    
+def MEDCouplingFieldTemplateReduce(self):
+    ret = MEDCouplingFieldDouble(self)
+    nbTuples = self.getNumberOfTuplesExpected()
+    arr = DataArrayDouble(nbTuples) ; arr[:] = 0.
+    ret.setArray(arr)
+    return MEDCouplingFTReduceFunct,(MEDCouplingFieldTemplate,((ret,),()))
 #
 # Forwarding DataArrayInt functions to MEDCouplingUMesh:
 #

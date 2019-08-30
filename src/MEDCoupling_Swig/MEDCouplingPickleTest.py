@@ -209,6 +209,10 @@ class MEDCouplingPickleTest(unittest.TestCase):
         f2=pickle.loads(st)
         self.assertTrue(f2.isEqual(f,1e-16,1e-16))
         self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
+        ###
+        ft=MEDCouplingFieldTemplate(f)
+        ft2=pickle.loads(pickle.dumps(ft,pickle.HIGHEST_PROTOCOL))
+        self.assertTrue(ft2.isEqual(ft,1e-16))
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
@@ -289,6 +293,10 @@ class MEDCouplingPickleTest(unittest.TestCase):
         f2=pickle.loads(st)
         self.assertTrue(f2.isEqual(f,1e-16,1e-16))
         self.assertTrue(f2.getMesh().isEqual(f.getMesh(),1e-16))
+        ###
+        ft=MEDCouplingFieldTemplate(f)
+        ft2=pickle.loads(pickle.dumps(ft,pickle.HIGHEST_PROTOCOL))
+        self.assertTrue(ft2.isEqual(ft,1e-16))
         pass
 
     def test13(self):
