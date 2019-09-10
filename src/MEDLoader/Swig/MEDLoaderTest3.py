@@ -5913,21 +5913,24 @@ class MEDLoaderTest3(unittest.TestCase):
             mu.setMeshAtLevel(0, m)
             g = DataArrayInt([0])
             g.setName(grp_name)
-            mu.setGroupsAtLevel(0, [g])
+            g2 = DataArrayInt([1])
+            g2.setName("common")  # make a common group for all meshes being merged
+            mu.setGroupsAtLevel(0, [g, g2])
             return mu
 
         m1 = generate("A", 0.)
         m2 = generate("B", 2.)
         mm = MEDFileUMesh.Aggregate([m1,m2])
 
-        self.assertEqual(mm.getFamilyFieldAtLevel(0).getValues(), [-2, -1, -1, -1, -3, -1, -1, -1])
+        self.assertEqual(mm.getFamilyFieldAtLevel(0).getValues(), [-2, -3, -1, -1, -4, -5, -1, -1])
         self.assertEqual(mm.getNumberFieldAtLevel(0), None)
-        refFamIds=[('Family_-1',-1),('Family_-2',-2),('Family_-3',-3)]
+        refFamIds=[('Family_-1',-1),('Family_-2',-2),('Family_-3',-3), ('Family_-4',-4), ('Family_-5',-5)]
         self.assertEqual(set(mm.getFamiliesNames()),set([elt[0] for elt in refFamIds]))
         self.assertEqual(set([mm.getFamilyId(elt) for elt in mm.getFamiliesNames()]),set([elt[1] for elt in refFamIds]))
-        self.assertEqual(mm.getGroupsNames(),('A','B'))
+        self.assertEqual(mm.getGroupsNames(),('A','B', 'common'))
         self.assertEqual(mm.getGroupArr(0, 'A').getValues(), [0])
         self.assertEqual(mm.getGroupArr(0, 'B').getValues(), [4])
+        self.assertEqual(mm.getGroupArr(0, 'common').getValues(), [1,5])
 
         pass
 
