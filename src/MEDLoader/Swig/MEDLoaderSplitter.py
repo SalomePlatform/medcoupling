@@ -178,15 +178,20 @@ class MEDLoaderSplitter:
             if 0 in mfm.getFamArrNonEmptyLevelsExt():
                 mlPart.setFamilyFieldArr(0,mfm.getFamilyFieldAtLevel(0)[ids])
                 pass
+            if 0 in mfm.getNameArrNonEmptyLevelsExt():
+                mlPart.setNameFieldAtLevel(0, mfm.getNameFieldAtLevel(0)[ids])
             if 1 in mfm.getFamArrNonEmptyLevelsExt():
                 mlPart.setFamilyFieldArr(1,mfm.getFamilyFieldAtLevel(1)[trad])
                 pass
+            if 1 in mfm.getNameArrNonEmptyLevelsExt():
+                mlPart.setNameFieldAtLevel(1, mfm.getNameFieldAtLevel(1)[trad])
             for k,v in dAddlevs.items():
                 part=v.getCellIdsFullyIncludedInNodeIds(trad)
                 mSubPart=v[part] ; mSubPart.renumberNodesInConn(trado2n) ; mSubPart.setCoords(mPart.getCoords())
                 mlPart[k]=mSubPart
                 mlPart.setFamilyFieldArr(k,mfm.getFamilyFieldAtLevel(k)[part])
-                pass
+                if k in mfm.getNameArrNonEmptyLevelsExt():
+                    mlPart.setNameFieldAtLevel(k, mfm.getNameFieldAtLevel(k)[part])
             mlPart.copyFamGrpMapsFrom(mfm)
             ret.pushMesh(mlPart)
             pass

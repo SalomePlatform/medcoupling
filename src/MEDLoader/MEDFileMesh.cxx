@@ -5916,7 +5916,7 @@ void MEDFileStructuredMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArra
       {
         int nbCells=mesh->getNumberOfCellsOfSubLevelMesh();
         nameArr->checkNbOfTuplesAndComp(nbCells,MED_SNAME_SIZE,"MEDFileStructuredMesh::setNameFieldAtLevel : Problem in size of names arr ! Mismatch with number of faces of mesh !");
-        _names_cells=nameArr;
+        _names_faces=nameArr;
       }
     default:
       throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setNameFieldAtLevel : Only available for levels 0 or 1 or -1 !");
