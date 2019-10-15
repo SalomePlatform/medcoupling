@@ -35,6 +35,7 @@ namespace MEDCoupling
   class TimeLabel
   {
   public:
+    MEDCOUPLING_EXPORT TimeLabel(const TimeLabel& other) = default;
     MEDCOUPLING_EXPORT TimeLabel& operator=(const TimeLabel& other);
     //! This method should be called when write access has been done on this.
     MEDCOUPLING_EXPORT void declareAsNew() const;

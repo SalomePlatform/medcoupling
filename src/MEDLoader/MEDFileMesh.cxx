@@ -4666,6 +4666,11 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::symmetry3DPlane(const double point[3], const 
   return ret;
 }
 
+/*!
+ * Aggregate the given MEDFileUMesh objects into a single mesh. When groups are present, those are
+ * merged in such a way that the final mesh contain all of them.
+ * \return a new object.
+ */
 MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *>& meshes)
 {
   if(meshes.empty())
@@ -4690,6 +4695,7 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
   std::map<std::string,int> famNumMap;
   std::map<int, std::string> famNumMap_rev;
   std::map<std::string, std::vector<std::string> > grpFamMap;
+  std::set< MCAuto<DataArrayInt> > mem_cleanup;   // Memory clean-up. At set deletion (end of method), arrays will be deallocated.
 
   // Identify min family number used:
   int min_fam_num(0);
@@ -4765,7 +4771,8 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
           // Family field - substitute new family number if needed:
           if(fam_conflict)
             {
-              DataArrayInt *dai(msh->getFamilyFieldAtLevel(level)->deepCopy());  // Need a copy
+              DataArrayInt* dai(msh->getFamilyFieldAtLevel(level)->deepCopy());  // Need a copy
+              mem_cleanup.insert(MCAuto<DataArrayInt>(dai));      // Make sure array will decrRef() at end of method
               for (const auto& subN : substituteN)
                 dai->changeValue(subN.first, subN.second);
               m_fam[level].push_back(dai);
@@ -4777,17 +4784,30 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
       const std::map<std::string, std::vector<std::string> >& locMap2(msh->getGroupInfo());
       for(const auto& grpItem : locMap2)
         {
-          const auto& famLst = grpItem.second;
+          const std::string& grpName = grpItem.first;
+          std::vector<std::string> famLst;
           // Substitute family name in group description if needed:
           if (fam_conflict)
             {
-              std::vector<std::string> newLst(famLst);   // Copy needed.
+              famLst = grpItem.second;
               for (const auto& sub : substitute)
-                std::replace(newLst.begin(), newLst.end(), sub.first, sub.second);
-              grpFamMap[grpItem.first]=newLst;
+                std::replace(famLst.begin(), famLst.end(), sub.first, sub.second);
             }
           else
-            grpFamMap[grpItem.first]=famLst;
+            famLst = grpItem.second;
+
+          // Potentially merge groups (if same name):
+          const auto& it = grpFamMap.find(grpName);
+          if (it != grpFamMap.end())
+            {
+              // Group already exists, merge should be done. Normally we whould never
+              // have twice the same family name in famLstCur and famLst since we dealt with family number
+              // conflict just above ...
+              std::vector<std::string>& famLstCur = (*it).second;
+              famLstCur.insert(famLstCur.end(), famLst.begin(), famLst.end());
+            }
+          else
+            grpFamMap[grpName] = famLst;
         }
     }
   // Easy part : nodes
