@@ -1118,6 +1118,7 @@ namespace MEDCoupling
     std::vector<std::string> removeOrphanFamilies();
     void removeFamiliesReferedByNoGroups();
     void rearrangeFamilies();
+    void zipFamilies();
     void checkOrphanFamilyZero() const;
     void changeGroupName(const std::string& oldName, const std::string& newName);
     void changeFamilyName(const std::string& oldName, const std::string& newName);

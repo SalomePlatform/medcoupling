@@ -6658,6 +6658,76 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertIn(fmts.getHeapMemorySize(),range(refSize,refSize+refSize//10))
         pass
 
+    def testZipFamilies1(self):
+        """
+        MEDFileMesh.zipFamilies tries to reduce family partitions under groups.
+        """
+        mname="mesh" 
+        arr=DataArrayDouble(10) ; arr.iota()
+        m=MEDCouplingCMesh()
+        m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        m.setName(mname)
+        #
+        mm=MEDFileUMesh()
+        mm[0]=m
+        for i in range(m.getNumberOfCells()):
+            d = DataArrayInt([i])
+            d.setName("grp%d"%i)
+            mm.addGroup(0,d)
+            pass
+        
+        grp_all = DataArrayInt.Range(0,m.getNumberOfCells(),1)
+        grp_all.setName("grp_all")
+        mm.addGroup(0,grp_all)
+        for i in range(m.getNumberOfCells()):
+            mm.removeGroup("grp{}".format(i))
+            pass
+        #
+        mm.zipFamilies() # the method to test
+        #
+        self.assertEqual(mm.getGroupsNames(),("grp_all",))
+        self.assertEqual(len(mm.getFamiliesNames()),1)
+        self.assertTrue(mm.getGroupArr(0,"grp_all").isEqualWithoutConsideringStr(DataArrayInt.Range(0,81,1)))
+        pass
+
+    def testZipFamilies2(self):
+        """
+        MEDFileMesh.zipFamilies tries to reduce family partitions under groups.
+        """
+        mname="mesh" 
+        arr=DataArrayDouble(21) ; arr.iota()
+        m=MEDCouplingCMesh()
+        m.setCoords(arr)
+        m=m.buildUnstructured()
+        m.setName(mname)
+        #
+        mm=MEDFileUMesh()
+        mm[0]=m
+        # 1 and 3 to be merged
+        # 2 and 5 to be merged
+        mm.setFamilyFieldArr(0,DataArrayInt([-1,-1,-2,-3,-8, 0,-7,-7,-1,0, -6,-2,-5,-5,-2, -2,-2,-5,-4,-3]))
+        for i in range(1,9):
+            mm.setFamilyId("Fam_{}".format(i),-i)
+        mm.setFamiliesOnGroup("grp0",["Fam_1","Fam_3","Fam_6"])
+        mm.setFamiliesOnGroup("grp1",["Fam_1","Fam_2","Fam_3","Fam_5","Fam_6"])
+        mm.setFamiliesOnGroup("grp2",["Fam_2","Fam_5","Fam_6","Fam_7"])
+        #
+        grp0=DataArrayInt([0,1,3,8,10,19])
+        grp1=DataArrayInt([0,1,2,3,8,10,11,12,13,14,15,16,17,19])
+        grp2=DataArrayInt([2,6,7,10,11,12,13,14,15,16,17])
+        self.assertTrue(mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr(grp0))
+        self.assertTrue(mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr(grp1))
+        self.assertTrue(mm.getGroupArr(0,"grp2").isEqualWithoutConsideringStr(grp2))
+        self.assertEqual(mm.getGroupsNames(),('grp0','grp1','grp2'))
+        mm.zipFamilies()
+        self.assertEqual(mm.getGroupsNames(),('grp0','grp1','grp2'))
+        self.assertTrue(mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr(grp0))
+        self.assertTrue(mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr(grp1))
+        self.assertTrue(mm.getGroupArr(0,"grp2").isEqualWithoutConsideringStr(grp2))
+        self.assertEqual(mm.getFamiliesNames(),('Fam_1','Fam_2','Fam_6','Fam_7'))
+        pass
+        
     pass
 
 if __name__ == "__main__":

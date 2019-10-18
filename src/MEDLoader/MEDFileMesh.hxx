@@ -143,6 +143,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::vector<std::string> removeOrphanFamilies();
     MEDLOADER_EXPORT void removeFamiliesReferedByNoGroups();
     MEDLOADER_EXPORT void rearrangeFamilies();
+    MEDLOADER_EXPORT void zipFamilies();
     MEDLOADER_EXPORT void checkOrphanFamilyZero() const;
     MEDLOADER_EXPORT void changeGroupName(const std::string& oldName, const std::string& newName);
     MEDLOADER_EXPORT void changeFamilyName(const std::string& oldName, const std::string& newName);

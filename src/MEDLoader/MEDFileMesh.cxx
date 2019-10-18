@@ -766,7 +766,7 @@ std::vector<std::string> MEDFileMesh::removeOrphanGroups()
  * family field whatever its level. Groups are updated in consequence, that is to say all groups lying on orphan family, will see their families list modified.
  * 
  * \return - The list of removed families names.
- * \sa MEDFileMesh::removeOrphanGroups.
+ * \sa MEDFileMesh::removeOrphanGroups , MEDFileMesh::removeFamiliesReferedByNoGroups
  */
 std::vector<std::string> MEDFileMesh::removeOrphanFamilies()
 {
@@ -807,6 +807,7 @@ std::vector<std::string> MEDFileMesh::removeOrphanFamilies()
  * this family is orphan or not.
  *
  * \warning this method is different from removeOrphanFamilies that scans family field array to find orphan families.
+ * \sa MEDFileMesh::removeOrphanFamilies
  */
 void MEDFileMesh::removeFamiliesReferedByNoGroups()
 {
@@ -829,7 +830,7 @@ void MEDFileMesh::removeFamiliesReferedByNoGroups()
  * 
  * This method also raises an exception if a family belonging to a group has also id 0 (which is not right in MED file format). You should never encounter this case using addGroup method.
  *
- * \sa MEDFileMesh::removeOrphanFamilies
+ * \sa MEDFileMesh::removeOrphanFamilies, MEDFileMesh::zipFamilies
  */
 void MEDFileMesh::rearrangeFamilies()
 {
@@ -872,6 +873,83 @@ void MEDFileMesh::rearrangeFamilies()
         }
     }
   removeOrphanFamilies();
+}
+
+/*!
+ * This method has no impact on existing groups. This method has only impact on families behind the groups.
+ * This method is especially useful for MED file structures having used too much families to define their groups and that need to be merged without modification of their groups.
+ * To zip families, firstly this method first removes families refered by no groups (see MEDFileMesh::removeFamiliesReferedByNoGroups), then this method puts together families lying on a same set of groups. If the set of families having same groups has a length higher than 1, the families are merged into a single family
+ * having the name of the first family appearing in family definition and with the corresponding family ID.
+ */
+void MEDFileMesh::zipFamilies()
+{
+  checkOrphanFamilyZero();
+  removeFamiliesReferedByNoGroups();
+  std::map< std::set<std::string> , std::vector<std::string> > setOfFamilies;
+  // firstly, store in setOfFamilies as key the common set of groups, and as value the families having such same set of groups
+  for(auto fam : _families)
+    {
+      std::vector<std::string> grps( this->getGroupsOnFamily( fam.first ) );
+      std::set<std::string> sgrps(grps.begin(),grps.end());
+      setOfFamilies[sgrps].push_back(fam.first);
+    }
+  //
+  std::map<std::string, std::vector<std::string> > newGroups(_groups);
+  std::map<std::string,int> newFams(_families);
+  std::vector<int> levels(getNonEmptyLevelsExt());
+  std::map<int, std::vector<int> > famIdsToSubstitute;
+  // iterate on all different set of groups
+  std::set<std::string> familiesToKill;
+  for(auto setOfCommonGrp : setOfFamilies)
+    {
+      if( setOfCommonGrp.second.size()<=1 )
+        continue;
+      for(auto fam=setOfCommonGrp.second.begin()+1 ; fam != setOfCommonGrp.second.end() ; fam++)
+        familiesToKill.insert(*fam);
+    }
+  // iterate on all different set of groups
+  for(auto setOfCommonGrp : setOfFamilies)
+    {
+      if( setOfCommonGrp.second.size()<=1 )
+        continue;
+      std::string newFamName(setOfCommonGrp.second[0]);
+      auto newFamID(_families[newFamName]);
+      for(auto grpToBeModified : setOfCommonGrp.first)
+        {
+          std::vector<std::string> newFamiliesForCurGrp(1,newFamName);
+          const std::vector<std::string>& familiesOnCurGrp(_groups[grpToBeModified]);
+          const std::vector<std::string>& familiesToZip(setOfCommonGrp.second);
+          std::for_each(familiesToZip.begin(),familiesToZip.end(),[&famIdsToSubstitute,this,newFamID](const std::string& elt) { famIdsToSubstitute[newFamID].push_back(this->getFamilyId(elt)); });
+          // for each family shared by the current group only keep those not sharing setOfCommonGrp.second
+          std::for_each(familiesOnCurGrp.begin(),familiesOnCurGrp.end(),[&familiesToKill,&newFamiliesForCurGrp](const std::string& elt)
+                        { if( familiesToKill.find(elt) == familiesToKill.end() ) { newFamiliesForCurGrp.push_back(elt); } });
+          newGroups[grpToBeModified] = newFamiliesForCurGrp;
+        }
+      for(auto familyToKill = setOfCommonGrp.second.begin()+1 ; familyToKill != setOfCommonGrp.second.end(); ++familyToKill)
+        {
+          newFams.erase( newFams.find(*familyToKill) );
+        }
+      
+    }
+  // apply modifications in datastructure
+  for(auto famIdsSubstSession : famIdsToSubstitute)
+    {
+      for(std::vector<int>::const_iterator it=levels.begin();it!=levels.end();it++)
+        {
+          DataArrayInt *fams(nullptr);
+          try
+            {
+              fams=getFamilyFieldAtLevel(*it);
+            }
+          catch(INTERP_KERNEL::Exception& e) { }
+          if(!fams)
+            continue;
+          MCAuto<DataArrayInt> idsToModif(fams->findIdsEqualList(famIdsSubstSession.second.data(),famIdsSubstSession.second.data()+famIdsSubstSession.second.size()));
+          fams->setPartOfValuesSimple3(famIdsSubstSession.first,idsToModif->begin(),idsToModif->end(),0,1,1);
+        }
+    }
+  _groups = newGroups;
+  _families = newFams;
 }
 
 /*!
