@@ -347,7 +347,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         f.setName("aname")
         a=f.getArray()
         b=a[:] ; b.iota(7000)
-        f.setArray(DataArrayInt.Meld(a,b))
+        f.setArray(DataArrayInt32.Meld(a,b))
         f.getArray().setInfoOnComponents(["u1","vv2"])
         f.checkConsistencyLight();
         #

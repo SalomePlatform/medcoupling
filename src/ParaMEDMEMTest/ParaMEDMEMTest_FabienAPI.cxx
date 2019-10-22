@@ -65,7 +65,7 @@ void ParaMEDMEMTest::testFabienAPI1()
       std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
       mesh->setCoords(myCoords);
       myCoords->decrRef();
-      int targetConn[4]={0,2,3,1};
+      mcIdType targetConn[4]={0,2,3,1};
       mesh->allocateCells(1);
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
       mesh->finishInsertingCells();
@@ -85,7 +85,7 @@ void ParaMEDMEMTest::testFabienAPI1()
       std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
       mesh->setCoords(myCoords);
       myCoords->decrRef();
-      int targetConn[6]={0,2,1,2,3,1};
+      mcIdType targetConn[6]={0,2,1,2,3,1};
       mesh->allocateCells(2);
       mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
       mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
@@ -150,7 +150,7 @@ void ParaMEDMEMTest::testFabienAPI2()
       std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
       mesh->setCoords(myCoords);
       myCoords->decrRef();
-      int targetConn[4]={0,2,3,1};
+      mcIdType targetConn[4]={0,2,3,1};
       mesh->allocateCells(1);
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
       mesh->finishInsertingCells();
@@ -170,7 +170,7 @@ void ParaMEDMEMTest::testFabienAPI2()
       std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
       mesh->setCoords(myCoords);
       myCoords->decrRef();
-      int targetConn[6]={0,2,1,2,3,1};
+      mcIdType targetConn[6]={0,2,1,2,3,1};
       mesh->allocateCells(2);
       mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
       mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);

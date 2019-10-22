@@ -46,17 +46,17 @@ namespace INTERP_KERNEL
     const ConnType *startOfCellNodeConnT=PlanarIntersector<MyMeshType,MyMatrix>::_connectT+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT]);
     std::vector<double> coordsTarget;
     PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),coordsTarget);
-    int nbNodesT=coordsTarget.size()/SPACEDIM;
+    ConnType nbNodesT=ToConnType(coordsTarget.size())/SPACEDIM;
     ii=0;
     for(typename std::vector<ConnType>::const_iterator iter2=icellsS.begin();iter2!=icellsS.end();iter2++,ii++)
       {
         std::vector<double> tmpSource(coordsOfSources[ii]);
         std::vector<double> tmpTarget(coordsTarget);
         if(SPACEDIM==3)
-          PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&tmpSource[0],&tmpTarget[0],tmpSource.size()/SPACEDIM,nbNodesT);
-        for(int nodeIdT=0;nodeIdT<nbNodesT;nodeIdT++)
+          PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&tmpSource[0],&tmpTarget[0],ToConnType(tmpSource.size())/SPACEDIM,nbNodesT);
+        for(ConnType nodeIdT=0;nodeIdT<nbNodesT;nodeIdT++)
           {
-            if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(&tmpTarget[0]+nodeIdT*SPACEDIM,&tmpSource[0],tmpSource.size()/SPACEDIM,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
+            if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(&tmpTarget[0]+nodeIdT*SPACEDIM,&tmpSource[0],ToConnType(tmpSource.size())/SPACEDIM,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
               {
                 ConnType curNodeTInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConnT[nodeIdT]);
                 typename MyMatrix::value_type& resRow=res[curNodeTInCmode];
@@ -69,13 +69,13 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersectorP0P1PL<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP0P1PL<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfNodes();
   }
   
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersectorP0P1PL<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP0P1PL<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfElements();
   }

@@ -106,7 +106,7 @@ namespace INTERP_TEST
       for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
         {
           numElems += iter->size();
-          for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+          for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
             {
               if(!INTERP_KERNEL::epsilonEqual(iter2->second, 0.0, VOL_PREC))
                 {

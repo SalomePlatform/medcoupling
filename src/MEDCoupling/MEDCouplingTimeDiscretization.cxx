@@ -343,7 +343,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::maxPerTuple() cons
   return ret;
 }
 
-MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::keepSelectedComponents(const std::vector<int>& compoIds) const
+MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::keepSelectedComponents(const std::vector<std::size_t>& compoIds) const
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -362,7 +362,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::keepSelectedCompon
   return ret;
 }
 
-void MEDCouplingTimeDiscretization::setSelectedComponents(const MEDCouplingTimeDiscretization *other, const std::vector<int>& compoIds)
+void MEDCouplingTimeDiscretization::setSelectedComponents(const MEDCouplingTimeDiscretization *other, const std::vector<std::size_t>& compoIds)
 {
   std::vector<DataArrayDouble *> arrays1,arrays2;
   getArrays(arrays1);
@@ -378,7 +378,7 @@ void MEDCouplingTimeDiscretization::setSelectedComponents(const MEDCouplingTimeD
     }
 }
 
-void MEDCouplingTimeDiscretization::changeNbOfComponents(int newNbOfComp, double dftValue)
+void MEDCouplingTimeDiscretization::changeNbOfComponents(std::size_t newNbOfComp, double dftValue)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -405,7 +405,7 @@ void MEDCouplingTimeDiscretization::sortPerTuple(bool asc)
     }
 }
 
-void MEDCouplingTimeDiscretization::setUniformValue(int nbOfTuple, int nbOfCompo, double value)
+void MEDCouplingTimeDiscretization::setUniformValue(mcIdType nbOfTuple, int nbOfCompo, double value)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -430,7 +430,7 @@ void MEDCouplingTimeDiscretization::setUniformValue(int nbOfTuple, int nbOfCompo
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::setOrCreateUniformValueOnAllComponents(int nbOfTuple, double value)
+void MEDCouplingTimeDiscretization::setOrCreateUniformValueOnAllComponents(mcIdType nbOfTuple, double value)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -1168,12 +1168,12 @@ void MEDCouplingNoTimeLabel::setEndTime(double time, int iteration, int order)
   throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
 
-void MEDCouplingNoTimeLabel::getValueOnTime(int eltId, double time, double *value) const
+void MEDCouplingNoTimeLabel::getValueOnTime(mcIdType eltId, double time, double *value) const
 {
   throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
 
-void MEDCouplingNoTimeLabel::getValueOnDiscTime(int eltId, int iteration, int order, double *value) const
+void MEDCouplingNoTimeLabel::getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const
 {
   throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
@@ -1181,7 +1181,7 @@ void MEDCouplingNoTimeLabel::getValueOnDiscTime(int eltId, int iteration, int or
 /*!
  * idem getTinySerializationIntInformation except that it is for multi field fetch
  */
-void MEDCouplingNoTimeLabel::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
+void MEDCouplingNoTimeLabel::getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const
 {
   tinyInfo.clear();
 }
@@ -1198,7 +1198,7 @@ void MEDCouplingNoTimeLabel::getTinySerializationDbleInformation2(std::vector<do
 /*!
  * idem finishUnserialization except that it is for multi field fetch
  */
-void MEDCouplingNoTimeLabel::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
+void MEDCouplingNoTimeLabel::finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD)
 {
   _time_tolerance=tinyInfoD[0];
 }
@@ -1230,7 +1230,7 @@ void MEDCouplingWithTimeStep::synchronizeTimeWith(const MEDCouplingMesh *mesh)
   setTimeUnit(tUnit);
 }
 
-void MEDCouplingWithTimeStep::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+void MEDCouplingWithTimeStep::getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const
 {
   MEDCouplingTimeDiscretization::getTinySerializationIntInformation(tinyInfo);
   tinyInfo.push_back(_tk.getIteration());
@@ -1243,18 +1243,18 @@ void MEDCouplingWithTimeStep::getTinySerializationDbleInformation(std::vector<do
   tinyInfo.push_back(_tk.getTimeValue());
 }
 
-void MEDCouplingWithTimeStep::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+void MEDCouplingWithTimeStep::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
 {
   MEDCouplingTimeDiscretization::finishUnserialization(tinyInfoI,tinyInfoD,tinyInfoS);
   _tk.setTimeValue(tinyInfoD[1]);
-  _tk.setIteration(tinyInfoI[2]);
-  _tk.setOrder(tinyInfoI[3]);
+  _tk.setIteration(FromIdType<int>(tinyInfoI[2]));
+  _tk.setOrder(FromIdType<int>(tinyInfoI[3]));
 }
 
 /*!
  * idem getTinySerializationIntInformation except that it is for multi field fetch
  */
-void MEDCouplingWithTimeStep::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
+void MEDCouplingWithTimeStep::getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const
 {
   tinyInfo.resize(2);
   tinyInfo[0]=_tk.getIteration();
@@ -1274,10 +1274,10 @@ void MEDCouplingWithTimeStep::getTinySerializationDbleInformation2(std::vector<d
 /*!
  * idem finishUnserialization except that it is for multi field fetch
  */
-void MEDCouplingWithTimeStep::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
+void MEDCouplingWithTimeStep::finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD)
 {
-  _tk.setIteration(tinyInfoI[0]);
-  _tk.setOrder(tinyInfoI[1]);
+  _tk.setIteration(FromIdType<int>(tinyInfoI[0]));
+  _tk.setOrder(FromIdType<int>(tinyInfoI[1]));
   _time_tolerance=tinyInfoD[0];
   _tk.setTimeValue(tinyInfoD[1]);
 }
@@ -1593,7 +1593,7 @@ void MEDCouplingWithTimeStep::getValueForTime(double time, const std::vector<dou
   std::copy(vals.begin(),vals.end(),res);
 }
 
-void MEDCouplingWithTimeStep::getValueOnTime(int eltId, double time, double *value) const
+void MEDCouplingWithTimeStep::getValueOnTime(mcIdType eltId, double time, double *value) const
 {
   if(std::fabs(time-_tk.getTimeValue())<=_time_tolerance)
     if(_array)
@@ -1604,7 +1604,7 @@ void MEDCouplingWithTimeStep::getValueOnTime(int eltId, double time, double *val
     throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
 
-void MEDCouplingWithTimeStep::getValueOnDiscTime(int eltId, int iteration, int order, double *value) const
+void MEDCouplingWithTimeStep::getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const
 {
   if(_tk.getIteration()==iteration && _tk.getOrder()==order)
     if(_array)
@@ -1629,7 +1629,7 @@ void MEDCouplingConstOnTimeInterval::copyTinyAttrFrom(const MEDCouplingTimeDiscr
   _end.copyFrom(otherC->_end);
 }
 
-void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const
 {
   MEDCouplingTimeDiscretization::getTinySerializationIntInformation(tinyInfo);
   tinyInfo.push_back(_start.getIteration());
@@ -1645,21 +1645,21 @@ void MEDCouplingConstOnTimeInterval::getTinySerializationDbleInformation(std::ve
   tinyInfo.push_back(_end.getTimeValue());
 }
 
-void MEDCouplingConstOnTimeInterval::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+void MEDCouplingConstOnTimeInterval::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
 {
   MEDCouplingTimeDiscretization::finishUnserialization(tinyInfoI,tinyInfoD,tinyInfoS);
   _start.setTimeValue(tinyInfoD[1]);
   _end.setTimeValue(tinyInfoD[2]);
-  _start.setIteration(tinyInfoI[2]);
-  _start.setOrder(tinyInfoI[3]);
-  _end.setIteration(tinyInfoI[4]);
-  _end.setOrder(tinyInfoI[5]);
+  _start.setIteration(FromIdType<int>(tinyInfoI[2]));
+  _start.setOrder(FromIdType<int>(tinyInfoI[3]));
+  _end.setIteration(FromIdType<int>(tinyInfoI[4]));
+  _end.setOrder(FromIdType<int>(tinyInfoI[5]));
 }
 
 /*!
  * idem getTinySerializationIntInformation except that it is for multi field fetch
  */
-void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
+void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const
 {
   tinyInfo.resize(4);
   tinyInfo[0]=_start.getIteration();
@@ -1682,12 +1682,12 @@ void MEDCouplingConstOnTimeInterval::getTinySerializationDbleInformation2(std::v
 /*!
  * idem finishUnserialization except that it is for multi field fetch
  */
-void MEDCouplingConstOnTimeInterval::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
+void MEDCouplingConstOnTimeInterval::finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD)
 {
-  _start.setIteration(tinyInfoI[0]);
-  _start.setOrder(tinyInfoI[1]);
-  _end.setIteration(tinyInfoI[2]);
-  _end.setOrder(tinyInfoI[3]);
+  _start.setIteration(FromIdType<int>(tinyInfoI[0]));
+  _start.setOrder(FromIdType<int>(tinyInfoI[1]));
+  _end.setIteration(FromIdType<int>(tinyInfoI[2]));
+  _end.setOrder(FromIdType<int>(tinyInfoI[3]));
   _time_tolerance=tinyInfoD[0];
   _start.setTimeValue(tinyInfoD[1]);
   _end.setTimeValue(tinyInfoD[2]);
@@ -1812,7 +1812,7 @@ bool MEDCouplingConstOnTimeInterval::isEqualWithoutConsideringStr(const MEDCoupl
   return MEDCouplingTimeDiscretization::isEqualWithoutConsideringStr(other,prec);
 }
 
-void MEDCouplingConstOnTimeInterval::getValueOnTime(int eltId, double time, double *value) const
+void MEDCouplingConstOnTimeInterval::getValueOnTime(mcIdType eltId, double time, double *value) const
 {
   if(time>_start.getTimeValue()-_time_tolerance && time<_end.getTimeValue()+_time_tolerance)
     if(_array)
@@ -1823,7 +1823,7 @@ void MEDCouplingConstOnTimeInterval::getValueOnTime(int eltId, double time, doub
     throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
 
-void MEDCouplingConstOnTimeInterval::getValueOnDiscTime(int eltId, int iteration, int order, double *value) const
+void MEDCouplingConstOnTimeInterval::getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const
 {
   if(iteration>=_start.getIteration() && iteration<=_end.getIteration())
     if(_array)
@@ -2229,7 +2229,7 @@ void MEDCouplingTwoTimeSteps::setEndArray(DataArrayDouble *array, TimeLabel *own
     }
 }
 
-void MEDCouplingTwoTimeSteps::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+void MEDCouplingTwoTimeSteps::getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const
 {
   MEDCouplingTimeDiscretization::getTinySerializationIntInformation(tinyInfo);
   tinyInfo.push_back(_start.getIteration());
@@ -2239,7 +2239,7 @@ void MEDCouplingTwoTimeSteps::getTinySerializationIntInformation(std::vector<int
   if(_end_array)
     {
       tinyInfo.push_back(_end_array->getNumberOfTuples());
-      tinyInfo.push_back(_end_array->getNumberOfComponents());
+      tinyInfo.push_back(ToIdType(_end_array->getNumberOfComponents()));
     }
   else
     {
@@ -2257,14 +2257,14 @@ void MEDCouplingTwoTimeSteps::getTinySerializationDbleInformation(std::vector<do
 
 void MEDCouplingTwoTimeSteps::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
 {
-  int nbOfCompo=_array->getNumberOfComponents();
-  for(int i=0;i<nbOfCompo;i++)
+  std::size_t nbOfCompo=_array->getNumberOfComponents();
+  for(std::size_t i=0;i<nbOfCompo;i++)
     tinyInfo.push_back(_array->getInfoOnComponent(i));
-  for(int i=0;i<nbOfCompo;i++)
+  for(std::size_t i=0;i<nbOfCompo;i++)
     tinyInfo.push_back(_end_array->getInfoOnComponent(i));
 }
 
-void MEDCouplingTwoTimeSteps::resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays)
+void MEDCouplingTwoTimeSteps::resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, std::vector<DataArrayDouble *>& arrays)
 {
   arrays.resize(2);
   if(_array!=0)
@@ -2289,7 +2289,7 @@ void MEDCouplingTwoTimeSteps::resizeForUnserialization(const std::vector<int>& t
   arrays[1]=arr;
 }
 
-void MEDCouplingTwoTimeSteps::checkForUnserialization(const std::vector<int>& tinyInfoI, const std::vector<DataArrayDouble *>& arrays)
+void MEDCouplingTwoTimeSteps::checkForUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<DataArrayDouble *>& arrays)
 {
   static const char MSG[]="MEDCouplingTimeDiscretization::checkForUnserialization : arrays in input is expected to have size two !";
   if(arrays.size()!=2)
@@ -2315,21 +2315,21 @@ void MEDCouplingTwoTimeSteps::checkForUnserialization(const std::vector<int>& ti
     }
 }
 
-void MEDCouplingTwoTimeSteps::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+void MEDCouplingTwoTimeSteps::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
 {
   MEDCouplingTimeDiscretization::finishUnserialization(tinyInfoI,tinyInfoD,tinyInfoS);
   _start.setTimeValue(tinyInfoD[1]);
   _end.setTimeValue(tinyInfoD[2]);
-  _start.setIteration(tinyInfoI[2]);
-  _start.setOrder(tinyInfoI[3]);
-  _end.setIteration(tinyInfoI[4]);
-  _end.setOrder(tinyInfoI[5]);
+  _start.setIteration(FromIdType<int>(tinyInfoI[2]));
+  _start.setOrder(FromIdType<int>(tinyInfoI[3]));
+  _end.setIteration(FromIdType<int>(tinyInfoI[4]));
+  _end.setOrder(FromIdType<int>(tinyInfoI[5]));
 }
 
 /*!
  * idem getTinySerializationIntInformation except that it is for multi field fetch
  */
-void MEDCouplingTwoTimeSteps::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
+void MEDCouplingTwoTimeSteps::getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const
 {
   tinyInfo.resize(4);
   tinyInfo[0]=_start.getIteration();
@@ -2352,12 +2352,12 @@ void MEDCouplingTwoTimeSteps::getTinySerializationDbleInformation2(std::vector<d
 /*!
  * idem finishUnserialization except that it is for multi field fetch
  */
-void MEDCouplingTwoTimeSteps::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
+void MEDCouplingTwoTimeSteps::finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD)
 {
-  _start.setIteration(tinyInfoI[0]);
-  _start.setOrder(tinyInfoI[1]);
-  _end.setIteration(tinyInfoI[2]);
-  _end.setOrder(tinyInfoI[3]);
+  _start.setIteration(FromIdType<int>(tinyInfoI[0]));
+  _start.setOrder(FromIdType<int>(tinyInfoI[1]));
+  _end.setIteration(FromIdType<int>(tinyInfoI[2]));
+  _end.setOrder(FromIdType<int>(tinyInfoI[3]));
   _time_tolerance=tinyInfoD[0];
   _start.setTimeValue(tinyInfoD[1]);
   _end.setTimeValue(tinyInfoD[2]);
@@ -2459,8 +2459,8 @@ bool MEDCouplingLinearTime::areStrictlyCompatibleForDiv(const MEDCouplingTimeDis
     return true;
   if(_end_array==0 || otherC->_end_array==0)
     return false;
-  int nbC1=_end_array->getNumberOfComponents();
-  int nbC2=otherC->_end_array->getNumberOfComponents();
+  std::size_t nbC1=_end_array->getNumberOfComponents();
+  std::size_t nbC2=otherC->_end_array->getNumberOfComponents();
   if(nbC1!=nbC2 && nbC2!=1)
     return false;
   return true;
@@ -2487,15 +2487,14 @@ void MEDCouplingLinearTime::getValueForTime(double time, const std::vector<doubl
   std::transform(tmp.begin(),tmp.end(),res,res,std::plus<double>());
 }
 
-void MEDCouplingLinearTime::getValueOnTime(int eltId, double time, double *value) const
+void MEDCouplingLinearTime::getValueOnTime(mcIdType eltId, double time, double *value) const
 {
   double alpha=(_end.getTimeValue()-time)/(_end.getTimeValue()-_start.getTimeValue());
-  int nbComp;
   if(_array)
     _array->getTuple(eltId,value);
   else
     throw INTERP_KERNEL::Exception("No start array existing.");
-  nbComp=_array->getNumberOfComponents();
+  std::size_t nbComp=_array->getNumberOfComponents();
   std::transform(value,value+nbComp,value,std::bind2nd(std::multiplies<double>(),alpha));
   std::vector<double> tmp(nbComp);
   if(_end_array)
@@ -2506,7 +2505,7 @@ void MEDCouplingLinearTime::getValueOnTime(int eltId, double time, double *value
   std::transform(tmp.begin(),tmp.end(),value,value,std::plus<double>());
 }
 
-void MEDCouplingLinearTime::getValueOnDiscTime(int eltId, int iteration, int order, double *value) const
+void MEDCouplingLinearTime::getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const
 {
   if(iteration==_start.getIteration() && order==_start.getOrder())
     {

@@ -36,7 +36,7 @@ namespace INTERP_KERNEL
     Interpolation1D0D();
     Interpolation1D0D(const InterpolationOptions& io);
     template<class MyMeshType, class MatrixType>
-    int interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method);
+    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method);
   private:
     void adjustBoundingBoxes(std::vector<double>& bbox);
   };

@@ -35,7 +35,7 @@
 
 namespace MEDCoupling
 {
-  class DataArrayInt;
+  class DataArrayIdType;
   class DataArrayDouble;
   class MEDCouplingMesh;
   class MEDCouplingFieldDouble;
@@ -61,32 +61,32 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void setNature(NatureOfField nat);
     MEDCOUPLING_EXPORT DataArrayDouble *getLocalizationOfDiscr() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const;
-    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
-    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshDataRange(int begin, int end, int step, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
-    MEDCOUPLING_EXPORT DataArrayInt *computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshData(const mcIdType *start, const mcIdType *end, DataArrayIdType *&di) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshDataRange(mcIdType begin, mcIdType end, mcIdType step, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType *&di) const;
+    MEDCOUPLING_EXPORT DataArrayIdType *computeTupleIdsToSelectFromCellIds(const mcIdType *startCellIds, const mcIdType *endCellIds) const;
     MEDCOUPLING_EXPORT const MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *getDiscretization() { return _type; }
     MEDCOUPLING_EXPORT void setDiscretization(MEDCouplingFieldDiscretization *newDisc);
-    MEDCOUPLING_EXPORT int getNumberOfTuplesExpected() const;
-    MEDCOUPLING_EXPORT int getNumberOfMeshPlacesExpected() const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfTuplesExpected() const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfMeshPlacesExpected() const;
     // Gauss point specific methods
     MEDCOUPLING_EXPORT void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                                        const std::vector<double>& gsCoo, const std::vector<double>& wg);
-    MEDCOUPLING_EXPORT void setGaussLocalizationOnCells(const int *begin, const int *end, const std::vector<double>& refCoo,
+    MEDCOUPLING_EXPORT void setGaussLocalizationOnCells(const mcIdType *begin, const mcIdType *end, const std::vector<double>& refCoo,
                                                         const std::vector<double>& gsCoo, const std::vector<double>& wg);
     MEDCOUPLING_EXPORT void clearGaussLocalizations();
     MEDCOUPLING_EXPORT MEDCouplingGaussLocalization& getGaussLocalization(int locId);
-    MEDCOUPLING_EXPORT int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT int getNbOfGaussLocalization() const;
-    MEDCOUPLING_EXPORT int getGaussLocalizationIdOfOneCell(int cellId) const;
-    MEDCOUPLING_EXPORT void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const;
+    MEDCOUPLING_EXPORT mcIdType getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const;
+    MEDCOUPLING_EXPORT std::set<mcIdType> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const;
+    MEDCOUPLING_EXPORT mcIdType getNbOfGaussLocalization() const;
+    MEDCOUPLING_EXPORT mcIdType getGaussLocalizationIdOfOneCell(mcIdType cellId) const;
+    MEDCOUPLING_EXPORT void getCellIdsHavingGaussLocalization(int locId, std::vector<mcIdType>& cellIds) const;
     MEDCOUPLING_EXPORT const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     // for MED file RW
-    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfTuplesExpectedRegardingCode(const std::vector<mcIdType>& code, const std::vector<const DataArrayIdType *>& idsPerType) const;
     MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const = 0;
   protected:
     MEDCOUPLING_EXPORT MEDCouplingField(TypeOfField type);

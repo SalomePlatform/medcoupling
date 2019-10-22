@@ -166,13 +166,13 @@ unsigned MergePoints::getNumberOfAssociations() const
   return ret;
 }
 
-void MergePoints::PushInMap(int key, int value, std::map<int,int>& mergedNodes)
+void MergePoints::PushInMap(mcIdType key, mcIdType value, std::map<mcIdType,mcIdType>& mergedNodes)
 {
   if(key!=-1 && value!=-1)
     mergedNodes[key]=value;
 }
 
-void MergePoints::updateMergedNodes(int e1Start, int e1End, int e2Start, int e2End, std::map<int,int>& mergedNodes)
+void MergePoints::updateMergedNodes(mcIdType e1Start, mcIdType e1End, mcIdType e2Start, mcIdType e2End, std::map<mcIdType,mcIdType>& mergedNodes)
 {
   unsigned subTot(_ass1Start1+_ass1End1+_ass1Start2+_ass1End2);
   if(subTot!=0)
@@ -684,17 +684,17 @@ bool Edge::IntersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *
  */
 void Edge::Interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2, std::map<int, std::map<int,double> >& result)
 {
-  int nbOfV1=distrib1.size()-1;
-  int nbOfV2=distrib2.size()-1;
+  std::size_t nbOfV1=distrib1.size()-1;
+  std::size_t nbOfV2=distrib2.size()-1;
   Node *n1=new Node(0.,0.); Node *n3=new Node(0.,0.);
   Node *n2=new Node(0.,0.); Node *n4=new Node(0.,0.);
   MergePoints commonNode;
-  for(int i=0;i<nbOfV1;i++)
+  for(unsigned int i=0;i<nbOfV1;i++)
     {
       std::vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind2nd(std::greater_equal<double>(),distrib1[i]));
       if(iter!=distrib2.end())
         {
-          for(int j=(iter-1)-distrib2.begin();j<nbOfV2;j++)
+          for(unsigned int j=(unsigned)((iter-1)-distrib2.begin());j<nbOfV2;j++)
             {
               if(distrib2[j]<=distrib1[i+1])
                 {
@@ -984,7 +984,7 @@ bool Edge::isEqual(const Edge& other) const
  * \param [in,out] subNodes to be sorted
  * \return true if a reordering was necessary false if not.
  */
-bool Edge::sortSubNodesAbs(const double *coo, std::vector<int>& subNodes)
+bool Edge::sortSubNodesAbs(const double *coo, std::vector<mcIdType>& subNodes)
 {
   Bounds b;
   b.prepareForAggregation();
@@ -998,8 +998,8 @@ bool Edge::sortSubNodesAbs(const double *coo, std::vector<int>& subNodes)
   //
   std::size_t sz(subNodes.size()),i(0);
   std::vector< std::pair<double,Node *> > an2(sz);
-  std::map<Node *, int> m;
-  for(std::vector<int>::const_iterator it=subNodes.begin();it!=subNodes.end();it++,i++)
+  std::map<Node *, mcIdType> m;
+  for(std::vector<mcIdType>::const_iterator it=subNodes.begin();it!=subNodes.end();it++,i++)
     {
       Node *n(new Node(coo[2*(*it)],coo[2*(*it)+1]));
       n->applySimilarity(xBary,yBary,dimChar);
@@ -1011,12 +1011,12 @@ bool Edge::sortSubNodesAbs(const double *coo, std::vector<int>& subNodes)
   bool ret(false);
   for(i=0;i<sz;i++)
     {
-      int id(m[an2[i].second]);
+      mcIdType id(m[an2[i].second]);
       if(id!=subNodes[i])
         { subNodes[i]=id; ret=true; }
     }
   //
-  for(std::map<INTERP_KERNEL::Node *,int>::const_iterator it2=m.begin();it2!=m.end();it2++)
+  for(std::map<INTERP_KERNEL::Node *,mcIdType>::const_iterator it2=m.begin();it2!=m.end();it2++)
     (*it2).first->decrRef();
   return ret;
 }
@@ -1024,11 +1024,11 @@ bool Edge::sortSubNodesAbs(const double *coo, std::vector<int>& subNodes)
 /**
  * Sort nodes so that they all lie consecutively on the edge that has been cut.
  */
-void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1,
-                      const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis)
+void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, mcIdType>& mapp1,
+                      const std::map<INTERP_KERNEL::Node *, mcIdType>& mapp2, std::vector<mcIdType>& edgesThis)
 {
-  int startId=(*mapp1.find(_start)).second;
-  int endId=(*mapp1.find(_end)).second;
+  mcIdType startId=(*mapp1.find(_start)).second;
+  mcIdType endId=(*mapp1.find(_end)).second;
   if (! addNodes.size()) // quick way out, no new node to add.
     {
       edgesThis.push_back(startId);
@@ -1052,30 +1052,30 @@ void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const 
   for(std::size_t i=0;i<sz;i++)
     an2[i]=std::pair<double,Node *>(getCharactValueBtw0And1(*addNodes[i]),addNodes[i]);
   std::sort(an2.begin(),an2.end());
-  std::vector<int> tmpp;
+  std::vector<mcIdType> tmpp;
   for(std::vector< std::pair<double,Node *> >::const_iterator it=an2.begin();it!=an2.end();it++)
     {
-      int idd=(*mapp2.find((*it).second)).second;
+      mcIdType idd=(*mapp2.find((*it).second)).second;
       tmpp.push_back(idd);
     }
-  std::vector<int> tmpp2(tmpp.size()+2);
+  std::vector<mcIdType> tmpp2(tmpp.size()+2);
   tmpp2[0]=startId;
   std::copy(tmpp.begin(),tmpp.end(),tmpp2.begin()+1);
   tmpp2[tmpp.size()+1]=endId;
-  std::vector<int>::iterator itt=std::unique(tmpp2.begin(),tmpp2.end());
+  std::vector<mcIdType>::iterator itt=std::unique(tmpp2.begin(),tmpp2.end());
   tmpp2.resize(std::distance(tmpp2.begin(),itt));
-  int nbOfEdges=tmpp2.size()-1;
-  for(int i=0;i<nbOfEdges;i++)
+  std::size_t nbOfEdges=tmpp2.size()-1;
+  for(std::size_t i=0;i<nbOfEdges;i++)
     {
       edgesThis.push_back(tmpp2[i]);
       edgesThis.push_back(tmpp2[i+1]);
     }
 }
 
-void Edge::fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                                std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+void Edge::fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
+                                std::vector<mcIdType>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType> mapAddCoo) const
 {
-  int tmp[2];
+  mcIdType tmp[2];
   _start->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,tmp);
   _end->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,tmp+1);
   if(direction)
@@ -1090,9 +1090,9 @@ void Edge::fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node 
     }
 }
 
-void Edge::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+void Edge::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
                               short skipStartOrEnd,
-                              std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const
+                              std::vector<mcIdType>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo) const
 {
   if (skipStartOrEnd != -1) // see meaning in splitAbs()
     _start->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);

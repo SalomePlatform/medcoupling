@@ -37,14 +37,14 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int CurveIntersectorP1P0<MyMeshType,MyMatrix>
+  typename MyMeshType::MyConnType CurveIntersectorP1P0<MyMeshType,MyMatrix>
     ::getNumberOfRowsOfResMatrix() const
   {
     return BASE_INTERSECTOR::_meshT.getNumberOfElements();
   }
 
   template<class MyMeshType, class MyMatrix>
-  int CurveIntersectorP1P0<MyMeshType,MyMatrix>
+  typename MyMeshType::MyConnType CurveIntersectorP1P0<MyMeshType,MyMatrix>
     ::getNumberOfColsOfResMatrix() const
   {
     return BASE_INTERSECTOR::_meshS.getNumberOfNodes();
@@ -63,21 +63,21 @@ namespace INTERP_KERNEL
     typename MyMatrix::value_type& resRow = res[ icellT ];
     std::vector<typename BASE_INTERSECTOR::TDualSegment> segmentsS;
     std::vector<double> coordsT;
-    int t, nbSegT = 1 + BASE_INTERSECTOR::getRealTargetCoordinates(icellT,coordsT);
+    ConnType t, nbSegT = 1 + BASE_INTERSECTOR::getRealTargetCoordinates(icellT,coordsT);
     for ( t = 0; t < nbSegT; ++t )
       for(typename std::vector<ConnType>::const_iterator
             iter=icellsS.begin(); iter!=icellsS.end(); iter++)
         {
-          int iS = *iter;
+          ConnType iS = *iter;
           BASE_INTERSECTOR::getDualSegments( OTT<ConnType,numPol>::ind2C(iS),
                                              BASE_INTERSECTOR::_meshS, segmentsS);
-          for ( int s = 0; s < (int)segmentsS.size(); ++s )
+          for ( ConnType s = 0; s < (ConnType)segmentsS.size(); ++s )
             {
               double surf = BASE_INTERSECTOR::intersectSegments(&segmentsS[s]._coords[0],
                                                                 &coordsT[0] + t*SPACEDIM);
               if(surf!=0.)
                 {
-                  int nS = segmentsS[s]._nodeId;
+                  ConnType nS = segmentsS[s]._nodeId;
                   typename MyMatrix::value_type::const_iterator iterRes=resRow.find(nS);
                   if(iterRes==resRow.end())
                     resRow.insert(std::make_pair(nS,surf));

@@ -37,8 +37,8 @@ namespace INTERP_KERNEL
     Planar2D1DIntersectorP0P0(const MyMeshType& meshT, const MyMeshType& meshS,
                               double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
   public:
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    ConnType getNumberOfRowsOfResMatrix() const;
+    ConnType getNumberOfColsOfResMatrix() const;
     const typename PlanarIntersector<MyMeshType,MyMatrix>::DuplicateFacesType* getIntersectFaces() const
     {
       return &_intersect_faces;

@@ -2404,8 +2404,8 @@ class MEDCouplingBasicsTest2(unittest.TestCase):
             pass
         # test of static method DataArrayInt::meld
         dai1=da1C.convertToIntArr();
-        dai4=DataArrayInt.Meld(dai1,dai3);
-        tmp=DataArrayInt.Meld([dai1,dai3]);
+        dai4=DataArrayInt32.Meld(dai1,dai3);
+        tmp=DataArrayInt32.Meld([dai1,dai3]);
         self.assertTrue(dai4.isEqual(tmp))
         self.assertEqual(5,dai4.getNumberOfComponents());
         self.assertEqual(7,dai4.getNumberOfTuples());

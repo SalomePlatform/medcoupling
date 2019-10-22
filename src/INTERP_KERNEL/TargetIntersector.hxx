@@ -46,8 +46,8 @@ namespace INTERP_KERNEL
      */
     virtual void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res) = 0;
 
-    virtual int getNumberOfRowsOfResMatrix() const = 0;
-    virtual int getNumberOfColsOfResMatrix() const = 0;
+    virtual ConnType getNumberOfRowsOfResMatrix() const = 0;
+    virtual ConnType getNumberOfColsOfResMatrix() const = 0;
     virtual ~TargetIntersector() { }
   };
 }

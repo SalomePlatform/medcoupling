@@ -72,7 +72,7 @@ OrientationInverter *OrientationInverter::BuildInstanceFrom(NormalizedCellType g
     }
 }
 
-void OrientationInverterChecker::check(int *beginPt, int *endPt) const
+void OrientationInverterChecker::check(mcIdType *beginPt, mcIdType *endPt) const
 {
   if(std::distance(beginPt,endPt)!=getNbNodes())
     {
@@ -81,72 +81,72 @@ void OrientationInverterChecker::check(int *beginPt, int *endPt) const
     }
 }
 
-void OrientationInverterSEG2::operateAndShutUp(int *beginPt) const
+void OrientationInverterSEG2::operateAndShutUp(mcIdType *beginPt) const
 {
   std::swap(beginPt[0],beginPt[1]);
 }
 
-void OrientationInverterSEG3::operateAndShutUp(int *beginPt) const
+void OrientationInverterSEG3::operateAndShutUp(mcIdType *beginPt) const
 {
   std::swap(beginPt[0],beginPt[2]);
 }
 
-void OrientationInverter2DLinear::operateAndShutUp(int *beginPt) const
+void OrientationInverter2DLinear::operateAndShutUp(mcIdType *beginPt) const
 {
   std::reverse(beginPt+1,beginPt+getNbNodes());
 }
 
-void OrientationInverter2DQuadratic::operateAndShutUp(int *beginPt) const
+void OrientationInverter2DQuadratic::operateAndShutUp(mcIdType *beginPt) const
 {
   int nbNodes(getNbNodes());
   std::reverse(beginPt+1,beginPt+nbNodes/2);
   std::reverse(beginPt+nbNodes/2,beginPt+nbNodes);
 }
 
-void OrientationInverterPolygon::operate(int *beginPt, int *endPt) const
+void OrientationInverterPolygon::operate(mcIdType *beginPt, mcIdType *endPt) const
 {
   std::reverse(beginPt+1,endPt);
 }
 
-void OrientationInverterQPolygon::operate(int *beginPt, int *endPt) const
+void OrientationInverterQPolygon::operate(mcIdType *beginPt, mcIdType *endPt) const
 {
   std::size_t sz(std::distance(beginPt,endPt));
   std::reverse(beginPt+1,beginPt+sz/2);
   std::reverse(beginPt+sz/2,endPt);
 }
 
-void OrientationInverterTetra4::operateAndShutUp(int *beginPt) const
+void OrientationInverterTetra4::operateAndShutUp(mcIdType *beginPt) const
 {
   std::swap(beginPt[1],beginPt[2]);
 }
 
-void OrientationInverterTetra10::operateAndShutUp(int *beginPt) const
+void OrientationInverterTetra10::operateAndShutUp(mcIdType *beginPt) const
 {
   std::swap(beginPt[1],beginPt[2]);
   std::swap(beginPt[4],beginPt[6]);
   std::swap(beginPt[8],beginPt[9]);
 }
 
-void OrientationInverterPyra5::operateAndShutUp(int *beginPt) const
+void OrientationInverterPyra5::operateAndShutUp(mcIdType *beginPt) const
 {
   std::reverse(beginPt+1,beginPt+4);
 }
 
-void OrientationInverterPyra13::operateAndShutUp(int *beginPt) const
+void OrientationInverterPyra13::operateAndShutUp(mcIdType *beginPt) const
 {
   std::reverse(beginPt+1,beginPt+4);
   std::reverse(beginPt+5,beginPt+9);
   std::swap(beginPt[10],beginPt[12]);
 }
 
-void OrientationInverter3DExtrusionLinear::operateAndShutUp(int *beginPt) const
+void OrientationInverter3DExtrusionLinear::operateAndShutUp(mcIdType *beginPt) const
 {
   int nbNodes(getNbNodes());
   std::reverse(beginPt+1,beginPt+nbNodes/2);
   std::reverse(beginPt+nbNodes/2+1,beginPt+nbNodes);
 }
 
-void OrientationInverter3DExtrusionQuadratic::operateAndShutUp(int *beginPt) const
+void OrientationInverter3DExtrusionQuadratic::operateAndShutUp(mcIdType *beginPt) const
 {
   int nbNodes(getNbNodes()),nbNodesLinearBase(nbNodes/5);
   std::reverse(beginPt+1,beginPt+nbNodesLinearBase);

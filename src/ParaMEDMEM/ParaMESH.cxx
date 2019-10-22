@@ -34,8 +34,8 @@ using namespace std;
 namespace MEDCoupling
 {
   ParaMESH::ParaMESH( MEDCouplingPointSet *subdomain_mesh, MEDCouplingPointSet *subdomain_face,
-            DataArrayInt *CorrespElt_local2global, DataArrayInt *CorrespFace_local2global,
-            DataArrayInt *CorrespNod_local2global, const ProcessorGroup& proc_group ):
+            DataArrayIdType *CorrespElt_local2global, DataArrayIdType *CorrespFace_local2global,
+            DataArrayIdType *CorrespNod_local2global, const ProcessorGroup& proc_group ):
     _cell_mesh(subdomain_mesh),
     _face_mesh(subdomain_face),
     _my_domain_id(proc_group.myRank()),
@@ -67,20 +67,20 @@ namespace MEDCoupling
   {
     if(_cell_mesh)
       _cell_mesh->incrRef();
-    int nb_elem=mesh->getNumberOfCells();
+    mcIdType nb_elem=mesh->getNumberOfCells();
     _explicit_topology=new BlockTopology(proc_group,nb_elem);
-    int nbOfCells=mesh->getNumberOfCells();
-    _cell_global = DataArrayInt::New();
+    mcIdType nbOfCells=mesh->getNumberOfCells();
+    _cell_global = DataArrayIdType::New();
     _cell_global->alloc(nbOfCells,1);
-    int *cellglobal=_cell_global->getPointer();
-    int offset = _block_topology->localToGlobal(make_pair(_my_domain_id,0));
-    for (int i=0; i<nbOfCells; i++)
+    mcIdType *cellglobal=_cell_global->getPointer();
+    mcIdType offset = _block_topology->localToGlobal(make_pair(_my_domain_id,0));
+    for (mcIdType i=0; i<nbOfCells; i++)
       {
         cellglobal[i]=offset+i;
       }
   }
 
-  void ParaMESH::setNodeGlobal(DataArrayInt *nodeGlobal)
+  void ParaMESH::setNodeGlobal(DataArrayIdType *nodeGlobal)
   {
     if(nodeGlobal!=_node_global)
       {
@@ -92,7 +92,7 @@ namespace MEDCoupling
       }
   }
 
-  void ParaMESH::setCellGlobal(DataArrayInt *cellGlobal)
+  void ParaMESH::setCellGlobal(DataArrayIdType *cellGlobal)
   {
     if(cellGlobal!=_cell_global)
       {

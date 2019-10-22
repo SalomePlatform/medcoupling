@@ -60,8 +60,9 @@ namespace INTERP_KERNEL
 
     for ( int j = 0; j < SPACEDIM; ++j )
       {
-        _coordsC [ j ] = _meshC.getCoordsAlongAxis( _TMIC( j ));
-        _nbCellsC[ j ] = _meshC.nbCellsAlongAxis  ( _TMIC( j ));
+        int axis = static_cast<int>( _TMIC( j ));
+        _coordsC [ j ] = _meshC.getCoordsAlongAxis( axis );
+        _nbCellsC[ j ] = static_cast<CConnType>(_meshC.nbCellsAlongAxis( axis ));
       }
   }
 
@@ -123,14 +124,14 @@ namespace INTERP_KERNEL
   }
 
   _CU_TEMPLATE
-  int _INTERSECTOR_CU_::getNumberOfRowsOfResMatrix() const
+  typename MyCMeshType::MyConnType _INTERSECTOR_CU_::getNumberOfRowsOfResMatrix() const
   {
     return _meshU.getNumberOfElements();
   }
   _CU_TEMPLATE
-  int _INTERSECTOR_CU_::getNumberOfColsOfResMatrix() const
+  typename MyCMeshType::MyConnType _INTERSECTOR_CU_::getNumberOfColsOfResMatrix() const
   {
-    return _meshC.getNumberOfElements();
+    return static_cast<CConnType>(_meshC.getNumberOfElements());
   }
 
   //================================================================================

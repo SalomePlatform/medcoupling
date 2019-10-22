@@ -449,29 +449,29 @@ namespace INTERP_KERNEL
   /*!
    * Equivalent to getNumberOfSons except that this method deals with dynamic type.
    */
-  unsigned CellModel::getNumberOfSons2(const int *conn, int lgth) const
+  unsigned CellModel::getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const
   {
     if(!isDynamic())
       return getNumberOfSons();
     if(_dim==2)
       {
         if(_type==NORM_POLYGON)
-          return lgth;
+          return FromIdType<unsigned>(lgth);
         else
-          return lgth/2;
+          return FromIdType<unsigned>(lgth/2);
       }
     else if(_dim==1)
-      return lgth;//NORM_POLYL
+      return FromIdType<unsigned>(lgth);//NORM_POLYL
     else
-      return std::count(conn,conn+lgth,-1)+1;
+      return (unsigned)std::count(conn,conn+lgth,-1)+1;
   }
 
-  unsigned CellModel::getNumberOfEdgesIn3D(const int *conn, int lgth) const
+  unsigned CellModel::getNumberOfEdgesIn3D(const mcIdType *conn, mcIdType lgth) const
   {
     if(!isDynamic())
       return _nb_of_little_sons;
     else//polyhedron
-      return (lgth-std::count(conn,conn+lgth,-1))/2;
+      return FromIdType<unsigned>(lgth-ToIdType(std::count(conn,conn+lgth,-1)/2));
   }
   
   /*!
@@ -549,7 +549,7 @@ namespace INTERP_KERNEL
   /*!
    * \b WARNING this method do not manage correctly types that return true at the call of isDynamic. Use fillSonCellNodalConnectivity2 instead.
    */
-  unsigned CellModel::fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const
+  unsigned CellModel::fillSonCellNodalConnectivity(int sonId, const mcIdType *nodalConn, mcIdType *sonNodalConn) const
   {
     unsigned nbOfTurnLoop=_nb_of_sons_con[sonId];
     const unsigned *sonConn=_sons_con[sonId];
@@ -558,7 +558,7 @@ namespace INTERP_KERNEL
     return nbOfTurnLoop;
   }
 
-  unsigned CellModel::fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const
+  unsigned CellModel::fillSonCellNodalConnectivity2(int sonId, const mcIdType *nodalConn, mcIdType lgth, mcIdType *sonNodalConn, NormalizedCellType& typeOfSon) const
   {
     typeOfSon=getSonType2(sonId);
     if(!isDynamic())
@@ -583,15 +583,15 @@ namespace INTERP_KERNEL
           }
         else if(_dim==3)
           {//polyedron
-            const int *where=nodalConn;
+            const mcIdType *where=nodalConn;
             for(int i=0;i<sonId;i++)
               {
                 where=std::find(where,nodalConn+lgth,-1);
                 where++;
               }
-            const int *where2=std::find(where,nodalConn+lgth,-1);
+            const mcIdType *where2=std::find(where,nodalConn+lgth,-1);
             std::copy(where,where2,sonNodalConn);
-            return where2-where;
+            return (unsigned)(where2-where);
           }
         else
           throw INTERP_KERNEL::Exception("CellModel::fillSonCellNodalConnectivity2 : no sons on NORM_POLYL !");
@@ -601,7 +601,7 @@ namespace INTERP_KERNEL
   /*!
    * Equivalent to CellModel::fillSonCellNodalConnectivity2 except for HEXA8 where the order of sub faces is not has MED file numbering for transformation HEXA8->HEXA27
    */
-  unsigned CellModel::fillSonCellNodalConnectivity4(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const
+  unsigned CellModel::fillSonCellNodalConnectivity4(int sonId, const mcIdType *nodalConn, mcIdType lgth, mcIdType *sonNodalConn, NormalizedCellType& typeOfSon) const
   {
     if(_type==NORM_HEXA8)
       {
@@ -612,7 +612,7 @@ namespace INTERP_KERNEL
       return fillSonCellNodalConnectivity2(sonId,nodalConn,lgth,sonNodalConn,typeOfSon);
   }
 
-  unsigned CellModel::fillSonEdgesNodalConnectivity3D(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const
+  unsigned CellModel::fillSonEdgesNodalConnectivity3D(int sonId, const mcIdType *nodalConn, mcIdType lgth, mcIdType *sonNodalConn, NormalizedCellType& typeOfSon) const
   {
     if(!isDynamic())
       {
@@ -639,7 +639,7 @@ namespace INTERP_KERNEL
   /*!
    * \sa getNumberOfMicroEdges
    */
-  unsigned CellModel::fillMicroEdgeNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn, NormalizedCellType& typeOfSon) const
+  unsigned CellModel::fillMicroEdgeNodalConnectivity(int sonId, const mcIdType *nodalConn, mcIdType *sonNodalConn, NormalizedCellType& typeOfSon) const
   {
     if(isQuadratic())
       {
@@ -680,20 +680,20 @@ namespace INTERP_KERNEL
       }
   }
 
-  void CellModel::changeOrientationOf2D(int *nodalConn, unsigned int sz) const
+  void CellModel::changeOrientationOf2D(mcIdType *nodalConn, unsigned int sz) const
   {
     if(sz<1)
       return ;
     if(!isQuadratic())
       {
-        std::vector<int> tmp(sz-1);
+        std::vector<mcIdType> tmp(sz-1);
         std::copy(nodalConn+1,nodalConn+sz,tmp.rbegin());
         std::copy(tmp.begin(),tmp.end(),nodalConn+1);
       }
     else
       {
         unsigned int sz2(sz/2);
-        std::vector<int> tmp0(sz2-1),tmp1(sz2);
+        std::vector<mcIdType> tmp0(sz2-1),tmp1(sz2);
         std::copy(nodalConn+1,nodalConn+sz2,tmp0.rbegin());
         std::copy(nodalConn+sz2,nodalConn+sz,tmp1.rbegin());
         std::copy(tmp0.begin(),tmp0.end(),nodalConn+1);
@@ -701,7 +701,7 @@ namespace INTERP_KERNEL
       }
   }
 
-  void CellModel::changeOrientationOf1D(int *nodalConn, unsigned int sz) const
+  void CellModel::changeOrientationOf1D(mcIdType *nodalConn, unsigned int sz) const
   {
     if(!isDynamic())
       {
@@ -720,7 +720,7 @@ namespace INTERP_KERNEL
       }
     else
       {
-        std::vector<int> tmp(sz-1);
+        std::vector<mcIdType> tmp(sz-1);
         std::copy(nodalConn+1,nodalConn+sz,tmp.rbegin());
         std::copy(tmp.begin(),tmp.end(),nodalConn+1);
       }
@@ -732,7 +732,7 @@ namespace INTERP_KERNEL
    */
   //================================================================================
 
-  unsigned CellModel::getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const
+  unsigned CellModel::getNumberOfNodesConstituentTheSon2(unsigned sonId, const mcIdType *nodalConn, mcIdType lgth) const
   {
     if(!isDynamic())
       return getNumberOfNodesConstituentTheSon(sonId);
@@ -746,14 +746,14 @@ namespace INTERP_KERNEL
       }
     else if(_dim==3)
       {//polyedron
-        const int *where=nodalConn;
+        const mcIdType *where=nodalConn;
         for(unsigned int i=0;i<sonId;i++)
           {
             where=std::find(where,nodalConn+lgth,-1);
             where++;
           }
-        const int *where2=std::find(where,nodalConn+lgth,-1);
-        return where2-where;
+        const mcIdType *where2=std::find(where,nodalConn+lgth,-1);
+        return (unsigned)(where2-where);
       }
     else
       throw INTERP_KERNEL::Exception("CellModel::getNumberOfNodesConstituentTheSon2 : no sons on NORM_POLYL !");
@@ -765,21 +765,21 @@ namespace INTERP_KERNEL
    * If not an exception will be thrown.
    * @return True if two cells have same orientation, false if not.
    */
-  bool CellModel::getOrientationStatus(unsigned lgth, const int *conn1, const int *conn2) const
+  bool CellModel::getOrientationStatus(mcIdType lgth, const mcIdType *conn1, const mcIdType *conn2) const
   {
     if(_dim!=1 && _dim!=2)
       throw INTERP_KERNEL::Exception("CellModel::getOrientationStatus : invalid dimension ! Must be 1 or 2 !");
     if(!_quadratic)
       {
-        std::vector<int> tmp(2*lgth);
-        std::vector<int>::iterator it=std::copy(conn1,conn1+lgth,tmp.begin());
+        std::vector<mcIdType> tmp(2*lgth);
+        std::vector<mcIdType>::iterator it=std::copy(conn1,conn1+lgth,tmp.begin());
         std::copy(conn1,conn1+lgth,it);
         it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth);
         if(it==tmp.begin())
           return true;
         if(it!=tmp.end())
           return _dim!=1;
-        std::vector<int>::reverse_iterator it2=std::search(tmp.rbegin(),tmp.rend(),conn2,conn2+lgth);
+        std::vector<mcIdType>::reverse_iterator it2=std::search(tmp.rbegin(),tmp.rend(),conn2,conn2+lgth);
         if(it2!=tmp.rend())
           return false;
         throw INTERP_KERNEL::Exception("CellModel::getOrientationStatus : Request of orientation status of non equal connectively cells !");
@@ -788,11 +788,11 @@ namespace INTERP_KERNEL
       {
         if(_dim!=1)
           {
-            std::vector<int> tmp(lgth);
-            std::vector<int>::iterator it=std::copy(conn1,conn1+lgth/2,tmp.begin());
+            std::vector<mcIdType> tmp(lgth);
+            std::vector<mcIdType>::iterator it=std::copy(conn1,conn1+lgth/2,tmp.begin());
             std::copy(conn1,conn1+lgth/2,it);
             it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth/2);
-            int d=std::distance(tmp.begin(),it);
+            std::size_t d=std::distance(tmp.begin(),it);
             if(it==tmp.end())
               return false;
             it=std::copy(conn1+lgth/2,conn1+lgth,tmp.begin());
@@ -800,17 +800,17 @@ namespace INTERP_KERNEL
             it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth);
             if(it==tmp.end())
               return false;
-            int d2=std::distance(tmp.begin(),it);
+            std::size_t d2=std::distance(tmp.begin(),it);
             return d==d2;
           }
         else
           {
-            int p=(lgth+1)/2;
-            std::vector<int> tmp(2*p);
-            std::vector<int>::iterator it=std::copy(conn1,conn1+p,tmp.begin());
+            mcIdType p=(lgth+1)/2;
+            std::vector<mcIdType> tmp(2*p);
+            std::vector<mcIdType>::iterator it=std::copy(conn1,conn1+p,tmp.begin());
             std::copy(conn1,conn1+p,it);
             it=std::search(tmp.begin(),tmp.end(),conn2,conn2+p);
-            int d=std::distance(tmp.begin(),it);
+            std::size_t d=std::distance(tmp.begin(),it);
             if(it==tmp.end())
               return false;
             tmp.resize(2*p-2);
@@ -819,7 +819,7 @@ namespace INTERP_KERNEL
             it=std::search(tmp.begin(),tmp.end(),conn2+p,conn2+lgth);
             if(it==tmp.end())
               return false;
-            int d2=std::distance(tmp.begin(),it);
+            std::size_t d2=std::distance(tmp.begin(),it);
             return d==d2;
           }
       }

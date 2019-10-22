@@ -42,7 +42,7 @@ namespace INTERP_KERNEL
   {
     std::vector<double> CoordsT;
     PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),CoordsT);
-    int nbOfNodesT=CoordsT.size()/SPACEDIM;
+    ConnType nbOfNodesT=ToConnType(CoordsT.size())/SPACEDIM;
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
       {
         NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iter));
@@ -52,7 +52,7 @@ namespace INTERP_KERNEL
         PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(*iter),CoordsS);
         std::vector<double> CoordsTTmp(CoordsT);
         if(SPACEDIM==3)
-          PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&CoordsS[0],&CoordsTTmp[0],CoordsS.size()/SPACEDIM,nbOfNodesT);
+          PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&CoordsS[0],&CoordsTTmp[0],ToConnType(CoordsS.size())/SPACEDIM,nbOfNodesT);
         const ConnType *startOfCellNodeConnT=PlanarIntersector<MyMeshType,MyMatrix>::_connectT+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT]);
         for(int nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
           {
@@ -84,13 +84,13 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersectorP1P1PL<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP1P1PL<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfNodes();
   }
   
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersectorP1P1PL<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP1P1PL<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfNodes();
   }

@@ -34,7 +34,7 @@ class MEDCouplingNormalizedCartesianMesh
 public:
   static const int MY_SPACEDIM=SPACEDIM;
   static const int MY_MESHDIM=SPACEDIM;
-  typedef int MyConnType;
+  typedef mcIdType MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
   MEDCouplingNormalizedCartesianMesh(const MEDCoupling::MEDCouplingCMesh *mesh);
@@ -42,8 +42,8 @@ public:
   //INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
   //int getNumberOfNodesOfElement(int eltId) const;
   //int getNumberOfNodes() const;
-  unsigned long getNumberOfElements() const;
-  unsigned long nbCellsAlongAxis(int axis) const;
+  mcIdType getNumberOfElements() const;
+  mcIdType nbCellsAlongAxis(int axis) const;
   const double * getCoordsAlongAxis(int axis) const;
   ~MEDCouplingNormalizedCartesianMesh();
 private:

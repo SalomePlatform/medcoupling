@@ -25,6 +25,7 @@
 #include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DBounds.hxx"
 #include "InterpKernelGeo2DNode.hxx"
+#include "MCIdType.hxx"
 
 #include <iostream>
 #include <vector>
@@ -82,9 +83,9 @@ namespace INTERP_KERNEL
     bool isEnd2(unsigned rk) const;
     void clear();
     unsigned getNumberOfAssociations() const;
-    void updateMergedNodes(int e1Start, int e1End, int e2Start, int e2End, std::map<int,int>& mergedNodes);
+    void updateMergedNodes(mcIdType e1Start, mcIdType e1End, mcIdType e2Start, mcIdType e2End, std::map<mcIdType,mcIdType>& mergedNodes);
   private:
-    static void PushInMap(int key, int value, std::map<int,int>& mergedNodes);
+    static void PushInMap(mcIdType key, mcIdType value, std::map<mcIdType,mcIdType>& mergedNodes);
   private:
     unsigned _ass1Start1  : 1;
     unsigned _ass1End1    : 1;
@@ -281,14 +282,14 @@ namespace INTERP_KERNEL
     void dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp, int index) const;
     bool isEqual(const Edge& other) const;
   public:
-    bool sortSubNodesAbs(const double *coo, std::vector<int>& subNodes);
-    void sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis);
+    bool sortSubNodesAbs(const double *coo, std::vector<mcIdType>& subNodes);
+    void sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, mcIdType>& mapp1, const std::map<INTERP_KERNEL::Node *, mcIdType>& mapp2, std::vector<mcIdType>& edgesThis);
     virtual Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const = 0;
-    void fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                           std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const;
-    void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+    void fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
+                           std::vector<mcIdType>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType> mapAddCoo) const;
+    void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
                             short skipStartOrEnd,
-                            std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const;
+                            std::vector<mcIdType>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo) const;
 
   protected:
     Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(0),_end(0) { }

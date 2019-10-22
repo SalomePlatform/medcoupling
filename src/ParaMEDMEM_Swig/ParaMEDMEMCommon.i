@@ -72,30 +72,30 @@ public:
 {
   PyObject *getGlobalNumberingCell2() const
   {
-    const int *tmp=self->getGlobalNumberingCell();
-    int size=self->getCellMesh()->getNumberOfCells();
+    const mcIdType *tmp=self->getGlobalNumberingCell();
+    mcIdType size=self->getCellMesh()->getNumberOfCells();
     PyObject *ret=PyList_New(size);
-    for(int i=0;i<size;i++)
+    for(mcIdType i=0;i<size;i++)
       PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
     return ret;
   }
 
   PyObject *getGlobalNumberingFace2() const
   {
-    const int *tmp=self->getGlobalNumberingFace();
-    int size=self->getFaceMesh()->getNumberOfCells();
+    const mcIdType *tmp=self->getGlobalNumberingFace();
+    mcIdType size=self->getFaceMesh()->getNumberOfCells();
     PyObject *ret=PyList_New(size);
-    for(int i=0;i<size;i++)
+    for(mcIdType i=0;i<size;i++)
       PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
     return ret;
   }
 
   PyObject *getGlobalNumberingNode2() const
   {
-    const int *tmp=self->getGlobalNumberingNode();
-    int size=self->getCellMesh()->getNumberOfNodes();
+    const mcIdType *tmp=self->getGlobalNumberingNode();
+    mcIdType size=self->getCellMesh()->getNumberOfNodes();
     PyObject *ret=PyList_New(size);
-    for(int i=0;i<size;i++)
+    for(mcIdType i=0;i<size;i++)
       PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
     return ret;
   }

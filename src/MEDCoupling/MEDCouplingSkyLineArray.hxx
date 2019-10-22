@@ -58,57 +58,57 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingSkyLineArray * New();
-    static MEDCouplingSkyLineArray * New( const std::vector<int>& index, const std::vector<int>& value);
-    static MEDCouplingSkyLineArray * New( DataArrayInt* index, DataArrayInt* value );
+    static MEDCouplingSkyLineArray * New( const std::vector<mcIdType>& index, const std::vector<mcIdType>& value);
+    static MEDCouplingSkyLineArray * New( DataArrayIdType* index, DataArrayIdType* value );
     static MEDCouplingSkyLineArray * New( const MEDCouplingSkyLineArray & other );
 
-    static MEDCouplingSkyLineArray * BuildFromPolyhedronConn( const DataArrayInt* c, const DataArrayInt* cI );
+    static MEDCouplingSkyLineArray * BuildFromPolyhedronConn( const DataArrayIdType* c, const DataArrayIdType* cI );
 
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
 
-    void set( DataArrayInt* index, DataArrayInt* value );
-    void set3( DataArrayInt* superIndex, DataArrayInt* index, DataArrayInt* value );
+    void set( DataArrayIdType* index, DataArrayIdType* value );
+    void set3( DataArrayIdType* superIndex, DataArrayIdType* index, DataArrayIdType* value );
 
-    int getSuperNumberOf()   const { return _super_index->getNbOfElems()-1; }
-    int getNumberOf() const { return _index->getNbOfElems()-1; }
-    int getLength()   const { return _values->getNbOfElems(); }
+    mcIdType getSuperNumberOf()   const { return ToIdType(_super_index->getNbOfElems())-1; }
+    mcIdType getNumberOf() const { return ToIdType(_index->getNbOfElems())-1; }
+    mcIdType getLength()   const { return ToIdType(_values->getNbOfElems()); }
 
-    const int* getSuperIndex() const { return _super_index->begin(); }
-    const int* getIndex() const { return _index->begin(); }
-    const int* getValues() const { return _values->begin(); }
+    const mcIdType* getSuperIndex() const { return _super_index->begin(); }
+    const mcIdType* getIndex() const { return _index->begin(); }
+    const mcIdType* getValues() const { return _values->begin(); }
 
-    DataArrayInt* getSuperIndexArray() const;
-    DataArrayInt* getIndexArray() const;
-    DataArrayInt* getValuesArray() const;
+    DataArrayIdType* getSuperIndexArray() const;
+    DataArrayIdType* getIndexArray() const;
+    DataArrayIdType* getValuesArray() const;
 
     std::string simpleRepr() const;
 
-    void getSimplePackSafe(const int absolutePackId, std::vector<int> & pack) const;
-    const int * getSimplePackSafePtr(const int absolutePackId, int & packSize) const;
-    void findPackIds(const std::vector<int> & superPackIndices, const int *packBg, const int *packEnd,
-                     std::vector<int>& out) const;
+    void getSimplePackSafe(const mcIdType absolutePackId, std::vector<mcIdType> & pack) const;
+    const mcIdType * getSimplePackSafePtr(const mcIdType absolutePackId, mcIdType & packSize) const;
+    void findPackIds(const std::vector<mcIdType> & superPackIndices, const mcIdType *packBg, const mcIdType *packEnd,
+                     std::vector<mcIdType>& out) const;
 
-    void deletePack(const int superIdx, const int idx);
-    void deleteSimplePack(const int idx);
-    void pushBackPack(const int superIdx, const int * packBg, const int * packEnd);
+    void deletePack(const mcIdType superIdx, const mcIdType idx);
+    void deleteSimplePack(const mcIdType idx);
+    void pushBackPack(const mcIdType superIdx, const mcIdType * packBg, const mcIdType * packEnd);
 
-    void replaceSimplePack(const int idx, const int * packBg, const int * packEnd);
-    void replacePack(const int superIdx, const int idx, const int * packBg, const int * packEnd);
+    void replaceSimplePack(const mcIdType idx, const mcIdType * packBg, const mcIdType * packEnd);
+    void replacePack(const mcIdType superIdx, const mcIdType idx, const mcIdType * packBg, const mcIdType * packEnd);
 
-    void deleteSimplePacks(const DataArrayInt* idx);
-    void replaceSimplePacks(const DataArrayInt* idx, const std::vector<const DataArrayInt*>& packs);
+    void deleteSimplePacks(const DataArrayIdType* idx);
+    void replaceSimplePacks(const DataArrayIdType* idx, const std::vector<const DataArrayIdType*>& packs);
     
-    void convertToPolyhedronConn( MCAuto<DataArrayInt>& c,  MCAuto<DataArrayInt>& cI) const;
+    void convertToPolyhedronConn( MCAuto<DataArrayIdType>& c,  MCAuto<DataArrayIdType>& cI) const;
 
   private:
     MEDCouplingSkyLineArray();
     ~MEDCouplingSkyLineArray();
 
     void checkSuperIndex(const std::string& func) const;
-    void validSuperIndex(const std::string& func, int superIndex) const;
-    void validIndex(const std::string& func, int index) const;
-    void validSuperIndexAndIndex(const std::string& func, int superIndex, int index) const;
+    void validSuperIndex(const std::string& func, mcIdType superIndex) const;
+    void validIndex(const std::string& func, mcIdType index) const;
+    void validSuperIndexAndIndex(const std::string& func, mcIdType superIndex, mcIdType index) const;
 
     MCAuto<DataArrayIdType> _super_index;
     MCAuto<DataArrayIdType> _index;

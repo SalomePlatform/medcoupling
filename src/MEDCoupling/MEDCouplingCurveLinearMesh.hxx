@@ -42,31 +42,31 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                 DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
+                                                 DataArrayIdType *&cellCor, DataArrayIdType *&nodeCor) const;
     MEDCOUPLING_EXPORT void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                            DataArrayInt *&cellCor) const;
+                                                            DataArrayIdType *&cellCor) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT std::size_t getNumberOfCells() const;
-    MEDCOUPLING_EXPORT int getNumberOfNodes() const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfCells() const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfNodes() const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
-    MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
+    MEDCOUPLING_EXPORT void getCoordinatesOfNode(mcIdType nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
     MEDCOUPLING_EXPORT const DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getCoords();
     MEDCOUPLING_EXPORT const DataArrayDouble *getCoords() const;
     MEDCOUPLING_EXPORT void setCoords(const DataArrayDouble *coords);
-    MEDCOUPLING_EXPORT void setNodeGridStructure(const int *gridStructBg, const int *gridStructEnd);
-    MEDCOUPLING_EXPORT std::vector<int> getNodeGridStructure() const;
-    MEDCOUPLING_EXPORT MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const;
+    MEDCOUPLING_EXPORT void setNodeGridStructure(const mcIdType *gridStructBg, const mcIdType *gridStructEnd);
+    MEDCOUPLING_EXPORT std::vector<mcIdType> getNodeGridStructure() const;
+    MEDCOUPLING_EXPORT MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<mcIdType,mcIdType> >& cellPart) const;
     // tools
     MEDCOUPLING_EXPORT void getBoundingBox(double *bbox) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
-    MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
-    MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
+    MEDCOUPLING_EXPORT mcIdType getCellContainingPoint(const double *pos, double eps) const;
+    MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<mcIdType>& elts) const;
     MEDCOUPLING_EXPORT void rotate(const double *center, const double *vector, double angle);
     MEDCOUPLING_EXPORT void translate(const double *vector);
     MEDCOUPLING_EXPORT void scale(const double *point, double factor);
@@ -74,14 +74,14 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *getCoordinatesAndOwner() const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
-    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
+    MEDCOUPLING_EXPORT void renumberCells(const mcIdType *old2NewBg, bool check=true);
     //some useful methods
-    MEDCOUPLING_EXPORT void getNodeGridStructure(int *res) const;
+    MEDCOUPLING_EXPORT void getNodeGridStructure(mcIdType *res) const;
     //serialisation-unserialization
-    MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
-    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
-    MEDCOUPLING_EXPORT void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
-    MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+    MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<mcIdType>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
+    MEDCOUPLING_EXPORT void serialize(DataArrayIdType *&a1, DataArrayDouble *&a2) const;
+    MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType *a1, DataArrayDouble *a2,
                                             const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
@@ -100,7 +100,7 @@ namespace MEDCoupling
     std::string getVTKDataSetType() const;
   private:
     MCAuto<DataArrayDouble> _coords;
-    std::vector<int> _structure;
+    std::vector<mcIdType> _structure;
   };
 }
 

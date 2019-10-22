@@ -107,11 +107,11 @@ void IteratorOnComposedEdge::insertElemEdges(ComposedEdge *elems, bool changeMyS
   *_deep_it=*iter;
   _deep_it++;
   iter++;
-  int sizeOfMyList=myListToInsert->size();
+  std::size_t sizeOfMyList=myListToInsert->size();
   _list_handle->insert(_deep_it,iter,myListToInsert->end());
   if(!changeMySelf)
     {
-      for(int i=0;i<sizeOfMyList;i++)
+      for(std::size_t i=0;i<sizeOfMyList;i++)
         _deep_it--;
     }
 }

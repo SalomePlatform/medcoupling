@@ -55,9 +55,9 @@ namespace MEDCoupling
     std::string getSourceMethod() const;
     std::string getTargetMethod() const;
     const MEDCouplingPointSet *getSourceMesh(int procId) const;
-    const DataArrayInt *getSourceIds(int procId) const;
+    const DataArrayIdType *getSourceIds(int procId) const;
     const MEDCouplingPointSet *getTargetMesh(int procId) const;
-    const DataArrayInt *getTargetIds(int procId) const;
+    const DataArrayIdType *getTargetIds(int procId) const;
     bool isInMyTodoList(int i, int j) const;
     void debugPrintWorkSharing(std::ostream & ostr) const;
   private:
@@ -68,11 +68,11 @@ namespace MEDCoupling
     bool intersectsBoundingBox(int i, int j) const;
     void sendLocalMeshTo(int procId, bool sourceOrTarget, OverlapInterpolationMatrix& matrix) const;
     void receiveRemoteMeshFrom(int procId, bool sourceOrTarget);
-    void sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayInt *idsToSend) const;
-    void receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayInt *&ids) const;
+    void sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayIdType *idsToSend) const;
+    void receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayIdType *&ids) const;
   private:
     typedef MCAuto< MEDCouplingPointSet >  AutoMCPointSet;
-    typedef MCAuto< DataArrayInt >         AutoDAInt;
+    typedef MCAuto< DataArrayIdType >      AutoDAInt;
     typedef std::pair<int,bool>  Proc_SrcOrTgt;  // a key indicating a proc ID and whether the data is for source mesh/field or target mesh/field
 
     static const int START_TAG_MESH_XCH;

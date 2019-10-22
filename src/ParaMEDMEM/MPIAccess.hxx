@@ -124,6 +124,7 @@ namespace MEDCoupling
     bool isTimeMessage( int MPITag ) const ;
     MPI_Aint timeExtent() const ;
     MPI_Aint intExtent() const ;
+    MPI_Aint longExtent() const ;
     MPI_Aint doubleExtent() const ;
     MPI_Aint extent( MPI_Datatype datatype ) const ;
 
@@ -236,14 +237,14 @@ namespace MEDCoupling
   // used to allocate ArrayOfSendRequests for the call to SendRequestIds
   inline int MPIAccess::sendRequestIdsSize(int destrank)
   {
-    return _send_requests[destrank].size() ;
+    return (int)_send_requests[destrank].size() ;
   }
 
   // Returns the number of all RecvRequestIds matching a source rank. It may be
   // used to allocate ArrayOfRecvRequests for the call to RecvRequestIds
   inline int MPIAccess::recvRequestIdsSize(int sourcerank)
   {
-    return _recv_requests[sourcerank].size() ;
+    return (int)_recv_requests[sourcerank].size() ;
   }
 
   // Returns the MPI_Datatype (registered in MPI in the constructor with
@@ -266,6 +267,8 @@ namespace MEDCoupling
       return timeExtent() ;
     if ( adatatype == MPI_INT )
       return intExtent() ;
+    if ( adatatype == MPI_LONG )
+      return longExtent() ;
     if ( adatatype == MPI_DOUBLE )
       return doubleExtent() ;
     return 0 ;

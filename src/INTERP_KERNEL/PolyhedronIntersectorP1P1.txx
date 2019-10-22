@@ -46,13 +46,13 @@ namespace INTERP_KERNEL
     // Check types of elements here rather than in intersectCells() since a wrong type can be
     // found late after a long time of calculation.
 
-    const unsigned long numSrcElems = srcMesh.getNumberOfElements();
-    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+    const ConnType numSrcElems = srcMesh.getNumberOfElements();
+    for(ConnType i = 0 ; i < numSrcElems ; ++i)
       if ( srcMesh.getTypeOfElement( OTT<ConnType,numPol>::indFC( i )) != NORM_TETRA4 )
         throw INTERP_KERNEL::Exception("P1P1 3D algorithm works only with tetrahedral meshes");
 
-    const unsigned long numTgtElems = targetMesh.getNumberOfElements();
-    for(unsigned long i = 0 ; i < numTgtElems ; ++i)
+    const ConnType numTgtElems = targetMesh.getNumberOfElements();
+    for(ConnType i = 0 ; i < numTgtElems ; ++i)
       if ( targetMesh.getTypeOfElement( OTT<ConnType,numPol>::indFC( i )) != NORM_TETRA4 )
         throw INTERP_KERNEL::Exception("P1P1 3D algorithm works only with tetrahedral meshes");
   }
@@ -79,8 +79,8 @@ namespace INTERP_KERNEL
     UnitTetraIntersectionBary b; b.init();
 #endif
     // split the targetCell into dual cells
-    std::pair< int, std::vector<double> > subTetraNodes[24]; // a node of sub tetra and its coordinates
-    const double* nodes[4]; int conn[4];
+    std::pair< ConnType, std::vector<double> > subTetraNodes[24]; // a node of sub tetra and its coordinates
+    const double* nodes[4]; ConnType conn[4];
     for(int node = 0; node < 4 ; ++node)
       nodes[node]=getCoordsOfNode2(node, OTT<ConnType,numPol>::indFC(targetCell),
                                    Intersector3D<MyMeshType,MyMatrix>::_target_mesh,conn[node]);

@@ -72,8 +72,8 @@ int MeshCollectionDriver::readSeq(const char* filename, const char* meshname)
   (_collection->getFaceMesh()).push_back(mfm->getLevelM1Mesh(false));
 
   //reading family ids
-  MEDCoupling::DataArrayInt* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCopy());
-  MEDCoupling::DataArrayInt* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCopy());
+  MEDCoupling::DataArrayIdType* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCopy());
+  MEDCoupling::DataArrayIdType* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCopy());
   (_collection->getCellFamilyIds()).push_back(cellIds);
   (_collection->getFaceFamilyIds()).push_back(faceIds); 
 
@@ -136,13 +136,13 @@ void MeshCollectionDriver::readData(MEDCoupling::MEDFileUMesh* mfm, int idomain)
     {
       (_collection->getMesh())[idomain]=mfm->getLevel0Mesh(false);
       //reading families groups
-      MEDCoupling::DataArrayInt* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCopy());
+      MEDCoupling::DataArrayIdType* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCopy());
       (_collection->getCellFamilyIds())[idomain]=cellIds;
     }
   catch(...)
     {
       (_collection->getMesh())[idomain]=CreateEmptyMEDCouplingUMesh(); // or 0 if you want tests;
-      MEDCoupling::DataArrayInt* empty=MEDCoupling::DataArrayInt::New();
+      MEDCoupling::DataArrayIdType* empty=MEDCoupling::DataArrayIdType::New();
       empty->alloc(0,1);
       (_collection->getCellFamilyIds())[idomain]=empty;
       std::cout<<"\nNO Level0Mesh (Cells)\n";
@@ -153,7 +153,7 @@ void MeshCollectionDriver::readData(MEDCoupling::MEDFileUMesh* mfm, int idomain)
         {
           (_collection->getFaceMesh())[idomain]=mfm->getLevelM1Mesh(false);
           //reading families groups
-          MEDCoupling::DataArrayInt* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCopy());
+          MEDCoupling::DataArrayIdType* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCopy());
           (_collection->getFaceFamilyIds())[idomain]=faceIds;
           if (MyGlobals::_Verbose>10)
             std::cout << "proc " << MyGlobals::_Rank << " : WITH Faces\n";
@@ -166,7 +166,7 @@ void MeshCollectionDriver::readData(MEDCoupling::MEDFileUMesh* mfm, int idomain)
   catch(...)
     {
       (_collection->getFaceMesh())[idomain]=CreateEmptyMEDCouplingUMesh(); // or 0 if you want test;
-      MEDCoupling::DataArrayInt* empty=MEDCoupling::DataArrayInt::New();
+      MEDCoupling::DataArrayIdType* empty=MEDCoupling::DataArrayIdType::New();
       (_collection->getFaceFamilyIds())[idomain]=empty;
       if (MyGlobals::_Verbose>10)
         std::cout << "proc " << MyGlobals::_Rank << " : WITHOUT Faces\n";
@@ -304,7 +304,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
               j1st->pushCorrespondence( corr );
             }
 
-          std::vector< std::pair< int,int > > types = cz->getEntities();
+          std::vector< std::pair< mcIdType,mcIdType > > types = cz->getEntities();
           INTERP_KERNEL::NormalizedCellType t1, t2;
           for ( size_t it = 0; it < types.size(); ++it )
             {
@@ -368,10 +368,10 @@ MEDCoupling::MEDCouplingFieldDouble* MeshCollectionDriver::getField(std::string 
       r1=SelectTagsInVectorOfString(r1,"DT="+IntToStr(DT));
       r1=SelectTagsInVectorOfString(r1,"IT="+IntToStr(IT));
       //not saved in file? field->setDescription(ExtractFromDescription(r1[0], "fieldDescription="));
-      int nbc=StrToInt(ExtractFromDescription(r1[0], "nbComponents="));
+      std::size_t nbc=StrToInt(ExtractFromDescription(r1[0], "nbComponents="));
       if (nbc==da->getNumberOfComponents())
         {
-          for (int i=0; i<nbc; i++)
+          for (unsigned int i=0; i<nbc; i++)
             da->setInfoOnComponent(i,ExtractFromDescription(r1[0], "componentInfo"+IntToStr(i)+"="));
         }
       else
@@ -429,7 +429,7 @@ MEDCoupling::MEDFileData* MeshCollectionDriver::getMEDFileData()
   meshes = MEDCoupling::MEDFileMeshes::New();
   fields = MEDCoupling::MEDFileFields::New();
 
-  for (size_t i=0; i<_collection->getMesh().size(); i++)
+  for (unsigned int i=0; i<_collection->getMesh().size(); i++)
     {
       MEDCoupling::MEDFileMesh* mfm = getMesh( i );
       meshes->pushMesh(mfm);

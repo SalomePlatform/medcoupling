@@ -59,12 +59,12 @@ namespace INTERP_TEST
     bool checkDequesEqual(std::deque< double > deque1,  
                           std::deque< double > deque2, double epsilon)
     {
-      int size1 = deque1.size();
-      int size2 = deque2.size();
+      std::size_t size1 = deque1.size();
+      std::size_t size2 = deque2.size();
       bool are_equal = size1 == size2;
     
       if(are_equal)
-        for(int i = 0; i < size1 && are_equal; i++)
+        for(std::size_t i = 0; i < size1 && are_equal; i++)
           are_equal = fabs(deque1[i] - deque2[i]) < epsilon;
       
       return are_equal; 
@@ -72,19 +72,19 @@ namespace INTERP_TEST
     bool checkVectorsEqual(std::vector< double > vect1,  
                            std::vector< double > vect2, double epsilon)
     {
-      int size1 = vect1.size();
-      int size2 = vect2.size();
+      std::size_t size1 = vect1.size();
+      std::size_t size2 = vect2.size();
       bool are_equal = size1 == size2;
       
       if(are_equal)
-        for(int i = 0; i < size1 && are_equal; i++)
+        for(std::size_t i = 0; i < size1 && are_equal; i++)
           are_equal = fabs(vect1[i] - vect2[i]) < epsilon;
       
       return are_equal; 
     }
     void dequePrintOut(std::deque< double > deque1)
     {
-      for(int i = 0; i< (int)deque1.size(); i++)
+      for(std::size_t i = 0; i< deque1.size(); i++)
         {
           std::cerr << deque1[i] << " ";
         }
@@ -92,7 +92,7 @@ namespace INTERP_TEST
     }
     void vectPrintOut(std::vector< double > vect)
     {
-      for(int i = 0; i< (int)vect.size(); i++)
+      for(std::size_t i = 0; i< vect.size(); i++)
         {
           std::cerr << vect[i] << " ";
         }

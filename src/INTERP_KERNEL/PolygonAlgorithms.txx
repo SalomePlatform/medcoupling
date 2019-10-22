@@ -430,7 +430,7 @@ namespace INTERP_KERNEL
         while( !four_neighbours)
           {
             i_glob=(* mi1).second;//global index of vertex i
-            nb_prev = _Status.count(i_glob);//counts the number of segments ending at i
+            nb_prev = static_cast<int>(_Status.count(i_glob));//counts the number of segments ending at i
                                                 
             //std::cout<< "nb_prev= "<< nb_prev << " i_glob= " << i_glob << std::endl;
             switch (nb_prev)
@@ -667,7 +667,7 @@ namespace INTERP_KERNEL
               } 
             mi1++;
             i_glob=(* mi1).second;//global index of vertex i
-            nb_prev = _Status.count(i_glob);
+            nb_prev = static_cast<int>(_Status.count(i_glob));
           }
       }
     return _Inter;

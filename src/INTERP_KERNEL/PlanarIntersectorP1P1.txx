@@ -35,13 +35,13 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix, class ConcreteP1P1Intersector>
-  int PlanarIntersectorP1P1<MyMeshType,MyMatrix,ConcreteP1P1Intersector>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP1P1<MyMeshType,MyMatrix,ConcreteP1P1Intersector>::getNumberOfRowsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfNodes();
   }
 
   template<class MyMeshType, class MyMatrix, class ConcreteP1P1Intersector>
-  int PlanarIntersectorP1P1<MyMeshType,MyMatrix,ConcreteP1P1Intersector>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP1P1<MyMeshType,MyMatrix,ConcreteP1P1Intersector>::getNumberOfColsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfNodes();
   }
@@ -52,33 +52,33 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix, class ConcreteP1P1Intersector>
   void PlanarIntersectorP1P1<MyMeshType,MyMatrix,ConcreteP1P1Intersector>::intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res)
   {
-    int nbNodesT=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT];
+    ConnType nbNodesT=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT];
     int orientation=1;
     const ConnType *startOfCellNodeConn=PlanarIntersector<MyMeshType,MyMatrix>::_connectT+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT]);
     std::vector<double> polygT;
     PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),polygT);
-    for(int nodeIdT=0;nodeIdT<nbNodesT;nodeIdT++)
+    for(ConnType nodeIdT=0;nodeIdT<nbNodesT;nodeIdT++)
       {
         ConnType curNodeTInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[nodeIdT]);
         PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinatesPermute(OTT<ConnType,numPol>::indFC(icellT),nodeIdT,polygT);
         std::vector<double> polygDualT(SPACEDIM*2*(nbNodesT-1));
-        fillDualCellOfPolyg<SPACEDIM>(&polygT[0],polygT.size()/SPACEDIM,&polygDualT[0]);
+        fillDualCellOfPolyg<SPACEDIM>(&polygT[0],ToConnType(polygT.size())/SPACEDIM,&polygDualT[0]);
         typename MyMatrix::value_type& resRow=res[curNodeTInCmode];
         for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
           {
-            int iS=*iter;
-            int nbNodesS=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS];
+            ConnType iS=*iter;
+            ConnType nbNodesS=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS];
             const ConnType *startOfCellNodeConnS=PlanarIntersector<MyMeshType,MyMatrix>::_connectS+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS]);
-            for(int nodeIdS=0;nodeIdS<nbNodesS;nodeIdS++)
+            for(ConnType nodeIdS=0;nodeIdS<nbNodesS;nodeIdS++)
               {
                 ConnType curNodeSInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConnS[nodeIdS]);
                 std::vector<double> polygS;
                 PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinatesPermute(OTT<ConnType,numPol>::indFC(iS),nodeIdS,polygS);
                 std::vector<double> polygDualS(SPACEDIM*2*(nbNodesS-1));
-                fillDualCellOfPolyg<SPACEDIM>(&polygS[0],polygS.size()/SPACEDIM,&polygDualS[0]);
+                fillDualCellOfPolyg<SPACEDIM>(&polygS[0],ToConnType(polygS.size())/SPACEDIM,&polygDualS[0]);
                 std::vector<double> polygDualTTmp(polygDualT);
                 if(SPACEDIM==3)
-                  orientation=PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&polygDualS[0],&polygDualTTmp[0],polygDualS.size()/SPACEDIM,polygDualT.size()/SPACEDIM);
+                  orientation=PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&polygDualS[0],&polygDualTTmp[0],ToConnType(polygDualS.size())/SPACEDIM,ToConnType(polygDualT.size())/SPACEDIM);
                 double surf=orientation*intersectGeometryGeneral(polygDualTTmp,polygDualS);
                 surf=PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(surf);
                 if(surf!=0.)

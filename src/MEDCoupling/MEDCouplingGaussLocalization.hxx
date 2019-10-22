@@ -48,7 +48,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::size_t getMemorySize() const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingGaussLocalization& other, double eps) const;
-    MEDCOUPLING_EXPORT void pushTinySerializationIntInfo(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void pushTinySerializationIntInfo(std::vector<mcIdType>& tinyInfo) const;
     MEDCOUPLING_EXPORT void pushTinySerializationDblInfo(std::vector<double>& tinyInfo) const;
     MEDCOUPLING_EXPORT const double *fillWithValues(const double *vals);
     //
@@ -68,10 +68,10 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setGaussCoords(const std::vector<double>& gsCoo);
     MEDCOUPLING_EXPORT void setWeights(const std::vector<double>& w);
     //
-    MEDCOUPLING_EXPORT static MEDCouplingGaussLocalization BuildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData);
+    MEDCOUPLING_EXPORT static MEDCouplingGaussLocalization BuildNewInstanceFromTinyInfo(mcIdType dim, const std::vector<mcIdType>& tinyData);
     MEDCOUPLING_EXPORT static bool AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps);
   private:
-    int checkCoherencyOfRequest(int gaussPtIdInCell, int comp) const;
+    int checkCoherencyOfRequest(mcIdType gaussPtIdInCell, int comp) const;
   private:
     INTERP_KERNEL::NormalizedCellType _type;
     std::vector<double> _ref_coord;

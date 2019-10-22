@@ -23,6 +23,7 @@
 
 #include "MEDCoupling.hxx"
 #include "MCType.hxx"
+#include <vector>
 
 namespace MEDCoupling
 {
@@ -42,8 +43,13 @@ namespace MEDCoupling
   class MEDCouplingFieldFloat;
   class MEDCouplingFieldInt;
   class DataArrayInt32Tuple;
+  class DataArrayInt64Tuple;
   class DataArrayFloatTuple;
   class DataArrayDoubleTuple;
+  class DataArrayByteTuple;
+  class DataArrayInt32Iterator;
+  class DataArrayInt64Iterator;
+  class DataArrayByteIterator;
   
   template<>
   struct MEDCOUPLING_EXPORT Traits<double>
@@ -83,6 +89,7 @@ namespace MEDCoupling
     typedef DataArrayInt32 ArrayTypeCh;
     typedef MEDCouplingFieldInt FieldType;
     typedef DataArrayInt32Tuple ArrayTuple;
+    typedef DataArrayInt32Iterator IteratorType;
   };
 
   template<>
@@ -96,7 +103,8 @@ namespace MEDCoupling
     typedef DataArrayInt64 ArrayType;
     typedef DataArrayInt64 ArrayTypeCh;
     //typedef MEDCouplingFieldInt64 FieldType;
-    //typedef DataArrayInt64Tuple ArrayTuple;
+    typedef DataArrayInt64Tuple ArrayTuple;
+    typedef DataArrayInt64Iterator IteratorType;
   };
 
   template<>
@@ -105,6 +113,8 @@ namespace MEDCoupling
     static const char ArrayTypeName[];
     typedef DataArrayByte ArrayTypeCh;
     typedef DataArrayChar ArrayType;
+    typedef DataArrayByteTuple ArrayTuple;
+    typedef DataArrayByteIterator IteratorType;
   };
 }
 

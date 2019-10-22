@@ -42,20 +42,20 @@ namespace INTERP_KERNEL
     // Check types of source elements here rather than in intersectCells() since a wrong type can be
     // found late after a long time of calculation.
 
-    const unsigned long numTrgElems = meshT.getNumberOfElements();
-    for(unsigned long i = 0 ; i < numTrgElems ; ++i)
+    const ConnType numTrgElems = meshT.getNumberOfElements();
+    for(ConnType i = 0 ; i < numTrgElems ; ++i)
       if ( meshT.getTypeOfElement( OTT<ConnType,numPol>::indFC( i )) != NORM_TRI3 )
         throw INTERP_KERNEL::Exception("P0P1 barycentric algorithm works only with triangular target meshes");
   }
 
   template<class MyMeshType, class MyMatrix, class ConcreteP0P1Intersector>
-  int PlanarIntersectorP0P1Bary<MyMeshType,MyMatrix,ConcreteP0P1Intersector>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP0P1Bary<MyMeshType,MyMatrix,ConcreteP0P1Intersector>::getNumberOfRowsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfNodes();
   }
 
   template<class MyMeshType, class MyMatrix, class ConcreteP0P1Intersector>
-  int PlanarIntersectorP0P1Bary<MyMeshType,MyMatrix,ConcreteP0P1Intersector>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP0P1Bary<MyMeshType,MyMatrix,ConcreteP0P1Intersector>::getNumberOfColsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfElements();
   }
@@ -76,12 +76,12 @@ namespace INTERP_KERNEL
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
     {
       std::vector<double> srcCellCoords,srcCellCoordsTmp,nodeCeffs;
-      int iS=*iter;
+      ConnType iS=*iter;
       NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(OTT<ConnType,numPol>::indFC(iS));
       bool isSourceQuad=CellModel::GetCellModel(tS).isQuadratic();
       PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(iS),srcCellCoords);
       std::vector<double> *srcCoords(&srcCellCoords);
-      int srcNbNodes = srcCellCoords.size()/SPACEDIM;
+      ConnType srcNbNodes = ToConnType(srcCellCoords.size())/SPACEDIM;
       if(SPACEDIM==3)
         {
           srcCellCoordsTmp=srcCellCoords;

@@ -152,29 +152,29 @@ namespace MEDCoupling
 
     int myranksource = _topo_source->getProcGroup()->myRank();
 
-    vector <int>* target_arrays=new vector<int>[_topo_target->getProcGroup()->size()];
+    vector <mcIdType>* target_arrays=new vector<mcIdType>[_topo_target->getProcGroup()->size()];
 
     //cout<<" topotarget size"<<  _topo_target->getProcGroup()->size()<<endl;
 
-    int nb_local = _topo_source-> getNbLocalElements();
-    for (int ielem=0; ielem< nb_local ; ielem++)
+    mcIdType nb_local = _topo_source-> getNbLocalElements();
+    for (mcIdType ielem=0; ielem< nb_local ; ielem++)
       {
         //  cout <<"source local :"<<myranksource<<","<<ielem<<endl;
-        int global = _topo_source->localToGlobal(make_pair(myranksource, ielem));
+        mcIdType global = _topo_source->localToGlobal(make_pair(myranksource, ielem));
         //  cout << "global "<<global<<endl;
-        pair<int,int> target_local =_topo_target->globalToLocal(global);
+        pair<int,mcIdType> target_local =_topo_target->globalToLocal(global);
         //  cout << "target local : "<<target_local.first<<","<<target_local.second<<endl;
         target_arrays[target_local.first].push_back(target_local.second);
       }
 
-    int union_size=group->size();
+    std::size_t union_size=group->size();
 
     _send_counts=new int[union_size];
     _send_displs=new int[union_size];
     _recv_counts=new int[union_size];
     _recv_displs=new int[union_size];
 
-    for (int i=0; i< union_size; i++)
+    for (std::size_t i=0; i< union_size; i++)
       {
         _send_counts[i]=0;
         _recv_counts[i]=0;
@@ -186,7 +186,7 @@ namespace MEDCoupling
       {
         //converts the rank in target to the rank in union communicator
         int unionrank=group->translateRank(_topo_target->getProcGroup(),iproc);
-        _send_counts[unionrank]=target_arrays[iproc].size();
+        _send_counts[unionrank]=(int)target_arrays[iproc].size();
       }
 
     for (int iproc=1; iproc<group->size();iproc++)
@@ -200,15 +200,15 @@ namespace MEDCoupling
     int* counter=new int [_topo_target->getProcGroup()->size()];
     counter[0]=0;
     for (int i=1; i<_topo_target->getProcGroup()->size(); i++)
-      counter[i]=counter[i-1]+target_arrays[i-1].size();
+      counter[i]=counter[i-1]+(int)target_arrays[i-1].size();
 
 
     const double* value = _local_field->getField()->getArray()->getPointer();
     //cout << "Nb local " << nb_local<<endl;
     for (int ielem=0; ielem<nb_local ; ielem++)
       {
-        int global = _topo_source->localToGlobal(make_pair(myranksource, ielem));
-        pair<int,int> target_local =_topo_target->globalToLocal(global);
+        mcIdType global = _topo_source->localToGlobal(make_pair(myranksource, ielem));
+        pair<int,mcIdType> target_local =_topo_target->globalToLocal(global);
         //cout <<"global : "<< global<<" local :"<<target_local.first<<" "<<target_local.second;
         //cout <<"counter[]"<<counter[target_local.first]<<endl;
         _send_buffer[counter[target_local.first]++]=value[ielem];
@@ -230,24 +230,24 @@ namespace MEDCoupling
 
     int myranktarget = _topo_target->getProcGroup()->myRank();
 
-    vector < vector <int> > source_arrays(_topo_source->getProcGroup()->size());
-    int nb_local = _topo_target-> getNbLocalElements();
-    for (int ielem=0; ielem< nb_local ; ielem++)
+    vector < vector <mcIdType> > source_arrays(_topo_source->getProcGroup()->size());
+    mcIdType nb_local = _topo_target-> getNbLocalElements();
+    for (mcIdType ielem=0; ielem< nb_local ; ielem++)
       {
         //  cout <<"TS target local :"<<myranktarget<<","<<ielem<<endl;
-        int global = _topo_target->localToGlobal(make_pair(myranktarget, ielem));
+        mcIdType global = _topo_target->localToGlobal(make_pair(myranktarget, ielem));
         //cout << "TS global "<<global<<endl;
-        pair<int,int> source_local =_topo_source->globalToLocal(global);
+        pair<int,mcIdType> source_local =_topo_source->globalToLocal(global);
         //  cout << "TS source local : "<<source_local.first<<","<<source_local.second<<endl;
         source_arrays[source_local.first].push_back(source_local.second);
       }
-    int union_size=group->size();
+    std::size_t union_size=group->size();
     _recv_counts=new int[union_size];
     _recv_displs=new int[union_size];
     _send_counts=new int[union_size];
     _send_displs=new int[union_size];
 
-    for (int i=0; i< union_size; i++)
+    for (std::size_t i=0; i< union_size; i++)
       {
         _send_counts[i]=0;
         _recv_counts[i]=0;
@@ -257,9 +257,9 @@ namespace MEDCoupling
       {
         //converts the rank in target to the rank in union communicator
         int unionrank=group->translateRank(_topo_source->getProcGroup(),iproc);
-        _recv_counts[unionrank]=source_arrays[iproc].size();
+        _recv_counts[unionrank]=(int)source_arrays[iproc].size();
       }
-    for (int i=1; i<union_size; i++)
+    for (std::size_t i=1; i<union_size; i++)
       _recv_displs[i]=_recv_displs[i-1]+_recv_counts[i-1];
     _recv_buffer=new double[nb_local];
 
@@ -278,8 +278,8 @@ namespace MEDCoupling
   {
     MPI_Status status;
 
-    int* serializer=0;
-    int size;
+    mcIdType* serializer=0;
+    mcIdType size;
 
     MPIProcessorGroup* group=new MPIProcessorGroup(*_comm_interface);
 
@@ -307,12 +307,12 @@ namespace MEDCoupling
         MESSAGE(" rank "<<group->myRank()<< "received master rank"<<rank_master);
       }
     // The topology is broadcasted to all processors in the group
-    _comm_interface->broadcast(&size, 1,MPI_INT,rank_master,*(group->getComm()));
+    _comm_interface->broadcast(&size, 1,MPI_ID_TYPE,rank_master,*(group->getComm()));
 
-    int* buffer=new int[size];
+    mcIdType* buffer=new mcIdType[size];
     if (topo!=0 && topo->getProcGroup()->myRank()==0)
       copy(serializer, serializer+size, buffer);
-    _comm_interface->broadcast(buffer,size,MPI_INT,rank_master,*(group->getComm()));
+    _comm_interface->broadcast(buffer,(int)size,MPI_ID_TYPE,rank_master,*(group->getComm()));
 
     // Processors which did not possess the source topology
     // unserialize it
@@ -353,7 +353,7 @@ namespace MEDCoupling
                                _recv_buffer, _recv_counts, _recv_displs, MPI_DOUBLE,comm);
     cout<<"end AllToAll"<<endl;
 
-    int nb_local = _topo_target->getNbLocalElements();
+    mcIdType nb_local = _topo_target->getNbLocalElements();
     //double* value=new double[nb_local];
     double* value=const_cast<double*>(_local_field->getField()->getArray()->getPointer());
 
@@ -368,10 +368,10 @@ namespace MEDCoupling
         delete group;
       }
 
-    for (int ielem=0; ielem<nb_local ; ielem++)
+    for (mcIdType ielem=0; ielem<nb_local ; ielem++)
       {
-        int global = _topo_target->localToGlobal(make_pair(myranktarget, ielem));
-        pair<int,int> source_local =_topo_source->globalToLocal(global);
+        mcIdType global = _topo_target->localToGlobal(make_pair(myranktarget, ielem));
+        pair<int,mcIdType> source_local =_topo_source->globalToLocal(global);
         value[ielem]=_recv_buffer[counters[source_local.first]++];
       }
 

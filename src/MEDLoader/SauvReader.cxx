@@ -735,10 +735,10 @@ void SauvReader::setFieldSupport(const vector<SauvUtilities::Group*>& supports,
           while ( isSwapped )
             {
               isSwapped = false;
-              for ( size_t i = 1; i < groups.size(); ++i )
+              for ( std::size_t i = 1; i < groups.size(); ++i )
                 {
-                  int nbN1 = groups[i-1]->empty() ? 0 : groups[i-1]->_cells[0]->_nodes.size();
-                  int nbN2 = groups[i  ]->empty() ? 0 : groups[i  ]->_cells[0]->_nodes.size();
+                  std::size_t nbN1 = groups[i-1]->empty() ? 0 : groups[i-1]->_cells[0]->_nodes.size();
+                  std::size_t nbN2 = groups[i  ]->empty() ? 0 : groups[i  ]->_cells[0]->_nodes.size();
                   if ( nbN1 > nbN2 )
                     {
                       isSwapped = isModified = true;
@@ -1204,7 +1204,7 @@ void SauvReader::read_PILE_STRINGS (const int                 nbObjects,
       const int fixedLength = 71;
       while ((int)aWholeString.length() < stringLen)
         {
-          int remainLen = stringLen - aWholeString.length();
+          int remainLen = (int)(stringLen - aWholeString.length());
           int len;
           if ( remainLen > fixedLength )
             {
@@ -1226,7 +1226,7 @@ void SauvReader::read_PILE_STRINGS (const int                 nbObjects,
       while ((int)aWholeString.length() < stringLen)
         {
           getNextLine( line );
-          int remainLen = stringLen - aWholeString.length();
+          int remainLen = (int)(stringLen - aWholeString.length());
           if ( remainLen > fixedLength )
             {
               aWholeString += line + 1;

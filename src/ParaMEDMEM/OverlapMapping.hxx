@@ -35,7 +35,7 @@ namespace MEDCoupling
   class MEDCouplingFieldDouble;
 
   using namespace std;
-  typedef map<int,double> SparseDoubleVec;
+  typedef map<mcIdType,double> SparseDoubleVec;
 
   /*!
    * Internal class, not part of the public API.
@@ -48,11 +48,11 @@ namespace MEDCoupling
   public:
 
     OverlapMapping(const ProcessorGroup& group, const OverlapElementLocator& locator);
-    void keepTracksOfSourceIds(int procId, DataArrayInt *ids);
-    void keepTracksOfTargetIds(int procId, DataArrayInt *ids);
-    void addContributionST(const vector< SparseDoubleVec >& matrixST, const DataArrayInt *srcIds, int srcProcId, const DataArrayInt *trgIds, int trgProcId);
-    void prepare(const vector< int >& procsToSendField, int nbOfTrgElems);
-    void computeDenoConservativeVolumic(int nbOfTuplesTrg);
+    void keepTracksOfSourceIds(int procId, DataArrayIdType *ids);
+    void keepTracksOfTargetIds(int procId, DataArrayIdType *ids);
+    void addContributionST(const vector< SparseDoubleVec >& matrixST, const DataArrayIdType *srcIds, int srcProcId, const DataArrayIdType *trgIds, int trgProcId);
+    void prepare(const vector< int >& procsToSendField, mcIdType nbOfTrgElems);
+    void computeDenoConservativeVolumic(mcIdType nbOfTuplesTrg);
 //    void computeDenoIntegralGlobConstraint();
 //    void computeDenoIntegral();
     void computeDenoRevIntegral(const DataArrayDouble & targetAreas);
@@ -60,13 +60,13 @@ namespace MEDCoupling
     void multiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput, double default_val) const;
     void transposeMultiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput);
   private:
-    void serializeMatrixStep0ST(const int *nbOfElemsSrc, int *&bigArr, int *count, int *offsets,
+    void serializeMatrixStep0ST(const mcIdType *nbOfElemsSrc, mcIdType *&bigArr, int *count, int *offsets,
                                 int *countForRecv, int *offsetsForRecv) const;
-    int serializeMatrixStep1ST(const int *nbOfElemsSrc, const int *recvStep0, const int *countStep0, const int *offsStep0,
-                               int *&bigArrI, double *&bigArrD, int *count, int *offsets,
+    mcIdType serializeMatrixStep1ST(const mcIdType *nbOfElemsSrc, const mcIdType *recvStep0, const int *countStep0, const int *offsStep0,
+                               mcIdType *&bigArrI, double *&bigArrD, int *count, int *offsets,
                                int *countForRecv, int *offsForRecv) const;
-    void unserializationST(int nbOfTrgElems, const int *nbOfElemsSrcPerProc, const int *bigArrRecv, const int *bigArrRecvCounts, const int *bigArrRecvOffs,
-                           const int *bigArrRecv2, const double *bigArrDRecv2, const int *bigArrRecv2Count, const int *bigArrRecv2Offs);
+    void unserializationST(mcIdType nbOfTrgElems, const mcIdType *nbOfElemsSrcPerProc, const mcIdType *bigArrRecv, const int *bigArrRecvCounts, const int *bigArrRecvOffs,
+                           const mcIdType *bigArrRecv2, const double *bigArrDRecv2, const int *bigArrRecv2Count, const int *bigArrRecv2Offs);
     void finishToFillFinalMatrixST();
     void fillSourceIdsZipReceivedForMultiply();
 
@@ -83,10 +83,10 @@ namespace MEDCoupling
      * gives an old2new map for the local part of the source mesh that has been sent to proc#i, just based on the
      * bounding box computation (this is potentially a larger set than what is finally in the interp matrix).
      * Second member gives proc ID.  */
-    map < int, MCAuto<DataArrayInt> > _sent_src_ids;
+    map < int, MCAuto<DataArrayIdType> > _sent_src_ids;
 
     //! See _sent_src_ids. Same for target mesh.
-    map < int, MCAuto<DataArrayInt> > _sent_trg_ids;
+    map < int, MCAuto<DataArrayIdType> > _sent_trg_ids;
 
     /**! Vector of matrixes (partial interpolation ratios), result of the LOCAL interpolator run.
      * Indexing shared with _source_proc_id_st, and _target_proc_id_st.   */
@@ -99,16 +99,16 @@ namespace MEDCoupling
     /**! Number of received source mesh IDs at mesh data exchange.
      Counting the number of IDs suffices, as we just need this to prepare the receive side, when doing the final vector matrix multiplication.
      First dimension is the remote proc ID from which we received. */
-    map <int, int > _nb_of_rcv_src_ids;
+    map <int, mcIdType > _nb_of_rcv_src_ids;
 
     /**! Specifies for each (target) remote proc ID (first dim of the map) the corresponding
      * source cell IDs to use.
      * This information is stored from the *locally* COMPuted matrices, and corresponds hence to field value that will need to
      * sent later on, if this matrix bit itself is sent aways.  */
-    map<int, vector<int> > _src_ids_zip_comp;
+    map<int, vector<mcIdType> > _src_ids_zip_comp;
 
     /**! Same idea as _src_ids_zip_comp above, but for RECEIVED matrix. */
-    map<int, vector<int> > _src_ids_zip_recv;
+    map<int, vector<mcIdType> > _src_ids_zip_recv;
 
     /**! THE matrix for matrix-vector product. The first dimension is indexed in the set of target procs
     * that interacts with local source mesh. The second dim is the target cell ID.

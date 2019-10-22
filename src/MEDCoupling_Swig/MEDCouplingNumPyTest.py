@@ -46,10 +46,10 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a=a.cumsum(dtype=int32)
         a=array(a,dtype=int64) ; a=array(a,dtype=int32)
         self.assertEqual(getrefcount(a),2)
-        d=DataArrayInt(a)
+        d=DataArrayInt32(a)
         d[:]=2
         #
-        e=DataArrayInt(sz) ; e.fillWithValue(2)
+        e=DataArrayInt32(sz) ; e.fillWithValue(2)
         self.assertTrue(d.isEqual(e))
         #
         a[:]=4 ; e.fillWithValue(4)
@@ -66,9 +66,9 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(getrefcount(a),3)
         self.assertEqual(getrefcount(b),2)
         b[:]=5
-        d=DataArrayInt(b)
+        d=DataArrayInt32(b)
         #
-        e=DataArrayInt(sz*2) ; e.fillWithValue(5)
+        e=DataArrayInt32(sz*2) ; e.fillWithValue(5)
         self.assertTrue(d.isEqual(e))
         pass
     
@@ -81,16 +81,16 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         c=a.reshape(2,sz)
         b[:]=6
         b[7:17]=7
-        d=DataArrayInt(b)
-        self.assertTrue(d.isEqual(DataArrayInt([6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,6,6,6])))
+        d=DataArrayInt32(b)
+        self.assertTrue(d.isEqual(DataArrayInt32([6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,6,6,6])))
         #
         a=zeros((10,2),dtype=int32)
         b=a.T
         c=b.view()
         a.shape=20
         a[3:]=10.
-        d=DataArrayInt(a)
-        self.assertTrue(d.isEqual(DataArrayInt([0,0,0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10])))
+        d=DataArrayInt32(a)
+        self.assertTrue(d.isEqual(DataArrayInt32([0,0,0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10])))
         pass
     
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
@@ -104,7 +104,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
     def test5(self):
         a=arange(20,dtype=int32)
         self.assertEqual(weakref.getweakrefcount(a),0)
-        d=DataArrayInt(a)
+        d=DataArrayInt32(a)
         self.assertEqual(weakref.getweakrefcount(a),1)
         self.assertTrue(not a.flags["OWNDATA"])
         self.assertTrue(d.isIota(20))
@@ -116,14 +116,14 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         gc.collect()
         self.assertTrue(a.flags["OWNDATA"])
         a[:]=4 # a can be used has usual
-        self.assertTrue(DataArrayInt(a).isUniform(4))
+        self.assertTrue(DataArrayInt32(a).isUniform(4))
         pass
     
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test6(self):
         a=arange(20,dtype=int32)
-        d=DataArrayInt(a) # d owns data of a
-        e=DataArrayInt(a) # a not owned -> e only an access to chunk of a 
+        d=DataArrayInt32(a) # d owns data of a
+        e=DataArrayInt32(a) # a not owned -> e only an access to chunk of a 
         self.assertTrue(d.isIota(d.getNumberOfTuples()))
         self.assertTrue(e.isIota(e.getNumberOfTuples()))
         a[:]=6
@@ -142,9 +142,9 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a=array(0,dtype=int32) ; a.resize(10,2)
         b=a.reshape(20)
         c=a.reshape(2,10)
-        d=DataArrayInt(b) # d owns data of a
-        e=DataArrayInt(b) # a not owned -> e only an access to chunk of a
-        f=DataArrayInt(b) # a not owned -> e only an access to chunk of a
+        d=DataArrayInt32(b) # d owns data of a
+        e=DataArrayInt32(b) # a not owned -> e only an access to chunk of a
+        f=DataArrayInt32(b) # a not owned -> e only an access to chunk of a
         del d # d removed -> a ownes again data
         ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called 
         import gc
@@ -177,11 +177,11 @@ class MEDCouplingNumPyTest(unittest.TestCase):
     def test8(self):
         a=arange(20,dtype=int32)
         self.assertTrue(a.flags["OWNDATA"])
-        d=DataArrayInt(a) # d owns data of a
+        d=DataArrayInt32(a) # d owns data of a
         self.assertTrue(not a.flags["OWNDATA"])
         d.pushBackSilent(20)# d pushBack so release of chunk of data -> a becomes owner of its data again
         self.assertTrue(a.flags["OWNDATA"])
-        self.assertTrue(d.isEqual(DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])))
+        self.assertTrue(d.isEqual(DataArrayInt32([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])))
         self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19])
         pass
 
@@ -394,13 +394,13 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a.resize(sz//2,2)
         a[:]=4
         self.assertEqual(getrefcount(a),2)
-        d=DataArrayInt(a)
+        d=DataArrayInt32(a)
         self.assertEqual(10,d.getNumberOfTuples())
         self.assertEqual(2,d.getNumberOfComponents())
         self.assertEqual(sz,d.getNbOfElems())
-        self.assertTrue(d.isEqual(DataArrayInt([(4,4),(4,4),(4,4),(4,4),(4,4),(4,4),(4,4),(4,4),(4,4),(4,4)])))
+        self.assertTrue(d.isEqual(DataArrayInt32([(4,4),(4,4),(4,4),(4,4),(4,4),(4,4),(4,4),(4,4),(4,4),(4,4)])))
         a[:]=7
-        self.assertTrue(d.isEqual(DataArrayInt([(7,7),(7,7),(7,7),(7,7),(7,7),(7,7),(7,7),(7,7),(7,7),(7,7)])))
+        self.assertTrue(d.isEqual(DataArrayInt32([(7,7),(7,7),(7,7),(7,7),(7,7),(7,7),(7,7),(7,7),(7,7),(7,7)])))
         #
         b=a.reshape((2,5,2))
         self.assertRaises(InterpKernelException,DataArrayInt.New,b) # b has not dimension in [0,1] !
@@ -430,7 +430,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         #tests that only DataArray*(npArray) constructor is available
         a=array(0,dtype=int32)
         a.resize(20)
-        DataArrayInt(a)
+        DataArrayInt32(a)
         self.assertRaises(InterpKernelException,DataArrayInt.New,a,20)
         self.assertRaises(InterpKernelException,DataArrayInt.New,a,20,1)
         a=array(0,dtype=float64)
@@ -564,9 +564,9 @@ class MEDCouplingNumPyTest(unittest.TestCase):
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test25(self):
         a=arange(10,dtype=int32)
-        b=DataArrayInt(a)
-        c=DataArrayInt(a)
-        d=DataArrayInt(a)
+        b=DataArrayInt32(a)
+        c=DataArrayInt32(a)
+        d=DataArrayInt32(a)
         self.assertTrue(b.isIota(10))
         self.assertTrue(c.isIota(10))
         self.assertTrue(d.isIota(10))
@@ -584,8 +584,8 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(c.isIota(11))
         #
         a=arange(10,dtype=int32)
-        b=DataArrayInt(a)
-        c=DataArrayInt(a)
+        b=DataArrayInt32(a)
+        c=DataArrayInt32(a)
         self.assertTrue(b.isIota(10))
         self.assertTrue(c.isIota(10))
         b.pushBackSilent(10) # c and a,b are dissociated
@@ -644,9 +644,9 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(a.ndim,2)
         self.assertEqual(a.size,15)
         self.assertEqual(a.shape,(5,3))
-        self.assertEqual(a.strides,(12,4))
-        self.assertEqual(a.nbytes,60)
-        self.assertEqual(a.itemsize,4)
+        self.assertEqual(a.strides,(3*MEDCouplingSizeOfIDs()//8,MEDCouplingSizeOfIDs()//8))
+        self.assertEqual(a.nbytes,15*MEDCouplingSizeOfIDs()//8)
+        self.assertEqual(a.itemsize,MEDCouplingSizeOfIDs()//8)
         self.assertEqual(a.tolist(),[[0,1,2],[3,4,5],[6,7,8],[9,10,11],[12,13,14]])
         #
         d2=d.convertToDblArr()

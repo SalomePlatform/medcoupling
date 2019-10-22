@@ -25,17 +25,17 @@
 
 using namespace MEDCoupling;
 
-PartDefinition *PartDefinition::New(int start, int stop, int step)
+PartDefinition *PartDefinition::New(mcIdType start, mcIdType stop, mcIdType step)
 {
   return SlicePartDefinition::New(start,stop,step);
 }
 
-PartDefinition *PartDefinition::New(DataArrayInt *listOfIds)
+PartDefinition *PartDefinition::New(DataArrayIdType *listOfIds)
 {
   return DataArrayPartDefinition::New(listOfIds);
 }
 
-PartDefinition *PartDefinition::Unserialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI)
+PartDefinition *PartDefinition::Unserialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI)
 {
   if(tinyInt.empty())
     {
@@ -57,7 +57,7 @@ PartDefinition::~PartDefinition()
 {
 }
 
-DataArrayPartDefinition *DataArrayPartDefinition::New(DataArrayInt *listOfIds)
+DataArrayPartDefinition *DataArrayPartDefinition::New(DataArrayIdType *listOfIds)
 {
   return new DataArrayPartDefinition(listOfIds);
 }
@@ -75,7 +75,7 @@ bool DataArrayPartDefinition::isEqual(const PartDefinition *other, std::string& 
       what="DataArrayPartDefinition::isEqual : other is not DataArrayPartDefinition !";
       return false;
     }
-  const DataArrayInt *arr0(_arr),*arr1(otherC->_arr);
+  const DataArrayIdType *arr0(_arr),*arr1(otherC->_arr);
   if(!arr0 && !arr1)
     return true;
   if((arr0 && !arr1) || (!arr0 && arr1))
@@ -95,13 +95,13 @@ bool DataArrayPartDefinition::isEqual(const PartDefinition *other, std::string& 
 
 DataArrayPartDefinition *DataArrayPartDefinition::deepCopy() const
 {
-  const DataArrayInt *arr(_arr);
+  const DataArrayIdType *arr(_arr);
   if(!arr)
     throw INTERP_KERNEL::Exception("DataArrayPartDefinition::deepCopy : array is null !");
-  return DataArrayPartDefinition::New(const_cast<DataArrayInt *>(arr));
+  return DataArrayPartDefinition::New(const_cast<DataArrayIdType *>(arr));
 }
 
-int DataArrayPartDefinition::getNumberOfElems() const
+mcIdType DataArrayPartDefinition::getNumberOfElems() const
 {
   checkInternalArrayOK();
   return _arr->getNumberOfTuples();
@@ -124,7 +124,7 @@ PartDefinition *DataArrayPartDefinition::operator+(const PartDefinition& other) 
 std::string DataArrayPartDefinition::getRepr() const
 {
   std::ostringstream oss; oss << "DataArray Part : ";
-  const DataArrayInt *arr(_arr);
+  const DataArrayIdType *arr(_arr);
   if(arr)
     arr->reprQuickOverview(oss);
   else
@@ -145,19 +145,19 @@ PartDefinition *DataArrayPartDefinition::composeWith(const PartDefinition *other
   const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(other));
   if(spd)
     {//special case for optim
-      int a(0),b(0),c(0);
+      mcIdType a(0),b(0),c(0);
       spd->getSlice(a,b,c);
       if(c==1)
         {
-          MCAuto<DataArrayInt> arr(DataArrayInt::New());
+          MCAuto<DataArrayIdType> arr(DataArrayIdType::New());
           arr->alloc(_arr->getNumberOfTuples(),1);
-          std::transform(_arr->begin(),_arr->end(),arr->getPointer(),std::bind2nd(std::plus<int>(),a));
+          std::transform(_arr->begin(),_arr->end(),arr->getPointer(),std::bind2nd(std::plus<mcIdType>(),a));
           return DataArrayPartDefinition::New(arr);
         }
     }
   //
-  MCAuto<DataArrayInt> arr1(other->toDAI());
-  MCAuto<DataArrayInt> arr2(arr1->selectByTupleIdSafe(_arr->begin(),_arr->end()));
+  MCAuto<DataArrayIdType> arr1(other->toDAI());
+  MCAuto<DataArrayIdType> arr2(arr1->selectByTupleIdSafe(_arr->begin(),_arr->end()));
   return DataArrayPartDefinition::New(arr2);
 }
 
@@ -174,7 +174,7 @@ void DataArrayPartDefinition::checkConsistencyLight() const
 PartDefinition *DataArrayPartDefinition::tryToSimplify() const
 {
   checkConsistencyLight();
-  int a(0),b(0),c(0);
+  mcIdType a(0),b(0),c(0);
   if(_arr->isRange(a,b,c))
     {
       return SlicePartDefinition::New(a,b,c);
@@ -187,21 +187,21 @@ PartDefinition *DataArrayPartDefinition::tryToSimplify() const
     }
 }
 
-void DataArrayPartDefinition::serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const
+void DataArrayPartDefinition::serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const
 {
   bigArraysI.push_back(_arr);
 }
 
-DataArrayInt *DataArrayPartDefinition::toDAI() const
+DataArrayIdType *DataArrayPartDefinition::toDAI() const
 {
   checkInternalArrayOK();
-  const DataArrayInt *arr(_arr);
-  DataArrayInt *arr2(const_cast<DataArrayInt *>(arr));
+  const DataArrayIdType *arr(_arr);
+  DataArrayIdType *arr2(const_cast<DataArrayIdType *>(arr));
   arr2->incrRef();
   return arr2;
 }
 
-DataArrayPartDefinition::DataArrayPartDefinition(DataArrayInt *listOfIds)
+DataArrayPartDefinition::DataArrayPartDefinition(DataArrayIdType *listOfIds)
 {
   CheckInternalArrayOK(listOfIds);
   _arr=listOfIds;
@@ -213,7 +213,7 @@ void DataArrayPartDefinition::checkInternalArrayOK() const
   CheckInternalArrayOK(_arr);
 }
 
-void DataArrayPartDefinition::CheckInternalArrayOK(const DataArrayInt *listOfIds)
+void DataArrayPartDefinition::CheckInternalArrayOK(const DataArrayIdType *listOfIds)
 {
   if(!listOfIds || !listOfIds->isAllocated() || listOfIds->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayPartDefinition::CheckInternalArrayOK : Input list must be not null allocated and with one components !");
@@ -221,7 +221,7 @@ void DataArrayPartDefinition::CheckInternalArrayOK(const DataArrayInt *listOfIds
 
 void DataArrayPartDefinition::updateTime() const
 {
-  if((const DataArrayInt *)_arr)
+  if((const DataArrayIdType *)_arr)
     updateTimeWith(*_arr);
 }
 
@@ -232,22 +232,22 @@ std::size_t DataArrayPartDefinition::getHeapMemorySizeWithoutChildren() const
 
 std::vector<const BigMemoryObject *> DataArrayPartDefinition::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(1,(const DataArrayInt *)_arr);
+  std::vector<const BigMemoryObject *> ret(1,(const DataArrayIdType *)_arr);
   return ret;
 }
 
 DataArrayPartDefinition *DataArrayPartDefinition::add1(const DataArrayPartDefinition *other) const
 {
-  MCAuto<DataArrayInt> a1(toDAI()),a2(other->toDAI());
-  MCAuto<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
+  MCAuto<DataArrayIdType> a1(toDAI()),a2(other->toDAI());
+  MCAuto<DataArrayIdType> a3(DataArrayIdType::Aggregate(a1,a2,0));
   a3->sort();
   return DataArrayPartDefinition::New(a3);
 }
 
 DataArrayPartDefinition *DataArrayPartDefinition::add2(const SlicePartDefinition *other) const
 {
-  MCAuto<DataArrayInt> a1(toDAI()),a2(other->toDAI());
-  MCAuto<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
+  MCAuto<DataArrayIdType> a1(toDAI()),a2(other->toDAI());
+  MCAuto<DataArrayIdType> a3(DataArrayIdType::Aggregate(a1,a2,0));
   a3->sort();
   return DataArrayPartDefinition::New(a3);
 }
@@ -256,7 +256,7 @@ DataArrayPartDefinition::~DataArrayPartDefinition()
 {
 }
 
-SlicePartDefinition *SlicePartDefinition::New(int start, int stop, int step)
+SlicePartDefinition *SlicePartDefinition::New(mcIdType start, mcIdType stop, mcIdType step)
 {
   return new SlicePartDefinition(start,stop,step);
 }
@@ -288,12 +288,12 @@ SlicePartDefinition *SlicePartDefinition::deepCopy() const
   return SlicePartDefinition::New(_start,_stop,_step);
 }
 
-DataArrayInt *SlicePartDefinition::toDAI() const
+DataArrayIdType *SlicePartDefinition::toDAI() const
 {
-  return DataArrayInt::Range(_start,_stop,_step);
+  return DataArrayIdType::Range(_start,_stop,_step);
 }
 
-int SlicePartDefinition::getNumberOfElems() const
+mcIdType SlicePartDefinition::getNumberOfElems() const
 {
   return DataArray::GetNumberOfItemGivenBES(_start,_stop,_step,"SlicePartDefinition::getNumberOfElems");
 }
@@ -322,8 +322,8 @@ PartDefinition *SlicePartDefinition::composeWith(const PartDefinition *other) co
     throw INTERP_KERNEL::Exception("SlicePartDefinition::composeWith : input PartDef must be not NULL !");
   checkConsistencyLight();
   other->checkConsistencyLight();
-  MCAuto<DataArrayInt> arr(other->toDAI());
-  MCAuto<DataArrayInt> arr1(arr->selectByTupleIdSafeSlice(_start,_stop,_step));
+  MCAuto<DataArrayIdType> arr(other->toDAI());
+  MCAuto<DataArrayIdType> arr1(arr->selectByTupleIdSafeSlice(_start,_stop,_step));
   return DataArrayPartDefinition::New(arr1);
 }
 
@@ -346,7 +346,7 @@ PartDefinition *SlicePartDefinition::tryToSimplify() const
   return ret;
 }
 
-void SlicePartDefinition::serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const
+void SlicePartDefinition::serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const
 {
   tinyInt.push_back(_start);
   tinyInt.push_back(_stop);
@@ -360,20 +360,20 @@ std::string SlicePartDefinition::getRepr() const
   return oss.str();
 }
 
-int SlicePartDefinition::getEffectiveStop() const
+mcIdType SlicePartDefinition::getEffectiveStop() const
 {
-  int nbElems(DataArray::GetNumberOfItemGivenBES(_start,_stop,_step,"SlicePartDefinition::getEffectiveStop"));
+  mcIdType nbElems(DataArray::GetNumberOfItemGivenBES(_start,_stop,_step,"SlicePartDefinition::getEffectiveStop"));
   return _start+nbElems*_step;
 }
 
-void SlicePartDefinition::getSlice(int& start, int& stop, int& step) const
+void SlicePartDefinition::getSlice(mcIdType& start, mcIdType& stop, mcIdType& step) const
 {
   start=_start;
   stop=_stop;
   step=_step;
 }
 
-SlicePartDefinition::SlicePartDefinition(int start, int stop, int step):_start(start),_stop(stop),_step(step)
+SlicePartDefinition::SlicePartDefinition(mcIdType start, mcIdType stop, mcIdType step):_start(start),_stop(stop),_step(step)
 {
 }
 
@@ -396,8 +396,8 @@ std::vector<const BigMemoryObject *> SlicePartDefinition::getDirectChildrenWithN
 
 DataArrayPartDefinition *SlicePartDefinition::add1(const DataArrayPartDefinition *other) const
 {
-  MCAuto<DataArrayInt> a1(toDAI()),a2(other->toDAI());
-  MCAuto<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
+  MCAuto<DataArrayIdType> a1(toDAI()),a2(other->toDAI());
+  MCAuto<DataArrayIdType> a3(DataArrayIdType::Aggregate(a1,a2,0));
   a3->sort();
   return DataArrayPartDefinition::New(a3);
 }
@@ -410,8 +410,8 @@ PartDefinition *SlicePartDefinition::add2(const SlicePartDefinition *other) cons
     }
   else
     {
-      MCAuto<DataArrayInt> a1(toDAI()),a2(other->toDAI());
-      MCAuto<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
+      MCAuto<DataArrayIdType> a1(toDAI()),a2(other->toDAI());
+      MCAuto<DataArrayIdType> a3(DataArrayIdType::Aggregate(a1,a2,0));
       a3->sort();
       return DataArrayPartDefinition::New(a3);
     }

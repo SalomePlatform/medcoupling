@@ -140,17 +140,17 @@ std::string MEDCouplingFieldTemplate::advancedRepr() const
   return simpleRepr();
 }
 
-void MEDCouplingFieldTemplate::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+void MEDCouplingFieldTemplate::getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform getTinySerializationIntInformation !");
   tinyInfo.clear();
-  tinyInfo.push_back((int)_type->getEnum());
-  tinyInfo.push_back((int)_nature);
-  std::vector<int> tinyInfo2;
+  tinyInfo.push_back(ToIdType(_type->getEnum()));
+  tinyInfo.push_back(ToIdType(_nature));
+  std::vector<mcIdType> tinyInfo2;
   _type->getTinySerializationIntInformation(tinyInfo2);
   tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
-  tinyInfo.push_back((int)tinyInfo2.size());
+  tinyInfo.push_back(ToIdType(tinyInfo2.size()));
 }
 
 void MEDCouplingFieldTemplate::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
@@ -168,16 +168,16 @@ void MEDCouplingFieldTemplate::getTinySerializationStrInformation(std::vector<st
   tinyInfo.push_back(_desc);
 }
 
-void MEDCouplingFieldTemplate::resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt)
+void MEDCouplingFieldTemplate::resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, DataArrayIdType *&dataInt)
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform resizeForUnserialization !");
   dataInt=0;
-  std::vector<int> tinyInfoITmp(tinyInfoI.begin()+2,tinyInfoI.end());
+  std::vector<mcIdType> tinyInfoITmp(tinyInfoI.begin()+2,tinyInfoI.end());
   _type->resizeForUnserialization(tinyInfoITmp,dataInt);
 }
 
-void MEDCouplingFieldTemplate::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+void MEDCouplingFieldTemplate::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform finishUnserialization !");
@@ -187,7 +187,7 @@ void MEDCouplingFieldTemplate::finishUnserialization(const std::vector<int>& tin
   _desc=tinyInfoS[1];
 }
 
-void MEDCouplingFieldTemplate::serialize(DataArrayInt *&dataInt) const
+void MEDCouplingFieldTemplate::serialize(DataArrayIdType *&dataInt) const
 {
   _type->getSerializationIntArray(dataInt);
 }

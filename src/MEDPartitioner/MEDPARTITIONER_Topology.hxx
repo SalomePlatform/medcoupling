@@ -21,6 +21,7 @@
 #define __MEDPARTITIONER_TOPOLOGY_HXX__
 
 #include "MEDPARTITIONER.hxx"
+#include "MCType.hxx"
 
 #include <map>
 #include <vector>
@@ -47,63 +48,63 @@ namespace MEDPARTITIONER
     /*! converts a list of global cell numbers
      *  to a distributed array with local cell numbers
      */
-    virtual void convertGlobalNodeList(const int *list, int nb, int *local, int*ip) = 0;
-    virtual void convertGlobalNodeList(const int *list, int nb, int *local, int ip) = 0;
+    virtual void convertGlobalNodeList(const mcIdType *list, mcIdType nb, mcIdType *local, int*ip) = 0;
+    virtual void convertGlobalNodeList(const mcIdType *list, mcIdType nb, mcIdType *local, int ip) = 0;
     //converts a list of global node numbers
     /*! to a distributed array with local cell numbers */
-    virtual void convertGlobalCellList(const int*list , int nb, int *local, int*ip) = 0;
+    virtual void convertGlobalCellList(const mcIdType*list , mcIdType nb, mcIdType *local, int*ip) = 0;
     
     /*! converts a list of global face numbers
      *  to a distributed array with local face numbers
      */
-     virtual void convertGlobalFaceList(const int*list , int nb, int* local, int*ip) = 0;
-    virtual void convertGlobalFaceList(const int*list , int nb, int* local, int ip) = 0;
-    virtual void convertGlobalFaceListWithTwins(const int *face_list, int nbface, int*& local, int*& ip, int*& full_array, int& size) = 0;
-    virtual void convertGlobalNodeListWithTwins(const int *face_list, int nbnode, int*& local, int*& ip, int*& full_array, int& size) = 0;
+     virtual void convertGlobalFaceList(const mcIdType*list , mcIdType nb, mcIdType* local, int*ip) = 0;
+    virtual void convertGlobalFaceList(const mcIdType*list , mcIdType nb, mcIdType* local, int ip) = 0;
+    virtual void convertGlobalFaceListWithTwins(const mcIdType *face_list, mcIdType nbface, mcIdType*& local, int*& ip, mcIdType*& full_array, mcIdType& size) = 0;
+    virtual void convertGlobalNodeListWithTwins(const mcIdType *face_list, mcIdType nbnode, mcIdType*& local, int*& ip, mcIdType*& full_array, mcIdType& size) = 0;
     /*! number of doamins */
     virtual int nbDomain() const = 0;
     /*! number of cells */
-    virtual int nbCells() const = 0;
+    virtual mcIdType nbCells() const = 0;
     /*! number of nodes */
-    virtual int nbNodes() const = 0;
+    virtual mcIdType nbNodes() const = 0;
     /*! number of cells on a specific domain */
-    virtual int nbCells(int idomain) const = 0;
+    virtual mcIdType nbCells(int idomain) const = 0;
     /*! converting node global numberings to local numberings */
-    virtual void convertToLocal2ndVersion(int*,int,int) = 0;
-    virtual int convertNodeToGlobal(int ip,int icell) const = 0;
-    virtual int convertFaceToGlobal(int ip,int icell) const = 0;
-    virtual int convertCellToGlobal(int ip,int icell) const = 0;
-    virtual void convertNodeToGlobal(int ip,const int *local, int n, int *global) const = 0;
-    virtual void convertCellToGlobal(int ip,const int *local, int n, int *global) const = 0;
-    virtual void convertFaceToGlobal(int ip,const int *local, int n, int *global) const = 0;
+    virtual void convertToLocal2ndVersion(mcIdType*,mcIdType,int) = 0;
+    virtual mcIdType convertNodeToGlobal(int ip,mcIdType icell) const = 0;
+    virtual mcIdType convertFaceToGlobal(int ip,mcIdType icell) const = 0;
+    virtual mcIdType convertCellToGlobal(int ip,mcIdType icell) const = 0;
+    virtual void convertNodeToGlobal(int ip,const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
+    virtual void convertCellToGlobal(int ip,const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
+    virtual void convertFaceToGlobal(int ip,const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
     /*! retrieving number of nodes */
-    virtual int getNodeNumber(int idomain) const = 0;
-    virtual int getNodeNumber() const = 0;
+    virtual mcIdType getNodeNumber(int idomain) const = 0;
+    virtual mcIdType getNodeNumber() const = 0;
     /*! retrieving list of nodes */
-    virtual void getNodeList(int idomain, int *list) const = 0;
-    virtual std::vector<int> & getFusedCellNumbers(int idomain) = 0;
-    virtual const std::vector<int> & getFusedCellNumbers(int idomain) const = 0;
-    virtual std::vector<int> & getFusedFaceNumbers(int idomain) = 0;
-    virtual const std::vector<int> & getFusedFaceNumbers(int idomain) const = 0;
+    virtual void getNodeList(int idomain, mcIdType *list) const = 0;
+    virtual std::vector<mcIdType> & getFusedCellNumbers(int idomain) = 0;
+    virtual const std::vector<mcIdType> & getFusedCellNumbers(int idomain) const = 0;
+    virtual std::vector<mcIdType> & getFusedFaceNumbers(int idomain) = 0;
+    virtual const std::vector<mcIdType> & getFusedFaceNumbers(int idomain) const = 0;
     /*! retrieving number of nodes */
-    virtual int getCellNumber(int idomain) const = 0;
+    virtual mcIdType getCellNumber(int idomain) const = 0;
     /*! retrieving list of nodes */
-    virtual void getCellList(int idomain, int *list) const = 0;
+    virtual void getCellList(int idomain, mcIdType *list) const = 0;
     /*! retrieving number of faces */
-    virtual int getFaceNumber(int idomain) const = 0;
-    virtual int getFaceNumber() const = 0;
+    virtual mcIdType getFaceNumber(int idomain) const = 0;
+    virtual mcIdType getFaceNumber() const = 0;
     /*! retrieving list of nodes */
-    virtual void getFaceList(int idomain, int *list) const = 0;
+    virtual void getFaceList(int idomain, mcIdType *list) const = 0;
     /*! adding a face to the mapping */
-    virtual void appendFace(int idomain, int ilocal, int iglobal) = 0;
+    virtual void appendFace(int idomain, mcIdType ilocal, mcIdType iglobal) = 0;
     /*! returns max global face number */
-    virtual int getMaxGlobalFace() const = 0;
+    virtual mcIdType getMaxGlobalFace() const = 0;
     /*! converting a global cell number to a local representation */
-    virtual std::pair<int,int> convertGlobalCell(int iglobal) const = 0;
+    virtual std::pair<int,mcIdType> convertGlobalCell(mcIdType iglobal) const = 0;
     /*! converting a global face number to a local representation */
-    virtual int convertGlobalFace(int iglobal, int idomain) = 0;
+    virtual mcIdType convertGlobalFace(mcIdType iglobal, int idomain) = 0;
     /*! converting a global node number to a local representation */
-    virtual int convertGlobalNode(int iglobal, int idomain) = 0;
+    virtual mcIdType convertGlobalNode(mcIdType iglobal, int idomain) = 0;
     /*! getting a reference to connect zones vector */
     virtual std::vector<MEDPARTITIONER::ConnectZone*>& getCZ() = 0;
   };

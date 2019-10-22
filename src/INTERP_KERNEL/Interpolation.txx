@@ -29,10 +29,10 @@ namespace INTERP_KERNEL
 { 
   template<class TrueMainInterpolator>
   template<class MyMeshType, class MatrixType>
-  int Interpolation<TrueMainInterpolator>::fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const std::string& method)
+  typename MyMeshType::MyConnType Interpolation<TrueMainInterpolator>::fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const std::string& method)
   {
     typedef typename MyMeshType::MyConnType ConnType;
-    int ret=-1;
+    ConnType ret=-1;
     if(method=="P0")
       {
         IntegralUniformIntersectorP0<MyMeshType,MatrixType> intersector(mesh,InterpolationOptions::getMeasureAbsStatus());
@@ -59,9 +59,10 @@ namespace INTERP_KERNEL
   double Interpolation<TrueMainInterpolator>::CalculateCharacteristicSizeOfMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, const int printLevel)
   {
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+    typedef typename MyMeshType::MyConnType ConnType;
 
-    long nbMailleS=myMeshS.getNumberOfElements();
-    long nbMailleT=myMeshT.getNumberOfElements();
+    ConnType nbMailleS=myMeshS.getNumberOfElements();
+    ConnType nbMailleT=myMeshT.getNumberOfElements();
 
     /**************************************************/
     /* Search the characteristic size of the meshes   */
@@ -73,13 +74,13 @@ namespace INTERP_KERNEL
     if(nbMailleS!=0)
       {
         diagonalS=getDistanceBtw2Pts<SPACEDIM>(BoxS+SPACEDIM,BoxS);
-        dimCaracteristicS=diagonalS/nbMailleS;
+        dimCaracteristicS=diagonalS/(double)nbMailleS;
       }
     double diagonalT,dimCaracteristicT=std::numeric_limits<double>::max();
     if(nbMailleT!=0)
       {
         diagonalT=getDistanceBtw2Pts<SPACEDIM>(BoxT+SPACEDIM,BoxT);
-        dimCaracteristicT=diagonalT/nbMailleT;
+        dimCaracteristicT=diagonalT/(double)nbMailleT;
       }
     if (printLevel>=1)
       {

@@ -22,6 +22,7 @@
 #define __PARAMEDMEM_MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_HXX__
 
 #include "NormalizedUnstructuredMesh.hxx"
+#include "MCType.hxx"
 
 namespace MEDCoupling
 {
@@ -34,26 +35,26 @@ class MEDCouplingNormalizedUnstructuredMesh
 public:
   static const int MY_SPACEDIM=SPACEDIM;
   static const int MY_MESHDIM=MESHDIM;
-  typedef int MyConnType;
+  typedef mcIdType MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
   MEDCouplingNormalizedUnstructuredMesh(const MEDCoupling::MEDCouplingPointSet *mesh);
   void getBoundingBox(double *boundingBox) const;
-  INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
-  int getNumberOfNodesOfElement(int eltId) const;
-  int getNumberOfElements() const;
-  int getNumberOfNodes() const;
-  const int *getConnectivityPtr() const;
+  INTERP_KERNEL::NormalizedCellType getTypeOfElement(mcIdType eltId) const;
+  mcIdType getNumberOfNodesOfElement(mcIdType eltId) const;
+  mcIdType getNumberOfElements() const;
+  mcIdType getNumberOfNodes() const;
+  const mcIdType *getConnectivityPtr() const;
   const double *getCoordinatesPtr() const;
-  const int *getConnectivityIndexPtr() const;
+  const mcIdType *getConnectivityIndexPtr() const;
   void releaseTempArrays();
   ~MEDCouplingNormalizedUnstructuredMesh();
 private:
   void prepare();
 private:
   const MEDCoupling::MEDCouplingPointSet *_mesh;
-  int *_conn_for_interp;
-  int *_conn_index_for_interp;
+  mcIdType *_conn_for_interp;
+  mcIdType *_conn_index_for_interp;
 };
 
 #endif

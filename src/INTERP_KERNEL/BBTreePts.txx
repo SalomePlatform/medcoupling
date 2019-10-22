@@ -90,9 +90,9 @@ public:
     new_elems_right.reserve(nbelems/2+1);
     double max_left = -std::numeric_limits<double>::max();
     double min_right=  std::numeric_limits<double>::max();
-    for(int i=0;i<nbelems;i++)
+    for(ConnType i=0;i<nbelems;i++)
       {
-        int elem;
+        ConnType elem;
         if(elems!=0)
           elem= elems[i];
         else
@@ -115,11 +115,11 @@ public:
     tmp=0;
     if(!new_elems_left.empty())
       tmp=&(new_elems_left[0]);
-    _left=new BBTreePts(pts, tmp, level+1, (int)new_elems_left.size(),_epsilon);
+    _left=new BBTreePts(pts, tmp, level+1, (ConnType)new_elems_left.size(),_epsilon);
     tmp=0;
     if(!new_elems_right.empty())
       tmp=&(new_elems_right[0]);
-    _right=new BBTreePts(pts, tmp, level+1, (int)new_elems_right.size(),_epsilon);
+    _right=new BBTreePts(pts, tmp, level+1, (ConnType)new_elems_right.size(),_epsilon);
   }
 
 
@@ -164,7 +164,7 @@ public:
       return _left->getElementsAroundPoint2(xx,threshold,elem);
     if(xx[_level%dim]-s>_max_left)
       return _right->getElementsAroundPoint2(xx,threshold,elem);
-    int eleml,elemr;
+    ConnType eleml,elemr;
     double retl=_left->getElementsAroundPoint2(xx,threshold,eleml);
     double retr=_right->getElementsAroundPoint2(xx,threshold,elemr);
     if(retl<retr)
@@ -211,7 +211,7 @@ public:
     _right->getElementsAroundPoint(xx,elems);
   }
   
-  int size() const
+  ConnType size() const
   {
     if(_terminal)
       return _nbelems;

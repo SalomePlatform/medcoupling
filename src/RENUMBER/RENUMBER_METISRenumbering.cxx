@@ -33,13 +33,36 @@ extern "C"
 
 #include "RENUMBER_METISRenumbering.hxx"
 
-void METISRenumbering::renumber(const int *graph, const int *index_graph, int nbCell, MEDCoupling::DataArrayInt *&iperm, MEDCoupling::DataArrayInt *&perm)
+#ifdef MEDCOUPLING_USE_64BIT_IDS
+#define ID_TYPE_SIZE 64
+#else
+#define ID_TYPE_SIZE 32
+#endif
+
+void METISRenumbering::renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm)
 {
-  MEDCoupling::MCAuto<MEDCoupling::DataArrayInt> out0(MEDCoupling::DataArrayInt::New()),out1(MEDCoupling::DataArrayInt::New());
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> out0(MEDCoupling::DataArrayIdType::New()),out1(MEDCoupling::DataArrayIdType::New());
   out0->alloc(nbCell,1); out1->alloc(nbCell,1);
   out0->fillWithZero(); out1->fillWithZero();
   int num_flag=1;
   int options=0;
-  METIS_NodeND(&nbCell,(int*)index_graph,(int*)graph,&num_flag,&options,out0->getPointer(),out1->getPointer());
+
+#if ID_TYPE_SIZE == IDXTYPEWIDTH
+
+  METIS_NodeND(&nbCell,(idx_t*)index_graph,(idx_t*)graph,&num_flag,&options,out0->getPointer(),out1->getPointer());
+
+#else
+
+  mcIdType indexSize = nbCell + 1, graphSize = index_graph[indexSize];
+  std::vector<idx_t> indexVec( index_graph, index_graph + indexSize );
+  std::vector<idx_t> graphVec( graph, graph + graphSize );
+  std::vector<idx_t> out0Vec( nbCell ), out1Vec( nbCell );
+  idx_t nb = static_cast<idx_t>( nbCell );
+  METIS_NodeND(&nb,indexVec.data(),graphVec.data(),&num_flag,&options,out0Vec.data(),out1Vec.data());
+  std::copy( out0Vec.begin(),out0Vec.end(),out0->getPointer() );
+  std::copy( out1Vec.begin(),out1Vec.end(),out1->getPointer() );
+
+#endif
+
   iperm=out0.retn(); perm=out1.retn();
 }

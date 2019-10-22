@@ -41,7 +41,7 @@
 
 using namespace MEDCoupling;
 
-typedef std::vector<std::map<int,double> > IntersectionMatrix;
+typedef std::vector<std::map<mcIdType,double> > IntersectionMatrix;
 
 void MEDCouplingBasicsTestInterp::test2DInterpP0P0_1()
 {
@@ -51,7 +51,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P0_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[3]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Convex, INTERP_KERNEL::Geometric2D};
   for(int i=0;i<3;i++)
     {
@@ -82,7 +82,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   //
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
@@ -105,15 +105,15 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_2()
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
   //
-  std::vector<int> cellsIds(targetMesh->getNumberOfCells());
-  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+  std::vector<mcIdType> cellsIds(targetMesh->getNumberOfCells());
+  for(mcIdType i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   //
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
@@ -136,15 +136,15 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_3()
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
   //
-  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
-  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+  std::vector<mcIdType> cellsIds(sourceMesh->getNumberOfCells());
+  for(mcIdType i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   //
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
@@ -167,19 +167,19 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_4()
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
   //
-  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
-  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+  std::vector<mcIdType> cellsIds(sourceMesh->getNumberOfCells());
+  for(mcIdType i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   cellsIds.resize(targetMesh->getNumberOfCells());
-  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+  for(mcIdType i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   //
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
@@ -205,7 +205,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P1_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
   for(int i=0;i<2;i++)
     {
@@ -241,7 +241,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P1PL_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
@@ -270,20 +270,20 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P1PL_2()
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
   //
-  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
-  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+  std::vector<mcIdType> cellsIds(sourceMesh->getNumberOfCells());
+  for(mcIdType i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   cellsIds.resize(targetMesh->getNumberOfCells());
-  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+  for(mcIdType i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
@@ -315,9 +315,9 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1P0_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
-  for(int i=0;i<2;i++)
+  for(mcIdType i=0;i<2;i++)
     {
       myInterpolator.setPrecision(1e-12);
       myInterpolator.setIntersectionType(types[i]);
@@ -348,7 +348,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1P0PL_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
@@ -382,15 +382,15 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1P0PL_2()
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
   //
-  std::vector<int >cellsIds(targetMesh->getNumberOfCells());
-  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+  std::vector<mcIdType >cellsIds(targetMesh->getNumberOfCells());
+  for(mcIdType i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
@@ -427,7 +427,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1P1_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
   for(int i=0;i<2;i++)
     {
@@ -466,7 +466,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1P1PL_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
@@ -500,7 +500,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[3]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
   for(int i=0;i<2;i++)
     {
@@ -531,7 +531,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
@@ -558,7 +558,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P1_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
   for(int i=0;i<2;i++)
     {
@@ -594,7 +594,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P1PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
@@ -626,7 +626,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P0_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
   for(int i=0;i<2;i++)
     {
@@ -659,7 +659,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P0PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
@@ -696,7 +696,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P1_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
   for(int i=0;i<2;i++)
     {
@@ -735,7 +735,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P1PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
@@ -769,7 +769,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0_2()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::Triangulation);
   {
@@ -832,7 +832,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0_2()
 void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0_3()
 {
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   double vecTrans[3]={0.,0.,1.e-10};
   double vec[3]={0.,-1.,0.};
   double pt[3]={-0.3,-0.3,5.e-11};
@@ -927,7 +927,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
   for ( int i = 0; i < 4; ++i )
@@ -995,7 +995,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
@@ -1037,7 +1037,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_2()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
-  std::vector<int> cellsIds(targetMesh->getNumberOfCells());
+  std::vector<mcIdType> cellsIds(targetMesh->getNumberOfCells());
   for(int i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
@@ -1045,7 +1045,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_2()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
@@ -1087,7 +1087,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_3()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
-  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
+  std::vector<mcIdType> cellsIds(sourceMesh->getNumberOfCells());
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
@@ -1095,7 +1095,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_3()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
@@ -1137,7 +1137,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_4()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
-  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
+  std::vector<mcIdType> cellsIds(sourceMesh->getNumberOfCells());
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
   sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
@@ -1149,7 +1149,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_4()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
@@ -1195,7 +1195,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P1_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
   for ( int i = 0; i < 4; ++i )
@@ -1251,7 +1251,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P1PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
@@ -1285,7 +1285,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P0_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
   for ( int i = 0; i < 4; ++i )
@@ -1341,7 +1341,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P0PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
@@ -1389,7 +1389,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P1_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
   CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
@@ -1404,12 +1404,12 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P1_1()
   int i=0;
   double sum = 0;
   //cout.precision(18);
-  for(std::vector<std::map<int,double> >::const_iterator iter1=res.begin();iter1!=res.end();iter1++,i++)
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=res.begin();iter1!=res.end();iter1++,i++)
     {
       //cout<< "res3D[" <<i<< "][]={";
       for(int j=0;j<28;j++)
         {
-          std::map<int,double>::const_iterator iter2=(*iter1).find(j);
+          std::map<mcIdType,double>::const_iterator iter2=(*iter1).find(j);
           if(iter2!=(*iter1).end())
             {
               //cout<< iter2->second<< ", ";
@@ -1439,7 +1439,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P1PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
@@ -1479,7 +1479,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0Empty()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
   //clean up
@@ -1512,7 +1512,7 @@ void MEDCouplingBasicsTestInterp::testInterpolationCC()
   CPPUNIT_ASSERT_THROW( sourceWrapper.nbCellsAlongAxis(3), INTERP_KERNEL::Exception);
 
   INTERP_KERNEL::InterpolationCC myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
 
   CPPUNIT_ASSERT_EQUAL(8,int( res.size()));
@@ -1521,7 +1521,7 @@ void MEDCouplingBasicsTestInterp::testInterpolationCC()
   std::set<double> vals;
   double sum = 0;
   for ( int i = 0; i < (int)res.size(); ++i )
-    for ( std::map<int,double>::iterator s_v = res[i].begin(); s_v != res[i].end(); ++s_v)
+    for ( std::map<mcIdType,double>::iterator s_v = res[i].begin(); s_v != res[i].end(); ++s_v)
       {
         sum += s_v->second;
         double vvv;
@@ -1568,7 +1568,7 @@ void MEDCouplingBasicsTestInterp::testInterpolationCU1D()
   MEDCouplingNormalizedCartesianMesh<1>      sourceWrapper(meshC);
   MEDCouplingNormalizedUnstructuredMesh<1,1> targetWrapper(meshU);
   INTERP_KERNEL::InterpolationCU myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   const double precis = 1e-13;
   myInterpolator.setPrecision(precis);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
@@ -1606,7 +1606,7 @@ void MEDCouplingBasicsTestInterp::testInterpolationCU2D()
   MEDCouplingNormalizedCartesianMesh<2>      sourceWrapper(meshC);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(meshU);
   INTERP_KERNEL::InterpolationCU myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
 
@@ -1675,7 +1675,7 @@ void MEDCouplingBasicsTestInterp::testInterpolationCU3D()
   MEDCouplingNormalizedCartesianMesh<3>      sourceWrapper(meshC);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(meshU);
   INTERP_KERNEL::InterpolationCU myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   const double precis = 1e-13;
   myInterpolator.setPrecision(precis);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
@@ -1759,8 +1759,8 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0IntegralUniform()
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(5,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
+  std::vector<std::map<mcIdType,double> > res;
+  CPPUNIT_ASSERT_EQUAL(5,(int)myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,res[0][1],1e-12);
@@ -1769,7 +1769,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0IntegralUniform()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][4],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,sumAll(res),1e-12);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(1,(int)myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,res[1][0],1e-12);
@@ -1784,7 +1784,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0IntegralUniform()
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper2(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator2;
   CPPUNIT_ASSERT(myInterpolator2.getMeasureAbsStatus());
-  CPPUNIT_ASSERT_EQUAL(5,myInterpolator2.toIntegralUniform(targetWrapper2,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(5,(int)myInterpolator2.toIntegralUniform(targetWrapper2,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,res[0][1],1e-12);
@@ -1795,7 +1795,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0IntegralUniform()
   res.clear();
   myInterpolator2.setMeasureAbsStatus(false);
   CPPUNIT_ASSERT(!myInterpolator2.getMeasureAbsStatus());
-  CPPUNIT_ASSERT_EQUAL(5,myInterpolator2.toIntegralUniform(targetWrapper2,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(5,(int)myInterpolator2.toIntegralUniform(targetWrapper2,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.125,res[0][1],1e-12);
@@ -1811,8 +1811,8 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP0IntegralUniform()
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
-  std::vector<std::map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(5,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
+  std::vector<std::map<mcIdType,double> > res;
+  CPPUNIT_ASSERT_EQUAL(5,(int)myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][1],1e-12);
@@ -1821,7 +1821,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP0IntegralUniform()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[0][4],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2.),sumAll(res),1e-12);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(1,(int)myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[1][0],1e-12);
@@ -1837,8 +1837,8 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0IntegralUniform()
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
   INTERP_KERNEL::Interpolation3D myInterpolator;
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
-  std::vector<std::map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(8,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
+  std::vector<std::map<mcIdType,double> > res;
+  CPPUNIT_ASSERT_EQUAL(8,(int)myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(125000.,res[0][0],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(375000.,res[0][1],1e-6);
@@ -1850,7 +1850,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0IntegralUniform()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3375000.,res[0][7],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(8000000.,sumAll(res),1e-6);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(1,(int)myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(125000.,res[0][0],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(375000.,res[1][0],1e-6);
@@ -1871,15 +1871,15 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1IntegralUniform()
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(4,myInterpolator.toIntegralUniform(targetWrapper,res,"P1"));
+  std::vector<std::map<mcIdType,double> > res;
+  CPPUNIT_ASSERT_EQUAL(4,(int)myInterpolator.toIntegralUniform(targetWrapper,res,"P1"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.33333333333333331,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666,res[0][1],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666,res[0][2],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.33333333333333331,res[0][3],1e-12);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P1"));
+  CPPUNIT_ASSERT_EQUAL(1,(int)myInterpolator.fromIntegralUniform(targetWrapper,res,"P1"));
   CPPUNIT_ASSERT_EQUAL(4,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.33333333333333331,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666,res[1][0],1e-12);
@@ -1895,8 +1895,8 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1IntegralUniform()
   //
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(sourceMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(9,myInterpolator.toIntegralUniform(targetWrapper,res,"P1"));
+  std::vector<std::map<mcIdType,double> > res;
+  CPPUNIT_ASSERT_EQUAL(9,(int)myInterpolator.toIntegralUniform(targetWrapper,res,"P1"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[0][0],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[0][1],1e-6);
@@ -1909,7 +1909,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1IntegralUniform()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2000000.,res[0][8],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(8000000.,sumAll(res),1e-6);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P1"));
+  CPPUNIT_ASSERT_EQUAL(1,(int)myInterpolator.fromIntegralUniform(targetWrapper,res,"P1"));
   CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[0][0],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[1][0],1e-6);
@@ -1932,7 +1932,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1P0Bary_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Barycentric,INTERP_KERNEL::BarycentricGeo2D};
   for(int i=0;i<2;i++)
     {
@@ -1973,7 +1973,7 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P0Bary_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Barycentric,INTERP_KERNEL::BarycentricGeo2D};
   for(int i=0;i<2;i++)
     {
@@ -2015,7 +2015,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P0Bary_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::Barycentric);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
@@ -2029,11 +2029,11 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P0Bary_1()
 
   double sum = 0;
   int i=0;
-  for(std::vector<std::map<int,double> >::const_iterator iter1=res.begin();iter1!=res.end();iter1++,i++)
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=res.begin();iter1!=res.end();iter1++,i++)
     {
       for(int j=0;j<28;j++)
         {
-          std::map<int,double>::const_iterator iter2=(*iter1).find(j);
+          std::map<mcIdType,double>::const_iterator iter2=(*iter1).find(j);
           if(iter2!=(*iter1).end())
             {
               sum += iter2->second;
@@ -2059,7 +2059,7 @@ void MEDCouplingBasicsTestInterp::test3DTo1DInterpP0P0PL_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
   myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
@@ -2097,7 +2097,7 @@ void MEDCouplingBasicsTestInterp::test1DInterp_1()
   myInterpolator.setPrecision(precis);
 
   // P0P0
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
   CPPUNIT_ASSERT_EQUAL( 3, int( res.size()) );
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.5, res[0][0], precis);
@@ -2154,7 +2154,7 @@ void MEDCouplingBasicsTestInterp::test2DCurveInterpP0P0_1()
   INTERP_KERNEL::Interpolation2DCurve myInterpolator;
   const double precis = 1e-13;
   myInterpolator.setPrecision(precis);
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
 
   CPPUNIT_ASSERT_EQUAL( 2, int( res.size()) );
@@ -2178,7 +2178,7 @@ void MEDCouplingBasicsTestInterp::test2DCurveInterpP0P0_2()
   const double precis = 1e-13;
   myInterpolator.setPrecision(precis);
   myInterpolator.setMedianPlane(1.);// median line on target
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
 
   double tolInters = myInterpolator.getBoundingBoxAdjustmentAbs() * sqrt(2.);
@@ -2203,7 +2203,7 @@ void MEDCouplingBasicsTestInterp::test2DCurveInterpP0P1_1()
   INTERP_KERNEL::Interpolation2DCurve myInterpolator;
   const double precis = 1e-13;
   myInterpolator.setPrecision(precis);
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
 
   const double len1 = 1., len0 = sqrt(2.);
@@ -2229,7 +2229,7 @@ void MEDCouplingBasicsTestInterp::test2DCurveInterpP1P0_1()
   INTERP_KERNEL::Interpolation2DCurve myInterpolator;
   const double precis = 1e-13;
   myInterpolator.setPrecision(precis);
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
 
   const double len1 = 1., len0 = sqrt(2.);
@@ -2255,7 +2255,7 @@ void MEDCouplingBasicsTestInterp::test2DCurveInterpP1P1_1()
   INTERP_KERNEL::Interpolation2DCurve myInterpolator;
   const double precis = 1e-13;
   myInterpolator.setPrecision(precis);
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
 
   const double len1 = 1., len0 = sqrt(2.);
@@ -2306,7 +2306,7 @@ void MEDCouplingBasicsTestInterp::test2D1DBasicInterpP0P0()
   CPPUNIT_ASSERT_EQUAL(1,(int)duplicateFaces.size());
 
   INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType correctDuplicateFaces;
-  std::set<int> face6;
+  std::set<mcIdType> face6;
   face6.insert(0);
   face6.insert(1);
   correctDuplicateFaces[6] = face6;
@@ -2467,15 +2467,15 @@ void MEDCouplingBasicsTestInterp::test3D2DBasicInterpP0P0()
     CPPUNIT_ASSERT_EQUAL(3,(int)duplicateFaces.size());
 
     INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType correctDuplicateFaces;
-    std::set<int> face2;
+    std::set<mcIdType> face2;
     face2.insert(0);
     face2.insert(1);
     correctDuplicateFaces[2] = face2;
-    std::set<int> face5;
+    std::set<mcIdType> face5;
     face5.insert(1);
     face5.insert(2);
     correctDuplicateFaces[5] = face5;
-    std::set<int> face6;
+    std::set<mcIdType> face6;
     face6.insert(0);
     face6.insert(1);
     face6.insert(2);

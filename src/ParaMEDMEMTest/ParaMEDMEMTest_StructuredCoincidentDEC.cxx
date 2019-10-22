@@ -106,7 +106,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
     parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 
     int nb_local=mesh->getNumberOfCells();
-    const int* global_numbering = paramesh->getGlobalNumberingCell();
+    const mcIdType* global_numbering = paramesh->getGlobalNumberingCell();
     
     double *value=parafield->getField()->getArray()->getPointer();
     for(int ielem=0; ielem<nb_local;ielem++)

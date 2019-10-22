@@ -21,25 +21,38 @@
 #ifndef __MEDCOUPLING_MCTYPE_HXX__
 #define __MEDCOUPLING_MCTYPE_HXX__
 
+#include "MCIdType.hxx"
+
 #include <cstdint>
 #include <stddef.h>
 #include <cstddef>
 
 namespace MEDCoupling
 {
+  using mcIdType = ::mcIdType;
   using Int64 = std::int64_t;
   using Int32 = std::int32_t;
+
+  class DataArrayInt32;
+  class DataArrayInt32Iterator;
+  class DataArrayInt32Tuple;
+  class DataArrayInt64;
+  class DataArrayInt64Tuple;
+
 #ifndef MEDCOUPLING_USE_64BIT_IDS
-  using mcIdType = std::int32_t;
+
+#define DataArrayIdType DataArrayInt32
+#define DataArrayIdTypeTuple DataArrayInt32Tuple
+
 #else
-  using mcIdType = std::int64_t;
+
+#define DataArrayIdType DataArrayInt64
+#define DataArrayIdTypeTuple DataArrayInt64Tuple
+
 #endif
-  inline mcIdType ToIdType(std::size_t val) { return mcIdType(val); }
-}
 
 #define DataArrayInt DataArrayInt32
-#define DataArrayIdType DataArrayInt32
-
 #define DataArrayIntIterator DataArrayInt32Iterator
+}
 
 #endif

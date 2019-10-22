@@ -446,11 +446,11 @@ MEDCouplingDefinitionTime::MEDCouplingDefinitionTime(const std::vector<const MED
   if(sz!=arrRefs.size())
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime constructor : internal error ! should never happen !");
   _slices.resize(sz);
-  for(std::size_t i=0;i<sz;i++)
+  for(int i=0;i<ToIdType(sz);i++)
     {
       if(arrRefs.empty())
         throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime constructor : A field is null in list impossible to build a time definition !");
-      _slices[i]=MEDCouplingDefinitionTimeSlice::New(fs[i],meshRefs[i],arrRefs[i],(int)i);
+      _slices[i]=MEDCouplingDefinitionTimeSlice::New(fs[i],meshRefs[i],arrRefs[i],i);
     }
   if(sz<=1)
     return ;

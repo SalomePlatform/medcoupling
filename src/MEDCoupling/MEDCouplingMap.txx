@@ -25,21 +25,21 @@
 
 namespace MEDCoupling
 {
-  template<class T>
-  MCAuto< MapKeyVal<T> > MapKeyVal<T>::New()
+  template<class ID, class T>
+  MCAuto< MapKeyVal<ID, T> > MapKeyVal<ID, T>::New()
   {
-    MCAuto< MapKeyVal<T> > ret(new MapKeyVal<T>);
+    MCAuto< MapKeyVal<ID, T> > ret(new MapKeyVal<ID, T>);
     return ret;
   }
   
-  template<class T>
-  std::size_t MapKeyVal<T>::getHeapMemorySizeWithoutChildren() const
+  template<class ID, class T>
+  std::size_t MapKeyVal<ID, T>::getHeapMemorySizeWithoutChildren() const
   {
-    return _m.size()*sizeof(std::pair<T,T>);
+    return _m.size()*sizeof(std::pair<ID, T>);
   }
   
-  template<class T>
-  std::vector<const BigMemoryObject*> MapKeyVal<T>::getDirectChildrenWithNull() const
+  template<class ID, class T>
+  std::vector<const BigMemoryObject*> MapKeyVal<ID, T>::getDirectChildrenWithNull() const
   {
     return std::vector<const BigMemoryObject*>();//not a bug no child. Leaf object !
   }

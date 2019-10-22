@@ -163,7 +163,7 @@ void MEDPARTITIONERTest::tearDown()
 MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
 //only hexa8
 {
-  vector<int> conn;
+  vector<mcIdType> conn;
   vector<double> coor;
   for (int k=0; k<=_nk; k++)
     for (int j=0; j<=_nj; j++)
@@ -213,12 +213,12 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
 
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(3);
-  int nbc=conn.size()/8; //nb of cells
-  int nbv=coor.size()/3; //nb of vertices
-  mesh->allocateCells(nbc);
-  for(int i=0; i<nbc; i++)
+  std::size_t nbc=conn.size()/8; //nb of cells
+  std::size_t nbv=coor.size()/3; //nb of vertices
+  mesh->allocateCells(ToIdType(nbc));
+  for(std::size_t i=0; i<nbc; i++)
     {
-      int onehexa[8];
+      mcIdType onehexa[8];
       std::copy(conn.begin()+i*8,conn.begin()+(i+1)*8,onehexa);
       if (false) //(_verbose)
         {
@@ -241,7 +241,7 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
 MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCARRE3DMesh()
 //only quad4 in oblique (k=j)
 {
-  vector<int> conn;
+  vector<mcIdType> conn;
   vector<double> coor;
   for (int j=0; j<=_nj; j++)
     for (int i=0; i<=_ni; i++)
@@ -281,12 +281,12 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCARRE3DMesh()
 
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
-  int nbc=conn.size()/4; //nb of cells
-  int nbv=coor.size()/3; //nb of vertices
-  mesh->allocateCells(nbc);
-  for(int i=0; i<nbc; i++)
+  std::size_t nbc=conn.size()/4; //nb of cells
+  std::size_t nbv=coor.size()/3; //nb of vertices
+  mesh->allocateCells(ToIdType(nbc));
+  for(std::size_t i=0; i<nbc; i++)
     {
-      int onequa[4];
+      mcIdType onequa[4];
       std::copy(conn.begin()+i*4,conn.begin()+(i+1)*4,onequa);
       if (false) //(_verbose)
         {
@@ -350,12 +350,12 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildFACE3DMesh()
 
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
-  int nbc=conn.size()/4; //nb of cells
-  int nbv=coor.size()/3; //nb of vertices
-  mesh->allocateCells(nbc);
-  for(int i=0; i<nbc; i++)
+  std::size_t nbc=conn.size()/4; //nb of cells
+  std::size_t nbv=coor.size()/3; //nb of vertices
+  mesh->allocateCells(ToIdType(nbc));
+  for(std::size_t i=0; i<nbc; i++)
     {
-      int onequa[4];
+      mcIdType onequa[4];
       std::copy(conn.begin()+i*4,conn.begin()+(i+1)*4,onequa);
       if (false) //(_verbose)
         {
@@ -389,7 +389,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnCells(string myfileN
         }
 
   MEDCouplingUMesh *mesh=ReadUMeshFromFile(myfileName.c_str(),_mesh_name.c_str(),0);
-  int nbOfCells=mesh->getNumberOfCells();
+  mcIdType nbOfCells=mesh->getNumberOfCells();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   f1->setName("VectorFieldOnCells");
   f1->setDescription("DescriptionOfFieldOnCells"); //not saved in file?
@@ -422,7 +422,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnNodes()
         }
 
   MEDCouplingUMesh *mesh=ReadUMeshFromFile(_file_name.c_str(),_mesh_name.c_str(),0);
-  int nbOfNodes=mesh->getNumberOfNodes();
+  mcIdType nbOfNodes=mesh->getNumberOfNodes();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
   f1->setName("VectorFieldOnNodes");
   f1->setDescription("DescriptionOfFieldOnNodes"); //not saved in file?
@@ -472,15 +472,15 @@ void MEDPARTITIONERTest::createTestMeshWithoutField()
     WriteUMeshes(_file_name_with_faces.c_str(), meshes, true);
 
     MEDCoupling::MEDFileUMesh* mfm=MEDCoupling::MEDFileUMesh::New(_file_name_with_faces.c_str(), mesh1->getName().c_str());
-    DataArrayInt* FacesFam=DataArrayInt::New();
+    DataArrayIdType* FacesFam=DataArrayIdType::New();
     FacesFam->alloc(mfm->getSizeAtLevel(-1),1);
     FacesFam->fillWithValue(-1);
-    DataArrayInt* CellsFam=DataArrayInt::New();
+    DataArrayIdType* CellsFam=DataArrayIdType::New();
     CellsFam->alloc(mfm->getSizeAtLevel(0),1);
     CellsFam->fillWithValue(1);
     mfm->setFamilyFieldArr(-1,FacesFam);
     mfm->setFamilyFieldArr(0,CellsFam);
-    map<string,int> theFamilies;
+    map<string,mcIdType> theFamilies;
     theFamilies["FAMILLE_ZERO"]=0;
     theFamilies["FamilyFaces"]=-1;
     theFamilies["FamilyCells"]=1;
@@ -594,10 +594,10 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
 
               DataArrayDouble* coords=mesh->getCoords();
               //int nbOfComp=coords->getNumberOfComponents();  //be 3D
-              int nbOfTuple=coords->getNumberOfTuples();
+              mcIdType nbOfTuple=coords->getNumberOfTuples();
               double* ptr=coords->getPointer();
               double* ptrini=ptrInit;
-              for (int i=0; i<nbOfTuple; i++)
+              for (mcIdType i=0; i<nbOfTuple; i++)
                 {
                   *ptr=(*ptrini)+dx; ptr++; ptrini++; //be 3D
                   *ptr=(*ptrini)+dy; ptr++; ptrini++;
@@ -682,8 +682,8 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     //more nbptgauss=8 by default needs set MEDCouplingFieldDiscretizationPerCell
     //theory: (may be) http://www.code-aster.org/V2/doc/v9/fr/man_r/r3/r3.06.03.pdf
     int nbptgauss=8; //nb pt de gauss by cell
-    int nbcell=f3->getMesh()->getNumberOfCells();
-    int nb=nbcell*nbptgauss;
+    mcIdType nbcell=f3->getMesh()->getNumberOfCells();
+    mcIdType nb=nbcell*nbptgauss;
     int nbcomp=2;
     array->alloc(nb,nbcomp);
     double *ptr=array->getPointer();
@@ -805,8 +805,8 @@ void MEDPARTITIONERTest::testMeshCollectionSingle()
   CPPUNIT_ASSERT(collection.getName()=="testMesh");
   CPPUNIT_ASSERT_EQUAL(1,collection.getNbOfLocalMeshes());
   CPPUNIT_ASSERT_EQUAL(1,collection.getNbOfGlobalMeshes());
-  CPPUNIT_ASSERT_EQUAL(_ni*_nj*_nk,collection.getNbOfLocalCells());
-  CPPUNIT_ASSERT_EQUAL(_ni*_nj,collection.getNbOfLocalFaces());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(_ni*_nj*_nk),collection.getNbOfLocalCells());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(_ni*_nj),collection.getNbOfLocalFaces());
 }
 
 void MEDPARTITIONERTest::testMeshCollectionXml()
@@ -821,8 +821,8 @@ void MEDPARTITIONERTest::testMeshCollectionXml()
   CPPUNIT_ASSERT(collection.getName()=="testMesh");
   CPPUNIT_ASSERT_EQUAL(8,collection.getNbOfLocalMeshes());
   CPPUNIT_ASSERT_EQUAL(8,collection.getNbOfGlobalMeshes());
-  CPPUNIT_ASSERT_EQUAL(_ni*_nj*_nk*8,collection.getNbOfLocalCells());
-  CPPUNIT_ASSERT_EQUAL(0,collection.getNbOfLocalFaces());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(_ni*_nj*_nk*8),collection.getNbOfLocalCells());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(0),collection.getNbOfLocalFaces());
 }
 
 
@@ -1064,17 +1064,17 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(std
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
   std::vector<MEDCoupling::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) cellMeshes.size());
-  int nbcells=0;
+  mcIdType nbcells=0;
   for (std::size_t i = 0; i < cellMeshes.size(); i++)
     nbcells+=cellMeshes[i]->getNumberOfCells();
-  CPPUNIT_ASSERT_EQUAL((int)cellMesh->getNumberOfCells(), nbcells);
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
 
   std::vector<MEDCoupling::MEDCouplingUMesh*>faceMeshes=collection.getFaceMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) faceMeshes.size());
-  int nbfaces=0;
+  mcIdType nbfaces=0;
   for (std::size_t i=0; i < faceMeshes.size(); i++)
     nbfaces+=faceMeshes[i]->getNumberOfCells();
-  CPPUNIT_ASSERT_EQUAL((int)faceMesh->getNumberOfCells(), nbfaces);
+  CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), nbfaces);
 
   //merge split meshes and test equality
   cmd=execName+" --ndomains=1 --split-method="+MetisOrScotch;  //on same proc
@@ -1105,7 +1105,7 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(std
   */
 
   std::vector<const MEDCouplingUMesh *> meshes;
-  std::vector<DataArrayInt *> corr;
+  std::vector<DataArrayIdType *> corr;
   meshes.push_back(cellMesh);
   refusedCellMesh->tryToShareSameCoordsPermute(*cellMesh, 1e-9);
   meshes.push_back(refusedCellMesh);
@@ -1175,7 +1175,7 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
 
   std::vector<const MEDCouplingUMesh *> meshes;
-  std::vector<DataArrayInt *> corr;
+  std::vector<DataArrayIdType *> corr;
   meshes.push_back(cellMesh);
   refusedCellMesh->tryToShareSameCoordsPermute(*cellMesh, 1e-9);
   meshes.push_back(refusedCellMesh);
@@ -1186,8 +1186,8 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
   MCAuto<MEDCouplingField> field2Tmp(ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1));
   MCAuto<MEDCouplingFieldDouble> field1(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(field1Tmp)),field2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(field2Tmp));
 
-  int nbcells=corr[1]->getNumberOfTuples();
-  CPPUNIT_ASSERT_EQUAL((int)cellMesh->getNumberOfCells(), nbcells);
+  mcIdType nbcells=corr[1]->getNumberOfTuples();
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
   //use corr to test equality of field
   DataArrayDouble* f1=field1->getArray();
   DataArrayDouble* f2=field2->getArray();
@@ -1200,21 +1200,21 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
 
     }
   int nbequal=0;
-  int nbcomp=field1->getNumberOfComponents();
+  std::size_t nbcomp=field1->getNumberOfComponents();
   double* p1=f1->getPointer();
   double* p2=f2->getPointer();
-  int* pc=corr[1]->getPointer();
+  mcIdType* pc=corr[1]->getPointer();
   for (int i = 0; i < nbcells; i++)
     {
-      int i1=pc[i]*nbcomp;
-      int i2=i*nbcomp;
-      for (int j = 0; j < nbcomp; j++)
+      std::size_t i1=pc[i]*nbcomp;
+      std::size_t i2=i*nbcomp;
+      for (std::size_t j = 0; j < nbcomp; j++)
         {
           if (p1[i1+j]==p2[i2+j]) nbequal++;
           //cout<<" "<<p1[i1+j]<<"="<<p2[i2+j];
         }
     }
-  CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp, nbequal);
+  CPPUNIT_ASSERT_EQUAL((int)(nbcells*nbcomp), nbequal);
 
   for (std::size_t i = 0; i < corr.size(); i++)
     corr[i]->decrRef();
@@ -1263,7 +1263,7 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
 
   std::vector<const MEDCouplingUMesh *> meshes;
-  std::vector<DataArrayInt *> corr;
+  std::vector<DataArrayIdType *> corr;
   meshes.push_back(cellMesh);
   refusedCellMesh->tryToShareSameCoordsPermute(*cellMesh, 1e-9);
   meshes.push_back(refusedCellMesh);
@@ -1274,8 +1274,8 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
   MCAuto<MEDCouplingField> field2Tmp=ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
   MCAuto<MEDCouplingFieldDouble> field1(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(field1Tmp)),field2(MEDCoupling::DynamicCast<MEDCouplingField,MEDCouplingFieldDouble>(field2Tmp));
 
-  int nbcells=corr[1]->getNumberOfTuples();
-  CPPUNIT_ASSERT_EQUAL((int)cellMesh->getNumberOfCells(), nbcells);
+  mcIdType nbcells=corr[1]->getNumberOfTuples();
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
   //use corr to test equality of field
   DataArrayDouble* f1=field1->getArray();
   DataArrayDouble* f2=field2->getArray();
@@ -1289,21 +1289,21 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
     }
   int nbequal=0;
   int nbptgauss=8;
-  int nbcomp=field1->getNumberOfComponents();
+  std::size_t nbcomp=field1->getNumberOfComponents();
   double* p1=f1->getPointer();
   double* p2=f2->getPointer();
-  int* pc=corr[1]->getPointer();
+  mcIdType* pc=corr[1]->getPointer();
   for (int i = 0; i < nbcells; i++)
     {
-      int i1=pc[i]*nbcomp*nbptgauss;
-      int i2=i*nbcomp*nbptgauss;
-      for (int j = 0; j < nbcomp*nbptgauss; j++)
+      std::size_t i1=pc[i]*nbcomp*nbptgauss;
+      std::size_t i2=i*nbcomp*nbptgauss;
+      for (std::size_t j = 0; j < nbcomp*nbptgauss; j++)
         {
           if (p1[i1+j]==p2[i2+j]) nbequal++;
           //cout<<" "<<p1[i1+j]<<"="<<p2[i2+j];
         }
     }
-  CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp*nbptgauss, nbequal);
+  CPPUNIT_ASSERT_EQUAL((int)(nbcells*nbcomp*nbptgauss), nbequal);
 
   for (std::size_t i = 0; i < corr.size(); i++)
     corr[i]->decrRef();
@@ -1336,7 +1336,7 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
   int nbFam1, nbFam2, nbc;
   {
     const int nbX = 20, nbY = 15;
-    vector<int> conn;
+    vector<mcIdType> conn;
     vector<double> coor;
     for (int j=0; j<=nbY; j++)
       for (int i=0; i<=nbX; i++)
@@ -1358,14 +1358,14 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
     MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
     mesh->setMeshDimension(2);
 
-    nbc=conn.size()/4; //nb of cells
+    nbc=(int)conn.size()/4; //nb of cells
     mesh->allocateCells(nbc);
-    int* pConn = &conn[0];
+    mcIdType* pConn = &conn[0];
     for(int i=0; i<nbc; i++, pConn+=4)
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,pConn);
     mesh->finishInsertingCells();
 
-    int nbv=coor.size()/2; //nb of vertices
+    int nbv=(int)coor.size()/2; //nb of vertices
     DataArrayDouble *myCoords=DataArrayDouble::New();
     myCoords->useArray( &coor[0], /*ownership=*/false, DeallocType::CPP_DEALLOC, nbv, 2 );
     mesh->setCoords(myCoords);
@@ -1374,14 +1374,14 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
     mesh->checkConsistencyLight();
 
     // groups of cells
-    DataArrayInt* cellsFam=DataArrayInt::New();
+    DataArrayIdType* cellsFam=DataArrayIdType::New();
     cellsFam->alloc(nbc,1);
     nbFam1 = nbc/3, nbFam2 = nbc/2;
     int iE = 0;
     for ( int i = 0; i < nbFam1; ++i ) cellsFam->getPointer()[ iE++ ] = idFam1;
     for ( int i = 0; i < nbFam2; ++i ) cellsFam->getPointer()[ iE++ ] = idFam2;
     for (            ; iE < nbc;     ) cellsFam->getPointer()[ iE++ ] = 0;
-    map<string,int> theFamilies;
+    map<string,mcIdType> theFamilies;
     theFamilies["FAMILLE_ZERO"]=0;
     theFamilies["Family1"     ]=idFam1;
     theFamilies["Family2"     ]=idFam2;
@@ -1432,7 +1432,7 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
     CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfLocalMeshes());
     CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfGlobalMeshes());
     CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalCells(),new_collection.getNbOfLocalCells());
-    CPPUNIT_ASSERT_EQUAL(0,collection.getNbOfLocalFaces());
+    CPPUNIT_ASSERT_EQUAL(ToIdType(0),collection.getNbOfLocalFaces());
     CPPUNIT_ASSERT      (new_collection.getNbOfLocalFaces() > 0 );
 
     MyGlobals::_General_Informations.clear();
@@ -1443,14 +1443,14 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
   // Check that "groups and family handling is NOT bugged"
 
   MeshCollection new_collection(std::string(xmlName)+".xml");
-  std::map< int, int > famId2nb; // count total nb of cells in divided families
-  std::map< int, int >::iterator id2nn;
+  std::map< mcIdType, int > famId2nb; // count total nb of cells in divided families
+  std::map< mcIdType, int >::iterator id2nn;
   {
-    const std::vector<MEDCoupling::DataArrayInt*>& famIdsVec = new_collection.getCellFamilyIds();
+    const std::vector<MEDCoupling::DataArrayIdType*>& famIdsVec = new_collection.getCellFamilyIds();
     for ( size_t i = 0; i < famIdsVec.size(); ++i )
       {
-        MEDCoupling::DataArrayInt* famIdsArr = famIdsVec[i];
-        for ( int j = famIdsArr->getNbOfElems()-1; j >= 0; --j )
+        MEDCoupling::DataArrayIdType* famIdsArr = famIdsVec[i];
+        for ( mcIdType j = famIdsArr->getNbOfElems()-1; j >= 0; --j )
           {
             id2nn = famId2nb.insert( make_pair( famIdsArr->getPointer()[j], 0 )).first;
             id2nn->second++;
@@ -1468,11 +1468,11 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
   // Check that "creates boundary faces option is handled"
 
   famId2nb.clear();
-  const std::vector<MEDCoupling::DataArrayInt*>& famIdsVec = new_collection.getFaceFamilyIds();
+  const std::vector<MEDCoupling::DataArrayIdType*>& famIdsVec = new_collection.getFaceFamilyIds();
   for ( size_t i = 0; i < famIdsVec.size(); ++i )
     {
-      MEDCoupling::DataArrayInt* famIdsArr = famIdsVec[i];
-      for ( int j = famIdsArr->getNbOfElems()-1; j >= 0; --j )
+      MEDCoupling::DataArrayIdType* famIdsArr = famIdsVec[i];
+      for ( mcIdType j = famIdsArr->getNbOfElems()-1; j >= 0; --j )
         {
           id2nn = famId2nb.insert( make_pair( famIdsArr->getPointer()[j], 0 )).first;
           id2nn->second++;
@@ -1483,9 +1483,9 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
 
   // for each "JOINT_n_p_..." group there must be "JOINT_p_n_..." group
   // of the same size
-  std::map<std::string,int>& famName2id = new_collection.getFamilyInfo();
-  std::map<std::string,int>::iterator na2id = famName2id.begin(), na2id2;
-  std::set< int > okFamIds;
+  std::map<std::string,mcIdType>& famName2id = new_collection.getFamilyInfo();
+  std::map<std::string,mcIdType>::iterator na2id = famName2id.begin(), na2id2;
+  std::set< mcIdType > okFamIds;
   okFamIds.insert(0);
   for ( ; na2id != famName2id.end(); ++na2id )
     {

@@ -121,7 +121,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT int getNumberOf() const;
     MEDLOADER_EXPORT std::vector<int> getDynGTAvail() const;
     MEDLOADER_EXPORT const MEDFileStructureElement *getWithGT(int idGT) const;
-    MEDLOADER_EXPORT int getNumberOfNodesPerSE(const std::string& seName) const;
+    MEDLOADER_EXPORT mcIdType getNumberOfNodesPerSE(const std::string& seName) const;
     MEDLOADER_EXPORT const MEDFileStructureElement *getSEWithName(const std::string& seName) const;
     MEDLOADER_EXPORT std::vector<std::string> getVarAttsOf(const std::string& seName) const;
     MEDLOADER_EXPORT const MEDFileSEVarAtt *getVarAttOf(const std::string &seName, const std::string& varName) const;

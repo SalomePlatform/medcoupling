@@ -39,7 +39,7 @@ namespace INTERP_KERNEL
   template<class ConnType>
   template<class MyMeshType>
   MeshElement<ConnType>::MeshElement(const ConnType index, const MyMeshType& mesh)
-    : _index(index), _number(mesh.getNumberOfNodesOfElement(OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index))), _box(0)
+    : _index(index), _number((unsigned char)mesh.getNumberOfNodesOfElement(OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index))), _box(0)
   {
     const double**vertices = new const double*[_number];
 

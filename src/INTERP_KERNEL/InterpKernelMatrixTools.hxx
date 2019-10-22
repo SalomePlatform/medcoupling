@@ -22,12 +22,13 @@
 #define __INTERPKERNELMATRIXTOOLS_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "MCIdType.hxx"
 
 namespace INTERP_KERNEL
 {
-  void INTERPKERNEL_EXPORT matrixProduct(const double *A, int n1, int p1, const double *B, int n2, int p2, double *C);
-  void INTERPKERNEL_EXPORT inverseMatrix(const double *A, int n, double *iA);
-  void INTERPKERNEL_EXPORT daxpy(int n, double da, const double *dx, int incx, double *dy, int incy);
+  void INTERPKERNEL_EXPORT matrixProduct(const double *A, mcIdType n1, mcIdType p1, const double *B, mcIdType n2, mcIdType p2, double *C);
+  void INTERPKERNEL_EXPORT inverseMatrix(const double *A, mcIdType n, double *iA);
+  void INTERPKERNEL_EXPORT daxpy(mcIdType n, double da, const double *dx, mcIdType incx, double *dy, mcIdType incy);
 }
 
 #endif

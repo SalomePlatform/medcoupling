@@ -26,6 +26,7 @@
 
 #include "Interpolation.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
+#include "InterpKernelUtilities.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -36,10 +37,10 @@ namespace INTERP_KERNEL
     InterpolationCU(const InterpolationOptions & io);
 
     template<class MyCMeshType, class MyUMeshType, class MatrixType>
-    int interpolateMeshes(const MyCMeshType& meshS, const MyUMeshType& meshT, MatrixType& result, const char *method);
+    typename MyCMeshType::MyConnType interpolateMeshes(const MyCMeshType& meshS, const MyUMeshType& meshT, MatrixType& result, const char *method);
 
     template<class MyUMeshType, class MyCMeshType, class MatrixType>
-    int interpolateMeshesRev(const MyUMeshType& meshS, const MyCMeshType& meshT, MatrixType& result, const char *method);
+    typename MyUMeshType::MyConnType interpolateMeshesRev(const MyUMeshType& meshS, const MyCMeshType& meshT, MatrixType& result, const char *method);
 
   };
 }

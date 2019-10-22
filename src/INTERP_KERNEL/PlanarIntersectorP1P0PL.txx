@@ -46,7 +46,7 @@ namespace INTERP_KERNEL
     PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),CoordsT);
     double baryT[SPACEDIM];
     double baryTTmp[SPACEDIM];
-    calculateBarycenterDyn2<SPACEDIM>(&CoordsT[0],CoordsT.size()/SPACEDIM,baryT);
+    calculateBarycenterDyn2<SPACEDIM>(&CoordsT[0],ToConnType(CoordsT.size())/SPACEDIM,baryT);
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
       {
         NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iter));
@@ -93,13 +93,13 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersectorP1P0PL<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP1P0PL<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfElements();
   }
   
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersectorP1P0PL<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP1P0PL<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfNodes();
   }

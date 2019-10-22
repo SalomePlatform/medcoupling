@@ -22,6 +22,7 @@
 
 #include "MEDCouplingRefCountObject.hxx"
 #include "ComponentTopology.hxx"
+#include "MCType.hxx"
 
 namespace MEDCoupling
 {
@@ -43,8 +44,8 @@ namespace MEDCoupling
     void synchronizeSource( MEDCoupling::ParaFIELD* target_field);
     MEDCouplingFieldDouble* getField() const { return _field; }
     void setOwnSupport(bool v) const { _own_support=v; }
-    DataArrayInt* returnCumulativeGlobalNumbering() const;
-    DataArrayInt* returnGlobalNumbering() const;
+    DataArrayIdType* returnCumulativeGlobalNumbering() const;
+    DataArrayIdType* returnGlobalNumbering() const;
     Topology* getTopology() const { return _topology; }
     ParaMESH* getSupport() const  { return _support; }
     int nbComponents() const;

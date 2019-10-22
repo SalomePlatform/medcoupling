@@ -54,7 +54,7 @@ namespace MEDCoupling
   BlockTopology::BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid):
     _dimension(grid->getSpaceDimension()), _proc_group(&group), _owns_processor_group(false)
   {
-    vector <int> axis_length(_dimension);
+    vector <mcIdType> axis_length(_dimension);
     _nb_elems=1;
     for (int idim=0; idim <_dimension; idim++)
       {
@@ -119,7 +119,7 @@ namespace MEDCoupling
           _proc_group=geom_topo.getProcGroup();
         _local_array_indices=geom_topo._local_array_indices;
         vector<int> comp_indices = *(comp_topo.getBlockIndices());
-        _local_array_indices.push_back(comp_indices);
+        _local_array_indices.emplace_back( comp_indices.begin(), comp_indices.end() );
         _nb_procs_per_dim=geom_topo._nb_procs_per_dim;
         _nb_procs_per_dim.push_back(comp_topo.nbBlocks());
         _cycle_type=geom_topo._cycle_type;
@@ -137,16 +137,16 @@ namespace MEDCoupling
    * to \a group will cause an MPI error, while calling from a subset
    * of \a group will result in a deadlock. 
    */
-  BlockTopology::BlockTopology(const ProcessorGroup& group, int nb_elem):_dimension(1),_proc_group(&group),_owns_processor_group(false)
+  BlockTopology::BlockTopology(const ProcessorGroup& group, mcIdType nb_elem):_dimension(1),_proc_group(&group),_owns_processor_group(false)
   {
-    int* nbelems_per_proc = new int[group.size()];
+    mcIdType* nbelems_per_proc = new mcIdType[group.size()];
     const MPIProcessorGroup* mpi_group=dynamic_cast<const MPIProcessorGroup*>(_proc_group);
     const MPI_Comm* comm=mpi_group->getComm();
-    int nbtemp=nb_elem;
-    mpi_group->getCommInterface().allGather(&nbtemp, 1, MPI_INT, 
-                                            nbelems_per_proc, 1, MPI_INT, 
+    mcIdType nbtemp=nb_elem;
+    mpi_group->getCommInterface().allGather(&nbtemp, 1, MPI_ID_TYPE, 
+                                            nbelems_per_proc, 1, MPI_ID_TYPE, 
                                             *comm);
-    _nb_elems=0;  
+    _nb_elems=0;
   
     //splitting along only dimension
     _local_array_indices.resize(1);
@@ -174,22 +174,22 @@ namespace MEDCoupling
   }
 
   //!converts a pair <subdomainid,local> to a global number
-  std::pair<int,int> BlockTopology::globalToLocal(const int global) const
+  std::pair<int,mcIdType> BlockTopology::globalToLocal(const mcIdType global) const
   {
     int subdomain_id=0;
-    int position=global;
-    int size=_nb_elems;
-    int size_procs=_proc_group->size();
-    int increment=size;
-    vector<int>axis_position(_dimension);
-    vector<int>axis_offset(_dimension);
+    mcIdType position=global;
+    mcIdType size=_nb_elems;
+    std::size_t size_procs=_proc_group->size();
+    mcIdType increment=size;
+    vector<mcIdType>axis_position(_dimension);
+    vector<mcIdType>axis_offset(_dimension);
     for (int idim=0; idim<_dimension; idim++)
       {
-        int axis_size=_local_array_indices[idim].size()-1;
-        int axis_nb_elem=_local_array_indices[idim][axis_size];
+        std::size_t axis_size=_local_array_indices[idim].size()-1;
+        mcIdType axis_nb_elem=_local_array_indices[idim][axis_size];
         increment=increment/axis_nb_elem;
-        int proc_increment = size_procs/(axis_size);
-        int axis_pos=position/increment;
+        int proc_increment = (int)(size_procs/axis_size);
+        mcIdType axis_pos=position/increment;
         position=position%increment;
         int iaxis=1;
         while (_local_array_indices[idim][iaxis]<=axis_pos)
@@ -200,8 +200,8 @@ namespace MEDCoupling
         axis_position[idim]=axis_pos-_local_array_indices[idim][iaxis-1];
         axis_offset[idim]=iaxis;
       }
-    int local=0;
-    int local_increment=1;
+    mcIdType local=0;
+    mcIdType local_increment=1;
     for (int idim=_dimension-1; idim>=0; idim--)
       {
         local+=axis_position[idim]*local_increment;
@@ -211,26 +211,26 @@ namespace MEDCoupling
   }
 
   //!converts local number to a global number
-  int BlockTopology::localToGlobal(const pair<int,int> local) const
+  mcIdType BlockTopology::localToGlobal(const pair<int,mcIdType> local) const
   {
 
-    int subdomain_id=local.first;
-    int global=0;
-    int loc=local.second;
-    int increment=_nb_elems;
-    int proc_increment=_proc_group->size();
-    int local_increment=getNbLocalElements();
+    std::size_t subdomain_id=local.first;
+    mcIdType global=0;
+    mcIdType loc=local.second;
+    mcIdType increment=_nb_elems;
+    std::size_t proc_increment=_proc_group->size();
+    mcIdType local_increment=getNbLocalElements();
     for (int idim=0; idim < _dimension; idim++)
       {
-        int axis_size=_local_array_indices[idim].size()-1;
-        int axis_nb_elem=_local_array_indices[idim][axis_size];
+        std::size_t axis_size=_local_array_indices[idim].size()-1;
+        mcIdType axis_nb_elem=_local_array_indices[idim][axis_size];
         increment=axis_nb_elem==0?0:increment/axis_nb_elem;
-        proc_increment = proc_increment/(axis_size);
-        int proc_axis=subdomain_id/proc_increment;
+        proc_increment = proc_increment/axis_size;
+        std::size_t proc_axis=subdomain_id/proc_increment;
         subdomain_id=subdomain_id%proc_increment;
-        int local_axis_nb_elem=_local_array_indices[idim][proc_axis+1]-_local_array_indices[idim][proc_axis];
+        mcIdType local_axis_nb_elem=_local_array_indices[idim][proc_axis+1]-_local_array_indices[idim][proc_axis];
         local_increment = (local_axis_nb_elem==0)?0:(local_increment/local_axis_nb_elem);
-        int iaxis=((local_increment==0)?0:(loc/local_increment))+_local_array_indices[idim][proc_axis];
+        mcIdType iaxis=((local_increment==0)?0:(loc/local_increment))+_local_array_indices[idim][proc_axis];
         global+=increment*iaxis;
         loc = (local_increment==0)?0:(loc%local_increment);
       }
@@ -238,18 +238,18 @@ namespace MEDCoupling
   }
 
   //Retrieves the local number of elements
-  int BlockTopology::getNbLocalElements()const
+  mcIdType BlockTopology::getNbLocalElements()const
   {
     int position=_proc_group->myRank();
-    int nb_elem = 1;
+    mcIdType nb_elem = 1;
     int increment=1;
     for (int i=_dimension-1; i>=0; i--)
       {
         increment *=_nb_procs_per_dim[i];
         int idim=position%increment;
         position=position/increment;
-        int imin=_local_array_indices[i][idim];
-        int imax=_local_array_indices[i][idim+1];
+        mcIdType imin=_local_array_indices[i][idim];
+        mcIdType imax=_local_array_indices[i][idim+1];
         nb_elem*=(imax-imin);
       }
     return nb_elem;
@@ -260,16 +260,16 @@ namespace MEDCoupling
    * as a size and each pair <int,int> contains min and max. Indices 
    * range from min to max-1.
    */
-  std::vector<std::pair<int,int> > BlockTopology::getLocalArrayMinMax() const
+  std::vector<std::pair<int,mcIdType> > BlockTopology::getLocalArrayMinMax() const
   {
-    vector<pair<int,int> > local_indices (_dimension);
+    vector<pair<int,mcIdType> > local_indices (_dimension);
     int myrank=_proc_group->myRank();
     int increment=1;
     for (int i=_dimension-1; i>=0; i--)
       {  
         increment *=_nb_procs_per_dim[i];
         int idim=myrank%increment;
-        local_indices[i].first=_local_array_indices[i][idim];
+        local_indices[i].first=(int)_local_array_indices[i][idim];
         local_indices[i].second=_local_array_indices[i][idim+1];
         cout << local_indices[i].first << " "<< local_indices[i].second<<endl;
       }
@@ -278,9 +278,9 @@ namespace MEDCoupling
 
   /*! Serializes the data contained in the Block Topology
    * for communication purposes*/
-  void BlockTopology::serialize(int* & serializer, int& size) const 
+  void BlockTopology::serialize(mcIdType* & serializer, mcIdType& size) const 
   {
-    vector<int> buffer;
+    vector<mcIdType> buffer;
   
     buffer.push_back(_dimension);
     buffer.push_back(_nb_elems);
@@ -288,13 +288,13 @@ namespace MEDCoupling
       {
         buffer.push_back(_nb_procs_per_dim[i]);
         buffer.push_back(_cycle_type[i]);
-        buffer.push_back(_local_array_indices[i].size());
-        for (int j=0; j<(int)_local_array_indices[i].size(); j++)
+        buffer.push_back(ToIdType(_local_array_indices[i].size()));
+        for (std::size_t j=0; j<_local_array_indices[i].size(); j++)
           buffer.push_back(_local_array_indices[i][j]);
       }
   
     //serializing the comm group
-    int size_comm=_proc_group->size();
+    mcIdType size_comm=_proc_group->size();
     buffer.push_back(size_comm);
     MPIProcessorGroup world_group(_proc_group->getCommInterface());
     for (int i=0; i<size_comm;i++)
@@ -303,8 +303,8 @@ namespace MEDCoupling
         buffer.push_back(world_rank);
       }
   
-    serializer=new int[buffer.size()];
-    size=buffer.size();
+    serializer=new mcIdType[buffer.size()];
+    size=ToIdType(buffer.size());
     copy(buffer.begin(), buffer.end(), serializer);
   }
 
@@ -314,11 +314,11 @@ namespace MEDCoupling
    * after communication. Uses the same structure as the one used for serialize() 
    *
    */
-  void BlockTopology::unserialize(const int* serializer,const CommInterface& comm_interface)
+  void BlockTopology::unserialize(const mcIdType* serializer,const CommInterface& comm_interface)
   {
-    const int* ptr_serializer=serializer;
+    const mcIdType* ptr_serializer=serializer;
     cout << "unserialize..."<<endl;
-    _dimension=*(ptr_serializer++);
+    _dimension=(int)*(ptr_serializer++);
     cout << "dimension "<<_dimension<<endl;
     _nb_elems=*(ptr_serializer++);
     cout << "nbelems "<<_nb_elems<<endl;
@@ -327,16 +327,16 @@ namespace MEDCoupling
     _local_array_indices.resize(_dimension);
     for (int i=0; i<_dimension; i++)
       {
-        _nb_procs_per_dim[i]=*(ptr_serializer++);
+        _nb_procs_per_dim[i]=(int)*(ptr_serializer++);
         _cycle_type[i]=(CYCLE_TYPE)*(ptr_serializer++);
         _local_array_indices[i].resize(*(ptr_serializer++));
-        for (int j=0; j<(int)_local_array_indices[i].size(); j++)
+        for (std::size_t j=0; j<_local_array_indices[i].size(); j++)
           _local_array_indices[i][j]=*(ptr_serializer++);
       }
     set<int> procs;
-    int size_comm=*(ptr_serializer++);
+    mcIdType size_comm=*(ptr_serializer++);
     for (int i=0; i<size_comm; i++)
-      procs.insert(*(ptr_serializer++));
+      procs.insert((int)*(ptr_serializer++));
     cout << "unserialize..."<<procs.size()<<endl;
     _proc_group=new MPIProcessorGroup(comm_interface,procs);
     _owns_processor_group=true;

@@ -51,7 +51,7 @@ namespace SauvUtilities
   struct IntermediateMED;
 
   // ==============================================================================
-  typedef int                TID;  // an ID countered from 1
+  typedef mcIdType           TID;  // an ID countered from 1
   typedef std::pair<TID,TID> Link; // a pair of node numbers
 
   typedef INTERP_KERNEL::NormalizedCellType TCellType;
@@ -103,11 +103,11 @@ namespace SauvUtilities
                                             reference is converted into a copy of the medGroup
                                             (issue 0021311)
                                          */
-    MEDCoupling::DataArrayInt* _medGroup;   // result of conversion
-    std::vector< unsigned >   _relocTable; // for _cells[i] gives its index in _medGroup
+    MEDCoupling::DataArrayIdType* _medGroup;   // result of conversion
+    std::vector< mcIdType >       _relocTable; // for _cells[i] gives its index in _medGroup
 
     bool empty() const { return _cells.empty() && _groups.empty(); }
-    int  size()  const;
+    mcIdType  size()  const;
     Group():_cellType(INTERP_KERNEL::NORM_ERROR), _isProfile(false), _medGroup(NULL) {}
   };
 
@@ -126,7 +126,7 @@ namespace SauvUtilities
 
       void setData( int nb_comp, Group* supp )
       { _support = supp; _comp_names.resize(nb_comp); _nb_gauss.resize(nb_comp,1); }
-      int  nbComponents() const { return _comp_names.size(); }
+      int  nbComponents() const { return (int)_comp_names.size(); }
       std::string & compName( int i_comp ) { return _comp_names[ i_comp ]; }
       bool isSameNbGauss() const { return *std::max_element( _nb_gauss.begin(), _nb_gauss.end() ) ==
           *std::min_element( _nb_gauss.begin(), _nb_gauss.end() ); }
@@ -158,11 +158,11 @@ namespace SauvUtilities
     bool isMedCompatible(bool& sameNbGauss) const;
     MEDCoupling::TypeOfField getMedType( const int iSub=0 ) const;
     MEDCoupling::TypeOfTimeDiscretization getMedTimeDisc() const;
-    int getNbTuples( const int iSub=0 ) const;
+    mcIdType getNbTuples( const int iSub=0 ) const;
     int getNbValuesPerElement( const int iSub=0 ) const;
     int getNbGauss( const int iSub=0 ) const;
     const Group* getSupport( const int iSub=0 ) const;
-    int setValues( double * valPtr, const int iSub, const int elemShift=0 ) const;
+    mcIdType setValues( double * valPtr, const int iSub, const mcIdType elemShift=0 ) const;
     void splitSubWithDiffNbGauss();
 
     //virtual void dump(std::ostream&) const;
@@ -253,7 +253,7 @@ namespace SauvUtilities
     ~IntermediateMED();
 
     Node* getNode( TID nID ) { return _points.getNode( nID ); }
-    int getNbCellsOfType( TCellType type ) const { return _cellsByType[type].size(); }
+    mcIdType getNbCellsOfType( TCellType type ) const { return ToIdType(_cellsByType[type].size()); }
     const Cell* insert(TCellType type, const Cell& ma) { return &( *_cellsByType[type].insert( ma ).first ); }
     Group* addNewGroup(std::vector<SauvUtilities::Group*>* groupsToFix=0);
     MEDCoupling::MEDFileData* convertInMEDFileDS();

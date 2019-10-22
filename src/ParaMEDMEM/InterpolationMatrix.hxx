@@ -51,13 +51,13 @@ namespace MEDCoupling
     
     virtual ~InterpolationMatrix();
     void addContribution(MEDCouplingPointSet& distant_support, int iproc_distant,
-                         const int* distant_elems, const std::string& srcMeth, const std::string& targetMeth);
+                         const mcIdType* distant_elems, const std::string& srcMeth, const std::string& targetMeth);
     void finishContributionW(ElementLocator& elementLocator);
     void finishContributionL(ElementLocator& elementLocator);
     void multiply(MEDCouplingFieldDouble& field) const;
     void transposeMultiply(MEDCouplingFieldDouble& field)const;
     void prepare();
-    int getNbRows() const { return _row_offsets.size(); }
+    mcIdType getNbRows() const { return ToIdType(_row_offsets.size()); }
     MPIAccessDEC* getAccessDEC() { return _mapping.getAccessDEC(); }
   private:
     void computeConservVolDenoW(ElementLocator& elementLocator);
@@ -69,33 +69,33 @@ namespace MEDCoupling
     void computeRevIntegralDenoL(ElementLocator& elementLocator);
     
     void computeLocalColSum(std::vector<double>& res) const;
-    void computeLocalRowSum(const std::vector<int>& distantProcs, std::vector<std::vector<int> >& resPerProcI,
+    void computeLocalRowSum(const std::vector<int>& distantProcs, std::vector<std::vector<mcIdType> >& resPerProcI,
                             std::vector<std::vector<double> >& resPerProcD) const;
     void computeGlobalRowSum(ElementLocator& elementLocator, std::vector<std::vector<double> >& denoStrorage, std::vector<std::vector<double> >& denoStrorageInv);
     void computeGlobalColSum(std::vector<std::vector<double> >& denoStrorage);
     void resizeGlobalColSum(std::vector<std::vector<double> >& denoStrorage);
-    void fillDSFromVM(int iproc_distant, const int* distant_elems, const std::vector< std::map<int,double> >& values, MEDCouplingFieldDouble *surf);
-    void serializeMe(std::vector< std::vector< std::map<int,double> > >& data1, std::vector<int>& data2) const;
+    void fillDSFromVM(int iproc_distant, const mcIdType* distant_elems, const std::vector< std::map<mcIdType,double> >& values, MEDCouplingFieldDouble *surf);
+    void serializeMe(std::vector< std::vector< std::map<mcIdType,double> > >& data1, std::vector<int>& data2) const;
     void initialize();
-    void findAdditionnalElements(ElementLocator& elementLocator, std::vector<std::vector<int> >& elementsToAdd,
-                                 const std::vector<std::vector<int> >& resPerProcI, const std::vector<std::vector<int> >& globalIdsPartial);
-    void addGhostElements(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& elementsToAdd);
+    void findAdditionnalElements(ElementLocator& elementLocator, std::vector<std::vector<mcIdType> >& elementsToAdd,
+                                 const std::vector<std::vector<mcIdType> >& resPerProcI, const std::vector<std::vector<mcIdType> >& globalIdsPartial);
+    void addGhostElements(const std::vector<int>& distantProcs, const std::vector<std::vector<mcIdType> >& elementsToAdd);
     int mergePolicies(const std::vector<int>& policyPartial);
-    void mergeRowSum(const std::vector< std::vector<double> >& rowsPartialSumD, const std::vector< std::vector<int> >& globalIdsPartial,
-                     std::vector<int>& globalIdsLazySideInteraction, std::vector<double>& sumCorresponding);
-    void mergeRowSum2(const std::vector< std::vector<int> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD,
-                      const std::vector<int>& globalIdsLazySideInteraction, const std::vector<double>& sumCorresponding);
-    void mergeRowSum3(const std::vector< std::vector<int> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD);
-    void mergeCoeffs(const std::vector<int>& procsInInteraction, const std::vector< std::vector<int> >& rowsPartialSumI,
-                     const std::vector<std::vector<int> >& globalIdsPartial, std::vector<std::vector<double> >& denoStrorageInv);
-    void divideByGlobalRowSum(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& resPerProcI,
+    void mergeRowSum(const std::vector< std::vector<double> >& rowsPartialSumD, const std::vector< std::vector<mcIdType> >& globalIdsPartial,
+                     std::vector<mcIdType>& globalIdsLazySideInteraction, std::vector<double>& sumCorresponding);
+    void mergeRowSum2(const std::vector< std::vector<mcIdType> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD,
+                      const std::vector<mcIdType>& globalIdsLazySideInteraction, const std::vector<double>& sumCorresponding);
+    void mergeRowSum3(const std::vector< std::vector<mcIdType> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD);
+    void mergeCoeffs(const std::vector<int>& procsInInteraction, const std::vector< std::vector<mcIdType> >& rowsPartialSumI,
+                     const std::vector<std::vector<mcIdType> >& globalIdsPartial, std::vector<std::vector<double> >& denoStrorageInv);
+    void divideByGlobalRowSum(const std::vector<int>& distantProcs, const std::vector<std::vector<mcIdType> >& resPerProcI,
                               const std::vector<std::vector<double> >& resPerProcD, std::vector<std::vector<double> >& deno);
   private:
     bool isSurfaceComputationNeeded(const std::string& method) const;
   private:
     const MEDCoupling::ParaFIELD *_source_field;
-    std::vector<int> _row_offsets;
-    std::map<std::pair<int,int>, int > _col_offsets;
+    std::vector<mcIdType> _row_offsets;
+    std::map<std::pair<int,mcIdType>, mcIdType > _col_offsets;
     MEDCouplingPointSet *_source_support;
     MxN_Mapping _mapping;
  

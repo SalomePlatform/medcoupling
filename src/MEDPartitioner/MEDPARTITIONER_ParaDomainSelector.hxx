@@ -21,6 +21,7 @@
 #define __MEDPARTITIONER_PARADOMAINSELECTOR_HXX__
 
 #include "MEDPARTITIONER.hxx"
+#include "MCType.hxx"
 
 #include <memory>
 #include <vector>
@@ -59,35 +60,35 @@ namespace MEDPARTITIONER
     //identifier for a joint
     int jointId( int local_domain, int distant_domain ) const;
   
-    int getNbTotalCells() { return _cell_shift_by_domain.back(); }
-    int getNbTotalNodes() { return _node_shift_by_domain.back(); };
-    int getNbTotalFaces() { return _face_shift_by_domain.back(); };
+    mcIdType getNbTotalCells() { return _cell_shift_by_domain.back(); }
+    mcIdType getNbTotalNodes() { return _node_shift_by_domain.back(); };
+    mcIdType getNbTotalFaces() { return _face_shift_by_domain.back(); };
 
     //Collect nb of entities on procs
     void gatherNbOf(const std::vector<MEDCoupling::MEDCouplingUMesh*>& domain_meshes);
   
     //distribution of the graph vertices among the processors
-    int* getProcVtxdist() const;
+    mcIdType* getProcVtxdist() const;
 
     //nb of nodes on processors with lower rank
-    int getProcNodeShift() const;
+    mcIdType getProcNodeShift() const;
     //nb of cells in domains with lower index
-    int getDomainCellShift(int domainIndex) const;
+    mcIdType getDomainCellShift(int domainIndex) const;
     //nb of nodes in domains with lower index
-    int getDomainNodeShift(int domainIndex) const;
+    mcIdType getDomainNodeShift(int domainIndex) const;
 
     //Gather graphs from all processors into one
     std::unique_ptr<Graph> gatherGraph(const Graph* graph) const;
 
     //Set nb of cell/cell pairs in a joint between domains
-    void setNbCellPairs( int nb_cell_pairs, int dist_domain, int loc_domain );
+    void setNbCellPairs( mcIdType nb_cell_pairs, int dist_domain, int loc_domain );
     //Gather size of each proc/proc joint
     void gatherNbCellPairs();
     //nb of cell/cell pairs in a joint between domains on different procs
-    int getNbCellPairs( int dist_domain, int loc_domain ) const;
+    mcIdType getNbCellPairs( int dist_domain, int loc_domain ) const;
 
     //get the first global id of sub-entity for the joint
-    int getFisrtGlobalIdOfSubentity( int loc_domain, int dist_domain ) const;
+    mcIdType getFisrtGlobalIdOfSubentity( int loc_domain, int dist_domain ) const;
     //Send-receive local ids of joint faces
     int* exchangeSubentityIds( int loc_domain, int dist_domain,
                                const std::vector<int>& loc_ids_here ) const;
@@ -104,11 +105,11 @@ namespace MEDPARTITIONER
     int _world_size; //nb of processors
     int _nb_result_domains; //required nb of domains
 
-    std::vector< int > _nb_cell_pairs_by_joint;
-    std::vector< int > _nb_vert_of_procs; //graph vertices
-    std::vector< int > _cell_shift_by_domain;
-    std::vector< int > _node_shift_by_domain;
-    std::vector< int > _face_shift_by_domain;
+    std::vector< mcIdType > _nb_cell_pairs_by_joint;
+    std::vector< mcIdType > _nb_vert_of_procs; //graph vertices
+    std::vector< mcIdType > _cell_shift_by_domain;
+    std::vector< mcIdType > _node_shift_by_domain;
+    std::vector< mcIdType > _face_shift_by_domain;
 
     double _init_time;
     bool _mesure_memory;

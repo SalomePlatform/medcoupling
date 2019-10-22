@@ -33,7 +33,7 @@ namespace MEDCoupling
   public:
     static DataArrayDoubleCollection *New(const std::vector< std::pair<std::string,int> >& fieldNames);
     DataArrayDoubleCollection *deepCopy() const;
-    void allocTuples(int nbOfTuples);
+    void allocTuples(mcIdType nbOfTuples);
     void dellocTuples();
     void copyFrom(const DataArrayDoubleCollection& other);
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
@@ -43,16 +43,16 @@ namespace MEDCoupling
     std::vector<DataArrayDouble *> retrieveFields() const;
     const DataArrayDouble *getFieldWithName(const std::string& name) const;
     DataArrayDouble *getFieldWithName(const std::string& name);
-    DataArrayDouble *at(int pos);
-    const DataArrayDouble *at(int pos) const;
-    int size() const;
-    static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *fine, DataArrayDoubleCollection *coarse);
-    static void SynchronizeCoarseToFine(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine);
-    static void SynchronizeFineEachOther(int patchId, int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, const std::vector<const MEDCouplingCartesianAMRMeshGen *>& children, const std::vector<DataArrayDoubleCollection *>& fieldsOnFine);
-    static void SynchronizeCoarseToFineOnlyInGhostZone(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine);
-    static void SynchronizeGhostZoneOfOneUsingTwo(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const DataArrayDoubleCollection *p1dac, const MEDCouplingCartesianAMRPatch *p2, const DataArrayDoubleCollection *p2dac);
-    void synchronizeMyGhostZoneUsing(int ghostLev, const DataArrayDoubleCollection& other, const MEDCouplingCartesianAMRPatch *thisp, const MEDCouplingCartesianAMRPatch *otherp, const MEDCouplingCartesianAMRMeshGen *father) const;
-    void synchronizeMyGhostZoneUsingExt(int ghostLev, const DataArrayDoubleCollection& other, const MEDCouplingCartesianAMRPatch *thisp, const MEDCouplingCartesianAMRPatch *otherp) const;
+    DataArrayDouble *at(mcIdType pos);
+    const DataArrayDouble *at(mcIdType pos) const;
+    mcIdType size() const;
+    static void SynchronizeFineToCoarse(mcIdType ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, mcIdType patchId, const DataArrayDoubleCollection *fine, DataArrayDoubleCollection *coarse);
+    static void SynchronizeCoarseToFine(mcIdType ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, mcIdType patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine);
+    static void SynchronizeFineEachOther(mcIdType patchId, mcIdType ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, const std::vector<const MEDCouplingCartesianAMRMeshGen *>& children, const std::vector<DataArrayDoubleCollection *>& fieldsOnFine);
+    static void SynchronizeCoarseToFineOnlyInGhostZone(mcIdType ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, mcIdType patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine);
+    static void SynchronizeGhostZoneOfOneUsingTwo(mcIdType ghostLev, const MEDCouplingCartesianAMRPatch *p1, const DataArrayDoubleCollection *p1dac, const MEDCouplingCartesianAMRPatch *p2, const DataArrayDoubleCollection *p2dac);
+    void synchronizeMyGhostZoneUsing(mcIdType ghostLev, const DataArrayDoubleCollection& other, const MEDCouplingCartesianAMRPatch *thisp, const MEDCouplingCartesianAMRPatch *otherp, const MEDCouplingCartesianAMRMeshGen *father) const;
+    void synchronizeMyGhostZoneUsingExt(mcIdType ghostLev, const DataArrayDoubleCollection& other, const MEDCouplingCartesianAMRPatch *thisp, const MEDCouplingCartesianAMRPatch *otherp) const;
   private:
     DataArrayDoubleCollection(const std::vector< std::pair<std::string,int> >& fieldNames);
     DataArrayDoubleCollection(const DataArrayDoubleCollection& other);
@@ -72,22 +72,22 @@ namespace MEDCoupling
   public:
     static MEDCouplingGridCollection *New(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
     MEDCouplingGridCollection *deepCopy(const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf) const;
-    void alloc(int ghostLev);
+    void alloc(mcIdType ghostLev);
     void dealloc();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     void spillNatures(const std::vector<NatureOfField>& nfs);
     std::vector< std::pair<std::string, std::vector<std::string> > > getInfoOnComponents() const;
     std::vector<NatureOfField> getNatures() const;
-    bool presenceOf(const MEDCouplingCartesianAMRMeshGen *m, int& pos) const;
-    const DataArrayDoubleCollection& getFieldsAt(int pos) const;
-    DataArrayDoubleCollection& getFieldsAt(int pos);
-    void copyOverlappedZoneFrom(int ghostLev, const MEDCouplingGridCollection& other);
-    static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingGridCollection *fine, const MEDCouplingGridCollection *coarse);
-    static void SynchronizeCoarseToFine(int ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
-    void synchronizeFineEachOther(int ghostLev, const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& ps) const;
-    void synchronizeFineEachOtherExt(int ghostLev, const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& ps) const;
-    std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > findNeighbors(int ghostLev) const;
-    static void SynchronizeCoarseToFineOnlyInGhostZone(int ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
+    bool presenceOf(const MEDCouplingCartesianAMRMeshGen *m, mcIdType& pos) const;
+    const DataArrayDoubleCollection& getFieldsAt(mcIdType pos) const;
+    DataArrayDoubleCollection& getFieldsAt(mcIdType pos);
+    void copyOverlappedZoneFrom(mcIdType ghostLev, const MEDCouplingGridCollection& other);
+    static void SynchronizeFineToCoarse(mcIdType ghostLev, const MEDCouplingGridCollection *fine, const MEDCouplingGridCollection *coarse);
+    static void SynchronizeCoarseToFine(mcIdType ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
+    void synchronizeFineEachOther(mcIdType ghostLev, const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& ps) const;
+    void synchronizeFineEachOtherExt(mcIdType ghostLev, const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& ps) const;
+    std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > findNeighbors(mcIdType ghostLev) const;
+    static void SynchronizeCoarseToFineOnlyInGhostZone(mcIdType ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
     void fillIfInTheProgenyOf(const std::string& fieldName, const MEDCouplingCartesianAMRMeshGen *head, std::vector<const DataArrayDouble *>& recurseArrs) const;
   private:
     MEDCouplingGridCollection(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
@@ -108,13 +108,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingCartesianAMRMesh *getMyGodFather();
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getMyGodFather() const;
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse() = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarseBetween(int fromLev, int toLev) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarseBetween(mcIdType fromLev, mcIdType toLev) = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine() = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFineBetween(int fromLev, int toLev) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFineBetween(mcIdType fromLev, mcIdType toLev) = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZones() = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh) = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesAtASpecifiedLevel(int level) = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(int level) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesAtASpecifiedLevel(mcIdType level) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(mcIdType level) = 0;
     MEDCOUPLING_EXPORT virtual void alloc() = 0;
     MEDCOUPLING_EXPORT virtual void dealloc() = 0;
   protected:
@@ -131,13 +131,13 @@ namespace MEDCoupling
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
-    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev);
+    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, mcIdType ghostLev);
+    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, mcIdType ghostLev);
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     MEDCOUPLING_EXPORT void spillNatures(const std::vector<NatureOfField>& nfs);
     MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCpyWithoutGodFather() const;
-    MEDCOUPLING_EXPORT int getNumberOfLevels() const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfLevels() const;
     MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const;
     MEDCOUPLING_EXPORT const DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName);
@@ -149,13 +149,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *projectTo(MEDCouplingCartesianAMRMesh *targetGF) const;
     //
     MEDCOUPLING_EXPORT void synchronizeFineToCoarse();
-    MEDCOUPLING_EXPORT void synchronizeFineToCoarseBetween(int fromLev, int toLev);
+    MEDCOUPLING_EXPORT void synchronizeFineToCoarseBetween(mcIdType fromLev, mcIdType toLev);
     MEDCOUPLING_EXPORT void synchronizeCoarseToFine();
-    MEDCOUPLING_EXPORT void synchronizeCoarseToFineBetween(int fromLev, int toLev);
+    MEDCOUPLING_EXPORT void synchronizeCoarseToFineBetween(mcIdType fromLev, mcIdType toLev);
     MEDCOUPLING_EXPORT void synchronizeAllGhostZones();
     MEDCOUPLING_EXPORT void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh);
-    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevel(int level);
-    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(int level);
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevel(mcIdType level);
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(mcIdType level);
     //
     MEDCOUPLING_EXPORT void alloc();
     MEDCOUPLING_EXPORT void dealloc();
@@ -165,13 +165,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void updateTime() const;
   private:
-    MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
+    MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, mcIdType ghostLev);
     MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& other, bool deepCpyGF);
     const DataArrayDoubleCollection& findCollectionAttachedTo(const MEDCouplingCartesianAMRMeshGen *m) const;
-    void synchronizeFineToCoarseByOneLevel(int level);
-    void synchronizeCoarseToFineByOneLevel(int level);
+    void synchronizeFineToCoarseByOneLevel(mcIdType level);
+    void synchronizeCoarseToFineByOneLevel(mcIdType level);
   private:
-    int _ghost_lev;
+    mcIdType _ghost_lev;
     std::vector< MCAuto<MEDCouplingGridCollection> > _levs;
     std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > _neighbors;
     std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > _mixed_lev_neighbors;

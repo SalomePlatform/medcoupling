@@ -56,9 +56,9 @@ namespace INTERP_KERNEL
     std::vector<double> CoordsT;
     const ConnType *startOfCellNodeConnT=Intersector3DP1P1<MyMeshType,MyMatrix>::getStartConnOfTargetCell(targetCell);
     Intersector3DP1P1<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(targetCell),CoordsT);
-    int nbOfNodesT=CoordsT.size()/SPACEDIM;
+    std::size_t nbOfNodesT=CoordsT.size()/SPACEDIM;
     const double *coordsS=Intersector3DP1P1<MyMeshType,MyMatrix>::_src_mesh.getCoordinatesPtr();
-    for(int nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
+    for(std::size_t nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
       {
         typename MyMatrix::value_type& resRow=res[OTT<ConnType,numPol>::ind2C(startOfCellNodeConnT[nodeIdT])];
         if(!resRow.empty())
@@ -72,7 +72,7 @@ namespace INTERP_KERNEL
             //
             std::vector<ConnType> connOfCurCellS;
             Intersector3DP1P1<MyMeshType,MyMatrix>::getConnOfSourceCell(OTT<ConnType,numPol>::indFC(*iterCellS),connOfCurCellS);
-            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(&CoordsT[nodeIdT*SPACEDIM],&connOfCurCellS[0],connOfCurCellS.size(),coordsS,cmTypeS,_precision) )
+            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(&CoordsT[nodeIdT*SPACEDIM],&connOfCurCellS[0],ToConnType(connOfCurCellS.size()),coordsS,cmTypeS,_precision) )
               {
                 double mco[3];  // mapped coordinates in the hexa8
                 std::vector<double> localCoordsS;

@@ -1499,7 +1499,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         self.assertTrue(d.isEqual(d1,1e-12));
         #
         d2=d.convertToIntArr();
-        d4=DataArrayInt.New();
+        d4=DataArrayInt32.New();
         self.assertTrue(not d2.isEqual(d4));
         d4.deepCopyFrom(d2);
         self.assertTrue(d2.isEqual(d4));

@@ -50,7 +50,7 @@ namespace MEDCoupling
     virtual const char *getRepr() const;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
-    virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
+    virtual DataArrayIdType *getOffsetArr(const MEDCouplingMesh *mesh) const;
     virtual DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
     virtual void checkCompatibilityWithNature(NatureOfField nat) const;
     virtual double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const;
@@ -67,21 +67,21 @@ namespace MEDCoupling
     {
       virtual MEDCouplingFieldDiscretization *clonePart(PyObject *li)
       {
-        int sz=0,sw=-1,val1=-1;
-        std::vector<int> val2;
-        const int *inp=convertIntStarLikePyObjToCppIntStar(li,sw,sz,val1,val2);
+        mcIdType sz=0,sw=-1,val1=-1;
+        std::vector<mcIdType> val2;
+        const mcIdType *inp=convertIntStarLikePyObjToCppIntStar(li,sw,sz,val1,val2);
         return self->clonePart(inp,inp+sz);
       }
       
-      virtual PyObject *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const
+      virtual PyObject *buildSubMeshDataRange(const MEDCouplingMesh *mesh, mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType *&di) const
       {
-        DataArrayInt *ret1=0;
-        int bb,ee,ss;
+        DataArrayIdType *ret1=0;
+        mcIdType bb,ee,ss;
         MEDCouplingMesh *ret0=self->buildSubMeshDataRange(mesh,beginCellIds,endCellIds,stepCellIds,bb,ee,ss,ret1);
         PyObject *res=PyTuple_New(2);
         PyTuple_SetItem(res,0,convertMesh(ret0, SWIG_POINTER_OWN | 0 ));
         if(ret1)
-          PyTuple_SetItem(res,1,SWIG_NewPointerObj((void*)ret1,SWIGTYPE_p_MEDCoupling__DataArrayInt,SWIG_POINTER_OWN | 0));
+          PyTuple_SetItem(res,1,SWIG_NewPointerObj((void*)ret1,SWIGTITraits<mcIdType>::TI,SWIG_POINTER_OWN | 0));
         else
           {
             PyObject *res1=PySlice_New(PyInt_FromLong(bb),PyInt_FromLong(ee),PyInt_FromLong(ss));
@@ -90,27 +90,27 @@ namespace MEDCoupling
         return res;
       }
 
-      virtual int getNumberOfTuplesExpectedRegardingCode(PyObject *code, PyObject *idsPerType) const
+      virtual mcIdType getNumberOfTuplesExpectedRegardingCode(PyObject *code, PyObject *idsPerType) const
       {
-        std::vector<int> inp0;
+        std::vector<mcIdType> inp0;
         convertPyToNewIntArr4(code,1,3,inp0);
-        std::vector<const DataArrayInt *> inp1;
-        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(idsPerType,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",inp1);
+        std::vector<const DataArrayIdType *> inp1;
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayIdType *>(idsPerType,SWIGTITraits<mcIdType>::TI,"DataArrayIdType",inp1);
         return self->getNumberOfTuplesExpectedRegardingCode(inp0,inp1);
       }
 
       virtual PyObject *computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, PyObject *tupleIds) const
       {
-        std::vector<int> vVal; int iVal=-1;
-        int sz=-1,sw=0;
-        const int *tupleIdsBg=convertIntStarLikePyObjToCppIntStar(tupleIds,sw,sz,iVal,vVal);
+        std::vector<mcIdType> vVal; mcIdType iVal=-1;
+        mcIdType sz=-1,sw=0;
+        const mcIdType *tupleIdsBg=convertIntStarLikePyObjToCppIntStar(tupleIds,sw,sz,iVal,vVal);
         if(sw==0)
           throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::computeMeshRestrictionFromTupleIds : none parameter in input !");
-        DataArrayInt *ret0=0,*ret1=0;
+        DataArrayIdType *ret0=0,*ret1=0;
         self->computeMeshRestrictionFromTupleIds(mesh,tupleIdsBg,tupleIdsBg+sz,ret0,ret1);
         PyObject *pyRet=PyTuple_New(2);
-        PyTuple_SetItem(pyRet,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(pyRet,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         return pyRet;
       }
 
@@ -118,7 +118,7 @@ namespace MEDCoupling
       {
         if(!arr)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretization::normL1 : input array is null !");
-        int sz(arr->getNumberOfComponents());
+        std::size_t sz(arr->getNumberOfComponents());
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL1(mesh,arr,tmp);
         return convertDblArrToPyList<double>(tmp,sz);
@@ -128,7 +128,7 @@ namespace MEDCoupling
       {
         if(!arr)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretization::normL2 : input array is null !");
-        int sz(arr->getNumberOfComponents());
+        std::size_t sz(arr->getNumberOfComponents());
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL2(mesh,arr,tmp);
         return convertDblArrToPyList<double>(tmp,sz);
@@ -138,38 +138,38 @@ namespace MEDCoupling
       {
         if(!arr)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretization::integral : input array is null !");
-        int sz(arr->getNumberOfComponents());
+        std::size_t sz(arr->getNumberOfComponents());
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->integral(mesh,arr,isWAbs,tmp);
         return convertDblArrToPyList<double>(tmp,sz);
       }
 
-      virtual PyObject *getCellIdsHavingGaussLocalization(int locId) const
+      virtual PyObject *getCellIdsHavingGaussLocalization(mcIdType locId) const
       {
-        std::vector<int> tmp;
+        std::vector<mcIdType> tmp;
         self->getCellIdsHavingGaussLocalization(locId,tmp);
-        DataArrayInt *ret=DataArrayInt::New();
-        ret->alloc((int)tmp.size(),1);
+        DataArrayIdType *ret=DataArrayIdType::New();
+        ret->alloc(tmp.size(),1);
         std::copy(tmp.begin(),tmp.end(),ret->getPointer());
-        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
       }
 
       virtual void setGaussLocalizationOnCells(const MEDCouplingMesh *m, PyObject *li, const std::vector<double>& refCoo,
                                                const std::vector<double>& gsCoo, const std::vector<double>& wg)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTITraits<mcIdType>::TI, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            self->setGaussLocalizationOnCells(m,tmp,((int *)tmp)+size,refCoo,gsCoo,wg);
+            mcIdType size;
+            INTERP_KERNEL::AutoPtr<mcIdType> tmp=convertPyToNewIntArr2(li,&size);
+            self->setGaussLocalizationOnCells(m,tmp,((mcIdType *)tmp)+size,refCoo,gsCoo,wg);
           }
         else
           {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            DataArrayIdType *da2=reinterpret_cast< DataArrayIdType * >(da);
             if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+              throw INTERP_KERNEL::Exception("Not null DataArrayIdType instance expected !");
             da2->checkAllocated();
             self->setGaussLocalizationOnCells(m,da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),refCoo,gsCoo,wg);
           }
@@ -177,7 +177,7 @@ namespace MEDCoupling
 
       virtual PyObject *getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const
       {
-        std::set<int> ret=self->getGaussLocalizationIdsOfOneType(type);
+        std::set<mcIdType> ret=self->getGaussLocalizationIdsOfOneType(type);
         return convertIntArrToPyList3(ret);
       }
 
@@ -187,7 +187,7 @@ namespace MEDCoupling
         DataArrayDouble *a;
         DataArrayDoubleTuple *aa;
         std::vector<double> bb;
-        int sw;
+        mcIdType sw;
         if(!mesh)
           throw INTERP_KERNEL::Exception("Python wrap of MEDCouplingFieldDiscretization::getValueOn : no underlying mesh !");
         int spaceDim=mesh->getSpaceDimension();
@@ -199,22 +199,22 @@ namespace MEDCoupling
         return convertDblArrToPyList<double>(res,spaceDim);
       }
 
-      virtual PyObject *getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k) const
+      virtual PyObject *getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, mcIdType i, mcIdType j, mcIdType k) const
       {
         if(!arr)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretization::getValueOnPos : input array is null !");
-        int sz(arr->getNumberOfComponents());
-         INTERP_KERNEL::AutoPtr<double> res=new double[sz];
-         self->getValueOnPos(arr,mesh,i,j,k,res);
-         return convertDblArrToPyList<double>(res,sz);
-       }
+        std::size_t sz(arr->getNumberOfComponents());
+        INTERP_KERNEL::AutoPtr<double> res=new double[sz];
+        self->getValueOnPos(arr,mesh,i,j,k,res);
+        return convertDblArrToPyList<double>(res,sz);
+      }
       
       virtual DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, PyObject *loc) const
       {
         if(!mesh)
           throw INTERP_KERNEL::Exception("Python wrap MEDCouplingFieldDiscretization::getValueOnMulti : null input mesh !");
         //
-        int sw,nbPts;
+        mcIdType sw,nbPts;
         double v0; MEDCoupling::DataArrayDouble *v1(0); MEDCoupling::DataArrayDoubleTuple *v2(0); std::vector<double> v3;
         const double *inp=convertObjToPossibleCpp5_Safe2(loc,sw,v0,v1,v2,v3,"wrap of MEDCouplingFieldDouble::getValueOnMulti",
                                                          mesh->getSpaceDimension(),true,nbPts);
@@ -223,9 +223,9 @@ namespace MEDCoupling
 
       virtual void renumberCells(PyObject *li, bool check=true)
       {
-        int sw,sz(-1);
-        int v0; std::vector<int> v1;
-        const int *ids(convertIntStarLikePyObjToCppIntStar(li,sw,sz,v0,v1));
+        mcIdType sw,sz(-1);
+        mcIdType v0; std::vector<mcIdType> v1;
+        const mcIdType *ids(convertIntStarLikePyObjToCppIntStar(li,sw,sz,v0,v1));
         self->renumberCells(ids,check);
       }
 
@@ -235,55 +235,55 @@ namespace MEDCoupling
         std::vector<DataArray *> input1;
         convertFromPyObjVectorOfObj<MEDCoupling::DataArray *>(arrays,SWIGTYPE_p_MEDCoupling__DataArray,"DataArray",input1);
         //
-        int sw,sz(-1);
-        int v0; std::vector<int> v1;
-        const int *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
+        mcIdType sw,sz(-1);
+        mcIdType v0; std::vector<mcIdType> v1;
+        const mcIdType *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
         //
         self->renumberArraysForCell(mesh,input1,old2NewBg,check);
       }
       
-      virtual DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, PyObject *cellIds) const
+      virtual DataArrayIdType *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, PyObject *cellIds) const
       {
-        int sw,sz(-1);
-        int v0; std::vector<int> v1;
-        const int *cellIdsBg(convertIntStarLikePyObjToCppIntStar(cellIds,sw,sz,v0,v1));
+        mcIdType sw,sz(-1);
+        mcIdType v0; std::vector<mcIdType> v1;
+        const mcIdType *cellIdsBg(convertIntStarLikePyObjToCppIntStar(cellIds,sw,sz,v0,v1));
         return self->computeTupleIdsToSelectFromCellIds(mesh,cellIdsBg,cellIdsBg+sz);
       }
 
       virtual PyObject *buildSubMeshData(const MEDCouplingMesh *mesh, PyObject *ids)
       {
-        int sw,sz(-1);
-        int v0; std::vector<int> v1;
-        const int *idsBg(convertIntStarLikePyObjToCppIntStar(ids,sw,sz,v0,v1));
-        DataArrayInt *di(0);
+        mcIdType sw,sz(-1);
+        mcIdType v0; std::vector<mcIdType> v1;
+        const mcIdType *idsBg(convertIntStarLikePyObjToCppIntStar(ids,sw,sz,v0,v1));
+        DataArrayIdType *di(0);
         MEDCouplingMesh *ret0=self->buildSubMeshData(mesh,idsBg,idsBg+sz,di);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,convertMesh(ret0, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(di),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(di),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
-      virtual void renumberValuesOnNodes(double epsOnVals, PyObject *old2New, int newNbOfNodes, DataArrayDouble *arr) const
+      virtual void renumberValuesOnNodes(double epsOnVals, PyObject *old2New, mcIdType newNbOfNodes, DataArrayDouble *arr) const
       {
-        int sw,sz(-1);
-        int v0; std::vector<int> v1;
-        const int *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
+        mcIdType sw,sz(-1);
+        mcIdType v0; std::vector<mcIdType> v1;
+        const mcIdType *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
         self->renumberValuesOnNodes(epsOnVals,old2NewBg,newNbOfNodes,arr);
       }
 
-      virtual void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, PyObject *old2New, int newSz, DataArrayDouble *arr) const
+      virtual void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, PyObject *old2New, mcIdType newSz, DataArrayDouble *arr) const
       {
-        int sw,sz(-1);
-        int v0; std::vector<int> v1;
-        const int *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
+        mcIdType sw,sz(-1);
+        mcIdType v0; std::vector<mcIdType> v1;
+        const mcIdType *old2NewBg(convertIntStarLikePyObjToCppIntStar(old2New,sw,sz,v0,v1));
         self->renumberValuesOnCells(epsOnVals,mesh,old2NewBg,newSz,arr);
       }
 
-      virtual void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, PyObject *new2old, int newSz, DataArrayDouble *arr) const
+      virtual void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, PyObject *new2old, mcIdType newSz, DataArrayDouble *arr) const
       {
-        int sw,sz(-1);
-        int v0; std::vector<int> v1;
-        const int *new2oldBg(convertIntStarLikePyObjToCppIntStar(new2old,sw,sz,v0,v1));
+        mcIdType sw,sz(-1);
+        mcIdType v0; std::vector<mcIdType> v1;
+        const mcIdType *new2oldBg(convertIntStarLikePyObjToCppIntStar(new2old,sw,sz,v0,v1));
         self->renumberValuesOnCellsR(mesh,new2oldBg,newSz,arr);
       }
     }
@@ -304,29 +304,29 @@ namespace MEDCoupling
   class MEDCouplingFieldDiscretizationPerCell : public MEDCouplingFieldDiscretization
   {
   public:
-    void setArrayOfDiscIds(const DataArrayInt *adids);
+    void setArrayOfDiscIds(const DataArrayIdType *adids);
     void checkNoOrphanCells() const;
     %extend
     {
       PyObject *getArrayOfDiscIds() const
       {
-        DataArrayInt *ret=const_cast<DataArrayInt *>(self->getArrayOfDiscIds());
+        DataArrayIdType *ret=const_cast<DataArrayIdType *>(self->getArrayOfDiscIds());
         if(ret)
           ret->incrRef();
-        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
       }
 
       PyObject *splitIntoSingleGaussDicrPerCellType() const
       {
-        std::vector<int> ret1;
-        std::vector<DataArrayInt *> ret0=self->splitIntoSingleGaussDicrPerCellType(ret1);
+        std::vector<mcIdType> ret1;
+        std::vector<DataArrayIdType *> ret0=self->splitIntoSingleGaussDicrPerCellType(ret1);
         std::size_t sz=ret0.size();
         PyObject *pyRet=PyTuple_New(2);
-        PyObject *pyRet0=PyList_New((int)sz);
-        PyObject *pyRet1=PyList_New((int)sz);
+        PyObject *pyRet0=PyList_New((mcIdType)sz);
+        PyObject *pyRet1=PyList_New((mcIdType)sz);
         for(std::size_t i=0;i<sz;i++)
           {
-            PyList_SetItem(pyRet0,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret0[i]),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+            PyList_SetItem(pyRet0,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret0[i]),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
             PyList_SetItem(pyRet1,i,PyInt_FromLong(ret1[i]));
           }
         PyTuple_SetItem(pyRet,0,pyRet0);
@@ -353,21 +353,21 @@ namespace MEDCoupling
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(geoType,sz));
-        return convertDblArrToPyList<double>(ret,sz);
+        return convertDblArrToPyList<double>(ret,ToIdType(sz));
       }
       
       static PyObject *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType)
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(geoType,sz));
-        return convertDblArrToPyList<double>(ret,sz);
+        return convertDblArrToPyList<double>(ret,ToIdType(sz));
       }
       
       static PyObject *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType)
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(geoType,sz));
-        return convertDblArrToPyList<double>(ret,sz);
+        return convertDblArrToPyList<double>(ret,ToIdType(sz));
       }
     }
   };
@@ -375,12 +375,12 @@ namespace MEDCoupling
   class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes
   {
   public:
-    static DataArrayDouble *PerformDriftOfVec(const DataArrayDouble *arr, int isDrift);
+    static DataArrayDouble *PerformDriftOfVec(const DataArrayDouble *arr, mcIdType isDrift);
     %extend
     {
       PyObject *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const
       {
-        int ret1;
+        mcIdType ret1;
         DataArrayDouble *ret0=self->computeVectorOfCoefficients(mesh,arr,ret1);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
@@ -390,7 +390,7 @@ namespace MEDCoupling
       
       PyObject *computeInverseMatrix(const MEDCouplingMesh *mesh) const
       {
-        int ret1(-1),ret2(-1);
+        mcIdType ret1(-1),ret2(-1);
         DataArrayDouble *ret0=self->computeInverseMatrix(mesh,ret1,ret2);
         PyObject *ret=PyTuple_New(3);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
@@ -401,7 +401,7 @@ namespace MEDCoupling
 
       PyObject *computeMatrix(const MEDCouplingMesh *mesh) const
       {
-        int ret1(-1),ret2(-1);
+        mcIdType ret1(-1),ret2(-1);
         DataArrayDouble *ret0=self->computeMatrix(mesh,ret1,ret2);
         PyObject *ret=PyTuple_New(3);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
@@ -414,12 +414,12 @@ namespace MEDCoupling
       {
         if(!mesh)
           throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixOnGivenPts : input mesh is empty !");
-        int sw,nbPts;
+        mcIdType sw,nbPts;
         double v0; MEDCoupling::DataArrayDouble *v1(0); MEDCoupling::DataArrayDoubleTuple *v2(0); std::vector<double> v3;
         const double *inp=convertObjToPossibleCpp5_Safe2(locs,sw,v0,v1,v2,v3,"wrap of MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixOnGivenPts",
                                                          mesh->getSpaceDimension(),true,nbPts);
         //
-        int ret1(-1);
+        mcIdType ret1(-1);
         DataArrayDouble *ret0=self->computeEvaluationMatrixOnGivenPts(mesh,inp,nbPts,ret1);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
@@ -436,7 +436,7 @@ namespace MEDCoupling
 
       PyObject *performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr) const
       {
-        int ret1(-1);
+        mcIdType ret1(-1);
         DataArrayDouble *ret0(self->performDrift(matr,arr,ret1));
         PyObject *res(PyTuple_New(2));
         PyTuple_SetItem(res,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_MEDCoupling__DataArrayDouble,SWIG_POINTER_OWN | 0));
@@ -446,7 +446,7 @@ namespace MEDCoupling
 
       static PyObject *PerformDriftRect(const DataArrayDouble *matr, const DataArrayDouble *arr)
       {
-        int ret1(-1);
+        mcIdType ret1(-1);
         DataArrayDouble *ret0(MEDCouplingFieldDiscretizationKriging::PerformDriftRect(matr,arr,ret1));
         PyObject *res(PyTuple_New(2));
         PyTuple_SetItem(res,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_MEDCoupling__DataArrayDouble,SWIG_POINTER_OWN | 0));

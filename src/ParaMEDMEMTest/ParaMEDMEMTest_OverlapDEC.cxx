@@ -196,7 +196,7 @@ void prepareData1(int rank, NatureOfField nature,
       std::copy(coordsS,coordsS+10,myCoords->getPointer());
       meshS->setCoords(myCoords);
       myCoords->decrRef();
-      int connS[7]={0,3,4,1, 1,4,2};
+      mcIdType connS[7]={0,3,4,1, 1,4,2};
       meshS->allocateCells(2);
       meshS->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,connS);
       meshS->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connS+4);
@@ -215,7 +215,7 @@ void prepareData1(int rank, NatureOfField nature,
       std::copy(coordsT,coordsT+6,myCoords->getPointer());
       meshT->setCoords(myCoords);
       myCoords->decrRef();
-      int connT[3]={0,2,1};
+      mcIdType connT[3]={0,2,1};
       meshT->allocateCells(1);
       meshT->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT);
       meshT->finishInsertingCells();
@@ -238,7 +238,7 @@ void prepareData1(int rank, NatureOfField nature,
       std::copy(coordsS,coordsS+10,myCoords->getPointer());
       meshS->setCoords(myCoords);
       myCoords->decrRef();
-      int connS[7]={0,1,2, 1,3,4,2};
+      mcIdType connS[7]={0,1,2, 1,3,4,2};
       meshS->allocateCells(2);
       meshS->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connS);
       meshS->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,connS+3);
@@ -257,7 +257,7 @@ void prepareData1(int rank, NatureOfField nature,
       std::copy(coordsT,coordsT+6,myCoords->getPointer());
       meshT->setCoords(myCoords);
       myCoords->decrRef();
-      int connT[3]={0,2,1};
+      mcIdType connT[3]={0,2,1};
       meshT->allocateCells(1);
       meshT->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT);
       meshT->finishInsertingCells();
@@ -280,7 +280,7 @@ void prepareData1(int rank, NatureOfField nature,
       std::copy(coordsS,coordsS+8,myCoords->getPointer());
       meshS->setCoords(myCoords);
       myCoords->decrRef();
-      int connS[4]={0,2,3,1};
+      mcIdType connS[4]={0,2,3,1};
       meshS->allocateCells(1);
       meshS->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,connS);
       meshS->finishInsertingCells();
@@ -298,7 +298,7 @@ void prepareData1(int rank, NatureOfField nature,
       std::copy(coordsT,coordsT+6,myCoords->getPointer());
       meshT->setCoords(myCoords);
       myCoords->decrRef();
-      int connT[3]={0,1,2};
+      mcIdType connT[3]={0,1,2};
       meshT->allocateCells(1);
       meshT->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT);
       meshT->finishInsertingCells();
@@ -319,7 +319,7 @@ void prepareData2_buildOneSquare(MEDCouplingUMesh* & meshS_0, MEDCouplingUMesh* 
   myCoords->alloc(5,2);
   std::copy(coords,coords+10,myCoords->getPointer());
   meshS_0->setCoords(myCoords);  myCoords->decrRef();
-  int connS[4]={0,1,2,3};
+  mcIdType connS[4]={0,1,2,3};
   meshS_0->allocateCells(2);
   meshS_0->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,connS);
   //
@@ -329,7 +329,7 @@ void prepareData2_buildOneSquare(MEDCouplingUMesh* & meshS_0, MEDCouplingUMesh* 
   std::copy(coords,coords+10,myCoords->getPointer());
   meshT_0->setCoords(myCoords);
   myCoords->decrRef();
-  int connT[12]={0,1,4,  1,2,4,  2,3,4,  3,0,4};
+  mcIdType connT[12]={0,1,4,  1,2,4,  2,3,4,  3,0,4};
   meshT_0->allocateCells(4);
   meshT_0->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT);
   meshT_0->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT+3);

@@ -98,7 +98,7 @@ namespace INTERP_KERNEL
 
     void init();
     
-    bool setInterpolationOptions(long print_level,
+    bool setInterpolationOptions(int print_level,
                                  std::string intersection_type,
                                  double precision,
                                  double median_plane,
@@ -106,7 +106,7 @@ namespace INTERP_KERNEL
                                  double bounding_box_adjustment,
                                  double bounding_box_adjustment_abs,
                                  double max_distance_for_3Dsurf_intersect,
-                                 long orientation,
+                                 int orientation,
                                  bool measure_abs,
                                  std::string splitting_policy);
     void copyOptions(const InterpolationOptions & other) { *this = other; }

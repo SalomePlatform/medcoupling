@@ -85,7 +85,7 @@ namespace INTERP_KERNEL
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
       {
         releaseArrays();
-        int nbOfNodesS=Intersector3D<MyMeshType,MyMatrix>::_src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
+        ConnType nbOfNodesS=Intersector3D<MyMeshType,MyMatrix>::_src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
         _split.splitTargetCell(*iterCellS,nbOfNodesS,_tetra);
         for(typename std::vector<SplitterTetra<MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
           {

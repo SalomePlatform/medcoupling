@@ -45,30 +45,30 @@ namespace INTERP_KERNEL
   public:
     static const int MY_SPACEDIM=3;
     static const int MY_MESHDIM=3;
-    typedef int MyConnType;
+    typedef mcIdType MyConnType;
     static const NumberingPolicy My_numPol=ALL_C_MODE;
 
     _Cartesian3D2UnstructHexMesh(const double * coords[3]): _coordsC(coords) {}
-    void setHexa(int I, int J, int K) // indices in C mode
+    void setHexa(mcIdType I, mcIdType J, mcIdType K) // indices in C mode
     {
       double* pCoord = _coordsU;
-      for ( int k = K; k < K+2; ++k )
-        for ( int j = J; j < J+2; ++j )
-          for ( int i = I; i < I+2; ++i )
+      for ( mcIdType k = K; k < K+2; ++k )
+        for ( mcIdType j = J; j < J+2; ++j )
+          for ( mcIdType i = I; i < I+2; ++i )
             {
               *pCoord++ = _coordsC[0][i];
               *pCoord++ = _coordsC[1][j];
               *pCoord++ = _coordsC[2][k];
             }
     }
-    const int *getConnectivityPtr() const
+    const mcIdType *getConnectivityPtr() const
     {
-      static int conn[] = { 1,0,2,3,5,4,6,7 };
+      static mcIdType conn[] = { 1,0,2,3,5,4,6,7 };
       return conn;
     }
-    const int *getConnectivityIndexPtr() const
+    const mcIdType *getConnectivityIndexPtr() const
     {
-      static int conInd[] = { 0,8 };
+      static mcIdType conInd[] = { 0,8 };
       return conInd;
     }
     void getBoundingBox(double *boundingBox) const
@@ -80,10 +80,10 @@ namespace INTERP_KERNEL
       boundingBox[BoundingBox::ZMIN] = _coordsU[2];
       boundingBox[BoundingBox::ZMAX] = _coordsU[2+4*MY_SPACEDIM];
     }
-    NormalizedCellType getTypeOfElement(int eltId) const { return NORM_HEXA8; }
-    unsigned char getNumberOfNodesOfElement(int eltId) const { return 8; }
-    unsigned long getNumberOfElements() const { return 1; }
-    unsigned long getNumberOfNodes()    const { return 8; }
+    NormalizedCellType getTypeOfElement(mcIdType eltId) const { return NORM_HEXA8; }
+    mcIdType getNumberOfNodesOfElement(mcIdType eltId) const { return 8; }
+    mcIdType getNumberOfElements() const { return 1; }
+    mcIdType getNumberOfNodes()    const { return 8; }
     const double *getCoordinatesPtr()   const { return _coordsU; }
     void releaseTempArrays() {}
   private:

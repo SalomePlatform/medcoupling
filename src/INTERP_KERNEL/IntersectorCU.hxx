@@ -47,8 +47,8 @@ namespace INTERP_KERNEL
     void getUElemBB(double* bb, UConnType iP);
     void getUCoordinates(UConnType icell, std::vector<double>& coords);
 
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    CConnType getNumberOfRowsOfResMatrix() const;
+    CConnType getNumberOfColsOfResMatrix() const;
     void intersectCells(CConnType icellU, const std::vector<CConnType>& icellC, MyMatrix& res);
     double intersectGeometry(CConnType icellT, const std::vector<CConnType>& icellC) { return asLeaf().intersectGeometry(icellT,icellC); }
   protected:
@@ -61,7 +61,7 @@ namespace INTERP_KERNEL
     const MyUMeshType& _meshU;
 
     const double *     _coordsC[SPACEDIM];
-    int                _nbCellsC[SPACEDIM];
+    CConnType          _nbCellsC[SPACEDIM];
     const MyCMeshType& _meshC;
   };
 

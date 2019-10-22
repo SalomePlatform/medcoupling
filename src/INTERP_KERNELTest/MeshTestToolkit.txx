@@ -70,7 +70,7 @@ namespace INTERP_TEST
       {
         if(iter->count(i) != 0.0)
           {
-            std::map<int, double>::const_iterator iter2 = iter->find(i);
+            std::map<mcIdType, double>::const_iterator iter2 = iter->find(i);
             vol += fabs(iter2->second);
           }
       }
@@ -89,8 +89,8 @@ namespace INTERP_TEST
   double MeshTestToolkit<SPACEDIM,MESHDIM>::sumCol(const IntersectionMatrix& m, int i) const
   {
     double vol = 0.0;
-    const std::map<int, double>& col = m[i];
-    for(std::map<int, double>::const_iterator iter = col.begin() ; iter != col.end() ; ++iter)
+    const std::map<mcIdType, double>& col = m[i];
+    for(std::map<mcIdType, double>::const_iterator iter = col.begin() ; iter != col.end() ; ++iter)
       {
         vol += fabs(iter->second);
       }
@@ -123,7 +123,7 @@ namespace INTERP_TEST
     std::vector<double> volumes;
     for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             volumes.push_back(fabs(iter2->second));
           }
@@ -203,9 +203,9 @@ namespace INTERP_TEST
     int i = 0;
     for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
       {
-        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
-            int j = iter2->first;
+            mcIdType j = iter2->first;
             if(m2.at(j).count(i) == 0)
               {
                 if(!epsilonEqual(iter2->second, 0.0, _precision))
@@ -245,13 +245,13 @@ namespace INTERP_TEST
 
     for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
       {
-        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
-            int j = iter2->first;
+            mcIdType j = iter2->first;
             const double v1 = fabs(iter2->second);
             //if(m2[j - 1].count(i+1) > 0)
             //  {
-            std::map<int, double> theMap =  m2.at(j);
+            std::map<mcIdType, double> theMap =  m2.at(j);
             const double v2 = fabs(theMap[i]);
             if(v1 != v2)
               {
@@ -287,9 +287,9 @@ namespace INTERP_TEST
     bool isDiagonal = true;
     for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
-            int j = iter2->first;
+            mcIdType j = iter2->first;
             const double vol = iter2->second;
             if(vol != 0.0 && (i != j))
               {
@@ -322,7 +322,7 @@ namespace INTERP_TEST
     std::cout << "Intersection matrix is " << std::endl;
     for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             std::cout << "V(" << i << ", " << iter2->first << ") = " << iter2->second << std::endl;
           }

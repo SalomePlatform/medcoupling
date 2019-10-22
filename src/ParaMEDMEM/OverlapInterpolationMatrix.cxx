@@ -61,12 +61,12 @@ namespace MEDCoupling
   {
   }
 
-  void OverlapInterpolationMatrix::keepTracksOfSourceIds(int procId, DataArrayInt *ids)
+  void OverlapInterpolationMatrix::keepTracksOfSourceIds(int procId, DataArrayIdType *ids)
   {
     _mapping.keepTracksOfSourceIds(procId,ids);
   }
 
-  void OverlapInterpolationMatrix::keepTracksOfTargetIds(int procId, DataArrayInt *ids)
+  void OverlapInterpolationMatrix::keepTracksOfTargetIds(int procId, DataArrayIdType *ids)
   {
     _mapping.keepTracksOfTargetIds(procId,ids);
   }
@@ -84,14 +84,14 @@ namespace MEDCoupling
    *
    * One of the 2 is necessarily null (the two can be null together)
    */
-  void OverlapInterpolationMatrix::computeLocalIntersection(const MEDCouplingPointSet *src, const DataArrayInt *srcIds, const std::string& srcMeth, int srcProcId,
-                                                   const MEDCouplingPointSet *trg, const DataArrayInt *trgIds, const std::string& trgMeth, int trgProcId)
+  void OverlapInterpolationMatrix::computeLocalIntersection(const MEDCouplingPointSet *src, const DataArrayIdType *srcIds, const std::string& srcMeth, int srcProcId,
+                                                   const MEDCouplingPointSet *trg, const DataArrayIdType *trgIds, const std::string& trgMeth, int trgProcId)
   {
     std::string interpMethod(srcMeth);
     interpMethod+=trgMeth;
     //creating the interpolator structure
     vector<SparseDoubleVec > sparse_matrix_part;
-    int colSize=0;
+    mcIdType colSize=0;
     //computation of the intersection volumes between source and target elements
     const MEDCouplingUMesh *trgC=dynamic_cast<const MEDCouplingUMesh *>(trg);
     const MEDCouplingUMesh *srcC=dynamic_cast<const MEDCouplingUMesh *>(src);
@@ -160,7 +160,7 @@ namespace MEDCoupling
         vector<SparseDoubleVec > matrixTranspose;
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,sparse_matrix_part,interpMethod);//not a bug target in source.
         TransposeMatrix(matrixTranspose,colSize,sparse_matrix_part);
-        colSize=matrixTranspose.size();
+        colSize=ToIdType(matrixTranspose.size());
       }
     else if ( src->getMeshDimension() == 1 && trg->getMeshDimension() == 2
               && trg->getSpaceDimension() == 2 && src->getSpaceDimension() == 2 )
@@ -181,7 +181,7 @@ namespace MEDCoupling
         vector<SparseDoubleVec > matrixTranspose;
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,matrixTranspose,interpMethod);//not a bug target in source.
         TransposeMatrix(matrixTranspose,colSize,sparse_matrix_part);
-        colSize=matrixTranspose.size();
+        colSize=ToIdType(matrixTranspose.size());
       }
     else if (trg->getMeshDimension() != _source_support->getMeshDimension())
       {
@@ -291,7 +291,7 @@ namespace MEDCoupling
   }
   
   void OverlapInterpolationMatrix::TransposeMatrix(const std::vector<SparseDoubleVec >& matIn,
-                                                   int nbColsMatIn, std::vector<SparseDoubleVec >& matOut)
+                                                   mcIdType nbColsMatIn, std::vector<SparseDoubleVec >& matOut)
   {
     matOut.resize(nbColsMatIn);
     int id=0;

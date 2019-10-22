@@ -172,7 +172,7 @@ int GaussInfo::getGaussCoordDim() const
 {
   if( _my_nb_gauss ) 
     {
-      return _my_gauss_coord.size()/_my_nb_gauss;
+      return (int)_my_gauss_coord.size()/_my_nb_gauss;
     }
   else 
     {
@@ -187,7 +187,7 @@ int GaussInfo::getReferenceCoordDim() const
 {
   if( _my_nb_ref ) 
     {
-      return _my_reference_coord.size()/_my_nb_ref;
+      return (int)(_my_reference_coord.size()/_my_nb_ref);
     }
   else 
     {
@@ -2945,9 +2945,9 @@ GaussCoords::~GaussCoords()
 void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
                                 int coordDim,
                                 const double* theGaussCoord,
-                                int theNbGauss,
+                                mcIdType theNbGauss,
                                 const double* theReferenceCoord,
-                                int theNbRef)
+                                mcIdType theNbRef)
 {
   GaussInfoVector::iterator it = _my_gauss_info.begin();
   for( ; it != _my_gauss_info.end(); it++ ) 
@@ -2967,7 +2967,7 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
     aReferenceCoord.push_back(theReferenceCoord[i]);
 
 
-  GaussInfo* info = new GaussInfo( theGeometry, aGaussCoord, theNbGauss, aReferenceCoord, theNbRef);
+  GaussInfo* info = new GaussInfo( theGeometry, aGaussCoord, FromIdType<int>(theNbGauss), aReferenceCoord, FromIdType<int>(theNbRef));
   info->initLocalInfo();
 
   //If info with cell type doesn't exist add it
@@ -2979,7 +2979,7 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
     }
   else 
     {
-      int index = std::distance(_my_gauss_info.begin(),it);
+      std::size_t index = std::distance(_my_gauss_info.begin(),it);
       delete (*it);
       _my_gauss_info[index] = info;
     }
@@ -2992,7 +2992,7 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
 double* GaussCoords::calculateCoords( NormalizedCellType theGeometry, 
                                       const double *theNodeCoords, 
                                       const int theSpaceDim,
-                                      const int *theIndex)
+                                      const mcIdType *theIndex)
 {
   const GaussInfo *info = getInfoGivenCellType(theGeometry);
   int nbCoords = theSpaceDim * info->getNbGauss();
@@ -3002,13 +3002,13 @@ double* GaussCoords::calculateCoords( NormalizedCellType theGeometry,
 }
 
 
-void GaussCoords::calculateCoords( NormalizedCellType theGeometry, const double *theNodeCoords, const int theSpaceDim, const int *theIndex, double *result)
+void GaussCoords::calculateCoords( NormalizedCellType theGeometry, const double *theNodeCoords, const int theSpaceDim, const mcIdType *theIndex, double *result)
 {
   const GaussInfo *info = getInfoGivenCellType(theGeometry);
   calculateCoordsAlg(info,theNodeCoords,theSpaceDim,theIndex,result);
 }
 
-void GaussCoords::calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const int *theIndex, double *result)
+void GaussCoords::calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const mcIdType *theIndex, double *result)
 {
   int aConn = info->getNbRef();
 

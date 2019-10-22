@@ -27,6 +27,7 @@
 #include "TetraAffineTransform.hxx"
 #include "InterpolationUtils.hxx"
 #include "SplitterTetra.txx"
+#include "MCIdType.hxx"
 
 #include <iostream>
 
@@ -271,7 +272,7 @@ namespace INTERP_TEST
 
   struct __MESH_DUMMY
   {
-    typedef int MyConnType;
+    typedef mcIdType MyConnType;
   };
 
   void UnitTetraIntersectionBaryTest::test_UnitTetraIntersectionBary_13()
@@ -288,7 +289,7 @@ namespace INTERP_TEST
       75,150,75,
       100,100,100};
 
-    int conn[4] = { 0,1,2,3 };
+    mcIdType conn[4] = { 0,1,2,3 };
     
     const double* tnodes[4]={ T, T+3, T+6, T+9 };
     const double* snodes[4]={ S, S+3, S+6, S+9 };

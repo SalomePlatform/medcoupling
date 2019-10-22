@@ -105,8 +105,8 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
     _create_empty_groups(create_empty_groups),
     _joint_finder(0)
 {
-  std::vector<std::vector<std::vector<int> > > new2oldIds(initialCollection.getTopology()->nbDomain());
-  std::vector<MEDCoupling::DataArrayInt*> o2nRenumber;
+  std::vector<std::vector<std::vector<mcIdType> > > new2oldIds(initialCollection.getTopology()->nbDomain());
+  std::vector<MEDCoupling::DataArrayIdType*> o2nRenumber;
 
   castCellMeshes(initialCollection, new2oldIds, o2nRenumber );
 
@@ -127,7 +127,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   //nodeMapping contains the mapping between old nodes and new nodes
   // (iolddomain,ioldnode)->(inewdomain,inewnode)
   createNodeMapping(initialCollection, nodeMapping);
-  std::vector<std::vector<std::vector<int> > > new2oldFaceIds;
+  std::vector<std::vector<std::vector<mcIdType> > > new2oldFaceIds;
   castFaceMeshes(initialCollection, nodeMapping, new2oldFaceIds);
 
   ////////////////////
@@ -175,7 +175,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   castAllFields(initialCollection,"cellFieldDouble");
   if (_i_non_empty_mesh<0)
     {
-      for (size_t i=0; i<_mesh.size(); i++)
+      for (int i=0; i<getNbOfGlobalMeshes(); i++)
         {
           if (_mesh[i])
             {
@@ -205,8 +205,8 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
 */
 
 void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialCollection,
-                                                    std::vector<std::vector<std::vector<int> > >& new2oldIds,
-                                                    std::vector<MEDCoupling::DataArrayInt*> & o2nRenumber)
+                                                    std::vector<std::vector<std::vector<mcIdType> > >& new2oldIds,
+                                                    std::vector<MEDCoupling::DataArrayIdType*> & o2nRenumber)
 {
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : castCellMeshes" << std::endl;
@@ -231,10 +231,10 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
     {
       if (!isParallelMode() || initialCollection._domain_selector->isMyDomain(iold))
         {
-          int size=(initialCollection._mesh)[iold]->getNumberOfCells();
-          std::vector<int> globalids(size);
+          mcIdType size=(initialCollection._mesh)[iold]->getNumberOfCells();
+          std::vector<mcIdType> globalids(size);
           initialCollection.getTopology()->getCellList(iold, &globalids[0]);
-          std::vector<int> ilocalnew(size); //local
+          std::vector<mcIdType> ilocalnew(size); //local
           std::vector<int> ipnew(size);     //idomain old
           _topology->convertGlobalCellList(&globalids[0],size,&ilocalnew[0],&ipnew[0]);
       
@@ -299,10 +299,10 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
               _mesh[inew]=MEDCoupling::MEDCouplingUMesh::MergeUMeshes(meshes);
               o2nRenumber[inew]=_mesh[inew]->sortCellsInMEDFileFrmt();
               bool areNodesMerged;
-              int nbNodesMerged;
+              mcIdType nbNodesMerged;
               if (meshes.size()>1)
                 {
-                  MEDCoupling::DataArrayInt* array=_mesh[inew]->mergeNodes(1e-12,areNodesMerged,nbNodesMerged);
+                  MEDCoupling::DataArrayIdType* array=_mesh[inew]->mergeNodes(1e-12,areNodesMerged,nbNodesMerged);
                   array->decrRef(); // array is not used in this case
                 }
               _mesh[inew]->zipCoords();
@@ -336,8 +336,8 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
           //      std::map<pair<double,pair<double, double> >, int > nodeClassifier;
           MEDCoupling::DataArrayDouble* coords = initialCollection.getMesh(iold)->getCoords();
           double* coordsPtr=coords->getPointer();
-          dim = coords->getNumberOfComponents();
-          int nvertices=initialCollection.getMesh(iold)->getNumberOfNodes();
+          dim = (int)coords->getNumberOfComponents();
+          mcIdType nvertices=initialCollection.getMesh(iold)->getNumberOfNodes();
           bbox=new double[nvertices*2*dim];
 
           for (int i=0; i<nvertices*dim;i++)
@@ -362,7 +362,7 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
               for (int inode=0; inode<mesh->getNumberOfNodes();inode++)
                 {
                   double* coordsPtr=coords->getPointer()+inode*dim;
-                  vector<int> elems;
+                  vector<mcIdType> elems;
                   tree->getElementsAroundPoint(coordsPtr,elems);
                   if (elems.size()==0) continue;
                   nodeMapping.insert(make_pair(make_pair(iold,elems[0]),make_pair(inew,inode)));
@@ -378,7 +378,7 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
                 for (int inode=0; inode<_mesh[inew]->getNumberOfNodes();inode++)
                   {
                     double* coordsPtr=coords->getPointer()+inode*dim;
-                    vector<int> elems;
+                    vector<mcIdType> elems;
                     tree->getElementsAroundPoint(coordsPtr,elems);
                     if (elems.size()==0) continue;
                     nodeMapping.insert(make_pair(make_pair(iold,elems[0]),make_pair(inew,inode)));
@@ -394,16 +394,16 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
 
 }
 
-void getNodeIds(MEDCoupling::MEDCouplingUMesh& meshOne, MEDCoupling::MEDCouplingUMesh& meshTwo, std::vector<int>& nodeIds)
+void getNodeIds(MEDCoupling::MEDCouplingUMesh& meshOne, MEDCoupling::MEDCouplingUMesh& meshTwo, std::vector<mcIdType>& nodeIds)
 {
   using std::vector;
   using MEDPARTITIONER::BBTreeOfDim;
   //if (!&meshOne || !&meshTwo) return;  //empty or not existing
   double* bbox;
   BBTreeOfDim* tree = 0;
-  int nv1=meshOne.getNumberOfNodes();
+  mcIdType nv1=meshOne.getNumberOfNodes();
   MEDCoupling::DataArrayDouble* coords=meshOne.getCoords();
-  int dim = coords->getNumberOfComponents();
+  int dim = (int)coords->getNumberOfComponents();
 
   bbox=new double[nv1*2*dim];
   double* coordsPtr=coords->getPointer();
@@ -414,13 +414,13 @@ void getNodeIds(MEDCoupling::MEDCouplingUMesh& meshOne, MEDCoupling::MEDCoupling
     }
   tree=new BBTreeOfDim( dim, bbox,0,0,nv1,1e-9);
 
-  int nv2=meshTwo.getNumberOfNodes();
+  mcIdType nv2=meshTwo.getNumberOfNodes();
   nodeIds.resize(nv2,-1);
   coords=meshTwo.getCoords();
   for (int inode=0; inode<nv2; inode++)
     {
       double* coordsPtr2=coords->getPointer()+inode*dim;
-      vector<int> elems;
+      vector<mcIdType> elems;
       tree->getElementsAroundPoint(coordsPtr2,elems);
       if (elems.size()==0) continue;
       nodeIds[inode]=elems[0];
@@ -434,8 +434,8 @@ void getNodeIds(MEDCoupling::MEDCouplingUMesh& meshOne, MEDCoupling::MEDCoupling
   faces at the interface are duplicated
 */
 void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialCollection,
-                                                    const std::multimap<std::pair<int,int>, std::pair<int,int> >& nodeMapping,
-                                                    std::vector<std::vector<std::vector<int> > >& new2oldIds)
+                                                    const std::multimap<std::pair<int,mcIdType>, std::pair<int,mcIdType> >& nodeMapping,
+                                                    std::vector<std::vector<std::vector<mcIdType> > >& new2oldIds)
 {
   //splitMeshes structure will contain the partition of 
   //the old faces on the new ones
@@ -489,12 +489,12 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
       //initial face mesh known : in my domain
       if (meshesCastFrom[iold] != 0)
         {
-          for (int ielem=0; ielem<meshesCastFrom[iold]->getNumberOfCells(); ielem++)
+          for (mcIdType ielem=0; ielem<meshesCastFrom[iold]->getNumberOfCells(); ielem++)
             {
-              vector<int> nodes;
+              vector<mcIdType> nodes;
               meshesCastFrom[iold]->getNodeIdsOfCell(ielem,nodes);
           
-              map <int,int> faces;
+              map <int,mcIdType> faces;
 
               //analysis of element ielem
               //counters are set for the element
@@ -502,10 +502,10 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
               //are incremented for each target node
               //the face is considered as going to target domains if the counter of the domain 
               //is equal to the number of nodes
-              for (int inode=0; inode<(int)nodes.size(); inode++)
+              for (std::size_t inode=0; inode<nodes.size(); inode++)
                 {
-                  typedef multimap<pair<int,int>,pair<int,int> >::const_iterator MI;
-                  int mynode=nodes[inode];
+                  typedef multimap<pair<int,mcIdType>,pair<int,mcIdType> >::const_iterator MI;
+                  mcIdType mynode=nodes[inode];
 
                   pair <MI,MI> myRange = nodeMapping.equal_range(make_pair(iold,mynode));
                   for (MI iter=myRange.first; iter!=myRange.second; iter++)
@@ -518,9 +518,9 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
                     }
                 }
           
-              for (map<int,int>::iterator iter=faces.begin(); iter!=faces.end(); iter++)
+              for (map<int,mcIdType>::iterator iter=faces.begin(); iter!=faces.end(); iter++)
                 {
-                  if (iter->second==(int)nodes.size())
+                  if (iter->second==ToIdType(nodes.size()))
                     //cvw eligible but may be have to be face of a cell of this->getMesh()[inew]?
                     //it is not sure here...
                     //done before writeMedfile on option?... see filterFaceOnCell()
@@ -635,13 +635,13 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
 
 void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastFrom,
                                                   std::vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastTo,
-                                                  std::vector<MEDCoupling::DataArrayInt*>& arrayFrom,
+                                                  std::vector<MEDCoupling::DataArrayIdType*>& arrayFrom,
                                                   std::string nameArrayTo)
 {
   using std::vector;
   
-  int ioldMax=meshesCastFrom.size();
-  int inewMax=meshesCastTo.size();
+  std::size_t ioldMax=meshesCastFrom.size();
+  std::size_t inewMax=meshesCastTo.size();
 
 
   //preparing bounding box trees for accelerating source-target node identifications
@@ -649,7 +649,7 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCo
     std::cout<<"making accelerating structures"<<std::endl;
   std::vector<BBTreeOfDim* > acceleratingStructures(ioldMax);
   std::vector<MEDCoupling::DataArrayDouble*>bbox(ioldMax);
-  for (int iold =0; iold< ioldMax; iold++)
+  for (unsigned int iold =0; iold< ioldMax; iold++)
     if (isParallelMode() && _domain_selector->isMyDomain(iold))
       {
         MEDCoupling::DataArrayDouble* sourceCoords=meshesCastFrom[iold]->computeCellCenterOfMass();
@@ -659,9 +659,9 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCo
       }
   // send-recv operations
 #ifdef HAVE_MPI
-  for (int inew=0; inew<inewMax; inew++)
+  for (unsigned int inew=0; inew<inewMax; inew++)
     {
-      for (int iold=0; iold<ioldMax; iold++)
+      for (unsigned int iold=0; iold<ioldMax; iold++)
         {
           //sending arrays for distant domains
           if (isParallelMode() && _domain_selector->isMyDomain(iold) && !_domain_selector->isMyDomain(inew))
@@ -669,8 +669,8 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCo
               //send mesh
               _domain_selector->sendMesh(*meshesCastFrom[iold],_domain_selector->getProcessorID(inew));
               //send vector
-              int size=arrayFrom[iold]->getNumberOfTuples(); //cvw may be -1!
-              vector<int>sendIds;
+              mcIdType size=arrayFrom[iold]->getNumberOfTuples(); //cvw may be -1!
+              vector<mcIdType> sendIds;
               if (MyGlobals::_Verbose>400) std::cout<<"proc "<<_domain_selector->rank()<<" : castIntField SendIntVec size "<<size<<std::endl;
               if (size>0) //no empty
                 {
@@ -688,7 +688,7 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCo
           if (isParallelMode() && !_domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew))
             {
               //receive mesh
-              vector<int> recvIds;
+              vector<mcIdType> recvIds;
               MEDCoupling::MEDCouplingUMesh* recvMesh;
               _domain_selector->recvMesh(recvMesh,_domain_selector->getProcessorID(iold));
               //receive vector
@@ -701,16 +701,16 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCo
     }
 #endif
   
-  //local contributions and aggregation
-  for (int inew=0; inew<inewMax; inew++)    
+  //localc ontributions and aggregation
+  for (unsigned int inew=0; inew<inewMax; inew++)    
     {
-      for (int iold=0; iold<ioldMax; iold++)
+      for (unsigned int iold=0; iold<ioldMax; iold++)
         if (!isParallelMode() || ( _domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew)))
           {
             remapIntField(inew,iold,*meshesCastFrom[iold],*meshesCastTo[inew],arrayFrom[iold]->getConstPointer(),nameArrayTo,acceleratingStructures[iold]);
           }
     }
-  for (int iold=0; iold<ioldMax;iold++)
+  for (unsigned int iold=0; iold<ioldMax;iold++)
     if (isParallelMode() && _domain_selector->isMyDomain(iold)) 
       {
         bbox[iold]->decrRef();
@@ -721,7 +721,7 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCo
 void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
                                                     const MEDCoupling::MEDCouplingUMesh& sourceMesh,
                                                     const MEDCoupling::MEDCouplingUMesh& targetMesh,
-                                                    const int* fromArray,
+                                                    const mcIdType* fromArray,
                                                     std::string nameArrayTo,
                                                     const BBTreeOfDim* myTree)
 {
@@ -729,20 +729,20 @@ void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
   if (sourceMesh.getNumberOfCells()<=0) return; //empty mesh could exist
   MEDCoupling::DataArrayDouble* targetCoords=targetMesh.computeCellCenterOfMass();
   const double*  tc=targetCoords->getConstPointer();
-  int targetSize=targetMesh.getNumberOfCells();
-  int sourceSize=sourceMesh.getNumberOfCells();
+  mcIdType targetSize=targetMesh.getNumberOfCells();
+  mcIdType sourceSize=sourceMesh.getNumberOfCells();
   if (MyGlobals::_Verbose>200)
     std::cout<<"remap vers target de taille "<<targetSize<<std::endl;
-  std::vector<int> ccI;
+  std::vector<mcIdType> ccI;
   std::string str,cle;
   str=nameArrayTo+"_toArray";
   cle=Cle1ToStr(str,inew);
-  int* toArray;
+  mcIdType* toArray;
   
   const BBTreeOfDim* tree;
   bool cleantree=false;
   MEDCoupling::DataArrayDouble* sourceBBox=0;
-  int dim = targetCoords->getNumberOfComponents();
+  int dim = (int)targetCoords->getNumberOfComponents();
   if (myTree==0)
     {
       sourceBBox=sourceMesh.computeCellCenterOfMass()->computeBBoxPerTuple(1e-8);
@@ -755,7 +755,7 @@ void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
     {
       if (MyGlobals::_Is0verbose>100)
         std::cout << "create " << cle << " size " << targetSize << std::endl;
-      MEDCoupling::DataArrayInt* p=MEDCoupling::DataArrayInt::New();
+      MEDCoupling::DataArrayIdType* p=MEDCoupling::DataArrayIdType::New();
       p->alloc(targetSize,1);
       p->fillWithZero();
       toArray=p->getPointer();
@@ -766,16 +766,16 @@ void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
       toArray=_map_dataarray_int.find(cle)->second->getPointer();
     }
 
-  std::map< int, int > isource2nb; // count coincident elements
-  std::map<int,int>::iterator i2nb;
+  std::map< mcIdType, int > isource2nb; // count coincident elements
+  std::map< mcIdType, int>::iterator i2nb;
 
-  for (int itargetnode=0; itargetnode<targetSize; itargetnode++)    
+  for (mcIdType itargetnode=0; itargetnode<targetSize; itargetnode++)    
     {
-      std::vector<int> intersectingElems;
+      std::vector<mcIdType> intersectingElems;
       tree->getElementsAroundPoint(tc+itargetnode*dim,intersectingElems);
       if (intersectingElems.size()!=0)
         {
-          int isourcenode=intersectingElems[0];
+          mcIdType isourcenode=intersectingElems[0];
           if ( intersectingElems.size() > 1 )
             {
               i2nb = isource2nb.insert( std::make_pair( isourcenode, 0 )).first;
@@ -810,21 +810,21 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
 
   std::string nameTo="typeData=6"; //resume the type of field casted 
   // send-recv operations
-  int ioldMax=initialCollection.getMesh().size();
-  int inewMax=this->getMesh().size();
-  int iFieldMax=initialCollection.getFieldDescriptions().size();
+  std::size_t ioldMax=initialCollection.getMesh().size();
+  std::size_t inewMax=this->getMesh().size();
+  std::size_t iFieldMax=initialCollection.getFieldDescriptions().size();
   if (MyGlobals::_Verbose>10)
     std::cout << "castAllFields with:\n" << ReprVectorOfString(initialCollection.getFieldDescriptions()) << std::endl;
   //see collection.prepareFieldDescriptions()
-  for (int ifield=0; ifield<iFieldMax; ifield++)
+  for (std::size_t ifield=0; ifield<iFieldMax; ifield++)
     {
       std::string descriptionField=initialCollection.getFieldDescriptions()[ifield];
       if (descriptionField.find(nameTo)==std::string::npos)
         continue; //only nameTo accepted in Fields name description
 #ifdef HAVE_MPI
-      for (int inew=0; inew<inewMax; inew++)
+      for (unsigned int inew=0; inew<inewMax; inew++)
         {
-          for (int iold=0; iold<ioldMax; iold++)
+          for (unsigned int iold=0; iold<ioldMax; iold++)
             {
               //sending arrays for distant domains
               if (isParallelMode() && _domain_selector->isMyDomain(iold) && !_domain_selector->isMyDomain(inew))
@@ -849,9 +849,9 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
         }
 #endif
       //local contributions and aggregation
-      for (int inew=0; inew<inewMax; inew++)
+      for (unsigned int inew=0; inew<inewMax; inew++)
         {
-          for (int iold=0; iold<ioldMax; iold++)
+          for (unsigned int iold=0; iold<ioldMax; iold++)
             if (!isParallelMode() || ( _domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew)))
               {
                 MEDCoupling::DataArrayDouble* field=initialCollection.getField(descriptionField,iold);
@@ -871,7 +871,7 @@ void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold,
     throw INTERP_KERNEL::Exception("Error remapDoubleField only on cellFieldDouble");
   std::string key=Cle2ToStr("cellFamily_ccI",inew,iold);
   
-  std::map<std::string,MEDCoupling::DataArrayInt*>::iterator it1;
+  std::map<std::string,MEDCoupling::DataArrayIdType*>::iterator it1;
   it1=_map_dataarray_int.find(key);
   if (it1==_map_dataarray_int.end())
     {
@@ -880,19 +880,19 @@ void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold,
       return;
     }
   //create ccI in remapIntField
-  MEDCoupling::DataArrayInt *ccI=it1->second;
+  MEDCoupling::DataArrayIdType *ccI=it1->second;
   if (MyGlobals::_Verbose>300)
     std::cout << "proc " << MyGlobals::_Rank << " : remapDoubleField " << key << " size " << ccI->getNbOfElems() << std::endl;
   
-  int nbcell=this->getMesh()[inew]->getNumberOfCells();
-  int nbcomp=fromArray->getNumberOfComponents();
+  mcIdType nbcell=this->getMesh()[inew]->getNumberOfCells();
+  std::size_t nbcomp=fromArray->getNumberOfComponents();
   int nbPtGauss=StrToInt(ExtractFromDescription(descriptionField, "nbPtGauss="));
   
   std::string tag="inewFieldDouble="+IntToStr(inew);
   key=descriptionField+SerializeFromString(tag);
-  int fromArrayNbOfElem=fromArray->getNbOfElems();
-  int fromArrayNbOfComp=fromArray->getNumberOfComponents();
-  int fromArrayNbOfCell=fromArrayNbOfElem/fromArrayNbOfComp/nbPtGauss;
+  mcIdType fromArrayNbOfElem=fromArray->getNbOfElems();
+  mcIdType fromArrayNbOfComp=ToIdType(fromArray->getNumberOfComponents());
+  mcIdType fromArrayNbOfCell=fromArrayNbOfElem/fromArrayNbOfComp/nbPtGauss;
   
   if (MyGlobals::_Verbose>1000)
     {
@@ -933,20 +933,20 @@ void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold,
   else
     {
       //replaced by setPartOfValuesAdv if nbPtGauss==1
-      int iMax=ccI->getNbOfElems();
-      int* pccI=ccI->getPointer();
+      mcIdType iMax=ccI->getNbOfElems();
+      mcIdType* pccI=ccI->getPointer();
       double* pField=field->getPointer();
       double* pFrom=fromArray->getPointer();
-      int itarget, isource, delta=nbPtGauss*nbcomp;
-      for (int i=0; i<iMax; i=i+2)  //cell
+      mcIdType itarget, isource, delta=ToIdType(nbPtGauss*nbcomp);
+      for (mcIdType i=0; i<iMax; i=i+2)  //cell
         {
           itarget=pccI[i];
           isource=pccI[i+1];
           if ((itarget<0) || (itarget>=nbcell) || (isource<0) || (isource>=fromArrayNbOfCell))
             throw INTERP_KERNEL::Exception("Error field override");
-          int ita=itarget*delta;
-          int iso=isource*delta;
-          for (int k=0; k<delta; k++) pField[ita+k]=pFrom[iso+k]; //components and gausspoints
+          mcIdType ita=itarget*delta;
+          mcIdType iso=isource*delta;
+          for (mcIdType k=0; k<delta; k++) pField[ita+k]=pFrom[iso+k]; //components and gausspoints
         }
     }
 }
@@ -965,13 +965,13 @@ namespace
    */
   //================================================================================
 
-  DataArrayInt* sortCorrespondences( DataArrayInt* ids1,
-                                     DataArrayInt* ids2,
-                                     int           delta,
-                                     bool removeEqual = false)
+  DataArrayIdType* sortCorrespondences( DataArrayIdType* ids1,
+                                        DataArrayIdType* ids2,
+                                        int              delta,
+                                        bool             removeEqual = false)
   {
     // sort
-    MCAuto< DataArrayInt > renumN2O = ids1->buildPermArrPerLevel();
+    MCAuto< DataArrayIdType > renumN2O = ids1->buildPermArrPerLevel();
     ids1->renumberInPlaceR( renumN2O->begin() );
     ids2->renumberInPlaceR( renumN2O->begin() );
 
@@ -982,7 +982,7 @@ namespace
       }
     if ( delta != 0 )
       {
-        int * id = ids1->getPointer();
+        mcIdType * id = ids1->getPointer();
         for ( ; id < ids1->end(); ++id )
           ++(*id);
         id = ids2->getPointer();
@@ -991,7 +991,7 @@ namespace
       }
 
     // join
-    DataArrayInt* ids12 = DataArrayInt::Meld( ids1, ids2 ); // two components
+    DataArrayIdType* ids12 = DataArrayIdType::Meld( ids1, ids2 ); // two components
     ids12->rearrange( 1 ); // make one component
     return ids12;
   }
@@ -1004,12 +1004,12 @@ namespace
    */
   //================================================================================
 
-  void renumber( DataArrayInt* ids, const DataArrayInt* o2nRenumber )
+  void renumber( DataArrayIdType* ids, const DataArrayIdType* o2nRenumber )
   {
     if ( !ids || !o2nRenumber )
       return;
-    int *        id = ids->getPointer();
-    const int * o2n = o2nRenumber->getConstPointer();
+    mcIdType *        id = ids->getPointer();
+    const mcIdType * o2n = o2nRenumber->getConstPointer();
     for ( ; id < ids->end(); ++id )
       {
         *id = o2n[ *id ];
@@ -1029,7 +1029,7 @@ namespace
 //================================================================================
 
 void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeMapping,
-                                                        const std::vector<MEDCoupling::DataArrayInt*> & o2nRenumber,
+                                                        const std::vector<MEDCoupling::DataArrayIdType*> & o2nRenumber,
                                                         int                nbInitialDomains)
 {
   if ( !MyGlobals::_Create_Joints || _topology->nbDomain() < 2 )
@@ -1053,7 +1053,7 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
   // 1) add node correspondences
   // ==================================
 
-  std::vector< std::vector< std::vector< int > > > nodeCorresp( nb_domains );
+  std::vector< std::vector< std::vector< mcIdType > > > nodeCorresp( nb_domains );
   for ( int idomain = 0; idomain < nb_domains; ++idomain )
     {
       nodeCorresp[ idomain ].resize( nb_domains );
@@ -1076,11 +1076,11 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
               if ( ++nmIt2 == nmEnd )
                 break;
               int dom1  = nmIt1->second.first;
-              int node1 = nmIt1->second.second;
+              mcIdType node1 = nmIt1->second.second;
               for ( ; nmIt2 != nmEnd; ++nmIt2 )
                 {
                   int dom2  = nmIt2->second.first;
-                  int node2 = nmIt2->second.second;
+                  mcIdType node2 = nmIt2->second.second;
                   if ( dom1 != dom2 )
                     {
                       nodeCorresp[ dom1 ][ dom2 ].push_back( node1 );
@@ -1101,7 +1101,7 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
     {
       for ( int idomainNear = 0; idomainNear < nb_domains; ++idomainNear )
         {
-          std::vector< int > & corresp = nodeCorresp[ idomain ][ idomainNear ];
+          std::vector< mcIdType > & corresp = nodeCorresp[ idomain ][ idomainNear ];
           if ( corresp.empty() )
             continue;
 
@@ -1121,7 +1121,7 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
               czVec.push_back(cz);
             }
 
-          cz->setNodeCorresp( &corresp[0], corresp.size()/2 );
+          cz->setNodeCorresp( &corresp[0], ToIdType( corresp.size()/2 ));
         }
     }
 
@@ -1142,8 +1142,8 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
 
       // separate ids of two domains
       const MEDCoupling::MEDCouplingSkyLineArray *corrArray = cz->getEntityCorresp( 0, 0 );
-      const DataArrayInt* ids12 = corrArray->getValuesArray();
-      MCAuto<DataArrayInt> ids1, ids2, ids12Sorted;
+      const DataArrayIdType* ids12 = corrArray->getValuesArray();
+      MCAuto<DataArrayIdType> ids1, ids2, ids12Sorted;
       ids1 = ids12->selectByTupleIdSafeSlice( 0, corrArray->getLength(), 2 );
       ids2 = ids12->selectByTupleIdSafeSlice( 1, corrArray->getLength(), 2 );
 
@@ -1180,13 +1180,13 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
         }
       else // split and sort
         {
-          typedef std::pair< std::vector< int >, std::vector< int > > T2Vecs;
+          typedef std::pair< std::vector< mcIdType >, std::vector< mcIdType > > T2Vecs;
           T2Vecs idsByType[ INTERP_KERNEL::NORM_MAXTYPE ][ INTERP_KERNEL::NORM_MAXTYPE ];
           int t1, t2;
 
-          const int nbIds = ids1->getNbOfElems();
-          const int * p1 = ids1->begin(), * p2 = ids2->begin();
-          for ( int i = 0; i < nbIds; ++i )
+          const mcIdType nbIds = ids1->getNbOfElems();
+          const mcIdType * p1 = ids1->begin(), * p2 = ids2->begin();
+          for ( mcIdType i = 0; i < nbIds; ++i )
             {
               t1 = mesh1->getTypeOfCell( p1[ i ]);
               t2 = mesh2->getTypeOfCell( p2[ i ]);
@@ -1252,8 +1252,8 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
 
       // separate ids of two domains
       const MEDCoupling::MEDCouplingSkyLineArray *corrArray = cz->getNodeCorresp();
-      const DataArrayInt *ids12 = corrArray->getValuesArray();
-      MCAuto<DataArrayInt> ids1, ids2, ids12Sorted;
+      const DataArrayIdType *ids12 = corrArray->getValuesArray();
+      MCAuto<DataArrayIdType> ids1, ids2, ids12Sorted;
       ids1 = ids12->selectByTupleIdSafeSlice( 0, corrArray->getLength(), 2 );
       ids2 = ids12->selectByTupleIdSafeSlice( 1, corrArray->getLength(), 2 );
 
@@ -1288,12 +1288,12 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
   using MEDCoupling::DataArrayInt;
 
   std::vector<MEDCouplingUMesh*>& faceMeshes = getFaceMesh();
-  int nbMeshes = faceMeshes.size();
+  std::size_t nbMeshes = faceMeshes.size();
 
   //preparing bounding box trees for accelerating search of coincident faces
   std::vector<BBTreeOfDim* >   bbTrees(nbMeshes);
   std::vector<DataArrayDouble*>bbox   (nbMeshes);
-  for (int inew = 0; inew < nbMeshes-1; inew++)
+  for (unsigned int inew = 0; inew < nbMeshes-1; inew++)
     if ( !isParallelMode() || _domain_selector->isMyDomain(inew) )
       {
         DataArrayDouble* bcCoords = faceMeshes[inew]->computeCellCenterOfMass();
@@ -1305,9 +1305,9 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
       }
 
   // loop on domains to find joint faces between them
-  for (int inew1 = 0; inew1 < nbMeshes; inew1++ )
+  for (unsigned int inew1 = 0; inew1 < nbMeshes; inew1++ )
     {
-      for (int inew2 = inew1+1; inew2 < nbMeshes; inew2++ )
+      for (unsigned int inew2 = inew1+1; inew2 < nbMeshes; inew2++ )
         {
           MEDCouplingUMesh* mesh1 = 0;
           MEDCouplingUMesh* mesh2 = 0;
@@ -1338,22 +1338,22 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
           if ( mesh2Here && !mesh2 ) mesh2 = faceMeshes[ inew2 ];
 
           // find coincident faces
-          std::vector< int > faces1, faces2;
+          std::vector< mcIdType > faces1, faces2;
           if ( mesh1 && mesh2 )
             {
               const DataArrayDouble* coords2 = mesh2->computeCellCenterOfMass();
-              const double*   c2 = coords2->getConstPointer();
-              const int      dim = coords2->getNumberOfComponents();
-              const int nbFaces2 = mesh2->getNumberOfCells();
-              const int nbFaces1 = mesh1->getNumberOfCells();
+              const double*        c2 = coords2->getConstPointer();
+              const std::size_t   dim = coords2->getNumberOfComponents();
+              const mcIdType nbFaces2 = mesh2->getNumberOfCells();
+              const mcIdType nbFaces1 = mesh1->getNumberOfCells();
 
-              for (int i2 = 0; i2 < nbFaces2; i2++)
+              for (mcIdType i2 = 0; i2 < nbFaces2; i2++)
                 {
-                  std::vector<int> coincFaces;
+                  std::vector<mcIdType> coincFaces;
                   bbTrees[inew1]->getElementsAroundPoint( c2+i2*dim, coincFaces );
                   if (coincFaces.size()!=0)
                     {
-                      int i1 = coincFaces[0];
+                      mcIdType i1 = coincFaces[0];
                       // if ( coincFaces.size() > 1 )
                       //   {
                       //     i2nb = isource2nb.insert( std::make_pair( i1 , 0 )).first;
@@ -1399,7 +1399,7 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
 
 
   // delete bounding box trees
-  for (int inew = 0; inew < nbMeshes-1; inew++)
+  for (unsigned int inew = 0; inew < nbMeshes-1; inew++)
     if (isParallelMode() && _domain_selector->isMyDomain(inew))
       {
         bbox[inew]->decrRef();
@@ -1417,7 +1417,7 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
  */
 //================================================================================
 
-void MEDPARTITIONER::MeshCollection::createJointGroup( const std::vector< int >& faces,
+void MEDPARTITIONER::MeshCollection::createJointGroup( const std::vector< mcIdType >& faces,
                                                        const int                 inew1,
                                                        const int                 inew2,
                                                        const bool                is2nd )
@@ -1437,15 +1437,15 @@ void MEDPARTITIONER::MeshCollection::createJointGroup( const std::vector< int >&
   _group_info.erase( groupName );
 
   // get family IDs array
-  int* famIDs = 0;
+  mcIdType* famIDs = 0;
   int inew = (is2nd ? inew2 : inew1 );
-  int totalNbFaces =  _face_mesh[ inew ] ? _face_mesh[ inew ]->getNumberOfCells() : 0;
+  mcIdType totalNbFaces =  _face_mesh[ inew ] ? _face_mesh[ inew ]->getNumberOfCells() : 0;
   std::string cle = Cle1ToStr( "faceFamily_toArray", inew );
   if ( !_map_dataarray_int.count(cle) )
     {
       if ( totalNbFaces > 0 )
         {
-          MEDCoupling::DataArrayInt* p=MEDCoupling::DataArrayInt::New();
+          MEDCoupling::DataArrayIdType* p=MEDCoupling::DataArrayIdType::New();
           p->alloc( totalNbFaces, 1 );
           p->fillWithZero();
           famIDs = p->getPointer();
@@ -1457,14 +1457,14 @@ void MEDPARTITIONER::MeshCollection::createJointGroup( const std::vector< int >&
       famIDs = _map_dataarray_int.find(cle)->second->getPointer();
     }
   // find a family ID of an existing JOINT group
-  int familyID = 0;
-  std::map<std::string, int>::iterator name2id = _family_info.find( groupName );
+  mcIdType familyID = 0;
+  std::map<std::string, mcIdType>::iterator name2id = _family_info.find( groupName );
   if ( name2id != _family_info.end() )
     familyID = name2id->second;
 
   // remove faces from the familyID-the family
   if ( familyID != 0 && famIDs )
-    for ( int i = 0; i < totalNbFaces; ++i )
+    for ( mcIdType i = 0; i < totalNbFaces; ++i )
       if ( famIDs[i] == familyID )
         famIDs[i] = 0;
 
@@ -1473,7 +1473,7 @@ void MEDPARTITIONER::MeshCollection::createJointGroup( const std::vector< int >&
 
   if ( familyID == 0 )  // generate a family ID for JOINT group
     {
-      std::set< int > familyIDs;
+      std::set< mcIdType > familyIDs;
       for ( name2id = _family_info.begin(); name2id != _family_info.end(); ++name2id )
         familyIDs.insert( name2id->second );
       // find the next free family ID
@@ -1535,7 +1535,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename)
           throw INTERP_KERNEL::Exception("file does not comply with any recognized format");
         }
     }
-  for ( int idomain = 0; idomain < (int)_mesh.size(); ++idomain )
+  for ( unsigned int idomain = 0; idomain < _mesh.size(); ++idomain )
     if ( _mesh[idomain] && _mesh[idomain]->getNumberOfNodes() > 0 )
       _i_non_empty_mesh = idomain;
 }
@@ -1654,7 +1654,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
         }
     }
   // find non-empty domain mesh
-  for ( int idomain = 0; idomain < (int)_mesh.size(); ++idomain )
+  for ( unsigned int idomain = 0; idomain < _mesh.size(); ++idomain )
     if ( _mesh[idomain] && _mesh[idomain]->getNumberOfNodes() > 0 )
       _i_non_empty_mesh = idomain;
   
@@ -1733,22 +1733,22 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, cons
 
 MEDPARTITIONER::MeshCollection::~MeshCollection()
 {
-  for (int i=0; i<(int)_mesh.size();i++)
+  for (std::size_t i=0; i<_mesh.size();i++)
     if (_mesh[i]!=0) _mesh[i]->decrRef(); 
   
-  for (int i=0; i<(int)_cell_family_ids.size();i++)
+  for (std::size_t i=0; i<_cell_family_ids.size();i++)
     if (_cell_family_ids[i]!=0)
       _cell_family_ids[i]->decrRef();
   
-  for (int i=0; i<(int)_face_mesh.size();i++)
+  for (std::size_t i=0; i<_face_mesh.size();i++)
     if (_face_mesh[i]!=0)
       _face_mesh[i]->decrRef();
   
-  for (int i=0; i<(int)_face_family_ids.size();i++)
+  for (std::size_t i=0; i<_face_family_ids.size();i++)
     if (_face_family_ids[i]!=0)
       _face_family_ids[i]->decrRef();
   
-  for (std::map<std::string, MEDCoupling::DataArrayInt*>::iterator it=_map_dataarray_int.begin() ; it!=_map_dataarray_int.end(); it++ )
+  for (std::map<std::string, MEDCoupling::DataArrayIdType*>::iterator it=_map_dataarray_int.begin() ; it!=_map_dataarray_int.end(); it++ )
     if ((*it).second!=0)
       (*it).second->decrRef();
   
@@ -1830,9 +1830,9 @@ int MEDPARTITIONER::MeshCollection::getNbOfLocalMeshes() const
   return nb;
 }
 
-int MEDPARTITIONER::MeshCollection::getNbOfLocalCells() const
+mcIdType MEDPARTITIONER::MeshCollection::getNbOfLocalCells() const
 {
-  int nb=0;
+  mcIdType nb=0;
   for (size_t i=0; i<_mesh.size(); i++)
     {
       if (_mesh[i]) nb=nb+_mesh[i]->getNumberOfCells();
@@ -1840,9 +1840,9 @@ int MEDPARTITIONER::MeshCollection::getNbOfLocalCells() const
   return nb;
 }
 
-int MEDPARTITIONER::MeshCollection::getNbOfLocalFaces() const
+mcIdType MEDPARTITIONER::MeshCollection::getNbOfLocalFaces() const
 {
-  int nb=0;
+  mcIdType nb=0;
   for (size_t i=0; i<_face_mesh.size(); i++)
     {
       if (_face_mesh[i]) nb=nb+_face_mesh[i]->getNumberOfCells();
@@ -1919,8 +1919,8 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDCoupling::MEDCouplingSkyL
   //looking for reverse nodal connectivity i global numbering
   if (isParallelMode() && !_domain_selector->isMyDomain(0))
      {
-        vector<int> value;
-        vector<int> index(1,0);
+        vector<mcIdType> value;
+        vector<mcIdType> index(1,0);
         
         array = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
         return;
@@ -1940,11 +1940,11 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCoup
   using std::make_pair;
   using std::pair;
   
-  std::multimap< int, int > node2cell;
-  std::map< pair<int,int>, int > cell2cellcounter;
-  std::multimap<int,int> cell2cell;
+  std::multimap< mcIdType, mcIdType > node2cell;
+  std::map< pair<mcIdType,mcIdType>, mcIdType > cell2cellcounter;
+  std::multimap<mcIdType,mcIdType> cell2cell;
 
-  std::vector<std::vector<std::multimap<int,int> > > commonDistantNodes;
+  std::vector<std::vector<std::multimap<mcIdType,mcIdType> > > commonDistantNodes;
   int nbdomain=_topology->nbDomain();
 #ifdef HAVE_MPI
   if (isParallelMode())
@@ -1968,21 +1968,21 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCoup
         continue;
       meshDim = _mesh[idomain]->getMeshDimension();
     
-      MEDCoupling::DataArrayInt* index=MEDCoupling::DataArrayInt::New();
-      MEDCoupling::DataArrayInt* revConn=MEDCoupling::DataArrayInt::New();
-      int nbNodes=_mesh[idomain]->getNumberOfNodes();
+      MEDCoupling::DataArrayIdType* index=MEDCoupling::DataArrayIdType::New();
+      MEDCoupling::DataArrayIdType* revConn=MEDCoupling::DataArrayIdType::New();
+      mcIdType nbNodes=_mesh[idomain]->getNumberOfNodes();
       _mesh[idomain]->getReverseNodalConnectivity(revConn,index);
       //problem saturation over 1 000 000 nodes for 1 proc
       if (MyGlobals::_Verbose>100)
         std::cout << "proc " << MyGlobals::_Rank << " : getReverseNodalConnectivity done on " << nbNodes << " nodes" << std::endl;
-      int* index_ptr=index->getPointer();
-      int* revConnPtr=revConn->getPointer();
-      for (int i=0; i<nbNodes; i++)
+      mcIdType* index_ptr=index->getPointer();
+      mcIdType* revConnPtr=revConn->getPointer();
+      for (mcIdType i=0; i<nbNodes; i++)
         {
-          for (int icell=index_ptr[i]; icell<index_ptr[i+1]; icell++)
+          for (mcIdType icell=index_ptr[i]; icell<index_ptr[i+1]; icell++)
             {
-              int globalNode=_topology->convertNodeToGlobal(idomain,i);
-              int globalCell=_topology->convertCellToGlobal(idomain,revConnPtr[icell]);
+              mcIdType globalNode=_topology->convertNodeToGlobal(idomain,i);
+              mcIdType globalCell=_topology->convertCellToGlobal(idomain,revConnPtr[icell]);
               node2cell.insert(make_pair(globalNode, globalCell));
             }
         }
@@ -1991,14 +1991,14 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCoup
 #ifdef HAVE_MPI
       for (int iother=0; iother<nbdomain; iother++)
         {
-          std::multimap<int,int>::iterator it;
+          std::multimap<mcIdType,mcIdType>::iterator it;
           int isource=idomain;
           int itarget=iother;
           for (it=_joint_finder->getDistantNodeCell()[isource][itarget].begin(); 
                it!=_joint_finder->getDistantNodeCell()[isource][itarget].end(); it++)
             {
-              int globalNode=_topology->convertNodeToGlobal(idomain,(*it).first);
-              int globalCell=(*it).second;
+              mcIdType globalNode=_topology->convertNodeToGlobal(idomain,(*it).first);
+              mcIdType globalCell=(*it).second;
               node2cell.insert(make_pair(globalNode, globalCell));
             }
         }
@@ -2018,32 +2018,32 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCoup
   if (MyGlobals::_Verbose>50)
     std::cout<< "proc " << MyGlobals::_Rank << " : creating graph arcs on nbNodes " << _topology->nbNodes() << std::endl;
  
-  for (int inode=0;inode<_topology->nbNodes();inode++)
+  for (mcIdType inode=0;inode<_topology->nbNodes();inode++)
     {
-      typedef multimap<int,int>::const_iterator MI;
+      typedef multimap<mcIdType,mcIdType>::const_iterator MI;
       std::pair <MI,MI> nodeRange=node2cell.equal_range(inode);
       for (MI cell1=nodeRange.first;cell1!=nodeRange.second;cell1++)
         for (MI cell2=nodeRange.first;cell2!=cell1;cell2++)
           {
-            int icell1=cell1->second;
-            int icell2=cell2->second;
-            if (icell1>icell2) {int tmp=icell1; icell1=icell2; icell2=tmp;}
-            std::map<pair<int,int>,int>::iterator it=cell2cellcounter.find(make_pair(icell1,icell2));
+            mcIdType icell1=cell1->second;
+            mcIdType icell2=cell2->second;
+            if (icell1>icell2) std::swap(icell1,icell2);
+            std::map<pair<mcIdType,mcIdType>,mcIdType>::iterator it=cell2cellcounter.find(make_pair(icell1,icell2));
             if (it==cell2cellcounter.end()) cell2cellcounter.insert(make_pair(make_pair(icell1,icell2),1));
             else (it->second)++;
           }
     }      
-  // for (int icell1=0; icell1<_topology->nbCells(); icell1++)  //on all nodes
+  // for (mcIdType icell1=0; icell1<_topology->nbCells(); icell1++)  //on all nodes
   //   {
-  //     typedef multimap<int,int>::const_iterator MI;
+  //     typedef multimap<int,mcIdType>::const_iterator MI;
   //     std::pair <MI,MI> nodeRange=cell2node.equal_range(icell1);
   //     for (MI node1=nodeRange.first; node1!=nodeRange.second; node1++)  //on nodes with icell
   //       {
   //         std::pair<MI,MI> cellRange=node2cell.equal_range(node1->second);
   //         for (MI cell2=cellRange.first; cell2!=cellRange.second; cell2++)  //on one of these cell
   //           {
-  //             int icell2=cell2->second;
-  //             std::map<pair<int,int>,int>::iterator it=cell2cellcounter.find(make_pair(icell1,icell2));
+  //             mcIdType icell2=cell2->second;
+  //             std::map<pair<int,mcIdType>,mcIdType>::iterator it=cell2cellcounter.find(make_pair(icell1,icell2));
   //             if (it==cell2cellcounter.end()) cell2cellcounter.insert(make_pair(make_pair(icell1,icell2),1));
   //             else (it->second)++;
   //           }
@@ -2052,7 +2052,7 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCoup
 
 
   //converting the counter to a multimap structure
-  for (std::map<pair<int,int>,int>::const_iterator it=cell2cellcounter.begin();
+  for (std::map<pair<mcIdType,mcIdType>,mcIdType>::const_iterator it=cell2cellcounter.begin();
        it!=cell2cellcounter.end();
        it++)
     if (it->second>=meshDim)
@@ -2065,25 +2065,25 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCoup
   if (MyGlobals::_Verbose>50)
     std::cout << "proc " << MyGlobals::_Rank << " : create skylinearray" << std::endl;
   //filling up index and value to create skylinearray structure
-  std::vector <int> index,value;
+  std::vector <mcIdType> index,value;
   index.push_back(0);
-  int idep=0;
+  mcIdType idep=0;
   
   for (int idomain=0; idomain<nbdomain; idomain++)
     {
       if (isParallelMode() && !_domain_selector->isMyDomain(idomain)) continue;
-      int nbCells=_mesh[idomain]->getNumberOfCells();
-      for (int icell=0; icell<nbCells; icell++)
+      mcIdType nbCells=_mesh[idomain]->getNumberOfCells();
+      for (mcIdType icell=0; icell<nbCells; icell++)
         {
-          int size=0;
-          int globalCell=_topology->convertCellToGlobal(idomain,icell);
-          multimap<int,int>::iterator it;
-          pair<multimap<int,int>::iterator,multimap<int,int>::iterator> ret;
+          mcIdType size=0;
+          mcIdType globalCell=_topology->convertCellToGlobal(idomain,icell);
+          multimap<mcIdType,mcIdType>::iterator it;
+          pair<multimap<mcIdType,mcIdType>::iterator,multimap<mcIdType,mcIdType>::iterator> ret;
           ret=cell2cell.equal_range(globalCell);
           for (it=ret.first; it!=ret.second; ++it)
             {
-              int ival=(*it).second; //no adding one existing yet
-              for (int i=idep ; i<idep+size ; i++)
+              mcIdType ival=(*it).second; //no adding one existing yet
+              for (mcIdType i=idep ; i<idep+size ; i++)
                 {
                   if (value[i]==ival)
                     {
@@ -2107,15 +2107,15 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCoup
     {
       std::cout << "\nproc " << _domain_selector->rank() << " : end MeshCollection::buildCellGraph " <<
         index.size()-1 << " " << value.size() << std::endl;
-      int max=index.size()>15?15:index.size();
+      std::size_t max=index.size()>15?15:index.size();
       if (index.size()>1)
         {
-          for (int i=0; i<max; ++i)
+          for (std::size_t i=0; i<max; ++i)
             std::cout<<index[i]<<" ";
           std::cout << "... " << index[index.size()-1] << std::endl;
-          for (int i=0; i<max; ++i)
+          for (std::size_t i=0; i<max; ++i)
             std::cout<< value[i] << " ";
-          int ll=index[index.size()-1]-1;
+          mcIdType ll=index[index.size()-1]-1;
           std::cout << "... (" << ll << ") " << value[ll-1] << " " << value[ll] << std::endl;
         }
     }
@@ -2224,7 +2224,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(const 
 
   Graph* cellGraph;
   std::set<int> domains;
-  for (int i=0; i<_topology->nbCells(); i++)
+  for (mcIdType i=0; i<_topology->nbCells(); i++)
     {
       domains.insert(partition[i]);
     }
@@ -2232,7 +2232,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(const 
   
   //cellGraph is a shared pointer 
   Topology *topology=0;
-  int nbdomain=domains.size();
+  int nbdomain=(int)domains.size();
   topology=new ParallelTopology (cellGraph, getTopology(), nbdomain, getMeshDimension());
   //  if (array!=0) delete array;
   delete cellGraph;
@@ -2293,22 +2293,22 @@ void MEDPARTITIONER::MeshCollection::prepareFieldDescriptions()
 //to have unique valid fields names/pointers/descriptions for partitionning
 //filter _field_descriptions to be in all procs compliant and equal
 {
-  int nbfiles=MyGlobals::_File_Names.size(); //nb domains
+  std::size_t nbfiles=MyGlobals::_File_Names.size(); //nb domains
   if (nbfiles==0)
     {
       nbfiles=_topology->nbDomain();
     }
   std::vector<std::string> r2;
   //from allgatherv then vector(procs) of serialised vector(fields) of vector(description) data
-  for (int i=0; i<(int)_field_descriptions.size(); i++)
+  for (std::size_t i=0; i<_field_descriptions.size(); i++)
     {
       std::vector<std::string> r1=DeserializeToVectorOfString(_field_descriptions[i]);
-      for (int ii=0; ii<(int)r1.size(); ii++)
+      for (std::size_t ii=0; ii<r1.size(); ii++)
         r2.push_back(r1[ii]);
     }
   //here vector(procs*fields) of serialised vector(description) data
   _field_descriptions=r2;
-  int nbfields=_field_descriptions.size(); //on all domains
+  std::size_t nbfields=_field_descriptions.size(); //on all domains
   if ((nbfields%nbfiles)!=0)
     {
       if (MyGlobals::_Rank==0)
@@ -2322,7 +2322,7 @@ void MEDPARTITIONER::MeshCollection::prepareFieldDescriptions()
       throw INTERP_KERNEL::Exception("incoherent number of fields references in all files .med\n");
     }
   _field_descriptions.resize(nbfields/nbfiles);
-  for (int i=0; i<(int)_field_descriptions.size(); i++)
+  for (std::size_t i=0; i<_field_descriptions.size(); i++)
     {
       std::string str=_field_descriptions[i];
       str=EraseTagSerialized(str,"idomain=");
@@ -2332,16 +2332,16 @@ void MEDPARTITIONER::MeshCollection::prepareFieldDescriptions()
 }
 
 //returns true if inodes of a face are in inodes of a cell
-bool isFaceOncell(std::vector< int >& inodesFace, std::vector< int >&  inodesCell)
+bool isFaceOncell(std::vector< mcIdType >& inodesFace, std::vector< mcIdType >&  inodesCell)
 {
-  int ires=0;
-  int nbok=inodesFace.size();
-  for (int i=0; i<nbok; i++)
+  std::size_t ires=0;
+  std::size_t nbok=inodesFace.size();
+  for (std::size_t i=0; i<nbok; i++)
     {
-      int ii=inodesFace[i];
+      mcIdType ii=inodesFace[i];
       if (ii<0)
         std::cout << "isFaceOncell problem inodeface<0" << std::endl;
-      for (int j=0; j<(int)inodesCell.size(); j++)
+      for (std::size_t j=0; j<inodesCell.size(); j++)
         {
           if (ii==inodesCell[j])
             {
@@ -2367,26 +2367,26 @@ void MEDPARTITIONER::MeshCollection::filterFaceOnCell()
           MEDCoupling::MEDCouplingUMesh* mfac=_face_mesh[inew];
       
           //to have cellnode=f(facenode)... inodeCell=nodeIds[inodeFace]
-          std::vector<int> nodeIds;
+          std::vector<mcIdType> nodeIds;
           getNodeIds(*mcel, *mfac, nodeIds);
           if (nodeIds.size()==0)
             continue;  //one empty mesh nothing to do
 
-          MEDCoupling::DataArrayInt *revNodalCel=MEDCoupling::DataArrayInt::New();
-          MEDCoupling::DataArrayInt *revNodalIndxCel=MEDCoupling::DataArrayInt::New();
+          MEDCoupling::DataArrayIdType *revNodalCel=MEDCoupling::DataArrayIdType::New();
+          MEDCoupling::DataArrayIdType *revNodalIndxCel=MEDCoupling::DataArrayIdType::New();
           mcel->getReverseNodalConnectivity(revNodalCel,revNodalIndxCel);
-          int *revC=revNodalCel->getPointer();
-          int *revIndxC=revNodalIndxCel->getPointer();
+          mcIdType *revC=revNodalCel->getPointer();
+          mcIdType *revIndxC=revNodalIndxCel->getPointer();
 
-          std::vector< int > faceOnCell;
-          std::vector< int > faceNotOnCell;
-          int nbface=mfac->getNumberOfCells();
-          for (int iface=0; iface<nbface; iface++)
+          std::vector< mcIdType > faceOnCell;
+          std::vector< mcIdType > faceNotOnCell;
+          mcIdType nbface=mfac->getNumberOfCells();
+          for (mcIdType iface=0; iface<nbface; iface++)
             {
               bool ok;
-              std::vector< int > inodesFace;
+              std::vector< mcIdType > inodesFace;
               mfac->getNodeIdsOfCell(iface, inodesFace);
-              int nbnodFace=inodesFace.size();
+              mcIdType nbnodFace=ToIdType(inodesFace.size());
               if ( nbnodFace != mfac->getNumberOfNodesInCell( iface ))
                 continue; // invalid node ids
               //set inodesFace in mcel
@@ -2395,17 +2395,17 @@ void MEDPARTITIONER::MeshCollection::filterFaceOnCell()
                 nbok += (( inodesFace[i]=nodeIds[inodesFace[i]] ) >= 0 );
               if ( nbok != nbnodFace )
                 continue;
-              int inod=inodesFace[0];
+              mcIdType inod=inodesFace[0];
               if (inod<0)
                 {
                   std::cout << "filterFaceOnCell problem 1" << std::endl;
                   continue;
                 }
-              int nbcell=revIndxC[inod+1]-revIndxC[inod];
-              for (int j=0; j<nbcell; j++) //look for each cell with inod
+              mcIdType nbcell=revIndxC[inod+1]-revIndxC[inod];
+              for (mcIdType j=0; j<nbcell; j++) //look for each cell with inod
                 {
-                  int icel=revC[revIndxC[inod]+j];
-                  std::vector< int > inodesCell;
+                  mcIdType icel=revC[revIndxC[inod]+j];
+                  std::vector< mcIdType > inodesCell;
                   mcel->getNodeIdsOfCell(icel, inodesCell);
                   ok=isFaceOncell(inodesFace, inodesCell);
                   if (ok) break;
@@ -2443,11 +2443,11 @@ void MEDPARTITIONER::MeshCollection::filterFaceOnCell()
           std::string key = Cle1ToStr("faceFamily_toArray",inew);
           if ( getMapDataArrayInt().count( key ))
             {
-              MEDCoupling::DataArrayInt * &     fam = getMapDataArrayInt()[ key ];
-              MEDCoupling::DataArrayInt * famFilter = MEDCoupling::DataArrayInt::New();
+              MEDCoupling::DataArrayIdType * &     fam = getMapDataArrayInt()[ key ];
+              MEDCoupling::DataArrayIdType * famFilter = MEDCoupling::DataArrayIdType::New();
               famFilter->alloc(faceOnCell.size(),1);
-              int* pfamFilter = famFilter->getPointer();
-              int* pfam       = fam->getPointer();
+              mcIdType* pfamFilter = famFilter->getPointer();
+              mcIdType* pfam       = fam->getPointer();
               for ( size_t i=0; i<faceOnCell.size(); i++ )
                 pfamFilter[i]=pfam[faceOnCell[i]];
               fam->decrRef();

@@ -22,6 +22,7 @@
 #include "MEDFileSafeCaller.txx"
 #include "MEDLoaderBase.hxx"
 #include "MEDLoader.hxx"
+#include "MEDFileBasis.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 
@@ -103,7 +104,7 @@ void MEDFileUtilities::CheckFileForRead(const std::string& fileName)
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   oss << " has been detected readable but ";
-  int major,minor,release;
+  med_int major,minor,release;
   MEDfileNumVersionRd(fid,&major,&minor,&release);
   if(major<2 || (major==2 && minor<2))
     {
@@ -155,7 +156,7 @@ void MEDCoupling::MEDFileWritable::setZipConnPolicy(int newVal)
 
 std::string MEDCoupling::MEDFileWritable::FileNameFromFID(med_idt fid)
 {
-  int lgth(MEDfileName(fid,0,0));
+  med_int lgth(MEDfileName(fid,0,0));
   if(lgth<=0)
     return std::string();
   INTERP_KERNEL::AutoPtr<char> tmp(new char[lgth+1]);
@@ -185,7 +186,7 @@ void MEDCoupling::MEDFileWritableStandAlone::write(const std::string& fileName, 
   med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
   std::ostringstream oss; oss << "MEDFileWritableStandAlone : error on attempt to write in file : \"" << fileName << "\""; 
-  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str());
+  MEDFileUtilities::CheckMEDCode((int)fid,fid,oss.str());
   writeLL(fid);
 }
 

@@ -27,6 +27,7 @@
 #include "InterpKernelException.hxx"
 #include "InterpKernelHashMap.hxx"
 #include "VectorUtils.hxx"
+#include "MCIdType.hxx"
 
 #include <functional>
 #include <vector>
@@ -188,7 +189,7 @@ namespace INTERP_KERNEL
       26,23,18,25,24,15,6,19
     };
 
-  static const int GENERAL_48_SUBZONES_2[64] = 
+  static const mcIdType GENERAL_48_SUBZONES_2[64] = 
     {
       0,-1,-14,-5,-2,-13,-19,-15,
       -1,1,-6,-14,-13,-3,-16,-19,
@@ -199,11 +200,11 @@ namespace INTERP_KERNEL
       -15,-19,-18,-10,-7,-17,-12,7,
       -19,-16,-11,-18,-17,-8,6,-12};
 
-  void SplitHexa8IntoTetras(SplittingPolicy policy, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                            std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords);
+  void SplitHexa8IntoTetras(SplittingPolicy policy, const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd, const double *coords,
+                            std::vector<mcIdType>& tetrasNodalConn, std::vector<double>& addCoords);
   
-  INTERPKERNEL_EXPORT void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                                           std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords);
+  INTERPKERNEL_EXPORT void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd, const double *coords,
+                                           std::vector<mcIdType>& tetrasNodalConn, std::vector<double>& addCoords);
   
   /**
    * \brief Class representing a triangular face, used as key in caching hash map in SplitterTetra.
@@ -222,7 +223,7 @@ namespace INTERP_KERNEL
      * @param node2  global number of the second node of the face
      * @param node3  global number of the third node of the face
      */
-    TriangleFaceKey(int node1, int node2, int node3)
+    TriangleFaceKey(mcIdType node1, mcIdType node2, mcIdType node3)
     {
       Sort3Ints(_nodes, node1, node2, node3);
       _hashVal = ( _nodes[0] + _nodes[1] + _nodes[2] ) % 29;
@@ -268,30 +269,30 @@ namespace INTERP_KERNEL
      *
      * @return  a hash value for the object
      */
-    int hashVal() const
+    mcIdType hashVal() const
     {
       return _hashVal;
     }
      
-    inline static void Sort3Ints(int* sorted, int node1, int node2, int node3);
+    inline static void Sort3Ints(mcIdType* sorted, mcIdType node1, mcIdType node2, mcIdType node3);
 
   private:
     /// global numbers of the three nodes, sorted in ascending order
-    int _nodes[3];
+    mcIdType _nodes[3];
     
     /// hash value for the object, calculated in the constructor
-    int _hashVal;
+    mcIdType _hashVal;
   };
   
   /**
    * Method to sort three integers in ascending order
    *
-   * @param sorted  int[3] array in which to store the result
+   * @param sorted  mcIdType[3] array in which to store the result
    * @param x1   first integer
    * @param x2   second integer
    * @param x3   third integer
    */
-  inline void TriangleFaceKey::Sort3Ints(int* sorted, int x1, int x2, int x3)
+  inline void TriangleFaceKey::Sort3Ints(mcIdType* sorted, mcIdType x1, mcIdType x2, mcIdType x3)
   {
     if(x1 < x2)
       {
@@ -343,7 +344,7 @@ namespace INTERP_KERNEL
      * @param key  a TriangleFaceKey object
      * @return an integer hash value for key
      */
-    int operator()(const INTERP_KERNEL::TriangleFaceKey& key) const
+    mcIdType operator()(const INTERP_KERNEL::TriangleFaceKey& key) const
     {
       return key.hashVal();
     }
@@ -360,18 +361,19 @@ namespace INTERP_KERNEL
   template<class MyMeshType>
   class SplitterTetra
   {
-  public: 
+  public:
+    typedef typename MyMeshType::MyConnType ConnType;
     
     SplitterTetra(const MyMeshType& srcMesh, const double** tetraCorners, const typename MyMeshType::MyConnType *nodesId);
 
-    SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const int *conn = 0);
+    SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const ConnType *conn = 0);
 
     ~SplitterTetra();
 
     double intersectSourceCell(typename MyMeshType::MyConnType srcCell, double* baryCentre=0);
     double intersectSourceFace(const NormalizedCellType polyType,
-                               const int polyNodesNbr,
-                               const int *const polyNodes,
+                               const ConnType polyNodesNbr,
+                               const ConnType *const polyNodes,
                                const double *const *const polyCoords,
                                const double dimCaracteristic,
                                const double precision,
@@ -380,19 +382,19 @@ namespace INTERP_KERNEL
 
     double intersectTetra(const double** tetraCorners);
 
-    typename MyMeshType::MyConnType getId(int id) { return _conn[id]; }
+    ConnType getId(mcIdType id) { return _conn[id]; }
     
     void splitIntoDualCells(SplitterTetra<MyMeshType> **output);
 
-    void splitMySelfForDual(double* output, int i, typename MyMeshType::MyConnType& nodeId);
+    void splitMySelfForDual(double* output, int i, ConnType& nodeId);
 
     void clearVolumesCache();
 
   private:
     inline static void CheckIsOutside(const double* pt, bool* isOutside, const double errTol = DEFAULT_ABS_TOL);
     inline static void CheckIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol = DEFAULT_ABS_TOL);
-    inline void calculateNode(typename MyMeshType::MyConnType globalNodeNum);
-    inline void calculateNode2(typename MyMeshType::MyConnType globalNodeNum, const double* node);
+    inline void calculateNode(ConnType globalNodeNum);
+    inline void calculateNode2(ConnType globalNodeNum, const double* node);
     inline void calculateVolume(TransformedTriangle& tri, const TriangleFaceKey& key);
     inline void calculateSurface(TransformedTriangle& tri, const TriangleFaceKey& key);
 
@@ -415,7 +417,7 @@ namespace INTERP_KERNEL
     TetraAffineTransform* _t;
     
     /// HashMap relating node numbers to transformed nodes, used for caching
-    HashMap< int , double* > _nodes;
+    HashMap< ConnType , double* > _nodes;
     
     /// HashMap relating triangular faces to calculated volume contributions, used for caching
     HashMap< TriangleFaceKey, double > _volumes;
@@ -424,7 +426,7 @@ namespace INTERP_KERNEL
     const MyMeshType& _src_mesh;
                 
     // node id of the first node in target mesh in C mode.
-    typename MyMeshType::MyConnType _conn[4];
+    ConnType _conn[4];
 
     double _coords[12];
     
@@ -556,7 +558,7 @@ namespace INTERP_KERNEL
     inline const double* getCoordsOfSubNode(typename MyMeshTypeT::MyConnType node);//to suppress
     inline const double* getCoordsOfSubNode2(typename MyMeshTypeT::MyConnType node, typename MyMeshTypeT::MyConnType& nodeId);//to suppress
     //template<int n>
-    inline void calcBarycenter(int n, double* barycenter, const typename MyMeshTypeT::MyConnType* pts);//to suppress
+    inline void calcBarycenter(typename MyMeshTypeT::MyConnType n, double* barycenter, const int* pts);//to suppress
   private:
     const MyMeshTypeT& _target_mesh;
     const MyMeshTypeS& _src_mesh;
@@ -576,7 +578,7 @@ namespace INTERP_KERNEL
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
   //template<int n>
-  inline void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calcBarycenter(int n, double* barycenter, const typename MyMeshTypeT::MyConnType* pts)
+  inline void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calcBarycenter(typename MyMeshTypeT::MyConnType n, double* barycenter, const int* pts)
   {
     barycenter[0] = barycenter[1] = barycenter[2] = 0.0;
     for(int i = 0; i < n ; ++i)
@@ -587,9 +589,9 @@ namespace INTERP_KERNEL
        barycenter[2] += pt[2];
       }
     
-    barycenter[0] /= n;
-    barycenter[1] /= n;
-    barycenter[2] /= n;
+    barycenter[0] /= (double)n;
+    barycenter[1] /= (double)n;
+    barycenter[2] /= (double)n;
   }
 
   /**

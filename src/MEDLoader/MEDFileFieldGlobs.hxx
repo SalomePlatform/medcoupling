@@ -72,17 +72,17 @@ namespace MEDCoupling
     std::string getFileName() const { return _file_name; }
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const;
     const MEDFileFieldLoc& getLocalization(const std::string& locName) const;
-    const DataArrayInt *getProfileFromId(int pflId) const;
-    const DataArrayInt *getProfile(const std::string& pflName) const;
+    const DataArrayIdType *getProfileFromId(int pflId) const;
+    const DataArrayIdType *getProfile(const std::string& pflName) const;
     MEDFileFieldLoc& getLocalizationFromId(int locId);
     MEDFileFieldLoc& getLocalization(const std::string& locName);
-    DataArrayInt *getProfile(const std::string& pflName);
-    DataArrayInt *getProfileFromId(int pflId);
+    DataArrayIdType *getProfile(const std::string& pflName);
+    DataArrayIdType *getProfileFromId(int pflId);
     void killProfileIds(const std::vector<int>& pflIds);
     void killLocalizationIds(const std::vector<int>& locIds);
     void killStructureElementsInGlobs();
     //
-    void appendProfile(DataArrayInt *pfl);
+    void appendProfile(DataArrayIdType *pfl);
     void appendLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
     //
     static std::string CreateNewNameNotIn(const std::string& prefix, const std::vector<std::string>& namesToAvoid);
@@ -91,7 +91,7 @@ namespace MEDCoupling
     MEDFileFieldGlobs();
     ~MEDFileFieldGlobs();
   protected:
-    std::vector< MCAuto<DataArrayInt> > _pfls;
+    std::vector< MCAuto<DataArrayIdType> > _pfls;
     std::vector< MCAuto<MEDFileFieldLoc> > _locs;
     std::string _file_name;
   };
@@ -154,14 +154,14 @@ namespace MEDCoupling
     MEDLOADER_EXPORT const MEDFileFieldLoc& getLocalization(const std::string& locName) const;
     MEDLOADER_EXPORT MEDFileFieldLoc& getLocalizationFromId(int locId);
     MEDLOADER_EXPORT MEDFileFieldLoc& getLocalization(const std::string& locName);
-    MEDLOADER_EXPORT const DataArrayInt *getProfile(const std::string& pflName) const;
-    MEDLOADER_EXPORT const DataArrayInt *getProfileFromId(int pflId) const;
-    MEDLOADER_EXPORT DataArrayInt *getProfile(const std::string& pflName);
-    MEDLOADER_EXPORT DataArrayInt *getProfileFromId(int pflId);
+    MEDLOADER_EXPORT const DataArrayIdType *getProfile(const std::string& pflName) const;
+    MEDLOADER_EXPORT const DataArrayIdType *getProfileFromId(int pflId) const;
+    MEDLOADER_EXPORT DataArrayIdType *getProfile(const std::string& pflName);
+    MEDLOADER_EXPORT DataArrayIdType *getProfileFromId(int pflId);
     MEDLOADER_EXPORT void killProfileIds(const std::vector<int>& pflIds);
     MEDLOADER_EXPORT void killLocalizationIds(const std::vector<int>& locIds);
     //
-    MEDLOADER_EXPORT void appendProfile(DataArrayInt *pfl);
+    MEDLOADER_EXPORT void appendProfile(DataArrayIdType *pfl);
     MEDLOADER_EXPORT void appendLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
   protected:
     MEDFileFieldGlobs *contentNotNull();

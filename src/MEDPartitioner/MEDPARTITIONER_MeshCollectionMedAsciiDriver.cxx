@@ -58,14 +58,14 @@ int MeshCollectionMedAsciiDriver::read(MEDCoupling::MEDFileData* filedata)
   readMEDFileData(filedata);
 
   std::vector<MEDPARTITIONER::ConnectZone*> cz; // to fill from filedata
-  std::vector<int*> cellglobal;
-  std::vector<int*> nodeglobal;
-  std::vector<int*> faceglobal;
-  int size = (_collection->getMesh()).size();
+  std::vector<mcIdType*> cellglobal;
+  std::vector<mcIdType*> nodeglobal;
+  std::vector<mcIdType*> faceglobal;
+  std::size_t size = _collection->getMesh().size();
   cellglobal.resize(size);
   nodeglobal.resize(size);
   faceglobal.resize(size);
-  for ( int idomain = 0; idomain < size; ++idomain )
+  for ( unsigned int idomain = 0; idomain < size; ++idomain )
     {
       cellglobal[idomain]=0;
       faceglobal[idomain]=0;
@@ -90,9 +90,9 @@ int MeshCollectionMedAsciiDriver::read(MEDCoupling::MEDFileData* filedata)
 int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector* domainSelector)
 {
   //distributed meshes
-  std::vector<int*> cellglobal;
-  std::vector<int*> nodeglobal;
-  std::vector<int*> faceglobal;
+  std::vector<mcIdType*> cellglobal;
+  std::vector<mcIdType*> nodeglobal;
+  std::vector<mcIdType*> faceglobal;
   int nbdomain;
 
   //reading ascii master file
@@ -168,12 +168,12 @@ int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector*
  */
 void MeshCollectionMedAsciiDriver::write(const char* filename, ParaDomainSelector* domainSelector) const
 {
-  int nbdomains=_collection->getMesh().size();
+  std::size_t nbdomains=_collection->getMesh().size();
   std::vector<std::string> filenames;
   filenames.resize(nbdomains);
 
   //loop on the domains
-  for (int idomain=0; idomain<nbdomains; idomain++)
+  for (unsigned idomain=0; idomain<nbdomains; idomain++)
     {
       std::string distfilename;
       std::ostringstream suffix;
@@ -198,7 +198,7 @@ void MeshCollectionMedAsciiDriver::write(const char* filename, ParaDomainSelecto
       file << "#" << " " << std::endl;
       file << _collection->getMesh().size() << " " << std::endl;
 
-      for (int idomain=0; idomain<nbdomains; idomain++)
+      for (std::size_t idomain=0; idomain<nbdomains; idomain++)
         file << _collection->getName() <<" "<< idomain+1 << " "
              << (_collection->getMesh())[idomain]->getName() << " localhost "
              << filenames[idomain] << " "<< std::endl;

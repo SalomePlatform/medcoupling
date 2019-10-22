@@ -45,7 +45,7 @@ namespace MEDPARTITIONER
                        
   MEDPARTITIONER_EXPORT std::string ReprVectorOfString(const std::vector<std::string>& vec);
   MEDPARTITIONER_EXPORT std::string ReprVectorOfString(const std::vector<std::string>& vec, const std::string separator);
-  MEDPARTITIONER_EXPORT std::string ReprMapOfStringInt(const std::map<std::string,int>& mymap);
+  MEDPARTITIONER_EXPORT std::string ReprMapOfStringInt(const std::map<std::string,mcIdType>& mymap);
   MEDPARTITIONER_EXPORT std::string ReprMapOfStringVectorOfString(const std::map< std::string,std::vector<std::string> >& mymap);
   MEDPARTITIONER_EXPORT std::string ReprFieldDescriptions(const std::vector<std::string>& vec,const  std::string separator);
   
@@ -54,8 +54,8 @@ namespace MEDPARTITIONER
   MEDPARTITIONER_EXPORT std::vector<std::string> DeserializeToVectorOfString(const std::string& str);
   MEDPARTITIONER_EXPORT std::string EraseTagSerialized(const std::string& fromStr, const std::string& tag);
   
-  MEDPARTITIONER_EXPORT std::vector<std::string> VectorizeFromMapOfStringInt(const std::map<std::string,int>& mymap);
-  MEDPARTITIONER_EXPORT std::map<std::string,int> DevectorizeToMapOfStringInt(const std::vector<std::string>& vec);
+  MEDPARTITIONER_EXPORT std::vector<std::string> VectorizeFromMapOfStringInt(const std::map<std::string,mcIdType>& mymap);
+  MEDPARTITIONER_EXPORT std::map<std::string,mcIdType> DevectorizeToMapOfStringInt(const std::vector<std::string>& vec);
   
   MEDPARTITIONER_EXPORT std::vector<std::string> VectorizeFromMapOfStringVectorOfString(const std::map< std::string,std::vector<std::string> >& mymap);
   MEDPARTITIONER_EXPORT std::map< std::string,std::vector<std::string> > DevectorizeToMapOfStringVectorOfString(const std::vector<std::string>& vec);
@@ -75,10 +75,10 @@ namespace MEDPARTITIONER
                               int& idomain, std::string& fileName, std::string& meshName, std::string& fieldName,
                               int& typeField, int& DT, int& IT);
   MEDPARTITIONER_EXPORT void FieldShortDescriptionToData(const std::string& description,
-                                   std::string& fieldName, int& typeField, int& entity, int& DT, int& IT);
-  
-  MEDCoupling::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v);
-  MEDCoupling::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v, const int nbComponents);
+                                                         std::string& fieldName, int& typeField, int& entity, int& DT, int& IT);
+
+  MEDCoupling::DataArrayIdType *CreateDataArrayIntFromVector(const std::vector<mcIdType>& v);
+  MEDCoupling::DataArrayIdType *CreateDataArrayIntFromVector(const std::vector<mcIdType>& v, const int nbComponents);
   MEDCoupling::DataArrayDouble *CreateDataArrayDoubleFromVector(const std::vector<double>& v);
   
   MEDCoupling::MEDCouplingUMesh *CreateEmptyMEDCouplingUMesh();
@@ -87,6 +87,9 @@ namespace MEDPARTITIONER
   std::vector<std::string> BrowseAllFields(const std::string& myfile);
   std::vector<std::string> BrowseAllFieldsOnMesh(const std::string& myfile, const std::string& mymesh, const int idomain);
   std::vector<std::string> GetInfosOfField(const char *fileName, const char *meshName, const int idomain );
+
+  MEDCoupling::MCAuto< MEDCoupling::DataArrayInt32 > FromIdTypeVec( const std::vector< mcIdType >& vec );
+
 
 #ifdef HAVE_MPI
   //not advised, interblocking, use sendAndReceive
@@ -100,9 +103,9 @@ namespace MEDPARTITIONER
   std::vector<double> *RecvDoubleVec(const int source);
   void RecvDoubleVec(std::vector<double>& vec, const int source);
     
-  void SendIntVec(const std::vector<int>& vec, const int target);
+  void SendIntVec(const std::vector<mcIdType>& vec, const int target);
   std::vector<int>* RecvIntVec(int source);
-  void RecvIntVec(std::vector<int>& vec, const int source);
+  void RecvIntVec(std::vector<mcIdType>& vec, const int source);
   
   void SendDataArrayInt(const MEDCoupling::DataArrayInt* da, const int target);
   MEDCoupling::DataArrayInt *RecvDataArrayInt(const int source);
@@ -146,33 +149,33 @@ namespace MEDPARTITIONER
   {
     void * _tree;
     void (BBTreeOfDim::*_PgetElementsAroundPoint)( const double* coordsPtr,
-                                                   std::vector<int>& elems ) const;
+                                                   std::vector<mcIdType>& elems ) const;
     void (BBTreeOfDim::*_PgetIntersectingElems)( const double* bb,
-                                                 std::vector<int>& elems ) const;
+                                                 std::vector<mcIdType>& elems ) const;
 
     template< int dim>
     void _getElementsAroundPoint( const double* coordsPtr,
-                                  std::vector<int>& elems ) const
+                                  std::vector<mcIdType>& elems ) const
     {
-      ((BBTree<dim,int>*)_tree)->getElementsAroundPoint( coordsPtr, elems );
+      ((BBTree<dim,mcIdType>*)_tree)->getElementsAroundPoint( coordsPtr, elems );
     }
     template< int dim>
     void _getIntersectingElems(const double* bb,
-                               std::vector<int>& elems) const
+                               std::vector<mcIdType>& elems) const
     {
-      ((BBTree<dim,int>*)_tree)->getIntersectingElems( bb, elems );
+      ((BBTree<dim,mcIdType>*)_tree)->getIntersectingElems( bb, elems );
     }
   public:
 
-    BBTreeOfDim( int           dim,
+    BBTreeOfDim( std::size_t   dim,
                  const double* bbs,
-                 int*          elems,
+                 mcIdType*     elems,
                  int           level,
-                 int           nbelems,
+                 mcIdType      nbelems,
                  double        epsilon=1e-12);
     ~BBTreeOfDim();
-    void getElementsAroundPoint(const double* coordsPtr, std::vector<int>& elems ) const;
-    void getIntersectingElems  (const double* bb,        std::vector<int>& elems)  const;
+    void getElementsAroundPoint(const double* coordsPtr, std::vector<mcIdType>& elems ) const;
+    void getIntersectingElems  (const double* bb,        std::vector<mcIdType>& elems)  const;
   };
 }
 #endif

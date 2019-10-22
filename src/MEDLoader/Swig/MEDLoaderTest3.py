@@ -2256,12 +2256,16 @@ class MEDLoaderTest3(unittest.TestCase):
         m=m.buildUnstructured()
         m.setName("mm")
         f=m.getMeasureField(False)
-        self.assertIn(m.getHeapMemorySize(), list(range(3552 - 100, 3552 + 100 + 4 * strMulFac)))
-        self.assertIn(f.getHeapMemorySize(), list(range(4215 - 100, 4215 + 100 + 8 * strMulFac)))
+        cooMem = 100 * 2 * 8
+        nodalMem = 5 * 81 * MEDCouplingSizeOfIDs()//8
+        indexMem = 82 * MEDCouplingSizeOfIDs()//8
+        meshMem = cooMem + nodalMem + indexMem
+        self.assertIn(m.getHeapMemorySize(), list(range(meshMem - 100, meshMem + 100 + 4 * strMulFac)))
+        self.assertIn(f.getHeapMemorySize(), list(range(meshMem + 81*8 - 100, meshMem + 81*8 + 100 + 8 * strMulFac)))
         #
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m)
-        self.assertIn(mm.getHeapMemorySize(), list(range(3889 - 100, 4225 + 100 + 10 * strMulFac)))
+        self.assertIn(mm.getHeapMemorySize(), list(range(meshMem + 81*(MEDCouplingSizeOfIDs()//8) - 100, meshMem + 81*(MEDCouplingSizeOfIDs()//8) + 100 + 10 * strMulFac)))
         ff=MEDFileField1TS()
         ff.setFieldNoProfileSBT(f)
         self.assertIn(ff.getHeapMemorySize(), list(range(771 - 40, 871 + 21 + (4 + 1) * strMulFac)))
@@ -2278,8 +2282,8 @@ class MEDLoaderTest3(unittest.TestCase):
         pfl=DataArrayInt.Range(0,50,1) ; pfl.setName("pfl")
         fff.appendFieldProfile(f2,mm,0,pfl)
         self.assertIn(fff.getHeapMemorySize(), list(range(2348 - 130, 2608 + 100 + (10 + 2) * strMulFac)))
-        self.assertIn(fff.getProfile("pfl").getHeapMemorySize(), list(range(204 - 10, 204 + 10 + 2 * strMulFac)))
-        self.assertIn(fff[1, -1].getHeapMemorySize(), list(range(738 - 50, 838 + 30 + 4 * strMulFac)))
+        self.assertIn(fff.getProfile("pfl").getHeapMemorySize(), list(range(50 *(MEDCouplingSizeOfIDs()//8) - 10, 50 *(MEDCouplingSizeOfIDs()//8) + 10 + 2 * strMulFac)))
+        self.assertIn(fff[1, -1].getHeapMemorySize(), list(range(538 + (50 *(MEDCouplingSizeOfIDs()//8)) - 50, 638 + (50 *(MEDCouplingSizeOfIDs()//8))  + 30 + 4 * strMulFac)))
         pass
 
     def internalCurveLinearMesh1(self):
@@ -2749,7 +2753,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(a.getArray().isEqual(2*f1.getArray()))
         f1.setTime(3.,1,2) ; f1.getArray()[:]*=2
         self.assertTrue(a.isEqual(f1,1e-12,0)) ; f1.getArray()[:]/=2
-        bc=DataArrayInt(6,3) ; bc[:]=0 ; bc.setInfoOnComponents(['power [MW/m^3]','density [g/cm^3]','temperature [K]'])
+        bc=DataArrayInt32(6,3) ; bc[:]=0 ; bc.setInfoOnComponents(['power [MW/m^3]','density [g/cm^3]','temperature [K]'])
         for it in ffs1:
             a=it.getFieldOnMeshAtLevel(ON_CELLS,0,mm1)
             bc+=a.getArray()
@@ -2758,7 +2762,7 @@ class MEDLoaderTest3(unittest.TestCase):
         nf1=MEDCouplingFieldInt(ON_NODES)
         nf1.setTime(9.,10,-1)
         nf1.setMesh(f1.getMesh())
-        narr=DataArrayInt(12,2) ; narr.setInfoOnComponents(["aa [u1]","bbbvv [ppp]"]) ; narr[:,0]=list(range(12)) ; narr[:,1]=2*narr[:,0]
+        narr=DataArrayInt32(12,2) ; narr.setInfoOnComponents(["aa [u1]","bbbvv [ppp]"]) ; narr[:,0]=list(range(12)) ; narr[:,1]=2*narr[:,0]
         nf1.setName("VectorFieldOnNodes") ; nf1.setArray(narr)
         nff1=MEDFileIntField1TS.New()
         nff1.setFieldNoProfileSBT(nf1)
@@ -2769,7 +2773,7 @@ class MEDLoaderTest3(unittest.TestCase):
         nf2=MEDCouplingFieldInt(ON_NODES)
         nf2.setTime(19.,20,-11)
         nf2.setMesh(f1.getMesh())
-        narr2=DataArrayInt(8,2) ; narr.setInfoOnComponents(["aapfl [u1]","bbbvvpfl [ppp]"]) ; narr2[:,0]=list(range(8)) ; narr2[:,0]+=10  ; narr2[:,1]=3*narr2[:,0]
+        narr2=DataArrayInt32(8,2) ; narr.setInfoOnComponents(["aapfl [u1]","bbbvvpfl [ppp]"]) ; narr2[:,0]=list(range(8)) ; narr2[:,0]+=10  ; narr2[:,1]=3*narr2[:,0]
         nf2.setName("VectorFieldOnNodesPfl") ; narr2.setName(nf2.getName()) ; nf2.setArray(narr2)
         nff2=MEDFileIntField1TS.New()
         npfl=DataArrayInt([1,2,4,5,6,7,10,11]) ; npfl.setName("npfl")
@@ -3143,7 +3147,7 @@ class MEDLoaderTest3(unittest.TestCase):
         for delt,(dt,it,t) in  zip([0,100,200],ff1.getTimeSteps()):
             self.assertEqual(ff1.getFieldSplitedByType(dt,it),fspExp)
             arr=ff1.getUndergroundDataArray(dt,it)
-            arr.isEqualWithoutConsideringStr(DataArrayInt.Range(delt,delt+7,1))
+            arr.isEqualWithoutConsideringStr(DataArrayInt32.Range(delt,delt+7,1))
             pass
         self.assertEqual(ff1.getPfls(),('pfl_NORM_QUAD4', 'pfl_NORM_QUAD4', 'pfl_NORM_QUAD4'))
         #
@@ -3166,7 +3170,7 @@ class MEDLoaderTest3(unittest.TestCase):
         for delt,(dt,it,t) in  zip([0,100,200],ff1.getTimeSteps()):
             self.assertTrue(ff1.getFieldSplitedByType(dt,it),fspExp)
             arr=ff1.getUndergroundDataArray(dt,it)
-            arr.isEqualWithoutConsideringStr(DataArrayInt.Range(delt,delt+7,1))
+            arr.isEqualWithoutConsideringStr(DataArrayInt32.Range(delt,delt+7,1))
             pass
         self.assertEqual(ff1.getPfls(),('pfl_NORM_QUAD4',))
         pass
@@ -4933,7 +4937,7 @@ class MEDLoaderTest3(unittest.TestCase):
       eqs=mm.getEquivalences()
       eq0=eqs.appendEmptyEquivalenceWithName(eqName)
       eq0.setDescription(descEq)
-      corr=DataArrayInt([(0,3),(0,4),(0,5),(0,6),(1,7),(1,8),(1,9),(1,10),(2,11),(2,12),(2,13),(2,14)])
+      corr=DataArrayInt32([(0,3),(0,4),(0,5),(0,6),(1,7),(1,8),(1,9),(1,10),(2,11),(2,12),(2,13),(2,14)])
       eq0.setArray(-1,corr)
       self.assertEqual(eq0.getCell().size(),1)
       self.assertTrue(eq0.getCell().getArray(NORM_QUAD4).isEqual(corr))
@@ -5248,7 +5252,7 @@ class MEDLoaderTest3(unittest.TestCase):
       f=MEDCouplingFieldInt(ON_CELLS) ; f.setMesh(mesh)
       fieldName="FieldOnCell"
       f.setTime(1.2,1,1) ; f.setName(fieldName)
-      arr=DataArrayInt([101,102,103]) ; f.setArray(arr)
+      arr=DataArrayInt32([101,102,103]) ; f.setArray(arr)
       fmts.appendFieldProfile(f,mm,0,pfl)
       #
       mm.write(fname,2)
@@ -5359,7 +5363,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m.insertNextCell(NORM_QUAD4,[104,105,106,107])
         mm[0]=m
         mm.write(fname,2)
-        arr0=DataArrayInt([10,11,12,13,100,101])
+        arr0=DataArrayInt32([10,11,12,13,100,101])
         f=MEDCouplingFieldInt(ON_CELLS) ; f.setArray(arr0) ; f.setMesh(m)
         f.setName(fieldName) ; f.setTime(2.,6,7)
         f0=f.deepCopy()
@@ -5380,7 +5384,7 @@ class MEDLoaderTest3(unittest.TestCase):
         fmts=MEDFileIntFieldMultiTS(fname,fieldName)
         self.assertTrue(f1.isEqual(fmts.field(8,9,mm),1e-12,0))
         ## Basic test on nodes on top level
-        f2=MEDCouplingFieldInt(ON_NODES) ; arr2=DataArrayInt([200,201,202]) ; arr2.setInfoOnComponent(0,"tutu") ; f2.setArray(arr2) ; f2.setMesh(m) ; f2.setTime(22.,23,24)
+        f2=MEDCouplingFieldInt(ON_NODES) ; arr2=DataArrayInt32([200,201,202]) ; arr2.setInfoOnComponent(0,"tutu") ; f2.setArray(arr2) ; f2.setMesh(m) ; f2.setTime(22.,23,24)
         f2.setName(fieldName)
         mm.write(fname,2)
         ff=MEDFileIntField1TS() ; ff.setFieldNoProfileSBT(f2) ; ff.write(fname,0)
@@ -5391,7 +5395,7 @@ class MEDLoaderTest3(unittest.TestCase):
         fmts=MEDFileIntFieldMultiTS(fname,fieldName)
         self.assertTrue(f2.isEqual(fmts.field(23,24,mm),1e-12,0))
         ## Node on elements
-        f3=MEDCouplingFieldInt(ON_GAUSS_NE) ; f3.setMesh(m) ; arr3=DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]) ; f3.setArray(arr3) ; f3.setTime(0.5,2,3)
+        f3=MEDCouplingFieldInt(ON_GAUSS_NE) ; f3.setMesh(m) ; arr3=DataArrayInt32([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]) ; f3.setArray(arr3) ; f3.setTime(0.5,2,3)
         f3.setName(fieldName) ; f3.checkConsistencyLight()
         mm.write(fname,2) ; ff=MEDFileIntField1TS() ; ff.setFieldNoProfileSBT(f3) ; ff.write(fname,0)
         #
@@ -5402,7 +5406,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f4=MEDCouplingFieldInt(ON_GAUSS_PT) ; f4.setMesh(m) ; f4.setName(fieldName)
         f4.setGaussLocalizationOnType(NORM_TRI3,[0.,0.,1.,0.,1.,1.],[0.1,0.1, 0.2,0.2, 0.3,0.3, 0.4,0.4, 0.5,0.5],[0.2,0.3,0.1,0.05,0.35])
         f4.setGaussLocalizationOnType(NORM_QUAD4,[0.,0.,1.,0.,1.,1.,0.,1.],[0.3,0.4, 0.6,0.7],[0.7,0.3]) ; f4.setTime(0.25,4,5)
-        arr4=DataArrayInt([0,1,2,3,4 ,10,11,12,13,14, 20,21,22,23,24, 30,31,32,33,34, 45,46, 55,56]) ; arr4.setInfoOnComponent(0,"abc") ; f4.setArray(arr4)
+        arr4=DataArrayInt32([0,1,2,3,4 ,10,11,12,13,14, 20,21,22,23,24, 30,31,32,33,34, 45,46, 55,56]) ; arr4.setInfoOnComponent(0,"abc") ; f4.setArray(arr4)
         f4.checkConsistencyLight()
         mm.write(fname,2) ; ff=MEDFileIntField1TS() ; ff.setFieldNoProfileSBT(f4) ; ff.write(fname,0)
         #
@@ -5494,13 +5498,13 @@ class MEDLoaderTest3(unittest.TestCase):
         mm[0]=m0
         mm.write(fname,2)
         # start slowly
-        f1=MEDCouplingFieldInt(ON_CELLS) ; f1.setName(fieldName) ; f1.setArray(DataArrayInt([(0,100),(1,101)])) ; f1.setMesh(mm[0]) ; f1.setTime(4.,1,2)
+        f1=MEDCouplingFieldInt(ON_CELLS) ; f1.setName(fieldName) ; f1.setArray(DataArrayInt32([(0,100),(1,101)])) ; f1.setMesh(mm[0]) ; f1.setTime(4.,1,2)
         f1ts=MEDFileIntField1TS() ; f1ts.setFieldNoProfileSBT(f1) ; f1ts.write(fname,0)
         #
         mm=MEDFileMesh.New(fname) ; f1ts=MEDFileIntField1TS(fname,fieldName,1,2)
         self.assertTrue(f1.isEqual(f1ts.field(mm),1e-12,0))
         # here f1 lying on level -1 not 0 check if "field" method detect it !
-        f1=MEDCouplingFieldInt(ON_CELLS) ; f1.setName(fieldName) ; f1.setArray(DataArrayInt([(0,100),(1,101),(0,100),(1,101),(0,100),(1,101)]))
+        f1=MEDCouplingFieldInt(ON_CELLS) ; f1.setName(fieldName) ; f1.setArray(DataArrayInt32([(0,100),(1,101),(0,100),(1,101),(0,100),(1,101)]))
         f1.setMesh(mm[-1]) # -1 is very important
         f1.setTime(16.,3,4)
         f1.checkConsistencyLight()
@@ -5512,7 +5516,7 @@ class MEDLoaderTest3(unittest.TestCase):
         # nodes on elements
         f3=MEDCouplingFieldInt(ON_GAUSS_NE)
         f3.setMesh(mm[-1]) # this line is important
-        arr3=DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]) ; f3.setArray(arr3) ; f3.setTime(0.5,2,3)
+        arr3=DataArrayInt32([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]) ; f3.setArray(arr3) ; f3.setTime(0.5,2,3)
         f3.setName(fieldName) ; f3.checkConsistencyLight()
         mm.write(fname,2) ; ff=MEDFileIntField1TS() ; ff.setFieldNoProfileSBT(f3) ; ff.write(fname,0)
         #
@@ -5524,7 +5528,7 @@ class MEDLoaderTest3(unittest.TestCase):
         f4.setName(fieldName)
         f4.setGaussLocalizationOnType(NORM_TRI3,[0.,0.,1.,0.,1.,1.],[0.1,0.1, 0.2,0.2, 0.3,0.3, 0.4,0.4, 0.5,0.5],[0.2,0.3,0.1,0.05,0.35])
         f4.setGaussLocalizationOnType(NORM_QUAD4,[0.,0.,1.,0.,1.,1.,0.,1.],[0.3,0.4, 0.6,0.7],[0.7,0.3]) ; f4.setTime(0.25,4,5)
-        arr4=DataArrayInt([0,1,2,3,4 ,10,11,12,13,14, 20,21,22,23,24, 30,31,32,33,34, 45,46, 55,56]) ; arr4.setInfoOnComponent(0,"abc") ; f4.setArray(arr4)
+        arr4=DataArrayInt32([0,1,2,3,4 ,10,11,12,13,14, 20,21,22,23,24, 30,31,32,33,34, 45,46, 55,56]) ; arr4.setInfoOnComponent(0,"abc") ; f4.setArray(arr4)
         f4.checkConsistencyLight()
         mm.write(fname,2) ; ff=MEDFileIntField1TS() ; ff.setFieldNoProfileSBT(f4) ; ff.write(fname,0)
         mm=MEDFileMesh.New(fname) ; f1ts=MEDFileIntField1TS(fname,fieldName,4,5)

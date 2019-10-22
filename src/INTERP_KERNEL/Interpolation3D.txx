@@ -75,24 +75,24 @@ namespace INTERP_KERNEL
    *
    */
   template<class MyMeshType, class MatrixType>
-  int Interpolation3D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method)
+  typename MyMeshType::MyConnType Interpolation3D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method)
   {
     typedef typename MyMeshType::MyConnType ConnType;
     // create MeshElement objects corresponding to each element of the two meshes
-    const unsigned long numSrcElems = srcMesh.getNumberOfElements();
-    const unsigned long numTargetElems = targetMesh.getNumberOfElements();
+    const ConnType numSrcElems = srcMesh.getNumberOfElements();
+    const ConnType numTargetElems = targetMesh.getNumberOfElements();
 
     LOG(2, "Source mesh has " << numSrcElems << " elements and target mesh has " << numTargetElems << " elements ");
 
     std::vector<MeshElement<ConnType>*> srcElems(numSrcElems);
     std::vector<MeshElement<ConnType>*> targetElems(numTargetElems);
 
-    std::map<MeshElement<ConnType>*, int> indices;
+    std::map<MeshElement<ConnType>*, ConnType> indices;
 
-    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+    for(ConnType i = 0 ; i < numSrcElems ; ++i)
       srcElems[i] = new MeshElement<ConnType>(i, srcMesh);       
 
-    for(unsigned long i = 0 ; i < numTargetElems ; ++i)
+    for(ConnType i = 0 ; i < numTargetElems ; ++i)
       targetElems[i] = new MeshElement<ConnType>(i, targetMesh);
 
     Intersector3D<MyMeshType,MatrixType>* intersector=0;
@@ -186,14 +186,14 @@ namespace INTERP_KERNEL
 
     MeshRegion<ConnType>& srcRegion = firstNode->getSrcRegion();
 
-    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+    for(ConnType i = 0 ; i < numSrcElems ; ++i)
       {
         srcRegion.addElement(srcElems[i], srcMesh);
       }
 
     MeshRegion<ConnType>& targetRegion = firstNode->getTargetRegion();
 
-    for(unsigned long i = 0 ; i < numTargetElems ; ++i)
+    for(ConnType i = 0 ; i < numTargetElems ; ++i)
       {
         if(!srcRegion.isDisjointWithElementBoundingBox( *(targetElems[i]) ))
           {
@@ -252,8 +252,8 @@ namespace INTERP_KERNEL
 
             // add source elements of current node that overlap the target regions of the new nodes
             LOG(5, " -- Adding source elements");
-            int numLeftElements = 0;
-            int numRightElements = 0;
+            ConnType numLeftElements = 0;
+            ConnType numRightElements = 0;
             for(typename std::vector<MeshElement<ConnType>*>::const_iterator iter = currNode->getSrcRegion().getBeginElements() ; 
                 iter != currNode->getSrcRegion().getEndElements() ; ++iter)
               {
@@ -307,8 +307,8 @@ namespace INTERP_KERNEL
       // create BBTree structure
       // - get bounding boxes
     double* bboxes = new double[6 * numSrcElems];
-    int* srcElemIdx = new int[numSrcElems];
-    for(unsigned long i = 0; i < numSrcElems ; ++i)
+    ConnType* srcElemIdx = new ConnType[numSrcElems];
+    for(ConnType i = 0; i < numSrcElems ; ++i)
       {
         // get source bboxes in right order
         const BoundingBox* box = srcElems[i]->getBoundingBox();
@@ -327,10 +327,10 @@ namespace INTERP_KERNEL
 
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
-    for(unsigned long i = 0; i < numTargetElems; ++i)
+    for(ConnType i = 0; i < numTargetElems; ++i)
       {
         const BoundingBox* box = targetElems[i]->getBoundingBox();
-        const int targetIdx = targetElems[i]->getIndex();
+        const ConnType targetIdx = targetElems[i]->getIndex();
 
         // get target bbox in right order
         double targetBox[6];
@@ -354,15 +354,15 @@ namespace INTERP_KERNEL
 
 #endif
     // free allocated memory
-    int ret=intersector->getNumberOfColsOfResMatrix();
+    ConnType ret=intersector->getNumberOfColsOfResMatrix();
 
     delete intersector;
 
-    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+    for(ConnType i = 0 ; i < numSrcElems ; ++i)
       {
         delete srcElems[i];
       }
-    for(unsigned long i = 0 ; i < numTargetElems ; ++i)
+    for(ConnType i = 0 ; i < numTargetElems ; ++i)
       {
         delete targetElems[i];
       }

@@ -163,12 +163,12 @@ int MEDLoaderNS::readUMeshDimFromFile(const std::string& fileName, const std::st
   med_mesh_type type_maillage;
   med_int Sdim,Mdim;
   std::string trueMeshName;
-  med_int meshId=getIdFromMeshName(fid,meshName,trueMeshName);
+  int meshId=FromMedInt<int>(getIdFromMeshName(fid,meshName,trueMeshName));
   INTERP_KERNEL::AutoPtr<char> dt_unit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
   med_sorting_type sortingType;
   med_int nstep;
   med_axis_type axisType;
-  int naxis(MEDmeshnAxis(fid,meshId));
+  med_int naxis(MEDmeshnAxis(fid,meshId));
   INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
   MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,meshId,nommaa,&Sdim,&Mdim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit));
@@ -185,9 +185,9 @@ int MEDLoaderNS::readUMeshDimFromFile(const std::string& fileName, const std::st
     {
       med_geometry_type curMedType=typmai[i];
       med_bool changement,transformation;
-      int curNbOfElemM(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
-      int curNbOfElemF(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));//limitation
-      int curNbOfElem;
+      med_int curNbOfElemM(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
+      med_int curNbOfElemF(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));//limitation
+      med_int curNbOfElem;
       med_entity_type whichEntity;
       MEDLoaderNS::dispatchElems(curNbOfElemM,curNbOfElemF,curNbOfElem,whichEntity);
       if(curNbOfElem>0)
@@ -208,8 +208,8 @@ int MEDLoaderNS::readUMeshDimFromFile(const std::string& fileName, const std::st
   return ret;
 }
 
-med_int MEDLoaderNS::getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName)
-    {
+int MEDLoaderNS::getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName)
+{
   if(meshName.empty())
     {
       std::vector<std::string> meshes=getMeshNamesFid(fid);
@@ -231,8 +231,8 @@ med_int MEDLoaderNS::getIdFromMeshName(med_idt fid, const std::string& meshName,
       throw INTERP_KERNEL::Exception(os2.str().c_str());
     }
   trueMeshName=meshName;
-  return iter-meshes.begin()+1;
-    }
+  return (int)( iter-meshes.begin()+1 );
+}
 
 std::vector<std::string> MEDLoaderNS::getMeshNamesFid(med_idt fid)
 {
@@ -248,10 +248,10 @@ std::vector<std::string> MEDLoaderNS::getMeshNamesFid(med_idt fid)
   std::vector<std::string> ret(n);
   for(int i=0;i<n;i++)
     {
-      int naxis(MEDmeshnAxis(fid,i+1));
+      med_int naxis(MEDmeshnAxis(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
       INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-      int nstep;
+      med_int nstep;
       MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&space_dim,&mesh_dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));
       std::string cur=MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa));
       ret[i]=cur;
@@ -262,7 +262,7 @@ std::vector<std::string> MEDLoaderNS::getMeshNamesFid(med_idt fid)
 /*!
  * This methods allows to merger all entities and to considerate only cell types.
  */
-void MEDLoaderNS::dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entity_type& whichEntity)
+void MEDLoaderNS::dispatchElems(med_int nbOfElemCell, med_int nbOfElemFace, med_int& nbOfElem, med_entity_type& whichEntity)
 {
   if(nbOfElemCell>=nbOfElemFace)
     {
@@ -340,9 +340,9 @@ void MEDCoupling::MEDFileVersion(int& major, int& minor, int& release)
   med_err ret(MEDlibraryNumVersion(&majj,&minn,&rell));
   if(ret!=0)
     throw INTERP_KERNEL::Exception("MEDFileVersion : fail to call MEDlibraryNumVersion ! It looks very bad !");
-  major=majj;
-  minor=minn;
-  release=rell;
+  major=FromMedInt<int>(majj);
+  minor=FromMedInt<int>(minn);
+  release=FromMedInt<int>(rell);
 }
 
 /*!
@@ -378,7 +378,7 @@ void MEDCoupling::SetTooLongStrPolicy(int val)
  * - the space dimension
  * - the number of nodes
  */
-std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > MEDCoupling::GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName, int &meshDim, int& spaceDim, int& numberOfNodes)
+std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > MEDCoupling::GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName, int &meshDim, int& spaceDim, mcIdType& numberOfNodes)
 {
   MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
   std::set<int> poss;
@@ -386,15 +386,17 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
   char maillage_description[MED_COMMENT_SIZE+1];
   med_mesh_type type_maillage;
   std::string trueMeshName;
-  med_int meshId=MEDLoaderNS::getIdFromMeshName(fid,meshName,trueMeshName);
+  int meshId=MEDLoaderNS::getIdFromMeshName(fid,meshName,trueMeshName);
   INTERP_KERNEL::AutoPtr<char> dt_unit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
   med_sorting_type sortingType;
-  med_int nstep;
+  med_int nstep, mDim, sDim;
   med_axis_type axisType;
-  int naxis(MEDmeshnAxis(fid,meshId));
+  med_int naxis(MEDmeshnAxis(fid,meshId));
   INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-  MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,meshId,nommaa,&spaceDim,&meshDim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit));
+  MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,meshId,nommaa,&sDim,&mDim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit));
+  meshDim=FromMedInt<int>(mDim);
+  spaceDim=FromMedInt<int>(sDim);
   if(type_maillage!=MED_UNSTRUCTURED_MESH)
     {
       std::ostringstream oss; oss << "GetUMeshGlobalInfo : Mesh \""<< meshName << "\" in file \"" << fileName;
@@ -414,7 +416,7 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
   for(int i=0;i<MED_N_CELL_FIXED_GEO;i++)
     {
       med_geometry_type curMedType=typmai[i];
-      int curNbOfElemM(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
+      med_int curNbOfElemM(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
       if(curNbOfElemM>0)
         {
           INTERP_KERNEL::NormalizedCellType typp=typmai2[i];
@@ -431,7 +433,7 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
     {
       ret[maxLev-dims[i]].push_back(geoTypes[i]);
     }
-  numberOfNodes=MEDmeshnEntity(fid,nommaa,numdt,numit,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation);
+  numberOfNodes=ToIdType(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
   return ret;
 }
 
@@ -518,7 +520,7 @@ std::vector<std::string> MEDCoupling::GetMeshFamiliesNames(const std::string& fi
   med_int numfam;
   for(int i=0;i<nfam;i++)
     {
-      int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
+      med_int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
       med_int natt=MEDnFamily23Attribute(fid,meshName.c_str(),i+1);
       INTERP_KERNEL::AutoPtr<med_int> attide=new med_int[natt];
       INTERP_KERNEL::AutoPtr<med_int> attval=new med_int[natt];
@@ -541,7 +543,7 @@ std::vector<std::string> MEDCoupling::GetMeshFamiliesNamesOnGroup(const std::str
   med_int numfam;
   for(int i=0;i<nfam;i++)
     {
-      int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
+      med_int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
       med_int natt=MEDnFamily23Attribute(fid,meshName.c_str(),i+1);
       INTERP_KERNEL::AutoPtr<med_int> attide=new med_int[natt];
       INTERP_KERNEL::AutoPtr<med_int> attval=new med_int[natt];
@@ -569,7 +571,7 @@ std::vector<std::string> MEDCoupling::GetMeshGroupsNamesOnFamily(const std::stri
   bool found=false;
   for(int i=0;i<nfam && !found;i++)
     {
-      int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
+      med_int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
       med_int natt=MEDnFamily23Attribute(fid,meshName.c_str(),i+1);
       INTERP_KERNEL::AutoPtr<med_int> attide=new med_int[natt];
       INTERP_KERNEL::AutoPtr<med_int> attval=new med_int[natt];
@@ -604,7 +606,7 @@ std::vector<std::string> MEDCoupling::GetMeshGroupsNames(const std::string& file
   med_int numfam;
   for(int i=0;i<nfam;i++)
     {
-      int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
+      med_int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
       med_int natt=MEDnFamily23Attribute(fid,meshName.c_str(),i+1);
       INTERP_KERNEL::AutoPtr<med_int> attide=new med_int[natt];
       INTERP_KERNEL::AutoPtr<med_int> attval=new med_int[natt];
@@ -746,7 +748,7 @@ std::vector<std::string> MEDCoupling::GetCellFieldNamesOnMesh(const std::string&
       MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
-      int profilesize,nbi;
+      med_int profilesize,nbi;
       if(curMeshName==meshName)
         {
           bool found=false;
@@ -796,7 +798,7 @@ std::vector<std::string> MEDCoupling::GetNodeFieldNamesOnMesh(const std::string&
       std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
       if(nbPdt>0)
         {
-          int profilesize,nbi;
+          med_int profilesize,nbi;
           MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,1,&numdt,&numo,&dt));
           med_int nbOfVal(MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
                                                     pflname,&profilesize,locname,&nbi));
@@ -946,7 +948,7 @@ std::vector< std::pair<int,int> > MEDCoupling::GetCellFieldIterations(const std:
             {
               for(int k=0;k<nbPdt;k++)
                 {
-                  int profilesize,nbi;
+                  med_int profilesize,nbi;
                   MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,k+1,&numdt,&numo,&dt));
                   med_int nbOfVal(MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
                                                             pflname,&profilesize,locname,&nbi));
@@ -1014,7 +1016,7 @@ std::vector< std::pair<int,int> > MEDCoupling::GetNodeFieldIterations(const std:
         {
           for(int k=0;k<nbPdt;k++)
             {
-              int profilesize,nbi;
+              med_int profilesize,nbi;
               MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,k+1,&numdt,&numo,&dt));
               med_int nbOfVal(MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
                                                         pflname,&profilesize,locname,&nbi));
@@ -1270,7 +1272,7 @@ std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDCoupling::ReadFieldsOnSame
   if(!mmuPtr)
     throw INTERP_KERNEL::Exception("ReadFieldsOnSameMesh : only unstructured mesh is managed !");
   MCAuto<MEDCouplingUMesh> m=mmuPtr->getMeshAtLevel(meshDimRelToMax);
-  const DataArrayInt *o2n=mmuPtr->getNumberFieldAtLevel(meshDimRelToMax);
+  const DataArrayIdType *o2n=mmuPtr->getNumberFieldAtLevel(meshDimRelToMax);
   MCAuto<MEDCouplingUMesh> m2(m->clone(true));
   if(o2n)
     m2->renumberCells(o2n->begin(),true);
@@ -1325,7 +1327,7 @@ namespace MEDCoupling
     MCAuto<typename Traits<T>::FieldType> ret(ff->getFieldOnMeshAtLevel(type,m));
     if(muPtr.isNotNull())
       {
-        const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
+        const DataArrayIdType *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
         if(num)
           ret->renumberCells(num->begin());
       }
@@ -1373,27 +1375,27 @@ namespace MEDCoupling
       {
         if(muPtr.isNotNull())
           {
-            const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
+            const DataArrayIdType *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
             if(num)
               ret->renumberCells(num->begin());
           }
       }
     else
       {
-        DataArrayInt *pfl(nullptr),*arr2(nullptr);
+        DataArrayIdType *pfl(nullptr),*arr2(nullptr);
         MCAuto<typename Traits<T>::ArrayType> arr(ff->getFieldWithProfile(ON_NODES,meshDimRelToMax,mm,pfl));
-        MCAuto<DataArrayInt> pflSafe(pfl);
-        MCAuto<DataArrayInt> mp(m->getCellIdsFullyIncludedInNodeIds(pfl->begin(),pfl->end()));
+        MCAuto<DataArrayIdType> pflSafe(pfl);
+        MCAuto<DataArrayIdType> mp(m->getCellIdsFullyIncludedInNodeIds(pfl->begin(),pfl->end()));
         MCAuto<MEDCouplingUMesh> mzip(static_cast<MEDCouplingUMesh *>(m->buildPartAndReduceNodes(mp->begin(),mp->end(),arr2)));
-        MCAuto<DataArrayInt> arr2Safe(arr2);
-        MCAuto<DataArrayInt> arr3(arr2->invertArrayO2N2N2O(mzip->getNumberOfNodes()));
-        MCAuto<DataArrayInt> pflSorted(pflSafe->deepCopy()); pflSorted->sort(true);
+        MCAuto<DataArrayIdType> arr2Safe(arr2);
+        MCAuto<DataArrayIdType> arr3(arr2->invertArrayO2N2N2O(mzip->getNumberOfNodes()));
+        MCAuto<DataArrayIdType> pflSorted(pflSafe->deepCopy()); pflSorted->sort(true);
         if(!arr3->isEqualWithoutConsideringStr(*pflSorted))
           throw INTERP_KERNEL::Exception("ReadFieldNode : not implemented yet !");
         if(!arr3->isEqualWithoutConsideringStr(*pflSafe))
           {
-            MCAuto<DataArrayInt> o2n2(pflSafe->checkAndPreparePermutation());
-            MCAuto<DataArrayInt> n2o2(o2n2->invertArrayO2N2N2O(o2n2->getNumberOfTuples()));
+            MCAuto<DataArrayIdType> o2n2(pflSafe->checkAndPreparePermutation());
+            MCAuto<DataArrayIdType> n2o2(o2n2->invertArrayO2N2N2O(o2n2->getNumberOfTuples()));
             mzip->renumberNodes(n2o2->begin(),n2o2->getNumberOfTuples());
             arr->setName("");
             ret->setArray(arr);
@@ -1557,8 +1559,8 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::stri
     {
       MCAuto<MEDFileUMesh> mmu(MEDFileUMesh::New());
       AssignStaticWritePropertiesTo(*mmu);
-      MCAuto<DataArrayInt> o2n(um->getRenumArrForMEDFileFrmt());
-      MCAuto<DataArrayInt> n2o(o2n->invertArrayO2N2N2O(o2n->getNumberOfTuples()));
+      MCAuto<DataArrayIdType> o2n(um->getRenumArrForMEDFileFrmt());
+      MCAuto<DataArrayIdType> n2o(o2n->invertArrayO2N2N2O(o2n->getNumberOfTuples()));
       f2->renumberCells(o2n->begin(),false);
       mmu->setMeshAtLevel(0,const_cast<MEDCouplingUMesh *>(static_cast<const MEDCouplingUMesh *>(f2->getMesh())));
       mmu->setRenumFieldArr(0,n2o);
@@ -1630,7 +1632,7 @@ void WriteFieldT(const std::string& fileName, const typename MEDCoupling::Traits
           MEDCouplingUMesh *m(dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f2->getMesh())));
           if(!m)
             throw INTERP_KERNEL::Exception("WriteField : only umesh in input field supported !");
-          MCAuto<DataArrayInt> o2n(m->getRenumArrForMEDFileFrmt());
+          MCAuto<DataArrayIdType> o2n(m->getRenumArrForMEDFileFrmt());
           f2->renumberCells(o2n->begin(),false);
           m=static_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f2->getMesh()));
           MCAuto<MEDCouplingUMesh> mread(mmuPtr->getMeshAtLevel(m->getMeshDimension()-mm->getMeshDimension()));
@@ -1640,9 +1642,9 @@ void WriteFieldT(const std::string& fileName, const typename MEDCoupling::Traits
                 m->tryToShareSameCoordsPermute(*mread,_EPS_FOR_NODE_COMP);
               else
                 mread->setCoords(m->getCoords());
-              DataArrayInt *part(NULL);
+              DataArrayIdType *part(NULL);
               bool b(mread->areCellsIncludedIn(m,_COMP_FOR_CELL,part));
-              MCAuto<DataArrayInt> partSafe(part);
+              MCAuto<DataArrayIdType> partSafe(part);
               if(!b)
                 {
                   std::ostringstream oss; oss << "WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart) with the mesh you intend to write ! This is maybe due to a too strict policy ! Try with to lease it by calling SetCompPolicyForCell !";
@@ -1662,9 +1664,9 @@ void WriteFieldT(const std::string& fileName, const typename MEDCoupling::Traits
             }
           else
             {
-              DataArrayInt *part(NULL);
+              DataArrayIdType *part(NULL);
               bool b(mread->getCoords()->areIncludedInMe(m->getCoords(),_EPS_FOR_NODE_COMP,part));
-              MCAuto<DataArrayInt> partSafe(part);
+              MCAuto<DataArrayIdType> partSafe(part);
               if(!b)
                 {
                   std::ostringstream oss; oss << "WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart regarding nodes) with the mesh you intend to write ! This is maybe due to a too strict epsilon ! Try with to lease it by calling SetEpsilonForNodeComp !";
@@ -1738,7 +1740,7 @@ void WriteFieldUsingAlreadyWrittenMeshT(const std::string& fileName, const typen
   MEDCouplingUMesh *m(dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f->getMesh())));
   if(m)
     {
-      MCAuto<DataArrayInt> o2n(m->getRenumArrForMEDFileFrmt());
+      MCAuto<DataArrayIdType> o2n(m->getRenumArrForMEDFileFrmt());
       MCAuto< typename MEDCoupling::Traits<T>::FieldType > f2(f->deepCopy());
       f2->renumberCells(o2n->begin(),false);
       f1ts->setFieldNoProfileSBT(f2);

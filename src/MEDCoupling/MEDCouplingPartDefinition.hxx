@@ -30,19 +30,19 @@ namespace MEDCoupling
   class PartDefinition : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT static PartDefinition *New(int start, int stop, int step);
-    MEDCOUPLING_EXPORT static PartDefinition *New(DataArrayInt *listOfIds);
-    MEDCOUPLING_EXPORT static PartDefinition *Unserialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI);
+    MEDCOUPLING_EXPORT static PartDefinition *New(mcIdType start, mcIdType stop, mcIdType step);
+    MEDCOUPLING_EXPORT static PartDefinition *New(DataArrayIdType *listOfIds);
+    MEDCOUPLING_EXPORT static PartDefinition *Unserialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI);
     MEDCOUPLING_EXPORT virtual bool isEqual(const PartDefinition *other, std::string& what) const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *deepCopy() const = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayInt *toDAI() const = 0;
-    MEDCOUPLING_EXPORT virtual int getNumberOfElems() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayIdType *toDAI() const = 0;
+    MEDCOUPLING_EXPORT virtual mcIdType getNumberOfElems() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *operator+(const PartDefinition& other) const = 0;
     MEDCOUPLING_EXPORT virtual std::string getRepr() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *composeWith(const PartDefinition *other) const = 0;
     MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *tryToSimplify() const = 0;
-    MEDCOUPLING_EXPORT virtual void serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const = 0;
+    MEDCOUPLING_EXPORT virtual void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const = 0;
   protected:
     virtual ~PartDefinition();
   };
@@ -52,21 +52,21 @@ namespace MEDCoupling
   class DataArrayPartDefinition : public PartDefinition
   {
   public:
-    MEDCOUPLING_EXPORT static DataArrayPartDefinition *New(DataArrayInt *listOfIds);
+    MEDCOUPLING_EXPORT static DataArrayPartDefinition *New(DataArrayIdType *listOfIds);
     MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string& what) const;
     MEDCOUPLING_EXPORT DataArrayPartDefinition *deepCopy() const;
-    MEDCOUPLING_EXPORT DataArrayInt *toDAI() const;
-    MEDCOUPLING_EXPORT int getNumberOfElems() const;
+    MEDCOUPLING_EXPORT DataArrayIdType *toDAI() const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfElems() const;
     MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition& other) const;
     MEDCOUPLING_EXPORT std::string getRepr() const;
     MEDCOUPLING_EXPORT PartDefinition *composeWith(const PartDefinition *other) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT PartDefinition *tryToSimplify() const;
-    MEDCOUPLING_EXPORT void serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const;
+    MEDCOUPLING_EXPORT void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const;
   private:
-    DataArrayPartDefinition(DataArrayInt *listOfIds);
+    DataArrayPartDefinition(DataArrayIdType *listOfIds);
     void checkInternalArrayOK() const;
-    static void CheckInternalArrayOK(const DataArrayInt *listOfIds);
+    static void CheckInternalArrayOK(const DataArrayIdType *listOfIds);
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -80,22 +80,22 @@ namespace MEDCoupling
   class SlicePartDefinition : public PartDefinition
   {
   public:
-    MEDCOUPLING_EXPORT static SlicePartDefinition *New(int start, int stop, int step);
+    MEDCOUPLING_EXPORT static SlicePartDefinition *New(mcIdType start, mcIdType stop, mcIdType step);
     MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string& what) const;
     MEDCOUPLING_EXPORT SlicePartDefinition *deepCopy() const;
-    MEDCOUPLING_EXPORT DataArrayInt *toDAI() const;
-    MEDCOUPLING_EXPORT int getNumberOfElems() const;
+    MEDCOUPLING_EXPORT DataArrayIdType *toDAI() const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfElems() const;
     MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition& other) const;
     MEDCOUPLING_EXPORT std::string getRepr() const;
     MEDCOUPLING_EXPORT PartDefinition *composeWith(const PartDefinition *other) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT PartDefinition *tryToSimplify() const;
-    MEDCOUPLING_EXPORT void serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const;
+    MEDCOUPLING_EXPORT void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const;
     //specific method
-    MEDCOUPLING_EXPORT int getEffectiveStop() const;
-    MEDCOUPLING_EXPORT void getSlice(int& start, int& stop, int& step) const;
+    MEDCOUPLING_EXPORT mcIdType getEffectiveStop() const;
+    MEDCOUPLING_EXPORT void getSlice(mcIdType& start, mcIdType& stop, mcIdType& step) const;
   private:
-    SlicePartDefinition(int start, int stop, int step);
+    SlicePartDefinition(mcIdType start, mcIdType stop, mcIdType step);
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;

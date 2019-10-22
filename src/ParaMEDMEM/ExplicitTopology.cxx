@@ -43,10 +43,10 @@ _proc_group(paramesh.getBlockTopology()->getProcGroup()),
 _nb_components(1)
 {
   _nb_elems=paramesh.getCellMesh()->getNumberOfCells();
-  const int* global=paramesh.getGlobalNumberingCell();
-  _loc2glob=new int[_nb_elems]; 
+  const mcIdType* global=paramesh.getGlobalNumberingCell();
+  _loc2glob=new mcIdType[_nb_elems]; 
   
-    for (int i=0; i<_nb_elems; i++)
+    for (mcIdType i=0; i<_nb_elems; i++)
     {
       _loc2glob[i]=global[i];
       _glob2loc[global[i]]=i;
@@ -58,8 +58,8 @@ ExplicitTopology::ExplicitTopology(const ExplicitTopology& topo, int nb_componen
   _proc_group = topo._proc_group;
   _nb_elems = topo._nb_elems;
   _nb_components = nb_components;
-  _loc2glob=new int[_nb_elems];
-  for (int i=0; i<_nb_elems; i++)
+  _loc2glob=new mcIdType[_nb_elems];
+  for (mcIdType i=0; i<_nb_elems; i++)
     {
       _loc2glob[i]=topo._loc2glob[i];
     }
@@ -75,18 +75,18 @@ ExplicitTopology::~ExplicitTopology()
 
 /*! Serializes the data contained in the Explicit Topology
  * for communication purposes*/
-void ExplicitTopology::serialize(int* & serializer, int& size) const 
+void ExplicitTopology::serialize(mcIdType* & serializer, mcIdType& size) const 
 {
-  vector <int> buffer;
+  vector <mcIdType> buffer;
   
   buffer.push_back(_nb_elems);
-  for (int i=0; i<_nb_elems; i++)
+  for (mcIdType i=0; i<_nb_elems; i++)
   {
     buffer.push_back(_loc2glob[i]);
   }
     
-  serializer=new int[buffer.size()];
-  size=  buffer.size();
+  serializer=new mcIdType[buffer.size()];
+  size=ToIdType(buffer.size());
   copy(buffer.begin(), buffer.end(), serializer);
   
 }
@@ -94,14 +94,14 @@ void ExplicitTopology::serialize(int* & serializer, int& size) const
  * after communication. Uses the same structure as the one used for serialize()
  * 
  * */
-void ExplicitTopology::unserialize(const int* serializer,const CommInterface& comm_interface)
+void ExplicitTopology::unserialize(const mcIdType* serializer,const CommInterface& comm_interface)
 {
-  const int* ptr_serializer=serializer;
+  const mcIdType* ptr_serializer=serializer;
   cout << "unserialize..."<<endl;
   _nb_elems=*ptr_serializer++;
   cout << "nbelems "<<_nb_elems<<endl;
-  _loc2glob=new int[_nb_elems];
-  for (int i=0; i<_nb_elems; i++)
+  _loc2glob=new mcIdType[_nb_elems];
+  for (mcIdType i=0; i<_nb_elems; i++)
   {
     _loc2glob[i]=*ptr_serializer;
     _glob2loc[*ptr_serializer]=i;

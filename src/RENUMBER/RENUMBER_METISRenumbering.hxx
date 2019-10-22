@@ -26,7 +26,7 @@
 class RENUMBER_EXPORT METISRenumbering:public Renumbering
 {
 public:
-  virtual void renumber(const int *graph, const int *index_graph, int nb_cell, MEDCoupling::DataArrayInt *&iperm, MEDCoupling::DataArrayInt *&perm);
+  virtual void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nb_cell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm);
 };
 
 #endif /*METISRENUMBERING_HXX_*/

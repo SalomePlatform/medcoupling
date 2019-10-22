@@ -48,31 +48,31 @@ namespace MEDCoupling
     BlockTopology();
     BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid); 
     BlockTopology(const BlockTopology& geom_topo, const ComponentTopology& comp_topo);
-    BlockTopology(const ProcessorGroup& group, int nb_elem);
+    BlockTopology(const ProcessorGroup& group, mcIdType nb_elem);
     virtual ~BlockTopology();
     //!Retrieves the number of elements for a given topology
-    int getNbElements()const { return _nb_elems; }
-    int getNbLocalElements() const;
+    mcIdType getNbElements()const { return _nb_elems; }
+    mcIdType getNbLocalElements() const;
     const ProcessorGroup* getProcGroup()const { return _proc_group; }
-    std::pair<int,int> globalToLocal (const int) const ;
-    int localToGlobal (const std::pair<int,int>) const;
-    std::vector<std::pair<int,int> > getLocalArrayMinMax() const ;
+    std::pair<int,mcIdType> globalToLocal (const mcIdType) const ;
+    mcIdType localToGlobal (const std::pair<int,mcIdType>) const;
+    std::vector<std::pair<int,mcIdType> > getLocalArrayMinMax() const ;
     int getDimension() const { return _dimension; }
-    void serialize(int* & serializer, int& size) const ;
-    void unserialize(const int* serializer, const CommInterface& comm_interface);
+    void serialize(mcIdType* & serializer, mcIdType& size) const ;
+    void unserialize(const mcIdType* serializer, const CommInterface& comm_interface);
   private:
     //dimension : 2 or 3
     int _dimension;
     //proc array
     std::vector<int> _nb_procs_per_dim;
     //stores the offsets vector  
-    std::vector<std::vector<int> > _local_array_indices;
+    std::vector<std::vector<mcIdType> > _local_array_indices;
     //stores the cycle type (block or cyclic)
     std::vector<CYCLE_TYPE> _cycle_type;
     //Processor group
     const ProcessorGroup* _proc_group;
     //nb of elements
-    int _nb_elems;
+    mcIdType _nb_elems;
     bool _owns_processor_group;
   };
 }

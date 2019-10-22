@@ -61,17 +61,18 @@ MEDFileSEConstAtt::MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *fathe
   std::string modelName(getModelName());
   INTERP_KERNEL::AutoPtr<char> constattname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),profilename(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   med_attribute_type constatttype;
-  int nbCompo;
+  med_int nbCompo;
   med_entity_type met;
-  int pflSz;
-  MEDFILESAFECALLERRD0(MEDstructElementConstAttInfo,(fid,modelName.c_str(),idCstAtt+1,constattname,&constatttype,&nbCompo,&met,profilename,&pflSz));
+  med_int miPflSz;
+  MEDFILESAFECALLERRD0(MEDstructElementConstAttInfo,(fid,modelName.c_str(),idCstAtt+1,constattname,&constatttype,&nbCompo,&met,profilename,&miPflSz));
   std::string name(MEDLoaderBase::buildStringFromFortran(constattname,MED_NAME_SIZE));
   setName(name);
   setProfile(MEDLoaderBase::buildStringFromFortran(profilename,MED_NAME_SIZE));
   _tof=MEDFileMesh::ConvertFromMEDFileEntity(met);
   //
   _val=MEDFileStructureElement::BuildFrom(constatttype);
-  nbCompo=MEDFileStructureElement::EffectiveNbCompo(constatttype,nbCompo);
+  nbCompo=MEDFileStructureElement::EffectiveNbCompo(constatttype,FromMedInt<int>(nbCompo));
+  mcIdType pflSz = miPflSz;
   if(pflSz==0 && getProfile().empty())
     {
       switch(met)
@@ -140,8 +141,10 @@ MEDFileSEVarAtt::MEDFileSEVarAtt(med_idt fid, MEDFileStructureElement *father, i
   INTERP_KERNEL::AutoPtr<char> varattname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),profilename(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   med_attribute_type varatttype;
   {
-    int pflSz;
-    MEDFILESAFECALLERRD0(MEDstructElementVarAttInfo,(fid,modelName.c_str(),idVarAtt+1,varattname,&varatttype,&_nb_compo));
+    //int pflSz;
+    med_int nbComp;
+    MEDFILESAFECALLERRD0(MEDstructElementVarAttInfo,(fid,modelName.c_str(),idVarAtt+1,varattname,&varatttype,&nbComp));
+    _nb_compo=FromMedInt<int>(nbComp);
   }
   setName(MEDLoaderBase::buildStringFromFortran(varattname,MED_NAME_SIZE));
   _gen=MEDFileStructureElement::BuildFrom(varatttype);
@@ -174,11 +177,14 @@ MEDFileStructureElement::MEDFileStructureElement(med_idt fid, int idSE, const ME
   INTERP_KERNEL::AutoPtr<char> modelName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),supportMeshName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   med_geometry_type sgeoType;
   med_entity_type entiyType;
-  int nConsAttr(0),nVarAttr(0);
+  med_int nConsAttr(0),nVarAttr(0);
   {
     med_bool anyPfl;
-    int nnode(0),ncell(0);
-    MEDFILESAFECALLERRD0(MEDstructElementInfo,(fid,idSE+1,modelName,&_id_type,&_dim,supportMeshName,&entiyType,&nnode,&ncell,&sgeoType,&nConsAttr,&anyPfl,&nVarAttr));
+    med_int nnode(0),ncell(0),dim(0);
+    med_geometry_type idType;
+    MEDFILESAFECALLERRD0(MEDstructElementInfo,(fid,idSE+1,modelName,&idType,&dim,supportMeshName,&entiyType,&nnode,&ncell,&sgeoType,&nConsAttr,&anyPfl,&nVarAttr));
+    _id_type=(int)idType;
+    _dim=FromMedInt<int>(dim);
   }
   _name=MEDLoaderBase::buildStringFromFortran(modelName,MED_NAME_SIZE);
   _sup_mesh_name=MEDLoaderBase::buildStringFromFortran(supportMeshName,MED_NAME_SIZE);
@@ -327,7 +333,7 @@ void MEDFileStructureElements::writeLL(med_idt fid) const
 
 MEDFileStructureElements::MEDFileStructureElements(med_idt fid, const MEDFileMeshSupports *ms)
 {
-  int nbSE(MEDnStructElement(fid));
+  med_int nbSE(MEDnStructElement(fid));
   _elems.resize(nbSE);
   for(int i=0;i<nbSE;i++)
     _elems[i]=MEDFileStructureElement::New(fid,i,ms);
@@ -344,7 +350,7 @@ MEDFileStructureElements::~MEDFileStructureElements()
 
 int MEDFileStructureElements::getNumberOf() const
 {
-  return _elems.size();
+  return (int)_elems.size();
 }
 
 std::vector<int> MEDFileStructureElements::getDynGTAvail() const
@@ -371,7 +377,7 @@ const MEDFileStructureElement *MEDFileStructureElements::getWithGT(int idGT) con
   throw INTERP_KERNEL::Exception(oss.str());
 }
 
-int MEDFileStructureElements::getNumberOfNodesPerSE(const std::string& seName) const
+mcIdType MEDFileStructureElements::getNumberOfNodesPerSE(const std::string& seName) const
 {
   if(seName=="MED_PARTICLE")
     return 1;

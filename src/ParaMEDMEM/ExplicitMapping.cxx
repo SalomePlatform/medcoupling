@@ -35,12 +35,12 @@ namespace MEDCoupling
     if (_comm_buffer!=0) delete[] _comm_buffer;
   }
 
-  void ExplicitMapping::pushBackElem(std::pair<int,int> idistant)
+  void ExplicitMapping::pushBackElem(std::pair<int,mcIdType> idistant)
   {
     _mapping.push_back(idistant);
   }
 
-  void  ExplicitMapping::setDistantElem(int ilocal, std::pair<int,int> idistant)
+  void  ExplicitMapping::setDistantElem(mcIdType ilocal, std::pair<int,mcIdType> idistant)
   {
     _mapping[ilocal]=idistant;
   }
@@ -49,15 +49,15 @@ namespace MEDCoupling
   {
     if (_distant_domains.empty())
       {
-        for (std::vector <std::pair<int,int> >::const_iterator iter= _mapping.begin();
+        for (std::vector <std::pair<int,mcIdType> >::const_iterator iter= _mapping.begin();
             iter!=_mapping.end();
             iter++)
           _distant_domains.insert(iter->first);
       }
-    return _distant_domains.size();
+    return (int)_distant_domains.size();
   }
 
-  std::pair <int,int> ExplicitMapping::getDistantNumbering(int ielem)const
+  std::pair <int,mcIdType> ExplicitMapping::getDistantNumbering(mcIdType ielem)const
   {
     return _mapping[ielem];
   }
@@ -77,17 +77,17 @@ namespace MEDCoupling
     return _numbers[i];
   }
 
-  int* ExplicitMapping::serialize(int idproc)
+  mcIdType* ExplicitMapping::serialize(int idproc)
   {
-    _comm_buffer=new int[_mapping.size()*2];
-    std::vector<int> offsets(_distant_domains.size());
+    _comm_buffer=new mcIdType[_mapping.size()*2];
+    std::vector<mcIdType> offsets(_distant_domains.size());
     offsets[0]=0;
     for (int i=1; i<(int)_distant_domains.size();i++)
       offsets[i]=offsets[i-1]+_numbers[i-1];
 
     for (int i=0; i<(int)_mapping.size(); i++)
       {
-        int offset= offsets[_mapping[i].first];
+        mcIdType offset= offsets[_mapping[i].first];
         _comm_buffer[offset*2]=idproc;
         _comm_buffer[offset*2+1]=_mapping[i].second;
         offsets[_mapping[i].first]++;
@@ -95,7 +95,7 @@ namespace MEDCoupling
     return _comm_buffer;
   }
 
-  void ExplicitMapping::unserialize(int nbprocs, int* sizes,int nbtarget, int* targetrank, int* commbuffer)
+  void ExplicitMapping::unserialize(int nbprocs, int* sizes,int nbtarget, int* targetrank, mcIdType* commbuffer)
   {
     int total_size=0;
     for (int i=0; i< nbprocs; i++)
@@ -109,7 +109,7 @@ namespace MEDCoupling
         {
           _mapping[indmap].first=i;
           _mapping[indmap].second=commbuffer[indmap*2+1];
-          _buffer_index[indmap]=commbuffer[indmap*2+1];
+          _buffer_index[indmap]=(int)commbuffer[indmap*2+1];
           indmap++;
         }
     _numbers=new int [nbtarget];

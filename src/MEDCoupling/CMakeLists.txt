@@ -25,6 +25,10 @@ ENDIF(MEDCOUPLING_BUILD_TESTS)
 ### KILLER WARNINGS TO HELP INT64 MANAGEMENT
 #ADD_DEFINITIONS(-Wextra -Wsynth -Wno-unused-parameter -pedantic -Wall -Wshadow  -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wctor-dtor-privacy -Wnon-virtual-dtor -Woverloaded-virtual -Wreturn-type  -Wno-endif-labels  -Wsign-compare -Wmissing-format-attribute -Wno-multichar -Wno-deprecated-declarations -Wpacked -Wredundant-decls -Wlong-long -Wdisabled-optimization -Wunknown-pragmas -Wundef  -Wreorder)
 
+IF (NOT DEFINED MSVC)
+  ADD_DEFINITIONS(-Wsign-compare -Wconversion)
+ENDIF()
+
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}/../..
   ${CMAKE_CURRENT_SOURCE_DIR}

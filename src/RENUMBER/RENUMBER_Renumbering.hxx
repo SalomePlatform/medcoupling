@@ -27,13 +27,13 @@
 
 namespace MEDCoupling
 {
-  class DataArrayInt;
+  class DataArrayIdType;
 }
 
 class RENUMBER_EXPORT Renumbering
 {
 public:
-  virtual void renumber(const int *graph, const int *index_graph, int nbCell, MEDCoupling::DataArrayInt *&iperm, MEDCoupling::DataArrayInt *&perm) = 0;
+  virtual void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm) = 0;
   virtual ~Renumbering() { }
 }; 
 

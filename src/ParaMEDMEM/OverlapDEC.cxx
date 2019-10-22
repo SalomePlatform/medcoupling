@@ -212,9 +212,9 @@ namespace MEDCoupling
   OverlapDEC::OverlapDEC(const std::set<int>& procIds, const MPI_Comm& world_comm):
       _load_balancing_algo(1),
       _own_group(true),_interpolation_matrix(0), _locator(0),
+      _default_field_value(0.0),
       _source_field(0),_own_source_field(false),
       _target_field(0),_own_target_field(false),
-      _default_field_value(0.0),
       _comm(MPI_COMM_NULL)
   {
     MEDCoupling::CommInterface comm;
@@ -222,7 +222,7 @@ namespace MEDCoupling
     std::copy(procIds.begin(),procIds.end(),ranks_world);
     MPI_Group group,world_group;
     comm.commGroup(world_comm,&world_group);
-    comm.groupIncl(world_group,procIds.size(),ranks_world,&group);
+    comm.groupIncl(world_group,(int)procIds.size(),ranks_world,&group);
     delete [] ranks_world;
     comm.commCreate(world_comm,group,&_comm);
     comm.groupFree(&group);
@@ -233,7 +233,7 @@ namespace MEDCoupling
         return ;
       }
     std::set<int> idsUnion;
-    for(std::size_t i=0;i<procIds.size();i++)
+    for(unsigned int i=0;i<procIds.size();i++)
       idsUnion.insert(i);
     _group=new MPIProcessorGroup(comm,idsUnion,_comm);
   }
@@ -296,9 +296,9 @@ namespace MEDCoupling
     for(std::vector< std::pair<int,int> >::const_iterator it=jobs.begin();it!=jobs.end();it++)
       {
         const MEDCouplingPointSet *src=_locator->getSourceMesh((*it).first);
-        const DataArrayInt *srcIds=_locator->getSourceIds((*it).first);
+        const DataArrayIdType *srcIds=_locator->getSourceIds((*it).first);
         const MEDCouplingPointSet *trg=_locator->getTargetMesh((*it).second);
-        const DataArrayInt *trgIds=_locator->getTargetIds((*it).second);
+        const DataArrayIdType *trgIds=_locator->getTargetIds((*it).second);
         _interpolation_matrix->computeLocalIntersection(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).second);
       }
     _interpolation_matrix->prepare(_locator->getProcsToSendFieldData());

@@ -57,7 +57,7 @@ namespace INTERP_KERNEL
     const double *coordsS=Intersector3DP1P0<MyMeshType,MyMatrix>::_src_mesh.getCoordinatesPtr();
     Intersector3DP1P0<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(targetCell),CoordsT);
     double baryT[SPACEDIM];
-    calculateBarycenterDyn2<SPACEDIM>(&CoordsT[0],CoordsT.size()/SPACEDIM,baryT);
+    calculateBarycenterDyn2<SPACEDIM>(&CoordsT[0],ToConnType(CoordsT.size())/SPACEDIM,baryT);
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
       {
         NormalizedCellType tS=Intersector3DP1P0<MyMeshType,MyMatrix>::_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
@@ -66,7 +66,7 @@ namespace INTERP_KERNEL
         const CellModel& cmTypeS=CellModel::GetCellModel(tS);
         std::vector<ConnType> connOfCurCellS;
         Intersector3DP1P0<MyMeshType,MyMatrix>::getConnOfSourceCell(OTT<ConnType,numPol>::indFC(*iterCellS),connOfCurCellS);
-        if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(baryT,&connOfCurCellS[0],connOfCurCellS.size(),coordsS,cmTypeS,_precision) )
+        if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(baryT,&connOfCurCellS[0],ToConnType(connOfCurCellS.size()),coordsS,cmTypeS,_precision) )
           {
             double resLoc[4];
             std::vector<double> srcCell;

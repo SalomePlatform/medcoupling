@@ -57,8 +57,8 @@ namespace MEDCoupling
     MEDCOUPLINGREMAPPER_EXPORT ~MEDCouplingRemapper();
     MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method);
     MEDCOUPLINGREMAPPER_EXPORT int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target);
-    MEDCOUPLINGREMAPPER_EXPORT void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<int,double> >& m);
-    MEDCOUPLINGREMAPPER_EXPORT void setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<int,double> >& m);
+    MEDCOUPLINGREMAPPER_EXPORT void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<mcIdType,double> >& m);
+    MEDCOUPLINGREMAPPER_EXPORT void setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<mcIdType,double> >& m);
     MEDCOUPLINGREMAPPER_EXPORT void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
     MEDCOUPLINGREMAPPER_EXPORT void partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField);
     MEDCOUPLINGREMAPPER_EXPORT void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
@@ -74,9 +74,9 @@ namespace MEDCoupling
     MEDCOUPLINGREMAPPER_EXPORT int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor);
     MEDCOUPLINGREMAPPER_EXPORT double getMaxValueInCrudeMatrix() const;
   public:
-    MEDCOUPLINGREMAPPER_EXPORT const std::vector<std::map<int,double> >& getCrudeMatrix() const;
-    MEDCOUPLINGREMAPPER_EXPORT int getNumberOfColsOfMatrix() const;
-    MEDCOUPLINGREMAPPER_EXPORT static void PrintMatrix(const std::vector<std::map<int,double> >& m);
+    MEDCOUPLINGREMAPPER_EXPORT const std::vector<std::map<mcIdType,double> >& getCrudeMatrix() const;
+    MEDCOUPLINGREMAPPER_EXPORT mcIdType getNumberOfColsOfMatrix() const;
+    MEDCOUPLINGREMAPPER_EXPORT static void PrintMatrix(const std::vector<std::map<mcIdType,double> >& m);
     MEDCOUPLINGREMAPPER_EXPORT static std::string BuildMethodFrom(const std::string& meth1, const std::string& meth2);
     MEDCOUPLINGREMAPPER_EXPORT void BuildFieldTemplatesFrom(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, MCAuto<MEDCouplingFieldTemplate>& src, MCAuto<MEDCouplingFieldTemplate>& target);
   private:
@@ -103,16 +103,16 @@ namespace MEDCoupling
     void computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
     void computeProduct(const double *inputPointer, int inputNbOfCompo, bool isDftVal, double dftValue, double *resPointer);
     void computeReverseProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer);
-    void buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<int,double> >& m1D,
-                                                    const std::vector< std::map<int,double> >& m2D,
-                                                    const int *corrCellIdSrc, int nbOf2DCellsSrc, int nbOf1DCellsSrc,
-                                                    const int *corrCellIdTrg);
-    static void ReverseMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn,
-                              std::vector<std::map<int,double> >& matOut);
-    static void ComputeRowSumAndColSum(const std::vector<std::map<int,double> >& matrixDeno,
-                                       std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse);
-    static void ComputeColSumAndRowSum(const std::vector<std::map<int,double> >& matrixDeno,
-                                       std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse);
+    void buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<mcIdType,double> >& m1D,
+                                                    const std::vector< std::map<mcIdType,double> >& m2D,
+                                                    const mcIdType *corrCellIdSrc, mcIdType nbOf2DCellsSrc, mcIdType nbOf1DCellsSrc,
+                                                    const mcIdType *corrCellIdTrg);
+    static void ReverseMatrix(const std::vector<std::map<mcIdType,double> >& matIn, mcIdType nbColsMatIn,
+                              std::vector<std::map<mcIdType,double> >& matOut);
+    static void ComputeRowSumAndColSum(const std::vector<std::map<mcIdType,double> >& matrixDeno,
+                                       std::vector<std::map<mcIdType,double> >& deno, std::vector<std::map<mcIdType,double> >& denoReverse);
+    static void ComputeColSumAndRowSum(const std::vector<std::map<mcIdType,double> >& matrixDeno,
+                                       std::vector<std::map<mcIdType,double> >& deno, std::vector<std::map<mcIdType,double> >& denoReverse);
   private:
     MCAuto<MEDCouplingFieldTemplate> _src_ft;
     MCAuto<MEDCouplingFieldTemplate> _target_ft;

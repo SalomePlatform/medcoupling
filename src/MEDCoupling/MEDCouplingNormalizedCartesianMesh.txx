@@ -39,13 +39,13 @@ MEDCouplingNormalizedCartesianMesh<SPACEDIM>::~MEDCouplingNormalizedCartesianMes
 }
 
 template<int SPACEDIM>
-unsigned long MEDCouplingNormalizedCartesianMesh<SPACEDIM>::getNumberOfElements() const
+mcIdType MEDCouplingNormalizedCartesianMesh<SPACEDIM>::getNumberOfElements() const
 {
   return _mesh->getNumberOfCells();
 }
 
 template<int SPACEDIM>
-unsigned long MEDCouplingNormalizedCartesianMesh<SPACEDIM>::nbCellsAlongAxis(int axis) const
+mcIdType MEDCouplingNormalizedCartesianMesh<SPACEDIM>::nbCellsAlongAxis(int axis) const
 {
   return _mesh->getCoordsAt(axis)->getNumberOfTuples() - 1;
 }

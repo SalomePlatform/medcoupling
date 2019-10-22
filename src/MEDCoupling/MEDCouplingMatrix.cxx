@@ -26,12 +26,12 @@
 
 using namespace MEDCoupling;
 
-DenseMatrix *DenseMatrix::New(int nbRows, int nbCols)
+DenseMatrix *DenseMatrix::New(mcIdType nbRows, mcIdType nbCols)
 {
   return new DenseMatrix(nbRows,nbCols);
 }
 
-DenseMatrix *DenseMatrix::New(DataArrayDouble *array, int nbRows, int nbCols)
+DenseMatrix *DenseMatrix::New(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols)
 {
   return new DenseMatrix(array,nbRows,nbCols);
 }
@@ -77,9 +77,9 @@ void DenseMatrix::updateTime() const
  *
  * \sa reShape
  */
-void DenseMatrix::reBuild(DataArrayDouble *array, int nbRows, int nbCols)
+void DenseMatrix::reBuild(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols)
 {
-  int nbr(getNumberOfRowsExt(nbRows)),nbc(getNumberOfColsExt(nbCols));
+  mcIdType nbr(getNumberOfRowsExt(nbRows)),nbc(getNumberOfColsExt(nbCols));
   CheckArraySizes(array,nbr,nbc);
   DataArrayDouble *data(_data);
   if(data!=array)
@@ -108,7 +108,7 @@ void DenseMatrix::reBuild(DataArrayDouble *array, int nbRows, int nbCols)
  * \throw if the \c nbRows*nbCols is not equal to \c this->getNbOfElems()
  * \sa reBuild
  */
-void DenseMatrix::reShape(int nbRows, int nbCols)
+void DenseMatrix::reShape(mcIdType nbRows, mcIdType nbCols)
 {
   if(nbRows<0 || nbCols<0)
     throw INTERP_KERNEL::Exception("DenseMatrix::reShape : number of rows and number of cols must be > 0 both !");
@@ -225,7 +225,7 @@ DenseMatrix *DenseMatrix::Multiply(const DenseMatrix *a1, const DenseMatrix *a2)
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DenseMatrix::Multiply : input matrices must be not NULL !");
   CheckCompatibleSizeForMul(a1,a2);
-  int nbr(a1->getNumberOfRows()),nbc(a2->getNumberOfCols());
+  mcIdType nbr(a1->getNumberOfRows()),nbc(a2->getNumberOfCols());
   MCAuto<DataArrayDouble> data(DataArrayDouble::New()); data->alloc(nbr*nbc,1);
   MCAuto<DenseMatrix> ret(DenseMatrix::New(data,a1->getNumberOfRows(),a2->getNumberOfCols()));
   INTERP_KERNEL::matrixProduct(a1->getData()->begin(),a1->getNumberOfRows(),a1->getNumberOfCols(),a2->getData()->begin(),a2->getNumberOfRows(),a2->getNumberOfCols(),data->getPointer());
@@ -246,21 +246,21 @@ DenseMatrix::~DenseMatrix()
 {
 }
 
-DenseMatrix::DenseMatrix(int nbRows, int nbCols):_nb_rows(nbRows),_nb_cols(nbCols),_data(DataArrayDouble::New())
+DenseMatrix::DenseMatrix(mcIdType nbRows, mcIdType nbCols):_nb_rows(nbRows),_nb_cols(nbCols),_data(DataArrayDouble::New())
 {
   if(_nb_rows<0 || _nb_cols<0)
     throw INTERP_KERNEL::Exception("constructor of DenseMatrix : number of rows and number of cols must be > 0 both !");
-  int nbOfTuples(_nb_rows*_nb_cols);
+  mcIdType nbOfTuples(_nb_rows*_nb_cols);
   _data->alloc(nbOfTuples,1);
 }
 
-DenseMatrix::DenseMatrix(DataArrayDouble *array, int nbRows, int nbCols):_nb_rows(nbRows),_nb_cols(nbCols)
+DenseMatrix::DenseMatrix(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols):_nb_rows(nbRows),_nb_cols(nbCols)
 {
   CheckArraySizes(array,_nb_rows,_nb_cols);
   _data=array; _data->incrRef();
 }
 
-int DenseMatrix::getNumberOfRowsExt(int nbRows) const
+mcIdType DenseMatrix::getNumberOfRowsExt(mcIdType nbRows) const
 {
   if(nbRows<-1)
     throw INTERP_KERNEL::Exception("DenseMatrix::getNumberOfRowsExt : invalid input must be >= -1 !");
@@ -270,7 +270,7 @@ int DenseMatrix::getNumberOfRowsExt(int nbRows) const
     return nbRows;
 }
 
-int DenseMatrix::getNumberOfColsExt(int nbCols) const
+mcIdType DenseMatrix::getNumberOfColsExt(mcIdType nbCols) const
 {
   if(nbCols<-1)
     throw INTERP_KERNEL::Exception("DenseMatrix::getNumberOfColsExt : invalid input must be >= -1 !");
@@ -290,7 +290,7 @@ void DenseMatrix::checkValidData() const
     throw INTERP_KERNEL::Exception("DenseMatrix::checkValidData : data has not 1 component !");
 }
 
-void DenseMatrix::CheckArraySizes(DataArrayDouble *array, int nbRows, int nbCols)
+void DenseMatrix::CheckArraySizes(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols)
 {
   if(nbRows<0 || nbCols<0)
     throw INTERP_KERNEL::Exception("constructor #2 of DenseMatrix : number of rows and number of cols must be > 0 both !");
@@ -298,8 +298,7 @@ void DenseMatrix::CheckArraySizes(DataArrayDouble *array, int nbRows, int nbCols
     throw INTERP_KERNEL::Exception("constructor #2 of DenseMatrix : input array is empty or not allocated !");
   if(array->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("constructor #2 of DenseMatrix : input array must have exactly one component !");
-  std::size_t nbr((std::size_t)nbRows),nbc((std::size_t)nbCols);
-  if(nbr*nbc!=array->getNbOfElems())
+  if(nbRows*nbCols!=array->getNbOfElems())
     throw INTERP_KERNEL::Exception("constructor #2 of DenseMatrix : the number of elems in input array is not equal to the product of nbRows and nbCols !");
 }
 

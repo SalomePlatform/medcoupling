@@ -587,7 +587,7 @@ double ComposedEdge::isInOrOutAlg(Node *nodeToTest, const std::set<Node*>& nodes
   std::vector<double> radialDistrib3(radialDistrib.size());
   std::transform(radialDistrib2.begin(),radialDistrib2.end(),radialDistrib.begin(),radialDistrib3.begin(),std::minus<double>());
   std::vector<double>::iterator iter3=max_element(radialDistrib3.begin(),radialDistrib3.end());
-  int i=iter3-radialDistrib3.begin();
+  std::size_t i=iter3-radialDistrib3.begin();
   // ok for e1 - Let's go.
   EdgeInfLin *e1=new EdgeInfLin(nodeToTest,radialDistrib[i]+radialDistrib3[i]/2.);
   double ref=e1->getCharactValue(*nodeToTest);

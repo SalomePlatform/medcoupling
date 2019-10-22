@@ -27,6 +27,7 @@
 #include "Interpolation.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpolationOptions.hxx"
+#include "MCIdType.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -42,12 +43,12 @@ namespace INTERP_KERNEL
   class Interpolation2D3D : public Interpolation<Interpolation2D3D>
   {
   public:
-    typedef std::map<int,std::set<int> > DuplicateFacesType;
+    typedef std::map<mcIdType,std::set<mcIdType> > DuplicateFacesType;
 
     INTERPKERNEL_EXPORT Interpolation2D3D();
     INTERPKERNEL_EXPORT Interpolation2D3D(const InterpolationOptions& io);
     template<class MyMeshType, class MyMatrixType>
-    int interpolateMeshes(const MyMeshType& srcMesh,
+    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& srcMesh,
                           const MyMeshType& targetMesh,
                           MyMatrixType& matrix,
                           const std::string& method);

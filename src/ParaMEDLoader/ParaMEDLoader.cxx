@@ -56,11 +56,11 @@ void ParaMEDLoader::WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *m
  */
 void ParaMEDLoader::WriteMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName)
 {
-  int nbOfDom=fileNames.size();
+  std::size_t nbOfDom=fileNames.size();
   std::ofstream fs(fileName);
   fs << "#MED Fichier V 2.3" << " " << std::endl;
   fs << "#"<<" " << std::endl;
   fs << nbOfDom <<" " << std::endl;
-  for(int i=0;i<nbOfDom;i++)
+  for(std::size_t i=0;i<nbOfDom;i++)
     fs << meshName << " " << i+1 << " " << meshName << "_" << i+1 << " localhost " << fileNames[i] << " " << std::endl;
 }

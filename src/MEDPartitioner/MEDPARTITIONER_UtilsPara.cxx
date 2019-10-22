@@ -27,6 +27,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "InterpKernelException.hxx"
 #include "MCAuto.hxx"
+#include "MEDCouplingMemArray.txx"
 #include "InterpKernelAutoPtr.hxx"
 
 #include <fstream>
@@ -36,7 +37,15 @@
 #include <string>
 
 #ifdef HAVE_MPI
+
 #include <mpi.h>
+
+#ifndef MEDCOUPLING_USE_64BIT_IDS
+#define MPI_ID_TYPE MPI_INT
+#else
+#define MPI_ID_TYPE MPI_LONG
+#endif
+
 #endif
 
 using namespace MEDPARTITIONER;
@@ -54,9 +63,9 @@ std::vector<std::string> MEDPARTITIONER::SendAndReceiveVectorOfString(const std:
   if (rank == source)
     {
       std::string str=SerializeFromVectorOfString(vec);
-      int size=str.length();
+      int size=(int)str.length();
       MPI_Send( &size, 1, MPI_INT, target, tag, MPI_COMM_WORLD );
-      MPI_Send( (void*)str.data(), str.length(), MPI_CHAR, target, tag+100, MPI_COMM_WORLD );
+      MPI_Send( (void*)str.data(), (int)str.length(), MPI_CHAR, target, tag+100, MPI_COMM_WORLD );
     }
   
   int recSize=0;
@@ -83,7 +92,7 @@ std::vector<std::string> MEDPARTITIONER::AllgathervVectorOfString(const std::vec
   std::string str=SerializeFromVectorOfString(vec);
   
   std::vector<int> indexes(world_size);
-  int size=str.length();
+  int size=(int)str.length();
   MPI_Allgather(&size, 1, MPI_INT, 
                 &indexes[0], 1, MPI_INT, MPI_COMM_WORLD);
   
@@ -92,7 +101,7 @@ std::vector<std::string> MEDPARTITIONER::AllgathervVectorOfString(const std::vec
   for (int i=0; i<world_size; i++) disp.push_back( disp.back() + indexes[i] );
   
   std::string recData(disp.back(),'x');
-  MPI_Allgatherv((void*)str.data(), str.length(), MPI_CHAR,
+  MPI_Allgatherv((void*)str.data(), (int)str.length(), MPI_CHAR,
                  (void*)recData.data(), &indexes[0], &disp[0], MPI_CHAR,
                  MPI_COMM_WORLD);
   
@@ -115,7 +124,7 @@ std::vector<std::string> MEDPARTITIONER::AllgathervVectorOfString(const std::vec
 void MEDPARTITIONER::SendDoubleVec(const std::vector<double>& vec, const int target)
 {
   int tag = 111002;
-  int size=vec.size();
+  int size=(int)vec.size();
   if (MyGlobals::_Verbose>1000) 
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDoubleVec " << size << std::endl;
 #ifdef HAVE_MPI
@@ -164,15 +173,15 @@ void MEDPARTITIONER::RecvDoubleVec(std::vector<double>& vec, const int source)
   \param vec vector to be sent
   \param target processor id of the target
 */
-void MEDPARTITIONER::SendIntVec(const std::vector<int>& vec, const int target)
+void MEDPARTITIONER::SendIntVec(const std::vector<mcIdType>& vec, const int target)
 {
   int tag = 111003;
-  int size=vec.size();
+  int size=(int)vec.size();
   if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendIntVec " << size << std::endl;
 #ifdef HAVE_MPI
-  MPI_Send(&size, 1, MPI_INT, target, tag, MPI_COMM_WORLD);
-  MPI_Send(const_cast<int*>(&vec[0]), size,MPI_INT, target, tag+100, MPI_COMM_WORLD);
+  MPI_Send(&size, 1, MPI_ID_TYPE, target, tag, MPI_COMM_WORLD);
+  MPI_Send(const_cast<mcIdType*>(&vec[0]), size,MPI_ID_TYPE, target, tag+100, MPI_COMM_WORLD);
 #endif
 }
 
@@ -197,7 +206,7 @@ std::vector<int> *MEDPARTITIONER::RecvIntVec(const int source)
   return vec;
 }
 
-void MEDPARTITIONER::RecvIntVec(std::vector<int>& vec, const int source)
+void MEDPARTITIONER::RecvIntVec(std::vector<mcIdType>& vec, const int source)
 {
   int tag = 111003;
   int size;
@@ -207,7 +216,7 @@ void MEDPARTITIONER::RecvIntVec(std::vector<int>& vec, const int source)
   if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : <-- RecvIntVec " << size << std::endl;
   vec.resize(size);
-  MPI_Recv(&vec[0], size, MPI_INT, source, tag+100, MPI_COMM_WORLD,&status);
+  MPI_Recv(&vec[0], size, MPI_ID_TYPE, source, tag+100, MPI_COMM_WORLD,&status);
 #endif
 }
 
@@ -223,9 +232,9 @@ void MEDPARTITIONER::SendDataArrayInt(const MEDCoupling::DataArrayInt *da, const
     throw INTERP_KERNEL::Exception("Problem send DataArrayInt* NULL");
   int tag = 111004;
   int size[3];
-  size[0]=da->getNbOfElems();
-  size[1]=da->getNumberOfTuples();
-  size[2]=da->getNumberOfComponents();
+  size[0]=(int)da->getNbOfElems();
+  size[1]=(int)da->getNumberOfTuples();
+  size[2]=(int)da->getNumberOfComponents();
   if (MyGlobals::_Verbose>1000) 
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDataArrayInt " << size[0] << std::endl;
 #ifdef HAVE_MPI
@@ -271,9 +280,9 @@ void MEDPARTITIONER::SendDataArrayDouble(const MEDCoupling::DataArrayDouble *da,
     throw INTERP_KERNEL::Exception("Problem send DataArrayDouble* NULL");
   int tag = 111005;
   int size[3];
-  size[0]=da->getNbOfElems();
-  size[1]=da->getNumberOfTuples();
-  size[2]=da->getNumberOfComponents();
+  size[0]=(int)da->getNbOfElems();
+  size[1]=(int)da->getNumberOfTuples();
+  size[2]=(int)da->getNumberOfComponents();
   if (MyGlobals::_Verbose>1000) 
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDataArrayDouble " << size[0] << std::endl;
 #ifdef HAVE_MPI
@@ -380,7 +389,7 @@ void MEDPARTITIONER::TestVectorOfStringMpi()
 void MEDPARTITIONER::TestMapOfStringIntMpi()
 {
   int rank=MyGlobals::_Rank;
-  std::map<std::string,int> myMap;
+  std::map<std::string,mcIdType> myMap;
   myMap["one"]=1;
   myMap["two"]=22;  //a bug
   myMap["three"]=3;
@@ -389,7 +398,7 @@ void MEDPARTITIONER::TestMapOfStringIntMpi()
   if (rank==0)
     {
       std::vector<std::string> v2=VectorizeFromMapOfStringInt(myMap);
-      std::map<std::string,int> m3=DevectorizeToMapOfStringInt(v2);
+      std::map<std::string,mcIdType> m3=DevectorizeToMapOfStringInt(v2);
       if (ReprMapOfStringInt(m3)!=ReprMapOfStringInt(myMap))
         throw INTERP_KERNEL::Exception("Problem in (de)vectorize MapOfStringInt");
     }
@@ -399,7 +408,7 @@ void MEDPARTITIONER::TestMapOfStringIntMpi()
     {
       std::cout << "v2 is : a vector of size " << v2.size() << std::endl;
       std::cout << ReprVectorOfString(v2) << std::endl;
-      std::map<std::string,int> m2=DevectorizeToMapOfStringInt(v2);
+      std::map<std::string,mcIdType> m2=DevectorizeToMapOfStringInt(v2);
       std::cout << "m2 is : a map of size " << m2.size() << std::endl;
       std::cout << ReprMapOfStringInt(m2) << std::endl;
     }

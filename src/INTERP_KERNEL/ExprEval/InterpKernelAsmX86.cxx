@@ -45,7 +45,7 @@ std::vector<char> INTERP_KERNEL::AsmX86::convertIntoMachineLangage(const std::ve
 char *INTERP_KERNEL::AsmX86::copyToExecMemZone(const std::vector<char>& ml, unsigned& offset) const
 {
   char *ret=0;
-  int lgth=ml.size();
+  std::size_t lgth=ml.size();
 #ifdef _POSIX_MAPPED_FILES
 # ifdef __APPLE__
   ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANON | MAP_PRIVATE,-1,0);
@@ -492,7 +492,7 @@ void INTERP_KERNEL::AsmX86::appendAddress(const std::string& addr, int nbOfByte,
   for(int k=0;k<nbOfByte;k++)
     {
       j=i&255;
-      v=j;
+      v=(char)j;
       ml.push_back(v);
       i>>=8;
     }

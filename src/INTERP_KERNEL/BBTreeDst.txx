@@ -38,20 +38,20 @@ private:
   double _max_left;
   double _min_right;
   const double *_bb;
-  std::vector<int> _elems;
+  std::vector<mcIdType> _elems;
   double  *_terminal;
-  int _nbelems;
+  mcIdType _nbelems;
 
   static const int MIN_NB_ELEMS=15;
   static const int MAX_LEVEL=20;
 public:
-  BBTreeDst(const double* bbs, int* elems, int level, int nbelems):
+  BBTreeDst(const double* bbs, mcIdType* elems, int level, mcIdType nbelems):
     _left(0),_right(0),_level(level),_bb(bbs),_terminal(0),_nbelems(nbelems)
   {
     if((nbelems < MIN_NB_ELEMS || level> MAX_LEVEL))
       _terminal=new double[2*dim];
     _elems.resize(nbelems);
-    for (int i=0; i<nbelems; i++)
+    for (mcIdType i=0; i<nbelems; i++)
       _elems[i]=elems?elems[i]:i;
     if(_terminal)
       {
@@ -59,21 +59,21 @@ public:
         return ;
       }
     double *nodes=new double[nbelems];
-    for (int i=0; i<nbelems; i++)
+    for (mcIdType i=0; i<nbelems; i++)
       nodes[i]=bbs[_elems[i]*dim*2+(level%dim)*2];
     std::nth_element<double*>(nodes, nodes+nbelems/2, nodes+nbelems);
     double median = *(nodes+nbelems/2);
     delete [] nodes;
-    std::vector<int> new_elems_left;
-    std::vector<int> new_elems_right;
+    std::vector<mcIdType> new_elems_left;
+    std::vector<mcIdType> new_elems_right;
  
     new_elems_left.reserve(nbelems/2+1);
     new_elems_right.reserve(nbelems/2+1);
     double max_left = -std::numeric_limits<double>::max();
     double min_right=  std::numeric_limits<double>::max();
-    for(int i=0; i<nbelems;i++)
+    for(mcIdType i=0; i<nbelems;i++)
       {
-        int elem;
+        mcIdType elem;
         if (elems!=0)
           elem= elems[i];
         else
@@ -94,15 +94,15 @@ public:
       }
     _max_left=max_left;
     _min_right=min_right;
-    int *tmp;
+    mcIdType *tmp;
     tmp=0;
     if(!new_elems_left.empty())
       tmp=&(new_elems_left[0]);
-    _left=new BBTreeDst(bbs, tmp, level+1, (int)new_elems_left.size());
+    _left=new BBTreeDst(bbs, tmp, level+1, ToIdType(new_elems_left.size()));
     tmp=0;
     if(!new_elems_right.empty())
       tmp=&(new_elems_right[0]);
-    _right=new BBTreeDst(bbs, tmp, level+1, (int)new_elems_right.size());
+    _right=new BBTreeDst(bbs, tmp, level+1, ToIdType(new_elems_right.size()));
   }
 
   ~BBTreeDst()
@@ -112,11 +112,11 @@ public:
     delete [] _terminal;
   }
 
-  void getElemsWhoseMinDistanceToPtSmallerThan(const double *pt, double minOfMaxDstsSq, std::vector<int>& elems) const
+  void getElemsWhoseMinDistanceToPtSmallerThan(const double *pt, double minOfMaxDstsSq, std::vector<mcIdType>& elems) const
   {
     if(_terminal)
       {
-        for(int i=0; i<_nbelems; i++)
+        for(mcIdType i=0; i<_nbelems; i++)
           {
             if(GetMinDistanceFromBBoxToPt(_bb+_elems[i]*2*dim,pt)<minOfMaxDstsSq)
               elems.push_back(_elems[i]);
@@ -144,7 +144,7 @@ public:
       {
         if(GetMinDistanceFromBBoxToPt(_terminal,pt)>minOfMaxDstsSq)//min it is not a bug
           return ;
-        for(int i=0; i<_nbelems; i++)
+        for(mcIdType i=0; i<_nbelems; i++)
           {
             minOfMaxDstsSq=std::min(minOfMaxDstsSq,GetMaxDistanceFromBBoxToPt(_bb+_elems[i]*2*dim,pt));
           }
@@ -168,7 +168,7 @@ public:
         _terminal[2*j]=std::numeric_limits<double>::max();
         _terminal[2*j+1]=-std::numeric_limits<double>::max();
       }
-    for(int i=0;i<_nbelems;i++)
+    for(mcIdType i=0;i<_nbelems;i++)
       {
         for(int j=0;j<dim;j++)
           {
@@ -204,7 +204,7 @@ public:
         for (int idim=0; idim<dim; idim++)
           {
             double val1=pt[idim]-bbox[idim*2],val2=pt[idim]-bbox[idim*2+1];
-            char pos=(( (0.<val1)-(val1<0.) )+( (0.<val2)-(val2<0.) ))/2;// sign(val) = (0.<val)-(val<0.)
+            char pos=static_cast<char>((( (0.<val1)-(val1<0.) )+( (0.<val2)-(val2<0.) ))/2);// sign(val) = (0.<val)-(val<0.)
             if(pos!=0)
               {
                 double x=pos==1?val2:val1;

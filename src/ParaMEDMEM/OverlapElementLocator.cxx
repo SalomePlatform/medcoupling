@@ -48,8 +48,8 @@ namespace MEDCoupling
       _local_source_mesh(0),
       _local_target_mesh(0),
       _domain_bounding_boxes(0),
-      _group(group),
-      _epsAbs(epsAbs)
+      _epsAbs(epsAbs),
+      _group(group)
   { 
     if(_local_source_field)
       _local_source_mesh=_local_source_field->getSupport()->getCellMesh();
@@ -201,9 +201,9 @@ namespace MEDCoupling
           else
             {
             if(cpl.first == procID)
-              (*itMap).second = full_set[cpl.second].size();
+              (*itMap).second = (int)full_set[cpl.second].size();
             else // cpl.second == srcProcID
-              (*itMap).second = full_set[cpl.first].size();
+              (*itMap).second = (int)full_set[cpl.first].size();
             }
         }
     INTERP_KERNEL::AutoPtr<bool> proc_valid = new bool[grp_size];
@@ -216,7 +216,7 @@ namespace MEDCoupling
         int max_sz = -1, max_id = -1;
         for(itVector = full_set.begin(), procID=0; itVector != full_set.end(); itVector++, procID++)
           {
-            int sz = (*itVector).size();
+            int sz = (int)(*itVector).size();
             if (proc_valid[procID] && sz > max_sz)
               {
                 max_sz = sz;
@@ -393,7 +393,7 @@ namespace MEDCoupling
     return (*it).second;
   }
 
-  const DataArrayInt *OverlapElementLocator::getSourceIds(int procId) const
+  const DataArrayIdType *OverlapElementLocator::getSourceIds(int procId) const
   {
     int myProcId=_group.myRank();
     if(myProcId==procId)
@@ -413,7 +413,7 @@ namespace MEDCoupling
     return (*it).second;
   }
 
-  const DataArrayInt *OverlapElementLocator::getTargetIds(int procId) const
+  const DataArrayIdType *OverlapElementLocator::getTargetIds(int procId) const
   {
     int myProcId=_group.myRank();
     if(myProcId==procId)
@@ -469,7 +469,7 @@ namespace MEDCoupling
        field=_local_target_field;
      }
    AutoDAInt elems=local_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment());
-   DataArrayInt *old2new_map;
+   DataArrayIdType *old2new_map;
    MEDCouplingPointSet *send_mesh=static_cast<MEDCouplingPointSet *>(field->getField()->buildSubMeshData(elems->begin(),elems->end(),old2new_map));
    if(sourceOrTarget)
      matrix.keepTracksOfSourceIds(procId,old2new_map);
@@ -486,7 +486,7 @@ namespace MEDCoupling
    */
   void OverlapElementLocator::receiveRemoteMeshFrom(int procId, bool sourceOrTarget)
   {
-    DataArrayInt *old2new_map=0;
+    DataArrayIdType *old2new_map=0;
     MEDCouplingPointSet *m=0;
     receiveMesh(procId,m,old2new_map);
     Proc_SrcOrTgt p(procId,sourceOrTarget);
@@ -494,57 +494,57 @@ namespace MEDCoupling
     _remote_elems[p]=old2new_map;
   }
 
-  void OverlapElementLocator::sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayInt *idsToSend) const
+  void OverlapElementLocator::sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayIdType *idsToSend) const
   {
     CommInterface comInterface=_group.getCommInterface();
 
     // First stage : exchanging sizes
     vector<double> tinyInfoLocalD;//tinyInfoLocalD not used for the moment
-    vector<int> tinyInfoLocal;
+    vector<mcIdType> tinyInfoLocal;
     vector<string> tinyInfoLocalS;
     mesh->getTinySerializationInformation(tinyInfoLocalD,tinyInfoLocal,tinyInfoLocalS);
     const MPI_Comm *comm=getCommunicator();
     //
-    int lgth[2];
-    lgth[0]=tinyInfoLocal.size();
+    mcIdType lgth[2];
+    lgth[0]=ToIdType(tinyInfoLocal.size());
     lgth[1]=idsToSend->getNbOfElems();
-    comInterface.send(&lgth,2,MPI_INT,procId,START_TAG_MESH_XCH,*_comm);
-    comInterface.send(&tinyInfoLocal[0],tinyInfoLocal.size(),MPI_INT,procId,START_TAG_MESH_XCH+1,*comm);
+    comInterface.send(&lgth,2,MPI_ID_TYPE,procId,START_TAG_MESH_XCH,*_comm);
+    comInterface.send(&tinyInfoLocal[0],(int)tinyInfoLocal.size(),MPI_ID_TYPE,procId,START_TAG_MESH_XCH+1,*comm);
     //
-    DataArrayInt *v1Local=0;
+    DataArrayIdType *v1Local=0;
     DataArrayDouble *v2Local=0;
     mesh->serialize(v1Local,v2Local);
-    comInterface.send(v1Local->getPointer(),v1Local->getNbOfElems(),MPI_INT,procId,START_TAG_MESH_XCH+2,*comm);
-    comInterface.send(v2Local->getPointer(),v2Local->getNbOfElems(),MPI_DOUBLE,procId,START_TAG_MESH_XCH+3,*comm);
+    comInterface.send(v1Local->getPointer(),(int)v1Local->getNbOfElems(),MPI_ID_TYPE,procId,START_TAG_MESH_XCH+2,*comm);
+    comInterface.send(v2Local->getPointer(),(int)v2Local->getNbOfElems(),MPI_DOUBLE,procId,START_TAG_MESH_XCH+3,*comm);
     //finished for mesh, ids now
-    comInterface.send(const_cast<int *>(idsToSend->getConstPointer()),lgth[1],MPI_INT,procId,START_TAG_MESH_XCH+4,*comm);
+    comInterface.send(const_cast<mcIdType *>(idsToSend->getConstPointer()),(int)lgth[1],MPI_ID_TYPE,procId,START_TAG_MESH_XCH+4,*comm);
     //
     v1Local->decrRef();
     v2Local->decrRef();
   }
 
-  void OverlapElementLocator::receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayInt *&ids) const
+  void OverlapElementLocator::receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayIdType *&ids) const
   {
-    int lgth[2];
+    mcIdType lgth[2];
     MPI_Status status;
     const MPI_Comm *comm=getCommunicator();
     CommInterface comInterface=_group.getCommInterface();
-    comInterface.recv(lgth,2,MPI_INT,procId,START_TAG_MESH_XCH,*_comm,&status);
-    std::vector<int> tinyInfoDistant(lgth[0]);
-    ids=DataArrayInt::New();
+    comInterface.recv(lgth,2,MPI_ID_TYPE,procId,START_TAG_MESH_XCH,*_comm,&status);
+    std::vector<mcIdType> tinyInfoDistant(lgth[0]);
+    ids=DataArrayIdType::New();
     ids->alloc(lgth[1],1);
-    comInterface.recv(&tinyInfoDistant[0],lgth[0],MPI_INT,procId,START_TAG_MESH_XCH+1,*comm,&status);
+    comInterface.recv(&tinyInfoDistant[0],(int)lgth[0],MPI_ID_TYPE,procId,START_TAG_MESH_XCH+1,*comm,&status);
     mesh=MEDCouplingPointSet::BuildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
     std::vector<std::string> unusedTinyDistantSts;
     vector<double> tinyInfoDistantD(1);//tinyInfoDistantD not used for the moment
-    DataArrayInt *v1Distant=DataArrayInt::New();
+    DataArrayIdType *v1Distant=DataArrayIdType::New();
     DataArrayDouble *v2Distant=DataArrayDouble::New();
     mesh->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
-    comInterface.recv(v1Distant->getPointer(),v1Distant->getNbOfElems(),MPI_INT,procId,START_TAG_MESH_XCH+2,*comm,&status);
-    comInterface.recv(v2Distant->getPointer(),v2Distant->getNbOfElems(),MPI_DOUBLE,procId,START_TAG_MESH_XCH+3,*comm,&status);
+    comInterface.recv(v1Distant->getPointer(),(int)v1Distant->getNbOfElems(),MPI_ID_TYPE,procId,START_TAG_MESH_XCH+2,*comm,&status);
+    comInterface.recv(v2Distant->getPointer(),(int)v2Distant->getNbOfElems(),MPI_DOUBLE,procId,START_TAG_MESH_XCH+3,*comm,&status);
     mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     //finished for mesh, ids now
-    comInterface.recv(ids->getPointer(),lgth[1],MPI_INT,procId,1144,*comm,&status);
+    comInterface.recv(ids->getPointer(),(int)lgth[1],MPI_ID_TYPE,procId,1144,*comm,&status);
     //
     v1Distant->decrRef();
     v2Distant->decrRef();

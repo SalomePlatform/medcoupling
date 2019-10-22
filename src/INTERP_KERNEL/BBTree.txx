@@ -101,9 +101,9 @@ public:
     new_elems_right.reserve(nbelems/2+1);
     double max_left = -std::numeric_limits<double>::max();
     double min_right=  std::numeric_limits<double>::max();
-    for (int i=0; i<nbelems;i++)
+    for (ConnType i=0; i<nbelems;i++)
       {
-        int elem;
+        ConnType elem;
         if (elems!=0)
           elem= elems[i];
         else
@@ -131,11 +131,11 @@ public:
     tmp=0;
     if(!new_elems_left.empty())
       tmp=&(new_elems_left[0]);
-    _left=new BBTree(bbs, tmp, level+1, (int)new_elems_left.size(),_epsilon);
+    _left=new BBTree(bbs, tmp, level+1, (ConnType)new_elems_left.size(),_epsilon);
     tmp=0;
     if(!new_elems_right.empty())
       tmp=&(new_elems_right[0]);
-    _right=new BBTree(bbs, tmp, level+1, (int)new_elems_right.size(),_epsilon);
+    _right=new BBTree(bbs, tmp, level+1, (ConnType)new_elems_right.size(),_epsilon);
   
   }
 
@@ -160,7 +160,7 @@ public:
     //  terminal node : return list of elements intersecting bb
     if (_terminal)
       {
-        for (int i=0; i<_nbelems; i++)
+        for (ConnType i=0; i<_nbelems; i++)
           {
             const double* const  bb_ptr=_bb+_elems[i]*2*dim;
             bool intersects = true;
@@ -197,13 +197,13 @@ public:
   /*!
    * This method is very close to getIntersectingElems except that it returns number of elems instead of elems themselves.
    */
-  int getNbOfIntersectingElems(const double* bb)
+  ConnType getNbOfIntersectingElems(const double* bb)
   {
     //  terminal node : return list of elements intersecting bb
-    int ret(0);
+    ConnType ret(0);
     if (_terminal)
       {
-        for (int i=0; i<_nbelems; i++)
+        for (ConnType i=0; i<_nbelems; i++)
           {
             const double* const  bb_ptr=_bb+_elems[i]*2*dim;
             bool intersects = true;
@@ -272,7 +272,7 @@ public:
 
 
 
-  int size()
+  ConnType size()
   {
     if (_terminal) return _nbelems;
     return _left->size()+_right->size();

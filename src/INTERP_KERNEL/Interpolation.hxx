@@ -37,17 +37,17 @@ namespace INTERP_KERNEL
     Interpolation(const InterpolationOptions& io) :InterpolationOptions(io){}
     //interpolation of two triangular meshes.
     template<class MatrixType, class MyMeshType>
-    int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result)
+    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result)
     { return asLeaf().interpolateMeshes(meshS,meshT,result); }
     template<class MyMeshType, class MatrixType>
-    int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const std::string& method) { return fromToIntegralUniform(false,meshT,result,method); }
+    typename MyMeshType::MyConnType fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const std::string& method) { return fromToIntegralUniform(false,meshT,result,method); }
     template<class MyMeshType, class MatrixType>
-    int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const std::string& method) { return fromToIntegralUniform(true,meshS,result,method); }
+    typename MyMeshType::MyConnType toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const std::string& method) { return fromToIntegralUniform(true,meshS,result,method); }
     template<class MyMeshType>
     static double CalculateCharacteristicSizeOfMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, const int printLevel);
   protected:
     template<class MyMeshType, class MatrixType>
-    int fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const std::string& method);
+    typename MyMeshType::MyConnType fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const std::string& method);
   protected:
     TrueMainInterpolator& asLeaf() { return static_cast<TrueMainInterpolator&>(*this); }
   };

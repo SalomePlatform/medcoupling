@@ -47,7 +47,7 @@ namespace MEDCoupling
     virtual ~ElementLocator();
     void exchangeMesh(int idistantrank,
                       MEDCouplingPointSet*& target_mesh,
-                      int*& distant_ids);
+                      mcIdType*& distant_ids);
     void exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth);
     const std::vector<int>& getDistantProcIds() const { return _distant_proc_ids; }
     const MPI_Comm *getCommunicator() const;
@@ -56,15 +56,15 @@ namespace MEDCoupling
     bool isM1DCorr() const { return _is_m1d_corr; }
     //Working side methods
     void recvPolicyFromLazySideW(std::vector<int>& policy);
-    void sendSumToLazySideW(const std::vector< std::vector<int> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds);
+    void sendSumToLazySideW(const std::vector< std::vector<mcIdType> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds);
     void recvSumFromLazySideW(std::vector< std::vector<double> >& globalSumRelToDistantIds);
-    void sendCandidatesForAddElementsW(const std::vector<int>& distantGlobIds);
-    void recvAddElementsFromLazyProcsW(std::vector<std::vector<int> >& elementsToAdd);
+    void sendCandidatesForAddElementsW(const std::vector<mcIdType>& distantGlobIds);
+    void recvAddElementsFromLazyProcsW(std::vector<std::vector<mcIdType> >& elementsToAdd);
     //
-    void sendLocalIdsToLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds);
-    void recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds, std::vector< std::vector<int> >& globalIds);
-    void recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<int> >& globalIds);
-    void sendPartialSumToLazyProcsW(const std::vector<int>& distantGlobIds, const std::vector<double>& sum);
+    void sendLocalIdsToLazyProcsW(const std::vector< std::vector<mcIdType> >& distantLocEltIds);
+    void recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<mcIdType> >& distantLocEltIds, std::vector< std::vector<mcIdType> >& globalIds);
+    void recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<mcIdType> >& globalIds);
+    void sendPartialSumToLazyProcsW(const std::vector<mcIdType>& distantGlobIds, const std::vector<double>& sum);
     //Lazy side methods
     int sendPolicyToWorkingSideL();
     void recvFromWorkingSideL();
@@ -81,8 +81,8 @@ namespace MEDCoupling
     void _computeBoundingBoxes();
     bool _intersectsBoundingBox(int irank);
     void _exchangeMesh(MEDCouplingPointSet* local_mesh, MEDCouplingPointSet*& distant_mesh,
-                       int iproc_distant, const DataArrayInt* distant_ids_send,
-                       int*& distant_ids_recv);
+                       int iproc_distant, const DataArrayIdType* distant_ids_send,
+                       mcIdType*& distant_ids_recv);
   private:
     const ParaFIELD&  _local_para_field ;
     MEDCouplingPointSet* _local_cell_mesh;
@@ -99,8 +99,8 @@ namespace MEDCoupling
     const MPI_Comm *_comm;
     //Attributes only used by lazy side
     std::vector<double> _values_added;
-    std::vector< std::vector<int> > _ids_per_working_proc;
-    std::vector< std::vector<int> > _ids_per_working_proc3;
+    std::vector< std::vector<mcIdType> > _ids_per_working_proc;
+    std::vector< std::vector<mcIdType> > _ids_per_working_proc3;
     std::vector< std::vector<double> > _values_per_working_proc;
   public:
     static const int CUMULATIVE_POLICY=3;

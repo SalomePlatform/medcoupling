@@ -264,17 +264,17 @@ void MEDLoaderTest::testMultiMeshRW1()
 {
   const char fileName[]="file10.med";
   MEDCouplingUMesh *mesh1=build3DMesh_1();
-  const int part1[5]={1,2,4,13,15};
+  const mcIdType part1[5]={1,2,4,13,15};
   MEDCouplingUMesh *mesh2=(MEDCouplingUMesh *)mesh1->buildPartOfMySelf(part1,part1+5,true);
   mesh2->setName("mesh2");
-  const int part2[4]={3,4,13,14};
+  const mcIdType part2[4]={3,4,13,14};
   MEDCouplingUMesh *mesh3=(MEDCouplingUMesh *)mesh1->buildPartOfMySelf(part2,part2+4,true);
   mesh3->setName("mesh3");
   MEDCouplingUMesh *mesh4=MEDCouplingUMesh::New();
   mesh4->setName("mesh4");
   mesh4->setMeshDimension(3);
   mesh4->allocateCells(1);
-  int conn[4]={0,11,1,3};
+  mcIdType conn[4]={0,11,1,3};
   mesh4->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
   mesh4->finishInsertingCells();
   mesh4->setCoords(mesh1->getCoords());
@@ -288,7 +288,7 @@ void MEDLoaderTest::testMultiMeshRW1()
   //
   MEDCouplingUMesh *mesh5=ReadUMeshFromFile(fileName,mnane);
   mesh1->setName(mnane);
-  const int part3[18]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
+  const mcIdType part3[18]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
   MEDCouplingUMesh *mesh6=(MEDCouplingUMesh *)mesh5->buildPartOfMySelf(part3,part3+18,true);
   mesh6->setName(mnane);
   mesh5->decrRef();
@@ -352,16 +352,16 @@ void MEDLoaderTest::testFieldProfilRW1()
   const char fileName[]="file12.med";
   MEDCouplingUMesh *mesh1=build3DMesh_1();
   bool b;
-  int newNbOfNodes;
-  DataArrayInt *da=mesh1->mergeNodes(1e-12,b,newNbOfNodes);
+  mcIdType newNbOfNodes;
+  DataArrayIdType *da=mesh1->mergeNodes(1e-12,b,newNbOfNodes);
   da->decrRef();
   WriteUMesh(fileName,mesh1,true);
-  const int part1[5]={1,2,4,13,15};
+  const mcIdType part1[5]={1,2,4,13,15};
   MEDCouplingUMesh *mesh2=(MEDCouplingUMesh *)mesh1->buildPartOfMySelf(part1,part1+5,true);
   mesh2->setName(mesh1->getName().c_str());//<- important for the test
   //
-  int nbOfCells=mesh2->getNumberOfCells();
-  CPPUNIT_ASSERT_EQUAL(5,nbOfCells);
+  mcIdType nbOfCells=mesh2->getNumberOfCells();
+  CPPUNIT_ASSERT_EQUAL(ToIdType(5),nbOfCells);
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   f1->setName("VectorFieldOnCells");
   f1->setMesh(mesh2);
@@ -398,7 +398,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   const char fileName[]="file19.med";
   const char fileName2[]="file20.med";
   MEDCouplingUMesh *m=build2DMesh_1();
-  int nbOfNodes=m->getNumberOfNodes();
+  mcIdType nbOfNodes=m->getNumberOfNodes();
   WriteUMesh(fileName,m,true);
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
   f1->setName("VFieldOnNodes");
@@ -413,7 +413,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   array->decrRef();
   f1->setTime(3.14,2,7);
   f1->checkConsistencyLight();
-  const int arr2[2]={1,4};//node ids are 2,4,5,3,6,7
+  const mcIdType arr2[2]={1,4};//node ids are 2,4,5,3,6,7
   MEDCouplingFieldDouble *f2=f1->buildSubPart(arr2,arr2+2);
   (const_cast<MEDCouplingMesh *>(f2->getMesh()))->setName(f1->getMesh()->getName().c_str());
   WriteField(fileName,f2,false);//<- false important for the test
@@ -423,7 +423,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
   //
-  const int arr3[6]={1,3,0,5,2,4};
+  const mcIdType arr3[6]={1,3,0,5,2,4};
   f2->renumberNodes(arr3);
   WriteUMesh(fileName2,m,true);
   WriteField(fileName2,f2,false);//<- false important for the test
@@ -460,7 +460,7 @@ void MEDLoaderTest::testFieldNodeProfilRW2()
   std::copy(arr2,arr2+24,tmp);
   f1->setTime(3.17,2,7);
   //
-  const int renumArr[12]={3,7,2,1,5,11,10,0,9,6,8,4};
+  const mcIdType renumArr[12]={3,7,2,1,5,11,10,0,9,6,8,4};
   f1->renumberNodes(renumArr);
   f1->checkConsistencyLight();
   WriteField(fileName,f1,false);//<- false important for the test
@@ -532,7 +532,7 @@ void MEDLoaderTest::testMesh3DSurfShuffleRW()
 {
   const char fileName[]="file15.med";
   MEDCouplingUMesh *mesh=build3DSurfMesh_1();
-  const int renumber1[6]={2,5,1,0,3,4};
+  const mcIdType renumber1[6]={2,5,1,0,3,4};
   mesh->renumberCells(renumber1,false);
   mesh->checkConsistencyLight();
   WriteUMesh(fileName,mesh,true);
@@ -559,7 +559,7 @@ void MEDLoaderTest::testFieldShuffleRW1()
   f1->setTime(3.14,2,7);
   f1->checkConsistencyLight();
   //
-  const int renumber1[6]={2,1,5,0,3,4};
+  const mcIdType renumber1[6]={2,1,5,0,3,4};
   f1->renumberCells(renumber1,false);
   WriteField(fileName,f1,true);
   MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>((MEDCouplingField *)ReadFieldCell(fileName,mesh->getName().c_str(),0,f1->getName().c_str(),2,7));
@@ -578,11 +578,11 @@ void MEDLoaderTest::testMultiFieldShuffleRW1()
   const char fileName[]="file17.med";
   MEDCouplingUMesh *m=build3DMesh_2();
   CPPUNIT_ASSERT_EQUAL(20,(int)m->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(45,m->getNumberOfNodes());
-  const int polys[3]={1,4,6};
-  std::vector<int> poly2(polys,polys+3);
+  CPPUNIT_ASSERT_EQUAL(ToIdType(45),m->getNumberOfNodes());
+  const mcIdType polys[3]={1,4,6};
+  std::vector<mcIdType> poly2(polys,polys+3);
   m->convertToPolyTypes(&poly2[0],&poly2[0]+poly2.size());
-  const int renum[20]={1,3,2,8,9,12,13,16,19,0,4,7,5,15,14,17,10,18,6,11};
+  const mcIdType renum[20]={1,3,2,8,9,12,13,16,19,0,4,7,5,15,14,17,10,18,6,11};
   m->renumberCells(renum,false);
   m->orientCorrectlyPolyhedrons();
   // Writing
@@ -631,10 +631,10 @@ void MEDLoaderTest::testWriteUMeshesRW1()
   MEDCouplingUMesh *m3d=build3DMesh_2();
   const double pt[3]={0.,0.,-0.3};
   const double vec[3]={0.,0.,1.};
-  std::vector<int> nodes;
+  std::vector<mcIdType> nodes;
   m3d->findNodesOnPlane(pt,vec,1e-12,nodes);
   MEDCouplingUMesh *m2d=(MEDCouplingUMesh *)m3d->buildFacePartOfMySelfNode(&nodes[0],&nodes[0]+nodes.size(),true);
-  const int renumber[5]={1,2,0,4,3};
+  const mcIdType renumber[5]={1,2,0,4,3};
   m2d->renumberCells(renumber,false);
   m2d->setName("ExampleOfMultiDimW");
   std::vector<const MEDCouplingUMesh *> meshes;
@@ -788,7 +788,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,(int)mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(i));
@@ -796,7 +796,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,mesh->getTypeOfCell(13));
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,mesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,mesh->getTypeOfCell(15));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)90,mesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(90),mesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(701,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+90,0));
   CPPUNIT_ASSERT_EQUAL(705,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+17,0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
@@ -812,11 +812,11 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,mesh->getTypeOfCell(1));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)11,mesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(11),mesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(132,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+11,0));
   CPPUNIT_ASSERT_EQUAL(16,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+3,0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
@@ -835,12 +835,12 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(7,(int)mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<6;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(i));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,mesh->getTypeOfCell(6));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)36,mesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(36),mesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(254,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+36,0));
   CPPUNIT_ASSERT_EQUAL(141,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+8,0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
@@ -874,7 +874,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,(int)constMesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,constMesh->getTypeOfCell(i));
@@ -882,7 +882,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(13));
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(15));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)90,constMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(90),constMesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+90,0));
   CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+17,0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
@@ -903,7 +903,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,(int)constMesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,constMesh->getTypeOfCell(i));
@@ -911,7 +911,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(13));
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(15));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)90,constMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(90),constMesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+90,0));
   CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+17,0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
@@ -957,7 +957,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,(int)constMesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,constMesh->getTypeOfCell(i));
@@ -965,7 +965,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(13));
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(15));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)90,constMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(90),constMesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+90,0));
   CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+17,0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
@@ -985,7 +985,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,(int)constMesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,constMesh->getTypeOfCell(i));
@@ -993,7 +993,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(13));
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(15));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)90,constMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(90),constMesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+90,0));
   CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+17,0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
@@ -1014,7 +1014,7 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(538,(int)mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(579,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(579),mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<514;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,mesh->getTypeOfCell(i));
@@ -1026,7 +1026,7 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   std::transform(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+12,expectedVals1,diffValue1,std::minus<double>());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,*std::max_element(diffValue1,diffValue1+12),1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,*std::min_element(diffValue1,diffValue1+12),1e-12);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)2768,mesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(2768),mesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(651050,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+2768,0));
   CPPUNIT_ASSERT_EQUAL(725943,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+539,0));
   mesh->decrRef();
@@ -1048,7 +1048,7 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(538,(int)constMesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(579,constMesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(579),constMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<514;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,constMesh->getTypeOfCell(i));
@@ -1058,7 +1058,7 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   std::transform(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+12,expectedVals1,diffValue1,std::minus<double>());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,*std::max_element(diffValue1,diffValue1+12),1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,*std::min_element(diffValue1,diffValue1+12),1e-12);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)2768,constMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(2768),constMesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(651050,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+2768,0));
   CPPUNIT_ASSERT_EQUAL(725943,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+539,0));
   const double *values=field->getArray()->getPointer();
@@ -1080,12 +1080,12 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL(NORM_POLYHED,mesh->getTypeOfCell(1));
   CPPUNIT_ASSERT_EQUAL(NORM_POLYHED,mesh->getTypeOfCell(2));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)98,mesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(98),mesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(725,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+98,0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(110.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
   CPPUNIT_ASSERT_EQUAL(155,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+4,0));
@@ -1096,7 +1096,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(17,(int)mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_POLYGON,mesh->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,mesh->getTypeOfCell(1));
@@ -1116,7 +1116,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,mesh->getTypeOfCell(15));
   CPPUNIT_ASSERT_EQUAL(NORM_TRI3,mesh->getTypeOfCell(16));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(110.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)83,mesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(83),mesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(619,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+83,0));
   mesh->decrRef();
   //
@@ -1133,18 +1133,18 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(1,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_POLYGON,mesh->getTypeOfCell(i));
-  CPPUNIT_ASSERT_EQUAL((std::size_t)19,mesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),mesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(117,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+19,0));
   mesh->decrRef();
   //
   mesh=ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(0,(int)mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(19),mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(0,(int)mesh->getAllGeoTypes().size());
   mesh->decrRef();
@@ -1153,7 +1153,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
 MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
 {
   double coords[6]={ 0.0, 0.3, 0.75, 1.0, 1.4, 1.3 };
-  int conn[9]={ 0,1, 1,2, 2,3 , 3,4,5};
+  mcIdType conn[9]={ 0,1, 1,2, 2,3 , 3,4,5};
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setName("1DMesh_1");
   mesh->setMeshDimension(1);
@@ -1175,7 +1175,7 @@ MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
 MEDCouplingUMesh *MEDLoaderTest::build2DCurveMesh_1()
 {
   double coords[12]={ 0.0,0.0, 0.3,0.3, 0.75,0.75, 1.0,1.0, 1.4,1.4, 1.3,1.3 };
-  int conn[9]={ 0,1, 1,2, 2,3 , 3,4,5};
+  mcIdType conn[9]={ 0,1, 1,2, 2,3 , 3,4,5};
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setName("2DCurveMesh_1");
   mesh->setMeshDimension(1);
@@ -1196,7 +1196,7 @@ MEDCouplingUMesh *MEDLoaderTest::build2DCurveMesh_1()
 MEDCouplingUMesh *MEDLoaderTest::build2DMesh_1()
 {
   double targetCoords[24]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7, -0.05,0.95, 0.2,1.2, 0.45,0.95 };
-  int targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
+  mcIdType targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(6);
@@ -1224,7 +1224,7 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_2()
     -0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7,
     -0.05,0.95, 0.2,1.2, 0.45,0.95
   };
-  int targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
+  mcIdType targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(5);
@@ -1251,7 +1251,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DSurfMesh_1()
     -0.3,-0.3,-0.3, 0.2,-0.3,-0.3, 0.7,-0.3,-0.3, -0.3,0.2,-0.3, 0.2,0.2,-0.3, 0.7,0.2,-0.3, -0.3,0.7,-0.3, 0.2,0.7,-0.3, 0.7,0.7,-0.3
     ,-0.05,0.95,-0.3, 0.2,1.2,-0.3, 0.45,0.95,-0.3
   };
-  int targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
+  mcIdType targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(6);
@@ -1285,7 +1285,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_1()
     0.,0.,3., 1.,1.,3., 1.,1.25,3., 0.,1.,3., 1.,1.5,3., 2.,0.,3., 2.,1.,3., 1.,2.,3., 0.,2.,3., 3.,1.,3.,
     3.,2.,3., 0.,1.,3., 1.,3.,3., 2.,2.,3., 2.,3.,3.};
 
-  int conn[354]={
+  mcIdType conn[354]={
     // 0
     0,11,1,3,15,26,16,18,   1,2,4,7,13,6,-1,1,16,21,6,-1,6,21,28,13,-1,13,7,22,28,-1,7,4,19,22,-1,4,2,17,19,-1,2,1,16,17,-1,16,21,28,22,19,17,
     1,6,5,3,16,21,20,18,   13,10,9,6,28,25,24,21,
@@ -1345,11 +1345,11 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_1()
 MEDCouplingUMesh *MEDLoaderTest::build3DMesh_2()
 {
   MEDCouplingUMesh *m3dsurfBase=build3DSurfMesh_1();
-  int numbers[5]={0,1,2,3,5};
+  mcIdType numbers[5]={0,1,2,3,5};
   MEDCouplingUMesh *m3dsurf=(MEDCouplingUMesh *)m3dsurfBase->buildPartOfMySelf(numbers,numbers+5,false);
   m3dsurfBase->decrRef();
   MEDCouplingUMesh *m1dBase=build1DMesh_1();
-  int numbers2[4]={0,1,2,3};
+  mcIdType numbers2[4]={0,1,2,3};
   MEDCouplingUMesh *m1d=(MEDCouplingUMesh *)m1dBase->buildPartOfMySelf(numbers2,numbers2+4,false);
   m1dBase->decrRef();
   m1d->changeSpaceDimension(3);
@@ -1365,7 +1365,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_2()
 MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnCells_1()
 {
   MEDCouplingUMesh *mesh=build3DSurfMesh_1();
-  int nbOfCells=mesh->getNumberOfCells();
+  mcIdType nbOfCells=mesh->getNumberOfCells();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   f1->setName("VectorFieldOnCells");
   f1->setMesh(mesh);
@@ -1388,7 +1388,7 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnCells_1()
 MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnNodes_1()
 {
   MEDCouplingUMesh *mesh=build3DSurfMesh_1();
-  int nbOfNodes=mesh->getNumberOfNodes();
+  mcIdType nbOfNodes=mesh->getNumberOfNodes();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
   f1->setName("VectorFieldOnNodes");
   f1->setMesh(mesh);

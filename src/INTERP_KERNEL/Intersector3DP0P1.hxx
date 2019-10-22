@@ -30,8 +30,8 @@ namespace INTERP_KERNEL
   {
   public:
     Intersector3DP0P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh);
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    typename MyMeshType::MyConnType getNumberOfRowsOfResMatrix() const;
+    typename MyMeshType::MyConnType getNumberOfColsOfResMatrix() const;
   };
 }
 

@@ -55,8 +55,8 @@ namespace INTERP_KERNEL
     // Check types of source elements here rather than in intersectCells() since a wrong type can be
     // found late after a long time of calculation.
 
-    const unsigned long numSrcElems = srcMesh.getNumberOfElements();
-    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+    const ConnType numSrcElems = srcMesh.getNumberOfElements();
+    for(ConnType i = 0 ; i < numSrcElems ; ++i)
       if ( srcMesh.getTypeOfElement( OTT<ConnType,numPol>::indFC(i) ) != NORM_TETRA4 )
         throw INTERP_KERNEL::Exception("P1P0 barycentric algorithm works only with tetrahedral source meshes");
   }
@@ -97,7 +97,7 @@ namespace INTERP_KERNEL
   {
     typename MyMatrix::value_type& resRow=res[tgtCell];
 
-    int nbOfNodesT=Intersector3D<MyMeshType,MyMatrix>::_target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(tgtCell));
+    ConnType nbOfNodesT=Intersector3D<MyMeshType,MyMatrix>::_target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(tgtCell));
     releaseArrays();
     _split.splitTargetCell(tgtCell,nbOfNodesT,_tetra);
 

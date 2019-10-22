@@ -21,6 +21,7 @@
 #define __MEDPARTITIONER_JOINTFINDER_HXX__
 
 #include "MEDPARTITIONER.hxx"
+#include "MCType.hxx"
 
 #include <map>
 #include <vector>
@@ -38,14 +39,14 @@ namespace MEDPARTITIONER
     ~JointFinder();
     void findCommonDistantNodes();
     void print();
-    std::vector<std::vector<std::multimap<int,int> > >& getDistantNodeCell();
-    std::vector<std::vector<std::vector<std::pair<int,int> > > >& getNodeNode();
+    std::vector<std::vector<std::multimap<mcIdType,mcIdType> > >& getDistantNodeCell();
+    std::vector<std::vector<std::vector<std::pair<mcIdType,mcIdType> > > >& getNodeNode();
   private:
     const MeshCollection& _mesh_collection;
     const ParaDomainSelector *_domain_selector;
     const Topology *_topology;
-    std::vector<std::vector<std::multimap<int,int> > > _distant_node_cell;
-    std::vector<std::vector<std::vector<std::pair<int,int> > > > _node_node;
+    std::vector<std::vector<std::multimap<mcIdType,mcIdType> > > _distant_node_cell;
+    std::vector<std::vector<std::vector<std::pair<mcIdType,mcIdType> > > > _node_node;
    
   };
 }

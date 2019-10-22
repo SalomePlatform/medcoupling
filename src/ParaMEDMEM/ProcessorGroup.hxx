@@ -49,7 +49,7 @@ namespace MEDCoupling
     virtual void intersect (ProcessorGroup&) = 0;
     bool contains(int rank) const { return _proc_ids.find(rank)!=_proc_ids.end(); }
     virtual bool containsMyRank() const = 0;
-    int size() const  { return _proc_ids.size(); }
+    int size() const  { return (int)_proc_ids.size(); }
     const CommInterface& getCommInterface()const { return _comm_interface; }
     virtual int myRank() const = 0;
     virtual int translateRank(const ProcessorGroup*, int) const = 0;

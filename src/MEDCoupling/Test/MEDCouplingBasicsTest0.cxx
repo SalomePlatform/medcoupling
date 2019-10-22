@@ -35,7 +35,7 @@
 
 using namespace MEDCoupling;
 
-typedef std::vector<std::map<int,double> > IntersectionMatrix;
+typedef std::vector<std::map<mcIdType,double> > IntersectionMatrix;
 
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSourceMesh_2()
 {
@@ -46,7 +46,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSourceMesh_2()
                            0.0, 200.0, 200.0, 200.0, 0.0, 200.0, 200.0, 100.0, 200.0, 200.0, 200.0, 149.999999970343, 149.9999999874621, 49.999999881628682};
   
   
-  int sourceConn[212]={25, 27, 13, 19, 18, 3, 20, 21, 5, 10, 17, 1, 1, 3, 0, 7, 18, 1, 0, 27, 12, 27, 13, 24, 25, 19, 16, 26, 1, 2, 6, 8, 15, 13, 
+  mcIdType sourceConn[212]={25, 27, 13, 19, 18, 3, 20, 21, 5, 10, 17, 1, 1, 3, 0, 7, 18, 1, 0, 27, 12, 27, 13, 24, 25, 19, 16, 26, 1, 2, 6, 8, 15, 13, 
                        12, 5, 24, 13, 25, 27, 10, 11, 9, 6, 19, 8, 23, 1, 22, 8, 23, 19, 16, 13, 17, 1, 6, 9, 10, 8, 13, 17, 5, 15, 5, 4, 1, 12, 18,
                        0, 24, 27, 19, 20, 18, 1, 7, 6, 5, 1, 4, 12, 15, 14, 25, 27, 19, 18, 1, 19, 16, 13, 20, 19, 23, 1, 27, 12, 1, 0, 6, 5, 1, 10,
                        4, 5, 1, 7, 12, 27, 1, 13, 5, 15, 4, 12, 19, 16, 26, 22, 13, 5, 17, 1, 1, 3, 7, 2, 13, 5, 1, 12, 18, 1, 3, 0, 8, 23, 2, 9, 3,
@@ -70,7 +70,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSourceMesh_2()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_2()
 {
   double targetCoords[24]={200.0, 200.0, 0.0, 200.0, 200.0, 200.0, 200.0, 0.0, 0.0, 200.0, 0.0, 200.0, 0.0, 200.0, 0.0, 0.0, 200.0, 200.0, 0.0, 0.0, 0.0, 0.0, 0.0, 200.0};
-  int targetConn[20]={5, 6, 3, 0, 1, 3, 0, 5, 3, 6, 5, 7, 6, 4, 0, 5, 6, 3, 0, 2};
+  mcIdType targetConn[20]={5, 6, 3, 0, 1, 3, 0, 5, 3, 6, 5, 7, 6, 4, 0, 5, 6, 3, 0, 2};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(3);
   targetMesh->allocateCells(5);
@@ -91,7 +91,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build1DTargetMesh_1()
     25.,25.,0., 25.,25.,50., 25.,25.,200., 75.,25.,0., 75.,25.,50., 75.,25.,200.,
     25.,125.,0., 25.,125.,50., 25.,125.,200., 125.,125.,0., 125.,125.,50., 125.,125.,200.
   };
-  int targetConn[16]={0,1, 1,2, 3,4, 4,5, 6,7, 7,8, 9,10, 10,11};
+  mcIdType targetConn[16]={0,1, 1,2, 3,4, 4,5, 6,7, 7,8, 9,10, 10,11};
 
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New("my name of mesh 1D",1);
   targetMesh->allocateCells(8);
@@ -109,7 +109,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build1DTargetMesh_1()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build2DSourceMesh_1()
 {
   double sourceCoords[8]={-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7};
-  int sourceConn[6]={0,3,1,0,2,3};
+  mcIdType sourceConn[6]={0,3,1,0,2,3};
   MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New("my name of mesh 2D",2);
   sourceMesh->allocateCells(2);
   sourceMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,sourceConn);
@@ -126,7 +126,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DSourceMesh_1()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_1()
 {
   double targetCoords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
-  int targetConn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
+  mcIdType targetConn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(5);
@@ -147,7 +147,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_1()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMeshPerm_1()
 {
   double targetCoords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
-  int targetConn[18]={0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4};
+  mcIdType targetConn[18]={0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(5);
@@ -168,7 +168,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMeshPerm_1()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_2()
 {
   double targetCoords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
-  int targetConn[24]={0,3,4, 0,4,1, 1,4,2, 4,5,2, 3,6,4, 6,7,4, 4,7,5, 7,8,5 };
+  mcIdType targetConn[24]={0,3,4, 0,4,1, 1,4,2, 4,5,2, 3,6,4, 6,7,4, 4,7,5, 7,8,5 };
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(8);
@@ -192,7 +192,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_2()
 MEDCouplingUMesh *MEDCouplingBasicsTest::buildCU1DMesh_U()
 {
   double coords[4]={ 0.0, 0.3, 0.75, 1.0 };
-  int conn[2*3]={ 0,1, 1,2, 2,3 };
+  mcIdType conn[2*3]={ 0,1, 1,2, 2,3 };
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(1);
   mesh->allocateCells(3);
@@ -210,7 +210,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildCU1DMesh_U()
 MEDCouplingUMesh *MEDCouplingBasicsTest::buildCU2DMesh_U()
 {
   double coords[18]={0.0,0.0, 0.5,0.0, 1.0,0.0, 0.0,0.5, 0.5,0.5, 1.0,0.5, 0.0,1.0, 0.5,1.0, 1.0,1.0 };
-  int conn[18]={0,1,4,3, 3,4,7,6, 4,5,8,7, 1,5,4, 1,2,5 };
+  mcIdType conn[18]={0,1,4,3, 3,4,7,6, 4,5,8,7, 1,5,4, 1,2,5 };
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
@@ -234,7 +234,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildCU3DMesh_U()
 //   0.0,1.0,0.0 ,0.0,0.3,0.0 ,0.0,0.3,0.3 ,0.3,0.0,0.0 ,0.3,0.3,1.0 ,1.0,0.0,1.0 ,1.0,0.0,0.3 ,0.3,0.0,0.3 ,0.3,1.0,0.3 ,0.0,0.3,1.0 ,0.3,0.0,1.0 ,0.3,0.3,0.3 ,1.0,0.3,1.0 ,1.0,0.0,0.0 ,0.0,0.0,0.0 ,1.0,0.3,0.3 ,0.3,1.0,0.0 ,1.0,1.0,0.3 ,1.0,1.0,1.0 ,0.0,1.0,1.0 ,0.3,0.3,0.0 ,0.0,1.0,0.3 ,0.0,0.0,1.0 ,0.3,1.0,1.0 ,1.0,0.3,0.0 ,0.0,0.0,0.3 ,1.0,1.0,0.0
       0.0,0.0,0.0, 0.3,0.0,0.0, 1.0,0.0,0.0, 0.0,0.3,0.0, 0.3,0.3,0.0, 1.0,0.3,0.0, 0.0,1.0,0.0, 0.3,1.0,0.0, 1.0,1.0,0.0, 0.0,0.0,0.3, 0.3,0.0,0.3, 1.0,0.0,0.3, 0.0,0.3,0.3, 0.3,0.3,0.3, 1.0,0.3,0.3, 0.0,1.0,0.3, 0.3,1.0,0.3, 1.0,1.0,0.3, 0.0,0.0,1.0, 0.3,0.0,1.0, 1.0,0.0,1.0, 0.0,0.3,1.0, 0.3,0.3,1.0, 1.0,0.3,1.0, 0.0,1.0,1.0, 0.3,1.0,1.0, 1.0,1.0,1.0,
     };
-  int conn[8*8]=
+  mcIdType conn[8*8]=
     {
 //       11,15,12,4,8,17,18,23,3,13,6,7,20,24,15,11,14,3,7,25,1,20,11,2,1,20,11,2,0,16,8,21,20,24,15,11,16,26,17,8,25,7,10,22,2,11,4,9,2,11,4,9,21,8,23,19,7,6,5,10,11,15,12,4
       0,3,4,1,9,12,13,10, 1,4,5,2,10,13,14,11, 3,6,7,4,12,15,16,13, 4,7,8,5,13,16,17,14, 9,12,13,10,18,21,22,19, 10,13,14,11,19,22,23,20, 12,15,16,13,21,24,25,22, 13,16,17,14,22,25,26,23
@@ -256,7 +256,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildCU3DMesh_U()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfSourceMesh_1()
 {
   double sourceCoords[12]={-0.3,-0.3,0.5, 0.7,-0.3,1.5, -0.3,0.7,0.5, 0.7,0.7,1.5};
-  int sourceConn[6]={0,3,1,0,2,3};
+  mcIdType sourceConn[6]={0,3,1,0,2,3};
   MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
   sourceMesh->setMeshDimension(2);
   sourceMesh->allocateCells(2);
@@ -274,7 +274,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfSourceMesh_1()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfSourceMesh_2()
 {
   double sourceCoords[12]={-0.3,-0.3,0., 0.7,-0.3,0., -0.3,0.7,0., 0.7,0.7,0.};
-  int sourceConn[6]={0,3,1,0,2,3};
+  mcIdType sourceConn[6]={0,3,1,0,2,3};
   MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
   sourceMesh->setMeshDimension(2);
   sourceMesh->allocateCells(2);
@@ -292,7 +292,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfSourceMesh_2()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMesh_1()
 {
   double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
-  int targetConn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
+  mcIdType targetConn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(5);
@@ -316,7 +316,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMesh_1()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMeshPerm_1()
 {
   double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
-  int targetConn[18]={0,3,4,1, 1,4,2, 4,2,5, 6,7,4,3, 7,8,5,4};
+  mcIdType targetConn[18]={0,3,4,1, 1,4,2, 4,2,5, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(5);
@@ -337,7 +337,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMeshPerm_1()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMesh_2()
 {
   double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
-  int targetConn[24]={0,3,4, 0,4,1, 1,4,2, 4,5,2, 3,6,4, 6,7,4, 4,7,5, 7,8,5 };
+  mcIdType targetConn[24]={0,3,4, 0,4,1, 1,4,2, 4,5,2, 3,6,4, 6,7,4, 4,7,5, 7,8,5 };
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(8);
@@ -362,7 +362,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSourceMesh_1()
 {
   double sourceCoords[27]={ 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 0.0, 200.0, 200.0, 0.0, 200.0, 0.0, 200.0, 0.0, 200.0,
                             200.0, 0.0, 0.0, 200.0, 200.0, 200.0, 200.0, 200.0, 0.0, 100.0, 100.0, 100.0 };
-  int sourceConn[48]={8,1,7,3, 6,0,8,2, 7,4,5,8, 6,8,4,7, 6,8,0,4, 6,8,7,3, 8,1,3,0, 4,1,5,8, 1,7,5,8, 0,3,8,2, 8,1,0,4, 3,6,8,2};
+  mcIdType sourceConn[48]={8,1,7,3, 6,0,8,2, 7,4,5,8, 6,8,4,7, 6,8,0,4, 6,8,7,3, 8,1,3,0, 4,1,5,8, 1,7,5,8, 0,3,8,2, 8,1,0,4, 3,6,8,2};
   MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
   sourceMesh->setMeshDimension(3);
   sourceMesh->allocateCells(12);
@@ -392,7 +392,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_1()
   double targetCoords[81]={ 0., 0., 0., 50., 0., 0. , 200., 0., 0.  , 0., 50., 0., 50., 50., 0. , 200., 50., 0.,   0., 200., 0., 50., 200., 0. , 200., 200., 0. ,
                             0., 0., 50., 50., 0., 50. , 200., 0., 50.  , 0., 50., 50., 50., 50., 50. , 200., 50., 50.,   0., 200., 50., 50., 200., 50. , 200., 200., 50. ,
                             0., 0., 200., 50., 0., 200. , 200., 0., 200.  , 0., 50., 200., 50., 50., 200. , 200., 50., 200.,   0., 200., 200., 50., 200., 200. , 200., 200., 200. };
-  int targetConn[64]={0,1,4,3,9,10,13,12, 1,2,5,4,10,11,14,13, 3,4,7,6,12,13,16,15, 4,5,8,7,13,14,17,16,
+  mcIdType targetConn[64]={0,1,4,3,9,10,13,12, 1,2,5,4,10,11,14,13, 3,4,7,6,12,13,16,15, 4,5,8,7,13,14,17,16,
                       9,10,13,12,18,19,22,21, 10,11,14,13,19,20,23,22, 12,13,16,15,21,22,25,24, 13,14,17,16,22,23,26,25};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(3);
@@ -411,7 +411,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_1()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMeshMergeNode_1()
 {
   double targetCoords[36]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,-0.3, 0.2,-0.3, 0.2,-0.3, 0.2,0.2, 0.2,0.2, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7, 0.2,0.7 };
-  int targetConn[18]={0,9,7,5, 4,6,2, 10,11,8, 9,14,15,7, 17,16,13,6};
+  mcIdType targetConn[18]={0,9,7,5, 4,6,2, 10,11,8, 9,14,15,7, 17,16,13,6};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(5);
@@ -434,7 +434,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMeshMergeNode_1()
   double targetCoords[93]={ 0., 0., 0., 50., 0., 0. , 200., 0., 0.  , 0., 50., 0., 50., 50., 0. , 200., 50., 0.,   0., 200., 0., 50., 200., 0. , 200., 200., 0. ,
                             0., 0., 50., 50., 0., 50. , 200., 0., 50.  , 0., 50., 50., 50., 50., 50. , 200., 50., 50.,   0., 200., 50., 50., 200., 50. , 200., 200., 50. ,
                             0., 0., 200., 50., 0., 200. , 200., 0., 200.  , 0., 50., 200., 50., 50., 200. , 200., 50., 200.,   0., 200., 200., 50., 200., 200. , 200., 200., 200., 50.,0.,0., 50.,0.,0., 50.,0.,0.,  200., 50., 200.};
-  int targetConn[64]={0,29,4,3,9,10,13,12, 28,2,5,4,10,11,14,13, 3,4,7,6,12,13,16,15, 4,5,8,7,13,14,17,16,
+  mcIdType targetConn[64]={0,29,4,3,9,10,13,12, 28,2,5,4,10,11,14,13, 3,4,7,6,12,13,16,15, 4,5,8,7,13,14,17,16,
                       9,10,13,12,18,19,22,21, 10,11,14,13,19,20,23,22, 12,13,16,15,21,22,25,24, 13,14,17,16,22,30,26,25};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(3);
@@ -462,7 +462,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DExtrudedUMesh_1(MEDCouplingUMesh
     0.,0.,3., 1.,1.,3., 1.,1.25,3., 1.,0.,3., 1.,1.5,3., 2.,0.,3., 2.,1.,3., 1.,2.,3., 0.,2.,3., 3.,1.,3.,
     3.,2.,3., 0.,1.,3., 1.,3.,3., 2.,2.,3., 2.,3.,3.};
 
-  int conn[354]={
+  mcIdType conn[354]={
     // 0
     0,11,1,3,15,26,16,18,   1,2,4,7,13,6,-1,1,16,21,6,-1,6,21,28,13,-1,13,7,22,28,-1,7,4,19,22,-1,4,2,17,19,-1,2,1,16,17,-1,16,21,28,22,19,17,
     1,6,5,3,16,21,20,18,   13,10,9,6,28,25,24,21,
@@ -479,7 +479,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DExtrudedUMesh_1(MEDCouplingUMesh
     41,38,37,34,32,31,-1,41,56,46,31,-1,31,46,47,32,-1,32,47,49,34,-1,34,49,52,37,-1,37,38,53,52,-1,38,41,56,53,-1,56,46,47,49,52,53,
     37,42,44,43,52,57,59,58
   };
-  int conn2[28]={7,12,14,13, 11,8,7,4,2,1, 13,10,9,6, 1,6,5,3, 1,2,4,7,13,6, 0,11,1,3};
+  mcIdType conn2[28]={7,12,14,13, 11,8,7,4,2,1, 13,10,9,6, 1,6,5,3, 1,2,4,7,13,6, 0,11,1,3};
   //
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
   ret->setMeshDimension(3);
@@ -559,7 +559,7 @@ void MEDCouplingBasicsTest::build3DExtrudedUMesh_2(MEDCouplingUMesh *&meshN, MED
     4.2729998779296876, 0.43212001800537109, 0.14404000282287599, 4.2729998779296876, 0, 0.21606000900268554, 4.2729998779296876, 0.10803000450134277,
     0.21606000900268554, 4.2729998779296876, 0.21606000900268554, 0.21606000900268554, 4.2729998779296876, 0.28808000564575198, 0.21606000900268554,
     4.2729998779296876, 0.36010002136230468, 0.21606000900268554, 4.2729998779296876, 0.43212001800537109, 0.21606000900268554, 4.2729998779296876};
-  const int connN[320]={
+  const mcIdType connN[320]={
     0, 1, 7, 6, 30, 31, 37, 36, 1, 2, 8, 7, 31, 32, 38, 37, 2, 3, 9, 8, 32, 33, 39, 38, 3, 4, 10, 9, 33, 34, 40, 39, 4, 5, 11, 10, 34, 35, 41, 40, 6,
     7, 13, 12, 36, 37, 43, 42, 7, 8, 14, 13, 37, 38, 44, 43, 8, 9, 15, 14, 38, 39, 45, 44, 9, 10, 16, 15, 39, 40, 46, 45, 10, 11, 17, 16, 40, 41, 47,
     46, 12, 13, 19, 18, 42, 43, 49, 48, 13, 14, 20, 19, 43, 44, 50, 49, 14, 15, 21, 20, 44, 45, 51, 50, 15, 16, 22, 21, 45, 46, 52, 51, 16, 17, 23,
@@ -617,7 +617,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMeshMerged_1()
     -0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7,
     0.7,-0.3, 1.7,-0.3, 0.7,0.7, 1.7,0.7
   };
-  int targetConn[24]={
+  mcIdType targetConn[24]={
     0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4,
     9,12,10,9,11,12
   };
@@ -652,7 +652,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DCurveMesh(double dx, double dy)
     {
       0.+dx,0.+dy, 1.+dx,0.+dy, 2.+dx,1.+dy
     };
-  int targetConn[2*2]={1,2, 0,1};
+  mcIdType targetConn[2*2]={1,2, 0,1};
 
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New("2Dcurve 1D mesh",1);
   targetMesh->allocateCells(2);
@@ -673,7 +673,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build1DMesh(double dx)
     {
       0.+dx, 1.+dx, 3.+dx, 4.+dx
     };
-  int targetConn[2*3]={1,2, 0,1, 2,3};
+  mcIdType targetConn[2*3]={1,2, 0,1, 2,3};
 
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New("1D mesh",1);
   targetMesh->allocateCells(3);
@@ -692,7 +692,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build1DSourceMesh_2()
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New("1DSourceMesh",1);
   ret->allocateCells(4);
-  int conn[8]={0,1,2,3,1,2,3,4};
+  mcIdType conn[8]={0,1,2,3,1,2,3,4};
   for(int i=0;i<4;i++)
     ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2*i);
   ret->finishInsertingCells();
@@ -709,7 +709,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build1DTargetMesh_2()
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New("1DTargetMesh",1);
   ret->allocateCells(2);
-  int conn[4]={1,2,0,1};
+  mcIdType conn[4]={1,2,0,1};
   for(int i=0;i<2;i++)
     ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2*i);
   ret->finishInsertingCells();
@@ -726,7 +726,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DCurveSourceMesh_2()
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New("1DSourceMesh",1);
   ret->allocateCells(4);
-  int conn[8]={0,1,2,3,1,2,3,4};
+  mcIdType conn[8]={0,1,2,3,1,2,3,4};
   for(int i=0;i<4;i++)
     ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2*i);
   ret->finishInsertingCells();
@@ -743,7 +743,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DCurveTargetMesh_2()
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New("1DTargetMesh",1);
   ret->allocateCells(2);
-  int conn[4]={1,2,0,1};
+  mcIdType conn[4]={1,2,0,1};
   for(int i=0;i<2;i++)
     ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2*i);
   ret->finishInsertingCells();
@@ -760,7 +760,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build1DTargetMesh_3()
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New("1DMesh_3",1);
   ret->allocateCells(4);
-  int conn[10]={0,1,2, 3,4, 6,5,7 ,9,8};
+  mcIdType conn[10]={0,1,2, 3,4, 6,5,7 ,9,8};
   ret->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn);
   ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+3);
   ret->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn+5);
@@ -779,7 +779,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DCurveTargetMesh_3()
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New("2DCurveMesh_3",1);
   ret->allocateCells(4);
-  int conn[10]={0,1,2, 3,4, 6,5,7 ,9,8};
+  mcIdType conn[10]={0,1,2, 3,4, 6,5,7 ,9,8};
   ret->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn);
   ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+3);
   ret->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn+5);
@@ -798,7 +798,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_3()
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New("2DMesh_3",2);
   ret->allocateCells(10);
-  int conn[52]={
+  mcIdType conn[52]={
     0,1,2, 0,1,3,4, 0,1,3,5,4, 0,1,2,6,7,8, 0,1,3,4,6,9,2,10,
     0,2,1, 0,4,3,1, 0,4,5,3,1, 0,2,1,8,7,6, 0,4,3,1,10,2,9,6
   };
@@ -829,7 +829,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_3()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_4()
 {
   double targetCoords[20]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
-  int targetConn[18]={0,4,5,1, 1,5,3, 5,6,2, 7,8,5,4, 8,9,6,5};
+  mcIdType targetConn[18]={0,4,5,1, 1,5,3, 5,6,2, 7,8,5,4, 8,9,6,5};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(5);
@@ -995,7 +995,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build1DMultiTypes_1()
 {
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Multi1DMesh",1);
   DataArrayDouble *coo=buildCoordsForMultiTypes_1();
-  const int conn[5]={0,2, 0,2,1};
+  const mcIdType conn[5]={0,2, 0,2,1};
   mesh->allocateCells(2);
   mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
   mesh->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn+2);
@@ -1009,7 +1009,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DMultiTypes_1()
 {
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Multi2DMesh",2);
   DataArrayDouble *coo=buildCoordsForMultiTypes_1();
-  const int conn[21]={3,4,5, 3,4,5,6,7,8, 0,9,10,11, 0,9,10,11,12,13,14,15};
+  const mcIdType conn[21]={3,4,5, 3,4,5,6,7,8, 0,9,10,11, 0,9,10,11,12,13,14,15};
   mesh->allocateCells(4);
   mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
   mesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,conn+3);
@@ -1025,7 +1025,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DMultiTypes_1()
 {
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Multi3DMesh",3);
   DataArrayDouble *coo=buildCoordsForMultiTypes_1();
-  const int conn[81]={0,16,17,18,
+  const mcIdType conn[81]={0,16,17,18,
                       0,16,17,18,19,20,21,22,23,24,
                       0,11,10,9,25,
                       0,11,10,9,25,15,14,13,12,26,27,28,29,
@@ -1124,7 +1124,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildHexa8Mesh_1()
   const double coords[81]={0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.5, 1.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 0.0, 1.0, 0.5, 0.5, 1.0, 0.5, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.5, 1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0};
   coo->alloc(27,3);
   std::copy(coords,coords+81,coo->getPointer());
-  const int conn[64]={3,12,13,4,0,9,10,1,
+  const mcIdType conn[64]={3,12,13,4,0,9,10,1,
                       4,13,14,5,1,10,11,2,
                       6,15,16,7,3,12,13,4,
                       7,16,17,8,4,13,14,5,
@@ -1146,7 +1146,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildPointe_1(MEDCouplingUMesh *& m1)
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Pointe.med",3);
   MEDCouplingUMesh *mesh2=MEDCouplingUMesh::New("Pointe.med",2);
   const double coords[57]={0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 1.0, 0.0, 2.0, 1.0, -2.0, 0.0, 1.0, 0.0, -2.0, 1.0, 1.0, 1.0, 2.0, -1.0, 1.0, 2.0, -1.0, -1.0, 2.0, 1.0, -1.0, 2.0, 1.0, 1.0, 3.0, -1.0, 1.0, 3.0, -1.0, -1.0, 3.0, 1.0, -1.0, 3.0, 1.0, 1.0, 4.0, -1.0, 1.0, 4.0, -1.0, -1.0, 4.0, 1.0, -1.0, 4.0, 0.0, 0.0, 5.0};
-  const int conn[74]={0,1,2,5,0,1,3,2,0,1,4,3,0,1,5,4,1,6,3,2,1,7,4,3,1,8,5,4,1,9,2,5,1,6,2,9,1,7,3,6,1,8,4,7,1,9,5,8, 6,7,8,9,1,14,17,16,15,18, 10,11,12,13,6,7,8,9,14,15,16,17,10,11,12,13};
+  const mcIdType conn[74]={0,1,2,5,0,1,3,2,0,1,4,3,0,1,5,4,1,6,3,2,1,7,4,3,1,8,5,4,1,9,2,5,1,6,2,9,1,7,3,6,1,8,4,7,1,9,5,8, 6,7,8,9,1,14,17,16,15,18, 10,11,12,13,6,7,8,9,14,15,16,17,10,11,12,13};
   DataArrayDouble *coo=DataArrayDouble::New();
   coo->alloc(19,3);
   std::copy(coords,coords+57,coo->getPointer());
@@ -1162,7 +1162,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildPointe_1(MEDCouplingUMesh *& m1)
   mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+66);
   mesh->finishInsertingCells();
   //[1,34,29,23,41,32]
-  const int conn2[20]={0,5,1,14,18,17,8,7,4,9,5,2, 12,8,9,13,6,7,8,9};
+  const mcIdType conn2[20]={0,5,1,14,18,17,8,7,4,9,5,2, 12,8,9,13,6,7,8,9};
   mesh2->allocateCells(6);
   for(int i=0;i<4;i++)
     mesh2->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn2+3*i);
@@ -1174,11 +1174,11 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildPointe_1(MEDCouplingUMesh *& m1)
   return mesh;
 }
 
-double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<int,double> >& matrix)
+double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<mcIdType,double> >& matrix)
 {
   double ret=0.;
-  for(std::vector< std::map<int,double> >::const_iterator iter=matrix.begin();iter!=matrix.end();iter++)
-    for(std::map<int,double>::const_iterator iter2=(*iter).begin();iter2!=(*iter).end();iter2++)
+  for(std::vector< std::map<mcIdType,double> >::const_iterator iter=matrix.begin();iter!=matrix.end();iter++)
+    for(std::map<mcIdType,double>::const_iterator iter2=(*iter).begin();iter2!=(*iter).end();iter2++)
       ret+=(*iter2).second;
   return ret;
 }
@@ -1189,7 +1189,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2D1DSourceMesh()
                             -5., 3.,   -9., 0.,  -13., 3.,
                             -9., 8.,   -7., 0.,   -7., 8.
   };
-  int sourceConn[16]={0,1, 1,2, 2,3, 3,0, 3,4, 4,5, 4,6, 7,8};
+  mcIdType sourceConn[16]={0,1, 1,2, 2,3, 3,0, 3,4, 4,5, 4,6, 7,8};
   MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
   sourceMesh->setMeshDimension(1);
   sourceMesh->allocateCells(8);
@@ -1213,7 +1213,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2D1DSourceMesh()
 MEDCouplingUMesh *MEDCouplingBasicsTest::build2D1DTargetMesh()
 {
   double targetCoords[10]={-17., 0., -17.,6., -9.,6., -9.,0., -5., 3.};
-  int targetConn[7]={0,1,2,3, 2,3,4};
+  mcIdType targetConn[7]={0,1,2,3, 2,3,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(2);
@@ -1238,7 +1238,7 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build2D1DSegSourceMesh(const double shi
   const int nbYP1 = nbY + 1;
   sourceMesh->allocateCells(nbY);
 
-  int sourceConn[2];
+  mcIdType sourceConn[2];
   for (int iY = 0; iY < nbY; ++iY)
     {
       sourceConn[0] = iY    ;
@@ -1273,7 +1273,7 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build2D1DQuadTargetMesh(const double in
   const int nbYP1 = nbY + 1;
   targetMesh->allocateCells(nbX * nbY);
 
-  int targetConn[4];
+  mcIdType targetConn[4];
   for (int iX = 0; iX < nbX; ++iX)
     {
       for (int iY = 0; iY < nbY; ++iY)
@@ -1316,7 +1316,7 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build2D1DTriTargetMesh(const double inc
   const int nbYP1 = nbY + 1;
   targetMesh->allocateCells(nbX * nbY * 2);
 
-  int targetConn[3];
+  mcIdType targetConn[3];
   for (int iX = 0; iX < nbX; ++iX)
     {
       for (int iY = 0; iY < nbY; ++iY)
@@ -1360,7 +1360,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3D2DSourceMesh()
                            -20., 0., 16., -18., 0., 16., -20., 2.5, 16.,
                            -25., 0., -5.,   5., 0., -5.,   5., 0. , 25., -25.,0.,25.
   };
-  int sourceConn[25]={0,1,2, 3,4,5,6, 7,8,9, 10,11,12,13, 14,15,16, 3,4,8,7, 17,18,19,20};
+  mcIdType sourceConn[25]={0,1,2, 3,4,5,6, 7,8,9, 10,11,12,13, 14,15,16, 3,4,8,7, 17,18,19,20};
   MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
   sourceMesh->setMeshDimension(2);
   sourceMesh->allocateCells(7);
@@ -1388,7 +1388,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3D2DTargetMesh()
                            -20.,-5.,10., -20.,-5.,-4., -12.,-5.,-4.,
                            -12.,-5.,10., -20., 0.,-4., -12., 0.,-4.
   };
-  int targetConn[20]={4,5,7,8, 0,3,2,1,4,7,6,5, 4,13,14,7,9,10,11,12};
+  mcIdType targetConn[20]={4,5,7,8, 0,3,2,1,4,7,6,5, 4,13,14,7,9,10,11,12};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(3);
   targetMesh->allocateCells(3);
@@ -1416,7 +1416,7 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build3D2DQuadSourceMesh(const double sh
   const int nbZP1 = nbZ + 1;
   sourceMesh->allocateCells(nbY * nbZ);
 
-  int sourceConn[4];
+  mcIdType sourceConn[4];
   for (int iY = 0; iY < nbY; ++iY)
     {
       for (int iZ = 0; iZ < nbZ; ++iZ)
@@ -1462,7 +1462,7 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build3D2DTriSourceMesh(const double shi
   const int nbZP1 = nbZ + 1;
   sourceMesh->allocateCells(nbY * nbZ * 2);
 
-  int sourceConn[3];
+  mcIdType sourceConn[3];
   for (int iY = 0; iY < nbY; ++iY)
     {
       for (int iZ = 0; iZ < nbZ; ++iZ)
@@ -1512,7 +1512,7 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build3D2DHexaTargetMesh(const double in
   const int nbZP1 = nbZ + 1;
   targetMesh->allocateCells(nbX * nbY * nbZ);
 
-  int targetConn[8];
+  mcIdType targetConn[8];
   for (int iX = 0; iX < nbX; ++iX)
     {
       for (int iY = 0; iY < nbY; ++iY)
@@ -1568,7 +1568,7 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build3D2DTetraTargetMesh(const double i
   const int nbZP1 = nbZ + 1;
   targetMesh->allocateCells(nbX * nbY * nbZ * 5);
 
-  int targetConn[4];
+  mcIdType targetConn[4];
   for (int iX = 0; iX < nbX; ++iX)
     {
       for (int iY = 0; iY < nbY; ++iY)
@@ -1627,11 +1627,11 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build3D2DTetraTargetMesh(const double i
   return targetMesh;
 }
 
-int MEDCouplingBasicsTest::countNonZero(const std::vector< std::map<int,double> >& matrix)
+int MEDCouplingBasicsTest::countNonZero(const std::vector< std::map<mcIdType,double> >& matrix)
 {
-  int ret=0.;
-  for(std::vector< std::map<int,double> >::const_iterator iter=matrix.begin();iter!=matrix.end();iter++)
-    for(std::map<int,double>::const_iterator iter2=(*iter).begin();iter2!=(*iter).end();iter2++)
+  int ret=0;
+  for(std::vector< std::map<mcIdType,double> >::const_iterator iter=matrix.begin();iter!=matrix.end();iter++)
+    for(std::map<mcIdType,double>::const_iterator iter2=(*iter).begin();iter2!=(*iter).end();iter2++)
       if (!INTERP_KERNEL::epsilonEqual((*iter2).second, 0.)) ret +=1;
   return ret;
 }

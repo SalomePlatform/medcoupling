@@ -219,8 +219,8 @@ bool ElementaryEdge::isEqual(const ElementaryEdge& other) const
 /*!
  * Called by QuadraticPolygon::splitAbs method.
  */
-void ElementaryEdge::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                                       std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+void ElementaryEdge::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
+                                       std::vector<mcIdType>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType> mapAddCoo) const
 {
   _ptr->fillGlobalInfoAbs(_direction,mapThis,mapOther,offset1,offset2,fact,baryX,baryY,edgesThis,addCoo,mapAddCoo);
 }
@@ -229,12 +229,12 @@ void ElementaryEdge::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>
  * Called by QuadraticPolygon::splitAbs method. Close to ElementaryEdge::fillGlobalInfoAbs method expect that here edgesOther (that replace edgesThis) is here an in/out parameter that only contains nodes
  * unsorted because the "other" mesh is not subdivided yet.
  */
-void ElementaryEdge::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+void ElementaryEdge::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
                                         short skipStartOrEnd,
-                                        std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const
+                                        std::vector<mcIdType>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo) const
 {
   if (!_direction)
-    skipStartOrEnd *= -1;  // invert value - see QuadraticPolygon::splitAbs()
+    skipStartOrEnd = (short)(-skipStartOrEnd);  // invert value - see QuadraticPolygon::splitAbs()
   _ptr->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,skipStartOrEnd,edgesOther,addCoo,mapAddCoo);
 }
 

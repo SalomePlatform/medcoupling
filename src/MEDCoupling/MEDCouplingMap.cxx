@@ -22,4 +22,4 @@
 
 using namespace MEDCoupling;
 
-template class MEDCoupling::MapKeyVal<int>;
+template class MEDCoupling::MapKeyVal<mcIdType, mcIdType>;

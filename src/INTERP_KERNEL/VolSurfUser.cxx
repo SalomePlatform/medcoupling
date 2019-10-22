@@ -212,7 +212,7 @@ namespace INTERP_KERNEL
     return sqrt(sDist);
   }
 
-  double DistanceFromPtToPolygonInSpaceDim3(const double *pt, const int *connOfPolygonBg, const int *connOfPolygonEnd, const double *coords)
+  double DistanceFromPtToPolygonInSpaceDim3(const double *pt, const mcIdType *connOfPolygonBg, const mcIdType *connOfPolygonEnd, const double *coords)
   {
     std::size_t nbOfEdges=std::distance(connOfPolygonBg,connOfPolygonEnd);
     if(nbOfEdges<3)

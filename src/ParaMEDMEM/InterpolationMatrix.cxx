@@ -66,7 +66,7 @@ namespace MEDCoupling
     _source_group(source_group),
     _target_group(target_group)
   {
-    int nbelems = source_field->getField()->getNumberOfTuples();
+    mcIdType nbelems = source_field->getField()->getNumberOfTuples();
     _row_offsets.resize(nbelems+1);
     _coeffs.resize(nbelems);
     _target_volume.resize(nbelems);
@@ -94,14 +94,14 @@ namespace MEDCoupling
    */
   void InterpolationMatrix::addContribution ( MEDCouplingPointSet& distant_support,
                                               int iproc_distant,
-                                              const int* distant_elems,
+                                              const mcIdType* distant_elems,
                                               const std::string& srcMeth,
                                               const std::string& targetMeth)
   {
     std::string interpMethod(targetMeth);
     interpMethod+=srcMeth;
     //creating the interpolator structure
-    vector<map<int,double> > surfaces;
+    vector<map<mcIdType,double> > surfaces;
     //computation of the intersection volumes between source and target elements
     MEDCouplingUMesh *distant_supportC=dynamic_cast<MEDCouplingUMesh *>(&distant_support);
     MEDCouplingUMesh *source_supportC=dynamic_cast<MEDCouplingUMesh *>(_source_support);
@@ -258,30 +258,30 @@ namespace MEDCoupling
       target_triangle_surf->decrRef();
   }
 
-  void InterpolationMatrix::fillDSFromVM(int iproc_distant, const int* distant_elems, const std::vector< std::map<int,double> >& values, MEDCouplingFieldDouble *surf)
+  void InterpolationMatrix::fillDSFromVM(int iproc_distant, const mcIdType* distant_elems, const std::vector< std::map<mcIdType,double> >& values, MEDCouplingFieldDouble *surf)
   {
     //loop over the elements to build the interpolation
     //matrix structures
-    int source_size=values.size();
-    for (int ielem=0; ielem < source_size; ielem++) 
+    std::size_t source_size=values.size();
+    for (std::size_t ielem=0; ielem < source_size; ielem++) 
       {
-        _row_offsets[ielem+1] += values[ielem].size();
-        for(map<int,double>::const_iterator iter=values[ielem].begin();iter!=values[ielem].end();iter++)
+        _row_offsets[ielem+1] += ToIdType(values[ielem].size());
+        for(map<mcIdType,double>::const_iterator iter=values[ielem].begin();iter!=values[ielem].end();iter++)
           {
-            int localId;
+            mcIdType localId;
             if(distant_elems)
               localId=distant_elems[iter->first];
             else
               localId=iter->first;
             //locating the (iproc, itriangle) pair in the list of columns
-            map<pair<int,int>,int >::iterator iter2 = _col_offsets.find(make_pair(iproc_distant,localId));
-            int col_id;
+            map<pair<int,mcIdType>,mcIdType >::iterator iter2 = _col_offsets.find(make_pair(iproc_distant,localId));
+            mcIdType col_id;
 
             if (iter2 == _col_offsets.end())
               {
                 //(iproc, itriangle) is not registered in the list
                 //of distant elements
-                col_id =_col_offsets.size();
+                col_id =ToIdType(_col_offsets.size());
                 _col_offsets.insert(make_pair(make_pair(iproc_distant,localId),col_id));
                 _mapping.addElementFromSource(iproc_distant,localId);
               }
@@ -303,13 +303,13 @@ namespace MEDCoupling
       }
   }
 
-  void InterpolationMatrix::serializeMe(std::vector< std::vector< std::map<int,double> > >& data1, std::vector<int>& data2) const
+  void InterpolationMatrix::serializeMe(std::vector< std::vector< std::map<mcIdType,double> > >& data1, std::vector<int>& data2) const
   {
     data1.clear();
     data2.clear();
-    const std::vector<std::pair<int,int> >& sendingIds=_mapping.getSendingIds();
+    const std::vector<std::pair<int,mcIdType> >& sendingIds=_mapping.getSendingIds();
     std::set<int> procsS;
-    for(std::vector<std::pair<int,int> >::const_iterator iter1=sendingIds.begin();iter1!=sendingIds.end();iter1++)
+    for(std::vector<std::pair<int,mcIdType> >::const_iterator iter1=sendingIds.begin();iter1!=sendingIds.end();iter1++)
       procsS.insert((*iter1).first);
     data1.resize(procsS.size());
     data2.resize(procsS.size());
@@ -318,15 +318,15 @@ namespace MEDCoupling
     int id=0;
     for(std::set<int>::const_iterator iter2=procsS.begin();iter2!=procsS.end();iter2++,id++)
       fastProcAcc[*iter2]=id;
-    int nbOfSrcElt=_coeffs.size();
-    for(std::vector< std::vector< std::map<int,double> > >::iterator iter3=data1.begin();iter3!=data1.end();iter3++)
+    mcIdType nbOfSrcElt=ToIdType(_coeffs.size());
+    for(std::vector< std::vector< std::map<mcIdType,double> > >::iterator iter3=data1.begin();iter3!=data1.end();iter3++)
       (*iter3).resize(nbOfSrcElt);
     id=0;
     for(std::vector< std::vector< std::pair<int,double> > >::const_iterator iter4=_coeffs.begin();iter4!=_coeffs.end();iter4++,id++)
       {
         for(std::vector< std::pair<int,double> >::const_iterator iter5=(*iter4).begin();iter5!=(*iter4).end();iter5++)
           {
-            const std::pair<int,int>& elt=sendingIds[(*iter5).first];
+            const std::pair<int,mcIdType>& elt=sendingIds[(*iter5).first];
             data1[fastProcAcc[elt.first]][id][elt.second]=(*iter5).second;
           }
       }
@@ -334,7 +334,7 @@ namespace MEDCoupling
 
   void InterpolationMatrix::initialize()
   {
-    int lgth=_coeffs.size();
+    mcIdType lgth=ToIdType(_coeffs.size());
     _row_offsets.clear(); _row_offsets.resize(lgth+1);
     _coeffs.clear(); _coeffs.resize(lgth);
     _target_volume.clear(); _target_volume.resize(lgth);
@@ -495,7 +495,7 @@ namespace MEDCoupling
   void InterpolationMatrix::computeGlobalRowSum(ElementLocator& elementLocator, std::vector<std::vector<double> >& denoStrorage, std::vector<std::vector<double> >& denoStrorageInv)
   {
     //stores id in distant procs sorted by lazy procs connected with
-    vector< vector<int> > rowsPartialSumI;
+    vector< vector<mcIdType> > rowsPartialSumI;
     //stores for each lazy procs connected with, if global info is available and if it's the case the policy
     vector<int> policyPartial;
     //stores the corresponding values.
@@ -513,11 +513,11 @@ namespace MEDCoupling
         //updateWithNewAdditionnalElements(addingElements);
         //stores for each lazy procs connected with, the ids in global mode if it exists (regarding policyPartial). This array has exactly the size of  rowsPartialSumI,
         //if policyPartial has CUMALATIVE_POLICY in each.
-        vector< vector<int> > globalIdsPartial;
+        vector< vector<mcIdType> > globalIdsPartial;
         computeLocalRowSum(elementLocator.getDistantProcIds(),rowsPartialSumI,rowsPartialSumD);
         elementLocator.sendLocalIdsToLazyProcsW(rowsPartialSumI);
         elementLocator.recvCandidatesGlobalIdsFromLazyProcsW(globalIdsPartial);
-        std::vector< std::vector<int> > addingElements;
+        std::vector< std::vector<mcIdType> > addingElements;
         findAdditionnalElements(elementLocator,addingElements,rowsPartialSumI,globalIdsPartial);
         addGhostElements(elementLocator.getDistantProcIds(),addingElements);
         rowsPartialSumI.clear();
@@ -542,7 +542,7 @@ namespace MEDCoupling
    *                    It contains the element ids (2nd dimension) of the corresponding lazy proc.
    * @param  resPerProcD out parameter with the same format than 'resPerProcI'. It contains corresponding sum values.
    */
-  void InterpolationMatrix::computeLocalRowSum(const std::vector<int>& distantProcs, std::vector<std::vector<int> >& resPerProcI,
+  void InterpolationMatrix::computeLocalRowSum(const std::vector<int>& distantProcs, std::vector<std::vector<mcIdType> >& resPerProcI,
                                                std::vector<std::vector<double> >& resPerProcD) const
   {
     resPerProcI.resize(distantProcs.size());
@@ -552,9 +552,9 @@ namespace MEDCoupling
       for(vector<pair<int,double> >::const_iterator iter3=(*iter).begin();iter3!=(*iter).end();iter3++)
         res[(*iter3).first]+=(*iter3).second;
     set<int> procsSet;
-    int id=-1;
-    const vector<std::pair<int,int> >& mapping=_mapping.getSendingIds();
-    for(vector<std::pair<int,int> >::const_iterator iter2=mapping.begin();iter2!=mapping.end();iter2++)
+    std::size_t id=-1;
+    const vector<std::pair<int,mcIdType> >& mapping=_mapping.getSendingIds();
+    for(vector<std::pair<int,mcIdType> >::const_iterator iter2=mapping.begin();iter2!=mapping.end();iter2++)
       {
         std::pair<set<int>::iterator,bool> isIns=procsSet.insert((*iter2).first);
         if(isIns.second)
@@ -568,56 +568,56 @@ namespace MEDCoupling
    * This method is only usable when CUMULATIVE_POLICY detected. This method finds elements ids (typically nodes) lazy side that
    * are not present in columns of 'this' and that should regarding cumulative merge of elements regarding their global ids.
    */
-  void InterpolationMatrix::findAdditionnalElements(ElementLocator& elementLocator, std::vector<std::vector<int> >& elementsToAdd,
-                                                    const std::vector<std::vector<int> >& resPerProcI, const std::vector<std::vector<int> >& globalIdsPartial)
+  void InterpolationMatrix::findAdditionnalElements(ElementLocator& elementLocator, std::vector<std::vector<mcIdType> >& elementsToAdd,
+                                                    const std::vector<std::vector<mcIdType> >& resPerProcI, const std::vector<std::vector<mcIdType> >& globalIdsPartial)
   {
-    std::set<int> globalIds;
-    int nbLazyProcs=globalIdsPartial.size();
-    for(int i=0;i<nbLazyProcs;i++)
+    std::set<mcIdType> globalIds;
+    std::size_t nbLazyProcs=globalIdsPartial.size();
+    for(std::size_t i=0;i<nbLazyProcs;i++)
       globalIds.insert(globalIdsPartial[i].begin(),globalIdsPartial[i].end());
-    std::vector<int> tmp(globalIds.size());
+    std::vector<mcIdType> tmp(globalIds.size());
     std::copy(globalIds.begin(),globalIds.end(),tmp.begin());
     globalIds.clear();
     elementLocator.sendCandidatesForAddElementsW(tmp);
     elementLocator.recvAddElementsFromLazyProcsW(elementsToAdd);
   }
 
-  void InterpolationMatrix::addGhostElements(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& elementsToAdd)
+  void InterpolationMatrix::addGhostElements(const std::vector<int>& distantProcs, const std::vector<std::vector<mcIdType> >& elementsToAdd)
   {
-    std::vector< std::vector< std::map<int,double> > > data1;
+    std::vector< std::vector< std::map<mcIdType,double> > > data1;
     std::vector<int> data2;
     serializeMe(data1,data2);
     initialize();
-    int nbOfDistProcs=distantProcs.size();
-    for(int i=0;i<nbOfDistProcs;i++)
+    std::size_t nbOfDistProcs=distantProcs.size();
+    for(std::size_t i=0;i<nbOfDistProcs;i++)
       {
         int procId=distantProcs[i];
-        const std::vector<int>& eltsForThisProc=elementsToAdd[i];
+        const std::vector<mcIdType>& eltsForThisProc=elementsToAdd[i];
         if(!eltsForThisProc.empty())
           {
             std::vector<int>::iterator iter1=std::find(data2.begin(),data2.end(),procId);
-            std::map<int,double> *toFeed=0;
+            std::map<mcIdType,double> *toFeed=0;
             if(iter1!=data2.end())
               {//to test
-                int rank=iter1-data2.begin();
+                std::size_t rank=iter1-data2.begin();
                 toFeed=&(data1[rank].back());
               }
             else
               {
                 iter1=std::lower_bound(data2.begin(),data2.end(),procId);
-                int rank=iter1-data2.begin();
+                std::size_t rank=iter1-data2.begin();
                 data2.insert(iter1,procId);
-                std::vector< std::map<int,double> > tmp(data1.front().size());
+                std::vector< std::map<mcIdType,double> > tmp(data1.front().size());
                 data1.insert(data1.begin()+rank,tmp);
                 toFeed=&(data1[rank].back());
               }
-            for(std::vector<int>::const_iterator iter2=eltsForThisProc.begin();iter2!=eltsForThisProc.end();iter2++)
+            for(std::vector<mcIdType>::const_iterator iter2=eltsForThisProc.begin();iter2!=eltsForThisProc.end();iter2++)
               (*toFeed)[*iter2]=0.;
           }
       }
     //
     nbOfDistProcs=data2.size();
-    for(int j=0;j<nbOfDistProcs;j++)
+    for(std::size_t j=0;j<nbOfDistProcs;j++)
       fillDSFromVM(data2[j],0,data1[j],0);
   }
 
@@ -644,27 +644,27 @@ namespace MEDCoupling
    * @param globalIdsLazySideInteraction : out parameter, constituted from all global ids of lazy procs connected with.
    * @para sumCorresponding : out parameter, relative to 'globalIdsLazySideInteraction'
    */
-  void InterpolationMatrix::mergeRowSum(const std::vector< std::vector<double> >& rowsPartialSumD, const std::vector< std::vector<int> >& globalIdsPartial,
-                                        std::vector<int>& globalIdsLazySideInteraction, std::vector<double>& sumCorresponding)
+  void InterpolationMatrix::mergeRowSum(const std::vector< std::vector<double> >& rowsPartialSumD, const std::vector< std::vector<mcIdType> >& globalIdsPartial,
+                                        std::vector<mcIdType>& globalIdsLazySideInteraction, std::vector<double>& sumCorresponding)
   {
-    std::map<int,double> sumToReturn;
-    int nbLazyProcs=rowsPartialSumD.size();
-    for(int i=0;i<nbLazyProcs;i++)
+    std::map<mcIdType,double> sumToReturn;
+    std::size_t nbLazyProcs=rowsPartialSumD.size();
+    for(std::size_t i=0;i<nbLazyProcs;i++)
       {
         const std::vector<double>& rowSumOfP=rowsPartialSumD[i];
-        const std::vector<int>& globalIdsOfP=globalIdsPartial[i];
+        const std::vector<mcIdType>& globalIdsOfP=globalIdsPartial[i];
         std::vector<double>::const_iterator iter1=rowSumOfP.begin();
-        std::vector<int>::const_iterator iter2=globalIdsOfP.begin();
+        std::vector<mcIdType>::const_iterator iter2=globalIdsOfP.begin();
         for(;iter1!=rowSumOfP.end();iter1++,iter2++)
           sumToReturn[*iter2]+=*iter1;
       }
     //
-    int lgth=sumToReturn.size();
+    std::size_t lgth=sumToReturn.size();
     globalIdsLazySideInteraction.resize(lgth);
     sumCorresponding.resize(lgth);
-    std::vector<int>::iterator iter3=globalIdsLazySideInteraction.begin();
+    std::vector<mcIdType>::iterator iter3=globalIdsLazySideInteraction.begin();
     std::vector<double>::iterator iter4=sumCorresponding.begin();
-    for(std::map<int,double>::const_iterator iter5=sumToReturn.begin();iter5!=sumToReturn.end();iter5++,iter3++,iter4++)
+    for(std::map<mcIdType,double>::const_iterator iter5=sumToReturn.begin();iter5!=sumToReturn.end();iter5++,iter3++,iter4++)
       {
         *iter3=(*iter5).first;
         *iter4=(*iter5).second;
@@ -679,35 +679,35 @@ namespace MEDCoupling
    * @param globalIdsLazySideInteraction : in parameter that represents ALL the global ids of every lazy procs in interaction
    * @param sumCorresponding : in parameter with same size as 'globalIdsLazySideInteraction' that stores the corresponding sum of 'globalIdsLazySideInteraction'
    */
-  void InterpolationMatrix::mergeRowSum2(const std::vector< std::vector<int> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD,
-                                         const std::vector<int>& globalIdsLazySideInteraction, const std::vector<double>& sumCorresponding)
+  void InterpolationMatrix::mergeRowSum2(const std::vector< std::vector<mcIdType> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD,
+                                         const std::vector<mcIdType>& globalIdsLazySideInteraction, const std::vector<double>& sumCorresponding)
   {
-    std::map<int,double> acc;
-    std::vector<int>::const_iterator iter1=globalIdsLazySideInteraction.begin();
+    std::map<mcIdType,double> acc;
+    std::vector<mcIdType>::const_iterator iter1=globalIdsLazySideInteraction.begin();
     std::vector<double>::const_iterator iter2=sumCorresponding.begin();
     for(;iter1!=globalIdsLazySideInteraction.end();iter1++,iter2++)
       acc[*iter1]=*iter2;
     //
-    int nbLazyProcs=globalIdsPartial.size();
-    for(int i=0;i<nbLazyProcs;i++)
+    std::size_t nbLazyProcs=globalIdsPartial.size();
+    for(std::size_t i=0;i<nbLazyProcs;i++)
       {
-        const std::vector<int>& tmp1=globalIdsPartial[i];
+        const std::vector<mcIdType>& tmp1=globalIdsPartial[i];
         std::vector<double>& tmp2=rowsPartialSumD[i];
-        std::vector<int>::const_iterator iter3=tmp1.begin();
+        std::vector<mcIdType>::const_iterator iter3=tmp1.begin();
         std::vector<double>::iterator iter4=tmp2.begin();
         for(;iter3!=tmp1.end();iter3++,iter4++)
           *iter4=acc[*iter3];
       }
   }
   
-  void InterpolationMatrix::mergeRowSum3(const std::vector< std::vector<int> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD)
+  void InterpolationMatrix::mergeRowSum3(const std::vector< std::vector<mcIdType> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD)
   {
-    std::map<int,double> sum;
-    std::vector< std::vector<int> >::const_iterator iter1=globalIdsPartial.begin();
+    std::map<mcIdType,double> sum;
+    std::vector< std::vector<mcIdType> >::const_iterator iter1=globalIdsPartial.begin();
     std::vector< std::vector<double> >::iterator iter2=rowsPartialSumD.begin();
     for(;iter1!=globalIdsPartial.end();iter1++,iter2++)
       {
-        std::vector<int>::const_iterator iter3=(*iter1).begin();
+        std::vector<mcIdType>::const_iterator iter3=(*iter1).begin();
         std::vector<double>::const_iterator iter4=(*iter2).begin();
         for(;iter3!=(*iter1).end();iter3++,iter4++)
           sum[*iter3]+=*iter4;
@@ -715,7 +715,7 @@ namespace MEDCoupling
     iter2=rowsPartialSumD.begin();
     for(iter1=globalIdsPartial.begin();iter1!=globalIdsPartial.end();iter1++,iter2++)
       {
-        std::vector<int>::const_iterator iter3=(*iter1).begin();
+        std::vector<mcIdType>::const_iterator iter3=(*iter1).begin();
         std::vector<double>::iterator iter4=(*iter2).begin();
         for(;iter3!=(*iter1).end();iter3++,iter4++)
           *iter4=sum[*iter3];
@@ -729,36 +729,36 @@ namespace MEDCoupling
    * @param rowsPartialSumI input parameter : local ids of distant lazy procs elements in interaction with
    * @param globalIdsPartial input parameter : global ids of distant lazy procs elements in interaction with
    */
-  void InterpolationMatrix::mergeCoeffs(const std::vector<int>& procsInInteraction, const std::vector< std::vector<int> >& rowsPartialSumI,
-                                        const std::vector<std::vector<int> >& globalIdsPartial, std::vector<std::vector<double> >& denoStrorageInv)
+  void InterpolationMatrix::mergeCoeffs(const std::vector<int>& procsInInteraction, const std::vector< std::vector<mcIdType> >& rowsPartialSumI,
+                                        const std::vector<std::vector<mcIdType> >& globalIdsPartial, std::vector<std::vector<double> >& denoStrorageInv)
   {
     //preparing fast access structures
     std::map<int,int> procT;
     int localProcId=0;
     for(std::vector<int>::const_iterator iter1=procsInInteraction.begin();iter1!=procsInInteraction.end();iter1++,localProcId++)
       procT[*iter1]=localProcId;
-    int size=procsInInteraction.size();
-    std::vector<std::map<int,int> > localToGlobal(size);
-    for(int i=0;i<size;i++)
+    std::size_t size=procsInInteraction.size();
+    std::vector<std::map<mcIdType,mcIdType> > localToGlobal(size);
+    for(std::size_t i=0;i<size;i++)
       {
-        std::map<int,int>& myLocalToGlobal=localToGlobal[i];
-        const std::vector<int>& locals=rowsPartialSumI[i];
-        const std::vector<int>& globals=globalIdsPartial[i];
-        std::vector<int>::const_iterator iter3=locals.begin();
-        std::vector<int>::const_iterator iter4=globals.begin();
+        std::map<mcIdType,mcIdType>& myLocalToGlobal=localToGlobal[i];
+        const std::vector<mcIdType>& locals=rowsPartialSumI[i];
+        const std::vector<mcIdType>& globals=globalIdsPartial[i];
+        std::vector<mcIdType>::const_iterator iter3=locals.begin();
+        std::vector<mcIdType>::const_iterator iter4=globals.begin();
         for(;iter3!=locals.end();iter3++,iter4++)
           myLocalToGlobal[*iter3]=*iter4;
       }
     //
-    const vector<std::pair<int,int> >& mapping=_mapping.getSendingIds();
-    std::map<int,double> globalIdVal;
+    const vector<std::pair<int,mcIdType> >& mapping=_mapping.getSendingIds();
+    std::map<mcIdType,double> globalIdVal;
     //accumulate for same global id on lazy part.
     for(vector<vector<pair<int,double> > >::iterator iter1=_coeffs.begin();iter1!=_coeffs.end();iter1++)
       for(vector<pair<int,double> >::iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         {
-          const std::pair<int,int>& distantLocalLazyId=mapping[(*iter2).first];
+          const std::pair<int,mcIdType>& distantLocalLazyId=mapping[(*iter2).first];
           int localLazyProcId=procT[distantLocalLazyId.first];
-          int globalDistantLazyId=localToGlobal[localLazyProcId][distantLocalLazyId.second];
+          mcIdType globalDistantLazyId=localToGlobal[localLazyProcId][distantLocalLazyId.second];
           globalIdVal[globalDistantLazyId]+=(*iter2).second;
         }
     //perform merge
@@ -770,9 +770,9 @@ namespace MEDCoupling
         std::vector<double>::iterator iter4=(*iter3).begin();
         for(vector<pair<int,double> >::iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++,iter4++)
           {
-            const std::pair<int,int>& distantLocalLazyId=mapping[(*iter2).first];
+            const std::pair<int,mcIdType>& distantLocalLazyId=mapping[(*iter2).first];
             int localLazyProcId=procT[distantLocalLazyId.first];
-            int globalDistantLazyId=localToGlobal[localLazyProcId][distantLocalLazyId.second];
+            mcIdType globalDistantLazyId=localToGlobal[localLazyProcId][distantLocalLazyId.second];
             double newVal=globalIdVal[globalDistantLazyId];
             if((*iter2).second!=0.)
               (*iter4)=val*newVal/(*iter2).second;
@@ -783,17 +783,17 @@ namespace MEDCoupling
       }
   }
 
-  void InterpolationMatrix::divideByGlobalRowSum(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& resPerProcI,
+  void InterpolationMatrix::divideByGlobalRowSum(const std::vector<int>& distantProcs, const std::vector<std::vector<mcIdType> >& resPerProcI,
                                                  const std::vector<std::vector<double> >& resPerProcD, std::vector<std::vector<double> >& deno)
   {
-    map<int,double> fastSums;
+    map<mcIdType,double> fastSums;
     int procId=0;
     for(vector<int>::const_iterator iter1=distantProcs.begin();iter1!=distantProcs.end();iter1++,procId++)
       {
-        const std::vector<int>& currentProcI=resPerProcI[procId];
+        const std::vector<mcIdType>& currentProcI=resPerProcI[procId];
         const std::vector<double>& currentProcD=resPerProcD[procId];
         vector<double>::const_iterator iter3=currentProcD.begin();
-        for(vector<int>::const_iterator iter2=currentProcI.begin();iter2!=currentProcI.end();iter2++,iter3++)
+        for(vector<mcIdType>::const_iterator iter2=currentProcI.begin();iter2!=currentProcI.end();iter2++,iter3++)
           fastSums[_col_offsets[std::make_pair(*iter1,*iter2)]]=*iter3;
       }
     deno.resize(_coeffs.size());
@@ -841,8 +841,8 @@ namespace MEDCoupling
      */
   void InterpolationMatrix::prepare()
   {
-    int nbelems = _source_field->getField()->getNumberOfTuples();
-    for (int ielem=0; ielem < nbelems; ielem++)
+    mcIdType nbelems = _source_field->getField()->getNumberOfTuples();
+    for (mcIdType ielem=0; ielem < nbelems; ielem++)
       {
         _row_offsets[ielem+1]+=_row_offsets[ielem];
       }
@@ -864,24 +864,24 @@ namespace MEDCoupling
    */
   void InterpolationMatrix::multiply(MEDCouplingFieldDouble& field) const
   {
-    int nbcomp = field.getArray()->getNumberOfComponents();
+    mcIdType nbcomp = ToIdType(field.getArray()->getNumberOfComponents());
     vector<double> target_value(_col_offsets.size()* nbcomp,0.0);
 
     //computing the matrix multiply on source side
     if (_source_group.containsMyRank())
       {
-        int nbrows = _coeffs.size();
+        mcIdType nbrows = ToIdType(_coeffs.size());
 
         // performing W.S
         // W is the intersection matrix
         // S is the source vector
 
-        for (int irow=0; irow<nbrows; irow++)
+        for (mcIdType irow=0; irow<nbrows; irow++)
           {
-            for (int icomp=0; icomp< nbcomp; icomp++)
+            for (mcIdType icomp=0; icomp< nbcomp; icomp++)
               {
                 double coeff_row = field.getIJ(irow,icomp);
-                for (int icol=_row_offsets[irow]; icol< _row_offsets[irow+1];icol++)
+                for (mcIdType icol=_row_offsets[irow]; icol< _row_offsets[irow+1];icol++)
                   {
                     int colid= _coeffs[irow][icol-_row_offsets[irow]].first;
                     double value = _coeffs[irow][icol-_row_offsets[irow]].second;
@@ -894,9 +894,9 @@ namespace MEDCoupling
 
     if (_target_group.containsMyRank())
       {
-        int nbelems = field.getArray()->getNumberOfTuples() ;
+        mcIdType nbelems = field.getArray()->getNumberOfTuples() ;
         double* value = const_cast<double*> (field.getArray()->getPointer());
-        for (int i=0; i<nbelems*nbcomp; i++)
+        for (mcIdType i=0; i<nbelems*nbcomp; i++)
           {
             value[i]=0.0;
           }
@@ -923,15 +923,15 @@ namespace MEDCoupling
      */
   void InterpolationMatrix::transposeMultiply(MEDCouplingFieldDouble& field) const
   {
-    int nbcomp = field.getArray()->getNumberOfComponents();
+    std::size_t nbcomp = field.getArray()->getNumberOfComponents();
     vector<double> source_value(_col_offsets.size()* nbcomp,0.0);
     _mapping.reverseSendRecv(&source_value[0],field);
 
     //treatment of the transpose matrix multiply on the source side
     if (_source_group.containsMyRank())
       {
-        int nbrows    = _coeffs.size();
-        double *array = field.getArray()->getPointer() ;
+        mcIdType nbrows = ToIdType( _coeffs.size() );
+        double   *array = field.getArray()->getPointer() ;
 
         // Initialization
         std::fill(array, array+nbrows*nbcomp, 0.0) ;
@@ -939,14 +939,14 @@ namespace MEDCoupling
         //performing WT.T
         //WT is W transpose
         //T is the target vector
-        for (int irow = 0; irow < nbrows; irow++)
+        for (mcIdType irow = 0; irow < nbrows; irow++)
           {
-            for (int icol = _row_offsets[irow]; icol < _row_offsets[irow+1]; icol++)
+            for (mcIdType icol = _row_offsets[irow]; icol < _row_offsets[irow+1]; icol++)
               {
                 int colid    = _coeffs[irow][icol-_row_offsets[irow]].first;
                 double value = _coeffs[irow][icol-_row_offsets[irow]].second;
                 double deno = _deno_reverse_multiply[irow][icol-_row_offsets[irow]];
-                for (int icomp=0; icomp<nbcomp; icomp++)
+                for (std::size_t icomp=0; icomp<nbcomp; icomp++)
                   {
                     double coeff_row = source_value[colid*nbcomp+icomp];
                     array[irow*nbcomp+icomp] += value*coeff_row/deno;

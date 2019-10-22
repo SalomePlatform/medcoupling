@@ -20,6 +20,8 @@
 #ifndef __TOPOLOGY_HXX__
 #define __TOPOLOGY_HXX__
 
+#include "MCType.hxx"
+
 namespace MEDCoupling
 {
   class ProcessorGroup;
@@ -36,8 +38,8 @@ namespace MEDCoupling
   public:
     Topology() { }
     virtual ~Topology() { }
-    virtual int getNbElements() const = 0;
-    virtual int getNbLocalElements() const  = 0;
+    virtual mcIdType getNbElements() const = 0;
+    virtual mcIdType getNbLocalElements() const  = 0;
     virtual const ProcessorGroup* getProcGroup()const  = 0;
   };
 }

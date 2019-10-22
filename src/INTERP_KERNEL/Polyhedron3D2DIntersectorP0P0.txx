@@ -87,7 +87,7 @@ namespace INTERP_KERNEL
                                                                               const std::vector<ConnType>& srcCells,
                                                                               MyMatrixType& matrix)
   {
-    int nbOfNodesT=Intersector3D<MyMeshType,MyMatrixType>::_target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell));
+    ConnType nbOfNodesT=Intersector3D<MyMeshType,MyMatrixType>::_target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell));
     releaseArrays();
     _split.splitTargetCell(targetCell,nbOfNodesT,_tetra);
 
@@ -99,18 +99,18 @@ namespace INTERP_KERNEL
 
         // calculate the coordinates of the nodes
         typename MyMeshType::MyConnType cellSrc = *iterCellS;
-        int cellSrcIdx = OTT<ConnType,numPol>::indFC(cellSrc);
+        ConnType cellSrcIdx = OTT<ConnType,numPol>::indFC(cellSrc);
         NormalizedCellType normCellType=Intersector3D<MyMeshType,MyMatrixType>::_src_mesh.getTypeOfElement(cellSrcIdx);
         const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
         const MyMeshType& src_mesh = Intersector3D<MyMeshType,MyMatrixType>::_src_mesh;
-        unsigned nbOfNodes4Type=cellModelCell.isDynamic() ? src_mesh.getNumberOfNodesOfElement(cellSrcIdx) : cellModelCell.getNumberOfNodes();
-        int *polyNodes=new int[nbOfNodes4Type];
+        ConnType nbOfNodes4Type=cellModelCell.isDynamic() ? src_mesh.getNumberOfNodesOfElement(cellSrcIdx) : cellModelCell.getNumberOfNodes();
+        mcIdType *polyNodes=new mcIdType[nbOfNodes4Type];
         double **polyCoords = new double*[nbOfNodes4Type];
         for(int i = 0;i<(int)nbOfNodes4Type;++i)
           {
             // we could store mapping local -> global numbers too, but not sure it is worth it
-            const int globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(*iterCellS), src_mesh);
-            polyNodes[i] = globalNodeNum;
+            const ConnType globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(*iterCellS), src_mesh);
+            polyNodes[i] = ToIdType( globalNodeNum );
             polyCoords[i] = const_cast<double*>(src_mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*globalNodeNum);
           }
 
@@ -153,7 +153,7 @@ namespace INTERP_KERNEL
                   }
                 else
                   {
-                    std::set<int> targetCellSet;
+                    std::set<ConnType> targetCellSet;
                     targetCellSet.insert(targetCell);
                     _intersect_faces.insert(std::make_pair(cellSrcIdx, targetCellSet));
                   }

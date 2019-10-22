@@ -24,6 +24,7 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MCAuto.hxx"
+#include "MCType.hxx"
 
 #include "InterpKernelException.hxx"
 
@@ -61,8 +62,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<double>& tinyInfo2, int& nbOfDiffMeshes, int& nbOfDiffArr) const;
-    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD,
+    MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<mcIdType>& tinyInfo, std::vector<double>& tinyInfo2, int& nbOfDiffMeshes, int& nbOfDiffArr) const;
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD,
                                                   const std::vector<MEDCouplingFieldTemplate *>& ft, const std::vector<MEDCouplingMesh *>& ms,
                                                   const std::vector<DataArrayDouble *>& das);
     MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const;

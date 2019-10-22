@@ -23,6 +23,7 @@
 #include "INTERPKERNELDefines.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
+#include "MCIdType.hxx"
 
 #include <vector>
 
@@ -200,23 +201,23 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void addGaussInfo( NormalizedCellType theGeometry,
                                            int coordDim,
                                            const double* theGaussCoord,
-                                           int theNbGauss,
+                                           mcIdType theNbGauss,
                                            const double* theReferenceCoord,
-                                           int theNbRef);
+                                           mcIdType theNbRef);
 
     INTERPKERNEL_EXPORT double* calculateCoords( NormalizedCellType theGeometry, 
                                                  const double* theNodeCoords, 
                                                  const int theSpaceDim,
-                                                 const int* theIndex);
+                                                 const mcIdType* theIndex);
 
     INTERPKERNEL_EXPORT void calculateCoords( NormalizedCellType theGeometry, 
                                               const double* theNodeCoords, 
                                               const int theSpaceDim,
-                                              const int* theIndex,
+                                              const mcIdType* theIndex,
                                               double *result);
   private:
     const GaussInfo *getInfoGivenCellType(NormalizedCellType cellType);
-    void calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const int *theIndex,
+    void calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const mcIdType *theIndex,
                             double *result);
   private:
     typedef std::vector<GaussInfo*> GaussInfoVector;

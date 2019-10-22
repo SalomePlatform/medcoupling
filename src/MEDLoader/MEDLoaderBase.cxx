@@ -45,7 +45,7 @@ int MEDLoaderBase::getStatusOfFile(const std::string& fileName)
   return EXIST_RW;
 }
 
-char *MEDLoaderBase::buildEmptyString(int lgth)
+char *MEDLoaderBase::buildEmptyString(std::size_t lgth)
 {
   char *ret=new char[lgth+1];
   std::fill(ret,ret+lgth,' ');
@@ -177,7 +177,7 @@ void MEDLoaderBase::safeStrCpy2(const char *src, int maxLgth, char *dest, int be
           return ;
         }
     }
-  int n(strlen(src));
+  std::size_t n(strlen(src));
   std::fill(dest,dest+maxLgth,' ');
   strncpy(dest,src,n);
 }

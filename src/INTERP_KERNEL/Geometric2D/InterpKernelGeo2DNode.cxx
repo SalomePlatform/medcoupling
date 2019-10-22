@@ -148,10 +148,10 @@ void Node::unApplySimilarity(double xBary, double yBary, double dimChar)
 /*!
  * Called by QuadraticPolygon::splitAbs method.
  */
-void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                             std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo, int *nodeId) const
+void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
+                             std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo, mcIdType *nodeId) const
 {
-  std::map<INTERP_KERNEL::Node *,int>::const_iterator it=mapOther.find(const_cast<Node *>(this));
+  std::map<INTERP_KERNEL::Node *,mcIdType>::const_iterator it=mapOther.find(const_cast<Node *>(this));
   if(it!=mapOther.end())     // order matters, try in mapOther first.
     {
       *nodeId=(*it).second+offset1;
@@ -179,10 +179,10 @@ void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis,
 /*!
  * Called by QuadraticPolygon::splitAbs method.
  */
-void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                              std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo, std::vector<int>& pointsOther) const
+void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
+                              std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo, std::vector<mcIdType>& pointsOther) const
 {
-  int tmp;
+  mcIdType tmp;
   std::size_t sz1=addCoo.size();
   fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,&tmp);
   if(sz1!=addCoo.size()     // newly created point
@@ -192,7 +192,7 @@ void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis
       pointsOther.push_back(tmp);
       return ;
     }
-  std::vector<int>::const_iterator it=std::find(pointsOther.begin(),pointsOther.end(),tmp);
+  std::vector<mcIdType>::const_iterator it=std::find(pointsOther.begin(),pointsOther.end(),tmp);
   if(it!=pointsOther.end())
     return ;
   pointsOther.push_back(tmp);

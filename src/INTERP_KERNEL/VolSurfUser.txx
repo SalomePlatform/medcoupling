@@ -29,29 +29,29 @@
 namespace INTERP_KERNEL
 {
   template<class ConnType, NumberingPolicy numPol, int SPACEDIM>
-  double computeVolSurfOfCell(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords)
+  double computeVolSurfOfCell(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords)
   {
     switch(type)
       {
       case INTERP_KERNEL::NORM_SEG2 :
       case INTERP_KERNEL::NORM_SEG4 :
         {
-          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
-          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          ConnType N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
           return INTERP_KERNEL::calculateLgthForSeg2(coords+(SPACEDIM*N1),coords+(SPACEDIM*N2),SPACEDIM);
         }
       case INTERP_KERNEL::NORM_SEG3 :
         {
-          int beginNode = OTT<ConnType,numPol>::coo2C(connec[0]);
-          int endNode = OTT<ConnType,numPol>::coo2C(connec[1]);
-          int middleNode = OTT<ConnType,numPol>::coo2C(connec[2]);
+          ConnType beginNode = OTT<ConnType,numPol>::coo2C(connec[0]);
+          ConnType endNode = OTT<ConnType,numPol>::coo2C(connec[1]);
+          ConnType middleNode = OTT<ConnType,numPol>::coo2C(connec[2]);
           return INTERP_KERNEL::calculateLgthForSeg3(coords+(SPACEDIM*beginNode),coords+(SPACEDIM*endNode),coords+(SPACEDIM*middleNode),SPACEDIM);
         }
       case INTERP_KERNEL::NORM_TRI3 :
         {
-          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
-          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
-          int N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
+          ConnType N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
               
           return INTERP_KERNEL::calculateAreaForTria(coords+(SPACEDIM*N1),
                                                      coords+(SPACEDIM*N2),
@@ -75,10 +75,10 @@ namespace INTERP_KERNEL
         break;
       case INTERP_KERNEL::NORM_QUAD4 :
         {
-          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
-          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
-          int N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
-          int N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
+          ConnType N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
+          ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
               
           return INTERP_KERNEL::calculateAreaForQuad(coords+SPACEDIM*N1,
                                                      coords+SPACEDIM*N2,
@@ -125,10 +125,10 @@ namespace INTERP_KERNEL
       case INTERP_KERNEL::NORM_TETRA4 :
       case INTERP_KERNEL::NORM_TETRA10 :
         {
-          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
-          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
-          int N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
-          int N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
+          ConnType N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
+          ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
               
           return INTERP_KERNEL::calculateVolumeForTetra(coords+SPACEDIM*N1,
                                                         coords+SPACEDIM*N2,
@@ -140,11 +140,11 @@ namespace INTERP_KERNEL
       case INTERP_KERNEL::NORM_PYRA5 :
       case INTERP_KERNEL::NORM_PYRA13 :
         {
-          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
-          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
-          int N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
-          int N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
-          int N5 = OTT<ConnType,numPol>::coo2C(connec[4]);
+          ConnType N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
+          ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
+          ConnType N5 = OTT<ConnType,numPol>::coo2C(connec[4]);
               
           return INTERP_KERNEL::calculateVolumeForPyra(coords+SPACEDIM*N1,
                                                        coords+SPACEDIM*N2,
@@ -158,12 +158,12 @@ namespace INTERP_KERNEL
       case INTERP_KERNEL::NORM_PENTA15 :
       case INTERP_KERNEL::NORM_PENTA18 :
         {
-          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
-          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
-          int N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
-          int N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
-          int N5 = OTT<ConnType,numPol>::coo2C(connec[4]);
-          int N6 = OTT<ConnType,numPol>::coo2C(connec[5]);
+          ConnType N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
+          ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
+          ConnType N5 = OTT<ConnType,numPol>::coo2C(connec[4]);
+          ConnType N6 = OTT<ConnType,numPol>::coo2C(connec[5]);
               
           return INTERP_KERNEL::calculateVolumeForPenta(coords+SPACEDIM*N1,
                                                         coords+SPACEDIM*N2,
@@ -178,14 +178,14 @@ namespace INTERP_KERNEL
       case INTERP_KERNEL::NORM_HEXA20 :
       case INTERP_KERNEL::NORM_HEXA27 :
         {
-          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
-          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
-          int N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
-          int N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
-          int N5 = OTT<ConnType,numPol>::coo2C(connec[4]);
-          int N6 = OTT<ConnType,numPol>::coo2C(connec[5]);
-          int N7 = OTT<ConnType,numPol>::coo2C(connec[6]);
-          int N8 = OTT<ConnType,numPol>::coo2C(connec[7]);
+          ConnType N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
+          ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
+          ConnType N5 = OTT<ConnType,numPol>::coo2C(connec[4]);
+          ConnType N6 = OTT<ConnType,numPol>::coo2C(connec[5]);
+          ConnType N7 = OTT<ConnType,numPol>::coo2C(connec[6]);
+          ConnType N8 = OTT<ConnType,numPol>::coo2C(connec[7]);
               
           return INTERP_KERNEL::calculateVolumeForHexa(coords+SPACEDIM*N1,
                                                        coords+SPACEDIM*N2,
@@ -199,7 +199,7 @@ namespace INTERP_KERNEL
         break;
       case INTERP_KERNEL::NORM_HEXGP12:
         {
-          const int connecHexa12[43]={
+          const ConnType connecHexa12[43]={
             OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
             OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[11]),OTT<ConnType,numPol>::coo2C(connec[10]),OTT<ConnType,numPol>::coo2C(connec[9]),OTT<ConnType,numPol>::coo2C(connec[8]),OTT<ConnType,numPol>::coo2C(connec[7]),-1,
             OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[1]),-1,
@@ -221,7 +221,7 @@ namespace INTERP_KERNEL
   }
 
   template<class ConnType, NumberingPolicy numPolConn>
-  double computeVolSurfOfCell2(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, int spaceDim)
+  double computeVolSurfOfCell2(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, int spaceDim)
   {
     if(spaceDim==3)
       return computeVolSurfOfCell<ConnType,numPolConn,3>(type,connec,lgth,coords);
@@ -234,7 +234,7 @@ namespace INTERP_KERNEL
 
 
   template<class ConnType, NumberingPolicy numPol,int SPACEDIM>
-  void computeBarycenter(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, double *res)
+  void computeBarycenter(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, double *res)
   {
     switch(type)
       {
@@ -376,7 +376,7 @@ namespace INTERP_KERNEL
         }
       case NORM_HEXA8:
         {
-          const int conn[29]={
+          const ConnType conn[29]={
             OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[3]),-1,
             OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
             OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[4]),-1,
@@ -389,7 +389,7 @@ namespace INTERP_KERNEL
         }
       case NORM_PENTA6:
         {
-          const int conn[22]={
+          const ConnType conn[22]={
             OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),-1,
             OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[4]),-1,
             OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[3]),-1,
@@ -401,7 +401,7 @@ namespace INTERP_KERNEL
         }
       case INTERP_KERNEL::NORM_HEXGP12:
         {
-          const int connecHexa12[43]={
+          const ConnType connecHexa12[43]={
             OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
             OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[11]),OTT<ConnType,numPol>::coo2C(connec[10]),OTT<ConnType,numPol>::coo2C(connec[9]),OTT<ConnType,numPol>::coo2C(connec[8]),OTT<ConnType,numPol>::coo2C(connec[7]),-1,
             OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[1]),-1,
@@ -424,7 +424,7 @@ namespace INTERP_KERNEL
   }
 
   template<class ConnType, NumberingPolicy numPolConn>
-  void computeBarycenter2(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, int spaceDim, double *res)
+  void computeBarycenter2(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, int spaceDim, double *res)
   {
     if(spaceDim==3)
       return computeBarycenter<ConnType,numPolConn,3>(type,connec,lgth,coords,res);

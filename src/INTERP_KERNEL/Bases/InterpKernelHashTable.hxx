@@ -195,22 +195,22 @@ namespace INTERP_KERNEL
   // Note: assumes long is at least 32 bits.
   enum { _S_num_primes = 28 };
 
-  static const unsigned long __stl_prime_list[_S_num_primes] =
+  static const unsigned long long __stl_prime_list[_S_num_primes] =
     {
-      53ul,         97ul,         193ul,       389ul,       769ul,
-      1543ul,       3079ul,       6151ul,      12289ul,     24593ul,
-      49157ul,      98317ul,      196613ul,    393241ul,    786433ul,
-      1572869ul,    3145739ul,    6291469ul,   12582917ul,  25165843ul,
-      50331653ul,   100663319ul,  201326611ul, 402653189ul, 805306457ul,
-      1610612741ul, 3221225473ul, 4294967291ul
+      53ull,         97ull,         193ull,       389ull,       769ull,
+      1543ull,       3079ull,       6151ull,      12289ull,     24593ull,
+      49157ull,      98317ull,      196613ull,    393241ull,    786433ull,
+      1572869ull,    3145739ull,    6291469ull,   12582917ull,  25165843ull,
+      50331653ull,   100663319ull,  201326611ull, 402653189ull, 805306457ull,
+      1610612741ull, 3221225473ull, 4294967291ull
     };
 
-  inline unsigned long
-  __stl_next_prime(unsigned long __n)
+  inline unsigned long long
+  __stl_next_prime(unsigned long long __n)
   {
-    const unsigned long* __first = __stl_prime_list;
-    const unsigned long* __last = __stl_prime_list + (int)_S_num_primes;
-    const unsigned long* pos = std::lower_bound(__first, __last, __n);
+    const unsigned long long* __first = __stl_prime_list;
+    const unsigned long long* __last = __stl_prime_list + (int)_S_num_primes;
+    const unsigned long long* pos = std::lower_bound(__first, __last, __n);
     return pos == __last ? *(__last - 1) : *pos;
   }
 
@@ -497,7 +497,7 @@ namespace INTERP_KERNEL
     void clear();
 
   private:
-    size_type _M_next_size(size_type __n) const { return __stl_next_prime(__n); }
+    size_type _M_next_size(size_type __n) const { return static_cast<size_type>(__stl_next_prime(__n)); }
 
     void _M_initialize_buckets(size_type __n)
     {

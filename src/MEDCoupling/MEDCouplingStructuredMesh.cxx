@@ -56,7 +56,7 @@ bool MEDCouplingStructuredMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, do
   return MEDCouplingMesh::isEqualIfNotWhy(other,prec,reason);
 }
 
-INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(std::size_t cellId) const
+INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(mcIdType cellId) const
 {
   return GetGeoTypeGivenMeshDimension(getMeshDimension());
 }
@@ -85,9 +85,9 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingStructuredMesh::getAllGeo
   return ret2;
 }
 
-std::size_t MEDCouplingStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+mcIdType MEDCouplingStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  std::size_t ret(getNumberOfCells());
+  mcIdType ret(getNumberOfCells());
   if(type==getTypeOfCell(0))
     return ret;
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0)));
@@ -95,9 +95,9 @@ std::size_t MEDCouplingStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::N
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+DataArrayIdType *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  MCAuto<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayIdType> ret=DataArrayIdType::New();
   if(getTypeOfCell(0)==type)
     {
       ret->alloc(getNumberOfCells(),1);
@@ -108,23 +108,23 @@ DataArrayInt *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::Normal
   return ret.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const
+DataArrayIdType *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const
 {
-  int nbCells=getNumberOfCells();
-  MCAuto<DataArrayInt> ret=DataArrayInt::New();
+  std::size_t nbCells=getNumberOfCells();
+  MCAuto<DataArrayIdType> ret=DataArrayIdType::New();
   ret->alloc(nbCells,1);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0));
-  ret->fillWithValue((int)cm.getNumberOfNodes());
+  ret->fillWithValue(ToIdType(cm.getNumberOfNodes()));
   return ret.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const
+DataArrayIdType *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const
 {
-  int nbCells=getNumberOfCells();
-  MCAuto<DataArrayInt> ret=DataArrayInt::New();
+  std::size_t nbCells=getNumberOfCells();
+  MCAuto<DataArrayIdType> ret=DataArrayIdType::New();
   ret->alloc(nbCells,1);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0));
-  ret->fillWithValue((int)cm.getNumberOfSons());
+  ret->fillWithValue(ToIdType(cm.getNumberOfSons()));
   return ret.retn();
 }
 
@@ -133,20 +133,20 @@ DataArrayInt *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const
  * will be counted only once here whereas it will be counted several times in MEDCouplingMesh::computeNbOfNodesPerCell method.
  * Here for structured mesh it returns exactly as MEDCouplingStructuredMesh::computeNbOfNodesPerCell does.
  *
- * \return DataArrayInt * - new object to be deallocated by the caller.
+ * \return DataArrayIdType * - new object to be deallocated by the caller.
  */
-DataArrayInt *MEDCouplingStructuredMesh::computeEffectiveNbOfNodesPerCell() const
+DataArrayIdType *MEDCouplingStructuredMesh::computeEffectiveNbOfNodesPerCell() const
 {
   return computeNbOfNodesPerCell();
 }
 
-void MEDCouplingStructuredMesh::getNodeIdsOfCell(std::size_t cellId, std::vector<int>& conn) const
+void MEDCouplingStructuredMesh::getNodeIdsOfCell(mcIdType cellId, std::vector<mcIdType>& conn) const
 {
   int meshDim=getMeshDimension();
-  int tmpCell[3],tmpNode[3];
+  mcIdType tmpCell[3],tmpNode[3];
   getSplitCellValues(tmpCell);
   getSplitNodeValues(tmpNode);
-  int tmp2[3];
+  mcIdType tmp2[3];
   GetPosFromId(cellId,meshDim,tmpCell,tmp2);
   switch(meshDim)
   {
@@ -173,9 +173,9 @@ void MEDCouplingStructuredMesh::getNodeIdsOfCell(std::size_t cellId, std::vector
  */
 int MEDCouplingStructuredMesh::getMeshDimension() const
 {
-  std::vector<int> ngs(getNodeGridStructure());
+  std::vector<mcIdType> ngs(getNodeGridStructure());
   int ret(0),pos(0);
-  for(std::vector<int>::const_iterator it=ngs.begin();it!=ngs.end();it++,pos++)
+  for(std::vector<mcIdType>::const_iterator it=ngs.begin();it!=ngs.end();it++,pos++)
     {
       if(*it<=0)
         {
@@ -195,11 +195,11 @@ int MEDCouplingStructuredMesh::getMeshDimension() const
  */
 int MEDCouplingStructuredMesh::getSpaceDimensionOnNodeStruct() const
 {
-  std::vector<int> nodeStr(getNodeGridStructure());
+  std::vector<mcIdType> nodeStr(getNodeGridStructure());
   int spd1(0),pos(0);
-  for(std::vector<int>::const_iterator it=nodeStr.begin();it!=nodeStr.end();it++,pos++)
+  for(std::vector<mcIdType>::const_iterator it=nodeStr.begin();it!=nodeStr.end();it++,pos++)
     {
-      int elt(*it);
+      mcIdType elt(*it);
       if(elt<=0)
         {
           std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getSpaceDimensionOnNodeStruct : At pos #" << pos << " value of node grid structure is " << *it << " ! must be >=1 !";
@@ -210,36 +210,36 @@ int MEDCouplingStructuredMesh::getSpaceDimensionOnNodeStruct() const
   return spd1;
 }
 
-void MEDCouplingStructuredMesh::getSplitCellValues(int *res) const
+void MEDCouplingStructuredMesh::getSplitCellValues(mcIdType *res) const
 {
-  std::vector<int> strct(getCellGridStructure());
-  std::vector<int> ret(MEDCouplingStructuredMesh::GetSplitVectFromStruct(strct));
+  std::vector<mcIdType> strct(getCellGridStructure());
+  std::vector<mcIdType> ret(MEDCouplingStructuredMesh::GetSplitVectFromStruct(strct));
   std::copy(ret.begin(),ret.end(),res);
 }
 
-void MEDCouplingStructuredMesh::getSplitNodeValues(int *res) const
+void MEDCouplingStructuredMesh::getSplitNodeValues(mcIdType *res) const
 {
-  std::vector<int> strct(getNodeGridStructure());
-  std::vector<int> ret(MEDCouplingStructuredMesh::GetSplitVectFromStruct(strct));
+  std::vector<mcIdType> strct(getNodeGridStructure());
+  std::vector<mcIdType> ret(MEDCouplingStructuredMesh::GetSplitVectFromStruct(strct));
   std::copy(ret.begin(),ret.end(),res);
 }
 
 /*!
  * This method returns the number of cells of unstructured sub level mesh, without building it.
  */
-int MEDCouplingStructuredMesh::getNumberOfCellsOfSubLevelMesh() const
+mcIdType MEDCouplingStructuredMesh::getNumberOfCellsOfSubLevelMesh() const
 {
-  std::vector<int> cgs(getCellGridStructure());
+  std::vector<mcIdType> cgs(getCellGridStructure());
   return GetNumberOfCellsOfSubLevelMesh(cgs,getMeshDimension());
 }
 
 /*!
  * See MEDCouplingUMesh::getDistributionOfTypes for more information
  */
-std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const
+std::vector<mcIdType> MEDCouplingStructuredMesh::getDistributionOfTypes() const
 {
   //only one type of cell
-  std::vector<int> ret(3);
+  std::vector<mcIdType> ret(3);
   ret[0]=getTypeOfCell(0);
   ret[1]=getNumberOfCells();
   ret[2]=-1; //ret[3*k+2]==-1 because it has no sense here
@@ -252,12 +252,12 @@ std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const
  *
  * See MEDCouplingUMesh::checkTypeConsistencyAndContig for more information
  */
-DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
+DataArrayIdType *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std::vector<mcIdType>& code, const std::vector<const DataArrayIdType *>& idsPerType) const
 {
-  int nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   if(code.size()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : invalid input code should be exactly of size 3 !");
-  if(code[0]!=(int)getTypeOfCell(0))
+  if(code[0]!=ToIdType(getTypeOfCell(0)))
     {
       std::ostringstream oss; oss << "MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : Mismatch of geometric type ! Asking for " << code[0] << " whereas the geometric type is \a this is " << getTypeOfCell(0) << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -275,15 +275,15 @@ DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std
   if(code[2]!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : single geo type mesh ! 0 or -1 is expected at pos #2 of input code !");
   if(idsPerType.size()!=1)
-    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : input code points to DataArrayInt #0 whereas the size of idsPerType is not equal to 1 !");
-  const DataArrayInt *pfl=idsPerType[0];
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : input code points to DataArrayIdType #0 whereas the size of idsPerType is not equal to 1 !");
+  const DataArrayIdType *pfl=idsPerType[0];
   if(!pfl)
-    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : the input code points to a NULL DataArrayInt at rank 0 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : the input code points to a NULL DataArrayIdType at rank 0 !");
   if(pfl->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : input profile should have exactly one component !");
   pfl->checkAllIdsInRange(0,nbOfCells);
   pfl->incrRef();
-  return const_cast<DataArrayInt *>(pfl);
+  return const_cast<DataArrayIdType *>(pfl);
 }
 
 /*!
@@ -310,16 +310,16 @@ DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std
  *          - After \a code contains [NORM_...,nbCells,0], \a idsInPflPerType [[0,1]] and \a idsPerType is [[1,2]] <br>
 
  */
-void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType, bool smartPflKiller) const
+void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayIdType *profile, std::vector<mcIdType>& code, std::vector<DataArrayIdType *>& idsInPflPerType, std::vector<DataArrayIdType *>& idsPerType, bool smartPflKiller) const
 {
   if(!profile || !profile->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile is NULL or not allocated !");
   if(profile->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile should have exactly one component !");
-  int nbTuples(profile->getNumberOfTuples());
-  int nbOfCells=getNumberOfCells();
+  mcIdType nbTuples(profile->getNumberOfTuples());
+  mcIdType nbOfCells=getNumberOfCells();
   code.resize(3); idsInPflPerType.resize(1);
-  code[0]=(int)getTypeOfCell(0); code[1]=nbOfCells;
+  code[0]=ToIdType(getTypeOfCell(0)); code[1]=nbOfCells;
   idsInPflPerType.resize(1);
   if(smartPflKiller && profile->isIota(nbOfCells))
     {
@@ -333,7 +333,7 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
   profile->checkAllIdsInRange(0,nbOfCells);
   idsPerType.resize(1);
   idsPerType[0]=profile->deepCopy();
-  idsInPflPerType[0]=DataArrayInt::Range(0,nbTuples,1);
+  idsInPflPerType[0]=DataArrayIdType::Range(0,nbTuples,1);
 }
 
 /*!
@@ -352,9 +352,9 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
   if((meshDim<0 || meshDim>3) || (spaceDim<0 || spaceDim>3))
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTUnstructured : meshdim and spacedim must be in [1,2,3] !");
   MCAuto<DataArrayDouble> coords(getCoordinatesAndOwner());
-  int ns[3];
+  mcIdType ns[3];
   getNodeGridStructure(ns);
-  MCAuto<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+spaceDim));
+  MCAuto<DataArrayIdType> conn(Build1GTNodalConnectivity(ns,ns+spaceDim));
   MCAuto<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim)));
   ret->setNodalConnectivity(conn); ret->setCoords(coords);
   try
@@ -375,9 +375,9 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTSubLevelMesh() const
   if(meshDim<1 || meshDim>3)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTSubLevelMesh : meshdim must be in [2,3] !");
   MCAuto<DataArrayDouble> coords(getCoordinatesAndOwner());
-  int ns[3];
+  mcIdType ns[3];
   getNodeGridStructure(ns);
-  MCAuto<DataArrayInt> conn(Build1GTNodalConnectivityOfSubLevelMesh(ns,ns+meshDim));
+  MCAuto<DataArrayIdType> conn(Build1GTNodalConnectivityOfSubLevelMesh(ns,ns+meshDim));
   MCAuto<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim-1)));
   ret->setNodalConnectivity(conn); ret->setCoords(coords);
   return ret.retn();
@@ -409,26 +409,26 @@ MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const
  *  \return MEDCouplingMesh * - a new instance of MEDCouplingUMesh. The caller is to
  *         delete this mesh using decrRef() as it is no more needed.
  */
-MEDCouplingMesh *MEDCouplingStructuredMesh::buildPart(const int *start, const int *end) const
+MEDCouplingMesh *MEDCouplingStructuredMesh::buildPart(const mcIdType *start, const mcIdType *end) const
 {
   MCAuto<MEDCouplingUMesh> um(buildUnstructured());
   return um->buildPart(start,end);
 }
 
-MEDCouplingMesh *MEDCouplingStructuredMesh::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
+MEDCouplingMesh *MEDCouplingStructuredMesh::buildPartAndReduceNodes(const mcIdType *start, const mcIdType *end, DataArrayIdType*& arr) const
 {
-  std::vector<int> cgs(getCellGridStructure());
-  std::vector< std::pair<int,int> > cellPartFormat,nodePartFormat;
+  std::vector<mcIdType> cgs(getCellGridStructure());
+  std::vector< std::pair<mcIdType,mcIdType> > cellPartFormat,nodePartFormat;
   if(IsPartStructured(start,end,cgs,cellPartFormat))
     {
       MCAuto<MEDCouplingStructuredMesh> ret(buildStructuredSubPart(cellPartFormat));
       nodePartFormat=cellPartFormat;
-      for(std::vector< std::pair<int,int> >::iterator it=nodePartFormat.begin();it!=nodePartFormat.end();it++)
+      for(std::vector< std::pair<mcIdType,mcIdType> >::iterator it=nodePartFormat.begin();it!=nodePartFormat.end();it++)
         (*it).second++;
-      MCAuto<DataArrayInt> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
-      MCAuto<DataArrayInt> tmp2(DataArrayInt::New()); tmp2->alloc(getNumberOfNodes(),1);
+      MCAuto<DataArrayIdType> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
+      MCAuto<DataArrayIdType> tmp2(DataArrayIdType::New()); tmp2->alloc(getNumberOfNodes(),1);
       tmp2->fillWithValue(-1);
-      MCAuto<DataArrayInt> tmp3(DataArrayInt::New()); tmp3->alloc(tmp1->getNumberOfTuples(),1); tmp3->iota(0);
+      MCAuto<DataArrayIdType> tmp3(DataArrayIdType::New()); tmp3->alloc(tmp1->getNumberOfTuples(),1); tmp3->iota(0);
       tmp2->setPartOfValues3(tmp3,tmp1->begin(),tmp1->end(),0,1,1);
       arr=tmp2.retn();
       return ret.retn();
@@ -440,7 +440,7 @@ MEDCouplingMesh *MEDCouplingStructuredMesh::buildPartAndReduceNodes(const int *s
     }
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::simplexize(int policy)
+DataArrayIdType *MEDCouplingStructuredMesh::simplexize(int policy)
 {
   throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::simplexize : not available for Cartesian mesh !");
 }
@@ -459,19 +459,19 @@ MEDCouplingFieldDouble *MEDCouplingStructuredMesh::buildOrthogonalField() const
     throw INTERP_KERNEL::Exception("Expected a MEDCouplingStructuredMesh with meshDim == 2 !");
   MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME));
   MCAuto<DataArrayDouble> array(DataArrayDouble::New());
-  int nbOfCells(getNumberOfCells());
+  mcIdType nbOfCells=getNumberOfCells();
   array->alloc(nbOfCells,3);
   double *vals(array->getPointer());
-  for(int i=0;i<nbOfCells;i++)
+  for(mcIdType i=0;i<nbOfCells;i++)
     { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
   ret->setArray(array);
   ret->setMesh(this);
   return ret.retn();
 }
 
-void MEDCouplingStructuredMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
+void MEDCouplingStructuredMesh::getReverseNodalConnectivity(DataArrayIdType *revNodal, DataArrayIdType *revNodalIndx) const
 {
-  std::vector<int> ngs(getNodeGridStructure());
+  std::vector<mcIdType> ngs(getNodeGridStructure());
   int dim(getSpaceDimension());
   switch(dim)
   {
@@ -486,18 +486,18 @@ void MEDCouplingStructuredMesh::getReverseNodalConnectivity(DataArrayInt *revNod
   }
 }
 
-void MEDCouplingStructuredMesh::GetReverseNodalConnectivity1(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx)
+void MEDCouplingStructuredMesh::GetReverseNodalConnectivity1(const std::vector<mcIdType>& ngs, DataArrayIdType *revNodal, DataArrayIdType *revNodalIndx)
 {
-  int nbNodes(ngs[0]);
+  mcIdType nbNodes(ngs[0]);
   revNodalIndx->alloc(nbNodes+1,1);
   if(nbNodes==0)
     { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); return ; }
   if(nbNodes==1)
     { revNodal->alloc(1,1); revNodal->setIJ(0,0,0); revNodalIndx->setIJ(0,0,0); revNodalIndx->setIJ(1,0,1); return ; }
   revNodal->alloc(2*(nbNodes-1),1);
-  int *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
+  mcIdType *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
   *rni++=0; *rni=1; *rn++=0;
-  for(int i=1;i<nbNodes-1;i++,rni++)
+  for(mcIdType i=1;i<nbNodes-1;i++,rni++)
     {
       rn[0]=i-1; rn[1]=i;
       rni[1]=rni[0]+2;
@@ -506,32 +506,32 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity1(const std::vector<i
   rn[0]=nbNodes-2; rni[1]=rni[0]+1;
 }
 
-void MEDCouplingStructuredMesh::GetReverseNodalConnectivity2(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx)
+void MEDCouplingStructuredMesh::GetReverseNodalConnectivity2(const std::vector<mcIdType>& ngs, DataArrayIdType *revNodal, DataArrayIdType *revNodalIndx)
 {
-  int nbNodesX(ngs[0]),nbNodesY(ngs[1]);
-  int nbNodes(nbNodesX*nbNodesY);
+  mcIdType nbNodesX(ngs[0]),nbNodesY(ngs[1]);
+  mcIdType nbNodes(nbNodesX*nbNodesY);
   if(nbNodesX==0 || nbNodesY==0)
     { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); return ; }
   if(nbNodesX==1 || nbNodesY==1)
-    { std::vector<int> ngs2(1); ngs2[0]=std::max(nbNodesX,nbNodesY); return GetReverseNodalConnectivity1(ngs2,revNodal,revNodalIndx); }
+    { std::vector<mcIdType> ngs2(1); ngs2[0]=std::max(nbNodesX,nbNodesY); return GetReverseNodalConnectivity1(ngs2,revNodal,revNodalIndx); }
   revNodalIndx->alloc(nbNodes+1,1);
-  int nbCellsX(nbNodesX-1),nbCellsY(nbNodesY-1);
+  mcIdType nbCellsX(nbNodesX-1),nbCellsY(nbNodesY-1);
   revNodal->alloc(4*(nbNodesX-2)*(nbNodesY-2)+2*2*(nbNodesX-2)+2*2*(nbNodesY-2)+4,1);
-  int *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
+  mcIdType *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
   *rni++=0; *rni=1; *rn++=0;
-  for(int i=1;i<nbNodesX-1;i++,rni++,rn+=2)
+  for(mcIdType i=1;i<nbNodesX-1;i++,rni++,rn+=2)
     {
       rn[0]=i-1; rn[1]=i;
       rni[1]=rni[0]+2;
     }
   rni[1]=rni[0]+1; *rn++=nbCellsX-1;
   rni++;
-  for(int j=1;j<nbNodesY-1;j++)
+  for(mcIdType j=1;j<nbNodesY-1;j++)
     {
-      int off(nbCellsX*(j-1)),off2(nbCellsX*j);
+      mcIdType off(nbCellsX*(j-1)),off2(nbCellsX*j);
       rni[1]=rni[0]+2; rn[0]=off; rn[1]=off2;
       rni++; rn+=2;
-      for(int i=1;i<nbNodesX-1;i++,rni++,rn+=4)
+      for(mcIdType i=1;i<nbNodesX-1;i++,rni++,rn+=4)
         {
           rn[0]=i-1+off; rn[1]=i+off; rn[2]=i-1+off2; rn[3]=i+off2;
           rni[1]=rni[0]+4;
@@ -539,10 +539,10 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity2(const std::vector<i
       rni[1]=rni[0]+2; rn[0]=off+nbCellsX-1; rn[1]=off2+nbCellsX-1;
       rni++; rn+=2;
     }
-  int off3(nbCellsX*(nbCellsY-1));
+  mcIdType off3(nbCellsX*(nbCellsY-1));
   rni[1]=rni[0]+1;
   rni++; *rn++=off3;
-  for(int i=1;i<nbNodesX-1;i++,rni++,rn+=2)
+  for(mcIdType i=1;i<nbNodesX-1;i++,rni++,rn+=2)
     {
       rn[0]=i-1+off3; rn[1]=i+off3;
       rni[1]=rni[0]+2;
@@ -550,16 +550,16 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity2(const std::vector<i
   rni[1]=rni[0]+1; rn[0]=nbCellsX*nbCellsY-1;
 }
 
-void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx)
+void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<mcIdType>& ngs, DataArrayIdType *revNodal, DataArrayIdType *revNodalIndx)
 {
-  int nbNodesX(ngs[0]),nbNodesY(ngs[1]),nbNodesZ(ngs[2]);
-  int nbNodes(nbNodesX*nbNodesY*nbNodesZ);
+  mcIdType nbNodesX(ngs[0]),nbNodesY(ngs[1]),nbNodesZ(ngs[2]);
+  mcIdType nbNodes(nbNodesX*nbNodesY*nbNodesZ);
   if(nbNodesX==0 || nbNodesY==0 || nbNodesZ==0)
     { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); return ; }
   if(nbNodesX==1 || nbNodesY==1 || nbNodesZ==1)
     {
-      std::vector<int> ngs2(2);
-      int pos(0);
+      std::vector<mcIdType> ngs2(2);
+      mcIdType pos(0);
       bool pass(false);
       for(int i=0;i<3;i++)
         {
@@ -575,21 +575,21 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<i
       return GetReverseNodalConnectivity2(ngs2,revNodal,revNodalIndx);
     }
   revNodalIndx->alloc(nbNodes+1,1);
-  int nbCellsX(nbNodesX-1),nbCellsY(nbNodesY-1),nbCellsZ(nbNodesZ-1);
+  mcIdType nbCellsX(nbNodesX-1),nbCellsY(nbNodesY-1),nbCellsZ(nbNodesZ-1);
   revNodal->alloc(8*(nbNodesX-2)*(nbNodesY-2)*(nbNodesZ-2)+4*(2*(nbNodesX-2)*(nbNodesY-2)+2*(nbNodesX-2)*(nbNodesZ-2)+2*(nbNodesY-2)*(nbNodesZ-2))+2*4*(nbNodesX-2)+2*4*(nbNodesY-2)+2*4*(nbNodesZ-2)+8,1);
-  int *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
+  mcIdType *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
   *rni=0;
-  for(int k=0;k<nbNodesZ;k++)
+  for(mcIdType k=0;k<nbNodesZ;k++)
     {
       bool factZ(k!=0 && k!=nbNodesZ-1);
-      int offZ0((k-1)*nbCellsX*nbCellsY),offZ1(k*nbCellsX*nbCellsY);
-      for(int j=0;j<nbNodesY;j++)
+      mcIdType offZ0((k-1)*nbCellsX*nbCellsY),offZ1(k*nbCellsX*nbCellsY);
+      for(mcIdType j=0;j<nbNodesY;j++)
         {
           bool factYZ(factZ && (j!=0 && j!=nbNodesY-1));
-          int off00((j-1)*nbCellsX+offZ0),off01(j*nbCellsX+offZ0),off10((j-1)*nbCellsX+offZ1),off11(j*nbCellsX+offZ1);
-          for(int i=0;i<nbNodesX;i++,rni++)
+          mcIdType off00((j-1)*nbCellsX+offZ0),off01(j*nbCellsX+offZ0),off10((j-1)*nbCellsX+offZ1),off11(j*nbCellsX+offZ1);
+          for(mcIdType i=0;i<nbNodesX;i++,rni++)
             {
-              int fact(factYZ && (i!=0 && i!=nbNodesX-1));
+              mcIdType fact(factYZ && (i!=0 && i!=nbNodesX-1));
               if(fact)
                 {//most of points fall in this part of code
                   rn[0]=off00+i-1; rn[1]=off00+i; rn[2]=off01+i-1; rn[3]=off01+i;
@@ -599,7 +599,7 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<i
                 }
               else
                 {
-                  int *rnRef(rn);
+                  mcIdType *rnRef(rn);
                   if(k>=1 && j>=1 && i>=1)
                     *rn++=off00+i-1;
                   if(k>=1 && j>=1 && i<nbCellsX)
@@ -617,7 +617,7 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<i
                     *rn++=off11+i-1;
                   if(k<nbCellsZ && j<nbCellsY && i<nbCellsX)
                     *rn++=off11+i;
-                  rni[1]=rni[0]+(int)(std::distance(rnRef,rn));
+                  rni[1]=rni[0]+ToIdType(std::distance(rnRef,rn));
                 }
             }
         }
@@ -625,17 +625,17 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<i
 }
 
 /*!
- * \return DataArrayInt * - newly allocated instance of nodal connectivity compatible for MEDCoupling1SGTMesh instance
+ * \return DataArrayIdType * - newly allocated instance of nodal connectivity compatible for MEDCoupling1SGTMesh instance
  */
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd)
+DataArrayIdType *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const mcIdType *nodeStBg, const mcIdType *nodeStEnd)
 {
-  int zippedNodeSt[3];
-  int dim(ZipNodeStructure(nodeStBg,nodeStEnd,zippedNodeSt));
+  mcIdType zippedNodeSt[3];
+  mcIdType dim(ZipNodeStructure(nodeStBg,nodeStEnd,zippedNodeSt));
   switch(dim)
   {
     case 0:
       {
-        MCAuto<DataArrayInt> conn(DataArrayInt::New());
+        MCAuto<DataArrayIdType> conn(DataArrayIdType::New());
         conn->alloc(1,1); conn->setIJ(0,0,0);
         return conn.retn();
       }
@@ -650,7 +650,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
   }
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh(const int *nodeStBg, const int *nodeStEnd)
+DataArrayIdType *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh(const mcIdType *nodeStBg, const mcIdType *nodeStEnd)
 {
   std::size_t dim(std::distance(nodeStBg,nodeStEnd));
   switch(dim)
@@ -666,46 +666,46 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
 
 /*!
  * This method returns the list of ids sorted ascendingly of entities that are in the corner in ghost zone.
- * The ids are returned in a newly created DataArrayInt having a single component.
+ * The ids are returned in a newly created DataArrayIdType having a single component.
  *
  * \param [in] st - The structure \b without ghost cells.
  * \param [in] ghostLev - The size of the ghost zone (>=0)
- * \return DataArrayInt * - The DataArray containing all the ids the caller is to deallocate.
+ * \return DataArrayIdType * - The DataArray containing all the ids the caller is to deallocate.
  */
-DataArrayInt *MEDCouplingStructuredMesh::ComputeCornersGhost(const std::vector<int>& st, int ghostLev)
+DataArrayIdType *MEDCouplingStructuredMesh::ComputeCornersGhost(const std::vector<mcIdType>& st, mcIdType ghostLev)
 {
   if(ghostLev<0)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : ghost lev must be >= 0 !");
   std::size_t dim(st.size());
-  MCAuto<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
   switch(dim)
   {
     case 1:
       {
         ret->alloc(2*ghostLev,1);
-        int *ptr(ret->getPointer());
-        for(int i=0;i<ghostLev;i++,ptr++)
+        mcIdType *ptr(ret->getPointer());
+        for(mcIdType i=0;i<ghostLev;i++,ptr++)
           *ptr=i;
-        int offset(st[0]);
+        mcIdType offset(st[0]);
         if(offset<0)
           throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : element in 1D structure must be >= 0 !");
-        for(int i=0;i<ghostLev;i++,ptr++)
+        for(mcIdType i=0;i<ghostLev;i++,ptr++)
           *ptr=offset+ghostLev+i;
         break;
       }
     case 2:
       {
-        int offsetX(st[0]),offsetY(st[1]);
+        mcIdType offsetX(st[0]),offsetY(st[1]);
         if(offsetX<0 || offsetY<0)
           throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : elements in 2D structure must be >= 0 !");
         ret->alloc(4*ghostLev,1);
-        int *ptr(ret->getPointer());
-        for(int i=0;i<ghostLev;i++)
+        mcIdType *ptr(ret->getPointer());
+        for(mcIdType i=0;i<ghostLev;i++)
           {
             *ptr++=i*(2*ghostLev+offsetX+1);
             *ptr++=offsetX+2*ghostLev-1+i*(2*ghostLev+offsetX-1);
           }
-        for(int i=0;i<ghostLev;i++)
+        for(mcIdType i=0;i<ghostLev;i++)
           {
             *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+ghostLev-1+i*(2*ghostLev+offsetX-1);
             *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+offsetX+ghostLev+i*(2*ghostLev+offsetX+1);
@@ -714,21 +714,21 @@ DataArrayInt *MEDCouplingStructuredMesh::ComputeCornersGhost(const std::vector<i
       }
     case 3:
       {
-        int offsetX(st[0]),offsetY(st[1]),offsetZ(st[2]);
+        mcIdType offsetX(st[0]),offsetY(st[1]),offsetZ(st[2]);
         if(offsetX<0 || offsetY<0 || offsetZ<0)
           throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : elements in 3D structure must be >= 0 !");
         ret->alloc(8*ghostLev,1);
-        int *ptr(ret->getPointer());
-        int zeOffsetZ((offsetX+2*ghostLev)*(offsetY+2*ghostLev));
-        for(int i=0;i<ghostLev;i++)
+        mcIdType *ptr(ret->getPointer());
+        mcIdType zeOffsetZ((offsetX+2*ghostLev)*(offsetY+2*ghostLev));
+        for(mcIdType i=0;i<ghostLev;i++)
           {
             *ptr++=i*(2*ghostLev+offsetX+1)+i*zeOffsetZ;
             *ptr++=offsetX+2*ghostLev-1+i*(2*ghostLev+offsetX-1)+i*zeOffsetZ;
             *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+ghostLev-1+(ghostLev-i-1)*(2*ghostLev+offsetX-1)+i*zeOffsetZ;
             *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+offsetX+ghostLev+(ghostLev-i-1)*(2*ghostLev+offsetX+1)+i*zeOffsetZ;
           }
-        int j(0),zeOffsetZ2(zeOffsetZ*(offsetZ+ghostLev));
-        for(int i=ghostLev-1;i>=0;i--,j++)
+        mcIdType j(0),zeOffsetZ2(zeOffsetZ*(offsetZ+ghostLev));
+        for(mcIdType i=ghostLev-1;i>=0;i--,j++)
           {
             *ptr++=i*(2*ghostLev+offsetX+1)+j*zeOffsetZ+zeOffsetZ2;
             *ptr++=offsetX+2*ghostLev-1+i*(2*ghostLev+offsetX-1)+j*zeOffsetZ+zeOffsetZ2;
@@ -749,13 +749,13 @@ DataArrayInt *MEDCouplingStructuredMesh::ComputeCornersGhost(const std::vector<i
  *
  * \sa BuildExplicitIdsFrom,IsPartStructured
  */
-int MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat)
+mcIdType MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(const std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
-  int ret(1);
+  mcIdType ret(1);
   std::size_t ii(0);
-  for(std::vector< std::pair<int,int> >::const_iterator it=partCompactFormat.begin();it!=partCompactFormat.end();it++,ii++)
+  for(std::vector< std::pair<mcIdType,mcIdType> >::const_iterator it=partCompactFormat.begin();it!=partCompactFormat.end();it++,ii++)
     {
-      int a((*it).first),b((*it).second);
+      mcIdType a((*it).first),b((*it).second);
       if(a<0 || b<0 || b-a<0)
         {
           std::ostringstream oss; oss << "MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt : invalid input at dimension " << ii << " !";
@@ -766,9 +766,9 @@ int MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(const std::
   return ret;
 }
 
-int MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(const std::vector<int>& st)
+mcIdType MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(const std::vector<mcIdType>& st)
 {
-  int ret(1);
+  mcIdType ret(1);
   bool isFetched(false);
   for(std::size_t i=0;i<st.size();i++)
     {
@@ -780,13 +780,13 @@ int MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(const std::vector<in
   return isFetched?ret:0;
 }
 
-void MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat, int& axisId, int& sizeOfRange)
+void MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt(const std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat, int& axisId, mcIdType& sizeOfRange)
 {
-    int dim((int)partCompactFormat.size());
-    int ret(-1);
+    mcIdType dim(ToIdType(partCompactFormat.size()));
+    mcIdType ret(-1);
     for(int i=0;i<dim;i++)
       {
-        int curDelta(partCompactFormat[i].second-partCompactFormat[i].first);
+        mcIdType curDelta(partCompactFormat[i].second-partCompactFormat[i].first);
         if(curDelta<0)
           {
             std::ostringstream oss; oss << "MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt : at axis #" << i << " the range is invalid (first value < second value) !";
@@ -814,14 +814,14 @@ void MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt(const
  * \param [out] reducedCrit - The reduction of \a criterion on \a partCompactFormat.
  * \return - The number of True in \a st (that is equal to those in \a reducedCrit)
  */
-int MEDCouplingStructuredMesh::FindMinimalPartOf(int minPatchLgth, const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat)
+mcIdType MEDCouplingStructuredMesh::FindMinimalPartOf(mcIdType minPatchLgth, const std::vector<mcIdType>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
   if(minPatchLgth<0)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : the input minPatchLgth has to be >=0 !");
-  if((int)crit.size()!=DeduceNumberOfGivenStructure(st))
+  if(ToIdType(crit.size())!=DeduceNumberOfGivenStructure(st))
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : size of vector of boolean is invalid regarding the declared structure !");
-  int ret(-1);
-  switch((int)st.size())
+  mcIdType ret(-1);
+  switch(st.size())
   {
     case 1:
       {
@@ -841,13 +841,13 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf(int minPatchLgth, const std::ve
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : only dimension 1, 2 and 3 are supported actually !");
   }
-  std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(partCompactFormat));
-  int i(0);
-  for(std::vector< std::pair<int,int> >::iterator it=partCompactFormat.begin();it!=partCompactFormat.end();it++,i++)
+  std::vector<mcIdType> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(partCompactFormat));
+  mcIdType i(0);
+  for(std::vector< std::pair<mcIdType,mcIdType> >::iterator it=partCompactFormat.begin();it!=partCompactFormat.end();it++,i++)
     {
       if(st[i]<minPatchLgth)
         throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : the input patch is tinier than the min length constraint !");
-      int start((*it).first),stop((*it).second),middle((start+stop)/2);
+      mcIdType start((*it).first),stop((*it).second),middle((start+stop)/2);
       if(stop-start<minPatchLgth)
         {
           (*it).first=middle-minPatchLgth/2;
@@ -873,39 +873,39 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf(int minPatchLgth, const std::ve
  * This method considers \a crit input parameter as a matrix having dimensions specified by \a st. This method returns for each axis
  * the signature, that is to say the number of elems equal to true in \a crit along this axis.
  */
-std::vector< std::vector<int> > MEDCouplingStructuredMesh::ComputeSignaturePerAxisOf(const std::vector<int>& st, const std::vector<bool>& crit)
+std::vector< std::vector<mcIdType> > MEDCouplingStructuredMesh::ComputeSignaturePerAxisOf(const std::vector<mcIdType>& st, const std::vector<bool>& crit)
 {
-  int dim((int)st.size());
-  std::vector< std::vector<int> > ret(dim);
+  std::size_t dim(st.size());
+  std::vector< std::vector<mcIdType> > ret(dim);
   switch(dim)
   {
     case 1:
       {
-        int nx(st[0]);
+        mcIdType nx(st[0]);
         ret[0].resize(nx);
-        std::vector<int>& retX(ret[0]);
-        for(int i=0;i<nx;i++)
+        std::vector<mcIdType>& retX(ret[0]);
+        for(mcIdType i=0;i<nx;i++)
           retX[i]=crit[i]?1:0;
         break;
       }
     case 2:
       {
-        int nx(st[0]),ny(st[1]);
+        mcIdType nx(st[0]),ny(st[1]);
         ret[0].resize(nx); ret[1].resize(ny);
-        std::vector<int>& retX(ret[0]);
-        for(int i=0;i<nx;i++)
+        std::vector<mcIdType>& retX(ret[0]);
+        for(mcIdType i=0;i<nx;i++)
           {
-            int cnt(0);
-            for(int j=0;j<ny;j++)
+            mcIdType cnt(0);
+            for(mcIdType j=0;j<ny;j++)
               if(crit[j*nx+i])
                 cnt++;
             retX[i]=cnt;
           }
-        std::vector<int>& retY(ret[1]);
-        for(int j=0;j<ny;j++)
+        std::vector<mcIdType>& retY(ret[1]);
+        for(mcIdType j=0;j<ny;j++)
           {
-            int cnt(0);
-            for(int i=0;i<nx;i++)
+            mcIdType cnt(0);
+            for(mcIdType i=0;i<nx;i++)
               if(crit[j*nx+i])
                 cnt++;
             retY[j]=cnt;
@@ -914,42 +914,42 @@ std::vector< std::vector<int> > MEDCouplingStructuredMesh::ComputeSignaturePerAx
       }
     case 3:
       {
-        int nx(st[0]),ny(st[1]),nz(st[2]);
+        mcIdType nx(st[0]),ny(st[1]),nz(st[2]);
         ret[0].resize(nx); ret[1].resize(ny); ret[2].resize(nz);
-        std::vector<int>& retX(ret[0]);
-        for(int i=0;i<nx;i++)
+        std::vector<mcIdType>& retX(ret[0]);
+        for(mcIdType i=0;i<nx;i++)
           {
-            int cnt(0);
-            for(int k=0;k<nz;k++)
+            mcIdType cnt(0);
+            for(mcIdType k=0;k<nz;k++)
               {
-                int offz(k*nx*ny+i);
-                for(int j=0;j<ny;j++)
+                mcIdType offz(k*nx*ny+i);
+                for(mcIdType j=0;j<ny;j++)
                   if(crit[offz+j*nx])
                     cnt++;
               }
             retX[i]=cnt;
           }
-        std::vector<int>& retY(ret[1]);
-        for(int j=0;j<ny;j++)
+        std::vector<mcIdType>& retY(ret[1]);
+        for(mcIdType j=0;j<ny;j++)
           {
-            int cnt(0),offy(j*nx);
-            for(int k=0;k<nz;k++)
+            mcIdType cnt(0),offy(j*nx);
+            for(mcIdType k=0;k<nz;k++)
               {
-                int offz(k*nx*ny+offy);
-                for(int i=0;i<nx;i++)
+                mcIdType offz(k*nx*ny+offy);
+                for(mcIdType i=0;i<nx;i++)
                   if(crit[offz+i])
                     cnt++;
               }
             retY[j]=cnt;
           }
-        std::vector<int>& retZ(ret[2]);
-        for(int k=0;k<nz;k++)
+        std::vector<mcIdType>& retZ(ret[2]);
+        for(mcIdType k=0;k<nz;k++)
           {
-            int cnt(0),offz(k*nx*ny);
-            for(int j=0;j<ny;j++)
+            mcIdType cnt(0),offz(k*nx*ny);
+            for(mcIdType j=0;j<ny;j++)
               {
-                int offy(offz+j*nx);
-                for(int i=0;i<nx;i++)
+                mcIdType offy(offz+j*nx);
+                for(mcIdType i=0;i<nx;i++)
                   if(crit[offy+i])
                     cnt++;
               }
@@ -963,13 +963,13 @@ std::vector< std::vector<int> > MEDCouplingStructuredMesh::ComputeSignaturePerAx
   return ret;
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg)
+DataArrayIdType *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const mcIdType *nodeStBg)
 {
-  std::size_t nbOfCells(*nodeStBg-1);
-  MCAuto<DataArrayInt> conn(DataArrayInt::New());
+  mcIdType nbOfCells=*nodeStBg-1;
+  MCAuto<DataArrayIdType> conn(DataArrayIdType::New());
   conn->alloc(2*nbOfCells,1);
-  int *cp=conn->getPointer();
-  for(std::size_t i=0;i<nbOfCells;i++)
+  mcIdType *cp=conn->getPointer();
+  for(mcIdType i=0;i<nbOfCells;i++)
     {
       cp[2*i+0]=i;
       cp[2*i+1]=i+1;
@@ -977,15 +977,15 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *
   return conn.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *nodeStBg)
+DataArrayIdType *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const mcIdType *nodeStBg)
 {
-  std::size_t n1(nodeStBg[0]-1),n2(nodeStBg[1]-1);
-  MCAuto<DataArrayInt> conn(DataArrayInt::New());
+  mcIdType n1(nodeStBg[0]-1),n2(nodeStBg[1]-1);
+  MCAuto<DataArrayIdType> conn(DataArrayIdType::New());
   conn->alloc(4*n1*n2,1);
-  int *cp(conn->getPointer());
+  mcIdType *cp(conn->getPointer());
   std::size_t pos(0);
-  for(std::size_t j=0;j<n2;j++)
-    for(std::size_t i=0;i<n1;i++,pos++)
+  for(mcIdType j=0;j<n2;j++)
+    for(mcIdType i=0;i<n1;i++,pos++)
       {
         cp[4*pos+0]=i+1+j*(n1+1);
         cp[4*pos+1]=i+j*(n1+1);
@@ -995,18 +995,18 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *
   return conn.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *nodeStBg)
+DataArrayIdType *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const mcIdType *nodeStBg)
 {
-  std::size_t n1(nodeStBg[0]-1),n2(nodeStBg[1]-1),n3(nodeStBg[2]-1);
-  MCAuto<DataArrayInt> conn(DataArrayInt::New());
+  mcIdType n1(nodeStBg[0]-1),n2(nodeStBg[1]-1),n3(nodeStBg[2]-1);
+  MCAuto<DataArrayIdType> conn(DataArrayIdType::New());
   conn->alloc(8*n1*n2*n3,1);
-  int *cp(conn->getPointer());
+  mcIdType *cp(conn->getPointer());
   std::size_t pos(0);
-  for(std::size_t k=0;k<n3;k++)
-    for(std::size_t j=0;j<n2;j++)
-      for(std::size_t i=0;i<n1;i++,pos++)
+  for(mcIdType k=0;k<n3;k++)
+    for(mcIdType j=0;j<n2;j++)
+      for(mcIdType i=0;i<n1;i++,pos++)
         {
-          int tmp=(n1+1)*(n2+1);
+          mcIdType tmp=(n1+1)*(n2+1);
           cp[8*pos+0]=i+1+j*(n1+1)+k*tmp;
           cp[8*pos+1]=i+j*(n1+1)+k*tmp;
           cp[8*pos+2]=i+(j+1)*(n1+1)+k*tmp;
@@ -1019,28 +1019,28 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *
   return conn.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh3D(const int *nodeStBg)
+DataArrayIdType *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh3D(const mcIdType *nodeStBg)
 {
-  std::vector<int> ngs(3);
-  int n0(nodeStBg[0]-1),n1(nodeStBg[1]-1),n2(nodeStBg[2]-1); ngs[0]=n0; ngs[1]=n1; ngs[2]=n2;
-  int off0(nodeStBg[0]),off1(nodeStBg[0]*nodeStBg[1]);
-  MCAuto<DataArrayInt> conn(DataArrayInt::New());
+  std::vector<mcIdType> ngs(3);
+  mcIdType n0(nodeStBg[0]-1),n1(nodeStBg[1]-1),n2(nodeStBg[2]-1); ngs[0]=n0; ngs[1]=n1; ngs[2]=n2;
+  mcIdType off0(nodeStBg[0]),off1(nodeStBg[0]*nodeStBg[1]);
+  MCAuto<DataArrayIdType> conn(DataArrayIdType::New());
   conn->alloc(4*GetNumberOfCellsOfSubLevelMesh(ngs,3));
-  int *cp(conn->getPointer());
+  mcIdType *cp(conn->getPointer());
   //X
-  for(int i=0;i<nodeStBg[0];i++)
-    for(int j=0;j<n1;j++)
-      for(int k=0;k<n2;k++,cp+=4)
+  for(mcIdType i=0;i<nodeStBg[0];i++)
+    for(mcIdType j=0;j<n1;j++)
+      for(mcIdType k=0;k<n2;k++,cp+=4)
         { cp[0]=k*off1+j*off0+i; cp[1]=(k+1)*off1+j*off0+i; cp[2]=(k+1)*off1+(j+1)*off0+i; cp[3]=k*off1+(j+1)*off0+i; }
   //Y
-  for(int j=0;j<nodeStBg[1];j++)
-    for(int i=0;i<n0;i++)
-      for(int k=0;k<n2;k++,cp+=4)
+  for(mcIdType j=0;j<nodeStBg[1];j++)
+    for(mcIdType i=0;i<n0;i++)
+      for(mcIdType k=0;k<n2;k++,cp+=4)
         { cp[0]=k*off1+j*off0+i; cp[1]=(k+1)*off1+j*off0+i; cp[2]=(k+1)*off1+j*off0+(i+1); cp[3]=k*off1+j*off0+(i+1); }
   //Z
-  for(int k=0;k<nodeStBg[2];k++)
-    for(int i=0;i<n0;i++)
-      for(int j=0;j<n1;j++,cp+=4)
+  for(mcIdType k=0;k<nodeStBg[2];k++)
+    for(mcIdType i=0;i<n0;i++)
+      for(mcIdType j=0;j<n1;j++,cp+=4)
         { cp[0]=k*off1+j*off0+i; cp[1]=k*off1+j*off0+(i+1); cp[2]=k*off1+(j+1)*off0+(i+1); cp[3]=k*off1+(j+1)*off0+i; }
   return conn.retn();
 }
@@ -1048,13 +1048,13 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
 /*!
  * \sa MEDCouplingStructuredMesh::FindMinimalPartOf
  */
-int MEDCouplingStructuredMesh::FindMinimalPartOf1D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat)
+mcIdType MEDCouplingStructuredMesh::FindMinimalPartOf1D(const std::vector<mcIdType>& st, const std::vector<bool>& crit, std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
   if(st.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf1D : the input size of st must be equal to 1 !");
-  int nxMin(std::numeric_limits<int>::max()),nxMax(-std::numeric_limits<int>::max());
-  int nx(st[0]),ret(0);
-  for(int i=0;i<nx;i++)
+  mcIdType nxMin(std::numeric_limits<mcIdType>::max()),nxMax(-std::numeric_limits<mcIdType>::max());
+  mcIdType nx(st[0]),ret(0);
+  for(mcIdType i=0;i<nx;i++)
     {
       if(crit[i])
         {
@@ -1081,15 +1081,15 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf1D(const std::vector<int>& st, c
 /*!
  * \sa MEDCouplingStructuredMesh::FindMinimalPartOf
  */
-int MEDCouplingStructuredMesh::FindMinimalPartOf2D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat)
+mcIdType MEDCouplingStructuredMesh::FindMinimalPartOf2D(const std::vector<mcIdType>& st, const std::vector<bool>& crit, std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
   if(st.size()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf2D : the input size of st must be equal to 2 !");
-  int nxMin(std::numeric_limits<int>::max()),nxMax(-std::numeric_limits<int>::max()),nyMin(std::numeric_limits<int>::max()),nyMax(-std::numeric_limits<int>::max());
-  int it(0),nx(st[0]),ny(st[1]);
-  int ret(0);
-  for(int i=0;i<ny;i++)
-    for(int j=0;j<nx;j++,it++)
+  mcIdType nxMin(std::numeric_limits<mcIdType>::max()),nxMax(-std::numeric_limits<mcIdType>::max()),nyMin(std::numeric_limits<mcIdType>::max()),nyMax(-std::numeric_limits<mcIdType>::max());
+  mcIdType it(0),nx(st[0]),ny(st[1]);
+  mcIdType ret(0);
+  for(mcIdType i=0;i<ny;i++)
+    for(mcIdType j=0;j<nx;j++,it++)
       {
         if(crit[it])
           {
@@ -1118,16 +1118,16 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf2D(const std::vector<int>& st, c
 /*!
  * \sa MEDCouplingStructuredMesh::FindMinimalPartOf
  */
-int MEDCouplingStructuredMesh::FindMinimalPartOf3D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat)
+mcIdType MEDCouplingStructuredMesh::FindMinimalPartOf3D(const std::vector<mcIdType>& st, const std::vector<bool>& crit, std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
   if(st.size()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf3D : the input size of st must be equal to 3 !");
-  int nxMin(std::numeric_limits<int>::max()),nxMax(-std::numeric_limits<int>::max()),nyMin(std::numeric_limits<int>::max()),nyMax(-std::numeric_limits<int>::max()),nzMin(std::numeric_limits<int>::max()),nzMax(-std::numeric_limits<int>::max());
-  int it(0),nx(st[0]),ny(st[1]),nz(st[2]);
-  int ret(0);
-  for(int i=0;i<nz;i++)
-    for(int j=0;j<ny;j++)
-      for(int k=0;k<nx;k++,it++)
+  mcIdType nxMin(std::numeric_limits<mcIdType>::max()),nxMax(-std::numeric_limits<mcIdType>::max()),nyMin(std::numeric_limits<mcIdType>::max()),nyMax(-std::numeric_limits<mcIdType>::max()),nzMin(std::numeric_limits<mcIdType>::max()),nzMax(-std::numeric_limits<mcIdType>::max());
+  mcIdType it(0),nx(st[0]),ny(st[1]),nz(st[2]);
+  mcIdType ret(0);
+  for(mcIdType i=0;i<nz;i++)
+    for(mcIdType j=0;j<ny;j++)
+      for(mcIdType k=0;k<nx;k++,it++)
         {
           if(crit[it])
             {
@@ -1161,18 +1161,18 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf3D(const std::vector<int>& st, c
  * the meshDimension (or the zipped spaceDimension).
  *
  * \param [out] zipNodeSt - The zipped node structure
- * \return int - the
+ * \return mcIdType - the
  */
-int MEDCouplingStructuredMesh::ZipNodeStructure(const int *nodeStBg, const int *nodeStEnd, int zipNodeSt[3])
+int MEDCouplingStructuredMesh::ZipNodeStructure(const mcIdType *nodeStBg, const mcIdType *nodeStEnd, mcIdType zipNodeSt[3])
 {
-  int spaceDim((int)std::distance(nodeStBg,nodeStEnd));
+  std::size_t spaceDim(std::distance(nodeStBg,nodeStEnd));
   if(spaceDim>3 || spaceDim<1)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ZipNodeStructure : spaceDim must in [1,2,3] !");
   zipNodeSt[0]=0; zipNodeSt[1]=0; zipNodeSt[2]=0;
   int zippedI(0);
-  for(int i=0;i<spaceDim;i++)
+  for(std::size_t i=0;i<spaceDim;i++)
     {
-      int elt(nodeStBg[i]);
+      mcIdType elt(nodeStBg[i]);
       if(elt<1)
         {
           std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ZipNodeStructure : the input nodal structure at pos#" << i << "(" << nodeStBg[i] << ") is invalid !";
@@ -1184,21 +1184,21 @@ int MEDCouplingStructuredMesh::ZipNodeStructure(const int *nodeStBg, const int *
   return zippedI;
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh2D(const int *nodeStBg)
+DataArrayIdType *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh2D(const mcIdType *nodeStBg)
 {
-  std::vector<int> ngs(2);
-  int n0(nodeStBg[0]-1),n1(nodeStBg[1]-1); ngs[0]=n0; ngs[1]=n1;
-  int off0(nodeStBg[0]);
-  MCAuto<DataArrayInt> conn(DataArrayInt::New());
+  std::vector<mcIdType> ngs(2);
+  mcIdType n0(nodeStBg[0]-1),n1(nodeStBg[1]-1); ngs[0]=n0; ngs[1]=n1;
+  mcIdType off0(nodeStBg[0]);
+  MCAuto<DataArrayIdType> conn(DataArrayIdType::New());
   conn->alloc(2*GetNumberOfCellsOfSubLevelMesh(ngs,2));
-  int *cp(conn->getPointer());
+  mcIdType *cp(conn->getPointer());
   //X
-  for(int i=0;i<nodeStBg[0];i++)
-    for(int j=0;j<n1;j++,cp+=2)
+  for(mcIdType i=0;i<nodeStBg[0];i++)
+    for(mcIdType j=0;j<n1;j++,cp+=2)
       { cp[0]=j*off0+i; cp[1]=(j+1)*off0+i; }
   //Y
-  for(int j=0;j<nodeStBg[1];j++)
-    for(int i=0;i<n0;i++,cp+=2)
+  for(mcIdType j=0;j<nodeStBg[1];j++)
+    for(mcIdType i=0;i<n0;i++,cp+=2)
       { cp[0]=j*off0+i; cp[1]=j*off0+(i+1); }
   return conn.retn();
 }
@@ -1209,15 +1209,15 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
  *  \param [in] i - a index of node coordinates array along X axis.
  *  \param [in] j - a index of node coordinates array along Y axis.
  *  \param [in] k - a index of node coordinates array along Z axis.
- *  \return int - a cell id in \a this mesh.
+ *  \return mcIdType - a cell id in \a this mesh.
  */
-int MEDCouplingStructuredMesh::getCellIdFromPos(int i, int j, int k) const
+mcIdType MEDCouplingStructuredMesh::getCellIdFromPos(mcIdType i, mcIdType j, mcIdType k) const
 {
-  int tmp[3]={i,j,k};
-  int tmp2[3];
-  int meshDim(getMeshDimension());
+  mcIdType tmp[3]={i,j,k};
+  mcIdType tmp2[3];
+  mcIdType meshDim(getMeshDimension());
   getSplitCellValues(tmp2);
-  std::transform(tmp,tmp+meshDim,tmp2,tmp,std::multiplies<int>());
+  std::transform(tmp,tmp+meshDim,tmp2,tmp,std::multiplies<mcIdType>());
   return std::accumulate(tmp,tmp+meshDim,0);
 }
 
@@ -1226,28 +1226,28 @@ int MEDCouplingStructuredMesh::getCellIdFromPos(int i, int j, int k) const
  *  \param [in] i - a index of node coordinates array along X axis.
  *  \param [in] j - a index of node coordinates array along Y axis.
  *  \param [in] k - a index of node coordinates array along Z axis.
- *  \return int - a node id in \a this mesh.
+ *  \return mcIdType - a node id in \a this mesh.
  */
-int MEDCouplingStructuredMesh::getNodeIdFromPos(int i, int j, int k) const
+mcIdType MEDCouplingStructuredMesh::getNodeIdFromPos(mcIdType i, mcIdType j, mcIdType k) const
 {
-  int tmp[3]={i,j,k};
-  int tmp2[3];
-  int spaceDim(getSpaceDimension());
+  mcIdType tmp[3]={i,j,k};
+  mcIdType tmp2[3];
+  mcIdType spaceDim(getSpaceDimension());
   getSplitNodeValues(tmp2);
-  std::transform(tmp,tmp+spaceDim,tmp2,tmp,std::multiplies<int>());
+  std::transform(tmp,tmp+spaceDim,tmp2,tmp,std::multiplies<mcIdType>());
   return std::accumulate(tmp,tmp+spaceDim,0);
 }
 
 
-std::size_t MEDCouplingStructuredMesh::getNumberOfCells() const
+mcIdType MEDCouplingStructuredMesh::getNumberOfCells() const
 {
-  std::vector<int> ngs(getNodeGridStructure());
-  std::size_t ret(1);
+  std::vector<mcIdType> ngs(getNodeGridStructure());
+  mcIdType ret(1);
   bool isCatched(false);
   std::size_t ii(0);
-  for(std::vector<int>::const_iterator it=ngs.begin();it!=ngs.end();it++,ii++)
+  for(std::vector<mcIdType>::const_iterator it=ngs.begin();it!=ngs.end();it++,ii++)
     {
-      int elt(*it);
+      mcIdType elt(*it);
       if(elt<=0)
         {
           std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getNumberOfCells : at pos #" << ii << " the number of nodes in nodeStructure is " << *it << " ! Must be > 0 !";
@@ -1262,11 +1262,11 @@ std::size_t MEDCouplingStructuredMesh::getNumberOfCells() const
   return isCatched?ret:0;
 }
 
-int MEDCouplingStructuredMesh::getNumberOfNodes() const
+mcIdType MEDCouplingStructuredMesh::getNumberOfNodes() const
 {
-  std::vector<int> ngs(getNodeGridStructure());
-  int ret(1);
-  for(std::vector<int>::const_iterator it=ngs.begin();it!=ngs.end();it++)
+  std::vector<mcIdType> ngs(getNodeGridStructure());
+  mcIdType ret(1);
+  for(std::vector<mcIdType>::const_iterator it=ngs.begin();it!=ngs.end();it++)
     ret*=*it;
   return ret;
 }
@@ -1278,18 +1278,18 @@ int MEDCouplingStructuredMesh::getNumberOfNodes() const
  * \return - A vector of size this->getMeshDimension()
  * \throw if \a cellId not in [ 0, this->getNumberOfCells() )
  */
-std::vector<int> MEDCouplingStructuredMesh::getLocationFromCellId(int cellId) const
+std::vector<mcIdType> MEDCouplingStructuredMesh::getLocationFromCellId(mcIdType cellId) const
 {
   int meshDim(getMeshDimension());
-  std::vector<int> ret(meshDim);
-  std::vector<int> struc(getCellGridStructure());
-  int nbCells(std::accumulate(struc.begin(),struc.end(),1,std::multiplies<int>()));
+  std::vector<mcIdType> ret(meshDim);
+  std::vector<mcIdType> struc(getCellGridStructure());
+  mcIdType nbCells(std::accumulate(struc.begin(),struc.end(),1,std::multiplies<mcIdType>()));
   if(cellId<0 || cellId>=nbCells)
     {
       std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getLocationFromCellId : Input cell id (" << cellId << ") is invalid ! Should be in [0," << nbCells << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  std::vector<int> spt(GetSplitVectFromStruct(struc));
+  std::vector<mcIdType> spt(GetSplitVectFromStruct(struc));
   GetPosFromId(cellId,meshDim,&spt[0],&ret[0]);
   return ret;
 }
@@ -1301,37 +1301,37 @@ std::vector<int> MEDCouplingStructuredMesh::getLocationFromCellId(int cellId) co
  * \return - A vector of size this->getSpaceDimension()
  * \throw if \a cellId not in [ 0, this->getNumberOfNodes() )
  */
-std::vector<int> MEDCouplingStructuredMesh::getLocationFromNodeId(int nodeId) const
+std::vector<mcIdType> MEDCouplingStructuredMesh::getLocationFromNodeId(mcIdType nodeId) const
 {
   int spaceDim(getSpaceDimension());
-  std::vector<int> ret(spaceDim);
-  std::vector<int> struc(getNodeGridStructure());
-  int nbNodes(std::accumulate(struc.begin(),struc.end(),1,std::multiplies<int>()));
+  std::vector<mcIdType> ret(spaceDim);
+  std::vector<mcIdType> struc(getNodeGridStructure());
+  mcIdType nbNodes(std::accumulate(struc.begin(),struc.end(),1,std::multiplies<mcIdType>()));
   if(nodeId<0 || nodeId>=nbNodes)
     {
       std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getLocationFromNodeId : Input node id (" << nodeId << ") is invalid ! Should be in [0," << nbNodes << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  std::vector<int> spt(GetSplitVectFromStruct(struc));
+  std::vector<mcIdType> spt(GetSplitVectFromStruct(struc));
   GetPosFromId(nodeId,spaceDim,&spt[0],&ret[0]);
   return ret;
 }
 
-void MEDCouplingStructuredMesh::GetPosFromId(int eltId, int meshDim, const int *split, int *res)
+void MEDCouplingStructuredMesh::GetPosFromId(mcIdType eltId, int meshDim, const mcIdType *split, mcIdType *res)
 {
-  int work(eltId);
+  mcIdType work(eltId);
   for(int i=meshDim-1;i>=0;i--)
     {
-      int pos=work/split[i];
+      mcIdType pos=work/split[i];
       work=work%split[i];
       res[i]=pos;
     }
 }
 
-std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const
+std::vector<mcIdType> MEDCouplingStructuredMesh::getCellGridStructure() const
 {
-  std::vector<int> ret(getNodeGridStructure());
-  std::transform(ret.begin(),ret.end(),ret.begin(),std::bind2nd(std::plus<int>(),-1));
+  std::vector<mcIdType> ret(getNodeGridStructure());
+  std::transform(ret.begin(),ret.end(),ret.begin(),std::bind2nd(std::plus<mcIdType>(),-1));
   return ret;
 }
 
@@ -1340,7 +1340,7 @@ std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const
  */
 double MEDCouplingStructuredMesh::computeSquareness() const
 {
-  std::vector<int> cgs(getCellGridStructure());
+  std::vector<mcIdType> cgs(getCellGridStructure());
   if(cgs.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::computeSquareness : empty mesh !");
   std::size_t dim(cgs.size());
@@ -1348,7 +1348,7 @@ double MEDCouplingStructuredMesh::computeSquareness() const
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::computeSquareness : A segment cannot be square !");
   if(dim<4)
     {
-      int minAx(cgs[0]),maxAx(cgs[0]);
+      mcIdType minAx(cgs[0]),maxAx(cgs[0]);
       for(std::size_t i=1;i<dim;i++)
         {
           minAx=std::min(minAx,cgs[i]);
@@ -1363,14 +1363,14 @@ double MEDCouplingStructuredMesh::computeSquareness() const
  * Given a struct \a strct it returns a split vector [1,strct[0],strct[0]*strct[1]...]
  * This decomposition allows to quickly find i,j,k given a global id.
  */
-std::vector<int> MEDCouplingStructuredMesh::GetSplitVectFromStruct(const std::vector<int>& strct)
+std::vector<mcIdType> MEDCouplingStructuredMesh::GetSplitVectFromStruct(const std::vector<mcIdType>& strct)
 {
-  int spaceDim((int)strct.size());
-  std::vector<int> res(spaceDim);
-  for(int l=0;l<spaceDim;l++)
+  std::size_t spaceDim(strct.size());
+  std::vector<mcIdType> res(spaceDim);
+  for(std::size_t l=0;l<spaceDim;l++)
     {
-      int val=1;
-      for(int p=0;p<spaceDim-l-1;p++)
+      mcIdType val=1;
+      for(std::size_t p=0;p<spaceDim-l-1;p++)
         val*=strct[p];
       res[spaceDim-l-1]=val;
     }
@@ -1383,13 +1383,13 @@ std::vector<int> MEDCouplingStructuredMesh::GetSplitVectFromStruct(const std::ve
  *
  * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt
  */
-bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat)
+bool MEDCouplingStructuredMesh::IsPartStructured(const mcIdType *startIds, const mcIdType *stopIds, const std::vector<mcIdType>& st, std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
   int dim((int)st.size());
   partCompactFormat.resize(dim);
   if(dim<1 || dim>3)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::isPartStructured : input structure must be of dimension in [1,2,3] !");
-  std::vector<int> tmp2(dim),tmp(dim),tmp3(dim),tmp4(dim); tmp2[0]=1;
+  std::vector<mcIdType> tmp2(dim),tmp(dim),tmp3(dim),tmp4(dim); tmp2[0]=1;
   for(int i=1;i<dim;i++)
     tmp2[i]=tmp2[i-1]*st[i-1];
   std::size_t sz(std::distance(startIds,stopIds));
@@ -1408,7 +1408,7 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
       return true;
     }
   GetPosFromId(startIds[sz-1],dim,&tmp2[0],&tmp3[0]);
-  int szExp(1);
+  mcIdType szExp(1);
   for(int i=0;i<dim;i++)
     {
       if(tmp3[i]<0 || tmp3[i]>=st[i])
@@ -1419,20 +1419,20 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
         return false;
       szExp*=tmp4[i];
     }
-  if(szExp!=(int)sz)
+  if(szExp!=ToIdType(sz))
     return false;
-  const int *w(startIds);
+  const mcIdType *w(startIds);
   switch(dim)
   {
     case 3:
       {
-        for(int i=0;i<tmp4[2];i++)
+        for(mcIdType i=0;i<tmp4[2];i++)
           {
-            int a=tmp2[2]*(partCompactFormat[2].first+i);
-            for(int j=0;j<tmp4[1];j++)
+            mcIdType a=tmp2[2]*(partCompactFormat[2].first+i);
+            for(mcIdType j=0;j<tmp4[1];j++)
               {
-                int b=tmp2[1]*(partCompactFormat[1].first+j);
-                for(int k=0;k<tmp4[0];k++,w++)
+                mcIdType b=tmp2[1]*(partCompactFormat[1].first+j);
+                for(mcIdType k=0;k<tmp4[0];k++,w++)
                   {
                     if(partCompactFormat[0].first+k+b+a!=*w)
                       return false;
@@ -1443,10 +1443,10 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
       }
     case 2:
       {
-        for(int j=0;j<tmp4[1];j++)
+        for(mcIdType j=0;j<tmp4[1];j++)
           {
-            int b=tmp2[1]*(partCompactFormat[1].first+j);
-            for(int k=0;k<tmp4[0];k++,w++)
+            mcIdType b=tmp2[1]*(partCompactFormat[1].first+j);
+            for(mcIdType k=0;k<tmp4[0];k++,w++)
               {
                 if(partCompactFormat[0].first+k+b!=*w)
                   return false;
@@ -1456,7 +1456,7 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
       }
     case 1:
       {
-        for(int k=0;k<tmp4[0];k++,w++)
+        for(mcIdType k=0;k<tmp4[0];k++,w++)
           {
             if(partCompactFormat[0].first+k!=*w)
               return false;
@@ -1475,9 +1475,9 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
  * \throw if an axis range is so that max<min
  * \sa GetCompactFrmtFromDimensions
  */
-std::vector<int> MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat)
+std::vector<mcIdType> MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(const std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
-  std::vector<int> ret(partCompactFormat.size());
+  std::vector<mcIdType> ret(partCompactFormat.size());
   for(std::size_t i=0;i<partCompactFormat.size();i++)
     {
       if(partCompactFormat[i].first>partCompactFormat[i].second)
@@ -1496,10 +1496,10 @@ std::vector<int> MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(const s
  * \throw if there is an axis in \a dims that is < 0.
  * \sa GetDimensionsFromCompactFrmt, ChangeReferenceFromGlobalOfCompactFrmt, ChangeReferenceToGlobalOfCompactFrmt
  */
-std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(const std::vector<int>& dims)
+std::vector< std::pair<mcIdType,mcIdType> > MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(const std::vector<mcIdType>& dims)
 {
   std::size_t sz(dims.size());
-  std::vector< std::pair<int,int> > ret(sz);
+  std::vector< std::pair<mcIdType,mcIdType> > ret(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       if(dims[i]<0)
@@ -1519,12 +1519,12 @@ std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::GetCompactFrmtFromD
  *
  * \sa AreRangesIntersect
  */
-std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::IntersectRanges(const std::vector< std::pair<int,int> >& r1, const std::vector< std::pair<int,int> >& r2)
+std::vector< std::pair<mcIdType,mcIdType> > MEDCouplingStructuredMesh::IntersectRanges(const std::vector< std::pair<mcIdType,mcIdType> >& r1, const std::vector< std::pair<mcIdType,mcIdType> >& r2)
 {
   std::size_t sz(r1.size());
   if(sz!=r2.size())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::IntersectRanges : the two ranges must have the same dimension !");
-  std::vector< std::pair<int,int> > ret(sz);
+  std::vector< std::pair<mcIdType,mcIdType> > ret(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       if(r1[i].first>r1[i].second)
@@ -1553,7 +1553,7 @@ std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::IntersectRanges(con
  *
  * \sa IntersectRanges
  */
-bool MEDCouplingStructuredMesh::AreRangesIntersect(const std::vector< std::pair<int,int> >& r1, const std::vector< std::pair<int,int> >& r2)
+bool MEDCouplingStructuredMesh::AreRangesIntersect(const std::vector< std::pair<mcIdType,mcIdType> >& r1, const std::vector< std::pair<mcIdType,mcIdType> >& r2)
 {
   std::size_t sz(r1.size());
   if(sz!=r2.size())
@@ -1579,7 +1579,7 @@ bool MEDCouplingStructuredMesh::AreRangesIntersect(const std::vector< std::pair<
 }
 
 /*!
- * This method is close to BuildExplicitIdsFrom except that instead of returning a DataArrayInt instance containing explicit ids it
+ * This method is close to BuildExplicitIdsFrom except that instead of returning a DataArrayIdType instance containing explicit ids it
  * enable elems in the vector of booleans (for performance reasons). As it is method for performance, this method is \b not
  * available in python.
  *
@@ -1589,24 +1589,24 @@ bool MEDCouplingStructuredMesh::AreRangesIntersect(const std::vector< std::pair<
  *
  * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom, ExtractFieldOfBoolFrom
  */
-void MEDCouplingStructuredMesh::SwitchOnIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& vectToSwitchOn)
+void MEDCouplingStructuredMesh::SwitchOnIdsFrom(const std::vector<mcIdType>& st, const std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat, std::vector<bool>& vectToSwitchOn)
 {
   if(st.size()!=partCompactFormat.size())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::SwitchOnIdsFrom : input arrays must have the same size !");
-  if((int)vectToSwitchOn.size()!=DeduceNumberOfGivenStructure(st))
+  if(ToIdType(vectToSwitchOn.size())!=DeduceNumberOfGivenStructure(st))
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::SwitchOnIdsFrom : invalid size of input vector of boolean regarding the structure !");
-  std::vector<int> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
+  std::vector<mcIdType> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
   switch(st.size())
   {
     case 3:
       {
-        for(int i=0;i<dims[2];i++)
+        for(mcIdType i=0;i<dims[2];i++)
           {
-            int a=(partCompactFormat[2].first+i)*st[0]*st[1];
-            for(int j=0;j<dims[1];j++)
+            mcIdType a=(partCompactFormat[2].first+i)*st[0]*st[1];
+            for(mcIdType j=0;j<dims[1];j++)
               {
-                int b=(partCompactFormat[1].first+j)*st[0];
-                for(int k=0;k<dims[0];k++)
+                mcIdType b=(partCompactFormat[1].first+j)*st[0];
+                for(mcIdType k=0;k<dims[0];k++)
                   vectToSwitchOn[partCompactFormat[0].first+k+b+a]=true;
               }
           }
@@ -1614,17 +1614,17 @@ void MEDCouplingStructuredMesh::SwitchOnIdsFrom(const std::vector<int>& st, cons
       }
     case 2:
       {
-        for(int j=0;j<dims[1];j++)
+        for(mcIdType j=0;j<dims[1];j++)
           {
-            int b=(partCompactFormat[1].first+j)*st[0];
-            for(int k=0;k<dims[0];k++)
+            mcIdType b=(partCompactFormat[1].first+j)*st[0];
+            for(mcIdType k=0;k<dims[0];k++)
               vectToSwitchOn[partCompactFormat[0].first+k+b]=true;
           }
         break;
       }
     case 1:
       {
-        for(int k=0;k<dims[0];k++)
+        for(mcIdType k=0;k<dims[0];k++)
           vectToSwitchOn[partCompactFormat[0].first+k]=true;
         break;
       }
@@ -1645,27 +1645,27 @@ void MEDCouplingStructuredMesh::SwitchOnIdsFrom(const std::vector<int>& st, cons
  *
  * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom, SwitchOnIdsFrom, ExtractFieldOfDoubleFrom
  */
-void MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom(const std::vector<int>& st, const std::vector<bool>& fieldOfBool, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& fieldOut)
+void MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom(const std::vector<mcIdType>& st, const std::vector<bool>& fieldOfBool, const std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat, std::vector<bool>& fieldOut)
 {
   if(st.size()!=partCompactFormat.size())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom : input arrays must have the same size !");
-  if((int)fieldOfBool.size()!=DeduceNumberOfGivenStructure(st))
+  if(ToIdType(fieldOfBool.size())!=DeduceNumberOfGivenStructure(st))
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom : invalid size of input field of boolean regarding the structure !");
-  std::vector<int> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
-  int nbOfTuplesOfOutField(DeduceNumberOfGivenStructure(dims));
+  std::vector<mcIdType> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
+  mcIdType nbOfTuplesOfOutField(DeduceNumberOfGivenStructure(dims));
   fieldOut.resize(nbOfTuplesOfOutField);
-  int it(0);
+  mcIdType it(0);
   switch(st.size())
   {
     case 3:
       {
-        for(int i=0;i<dims[2];i++)
+        for(mcIdType i=0;i<dims[2];i++)
           {
-            int a=(partCompactFormat[2].first+i)*st[0]*st[1];
-            for(int j=0;j<dims[1];j++)
+            mcIdType a=(partCompactFormat[2].first+i)*st[0]*st[1];
+            for(mcIdType j=0;j<dims[1];j++)
               {
-                int b=(partCompactFormat[1].first+j)*st[0];
-                for(int k=0;k<dims[0];k++)
+                mcIdType b=(partCompactFormat[1].first+j)*st[0];
+                for(mcIdType k=0;k<dims[0];k++)
                   fieldOut[it++]=fieldOfBool[partCompactFormat[0].first+k+b+a];
               }
           }
@@ -1673,17 +1673,17 @@ void MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom(const std::vector<int>& s
       }
     case 2:
       {
-        for(int j=0;j<dims[1];j++)
+        for(mcIdType j=0;j<dims[1];j++)
           {
-            int b=(partCompactFormat[1].first+j)*st[0];
-            for(int k=0;k<dims[0];k++)
+            mcIdType b=(partCompactFormat[1].first+j)*st[0];
+            for(mcIdType k=0;k<dims[0];k++)
               fieldOut[it++]=fieldOfBool[partCompactFormat[0].first+k+b];
           }
         break;
       }
     case 1:
       {
-        for(int k=0;k<dims[0];k++)
+        for(mcIdType k=0;k<dims[0];k++)
           fieldOut[it++]=fieldOfBool[partCompactFormat[0].first+k];
         break;
       }
@@ -1703,7 +1703,7 @@ void MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom(const std::vector<int>& s
  *
  * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom, SwitchOnIdsFrom, ExtractFieldOfBoolFrom
  */
-DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::vector<int>& st, const DataArrayDouble *fieldOfDbl, const std::vector< std::pair<int,int> >& partCompactFormat)
+DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::vector<mcIdType>& st, const DataArrayDouble *fieldOfDbl, const std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
   if(!fieldOfDbl || !fieldOfDbl->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : input array of double is NULL or not allocated!");
@@ -1711,8 +1711,9 @@ DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : input arrays must have the same size !");
   if(fieldOfDbl->getNumberOfTuples()!=DeduceNumberOfGivenStructure(st))
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : invalid size of input array of double regarding the structure !");
-  std::vector<int> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
-  int nbOfTuplesOfOutField(DeduceNumberOfGivenStructure(dims)),nbComp(fieldOfDbl->getNumberOfComponents());
+  std::vector<mcIdType> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
+  mcIdType nbOfTuplesOfOutField(DeduceNumberOfGivenStructure(dims));
+  std::size_t nbComp(fieldOfDbl->getNumberOfComponents());
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfTuplesOfOutField,nbComp);
   ret->copyStringInfoFrom(*fieldOfDbl);
   double *ptRet(ret->getPointer());
@@ -1721,13 +1722,13 @@ DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::
   {
     case 3:
       {
-        for(int i=0;i<dims[2];i++)
+        for(mcIdType i=0;i<dims[2];i++)
           {
-            int a=(partCompactFormat[2].first+i)*st[0]*st[1];
-            for(int j=0;j<dims[1];j++)
+            mcIdType a=(partCompactFormat[2].first+i)*st[0]*st[1];
+            for(mcIdType j=0;j<dims[1];j++)
               {
-                int b=(partCompactFormat[1].first+j)*st[0];
-                for(int k=0;k<dims[0];k++)
+                mcIdType b=(partCompactFormat[1].first+j)*st[0];
+                for(mcIdType k=0;k<dims[0];k++)
                   ptRet=std::copy(fieldOfDblPtr+(partCompactFormat[0].first+k+b+a)*nbComp,fieldOfDblPtr+(partCompactFormat[0].first+k+b+a+1)*nbComp,ptRet);
               }
           }
@@ -1735,17 +1736,17 @@ DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::
       }
     case 2:
       {
-        for(int j=0;j<dims[1];j++)
+        for(mcIdType j=0;j<dims[1];j++)
           {
-            int b=(partCompactFormat[1].first+j)*st[0];
-            for(int k=0;k<dims[0];k++)
+            mcIdType b=(partCompactFormat[1].first+j)*st[0];
+            for(mcIdType k=0;k<dims[0];k++)
               ptRet=std::copy(fieldOfDblPtr+(partCompactFormat[0].first+k+b)*nbComp,fieldOfDblPtr+(partCompactFormat[0].first+k+b+1)*nbComp,ptRet);
           }
         break;
       }
     case 1:
       {
-        for(int k=0;k<dims[0];k++)
+        for(mcIdType k=0;k<dims[0];k++)
           ptRet=std::copy(fieldOfDblPtr+(partCompactFormat[0].first+k)*nbComp,fieldOfDblPtr+(partCompactFormat[0].first+k+1)*nbComp,ptRet);
         break;
       }
@@ -1763,9 +1764,9 @@ DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::
  * \param [in] partCompactFormat - the specification of the part.
  * \param [in] other - the array that will be used to fill \a fieldOfDbl.
  */
-void MEDCouplingStructuredMesh::AssignPartOfFieldOfDoubleUsing(const std::vector<int>& st, DataArrayDouble *fieldOfDbl, const std::vector< std::pair<int,int> >& partCompactFormat, const DataArrayDouble *other)
+void MEDCouplingStructuredMesh::AssignPartOfFieldOfDoubleUsing(const std::vector<mcIdType>& st, DataArrayDouble *fieldOfDbl, const std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat, const DataArrayDouble *other)
 {//to be optimized
-  std::vector<int> facts(st.size(),1.);
+  std::vector<mcIdType> facts(st.size(),1);
   MEDCouplingIMesh::CondenseFineToCoarse(st,other,partCompactFormat,facts,fieldOfDbl);
 }
 
@@ -1777,7 +1778,7 @@ void MEDCouplingStructuredMesh::AssignPartOfFieldOfDoubleUsing(const std::vector
  *
  * \sa ChangeReferenceToGlobalOfCompactFrmt, BuildExplicitIdsFrom, SwitchOnIdsFrom, ExtractFieldOfBoolFrom, ExtractFieldOfDoubleFrom
  */
-void MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigInAbs, std::vector< std::pair<int,int> >& partOfBigRelativeToBig, bool check)
+void MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(const std::vector< std::pair<mcIdType,mcIdType> >& bigInAbs, const std::vector< std::pair<mcIdType,mcIdType> >& partOfBigInAbs, std::vector< std::pair<mcIdType,mcIdType> >& partOfBigRelativeToBig, bool check)
 {
   std::size_t dim(bigInAbs.size());
   if(dim!=partOfBigInAbs.size())
@@ -1816,7 +1817,7 @@ void MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(const std
  *
  * \sa ChangeReferenceFromGlobalOfCompactFrmt
  */
-void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigRelativeToBig, std::vector< std::pair<int,int> >& partOfBigInAbs, bool check)
+void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::vector< std::pair<mcIdType,mcIdType> >& bigInAbs, const std::vector< std::pair<mcIdType,mcIdType> >& partOfBigRelativeToBig, std::vector< std::pair<mcIdType,mcIdType> >& partOfBigInAbs, bool check)
 {
   std::size_t dim(bigInAbs.size());
   if(dim!=partOfBigRelativeToBig.size())
@@ -1855,12 +1856,12 @@ void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::
  *
  * \sa FindTranslationFrom
  */
-std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::TranslateCompactFrmt(const std::vector< std::pair<int,int> >& part, const std::vector<int>& translation)
+std::vector< std::pair<mcIdType,mcIdType> > MEDCouplingStructuredMesh::TranslateCompactFrmt(const std::vector< std::pair<mcIdType,mcIdType> >& part, const std::vector<mcIdType>& translation)
 {
   std::size_t sz(part.size());
   if(translation.size()!=sz)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::TranslateCompactFrmt : the sizes are not equal !");
-  std::vector< std::pair<int,int> > ret(sz);
+  std::vector< std::pair<mcIdType,mcIdType> > ret(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       ret[i].first=part[i].first+translation[i];
@@ -1872,12 +1873,12 @@ std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::TranslateCompactFrm
 /*!
  * \sa TranslateCompactFrmt
  */
-std::vector<int> MEDCouplingStructuredMesh::FindTranslationFrom(const std::vector< std::pair<int,int> >& startingFrom, const std::vector< std::pair<int,int> >& goingTo)
+std::vector<mcIdType> MEDCouplingStructuredMesh::FindTranslationFrom(const std::vector< std::pair<mcIdType,mcIdType> >& startingFrom, const std::vector< std::pair<mcIdType,mcIdType> >& goingTo)
 {
   std::size_t sz(startingFrom.size());
   if(goingTo.size()!=sz)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindTranslationFrom : the sizes are not equal !");
-  std::vector< int > ret(sz);
+  std::vector< mcIdType > ret(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       ret[i]=goingTo[i].first-startingFrom[i].first;
@@ -1889,15 +1890,15 @@ std::vector<int> MEDCouplingStructuredMesh::FindTranslationFrom(const std::vecto
  * This method builds the explicit entity array from the structure in \a st and the range in \a partCompactFormat.
  * If the range contains invalid values regarding structure an exception will be thrown.
  *
- * \return DataArrayInt * - a new object.
+ * \return DataArrayIdType * - a new object.
  * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt, SwitchOnIdsFrom, ExtractFieldOfBoolFrom, ExtractFieldOfDoubleFrom, MultiplyPartOf
  */
-DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat)
+DataArrayIdType *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<mcIdType>& st, const std::vector< std::pair<mcIdType,mcIdType> >& partCompactFormat)
 {
   if(st.size()!=partCompactFormat.size())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : input arrays must have the same size !");
-  int nbOfItems(1);
-  std::vector<int> dims(st.size());
+  mcIdType nbOfItems(1);
+  std::vector<mcIdType> dims(st.size());
   for(std::size_t i=0;i<st.size();i++)
     {
       if(partCompactFormat[i].first<0 || partCompactFormat[i].first>st[i])
@@ -1909,20 +1910,20 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
       dims[i]=partCompactFormat[i].second-partCompactFormat[i].first;
       nbOfItems*=dims[i];
     }
-  MCAuto<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
   ret->alloc(nbOfItems,1);
-  int *pt(ret->getPointer());
+  mcIdType *pt(ret->getPointer());
   switch(st.size())
   {
     case 3:
       {
-        for(int i=0;i<dims[2];i++)
+        for(mcIdType i=0;i<dims[2];i++)
           {
-            int a=(partCompactFormat[2].first+i)*st[0]*st[1];
-            for(int j=0;j<dims[1];j++)
+            mcIdType a=(partCompactFormat[2].first+i)*st[0]*st[1];
+            for(mcIdType j=0;j<dims[1];j++)
               {
-                int b=(partCompactFormat[1].first+j)*st[0];
-                for(int k=0;k<dims[0];k++,pt++)
+                mcIdType b=(partCompactFormat[1].first+j)*st[0];
+                for(mcIdType k=0;k<dims[0];k++,pt++)
                   *pt=partCompactFormat[0].first+k+b+a;
               }
           }
@@ -1930,17 +1931,17 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
       }
     case 2:
       {
-        for(int j=0;j<dims[1];j++)
+        for(mcIdType j=0;j<dims[1];j++)
           {
-            int b=(partCompactFormat[1].first+j)*st[0];
-            for(int k=0;k<dims[0];k++,pt++)
+            mcIdType b=(partCompactFormat[1].first+j)*st[0];
+            for(mcIdType k=0;k<dims[0];k++,pt++)
               *pt=partCompactFormat[0].first+k+b;
           }
         break;
       }
     case 1:
       {
-        for(int k=0;k<dims[0];k++,pt++)
+        for(mcIdType k=0;k<dims[0];k++,pt++)
           *pt=partCompactFormat[0].first+k;
         break;
       }
@@ -1960,13 +1961,13 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
  *
  * \sa BuildExplicitIdsFrom
  */
-void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, double factor, DataArrayDouble *da)
+void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<mcIdType>& st, const std::vector< std::pair<mcIdType,mcIdType> >& part, double factor, DataArrayDouble *da)
 {
   if(!da || !da->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : DataArrayDouble instance must be not NULL and allocated !");
   if(st.size()!=part.size())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : input arrays must have the same size !");
-  std::vector<int> dims(st.size());
+  std::vector<mcIdType> dims(st.size());
   for(std::size_t i=0;i<st.size();i++)
     {
       if(part[i].first<0 || part[i].first>st[i])
@@ -1977,7 +1978,8 @@ void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<int>& st, const
         throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : invalid input range 3 !");
       dims[i]=part[i].second-part[i].first;
     }
-  int nbOfTuplesExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(st)),nbCompo(da->getNumberOfComponents());
+  mcIdType nbOfTuplesExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(st));
+  std::size_t nbCompo(da->getNumberOfComponents());
   if(da->getNumberOfTuples()!=nbOfTuplesExp)
     {
       std::ostringstream oss; oss << "MEDCouplingStructuredMesh::MultiplyPartOf : invalid nb of tuples ! Expected " << nbOfTuplesExp << " having " << da->getNumberOfTuples() << " !";
@@ -1988,15 +1990,15 @@ void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<int>& st, const
   {
     case 3:
       {
-        for(int i=0;i<dims[2];i++)
+        for(mcIdType i=0;i<dims[2];i++)
           {
-            int a=(part[2].first+i)*st[0]*st[1];
-            for(int j=0;j<dims[1];j++)
+            mcIdType a=(part[2].first+i)*st[0]*st[1];
+            for(mcIdType j=0;j<dims[1];j++)
               {
-                int b=(part[1].first+j)*st[0];
-                for(int k=0;k<dims[0];k++)
+                mcIdType b=(part[1].first+j)*st[0];
+                for(mcIdType k=0;k<dims[0];k++)
                   {
-                    int offset(part[0].first+k+b+a);
+                    mcIdType offset(part[0].first+k+b+a);
                     std::transform(pt+nbCompo*offset,pt+nbCompo*(offset+1),pt+nbCompo*offset,std::bind2nd(std::multiplies<double>(),factor));
                   }
               }
@@ -2005,12 +2007,12 @@ void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<int>& st, const
       }
     case 2:
       {
-        for(int j=0;j<dims[1];j++)
+        for(mcIdType j=0;j<dims[1];j++)
           {
-            int b=(part[1].first+j)*st[0];
-            for(int k=0;k<dims[0];k++)
+            mcIdType b=(part[1].first+j)*st[0];
+            for(mcIdType k=0;k<dims[0];k++)
               {
-                int offset(part[0].first+k+b);
+                mcIdType offset(part[0].first+k+b);
                 std::transform(pt+nbCompo*offset,pt+nbCompo*(offset+1),pt+nbCompo*offset,std::bind2nd(std::multiplies<double>(),factor));
               }
           }
@@ -2018,9 +2020,9 @@ void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<int>& st, const
       }
     case 1:
       {
-        for(int k=0;k<dims[0];k++)
+        for(mcIdType k=0;k<dims[0];k++)
           {
-            int offset(part[0].first+k);
+            mcIdType offset(part[0].first+k);
             std::transform(pt+nbCompo*offset,pt+nbCompo*(offset+1),pt+nbCompo*offset,std::bind2nd(std::multiplies<double>(),factor));
           }
         break;
@@ -2041,10 +2043,10 @@ void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<int>& st, const
  *
  * \sa MultiplyPartOf, PutInGhostFormat
  */
-void MEDCouplingStructuredMesh::MultiplyPartOfByGhost(const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, int ghostSize, double factor, DataArrayDouble *da)
+void MEDCouplingStructuredMesh::MultiplyPartOfByGhost(const std::vector<mcIdType>& st, const std::vector< std::pair<mcIdType,mcIdType> >& part, mcIdType ghostSize, double factor, DataArrayDouble *da)
 {
-  std::vector<int> stWG;
-  std::vector< std::pair<int,int> > partWG;
+  std::vector<mcIdType> stWG;
+  std::vector< std::pair<mcIdType,mcIdType> > partWG;
   PutInGhostFormat(ghostSize,st,part,stWG,partWG);
   MultiplyPartOf(stWG,partWG,factor,da);
 }
@@ -2060,7 +2062,7 @@ void MEDCouplingStructuredMesh::MultiplyPartOfByGhost(const std::vector<int>& st
  *
  * \sa MultiplyPartOf, PutInGhostFormat
  */
-void MEDCouplingStructuredMesh::PutInGhostFormat(int ghostSize, const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, std::vector<int>& stWithGhost, std::vector< std::pair<int,int> >&partWithGhost)
+void MEDCouplingStructuredMesh::PutInGhostFormat(mcIdType ghostSize, const std::vector<mcIdType>& st, const std::vector< std::pair<mcIdType,mcIdType> >& part, std::vector<mcIdType>& stWithGhost, std::vector< std::pair<mcIdType,mcIdType> >&partWithGhost)
 {
   if(ghostSize<0)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::PutInGhostFormat : ghost size must be >= 0 !");
@@ -2071,7 +2073,7 @@ void MEDCouplingStructuredMesh::PutInGhostFormat(int ghostSize, const std::vecto
     if(part[i].first<0 || part[i].first>part[i].second || part[i].second>st[i])
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::PutInGhostFormat : the specified part is invalid ! The begin must be >= 0 and <= end ! The end must be <= to the size at considered dimension !");
   stWithGhost.resize(st.size());
-  std::transform(st.begin(),st.end(),stWithGhost.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
+  std::transform(st.begin(),st.end(),stWithGhost.begin(),std::bind2nd(std::plus<mcIdType>(),2*ghostSize));
   partWithGhost=part;
   ApplyGhostOnCompactFrmt(partWithGhost,ghostSize);
 }
@@ -2080,7 +2082,7 @@ void MEDCouplingStructuredMesh::PutInGhostFormat(int ghostSize, const std::vecto
  * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
  * \param [in] ghostSize - the ghost size of zone for all axis.
  */
-void MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
+void MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(std::vector< std::pair<mcIdType,mcIdType> >& partBeforeFact, mcIdType ghostSize)
 {
   if(ghostSize<0)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt : ghost size must be >= 0 !");
@@ -2092,12 +2094,12 @@ void MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(std::vector< std::pair<i
     }
 }
 
-int MEDCouplingStructuredMesh::GetNumberOfCellsOfSubLevelMesh(const std::vector<int>& cgs, int mdim)
+mcIdType MEDCouplingStructuredMesh::GetNumberOfCellsOfSubLevelMesh(const std::vector<mcIdType>& cgs, int mdim)
 {
-  int ret(0);
+  mcIdType ret(0);
   for(int i=0;i<mdim;i++)
     {
-      int locRet(1);
+      mcIdType locRet(1);
       for(int j=0;j<mdim;j++)
         if(j!=i)
           locRet*=cgs[j];

@@ -262,7 +262,7 @@ namespace // define default GAUSS points
 
     TInt GetNbRef() const { return myNbRef; }
 
-    TCoordSlice GetCoord(TInt theRefId) { return &myRefCoord[0] + theRefId * myDim; }
+    TCoordSlice GetCoord(std::size_t theRefId) { return &myRefCoord[0] + theRefId * myDim; }
   };
   //---------------------------------------------------------------
   /*!
@@ -291,7 +291,7 @@ namespace // define default GAUSS points
     TGaussDef(const int geomType, const int nbPoints, const int variant=1);
 
     int dim() const { return SauvUtilities::getDimension( NormalizedCellType( myType )); }
-    int nbPoints() const { return myWeights.capacity(); }
+    std::size_t nbPoints() const { return myWeights.capacity(); }
 
   private:
     void add(const double x, const double weight);
@@ -669,8 +669,8 @@ namespace // define default GAUSS points
   THexa20a::THexa20a(TInt theDim, TInt theNbRef):
     TShapeFun(theDim,theNbRef)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] = -1.0;  aCoord[1] = -1.0;  aCoord[2] = -1.0; break;
@@ -701,8 +701,8 @@ namespace // define default GAUSS points
   THexa27a::THexa27a():
     THexa20a(3,27)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case 20: aCoord[0] =  0.0;  aCoord[1] =  0.0;  aCoord[2] = -1.0; break;
@@ -738,8 +738,8 @@ namespace // define default GAUSS points
   THexa20b::THexa20b(TInt theDim, TInt theNbRef):
     TShapeFun(theDim,theNbRef)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] = -1.0;  aCoord[1] = -1.0;  aCoord[2] = -1.0; break;
@@ -770,8 +770,8 @@ namespace // define default GAUSS points
   TPenta6a::TPenta6a():
     TShapeFun(3,6)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] = -1.0;  aCoord[1] =  1.0;  aCoord[2] =  0.0; break;
@@ -787,8 +787,8 @@ namespace // define default GAUSS points
   TPenta6b::TPenta6b():
     TShapeFun(3,6)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] = -1.0;  aCoord[1] =  1.0;  aCoord[2] =  0.0; break;
@@ -804,8 +804,8 @@ namespace // define default GAUSS points
   TPenta15a::TPenta15a():
     TShapeFun(3,15)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] = -1.0;  aCoord[1] =  1.0;  aCoord[2] =  0.0; break;
@@ -831,8 +831,8 @@ namespace // define default GAUSS points
   TPenta15b::TPenta15b():
     TShapeFun(3,15)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] = -1.0;  aCoord[1] =  1.0;  aCoord[2] =  0.0; break;
@@ -858,8 +858,8 @@ namespace // define default GAUSS points
   TPyra5a::TPyra5a():
     TShapeFun(3,5)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] =  1.0;  aCoord[1] =  0.0;  aCoord[2] =  0.0; break;
@@ -874,8 +874,8 @@ namespace // define default GAUSS points
   TPyra5b::TPyra5b():
     TShapeFun(3,5)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] =  1.0;  aCoord[1] =  0.0;  aCoord[2] =  0.0; break;
@@ -890,8 +890,8 @@ namespace // define default GAUSS points
   TPyra13a::TPyra13a():
     TShapeFun(3,13)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] =  1.0;  aCoord[1] =  0.0;  aCoord[2] =  0.0; break;
@@ -915,8 +915,8 @@ namespace // define default GAUSS points
   TPyra13b::TPyra13b():
     TShapeFun(3,13)
   {
-    TInt aNbRef = myRefCoord.size();
-    for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
+    std::size_t aNbRef = myRefCoord.size();
+    for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
       case  0: aCoord[0] =  1.0;  aCoord[1] =  0.0;  aCoord[2] =  0.0; break;
@@ -1497,7 +1497,7 @@ Cell::Cell(const Cell& ma)
 {
   if ( ma._sortedNodeIDs )
     {
-      _sortedNodeIDs = new int[ _nodes.size() ];
+      _sortedNodeIDs = new TID[ _nodes.size() ];
       std::copy( ma._sortedNodeIDs, ma._sortedNodeIDs + _nodes.size(), _sortedNodeIDs );
     }
 }
@@ -1510,7 +1510,7 @@ Cell::Cell(const Cell& ma)
 
 SauvUtilities::Link Cell::link(int i) const
 {
-  int i2 = ( i + 1 ) % _nodes.size();
+  std::size_t i2 = ( i + 1 ) % _nodes.size();
   if ( _reverse )
     return std::make_pair( _nodes[i2]->_number, _nodes[i]->_number );
   else
@@ -1528,7 +1528,7 @@ const TID* Cell::getSortedNodes() const
   if ( !_sortedNodeIDs )
     {
       size_t l=_nodes.size();
-      _sortedNodeIDs = new int[ l ];
+      _sortedNodeIDs = new TID[ l ];
 
       for (size_t i=0; i!=l; ++i)
         _sortedNodeIDs[i]=_nodes[i]->_number;
@@ -1548,9 +1548,9 @@ bool Cell::operator< (const Cell& ma) const
   if ( _nodes.size() == 1 )
     return _nodes[0] < ma._nodes[0];
 
-  const int* v1 = getSortedNodes();
-  const int* v2 = ma.getSortedNodes();
-  for ( const int* vEnd = v1 + _nodes.size(); v1 < vEnd; ++v1, ++v2 )
+  const TID* v1 = getSortedNodes();
+  const TID* v2 = ma.getSortedNodes();
+  for ( const TID* vEnd = v1 + _nodes.size(); v1 < vEnd; ++v1, ++v2 )
     if(*v1 != *v2)
       return *v1 < *v2;
   return false;
@@ -1588,9 +1588,9 @@ std::ostream& SauvUtilities::operator<< (std::ostream& os, const SauvUtilities::
  */
 //================================================================================
 
-int Group::size() const
+mcIdType Group::size() const
 {
-  int sizze = 0;
+  std::size_t sizze = 0;
   if ( !_relocTable.empty() )
     sizze =  _relocTable.size();
   else if ( _medGroup )
@@ -1600,7 +1600,7 @@ int Group::size() const
   else
     for ( size_t i = 0; i < _groups.size(); ++i )
       sizze += _groups[i]->size();
-  return sizze;
+  return ToIdType( sizze );
 }
 
 //================================================================================
@@ -1739,13 +1739,13 @@ bool ASCIIReader::getLine(char* & line)
   bool aResult = true;
   // Check the state of the buffer;
   // if there is too little left, read the next portion of data
-  int nBytesRest = _eptr - _ptr;
+  std::size_t nBytesRest = _eptr - _ptr;
   if (nBytesRest < GIBI_MaxOutputLen)
     {
       if (nBytesRest > 0)
         {
           // move the remaining portion to the buffer beginning
-          for ( int i = 0; i < nBytesRest; ++i )
+          for ( std::size_t i = 0; i < nBytesRest; ++i )
             _start[i] = _ptr[i];
           //memcpy (_tmpBuf, _ptr, nBytesRest);
           //memcpy (_start, _tmpBuf, nBytesRest);
@@ -1755,9 +1755,9 @@ bool ASCIIReader::getLine(char* & line)
           nBytesRest = 0;
         }
       _ptr = _start;
-      const int nBytesRead = ::read (_file,
-                                     &_start [nBytesRest],
-                                     GIBI_BufferSize - nBytesRest);
+      const std::size_t nBytesRead = ::read (_file,
+                                             &_start [nBytesRest],
+                                             GIBI_BufferSize - nBytesRest);
       nBytesRest += nBytesRead;
       _eptr = &_start [nBytesRest];
     }
@@ -1942,7 +1942,7 @@ int ASCIIReader::getInt() const
 
 float ASCIIReader::getFloat() const
 {
-  return getDouble();
+  return (float)getDouble();
 }
 
 //================================================================================
@@ -2327,7 +2327,7 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
           // correct pointers to sub-groups
           for ( size_t j = 0; j < _groups[i]._groups.size(); ++j )
             {
-              int iG = _groups[i]._groups[j] - &_groups[0];
+              std::size_t iG = _groups[i]._groups[j] - &_groups[0];
               newGroups[i]._groups[j] = & newGroups[ iG ];
             }
         }
@@ -2337,7 +2337,7 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
         for ( size_t i = 0; i < groupsToFix->size(); ++i )
           if ( (*groupsToFix)[i] )
             {
-              int iG = (*groupsToFix)[i] - &_groups[0];
+              std::size_t iG = (*groupsToFix)[i] - &_groups[0];
               (*groupsToFix)[i] = & newGroups[ iG ];
             }
 
@@ -2351,12 +2351,12 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
               for ( size_t j = 0; j < fields[i]->_sub.size(); ++j )
                 if ( fields[i]->_sub[j]._support )
                   {
-                    int iG = fields[i]->_sub[j]._support - &_groups[0];
+                    std::size_t iG = fields[i]->_sub[j]._support - &_groups[0];
                     fields[i]->_sub[j]._support = & newGroups[ iG ];
                   }
               if ( fields[i]->_group )
                 {
-                  int iG = fields[i]->_group - &_groups[0];
+                  std::size_t iG = fields[i]->_group - &_groups[0];
                   fields[i]->_group = & newGroups[ iG ];
                 }
             }
@@ -2557,8 +2557,8 @@ void IntermediateMED::setFieldLongNames(std::set< std::string >& usedNames)
               if (medName.find( fields[ifi]->_name + "." ) == 0 )
                 {
                   std::vector<DoubleField::_Sub_data>& aSubDs = fields[ifi]->_sub;
-                  int nbSub = aSubDs.size();
-                  for (int isu = 0; isu < nbSub; isu++)
+                  std::size_t nbSub = aSubDs.size();
+                  for (std::size_t isu = 0; isu < nbSub; isu++)
                     for (int ico = 0; ico < aSubDs[isu].nbComponents(); ico++)
                       {
                         if (aSubDs[isu].compName(ico) == gibiName)
@@ -2837,7 +2837,7 @@ void IntermediateMED::orientFaces3D()
         for ( size_t j = 0; j < grp._cells.size(); ++j )
           if ( faces.insert( grp._cells[j] ).second )
             {
-              for ( size_t k = 0; k < grp._cells[j]->_nodes.size(); ++k )
+              for ( unsigned int k = 0; k < grp._cells[j]->_nodes.size(); ++k )
                 linkFacesMap[ grp._cells[j]->link( k ) ].push_back( grp._cells[j] );
               fgm.insert( std::make_pair( grp._cells[j], &grp ));
             }
@@ -3089,7 +3089,7 @@ void IntermediateMED::numberElements()
       // check if re-numeration is needed (to try to keep elem oreder as in sauve file )
       bool ok = true, renumEntity = false;
       CellsByDimIterator cellsIt( *this, dim );
-      int prevNbElems = 0;
+      mcIdType prevNbElems = 0;
       while ( const std::set<Cell> * typeCells = cellsIt.nextType() )
         {
           TID minNumber = std::numeric_limits<TID>::max(), maxNumber = 0;
@@ -3098,7 +3098,7 @@ void IntermediateMED::numberElements()
               if ( elemIt->_number < minNumber ) minNumber = elemIt->_number;
               if ( elemIt->_number > maxNumber ) maxNumber = elemIt->_number;
             }
-          TID typeSize = typeCells->size();
+          mcIdType typeSize = ToIdType( typeCells->size() );
           if ( typeSize != maxNumber - minNumber + 1 )
             ok = false;
           if ( prevNbElems+1 != (int)minNumber )
@@ -3112,12 +3112,12 @@ void IntermediateMED::numberElements()
       if ( ok && renumEntity ) // each geom type was numerated separately
         {
           cellsIt.init( dim );
-          prevNbElems = cellsIt.nextType()->size(); // no need to renumber the first type
+          prevNbElems = ToIdType( cellsIt.nextType()->size()); // no need to renumber the first type
           while ( const std::set<Cell> * typeCells = cellsIt.nextType() )
             {
               for ( elemIt = typeCells->begin(), elemEnd = typeCells->end(); elemIt!=elemEnd; ++elemIt)
                 elemIt->_number += prevNbElems;
-              prevNbElems += typeCells->size();
+              prevNbElems += ToIdType( typeCells->size() );
             }
         }
       if ( !ok )
@@ -3142,7 +3142,7 @@ MEDCoupling::DataArrayDouble * IntermediateMED::getCoords()
   DataArrayDouble* coordArray = DataArrayDouble::New();
   coordArray->alloc( _nbNodes, _spaceDim );
   double * coordPrt = coordArray->getPointer();
-  for ( int i = 0, nb = _points.size(); i < nb; ++i )
+  for ( unsigned int i = 0; i < _points.size(); ++i )
     {
       Node* n = getNode( i+1 );
       if ( n->isUsed() )
@@ -3175,9 +3175,9 @@ void IntermediateMED::setConnectivity( MEDCoupling::MEDFileUMesh*    mesh,
     {
       CellsByDimIterator dimCells( *this, dim );
 
-      int nbOfCells = 0;
+      mcIdType nbOfCells = 0;
       while ( const std::set<Cell > * cells = dimCells.nextType() )
-        nbOfCells += cells->size();
+        nbOfCells += ToIdType( cells->size() );
       if ( nbOfCells == 0 )
         continue;
 
@@ -3188,27 +3188,27 @@ void IntermediateMED::setConnectivity( MEDCoupling::MEDFileUMesh*    mesh,
       dimMesh->setMeshDimension( dim );
       dimMesh->allocateCells( nbOfCells );
 
-      int prevNbCells = 0;
+      mcIdType prevNbCells = 0;
       dimCells.init( dim );
       while ( const std::set<Cell > * cells = dimCells.nextType() )
         {
           // fill connectivity array to take into account order of elements in the sauv file
-          const int nbCellNodes = cells->begin()->_nodes.size();
+          const mcIdType nbCellNodes = ToIdType( cells->begin()->_nodes.size() );
           std::vector< TID > connectivity( cells->size() * nbCellNodes );
-          int * nodalConnOfCell;
+          TID * nodalConnOfCell;
           for ( elemIt = cells->begin(), elemEnd = cells->end(); elemIt != elemEnd; ++elemIt )
             {
               const Cell& cell = *elemIt;
-              const int index = cell._number - 1 - prevNbCells;
+              const TID index = cell._number - 1 - prevNbCells;
               nodalConnOfCell = &connectivity[ index * nbCellNodes ];
               if ( cell._reverse )
-                for ( int i = nbCellNodes-1; i >= 0; --i )
+                for ( mcIdType i = nbCellNodes-1; i >= 0; --i )
                   *nodalConnOfCell++ = cell._nodes[i]->_number - 1;
               else
-                for ( int i = 0; i < nbCellNodes; ++i )
+                for ( mcIdType i = 0; i < nbCellNodes; ++i )
                   *nodalConnOfCell++ = cell._nodes[i]->_number - 1;
             }
-          prevNbCells += cells->size();
+          prevNbCells += ToIdType( cells->size() );
 
           // fill dimMesh
           TCellType cellType = dimCells.type();
@@ -3237,8 +3237,8 @@ void IntermediateMED::setGroups( MEDCoupling::MEDFileUMesh* mesh )
     {
       const int meshDimRelToMaxExt = ( dim == 0 ? 1 : dim - meshDim );
 
-      std::vector<const DataArrayInt *> medGroups;
-      std::vector<MCAuto<DataArrayInt> > refGroups;
+      std::vector<const DataArrayIdType *> medGroups;
+      std::vector<MCAuto<DataArrayIdType> > refGroups;
       for ( size_t i = 0; i < _groups.size(); ++i )
         {
           Group& grp = _groups[i];
@@ -3284,10 +3284,10 @@ void IntermediateMED::setGroups( MEDCoupling::MEDFileUMesh* mesh )
                 }
             }
           // create a med group
-          grp._medGroup = DataArrayInt::New();
+          grp._medGroup = DataArrayIdType::New();
           grp._medGroup->setName( grp._name.c_str() );
           grp._medGroup->alloc( cell2order.size(), /*nbOfCompo=*/1 );
-          int * idsPtr = grp._medGroup->getPointer();
+          TID * idsPtr = grp._medGroup->getPointer();
           TCellToOrderMap::iterator cell2orderIt, cell2orderEnd = cell2order.end();
           for ( cell2orderIt = cell2order.begin(); cell2orderIt != cell2orderEnd; ++cell2orderIt )
             *idsPtr++ = (*cell2orderIt).first->_number - 1;
@@ -3336,7 +3336,7 @@ bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
 {
   int dim = getDim( grp );
 
-  int nbElems = 0;
+  mcIdType nbElems = 0;
   if ( dim == 0 )
     {
       nbElems = _nbNodes;
@@ -3346,7 +3346,7 @@ bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
     {
       CellsByDimIterator dimCells( *this, dim );
       while ( const std::set<Cell > * cells = dimCells.nextType() )
-        nbElems += cells->size();
+        nbElems += ToIdType( cells->size() );
 
       int meshDim = 3;
       for ( ; meshDim > 0; --meshDim )
@@ -3378,10 +3378,10 @@ MEDCoupling::MEDFileFields * IntermediateMED::makeMEDFileFields(MEDCoupling::MED
 
   MEDFileFields* fields = MEDFileFields::New();
 
-  for ( size_t i = 0; i < _nodeFields.size(); ++i )
+  for ( unsigned int i = 0; i < _nodeFields.size(); ++i )
     setFields( _nodeFields[i], fields, mesh, i+1, usedFieldNames );
 
-  for ( size_t i = 0; i < _cellFields.size(); ++i )
+  for ( unsigned int i = 0; i < _cellFields.size(); ++i )
     setFields( _cellFields[i], fields, mesh, i+1, usedFieldNames );
 
   return fields;
@@ -3415,7 +3415,7 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
     std::cout << "Castem field #" << castemID << " <" << fld->_name
               << "> is incompatible with MED format, so we split it into several fields:" << std::endl;
 
-  for ( size_t iSub = 0; iSub < fld->_sub.size(); )
+  for ( unsigned int iSub = 0; iSub < fld->_sub.size(); )
     {
       // set field name
       if ( !uniteSubs || fld->_name.empty() )
@@ -3429,8 +3429,8 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
       double * valPtr = values->getPointer();
       if ( uniteSubs )
         {
-          int nbElems = fld->_group->size();
-          for ( int elemShift = 0; elemShift < nbElems && iSub < fld->_sub.size(); )
+          mcIdType nbElems = fld->_group->size();
+          for ( mcIdType elemShift = 0; elemShift < nbElems && iSub < fld->_sub.size(); )
             elemShift += fld->setValues( valPtr, iSub++, elemShift );
           setTS( fld, values, medFields, mesh );
         }
@@ -3660,7 +3660,7 @@ bool DoubleField::isMultiTimeStamps() const
 
 bool DoubleField::isMedCompatible(bool& sameNbGauss) const
 {
-  for ( size_t iSub = 0; iSub < _sub.size(); ++iSub )
+  for ( unsigned int iSub = 0; iSub < _sub.size(); ++iSub )
     {
       if ( !getSupport(iSub) || !getSupport(iSub)->_medGroup )
         THROW_IK_EXCEPTION("SauvReader INTERNAL ERROR: NULL field support");
@@ -3741,9 +3741,9 @@ MEDCoupling::TypeOfTimeDiscretization DoubleField::getMedTimeDisc() const
  */
 //================================================================================
 
-int DoubleField::getNbTuples( const int iSub ) const
+mcIdType DoubleField::getNbTuples( const int iSub ) const
 {
-  int nb = 0;
+  mcIdType nb = 0;
   if ( hasCommonSupport() && !_group->_groups.empty() )
     for ( size_t i = 0; i < _group->_groups.size(); ++i )
       nb += _sub[i].nbGauss() * _sub[i]._support->size();
@@ -3758,7 +3758,7 @@ int DoubleField::getNbTuples( const int iSub ) const
  */
 //================================================================================
 
-int DoubleField::setValues( double * valPtr, const int iSub, const int elemShift ) const
+mcIdType DoubleField::setValues( double * valPtr, const int iSub, const mcIdType elemShift ) const
 {
   // find values for iSub
   int iComp = 0;
@@ -3768,41 +3768,41 @@ int DoubleField::setValues( double * valPtr, const int iSub, const int elemShift
 
   // Set values
 
-  const std::vector< unsigned >& relocTable = getSupport( iSub )->_relocTable;
+  const std::vector< mcIdType >& relocTable = getSupport( iSub )->_relocTable;
 
-  const int nbElems      = _sub[iSub]._support->size();
+  const mcIdType nbElems = _sub[iSub]._support->size();
   const int nbGauss      = _sub[iSub].nbGauss();
   const int nbComponents = _sub[iSub].nbComponents();
   const int nbValsByElem = nbComponents * nbGauss;
 
   // check nb values
-  int nbVals = 0;
+  mcIdType nbVals = 0;
   for ( iComp = 0; iComp < nbComponents; ++iComp )
-    nbVals += compValues[iComp].size();
+    nbVals += ToIdType( compValues[iComp].size() );
   const bool isConstField = ( nbVals == nbComponents ); // one value per component (issue 22321)
   if ( !isConstField && nbVals != nbElems * nbValsByElem )
     THROW_IK_EXCEPTION("SauvMedConvertor.cxx: support size mismatches field size");
 
   // compute nb values in previous subs
-  int valsShift = 0;
-  for ( int iS = iSub-1, shift = elemShift; shift > 0; --iS)
+  mcIdType valsShift = 0;
+  for ( mcIdType iS = iSub-1, shift = elemShift; shift > 0; --iS)
     {
-      int nbE = _sub[iS]._support->size();
+      mcIdType nbE = _sub[iS]._support->size();
       shift -= nbE;
       valsShift += nbE * _sub[iS].nbComponents() * _sub[iS].nbGauss();
     }
 
   if ( isConstField )
-    for ( int iE = 0; iE < nbElems; ++iE )
+    for ( mcIdType iE = 0; iE < nbElems; ++iE )
       {
-        int iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
+        mcIdType iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
         for ( iComp = 0; iComp < nbComponents; ++iComp )
           valPtr[ iMed + iComp ] = compValues[iComp][ 0 ];
       }
   else
-    for ( int iE = 0; iE < nbElems; ++iE )
+    for ( mcIdType iE = 0; iE < nbElems; ++iE )
       {
-        int iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
+        mcIdType iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
         for ( iComp = 0; iComp < nbComponents; ++iComp )
           for ( int iG = 0; iG < nbGauss; ++iG )
             valPtr[ iMed + iG * nbComponents + iComp ] = compValues[iComp][ iE * nbGauss + iG ];

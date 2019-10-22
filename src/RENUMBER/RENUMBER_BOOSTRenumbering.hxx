@@ -26,7 +26,7 @@
 class RENUMBER_EXPORT BOOSTRenumbering:public Renumbering
 {
 public:
-  void renumber(const int *graph, const int *index_graph, int nbCell, MEDCoupling::DataArrayInt *&iperm, MEDCoupling::DataArrayInt *&perm);
+  void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm);
 };
 
 #endif /*BOOSTRENUMBERING_HXX_*/

@@ -71,7 +71,8 @@ struct PyCallBackDataArraySt {
 };
 
 typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayByte> PyCallBackDataArrayChar;
-typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt> PyCallBackDataArrayInt;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt32> PyCallBackDataArrayInt32;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt64> PyCallBackDataArrayInt64;
 typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayFloat> PyCallBackDataArrayFloat;
 typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayDouble> PyCallBackDataArrayDouble;
 
@@ -85,9 +86,15 @@ extern "C"
     return (PyObject *)self;
   }
 
-  static PyObject *callbackmcdataarrayint___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+  static PyObject *callbackmcdataarrayint32___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
-    PyCallBackDataArrayInt *self = (PyCallBackDataArrayInt *) ( type->tp_alloc(type, 0) );
+    PyCallBackDataArrayInt32 *self = (PyCallBackDataArrayInt32 *) ( type->tp_alloc(type, 0) );
+    return (PyObject *)self;
+  }
+  
+  static PyObject *callbackmcdataarrayint64___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+  {
+    PyCallBackDataArrayInt64 *self = (PyCallBackDataArrayInt64 *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
   
@@ -124,11 +131,24 @@ extern "C"
 
   // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
   // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarrayint_call(PyCallBackDataArrayInt *self, PyObject *args, PyObject *kw)
+  static PyObject *callbackmcdataarrayint32_call(PyCallBackDataArrayInt32 *self, PyObject *args, PyObject *kw)
   {
     if(self->_pt_mc)
       {
         MEDCoupling::MemArray<int>& mma=self->_pt_mc->accessToMemArray();
+        mma.destroy();
+      }
+    Py_XINCREF(Py_None);
+    return Py_None;
+  }
+
+  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
+  static PyObject *callbackmcdataarrayint64_call(PyCallBackDataArrayInt64 *self, PyObject *args, PyObject *kw)
+  {
+    if(self->_pt_mc)
+      {
+        MEDCoupling::MemArray<long>& mma=self->_pt_mc->accessToMemArray();
         mma.destroy();
       }
     Py_XINCREF(Py_None);
@@ -205,10 +225,10 @@ PyTypeObject PyCallBackDataArrayChar_RefType = {
 };
 
 
-PyTypeObject PyCallBackDataArrayInt_RefType = {
+PyTypeObject PyCallBackDataArrayInt32_RefType = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarrayint",
-  sizeof(PyCallBackDataArrayInt),
+  "callbackmcdataarrayint32",
+  sizeof(PyCallBackDataArrayInt32),
   0,
   callbackmcdataarray_dealloc,            /*tp_dealloc*/
   0,                          /*tp_print*/
@@ -220,7 +240,7 @@ PyTypeObject PyCallBackDataArrayInt_RefType = {
   0,                          /*tp_as_sequence*/
   0,                          /*tp_as_mapping*/
   0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarrayint_call,  /*tp_call*/
+  (ternaryfunc)callbackmcdataarrayint32_call,  /*tp_call*/
   0,                          /*tp_str*/
   0,                          /*tp_getattro*/
   0,                          /*tp_setattro*/
@@ -243,7 +263,50 @@ PyTypeObject PyCallBackDataArrayInt_RefType = {
   0,                          /*tp_dictoffset*/
   callbackmcdataarray___init__,           /*tp_init*/
   PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarrayint___new__,            /*tp_new*/
+  callbackmcdataarrayint32___new__,            /*tp_new*/
+  PyObject_GC_Del,            /*tp_free*/
+};
+
+
+PyTypeObject PyCallBackDataArrayInt64_RefType = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "callbackmcdataarrayint64",
+  sizeof(PyCallBackDataArrayInt64),
+  0,
+  callbackmcdataarray_dealloc,            /*tp_dealloc*/
+  0,                          /*tp_print*/
+  0,                          /*tp_getattr*/
+  0,                          /*tp_setattr*/
+  0,                          /*tp_compare*/
+  0,                          /*tp_repr*/
+  0,                          /*tp_as_number*/
+  0,                          /*tp_as_sequence*/
+  0,                          /*tp_as_mapping*/
+  0,                          /*tp_hash*/
+  (ternaryfunc)callbackmcdataarrayint64_call,  /*tp_call*/
+  0,                          /*tp_str*/
+  0,                          /*tp_getattro*/
+  0,                          /*tp_setattro*/
+  0,                          /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
+  0,                          /*tp_doc*/
+  0,                          /*tp_traverse*/
+  0,                          /*tp_clear*/
+  0,                          /*tp_richcompare*/
+  0,                          /*tp_weaklistoffset*/
+  0,                          /*tp_iter*/
+  0,                          /*tp_iternext*/
+  0,                          /*tp_methods*/
+  0,                          /*tp_members*/
+  0,                          /*tp_getset*/
+  0,                          /*tp_base*/
+  0,                          /*tp_dict*/
+  0,                          /*tp_descr_get*/
+  0,                          /*tp_descr_set*/
+  0,                          /*tp_dictoffset*/
+  callbackmcdataarray___init__,           /*tp_init*/
+  PyType_GenericAlloc,        /*tp_alloc*/
+  callbackmcdataarrayint64___new__,            /*tp_new*/
   PyObject_GC_Del,            /*tp_free*/
 };
 
@@ -349,6 +412,22 @@ template<>
 struct NPYTraits<float>
 {
   static const int NPYObjectType=NPY_FLOAT;
+  static PyTypeObject *NPYFunc;
+  static PyObject *Array_SWIGTYPE;
+};
+
+template<>
+struct NPYTraits<int>
+{
+  static const int NPYObjectType=NPY_INT32;
+  static PyTypeObject *NPYFunc;
+  static PyObject *Array_SWIGTYPE;
+};
+
+template<>
+struct NPYTraits<long>
+{
+  static const int NPYObjectType=NPY_INT64;
   static PyTypeObject *NPYFunc;
   static PyObject *Array_SWIGTYPE;
 };

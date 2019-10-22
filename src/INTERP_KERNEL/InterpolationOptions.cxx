@@ -255,7 +255,7 @@ std::string INTERP_KERNEL::InterpolationOptions::filterInterpolationMethod(const
   return std::string(meth);
 }
 
-bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_level,
+bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(int print_level,
                                                                   std::string intersection_type,
                                                                   double precision,
                                                                   double median_plane,
@@ -263,7 +263,7 @@ bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_lev
                                                                   double bounding_box_adjustment,
                                                                   double bounding_box_adjustment_abs,
                                                                   double max_distance_for_3Dsurf_intersect,
-                                                                  long orientation,
+                                                                  int orientation,
                                                                   bool measure_abs,
                                                                   std::string splitting_policy)
 {

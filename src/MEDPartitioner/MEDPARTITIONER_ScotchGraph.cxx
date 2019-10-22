@@ -53,10 +53,17 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
     std::cout << "proc " << MyGlobals::_Rank << " : SCOTCHGraph::partGraph" << std::endl;
   
   //number of graph vertices
-  int n = _graph->getNumberOf();
+  int n = FromIdType<int>(_graph->getNumberOf());
   //graph
+#ifdef MEDCOUPLING_USE_64BIT_IDS
+  std::vector<int> indexVec( _graph->getIndex(), _graph->getIndexArray()->end() );
+  std::vector<int> valueVec( _graph->getValues(), _graph->getValuesArray()->end() );
+  int * xadj=indexVec.data();
+  int * adjncy=valueVec.data();
+#else
   int * xadj=const_cast<int*>(_graph->getIndex());
   int * adjncy=const_cast<int*>(_graph->getValues());
+#endif
   //ndomain
   int nparts=ndomain;
 
@@ -99,13 +106,13 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
   SCOTCH_stratExit(&scotch_strategy);
   SCOTCH_graphExit(&scotch_graph);
 
-  std::vector<int> index(n+1);
-  std::vector<int> value(n);
+  std::vector<mcIdType> index(n+1);
+  std::vector<mcIdType> value(n);
   index[0]=0;
   for (int i=0; i<n; i++)
     {
       index[i+1]=index[i]+1;
-      value[i]=partition[i];
+      value[i]=ToIdType(partition[i]);
     }
   delete [] partition;
   

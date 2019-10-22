@@ -35,4 +35,7 @@
 
 #define LOCALIZED(message) static_cast<const char *> (message) , __FILE__ , __LINE__
 
+// conversion to mesh connection type
+#define ToConnType(x) static_cast<typename MyMeshType::MyConnType>(x)
+
 #endif

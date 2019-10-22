@@ -51,7 +51,7 @@ namespace MEDCoupling
     //!returns the number of the first MED component on local processor
     int firstLocalComponent() const ;
     //!returns the number of blocks in the topology
-    int nbBlocks()const {return _component_array.size()-1;}
+    int nbBlocks()const {return (int)_component_array.size()-1;}
     //!returns the block structure
     const std::vector<int>* getBlockIndices() const { return &_component_array; }
     const ProcessorGroup* getProcGroup()const { return _proc_group; } 

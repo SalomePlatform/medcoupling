@@ -69,7 +69,7 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int IntegralUniformIntersectorP0<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType IntegralUniformIntersectorP0<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
   {
     if(IntegralUniformIntersector<MyMeshType,MyMatrix>::_from_to)
       return 1;
@@ -78,7 +78,7 @@ namespace INTERP_KERNEL
   }
   
   template<class MyMeshType, class MyMatrix>
-  int IntegralUniformIntersectorP0<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType IntegralUniformIntersectorP0<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {
     if(IntegralUniformIntersector<MyMeshType,MyMatrix>::_from_to)
       return IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getNumberOfElements();
@@ -91,11 +91,11 @@ namespace INTERP_KERNEL
   {
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
     res.resize(getNumberOfRowsOfResMatrix());
-    unsigned long nbelem=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getNumberOfElements();
+    ConnType nbelem=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getNumberOfElements();
     const ConnType *connIndx=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getConnectivityIndexPtr();
     const ConnType *conn=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getConnectivityPtr();
     const double *coords=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getCoordinatesPtr();
-    for(unsigned long i=0;i<nbelem;i++)
+    for(ConnType i=0;i<nbelem;i++)
       {
         INTERP_KERNEL::NormalizedCellType t=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
         double val=computeVolSurfOfCell<ConnType,numPol,MyMeshType::MY_SPACEDIM>(t,conn+OTT<ConnType,numPol>::ind2C(connIndx[i]),connIndx[i+1]-connIndx[i],coords);
@@ -109,7 +109,7 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int IntegralUniformIntersectorP1<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType IntegralUniformIntersectorP1<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
   {
     if(IntegralUniformIntersector<MyMeshType,MyMatrix>::_from_to)
       return 1;
@@ -118,7 +118,7 @@ namespace INTERP_KERNEL
   }
   
   template<class MyMeshType, class MyMatrix>
-  int IntegralUniformIntersectorP1<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType IntegralUniformIntersectorP1<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {
     if(IntegralUniformIntersector<MyMeshType,MyMatrix>::_from_to)
       return IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getNumberOfNodes();
@@ -131,14 +131,14 @@ namespace INTERP_KERNEL
   {
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
     res.resize(getNumberOfRowsOfResMatrix());
-    unsigned long nbelem=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getNumberOfElements();
+    ConnType nbelem=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getNumberOfElements();
     const ConnType *connIndx=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getConnectivityIndexPtr();
     const ConnType *conn=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getConnectivityPtr();
     const double *coords=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getCoordinatesPtr();
-    for(unsigned long i=0;i<nbelem;i++)
+    for(ConnType i=0;i<nbelem;i++)
       {
         INTERP_KERNEL::NormalizedCellType t=IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
-        int lgth=connIndx[i+1]-connIndx[i];
+        ConnType lgth=connIndx[i+1]-connIndx[i];
         const ConnType *locConn=conn+OTT<ConnType,numPol>::ind2C(connIndx[i]);
         double val=computeVolSurfOfCell<ConnType,numPol,MyMeshType::MY_SPACEDIM>(t,locConn,lgth,coords);
         if(t==NORM_TRI3)
@@ -147,7 +147,7 @@ namespace INTERP_KERNEL
           val/=4.;
         else
           throw INTERP_KERNEL::Exception("Invalid cell type detected : must be TRI3 or TETRA4 ! ");
-        for(int j=0;j<lgth;j++)
+        for(ConnType j=0;j<lgth;j++)
           IntegralUniformIntersector<MyMeshType,MyMatrix>::putValueIn(OTT<ConnType,numPol>::coo2C(locConn[j]),val,res);
       }
   }

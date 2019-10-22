@@ -131,16 +131,16 @@ void MEDPARTITIONER::RandomizeAdj(int* xadj, int* adjncy, std::vector<int>& ran,
       std::cerr << "MEDPARTITIONER::RandomizeAdj only works on one proc!" << std::endl;
       return;
     }
-  int size=ran.size();
+  std::size_t size=ran.size();
   std::vector<int> invran(size);
-  for (int i=0; i<size; i++)
+  for (unsigned int i=0; i<size; i++)
     invran[ran[i]]=i;
   vx.resize(size+1);
   int lga=xadj[size];
   va.resize(lga);
   int jj=0;
   vx[0]=0;
-  for (int i=0; i<size; i++)
+  for (std::size_t i=0; i<size; i++)
     {
       int ir=ran[i];
       int ii=xadj[ir];
@@ -187,12 +187,12 @@ std::string MEDPARTITIONER::ReprVectorOfString(const std::vector<std::string>& v
   return oss.str();
 }
 
-std::string MEDPARTITIONER::ReprMapOfStringInt(const std::map<std::string,int>& mymap)
+std::string MEDPARTITIONER::ReprMapOfStringInt(const std::map<std::string,mcIdType>& mymap)
 {
   if (mymap.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::map<std::string,int>::const_iterator i=mymap.begin(); i!=mymap.end(); ++i) 
+  for (std::map<std::string,mcIdType>::const_iterator i=mymap.begin(); i!=mymap.end(); ++i) 
     oss << " -> [" << (*i).first << "]=" << (*i).second << std::endl;
   return oss.str();
 }
@@ -285,10 +285,10 @@ std::string MEDPARTITIONER::EraseTagSerialized(const std::string& fromStr, const
  * elements first and second of map give one elements in result vector of string
  * converting formatted the int second as firsts characters ending at first slash
  */
-std::vector<std::string> MEDPARTITIONER::VectorizeFromMapOfStringInt(const std::map<std::string,int>& mymap)
+std::vector<std::string> MEDPARTITIONER::VectorizeFromMapOfStringInt(const std::map<std::string,mcIdType>& mymap)
 {
   std::vector<std::string> res;
-  for (std::map<std::string,int>::const_iterator i=mymap.begin(); i!=mymap.end(); ++i)
+  for (std::map<std::string,mcIdType>::const_iterator i=mymap.begin(); i!=mymap.end(); ++i)
     {
       std::ostringstream oss;
       oss << (*i).second << "/" << (*i).first;
@@ -300,9 +300,9 @@ std::vector<std::string> MEDPARTITIONER::VectorizeFromMapOfStringInt(const std::
 /*
  * if existing identicals (first,second) in vector no problem, else Exception
  */
-std::map<std::string,int> MEDPARTITIONER::DevectorizeToMapOfStringInt(const std::vector<std::string>& vec)
+std::map<std::string,mcIdType> MEDPARTITIONER::DevectorizeToMapOfStringInt(const std::vector<std::string>& vec)
 {
-  std::map<std::string,int> res;
+  std::map<std::string,mcIdType> res;
   for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
     {
       std::size_t pos=0;
@@ -310,11 +310,11 @@ std::map<std::string,int> MEDPARTITIONER::DevectorizeToMapOfStringInt(const std:
       std::size_t found=(*i).find('/'); //first slash
       if ((found==std::string::npos) || (found<1))
         throw INTERP_KERNEL::Exception("Error aIntNumber/anyString is expected");
-      int second;
+      mcIdType second;
       std::istringstream iss((*i).substr(pos,found));
       iss >> second;
       std::string first=(*i).substr(pos+found+1,posmax-found);
-      std::map<std::string,int>::iterator it=res.find(first);
+      std::map<std::string,mcIdType>::iterator it=res.find(first);
       if (it!=res.end())
         if ((*it).second!=second)
           throw INTERP_KERNEL::Exception("Error not the same map value");
@@ -506,17 +506,17 @@ void MEDPARTITIONER::FieldShortDescriptionToData(const std::string& description,
   IT=StrToInt(ExtractFromDescription(description,"IT="));
 }
 
-MEDCoupling::DataArrayInt *MEDPARTITIONER::CreateDataArrayIntFromVector(const std::vector<int>& v)
+MEDCoupling::DataArrayIdType *MEDPARTITIONER::CreateDataArrayIntFromVector(const std::vector<mcIdType>& v)
 {
-  MEDCoupling::DataArrayInt* p=MEDCoupling::DataArrayInt::New();
+  MEDCoupling::DataArrayIdType* p=MEDCoupling::DataArrayIdType::New();
   p->alloc(v.size(),1);
   std::copy(v.begin(),v.end(),p->getPointer());
   return p;
 }
 
-MEDCoupling::DataArrayInt *MEDPARTITIONER::CreateDataArrayIntFromVector(const std::vector<int>& v,const int nbComponents)
+MEDCoupling::DataArrayIdType *MEDPARTITIONER::CreateDataArrayIntFromVector(const std::vector<mcIdType>& v,const int nbComponents)
 {
-  MEDCoupling::DataArrayInt* p=MEDCoupling::DataArrayInt::New();
+  MEDCoupling::DataArrayIdType* p=MEDCoupling::DataArrayIdType::New();
   if (v.size()%nbComponents!=0)
     throw INTERP_KERNEL::Exception("Problem size modulo nbComponents != 0");
   p->alloc(v.size()/nbComponents,nbComponents);
@@ -539,9 +539,9 @@ std::vector<std::string> MEDPARTITIONER::BrowseFieldDouble(const MEDCoupling::ME
   std::vector<std::string> res;
   if (fd->getArray())
     {
-      int nb=fd->getArray()->getNumberOfComponents();
-      res.push_back("nbComponents="); res.back()+=IntToStr(nb);
-      for (int i=0; i<nb; i++)
+      std::size_t nb=fd->getArray()->getNumberOfComponents();
+      res.push_back("nbComponents="); res.back()+=IntToStr((int)nb);
+      for (unsigned int i=0; i<nb; i++)
         {
           res.push_back("componentInfo");
           res.back()+=IntToStr(i)+"="+fd->getArray()->getInfoOnComponent(i);
@@ -704,7 +704,7 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
             {
               for (int j=0; j<lggeom; j++)
                 {
-                  int profilesize=0,nbi=0;
+                  med_int profilesize=0,nbi=0;
                   med_entity_type enttype=ENTITYTYPE[ie];
                   //enttype=MED_NODE;enttype=MED_CELL;enttype=MED_NODE_ELEMENT;
                   char pflname[MED_NAME_SIZE+1]="";
@@ -801,6 +801,15 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
   return res;
 }
 
+MEDCoupling::MCAuto< MEDCoupling::DataArrayInt32 > MEDPARTITIONER::FromIdTypeVec( const std::vector< mcIdType >& vec )
+{
+  MEDCoupling::DataArrayInt32* array = MEDCoupling::DataArrayInt32::New();
+  array->alloc( vec.size(), 1 );
+  std::copy( vec.begin(), vec.end(), array->getPointer() );
+  return array;
+}
+
+
 /*!
  * quick almost human readable information on all fields on a mesh in a .med file
  */
@@ -830,27 +839,27 @@ MEDCoupling::MEDCouplingUMesh* MEDPARTITIONER::CreateEmptyMEDCouplingUMesh()
 
 namespace MEDPARTITIONER
 {
-  BBTreeOfDim::BBTreeOfDim( int           dim,
+  BBTreeOfDim::BBTreeOfDim( std::size_t   dim,
                             const double* bbs,
-                            int*          elems,
+                            mcIdType*     elems,
                             int           level,
-                            int           nbelems,
+                            mcIdType      nbelems,
                             double        epsilon)
   {
     switch ( dim )
       {
       case 3:
-        _tree=new BBTree<3> (bbs,elems,level,nbelems,epsilon);
+        _tree=new BBTree<3,mcIdType> (bbs,elems,level,nbelems,epsilon);
         _PgetElementsAroundPoint = & BBTreeOfDim::_getElementsAroundPoint< 3 >;
         _PgetIntersectingElems   = & BBTreeOfDim::_getIntersectingElems< 3 >;
         break;
       case 2:
-        _tree=new BBTree<2> (bbs,elems,level,nbelems,epsilon);
+        _tree=new BBTree<2,mcIdType> (bbs,elems,level,nbelems,epsilon);
         _PgetElementsAroundPoint = & BBTreeOfDim::_getElementsAroundPoint< 2 >;
         _PgetIntersectingElems   = & BBTreeOfDim::_getIntersectingElems< 2 >;
         break;
       case 1:
-        _tree=new BBTree<1> (bbs,elems,level,nbelems,epsilon);
+        _tree=new BBTree<1,mcIdType> (bbs,elems,level,nbelems,epsilon);
         _PgetElementsAroundPoint = & BBTreeOfDim::_getElementsAroundPoint< 1 >;
         _PgetIntersectingElems   = & BBTreeOfDim::_getIntersectingElems< 1 >;
         break;
@@ -866,13 +875,13 @@ namespace MEDPARTITIONER
   }
 
   void BBTreeOfDim::getElementsAroundPoint( const double* coordsPtr,
-                                            std::vector<int>& elems ) const
+                                            std::vector<mcIdType>& elems ) const
   {
     BBTreeOfDim* me = (BBTreeOfDim*) this;
     (me->*_PgetElementsAroundPoint) ( coordsPtr, elems );
   }
   void BBTreeOfDim::getIntersectingElems(const double* bb,
-                                         std::vector<int>& elems) const
+                                         std::vector<mcIdType>& elems) const
   {
     BBTreeOfDim* me = (BBTreeOfDim*) this;
     (me->*_PgetIntersectingElems) ( bb, elems );

@@ -38,19 +38,19 @@ namespace MEDCoupling
   class DenseMatrix : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT static DenseMatrix *New(int nbRows, int nbCols);
-    MEDCOUPLING_EXPORT static DenseMatrix *New(DataArrayDouble *array, int nbRows, int nbCols);
+    MEDCOUPLING_EXPORT static DenseMatrix *New(mcIdType nbRows, mcIdType nbCols);
+    MEDCOUPLING_EXPORT static DenseMatrix *New(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
     MEDCOUPLING_EXPORT DenseMatrix *deepCopy() const;
     MEDCOUPLING_EXPORT DenseMatrix *shallowCpy() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void updateTime() const;
     //
-    MEDCOUPLING_EXPORT int getNumberOfRows() const { return _nb_rows; }
-    MEDCOUPLING_EXPORT int getNumberOfCols() const { return _nb_cols; }
-    MEDCOUPLING_EXPORT int getNbOfElems() const { return _nb_rows*_nb_cols; }
-    MEDCOUPLING_EXPORT void reBuild(DataArrayDouble *array, int nbRows=-1, int nbCols=-1);
-    MEDCOUPLING_EXPORT void reShape(int nbRows, int nbCols);
+    MEDCOUPLING_EXPORT mcIdType getNumberOfRows() const { return _nb_rows; }
+    MEDCOUPLING_EXPORT mcIdType getNumberOfCols() const { return _nb_cols; }
+    MEDCOUPLING_EXPORT mcIdType getNbOfElems() const { return _nb_rows*_nb_cols; }
+    MEDCOUPLING_EXPORT void reBuild(DataArrayDouble *array, mcIdType nbRows=-1, mcIdType nbCols=-1);
+    MEDCOUPLING_EXPORT void reShape(mcIdType nbRows, mcIdType nbCols);
     MEDCOUPLING_EXPORT void transpose();
     //
     MEDCOUPLING_EXPORT bool isEqual(const DenseMatrix& other, double eps) const;
@@ -68,17 +68,17 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *getData() { return _data; }
   private:
     ~DenseMatrix();
-    DenseMatrix(int nbRows, int nbCols);
-    DenseMatrix(DataArrayDouble *array, int nbRows, int nbCols);
-    int getNumberOfRowsExt(int nbRows) const;
-    int getNumberOfColsExt(int nbCols) const;
+    DenseMatrix(mcIdType nbRows, mcIdType nbCols);
+    DenseMatrix(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
+    mcIdType getNumberOfRowsExt(mcIdType nbRows) const;
+    mcIdType getNumberOfColsExt(mcIdType nbCols) const;
     void checkValidData() const;
-    static void CheckArraySizes(DataArrayDouble *array, int nbRows, int nbCols);
+    static void CheckArraySizes(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
     static void CheckSameSize(const DenseMatrix *a1, const DenseMatrix *a2);
     static void CheckCompatibleSizeForMul(const DenseMatrix *a1, const DenseMatrix *a2);
   private:
-    int _nb_rows;
-    int _nb_cols;
+    mcIdType _nb_rows;
+    mcIdType _nb_cols;
     MCAuto<DataArrayDouble> _data;
   };
 }

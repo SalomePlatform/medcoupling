@@ -37,7 +37,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void Intersector3D<MyMeshType,MyMatrix>::getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const
   {
-    int nbNodesT=_target_mesh.getNumberOfNodesOfElement(icellT);
+    ConnType nbNodesT=_target_mesh.getNumberOfNodesOfElement(icellT);
     coordsT.resize(SPACEDIM*nbNodesT);
     std::vector<double>::iterator iter=coordsT.begin();
     for (ConnType iT=0; iT<nbNodesT; iT++)
@@ -53,7 +53,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void Intersector3D<MyMeshType,MyMatrix>::getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS) const
   {
-    int nbNodesS=_src_mesh.getNumberOfNodesOfElement(icellS);
+    ConnType nbNodesS=_src_mesh.getNumberOfNodesOfElement(icellS);
     coordsS.resize(SPACEDIM*nbNodesS);
     std::vector<double>::iterator iter=coordsS.begin();
     for (ConnType iS=0; iS<nbNodesS; iS++)
@@ -98,7 +98,7 @@ namespace INTERP_KERNEL
     const ConnType *myConIndexS=_src_mesh.getConnectivityIndexPtr();
     ConnType start=myConIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
     ConnType end=myConIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1];
-    int nbNodesS=end-start;
+    ConnType nbNodesS=end-start;
     res.resize(nbNodesS);
     std::copy(myConectS+OTT<ConnType,numPol>::conn2C(start),myConectS+OTT<ConnType,numPol>::conn2C(end),res.begin());
   }

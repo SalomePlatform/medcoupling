@@ -26,6 +26,7 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "MCAuto.hxx"
+#include "MCIdType.hxx"
 
 #include <list>
 #include <vector>
@@ -48,7 +49,7 @@ namespace MEDCoupling
   MEDLOADER_EXPORT void MEDFileVersion(int& major, int& minor, int& release);
   MEDLOADER_EXPORT void CheckFileForRead(const std::string& fileName);
   MEDLOADER_EXPORT std::vector<std::string> GetMeshNames(const std::string& fileName);
-  MEDLOADER_EXPORT std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName, int &meshDim, int& spaceDim, int& numberOfNodes);
+  MEDLOADER_EXPORT std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName, int &meshDim, int& spaceDim, mcIdType& numberOfNodes);
   MEDLOADER_EXPORT std::vector< std::pair<std::string,std::string> > GetComponentsNamesOfField(const std::string& fileName, const std::string& fieldName);
   MEDLOADER_EXPORT std::vector<std::string> GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName);
   MEDLOADER_EXPORT std::vector<std::string> GetMeshGroupsNames(const std::string& fileName, const std::string& meshName);

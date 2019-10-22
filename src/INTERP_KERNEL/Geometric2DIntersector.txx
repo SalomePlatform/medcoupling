@@ -94,9 +94,9 @@ namespace INTERP_KERNEL
     nodes[1]=new Node(quadrangle[SPACEDIM],quadrangle[SPACEDIM+1]);
     nodes[2]=new Node(quadrangle[2*SPACEDIM],quadrangle[2*SPACEDIM+1]);
     nodes[3]=new Node(quadrangle[3*SPACEDIM],quadrangle[3*SPACEDIM+1]);
-    int nbOfSourceNodes=sourceCoords.size()/SPACEDIM;
+    std::size_t nbOfSourceNodes=sourceCoords.size()/SPACEDIM;
     std::vector<Node *> nodes2(nbOfSourceNodes);
-    for(int i=0;i<nbOfSourceNodes;i++)
+    for(std::size_t i=0;i<nbOfSourceNodes;i++)
       nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
     QuadraticPolygon *p1=QuadraticPolygon::BuildLinearPolygon(nodes);
     QuadraticPolygon *p2;
@@ -113,13 +113,13 @@ namespace INTERP_KERNEL
   double GEO2D_INTERSECTOR::intersectGeometryGeneral(const std::vector<double>& targetCoords,
                                                      const std::vector<double>& sourceCoords)
   {
-    int nbOfTargetNodes=targetCoords.size()/SPACEDIM;
+    std::size_t nbOfTargetNodes=targetCoords.size()/SPACEDIM;
     std::vector<Node *> nodes(nbOfTargetNodes);
-    for(int i=0;i<nbOfTargetNodes;i++)
+    for(std::size_t i=0;i<nbOfTargetNodes;i++)
       nodes[i]=new Node(targetCoords[i*SPACEDIM],targetCoords[i*SPACEDIM+1]);
-    int nbOfSourceNodes=sourceCoords.size()/SPACEDIM;
+    std::size_t nbOfSourceNodes=sourceCoords.size()/SPACEDIM;
     std::vector<Node *> nodes2(nbOfSourceNodes);
-    for(int i=0;i<nbOfSourceNodes;i++)
+    for(std::size_t i=0;i<nbOfSourceNodes;i++)
       nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
     QuadraticPolygon *p1=QuadraticPolygon::BuildLinearPolygon(nodes);
     QuadraticPolygon *p2=QuadraticPolygon::BuildLinearPolygon(nodes2);
@@ -148,9 +148,9 @@ namespace INTERP_KERNEL
     nodes[0]=new Node(sourceTria[0*SPACEDIM],sourceTria[0*SPACEDIM+1]);
     nodes[1]=new Node(sourceTria[1*SPACEDIM],sourceTria[1*SPACEDIM+1]);
     nodes[2]=new Node(sourceTria[2*SPACEDIM],sourceTria[2*SPACEDIM+1]);
-    int nbOfTargetNodes=targetCell.size()/SPACEDIM;
+    std::size_t nbOfTargetNodes=targetCell.size()/SPACEDIM;
     std::vector<Node *> nodes2(nbOfTargetNodes);
-    for(int i=0;i<nbOfTargetNodes;i++)
+    for(std::size_t i=0;i<nbOfTargetNodes;i++)
       nodes2[i]=new Node(targetCell[i*SPACEDIM],targetCell[i*SPACEDIM+1]);
     QuadraticPolygon *p1=QuadraticPolygon::BuildLinearPolygon(nodes);
     QuadraticPolygon *p2;
@@ -183,9 +183,9 @@ namespace INTERP_KERNEL
   INTERSECTOR_TEMPLATE
   QuadraticPolygon *GEO2D_INTERSECTOR::buildPolygonFrom(const std::vector<double>& coords, NormalizedCellType type)
   {
-    int nbNodes=coords.size()/SPACEDIM;
+    std::size_t nbNodes=coords.size()/SPACEDIM;
     std::vector<Node *> nodes(nbNodes);
-    for(int i=0;i<nbNodes;i++)
+    for(std::size_t i=0;i<nbNodes;i++)
       nodes[i]=new Node(coords[i*SPACEDIM],coords[i*SPACEDIM+1]);
     if(!CellModel::GetCellModel(type).isQuadratic())
       return QuadraticPolygon::BuildLinearPolygon(nodes);

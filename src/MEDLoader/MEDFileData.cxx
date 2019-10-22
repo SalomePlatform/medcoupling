@@ -203,16 +203,16 @@ bool MEDFileData::unPolyzeMeshes()
   if(!ms)
     return false;
   std::vector< MEDFileMesh * > meshesImpacted;
-  std::vector< DataArrayInt * > renumParamsOfMeshImpacted;//same size as meshesImpacted
-  std::vector< std::vector<int> > oldCodeOfMeshImpacted,newCodeOfMeshImpacted;//same size as meshesImpacted
-  std::vector<MCAuto<DataArrayInt> > memSaverIfThrow;//same size as meshesImpacted
+  std::vector< DataArrayIdType * > renumParamsOfMeshImpacted;//same size as meshesImpacted
+  std::vector< std::vector<mcIdType> > oldCodeOfMeshImpacted,newCodeOfMeshImpacted;//same size as meshesImpacted
+  std::vector<MCAuto<DataArrayIdType> > memSaverIfThrow;//same size as meshesImpacted
   for(int i=0;i<ms->getNumberOfMeshes();i++)
     {
       MEDFileMesh *m=ms->getMeshAtPos(i);
       if(m)
         {
-          std::vector<int> oldCode,newCode;
-          DataArrayInt *o2nRenumCell=0;
+          std::vector<mcIdType> oldCode,newCode;
+          DataArrayIdType *o2nRenumCell=0;
           bool modif=m->unPolyze(oldCode,newCode,o2nRenumCell);
           if(!modif)
             continue;
@@ -252,7 +252,7 @@ MCAuto<MEDFileData> MEDFileData::Aggregate(const std::vector<const MEDFileData *
   std::size_t sz(mfds.size()),i(0);
   MCAuto<MEDFileData> ret(MEDFileData::New());
   std::vector<const MEDFileUMesh *> ms(sz);
-  std::vector< std::vector< std::pair<int,int> > > dts(sz);
+  std::vector< std::vector< std::pair<int,mcIdType> > > dts(sz);
   for(std::vector<const MEDFileData *>::const_iterator it=mfds.begin();it!=mfds.end();it++,i++)
     {
       const MEDFileData *elt(*it);

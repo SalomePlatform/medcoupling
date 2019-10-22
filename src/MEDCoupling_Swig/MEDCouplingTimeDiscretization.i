@@ -104,8 +104,8 @@ namespace MEDCoupling
     virtual MEDCouplingTimeDiscretization *negate() const;
     virtual MEDCouplingTimeDiscretization *maxPerTuple() const;
     virtual MEDCouplingTimeDiscretization *keepSelectedComponents(const std::vector<int>& compoIds) const;
-    virtual void setSelectedComponents(const MEDCouplingTimeDiscretization *other, const std::vector<int>& compoIds);
-    virtual void changeNbOfComponents(int newNbOfComp, double dftValue);
+    virtual void setSelectedComponents(const MEDCouplingTimeDiscretization *other, const std::vector<std::size_t>& compoIds);
+    virtual void changeNbOfComponents(std::size_t newNbOfComp, double dftValue);
     virtual void sortPerTuple(bool asc);
     virtual void setUniformValue(int nbOfTuple, int nbOfCompo, double value);
     virtual void setOrCreateUniformValueOnAllComponents(int nbOfTuple, double value);

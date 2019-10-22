@@ -48,50 +48,50 @@ namespace MEDCoupling
     ExplicitTopology(const ParaMESH &mesh);
     virtual ~ExplicitTopology();
     
-    inline int getNbElements()const;
-    inline int getNbLocalElements() const;
+    inline mcIdType getNbElements()const;
+    inline mcIdType getNbLocalElements() const;
     const ProcessorGroup* getProcGroup()const { return _proc_group; }
-    int localToGlobal (const std::pair<int,int> local) const { return localToGlobal(local.second); }
-    inline int localToGlobal(int) const;
-    inline int globalToLocal(int) const;
-    void serialize(int* & serializer, int& size) const ;
-    void unserialize(const int* serializer, const CommInterface& comm_interface);
+    mcIdType localToGlobal (const std::pair<int,mcIdType> local) const { return localToGlobal(local.second); }
+    inline mcIdType localToGlobal(mcIdType) const;
+    inline mcIdType globalToLocal(mcIdType) const;
+    void serialize(mcIdType* & serializer, mcIdType& size) const ;
+    void unserialize(const mcIdType* serializer, const CommInterface& comm_interface);
     int getNbComponents() const { return _nb_components; }
   private:
     //Processor group
     const ProcessorGroup* _proc_group;
     //nb of elements
-    int _nb_elems;
+    mcIdType _nb_elems;
     //nb of components
     int _nb_components;
     //mapping local to global
-    int* _loc2glob;
+    mcIdType* _loc2glob;
     //mapping global to local
-    INTERP_KERNEL::HashMap<int,int> _glob2loc;
+    INTERP_KERNEL::HashMap<mcIdType,mcIdType> _glob2loc;
   };
 
   //!converts a pair <subdomainid,local> to a global number 
-  inline int ExplicitTopology::globalToLocal(const int global) const
+  inline mcIdType ExplicitTopology::globalToLocal(const mcIdType global) const
   {
-    return (_glob2loc.find(global))->second;;
+    return (_glob2loc.find(global))->second;
   }
 
   //!converts local number to a global number
-  int ExplicitTopology::localToGlobal(int local) const
+  mcIdType ExplicitTopology::localToGlobal(mcIdType local) const
   {
     return _loc2glob[local];
   }
   
   //!Retrieves the number of elements for a given topology
-  inline int ExplicitTopology::getNbElements() const
+  inline mcIdType ExplicitTopology::getNbElements() const
   {
     return _nb_elems;
   }
 
   //Retrieves the local number of elements 
-  inline int ExplicitTopology::getNbLocalElements()const 
+  inline mcIdType ExplicitTopology::getNbLocalElements()const 
   {
-    return _glob2loc.size();
+    return ToIdType(_glob2loc.size());
   }
 }
 

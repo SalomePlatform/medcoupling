@@ -151,7 +151,7 @@ bool MEDCouplingMultiFields::isEqualWithoutConsideringStr(const MEDCouplingMulti
 
 const MEDCouplingFieldDouble *MEDCouplingMultiFields::getFieldWithId(int id) const
 {
-  if(id>=(int)_fs.size() || id < 0)
+  if(id>=ToIdType(_fs.size()) || id < 0)
     throw INTERP_KERNEL::Exception("MEDCouplingMultiFields::getFieldWithId : invalid id outside boundaries !");
   return _fs[id];
 }
@@ -170,7 +170,7 @@ int MEDCouplingMultiFields::getNumberOfFields() const
 
 const MEDCouplingFieldDouble *MEDCouplingMultiFields::getFieldAtPos(int id) const
 {
-  if(id<0 || id>=(int)_fs.size())
+  if(id<0 || id>=ToIdType(_fs.size()))
     {
       std::ostringstream oss; oss << "MEDCouplingMultiFields::getFieldAtPos : Invalid given pos : should be >=0 and < " << _fs.size() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -354,7 +354,7 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& oth
                 tmp2[j]=0;
             }
           _fs[i]->setArrays(tmp2);
-          std::vector<int> tinyInfo;
+          std::vector<mcIdType> tinyInfo;
           std::vector<double> tinyInfo2;
           other._fs[i]->getTimeDiscretizationUnderGround()->getTinySerializationIntInformation2(tinyInfo);
           other._fs[i]->getTimeDiscretizationUnderGround()->getTinySerializationDbleInformation2(tinyInfo2);
@@ -367,7 +367,7 @@ MEDCouplingMultiFields::MEDCouplingMultiFields()
 {
 }
 
-void MEDCouplingMultiFields::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<double>& tinyInfo2, int& nbOfDiffMeshes, int& nbOfDiffArr) const
+void MEDCouplingMultiFields::getTinySerializationInformation(std::vector<mcIdType>& tinyInfo, std::vector<double>& tinyInfo2, int& nbOfDiffMeshes, int& nbOfDiffArr) const
 {
   std::vector<int> refs;
   std::vector<MEDCouplingMesh *> ms=getDifferentMeshes(refs);
@@ -376,70 +376,70 @@ void MEDCouplingMultiFields::getTinySerializationInformation(std::vector<int>& t
   std::vector<DataArrayDouble *> fs=getDifferentArrays(refs2);
   nbOfDiffArr=(int)fs.size();
   //
-  std::size_t sz=refs.size();//==_fs.size()
-  int sz2=0;
-  for(std::size_t i=0;i<sz;i++)
-    sz2+=(int)refs2[i].size();
+  mcIdType sz=ToIdType(refs.size());//==_fs.size()
+  mcIdType sz2=0;
+  for(mcIdType i=0;i<sz;i++)
+    sz2+=ToIdType(refs2[i].size());
   //
   tinyInfo2.clear();
   std::vector<int> doubleDaInd(sz);
   std::vector<int> timeDiscrInt;
   tinyInfo.resize(sz2+5*sz+3);
-  tinyInfo[0]=(int)sz;
+  tinyInfo[0]=sz;
   tinyInfo[1]=sz2;
-  for(std::size_t i=0;i<sz;i++)
+  for(mcIdType i=0;i<sz;i++)
     {
       std::vector<double> tmp;
-      std::vector<int> tmp2;
+      std::vector<mcIdType> tmp2;
       _fs[i]->getTimeDiscretizationUnderGround()->getTinySerializationDbleInformation2(tmp);
       _fs[i]->getTimeDiscretizationUnderGround()->getTinySerializationIntInformation2(tmp2);
-      tinyInfo[3*sz+3+i]=(int)tmp.size();
-      tinyInfo[4*sz+3+i]=(int)tmp2.size();
+      tinyInfo[3*sz+3+i]=ToIdType(tmp.size());
+      tinyInfo[4*sz+3+i]=ToIdType(tmp2.size());
       tinyInfo2.insert(tinyInfo2.end(),tmp.begin(),tmp.end());
       timeDiscrInt.insert(timeDiscrInt.end(),tmp2.begin(),tmp2.end());
     }
-  int sz3=(int)timeDiscrInt.size();
+  mcIdType sz3=ToIdType(timeDiscrInt.size());
   tinyInfo[2]=sz3;
   //
-  for(std::size_t i=0;i<sz;i++)
+  for(mcIdType i=0;i<sz;i++)
     tinyInfo[i+3]=refs[i];
-  for(std::size_t i=0;i<sz;i++)
-    tinyInfo[i+sz+3]=(int)refs2[i].size();
-  for(std::size_t i=0;i<sz;i++)
-    tinyInfo[i+2*sz+3]=(int)_fs[i]->getTimeDiscretization();
+  for(mcIdType i=0;i<sz;i++)
+    tinyInfo[i+sz+3]=ToIdType(refs2[i].size());
+  for(mcIdType i=0;i<sz;i++)
+    tinyInfo[i+2*sz+3]=ToIdType(_fs[i]->getTimeDiscretization());
   int k=0;
-  for(std::size_t i=0;i<sz;i++)
+  for(mcIdType i=0;i<sz;i++)
     for(std::vector<int>::const_iterator it=refs2[i].begin();it!=refs2[i].end();it++,k++)
       tinyInfo[5*sz+k+3]=*it;
   tinyInfo.insert(tinyInfo.end(),timeDiscrInt.begin(),timeDiscrInt.end());//tinyInfo has lgth==sz3+sz2+5*sz+3
 }
 
-void MEDCouplingMultiFields::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD,
+void MEDCouplingMultiFields::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD,
                                                    const std::vector<MEDCouplingFieldTemplate *>& ft, const std::vector<MEDCouplingMesh *>& ms,
                                                    const std::vector<DataArrayDouble *>& das)
 {
-  int sz=tinyInfoI[0];
+  mcIdType sz=tinyInfoI[0];
   _fs.resize(sz);
-  int sz2=tinyInfoI[1];
+  mcIdType sz2=tinyInfoI[1];
   // dealing with ft with no mesh set.
-  for(int i=0;i<sz;i++)
+  for(mcIdType i=0;i<sz;i++)
     {
-      int meshId=tinyInfoI[3+i];
+      mcIdType meshId=tinyInfoI[3+i];
       if(meshId!=-1)
         ft[i]->setMesh(ms[meshId]);
     }
   // dealing with fieldtemplate->fielddouble
-  int k=0;
-  int offI=0;
-  int offD=0;
-  for(int i=0;i<sz;i++)
+  mcIdType k=0;
+  mcIdType offI=0;
+  mcIdType offD=0;
+  for(mcIdType i=0;i<sz;i++)
     {
       _fs[i]=MEDCouplingFieldDouble::New(*ft[i],(TypeOfTimeDiscretization)tinyInfoI[2*sz+3+i]);
-      int sz3=tinyInfoI[sz+i+3];
+      mcIdType sz3=tinyInfoI[sz+i+3];
       std::vector<DataArrayDouble *> tmp(sz3);
-      for(int j=0;j<sz3;j++,k++)
+      for(mcIdType j=0;j<sz3;j++,k++)
         {
-          int daId=tinyInfoI[5*sz+k+3];
+          mcIdType daId=tinyInfoI[5*sz+k+3];
           if(daId!=-1)
             tmp[j]=das[daId];
           else
@@ -447,10 +447,10 @@ void MEDCouplingMultiFields::finishUnserialization(const std::vector<int>& tinyI
         }
       _fs[i]->setArrays(tmp);
       // time discr tiny info
-      int lgthI=tinyInfoI[4*sz+3+i];
-      int lgthD=tinyInfoI[3*sz+3+i];
+      mcIdType lgthI=tinyInfoI[4*sz+3+i];
+      mcIdType lgthD=tinyInfoI[3*sz+3+i];
       //
-      std::vector<int> tdInfoI(tinyInfoI.begin()+sz2+5*sz+3+offI,tinyInfoI.begin()+sz2+5*sz+3+offI+lgthI);
+      std::vector<mcIdType> tdInfoI(tinyInfoI.begin()+sz2+5*sz+3+offI,tinyInfoI.begin()+sz2+5*sz+3+offI+lgthI);
       std::vector<double> tdInfoD(tinyInfoD.begin()+offD,tinyInfoD.begin()+offD+lgthD);
       _fs[i]->getTimeDiscretizationUnderGround()->finishUnserialization2(tdInfoI,tdInfoD);
       //

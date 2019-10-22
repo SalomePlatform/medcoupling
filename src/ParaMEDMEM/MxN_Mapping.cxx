@@ -52,7 +52,7 @@ namespace MEDCoupling
     \param distant_proc proc rank of the distant processor (in terms of the union group)
     \param distant_element id of the element on the distant processor
   */
-  void MxN_Mapping::addElementFromSource(int distant_proc, int distant_element)
+  void MxN_Mapping::addElementFromSource(int distant_proc, mcIdType distant_element)
   {
     _sending_ids.push_back(make_pair(distant_proc,distant_element));
     for (int i=distant_proc; i<_union_group->size(); i++)
@@ -93,12 +93,12 @@ namespace MEDCoupling
     delete[] nbrecv;
 
     _recv_ids.resize(_recv_proc_offsets[_union_group->size()]);
-    int* isendbuf=0;
-    int* irecvbuf=0;
+    mcIdType* isendbuf=0;
+    mcIdType* irecvbuf=0;
     if (_sending_ids.size()>0)
-      isendbuf = new int[_sending_ids.size()];
+      isendbuf = new mcIdType[_sending_ids.size()];
     if (_recv_ids.size()>0)  
-      irecvbuf = new int[_recv_ids.size()];
+      irecvbuf = new mcIdType[_recv_ids.size()];
     int* sendcounts = new int[_union_group->size()];
     int* senddispls=new int[_union_group->size()];
     int* recvcounts=new int[_union_group->size()];
@@ -111,14 +111,14 @@ namespace MEDCoupling
         recvdispls[i]=_recv_proc_offsets[i];
       }
     vector<int> offsets = _send_proc_offsets;
-    for (int i=0; i<(int)_sending_ids.size();i++)
+    for (std::size_t i=0; i<_sending_ids.size();i++)
       {
         int iproc = _sending_ids[i].first;
         isendbuf[offsets[iproc]]=_sending_ids[i].second;
         offsets[iproc]++;
       }
-    comm_interface.allToAllV(isendbuf, sendcounts, senddispls, MPI_INT,
-                             irecvbuf, recvcounts, recvdispls, MPI_INT,
+    comm_interface.allToAllV(isendbuf, sendcounts, senddispls, MPI_ID_TYPE,
+                             irecvbuf, recvcounts, recvdispls, MPI_ID_TYPE,
                              *comm);
                            
     for (int i=0; i< _recv_proc_offsets[_union_group->size()]; i++)
@@ -146,7 +146,7 @@ namespace MEDCoupling
     CommInterface comm_interface=_union_group->getCommInterface();
     const MPIProcessorGroup* group = static_cast<const MPIProcessorGroup*>(_union_group);
  
-    int nbcomp=field.getArray()->getNumberOfComponents();
+    int nbcomp=(int)field.getArray()->getNumberOfComponents();
     double* sendbuf=0;
     double* recvbuf=0;
     if (_sending_ids.size() >0)
@@ -190,7 +190,7 @@ namespace MEDCoupling
         break;
       case PointToPoint:
         _access_DEC->allToAllv(sendbuf, sendcounts, senddispls, MPI_DOUBLE,
-                              recvbuf, recvcounts, recvdispls, MPI_DOUBLE);
+                               recvbuf, recvcounts, recvdispls, MPI_DOUBLE);
         break;
       }
   
@@ -229,7 +229,7 @@ namespace MEDCoupling
     CommInterface comm_interface=_union_group->getCommInterface();
     const MPIProcessorGroup* group = static_cast<const MPIProcessorGroup*>(_union_group);
 
-    int nbcomp=field.getArray()->getNumberOfComponents();
+    int nbcomp=(int)field.getArray()->getNumberOfComponents();
     double* sendbuf=0;
     double* recvbuf=0;
     if (_recv_ids.size() >0)

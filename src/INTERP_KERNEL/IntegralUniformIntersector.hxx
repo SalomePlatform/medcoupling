@@ -51,8 +51,8 @@ namespace INTERP_KERNEL
     typedef typename MyMeshType::MyConnType ConnType;
   public:
     IntegralUniformIntersectorP0(const MyMeshType& mesh, bool isAbs);
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    ConnType getNumberOfRowsOfResMatrix() const;
+    ConnType getNumberOfColsOfResMatrix() const;
     void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res);
   };
 
@@ -63,8 +63,8 @@ namespace INTERP_KERNEL
     typedef typename MyMeshType::MyConnType ConnType;
   public:
     IntegralUniformIntersectorP1(const MyMeshType& mesh, bool isAbs);
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    ConnType getNumberOfRowsOfResMatrix() const;
+    ConnType getNumberOfColsOfResMatrix() const;
     void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res);
   };
 }

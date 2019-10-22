@@ -46,7 +46,7 @@ namespace MEDPARTITIONER
   class JointFinder;
   
   typedef enum{MedAscii, MedXml, Undefined} DriverType;
-  typedef std::multimap<std::pair<int,int>, std::pair<int,int> > NodeMapping ;
+  typedef std::multimap<std::pair<int,mcIdType>, std::pair<int,mcIdType> > NodeMapping ;
   typedef std::vector<std::pair<int,int> >  NodeList;
   
   class MEDPARTITIONER_EXPORT MeshCollection
@@ -87,9 +87,9 @@ namespace MEDPARTITIONER
     //getting mesh dimension
     int getMeshDimension() const;
     int getNbOfLocalMeshes() const;
-    int getNbOfGlobalMeshes() const { return _mesh.size(); }
-    int getNbOfLocalCells() const;
-    int getNbOfLocalFaces() const;
+    int getNbOfGlobalMeshes() const { return (int)_mesh.size(); }
+    mcIdType getNbOfLocalCells() const;
+    mcIdType getNbOfLocalFaces() const;
     
     //getting a reference to mesh vector
     std::vector<MEDCoupling::MEDCouplingUMesh*>& getMesh();
@@ -100,13 +100,13 @@ namespace MEDPARTITIONER
     MEDCoupling::MEDCouplingUMesh* getFaceMesh(int idomain);
     std::vector<MEDCoupling::MEDCouplingUMesh*>& getGroupMeshes(int idomain);
 
-    std::vector<MEDCoupling::DataArrayInt*>& getCellFamilyIds() { return _cell_family_ids; }
-    std::vector<MEDCoupling::DataArrayInt*>& getFaceFamilyIds() { return _face_family_ids; }
+    std::vector<MEDCoupling::DataArrayIdType*>& getCellFamilyIds() { return _cell_family_ids; }
+    std::vector<MEDCoupling::DataArrayIdType*>& getFaceFamilyIds() { return _face_family_ids; }
     
-    std::map<std::string, MEDCoupling::DataArrayInt*>& getMapDataArrayInt() { return _map_dataarray_int; }
+    std::map<std::string, MEDCoupling::DataArrayIdType*>& getMapDataArrayInt() { return _map_dataarray_int; }
     std::map<std::string, MEDCoupling::DataArrayDouble*>& getMapDataArrayDouble() { return _map_dataarray_double; }
 
-    std::map<std::string,int>& getFamilyInfo() { return _family_info; }
+    std::map<std::string,mcIdType>& getFamilyInfo() { return _family_info; }
     std::map<std::string, std::vector<std::string> >& getGroupInfo() { return _group_info; }
 
     MEDCoupling::DataArrayDouble* getField(std::string descriptionField, int iold);
@@ -138,20 +138,20 @@ namespace MEDPARTITIONER
 
     //creates the node mapping between an old collection and the present one
     void createNodeMapping(MeshCollection& initialCollection, 
-                           std::multimap<std::pair<int,int>,std::pair<int,int> >& nodeMapping);
+                           std::multimap<std::pair<int,mcIdType>,std::pair<int,mcIdType> >& nodeMapping);
     
     void castCellMeshes(MeshCollection& initialCollection, 
-                        std::vector<std::vector<std::vector<int> > >& new2oldIds,
-                        std::vector<MEDCoupling::DataArrayInt*> & o2nRenumber);
+                        std::vector<std::vector<std::vector<mcIdType> > >& new2oldIds,
+                        std::vector<MEDCoupling::DataArrayIdType*> & o2nRenumber);
     
     //creates faces on the new collection
     void castFaceMeshes(MeshCollection& initialCollection,
-                        const std::multimap<std::pair<int,int>, std::pair<int,int> >& nodeMapping,
-                        std::vector<std::vector<std::vector<int> > >& new2oldIds);
+                        const std::multimap<std::pair<int,mcIdType>, std::pair<int,mcIdType> >& nodeMapping,
+                        std::vector<std::vector<std::vector<mcIdType> > >& new2oldIds);
 
     //constructing connect zones
     void buildConnectZones( const NodeMapping& nodeMapping,
-                            const std::vector<MEDCoupling::DataArrayInt*> & o2nRenumber,
+                            const std::vector<MEDCoupling::DataArrayIdType*> & o2nRenumber,
                             int nbInitialDomains );
 
     // Find faces common with neighbor domains and put them in groups
@@ -160,19 +160,19 @@ namespace MEDPARTITIONER
   private:
     void castIntField(std::vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastFrom,
                        std::vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastTo,
-                       std::vector<MEDCoupling::DataArrayInt*>& arrayFrom,
+                       std::vector<MEDCoupling::DataArrayIdType*>& arrayFrom,
                        std::string nameArrayTo);
 
     void castAllFields(MeshCollection& initialCollection,
                        std::string nameArrayTo);
 
-    void findCommonDistantNodes(std::vector<std::vector<std::multimap<int,int> > >& commonDistantNodes);
+    void findCommonDistantNodes(std::vector<std::vector<std::multimap<int,mcIdType> > >& commonDistantNodes);
 
     
     void remapIntField(int inew, int iold, 
                        const MEDCoupling::MEDCouplingUMesh& sourceMesh,
                        const MEDCoupling::MEDCouplingUMesh& targetMesh,
-                       const int* fromArray,
+                       const mcIdType* fromArray,
                        std::string nameArrayTo,
                        const BBTreeOfDim* tree);
 
@@ -181,7 +181,7 @@ namespace MEDPARTITIONER
                            std::string nameArrayTo,
                            std::string descriptionField);
 
-    void createJointGroup( const std::vector< int >& faces,
+    void createJointGroup( const std::vector< mcIdType >& faces,
                            const int                 inew1,
                            const int                 inew2,
                            const bool                is2nd );
@@ -207,11 +207,11 @@ namespace MEDPARTITIONER
     int _i_non_empty_mesh;
     
     //family ids storages
-    std::vector<MEDCoupling::DataArrayInt*> _cell_family_ids;
-    std::vector<MEDCoupling::DataArrayInt*> _face_family_ids;
+    std::vector<MEDCoupling::DataArrayIdType*> _cell_family_ids;
+    std::vector<MEDCoupling::DataArrayIdType*> _face_family_ids;
     
     //DataArrayInt* storages
-    std::map<std::string, MEDCoupling::DataArrayInt*> _map_dataarray_int;
+    std::map<std::string, MEDCoupling::DataArrayIdType*> _map_dataarray_int;
     //DataArrayDouble* storages
     std::map<std::string, MEDCoupling::DataArrayDouble*> _map_dataarray_double;
     
@@ -219,7 +219,7 @@ namespace MEDPARTITIONER
     std::vector<std::string> _field_descriptions;
     
     //group family conversion
-    std::map<std::string, int> _family_info;
+    std::map<std::string, mcIdType> _family_info;
     std::map<std::string, std::vector<std::string> > _group_info;
   
     //list of groups that are not to be split

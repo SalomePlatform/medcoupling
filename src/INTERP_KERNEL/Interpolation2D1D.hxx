@@ -40,7 +40,7 @@ namespace INTERP_KERNEL
   class Interpolation2D1D : public Interpolation<Interpolation2D1D>
   {
   public:
-    typedef std::map<int,std::set<int> > DuplicateFacesType;
+    typedef std::map<mcIdType,std::set<mcIdType> > DuplicateFacesType;
 
     Interpolation2D1D() { setOrientation(2); }
     Interpolation2D1D(const InterpolationOptions& io):Interpolation<Interpolation2D1D>(io) { }
@@ -48,7 +48,7 @@ namespace INTERP_KERNEL
 
     // Main function to interpolate triangular and quadratic meshes
     template<class MyMeshType, class MatrixType>
-    int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result, const std::string& method);
+    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result, const std::string& method);
     DuplicateFacesType retrieveDuplicateFaces() const
     {
       return _duplicate_faces;

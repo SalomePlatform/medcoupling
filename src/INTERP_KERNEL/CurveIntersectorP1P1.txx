@@ -37,14 +37,14 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int CurveIntersectorP1P1<MyMeshType,MyMatrix>
+  typename MyMeshType::MyConnType CurveIntersectorP1P1<MyMeshType,MyMatrix>
   ::getNumberOfRowsOfResMatrix() const
   {
     return BASE_INTERSECTOR::_meshT.getNumberOfNodes();
   }
 
   template<class MyMeshType, class MyMatrix>
-  int CurveIntersectorP1P1<MyMeshType,MyMatrix>
+  typename MyMeshType::MyConnType CurveIntersectorP1P1<MyMeshType,MyMatrix>
   ::getNumberOfColsOfResMatrix() const
   {
     return BASE_INTERSECTOR::_meshS.getNumberOfNodes();
@@ -56,22 +56,22 @@ namespace INTERP_KERNEL
   {
     std::vector<typename BASE_INTERSECTOR::TDualSegment> segmentsT, segmentsS;
     BASE_INTERSECTOR::getDualSegments( icellT, BASE_INTERSECTOR::_meshT, segmentsT);
-    for ( int t = 0; t < (int)segmentsT.size(); ++t )
+    for ( ConnType t = 0; t < (ConnType)segmentsT.size(); ++t )
       {
         typename MyMatrix::value_type& resRow = res[ OTT<ConnType,numPol>::ind2C( segmentsT[t]._nodeId )];
         for(typename std::vector<ConnType>::const_iterator
               iter=icellsS.begin(); iter!=icellsS.end(); iter++)
           {
-            int iS = *iter;
+            ConnType iS = *iter;
             BASE_INTERSECTOR::getDualSegments( OTT<ConnType,numPol>::ind2C(iS),
                                                BASE_INTERSECTOR::_meshS, segmentsS);
-            for ( int s = 0; s < (int)segmentsS.size(); ++s )
+            for ( ConnType s = 0; s < (ConnType)segmentsS.size(); ++s )
               {
                 double surf = BASE_INTERSECTOR::intersectSegments(&segmentsT[t]._coords[0],
                                                                   &segmentsS[s]._coords[0]);
                 if(surf!=0.)
                   {
-                    int nS = segmentsS[s]._nodeId;
+                    ConnType nS = segmentsS[s]._nodeId;
                     typename MyMatrix::value_type::const_iterator iterRes=resRow.find(nS);
                     if(iterRes==resRow.end())
                       resRow.insert(std::make_pair(nS,surf));

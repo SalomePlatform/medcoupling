@@ -46,9 +46,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual typename Traits<T>::FieldType *clone(bool recDeepCpy) const = 0;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT typename Traits<T>::FieldType *cloneWithMesh(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const DataArrayInt *part) const;
-    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const int *partBg, const int *partEnd) const;
-    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPartRange(int begin, int end, int step) const;
+    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const DataArrayIdType *part) const;
+    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const mcIdType *partBg, const mcIdType *partEnd) const;
+    MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPartRange(mcIdType begin, mcIdType end, mcIdType step) const;
     MEDCOUPLING_EXPORT void setArray(typename Traits<T>::ArrayType *array) { _time_discr->setArray(array,this); }
     MEDCOUPLING_EXPORT void setEndArray(typename Traits<T>::ArrayType *array) { _time_discr->setEndArray(array,this); }
     MEDCOUPLING_EXPORT const typename Traits<T>::ArrayType *getArray() const { return _time_discr->getArray(); }
@@ -74,7 +74,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const { return _time_discr->getTime(iteration,order); }
     MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const { return _time_discr->getStartTime(iteration,order); }
     MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const { return _time_discr->getEndTime(iteration,order); }
-    MEDCOUPLING_EXPORT T getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
+    MEDCOUPLING_EXPORT T getIJ(mcIdType tupleId, std::size_t compoId) const { return getArray()->getIJ(tupleId,compoId); }
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;
@@ -88,16 +88,16 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool areCompatibleForDiv(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingFieldT<T> *other);
     MEDCOUPLING_EXPORT void copyAllTinyAttrFrom(const MEDCouplingFieldT<T> *other);
-    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
-    MEDCOUPLING_EXPORT void renumberCellsWithoutMesh(const int *old2NewBg, bool check=true);
+    MEDCOUPLING_EXPORT void renumberCells(const mcIdType *old2NewBg, bool check=true);
+    MEDCOUPLING_EXPORT void renumberCellsWithoutMesh(const mcIdType *old2NewBg, bool check=true);
     //
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays);
-    MEDCOUPLING_EXPORT void checkForUnserialization(const std::vector<int>& tinyInfoI, const DataArrayInt *dataInt, const std::vector<typename Traits<T>::ArrayType *>& arrays);
-    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
-    MEDCOUPLING_EXPORT void serialize(DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays) const;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, DataArrayIdType *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays);
+    MEDCOUPLING_EXPORT void checkForUnserialization(const std::vector<mcIdType>& tinyInfoI, const DataArrayIdType *dataInt, const std::vector<typename Traits<T>::ArrayType *>& arrays);
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void serialize(DataArrayIdType *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays) const;
     MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe() const;
   protected:
     MEDCouplingTimeDiscretizationTemplate<T> *timeDiscrSafe();

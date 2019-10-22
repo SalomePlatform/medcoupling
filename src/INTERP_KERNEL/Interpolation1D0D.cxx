@@ -44,8 +44,8 @@ namespace INTERP_KERNEL
     const int SPACE_DIM = 3;
     const double adj(getPrecision());// here precision is used instead of getBoundingBoxAdjustment and getBoundingBoxAdjustmentAbs because in the context only precision is relevant
 
-    long size = bbox.size()/(2*SPACE_DIM);
-    for (int i=0; i<size; i++)
+    std::size_t size = bbox.size()/(2*SPACE_DIM);
+    for (std::size_t i=0; i<size; i++)
       {
         for(int idim=0; idim<SPACE_DIM; idim++)
           {

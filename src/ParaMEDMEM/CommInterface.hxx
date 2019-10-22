@@ -21,6 +21,9 @@
 #define __COMMINTERFACE_HXX__
 
 #include <mpi.h>
+
+#include "ParaIdType.hxx"
+
 namespace MEDCoupling
 {
 

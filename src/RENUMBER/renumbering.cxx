@@ -38,7 +38,7 @@ using namespace MED_RENUMBER;
 int main(int argc, char** argv)
 {
   double t_begin,t_read_st,t_compute_graph,t_family,t_field;
-  t_begin=clock();
+  t_begin=(double)clock();
   if (argc <5)
     {
       cerr << "Usage : " << argv[0] 
@@ -65,39 +65,39 @@ int main(int argc, char** argv)
       std::ostringstream oss; oss << "In file \"" << filename_in << "\" the mesh name \"" << meshname<< "\" exists but is not unstructured !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  t_read_st=clock();
+  t_read_st=(double)clock();
   cout << (t_read_st-t_begin)/(double) CLOCKS_PER_SEC << "s" << endl << flush;
   // Reading mesh
   MCAuto<MEDCouplingUMesh> workMesh=mc->getMeshAtLevel(0);
-  std::vector<int> code=workMesh->getDistributionOfTypes();
+  //std::vector<mcIdType> code=workMesh->getDistributionOfTypes();
   cout << "Building the graph : " << flush;
-  DataArrayInt *neighb=0,*neighbI=0;
+  DataArrayIdType *neighb=0,*neighbI=0;
   workMesh->computeNeighborsOfCells(neighb,neighbI);
-  MCAuto<DataArrayInt> neighbSafe(neighb),neighbISafe(neighbI),ipermSafe,permSafe;
-  const int *graph=neighbSafe->begin();
-  const int *graph_index=neighbISafe->begin();
+  MCAuto<DataArrayIdType> neighbSafe(neighb),neighbISafe(neighbI),ipermSafe,permSafe;
+  const mcIdType *graph=neighbSafe->begin();
+  const mcIdType *graph_index=neighbISafe->begin();
   // Compute permutation iperm->new2old perm->old2new
-  DataArrayInt *iperm(0),*perm(0);
+  DataArrayIdType *iperm(0),*perm(0);
   Renumbering *renumb=RenumberingFactory(type_renum);
   renumb->renumber(graph,graph_index,workMesh->getNumberOfCells(),iperm,perm);
   ipermSafe=iperm; permSafe=perm;
   delete renumb;
   ipermSafe=0;//erase new2old, we are using only old 2 new
-  t_compute_graph=clock();
+  t_compute_graph=(double)clock();
   cout << " : " << (t_compute_graph-t_read_st)/(double) CLOCKS_PER_SEC << "s" << endl;
   cout.flush();
   // Connectivity
   cout << "Reordering connectivity & families and writing : " << flush;
   workMesh->renumberCells(perm->begin(),false);
   mc->setMeshAtLevel(0,workMesh);
-  const DataArrayInt *famField=mc->getFamilyFieldAtLevel(0);
+  const DataArrayIdType *famField=mc->getFamilyFieldAtLevel(0);
   if(famField)
     {
-      MCAuto<DataArrayInt> famField2=famField->renumber(perm->begin());
+      MCAuto<DataArrayIdType> famField2=famField->renumber(perm->begin());
       mc->setFamilyFieldArr(0,famField2);
     }
   mc->write(filename_out,2);
-  t_family=clock();
+  t_family=(double)clock();
   cout << " : " << (t_family-t_compute_graph)/(double) CLOCKS_PER_SEC << "s" << endl << flush;
   // Fields
   cout << "Reordering fields and writing : " << flush;
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
       fs->write(filename_out,0);
       //fs->renumberEntitiesLyingOnMesh(meshname,code,code,o2n); bugged
     }
-  t_field=clock();
+  t_field=(double)clock();
   cout << " : " << (t_field-t_family)/(double) CLOCKS_PER_SEC << "s" << endl << flush;
   return 0;
 }

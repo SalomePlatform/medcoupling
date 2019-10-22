@@ -26,20 +26,21 @@
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "MCIdType.hxx"
 
 #include <sstream>
 #include <cmath>
 
 namespace INTERP_KERNEL
 {
-  inline void calculateBarycenterDyn(const double **pts, int nbPts,
+  inline void calculateBarycenterDyn(const double **pts, mcIdType nbPts,
                                      int dim, double *bary);
 
-  inline double calculateAreaForPolyg(const double **coords, int nbOfPtsInPolygs,
+  inline double calculateAreaForPolyg(const double **coords, mcIdType nbOfPtsInPolygs,
                                       int spaceDim);
 
 
-  inline double calculateAreaForQPolyg(const double **coords, int nbOfPtsInPolygs,
+  inline double calculateAreaForQPolyg(const double **coords, mcIdType nbOfPtsInPolygs,
                                        int spaceDim);
 
   inline double calculateLgthForSeg2(const double *p1, const double *p2, int spaceDim)
@@ -168,7 +169,7 @@ namespace INTERP_KERNEL
   // ===================================
   // Calculate Normal Vector for Polygon
   // ===================================
-  inline void calculateNormalForPolyg(const double **coords, int nbOfPtsInPolygs,
+  inline void calculateNormalForPolyg(const double **coords, mcIdType nbOfPtsInPolygs,
                                       double *normal)
   {
     double coordOfBary[3];
@@ -203,14 +204,14 @@ namespace INTERP_KERNEL
   // ==========================
   // Calculate Area for Polygon
   // ==========================
-  inline double calculateAreaForPolyg(const double **coords, int nbOfPtsInPolygs,
+  inline double calculateAreaForPolyg(const double **coords, mcIdType nbOfPtsInPolygs,
                                       int spaceDim)
   {
     double ret=0.;
     double coordOfBary[3];
 
     calculateBarycenterDyn(coords,nbOfPtsInPolygs,spaceDim,coordOfBary);
-    for ( int i=0; i<nbOfPtsInPolygs; i++ )
+    for ( mcIdType i=0; i<nbOfPtsInPolygs; i++ )
       {
         double tmp = calculateAreaForTria(coords[i],coords[(i+1)%nbOfPtsInPolygs],
                                           coordOfBary,spaceDim);
@@ -219,7 +220,7 @@ namespace INTERP_KERNEL
     return ret;
   }
 
-  double calculateAreaForQPolyg(const double **coords, int nbOfPtsInPolygs, int spaceDim)
+  double calculateAreaForQPolyg(const double **coords, mcIdType nbOfPtsInPolygs, int spaceDim)
   {
     
     if(nbOfPtsInPolygs%2==0)
@@ -227,7 +228,7 @@ namespace INTERP_KERNEL
         if(spaceDim==2)
           {
             std::vector<Node *> nodes(nbOfPtsInPolygs);
-            for(int i=0;i<nbOfPtsInPolygs;i++)
+            for(mcIdType i=0;i<nbOfPtsInPolygs;i++)
               nodes[i]=new Node(coords[i][0],coords[i][1]);
             QuadraticPolygon *pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
             double ret=pol->getArea();
@@ -465,14 +466,14 @@ namespace INTERP_KERNEL
    * polyhedron
    */
   template<class ConnType, NumberingPolicy numPol>
-  inline double calculateVolumeForPolyh2(const ConnType *connec, int lgth, const double *coords)
+  inline double calculateVolumeForPolyh2(const ConnType *connec, mcIdType lgth, const double *coords)
   {
     std::size_t nbOfFaces=std::count(connec,connec+lgth,-1)+1;
     double volume=0.;
-    const int *work=connec;
+    const ConnType *work=connec;
     for(std::size_t iFace=0;iFace<nbOfFaces;iFace++)
       {
-        const int *work2=std::find(work+1,connec+lgth,-1);
+        const ConnType *work2=std::find(work+1,connec+lgth,-1);
         std::size_t nbOfNodesOfCurFace=std::distance(work,work2);
         double areaVector[3]={0.,0.,0.};
         for(std::size_t ptId=0;ptId<nbOfNodesOfCurFace;ptId++)
@@ -496,10 +497,10 @@ namespace INTERP_KERNEL
    * @param res must be of size at least 3 to store the result.
    */
   template<class ConnType, NumberingPolicy numPol>
-  inline void areaVectorOfPolygon(const ConnType *connec, int lgth, const double *coords, double *res)
+  inline void areaVectorOfPolygon(const ConnType *connec, mcIdType lgth, const double *coords, double *res)
   {
     res[0]=0.; res[1]=0.; res[2]=0.;
-    for(int ptId=0;ptId<lgth;ptId++)
+    for(mcIdType ptId=0;ptId<lgth;ptId++)
       {
         const double *pti=coords+3*OTT<ConnType,numPol>::coo2C(connec[ptId]);
         const double *pti1=coords+3*OTT<ConnType,numPol>::coo2C(connec[(ptId+1)%lgth]);
@@ -510,7 +511,7 @@ namespace INTERP_KERNEL
   }
 
   template<class ConnType, NumberingPolicy numPol>
-  inline void computePolygonBarycenter3D(const ConnType *connec, int lgth, const double *coords, double *res)
+  inline void computePolygonBarycenter3D(const ConnType *connec, mcIdType lgth, const double *coords, double *res)
   {
     double area[3];
     areaVectorOfPolygon<ConnType,numPol>(connec,lgth,coords,area);
@@ -519,7 +520,7 @@ namespace INTERP_KERNEL
       {
         area[0]/=norm; area[1]/=norm; area[2]/=norm;
         res[0]=0.; res[1]=0.; res[2]=0.;
-        for(int i=1;i<lgth-1;i++)
+        for(mcIdType i=1;i<lgth-1;i++)
           {
             double v[3];
             double tmpArea[3];
@@ -550,7 +551,7 @@ namespace INTERP_KERNEL
           throw INTERP_KERNEL::Exception("computePolygonBarycenter3D : lgth of polygon is < 1 !");
         norm=0.;
         double v[3];
-        for(int i=0;i<lgth;i++)
+        for(mcIdType i=0;i<lgth;i++)
           {
             v[0]=coords[3*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])]-coords[3*OTT<ConnType,numPol>::coo2C(connec[i])];
             v[1]=coords[3*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]-coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+1];
@@ -569,13 +570,13 @@ namespace INTERP_KERNEL
         else
           {
             res[0]=0.; res[1]=0.; res[2]=0.;
-            for(int i=0;i<lgth;i++)
+            for(mcIdType i=0;i<lgth;i++)
               {
                 res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[i])];
                 res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+1];
                 res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+2];
               }
-            res[0]/=lgth; res[1]/=lgth; res[2]/=lgth;
+            res[0]/=FromIdType<double>(lgth); res[1]/=FromIdType<double>(lgth); res[2]/=FromIdType<double>(lgth);
             return;
           }
       }
@@ -588,14 +589,14 @@ namespace INTERP_KERNEL
   }
 
   template<class ConnType, NumberingPolicy numPol>
-  inline void barycenterOfPolyhedron(const ConnType *connec, int lgth, const double *coords, double *res)
+  inline void barycenterOfPolyhedron(const ConnType *connec, mcIdType lgth, const double *coords, double *res)
   {
     std::size_t nbOfFaces=std::count(connec,connec+lgth,-1)+1;
     res[0]=0.; res[1]=0.; res[2]=0.;
-    const int *work=connec;
+    const ConnType *work=connec;
     for(std::size_t i=0;i<nbOfFaces;i++)
       {
-        const int *work2=std::find(work+1,connec+lgth,-1);
+        const ConnType *work2=std::find(work+1,connec+lgth,-1);
         int nbOfNodesOfCurFace=(int)std::distance(work,work2);
         // projection to (u,v) of each faces of polyh to compute integral(x^2/2) on each faces.
         double normal[3];
@@ -660,7 +661,7 @@ namespace INTERP_KERNEL
         work=connec;
         for(std::size_t i=0;i<nbOfFaces;i++)
           {
-            const int *work2=std::find(work+1,connec+lgth,-1);
+            const ConnType *work2=std::find(work+1,connec+lgth,-1);
             int nbOfNodesOfCurFace=(int)std::distance(work,work2);
             double normal[3];
             areaVectorOfPolygon<ConnType,numPol>(work,nbOfNodesOfCurFace,coords,normal);
@@ -755,39 +756,39 @@ namespace INTERP_KERNEL
   {
   }
 
-  inline void calculateBarycenterDyn(const double **pts, int nbPts,
+  inline void calculateBarycenterDyn(const double **pts, mcIdType nbPts,
                                      int dim, double *bary)
   {
     for(int i=0;i<dim;i++)
       {
         double temp=0.;
-        for(int j=0;j<nbPts;j++)
+        for(mcIdType j=0;j<nbPts;j++)
           {
             temp+=pts[j][i];
           }
-        bary[i]=temp/nbPts;
+        bary[i]=temp/FromIdType<double>(nbPts);
       }
   }
 
   template<int SPACEDIM>
-  inline void calculateBarycenterDyn2(const double *pts, int nbPts, double *bary)
+  inline void calculateBarycenterDyn2(const double *pts, mcIdType nbPts, double *bary)
   {
     for(int i=0;i<SPACEDIM;i++)
       {
         double temp=0.;
-        for(int j=0;j<nbPts;j++)
+        for(mcIdType j=0;j<nbPts;j++)
           {
             temp+=pts[j*SPACEDIM+i];
           }
-        bary[i]=temp/nbPts;
+        bary[i]=temp/FromIdType<double>(nbPts);
       }
   }
 
-  inline void computePolygonBarycenter2DEngine(double **coords, int lgth, double *res)
+  inline void computePolygonBarycenter2DEngine(double **coords, mcIdType lgth, double *res)
   {
     double area=0.;
     res[0]=0.; res[1]=0.;
-    for(int i=0;i<lgth;i++)
+    for(mcIdType i=0;i<lgth;i++)
       {
         double cp=coords[i][0]*coords[(i+1)%lgth][1]-coords[i][1]*coords[(i+1)%lgth][0];
         area+=cp;
@@ -799,23 +800,23 @@ namespace INTERP_KERNEL
   }
 
   template<class ConnType, NumberingPolicy numPol>
-  inline void computePolygonBarycenter2D(const ConnType *connec, int lgth, const double *coords, double *res)
+  inline void computePolygonBarycenter2D(const ConnType *connec, mcIdType lgth, const double *coords, double *res)
   {
     double **coords2=new double *[lgth];
-    for(int i=0;i<lgth;i++)
+    for(mcIdType i=0;i<lgth;i++)
       coords2[i]=const_cast<double *>(coords+2*OTT<ConnType,numPol>::coo2C(connec[i]));
     computePolygonBarycenter2DEngine(coords2,lgth,res);
     delete [] coords2;
   }
   
-  inline void computeQPolygonBarycenter2D(double **coords, int nbOfPtsInPolygs, int spaceDim, double *res)
+  inline void computeQPolygonBarycenter2D(double **coords, mcIdType nbOfPtsInPolygs, int spaceDim, double *res)
   {
     if(nbOfPtsInPolygs%2==0)
       {
         if(spaceDim==2)
           {
             std::vector<Node *> nodes(nbOfPtsInPolygs);
-            for(int i=0;i<nbOfPtsInPolygs;i++)
+            for(mcIdType i=0;i<nbOfPtsInPolygs;i++)
               nodes[i]=new Node(coords[i][0],coords[i][1]);
             QuadraticPolygon *pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
             pol->getBarycenter(res);

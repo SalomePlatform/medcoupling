@@ -99,7 +99,7 @@ namespace INTERP_KERNEL
    * \param [in] tetraCorners  array 4*3 doubles containing corners of input tetrahedron (P0X,P0Y,P0Y,P1X,P1Y,P1Z,P2X,P2Y,P2Z,P3X,P3Y,P3Z).
    */
   template<class MyMeshType>
-  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const int *conn): _t(0),_src_mesh(srcMesh)
+  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const ConnType *conn): _t(0),_src_mesh(srcMesh)
   {
     if(!conn)
       { _conn[0]=0; _conn[1]=1; _conn[2]=2; _conn[3]=3; }
@@ -121,7 +121,7 @@ namespace INTERP_KERNEL
   SplitterTetra<MyMeshType>::~SplitterTetra()
   {
     delete _t;
-    for(HashMap< int, double* >::iterator iter = _nodes.begin(); iter != _nodes.end() ; ++iter)
+    for(typename HashMap< ConnType, double* >::iterator iter = _nodes.begin(); iter != _nodes.end() ; ++iter)
       delete[] iter->second;
   }
 
@@ -191,17 +191,17 @@ namespace INTERP_KERNEL
     // get type of cell
     NormalizedCellType normCellType=_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(element));
     const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
-    unsigned nbOfNodes4Type=cellModelCell.isDynamic() ? _src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(element)) : cellModelCell.getNumberOfNodes();
+    ConnType nbOfNodes4Type=cellModelCell.isDynamic() ? _src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(element)) : cellModelCell.getNumberOfNodes();
     // halfspace filtering
     bool isOutside[8] = {true, true, true, true, true, true, true, true};
     bool isTargetOutside = false;
 
     // calculate the coordinates of the nodes
-    int *cellNodes=new int[nbOfNodes4Type];
-    for(int i = 0;i<(int)nbOfNodes4Type;++i)
+    ConnType *cellNodes=new ConnType[nbOfNodes4Type];
+    for(ConnType i = 0;i<nbOfNodes4Type;++i)
       {
         // we could store mapping local -> global numbers too, but not sure it is worth it
-        const int globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(element), _src_mesh);
+        const ConnType globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(element), _src_mesh);
         cellNodes[i]=globalNodeNum;
         if(_nodes.find(globalNodeNum) == _nodes.end()) 
           {
@@ -232,19 +232,19 @@ namespace INTERP_KERNEL
 
         // get nb of sons of a cell
         const ConnType* rawCellConn = _src_mesh.getConnectivityPtr() + OTT<ConnType,numPol>::conn2C( _src_mesh.getConnectivityIndexPtr()[ element ]);
-        const int rawNbCellNodes = _src_mesh.getConnectivityIndexPtr()[ element+1 ] - _src_mesh.getConnectivityIndexPtr()[ element ];
+        const ConnType rawNbCellNodes = _src_mesh.getConnectivityIndexPtr()[ element+1 ] - _src_mesh.getConnectivityIndexPtr()[ element ];
         unsigned nbOfSons = cellModelCell.getNumberOfSons2(rawCellConn, rawNbCellNodes);
 
         for(unsigned ii = 0 ; ii < nbOfSons; ++ii)
           {
             // get sons connectivity
             NormalizedCellType faceType;
-            int *faceNodes, nbFaceNodes=-1;
+            ConnType *faceNodes, nbFaceNodes=-1;
             if ( cellModelCell.isDynamic() )
               {
-                faceNodes=new int[nbOfNodes4Type];
+                faceNodes=new ConnType[nbOfNodes4Type];
                 nbFaceNodes = cellModelCell.fillSonCellNodalConnectivity2(ii,rawCellConn,rawNbCellNodes,faceNodes,faceType);
-                for ( int i = 0; i < nbFaceNodes; ++i )
+                for ( ConnType i = 0; i < nbFaceNodes; ++i )
                   faceNodes[i] = OTT<ConnType,numPol>::coo2C(faceNodes[i]);
               }
             else
@@ -253,7 +253,7 @@ namespace INTERP_KERNEL
                 const CellModel& faceModel=CellModel::GetCellModel(faceType);
                 assert(faceModel.getDimension() == 2);
                 nbFaceNodes = cellModelCell.getNumberOfNodesConstituentTheSon(ii);
-                faceNodes = new int[nbFaceNodes];
+                faceNodes = new ConnType[nbFaceNodes];
                 cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
               }
             // intersect a son with the unit tetra
@@ -326,8 +326,8 @@ namespace INTERP_KERNEL
 
               case NORM_POLYGON:
                 {
-                  int nbTria = nbFaceNodes - 2; // split polygon into nbTria triangles
-                  for ( int iTri = 0; iTri < nbTria; ++iTri )
+                  ConnType nbTria = nbFaceNodes - 2; // split polygon into nbTria triangles
+                  for ( ConnType iTri = 0; iTri < nbTria; ++iTri )
                     {
                       TriangleFaceKey key = TriangleFaceKey(faceNodes[0], faceNodes[1+iTri], faceNodes[2+iTri]);
                       if(_volumes.find(key) == _volumes.end())
@@ -589,8 +589,8 @@ namespace INTERP_KERNEL
    */
   template<class MyMeshType>
   double SplitterTetra<MyMeshType>::intersectSourceFace(const NormalizedCellType polyType,
-                                                        const int polyNodesNbr,
-                                                        const int *const polyNodes,
+                                                        const ConnType polyNodesNbr,
+                                                        const ConnType *const polyNodes,
                                                         const double *const *const polyCoords,
                                                         const double dimCaracteristic,
                                                         const double precision,
@@ -614,9 +614,9 @@ namespace INTERP_KERNEL
     bool isTargetOutside = false;
 
     // calculate the coordinates of the nodes
-    for(int i = 0;i<(int)polyNodesNbr;++i)
+    for(ConnType i = 0;i<polyNodesNbr;++i)
       {
-        const int globalNodeNum = polyNodes[i];
+        const ConnType globalNodeNum = polyNodes[i];
         if(_nodes.find(globalNodeNum) == _nodes.end())
           {
             calculateNode2(globalNodeNum, polyCoords[i]);
@@ -684,8 +684,8 @@ namespace INTERP_KERNEL
                     double planeConstant = dot(planeNormal, coordsTetraTriNode1);
                     if (IsFacesCoplanar(planeNormal, planeConstant, polyCoords, precision))
                       {
-                        int nbrPolyTri = polyNodesNbr - 2; // split polygon into nbrPolyTri triangles
-                        for (int iTri = 0; iTri < nbrPolyTri; ++iTri)
+                        ConnType nbrPolyTri = polyNodesNbr - 2; // split polygon into nbrPolyTri triangles
+                        for (ConnType iTri = 0; iTri < nbrPolyTri; ++iTri)
                           {
                             double volume = CalculateIntersectionSurfaceOfCoplanarTriangles(planeNormal,
                                                                                             planeConstant,
@@ -782,8 +782,8 @@ namespace INTERP_KERNEL
 
                 case NORM_POLYGON:
                   {
-                    int nbrPolyTri = polyNodesNbr - 2; // split polygon into nbrPolyTri triangles
-                    for (int iTri = 0; iTri < nbrPolyTri; ++iTri)
+                    ConnType nbrPolyTri = polyNodesNbr - 2; // split polygon into nbrPolyTri triangles
+                    for (ConnType iTri = 0; iTri < nbrPolyTri; ++iTri)
                       {
                         TriangleFaceKey key = TriangleFaceKey(polyNodes[0], polyNodes[1 + iTri], polyNodes[2 + iTri]);
                         if (_volumes.find(key) == _volumes.end())
@@ -866,7 +866,7 @@ namespace INTERP_KERNEL
     if(!isTargetOutside)
     {
       const CellModel& cellModelCell=CellModel::GetCellModel(NORM_TETRA4);
-      int cellNodes[4] = { 0, 1, 2, 3 }, faceNodes[3];
+      ConnType cellNodes[4] = { 0, 1, 2, 3 }, faceNodes[3];
 
       for(unsigned ii = 0 ; ii < 4 ; ++ii)
       {
@@ -909,9 +909,9 @@ namespace INTERP_KERNEL
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::releaseArrays()
   {
     // free potential sub-mesh nodes that have been allocated
-    typename MyMeshTypeT::MyConnType nbOfNodesT = _node_ids.size();// Issue 0020634.
-    if((int)_nodes.size()>=/*8*/nbOfNodesT)
+    if(_nodes.size()>=/*8*/_node_ids.size())
       {
+        typename MyMeshTypeT::MyConnType nbOfNodesT = static_cast<typename MyMeshTypeT::MyConnType>(_node_ids.size());
         std::vector<const double*>::iterator iter = _nodes.begin() + /*8*/nbOfNodesT;
         while(iter != _nodes.end())
           {
@@ -929,21 +929,22 @@ namespace INTERP_KERNEL
   template<class MyMeshTypeT, class MyMeshTypeS>
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::splitTargetCell2(typename MyMeshTypeT::MyConnType targetCell, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
-    const int *refConn(_target_mesh.getConnectivityPtr());
-    const int *cellConn(refConn+_target_mesh.getConnectivityIndexPtr()[targetCell]);
+    typedef typename MyMeshTypeT::MyConnType TConnType;
+    const TConnType *refConn(_target_mesh.getConnectivityPtr());
+    const TConnType *cellConn(refConn+_target_mesh.getConnectivityIndexPtr()[targetCell]);
     INTERP_KERNEL::NormalizedCellType gt(_target_mesh.getTypeOfElement(targetCell));
-    std::vector<int> tetrasNodalConn;
+    std::vector<TConnType> tetrasNodalConn;
     std::vector<double> addCoords;
     const double *coords(_target_mesh.getCoordinatesPtr());
     SplitIntoTetras(_splitting_pol,gt,cellConn,refConn+_target_mesh.getConnectivityIndexPtr()[targetCell+1],coords,tetrasNodalConn,addCoords);
     std::size_t nbTetras(tetrasNodalConn.size()/4); tetra.resize(nbTetras);
     double tmp[12];
-    int tmp2[4];
+    typename MyMeshTypeS::MyConnType tmp2[4];
     for(std::size_t i=0;i<nbTetras;i++)
       {
         for(int j=0;j<4;j++)
           {
-            int cellId(tetrasNodalConn[4*i+j]);
+            TConnType cellId(tetrasNodalConn[4*i+j]);
             tmp2[j]=cellId;
             if(cellId>=0)
               {
@@ -980,7 +981,7 @@ namespace INTERP_KERNEL
         _node_ids.resize(8);
         tetra.reserve(1);
         const double *nodes[4];
-        int conn[4];
+        ConnType conn[4];
         for(int node = 0; node < 4 ; ++node)
           {
             nodes[node]=getCoordsOfNode2(node, OTT<ConnType,numPol>::indFC(targetCell),_target_mesh,conn[node]);
@@ -1061,7 +1062,7 @@ namespace INTERP_KERNEL
     for(int i = 0; i < 5; ++i)
       {
         const double* nodes[4];
-        int conn[4];
+        typename MyMeshTypeS::MyConnType conn[4];
         for(int j = 0; j < 4; ++j)
           {
             conn[j] = subZone[ SPLIT_NODES_5[4*i+j] ];
@@ -1085,7 +1086,7 @@ namespace INTERP_KERNEL
     for(int i = 0; i < 6; ++i)
       {
         const double* nodes[4];
-        int conn[4];
+        typename MyMeshTypeS::MyConnType conn[4];
         for(int j = 0; j < 4; ++j)
           {
             conn[j] = subZone[SPLIT_NODES_6[4*i+j]];
@@ -1112,7 +1113,7 @@ namespace INTERP_KERNEL
     
     // nodes to use for tetrahedron
     const double* nodes[4];
-    int conn[4];
+    typename MyMeshTypeS::MyConnType conn[4];
     // get the cell center
     conn[0] = 14;
     nodes[0] = getCoordsOfSubNode(conn[0]);
@@ -1172,7 +1173,7 @@ namespace INTERP_KERNEL
     
     // create tetrahedra
     const double* nodes[4];
-    int conn[4];
+    typename MyMeshTypeS::MyConnType conn[4];
     for(int i = 0; i < 2; ++i)
       {
         for(int j = 0; j < 4; ++j)
@@ -1198,24 +1199,24 @@ namespace INTERP_KERNEL
     // get type of cell and nb of cell nodes
     NormalizedCellType normCellType=_target_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(targetCell));
     const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
-    unsigned nbOfCellNodes=cellModelCell.isDynamic() ? _target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell)) : cellModelCell.getNumberOfNodes();
+    ConnType nbOfCellNodes=cellModelCell.isDynamic() ? _target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell)) : cellModelCell.getNumberOfNodes();
 
     // get nb of cell sons (faces)
     const ConnType* rawCellConn = _target_mesh.getConnectivityPtr() + OTT<ConnType,numPol>::conn2C( _target_mesh.getConnectivityIndexPtr()[ targetCell ]);
-    const int rawNbCellNodes = _target_mesh.getConnectivityIndexPtr()[ targetCell+1 ] - _target_mesh.getConnectivityIndexPtr()[ targetCell ];
+    const ConnType rawNbCellNodes = _target_mesh.getConnectivityIndexPtr()[ targetCell+1 ] - _target_mesh.getConnectivityIndexPtr()[ targetCell ];
     unsigned nbOfSons = cellModelCell.getNumberOfSons2(rawCellConn, rawNbCellNodes);
 
     // indices of nodes of a son
-    static std::vector<int> allNodeIndices; // == 0,1,2,...,nbOfCellNodes-1
-    while ( allNodeIndices.size() < nbOfCellNodes )
-      allNodeIndices.push_back( allNodeIndices.size() );
-    std::vector<int> classicFaceNodes(4);
+    static std::vector<ConnType> allNodeIndices; // == 0,1,2,...,nbOfCellNodes-1
+    while ( allNodeIndices.size() < (std::size_t)nbOfCellNodes )
+      allNodeIndices.push_back( static_cast<ConnType>(allNodeIndices.size()) );
+    std::vector<ConnType> classicFaceNodes(4);
     if(cellModelCell.isQuadratic())
       throw INTERP_KERNEL::Exception("SplitterTetra2::splitConvex : quadratic 3D cells are not implemented yet !");
-    int* faceNodes = cellModelCell.isDynamic() ? &allNodeIndices[0] : &classicFaceNodes[0];
+    ConnType* faceNodes = cellModelCell.isDynamic() ? &allNodeIndices[0] : &classicFaceNodes[0];
 
     // nodes of tetrahedron
-    int conn[4];
+    typename MyMeshTypeS::MyConnType conn[4];
     const double* nodes[4];
     nodes[3] = getCoordsOfSubNode2( nbOfCellNodes,conn[3]); // barycenter
 
@@ -1260,7 +1261,7 @@ namespace INTERP_KERNEL
   {
     // retrieve real mesh nodes
     
-    typename MyMeshTypeT::MyConnType nbOfNodesT = _node_ids.size();// Issue 0020634. _node_ids.resize(8);
+    typename MyMeshTypeT::MyConnType nbOfNodesT = static_cast<typename MyMeshTypeT::MyConnType>(_node_ids.size());// Issue 0020634. _node_ids.resize(8);
     for(int node = 0; node < nbOfNodesT ; ++node)
       {
         // calculate only normal nodes

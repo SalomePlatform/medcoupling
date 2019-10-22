@@ -83,7 +83,7 @@ void MEDCouplingCurveLinearMesh::updateTime() const
 std::size_t MEDCouplingCurveLinearMesh::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(MEDCouplingStructuredMesh::getHeapMemorySizeWithoutChildren());
-  ret+=_structure.capacity()*sizeof(int);
+  ret+=_structure.capacity()*sizeof(mcIdType);
   return ret;
 }
 
@@ -159,7 +159,7 @@ bool MEDCouplingCurveLinearMesh::isEqualWithoutConsideringStr(const MEDCouplingM
 }
 
 void MEDCouplingCurveLinearMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                      DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const
+                                                      DataArrayIdType *&cellCor, DataArrayIdType *&nodeCor) const
 {
   if(!isEqualWithoutConsideringStr(other,prec))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkDeepEquivalWith : Meshes are not the same !");
@@ -170,7 +170,7 @@ void MEDCouplingCurveLinearMesh::checkDeepEquivalWith(const MEDCouplingMesh *oth
  * The user intend that the nodes are the same, so by construction of MEDCoupling::MEDCouplingCurveLinearMesh, \a this and \a other are the same !
  */
 void MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                                 DataArrayInt *&cellCor) const
+                                                                 DataArrayIdType *&cellCor) const
 {
   if(!isEqualWithoutConsideringStr(other,prec))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith : Meshes are not the same !");
@@ -178,10 +178,11 @@ void MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith(const MEDCoupli
 
 void MEDCouplingCurveLinearMesh::checkConsistencyLight() const
 {
-  std::size_t sz=_structure.size(),i=0,nbOfNodes=1;
+  std::size_t sz=_structure.size(),i=0;
+  mcIdType nbOfNodes=1;
   if(sz<1)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkConsistencyLight : structure should have a lgth of size 1 at least !");
-  for(std::vector<int>::const_iterator it=_structure.begin();it!=_structure.end();it++,i++)
+  for(std::vector<mcIdType>::const_iterator it=_structure.begin();it!=_structure.end();it++,i++)
     {
       if((*it)<1)
         { std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::checkConsistencyLight : At pos #" << i << " of structure value is " << *it << "should be >= 1 !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
@@ -193,7 +194,7 @@ void MEDCouplingCurveLinearMesh::checkConsistencyLight() const
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkConsistencyLight : the array is not allocated !");
   if(_coords->getNumberOfComponents()<1)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkConsistencyLight : the array should have >= 1 components !");
-  if(_coords->getNumberOfTuples()!=(int)nbOfNodes)
+  if(_coords->getNumberOfTuples()!=nbOfNodes)
     {
       std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::checkConsistencyLight : structure said that number of nodes should be equal to " << nbOfNodes << " but number of tuples in array is equal to " << _coords->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -205,19 +206,19 @@ void MEDCouplingCurveLinearMesh::checkConsistency(double eps) const
   checkConsistencyLight();
 }
 
-std::size_t MEDCouplingCurveLinearMesh::getNumberOfCells() const
+mcIdType MEDCouplingCurveLinearMesh::getNumberOfCells() const
 {
   checkConsistencyLight();
   return MEDCouplingStructuredMesh::getNumberOfCells();
 }
 
-int MEDCouplingCurveLinearMesh::getNumberOfNodes() const
+mcIdType MEDCouplingCurveLinearMesh::getNumberOfNodes() const
 {
   checkConsistencyLight();
   return MEDCouplingStructuredMesh::getNumberOfNodes();
 }
 
-void MEDCouplingCurveLinearMesh::getNodeGridStructure(int *res) const
+void MEDCouplingCurveLinearMesh::getNodeGridStructure(mcIdType *res) const
 {
   std::copy(_structure.begin(),_structure.end(),res);
 }
@@ -232,14 +233,14 @@ int MEDCouplingCurveLinearMesh::getSpaceDimension() const
 {
   if(!((const DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getSpaceDimension : no array set ! impossible to deduce a space dimension !");
-  return _coords->getNumberOfComponents();
+  return int(_coords->getNumberOfComponents());
 }
 
-void MEDCouplingCurveLinearMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+void MEDCouplingCurveLinearMesh::getCoordinatesOfNode(mcIdType nodeId, std::vector<double>& coo) const
 {
   if(!((const DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getCoordinatesOfNode : Coordinates not set !");
-  int nbOfCompo=_coords->getNumberOfComponents();
+  std::size_t nbOfCompo=_coords->getNumberOfComponents();
   if(nodeId>=0 && nodeId<_coords->getNumberOfTuples())
     coo.insert(coo.end(),_coords->begin()+nodeId*nbOfCompo,_coords->begin()+(nodeId+1)*nbOfCompo);
   else
@@ -296,7 +297,7 @@ void MEDCouplingCurveLinearMesh::setCoords(const DataArrayDouble *coords)
     }
 }
 
-void MEDCouplingCurveLinearMesh::setNodeGridStructure(const int *gridStructBg, const int *gridStructEnd)
+void MEDCouplingCurveLinearMesh::setNodeGridStructure(const mcIdType *gridStructBg, const mcIdType *gridStructEnd)
 {
   std::size_t sz=std::distance(gridStructBg,gridStructEnd);
   if(sz>=1 && sz<=3)
@@ -311,25 +312,25 @@ void MEDCouplingCurveLinearMesh::setNodeGridStructure(const int *gridStructBg, c
     }
 }
 
-std::vector<int> MEDCouplingCurveLinearMesh::getNodeGridStructure() const
+std::vector<mcIdType> MEDCouplingCurveLinearMesh::getNodeGridStructure() const
 {
   return _structure;
 }
 
-MEDCouplingStructuredMesh *MEDCouplingCurveLinearMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const
+MEDCouplingStructuredMesh *MEDCouplingCurveLinearMesh::buildStructuredSubPart(const std::vector< std::pair<mcIdType,mcIdType> >& cellPart) const
 {
   checkConsistencyLight();
   int dim(getSpaceDimension());
-  std::vector<int> dims(getMeshDimension());
-  if(dim!=(int)cellPart.size())
+  std::vector<mcIdType> dims(getMeshDimension());
+  if(dim!=ToIdType(cellPart.size()))
     {
       std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::buildStructuredSubPart : the space dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  std::vector< std::pair<int,int> > nodePartFormat(cellPart);
-  for(std::vector< std::pair<int,int> >::iterator it=nodePartFormat.begin();it!=nodePartFormat.end();it++)
+  std::vector< std::pair<mcIdType,mcIdType> > nodePartFormat(cellPart);
+  for(std::vector< std::pair<mcIdType,mcIdType> >::iterator it=nodePartFormat.begin();it!=nodePartFormat.end();it++)
     (*it).second++;
-  MCAuto<DataArrayInt> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
+  MCAuto<DataArrayIdType> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
   MCAuto<MEDCouplingCurveLinearMesh> ret(dynamic_cast<MEDCouplingCurveLinearMesh *>(deepCopy()));
   const DataArrayDouble *coo(ret->getCoords());
   if(coo)
@@ -380,7 +381,7 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::getMeasureField(bool isAbs) 
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCouplingFieldDouble *field) const
 {
-  int nbnodes=getNumberOfNodes();
+  mcIdType nbnodes=getNumberOfNodes();
   int spaceDim=getSpaceDimension();
   MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); field->setArray(arr);
   if(nbnodes==0)
@@ -406,7 +407,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCoupling
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCouplingFieldDouble *field) const
 {
-  int nbcells=getNumberOfCells();
+  mcIdType nbcells=getNumberOfCells();
   int spaceDim=getSpaceDimension();
   if(spaceDim!=2 && spaceDim!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2 : with meshDim 2 only space dimension 2 and 3 are possible !");
@@ -414,13 +415,13 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCoupling
   arr->alloc(nbcells,1);
   double *pt=arr->getPointer();
   const double *coords=_coords->begin();
-  int nX=_structure[0]-1;
-  int conn[4];
-  for(int i=0;i<nbcells;i++,pt++)
+  mcIdType nX=_structure[0]-1;
+  mcIdType conn[4];
+  for(mcIdType i=0;i<nbcells;i++,pt++)
     {
-      int cy=i/nX,cx=i-cy*nX;
+      mcIdType cy=i/nX,cx=i-cy*nX;
       conn[0]=cy*(nX+1)+cx; conn[1]=(cy+1)*(nX+1)+cx; conn[2]=(cy+1)*(nX+1)+1+cx; conn[3]=cy*(nX+1)+cx+1;
-      *pt=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(INTERP_KERNEL::NORM_QUAD4,conn,4,coords,spaceDim);
+      *pt=INTERP_KERNEL::computeVolSurfOfCell2<mcIdType,INTERP_KERNEL::ALL_C_MODE>(INTERP_KERNEL::NORM_QUAD4,conn,4,coords,spaceDim);
     }
   if(isAbs)
     arr->abs();
@@ -432,7 +433,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCoupling
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3(bool isAbs, MEDCouplingFieldDouble *field) const
 {
-  int nbcells=getNumberOfCells();
+  mcIdType nbcells=getNumberOfCells();
   int spaceDim=getSpaceDimension();
   if(spaceDim!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3 : with meshDim 3 only space dimension 3 is possible !");
@@ -440,17 +441,17 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3(bool isAbs, MEDCoupling
   arr->alloc(nbcells,1);
   double *pt=arr->getPointer();
   const double *coords=_coords->begin();
-  int nX=_structure[0]-1,nY=(_structure[0]-1)*(_structure[1]-1);
-  int nY1=_structure[0]*_structure[1];
-  int conn[8];
-  for(int i=0;i<nbcells;i++,pt++)
+  mcIdType nX=_structure[0]-1,nY=(_structure[0]-1)*(_structure[1]-1);
+  mcIdType nY1=_structure[0]*_structure[1];
+  mcIdType conn[8];
+  for(mcIdType i=0;i<nbcells;i++,pt++)
     {
-      int cz=i/nY;
-      int cy=(i-cz*nY)/nX;
-      int cx=(i-cz*nY)-nX*cy;
+      mcIdType cz=i/nY;
+      mcIdType cy=(i-cz*nY)/nX;
+      mcIdType cx=(i-cz*nY)-nX*cy;
       conn[0]=cz*nY1+cy*(nX+1)+cx; conn[1]=cz*nY1+(cy+1)*(nX+1)+cx; conn[2]=cz*nY1+(cy+1)*(nX+1)+1+cx; conn[3]=cz*nY1+cy*(nX+1)+cx+1;
       conn[4]=(cz+1)*nY1+cy*(nX+1)+cx; conn[5]=(cz+1)*nY1+(cy+1)*(nX+1)+cx; conn[6]=(cz+1)*nY1+(cy+1)*(nX+1)+1+cx; conn[7]=(cz+1)*nY1+cy*(nX+1)+cx+1;
-      *pt=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(INTERP_KERNEL::NORM_HEXA8,conn,8,coords,3);
+      *pt=INTERP_KERNEL::computeVolSurfOfCell2<mcIdType,INTERP_KERNEL::ALL_C_MODE>(INTERP_KERNEL::NORM_HEXA8,conn,8,coords,3);
     }
   if(isAbs)
     arr->abs();
@@ -470,10 +471,10 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::buildOrthogonalField() const
     throw INTERP_KERNEL::Exception("Expected a cmesh with meshDim == 2 !");
   MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
   DataArrayDouble *array=DataArrayDouble::New();
-  int nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   array->alloc(nbOfCells,3);
   double *vals=array->getPointer();
-  for(int i=0;i<nbOfCells;i++)
+  for(mcIdType i=0;i<nbOfCells;i++)
     { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
   ret->setArray(array);
   array->decrRef();
@@ -491,31 +492,31 @@ namespace MEDCoupling
   public:
     static const int MY_SPACEDIM=SPACEDIMM;
     static const int MY_MESHDIM=8;
-    typedef int MyConnType;
+    typedef mcIdType MyConnType;
     static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
     // begin
     // useless, but for windows compilation ...
     const double* getCoordinatesPtr() const { return 0; }
-    const int* getConnectivityPtr() const { return 0; }
-    const int* getConnectivityIndexPtr() const { return 0; }
-    INTERP_KERNEL::NormalizedCellType getTypeOfElement(int) const { return (INTERP_KERNEL::NormalizedCellType)0; }
+    const mcIdType* getConnectivityPtr() const { return 0; }
+    const mcIdType* getConnectivityIndexPtr() const { return 0; }
+    INTERP_KERNEL::NormalizedCellType getTypeOfElement(mcIdType) const { return (INTERP_KERNEL::NormalizedCellType)0; }
     // end
   };
 }
 
 /// @endcond
 
-int MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double eps) const
+mcIdType MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double eps) const
 {
   checkConsistencyLight();
   int spaceDim=getSpaceDimension();
   const double *coords=_coords->getConstPointer();
-  int nodeId=-1;
+  mcIdType nodeId=-1;
   _coords->distanceToTuple(pos,pos+spaceDim,nodeId);
   if(nodeId<0)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getCellContainingPoint : internal problem 1 !");
-  int conn[8];
-  int nbOfNodes=getNumberOfNodes();
+  mcIdType conn[8];
+  mcIdType nbOfNodes=getNumberOfNodes();
   if(nbOfNodes==1)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getCellContainingPoint : No cells in this !");
   switch(getMeshDimension())
@@ -539,7 +540,7 @@ int MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double
     case 2:
       if(spaceDim==2)
         {
-          int ny=nodeId/_structure[0],nx=nodeId-ny*_structure[0];
+          mcIdType ny=nodeId/_structure[0],nx=nodeId-ny*_structure[0];
           if(nx>0 && ny>0)
             {
               conn[0]=nx-1+_structure[0]*(ny-1); conn[1]=nx-1+_structure[0]*ny; conn[2]=nx+_structure[0]*ny; conn[3]=nx+_structure[0]*(ny-1);
@@ -569,8 +570,8 @@ int MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double
       {
         if(spaceDim==3)
           {
-            int nY=_structure[0]*_structure[1];
-            int nz=nodeId/_structure[1]; int ny=(nodeId-nz*nY)/_structure[0]; int nx=(nodeId-nz*nY)-_structure[0]*ny;
+            mcIdType nY=_structure[0]*_structure[1];
+            mcIdType nz=nodeId/_structure[1]; mcIdType ny=(nodeId-nz*nY)/_structure[0]; mcIdType nx=(nodeId-nz*nY)-_structure[0]*ny;
             if(nx>0 && ny>0 && nz>0)
               {
                 conn[0]=nx-1+_structure[0]*(ny-1)+nY*(nz-1); conn[1]=nx-1+_structure[2]*ny+nY*(nz-1); conn[2]=nx+_structure[2]*ny+nY*(nz-1); conn[3]=nx+_structure[0]*(ny-1)+nY*(nz-1);
@@ -634,9 +635,9 @@ int MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double
   }
 }
 
-void MEDCouplingCurveLinearMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+void MEDCouplingCurveLinearMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<mcIdType>& elts) const
 {
-  int ret(getCellContainingPoint(pos,eps));
+  mcIdType ret(getCellContainingPoint(pos,eps));
   elts.push_back(ret);
 }
 
@@ -645,7 +646,7 @@ void MEDCouplingCurveLinearMesh::rotate(const double *center, const double *vect
   if(!((DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::rotate : no coordinates set !");
   int spaceDim=getSpaceDimension();
-  int nbNodes=_coords->getNumberOfTuples();
+  mcIdType nbNodes(_coords->getNumberOfTuples());
   double *coords=_coords->getPointer();
   if(spaceDim==3)
     DataArrayDouble::Rotate3DAlg(center,vector,angle,nbNodes,coords,coords);
@@ -664,9 +665,9 @@ void MEDCouplingCurveLinearMesh::translate(const double *vector)
   if(!((DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::translate : no coordinates set !");
   double *coords=_coords->getPointer();
-  int nbNodes=getNumberOfNodes();
+  mcIdType nbNodes=getNumberOfNodes();
   int dim=getSpaceDimension();
-  for(int i=0; i<nbNodes; i++)
+  for(mcIdType i=0; i<nbNodes; i++)
     for(int idim=0; idim<dim;idim++)
       coords[i*dim+idim]+=vector[idim];
   _coords->declareAsNew();
@@ -680,9 +681,9 @@ void MEDCouplingCurveLinearMesh::scale(const double *point, double factor)
   if(!((DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::scale : no coordinates set !");
   double *coords=_coords->getPointer();
-  int nbNodes=_coords->getNumberOfTuples();
-  int dim=_coords->getNumberOfComponents();
-  for(int i=0;i<nbNodes;i++)
+  mcIdType nbNodes(_coords->getNumberOfTuples());
+  std::size_t dim(_coords->getNumberOfComponents());
+  for(mcIdType i=0;i<nbNodes;i++)
     {
       std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::minus<double>());
       std::transform(coords+i*dim,coords+(i+1)*dim,coords+i*dim,std::bind2nd(std::multiplies<double>(),factor));
@@ -711,7 +712,7 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::computeCellCenterOfMass() const
   MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
   int meshDim=getMeshDimension();
-  int nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   ret->alloc(nbOfCells,spaceDim);
   ret->copyStringInfoFrom(*getCoords());
   switch(meshDim)
@@ -738,22 +739,22 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::computeIsoBarycenterOfNodesPerCell(
  */
 void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim3(DataArrayDouble *bary) const
 {
-  int nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   double *ptToFill=bary->getPointer();
   const double *coor=_coords->getConstPointer();
   if(getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim3 : with meshDim 3 only space dimension 3 is possible !");
-  int nX=_structure[0]-1,nY=(_structure[0]-1)*(_structure[1]-1);
-  int nY1=_structure[0]*_structure[1];
-  int conn[8];
-  for(int i=0;i<nbOfCells;i++)
+  mcIdType nX=_structure[0]-1,nY=(_structure[0]-1)*(_structure[1]-1);
+  mcIdType nY1=_structure[0]*_structure[1];
+  mcIdType conn[8];
+  for(mcIdType i=0;i<nbOfCells;i++)
     {
-      int cz=i/nY;
-      int cy=(i-cz*nY)/nX;
-      int cx=(i-cz*nY)-nX*cy;
+      mcIdType cz=i/nY;
+      mcIdType cy=(i-cz*nY)/nX;
+      mcIdType cx=(i-cz*nY)-nX*cy;
       conn[0]=cz*nY1+cy*(nX+1)+cx+1; conn[1]=cz*nY1+cy*(nX+1)+cx; conn[2]=cz*nY1+(cy+1)*(nX+1)+cx; conn[3]=cz*nY1+(cy+1)*(nX+1)+1+cx;
       conn[4]=(cz+1)*nY1+cy*(nX+1)+cx+1; conn[5]=(cz+1)*nY1+cy*(nX+1)+cx; conn[6]=(cz+1)*nY1+(cy+1)*(nX+1)+cx; conn[7]=(cz+1)*nY1+(cy+1)*(nX+1)+1+cx;
-      INTERP_KERNEL::computeBarycenter2<int,INTERP_KERNEL::ALL_C_MODE>(INTERP_KERNEL::NORM_HEXA8,conn,8,coor,3,ptToFill);
+      INTERP_KERNEL::computeBarycenter2<mcIdType,INTERP_KERNEL::ALL_C_MODE>(INTERP_KERNEL::NORM_HEXA8,conn,8,coor,3,ptToFill);
       ptToFill+=3;
     }
 }
@@ -764,19 +765,19 @@ void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim3(DataArrayDouble *
  */
 void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim2(DataArrayDouble *bary) const
 {
-  int nbcells=getNumberOfCells();
+  mcIdType nbcells=getNumberOfCells();
   int spaceDim=getSpaceDimension();
   double *ptToFill=bary->getPointer();
   const double *coor=_coords->getConstPointer();
   if(spaceDim!=2 && spaceDim!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim2 : with meshDim 2 only space dimension 2 and 3 are possible !");
-  int nX=_structure[0]-1;
-  int conn[4];
-  for(int i=0;i<nbcells;i++)
+  mcIdType nX=_structure[0]-1;
+  mcIdType conn[4];
+  for(mcIdType i=0;i<nbcells;i++)
     {
-      int cy=i/nX,cx=i-cy*nX;
+      mcIdType cy=i/nX,cx=i-cy*nX;
       conn[0]=cy*(nX+1)+cx; conn[1]=(cy+1)*(nX+1)+cx; conn[2]=(cy+1)*(nX+1)+1+cx; conn[3]=cy*(nX+1)+cx+1;
-      INTERP_KERNEL::computeBarycenter2<int,INTERP_KERNEL::ALL_C_MODE>(INTERP_KERNEL::NORM_QUAD4,conn,4,coor,spaceDim,ptToFill);
+      INTERP_KERNEL::computeBarycenter2<mcIdType,INTERP_KERNEL::ALL_C_MODE>(INTERP_KERNEL::NORM_QUAD4,conn,4,coor,spaceDim,ptToFill);
       ptToFill+=spaceDim;
     }
 }
@@ -792,12 +793,12 @@ void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim1(DataArrayDouble *
   std::transform(bary->begin(),bary->end(),bary->getPointer(),std::bind2nd(std::multiplies<double>(),0.5));
 }
 
-void MEDCouplingCurveLinearMesh::renumberCells(const int *old2NewBg, bool check)
+void MEDCouplingCurveLinearMesh::renumberCells(const mcIdType *old2NewBg, bool check)
 {
   throw INTERP_KERNEL::Exception("Functionality of renumbering cell not available for CurveLinear Mesh !");
 }
 
-void MEDCouplingCurveLinearMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+void MEDCouplingCurveLinearMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<mcIdType>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
   int it,order;
   double time=getTime(it,order);
@@ -815,10 +816,10 @@ void MEDCouplingCurveLinearMesh::getTinySerializationInformation(std::vector<dou
   //
   tinyInfo.push_back(it);
   tinyInfo.push_back(order);
-  tinyInfo.push_back((int)_structure.size());
-  for(std::vector<int>::const_iterator itt=_structure.begin();itt!=_structure.end();itt++)
+  tinyInfo.push_back(ToIdType(_structure.size()));
+  for(std::vector<mcIdType>::const_iterator itt=_structure.begin();itt!=_structure.end();itt++)
     tinyInfo.push_back(*itt);
-  std::vector<int> tinyInfo2;
+  std::vector<mcIdType> tinyInfo2;
   if((const DataArrayDouble *)_coords)
     _coords->getTinySerializationIntInformation(tinyInfo2);
   tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
@@ -826,21 +827,21 @@ void MEDCouplingCurveLinearMesh::getTinySerializationInformation(std::vector<dou
   tinyInfoD.push_back(time);
 }
 
-void MEDCouplingCurveLinearMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
+void MEDCouplingCurveLinearMesh::resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
   a1->alloc(tinyInfo[2],1);
-  std::vector<int> tinyInfo2(tinyInfo.begin()+3+tinyInfo[2],tinyInfo.end());
+  std::vector<mcIdType> tinyInfo2(tinyInfo.begin()+3+tinyInfo[2],tinyInfo.end());
   a2->resizeForUnserialization(tinyInfo2);
 }
 
-void MEDCouplingCurveLinearMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
+void MEDCouplingCurveLinearMesh::serialize(DataArrayIdType *&a1, DataArrayDouble *&a2) const
 {
-  a1=DataArrayInt::New();
-  a1->alloc((int)_structure.size(),1);
-  int *ptr=a1->getPointer();
-  for(std::vector<int>::const_iterator it=_structure.begin();it!=_structure.end();it++,ptr++)
+  a1=DataArrayIdType::New();
+  a1->alloc(_structure.size(),1);
+  mcIdType *ptr=a1->getPointer();
+  for(std::vector<mcIdType>::const_iterator it=_structure.begin();it!=_structure.end();it++,ptr++)
     *ptr=(*it);
-  int sz=0;
+  mcIdType sz=0;
   if((const DataArrayDouble *)_coords)
     if(_coords->isAllocated())
       sz=_coords->getNbOfElems();
@@ -850,21 +851,21 @@ void MEDCouplingCurveLinearMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&
     std::copy(_coords->begin(),_coords->end(),a2->getPointer());
 }
 
-void MEDCouplingCurveLinearMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+void MEDCouplingCurveLinearMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType *a1, DataArrayDouble *a2,
                                                  const std::vector<std::string>& littleStrings)
 {
   setName(littleStrings[0]);
   setDescription(littleStrings[1]);
   setTimeUnit(littleStrings[2]);
-  setTime(tinyInfoD[0],tinyInfo[0],tinyInfo[1]);
-  int sz=tinyInfo[2];
+  setTime(tinyInfoD[0],FromIdType<int>(tinyInfo[0]),FromIdType<int>(tinyInfo[1]));
+  mcIdType sz=tinyInfo[2];
   _structure.resize(sz);
-  for(int i=0;i<sz;i++)
+  for(mcIdType i=0;i<sz;i++)
     _structure[i]=tinyInfo[3+i];
-  if((int)tinyInfo.size()>sz+3)
+  if(ToIdType(tinyInfo.size())>sz+3)
     {
       _coords=DataArrayDouble::New();
-      std::vector<int> tinyInfo2(tinyInfo.begin()+3+sz,tinyInfo.end());
+      std::vector<mcIdType> tinyInfo2(tinyInfo.begin()+3+sz,tinyInfo.end());
       _coords->resizeForUnserialization(tinyInfo2);
       std::copy(a2->begin(),a2->end(),_coords->getPointer());
       std::vector<std::string> littleStrings2(littleStrings.begin()+3,littleStrings.end());
@@ -875,11 +876,11 @@ void MEDCouplingCurveLinearMesh::unserialization(const std::vector<double>& tiny
 void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
   std::ostringstream extent;
-  int meshDim=(int)_structure.size();
-  if(meshDim<=0 || meshDim>3)
+  std::size_t meshDim=_structure.size();
+  if(meshDim==0 || meshDim>3)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::writeVTKLL : meshDim invalid ! must be in [1,2,3] !");
-  for(int i=0;i<3;i++)
-    { int val=i<meshDim?_structure[i]-1:0; extent << "0 " <<  val << " "; }
+  for(std::size_t i=0;i<3;i++)
+    { mcIdType val=i<meshDim?_structure[i]-1:0; extent << "0 " <<  val << " "; }
   ofs << "  <" << getVTKDataSetType() << " WholeExtent=\"" << extent.str() << "\">\n";
   ofs << "    <Piece Extent=\"" << extent.str() << "\">\n";
   ofs << "      <PointData>\n" << pointData << std::endl;
@@ -903,11 +904,12 @@ void MEDCouplingCurveLinearMesh::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCouplingCurveLinearMesh C++ instance at " << this << ". Name : \"" << getName() << "\".";
   stream << " Nodal structure : [";
-  for(std::size_t i=0;i<_structure.size();i++)
+  std::size_t s_size=_structure.size();
+  for(std::size_t i=0;i<s_size;i++)
     {
-      char tmp='X'+i;
+      char tmp=(char)((int)('X')+i);
       stream << " " << tmp << "=" << _structure[i];
-      if(i!=_structure.size()-1)
+      if(i!=s_size-1)
         stream << ", ";
     }
   stream << " ].";
@@ -916,13 +918,13 @@ void MEDCouplingCurveLinearMesh::reprQuickOverview(std::ostream& stream) const
     { stream << std::endl << "No coordinates set !"; return ; }
   if(!coo->isAllocated())
     { stream << std::endl << "Coordinates set but not allocated !"; return ; }
-  int nbOfCompo(coo->getNumberOfComponents());
-  int nbOfCompoExp(-1);
+  std::size_t nbOfCompo(coo->getNumberOfComponents());
+  std::size_t nbOfCompoExp(-1);
   try
     {
       nbOfCompoExp=getSpaceDimension();
     }
-  catch(INTERP_KERNEL::Exception& e)
+  catch(INTERP_KERNEL::Exception&)
     {
     }
   if(nbOfCompo!=nbOfCompoExp)

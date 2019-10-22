@@ -507,7 +507,8 @@ namespace MEDCoupling
 
   PyObject *GetUMeshGlobalInfoSwig(const std::string& fileName, const std::string& meshName)
     {
-      int meshDim,spaceDim,numberOfNodes;
+      int meshDim,spaceDim;
+      mcIdType numberOfNodes;
       std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > res=MEDCoupling::GetUMeshGlobalInfo(fileName,meshName,meshDim,spaceDim,numberOfNodes);
       PyObject *ret=PyTuple_New(4);
       PyObject *elt0=PyList_New(res.size());
@@ -529,7 +530,7 @@ namespace MEDCoupling
       PyTuple_SetItem(ret,0,elt0);
       PyTuple_SetItem(ret,1,SWIG_From_int(meshDim));
       PyTuple_SetItem(ret,2,SWIG_From_int(spaceDim));
-      PyTuple_SetItem(ret,3,SWIG_From_int(numberOfNodes));
+      PyTuple_SetItem(ret,3,SWIG_From_long(numberOfNodes));
       return ret;
     }
   
@@ -565,9 +566,9 @@ namespace MEDCoupling
   PyObject *GetTypesOfFieldSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
     {
       std::vector< MEDCoupling::TypeOfField > v=MEDCoupling::GetTypesOfField(fileName,meshName,fieldName);
-      int size=v.size();
+      std::size_t size=v.size();
       PyObject *ret=PyList_New(size);
-      for(int i=0;i<size;i++)
+      for(std::size_t i=0;i<size;i++)
         PyList_SetItem(ret,i,PyInt_FromLong((int)v[i]));
       return ret;
     }
@@ -666,9 +667,9 @@ namespace MEDCoupling
   {
   public:
     static MEDFileJointCorrespondence *New();
-    static MEDFileJointCorrespondence *New(DataArrayInt* correspondence) // nodes
+    static MEDFileJointCorrespondence *New(DataArrayIdType* correspondence) // nodes
      ;
-    static MEDFileJointCorrespondence *New(DataArrayInt* correspondence,  // cells
+    static MEDFileJointCorrespondence *New(DataArrayIdType* correspondence,  // cells
                                            INTERP_KERNEL::NormalizedCellType loc_geo_type,
                                            INTERP_KERNEL::NormalizedCellType rem_geo_type)
      ;
@@ -682,7 +683,7 @@ namespace MEDCoupling
     INTERP_KERNEL::NormalizedCellType getLocalGeometryType() const;
     void setRemoteGeometryType(INTERP_KERNEL::NormalizedCellType type);
     INTERP_KERNEL::NormalizedCellType getRemoteGeometryType() const;
-    void setCorrespondence(DataArrayInt *corr);
+    void setCorrespondence(DataArrayIdType *corr);
     void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const;
     std::string simpleRepr() const;
     %extend
@@ -691,11 +692,11 @@ namespace MEDCoupling
       {
         return MEDFileJointCorrespondence::New();
       }
-      MEDFileJointCorrespondence(DataArrayInt* correspondence)
+      MEDFileJointCorrespondence(DataArrayIdType* correspondence)
       {
         return MEDFileJointCorrespondence::New(correspondence);
       }
-      MEDFileJointCorrespondence(DataArrayInt* correspondence,  // cells
+      MEDFileJointCorrespondence(DataArrayIdType* correspondence,  // cells
                                  INTERP_KERNEL::NormalizedCellType loc_geo_type,
                                  INTERP_KERNEL::NormalizedCellType rem_geo_type)
       {
@@ -707,12 +708,12 @@ namespace MEDCoupling
         return self->simpleRepr();
       }
       
-      DataArrayInt *getCorrespondence() const
+      DataArrayIdType *getCorrespondence() const
       {
-        const DataArrayInt *ret(self->getCorrespondence());
+        const DataArrayIdType *ret(self->getCorrespondence());
         if(ret)
           ret->incrRef();
-        return const_cast<DataArrayInt *>(ret);
+        return const_cast<DataArrayIdType *>(ret);
       }
     }
   };
@@ -907,12 +908,12 @@ namespace MEDCoupling
   private:
     MEDFileEquivalenceData();
   public:
-    void setArray(DataArrayInt *data);
+    void setArray(DataArrayInt32 *data);
     %extend
     {
-      DataArrayInt *getArray()
+      DataArrayInt32 *getArray()
       {
-        DataArrayInt *ret(self->getArray());
+        DataArrayInt32 *ret(self->getArray());
         if(ret) ret->incrRef();
         return ret;
       }
@@ -932,13 +933,13 @@ namespace MEDCoupling
   public:
     void clear();
     std::size_t size() const;
-    void setArray(int meshDimRelToMax, DataArrayInt *da);
-    void setArrayForType(INTERP_KERNEL::NormalizedCellType type, DataArrayInt *da);
+    void setArray(int meshDimRelToMax, DataArrayInt32 *da);
+    void setArrayForType(INTERP_KERNEL::NormalizedCellType type, DataArrayInt32 *da);
     %extend
     {
-      DataArrayInt *getArray(INTERP_KERNEL::NormalizedCellType type)
+      DataArrayInt32 *getArray(INTERP_KERNEL::NormalizedCellType type)
       {
-        DataArrayInt *ret(self->getArray(type));
+        DataArrayInt32 *ret(self->getArray(type));
         if(ret) ret->incrRef();
         return ret;
       }
@@ -964,7 +965,7 @@ namespace MEDCoupling
     void setName(const std::string& name);
     std::string getDescription() const;
     void setDescription(const std::string& descr);
-    void setArray(int meshDimRelToMaxExt, DataArrayInt *da);;
+    void setArray(int meshDimRelToMaxExt, DataArrayInt32 *da);;
     %extend
     {
       MEDFileEquivalenceCell *initCell()
@@ -1068,7 +1069,7 @@ namespace MEDCoupling
     virtual std::vector<int> getFamArrNonEmptyLevelsExt() const;
     virtual std::vector<int> getNumArrNonEmptyLevelsExt() const;
     virtual std::vector<int> getNameArrNonEmptyLevelsExt() const;
-    virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const;
+    virtual std::vector<mcIdType> getDistributionOfTypes(int meshDimRelToMax) const;
     virtual MEDFileMesh *cartesianize() const;
     std::vector<int> getNonEmptyLevels() const;
     std::vector<int> getNonEmptyLevelsExt() const;
@@ -1082,7 +1083,7 @@ namespace MEDCoupling
     void addFamily(const std::string& familyName, int id);
     void addFamilyOnGrp(const std::string& grpName, const std::string& famName);
     virtual void createGroupOnAll(int meshDimRelToMaxExt, const std::string& groupName);
-    virtual bool keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs);
+    virtual bool keepFamIdsOnlyOnLevs(const std::vector<mcIdType>& famIds, const std::vector<int>& levs);
     void copyFamGrpMapsFrom(const MEDFileMesh& other);
     void clearGrpMap();
     void clearFamMap();
@@ -1091,22 +1092,22 @@ namespace MEDCoupling
     const std::map<std::string, std::vector<std::string> >& getGroupInfo() const;
     std::vector<std::string> getFamiliesOnGroup(const std::string& name) const;
     std::vector<std::string> getFamiliesOnGroups(const std::vector<std::string>& grps) const;
-    std::vector<int> getFamiliesIdsOnGroup(const std::string& name) const;
+    std::vector<mcIdType> getFamiliesIdsOnGroup(const std::string& name) const;
     void setFamiliesOnGroup(const std::string& name, const std::vector<std::string>& fams);
-    void setFamiliesIdsOnGroup(const std::string& name, const std::vector<int>& famIds);
+    void setFamiliesIdsOnGroup(const std::string& name, const std::vector<mcIdType>& famIds);
     std::vector<std::string> getGroupsOnFamily(const std::string& name) const;
     void setGroupsOnFamily(const std::string& famName, const std::vector<std::string>& grps);
     std::vector<std::string> getGroupsNames() const;
     std::vector<std::string> getFamiliesNames() const;
     std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const;
-    std::vector<int> getGrpNonEmptyLevelsExt(const std::string& grp) const;
-    std::vector<int> getGrpNonEmptyLevels(const std::string& grp) const;
-    std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const;
-    std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const;
-    std::vector<int> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const;
-    std::vector<int> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const;
-    std::vector<int> getFamNonEmptyLevels(const std::string& fam) const;
-    std::vector<int> getFamNonEmptyLevelsExt(const std::string& fam) const;
+    std::vector<mcIdType> getGrpNonEmptyLevelsExt(const std::string& grp) const;
+    std::vector<mcIdType> getGrpNonEmptyLevels(const std::string& grp) const;
+    std::vector<mcIdType> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const;
+    std::vector<mcIdType> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const;
+    std::vector<mcIdType> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const;
+    std::vector<mcIdType> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const;
+    std::vector<mcIdType> getFamNonEmptyLevels(const std::string& fam) const;
+    std::vector<mcIdType> getFamNonEmptyLevelsExt(const std::string& fam) const;
     std::vector<std::string> getFamiliesNamesWithFilePointOfView() const;
     static std::string GetMagicFamilyStr();
     void assignFamilyNameWithGroupName();
@@ -1124,7 +1125,7 @@ namespace MEDCoupling
     void changeFamilyName(const std::string& oldName, const std::string& newName);
     void changeFamilyId(int oldId, int newId);
     void changeAllGroupsContainingFamily(const std::string& familyNameToChange, const std::vector<std::string>& newFamiliesNames);
-    void setFamilyInfo(const std::map<std::string,int>& info);
+    void setFamilyInfo(const std::map<std::string,mcIdType>& info);
     void setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
     int getFamilyId(const std::string& name) const;
     int getMaxAbsFamilyId() const;
@@ -1136,9 +1137,9 @@ namespace MEDCoupling
     virtual int getMaxAbsFamilyIdInArrays() const;
     virtual int getMaxFamilyIdInArrays() const;
     virtual int getMinFamilyIdInArrays() const;
-    DataArrayInt *getAllFamiliesIdsReferenced() const;
-    DataArrayInt *computeAllFamilyIdsInUse() const;
-    std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const;
+    DataArrayIdType *getAllFamiliesIdsReferenced() const;
+    DataArrayIdType *computeAllFamilyIdsInUse() const;
+    std::vector<mcIdType> getFamiliesIds(const std::vector<std::string>& famNames) const;
     std::string getFamilyNameGivenId(int id) const;
     bool ensureDifferentFamIdsPerLevel();
     void normalizeFamIdsTrio();
@@ -1148,20 +1149,20 @@ namespace MEDCoupling
     virtual std::string advancedRepr() const;
     //
     virtual MEDCouplingMesh *getMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
-    virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr);
-    virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr);
+    virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayIdType *famArr);
+    virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayIdType *renumArr);
     virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr);
-    virtual void setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayInt *globalNumArr);
-    virtual void addNodeGroup(const DataArrayInt *ids);
-    virtual void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids);
-    virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
-    virtual DataArrayInt *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const;
-    virtual DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const;
-    virtual DataArrayInt *getFamilyArr(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const;
-    virtual DataArrayInt *getNodeGroupArr(const std::string& grp, bool renum=false) const;
-    virtual DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const;
-    virtual DataArrayInt *getNodeFamilyArr(const std::string& fam, bool renum=false) const;
-    virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const;
+    virtual void setGlobalNumFieldAtLevel(int meshDimRelToMaxExt, DataArrayIdType *globalNumArr);
+    virtual void addNodeGroup(const DataArrayIdType *ids);
+    virtual void addGroup(int meshDimRelToMaxExt, const DataArrayIdType *ids);
+    virtual DataArrayIdType *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
+    virtual DataArrayIdType *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const;
+    virtual DataArrayIdType *getGroupArr(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const;
+    virtual DataArrayIdType *getFamilyArr(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const;
+    virtual DataArrayIdType *getNodeGroupArr(const std::string& grp, bool renum=false) const;
+    virtual DataArrayIdType *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const;
+    virtual DataArrayIdType *getNodeFamilyArr(const std::string& fam, bool renum=false) const;
+    virtual DataArrayIdType *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const;
     int getNumberOfJoints();
     MEDFileJoints *getJoints();
     void setJoints( MEDFileJoints* joints );
@@ -1206,8 +1207,8 @@ namespace MEDCoupling
 
          void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=false)
          {
-           std::vector<const DataArrayInt *> grps;
-           convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",grps);
+           std::vector<const DataArrayIdType *> grps;
+           convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayIdType *>(li,SWIGTITraits<mcIdType>::TI,"DataArrayInt",grps);
            self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
          }
          
@@ -1257,34 +1258,34 @@ namespace MEDCoupling
 
          PyObject *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const
          {
-           const DataArrayInt *tmp=self->getFamilyFieldAtLevel(meshDimRelToMaxExt);
+           const DataArrayIdType *tmp=self->getFamilyFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
              tmp->incrRef();
-           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
          }
 
          PyObject *getOrCreateAndGetFamilyFieldAtLevel(int meshDimRelToMaxExt)
          {
-           const DataArrayInt *tmp=self->getOrCreateAndGetFamilyFieldAtLevel(meshDimRelToMaxExt);
+           const DataArrayIdType *tmp=self->getOrCreateAndGetFamilyFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
              tmp->incrRef();
-           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
          }
 
          PyObject *getNumberFieldAtLevel(int meshDimRelToMaxExt) const
          {
-           const DataArrayInt *tmp=self->getNumberFieldAtLevel(meshDimRelToMaxExt);
+           const DataArrayIdType *tmp=self->getNumberFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
              tmp->incrRef();
-           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
          }
 
          PyObject *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const
          {
-           const DataArrayInt *tmp=self->getRevNumberFieldAtLevel(meshDimRelToMaxExt);
+           const DataArrayIdType *tmp=self->getRevNumberFieldAtLevel(meshDimRelToMaxExt);
            if(tmp)
              tmp->incrRef();
-           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
          }
          
          PyObject *getNameFieldAtLevel(int meshDimRelToMaxExt) const
@@ -1307,8 +1308,8 @@ namespace MEDCoupling
          
          PyObject *unPolyze()
          {
-           DataArrayInt *ret3=0;
-           std::vector<int> ret1,ret2;
+           DataArrayIdType *ret3=0;
+           std::vector<mcIdType> ret1,ret2;
            bool ret0=self->unPolyze(ret1,ret2,ret3);
            PyObject *ret=PyTuple_New(4);
            PyTuple_SetItem(ret,0,SWIG_From_bool(ret0));
@@ -1317,9 +1318,9 @@ namespace MEDCoupling
            for(int j=0;j<(int)ret1.size()/3;j++)
              {
                PyObject *retLev2=PyList_New(3);
-               PyList_SetItem(retLev2,0,SWIG_From_int(ret1[3*j]));
-               PyList_SetItem(retLev2,1,SWIG_From_int(ret1[3*j+1]));
-               PyList_SetItem(retLev2,2,SWIG_From_int(ret1[3*j+2]));
+               PyList_SetItem(retLev2,0,PyInt_FromLong(ret1[3*j]));
+               PyList_SetItem(retLev2,1,PyInt_FromLong(ret1[3*j+1]));
+               PyList_SetItem(retLev2,2,PyInt_FromLong(ret1[3*j+2]));
                PyList_SetItem(retLev1_0,j,retLev2);
              }
            PyTuple_SetItem(ret,1,retLev1_0);
@@ -1328,14 +1329,14 @@ namespace MEDCoupling
            for(int j=0;j<(int)ret2.size()/3;j++)
              {
                PyObject *retLev2=PyList_New(3);
-               PyList_SetItem(retLev2,0,SWIG_From_int(ret2[3*j]));
-               PyList_SetItem(retLev2,1,SWIG_From_int(ret2[3*j+1]));
-               PyList_SetItem(retLev2,2,SWIG_From_int(ret2[3*j+2]));
+               PyList_SetItem(retLev2,0,PyInt_FromLong(ret2[3*j]));
+               PyList_SetItem(retLev2,1,PyInt_FromLong(ret2[3*j+1]));
+               PyList_SetItem(retLev2,2,PyInt_FromLong(ret2[3*j+2]));
                PyList_SetItem(retLev1_1,j,retLev2);
              }
            PyTuple_SetItem(ret,2,retLev1_1);
            //
-           PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(ret3),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(ret3),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
            return ret;
          }
 
@@ -1346,9 +1347,9 @@ namespace MEDCoupling
            return ret;
          }
 
-         virtual DataArrayInt *getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const
+         virtual DataArrayIdType *getGlobalNumFieldAtLevel(int meshDimRelToMaxExt) const
          {
-           MCAuto<DataArrayInt> ret(self->getGlobalNumFieldAtLevel(meshDimRelToMaxExt));
+           MCAuto<DataArrayIdType> ret(self->getGlobalNumFieldAtLevel(meshDimRelToMaxExt));
            return ret.retn();
          }
        }
@@ -1374,7 +1375,7 @@ namespace MEDCoupling
     MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const;
     MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const;
     MEDCouplingUMesh *getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
-    DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const;
+    DataArrayIdType *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const;
     MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const;
     MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const;
     MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const;
@@ -1389,9 +1390,9 @@ namespace MEDCoupling
     void setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false);
     void optimizeFamilies();
-    DataArrayInt *zipCoords();
-    DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
-    DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    DataArrayIdType *zipCoords();
+    DataArrayIdType *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    DataArrayIdType *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const;
     MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const;
     MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;
@@ -1423,7 +1424,7 @@ namespace MEDCoupling
            return MEDFileUMesh::New();
          }
 
-         static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
+         static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<mcIdType>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
          {
            std::vector<int> typesCpp1;
            convertPyToNewIntArr3(types,typesCpp1);
@@ -1437,27 +1438,27 @@ namespace MEDCoupling
          PyObject *__getstate__()
          {
            std::vector<double> a0;
-           std::vector<int> a1;
+           std::vector<mcIdType> a1;
            std::vector<std::string> a2;
-           std::vector< MCAuto<DataArrayInt> > a3;
+           std::vector< MCAuto<DataArrayIdType> > a3;
            MCAuto<DataArrayDouble> a4;
            self->serialize(a0,a1,a2,a3,a4);
            PyObject *ret(PyTuple_New(5));
            PyTuple_SetItem(ret,0,convertDblArrToPyList2(a0));
            PyTuple_SetItem(ret,1,convertIntArrToPyList2(a1));
-           int sz(a2.size());
+           std::size_t sz(a2.size());
            PyObject *ret2(PyList_New(sz));
-           for(int i=0;i<sz;i++)
+           for(std::size_t i=0;i<sz;i++)
              PyList_SetItem(ret2,i,PyString_FromString(a2[i].c_str()));
            PyTuple_SetItem(ret,2,ret2);
            sz=a3.size();
            PyObject *ret3(PyList_New(sz));
-           for(int i=0;i<sz;i++)
+           for(std::size_t i=0;i<sz;i++)
              {
-               DataArrayInt *elt(a3[i]);
+               DataArrayIdType *elt(a3[i]);
                if(elt)
                  elt->incrRef();
-               PyList_SetItem(ret3,i,SWIG_NewPointerObj(SWIG_as_voidptr(elt),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+               PyList_SetItem(ret3,i,SWIG_NewPointerObj(SWIG_as_voidptr(elt),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
              }
            PyTuple_SetItem(ret,3,ret3);
            DataArrayDouble *ret4(a4);
@@ -1472,17 +1473,17 @@ namespace MEDCoupling
            static const char MSG[]="MEDFileUMesh.__setstate__ : expected input is a tuple of size 4 !";
            if(!PyTuple_Check(inp))
              throw INTERP_KERNEL::Exception(MSG);
-           int sz(PyTuple_Size(inp));
+           std::size_t sz(PyTuple_Size(inp));
            if(sz!=5)
              throw INTERP_KERNEL::Exception(MSG);
            std::vector<double> a0;
-           std::vector<int> a1;
+           std::vector<mcIdType> a1;
            std::vector<std::string> a2;
-           std::vector< MCAuto<DataArrayInt> > a3;
+           std::vector< MCAuto<DataArrayIdType> > a3;
            MCAuto<DataArrayDouble> a4;
            //
            PyObject *a0py(PyTuple_GetItem(inp,0)),*a1py(PyTuple_GetItem(inp,1)),*a2py(PyTuple_GetItem(inp,2));
-           int tmp(-1);
+           mcIdType tmp(-1);
            fillArrayWithPyListDbl3(a0py,tmp,a0);
            convertPyToNewIntArr3(a1py,a1);
            fillStringVector(a2py,a2);
@@ -1496,8 +1497,8 @@ namespace MEDCoupling
            if((DataArrayDouble *)a4)
              a4->incrRef();
            {
-             std::vector< DataArrayInt * > a3Tmp;
-             convertFromPyObjVectorOfObj<MEDCoupling::DataArrayInt *>(b0py,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",a3Tmp);
+             std::vector< DataArrayIdType * > a3Tmp;
+             convertFromPyObjVectorOfObj<MEDCoupling::DataArrayIdType *>(b0py,SWIGTITraits<mcIdType>::TI,"DataArrayInt",a3Tmp);
              std::size_t sz(a3Tmp.size());
              a3.resize(sz);
              for(std::size_t i=0;i<sz;i++)
@@ -1541,7 +1542,7 @@ namespace MEDCoupling
            DataArrayDouble *a,*a2;
            DataArrayDoubleTuple *aa,*aa2;
            std::vector<double> bb,bb2;
-           int sw;
+           mcIdType sw;
            const double *centerPtr(convertObjToPossibleCpp5_Safe(point,sw,val,a,aa,bb,msg,1,3,true));
            const double *vectorPtr(convertObjToPossibleCpp5_Safe(normalVector,sw,val2,a2,aa2,bb2,msg,1,3,true));
            MCAuto<MEDFileUMesh> ret(self->symmetry3DPlane(centerPtr,vectorPtr));
@@ -1558,20 +1559,20 @@ namespace MEDCoupling
 
          PyObject *getAllDistributionOfTypes() const
          {
-           std::vector< std::pair<int,int> > ret(self->getAllDistributionOfTypes());
+           std::vector< std::pair<int,mcIdType> > ret(self->getAllDistributionOfTypes());
            return convertVecPairIntToPy(ret);
          }
          
-         DataArrayInt *deduceNodeSubPartFromCellSubPart(PyObject *extractDef) const
+         DataArrayIdType *deduceNodeSubPartFromCellSubPart(PyObject *extractDef) const
          {
-           std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+           std::map<int, MCAuto<DataArrayIdType> > extractDefCpp;
            convertToMapIntDataArrayInt(extractDef,extractDefCpp);
            return self->deduceNodeSubPartFromCellSubPart(extractDefCpp);
          }
 
          MEDFileUMesh *extractPart(PyObject *extractDef) const
          {
-           std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+           std::map<int, MCAuto<DataArrayIdType> > extractDefCpp;
            convertToMapIntDataArrayInt(extractDef,extractDefCpp);
            return self->extractPart(extractDefCpp);
          }
@@ -1615,12 +1616,12 @@ namespace MEDCoupling
 
          PyObject *buildInnerBoundaryAlongM1Group(const std::string& grpNameM1)
          {
-           DataArrayInt *ret0=0,*ret1=0,*ret2=0;
+           DataArrayIdType *ret0=0,*ret1=0,*ret2=0;
            self->buildInnerBoundaryAlongM1Group(grpNameM1,ret0,ret1,ret2);
            PyObject *ret=PyTuple_New(3);
-           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-           PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(ret2),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(ret2),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
            return ret;
          }
          
@@ -1946,18 +1947,18 @@ namespace MEDCoupling
      {
        PyObject *getProfile(const std::string& pflName) const
        {
-         const DataArrayInt *ret=self->getProfile(pflName);
+         const DataArrayIdType *ret=self->getProfile(pflName);
          if(ret)
            ret->incrRef();
-         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
        }
 
        PyObject *getProfileFromId(int pflId) const
        {
-         const DataArrayInt *ret=self->getProfileFromId(pflId);
+         const DataArrayIdType *ret=self->getProfileFromId(pflId);
          if(ret)
            ret->incrRef();
-         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
        }
 
        PyObject *getLocalizationFromId(int locId) const
@@ -2148,24 +2149,24 @@ namespace MEDCoupling
         std::vector< std::vector<TypeOfField> > typesF;
         std::vector< std::vector<std::string> > pfls;
         std::vector< std::vector<std::string> > locs;
-        std::vector< std::vector< std::pair<int,int> > > ret=self->getFieldSplitedByType(mname,types,typesF,pfls,locs);
-        int sz=ret.size();
+        std::vector< std::vector< std::pair<mcIdType,mcIdType> > > ret=self->getFieldSplitedByType(mname,types,typesF,pfls,locs);
+        std::size_t sz=ret.size();
         PyObject *ret2=PyList_New(sz);
-           for(int i=0;i<sz;i++)
+           for(std::size_t i=0;i<sz;i++)
              {
-               const std::vector< std::pair<int,int> >& dadsI=ret[i];
+               const std::vector< std::pair<mcIdType,mcIdType> >& dadsI=ret[i];
                const std::vector<TypeOfField>& typesFI=typesF[i];
                const std::vector<std::string>& pflsI=pfls[i];
                const std::vector<std::string>& locsI=locs[i];
                PyObject *elt=PyTuple_New(2);
                PyTuple_SetItem(elt,0,SWIG_From_int(types[i]));
-               int sz2=ret[i].size();
+               std::size_t sz2=ret[i].size();
                PyObject *elt2=PyList_New(sz2);
-               for(int j=0;j<sz2;j++)
+               for(std::size_t j=0;j<sz2;j++)
                  {
                    PyObject *elt3=PyTuple_New(4);
                    PyTuple_SetItem(elt3,0,SWIG_From_int(typesFI[j]));
-                   PyObject *elt4=PyTuple_New(2); PyTuple_SetItem(elt4,0,SWIG_From_int(dadsI[j].first)); PyTuple_SetItem(elt4,1,SWIG_From_int(dadsI[j].second));
+                   PyObject *elt4=PyTuple_New(2); PyTuple_SetItem(elt4,0,PyInt_FromLong(dadsI[j].first)); PyTuple_SetItem(elt4,1,PyInt_FromLong(dadsI[j].second));
                    PyTuple_SetItem(elt3,1,elt4);
                    PyTuple_SetItem(elt3,2,PyString_FromString(pflsI[j].c_str()));
                    PyTuple_SetItem(elt3,3,PyString_FromString(locsI[j].c_str()));
@@ -2209,7 +2210,7 @@ namespace MEDCoupling
 
       MEDFileAnyTypeField1TS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const
       {
-        std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+        std::map<int, MCAuto<DataArrayIdType> > extractDefCpp;
         convertToMapIntDataArrayInt(extractDef,extractDefCpp);
         return self->extractPart(extractDefCpp,mm);
       }
@@ -2234,8 +2235,8 @@ namespace MEDCoupling
     MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field);
-    void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
-    void setFieldProfileFlatly(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    void setFieldProfileFlatly(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
     void setProfileNameOnLeaf(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newPflName, bool forceRenameOnGlob=false);
     void setLocNameOnLeaf(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newLocName, bool forceRenameOnGlob=false);
     %extend
@@ -2290,9 +2291,9 @@ namespace MEDCoupling
            std::vector< std::vector<std::string> > pfls;
            std::vector< std::vector<std::string> > locs;
            std::vector< std::vector<DataArrayDouble *> > ret=self->getFieldSplitedByType2(mname,types,typesF,pfls,locs);
-           int sz=ret.size();
+           std::size_t sz=ret.size();
            PyObject *ret2=PyList_New(sz);
-           for(int i=0;i<sz;i++)
+           for(std::size_t i=0;i<sz;i++)
              {
                const std::vector<DataArrayDouble *>& dadsI=ret[i];
                const std::vector<TypeOfField>& typesFI=typesF[i];
@@ -2300,9 +2301,9 @@ namespace MEDCoupling
                const std::vector<std::string>& locsI=locs[i];
                PyObject *elt=PyTuple_New(2);
                PyTuple_SetItem(elt,0,SWIG_From_int(types[i]));
-               int sz2=ret[i].size();
+               std::size_t sz2=ret[i].size();
                PyObject *elt2=PyList_New(sz2);
-               for(int j=0;j<sz2;j++)
+               for(std::size_t j=0;j<sz2;j++)
                  {
                    PyObject *elt3=PyTuple_New(4);
                    PyTuple_SetItem(elt3,0,SWIG_From_int(typesFI[j]));
@@ -2343,8 +2344,8 @@ namespace MEDCoupling
     MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldInt *field);
-    void setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
-    void setFieldProfileFlatly(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    void setFieldProfileFlatly(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
     void copyTimeInfoFrom(MEDCouplingFieldInt *mcf);
     MEDCouplingFieldInt *field(const MEDFileMesh *mesh) const;
     MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
@@ -2389,9 +2390,9 @@ namespace MEDCoupling
          return MEDFileField1TS_getFieldWithProfile<int>(self,type,meshDimRelToMax,mesh);
       }
       
-      DataArrayInt *getUndergroundDataArray() const
+      DataArrayInt32 *getUndergroundDataArray() const
       {
-        DataArrayInt *ret=self->getUndergroundDataArray();
+        DataArrayInt32 *ret=self->getUndergroundDataArray();
         if(ret)
           ret->incrRef();
         return ret;
@@ -2415,8 +2416,8 @@ namespace MEDCoupling
     MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldFloat *field);
-    void setFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
-    void setFieldProfileFlatly(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void setFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    void setFieldProfileFlatly(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
     void copyTimeInfoFrom(MEDCouplingFieldFloat *mcf);
     MEDCouplingFieldFloat *field(const MEDFileMesh *mesh) const;
     MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
@@ -2537,7 +2538,7 @@ namespace MEDCoupling
       {
         if(elt0 && PyInt_Check(elt0))
           {//fmts[3]
-            int pos=PyInt_AS_LONG(elt0);
+            int pos=(int)PyInt_AS_LONG(elt0);
             return pos;
           }
         else if(elt0 && PyTuple_Check(elt0))
@@ -2548,8 +2549,8 @@ namespace MEDCoupling
                 PyObject *o1=PyTuple_GetItem(elt0,1);
                 if(PyInt_Check(o0) && PyInt_Check(o1))
                   {//fmts(1,-1)
-                    int iter=PyInt_AS_LONG(o0);
-                    int order=PyInt_AS_LONG(o1);
+                    int iter=(int)PyInt_AS_LONG(o0);
+                    int order=(int)PyInt_AS_LONG(o1);
                     return self->getPosOfTimeStep(iter,order);
                   }
                 else
@@ -2621,24 +2622,24 @@ namespace MEDCoupling
         std::vector< std::vector<TypeOfField> > typesF;
         std::vector< std::vector<std::string> > pfls;
         std::vector< std::vector<std::string> > locs;
-        std::vector< std::vector< std::pair<int,int> > > ret=self->getFieldSplitedByType(iteration,order,mname,types,typesF,pfls,locs);
-        int sz=ret.size();
+        std::vector< std::vector< std::pair<mcIdType,mcIdType> > > ret=self->getFieldSplitedByType(iteration,order,mname,types,typesF,pfls,locs);
+        std::size_t sz=ret.size();
         PyObject *ret2=PyList_New(sz);
-        for(int i=0;i<sz;i++)
+        for(std::size_t i=0;i<sz;i++)
           {
-            const std::vector< std::pair<int,int> >& dadsI=ret[i];
+            const std::vector< std::pair<mcIdType,mcIdType> >& dadsI=ret[i];
             const std::vector<TypeOfField>& typesFI=typesF[i];
             const std::vector<std::string>& pflsI=pfls[i];
             const std::vector<std::string>& locsI=locs[i];
             PyObject *elt=PyTuple_New(2);
             PyTuple_SetItem(elt,0,SWIG_From_int(types[i]));
-            int sz2=ret[i].size();
+            std::size_t sz2=ret[i].size();
             PyObject *elt2=PyList_New(sz2);
-            for(int j=0;j<sz2;j++)
+            for(std::size_t j=0;j<sz2;j++)
               {
                 PyObject *elt3=PyTuple_New(4);
                 PyTuple_SetItem(elt3,0,SWIG_From_int(typesFI[j]));
-                PyObject *elt4=PyTuple_New(2); PyTuple_SetItem(elt4,0,SWIG_From_int(dadsI[j].first)); PyTuple_SetItem(elt4,1,SWIG_From_int(dadsI[j].second));
+                PyObject *elt4=PyTuple_New(2); PyTuple_SetItem(elt4,0,PyInt_FromLong(dadsI[j].first)); PyTuple_SetItem(elt4,1,PyInt_FromLong(dadsI[j].second));
                 PyTuple_SetItem(elt3,1,elt4);
                 PyTuple_SetItem(elt3,2,PyString_FromString(pflsI[j].c_str()));
                 PyTuple_SetItem(elt3,3,PyString_FromString(locsI[j].c_str()));
@@ -2654,9 +2655,9 @@ namespace MEDCoupling
       {
         if(PyList_Check(elts))
           {
-            int sz=PyList_Size(elts);
+            std::size_t sz=PyList_Size(elts);
             std::vector<int> ret(sz);
-            for(int i=0;i<sz;i++)
+            for(std::size_t i=0;i<sz;i++)
               {
                 PyObject *elt=PyList_GetItem(elts,i);
                 ret[i]=MEDCoupling_MEDFileAnyTypeFieldMultiTS_getTimeId(self,elt);
@@ -2677,7 +2678,7 @@ namespace MEDCoupling
           {
             Py_ssize_t strt=2,stp=2,step=2;
             GetIndicesOfSlice(elts,self->getNumberOfTS(),&strt,&stp,&step,"MEDFileAnyTypeFieldMultiTS.__delitem__ : error in input slice !");
-            self->eraseTimeStepIds2(strt,stp,step);
+            self->eraseTimeStepIds2((int)strt,(int)stp,(int)step);
           }
         else
           {
@@ -2689,10 +2690,10 @@ namespace MEDCoupling
       
       void eraseTimeStepIds(PyObject *li)
       {
-        int sw;
+        mcIdType sw;
         int pos1;
         std::vector<int> pos2;
-        DataArrayInt *pos3=0;
+        DataArrayInt32 *pos3=0;
         DataArrayIntTuple *pos4=0;
         convertIntStarLikePyObjToCpp(li,sw,pos1,pos2,pos3,pos4);
         switch(sw)
@@ -2728,10 +2729,10 @@ namespace MEDCoupling
       {
         if(elt0 && PyList_Check(elt0))
           {
-            int sz=PyList_Size(elt0);
-            MCAuto<DataArrayInt> da=DataArrayInt::New(); da->alloc(sz,1);
+            std::size_t sz=PyList_Size(elt0);
+            MCAuto<DataArrayInt32> da=DataArrayInt32::New(); da->alloc(sz,1);
             int *pt=da->getPointer();
-            for(int i=0;i<sz;i++,pt++)
+            for(std::size_t i=0;i<sz;i++,pt++)
               {
                 PyObject *elt1=PyList_GetItem(elt0,i);
                 *pt=MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(self,elt1);
@@ -2742,7 +2743,7 @@ namespace MEDCoupling
           {
             Py_ssize_t strt=2,stp=2,step=2;
             GetIndicesOfSlice(elt0,self->getNumberOfTS(),&strt,&stp,&step,"MEDFileAnyTypeFieldMultiTS.__getitem__ : error in input slice !");
-            return convertMEDFileFieldMultiTS(self->buildSubPartSlice(strt,stp,step),SWIG_POINTER_OWN | 0);
+            return convertMEDFileFieldMultiTS(self->buildSubPartSlice((int)strt,(int)stp,(int)step),SWIG_POINTER_OWN | 0);
           }
         else
           return convertMEDFileField1TS(self->getTimeStepAtPos(MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(self,elt0)),SWIG_POINTER_OWN | 0);
@@ -2802,7 +2803,7 @@ namespace MEDCoupling
 
       MEDFileAnyTypeFieldMultiTS *extractPart(PyObject *extractDef, MEDFileMesh *mm) const
       {
-        std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+        std::map<int, MCAuto<DataArrayIdType> > extractDefCpp;
         convertToMapIntDataArrayInt(extractDef,extractDefCpp);
         return self->extractPart(extractDefCpp,mm);
       }
@@ -2882,7 +2883,7 @@ namespace MEDCoupling
     MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field);
-    void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
     MEDFileIntFieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const;
     %extend
        {
@@ -2926,11 +2927,11 @@ namespace MEDCoupling
 
          PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const
          {
-           DataArrayInt *ret1=0;
+           DataArrayIdType *ret1=0;
            DataArrayDouble *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
            PyObject *ret=PyTuple_New(2);
            PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
-           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
            return ret;
          }
 
@@ -2941,9 +2942,9 @@ namespace MEDCoupling
            std::vector< std::vector<std::string> > pfls;
            std::vector< std::vector<std::string> > locs;
            std::vector< std::vector<DataArrayDouble *> > ret=self->getFieldSplitedByType2(iteration,order,mname,types,typesF,pfls,locs);
-           int sz=ret.size();
+           std::size_t sz=ret.size();
            PyObject *ret2=PyList_New(sz);
-           for(int i=0;i<sz;i++)
+           for(std::size_t i=0;i<sz;i++)
              {
                const std::vector<DataArrayDouble *>& dadsI=ret[i];
                const std::vector<TypeOfField>& typesFI=typesF[i];
@@ -2951,9 +2952,9 @@ namespace MEDCoupling
                const std::vector<std::string>& locsI=locs[i];
                PyObject *elt=PyTuple_New(2);
                PyTuple_SetItem(elt,0,SWIG_From_int(types[i]));
-               int sz2=ret[i].size();
+               std::size_t sz2=ret[i].size();
                PyObject *elt2=PyList_New(sz2);
-               for(int j=0;j<sz2;j++)
+               for(std::size_t j=0;j<sz2;j++)
                  {
                    PyObject *elt3=PyTuple_New(4);
                    PyTuple_SetItem(elt3,0,SWIG_From_int(typesFI[j]));
@@ -2977,7 +2978,7 @@ namespace MEDCoupling
          
          PyObject *getUndergroundDataArrayExt(int iteration, int order) const
          {
-           std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > elt1Cpp;
+           std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > > elt1Cpp;
            DataArrayDouble *elt0=self->getUndergroundDataArrayExt(iteration,order,elt1Cpp);
            if(elt0)
              elt0->incrRef();
@@ -2992,8 +2993,8 @@ namespace MEDCoupling
                PyTuple_SetItem(elt2,0,SWIG_From_int(elt1Cpp[i].first.first));
                PyTuple_SetItem(elt2,1,SWIG_From_int(elt1Cpp[i].first.second));
                PyObject *elt3=PyTuple_New(2);
-               PyTuple_SetItem(elt3,0,SWIG_From_int(elt1Cpp[i].second.first));
-               PyTuple_SetItem(elt3,1,SWIG_From_int(elt1Cpp[i].second.second));
+               PyTuple_SetItem(elt3,0,PyInt_FromLong(elt1Cpp[i].second.first));
+               PyTuple_SetItem(elt3,1,PyInt_FromLong(elt1Cpp[i].second.second));
                PyTuple_SetItem(elt1,0,elt2);
                PyTuple_SetItem(elt1,1,elt3);
                PyList_SetItem(elt,i,elt1);
@@ -3032,7 +3033,7 @@ namespace MEDCoupling
     static MEDFileIntFieldMultiTS *New(DataArrayByte *db);
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldInt *field);
-    void appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
     MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const;
     MEDCouplingFieldInt *field(int iteration, int order, const MEDFileMesh *mesh) const;
     MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
@@ -3076,17 +3077,17 @@ namespace MEDCoupling
 
       PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const
       {
-         DataArrayInt *ret1=0;
-         DataArrayInt *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
+         DataArrayIdType *ret1=0;
+         DataArrayInt32 *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
          PyObject *ret=PyTuple_New(2);
-         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<int>::TI, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
          return ret;
       }
 
-      DataArrayInt *getUndergroundDataArray(int iteration, int order) const
+      DataArrayInt32 *getUndergroundDataArray(int iteration, int order) const
       {
-        DataArrayInt *ret=self->getUndergroundDataArray(iteration,order);
+        DataArrayInt32 *ret=self->getUndergroundDataArray(iteration,order);
         if(ret)
           ret->incrRef();
         return ret;
@@ -3103,7 +3104,7 @@ namespace MEDCoupling
     static MEDFileFloatFieldMultiTS *New(DataArrayByte *db);
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldFloat *field);
-    void appendFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile);
+    void appendFieldProfile(const MEDCouplingFieldFloat *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
     MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const;
     MEDCouplingFieldFloat *field(int iteration, int order, const MEDFileMesh *mesh) const;
     MEDCouplingFieldFloat *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
@@ -3147,11 +3148,11 @@ namespace MEDCoupling
 
       PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const
       {
-         DataArrayInt *ret1=0;
+         DataArrayIdType *ret1=0;
          DataArrayFloat *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
          PyObject *ret=PyTuple_New(2);
          PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayFloat, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
          return ret;
       }
 
@@ -3320,10 +3321,10 @@ namespace MEDCoupling
          {
            if(obj && PyList_Check(obj))
              {
-               int sz=PyList_Size(obj);
+               std::size_t sz=PyList_Size(obj);
                MCAuto<DataArrayInt> da=DataArrayInt::New(); da->alloc(sz,1);
                int *pt=da->getPointer();
-               for(int i=0;i<sz;i++,pt++)
+               for(std::size_t i=0;i<sz;i++,pt++)
                  {
                    PyObject *elt1=PyList_GetItem(obj,i);
                    *pt=MEDFileFieldsgetitemSingleTS__(self,elt1);
@@ -3363,7 +3364,7 @@ namespace MEDCoupling
              throw INTERP_KERNEL::Exception(msg);
            if(PyInt_Check(elt0))
              {//fmts[3]
-               return PyInt_AS_LONG(elt0);
+               return (int)PyInt_AS_LONG(elt0);
              }
            return self->getPosFromFieldName(convertPyObjectToStr(elt0,msg));
          }
@@ -3372,9 +3373,9 @@ namespace MEDCoupling
          {
            if(PyList_Check(elts))
              {
-               int sz=PyList_Size(elts);
+               std::size_t sz=PyList_Size(elts);
                std::vector<int> ret(sz);
-               for(int i=0;i<sz;i++)
+               for(std::size_t i=0;i<sz;i++)
                  {
                    PyObject *elt=PyList_GetItem(elts,i);
                    ret[i]=MEDCoupling_MEDFileFields_getPosOfField(self,elt);
@@ -3402,7 +3403,7 @@ namespace MEDCoupling
              {
                Py_ssize_t strt=2,stp=2,step=2;
                GetIndicesOfSlice(elts,self->getNumberOfFields(),&strt,&stp,&step,"MEDFileFields.__delitem__ : error in input slice !");
-               self->destroyFieldsAtPos2(strt,stp,step);
+               self->destroyFieldsAtPos2((int)strt,(int)stp,(int)step);
              }
            else
              {
@@ -3414,7 +3415,7 @@ namespace MEDCoupling
 
          MEDFileFields *extractPart(PyObject *extractDef, MEDFileMesh *mm) const
          {
-           std::map<int, MCAuto<DataArrayInt> > extractDefCpp;
+           std::map<int, MCAuto<DataArrayIdType> > extractDefCpp;
            convertToMapIntDataArrayInt(extractDef,extractDefCpp);
            return self->extractPart(extractDefCpp,mm);
          }
@@ -3569,7 +3570,7 @@ namespace MEDCoupling
       
       void eraseTimeStepIds(PyObject *ids)
       {
-        int sw;
+        mcIdType sw;
         int pos1;
         std::vector<int> pos2;
         DataArrayInt *pos3=0;
@@ -3614,8 +3615,8 @@ namespace MEDCoupling
                 PyObject *o1=PyTuple_GetItem(elt0,1);
                 if(PyInt_Check(o0) && PyInt_Check(o1))
                   {//fmts(1,-1)
-                    int iter=PyInt_AS_LONG(o0);
-                    int order=PyInt_AS_LONG(o1);
+                    int iter=(int)PyInt_AS_LONG(o0);
+                    int order=(int)PyInt_AS_LONG(o1);
                     return self->getPosOfTimeStep(iter,order);
                   }
                 else
@@ -3645,9 +3646,9 @@ namespace MEDCoupling
       {
         if(PyList_Check(elts))
           {
-            int sz=PyList_Size(elts);
+            std::size_t sz=PyList_Size(elts);
             std::vector<int> ret(sz);
-            for(int i=0;i<sz;i++)
+            for(std::size_t i=0;i<sz;i++)
               {
                 PyObject *elt=PyList_GetItem(elts,i);
                 ret[i]=MEDCoupling_MEDFileParameterMultiTS_getTimeStepId(self,elt);
@@ -3935,7 +3936,7 @@ namespace MEDCoupling
   public:
     virtual MEDMeshMultiLev *prepare() const;
     DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
-    DataArrayInt *retrieveGlobalNodeIdsIfAny() const;
+    DataArrayIdType *retrieveGlobalNodeIdsIfAny() const;
   protected:
     ~MEDMeshMultiLev();
   public:
@@ -3943,52 +3944,52 @@ namespace MEDCoupling
     {
       PyObject *retrieveFamilyIdsOnCells() const
       {
-        DataArrayInt *famIds(0);
+        DataArrayIdType *famIds(0);
         bool isWithoutCopy(false);
         self->retrieveFamilyIdsOnCells(famIds,isWithoutCopy);
         PyObject *ret=PyTuple_New(2);
         PyObject *ret1Py=isWithoutCopy?Py_True:Py_False;
         Py_XINCREF(ret1Py);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(famIds),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(famIds),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
 
       PyObject *retrieveNumberIdsOnCells() const
       {
-        DataArrayInt *numIds(0);
+        DataArrayIdType *numIds(0);
         bool isWithoutCopy(false);
         self->retrieveNumberIdsOnCells(numIds,isWithoutCopy);
         PyObject *ret=PyTuple_New(2);
         PyObject *ret1Py=isWithoutCopy?Py_True:Py_False;
         Py_XINCREF(ret1Py);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(numIds),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(numIds),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
       
       PyObject *retrieveFamilyIdsOnNodes() const
       {
-        DataArrayInt *famIds(0);
+        DataArrayIdType *famIds(0);
         bool isWithoutCopy(false);
         self->retrieveFamilyIdsOnNodes(famIds,isWithoutCopy);
         PyObject *ret=PyTuple_New(2);
         PyObject *ret1Py=isWithoutCopy?Py_True:Py_False;
         Py_XINCREF(ret1Py);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(famIds),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(famIds),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
 
       PyObject *retrieveNumberIdsOnNodes() const
       {
-        DataArrayInt *numIds(0);
+        DataArrayIdType *numIds(0);
         bool isWithoutCopy(false);
         self->retrieveNumberIdsOnNodes(numIds,isWithoutCopy);
         PyObject *ret=PyTuple_New(2);
         PyObject *ret1Py=isWithoutCopy?Py_True:Py_False;
         Py_XINCREF(ret1Py);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(numIds),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(numIds),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
@@ -4014,7 +4015,7 @@ namespace MEDCoupling
      {
        PyObject *buildVTUArrays() const
        {
-         DataArrayDouble *coords(0); DataArrayByte *types(0); DataArrayInt *cellLocations(0),*cells(0),*faceLocations(0),*faces(0);
+         DataArrayDouble *coords(0); DataArrayByte *types(0); DataArrayIdType *cellLocations(0),*cells(0),*faceLocations(0),*faces(0);
          bool ncc(self->buildVTUArrays(coords,types,cellLocations,cells,faceLocations,faces));
          PyObject *ret0Py=ncc?Py_True:Py_False;
          Py_XINCREF(ret0Py);
@@ -4022,10 +4023,10 @@ namespace MEDCoupling
          PyTuple_SetItem(ret,0,ret0Py);
          PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(coords),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
          PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(types),SWIGTYPE_p_MEDCoupling__DataArrayByte, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(cellLocations),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(cells),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,5,SWIG_NewPointerObj(SWIG_as_voidptr(faceLocations),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,6,SWIG_NewPointerObj(SWIG_as_voidptr(faces),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(cellLocations),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(cells),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,5,SWIG_NewPointerObj(SWIG_as_voidptr(faceLocations),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,6,SWIG_NewPointerObj(SWIG_as_voidptr(faces),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
          return ret;
        }
      }
@@ -4072,7 +4073,7 @@ namespace MEDCoupling
       PyObject *buildVTUArrays() const
       {
         DataArrayDouble *ret0(0);
-        std::vector<int> ret1;
+        std::vector<mcIdType> ret1;
         bool ret2;
         self->buildVTUArrays(ret0,ret1,ret2);
         std::size_t sz(ret1.size());
@@ -4080,7 +4081,7 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
         PyObject *ret1Py=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
-          PyList_SetItem(ret1Py,i,SWIG_From_int(ret1[i]));
+          PyList_SetItem(ret1Py,i,PyInt_FromLong(ret1[i]));
         PyTuple_SetItem(ret,1,ret1Py);
         PyObject *ret2Py(ret2?Py_True:Py_False);
         Py_XINCREF(ret2Py);

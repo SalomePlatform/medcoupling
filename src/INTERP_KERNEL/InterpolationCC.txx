@@ -74,15 +74,15 @@ namespace INTERP_KERNEL
    */
   //================================================================================
 
-  template <class MyMeshType, class MatrixType, int dim>
+  template <class MyMeshType, int dim, class MatrixType, class ConnType>
   void fillMatrix(const std::list< Interference >  inter_of_axis[dim],
                   MatrixType&                      result,
-                  const int                        src_nb_cells[dim],
-                  const int                        tgt_nb_cells[dim],
-                  const int                        src_i_cell = 0,
-                  const int                        tgt_i_cell = 0,
-                  const int                        src_prev_area = 1,
-                  const int                        tgt_prev_area = 1,
+                  const ConnType                   src_nb_cells[dim],
+                  const ConnType                   tgt_nb_cells[dim],
+                  const ConnType                   src_i_cell = 0,
+                  const ConnType                   tgt_i_cell = 0,
+                  const ConnType                   src_prev_area = 1,
+                  const ConnType                   tgt_prev_area = 1,
                   const int                        axis = 0,
                   const double                     prev_value = 1.0)
   {
@@ -92,29 +92,29 @@ namespace INTERP_KERNEL
     {
       for ( TIntIterator i = inter_of_axis[axis].begin(); i != inter_of_axis[axis].end(); ++i )
       {
-        double value = i->_length * prev_value;
-        int src_i    = i->_src_index * src_prev_area + src_i_cell;
-        int tgt_i    = i->_tgt_index * tgt_prev_area + tgt_i_cell;
+        double   value = i->_length * prev_value;
+        ConnType src_i = i->_src_index * src_prev_area + src_i_cell;
+        ConnType tgt_i = i->_tgt_index * tgt_prev_area + tgt_i_cell;
 
         result[ tgt_i ].insert( std::make_pair( _TMI( src_i ), value ));
       }
     }
     else
     {
-      int src_prev_area_next = src_prev_area * src_nb_cells[ axis ];
-      int tgt_prev_area_next = tgt_prev_area * tgt_nb_cells[ axis ];
+      ConnType src_prev_area_next = src_prev_area * src_nb_cells[ axis ];
+      ConnType tgt_prev_area_next = tgt_prev_area * tgt_nb_cells[ axis ];
 
       for ( TIntIterator i = inter_of_axis[axis].begin(); i != inter_of_axis[axis].end(); ++i )
       {
-        double value = i->_length * prev_value;
-        int src_i    = i->_src_index * src_prev_area + src_i_cell;
-        int tgt_i    = i->_tgt_index * tgt_prev_area + tgt_i_cell;
+        double   value = i->_length * prev_value;
+        ConnType src_i = i->_src_index * src_prev_area + src_i_cell;
+        ConnType tgt_i = i->_tgt_index * tgt_prev_area + tgt_i_cell;
 
         // call for the next axis
-        fillMatrix<MyMeshType, MatrixType, dim>(inter_of_axis, result,
-                                                src_nb_cells, tgt_nb_cells, src_i, tgt_i,
-                                                src_prev_area_next, tgt_prev_area_next,
-                                                axis+1, value );
+        fillMatrix<MyMeshType, dim>(inter_of_axis, result,
+                                    src_nb_cells, tgt_nb_cells, src_i, tgt_i,
+                                    src_prev_area_next, tgt_prev_area_next,
+                                    axis+1, value );
       }
     }
   }
@@ -141,7 +141,7 @@ namespace INTERP_KERNEL
   //================================================================================
 
   template<class MyMeshType, class MatrixType>
-  int InterpolationCC::interpolateMeshes(const MyMeshType& src_mesh,
+  typename MyMeshType::MyConnType InterpolationCC::interpolateMeshes(const MyMeshType& src_mesh,
                                          const MyMeshType& tgt_mesh,
                                          MatrixType&       result,
                                          const char *      method)
@@ -152,7 +152,8 @@ namespace INTERP_KERNEL
     // create empty maps for all target elements
     result.resize( tgt_mesh.getNumberOfElements() );
 
-    const int ret = src_mesh.getNumberOfElements();
+    typedef typename MyMeshType::MyConnType ConnType;
+    const ConnType ret = src_mesh.getNumberOfElements();
 
     const double eps = getPrecision();
     const int dim = MyMeshType::MY_MESHDIM;
@@ -160,14 +161,15 @@ namespace INTERP_KERNEL
 
     const double* src_coords[ dim ];
     const double* tgt_coords[ dim ];
-    int src_nb_cells[ dim ];
-    int tgt_nb_cells[ dim ];
+    ConnType src_nb_cells[ dim ];
+    ConnType tgt_nb_cells[ dim ];
     for ( int j = 0; j < dim; ++j )
     {
-      src_coords[ j ] = src_mesh.getCoordsAlongAxis( _TMI( j ));
-      tgt_coords[ j ] = tgt_mesh.getCoordsAlongAxis( _TMI( j ));
-      src_nb_cells[ j ] = src_mesh.nbCellsAlongAxis( _TMI( j ));
-      tgt_nb_cells[ j ] = tgt_mesh.nbCellsAlongAxis( _TMI( j ));
+      int axis = static_cast<int>( _TMI( j ));
+      src_coords[ j ] = src_mesh.getCoordsAlongAxis( axis );
+      tgt_coords[ j ] = tgt_mesh.getCoordsAlongAxis( axis );
+      src_nb_cells[ j ] = src_mesh.nbCellsAlongAxis( axis );
+      tgt_nb_cells[ j ] = tgt_mesh.nbCellsAlongAxis( axis );
     }
     
     // ============================================
@@ -235,15 +237,15 @@ namespace INTERP_KERNEL
     switch ( dim )
     {
     case 3:
-      fillMatrix<MyMeshType,MatrixType,3>( interferences, result, src_nb_cells,tgt_nb_cells );
+      fillMatrix<MyMeshType,3>( interferences, result, src_nb_cells,tgt_nb_cells );
       break;
 
     case 2:
-      fillMatrix<MyMeshType,MatrixType,2>( interferences, result, src_nb_cells,tgt_nb_cells );
+      fillMatrix<MyMeshType,2>( interferences, result, src_nb_cells,tgt_nb_cells );
       break;
 
     case 1:
-      fillMatrix<MyMeshType,MatrixType,1>( interferences, result, src_nb_cells,tgt_nb_cells );
+      fillMatrix<MyMeshType,1>( interferences, result, src_nb_cells,tgt_nb_cells );
       break;
     }
 

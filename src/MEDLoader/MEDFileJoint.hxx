@@ -39,8 +39,8 @@ class MEDFileJointCorrespondence : public RefCountObject, public MEDFileWritable
 {
 public:
   MEDLOADER_EXPORT static MEDFileJointCorrespondence *New();
-  MEDLOADER_EXPORT static MEDFileJointCorrespondence *New(DataArrayInt* correspondence); // nodes
-  MEDLOADER_EXPORT static MEDFileJointCorrespondence *New(DataArrayInt* correspondence,  // cells
+  MEDLOADER_EXPORT static MEDFileJointCorrespondence *New(DataArrayIdType* correspondence); // nodes
+  MEDLOADER_EXPORT static MEDFileJointCorrespondence *New(DataArrayIdType* correspondence,  // cells
                                                           INTERP_KERNEL::NormalizedCellType loc_geo_type,
                                                           INTERP_KERNEL::NormalizedCellType rem_geo_type);
   MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -54,15 +54,15 @@ public:
   MEDLOADER_EXPORT INTERP_KERNEL::NormalizedCellType getLocalGeometryType() const { return _loc_geo_type; }
   MEDLOADER_EXPORT void setRemoteGeometryType(INTERP_KERNEL::NormalizedCellType type) { _rem_geo_type=type; }
   MEDLOADER_EXPORT INTERP_KERNEL::NormalizedCellType getRemoteGeometryType() const { return _rem_geo_type; }
-  MEDLOADER_EXPORT void setCorrespondence(DataArrayInt *corr);
-  MEDLOADER_EXPORT const DataArrayInt *getCorrespondence() const { return _correspondence; }
+  MEDLOADER_EXPORT void setCorrespondence(DataArrayIdType *corr);
+  MEDLOADER_EXPORT const DataArrayIdType *getCorrespondence() const { return _correspondence; }
   MEDLOADER_EXPORT void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const;
 
   MEDLOADER_EXPORT std::string simpleRepr() const;
   MEDLOADER_EXPORT void writeLL(med_idt fid, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const;
 private:
   MEDFileJointCorrespondence();
-  MEDFileJointCorrespondence(DataArrayInt*                     correspondence,
+  MEDFileJointCorrespondence(DataArrayIdType*                     correspondence,
                              bool                              is_nodal = true,
                              INTERP_KERNEL::NormalizedCellType loc_geo_type = INTERP_KERNEL::NORM_ERROR,
                              INTERP_KERNEL::NormalizedCellType rem_geo_type = INTERP_KERNEL::NORM_ERROR);
@@ -70,7 +70,7 @@ private:
   bool                                           _is_nodal;
   INTERP_KERNEL::NormalizedCellType              _loc_geo_type;
   INTERP_KERNEL::NormalizedCellType              _rem_geo_type;
-  MCAuto<DataArrayInt> _correspondence;
+  MCAuto<DataArrayIdType> _correspondence;
 };
 
 /*!

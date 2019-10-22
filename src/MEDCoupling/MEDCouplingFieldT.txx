@@ -228,7 +228,7 @@ namespace MEDCoupling
    *  \endif
    */
   template<class T>
-  void MEDCouplingFieldT<T>::renumberCells(const int *old2NewBg, bool check)
+  void MEDCouplingFieldT<T>::renumberCells(const mcIdType *old2NewBg, bool check)
   {
     renumberCellsWithoutMesh(old2NewBg,check);
     MCAuto<MEDCouplingMesh> m(_mesh->deepCopy());
@@ -259,7 +259,7 @@ namespace MEDCoupling
    *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
    */
   template<class T>
-  void MEDCouplingFieldT<T>::renumberCellsWithoutMesh(const int *old2NewBg, bool check)
+  void MEDCouplingFieldT<T>::renumberCellsWithoutMesh(const mcIdType *old2NewBg, bool check)
   {
     if(!_mesh)
       throw INTERP_KERNEL::Exception("Expecting a defined mesh to be able to operate a renumbering !");
@@ -368,10 +368,10 @@ namespace MEDCoupling
       {
         if(getArray()->isAllocated())
           {
-            int nbOfCompo=getArray()->getNumberOfComponents();
+            std::size_t nbOfCompo=getArray()->getNumberOfComponents();
             ret << Traits<T>::FieldTypeName << " default array has " << nbOfCompo << " components and " << getArray()->getNumberOfTuples() << " tuples.\n";
             ret << Traits<T>::FieldTypeName << " default array has following info on components : ";
-            for(int i=0;i<nbOfCompo;i++)
+            for(std::size_t i=0;i<nbOfCompo;i++)
               ret << "\"" << getArray()->getInfoOnComponent(i) << "\" ";
             ret << "\n";
           }
@@ -397,7 +397,7 @@ namespace MEDCoupling
         nat=MEDCouplingNatureOfField::GetRepr(_nature);
         stream << "Nature of field : " << nat << ".\n";
       }
-    catch(INTERP_KERNEL::Exception& e)
+    catch(INTERP_KERNEL::Exception&)
       {  }
     const MEDCouplingFieldDiscretization *fd(_type);
     if(!fd)
@@ -474,13 +474,13 @@ namespace MEDCoupling
    * \sa MEDCoupling::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const, MEDCouplingFieldDouble::buildSubPartRange
    */
   template<class T>
-  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPart(const int *partBg, const int *partEnd) const
+  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPart(const mcIdType *partBg, const mcIdType *partEnd) const
   {
     if(_type.isNull())
       throw INTERP_KERNEL::Exception("MEDCouplingFieldT::buildSubPart : Expecting a not NULL spatial discretization !");
-    DataArrayInt *arrSelect;
+    DataArrayIdType *arrSelect;
     MCAuto<MEDCouplingMesh> m=_type->buildSubMeshData(_mesh,partBg,partEnd,arrSelect);
-    MCAuto<DataArrayInt> arrSelect2(arrSelect);
+    MCAuto<DataArrayIdType> arrSelect2(arrSelect);
     MCAuto< typename Traits<T>::FieldType > ret(clone(false));//quick shallow copy.
     const MEDCouplingFieldDiscretization *disc=getDiscretization();
     if(disc)
@@ -490,8 +490,8 @@ namespace MEDCoupling
     timeDiscrSafe()->getArrays(arrays);
     std::vector<typename Traits<T>::ArrayType *> arrs;
     std::vector< MCAuto< typename Traits<T>::ArrayType > > arrsSafe;
-    const int *arrSelBg=arrSelect->begin();
-    const int *arrSelEnd=arrSelect->end();
+    const mcIdType *arrSelBg=arrSelect->begin();
+    const mcIdType *arrSelEnd=arrSelect->end();
     for(typename std::vector<typename Traits<T>::ArrayType *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
       {
         typename Traits<T>::ArrayType *arr(0);
@@ -534,7 +534,7 @@ namespace MEDCoupling
    *  \sa MEDCouplingFieldDouble::buildSubPartRange
    */
   template<class T>
-  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPart(const DataArrayInt *part) const
+  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPart(const DataArrayIdType *part) const
   {
     if(part==0)
       throw INTERP_KERNEL::Exception("MEDCouplingFieldT::buildSubPart : not empty array must be passed to this method !");
@@ -548,14 +548,14 @@ namespace MEDCoupling
    * \sa MEDCouplingFieldDouble::buildSubPart
    */
   template<class T>
-  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPartRange(int begin, int end, int step) const
+  typename Traits<T>::FieldType *MEDCouplingFieldT<T>::buildSubPartRange(mcIdType begin, mcIdType end, mcIdType step) const
   {
     if(_type.isNull())
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : Expecting a not NULL spatial discretization !");
-    DataArrayInt *arrSelect;
-    int beginOut,endOut,stepOut;
+    DataArrayIdType *arrSelect;
+    mcIdType beginOut,endOut,stepOut;
     MCAuto<MEDCouplingMesh> m(_type->buildSubMeshDataRange(_mesh,begin,end,step,beginOut,endOut,stepOut,arrSelect));
-    MCAuto<DataArrayInt> arrSelect2(arrSelect);
+    MCAuto<DataArrayIdType> arrSelect2(arrSelect);
     MCAuto< typename Traits<T>::FieldType > ret(clone(false));//quick shallow copy.
     const MEDCouplingFieldDiscretization *disc=getDiscretization();
     if(disc)
@@ -572,8 +572,8 @@ namespace MEDCoupling
           {
             if(arrSelect)
               {
-                const int *arrSelBg=arrSelect->begin();
-                const int *arrSelEnd=arrSelect->end();
+                const mcIdType *arrSelBg=arrSelect->begin();
+                const mcIdType *arrSelEnd=arrSelect->end();
                 arr=(*iter)->selectByTupleIdSafe(arrSelBg,arrSelEnd);
               }
             else
@@ -619,19 +619,19 @@ namespace MEDCoupling
    * @param tinyInfo out parameter resized correctly after the call. The length of this vector is tiny.
    */
   template<class T>
-  void MEDCouplingFieldT<T>::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+  void MEDCouplingFieldT<T>::getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const
   {
     if(_type.isNull())
       throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform getTinySerializationIntInformation !");
     tinyInfo.clear();
-    tinyInfo.push_back((int)_type->getEnum());
-    tinyInfo.push_back((int)timeDiscrSafe()->getEnum());
-    tinyInfo.push_back((int)_nature);
+    tinyInfo.push_back(ToIdType(_type->getEnum()));
+    tinyInfo.push_back(ToIdType(timeDiscrSafe()->getEnum()));
+    tinyInfo.push_back(ToIdType(_nature));
     timeDiscrSafe()->getTinySerializationIntInformation(tinyInfo);
-    std::vector<int> tinyInfo2;
+    std::vector<mcIdType> tinyInfo2;
     _type->getTinySerializationIntInformation(tinyInfo2);
     tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
-    tinyInfo.push_back((int)tinyInfo2.size());
+    tinyInfo.push_back(ToIdType(tinyInfo2.size()));
   }
 
   /*!
@@ -660,18 +660,18 @@ namespace MEDCoupling
    * \sa checkForUnserialization
    */
   template<class T>
-  void MEDCouplingFieldT<T>::resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays)
+  void MEDCouplingFieldT<T>::resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, DataArrayIdType *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays)
   {
     if(_type.isNull())
       throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform resizeForUnserialization !");
     dataInt=0;
-    std::vector<int> tinyInfoITmp(tinyInfoI);
-    int sz=tinyInfoITmp.back();
+    std::vector<mcIdType> tinyInfoITmp(tinyInfoI);
+    mcIdType sz=tinyInfoITmp.back();
     tinyInfoITmp.pop_back();
-    std::vector<int> tinyInfoITmp2(tinyInfoITmp.begin(),tinyInfoITmp.end()-sz);
-    std::vector<int> tinyInfoI2(tinyInfoITmp2.begin()+3,tinyInfoITmp2.end());
+    std::vector<mcIdType> tinyInfoITmp2(tinyInfoITmp.begin(),tinyInfoITmp.end()-sz);
+    std::vector<mcIdType> tinyInfoI2(tinyInfoITmp2.begin()+3,tinyInfoITmp2.end());
     timeDiscrSafe()->resizeForUnserialization(tinyInfoI2,arrays);
-    std::vector<int> tinyInfoITmp3(tinyInfoITmp.end()-sz,tinyInfoITmp.end());
+    std::vector<mcIdType> tinyInfoITmp3(tinyInfoITmp.end()-sz,tinyInfoITmp.end());
     _type->resizeForUnserialization(tinyInfoITmp3,dataInt);
   }
 
@@ -681,29 +681,29 @@ namespace MEDCoupling
    * \sa resizeForUnserialization
    */
   template<class T>
-  void MEDCouplingFieldT<T>::checkForUnserialization(const std::vector<int>& tinyInfoI, const DataArrayInt *dataInt, const std::vector<typename Traits<T>::ArrayType *>& arrays)
+  void MEDCouplingFieldT<T>::checkForUnserialization(const std::vector<mcIdType>& tinyInfoI, const DataArrayIdType *dataInt, const std::vector<typename Traits<T>::ArrayType *>& arrays)
   {
     if(_type.isNull())
       throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform resizeForUnserialization !");
-    std::vector<int> tinyInfoITmp(tinyInfoI);
-    int sz=tinyInfoITmp.back();
+    std::vector<mcIdType> tinyInfoITmp(tinyInfoI);
+    mcIdType sz=tinyInfoITmp.back();
     tinyInfoITmp.pop_back();
-    std::vector<int> tinyInfoITmp2(tinyInfoITmp.begin(),tinyInfoITmp.end()-sz);
-    std::vector<int> tinyInfoI2(tinyInfoITmp2.begin()+3,tinyInfoITmp2.end());
+    std::vector<mcIdType> tinyInfoITmp2(tinyInfoITmp.begin(),tinyInfoITmp.end()-sz);
+    std::vector<mcIdType> tinyInfoI2(tinyInfoITmp2.begin()+3,tinyInfoITmp2.end());
     timeDiscrSafe()->checkForUnserialization(tinyInfoI2,arrays);
-    std::vector<int> tinyInfoITmp3(tinyInfoITmp.end()-sz,tinyInfoITmp.end());
+    std::vector<mcIdType> tinyInfoITmp3(tinyInfoITmp.end()-sz,tinyInfoITmp.end());
     _type->checkForUnserialization(tinyInfoITmp3,dataInt);
   }
 
   template<class T>
-  void MEDCouplingFieldT<T>::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+  void MEDCouplingFieldT<T>::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
   {
     if(_type.isNull())
       throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform finishUnserialization !");
-    std::vector<int> tinyInfoI2(tinyInfoI.begin()+3,tinyInfoI.end());
+    std::vector<mcIdType> tinyInfoI2(tinyInfoI.begin()+3,tinyInfoI.end());
     //
     std::vector<double> tmp(tinyInfoD);
-    int sz=(int)tinyInfoD.back();//very bad, lack of time to improve it
+    mcIdType sz=ToIdType(tinyInfoD.back());//very bad, lack of time to improve it
     tmp.pop_back();
     std::vector<double> tmp1(tmp.begin(),tmp.end()-sz);
     std::vector<double> tmp2(tmp.end()-sz,tmp.end());
@@ -711,7 +711,7 @@ namespace MEDCoupling
     timeDiscrSafe()->finishUnserialization(tinyInfoI2,tmp1,tinyInfoS);
     _nature=(NatureOfField)tinyInfoI[2];
     _type->finishUnserialization(tmp2);
-    int nbOfElemS=(int)tinyInfoS.size();
+    std::size_t nbOfElemS=tinyInfoS.size();
     _name=tinyInfoS[nbOfElemS-3];
     _desc=tinyInfoS[nbOfElemS-2];
     setTimeUnit(tinyInfoS[nbOfElemS-1]);
@@ -722,7 +722,7 @@ namespace MEDCoupling
    * The values returned must be consulted only in readonly mode.
    */
   template<class T>
-  void MEDCouplingFieldT<T>::serialize(DataArrayInt *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays) const
+  void MEDCouplingFieldT<T>::serialize(DataArrayIdType *&dataInt, std::vector<typename Traits<T>::ArrayType *>& arrays) const
   {
     if(_type.isNull())
       throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform serialize !");

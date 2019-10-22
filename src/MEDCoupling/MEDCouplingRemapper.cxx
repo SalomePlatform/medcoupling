@@ -94,17 +94,17 @@ int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const ME
     return prepareNotInterpKernelOnly();
 }
 
-void MEDCouplingRemapper::setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<int,double> >& m)
+void MEDCouplingRemapper::setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<mcIdType,double> >& m)
 {
   MCAuto<MEDCouplingFieldTemplate> src,target;
   BuildFieldTemplatesFrom(srcMesh,targetMesh,method,src,target);
   setCrudeMatrixEx(src,target,m);
 }
 
-void MEDCouplingRemapper::setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<int,double> >& m)
+void MEDCouplingRemapper::setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<mcIdType,double> >& m)
 {
   restartUsing(src,target);
-  if(m.size()!=target->getNumberOfTuplesExpected())
+  if(ToIdType(m.size())!=target->getNumberOfTuplesExpected())
     {
       std::ostringstream oss; oss << "MEDCouplingRemapper::setMatrixEx : input matrix has " << m.size() << " rows whereas there are " << target->getNumberOfTuplesExpected() << " expected !";
       throw INTERP_KERNEL::Exception(oss.str());
@@ -245,11 +245,11 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   DataArrayDouble *array(srcField->getArray());
-  int trgNbOfCompo=targetField->getNumberOfComponents();
+  std::size_t trgNbOfCompo=targetField->getNumberOfComponents();
   if(array)
     {
       srcField->checkConsistencyLight();
-      if(trgNbOfCompo!=srcField->getNumberOfTuplesExpected())
+      if(ToIdType(trgNbOfCompo)!=srcField->getNumberOfTuplesExpected())
         throw INTERP_KERNEL::Exception("Number of components mismatch !");
     }
   else
@@ -261,7 +261,7 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
   computeDeno(srcField->getNature(),srcField,targetField);
   double *resPointer(srcField->getArray()->getPointer());
   const double *inputPointer=targetField->getArray()->getConstPointer();
-  computeReverseProduct(inputPointer,trgNbOfCompo,dftValue,resPointer);
+  computeReverseProduct(inputPointer,(int)trgNbOfCompo,dftValue,resPointer);
 }
 
 /*!
@@ -419,7 +419,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
   if(trgSpaceDim!=srcSpaceDim)
     if(trgSpaceDim!=-1 && srcSpaceDim!=-1)
       throw INTERP_KERNEL::Exception("Incoherent space dimension detected between target and source.");
-  int nbCols;
+  mcIdType nbCols;
   if(srcMeshDim==1 && trgMeshDim==1 && srcSpaceDim==1)
     {
       MEDCouplingNormalizedUnstructuredMesh<1,1> source_mesh_wrapper(src_mesh);
@@ -480,11 +480,11 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D1D interpolation(*this);
-      std::vector<std::map<int,double> > matrixTmp;
+      std::vector<std::map<mcIdType,double> > matrixTmp;
       std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
       nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
       ReverseMatrix(matrixTmp,nbCols,_matrix);
-      nbCols=matrixTmp.size();
+      nbCols=ToIdType(matrixTmp.size());
     }
   else if(srcMeshDim==2 && trgMeshDim==1 && srcSpaceDim==2)
     {
@@ -500,19 +500,19 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D1D interpolation(*this);
-          std::vector<std::map<int,double> > matrixTmp;
+          std::vector<std::map<mcIdType,double> > matrixTmp;
           std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
           nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
           ReverseMatrix(matrixTmp,nbCols,_matrix);
-          nbCols=matrixTmp.size();
+          nbCols=ToIdType(matrixTmp.size());
           INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
           if(!duplicateFaces.empty())
             {
               std::ostringstream oss; oss << "An unexpected situation happened ! For the following 1D Cells are part of edges shared by 2D cells :\n";
-              for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+              for(std::map<mcIdType,std::set<mcIdType> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
                 {
                   oss << "1D Cell #" << (*it).first << " is part of common edge of following 2D cells ids : ";
-                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<mcIdType>(oss," "));
                   oss << std::endl;
                 }
             }
@@ -525,11 +525,11 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D interpolation(*this);
-          std::vector<std::map<int,double> > matrixTmp;
+          std::vector<std::map<mcIdType,double> > matrixTmp;
           std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
           nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
           ReverseMatrix(matrixTmp,nbCols,_matrix);
-          nbCols=matrixTmp.size();
+          nbCols=ToIdType(matrixTmp.size());
         }
       else
         {
@@ -541,10 +541,10 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           if(!duplicateFaces.empty())
             {
               std::ostringstream oss; oss << "An unexpected situation happened ! For the following 1D Cells are part of edges shared by 2D cells :\n";
-              for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+              for(std::map<mcIdType,std::set<mcIdType> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
                 {
                   oss << "1D Cell #" << (*it).first << " is part of common edge of following 2D cells ids : ";
-                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<mcIdType>(oss," "));
                   oss << std::endl;
                 }
             }
@@ -564,10 +564,10 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           if(!duplicateFaces.empty())
             {
               std::ostringstream oss; oss << "An unexpected situation happened ! For the following 2D Cells are part of edges shared by 3D cells :\n";
-              for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+              for(std::map<mcIdType,std::set<mcIdType> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
                 {
                   oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
-                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<mcIdType>(oss," "));
                   oss << std::endl;
                 }
             }
@@ -587,19 +587,19 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
           MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D3D interpolation(*this);
-          std::vector<std::map<int,double> > matrixTmp;
+          std::vector<std::map<mcIdType,double> > matrixTmp;
           std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
           nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
           ReverseMatrix(matrixTmp,nbCols,_matrix);
-          nbCols=matrixTmp.size();
+          nbCols=ToIdType(matrixTmp.size());
           INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
           if(!duplicateFaces.empty())
             {
               std::ostringstream oss; oss << "An unexpected situation happened ! For the following 2D Cells are part of edges shared by 3D cells :\n";
-              for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+              for(std::map<mcIdType,std::set<mcIdType> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
                 {
                   oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
-                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<mcIdType>(oss," "));
                   oss << std::endl;
                 }
             }
@@ -674,18 +674,18 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
   MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src2D);
   MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(trg2D);
   INTERP_KERNEL::Interpolation2D interpolation2D(*this);
-  std::vector<std::map<int,double> > matrix2D;
-  int nbCols2D=interpolation2D.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,methC);
+  std::vector<std::map<mcIdType,double> > matrix2D;
+  mcIdType nbCols2D=interpolation2D.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,methC);
   MEDCouplingUMesh *s1D,*t1D;
   double v[3];
   MEDCouplingMappedExtrudedMesh::Project1DMeshes(src_mesh->getMesh1D(),target_mesh->getMesh1D(),getPrecision(),s1D,t1D,v);
   MEDCouplingNormalizedUnstructuredMesh<1,1> s1DWrapper(s1D);
   MEDCouplingNormalizedUnstructuredMesh<1,1> t1DWrapper(t1D);
-  std::vector<std::map<int,double> > matrix1D;
+  std::vector<std::map<mcIdType,double> > matrix1D;
   INTERP_KERNEL::Interpolation1D interpolation1D(*this);
   if(interpolation1D.getIntersectionType()==INTERP_KERNEL::Geometric2D)// For intersection type of 1D, Geometric2D do not deal with it ! -> make interpolation1D not inherite from this
     interpolation1D.setIntersectionType(INTERP_KERNEL::Triangulation);//
-  int nbCols1D=interpolation1D.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,methC);
+  mcIdType nbCols1D=interpolation1D.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,methC);
   s1D->decrRef();
   t1D->decrRef();
   buildFinalInterpolationMatrixByConvolution(matrix1D,matrix2D,src_mesh->getMesh3DIds()->getConstPointer(),nbCols2D,nbCols1D,
@@ -714,7 +714,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUC()
   const int trgMeshDim=target_mesh->getMeshDimension();
   if(srcMeshDim!=srcSpceDim || srcMeshDim!=trgMeshDim)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC: space dimension of unstructured source mesh should be equal to mesh dimension of unstructured source mesh, and should also be equal to target cartesian dimension!");
-  std::vector<std::map<int,double> > res;
+  std::vector<std::map<mcIdType,double> > res;
   switch(srcMeshDim)
   {
     case 1:
@@ -868,8 +868,8 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss : The intersection type is not supported ! Only PointLocator is supported for Gauss->Gauss interpolation ! Please invoke setIntersectionType(PointLocator) on the MEDCouplingRemapper instance !");
   MCAuto<DataArrayDouble> trgLoc=_target_ft->getLocalizationOfDiscr();
   const double *trgLocPtr=trgLoc->begin();
-  int trgSpaceDim=trgLoc->getNumberOfComponents();
-  MCAuto<DataArrayInt> srcOffsetArr=_src_ft->getDiscretization()->getOffsetArr(_src_ft->getMesh());
+  mcIdType trgSpaceDim=ToIdType(trgLoc->getNumberOfComponents());
+  MCAuto<DataArrayIdType> srcOffsetArr=_src_ft->getDiscretization()->getOffsetArr(_src_ft->getMesh());
   if(trgSpaceDim!=_src_ft->getMesh()->getSpaceDimension())
     {
       std::ostringstream oss; oss << "MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss : space dimensions mismatch between source and target !";
@@ -877,27 +877,27 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
       oss << _src_ft->getMesh()->getSpaceDimension() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  const int *srcOffsetArrPtr=srcOffsetArr->begin();
+  const mcIdType *srcOffsetArrPtr=srcOffsetArr->begin();
   MCAuto<DataArrayDouble> srcLoc=_src_ft->getLocalizationOfDiscr();
   const double *srcLocPtr=srcLoc->begin();
-  MCAuto<DataArrayInt> eltsArr,eltsIndexArr;
-  int trgNbOfGaussPts=trgLoc->getNumberOfTuples();
+  MCAuto<DataArrayIdType> eltsArr,eltsIndexArr;
+  mcIdType trgNbOfGaussPts=trgLoc->getNumberOfTuples();
   _matrix.resize(trgNbOfGaussPts);
   _src_ft->getMesh()->getCellsContainingPointsLinearPartOnlyOnNonDynType(trgLoc->begin(),trgNbOfGaussPts,getPrecision(),eltsArr,eltsIndexArr);
-  const int *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
-  MCAuto<DataArrayInt> nbOfSrcCellsShTrgPts(eltsIndexArr->deltaShiftIndex());
-  MCAuto<DataArrayInt> ids0=nbOfSrcCellsShTrgPts->findIdsNotEqual(0);
-  for(const int *trgId=ids0->begin();trgId!=ids0->end();trgId++)
+  const mcIdType *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
+  MCAuto<DataArrayIdType> nbOfSrcCellsShTrgPts(eltsIndexArr->deltaShiftIndex());
+  MCAuto<DataArrayIdType> ids0=nbOfSrcCellsShTrgPts->findIdsNotEqual(0);
+  for(const mcIdType *trgId=ids0->begin();trgId!=ids0->end();trgId++)
     {
       const double *ptTrg=trgLocPtr+trgSpaceDim*(*trgId);
-      int srcCellId=elts[eltsIndex[*trgId]];
+      mcIdType srcCellId=elts[eltsIndex[*trgId]];
       double dist=std::numeric_limits<double>::max();
-      int srcEntry=-1;
-      for(int srcId=srcOffsetArrPtr[srcCellId];srcId<srcOffsetArrPtr[srcCellId+1];srcId++)
+      mcIdType srcEntry=-1;
+      for(mcIdType srcId=srcOffsetArrPtr[srcCellId];srcId<srcOffsetArrPtr[srcCellId+1];srcId++)
         {
           const double *ptSrc=srcLocPtr+trgSpaceDim*srcId;
           double tmp=0.;
-          for(int i=0;i<trgSpaceDim;i++)
+          for(mcIdType i=0;i<trgSpaceDim;i++)
             tmp+=(ptTrg[i]-ptSrc[i])*(ptTrg[i]-ptSrc[i]);
           if(tmp<dist)
             { dist=tmp; srcEntry=srcId; }
@@ -906,11 +906,11 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
     }
   if(ids0->getNumberOfTuples()!=trgNbOfGaussPts)
     {
-      MCAuto<DataArrayInt> orphanTrgIds=nbOfSrcCellsShTrgPts->findIdsEqual(0);
+      MCAuto<DataArrayIdType> orphanTrgIds=nbOfSrcCellsShTrgPts->findIdsEqual(0);
       MCAuto<DataArrayDouble> orphanTrg=trgLoc->selectByTupleId(orphanTrgIds->begin(),orphanTrgIds->end());
-      MCAuto<DataArrayInt> srcIdPerTrg=srcLoc->findClosestTupleId(orphanTrg);
-      const int *srcIdPerTrgPtr=srcIdPerTrg->begin();
-      for(const int *orphanTrgId=orphanTrgIds->begin();orphanTrgId!=orphanTrgIds->end();orphanTrgId++,srcIdPerTrgPtr++)
+      MCAuto<DataArrayIdType> srcIdPerTrg=srcLoc->findClosestTupleId(orphanTrg);
+      const mcIdType *srcIdPerTrgPtr=srcIdPerTrg->begin();
+      for(const mcIdType *orphanTrgId=orphanTrgIds->begin();orphanTrgId!=orphanTrgIds->end();orphanTrgId++,srcIdPerTrgPtr++)
         _matrix[*orphanTrgId][*srcIdPerTrgPtr]=2.;
     }
   _deno_multiply.clear();
@@ -1074,7 +1074,7 @@ void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcF
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   DataArrayDouble *array(targetField->getArray());
-  int srcNbOfCompo(srcField->getNumberOfComponents());
+  std::size_t srcNbOfCompo(srcField->getNumberOfComponents());
   if(array)
     {
       targetField->checkConsistencyLight();
@@ -1092,7 +1092,7 @@ void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcF
   computeDeno(srcField->getNature(),srcField,targetField);
   double *resPointer(targetField->getArray()->getPointer());
   const double *inputPointer(srcField->getArray()->getConstPointer());
-  computeProduct(inputPointer,srcNbOfCompo,isDftVal,dftValue,resPointer);
+  computeProduct(inputPointer,(int)srcNbOfCompo,isDftVal,dftValue,resPointer);
 }
 
 void MEDCouplingRemapper::computeDeno(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField)
@@ -1108,7 +1108,7 @@ void MEDCouplingRemapper::computeDeno(NatureOfField nat, const MEDCouplingFieldD
 void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField)
 {
   _nature_of_deno=nat;
-  _time_deno_update=getTimeOfThis();
+  std::size_t _time_deno_update=getTimeOfThis();
   switch(_nature_of_deno)
   {
     case IntensiveMaximum:
@@ -1133,8 +1133,8 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
             denoPtr2[0]=std::accumulate(denoRPtr,denoRPtr+denoR->getNumberOfTuples(),0.);
           }
         int idx=0;
-        for(std::vector<std::map<int,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
-          for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+        for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
+          for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
             {
               _deno_multiply[idx][(*iter2).first]=denoPtr[(*iter2).first];
               _deno_reverse_multiply[(*iter2).first][idx]=denoRPtr[idx];
@@ -1164,9 +1164,9 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
             double *denoPtr2=deno->getArray()->getPointer();
             denoPtr2[0]=std::accumulate(denoRPtr,denoRPtr+denoR->getNumberOfTuples(),0.);
           }
-        int idx=0;
-        for(std::vector<std::map<int,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
-          for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+        mcIdType idx=0;
+        for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
+          for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
             {
               _deno_multiply[idx][(*iter2).first]=denoPtr[idx];
               _deno_reverse_multiply[(*iter2).first][idx]=denoRPtr[(*iter2).first];
@@ -1184,7 +1184,7 @@ void MEDCouplingRemapper::computeProduct(const double *inputPointer, int inputNb
 {
   int idx=0;
   double *tmp=new double[inputNbOfCompo];
-  for(std::vector<std::map<int,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
     {
       if((*iter1).empty())
         {
@@ -1194,8 +1194,8 @@ void MEDCouplingRemapper::computeProduct(const double *inputPointer, int inputNb
         }
       else
         std::fill(resPointer+idx*inputNbOfCompo,resPointer+(idx+1)*inputNbOfCompo,0.);
-      std::map<int,double>::const_iterator iter3=_deno_multiply[idx].begin();
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++,iter3++)
+      std::map<mcIdType,double>::const_iterator iter3=_deno_multiply[idx].begin();
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++,iter3++)
         {
           std::transform(inputPointer+(*iter2).first*inputNbOfCompo,inputPointer+((*iter2).first+1)*inputNbOfCompo,tmp,std::bind2nd(std::multiplies<double>(),(*iter2).second/(*iter3).second));
           std::transform(tmp,tmp+inputNbOfCompo,resPointer+idx*inputNbOfCompo,resPointer+idx*inputNbOfCompo,std::plus<double>());
@@ -1207,12 +1207,12 @@ void MEDCouplingRemapper::computeProduct(const double *inputPointer, int inputNb
 void MEDCouplingRemapper::computeReverseProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer)
 {
   std::vector<bool> isReached(_deno_reverse_multiply.size(),false);
-  int idx=0;
+  mcIdType idx=0;
   double *tmp=new double[inputNbOfCompo];
   std::fill(resPointer,resPointer+inputNbOfCompo*_deno_reverse_multiply.size(),0.);
-  for(std::vector<std::map<int,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
     {
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         {
           isReached[(*iter2).first]=true;
           std::transform(inputPointer+idx*inputNbOfCompo,inputPointer+(idx+1)*inputNbOfCompo,tmp,std::bind2nd(std::multiplies<double>(),(*iter2).second/_deno_reverse_multiply[(*iter2).first][idx]));
@@ -1226,81 +1226,81 @@ void MEDCouplingRemapper::computeReverseProduct(const double *inputPointer, int 
       std::fill(resPointer+idx*inputNbOfCompo,resPointer+(idx+1)*inputNbOfCompo,dftValue);
 }
 
-void MEDCouplingRemapper::ReverseMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn, std::vector<std::map<int,double> >& matOut)
+void MEDCouplingRemapper::ReverseMatrix(const std::vector<std::map<mcIdType,double> >& matIn, mcIdType nbColsMatIn, std::vector<std::map<mcIdType,double> >& matOut)
 {
   matOut.resize(nbColsMatIn);
-  int id=0;
-  for(std::vector<std::map<int,double> >::const_iterator iter1=matIn.begin();iter1!=matIn.end();iter1++,id++)
-    for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+  mcIdType id=0;
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=matIn.begin();iter1!=matIn.end();iter1++,id++)
+    for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
       matOut[(*iter2).first][id]=(*iter2).second;
 }
 
-void MEDCouplingRemapper::ComputeRowSumAndColSum(const std::vector<std::map<int,double> >& matrixDeno,
-                                                 std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse)
+void MEDCouplingRemapper::ComputeRowSumAndColSum(const std::vector<std::map<mcIdType,double> >& matrixDeno,
+                                                 std::vector<std::map<mcIdType,double> >& deno, std::vector<std::map<mcIdType,double> >& denoReverse)
 {
-  std::map<int,double> values;
-  int idx=0;
-  for(std::vector<std::map<int,double> >::const_iterator iter1=matrixDeno.begin();iter1!=matrixDeno.end();iter1++,idx++)
+  std::map<mcIdType,double> values;
+  mcIdType idx=0;
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=matrixDeno.begin();iter1!=matrixDeno.end();iter1++,idx++)
     {
       double sum=0.;
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         {
           sum+=(*iter2).second;
           values[(*iter2).first]+=(*iter2).second;
         }
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         deno[idx][(*iter2).first]=sum;
     }
   idx=0;
-  for(std::vector<std::map<int,double> >::const_iterator iter1=matrixDeno.begin();iter1!=matrixDeno.end();iter1++,idx++)
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=matrixDeno.begin();iter1!=matrixDeno.end();iter1++,idx++)
     {
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         denoReverse[(*iter2).first][idx]=values[(*iter2).first];
     }
 }
 
-void MEDCouplingRemapper::ComputeColSumAndRowSum(const std::vector<std::map<int,double> >& matrixDeno,
-                                                 std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse)
+void MEDCouplingRemapper::ComputeColSumAndRowSum(const std::vector<std::map<mcIdType,double> >& matrixDeno,
+                                                 std::vector<std::map<mcIdType,double> >& deno, std::vector<std::map<mcIdType,double> >& denoReverse)
 {
-  std::map<int,double> values;
-  int idx=0;
-  for(std::vector<std::map<int,double> >::const_iterator iter1=matrixDeno.begin();iter1!=matrixDeno.end();iter1++,idx++)
+  std::map<mcIdType,double> values;
+  mcIdType idx=0;
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=matrixDeno.begin();iter1!=matrixDeno.end();iter1++,idx++)
     {
       double sum=0.;
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         {
           sum+=(*iter2).second;
           values[(*iter2).first]+=(*iter2).second;
         }
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         denoReverse[(*iter2).first][idx]=sum;
     }
   idx=0;
-  for(std::vector<std::map<int,double> >::const_iterator iter1=matrixDeno.begin();iter1!=matrixDeno.end();iter1++,idx++)
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=matrixDeno.begin();iter1!=matrixDeno.end();iter1++,idx++)
     {
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         deno[idx][(*iter2).first]=values[(*iter2).first];
     }
 }
 
-void MEDCouplingRemapper::buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<int,double> >& m1D,
-                                                                     const std::vector< std::map<int,double> >& m2D,
-                                                                     const int *corrCellIdSrc, int nbOf2DCellsSrc, int nbOf1DCellsSrc,
-                                                                     const int *corrCellIdTrg)
+void MEDCouplingRemapper::buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<mcIdType,double> >& m1D,
+                                                                     const std::vector< std::map<mcIdType,double> >& m2D,
+                                                                     const mcIdType *corrCellIdSrc, mcIdType nbOf2DCellsSrc, mcIdType nbOf1DCellsSrc,
+                                                                     const mcIdType *corrCellIdTrg)
 {
-  int nbOf2DCellsTrg=m2D.size();
-  int nbOf1DCellsTrg=m1D.size();
-  int nbOf3DCellsTrg=nbOf2DCellsTrg*nbOf1DCellsTrg;
+  mcIdType nbOf2DCellsTrg=ToIdType(m2D.size());
+  mcIdType nbOf1DCellsTrg=ToIdType(m1D.size());
+  mcIdType nbOf3DCellsTrg=nbOf2DCellsTrg*nbOf1DCellsTrg;
   _matrix.resize(nbOf3DCellsTrg);
-  int id2R=0;
-  for(std::vector< std::map<int,double> >::const_iterator iter2R=m2D.begin();iter2R!=m2D.end();iter2R++,id2R++)
+  mcIdType id2R=0;
+  for(std::vector< std::map<mcIdType,double> >::const_iterator iter2R=m2D.begin();iter2R!=m2D.end();iter2R++,id2R++)
     {
-      for(std::map<int,double>::const_iterator iter2C=(*iter2R).begin();iter2C!=(*iter2R).end();iter2C++)
+      for(std::map<mcIdType,double>::const_iterator iter2C=(*iter2R).begin();iter2C!=(*iter2R).end();iter2C++)
         {
-          int id1R=0;
-          for(std::vector< std::map<int,double> >::const_iterator iter1R=m1D.begin();iter1R!=m1D.end();iter1R++,id1R++)
+          mcIdType id1R=0;
+          for(std::vector< std::map<mcIdType,double> >::const_iterator iter1R=m1D.begin();iter1R!=m1D.end();iter1R++,id1R++)
             {
-              for(std::map<int,double>::const_iterator iter1C=(*iter1R).begin();iter1C!=(*iter1R).end();iter1C++)
+              for(std::map<mcIdType,double>::const_iterator iter1C=(*iter1R).begin();iter1C!=(*iter1R).end();iter1C++)
                 {
                   _matrix[corrCellIdTrg[id1R*nbOf2DCellsTrg+id2R]][corrCellIdSrc[(*iter1C).first*nbOf2DCellsSrc+(*iter2C).first]]=(*iter1C).second*((*iter2C).second);
                 }
@@ -1309,19 +1309,19 @@ void MEDCouplingRemapper::buildFinalInterpolationMatrixByConvolution(const std::
     }
 }
 
-void MEDCouplingRemapper::PrintMatrix(const std::vector<std::map<int,double> >& m)
+void MEDCouplingRemapper::PrintMatrix(const std::vector<std::map<mcIdType,double> >& m)
 {
-  int id=0;
-  for(std::vector<std::map<int,double> >::const_iterator iter1=m.begin();iter1!=m.end();iter1++,id++)
+  mcIdType id=0;
+  for(std::vector<std::map<mcIdType,double> >::const_iterator iter1=m.begin();iter1!=m.end();iter1++,id++)
     {
       std::cout << "Target Cell # " << id << " : ";
-      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+      for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         std::cout << "(" << (*iter2).first << "," << (*iter2).second << "), ";
       std::cout << std::endl;
     }
 }
 
-const std::vector<std::map<int,double> >& MEDCouplingRemapper::getCrudeMatrix() const
+const std::vector<std::map<mcIdType,double> >& MEDCouplingRemapper::getCrudeMatrix() const
 {
   return _matrix;
 }
@@ -1329,9 +1329,9 @@ const std::vector<std::map<int,double> >& MEDCouplingRemapper::getCrudeMatrix() 
 /*!
  * Returns the number of columns of matrix returned by MEDCouplingRemapper::getCrudeMatrix method.
  */
-int MEDCouplingRemapper::getNumberOfColsOfMatrix() const
+mcIdType MEDCouplingRemapper::getNumberOfColsOfMatrix() const
 {
-  return (int)_deno_reverse_multiply.size();
+  return ToIdType(_deno_reverse_multiply.size());
 }
 
 /*!
@@ -1349,12 +1349,12 @@ int MEDCouplingRemapper::getNumberOfColsOfMatrix() const
 int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs)
 {
   int ret=0;
-  std::vector<std::map<int,double> > matrixNew(_matrix.size());
-  int i=0;
-  for(std::vector<std::map<int,double> >::const_iterator it1=_matrix.begin();it1!=_matrix.end();it1++,i++)
+  std::vector<std::map<mcIdType,double> > matrixNew(_matrix.size());
+  mcIdType i=0;
+  for(std::vector<std::map<mcIdType,double> >::const_iterator it1=_matrix.begin();it1!=_matrix.end();it1++,i++)
     {
-      std::map<int,double>& rowNew=matrixNew[i];
-      for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+      std::map<mcIdType,double>& rowNew=matrixNew[i];
+      for(std::map<mcIdType,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
         {
           if(fabs((*it2).second)>maxValAbs)
             rowNew[(*it2).first]=(*it2).second;
@@ -1398,8 +1398,8 @@ int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrix(double scaleFactor)
 double MEDCouplingRemapper::getMaxValueInCrudeMatrix() const
 {
   double ret=0.;
-  for(std::vector<std::map<int,double> >::const_iterator it1=_matrix.begin();it1!=_matrix.end();it1++)
-    for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+  for(std::vector<std::map<mcIdType,double> >::const_iterator it1=_matrix.begin();it1!=_matrix.end();it1++)
+    for(std::map<mcIdType,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
       if(fabs((*it2).second)>ret)
         ret=fabs((*it2).second);
   return ret;

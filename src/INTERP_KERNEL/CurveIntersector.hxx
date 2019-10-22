@@ -54,7 +54,7 @@ namespace INTERP_KERNEL
     struct TDualSegment
     {
       std::vector<double> _coords;
-      int                 _nodeId; // in mesh mode
+      ConnType            _nodeId; // in mesh mode
     };
     static void getDualSegments(ConnType                   icell,
                                 const MyMeshType&          mesh,

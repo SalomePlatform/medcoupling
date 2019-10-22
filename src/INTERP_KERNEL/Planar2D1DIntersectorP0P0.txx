@@ -33,13 +33,13 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
-  int Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::getNumberOfRowsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfElements();
   }
 
   template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
-  int Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::getNumberOfColsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfElements();
   }
@@ -47,12 +47,12 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
   void Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res)
   {
-    int nbNodesT=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT];
+    ConnType nbNodesT=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT];
     typename MyMatrix::value_type& resRow=res[icellT];
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
       {
-        int iS=*iter;
-        int nbNodesS=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS];
+        ConnType iS=*iter;
+        ConnType nbNodesS=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS];
         bool isColinear = false;
         double surf=intersectGeometry1D(OTT<ConnType,numPol>::indFC(icellT),OTT<ConnType,numPol>::indFC(iS),
                                         nbNodesT,nbNodesS, isColinear);
@@ -69,7 +69,7 @@ namespace INTERP_KERNEL
             }
           else
             {
-              std::set<int> targetCellSet;
+              std::set<ConnType> targetCellSet;
               targetCellSet.insert(icellT);
               _intersect_faces.insert(std::make_pair(iS, targetCellSet));
             }

@@ -2809,7 +2809,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
 
     @unittest.skipUnless(checkFreeMemory((223456789*16)/(1024)), "Not enough memory")
     def testSwig2BigMem(self):
-        if MEDCouplingSizeOfVoidStar()==64:
+        if MEDCouplingSizeOfVoidStar()==64 and MEDCouplingSizeOfIDs()==32:
             d=DataArrayAsciiChar(223456789,16)
             self.assertTrue(d.getNumberOfTuples(),223456789)
             self.assertTrue(d.getNumberOfComponents(),16)

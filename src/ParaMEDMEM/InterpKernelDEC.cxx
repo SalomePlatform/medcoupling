@@ -204,7 +204,7 @@ namespace MEDCoupling
         //transferring option from InterpKernelDEC to ElementLocator   
         locator.copyOptions(*this);
         MEDCouplingPointSet* distant_mesh=0; 
-        int* distant_ids=0;
+        mcIdType* distant_ids=0;
         std::string distantMeth;
         for (int i=0; i<_target_group->size(); i++)
           {
@@ -235,7 +235,7 @@ namespace MEDCoupling
         //transferring option from InterpKernelDEC to ElementLocator
         locator.copyOptions(*this);
         MEDCouplingPointSet* distant_mesh=0;
-        int* distant_ids=0;
+        mcIdType* distant_ids=0;
         for (int i=0; i<_source_group->size(); i++)
           {
             //        int idistant_proc = (i+_target_group->myRank())%_source_group->size();

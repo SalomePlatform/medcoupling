@@ -69,8 +69,8 @@ void ParaMEDMEMTest::testBlockTopology_constructor()
   CommInterface interface;
   MPIProcessorGroup group(interface);
   BlockTopology blocktopo(group,1);
-  CPPUNIT_ASSERT_EQUAL(1,blocktopo.getNbLocalElements());
-  CPPUNIT_ASSERT_EQUAL(size,blocktopo.getNbElements());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(1),blocktopo.getNbLocalElements());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(size),blocktopo.getNbElements());
   CPPUNIT_ASSERT_EQUAL(1,blocktopo.getDimension());
   
   //checking access methods
@@ -93,11 +93,11 @@ void ParaMEDMEMTest::testBlockTopology_constructor()
   global=blocktopo2.localToGlobal(local);
   CPPUNIT_ASSERT_EQUAL(global,2*size-1);
 
-  std::vector<std::pair<int,int> > bounds = blocktopo2.getLocalArrayMinMax();
+  std::vector<std::pair<int,mcIdType> > bounds = blocktopo2.getLocalArrayMinMax();
   int vecsize = bounds.size();
   CPPUNIT_ASSERT_EQUAL(1,vecsize);
   CPPUNIT_ASSERT_EQUAL(2*rank, (bounds[0]).first);
-  CPPUNIT_ASSERT_EQUAL(2*rank+2, (bounds[0]).second);
+  CPPUNIT_ASSERT_EQUAL(ToIdType(2*rank+2), (bounds[0]).second);
  }
  
 void ParaMEDMEMTest::testBlockTopology_serialize()
@@ -114,8 +114,8 @@ void ParaMEDMEMTest::testBlockTopology_serialize()
 //testing the serialization process that is used to transfer a
 //block topology via a MPI_Send/Recv comm  
   BlockTopology blocktopo_recv;
-  int* serializer;
-  int sersize;
+  mcIdType* serializer;
+  mcIdType sersize;
   blocktopo.serialize(serializer,sersize);
   blocktopo_recv.unserialize(serializer,interface);
   CPPUNIT_ASSERT_EQUAL(blocktopo.getNbElements(),blocktopo_recv.getNbElements());

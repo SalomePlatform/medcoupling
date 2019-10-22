@@ -73,7 +73,7 @@ namespace INTERP_KERNEL
                                                 &CoordsS[0],&CoordsS[SPACEDIM*iS],&CoordsS[SPACEDIM*(iS+1)],
                                                 inter, PlanarIntersector<MyMeshType,MyMatrix>::_dim_caracteristic,
                                                 PlanarIntersector<MyMeshType,MyMatrix>::_precision);
-            ConnType nb_inter=((ConnType)inter.size())/2;
+            ConnType nb_inter=ToConnType(inter.size())/2;
             if(nb_inter >3) inter=reconstruct_polygon(inter);
             for(ConnType i = 1; i<nb_inter-1; i++)
               {
@@ -103,7 +103,7 @@ namespace INTERP_KERNEL
                                                           bool                       isSourceQuad)
   {
     double result = 0.;
-    ConnType nbNodesS=sourceCoords.size()/SPACEDIM;
+    ConnType nbNodesS=ToConnType(sourceCoords.size())/SPACEDIM;
     //Compute the intersection area
     double area[SPACEDIM];
     for(ConnType iT = 1; iT<3; iT++)
@@ -115,7 +115,7 @@ namespace INTERP_KERNEL
                                                 &sourceCoords[0],&sourceCoords[SPACEDIM*iS],&sourceCoords[SPACEDIM*(iS+1)],
                                                 inter, PlanarIntersector<MyMeshType,MyMatrix>::_dim_caracteristic,
                                                 PlanarIntersector<MyMeshType,MyMatrix>::_precision);
-            ConnType nb_inter=((ConnType)inter.size())/2;
+            ConnType nb_inter=ToConnType(inter.size())/2;
             if(nb_inter >3) inter=reconstruct_polygon(inter);
             for(ConnType i = 1; i<nb_inter-1; i++)
               {
@@ -144,8 +144,8 @@ namespace INTERP_KERNEL
                                                    const std::vector<double>& sourceCoords)
   {
     double result = 0.;
-    ConnType nbNodesS=sourceCoords.size()/SPACEDIM;
-    ConnType nbNodesT=targetCoords.size()/SPACEDIM;
+    ConnType nbNodesS=ToConnType(sourceCoords.size())/SPACEDIM;
+    ConnType nbNodesT=ToConnType(targetCoords.size())/SPACEDIM;
     //Compute the intersection area
     double area[SPACEDIM];
     for(ConnType iT = 1; iT<nbNodesT-1; iT++)
@@ -157,7 +157,7 @@ namespace INTERP_KERNEL
                                                 &sourceCoords[0],&sourceCoords[SPACEDIM*iS],&sourceCoords[SPACEDIM*(iS+1)],
                                                 inter, PlanarIntersector<MyMeshType,MyMatrix>::_dim_caracteristic,
                                                 PlanarIntersector<MyMeshType,MyMatrix>::_precision);
-            ConnType nb_inter=((ConnType)inter.size())/2;
+            ConnType nb_inter=ToConnType(inter.size())/2;
             if(nb_inter >3) inter=reconstruct_polygon(inter);
             for(ConnType i = 1; i<nb_inter-1; i++)
             {
@@ -194,7 +194,7 @@ namespace INTERP_KERNEL
     double inter_area[SPACEDIM], total_area = 0.;
     double total_barycenter[SPACEDIM]={0.,0.};
 
-    const ConnType nbNodesT=targetCell.size()/SPACEDIM;
+    const ConnType nbNodesT=ToConnType(targetCell.size())/SPACEDIM;
     for(ConnType iT = 1; iT<nbNodesT-1; iT++)
     {
       std::vector<double> inter;
@@ -202,7 +202,7 @@ namespace INTERP_KERNEL
                                           sourceCell[0], sourceCell[1], sourceCell[2],
                                           inter, PlanarIntersector<MyMeshType,MyMatrix>::_dim_caracteristic,
                                           PlanarIntersector<MyMeshType,MyMatrix>::_precision);
-      ConnType nb_inter=((ConnType)inter.size())/2;
+      ConnType nb_inter=ToConnType(inter.size())/2;
       if(nb_inter >3) inter=reconstruct_polygon(inter);
       for(ConnType i = 1; i<nb_inter-1; i++)
       {

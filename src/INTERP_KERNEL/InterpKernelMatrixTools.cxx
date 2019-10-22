@@ -52,10 +52,10 @@ namespace INTERP_KERNEL
    *  \param [in] incy the increment between successive entries in \a dy.
    *  \return the sum of the product of the corresponding entries of \a dx and \a dy.
    */
-  double ddot(int n, const double *dx, int incx, const double *dy, int incy)
+  double ddot(mcIdType n, const double *dx, mcIdType incx, const double *dy, mcIdType incy)
   {
     double dtemp=0.0;
-    int i,ix,iy,m;
+    mcIdType i,ix,iy,m;
     if(n<=0)
       return dtemp;
     // Code for unequal increments or equal increments not equal to 1.
@@ -86,9 +86,9 @@ namespace INTERP_KERNEL
   }
 
 
-  void dscal(int n, double sa, double *x, int incx)
+  void dscal(mcIdType n, double sa, double *x, mcIdType incx)
   {
-    int i,ix,m;
+    mcIdType i,ix,m;
 
     if(n<=0) { }
     else if(incx==1)
@@ -118,9 +118,9 @@ namespace INTERP_KERNEL
       }
   }
 
-  void daxpy(int n, double da, const double *dx, int incx, double *dy, int incy)
+  void daxpy(mcIdType n, double da, const double *dx, mcIdType incx, double *dy, mcIdType incy)
   {
-    int i,ix,iy,m;
+    mcIdType i,ix,iy,m;
     if (n<=0)
       return;
     if (da==0.0)
@@ -165,9 +165,9 @@ namespace INTERP_KERNEL
       return -x;
   }
 
-  void dswap(int n, double *x, int incx, double *y, int incy)
+  void dswap(mcIdType n, double *x, mcIdType incx, double *y, mcIdType incy)
   {
-    int i,ix,iy,m;
+    mcIdType i,ix,iy,m;
     double temp;
 
     if(n<=0) { }
@@ -222,10 +222,10 @@ namespace INTERP_KERNEL
    *    \param [in] incx the increment between successive entries of SX.
    *    \return the index of the element of maximum absolute value (in C convention).
    */
-  int idamax(int n, const double *dx, int incx)
+  mcIdType idamax(mcIdType n, const double *dx, mcIdType incx)
   {
     double dmax;
-    int i,ix,value;
+    mcIdType i,ix,value;
     value=-1;
     if ( n < 1 || incx <= 0 )
       return value;
@@ -292,13 +292,13 @@ namespace INTERP_KERNEL
    *  - K, if U(K-1,K-1) == 0.  This is not an error condition for this subroutine,
    *    but it does indicate that DGESL or DGEDI will divide by zero if called.
    */
-  int dgefa(double *a, int lda, int n, int *ipvt)
+  mcIdType dgefa(double *a, mcIdType lda, mcIdType n, mcIdType *ipvt)
   {
-    int info=0;
-    int l;
+    mcIdType info=0;
+    mcIdType l;
     double t;
     // Gaussian elimination with partial pivoting.
-    for(int k=0;k<n-1;k++)
+    for(mcIdType k=0;k<n-1;k++)
       {
         //  Find L=pivot index.
         l=idamax(n-k,a+k+k*lda,1)+k;
@@ -320,7 +320,7 @@ namespace INTERP_KERNEL
         t=-1.0/a[k+k*lda];
         dscal(n-k-1,t,a+k+1+k*lda,1);
         // Row elimination with column indexing.
-        for(int j=k+1;j<n;j++)
+        for(mcIdType j=k+1;j<n;j++)
           {
             t=a[l+j*lda];
             if(l!=k)
@@ -361,15 +361,15 @@ namespace INTERP_KERNEL
    *    \param [in] ipvt, the pivot vector from dgfa.
    *    \param [in,out] work a work array of size at least equal to \a n.
    */
-  void dgedi(double *a, int lda, int n, const int *ipvt, double *work)
+  void dgedi(double *a, mcIdType lda, mcIdType n, const mcIdType *ipvt, double *work)
   {
     double t;
-    for(int k=0;k<n;k++)
+    for(mcIdType k=0;k<n;k++)
       {
         a[k+k*lda]=1.0/a[k+k*lda];
         t=-a[k+k*lda];
         dscal(k,t,a+0+k*lda,1);
-        for(int j=k+1;j<n;j++)
+        for(mcIdType j=k+1;j<n;j++)
           {
             t=a[k+j*lda];
             a[k+j*lda]=0.0;
@@ -377,46 +377,46 @@ namespace INTERP_KERNEL
           }
       }
     // Form inverse(U) * inverse(L).
-    for(int k=n-2;k>=0;k--)
+    for(mcIdType k=n-2;k>=0;k--)
       {
-        for(int i=k+1;i<n;i++)
+        for(mcIdType i=k+1;i<n;i++)
           {
             work[i]=a[i+k*lda];
             a[i+k*lda]=0.0;
           }
 
-        for(int j=k+1;j<n;j++)
+        for(mcIdType j=k+1;j<n;j++)
           {
             t=work[j];
             daxpy(n,t,a+0+j*lda,1,a+0+k*lda,1);
           }
-        int l=ipvt[k];
+        mcIdType l=ipvt[k];
         if(l!=k-1)
           dswap(n,a+0+k*lda,1,a+0+l*lda,1);
       }
   }
 
-  void matrixProduct(const double *A, int n1, int p1, const double *B, int n2, int p2, double *C)
+  void matrixProduct(const double *A, mcIdType n1, mcIdType p1, const double *B, mcIdType n2, mcIdType p2, double *C)
   {
     if(p1!=n2)
       {
         std::ostringstream oss; oss << "matrixProduct : the size of input matrix are not coherent the nb of cols of input matrix #0 is " <<  p1 << " whereas the number of rows of input matrix #1 is " << n2 << " !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    for(int i=0;i<n1;i++)
+    for(mcIdType i=0;i<n1;i++)
       {
-        for(int j=0;j<p2;j++)
+        for(mcIdType j=0;j<p2;j++)
           {
             C[i*p2+j] = 0.;
-            for(int k=0;k<p1;k++)
+            for(mcIdType k=0;k<p1;k++)
               C[i*p2+j]+=A[i*p1+k]*B[k*p2+j];
           }
       }
   }
 
-  void inverseMatrix(const double *A, int n, double *iA)
+  void inverseMatrix(const double *A, mcIdType n, double *iA)
   {
-    INTERP_KERNEL::AutoPtr<int> ipvt=new int[n];
+    INTERP_KERNEL::AutoPtr<mcIdType> ipvt=new mcIdType[n];
     INTERP_KERNEL::AutoPtr<double> work=new double[n*n];
     std::copy(A,A+n*n,iA);
     dgefa(iA,n,n,ipvt);

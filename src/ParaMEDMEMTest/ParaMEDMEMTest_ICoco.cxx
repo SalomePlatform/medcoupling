@@ -72,7 +72,7 @@ MEDCouplingUMesh *init_quad()
   const double dataCoo[24]={0.,0.,0.,1.,0.,0.,0.,0.,1.,1.,0.,1.,0.,1e-05,0.,1.,1e-05,0.,0.,1e-05,1.,1.,1e-05,1.};
   coo->alloc(8,3);
   std::copy(dataCoo,dataCoo+24,coo->getPointer());
-  const int conn[8]={0,1,3,2,4,5,7,6};
+  const mcIdType conn[8]={0,1,3,2,4,5,7,6};
   m->allocateCells(2);
   m->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
   m->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4);
@@ -87,7 +87,7 @@ MEDCouplingUMesh *init_triangle()
   const double dataCoo[24]={0.,0.,0.,1.,0.,0.,0.,0.,1.,1.,0.,1.,0.,1e-05,0.,1.,1e-05,0.,0.,1e-05,1.,1.,1e-05,1.};
   coo->alloc(8,3);
   std::copy(dataCoo,dataCoo+24,coo->getPointer());
-  const int conn[12]={0,1,2,1,2,3,4,5,7,4,6,7};
+  const mcIdType conn[12]={0,1,2,1,2,3,4,5,7,4,6,7};
   m->allocateCells(4);
   for(int i=0;i<4;i++)
     m->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+3*i);
@@ -143,7 +143,6 @@ void ParaMEDMEMTest::testICoco1()
       champ_recepteur->getField()->setNature(IntensiveMaximum);
       champ_recepteur->setOwnSupport(true);
     }
-  
   
   MPI_Barrier(MPI_COMM_WORLD);
 

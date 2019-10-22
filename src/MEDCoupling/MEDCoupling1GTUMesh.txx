@@ -27,10 +27,10 @@ template<class MAPCLS>
 void MEDCoupling::MEDCoupling1SGTUMesh::renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N)
 {
   getNumberOfCells();//only to check that all is well defined.
-  int *begPtr(_conn->getPointer());
-  int nbElt(_conn->getNumberOfTuples());
-  int *endPtr(begPtr+nbElt);
-  for(int *it=begPtr;it!=endPtr;it++)
+  mcIdType *begPtr(_conn->getPointer());
+  mcIdType nbElt(_conn->getNumberOfTuples());
+  mcIdType *endPtr(begPtr+nbElt);
+  for(mcIdType *it=begPtr;it!=endPtr;it++)
     {
       auto it2(newNodeNumbersO2N.find(*it));
       if(it2!=newNodeNumbersO2N.end())
@@ -51,9 +51,9 @@ void MEDCoupling::MEDCoupling1DGTUMesh::renumberNodesInConnT(const MAPCLS& newNo
 {
   getNumberOfCells();//only to check that all is well defined.
   //
-  int nbOfTuples(_conn->getNumberOfTuples());
-  int *pt(_conn->getPointer());
-  for(int i=0;i<nbOfTuples;i++,pt++)
+  mcIdType nbOfTuples(_conn->getNumberOfTuples());
+  mcIdType *pt(_conn->getPointer());
+  for(mcIdType i=0;i<nbOfTuples;i++,pt++)
     {
       if(*pt==-1) continue;
       if(*pt>=0)

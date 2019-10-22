@@ -112,7 +112,7 @@ namespace MEDCoupling
   */
   ParaFIELD::ParaFIELD(MEDCouplingFieldDouble* subdomain_field, ParaMESH *sup, const ProcessorGroup& proc_group):
     _field(subdomain_field),
-    _component_topology(ComponentTopology(_field->getNumberOfComponents())),_topology(0),_own_support(false),
+    _component_topology(ComponentTopology((int)_field->getNumberOfComponents())),_topology(0),_own_support(false),
     _support(sup)
   {
     if(_field)
@@ -174,7 +174,7 @@ namespace MEDCoupling
    * For example if _field is a nodal field : returned array will be the nodal global numbers.
    * The content of this method is used to inform Working side to accumulate data received by lazy side.
    */
-  DataArrayInt* ParaFIELD::returnCumulativeGlobalNumbering() const
+  DataArrayIdType* ParaFIELD::returnCumulativeGlobalNumbering() const
   {
     if(!_field)
       return 0;
@@ -190,7 +190,7 @@ namespace MEDCoupling
       }
   }
 
-  DataArrayInt* ParaFIELD::returnGlobalNumbering() const
+  DataArrayIdType* ParaFIELD::returnGlobalNumbering() const
   {
     if(!_field)
       return 0;

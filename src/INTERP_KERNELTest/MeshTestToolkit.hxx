@@ -29,7 +29,7 @@
 
 #define ERR_TOL 1.0e-8
 
-typedef std::vector<std::map<int,double> > IntersectionMatrix;
+typedef std::vector<std::map<mcIdType,double> > IntersectionMatrix;
 
 namespace INTERP_KERNEL
 {

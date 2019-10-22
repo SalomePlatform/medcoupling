@@ -495,8 +495,8 @@ EdgeArcCircle::EdgeArcCircle(double sX, double sY, double mX, double mY, double 
  * @param angle0 in ]-Pi;Pi[
  * @param deltaAngle in ]-2.*Pi;2.*Pi[
  */
-EdgeArcCircle::EdgeArcCircle(Node *start, Node *end, const double *center, double radius, double angle0, double deltaAngle, bool direction):Edge(start,end,direction),_angle(deltaAngle),
-    _angle0(angle0),_radius(radius)
+EdgeArcCircle::EdgeArcCircle(Node *start, Node *end, const double *center, double radius, double angle0, double deltaAngle, bool direction):Edge(start,end,direction),_angle0(angle0),_angle(deltaAngle),
+    _radius(radius)
 {
   _center[0]=center[0];
   _center[1]=center[1];
@@ -546,7 +546,7 @@ void EdgeArcCircle::unApplySimilarity(double xBary, double yBary, double dimChar
  * 'conn' is of size 3. conn[0] is start id, conn[1] is end id and conn[2] is middle id.
  * 'offset' is typically the number of nodes already existing in global 2D curve mesh. Additional coords 'addCoo' ids will be put after the already existing.
  */
-void EdgeArcCircle::tesselate(const int *conn, int offset, double eps, std::vector<int>& newConn, std::vector<double>& addCoo) const
+void EdgeArcCircle::tesselate(const mcIdType *conn, mcIdType offset, double eps, std::vector<mcIdType>& newConn, std::vector<double>& addCoo) const
 {
   newConn.push_back(INTERP_KERNEL::NORM_POLYL);
   int nbOfSubDiv=(int)(fabs(_angle)/eps);
@@ -556,7 +556,7 @@ void EdgeArcCircle::tesselate(const int *conn, int offset, double eps, std::vect
       return ;
     }
   double signOfAngle=_angle>0.?1.:-1.;
-  int offset2=offset+((int)addCoo.size())/2;
+  mcIdType offset2=offset+(ToIdType(addCoo.size()))/2;
   newConn.push_back(conn[0]);
   for(int i=1;i<nbOfSubDiv;i++,offset2++)
     {

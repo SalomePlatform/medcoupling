@@ -58,7 +58,7 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
   const int spaceDim = 2;
   const int nbOfNodes = 6;
   double coords[nbOfNodes*spaceDim] = {0,0, 1,0, 1,1, 0,1, 2,0, 2,1};
-  int conn[8]={0,1,2,3, 1,4,5,2};
+  mcIdType conn[8]={0,1,2,3, 1,4,5,2};
   MCAuto<MEDCouplingUMesh> mesh2d=MEDCouplingUMesh::New("Mesh",spaceDim);
   mesh2d->allocateCells(2);
   mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
@@ -75,14 +75,14 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
 
   // Create families and groups
 
-  MCAuto<DataArrayInt> fam = DataArrayInt::New();
+  MCAuto<DataArrayIdType> fam = DataArrayIdType::New();
   fam->alloc(2,1);
-  int elemsFams[2] = {-2,-3};
+  mcIdType elemsFams[2] = {-2,-3};
   std::copy(elemsFams,elemsFams+2,fam->getPointer());
 
   m->setFamilyFieldArr(0,fam);
 
-  std::map<std::string,int> theFamilies;
+  std::map<std::string,mcIdType> theFamilies;
   theFamilies["FAM_-1"]=-1;
   theFamilies["FAM_-2"]=-2;
   theFamilies["FAM_-3"]=-3;
@@ -160,7 +160,7 @@ void SauvLoaderTest::testSauv2MedOnA3SubsField()
       -6.111413346910e-07,
       -6.111413346910e-07};
 
-  for (int i=0; i < field1d->getNumberOfTuples(); i++)
+  for (mcIdType i=0; i < field1d->getNumberOfTuples(); i++)
   {
     CPPUNIT_ASSERT_DOUBLES_EQUAL( values[i], field1d->getIJ(i, 0), 1e-12 );
   }
@@ -179,7 +179,7 @@ void SauvLoaderTest::testMed2Sauv()
   pointeM1D->setCoords( coords );
   pointeM1D->setMeshDimension( 2 );
   pointeM1D->allocateCells( 3 );
-  int conn[]=
+  mcIdType conn[]=
     {
       0,1,2, 0,1,3, 10,11,12,13
     };
@@ -205,8 +205,8 @@ void SauvLoaderTest::testMed2Sauv()
     };
   std::copy(vals,vals+d->getNbOfElems(),d->getPointer());
   f1->setArray(d);
-  MCAuto<DataArrayInt> da=DataArrayInt::New();
-  int ids[] =
+  MCAuto<DataArrayIdType> da=DataArrayIdType::New();
+  mcIdType ids[] =
     {
       0,2
     };
@@ -249,7 +249,7 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe4") != groups.end() );
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe5") != groups.end() );
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"maa1") != groups.end() );
-  CPPUNIT_ASSERT_EQUAL(16,m->getSizeAtLevel(0));
+  CPPUNIT_ASSERT_EQUAL(ToIdType(16),m->getSizeAtLevel(0));
   MCAuto<MEDCouplingMesh> um0 = m->getMeshAtLevel(0);
   CPPUNIT_ASSERT_EQUAL(12, (int)um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TETRA4 ));
   CPPUNIT_ASSERT_EQUAL(2,  (int)um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PYRA5 ));
@@ -328,10 +328,10 @@ void SauvLoaderTest::testCellsWithLingNames()
   // - Nombre de mailles de type MED_HEXA8 : 24
   // - Nombre de mailles de type MED_PENTA6 : 3
   MEDFileUMesh* m = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0));
-  CPPUNIT_ASSERT_EQUAL(6,  m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
-  CPPUNIT_ASSERT_EQUAL(43, m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_QUAD4 ));
-  CPPUNIT_ASSERT_EQUAL(24, m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
-  CPPUNIT_ASSERT_EQUAL(3,  m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PENTA6 ));
+  CPPUNIT_ASSERT_EQUAL(ToIdType(6),  m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
+  CPPUNIT_ASSERT_EQUAL(ToIdType(43), m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_QUAD4 ));
+  CPPUNIT_ASSERT_EQUAL(ToIdType(24), m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
+  CPPUNIT_ASSERT_EQUAL(ToIdType(3),  m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PENTA6 ));
 }
 
 void SauvLoaderTest::tearDown()
@@ -350,7 +350,7 @@ void SauvLoaderTest::tearDown()
       if (access(fileToRemove[i], F_OK) == 0)
 #endif
 #if defined(WIN32) && defined(UNICODE)
-		_wremove(fileToRemove[i]);
+                _wremove(fileToRemove[i]);
 #else
         remove(fileToRemove[i]);
 #endif

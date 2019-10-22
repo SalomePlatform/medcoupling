@@ -36,7 +36,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrixType>
   class Polyhedron3D2DIntersectorP0P0 : public Intersector3DP0P0<MyMeshType,MyMatrixType>
   {
-    typedef typename std::map<int,std::set<int> > DuplicateFacesType;
+    typedef typename std::map<mcIdType,std::set<mcIdType> > DuplicateFacesType;
 
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;

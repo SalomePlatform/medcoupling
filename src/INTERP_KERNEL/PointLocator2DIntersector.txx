@@ -125,9 +125,9 @@ namespace INTERP_KERNEL
   INTERSECTOR_TEMPLATE
   QuadraticPolygon *PTLOC2D_INTERSECTOR::buildPolygonFrom(const std::vector<double>& coords, NormalizedCellType type)
   {
-    int nbNodes=coords.size()/SPACEDIM;
+    std::size_t nbNodes=coords.size()/SPACEDIM;
     std::vector<Node *> nodes(nbNodes);
-    for(int i=0;i<nbNodes;i++)
+    for(std::size_t i=0;i<nbNodes;i++)
       nodes[i]=new Node(coords[i*SPACEDIM],coords[i*SPACEDIM+1]);
     if(!CellModel::GetCellModel(type).isQuadratic())
       return QuadraticPolygon::BuildLinearPolygon(nodes);

@@ -42,14 +42,14 @@ namespace MEDCoupling
   public:
     MxN_Mapping(const ProcessorGroup& source_group, const ProcessorGroup& target_group, const DECOptions& dec_options);
     virtual ~MxN_Mapping();
-    void addElementFromSource(int distant_proc, int distant_elem);
+    void addElementFromSource(int distant_proc, mcIdType distant_elem);
     void prepareSendRecv();
     void sendRecv(MEDCouplingFieldDouble& field);
     void sendRecv(double* sendfield, MEDCouplingFieldDouble& field) const ;
     void reverseSendRecv(double* recvfield, MEDCouplingFieldDouble& field) const ;
  
     //
-    const std::vector<std::pair<int,int> >& getSendingIds() const { return _sending_ids; }
+    const std::vector<std::pair<int,mcIdType> >& getSendingIds() const { return _sending_ids; }
     const std::vector<int>& getSendProcsOffsets() const { return _send_proc_offsets; }
     void initialize();
 
@@ -58,8 +58,8 @@ namespace MEDCoupling
     ProcessorGroup* _union_group;
     MPIAccessDEC * _access_DEC;
     int _nb_comps;
-    std::vector<std::pair<int,int> > _sending_ids;
-    std::vector<int> _recv_ids;
+    std::vector<std::pair<int,mcIdType> > _sending_ids;
+    std::vector<mcIdType> _recv_ids;
     std::vector<int> _send_proc_offsets;
     std::vector<int> _recv_proc_offsets;
   };

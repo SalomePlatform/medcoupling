@@ -148,8 +148,8 @@ namespace MEDCoupling
       return true;
     if(_array==0 || other->_array==0)
       return false;
-    int nbC1(_array->getNumberOfComponents()),nbC2(other->_array->getNumberOfComponents());
-    int nbMin(std::min(nbC1,nbC2));
+    std::size_t nbC1(_array->getNumberOfComponents()),nbC2(other->_array->getNumberOfComponents());
+    std::size_t nbMin(std::min(nbC1,nbC2));
     if(nbC1!=nbC2 && nbMin!=1)
       return false;
     return true;
@@ -164,7 +164,7 @@ namespace MEDCoupling
       return true;
     if(_array==0 || other->_array==0)
       return false;
-    int nbC1(_array->getNumberOfComponents()),nbC2(other->_array->getNumberOfComponents());
+    std::size_t nbC1(_array->getNumberOfComponents()),nbC2(other->_array->getNumberOfComponents());
     if(nbC1!=nbC2 && nbC2!=1)
       return false;
     return true;
@@ -225,12 +225,12 @@ namespace MEDCoupling
   }
   
   template<class T>
-  void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+  void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const
   {
     if(_array)
       {
         tinyInfo.push_back(_array->getNumberOfTuples());
-        tinyInfo.push_back(_array->getNumberOfComponents());
+        tinyInfo.push_back(ToIdType(_array->getNumberOfComponents()));
       }
     else
       {
@@ -248,13 +248,13 @@ namespace MEDCoupling
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
   {
-    int nbOfCompo(_array->getNumberOfComponents());
-    for(int i=0;i<nbOfCompo;i++)
+    std::size_t nbOfCompo(_array->getNumberOfComponents());
+    for(std::size_t i=0;i<nbOfCompo;i++)
       tinyInfo.push_back(_array->getInfoOnComponent(i));
   }
   
   template<class T>
-  void MEDCouplingTimeDiscretizationTemplate<T>::resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<typename Traits<T>::ArrayType *>& arrays)
+  void MEDCouplingTimeDiscretizationTemplate<T>::resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, std::vector<typename Traits<T>::ArrayType *>& arrays)
   {
     arrays.resize(1);
     if(_array!=0)
@@ -270,7 +270,7 @@ namespace MEDCoupling
   }
   
   template<class T>
-  void MEDCouplingTimeDiscretizationTemplate<T>::checkForUnserialization(const std::vector<int>& tinyInfoI, const std::vector<typename Traits<T>::ArrayType *>& arrays)
+  void MEDCouplingTimeDiscretizationTemplate<T>::checkForUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<typename Traits<T>::ArrayType *>& arrays)
   {
     static const char MSG[]="MEDCouplingTimeDiscretization::checkForUnserialization : arrays in input is expected to have size one !";
     if(arrays.size()!=1)
@@ -289,11 +289,11 @@ namespace MEDCoupling
   }
   
   template<class T>
-  void MEDCouplingTimeDiscretizationTemplate<T>::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+  void MEDCouplingTimeDiscretizationTemplate<T>::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
   {
     _time_tolerance=tinyInfoD[0];
-    int nbOfCompo=_array->getNumberOfComponents();
-    for(int i=0;i<nbOfCompo;i++)
+    std::size_t nbOfCompo=_array->getNumberOfComponents();
+    for(std::size_t i=0;i<nbOfCompo;i++)
       _array->setInfoOnComponent(i,tinyInfoS[i]);
   }
   

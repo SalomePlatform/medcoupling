@@ -23,6 +23,7 @@
 
 #include "MEDCoupling.hxx"
 #include "MCAuto.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
@@ -31,13 +32,13 @@
 
 namespace MEDCoupling
 {  
-  template<class T>
+  template<class ID, class T>
   class MapKeyVal : public RefCountObject, public TimeLabel
   {
   public:
-    static MCAuto< MapKeyVal<T> > New();
-    std::map<T,T>& data() { return _m; }
-    const std::map<T,T>& data() const { return _m; }
+    static MCAuto< MapKeyVal<ID, T> > New();
+    std::map<ID,T>& data() { return _m; }
+    const std::map<ID,T>& data() const { return _m; }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject*> getDirectChildrenWithNull() const;
     void updateTime() const { }
@@ -45,10 +46,10 @@ namespace MEDCoupling
     MapKeyVal() { }
     ~MapKeyVal() { }
   private:
-    std::map<T,T> _m;
+    std::map<ID,T> _m;
   };
 
-  using MapII = MapKeyVal<int>;
+  using MapII = MapKeyVal<mcIdType, mcIdType>;
 }
 
 #endif

@@ -22,6 +22,7 @@
 #define __MEDCOUPLINGBASICSTEST_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
+#include "MCType.hxx"
 
 #include <map>
 #include <vector>
@@ -93,9 +94,9 @@ namespace MEDCoupling
     static DataArrayDouble *buildCoordsForMultiTypes_1();
     static MEDCouplingMultiFields *buildMultiFields_1();
     static std::vector<MEDCouplingFieldDouble *> buildMultiFields_2();
-    static double sumAll(const std::vector< std::map<int,double> >& matrix);
+    static double sumAll(const std::vector< std::map<mcIdType,double> >& matrix);
   protected:
-    static int countNonZero(const std::vector< std::map<int,double> >& matrix);
+    static int countNonZero(const std::vector< std::map<mcIdType,double> >& matrix);
 
     static void test2D1DMeshesIntersection(MEDCouplingUMesh *sourceMesh,
                                            MEDCouplingUMesh *targetMesh,

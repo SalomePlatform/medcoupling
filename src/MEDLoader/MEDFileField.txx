@@ -127,7 +127,7 @@ namespace MEDCoupling
    *  \sa getUndergroundDataArrayTemplate()
    */
   template<class T>
-  typename Traits<T>::ArrayType *MEDFileField1TSTemplateWithoutSDA<T>::getUndergroundDataArrayTemplateExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
+  typename Traits<T>::ArrayType *MEDFileField1TSTemplateWithoutSDA<T>::getUndergroundDataArrayTemplateExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
   {
     if(this->_field_per_mesh.size()!=1)
       throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : field lies on several meshes, this method has no sense !");
@@ -151,7 +151,7 @@ namespace MEDCoupling
   }
   
   template<class T>
-  void MEDFileField1TSTemplateWithoutSDA<T>::aggregate(const std::vector<typename MLFieldTraits<T>::F1TSWSDAType const *>& f1tss, const std::vector< std::vector< std::pair<int,int> > >& dts)
+  void MEDFileField1TSTemplateWithoutSDA<T>::aggregate(const std::vector<typename MLFieldTraits<T>::F1TSWSDAType const *>& f1tss, const std::vector< std::vector< std::pair<int,mcIdType> > >& dts)
   {
     if(f1tss.empty())
       throw INTERP_KERNEL::Exception("MEDFileField1TSTemplateWithoutSDA::aggregate : empty vector !");
@@ -174,15 +174,15 @@ namespace MEDCoupling
     setName(refPt->getName());
     
     const DataArray *arr(refPt->getUndergroundDataArray());
-    int nbCompo(arr->getNumberOfComponents());
+    std::size_t nbCompo(arr->getNumberOfComponents());
     for(typename std::vector<typename MLFieldTraits<T>::F1TSWSDAType const *>::const_iterator it=f1tss.begin();it!=f1tss.end();it++)
       {
         const typename Traits<T>::ArrayType *myArr((*it)->getUndergroundDataArrayTemplate());
         if(myArr->getNumberOfComponents()!=nbCompo)
           throw INTERP_KERNEL::Exception("MEDFileField1TSTemplateWithoutSDA::aggregate : arrays must have same number of components !");
       }
-    std::vector<std::pair< int, std::pair<int,int> > > extractInfo;
-    int start(0);
+    std::vector<std::pair< int, std::pair<mcIdType,mcIdType> > > extractInfo;
+    mcIdType start(0);
     MCAuto<MEDFileFieldPerMesh> fpm(MEDFileFieldPerMesh::Aggregate(start,pms,dts,this,extractInfo));
     _field_per_mesh.push_back(fpm);
     int iteration,order;
@@ -191,7 +191,7 @@ namespace MEDCoupling
     _arr=Traits<T>::ArrayType::New();
     _arr->alloc(start,nbCompo); _arr->copyStringInfoFrom(*arr);
     start=0;
-    for(std::vector<std::pair< int, std::pair<int,int> > >::const_iterator it=extractInfo.begin();it!=extractInfo.end();it++)
+    for(std::vector<std::pair< int, std::pair<mcIdType,mcIdType> > >::const_iterator it=extractInfo.begin();it!=extractInfo.end();it++)
       {
         const DataArray *zeArr(das[(*it).first]);
         _arr->setContigPartOfSelectedValuesSlice(start,zeArr,(*it).second.first,(*it).second.second,1);
@@ -401,7 +401,7 @@ namespace MEDCoupling
    *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
    */
   template<class T>
-  typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const
+  typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayIdType *&pfl) const
   {
     MCAuto<DataArray> arr(contentNotNull()->getFieldWithProfile(type,meshDimRelToMax,mesh,pfl,this,*contentNotNull()));
     return ReturnSafelyTypedDataArray(arr);
@@ -420,7 +420,7 @@ namespace MEDCoupling
   }
   
   template<class T>
-  typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
+  typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
   {
     return contentNotNull()->getUndergroundDataArrayTemplateExt(entries);
   }
@@ -685,7 +685,7 @@ namespace MEDCoupling
    *  \sa setFieldNoProfileSBT, setFieldProfileFlatly
    */
   template<class T>
-  void MEDFileTemplateField1TS<T>::setFieldProfile(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+  void MEDFileTemplateField1TS<T>::setFieldProfile(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile)
   {
     setFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,true);
   }
@@ -695,13 +695,13 @@ namespace MEDCoupling
    * \sa setFieldProfile
    */
   template<class T>
-  void MEDFileTemplateField1TS<T>::setFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+  void MEDFileTemplateField1TS<T>::setFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile)
   {
     setFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,false);
   }
 
   template<class T>
-  void MEDFileTemplateField1TS<T>::setFieldProfileGeneral(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, bool smartPflKiller)
+  void MEDFileTemplateField1TS<T>::setFieldProfileGeneral(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile, bool smartPflKiller)
   {
     setFileName("");
     MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::NewWithoutCheck(*field));
@@ -716,7 +716,7 @@ namespace MEDCoupling
    * \sa MEDFileUMesh::deduceNodeSubPartFromCellSubPart , MEDFileUMesh::extractPart
    */
   template<class T>
-  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::extractPartImpl(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
+  typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::extractPartImpl(const std::map<int, MCAuto<DataArrayIdType> >& extractDef, MEDFileMesh *mm) const
   {
     if(!mm)
       throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : input mesh is NULL !");
@@ -730,10 +730,10 @@ namespace MEDCoupling
             getNonEmptyLevels(mm->getName(),levs);
             for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
               {
-                std::map<int, MCAuto<DataArrayInt> >::const_iterator it2(extractDef.find(*lev));
+                std::map<int, MCAuto<DataArrayIdType> >::const_iterator it2(extractDef.find(*lev));
                 if(it2!=extractDef.end())
                   {
-                    MCAuto<DataArrayInt> t((*it2).second);
+                    MCAuto<DataArrayIdType> t((*it2).second);
                     if(t.isNull())
                       throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a value with null pointer 1 !");
                     MCAuto<typename Traits<T>::FieldType> f(getFieldOnMeshAtLevel(ON_CELLS,(*lev),mm));
@@ -744,10 +744,10 @@ namespace MEDCoupling
           }
         else
           {
-            std::map<int, MCAuto<DataArrayInt> >::const_iterator it2(extractDef.find(1));
+            std::map<int, MCAuto<DataArrayIdType> >::const_iterator it2(extractDef.find(1));
             if(it2==extractDef.end())
               throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a NODE field and no extract array available for NODE !");
-            MCAuto<DataArrayInt> t((*it2).second);
+            MCAuto<DataArrayIdType> t((*it2).second);
             if(t.isNull())
               throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a value with null pointer 1 !");
             MCAuto<typename Traits<T>::FieldType> f(getFieldOnMeshAtLevel(ON_NODES,0,mm));
@@ -888,7 +888,7 @@ namespace MEDCoupling
    * \return A new object that the caller is responsible to deallocate.
    */
   template<class T>
-  typename MLFieldTraits<T>::FMTSType *MEDFileTemplateFieldMultiTS<T>::extractPartImpl(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
+  typename MLFieldTraits<T>::FMTSType *MEDFileTemplateFieldMultiTS<T>::extractPartImpl(const std::map<int, MCAuto<DataArrayIdType> >& extractDef, MEDFileMesh *mm) const
   {
     if(!mm)
       throw INTERP_KERNEL::Exception("MEDFileTemplateFieldMultiTS<T>::extractPart : mesh is null !");
@@ -1175,7 +1175,7 @@ namespace MEDCoupling
    *  \param [in] order - the iteration order number of required time step.
    *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
    *  \param [in] mesh - the supporting mesh.
-   *  \param [out] pfl - a new instance of DataArrayInt holding ids of mesh entities the
+   *  \param [out] pfl - a new instance of DataArrayIdType holding ids of mesh entities the
    *          field of interest lies on. If the field lies on all entities of the given
    *          dimension, all ids in \a pfl are zero. The caller is to delete this array
    *          using decrRef() as it is no more needed.  
@@ -1187,7 +1187,7 @@ namespace MEDCoupling
    *  \throw If no field values of the required parameters are available.
    */
   template<class T>
-  typename Traits<T>::ArrayType *MEDFileTemplateFieldMultiTS<T>::getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const
+  typename Traits<T>::ArrayType *MEDFileTemplateFieldMultiTS<T>::getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayIdType *&pfl) const
   {
     const MEDFileAnyTypeField1TSWithoutSDA& myF1TS(contentNotNullBase()->getTimeStepEntry(iteration,order));
     const typename MLFieldTraits<T>::F1TSWSDAType *myF1TSC(dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(&myF1TS));
@@ -1241,7 +1241,7 @@ namespace MEDCoupling
    *  \sa setFieldNoProfileSBT, appendFieldProfileFlatly
    */
   template<class T>
-  void MEDFileTemplateFieldMultiTS<T>::appendFieldProfile(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+  void MEDFileTemplateFieldMultiTS<T>::appendFieldProfile(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile)
   {
     appendFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,true);
   }
@@ -1250,13 +1250,13 @@ namespace MEDCoupling
    * same as appendFieldProfile except that here profile is created unconditionaly
    */
   template<class T>
-  void MEDFileTemplateFieldMultiTS<T>::appendFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile)
+  void MEDFileTemplateFieldMultiTS<T>::appendFieldProfileFlatly(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile)
   {
     appendFieldProfileGeneral(field,mesh,meshDimRelToMax,profile,false);
   }
 
   template<class T>
-  void MEDFileTemplateFieldMultiTS<T>::appendFieldProfileGeneral(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, bool smartPflKiller)
+  void MEDFileTemplateFieldMultiTS<T>::appendFieldProfileGeneral(const typename Traits<T>::FieldType *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile, bool smartPflKiller)
   {
     const typename Traits<T>::ArrayType *arr(NULL);
     if(field)
@@ -1332,7 +1332,7 @@ namespace MEDCoupling
   }
 
   template<class T>
-  typename Traits<T>::ArrayType *MEDFileTemplateFieldMultiTS<T>::getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const
+  typename Traits<T>::ArrayType *MEDFileTemplateFieldMultiTS<T>::getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
   {
     DataArray *ret(contentNotNull()->getUndergroundDataArrayExt(iteration,order,entries));
     if(!ret)

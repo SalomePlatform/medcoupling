@@ -46,19 +46,19 @@ namespace INTERP_KERNEL
       *
       */
   template<class MyMeshType, class MatrixType>
-  int Interpolation2D1D::interpolateMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, MatrixType& result, const std::string& method)
+  typename MyMeshType::MyConnType Interpolation2D1D::interpolateMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, MatrixType& result, const std::string& method)
   {
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
 
     long global_start =clock();
-    int counter=0;
+    std::size_t counter=0;
     /***********************************************************/
     /* Check both meshes are made of triangles and quadrangles */
     /***********************************************************/
 
-    long nbMailleS=myMeshS.getNumberOfElements();
+    ConnType nbMailleS=myMeshS.getNumberOfElements();
 
     /**************************************************/
     /* Search the characteristic size of the meshes   */
@@ -114,12 +114,12 @@ namespace INTERP_KERNEL
     /* Loop on the target cells - core of the algorithm */
     /****************************************************/
     long start_intersection=clock();
-    long nbelem_type=myMeshT.getNumberOfElements();
+    ConnType nbelem_type=myMeshT.getNumberOfElements();
     const ConnType *connIndxT=myMeshT.getConnectivityIndexPtr();
-    for(int iT=0; iT<nbelem_type; iT++)
+    for(ConnType iT=0; iT<nbelem_type; iT++)
       {
-        int nb_nodesT=connIndxT[iT+1]-connIndxT[iT];
-        std::vector<int> intersecting_elems;
+        ConnType nb_nodesT=connIndxT[iT+1]-connIndxT[iT];
+        std::vector<ConnType> intersecting_elems;
         double bb[2*SPACEDIM];
         intersector->getElemBB(bb,myMeshT,OTT<ConnType,numPol>::indFC(iT),nb_nodesT);
         my_tree.getIntersectingElems(bb, intersecting_elems);
@@ -127,7 +127,7 @@ namespace INTERP_KERNEL
         counter+=intersecting_elems.size();
         intersecting_elems.clear();
       }
-    int ret=intersector->getNumberOfColsOfResMatrix();
+    ConnType ret=intersector->getNumberOfColsOfResMatrix();
 
     const DuplicateFacesType& intersectFaces = *intersector->getIntersectFaces();
     DuplicateFacesType::const_iterator iter;

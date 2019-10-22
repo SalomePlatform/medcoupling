@@ -92,12 +92,13 @@ namespace INTERP_KERNEL
   //================================================================================
 
   template<class MyCMeshType, class MyUMeshType, class MatrixType>
-  int InterpolationCU::interpolateMeshes(const MyCMeshType& src_mesh,
+  typename MyCMeshType::MyConnType InterpolationCU::interpolateMeshes(const MyCMeshType& src_mesh,
                                          const MyUMeshType& tgt_mesh,
                                          MatrixType&        result,
                                          const char *       method)
   {
     typedef typename MyCMeshType::MyConnType CConnType;
+    typedef typename MyUMeshType::MyConnType UConnType;
 
     if ( std::string("P0P0") != method )
       throw Exception("Only P0P0 method is implemented so far");
@@ -117,27 +118,28 @@ namespace INTERP_KERNEL
       }
     // create empty maps for all target elements
     result.resize( intersector->getNumberOfRowsOfResMatrix() );
-    const int ret = intersector->getNumberOfColsOfResMatrix();
+    const CConnType ret = intersector->getNumberOfColsOfResMatrix();
 
     const double* src_coords[ dim ];
-    int        src_nb_coords[ dim ];
-    std::map< double, int> src_coord_to_index[ dim ];
+    CConnType  src_nb_coords[ dim ];
+    std::map< double, CConnType> src_coord_to_index[ dim ];
     for ( int j = 0; j < dim; ++j )
       {
-        src_coords   [j] = src_mesh.getCoordsAlongAxis( _TMIC( j ));
-        src_nb_coords[j] = src_mesh.nbCellsAlongAxis  ( _TMIC( j )) + 1;
-        for (int i = 0; i < src_nb_coords[j]; ++i )
+        int axis = static_cast<int>( _TMIC( j ));
+        src_coords   [j] = src_mesh.getCoordsAlongAxis( axis );
+        src_nb_coords[j] = static_cast<CConnType>(src_mesh.nbCellsAlongAxis( axis )) + 1;
+        for (CConnType i = 0; i < src_nb_coords[j]; ++i )
           src_coord_to_index[j].insert( std::make_pair( src_coords[j][i], i ));
       }
 
-    const unsigned long tgtu_nb_cells = tgt_mesh.getNumberOfElements();
+    const UConnType tgtu_nb_cells = tgt_mesh.getNumberOfElements();
 
     IntersectorCU<MyCMeshType, MyUMeshType, MatrixType> bbHelper(src_mesh, tgt_mesh);
     double bb[2*dim];
 
     // loop on unstructured tgt cells
 
-    for(unsigned int iT=0; iT<tgtu_nb_cells; iT++)
+    for(UConnType iT=0; iT<tgtu_nb_cells; iT++)
       {
         result[ iT ].clear();
 
@@ -154,23 +156,23 @@ namespace INTERP_KERNEL
 
         // find structured src cells intersecting iT cell
         std::vector< std::vector< CConnType > > structIndices(1);
-        std::map< double, int>::iterator coo_ind;
+        typename std::map< double, CConnType>::iterator coo_ind;
         for ( int j = 0; j < dim; ++j )
           {
             coo_ind = src_coord_to_index[j].lower_bound( bb[2*j+1] - eps );
             if ( coo_ind == src_coord_to_index[j].end() )
               --coo_ind;
-            int max_i = coo_ind->second;
+            CConnType max_i = coo_ind->second;
 
             coo_ind = src_coord_to_index[j].upper_bound( bb[2*j  ] + eps );
             if ( coo_ind != src_coord_to_index[j].begin() )
               --coo_ind;
-            int min_i = coo_ind->second;
+            CConnType min_i = coo_ind->second;
 
             std::vector< std::vector< CConnType > > newStructIndices;
             for ( unsigned int iInd = 0; iInd < structIndices.size(); ++iInd )
               {
-                for ( int i = min_i; i < max_i; ++i )
+                for ( CConnType i = min_i; i < max_i; ++i )
                   {
                     std::vector< CConnType > index = structIndices[iInd];
                     index.push_back( i );
@@ -214,14 +216,17 @@ namespace INTERP_KERNEL
   //================================================================================
 
   template<class MyUMeshType, class MyCMeshType, class MatrixType>
-  int InterpolationCU::interpolateMeshesRev(const MyUMeshType& meshS, const MyCMeshType& meshT, MatrixType& result, const char *method)
+  typename MyUMeshType::MyConnType InterpolationCU::interpolateMeshesRev(const MyUMeshType& meshS, const MyCMeshType& meshT, MatrixType& result, const char *method)
   {
+    typedef typename MyCMeshType::MyConnType CConnType;
+    typedef typename MyUMeshType::MyConnType UConnType;
+
     MatrixType revResult;
-    int sizeT = interpolateMeshes( meshT, meshS, revResult, method );
-    int sizeS = revResult.size();
+    CConnType sizeT = interpolateMeshes( meshT, meshS, revResult, method );
+    UConnType sizeS = revResult.size();
     result.resize( sizeT );
 
-    for ( int iS = 0; iS < sizeS; ++iS )
+    for ( CConnType iS = 0; iS < sizeS; ++iS )
       {
         typename MatrixType::value_type & row = revResult[iS];
         typename MatrixType::value_type::iterator iT_surf = row.begin();

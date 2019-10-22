@@ -20,6 +20,8 @@
 #ifndef __EXPLICITMAPPING_HXX__
 #define __EXPLICITMAPPING_HXX__
 
+#include "MCIdType.hxx"
+
 #include <vector>
 #include <map>
 #include <set>
@@ -37,24 +39,24 @@ namespace MEDCoupling
     ExplicitMapping();
     ~ExplicitMapping();
     
-    void pushBackElem(std::pair<int,int> idistant);
-    void  setDistantElem(int ilocal, std::pair<int,int> idistant);
+    void pushBackElem(std::pair<int,mcIdType> idistant);
+    void  setDistantElem(mcIdType ilocal, std::pair<int,mcIdType> idistant);
     int nbDistantDomains();
-    std::pair <int,int> getDistantNumbering(int ielem) const;
+    std::pair <int,mcIdType> getDistantNumbering(mcIdType ielem) const;
     
     int getDistantDomain(int i);
     int getNbDistantElems(int i);
-    int* serialize(int idproc);
-    void unserialize(int nbprocs, int* sizes,int nbtarget, int* targetrank, int* commbuffer);
+    mcIdType* serialize(int idproc);
+    void unserialize(int nbprocs, int* sizes,int nbtarget, int* targetrank, mcIdType* commbuffer);
     
     int* getBufferIndex() const { return _buffer_index; }
     int* getCounts() const { return _send_counts; }
   private:
-    std::vector <std::pair<int,int> > _mapping;
+    std::vector <std::pair<int,mcIdType> > _mapping;
     std::set<int> _distant_domains;
     int* _numbers;
     int* _domains;
-    int* _comm_buffer;
+    mcIdType* _comm_buffer;
     int* _buffer_index;
     int* _send_counts;
 

@@ -22,6 +22,7 @@
 
 #include "MEDPARTITIONER.hxx"
 #include "MCAuto.hxx"
+#include "MCType.hxx"
 
 #include <string>
 
@@ -52,14 +53,14 @@ namespace MEDPARTITIONER
     virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) = 0;
     
     //returns the partitioning
-    const int *getPart() const;
+    const mcIdType *getPart() const;
     
     //returns the number of graph vertices (which can correspond to the cells in the mesh!)
-    int nbVertices() const;
+    mcIdType nbVertices() const;
 
     // returns nb of domains in _partition
     int nbDomains() const;
-    
+
     const MEDCouplingSkyLineArray *getGraph() const { return (const MEDCouplingSkyLineArray*)_graph; }
     const MEDCouplingSkyLineArray *getPartition() const { return (const MEDCouplingSkyLineArray*)_partition; }
 

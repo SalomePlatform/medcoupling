@@ -115,7 +115,7 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
         }
       
-    _comm_interface.groupIncl(group_world, _proc_ids.size(), ranks, &_group);
+    _comm_interface.groupIncl(group_world, (int)_proc_ids.size(), ranks, &_group);
   
     _comm_interface.commCreate(_world_comm, _group, &_comm);
 

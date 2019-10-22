@@ -335,7 +335,7 @@ void MEDCouplingField::setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellT
  *  \throw If type of any cell in \a begin differs from that of cell # \a begin[0].
  *  \throw If the range [_begin_,_end_) is empty.
  */
-void MEDCouplingField::setGaussLocalizationOnCells(const int *begin, const int *end, const std::vector<double>& refCoo,
+void MEDCouplingField::setGaussLocalizationOnCells(const mcIdType *begin, const mcIdType *end, const std::vector<double>& refCoo,
                                                    const std::vector<double>& gsCoo, const std::vector<double>& wg)
 {
   if(!_mesh)
@@ -379,13 +379,13 @@ MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int locId)
 /*!
  * Returns an id of the Gauss localization object corresponding to a given cell type.
  *  \param [in] type - the cell type of interest.
- *  \return int - the id of the Gauss localization object.
+ *  \return mcIdType - the id of the Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If no Gauss localization object found for the given cell \a type.
  *  \throw If more than one Gauss localization object found for the given cell \a type.
  */
-int MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const
+mcIdType MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getGaussLocalizationIdOfOneType method !");
@@ -395,11 +395,11 @@ int MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedC
 /*!
  * Returns ids of Gauss localization objects corresponding to a given cell type.
  *  \param [in] type - the cell type of interest.
- *  \return std::set<int> - ids of the Gauss localization object.
+ *  \return std::set<mcIdType> - ids of the Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL
  */
-std::set<int> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const
+std::set<mcIdType> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getGaussLocalizationIdsOfOneType method !");
@@ -409,11 +409,11 @@ std::set<int> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::
 /*!
  * Returns number of Gauss localization objects available. Implicitly all ids in
  * [0,getNbOfGaussLocalization()) are valid Gauss localization ids. 
- *  \return int - the number of available Gauss localization objects.
+ *  \return mcIdType - the number of available Gauss localization objects.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-int MEDCouplingField::getNbOfGaussLocalization() const
+mcIdType MEDCouplingField::getNbOfGaussLocalization() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getNbOfGaussLocalization method !");
@@ -423,12 +423,12 @@ int MEDCouplingField::getNbOfGaussLocalization() const
 /*!
  * Returns an id of the Gauss localization object corresponding to a type of a given cell.
  *  \param [in] cellId - an id of the cell of interest.
- *  \return int - the id of the Gauss localization object.
+ *  \return mcIdType - the id of the Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If no Gauss localization object found for the given cell.
  */
-int MEDCouplingField::getGaussLocalizationIdOfOneCell(int cellId) const
+mcIdType MEDCouplingField::getGaussLocalizationIdOfOneCell(mcIdType cellId) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getGaussLocalizationIdOfOneCell method !");
@@ -445,7 +445,7 @@ int MEDCouplingField::getGaussLocalizationIdOfOneCell(int cellId) const
  *  \throw If \a locId is not within the valid range.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-void MEDCouplingField::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const
+void MEDCouplingField::getCellIdsHavingGaussLocalization(int locId, std::vector<mcIdType>& cellIds) const
 {
   cellIds.clear();
   if(!((const MEDCouplingFieldDiscretization *)_type))
@@ -506,7 +506,7 @@ MEDCouplingField::MEDCouplingField(const MEDCouplingField& other, bool deepCopy)
  *  \param [in] start - an array of cell ids to include to the result mesh.
  *  \param [in] end - specifies the end of the array \a start, so that
  *              the last value of \a start is \a end[ -1 ].
- *  \param [out] di - a new instance of DataArrayInt holding the ids of entities (nodes,
+ *  \param [out] di - a new instance of DataArrayIdType holding the ids of entities (nodes,
  *         cells, Gauss points). The caller is to delete this array using decrRef() as it
  *         is no more needed.  
  *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
@@ -515,7 +515,7 @@ MEDCouplingField::MEDCouplingField(const MEDCouplingField& other, bool deepCopy)
  *  \throw If the mesh is not set.
  * \sa buildSubMeshDataRange()
  */
-MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const
+MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const mcIdType *start, const mcIdType *end, DataArrayIdType *&di) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call buildSubMeshData method !");
@@ -532,7 +532,7 @@ MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const int *start, const int 
  * 
  * \sa MEDCouplingField::buildSubMeshData
  */
-MEDCouplingMesh *MEDCouplingField::buildSubMeshDataRange(int begin, int end, int step, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const
+MEDCouplingMesh *MEDCouplingField::buildSubMeshDataRange(mcIdType begin, mcIdType end, mcIdType step, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType *&di) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call buildSubMeshDataRange method !");
@@ -541,9 +541,9 @@ MEDCouplingMesh *MEDCouplingField::buildSubMeshDataRange(int begin, int end, int
 
 /*!
  * This method returns tuples ids implied by the mesh selection of the  cell ids contained in array defined as an interval [start;end).
- * \return a newly allocated DataArrayInt instance containing tuples ids.
+ * \return a newly allocated DataArrayIdType instance containing tuples ids.
  */
-DataArrayInt *MEDCouplingField::computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const
+DataArrayIdType *MEDCouplingField::computeTupleIdsToSelectFromCellIds(const mcIdType *startCellIds, const mcIdType *endCellIds) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call computeTupleIdsToSelectFromCellIds method !");
@@ -553,11 +553,11 @@ DataArrayInt *MEDCouplingField::computeTupleIdsToSelectFromCellIds(const int *st
 /*!
  * Returns number of tuples expected regarding the spatial discretization of \a this
  * field and number of entities in the underlying mesh. This method behaves exactly as MEDCouplingFieldDouble::getNumberOfTuples.
- *  \return int - the number of expected tuples.
+ *  \return mcIdType - the number of expected tuples.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the mesh is not set.
  */
-int MEDCouplingField::getNumberOfTuplesExpected() const
+mcIdType MEDCouplingField::getNumberOfTuplesExpected() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getNumberOfTuplesExpected method !");
@@ -580,11 +580,11 @@ void MEDCouplingField::setDiscretization(MEDCouplingFieldDiscretization *newDisc
 /*!
  * Returns number of mesh entities in the underlying mesh of \a this field regarding the
  * spatial discretization.
- *  \return int - the number of mesh entities porting the field values.
+ *  \return mcIdType - the number of mesh entities porting the field values.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the mesh is not set.
  */
-int MEDCouplingField::getNumberOfMeshPlacesExpected() const
+mcIdType MEDCouplingField::getNumberOfMeshPlacesExpected() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getNumberOfMeshPlacesExpected method !");
@@ -623,7 +623,7 @@ void MEDCouplingField::copyTinyStringsFrom(const MEDCouplingField *other)
  * \throw If input code point to invalid zones in spatial discretization.
  * \throw If spatial discretization in \a this requires a mesh and those mesh is invalid (null,...)
  */
-int MEDCouplingField::getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
+mcIdType MEDCouplingField::getNumberOfTuplesExpectedRegardingCode(const std::vector<mcIdType>& code, const std::vector<const DataArrayIdType *>& idsPerType) const
 {
   const MEDCouplingFieldDiscretization *t(_type);
   if(!t)

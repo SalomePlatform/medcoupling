@@ -36,8 +36,8 @@ namespace INTERP_KERNEL
   protected:
     PlanarIntersectorP0P0(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
   public:
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    ConnType getNumberOfRowsOfResMatrix() const;
+    ConnType getNumberOfColsOfResMatrix() const;
     void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
     /*!
      * Contrary to intersectCells method here icellS and icellT are \b not in \b C mode but in mode of MyMeshType.

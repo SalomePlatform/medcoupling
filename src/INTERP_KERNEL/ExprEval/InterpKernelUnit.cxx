@@ -233,7 +233,8 @@ void DecompositionInUnitBase::tryToConvertInUnit(double val)
 
 DecompositionInUnitBase &DecompositionInUnitBase::operator*(const DecompositionInUnitBase& other)
 {
-  _value[0]+=other._value[0]; _value[1]+=other._value[1]; _value[2]+=other._value[2]; _value[3]+=other._value[3]; _value[4]+=other._value[4];
+  // += causes ' conversion to 'short int' from 'int' may alter its value [-Wconversion]'
+  _value[0]=(short)(_value[0]+other._value[0]); _value[1]=(short)(_value[1]+other._value[1]); _value[2]=(short)(_value[2]+other._value[2]); _value[3]=(short)(_value[3]+other._value[3]); _value[4]=(short)(_value[4]+other._value[4]);
   _mult_fact_to_base*=other._mult_fact_to_base;
   _add_to_base=0.;
   return *this;
@@ -241,7 +242,8 @@ DecompositionInUnitBase &DecompositionInUnitBase::operator*(const DecompositionI
 
 DecompositionInUnitBase &DecompositionInUnitBase::operator/(const DecompositionInUnitBase& other)
 {
-  _value[0]-=other._value[0]; _value[1]-=other._value[1]; _value[2]-=other._value[2]; _value[3]-=other._value[3]; _value[4]-=other._value[4];
+  // -= causes ' conversion to 'short int' from 'int' may alter its value [-Wconversion]'
+  _value[0]=(short)(_value[0]-other._value[0]); _value[1]=(short)(_value[1]-other._value[1]); _value[2]=(short)(_value[2]-other._value[2]); _value[3]=(short)(_value[3]-other._value[3]); _value[4]=(short)(_value[4]-other._value[4]);
   _mult_fact_to_base/=other._mult_fact_to_base;
  _add_to_base=0.;
  return *this;
@@ -252,7 +254,8 @@ DecompositionInUnitBase &DecompositionInUnitBase::operator^(const DecompositionI
   if(!other.isAdimensional())
     throw INTERP_KERNEL::Exception("Trying to execute operator ^ with a second member not adimensionnal");
   int exp=couldItBeConsideredAsInt(other._mult_fact_to_base);
-  _value[0]*=exp; _value[1]*=exp; _value[2]*=exp; _value[3]*=exp; _value[4]*=exp;
+  // *= causes ' conversion to 'short int' from 'int' may alter its value [-Wconversion]'
+  _value[0]=(short)(_value[0]*exp); _value[1]=(short)(_value[1]*exp); _value[2]=(short)(_value[2]*exp); _value[3]=(short)(_value[3]*exp); _value[4]=(short)(_value[4]*exp);
   _mult_fact_to_base=powInt(_mult_fact_to_base,exp);
   _add_to_base=0.;
   return *this;

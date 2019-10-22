@@ -95,36 +95,35 @@ MCAuto<MEDFileEltStruct4Mesh> MEDFileBlowStrEltUp::dealWithMEDBALLInMesh(const M
   const DataArrayDouble *coo(mesh->getCoords());
   if(!coo)
     throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLInMesh : null coords !");
-  MCAuto<DataArrayInt> conn(zeStr->getConn());
+  MCAuto<DataArrayIdType> conn(zeStr->getConn());
   if(conn.isNull())
     throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLInMesh : null connectivity !");
   conn->checkAllocated();
   if(conn->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLInMesh : excepted to be single compo !");
-  int nbCells(conn->getNumberOfTuples());
   MCAuto<DataArrayDouble> connOut(coo->selectByTupleIdSafe(conn->begin(),conn->end()));
   MCAuto<MEDCouplingUMesh> mcOut(MEDCouplingUMesh::Build0DMeshFromCoords(connOut));
   mcOut->setName(BuildNewMeshName(mesh->getName(),MED_BALL_STR));
   mOut->setMeshAtLevel(0,mcOut);
-  const DataArrayInt *ff1(mesh->getFamilyFieldAtLevel(1));
+  const DataArrayIdType *ff1(mesh->getFamilyFieldAtLevel(1));
   if(ff1)
     {
-      MCAuto<DataArrayInt> ff1o(ff1->selectByTupleIdSafe(conn->begin(),conn->end()));
+      MCAuto<DataArrayIdType> ff1o(ff1->selectByTupleIdSafe(conn->begin(),conn->end()));
       mOut->setFamilyFieldArr(1,ff1o);
     }
-  const DataArrayInt *nf1(mesh->getNumberFieldAtLevel(1));
+  const DataArrayIdType *nf1(mesh->getNumberFieldAtLevel(1));
   if(nf1)
     {
-      MCAuto<DataArrayInt> nf1o(nf1->selectByTupleIdSafe(conn->begin(),conn->end()));
+      MCAuto<DataArrayIdType> nf1o(nf1->selectByTupleIdSafe(conn->begin(),conn->end()));
       mOut->setRenumFieldArr(1,nf1o);
     }
   MCAuto<MEDFileUMeshPerTypeCommon> md(zeStr->getMeshDef());
-  const DataArrayInt *ff0(md->getFam());
+  const DataArrayIdType *ff0(md->getFam());
   if(ff0)
-    mOut->setFamilyFieldArr(0,const_cast<DataArrayInt *>(ff0));
-  const DataArrayInt *nf0(md->getNum());
+    mOut->setFamilyFieldArr(0,const_cast<DataArrayIdType *>(ff0));
+  const DataArrayIdType *nf0(md->getNum());
   if(nf0)
-    mOut->setRenumFieldArr(0,const_cast<DataArrayInt *>(nf0));
+    mOut->setRenumFieldArr(0,const_cast<DataArrayIdType *>(nf0));
   mOut->copyFamGrpMapsFrom(*mesh);
   const std::vector< MCAuto<DataArray> >& vars(zeStr->getVars());
   for(std::vector< MCAuto<DataArray> >::const_iterator it=vars.begin();it!=vars.end();it++)
@@ -223,7 +222,7 @@ void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, cons
           std::vector<std::string> pfls(zeGuideForPfl->getPflsReallyUsed());
           if(pfls.size()>=2)
             throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : drink less coffee");
-          MCAuto<DataArrayInt> pflMyLove;
+          MCAuto<DataArrayIdType> pflMyLove;
           if(pfls.size()==1)
             pflMyLove.takeRef(zeGuideForPfl->getProfile(pfls[0]));
           // Yeah we have pfls
@@ -386,7 +385,7 @@ void LocInfo::checkUniqueLoc(const std::string& loc) const
 
 MCAuto<MEDCouplingUMesh> LocInfo::BuildMeshCommon(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs, MCAuto<DataArrayDouble>& ptsForLoc)
 {
-  MCAuto<DataArrayInt> conn(zeStr->getConn());
+  MCAuto<DataArrayIdType> conn(zeStr->getConn());
   conn=conn->deepCopy(); conn->rearrange(1);
   MCAuto<MEDCouplingUMesh> geoMesh;
   {
@@ -398,7 +397,7 @@ MCAuto<MEDCouplingUMesh> LocInfo::BuildMeshCommon(INTERP_KERNEL::NormalizedCellT
   //
   if(!pfl.empty())
     {
-      const DataArrayInt *pflArr(globs->getProfile(pfl));
+      const DataArrayIdType *pflArr(globs->getProfile(pfl));
       geoMesh=geoMesh->buildPartOfMySelf(pflArr->begin(),pflArr->end(),true);
     }
   //
@@ -418,7 +417,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
   MCConstAuto<DataArrayDouble> angleVrille;
   if(!pfl.empty())
     {
-      const DataArrayInt *pflArr(globs->getProfile(pfl));
+      const DataArrayIdType *pflArr(globs->getProfile(pfl));
       angleVrille=angleDeVrille->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
     }
   else
@@ -426,12 +425,12 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
   //
   MCAuto<MEDCouplingFieldDouble> dir(geoMesh->buildDirectionVectorField());
   MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
-  int nbCompo(ptsForLoc->getNumberOfComponents());
+  std::size_t nbCompo(ptsForLoc->getNumberOfComponents());
   MCAuto<DataArrayDouble> secPts(section->getCoords()->changeNbOfComponents(nbCompo,0.));
-  int nbSecPts(secPts->getNumberOfTuples()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
+  mcIdType nbSecPts(secPts->getNumberOfTuples()),nbCells(geoMesh->getNumberOfCells()),nbg(ToIdType(loc.getGaussWeights().size()));
   {
     const int TAB[3]={2,0,1};
-    std::vector<int> v(TAB,TAB+3);
+    std::vector<std::size_t> v(TAB,TAB+3);
     secPts=secPts->keepSelectedComponents(v);
   }
   const double CENTER[3]={0.,0.,0.},AX0[3]={0.,0.,1.};
@@ -449,7 +448,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
       for(int l=0;l<nbg;l++)
         {
           MCAuto<DataArrayDouble> p2(p->deepCopy());
-          for(int k=0;k<nbCompo;k++)
+          for(std::size_t k=0;k<nbCompo;k++)
             p2->applyLin(1.,ptsForLoc->getIJ(j*nbg+l,k),k);
           arrs[j*nbg+l]=p2;
         }
@@ -463,11 +462,11 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
 {
   MCAuto<DataArrayDouble> ptsForLoc;
   MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(gt,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
-  int nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
+  mcIdType nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(ToIdType(loc.getGaussWeights().size()));
   MCConstAuto<DataArrayDouble> zeThickness;
   if(!pfl.empty())
     {
-      const DataArrayInt *pflArr(globs->getProfile(pfl));
+      const DataArrayIdType *pflArr(globs->getProfile(pfl));
       zeThickness=thickness->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
     }
   else
@@ -477,11 +476,11 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
     MCAuto<MEDCouplingFieldDouble> ortho(geoMesh->buildOrthogonalField());
     orthoArr.takeRef(ortho->getArray());
   }
-  int nbCompo(orthoArr->getNumberOfComponents());
+  mcIdType nbCompo(ToIdType(orthoArr->getNumberOfComponents()));
   MCAuto<DataArrayDouble> secPts(section->getCoords()->duplicateEachTupleNTimes(nbCompo));
   secPts->rearrange(nbCompo);
   std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
-  for(int j=0;j<nbCells;j++)
+  for(mcIdType j=0;j<nbCells;j++)
     {
       double thck(zeThickness->getIJ(j,0)),eccentricity(zeThickness->getIJ(j,1));
       MCAuto<DataArrayDouble> fact(DataArrayDouble::New()),fact2(DataArrayDouble::New()); fact->alloc(1,nbCompo); fact2->alloc(1,nbCompo);
@@ -509,11 +508,11 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
   static const char MSG1[]="BuildMeshPipeSEG3 : not recognized pattern ! Send mail to anthony.geay@edf.fr with corresponding MED file !";
   MCAuto<DataArrayDouble> ptsForLoc;
   MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(INTERP_KERNEL::NORM_SEG3,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
-  int nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(loc.getGaussWeights().size());
+  mcIdType nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(ToIdType(loc.getGaussWeights().size()));
   MCConstAuto<DataArrayDouble> zeAngle,zeScale;
   if(!pfl.empty())
     {
-      const DataArrayInt *pflArr(globs->getProfile(pfl));
+      const DataArrayIdType *pflArr(globs->getProfile(pfl));
       zeAngle=angle->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
       zeScale=scale->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
     }
@@ -531,17 +530,17 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
     dir=geoMesh2->buildDirectionVectorField();
   }
   MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
-  int nbCompo(ptsForLoc->getNumberOfComponents());
+  std::size_t nbCompo(ptsForLoc->getNumberOfComponents());
   MCAuto<DataArrayDouble> secPts(section->getCoords()->changeNbOfComponents(nbCompo,0.));
   {
     const int TAB[3]={2,0,1};
-    std::vector<int> v(TAB,TAB+3);
+    std::vector<std::size_t> v(TAB,TAB+3);
     secPts=secPts->keepSelectedComponents(v);
   }
   const double CENTER[3]={0.,0.,0.},AX0[3]={0.,0.,1.};
   double AX1[3]; AX1[2]=0.;
   std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
-  for(int j=0;j<nbCells;j++)
+  for(mcIdType j=0;j<nbCells;j++)
     {
       constexpr int DIM=3;
       MCAuto<DataArrayDouble> p(secPts->deepCopy());
@@ -566,7 +565,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
           MCAuto<DataArrayDouble> p3(p->deepCopy());
           DataArrayDouble::Rotate3DAlg(CENTER,dir->getArray()->begin()+j*3,zeAngle->getIJ(j,l),nbSecPts,p3->begin(),p3->getPointer());
           MCAuto<DataArrayDouble> p2(p3->deepCopy());
-          for(int k=0;k<nbCompo;k++)
+          for(std::size_t k=0;k<nbCompo;k++)
             p2->applyLin(1.,ptsForLoc->getIJ(j*nbg+l,k),k);
           arrs[j*nbg+l]=p2;
         }
@@ -648,11 +647,11 @@ MCAuto<MEDFileUMesh> LocInfo::generateNonClassicalData(int zePos, const MEDFileU
         if(um->getNumberOfCells()!=1)
           throw INTERP_KERNEL::Exception(MSG1);
         gt=um->getTypeOfCell(0);
-        std::vector<int> v;
+        std::vector<mcIdType> v;
         um->getNodeIdsOfCell(0,v);
         std::size_t sz2(v.size());
         for(std::size_t j=0;j<sz2;j++)
-          if(v[j]!=j)
+          if(v[j]!=ToIdType(j))
             throw INTERP_KERNEL::Exception(MSG1);
       }
       const std::vector< MCAuto<MEDFileEltStruct4Mesh> >& strs(mesh->getAccessOfUndergroundEltStrs());

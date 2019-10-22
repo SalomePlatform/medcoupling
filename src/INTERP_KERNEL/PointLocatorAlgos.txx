@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
   {
   public:
     virtual ~GenericPointLocatorAlgos() { }
-    virtual std::list<int> locates(const double* x, double eps) = 0;     
+    virtual std::list<mcIdType> locates(const double* x, double eps) = 0;
   };
         
   template<class MyMeshType>
@@ -50,19 +50,19 @@ namespace INTERP_KERNEL
       typedef typename MyMeshType::MyConnType ConnType;
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
-      int nelem = _mesh.getNumberOfElements();
+      ConnType nelem = _mesh.getNumberOfElements();
       _bb = new double[SPACEDIM*2*nelem];
       const ConnType* conn = _mesh.getConnectivityPtr();
       const ConnType* conn_index = _mesh.getConnectivityIndexPtr();
       const double* coords=_mesh.getCoordinatesPtr();
-      for (int i=0; i<nelem; i++)
+      for (ConnType i=0; i<nelem; i++)
         {
           for (int idim=0; idim<SPACEDIM; idim++)
             {
               _bb[2*(i*SPACEDIM+idim)]=std::numeric_limits<double>::max();
               _bb[2*(i*SPACEDIM+idim)+1]=-std::numeric_limits<double>::max();
             }
-          for (int index= conn_index[i]; index < conn_index[i+1];index++)
+          for (ConnType index= conn_index[i]; index < conn_index[i+1];index++)
             {
               //coordelem points to the coordinates of the current node of the i-th element
               const double* coordelem = coords+OTT<ConnType,numPol>::ind2C(conn[OTT<ConnType,numPol>::ind2C(index)])*SPACEDIM;
@@ -95,14 +95,14 @@ namespace INTERP_KERNEL
       std::list<ConnType> retlist;
       for(unsigned int i=0; i< candidates.size(); i++)
         {
-          int ielem=candidates[i];
+          ConnType ielem=candidates[i];
           if (elementContainsPoint(ielem,x,eps))
             retlist.push_back(OTT<ConnType,numPol>::indFC(ielem));
         }
       return retlist;
     }
 
-    static bool isElementContainsPointAlg2D(const double *ptToTest, const double *cellPts, int nbEdges, double eps)
+    static bool isElementContainsPointAlg2D(const double *ptToTest, const double *cellPts, mcIdType nbEdges, double eps)
     {
       /* with dimension 2, it suffices to check all the edges
          and see if the sign of double products from the point
@@ -116,7 +116,7 @@ namespace INTERP_KERNEL
          here XA^XC and XC^XB have different signs*/
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       int* sign = new int[nbEdges];
-      for (int iedge=0; iedge<nbEdges; iedge++)
+      for (mcIdType iedge=0; iedge<nbEdges; iedge++)
         {
           const double* A=cellPts+SPACEDIM*iedge;
           const double* B=cellPts+SPACEDIM*((iedge+1)%nbEdges);
@@ -133,7 +133,7 @@ namespace INTERP_KERNEL
       return ret;
     }
 
-    static bool isElementContainsPointAlg3D(const double *ptToTest, const typename MyMeshType::MyConnType *conn_elem, int conn_elem_sz, const double *coords, const CellModel& cmType, double eps)
+    static bool isElementContainsPointAlg3D(const double *ptToTest, const typename MyMeshType::MyConnType *conn_elem, typename MyMeshType::MyConnType conn_elem_sz, const double *coords, const CellModel& cmType, double eps)
     {
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
@@ -141,7 +141,7 @@ namespace INTERP_KERNEL
       
       int nbfaces = cmType.getNumberOfSons2(conn_elem,conn_elem_sz);
       int *sign = new int[nbfaces];
-      int *connOfSon = new int[conn_elem_sz];
+      ConnType *connOfSon = new ConnType[conn_elem_sz];
       for (int iface=0; iface<nbfaces; iface++)
         {
           NormalizedCellType typeOfSon;
@@ -166,7 +166,7 @@ namespace INTERP_KERNEL
     /*!
      * Precondition : spacedim==meshdim. To be checked upstream to this call.
      */
-    static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const typename MyMeshType::MyConnType *conn_elem, int conn_elem_sz, double eps)
+    static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const typename MyMeshType::MyConnType *conn_elem, typename MyMeshType::MyConnType conn_elem_sz, double eps)
     {
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
@@ -220,7 +220,7 @@ namespace INTERP_KERNEL
       return isElementContainsPoint(x,type,coords,conn_elem,conn_elem_sz,eps);
     }
                 
-    static bool decideFromSign(const int* sign, int nbelem)
+    static bool decideFromSign(const int* sign, mcIdType nbelem)
     {
       int min_sign = 1;
       int max_sign = -1;
@@ -249,17 +249,17 @@ namespace INTERP_KERNEL
      */
     //================================================================================
 
-    virtual std::list<int> locates(const double* x, double eps)
+    virtual std::list<typename MyMeshType::MyConnType> locates(const double* x, double eps)
     {
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
 
-      std::list<int> simplexNodes;
-      std::list<int> candidates = PointLocatorAlgos<MyMeshType>::locates(x,eps);
-      std::list<int>::iterator eIt = candidates.begin();
+      std::list<ConnType> simplexNodes;
+      std::list<ConnType> candidates = PointLocatorAlgos<MyMeshType>::locates(x,eps);
+      typename std::list<ConnType>::iterator eIt = candidates.begin();
       for ( ; eIt != candidates.end(); ++eIt )
         {
-          const int i = OTT<ConnType,numPol>::ind2C( *eIt );
+          const ConnType i = OTT<ConnType,numPol>::ind2C( *eIt );
           const double* coords= _mesh.getCoordinatesPtr();
           const ConnType* conn=_mesh.getConnectivityPtr();
           const ConnType* conn_index= _mesh.getConnectivityIndexPtr();
@@ -279,14 +279,14 @@ namespace INTERP_KERNEL
           else
             {
               NormalizedCellType simlexType = cell.getDimension()==3 ? NORM_TETRA4 : NORM_TRI3;
-              std::vector<int> sonNodes;
+              std::vector<mcIdType> sonNodes;
               NormalizedCellType sonType;
               const unsigned nbSons = cell.getNumberOfSons2( conn_elem, conn_elem_sz );
               for ( unsigned s = 0; s < nbSons; ++s )
                 {
                   sonNodes.resize( cell.getNumberOfNodesConstituentTheSon2( s, conn_elem, conn_elem_sz ));
                   cell.fillSonCellNodalConnectivity2( s, conn_elem, conn_elem_sz, &sonNodes[0], sonType );
-                  std::set<int> sonNodesSet( sonNodes.begin(), sonNodes.end() );
+                  std::set<mcIdType> sonNodesSet( sonNodes.begin(), sonNodes.end() );
 
                   std::set< std::set< ConnType > > checkedSonSimplex;
                   for ( unsigned sn = 0; sn < sonNodes.size(); ++sn )

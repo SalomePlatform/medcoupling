@@ -606,7 +606,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         m=MEDCoupling1SGTUMesh("m",NORM_QUAD4)
         mem_m=m.getHeapMemorySize()
         m.allocateCells(5)
-        self.assertIn(m.getHeapMemorySize() - mem_m, list(range(5 * 4 * 4, 5 * 4 * 4 + 32)))
+        self.assertIn(m.getHeapMemorySize() - mem_m, list(range(5 * 4 * MEDCouplingSizeOfIDs()//8, 5 * 4 * MEDCouplingSizeOfIDs()//8 + 32)))
         self.assertEqual(m.getNodalConnectivity().getNbOfElemAllocated(),20)
         m.setCoords(um.getCoords())
         m.insertNextCell([1,0,6,7])
@@ -1019,7 +1019,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(d.getInfoOnComponents(),["aa","bbb"])
         ref=d.getHeapMemorySize()
         d.desallocate()
-        self.assertEqual(ref-d.getHeapMemorySize(),6*4)
+        self.assertEqual(ref-d.getHeapMemorySize(),6*MEDCouplingSizeOfIDs()//8)
         self.assertTrue(not d.isAllocated())
         self.assertEqual(d.getInfoOnComponents(),["aa","bbb"])
         self.assertRaises(InterpKernelException,d.checkAllocated)
@@ -3885,9 +3885,9 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         m.setCoords(arrX,arrX)
         f=MEDCouplingFieldInt(ON_CELLS)
         f.setMesh(m)
-        arr=DataArrayInt(8) ; arr.iota() ;f.setArray(arr)
+        arr=DataArrayInt32(8) ; arr.iota() ;f.setArray(arr)
         self.assertRaises(InterpKernelException,f.checkConsistencyLight)
-        arr=DataArrayInt(9) ; arr.iota() ;f.setArray(arr)
+        arr=DataArrayInt32(9) ; arr.iota() ;f.setArray(arr)
         f.checkConsistencyLight()
         f.setTimeUnit("ms")
         self.assertEqual(f.getTimeUnit(),"ms")
@@ -3935,13 +3935,13 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         m1=MEDCouplingCMesh() ; m1.setCoords(DataArrayDouble([0,1,2,3]),DataArrayDouble([0,1,2,3,4]))
         m1=m1.buildUnstructured() ; m1.setName("mesh")
         f1=MEDCouplingFieldInt(ON_CELLS) ; f1.setMesh(m1)
-        arr1=DataArrayInt([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr1.setInfoOnComponents(["aa","bbb"])
+        arr1=DataArrayInt32([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr1.setInfoOnComponents(["aa","bbb"])
         f1.setArray(arr1) ; f1.setName("f1") ; f1.setTime(2.,3,4)
         #
         m2=MEDCouplingCMesh() ; m2.setCoords(DataArrayDouble([0,1,2,3]),DataArrayDouble([0,1,2,3,4]))
         m2=m2.buildUnstructured() ; m2.setName("mesh")
         f2=MEDCouplingFieldInt(ON_CELLS) ; f2.setMesh(m2)
-        arr2=DataArrayInt([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr2.setInfoOnComponents(["aa","bbb"])
+        arr2=DataArrayInt32([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr2.setInfoOnComponents(["aa","bbb"])
         f2.setArray(arr2) ; f2.setName("f1") ; f2.setTime(2.,3,4)
         #
         self.assertTrue(f1.isEqual(f2,1e-12,0))
@@ -3967,7 +3967,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         #
         for fd,expected in ((ON_NODES,False),(ON_CELLS,True)):
             f4=MEDCouplingFieldInt(fd) ; f4.setMesh(m2) ; f4.setTime(2.,3,4)
-            arr4=DataArrayInt([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr4.setInfoOnComponents(["aa","bbb"])
+            arr4=DataArrayInt32([(0,1),(2,3),(4,5),(6,7),(8,9),(10,11),(12,13),(14,15),(16,17),(18,19),(20,21),(22,23)]) ; arr4.setInfoOnComponents(["aa","bbb"])
             f4.setArray(arr4) ; f4.setName("f1")
             self.assertEqual(f1.isEqual(f4,1e-12,0),expected)
             pass
@@ -4687,14 +4687,14 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         """Test focused of new wrapped methods for MEDCouplingFieldInt thanks to code factorization."""
         d=DataArrayDouble(7) ; d.iota()
         m=MEDCouplingUMesh.Build1DMeshFromCoords(d)
-        f=MEDCouplingFieldInt(ON_CELLS) ; f.setMesh(m) ; arr=DataArrayInt(6) ; arr.iota() ; f.setArray(arr) ; f.checkConsistencyLight()
+        f=MEDCouplingFieldInt(ON_CELLS) ; f.setMesh(m) ; arr=DataArrayInt32(6) ; arr.iota() ; f.setArray(arr) ; f.checkConsistencyLight()
         f_0=f[::2] # test is here
-        self.assertTrue(f_0.getArray().isEqual(DataArrayInt([0,2,4])))
+        self.assertTrue(f_0.getArray().isEqual(DataArrayInt32([0,2,4])))
         self.assertTrue(f_0.getMesh().isEqual(m[[0,2,4]],1e-12))
         #
-        f2=MEDCouplingFieldInt(ON_NODES) ; f2.setMesh(m) ; arr=DataArrayInt(7) ; arr.iota() ; f2.setArray(arr) ; f2.checkConsistencyLight()
+        f2=MEDCouplingFieldInt(ON_NODES) ; f2.setMesh(m) ; arr=DataArrayInt32(7) ; arr.iota() ; f2.setArray(arr) ; f2.checkConsistencyLight()
         f_1=f2[::2] # test is here
-        self.assertTrue(f_1.getArray().isEqual(DataArrayInt([0,1,2,3,4,5])))
+        self.assertTrue(f_1.getArray().isEqual(DataArrayInt32([0,1,2,3,4,5])))
         m_1=m[[0,2,4]] ; m_1.zipCoords()
         self.assertTrue(f_1.getMesh().isEqual(m_1,1e-12))
         pass

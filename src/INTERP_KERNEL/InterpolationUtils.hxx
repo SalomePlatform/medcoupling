@@ -170,7 +170,7 @@ namespace INTERP_KERNEL
    * @param quadOut is a 8 doubles array filled after the following call.
    */
   template<int SPACEDIM>
-  inline void fillDualCellOfPolyg(const double *polygIn, int nPtsPolygonIn, double *polygOut)
+  inline void fillDualCellOfPolyg(const double *polygIn, mcIdType nPtsPolygonIn, double *polygOut)
   {
     //1st point
     std::copy(polygIn,polygIn+SPACEDIM,polygOut);
@@ -179,7 +179,7 @@ namespace INTERP_KERNEL
     std::transform(polygOut+SPACEDIM,polygOut+2*SPACEDIM,polygOut+SPACEDIM,std::bind2nd(std::multiplies<double>(),0.5));
     double tmp[SPACEDIM];
     //
-    for(int i=0;i<nPtsPolygonIn-2;i++)
+    for(mcIdType i=0;i<nPtsPolygonIn-2;i++)
       {
         std::transform(polygIn,polygIn+SPACEDIM,polygIn+(i+2)*SPACEDIM,tmp,std::plus<double>());
         std::transform(tmp,tmp+SPACEDIM,polygOut+(2*i+3)*SPACEDIM,std::bind2nd(std::multiplies<double>(),0.5));
@@ -197,17 +197,17 @@ namespace INTERP_KERNEL
   inline std::vector<double> bary_poly(const std::vector<double>& V)
   {
     std::vector<double> Bary;
-    long taille=V.size();
+    std::size_t taille=V.size();
     double x=0;
     double y=0;
 
-    for(long i=0;i<taille/2;i++)
+    for(std::size_t i=0;i<taille/2;i++)
       {
         x=x+V[2*i];
         y=y+V[2*i+1];
       }
-    double A=2*x/((double)taille);
-    double B=2*y/((double)taille);
+    double A=2*x/(static_cast<double>(taille));
+    double B=2*y/(static_cast<double>(taille));
     Bary.push_back(A);//taille vecteur=2*nb de points.
     Bary.push_back(B);
 
@@ -801,9 +801,9 @@ namespace INTERP_KERNEL
 
   inline void verif_point_dans_vect(const double* P, std::vector<double>& V, double absolute_precision )
   {
-    long taille=V.size();
+    std::size_t taille=V.size();
     bool isPresent=false;
-    for(long i=0;i<taille/2;i++) 
+    for(std::size_t i=0;i<taille/2;i++) 
       {
         if (sqrt(((P[0]-V[2*i])*(P[0]-V[2*i])+(P[1]-V[2*i+1])*(P[1]-V[2*i+1])))<absolute_precision)
           isPresent=true;
@@ -911,9 +911,9 @@ namespace INTERP_KERNEL
 
   inline void verif_maill_dans_vect(int Num, std::vector<int>& V)
   {
-    long taille=V.size();
+    std::size_t taille=V.size();
     int A=0;
-    for(long i=0;i<taille;i++)
+    for(std::size_t i=0;i<taille;i++)
       {
         if(Num==V[i])
           {
@@ -1012,7 +1012,7 @@ namespace INTERP_KERNEL
   }
 
   template<int DIM, NumberingPolicy numPol, class MyMeshType>
-  inline void getElemBB(double* bb, const double *coordsOfMesh, int iP, int nb_nodes)
+  inline void getElemBB(double* bb, const double *coordsOfMesh, mcIdType iP, int nb_nodes)
   {
     bb[0]=std::numeric_limits<double>::max();
     bb[1]=-std::numeric_limits<double>::max();

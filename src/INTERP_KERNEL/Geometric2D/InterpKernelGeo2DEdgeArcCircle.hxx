@@ -23,6 +23,7 @@
 
 #include "INTERPKERNELDefines.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
+#include "MCIdType.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -106,7 +107,7 @@ namespace INTERP_KERNEL
     double getAngle0() const { return _angle0; }
     double getRadius() const { return _radius; }
     double getAngle() const { return _angle; }
-    void tesselate(const int *conn, int offset, double eps, std::vector<int>& newConn, std::vector<double>& addCoo) const;
+    void tesselate(const mcIdType *conn, mcIdType offset, double eps, std::vector<mcIdType>& newConn, std::vector<double>& addCoo) const;
     static EdgeArcCircle *BuildFromNodes(Node *start, Node *middle, Node *end);
     static double GetAbsoluteAngle(const double *vect, double& normVect);
     static double GetAbsoluteAngleOfNormalizedVect(double ux, double uy);

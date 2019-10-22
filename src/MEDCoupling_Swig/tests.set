@@ -24,6 +24,7 @@ SET(BASE_TESTS
   MEDCouplingBasicsTest4.py
   MEDCouplingBasicsTest5.py
   MEDCouplingBasicsTest6.py
+  MEDCouplingBasicsTest7.py
   MEDCouplingIntersectTest.py
   MEDCouplingExamplesTest.py
   MEDCouplingRemapperTest.py

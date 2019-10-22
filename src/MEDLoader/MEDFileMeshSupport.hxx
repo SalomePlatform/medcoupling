@@ -41,7 +41,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT std::vector<std::string> getSupMeshNames() const;
     MEDLOADER_EXPORT const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
-    MEDLOADER_EXPORT int getNumberOfNodesInConnOf(TypeOfField entity, const std::string& name) const;
+    MEDLOADER_EXPORT mcIdType getNumberOfNodesInConnOf(TypeOfField entity, const std::string& name) const;
   private:
     MEDFileMeshSupports(med_idt fid);
     MEDFileMeshSupports();

@@ -23,8 +23,8 @@
 namespace INTERP_KERNEL
 {
 
-  void SplitHexa8IntoTetras(SplittingPolicy policy, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                            std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords)
+  void SplitHexa8IntoTetras(SplittingPolicy policy, const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd, const double *coords,
+                            std::vector<mcIdType>& tetrasNodalConn, std::vector<double>& addCoords)
   {
     if(std::distance(nodalConnBg,nodalConnEnd)!=8)
       throw INTERP_KERNEL::Exception("SplitHexa8IntoTetras : input hexa do not have 8 nodes !");
@@ -33,7 +33,7 @@ namespace INTERP_KERNEL
       case PLANAR_FACE_5:
         {
           tetrasNodalConn.resize(20);
-          int *conn(&tetrasNodalConn[0]);
+          mcIdType *conn(&tetrasNodalConn[0]);
           conn[0]=nodalConnBg[SPLIT_NODES_5_WO[0]]; conn[1]=nodalConnBg[SPLIT_NODES_5_WO[1]]; conn[2]=nodalConnBg[SPLIT_NODES_5_WO[2]]; conn[3]=nodalConnBg[SPLIT_NODES_5_WO[3]];
           conn[4]=nodalConnBg[SPLIT_NODES_5_WO[4]]; conn[5]=nodalConnBg[SPLIT_NODES_5_WO[5]]; conn[6]=nodalConnBg[SPLIT_NODES_5_WO[6]]; conn[7]=nodalConnBg[SPLIT_NODES_5_WO[7]];
           conn[8]=nodalConnBg[SPLIT_NODES_5_WO[8]]; conn[9]=nodalConnBg[SPLIT_NODES_5_WO[9]]; conn[10]=nodalConnBg[SPLIT_NODES_5_WO[10]]; conn[11]=nodalConnBg[SPLIT_NODES_5_WO[11]];
@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
       case PLANAR_FACE_6:
         {
           tetrasNodalConn.resize(24);
-          int *conn(&tetrasNodalConn[0]);
+          mcIdType *conn(&tetrasNodalConn[0]);
           conn[0]=nodalConnBg[SPLIT_NODES_6_WO[0]]; conn[1]=nodalConnBg[SPLIT_NODES_6_WO[1]]; conn[2]=nodalConnBg[SPLIT_NODES_6_WO[2]]; conn[3]=nodalConnBg[SPLIT_NODES_6_WO[3]];
           conn[4]=nodalConnBg[SPLIT_NODES_6_WO[4]]; conn[5]=nodalConnBg[SPLIT_NODES_6_WO[5]]; conn[6]=nodalConnBg[SPLIT_NODES_6_WO[6]]; conn[7]=nodalConnBg[SPLIT_NODES_6_WO[7]];
           conn[8]=nodalConnBg[SPLIT_NODES_6_WO[8]]; conn[9]=nodalConnBg[SPLIT_NODES_6_WO[9]]; conn[10]=nodalConnBg[SPLIT_NODES_6_WO[10]]; conn[11]=nodalConnBg[SPLIT_NODES_6_WO[11]];
@@ -57,7 +57,7 @@ namespace INTERP_KERNEL
         {
           addCoords.resize(7*3);
           tetrasNodalConn.resize(24*4);
-          int *conn(&tetrasNodalConn[0]);
+          mcIdType *conn(&tetrasNodalConn[0]);
           double *tmp(&addCoords[18]);
           tmp[0]=0.; tmp[1]=0.; tmp[2]=0.;
           double *tmp2(&addCoords[0]);
@@ -66,7 +66,7 @@ namespace INTERP_KERNEL
               tmp2[0]=0.; tmp2[1]=0.; tmp2[2]=0.;
               for(int j=0;j<4;j++,conn+=4)
                 {
-                  int tmp3(nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]]);
+                  mcIdType tmp3(nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]]);
                   tmp2[0]+=coords[3*tmp3+0];
                   tmp2[1]+=coords[3*tmp3+1];
                   tmp2[2]+=coords[3*tmp3+2];
@@ -97,13 +97,13 @@ namespace INTERP_KERNEL
               tmp2[1]=(tmp[3*(GENERAL_48_SUB_NODES[2*i+24]-8)+1]+tmp[3*(GENERAL_48_SUB_NODES[2*i+25]-8)+1])/2.;
               tmp2[2]=(tmp[3*(GENERAL_48_SUB_NODES[2*i+24]-8)+2]+tmp[3*(GENERAL_48_SUB_NODES[2*i+25]-8)+2])/2.;
             }
-          int *conn(&tetrasNodalConn[0]);
+          mcIdType *conn(&tetrasNodalConn[0]);
           std::vector<double> dummy;
           for(int i=0;i<8;i++)
             {
-              std::vector<int> c;
+              std::vector<mcIdType> c;
               SplitHexa8IntoTetras(PLANAR_FACE_6,GENERAL_48_SUBZONES_2+i*8,GENERAL_48_SUBZONES_2+(i+1)*8,coords,c,dummy);
-              int *conn2(&c[0]);
+              mcIdType *conn2(&c[0]);
               for(int j=0;j<6;j++,conn+=4,conn2+=4)
                 {
                   conn[0]=conn2[0]>=0?nodalConnBg[conn2[0]]:conn2[0];
@@ -119,8 +119,8 @@ namespace INTERP_KERNEL
       }
   }
 
-  void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                       std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords)
+  void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd, const double *coords,
+                       std::vector<mcIdType>& tetrasNodalConn, std::vector<double>& addCoords)
   {
     switch(gt)
       {
@@ -143,7 +143,7 @@ namespace INTERP_KERNEL
           if(sz!=5)
             throw INTERP_KERNEL::Exception("SplitIntoTetras : input pyra5 do not have 5 nodes !");
           tetrasNodalConn.resize(8);
-          int *conn(&tetrasNodalConn[0]);
+          mcIdType *conn(&tetrasNodalConn[0]);
           conn[0]=nodalConnBg[0]; conn[1]=nodalConnBg[1]; conn[2]=nodalConnBg[2]; conn[3]=nodalConnBg[4];
           conn[4]=nodalConnBg[0]; conn[5]=nodalConnBg[2]; conn[6]=nodalConnBg[3]; conn[7]=nodalConnBg[4];
           return ;
@@ -154,7 +154,7 @@ namespace INTERP_KERNEL
           if(sz!=6)
             throw INTERP_KERNEL::Exception("SplitIntoTetras : input penta6 do not have 6 nodes !");
           tetrasNodalConn.resize(12);
-          int *conn(&tetrasNodalConn[0]);
+          mcIdType *conn(&tetrasNodalConn[0]);
           conn[0]=nodalConnBg[0]; conn[1]=nodalConnBg[1]; conn[2]=nodalConnBg[2]; conn[3]=nodalConnBg[3];
           conn[4]=nodalConnBg[3]; conn[5]=nodalConnBg[5]; conn[6]=nodalConnBg[4]; conn[7]=nodalConnBg[2];
           conn[8]=nodalConnBg[4]; conn[9]=nodalConnBg[2]; conn[10]=nodalConnBg[1]; conn[11]=nodalConnBg[3];
@@ -166,7 +166,7 @@ namespace INTERP_KERNEL
           if(sz!=12)
             throw INTERP_KERNEL::Exception("SplitIntoTetras : input octa12 (hexagone prism) do not have 12 nodes !");
           tetrasNodalConn.resize(48);
-          int *conn(&tetrasNodalConn[0]);
+          mcIdType *conn(&tetrasNodalConn[0]);
           conn[0]=nodalConnBg[0]; conn[1]=nodalConnBg[1]; conn[2]=nodalConnBg[5]; conn[3]=nodalConnBg[6];
           conn[4]=nodalConnBg[6]; conn[5]=nodalConnBg[11]; conn[6]=nodalConnBg[7]; conn[7]=nodalConnBg[5];
           conn[8]=nodalConnBg[7]; conn[9]=nodalConnBg[5]; conn[10]=nodalConnBg[1]; conn[11]=nodalConnBg[6];
@@ -186,28 +186,30 @@ namespace INTERP_KERNEL
         }
       case NORM_POLYHED:
         {
-          std::size_t nbOfFaces(std::count(nodalConnBg,nodalConnEnd,-1)+1);
-          std::size_t nbOfTetra(std::distance(nodalConnBg,nodalConnEnd)-nbOfFaces+1);
+          mcIdType nbOfFaces(ToIdType(std::count(nodalConnBg,nodalConnEnd,-1)+1));
+          mcIdType nbOfTetra(ToIdType(std::distance(nodalConnBg,nodalConnEnd)-nbOfFaces+1));
           addCoords.resize((nbOfFaces+1)*3);
           tetrasNodalConn.resize(nbOfTetra*4);
-          int *conn(&tetrasNodalConn[0]);
-          const int *work(nodalConnBg);
+          mcIdType *conn(&tetrasNodalConn[0]);
+          const mcIdType *work(nodalConnBg);
           double *tmp(&addCoords[0]),*tmp2(&addCoords[3*nbOfFaces]);
           tmp2[0]=0.; tmp2[1]=0.; tmp2[2]=0.;
-          for(std::size_t i=0;i<nbOfFaces;i++,tmp+=3)
+          for(int i=0;i<nbOfFaces;i++,tmp+=3)
             {
               tmp[0]=0.; tmp[1]=0.; tmp[2]=0.;
               std::size_t nbOfNodesOfFace(std::distance(work,std::find(work,nodalConnEnd,-1)));
               for(std::size_t j=0;j<nbOfNodesOfFace;j++,conn+=4)
                 {
-                  conn[0]=work[j]; conn[1]=work[(j+1)%nbOfNodesOfFace]; conn[2]=-((int)i+1); conn[3]=-((int)nbOfFaces+1);
+                  conn[0]=work[j]; conn[1]=work[(j+1)%nbOfNodesOfFace]; conn[2]=-(i+1); conn[3]=ToIdType(-(nbOfFaces+1));
                   tmp[0]+=coords[3*work[j]+0]; tmp[1]+=coords[3*work[j]+1]; tmp[2]+=coords[3*work[j]+2];
                 }
-              tmp[0]/=(int)nbOfNodesOfFace; tmp[1]/=(int)nbOfNodesOfFace; tmp[2]/=(int)nbOfNodesOfFace;
+              double nbNF = (double)nbOfNodesOfFace;
+              tmp[0]/=nbNF; tmp[1]/=nbNF; tmp[2]/=nbNF;
               tmp2[0]+=tmp[0]; tmp2[1]+=tmp[1]; tmp2[2]+=tmp[2];
               work+=nbOfNodesOfFace+1;
             }
-          tmp2[0]/=(int)nbOfFaces; tmp2[1]/=(int)nbOfFaces; tmp2[2]/=(int)nbOfFaces;
+          double nbF = (double)nbOfFaces;
+          tmp2[0]/=nbF; tmp2[1]/=nbF; tmp2[2]/=nbF;
           return ;
         }
       default:

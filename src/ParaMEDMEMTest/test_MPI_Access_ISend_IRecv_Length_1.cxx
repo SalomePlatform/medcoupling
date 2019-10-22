@@ -213,8 +213,8 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
           mpi_access.status( RecvRequestId[i] , source , tag , error ,
                              outcount ) ;
           if ( i != 0 ) {
-            if ( outcount != 1000*i |
-                 (recvbuf[i][outcount-1] != (outcount-1)) ) {
+            if (( outcount != 1000*i ) ||
+                ((recvbuf[i][outcount-1] != (outcount-1)))) {
               ostringstream strstream ;
               strstream << "========================================================"
                         << endl << "test" << myrank << " outcount " << outcount

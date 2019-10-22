@@ -41,7 +41,7 @@ namespace INTERP_KERNEL
    *  adjusted in a similar fashion as in InterpolationPlanar::performAdjustmentOfBB()
    **/
   template<class MyMeshType, class MatrixType>
-  int Interpolation1D0D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method)
+  typename MyMeshType::MyConnType Interpolation1D0D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method)
   {
     constexpr int SPACEDIM=MyMeshType::MY_SPACEDIM;
     using ConnType=typename MyMeshType::MyConnType;
@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
 
     const double epsilon(getPrecision());
     // create MeshElement objects corresponding to each element of the two meshes
-    const unsigned long numSrcElems(srcMesh.getNumberOfElements()), numTargetElems(targetMesh.getNumberOfElements());
+    const ConnType numSrcElems(srcMesh.getNumberOfElements()), numTargetElems(targetMesh.getNumberOfElements());
 
     LOG(2, "Source mesh has " << numSrcElems << " elements and target mesh has " << numTargetElems << " elements ");
 
@@ -64,7 +64,7 @@ namespace INTERP_KERNEL
 
     std::map<MeshElement<ConnType>*, int> indices;
 
-    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+    for(ConnType i = 0 ; i < numSrcElems ; ++i)
       srcElems[i] = new MeshElement<ConnType>(i, srcMesh);       
 
     // create empty maps for all source elements
@@ -73,8 +73,8 @@ namespace INTERP_KERNEL
     // create BBTree structure
     // - get bounding boxes
     std::vector<double> bboxes(2*SPACEDIM*numSrcElems);
-    int* srcElemIdx = new int[numSrcElems];
-    for(unsigned long i = 0; i < numSrcElems ; ++i)
+    ConnType* srcElemIdx = new ConnType[numSrcElems];
+    for(ConnType i = 0; i < numSrcElems ; ++i)
       {
         // get source bboxes in right order
         srcElems[i]->getBoundingBox()->toCompactData(bboxes.data()+6*i);
@@ -89,7 +89,7 @@ namespace INTERP_KERNEL
     const ConnType *trgConnPtr(targetMesh.getConnectivityPtr()),*trgConnIPtr(targetMesh.getConnectivityIndexPtr());
     const ConnType *srcConnPtr(srcMesh.getConnectivityPtr()),*srcConnIPtr(srcMesh.getConnectivityIndexPtr());
     const double *trgCooPtr(targetMesh.getCoordinatesPtr()),*srcCooPtr(srcMesh.getCoordinatesPtr());
-    for(unsigned long i = 0; i < numTargetElems; ++i)
+    for(ConnType i = 0; i < numTargetElems; ++i)
       {
         IKAssert(trgConnIPtr[i+1]==i+1 && trgConnIPtr[i]==i);
         std::vector<ConnType> srcSegCondidates;
@@ -110,7 +110,7 @@ namespace INTERP_KERNEL
           }
       }
     delete [] srcElemIdx;
-    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+    for(ConnType i = 0 ; i < numSrcElems ; ++i)
       delete srcElems[i];
     return srcMesh.getNumberOfNodes();
   }

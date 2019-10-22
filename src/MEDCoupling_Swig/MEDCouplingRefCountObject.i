@@ -187,6 +187,15 @@ namespace MEDCoupling
     return false;
 #endif
   }
+  
+  bool MEDCouplingUse64BitIDs()
+  {
+#ifndef MEDCOUPLING_USE_64BIT_IDS
+    return false;
+#else
+    return true;
+#endif
+  }
 
   std::string MEDCouplingCompletionScript()
   {

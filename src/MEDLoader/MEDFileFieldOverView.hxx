@@ -53,9 +53,9 @@ namespace MEDCoupling
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     const MEDFileMesh *getTheMesh() const { return _mesh; }
-    int getNumberOfNodes() const { return _nb_nodes; }
+    mcIdType getNumberOfNodes() const { return _nb_nodes; }
     bool doesManageGeoType(INTERP_KERNEL::NormalizedCellType t) const;
-    int getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellType t) const;
+    mcIdType getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellType t) const;
     int getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) const;
     int getNumberOfLevs() const;
     int getNumberOfGeoTypesInLev(int relativeLev) const;
@@ -66,8 +66,8 @@ namespace MEDCoupling
   private:
     const MEDFileMesh *_mesh;
     std::string _name;
-    int _nb_nodes;
-    std::vector< std::vector<int> > _geo_types_distrib;
+    mcIdType _nb_nodes;
+    std::vector< std::vector<mcIdType> > _geo_types_distrib;
   }; 
 
   class MEDFileField1TSStructItem;
@@ -78,47 +78,47 @@ namespace MEDCoupling
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
   public:
-    static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
     static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<int>& levs);
-    static MEDMeshMultiLev *NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode);
-    void setNodeReduction(const DataArrayInt *nr);
-    void setCellReduction(const DataArrayInt *cr);
+    static MEDMeshMultiLev *NewOnlyOnNode(const MEDFileMesh *m, const DataArrayIdType *pflOnNode);
+    void setNodeReduction(const DataArrayIdType *nr);
+    void setCellReduction(const DataArrayIdType *cr);
     bool isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs) const;
     MEDLOADER_EXPORT DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
-    MEDLOADER_EXPORT void retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isWithoutCopy) const;
-    MEDLOADER_EXPORT void retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isWithoutCopy) const;
-    MEDLOADER_EXPORT void retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isWithoutCopy) const;
-    MEDLOADER_EXPORT void retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isWithoutCopy) const;
-    MEDLOADER_EXPORT DataArrayInt *retrieveGlobalNodeIdsIfAny() const;
+    MEDLOADER_EXPORT void retrieveFamilyIdsOnCells(DataArrayIdType *& famIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT void retrieveNumberIdsOnCells(DataArrayIdType *& numIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT void retrieveFamilyIdsOnNodes(DataArrayIdType *& famIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT void retrieveNumberIdsOnNodes(DataArrayIdType *& numIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT DataArrayIdType *retrieveGlobalNodeIdsIfAny() const;
     MEDLOADER_EXPORT std::vector< INTERP_KERNEL::NormalizedCellType > getGeoTypes() const;
-    void setFamilyIdsOnCells(DataArrayInt *famIds);
-    void setNumberIdsOnCells(DataArrayInt *numIds);
-    void setFamilyIdsOnNodes(DataArrayInt *famIds);
-    void setNumberIdsOnNodes(DataArrayInt *numIds);
-    virtual void selectPartOfNodes(const DataArrayInt *pflNodes) = 0;
+    void setFamilyIdsOnCells(DataArrayIdType *famIds);
+    void setNumberIdsOnCells(DataArrayIdType *numIds);
+    void setFamilyIdsOnNodes(DataArrayIdType *famIds);
+    void setNumberIdsOnNodes(DataArrayIdType *numIds);
+    virtual void selectPartOfNodes(const DataArrayIdType *pflNodes) = 0;
     virtual MEDMeshMultiLev *prepare() const = 0;
-    int getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const;
-    int getNumberOfNodes() const;
+    mcIdType getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const;
+    mcIdType getNumberOfNodes() const;
   protected:
     std::string getPflNameOfId(int id) const;
     DataArray *constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
-    virtual void appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr);
+    virtual void appendVertices(const DataArrayIdType *verticesToAdd, DataArrayIdType *nr);
   protected:
     MEDMeshMultiLev(const MEDFileMesh *mesh);
     MEDMeshMultiLev(const MEDMeshMultiLev& other);
-    MEDMeshMultiLev(const MEDFileMesh *mesh, int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDMeshMultiLev(const MEDFileMesh *mesh, mcIdType nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
   protected:
     const MEDFileMesh *_mesh;
-    std::vector< MCAuto<DataArrayInt> > _pfls;
+    std::vector< MCAuto<DataArrayIdType> > _pfls;
     std::vector< INTERP_KERNEL::NormalizedCellType > _geo_types;
-    std::vector<int> _nb_entities;
-    MCAuto<DataArrayInt> _node_reduction;
-    int _nb_nodes;
+    std::vector<mcIdType> _nb_entities;
+    MCAuto<DataArrayIdType> _node_reduction;
+    mcIdType _nb_nodes;
     //
-    MCAuto<DataArrayInt> _cell_fam_ids;
-    MCAuto<DataArrayInt> _cell_num_ids;
-    MCAuto<DataArrayInt> _node_fam_ids;
-    MCAuto<DataArrayInt> _node_num_ids;
+    MCAuto<DataArrayIdType> _cell_fam_ids;
+    MCAuto<DataArrayIdType> _cell_num_ids;
+    MCAuto<DataArrayIdType> _node_fam_ids;
+    MCAuto<DataArrayIdType> _node_num_ids;
   public:
     MEDLOADER_EXPORT static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
     MEDLOADER_EXPORT static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
@@ -131,19 +131,19 @@ namespace MEDCoupling
   {
   public:
     static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<int>& levs);
-    static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
-    void selectPartOfNodes(const DataArrayInt *pflNodes);
+    static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
+    void selectPartOfNodes(const DataArrayIdType *pflNodes);
     MEDMeshMultiLev *prepare() const;
     MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MCAuto<MEDCoupling1GTUMesh>& part);
-    MEDLOADER_EXPORT bool buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const;
+    MEDLOADER_EXPORT bool buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayIdType *&cellLocations, DataArrayIdType *& cells, DataArrayIdType *&faceLocations, DataArrayIdType *&faces) const;
   protected:
-    void appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr);
+    void appendVertices(const DataArrayIdType *verticesToAdd, DataArrayIdType *nr);
   private:
-    void reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const;
+    void reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, DataArrayIdType *nodalConnVTK, DataArrayIdType *polyhedNodalConnVTK) const;
   private:
     MEDUMeshMultiLev(const MEDUMeshMultiLev& other);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs);
-    MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
   private:
     std::vector< MCAuto<MEDCoupling1GTUMesh> > _parts;
     //! this attribute is used only for mesh with no cells but having coordinates. For classical umeshes those pointer is equal to pointer of coordinates of instances in this->_parts.
@@ -153,12 +153,12 @@ namespace MEDCoupling
   class MEDStructuredMeshMultiLev : public MEDMeshMultiLev
   {
   public:
-    void selectPartOfNodes(const DataArrayInt *pflNodes);
-    virtual std::vector<int> getNodeGridStructure() const = 0;
+    void selectPartOfNodes(const DataArrayIdType *pflNodes);
+    virtual std::vector<mcIdType> getNodeGridStructure() const = 0;
   protected:
     MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other);
     MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev);
-    MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, mcIdType nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
     void dealWithImplicitUnstructuredMesh(const MEDFileMesh *m);
   protected:
     void moveFaceToCell() const;
@@ -167,22 +167,22 @@ namespace MEDCoupling
     void initStdFieldOfIntegers(const MEDFileStructuredMesh *m);
   protected:
     bool _is_internal;
-    MCAuto<DataArrayInt> _face_fam_ids;
-    MCAuto<DataArrayInt> _face_num_ids;
+    MCAuto<DataArrayIdType> _face_fam_ids;
+    MCAuto<DataArrayIdType> _face_num_ids;
   };
 
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev
   {
   public:
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<int>& levs);
-    static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
-    std::vector<int> getNodeGridStructure() const;
+    static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
+    std::vector<mcIdType> getNodeGridStructure() const;
     MEDMeshMultiLev *prepare() const;
     MEDLOADER_EXPORT std::vector< DataArrayDouble * > buildVTUArrays(bool& isInternal) const;
   private:
     MEDCMeshMultiLev(const MEDCMeshMultiLev& other);
     MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>& levs);
-    MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
   private:
     std::vector< MCAuto<DataArrayDouble> > _coords;
   };
@@ -191,24 +191,24 @@ namespace MEDCoupling
   {
   public:
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs);
-    static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls , const std::vector<int>& nbEntities);
-    std::vector<int> getNodeGridStructure() const;
+    static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls , const std::vector<mcIdType>& nbEntities);
+    std::vector<mcIdType> getNodeGridStructure() const;
     MEDMeshMultiLev *prepare() const;
-    MEDLOADER_EXPORT void buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct, bool& isInternal) const;
+    MEDLOADER_EXPORT void buildVTUArrays(DataArrayDouble *&coords, std::vector<mcIdType>& nodeStrct, bool& isInternal) const;
   private:
     MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshMultiLev& other);
     MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs);
-    MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
   private:
     MCAuto<DataArrayDouble> _coords;
-    std::vector<int> _structure;
+    std::vector<mcIdType> _structure;
   };
 
   class MEDFileField1TSStructItem2 : public BigMemoryObject
   {
   public:
     MEDFileField1TSStructItem2();
-    MEDFileField1TSStructItem2(INTERP_KERNEL::NormalizedCellType a, const std::pair<int,int>& b, const std::string& pfl, const std::string& loc);
+    MEDFileField1TSStructItem2(INTERP_KERNEL::NormalizedCellType a, const std::pair<mcIdType,mcIdType>& b, const std::string& pfl, const std::string& loc);
     void checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     void checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     void checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
@@ -216,15 +216,15 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     //
-    const DataArrayInt *getPfl(const MEDFileFieldGlobsReal *globs) const;
+    const DataArrayIdType *getPfl(const MEDFileFieldGlobsReal *globs) const;
     INTERP_KERNEL::NormalizedCellType getGeo() const { return _geo_type; }
-    int getNbEntity() const { return _nb_of_entity; }
-    const std::pair<int,int>& getStartStop() const { return _start_end; }
+    mcIdType getNbEntity() const { return _nb_of_entity; }
+    const std::pair<mcIdType,mcIdType>& getStartStop() const { return _start_end; }
     std::string getPflName() const;
     int getNbOfIntegrationPts(const MEDFileFieldGlobsReal *globs) const;
     //! warning this method also set _nb_of_entity attribute !
-    void checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs);
-    bool isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const std::string& pflName) const;
+    void checkInRange(mcIdType nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs);
+    bool isFastlyEqual(mcIdType& startExp, INTERP_KERNEL::NormalizedCellType gt, const std::string& pflName) const;
     bool operator==(const MEDFileField1TSStructItem2& other) const;
     bool isCellSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const;
     bool isNodeSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const;
@@ -233,10 +233,10 @@ namespace MEDCoupling
     static const char NEWLY_CREATED_PFL_NAME[];
   private:
     INTERP_KERNEL::NormalizedCellType _geo_type;
-    std::pair<int,int> _start_end;
-    MCAuto<DataArrayInt> _pfl;
+    std::pair<mcIdType,mcIdType> _start_end;
+    MCAuto<DataArrayIdType> _pfl;
     std::string _loc;
-    int _nb_of_entity;
+    mcIdType _nb_of_entity;
   };
 
   class MEDFileField1TSStructItem : public BigMemoryObject

@@ -152,6 +152,11 @@ namespace MEDCoupling
             sts = _MPI_access->ISend( &((int *) sendbuf)[offset] , sendcount , sendtype ,
                                       target , SendRequestId ) ;
           }
+        else if ( sendtype == MPI_LONG )
+          {
+            sts = _MPI_access->ISend( &((long *) sendbuf)[offset] , sendcount , sendtype ,
+                                      target , SendRequestId ) ;
+          }
         else
           {
             sts = _MPI_access->ISend( &((double *) sendbuf)[offset] , sendcount , sendtype ,
@@ -163,6 +168,11 @@ namespace MEDCoupling
         if ( sendtype == MPI_INT )
           {
             sts = _MPI_access->send( &((int *) sendbuf)[offset] , sendcount , sendtype ,
+                                     target , SendRequestId ) ;
+          }
+        else if ( sendtype == MPI_LONG )
+          {
+            sts = _MPI_access->send( &((long *) sendbuf)[offset] , sendcount , sendtype ,
                                      target , SendRequestId ) ;
           }
         else
@@ -192,6 +202,11 @@ namespace MEDCoupling
             sts = _MPI_access->IRecv( &((int *) recvbuf)[offset] , recvcount , recvtype ,
                                       target , RecvRequestId ) ;
           }
+        else if ( recvtype == MPI_LONG )
+          {
+            sts = _MPI_access->IRecv( &((long *) recvbuf)[offset] , recvcount , recvtype ,
+                                      target , RecvRequestId ) ;
+          }
         else
           {
             sts = _MPI_access->IRecv( &((double *) recvbuf)[offset] , recvcount , recvtype ,
@@ -203,6 +218,11 @@ namespace MEDCoupling
         if ( recvtype == MPI_INT )
           {
             sts = _MPI_access->recv( &((int *) recvbuf)[offset] , recvcount , recvtype ,
+                                     target , RecvRequestId ) ;
+          }
+        else if ( recvtype == MPI_LONG )
+          {
+            sts = _MPI_access->recv( &((long *) recvbuf)[offset] , recvcount , recvtype ,
                                      target , RecvRequestId ) ;
           }
         else
@@ -565,7 +585,7 @@ namespace MEDCoupling
       {
         for ( target = 0 ; target < _group_size ; target++ )
           {
-            int recvsize = recvcount*_MPI_access->extent( recvtype ) ;
+            int recvsize = (int)(recvcount*_MPI_access->extent( recvtype ));
             checkTime( recvcount , recvtype , target , false ) ;
             //===========================================================================
             //TODO : it is assumed actually that we have only 1 timestep before and after
@@ -714,7 +734,7 @@ namespace MEDCoupling
           {
             if ( recvcounts[target] )
               {
-                int recvsize = recvcounts[target]*_MPI_access->extent( recvtype ) ;
+                int recvsize = (int)(recvcounts[target]*_MPI_access->extent( recvtype ));
                 checkTime( recvcounts[target] , recvtype , target , false ) ;
                 //===========================================================================
                 //TODO : it is assumed actually that we have only 1 timestep before nad after

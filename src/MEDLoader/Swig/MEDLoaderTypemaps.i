@@ -118,15 +118,15 @@ static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi)
   std::vector<std::pair<int,int> > ret;
   if(PyList_Check(pyLi))
     {
-      int size=PyList_Size(pyLi);
+      std::size_t size=PyList_Size(pyLi);
       ret.resize(size);
-      for(int i=0;i<size;i++)
+      for(std::size_t i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
           if(PyTuple_Check(o))
             {
               std::pair<int,int> p;
-              int size2=PyTuple_Size(o);
+              std::size_t size2=PyTuple_Size(o);
               if(size2!=2)
                 throw INTERP_KERNEL::Exception("tuples in list must be of size 2 (dt,it) !");
               PyObject *o0=PyTuple_GetItem(o,0);
@@ -169,9 +169,9 @@ static void converPyListToVecString(PyObject *pyLi, std::vector<std::string>& v)
   static const char msg2[]="Unrecognized python argument : expected a list of string or tuple of string or string !";
   if(PyList_Check(pyLi))
     {
-      int size=PyList_Size(pyLi);
+      std::size_t size=PyList_Size(pyLi);
       v.resize(size);
-      for(int i=0;i<size;i++)
+      for(std::size_t i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
           v[i]=convertPyObjectToStr(o,msg0);
@@ -180,9 +180,9 @@ static void converPyListToVecString(PyObject *pyLi, std::vector<std::string>& v)
     }
   else if(PyTuple_Check(pyLi))
     {
-      int size=PyTuple_Size(pyLi);
+      std::size_t size=PyTuple_Size(pyLi);
       v.resize(size);
-      for(int i=0;i<size;i++)
+      for(std::size_t i=0;i<size;i++)
         {
           PyObject *o=PyTuple_GetItem(pyLi,i);
           v[i]=convertPyObjectToStr(o,msg1);
@@ -195,9 +195,9 @@ static void converPyListToVecString(PyObject *pyLi, std::vector<std::string>& v)
 
 static PyObject *convertFieldDoubleVecToPy(const std::vector<MEDCoupling::MEDCouplingFieldDouble *>& li)
 {
-  int sz=li.size();
+  std::size_t sz=li.size();
   PyObject *ret=PyList_New(sz);
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
     {
       PyObject *o=SWIG_NewPointerObj((void*)li[i],SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble,SWIG_POINTER_OWN | 0);
       PyList_SetItem(ret,i,o);
@@ -205,15 +205,16 @@ static PyObject *convertFieldDoubleVecToPy(const std::vector<MEDCoupling::MEDCou
   return ret;
 }
 
-PyObject *convertVecPairIntToPy(const std::vector< std::pair<int,int> >& vec)
+template< class T >
+PyObject *convertVecPairIntToPy(const std::vector< std::pair<int,T> >& vec)
 {
   PyObject *ret(PyList_New(vec.size()));
   int rk=0;
-  for(std::vector< std::pair<int,int> >::const_iterator iter=vec.begin();iter!=vec.end();iter++,rk++)
+  for(typename std::vector< std::pair<int,T> >::const_iterator iter=vec.begin();iter!=vec.end();iter++,rk++)
     {
       PyObject *elt=PyTuple_New(2);
       PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
-      PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
+      PyTuple_SetItem(elt,1,PyInt_FromLong((*iter).second));
       PyList_SetItem(ret,rk,elt);
     }
   return ret;
@@ -221,9 +222,9 @@ PyObject *convertVecPairIntToPy(const std::vector< std::pair<int,int> >& vec)
 
 PyObject *convertVecPairVecStToPy(const std::vector< std::pair<std::vector<std::string>, std::string > >& vec)
 {
-  int sz=(int)vec.size();
+  std::size_t sz=vec.size();
   PyObject *ret=PyList_New(sz);
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
     {
       PyObject *t=PyTuple_New(2);
       int sz2=(int)vec[i].first.size();
@@ -239,9 +240,9 @@ PyObject *convertVecPairVecStToPy(const std::vector< std::pair<std::vector<std::
 
 PyObject *convertVectPairStToPy(const std::vector< std::pair<std::string, std::string > >& vec)
 {
-  int sz=(int)vec.size();
+  std::size_t sz=vec.size();
   PyObject *ret=PyList_New(sz);
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
     {
       PyObject *t=PyTuple_New(2);
       PyTuple_SetItem(t,0,PyString_FromString(vec[i].first.c_str()));
@@ -257,15 +258,15 @@ std::vector< std::pair<std::string, std::string > > convertVecPairStStFromPy(PyO
   const char *msg="convertVecPairStStFromPy : Expecting PyList of Tuples of size 2 ! The first elt in tuple is one string and the 2nd one a string !";
   if(PyList_Check(pyLi))
     {
-      int size=PyList_Size(pyLi);
+      std::size_t size=PyList_Size(pyLi);
       ret.resize(size);
-      for(int i=0;i<size;i++)
+      for(std::size_t i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
           if(PyTuple_Check(o))
             {
               std::pair<std::string, std::string> p;
-              int size2=PyTuple_Size(o);
+              std::size_t size2=PyTuple_Size(o);
               if(size2!=2)
                 throw INTERP_KERNEL::Exception(msg);
               PyObject *o0=PyTuple_GetItem(o,0);
@@ -288,23 +289,23 @@ std::vector< std::pair<std::vector<std::string>, std::string > > convertVecPairV
   const char *msg="convertVecPairVecStFromPy : Expecting PyList of Tuples of size 2 ! The first elt in tuple is a list of strings and the 2nd one a string !";
   if(PyList_Check(pyLi))
     {
-      int size=PyList_Size(pyLi);
+      std::size_t size=PyList_Size(pyLi);
       ret.resize(size);
-      for(int i=0;i<size;i++)
+      for(std::size_t i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
           if(PyTuple_Check(o))
             {
               std::pair<std::vector<std::string>, std::string> p;
-              int size2=PyTuple_Size(o);
+              std::size_t size2=PyTuple_Size(o);
               if(size2!=2)
                 throw INTERP_KERNEL::Exception(msg);
               PyObject *o0=PyTuple_GetItem(o,0);
               if(PyList_Check(o0))
                 {
-                  int size3=PyList_Size(o0);
+                  std::size_t size3=PyList_Size(o0);
                   p.first.resize(size3);
-                  for(int j=0;j<size3;j++)
+                  for(std::size_t j=0;j<size3;j++)
                     {
                       PyObject *o0j=PyList_GetItem(o0,j);
                       p.first[j]=convertPyObjectToStr(o0j,msg);
@@ -342,8 +343,8 @@ int MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(const MEDFileAnyTypeFieldMultiTS
           PyObject *o1=PyTuple_GetItem(elt0,1);
           if(PyInt_Check(o0) && PyInt_Check(o1))
             {//fmts(1,-1)
-              int iter=PyInt_AS_LONG(o0);
-              int order=PyInt_AS_LONG(o1);
+              int iter=(int)PyInt_AS_LONG(o0);
+              int order=(int)PyInt_AS_LONG(o1);
               return self->getPosOfTimeStep(iter,order);
             }
           else
@@ -370,12 +371,12 @@ int MEDFileFieldsgetitemSingleTS__(const MEDFileFields *self, PyObject *obj)
   static const char msg[]="MEDFileFields::__getitem__ : only integer or string with fieldname supported !";
   if(PyInt_Check(obj))
     {
-      return InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfFields());
+      return InterpreteNegativeInt(PyInt_AS_LONG(obj),self->getNumberOfFields());
     }
   return self->getPosFromFieldName(convertPyObjectToStr(obj,msg));
 }
 
-void convertToMapIntDataArrayInt(PyObject *pyMap, std::map<int, MCAuto<DataArrayInt> >& cppMap)
+void convertToMapIntDataArrayInt(PyObject *pyMap, std::map<int, MCAuto<DataArrayIdType> >& cppMap)
 {
   if(!PyDict_Check(pyMap))
     throw INTERP_KERNEL::Exception("convertToMapIntDataArrayInt : input is not a python map !");
@@ -386,16 +387,16 @@ void convertToMapIntDataArrayInt(PyObject *pyMap, std::map<int, MCAuto<DataArray
     {
       if(!PyInt_Check(key))
         throw INTERP_KERNEL::Exception("convertToMapIntDataArrayInt : keys in map must be PyInt !");
-      long k(PyInt_AS_LONG(key));
+      int k((int)PyInt_AS_LONG(key));
       void *argp(0);
-      int status(SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0));
+      int status(SWIG_ConvertPtr(value,&argp,SWIGTITraits<mcIdType>::TI,0|0));
       if(!SWIG_IsOK(status))
         {
           std::ostringstream oss; oss << "convertToMapIntDataArrayInt : values in map must be DataArrayInt !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      DataArrayInt *arg(reinterpret_cast<DataArrayInt*>(argp));
-      MCAuto<DataArrayInt> arg2(arg);
+      DataArrayIdType *arg(reinterpret_cast<DataArrayIdType*>(argp));
+      MCAuto<DataArrayIdType> arg2(arg);
       if(arg)
         arg->incrRef();
       cppMap[k]=arg2;
@@ -405,18 +406,18 @@ void convertToMapIntDataArrayInt(PyObject *pyMap, std::map<int, MCAuto<DataArray
 template<class T>
 PyObject *MEDFileField1TS_getFieldWithProfile(const typename MLFieldTraits<T>::F1TSType *self, TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) 
 {
-  DataArrayInt *ret1(NULL);
+  DataArrayIdType *ret1(NULL);
   typename MEDCoupling::Traits<T>::ArrayType *ret0(self->getFieldWithProfile(type,meshDimRelToMax,mesh,ret1));
   PyObject *ret(PyTuple_New(2));
   PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<T>::TI, SWIG_POINTER_OWN | 0 ));
-  PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+  PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
   return ret;
 }
 
 template<class T>
 PyObject *MEDFileField1TS_getUndergroundDataArrayExt(const typename MLFieldTraits<T>::F1TSType *self)
 {
-  std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > elt1Cpp;
+  std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > > elt1Cpp;
   typename MEDCoupling::Traits<T>::ArrayType *elt0=self->getUndergroundDataArrayExt(elt1Cpp);
   if(elt0)
     elt0->incrRef();
@@ -431,8 +432,8 @@ PyObject *MEDFileField1TS_getUndergroundDataArrayExt(const typename MLFieldTrait
       PyTuple_SetItem(elt2,0,SWIG_From_int((int)elt1Cpp[i].first.first));
       PyTuple_SetItem(elt2,1,SWIG_From_int(elt1Cpp[i].first.second));
       PyObject *elt3=PyTuple_New(2);
-      PyTuple_SetItem(elt3,0,SWIG_From_int(elt1Cpp[i].second.first));
-      PyTuple_SetItem(elt3,1,SWIG_From_int(elt1Cpp[i].second.second));
+      PyTuple_SetItem(elt3,0,PyInt_FromLong(elt1Cpp[i].second.first));
+      PyTuple_SetItem(elt3,1,PyInt_FromLong(elt1Cpp[i].second.second));
       PyTuple_SetItem(elt1,0,elt2);
       PyTuple_SetItem(elt1,1,elt3);
       PyList_SetItem(elt,i,elt1);

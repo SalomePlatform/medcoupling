@@ -32,13 +32,13 @@ using namespace MEDPARTITIONER;
  *        (domain numbers range from 0 to ndomain-1
  * \param n number of cells in the mesh
  */
-UserGraph::UserGraph(MEDCoupling::MEDCouplingSkyLineArray *array, const int *partition, int n):Graph(array,0)
+UserGraph::UserGraph(MEDCoupling::MEDCouplingSkyLineArray *array, const int *partition, mcIdType n):Graph(array,0)
 {
 
-  std::vector<int> index(n+1),value(n);
+  std::vector<mcIdType> index(n+1),value(n);
 
   index[0]=0;
-  for (int i=0; i<n; i++)
+  for (mcIdType i=0; i<n; i++)
     {
       index[i+1]=index[i]+1;
       value[i]=partition[i];

@@ -91,7 +91,7 @@ namespace INTERP_KERNEL
                 double volume = tmp->intersectSourceCell(*iterCellS);
                 if(volume!=0.)
                   {
-                    int targetNodeId(tmp->getId(0));
+                    ConnType targetNodeId(tmp->getId(0));
                     if(targetNodeId<0)
                       {
                         std::ostringstream oss; oss << "PolyhedronIntersectorP0P1::intersectCells : On target cell #" <<  targetCell << " the splitting into tetra4 leads to the creation of an additional point that interacts with source cell Id #" << *iterCellS << " !";

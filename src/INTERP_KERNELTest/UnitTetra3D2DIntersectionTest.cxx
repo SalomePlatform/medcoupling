@@ -22,6 +22,7 @@
 #include "TetraAffineTransform.hxx"
 #include "InterpolationUtils.hxx"
 #include "SplitterTetra.txx"
+#include "MCIdType.hxx"
 
 #include <iostream>
 
@@ -31,13 +32,13 @@ namespace INTERP_TEST
 {
   struct __MESH_DUMMY
   {
-    typedef int MyConnType;
+    typedef mcIdType MyConnType;
     static const int MY_SPACEDIM=3;
   };
 
   static SplitterTetra<__MESH_DUMMY>* buildSplitterTetra()
   {
-    const int conn[4] = { 0,1,2,3 };
+    const mcIdType conn[4] = { 0,1,2,3 };
 
     const double targetCoords[] = { -20., 0.,10.,
                                     -20.,10.,10.,
@@ -53,7 +54,7 @@ namespace INTERP_TEST
 
   void UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_1()
   {
-    const int conn[4] = { 0,1,2 };
+    const mcIdType conn[4] = { 0,1,2 };
 
     const double sourceCoords[] = { -20., 0., 10.,
                                     -12., 0., 10.,
@@ -98,7 +99,7 @@ namespace INTERP_TEST
 
   void UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_2()
   {
-    const int conn[4] = { 0,1,2,3 };
+    const mcIdType conn[4] = { 0,1,2,3 };
 
     const double sourceCoords[] = { -20., 0., 10.,
                                     -12., 0., 10.,
@@ -144,7 +145,7 @@ namespace INTERP_TEST
 
   void UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_3()
   {
-    const int conn[4] = { 0,1,2 };
+    const mcIdType conn[4] = { 0,1,2 };
 
     const double sourceCoords[] = { -20., 0., 16.,
                                     -18., 0., 16.,

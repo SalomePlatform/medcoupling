@@ -39,8 +39,8 @@ namespace INTERP_KERNEL
                            double medianLine, int printLevel);
   public:
     void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    ConnType getNumberOfRowsOfResMatrix() const;
+    ConnType getNumberOfColsOfResMatrix() const;
   private:
     static void AppendValueInMatrix(MyMatrix& res, ConnType nodeIdT, ConnType nodeIdS0, double val0, ConnType nodeIdS1, double val1);
     static void AppendValueInMatrix2(typename MyMatrix::value_type& resRow, ConnType nodeIdS0, double val0);

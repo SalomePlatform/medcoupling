@@ -65,24 +65,42 @@ def MEDCouplingDataArrayFloatImul(self,*args):
 def MEDCouplingDataArrayFloatIdiv(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayFloat____idiv___(self, self, *args)
-def MEDCouplingDataArrayIntIadd(self,*args):
+def MEDCouplingDataArrayInt32Iadd(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayInt____iadd___(self, self, *args)
-def MEDCouplingDataArrayIntIsub(self,*args):
+    return _MEDLoader.DataArrayInt32____iadd___(self, self, *args)
+def MEDCouplingDataArrayInt32Isub(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayInt____isub___(self, self, *args)
-def MEDCouplingDataArrayIntImul(self,*args):
+    return _MEDLoader.DataArrayInt32____isub___(self, self, *args)
+def MEDCouplingDataArrayInt32Imul(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayInt____imul___(self, self, *args)
-def MEDCouplingDataArrayIntIdiv(self,*args):
+    return _MEDLoader.DataArrayInt32____imul___(self, self, *args)
+def MEDCouplingDataArrayInt32Idiv(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayInt____idiv___(self, self, *args)
-def MEDCouplingDataArrayIntImod(self,*args):
+    return _MEDLoader.DataArrayInt32____idiv___(self, self, *args)
+def MEDCouplingDataArrayInt32Imod(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayInt____imod___(self, self, *args)
-def MEDCouplingDataArrayIntIpow(self,*args):
+    return _MEDLoader.DataArrayInt32____imod___(self, self, *args)
+def MEDCouplingDataArrayInt32Ipow(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayInt____ipow___(self, self, *args)
+    return _MEDLoader.DataArrayInt32____ipow___(self, self, *args)
+def MEDCouplingDataArrayInt64Iadd(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64____iadd___(self, self, *args)
+def MEDCouplingDataArrayInt64Isub(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64____isub___(self, self, *args)
+def MEDCouplingDataArrayInt64Imul(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64____imul___(self, self, *args)
+def MEDCouplingDataArrayInt64Idiv(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64____idiv___(self, self, *args)
+def MEDCouplingDataArrayInt64Imod(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64____imod___(self, self, *args)
+def MEDCouplingDataArrayInt64Ipow(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64____ipow___(self, self, *args)
 def MEDCouplingDataArrayDoubleTupleIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayDoubleTuple____iadd___(self, self, *args)
@@ -95,21 +113,36 @@ def MEDCouplingDataArrayDoubleTupleImul(self,*args):
 def MEDCouplingDataArrayDoubleTupleIdiv(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayDoubleTuple____idiv___(self, self, *args)
-def MEDCouplingDataArrayIntTupleIadd(self,*args):
+def MEDCouplingDataArrayInt32TupleIadd(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayIntTuple____iadd___(self, self, *args)
-def MEDCouplingDataArrayIntTupleIsub(self,*args):
+    return _MEDLoader.DataArrayInt32Tuple____iadd___(self, self, *args)
+def MEDCouplingDataArrayInt32TupleIsub(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayIntTuple____isub___(self, self, *args)
-def MEDCouplingDataArrayIntTupleImul(self,*args):
+    return _MEDLoader.DataArrayInt32Tuple____isub___(self, self, *args)
+def MEDCouplingDataArrayInt32TupleImul(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayIntTuple____imul___(self, self, *args)
-def MEDCouplingDataArrayIntTupleIdiv(self,*args):
+    return _MEDLoader.DataArrayInt32Tuple____imul___(self, self, *args)
+def MEDCouplingDataArrayInt32TupleIdiv(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayIntTuple____idiv___(self, self, *args)
-def MEDCouplingDataArrayIntTupleImod(self,*args):
+    return _MEDLoader.DataArrayInt32Tuple____idiv___(self, self, *args)
+def MEDCouplingDataArrayInt32TupleImod(self,*args):
     import _MEDLoader
-    return _MEDLoader.DataArrayIntTuple____imod___(self, self, *args)
+    return _MEDLoader.DataArrayInt32Tuple____imod___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleIadd(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64Tuple____iadd___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleIsub(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64Tuple____isub___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleImul(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64Tuple____imul___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleIdiv(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64Tuple____idiv___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleImod(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt64Tuple____imod___(self, self, *args)
 def MEDCouplingDenseMatrixIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.DenseMatrix____iadd___(self, self, *args)

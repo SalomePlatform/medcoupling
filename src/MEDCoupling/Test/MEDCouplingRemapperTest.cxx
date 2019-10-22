@@ -628,8 +628,8 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   sourceMesh->decrRef();
   targetMesh->decrRef();
   //------------- 1D -> 2D
-  const int conn[8]={0,1,1,2,2,3,3,0};
-  const int conn2[12]={6,7,5,4,2,7,6,3,0,4,5,1};
+  const mcIdType conn[8]={0,1,1,2,2,3,3,0};
+  const mcIdType conn2[12]={6,7,5,4,2,7,6,3,0,4,5,1};
   const double coords1[]={0.17,0.93,0.56,0.93,0.56,0.25,0.17,0.52};
   const double coords2[]={0.,0.,1.,0.,1.,1.,0.,1.,0.,0.5,1.,0.5,0.,0.8,1.,0.8};
   sourceMesh=MEDCouplingUMesh::New("src1D",1);
@@ -914,15 +914,15 @@ void MEDCouplingRemapperTest::testExtruded2()
 {
   MEDCouplingUMesh *meshN,*meshTT,*meshTF;
   MEDCouplingBasicsTest::build3DExtrudedUMesh_2(meshN,meshTT,meshTF);
-  std::vector<int> n;
+  std::vector<mcIdType> n;
   double pt[3]={300.,300.,0.};
   double v[3]={0.,0.,2.};
   meshN->findNodesOnPlane(pt,v,1e-12,n);
   MEDCouplingUMesh *meshN2D=(MEDCouplingUMesh *)meshN->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
   n.clear();
   bool b=false;
-  int newNbOfNodes;
-  DataArrayInt *da=meshTT->mergeNodes(1e-12,b,newNbOfNodes);
+  mcIdType newNbOfNodes;
+  DataArrayIdType *da=meshTT->mergeNodes(1e-12,b,newNbOfNodes);
   CPPUNIT_ASSERT(b);
   da->decrRef();
   meshTT->findNodesOnPlane(pt,v,1e-12,n);
@@ -1125,7 +1125,7 @@ MEDCouplingUMesh *MEDCouplingRemapperTest::build1DTargetMesh_2()
     0.59,0.09, 0.69,0.19, 0.21,-0.29,0.31,-0.19, 0.45,0.25,0.65,0.45,
     -0.2,-0.2,0.11,0.11, 0.25,0.25, 0.45,0.45
   };
-  int targetConn[10]={0,1, 2,3, 4,5, 6,7, 8,9};
+  mcIdType targetConn[10]={0,1, 2,3, 4,5, 6,7, 8,9};
 
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New("my name of mesh 1D 2",1);
   targetMesh->allocateCells(5);
@@ -1145,7 +1145,7 @@ MEDCouplingUMesh *MEDCouplingRemapperTest::build2DTargetMesh_3()
   double targetCoords[20]={-0.6,-0.4, -0.1,-0.4, 1.1,-0.4, 2.1,-0.4,
                            -0.6,0.1,  -0.1,0.1,  1.1,0.1,  2.1,0.1,
                            -0.6,1.1,  -0.1,1.1};
-  int targetConn[16]={0,4,5,1, 1,5,6,2, 2,6,7,3, 4,8,9,5};
+  mcIdType targetConn[16]={0,4,5,1, 1,5,6,2, 2,6,7,3, 4,8,9,5};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(4);
@@ -1172,7 +1172,7 @@ MEDCouplingUMesh *MEDCouplingRemapperTest::build3DExtrudedUMesh_1(MEDCouplingUMe
     0.,0.,3., 1.,1.,3., 1.,1.25,3., 0.,1.,3., 1.,1.5,3., 2.,0.,3., 2.,1.,3., 1.,2.,3., 0.,2.,3., 3.,1.,3.,
     3.,2.,3., 0.,1.,3., 1.,3.,3., 2.,2.,3., 2.,3.,3.};
 
-  int conn[354]={
+  mcIdType conn[354]={
     // 0
     0,11,1,3,15,26,16,18,   1,2,4,7,13,6,-1,1,16,21,6,-1,6,21,28,13,-1,13,7,22,28,-1,7,4,19,22,-1,4,2,17,19,-1,2,1,16,17,-1,16,21,28,22,19,17,
     1,6,5,3,16,21,20,18,   13,10,9,6,28,25,24,21,
@@ -1189,7 +1189,7 @@ MEDCouplingUMesh *MEDCouplingRemapperTest::build3DExtrudedUMesh_1(MEDCouplingUMe
     41,38,37,34,32,31,-1,41,56,46,31,-1,31,46,47,32,-1,32,47,49,34,-1,34,49,52,37,-1,37,38,53,52,-1,38,41,56,53,-1,56,46,47,49,52,53,
     37,42,44,43,52,57,59,58
   };
-  int conn2[28]={7,12,14,13, 11,8,7,4,2,1, 13,10,9,6, 1,6,5,3, 1,2,4,7,13,6, 0,11,1,3};
+  mcIdType conn2[28]={7,12,14,13, 11,8,7,4,2,1, 13,10,9,6, 1,6,5,3, 1,2,4,7,13,6, 0,11,1,3};
   //
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
   ret->setMeshDimension(3);
@@ -1250,7 +1250,7 @@ void MEDCouplingRemapperTest::testPartialTransfer1()
   array->alloc(sourceMesh->getNumberOfCells(),1);
   srcField->setArray(array);
   double *ptr=array->getPointer();
-  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+  for(mcIdType i=0;i<sourceMesh->getNumberOfCells();i++)
     ptr[i]=(double)(i+7);
   array->decrRef();
   MEDCouplingFieldDouble *trgField=MEDCouplingFieldDouble::New(ON_CELLS);
@@ -1279,10 +1279,10 @@ void MEDCouplingRemapperTest::testBugNonRegression1()
   DataArrayDouble *coordsSrc(DataArrayDouble::New());
   const double coordsSrcData[18]={-6.25,3.6084391824351605,264.85199999999998,-6.25,3.6084391824351605,289.05200000000002,-6.2499999999999991,-3.6084391824351618,264.85199999999998,-6.2499999999999991,-3.6084391824351618,289.05200000000002,-1.7763568394002505e-15,4.4408920985006262e-15,264.85199999999998,-1.7763568394002505e-15,4.4408920985006262e-15,289.05200000000002};
   coordsSrc->useArray(coordsSrcData,false,DeallocType::CPP_DEALLOC,6,3);
-  DataArrayInt *connSrc(DataArrayInt::New()),*connISrc(DataArrayInt::New());
-  const int connSrcData[7]={16,2,0,4,3,1,5};
+  DataArrayIdType *connSrc(DataArrayIdType::New()),*connISrc(DataArrayIdType::New());
+  const mcIdType connSrcData[7]={16,2,0,4,3,1,5};
   connSrc->useArray(connSrcData,false,DeallocType::CPP_DEALLOC,7,1);
-  const int connISrcData[2]={0,7};
+  const mcIdType connISrcData[2]={0,7};
   connISrc->useArray(connISrcData,false,DeallocType::CPP_DEALLOC,2,1);
   MEDCouplingUMesh *srcMesh(MEDCouplingUMesh::New("source",3));
   srcMesh->setCoords(coordsSrc);
@@ -1292,11 +1292,11 @@ void MEDCouplingRemapperTest::testBugNonRegression1()
   DataArrayDouble *coordsTrg(DataArrayDouble::New());
 const double coordsTrgData[36]={-2,1.1547005383792521,264.85199999999998,-2,0.57735026918962618,264.85199999999998,-2.5,0.2886751345948132,264.85199999999998,-2.5,1.443375672974065,264.85199999999998,-3.0000000000000004,1.1547005383792526,264.85199999999998,-3.0000000000000004,0.57735026918962662,264.85199999999998,-2,1.1547005383792521,289.05200000000002,-2,0.57735026918962618,289.05200000000002,-2.5,0.2886751345948132,289.05200000000002,-2.5,1.443375672974065,289.05200000000002,-3.0000000000000004,1.1547005383792526,289.05200000000002,-3.0000000000000004,0.57735026918962662,289.05200000000002};
  coordsTrg->useArray(coordsTrgData,false,DeallocType::CPP_DEALLOC,12,3);
- DataArrayInt *connTrg=DataArrayInt::New();
- const int connTrgData[44]={31,0,1,2,5,4,3,-1,7,6,9,10,11,8,-1,3,9,6,0,-1,4,10,9,3,-1,5,11,10,4,-1,2,8,11,5,-1,1,7,8,2,-1,0,6,7,1};
+ DataArrayIdType *connTrg=DataArrayIdType::New();
+ const mcIdType connTrgData[44]={31,0,1,2,5,4,3,-1,7,6,9,10,11,8,-1,3,9,6,0,-1,4,10,9,3,-1,5,11,10,4,-1,2,8,11,5,-1,1,7,8,2,-1,0,6,7,1};
  connTrg->useArray(connTrgData,false,DeallocType::CPP_DEALLOC,44,1);
- DataArrayInt *connITrg=DataArrayInt::New();
- const int connITrgData[2]={0,44};
+ DataArrayIdType *connITrg=DataArrayIdType::New();
+ const mcIdType connITrgData[2]={0,44};
  connITrg->useArray(connITrgData,false,DeallocType::CPP_DEALLOC,2,1);
  MEDCouplingUMesh *trgMesh=MEDCouplingUMesh::New("target",3);
  trgMesh->setCoords(coordsTrg);
@@ -1308,7 +1308,7 @@ const double coordsTrgData[36]={-2,1.1547005383792521,264.85199999999998,-2,0.57
  remapper.setPrecision(1e-12);
  remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(srcMesh,trgMesh,"P0P0"));
- std::vector<std::map<int,double> > matrx(remapper.getCrudeMatrix());
+ std::vector<std::map<mcIdType,double> > matrx(remapper.getCrudeMatrix());
  CPPUNIT_ASSERT_EQUAL(1,(int)matrx.size());
  CPPUNIT_ASSERT_EQUAL(1,(int)matrx[0].size());
  CPPUNIT_ASSERT_DOUBLES_EQUAL(valExpected,matrx[0][0],1e-13);

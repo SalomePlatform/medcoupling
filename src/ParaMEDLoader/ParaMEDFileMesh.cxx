@@ -88,15 +88,16 @@ MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm
 MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MCAuto<MEDFileUMesh> ret;
-  int meshDim, spaceDim, numberOfNodes;
+  int meshDim, spaceDim;
+  mcIdType numberOfNodes;
   std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
   std::vector<INTERP_KERNEL::NormalizedCellType> types;
-  std::vector<int> distrib;
+  std::vector<mcIdType> distrib;
   for(std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > >::const_iterator it0=typesDistrib.begin();it0!=typesDistrib.end();it0++)
     for(std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
       {
         types.push_back((*it1).first);
-        int tmp[3];
+        mcIdType tmp[3];
         DataArray::GetSlice(0,(*it1).second,1,iPart,nbOfParts,tmp[0],tmp[1]);
         tmp[2]=1;
         distrib.insert(distrib.end(),tmp,tmp+3);

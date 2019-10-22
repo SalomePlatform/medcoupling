@@ -35,7 +35,7 @@ else:
 # NumPy is an optional pre-requisite!
 assert(MEDCoupling.MEDCouplingHasNumPyBindings())
 a=numpy.arange(20,dtype=numpy.int32)
-d=DataArrayInt(a) # d owns data of a
-e=DataArrayInt(a) # a not owned -> e only an access to chunk of a
+d=DataArrayInt32(a) # d owns data of a
+e=DataArrayInt32(a) # a not owned -> e only an access to chunk of a
 a1=d.toNumPyArray()
 #! [UG_DataArrayNumpy_0]

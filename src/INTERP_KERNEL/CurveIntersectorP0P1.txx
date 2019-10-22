@@ -37,14 +37,14 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int CurveIntersectorP0P1<MyMeshType,MyMatrix>
+  typename MyMeshType::MyConnType CurveIntersectorP0P1<MyMeshType,MyMatrix>
     ::getNumberOfRowsOfResMatrix() const
   {
     return BASE_INTERSECTOR::_meshT.getNumberOfNodes();
   }
 
   template<class MyMeshType, class MyMatrix>
-  int CurveIntersectorP0P1<MyMeshType,MyMatrix>
+  typename MyMeshType::MyConnType CurveIntersectorP0P1<MyMeshType,MyMatrix>
     ::getNumberOfColsOfResMatrix() const
   {
     return BASE_INTERSECTOR::_meshS.getNumberOfElements();
@@ -62,15 +62,15 @@ namespace INTERP_KERNEL
   {
     std::vector<typename BASE_INTERSECTOR::TDualSegment> segmentsT;
     BASE_INTERSECTOR::getDualSegments( icellT, BASE_INTERSECTOR::_meshT, segmentsT);
-    for ( int t = 0; t < (int)segmentsT.size(); ++t )
+    for ( ConnType t = 0; t < (ConnType)segmentsT.size(); ++t )
       {
         typename MyMatrix::value_type& resRow = res[ OTT<ConnType,numPol>::ind2C( segmentsT[t]._nodeId )];
         for(typename std::vector<ConnType>::const_iterator
               iter=icellsS.begin(); iter!=icellsS.end(); iter++)
           {
-            int iS = *iter;
+            ConnType iS = *iter;
             std::vector<double> coordsS;
-            int s, nbSegS = 1 + BASE_INTERSECTOR::getRealSourceCoordinates(iS,coordsS);
+            ConnType s, nbSegS = 1 + BASE_INTERSECTOR::getRealSourceCoordinates(iS,coordsS);
             for ( s = 0; s < nbSegS; ++s )
               {
                 double surf = BASE_INTERSECTOR::intersectSegments(&segmentsT[t]._coords[0],

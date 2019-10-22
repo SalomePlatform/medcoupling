@@ -48,12 +48,12 @@ namespace MEDCoupling
                                const InterpolationOptions& i_opt,
                                const OverlapElementLocator & loc);
 
-    void keepTracksOfSourceIds(int procId, DataArrayInt *ids);
+    void keepTracksOfSourceIds(int procId, DataArrayIdType *ids);
 
-    void keepTracksOfTargetIds(int procId, DataArrayInt *ids);
+    void keepTracksOfTargetIds(int procId, DataArrayIdType *ids);
 
-    void computeLocalIntersection(const MEDCouplingPointSet *src, const DataArrayInt *srcIds, const std::string& srcMeth, int srcProcId,
-                         const MEDCouplingPointSet *trg, const DataArrayInt *trgIds, const std::string& trgMeth, int trgProcId);
+    void computeLocalIntersection(const MEDCouplingPointSet *src, const DataArrayIdType *srcIds, const std::string& srcMeth, int srcProcId,
+                         const MEDCouplingPointSet *trg, const DataArrayIdType *trgIds, const std::string& trgMeth, int trgProcId);
 
     void prepare(const std::vector< int > & procsToSendField);
     
@@ -66,7 +66,7 @@ namespace MEDCoupling
     virtual ~OverlapInterpolationMatrix();
   private:
 
-    static void TransposeMatrix(const std::vector<SparseDoubleVec>& matIn, int nbColsMatIn,
+    static void TransposeMatrix(const std::vector<SparseDoubleVec>& matIn, mcIdType nbColsMatIn,
                                 std::vector<SparseDoubleVec>& matOut);
   private:
     ParaFIELD           *_source_field;

@@ -86,8 +86,8 @@ namespace MEDCoupling
     MCAuto<PartDefinition> getPartDefOfCoo() const { return _part_coords; }
     std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim);
     static INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> GetMeshIdFromName(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1);
-    static void ReadFamiliesAndGrps(med_idt fid, const std::string& mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs);
-    static void WriteFamiliesAndGrps(med_idt fid, const std::string& mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol);
+    static void ReadFamiliesAndGrps(med_idt fid, const std::string& mname, std::map<std::string,mcIdType>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs);
+    static void WriteFamiliesAndGrps(med_idt fid, const std::string& mname, const std::map<std::string,mcIdType>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol);
     static bool RenameFamiliesFromFileToMem(std::vector< std::string >& famNames);
     static bool RenameFamiliesFromMemToFile(std::vector< std::string >& famNames);
     static MEDCoupling::MEDCouplingAxisType TraduceAxisType(med_axis_type at);
@@ -96,9 +96,9 @@ namespace MEDCoupling
     static med_grid_type TraduceAxisTypeRevStruct(MEDCoupling::MEDCouplingAxisType at);
   private:
     typedef bool (*RenameFamiliesPatternFunc)(std::vector< std::string >&);
-    static void RenameFamiliesPatternInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams, RenameFamiliesPatternFunc func);
-    static void RenameFamiliesFromFileToMemInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams);
-    static void RenameFamiliesFromMemToFileInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams);
+    static void RenameFamiliesPatternInternal(std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > >& crudeFams, RenameFamiliesPatternFunc func);
+    static void RenameFamiliesFromFileToMemInternal(std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > >& crudeFams);
+    static void RenameFamiliesFromMemToFileInternal(std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > >& crudeFams);
   public:
     static const char ZE_SEP_FOR_FAMILY_KILLERS[];
     static int ZE_SEP2_FOR_FAMILY_KILLERS;
@@ -119,31 +119,31 @@ namespace MEDCoupling
     MEDFileUMeshL2();
     std::vector<std::string> loadCommonPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, int& Mdim);
     void loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
-    void loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
-    void loadPartOfConnectivity(med_idt fid, int mdim, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadPartOfConnectivity(med_idt fid, int mdim, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it);
-    void loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, int nMin, int nMax);
-    int getNumberOfLevels() const { return _per_type_mesh.size(); }
+    void loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax);
+    int getNumberOfLevels() const { return (int)_per_type_mesh.size(); }
     bool emptyLev(int levId) const { return _per_type_mesh[levId].empty(); }
     const std::vector< MCAuto<MEDFileUMeshPerType> >& getLev(int levId) const { return _per_type_mesh[levId]; }
     bool isFamDefinedOnLev(int levId) const;
     bool isNumDefinedOnLev(int levId) const;
     bool isNamesDefinedOnLev(int levId) const;
     MCAuto<DataArrayDouble> getCoords() const { return _coords; }
-    MCAuto<DataArrayInt> getCoordsFamily() const { return _fam_coords; }
-    MCAuto<DataArrayInt> getCoordsNum() const { return _num_coords; }
-    MCAuto<DataArrayInt> getCoordsGlobalNum() const { return _global_num_coords; }
+    MCAuto<DataArrayIdType> getCoordsFamily() const { return _fam_coords; }
+    MCAuto<DataArrayIdType> getCoordsNum() const { return _num_coords; }
+    MCAuto<DataArrayIdType> getCoordsGlobalNum() const { return _global_num_coords; }
     MCAuto<DataArrayAsciiChar> getCoordsName() const { return _name_coords; }
-    static void WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords, const DataArrayInt *globalNumCoords);
+    static void WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayIdType *famCoords, const DataArrayIdType *numCoords, const DataArrayAsciiChar *nameCoords, const DataArrayIdType *globalNumCoords);
   private:
     void sortTypes();
   private:
     std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > > _per_type_mesh;
     MCAuto<DataArrayDouble> _coords;
-    MCAuto<DataArrayInt> _fam_coords;
-    MCAuto<DataArrayInt> _num_coords;
-    MCAuto<DataArrayInt> _global_num_coords;
+    MCAuto<DataArrayIdType> _fam_coords;
+    MCAuto<DataArrayIdType> _num_coords;
+    MCAuto<DataArrayIdType> _global_num_coords;
     MCAuto<DataArrayAsciiChar> _name_coords;
   };
 
@@ -203,14 +203,14 @@ namespace MEDCoupling
     void assignDefParts(const std::vector<const PartDefinition *>& partDefs);
     void assignUMesh(MEDCouplingUMesh *m);
     MEDCouplingUMesh *getUmesh() const;
-    int getNumberOfCells() const;
+    mcIdType getNumberOfCells() const;
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
-    int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
+    mcIdType getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     std::vector<MEDCoupling1GTUMesh *> retrievePartsWithoutComputation() const;
     MEDCoupling1GTUMesh *retrievePartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
-    void getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const;
-    void renumberNodesInConnWithoutComputation(const int *newNodeNumbersO2N);
+    void getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, mcIdType& start, mcIdType& stop) const;
+    void renumberNodesInConnWithoutComputation(const mcIdType *newNodeNumbersO2N);
     bool isStoredSplitByType() const;
     std::size_t getTimeOfThis() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -223,13 +223,13 @@ namespace MEDCoupling
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
     bool empty() const;
     int getMeshDimension() const;
-    std::vector<int> getDistributionOfTypes() const;
-    int getSize() const;
+    std::vector<mcIdType> getDistributionOfTypes() const;
+    mcIdType getSize() const;
     void setCoords(DataArrayDouble *coords);
     void forceComputationOfPartsFromUMesh() const;
     const PartDefinition *getPartDefOfWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
-    void serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const;
-    void unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI);
+    void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const;
+    void unserialize(const std::string& name, DataArrayDouble *coo, std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI);
   private:
     std::size_t getTimeOfParts() const;
     std::size_t getTimeOfUMesh() const;
@@ -265,64 +265,64 @@ namespace MEDCoupling
     void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
     void forceComputationOfParts() const;
     bool empty() const;
-    bool presenceOfOneFams(const std::vector<int>& ids) const;
+    bool presenceOfOneFams(const std::vector<mcIdType>& ids) const;
     int getMeshDimension() const;
     void simpleRepr(std::ostream& oss) const;
-    int getSize() const;
-    MEDCouplingUMesh *getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const;
-    DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
+    mcIdType getSize() const;
+    MEDCouplingUMesh *getFamilyPart(const mcIdType *idsBg, const mcIdType *idsEnd, bool renum) const;
+    DataArrayIdType *getFamilyPartArr(const mcIdType *idsBg, const mcIdType *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
-    int getNumberOfCells() const;
+    mcIdType getNumberOfCells() const;
     bool isMeshStoredSplitByType() const { return _m_by_types.isStoredSplitByType(); }
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
-    int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
+    mcIdType getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.retrievePartsWithoutComputation(); }
     MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const { return _m_by_types.retrievePartWithoutComputation(gt); }
-    DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
-    DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
-    std::vector<int> getDistributionOfTypes() const { return _m_by_types.getDistributionOfTypes(); }
-    DataArrayInt *getOrCreateAndGetFamilyField();
-    const DataArrayInt *getFamilyField() const;
-    const DataArrayInt *getNumberField() const;
+    DataArrayIdType *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    DataArrayIdType *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    std::vector<mcIdType> getDistributionOfTypes() const { return _m_by_types.getDistributionOfTypes(); }
+    DataArrayIdType *getOrCreateAndGetFamilyField();
+    const DataArrayIdType *getFamilyField() const;
+    const DataArrayIdType *getNumberField() const;
     const DataArrayAsciiChar *getNameField() const;
-    const DataArrayInt *getRevNumberField() const;
+    const DataArrayIdType *getRevNumberField() const;
     const PartDefinition *getPartDef(INTERP_KERNEL::NormalizedCellType gt) const;
     void eraseFamilyField();
-    void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
+    void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,mcIdType>& familyIds,
                               std::map<std::string, std::vector<std::string> >& groups);
     void write(med_idt fid, const std::string& mName, int mdim) const;
     //
-    void setFamilyArr(DataArrayInt *famArr);
-    DataArrayInt *getFamilyField();
-    void setRenumArr(DataArrayInt *renumArr);
+    void setFamilyArr(DataArrayIdType *famArr);
+    DataArrayIdType *getFamilyField();
+    void setRenumArr(DataArrayIdType *renumArr);
     void setNameArr(DataArrayAsciiChar *nameArr);
-    void changeFamilyIdArr(int oldId, int newId);
+    void changeFamilyIdArr(mcIdType oldId, mcIdType newId);
     //
-    void renumberNodesInConn(const int *newNodeNumbersO2N);
+    void renumberNodesInConn(const mcIdType *newNodeNumbersO2N);
     //
-    void serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const;
-    void unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI);
+    void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const;
+    void unserialize(const std::string& name, DataArrayDouble *coo, std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI);
     //
     static void ClearNonDiscrAttributes(const MEDCouplingMesh *tmp);
-    static std::vector<int> GetNewFamiliesNumber(int nb, const std::map<std::string,int>& families);
-    static void TraduceFamilyNumber(const std::vector< std::vector<int> >& fidsGrps, std::map<std::string,int>& familyIds,
-                                    std::map<int,int>& famIdTrad, std::map<int,std::string>& newfams);
-    static DataArrayInt *Renumber(const DataArrayInt *renum, const DataArrayInt *da);
-    static MEDCouplingUMesh *Renumber2(const DataArrayInt *renum, MEDCouplingUMesh *m, const int *cellIds);
-    static MEDFileUMeshSplitL1 *Unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI);
+    static std::vector<mcIdType> GetNewFamiliesNumber(mcIdType nb, const std::map<std::string,mcIdType>& families);
+    static void TraduceFamilyNumber(const std::vector< std::vector<mcIdType> >& fidsGrps, std::map<std::string,mcIdType>& familyIds,
+                                    std::map<mcIdType,mcIdType>& famIdTrad, std::map<mcIdType,std::string>& newfams);
+    static DataArrayIdType *Renumber(const DataArrayIdType *renum, const DataArrayIdType *da);
+    static MEDCouplingUMesh *Renumber2(const DataArrayIdType *renum, MEDCouplingUMesh *m, const mcIdType *cellIds);
+    static MEDFileUMeshSplitL1 *Unserialize(const std::string& name, DataArrayDouble *coo, std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI);
   private:
     MEDFileUMeshSplitL1();
     void assignCommonPart();
-    MEDCouplingUMesh *renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const;
-    DataArrayInt *renumIfNeededArr(const DataArrayInt *da) const;
+    MEDCouplingUMesh *renumIfNeeded(MEDCouplingUMesh *m, const mcIdType *cellIds) const;
+    DataArrayIdType *renumIfNeededArr(const DataArrayIdType *da) const;
     void computeRevNum() const;
   private:
     MEDFileUMeshAggregateCompute _m_by_types;
-    MCAuto<DataArrayInt> _fam;
-    MCAuto<DataArrayInt> _num;
-    MCAuto<DataArrayInt> _global_num;
+    MCAuto<DataArrayIdType> _fam;
+    MCAuto<DataArrayIdType> _num;
+    MCAuto<DataArrayIdType> _global_num;
     MCAuto<DataArrayAsciiChar> _names;
-    mutable MCAuto<DataArrayInt> _rev_num;
+    mutable MCAuto<DataArrayIdType> _rev_num;
     MEDFileUMeshPermCompute _m;
   };
 
@@ -331,7 +331,7 @@ namespace MEDCoupling
   public:
     static MEDFileEltStruct4Mesh *New(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs);
     std::string getGeoTypeName() const { return _geo_type_name; }
-    MCAuto<DataArrayInt> getConn() const { return _conn; }
+    MCAuto<DataArrayIdType> getConn() const { return _conn; }
     MCAuto<MEDFileUMeshPerTypeCommon> getMeshDef() const { return _common; }
     const std::vector< MCAuto<DataArray> >& getVars() const { return _vars; }
   private:
@@ -344,7 +344,7 @@ namespace MEDCoupling
   private:
     std::string _geo_type_name;
     int _geo_type;
-    MCAuto<DataArrayInt> _conn;
+    MCAuto<DataArrayIdType> _conn;
     MCAuto<MEDFileUMeshPerTypeCommon> _common;
     std::vector< MCAuto<DataArray> > _vars;
   };

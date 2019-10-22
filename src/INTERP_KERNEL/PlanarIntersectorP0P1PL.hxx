@@ -36,8 +36,8 @@ namespace INTERP_KERNEL
   public:
     PlanarIntersectorP0P1PL(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double md3DSurf, double minDot3DSurf, double medianPlane, double precision, int orientation);
     void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    ConnType getNumberOfRowsOfResMatrix() const;
+    ConnType getNumberOfColsOfResMatrix() const;
   };
 }
 

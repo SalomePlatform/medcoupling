@@ -242,7 +242,7 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
   xmlNodePtr mesh_node = xmlNewChild(node, 0, BAD_CAST "mesh",0);
   xmlNewProp(mesh_node, BAD_CAST "name", BAD_CAST _collection->getName().c_str());
 
-  int nbdomains= _collection->getMesh().size();
+  int nbdomains= _collection->getNbOfGlobalMeshes();
 
   //loop on the domains
   std::string finalMeshName="";

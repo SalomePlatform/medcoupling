@@ -70,7 +70,7 @@ namespace INTERP_KERNEL
     int ibox=0;
     for(long icell=0; icell<nbelems; icell++)
       {
-        int nb_nodes_per_elem =conn_index[icell+1]-conn_index[icell];
+        ConnType nb_nodes_per_elem =conn_index[icell+1]-conn_index[icell];
         //initializing bounding box limits
         for(int idim=0; idim<SPACEDIM; idim++)
           {
@@ -78,7 +78,7 @@ namespace INTERP_KERNEL
             bbox[2*SPACEDIM*ibox+2*idim+1] = -std::numeric_limits<double>::max();
           }
         //updating the bounding box with each node of the element
-        for (int j=0; j<nb_nodes_per_elem; j++)
+        for (ConnType j=0; j<nb_nodes_per_elem; j++)
           {
             const double* coord_node=coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[icell]+j)]);
             for(int idim=0; idim<SPACEDIM; idim++)
@@ -132,8 +132,8 @@ namespace INTERP_KERNEL
   {
     /* We build the segment tree for locating possible matching intersections*/
   
-    long size = bbox.size()/(2*SPACEDIM);
-    for (int i=0; i<size; i++)
+    std::size_t size = bbox.size()/(2*SPACEDIM);
+    for (std::size_t i=0; i<size; i++)
       {
         double max=- std::numeric_limits<double>::max();
         for(int idim=0; idim<SPACEDIM; idim++)
@@ -156,7 +156,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT)
   {
-    int nbNodesT=_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1]-_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)];
+    ConnType nbNodesT=_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1]-_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)];
     coordsT.resize(SPACEDIM*nbNodesT);
     for (ConnType iT=0; iT<nbNodesT; iT++)
       for(int idim=0; idim<SPACEDIM; idim++)
@@ -170,7 +170,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS)
   {
-    int nbNodesS=_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1]-_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
+    ConnType nbNodesS=_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1]-_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
     coordsS.resize(SPACEDIM*nbNodesS);
     for (ConnType iS=0; iS<nbNodesS; iS++)
       for(int idim=0; idim<SPACEDIM; idim++)
@@ -183,9 +183,9 @@ namespace INTERP_KERNEL
    * @param coordsT output val that stores coordinates of the target cell automatically resized to the right length.
    */
   template<class MyMeshType, class MyMatrix>
-  void PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinatesPermute(ConnType icellT, int offset, std::vector<double>& coordsT)
+  void PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinatesPermute(ConnType icellT, ConnType offset, std::vector<double>& coordsT)
   {
-    int nbNodesT=_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1]-_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)];
+    ConnType nbNodesT=_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1]-_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)];
     coordsT.resize(SPACEDIM*nbNodesT);
     for (ConnType iTTmp=0; iTTmp<nbNodesT; iTTmp++)
       {
@@ -201,9 +201,9 @@ namespace INTERP_KERNEL
    * @param coordsS output val that stores coordinates of the source cell automatically resized to the right length.
    */
   template<class MyMeshType, class MyMatrix>
-  void PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinatesPermute(ConnType icellS, int offset, std::vector<double>& coordsS)
+  void PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinatesPermute(ConnType icellS, ConnType offset, std::vector<double>& coordsS)
   {
-    int nbNodesS=_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1]-_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
+    ConnType nbNodesS=_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1]-_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
     coordsS.resize(SPACEDIM*nbNodesS);
     for (ConnType iSTmp=0; iSTmp<nbNodesS; iSTmp++)
       {
@@ -273,14 +273,14 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(double *Coords_A, double *Coords_B, int nb_NodesA, int nb_NodesB)
+  int PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(double *Coords_A, double *Coords_B, ConnType nb_NodesA, ConnType nb_NodesB)
   {
     return Projection(Coords_A,Coords_B,nb_NodesA,nb_NodesB,_dim_caracteristic*_precision,_max_distance_3Dsurf_intersect,_min_dot_btw_3Dsurf_intersect,_median_plane,_do_rotate);
   }
 
   template<class MyMeshType, class MyMatrix>
   int PlanarIntersector<MyMeshType,MyMatrix>::Projection(double *Coords_A, double *Coords_B, 
-                                                         int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double minDot3DSurf, double median_plane, bool do_rotate)
+                                                         ConnType nb_NodesA, ConnType nb_NodesB, double epsilon, double md3DSurf, double minDot3DSurf, double median_plane, bool do_rotate)
   {
     double normal_A[3]={0,0,0};
     double normal_B[3]={0,0,0};
@@ -289,10 +289,10 @@ namespace INTERP_KERNEL
     bool same_orientation;
 
     //Find the normal to cells A and B
-    int i_A1(1);
+    ConnType i_A1(1);
     while(i_A1<nb_NodesA && distance2<SPACEDIM>(Coords_A,&Coords_A[SPACEDIM*i_A1])< epsilon)
       i_A1++;
-    int i_A2(i_A1+1);
+    ConnType i_A2(i_A1+1);
     crossprod<SPACEDIM>(Coords_A, &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2],normal_A);
     double normA(sqrt(dotprod<SPACEDIM>(normal_A,normal_A)));
     while(i_A2<nb_NodesA && normA < epsilon)
@@ -302,10 +302,10 @@ namespace INTERP_KERNEL
         normA = sqrt(dotprod<SPACEDIM>(normal_A,normal_A));
 
       }
-    int i_B1(1);
+    ConnType i_B1(1);
     while(i_B1<nb_NodesB && distance2<SPACEDIM>(Coords_B,Coords_B+SPACEDIM*i_B1)< epsilon)
       i_B1++;
-    int i_B2(i_B1+1);
+    ConnType i_B2(i_B1+1);
     crossprod<SPACEDIM>(Coords_B, Coords_B+SPACEDIM*i_B1, Coords_B+SPACEDIM*i_B2,normal_B);
     double normB(sqrt(dotprod<SPACEDIM>(normal_B,normal_B)));
     while(i_B2<nb_NodesB && normB < epsilon)
@@ -324,7 +324,7 @@ namespace INTERP_KERNEL
             coords_GA[i]=0.;
             for (int j=0;j<nb_NodesA;j++)
               coords_GA[i]+=Coords_A[3*j+i];
-            coords_GA[i]/=nb_NodesA;
+            coords_GA[i]/=(double)nb_NodesA;
           }
         double G1[3],G2[3],G3[3];
         for(int i=0;i<3;i++)
@@ -367,13 +367,13 @@ namespace INTERP_KERNEL
           linear_comb[idim]/=norm;
         
         //Project the nodes of A and B on the median plane
-        for(int i_A=0; i_A<nb_NodesA; i_A++)
+        for(ConnType i_A=0; i_A<nb_NodesA; i_A++)
           {
             proj = dotprod<SPACEDIM>(&Coords_A[SPACEDIM*i_A],linear_comb);
             for(int idim =0; idim< SPACEDIM; idim++)
               Coords_A[SPACEDIM*i_A+idim] -=  proj*linear_comb[idim];
           }
-        for(int i_B=0; i_B<nb_NodesB; i_B++)
+        for(ConnType i_B=0; i_B<nb_NodesB; i_B++)
           {
             proj = dotprod<SPACEDIM>(Coords_B+SPACEDIM*i_B,linear_comb);
             for(int idim =0; idim< SPACEDIM; idim++)

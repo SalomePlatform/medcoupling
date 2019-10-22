@@ -35,7 +35,7 @@ namespace INTERP_KERNEL
 
     // Main function to interpolate
     template<class MyMeshType, class MatrixType>
-    int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT,
+    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT,
                           MatrixType& result, const std::string& method);
     
   };

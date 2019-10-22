@@ -41,7 +41,7 @@ namespace INTERP_KERNEL
     InterpolationCC();
     InterpolationCC(const InterpolationOptions& io);
     template<class MyMeshType, class MatrixType>
-    int interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const char *method);
+    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const char *method);
 
   private:
   };

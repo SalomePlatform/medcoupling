@@ -23,6 +23,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMesh.hxx"
+#include "MEDCouplingMemArray.txx"
 
 using namespace MEDCoupling;
 

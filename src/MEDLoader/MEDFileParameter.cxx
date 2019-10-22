@@ -21,6 +21,7 @@
 #include "MEDFileParameter.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDLoaderBase.hxx"
+#include "MEDFileBasis.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 
@@ -110,12 +111,12 @@ void MEDFileParameterDouble1TSWTI::finishLoading(med_idt fid, const std::string&
   std::ostringstream oss; oss << "MEDFileParameterDouble1TS::finishLoading : no specified time step (" << dt << "," << it << ") ! Time steps available : ";
   for(int i=0;i<nbOfSteps;i++)
     {
-      int locDt,locIt;
+      med_int locDt,locIt;
       double tim;
       MEDFILESAFECALLERRD0(MEDparameterComputationStepInfo,(fid,name.c_str(),i+1,&locDt,&locIt,&tim));
       if(dt==locDt && it==locIt)
         {
-          _iteration=locDt; _order=locIt; _time=tim;
+          _iteration=FromMedInt<int>(locDt); _order=FromMedInt<int>(locIt); _time=tim;
           MEDFILESAFECALLERRD0(MEDparameterValueRd,(fid,name.c_str(),_iteration,_order,reinterpret_cast<unsigned char *const>(&_arr)));
           return ;
         }
@@ -136,10 +137,10 @@ void MEDFileParameterDouble1TSWTI::readValue(med_idt fid, const std::string& nam
 
 void MEDFileParameterDouble1TSWTI::finishLoading(med_idt fid, const std::string& name, int timeStepId)
 {
-  int locDt,locIt;
+  med_int locDt,locIt;
   double dt;
   MEDFILESAFECALLERRD0(MEDparameterComputationStepInfo,(fid,name.c_str(),timeStepId+1,&locDt,&locIt,&dt));
-  _iteration=locDt; _order=locIt; _time=dt;
+  _iteration=FromMedInt<int>(locDt); _order=FromMedInt<int>(locIt); _time=dt;
   MEDFILESAFECALLERRD0(MEDparameterValueRd,(fid,name.c_str(),_iteration,_order,reinterpret_cast<unsigned char *const>(&_arr)));
 }
 
@@ -212,7 +213,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  int nbPar=MEDnParameter(fid);
+  med_int nbPar=MEDnParameter(fid);
   std::ostringstream oss; oss << "MEDFileParameterDouble1TS : no double param name \"" << paramName << "\" ! Double Parameters available are : ";
   INTERP_KERNEL::AutoPtr<char> pName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> descName=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
@@ -220,7 +221,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
   med_parameter_type paramType;
   for(int i=0;i<nbPar;i++)
     {
-      int nbOfSteps;
+      med_int nbOfSteps;
       MEDFILESAFECALLERRD0(MEDparameterInfo,(fid,i+1,pName,&paramType,descName,unitName,&nbOfSteps));
       std::string paramNameCpp=MEDLoaderBase::buildStringFromFortran(pName,MED_NAME_SIZE);
       if(paramNameCpp==paramName && paramType==MED_FLOAT64)
@@ -228,7 +229,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
           _dt_unit=MEDLoaderBase::buildStringFromFortran(unitName,MED_SNAME_SIZE);
           _name=paramNameCpp;
           _desc_name=MEDLoaderBase::buildStringFromFortran(descName,MED_COMMENT_SIZE);
-          finishLoading(fid,_name,dt,it,nbOfSteps);
+          finishLoading(fid,_name,dt,it,FromMedInt<int>(nbOfSteps));
           return ;
         }
       else
@@ -244,7 +245,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  int nbPar=MEDnParameter(fid);
+  med_int nbPar=MEDnParameter(fid);
   std::ostringstream oss; oss << "MEDFileParameterDouble1TS : no double param name \"" << paramName << "\" ! Double Parameters available are : ";
   INTERP_KERNEL::AutoPtr<char> pName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> descName=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
@@ -252,7 +253,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
   med_parameter_type paramType;
   for(int i=0;i<nbPar;i++)
     {
-      int nbOfSteps;
+      med_int nbOfSteps;
       MEDFILESAFECALLERRD0(MEDparameterInfo,(fid,i+1,pName,&paramType,descName,unitName,&nbOfSteps));
       std::string paramNameCpp=MEDLoaderBase::buildStringFromFortran(pName,MED_NAME_SIZE);
       if(paramNameCpp==paramName && paramType==MED_FLOAT64)
@@ -284,7 +285,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  int nbPar=MEDnParameter(fid);
+  med_int nbPar=MEDnParameter(fid);
   if(nbPar<1)
     {
       std::ostringstream oss2; oss2 << "No parameter in file \"" << fileName << "\" !";  
@@ -294,7 +295,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
   INTERP_KERNEL::AutoPtr<char> descName=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
   INTERP_KERNEL::AutoPtr<char> unitName=MEDLoaderBase::buildEmptyString(MED_SNAME_SIZE);
   med_parameter_type paramType;
-  int nbOfSteps;
+  med_int nbOfSteps;
   MEDFILESAFECALLERRD0(MEDparameterInfo,(fid,1,pName,&paramType,descName,unitName,&nbOfSteps));
   std::string paramNameCpp=MEDLoaderBase::buildStringFromFortran(pName,MED_NAME_SIZE);
   if(paramType==MED_FLOAT64)
@@ -407,7 +408,7 @@ MEDFileParameterMultiTS::MEDFileParameterMultiTS(const MEDFileParameterMultiTS& 
 
 MEDFileParameterMultiTS::MEDFileParameterMultiTS(med_idt fid)
 {
-  int nbPar(MEDnParameter(fid));
+  med_int nbPar(MEDnParameter(fid));
   if(nbPar<1)
     {
       std::ostringstream oss; oss << "MEDFileParameterMultiTS : no parameter in file \"" << FileNameFromFID(fid) << "\" !" ;
@@ -417,18 +418,18 @@ MEDFileParameterMultiTS::MEDFileParameterMultiTS(med_idt fid)
   INTERP_KERNEL::AutoPtr<char> descName(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
   INTERP_KERNEL::AutoPtr<char> unitName(MEDLoaderBase::buildEmptyString(MED_SNAME_SIZE));
   med_parameter_type paramType;
-  int nbOfSteps;
+  med_int nbOfSteps;
   MEDFILESAFECALLERRD0(MEDparameterInfo,(fid,1,pName,&paramType,descName,unitName,&nbOfSteps));
   std::string paramNameCpp(MEDLoaderBase::buildStringFromFortran(pName,MED_NAME_SIZE));
   _dt_unit=MEDLoaderBase::buildStringFromFortran(unitName,MED_SNAME_SIZE);
   _name=paramNameCpp;
   _desc_name=MEDLoaderBase::buildStringFromFortran(descName,MED_COMMENT_SIZE);
-  finishLoading(fid,paramType,nbOfSteps);
+  finishLoading(fid,paramType,FromMedInt<int>(nbOfSteps));
 }
 
 MEDFileParameterMultiTS::MEDFileParameterMultiTS(med_idt fid, const std::string& paramName)
 {
-  int nbPar(MEDnParameter(fid));
+  med_int nbPar(MEDnParameter(fid));
   std::ostringstream oss; oss << "MEDFileParameterDouble1TS : no double param name \"" << paramName << "\" ! Double Parameters available are : ";
   INTERP_KERNEL::AutoPtr<char> pName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> descName(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
@@ -436,7 +437,7 @@ MEDFileParameterMultiTS::MEDFileParameterMultiTS(med_idt fid, const std::string&
   med_parameter_type paramType;
   for(int i=0;i<nbPar;i++)
     {
-      int nbOfSteps;
+      med_int nbOfSteps;
       MEDFILESAFECALLERRD0(MEDparameterInfo,(fid,i+1,pName,&paramType,descName,unitName,&nbOfSteps));
       std::string paramNameCpp(MEDLoaderBase::buildStringFromFortran(pName,MED_NAME_SIZE));
       if(paramNameCpp==paramName)
@@ -446,7 +447,7 @@ MEDFileParameterMultiTS::MEDFileParameterMultiTS(med_idt fid, const std::string&
               _dt_unit=MEDLoaderBase::buildStringFromFortran(unitName,MED_SNAME_SIZE);
               _name=paramNameCpp;
               _desc_name=MEDLoaderBase::buildStringFromFortran(descName,MED_COMMENT_SIZE);
-              finishLoading(fid,paramType,nbOfSteps);
+              finishLoading(fid,paramType,FromMedInt<int>(nbOfSteps));
               return ;
             }
           else
@@ -469,13 +470,13 @@ void MEDFileParameterMultiTS::finishLoading(med_idt fid, med_parameter_type typ,
   _param_per_ts.resize(nbOfSteps);
   for(int i=0;i<nbOfSteps;i++)
     {
-      int dt,it;
+      med_int dt,it;
       double tim;
       MEDFILESAFECALLERRD0(MEDparameterComputationStepInfo,(fid,_name.c_str(),i+1,&dt,&it,&tim));
       switch(typ)
       {
         case MED_FLOAT64:
-          _param_per_ts[i]=MEDFileParameterDouble1TSWTI::New(dt,it,tim);
+          _param_per_ts[i]=MEDFileParameterDouble1TSWTI::New(FromMedInt<int>(dt),FromMedInt<int>(it),tim);
           _param_per_ts[i]->readValue(fid,_name.c_str());
           break;
           /*case MED_INT32;
@@ -724,7 +725,7 @@ MEDFileParameters *MEDFileParameters::New(med_idt fid)
 
 MEDFileParameters::MEDFileParameters(med_idt fid)
 {
-  int nbPar=MEDnParameter(fid);
+  med_int nbPar=MEDnParameter(fid);
   _params.resize(nbPar);
   INTERP_KERNEL::AutoPtr<char> pName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> descName(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
@@ -732,7 +733,7 @@ MEDFileParameters::MEDFileParameters(med_idt fid)
   med_parameter_type paramType;
   for(int i=0;i<nbPar;i++)
     {
-      int nbOfSteps;
+      med_int nbOfSteps;
       MEDFILESAFECALLERRD0(MEDparameterInfo,(fid,i+1,pName,&paramType,descName,unitName,&nbOfSteps));
       std::string paramNameCpp(MEDLoaderBase::buildStringFromFortran(pName,MED_NAME_SIZE));
       _params[i]=MEDFileParameterMultiTS::New(fid,paramNameCpp);

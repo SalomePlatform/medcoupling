@@ -40,8 +40,8 @@ namespace INTERP_KERNEL
   public:
     void intersectCells(ConnType icellT,
                         const std::vector<ConnType>& icellsS, MyMatrix& res);
-    int getNumberOfRowsOfResMatrix() const;
-    int getNumberOfColsOfResMatrix() const;
+    ConnType getNumberOfRowsOfResMatrix() const;
+    ConnType getNumberOfColsOfResMatrix() const;
   };
 }
 

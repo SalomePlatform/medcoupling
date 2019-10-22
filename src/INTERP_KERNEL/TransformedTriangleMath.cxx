@@ -146,7 +146,7 @@ namespace INTERP_KERNEL
 
             const long double delta = MULT_PREC_F * ( std::fabs(term1) + std::fabs(term2) );
          
-            if( epsilonEqual(_doubleProducts[8*seg + dp], 0.0, THRESHOLD_F * delta))
+            if( epsilonEqual(_doubleProducts[8*seg + dp], 0.0, (double)(THRESHOLD_F * delta)))
               {
                 // debug output
 #if LOG_LEVEL >= 5
@@ -485,7 +485,7 @@ namespace INTERP_KERNEL
     const long double delta = MULT_PREC_F * (std::fabs(p_term) + std::fabs(q_term) + std::fabs(r_term));
 #endif
 
-    if( epsilonEqual( p_term + q_term + r_term, 0.0, THRESHOLD_F * delta) )
+    if( epsilonEqual( p_term + q_term + r_term, 0.0, (double)(THRESHOLD_F * delta)) )
       {
         LOG(4, "Reset imprecise triple product for corner " << corner << " to zero" ); 
         return 0.0;

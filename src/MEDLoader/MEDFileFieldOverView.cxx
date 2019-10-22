@@ -42,9 +42,9 @@ MEDFileMeshStruct *MEDFileMeshStruct::New(const MEDFileMesh *mesh)
 std::size_t MEDFileMeshStruct::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(0);
-  for(std::vector< std::vector<int> >::const_iterator it0=_geo_types_distrib.begin();it0!=_geo_types_distrib.end();it0++)
+  for(std::vector< std::vector<mcIdType> >::const_iterator it0=_geo_types_distrib.begin();it0!=_geo_types_distrib.end();it0++)
     ret+=(*it0).capacity()*sizeof(int);
-  ret+=_geo_types_distrib.capacity()*sizeof(std::vector<int>);
+  ret+=_geo_types_distrib.capacity()*sizeof(std::vector<mcIdType>);
   return ret;
 }
 
@@ -69,7 +69,7 @@ MEDFileMeshStruct::MEDFileMeshStruct(const MEDFileMesh *mesh):_mesh(mesh)
 int MEDFileMeshStruct::getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) const
 {
   int j=0;
-  for(std::vector< std::vector<int> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++,j--)
+  for(std::vector< std::vector<mcIdType> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++,j--)
     {
       std::size_t sz=(*it1).size();
       if(sz%3!=0)
@@ -85,9 +85,9 @@ int MEDFileMeshStruct::getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) co
 /*!
  * \sa MEDFileMeshStruct::doesManageGeoType
  */
-int MEDFileMeshStruct::getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellType t) const
+mcIdType MEDFileMeshStruct::getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellType t) const
 {
-  for(std::vector< std::vector<int> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++)
+  for(std::vector< std::vector<mcIdType> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++)
     {
       std::size_t sz=(*it1).size();
       if(sz%3!=0)
@@ -105,7 +105,7 @@ int MEDFileMeshStruct::getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellTy
  */
 bool MEDFileMeshStruct::doesManageGeoType(INTERP_KERNEL::NormalizedCellType t) const
 {
-  for(std::vector< std::vector<int> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++)
+  for(std::vector< std::vector<mcIdType> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++)
     {
       std::size_t sz=(*it1).size();
       if(sz%3!=0)
@@ -131,7 +131,7 @@ void MEDFileMeshStruct::appendIfImplicitType(INTERP_KERNEL::NormalizedCellType t
   std::size_t nbGeo(sz/3);
   if(nbGeo!=1)
     throw INTERP_KERNEL::Exception(MSG);
-  std::vector<int> arr(3); arr[0]=(int)t; arr[1]=_mesh->buildImplicitPartIfAny(t); arr[2]=-1;
+  std::vector<mcIdType> arr(3); arr[0]=(mcIdType)t; arr[1]=_mesh->buildImplicitPartIfAny(t); arr[2]=-1;
   _geo_types_distrib.push_back(arr);
 }
 
@@ -180,7 +180,7 @@ MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<in
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::New : unrecognized type of mesh ! Must be in [MEDFileUMesh,MEDFileCMesh,MEDFileCurveLinearMesh] !");
 }
 
-MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities)
+MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDMeshMultiLev::New 2 : null input pointer !");
@@ -196,25 +196,25 @@ MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<IN
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::New 2 : unrecognized type of mesh ! Must be in [MEDFileUMesh,MEDFileCMesh,MEDFileCurveLinearMesh] !");
 }
 
-MEDMeshMultiLev *MEDMeshMultiLev::NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode)
+MEDMeshMultiLev *MEDMeshMultiLev::NewOnlyOnNode(const MEDFileMesh *m, const DataArrayIdType *pflOnNode)
 {
   MCAuto<MEDMeshMultiLev> ret(MEDMeshMultiLev::New(m,m->getNonEmptyLevels()));
   ret->selectPartOfNodes(pflOnNode);
   return ret.retn();
 }
 
-void MEDMeshMultiLev::setNodeReduction(const DataArrayInt *nr)
+void MEDMeshMultiLev::setNodeReduction(const DataArrayIdType *nr)
 {
   if(nr)
     nr->incrRef();
-  _node_reduction=const_cast<DataArrayInt*>(nr);
+  _node_reduction=const_cast<DataArrayIdType*>(nr);
 }
 
-void MEDMeshMultiLev::setCellReduction(const DataArrayInt *cr)
+void MEDMeshMultiLev::setCellReduction(const DataArrayIdType *cr)
 {
   if(_pfls.size()!=1)
     throw INTERP_KERNEL::Exception("MEDMeshMultiLev::setCellReduction : can be used only for single geo type mesh !");
-  _pfls[0]=const_cast<DataArrayInt*>(cr);
+  _pfls[0]=const_cast<DataArrayIdType*>(cr);
   if(cr)
     cr->incrRef();
 }
@@ -227,7 +227,7 @@ bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst
         throw INTERP_KERNEL::Exception("MEDMeshMultiLev::isFastlyTheSameStruct : unexpected situation for nodes !");
       const MEDFileField1TSStructItem2& p(fst[0]);
       std::string pflName(p.getPflName());
-      const DataArrayInt *nr(_node_reduction);
+      const DataArrayIdType *nr(_node_reduction);
       if(pflName.empty() && !nr)
         return true;
       if(!pflName.empty() && !nr)
@@ -241,8 +241,8 @@ bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst
       std::size_t sz(fst.getNumberOfItems());
       if(sz!=_geo_types.size())
         return false;
-      int strt(0);
-      for(std::size_t i=0;i<sz;i++)
+      mcIdType strt(0);
+      for(unsigned int i=0;i<sz;i++)
         {
           const MEDFileField1TSStructItem2& p(fst[i]);
           if(!p.isFastlyEqual(strt,_geo_types[i],getPflNameOfId(i).c_str()))
@@ -265,33 +265,33 @@ DataArray *MEDMeshMultiLev::buildDataArray(const MEDFileField1TSStructItem& fst,
  * \param [out] famIds - Can be null. If not null the instance has to be dealt by the caller (decrRef).
  * \param [out] isWithoutCopy - When true the returned instance \a famIds if not null is directly those in the data structure.
  */
-void MEDMeshMultiLev::retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isWithoutCopy) const
+void MEDMeshMultiLev::retrieveFamilyIdsOnCells(DataArrayIdType *& famIds, bool& isWithoutCopy) const
 {
-  const DataArrayInt *fids(_cell_fam_ids);
+  const DataArrayIdType *fids(_cell_fam_ids);
   if(!fids)
     { famIds=0; isWithoutCopy=true; return ; }
   std::size_t sz(_geo_types.size());
   bool presenceOfPfls(false);
   for(std::size_t i=0;i<sz && !presenceOfPfls;i++)
     {
-      const DataArrayInt *pfl(_pfls[i]);
+      const DataArrayIdType *pfl(_pfls[i]);
       if(pfl)
         presenceOfPfls=true;
     }
   if(!presenceOfPfls)
-    { famIds=const_cast<DataArrayInt *>(fids); famIds->incrRef(); isWithoutCopy=_mesh->isObjectInTheProgeny(famIds); return ; }
+    { famIds=const_cast<DataArrayIdType *>(fids); famIds->incrRef(); isWithoutCopy=_mesh->isObjectInTheProgeny(famIds); return ; }
   //bad luck the slowest part
   isWithoutCopy=false;
-  std::vector< MCAuto<DataArrayInt> > retSafe(sz);
-  std::vector< const DataArrayInt *> ret(sz);
-  int start(0);
+  std::vector< MCAuto<DataArrayIdType> > retSafe(sz);
+  std::vector< const DataArrayIdType *> ret(sz);
+  mcIdType start(0);
   for(std::size_t i=0;i<sz;i++)
     {
-      const DataArrayInt *pfl(_pfls[i]);
-      int lgth(_nb_entities[i]);
+      const DataArrayIdType *pfl(_pfls[i]);
+      mcIdType lgth(_nb_entities[i]);
       if(pfl)
         {
-          MCAuto<DataArrayInt> tmp(fids->selectByTupleIdSafeSlice(start,start+lgth,1));
+          MCAuto<DataArrayIdType> tmp(fids->selectByTupleIdSafeSlice(start,start+lgth,1));
           retSafe[i]=tmp->selectByTupleIdSafe(pfl->begin(),pfl->end());
         }
       else
@@ -301,40 +301,40 @@ void MEDMeshMultiLev::retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isW
       ret[i]=retSafe[i];
       start+=lgth;
     }
-  famIds=DataArrayInt::Aggregate(ret);
+  famIds=DataArrayIdType::Aggregate(ret);
 }
 
 /*!
  * \param [out] numIds - Can be null. If not null the instance has to be dealt by the caller (decrRef).
  * \param [out] isWithoutCopy - When true the returned instance \a numIds if not null is directly those in the data structure.
  */
-void MEDMeshMultiLev::retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isWithoutCopy) const
+void MEDMeshMultiLev::retrieveNumberIdsOnCells(DataArrayIdType *& numIds, bool& isWithoutCopy) const
 {
-  const DataArrayInt *nids(_cell_num_ids);
+  const DataArrayIdType *nids(_cell_num_ids);
   if(!nids)
     { numIds=0; isWithoutCopy=true; return ; }
   std::size_t sz(_geo_types.size());
   bool presenceOfPfls(false);
   for(std::size_t i=0;i<sz && !presenceOfPfls;i++)
     {
-      const DataArrayInt *pfl(_pfls[i]);
+      const DataArrayIdType *pfl(_pfls[i]);
       if(pfl)
         presenceOfPfls=true;
     }
   if(!presenceOfPfls)
-    { numIds=const_cast<DataArrayInt *>(nids); numIds->incrRef(); isWithoutCopy=_mesh->isObjectInTheProgeny(numIds); return ; }
+    { numIds=const_cast<DataArrayIdType *>(nids); numIds->incrRef(); isWithoutCopy=_mesh->isObjectInTheProgeny(numIds); return ; }
   //bad luck the slowest part
   isWithoutCopy=false;
-  std::vector< MCAuto<DataArrayInt> > retSafe(sz);
-  std::vector< const DataArrayInt *> ret(sz);
-  int start(0);
+  std::vector< MCAuto<DataArrayIdType> > retSafe(sz);
+  std::vector< const DataArrayIdType *> ret(sz);
+  mcIdType start(0);
   for(std::size_t i=0;i<sz;i++)
     {
-      const DataArrayInt *pfl(_pfls[i]);
-      int lgth(_nb_entities[i]);
+      const DataArrayIdType *pfl(_pfls[i]);
+      mcIdType lgth(_nb_entities[i]);
       if(pfl)
         {
-          MCAuto<DataArrayInt> tmp(nids->selectByTupleIdSafeSlice(start,start+lgth,1));
+          MCAuto<DataArrayIdType> tmp(nids->selectByTupleIdSafeSlice(start,start+lgth,1));
           retSafe[i]=tmp->selectByTupleIdSafe(pfl->begin(),pfl->end());
         }
       else
@@ -344,19 +344,19 @@ void MEDMeshMultiLev::retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isW
       ret[i]=retSafe[i];
       start+=lgth;
     }
-  numIds=DataArrayInt::Aggregate(ret);
+  numIds=DataArrayIdType::Aggregate(ret);
 }
 
 /*!
  * \param [out] famIds - Can be null. If not null the instance has to be dealt by the caller (decrRef).
  * \param [out] isWithoutCopy - When true the returned instance \a famIds if not null is directly those in the data structure.
  */
-void MEDMeshMultiLev::retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isWithoutCopy) const
+void MEDMeshMultiLev::retrieveFamilyIdsOnNodes(DataArrayIdType *& famIds, bool& isWithoutCopy) const
 {
-  const DataArrayInt *fids(_node_fam_ids);
+  const DataArrayIdType *fids(_node_fam_ids);
   if(!fids)
     { famIds=0; isWithoutCopy=true; return ; }
-  const DataArrayInt *nr(_node_reduction);
+  const DataArrayIdType *nr(_node_reduction);
   if(nr)
     {
       isWithoutCopy=false;
@@ -364,7 +364,7 @@ void MEDMeshMultiLev::retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isW
     }
   else
     {
-      famIds=const_cast<DataArrayInt *>(fids); famIds->incrRef();
+      famIds=const_cast<DataArrayIdType *>(fids); famIds->incrRef();
       isWithoutCopy=_mesh->isObjectInTheProgeny(famIds);
     }
 }
@@ -373,12 +373,12 @@ void MEDMeshMultiLev::retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isW
  * \param [out] numIds - Can be null. If not null the instance has to be dealt by the caller (decrRef).
  * \param [out] isWithoutCopy - When true the returned instance \a numIds if not null is directly those in the data structure.
  */
-void MEDMeshMultiLev::retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isWithoutCopy) const
+void MEDMeshMultiLev::retrieveNumberIdsOnNodes(DataArrayIdType *& numIds, bool& isWithoutCopy) const
 {
-  const DataArrayInt *fids(_node_num_ids);
+  const DataArrayIdType *fids(_node_num_ids);
   if(!fids)
     { numIds=0; isWithoutCopy=true; return ; }
-  const DataArrayInt *nr(_node_reduction);
+  const DataArrayIdType *nr(_node_reduction);
   if(nr)
     {
       isWithoutCopy=false;
@@ -386,7 +386,7 @@ void MEDMeshMultiLev::retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isW
     }
   else
     {
-      numIds=const_cast<DataArrayInt *>(fids); numIds->incrRef();
+      numIds=const_cast<DataArrayIdType *>(fids); numIds->incrRef();
       isWithoutCopy=_mesh->isObjectInTheProgeny(numIds);
     }
 }
@@ -395,7 +395,7 @@ void MEDMeshMultiLev::retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isW
  * This method returns, if any, a new object containing the global node ids **BUT CONTRARY TO OTHER RETRIEVE METHODS** the returned object is always a NON AGGREGATED object. So the returned object if not null
  * can be used as this safely.
  */
-DataArrayInt *MEDMeshMultiLev::retrieveGlobalNodeIdsIfAny() const
+DataArrayIdType *MEDMeshMultiLev::retrieveGlobalNodeIdsIfAny() const
 {
   const MEDFileUMesh *umesh(dynamic_cast<const MEDFileUMesh *>(_mesh));
   if(!umesh)
@@ -403,12 +403,12 @@ DataArrayInt *MEDMeshMultiLev::retrieveGlobalNodeIdsIfAny() const
   const PartDefinition *pd(umesh->getPartDefAtLevel(1));
   if(!pd)
     return 0;
-  MCAuto<DataArrayInt> tmp(pd->toDAI());
-  const DataArrayInt *tmpCpp(tmp);
+  MCAuto<DataArrayIdType> tmp(pd->toDAI());
+  const DataArrayIdType *tmpCpp(tmp);
   if(!tmpCpp)
     return 0;
   //
-  const DataArrayInt *nr(_node_reduction);
+  const DataArrayIdType *nr(_node_reduction);
   if(nr)
     return tmp->selectByTupleIdSafe(nr->begin(),nr->end());
   else
@@ -420,28 +420,28 @@ std::vector< INTERP_KERNEL::NormalizedCellType > MEDMeshMultiLev::getGeoTypes() 
   return _geo_types;
 }
 
-void MEDMeshMultiLev::setFamilyIdsOnCells(DataArrayInt *famIds)
+void MEDMeshMultiLev::setFamilyIdsOnCells(DataArrayIdType *famIds)
 {
   _cell_fam_ids=famIds;
   if(famIds)
     famIds->incrRef();
 }
 
-void MEDMeshMultiLev::setNumberIdsOnCells(DataArrayInt *numIds)
+void MEDMeshMultiLev::setNumberIdsOnCells(DataArrayIdType *numIds)
 {
   _cell_num_ids=numIds;
   if(numIds)
     numIds->incrRef();
 }
 
-void MEDMeshMultiLev::setFamilyIdsOnNodes(DataArrayInt *famIds)
+void MEDMeshMultiLev::setFamilyIdsOnNodes(DataArrayIdType *famIds)
 {
   _node_fam_ids=famIds;
   if(famIds)
     famIds->incrRef();
 }
 
-void MEDMeshMultiLev::setNumberIdsOnNodes(DataArrayInt *numIds)
+void MEDMeshMultiLev::setNumberIdsOnNodes(DataArrayIdType *numIds)
 {
   _node_num_ids=numIds;
   if(numIds)
@@ -453,7 +453,7 @@ std::string MEDMeshMultiLev::getPflNameOfId(int id) const
   std::size_t sz(_pfls.size());
   if(id<0 || id>=(int)sz)
     throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getPflNameOfId : invalid input id !");
-  const DataArrayInt *pfl(_pfls[id]);
+  const DataArrayIdType *pfl(_pfls[id]);
   if(!pfl)
     return std::string("");
   return pfl->getName();
@@ -463,7 +463,7 @@ std::string MEDMeshMultiLev::getPflNameOfId(int id) const
  * Returns the number of cells having geometric type \a t.
  * The profiles are **NOT** taken into account here.
  */
-int MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const
+mcIdType MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const
 {
   std::size_t sz(_nb_entities.size());
   for(std::size_t i=0;i<sz;i++)
@@ -472,7 +472,7 @@ int MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : not existing geometric type in this !");
 }
 
-int MEDMeshMultiLev::getNumberOfNodes() const
+mcIdType MEDMeshMultiLev::getNumberOfNodes() const
 {
   return _nb_nodes;
 }
@@ -485,26 +485,26 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
         throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes !");
       const MEDFileField1TSStructItem2& p(fst[0]);
       std::string pflName(p.getPflName());
-      const DataArrayInt *nr(_node_reduction);
+      const DataArrayIdType *nr(_node_reduction);
       if(pflName.empty() && !nr)
         return vals->deepCopy();
       if(pflName.empty() && nr)
         throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 2 !");
       if(!pflName.empty() && nr)
         {
-          MCAuto<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCopy());
-          MCAuto<DataArrayInt> p2(nr->deepCopy());
+          MCAuto<DataArrayIdType> p1(globs->getProfile(pflName.c_str())->deepCopy());
+          MCAuto<DataArrayIdType> p2(nr->deepCopy());
           p1->sort(true); p2->sort(true);
           if(!p1->isEqualWithoutConsideringStr(*p2))
             throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : it appears that a profile on nodes does not cover the cells correctly !");
-          p1=DataArrayInt::FindPermutationFromFirstToSecond(globs->getProfile(pflName.c_str()),nr);
+          p1=DataArrayIdType::FindPermutationFromFirstToSecond(globs->getProfile(pflName.c_str()),nr);
           MCAuto<DataArray> ret(vals->deepCopy());
           ret->renumberInPlace(p1->begin());
           return ret.retn();
         }
       if(!pflName.empty() && !nr)
         {
-          MCAuto<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCopy());
+          MCAuto<DataArrayIdType> p1(globs->getProfile(pflName.c_str())->deepCopy());
           p1->sort(true);
           if(!p1->isIota(getNumberOfNodes()))
             throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 4 !");
@@ -523,11 +523,11 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
       std::vector< const DataArray *> arr(s.size());
       std::vector< MCAuto<DataArray> > arrSafe(s.size());
       int iii(0);
-      int nc(vals->getNumberOfComponents());
+      mcIdType nc(ToIdType(vals->getNumberOfComponents()));
       std::vector<std::string> compInfo(vals->getInfoOnComponents());
       for(std::vector< INTERP_KERNEL::NormalizedCellType >::const_iterator it=_geo_types.begin();it!=_geo_types.end();it++,iii++)
         {
-          const DataArrayInt *thisP(_pfls[iii]);
+          const DataArrayIdType *thisP(_pfls[iii]);
           std::vector<const MEDFileField1TSStructItem2 *> ps;
           for(std::size_t i=0;i<sz;i++)
             {
@@ -540,7 +540,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
           if(ps.size()==1)
             {
               int nbi(ps[0]->getNbOfIntegrationPts(globs));
-              const DataArrayInt *otherP(ps[0]->getPfl(globs));
+              const DataArrayIdType *otherP(ps[0]->getPfl(globs));
               const std::pair<int,int>& strtStop(ps[0]->getStartStop());
               MCAuto<DataArray> ret(vals->selectByTupleIdSafeSlice(strtStop.first,strtStop.second,1));
               if(!thisP && !otherP)
@@ -550,8 +550,8 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
                 }
               if(thisP && otherP)
                 {
-                  MCAuto<DataArrayInt> p1(otherP->invertArrayN2O2O2N(getNumberOfCells(ps[0]->getGeo())));
-                  MCAuto<DataArrayInt> p2(thisP->deepCopy());
+                  MCAuto<DataArrayIdType> p1(otherP->invertArrayN2O2O2N(getNumberOfCells(ps[0]->getGeo())));
+                  MCAuto<DataArrayIdType> p2(thisP->deepCopy());
                   p2->transformWithIndArr(p1->begin(),p1->end());
                   //p1=p2->findIdsNotEqual(-1);
                   //p1=p2->selectByTupleIdSafe(p1->begin(),p1->end());
@@ -561,10 +561,10 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
                 }
               if(!thisP && otherP)
                 {
-                  MCAuto<DataArrayInt> p1(otherP->deepCopy());
+                  MCAuto<DataArrayIdType> p1(otherP->deepCopy());
                   p1->sort(true);
                   p1->checkAllIdsInRange(0,getNumberOfCells(ps[0]->getGeo()));
-                  p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,p1);
+                  p1=DataArrayIdType::FindPermutationFromFirstToSecond(otherP,p1);
                   ret->rearrange(nbi*nc); ret->renumberInPlace(p1->begin()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
                   arrSafe[iii]=ret; arr[iii]=ret;
                   continue;
@@ -573,47 +573,47 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
             }
           else
             {
-              std::vector< const DataArrayInt * >otherPS(ps.size());
+              std::vector< const DataArrayIdType * >otherPS(ps.size());
               std::vector< const DataArray * > arr2(ps.size());
               std::vector< MCAuto<DataArray> > arr2Safe(ps.size());
-              std::vector< const DataArrayInt * > nbis(ps.size());
-              std::vector< MCAuto<DataArrayInt> > nbisSafe(ps.size());
+              std::vector< const DataArrayIdType * > nbis(ps.size());
+              std::vector< MCAuto<DataArrayIdType> > nbisSafe(ps.size());
               int jj(0);
               for(std::vector<const MEDFileField1TSStructItem2 *>::const_iterator it2=ps.begin();it2!=ps.end();it2++,jj++)
                 {
                   int nbi((*it2)->getNbOfIntegrationPts(globs));
-                  const DataArrayInt *otherPfl((*it2)->getPfl(globs));
+                  const DataArrayIdType *otherPfl((*it2)->getPfl(globs));
                   const std::pair<int,int>& strtStop((*it2)->getStartStop());
                   MCAuto<DataArray> ret2(vals->selectByTupleIdSafeSlice(strtStop.first,strtStop.second,1));
                   if(!otherPfl)
                     throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 4 !");
                   arr2[jj]=ret2; arr2Safe[jj]=ret2; otherPS[jj]=otherPfl;
-                  nbisSafe[jj]=DataArrayInt::New(); nbisSafe[jj]->alloc(otherPfl->getNumberOfTuples(),1); nbisSafe[jj]->fillWithValue(nbi);
+                  nbisSafe[jj]=DataArrayIdType::New(); nbisSafe[jj]->alloc(otherPfl->getNumberOfTuples(),1); nbisSafe[jj]->fillWithValue(nbi);
                   nbis[jj]=nbisSafe[jj];
                 }
               MCAuto<DataArray> arr3(DataArray::Aggregate(arr2));
-              MCAuto<DataArrayInt> otherP(DataArrayInt::Aggregate(otherPS));
-              MCAuto<DataArrayInt> zenbis(DataArrayInt::Aggregate(nbis));
-              MCAuto<DataArrayInt> otherPN(otherP->invertArrayN2O2O2N(getNumberOfCells(*it)));
-              MCAuto<DataArrayInt> p1;
+              MCAuto<DataArrayIdType> otherP(DataArrayIdType::Aggregate(otherPS));
+              MCAuto<DataArrayIdType> zenbis(DataArrayIdType::Aggregate(nbis));
+              MCAuto<DataArrayIdType> otherPN(otherP->invertArrayN2O2O2N(getNumberOfCells(*it)));
+              MCAuto<DataArrayIdType> p1;
               if(thisP)
-                p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,thisP);
+                p1=DataArrayIdType::FindPermutationFromFirstToSecond(otherP,thisP);
               else
                 p1=otherP->deepCopy();
-              MCAuto<DataArrayInt> zenbisN(zenbis->renumber(p1->begin()));
+              MCAuto<DataArrayIdType> zenbisN(zenbis->renumber(p1->begin()));
               zenbisN->computeOffsetsFull();
               jj=0;
               for(std::vector<const MEDFileField1TSStructItem2 *>::const_iterator it2=ps.begin();it2!=ps.end();it2++,jj++)
                 {
                   //int nbi((*it2)->getNbOfIntegrationPts(globs));
-                  const DataArrayInt *otherPfl((*it2)->getPfl(globs));
+                  const DataArrayIdType *otherPfl((*it2)->getPfl(globs));
                   const std::pair<int,int>& strtStop((*it2)->getStartStop());
                   MCAuto<DataArray> ret2(vals->selectByTupleIdSafeSlice(strtStop.first,strtStop.second,1));
                   //
-                  MCAuto<DataArrayInt> p2(otherPfl->deepCopy());
+                  MCAuto<DataArrayIdType> p2(otherPfl->deepCopy());
                   p2->transformWithIndArr(otherPN->begin(),otherPN->end());
                   p2->transformWithIndArr(p1->begin(),p1->end());
-                  MCAuto<DataArrayInt> idsN(p2->buildExplicitArrByRanges(zenbisN));
+                  MCAuto<DataArrayIdType> idsN(p2->buildExplicitArrByRanges(zenbisN));
                   arr3->setPartOfValuesBase3(ret2,idsN->begin(),idsN->end(),0,nc,1);
                 }
               arrSafe[iii]=arr3; arr[iii]=arr3;
@@ -627,43 +627,43 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
 /*!
  * This method is called to add NORM_POINT1 cells in \a this so that orphan nodes in \a verticesToAdd will be fetched.
  */
-void MEDMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr)
+void MEDMeshMultiLev::appendVertices(const DataArrayIdType *verticesToAdd, DataArrayIdType *nr)
 {
-  int nbOfVertices(verticesToAdd->getNumberOfTuples());
+  mcIdType nbOfVertices(verticesToAdd->getNumberOfTuples());
   std::size_t sz(_pfls.size());
   _pfls.resize(sz+1);
   _geo_types.resize(sz+1,INTERP_KERNEL::NORM_POINT1);
   _nb_entities.resize(sz+1,nbOfVertices);
   _node_reduction=nr; nr->incrRef();
   _nb_nodes+=nbOfVertices;
-  const DataArrayInt *cf(_cell_fam_ids),*cn(_cell_num_ids),*nf(_node_fam_ids),*nn(_node_num_ids);
+  const DataArrayIdType *cf(_cell_fam_ids),*cn(_cell_num_ids),*nf(_node_fam_ids),*nn(_node_num_ids);
   if(cf)
     {
-      MCAuto<DataArrayInt> tmp;
-      std::vector<const DataArrayInt *> a(2);
+      MCAuto<DataArrayIdType> tmp;
+      std::vector<const DataArrayIdType *> a(2);
       a[0]=cf;
       if(nf)
         tmp=nf->selectByTupleIdSafe(verticesToAdd->begin(),verticesToAdd->end());
       else
         {
-          tmp=DataArrayInt::New(); tmp->alloc(nbOfVertices,1); tmp->fillWithZero();
+          tmp=DataArrayIdType::New(); tmp->alloc(nbOfVertices,1); tmp->fillWithZero();
         }
       a[1]=tmp;
-      _cell_fam_ids=DataArrayInt::Aggregate(a);
+      _cell_fam_ids=DataArrayIdType::Aggregate(a);
     }
   if(cn)
     {
-      MCAuto<DataArrayInt> tmp;
-      std::vector<const DataArrayInt *> a(2);
+      MCAuto<DataArrayIdType> tmp;
+      std::vector<const DataArrayIdType *> a(2);
       a[0]=cn;
       if(nn)
         tmp=nn->selectByTupleIdSafe(verticesToAdd->begin(),verticesToAdd->end());
       else
         {
-          tmp=DataArrayInt::New(); tmp->alloc(nbOfVertices,1); tmp->fillWithZero();
+          tmp=DataArrayIdType::New(); tmp->alloc(nbOfVertices,1); tmp->fillWithZero();
         }
       a[1]=tmp;
-      _cell_num_ids=DataArrayInt::Aggregate(a);
+      _cell_num_ids=DataArrayIdType::Aggregate(a);
     }
 }
 
@@ -671,7 +671,7 @@ MEDMeshMultiLev::MEDMeshMultiLev(const MEDFileMesh *mesh):_mesh(mesh),_nb_nodes(
 {
 }
 
-MEDMeshMultiLev::MEDMeshMultiLev(const MEDFileMesh *mesh, int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):_mesh(mesh),_geo_types(gts),_nb_entities(nbEntities),_nb_nodes(nbNodes)
+MEDMeshMultiLev::MEDMeshMultiLev(const MEDFileMesh *mesh, mcIdType nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities):_mesh(mesh),_geo_types(gts),_nb_entities(nbEntities),_nb_nodes(nbNodes)
 {
   std::size_t sz(_geo_types.size());
   if(sz!=pfls.size() || sz!=nbEntities.size())
@@ -681,7 +681,7 @@ MEDMeshMultiLev::MEDMeshMultiLev(const MEDFileMesh *mesh, int nbNodes, const std
     {
       if(pfls[i])
         pfls[i]->incrRef();
-      _pfls[i]=const_cast<DataArrayInt *>(pfls[i]);
+      _pfls[i]=const_cast<DataArrayIdType *>(pfls[i]);
     }
 }
 
@@ -730,16 +730,16 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>
   bool cellFamIdsNoCpy(levs.size()==1);
   if(cellFamIdsNoCpy)
     {
-      const DataArrayInt *tmp(m->getFamilyFieldAtLevel(levs[0]));
+      const DataArrayIdType *tmp(m->getFamilyFieldAtLevel(levs[0]));
       if(tmp)
         {
           tmp->incrRef();
-          _cell_fam_ids=(const_cast<DataArrayInt *>(tmp));
+          _cell_fam_ids=(const_cast<DataArrayIdType *>(tmp));
         }
     }
   else
     {
-      std::vector<const DataArrayInt *> tmps(levs.size());
+      std::vector<const DataArrayIdType *> tmps(levs.size());
       bool f(true);
       for(std::size_t i=0;i<levs.size();i++)
         {
@@ -748,21 +748,21 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>
             f=false;
         }
       if(f && !tmps.empty())
-        _cell_fam_ids=DataArrayInt::Aggregate(tmps);
+        _cell_fam_ids=DataArrayIdType::Aggregate(tmps);
     }
   bool cellNumIdsNoCpy(levs.size()==1);
   if(cellNumIdsNoCpy)
     {
-      const DataArrayInt *tmp(m->getNumberFieldAtLevel(levs[0]));
+      const DataArrayIdType *tmp(m->getNumberFieldAtLevel(levs[0]));
       if(tmp)
         {
           tmp->incrRef();
-          _cell_num_ids=(const_cast<DataArrayInt *>(tmp));
+          _cell_num_ids=(const_cast<DataArrayIdType *>(tmp));
         }
     }
   else
     {
-      std::vector<const DataArrayInt *> tmps(levs.size());
+      std::vector<const DataArrayIdType *> tmps(levs.size());
       bool n(true);
       for(std::size_t i=0;i<levs.size();i++)
         {
@@ -771,33 +771,33 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>
             n=false;
         }
       if(n && !tmps.empty())
-        _cell_num_ids=DataArrayInt::Aggregate(tmps);
+        _cell_num_ids=DataArrayIdType::Aggregate(tmps);
     }
   // node part
   {
-    const DataArrayInt *tmp(m->getFamilyFieldAtLevel(1));
+    const DataArrayIdType *tmp(m->getFamilyFieldAtLevel(1));
     if(tmp)
       {
         tmp->incrRef();
-        _node_fam_ids=(const_cast<DataArrayInt *>(tmp));
+        _node_fam_ids=(const_cast<DataArrayIdType *>(tmp));
       }
   }
   {
-    const DataArrayInt *tmp(m->getNumberFieldAtLevel(1));
+    const DataArrayIdType *tmp(m->getNumberFieldAtLevel(1));
     if(tmp)
       {
         tmp->incrRef();
-        _node_num_ids=(const_cast<DataArrayInt *>(tmp));
+        _node_num_ids=(const_cast<DataArrayIdType *>(tmp));
       }
   }
 }
 
-MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities)
+MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities)
 {
   return new MEDUMeshMultiLev(m,gts,pfls,nbEntities);
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities):MEDMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities)
 {
   std::size_t sz(gts.size());
   if(sz<1)
@@ -820,23 +820,23 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
   int lev((int)dim-m->getMeshDimension());
   if(isSameDim && isNoPfl && m->getGeoTypesAtLevel(lev)==gts)//optimized part
     {
-      const DataArrayInt *famIds(m->getFamilyFieldAtLevel(lev));
+      const DataArrayIdType *famIds(m->getFamilyFieldAtLevel(lev));
       if(famIds)
-        { _cell_fam_ids=const_cast<DataArrayInt*>(famIds); famIds->incrRef(); }
-      const DataArrayInt *numIds(m->getNumberFieldAtLevel(lev));
+        { _cell_fam_ids=const_cast<DataArrayIdType*>(famIds); famIds->incrRef(); }
+      const DataArrayIdType *numIds(m->getNumberFieldAtLevel(lev));
       if(numIds)
-        { _cell_num_ids=const_cast<DataArrayInt*>(numIds); numIds->incrRef(); }
+        { _cell_num_ids=const_cast<DataArrayIdType*>(numIds); numIds->incrRef(); }
       famIds=m->getFamilyFieldAtLevel(1);
       if(famIds)
-        { _node_fam_ids=const_cast<DataArrayInt*>(famIds); famIds->incrRef(); }
+        { _node_fam_ids=const_cast<DataArrayIdType*>(famIds); famIds->incrRef(); }
       numIds=m->getNumberFieldAtLevel(1);
       if(numIds)
-        { _node_num_ids=const_cast<DataArrayInt*>(numIds); numIds->incrRef(); }
+        { _node_num_ids=const_cast<DataArrayIdType*>(numIds); numIds->incrRef(); }
       return ;
     }
   //
-  std::vector< MCAuto<DataArrayInt> > famIdsSafe(sz);
-  std::vector<const DataArrayInt *> famIds(sz);
+  std::vector< MCAuto<DataArrayIdType> > famIdsSafe(sz);
+  std::vector<const DataArrayIdType *> famIds(sz);
   bool f(true);
   for(std::size_t i=0;i<sz;i++)
     {
@@ -846,9 +846,9 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
         f=false;
     }
   if(f)
-    _cell_fam_ids=DataArrayInt::Aggregate(famIds);
-  std::vector< MCAuto<DataArrayInt> > numIdsSafe(sz);
-  std::vector<const DataArrayInt *> numIds(sz);
+    _cell_fam_ids=DataArrayIdType::Aggregate(famIds);
+  std::vector< MCAuto<DataArrayIdType> > numIdsSafe(sz);
+  std::vector<const DataArrayIdType *> numIds(sz);
   bool n(true);
   for(std::size_t i=0;i<sz;i++)
     {
@@ -858,35 +858,35 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
         n=false;
     }
   if(n)
-    _cell_num_ids=DataArrayInt::Aggregate(numIds);
+    _cell_num_ids=DataArrayIdType::Aggregate(numIds);
   // node ids management
-  const DataArrayInt *nodeFamIds(m->getFamilyFieldAtLevel(1));
+  const DataArrayIdType *nodeFamIds(m->getFamilyFieldAtLevel(1));
   if(nodeFamIds)
-    { _node_fam_ids=const_cast<DataArrayInt*>(nodeFamIds); nodeFamIds->incrRef(); }
-  const DataArrayInt *nodeNumIds(m->getNumberFieldAtLevel(1));
+    { _node_fam_ids=const_cast<DataArrayIdType*>(nodeFamIds); nodeFamIds->incrRef(); }
+  const DataArrayIdType *nodeNumIds(m->getNumberFieldAtLevel(1));
   if(nodeNumIds)
-    { _node_num_ids=const_cast<DataArrayInt*>(nodeNumIds); nodeNumIds->incrRef(); }
+    { _node_num_ids=const_cast<DataArrayIdType*>(nodeNumIds); nodeNumIds->incrRef(); }
 }
 
-void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
+void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayIdType *pflNodes)
 {
   if(!pflNodes || !pflNodes->isAllocated())
     return ;
   std::size_t sz(_parts.size());
-  std::vector< MCAuto<DataArrayInt> > a(sz);
-  std::vector< const DataArrayInt *> aa(sz);
+  std::vector< MCAuto<DataArrayIdType> > a(sz);
+  std::vector< const DataArrayIdType *> aa(sz);
   for(std::size_t i=0;i<sz;i++)
     {
-      const DataArrayInt *pfl(_pfls[i]);
+      const DataArrayIdType *pfl(_pfls[i]);
       MCAuto<MEDCoupling1GTUMesh> m(_parts[i]);
       if(pfl)
         m=dynamic_cast<MEDCoupling1GTUMesh *>(_parts[i]->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
-      DataArrayInt *cellIds=0;
+      DataArrayIdType *cellIds=0;
       m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
-      MCAuto<DataArrayInt> cellIdsSafe(cellIds);
+      MCAuto<DataArrayIdType> cellIdsSafe(cellIds);
       MCAuto<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
-      int tmp=-1;
-      MCAuto<DataArrayInt> o2n(m2->getNodeIdsInUse(tmp));
+      mcIdType tmp=-1;
+      MCAuto<DataArrayIdType> o2n(m2->getNodeIdsInUse(tmp));
       a[i]=o2n->invertArrayO2N2N2O(tmp); aa[i]=a[i];
       if(pfl)
         _pfls[i]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
@@ -894,7 +894,7 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
         _pfls[i]=cellIdsSafe;
     }
   if(!aa.empty())
-    _node_reduction=DataArrayInt::Aggregate(aa);//general case
+    _node_reduction=DataArrayIdType::Aggregate(aa);//general case
   else
     _node_reduction=pflNodes->deepCopy();//case where no cells in read mesh.
   _node_reduction->sort(true);
@@ -904,9 +904,9 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
   if(_node_reduction->getNumberOfTuples()>pflNodes->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::selectPartOfNodes : internal error in MEDCoupling during cell select from a list of nodes !");
   // Here the cells available in _parts is not enough to cover all the nodes in pflNodes. So adding vertices cells in _parts...
-  MCAuto<DataArrayInt> pflNodes2(pflNodes->deepCopy());
+  MCAuto<DataArrayIdType> pflNodes2(pflNodes->deepCopy());
   pflNodes2->sort(true);
-  MCAuto<DataArrayInt> diff(pflNodes2->buildSubstractionOptimized(_node_reduction));
+  MCAuto<DataArrayIdType> diff(pflNodes2->buildSubstractionOptimized(_node_reduction));
   appendVertices(diff,pflNodes2);
 }
 
@@ -933,7 +933,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
  * If returned value is false output pointer \a coords is not the internal pointer. If returned value is true output pointer \a coords is directly the internal pointer.
  * If true is returned, the \a coords output parameter should be used with care (non const method call) to avoid to change the internal state of MEDFileUMesh instance.
  */
-bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const
+bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayIdType *&cellLocations, DataArrayIdType *& cells, DataArrayIdType *&faceLocations, DataArrayIdType *&faces) const
 {
   const DataArrayDouble *tmp(0);
   if(_parts.empty())
@@ -943,7 +943,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
   if(!tmp)
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : the coordinates are null !");
   MCAuto<DataArrayDouble> a(const_cast<DataArrayDouble *>(tmp)); tmp->incrRef();
-  int szBCE(0),szD(0),szF(0);
+  mcIdType szBCE(0),szD(0),szF(0);
   bool isPolyh(false);
   int iii(0);
   for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
@@ -952,45 +952,45 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
       if(!cur)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : a part is null !");
       //
-      const DataArrayInt *pfl(_pfls[iii]);
+      const DataArrayIdType *pfl(_pfls[iii]);
       MCAuto<MEDCoupling1GTUMesh> cur2;
       if(!pfl)
         { cur2=const_cast<MEDCoupling1GTUMesh *>(cur); cur2->incrRef(); }
       else
         { cur2=dynamic_cast<MEDCoupling1GTUMesh *>(cur->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end())); cur=cur2; }
       //
-      int curNbCells(cur->getNumberOfCells());
+      mcIdType curNbCells(cur->getNumberOfCells());
       szBCE+=curNbCells;
       if((*it)->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
         szD+=cur->getNodalConnectivity()->getNumberOfTuples()+curNbCells;
       else
         {
           isPolyh=true;
-          MCAuto<DataArrayInt> tmp2(cur->computeEffectiveNbOfNodesPerCell());
-          szD+=tmp2->accumulate(0)+curNbCells;
+          MCAuto<DataArrayIdType> tmp2(cur->computeEffectiveNbOfNodesPerCell());
+          szD+=tmp2->accumulate((std::size_t)0)+curNbCells;
           szF+=2*curNbCells+cur->getNodalConnectivity()->getNumberOfTuples();
         }
     }
   MCAuto<DataArrayByte> b(DataArrayByte::New()); b->alloc(szBCE,1); char *bPtr(b->getPointer());
-  MCAuto<DataArrayInt> c(DataArrayInt::New()); c->alloc(szBCE,1); int *cPtr(c->getPointer());
-  MCAuto<DataArrayInt> d(DataArrayInt::New()); d->alloc(szD,1); int *dPtr(d->getPointer());
-  MCAuto<DataArrayInt> e(DataArrayInt::New()),f(DataArrayInt::New()); int *ePtr(0),*fPtr(0);
+  MCAuto<DataArrayIdType> c(DataArrayIdType::New()); c->alloc(szBCE,1); mcIdType *cPtr(c->getPointer());
+  MCAuto<DataArrayIdType> d(DataArrayIdType::New()); d->alloc(szD,1); mcIdType *dPtr(d->getPointer());
+  MCAuto<DataArrayIdType> e(DataArrayIdType::New()),f(DataArrayIdType::New()); mcIdType *ePtr(0),*fPtr(0);
   if(isPolyh)
     { e->alloc(szBCE,1); ePtr=e->getPointer(); f->alloc(szF,1); fPtr=f->getPointer(); }
-  int k(0);
+  mcIdType k(0);
   iii=0;
   for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
     {
       const MEDCoupling1GTUMesh *cur(*it);
       //
-      const DataArrayInt *pfl(_pfls[iii]);
+      const DataArrayIdType *pfl(_pfls[iii]);
       MCAuto<MEDCoupling1GTUMesh> cur2;
       if(!pfl)
         { cur2=const_cast<MEDCoupling1GTUMesh *>(cur); cur2->incrRef(); }
       else
         { cur2=dynamic_cast<MEDCoupling1GTUMesh *>(cur->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end())); cur=cur2; }
       //
-      int curNbCells(cur->getNumberOfCells());
+      mcIdType curNbCells(cur->getNumberOfCells());
       int gt((int)cur->getCellModelEnum());
       if(gt<0 || gt>=PARAMEDMEM_2_VTKTYPE_LGTH)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : invalid geometric type !");
@@ -1000,15 +1000,15 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
       std::fill(bPtr,bPtr+curNbCells,gtvtk); bPtr+=curNbCells;
       const MEDCoupling1SGTUMesh *scur(dynamic_cast<const MEDCoupling1SGTUMesh *>(cur));
       const MEDCoupling1DGTUMesh *dcur(dynamic_cast<const MEDCoupling1DGTUMesh *>(cur));
-      const int *connPtr(cur->getNodalConnectivity()->begin());
+      const mcIdType *connPtr(cur->getNodalConnectivity()->begin());
       if(!scur && !dcur)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : internal error !");
       if(scur)
         {
           if(cur->getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA27)
             {
-              int nnpc(scur->getNumberOfNodesPerCell());
-              for(int i=0;i<curNbCells;i++,connPtr+=nnpc)
+              mcIdType nnpc(scur->getNumberOfNodesPerCell());
+              for(mcIdType i=0;i<curNbCells;i++,connPtr+=nnpc)
                 {
                   *dPtr++=nnpc;
                   dPtr=std::copy(connPtr,connPtr+nnpc,dPtr);
@@ -1017,7 +1017,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
             }
           else
             {
-              for(int i=0;i<curNbCells;i++,connPtr+=27)
+              for(mcIdType i=0;i<curNbCells;i++,connPtr+=27)
                 {
                   *dPtr++=27;
                   for(int j=0;j<27;j++,dPtr++)
@@ -1030,7 +1030,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
         }
       else
         {
-          const int *connIPtr(dcur->getNodalConnectivityIndex()->begin());
+          const mcIdType *connIPtr(dcur->getNodalConnectivityIndex()->begin());
           if(cur->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
             {
               for(int i=0;i<curNbCells;i++,connIPtr++)
@@ -1042,12 +1042,12 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
             }
           else
             {
-              for(int i=0;i<curNbCells;i++,connIPtr++)
+              for(mcIdType i=0;i<curNbCells;i++,connIPtr++)
                 {
-                  std::set<int> s(connPtr+connIPtr[0],connPtr+connIPtr[1]); s.erase(-1);
-                  *dPtr++=(int)s.size();
+                  std::set<mcIdType> s(connPtr+connIPtr[0],connPtr+connIPtr[1]); s.erase(-1);
+                  *dPtr++=(mcIdType)s.size();
                   dPtr=std::copy(s.begin(),s.end(),dPtr);
-                  *cPtr++=k; k+=(int)s.size()+1;
+                  *cPtr++=k; k+=(mcIdType)s.size()+1;
                 }
             }
           if(isPolyh)
@@ -1057,16 +1057,16 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
                 { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }
               else
                 {
-                  int kk(0);
+                  mcIdType kk(0);
                   for(int i=0;i<curNbCells;i++,connIPtr++)
                     {
-                      int nbFace(std::count(connPtr+connIPtr[0],connPtr+connIPtr[1],-1)+1);
+                      mcIdType nbFace(ToIdType(std::count(connPtr+connIPtr[0],connPtr+connIPtr[1],-1)+1));
                       *fPtr++=nbFace;
-                      const int *work(connPtr+connIPtr[0]);
+                      const mcIdType *work(connPtr+connIPtr[0]);
                       for(int j=0;j<nbFace;j++)
                         {
-                          const int *work2=std::find(work,connPtr+connIPtr[1],-1);
-                          *fPtr++=std::distance(work,work2);
+                          const mcIdType *work2=std::find(work,connPtr+connIPtr[1],-1);
+                          *fPtr++=ToIdType(std::distance(work,work2));
                           fPtr=std::copy(work,work2,fPtr);
                           work=work2+1;
                         }
@@ -1090,9 +1090,9 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
   return _mesh->isObjectInTheProgeny(coords);
 }
 
-void MEDUMeshMultiLev::reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const
+void MEDUMeshMultiLev::reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, DataArrayIdType *nodalConnVTK, DataArrayIdType *polyhedNodalConnVTK) const
 {
-  const DataArrayInt *nr(_node_reduction);
+  const DataArrayIdType *nr(_node_reduction);
   if(!nr)
     return ;
   if(nodalConnVTK->empty() && !polyhedNodalConnVTK)
@@ -1100,13 +1100,13 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, 
       coords=(coords->selectByTupleIdSafe(nr->begin(),nr->end()));
       return ;
     }
-  int sz(coords->getNumberOfTuples());
+  mcIdType sz(coords->getNumberOfTuples());
   std::vector<bool> b(sz,false);
-  const int *work(nodalConnVTK->begin()),*endW(nodalConnVTK->end());
+  const mcIdType *work(nodalConnVTK->begin()),*endW(nodalConnVTK->end());
   while(work!=endW)
     {
-      int nb(*work++);
-      for(int i=0;i<nb && work!=endW;i++,work++)
+      mcIdType nb(*work++);
+      for(mcIdType i=0;i<nb && work!=endW;i++,work++)
         {
           if(*work>=0 && *work<sz)
             b[*work]=true;
@@ -1119,11 +1119,11 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, 
       work=polyhedNodalConnVTK->begin(); endW=polyhedNodalConnVTK->end();
       while(work!=endW)
         {
-          int nb(*work++);
-          for(int i=0;i<nb && work!=endW;i++)
+          mcIdType nb(*work++);
+          for(mcIdType i=0;i<nb && work!=endW;i++)
             {
-              int nb2(*work++);
-              for(int j=0;j<nb2 && work!=endW;j++,work++)
+              mcIdType nb2(*work++);
+              for(mcIdType j=0;j<nb2 && work!=endW;j++,work++)
                 {
                   if(*work>=0 && *work<sz)
                     b[*work]=true;
@@ -1133,24 +1133,24 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, 
             }
         }
     }
-  int szExp(std::count(b.begin(),b.end(),true));
-  if(szExp!=nr->getNumberOfTuples())
+  std::size_t szExp(std::count(b.begin(),b.end(),true));
+  if(ToIdType(szExp)!=nr->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::reorderNodesIfNecessary : internal error #3 !");
   // Go renumbering !
-  MCAuto<DataArrayInt> o2n(DataArrayInt::New()); o2n->alloc(sz,1);
-  int *o2nPtr(o2n->getPointer());
+  MCAuto<DataArrayIdType> o2n(DataArrayIdType::New()); o2n->alloc(sz,1);
+  mcIdType *o2nPtr(o2n->getPointer());
   int newId(0);
   for(int i=0;i<sz;i++,o2nPtr++)
     if(b[i]) *o2nPtr=newId++; else *o2nPtr=-1;
-  const int *o2nPtrc(o2n->begin());
-  MCAuto<DataArrayInt> n2o(o2n->invertArrayO2N2N2O(nr->getNumberOfTuples()));
-  MCAuto<DataArrayInt> perm(DataArrayInt::FindPermutationFromFirstToSecond(n2o,nr));
-  const int *permPtr(perm->begin());
-  int *work2(nodalConnVTK->getPointer()),*endW2(nodalConnVTK->getPointer()+nodalConnVTK->getNumberOfTuples());
+  const mcIdType *o2nPtrc(o2n->begin());
+  MCAuto<DataArrayIdType> n2o(o2n->invertArrayO2N2N2O(nr->getNumberOfTuples()));
+  MCAuto<DataArrayIdType> perm(DataArrayIdType::FindPermutationFromFirstToSecond(n2o,nr));
+  const mcIdType *permPtr(perm->begin());
+  mcIdType *work2(nodalConnVTK->getPointer()),*endW2(nodalConnVTK->getPointer()+nodalConnVTK->getNumberOfTuples());
   while(work2!=endW2)
     {
-      int nb(*work2++);
-      for(int i=0;i<nb && work2!=endW2;i++,work2++)
+      mcIdType nb(*work2++);
+      for(mcIdType i=0;i<nb && work2!=endW2;i++,work2++)
         *work2=permPtr[o2nPtrc[*work2]];
     }
   if(polyhedNodalConnVTK)
@@ -1158,11 +1158,11 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, 
       work2=polyhedNodalConnVTK->getPointer(); endW2=polyhedNodalConnVTK->getPointer()+polyhedNodalConnVTK->getNumberOfTuples();
       while(work2!=endW2)
         {
-          int nb(*work2++);
-          for(int i=0;i<nb && work2!=endW2;i++)
+          mcIdType nb(*work2++);
+          for(mcIdType i=0;i<nb && work2!=endW2;i++)
             {
-              int nb2(*work2++);
-              for(int j=0;j<nb2 && work2!=endW2;j++,work2++)
+              mcIdType nb2(*work2++);
+              for(mcIdType j=0;j<nb2 && work2!=endW2;j++,work2++)
                 *work2=permPtr[o2nPtrc[*work2]];
             }
         }
@@ -1171,15 +1171,15 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, 
 }
 
 
-void MEDUMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr)
+void MEDUMeshMultiLev::appendVertices(const DataArrayIdType *verticesToAdd, DataArrayIdType *nr)
 {
-  int nbOfCells(verticesToAdd->getNumberOfTuples());//it is not a bug cells are NORM_POINT1
+  mcIdType nbOfCells(verticesToAdd->getNumberOfTuples());//it is not a bug cells are NORM_POINT1
   MEDMeshMultiLev::appendVertices(verticesToAdd,nr);
   MCAuto<MEDCoupling1SGTUMesh> elt(MEDCoupling1SGTUMesh::New("",INTERP_KERNEL::NORM_POINT1));
   elt->allocateCells(nbOfCells);
-  for(int i=0;i<nbOfCells;i++)
+  for(mcIdType i=0;i<nbOfCells;i++)
     {
-      int pt(verticesToAdd->getIJ(i,0));
+      mcIdType pt(verticesToAdd->getIJ(i,0));
       elt->insertNextCell(&pt,&pt+1);
     }
   if(_parts.empty())
@@ -1196,7 +1196,7 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh
   initStdFieldOfIntegers(m);
 }
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m,nbOfNodes,gts,pfls,nbEntities),_is_internal(true)
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, mcIdType nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities):MEDMeshMultiLev(m,nbOfNodes,gts,pfls,nbEntities),_is_internal(true)
 {
   initStdFieldOfIntegers(m);
 }
@@ -1208,18 +1208,18 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMult
 void MEDStructuredMeshMultiLev::initStdFieldOfIntegers(const MEDFileStructuredMesh *m)
 {
   // ids fields management
-  const DataArrayInt *tmp(0);
+  const DataArrayIdType *tmp(0);
   tmp=m->getFamilyFieldAtLevel(0);
   if(tmp)
     {
       tmp->incrRef();
-      _cell_fam_ids=const_cast<DataArrayInt *>(tmp);
+      _cell_fam_ids=const_cast<DataArrayIdType *>(tmp);
     }
   tmp=m->getNumberFieldAtLevel(0);
   if(tmp)
     {
       tmp->incrRef();
-      _cell_num_ids=const_cast<DataArrayInt *>(tmp);
+      _cell_num_ids=const_cast<DataArrayIdType *>(tmp);
     }
   //
   tmp=0;
@@ -1227,26 +1227,26 @@ void MEDStructuredMeshMultiLev::initStdFieldOfIntegers(const MEDFileStructuredMe
   if(tmp)
     {
       tmp->incrRef();
-      _node_fam_ids=const_cast<DataArrayInt *>(tmp);
+      _node_fam_ids=const_cast<DataArrayIdType *>(tmp);
     }
   tmp=m->getNumberFieldAtLevel(1);
   if(tmp)
     {
       tmp->incrRef();
-      _node_num_ids=const_cast<DataArrayInt *>(tmp);
+      _node_num_ids=const_cast<DataArrayIdType *>(tmp);
     }
   // faces (if any)
   tmp=m->getFamilyFieldAtLevel(-1);
   if(tmp)
     {
       tmp->incrRef();
-      _face_fam_ids=const_cast<DataArrayInt *>(tmp);
+      _face_fam_ids=const_cast<DataArrayIdType *>(tmp);
     }
   tmp=m->getNumberFieldAtLevel(-1);
   if(tmp)
     {
       tmp->incrRef();
-      _face_num_ids=const_cast<DataArrayInt *>(tmp);
+      _face_num_ids=const_cast<DataArrayIdType *>(tmp);
     }
 }
 
@@ -1269,7 +1269,7 @@ bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMu
   MEDCoupling1GTUMesh *facesIfPresent((static_cast<const MEDFileStructuredMesh *>(_mesh))->getImplicitFaceMesh());
   if(!facesIfPresent)
     return false;
-  const DataArrayInt *pfl(0),*nr(_node_reduction);
+  const DataArrayIdType *pfl(0),*nr(_node_reduction);
   if(!_pfls.empty())
     pfl=_pfls[0];
   MCAuto<MEDCoupling1GTUMesh> facesIfPresent2(facesIfPresent); facesIfPresent->incrRef();
@@ -1285,39 +1285,39 @@ bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMu
 
 void MEDStructuredMeshMultiLev::dealWithImplicitUnstructuredMesh(const MEDFileMesh *m)
 {
-  const DataArrayInt *tmp(0);
+  const DataArrayIdType *tmp(0);
   tmp=m->getFamilyFieldAtLevel(-1);
   if(tmp)
     {
       tmp->incrRef();
-      _cell_fam_ids=const_cast<DataArrayInt *>(tmp);
+      _cell_fam_ids=const_cast<DataArrayIdType *>(tmp);
     }
   tmp=m->getNumberFieldAtLevel(-1);
   if(tmp)
     {
       tmp->incrRef();
-      _cell_num_ids=const_cast<DataArrayInt *>(tmp);
+      _cell_num_ids=const_cast<DataArrayIdType *>(tmp);
     }
 }
 
-void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
+void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayIdType *pflNodes)
 {
   if(!pflNodes || !pflNodes->isAllocated())
     return ;
-  std::vector<int> ngs(getNodeGridStructure());
-  MCAuto<DataArrayInt> conn(MEDCouplingStructuredMesh::Build1GTNodalConnectivity(&ngs[0],&ngs[0]+ngs.size()));
-  MCAuto<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(ngs.size())));
+  std::vector<mcIdType> ngs(getNodeGridStructure());
+  MCAuto<DataArrayIdType> conn(MEDCouplingStructuredMesh::Build1GTNodalConnectivity(&ngs[0],&ngs[0]+ngs.size()));
+  MCAuto<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension((int)ngs.size())));
   m->setNodalConnectivity(conn);
-  const DataArrayInt *pfl(_pfls[0]);
+  const DataArrayIdType *pfl(_pfls[0]);
   if(pfl)
     {
       m=dynamic_cast<MEDCoupling1SGTUMesh *>(m->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
     }
-  DataArrayInt *cellIds=0;
+  DataArrayIdType *cellIds=0;
   m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
-  MCAuto<DataArrayInt> cellIdsSafe(cellIds);
+  MCAuto<DataArrayIdType> cellIdsSafe(cellIds);
   MCAuto<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
-  int tmp=-1;
+  mcIdType tmp=-1;
   _node_reduction=m2->getNodeIdsInUse(tmp);
   if(pfl)
     _pfls[0]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
@@ -1332,7 +1332,7 @@ MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector
   return new MEDCMeshMultiLev(m,levs);
 }
 
-MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities)
+MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities)
 {
   return new MEDCMeshMultiLev(m,gts,pfls,nbEntities);
 }
@@ -1355,7 +1355,7 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>
     }
 }
 
-MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDStructuredMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities)
+MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities):MEDStructuredMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : null input pointer !");
@@ -1382,9 +1382,9 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDCMeshMultiLev& other):MEDStructuredM
 {
 }
 
-std::vector<int> MEDCMeshMultiLev::getNodeGridStructure() const
+std::vector<mcIdType> MEDCMeshMultiLev::getNodeGridStructure() const
 {
-  std::vector<int> ret(_coords.size());
+  std::vector<mcIdType> ret(_coords.size());
   for(std::size_t i=0;i<_coords.size();i++)
     ret[i]=_coords[i]->getNumberOfTuples();
   return ret;
@@ -1395,16 +1395,16 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
   MEDMeshMultiLev *retSpecific(0);
   if(prepareForImplicitUnstructuredMeshCase(retSpecific))
     return retSpecific;
-  const DataArrayInt *pfl(0),*nr(_node_reduction);
+  const DataArrayIdType *pfl(0),*nr(_node_reduction);
   if(!_pfls.empty())
     pfl=_pfls[0];
-  MCAuto<DataArrayInt> nnr;
-  std::vector<int> cgs,ngs(getNodeGridStructure());
+  MCAuto<DataArrayIdType> nnr;
+  std::vector<mcIdType> cgs,ngs(getNodeGridStructure());
   cgs.resize(ngs.size());
-  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<int>(),-1));
+  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<mcIdType>(),-1));
   if(pfl)
     {
-      std::vector< std::pair<int,int> > cellParts;
+      std::vector< std::pair<mcIdType,mcIdType> > cellParts;
       MCAuto<MEDMeshMultiLev> ret2;
       if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
         {
@@ -1423,7 +1423,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
       else
         {
           MCAuto<MEDCouplingCMesh> m(MEDCouplingCMesh::New());
-          for(std::size_t i=0;i<ngs.size();i++)
+          for(unsigned int i=0;i<ngs.size();i++)
             m->setCoordsAt(i,_coords[i]);
           MCAuto<MEDCoupling1SGTUMesh> m2(m->build1SGTUnstructured());
           MCAuto<MEDCoupling1GTUMesh> m3=dynamic_cast<MEDCoupling1GTUMesh *>(m2->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
@@ -1432,15 +1432,15 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
             { m3->zipCoords(); nnr=nr->deepCopy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret2=(MEDUMeshMultiLev *)ret; ret2->incrRef();
         }
-      const DataArrayInt *famIds(_cell_fam_ids),*numIds(_cell_num_ids);
+      const DataArrayIdType *famIds(_cell_fam_ids),*numIds(_cell_num_ids);
       if(famIds)
         {
-          MCAuto<DataArrayInt> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          MCAuto<DataArrayIdType> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
           ret2->setFamilyIdsOnCells(tmp);
         }
       if(numIds)
         {
-          MCAuto<DataArrayInt> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          MCAuto<DataArrayIdType> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
           ret2->setNumberIdsOnCells(tmp);
         }
       return ret2.retn();
@@ -1478,7 +1478,7 @@ MEDCurveLinearMeshMultiLev *MEDCurveLinearMeshMultiLev::New(const MEDFileCurveLi
   return new MEDCurveLinearMeshMultiLev(m,levs);
 }
 
-MEDCurveLinearMeshMultiLev *MEDCurveLinearMeshMultiLev::New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities)
+MEDCurveLinearMeshMultiLev *MEDCurveLinearMeshMultiLev::New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities)
 {
   return new MEDCurveLinearMeshMultiLev(m,gts,pfls,nbEntities);
 }
@@ -1497,7 +1497,7 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearM
   _structure=m->getMesh()->getNodeGridStructure();
 }
 
-MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDStructuredMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities)
+MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities):MEDStructuredMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : null input pointer !");
@@ -1521,7 +1521,7 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshM
 {
 }
 
-std::vector<int> MEDCurveLinearMeshMultiLev::getNodeGridStructure() const
+std::vector<mcIdType> MEDCurveLinearMeshMultiLev::getNodeGridStructure() const
 {
   return _structure;
 }
@@ -1531,27 +1531,27 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
   MEDMeshMultiLev *retSpecific(0);
   if(prepareForImplicitUnstructuredMeshCase(retSpecific))
     return retSpecific;
-  const DataArrayInt *pfl(0),*nr(_node_reduction);
+  const DataArrayIdType *pfl(0),*nr(_node_reduction);
   if(!_pfls.empty())
     pfl=_pfls[0];
-  MCAuto<DataArrayInt> nnr;
-  std::vector<int> cgs,ngs(getNodeGridStructure());
+  MCAuto<DataArrayIdType> nnr;
+  std::vector<mcIdType> cgs,ngs(getNodeGridStructure());
   cgs.resize(ngs.size());
-  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<int>(),-1));
+  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<mcIdType>(),-1));
   if(pfl)
     {
-      std::vector< std::pair<int,int> > cellParts,nodeParts;
+      std::vector< std::pair<mcIdType,mcIdType> > cellParts,nodeParts;
       MCAuto<MEDMeshMultiLev> ret2;
       if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
         {
           nodeParts=cellParts;
-          std::vector<int> st(ngs.size());
+          std::vector<mcIdType> st(ngs.size());
           for(std::size_t i=0;i<ngs.size();i++)
             {
               nodeParts[i].second++;
               st[i]=nodeParts[i].second-nodeParts[i].first;
             }
-          MCAuto<DataArrayInt> p(MEDCouplingStructuredMesh::BuildExplicitIdsFrom(ngs,nodeParts));
+          MCAuto<DataArrayIdType> p(MEDCouplingStructuredMesh::BuildExplicitIdsFrom(ngs,nodeParts));
           MCAuto<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
           ret->_is_internal=false;
           if(nr)
@@ -1573,15 +1573,15 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
             { m3->zipCoords(); nnr=nr->deepCopy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret2=(MEDUMeshMultiLev *)ret; ret2->incrRef();
         }
-      const DataArrayInt *famIds(_cell_fam_ids),*numIds(_cell_num_ids);
+      const DataArrayIdType *famIds(_cell_fam_ids),*numIds(_cell_num_ids);
       if(famIds)
         {
-          MCAuto<DataArrayInt> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          MCAuto<DataArrayIdType> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
           ret2->setFamilyIdsOnCells(tmp);
         }
       if(numIds)
         {
-          MCAuto<DataArrayInt> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          MCAuto<DataArrayIdType> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
           ret2->setNumberIdsOnCells(tmp);
         }
       return ret2.retn();
@@ -1595,7 +1595,7 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
     }
 }
 
-void MEDCurveLinearMeshMultiLev::buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct, bool& isInternal) const
+void MEDCurveLinearMeshMultiLev::buildVTUArrays(DataArrayDouble *&coords, std::vector<mcIdType>& nodeStrct, bool& isInternal) const
 {
   isInternal=_is_internal;
   nodeStrct=_structure;
@@ -1611,7 +1611,7 @@ MEDFileField1TSStructItem2::MEDFileField1TSStructItem2()
 {
 }
 
-MEDFileField1TSStructItem2::MEDFileField1TSStructItem2(INTERP_KERNEL::NormalizedCellType a, const std::pair<int,int>& b, const std::string& c, const std::string& d):_geo_type(a),_start_end(b),_pfl(DataArrayInt::New()),_loc(d),_nb_of_entity(-1)
+MEDFileField1TSStructItem2::MEDFileField1TSStructItem2(INTERP_KERNEL::NormalizedCellType a, const std::pair<mcIdType,mcIdType>& b, const std::string& c, const std::string& d):_geo_type(a),_start_end(b),_pfl(DataArrayIdType::New()),_loc(d),_nb_of_entity(-1)
 {
   _pfl->setName(c.c_str());
 }
@@ -1623,13 +1623,13 @@ void MEDFileField1TSStructItem2::checkWithMeshStructForCells(const MEDFileMeshSt
       MEDFileMeshStruct *mstUnConstCasted(const_cast<MEDFileMeshStruct *>(mst));
       mstUnConstCasted->appendIfImplicitType(_geo_type);
     }
-  int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
+  mcIdType nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   checkInRange(nbOfEnt,1,globs);
 }
 
 void MEDFileField1TSStructItem2::checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs)
 {
-  int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
+  mcIdType nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   checkInRange(nbOfEnt,(int)cm.getNumberOfNodes(),globs);
 }
@@ -1641,7 +1641,7 @@ void MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT(const MEDFileMesh
   if(_loc.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT : no localization specified !");
   const MEDFileFieldLoc& loc=globs->getLocalization(_loc.c_str());
-  int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
+  mcIdType nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   checkInRange(nbOfEnt,loc.getNumberOfGaussPoints(),globs);
 }
 
@@ -1650,9 +1650,9 @@ int MEDFileField1TSStructItem2::getNbOfIntegrationPts(const MEDFileFieldGlobsRea
   if(_loc.empty())
     {
       if(getPflName().empty())
-        return (_start_end.second-_start_end.first)/_nb_of_entity;
+        return (int)((_start_end.second-_start_end.first)/_nb_of_entity);
       else
-        return (_start_end.second-_start_end.first)/getPfl(globs)->getNumberOfTuples();
+        return (int)((_start_end.second-_start_end.first)/getPfl(globs)->getNumberOfTuples());
     }
   else
     {
@@ -1666,7 +1666,7 @@ std::string MEDFileField1TSStructItem2::getPflName() const
   return _pfl->getName();
 }
 
-const DataArrayInt *MEDFileField1TSStructItem2::getPfl(const MEDFileFieldGlobsReal *globs) const
+const DataArrayIdType *MEDFileField1TSStructItem2::getPfl(const MEDFileFieldGlobsReal *globs) const
 {
   if(!_pfl->isAllocated())
     {
@@ -1683,7 +1683,7 @@ const DataArrayInt *MEDFileField1TSStructItem2::getPfl(const MEDFileFieldGlobsRe
  * \param [in] nbOfEntity - number of entity that can be either cells or nodes. Not other possibility.
  * \param [in] nip - number of integration points. 1 for ON_CELLS and NO_NODES
  */
-void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs)
+void MEDFileField1TSStructItem2::checkInRange(mcIdType nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs)
 {
   _nb_of_entity=nbOfEntity;
   if(_pfl->getName().empty())
@@ -1696,14 +1696,14 @@ void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MED
     {
       if(!globs)
         throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkInRange : Presence of a profile on field whereas no globals found in file !");
-      const DataArrayInt *pfl=globs->getProfile(_pfl->getName().c_str());
+      const DataArrayIdType *pfl=globs->getProfile(_pfl->getName().c_str());
       if(!pfl)
         throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkInRange : Presence of a profile on field whereas no such profile found in file !");
       pfl->checkAllIdsInRange(0,nbOfEntity);
     }
 }
 
-bool MEDFileField1TSStructItem2::isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const std::string& pflName) const
+bool MEDFileField1TSStructItem2::isFastlyEqual(mcIdType& startExp, INTERP_KERNEL::NormalizedCellType gt, const std::string& pflName) const
 {
   if(startExp!=_start_end.first)
     return false;
@@ -1732,7 +1732,7 @@ bool MEDFileField1TSStructItem2::isCellSupportEqual(const MEDFileField1TSStructI
     return false;
   if(_pfl->getName().empty() && other._pfl->getName().empty())
     return true;
-  const DataArrayInt *pfl1(getPfl(globs)),*pfl2(other.getPfl(globs));
+  const DataArrayIdType *pfl1(getPfl(globs)),*pfl2(other.getPfl(globs));
   return pfl1->isEqualWithoutConsideringStr(*pfl2);
 }
 
@@ -1751,9 +1751,9 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
   if(objs.size()==1)
     return MEDFileField1TSStructItem2(*objs[0]);
   INTERP_KERNEL::NormalizedCellType gt(objs[0]->_geo_type);
-  int nbEntityRef(objs[0]->_nb_of_entity);
+  mcIdType nbEntityRef(objs[0]->_nb_of_entity);
   std::size_t sz(objs.size());
-  std::vector<const DataArrayInt *> arrs(sz);
+  std::vector<const DataArrayIdType *> arrs(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       const MEDFileField1TSStructItem2 *obj(objs[i]);
@@ -1765,15 +1765,15 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
         throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : invalid situation ! Several same geo type chunk must all lie on profiles !");
       arrs[i]=globs->getProfile(obj->_pfl->getName().c_str());
     }
-  MCAuto<DataArrayInt> arr(DataArrayInt::Aggregate(arrs));
+  MCAuto<DataArrayIdType> arr(DataArrayIdType::Aggregate(arrs));
   arr->sort();
-  int oldNbTuples(arr->getNumberOfTuples());
+  mcIdType oldNbTuples(arr->getNumberOfTuples());
   arr=arr->buildUnique();
   if(oldNbTuples!=arr->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : some entities are present several times !");
   if(arr->isIota(nbEntityRef))
     {
-      std::pair<int,int> p(0,nbEntityRef);
+      std::pair<mcIdType,mcIdType> p(0,nbEntityRef);
       std::string a,b;
       MEDFileField1TSStructItem2 ret(gt,p,a,b);
       ret._nb_of_entity=nbEntityRef;
@@ -1782,7 +1782,7 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
   else
     {
       arr->setName(NEWLY_CREATED_PFL_NAME);
-      std::pair<int,int> p(0,oldNbTuples);
+      std::pair<mcIdType,mcIdType> p(0,oldNbTuples);
       std::string a,b;
       MEDFileField1TSStructItem2 ret(gt,p,a,b);
       ret._nb_of_entity=nbEntityRef;
@@ -1800,7 +1800,7 @@ std::size_t MEDFileField1TSStructItem2::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> MEDFileField1TSStructItem2::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  ret.push_back((const DataArrayInt *)_pfl);
+  ret.push_back((const DataArrayIdType *)_pfl);
   return ret;
 }
 
@@ -1816,7 +1816,7 @@ void MEDFileField1TSStructItem::checkWithMeshStruct(const MEDFileMeshStruct *mst
   {
     case ON_NODES:
       {
-        int nbOfEnt=mst->getNumberOfNodes();
+        mcIdType nbOfEnt=mst->getNumberOfNodes();
         if(_items.size()!=1)
           throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::checkWithMeshStruct : for nodes field only one subdivision supported !");
         _items[0].checkInRange(nbOfEnt,1,globs);
@@ -1945,7 +1945,7 @@ bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TS
   int theFirstLevFull;
   bool ret0=isFullyOnOneLev(meshSt,theFirstLevFull);
   const MEDFileField1TSStructItem2& otherNodeIt(other._items[0]);
-  int nbOfNodes(meshSt->getNumberOfNodes());
+  mcIdType nbOfNodes(meshSt->getNumberOfNodes());
   if(otherNodeIt.getPflName().empty())
     {//on all nodes
       if(!ret0)
@@ -1959,8 +1959,8 @@ bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TS
     }
   else
     {
-      const DataArrayInt *pfl=globs->getProfile(otherNodeIt.getPflName().c_str());
-      MCAuto<DataArrayInt> cpyPfl(pfl->deepCopy());
+      const DataArrayIdType *pfl=globs->getProfile(otherNodeIt.getPflName().c_str());
+      MCAuto<DataArrayIdType> cpyPfl(pfl->deepCopy());
       cpyPfl->sort();
       if(cpyPfl->isIota(nbOfNodes))
         {//on all nodes also !
@@ -2028,8 +2028,8 @@ MEDMeshMultiLev *MEDFileField1TSStructItem::buildFromScratchDataSetSupportOnCell
 {
   std::size_t sz(_items.size());
   std::vector<INTERP_KERNEL::NormalizedCellType> a0(sz);
-  std::vector<const DataArrayInt *> a1(sz);
-  std::vector<int> a2(sz);
+  std::vector<const DataArrayIdType *> a1(sz);
+  std::vector<mcIdType> a2(sz);
   std::size_t i(0);
   for(std::vector< MEDFileField1TSStructItem2 >::const_iterator it=_items.begin();it!=_items.end();it++,i++)
     {
@@ -2072,7 +2072,7 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::BuildItemFrom(const MEDFile
   std::vector< std::vector<std::string> > pfls,locs;
   std::vector< std::vector<TypeOfField> > typesF;
   std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes;
-  std::vector< std::vector<std::pair<int,int> > > strtEnds=ref->getFieldSplitedByType(std::string(),geoTypes,typesF,pfls,locs);
+  std::vector< std::vector<std::pair<mcIdType,mcIdType> > > strtEnds=ref->getFieldSplitedByType(std::string(),geoTypes,typesF,pfls,locs);
   std::size_t nbOfGeoTypes(geoTypes.size());
   if(nbOfGeoTypes==0)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct : not null by empty ref  !");
@@ -2431,7 +2431,7 @@ bool MEDFileFastCellSupportComparator::isDataSetSupportEqualToThePreviousOne(int
 
 int MEDFileFastCellSupportComparator::getNumberOfTS() const
 {
-  return _f1ts_cmps.size();
+  return (int)_f1ts_cmps.size();
 }
 
 std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileFastCellSupportComparator::getGeoTypesAt(int timeStepId, const MEDFileMesh *m) const

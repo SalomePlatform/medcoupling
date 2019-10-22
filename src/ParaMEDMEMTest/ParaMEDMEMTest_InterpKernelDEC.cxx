@@ -105,7 +105,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_1D()
       if(rank==0)
         {
           double coords[4]={0.3,0.7, 0.9,1.0};
-          int conn[4]={0,1,2,3};
+          mcIdType conn[4]={0,1,2,3};
           mesh=MEDCouplingUMesh::New("Source mesh Proc0",1);
           mesh->allocateCells(2);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -120,7 +120,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_1D()
       if(rank==1)
         {
           double coords[2]={0.7,0.9};
-          int conn[2]={0,1};
+          mcIdType conn[2]={0,1};
           mesh=MEDCouplingUMesh::New("Source mesh Proc1",1);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -134,7 +134,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_1D()
       if(rank==2)
         {
           double coords[2]={1.,1.12};
-          int conn[2]={0,1};
+          mcIdType conn[2]={0,1};
           mesh=MEDCouplingUMesh::New("Source mesh Proc2",1);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -169,7 +169,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_1D()
       if(rank==3)
         {
           double coords[2]={0.5,0.75};
-          int conn[2]={0,1};
+          mcIdType conn[2]={0,1};
           mesh=MEDCouplingUMesh::New("Target mesh Proc3",1);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -184,7 +184,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_1D()
       if(rank==4)
         {
           double coords[2]={0.75,1.2};
-          int conn[2]={0,1};
+          mcIdType conn[2]={0,1};
           mesh=MEDCouplingUMesh::New("Target mesh Proc4",1);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -294,7 +294,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
       if(rank==0)
         {
           double coords[8]={0.3,0.3,0.7,0.7, 0.9,0.9,1.0,1.0};
-          int conn[4]={0,1,2,3};
+          mcIdType conn[4]={0,1,2,3};
           mesh=MEDCouplingUMesh::New("Source mesh Proc0",1);
           mesh->allocateCells(2);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -309,7 +309,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
       if(rank==1)
         {
           double coords[4]={0.7,0.7,0.9,0.9};
-          int conn[2]={0,1};
+          mcIdType conn[2]={0,1};
           mesh=MEDCouplingUMesh::New("Source mesh Proc1",1);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -323,7 +323,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
       if(rank==2)
         {
           double coords[4]={1.,1.,1.12,1.12};
-          int conn[2]={0,1};
+          mcIdType conn[2]={0,1};
           mesh=MEDCouplingUMesh::New("Source mesh Proc2",1);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -358,7 +358,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
       if(rank==3)
         {
           double coords[4]={0.5,0.5,0.75,0.75};
-          int conn[2]={0,1};
+          mcIdType conn[2]={0,1};
           mesh=MEDCouplingUMesh::New("Target mesh Proc3",1);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -373,7 +373,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
       if(rank==4)
         {
           double coords[4]={0.75,0.75,1.2,1.2};
-          int conn[2]={0,1};
+          mcIdType conn[2]={0,1};
           mesh=MEDCouplingUMesh::New("Target mesh Proc4",1);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
@@ -1091,7 +1091,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
   const double targetCoordsAll[3][16]={{0.7,1.45,0.7,1.65,0.9,1.65,0.9,1.45,  1.1,1.4,1.1,1.6,1.3,1.6,1.3,1.4},
                                        {0.7,-0.6,0.7,0.7,0.9,0.7,0.9,-0.6,  1.1,-0.7,1.1,0.6,1.3,0.6,1.3,-0.7},
                                        {0.7,-1.55,0.7,-1.35,0.9,-1.35,0.9,-1.55,  1.1,-1.65,1.1,-1.45,1.3,-1.45,1.3,-1.65}};
-  int conn4All[8]={0,1,2,3,4,5,6,7};
+  mcIdType conn4All[8]={0,1,2,3,4,5,6,7};
   double targetResults[3][2]={{34.,34.},{38.333333333333336,42.666666666666664},{47.,47.}};
   double targetResults2[3][2]={{0.28333333333333344,0.56666666666666687},{1.8564102564102569,2.0128205128205132},{1.0846153846153845,0.36153846153846159}};
   double targetResults3[3][2]={{3.7777777777777781,7.5555555555555562},{24.511111111111113,26.355555555555558},{14.1,4.7}};
@@ -1410,7 +1410,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
       if(rank==0)
         {
           double coords[6]={-0.3,-0.3, 0.7,0.7, 0.7,-0.3};
-          int conn[3]={0,1,2};
+          mcIdType conn[3]={0,1,2};
           //int globalNode[3]={1,2,0};
           mesh=MEDCouplingUMesh::New("Source mesh Proc0",2);
           mesh->allocateCells(1);
@@ -1425,7 +1425,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
       if(rank==1)
         {
           double coords[6]={-0.3,-0.3, -0.3,0.7, 0.7,0.7};
-          int conn[3]={0,1,2};
+          mcIdType conn[3]={0,1,2};
           //int globalNode[3]={1,3,2};
           mesh=MEDCouplingUMesh::New("Source mesh Proc1",2);
           mesh->allocateCells(1);
@@ -1462,7 +1462,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
       if(rank==2)
         {
           double coords[10]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2 };
-          int conn[7]={0,3,4,1, 1,4,2};
+          mcIdType conn[7]={0,3,4,1, 1,4,2};
           //int globalNode[5]={4,3,0,2,1};
           mesh=MEDCouplingUMesh::New("Target mesh Proc2",2);
           mesh->allocateCells(2);
@@ -1475,8 +1475,8 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           mesh->setCoords(myCoords);
           myCoords->decrRef();
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
-          DataArrayInt *da=DataArrayInt::New();
-          const int globalNumberingP2[5]={0,1,2,3,4};
+          DataArrayIdType *da=DataArrayIdType::New();
+          const mcIdType globalNumberingP2[5]={0,1,2,3,4};
           da->useArray(globalNumberingP2,false,DeallocType::CPP_DEALLOC,5,1);
           paramesh->setNodeGlobal(da);
           da->decrRef();
@@ -1484,7 +1484,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
       if(rank==3)
         {
           double coords[6]={0.2,0.2, 0.7,-0.3, 0.7,0.2};
-          int conn[3]={0,2,1};
+          mcIdType conn[3]={0,2,1};
           //int globalNode[3]={1,0,5};
           mesh=MEDCouplingUMesh::New("Target mesh Proc3",2);
           mesh->allocateCells(1);
@@ -1496,8 +1496,8 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           mesh->setCoords(myCoords);
           myCoords->decrRef();
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
-          DataArrayInt *da=DataArrayInt::New();
-          const int globalNumberingP3[3]={4,2,5};
+          DataArrayIdType *da=DataArrayIdType::New();
+          const mcIdType globalNumberingP3[3]={4,2,5};
           da->useArray(globalNumberingP3,false,DeallocType::CPP_DEALLOC,3,1);
           paramesh->setNodeGlobal(da);
           da->decrRef();
@@ -1505,7 +1505,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
       if(rank==4)
         {
           double coords[12]={-0.3,0.2, -0.3,0.7, 0.2,0.7, 0.2,0.2, 0.7,0.7, 0.7,0.2};
-          int conn[8]={0,1,2,3, 3,2,4,5};
+          mcIdType conn[8]={0,1,2,3, 3,2,4,5};
           //int globalNode[6]={2,6,7,1,8,5};
           mesh=MEDCouplingUMesh::New("Target mesh Proc4",2);
           mesh->allocateCells(2);
@@ -1518,8 +1518,8 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           mesh->setCoords(myCoords);
           myCoords->decrRef();
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
-          DataArrayInt *da=DataArrayInt::New();
-          const int globalNumberingP4[6]={3,6,7,4,8,5};
+          DataArrayIdType *da=DataArrayIdType::New();
+          const mcIdType globalNumberingP4[6]={3,6,7,4,8,5};
           da->useArray(globalNumberingP4,false,DeallocType::CPP_DEALLOC,6,1);
           paramesh->setNodeGlobal(da);
           da->decrRef();
@@ -1636,7 +1636,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
       myCoords->decrRef();
       if(rank==0)
         {
-          int targetConn[7]={0,3,4,1, 1,4,2};
+          mcIdType targetConn[7]={0,3,4,1, 1,4,2};
           mesh->allocateCells(2);
           mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
           mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
@@ -1644,7 +1644,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
         }
       else
         { 
-          int targetConn[11]={4,5,2, 6,7,4,3, 7,8,5,4};
+          mcIdType targetConn[11]={4,5,2, 6,7,4,3, 7,8,5,4};
           mesh->allocateCells(3);
           mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
           mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+3);
@@ -1869,7 +1869,7 @@ void ParaMEDMEMTest::testInterpKernelDECPartialProcs()
           std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
           mesh->setCoords(myCoords);
           myCoords->decrRef();
-          int targetConn[4]={0,2,3,1};
+          mcIdType targetConn[4]={0,2,3,1};
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
           mesh->finishInsertingCells();
@@ -1894,7 +1894,7 @@ void ParaMEDMEMTest::testInterpKernelDECPartialProcs()
           std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
           mesh->setCoords(myCoords);
           myCoords->decrRef();
-          int targetConn[6]={0,2,1,2,3,1};
+          mcIdType targetConn[6]={0,2,1,2,3,1};
           mesh->allocateCells(2);
           mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
           mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
@@ -1962,7 +1962,7 @@ void ParaMEDMEMTest::testInterpKernelDEC3DSurfEmptyBBox()
   if(source_group->containsMyRank())
     {
       double coords[15]={1.,0.,0., 2.,0.,0., 2.,2.,0., 0.,2.,0., 0.5,0.5,1.};
-      int conn[7]={0,1,2,3,0,3,4};
+      mcIdType conn[7]={0,1,2,3,0,3,4};
       mesh=MEDCouplingUMesh::New("Source mesh Proc0",2);
       mesh->allocateCells(2);
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
@@ -1987,7 +1987,7 @@ void ParaMEDMEMTest::testInterpKernelDEC3DSurfEmptyBBox()
       if(rank==1)
         {
           double coords[12]={0.25,0.25,0.5, 0.,0.25,0.5, 0.,0.,0.5, 0.25,0.,0.5};
-          int conn[4]={0,1,2,3};
+          mcIdType conn[4]={0,1,2,3};
           mesh=MEDCouplingUMesh::New("Target mesh Proc1",2);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
@@ -2002,7 +2002,7 @@ void ParaMEDMEMTest::testInterpKernelDEC3DSurfEmptyBBox()
       if(rank==2)
         {
           double coords[12]={0.,0.25,0.5, 0.,0.,0.5, -1.,0.,0.5, -1.,0.25,0.5};
-          int conn[4]={0,1,2,3};
+          mcIdType conn[4]={0,1,2,3};
           mesh=MEDCouplingUMesh::New("Target mesh Proc2",2);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);

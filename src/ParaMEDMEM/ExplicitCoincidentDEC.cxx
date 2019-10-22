@@ -145,16 +145,16 @@ namespace MEDCoupling
   
     vector<int>* target_arrays=new vector<int>[target_size];
   
-    int nb_local = _toposource-> getNbLocalElements();
+    mcIdType nb_local = _toposource-> getNbLocalElements();
 
-    int union_size=group->size();
+    std::size_t union_size=group->size();
   
     _sendcounts=new int[union_size];
     _senddispls=new int[union_size];
     _recvcounts=new int[union_size];
     _recvdispls=new int[union_size];
   
-    for (int i=0; i< union_size; i++)
+    for (std::size_t i=0; i< union_size; i++)
       {
         _sendcounts[i]=0;
         _recvcounts[i]=0;
@@ -177,7 +177,7 @@ namespace MEDCoupling
     int* counter=new int [target_size];
     counter[0]=0;  
     for (int i=1; i<target_size; i++)
-      counter[i]=counter[i-1]+target_arrays[i-1].size();
+      counter[i]=counter[i-1]+(int)target_arrays[i-1].size();
   
   
     const double* value = _local_field->getField()->getArray()->getPointer();
@@ -205,21 +205,21 @@ namespace MEDCoupling
       return;
     MPIProcessorGroup* group=new MPIProcessorGroup(_topotarget->getProcGroup()->getCommInterface());
 
-    vector < vector <int> > source_arrays(_sourcegroup->size());
-    int nb_local = _topotarget-> getNbLocalElements();
-    for (int ielem=0; ielem< nb_local ; ielem++)
+    vector < vector <mcIdType> > source_arrays(_sourcegroup->size());
+    mcIdType nb_local = _topotarget-> getNbLocalElements();
+    for (mcIdType ielem=0; ielem< nb_local ; ielem++)
       {
-        //pair<int,int> source_local =_distant_elems[ielem];
-        pair <int,int> source_local=_explicit_mapping.getDistantNumbering(ielem);
-        source_arrays[source_local.first].push_back(source_local.second); 
+        //pair<int,mcIdType> source_local =_distant_elems[ielem];
+        pair <int,mcIdType> source_local=_explicit_mapping.getDistantNumbering(ielem);
+        source_arrays[source_local.first].push_back(source_local.second);
       }  
-    int union_size=group->size();
+    std::size_t union_size=group->size();
     _recvcounts=new int[union_size];
     _recvdispls=new int[union_size];
     _sendcounts=new int[union_size];
     _senddispls=new int[union_size];
     
-    for (int i=0; i< union_size; i++)
+    for (std::size_t i=0; i< union_size; i++)
       {
         _sendcounts[i]=0;
         _recvcounts[i]=0;
@@ -229,9 +229,9 @@ namespace MEDCoupling
       {
         //converts the rank in target to the rank in union communicator
         int unionrank=group->translateRank(_sourcegroup,iproc);
-        _recvcounts[unionrank]=source_arrays[iproc].size()*_topotarget->getNbComponents();
+        _recvcounts[unionrank]=(int)(source_arrays[iproc].size()*_topotarget->getNbComponents());
       }
-    for (int i=1; i<union_size; i++)
+    for (std::size_t i=1; i<union_size; i++)
       _recvdispls[i]=_recvdispls[i-1]+_recvcounts[i-1];
     _recvbuffer=new double[nb_local*_topotarget->getNbComponents()];
     
@@ -249,8 +249,8 @@ namespace MEDCoupling
   {
     MPI_Status status;
   
-    int* serializer=0;
-    int size;
+    mcIdType* serializer=0;
+    mcIdType size;
   
     MPIProcessorGroup* group=new MPIProcessorGroup(*_comm_interface);
   
@@ -264,8 +264,8 @@ namespace MEDCoupling
             int itarget=iproc;
             if (!toposend->getProcGroup()->contains(itarget))
               {
-                _comm_interface->send(&size,1,MPI_INT, itarget,tag+itarget,*(group->getComm()));
-                _comm_interface->send(serializer, size, MPI_INT, itarget, tag+itarget,*(group->getComm()));          
+                _comm_interface->send(&size,1,MPI_ID_TYPE, itarget,tag+itarget,*(group->getComm()));
+                _comm_interface->send(serializer, (int)size, MPI_ID_TYPE, itarget, tag+itarget,*(group->getComm()));          
               }
           }
       }
@@ -278,19 +278,19 @@ namespace MEDCoupling
             int isource = iproc;
             if (!toporecv->getProcGroup()->contains(isource))
               {
-                int nbelem;
-                _comm_interface->recv(&nbelem, 1, MPI_INT, isource, tag+myworldrank, *(group->getComm()), &status);
-                int* buffer = new int[nbelem];
-                _comm_interface->recv(buffer, nbelem, MPI_INT, isource,tag+myworldrank, *(group->getComm()), &status);        
+                mcIdType nbelem;
+                _comm_interface->recv(&nbelem, 1, MPI_ID_TYPE, isource, tag+myworldrank, *(group->getComm()), &status);
+                mcIdType* buffer = new mcIdType[nbelem];
+                _comm_interface->recv(buffer, (int)nbelem, MPI_ID_TYPE, isource,tag+myworldrank, *(group->getComm()), &status);        
       
                 ExplicitTopology* topotemp=new ExplicitTopology();
                 topotemp->unserialize(buffer, *_comm_interface);
                 delete[] buffer;
         
-                for (int ielem=0; ielem<toporecv->getNbLocalElements(); ielem++)
+                for (mcIdType ielem=0; ielem<toporecv->getNbLocalElements(); ielem++)
                   {
-                    int global = toporecv->localToGlobal(ielem);
-                    int sendlocal=topotemp->globalToLocal(global);
+                    mcIdType global = toporecv->localToGlobal(ielem);
+                    mcIdType sendlocal=topotemp->globalToLocal(global);
                     if (sendlocal!=-1)
                       {
                         size2[iproc]++;
@@ -327,7 +327,7 @@ namespace MEDCoupling
           }
         _comm_interface->allToAll(nb_transfer_union, 1, MPI_INT, dummy_recv, 1, MPI_INT, MPI_COMM_WORLD);
       
-        int* sendbuffer= _explicit_mapping.serialize(_topotarget->getProcGroup()->myRank());
+        mcIdType* sendbuffer= _explicit_mapping.serialize(_topotarget->getProcGroup()->myRank());
       
         int* sendcounts= new int [world_size];
         int* senddispls = new int [world_size];
@@ -347,7 +347,7 @@ namespace MEDCoupling
             recvcounts[i]=0;
             recvdispls[i]=0;
           }
-        _comm_interface->allToAllV(sendbuffer, sendcounts, senddispls, MPI_INT, dummyrecv, recvcounts, senddispls, MPI_INT, MPI_COMM_WORLD);
+        _comm_interface->allToAllV(sendbuffer, sendcounts, senddispls, MPI_ID_TYPE, dummyrecv, recvcounts, senddispls, MPI_ID_TYPE, MPI_COMM_WORLD);
       
       }
     //receiving in the source subdomains the mapping sent by targets
@@ -367,7 +367,7 @@ namespace MEDCoupling
         int* targetranks = new int[ nbtarget];
         for (int i=0; i<nbtarget; i++)
           targetranks[i]=group->translateRank(_targetgroup,i);
-        int* mappingbuffer= new int [total_size*2];
+        mcIdType* mappingbuffer= new mcIdType [total_size*2];
         int* sendcounts= new int [world_size];
         int* senddispls = new int [world_size];
         int* recvcounts=new int[world_size];
@@ -387,7 +387,7 @@ namespace MEDCoupling
             sendcounts[i]=0;
             senddispls[i]=0;
           }
-        _comm_interface->allToAllV(dummysend, sendcounts, senddispls, MPI_INT, mappingbuffer, recvcounts, recvdispls, MPI_INT, MPI_COMM_WORLD);
+        _comm_interface->allToAllV(dummysend, sendcounts, senddispls, MPI_ID_TYPE, mappingbuffer, recvcounts, recvdispls, MPI_ID_TYPE, MPI_COMM_WORLD);
         _explicit_mapping.unserialize(world_size,nb_transfer_union,nbtarget, targetranks, mappingbuffer);
       }
   }
@@ -402,7 +402,7 @@ namespace MEDCoupling
     _comm_interface->allToAllV(_sendbuffer, _sendcounts, _senddispls, MPI_DOUBLE, 
                                _recvbuffer, _recvcounts, _recvdispls, MPI_DOUBLE,MPI_COMM_WORLD);
     cout<<"end AllToAll"<<endl;
-    int nb_local = _topotarget->getNbLocalElements();
+    mcIdType nb_local = _topotarget->getNbLocalElements();
     double* value=new double[nb_local*_topotarget->getNbComponents()];
 
     vector<int> counters(_sourcegroup->size());

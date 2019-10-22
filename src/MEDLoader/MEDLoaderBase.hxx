@@ -30,7 +30,7 @@ class MEDLOADER_EXPORT MEDLoaderBase
 {
 public:
   static int getStatusOfFile(const std::string& fileName);
-  static char *buildEmptyString(int lgth);
+  static char *buildEmptyString(std::size_t lgth);
   static void getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName);
   static std::string getPathSep();
   static std::string joinPath(const std::string& dirName, const std::string& baseName);

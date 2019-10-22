@@ -73,7 +73,7 @@ namespace INTERP_KERNEL
       */
   template<class RealCurve>
   template<class MyMeshType, class MatrixType>
-  int InterpolationCurve<RealCurve>::interpolateMeshes (const MyMeshType&  myMeshS,
+  typename MyMeshType::MyConnType InterpolationCurve<RealCurve>::interpolateMeshes (const MyMeshType&  myMeshS,
                                                         const MyMeshType&  myMeshT,
                                                         MatrixType&        result,
                                                         const std::string& method)
@@ -83,10 +83,10 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol = MyMeshType::My_numPol;
 
     long global_start = clock();
-    int counter=0;   
+    std::size_t counter=0;   
 
-    long nbMailleS = myMeshS.getNumberOfElements();
-    long nbMailleT = myMeshT.getNumberOfElements();
+    ConnType nbMailleS = myMeshS.getNumberOfElements();
+    ConnType nbMailleT = myMeshT.getNumberOfElements();
     
     CurveIntersector<MyMeshType,MatrixType>* intersector=0;
     if(method=="P0P0")
@@ -187,17 +187,17 @@ namespace INTERP_KERNEL
     /****************************************************/
     long start_intersection = clock();
     const ConnType *connIndxT = myMeshT.getConnectivityIndexPtr();
-    for(int iT=0; iT<nbMailleT; iT++)
+    for(ConnType iT=0; iT<nbMailleT; iT++)
       {
-        int nb_nodesT = connIndxT[iT+1] - connIndxT[iT];
-        std::vector<int> intersecting_elems;
+        ConnType nb_nodesT = connIndxT[iT+1] - connIndxT[iT];
+        std::vector<ConnType> intersecting_elems;
         double bb[2*SPACEDIM];
         intersector->getElemBB(bb,myMeshT,OTT<ConnType,numPol>::indFC(iT),nb_nodesT);
         my_tree.getIntersectingElems(bb, intersecting_elems);
         intersector->intersectCells(iT,intersecting_elems,result);
         counter += intersecting_elems.size();
       }
-    int ret = intersector->getNumberOfColsOfResMatrix();
+    ConnType ret = intersector->getNumberOfColsOfResMatrix();
     delete intersector;
     
     if (InterpolationOptions::getPrintLevel() >= 1)

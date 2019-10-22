@@ -69,14 +69,14 @@ namespace MEDCoupling
          {
            PyObject *getCrudeMatrix() const
            {
-             const std::vector<std::map<int,double> >& m=self->getCrudeMatrix();
+             const std::vector<std::map<mcIdType,double> >& m=self->getCrudeMatrix();
              std::size_t sz=m.size();
              PyObject *ret=PyList_New(sz);
              for(std::size_t i=0;i<sz;i++)
                {
-                 const std::map<int,double>& row=m[i];
+                 const std::map<mcIdType,double>& row=m[i];
                  PyObject *ret0=PyDict_New();
-                 for(std::map<int,double>::const_iterator it=row.begin();it!=row.end();it++)
+                 for(std::map<mcIdType,double>::const_iterator it=row.begin();it!=row.end();it++)
                    PyDict_SetItem(ret0,PyInt_FromLong((*it).first),PyFloat_FromDouble((*it).second));
                  PyList_SetItem(ret,i,ret0);
                }
@@ -90,15 +90,22 @@ namespace MEDCoupling
 #endif
            void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, PyObject *m)
            {
-             std::vector<std::map<int,double> > mCpp;
+             std::vector<std::map<mcIdType,double> > mCpp;
              if(isCSRMatrix(m))
                {
 #if defined(WITH_NUMPY) && defined(WITH_SCIPY)
                  PyObject *indptr(PyObject_GetAttrString(m,"indptr"));
                  PyObject *indices(PyObject_GetAttrString(m,"indices"));
                  PyObject *data(PyObject_GetAttrString(m,"data"));
-                 MCAuto<DataArrayInt> indptrPtr(MEDCoupling_DataArrayInt_New__SWIG_1(indptr,NULL,NULL));
-                 MCAuto<DataArrayInt> indicesPtr(MEDCoupling_DataArrayInt_New__SWIG_1(indices,NULL,NULL));
+                 MCAuto<DataArrayInt32> indptrPtr, indicesPtr;
+                 // csr_matrix.indptr and csr_matrix.indices are always dtype==int32
+// #if defined(MEDCOUPLING_USE_64BIT_IDS)
+//                  indptrPtr = MEDCoupling_DataArrayInt64_New__SWIG_1(indptr,NULL,NULL);
+//                  indicesPtr = MEDCoupling_DataArrayInt64_New__SWIG_1(indices,NULL,NULL);
+// #else
+                 indptrPtr = MEDCoupling_DataArrayInt32_New__SWIG_1(indptr,NULL,NULL);
+                 indicesPtr = MEDCoupling_DataArrayInt32_New__SWIG_1(indices,NULL,NULL);
+//#endif
                  MCAuto<DataArrayDouble> dataPtr(MEDCoupling_DataArrayDouble_New__SWIG_1(data,NULL,NULL));
                  convertCSR_MCDataToVectMapIntDouble(indptrPtr,indicesPtr,dataPtr,mCpp);
                  Py_XDECREF(data); Py_XDECREF(indptr); Py_XDECREF(indices);
@@ -113,7 +120,7 @@ namespace MEDCoupling
 
            void setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, PyObject *m)
            {
-             std::vector<std::map<int,double> > mCpp;
+             std::vector<std::map<mcIdType,double> > mCpp;
              convertToVectMapIntDouble(m,mCpp);
              self->setCrudeMatrixEx(src,target,mCpp);
            }

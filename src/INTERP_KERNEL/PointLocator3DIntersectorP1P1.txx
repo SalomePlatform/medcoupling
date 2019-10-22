@@ -54,7 +54,7 @@ namespace INTERP_KERNEL
   {
     std::vector<double> CoordsT;
     Intersector3DP1P1<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(targetCell),CoordsT);
-    int nbOfNodesT=CoordsT.size()/SPACEDIM;
+    std::size_t nbOfNodesT=CoordsT.size()/SPACEDIM;
     const double *coordsS=Intersector3DP1P1<MyMeshType,MyMatrix>::_src_mesh.getCoordinatesPtr();
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
       {
@@ -63,12 +63,12 @@ namespace INTERP_KERNEL
           throw INTERP_KERNEL::Exception("Invalid source cell detected for meshdim==3. Only TETRA4 supported !");
         const CellModel& cmTypeS=CellModel::GetCellModel(tS);
         const ConnType *startOfCellNodeConnT=Intersector3DP1P1<MyMeshType,MyMatrix>::getStartConnOfTargetCell(targetCell);
-        for(int nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
+        for(std::size_t nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
           {
             typename MyMatrix::value_type& resRow=res[OTT<ConnType,numPol>::ind2C(startOfCellNodeConnT[nodeIdT])];
             std::vector<ConnType> connOfCurCellS;
             Intersector3DP1P1<MyMeshType,MyMatrix>::getConnOfSourceCell(OTT<ConnType,numPol>::indFC(*iterCellS),connOfCurCellS);
-            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(&CoordsT[nodeIdT*SPACEDIM],&connOfCurCellS[0],connOfCurCellS.size(),coordsS,cmTypeS,_precision) )
+            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(&CoordsT[nodeIdT*SPACEDIM],&connOfCurCellS[0],ToConnType(connOfCurCellS.size()),coordsS,cmTypeS,_precision) )
               {
                 double resLoc[4];
                 std::vector<double> localCoordsS;

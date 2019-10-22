@@ -121,11 +121,11 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void destroyFieldsAtPos(const int *startIds, const int *endIds);
     MEDLOADER_EXPORT void destroyFieldsAtPos2(int bg, int end, int step);
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
-    MEDLOADER_EXPORT bool renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N);
+    MEDLOADER_EXPORT bool renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<mcIdType>& oldCode, const std::vector<mcIdType>& newCode, const DataArrayIdType *renumO2N);
     MEDLOADER_EXPORT void accept(MEDFileFieldVisitor& visitor) const;
     MEDLOADER_EXPORT MCAuto<MEDFileFields> linearToQuadratic(const MEDFileMeshes *oldLin, const MEDFileMeshes *newQuad) const;
   public:
-    MEDLOADER_EXPORT MEDFileFields *extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const;
+    MEDLOADER_EXPORT MEDFileFields *extractPart(const std::map<int, MCAuto<DataArrayIdType> >& extractDef, MEDFileMesh *mm) const;
   public:
     MEDLOADER_EXPORT std::vector<std::string> getPflsReallyUsed() const;
     MEDLOADER_EXPORT std::vector<std::string> getLocsReallyUsed() const;

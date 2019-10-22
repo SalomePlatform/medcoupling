@@ -24,26 +24,27 @@
 #include "INTERPKERNELDefines.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
+#include "MCIdType.hxx"
 
 namespace INTERP_KERNEL
 {
   class INTERPKERNEL_EXPORT CellSimplify
   {
   public:
-    static INTERP_KERNEL::NormalizedCellType simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth, int *retConn, int& retLgth);
-    static int *getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
-                                   int& retNbOfFaces, int& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPoly2D(bool isQuad, const int *conn, int lgth, int *retConn, int& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPoly3D(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHex8(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHexp12(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyPenta6(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyPyra5(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyTetra4(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
-    static bool tryToArrangeOppositeFace(const int *conn, int lgth, int lgthBaseFace, const int *baseFace, const int *oppFaceId, int nbOfFaces, int *retConnOfOppFace);
-    static bool isWellOriented(const int *baseFace, int *retConn, const int *sideFace, int lgthBaseFace);
-    static bool orientOppositeFace(const int *baseFace, int *retConn, const int *sideFace, int lgthBaseFace);
-    static bool isFlatCell(const int* conn, int pos, int lgth, NormalizedCellType type);
+    static INTERP_KERNEL::NormalizedCellType simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const mcIdType *conn, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
+    static mcIdType *getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, const mcIdType *conn, mcIdType lgth,
+                                   mcIdType& retNbOfFaces, mcIdType& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPoly2D(bool isQuad, const mcIdType *conn, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPoly3D(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHex8(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHexp12(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyPenta6(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyPyra5(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyTetra4(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
+    static bool tryToArrangeOppositeFace(const mcIdType *conn, mcIdType lgth, mcIdType lgthBaseFace, const mcIdType *baseFace, const mcIdType *oppFaceId, mcIdType nbOfFaces, mcIdType *retConnOfOppFace);
+    static bool isWellOriented(const mcIdType *baseFace, mcIdType *retConn, const mcIdType *sideFace, mcIdType lgthBaseFace);
+    static bool orientOppositeFace(const mcIdType *baseFace, mcIdType *retConn, const mcIdType *sideFace, mcIdType lgthBaseFace);
+    static bool isFlatCell(const mcIdType* conn, mcIdType pos, mcIdType lgth, NormalizedCellType type);
   };
 }
 

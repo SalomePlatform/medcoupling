@@ -27,13 +27,13 @@ template<class MAPCLS>
 void MEDCoupling::MEDCouplingUMesh::renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N)
 {
   checkConnectivityFullyDefined();
-  int *conn(getNodalConnectivity()->getPointer());
-  const int *connIndex(getNodalConnectivityIndex()->getConstPointer());
-  int nbOfCells(getNumberOfCells());
-  for(int i=0;i<nbOfCells;i++)
-    for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
+  mcIdType *conn(getNodalConnectivity()->getPointer());
+  const mcIdType *connIndex(getNodalConnectivityIndex()->getConstPointer());
+  mcIdType nbOfCells=ToIdType(getNumberOfCells());
+  for(mcIdType i=0;i<nbOfCells;i++)
+    for(mcIdType iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
       {
-        int& node=conn[iconn];
+        mcIdType& node=conn[iconn];
         if(node>=0)//avoid polyhedron separator
           {
             auto it(newNodeNumbersO2N.find(node));

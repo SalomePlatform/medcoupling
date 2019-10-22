@@ -133,9 +133,9 @@ namespace MEDCoupling
                            const std::set<int>& target_ids,
                            const MPI_Comm& world_comm):
      _local_field(0),
+     _comm_interface(0),
      _owns_field(false),
      _owns_groups(true),
-     _comm_interface(0),
      _union_comm(MPI_COMM_NULL)
   {
     MEDCoupling::CommInterface comm;
@@ -151,7 +151,7 @@ namespace MEDCoupling
     // Create a communicator on these procs
     MPI_Group union_group,world_group;
     comm.commGroup(world_comm,&world_group);
-    comm.groupIncl(world_group,union_ids.size(),union_ranks_world,&union_group);
+    comm.groupIncl(world_group,(int)union_ids.size(),union_ranks_world,&union_group);
     comm.commCreate(world_comm,union_group,&_union_comm);
     delete[] union_ranks_world;
     if (_union_comm==MPI_COMM_NULL)
@@ -171,8 +171,8 @@ namespace MEDCoupling
     int* target_ranks_world=new int[target_ids.size()]; // ranks of targets in world_comm
     std::copy(target_ids.begin(), target_ids.end(),target_ranks_world);
     int* target_ranks_union=new int[target_ids.size()]; // ranks of targets in union_comm
-    MPI_Group_translate_ranks(world_group,source_ids.size(),source_ranks_world,union_group,source_ranks_union);
-    MPI_Group_translate_ranks(world_group,target_ids.size(),target_ranks_world,union_group,target_ranks_union);
+    MPI_Group_translate_ranks(world_group,(int)source_ids.size(),source_ranks_world,union_group,source_ranks_union);
+    MPI_Group_translate_ranks(world_group,(int)target_ids.size(),target_ranks_world,union_group,target_ranks_union);
     std::set<int> source_ids_union;
     for (int i=0;i<(int)source_ids.size();i++)
       source_ids_union.insert(source_ranks_union[i]);
@@ -237,7 +237,7 @@ namespace MEDCoupling
     std::set<int> union_ids; // source and target ids in world_comm
     union_ids.insert(src->getProcIDs().begin(),src->getProcIDs().end());
     union_ids.insert(tgt->getProcIDs().begin(),tgt->getProcIDs().end());
-    if(union_ids.size()!=size)
+    if((int)union_ids.size()!=size)
       throw INTERP_KERNEL::Exception("DisjointDEC constructor: source_ids and target_ids do not form a partition of the communicator! Restrain the world communicator passed to MPIProcessorGroup ctor.");
   }
 
@@ -331,7 +331,7 @@ namespace MEDCoupling
   void DisjointDEC::renormalizeTargetField(bool isWAbs)
   {
     if (_source_group->containsMyRank())
-      for (int icomp=0; icomp<_local_field->getField()->getArray()->getNumberOfComponents(); icomp++)
+      for (int icomp=0; icomp<(int)_local_field->getField()->getArray()->getNumberOfComponents(); icomp++)
         {
           double total_norm = _local_field->getVolumeIntegral(icomp+1,isWAbs);
           double source_norm = total_norm;
@@ -340,7 +340,7 @@ namespace MEDCoupling
         }
     if (_target_group->containsMyRank())
       {
-        for (int icomp=0; icomp<_local_field->getField()->getArray()->getNumberOfComponents(); icomp++)
+        for (int icomp=0; icomp<(int)_local_field->getField()->getArray()->getNumberOfComponents(); icomp++)
           {
             double total_norm = _local_field->getVolumeIntegral(icomp+1,isWAbs);
             double source_norm=total_norm;

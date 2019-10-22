@@ -45,8 +45,8 @@ namespace INTERP_KERNEL
     const double adj = getBoundingBoxAdjustmentAbs();
     const double adjRel = getBoundingBoxAdjustment();
 
-    long size = bbox.size()/(2*SPACE_DIM);
-    for (int i=0; i<size; i++)
+    std::size_t size = bbox.size()/(2*SPACE_DIM);
+    for (std::size_t i=0; i<size; i++)
       {
         double max=- std::numeric_limits<double>::max();
         for(int idim=0; idim<SPACE_DIM; idim++)

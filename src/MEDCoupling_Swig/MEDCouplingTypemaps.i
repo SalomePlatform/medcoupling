@@ -186,7 +186,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
   MEDCoupling::DataArrayDouble *a;
   MEDCoupling::DataArrayDoubleTuple *aa;
   std::vector<double> bb;
-  int sw;
+  mcIdType sw;
   convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   switch(sw)
     {
@@ -258,7 +258,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
   MEDCoupling::DataArrayDouble *a;
   MEDCoupling::DataArrayDoubleTuple *aa;
   std::vector<double> bb;
-  int sw;
+  mcIdType sw;
   convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   switch(sw)
     {
@@ -325,7 +325,7 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
   MEDCoupling::DataArrayDouble *a;
   MEDCoupling::DataArrayDoubleTuple *aa;
   std::vector<double> bb;
-  int sw;
+  mcIdType sw;
   convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   switch(sw)
     {
@@ -397,7 +397,7 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
   MEDCoupling::DataArrayDouble *a;
   MEDCoupling::DataArrayDoubleTuple *aa;
   std::vector<double> bb;
-  int sw;
+  mcIdType sw;
   convertDoubleStarLikePyObjToCpp_2(obj,sw,val,a,aa,bb);
   switch(sw)
     {
@@ -448,15 +448,15 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
 template<class T>
 typename MEDCoupling::Traits<T>::FieldType *fieldT_buildSubPart(const MEDCoupling::MEDCouplingFieldT<T> *self, PyObject *li)
 {
-  int sw;
-  int singleVal;
-  std::vector<int> multiVal;
-  std::pair<int, std::pair<int,int> > slic;
-  MEDCoupling::DataArrayInt *daIntTyypp=0;
+  mcIdType sw;
+  mcIdType singleVal;
+  std::vector<mcIdType> multiVal;
+  std::pair<mcIdType, std::pair<mcIdType,mcIdType> > slic;
+  MEDCoupling::DataArrayIdType *daIntTyypp=0;
   const MEDCoupling::MEDCouplingMesh *mesh=self->getMesh();
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : field lies on a null mesh !");
-  int nbc=mesh->getNumberOfCells();
+  mcIdType nbc=mesh->getNumberOfCells();
   convertIntStarOrSliceLikePyObjToCpp(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
   switch(sw)
     {
@@ -474,7 +474,7 @@ typename MEDCoupling::Traits<T>::FieldType *fieldT_buildSubPart(const MEDCouplin
           {
             if(nbc+singleVal>0)
               {
-                int tmp=nbc+singleVal;
+                mcIdType tmp=nbc+singleVal;
                 return self->buildSubPart(&tmp,&tmp+1);
               }
             else
@@ -501,29 +501,29 @@ typename MEDCoupling::Traits<T>::FieldType *fieldT_buildSubPart(const MEDCouplin
         return self->buildSubPart(daIntTyypp->begin(),daIntTyypp->end());
       }
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayIdType instance !");
     }
 }
 
 template<class T>
 typename MEDCoupling::Traits<T>::FieldType *fieldT__getitem__(const MEDCoupling::MEDCouplingFieldT<T> *self, PyObject *li)
 {
-  const char msg[]="MEDCouplingFieldDouble::__getitem__ : invalid call  Available API are : \n-myField[dataArrayInt]\n-myField[slice]\n-myField[pythonListOfCellIds]\n-myField[integer]\n-myField[dataArrayInt,1]\n-myField[slice,1]\n-myField[pythonListOfCellIds,1]\n-myField[integer,1]\n";
+  const char msg[]="MEDCouplingFieldDouble::__getitem__ : invalid call  Available API are : \n-myField[DataArrayIdType]\n-myField[slice]\n-myField[pythonListOfCellIds]\n-myField[integer]\n-myField[DataArrayIdType,1]\n-myField[slice,1]\n-myField[pythonListOfCellIds,1]\n-myField[integer,1]\n";
   if(PyTuple_Check(li))
     {
       Py_ssize_t sz=PyTuple_Size(li);
       if(sz!=2)
         throw INTERP_KERNEL::Exception(msg);
       PyObject *elt0=PyTuple_GetItem(li,0),*elt1=PyTuple_GetItem(li,1);
-      int sw;
-      int singleVal;
-      std::vector<int> multiVal;
-      std::pair<int, std::pair<int,int> > slic;
-      MEDCoupling::DataArrayInt *daIntTyypp=0;
+      mcIdType sw;
+      std::size_t singleVal;
+      std::vector<std::size_t> multiVal;
+      std::pair<mcIdType, std::pair<mcIdType,mcIdType> > slic;
+      MEDCoupling::DataArrayIdType *daIntTyypp=0;
       if(!self->getArray())
         throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::__getitem__ : no array set on field to deduce number of components !");
       try
-        { convertIntStarOrSliceLikePyObjToCpp(elt1,self->getArray()->getNumberOfComponents(),sw,singleVal,multiVal,slic,daIntTyypp); }
+      { convertIntStarOrSliceLikePyObjToCpp(elt1,ToIdType(self->getArray()->getNumberOfComponents()),sw,singleVal,multiVal,slic,daIntTyypp); }
       catch(INTERP_KERNEL::Exception& e)
         { std::ostringstream oss; oss << "MEDCouplingFieldDouble::__getitem__ : invalid type in 2nd parameter (compo) !" << e.what(); throw INTERP_KERNEL::Exception(oss.str().c_str()); }
       typename MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::FieldType > ret0(fieldT_buildSubPart<T>(self,elt0));
@@ -534,7 +534,7 @@ typename MEDCoupling::Traits<T>::FieldType *fieldT__getitem__(const MEDCoupling:
         {
         case 1:
           {
-            std::vector<int> v2(1,singleVal);
+            std::vector<std::size_t> v2(1,singleVal);
             MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aarr(ret0Arr->keepSelectedComponents(v2));
             ret0->setArray(aarr);
             return ret0.retn();
@@ -547,9 +547,9 @@ typename MEDCoupling::Traits<T>::FieldType *fieldT__getitem__(const MEDCoupling:
           }
         case 3:
           {
-            int nbOfComp(MEDCoupling::DataArray::GetNumberOfItemGivenBESRelative(slic.first,slic.second.first,slic.second.second,"MEDCouplingFieldDouble::__getitem__ : invalid range in 2nd parameter (components) !"));
-            std::vector<int> v2(nbOfComp);
-            for(int i=0;i<nbOfComp;i++)
+            mcIdType nbOfComp(MEDCoupling::DataArray::GetNumberOfItemGivenBESRelative(slic.first,slic.second.first,slic.second.second,"MEDCouplingFieldDouble::__getitem__ : invalid range in 2nd parameter (components) !"));
+            std::vector<std::size_t> v2(nbOfComp);
+            for(mcIdType i=0;i<nbOfComp;i++)
               v2[i]=slic.first+i*slic.second.second;
             MEDCoupling::MCAuto< typename MEDCoupling::Traits<T>::ArrayType > aarr(ret0Arr->keepSelectedComponents(v2));
             ret0->setArray(aarr);
@@ -567,7 +567,7 @@ template<class FIELDT>
 PyObject *field_getTinySerializationInformation(const FIELDT *self)
 {
   std::vector<double> a0;
-  std::vector<int> a1;
+  std::vector<mcIdType> a1;
   std::vector<std::string> a2;
   self->getTinySerializationDbleInformation(a0);
   self->getTinySerializationIntInformation(a1);
@@ -576,10 +576,10 @@ PyObject *field_getTinySerializationInformation(const FIELDT *self)
   PyObject *ret(PyTuple_New(3));
   PyTuple_SetItem(ret,0,convertDblArrToPyList2(a0));
   PyTuple_SetItem(ret,1,convertIntArrToPyList2(a1));
-  int sz(a2.size());
+  std::size_t sz(a2.size());
   PyObject *ret2(PyList_New(sz));
   {
-    for(int i=0;i<sz;i++)
+    for(std::size_t i=0;i<sz;i++)
       PyList_SetItem(ret2,i,PyString_FromString(a2[i].c_str()));
   }
   PyTuple_SetItem(ret,2,ret2);
@@ -589,14 +589,14 @@ PyObject *field_getTinySerializationInformation(const FIELDT *self)
 template<class T>
 PyObject *field_serialize(const typename MEDCoupling::Traits<T>::FieldType *self)
 {
-  MEDCoupling::DataArrayInt *ret0(0);
+  MEDCoupling::DataArrayIdType *ret0(0);
   std::vector<typename MEDCoupling::Traits<T>::ArrayType *> ret1;
   self->serialize(ret0,ret1);
   if(ret0)
     ret0->incrRef();
   std::size_t sz(ret1.size());
   PyObject *ret(PyTuple_New(2));
-  PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+  PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
   PyObject *ret1Py(PyList_New(sz));
   for(std::size_t i=0;i<sz;i++)
     {
@@ -646,7 +646,7 @@ void field__setstate__(typename MEDCoupling::Traits<T>::FieldType *self, PyObjec
   static const char MSG[]="MEDCouplingFieldDouble.__setstate__ : expected input is a tuple of size 3 !";
   if(!PyTuple_Check(inp))
     throw INTERP_KERNEL::Exception(MSG);
-  int sz(PyTuple_Size(inp));
+  std::size_t sz(PyTuple_Size(inp));
   if(sz!=3)
     throw INTERP_KERNEL::Exception(MSG);
   // mesh
@@ -660,15 +660,15 @@ void field__setstate__(typename MEDCoupling::Traits<T>::FieldType *self, PyObjec
   PyObject *elt0(PyTuple_GetItem(inp,0));
   PyObject *elt1(PyTuple_GetItem(inp,1));
   std::vector<double> a0;
-  std::vector<int> a1;
+  std::vector<mcIdType> a1;
   std::vector<std::string> a2;
-  MEDCoupling::DataArrayInt *b0(0);
+  MEDCoupling::DataArrayIdType *b0(0);
   std::vector<typename MEDCoupling::Traits<T>::ArrayType *>b1;
   {
     if(!PyTuple_Check(elt0) && PyTuple_Size(elt0)!=3)
       throw INTERP_KERNEL::Exception(MSG);
     PyObject *a0py(PyTuple_GetItem(elt0,0)),*a1py(PyTuple_GetItem(elt0,1)),*a2py(PyTuple_GetItem(elt0,2));
-    int tmp(-1);
+    mcIdType tmp(-1);
     fillArrayWithPyListDbl3(a0py,tmp,a0);
     convertPyToNewIntArr3(a1py,a1);
     fillStringVector(a2py,a2);
@@ -678,10 +678,10 @@ void field__setstate__(typename MEDCoupling::Traits<T>::FieldType *self, PyObjec
       throw INTERP_KERNEL::Exception(MSG);
     PyObject *b0py(PyTuple_GetItem(elt1,0)),*b1py(PyTuple_GetItem(elt1,1));
     void *argp(0);
-    int status(SWIG_ConvertPtr(b0py,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0));
+    int status(SWIG_ConvertPtr(b0py,&argp,SWIGTITraits<mcIdType>::TI,0|0));
     if(!SWIG_IsOK(status))
       throw INTERP_KERNEL::Exception(MSG);
-    b0=reinterpret_cast<MEDCoupling::DataArrayInt *>(argp);
+    b0=reinterpret_cast<MEDCoupling::DataArrayIdType *>(argp);
     convertFromPyObjVectorOfObj<typename MEDCoupling::Traits<T>::ArrayType *>(b1py,SWIGTITraits<T>::TI,MEDCoupling::Traits<T>::ArrayTypeName,b1);
   }
   self->checkForUnserialization(a1,b0,b1);
@@ -689,17 +689,17 @@ void field__setstate__(typename MEDCoupling::Traits<T>::FieldType *self, PyObjec
   self->finishUnserialization(a1,a0,a2);
 }
 
-PyObject *Mesh_getCellsContainingPointsLike(PyObject *p, double eps, const MEDCoupling::MEDCouplingMesh *self, std::function<void(const double *,int,double,MEDCoupling::MCAuto<MEDCoupling::DataArrayInt>&,MEDCoupling::MCAuto<MEDCoupling::DataArrayInt>&)> func)
+PyObject *Mesh_getCellsContainingPointsLike(PyObject *p, double eps, const MEDCoupling::MEDCouplingMesh *self, std::function<void(const double *,mcIdType,double,MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType>&,MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType>&)> func)
 {
-  MEDCoupling::MCAuto<MEDCoupling::DataArrayInt> elts,eltsIndex;
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elts,eltsIndex;
   int spaceDim=self->getSpaceDimension();
   void *da=0;
   int res1=SWIG_ConvertPtr(p,&da,SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 |  0 );
   if (!SWIG_IsOK(res1))
     {
-      int size;
+      mcIdType size;
       INTERP_KERNEL::AutoCPtr<double> tmp=convertPyToNewDblArr2(p,&size);
-      int nbOfPoints=size/spaceDim;
+      mcIdType nbOfPoints=size/spaceDim;
       if(size%spaceDim!=0)
         {
           throw INTERP_KERNEL::Exception("MEDCouplingMesh::getCellsContainingPoints : Invalid list length ! Must be a multiple of self.getSpaceDimension() !");
@@ -712,8 +712,8 @@ PyObject *Mesh_getCellsContainingPointsLike(PyObject *p, double eps, const MEDCo
       if(!da2)
         throw INTERP_KERNEL::Exception("MEDCouplingMesh::getCellsContainingPoints : Not null DataArrayDouble instance expected !");
       da2->checkAllocated();
-      int size=da2->getNumberOfTuples();
-      int nbOfCompo=da2->getNumberOfComponents();
+      mcIdType size=da2->getNumberOfTuples();
+      mcIdType nbOfCompo=ToIdType(da2->getNumberOfComponents());
       if(nbOfCompo!=spaceDim)
         {
           throw INTERP_KERNEL::Exception("MEDCouplingMesh::getCellsContainingPoints : Invalid DataArrayDouble nb of components ! Expected same as self.getSpaceDimension() !");
@@ -721,8 +721,8 @@ PyObject *Mesh_getCellsContainingPointsLike(PyObject *p, double eps, const MEDCo
       func(da2->getConstPointer(),size,eps,elts,eltsIndex);
     }
   PyObject *ret=PyTuple_New(2);
-  PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elts.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-  PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(eltsIndex.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+  PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elts.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+  PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(eltsIndex.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
   return ret;
 }
 

@@ -68,7 +68,7 @@ namespace INTERP_KERNEL
     /*** Compute the intersection area ***/
     INTERP_KERNEL::PolygonAlgorithms<SPACEDIM> P(_epsilon, PlanarIntersector<MyMeshType,MyMatrix>::_precision);
     std::deque<double> inter =  P.intersectConvexPolygons(&CoordsT[0], &CoordsS[0],
-                                                            CoordsT.size()/SPACEDIM, CoordsS.size()/SPACEDIM);
+                                                          int(CoordsT.size())/SPACEDIM, int(CoordsS.size())/SPACEDIM);
     double area[SPACEDIM];
     int nb_inter =((int)inter.size())/SPACEDIM;
     for(int i = 1; i<nb_inter-1; i++)
@@ -95,12 +95,12 @@ namespace INTERP_KERNEL
                                                               bool                       isSourceQuad)
   {
     double result = 0;
-    int nbOfNodesS=sourceCoords.size()/SPACEDIM;
+    int nbOfNodesS=int(sourceCoords.size())/SPACEDIM;
 
     /*** Compute the intersection area ***/
     INTERP_KERNEL::PolygonAlgorithms<SPACEDIM> P(_epsilon, PlanarIntersector<MyMeshType,MyMatrix>::_precision);
     std::deque<double> inter =  P.intersectConvexPolygons(quadrangle, &sourceCoords[0],
-                                                            4, nbOfNodesS);
+                                                          4, nbOfNodesS);
     double area[SPACEDIM];
     int nb_inter =((int)inter.size())/SPACEDIM;
     for(int i = 1; i<nb_inter-1; i++)
@@ -126,8 +126,8 @@ namespace INTERP_KERNEL
                                                        const std::vector<double>& sourceCoords)
   {
     double result = 0;
-    int nbOfNodesS=sourceCoords.size()/SPACEDIM;
-    int nbOfNodesT=targetCoords.size()/SPACEDIM;
+    int nbOfNodesS=int(sourceCoords.size())/SPACEDIM;
+    int nbOfNodesT=int(targetCoords.size())/SPACEDIM;
     /*** Compute the intersection area ***/
     INTERP_KERNEL::PolygonAlgorithms<SPACEDIM> P(_epsilon, PlanarIntersector<MyMeshType,MyMatrix>::_precision);
     std::deque<double> inter =  P.intersectConvexPolygons(&targetCoords[0], &sourceCoords[0],

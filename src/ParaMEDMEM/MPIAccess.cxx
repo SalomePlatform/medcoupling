@@ -290,7 +290,7 @@ namespace MEDCoupling
   {
     int size = 0;
     for (int i = 0 ; i < _processor_group_size ; i++ )
-      size += _send_requests[ i ].size() ;
+      size += (int)_send_requests[ i ].size() ;
     return size ;
   }
 
@@ -315,7 +315,7 @@ namespace MEDCoupling
   {
     int size = 0 ;
     for (int i = 0 ; i < _processor_group_size ; i++ )
-      size += _recv_requests[ i ].size() ;
+      size += (int)_recv_requests[ i ].size() ;
     return size ;
   }
 
@@ -344,7 +344,7 @@ namespace MEDCoupling
     list< int >::const_iterator iter ;
     for (iter = _send_requests[ destrank ].begin() ; iter != _send_requests[destrank].end() ; iter++ )
       ArrayOfSendRequests[i++] = *iter ;
-    return _send_requests[destrank].size() ;
+    return (int)_send_requests[destrank].size() ;
   }
 
   // Returns in ArrayOfRecvRequests with the dimension "size" all the
@@ -358,7 +358,7 @@ namespace MEDCoupling
     _recv_requests[ sourcerank ] ;
     for (iter = _recv_requests[ sourcerank ].begin() ; iter != _recv_requests[sourcerank].end() ; iter++ )
       ArrayOfRecvRequests[i++] = *iter ;
-    return _recv_requests[sourcerank].size() ;
+    return (int)_recv_requests[sourcerank].size() ;
   }
 
   // Send in synchronous mode count values of type datatype from buffer to target
@@ -1049,6 +1049,14 @@ namespace MEDCoupling
   {
     MPI_Aint aextent, lbound ;
     MPI_Type_get_extent( MPI_INT , &lbound, &aextent ) ;
+    return aextent ;
+  }
+
+  // Returns the MPI size of a MPI_LONG
+  MPI_Aint MPIAccess::longExtent() const
+  {
+    MPI_Aint aextent, lbound ;
+    MPI_Type_get_extent( MPI_LONG , &lbound, &aextent ) ;
     return aextent ;
   }
 

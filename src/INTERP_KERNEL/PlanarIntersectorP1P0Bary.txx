@@ -44,20 +44,20 @@ namespace INTERP_KERNEL
     // Check types of source elements here rather than in intersectCells() since a wrong type can be
     // found late after a long time of calculation.
 
-    const unsigned long numSrcElems = meshS.getNumberOfElements();
-    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+    const ConnType numSrcElems = meshS.getNumberOfElements();
+    for(ConnType i = 0 ; i < numSrcElems ; ++i)
       if ( meshS.getTypeOfElement( OTT<ConnType,numPol>::indFC( i )) != NORM_TRI3 )
         throw INTERP_KERNEL::Exception("P1P0 barycentric algorithm works only with triangular source meshes");
   }
 
   PLAN_INTER_TEMPLATE
-  int PLAN_INTERSECTOR::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType PLAN_INTERSECTOR::getNumberOfRowsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfElements();
   }
 
   PLAN_INTER_TEMPLATE
-  int PLAN_INTERSECTOR::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType PLAN_INTERSECTOR::getNumberOfColsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfNodes();
   }
@@ -76,7 +76,7 @@ namespace INTERP_KERNEL
     // target cell data
     PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),tgtCellCoords);
     std::vector<double> * tgtCoords = & tgtCellCoords;
-    int tgtNbNodes = tgtCellCoords.size()/SPACEDIM;
+    ConnType tgtNbNodes = ToConnType(tgtCellCoords.size())/SPACEDIM;
     NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(OTT<ConnType,numPol>::indFC(icellT));
     bool isTargetQuad=CellModel::GetCellModel(tT).isQuadratic();
 
@@ -85,7 +85,7 @@ namespace INTERP_KERNEL
     // treat each source triangle
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
     {
-      int iS=*iter;
+      ConnType iS=*iter;
       PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(iS),srcTriaCoords);
       const ConnType *startOfCellNodeConn=PlanarIntersector<MyMeshType,MyMatrix>::_connectS+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS]);
       if(SPACEDIM==3)

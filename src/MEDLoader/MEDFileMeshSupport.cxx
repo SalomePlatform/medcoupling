@@ -45,16 +45,16 @@ MEDFileMeshSupports *MEDFileMeshSupports::New()
 
 MEDFileMeshSupports::MEDFileMeshSupports(med_idt fid)
 {
-  int nbSM(MEDnSupportMesh(fid));
+  med_int nbSM(MEDnSupportMesh(fid));
   _supports.resize(nbSM);
   for(int i=0;i<nbSM;i++)
     {
       INTERP_KERNEL::AutoPtr<char> msn(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
       INTERP_KERNEL::AutoPtr<char> description(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
       med_axis_type axType;
-      int nAxis(MEDsupportMeshnAxis(fid,i+1));
+      med_int nAxis(MEDsupportMeshnAxis(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> axisName(new char[MED_SNAME_SIZE*nAxis+1]),axisUnit(new char[MED_SNAME_SIZE*nAxis+1]);
-      int spaceDim(0),meshDim(0);
+      med_int spaceDim(0),meshDim(0);
       MEDFILESAFECALLERRD0(MEDsupportMeshInfo,(fid,i+1,msn,&spaceDim,&meshDim,description,&axType,axisName,axisUnit));
       std::string name(MEDLoaderBase::buildStringFromFortran(msn,MED_NAME_SIZE));
       _supports[i]=MEDFileUMesh::New(fid,name);
@@ -120,7 +120,7 @@ const MEDFileUMesh *MEDFileMeshSupports::getSupMeshWithName(const std::string& n
   throw INTERP_KERNEL::Exception(oss.str());
 }
 
-int MEDFileMeshSupports::getNumberOfNodesInConnOf(TypeOfField entity, const std::string& name) const
+mcIdType MEDFileMeshSupports::getNumberOfNodesInConnOf(TypeOfField entity, const std::string& name) const
 {
   const MEDFileUMesh *sup(getSupMeshWithName(name));
   switch(entity)

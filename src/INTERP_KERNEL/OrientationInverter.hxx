@@ -23,6 +23,7 @@
 
 #include "INTERPKERNELDefines.hxx"
 #include "NormalizedGeometricTypes"
+#include "MCIdType.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -31,19 +32,19 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT static OrientationInverter *BuildInstanceFrom(NormalizedCellType gt);
     INTERPKERNEL_EXPORT virtual ~OrientationInverter() { }
-    INTERPKERNEL_EXPORT virtual void operate(int *beginPt, int *endPt) const = 0;
+    INTERPKERNEL_EXPORT virtual void operate(mcIdType *beginPt, mcIdType *endPt) const = 0;
   };
 
   class OrientationInverterChecker : public OrientationInverter
   {
   public:
     OrientationInverterChecker(unsigned nbNodes):_nb_nodes(nbNodes) { }
-    void operate(int *beginPt, int *endPt) const { check(beginPt,endPt); operateAndShutUp(beginPt); }
-    virtual void operateAndShutUp(int *beginPt) const = 0;
+    void operate(mcIdType *beginPt, mcIdType *endPt) const { check(beginPt,endPt); operateAndShutUp(beginPt); }
+    virtual void operateAndShutUp(mcIdType *beginPt) const = 0;
   protected:
     unsigned getNbNodes() const { return _nb_nodes; }
   private:
-    void check(int *beginPt, int *endPt) const;
+    void check(mcIdType *beginPt, mcIdType *endPt) const;
   private:
     unsigned _nb_nodes;
   };
@@ -52,82 +53,82 @@ namespace INTERP_KERNEL
   {
   public:
     OrientationInverterSEG2():OrientationInverterChecker(2u) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverterSEG3 : public OrientationInverterChecker
   {
   public:
     OrientationInverterSEG3():OrientationInverterChecker(3u) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverter2DLinear : public OrientationInverterChecker
   {
   public:
     OrientationInverter2DLinear(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverter2DQuadratic : public OrientationInverterChecker
   {
   public:
     OrientationInverter2DQuadratic(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverterPolygon : public OrientationInverter
   {
   public:
-    void operate(int *beginPt, int *endPt) const;
+    void operate(mcIdType *beginPt, mcIdType *endPt) const;
   };
 
   class OrientationInverterQPolygon : public OrientationInverter
   {
   public:
-    void operate(int *beginPt, int *endPt) const;
+    void operate(mcIdType *beginPt, mcIdType *endPt) const;
   };
 
   class OrientationInverterTetra4 : public OrientationInverterChecker
   {
   public:
     OrientationInverterTetra4():OrientationInverterChecker(4u) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverterTetra10 : public OrientationInverterChecker
   {
   public:
     OrientationInverterTetra10():OrientationInverterChecker(10u) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverterPyra5 : public OrientationInverterChecker
   {
   public:
     OrientationInverterPyra5():OrientationInverterChecker(5u) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverterPyra13 : public OrientationInverterChecker
   {
   public:
     OrientationInverterPyra13():OrientationInverterChecker(13u) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverter3DExtrusionLinear : public OrientationInverterChecker
   {
   public:
     OrientationInverter3DExtrusionLinear(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 
   class OrientationInverter3DExtrusionQuadratic : public OrientationInverterChecker
   {
   public:
     OrientationInverter3DExtrusionQuadratic(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
-    void operateAndShutUp(int *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const;
   };
 }
 

@@ -40,7 +40,8 @@ DataArrayFloat *DataArrayFloat::deepCopy() const
 
 void DataArrayFloat::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
-  int nbTuples(getNumberOfTuples()),nbComp(getNumberOfComponents());
+  mcIdType nbTuples(getNumberOfTuples());
+  std::size_t nbComp(getNumberOfComponents());
   const float *data(begin());
   stream.precision(7);
   stream << "DataArrayFloat *" << varName << "=DataArrayFloat::New();" << std::endl;
@@ -62,10 +63,10 @@ void DataArrayFloat::reprQuickOverview(std::ostream& stream) const
   stream << "DataArrayFloat C++ instance at " << this << ". ";
   if(isAllocated())
     {
-      int nbOfCompo=(int)_info_on_compo.size();
+      std::size_t nbOfCompo=_info_on_compo.size();
       if(nbOfCompo>=1)
         {
-          int nbOfTuples=getNumberOfTuples();
+          mcIdType nbOfTuples=getNumberOfTuples();
           stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
           reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
         }
@@ -79,18 +80,18 @@ void DataArrayFloat::reprQuickOverview(std::ostream& stream) const
 void DataArrayFloat::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const
 {
   const float *data(begin());
-  int nbOfTuples(getNumberOfTuples());
-  int nbOfCompo=(int)_info_on_compo.size();
+  mcIdType nbOfTuples(getNumberOfTuples());
+  std::size_t nbOfCompo=_info_on_compo.size();
   std::ostringstream oss2; oss2 << "[";
   oss2.precision(7);
   std::string oss2Str(oss2.str());
   bool isFinished=true;
-  for(int i=0;i<nbOfTuples && isFinished;i++)
+  for(mcIdType i=0;i<nbOfTuples && isFinished;i++)
     {
       if(nbOfCompo>1)
         {
           oss2 << "(";
-          for(int j=0;j<nbOfCompo;j++,data++)
+          for(std::size_t j=0;j<nbOfCompo;j++,data++)
             {
               oss2 << *data;
               if(j!=nbOfCompo-1) oss2 << ", ";
@@ -140,14 +141,14 @@ DataArrayFloatIterator::DataArrayFloatIterator(DataArrayFloat *da):DataArrayIter
 {
 }
 
-DataArrayFloatTuple::DataArrayFloatTuple(float *pt, int nbOfComp):DataArrayTuple<float>(pt,nbOfComp)
+DataArrayFloatTuple::DataArrayFloatTuple(float *pt, std::size_t nbOfComp):DataArrayTuple<float>(pt,nbOfComp)
 {
 }
 
 std::string DataArrayFloatTuple::repr() const
 {
   std::ostringstream oss; oss.precision(7); oss << "(";
-  for(int i=0;i<_nb_of_compo-1;i++)
+  for(std::size_t i=0;i<_nb_of_compo-1;i++)
     oss << _pt[i] << ", ";
   oss << _pt[_nb_of_compo-1] << ")";
   return oss.str();
@@ -164,7 +165,7 @@ float DataArrayFloatTuple::floatValue() const
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */
-DataArrayFloat *DataArrayFloatTuple::buildDAFloat(int nbOfTuples, int nbOfCompo) const
+DataArrayFloat *DataArrayFloatTuple::buildDAFloat(std::size_t nbOfTuples, std::size_t nbOfCompo) const
 {
   return this->buildDA(nbOfTuples,nbOfCompo);
 }

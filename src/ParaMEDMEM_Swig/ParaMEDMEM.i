@@ -77,6 +77,42 @@ def MEDCouplingDataArrayIntImod(self,*args):
 def MEDCouplingDataArrayIntIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____ipow___(self, self, *args)
+def MEDCouplingDataArrayInt32Iadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt32____iadd___(self, self, *args)
+def MEDCouplingDataArrayInt32Isub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt32____isub___(self, self, *args)
+def MEDCouplingDataArrayInt32Imul(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt32____imul___(self, self, *args)
+def MEDCouplingDataArrayInt32Idiv(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt32____idiv___(self, self, *args)
+def MEDCouplingDataArrayInt32Imod(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt32____imod___(self, self, *args)
+def MEDCouplingDataArrayInt32Ipow(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt32____ipow___(self, self, *args)
+def MEDCouplingDataArrayInt64Iadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64____iadd___(self, self, *args)
+def MEDCouplingDataArrayInt64Isub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64____isub___(self, self, *args)
+def MEDCouplingDataArrayInt64Imul(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64____imul___(self, self, *args)
+def MEDCouplingDataArrayInt64Idiv(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64____idiv___(self, self, *args)
+def MEDCouplingDataArrayInt64Imod(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64____imod___(self, self, *args)
+def MEDCouplingDataArrayInt64Ipow(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64____ipow___(self, self, *args)
 def MEDCouplingDataArrayFloatIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayFloat____iadd___(self, self, *args)
@@ -101,21 +137,36 @@ def MEDCouplingDataArrayDoubleTupleImul(self,*args):
 def MEDCouplingDataArrayDoubleTupleIdiv(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDoubleTuple____idiv___(self, self, *args)
-def MEDCouplingDataArrayIntTupleIadd(self,*args):
+def MEDCouplingDataArrayInt32TupleIadd(self,*args):
     import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayIntTuple____iadd___(self, self, *args)
-def MEDCouplingDataArrayIntTupleIsub(self,*args):
+    return _ParaMEDMEM.DataArrayInt32Tuple____iadd___(self, self, *args)
+def MEDCouplingDataArrayInt32TupleIsub(self,*args):
     import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayIntTuple____isub___(self, self, *args)
-def MEDCouplingDataArrayIntTupleImul(self,*args):
+    return _ParaMEDMEM.DataArrayInt32Tuple____isub___(self, self, *args)
+def MEDCouplingDataArrayInt32TupleImul(self,*args):
     import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayIntTuple____imul___(self, self, *args)
-def MEDCouplingDataArrayIntTupleIdiv(self,*args):
+    return _ParaMEDMEM.DataArrayInt32Tuple____imul___(self, self, *args)
+def MEDCouplingDataArrayInt32TupleIdiv(self,*args):
     import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayIntTuple____idiv___(self, self, *args)
-def MEDCouplingDataArrayIntTupleImod(self,*args):
+    return _ParaMEDMEM.DataArrayInt32Tuple____idiv___(self, self, *args)
+def MEDCouplingDataArrayInt32TupleImod(self,*args):
     import _ParaMEDMEM
-    return _ParaMEDMEM.DataArrayIntTuple____imod___(self, self, *args)
+    return _ParaMEDMEM.DataArrayInt32Tuple____imod___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleIadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64Tuple____iadd___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleIsub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64Tuple____isub___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleImul(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64Tuple____imul___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleIdiv(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64Tuple____idiv___(self, self, *args)
+def MEDCouplingDataArrayInt64TupleImod(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt64Tuple____imod___(self, self, *args)
 def MEDCouplingDenseMatrixIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DenseMatrix____iadd___(self, self, *args)

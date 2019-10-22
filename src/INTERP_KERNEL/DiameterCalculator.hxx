@@ -24,6 +24,7 @@
 #include "INTERPKERNELDefines.hxx"
 
 #include "NormalizedGeometricTypes"
+#include "MCIdType.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -32,21 +33,21 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT virtual ~DiameterCalculator() { }
     INTERPKERNEL_EXPORT virtual NormalizedCellType getType() const = 0;
-    INTERPKERNEL_EXPORT virtual double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const = 0;
-    INTERPKERNEL_EXPORT virtual void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const = 0;
-    INTERPKERNEL_EXPORT virtual void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const = 0;
-    INTERPKERNEL_EXPORT virtual void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const = 0;
+    INTERPKERNEL_EXPORT virtual double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const = 0;
+    INTERPKERNEL_EXPORT virtual void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const = 0;
+    INTERPKERNEL_EXPORT virtual void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const = 0;
+    INTERPKERNEL_EXPORT virtual void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const = 0;
   };
 
   class DiameterCalulatorTRI3S2 : public DiameterCalculator
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -55,11 +56,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -68,11 +69,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -81,11 +82,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -94,11 +95,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -107,11 +108,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -120,11 +121,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -133,11 +134,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -146,11 +147,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -159,11 +160,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -172,11 +173,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -185,11 +186,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -198,11 +199,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -211,11 +212,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -224,11 +225,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -237,11 +238,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -250,11 +251,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -263,11 +264,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -276,11 +277,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -289,11 +290,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };
@@ -302,11 +303,11 @@ namespace INTERP_KERNEL
   {
   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const int *bg, const int *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const;
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
   public:
     static NormalizedCellType TYPE;
   };

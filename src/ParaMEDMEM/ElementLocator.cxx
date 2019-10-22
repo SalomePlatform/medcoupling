@@ -81,14 +81,14 @@ namespace MEDCoupling
   */
   void ElementLocator::exchangeMesh(int idistantrank,
                                     MEDCouplingPointSet*& distant_mesh,
-                                    int*& distant_ids)
+                                    mcIdType*& distant_ids)
   {
     int rank = _union_group->translateRank(&_distant_group,idistantrank);
 
     if (find(_distant_proc_ids.begin(), _distant_proc_ids.end(),rank)==_distant_proc_ids.end())
       return;
    
-    MCAuto<DataArrayInt> elems;
+    MCAuto<DataArrayIdType> elems;
 #ifdef USE_DIRECTED_BB
     INTERP_KERNEL::DirectedBoundingBox dbb;
     double* distant_bb = _domain_bounding_boxes+rank*dbb.dataSize(_local_cell_mesh_space_dim);
@@ -99,7 +99,7 @@ namespace MEDCoupling
     elems=_local_cell_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment());
 #endif
     
-    DataArrayInt *distant_ids_send;
+    DataArrayIdType *distant_ids_send;
     MEDCouplingPointSet *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(elems->begin(),elems->end(),distant_ids_send);
     _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
     distant_ids_send->decrRef();
@@ -227,15 +227,15 @@ namespace MEDCoupling
   void ElementLocator::_exchangeMesh( MEDCouplingPointSet* local_mesh,
                                       MEDCouplingPointSet*& distant_mesh,
                                       int iproc_distant,
-                                      const DataArrayInt* distant_ids_send,
-                                      int*& distant_ids_recv)
+                                      const DataArrayIdType* distant_ids_send,
+                                      mcIdType*& distant_ids_recv)
   {
     CommInterface comm_interface=_union_group->getCommInterface();
   
     // First stage : exchanging sizes
     // ------------------------------
     vector<double> tinyInfoLocalD,tinyInfoDistantD(1);//not used for the moment
-    vector<int> tinyInfoLocal,tinyInfoDistant;
+    vector<mcIdType> tinyInfoLocal,tinyInfoDistant;
     vector<string> tinyInfoLocalS;
     //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
     //the transmitted mesh.
@@ -252,12 +252,12 @@ namespace MEDCoupling
     int iprocdistant_in_union = group->translateRank(&_distant_group,
                                                      iproc_distant);
     
-    comm_interface.sendRecv(&tinyInfoLocal[0], tinyInfoLocal.size(), MPI_INT, iprocdistant_in_union, 1112,
-                            &tinyInfoDistant[0], tinyInfoDistant.size(), MPI_INT,iprocdistant_in_union,1112,
+    comm_interface.sendRecv(&tinyInfoLocal[0], (int)tinyInfoLocal.size(), MPI_ID_TYPE, iprocdistant_in_union, 1112,
+                            &tinyInfoDistant[0], (int)tinyInfoDistant.size(), MPI_ID_TYPE,iprocdistant_in_union,1112,
                             *comm, &status);
-    DataArrayInt *v1Local=0;
+    DataArrayIdType *v1Local=0;
     DataArrayDouble *v2Local=0;
-    DataArrayInt *v1Distant=DataArrayInt::New();
+    DataArrayIdType *v1Distant=DataArrayIdType::New();
     DataArrayDouble *v2Distant=DataArrayDouble::New();
     //serialization of local mesh to send data to distant proc.
     local_mesh->serialize(v1Local,v2Local);
@@ -265,10 +265,10 @@ namespace MEDCoupling
     MEDCouplingPointSet *distant_mesh_tmp=MEDCouplingPointSet::BuildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
     std::vector<std::string> unusedTinyDistantSts;
     distant_mesh_tmp->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
-    int nbLocalElems=0;
-    int nbDistElem=0;
-    int *ptLocal=0;
-    int *ptDist=0;
+    mcIdType nbLocalElems=0;
+    mcIdType nbDistElem=0;
+    mcIdType *ptLocal=0;
+    mcIdType *ptDist=0;
     if(v1Local)
       {
         nbLocalElems=v1Local->getNbOfElems();
@@ -279,9 +279,9 @@ namespace MEDCoupling
         nbDistElem=v1Distant->getNbOfElems();
         ptDist=v1Distant->getPointer();
       }
-    comm_interface.sendRecv(ptLocal, nbLocalElems, MPI_INT,
+    comm_interface.sendRecv(ptLocal, (int)nbLocalElems, MPI_ID_TYPE,
                             iprocdistant_in_union, 1111,
-                            ptDist, nbDistElem, MPI_INT,
+                            ptDist, (int)nbDistElem, MPI_ID_TYPE,
                             iprocdistant_in_union,1111,
                             *comm, &status);
     nbLocalElems=0;
@@ -298,9 +298,9 @@ namespace MEDCoupling
         nbDistElem=v2Distant->getNbOfElems();
         ptDist2=v2Distant->getPointer();
       }
-    comm_interface.sendRecv(ptLocal2, nbLocalElems, MPI_DOUBLE,
+    comm_interface.sendRecv(ptLocal2, (int)nbLocalElems, MPI_DOUBLE,
                             iprocdistant_in_union, 1112,
-                            ptDist2, nbDistElem, MPI_DOUBLE,
+                            ptDist2, (int)nbDistElem, MPI_DOUBLE,
                             iprocdistant_in_union, 1112, 
                             *comm, &status);
     //
@@ -308,10 +308,10 @@ namespace MEDCoupling
     //finish unserialization
     distant_mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     //
-    distant_ids_recv=new int[tinyInfoDistant.back()];
-    comm_interface.sendRecv(const_cast<void *>(reinterpret_cast<const void *>(distant_ids_send->getConstPointer())),tinyInfoLocal.back(), MPI_INT,
+    distant_ids_recv=new mcIdType[tinyInfoDistant.back()];
+    comm_interface.sendRecv(const_cast<void *>(reinterpret_cast<const void *>(distant_ids_send->getConstPointer())),(int)tinyInfoLocal.back(), MPI_ID_TYPE,
                             iprocdistant_in_union, 1113,
-                            distant_ids_recv,tinyInfoDistant.back(), MPI_INT,
+                            distant_ids_recv,(int)tinyInfoDistant.back(), MPI_ID_TYPE,
                             iprocdistant_in_union,1113,
                             *comm, &status);
     if(v1Local)
@@ -344,17 +344,17 @@ namespace MEDCoupling
   /*!
    * connected with ElementLocator::recvFromWorkingSideL
    */
-  void ElementLocator::sendSumToLazySideW(const std::vector< std::vector<int> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds)
+  void ElementLocator::sendSumToLazySideW(const std::vector< std::vector<mcIdType> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds)
   {
     int procId=0;
     CommInterface comm;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        const vector<int>& eltIds=distantLocEltIds[procId];
+        const vector<mcIdType>& eltIds=distantLocEltIds[procId];
         const vector<double>& valued=partialSumRelToDistantIds[procId];
-        int lgth=eltIds.size();
+        int lgth=(int)eltIds.size();
         comm.send(&lgth,1,MPI_INT,*iter,1114,*_comm);
-        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&eltIds[0])),lgth,MPI_INT,*iter,1115,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&eltIds[0])),lgth,MPI_ID_TYPE,*iter,1115,*_comm);
         comm.send(const_cast<void *>(reinterpret_cast<const void *>(&valued[0])),lgth,MPI_DOUBLE,*iter,1116,*_comm);
       }
   }
@@ -370,30 +370,30 @@ namespace MEDCoupling
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         std::vector<double>& vec=globalSumRelToDistantIds[procId];
-        comm.recv(&vec[0],vec.size(),MPI_DOUBLE,*iter,1117,*_comm,&status);
+        comm.recv(&vec[0],(int)vec.size(),MPI_DOUBLE,*iter,1117,*_comm,&status);
       }
   }
 
   /*!
    * connected with ElementLocator::recvLocalIdsFromWorkingSideL
    */
-  void ElementLocator::sendLocalIdsToLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds)
+  void ElementLocator::sendLocalIdsToLazyProcsW(const std::vector< std::vector<mcIdType> >& distantLocEltIds)
   {
     int procId=0;
     CommInterface comm;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        const vector<int>& eltIds=distantLocEltIds[procId];
-        int lgth=eltIds.size();
+        const vector<mcIdType>& eltIds=distantLocEltIds[procId];
+        int lgth=(int)eltIds.size();
         comm.send(&lgth,1,MPI_INT,*iter,1121,*_comm);
-        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&eltIds[0])),lgth,MPI_INT,*iter,1122,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&eltIds[0])),lgth,MPI_ID_TYPE,*iter,1122,*_comm);
       }
   }
 
   /*!
    * connected with ElementLocator::sendGlobalIdsToWorkingSideL
    */
-  void ElementLocator::recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds, std::vector< std::vector<int> >& globalIds)
+  void ElementLocator::recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<mcIdType> >& distantLocEltIds, std::vector< std::vector<mcIdType> >& globalIds)
   {
     int procId=0;
     CommInterface comm;
@@ -401,17 +401,17 @@ namespace MEDCoupling
     globalIds.resize(_distant_proc_ids.size());
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        const std::vector<int>& vec=distantLocEltIds[procId];
-        std::vector<int>& global=globalIds[procId];
+        const std::vector<mcIdType>& vec=distantLocEltIds[procId];
+        std::vector<mcIdType>& global=globalIds[procId];
         global.resize(vec.size());
-        comm.recv(&global[0],vec.size(),MPI_INT,*iter,1123,*_comm,&status);
+        comm.recv(&global[0],(int)vec.size(),MPI_ID_TYPE,*iter,1123,*_comm,&status);
       }
   }
   
   /*!
    * connected with ElementLocator::sendCandidatesGlobalIdsToWorkingSideL
    */
-  void ElementLocator::recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<int> >& globalIds)
+  void ElementLocator::recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<mcIdType> >& globalIds)
   {
     int procId=0;
     CommInterface comm;
@@ -419,26 +419,26 @@ namespace MEDCoupling
     globalIds.resize(_distant_proc_ids.size());
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        std::vector<int>& global=globalIds[procId];
+        std::vector<mcIdType>& global=globalIds[procId];
         int lgth;
         comm.recv(&lgth,1,MPI_INT,*iter,1132,*_comm,&status);
         global.resize(lgth);
-        comm.recv(&global[0],lgth,MPI_INT,*iter,1133,*_comm,&status);
+        comm.recv(&global[0],lgth,MPI_ID_TYPE,*iter,1133,*_comm,&status);
       }
   }
   
   /*!
    * connected with ElementLocator::recvSumFromWorkingSideL
    */
-  void ElementLocator::sendPartialSumToLazyProcsW(const std::vector<int>& distantGlobIds, const std::vector<double>& sum)
+  void ElementLocator::sendPartialSumToLazyProcsW(const std::vector<mcIdType>& distantGlobIds, const std::vector<double>& sum)
   {
     int procId=0;
     CommInterface comm;
-    int lgth=distantGlobIds.size();
+    int lgth=(int)distantGlobIds.size();
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         comm.send(&lgth,1,MPI_INT,*iter,1124,*_comm);
-        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&distantGlobIds[0])),lgth,MPI_INT,*iter,1125,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&distantGlobIds[0])),lgth,MPI_ID_TYPE,*iter,1125,*_comm);
         comm.send(const_cast<void *>(reinterpret_cast<const void *>(&sum[0])),lgth,MPI_DOUBLE,*iter,1126,*_comm);
       }
   }
@@ -446,35 +446,35 @@ namespace MEDCoupling
   /*!
    * connected with ElementLocator::recvCandidatesForAddElementsL
    */
-  void ElementLocator::sendCandidatesForAddElementsW(const std::vector<int>& distantGlobIds)
+  void ElementLocator::sendCandidatesForAddElementsW(const std::vector<mcIdType>& distantGlobIds)
   {
     int procId=0;
     CommInterface comm;
-    int lgth=distantGlobIds.size();
+    int lgth=(int)distantGlobIds.size();
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         comm.send(const_cast<void *>(reinterpret_cast<const void *>(&lgth)),1,MPI_INT,*iter,1128,*_comm);
-        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&distantGlobIds[0])),lgth,MPI_INT,*iter,1129,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&distantGlobIds[0])),lgth,MPI_ID_TYPE,*iter,1129,*_comm);
       }
   }
   
   /*!
    * connected with ElementLocator::sendAddElementsToWorkingSideL
    */
-  void ElementLocator::recvAddElementsFromLazyProcsW(std::vector<std::vector<int> >& elementsToAdd)
+  void ElementLocator::recvAddElementsFromLazyProcsW(std::vector<std::vector<mcIdType> >& elementsToAdd)
   {
     int procId=0;
     CommInterface comm;
     MPI_Status status;
-    int lgth=_distant_proc_ids.size();
+    int lgth=(int)_distant_proc_ids.size();
     elementsToAdd.resize(lgth);
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         int locLgth;
-        std::vector<int>& eltToFeed=elementsToAdd[procId];
+        std::vector<mcIdType>& eltToFeed=elementsToAdd[procId];
         comm.recv(&locLgth,1,MPI_INT,*iter,1130,*_comm,&status);
         eltToFeed.resize(locLgth);
-        comm.recv(&eltToFeed[0],locLgth,MPI_INT,*iter,1131,*_comm,&status);
+        comm.recv(&eltToFeed[0],locLgth,MPI_ID_TYPE,*iter,1131,*_comm,&status);
       }
   }
 
@@ -485,7 +485,7 @@ namespace MEDCoupling
   {
     CommInterface comm;
     int toSend;
-    DataArrayInt *isCumulative=_local_para_field.returnCumulativeGlobalNumbering();
+    DataArrayIdType *isCumulative=_local_para_field.returnCumulativeGlobalNumbering();
     if(isCumulative)
       {
         toSend=CUMULATIVE_POLICY;
@@ -512,12 +512,12 @@ namespace MEDCoupling
       {
         int lgth;
         comm.recv(&lgth,1,MPI_INT,*iter,1114,*_comm,&status);
-        vector<int>& ids=_ids_per_working_proc[procId];
+        vector<mcIdType>& ids=_ids_per_working_proc[procId];
         ids.resize(lgth);
         vector<double> values(lgth);
-        comm.recv(&ids[0],lgth,MPI_INT,*iter,1115,*_comm,&status);
+        comm.recv(&ids[0],lgth,MPI_ID_TYPE,*iter,1115,*_comm,&status);
         comm.recv(&values[0],lgth,MPI_DOUBLE,*iter,1116,*_comm,&status);
-        for(int i=0;i<lgth;i++)
+        for(mcIdType i=0;i<lgth;i++)
           _values_added[ids[i]]+=values[i];
       }
   }
@@ -531,12 +531,12 @@ namespace MEDCoupling
     CommInterface comm;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        vector<int>& ids=_ids_per_working_proc[procId];
+        vector<mcIdType>& ids=_ids_per_working_proc[procId];
         vector<double> valsToSend(ids.size());
         vector<double>::iterator iter3=valsToSend.begin();
-        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter3++)
+        for(vector<mcIdType>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter3++)
           *iter3=_values_added[*iter2];
-        comm.send(&valsToSend[0],ids.size(),MPI_DOUBLE,*iter,1117,*_comm);
+        comm.send(&valsToSend[0],(int)ids.size(),MPI_DOUBLE,*iter,1117,*_comm);
         //ids.clear();
       }
     //_ids_per_working_proc.clear();
@@ -554,10 +554,10 @@ namespace MEDCoupling
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         int lgth;
-        vector<int>& ids=_ids_per_working_proc[procId];
+        vector<mcIdType>& ids=_ids_per_working_proc[procId];
         comm.recv(&lgth,1,MPI_INT,*iter,1121,*_comm,&status);
         ids.resize(lgth);
-        comm.recv(&ids[0],lgth,MPI_INT,*iter,1122,*_comm,&status);
+        comm.recv(&ids[0],lgth,MPI_ID_TYPE,*iter,1122,*_comm,&status);
       }
   }
 
@@ -568,16 +568,16 @@ namespace MEDCoupling
   {
     int procId=0;
     CommInterface comm;
-    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
-    const int *globalIdsC=globalIds->getConstPointer();
+    DataArrayIdType *globalIds=_local_para_field.returnGlobalNumbering();
+    const mcIdType *globalIdsC=globalIds->getConstPointer();
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        const vector<int>& ids=_ids_per_working_proc[procId];
-        vector<int> valsToSend(ids.size());
-        vector<int>::iterator iter1=valsToSend.begin();
-        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter1++)
+        const vector<mcIdType>& ids=_ids_per_working_proc[procId];
+        vector<mcIdType> valsToSend(ids.size());
+        vector<mcIdType>::iterator iter1=valsToSend.begin();
+        for(vector<mcIdType>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter1++)
           *iter1=globalIdsC[*iter2];
-        comm.send(&valsToSend[0],ids.size(),MPI_INT,*iter,1123,*_comm);
+        comm.send(&valsToSend[0],(int)ids.size(),MPI_ID_TYPE,*iter,1123,*_comm);
       }
     if(globalIds)
       globalIds->decrRef();
@@ -588,24 +588,24 @@ namespace MEDCoupling
    */
   void ElementLocator::recvSumFromWorkingSideL()
   {
-    int procId=0;
-    int wProcSize=_distant_proc_ids.size();
+    std::size_t procId=0;
+    std::size_t wProcSize=_distant_proc_ids.size();
     CommInterface comm;
     _ids_per_working_proc.resize(wProcSize);
     _values_per_working_proc.resize(wProcSize);
     MPI_Status status;
-    std::map<int,double> sums;
+    std::map<mcIdType,double> sums;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         int lgth;
         comm.recv(&lgth,1,MPI_INT,*iter,1124,*_comm,&status);
-        vector<int>& ids=_ids_per_working_proc[procId];
+        vector<mcIdType>& ids=_ids_per_working_proc[procId];
         vector<double>& vals=_values_per_working_proc[procId];
         ids.resize(lgth);
         vals.resize(lgth);
-        comm.recv(&ids[0],lgth,MPI_INT,*iter,1125,*_comm,&status);
+        comm.recv(&ids[0],lgth,MPI_ID_TYPE,*iter,1125,*_comm,&status);
         comm.recv(&vals[0],lgth,MPI_DOUBLE,*iter,1126,*_comm,&status);
-        vector<int>::const_iterator iter1=ids.begin();
+        vector<mcIdType>::const_iterator iter1=ids.begin();
         vector<double>::const_iterator iter2=vals.begin();
         for(;iter1!=ids.end();iter1++,iter2++)
           sums[*iter1]+=*iter2;
@@ -613,9 +613,9 @@ namespace MEDCoupling
     //assign sum to prepare sending to working side
     for(procId=0;procId<wProcSize;procId++)
       {
-        vector<int>& ids=_ids_per_working_proc[procId];
+        vector<mcIdType>& ids=_ids_per_working_proc[procId];
         vector<double>& vals=_values_per_working_proc[procId];
-        vector<int>::const_iterator iter1=ids.begin();
+        vector<mcIdType>::const_iterator iter1=ids.begin();
         vector<double>::iterator iter2=vals.begin();
         for(;iter1!=ids.end();iter1++,iter2++)
           *iter2=sums[*iter1];
@@ -633,38 +633,38 @@ namespace MEDCoupling
    */
   void ElementLocator::recvCandidatesForAddElementsL()
   {
-    int procId=0;
-    int wProcSize=_distant_proc_ids.size();
+    std::size_t procId=0;
+    std::size_t wProcSize=_distant_proc_ids.size();
     CommInterface comm;
     _ids_per_working_proc3.resize(wProcSize);
     MPI_Status status;
     std::map<int,double> sums;
-    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
-    const int *globalIdsC=globalIds->getConstPointer();
-    int nbElts=globalIds->getNumberOfTuples();
-    std::set<int> globalIdsS(globalIdsC,globalIdsC+nbElts);
+    DataArrayIdType *globalIds=_local_para_field.returnGlobalNumbering();
+    const mcIdType *globalIdsC=globalIds->getConstPointer();
+    mcIdType nbElts=globalIds->getNumberOfTuples();
+    std::set<mcIdType> globalIdsS(globalIdsC,globalIdsC+nbElts);
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        const std::vector<int>& ids0=_ids_per_working_proc[procId];
-        int lgth0=ids0.size();
-        std::set<int> elts0;
-        for(int i=0;i<lgth0;i++)
+        const std::vector<mcIdType>& ids0=_ids_per_working_proc[procId];
+        std::size_t lgth0=ids0.size();
+        std::set<mcIdType> elts0;
+        for(std::size_t i=0;i<lgth0;i++)
           elts0.insert(globalIdsC[ids0[i]]);
         int lgth;
         comm.recv(&lgth,1,MPI_INT,*iter,1128,*_comm,&status);
-        vector<int> ids(lgth);
-        comm.recv(&ids[0],lgth,MPI_INT,*iter,1129,*_comm,&status);
-        set<int> ids1(ids.begin(),ids.end());
+        vector<mcIdType> ids(lgth);
+        comm.recv(&ids[0],lgth,MPI_ID_TYPE,*iter,1129,*_comm,&status);
+        set<mcIdType> ids1(ids.begin(),ids.end());
         ids.clear();
         set<int> tmp5,tmp6;
         set_intersection(globalIdsS.begin(),globalIdsS.end(),ids1.begin(),ids1.end(),inserter(tmp5,tmp5.begin()));
         set_difference(tmp5.begin(),tmp5.end(),elts0.begin(),elts0.end(),inserter(tmp6,tmp6.begin()));
-        std::vector<int>& ids2=_ids_per_working_proc3[procId];
+        std::vector<mcIdType>& ids2=_ids_per_working_proc3[procId];
         ids2.resize(tmp6.size());
         std::copy(tmp6.begin(),tmp6.end(),ids2.begin());
         //global->local
-        for(std::vector<int>::iterator iter2=ids2.begin();iter2!=ids2.end();iter2++)
-          *iter2=std::find(globalIdsC,globalIdsC+nbElts,*iter2)-globalIdsC;
+        for(std::vector<mcIdType>::iterator iter2=ids2.begin();iter2!=ids2.end();iter2++)
+          *iter2=ToIdType(std::find(globalIdsC,globalIdsC+nbElts,*iter2)-globalIdsC);
       }
     if(globalIds)
       globalIds->decrRef();
@@ -679,10 +679,10 @@ namespace MEDCoupling
     CommInterface comm;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        const std::vector<int>& vals=_ids_per_working_proc3[procId];
-        int size=vals.size();
+        const std::vector<mcIdType>& vals=_ids_per_working_proc3[procId];
+        int size=(int)vals.size();
         comm.send(const_cast<void *>(reinterpret_cast<const void *>(&size)),1,MPI_INT,*iter,1130,*_comm);
-        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&vals[0])),size,MPI_INT,*iter,1131,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&vals[0])),size,MPI_ID_TYPE,*iter,1131,*_comm);
       }
   }
 
@@ -694,25 +694,25 @@ namespace MEDCoupling
   { 
     int procId=0;
     CommInterface comm;
-    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
-    const int *globalIdsC=globalIds->getConstPointer();
-    MCAuto<DataArrayInt> candidates=_local_para_field.getSupport()->getCellMesh()->findBoundaryNodes();
-    for(int *iter1=candidates->getPointer();iter1!=candidates->getPointer()+candidates->getNumberOfTuples();iter1++)
+    DataArrayIdType *globalIds=_local_para_field.returnGlobalNumbering();
+    const mcIdType *globalIdsC=globalIds->getConstPointer();
+    MCAuto<DataArrayIdType> candidates=_local_para_field.getSupport()->getCellMesh()->findBoundaryNodes();
+    for(mcIdType *iter1=candidates->getPointer();iter1!=candidates->getPointer()+candidates->getNumberOfTuples();iter1++)
       (*iter1)=globalIdsC[*iter1];
-    std::set<int> candidatesS(candidates->begin(),candidates->end());
+    std::set<mcIdType> candidatesS(candidates->begin(),candidates->end());
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        const vector<int>& ids=_ids_per_working_proc[procId];
-        vector<int> valsToSend(ids.size());
-        vector<int>::iterator iter1=valsToSend.begin();
-        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter1++)
+        const vector<mcIdType>& ids=_ids_per_working_proc[procId];
+        vector<mcIdType> valsToSend(ids.size());
+        vector<mcIdType>::iterator iter1=valsToSend.begin();
+        for(vector<mcIdType>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter1++)
           *iter1=globalIdsC[*iter2];
-        std::set<int> tmp2(valsToSend.begin(),valsToSend.end());
-        std::vector<int> tmp3;
-        set_intersection(candidatesS.begin(),candidatesS.end(),tmp2.begin(),tmp2.end(),std::back_insert_iterator< std::vector<int> >(tmp3));
-        int lgth=tmp3.size();
+        std::set<mcIdType> tmp2(valsToSend.begin(),valsToSend.end());
+        std::vector<mcIdType> tmp3;
+        set_intersection(candidatesS.begin(),candidatesS.end(),tmp2.begin(),tmp2.end(),std::back_insert_iterator< std::vector<mcIdType> >(tmp3));
+        int lgth=(int)tmp3.size();
         comm.send(&lgth,1,MPI_INT,*iter,1132,*_comm);
-        comm.send(&tmp3[0],lgth,MPI_INT,*iter,1133,*_comm);
+        comm.send(&tmp3[0],lgth,MPI_ID_TYPE,*iter,1133,*_comm);
       }
     if(globalIds)
       globalIds->decrRef();

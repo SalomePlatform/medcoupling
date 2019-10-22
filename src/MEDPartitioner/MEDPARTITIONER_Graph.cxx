@@ -43,22 +43,22 @@ namespace MEDPARTITIONER
 
   int Graph::nbDomains() const
   {
-    std::set<int> domains;
+    std::set<mcIdType> domains;
     if ( _partition.isNotNull() )
-      if ( MEDCoupling::DataArrayInt* array = _partition->getValuesArray() )
+      if ( MEDCoupling::DataArrayIdType* array = _partition->getValuesArray() )
       {
-        for ( const int * dom = array->begin(); dom != array->end(); ++dom )
+        for ( const mcIdType * dom = array->begin(); dom != array->end(); ++dom )
           domains.insert( *dom );
       }
-    return domains.size();
+    return (int)domains.size();
   }
 
-  const int *Graph::getPart() const
+  const mcIdType *Graph::getPart() const
   {
     return _partition->getValues();
   }
 
-  int Graph::nbVertices() const
+  mcIdType Graph::nbVertices() const
   {
     return _graph->getNumberOf();
   }

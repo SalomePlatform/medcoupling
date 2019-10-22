@@ -31,13 +31,13 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int Intersector3DP0P0<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType Intersector3DP0P0<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
   {
     return Intersector3D<MyMeshType,MyMatrix>::_target_mesh.getNumberOfElements();
   }
 
   template<class MyMeshType, class MyMatrix>
-  int Intersector3DP0P0<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType Intersector3DP0P0<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {
     return Intersector3D<MyMeshType,MyMatrix>::_src_mesh.getNumberOfElements();
   }

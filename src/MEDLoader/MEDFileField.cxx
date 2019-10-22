@@ -169,7 +169,7 @@ std::vector< std::pair<int,int> > MEDFileFields::getCommonIterations(bool& areTh
 
 int MEDFileFields::getNumberOfFields() const
 {
-  return _fields.size();
+  return (int)_fields.size();
 }
 
 std::vector<std::string> MEDFileFields::getFieldsNames() const
@@ -256,7 +256,7 @@ MEDFileFields::MEDFileFields()
 MEDFileFields::MEDFileFields(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
 try:MEDFileFieldGlobsReal(fid)
 {
-  int nbFields(MEDnField(fid));
+  med_int nbFields(MEDnField(fid));
   _fields.resize(nbFields);
   med_field_type typcha;
   for(int i=0;i<nbFields;i++)
@@ -515,7 +515,7 @@ void MEDFileFields::destroyFieldsAtPos(const int *startIds, const int *endIds)
 void MEDFileFields::destroyFieldsAtPos2(int bg, int end, int step)
 {
   static const char msg[]="MEDFileFields::destroyFieldsAtPos2";
-  int nbOfEntriesToKill(DataArrayInt::GetNumberOfItemGivenBESRelative(bg,end,step,msg));
+  mcIdType nbOfEntriesToKill(DataArrayIdType::GetNumberOfItemGivenBESRelative(bg,end,step,msg));
   std::vector<bool> b(_fields.size(),true);
   int k=bg;
   for(int i=0;i<nbOfEntriesToKill;i++,k+=step)
@@ -556,7 +556,7 @@ bool MEDFileFields::changeMeshNames(const std::vector< std::pair<std::string,std
  * \return If true a renumbering has been performed. The structure in \a this has been modified. If false, nothing has been done: it is typically the case if \a meshName is not referred by any 
  *         field in \a this.
  */
-bool MEDFileFields::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N)
+bool MEDFileFields::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<mcIdType>& oldCode, const std::vector<mcIdType>& newCode, const DataArrayIdType *renumO2N)
 {
   bool ret(false);
   for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
@@ -576,7 +576,7 @@ bool MEDFileFields::renumberEntitiesLyingOnMesh(const std::string& meshName, con
  *
  * \return A new object that the caller is responsible to deallocate.
  */
-MEDFileFields *MEDFileFields::extractPart(const std::map<int, MCAuto<DataArrayInt> >& extractDef, MEDFileMesh *mm) const
+MEDFileFields *MEDFileFields::extractPart(const std::map<int, MCAuto<DataArrayIdType> >& extractDef, MEDFileMesh *mm) const
 {
   if(!mm)
     throw INTERP_KERNEL::Exception("MEDFileFields::extractPart : input mesh is NULL !");
@@ -611,15 +611,15 @@ class PFLData
 {
 public:
   PFLData():_add_pts_in_pfl(0) { }
-  PFLData(const MCAuto<DataArrayInt>& mat, const MCAuto<DataArrayInt>& pfl, int nbOfNewPts):_matrix(mat),_pfl(pfl),_add_pts_in_pfl(nbOfNewPts) { }
+  PFLData(const MCAuto<DataArrayIdType>& mat, const MCAuto<DataArrayIdType>& pfl, mcIdType nbOfNewPts):_matrix(mat),_pfl(pfl),_add_pts_in_pfl(nbOfNewPts) { }
   std::string getPflName() const { if(_pfl.isNull()) { return std::string(); } else { return _pfl->getName(); } }
-  int getNbOfAddPtsInPfl() const { return _add_pts_in_pfl; }
-  MCAuto<DataArrayInt> getProfile() const { return _pfl; }
-  MCAuto<DataArrayInt> getMatrix() const { return _matrix; }
+  mcIdType getNbOfAddPtsInPfl() const { return _add_pts_in_pfl; }
+  MCAuto<DataArrayIdType> getProfile() const { return _pfl; }
+  MCAuto<DataArrayIdType> getMatrix() const { return _matrix; }
 private:
-  MCAuto<DataArrayInt> _matrix;
-  MCAuto<DataArrayInt> _pfl;
-  int _add_pts_in_pfl;
+  MCAuto<DataArrayIdType> _matrix;
+  MCAuto<DataArrayIdType> _pfl;
+  mcIdType _add_pts_in_pfl;
 };
 
 class MEDFileFieldLin2QuadVisitor : public MEDFileFieldVisitor
@@ -640,7 +640,7 @@ public:
   //
   void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd);
 private:
-  void updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd, int deltaNbNodes);
+  void updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd, mcIdType deltaNbNodes);
 private:
   const MEDFileUMesh *_lin;
   const MEDFileUMesh *_quad;
@@ -674,48 +674,48 @@ void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPer
       updateData(pmtdToModify,(*itCache).second.getNbOfAddPtsInPfl());
       return ;
     }
-  MCAuto<DataArrayInt> pfl;
+  MCAuto<DataArrayIdType> pfl;
   if(pflName.empty())
-    pfl=DataArrayInt::Range(0,pmptpd->getNumberOfVals(),1);
+    pfl=DataArrayIdType::Range(0,pmptpd->getNumberOfVals(),1);
   else
     pfl=_lin_globs->getProfile(pflName)->deepCopy();
   //
   MCAuto<MEDCouplingUMesh> mesh3D(_lin->getMeshAtLevel(0)),mesh3DQuadratic(_quad->getMeshAtLevel(0));
-  MCAuto<DataArrayInt> cellIds(mesh3D->getCellIdsLyingOnNodes(pfl->begin(),pfl->end(),true));
+  MCAuto<DataArrayIdType> cellIds(mesh3D->getCellIdsLyingOnNodes(pfl->begin(),pfl->end(),true));
   MCAuto<MEDCouplingUMesh> mesh3DQuadraticRestricted(mesh3DQuadratic->buildPartOfMySelf(cellIds->begin(),cellIds->end(),true));
-  MCAuto<DataArrayInt> mesh3DQuadraticRestrictedNodeIds(mesh3DQuadraticRestricted->computeFetchedNodeIds());
+  MCAuto<DataArrayIdType> mesh3DQuadraticRestrictedNodeIds(mesh3DQuadraticRestricted->computeFetchedNodeIds());
   mesh3DQuadraticRestrictedNodeIds->checkMonotonic(true);
-  MCAuto<DataArrayInt> newPtsIds(mesh3DQuadraticRestrictedNodeIds->buildSubstraction(pfl));
+  MCAuto<DataArrayIdType> newPtsIds(mesh3DQuadraticRestrictedNodeIds->buildSubstraction(pfl));
   MCAuto<MEDCoupling1SGTUMesh> allSeg3;
   {
-    MCAuto<DataArrayInt> a,b,c,d;
+    MCAuto<DataArrayIdType> a,b,c,d;
     MCAuto<MEDCouplingUMesh> seg3Tmp(mesh3DQuadraticRestricted->explodeIntoEdges(a,b,c,d));
     allSeg3=MEDCoupling1SGTUMesh::New(seg3Tmp);
   }
   if(allSeg3->getCellModelEnum()!=INTERP_KERNEL::NORM_SEG3)
     throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc : invalid situation where SEG3 expected !");
-  MCAuto<DataArrayInt> midPts,cellSeg3Ids,matrix;
+  MCAuto<DataArrayIdType> midPts,cellSeg3Ids,matrix;
   {
-    DataArrayInt *nodeConn(allSeg3->getNodalConnectivity());
+    DataArrayIdType *nodeConn(allSeg3->getNodalConnectivity());
     nodeConn->rearrange(3);
     {
-      std::vector<int> v(1,2);
+      std::vector<std::size_t> v(1,2);
       midPts=nodeConn->keepSelectedComponents(v);
     }
-    cellSeg3Ids=DataArrayInt::FindPermutationFromFirstToSecond(midPts,newPtsIds);
+    cellSeg3Ids=DataArrayIdType::FindPermutationFromFirstToSecond(midPts,newPtsIds);
     {
-      std::vector<int> v(2); v[0]=0; v[1]=1;
-      MCAuto<DataArrayInt> tmp(nodeConn->keepSelectedComponents(v));
+      std::vector<std::size_t> v(2); v[0]=0; v[1]=1;
+      MCAuto<DataArrayIdType> tmp(nodeConn->keepSelectedComponents(v));
       matrix=tmp->selectByTupleId(cellSeg3Ids->begin(),cellSeg3Ids->end());
     }
     nodeConn->rearrange(1);
   }
-  MCAuto<DataArrayInt> pflq;
+  MCAuto<DataArrayIdType> pflq;
   if(!pflName.empty())
     {
-      std::vector<const DataArrayInt *> vs(2);
+      std::vector<const DataArrayIdType *> vs(2);
       vs[0]=pfl; vs[1]=newPtsIds;
-      pflq=DataArrayInt::Aggregate(vs);
+      pflq=DataArrayIdType::Aggregate(vs);
       pflq->setName(pflName);
     }
   PFLData pdata(matrix,pflq,newPtsIds->getNumberOfTuples());
@@ -723,7 +723,7 @@ void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPer
   updateData(pmtdToModify,pdata.getNbOfAddPtsInPfl());
 }
 
-void MEDFileFieldLin2QuadVisitor::updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd, int deltaNbNodes)
+void MEDFileFieldLin2QuadVisitor::updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd, mcIdType deltaNbNodes)
 {
   pmtd->incrementNbOfVals(deltaNbNodes);
 }
@@ -766,7 +766,7 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
     return ;
   if(_1ts_update_requested)
     {
-      MCAuto<DataArrayInt> matrix,oldPfl;
+      MCAuto<DataArrayIdType> matrix,oldPfl;
       for(std::vector<std::string>::const_iterator it=_pfls_to_be_updated.begin();it!=_pfls_to_be_updated.end();it++)
         {
           std::map< std::string, PFLData >::const_iterator it2(_cache.find(*it));
@@ -786,9 +786,9 @@ void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSW
       DataArrayDouble *arr(_cur_f1ts->getUndergroundDataArray());
       MCAuto<DataArrayDouble> res;
       {
-        std::vector<int> v(1,0),v2(1,1);
-        MCAuto<DataArrayInt> pts0(matrix->keepSelectedComponents(v));
-        MCAuto<DataArrayInt> pts1(matrix->keepSelectedComponents(v2));
+        std::vector<std::size_t> v(1,0),v2(1,1);
+        MCAuto<DataArrayIdType> pts0(matrix->keepSelectedComponents(v));
+        MCAuto<DataArrayIdType> pts1(matrix->keepSelectedComponents(v2));
         if(oldPfl.isNotNull())
           {
             pts0=oldPfl->findIdForEach(pts0->begin(),pts0->end());
@@ -1110,7 +1110,7 @@ int MEDFileFields::getPosFromFieldName(const std::string& fieldName) const
 {
   std::string tmp(fieldName);
   std::vector<std::string> poss;
-  for(std::size_t i=0;i<_fields.size();i++)
+  for(unsigned int i=0;i<_fields.size();i++)
     {
       const MEDFileAnyTypeFieldMultiTSWithoutSDA *f(_fields[i]);
       if(f)

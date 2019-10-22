@@ -77,7 +77,7 @@ namespace INTERP_KERNEL
     int ibox=0;
     for(long icell=0; icell<nbelems; icell++)
       {
-        int nb_nodes_per_elem = conn_index[icell+1]-conn_index[icell];
+        ConnType nb_nodes_per_elem = conn_index[icell+1]-conn_index[icell];
         //initializing bounding box limits
         for(int idim=0; idim<SPACEDIM; idim++)
           {
@@ -85,7 +85,7 @@ namespace INTERP_KERNEL
             bbox[2*SPACEDIM*ibox+2*idim+1] = -std::numeric_limits<double>::max();
           }
         //updating the bounding box with each node of the element
-        for (int j=0; j<nb_nodes_per_elem; j++)
+        for (ConnType j=0; j<nb_nodes_per_elem; j++)
           {
             const double* coord_node = coords + 
               SPACEDIM*OTT<ConnType,numPol>
@@ -159,8 +159,8 @@ namespace INTERP_KERNEL
   void CurveIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes (std::vector<double>& bbox,
                                                                    double adjustmentEpsAbs)
   {
-    long size = bbox.size()/(2*SPACEDIM);
-    for (int i=0; i<size; i++)
+    std::size_t size = bbox.size()/(2*SPACEDIM);
+    for (std::size_t i=0; i<size; i++)
       {
         for(int idim=0; idim<SPACEDIM; idim++)
           {
@@ -180,7 +180,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   bool CurveIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const
   {
-    int nbNodesT(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] - _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]);
+    ConnType nbNodesT(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] - _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]);
     coordsT.resize(SPACEDIM*nbNodesT);
     for (ConnType iT=0; iT<nbNodesT; iT++)
       {
@@ -202,7 +202,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   typename MyMeshType::MyConnType CurveIntersector<MyMeshType,MyMatrix>::getNodeIdOfTargetCellAt(ConnType icellT, ConnType nodeIdInCellT) const
   {
-    int nbNodesT(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] - _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]);
+    ConnType nbNodesT(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] - _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]);
     if(nodeIdInCellT>=0 && nodeIdInCellT<nbNodesT)
       return OTT<ConnType,numPol>::coo2C(_connectT[OTT<ConnType,numPol>::conn2C(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]+nodeIdInCellT)]);
     else
@@ -218,7 +218,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   bool CurveIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS) const
   {
-    int nbNodesS = _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] - _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
+    ConnType nbNodesS = _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] - _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
     coordsS.resize(SPACEDIM*nbNodesS);
     for(ConnType iS=0; iS<nbNodesS; iS++)
       {
@@ -240,7 +240,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   typename MyMeshType::MyConnType CurveIntersector<MyMeshType,MyMatrix>::getNodeIdOfSourceCellAt(ConnType icellS, ConnType nodeIdInCellS) const
   {
-    int nbNodesS(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] - _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]);
+    ConnType nbNodesS(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] - _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]);
     if(nodeIdInCellS>=0 && nodeIdInCellS<nbNodesS)
       return OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+nodeIdInCellS)]);
     else
@@ -259,9 +259,9 @@ namespace INTERP_KERNEL
                                                               std::vector<TDualSegment>& segments)
   {
     // get coordinates of cell nodes
-    int nbNodes;
-    std::vector<double> ncoords;
-    std::vector<int>    nodeIds;
+    ConnType nbNodes;
+    std::vector<double>   ncoords;
+    std::vector<ConnType> nodeIds;
     {
       const ConnType *connect   = mesh.getConnectivityPtr();
       const ConnType *connIndex = mesh.getConnectivityIndexPtr();
@@ -272,7 +272,7 @@ namespace INTERP_KERNEL
       ncoords.resize(SPACEDIM*nbNodes);
       nodeIds.resize(nbNodes);
 
-      for(int i=0; i<nbNodes; i++)
+      for(ConnType i=0; i<nbNodes; i++)
         for(int idim=0; idim<SPACEDIM; idim++)
           {
             nodeIds[i] = connect[OTT<ConnType,numPol>::conn2C(connIndex[OTT<ConnType,numPol>::ind2C(icell)]+i)];
@@ -289,7 +289,7 @@ namespace INTERP_KERNEL
     // fill segments
     segments.clear();
     segments.reserve( 2*nbNodes );
-    for(int i=0; i<nbNodes-1; i++)
+    for(ConnType i=0; i<nbNodes-1; i++)
       {
         segments.push_back(TDualSegment());
         TDualSegment& seg1 = segments.back();

@@ -146,7 +146,7 @@ bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
  * to be compared. An interpolation using MEDCouplingRemapper class should be then used.
  */
 void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
-                                          DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const
+                                          DataArrayIdType *&cellCor, DataArrayIdType *&nodeCor) const
 {
   cellCor=0;
   nodeCor=0;
@@ -195,28 +195,28 @@ void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levO
  *  \param [in] partBg - the array of node ids.
  *  \param [in] partEnd - end of \a partBg, i.e. a pointer to a (last+1)-th element
  *          of \a partBg.
- *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of found
+ *  \return DataArrayIdType * - a new instance of DataArrayIdType holding ids of found
  *          cells. The caller is to delete this array using decrRef() as it is no
  *          more needed.
  */
-DataArrayInt *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
+DataArrayIdType *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const mcIdType *partBg, const mcIdType *partEnd) const
 {
-  std::vector<int> crest;
-  std::set<int> p(partBg,partEnd);
-  int nbOfCells=getNumberOfCells();
-  for(int i=0;i<nbOfCells;i++)
+  std::vector<mcIdType> crest;
+  std::set<mcIdType> p(partBg,partEnd);
+  mcIdType nbOfCells=getNumberOfCells();
+  for(mcIdType i=0;i<nbOfCells;i++)
     {
-      std::vector<int> conn;
+      std::vector<mcIdType> conn;
       getNodeIdsOfCell(i,conn);
       bool cont=true;
-      for(std::vector<int>::const_iterator iter=conn.begin();iter!=conn.end() && cont;iter++)
+      for(std::vector<mcIdType>::const_iterator iter=conn.begin();iter!=conn.end() && cont;iter++)
         if(p.find(*iter)==p.end())
           cont=false;
       if(cont)
         crest.push_back(i);
     }
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc((int)crest.size(),1);
+  DataArrayIdType *ret=DataArrayIdType::New();
+  ret->alloc(crest.size(),1);
   std::copy(crest.begin(),crest.end(),ret->getPointer());
   return ret;
 }
@@ -259,7 +259,7 @@ bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
  *
  * \sa MEDCouplingMesh::buildPart
  */
-MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const
+MEDCouplingMesh *MEDCouplingMesh::buildPartRange(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds) const
 {
   if(beginCellIds==0 && endCellIds==getNumberOfCells() && stepCellIds==1)
     {
@@ -269,7 +269,7 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellId
     }
   else
     {
-      MCAuto<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
+      MCAuto<DataArrayIdType> cellIds=DataArrayIdType::Range(beginCellIds,endCellIds,stepCellIds);
       return buildPart(cellIds->begin(),cellIds->end());
     }
 }
@@ -279,9 +279,9 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellId
  *
  * \sa MEDCouplingMesh::buildPartAndReduceNodes
  */
-MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const
+MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType*& arr) const
 {
-  MCAuto<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
+  MCAuto<DataArrayIdType> cellIds=DataArrayIdType::Range(beginCellIds,endCellIds,stepCellIds);
   return buildPartAndReduceNodes(cellIds->begin(),cellIds->end(),arr);
 }
 
@@ -572,12 +572,12 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingMesh::GetCorrespondingPolyType(INTE
  * \throw if type is dynamic as \c INTERP_KERNEL::NORM_POLYHED , \c INTERP_KERNEL::NORM_POLYGON , \c INTERP_KERNEL::NORM_QPOLYG
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-int MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
+mcIdType MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   if(cm.isDynamic())
     throw INTERP_KERNEL::Exception("MEDCouplingMesh::GetNumberOfNodesOfGeometricType : the input geometric type is dynamic ! Impossible to return a fixed number of nodes constituting it !");
-  return (int) cm.getNumberOfNodes();
+  return ToIdType( cm.getNumberOfNodes());
 }
 
 /*!
@@ -647,15 +647,15 @@ const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCel
  *  \ref  py_mcumesh_getCellsContainingPoints "Here is a Python example".
  *  \endif
  */
-void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const
+void MEDCouplingMesh::getCellsContainingPoints(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const
 {
-  eltsIndex=DataArrayInt::New(); elts=DataArrayInt::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
-  int *eltsIndexPtr(eltsIndex->getPointer());
+  eltsIndex=DataArrayIdType::New(); elts=DataArrayIdType::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
+  mcIdType *eltsIndexPtr(eltsIndex->getPointer());
   int spaceDim(getSpaceDimension());
   const double *work(pos);
-  for(int i=0;i<nbOfPoints;i++,work+=spaceDim)
+  for(mcIdType i=0;i<nbOfPoints;i++,work+=spaceDim)
     {
-      std::vector<int> ret;
+      std::vector<mcIdType> ret;
       getCellsContainingPoint(work,eps,ret);
       elts->insertAtTheEnd(ret.begin(),ret.end());
       eltsIndexPtr[i+1]=elts->getNumberOfTuples();
@@ -669,7 +669,7 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
  * 
  * \sa MEDCouplingMesh::getCellsContainingPoints, MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss
  */
-void MEDCouplingMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const
+void MEDCouplingMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const
 {
   this->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
 }

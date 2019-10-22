@@ -51,26 +51,26 @@ namespace MEDCoupling
               const ProcessorGroup& proc_group, const std::string& name);
     ParaMESH( MEDCouplingPointSet *subdomain_mesh,
               MEDCouplingPointSet *subdomain_face,
-              DataArrayInt *CorrespElt_local2global,
-              DataArrayInt *CorrespFace_local2global,
-              DataArrayInt *CorrespNod_local2global,
+              DataArrayIdType *CorrespElt_local2global,
+              DataArrayIdType *CorrespFace_local2global,
+              DataArrayIdType *CorrespNod_local2global,
               const ProcessorGroup& proc_group ) ;
 
     virtual ~ParaMESH();
-    void setNodeGlobal(DataArrayInt *nodeGlobal);
-    void setCellGlobal(DataArrayInt *cellGlobal);
+    void setNodeGlobal(DataArrayIdType *nodeGlobal);
+    void setCellGlobal(DataArrayIdType *cellGlobal);
     Topology* getTopology() const { return _explicit_topology; }
     bool isStructured() const { return _cell_mesh->isStructured(); }
     MEDCouplingPointSet *getCellMesh() const { return _cell_mesh; }
     MEDCouplingPointSet *getFaceMesh() const { return _face_mesh; }
     BlockTopology* getBlockTopology() const { return _block_topology; }
 
-    DataArrayInt* getGlobalNumberingNodeDA() const { if(_node_global) _node_global->incrRef(); return _node_global; }
-    DataArrayInt* getGlobalNumberingFaceDA() const { if(_face_global) _face_global->incrRef(); return _face_global; }
-    DataArrayInt* getGlobalNumberingCellDA() const { if(_cell_global) _cell_global->incrRef(); return _cell_global; }
-    const int* getGlobalNumberingNode() const { if(_node_global) return _node_global->getConstPointer(); return 0; }
-    const int* getGlobalNumberingFace() const { if(_face_global) return _face_global->getConstPointer(); return 0; }
-    const int* getGlobalNumberingCell() const { if(_cell_global) return _cell_global->getConstPointer(); return 0; }
+    DataArrayIdType* getGlobalNumberingNodeDA() const { if(_node_global) _node_global->incrRef(); return _node_global; }
+    DataArrayIdType* getGlobalNumberingFaceDA() const { if(_face_global) _face_global->incrRef(); return _face_global; }
+    DataArrayIdType* getGlobalNumberingCellDA() const { if(_cell_global) _cell_global->incrRef(); return _cell_global; }
+    const mcIdType* getGlobalNumberingNode() const { if(_node_global) return _node_global->getConstPointer(); return 0; }
+    const mcIdType* getGlobalNumberingFace() const { if(_face_global) return _face_global->getConstPointer(); return 0; }
+    const mcIdType* getGlobalNumberingCell() const { if(_cell_global) return _cell_global->getConstPointer(); return 0; }
 
   private:
     //mesh object underlying the ParaMESH object
@@ -84,9 +84,9 @@ namespace MEDCoupling
     MEDCoupling::BlockTopology* _block_topology;
     Topology*  _explicit_topology;
     // pointers to global numberings
-    DataArrayInt* _node_global;
-    DataArrayInt* _face_global;
-    DataArrayInt* _cell_global;
+    DataArrayIdType* _node_global;
+    DataArrayIdType* _face_global;
+    DataArrayIdType* _cell_global;
   };
 }
 

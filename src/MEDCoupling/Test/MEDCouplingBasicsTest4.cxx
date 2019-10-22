@@ -160,30 +160,30 @@ void MEDCouplingBasicsTest4::testFieldOverTime1()
 
 void MEDCouplingBasicsTest4::testDAICheckAndPreparePermutation1()
 {
-  const int vals1[]={9,10,0,6,4,11,3,7};
-  const int expect1[]={5,6,0,3,2,7,1,4};
-  const int vals2[]={9,10,0,6,10,11,3,7};
-  DataArrayInt *da=DataArrayInt::New();
+  const mcIdType vals1[]={9,10,0,6,4,11,3,7};
+  const mcIdType expect1[]={5,6,0,3,2,7,1,4};
+  const mcIdType vals2[]={9,10,0,6,10,11,3,7};
+  DataArrayIdType *da=DataArrayIdType::New();
   da->alloc(8,1);
   std::copy(vals1,vals1+8,da->getPointer());
-  DataArrayInt *da2=da->checkAndPreparePermutation();
- CPPUNIT_ASSERT_EQUAL(8,(int)da2->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
+  DataArrayIdType *da2=da->checkAndPreparePermutation();
+  CPPUNIT_ASSERT_EQUAL(8,(int)da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
   for(int i=0;i<8;i++)
     CPPUNIT_ASSERT_EQUAL(expect1[i],da2->getIJ(i,0));
   da2->decrRef();
   da->decrRef();
   //
-  da=DataArrayInt::New();
+  da=DataArrayIdType::New();
   da->alloc(8,1);
   da->iota(0);
   da2=da->checkAndPreparePermutation();
- CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
   CPPUNIT_ASSERT(da2->isIota(8));
   da2->decrRef();
   da->decrRef();
   //
-  da=DataArrayInt::New();
+  da=DataArrayIdType::New();
   da->alloc(8,1);
   std::copy(vals2,vals2+8,da->getPointer());
   CPPUNIT_ASSERT_THROW(da->checkAndPreparePermutation(),INTERP_KERNEL::Exception);
@@ -192,14 +192,14 @@ void MEDCouplingBasicsTest4::testDAICheckAndPreparePermutation1()
 
 void MEDCouplingBasicsTest4::testDAIChangeSurjectiveFormat1()
 {
-  const int vals1[8]={0,3,2,3,2,2,1,2};
-  const int expected1[5]={0,1,2,6,8};
-  const int expected2[8]={0,  6,  2,4,5,7,  1,3};
-  DataArrayInt *da=DataArrayInt::New();
+  const mcIdType vals1[8]={0,3,2,3,2,2,1,2};
+  const mcIdType expected1[5]={0,1,2,6,8};
+  const mcIdType expected2[8]={0,  6,  2,4,5,7,  1,3};
+  DataArrayIdType *da=DataArrayIdType::New();
   da->alloc(8,1);
   std::copy(vals1,vals1+8,da->getPointer());
   //
-  DataArrayInt *da2,*da2I;
+  DataArrayIdType *da2,*da2I;
   da->changeSurjectiveFormat(4,da2,da2I);
  CPPUNIT_ASSERT_EQUAL(5,(int)da2I->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(8,(int)da2->getNumberOfTuples());
@@ -216,18 +216,18 @@ void MEDCouplingBasicsTest4::testDAIChangeSurjectiveFormat1()
 void MEDCouplingBasicsTest4::testUMeshGetCellIdsLyingOnNodes1()
 {
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
-  const int nodeIds1[5]={1,2,3,4,6};
-  const int nodeIds2[2]={6,7};
-  DataArrayInt *da=m->getCellIdsLyingOnNodes(nodeIds1,nodeIds1+5,true);
- CPPUNIT_ASSERT_EQUAL(1,(int)da->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(1,(int)da->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(1,da->getIJ(0,0));
+  const mcIdType nodeIds1[5]={1,2,3,4,6};
+  const mcIdType nodeIds2[2]={6,7};
+  DataArrayIdType *da=m->getCellIdsLyingOnNodes(nodeIds1,nodeIds1+5,true);
+  CPPUNIT_ASSERT_EQUAL(1,(int)da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)da->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(1,(int)da->getIJ(0,0));
   da->decrRef();
   da=m->getCellIdsLyingOnNodes(nodeIds2,nodeIds2+2,false);
- CPPUNIT_ASSERT_EQUAL(2,(int)da->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(1,(int)da->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(3,da->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(4,da->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)da->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,(int)da->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(4,(int)da->getIJ(1,0));
   da->decrRef();
   //
   m->decrRef();
@@ -236,7 +236,7 @@ void MEDCouplingBasicsTest4::testUMeshGetCellIdsLyingOnNodes1()
 void MEDCouplingBasicsTest4::testUMeshFindCellIdsOnBoundary1()
 {
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
-  DataArrayInt *da5=m->findCellIdsOnBoundary();
+  DataArrayIdType *da5=m->findCellIdsOnBoundary();
   CPPUNIT_ASSERT(da5->isIota(5));
   //
   da5->decrRef();
@@ -406,8 +406,8 @@ void MEDCouplingBasicsTest4::testFillFromAnalyticTwo1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.4,f1->getTime(a,b),1.e-14);
   CPPUNIT_ASSERT_EQUAL(5,a); CPPUNIT_ASSERT_EQUAL(6,b);
   CPPUNIT_ASSERT_EQUAL(std::string(f1->getTimeUnit()),std::string("us"));
- CPPUNIT_ASSERT_EQUAL(1,(int)f1->getNumberOfComponents());
- CPPUNIT_ASSERT_EQUAL(9,(int)f1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,(int)f1->getNumberOfTuples());
   const double expected1[9]={0.2, 0.7, 1.2, 0.7, 1.2, 1.7, 1.2, 1.7, 2.2};
   for(int i=0;i<9;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getArray()->getIJ(0,i),1e-12);
@@ -664,7 +664,7 @@ void MEDCouplingBasicsTest4::testP2Localization1()
 {
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("testP2",2);
   const double coords[12]={0.,2.,3.5,0.,4.5,1.5,1.2,0.32,3.4,1.,2.1,2.4};
-  const int conn[6]={0,1,2,3,4,5};
+  const mcIdType conn[6]={0,1,2,3,4,5};
   DataArrayDouble *coo=DataArrayDouble::New();
   coo->alloc(6,2);
   std::copy(coords,coords+12,coo->getPointer());
@@ -698,7 +698,7 @@ void MEDCouplingBasicsTest4::testP2Localization2()
 {
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("testP2_2",3);
   const double coords[30]={0.33312787792955395, -0.35155740179580952, -0.03567564825034563, 1.307146326477638, -0.57234557776250305, -0.08608044208272235, 0.5551834466499993, 0.62324964668794192, -0.014638951108536295, 0.37761817224442129, -0.38324019806913578, 0.96283164472856886, 0.79494856035658679, -0.40628057809270046, 0.0021004190225864614, 1.023740446371799, 0.07665912970471335, -0.072889657161871096, 0.54564584619517376, 0.11132872093429744, 0.039647326652013051, 0.27164784387819052, -0.42018012100866675, 0.46563376500745146, 0.89501965094896418, -0.56148455362735061, 0.43337469695473035, 0.49118025152924394, 0.093884938060727313, 0.47216346905220891};
-  const int conn[10]={0,1,2,3,4,5,6,7,8,9};
+  const mcIdType conn[10]={0,1,2,3,4,5,6,7,8,9};
   DataArrayDouble *coo=DataArrayDouble::New();
   coo->alloc(10,3);
   std::copy(coords,coords+30,coo->getPointer());
@@ -734,7 +734,7 @@ void MEDCouplingBasicsTest4::testGetValueOn2()
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
   f->setMesh(m);
   DataArrayDouble *arr=DataArrayDouble::New();
-  int nbOfCells=m->getNumberOfCells();
+  std::size_t nbOfCells=m->getNumberOfCells();
   arr->alloc(nbOfCells,3);
   f->setArray(arr);
   arr->decrRef();
@@ -753,7 +753,7 @@ void MEDCouplingBasicsTest4::testGetValueOn2()
   f=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
   f->setMesh(m);
   arr=DataArrayDouble::New();
-  int nbOfNodes=m->getNumberOfNodes();
+  mcIdType nbOfNodes=m->getNumberOfNodes();
   arr->alloc(nbOfNodes,3);
   f->setArray(arr);
   arr->decrRef();
@@ -775,25 +775,25 @@ void MEDCouplingBasicsTest4::testGetValueOn2()
 
 void MEDCouplingBasicsTest4::testDAIGetIdsNotEqual1()
 {
-  DataArrayInt *d=DataArrayInt::New();
-  const int vals1[10]={2,3,5,6,8,5,5,6,1,-5};
+  DataArrayIdType *d=DataArrayIdType::New();
+  const mcIdType vals1[10]={2,3,5,6,8,5,5,6,1,-5};
   d->alloc(10,1);
   std::copy(vals1,vals1+10,d->getPointer());
-  DataArrayInt *d2=d->findIdsNotEqual(5);
+  DataArrayIdType *d2=d->findIdsNotEqual(5);
  CPPUNIT_ASSERT_EQUAL(7,(int)d2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)d2->getNumberOfComponents());
-  const int expected1[7]={0,1,3,4,7,8,9};
+  const mcIdType expected1[7]={0,1,3,4,7,8,9};
   for(int i=0;i<7;i++)
     CPPUNIT_ASSERT_EQUAL(expected1[i],d2->getIJ(0,i));
   d->rearrange(2);
   CPPUNIT_ASSERT_THROW(d->findIdsNotEqual(5),INTERP_KERNEL::Exception);
-  const int vals2[3]={-4,5,6};
-  std::vector<int> vals3(vals2,vals2+3);
+  const mcIdType vals2[3]={-4,5,6};
+  std::vector<mcIdType> vals3(vals2,vals2+3);
   d->rearrange(1);
-  DataArrayInt *d3=d->findIdsNotEqualList(&vals3[0],&vals3[0]+vals3.size());
+  DataArrayIdType *d3=d->findIdsNotEqualList(&vals3[0],&vals3[0]+vals3.size());
  CPPUNIT_ASSERT_EQUAL(5,(int)d3->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)d3->getNumberOfComponents());
-  const int expected2[5]={0,1,4,8,9};
+  const mcIdType expected2[5]={0,1,4,8,9};
   for(int i=0;i<5;i++)
     CPPUNIT_ASSERT_EQUAL(expected2[i],d3->getIJ(0,i));
   d3->decrRef();
@@ -803,9 +803,9 @@ void MEDCouplingBasicsTest4::testDAIGetIdsNotEqual1()
 
 void MEDCouplingBasicsTest4::testDAIComputeOffsets1()
 {
-  DataArrayInt *d=DataArrayInt::New();
-  const int vals1[6]={3,5,1,2,0,8};
-  const int expected1[6]={0,3,8,9,11,11};
+  DataArrayIdType *d=DataArrayIdType::New();
+  const mcIdType vals1[6]={3,5,1,2,0,8};
+  const mcIdType expected1[6]={0,3,8,9,11,11};
   d->alloc(6,1);
   std::copy(vals1,vals1+6,d->getPointer());
   d->computeOffsets();
@@ -822,7 +822,7 @@ void MEDCouplingBasicsTest4::testUMeshHexagonPrism1()
     0.8660254037844386, 0.5, 0.0, 0.0, 1.0, 0.0, -0.8660254037844386, 0.5, 0.0, -0.8660254037844386, -0.5, 0.0, 0.0, -1.0, 0.0, 0.8660254037844386, -0.5, 0.0,
     0.8660254037844386, 0.5, 2.0, 0.0, 1.0, 2.0, -0.8660254037844386, 0.5, 2.0, -0.8660254037844386, -0.5, 2.0, 0.0, -1.0, 2.0, 0.8660254037844386, -0.5, 2.0
   };
-  const int conn[12]={1,2,3,4,5,0,7,8,9,10,11,6};
+  const mcIdType conn[12]={1,2,3,4,5,0,7,8,9,10,11,6};
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("MyFirstHexagonalPrism",3);
   DataArrayDouble *coo=DataArrayDouble::New();
   coo->alloc(12,3);
@@ -844,19 +844,19 @@ void MEDCouplingBasicsTest4::testUMeshHexagonPrism1()
   const double expected1[3]={0.,0.,1.};
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],bary->getIJ(0,i),1e-12);
-  DataArrayInt *d1=DataArrayInt::New();
-  DataArrayInt *d2=DataArrayInt::New();
-  DataArrayInt *d3=DataArrayInt::New();
-  DataArrayInt *d4=DataArrayInt::New();
+  DataArrayIdType *d1=DataArrayIdType::New();
+  DataArrayIdType *d2=DataArrayIdType::New();
+  DataArrayIdType *d3=DataArrayIdType::New();
+  DataArrayIdType *d4=DataArrayIdType::New();
   MEDCouplingUMesh *m2=mesh->buildDescendingConnectivity(d1,d2,d3,d4);
   CPPUNIT_ASSERT_EQUAL(8,(int)m2->getNumberOfCells());
-  const int expected4[8][6]={{1,2,3,4,5,0},{7,6,11,10,9,8},{1,7,8,2},{2,8,9,3},{3,9,10,4},{4,10,11,5},{5,11,6,0},{0,6,7,1}};
+  const mcIdType expected4[8][6]={{1,2,3,4,5,0},{7,6,11,10,9,8},{1,7,8,2},{2,8,9,3},{3,9,10,4},{4,10,11,5},{5,11,6,0},{0,6,7,1}};
   const INTERP_KERNEL::NormalizedCellType expected2[8]={INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4};
-  const int expected3[8]={6,6,4,4,4,4,4,4};
+  const mcIdType expected3[8]={6,6,4,4,4,4,4,4};
   for(int i=0;i<8;i++)
     {
       CPPUNIT_ASSERT(m2->getTypeOfCell(i)==expected2[i]);
-      std::vector<int> v;
+      std::vector<mcIdType> v;
       m2->getNodeIdsOfCell(i,v);
       CPPUNIT_ASSERT((int)v.size()==expected3[i]);
       CPPUNIT_ASSERT(std::equal(expected4[i],expected4[i]+expected3[i],v.begin()));
@@ -871,7 +871,7 @@ void MEDCouplingBasicsTest4::testUMeshHexagonPrism1()
   CPPUNIT_ASSERT(INTERP_KERNEL::NORM_POLYHED==mesh->getTypeOfCell(0));
   mesh->unPolyze();
   CPPUNIT_ASSERT(INTERP_KERNEL::NORM_HEXGP12==mesh->getTypeOfCell(0));
-  CPPUNIT_ASSERT_EQUAL(13,mesh->getNodalConnectivityArrayLen());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(13),mesh->getNodalConnectivityArrayLen());
   //
   vols->decrRef();
   bary->decrRef();
@@ -915,8 +915,8 @@ void MEDCouplingBasicsTest4::testCheckCoherencyDeeper1()
   m->getNodalConnectivity()->setIJ(8,0,8);//OK
   m->checkConsistencyLight();
   m->checkConsistency();
-  const int elts[2]={1,5};
-  std::vector<int> eltsV(elts,elts+2);
+  const mcIdType elts[2]={1,5};
+  std::vector<mcIdType> eltsV(elts,elts+2);
   m->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   m->checkConsistencyLight();
   m->checkConsistency();
@@ -952,18 +952,18 @@ void MEDCouplingBasicsTest4::testUnPolyze2()
   m->setCoords(coo);
   coo->decrRef();
   m->allocateCells(2);
-  const int conn[4]={0,1,2,3};
+  const mcIdType conn[4]={0,1,2,3};
   m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
   m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
   m->finishInsertingCells();
   std::vector<const MEDCouplingUMesh *> ms(4,m);
   MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(ms);
-  std::vector<int> temp(1,2);
+  std::vector<mcIdType> temp(1,2);
   m2->convertToPolyTypes(&temp[0],&temp[0]+temp.size());
   m2->unPolyze();
   CPPUNIT_ASSERT(INTERP_KERNEL::NORM_TETRA4==m2->getTypeOfCell(2));
-  CPPUNIT_ASSERT_EQUAL(40,m2->getNodalConnectivityArrayLen());
-  std::vector<int> temp2;
+  CPPUNIT_ASSERT_EQUAL(ToIdType(40),m2->getNodalConnectivityArrayLen());
+  std::vector<mcIdType> temp2;
   m2->getNodeIdsOfCell(2,temp2);
   CPPUNIT_ASSERT(4==(int)temp2.size());
   CPPUNIT_ASSERT(std::equal(conn,conn+4,temp2.begin()));
@@ -1017,13 +1017,13 @@ void MEDCouplingBasicsTest4::testDACpyFrom1()
 
 void MEDCouplingBasicsTest4::testDAITransformWithIndArr1()
 {
-  const int tab1[4]={17,18,22,19};
-  const int tab2[12]={0,1,1,3,3,0,1,3,2,2,3,0};
-  const int expected[12]={17,18,18,19,19,17,18,19,22,22,19,17};
-  DataArrayInt *d=DataArrayInt::New();
+  const mcIdType tab1[4]={17,18,22,19};
+  const mcIdType tab2[12]={0,1,1,3,3,0,1,3,2,2,3,0};
+  const mcIdType expected[12]={17,18,18,19,19,17,18,19,22,22,19,17};
+  DataArrayIdType *d=DataArrayIdType::New();
   d->alloc(4,1);
   std::copy(tab1,tab1+4,d->getPointer());
-  DataArrayInt *d1=DataArrayInt::New();
+  DataArrayIdType *d1=DataArrayIdType::New();
   d1->alloc(12,1);
   std::copy(tab2,tab2+12,d1->getPointer());
   //
@@ -1039,12 +1039,12 @@ void MEDCouplingBasicsTest4::testDAITransformWithIndArr1()
 
 void MEDCouplingBasicsTest4::testDAIBuildPermArrPerLevel1()
 {
-  const int arr[12]={2,0,1,1,0,1,2,0,1,1,0,0};
-  const int expected1[12]={10,0,5,6,1,7,11,2,8,9,3,4};
-  DataArrayInt *da=DataArrayInt::New();
+  const mcIdType arr[12]={2,0,1,1,0,1,2,0,1,1,0,0};
+  const mcIdType expected1[12]={10,0,5,6,1,7,11,2,8,9,3,4};
+  DataArrayIdType *da=DataArrayIdType::New();
   da->alloc(12,1);
   std::copy(arr,arr+12,da->getPointer());
-  DataArrayInt *da2=da->buildPermArrPerLevel();
+  DataArrayIdType *da2=da->buildPermArrPerLevel();
  CPPUNIT_ASSERT_EQUAL(12,(int)da2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
   for(int i=0;i<12;i++)
@@ -1055,24 +1055,24 @@ void MEDCouplingBasicsTest4::testDAIBuildPermArrPerLevel1()
 
 void MEDCouplingBasicsTest4::testDAIOperations1()
 {
-  const int arr1[12]={-1,-2,4,7,3,2,6,6,4,3,0,1};
-  DataArrayInt *da=DataArrayInt::New();
+  const mcIdType arr1[12]={-1,-2,4,7,3,2,6,6,4,3,0,1};
+  DataArrayIdType *da=DataArrayIdType::New();
   da->alloc(4,3);
   std::copy(arr1,arr1+12,da->getPointer());
-  DataArrayInt *da1=DataArrayInt::New();
+  DataArrayIdType *da1=DataArrayIdType::New();
   da1->alloc(12,1);
   da1->iota(2);
-  CPPUNIT_ASSERT_THROW(DataArrayInt::Add(da,da1),INTERP_KERNEL::Exception);//not same number of tuples/Components
+  CPPUNIT_ASSERT_THROW(DataArrayIdType::Add(da,da1),INTERP_KERNEL::Exception);//not same number of tuples/Components
   da1->rearrange(3);
-  DataArrayInt *da2=DataArrayInt::Add(da,da1);
+  DataArrayIdType *da2=DataArrayIdType::Add(da,da1);
  CPPUNIT_ASSERT_EQUAL(4,(int)da2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(3,(int)da2->getNumberOfComponents());
-  const int expected1[12]={1,1,8,12,9,9,14,15,14,14,12,14};
+  const mcIdType expected1[12]={1,1,8,12,9,9,14,15,14,14,12,14};
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected1[i],da2->getIJ(0,i));
   da2->decrRef();
   da1->substractEqual(da);
-  const int expected2[12]={3,5,0,-2,3,5,2,3,6,8,12,12};
+  const mcIdType expected2[12]={3,5,0,-2,3,5,2,3,6,8,12,12};
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected2[i],da1->getIJ(0,i));
   da1->rearrange(1); da1->iota(2); da1->rearrange(3);
@@ -1080,17 +1080,17 @@ void MEDCouplingBasicsTest4::testDAIOperations1()
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected1[i],da1->getIJ(0,i));
   da1->rearrange(1); da1->iota(2); da1->rearrange(3);
-  da2=DataArrayInt::Multiply(da,da1);
+  da2=DataArrayIdType::Multiply(da,da1);
  CPPUNIT_ASSERT_EQUAL(4,(int)da2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(3,(int)da2->getNumberOfComponents());
-  const int expected3[12]={-2,-6,16,35,18,14,48,54,40,33,0,13};
+  const mcIdType expected3[12]={-2,-6,16,35,18,14,48,54,40,33,0,13};
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected3[i],da2->getIJ(0,i));
   da2->decrRef();
   da->divideEqual(da1);
  CPPUNIT_ASSERT_EQUAL(4,(int)da->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(3,(int)da->getNumberOfComponents());
-  const int expected4[12]={0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+  const mcIdType expected4[12]={0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected4[i],da->getIJ(0,i));
   std::copy(arr1,arr1+12,da->getPointer());
@@ -1100,7 +1100,7 @@ void MEDCouplingBasicsTest4::testDAIOperations1()
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected3[i],da1->getIJ(0,i));
   da1->rearrange(1); da1->iota(2); da1->rearrange(3);
-  da2=DataArrayInt::Divide(da,da1);
+  da2=DataArrayIdType::Divide(da,da1);
  CPPUNIT_ASSERT_EQUAL(4,(int)da2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(3,(int)da2->getNumberOfComponents());
   for(int i=0;i<12;i++)
@@ -1109,21 +1109,21 @@ void MEDCouplingBasicsTest4::testDAIOperations1()
   da1->applyInv(321);
  CPPUNIT_ASSERT_EQUAL(4,(int)da1->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(3,(int)da1->getNumberOfComponents());
-  const int expected5[12]={160,107,80,64,53,45,40,35,32,29,26,24};
+  const mcIdType expected5[12]={160,107,80,64,53,45,40,35,32,29,26,24};
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected5[i],da1->getIJ(0,i));
   da1->applyDivideBy(2);
  CPPUNIT_ASSERT_EQUAL(4,(int)da1->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(3,(int)da1->getNumberOfComponents());
-  const int expected6[12]={80,53,40,32,26,22,20,17,16,14,13,12};
+  const mcIdType expected6[12]={80,53,40,32,26,22,20,17,16,14,13,12};
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected6[i],da1->getIJ(0,i));
-  const int expected7[12]={3,4,5,4,5,1,6,3,2,0,6,5};
+  const mcIdType expected7[12]={3,4,5,4,5,1,6,3,2,0,6,5};
   da1->applyModulus(7);
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected7[i],da1->getIJ(0,i));
   da1->applyLin(1,1);
-  const int expected8[12]={3,3,3,3,3,1,3,3,0,0,3,3};
+  const mcIdType expected8[12]={3,3,3,3,3,1,3,3,0,0,3,3};
   da1->applyRModulus(3);
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(expected8[i],da1->getIJ(0,i));
@@ -1136,15 +1136,15 @@ void MEDCouplingBasicsTest4::testEmulateMEDMEMBDC1()
 {
   MEDCouplingUMesh *m1=0;
   MEDCouplingUMesh *m=buildPointe_1(m1);
-  DataArrayInt *da1=DataArrayInt::New();
-  DataArrayInt *da2=DataArrayInt::New();
-  DataArrayInt *da3=0;
-  DataArrayInt *da4=0;
-  DataArrayInt *da5=0;
-  DataArrayInt *da0=0;
+  DataArrayIdType *da1=DataArrayIdType::New();
+  DataArrayIdType *da2=DataArrayIdType::New();
+  DataArrayIdType *da3=0;
+  DataArrayIdType *da4=0;
+  DataArrayIdType *da5=0;
+  DataArrayIdType *da0=0;
   MEDCouplingUMesh *m2=m->emulateMEDMEMBDC(m1,da1,da2,da3,da4,da5,da0);
-  const int expected0[47]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46};
-  const int expected1[6]={1,32,29,23,41,36};
+  const mcIdType expected0[47]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46};
+  const mcIdType expected1[6]={1,32,29,23,41,36};
  CPPUNIT_ASSERT_EQUAL(47,(int)da0->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)da0->getNumberOfComponents());
   for(int i=0;i<47;i++)
@@ -1153,23 +1153,23 @@ void MEDCouplingBasicsTest4::testEmulateMEDMEMBDC1()
  CPPUNIT_ASSERT_EQUAL(1,(int)da5->getNumberOfComponents());
   for(int i=0;i<6;i++)
     CPPUNIT_ASSERT_EQUAL(expected1[i],da5->getIJ(0,i));
-  const int expected2[70]={0,1,2,3,4,0,5,6,7,4,8,9,1,7,10,11,12,13,14,5,15,16,17,8,18,19,20,10,21,22,23,2,13,24,25,21,16,26,27,12,19,28,29,15,22,30,31,18,36,26,28,30,24,37,32,33,34,35,38,36,39,40,41,42,37,38,43,44,45,46};
+  const mcIdType expected2[70]={0,1,2,3,4,0,5,6,7,4,8,9,1,7,10,11,12,13,14,5,15,16,17,8,18,19,20,10,21,22,23,2,13,24,25,21,16,26,27,12,19,28,29,15,22,30,31,18,36,26,28,30,24,37,32,33,34,35,38,36,39,40,41,42,37,38,43,44,45,46};
  CPPUNIT_ASSERT_EQUAL(70,(int)da1->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)da1->getNumberOfComponents());
   for(int i=0;i<70;i++)
     CPPUNIT_ASSERT_EQUAL(expected2[i],da1->getIJ(0,i));
-  const int expected3[17]={0,4,8,12,16,20,24,28,32,36,40,44,48,53,58,64,70};
+  const mcIdType expected3[17]={0,4,8,12,16,20,24,28,32,36,40,44,48,53,58,64,70};
  CPPUNIT_ASSERT_EQUAL(17,(int)da2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
   for(int i=0;i<17;i++)
     CPPUNIT_ASSERT_EQUAL(expected3[i],da2->getIJ(0,i));
-  const int expected4[48]={0,2,4,6,7,9,11,12,14,16,17,19,20,22,24,25,27,29,30,32,34,35,37,39,40,42,43,45,46,48,49,51,52,53,54,55,56,58,60,62,63,64,65,66,67,68,69,70};
-  //const int expected4[48]={0,2,4,6,7,9,11,12,14,16,17,19,20,22,24,25,27,29,30,32,34,35,37,39,40,42,43,45,46,48,49,51,52,54,56,57,58,59,60,62,63,64,65,66,67,68,69,70};
+  const mcIdType expected4[48]={0,2,4,6,7,9,11,12,14,16,17,19,20,22,24,25,27,29,30,32,34,35,37,39,40,42,43,45,46,48,49,51,52,53,54,55,56,58,60,62,63,64,65,66,67,68,69,70};
+  //const mcIdType expected4[48]={0,2,4,6,7,9,11,12,14,16,17,19,20,22,24,25,27,29,30,32,34,35,37,39,40,42,43,45,46,48,49,51,52,54,56,57,58,59,60,62,63,64,65,66,67,68,69,70};
  CPPUNIT_ASSERT_EQUAL(48,(int)da4->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)da4->getNumberOfComponents());
   for(int i=0;i<48;i++)
     CPPUNIT_ASSERT_EQUAL(expected4[i],da4->getIJ(0,i));
-  const int expected5[70]={0,1,0,3,0,7,0,1,2,1,4,1,2,3,2,5,2,3,6,3,4,9,4,8,4,5,10,5,9,5,6,11,6,10,6,7,8,7,11,7,8,12,8,9,12,9,10,12,10,11,12,11,13,13,13,13,12,14,13,15,14,15,14,14,14,14,15,15,15,15};
+  const mcIdType expected5[70]={0,1,0,3,0,7,0,1,2,1,4,1,2,3,2,5,2,3,6,3,4,9,4,8,4,5,10,5,9,5,6,11,6,10,6,7,8,7,11,7,8,12,8,9,12,9,10,12,10,11,12,11,13,13,13,13,12,14,13,15,14,15,14,14,14,14,15,15,15,15};
  CPPUNIT_ASSERT_EQUAL(70,(int)da3->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)da3->getNumberOfComponents());
   for(int i=0;i<70;i++)
@@ -1192,30 +1192,30 @@ void MEDCouplingBasicsTest4::testGetLevArrPerCellTypes1()
   MEDCouplingUMesh *m1=0;
   MEDCouplingUMesh *m=buildPointe_1(m1);
   m1->decrRef();
-  DataArrayInt *d0=DataArrayInt::New();
-  DataArrayInt *d1=DataArrayInt::New();
-  DataArrayInt *d2=DataArrayInt::New();
-  DataArrayInt *d3=DataArrayInt::New();
+  DataArrayIdType *d0=DataArrayIdType::New();
+  DataArrayIdType *d1=DataArrayIdType::New();
+  DataArrayIdType *d2=DataArrayIdType::New();
+  DataArrayIdType *d3=DataArrayIdType::New();
   m1=m->buildDescendingConnectivity(d0,d1,d2,d3);
   d0->decrRef(); d1->decrRef(); d2->decrRef(); d3->decrRef();
   INTERP_KERNEL::NormalizedCellType order[2]={INTERP_KERNEL::NORM_TRI3,INTERP_KERNEL::NORM_QUAD4};
-  DataArrayInt *da1=0;
-  DataArrayInt *da0=m1->getLevArrPerCellTypes(order,order+2,da1);
-  const int expected0[47]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1};
-  const int expected1[47]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46};
- CPPUNIT_ASSERT_EQUAL(47,(int)da0->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(1,(int)da0->getNumberOfComponents());
+  DataArrayIdType *da1=0;
+  DataArrayIdType *da0=m1->getLevArrPerCellTypes(order,order+2,da1);
+  const mcIdType expected0[47]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1};
+  const mcIdType expected1[47]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46};
+  CPPUNIT_ASSERT_EQUAL(47,(int)da0->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)da0->getNumberOfComponents());
   for(int i=0;i<47;i++)
     CPPUNIT_ASSERT_EQUAL(expected0[i],da0->getIJ(0,i));
- CPPUNIT_ASSERT_EQUAL(2,(int)da1->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(1,(int)da1->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(36,da1->getIJ(0,0));//36 TRI3
-  CPPUNIT_ASSERT_EQUAL(11,da1->getIJ(1,0));//11 QUAD4
+  CPPUNIT_ASSERT_EQUAL(2,(int)da1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(36,(int)da1->getIJ(0,0));//36 TRI3
+  CPPUNIT_ASSERT_EQUAL(11,(int)da1->getIJ(1,0));//11 QUAD4
   //
-  DataArrayInt *da2=da0->buildPermArrPerLevel();
+  DataArrayIdType *da2=da0->buildPermArrPerLevel();
   //
- CPPUNIT_ASSERT_EQUAL(47,(int)da2->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(47,(int)da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
   for(int i=0;i<47;i++)
     CPPUNIT_ASSERT_EQUAL(expected1[i],da2->getIJ(0,i));
   da2->decrRef();
@@ -1232,14 +1232,14 @@ void MEDCouplingBasicsTest4::testSortCellsInMEDFileFrmt1()
   MEDCouplingUMesh *m=buildPointe_1(m1);
   MEDCouplingUMesh *m2=(MEDCouplingUMesh *)m->deepCopy();
   m->setCoords(0);
-  const int vals[16]={0,1,2,14,3,12,4,5,15,6,7,8,9,10,11,13};
-  DataArrayInt *da=DataArrayInt::New();
+  const mcIdType vals[16]={0,1,2,14,3,12,4,5,15,6,7,8,9,10,11,13};
+  DataArrayIdType *da=DataArrayIdType::New();
   da->alloc(16,1);
   std::copy(vals,vals+16,da->getPointer());
-  DataArrayInt *daa=da->invertArrayN2O2O2N(16);
+  DataArrayIdType *daa=da->invertArrayN2O2O2N(16);
   m->renumberCells(daa->getConstPointer(),false);
   daa->decrRef();
-  DataArrayInt *da2=m->sortCellsInMEDFileFrmt();
+  DataArrayIdType *da2=m->sortCellsInMEDFileFrmt();
   CPPUNIT_ASSERT(m2->isEqual(m2,1e-12));
   CPPUNIT_ASSERT(da->isEqual(*da2));
   m2->decrRef();
@@ -1252,10 +1252,10 @@ void MEDCouplingBasicsTest4::testSortCellsInMEDFileFrmt1()
 void MEDCouplingBasicsTest4::testBuildPartAndReduceNodes1()
 {
   MEDCouplingMesh *m=build2DTargetMesh_1();
-  const int arr[2]={1,0};
-  DataArrayInt *da;
+  const mcIdType arr[2]={1,0};
+  DataArrayIdType *da;
   MEDCouplingMesh *m2=m->buildPartAndReduceNodes(arr,arr+2,da);
-  CPPUNIT_ASSERT_EQUAL(5,m2->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(5,(int)m2->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,(int)m2->getNumberOfCells());
   MEDCouplingFieldDouble *f=m2->getMeasureField(true);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,f->getArray()->getIJ(0,0),1e-12);
@@ -1268,17 +1268,17 @@ void MEDCouplingBasicsTest4::testBuildPartAndReduceNodes1()
 
 void MEDCouplingBasicsTest4::testDAITransformWithIndArrR1()
 {
-  const int tab1[6]={2,4,5,3,6,7};
-  const int tab2[12]={-1,-1,0,1,2,3,4,5,-1,-1,-1,-1};
-  const int expected[6]={0,3,1,2,4,5};
-  DataArrayInt *d=DataArrayInt::New();
+  const mcIdType tab1[6]={2,4,5,3,6,7};
+  const mcIdType tab2[12]={-1,-1,0,1,2,3,4,5,-1,-1,-1,-1};
+  const mcIdType expected[6]={0,3,1,2,4,5};
+  DataArrayIdType *d=DataArrayIdType::New();
   d->alloc(6,1);
   std::copy(tab1,tab1+6,d->getPointer());
-  DataArrayInt *d1=DataArrayInt::New();
+  DataArrayIdType *d1=DataArrayIdType::New();
   d1->alloc(12,1);
   std::copy(tab2,tab2+12,d1->getPointer());
   //
-  DataArrayInt *d3=d->transformWithIndArrR(d1->getConstPointer(),d1->getConstPointer()+d1->getNbOfElems());
+  DataArrayIdType *d3=d->transformWithIndArrR(d1->getConstPointer(),d1->getConstPointer()+d1->getNbOfElems());
  CPPUNIT_ASSERT_EQUAL(6,(int)d3->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)d3->getNumberOfComponents());
   for(int i=0;i<6;i++)
@@ -1291,12 +1291,12 @@ void MEDCouplingBasicsTest4::testDAITransformWithIndArrR1()
 
 void MEDCouplingBasicsTest4::testDAISplitByValueRange1()
 {
-  const int val1[9]={6,5,0,3,2,7,8,1,4};
-  const int val2[3]={0,4,9};
-  DataArrayInt *d=DataArrayInt::New();
+  const mcIdType val1[9]={6,5,0,3,2,7,8,1,4};
+  const mcIdType val2[3]={0,4,9};
+  DataArrayIdType *d=DataArrayIdType::New();
   d->alloc(9,1);
   std::copy(val1,val1+9,d->getPointer());
-  DataArrayInt *ee=0,*f=0,*g=0;
+  DataArrayIdType *ee=0,*f=0,*g=0;
   d->splitByValueRange(val2,val2+3,ee,f,g);
  CPPUNIT_ASSERT_EQUAL(9,(int)ee->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)ee->getNumberOfComponents());
@@ -1305,15 +1305,15 @@ void MEDCouplingBasicsTest4::testDAISplitByValueRange1()
  CPPUNIT_ASSERT_EQUAL(2,(int)g->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)g->getNumberOfComponents());
   //
-  const int expected1[9]={1,1,0,0,0,1,1,0,1};
-  const int expected2[9]={2,1,0,3,2,3,4,1,0};
+  const mcIdType expected1[9]={1,1,0,0,0,1,1,0,1};
+  const mcIdType expected2[9]={2,1,0,3,2,3,4,1,0};
   for(int i=0;i<9;i++)
     {
       CPPUNIT_ASSERT_EQUAL(expected1[i],ee->getIJ(i,0));
       CPPUNIT_ASSERT_EQUAL(expected2[i],f->getIJ(i,0));
     }
-  CPPUNIT_ASSERT_EQUAL(0,g->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(1,g->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(0,(int)g->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)g->getIJ(1,0));
   //
   ee->decrRef();
   f->decrRef();
@@ -1327,39 +1327,39 @@ void MEDCouplingBasicsTest4::testDAISplitByValueRange1()
 
 void MEDCouplingBasicsTest4::testUMeshSplitProfilePerType1()
 {
-  const int val0[5]={2,0,1,3,4};
+  const mcIdType val0[5]={2,0,1,3,4};
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   m->renumberCells(val0,false);
-  std::vector<int> code;
-  std::vector<DataArrayInt *> idsInPflPerType;
-  std::vector<DataArrayInt *> pfls;
+  std::vector<mcIdType> code;
+  std::vector<DataArrayIdType *> idsInPflPerType;
+  std::vector<DataArrayIdType *> pfls;
   //
-  const int val1[3]={0,2,3};
-  DataArrayInt *d=DataArrayInt::New();
+  const mcIdType val1[3]={0,2,3};
+  DataArrayIdType *d=DataArrayIdType::New();
   d->alloc(3,1);
   d->setName("sup");
   std::copy(val1,val1+3,d->getPointer());
   m->splitProfilePerType(d,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
-  const int expected1[6]={3,1,0, 4,2,1};
+  const mcIdType expected1[6]={3,1,0, 4,2,1};
   for(int i=0;i<6;i++)
     CPPUNIT_ASSERT_EQUAL(expected1[i],code[i]);
- CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
- CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[1]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[1]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,(int)idsInPflPerType[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[1]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[1]->getIJ(1,0));
   idsInPflPerType[0]->decrRef();
   idsInPflPerType[1]->decrRef();
   CPPUNIT_ASSERT_EQUAL(2,(int)pfls.size());
   CPPUNIT_ASSERT(std::string("sup")==pfls[0]->getName());
- CPPUNIT_ASSERT_EQUAL(1,(int)pfls[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,pfls[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)pfls[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,(int)pfls[0]->getIJ(0,0));
   CPPUNIT_ASSERT(std::string("sup")==pfls[1]->getName());
- CPPUNIT_ASSERT_EQUAL(2,(int)pfls[1]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,pfls[1]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(1,pfls[1]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)pfls[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,(int)pfls[1]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)pfls[1]->getIJ(1,0));
   pfls[0]->decrRef();
   pfls[1]->decrRef();
   d->decrRef();
@@ -1367,55 +1367,55 @@ void MEDCouplingBasicsTest4::testUMeshSplitProfilePerType1()
   pfls.clear();
   code.clear();
   //
-  const int val2[4]={0,2,3,4};// all quad4 are selected here ! So no profile for Quads
-  d=DataArrayInt::New();
+  const mcIdType val2[4]={0,2,3,4};// all quad4 are selected here ! So no profile for Quads
+  d=DataArrayIdType::New();
   d->alloc(4,1);
   std::copy(val2,val2+4,d->getPointer());
   m->splitProfilePerType(d,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
-  const int expected2[6]={3,1,0, 4,3,-1};
+  const mcIdType expected2[6]={3,1,0, 4,3,-1};
   for(int i=0;i<6;i++)
     CPPUNIT_ASSERT_EQUAL(expected2[i],code[i]);
- CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
- CPPUNIT_ASSERT_EQUAL(3,(int)idsInPflPerType[1]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[1]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getIJ(1,0));
-  CPPUNIT_ASSERT_EQUAL(3,idsInPflPerType[1]->getIJ(2,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,(int)idsInPflPerType[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(3,(int)idsInPflPerType[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[1]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[1]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(3,(int)idsInPflPerType[1]->getIJ(2,0));
   idsInPflPerType[0]->decrRef();
   idsInPflPerType[1]->decrRef();
   CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
- CPPUNIT_ASSERT_EQUAL(1,(int)pfls[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,pfls[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)pfls[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,(int)pfls[0]->getIJ(0,0));
   pfls[0]->decrRef();
   d->decrRef();
   idsInPflPerType.clear();
   pfls.clear();
   code.clear();
   //
-  const int val3[3]={1,0,2};// all tri3 are selected here but not in the same order ! Profile requested for Tri3
-  d=DataArrayInt::New();
+  const mcIdType val3[3]={1,0,2};// all tri3 are selected here but not in the same order ! Profile requested for Tri3
+  d=DataArrayIdType::New();
   d->alloc(3,1);
   std::copy(val3,val3+3,d->getPointer());
   m->splitProfilePerType(d,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
-  const int expected3[6]={3,2,0, 4,1,1};
+  const mcIdType expected3[6]={3,2,0, 4,1,1};
   for(int i=0;i<6;i++)
     CPPUNIT_ASSERT_EQUAL(expected3[i],code[i]);
- CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[0]->getIJ(1,0));
- CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[1]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,(int)idsInPflPerType[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[0]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[1]->getIJ(0,0));
   idsInPflPerType[0]->decrRef();
   idsInPflPerType[1]->decrRef();
   CPPUNIT_ASSERT_EQUAL(2,(int)pfls.size());
- CPPUNIT_ASSERT_EQUAL(2,(int)pfls[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(0,pfls[0]->getIJ(1,0));
-  CPPUNIT_ASSERT_EQUAL(0,pfls[1]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)pfls[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)pfls[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(0,(int)pfls[0]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(0,(int)pfls[1]->getIJ(0,0));
   pfls[0]->decrRef();
   pfls[1]->decrRef();
   d->decrRef();
@@ -1423,24 +1423,24 @@ void MEDCouplingBasicsTest4::testUMeshSplitProfilePerType1()
   pfls.clear();
   code.clear();
   //
-  const int val4[2]={3,4};// all tri3 are selected here but not in the same order ! Profile requested for Tri3
-  d=DataArrayInt::New();
+  const mcIdType val4[2]={3,4};// all tri3 are selected here but not in the same order ! Profile requested for Tri3
+  d=DataArrayIdType::New();
   d->alloc(2,1);
   std::copy(val4,val4+2,d->getPointer());
   m->splitProfilePerType(d,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(3,(int)code.size());
   CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType.size());
-  const int expected4[3]={4,2,0};
+  const mcIdType expected4[3]={4,2,0};
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_EQUAL(expected4[i],code[i]);
- CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[0]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,(int)idsInPflPerType[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType[0]->getIJ(1,0));
   idsInPflPerType[0]->decrRef();
   CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
- CPPUNIT_ASSERT_EQUAL(2,(int)pfls[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(2,pfls[0]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)pfls[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)pfls[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,(int)pfls[0]->getIJ(1,0));
   pfls[0]->decrRef();
   d->decrRef();
   idsInPflPerType.clear();
@@ -1452,19 +1452,19 @@ void MEDCouplingBasicsTest4::testUMeshSplitProfilePerType1()
 
 void MEDCouplingBasicsTest4::testDAIBuildExplicitArrByRanges1()
 {
-  DataArrayInt *d=DataArrayInt::New();
+  DataArrayIdType *d=DataArrayIdType::New();
   d->alloc(3,1);
-  const int vals1[3]={0,2,3};
+  const mcIdType vals1[3]={0,2,3};
   std::copy(vals1,vals1+3,d->getPointer());
-  DataArrayInt *e=DataArrayInt::New();
+  DataArrayIdType *e=DataArrayIdType::New();
   e->alloc(6,1);
-  const int vals2[6]={0,3,6,10,14,20};
+  const mcIdType vals2[6]={0,3,6,10,14,20};
   std::copy(vals2,vals2+6,e->getPointer());
   //
-  DataArrayInt *f=d->buildExplicitArrByRanges(e);
- CPPUNIT_ASSERT_EQUAL(11,(int)f->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(1,(int)f->getNumberOfComponents());
-  const int expected1[11]={0,1,2,6,7,8,9,10,11,12,13};
+  DataArrayIdType *f=d->buildExplicitArrByRanges(e);
+  CPPUNIT_ASSERT_EQUAL(11,(int)f->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)f->getNumberOfComponents());
+  const mcIdType expected1[11]={0,1,2,6,7,8,9,10,11,12,13};
   for(int i=0;i<11;i++)
     CPPUNIT_ASSERT_EQUAL(expected1[i],f->getIJ(i,0));
   //
@@ -1475,14 +1475,14 @@ void MEDCouplingBasicsTest4::testDAIBuildExplicitArrByRanges1()
 
 void MEDCouplingBasicsTest4::testDAIComputeOffsets2()
 {
-  DataArrayInt *d=DataArrayInt::New();
-  const int vals1[6]={3,5,1,2,0,8};
-  const int expected1[7]={0,3,8,9,11,11,19};
+  DataArrayIdType *d=DataArrayIdType::New();
+  const mcIdType vals1[6]={3,5,1,2,0,8};
+  const mcIdType expected1[7]={0,3,8,9,11,11,19};
   d->alloc(6,1);
   std::copy(vals1,vals1+6,d->getPointer());
   d->computeOffsetsFull();
- CPPUNIT_ASSERT_EQUAL(7,(int)d->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(1,(int)d->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(7,(int)d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,(int)d->getNumberOfComponents());
   for(int i=0;i<7;i++)
     CPPUNIT_ASSERT_EQUAL(expected1[i],d->getIJ(0,i));
   d->decrRef();
@@ -1519,17 +1519,17 @@ void MEDCouplingBasicsTest4::testMergeField3()
 void MEDCouplingBasicsTest4::testGetDistributionOfTypes1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
-  const int tab1[5]={2,0,1,3,4};
+  const mcIdType tab1[5]={2,0,1,3,4};
   CPPUNIT_ASSERT_THROW(m->getDistributionOfTypes(),INTERP_KERNEL::Exception);
   m->renumberCells(tab1,false);
-  std::vector<int> code=m->getDistributionOfTypes();
+  std::vector<mcIdType> code=m->getDistributionOfTypes();
   CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
-  CPPUNIT_ASSERT_EQUAL(3,code[0]);
-  CPPUNIT_ASSERT_EQUAL(2,code[1]);
-  CPPUNIT_ASSERT_EQUAL(-1,code[2]);
-  CPPUNIT_ASSERT_EQUAL(4,code[3]);
-  CPPUNIT_ASSERT_EQUAL(3,code[4]);
-  CPPUNIT_ASSERT_EQUAL(-1,code[5]);
+  CPPUNIT_ASSERT_EQUAL(3,(int)code[0]);
+  CPPUNIT_ASSERT_EQUAL(2,(int)code[1]);
+  CPPUNIT_ASSERT_EQUAL(-1,(int)code[2]);
+  CPPUNIT_ASSERT_EQUAL(4,(int)code[3]);
+  CPPUNIT_ASSERT_EQUAL(3,(int)code[4]);
+  CPPUNIT_ASSERT_EQUAL(-1,(int)code[5]);
   m->decrRef();
 }
 
@@ -1591,9 +1591,9 @@ void MEDCouplingBasicsTest4::testNormMax1()
 void MEDCouplingBasicsTest4::testFindAndCorrectBadOriented3DExtrudedCells1()
 {
   const double coords[38*3]={0.0011180339887498999, -0.0011755705045849499, 0.0, -0.0012331070204200001, -0.0011755705045849499, 0.0, -0.00067557050458494599, -0.00145964954842536, 0.0, -0.00050000000000000001, -0.00086602540378443902, 0.0, 0.00140211303259031, -0.00061803398874989504, 0.0, 0.00086602540378443902, -0.00050000000000000001, 0.0, 0.001, 0.0, 0.0, 0.00034561537182258202, 0.000269164072574575, 0.0, 0.0, 0.001, 0.0, -0.00050000000000000001, 0.00086602540378443902, 0.0, -0.000269164072574575, 0.00034561537182258202, 0.0, -0.001, 0.0, 0.0, -0.00086602540378443902, -0.00050000000000000001, 0.0, -0.00034561537182258202, -0.000269164072574575, 0.0, 0.0, -0.001, 0.0, 0.00050000000000000001, -0.00086602540378443902, 0.0, 0.000269164072574575, -0.00034561537182258202, 0.0, 0.0015, -6.01853107621011e-36, 0.0, 0.00056049747291484397, -0.00145964954842536, 0.0, 0.0011180339887498999, -0.0011755705045849499, 0.00050000000000000001, -0.0012331070204200001, -0.0011755705045849499, 0.00050000000000000001, -0.00067557050458494599, -0.00145964954842536, 0.00050000000000000001, -0.00050000000000000001, -0.00086602540378443902, 0.00050000000000000001, 0.00140211303259031, -0.00061803398874989504, 0.00050000000000000001, 0.00086602540378443902, -0.00050000000000000001, 0.00050000000000000001, 0.001, 0.0, 0.00050000000000000001, 0.00034561537182258202, 0.000269164072574575, 0.00050000000000000001, 0.0, 0.001, 0.00050000000000000001, -0.00050000000000000001, 0.00086602540378443902, 0.00050000000000000001, -0.000269164072574575, 0.00034561537182258202, 0.00050000000000000001, -0.001, 0.0, 0.00050000000000000001, -0.00086602540378443902, -0.00050000000000000001, 0.00050000000000000001, -0.00034561537182258202, -0.000269164072574575, 0.00050000000000000001, 0.0, -0.001, 0.00050000000000000001, 0.00050000000000000001, -0.00086602540378443902, 0.00050000000000000001, 0.000269164072574575, -0.00034561537182258202, 0.00050000000000000001, 0.0015, -6.01853107621011e-36, 0.00050000000000000001, 0.00056049747291484397, -0.00145964954842536, 0.00050000000000000001};
-  const int conn[56]={2, 1, 3, 21, 20, 22, 4, 0, 5, 23, 19, 24, 8, 9, 10, 27, 28, 29, 11, 12, 13, 30, 31, 32, 0, 18, 15, 5, 19, 37, 34, 24, 6, 17, 4, 5, 25, 36, 23, 24, 3, 14, 16, 13, 22, 33, 35, 32, 13, 16, 7, 10, 32, 35, 26, 29};
-  const int connExp[64]={16, 2, 1, 3, 21, 20, 22, 16, 4, 0, 5, 23, 19, 24, 16, 8, 10, 9, 27, 29, 28, 16, 11, 13, 12, 30, 32, 31, 18, 0, 18, 15, 5, 19, 37, 34, 24,18, 6, 17, 4, 5, 25, 36, 23, 24, 18, 3, 13, 16, 14, 22, 32, 35, 33, 18, 13, 10, 7, 16, 32, 29, 26, 35};
-  const int invalidCells[4]={2,3,6,7};
+  const mcIdType conn[56]={2, 1, 3, 21, 20, 22, 4, 0, 5, 23, 19, 24, 8, 9, 10, 27, 28, 29, 11, 12, 13, 30, 31, 32, 0, 18, 15, 5, 19, 37, 34, 24, 6, 17, 4, 5, 25, 36, 23, 24, 3, 14, 16, 13, 22, 33, 35, 32, 13, 16, 7, 10, 32, 35, 26, 29};
+  const mcIdType connExp[64]={16, 2, 1, 3, 21, 20, 22, 16, 4, 0, 5, 23, 19, 24, 16, 8, 10, 9, 27, 29, 28, 16, 11, 13, 12, 30, 32, 31, 18, 0, 18, 15, 5, 19, 37, 34, 24,18, 6, 17, 4, 5, 25, 36, 23, 24, 18, 3, 13, 16, 14, 22, 32, 35, 33, 18, 13, 10, 7, 16, 32, 29, 26, 35};
+  const mcIdType invalidCells[4]={2,3,6,7};
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("Example",3);
   DataArrayDouble *coo=DataArrayDouble::New();
   coo->alloc(38,3);
@@ -1611,7 +1611,7 @@ void MEDCouplingBasicsTest4::testFindAndCorrectBadOriented3DExtrudedCells1()
   m->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+48);
   m->finishInsertingCells();
   //
-  DataArrayInt *v=m->findAndCorrectBadOriented3DExtrudedCells();
+  DataArrayIdType *v=m->findAndCorrectBadOriented3DExtrudedCells();
  CPPUNIT_ASSERT_EQUAL(4,(int)v->getNumberOfTuples());
   CPPUNIT_ASSERT(std::equal(v->begin(),v->end(),invalidCells));
   CPPUNIT_ASSERT(std::equal(connExp,connExp+64,m->getNodalConnectivity()->getConstPointer()));
@@ -1622,7 +1622,7 @@ void MEDCouplingBasicsTest4::testFindAndCorrectBadOriented3DExtrudedCells1()
 
 void MEDCouplingBasicsTest4::testConvertExtrudedPolyhedra1()
 {
-  const int conn[72]={1,2,3,4, 5,6,7,8,9,10,11,12, 13,14,15,16, 17,18,19,20,21,22, 23,24,25,26,27,28, 29,30,31,32,33,34,35,36,37,38, 39,40,41,42,43,44,45,46, 47,48,49,50,51,52,53,54,55,56,57,58, 59,60,61,62,63,64,65,66,67,68,69,70,71,72};
+  const mcIdType conn[72]={1,2,3,4, 5,6,7,8,9,10,11,12, 13,14,15,16, 17,18,19,20,21,22, 23,24,25,26,27,28, 29,30,31,32,33,34,35,36,37,38, 39,40,41,42,43,44,45,46, 47,48,49,50,51,52,53,54,55,56,57,58, 59,60,61,62,63,64,65,66,67,68,69,70,71,72};
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("Example",3);
   DataArrayDouble *coo=DataArrayDouble::New();
   coo->alloc(73,3);
@@ -1642,12 +1642,12 @@ void MEDCouplingBasicsTest4::testConvertExtrudedPolyhedra1()
   m->finishInsertingCells();
   //
   m->convertExtrudedPolyhedra();
-  DataArrayInt *da=m->getNodalConnectivity();
-  DataArrayInt *dai=m->getNodalConnectivityIndex();
-  CPPUNIT_ASSERT_EQUAL((std::size_t)10,dai->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)159,da->getNbOfElems());
+  DataArrayIdType *da=m->getNodalConnectivity();
+  DataArrayIdType *dai=m->getNodalConnectivityIndex();
+  CPPUNIT_ASSERT_EQUAL(ToIdType(10),dai->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(159),da->getNbOfElems());
   //
-  const int expected1[159]={14,1,2,3,4,
+  const mcIdType expected1[159]={14,1,2,3,4,
                             18,5,6,7,8,9,10,11,12,
                             14,13,14,15,16,
                             31,17,18,19,-1,20,22,21,-1,17,20,21,18,-1,18,21,22,19,-1,19,22,20,17,
@@ -1656,7 +1656,7 @@ void MEDCouplingBasicsTest4::testConvertExtrudedPolyhedra1()
                             18,39,40,41,42,43,44,45,46,
                             22,47,48,49,50,51,52,53,54,55,56,57,58,
                             31,59,60,61,62,63,64,65,-1,66,72,71,70,69,68,67,-1,59,66,67,60,-1,60,67,68,61,-1,61,68,69,62,-1,62,69,70,63,-1,63,70,71,64,-1,64,71,72,65,-1,65,72,66,59};
-  const int expected2[10]={0,5,14,19,42,49,86,95,108,159};
+  const mcIdType expected2[10]={0,5,14,19,42,49,86,95,108,159};
   CPPUNIT_ASSERT(std::equal(expected1,expected1+159,da->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+10,dai->getConstPointer()));
   m->checkConsistency();
@@ -1683,14 +1683,14 @@ void MEDCouplingBasicsTest4::testDaDSetPartOfValuesAdv1()
 {
   const double tab1[18]={3.,4.,5., 13.,14.,15., 23.,24.,25., 33.,34.,35., 43.,44.,45., 53.,54.,55.};
   const double tab2[9]={6.,7.,8., 16.,17.,18., 26.,27.,28.};
-  const int tab3[6]={4,1, 2,2, 3,0};
+  const mcIdType tab3[6]={4,1, 2,2, 3,0};
   DataArrayDouble *a=DataArrayDouble::New();
   a->alloc(6,3);
   std::copy(tab1,tab1+18,a->getPointer());
   DataArrayDouble *b=DataArrayDouble::New();
   b->alloc(3,3);
   std::copy(tab2,tab2+9,b->getPointer());
-  DataArrayInt *c=DataArrayInt::New();
+  DataArrayIdType *c=DataArrayIdType::New();
   c->alloc(3,2);
   std::copy(tab3,tab3+6,c->getPointer());
   //
@@ -1715,7 +1715,7 @@ void MEDCouplingBasicsTest4::testUMeshBuildSetInstanceFromThis1()
   //
   m=MEDCouplingUMesh::New("toto",2);
   m2=m->buildSetInstanceFromThis(3);
-  CPPUNIT_ASSERT_EQUAL(0,m2->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(0,(int)m2->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(0,(int)m2->getNumberOfCells());
   m->decrRef();
   m2->decrRef();
@@ -1751,15 +1751,15 @@ void MEDCouplingBasicsTest4::testChangeUnderlyingMeshWithCMesh1()
   coordsZ->decrRef();
   MEDCouplingMesh *mesh2=mesh->deepCopy();
   //
-  static const int ids1[9]={0,1,2,10,11,12,20,21,22};
-  for(const int *myId=ids1;myId!=ids1+9;myId++)
+  static const mcIdType ids1[9]={0,1,2,10,11,12,20,21,22};
+  for(const mcIdType *myId=ids1;myId!=ids1+9;myId++)
     {
       MEDCouplingFieldDouble *f=mesh->getMeasureField(true);
       f->changeUnderlyingMesh(mesh2,*myId,1e-12);
       f->decrRef();
     }
   mesh2->setName("uuuu");
-  for(const int *myId=ids1+1;myId!=ids1+9;myId++)
+  for(const mcIdType *myId=ids1+1;myId!=ids1+9;myId++)
     {
       MEDCouplingFieldDouble *f=mesh->getMeasureField(true);
       f->changeUnderlyingMesh(mesh2,*myId,1e-12);
@@ -1776,23 +1776,23 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   da->alloc(6,1);
   const double array1[6]={2.3,1.2,1.3,2.3,2.301,0.8};
   std::copy(array1,array1+6,da->getPointer());
-  DataArrayInt *c=0,*cI=0;
+  DataArrayIdType *c=0,*cI=0;
   // nbOftuples=1
   da->findCommonTuples(1e-2,-1,c,cI);
-  const int expected1[3]={0,3,4};
-  const int expected2[2]={0,3};
-  CPPUNIT_ASSERT_EQUAL((std::size_t)3,c->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)2,cI->getNbOfElems());
+  const mcIdType expected1[3]={0,3,4};
+  const mcIdType expected2[2]={0,3};
+  CPPUNIT_ASSERT_EQUAL(ToIdType(3),c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(2),cI->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+3,c->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+2,cI->getConstPointer()));
   c->decrRef();
   cI->decrRef();
   //
   da->findCommonTuples(2e-1,-1,c,cI);
-  const int expected3[5]={0,3,4,1,2};
-  const int expected4[3]={0,3,5};
-  CPPUNIT_ASSERT_EQUAL((std::size_t)5,c->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)3,cI->getNbOfElems());
+  const mcIdType expected3[5]={0,3,4,1,2};
+  const mcIdType expected4[3]={0,3,5};
+  CPPUNIT_ASSERT_EQUAL(ToIdType(5),c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(3),cI->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected3,expected3+5,c->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected4,expected4+3,cI->getConstPointer()));
   c->decrRef();
@@ -1802,16 +1802,16 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   const double array2[12]={2.3,2.3,1.2,1.2,1.3,1.3,2.3,2.3,2.301,2.301,0.8,0.8};
   std::copy(array2,array2+12,da->getPointer());
   da->findCommonTuples(1e-2,-1,c,cI);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)3,c->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)2,cI->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(3),c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(2),cI->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+3,c->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+2,cI->getConstPointer()));
   c->decrRef();
   cI->decrRef();
   //
   da->findCommonTuples(2e-1,-1,c,cI);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)5,c->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)3,cI->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(5),c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(3),cI->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected3,expected3+5,c->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected4,expected4+3,cI->getConstPointer()));
   c->decrRef();
@@ -1821,16 +1821,16 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   const double array3[18]={2.3,2.3,2.3,1.2,1.2,1.2,1.3,1.3,1.3,2.3,2.3,2.3,2.301,2.301,2.301,0.8,0.8,0.8};
   std::copy(array3,array3+18,da->getPointer());
   da->findCommonTuples(1e-2,-1,c,cI);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)3,c->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)2,cI->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(3),c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(2),cI->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+3,c->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+2,cI->getConstPointer()));
   c->decrRef();
   cI->decrRef();
   //
   da->findCommonTuples(2e-1,-1,c,cI);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)5,c->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)3,cI->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(5),c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(3),cI->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected3,expected3+5,c->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected4,expected4+3,cI->getConstPointer()));
   c->decrRef();
@@ -1841,9 +1841,9 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   std::copy(array11,array11+6,da->getPointer());
   // nbOftuples=1, no common groups
   da->findCommonTuples(1e-2,-1,c,cI);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)0,c->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)1,cI->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(0,cI->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(ToIdType(0),c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(1),cI->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(0),cI->getIJ(0,0));
   
   da->alloc(6,5);  //bad NumberOfComponents
   CPPUNIT_ASSERT_THROW(da->findCommonTuples(1e-2,-1,c,cI),INTERP_KERNEL::Exception);
@@ -1866,11 +1866,11 @@ void MEDCouplingBasicsTest4::testDABack1()
   CPPUNIT_ASSERT_THROW(da->back(),INTERP_KERNEL::Exception);
   da->decrRef();
   //
-  DataArrayInt *da2=DataArrayInt::New();
+  DataArrayIdType *da2=DataArrayIdType::New();
   da2->alloc(4,1);
-  const int array2[4]={4,7,8,2};
+  const mcIdType array2[4]={4,7,8,2};
   std::copy(array2,array2+4,da2->getPointer());
-  CPPUNIT_ASSERT_EQUAL(2,da2->back());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(2),da2->back());
   da2->rearrange(2);
   CPPUNIT_ASSERT_THROW(da2->back(),INTERP_KERNEL::Exception);
   da2->alloc(0,1);
@@ -1887,14 +1887,14 @@ void MEDCouplingBasicsTest4::testDADGetDifferentValues1()
   //
   const double expected1[4]={2.301,1.2,1.3,0.8};
   DataArrayDouble *dv=da->getDifferentValues(1e-2);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)4,dv->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(4),dv->getNbOfElems());
   for(int i=0;i<4;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],dv->getIJ(i,0),1e-14);
   dv->decrRef();
   //
   dv=da->getDifferentValues(2e-1);
   const double expected2[3]={2.301,1.3,0.8};
-  CPPUNIT_ASSERT_EQUAL((std::size_t)3,dv->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(3),dv->getNbOfElems());
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],dv->getIJ(i,0),1e-14);
   dv->decrRef();
@@ -1903,22 +1903,22 @@ void MEDCouplingBasicsTest4::testDADGetDifferentValues1()
 
 void MEDCouplingBasicsTest4::testDAIBuildOld2NewArrayFromSurjectiveFormat2()
 {
-  const int arr[5]={0,3, 5,7,9};
-  const int arrI[3]={0,2,5};
-  DataArrayInt *a=DataArrayInt::New();
+  const mcIdType arr[5]={0,3, 5,7,9};
+  const mcIdType arrI[3]={0,2,5};
+  DataArrayIdType *a=DataArrayIdType::New();
   a->alloc(5,1);
   std::copy(arr,arr+5,a->getPointer());
-  DataArrayInt *b=DataArrayInt::New();
+  DataArrayIdType *b=DataArrayIdType::New();
   b->alloc(3,1);
   std::copy(arrI,arrI+3,b->getPointer());
-  int newNbTuple=-1;
-  DataArrayInt *ret=DataArrayInt::ConvertIndexArrayToO2N(10,a->begin(),b->begin(),b->end(),newNbTuple);
-  const int expected[10]={0,1,2,0,3,4,5,4,6,4};
-  CPPUNIT_ASSERT_EQUAL((std::size_t)10,ret->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(7,newNbTuple);
- CPPUNIT_ASSERT_EQUAL(1,(int)ret->getNumberOfComponents());
+  mcIdType newNbTuple=-1;
+  DataArrayIdType *ret=DataArrayIdType::ConvertIndexArrayToO2N(10,a->begin(),b->begin(),b->end(),newNbTuple);
+  const mcIdType expected[10]={0,1,2,0,3,4,5,4,6,4};
+  CPPUNIT_ASSERT_EQUAL(ToIdType(10),ret->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(7),newNbTuple);
+  CPPUNIT_ASSERT_EQUAL(1,(int)ret->getNumberOfComponents());
   CPPUNIT_ASSERT(std::equal(expected,expected+10,ret->getConstPointer()));
-  CPPUNIT_ASSERT_THROW(DataArrayInt::ConvertIndexArrayToO2N(9,a->begin(),b->begin(),b->end(),newNbTuple),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(DataArrayIdType::ConvertIndexArrayToO2N(9,a->begin(),b->begin(),b->end(),newNbTuple),INTERP_KERNEL::Exception);
   ret->decrRef();
   b->decrRef();
   a->decrRef();
@@ -1926,11 +1926,11 @@ void MEDCouplingBasicsTest4::testDAIBuildOld2NewArrayFromSurjectiveFormat2()
 
 void MEDCouplingBasicsTest4::testDADIReverse1()
 {
-  const int arr[6]={0,3,5,7,9,2};
-  DataArrayInt *a=DataArrayInt::New();
+  const mcIdType arr[6]={0,3,5,7,9,2};
+  DataArrayIdType *a=DataArrayIdType::New();
   a->alloc(6,1);
   std::copy(arr,arr+6,a->getPointer());
-  CPPUNIT_ASSERT_EQUAL(2,a->back());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(2),a->back());
   a->reverse();
   for(int i=0;i<6;i++)
     CPPUNIT_ASSERT_EQUAL(arr[5-i],a->getIJ(i,0));
@@ -1960,17 +1960,17 @@ void MEDCouplingBasicsTest4::testDADIReverse1()
 void MEDCouplingBasicsTest4::testGetNodeIdsInUse1()
 {
   MEDCouplingUMesh *m0=build2DTargetMesh_1();
-  const int CellIds[2]={1,2};
+  const mcIdType CellIds[2]={1,2};
   MEDCouplingUMesh *m1=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(CellIds,CellIds+2,true));
-  int newNbOfNodes=-1;
-  DataArrayInt *arr=m1->getNodeIdsInUse(newNbOfNodes);
-  const int expected[9]={-1,0,1,-1,2,3,-1,-1,-1};
-  CPPUNIT_ASSERT_EQUAL(4,newNbOfNodes);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)9,arr->getNbOfElems());
+  mcIdType newNbOfNodes=-1;
+  DataArrayIdType *arr=m1->getNodeIdsInUse(newNbOfNodes);
+  const mcIdType expected[9]={-1,0,1,-1,2,3,-1,-1,-1};
+  CPPUNIT_ASSERT_EQUAL(ToIdType(4),newNbOfNodes);
+  CPPUNIT_ASSERT_EQUAL(ToIdType(9),arr->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected,expected+9,arr->getConstPointer()));
-  DataArrayInt *arr2=arr->invertArrayO2N2N2O(newNbOfNodes);
-  CPPUNIT_ASSERT_EQUAL((std::size_t)4,arr2->getNbOfElems());
-  const int expected2[4]={1,2,4,5};
+  DataArrayIdType *arr2=arr->invertArrayO2N2N2O(newNbOfNodes);
+  CPPUNIT_ASSERT_EQUAL(ToIdType(4),arr2->getNbOfElems());
+  const mcIdType expected2[4]={1,2,4,5};
   CPPUNIT_ASSERT(std::equal(expected2,expected2+4,arr2->getConstPointer()));
   arr2->decrRef();
   arr->decrRef();
@@ -1981,32 +1981,32 @@ void MEDCouplingBasicsTest4::testGetNodeIdsInUse1()
 void MEDCouplingBasicsTest4::testBuildDescendingConnec2()
 {
   MEDCouplingUMesh *mesh=build2DTargetMesh_1();
-  DataArrayInt *desc=DataArrayInt::New();
-  DataArrayInt *descIndx=DataArrayInt::New();
-  DataArrayInt *revDesc=DataArrayInt::New();
-  DataArrayInt *revDescIndx=DataArrayInt::New();
+  DataArrayIdType *desc=DataArrayIdType::New();
+  DataArrayIdType *descIndx=DataArrayIdType::New();
+  DataArrayIdType *revDesc=DataArrayIdType::New();
+  DataArrayIdType *revDescIndx=DataArrayIdType::New();
   //
   MEDCouplingUMesh *mesh2=mesh->buildDescendingConnectivity2(desc,descIndx,revDesc,revDescIndx);
   mesh2->checkConsistencyLight();
   CPPUNIT_ASSERT_EQUAL(1,mesh2->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(13,(int)mesh2->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)14,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(14,(int)revDescIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)6,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(6,(int)descIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)18,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,(int)desc->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL((std::size_t)18,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,(int)revDesc->getNumberOfTuples());
-  const int expected1[18]={1,2,3,4,-3,5,6, 7,8,-5,9,10,-2,11, 12,13,-7,-10};
+  CPPUNIT_ASSERT_EQUAL(ToIdType(14),revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(14,(int)revDescIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(6),descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(6,(int)descIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(18),desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,(int)desc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(ToIdType(18),revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,(int)revDesc->getNumberOfTuples());
+  const mcIdType expected1[18]={1,2,3,4,-3,5,6, 7,8,-5,9,10,-2,11, 12,13,-7,-10};
   CPPUNIT_ASSERT(std::equal(expected1,expected1+18,desc->getConstPointer()));
-  const int expected2[6]={0,4,7,10,14,18};
+  const mcIdType expected2[6]={0,4,7,10,14,18};
   CPPUNIT_ASSERT(std::equal(expected2,expected2+6,descIndx->getConstPointer()));
-  const int expected3[14]={0,1,3,5,6,8,9,11,12,13,15,16,17,18};
+  const mcIdType expected3[14]={0,1,3,5,6,8,9,11,12,13,15,16,17,18};
   CPPUNIT_ASSERT(std::equal(expected3,expected3+14,revDescIndx->getConstPointer()));
-  const int expected4[18]={0, 0,3, 0,1, 0, 1,2, 1, 2,4, 2, 3, 3,4, 3, 4, 4};
+  const mcIdType expected4[18]={0, 0,3, 0,1, 0, 1,2, 1, 2,4, 2, 3, 3,4, 3, 4, 4};
   CPPUNIT_ASSERT(std::equal(expected4,expected4+18,revDesc->getConstPointer()));
-  DataArrayInt *conn=mesh2->getNodalConnectivity();
-  DataArrayInt *connIndex=mesh2->getNodalConnectivityIndex();
-  const int expected5[14]={0,3,6,9,12,15,18,21,24,27,30,33,36,39};
+  DataArrayIdType *conn=mesh2->getNodalConnectivity();
+  DataArrayIdType *connIndex=mesh2->getNodalConnectivityIndex();
+  const mcIdType expected5[14]={0,3,6,9,12,15,18,21,24,27,30,33,36,39};
   CPPUNIT_ASSERT(std::equal(expected5,expected5+14,connIndex->getConstPointer()));
-  const int expected6[39]={1, 0, 3, 1, 3, 4, 1, 4, 1, 1, 1, 0, 1, 4, 2, 1, 2, 1, 1, 4, 5, 1, 5, 2, 1, 6, 7, 1, 7, 4, 1, 3, 6, 1, 7, 8, 1, 8, 5};
+  const mcIdType expected6[39]={1, 0, 3, 1, 3, 4, 1, 4, 1, 1, 1, 0, 1, 4, 2, 1, 2, 1, 1, 4, 5, 1, 5, 2, 1, 6, 7, 1, 7, 4, 1, 3, 6, 1, 7, 8, 1, 8, 5};
   CPPUNIT_ASSERT(std::equal(expected6,expected6+39,conn->getConstPointer()));
   //
   desc->decrRef();
@@ -2031,27 +2031,27 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp1()
   std::copy(arrY,arrY+4,coordY->getPointer());
   m1c->setCoordsAt(1,coordY);
   MEDCouplingUMesh *m1=m1c->buildUnstructured();
-  const int subPart1[3]={3,4,5};
+  const mcIdType subPart1[3]={3,4,5};
   MEDCouplingUMesh *m1bis=static_cast<MEDCouplingUMesh *>(m1->buildPartOfMySelf(subPart1,subPart1+3,false));
   MEDCouplingUMesh *m2tmp=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
-  const int subPart2[3]={0,1,2};
+  const mcIdType subPart2[3]={0,1,2};
   MEDCouplingUMesh *m2=static_cast<MEDCouplingUMesh *>(m2tmp->buildPartOfMySelf(subPart2,subPart2+3,false));
   const double vec[2]={0.5,0.5};
   m2->translate(vec);
   // End of construction of input meshes m1bis and m2 -> start of specific part of the test
-  DataArrayInt *d1=0,*d2=0;
+  DataArrayIdType *d1=0,*d2=0;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1bis,m2,1e-10,d1,d2);
-  const int expected1[8]={0,0,1,1,1,2,2,2};
-  const int expected2[8]={0,-1,0,1,-1,1,2,-1};
+  const mcIdType expected1[8]={0,0,1,1,1,2,2,2};
+  const mcIdType expected2[8]={0,-1,0,1,-1,1,2,-1};
  CPPUNIT_ASSERT_EQUAL(8,(int)d1->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(8,(int)d2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(8,(int)m3->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(22,m3->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(22,(int)m3->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,m3->getSpaceDimension());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+8,d1->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+8,d2->getConstPointer()));
-  const int expected3[44]={5,17,1,16,12,5,16,0,4,5,17,12,5,18,1,17,13,5,19,2,18,13,5,17,5,6,19,13,5,20,2,19,14,5,21,3,20,14,5,19,6,7,21,14};
-  const int expected4[9]={0,5,12,17,22,28,33,38,44};
+  const mcIdType expected3[44]={5,17,1,16,12,5,16,0,4,5,17,12,5,18,1,17,13,5,19,2,18,13,5,17,5,6,19,13,5,20,2,19,14,5,21,3,20,14,5,19,6,7,21,14};
+  const mcIdType expected4[9]={0,5,12,17,22,28,33,38,44};
   const double expected5[44]={-1.0,2.0,1.0,2.0,2.0,2.0,4.0,2.0,-1.0,4.0,1.0,4.0,2.0,4.0,4.0,4.0,-0.5,-1.5,1.5,-1.5,2.5,-1.5,4.5,-1.5,-0.5,2.5,1.5,2.5,2.5,2.5,4.5,2.5,-0.5,2.0,1.0,2.5,1.5,2.0,2.0,2.5,2.5,2.0,4.0,2.5};
   CPPUNIT_ASSERT_EQUAL(44,(int)m3->getNodalConnectivity()->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(9,(int)m3->getNodalConnectivityIndex()->getNumberOfTuples());
@@ -2081,8 +2081,8 @@ void MEDCouplingBasicsTest4::testFindNodesOnLine1()
   const double vec[2]={0.,1.};
   const double vec2[3]={1.,0.,0.};
   const double vec3[3]={0.,1.,1.};
-  const int expected1[3]={0,3,6};
-  std::vector<int> res;
+  const mcIdType expected1[3]={0,3,6};
+  std::vector<mcIdType> res;
   mesh->findNodesOnLine(pt,vec,1e-12,res);
   CPPUNIT_ASSERT_EQUAL(3,(int)res.size());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+3,res.begin()));
@@ -2125,19 +2125,19 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp2()
   m2c->setCoordsAt(1,coordsY2);
   MEDCouplingUMesh *m2=m2c->buildUnstructured();
   //
-  DataArrayInt *d1=0,*d2=0;
+  DataArrayIdType *d1=0,*d2=0;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1,m2,1e-10,d1,d2);
-  const int expected1[9]={0,0,1,1,2,2,3,4,5};
-  const int expected2[9]={0,2,1,3,1,3,2,3,3};
+  const mcIdType expected1[9]={0,0,1,1,2,2,3,4,5};
+  const mcIdType expected2[9]={0,2,1,3,1,3,2,3,3};
  CPPUNIT_ASSERT_EQUAL(9,(int)d1->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(9,(int)d2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(9,(int)m3->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(22,m3->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(22,(int)m3->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,m3->getSpaceDimension());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+9,d1->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+9,d2->getConstPointer()));
-  const int expected3[45]={5,16,13,12,15,5,15,4,5,16,5,21,2,13,16,5,16,5,6,21,5,17,14,2,21,5,21,6,7,17,5,4,18,19,5,5,5,19,10,6,5,6,10,20,7};
-  const int expected4[10]={0,5,10,15,20,25,30,35,40,45};
+  const mcIdType expected3[45]={5,16,13,12,15,5,15,4,5,16,5,21,2,13,16,5,16,5,6,21,5,17,14,2,21,5,21,6,7,17,5,4,18,19,5,5,5,19,10,6,5,6,10,20,7};
+  const mcIdType expected4[10]={0,5,10,15,20,25,30,35,40,45};
   const double expected5[44]={0.0,0.0,1.0,0.0,1.5,0.0,2.0,0.0,0.0,1.5,1.0,1.5,1.5,1.5,2.0,1.5,0.0,3.0,1.0,3.0,1.5,3.0,2.0,3.0,0.0,0.0,1.0,0.0,2.0,0.0,0.0,1.0,1.0,1.0,2.0,1.0,0.0,3.0,1.0,3.0,2.0,3.0,1.5,1.0};
   CPPUNIT_ASSERT_EQUAL(45,(int)m3->getNodalConnectivity()->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(10,(int)m3->getNodalConnectivityIndex()->getNumberOfTuples());
@@ -2162,8 +2162,8 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp2()
 void MEDCouplingBasicsTest4::testBuildPartOfMySelfSafe1()
 {
   MEDCouplingUMesh *mesh=build2DTargetMesh_1();
-  const int input1[4]={0,-1,4,2};
-  const int input2[4]={0,4,5,4};
+  const mcIdType input1[4]={0,-1,4,2};
+  const mcIdType input2[4]={0,4,5,4};
   CPPUNIT_ASSERT_THROW(mesh->buildPartOfMySelf(input1,input1+4,true),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(mesh->buildPartOfMySelf(input2,input2+4,true),INTERP_KERNEL::Exception);
   mesh->decrRef();
@@ -2172,7 +2172,7 @@ void MEDCouplingBasicsTest4::testBuildPartOfMySelfSafe1()
 void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp3()
 {
   double m1Coords[50]={0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214};
-  int m1Conn[56]={0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23};
+  mcIdType m1Conn[56]={0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23};
   MEDCouplingUMesh *m1=MEDCouplingUMesh::New();
   m1->setMeshDimension(2);
   m1->allocateCells(8);
@@ -2192,7 +2192,7 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp3()
   myCoords1->decrRef();
   //
   double m2Coords[30]={0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1,-1.1,-1.,0.,-1.,1.1,-1,1.7,-1.};
-  int m2Conn[32]={0,3,2,1, 1,2,5,4, 7,6,3,0, 8,9,6,7, 7,0,12,11, 8,7,11,10, 0,1,13,12, 1,4,14,13};
+  mcIdType m2Conn[32]={0,3,2,1, 1,2,5,4, 7,6,3,0, 8,9,6,7, 7,0,12,11, 8,7,11,10, 0,1,13,12, 1,4,14,13};
   MEDCouplingUMesh *m2=MEDCouplingUMesh::New();
   m2->setMeshDimension(2);
   m2->allocateCells(8);
@@ -2205,20 +2205,20 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp3()
   m2->setCoords(myCoords2);
   myCoords2->decrRef();
   //
-  DataArrayInt *d1=0,*d2=0;
+  DataArrayIdType *d1=0,*d2=0;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1,m2,1e-10,d1,d2);
   m3->unPolyze();
-  const int expected1[16]={0,1,1,1,2,3,3,3,4,5,5,5,6,7,7,7};
-  const int expected2[16]={0,0,1,-1,2,2,3,-1,4,4,5,-1,6,6,7,-1};
- CPPUNIT_ASSERT_EQUAL(16,(int)d1->getNumberOfTuples());
- CPPUNIT_ASSERT_EQUAL(16,(int)d2->getNumberOfTuples());
+  const mcIdType expected1[16]={0,1,1,1,2,3,3,3,4,5,5,5,6,7,7,7};
+  const mcIdType expected2[16]={0,0,1,-1,2,2,3,-1,4,4,5,-1,6,6,7,-1};
+  CPPUNIT_ASSERT_EQUAL(16,(int)d1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(16,(int)d2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(16,(int)m3->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(104,m3->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(104,(int)m3->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,m3->getSpaceDimension());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+16,d1->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+16,d2->getConstPointer()));
-  const int expected3[136]={6,28,1,25,44,45,46,8,26,1,28,27,47,48,49,50,8,40,2,26,27,51,52,53,54,8,28,4,40,27,55,56,57,58,6,28,25,5,59,60,61,8,28,5,32,31,62,63,64,65,8,32,6,41,31,66,67,68,69,8,41,4,28,31,70,71,72,73,6,25,37,5,74,75,76,8,32,5,37,36,77,78,79,80,8,42,6,32,36,81,82,83,84,8,37,8,42,36,85,86,87,88,6,1,37,25,89,90,91,8,37,1,26,38,92,93,94,95,8,26,2,43,38,96,97,98,99,8,43,8,37,38,100,101,102,103};
-  const int expected4[17]={0,7,16,25,34,41,50,59,68,75,84,93,102,109,118,127,136};
+  const mcIdType expected3[136]={6,28,1,25,44,45,46,8,26,1,28,27,47,48,49,50,8,40,2,26,27,51,52,53,54,8,28,4,40,27,55,56,57,58,6,28,25,5,59,60,61,8,28,5,32,31,62,63,64,65,8,32,6,41,31,66,67,68,69,8,41,4,28,31,70,71,72,73,6,25,37,5,74,75,76,8,32,5,37,36,77,78,79,80,8,42,6,32,36,81,82,83,84,8,37,8,42,36,85,86,87,88,6,1,37,25,89,90,91,8,37,1,26,38,92,93,94,95,8,26,2,43,38,96,97,98,99,8,43,8,37,38,100,101,102,103};
+  const mcIdType expected4[17]={0,7,16,25,34,41,50,59,68,75,84,93,102,109,118,127,136};
   const double expected5[208]={0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1.,0.,-1.5,0.5,0.,1.25,0.,0.7071067811865476,0.7071067811865476,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.7071067811865476,0.7071067811865476,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.7071067811865476,-0.7071067811865476,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.7071067811865476,-0.7071067811865476,1.0606601717798214,-1.0606601717798214,0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1.,-1.1,-1.,0.,-1.,1.1,-1.,1.7,-1.,1.118033988749895,1.,-1.118033988749895,1.,-1.118033988749895,-1.,1.118033988749895,-1.,0.7071067811865477,0.7071067811865476,0.5,0.,0.,0.5,1.05,0.,0.7071067811865475,0.7071067811865477,0.55,1.,1.1,0.5,1.4012585384440737,0.535233134659635,1.3,0.,1.1,0.5,1.1090169943749475,1.,0.,1.25,0.6123724356957946,1.369306393762915,1.1090169943749475,1.,0.55,1.,0.,0.5,-0.5,0.,-0.7071067811865477,0.7071067811865476,-0.7071067811865475,0.7071067811865477,-1.05,0.,-1.1,0.5,-0.55,1.,-1.3,0.,-1.4012585384440737,0.5352331346596344,-1.1090169943749475,1.,-1.1,0.5,-0.6123724356957941,1.3693063937629155,0.,1.25,-0.55,1.,-1.1090169943749475,1.,0.,-0.5,-0.7071067811865475,-0.7071067811865477,-0.5,0.,-1.05,0.,-0.7071067811865478,-0.7071067811865475,-0.55,-1.,-1.1,-0.5,-1.4012585384440734,-0.5352331346596354,-1.3,0.,-1.1,-0.5,-1.1090169943749475,-1.,0.,-1.25,-0.6123724356957945,-1.369306393762915,-1.1090169943749475,-1.,-0.55,-1.,0.7071067811865475,-0.7071067811865477,0.,-0.5,0.5,0.,0.7071067811865477,-0.7071067811865475,1.05,0.,1.1,-0.5,0.55,-1.,1.3,0.,1.4012585384440737,-0.535233134659635,1.1090169943749475,-1.,1.1,-0.5,0.6123724356957946,-1.369306393762915,0.,-1.25,0.55,-1.,1.1090169943749475,-1.0};
   CPPUNIT_ASSERT_EQUAL(136,(int)m3->getNodalConnectivity()->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(17,(int)m3->getNodalConnectivityIndex()->getNumberOfTuples());

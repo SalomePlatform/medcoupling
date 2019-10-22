@@ -39,7 +39,7 @@ namespace MEDCoupling
   class MEDFileData;
   class MEDFileMesh;
   class MEDFileFieldMultiTS;
-  class DataArrayInt;
+  class DataArrayIdType;
 
   /*!
    * \brief Class to write a MEDFileData into a SAUVE format file
@@ -62,7 +62,7 @@ namespace MEDCoupling
      */
     struct SubMesh
     {
-      std::vector<int>      _cellIDsByType[ INTERP_KERNEL::NORM_MAXTYPE+1 ];
+      std::vector<mcIdType> _cellIDsByType[ INTERP_KERNEL::NORM_MAXTYPE+1 ];
       std::vector<SubMesh*> _subs;
       std::string           _name;
       int                   _id;
@@ -83,7 +83,7 @@ namespace MEDCoupling
                        std::map<std::string, std::string>& compMedToGibi );
     void makeProfileIDs( SubMesh*                          sm,
                          INTERP_KERNEL::NormalizedCellType type,
-                         const DataArrayInt*               profile );
+                         const DataArrayIdType*            profile );
     void writeFileHead();
     void writeSubMeshes();
     void writeCompoundSubMesh(int iSub);
@@ -103,7 +103,7 @@ namespace MEDCoupling
     std::vector< MCAuto< MEDFileFieldMultiTS > > _cellFields;
 
     std::vector<SubMesh>                      _subs;
-    std::map< int, SubMesh* >                 _famIDs2Sub;
+    std::map< mcIdType, SubMesh* >            _famIDs2Sub;
     std::map< std::string, SubMesh* >         _profile2Sub;
     enum
       {

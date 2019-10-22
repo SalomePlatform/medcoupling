@@ -617,7 +617,7 @@ namespace INTERP_KERNEL
         getCorners( corners, &cornerBox->_minmax[0] );
 
         double globCorner[3];
-        for ( int iC = 0, nC = corners.size()/_dim; iC < nC; ++iC)
+        for ( std::size_t iC = 0, nC = corners.size()/_dim; iC < nC; ++iC)
           {
             cornerBox->fromLocalCS( &corners[iC*_dim], globCorner );
             mmBox.addPointToBox( globCorner );
@@ -649,7 +649,7 @@ namespace INTERP_KERNEL
       getCorners( cornersOther, box );
       DirectedBoundingBox mmBox((double*)0,0,_dim); //!< empty box with CS == this->_axes
       mmBox._axes = this->_axes;
-      for ( int iC = 0, nC = cornersOther.size()/_dim; iC < nC; ++iC)
+      for ( std::size_t iC = 0, nC = cornersOther.size()/_dim; iC < nC; ++iC)
         mmBox.addPointToBox( &cornersOther[iC*_dim] );
 
       if ( isMinMaxOut( &mmBox._minmax[0], &this->_minmax[0], _dim ))
@@ -662,7 +662,7 @@ namespace INTERP_KERNEL
       getCorners( cornersThis, &_minmax[0] );
       DirectedBoundingBox mmBox((double*)0,0,_dim); //!< initailized _minmax
       double globCorner[3];
-      for ( int iC = 0, nC = cornersThis.size()/_dim; iC < nC; ++iC)
+      for ( std::size_t iC = 0, nC = cornersThis.size()/_dim; iC < nC; ++iC)
         {
           fromLocalCS( &cornersThis[iC*_dim], globCorner );
           for ( int i = 0; i < (int)_dim; ++i )

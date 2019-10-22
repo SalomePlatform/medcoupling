@@ -34,13 +34,13 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix, class ConcreteP1P0Intersector>
-  int PlanarIntersectorP1P0<MyMeshType,MyMatrix,ConcreteP1P0Intersector>::getNumberOfRowsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP1P0<MyMeshType,MyMatrix,ConcreteP1P0Intersector>::getNumberOfRowsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfElements();
   }
 
   template<class MyMeshType, class MyMatrix, class ConcreteP1P0Intersector>
-  int PlanarIntersectorP1P0<MyMeshType,MyMatrix,ConcreteP1P0Intersector>::getNumberOfColsOfResMatrix() const
+  typename MyMeshType::MyConnType PlanarIntersectorP1P0<MyMeshType,MyMatrix,ConcreteP1P0Intersector>::getNumberOfColsOfResMatrix() const
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfNodes();
   }
@@ -61,15 +61,15 @@ namespace INTERP_KERNEL
     typename MyMatrix::value_type& resRow=res[icellT];
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
       {
-        int iS=*iter;
-        int nbNodesS=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS];
+        ConnType iS=*iter;
+        ConnType nbNodesS=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS];
         const ConnType *startOfCellNodeConn=PlanarIntersector<MyMeshType,MyMatrix>::_connectS+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS]);
-        for(int nodeIdS=0;nodeIdS<nbNodesS;nodeIdS++)
+        for(ConnType nodeIdS=0;nodeIdS<nbNodesS;nodeIdS++)
           {
             ConnType curNodeSInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[nodeIdS]);
             std::copy(PlanarIntersector<MyMeshType,MyMatrix>::_coordsS+curNodeSInCmode*SPACEDIM,
                       PlanarIntersector<MyMeshType,MyMatrix>::_coordsS+curNodeSInCmode*SPACEDIM+SPACEDIM,triangle);
-            for(int subTriS=1;subTriS<=nbNodesS-2;subTriS++)
+            for(ConnType subTriS=1;subTriS<=nbNodesS-2;subTriS++)
               {
                 std::copy(PlanarIntersector<MyMeshType,MyMatrix>::_coordsS+OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[(nodeIdS+subTriS)%nbNodesS])*SPACEDIM,
                           PlanarIntersector<MyMeshType,MyMatrix>::_coordsS+OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[(nodeIdS+subTriS)%nbNodesS])*SPACEDIM+SPACEDIM,
@@ -80,7 +80,7 @@ namespace INTERP_KERNEL
                 fillDualCellOfTri<SPACEDIM>(triangle,quadrangle);
                 std::vector<double> targetCellCoordsTmp(targetCellCoords);
                 if(SPACEDIM==3)
-                  orientation=PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&targetCellCoordsTmp[0],quadrangle,targetCellCoords.size()/SPACEDIM,4);
+                  orientation=PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&targetCellCoordsTmp[0],quadrangle,ToConnType(targetCellCoords.size())/SPACEDIM,4);
                 double surf=orientation*intersectGeometryWithQuadrangle(quadrangle,targetCellCoordsTmp,isTargetQuad);
                 surf=PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(surf);
                 if(surf!=0.)
