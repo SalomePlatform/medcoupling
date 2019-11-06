@@ -31,7 +31,7 @@ using namespace std;
 namespace MEDCoupling
 {
   
-  ParaGRID::ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception) :
+  ParaGRID::ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) : 
     _global_axis(), _my_domain_id(0)
   {
     _block_topology = dynamic_cast<BlockTopology*>(topology);

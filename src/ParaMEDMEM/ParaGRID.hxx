@@ -37,7 +37,7 @@ namespace MEDCoupling
   class ParaGRID
   {
   public:
-    ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception);
+    ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology); 
     BlockTopology * getBlockTopology() const { return _block_topology; }
     virtual ~ParaGRID();
     MEDCouplingCMesh* getGrid() const { return _grid; }

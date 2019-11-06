@@ -71,7 +71,7 @@ namespace MEDCoupling
     bool isInTargetSide() const;
     bool isInUnion() const;
   protected:
-    void compareFieldAndMethod() const throw(INTERP_KERNEL::Exception);
+    void compareFieldAndMethod() const;
     void cleanInstance();
     void copyInstance(const DisjointDEC& other);
     void checkPartitionGroup() const;

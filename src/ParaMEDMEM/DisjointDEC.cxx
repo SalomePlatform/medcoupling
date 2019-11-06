@@ -373,7 +373,7 @@ namespace MEDCoupling
     return _union_group->containsMyRank();
   }
 
-  void DisjointDEC::compareFieldAndMethod() const throw(INTERP_KERNEL::Exception)
+  void DisjointDEC::compareFieldAndMethod() const
   {
     if (_local_field)
       {
