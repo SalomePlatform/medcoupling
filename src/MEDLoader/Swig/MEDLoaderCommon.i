@@ -405,6 +405,11 @@ namespace MEDCoupling
     return ret;
   }
 
+  int MEDFileSizeOfMedInt()
+  {
+    return 8*sizeof(med_int);
+  }
+
   MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName));
