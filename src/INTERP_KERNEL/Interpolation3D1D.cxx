@@ -30,11 +30,9 @@ namespace INTERP_KERNEL
    * 
    */
 
-  Interpolation3D1D::Interpolation3D1D()
-  {}
+  Interpolation3D1D::Interpolation3D1D() { }
 
-  Interpolation3D1D::Interpolation3D1D(const InterpolationOptions& io):Interpolation<Interpolation3D1D>(io)
-  {}
+  Interpolation3D1D::Interpolation3D1D(const InterpolationOptions& io):Interpolation<Interpolation3D1D>(io) { }
 
   /**
    * Inspired from PlanarIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes

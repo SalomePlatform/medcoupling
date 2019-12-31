@@ -38,19 +38,18 @@ namespace INTERP_KERNEL
   BoundingBox::BoundingBox(const double** pts, const unsigned numPts)
     :_coords(new double[6])
   {
-    assert(numPts > 1);     
+    assert(numPts > 0);     
 
     // initialize with first two points
-    const double* pt1 = pts[0];
-    const double* pt2 = pts[1];
+    const double *pt0(pts[0]);
 
     for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
       {
-        _coords[c] = std::min(pt1[c], pt2[c]);
-        _coords[c + 3] = std::max(pt1[c], pt2[c]);
+        _coords[c] = pt0[c];
+        _coords[c + 3] = pt0[c];
       }
 
-    for(unsigned i = 2 ; i < numPts ; ++i)
+    for(unsigned i = 1 ; i < numPts ; ++i)
       {
         updateWithPoint(pts[i]);
       }
@@ -84,7 +83,7 @@ namespace INTERP_KERNEL
    */
   BoundingBox::~BoundingBox()
   {
-    delete[] _coords;
+    delete [] _coords;
   }
 
   /**

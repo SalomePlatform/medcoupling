@@ -16,10 +16,9 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
-#ifndef __INTERPOLATION3D1D_TXX__
-#define __INTERPOLATION3D1D_TXX__
+#pragma once
 
 #include "Interpolation3D1D.hxx"
 #include "Interpolation.txx"
@@ -32,6 +31,8 @@
 
 #include "BBTree.txx"
 
+#include <memory>
+
 namespace INTERP_KERNEL
 {
   /**
@@ -42,7 +43,7 @@ namespace INTERP_KERNEL
   typename MyMeshType::MyConnType Interpolation3D1D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method)
   {
     if(InterpolationOptions::getIntersectionType() != PointLocator)
-      INTERP_KERNEL::Exception("Invalid 3D/1D intersection type specified : must be PointLocator.");
+      INTERP_KERNEL::Exception("Invalid 3D/1D-0D intersection type specified : must be PointLocator.");
 
     typedef typename MyMeshType::MyConnType ConnType;
     // create MeshElement objects corresponding to each element of the two meshes
@@ -51,30 +52,30 @@ namespace INTERP_KERNEL
 
     LOG(2, "Source mesh has " << numSrcElems << " elements and target mesh has " << numTargetElems << " elements ");
 
-    std::vector<MeshElement<ConnType>*> srcElems(numSrcElems);
-    std::vector<MeshElement<ConnType>*> targetElems(numTargetElems);
+    std::vector< std::unique_ptr< MeshElement<ConnType> > > srcElems(numSrcElems);
+    std::vector< std::unique_ptr< MeshElement<ConnType> > > targetElems(numTargetElems);
 
     std::map<MeshElement<ConnType>*, ConnType> indices;
 
     for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      srcElems[i] = new MeshElement<ConnType>(i, srcMesh);       
+      srcElems[i].reset( new MeshElement<ConnType>(i, srcMesh) );
 
     for(ConnType i = 0 ; i < numTargetElems ; ++i)
-      targetElems[i] = new MeshElement<ConnType>(i, targetMesh);
+      targetElems[i].reset( new MeshElement<ConnType>(i, targetMesh) );
 
-    Intersector3D<MyMeshType,MatrixType>* intersector=0;
+    std::unique_ptr< Intersector3D<MyMeshType,MatrixType> > intersector;
     std::string methC = InterpolationOptions::filterInterpolationMethod(method);
     if(methC=="P0P0")
-      { intersector=new PointLocator3DIntersectorP0P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+      { intersector.reset( new PointLocator3DIntersectorP0P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision()) );
       }
     else if(methC=="P0P1")
-      {  intersector=new PointLocator3DIntersectorP0P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+      {  intersector.reset( new PointLocator3DIntersectorP0P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision()) );
       }
     else if(methC=="P1P0")
-      {  intersector=new PointLocator3DIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+      {  intersector.reset( new PointLocator3DIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision()) );
       }
     else if(methC=="P1P1")
-      {  intersector=new PointLocator3DIntersectorP1P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+      {  intersector.reset( new PointLocator3DIntersectorP1P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision()) );
       }
     else
       throw Exception("Invalid method chosen must be in \"P0P0\", \"P0P1\", \"P1P0\" or \"P1P1\".");
@@ -84,7 +85,7 @@ namespace INTERP_KERNEL
     // create BBTree structure
     // - get bounding boxes
     std::vector<double> bboxes(6*numSrcElems);
-    ConnType* srcElemIdx = new ConnType[numSrcElems];
+    std::unique_ptr<ConnType[]> srcElemIdx{ new ConnType[numSrcElems] };
     for(ConnType i = 0; i < numSrcElems ; ++i)
       {
         // get source bboxes in right order
@@ -100,10 +101,10 @@ namespace INTERP_KERNEL
       }
 
     adjustBoundingBoxes(bboxes);
-    const double *bboxPtr=0;
+    const double *bboxPtr = nullptr;
     if(numSrcElems>0)
-      bboxPtr=&bboxes[0];
-    BBTree<3,ConnType> tree(bboxPtr, srcElemIdx, 0, numSrcElems);
+      bboxPtr=bboxes.data();
+    BBTree<3,ConnType> tree(bboxPtr, srcElemIdx.get(), 0, numSrcElems);
 
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
@@ -128,25 +129,6 @@ namespace INTERP_KERNEL
         if ( !intersectElems.empty() )
           intersector->intersectCells(targetIdx,intersectElems,result);
       }
-
-    // free allocated memory
-    delete [] srcElemIdx;
-
-    ConnType ret=intersector->getNumberOfColsOfResMatrix();
-
-    delete intersector;
-
-    for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      {
-        delete srcElems[i];
-      }
-    for(ConnType i = 0 ; i < numTargetElems ; ++i)
-      {
-        delete targetElems[i];
-      }
-    return ret;
-
+    return intersector->getNumberOfColsOfResMatrix();
   }
 }
-
-#endif

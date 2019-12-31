@@ -464,6 +464,15 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       INTERP_KERNEL::Interpolation3D1D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
+  else if(srcMeshDim==3 && trgMeshDim==0 && srcSpaceDim==3)
+    {
+      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
+        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 0D ! Select PointLocator as intersection type !");
+      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation3D1D interpolation(*this);//Not a bug : 3D1D deal with 3D0D
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
   else if(srcMeshDim==1 && trgMeshDim==0 && srcSpaceDim==3)
     {
       if(getIntersectionType()!=INTERP_KERNEL::PointLocator)

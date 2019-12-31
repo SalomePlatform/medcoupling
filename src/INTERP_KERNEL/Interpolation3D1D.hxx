@@ -18,8 +18,7 @@
 //
 // Author : A Bruneton (CEA/DEN)
 
-#ifndef __INTERPOLATION3D1D_HXX__
-#define __INTERPOLATION3D1D_HXX__
+#pragma once
 
 #include "INTERPKERNELDefines.hxx"
 #include "Interpolation.hxx"
@@ -42,4 +41,3 @@ namespace INTERP_KERNEL
   };
 }
 
-#endif

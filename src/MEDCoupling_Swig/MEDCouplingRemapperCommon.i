@@ -26,6 +26,7 @@
 
 %{
 #include "MEDCouplingRemapper.hxx"
+#include <memory>
 %}
 
 %include "InterpolationOptions.hxx"
@@ -77,7 +78,10 @@ namespace MEDCoupling
                  const std::map<mcIdType,double>& row=m[i];
                  PyObject *ret0=PyDict_New();
                  for(std::map<mcIdType,double>::const_iterator it=row.begin();it!=row.end();it++)
-                   PyDict_SetItem(ret0,PyInt_FromLong((*it).first),PyFloat_FromDouble((*it).second));
+                   {
+                     std::unique_ptr<PyObject,std::function<void(PyObject*)>> k(PyInt_FromLong((*it).first),[](PyObject *obj) { Py_XDECREF(obj); } ),v(PyFloat_FromDouble((*it).second),[](PyObject *obj) { Py_XDECREF(obj); } );
+                     PyDict_SetItem(ret0,k.get(),v.get());
+                   }
                  PyList_SetItem(ret,i,ret0);
                }
              return ret;

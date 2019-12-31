@@ -1302,6 +1302,41 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(abs(res-ref)/ref<1e-12)
         pass
 
+    def test3D0DP1P1(self):
+        """
+        For pointlocator fans, Remapper support following intersection
+        IntersectionType == PointLocator
+        - source == 3D
+        - target == 0D
+        """
+        src = MEDCouplingUMesh("src",3)
+        src.allocateCells()
+        src.setCoords( DataArrayDouble([(0,0,0),(1,0,0),(0,1,0),(0,0,1)]) )
+        src.insertNextCell(NORM_TETRA4,[0,1,2,3])
+        trg = MEDCouplingUMesh.Build0DMeshFromCoords( DataArrayDouble([(0.4,0.3,0.07)]) )
+        # P1P1
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P1P1")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.23,1:0.4,2:0.3,3:0.07}],src.getNumberOfNodes(),1e-12)
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.23,1:0.4,2:0.3,3:0.07}],src.getNumberOfNodes(),1e-12)
+        # P1P0
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P1P0")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.23,1:0.4,2:0.3,3:0.07}],src.getNumberOfNodes(),1e-12)
+        # P0P1
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P0P1")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:1.0}],src.getNumberOfCells(),1e-12)
+        # P0P0
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P0P0")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:1.0}],src.getNumberOfCells(),1e-12)
+        pass
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):
