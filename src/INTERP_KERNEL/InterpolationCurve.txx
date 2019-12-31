@@ -27,9 +27,9 @@
 #include "CurveIntersectorP0P1.txx"
 #include "CurveIntersectorP1P1.txx"
 #include "CurveIntersectorP1P1PL.txx"
-#include "BBTree.txx"
 
 #include <time.h>
+#include <memory>
 
 namespace INTERP_KERNEL
 {
@@ -73,10 +73,14 @@ namespace INTERP_KERNEL
       */
   template<class RealCurve>
   template<class MyMeshType, class MatrixType>
-  typename MyMeshType::MyConnType InterpolationCurve<RealCurve>::interpolateMeshes (const MyMeshType&  myMeshS,
-                                                        const MyMeshType&  myMeshT,
-                                                        MatrixType&        result,
-                                                        const std::string& method)
+  typename MyMeshType::MyConnType InterpolationCurve<RealCurve>::interpolateMeshesInternal (const MyMeshType&  myMeshS,
+                                                                                            const MyMeshType&  myMeshT,
+                                                                                            MatrixType&        result,
+                                                                                            const std::string& method,
+                                                                                            std::function< void(const BBTree< MyMeshType::MY_SPACEDIM ,
+                                                                                                                typename MyMeshType::MyConnType>&, const double*,
+                                                                                                                std::vector<typename MyMeshType::MyConnType>&) > bbtreeMethod
+                                                                                            )
   {
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     typedef typename MyMeshType::MyConnType ConnType;
@@ -88,18 +92,18 @@ namespace INTERP_KERNEL
     ConnType nbMailleS = myMeshS.getNumberOfElements();
     ConnType nbMailleT = myMeshT.getNumberOfElements();
     
-    CurveIntersector<MyMeshType,MatrixType>* intersector=0;
+    std::unique_ptr< CurveIntersector<MyMeshType,MatrixType> > intersector;
     if(method=="P0P0")
       {
         switch (InterpolationOptions::getIntersectionType())
           {
             case Triangulation:
               {
-                intersector = new CurveIntersectorP0P0<MyMeshType,MatrixType>(myMeshT, myMeshS,
-                                                                              InterpolationOptions::getPrecision(),
-                                                                              InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-                                                                              InterpolationOptions::getMedianPlane(),
-                                                                              InterpolationOptions::getPrintLevel());
+                intersector.reset( new CurveIntersectorP0P0<MyMeshType,MatrixType>(myMeshT, myMeshS,
+                                                                                   InterpolationOptions::getPrecision(),
+                                                                                   InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+                                                                                   InterpolationOptions::getMedianPlane(),
+                                                                                   InterpolationOptions::getPrintLevel()) );
                 break;
               }
             default:
@@ -112,11 +116,11 @@ namespace INTERP_KERNEL
           {
             case Triangulation:
               {
-                intersector = new CurveIntersectorP0P1<MyMeshType,MatrixType>(myMeshT, myMeshS,
-                                                                              InterpolationOptions::getPrecision(),
-                                                                              InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-                                                                              InterpolationOptions::getMedianPlane(),
-                                                                              InterpolationOptions::getPrintLevel());
+                intersector.reset( new CurveIntersectorP0P1<MyMeshType,MatrixType>(myMeshT, myMeshS,
+                                                                                   InterpolationOptions::getPrecision(),
+                                                                                   InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+                                                                                   InterpolationOptions::getMedianPlane(),
+                                                                                   InterpolationOptions::getPrintLevel()) );
                 break;
               }
             default:
@@ -129,15 +133,15 @@ namespace INTERP_KERNEL
           {
             case Triangulation:
               {
-                intersector = new CurveIntersectorP1P0<MyMeshType,MatrixType>(myMeshT, myMeshS,
-                                                                              InterpolationOptions::getPrecision(),
-                                                                              InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-                                                                              InterpolationOptions::getMedianPlane(),
-                                                                              InterpolationOptions::getPrintLevel());
+                intersector.reset( new CurveIntersectorP1P0<MyMeshType,MatrixType>(myMeshT, myMeshS,
+                                                                                   InterpolationOptions::getPrecision(),
+                                                                                   InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+                                                                                   InterpolationOptions::getMedianPlane(),
+                                                                                   InterpolationOptions::getPrintLevel()) );
                 break;
               }
-            default:
-              throw INTERP_KERNEL::Exception("For P1P0 in 1D or 2D curve only Triangulation supported for the moment !");
+          default:
+            throw INTERP_KERNEL::Exception("For P1P0 in 1D or 2D curve only Triangulation supported for the moment !");
           }
       }
     else if(method=="P1P1")
@@ -145,20 +149,20 @@ namespace INTERP_KERNEL
         switch (InterpolationOptions::getIntersectionType())
           {
           case Triangulation:
-            intersector = new CurveIntersectorP1P1<MyMeshType,MatrixType>
-              (myMeshT, myMeshS,
-               InterpolationOptions::getPrecision(),
-               InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-               InterpolationOptions::getMedianPlane(),
-               InterpolationOptions::getPrintLevel());
+            intersector.reset( new CurveIntersectorP1P1<MyMeshType,MatrixType>
+                               (myMeshT, myMeshS,
+                                InterpolationOptions::getPrecision(),
+                                InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+                                InterpolationOptions::getMedianPlane(),
+                                InterpolationOptions::getPrintLevel()) );
             break;
           case PointLocator:
-            intersector = new CurveIntersectorP1P1PL<MyMeshType,MatrixType>
-              (myMeshT, myMeshS,
-               InterpolationOptions::getPrecision(),
-               InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-               InterpolationOptions::getMedianPlane(),
-               InterpolationOptions::getPrintLevel());
+            intersector.reset( new CurveIntersectorP1P1PL<MyMeshType,MatrixType>
+                               (myMeshT, myMeshS,
+                                InterpolationOptions::getPrecision(),
+                                InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+                                InterpolationOptions::getMedianPlane(),
+                                InterpolationOptions::getPrintLevel()) );
             break;
           default:
             throw INTERP_KERNEL::Exception("For P1P1 in 1D or 2D curve only Triangulation and PointLocator supported !");
@@ -193,12 +197,10 @@ namespace INTERP_KERNEL
         std::vector<ConnType> intersecting_elems;
         double bb[2*SPACEDIM];
         intersector->getElemBB(bb,myMeshT,OTT<ConnType,numPol>::indFC(iT),nb_nodesT);
-        my_tree.getIntersectingElems(bb, intersecting_elems);
+        bbtreeMethod(my_tree,bb,intersecting_elems);
         intersector->intersectCells(iT,intersecting_elems,result);
         counter += intersecting_elems.size();
       }
-    ConnType ret = intersector->getNumberOfColsOfResMatrix();
-    delete intersector;
     
     if (InterpolationOptions::getPrintLevel() >= 1)
       {
@@ -209,7 +211,7 @@ namespace INTERP_KERNEL
         std::cout << "Number of computed intersections = " << counter << std::endl;
         std::cout << "Global time= " << global_end - global_start << std::endl;
       }
-    return ret;
+    return intersector->getNumberOfColsOfResMatrix();
   }
 }
 

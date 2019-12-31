@@ -16,8 +16,8 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __BBTREE_TXX__
-#define __BBTREE_TXX__
+
+#pragma once
 
 #include <vector>
 #include <algorithm>
@@ -25,6 +25,8 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
+
+constexpr double BBTREE_DFT_EPSILON = 1e-12;
 
 template <int dim, class ConnType = int>
 class BBTree
@@ -66,7 +68,7 @@ public:
     \endcode
   */
 
-  BBTree(const double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1e-12):
+  BBTree(const double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=BBTREE_DFT_EPSILON):
     _left(0), _right(0), _level(level), _bb(bbs), _terminal(false),_nbelems(nbelems),_epsilon(epsilon)
   {
     if (nbelems < MIN_NB_ELEMS || level> MAX_LEVEL)
@@ -278,4 +280,3 @@ public:
     return _left->size()+_right->size();
   }
 };
-#endif

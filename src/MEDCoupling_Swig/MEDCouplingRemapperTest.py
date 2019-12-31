@@ -955,7 +955,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m=rem.getCrudeCSRMatrix()
         row=array([1,1,2,2,3,3])
         col=array([0,1,1,2,5,6])
-        data=array([0.9,0.1,0.3,0.7,0.5,0.5])
+        data=array([1.8,0.2,0.6,1.4,1.0,1.0])
         mExp2=csr_matrix((data,(row,col)),shape=(5,11))
         diff=abs(m-mExp2)
         self.assertAlmostEqual(diff.sum(),0.,14)
@@ -1370,13 +1370,93 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.checkMatrix(rem.getCrudeMatrix(),[{0:1.0}],src.getNumberOfNodes(),1e-12)
         pass
 
+    def test1D0DPointLocator(self):
+        """
+        For pointlocator fans, Remapper support following intersection
+        IntersectionType == PointLocator
+        - source == 1D
+        - target == 0D
+        """
+        # P1P1 - 0
+        src = MEDCouplingUMesh("src",1)
+        src.allocateCells()
+        src.setCoords( DataArrayDouble([0,1]) )
+        src.insertNextCell(NORM_SEG2,[0,1])
+        trg = MEDCouplingUMesh.Build0DMeshFromCoords( DataArrayDouble([0.4]) )
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P1P1")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.6,1:0.4}],src.getNumberOfNodes(),1e-12)
+        # P1P1 - 1
+        src = MEDCouplingUMesh("src",1)
+        src.allocateCells()
+        src.setCoords( DataArrayDouble([0,1]) )
+        src.insertNextCell(NORM_SEG2,[1,0]) # permutation
+        trg = MEDCouplingUMesh.Build0DMeshFromCoords( DataArrayDouble([0.4]) )
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P1P1")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.6,1:0.4}],src.getNumberOfNodes(),1e-12)
+        # P1P1 - 2
+        src = MEDCouplingUMesh("src",1)
+        src.allocateCells()
+        src.setCoords( DataArrayDouble([1,0]) )
+        src.insertNextCell(NORM_SEG2,[0,1])
+        trg = MEDCouplingUMesh.Build0DMeshFromCoords( DataArrayDouble([0.4]) )
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P1P1")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.4,1:0.6}],src.getNumberOfNodes(),1e-12)
+        # P1P1 - 3 - 2DCurve
+        src = MEDCouplingUMesh("src",1)
+        src.allocateCells()
+        src.setCoords( DataArrayDouble([0,1]) )
+        src.insertNextCell(NORM_SEG2,[0,1])
+        trg = MEDCouplingUMesh.Build0DMeshFromCoords( DataArrayDouble([0.4]) )
+        src.changeSpaceDimension(2) ; trg.changeSpaceDimension(2)
+        src.rotate([-1.,-1.],1.2)
+        trg.rotate([-1.,-1.],1.2)
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P1P1")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.6,1:0.4}],src.getNumberOfNodes(),1e-12)
+        # P1P1 - 4
+        src = MEDCouplingUMesh("src",1)
+        src.allocateCells()
+        src.setCoords( DataArrayDouble([1.1,7.6,2.3,5.4]) )
+        src.insertNextCell(NORM_SEG2,[0,2])
+        src.insertNextCell(NORM_SEG2,[2,3])
+        src.insertNextCell(NORM_SEG2,[3,1])
+        for eps in [0,1e-13,-1e-13]:
+            trg = MEDCouplingUMesh.Build0DMeshFromCoords( DataArrayDouble([0.4,2.3+eps,4.,7.]) )
+            rem=MEDCouplingRemapper()
+            rem.setIntersectionType(PointLocator)
+            rem.prepare(src,trg,"P1P1")
+            rem.nullifiedTinyCoeffInCrudeMatrixAbs(1e-12)
+            self.checkMatrix(rem.getCrudeMatrix(),[{}, {2: 2.0}, {2: 0.4516129032258065, 3: 0.5483870967741935}, {1: 0.7272727272727273, 3: 0.27272727272727265}],src.getNumberOfNodes(),1e-12)
+        # P1P1 - 5 - descending order of coords in source mesh
+        src = MEDCouplingUMesh("src",1)
+        src.allocateCells()
+        src.setCoords( DataArrayDouble([3.,1.]) )
+        src.insertNextCell(NORM_SEG2,[0,1])
+        trg = MEDCouplingUMesh.Build0DMeshFromCoords( DataArrayDouble([2.3]) )
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(src,trg,"P1P1")
+        self.checkMatrix(rem.getCrudeMatrix(),[{0:0.65,1:0.35}],src.getNumberOfNodes(),1e-12)
+        pass
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):
-            self.assertTrue(max(mat2[i].keys())<nbCols)
-            self.assertTrue(max(mat1[i].keys())<nbCols)
-            self.assertTrue(min(mat2[i].keys())>=0)
-            self.assertTrue(min(mat1[i].keys())>=0)
+            if len(mat2[i].keys())>0:
+                self.assertTrue(max(mat2[i].keys())<nbCols)
+            if len(mat1[i].keys())>0:
+                self.assertTrue(max(mat1[i].keys())<nbCols)
+            if len(mat2[i].keys())>0:
+                self.assertTrue(min(mat2[i].keys())>=0)
+            if len(mat1[i].keys())>0:
+                self.assertTrue(min(mat1[i].keys())>=0)
             s1=set(mat1[i].keys()) ; s2=set(mat2[i].keys())
             for elt in s1.intersection(s2):
                 self.assertTrue(abs(mat1[i][elt]-mat2[i][elt])<eps)

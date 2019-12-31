@@ -41,8 +41,9 @@ namespace INTERP_KERNEL
     void createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox);
     void adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEpsAbs);
     static void getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes);
-    static bool ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos);
+    static void ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos);
   protected :
+    bool projectionThis(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const;
     bool projectionThis(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt0, double& xt1) const;
     bool getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const;
     typename MyMeshType::MyConnType getNodeIdOfTargetCellAt(ConnType icellT, ConnType nodeIdInCellT) const;
@@ -50,6 +51,7 @@ namespace INTERP_KERNEL
     typename MyMeshType::MyConnType getNodeIdOfSourceCellAt(ConnType icellT, ConnType nodeIdInCellT) const;
     double intersectSegments(const double *coordsT, const double *coordsS) const;
     double intersectSegmentsInternal(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt0, double& xt1) const;
+    bool isPtIncludedInSeg(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const;
     
     struct TDualSegment
     {

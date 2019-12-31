@@ -427,6 +427,24 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       INTERP_KERNEL::Interpolation1D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
+  else if(srcMeshDim==1 && trgMeshDim==0 && srcSpaceDim==1 )
+    {
+      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
+        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 1D and 0D into 1D space ! Select PointLocator as intersection type !");
+      MEDCouplingNormalizedUnstructuredMesh<1,1> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<1,1> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation1D interpolation(*this);
+      nbCols=interpolation.interpolateMeshes0D(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
+  else if(srcMeshDim==1 && trgMeshDim==0 && srcSpaceDim==2 )
+    {
+      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
+        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 1D and 0D into 2D space ! Select PointLocator as intersection type !");
+      MEDCouplingNormalizedUnstructuredMesh<2,1> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<2,1> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation1D interpolation(*this);
+      nbCols=interpolation.interpolateMeshes0D(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
   else if(srcMeshDim==1 && trgMeshDim==1 && srcSpaceDim==2)
     {
       MEDCouplingNormalizedUnstructuredMesh<2,1> source_mesh_wrapper(src_mesh);
@@ -703,7 +721,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
   INTERP_KERNEL::Interpolation1D interpolation1D(*this);
   if(interpolation1D.getIntersectionType()==INTERP_KERNEL::Geometric2D)// For intersection type of 1D, Geometric2D do not deal with it ! -> make interpolation1D not inherite from this
     interpolation1D.setIntersectionType(INTERP_KERNEL::Triangulation);//
-  mcIdType nbCols1D=interpolation1D.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,methC);
+    mcIdType nbCols1D=interpolation1D.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,methC);
   s1D->decrRef();
   t1D->decrRef();
   buildFinalInterpolationMatrixByConvolution(matrix1D,matrix2D,src_mesh->getMesh3DIds()->getConstPointer(),nbCols2D,nbCols1D,

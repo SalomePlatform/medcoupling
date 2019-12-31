@@ -17,11 +17,12 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 // Author : Anthony Geay (CEA/DEN)
-#ifndef __CURVEINTERSECTOR_TXX__
-#define __CURVEINTERSECTOR_TXX__
+
+#pragma once
 
 #include "CurveIntersector.hxx"
 #include "InterpolationUtils.hxx"
+#include "PointLocatorAlgos.txx"
 
 #include <limits>
 
@@ -138,18 +139,18 @@ namespace INTERP_KERNEL
   
   /*!
    * \param [in] startOfSeg - input coming from intersectSegments or intersectSegmentsInternal
-   * \param [in] endOfSeg - input coming from intersectSegments or intersectSegmentsInternal. Assume that endOfSeg>startOfSeg.
+   * \param [in] endOfSeg - input coming from intersectSegments or intersectSegmentsInternal. NO Assume about sort 
    * \param [in] pt - position of point that the method computes the bary coords for.
    */
   template<class MyMeshType, class MyMatrix>
-  bool CurveIntersector<MyMeshType,MyMatrix>::ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos)
+  void CurveIntersector<MyMeshType,MyMatrix>::ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos)
   {
     double deno(endOfSeg-startOfSeg);
-    startPos=(endOfSeg-pt)/deno;
-    endPos=1.-startPos;
-    return startPos>=0. && endPos>=0.;
+    startPos = (endOfSeg-pt)/deno;
+    startPos = std::max(startPos,0.); startPos = std::min(startPos,1.);
+    endPos=1.-startPos; 
   }
-
+  
   /*! Readjusts a set of bounding boxes so that they are extended
     in all dimensions for avoiding missing interesting intersections
 
@@ -314,6 +315,38 @@ namespace INTERP_KERNEL
           }
       }
   }
+  
+  template<class MyMeshType, class MyMatrix>
+  bool CurveIntersector<MyMeshType,MyMatrix>::projectionThis(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const
+  {    
+    enum { X=0, Y };
+    switch(SPACEDIM)
+      {
+      case 1:
+        {
+          xt  = coordsT[0];
+          xs0 = coordsS[0]; xs1 = coordsS[1];
+          return true;
+        }
+      case 2:
+        {
+          const double *s0(coordsS),*s1(coordsS + 2);
+          double s01[2] = { s1[X]-s0[X], s1[Y]-s0[Y] }; // src segment direction
+          double sSize = sqrt( s01[X]*s01[X] + s01[Y]*s01[Y] ); // src segment size
+          if( sSize < this->_precision )
+            return false;
+          s01[X] /= sSize; s01[Y] /= sSize; // normalize s01
+          double t[2] = { coordsT[X]-s0[X], coordsT[Y]-s0[Y] };
+          xs0 = 0. ; xs1 = sSize; xt = s01[X]*t[X] + s01[Y]*t[Y];
+          double proj_t_on_s[2] = { s0[X]+xt*s01[X], s0[Y]+xt*s01[Y] };
+          double dist_t_s_vect[2] = { coordsT[X]-proj_t_on_s[X], coordsT[Y]-proj_t_on_s[Y] };
+          double dist_t_s = sqrt( dist_t_s_vect[X]*dist_t_s_vect[X]+dist_t_s_vect[Y]*dist_t_s_vect[Y] );
+          return dist_t_s < this->_precision;
+        }
+      default:
+        throw Exception("CurveIntersector::projectionThis : space dimension of mesh must be 1 or 2");
+      }
+  }
 
   template<class MyMeshType, class MyMatrix>
   bool CurveIntersector<MyMeshType,MyMatrix>::projectionThis(const double *coordsT, const double *coordsS,
@@ -414,6 +447,39 @@ namespace INTERP_KERNEL
     double x1 = std::min( xt1, xs1 );
     return ( x0 < x1 ) ? ( x1 - x0 ) : 0.;
   }
+
+  template<class MyMeshType>
+  class DummyMyMeshType1D
+  {
+  public:
+    static const int MY_SPACEDIM=1;
+    static const int MY_MESHDIM=8;
+    typedef mcIdType MyConnType;
+    static const INTERP_KERNEL::NumberingPolicy My_numPol=MyMeshType::My_numPol;
+    // begin
+    // useless, but for windows compilation ...
+    const double *getCoordinatesPtr() const { return nullptr; }
+    const MyConnType *getConnectivityPtr() const { return nullptr; }
+    const MyConnType *getConnectivityIndexPtr() const { return nullptr; }
+    INTERP_KERNEL::NormalizedCellType getTypeOfElement(MyConnType) const { return (INTERP_KERNEL::NormalizedCellType)0; }
+    // end
+  };
+
+  /*!
+   * This method determines if a target point ( \a coordsT ) is in source seg2 contained in \a coordsS. To do so _precision attribute is used.
+   * If target point is in, \a xs0, \a xs1 and \a xt are set to 1D referential for a further barycentric computation.
+   * This method deals with SPACEDIM == 2 (see projectionThis).
+   */
+  template<class MyMeshType, class MyMatrix>
+  bool CurveIntersector<MyMeshType,MyMatrix>::isPtIncludedInSeg(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const
+  {
+    if(!projectionThis(coordsT,coordsS,xs0,xs1,xt))
+      return false;
+    constexpr ConnType TAB[2]={0,1};
+    const double coordsS_1D[2]={xs0,xs1};
+    const double *coordsT_1D(&xt);
+    return PointLocatorAlgos<DummyMyMeshType1D<MyMeshType>>::isElementContainsPoint(coordsT_1D,NORM_SEG2,coordsS_1D,TAB,2,this->_precision);
+  }
   
   /*!
    * \brief Return length of intersection of two segments
@@ -424,7 +490,4 @@ namespace INTERP_KERNEL
     double xs0,xs1,xt0,xt1;
     return intersectSegmentsInternal(coordsT,coordsS,xs0,xs1,xt0,xt1);
   }
-
 }
-
-#endif
