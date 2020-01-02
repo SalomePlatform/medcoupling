@@ -31,7 +31,7 @@
 
 #include <iostream>
 
-extern med_geometry_type typmai3[34];
+extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 
@@ -108,7 +108,7 @@ MEDFileUMeshPerType *MEDFileUMeshPerType::New(med_idt fid, const char *mName, in
 MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, mcIdType strt, mcIdType stp, mcIdType step, MEDFileMeshReadSelector *mrs)
 {
   int geoElt2i((int)geoElt2);
-  if(geoElt2i<0 || geoElt2i>=34)
+  if(geoElt2i<0 || geoElt2i>=INTERP_KERNEL::NORM_MAXTYPE)
     throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : Not recognized MEDCoupling/MEDLoader geometric type !");
   med_geometry_type geoElt(typmai3[geoElt2]);
   med_entity_type whichEntity;

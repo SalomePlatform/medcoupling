@@ -37,7 +37,7 @@
 
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmainoeud[1];
-extern med_geometry_type typmai3[34];
+extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 

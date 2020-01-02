@@ -34,7 +34,7 @@
 
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
-extern med_geometry_type typmai3[34];
+extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 
@@ -127,7 +127,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const std::string& locName):_name(
   MEDlocalizationInfoByName(fid,locName.c_str(),&geotype,&dim,&nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
   _dim=FromMedInt<int>(dim);
   _nb_gauss_pt=FromMedInt<int>(nb_gauss_pt);
-  _gt=new MEDFileGTKeeperSta((INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype))));
+  _gt=new MEDFileGTKeeperSta((INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+INTERP_KERNEL::NORM_MAXTYPE,geotype))));
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getGeoType()));
   _nb_node_per_cell=cm.getNumberOfNodes();
   _ref_coo.resize(_dim*_nb_node_per_cell);
@@ -151,7 +151,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id, const MEDFileEntities *ent
   std::string sectionName(MEDLoaderBase::buildStringFromFortran(sectionmeshname,MED_NAME_SIZE));
   if(sectionName.empty())
     {
-      _gt=new MEDFileGTKeeperSta((INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype))));
+      _gt=new MEDFileGTKeeperSta((INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+INTERP_KERNEL::NORM_MAXTYPE,geotype))));
       const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(getGeoType()));
       _nb_node_per_cell=cm.getNumberOfNodes();
     }

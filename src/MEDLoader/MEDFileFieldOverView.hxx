@@ -120,8 +120,8 @@ namespace MEDCoupling
     MCAuto<DataArrayIdType> _node_fam_ids;
     MCAuto<DataArrayIdType> _node_num_ids;
   public:
-    MEDLOADER_EXPORT static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
-    MEDLOADER_EXPORT static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
+    MEDLOADER_EXPORT static const int PARAMEDMEM_2_VTKTYPE_LGTH=MEDCOUPLING2VTKTYPETRADUCER_LGTH;
+    MEDLOADER_EXPORT static const unsigned char *PARAMEDMEM_2_VTKTYPE;
     MEDLOADER_EXPORT static const unsigned char HEXA27_PERM_ARRAY[27];
   };
 

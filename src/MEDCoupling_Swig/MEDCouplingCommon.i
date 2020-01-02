@@ -529,25 +529,26 @@ typedef DataArrayInt64 DataArrayIdType;
 {
   PyObject *med2vtk_cell_types()
   {
-    Py_ssize_t sz(sizeof(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER)/sizeof(decltype(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER[0])));
+    Py_ssize_t sz(sizeof(MEDCOUPLING2VTKTYPETRADUCER)/sizeof(decltype(MEDCOUPLING2VTKTYPETRADUCER[0])));
     PyObject *ret(PyList_New(sz));
     for(Py_ssize_t i=0;i<sz;i++)
       {
-        PyList_SetItem(ret,i,PyInt_FromLong(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER[i]));
+        mcIdType elt = MEDCOUPLING2VTKTYPETRADUCER[i]!=255 ? MEDCOUPLING2VTKTYPETRADUCER[i] : -1;
+        PyList_SetItem(ret,i,PyInt_FromLong(elt));
       }
     return ret;
   }
 
   PyObject *vtk2med_cell_types()
   {
-    Py_ssize_t sz(sizeof(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER)/sizeof(decltype(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER[0])));
-    auto maxElt(*std::max_element(MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER,MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER+sz));
+    Py_ssize_t sz(sizeof(MEDCOUPLING2VTKTYPETRADUCER)/sizeof(decltype(MEDCOUPLING2VTKTYPETRADUCER[0])));
+    auto maxElt(*std::max_element(MEDCOUPLING2VTKTYPETRADUCER,MEDCOUPLING2VTKTYPETRADUCER+sz,[](unsigned char a, unsigned char b) { if(b==MEDCOUPLING2VTKTYPETRADUCER_NONE) return false; else return a<b; } ));
     auto szOut(maxElt+1);
     std::vector< mcIdType > retCpp(szOut,-1);
     mcIdType id(0);
-    for(const mcIdType *it=MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER;it!=MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER+sz;it++,id++)
+    for(const unsigned char *it=MEDCOUPLING2VTKTYPETRADUCER;it!=MEDCOUPLING2VTKTYPETRADUCER+sz;it++,id++)
       {
-        if(*it!=-1)
+        if(*it!=MEDCOUPLING2VTKTYPETRADUCER_NONE)
           retCpp[*it]=id;
       }
     //

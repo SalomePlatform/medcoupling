@@ -47,6 +47,7 @@
 #include <sstream>
 #include <fstream>
 #include <numeric>
+#include <memory>
 #include <cstring>
 #include <limits>
 #include <list>
@@ -56,8 +57,8 @@ using namespace MEDCoupling;
 double MEDCouplingUMesh::EPS_FOR_POLYH_ORIENTATION=1.e-14;
 
 /// @cond INTERNAL
+
 const INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::MEDMEM_ORDER[N_MEDMEM_ORDER] = { INTERP_KERNEL::NORM_POINT1, INTERP_KERNEL::NORM_SEG2, INTERP_KERNEL::NORM_SEG3, INTERP_KERNEL::NORM_SEG4, INTERP_KERNEL::NORM_POLYL, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_TRI7, INTERP_KERNEL::NORM_QUAD8, INTERP_KERNEL::NORM_QUAD9, INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_QPOLYG, INTERP_KERNEL::NORM_TETRA4, INTERP_KERNEL::NORM_PYRA5, INTERP_KERNEL::NORM_PENTA6, INTERP_KERNEL::NORM_HEXA8, INTERP_KERNEL::NORM_HEXGP12, INTERP_KERNEL::NORM_TETRA10, INTERP_KERNEL::NORM_PYRA13, INTERP_KERNEL::NORM_PENTA15, INTERP_KERNEL::NORM_PENTA18, INTERP_KERNEL::NORM_HEXA20, INTERP_KERNEL::NORM_HEXA27, INTERP_KERNEL::NORM_POLYHED };
-const mcIdType MEDCouplingUMesh::MEDCOUPLING2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,34,23,28,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,29,32,-1,25,42,36,4};
 /// @endcond
 
 MEDCouplingUMesh *MEDCouplingUMesh::New()
@@ -7562,7 +7563,10 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
           w4=std::copy(c.begin(),c.end(),w4);
         }
     }
-  types->transformWithIndArr(MEDCOUPLING2VTKTYPETRADUCER,MEDCOUPLING2VTKTYPETRADUCER+INTERP_KERNEL::NORM_MAXTYPE+1);
+  std::unique_ptr<mcIdType[]> medcoupling2vtkTypeTraducer_mcIdType(new mcIdType[MEDCOUPLING2VTKTYPETRADUCER_LGTH]);
+  for(auto ii = 0; ii<MEDCOUPLING2VTKTYPETRADUCER_LGTH ; ++ii)
+    medcoupling2vtkTypeTraducer_mcIdType[ii] = MEDCOUPLING2VTKTYPETRADUCER[ii]!=MEDCOUPLING2VTKTYPETRADUCER_NONE?MEDCOUPLING2VTKTYPETRADUCER[ii] : -1;
+  types->transformWithIndArr(medcoupling2vtkTypeTraducer_mcIdType.get(),medcoupling2vtkTypeTraducer_mcIdType.get()+MEDCOUPLING2VTKTYPETRADUCER_LGTH);
   types->writeVTK(ofs,8,"UInt8","types",byteData);
   std::string vtkTypeName = Traits<mcIdType>::VTKReprStr;
   offsets->writeVTK(ofs,8,vtkTypeName,"offsets",byteData);
