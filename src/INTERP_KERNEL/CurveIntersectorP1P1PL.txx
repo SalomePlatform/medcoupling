@@ -76,7 +76,7 @@ namespace INTERP_KERNEL
     std::vector<double> coordsT;
     if(this->getRealTargetCoordinates(icellT,coordsT))
       throw INTERP_KERNEL::Exception("Invalid target cell detected for meshdim==1. Only SEG2 supported !");
-    std::size_t nbOfNodesT(coordsT.size()/SPACEDIM);
+    mcIdType nbOfNodesT(ToIdType(coordsT.size()/SPACEDIM));
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
       {
         std::vector<double> coordsS;
@@ -85,7 +85,7 @@ namespace INTERP_KERNEL
         assert(coordsS.size()/SPACEDIM==2);
         ConnType nodeIdS0(this->getNodeIdOfSourceCellAt(*iter,0));
         ConnType nodeIdS1(this->getNodeIdOfSourceCellAt(*iter,1));
-        for(std::size_t nodeIdT = 0 ; nodeIdT<nbOfNodesT ; ++nodeIdT)
+        for(mcIdType nodeIdT = 0 ; nodeIdT<nbOfNodesT ; ++nodeIdT)
           {
             ConnType nodeIdT0(this->getNodeIdOfTargetCellAt(icellT,nodeIdT));
             double xs0,xs1,xt;
