@@ -718,6 +718,18 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertRaises(InterpKernelException,a1.findIdForEach,b1) # a1 is not single component
         pass
 
+    def testGlobalHelpers(self):
+        arr0 = vtk2med_cell_types()
+        self.assertEqual(len(arr0),43)
+        arr1 = med2vtk_cell_types()
+        self.assertEqual(len(arr1),34)
+        arr2 = AllGeometricTypes()
+        self.assertEqual(len(arr2),25)
+        for elt in arr2:
+            MEDCouplingUMesh.GetReprOfGeometricType(elt)
+            self.assertNotEqual(MEDCouplingUMesh.GetDimensionOfGeometricType(elt),-1)
+        pass
+
     pass
 
 if __name__ == '__main__':

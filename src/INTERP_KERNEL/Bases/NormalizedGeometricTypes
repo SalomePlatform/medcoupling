@@ -16,15 +16,14 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
-#ifndef __NORMALIZEDGEOMETRICTYPES__
-#define __NORMALIZEDGEOMETRICTYPES__
+#pragma once
 
 namespace INTERP_KERNEL
 {
   typedef enum
-    {
+    {// think to update the following arrays : MEDMEM_ORDER (MEDCouplingUMesh) and MEDCOUPLING2VTKTYPETRADUCER (CellModel.hxx)
       NORM_POINT1  =  0,
       NORM_SEG2    =  1,
       NORM_SEG3    =  2,
@@ -68,4 +67,3 @@ namespace INTERP_KERNEL
   typedef enum  { PLANAR_FACE_5 = 5, PLANAR_FACE_6 = 6, GENERAL_24 = 24, GENERAL_48 = 48 } SplittingPolicy;
 }
 
-#endif

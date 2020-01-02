@@ -558,6 +558,15 @@ typedef DataArrayInt64 DataArrayIdType;
       PyList_SetItem(ret,id,PyInt_FromLong(*it));
     return ret;
   }
+
+  PyObject *AllGeometricTypes()
+  {
+    Py_ssize_t sz(MEDCouplingUMesh::N_MEDMEM_ORDER);
+    PyObject *ret(PyList_New(sz));
+    for(Py_ssize_t i=0;i<sz;i++)
+      PyList_SetItem(ret,i,PyInt_FromLong(MEDCouplingUMesh::MEDMEM_ORDER[i]));
+    return ret;
+  }
 }
 
 namespace INTERP_KERNEL
