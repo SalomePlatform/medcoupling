@@ -533,7 +533,7 @@ typedef DataArrayInt64 DataArrayIdType;
     PyObject *ret(PyList_New(sz));
     for(Py_ssize_t i=0;i<sz;i++)
       {
-        mcIdType elt = MEDCOUPLING2VTKTYPETRADUCER[i]!=255 ? MEDCOUPLING2VTKTYPETRADUCER[i] : -1;
+        mcIdType elt = MEDCOUPLING2VTKTYPETRADUCER[i]!=MEDCOUPLING2VTKTYPETRADUCER_NONE ? MEDCOUPLING2VTKTYPETRADUCER[i] : -1;
         PyList_SetItem(ret,i,PyInt_FromLong(elt));
       }
     return ret;
