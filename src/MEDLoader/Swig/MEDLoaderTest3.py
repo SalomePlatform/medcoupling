@@ -2261,11 +2261,12 @@ class MEDLoaderTest3(unittest.TestCase):
         indexMem = 82 * MEDCouplingSizeOfIDs()//8
         meshMem = cooMem + nodalMem + indexMem
         self.assertIn(m.getHeapMemorySize(), list(range(meshMem - 100, meshMem + 100 + 4 * strMulFac)))
-        self.assertIn(f.getHeapMemorySize(), list(range(meshMem + 81*8 - 100, meshMem + 81*8 + 100 + 8 * strMulFac)))
+        delta = (m.getHeapMemorySize()-meshMem)//3 # std::string::capacity behaves differently
+        self.assertIn(f.getHeapMemorySize(), list(range(meshMem + 81*8 - (100 + 3*delta), meshMem + 81*8 + (100+3*delta) + 8 * strMulFac)))
         #
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m)
-        self.assertIn(mm.getHeapMemorySize(), list(range(meshMem + 81*(MEDCouplingSizeOfIDs()//8) - 100, meshMem + 81*(MEDCouplingSizeOfIDs()//8) + 100 + 10 * strMulFac)))
+        self.assertIn(mm.getHeapMemorySize(), list(range(meshMem + 81*(MEDCouplingSizeOfIDs()//8) - (100+3*delta), meshMem + 81*(MEDCouplingSizeOfIDs()//8) + (100+3*delta) + 10 * strMulFac)))
         ff=MEDFileField1TS()
         ff.setFieldNoProfileSBT(f)
         self.assertIn(ff.getHeapMemorySize(), list(range(771 - 40, 871 + 21 + (4 + 1) * strMulFac)))
