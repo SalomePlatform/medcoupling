@@ -44,22 +44,28 @@ namespace INTERP_KERNEL
                                                               std::function< void(const BBTree< MyMeshType::MY_SPACEDIM , typename MyMeshType::MyConnType>&, const double*, std::vector<typename MyMeshType::MyConnType>&) > bbtreeMethod);
     template<class MyMeshType, class MatrixType>
     typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT,
-                                                      MatrixType& result, const std::string& method) { return this->interpolateMeshesInternal(meshS,meshT,result,method,[](const BBTree< MyMeshType::MY_SPACEDIM ,
-                                                                                                                                                                           typename MyMeshType::MyConnType>& bbtree, const double *bb,
-                                                                                                                                                                           std::vector<typename MyMeshType::MyConnType>& intersecting_elems)
-                                                                                                                                              { bbtree.getIntersectingElems(bb, intersecting_elems); }); }
+                                                      MatrixType& result, const std::string& method)
+    {
+      std::function< void(const BBTree< MyMeshType::MY_SPACEDIM , typename MyMeshType::MyConnType>&, const double*, std::vector<typename MyMeshType::MyConnType>&) > bbtreeMethod =
+        [](const BBTree< MyMeshType::MY_SPACEDIM , typename MyMeshType::MyConnType>& bbtree, const double *bb, std::vector<typename MyMeshType::MyConnType>& intersecting_elems)
+        { bbtree.getIntersectingElems(bb, intersecting_elems); };
+      return this->interpolateMeshesInternal(meshS,meshT,result,method,bbtreeMethod);
+    }
+    
     template<class MyMeshType, class MatrixType>
     typename MyMeshType::MyConnType interpolateMeshes0D(const MyMeshType& meshS, const MyMeshType& meshT,
-                                                        MatrixType& result, const std::string& method) { return this->interpolateMeshesInternal(meshS,meshT,result,method,[](const BBTree< MyMeshType::MY_SPACEDIM ,
-                                                                                                                                                                             typename MyMeshType::MyConnType>& bbtree, const double *bb,
-                                                                                                                                                                             std::vector<typename MyMeshType::MyConnType>& intersecting_elems)
-                                                                                                                                                {
-                                                                                                                                                  double TMP[MyMeshType::MY_SPACEDIM];
-                                                                                                                                                  for(int i=0;i<MyMeshType::MY_SPACEDIM;++i)
-                                                                                                                                                    TMP[i] = bb[2*i];
-                                                                                                                                                  bbtree.getElementsAroundPoint(TMP, intersecting_elems);
-                                                                                                                                                }
-                                                                                                                                                ); }
+                                                        MatrixType& result, const std::string& method)
+    {
+      std::function< void(const BBTree< MyMeshType::MY_SPACEDIM , typename MyMeshType::MyConnType>&, const double*, std::vector<typename MyMeshType::MyConnType>&) > bbtreeMethod =
+        [](const BBTree< MyMeshType::MY_SPACEDIM , typename MyMeshType::MyConnType>& bbtree, const double *bb, std::vector<typename MyMeshType::MyConnType>& intersecting_elems)
+        {
+          double TMP[MyMeshType::MY_SPACEDIM];
+          for(int i=0;i<MyMeshType::MY_SPACEDIM;++i)
+            TMP[i] = bb[2*i];
+          bbtree.getElementsAroundPoint(TMP, intersecting_elems);
+        };
+      return this->interpolateMeshesInternal(meshS,meshT,result,method,bbtreeMethod);
+    }
   };
 }
 
