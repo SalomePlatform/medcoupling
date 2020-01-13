@@ -24,9 +24,7 @@
 %include "MEDCouplingCommon.i"
 
 %{
-#ifndef WIN32
 #include "MEDCouplingMemArray.txx"
-#endif
 #include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
 

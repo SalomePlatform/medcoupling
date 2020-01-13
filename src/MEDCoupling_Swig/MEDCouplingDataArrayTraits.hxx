@@ -147,8 +147,8 @@ extern "C"
   static PyObject *callbackmcdataarrayint64_call(PyCallBackDataArrayInt64 *self, PyObject *args, PyObject *kw)
   {
     if(self->_pt_mc)
-      {
-        MEDCoupling::MemArray<long>& mma=self->_pt_mc->accessToMemArray();
+      {	
+        MEDCoupling::MemArray<MEDCoupling::Int64>& mma=self->_pt_mc->accessToMemArray();
         mma.destroy();
       }
     Py_XINCREF(Py_None);
@@ -425,7 +425,7 @@ struct NPYTraits<int>
 };
 
 template<>
-struct NPYTraits<long>
+struct NPYTraits<MEDCoupling::Int64>
 {
   static const int NPYObjectType=NPY_INT64;
   static PyTypeObject *NPYFunc;

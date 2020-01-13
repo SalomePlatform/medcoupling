@@ -148,6 +148,18 @@ namespace INTERP_KERNEL
   {
     std::size_t operator()(unsigned long __x) const { return __x; }
   };
+
+  template<>
+  struct hash<long long>
+  {
+    std::size_t operator()(long long __x) const { return __x; }
+  };
+
+  template<>
+  struct hash<unsigned long long>
+  {
+    std::size_t operator()(unsigned long long __x) const { return __x; }
+  };
 }
 
 #endif

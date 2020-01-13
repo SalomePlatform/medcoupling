@@ -3363,7 +3363,7 @@ PyTypeObject *NPYTraits<float>::NPYFunc=&PyCallBackDataArrayFloat_RefType;
 
 PyTypeObject *NPYTraits<int>::NPYFunc=&PyCallBackDataArrayInt32_RefType;
 
-PyTypeObject *NPYTraits<long>::NPYFunc=&PyCallBackDataArrayInt64_RefType;
+PyTypeObject *NPYTraits<MEDCoupling::Int64>::NPYFunc=&PyCallBackDataArrayInt64_RefType;
 #endif
 
 template<class T>

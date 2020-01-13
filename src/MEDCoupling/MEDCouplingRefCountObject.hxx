@@ -69,58 +69,58 @@ namespace MEDCoupling
   MEDCOUPLING_EXPORT const char *MEDCouplingByteOrderStr();
   MEDCOUPLING_EXPORT bool IsCXX11Compiled();
   
-  class BigMemoryObject
+  class MEDCOUPLING_EXPORT BigMemoryObject
   {
   public:
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
-    MEDCOUPLING_EXPORT std::string getHeapMemorySizeStr() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getAllTheProgeny() const;
-    MEDCOUPLING_EXPORT bool isObjectInTheProgeny(const BigMemoryObject *obj) const;
-    MEDCOUPLING_EXPORT static std::size_t GetHeapMemorySizeOfObjs(const std::vector<const BigMemoryObject *>& objs);
-    MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const = 0;
-    MEDCOUPLING_EXPORT virtual std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const = 0;
-    MEDCOUPLING_EXPORT virtual ~BigMemoryObject();
+    std::size_t getHeapMemorySize() const;
+    std::string getHeapMemorySizeStr() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getAllTheProgeny() const;
+    bool isObjectInTheProgeny(const BigMemoryObject *obj) const;
+    static std::size_t GetHeapMemorySizeOfObjs(const std::vector<const BigMemoryObject *>& objs);
+    virtual std::size_t getHeapMemorySizeWithoutChildren() const = 0;
+    virtual std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const = 0;
+    virtual ~BigMemoryObject();
   private:
     static std::size_t GetHeapMemoryOfSet(std::set<const BigMemoryObject *>& s1, std::set<const BigMemoryObject *>& s2);
   };
 
-  class RefCountObjectOnly
+  class MEDCOUPLING_EXPORT RefCountObjectOnly
   {
   protected:
-    MEDCOUPLING_EXPORT RefCountObjectOnly();
-    MEDCOUPLING_EXPORT RefCountObjectOnly(const RefCountObjectOnly& other);
+    RefCountObjectOnly();
+    RefCountObjectOnly(const RefCountObjectOnly& other);
   public:
-    MEDCOUPLING_EXPORT bool decrRef() const;
-    MEDCOUPLING_EXPORT void incrRef() const;
-    MEDCOUPLING_EXPORT int getRCValue() const;
-    MEDCOUPLING_EXPORT RefCountObjectOnly& operator=(const RefCountObjectOnly& other);
+    bool decrRef() const;
+    void incrRef() const;
+    int getRCValue() const;
+    RefCountObjectOnly& operator=(const RefCountObjectOnly& other);
   protected:
     virtual ~RefCountObjectOnly();
   private:
     mutable std::atomic<int> _cnt;
   };
 
-  class RefCountObject : public RefCountObjectOnly, public BigMemoryObject
+  class MEDCOUPLING_EXPORT RefCountObject : public RefCountObjectOnly, public BigMemoryObject
   {
   protected:
-    MEDCOUPLING_EXPORT RefCountObject();
-    MEDCOUPLING_EXPORT RefCountObject(const RefCountObject& other);
-    MEDCOUPLING_EXPORT virtual ~RefCountObject();
+    RefCountObject();
+    RefCountObject(const RefCountObject& other);
+    virtual ~RefCountObject();
   };
 
-  class GlobalDict
+  class MEDCOUPLING_EXPORT GlobalDict
   {
   public:
-    MEDCOUPLING_EXPORT static GlobalDict *GetInstance();
-    MEDCOUPLING_EXPORT bool hasKey(const std::string& key) const;
-    MEDCOUPLING_EXPORT std::string value(const std::string& key) const;
-    MEDCOUPLING_EXPORT std::vector<std::string> keys() const;
-    MEDCOUPLING_EXPORT void erase(const std::string& key);
-    MEDCOUPLING_EXPORT void clear();
-    MEDCOUPLING_EXPORT void setKeyValue(const std::string& key, const std::string& val);
-    MEDCOUPLING_EXPORT void setKeyValueForce(const std::string& key, const std::string& val);
-    MEDCOUPLING_EXPORT std::string printSelf() const;
+    static GlobalDict *GetInstance();
+    bool hasKey(const std::string& key) const;
+    std::string value(const std::string& key) const;
+    std::vector<std::string> keys() const;
+    void erase(const std::string& key);
+    void clear();
+    void setKeyValue(const std::string& key, const std::string& val);
+    void setKeyValueForce(const std::string& key, const std::string& val);
+    std::string printSelf() const;
   private:
     GlobalDict() { }
   private:

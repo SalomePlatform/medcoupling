@@ -2555,8 +2555,11 @@ void transformWithIndArr(PyObject *li)
 namespace MEDCoupling
 {
   typedef int      Int32;
-  typedef long int Int64;
-
+#ifdef WIN32
+  typedef long long Int64;
+#else
+  typedef long int  Int64;
+#endif
 
   class DataArrayInt32Iterator;
 

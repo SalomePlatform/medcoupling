@@ -42,23 +42,23 @@ typedef double (*MYFUNCPTR)(double);
 
 using namespace MEDCoupling;
 
-template class MEDCoupling::MemArray<mcIdType>;
-template class MEDCoupling::MemArray<double>;
-template class MEDCoupling::DataArrayTemplate<mcIdType>;
-template class MEDCoupling::DataArrayTemplate<double>;
-template class MEDCoupling::DataArrayTemplateClassic<Int32>;
-template class MEDCoupling::DataArrayTemplateClassic<Int64>;
-template class MEDCoupling::DataArrayTemplateClassic<double>;
-template class MEDCoupling::DataArrayTemplateFP<double>;
-template class MEDCoupling::DataArrayIterator<double>;
-template class MEDCoupling::DataArrayIterator<mcIdType>;
-template class MEDCoupling::DataArrayDiscrete<Int32>;
-template class MEDCoupling::DataArrayDiscreteSigned<Int32>;
-template class MEDCoupling::DataArrayDiscrete<Int64>;
-template class MEDCoupling::DataArrayDiscreteSigned<Int64>;
-template class MEDCoupling::DataArrayTuple<mcIdType>;
-template class MEDCoupling::DataArrayTuple<double>;
-template class MEDCoupling::DataArrayTuple<float>;
+template class MEDCOUPLING_EXPORT MEDCoupling::MemArray<mcIdType>;
+template class MEDCOUPLING_EXPORT MEDCoupling::MemArray<double>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplate<mcIdType>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplate<double>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplateClassic<Int32>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplateClassic<Int64>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplateClassic<double>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplateFP<double>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayIterator<double>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayIterator<mcIdType>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayDiscrete<Int32>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayDiscreteSigned<Int32>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayDiscrete<Int64>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayDiscreteSigned<Int64>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<mcIdType>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<double>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<float>;
 
 template<mcIdType SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, mcIdType nbNodes, mcIdType limitNodeId, double prec, DataArrayIdType *c, DataArrayIdType *cI) const
