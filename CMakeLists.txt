@@ -61,7 +61,7 @@ OPTION(MEDCOUPLING_USE_MPI "(Use MPI containers) - For MED this triggers the bui
 OPTION(MEDCOUPLING_BUILD_TESTS "Build MED tests." ON)
 OPTION(MEDCOUPLING_BUILD_DOC "Build MED doc." ON)
 OPTION(MEDCOUPLING_BUILD_STATIC "Build MEDCoupling library in static mode." OFF)
-OPTION(MEDCOUPLING_USE_64BIT_IDS "Size of IDs to refer cells and nodes. 32 bits when OFF (default), 64 bits when ON. Not implemented yet for 64 bits." OFF)
+OPTION(MEDCOUPLING_USE_64BIT_IDS "Size of IDs to refer cells and nodes. 32 bits when OFF (default), 64 bits when ON." OFF)
 IF(${MEDCOUPLING_USE_MPI})
   SET(USE_METIS_NOT_PARMETIS OFF)
 ELSE()
