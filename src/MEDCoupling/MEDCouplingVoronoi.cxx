@@ -21,6 +21,7 @@
 #include "MEDCouplingVoronoi.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 #include "MCAuto.txx"
 
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
@@ -90,6 +91,11 @@ MCAuto<MEDCouplingUMesh> ComputeBigCellFrom(const double pt1[2], const double pt
     throw INTERP_KERNEL::Exception("ComputeBigCellFrom : expected single element !");
   MCAuto<MEDCouplingUMesh> ret(sp2->buildPartOfMySelfSlice(ccp[0],ccp[0]+1,1,true));
   ret->zipCoords();
+  {
+    MCAuto<MEDCouplingFieldDouble> tmp(ret->getMeasureField(false));
+    if(tmp->getArray()->getIJ(0,0)<0)
+      ret->invertOrientationOfAllCells();
+  }
   return ret;
 }
 
@@ -424,6 +430,11 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
           newVorCell->zipCoords();
           MCAuto<MEDCouplingUMesh> modifiedCell(a->buildPartOfMySelf(part->begin(),part->end()));
           modifiedCell->zipCoords();
+          {
+            MCAuto<MEDCouplingFieldDouble> tmp(modifiedCell->getMeasureField(false));
+            if(tmp->getArray()->getIJ(0,0)<0)
+              modifiedCell->invertOrientationOfAllCells();
+          }
           l0[poly]=modifiedCell;
           //
           MCAuto<DataArrayIdType> ids;
@@ -455,7 +466,13 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
             }
           newVorCells.push_back(newVorCell);
         }
-      l0.push_back(MergeVorCells(newVorCells,eps));
+      MCAuto<MEDCouplingUMesh> mergedVorCell(MergeVorCells(newVorCells,eps));
+      {
+        MCAuto<MEDCouplingFieldDouble> tmp(mergedVorCell->getMeasureField(false));
+        if(tmp->getArray()->getIJ(0,0)<0)
+          mergedVorCell->invertOrientationOfAllCells();
+      }
+      l0.push_back(mergedVorCell);
     }
   std::vector< const MEDCouplingUMesh * > l0Bis(VecAutoToVecOfCstPt(l0));
   MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::MergeUMeshes(l0Bis));
