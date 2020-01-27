@@ -730,6 +730,31 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             self.assertNotEqual(MEDCouplingUMesh.GetDimensionOfGeometricType(elt),-1)
         pass
 
+    def testVoronoi2D_3(self):
+        """
+        Non regression test for EDF20418 : After 8.5.0 MEDCouplingUMesh.Interset2DMeshes method (called by voronoize) is sensible to cell orientation of 2 input meshes. This test check correct behavior in
+        case of non standard orientation input cell.
+        """
+        coo = DataArrayDouble([0.018036113896685007,0.030867224641316506,0.019000000000000003,0.030833333333333407,0.018518056948342503,0.030850278987324904,0.018773068345659904,0.031180320157635305,0.018546136691319805,0.031527306981937307,0.018291125294002404,0.031197265811626906],6,2)
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_TRI3,[0,1,4])
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f.setMesh(m)
+        f.setArray(DataArrayDouble([12613576.708019681, 18945164.734307285, 22385248.637775388, 17074219.938821714, 19361929.467164982, 19258841.562907547]))
+        f.setGaussLocalizationOnType(NORM_TRI3,[0, 0, 1, 0, 0, 1],[0.0915762, 0.0915762, 0.816848, 0.0915762, 0.0915762, 0.816848, 0.445948, 0.108103, 0.445948, 0.445948, 0.108103, 0.445948],[0.0549759, 0.0549759, 0.0549759, 0.111691, 0.111691, 0.111691])
+        f.setName("field")
+        f_voro = f.voronoize(1e-13)
+        ref_area = DataArrayDouble([4.6679303278867127, 4.2514546761810138, 4.2514546761809337, 6.6206415950989804, 6.2643538685231039, 6.6206415950989884])
+        area = f_voro.buildMeasureField(True).getArray()*1e8
+        self.assertTrue(ref_area.isEqual(area,1e-6))
+        ref_bary = DataArrayDouble([(0.018231625096313969, 0.030950287685553721), (0.018826045778781105, 0.030916927013719033), (0.018533397739746087, 0.031364396601025746), (0.018541498169815956, 0.030944333493252929), (0.018660195622447071, 0.031132366117047686), (0.018400646702087166, 0.031159700554391174)])
+        bary = f_voro.getMesh().computeCellCenterOfMass()
+        self.assertTrue(ref_bary.isEqual(bary,1e-8))
+        self.assertTrue(f_voro.getArray().isEqual(f.getArray(),1e-8))
+        pass
+
     pass
 
 if __name__ == '__main__':
