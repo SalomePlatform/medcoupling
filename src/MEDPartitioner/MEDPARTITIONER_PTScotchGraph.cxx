@@ -38,7 +38,7 @@ extern "C"
 using namespace MEDPARTITIONER;
 
 
-PTSCOTCHGraph::PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray *graph, int *edgeweight, DataArrayInt *vlbloctab):Graph(graph,edgeweight),_vlbloctab(vlbloctab)
+PTSCOTCHGraph::PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray *graph, int *edgeweight, DataArrayIdType *vlbloctab):Graph(graph,edgeweight),_vlbloctab(vlbloctab)
 {
 }
 

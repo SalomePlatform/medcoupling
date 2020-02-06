@@ -144,7 +144,7 @@ MEDCoupling::MEDFileData* MEDPARTITIONER::MEDPartitioner::getMEDFileData()
   return _output_collection->retrieveDriver()->getMEDFileData();
 }
 
-MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split, int* edgeweight, DataArrayInt *vlbloctab)
+MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split, int* edgeweight, DataArrayIdType *vlbloctab)
 {
   MEDPARTITIONER::Graph* cellGraph=0;
   // will be destroyed by XXXGraph class:

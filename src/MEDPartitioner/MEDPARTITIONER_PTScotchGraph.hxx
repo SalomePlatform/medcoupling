@@ -36,11 +36,11 @@ namespace MEDPARTITIONER
   {
   public:
     PTSCOTCHGraph() { }
-    PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray* , int *edgeweight=0, DataArrayInt *vlbloctab=0);
+    PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray* , int *edgeweight=0, DataArrayIdType *vlbloctab=0);
     virtual ~PTSCOTCHGraph();
     void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=0);
   protected:
-    MEDCoupling::DataArrayInt *_vlbloctab;
+    MEDCoupling::DataArrayIdType *_vlbloctab;
   };
 }
 
