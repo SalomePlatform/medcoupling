@@ -1819,7 +1819,6 @@ void ASCIIReader::init( int nbToRead, int nbPosInLine, int width, int shift /*= 
     {
       _curPos = 0;
     }
-  _curLocale.clear();
 }
 
 //================================================================================
@@ -1852,11 +1851,7 @@ void ASCIIReader::initIntReading(int nbValues)
 
 void ASCIIReader::initDoubleReading(int nbValues)
 {
-  init( nbValues, 3, 22 );
-
-  // Correction 2 of getDouble(): set "C" numeric locale to read numbers
-  // with dot decimal point separator, as it is in SAUVE files
-  _curLocale = setlocale(LC_NUMERIC, "C");
+  init( nbValues, 3, 22 ); 
 }
 
 //================================================================================
@@ -1903,11 +1898,6 @@ void ASCIIReader::next()
   else
     {
       _curPos = 0;
-      if ( !_curLocale.empty() )
-        {
-          setlocale(LC_NUMERIC, _curLocale.c_str());
-          _curLocale.clear();
-        }
     }
 }
 

@@ -38,6 +38,24 @@ using namespace std;
 
 #define GIBI_EQUAL(var_str, stat_str) (strncmp (var_str, stat_str, strlen(stat_str)) == 0)
 
+namespace
+{
+  class Localizer
+  {
+    std::string _locale;
+  public:
+    Localizer()
+    {
+      _locale = setlocale(LC_NUMERIC, NULL);
+      setlocale(LC_NUMERIC, "C");
+    }
+    ~Localizer()
+    {
+      setlocale(LC_NUMERIC, _locale.c_str());
+    }
+  };
+}
+
 //================================================================================
 /*!
  * \brief Creates a reader of a given sauve file
@@ -114,6 +132,8 @@ std::string SauvReader::lineNb() const
 
 MEDCoupling::MEDFileData * SauvReader::loadInMEDFileDS()
 {
+  Localizer loc; // localization, to read numbers in "C" locale
+
   SauvUtilities::IntermediateMED iMed; // intermadiate DS
   _iMed = &iMed;
 

@@ -113,7 +113,7 @@ namespace SauvUtilities
     std::size_t getHeapMemorySizeWithoutChildren() const { return 0; }
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const { return std::vector<const BigMemoryObject *>(); }
   protected:
-    std::string _fileName, _curLocale;
+    std::string _fileName;
     int _iRead, _nbToRead;
   };
 }
