@@ -390,6 +390,7 @@ namespace MEDCoupling
     static DataArrayFloat *New();
   public:// abstract method overload
     DataArrayFloat *deepCopy() const;
+    std::string getClassName() const override { return std::string("DataArrayFloat"); }
     DataArrayFloat *buildNewEmptyInstance() const { return DataArrayFloat::New(); }
     DataArrayFloat *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return DataArrayTemplateFP<float>::mySelectByTupleRanges(ranges); }
     DataArrayFloat *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return DataArrayTemplateFP<float>::myKeepSelectedComponents(compoIds); }
@@ -420,6 +421,7 @@ namespace MEDCoupling
     static DataArrayDouble *New();
     double doubleValue() const;
     DataArrayDouble *deepCopy() const;
+    std::string getClassName() const override { return std::string("DataArrayDouble"); }
     DataArrayDouble *buildNewEmptyInstance() const { return DataArrayDouble::New(); }
     void checkMonotonic(bool increasing, double eps) const;
     bool isMonotonic(bool increasing, double eps) const;
@@ -704,6 +706,7 @@ namespace MEDCoupling
     DataArrayInt32 *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return this->myKeepSelectedComponents(compoIds); }
     DataArrayInt32 *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const { return this->mySelectByTupleIdSafeSlice(bg,end2,step); }
     DataArrayInt32 *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return this->mySelectByTupleRanges(ranges); }
+    std::string getClassName() const override { return std::string("DataArrayInt32"); }
   public:
     DataArrayInt32Iterator *iterator();
   private:
@@ -724,6 +727,7 @@ namespace MEDCoupling
     DataArrayInt64 *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return DataArrayTemplate<Int64>::myKeepSelectedComponents(compoIds); }
     DataArrayInt64 *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const { return DataArrayTemplate<Int64>::mySelectByTupleIdSafeSlice(bg,end2,step); }
     DataArrayInt64 *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return DataArrayTemplate<Int64>::mySelectByTupleRanges(ranges); }
+    std::string getClassName() const override { return std::string("DataArrayInt64"); }
   public:
     DataArrayInt64Iterator *iterator();
   private:
@@ -816,6 +820,7 @@ namespace MEDCoupling
     void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
     std::vector<bool> toVectorOfBool() const;
+    std::string getClassName() const override { return std::string("DataArrayByte"); }
   private:
     ~DataArrayByte() { }
     DataArrayByte() { }
@@ -843,6 +848,7 @@ namespace MEDCoupling
     void reprQuickOverview(std::ostream& stream) const;
     void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
+    std::string getClassName() const override { return std::string("DataArrayAsciiChar"); }
   private:
     ~DataArrayAsciiChar() { }
     DataArrayAsciiChar() { }

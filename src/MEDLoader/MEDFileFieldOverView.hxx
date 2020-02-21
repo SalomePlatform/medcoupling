@@ -50,6 +50,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT static MEDFileMeshStruct *New(const MEDFileMesh *mesh);
+    std::string getClassName() const override { return std::string("MEDFileMeshStruct"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     const MEDFileMesh *getTheMesh() const { return _mesh; }
@@ -77,6 +78,7 @@ namespace MEDCoupling
   public:
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::string getClassName() const override { return std::string("MEDMeshMultiLev"); }
   public:
     static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
     static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<int>& levs);
@@ -133,6 +135,7 @@ namespace MEDCoupling
     static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<int>& levs);
     static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
     void selectPartOfNodes(const DataArrayIdType *pflNodes);
+    std::string getClassName() const override { return std::string("MEDUMeshMultiLev"); }
     MEDMeshMultiLev *prepare() const;
     MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MCAuto<MEDCoupling1GTUMesh>& part);
     MEDLOADER_EXPORT bool buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayIdType *&cellLocations, DataArrayIdType *& cells, DataArrayIdType *&faceLocations, DataArrayIdType *&faces) const;
@@ -155,6 +158,7 @@ namespace MEDCoupling
   public:
     void selectPartOfNodes(const DataArrayIdType *pflNodes);
     virtual std::vector<mcIdType> getNodeGridStructure() const = 0;
+    std::string getClassName() const override { return std::string("MEDStructuredMeshMultiLev"); }
   protected:
     MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other);
     MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev);
@@ -177,6 +181,7 @@ namespace MEDCoupling
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<int>& levs);
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
     std::vector<mcIdType> getNodeGridStructure() const;
+    std::string getClassName() const override { return std::string("MEDCMeshMultiLev"); }
     MEDMeshMultiLev *prepare() const;
     MEDLOADER_EXPORT std::vector< DataArrayDouble * > buildVTUArrays(bool& isInternal) const;
   private:
@@ -192,6 +197,7 @@ namespace MEDCoupling
   public:
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs);
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls , const std::vector<mcIdType>& nbEntities);
+    std::string getClassName() const override { return std::string("MEDCurveLinearMeshMultiLev"); }
     std::vector<mcIdType> getNodeGridStructure() const;
     MEDMeshMultiLev *prepare() const;
     MEDLOADER_EXPORT void buildVTUArrays(DataArrayDouble *&coords, std::vector<mcIdType>& nodeStrct, bool& isInternal) const;
@@ -209,6 +215,7 @@ namespace MEDCoupling
   public:
     MEDFileField1TSStructItem2();
     MEDFileField1TSStructItem2(INTERP_KERNEL::NormalizedCellType a, const std::pair<mcIdType,mcIdType>& b, const std::string& pfl, const std::string& loc);
+    std::string getClassName() const override { return std::string("MEDFileField1TSStructItem2"); }
     void checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     void checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     void checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
@@ -246,6 +253,7 @@ namespace MEDCoupling
     MEDFileField1TSStructItem(TypeOfField a, const std::vector< MEDFileField1TSStructItem2 >& b);
     void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     bool operator==(const MEDFileField1TSStructItem& other) const;
+    std::string getClassName() const override { return std::string("MEDFileField1TSStructItem"); }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     bool isEntityCell() const;
@@ -274,6 +282,7 @@ namespace MEDCoupling
     static MEDFileField1TSStruct *New(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst);
     void checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::string getClassName() const override { return std::string("MEDFileField1TSStruct"); }
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     bool isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *mst) const;
     bool isSupportSameAs(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt);
@@ -293,6 +302,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT static MEDFileFastCellSupportComparator *New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref);
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileFastCellSupportComparator"); }
     MEDLOADER_EXPORT MEDMeshMultiLev *buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const;
     MEDLOADER_EXPORT bool isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const;
     MEDLOADER_EXPORT int getNumberOfTS() const;

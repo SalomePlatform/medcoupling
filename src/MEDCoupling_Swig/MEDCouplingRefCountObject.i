@@ -86,7 +86,9 @@ namespace MEDCoupling
     std::size_t getHeapMemorySize() const;
     std::string getHeapMemorySizeStr() const;
     bool isObjectInTheProgeny(const BigMemoryObject *obj) const;
-    virtual std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::string debugHeapMemorySize() const;
+    std::string getClassName() const;
     virtual ~BigMemoryObject();
     %extend
     {

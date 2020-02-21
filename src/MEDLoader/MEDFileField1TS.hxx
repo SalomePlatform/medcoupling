@@ -41,6 +41,7 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA();
     MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order);
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileAnyTypeField1TSWithoutSDA"); }
     MEDLOADER_EXPORT int getIteration() const { return _iteration; }
     MEDLOADER_EXPORT int getOrder() const { return _order; }
     MEDLOADER_EXPORT double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _dt; }
@@ -172,6 +173,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT const char *getTypeStr() const;
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileField1TSWithoutSDA"); }
     MEDLOADER_EXPORT DataArray *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const;
     MEDLOADER_EXPORT std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
     MEDLOADER_EXPORT static void CheckMeshDimRel(int meshDimRelToMax);
@@ -204,6 +206,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT MEDFileIntField1TSWithoutSDA();
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileIntField1TSWithoutSDA"); }
     MEDLOADER_EXPORT static MEDFileIntField1TSWithoutSDA *New(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos);
     MEDLOADER_EXPORT MEDFileIntField1TSWithoutSDA *deepCopy() const;
     MEDLOADER_EXPORT MEDFileIntField1TSWithoutSDA *shallowCpy() const;
@@ -223,6 +226,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA();
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileFloatField1TSWithoutSDA"); }
     MEDLOADER_EXPORT static MEDFileFloatField1TSWithoutSDA *New(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos);
     MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA *deepCopy() const;
     MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA *shallowCpy() const;
@@ -246,6 +250,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities=0);
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities=0);
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS(const MEDFileAnyTypeField1TSWithoutSDA& other, bool shallowCopyOfContent);
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileAnyTypeField1TS"); }
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TS *BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c);
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TS *BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c, med_idt fid);
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities);
@@ -392,6 +397,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileField1TS *shallowCpy() const;
     MEDLOADER_EXPORT std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
                                                                                           std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileField1TS"); }
   public:
   private:
     med_field_type getMEDFileFieldType() const { return MED_FLOAT64; }
@@ -423,6 +429,7 @@ namespace MEDCoupling
     friend class MEDFileTemplateField1TS<int>;
   public:
     MEDLOADER_EXPORT MEDFileIntField1TS *shallowCpy() const { return new MEDFileIntField1TS(*this); }
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileIntField1TS"); }
   public:
     MEDLOADER_EXPORT static MCAuto<MEDCouplingFieldDouble> ConvertFieldIntToFieldDouble(const MEDCouplingFieldInt *f);
   private:
@@ -448,6 +455,7 @@ namespace MEDCoupling
   private:
     med_field_type getMEDFileFieldType() const { return MED_FLOAT32; }
     MEDLOADER_EXPORT MEDFileFloatField1TS *shallowCpy() const { return new MEDFileFloatField1TS(*this); }
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileFloatField1TS"); }
   private:
     ~MEDFileFloatField1TS() { }
     MEDFileFloatField1TS() { }

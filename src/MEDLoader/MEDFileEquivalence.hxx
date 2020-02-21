@@ -42,6 +42,7 @@ namespace MEDCoupling
   {
   public:
     static MEDFileEquivalencePair *Load(MEDFileEquivalences *father, med_idt fid, const std::string& name, const std::string &desc);
+    std::string getClassName() const override { return std::string("MEDFileEquivalencePair"); }
     void writeLL(med_idt fid) const;
     const MEDFileEquivalences *getFather() const { return _father; }
     MEDFileEquivalences *getFather() { return _father; }
@@ -89,6 +90,7 @@ namespace MEDCoupling
     bool isEqual(const MEDFileEquivalences *other, std::string& what) const;
     void getRepr(std::ostream& oss) const;
   public:
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileEquivalences"); }
     MEDLOADER_EXPORT MEDFileEquivalencePair *getEquivalence(int i);
     MEDLOADER_EXPORT MEDFileEquivalencePair *getEquivalenceWithName(const std::string& name);
     MEDLOADER_EXPORT int size() const;
@@ -128,6 +130,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileEquivalenceData(MEDFileEquivalencePair *owner, DataArrayInt *data);
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileEquivalenceData"); }
     MEDLOADER_EXPORT void setArray(DataArrayInt *data);
     MEDLOADER_EXPORT const DataArrayInt *getArray() const { return _data; }
     MEDLOADER_EXPORT DataArrayInt *getArray() { return _data; }
@@ -145,6 +148,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileEquivalenceCellType(MEDFileEquivalencePair *owner, INTERP_KERNEL::NormalizedCellType type, DataArrayInt *data):MEDFileEquivalenceData(owner,data),_type(type) { }
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileEquivalenceCellType"); }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
     MEDFileEquivalenceCellType *deepCopy(MEDFileEquivalencePair *owner) const;
@@ -163,6 +167,7 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileEquivalenceCell"); }
     static MEDFileEquivalenceCell *Load(med_idt fid, MEDFileEquivalencePair *owner);
     void writeLL(med_idt fid) const;
     MEDFileEquivalenceCell *deepCopy(MEDFileEquivalencePair *owner) const;
@@ -190,6 +195,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileEquivalenceNode(MEDFileEquivalencePair *owner, DataArrayInt *data):MEDFileEquivalenceData(owner,data) { }
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileEquivalenceNode"); }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     void writeLL(med_idt fid) const;
     MEDFileEquivalenceNode *deepCopy(MEDFileEquivalencePair *owner) const;

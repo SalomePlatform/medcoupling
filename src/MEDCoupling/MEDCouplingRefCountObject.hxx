@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGREFCOUNTOBJECT_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGREFCOUNTOBJECT_HXX__
+#pragma once
 
 #include "MEDCoupling.hxx"
 
@@ -78,8 +77,10 @@ namespace MEDCoupling
     std::vector<const BigMemoryObject *> getAllTheProgeny() const;
     bool isObjectInTheProgeny(const BigMemoryObject *obj) const;
     static std::size_t GetHeapMemorySizeOfObjs(const std::vector<const BigMemoryObject *>& objs);
+    virtual std::string getClassName() const { return "BigMemoryObject"; }
     virtual std::size_t getHeapMemorySizeWithoutChildren() const = 0;
     virtual std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const = 0;
+    std::string debugHeapMemorySize() const;
     virtual ~BigMemoryObject();
   private:
     static std::size_t GetHeapMemoryOfSet(std::set<const BigMemoryObject *>& s1, std::set<const BigMemoryObject *>& s2);
@@ -130,4 +131,3 @@ namespace MEDCoupling
   };
 }
 
-#endif

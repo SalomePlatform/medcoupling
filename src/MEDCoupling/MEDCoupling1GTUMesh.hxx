@@ -93,6 +93,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const MEDCouplingUMesh *m);
     //! useless constructor only for CORBA -> not swigged
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New();
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCoupling1SGTUMesh"); }
     // Copy methods
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *deepCopy() const;
@@ -192,6 +193,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const MEDCouplingUMesh *m);
     //! useless constructor only for CORBA -> not swigged
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New();
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCoupling1DGTUMesh"); }
     // Copy methods
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *deepCopy() const;

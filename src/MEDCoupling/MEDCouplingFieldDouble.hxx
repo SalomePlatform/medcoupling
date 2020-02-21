@@ -148,6 +148,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator^=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCOUPLING_EXPORT static std::string WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true);
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldDouble"); }
   public:
     MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return timeDiscr(); }
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return timeDiscr(); }

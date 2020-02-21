@@ -52,6 +52,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
   public:
     static MEDFileSEConstAtt *New(med_idt fid, MEDFileStructureElement *father, int idCstAtt, const MEDFileUMesh *mesh);
   public:
+    std::string getClassName() const override { return std::string("MEDFileSEConstAtt"); }
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     void writeLL(med_idt fid) const;
@@ -70,6 +71,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
   public:
     static MEDFileSEVarAtt *New(med_idt fid, MEDFileStructureElement *father, int idVarAtt);
   public:
+    std::string getClassName() const override { return std::string("MEDFileSEVarAtt"); }
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     void writeLL(med_idt fid) const;
@@ -92,6 +94,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT std::string getMeshName() const;
     MEDLOADER_EXPORT std::vector<std::string> getVarAtts() const;
     MEDLOADER_EXPORT const MEDFileSEVarAtt *getVarAtt(const std::string& varName) const;
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileStructureElement"); }
   public:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -118,6 +121,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT static MEDFileStructureElements *New(const std::string& fileName, const MEDFileMeshSupports *ms);
     MEDLOADER_EXPORT static MEDFileStructureElements *New(med_idt fid, const MEDFileMeshSupports *ms);
     MEDLOADER_EXPORT static MEDFileStructureElements *New();
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileStructureElements"); }
     MEDLOADER_EXPORT int getNumberOf() const;
     MEDLOADER_EXPORT std::vector<int> getDynGTAvail() const;
     MEDLOADER_EXPORT const MEDFileStructureElement *getWithGT(int idGT) const;

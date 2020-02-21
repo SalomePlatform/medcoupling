@@ -39,6 +39,7 @@ namespace MEDCoupling
   {
   public:
     static MEDFileUMeshPerTypeCommon *New();
+    std::string getClassName() const override { return std::string("MEDFileUMeshPerTypeCommon"); }
     void loadCommonPart(med_idt fid, const char *mName, int dt, int it, mcIdType curNbOfElem, med_geometry_type geoElt,
                         med_entity_type entity, MEDFileMeshReadSelector *mrs);
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -57,6 +58,7 @@ namespace MEDCoupling
   public:
     static MEDFileUMeshPerType *New(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType geoElt2, MEDFileMeshReadSelector *mrs);
     static MEDFileUMeshPerType *NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, mcIdType strt, mcIdType stp, mcIdType step, MEDFileMeshReadSelector *mrs);
+    std::string getClassName() const override { return std::string("MEDFileUMeshPerType"); }
     static bool isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity);
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;

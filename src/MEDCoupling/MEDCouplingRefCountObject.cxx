@@ -88,6 +88,35 @@ bool MEDCoupling::IsCXX11Compiled()
 
 //=
 
+std::string BigMemoryObject::debugHeapMemorySize() const
+{
+  std::size_t ret(getHeapMemorySizeWithoutChildren()),sum(ret);
+  std::ostringstream oss;
+  std::vector<const BigMemoryObject *> s2(getDirectChildren());
+  std::set<const BigMemoryObject *> s1;
+  oss << "this (" << this->getClassName() << ") -> " << ret << std::endl;
+  while(!s2.empty())
+    {
+      std::vector<const BigMemoryObject *> s3;
+      for(auto it : s2)
+        {
+          if(s1.find(it)==s1.end())
+            {
+	      ret = it->getHeapMemorySizeWithoutChildren(); sum+=ret;
+              oss << it->getClassName() << " -> " <<  ret << std::endl;
+              s1.insert(it);
+              std::vector<const BigMemoryObject *> v2(it->getDirectChildren());
+              for(auto it2 : v2)
+                if(s1.find(it2)==s1.end())
+                  s3.push_back(it2);
+            }
+        }
+      s2=s3;
+    }
+  oss << "sum = " << sum << std::endl;
+  return oss.str();
+}
+
 std::size_t BigMemoryObject::getHeapMemorySize() const
 {
   std::size_t ret(getHeapMemorySizeWithoutChildren());

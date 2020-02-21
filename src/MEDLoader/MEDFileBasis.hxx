@@ -73,6 +73,7 @@ namespace MEDCoupling
     template<class INTARRAY>
     static DataArrayMedInt *Copy( const INTARRAY* array );
     static DataArrayMedInt *New() { return new DataArrayMedInt(); }
+    std::string getClassName() const override { return std::string("DataArrayMedInt"); }
     DataArrayMedInt *deepCopy() const { return new DataArrayMedInt(*this); }
     //DataArrayMedInt *buildNewEmptyInstance() const { return new DataArrayMedInt(); }//ko
     DataArray *buildNewEmptyInstance() const { if ( sizeof(med_int)==sizeof(int)) return DataArrayInt32::New(); return DataArrayInt64::New(); }

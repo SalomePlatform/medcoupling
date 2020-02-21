@@ -37,6 +37,7 @@ namespace MEDCoupling
   {
   public:
     static MCAuto< MapKeyVal<ID, T> > New();
+    std::string getClassName() const override { return std::string("MapKeyVal"); }
     std::map<ID,T>& data() { return _m; }
     const std::map<ID,T>& data() const { return _m; }
     std::size_t getHeapMemorySizeWithoutChildren() const;

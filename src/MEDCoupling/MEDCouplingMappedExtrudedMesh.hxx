@@ -40,6 +40,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, mcIdType cell2DId);
     MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingCMesh *mesh3D);
     MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New();
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingMappedExtrudedMesh"); }
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;

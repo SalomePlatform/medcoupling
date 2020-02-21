@@ -58,6 +58,7 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT static MEDFileParameterDouble1TSWTI *New(int iteration, int order, double time);
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileParameterDouble1TSWTI"); }
     MEDLOADER_EXPORT MEDFileParameter1TS *deepCopy() const;
     MEDLOADER_EXPORT void setValue(double val) { _arr=val; }
     MEDLOADER_EXPORT double getValue() const { return _arr; }
@@ -102,6 +103,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName);
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName);
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName, int dt, int it);
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileParameterDouble1TS"); }
     MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCopy() const;
     MEDLOADER_EXPORT virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT virtual std::string simpleRepr() const;
@@ -125,6 +127,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const std::string& fileName, const std::string& paramName);
     MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(med_idt fid, const std::string& paramName);
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileParameterMultiTS"); }
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -161,6 +164,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileParameters *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileParameters *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileParameters>(db); }
     MEDLOADER_EXPORT static MEDFileParameters *New(const std::string& fileName);
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileParameters"); }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileParameters *deepCopy() const;

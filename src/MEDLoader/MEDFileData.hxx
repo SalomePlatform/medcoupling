@@ -40,6 +40,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileData *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileData *New();
     MEDLOADER_EXPORT static MEDFileData *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileData>(db); }
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileData"); }
     MEDLOADER_EXPORT MEDFileData *deepCopy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;

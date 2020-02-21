@@ -52,6 +52,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void write(const std::string& fileName);
     MEDLOADER_EXPORT void setCpyGrpIfOnASingleFamilyStatus(bool status);
     MEDLOADER_EXPORT bool getCpyGrpIfOnASingleFamilyStatus() const;
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("SauvWriter"); }
   private:
     SauvWriter();
     std::size_t getHeapMemorySizeWithoutChildren() const;

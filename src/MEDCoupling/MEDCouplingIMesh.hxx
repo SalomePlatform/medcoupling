@@ -34,6 +34,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingIMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingIMesh *New(const std::string& meshName, int spaceDim, const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop,
                                                     const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingIMesh"); }
     //
     MEDCOUPLING_EXPORT void setSpaceDimension(int spaceDim);
     MEDCOUPLING_EXPORT void setNodeStruct(const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop);

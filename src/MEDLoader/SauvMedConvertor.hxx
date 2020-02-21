@@ -326,7 +326,7 @@ namespace SauvUtilities
     virtual double getDouble() const;
     virtual std::string getName() const;
     int lineNb() const { return _lineNb; }
-
+    std::string getClassName() const override { return std::string("ASCIIReader"); }
   private:
 
     bool getLine(char* & line);
@@ -364,7 +364,7 @@ namespace SauvUtilities
     virtual float  getFloat() const;
     virtual double getDouble() const;
     virtual std::string getName() const;
-
+    std::string getClassName() const override { return std::string("XDRReader"); }
   private:
 
     void init( int nbToRead, int width = 0 );

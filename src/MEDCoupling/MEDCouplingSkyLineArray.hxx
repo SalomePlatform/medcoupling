@@ -63,7 +63,7 @@ namespace MEDCoupling
     static MEDCouplingSkyLineArray * New( const MEDCouplingSkyLineArray & other );
 
     static MEDCouplingSkyLineArray * BuildFromPolyhedronConn( const DataArrayIdType* c, const DataArrayIdType* cI );
-
+    std::string getClassName() const override { return std::string("MEDCouplingSkyLineArray"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
 

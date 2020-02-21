@@ -85,6 +85,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void simpleRepr(std::ostream& oss) const;
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT void setName(const std::string& name);
+    std::string getClassName() const override { return std::string("MEDFileFieldLoc"); }
     static MEDFileFieldLoc *New(med_idt fid, const std::string& locName);
     static MEDFileFieldLoc *New(med_idt fid, int i, const MEDFileEntities *entities);
     static MEDFileFieldLoc *New(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
@@ -135,6 +136,7 @@ namespace MEDCoupling
     static MEDFileFieldPerMeshPerTypePerDisc *NewOnRead(MEDFileFieldPerMeshPerTypeCommon *fath, TypeOfField type, int profileIt, const PartDefinition *pd);
     static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerTypeCommon *fath, TypeOfField type, mcIdType locId);
     static MEDFileFieldPerMeshPerTypePerDisc *New(const MEDFileFieldPerMeshPerTypePerDisc& other);
+    std::string getClassName() const override { return std::string("MEDFileFieldPerMeshPerTypePerDisc"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileFieldPerMeshPerTypePerDisc *deepCopy(MEDFileFieldPerMeshPerTypeCommon *father) const;
@@ -220,6 +222,7 @@ namespace MEDCoupling
   class MEDFileFieldPerMeshPerTypeCommon : public RefCountObject, public MEDFileWritable
   {
   public:
+    std::string getClassName() const override { return std::string("MEDFileFieldPerMeshPerTypeCommon"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     void assignFieldNoProfile(mcIdType& start, mcIdType offset, mcIdType nbOfCells, const MEDCouplingFieldTemplate *field, const DataArray *arr, MEDFileFieldGlobsReal& glob, const MEDFileFieldNameScope& nasc);
@@ -286,6 +289,7 @@ namespace MEDCoupling
   class MEDFileFieldPerMeshPerType : public MEDFileFieldPerMeshPerTypeCommon
   {
   public:
+    std::string getClassName() const override { return std::string("MEDFileFieldPerMeshPerType"); }
     static MEDFileFieldPerMeshPerType *New(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType);
     static MEDFileFieldPerMeshPerType *NewOnRead(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const MEDFileFieldNameScope& nasc, const PartDefinition *pd);
     static MCAuto<MEDFileFieldPerMeshPerType> Aggregate(mcIdType &start, const std::vector< std::pair<int,const MEDFileFieldPerMeshPerType *> >& pms, const std::vector< std::vector< std::pair<int,mcIdType> > >& dts, INTERP_KERNEL::NormalizedCellType gt, MEDFileFieldPerMesh *father, std::vector<std::pair< int, std::pair<mcIdType,mcIdType> > >& extractInfo);
@@ -308,6 +312,7 @@ namespace MEDCoupling
   {
   public:
     static MEDFileFieldPerMeshPerTypeDyn *NewOnRead(med_idt fid, MEDFileFieldPerMesh *fath, const MEDFileEntities *entities, int idGT, const MEDFileFieldNameScope& nasc);
+    std::string getClassName() const override { return std::string("MEDFileFieldPerMeshPerTypeDyn"); }
     int getDynGT() const;
     std::string getModelName() const;
   public:
@@ -333,6 +338,7 @@ namespace MEDCoupling
   public:
     static MEDFileFieldPerMesh *New(MEDFileAnyTypeField1TSWithoutSDA *fath, const MEDCouplingMesh *mesh);
     static MEDFileFieldPerMesh *NewOnRead(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const MEDFileMesh *mm, const MEDFileEntities *entities);
+    std::string getClassName() const override { return std::string("MEDFileFieldPerMesh"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileFieldPerMesh *deepCopy(MEDFileAnyTypeField1TSWithoutSDA *father) const;

@@ -40,6 +40,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldInt *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldInt"); }
   protected:
     MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCopy);

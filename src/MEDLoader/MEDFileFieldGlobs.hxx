@@ -41,6 +41,7 @@ namespace MEDCoupling
   public:
     static MEDFileFieldGlobs *New(med_idt fid);
     static MEDFileFieldGlobs *New();
+    std::string getClassName() const override { return std::string("MEDFileFieldGlobs"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileFieldGlobs *deepCopy() const;

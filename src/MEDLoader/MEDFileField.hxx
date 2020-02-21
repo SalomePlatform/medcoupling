@@ -77,6 +77,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileFields *NewWithDynGT(const std::string& fileName, const MEDFileStructureElements *se, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFields *NewWithDynGT(med_idt fid, const MEDFileStructureElements *se, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFields *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileFields>(db); }
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileFields"); }
     MEDLOADER_EXPORT static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0);
     MEDLOADER_EXPORT static MEDFileFields *LoadSpecificEntities(const std::string& fileName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll=true);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;

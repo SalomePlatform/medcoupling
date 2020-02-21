@@ -35,6 +35,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileMeshSupports *New(const std::string& fileName);
     MEDLOADER_EXPORT static MEDFileMeshSupports *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileMeshSupports *New();
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileMeshSupports"); }
   public:
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;

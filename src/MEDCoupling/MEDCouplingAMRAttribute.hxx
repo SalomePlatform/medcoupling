@@ -32,6 +32,7 @@ namespace MEDCoupling
   {
   public:
     static DataArrayDoubleCollection *New(const std::vector< std::pair<std::string,int> >& fieldNames);
+    std::string getClassName() const override { return std::string("DataArrayDoubleCollection"); }
     DataArrayDoubleCollection *deepCopy() const;
     void allocTuples(mcIdType nbOfTuples);
     void dellocTuples();
@@ -71,6 +72,7 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingGridCollection *New(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
+    std::string getClassName() const override { return std::string("MEDCouplingGridCollection"); }
     MEDCouplingGridCollection *deepCopy(const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf) const;
     void alloc(mcIdType ghostLev);
     void dealloc();
@@ -106,6 +108,7 @@ namespace MEDCoupling
     friend class MEDCouplingCartesianAMRMesh;
   public:
     MEDCOUPLING_EXPORT MEDCouplingCartesianAMRMesh *getMyGodFather();
+    std::string getClassName() const override { return std::string("MEDCouplingDataForGodFather"); }
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getMyGodFather() const;
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse() = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarseBetween(mcIdType fromLev, mcIdType toLev) = 0;
@@ -133,6 +136,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, mcIdType ghostLev);
     MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, mcIdType ghostLev);
+    std::string getClassName() const override { return std::string("MEDCouplingAMRAttribute"); }
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     MEDCOUPLING_EXPORT void spillNatures(const std::vector<NatureOfField>& nfs);
     MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCopy() const;

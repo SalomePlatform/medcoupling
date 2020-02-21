@@ -242,6 +242,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingTimeDiscretizationInt() { }
+    std::string getClassName() const override { return std::string("MEDCouplingTimeDiscretizationInt"); }
     MEDCouplingTimeDiscretizationInt(const MEDCouplingTimeDiscretizationInt& other, bool deepCopy);
     static MEDCouplingTimeDiscretizationInt *New(TypeOfTimeDiscretization type);
     MEDCouplingTimeDiscretizationInt *performCopyOrIncrRef(bool deepCopy) const;
@@ -253,6 +254,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingTimeDiscretizationFloat() { }
+    std::string getClassName() const override { return std::string("MEDCouplingTimeDiscretizationFloat"); }
     MEDCouplingTimeDiscretizationFloat(const MEDCouplingTimeDiscretizationFloat& other, bool deepCopy);
     static MEDCouplingTimeDiscretizationFloat *New(TypeOfTimeDiscretization type);
     MEDCouplingTimeDiscretizationFloat *performCopyOrIncrRef(bool deepCopy) const;
@@ -268,6 +270,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingNoTimeLabel();
     MEDCOUPLING_EXPORT MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCopy);
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingNoTimeLabel"); }
     MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh);
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
@@ -329,6 +332,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCopy);
   public:
     MEDCOUPLING_EXPORT MEDCouplingWithTimeStep();
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingWithTimeLabel"); }
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other);
     MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
@@ -395,6 +399,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCopy);
   public:
     MEDCOUPLING_EXPORT MEDCouplingConstOnTimeInterval();
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingConstOnTimeInterval"); }
     MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other);
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
@@ -463,6 +468,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingTwoTimeSteps();
     MEDCOUPLING_EXPORT ~MEDCouplingTwoTimeSteps();
   public:
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingTwoTimeSteps"); }
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh);
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;

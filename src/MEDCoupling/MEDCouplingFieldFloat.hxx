@@ -40,6 +40,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldFloat"); }
   protected:
     MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldFloat(const MEDCouplingFieldFloat& other, bool deepCpy);

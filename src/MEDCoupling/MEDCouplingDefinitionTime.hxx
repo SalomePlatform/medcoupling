@@ -70,6 +70,7 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingDefinitionTimeSliceInst *New(const std::vector<int>& tiI, const std::vector<double>& tiD);
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingDefinitionTimeSliceInst"); }
     MEDCouplingDefinitionTimeSlice *copy() const;
     bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
     void getHotSpotsTime(std::vector<double>& ret) const;
@@ -93,6 +94,7 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingDefinitionTimeSliceCstOnTI *New(const std::vector<int>& tiI, const std::vector<double>& tiD);
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingDefinitionTimeSliceCstOnTI"); }
     MEDCouplingDefinitionTimeSlice *copy() const;
     bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
     void getHotSpotsTime(std::vector<double>& ret) const;
@@ -117,6 +119,7 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingDefinitionTimeSliceLT *New(const std::vector<int>& tiI, const std::vector<double>& tiD);
+    std::string getClassName() const override { return std::string("MEDCouplingDefinitionTimeSliceLT"); }
     MEDCouplingDefinitionTimeSlice *copy() const;
     bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
     void getHotSpotsTime(std::vector<double>& ret) const;

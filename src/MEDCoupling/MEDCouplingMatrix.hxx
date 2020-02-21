@@ -40,6 +40,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static DenseMatrix *New(mcIdType nbRows, mcIdType nbCols);
     MEDCOUPLING_EXPORT static DenseMatrix *New(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("DenseMatrix"); }
     MEDCOUPLING_EXPORT DenseMatrix *deepCopy() const;
     MEDCOUPLING_EXPORT DenseMatrix *shallowCpy() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;

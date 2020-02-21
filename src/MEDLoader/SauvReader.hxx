@@ -49,6 +49,7 @@ class SauvReader : public MEDCoupling::RefCountObject
   MEDLOADER_EXPORT static SauvReader* New(const std::string& fileName);
   MEDLOADER_EXPORT MEDCoupling::MEDFileData * loadInMEDFileDS();
   MEDLOADER_EXPORT ~SauvReader();
+  MEDLOADER_EXPORT std::string getClassName() const override { return std::string("SauvReader"); }
 
  private:
   std::size_t getHeapMemorySizeWithoutChildren() const;

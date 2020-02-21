@@ -73,6 +73,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMeshGen *mesh, const std::vector< std::pair<mcIdType,mcIdType> >& bottomLeftTopRight);
+    std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRPatch"); }
     MEDCouplingCartesianAMRPatch *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
     // direct forward to _mesh
     MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<mcIdType,mcIdType> >& bottomLeftTopRight, const std::vector<mcIdType>& factors);
@@ -116,6 +117,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh);
+    std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRPatchGF"); }
     MEDCouplingCartesianAMRPatchGF *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
   private:
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -215,6 +217,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingCartesianAMRMeshSub(MEDCouplingCartesianAMRMeshGen *father, MEDCouplingIMesh *mesh);
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRMeshSub"); }
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
     MEDCOUPLING_EXPORT mcIdType getAbsoluteLevel() const;
@@ -235,6 +238,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(MEDCouplingIMesh *mesh);
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRMesh"); }
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
     MEDCOUPLING_EXPORT mcIdType getAbsoluteLevel() const;

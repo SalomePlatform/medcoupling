@@ -117,6 +117,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileUMeshL2();
+    std::string getClassName() const override { return std::string("MEDFileUMeshL2"); }
     std::vector<std::string> loadCommonPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, int& Mdim);
     void loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
@@ -155,6 +156,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileCMeshL2();
+    std::string getClassName() const override { return std::string("MEDFileCMeshL2"); }
     void loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it);
     MEDCouplingCMesh *getMesh() { return _cmesh; }
     MEDCoupling::MEDCouplingAxisType getAxisType() const { return _ax_type; }
@@ -169,6 +171,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileCLMeshL2();
+    std::string getClassName() const override { return std::string("MEDFileCLMeshL2"); }
     void loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it);
     MEDCouplingCurveLinearMesh *getMesh() { return _clmesh; }
   private:
@@ -182,6 +185,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileUMeshPermCompute(const MEDFileUMeshSplitL1* st);
+    std::string getClassName() const override { return std::string("MEDFileUMeshPermCompute"); }
     operator MEDCouplingUMesh *() const;
     void operator=(MEDCouplingUMesh *m);
     void updateTime() const;
@@ -198,6 +202,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileUMeshAggregateCompute();
+    std::string getClassName() const override { return std::string("MEDFileUMeshAggregateCompute"); }
     void setName(const std::string& name);
     void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
     void assignDefParts(const std::vector<const PartDefinition *>& partDefs);
@@ -251,6 +256,7 @@ namespace MEDCoupling
     MEDFileUMeshSplitL1(MEDCoupling1GTUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
+    std::string getClassName() const override { return std::string("MEDFileUMeshSplitL1"); }
     void setName(const std::string& name);
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -330,6 +336,7 @@ namespace MEDCoupling
   {
   public:
     static MEDFileEltStruct4Mesh *New(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs);
+    std::string getClassName() const override { return std::string("MEDFileEltStruct4Mesh"); }
     std::string getGeoTypeName() const { return _geo_type_name; }
     MCAuto<DataArrayIdType> getConn() const { return _conn; }
     MCAuto<MEDFileUMeshPerTypeCommon> getMeshDef() const { return _common; }

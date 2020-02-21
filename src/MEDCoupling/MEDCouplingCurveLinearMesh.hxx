@@ -32,6 +32,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCurveLinearMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingCurveLinearMesh *New(const std::string& meshName);
+    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCurveLinearMesh"); }
     MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT void updateTime() const;
