@@ -38,6 +38,7 @@
 #include "MEDFileEntities.hxx"
 #include "MEDFileMeshReadSelector.hxx"
 #include "MEDFileFieldOverView.hxx"
+#include "MEDCouplingTypemaps.i"
 #include "MEDLoaderTypemaps.i"
 #include "SauvReader.hxx"
 #include "SauvWriter.hxx"
@@ -391,6 +392,7 @@ namespace MEDCoupling
 %rename (ReadUMeshFromGroups) ReadUMeshFromGroupsSwig;
 %rename (ReadUMeshFromFamilies) ReadUMeshFromFamiliesSwig;
 %rename (ReadField) ReadFieldSwig;
+%rename (GetFamiliesGroupsInfo) GetFamiliesGroupsInfoSwig;
 
 %inline
 {
@@ -410,6 +412,18 @@ namespace MEDCoupling
     return 8*sizeof(med_int);
   }
 
+  PyObject *GetFamiliesGroupsInfoSwig(const std::string& fileName, const std::string& meshName)
+  {
+    std::map<std::string,mcIdType> families;
+    std::map<std::string,std::vector<std::string>> groupsOnFam;
+    MEDCoupling::GetFamiliesGroupsInfo(fileName,meshName,families,groupsOnFam);
+    AutoPyPtr a(convertMapStringInt(families)),b(convertMapStringVectString(groupsOnFam));
+    AutoPyPtr ret(PyTuple_New(2));
+    PyTuple_SetItem(ret,0,a.retn());
+    PyTuple_SetItem(ret,1,b.retn());
+    return ret.retn();
+  }
+  
   MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName));

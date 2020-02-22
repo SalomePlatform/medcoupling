@@ -33,6 +33,48 @@
 #include "MEDCouplingPartDefinition.hxx"
 #include "MEDCouplingCartesianAMRMesh.hxx"
 
+#include <memory>
+
+auto PyDeleter = [](PyObject *ob) { Py_DECREF(ob) ; };
+
+class AutoPyPtr : std::unique_ptr<PyObject,decltype(PyDeleter)>
+{
+  public:
+  AutoPyPtr(PyObject *ob):std::unique_ptr<PyObject,decltype(PyDeleter)>(ob,PyDeleter) { }
+  PyObject *retn() { return this->release(); }
+  operator PyObject *() const { return this->get(); }
+};
+
+AutoPyPtr convertMapStringInt(const std::map<std::string,mcIdType>& cpp)
+{
+  AutoPyPtr ret(PyDict_New());
+  for(auto it : cpp)
+  {
+    AutoPyPtr st(PyString_FromString(it.first.c_str()));
+    AutoPyPtr val(PyInt_FromLong(it.second));
+    PyDict_SetItem(ret,st,val);
+  }
+  return ret;
+}
+
+AutoPyPtr convertMapStringVectString(const std::map<std::string,std::vector<std::string>>& cpp)
+{
+  AutoPyPtr ret(PyDict_New());
+  for(auto it : cpp)
+  {
+    AutoPyPtr st(PyString_FromString(it.first.c_str()));
+    AutoPyPtr vec(PyList_New(it.second.size()));
+    std::size_t itc(0);
+    for(auto it2 : it.second)
+    {
+      AutoPyPtr st2(PyString_FromString(it2.c_str()));
+      PyList_SetItem(vec,itc++,st2.retn());
+    }
+    PyDict_SetItem(ret,st,vec.retn());
+  }
+  return ret;
+}
+
 static PyObject *convertMesh(MEDCoupling::MEDCouplingMesh *mesh, int owner)
 {
   PyObject *ret=0;
