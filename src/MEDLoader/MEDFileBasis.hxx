@@ -23,6 +23,7 @@
 
 #include "InterpKernelException.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingMemArray.txx"
 
 #include <string>
 #include <vector>
