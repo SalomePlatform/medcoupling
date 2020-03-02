@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __PARAMESH_HXX__
-#define __PARAMESH_HXX__
+#pragma once
 
 #include "MEDCouplingPointSet.hxx"
 #include "ProcessorGroup.hxx"
@@ -61,21 +60,21 @@ namespace MEDCoupling
     void setCellGlobal(DataArrayIdType *cellGlobal);
     Topology* getTopology() const { return _explicit_topology; }
     bool isStructured() const { return _cell_mesh->isStructured(); }
-    MEDCouplingPointSet *getCellMesh() const { return _cell_mesh; }
-    MEDCouplingPointSet *getFaceMesh() const { return _face_mesh; }
+    MEDCouplingPointSet *getCellMesh() const { return _cell_mesh.iAmATrollConstCast(); }
+    MEDCouplingPointSet *getFaceMesh() const { return _face_mesh.iAmATrollConstCast(); }
     BlockTopology* getBlockTopology() const { return _block_topology; }
 
-    DataArrayIdType* getGlobalNumberingNodeDA() const { if(_node_global) _node_global->incrRef(); return _node_global; }
-    DataArrayIdType* getGlobalNumberingFaceDA() const { if(_face_global) _face_global->incrRef(); return _face_global; }
-    DataArrayIdType* getGlobalNumberingCellDA() const { if(_cell_global) _cell_global->incrRef(); return _cell_global; }
-    const mcIdType* getGlobalNumberingNode() const { if(_node_global) return _node_global->getConstPointer(); return 0; }
-    const mcIdType* getGlobalNumberingFace() const { if(_face_global) return _face_global->getConstPointer(); return 0; }
-    const mcIdType* getGlobalNumberingCell() const { if(_cell_global) return _cell_global->getConstPointer(); return 0; }
+    DataArrayIdType* getGlobalNumberingNodeDA() const { return _node_global.retnConstCast(); }
+    DataArrayIdType* getGlobalNumberingFaceDA() const { return _face_global.retnConstCast(); }
+    DataArrayIdType* getGlobalNumberingCellDA() const { return _cell_global.retnConstCast(); }
+    const mcIdType* getGlobalNumberingNode() const { if(_node_global) return _node_global->getConstPointer(); return nullptr; }
+    const mcIdType* getGlobalNumberingFace() const { if(_face_global) return _face_global->getConstPointer(); return nullptr; }
+    const mcIdType* getGlobalNumberingCell() const { if(_cell_global) return _cell_global->getConstPointer(); return nullptr; }
 
   private:
     //mesh object underlying the ParaMESH object
-    MEDCouplingPointSet *_cell_mesh ;
-    MEDCouplingPointSet *_face_mesh ;
+    MCAuto<MEDCouplingPointSet> _cell_mesh ;
+    MCAuto<MEDCouplingPointSet> _face_mesh ;
 
     //id of the local grid
     int _my_domain_id;
@@ -84,10 +83,8 @@ namespace MEDCoupling
     MEDCoupling::BlockTopology* _block_topology;
     Topology*  _explicit_topology;
     // pointers to global numberings
-    DataArrayIdType* _node_global;
-    DataArrayIdType* _face_global;
-    DataArrayIdType* _cell_global;
+    MCAuto<DataArrayIdType> _node_global;
+    MCAuto<DataArrayIdType> _face_global;
+    MCAuto<DataArrayIdType> _cell_global;
   };
 }
-
-#endif

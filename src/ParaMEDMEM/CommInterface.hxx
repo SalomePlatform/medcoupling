@@ -17,12 +17,14 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __COMMINTERFACE_HXX__
-#define __COMMINTERFACE_HXX__
+#pragma once
+
+#include "ParaIdType.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <mpi.h>
 
-#include "ParaIdType.hxx"
+#include <memory>
 
 namespace MEDCoupling
 {
@@ -78,10 +80,12 @@ namespace MEDCoupling
     int allGather(void* sendbuf, int sendcount, MPI_Datatype sendtype,
                   void* recvbuf, int recvcount, MPI_Datatype recvtype,
                   MPI_Comm comm) const { return MPI_Allgather(sendbuf,sendcount, sendtype, recvbuf, recvcount, recvtype, comm); }
+    int allGatherV(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int recvcounts[],
+                   const int displs[], MPI_Datatype recvtype, MPI_Comm comm) { return MPI_Allgatherv(sendbuf,sendcount,sendtype,recvbuf,recvcounts,displs,recvtype,comm); }
     int allToAll(void* sendbuf, int sendcount, MPI_Datatype sendtype,
                  void* recvbuf, int recvcount, MPI_Datatype recvtype,
                  MPI_Comm comm) const { return MPI_Alltoall(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm); }
-    int allToAllV(void* sendbuf, int* sendcounts, int* senddispls,
+    int allToAllV(const void* sendbuf, int* sendcounts, int* senddispls,
                   MPI_Datatype sendtype, void* recvbuf, int* recvcounts,
                   int* recvdispls, MPI_Datatype recvtype, 
                   MPI_Comm comm) const { return MPI_Alltoallv(sendbuf, sendcounts, senddispls, sendtype, recvbuf, recvcounts, recvdispls, recvtype, comm); }
@@ -89,7 +93,46 @@ namespace MEDCoupling
     int reduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype,
                MPI_Op op, int root, MPI_Comm comm) const { return MPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm); }
     int allReduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) const { return MPI_Allreduce(sendbuf, recvbuf, count, datatype, op, comm); }
+  public:
+
+    /*!
+    * \a counts is expected to be an array of array length. This method returns an array of split array.
+    */
+    static std::unique_ptr<mcIdType[]> SplitArrayOfLength(const std::unique_ptr<mcIdType[]>& counts, std::size_t countsSz, int rk, int size)
+    {
+      std::unique_ptr<mcIdType[]> ret(new mcIdType[countsSz]);
+      for(std::size_t i=0;i<countsSz;++i)
+      {
+        mcIdType a,b;
+        DataArray::GetSlice(0,counts[i],1,rk,size,a,b);
+        ret[i] = b-a;
+      }
+      return ret;
+    }
+
+    /*!
+    * Helper of alltoallv and allgatherv
+    */
+    template<class T>
+    static std::unique_ptr<int []> ToIntArray(const std::unique_ptr<T []>& arr, std::size_t size)
+    {
+      std::unique_ptr<int []> ret(new int[size]);
+      std::copy(arr.get(),arr.get()+size,ret.get());
+      return ret;
+    }
+    
+    /*!
+    * Helper of alltoallv and allgatherv
+    */
+    static std::unique_ptr<int []> ComputeOffset(const std::unique_ptr<int []>& counts, std::size_t sizeOfCounts)
+    {
+      std::unique_ptr<int []> ret(new int[sizeOfCounts]);
+      ret[0] = 0;
+      for(std::size_t i = 1 ; i < sizeOfCounts ; ++i)
+      {
+        ret[i] = ret[i-1] + counts[i-1];
+      }
+      return ret;
+    }
   };
 }
-
-#endif /*COMMINTERFACE_HXX_*/

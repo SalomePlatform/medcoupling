@@ -134,7 +134,10 @@ namespace MEDCoupling
     static mcIdType GetPosOfItemGivenBESRelativeNoThrow(T value, T begin, T end, T step);
   };
 
+  class DataArray;
   class DataArrayByte;
+
+  MEDCOUPLING_EXPORT void DACheckNbOfTuplesAndComp(const DataArray *da, mcIdType nbOfTuples, std::size_t nbOfCompo, const std::string& msg);
 
   class MEDCOUPLING_EXPORT DataArray : public RefCountObject, public TimeLabel
   {

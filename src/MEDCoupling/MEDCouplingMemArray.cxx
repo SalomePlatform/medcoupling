@@ -60,6 +60,13 @@ template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<mcIdType>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<double>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<float>;
 
+void MEDCoupling::DACheckNbOfTuplesAndComp(const DataArray *da, mcIdType nbOfTuples, std::size_t nbOfCompo, const std::string& msg)
+{
+  if(!da)
+    throw INTERP_KERNEL::Exception("DACheckNbOfTuplesAndComp : null input object !");
+  da->checkNbOfTuplesAndComp(nbOfTuples,nbOfCompo,msg);
+}
+
 template<mcIdType SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, mcIdType nbNodes, mcIdType limitNodeId, double prec, DataArrayIdType *c, DataArrayIdType *cI) const
 {

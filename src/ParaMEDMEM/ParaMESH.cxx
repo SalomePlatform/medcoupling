@@ -36,37 +36,22 @@ namespace MEDCoupling
   ParaMESH::ParaMESH( MEDCouplingPointSet *subdomain_mesh, MEDCouplingPointSet *subdomain_face,
             DataArrayIdType *CorrespElt_local2global, DataArrayIdType *CorrespFace_local2global,
             DataArrayIdType *CorrespNod_local2global, const ProcessorGroup& proc_group ):
-    _cell_mesh(subdomain_mesh),
-    _face_mesh(subdomain_face),
     _my_domain_id(proc_group.myRank()),
-    _block_topology (new BlockTopology(proc_group, subdomain_mesh->getNumberOfCells())),
-    _explicit_topology(0),
-    _node_global(CorrespNod_local2global),
-    _face_global(CorrespFace_local2global),
-    _cell_global(CorrespElt_local2global)
+    _block_topology(new BlockTopology(proc_group, subdomain_mesh->getNumberOfCells())),
+    _explicit_topology(nullptr)
   {
-    if(_cell_mesh)
-      _cell_mesh->incrRef();
-    if(_face_mesh)
-      _face_mesh->incrRef();
-    if(CorrespElt_local2global)
-      CorrespElt_local2global->incrRef();
-    if(CorrespFace_local2global)
-      CorrespFace_local2global->incrRef();
-    if(CorrespNod_local2global)
-      CorrespNod_local2global->incrRef();
+    _cell_mesh.takeRef(subdomain_mesh);
+    _face_mesh.takeRef(subdomain_face);
+    _node_global.takeRef(CorrespNod_local2global);
+    _face_global.takeRef(CorrespFace_local2global);
+    _cell_global.takeRef(CorrespElt_local2global);
   }
 
   ParaMESH::ParaMESH( MEDCouplingPointSet *mesh, const ProcessorGroup& proc_group, const std::string& name):
-    _cell_mesh(mesh),
-    _face_mesh(0),
     _my_domain_id(proc_group.myRank()),
-    _block_topology (new BlockTopology(proc_group, mesh->getNumberOfCells())),
-    _node_global(0),
-    _face_global(0)
+    _block_topology(new BlockTopology(proc_group, mesh->getNumberOfCells()))
   {
-    if(_cell_mesh)
-      _cell_mesh->incrRef();
+    _cell_mesh.takeRef(mesh);
     mcIdType nb_elem=mesh->getNumberOfCells();
     _explicit_topology=new BlockTopology(proc_group,nb_elem);
     mcIdType nbOfCells=mesh->getNumberOfCells();
@@ -82,41 +67,17 @@ namespace MEDCoupling
 
   void ParaMESH::setNodeGlobal(DataArrayIdType *nodeGlobal)
   {
-    if(nodeGlobal!=_node_global)
-      {
-        if(_node_global)
-          _node_global->decrRef();
-        _node_global=nodeGlobal;
-        if(_node_global)
-          _node_global->incrRef();
-      }
+    _node_global.takeRef(nodeGlobal);
   }
 
   void ParaMESH::setCellGlobal(DataArrayIdType *cellGlobal)
   {
-    if(cellGlobal!=_cell_global)
-      {
-        if(_cell_global)
-          _cell_global->decrRef();
-        _cell_global=cellGlobal;
-        if(_cell_global)
-          _cell_global->incrRef();
-      }
+    _cell_global.takeRef(cellGlobal);
   }
 
   ParaMESH::~ParaMESH()
   {
-    if(_cell_mesh)
-      _cell_mesh->decrRef();
-    if(_face_mesh)
-      _face_mesh->decrRef();
     delete _block_topology;
-    if(_node_global)
-      _node_global->decrRef();
-    if(_cell_global)
-      _cell_global->decrRef();
-    if(_face_global)
-      _face_global->decrRef();
     delete _explicit_topology;
   }
 

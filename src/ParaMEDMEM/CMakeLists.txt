@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2019  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2020  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -40,6 +40,7 @@ SET(paramedmem_SOURCES
   ProcessorGroup.cxx
   MPIProcessorGroup.cxx
   ParaMESH.cxx
+  ParaUMesh.cxx
   ComponentTopology.cxx
   MPIAccess.cxx
   InterpolationMatrix.cxx

@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGAUTOREFCOUNTOBJECTPTR_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGAUTOREFCOUNTOBJECTPTR_HXX__
+#pragma once
 
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
@@ -35,6 +34,7 @@ namespace MEDCoupling
     MCAuto(const MCAuto& other):_ptr(0) { referPtr(other._ptr); }
     MCAuto(T *ptr=0):_ptr(ptr) { }
     ~MCAuto() { destroyPtr(); }
+    void checkNotNull() const { if(!_ptr) throw INTERP_KERNEL::Exception("Pointer is nullptr !"); }
     bool isNull() const { return _ptr==0; }
     bool isNotNull() const { return !isNull(); }
     void nullify() { destroyPtr(); _ptr=0; }
@@ -50,6 +50,7 @@ namespace MEDCoupling
     operator T *() { return _ptr; }
     operator const T *() const { return _ptr; }
     T *retn() { if(_ptr) _ptr->incrRef(); return _ptr; }
+    T *retnConstCast() const { if(_ptr) _ptr->incrRef(); return _ptr; }
     T *iAmATrollConstCast() const { return _ptr; }
   private:
     void referPtr(T *ptr) { _ptr=ptr; if(_ptr) _ptr->incrRef(); }
@@ -121,5 +122,3 @@ namespace MEDCoupling
     const T *_ptr;
   };
 }
-
-#endif
