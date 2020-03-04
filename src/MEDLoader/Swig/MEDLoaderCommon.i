@@ -624,6 +624,7 @@ namespace MEDCoupling
   public:
     void write(const std::string& fileName, int mode) const;
     void write33(const std::string& fileName, int mode) const;
+    void write30(const std::string& fileName, int mode) const;
     %extend
        {
          DataArrayByte *serialize() const

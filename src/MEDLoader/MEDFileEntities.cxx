@@ -54,6 +54,11 @@ bool MEDFileStaticEntities::areAllStaticTypesPresent() const
   return false;
 }
 
+bool MEDFileStaticEntities::areAllStaticPresentAndNoDyn() const
+{
+  return false;
+}
+
 //////////////
 
 
@@ -63,6 +68,11 @@ std::vector<int> MEDFileAllStaticEntites::getDynGTAvail() const
 }
 
 bool MEDFileAllStaticEntites::areAllStaticTypesPresent() const
+{
+  return true;
+}
+
+bool MEDFileAllStaticEntites::areAllStaticPresentAndNoDyn() const
 {
   return true;
 }
@@ -83,6 +93,11 @@ std::vector<int> MEDFileAllStaticEntitiesPlusDyn::getDynGTAvail() const
 bool MEDFileAllStaticEntitiesPlusDyn::areAllStaticTypesPresent() const
 {
   return true;
+}
+
+bool MEDFileAllStaticEntitiesPlusDyn::areAllStaticPresentAndNoDyn() const
+{
+  return false;
 }
 
 const MEDFileStructureElement *MEDFileAllStaticEntitiesPlusDyn::getWithGT(int idGT) const

@@ -7763,9 +7763,11 @@ TypeOfField MEDFileMesh::ConvertFromMEDFileEntity(med_entity_type etype)
       return ON_NODES;
     case MED_CELL:
       return ON_CELLS;
+    case MED_NODE_ELEMENT:
+      return ON_GAUSS_NE;
     default:
       {
-        std::ostringstream oss; oss << "EDFileMesh::ConvertFromMEDFileEntity : not recognized entity " << etype << " !";
+        std::ostringstream oss; oss << "MEDFileMesh::ConvertFromMEDFileEntity : not recognized entity " << etype << " !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
     }

@@ -71,14 +71,27 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual void writeLL(med_idt fid) const = 0;
     MEDLOADER_EXPORT virtual void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT virtual void write33(const std::string& fileName, int mode) const;
+    MEDLOADER_EXPORT virtual void write30(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT MCAuto<DataArrayByte> serialize() const;
     MEDLOADER_EXPORT static std::string GenerateUniqueDftFileNameInMem();
   public:
     MEDLOADER_EXPORT static const char DFT_FILENAME_IN_MEM[];
     template<class T>
     static T *BuildFromMemoryChunk(DataArrayByte *db);
+  private:
+    void writeXX(const std::string& fileName, int mode, med_int maj, med_int min, med_int rel) const;
   };
   
+  class MEDFileCapability
+  {
+  public:
+    MEDFileCapability(med_idt fid);
+    bool isFastReader() const { return _maj>=4 && _min >=1; }
+  private:
+    med_int _maj;
+    med_int _min;
+    med_int _rel;
+  };
   MEDFileUtilities::AutoFid OpenMEDFileForRead(const std::string& fileName);
 }
 

@@ -42,6 +42,8 @@ template class MEDCoupling::MEDFileTemplateFieldMultiTS<double>;
 template class MEDCoupling::MEDFileNDTemplateFieldMultiTS<int>;
 template class MEDCoupling::MEDFileNDTemplateFieldMultiTS<float>;
 
+extern INTERP_KERNEL::NormalizedCellType ConvertGeometryType(med_geometry_type geotype);
+  
 //= MEDFileAnyTypeFieldMultiTSWithoutSDA
 
 MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA()
@@ -484,6 +486,32 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::synchronizeNameScope()
 void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysRecursively(med_idt fid, int nbPdt, med_field_type fieldTyp, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
 {
   _time_steps.resize(nbPdt);
+  //
+  INTERP_KERNEL::AutoCppPtr<MEDFileEntities> entitiesFast;
+  const MEDFileEntities *entitiesForSubInstances(entities);
+  MEDFileCapability mfcap(fid);
+  if( ( !entities || entities->areAllStaticPresentAndNoDyn() ) && mfcap.isFastReader())
+    {// no entities
+      int nentitype(MEDfieldnEntityType(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT));
+      INTERP_KERNEL::AutoPtr<med_entity_type> types(new med_entity_type[nentitype]);
+      med_int usedbyncs;
+      MEDFILESAFECALLERRD0(MEDfieldEntityType,(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT,types,&usedbyncs));
+      std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesFastP;
+      for(int i=0;i<nentitype;i++)
+        {
+          int ngeotype(MEDfieldnGeometryType(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT,types[i]));
+          INTERP_KERNEL::AutoPtr<med_geometry_type> geotypes(new med_geometry_type[ngeotype]);
+          med_int geousedbyncs;
+          MEDFILESAFECALLERRD0(MEDfieldGeometryType,(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT,types[i],geotypes,&geousedbyncs));
+          for(int j=0;j<ngeotype;j++)
+            {
+              std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> p(MEDFileMesh::ConvertFromMEDFileEntity(types[i]),ConvertGeometryType(geotypes[j]));
+              entitiesFastP.push_back(p);
+            }
+        }
+      entitiesFast=new MEDFileStaticEntities(entitiesFastP);
+      entitiesForSubInstances=entitiesFast;
+    }
   for(int i=0;i<nbPdt;i++)
     {
       std::vector< std::pair<int,int> > ts;
@@ -519,11 +547,11 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysR
           throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysRecursively : managed field type are : FLOAT64, INT32, FLOAT32 !");
       }
       if(loadAll)
-        _time_steps[i]->loadStructureAndBigArraysRecursively(fid,*this,ms,entities);
+        _time_steps[i]->loadStructureAndBigArraysRecursively(fid,*this,ms,entitiesForSubInstances);
       else
-        _time_steps[i]->loadOnlyStructureOfDataRecursively(fid,*this,ms,entities);
-      synchronizeNameScope();
+        _time_steps[i]->loadOnlyStructureOfDataRecursively(fid,*this,ms,entitiesForSubInstances,&mfcap);
     }
+  synchronizeNameScope();
 }
 
 void MEDFileAnyTypeFieldMultiTSWithoutSDA::writeLL(med_idt fid, const MEDFileWritable& opts) const

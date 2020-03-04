@@ -37,6 +37,7 @@ namespace MEDCoupling
     static MEDFileEntities *BuildFrom(const MEDFileStructureElements& se);
     virtual std::vector<int> getDynGTAvail() const = 0;
     virtual bool areAllStaticTypesPresent() const = 0;
+    virtual bool areAllStaticPresentAndNoDyn() const = 0;
     virtual ~MEDFileEntities();
   };
 
@@ -47,6 +48,7 @@ namespace MEDCoupling
     const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& getEntries() const { return _entities; }
     std::vector<int> getDynGTAvail() const;
     bool areAllStaticTypesPresent() const;
+    bool areAllStaticPresentAndNoDyn() const override;
   private:
     std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > _entities;
   };
@@ -57,6 +59,7 @@ namespace MEDCoupling
     MEDFileAllStaticEntites() { }
     std::vector<int> getDynGTAvail() const;
     bool areAllStaticTypesPresent() const;
+    bool areAllStaticPresentAndNoDyn() const override;
   };
 
   class MEDLOADER_EXPORT MEDFileAllStaticEntitiesPlusDyn : public MEDFileEntities
@@ -65,6 +68,7 @@ namespace MEDCoupling
     MEDFileAllStaticEntitiesPlusDyn(const MEDFileStructureElements *se);
     std::vector<int> getDynGTAvail() const;
     bool areAllStaticTypesPresent() const;
+    bool areAllStaticPresentAndNoDyn() const override;
     const MEDFileStructureElement *getWithGT(int idGT) const;
     const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
   private:

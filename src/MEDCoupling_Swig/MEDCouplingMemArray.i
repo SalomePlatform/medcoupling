@@ -674,7 +674,8 @@ typedef DataArrayInt64 DataArrayIdType;
         GetIndicesOfSliceExplicitely(slic,&strt,&stp,&step,"DataArray::GetSlice (wrap) : the input slice is invalid !");
         mcIdType a,b;
         DataArray::GetSlice(ToIdType(strt),ToIdType(stp),ToIdType(step),sliceId,nbOfSlices,a,b);
-        return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
+        AutoPyPtr ap(PyInt_FromLong(a)),bp(PyInt_FromLong(b)),stepp(PyInt_FromLong(step));
+        return PySlice_New(ap,bp,stepp);
       }
 
       PyObject *getSlice(PyObject *slic, mcIdType sliceId, mcIdType nbOfSlices) const
@@ -685,7 +686,8 @@ typedef DataArrayInt64 DataArrayIdType;
         GetIndicesOfSlice(slic,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getSlice (wrap) : the input slice is invalid !");
         mcIdType a,b;
         DataArray::GetSlice(ToIdType(strt),ToIdType(stp),ToIdType(step),sliceId,nbOfSlices,a,b);
-        return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
+        AutoPyPtr ap(PyInt_FromLong(a)),bp(PyInt_FromLong(b)),stepp(PyInt_FromLong(step));
+        return PySlice_New(ap,bp,stepp);
       }
 
       static mcIdType GetNumberOfItemGivenBES(PyObject *slic)

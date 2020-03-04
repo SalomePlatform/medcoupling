@@ -146,6 +146,20 @@ using namespace MEDCoupling;
 
 /// @cond INTERNAL
 
+INTERP_KERNEL::NormalizedCellType ConvertGeometryType(med_geometry_type geotype)
+{
+  INTERP_KERNEL::NormalizedCellType result=INTERP_KERNEL::NORM_ERROR;
+  for(int i=0; i<MED_N_CELL_FIXED_GEO; i++)
+    {
+      if (typmai[i]==geotype)
+        {
+          result=typmai2[i];
+          break;
+        }
+    }
+  return result;
+}
+
 /*!
  * This method returns a first quick overview of mesh with name \a meshName into the file \a fileName.
  * @param possibilities the relativeToMeshDim authorized to returned maxdim. This vector is systematically cleared at the begin of this method.
