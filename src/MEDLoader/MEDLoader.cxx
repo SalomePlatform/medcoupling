@@ -47,7 +47,7 @@
 #include <numeric>
 #include <iterator>
 #include <algorithm>
-
+#include <memory>
 
 med_geometry_type typmai[MED_N_CELL_FIXED_GEO] = { MED_POINT1,
   MED_SEG2,
@@ -480,6 +480,37 @@ std::vector< std::pair<std::string,std::string> > MEDCoupling::GetComponentsName
   oss << "Possible field names are : " << std::endl;
   std::copy(fields.begin(),fields.end(),std::ostream_iterator<std::string>(oss," "));
   throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+// see reference : https://en.cppreference.com/w/cpp/iterator/iterator
+class MEDVectorStringIterator : public std::iterator< std::input_iterator_tag, long, long, const std::string*, std::string >
+{
+  long _num = 0;
+  char *_data = nullptr;
+public:
+  explicit MEDVectorStringIterator(long num , char *data) : _num(num),_data(data) {}
+  MEDVectorStringIterator& operator++() { ++_num; return *this;}
+  bool operator==(const MEDVectorStringIterator& other) const {return _num == other._num;}
+  bool operator!=(const MEDVectorStringIterator& other) const {return !(*this == other);}
+  reference operator*() const {return MEDLoaderBase::buildStringFromFortran(_data+_num*MED_LNAME_SIZE,MED_LNAME_SIZE);}
+};
+
+void MEDCoupling::GetFamiliesGroupsInfo(const std::string& fileName, const std::string& meshName, std::map<std::string,mcIdType>& families, std::map<std::string,std::vector<std::string>>& groupsOnFam)
+{
+  MEDFileUtilities::AutoFid fid(MEDCoupling::OpenMEDFileForRead(fileName));
+  med_int nbFams(MEDnFamily(fid,meshName.c_str()));
+  char nomfam[MED_NAME_SIZE+1];
+  for(med_int i=0;i<nbFams;++i)
+    {
+      med_int nbGrps(MEDnFamilyGroup(fid,meshName.c_str(),i+1)),famId;
+      std::unique_ptr<char[]> gro{new char[MED_LNAME_SIZE*nbGrps+1]};
+      MEDFILESAFECALLERRD0(MEDfamilyInfo,(fid,meshName.c_str(),i+1,nomfam,&famId,gro.get()));
+      std::string fam(MEDLoaderBase::buildStringFromFortran(nomfam,MED_NAME_SIZE));
+      families[fam] = FromMedInt<mcIdType>(famId);
+      std::vector<std::string> v(nbGrps);
+      std::copy(MEDVectorStringIterator(0,gro.get()),MEDVectorStringIterator(nbGrps,gro.get()),v.begin());
+      groupsOnFam[fam] = v;
+    }
 }
 
 std::vector<std::string> MEDCoupling::GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName)

@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __MEDLOADER_HXX__
-#define __MEDLOADER_HXX__
+#pragma once
 
 #include "MEDLoaderDefines.hxx"
 #include "InterpKernelException.hxx"
@@ -52,6 +51,7 @@ namespace MEDCoupling
   MEDLOADER_EXPORT std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName, int &meshDim, int& spaceDim, mcIdType& numberOfNodes);
   MEDLOADER_EXPORT std::vector< std::pair<std::string,std::string> > GetComponentsNamesOfField(const std::string& fileName, const std::string& fieldName);
   MEDLOADER_EXPORT std::vector<std::string> GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName);
+  MEDLOADER_EXPORT void GetFamiliesGroupsInfo(const std::string& fileName, const std::string& meshName, std::map<std::string,mcIdType>& families, std::map<std::string,std::vector<std::string>>& groupsOnFam);
   MEDLOADER_EXPORT std::vector<std::string> GetMeshGroupsNames(const std::string& fileName, const std::string& meshName);
   MEDLOADER_EXPORT std::vector<std::string> GetMeshFamiliesNames(const std::string& fileName, const std::string& meshName);
   MEDLOADER_EXPORT std::vector<std::string> GetMeshFamiliesNamesOnGroup(const std::string& fileName, const std::string& meshName, const std::string& grpName);
@@ -105,4 +105,3 @@ namespace MEDCoupling
   MEDLOADER_EXPORT void AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj);
 }
 
-#endif
