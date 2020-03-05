@@ -89,6 +89,8 @@ namespace INTERP_KERNEL
     static const double PENTA6B_REF[18];
     static const double PENTA15A_REF[45];
     static const double PENTA15B_REF[45];
+    static const double PENTA18A_REF[54];
+    static const double PENTA18B_REF[54];
     static const double HEXA8A_REF[24];
     static const double HEXA8B_REF[24];
     static const double HEXA20A_REF[60];
@@ -148,6 +150,10 @@ namespace INTERP_KERNEL
     static void Penta15aInit(GaussInfo& obj) { obj.penta15aInit(); }
     void penta15bInit();
     static void Penta15bInit(GaussInfo& obj) { obj.penta15bInit(); }
+    void penta18aInit();
+    static void Penta18aInit(GaussInfo& obj) { obj.penta18aInit(); }
+    void penta18bInit();
+    static void Penta18bInit(GaussInfo& obj) { obj.penta18bInit(); }
 
     void hexa8aInit();
     static void Hexa8aInit(GaussInfo& obj) { obj.hexa8aInit(); }

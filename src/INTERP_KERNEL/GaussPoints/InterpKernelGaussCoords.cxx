@@ -78,6 +78,10 @@ const double GaussInfo::PENTA15A_REF[45]={-1.0, 1.0, 0.0, -1.0, -0.0, 1.0, -1.0,
 
 const double GaussInfo::PENTA15B_REF[45]={-1.0, 1.0, 0.0, -1.0, 0.0, 0.0, -1.0, -0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, -1.0, 0.5, 0.0, -1.0, 0.0, 0.5, -1.0, 0.5, 0.5, 1.0, 0.5, 0.0, 1.0, 0.0, 0.5, 1.0, 0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0};
 
+const double GaussInfo::PENTA18A_REF[54]={-1.0, 1.0, 0.0, -1.0, -0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0, 0.5, 0.5, -1.0, 0.0, 0.5, -1.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.5, 1.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.5, 0.0, 0.5, 0.0};
+
+const double GaussInfo::PENTA18B_REF[54]={-1.0, 1.0, 0.0, -1.0, 0.0, 0.0, -1.0, -0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, -1.0, 0.5, 0.0, -1.0, 0.0, 0.5, -1.0, 0.5, 0.5, 1.0, 0.5, 0.0, 1.0, 0.0, 0.5, 1.0, 0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5};
+
 const double GaussInfo::HEXA8A_REF[24]={-1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0};
 
 const double GaussInfo::HEXA8B_REF[24]={-1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0};
@@ -327,6 +331,21 @@ GaussInfo GaussInfo::convertToLinear() const
             return GaussInfo(NORM_PENTA6,_my_gauss_coord,getNbGauss(),c,6);
           }
         throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for PENTA15 !");
+      }
+    case NORM_PENTA18:
+      {
+        std::vector<double> a(PENTA18A_REF,PENTA18A_REF+54),b(PENTA18B_REF,PENTA18B_REF+54);
+        if(IsSatisfy(a,_my_reference_coord))
+          {
+            std::vector<double> c(PENTA6A_REF,PENTA6A_REF+18);
+            return GaussInfo(NORM_PENTA6,_my_gauss_coord,getNbGauss(),c,6);
+          }
+        if(IsSatisfy(b,_my_reference_coord))
+          {
+            std::vector<double> c(PENTA6B_REF,PENTA6B_REF+18);
+            return GaussInfo(NORM_PENTA6,_my_gauss_coord,getNbGauss(),c,6);
+          }
+        throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for PENTA18 !");
       }
     case NORM_HEXA20:
       {
@@ -641,6 +660,21 @@ void GaussInfo::initLocalInfo()
         for(std::size_t i=0;i<NB_OF_PENTA15PTR && !aSatify;i++)
           {
             (PENTA15PTR[i])(*this);
+            aSatify = isSatisfy();
+          }
+        CHECK_MACRO;
+        break;
+      }
+
+    case NORM_PENTA18:
+      {
+        _my_local_ref_dim = 3;
+        _my_local_nb_ref  = 18;
+        MapToShapeFunction PENTA18PTR[]={Penta18aInit,Penta18bInit};
+        std::size_t NB_OF_PENTA18PTR(sizeof(PENTA18PTR)/sizeof(MapToShapeFunction));
+        for(std::size_t i=0;i<NB_OF_PENTA18PTR && !aSatify;i++)
+          {
+            (PENTA18PTR[i])(*this);
             aSatify = isSatisfy();
           }
         CHECK_MACRO;
@@ -2150,6 +2184,250 @@ void GaussInfo::penta15bInit()
   funValue[11] = 2.0*gc[1]*gc[2]*(1.0 + gc[0]);
   funValue[10] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   funValue[9]  = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
+  SHAPE_FUN_MACRO_END;
+}
+
+void GaussInfo::penta18aInit() 
+{
+  LOCAL_COORD_MACRO_BEGIN;
+  case 0:
+    coords[0] = PENTA18A_REF[0];
+    coords[1] = PENTA18A_REF[1];
+    coords[2] = PENTA18A_REF[2];
+    break;
+  case 1:
+    coords[0] = PENTA18A_REF[3];
+    coords[1] = PENTA18A_REF[4];
+    coords[2] = PENTA18A_REF[5];
+    break;
+  case 2:
+    coords[0] = PENTA18A_REF[6];
+    coords[1] = PENTA18A_REF[7];
+    coords[2] = PENTA18A_REF[8];
+    break;
+  case 3:
+    coords[0] = PENTA18A_REF[9];
+    coords[1] = PENTA18A_REF[10];
+    coords[2] = PENTA18A_REF[11];
+    break;
+  case 4:
+    coords[0] = PENTA18A_REF[12];
+    coords[1] = PENTA18A_REF[13];
+    coords[2] = PENTA18A_REF[14];
+    break;
+  case 5:
+    coords[0] = PENTA18A_REF[15];
+    coords[1] = PENTA18A_REF[16];
+    coords[2] = PENTA18A_REF[17];
+    break;
+  case 6:
+    coords[0] = PENTA18A_REF[18];
+    coords[1] = PENTA18A_REF[19];
+    coords[2] = PENTA18A_REF[20];
+    break;
+  case 7:
+    coords[0] = PENTA18A_REF[21];
+    coords[1] = PENTA18A_REF[22];
+    coords[2] = PENTA18A_REF[23];
+    break;
+  case 8:
+    coords[0] = PENTA18A_REF[24];
+    coords[1] = PENTA18A_REF[25];
+    coords[2] = PENTA18A_REF[26];
+    break;
+  case 9:
+    coords[0] = PENTA18A_REF[27];
+    coords[1] = PENTA18A_REF[28];
+    coords[2] = PENTA18A_REF[29];
+    break;
+  case 10:
+    coords[0] = PENTA18A_REF[30];
+    coords[1] = PENTA18A_REF[31];
+    coords[2] = PENTA18A_REF[32];
+    break;
+  case 11:
+    coords[0] = PENTA18A_REF[33];
+    coords[1] = PENTA18A_REF[34];
+    coords[2] = PENTA18A_REF[35];
+    break;
+  case 12:
+    coords[0] = PENTA18A_REF[36];
+    coords[1] = PENTA18A_REF[37];
+    coords[2] = PENTA18A_REF[38];
+    break;
+  case 13:
+    coords[0] = PENTA18A_REF[39];
+    coords[1] = PENTA18A_REF[40];
+    coords[2] = PENTA18A_REF[41];
+    break;
+  case 14:
+    coords[0] = PENTA18A_REF[42];
+    coords[1] = PENTA18A_REF[43];
+    coords[2] = PENTA18A_REF[44];
+    break;
+  case 15:
+    coords[0] = PENTA18A_REF[45];
+    coords[1] = PENTA18A_REF[46];
+    coords[2] = PENTA18A_REF[47];
+    break;
+  case 16:
+    coords[0] = PENTA18A_REF[48];
+    coords[1] = PENTA18A_REF[49];
+    coords[2] = PENTA18A_REF[50];
+    break;
+  case 17:
+    coords[0] = PENTA18A_REF[51];
+    coords[1] = PENTA18A_REF[52];
+    coords[2] = PENTA18A_REF[53];
+    break;
+  LOCAL_COORD_MACRO_END;
+  
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = 0.5*gc[1]*(1.0 - gc[0])*(2.0*gc[1] - 2.0 - gc[0]);
+  funValue[1] = 0.5*gc[2]*(1.0 - gc[0])*(2.0*gc[2] - 2.0 - gc[0]);
+  funValue[2] = 0.5*(gc[0] - 1.0)*(1.0 - gc[1] - gc[2])*(gc[0] + 2.0*gc[1] + 2.0*gc[2]);
+  
+  funValue[3] = 0.5*gc[1]*(1.0 + gc[0])*(2.0*gc[1] - 2.0 + gc[0]);
+  funValue[4] = 0.5*gc[2]*(1.0 + gc[0])*(2.0*gc[2] - 2.0 + gc[0]);
+  funValue[5] = 0.5*(-gc[0] - 1.0)*(1.0 - gc[1] - gc[2])*(-gc[0] + 2.0*gc[1] + 2.0*gc[2]);
+  
+  funValue[6] = 2.0*gc[1]*gc[2]*(1.0 - gc[0]);
+  funValue[7] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 - gc[0]);
+  funValue[8] = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 - gc[0]);
+  
+  funValue[9] = gc[1]*(1.0 - gc[0]*gc[0]);
+  funValue[10] = gc[2]*(1.0 - gc[0]*gc[0]);
+  funValue[11] = (1.0 - gc[1] - gc[2])*(1.0 - gc[0]*gc[0]);
+  
+  funValue[12] = 2.0*gc[1]*gc[2]*(1.0 + gc[0]);
+  funValue[13] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
+  funValue[14] = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
+  
+  funValue[15] = 4.0*gc[1]*gc[2]*(1.0 - gc[0] * gc[0]);
+  funValue[16] = 4.0*gc[2]*(gc[0] * gc[0] - 1) * ( gc[2] + gc[1] - 1);
+  funValue[17] = 4.0*gc[1]*(gc[0] * gc[0] - 1) * ( gc[2] + gc[1] - 1);
+  SHAPE_FUN_MACRO_END;
+}
+
+void GaussInfo::penta18bInit() 
+{
+  LOCAL_COORD_MACRO_BEGIN;
+  case 0:
+    coords[0] = PENTA18B_REF[0];
+    coords[1] = PENTA18B_REF[1];
+    coords[2] = PENTA18B_REF[2];
+    break;
+  case 1:
+    coords[0] = PENTA18B_REF[3];
+    coords[1] = PENTA18B_REF[4];
+    coords[2] = PENTA18B_REF[5];
+    break;
+  case 2:
+    coords[0] = PENTA18B_REF[6];
+    coords[1] = PENTA18B_REF[7];
+    coords[2] = PENTA18B_REF[8];
+    break;
+  case 3:
+    coords[0] = PENTA18B_REF[9];
+    coords[1] = PENTA18B_REF[10];
+    coords[2] = PENTA18B_REF[11];
+    break;
+  case 4:
+    coords[0] = PENTA18B_REF[12];
+    coords[1] = PENTA18B_REF[13];
+    coords[2] = PENTA18B_REF[14];
+    break;
+  case 5:
+    coords[0] = PENTA18B_REF[15];
+    coords[1] = PENTA18B_REF[16];
+    coords[2] = PENTA18B_REF[17];
+    break;
+  case 6:
+    coords[0] = PENTA18B_REF[18];
+    coords[1] = PENTA18B_REF[19];
+    coords[2] = PENTA18B_REF[20];
+    break;
+  case 7:
+    coords[0] = PENTA18B_REF[21];
+    coords[1] = PENTA18B_REF[22];
+    coords[2] = PENTA18B_REF[23];
+    break;
+  case 8:
+    coords[0] = PENTA18B_REF[24];
+    coords[1] = PENTA18B_REF[25];
+    coords[2] = PENTA18B_REF[26];
+    break;
+  case 9:
+    coords[0] = PENTA18B_REF[27];
+    coords[1] = PENTA18B_REF[28];
+    coords[2] = PENTA18B_REF[29];
+    break;
+  case 10:
+    coords[0] = PENTA18B_REF[30];
+    coords[1] = PENTA18B_REF[31];
+    coords[2] = PENTA18B_REF[32];
+    break;
+  case 11:
+    coords[0] = PENTA18B_REF[33];
+    coords[1] = PENTA18B_REF[34];
+    coords[2] = PENTA18B_REF[35];
+    break;
+  case 12:
+    coords[0] = PENTA18B_REF[36];
+    coords[1] = PENTA18B_REF[37];
+    coords[2] = PENTA18B_REF[38];
+    break;
+  case 13:
+    coords[0] = PENTA18B_REF[39];
+    coords[1] = PENTA18B_REF[40];
+    coords[2] = PENTA18B_REF[41];
+    break;
+  case 14:
+    coords[0] = PENTA18B_REF[42];
+    coords[1] = PENTA18B_REF[43];
+    coords[2] = PENTA18B_REF[44];
+    break;
+  case 15:
+    coords[0] = PENTA18B_REF[45];
+    coords[1] = PENTA18B_REF[46];
+    coords[2] = PENTA18B_REF[47];
+    break;
+  case 16:
+    coords[0] = PENTA18B_REF[48];
+    coords[1] = PENTA18B_REF[49];
+    coords[2] = PENTA18B_REF[50];
+    break;
+  case 17:
+    coords[0] = PENTA18B_REF[51];
+    coords[1] = PENTA18B_REF[52];
+    coords[2] = PENTA18B_REF[53];
+    break;
+  LOCAL_COORD_MACRO_END;
+  
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = 0.5*gc[1]*(1.0 - gc[0])*(2.0*gc[1] - 2.0 - gc[0]);
+  funValue[2] = 0.5*gc[2]*(1.0 - gc[0])*(2.0*gc[2] - 2.0 - gc[0]);
+  funValue[1] = 0.5*(gc[0] - 1.0)*(1.0 - gc[1] - gc[2])*(gc[0] + 2.0*gc[1] + 2.0*gc[2]);
+  
+  funValue[3] = 0.5*gc[1]*(1.0 + gc[0])*(2.0*gc[1] - 2.0 + gc[0]);
+  funValue[5] = 0.5*gc[2]*(1.0 + gc[0])*(2.0*gc[2] - 2.0 + gc[0]);
+  funValue[4] = 0.5*(-gc[0] - 1.0)*(1.0 - gc[1] - gc[2])*(-gc[0] + 2.0*gc[1] + 2.0*gc[2]);
+  
+  funValue[8] = 2.0*gc[1]*gc[2]*(1.0 - gc[0]);
+  funValue[7] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 - gc[0]);
+  funValue[6] = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 - gc[0]);
+  
+  funValue[12] = gc[1]*(1.0 - gc[0]*gc[0]);
+  funValue[14] = gc[2]*(1.0 - gc[0]*gc[0]);
+  funValue[13] = (1.0 - gc[1] - gc[2])*(1.0 - gc[0]*gc[0]);
+  
+  funValue[11] = 2.0*gc[1]*gc[2]*(1.0 + gc[0]);
+  funValue[10] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
+  funValue[9]  = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
+  
+  funValue[17] = 4.0*gc[1]*gc[2]*(1.0 - gc[0] * gc[0]);
+  funValue[16] = 4.0*gc[2]*(gc[0] * gc[0] - 1) * ( gc[2] + gc[1] - 1);
+  funValue[15] = 4.0*gc[1]*(gc[0] * gc[0] - 1) * ( gc[2] + gc[1] - 1);
   SHAPE_FUN_MACRO_END;
 }
 
