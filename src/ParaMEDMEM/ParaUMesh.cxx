@@ -35,7 +35,6 @@
 #include <memory>
 #include <vector>
 
-using namespace std;
 using namespace MEDCoupling;
 
 ParaUMesh::ParaUMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds)
@@ -125,27 +124,33 @@ MCAuto<ParaUMesh> ParaUMesh::redistributeCells(const DataArrayIdType *globalCell
   CommInterface ci;
   int size;
   ci.commSize(comm,&size);
-  std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]),nbOfElems2(new mcIdType[size]);
-  mcIdType nbOfNodeIdsLoc(globalCellIds->getNumberOfTuples());
-  ci.allGather(&nbOfNodeIdsLoc,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
+  std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]);
+  mcIdType nbOfCellsRequested(globalCellIds->getNumberOfTuples());
+  ci.allGather(&nbOfCellsRequested,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
   mcIdType nbOfCellIdsSum(std::accumulate(nbOfElems.get(),nbOfElems.get()+size,0));
   std::unique_ptr<mcIdType[]> allGlobalCellIds(new mcIdType[nbOfCellIdsSum]);
   std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElems,size) );
   std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) );
-  ci.allGatherV(globalCellIds->begin(),nbOfNodeIdsLoc,MPI_ID_TYPE,allGlobalCellIds.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
+  ci.allGatherV(globalCellIds->begin(),nbOfCellsRequested,MPI_ID_TYPE,allGlobalCellIds.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
   mcIdType offset(0);
+  // Prepare ParaUMesh parts to be sent : compute for each proc the contribution of current rank.
+  std::vector< MCAuto<DataArrayIdType> > globalCellIdsToBeSent(size),globalNodeIdsToBeSent(size);
+  std::vector< MCAuto<MEDCouplingUMesh> > meshPartsToBeSent(size);
   for(int curRk = 0 ; curRk < size ; ++curRk)
   {
     MCAuto<DataArrayIdType> globalCellIdsOfCurProc(DataArrayIdType::New());
     globalCellIdsOfCurProc->useArray(allGlobalCellIds.get()+offset,false,DeallocType::CPP_DEALLOC,nbOfElems[curRk],1);
     offset += nbOfElems[curRk];
-    // prepare all2all session
+    // the key call is here : compute for rank curRk the cells to be sent
     MCAuto<DataArrayIdType> globalCellIdsCaptured(_cell_global->buildIntersection(globalCellIdsOfCurProc));// OK for the global cellIds
     MCAuto<DataArrayIdType> localCellIdsCaptured(_node_global->findIdForEach(globalCellIdsCaptured->begin(),globalCellIdsCaptured->end()));
     MCAuto<MEDCouplingUMesh> meshPart(_mesh->buildPartOfMySelf(localCellIdsCaptured->begin(),localCellIdsCaptured->end(),true));
     MCAuto<DataArrayIdType> o2n(meshPart->zipCoordsTraducer());// OK for the mesh
     MCAuto<DataArrayIdType> n2o(o2n->invertArrayO2N2N2O(meshPart->getNumberOfNodes()));
     MCAuto<DataArrayIdType> globalNodeIdsPart(_node_global->selectByTupleIdSafe(n2o->begin(),n2o->end())); // OK for the global nodeIds
+    meshPartsToBeSent[curRk] = meshPart;
+    globalCellIdsToBeSent[curRk] = globalCellIdsCaptured;
+    globalNodeIdsToBeSent[curRk] = globalNodeIdsPart;
   }
-  
+  // Receive 
 }

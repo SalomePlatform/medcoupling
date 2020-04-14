@@ -58,10 +58,10 @@ namespace MEDCoupling
     static const char FieldTypeName[];
     static const char NPYStr[];
     static const char ReprStr[];
-    typedef DataArrayDouble ArrayType;
-    typedef DataArrayDouble ArrayTypeCh;
-    typedef MEDCouplingFieldDouble FieldType;
-    typedef DataArrayDoubleTuple ArrayTuple;
+    using ArrayType = DataArrayDouble;
+    using ArrayTypeCh = DataArrayDouble;
+    using FieldType = MEDCouplingFieldDouble;
+    using ArrayTuple = DataArrayDoubleTuple;
   };
 
   template<>
@@ -71,10 +71,10 @@ namespace MEDCoupling
     static const char FieldTypeName[];
     static const char NPYStr[];
     static const char ReprStr[];
-    typedef DataArrayFloat ArrayType;
-    typedef DataArrayFloat ArrayTypeCh;
-    typedef MEDCouplingFieldFloat FieldType;
-    typedef DataArrayFloatTuple ArrayTuple;
+    using ArrayType = DataArrayFloat;
+    using ArrayTypeCh = DataArrayFloat;
+    using FieldType = MEDCouplingFieldFloat;
+    using ArrayTuple = DataArrayFloatTuple;
   };
   
   template<>
@@ -85,11 +85,11 @@ namespace MEDCoupling
     static const char NPYStr[];
     static const char ReprStr[];
     static const char VTKReprStr[];
-    typedef DataArrayInt32 ArrayType;
-    typedef DataArrayInt32 ArrayTypeCh;
-    typedef MEDCouplingFieldInt FieldType;
-    typedef DataArrayInt32Tuple ArrayTuple;
-    typedef DataArrayInt32Iterator IteratorType;
+    using ArrayType = DataArrayInt32;
+    using ArrayTypeCh = DataArrayInt32;
+    using FieldType = MEDCouplingFieldInt;
+    using ArrayTuple = DataArrayInt32Tuple;
+    using IteratorType = DataArrayInt32Iterator;
   };
 
   template<>
@@ -100,21 +100,21 @@ namespace MEDCoupling
     static const char NPYStr[];
     static const char ReprStr[];
     static const char VTKReprStr[];
-    typedef DataArrayInt64 ArrayType;
-    typedef DataArrayInt64 ArrayTypeCh;
-    //typedef MEDCouplingFieldInt64 FieldType;
-    typedef DataArrayInt64Tuple ArrayTuple;
-    typedef DataArrayInt64Iterator IteratorType;
+    using ArrayType = DataArrayInt64;
+    using ArrayTypeCh = DataArrayInt64;
+    //using FieldType = MEDCouplingFieldInt64;
+    using ArrayTuple = DataArrayInt64Tuple;
+    using IteratorType = DataArrayInt64Iterator;
   };
 
   template<>
   struct MEDCOUPLING_EXPORT Traits<char>
   {
     static const char ArrayTypeName[];
-    typedef DataArrayByte ArrayTypeCh;
-    typedef DataArrayChar ArrayType;
-    typedef DataArrayByteTuple ArrayTuple;
-    typedef DataArrayByteIterator IteratorType;
+    using ArrayTypeCh = DataArrayByte;
+    using ArrayType = DataArrayChar;
+    using ArrayTuple = DataArrayByteTuple;
+    using IteratorType = DataArrayByteIterator;
   };
 }
 

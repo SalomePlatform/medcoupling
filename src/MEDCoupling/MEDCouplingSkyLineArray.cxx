@@ -312,6 +312,42 @@ std::string MEDCouplingSkyLineArray::simpleRepr() const
   return oss.str();
 }
 
+MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::groupPacks(const DataArrayIdType *indexedPacks) const
+{
+  indexedPacks->checkAllocated();
+  if( indexedPacks->getNumberOfComponents() != 1 )
+    throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::groupPacks : number of components must be 1 !");
+  std::size_t nbTuples(indexedPacks->getNumberOfTuples());
+  if( nbTuples == 0 )
+    throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::groupPacks : number of tuples must be > 0 !");
+  const DataArrayIdType *index(this->getIndexArray());
+  MCAuto<DataArrayIdType> partIndex(index->selectByTupleIdSafe(indexedPacks->begin(),indexedPacks->end()));
+  MCAuto<MEDCouplingSkyLineArray> ret(MEDCouplingSkyLineArray::New(partIndex,this->getValuesArray()));
+  return ret.retn();
+}
+
+MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::uniqueNotSortedByPack() const
+{
+  mcIdType nbPacks(this->getNumberOf());
+  MCAuto<DataArrayIdType> retIndex(DataArrayIdType::New()); retIndex->alloc(nbPacks+1,1);
+  const mcIdType *valuesPtr(this->_values->begin()),*indexPtr(this->_index->begin());
+  mcIdType *retIndexPtr(retIndex->getPointer()); *retIndexPtr = 0;
+  for(mcIdType i = 0 ; i < nbPacks ; ++i, ++retIndexPtr)
+  {
+    std::set<mcIdType> s(valuesPtr+indexPtr[i],valuesPtr+indexPtr[i+1]);
+    retIndexPtr[1] = retIndexPtr[0] + ToIdType(s.size());
+  }
+  MCAuto<DataArrayIdType> retValues(DataArrayIdType::New()); retValues->alloc(retIndex->back(),1);
+  mcIdType *retValuesPtr(retValues->getPointer());
+  for(mcIdType i = 0 ; i < nbPacks ; ++i)
+  {
+    std::set<mcIdType> s(valuesPtr+indexPtr[i],valuesPtr+indexPtr[i+1]);
+    retValuesPtr = std::copy(s.begin(),s.end(),retValuesPtr);
+  }
+  MCAuto<MEDCouplingSkyLineArray> ret(MEDCouplingSkyLineArray::New(retIndex,retValues));
+  return ret.retn();
+}
+
 /**
  * For a 2- or 3-level SkyLine array, return a copy of the absolute pack with given identifier.
  */

@@ -755,6 +755,37 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(f_voro.getArray().isEqual(f.getArray(),1e-8))
         pass
 
+    def testDAIOccurenceRankInThis(self):
+        arr=DataArrayInt([5,3,2,1,4,5,2,1,0,11,5,4])
+        self.assertTrue(arr.occurenceRankInThis().isEqual(DataArrayInt([0,0,0,0,0,1,1,1,0,0,2,1])))
+
+    def testDAIFindPermutationFromFirstToSecondDuplicate(self):
+        arr0 = DataArrayInt([5,3,2,1,4,5,2,1,0,11,5,4])
+        arr1 = DataArrayInt([0,1,1,2,2,3,4,4,5,5,5,11])
+        self.assertTrue(DataArrayInt.FindPermutationFromFirstToSecondDuplicate(arr0,arr1).isEqual(DataArrayInt([8,5,3,1,6,9,4,2,0,11,10,7])))
+        self.assertTrue(DataArrayInt.FindPermutationFromFirstToSecondDuplicate(arr1,arr0).isEqual(DataArrayInt([8,3,7,2,6,1,4,11,0,5,10,9])))
+        
+    def testDAIIndexOfSameConsecutiveValueGroups(self):
+        arr = DataArrayInt([0,1,1,2,2,3,4,4,5,5,5,11])
+        self.assertTrue(arr.indexOfSameConsecutiveValueGroups().isEqual(DataArrayInt([0,1,3,5,6,8,11,12])))
+
+    def testSkyLineGroupPacks(self):
+        arr = DataArrayInt([1,4,5,0,2,4,5,6,1,3,5,6,7,2,6,7,0,1,5,8,9,0,1,2,4,6,8,9,10,1,2,3,5,7,9,10,11,2,3,6,10,11,4,5,9,12,13,4,5,6,8,10,12,13,14,5,6,7,9,11,13,14,15,6,7,10,14,15,8,9,13,8,9,10,12,14,9,10,11,13,15,10,11,14])
+        arrI = DataArrayInt([0,3,8,13,16,21,29,37,42,47,55,63,68,71,76,81,84])
+        sk = MEDCouplingSkyLineArray(arrI,arr)
+        part = DataArrayInt([0,3,4,7,16])
+        sk2 = sk.groupPacks(part)
+        self.assertTrue(sk2.getValuesArray().isEqual(arr))
+        self.assertTrue(sk2.getIndexArray().isEqual(DataArrayInt([0,13,16,37,84])))
+
+    def testSkyLineUniqueNotSortedByPack(self):    
+        arrI = DataArrayInt([0,3,9,15,18,24,36,48,54])
+        arr = DataArrayInt([1,4,5,0,4,5,2,5,6,3,6,7,1,5,6,2,6,7,0,1,5,5,8,9,0,1,4,6,9,10,1,2,4,6,8,9,2,3,5,7,9,10,1,2,5,7,10,11,2,3,6,6,10,11])
+        sk = MEDCouplingSkyLineArray(arrI,arr)
+        sk2 = sk.uniqueNotSortedByPack()
+        self.assertTrue(sk2.getIndexArray().isEqual(DataArrayInt([0,3,8,13,16,21,29,37,42])))
+        self.assertTrue(sk2.getValuesArray().isEqual(DataArrayInt([1,4,5,0,2,4,5,6,1,3,5,6,7,2,6,7,0,1,5,8,9,0,1,2,4,6,8,9,10,1,2,3,5,7,9,10,11,2,3,6,10,11])))
+
     pass
 
 if __name__ == '__main__':

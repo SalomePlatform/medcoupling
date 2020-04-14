@@ -19,6 +19,8 @@
 
 #include "CommInterface.hxx"
 
+#include <numeric>
+
 namespace MEDCoupling
 {
   /*! \anchor CommInterface-det
@@ -56,11 +58,58 @@ namespace MEDCoupling
     \endverbatim
   */
 
-  CommInterface::CommInterface()
+  /*!
+   * Generalized AllGather collective communication.
+   * This method send input \a array to all procs.
+   */
+  void CommInterface::allGatherArrays(MPI_Comm comm, const DataArrayIdType *array, std::unique_ptr<mcIdType[]>& result, std::unique_ptr<mcIdType[]>& resultIndex) const
   {
+    int size;
+    this->commSize(comm,&size);
+    std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]);
+    mcIdType nbOfCellsRequested(array->getNumberOfTuples());
+    this->allGather(&nbOfCellsRequested,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
+    mcIdType nbOfCellIdsSum(std::accumulate(nbOfElems.get(),nbOfElems.get()+size,0));
+    result.reset(new mcIdType[nbOfCellIdsSum]);
+    std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElems,size) );
+    std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) );
+    this->allGatherV(array->begin(),nbOfCellsRequested,MPI_ID_TYPE,result.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
+    resultIndex = std::move(nbOfElems);
   }
 
-  CommInterface::~CommInterface()
+  /*!
+  * Generalized AllToAll collective communication.
+  */
+  void CommInterface::allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayIdType> >& arrays, std::vector< MCAuto<DataArrayIdType> >& arraysOut) const
   {
+    int size;
+    this->commSize(comm,&size);
+    if( arrays.size() != ToSizeT(size) )
+      throw INTERP_KERNEL::Exception("AllToAllArrays : internal error ! Invalid size of input array.");
+      
+    std::vector< const DataArrayIdType *> arraysBis(FromVecAutoToVecOfConst<DataArrayIdType>(arrays));
+    std::unique_ptr<mcIdType[]> nbOfElems2(new mcIdType[size]),nbOfElems3(new mcIdType[size]);
+    for(int curRk = 0 ; curRk < size ; ++curRk)
+    {
+      nbOfElems3[curRk] = arrays[curRk]->getNumberOfTuples();
+    }
+    this->allToAll(nbOfElems3.get(),1,MPI_ID_TYPE,nbOfElems2.get(),1,MPI_ID_TYPE,comm);
+    mcIdType nbOfCellIdsSum(std::accumulate(nbOfElems2.get(),nbOfElems2.get()+size,0));
+    MCAuto<DataArrayIdType> cellIdsFromProcs(DataArrayIdType::New());
+    cellIdsFromProcs->alloc(nbOfCellIdsSum,1);
+    std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElems3,size) ),nbOfElemsOutInt( CommInterface::ToIntArray<mcIdType>(nbOfElems2,size) );
+    std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) ), offsetsOut( CommInterface::ComputeOffset(nbOfElemsOutInt,size) );
+    {
+      MCAuto<DataArrayIdType> arraysAcc(DataArrayIdType::Aggregate(arraysBis));
+      this->allToAllV(arraysAcc->begin(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,
+                      cellIdsFromProcs->getPointer(),nbOfElemsOutInt.get(),offsetsOut.get(),MPI_ID_TYPE,comm);
+    }
+    std::unique_ptr<mcIdType[]> offsetsOutIdType( CommInterface::ComputeOffset(nbOfElems2,size) );
+    // build output arraysOut by spliting cellIdsFromProcs into parts
+    arraysOut.resize(size);
+    for(int curRk = 0 ; curRk < size ; ++curRk)
+    {
+      arraysOut[curRk] = DataArrayIdType::NewFromArray(cellIdsFromProcs->begin()+offsetsOutIdType[curRk],cellIdsFromProcs->begin()+offsetsOutIdType[curRk]+nbOfElems2[curRk]);
+    }
   }
 }

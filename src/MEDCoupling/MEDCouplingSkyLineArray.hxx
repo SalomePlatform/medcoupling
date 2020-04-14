@@ -26,6 +26,7 @@
 #include "NormalizedGeometricTypes"
 
 #include <vector>
+#include <functional>
 
 namespace MEDCoupling
 {
@@ -63,6 +64,28 @@ namespace MEDCoupling
     static MEDCouplingSkyLineArray * New( const MEDCouplingSkyLineArray & other );
 
     static MEDCouplingSkyLineArray * BuildFromPolyhedronConn( const DataArrayIdType* c, const DataArrayIdType* cI );
+
+    static std::vector< MCAuto<DataArrayIdType> > RetrieveVecIndex(const std::vector< MCAuto<MEDCouplingSkyLineArray> >& vecSka)
+    {
+       auto fct = [](MEDCouplingSkyLineArray *ska) { return ska->getIndexArray(); };
+       return RetrieveVecOfSkyLineArrayGen(vecSka,fct);
+    }
+    
+    static std::vector< MCAuto<DataArrayIdType> > RetrieveVecValues(const std::vector< MCAuto<MEDCouplingSkyLineArray> >& vecSka)
+    {
+       auto fct = [](MEDCouplingSkyLineArray *ska) { return ska->getValuesArray(); };
+       return RetrieveVecOfSkyLineArrayGen(vecSka,fct);
+    }
+    
+    static std::vector< MCAuto<DataArrayIdType> > RetrieveVecOfSkyLineArrayGen(const std::vector< MCAuto<MEDCouplingSkyLineArray> >& vecSka, std::function<DataArrayIdType *(MEDCouplingSkyLineArray *)> fct)
+    {
+       std::size_t sz(vecSka.size());
+       std::vector< MCAuto<DataArrayIdType> > ret(sz);
+       std::vector< MCAuto<DataArrayIdType> >::iterator it(ret.begin());
+       std::for_each(vecSka.begin(),vecSka.end(),[&it,fct](MCAuto<MEDCouplingSkyLineArray> elt) { *it++ = MCAuto<DataArrayIdType>::TakeRef(fct(elt)); } );
+       return ret;
+    }
+
     std::string getClassName() const override { return std::string("MEDCouplingSkyLineArray"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -83,6 +106,9 @@ namespace MEDCoupling
     DataArrayIdType* getValuesArray() const;
 
     std::string simpleRepr() const;
+
+    MEDCouplingSkyLineArray *groupPacks(const DataArrayIdType *indexedPacks) const;
+    MEDCouplingSkyLineArray *uniqueNotSortedByPack() const;
 
     void getSimplePackSafe(const mcIdType absolutePackId, std::vector<mcIdType> & pack) const;
     const mcIdType * getSimplePackSafePtr(const mcIdType absolutePackId, mcIdType & packSize) const;

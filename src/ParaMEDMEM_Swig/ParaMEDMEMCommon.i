@@ -35,6 +35,7 @@
 #include "ICoCoMEDField.hxx"
 #include "ComponentTopology.hxx"
 #include "ParaUMesh.hxx"
+#include "ParaSkyLineArray.hxx"
 
 using namespace INTERP_KERNEL;
 using namespace MEDCoupling;
@@ -58,6 +59,11 @@ using namespace ICoCo;
 %include "ICoCoMEDField.hxx"
 
 %newobject MEDCoupling::ParaUMesh::getCellIdsLyingOnNodes;
+%newobject MEDCoupling::ParaSkyLineArray::equiRedistribute;
+%newobject MEDCoupling::ParaSkyLineArray::getSkyLineArray;
+%newobject MEDCoupling::ParaSkyLineArray::getGlobalIdsArray;
+
+%feature("unref") ParaSkyLineArray "$this->decrRef();"
 
 %nodefaultctor;
 
@@ -133,6 +139,41 @@ namespace MEDCoupling
       { 
         MCAuto<DataArrayIdType> ret(self->getCellIdsLyingOnNodes(globalNodeIds,fullyIn));
         return ret.retn();
+      }
+    }
+  };
+
+  class ParaSkyLineArray : public RefCountObject
+  {
+  public:
+    static ParaSkyLineArray *New(MEDCouplingSkyLineArray *ska, DataArrayIdType *globalIds);
+    %extend
+    {
+      ParaSkyLineArray(MEDCouplingSkyLineArray *ska, DataArrayIdType *globalIds)
+      {
+        return ParaSkyLineArray::New(ska,globalIds);
+      }
+
+      ParaSkyLineArray *equiRedistribute(mcIdType nbOfEntities) const
+      {
+        MCAuto<ParaSkyLineArray> ret(self->equiRedistribute(nbOfEntities));
+        return ret.retn();
+      }
+
+      MEDCouplingSkyLineArray *getSkyLineArray() const
+      {
+        MEDCouplingSkyLineArray *ret(self->getSkyLineArray());
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+      
+      DataArrayIdType *getGlobalIdsArray() const
+      {
+        DataArrayIdType *ret(self->getGlobalIdsArray());
+        if(ret)
+          ret->incrRef();
+        return ret;
       }
     }
   };

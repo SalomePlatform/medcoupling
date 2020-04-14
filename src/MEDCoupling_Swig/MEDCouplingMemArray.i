@@ -129,6 +129,7 @@
 %newobject MEDCoupling::DataArrayInt32::buildSubstraction;
 %newobject MEDCoupling::DataArrayInt32::buildSubstractionOptimized;
 %newobject MEDCoupling::DataArrayInt32::buildIntersection;
+%newobject MEDCoupling::DataArrayInt32::indexOfSameConsecutiveValueGroups;
 %newobject MEDCoupling::DataArrayInt32::buildUnique;
 %newobject MEDCoupling::DataArrayInt32::buildUniqueNotSorted;
 %newobject MEDCoupling::DataArrayInt32::deltaShiftIndex;
@@ -137,10 +138,12 @@
 %newobject MEDCoupling::DataArrayInt32::findRangeIdForEachTuple;
 %newobject MEDCoupling::DataArrayInt32::findIdInRangeForEachTuple;
 %newobject MEDCoupling::DataArrayInt32::duplicateEachTupleNTimes;
+%newobject MEDCoupling::DataArrayInt32::occurenceRankInThis;
 %newobject MEDCoupling::DataArrayInt32::buildPermutationArr;
 %newobject MEDCoupling::DataArrayInt32::buildPermArrPerLevel;
 %newobject MEDCoupling::DataArrayInt32::getDifferentValues;
 %newobject MEDCoupling::DataArrayInt32::FindPermutationFromFirstToSecond;
+%newobject MEDCoupling::DataArrayInt32::FindPermutationFromFirstToSecondDuplicate;
 %newobject MEDCoupling::DataArrayInt32::CheckAndPreparePermutation;
 %newobject MEDCoupling::DataArrayInt32::__neg__;
 %newobject MEDCoupling::DataArrayInt32::__add__;
@@ -201,6 +204,7 @@
 %newobject MEDCoupling::DataArrayInt64::buildSubstraction;
 %newobject MEDCoupling::DataArrayInt64::buildSubstractionOptimized;
 %newobject MEDCoupling::DataArrayInt64::buildIntersection;
+%newobject MEDCoupling::DataArrayInt64::indexOfSameConsecutiveValueGroups;
 %newobject MEDCoupling::DataArrayInt64::buildUnique;
 %newobject MEDCoupling::DataArrayInt64::buildUniqueNotSorted;
 %newobject MEDCoupling::DataArrayInt64::deltaShiftIndex;
@@ -209,10 +213,12 @@
 %newobject MEDCoupling::DataArrayInt64::findRangeIdForEachTuple;
 %newobject MEDCoupling::DataArrayInt64::findIdInRangeForEachTuple;
 %newobject MEDCoupling::DataArrayInt64::duplicateEachTupleNTimes;
+%newobject MEDCoupling::DataArrayInt64::occurenceRankInThis;
 %newobject MEDCoupling::DataArrayInt64::buildPermutationArr;
 %newobject MEDCoupling::DataArrayInt64::buildPermArrPerLevel;
 %newobject MEDCoupling::DataArrayInt64::getDifferentValues;
 %newobject MEDCoupling::DataArrayInt64::FindPermutationFromFirstToSecond;
+%newobject MEDCoupling::DataArrayInt64::FindPermutationFromFirstToSecondDuplicate;
 %newobject MEDCoupling::DataArrayInt64::CheckAndPreparePermutation;
 %newobject MEDCoupling::DataArrayInt64::__neg__;
 %newobject MEDCoupling::DataArrayInt64::__add__;

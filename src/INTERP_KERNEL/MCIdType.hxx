@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __IK_MCIDTYPE_HXX__
-#define __IK_MCIDTYPE_HXX__
+#pragma once
 
 #include <cstdint>
 #include <stddef.h>
@@ -35,6 +34,10 @@ typedef std::int64_t mcIdType;
 
 #endif
 
+template <class T> inline std::size_t ToSizeT(T val)
+{
+  return static_cast<std::size_t>(val);
+}
 template <class T> inline mcIdType ToIdType(T val)
 {
   return static_cast<mcIdType>(val);
@@ -43,6 +46,3 @@ template <class T> inline T FromIdType(mcIdType val)
 {
   return static_cast<T>(val);
 }
-
-
-#endif

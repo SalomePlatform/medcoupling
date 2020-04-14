@@ -466,6 +466,8 @@ typedef long int mcIdType;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::getSuperIndexArray;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::getIndexArray;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::getValuesArray;
+%newobject MEDCoupling::MEDCouplingSkyLineArray::groupPacks;
+%newobject MEDCoupling::MEDCouplingSkyLineArray::uniqueNotSortedByPack;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -1296,6 +1298,9 @@ namespace MEDCoupling
     
     void deleteSimplePack(const int i);
     void deleteSimplePacks(const DataArrayIdType* idx);
+
+    MEDCouplingSkyLineArray *groupPacks(const DataArrayIdType *indexedPacks) const;
+    MEDCouplingSkyLineArray *uniqueNotSortedByPack() const;
     
     %extend 
     {

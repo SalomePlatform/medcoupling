@@ -3635,6 +3635,19 @@ struct NotInRange
   }
   
   /*!
+   * Returns a newly created array containing a copy of the input array defined by [ \a arrBegin, \a arrEnd )
+   */
+  template<class T>
+  MCAuto< typename Traits<T>::ArrayType > DataArrayDiscrete<T>::NewFromArray(const T *arrBegin, const T *arrEnd)
+  {
+    MCAuto< typename Traits<T>::ArrayType > ret(DataArrayDiscrete<T>::New());
+    std::size_t nbElts(std::distance(arrBegin,arrEnd));
+    ret->alloc(nbElts,1);
+    std::copy(arrBegin,arrEnd,ret->getPointer());
+    return ret;
+  }
+  
+  /*!
    * Checks if values of \a this and another DataArrayInt are equal. For more info see
    * \ref MEDCouplingArrayBasicsCompare.
    *  \param [in] other - an instance of DataArrayInt to compare with \a this one.
@@ -3704,6 +3717,46 @@ struct NotInRange
   void DataArrayDiscrete<T>::switchOnTupleNotEqualTo(T val, std::vector<bool>& vec) const
   {
     switchOnTupleAlg(val,vec,std::not_equal_to<T>());
+  }
+
+  /*!
+   * Compute for each element in \a this the occurence rank of that element. This method is typically useful of one-component array having a same element
+   * appearing several times. If each element in \a this appears once an 1 component array containing only 0 will be returned.
+   *
+   * \b Example:
+   * - \a this : [5, 3, 2, 1, 4, 5, 2, 1, 0, 11, 5, 4]
+   * - \a return is : [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 2, 1] because at pos #0 of \a this (ie value 5) is the first occurrence ->0. At pos #10 of \a this (ie value 5 also) is the third occurrence of 5 -> 2.
+   *
+   * \return DataArrayInt * - a new instance of DataArrayInt with same number of tuples than \a this. The caller is to delete this
+   *          array using decrRef() as it is no more needed.
+   * \throw If either this not allocated or not with one component.
+   *
+   * \sa DataArrayInt::FindPermutationFromFirstToSecond
+   */
+  template<class T>
+  DataArrayIdType *DataArrayDiscrete<T>::occurenceRankInThis() const
+  {
+    constexpr char MSG0[] = "occurenceRankInThis :";
+    this->checkAllocated();
+    this->checkNbOfComps(1,MSG0);
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(this->getNumberOfTuples(),1);
+    mcIdType *retPtr(ret->getPointer());
+    std::map<T,mcIdType> m;
+    for(const T *pt = this->begin() ; pt != this->end() ; ++pt, ++retPtr )
+    {
+      auto it = m.find(*pt);
+      if( it == m.end() )
+      {
+        *retPtr = 0;
+        m[*pt] = 1;
+      }
+      else
+      {
+        *retPtr = (*it).second++;
+      }
+    }
+    return ret.retn();
   }
 
   /*!
@@ -4529,7 +4582,7 @@ struct NotInRange
    *
    * \return - An array of size std::distance(valsBg,valsEnd)
    *
-   * \sa DataArrayInt::FindPermutationFromFirstToSecond
+   * \sa DataArrayInt::FindPermutationFromFirstToSecond , DataArrayInt::FindPermutationFromFirstToSecondDuplicate
    */
   template <class T>
   MCAuto<DataArrayIdType> DataArrayDiscrete<T>::findIdForEach(const T *valsBg, const T *valsEnd) const
@@ -5652,6 +5705,53 @@ struct NotInRange
     arrs[0]=dynamic_cast<const DataArrayType *>(this); arrs[1]=other;
     return DataArrayDiscrete<T>::BuildIntersection(arrs);
   }
+  /*!
+   * This method can be applied on allocated with one component DataArrayInt instance.
+   * Locate groups of all consecutive same values in \a this and return them into an indexed array of positions pointing to \a this starting with 0.
+   * Number of tuples of returned array is equal to size of \a this->buildUnique() + 1.
+   * Last value of returned array is equal to \a this->getNumberOfTuples()
+   * 
+   * \b Example:
+   * - \a this : [0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 5, 11]
+   * - \a return is : [0, 1, 3, 5, 6, 8, 11, 12]
+   *
+   * \return a newly allocated array containing the indexed array of
+   * \throw if \a this is not allocated or if \a this has not exactly one component or if number of tuples is equal to 0.
+   * \sa DataArrayInt::buildUnique, MEDCouplingSkyLineArray::groupPacks
+   */
+  template <class T>
+  DataArrayIdType *DataArrayDiscrete<T>::indexOfSameConsecutiveValueGroups() const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::indexOfSameConsecutiveValueGroups : only single component allowed !");
+    if(this->getNumberOfTuples()==0)
+      throw INTERP_KERNEL::Exception("DataArrayInt::indexOfSameConsecutiveValueGroups : number of tuples must be > 0 !");
+    const T *pt(this->begin());
+    const T *const ptEnd(this->end()) , * const ptBg(this->begin());
+    const T *oldPt(pt);
+    // first find nb of different values in this
+    std::size_t nbOfTuplesOut(0);
+    while( pt != ptEnd )
+    {
+      T val(*pt);
+      const T *endOfPack(std::find_if(pt+1,ptEnd,[val](T elt){ return val!=elt; }));
+      pt = endOfPack;
+      ++nbOfTuplesOut;
+    }
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(nbOfTuplesOut+1,1);
+    mcIdType *retPtr(ret->getPointer()); *retPtr++ = 0;
+    pt = this->begin();
+    while( pt != ptEnd )
+    {
+      T val(*pt);
+      const T *endOfPack(std::find_if(pt+1,ptEnd,[val](T elt){ return val!=elt; }));
+      *retPtr++ = ToIdType( std::distance(ptBg,endOfPack) );
+      pt = endOfPack;
+      ++nbOfTuplesOut;
+    }
+    return ret.retn();
+  }
 
   /*!
    * This method can be applied on allocated with one component DataArrayInt instance.
@@ -5660,7 +5760,7 @@ struct NotInRange
    *
    * \return a newly allocated array that contain the result of the unique operation applied on \a this.
    * \throw if \a this is not allocated or if \a this has not exactly one component.
-   * \sa DataArrayInt::buildUniqueNotSorted
+   * \sa DataArrayInt::buildUniqueNotSorted, DataArrayInt::indexOfSameConsecutiveValueGroups
    */
   template <class T>
   typename Traits<T>::ArrayType *DataArrayDiscrete<T>::buildUnique() const
@@ -5668,12 +5768,12 @@ struct NotInRange
     this->checkAllocated();
     if(this->getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayInt::buildUnique : only single component allowed !");
-    std::size_t nbOfElements=this->getNumberOfTuples();
-    MCAuto<DataArrayType> tmp=DataArrayType::New();
-    tmp->deepCopyFrom (*this);
-    T *data=tmp->getPointer();
-    T *last=std::unique(data,data+nbOfElements);
-    MCAuto<DataArrayType> ret=DataArrayType::New();
+    std::size_t nbOfElements(this->getNumberOfTuples());
+    MCAuto<DataArrayType> tmp(DataArrayType::New());
+    tmp->deepCopyFrom(*this);
+    T *data(tmp->getPointer());
+    T *last(std::unique(data,data+nbOfElements));
+    MCAuto<DataArrayType> ret(DataArrayType::New());
     ret->alloc(std::distance(data,last),1);
     std::copy(data,last,ret->getPointer());
     return ret.retn();
@@ -6636,7 +6736,7 @@ struct NotInRange
    *          array using decrRef() as it is no more needed.
    * \throw If either ids1 or ids2 is null not allocated or not with one components.
    *
-   * \sa DataArrayInt::findIdForEach
+   * \sa DataArrayInt::findIdForEach, DataArrayInt::FindPermutationFromFirstToSecondDuplicate, DataArrayInt::rankOfElementInThis
    */
   template<class T>
   DataArrayIdType *DataArrayDiscrete<T>::FindPermutationFromFirstToSecond(const DataArrayType *ids1, const DataArrayType *ids2)
@@ -6662,6 +6762,84 @@ struct NotInRange
     p2=p2->invertArrayO2N2N2O(p2->getNumberOfTuples());
     p2=p2->selectByTupleIdSafe(p1->begin(),p1->end());
     return p2.retn();
+  }
+
+  /*!
+   * This method tries to find the permutation to apply to the first input \a ids1 to obtain the same array (without considering strings information) the second
+   * input array \a ids2.
+   * \a ids1 and \a ids2 are expected to be both a list of ids (both with number of components equal to one) not sorted and with values that can be negative.
+   * This method will throw an exception is no such permutation array can be obtained. It is typically the case if there is some ids in \a ids1 not in \a ids2 or
+   * inversely.
+   * The difference with DataArrayInt::FindPermutationFromFirstToSecond is that this method supports multiple same values in \a ids1 and \a ids2 whereas 
+   * DataArrayInt::FindPermutationFromFirstToSecond doesn't. It implies that this method my be slower than the DataArrayInt::FindPermutationFromFirstToSecond one.
+   * 
+   * In case of success both assertion will be true (no throw) :
+   * \c ids1->renumber(ret)->isEqual(ids2) where \a ret is the return of this method.
+   * \c ret->transformWithIndArr(ids2)->isEqual(ids1)
+   *
+   * \b Example:
+   * - \a ids1 : [5, 3, 2, 1, 4, 5, 2, 1, 0, 11, 5, 4]
+   * - \a ids2 : [0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 5, 11]
+   * - \a return is : [8, 5, 3, 1, 6, 9, 4, 2, 0, 11, 10, 7] because ids2[8]==ids1[0], ids2[5]==ids1[1], ids2[3]==ids1[2], ids2[1]==ids1[3]...
+   *
+   * \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
+   *          array using decrRef() as it is no more needed.
+   * \throw If either ids1 or ids2 is null not allocated or not with one components.
+   *
+   * \sa DataArrayInt::findIdForEach, DataArrayInt::FindPermutationFromFirstToSecond, DataArrayInt::occurenceRankInThis
+   */
+  template<class T>
+  DataArrayIdType *DataArrayDiscrete<T>::FindPermutationFromFirstToSecondDuplicate(const DataArrayType *ids1, const DataArrayType *ids2)
+  {
+    if(!ids1 || !ids2)
+      throw INTERP_KERNEL::Exception("DataArrayInt::FindPermutationFromFirstToSecondDuplicate : the two input arrays must be not null !");
+    constexpr char MSG0[] = "DataArrayInt::FindPermutationFromFirstToSecondDuplicate :";
+    ids1->checkAllocated(); ids2->checkAllocated();
+    ids1->checkNbOfComps(1,MSG0); ids2->checkNbOfComps(1,MSG0);
+    mcIdType nbTuples(ids1->getNumberOfTuples());
+    if(nbTuples != ids2->getNumberOfTuples())
+      {
+        std::ostringstream oss; oss << "DataArrayInt::FindPermutationFromFirstToSecondDuplicate : first array has " << ids1->getNumberOfTuples() << " tuples and the second one " << ids2->getNumberOfTuples() << " tuples ! No chance to find a permutation between the 2 arrays !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(nbTuples,1);
+    MCAuto<DataArrayIdType> oids2(ids2->occurenceRankInThis());
+    std::map< std::pair<T,mcIdType>, mcIdType> m;
+    mcIdType pos(0);
+    const mcIdType *oids2Ptr(oids2->begin());
+    for(const T * it2 = ids2->begin() ; it2 != ids2->end() ; ++it2, ++oids2Ptr, ++pos)
+      m[{*it2,*oids2Ptr}] = pos;
+    mcIdType *retPtr(ret->getPointer());
+    //
+    std::map<T,mcIdType> mOccurence1; // see DataArrayInt::occurenceRankInThis : avoid to compute additionnal temporary array
+    //
+    for(const T * it1 = ids1->begin() ; it1 != ids1->end() ; ++it1, ++retPtr)
+    {
+      auto it = mOccurence1.find(*it1);
+      mcIdType occRk1;
+      if( it == mOccurence1.end() )
+      {
+        occRk1 = 0;
+        mOccurence1[*it1] = 1;
+      }
+      else
+      {
+        occRk1 = (*it).second++;
+      }
+      //
+      auto it2 = m.find({*it1,occRk1});
+      if(it2 != m.end())
+      {
+        *retPtr = (*it2).second;
+      }
+      else
+      {
+        std::ostringstream oss; oss << MSG0 << "At pos " << std::distance(ids1->begin(),it1) << " value is " << *it1 << " and occurence rank is " << occRk1 << ". No such item into second array !"; 
+        throw INTERP_KERNEL::Exception(oss.str());
+      }
+      
+    }
+    return ret.retn();
   }
 
   /*!

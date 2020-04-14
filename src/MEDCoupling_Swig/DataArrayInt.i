@@ -44,6 +44,7 @@
     bool isEqual(const ARRAY& other) const;
     bool isEqualWithoutConsideringStr(const ARRAY& other) const;
     bool isEqualWithoutConsideringStrAndOrder(const ARRAY& other) const;
+    DataArrayIdType *occurenceRankInThis() const;
     DataArrayIdType *buildPermutationArr(const ARRAY& other) const;
     ARRAY *sumPerTuple() const;
     void sort(bool asc=true);
@@ -126,11 +127,13 @@
     static ARRAY *BuildUnion(const std::vector<const ARRAY *>& arr);
     static ARRAY *BuildIntersection(const std::vector<const ARRAY *>& arr);
     static DataArrayIdType *FindPermutationFromFirstToSecond(const ARRAY *ids1, const ARRAY *ids2);
+    static DataArrayIdType *FindPermutationFromFirstToSecondDuplicate(const ARRAY *ids1, const ARRAY *ids2);
     DataArrayIdType *buildComplement(mcIdType nbOfElement) const;
     ARRAY *buildSubstraction(const ARRAY *other) const;
     ARRAY *buildSubstractionOptimized(const ARRAY *other) const;
     ARRAY *buildUnion(const ARRAY *other) const;
     ARRAY *buildIntersection(const ARRAY *other) const;
+    DataArrayIdType *indexOfSameConsecutiveValueGroups() const;
     ARRAY *buildUnique() const;
     ARRAY *buildUniqueNotSorted() const;
     ARRAY *deltaShiftIndex() const;

@@ -40,7 +40,9 @@ SET(paramedmem_SOURCES
   ProcessorGroup.cxx
   MPIProcessorGroup.cxx
   ParaMESH.cxx
+  CommInterface.cxx
   ParaUMesh.cxx
+  ParaSkyLineArray.cxx
   ComponentTopology.cxx
   MPIAccess.cxx
   InterpolationMatrix.cxx

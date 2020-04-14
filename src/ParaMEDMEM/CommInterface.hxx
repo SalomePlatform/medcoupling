@@ -32,8 +32,8 @@ namespace MEDCoupling
   class CommInterface
   {
   public:
-    CommInterface(){}
-    virtual ~CommInterface(){}
+    CommInterface() { }
+    virtual ~CommInterface() { }
     int worldSize() const {
       int size;
       MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -81,7 +81,7 @@ namespace MEDCoupling
                   void* recvbuf, int recvcount, MPI_Datatype recvtype,
                   MPI_Comm comm) const { return MPI_Allgather(sendbuf,sendcount, sendtype, recvbuf, recvcount, recvtype, comm); }
     int allGatherV(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int recvcounts[],
-                   const int displs[], MPI_Datatype recvtype, MPI_Comm comm) { return MPI_Allgatherv(sendbuf,sendcount,sendtype,recvbuf,recvcounts,displs,recvtype,comm); }
+                   const int displs[], MPI_Datatype recvtype, MPI_Comm comm) const { return MPI_Allgatherv(sendbuf,sendcount,sendtype,recvbuf,recvcounts,displs,recvtype,comm); }
     int allToAll(void* sendbuf, int sendcount, MPI_Datatype sendtype,
                  void* recvbuf, int recvcount, MPI_Datatype recvtype,
                  MPI_Comm comm) const { return MPI_Alltoall(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm); }
@@ -93,6 +93,9 @@ namespace MEDCoupling
     int reduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype,
                MPI_Op op, int root, MPI_Comm comm) const { return MPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm); }
     int allReduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) const { return MPI_Allreduce(sendbuf, recvbuf, count, datatype, op, comm); }
+  public:
+    void allGatherArrays(MPI_Comm comm, const DataArrayIdType *array, std::unique_ptr<mcIdType[]>& result, std::unique_ptr<mcIdType[]>& resultIndex) const;
+    void allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayIdType> >& arrays, std::vector< MCAuto<DataArrayIdType> >& arraysOut) const;
   public:
 
     /*!
@@ -124,10 +127,11 @@ namespace MEDCoupling
     /*!
     * Helper of alltoallv and allgatherv
     */
-    static std::unique_ptr<int []> ComputeOffset(const std::unique_ptr<int []>& counts, std::size_t sizeOfCounts)
+    template<class T>
+    static std::unique_ptr<T []> ComputeOffset(const std::unique_ptr<T []>& counts, std::size_t sizeOfCounts)
     {
-      std::unique_ptr<int []> ret(new int[sizeOfCounts]);
-      ret[0] = 0;
+      std::unique_ptr<T []> ret(new T[sizeOfCounts]);
+      ret[0] = static_cast<T>(0);
       for(std::size_t i = 1 ; i < sizeOfCounts ; ++i)
       {
         ret[i] = ret[i-1] + counts[i-1];

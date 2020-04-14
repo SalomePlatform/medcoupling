@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLING_MEDCOUPLINGMEMARRAY_HXX__
-#define __MEDCOUPLING_MEDCOUPLINGMEMARRAY_HXX__
+#pragma once
 
 #include "MEDCoupling.hxx"
 #include "MCType.hxx"
@@ -542,9 +541,10 @@ namespace MEDCoupling
   class DataArrayDiscrete : public DataArrayTemplateClassic<T>
   {
   public:
-    typedef typename Traits<T>::ArrayType DataArrayType;
+    using DataArrayType = typename Traits<T>::ArrayType;
   public:
     static DataArrayType *New();
+    static MCAuto<DataArrayType> NewFromArray(const T *arrBegin, const T *arrEnd);
     T intValue() const;
     bool isEqual(const DataArrayDiscrete<T>& other) const;
     bool isEqualIfNotWhy(const DataArrayDiscrete<T>& other, std::string& reason) const;
@@ -552,6 +552,7 @@ namespace MEDCoupling
     bool isEqualWithoutConsideringStrAndOrder(const typename Traits<T>::ArrayType& other) const;
     void switchOnTupleEqualTo(T val, std::vector<bool>& vec) const;
     void switchOnTupleNotEqualTo(T val, std::vector<bool>& vec) const;
+    DataArrayIdType *occurenceRankInThis() const;
     DataArrayIdType *buildPermutationArr(const DataArrayDiscrete<T>& other) const;
     DataArrayIdType *indicesOfSubPart(const DataArrayDiscrete<T>& partOfThis) const;
     void checkMonotonic(bool increasing) const;
@@ -568,7 +569,7 @@ namespace MEDCoupling
     DataArrayIdType *findIdsEqual(T val) const;
     DataArrayIdType *transformWithIndArrR(const T *indArr2Bg, const T *indArrEnd) const;
     void splitByValueRange(const T *arrBg, const T *arrEnd,
-                                              DataArrayType *& castArr, DataArrayType *& rankInsideCast, DataArrayType *& castsPresent) const;
+                           DataArrayType *& castArr, DataArrayType *& rankInsideCast, DataArrayType *& castsPresent) const;
     bool isRange(T& strt, T& sttoopp, T& stteepp) const;
     DataArrayIdType *invertArrayO2N2N2O(mcIdType newNbOfElem) const;
     DataArrayIdType *invertArrayN2O2O2N(mcIdType oldNbOfElem) const;
@@ -621,6 +622,7 @@ namespace MEDCoupling
     DataArrayType *buildSubstractionOptimized(const DataArrayType *other) const;
     DataArrayType *buildUnion(const DataArrayType *other) const;
     DataArrayType *buildIntersection(const DataArrayType *other) const;
+    DataArrayIdType *indexOfSameConsecutiveValueGroups() const;
     DataArrayType *buildUnique() const;
     DataArrayType *buildUniqueNotSorted() const;
     DataArrayType *deltaShiftIndex() const;
@@ -644,6 +646,7 @@ namespace MEDCoupling
     //const MemArray<T>& accessToMemArray() const { return _mem; }
   public:
     static DataArrayIdType *FindPermutationFromFirstToSecond(const DataArrayType *ids1, const DataArrayType *ids2);
+    static DataArrayIdType *FindPermutationFromFirstToSecondDuplicate(const DataArrayType *ids1, const DataArrayType *ids2);
     static mcIdType *CheckAndPreparePermutation(const T *start, const T *end);
     static DataArrayType *BuildListOfSwitchedOn(const std::vector<bool>& v);
     static DataArrayType *BuildListOfSwitchedOff(const std::vector<bool>& v);
@@ -1058,5 +1061,3 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("DataArrayDouble::insertAtTheEnd : not available for DataArrayDouble with number of components different than 1 !");
   }
 }
-
-#endif

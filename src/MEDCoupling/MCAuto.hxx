@@ -24,6 +24,7 @@
 #include "InterpKernelException.hxx"
 
 #include <vector>
+#include <algorithm>
 
 namespace MEDCoupling
 {
@@ -31,6 +32,7 @@ namespace MEDCoupling
   class MCAuto
   {
   public:
+    static MCAuto TakeRef(T *ptr) { MCAuto ret(MCAuto(nullptr)); ret.takeRef(ptr); return ret; }
     MCAuto(const MCAuto& other):_ptr(0) { referPtr(other._ptr); }
     MCAuto(T *ptr=0):_ptr(ptr) { }
     ~MCAuto() { destroyPtr(); }
@@ -58,6 +60,16 @@ namespace MEDCoupling
   private:
     T *_ptr;
   };
+
+  template<class T>
+  std::vector<const T*> FromVecAutoToVecOfConst(const std::vector<MCAuto<T>>& inputVec)
+  {
+    std::size_t size(inputVec.size());
+    std::vector< const T *> ret(size);
+    typename std::vector< const T *>::iterator itArrays(ret.begin());
+    std::for_each(inputVec.begin(),inputVec.end(),[&itArrays](MCAuto<T> elt) { *itArrays++=elt; });
+    return ret;
+  }
 
   template<class T, class U>
   typename MEDCoupling::MCAuto<U> DynamicCast(typename MEDCoupling::MCAuto<T>& autoSubPtr) throw()
