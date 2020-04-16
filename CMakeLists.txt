@@ -21,9 +21,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11 FATAL_ERROR)
 #INCLUDE(CMakeDependentOption)
 PROJECT(MEDCoupling C CXX)
 
-# Ensure a proper linker behavior:
-CMAKE_POLICY(SET CMP0003 NEW)
-
 # Versioning
 # ===========
 # Project name, upper case
