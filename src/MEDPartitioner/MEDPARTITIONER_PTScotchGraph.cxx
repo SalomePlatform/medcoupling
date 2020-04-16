@@ -74,6 +74,7 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
   
   int* vlbloctab = _vlbloctab?const_cast<int*>(_vlbloctab->begin()):0;
   
+  SCOTCH_randomReset();
   SCOTCH_Dgraph scotch_graph;
   SCOTCH_dgraphInit(&scotch_graph, MPI_COMM_WORLD);
   SCOTCH_dgraphBuild(&scotch_graph,
