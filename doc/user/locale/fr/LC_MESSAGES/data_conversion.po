@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2015-2017, Geay, Bruneton
+# Copyright (C) 2015-2020, Geay, Bruneton
 # This file is distributed under the same license as the MEDCoupling User's
 # Guide package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
