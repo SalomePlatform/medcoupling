@@ -209,6 +209,7 @@ namespace MEDCoupling
     void assignUMesh(MEDCouplingUMesh *m);
     MEDCouplingUMesh *getUmesh() const;
     mcIdType getNumberOfCells() const;
+    void highlightUsedNodes(std::vector<bool>& nodesToBeHighlighted) const;
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
     mcIdType getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
@@ -292,6 +293,7 @@ namespace MEDCoupling
     const DataArrayIdType *getNumberField() const;
     const DataArrayAsciiChar *getNameField() const;
     const DataArrayIdType *getRevNumberField() const;
+    void highlightUsedNodes(std::vector<bool>& nodesToBeHighlighted) const { _m_by_types.highlightUsedNodes(nodesToBeHighlighted); }
     const PartDefinition *getPartDef(INTERP_KERNEL::NormalizedCellType gt) const;
     void eraseFamilyField();
     void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,mcIdType>& familyIds,

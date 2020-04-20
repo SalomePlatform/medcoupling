@@ -120,6 +120,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh;
 %newobject MEDCoupling::MEDFileUMesh::extractFamilyFieldOnGeoType;
 %newobject MEDCoupling::MEDFileUMesh::extractNumberFieldOnGeoType;
+%newobject MEDCoupling::MEDFileUMesh::computeFetchedNodeIds;
 %newobject MEDCoupling::MEDFileUMesh::zipCoords;
 %newobject MEDCoupling::MEDFileUMesh::deduceNodeSubPartFromCellSubPart;
 %newobject MEDCoupling::MEDFileUMesh::extractPart;
@@ -1410,6 +1411,7 @@ namespace MEDCoupling
     void setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false);
     void optimizeFamilies();
+    DataArrayIdType *computeFetchedNodeIds() const;
     DataArrayIdType *zipCoords();
     DataArrayIdType *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     DataArrayIdType *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;

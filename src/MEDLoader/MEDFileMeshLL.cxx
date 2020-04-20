@@ -1632,6 +1632,16 @@ std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getParts() cons
   return retrievePartsWithoutComputation();
 }
 
+void MEDFileUMeshAggregateCompute::highlightUsedNodes(std::vector<bool>& nodesToBeHighlighted) const
+{
+  if(_mp_time<_m_time)
+    forceComputationOfPartsFromUMesh();
+  for(auto part : this->_m_parts)
+  {
+    part->computeNodeIdsAlg(nodesToBeHighlighted);
+  }
+}
+
 MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::retrievePartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const
 {
   std::vector<MEDCoupling1GTUMesh *> v(retrievePartsWithoutComputation());

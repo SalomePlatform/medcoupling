@@ -4339,6 +4339,23 @@ DataArrayIdType *MEDFileUMesh::zipCoords()
 }
 
 /*!
+ * This method is the extension of MEDCouplingUMesh::computeFetchedNodeIds. Except that here all levels are considered here.
+ * 
+ * \return newly allocated array containing all nodes in \a this that are part of nodal connectivity of at least one cell in \a this whatever its level.
+ */
+DataArrayIdType *MEDFileUMesh::computeFetchedNodeIds() const
+{
+  std::vector<int> neLevs(this->getNonEmptyLevels());
+  std::vector<bool> nodesHighlighted(this->getNumberOfNodes(),false);
+  for(auto lev : neLevs)
+  {
+    const MEDFileUMeshSplitL1 *zeLev(this->getMeshAtLevSafe(lev));
+    zeLev->highlightUsedNodes(nodesHighlighted);
+  }
+  return DataArrayIdType::BuildListOfSwitchedOn(nodesHighlighted);
+}
+
+/*!
  * This method is a const method. It computes the minimal set of node ids covered by the cell extraction of \a this.
  * The extraction of \a this is specified by the extractDef \a input map.
  * This map tells for each level of cells, the cells kept in the extraction.
