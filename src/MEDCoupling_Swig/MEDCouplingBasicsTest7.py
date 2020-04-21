@@ -1,10 +1,10 @@
 #  -*- coding: utf-8 -*-
-# Copyright (C) 2007-2020  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2020  CEA/DEN,EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
+# version 2.1 of the License,or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -12,8 +12,8 @@
 # Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# License along with this library; if not,write to the Free Software
+# Foundation,Inc.,59 Temple Place,Suite 330,Boston,MA  02111-1307 USA
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
@@ -28,7 +28,7 @@ import unittest
 from math import pi,e,sqrt,cos,sin
 from datetime import datetime
 from MEDCouplingDataForTest import MEDCouplingDataForTest
-import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@cea.fr
+import rlcompleter,readline # this line has to be here,to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@cea.fr
 
 class MEDCouplingBasicsTest7(unittest.TestCase):
 
@@ -184,7 +184,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
 
     def testDAIAggregateMulti1(self):
         a=DataArrayInt64.New()
-        a.setValues(list(range(4)), 2, 2)
+        a.setValues(list(range(4)),2, 2)
         a.setName("aa")
         b=DataArrayInt64.New()
         b.setValues(list(range(6)), 3, 2)
@@ -785,6 +785,29 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         sk2 = sk.uniqueNotSortedByPack()
         self.assertTrue(sk2.getIndexArray().isEqual(DataArrayInt([0,3,8,13,16,21,29,37,42])))
         self.assertTrue(sk2.getValuesArray().isEqual(DataArrayInt([1,4,5,0,2,4,5,6,1,3,5,6,7,2,6,7,0,1,5,8,9,0,1,2,4,6,8,9,10,1,2,3,5,7,9,10,11,2,3,6,10,11])))
+    
+    def testSkyLineAggregatePacks1(self):
+        arr = DataArrayDouble(3) ; arr.iota()
+        m = MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m = m.buildUnstructured()
+        a,b = m.computeEnlargedNeighborsOfNodes()
+        sk = MEDCouplingSkyLineArray(b,a)
+        sk1 = sk.deepCopy()
+        sk1.getValuesArray()[:] *= 2
+        sk2 = sk.deepCopy()
+        sk2.getValuesArray()[:] *= 3
+        skOut = MEDCouplingSkyLineArray.AggregatePacks([sk,sk1,sk2])
+        self.assertTrue(skOut.getIndexArray().isEqual(DataArrayInt([0,9,24,33,48,72,87,96,111,120])))
+        self.assertTrue(skOut.getValuesArray().isEqual(DataArrayInt([1,3,4,2,6,8,3,9,12,0,2,3,4,5,0,4,6,8,10,0,6,9,12,15,1,4,5,2,8,10,3,12,15,0,1,4,6,7,0,2,8,12,14,0,3,12,18,21,0,1,2,3,5,6,7,8,0,2,4,6,10,12,14,16,0,3,6,9,15,18,21,24,1,2,4,7,8,2,4,8,14,16,3,6,12,21,24,3,4,7,6,8,14,9,12,21,3,4,5,6,8,6,8,10,12,16,9,12,15,18,24,4,5,7,8,10,14,12,15,21])))
+
+    def testDACopySorted1(self):
+        d = DataArrayInt32([5,1,100,20])
+        self.assertTrue(d.copySorted().isEqual(DataArrayInt32([1,5,20,100])))
+        d = DataArrayInt64([5,1,100,20])
+        self.assertTrue(d.copySorted().isEqual(DataArrayInt64([1,5,20,100])))
+        d = DataArrayInt([5,1,100,20])
+        self.assertTrue(d.copySorted().isEqual(DataArrayInt([1,5,20,100])))
+        d = DataArrayDouble([5,1,100,20])
+        self.assertTrue(d.copySorted().isEqual(DataArrayDouble([1,5,20,100]),1e-10))
 
     pass
 

@@ -30,7 +30,7 @@ namespace MEDCoupling
   template<class T>
   struct MEDCOUPLING_EXPORT Traits
   {
-    typedef T EltType;
+    using EltType = T;
   };
 
   class DataArrayInt32;

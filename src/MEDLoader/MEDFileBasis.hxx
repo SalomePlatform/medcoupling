@@ -79,6 +79,7 @@ namespace MEDCoupling
     //DataArrayMedInt *buildNewEmptyInstance() const { return new DataArrayMedInt(); }//ko
     DataArray *buildNewEmptyInstance() const { if ( sizeof(med_int)==sizeof(int)) return DataArrayInt32::New(); return DataArrayInt64::New(); }
   public:
+    DataArrayMedInt *copySorted(bool asc=true) const override { MCAuto<DataArrayMedInt> ret(this->deepCopy()); ret->sort(); return ret.retn(); }
     DataArray *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
     DataArray *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }
     DataArray *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }

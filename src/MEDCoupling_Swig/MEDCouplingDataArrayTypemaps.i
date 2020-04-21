@@ -1389,6 +1389,17 @@ static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, cons
     throw INTERP_KERNEL::Exception("convertFromPyObjVectorOfObj : not a list nor a tuple");
 }
 
+//convertFromVectorAutoObjToPyObj<MEDCoupling::MEDCouplingUMesh>(inpv,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh)
+template<class T>
+static PyObject *convertFromVectorAutoObjToPyObj(std::vector< MCAuto<T> >& inpVector, swig_type_info *ty)
+{
+  std::size_t sz(inpVector.size());
+  PyObject *ret = PyList_New(sz);
+  for(std::size_t i=0;i<sz;++i)
+    PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(inpVector[i].retn()),ty, SWIG_POINTER_OWN | 0 ));
+  return ret;
+}
+
 /*!
  * if python int -> cpp int sw=1
  * if python list[int] -> cpp vector<int> sw=2

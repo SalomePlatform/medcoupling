@@ -34,13 +34,21 @@ namespace MEDCoupling
    *
    * This class is very specific to the requirement of parallel code computations.
    */
-  class ParaUMesh
+  class ParaUMesh : public RefCountObject
   {
   public:
-    ParaUMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds);
+    static ParaUMesh *New(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds);
     MCAuto<DataArrayIdType> getCellIdsLyingOnNodes(const DataArrayIdType *globalNodeIds, bool fullyIn) const;
-    MCAuto<ParaUMesh> redistributeCells(const DataArrayIdType *globalCellIds) const;
+    ParaUMesh *redistributeCells(const DataArrayIdType *globalCellIds) const;
+    MEDCouplingUMesh *getMesh() { return _mesh; }
+    DataArrayIdType *getGlobalCellIds() { return _cell_global; }
+    DataArrayIdType *getGlobalNodeIds() { return _node_global; }
+  protected:
     virtual ~ParaUMesh() { }
+    ParaUMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds);
+    std::string getClassName() const override { return "ParaUMesh"; }
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
   private:
     MCAuto<MEDCouplingUMesh> _mesh;
     MCAuto<DataArrayIdType> _cell_global;

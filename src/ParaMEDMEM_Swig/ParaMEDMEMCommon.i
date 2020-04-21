@@ -58,12 +58,19 @@ using namespace ICoCo;
 %rename(ICoCoMEDField) ICoCo::MEDField;
 %include "ICoCoMEDField.hxx"
 
+%newobject MEDCoupling::ParaUMesh::New;
+%newobject MEDCoupling::ParaUMesh::getMesh;
+%newobject MEDCoupling::ParaUMesh::getGlobalCellIds;
+%newobject MEDCoupling::ParaUMesh::getGlobalNodeIds;
 %newobject MEDCoupling::ParaUMesh::getCellIdsLyingOnNodes;
+%newobject MEDCoupling::ParaUMesh::redistributeCells;
+%newobject MEDCoupling::ParaSkyLineArray::New;
 %newobject MEDCoupling::ParaSkyLineArray::equiRedistribute;
 %newobject MEDCoupling::ParaSkyLineArray::getSkyLineArray;
 %newobject MEDCoupling::ParaSkyLineArray::getGlobalIdsArray;
 
 %feature("unref") ParaSkyLineArray "$this->decrRef();"
+%feature("unref") ParaUMesh "$this->decrRef();"
 
 %nodefaultctor;
 
@@ -127,14 +134,60 @@ namespace MEDCoupling
 
     int reduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm) const;
     int allReduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) const;
-  };
-
-  class ParaUMesh
-  {
-  public:
-    ParaUMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds);
     %extend
     {
+      PyObject *allGatherArrays(const DataArrayIdType *array) const
+      {
+        std::vector< MCAuto<DataArrayIdType> > ret;
+        self->allGatherArrays(MPI_COMM_WORLD,array,ret);
+        return convertFromVectorAutoObjToPyObj<DataArrayIdType>(ret,SWIGTITraits<mcIdType>::TI);
+      }
+
+      PyObject *allToAllArrays(PyObject *arrays) const
+      {
+        std::vector< DataArrayIdType * > arraysIn;
+        std::vector< MCAuto<DataArrayIdType> > arrayOut;
+        convertFromPyObjVectorOfObj<MEDCoupling::DataArrayIdType*>(arrays,SWIGTITraits<mcIdType>::TI,"DataArrayIdType",arraysIn);
+        std::vector< MCAuto<DataArrayIdType> > arraysIn2(FromVecToVecAuto<DataArrayIdType>(arraysIn));
+        self->allToAllArrays(MPI_COMM_WORLD,arraysIn2,arrayOut);
+        return convertFromVectorAutoObjToPyObj<DataArrayIdType>(arrayOut,SWIGTITraits<mcIdType>::TI);
+      }
+    }
+  };
+
+  class ParaUMesh : public RefCountObject
+  {
+  public:
+    static ParaUMesh *New(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds);
+    ParaUMesh *redistributeCells(const DataArrayIdType *globalCellIds) const;
+    %extend
+    {
+      ParaUMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds)
+      {
+        return ParaUMesh::New(mesh,globalCellIds,globalNodeIds);
+      }
+
+      MEDCouplingUMesh *getMesh()
+      {
+        MEDCouplingUMesh *ret(self->getMesh());
+        if(ret) ret->incrRef();
+        return ret;
+      }
+
+      DataArrayIdType *getGlobalCellIds()
+      {
+        DataArrayIdType *ret(self->getGlobalCellIds());
+        if(ret) ret->incrRef();
+        return ret;
+      }
+
+      DataArrayIdType *getGlobalNodeIds()
+      {
+        DataArrayIdType *ret(self->getGlobalNodeIds());
+        if(ret) ret->incrRef();
+        return ret;
+      }
+
       DataArrayIdType *getCellIdsLyingOnNodes(const DataArrayIdType *globalNodeIds, bool fullyIn) const
       { 
         MCAuto<DataArrayIdType> ret(self->getCellIdsLyingOnNodes(globalNodeIds,fullyIn));

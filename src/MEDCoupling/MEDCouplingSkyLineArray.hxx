@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGSKYLINEARRAY_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGSKYLINEARRAY_HXX__
+#pragma once
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -105,10 +104,13 @@ namespace MEDCoupling
     DataArrayIdType* getIndexArray() const;
     DataArrayIdType* getValuesArray() const;
 
+    MEDCouplingSkyLineArray *deepCopy() const;
+
     std::string simpleRepr() const;
 
     MEDCouplingSkyLineArray *groupPacks(const DataArrayIdType *indexedPacks) const;
     MEDCouplingSkyLineArray *uniqueNotSortedByPack() const;
+    static MEDCouplingSkyLineArray *AggregatePacks(const std::vector<const MEDCouplingSkyLineArray *>& sks);
 
     void getSimplePackSafe(const mcIdType absolutePackId, std::vector<mcIdType> & pack) const;
     const mcIdType * getSimplePackSafePtr(const mcIdType absolutePackId, mcIdType & packSize) const;
@@ -141,5 +143,24 @@ namespace MEDCoupling
     MCAuto<DataArrayIdType> _values;
   };
 
+  template<typename T>
+  class SkyLineArrayGenIterator : public std::iterator< std::input_iterator_tag, const mcIdType *, mcIdType, const mcIdType **, const mcIdType *>
+  {
+    std::size_t _num = 0;
+    std::vector<const MEDCouplingSkyLineArray *> *_data = nullptr;
+  public:
+    explicit SkyLineArrayGenIterator(std::size_t num , std::vector<const MEDCouplingSkyLineArray *> *data) : _num(num),_data(data) {}
+    SkyLineArrayGenIterator<T>& operator++() { ++_num; return *this; }
+    bool operator==(const SkyLineArrayGenIterator& other) const { return _num == other._num; }
+    bool operator!=(const SkyLineArrayGenIterator& other) const { return !(*this == other); }
+    reference operator*() const { T tt; return tt((*_data)[_num]); }
+  };
+
+  struct SkyLineArrayIndexPtrFunctor { const mcIdType *operator()(const MEDCouplingSkyLineArray *ska) { return ska->getIndex(); } };
+
+  using SkyLineArrayIndexIterator = SkyLineArrayGenIterator<SkyLineArrayIndexPtrFunctor>;
+  
+  struct SkyLineArrayValuesPtrFunctor { const mcIdType *operator()(const MEDCouplingSkyLineArray *ska) { return ska->getValues(); } };
+
+  using SkyLineArrayValuesIterator = SkyLineArrayGenIterator<SkyLineArrayValuesPtrFunctor>;
 }
-# endif

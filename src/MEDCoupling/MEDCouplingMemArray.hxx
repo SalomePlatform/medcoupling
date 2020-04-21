@@ -165,6 +165,7 @@ namespace MEDCoupling
     void setPartOfValuesBase3(const DataArray *aBase, const mcIdType *bgTuples, const mcIdType *endTuples, mcIdType bgComp, mcIdType endComp, mcIdType stepComp, bool strictCompoCompare=true);
     virtual void *getVoidStarPointer() = 0;
     virtual DataArray *deepCopy() const = 0;
+    virtual DataArray *copySorted(bool asc=true) const = 0;
     virtual DataArray *buildNewEmptyInstance() const = 0;
     virtual bool isAllocated() const = 0;
     virtual void checkAllocated() const = 0;
@@ -231,6 +232,7 @@ namespace MEDCoupling
     typedef T Type;
   public:
     static MCAuto< typename Traits<T>::ArrayTypeCh > NewFromStdVector(const typename std::vector<T>& v);
+    static MCAuto< typename Traits<T>::ArrayTypeCh > NewFromArray(const T *arrBegin, const T *arrEnd);
     std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > explodeComponents() const;
     //
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -310,6 +312,7 @@ namespace MEDCoupling
     MemArray<T>& accessToMemArray() { return _mem; }
     const MemArray<T>& accessToMemArray() const { return _mem; }
   protected:
+    typename Traits<T>::ArrayTypeCh *copySortedImpl(bool asc) const;
     typename Traits<T>::ArrayType *mySelectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const;
     typename Traits<T>::ArrayType *mySelectByTupleId(const DataArrayIdType& di) const;
     typename Traits<T>::ArrayType *mySelectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const;
@@ -392,6 +395,7 @@ namespace MEDCoupling
     static DataArrayFloat *New();
   public:// abstract method overload
     DataArrayFloat *deepCopy() const;
+    DataArrayFloat *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     std::string getClassName() const override { return std::string("DataArrayFloat"); }
     DataArrayFloat *buildNewEmptyInstance() const { return DataArrayFloat::New(); }
     DataArrayFloat *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return DataArrayTemplateFP<float>::mySelectByTupleRanges(ranges); }
@@ -423,6 +427,7 @@ namespace MEDCoupling
     static DataArrayDouble *New();
     double doubleValue() const;
     DataArrayDouble *deepCopy() const;
+    DataArrayDouble *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     std::string getClassName() const override { return std::string("DataArrayDouble"); }
     DataArrayDouble *buildNewEmptyInstance() const { return DataArrayDouble::New(); }
     void checkMonotonic(bool increasing, double eps) const;
@@ -544,7 +549,6 @@ namespace MEDCoupling
     using DataArrayType = typename Traits<T>::ArrayType;
   public:
     static DataArrayType *New();
-    static MCAuto<DataArrayType> NewFromArray(const T *arrBegin, const T *arrEnd);
     T intValue() const;
     bool isEqual(const DataArrayDiscrete<T>& other) const;
     bool isEqualIfNotWhy(const DataArrayDiscrete<T>& other, std::string& reason) const;
@@ -703,8 +707,9 @@ namespace MEDCoupling
   {
     friend class DataArrayDiscrete<Int32>;
   public:
-    DataArrayInt32 *deepCopy() const;//ok
-    DataArrayInt32 *buildNewEmptyInstance() const { return DataArrayInt32::New(); }//ok
+    DataArrayInt32 *deepCopy() const;
+    DataArrayInt32 *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
+    DataArrayInt32 *buildNewEmptyInstance() const { return DataArrayInt32::New(); }
   public:
     DataArrayInt32 *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
     DataArrayInt32 *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }
@@ -725,6 +730,7 @@ namespace MEDCoupling
     friend class DataArrayDiscrete<Int64>;
   public:
     DataArrayInt64 *deepCopy() const;
+    DataArrayInt64 *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     DataArrayInt64 *buildNewEmptyInstance() const { return DataArrayInt64::New(); }//ok
   public:
     DataArrayInt64 *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
@@ -814,6 +820,7 @@ namespace MEDCoupling
     DataArrayChar *buildEmptySpecializedDAChar() const;
     DataArrayByteIterator *iterator();
     DataArrayByte *deepCopy() const;
+    DataArrayByte *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); } 
     DataArrayByte *performCopyOrIncrRef(bool deepCopy) const;
     DataArrayByte *buildNewEmptyInstance() const { return DataArrayByte::New(); }
     char byteValue() const;
@@ -843,6 +850,7 @@ namespace MEDCoupling
     DataArrayChar *buildEmptySpecializedDAChar() const;
     DataArrayAsciiCharIterator *iterator();
     DataArrayAsciiChar *deepCopy() const;
+    DataArrayAsciiChar *copySorted(bool asc=true) const override { throw INTERP_KERNEL::Exception("DataArrayAsciiChar::copySorted : not implemented for DataArrayByte"); }
     DataArrayAsciiChar *performCopyOrIncrRef(bool deepCopy) const;
     DataArrayAsciiChar *buildNewEmptyInstance() const { return DataArrayAsciiChar::New(); }
     char asciiCharValue() const;

@@ -73,6 +73,7 @@
 //$$$$$$$$$$$$$$$$$$
 
 %newobject MEDCoupling::DataArray::deepCopy;
+%newobject MEDCoupling::DataArray::copySorted;
 %newobject MEDCoupling::DataArray::buildNewEmptyInstance;
 %newobject MEDCoupling::DataArray::selectByTupleRanges;
 %newobject MEDCoupling::DataArray::selectByTupleId;
@@ -493,6 +494,7 @@ typedef DataArrayInt64 DataArrayIdType;
     virtual std::size_t getNbOfElems() const;
     virtual std::size_t getNbOfElemAllocated() const;
     virtual DataArray *deepCopy() const;
+    virtual DataArray *copySorted() const;
     virtual DataArray *buildNewEmptyInstance() const;
     virtual DataArray *selectByTupleIdSafeSlice(int bg, int end2, int step) const;
     virtual void rearrange(int newNbOfCompo);

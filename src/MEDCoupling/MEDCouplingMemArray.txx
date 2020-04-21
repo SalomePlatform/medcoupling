@@ -672,6 +672,20 @@ namespace MEDCoupling
     std::copy(v.begin(),v.end(),pt);
     return ret;
   }
+
+  /*!
+   * Returns a newly created array containing a copy of the input array defined by [ \a arrBegin, \a arrEnd )
+   */
+  template<class T>
+  MCAuto< typename Traits<T>::ArrayTypeCh > DataArrayTemplate<T>::NewFromArray(const T *arrBegin, const T *arrEnd)
+  {
+    using DataArrayT = typename Traits<T>::ArrayTypeCh;
+    MCAuto< DataArrayT > ret(DataArrayT::New());
+    std::size_t nbElts(std::distance(arrBegin,arrEnd));
+    ret->alloc(nbElts,1);
+    std::copy(arrBegin,arrEnd,ret->getPointer());
+    return ret;
+  }
   
   template<class T>
   std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > DataArrayTemplate<T>::explodeComponents() const
@@ -1087,10 +1101,12 @@ namespace MEDCoupling
   }
 
   /*!
-   * Sorts values of the array.
+   * Sorts values of the array. \b Warning, this method is not const, it alterates \a this content.
+   * 
    *  \param [in] asc - \a true means ascending order, \a false, descending.
    *  \throw If \a this is not allocated.
    *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \sa copySorted
    */
   template<class T>
   void DataArrayTemplate<T>::sort(bool asc)
@@ -1103,6 +1119,23 @@ namespace MEDCoupling
       }
     _mem.sort(asc);
     declareAsNew();
+  }
+
+  /*!
+   * Sorts values of the array and put the result in a newly allocated returned array.
+   * This method does not alterate \a this content.
+   * 
+   *  \param [in] asc - \a true means ascending order, \a false, descending.
+   *  \throw If \a this is not allocated.
+   *  \throw If \a this->getNumberOfComponents() != 1.
+   *  \sa sort
+   */
+  template<class T>
+  typename Traits<T>::ArrayTypeCh *DataArrayTemplate<T>::copySortedImpl(bool asc) const
+  {
+    MCAuto<typename Traits<T>::ArrayTypeCh> ret(static_cast<typename Traits<T>::ArrayTypeCh *>(this->deepCopy()));
+    ret->sort(asc);
+    return ret.retn();
   }
 
   /*!
@@ -3635,19 +3668,6 @@ struct NotInRange
   }
   
   /*!
-   * Returns a newly created array containing a copy of the input array defined by [ \a arrBegin, \a arrEnd )
-   */
-  template<class T>
-  MCAuto< typename Traits<T>::ArrayType > DataArrayDiscrete<T>::NewFromArray(const T *arrBegin, const T *arrEnd)
-  {
-    MCAuto< typename Traits<T>::ArrayType > ret(DataArrayDiscrete<T>::New());
-    std::size_t nbElts(std::distance(arrBegin,arrEnd));
-    ret->alloc(nbElts,1);
-    std::copy(arrBegin,arrEnd,ret->getPointer());
-    return ret;
-  }
-  
-  /*!
    * Checks if values of \a this and another DataArrayInt are equal. For more info see
    * \ref MEDCouplingArrayBasicsCompare.
    *  \param [in] other - an instance of DataArrayInt to compare with \a this one.
@@ -5715,8 +5735,8 @@ struct NotInRange
    * - \a this : [0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 5, 11]
    * - \a return is : [0, 1, 3, 5, 6, 8, 11, 12]
    *
-   * \return a newly allocated array containing the indexed array of
-   * \throw if \a this is not allocated or if \a this has not exactly one component or if number of tuples is equal to 0.
+   * \return a newly allocated array containing the indexed array format of groups by same consecutive value.
+   * \throw if \a this is not allocated or if \a this has not exactly one component.
    * \sa DataArrayInt::buildUnique, MEDCouplingSkyLineArray::groupPacks
    */
   template <class T>
@@ -5725,8 +5745,6 @@ struct NotInRange
     this->checkAllocated();
     if(this->getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayInt::indexOfSameConsecutiveValueGroups : only single component allowed !");
-    if(this->getNumberOfTuples()==0)
-      throw INTERP_KERNEL::Exception("DataArrayInt::indexOfSameConsecutiveValueGroups : number of tuples must be > 0 !");
     const T *pt(this->begin());
     const T *const ptEnd(this->end()) , * const ptBg(this->begin());
     const T *oldPt(pt);

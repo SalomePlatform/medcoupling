@@ -213,6 +213,19 @@ DataArrayIdType* MEDCouplingSkyLineArray::getValuesArray() const
   return const_cast<MEDCouplingSkyLineArray*>(this)->_values;
 }
 
+MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::deepCopy() const
+{
+  MCAuto<DataArrayIdType> indexCpy(this->_index->deepCopy());
+  MCAuto<DataArrayIdType> valuesCpy(this->_values->deepCopy());
+  MCAuto<MEDCouplingSkyLineArray> ret(MEDCouplingSkyLineArray::New(indexCpy,valuesCpy));
+  if(_super_index.isNotNull())
+  {
+    MCAuto<DataArrayIdType> superIndexCpy(this->_super_index->deepCopy());
+    ret->_super_index = superIndexCpy;
+  }
+  return ret.retn();
+}
+
 void MEDCouplingSkyLineArray::checkSuperIndex(const std::string& func) const
 {
   if (!_super_index->getNbOfElems())
@@ -345,6 +358,64 @@ MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::uniqueNotSortedByPack() const
     retValuesPtr = std::copy(s.begin(),s.end(),retValuesPtr);
   }
   MCAuto<MEDCouplingSkyLineArray> ret(MEDCouplingSkyLineArray::New(retIndex,retValues));
+  return ret.retn();
+}
+/*!
+ * Take as input skylinearrays containing the same number of packs ( \a this->getNumberOf ).
+ * For each packs, this method aggregates corresponding pack in \a sks.
+ * 
+ * \throw if either a lenght of not nullptr instances in \a sks is zero or if number of packs of not nullptr instances in \a sks is not the same.
+ * \return a newly allocated skyline array that is the aggregated packs of inputs
+ */
+MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::AggregatePacks(const std::vector<const MEDCouplingSkyLineArray *>& sks)
+{
+  std::vector<const MEDCouplingSkyLineArray *>sksEff;
+  mcIdType nbOfPacks(std::numeric_limits<mcIdType>::max());
+  constexpr char MSG[]="MEDCouplingSkyLineArray::AggregatePacks : ";
+  for(auto sk : sks)
+  {
+    if(sk)
+    {
+      mcIdType curNbPacks(sk->getNumberOf());
+      if(sksEff.empty())
+        nbOfPacks = curNbPacks;
+      if(nbOfPacks != curNbPacks)
+      {
+        std::ostringstream oss; oss << MSG << "first not null input ska has " << nbOfPacks << " whereas there is presence of ska with " << curNbPacks << " !";
+        throw INTERP_KERNEL::Exception(oss.str());
+      }
+      sksEff.push_back(sk);
+    }
+  }
+  if(sksEff.empty())
+  {
+    std::ostringstream oss; oss << MSG << "input vector contains no not nullptr elements !";
+    throw INTERP_KERNEL::Exception(oss.str());
+  }
+  //
+  MCAuto<DataArrayIdType> index(DataArrayIdType::New()); index->alloc(nbOfPacks+1,1);
+  mcIdType *indexPtr(index->getPointer()); *indexPtr=0;
+  std::vector<const mcIdType *> indicesIn(SkyLineArrayIndexIterator(0,&sksEff),SkyLineArrayIndexIterator(sksEff.size(),&sksEff));
+  for( mcIdType packId = 0 ; packId < nbOfPacks ; ++packId, ++indexPtr )
+  {
+    mcIdType nbOfAggPacks(0);
+    std::for_each(indicesIn.begin(),indicesIn.end(),[packId,&nbOfAggPacks](const mcIdType *elt) { nbOfAggPacks+=elt[packId+1]-elt[packId]; });
+    indexPtr[1] = indexPtr[0] + nbOfAggPacks;
+  }
+  mcIdType nbOfTuplesOut(index->back());
+  MCAuto<DataArrayIdType> values(DataArrayIdType::New()); values->alloc(nbOfTuplesOut,1);
+  mcIdType *valuesPtr(values->getPointer());
+  // let's go to populate values array
+  std::vector<const mcIdType *> valuesIn(SkyLineArrayValuesIterator(0,&sksEff),SkyLineArrayValuesIterator(sksEff.size(),&sksEff));
+  for( mcIdType packId = 0 ; packId < nbOfPacks ; ++packId )
+  {
+    std::size_t pos(0);
+    std::for_each(valuesIn.begin(),valuesIn.end(),[packId,&indicesIn,&valuesPtr,&pos](const mcIdType *elt)
+    { valuesPtr=std::copy(elt+indicesIn[pos][packId],elt+indicesIn[pos][packId+1],valuesPtr); ++pos; }
+    );
+  }
+  //
+  MCAuto<MEDCouplingSkyLineArray> ret(MEDCouplingSkyLineArray::New(index,values));
   return ret.retn();
 }
 

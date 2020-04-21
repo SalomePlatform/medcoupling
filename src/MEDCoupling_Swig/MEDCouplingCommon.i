@@ -468,6 +468,8 @@ typedef long int mcIdType;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::getValuesArray;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::groupPacks;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::uniqueNotSortedByPack;
+%newobject MEDCoupling::MEDCouplingSkyLineArray::AggregatePacks;
+%newobject MEDCoupling::MEDCouplingSkyLineArray::deepCopy;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -1301,6 +1303,8 @@ namespace MEDCoupling
 
     MEDCouplingSkyLineArray *groupPacks(const DataArrayIdType *indexedPacks) const;
     MEDCouplingSkyLineArray *uniqueNotSortedByPack() const;
+
+    MEDCouplingSkyLineArray *deepCopy() const;
     
     %extend 
     {
@@ -1391,6 +1395,13 @@ namespace MEDCoupling
           convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayIdType*>(listePacks,SWIGTITraits<mcIdType>::TI,"DataArrayIdType",packs);
           self->replaceSimplePacks(idx, packs);
         }
+
+      static MEDCouplingSkyLineArray *AggregatePacks(PyObject *sks)
+      {
+        std::vector<const MEDCouplingSkyLineArray *> sksCpp;
+        convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingSkyLineArray*>(sks,SWIGTYPE_p_MEDCoupling__MEDCouplingSkyLineArray,"MEDCouplingSkyLineArray",sksCpp);
+        return MEDCoupling::MEDCouplingSkyLineArray::AggregatePacks(sksCpp);
+      }
         
       void replacePack(const mcIdType superIdx, const mcIdType idx, PyObject *pack)
         {

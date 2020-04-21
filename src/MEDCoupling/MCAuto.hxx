@@ -32,14 +32,14 @@ namespace MEDCoupling
   class MCAuto
   {
   public:
-    static MCAuto TakeRef(T *ptr) { MCAuto ret(MCAuto(nullptr)); ret.takeRef(ptr); return ret; }
-    MCAuto(const MCAuto& other):_ptr(0) { referPtr(other._ptr); }
-    MCAuto(T *ptr=0):_ptr(ptr) { }
+    static MCAuto TakeRef(T *ptr) { MCAuto ret; ret.takeRef(ptr); return ret; }
+    MCAuto(const MCAuto& other):_ptr(nullptr) { referPtr(other._ptr); }
+    MCAuto(T *ptr=nullptr):_ptr(ptr) { }
     ~MCAuto() { destroyPtr(); }
     void checkNotNull() const { if(!_ptr) throw INTERP_KERNEL::Exception("Pointer is nullptr !"); }
-    bool isNull() const { return _ptr==0; }
+    bool isNull() const { return _ptr==nullptr; }
     bool isNotNull() const { return !isNull(); }
-    void nullify() { destroyPtr(); _ptr=0; }
+    void nullify() { destroyPtr(); _ptr=nullptr; }
     bool operator==(const MCAuto& other) const { return _ptr==other._ptr; }
     bool operator==(const T *other) const { return _ptr==other; }
     MCAuto &operator=(const MCAuto& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
@@ -68,6 +68,26 @@ namespace MEDCoupling
     std::vector< const T *> ret(size);
     typename std::vector< const T *>::iterator itArrays(ret.begin());
     std::for_each(inputVec.begin(),inputVec.end(),[&itArrays](MCAuto<T> elt) { *itArrays++=elt; });
+    return ret;
+  }
+
+  template<class T>
+  std::vector<MCAuto<T>> FromVecToVecAuto(const std::vector<T*>& inputVec)
+  {
+    std::size_t size(inputVec.size());
+    std::vector<MCAuto<T>> ret(size);
+    typename std::vector<MCAuto<T>>::iterator itArrays(ret.begin());
+    std::for_each(inputVec.begin(),inputVec.end(),[&itArrays](T *elt) { (*itArrays).takeRef(elt); itArrays++; });
+    return ret;
+  }
+
+  template<class T>
+  std::vector<MCAuto<T>> FromVecConstToVecAuto(const std::vector<const T*>& inputVec)
+  {
+    std::size_t size(inputVec.size());
+    std::vector<MCAuto<T>> ret(size);
+    typename std::vector<MCAuto<T>>::iterator itArrays(ret.begin());
+    std::for_each(inputVec.begin(),inputVec.end(),[&itArrays](const T *elt) { (*itArrays).takeRef(const_cast<T*>(elt)); itArrays++; });
     return ret;
   }
 

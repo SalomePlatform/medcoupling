@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGUMESH_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGUMESH_HXX__
+#pragma once
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingPointSet.hxx"
@@ -442,6 +441,31 @@ namespace MEDCoupling
     mcIdType _conn_lgth;
     static const int NOTICABLE_FIRST_VAL=-7;
   };
+
+  template<typename T, typename TOUT>
+  class UMeshGenIterator : public std::iterator< std::input_iterator_tag, const TOUT *, mcIdType, const TOUT **, const TOUT *>
+  {
+    std::size_t _num = 0;
+    std::vector<const MEDCouplingUMesh *> *_data = nullptr;
+    using my_reference = typename std::iterator< std::input_iterator_tag, const TOUT *, mcIdType, const TOUT **, const TOUT *>::reference;
+  public:
+    explicit UMeshGenIterator(std::size_t num , std::vector<const MEDCouplingUMesh *> *data) : _num(num),_data(data) {}
+    UMeshGenIterator<T,TOUT>& operator++() { ++_num; return *this; }
+    bool operator==(const UMeshGenIterator& other) const { return _num == other._num; }
+    bool operator!=(const UMeshGenIterator& other) const { return !(*this == other); }
+    my_reference operator*() const { T tt; return tt((*_data)[_num]); }
+  };
+
+  struct UMeshIndexConnectivityFunctor { const DataArrayIdType *operator()(const MEDCouplingUMesh *um) { return um->getNodalConnectivityIndex(); } };
+
+  using UMeshConnectivityIndexIterator = UMeshGenIterator<UMeshIndexConnectivityFunctor,DataArrayIdType>;
+  
+  struct UMeshConnectivityFunctor { const DataArrayIdType *operator()(const MEDCouplingUMesh *um) { return um->getNodalConnectivity(); } };
+
+  using UMeshConnectivityIterator = UMeshGenIterator<UMeshConnectivityFunctor,DataArrayIdType>;
+  
+  struct UMeshCoordsFunctor { const DataArrayDouble *operator()(const MEDCouplingUMesh *um) { return um->getCoords(); } };
+
+  using UMeshCoordsIterator = UMeshGenIterator<UMeshCoordsFunctor,DataArrayDouble>;
 }
 
-#endif
