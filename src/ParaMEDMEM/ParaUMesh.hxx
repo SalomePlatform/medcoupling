@@ -40,6 +40,8 @@ namespace MEDCoupling
     static ParaUMesh *New(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds);
     MCAuto<DataArrayIdType> getCellIdsLyingOnNodes(const DataArrayIdType *globalNodeIds, bool fullyIn) const;
     ParaUMesh *redistributeCells(const DataArrayIdType *globalCellIds) const;
+    DataArrayIdType *redistributeCellField(const DataArrayIdType *globalCellIds, const DataArrayIdType *fieldValueToRed) const;
+    DataArrayIdType *redistributeNodeField(const DataArrayIdType *globalCellIds, const DataArrayIdType *fieldValueToRed) const;
     MEDCouplingUMesh *getMesh() { return _mesh; }
     DataArrayIdType *getGlobalCellIds() { return _cell_global; }
     DataArrayIdType *getGlobalNodeIds() { return _node_global; }

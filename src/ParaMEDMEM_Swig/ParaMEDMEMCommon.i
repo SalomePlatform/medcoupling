@@ -64,6 +64,8 @@ using namespace ICoCo;
 %newobject MEDCoupling::ParaUMesh::getGlobalNodeIds;
 %newobject MEDCoupling::ParaUMesh::getCellIdsLyingOnNodes;
 %newobject MEDCoupling::ParaUMesh::redistributeCells;
+%newobject MEDCoupling::ParaUMesh::redistributeCellField;
+%newobject MEDCoupling::ParaUMesh::redistributeNodeField;
 %newobject MEDCoupling::ParaSkyLineArray::New;
 %newobject MEDCoupling::ParaSkyLineArray::equiRedistribute;
 %newobject MEDCoupling::ParaSkyLineArray::getSkyLineArray;
@@ -160,6 +162,8 @@ namespace MEDCoupling
   public:
     static ParaUMesh *New(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds);
     ParaUMesh *redistributeCells(const DataArrayIdType *globalCellIds) const;
+    DataArrayIdType *redistributeCellField(const DataArrayIdType *globalCellIds, const DataArrayIdType *fieldValueToRed) const;
+    DataArrayIdType *redistributeNodeField(const DataArrayIdType *globalCellIds, const DataArrayIdType *fieldValueToRed) const;
     %extend
     {
       ParaUMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds)
