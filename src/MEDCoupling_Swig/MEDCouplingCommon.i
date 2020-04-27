@@ -3730,6 +3730,8 @@ namespace MEDCoupling
   public:
     virtual void checkConsistencyLight() const;
     virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
+    bool areStrictlyCompatible(const MEDCouplingField *other) const;
+    bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;
     virtual void copyTinyStringsFrom(const MEDCouplingField *other);
     void setMesh(const MEDCoupling::MEDCouplingMesh *mesh);
     void setName(const char *name);

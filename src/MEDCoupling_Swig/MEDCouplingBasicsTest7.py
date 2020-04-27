@@ -809,6 +809,20 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         d = DataArrayDouble([5,1,100,20])
         self.assertTrue(d.copySorted().isEqual(DataArrayDouble([1,5,20,100]),1e-10))
 
+    def testFieldAreStrictlyCompatible(self):
+        arr=DataArrayDouble(10) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m=m.buildUnstructured()
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(m)
+        f2=MEDCouplingFieldDouble(ON_CELLS) ; f2.setMesh(m)
+        self.assertTrue(f.areStrictlyCompatible(f2))
+        self.assertTrue(f.areStrictlyCompatibleForMulDiv(f2))
+        f2.setMesh(f2.getMesh().deepCopy())
+        self.assertTrue(not f.areStrictlyCompatible(f2))
+        self.assertTrue(not f.areStrictlyCompatibleForMulDiv(f2))
+        f3=MEDCouplingFieldDouble(ON_NODES) ; f3.setMesh(m)
+        self.assertTrue(not f.areStrictlyCompatible(f3))
+        self.assertTrue(not f.areStrictlyCompatibleForMulDiv(f3))
+
     pass
 
 if __name__ == '__main__':
