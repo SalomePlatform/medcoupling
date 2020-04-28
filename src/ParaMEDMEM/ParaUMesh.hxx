@@ -64,6 +64,8 @@ namespace MEDCoupling
       using DataArrayT = typename Traits<T>::ArrayType;
       MPI_Comm comm(MPI_COMM_WORLD);
       CommInterface ci;
+      if( _cell_global->getNumberOfTuples() != fieldValueToRed->getNumberOfTuples() )
+        throw INTERP_KERNEL::Exception("PAraUMesh::redistributeCellFieldT : invalid input length of array !");
       std::unique_ptr<mcIdType[]> allGlobalCellIds,allGlobalCellIdsIndex;
       int size(ci.allGatherArrays(comm,globalCellIds,allGlobalCellIds,allGlobalCellIdsIndex));
       // Prepare ParaUMesh parts to be sent : compute for each proc the contribution of current rank.
@@ -103,6 +105,8 @@ namespace MEDCoupling
       using DataArrayT = typename Traits<T>::ArrayType;
       MPI_Comm comm(MPI_COMM_WORLD);
       CommInterface ci;
+      if( _node_global->getNumberOfTuples() != fieldValueToRed->getNumberOfTuples() )
+        throw INTERP_KERNEL::Exception("PAraUMesh::redistributeNodeFieldT : invalid input length of array !");
       std::unique_ptr<mcIdType[]> allGlobalCellIds,allGlobalCellIdsIndex;
       int size(ci.allGatherArrays(comm,globalCellIds,allGlobalCellIds,allGlobalCellIdsIndex));
       // Prepare ParaUMesh parts to be sent : compute for each proc the contribution of current rank.

@@ -235,6 +235,13 @@ namespace MEDCoupling
     static MCAuto< typename Traits<T>::ArrayTypeCh > NewFromArray(const T *arrBegin, const T *arrEnd);
     std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > explodeComponents() const;
     //
+    void printForDebug(std::ostream& oss) const
+    {
+      this->checkAllocated();
+      char comma[3] = {'\0',' ','\0'};
+      std::for_each(this->begin(),this->end(),[&comma,&oss](const T& elt) { oss << comma << elt; comma[0]=','; } );
+      oss << std::endl;
+    }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     void updateTime() const { }
     //
