@@ -62,22 +62,18 @@ namespace MEDCoupling
     \endverbatim
   */
 
+  void CommInterface::gatherArrays(MPI_Comm comm, int root, const DataArrayIdType *array, std::vector< MCAuto<DataArrayIdType> >& arraysOut) const
+  {
+    this->gatherArraysT2<mcIdType>(comm,root,array,arraysOut);
+  }
+
   /*!
    * Generalized AllGather collective communication.
    * This method send input \a array to all procs.
    */
   void CommInterface::allGatherArrays(MPI_Comm comm, const DataArrayIdType *array, std::vector< MCAuto<DataArrayIdType> >& arraysOut) const
   {
-    std::unique_ptr<mcIdType[]> result, resultIndex;
-    int size(this->allGatherArrays(comm,array,result,resultIndex));
-    arraysOut.resize(size);
-    for(int i = 0 ; i < size ; ++i)
-    {
-      arraysOut[i] = DataArrayIdType::New();
-      mcIdType nbOfEltPack(resultIndex[i+1]-resultIndex[i]);
-      arraysOut[i]->alloc(nbOfEltPack,1);
-      std::copy(result.get()+resultIndex[i],result.get()+resultIndex[i+1],arraysOut[i]->getPointer());
-    }
+    this->allGatherArraysT2<mcIdType>(comm,array,arraysOut);
   }
 
   /*!
@@ -86,18 +82,7 @@ namespace MEDCoupling
    */
   int CommInterface::allGatherArrays(MPI_Comm comm, const DataArrayIdType *array, std::unique_ptr<mcIdType[]>& result, std::unique_ptr<mcIdType[]>& resultIndex) const
   {
-    int size;
-    this->commSize(comm,&size);
-    std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]);
-    mcIdType nbOfCellsRequested(array->getNumberOfTuples());
-    this->allGather(&nbOfCellsRequested,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
-    mcIdType nbOfCellIdsSum(std::accumulate(nbOfElems.get(),nbOfElems.get()+size,0));
-    result.reset(new mcIdType[nbOfCellIdsSum]);
-    std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElems,size) );
-    std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) );
-    this->allGatherV(array->begin(),nbOfCellsRequested,MPI_ID_TYPE,result.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
-    resultIndex = ComputeOffsetFull<mcIdType>(nbOfElems,size);
-    return size;
+    return this->allGatherArraysT<mcIdType>(comm,array,result,resultIndex);
   }
 
   void CommInterface::allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayDouble> >& arrays, std::vector< MCAuto<DataArrayDouble> >& arraysOut) const

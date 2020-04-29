@@ -2478,6 +2478,13 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOf(med_idt fid, const std::string& mName, co
   return ret.retn();
 }
 
+void MEDFileUMesh::LoadPartCoords(const std::string& fileName, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax,
+MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<DataArrayIdType>& famCoords, MCAuto<DataArrayIdType>& numCoords, MCAuto<DataArrayAsciiChar>& nameCoords)
+{
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MEDFileUMeshL2::LoadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax,coords,partCoords,famCoords,numCoords,nameCoords);
+}
+
 std::size_t MEDFileUMesh::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(MEDFileMesh::getHeapMemorySizeWithoutChildren());

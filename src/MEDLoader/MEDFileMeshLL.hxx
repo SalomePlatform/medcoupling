@@ -137,6 +137,8 @@ namespace MEDCoupling
     MCAuto<DataArrayIdType> getCoordsGlobalNum() const { return _global_num_coords; }
     MCAuto<DataArrayAsciiChar> getCoordsName() const { return _name_coords; }
     static void WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayIdType *famCoords, const DataArrayIdType *numCoords, const DataArrayAsciiChar *nameCoords, const DataArrayIdType *globalNumCoords);
+    static void LoadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax,
+MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords);
   private:
     void sortTypes();
   private:

@@ -1457,6 +1457,22 @@ namespace MEDCoupling
            return MEDFileUMesh::LoadPartOf(fileName,mName,typesCpp2,slicPerTyp,dt,it,mrs);
          }
 
+         static PyObject *LoadPartCoords(const std::string& fileName, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax)
+         {
+           MCAuto<DataArrayDouble> coords;
+           MCAuto<PartDefinition> partCoords;
+           MCAuto<DataArrayIdType> famCoords,numCoords;
+           MCAuto<DataArrayAsciiChar> nameCoord;
+           MEDFileUMesh::LoadPartCoords(fileName,infosOnComp,mName,dt,it,nMin,nMax,coords,partCoords,famCoords,numCoords,nameCoord);
+           PyObject *ret(PyTuple_New(5));
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(coords.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,convertPartDefinition(partCoords.retn(),SWIG_POINTER_OWN | 0));
+           PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(famCoords.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(numCoords.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(nameCoord.retn()),SWIGTYPE_p_MEDCoupling__DataArrayAsciiChar, SWIG_POINTER_OWN | 0 ));
+           return ret;
+         }
+
          PyObject *__getstate__()
          {
            std::vector<double> a0;

@@ -648,7 +648,8 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& inf
     _coords->setInfoOnComponent(i,infosOnComp[i]);
 }
 
-void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax)
+void MEDFileUMeshL2::LoadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax,
+MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords)
 {
   med_bool changement,transformation;
   med_int spaceDim((int)infosOnComp.size()),nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
@@ -673,7 +674,7 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>&
       _fam_coords=FromMedIntArray<mcIdType>(miFamCoord);
     }
   else
-    _fam_coords=0;
+    _fam_coords=nullptr;
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       MCAuto<DataArrayMedInt> miNumCoord=DataArrayMedInt::New();
@@ -682,7 +683,7 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>&
       _num_coords=FromMedIntArray<mcIdType>(miNumCoord);
     }
   else
-    _num_coords=0;
+    _num_coords=nullptr;
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NAME,MED_NODAL,&changement,&transformation)>0)
     {
       _name_coords=DataArrayAsciiChar::New();
@@ -691,9 +692,14 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>&
       _name_coords->reAlloc(nbNodesToLoad);//not a bug to avoid the memory corruption due to last \0 at the end
     }
   else
-    _name_coords=0;
+    _name_coords=nullptr;
   MEDfilterClose(&filter2);
   _coords->setInfoOnComponents(infosOnComp);
+}
+
+void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax)
+{
+  LoadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax,_coords,_part_coords,_fam_coords,_num_coords,_name_coords);
 }
 
 void MEDFileUMeshL2::sortTypes()

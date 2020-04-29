@@ -36,6 +36,7 @@
 #include "ComponentTopology.hxx"
 #include "ParaUMesh.hxx"
 #include "ParaSkyLineArray.hxx"
+#include "ParaDataArray.hxx"
 
 using namespace INTERP_KERNEL;
 using namespace MEDCoupling;
@@ -66,6 +67,10 @@ using namespace ICoCo;
 %newobject MEDCoupling::ParaUMesh::redistributeCells;
 %newobject MEDCoupling::ParaUMesh::redistributeCellField;
 %newobject MEDCoupling::ParaUMesh::redistributeNodeField;
+%newobject MEDCoupling::ParaDataArrayInt32::New;
+%newobject MEDCoupling::ParaDataArrayInt32::buildComplement;
+%newobject MEDCoupling::ParaDataArrayInt64::New;
+%newobject MEDCoupling::ParaDataArrayInt64::buildComplement;
 %newobject MEDCoupling::ParaSkyLineArray::New;
 %newobject MEDCoupling::ParaSkyLineArray::equiRedistribute;
 %newobject MEDCoupling::ParaSkyLineArray::getSkyLineArray;
@@ -73,6 +78,8 @@ using namespace ICoCo;
 
 %feature("unref") ParaSkyLineArray "$this->decrRef();"
 %feature("unref") ParaUMesh "$this->decrRef();"
+%feature("unref") ParaDataArrayInt32 "$this->decrRef();"
+%feature("unref") ParaDataArrayInt64 "$this->decrRef();"
 
 %nodefaultctor;
 
@@ -202,6 +209,38 @@ namespace MEDCoupling
     }
   };
 
+  class ParaDataArray : public RefCountObject
+  {
+  };
+
+  class ParaDataArrayInt32 : public ParaDataArray
+  {
+  public:
+    static ParaDataArrayInt32 *New(DataArrayInt32 *seqDa);
+    DataArrayIdType *buildComplement(int nbOfElems) const;
+    %extend
+    {
+      ParaDataArrayInt32(DataArrayInt32 *seqDa)
+      {
+        return ParaDataArrayInt32::New(seqDa);
+      }
+    }
+  };
+
+  class ParaDataArrayInt64 : public ParaDataArray
+  {
+  public:
+    static ParaDataArrayInt64 *New(DataArrayInt64 *seqDa);
+    DataArrayIdType *buildComplement(long nbOfElems) const;
+    %extend
+    {
+      ParaDataArrayInt64(DataArrayInt64 *seqDa)
+      {
+        return ParaDataArrayInt64::New(seqDa);
+      }
+    }
+  };
+
   class ParaSkyLineArray : public RefCountObject
   {
   public:
@@ -279,3 +318,10 @@ public:
     return ret;
   }
 }
+
+%pythoncode %{
+if MEDCouplingUse64BitIDs():
+  ParaDataArrayInt = ParaDataArrayInt64
+else:
+  ParaDataArrayInt = ParaDataArrayInt32
+%}

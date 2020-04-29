@@ -593,7 +593,7 @@ namespace MEDCoupling
         std::ostringstream oss; oss << "DataArray::GetSlice : sliceId (" << nbOfSlices << ") must be in [0 , nbOfSlices (" << nbOfSlices << ") ) !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    mcIdType nbElems=DataArrayTemplate<T>::GetNumberOfItemGivenBESRelative(start,stop,step,"DataArray::GetSlice");
+    mcIdType nbElems=DataArrayTools<T>::GetNumberOfItemGivenBESRelative(start,stop,step,"DataArray::GetSlice");
     mcIdType minNbOfElemsPerSlice=nbElems/nbOfSlices;
     startSlice=start+minNbOfElemsPerSlice*step*sliceId;
     if(sliceId<nbOfSlices-1)

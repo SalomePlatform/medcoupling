@@ -101,6 +101,8 @@ namespace MEDCoupling
     int getCount(MPI_Status *status, MPI_Datatype datatype, int *count) const { return MPI_Get_count(status, datatype, count); }
 
     int broadcast(void* buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm) const { return MPI_Bcast(buffer, count,  datatype, root, comm); }
+    int gather(const void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm) const { return MPI_Gather(sendbuf,sendcount,sendtype,recvbuf,recvcount,recvtype,root,comm); }
+    int gatherV(const void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, const int recvcounts[], const int displs[], MPI_Datatype recvtype, int root, MPI_Comm comm) const { return MPI_Gatherv(sendbuf,sendcount,sendtype,recvbuf,recvcounts,displs,recvtype,root,comm); }
     int allGather(void* sendbuf, int sendcount, MPI_Datatype sendtype,
                   void* recvbuf, int recvcount, MPI_Datatype recvtype,
                   MPI_Comm comm) const { return MPI_Allgather(sendbuf,sendcount, sendtype, recvbuf, recvcount, recvtype, comm); }
@@ -118,11 +120,98 @@ namespace MEDCoupling
                MPI_Op op, int root, MPI_Comm comm) const { return MPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm); }
     int allReduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) const { return MPI_Allreduce(sendbuf, recvbuf, count, datatype, op, comm); }
   public:
+    void gatherArrays(MPI_Comm comm, int root, const DataArrayIdType *array, std::vector< MCAuto<DataArrayIdType> >& arraysOut) const;
     void allGatherArrays(MPI_Comm comm, const DataArrayIdType *array, std::vector< MCAuto<DataArrayIdType> >& arraysOut) const;
     int allGatherArrays(MPI_Comm comm, const DataArrayIdType *array, std::unique_ptr<mcIdType[]>& result, std::unique_ptr<mcIdType[]>& resultIndex) const;
     void allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayIdType> >& arrays, std::vector< MCAuto<DataArrayIdType> >& arraysOut) const;
     void allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayDouble> >& arrays, std::vector< MCAuto<DataArrayDouble> >& arraysOut) const;
     void allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayDouble> >& arrays, MCAuto<DataArrayDouble>& arraysOut) const;
+    
+    template<class T>
+    int gatherArraysT(MPI_Comm comm, int root, const typename Traits<T>::ArrayType *array, std::unique_ptr<T[]>& result, std::unique_ptr<mcIdType[]>& resultIndex, int& rank) const
+    {
+      using DataArrayT = typename Traits<T>::ArrayType;
+      int size;
+      this->commSize(comm,&size);
+      rank = -1;
+      this->commRank(comm,&rank);
+      std::unique_ptr<mcIdType[]> nbOfElems;
+      if(rank==root)
+        nbOfElems.reset(new mcIdType[size]);
+      mcIdType nbOfCellsRequested(array->getNumberOfTuples());
+      this->gather(&nbOfCellsRequested,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,root,comm);
+      std::unique_ptr<int[]> nbOfElemsInt,offsetsIn;
+      if(rank==root)
+      {
+        mcIdType nbOfCellIdsSum(std::accumulate(nbOfElems.get(),nbOfElems.get()+size,0));
+        result.reset(new T[nbOfCellIdsSum]);
+        nbOfElemsInt = CommInterface::ToIntArray<mcIdType>(nbOfElems,size);
+        offsetsIn = CommInterface::ComputeOffset(nbOfElemsInt,size);
+      }
+      this->gatherV(array->begin(),nbOfCellsRequested,ParaTraits<T>::MPIDataType,result.get(),nbOfElemsInt.get(),offsetsIn.get(),ParaTraits<T>::MPIDataType,root,comm);
+      if(rank==root)
+      {
+        resultIndex = ComputeOffsetFull<mcIdType>(nbOfElems,size);
+      }
+      return size;
+    }
+
+    template<class T>
+    void gatherArraysT2(MPI_Comm comm, int root, const typename Traits<T>::ArrayType *array, std::vector< MCAuto<typename Traits<T>::ArrayType> >& arraysOut) const
+    {
+      using DataArrayT = typename Traits<T>::ArrayType;
+      std::unique_ptr<T[]> result;
+      std::unique_ptr<mcIdType[]> resultIndex;
+      int rank(-1);
+      int size(this->gatherArraysT<T>(comm,root,array,result,resultIndex,rank));
+      arraysOut.resize(size);
+      for(int i = 0 ; i < size ; ++i)
+      {
+        arraysOut[i] = DataArrayT::New();
+        if(rank == root)
+        {
+          mcIdType nbOfEltPack(resultIndex[i+1]-resultIndex[i]);
+          arraysOut[i]->alloc(nbOfEltPack,1);
+          std::copy(result.get()+resultIndex[i],result.get()+resultIndex[i+1],arraysOut[i]->getPointer());
+        }
+      }
+    }
+
+    template<class T>
+    int allGatherArraysT(MPI_Comm comm, const typename Traits<T>::ArrayType *array, std::unique_ptr<T[]>& result, std::unique_ptr<mcIdType[]>& resultIndex) const
+    {
+      using DataArrayT = typename Traits<T>::ArrayType;
+      int size;
+      this->commSize(comm,&size);
+      std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]);
+      mcIdType nbOfCellsRequested(array->getNumberOfTuples());
+      this->allGather(&nbOfCellsRequested,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
+      mcIdType nbOfCellIdsSum(std::accumulate(nbOfElems.get(),nbOfElems.get()+size,0));
+      result.reset(new T[nbOfCellIdsSum]);
+      std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElems,size) );
+      std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) );
+      this->allGatherV(array->begin(),nbOfCellsRequested,ParaTraits<T>::MPIDataType,result.get(),nbOfElemsInt.get(),offsetsIn.get(),ParaTraits<T>::MPIDataType,comm);
+      resultIndex = ComputeOffsetFull<mcIdType>(nbOfElems,size);
+      return size;
+    }
+
+    template<class T>
+    void allGatherArraysT2(MPI_Comm comm, const typename Traits<T>::ArrayType *array, std::vector< MCAuto<typename Traits<T>::ArrayType> >& arraysOut) const
+    {
+      using DataArrayT = typename Traits<T>::ArrayType;
+      std::unique_ptr<T[]> result;
+      std::unique_ptr<mcIdType[]> resultIndex;
+      int size(this->allGatherArraysT<T>(comm,array,result,resultIndex));
+      arraysOut.resize(size);
+      for(int i = 0 ; i < size ; ++i)
+      {
+        arraysOut[i] = DataArrayT::New();
+        mcIdType nbOfEltPack(resultIndex[i+1]-resultIndex[i]);
+        arraysOut[i]->alloc(nbOfEltPack,1);
+        std::copy(result.get()+resultIndex[i],result.get()+resultIndex[i+1],arraysOut[i]->getPointer());
+      }
+    }
+
     template<class T>
     int allToAllArraysT2(MPI_Comm comm, const std::vector< MCAuto<typename Traits<T>::ArrayType> >& arrays, MCAuto<typename Traits<T>::ArrayType>& arrayOut, std::unique_ptr<mcIdType[]>& nbOfElems2, mcIdType& nbOfComponents) const
     {

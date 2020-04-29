@@ -43,6 +43,7 @@ SET(paramedmem_SOURCES
   CommInterface.cxx
   ParaUMesh.cxx
   ParaSkyLineArray.cxx
+  ParaDataArray.cxx
   ComponentTopology.cxx
   MPIAccess.cxx
   InterpolationMatrix.cxx
@@ -73,6 +74,9 @@ INSTALL(TARGETS paramedmem EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCO
 
 FILE(GLOB paramedmem_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${paramedmem_HEADERS_HXX} DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
+
+FILE(GLOB paramedmem_HEADERS_TXX "${CMAKE_CURRENT_SOURCE_DIR}/*.txx")
+INSTALL(FILES ${paramedmem_HEADERS_TXX} DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
 
 # To allow usage as SWIG dependencies:
 SET(paramedmem_HEADERS_HXX PARENT_SCOPE)
