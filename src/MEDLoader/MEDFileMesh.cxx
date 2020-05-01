@@ -2478,11 +2478,31 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOf(med_idt fid, const std::string& mName, co
   return ret.retn();
 }
 
-void MEDFileUMesh::LoadPartCoords(const std::string& fileName, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax,
+/*!
+ * This method is an helper to load only consecutive nodes chunk of data of MED file pointed by \a fileName.
+ * Consecutive chunk is specified classicaly by start (included) stop (excluded) format with \a startNodeId and \a stopNodeId respectively.
+ * This method returns 5 elements.
+ * 
+ * \param [in] fileName - Name of file nodes to be read of.
+ * \param [in] mName - Name of the mesh inside file pointed be \a fileName nodes to be read of.
+ * \param [in] dt - Time iteration inside file pointed be \a fileName nodes to be read of.
+ * \param [in] it - Time order inside file pointed be \a fileName nodes to be read of.
+ * \param [in] infosOnCompo - Components info of nodes to be read of. The size of string vector should be equal to space dimension of mesh to be read.
+ * \param [in] startNodeId - Start Node Id (included) of chunk of data to be read
+ * \param [in] stopNodeId - Start Node Id (included) of chunk of data to be read
+ * \param [out] coords - output coordinates of requested chunk (DataArrayDouble)
+ * \param [out] partCoords - output PartDefinition object of chunk
+ * \param [out] famCoords - output family id field of requested chunk (DataArrayIdType)
+ * \param [out] numCoords - output num id field of requested chunk (DataArrayIdType)
+ * \param [out] nameCoords - output names on nodes of requested chunk (DataArrayAsciiChar)
+ * 
+ * \sa MEDLoaderUMesh::LoadPartOf
+ */
+void MEDFileUMesh::LoadPartCoords(const std::string& fileName, const std::string& mName, int dt, int it, const std::vector<std::string>& infosOnComp, mcIdType startNodeId, mcIdType stopNodeId,
 MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<DataArrayIdType>& famCoords, MCAuto<DataArrayIdType>& numCoords, MCAuto<DataArrayAsciiChar>& nameCoords)
 {
   MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
-  MEDFileUMeshL2::LoadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax,coords,partCoords,famCoords,numCoords,nameCoords);
+  MEDFileUMeshL2::LoadPartCoords(fid,infosOnComp,mName,dt,it,startNodeId,stopNodeId,coords,partCoords,famCoords,numCoords,nameCoords);
 }
 
 std::size_t MEDFileUMesh::getHeapMemorySizeWithoutChildren() const
