@@ -823,6 +823,27 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(not f.areStrictlyCompatible(f3))
         self.assertTrue(not f.areStrictlyCompatibleForMulDiv(f3))
 
+    def testBugZipConnectivityTraducer(self):
+        """
+        Non regression test : here cell #1 and cell #2 are nearly the same but not the same. zipConnectivityTraducer called by areCellsIncludedIn
+        failed to capture that.
+        """
+        coo = DataArrayDouble([0,1,2,3],4,1)
+        m = MEDCouplingUMesh("",1)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_SEG2,[0,1])
+        m.insertNextCell(NORM_SEG2,[1,2])
+        m.insertNextCell(NORM_SEG2,[2,1])
+        #
+        a,b = m.areCellsIncludedIn(m,0)
+        self.assertTrue(a)
+        self.assertTrue(b.isIota(3))
+        #
+        self.assertTrue(m.deepCopy().zipConnectivityTraducer(0).isIota(3))
+        self.assertTrue(m.deepCopy().zipConnectivityTraducer(1).isIota(3))
+        self.assertTrue(m.deepCopy().zipConnectivityTraducer(2).isEqual(DataArrayInt([0,1,1])))
+
     pass
 
 if __name__ == '__main__':

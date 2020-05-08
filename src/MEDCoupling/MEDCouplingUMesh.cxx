@@ -1695,9 +1695,11 @@ int MEDCouplingUMesh::AreCellsEqualPolicy7(const mcIdType *conn, const mcIdType 
 
 
 /*!
- * This method find cells that are equal (regarding \a compType) in \a this. The comparison is specified
- * by \a compType.
- * This method keeps the coordiantes of \a this. This method is time consuming.
+ * This method find cells that are equal (regarding \a compType) in \a this. The comparison is specified by \a compType (see zipConnectivityTraducer).
+ * This method keeps the coordinates of \a this. The comparison starts at rank \a startCellId cell id (included).
+ * If \a startCellId is equal to 0 algorithm starts at cell #0 and for each cell candidates being searched have cell id higher than current cellId.
+ * If \a startCellId is greater than 0 algorithm starts at cell #startCellId but for each cell all candidates are considered.
+ * This method is time consuming.
  *
  * \param [in] compType input specifying the technique used to compare cells each other.
  *   - 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without permutation and types same too. This is the strongest policy.
@@ -1729,7 +1731,7 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, mcIdType startCellId, co
   std::vector<bool> isFetched(nbOfCells,false);
   if(startCellId==0)
     {
-      for(mcIdType i=0;i<nbOfCells;i++)
+      for(mcIdType i=startCellId;i<nbOfCells;i++)
         {
           if(!isFetched[i])
             {
@@ -1769,6 +1771,7 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, mcIdType startCellId, co
           if(!isFetched[i])
             {
               const mcIdType *connOfNode=std::find_if(connPtr+connIPtr[i]+1,connPtr+connIPtr[i+1],std::bind2nd(std::not_equal_to<mcIdType>(),-1));
+              // v2 contains the result of successive intersections using rev nodal on on each node of cell #i
               std::vector<mcIdType> v,v2;
               if(connOfNode!=connPtr+connIPtr[i+1])
                 {
@@ -1782,12 +1785,20 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, mcIdType startCellId, co
                     std::vector<mcIdType>::iterator it=std::set_intersection(v.begin(),v.end(),revNodalPtr+revNodalIPtr[*connOfNode],revNodalPtr+revNodalIPtr[*connOfNode+1],v2.begin());
                     v2.resize(std::distance(v2.begin(),it));
                   }
+              // v2 contains now candidates. Problem candidates are sorted using id rank.
               if(v2.size()>1)
                 {
+                  if(v2[0]!=i)
+                  {
+                    auto it(std::find(v2.begin(),v2.end(),i));
+                    std::swap(*v2.begin(),*it);
+                  }
                   if(AreCellsEqualInPool(v2,compType,connPtr,connIPtr,commonCells))
                     {
-                      mcIdType pos=commonCellsI->back();
-                      commonCellsI->pushBackSilent(commonCells->getNumberOfTuples());
+                      mcIdType newPos(commonCells->getNumberOfTuples());
+                      mcIdType pos(commonCellsI->back());
+                      std::sort(commonCells->getPointer()+pos,commonCells->getPointer()+newPos);
+                      commonCellsI->pushBackSilent(newPos);
                       for(const mcIdType *it=commonCells->begin()+pos;it!=commonCells->end();it++)
                         isFetched[*it]=true;
                     }
