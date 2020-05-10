@@ -1846,13 +1846,30 @@ bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int com
       oss << " !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
-  MCAuto<DataArrayIdType> o2n=mesh->zipConnectivityTraducer(compType,nbOfCells);
-  arr=o2n->subArray(nbOfCells);
-  arr->setName(other->getName());
-  mcIdType tmp;
+  //
   if(other->getNumberOfCells()==0)
+  {
+    MCAuto<DataArrayIdType> dftRet(DataArrayIdType::New()); dftRet->alloc(0,1); arr=dftRet.retn(); arr->setName(other->getName());
     return true;
-  return arr->getMaxValue(tmp)<nbOfCells;
+  }
+  DataArrayIdType *commonCells(nullptr),*commonCellsI(nullptr);
+  mesh->findCommonCells(compType,nbOfCells,commonCells,commonCellsI);
+  MCAuto<DataArrayIdType> commonCellsTmp(commonCells),commonCellsITmp(commonCellsI);
+  mcIdType newNbOfCells=-1;
+  MCAuto<DataArrayIdType> o2n = DataArrayIdType::ConvertIndexArrayToO2N(ToIdType(mesh->getNumberOfCells()),commonCells->begin(),commonCellsI->begin(),commonCellsI->end(),newNbOfCells);
+  MCAuto<DataArrayIdType> p0(o2n->selectByTupleIdSafeSlice(0,nbOfCells,1));
+  mcIdType maxPart(p0->getMaxValueInArray());
+  bool ret(maxPart==newNbOfCells-1);
+  MCAuto<DataArrayIdType> p1(p0->invertArrayO2N2N2O(newNbOfCells));
+  // fill p1 array in case of presence of cells in other not in this
+  mcIdType *pt(p1->getPointer());
+  for(mcIdType i = maxPart ; i < newNbOfCells-1 ; ++i )
+    pt[i+1] = i+1;
+  //
+  MCAuto<DataArrayIdType> p2(o2n->subArray(nbOfCells));
+  p2->transformWithIndArr(p1->begin(),p1->end()); p2->setName(other->getName());
+  arr = p2.retn();
+  return ret;
 }
 
 /*!

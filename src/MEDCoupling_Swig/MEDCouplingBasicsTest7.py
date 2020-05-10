@@ -844,6 +844,37 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(m.deepCopy().zipConnectivityTraducer(1).isIota(3))
         self.assertTrue(m.deepCopy().zipConnectivityTraducer(2).isEqual(DataArrayInt([0,1,1])))
 
+    def testBugAreCellsIncludedIn1(self):
+        """
+        Non regression test: a.areCellsIncludedIn(b) was buggy when some cells in b were duplicated into a following specified policy.
+        """
+        coo = DataArrayDouble([0,1,2,3,4],5,1)
+        m = MEDCouplingUMesh("",1)
+        m.setCoords(coo)
+        m.allocateCells()
+        # m contains several duplicated cells - some of those duplicated cells will be in m1
+        for i in range(3):
+            m.insertNextCell(NORM_SEG2,[0,1])
+        for i in range(4):
+            m.insertNextCell(NORM_SEG2,[1,2])
+        for i in range(2):
+            m.insertNextCell(NORM_SEG2,[2,3])
+        for i in range(2):
+            m.insertNextCell(NORM_SEG2,[3,4])
+        #
+        bexp = DataArrayInt([0,1,2, 3,4,5,6, 9,10])
+        m1 = m[bexp]
+        #
+        a,b = m.areCellsIncludedIn(m1,0)
+        self.assertTrue(a)
+        self.assertTrue(b.isEqual(DataArrayInt([2,2,2, 6,6,6,6, 10,10])))
+        #
+        bexp2 = DataArrayInt([0,1,2, 3,4,0, 6, 9,10])
+        m2 = m[bexp2]
+        a,b = m.areCellsIncludedIn(m2,0)
+        self.assertTrue(a)
+        self.assertTrue(b.isEqual(DataArrayInt([2,2,2,6,6,2,6,10,10])))
+
     pass
 
 if __name__ == '__main__':

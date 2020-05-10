@@ -1354,12 +1354,11 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfNode(const mcIdType *
  */
 DataArrayIdType *MEDCouplingPointSet::zipConnectivityTraducer(int compType, mcIdType startCellId)
 {
-  DataArrayIdType *commonCells=0,*commonCellsI=0;
+  DataArrayIdType *commonCells(nullptr),*commonCellsI(nullptr);
   findCommonCells(compType,startCellId,commonCells,commonCellsI);
   MCAuto<DataArrayIdType> commonCellsTmp(commonCells),commonCellsITmp(commonCellsI);
   mcIdType newNbOfCells=-1;
-  MCAuto<DataArrayIdType> ret=DataArrayIdType::ConvertIndexArrayToO2N(ToIdType(getNumberOfCells()),commonCells->begin(),commonCellsI->begin(),
-                                                                                                          commonCellsI->end(),newNbOfCells);
+  MCAuto<DataArrayIdType> ret=DataArrayIdType::ConvertIndexArrayToO2N(ToIdType(getNumberOfCells()),commonCells->begin(),commonCellsI->begin(),commonCellsI->end(),newNbOfCells);
   MCAuto<DataArrayIdType> ret2=ret->invertArrayO2N2N2O(newNbOfCells);
   MCAuto<MEDCouplingPointSet> self=buildPartOfMySelf(ret2->begin(),ret2->end(),true);
   shallowCopyConnectivityFrom(self);
