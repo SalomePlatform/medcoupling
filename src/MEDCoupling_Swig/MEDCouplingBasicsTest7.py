@@ -875,6 +875,16 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(a)
         self.assertTrue(b.isEqual(DataArrayInt([2,2,2,6,6,2,6,10,10])))
 
+    def testSkyLineArrayThreshold(self):
+        x = DataArrayInt([0, 1, 2, 11, 12, 13, 3, 4, 5, 6, 14, 15, 16, 17, 9, 10, 18, 19])
+        xi = DataArrayInt([0, 6, 14, 18])
+        sk = MEDCouplingSkyLineArray(xi,x)
+        lsk,rsk = sk.thresholdPerPack(11)
+        self.assertTrue(lsk.getValuesArray().isEqual(DataArrayInt([0, 1, 2, 3, 4, 5, 6, 9, 10])))
+        self.assertTrue(lsk.getIndexArray().isEqual(DataArrayInt([0, 3, 7, 9])))
+        self.assertTrue(rsk.getValuesArray().isEqual(DataArrayInt([11, 12, 13, 14, 15, 16, 17, 18, 19])))
+        self.assertTrue(rsk.getIndexArray().isEqual(DataArrayInt([0, 3, 7, 9])))
+
     pass
 
 if __name__ == '__main__':

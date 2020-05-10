@@ -325,6 +325,36 @@ std::string MEDCouplingSkyLineArray::simpleRepr() const
   return oss.str();
 }
 
+/*!
+ * Returns 2 SkyLineArrays with same number of packs than \a this.
+ * Each pack in \a this is split in 2 parts using \a threshold parameter as cut point.
+ * \a left part contains ids in \a this pack strictly lower than \a threshold
+ * \a right part contains ids in \a this pack greater or equal to \a threshold
+ */
+void MEDCouplingSkyLineArray::thresholdPerPack(mcIdType threshold, MCAuto<MEDCouplingSkyLineArray>& left, MCAuto<MEDCouplingSkyLineArray>& right) const
+{
+  mcIdType nbPacks(this->getNumberOf());
+  MCAuto<DataArrayIdType> lCount(DataArrayIdType::New()); lCount->alloc(nbPacks,1); lCount->fillWithZero();
+  mcIdType *lCountPtr(lCount->getPointerSilent());
+  const mcIdType *valuesPtr(this->_values->begin()),*indexPtr(this->_index->begin());
+  for(mcIdType i = 0 ; i < nbPacks ; ++i, ++lCountPtr)
+  {
+    *lCountPtr = ToIdType(std::count_if(valuesPtr+indexPtr[i],valuesPtr+indexPtr[i+1],[threshold](mcIdType elt) { return elt<threshold; }));
+  }
+  MCAuto<DataArrayIdType> sizeOfPacks(this->_index->deltaShiftIndex());
+  sizeOfPacks->substractEqual(lCount);
+  mcIdType leftNbOfVal(lCount->accumulate(std::size_t(0))),rightNbOfVal(sizeOfPacks->accumulate(std::size_t(0)));
+  lCount->computeOffsetsFull(); sizeOfPacks->computeOffsetsFull();
+  MCAuto<DataArrayIdType> leftValues(DataArrayIdType::New()); leftValues->alloc(leftNbOfVal,1);
+  MCAuto<DataArrayIdType> rightValues(DataArrayIdType::New()); rightValues->alloc(rightNbOfVal,1);
+  mcIdType *rvPtr(rightValues->getPointerSilent()),*lvPtr(leftValues->getPointerSilent());
+  for(mcIdType i = 0 ; i < nbPacks ; ++i)
+  {
+    std::for_each(valuesPtr+indexPtr[i],valuesPtr+indexPtr[i+1],[threshold,&rvPtr,&lvPtr](mcIdType elt) { if(elt<threshold) { *lvPtr++ = elt; } else { *rvPtr++ = elt; } });
+  }
+  left = MEDCouplingSkyLineArray::New(lCount,leftValues); right = MEDCouplingSkyLineArray::New(sizeOfPacks,rightValues);
+}
+
 MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::groupPacks(const DataArrayIdType *indexedPacks) const
 {
   indexedPacks->checkAllocated();

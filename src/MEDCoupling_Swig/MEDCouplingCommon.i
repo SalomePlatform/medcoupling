@@ -1420,6 +1420,16 @@ namespace MEDCoupling
            PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
            return ret;
          } 
+
+      PyObject *thresholdPerPack(mcIdType threshold) const
+      {
+        MCAuto<MEDCouplingSkyLineArray> left, right;
+        self->thresholdPerPack(threshold,left,right);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(left.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingSkyLineArray, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(right.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingSkyLineArray, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
     }
   };
 }

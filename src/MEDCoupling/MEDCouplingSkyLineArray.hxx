@@ -108,6 +108,8 @@ namespace MEDCoupling
 
     std::string simpleRepr() const;
 
+    void thresholdPerPack(mcIdType threshold, MCAuto<MEDCouplingSkyLineArray>& left, MCAuto<MEDCouplingSkyLineArray>& right) const;
+
     MEDCouplingSkyLineArray *groupPacks(const DataArrayIdType *indexedPacks) const;
     MEDCouplingSkyLineArray *uniqueNotSortedByPack() const;
     static MEDCouplingSkyLineArray *AggregatePacks(const std::vector<const MEDCouplingSkyLineArray *>& sks);
