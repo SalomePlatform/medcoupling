@@ -261,7 +261,8 @@ namespace MEDCoupling
     T getIJ(std::size_t tupleId, std::size_t compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     void setIJ(std::size_t tupleId, std::size_t compoId, T newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     void setIJSilent(std::size_t tupleId, std::size_t compoId, T newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    T *getPointer() { return _mem.getPointer(); declareAsNew(); }
+    T *getPointer() { declareAsNew(); return getPointerSilent(); }
+    T *getPointerSilent() { return _mem.getPointer(); }
     void pack() const;
     bool isAllocated() const override;
     void checkAllocated() const;

@@ -1797,7 +1797,7 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, mcIdType startCellId, co
                     {
                       mcIdType newPos(commonCells->getNumberOfTuples());
                       mcIdType pos(commonCellsI->back());
-                      std::sort(commonCells->getPointer()+pos,commonCells->getPointer()+newPos);
+                      std::sort(commonCells->getPointerSilent()+pos,commonCells->getPointerSilent()+newPos);
                       commonCellsI->pushBackSilent(newPos);
                       for(const mcIdType *it=commonCells->begin()+pos;it!=commonCells->end();it++)
                         isFetched[*it]=true;
