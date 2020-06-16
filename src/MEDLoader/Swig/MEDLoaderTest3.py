@@ -6732,6 +6732,9 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getGroupArr(0,"grp2").isEqualWithoutConsideringStr(grp2))
         self.assertEqual(mm.getFamiliesNames(),('Fam_1','Fam_2','Fam_6','Fam_7'))
         pass
+
+    def testMeshConvertFromMEDFileGeoType(self):
+        self.assertEqual(MEDFileMesh.ConvertFromMEDFileGeoType(320),NORM_HEXA20)
         
     pass
 

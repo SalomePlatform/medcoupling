@@ -1203,6 +1203,12 @@ namespace MEDCoupling
            return self->getMeshAtLevel(meshDimRelToMaxExt,false);
          }
 
+         static INTERP_KERNEL::NormalizedCellType ConvertFromMEDFileGeoType(int geoType)
+         {
+            med_geometry_type geoType2((med_geometry_type) geoType);
+            return MEDFileMesh::ConvertFromMEDFileGeoType(geoType2);
+         }
+
          PyObject *getTime()
          {
            int tmp1,tmp2;
