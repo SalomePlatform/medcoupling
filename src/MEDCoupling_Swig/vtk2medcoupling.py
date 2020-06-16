@@ -11,6 +11,8 @@ def mesh_convertor(fileName):
     return mesh_convertor_mem(ug),ug
     
 def mesh_convertor_mem(ug):
+    from distutils.version import LooseVersion
+    #
     pts = numpy_support.vtk_to_numpy(ug.GetPoints().GetData())
     #
     cla = numpy_support.vtk_to_numpy(ug.GetCellLocationsArray())
@@ -20,6 +22,10 @@ def mesh_convertor_mem(ug):
     ct=mc.DataArrayInt(np.array(ctvtk,dtype=np.int32))[:]
     c=mc.DataArrayInt(conn)[:]
     ci=mc.DataArrayInt(cla)[:]
+    # for pv580
+    if LooseVersion(vtk.VTK_VERSION) >= LooseVersion("8.90.0"):
+        ci = ci.deltaShiftIndex()+1
+        ci.computeOffsetsFull()
     #
     vtk2med = mc.DataArrayInt(mc.vtk2med_cell_types())
     #
