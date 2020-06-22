@@ -33,9 +33,9 @@ Les points traités ici :
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pour commencer l'exercice importer le module Python ``MEDCoupling`` et l'aliaser avec ``mc`` (ca nous évitera des noms trop longs). Importer aussi le module ``math``. ::
+Pour commencer l'exercice importer le module Python ``medcoupling`` et l'aliaser avec ``mc`` (ca nous évitera des noms trop longs). Importer aussi le module ``math``. ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 	import math
 
 On rappelle que toutes les méthodes statiques du module commencent par une majuscule. 
@@ -66,7 +66,7 @@ Notons enfin que l'on peut aussi directement construire un ``DataArray`` à part
 n'a qu'une seule composante. ::
 
 	d_example = mc.DataArrayDouble([0.0,1.0,2.5])
-	print d_example 
+	print(d_example )
 
 .. note:: Le tableau ``d`` contient maintenant 12 valeurs groupées en 6 tuples contenant chacun 2 composantes.
 	  Les valeurs dans ``d`` ne sont pas encore assignées.
@@ -86,7 +86,7 @@ ou directement l'intégralité de la première composante ::
 
 Initialiser la 2ème composante de chaque tuple i avec la valeur i. ::
 
-	d[:,1] = range(6)
+	d[:,1] = list(range(6))
 
 Multiplier la seconde composante de chacun des tuples par pi/3. ::
 
@@ -108,17 +108,17 @@ Assigner les informations textuelles correctes sur les 2 composantes de ``d`` : 
 
 Afficher ``d`` tel quel. ::
 
-	print d
+	print(d)
 
 
 Afficher juste les valeurs sous forme d'une liste python. ::
 
-	print d.getValues()
+	print(d.getValues())
 
 
 Vérifier que pour chaque tuple désormais dans ``d``, sa norme (méthode ``magnitude()``) est bien égale à 3.0, à 1.e-12 près (méthode ``isUniform()``) ::
 
-	print "Uniform array?", d.magnitude().isUniform(3.,1e-12)
+	print("Uniform array?", d.magnitude().isUniform(3.,1e-12))
 
 
 Duplication et agrégation
@@ -144,7 +144,7 @@ Créer les 7 copies de ``d`` et opérer la "translation" correspondante.  ::
 
 Une autre façon de faire un peu plus compacte (pour les amoureux des *one-liner*) : ::
 
-	ds = [d + translationToPerform[i] for i in xrange(len(translationToPerform))]
+	ds = [d + translationToPerform[i] for i in list(range(len(translationToPerform)))]
 
 Agrégation de tableaux
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -201,11 +201,11 @@ Récupérer la liste des identifiants de tuples du groupe 0 et mettre le résult
 Afficher ``tmp``. ::
 
 	tmp = c[cI[0]:cI[0+1]]
-	print tmp
+	print(tmp)
 
 Vérifier, en l'affichant, que pour tous les identifiants de tuples dans ``tmp``, leurs tuples sont bien égaux dans ``d2``. ::
 
-	print d2[tmp]
+	print(d2[tmp])
 
 .. note:: On voit que le tuple (3.,0.) à 1e-12 près est répété 3 fois et ``tmp`` donne les positions respectives de
    ces 3 répétitions.
@@ -253,8 +253,8 @@ permet de passer du mode de stockage de cette surjection ``c``, ``cI`` au format
 On récupère au passage card(Y) c'est-à-dire le ``newNbOfTuples``. ::
 
 	o2n, newNbOfTuples = mc.DataArrayInt.ConvertIndexArrayToO2N(oldNbOfTuples,c,cI)
-	print "Have I got the right number of tuples?"
-	print "myNewNbOfTuples = %d, newNbOfTuples = %d" % (myNewNbOfTuples, newNbOfTuples)
+	print("Have I got the right number of tuples?")
+	print("myNewNbOfTuples = %d, newNbOfTuples = %d" % (myNewNbOfTuples, newNbOfTuples))
 	assert(myNewNbOfTuples == newNbOfTuples)
 
 Nous pouvons maintenant constuire le tableau de points uniques ``d3``. A l'aide de ``o2n`` 
@@ -279,7 +279,7 @@ Effectuer ce traitement sur la variable ``o2n``. ::
 A l'aide de ``n2o`` on peut construire un ``d3_bis`` à partir de ``d2``, et qui contient la même chose que le ``d3`` précédent. ::
 
 	d3_bis = d2[n2o]
-	print "Are d3 and d3_bis equal ? %s" % (str(d3.isEqual(d3_bis, 1e-12)))
+	print("Are d3 and d3_bis equal ? %s" % (str(d3.isEqual(d3_bis, 1e-12))))
 
 Translater tous les tuples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,8 +298,8 @@ Créer un maillage non structuré ``m`` avec les coordonnées ``d3``. Le maillag
 
 	m = mc.MEDCouplingUMesh("My7hexagons",2)
 	m.setCoords(d3)
-	print "Mesh dimension is", m.getMeshDimension()
-	print "Spatial dimension is", m.getCoords().getNumberOfComponents()
+	print("Mesh dimension is", m.getMeshDimension())
+	print("Spatial dimension is", m.getCoords().getNumberOfComponents())
 
 Maintenant, allouer le nombre de cellules avec (un majorant du) nombre attendu de cellules. ::
 
@@ -308,7 +308,7 @@ Maintenant, allouer le nombre de cellules avec (un majorant du) nombre attendu d
 Enfin grâce à ``o2n`` on a la *connectivité* (i.e. la liste des points formant un hexagone) 
 des 7 hexagones utilisant les coordonnées ``d3``. ::
 
-	for i in xrange(7):
+	for i in range(7):
 		cell_connec = o2n[6*i:6*(i+1)]
 		m.insertNextCell(mc.NORM_POLYGON, cell_connec.getValues())
 		pass

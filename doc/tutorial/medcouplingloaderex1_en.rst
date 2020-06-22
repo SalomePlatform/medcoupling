@@ -36,7 +36,7 @@ the first field. ::
 
 	data=MEDFileData("agitateur.med")
 	ts=data.getFields()[0].getTimeSteps()
-	print ts
+	print(ts)
 
 Get the agitator's mesh (in green) at the time-step (2,-1) (see ts).
 To this end use the cell field "DISTANCE_INTERFACE_ELEM_BODY_ELEM_DOM" and select
@@ -122,7 +122,7 @@ Compute the cross product for each cell of "posSkin" using "forceVectSkin"
 Sum "torqueOnSkin" using DataArrayDouble.accumulate(). ::
 
        zeTorque=torquePerCellOnSkin.accumulate()
-       print "couple = %r N.m"%(zeTorque[2])
+       print("couple = %r N.m"%(zeTorque[2]))
 
 Check the previously computed torque by dividing the power by the angular speed.
 Compute the power per skin cell and sum it. ::
@@ -133,7 +133,7 @@ Compute the power per skin cell and sum it. ::
        speedOnSkin=speedMc.getArray()[tupleIdsInField]
        powerSkin=DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
        power=powerSkin.accumulate()[0]
-       print "power = %r W"%(power)
+       print("power = %r W"%(power))
 
 Compute the angular speed: compute the sum of x^2, y^2 and xz of "posSkin" and build
 with NumPy the 2x2 matrix 
@@ -147,14 +147,14 @@ Retrieve the eigen vector associated to the maximal eigen value with linalg.eig(
        inertiaSkinValues,inertiaSkinVects=linalg.eig(inertiaSkin)
        pos=max(enumerate(inertiaSkinValues),key=lambda x: x[1])[0]
        vect0=inertiaSkinVects[pos].tolist()[0]
-       print vect0
+       print(vect0)
 
 Thanks to the previous computation we can see that the agitator had a rotation of 
 1.1183827931 radian (see solution).
 Compute and compare the torque on the agitator. ::
 
        omega=1.1183827931/(ts[-1][2]-ts[0][2])
-       print "At time-step (%d,%d) at %r s the torque is: %r N.m, power/omega=%r N.m"%(ts[2][0],ts[2][1],ts[2][2],zeTorque[2],power/omega)
+       print("At time-step (%d,%d) at %r s the torque is: %r N.m, power/omega=%r N.m"%(ts[2][0],ts[2][1],ts[2][2],zeTorque[2],power/omega))
 
 Solution
 ~~~~~~~~

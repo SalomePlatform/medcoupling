@@ -111,17 +111,17 @@ Nous pouvons ensuite re-lire le fichier MED : ::
 	meshMEDFileRead = ml.MEDFileMesh.New("TargetMesh2.med") # a new is needed because it returns a MEDFileUMesh (MEDFileMesh is abstract)
 	meshRead0 = meshMEDFileRead.getMeshAtLevel(0)
 	meshRead1 = meshMEDFileRead.getMeshAtLevel(-1)
-	print "Is level 0 in the file equal to 'targetMesh'?", meshRead0.isEqual(targetMesh,1e-12)
-	print "Is level 0 in the file equal to 'targetMesh1'?", meshRead1.isEqual(targetMesh1,1e-12)
+	print("Is level 0 in the file equal to 'targetMesh'?", meshRead0.isEqual(targetMesh,1e-12))
+	print("Is level 0 in the file equal to 'targetMesh1'?", meshRead1.isEqual(targetMesh1,1e-12))
 
 Affichons les niveaux disponibles pour le groupe ``grp0_Lev0`` : ::
 
-	print meshMEDFileRead.getGrpNonEmptyLevels("grp0_Lev0")
+	print(meshMEDFileRead.getGrpNonEmptyLevels("grp0_Lev0"))
 
 Et récupérons enfin les identifiants de cellules contenus dans le groupe ``grp0_Lev0`` : ::
 
 	grp0_0_read = meshMEDFileRead.getGroupArr(0,"grp0_Lev0")
-	print "Is group 'grp0_Lev0' equal to what is read in the file?" , grp0_0_read.isEqual(grp0_0)
+	print("Is group 'grp0_Lev0' equal to what is read in the file?" , grp0_0_read.isEqual(grp0_0))
 
 Lire/écrire des champs avec l'API avancée
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,8 +151,8 @@ Lire le champ : ::
 	fMEDFileRead = ml.MEDFileField1TS("TargetMesh2.med",f.getName(),7,8)
 	fRead1 = fMEDFileRead.getFieldOnMeshAtLevel(ml.ON_CELLS,0,meshMEDFileRead) # Quickest way, not re-reading mesh in the file.
 	fRead2 = fMEDFileRead.getFieldAtLevel(ml.ON_CELLS,0)                       # Like above, but this time the mesh is read!
-	print "Does the field remain OK with the quick method?", fRead1.isEqual(f,1e-12,1e-12)
-	print "Does the field remain OK with the slow method?", fRead2.isEqual(f,1e-12,1e-12)
+	print("Does the field remain OK with the quick method?", fRead1.isEqual(f,1e-12,1e-12))
+	print("Does the field remain OK with the slow method?", fRead2.isEqual(f,1e-12,1e-12))
 	
 Lire/écrire un champ sur un "profil"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -180,8 +180,8 @@ Lire le champ ``fPart`` du fichier "TargetMesh2.med" et les identifiants de cell
 
 	fMEDFileRead2 = ml.MEDFileField1TS("TargetMesh2.med",fPart.getName(),7,8)
 	fPartRead, pflRead = fMEDFileRead2.getFieldWithProfile(ml.ON_CELLS,0,meshMEDFileRead)
-	print "Is the partial field correctly read?", fPartRead.isEqualWithoutConsideringStr(fPart.getArray(),1e-12)
-	print "Is the list of cell identifiers matching?", pflRead.isEqualWithoutConsideringStr(pfl)
+	print("Is the partial field correctly read?", fPartRead.isEqualWithoutConsideringStr(fPart.getArray(),1e-12))
+	print("Is the list of cell identifiers matching?", pflRead.isEqualWithoutConsideringStr(pfl))
 
 Solution
 ~~~~~~~~

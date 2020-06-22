@@ -55,7 +55,7 @@ Splitting and Merging a MED file using MEDLoader
 	cellFieldCpy = cellField.deepCopy()
 	cellFieldCpy.substractInPlaceDM(cellField_read,10,1e-12)
 	cellFieldCpy.getArray().abs()
-	print cellFieldCpy.getArray().isUniform(0.,1e-12)
+	print(cellFieldCpy.getArray().isUniform(0.,1e-12))
 	#
 	nodeField0_read = ml.ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
 	nodeField1_read = ml.ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
@@ -64,7 +64,7 @@ Splitting and Merging a MED file using MEDLoader
 	nodeFieldCpy = nodeField.deepCopy()
 	nodeFieldCpy.mergeNodes(1e-10)
 	nodeFieldCpy.substractInPlaceDM(nodeField_read,10,1e-12)
-	print nodeFieldCpy.getArray().isUniform(0.,1e-12)
+	print(nodeFieldCpy.getArray().isUniform(0.,1e-12))
 	#
 	# Merging - Optimal method
 	#

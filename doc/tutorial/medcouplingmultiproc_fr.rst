@@ -10,10 +10,10 @@ Nous allons utiliser le module ``multiprocessing`` pour cela.
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pour commencer l'exercice importer le module Python ``MEDCoupling``, ``MEDCouplingRemapper``, ``numpy``, ``scipy``, ``multiprocessing``
+Pour commencer l'exercice importer le module Python ``medcoupling``, ``MEDCouplingRemapper``, ``numpy``, ``scipy``, ``multiprocessing``
 et ``datetime`` pour chronométrer : ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 	import MEDCouplingRemapper as mr
 	import multiprocessing as mp
 	from datetime import datetime
@@ -48,7 +48,7 @@ Utilisons ``MEDCouplingRemapper`` pour cela. ::
 	remap=mr.MEDCouplingRemapper()
 	strt=datetime.now()
 	assert(remap.prepare(m,m2,"P0P0")==1)
-	print "time in sequential : %s"%(str(datetime.now()-strt))
+	print("time in sequential : %s"%(str(datetime.now()-strt)))
 
 Stockons la sparse matrix scipy dans ``matSeq``. ::
 
@@ -87,7 +87,7 @@ Appelons cette liste python ``workToDo`` qui sera de longueur ``nbProc``.
 On peut se faire aider de ``mc.DataArray.GetSlice``. ::
 
         workToDo=[]
-        for i in xrange(nbProc):
+        for i in list(range(nbProc)):
               s=mc.DataArray.GetSlice(slice(0,m2.getNumberOfCells(),1),i,nbProc)
               part=m2[s]
               partToGlob=mc.DataArrayInt.Range(s.start,s.stop,s.step)
@@ -101,7 +101,7 @@ On est maintenant prêt pour faire travailler chacun des coeurs indépendamment.
 	pool = mp.Pool()
 	asyncResult = pool.map_async(work,workToDo)
 	subMatrices = asyncResult.get()
-	print "time in parallel (x%d) : %s"%(nbProc,str(datetime.now()-strt))
+	print("time in parallel (x%d) : %s"%(nbProc,str(datetime.now()-strt)))
 
 .. note:: A noter la magie ! On a transféré entre le process maitre et les process esclave sans même s'en rendre compte les maillages et les DataArrayInt contenus dans ``workToDo`` !
 	  Merci à la pickelisation des objets MEDCoupling :)

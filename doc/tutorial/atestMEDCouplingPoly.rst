@@ -14,7 +14,7 @@
 	numberOfNodes = 25
 	numberOfCells = 12
 
-	print "1 ********************"
+	print("1 ********************")
 	spaceDimension = 2
 
 	# Coordinates of central polygon
@@ -50,7 +50,7 @@
 		coordinates.append(xtmp+X[(i+1)%6])
 		coordinates.append(ytmp+Y[(i+1)%6])
 
-	print "2 ********************"
+	print("2 ********************")
 	# Creation of mesh
 	mesh=MEDCouplingUMesh.New()
 	mesh.setMeshDimension(2)
@@ -61,7 +61,7 @@
 	myCoords.setValues(coordinates,numberOfNodes,2)
 	mesh.setCoords(myCoords)
 
-	print "3 ********************"
+	print("3 ********************")
 	# Connectivity of triangular meshing
 	connectivity = []
 	for i in range(6):
@@ -72,7 +72,7 @@
 		mesh.insertNextCell(NORM_TRI3,3,connectivity[3*i:3*(i+1)])
 		pass
 
-	print "4 ********************"
+	print("4 ********************")
 	# Connectivity of hexagons
 	connectivity = []
 	for i in range(6):
@@ -90,7 +90,7 @@
 		mesh.insertNextCell(NORM_POLYGON,6,connectivity[6*i:6*(i+1)])
 		pass
 
-	print "5 ********************"
+	print("5 ********************")
 	mesh.checkConsistencyLight()
 
 	medFileName = "MEDCoupling_Fleur.med"

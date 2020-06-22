@@ -47,9 +47,9 @@ Pour ce qui suit il faut absolument que deux cellules se touchant partagent les 
 en connectivité nodale, il faut absolument que les noeuds soient les mêmes. Il s'avère que cela n'est pas le cas ici.
 Fusionner le noeuds distants de moins de 1e-10 et regarder l'impact sur le nombre de noeuds de ``fixm``. ::
 
-	print "Nb of nodes in the file : %i " % (fixm.getNumberOfNodes())
+	print("Nb of nodes in the file : %i " % (fixm.getNumberOfNodes()))
 	fixm.mergeNodes(1e-10)
-	print "Nb of non duplicated nodes : %i" % (fixm.getNumberOfNodes())
+	print("Nb of non duplicated nodes : %i" % (fixm.getNumberOfNodes()))
 
 Même traitement pour ``Mobile.med``, le lire avec l'API avancée de MEDLoader (appeler ``mobm`` l'instance du maillage) 
 et le réparer en supprimant les noeuds dupliqués. ::
@@ -97,7 +97,7 @@ Appeler cette nouvelle instance ``zone1Mobm`` et lui retirer tous les noeuds orp
 Enfin l'afficher : ::
 
 	zonesInMobm = mobm.partitionBySpreadZone()
-	print "Nb of zones in mobm : %i" % (len(zonesInMobm))
+	print("Nb of zones in mobm : %i" % (len(zonesInMobm)))
 	zone1Mobm = mobm[zonesInMobm[0]]
 	zone1Mobm.zipCoords()
 	displayVTK(zone1Mobm, "zone1Mobm.vtu")
@@ -153,36 +153,36 @@ L'aire est une valeur algébrique. Donc attention cette verification ne peut se 
 sont toutes bien orientées ou à minima toutes orientées de la même manière.
 Pour ce faire, regardons les aires des 38 cellules de ``partFixm`` (nom de variable : ``areaPartFixm``). ::
 
-	areaPartFixm = partFixm.getMeasureField(ml.ON_CELLS).getArray()
-	print areaPartFixm.getValues()
+	areaPartFixm = partFixm.getMeasureField(True).getArray()
+	print(areaPartFixm.getValues())
 
 On voit que toutes les valeurs sont négatives. *Bilan*: ce fichier MED ne respecte pas la convention MED fichier !
 ``partFixm`` étant mal orienté, et ``MEDCouplingUMesh.Intersect2DMeshes()`` conservant l'orientation, 
 ``partFixMob`` est lui aussi mal orienté.
 Bref, on va faire les comparaisons sur des tableaux de valeurs absolues. Vérifier alors **Check #0**. ::
 
-	areaPartFixm = partFixm.getMeasureField(ml.ON_CELLS).getArray()
+	areaPartFixm = partFixm.getMeasureField(isAbs=False).getArray() # prise en compte de l'orientation des mailles
 	areaPartFixm.abs()
-	areaPartFixMob = partFixMob.getMeasureField(ml.ON_CELLS).getArray()
+	areaPartFixMob = partFixMob.getMeasureField(isAbs=False).getArray()
 	areaPartFixMob.abs()
 	val1=areaPartFixm.accumulate()[0]
 	val2=areaPartFixMob.accumulate()[0]
-	print "Check #0 %lf == %lf with precision 1e-8? %s" % (val1,val2,str(abs(val1-val2)<1e-8))
+	print("Check #0 %lf == %lf with precision 1e-8? %s" % (val1,val2,str(abs(val1-val2)<1e-8)))
 
 On peut passer au **Check #1**. L'esprit est le même que le **Check #0**. ::
 
-	areaZone1Mobm = zone1Mobm.getMeasureField(ml.ON_CELLS).getArray()
+	areaZone1Mobm = zone1Mobm.getMeasureField(isAbs=False).getArray()
 	areaZone1Mobm.abs()
 	val3 = areaZone1Mobm.accumulate()[0]
 	ids4 = iMob.findIdsNotEqual(-1)
 	areaPartFixMob2 = areaPartFixMob[ids4]
 	val4 = areaPartFixMob2.accumulate()[0]
-	print "Check #1 %lf == %lf with precision 1e-8 ? %s" % (val3,val4,str(abs(val3-val4)<1e-8))
+	print("Check #1 %lf == %lf with precision 1e-8 ? %s" % (val3,val4,str(abs(val3-val4)<1e-8)))
 
 Puis le **Check #2**. ::
 
 	isCheck2OK = True
-	for icell in xrange(partFixm.getNumberOfCells()):
+	for icell in list(range(partFixm.getNumberOfCells())):
 	    ids5 = iPart.findIdsEqual(icell)
 	    areaOfCells = areaPartFixMob[ids5]
 	    areaOfCells.abs()
@@ -190,7 +190,7 @@ Puis le **Check #2**. ::
 	        isCheck2OK = False
 	        pass
 	    pass
-	print "Check #2? %s" % (str(isCheck2OK))
+	print("Check #2? %s" % (str(isCheck2OK)))
 
 Utiliser les informations de l'intersection pour en faire des champs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

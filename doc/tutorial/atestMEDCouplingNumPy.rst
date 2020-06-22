@@ -6,7 +6,7 @@ Playing with NumPy and SciPy
 
 ::
 	
-	import MEDCoupling as mc
+	import medcoupling as mc
 	
 	#
 	# NumPy
@@ -19,19 +19,19 @@ Playing with NumPy and SciPy
 	arr = mc.DataArrayDouble(12)
 	arr[:] = 4.
 	nparr = arr.toNumPyArray()
-	print nparr.__repr__()
-	print nparr.tolist()
+	print(nparr.__repr__())
+	print(nparr.tolist())
 	nparr[::2] = 7.
-	print nparr.__repr__()
-	print arr.__repr__()
+	print(nparr.__repr__())
+	print(arr.__repr__())
 	del arr
 	import gc; gc.collect()     # Make sure the object has been deleted
-	print nparr.__repr__()
+	print(nparr.__repr__())
 	arr2 = mc.DataArrayDouble(nparr)
-	print arr2.__repr__()
+	print(arr2.__repr__())
 	nparr[:] = 5.
-	print nparr.__repr__()
-	print arr2.__repr__()
+	print(nparr.__repr__())
+	print(arr2.__repr__())
 	# Writing to file
 	f = open("toto.data","w+b")
 	a = np.memmap(f,dtype='float64',mode='w+',offset=0,shape=nparr.shape)
@@ -43,7 +43,7 @@ Playing with NumPy and SciPy
 	a[:] = 3.14
 	f.flush()
 	b = np.memmap(f2,dtype='float64',mode='r',offset=0,shape=(12,))
-	print b.__repr__()
+	print(b.__repr__())
 	#
 	# SciPy
 	#

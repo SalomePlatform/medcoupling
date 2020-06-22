@@ -113,7 +113,7 @@ s'ils partagent le même maillage): ::
 	cellFieldCpy = cellField.deepCopy()
 	cellFieldCpy.substractInPlaceDM(cellField_read,10,1e-12)
 	cellFieldCpy.getArray().abs()
-	print cellFieldCpy.getArray().isUniform(0.,1e-12)
+	print(cellFieldCpy.getArray().isUniform(0.,1e-12))
 
 Opérons le même travail sur "NodeField" que celui réalisé plus haut sur "CellField".
 La différence ici c'est qu'il va y avoir duplication de l'information à la frontière, car les noeuds limites sont partagés
@@ -140,7 +140,7 @@ et supprimer encore les doublons : ::
 Comparer ``nodeFieldCpy`` et ``nodeField_read`` toujours en utilisant ``MEDCouplingFieldDouble.substractInPlaceDM()`` : ::
 
 	nodeFieldCpy.substractInPlaceDM(nodeField_read,10,1e-12)
-	print nodeFieldCpy.getArray().isUniform(0.,1e-12)
+	print(nodeFieldCpy.getArray().isUniform(0.,1e-12))
 
 
 Lecture et merge des 2 fichiers MED séparés (moins facile, mais plus optimal)

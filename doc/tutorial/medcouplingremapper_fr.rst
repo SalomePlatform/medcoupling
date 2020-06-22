@@ -9,10 +9,10 @@ un maillage raffiné de ``trgMesh`` (avec certaines cellules découpées plus fi
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pour commencer l'exercice importer le module Python ``MEDCoupling`` et la 
+Pour commencer l'exercice importer le module Python ``medcoupling`` et la 
 classe ``MEDCouplingRemapper`` du module ``MEDCouplingRemapper``. ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 	from MEDCouplingRemapper import MEDCouplingRemapper 
 
 
@@ -70,14 +70,14 @@ lesquelles elle s'intersecte, et l'aire d'intersection correspondante.
 Vérifier notamment que pour chaque cellule de ``trgMesh`` la somme des aires fait toujours 1. ::
 
 	myMatrix = remap.getCrudeMatrix()
-	print myMatrix
+	print(myMatrix)
 	sumByRows = mc.DataArrayDouble(len(myMatrix))
 	for i,wIt in enumerate(sumByRows):
 	  su = 0.
 	  for it in myMatrix[i]:
 	    su += myMatrix[i][it]
 	  wIt[0] = su
-	print "Is interpolation well prepared?", sumByRows.isUniform(1.,1e-12)
+	print("Is interpolation well prepared?", sumByRows.isUniform(1.,1e-12))
 
 .. note:: Les triangles dans ``srcMesh`` ont été rajoutés pour casser la monotonie de la matrice ``myMatrix``.
 
@@ -118,11 +118,11 @@ la somme sur les cellules (accumulation) n'est **pas** conservée ! ::
 
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldCV.integral(True)[0]
-	print "IntensiveMaximum -- integrals: %lf == %lf" % (integSource, integTarget)
+	print("IntensiveMaximum -- integrals: %lf == %lf" % (integSource, integTarget))
 	
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldCV.getArray().accumulate()[0]
-	print "IntensiveMaximum -- sums: %lf != %lf" % (accSource, accTarget)
+	print("IntensiveMaximum -- sums: %lf != %lf" % (accSource, accTarget))
 
 
 Maintenant mettre la nature de ``srcField`` à ``ExtensiveConservation``. Le champ doit être interprété commé étant
@@ -136,11 +136,11 @@ Par contre, la somme sur les cellules est conservée. ::
 
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldI.integral(True)[0]
-	print "ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget)
+	print("ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget))
 	
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldI.getArray().accumulate()[0]
-	print "ExtensiveConservation -- sums: %lf == %lf" % (accSource, accTarget)
+	print("ExtensiveConservation -- sums: %lf == %lf" % (accSource, accTarget))
 
 Visualiser les champs avec ParaViS, ou en les écrivant dans un fichier.
 

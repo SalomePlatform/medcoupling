@@ -6,7 +6,7 @@ Visualiser une instance de MEDCoupling dans ParaViS à travers CORBA
 
 ::
 	
-	import MEDCoupling as mc
+	import medcoupling as mc
 	from MEDCouplingCorba import MEDCouplingUMeshServant
 	
 	# Creating a mesh
@@ -21,14 +21,14 @@ Visualiser une instance de MEDCoupling dans ParaViS à travers CORBA
 	import CORBA
 	orb = CORBA.ORB_init()
 	ior = orb.object_to_string(ref_m)
-	print ior
+	print(ior)
 	
 	# Displaying it in ParaVis
 	import salome
 	salome.salome_init()
-	print "About to import module 'pvsimple' ..."
+	print("About to import module 'pvsimple' ...")
 	import pvsimple as pvs
-	print "Module 'pvsimple' was imported!"
+	print("Module 'pvsimple' was imported!")
 	
 	# From here, we use the standard ParaView API:
 	src1 = pvs.ParaMEDCorbaPluginSource()

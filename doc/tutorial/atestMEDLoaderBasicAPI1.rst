@@ -24,7 +24,7 @@ Reading, Writing a MED file using MEDLoader basic API
 	ml.WriteUMesh("TargetMesh.med",targetMesh,True)  # True means 'from scratch'
 	# Re-read it and test equality
 	meshRead = ml.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
-	print "Is the read mesh equal to 'targetMesh' ?", meshRead.isEqual(targetMesh,1e-12)
+	print("Is the read mesh equal to 'targetMesh' ?", meshRead.isEqual(targetMesh,1e-12))
 	# Writing a field and its support mesh in one go
 	f = ml.MEDCouplingFieldDouble.New(ml.ON_CELLS, ml.ONE_TIME)
 	f.setTime(5.6,7,8)                              # Declare the timestep associated to the field 
@@ -34,7 +34,7 @@ Reading, Writing a MED file using MEDLoader basic API
 	ml.WriteField("MyFirstField.med",f,True)
 	# Re-read it and test equality
 	f2 = ml.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
-	print "Is the read field identical to 'f' ?", f2.isEqual(f,1e-12,1e-12)
+	print("Is the read field identical to 'f' ?", f2.isEqual(f,1e-12,1e-12))
 	# Writing in several steps 
 	ml.WriteUMesh("MySecondField.med",f.getMesh(),True)
 	ml.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)
@@ -45,7 +45,7 @@ Reading, Writing a MED file using MEDLoader basic API
 	ml.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
 	# Re-read and test this two-timestep field
 	f3 = ml.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
-	print "Is the field read in file equals to 'f' ?", f.isEqual(f3,1e-12,1e-12)
+	print("Is the field read in file equals to 'f' ?", f.isEqual(f3,1e-12,1e-12))
 	f4 = ml.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
-	print "Is the field read in file equals to 'f2' ?", f2.isEqual(f4,1e-12,1e-12)
+	print("Is the field read in file equals to 'f2' ?", f2.isEqual(f4,1e-12,1e-12))
 

@@ -65,13 +65,10 @@ ipar.append("VTKViewer_1", """<?xml version="1.0"?>
 ipar.append("AP_MODULES_LIST", "Mesh")
 
 import sys
-if sys.platform == "win32":
-    from MEDCouplingCompat import *
-else:
-    from MEDCoupling import *
+from medcoupling import *
 from MEDLoader import WriteMesh
 
-arr=DataArrayDouble(range(2))
+arr=DataArrayDouble(list(range(2)))
 mc=MEDCouplingCMesh("m1")
 mc.setCoords(arr,arr)
 m1=mc.buildUnstructured()
@@ -92,8 +89,8 @@ from salome.smesh import smeshBuilder
 
 smesh = smeshBuilder.New(salome.myStudy)
 ([mesh_1,mesh_2], status) = smesh.CreateMeshesFromMED(r'mesh1.med')
-g1 = mesh_1.MakeGroupByIds("all nodes", SMESH.NODE, range(1,10))
-g2 = mesh_2.MakeGroupByIds("all nodes", SMESH.NODE, range(1,10))
+g1 = mesh_1.MakeGroupByIds("all nodes", SMESH.NODE, list(range(1,10)))
+g2 = mesh_2.MakeGroupByIds("all nodes", SMESH.NODE, list(range(1,10)))
 
 ### Store presentation parameters of displayed objects
 import iparameters

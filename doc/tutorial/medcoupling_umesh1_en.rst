@@ -23,9 +23,9 @@ Several points will be covered in this exercise :
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
 
-Import the MEDCoupling Python module. ::
+Import the medcoupling Python module. ::
 
-        from MEDCoupling import *
+        from medcoupling import *
 
 We now build a mesh containing artificially two types of cell (NORM_HEXA8 and NORM_POLYHED) to highlight the possibility to work with non-homogeneous cell types.
 mesh3D is an extruded mesh containing 18 cells composed into 3 levels along Z of 6 cells.
@@ -57,7 +57,11 @@ Copy paste the following lines. ::
         mesh3D.orientCorrectlyPolyhedrons()
         mesh3D.sortCellsInMEDFileFrmt()
         mesh3D.checkConsistencyLight()
-        renum=DataArrayInt.New(60) ; renum[:15]=range(15,30) ; renum[15:30]=range(15) ; renum[30:45]=range(45,60) ; renum[45:]=range(30,45)
+        renum=DataArrayInt.New(60)
+        renum[:15]   = list(range(15,30))
+        renum[15:30] = list(range(15))
+        renum[30:45] = list(range(45,60))
+        renum[45:]   = list(range(30,45))
         mesh3D.renumberNodes(renum,60)
 
 Convert coordinate unit from meters to centimeters
@@ -122,8 +126,8 @@ Then simply request the 2nd row. ::
 
 It is now possible to check that the 3 solutions are the same : ::
 
-        for i in xrange(3):
-          exec("print cellIdsSol%s.getValues()"%(i+1))
+        for i in list(range(3)):
+          exec("print(cellIdsSol%s.getValues())"%(i+1))
 
 Extract a sub-part of mesh3D
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,15 +143,15 @@ At this point, "mesh3DPart" lies on the same coordinates, so mesh3DPart has 60 n
 
 At this point mesh3DPart only contains 30 nodes and 6 cells. To prepare to MED file I/O we have to check if mesh3DPart is ready to be written safely into a MED file (i.e. if the cells are indeed ordered by type). ::
 
-        print mesh3DPart.checkConsecutiveCellTypesAndOrder([NORM_HEXA8,NORM_POLYHED])
+        print(mesh3DPart.checkConsecutiveCellTypesAndOrder([NORM_HEXA8,NORM_POLYHED]))
 
 Or: ::
 
-        print mesh3DPart.checkConsecutiveCellTypes()
+        print(mesh3DPart.checkConsecutiveCellTypes())
 
 You can also print the content of the mesh "mesh3Dpart": ::
 
-        print mesh3DPart.advancedRepr()
+        print(mesh3DPart.advancedRepr())
 
 We see that mesh3DPart contains 6 cells, 4 HEXA8 then 2 POLYHED. Everything's OK: the cells are grouped by geometrical type.
 
@@ -170,7 +174,7 @@ There are 2 solutions to do that.
         magn=bary2.magnitude()
         ids=magn.findIdsInRange(0.,1e-12)
         idStart=int(ids) # ids is assumed to contain only one value, if not an exception is thrown
-        cellIds2Sol2=extMesh.getMesh3DIds()[range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells())]
+        cellIds2Sol2=extMesh.getMesh3DIds()[list(range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells()))]
 
 Now, build the sub-part of mesh3D using cell IDs in cellIds2Sol1. ::
 

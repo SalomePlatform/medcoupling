@@ -6,7 +6,7 @@ Playing with unstructured mesh
 
 ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 	
 	# Build a 3D mesh from scratch mixing HEXA8 and POLYHED
 	coords=[0.,0.,0., 1.,1.,0., 1.,1.25,0., 1.,0.,0., 1.,1.5,0., 2.,0.,0., 2.,1.,0., 1.,2.,0., 0.,2.,0., 3.,1.,0.,
@@ -35,7 +35,7 @@ Playing with unstructured mesh
 	mesh3D.orientCorrectlyPolyhedrons()
 	mesh3D.sortCellsInMEDFileFrmt()
 	mesh3D.checkConsistencyLight()
-	renum = mc.DataArrayInt(60) ; renum[:15]=range(15,30) ; renum[15:30]=range(15) ; renum[30:45]=range(45,60) ; renum[45:]=range(30,45)
+	renum = mc.DataArrayInt(60) ; renum[:15]=list(range(15,30)) ; renum[15:30]=list(range(15)) ; renum[30:45]=list(range(45,60)) ; renum[45:]=list(range(30,45))
 	mesh3D.renumberNodes(renum,60)
 	# Scale coordinates from meters to centimeters
 	mesh3D.getCoords()[:] *= 100.
@@ -57,17 +57,17 @@ Playing with unstructured mesh
 	n_cells = mesh2D.getNumberOfCells()
 	cellIdsSol3 = extMesh.getMesh3DIds()[n_cells:2*n_cells]
 	# Compare the 3 methods
-	print cellIdsSol1.getValues()
-	print cellIdsSol2.getValues()
-	print cellIdsSol3.getValues()
+	print(cellIdsSol1.getValues())
+	print(cellIdsSol2.getValues())
+	print(cellIdsSol3.getValues())
 	# Extract part of the mesh
 	mesh3DPart = mesh3D[cellIdsSol2] # equivalent to mesh3DPart = mesh3D.buildPartOfMySelf(cellIdsSol2,True)
 	mesh3DPart.zipCoords()
 	# Check geometric type ordering
-	#print mesh3DPart.advancedRepr()
-	print mesh3DPart.checkConsecutiveCellTypesAndOrder([mc.NORM_HEXA8,mc.NORM_POLYHED])
-	print mesh3DPart.checkConsecutiveCellTypes()
-	#print mesh3DPart.advancedRepr()
+	#print(mesh3DPart.advancedRepr())
+	print(mesh3DPart.checkConsecutiveCellTypesAndOrder([mc.NORM_HEXA8,mc.NORM_POLYHED]))
+	print(mesh3DPart.checkConsecutiveCellTypes())
+	#print(mesh3DPart.advancedRepr())
 	# Extract cells along a line - Solution 1
 	baryXY = bary[:,[0,1]]
 	baryXY -= [250.,150.]
@@ -79,7 +79,7 @@ Playing with unstructured mesh
 	magn = bary2.magnitude()
 	ids = magn.findIdsInRange(0.,1e-12)
 	idStart = int(ids) # ids is assumed to contain only one value, if not an exception is thrown
-	ze_range = range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells())
+	ze_range = list(range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells()))
 	cellIds2Sol2 = extMesh.getMesh3DIds()[ze_range]
 	# Construct the final sub-part 
 	mesh3DSlice2 = mesh3D[cellIds2Sol1]
