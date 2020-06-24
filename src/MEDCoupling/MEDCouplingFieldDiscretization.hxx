@@ -366,6 +366,7 @@ namespace MEDCoupling
     static const double FGP_TETRA10[10];//to check
     static const double FGP_PENTA6[6];
     static const double FGP_PENTA15[15];//to check
+    static const double FGP_PENTA18[18];//to check
     static const double FGP_HEXA8[8];
     static const double FGP_HEXA20[20];//to check
     static const double FGP_HEXA27[27];
@@ -384,6 +385,7 @@ namespace MEDCoupling
     static const double REF_TETRA10[30];
     static const double REF_PENTA6[18];
     static const double REF_PENTA15[45];
+    static const double REF_PENTA18[54];
     static const double REF_HEXA8[24];
     static const double REF_HEXA20[60];
     static const double REF_HEXA27[81];
@@ -402,6 +404,7 @@ namespace MEDCoupling
     static const double LOC_TETRA10[30];//to check
     static const double LOC_PENTA6[18];
     static const double LOC_PENTA15[45];//to check
+    static const double LOC_PENTA18[54];//to check
     static const double LOC_HEXA8[24];
     static const double LOC_HEXA20[60];//to check
     static const double LOC_HEXA27[81];

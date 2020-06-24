@@ -79,6 +79,7 @@ const double MEDCouplingFieldDiscretizationGaussNE::FGP_TETRA4[4]={0.04166666666
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_TETRA10[10]={1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};//to check
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_PENTA6[6]={0.16666666666666666,0.16666666666666666,0.16666666666666666,0.16666666666666666,0.16666666666666666,0.16666666666666666};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_PENTA15[15]={1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};//to check
+const double MEDCouplingFieldDiscretizationGaussNE::FGP_PENTA18[18]={1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};//to check
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_HEXA8[8]={1.,1.,1.,1.,1.,1.,1.,1.};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_HEXA20[20]={1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_HEXA27[27]={1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};
@@ -97,6 +98,7 @@ const double MEDCouplingFieldDiscretizationGaussNE::REF_TETRA4[12]={0.,1.,0.,0.,
 const double MEDCouplingFieldDiscretizationGaussNE::REF_TETRA10[30]={0.,1.,0.,0.,0.,1.,0.,0.,0.,1.,0.,0.,0.,0.5,0.5,0.,0.,0.5,0.,0.5,0.,0.5,0.5,0.,0.5,0.,0.5,0.5,0.,0.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_PENTA6[18]={-1.,1.,0.,-1.,0.,1.,-1.,0.,0.,1.,1.,0.,1.,0.,1.,1.,0.,0.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_PENTA15[45]={-1.,1.,0.,-1.,0.,1.,-1.,0.,0.,1.,1.,0.,1.,0.,1.,1.,0.,0.,-1.,0.5,0.5,-1.,0.,0.5,-1.,0.5,0.,0.,1.,0.,0.,0.,1.,0.,0.,0.,1.,0.5,0.5,1.,0.,0.5,1.,0.5,0.};
+const double MEDCouplingFieldDiscretizationGaussNE::REF_PENTA18[54]={-1.,1.,0.,-1.,0.,1.,-1.,0.,0.,1.,1.,0.,1.,0.,1.,1.,0.,0.,-1.,0.5,0.5,-1.,0.,0.5,-1.,0.5,0.,0.,1.,0.,0.,0.,1.,0.,0.,0.,1.,0.5,0.5,1.,0.,0.5,1.,0.5,0.,0.,0.5,0.5,0.,0.,0.5,0.,0.5,0.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_HEXA8[24]={-1.,-1.,-1.,1.,-1.,-1.,1.,1.,-1.,-1.,1.,-1.,-1.,-1.,1.,1.,-1.,1.,1.,1.,1.,-1.,1.,1.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_HEXA20[60]={-1.,-1.,-1.,1.,-1.,-1.,1.,1.,-1.,-1.,1.,-1.,-1.,-1.,1.,1.,-1.,1.,1.,1.,1.,-1.,1.,1.,0.,-1.,-1.,1.,0.,-1.,0.,1.,-1.,-1.,0.,-1.,-1.,-1.,0.,1.,-1.,0.,1.,1.,0.,-1.,1.,0.,0.,-1.,1.,1.,0.,1.,0.,1.,1.,-1.,0.,1.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_HEXA27[81]={-1.,-1.,-1.,-1.,1.,-1.,1.,1.,-1.,1.,-1.,-1.,-1.,-1.,1.,-1.,1.,1.,1.,1.,1.,1.,-1.,1.,-1.,0.,-1.,0.,1.,-1.,1.,0.,-1.,0.,-1.,-1.,-1.,0.,1.,0.,1.,1.,1.,0.,1.,0.,-1.,1.,-1.,-1.,0.,-1.,1.,0.,1.,1.,0.,1.,-1.,0.,0.,0.,-1.,-1.,0.,0.,0.,1.,0.,1.,0.,0.,0.,-1.,0.,0.,0.,1.,0.,0.,0.};
@@ -115,6 +117,7 @@ const double MEDCouplingFieldDiscretizationGaussNE::LOC_TETRA4[12]={0.1381966011
 const double MEDCouplingFieldDiscretizationGaussNE::LOC_TETRA10[30]={0.,1.,0.,0.,0.,1.,0.,0.,0.,1.,0.,0.,0.,0.5,0.5,0.,0.,0.5,0.,0.5,0.,0.5,0.5,0.,0.5,0.,0.5,0.5,0.,0.};//to check
 const double MEDCouplingFieldDiscretizationGaussNE::LOC_PENTA6[18]={-0.5773502691896258,0.5,0.5,-0.5773502691896258,0.,0.5,-0.5773502691896258,0.5,0.,0.5773502691896258,0.5,0.5,0.5773502691896258,0.,0.5,0.5773502691896258,0.5,0.};
 const double MEDCouplingFieldDiscretizationGaussNE::LOC_PENTA15[45]={-1.,1.,0.,-1.,0.,1.,-1.,0.,0.,1.,1.,0.,1.,0.,1.,1.,0.,0.,-1.,0.5,0.5,-1.,0.,0.5,-1.,0.5,0.,0.,1.,0.,0.,0.,1.,0.,0.,0.,1.,0.5,0.5,1.,0.,0.5,1.,0.5,0.};//to check
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_PENTA18[54]={-1.,1.,0.,-1.,0.,1.,-1.,0.,0.,1.,1.,0.,1.,0.,1.,1.,0.,0.,-1.,0.5,0.5,-1.,0.,0.5,-1.,0.5,0.,0.,1.,0.,0.,0.,1.,0.,0.,0.,1.,0.5,0.5,1.,0.,0.5,1.,0.5,0.,0.,0.5,0.5,0.,0.,0.5,0.,0.5,0.};//to check
 const double MEDCouplingFieldDiscretizationGaussNE::LOC_HEXA8[24]={-0.5773502691896258,-0.5773502691896258,-0.5773502691896258,-0.5773502691896258,-0.5773502691896258,0.5773502691896258,-0.5773502691896258,0.5773502691896258,-0.5773502691896258,-0.5773502691896258,0.5773502691896258,0.5773502691896258,0.5773502691896258,-0.5773502691896258,-0.5773502691896258,0.5773502691896258,-0.5773502691896258,0.5773502691896258,0.5773502691896258,0.5773502691896258,-0.5773502691896258,0.5773502691896258,0.5773502691896258,0.5773502691896258};
 const double MEDCouplingFieldDiscretizationGaussNE::LOC_HEXA20[60]={-1.,-1.,-1.,1.,-1.,-1.,1.,1.,-1.,-1.,1.,-1.,-1.,-1.,1.,1.,-1.,1.,1.,1.,1.,-1.,1.,1.,0.,-1.,-1.,1.,0.,-1.,0.,1.,-1.,-1.,0.,-1.,-1.,-1.,0.,1.,-1.,0.,1.,1.,0.,-1.,1.,0.,0.,-1.,1.,1.,0.,1.,0.,1.,1.,-1.,0.,1.};//to check
 const double MEDCouplingFieldDiscretizationGaussNE::LOC_HEXA27[81]={-1.,-1.,-1.,-1.,1.,-1.,1.,1.,-1.,1.,-1.,-1.,-1.,-1.,1.,-1.,1.,1.,1.,1.,1.,1.,-1.,1.,-1.,0.,-1.,0.,1.,-1.,1.,0.,-1.,0.,-1.,-1.,-1.,0.,1.,0.,1.,1.,1.,0.,1.,0.,-1.,1.,-1.,-1.,0.,-1.,1.,0.,1.,1.,0.,1.,-1.,0.,0.,0.,-1.,-1.,0.,0.,0.,1.,0.,1.,0.,0.,0.,-1.,0.,0.,0.,1.,0.,0.,0.};
@@ -2436,6 +2439,9 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometric
     case INTERP_KERNEL::NORM_PENTA15:
       lgth=sizeof(FGP_PENTA15)/sizeof(double);
       return FGP_PENTA15;
+    case INTERP_KERNEL::NORM_PENTA18:
+      lgth=sizeof(FGP_PENTA18)/sizeof(double);
+      return FGP_PENTA18;
     case INTERP_KERNEL::NORM_HEXA8:
       lgth=sizeof(FGP_HEXA8)/sizeof(double);
       return FGP_HEXA8;
@@ -2452,7 +2458,7 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometric
       lgth=sizeof(FGP_PYRA13)/sizeof(double);
       return FGP_PYRA13;
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,9], TETRA[4,10], PENTA[6,15], HEXA[8,20,27], PYRA[5,13] supported !");
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,9], TETRA[4,10], PENTA[6,15,18], HEXA[8,20,27], PYRA[5,13] supported !");
   }
 }
 
@@ -2502,6 +2508,9 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricTy
     case INTERP_KERNEL::NORM_PENTA15:
       lgth=sizeof(REF_PENTA15)/sizeof(double);
       return REF_PENTA15;
+    case INTERP_KERNEL::NORM_PENTA18:
+      lgth=sizeof(REF_PENTA18)/sizeof(double);
+      return REF_PENTA18;
     case INTERP_KERNEL::NORM_HEXA8:
       lgth=sizeof(REF_HEXA8)/sizeof(double);
       return REF_HEXA8;
@@ -2518,7 +2527,7 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricTy
       lgth=sizeof(REF_PYRA13)/sizeof(double);
       return REF_PYRA13;
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,8,9], TETRA[4,10], PENTA[6,15], HEXA[8,20,27], PYRA[5,13] supported !");
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,8,9], TETRA[4,10], PENTA[6,15,18], HEXA[8,20,27], PYRA[5,13] supported !");
   }
 }
 
@@ -2596,6 +2605,11 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(IN
         lgth=sizeof(LOC_PENTA15)/sizeof(double);
         return LOC_PENTA15;
       }
+    case INTERP_KERNEL::NORM_PENTA18:
+      {
+        lgth=sizeof(LOC_PENTA18)/sizeof(double);
+        return LOC_PENTA18;
+      }
     case INTERP_KERNEL::NORM_HEXA8:
       {
         lgth=sizeof(LOC_HEXA8)/sizeof(double);
@@ -2622,7 +2636,7 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(IN
         return LOC_PYRA13;
       }
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,8,9], TETRA[4,10], PENTA[6,15], HEXA[8,20,27], PYRA[5,13] supported !");
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,8,9], TETRA[4,10], PENTA[6,15,18], HEXA[8,20,27], PYRA[5,13] supported !");
   }
 }
 
