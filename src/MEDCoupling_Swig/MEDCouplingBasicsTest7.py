@@ -884,6 +884,18 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(lsk.getIndexArray().isEqual(DataArrayInt([0, 3, 7, 9])))
         self.assertTrue(rsk.getValuesArray().isEqual(DataArrayInt([11, 12, 13, 14, 15, 16, 17, 18, 19])))
         self.assertTrue(rsk.getIndexArray().isEqual(DataArrayInt([0, 3, 7, 9])))
+    
+    def testPenta18GaussNE(self):
+        conn = [1,0,2,4,3,5,6,7,8,9,13,14,11,10,15,12,17,16]
+        coo = DataArrayDouble([(27.237499999999997, 9.8, 0.0), (26.974999999999994, 9.8, 0.0), (27.111517409545634, 9.532083869948877, 0.0), (27.237499999999997, 9.8, 0.5000000000000001), (26.974999999999994, 9.8, 0.5000000000000002), (27.111517409545634, 9.532083869948877, 0.5), (27.106249999999996, 9.8, 0.0), (27.17450870477282, 9.666041934974439, 0.0), (27.04325870477281, 9.666041934974439, 0.0), (27.106249999999996, 9.8, 0.5000000000000001), (27.237499999999997, 9.8, 0.25), (26.974999999999994, 9.8, 0.2500000000000001), (27.106249999999996, 9.8, 0.2500000000000001), (27.174508704772816, 9.666041934974439, 0.5), (27.043258704772814, 9.666041934974439, 0.5000000000000001), (27.111517409545634, 9.532083869948877, 0.25), (27.043258704772818, 9.666041934974436, 0.25000000000000006), (27.174508704772816, 9.666041934974436, 0.25)])
+        m = MEDCouplingUMesh("mesh",3)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_PENTA18,conn)
+        f = MEDCouplingFieldDouble(ON_GAUSS_NE)
+        f.setMesh(m)
+        f.setArray(DataArrayDouble(18*[0.]))
+        self.assertTrue(f.getLocalizationOfDiscr().isEqual(coo[conn],1e-10))
 
     pass
 
