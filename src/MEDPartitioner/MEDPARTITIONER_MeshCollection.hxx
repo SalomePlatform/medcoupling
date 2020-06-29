@@ -23,6 +23,7 @@
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 
 #include <map>
 #include <vector>
