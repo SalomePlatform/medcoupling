@@ -55,7 +55,7 @@ a new ParaViS source.
 	import CORBA
 	orb=CORBA.ORB_init()
 	ior=orb.object_to_string(ref_m)
-	print ior
+	print(ior)
 
 A simple copy/paste in the ParaViS GUI allows to create the source and to have our
 mesh rendered on screen.

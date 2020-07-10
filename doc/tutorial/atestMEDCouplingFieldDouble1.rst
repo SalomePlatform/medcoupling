@@ -6,7 +6,7 @@ Playing with fields
 
 ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 	
 	# Create an unstructured mesh from a Cartesian one
 	xarr = mc.DataArrayDouble.New(11,1)
@@ -23,7 +23,7 @@ Playing with fields
 	f2.setMesh(mesh)
 	f2.setName("MyField2")
 	f2.fillFromAnalytic(1,"(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")    # 1 means that the field should have one component
-	print "Are f and f2 equal?", f.isEqualWithoutConsideringStr(f2,1e-12,1e-12)
+	print("Are f and f2 equal?", f.isEqualWithoutConsideringStr(f2,1e-12,1e-12))
 	#
 	da1 = f.getArray()              # a DataArrayDouble, which is a direct reference (not a copy) of the field's values
 	ids1 = da1.findIdsInRange(0.,5.)
@@ -38,7 +38,7 @@ Playing with fields
 	# Check that fPart1Cpy and fPart1 are the same
 	fPart1Cpy.substractInPlaceDM(fPart1,12,1e-12)
 	fPart1Cpy.getArray().abs()
-	print "Are the fields equal?", (fPart1Cpy.getArray().accumulate()[0]<1e-12)
+	print("Are the fields equal?", (fPart1Cpy.getArray().accumulate()[0]<1e-12))
 	# Aggregate fields
 	fPart12 = mc.MEDCouplingFieldDouble.MergeFields([fPart1,fPart2])
 	fPart12.writeVTK("ExoField_fPart12.vtu")
@@ -48,14 +48,14 @@ Playing with fields
 	arr2 = f.getValueOnMulti(bary)
 	delta = arr1-arr2
 	delta.abs()
-	print "Is field evaluation matching?", (delta.accumulate()[0]<1e-12)
+	print("Is field evaluation matching?", (delta.accumulate()[0]<1e-12))
 	# ExtensiveMaximum computations
 	integ1 = fPart12.integral(0,True)
 	integ1_bis = fPart12.getArray().accumulate()[0]
-	print "First integral matching ?", ( abs(integ1 - integ1_bis) < 1e-8 )
+	print("First integral matching ?", ( abs(integ1 - integ1_bis) < 1e-8 ))
 	fPart12.getMesh().scale([0.,0.,0.], 1.2)	
 	integ2 = fPart12.integral(0,True)
-	print "Second integral matching ?", ( abs(integ2-integ1_bis*1.2*1.2*1.2) < 1e-8 )
+	print("Second integral matching ?", ( abs(integ2-integ1_bis*1.2*1.2*1.2) < 1e-8 ))
 	# Explosion of field
 	fVec = mesh.fillFromAnalytic(mc.ON_CELLS,3,"(x-5.)*IVec+(y-5.)*JVec+(z-5.)*KVec")
 	fVecPart1 = fVec.buildSubPart(ids1)

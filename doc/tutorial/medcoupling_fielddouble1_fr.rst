@@ -41,9 +41,9 @@ Cet exercice met l'accent sur la relation entre le maillage et les valeurs d'un 
 Début de l'implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Importer le module Python ``MEDCoupling``. ::
+Importer le module Python ``medcoupling``. ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 
 Créer un ``MEDCouplingUMesh`` à partir d'un maillage 3D cartésien. Chaque direction contiendra 10 cells 
 et 11 nodes. Le ``MEDCouplingUMesh`` résultant contiendra ainsi 1000 cells. ::
@@ -87,7 +87,7 @@ Pour cela, deux possiblités :
 Comparer les deux champs : comparer ``f`` et ``f2`` avec une précision de 1e-12 sur les coordonnées et
 de 1e-13 sur les valeurs. ::
 
-	print "Are f and f2 equal?", f.isEqualWithoutConsideringStr(f2,1e-12,1e-13)
+	print("Are f and f2 equal?", f.isEqualWithoutConsideringStr(f2,1e-12,1e-13))
 
 
 .. note:: Le ``WithoutConsideringStr`` dans le nom de la méthode précédente indique que les noms des champs ne seront 
@@ -137,7 +137,7 @@ Vérifier que ``fPart1Cpy`` et ``fPart1`` sont les mêmes à une permutation pr�
 
 	fPart1Cpy.substractInPlaceDM(fPart1,12,1e-12)
 	fPart1Cpy.getArray().abs()
-	print "Equal field ? %s" % (fPart1Cpy.getArray().accumulate()[0]<1e-12)
+	print("Equal field ? %s" % (fPart1Cpy.getArray().accumulate()[0]<1e-12))
 
 .. note:: La renumérotation effectuée ici représente en fait d'un cas très particulier
 	d'interpolation. Effectivement l'hypothèse est faite que les supports
@@ -175,7 +175,7 @@ Vérifier ensuite que ``arr1`` et ``arr2`` sont bien égaux: ::
 	arr2 = f.getValueOnMulti(bary)
 	delta = arr1-arr2
 	delta.abs()
-	print "Is field evaluation matching?", (delta.accumulate()[0]<1e-12)
+	print("Is field evaluation matching?", (delta.accumulate()[0]<1e-12))
 
 .. note:: Dans ce contexte, et pour un champ aux cellules (P0) par exemple, "évaluer" en un point signifie retourner la valeur 
 	de la cellule contenant le point donné.
@@ -193,14 +193,14 @@ On rappelle que, vu le maillage simplifié en jeu, les cellules ont toutes un vo
 
 	integ1 = fPart12.integral(0,True)
 	integ1_bis = fPart12.getArray().accumulate()[0]
-	print "First integral matching ?", ( abs(integ1 - integ1_bis) < 1e-8 )
+	print("First integral matching ?", ( abs(integ1 - integ1_bis) < 1e-8 ))
 
 Ensuite appliquer une homotétie de facteur 1.2 centrée en [0.,0.,0.] sur le support de ``fPart12`` (c'est-à-dire son maillage).
 Quelle est alors la nouvelle valeur de l'intégrale ? ::
 
 	fPart12.getMesh().scale([0.,0.,0.], 1.2)
 	integ2 = fPart12.integral(0,True)
-	print "Second integral matching ?", ( abs(integ2-integ1_bis*1.2*1.2*1.2) < 1e-8 )
+	print("Second integral matching ?", ( abs(integ2-integ1_bis*1.2*1.2*1.2) < 1e-8 ))
 
 Exploser un champ - Vecteurs de déplacement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

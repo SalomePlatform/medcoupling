@@ -39,9 +39,9 @@ In what follows, it is required that any two cells touching each other share the
 As we are in nodal connectivity mode it means that common nodes have to merged. This is not the case here.
 Merge the nodes closer than 1e-10 and assess the impact on the node count of "fixm". ::
 
-	print "nb of nodes in file : %i"%(fixm.getNumberOfNodes())
+	print("nb of nodes in file : %i"%(fixm.getNumberOfNodes()))
 	fixm.mergeNodes(1e-10)
-	print "nb of non duplicated nodes : %i"%(fixm.getNumberOfNodes())
+	print("nb of non duplicated nodes : %i"%(fixm.getNumberOfNodes()))
 
 Same thing for "Mobile.med" (called "mobm"). Repair it by deleting duplicated nodes. ::
 
@@ -94,7 +94,7 @@ extract the first zone.
 Name this new instance "zone1Mobm", remove all orphan nodes and display. ::
 
 	zonesInMobm=mobm.partitionBySpreadZone()
-	print "number of zones in mobm : %i"%(len(zonesInMobm))
+	print("number of zones in mobm : %i"%(len(zonesInMobm)))
 	zone1Mobm=mobm[zonesInMobm[0]]
 	zone1Mobm.zipCoords()
 	displayVTK(zone1Mobm,"zone1Mobm.vtu")
@@ -149,36 +149,36 @@ Area is a algebraic value. The check can be performed only if all cells are corr
 all oriented consistently.
 To check this let's inspect the areas of the 38 cells of partFixm (variable name "areaPartFixm"). ::
 
-	areaPartFixm=partFixm.getMeasureField(ON_CELLS).getArray()
-	print areaPartFixm.getValues()
+	areaPartFixm=partFixm.getMeasureField(isAbs=False).getArray()
+	print(areaPartFixm.getValues())
 
 All values are negative: this MED file doesn't respect the MED file convention.
 "partFixm" being mis-oriented and the method MEDCouplingUMesh.Intersect2DMeshes() conserving the orientation, "partFixMob" is also mis-oriented.
 To cut long story short, we perform comparison on absolute arrays. 
-Check then that the first test check#0 is successful
+Check then that the first test check#0 is successful ::
 
-	areaPartFixm=partFixm.getMeasureField(ON_CELLS).getArray()
+	areaPartFixm=partFixm.getMeasureField(isAbs=False).getArray()
 	areaPartFixm.abs()
-	areaPartFixMob=partFixMob.getMeasureField(ON_CELLS).getArray()
+	areaPartFixMob=partFixMob.getMeasureField(isAbs=False).getArray()
 	areaPartFixMob.abs()
 	val1=areaPartFixm.accumulate()[0]
 	val2=areaPartFixMob.accumulate()[0]
-	print "Check #0 %lf == %lf a 1e-8 ? %s"%(val1,val2,str(abs(val1-val2)<1e-8))
+	print("Check #0 %lf == %lf a 1e-8 ? %s"%(val1,val2,str(abs(val1-val2)<1e-8)))
 
 Now check#1. Same spirit as in check#0. ::
 
-	areaZone1Mobm=zone1Mobm.getMeasureField(ON_CELLS).getArray()
+	areaZone1Mobm=zone1Mobm.getMeasureField(isAbs=False).getArray()
 	areaZone1Mobm.abs()
 	val3=areaZone1Mobm.accumulate()[0]
 	ids4=iMob.findIdsNotEqual(-1)
 	areaPartFixMob2=areaPartFixMob[ids4]
 	val4=areaPartFixMob2.accumulate()[0]
-	print "Check #1 %lf == %lf a 1e-8 ? %s"%(val3,val4,str(abs(val3-val4)<1e-8))
+	print("Check #1 %lf == %lf a 1e-8 ? %s"%(val3,val4,str(abs(val3-val4)<1e-8)))
 
 Finally check#2. ::
 
 	isCheck2OK=True
-	for icell in xrange(partFixm.getNumberOfCells()):
+	for icell in list(range(partFixm.getNumberOfCells())):
 	    ids5=iPart.findIdsEqual(icell)
 	    areaOfCells=areaPartFixMob[ids5]
 	    areaOfCells.abs()
@@ -186,7 +186,7 @@ Finally check#2. ::
 	        isCheck2OK=False
 	        pass
 	    pass
-	print "Check #2? %s"%(str(isCheck2OK))
+	print("Check #2? %s"%(str(isCheck2OK)))
 
 Use intersection information to create fields
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

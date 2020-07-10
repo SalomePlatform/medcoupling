@@ -12,7 +12,7 @@ Agitateur - Swirler
 	# Get available time steps
 	data = ml.MEDFileData("agitateur.med")
 	ts = data.getFields()[0].getTimeSteps()
-	print ts
+	print(ts)
 	# Get position of the swirler
 	fMts = data.getFields()["DISTANCE_INTERFACE_ELEM_BODY_ELEM_DOM"]
 	f1ts = fMts[(2,-1)]
@@ -56,7 +56,7 @@ Agitateur - Swirler
 	torquePerCellOnSkin = ml.DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
 
 	zeTorque = torquePerCellOnSkin.accumulate()
-	print "couple = %r N.m" % zeTorque[2]
+	print("couple = %r N.m" % zeTorque[2])
 	# Power computation
 	speedMts = data.getFields()["VITESSE_ELEM_DOM"]
 	speed1ts = speedMts[(2,-1)]
@@ -64,7 +64,7 @@ Agitateur - Swirler
 	speedOnSkin = speedMc.getArray()[tupleIdsInField]
 	powerSkin = ml.DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
 	power = powerSkin.accumulate()[0]
-	print "power = %r W"%(power)
+	print("power = %r W"%(power))
 	# Eigen vector computation
 	x2 = posSkin[:,0]*posSkin[:,0]
 	x2 = x2.accumulate()[0]
@@ -76,7 +76,7 @@ Agitateur - Swirler
 	inertiaSkinValues, inertiaSkinVects = np.linalg.eig(inertiaSkin)
 	pos = max(enumerate(inertiaSkinValues), key=lambda x: x[1])[0]
 	vect0 = inertiaSkinVects[pos].tolist()[0]
-	print vect0
+	print(vect0)
 
 	def computeAngle(locAgitateur1ts):
 		fMc = locAgitateur1ts.getFieldAtLevel(ml.ON_CELLS,0)
@@ -110,7 +110,7 @@ Agitateur - Swirler
 
 	from math import acos, sqrt
 	angle2 = len(ts)*[0.]
-	for pos in xrange(2,len(vects)):
+	for pos in list(range(2,len(vects))):
 	    norm1 = sqrt(vects[pos-1][0]*vects[pos-1][0]+vects[pos-1][1]*vects[pos-1][1])
 	    norm2 = sqrt(vects[pos][0]*vects[pos][0]+vects[pos][1]*vects[pos][1])
 	    crs = vects[pos-1][0]*vects[pos][0]+vects[pos-1][1]*vects[pos][1]
@@ -119,6 +119,6 @@ Agitateur - Swirler
 	    pass
 
 	omega=sum(angle2)/(ts[-1][2]-ts[0][2])
-	print sum(angle2)
+	print(sum(angle2))
 	
-	print "At timestep (%d,%d) (physical time=%r s) the torque is: %r N.m, power/omega=%r N.m " % (ts[2][0],ts[2][1],ts[2][2],zeTorque[2],power/omega)
+	print("At timestep (%d,%d) (physical time=%r s) the torque is: %r N.m, power/omega=%r N.m " % (ts[2][0],ts[2][1],ts[2][2],zeTorque[2],power/omega))

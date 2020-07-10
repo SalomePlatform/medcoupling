@@ -38,7 +38,7 @@ medfile1="mesh1.med"
 medfile2="mesh2.med"
 
 m4=MEDCouplingCMesh("box")
-coo=DataArrayDouble(range(7))
+coo=DataArrayDouble(list(range(7)))
 m4.setCoords(coo[:5],coo[:5],coo)
 m4=m4.buildUnstructured()
 valsArr1=m4.computeCellCenterOfMass()

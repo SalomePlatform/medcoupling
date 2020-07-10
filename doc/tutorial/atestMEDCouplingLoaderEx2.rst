@@ -17,9 +17,9 @@ Intersection géométrique de maillages
 	# Read and clean Fixe.med
 	fixe = ml.MEDFileMesh.New("Fixe.med")
 	fixm = fixe.getMeshAtLevel(0)
-	print "Nb of nodes in the file : %i " % (fixm.getNumberOfNodes())
+	print("Nb of nodes in the file : %i " % (fixm.getNumberOfNodes()))
 	fixm.mergeNodes(1e-10)
-	print "Nb of non duplicated nodes : %i" % (fixm.getNumberOfNodes())
+	print("Nb of non duplicated nodes : %i" % (fixm.getNumberOfNodes()))
 	# Read and clean Mobile.med
 	mobile = ml.MEDFileMesh.New("Mobile.med")
 	mobm = mobile.getMeshAtLevel(0)
@@ -33,7 +33,7 @@ Intersection géométrique de maillages
 	mobm2.writeVTK("mobm2.vtu")
 	# mobm2 is in several pieces, take the first one
 	zonesInMobm = mobm.partitionBySpreadZone()
-	print "Nb of zones in mobm : %i" % (len(zonesInMobm))
+	print("Nb of zones in mobm : %i" % (len(zonesInMobm)))
 	zone1Mobm = mobm[zonesInMobm[0]]
 	zone1Mobm.zipCoords()
 	displayVTK(zone1Mobm, "zone1Mobm.vtu")
@@ -51,24 +51,24 @@ Intersection géométrique de maillages
 	displayVTK(partFixmWithoutZone1Mobm,"partFixmWithoutZone1Mobm.vtu")
 	# Check that intersection worked properly 
 	# Check #0
-	areaPartFixm = partFixm.getMeasureField(ml.ON_CELLS).getArray()
+	areaPartFixm = partFixm.getMeasureField(False).getArray() # if set to True returns the absolut field value
 	areaPartFixm.abs()
-	areaPartFixMob = partFixMob.getMeasureField(ml.ON_CELLS).getArray()
+	areaPartFixMob = partFixMob.getMeasureField(False).getArray()
 	areaPartFixMob.abs()
 	val1=areaPartFixm.accumulate()[0]
 	val2=areaPartFixMob.accumulate()[0]
-	print "Check #0 %lf == %lf with precision 1e-8? %s" % (val1,val2,str(abs(val1-val2)<1e-8))
+	print("Check #0 %lf == %lf with precision 1e-8? %s" % (val1,val2,str(abs(val1-val2)<1e-8)))
 	# Check #1
-	areaZone1Mobm = zone1Mobm.getMeasureField(ml.ON_CELLS).getArray()
+	areaZone1Mobm = zone1Mobm.getMeasureField(False).getArray()
 	areaZone1Mobm.abs()
 	val3 = areaZone1Mobm.accumulate()[0]
 	ids4 = iMob.findIdsNotEqual(-1)
 	areaPartFixMob2 = areaPartFixMob[ids4]
 	val4 = areaPartFixMob2.accumulate()[0]
-	print "Check #1 %lf == %lf with precision 1e-8 ? %s" % (val3,val4,str(abs(val3-val4)<1e-8))
+	print("Check #1 %lf == %lf with precision 1e-8 ? %s" % (val3,val4,str(abs(val3-val4)<1e-8)))
 	# Check #2
 	isCheck2OK = True
-	for icell in xrange(partFixm.getNumberOfCells()):
+	for icell in list(range(partFixm.getNumberOfCells())):
 	    ids5 = iPart.findIdsEqual(icell)
 	    areaOfCells = areaPartFixMob[ids5]
 	    areaOfCells.abs()
@@ -76,7 +76,7 @@ Intersection géométrique de maillages
 	        isCheck2OK = False
 	        pass
 	    pass
-	print "Check #2? %s" % (str(isCheck2OK))
+	print("Check #2? %s" % (str(isCheck2OK)))
 	# Indicator field creation
 	f = ml.MEDCouplingFieldDouble(ml.ON_CELLS,ml.ONE_TIME)
 	m = partFixMob.deepCopy()

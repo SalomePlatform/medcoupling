@@ -42,6 +42,6 @@ Read med File
 	sinus = sin(d)
 
 	if abs(res[0]-sinus)<1.e-5:
-		print "OK"
+		print("OK")
 	else:
-		print "KO"
+		print("KO")

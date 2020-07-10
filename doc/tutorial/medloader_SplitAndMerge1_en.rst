@@ -65,20 +65,20 @@ Starting with the partition above ("proc0" and "proc1") create two MED files cal
      NodeField1=NodeField[proc1] ; CellField1=CellField[proc1] ; CellField1.setMesh(NodeField1.getMesh())
      
      proc0_fname="proc0.med"
-     MEDLoader.WriteField(proc0_fname,NodeField0,True)
-     MEDLoader.WriteFieldUsingAlreadyWrittenMesh(proc0_fname,CellField0)
+     WriteField(proc0_fname,NodeField0,True)
+     WriteFieldUsingAlreadyWrittenMesh(proc0_fname,CellField0)
      
      proc1_fname="proc1.med"
-     MEDLoader.WriteField(proc1_fname,NodeField1,True)
-     MEDLoader.WriteFieldUsingAlreadyWrittenMesh(proc1_fname,CellField1)
+     WriteField(proc1_fname,NodeField1,True)
+     WriteFieldUsingAlreadyWrittenMesh(proc1_fname,CellField1)
 
 Reading and merging 2 MED files - Easy (but non optimal) version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In the two files "proc0.med" and "proc1.med" read the respective "CellField" with the basic API. Aggregate the two and store the result in "CellField_read". ::
 
-     CellField0_read=MEDLoader.ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
-     CellField1_read=MEDLoader.ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
+     CellField0_read=ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
+     CellField1_read=ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
      CellField_read=MEDCouplingFieldDouble.MergeFields([CellField0_read,CellField1_read])
 
 .. note:: It might seem to the reader that the cell type information is repeated uselessly, but don't forget that the MED file norm doesn't forbid a field to be defined simultaneously on nodes and on Gauss points for example ...
@@ -89,12 +89,12 @@ To this end, create a deep copy of "CellField" into "CellFieldCpy" and invoke su
      CellFieldCpy=CellField.deepCopy()
      CellFieldCpy.substractInPlaceDM(CellField_read,10,1e-12)
      CellFieldCpy.getArray().abs()
-     print CellFieldCpy.getArray().isUniform(0.,1e-12)
+     print(CellFieldCpy.getArray().isUniform(0.,1e-12))
 
 Let's do the same on "NodeField". The main difference here is that redundant information is created at the boundary. ::
 
-     NodeField0_read=MEDLoader.ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
-     NodeField1_read=MEDLoader.ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
+     NodeField0_read=ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
+     NodeField1_read=ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
      NodeField_read=MEDCouplingFieldDouble.MergeFields([NodeField0_read,NodeField1_read])
 
 .. note:: The mesh is read a second time here, which can be damaging in terms of performance.
@@ -111,7 +111,7 @@ Make a deep copy called  "NodeFieldCpy" from "NodeField" and call  MEDCouplingUM
 Compare "NodeFieldCpy" and "NodeField_read" still using MEDCouplingFieldDouble.substractInPlaceDM(). ::
 
      NodeFieldCpy.substractInPlaceDM(NodeField_read,10,1e-12)
-     print NodeFieldCpy.getArray().isUniform(0.,1e-12)
+     print(NodeFieldCpy.getArray().isUniform(0.,1e-12))
 
 
 Read/write of two separated MED files - More complex but more efficient version

@@ -29,9 +29,9 @@ Concepts at hand:
 Starting the implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To start with, import the whole python module MEDCoupling and the standard math module. ::
+To start with, import the whole python module medcoupling and the standard math module. ::
 
-	from MEDCoupling import *
+	from medcoupling import *
 	import math
 
 This makes the following available:
@@ -69,7 +69,7 @@ Assign the value 3.0 (radius) to the first component of all tuples. ::
 
 Initialize the 2nd component of each tuple i with the index value i. ::
 
-	d[:,1]=range(6)
+	d[:,1]=list(range(6))
 
 Multiply the 2nd component by pi/3. ::
 
@@ -89,16 +89,16 @@ Assign the correct component information of d.::
 
 Display the values only in form of a Python list. ::
 
-	print d.getValues()
+	print(d.getValues())
 
 Display d. ::
 
-	print d
+	print(d)
 
 Verify that for each tuple of d its norm (returned by the magnitude() method) is indeed 3 (with an error less than 1.e-12):
 ::
 
-	print d.magnitude().isUniform(3.,1e-12)
+	print(d.magnitude().isUniform(3.,1e-12))
 
 
 Duplication and aggregation of DataArrayDouble 
@@ -122,7 +122,7 @@ Create the len(translationToPerform) copies of d and apply the corresponding tra
 
 An alternative (and more compact) way to do it : ::
 
-        ds=[d.deepCopy() for i in xrange(len(translationToPerform))]
+        ds=[d.deepCopy() for i in list(range(len(translationToPerform)))]
         for (elt,t) in zip(ds,translationToPerform) : elt+=t
 
 Aggregating DataArrayDouble
@@ -154,11 +154,11 @@ The number of common tuples is len(cI)-1, i.e. 12 in our case.
 Get the list of tuple ids forming the first group of common nodes and store the result in tmp. ::
 
 	tmp=c[cI[0]:cI[0+1]]
-	print tmp
+	print(tmp)
 
 Check the result: all the tuples stored in tmp point to identical coordinates in d2.::
 
-	print d2[tmp]
+	print(d2[tmp])
 
 .. note:: we see the tuple (3.,0.) repeated 3 times (with an error margin below 1e-12).
 
@@ -194,7 +194,7 @@ The static method DataArrayInt.ConvertIndexArrayToO2N() performs the conversion 
 We get for free the number of elements in Y, i.e. the variable newNbOfTuples. ::
 
 	o2n,newNbOfTuples=DataArrayInt.ConvertIndexArrayToO2N(oldNbOfTuples,c,cI)
-	print "Have I got the right result? %s"%(str(myNewNbOfTuples==newNbOfTuples))
+	print("Have I got the right result? %s"%(str(myNewNbOfTuples==newNbOfTuples)))
 
 Using o2n and newNbOfTuples invoke DataArrayDouble.renumberAndReduce() on d2. ::
 
@@ -214,7 +214,7 @@ Try it on the variable o2n. ::
 Using n2o we can deduce d3_bis from d2. ::
 
 	d3_bis=d2[n2o]
-	print "Have I got the right result (2)? %s"%(str(d3.isEqual(d3_bis,1e-12)))
+	print("Have I got the right result (2)? %s"%(str(d3.isEqual(d3_bis,1e-12))))
 
 Translate all tuples at once
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -235,11 +235,11 @@ Now allocate the number of cells with an upper bound of the actual number of cel
 
 	m.allocateCells(7)
 
-Finally thanks to o2n we know the connectivity of all 7 hexagons using the coordinates stored in d3.
+Finally thanks to o2n we know the connectivity of all 7 hexagons using the coordinates stored in d3. ::
 
-	for i in xrange(7):
-	  m.insertNextCell(NORM_POLYGON,o2n[6*i:6*(i+1)].getValues())
-	  pass
+        for i in list(range(7)):
+          m.insertNextCell(NORM_POLYGON,o2n[6*i:6*(i+1)].getValues())
+          pass
 
 Check that m is coherent. ::
 

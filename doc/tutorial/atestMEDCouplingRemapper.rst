@@ -6,7 +6,7 @@ Interpoler avec MEDCouplingRemapper
 
 ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 	from MEDCouplingRemapper import MEDCouplingRemapper 
 	# Target mesh
 	arr = mc.DataArrayDouble(11)
@@ -30,14 +30,14 @@ Interpoler avec MEDCouplingRemapper
 	remap.prepare(srcMesh,trgMesh,"P0P0")
 	# Check matrix
 	myMatrix = remap.getCrudeMatrix()
-	print myMatrix
+	print(myMatrix)
 	sumByRows = mc.DataArrayDouble(len(myMatrix))
 	for i,wIt in enumerate(sumByRows):
 	  su = 0.
 	  for it in myMatrix[i]:
 	    su += myMatrix[i][it]
 	  wIt[0] = su
-	print "Is interpolation well prepared?", sumByRows.isUniform(1.,1e-12)
+	print("Is interpolation well prepared?", sumByRows.isUniform(1.,1e-12))
 	# Source field construction
 	srcField = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
 	srcField.setMesh(srcMesh)
@@ -50,19 +50,18 @@ Interpoler avec MEDCouplingRemapper
 	# IntensiveMaximum
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldCV.integral(True)[0]
-	print "IntensiveMaximum -- integrals: %lf == %lf" % (integSource, integTarget)
+	print("IntensiveMaximum -- integrals: %lf == %lf" % (integSource, integTarget))
 	
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldCV.getArray().accumulate()[0]
-	print "IntensiveMaximum -- sums: %lf != %lf" % (accSource, accTarget)
+	print("IntensiveMaximum -- sums: %lf != %lf" % (accSource, accTarget))
 	# ExtensiveConservation
 	srcField.setNature(mc.ExtensiveConservation)
 	trgFieldI = remap.transferField(srcField,1e300)
 	#
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldI.integral(True)[0]
-	print "ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget)
-	
+	print("ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget))	
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldI.getArray().accumulate()[0]
-	print "ExtensiveConservation -- sums: %lf == %lf" % (accSource, accTarget)
+	print("ExtensiveConservation -- sums: %lf == %lf" % (accSource, accTarget))

@@ -10,7 +10,7 @@ simulation codes (meshes and fields mainly).
 The most common usage is to write dedicated code (C++ or Python) linking to the library. However a graphical user interface is also available; for this please refer to the MED module documentation.
 
 - If you don't know where to start, reading the \ref start "getting started" section and then
-taking a look at the <a class="el" href="tutorial/index.html">tutorial</a> is probably a good way to go.
+taking a look at the <a class="el" href="../tutorial/index.html">tutorial</a> is probably a good way to go.
 - If you are looking for a very specific point (how can I build a mesh from scratch,
  how do I write my data to a file, etc ...), taking a look at the \ref faq "FAQ" or at the numerous
  \ref examples "code examples" might help.
@@ -29,7 +29,7 @@ This documentation is organized as follows:
     - \ref library
     - \ref functionalities
     - \ref python-api
-- <a class="el" href="tutorial/index.html">Tutorial - MEDCoupling/MEDLoader in Python</a>
+- <a class="el" href="../tutorial/index.html">Tutorial - MEDCoupling/MEDLoader in Python</a>
 - \ref reference
     - \ref medcoupling
     - \ref medloader

@@ -263,7 +263,7 @@ The field will be a sin function dependent of distance of the barycenter of each
 	myCoords=DataArrayDouble.New()
 	sampleTab=[]
 	bar = mesh.computeCellCenterOfMass()
-	print bar.getNbOfElems()
+	print(bar.getNbOfElems())
 	for i in range(nbOfCells):
 		x = bar.getIJ(...)
 		y = bar.getIJ(...)
@@ -305,7 +305,7 @@ The connectivity must respect following figure:
 	vec=[0.,0.,1.]
 	nodes = mesh.findNodesOnPlane(pt,vec,1e-12)
 	mesh2D = mesh.buildFacePartOfMySelfNode(nodes,True)
-	#print mesh2D
+	#print(mesh2D)
 	mesh2D.setName("3Dcube")
 	mesh2D.checkConsistencyLight()
 	

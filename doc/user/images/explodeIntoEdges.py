@@ -65,12 +65,9 @@ ipar.append("VTKViewer_1", """<?xml version="1.0"?>
 ipar.append("AP_MODULES_LIST", "Mesh")
 
 import sys
-if sys.platform == "win32":
-    from MEDCouplingCompat import *
-else:
-    from MEDCoupling import *
+from medcoupling import *
 
-coordsArr=DataArrayDouble(range(5))
+coordsArr=DataArrayDouble(list(range(5)))
 mesh1=MEDCouplingCMesh("mesh")
 mesh1.setCoords(coordsArr,coordsArr)
 mesh1 = mesh1.buildUnstructured()

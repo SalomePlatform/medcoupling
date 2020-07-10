@@ -19,7 +19,7 @@
 	nbOfCells = (N-1)*(N-1)*(N-1)
 	nbOfCells2D = (N-1)*(N-1)
 
-	print "1 ********************"
+	print("1 ********************")
 	# Initialisation of coordinates
 	coordinates = []
 	for k in range(N):
@@ -29,7 +29,7 @@
 				coordinates.append(float(j))
 				coordinates.append(float(k))
 				
-	print "2 ********************"
+	print("2 ********************")
 	# Creation of meshing : need following initialisations
 	# => Definition of the mesh dimension
 	# => Definition of number of cells
@@ -39,7 +39,7 @@
 	mesh.allocateCells(nbOfCells+nbOfCells2D)
 	mesh.setName("3Dcube")
 
-	print "3 ********************"
+	print("3 ********************")
 	# One remark : only one dimension cells by meshing
 	# Construction of volumic meshing
 	# => Definition of connectivity
@@ -57,33 +57,33 @@
 				connectivity.append(inode-N*N-N)
 				connectivity.append(inode-N*N-N+1)
 				connectivity.append(inode-N*N+1)
-	print len(connectivity)
-	print 8*(nbOfCells)
+	print(len(connectivity))
+	print(8*(nbOfCells))
 
-	print "4 ********************"
+	print("4 ********************")
 	# Adding cells in meshing
 	for i in range(nbOfCells):
 		mesh.insertNextCell(NORM_HEXA8,8,connectivity[8*i:8*(i+1)])
 		pass
 
-	print "5 ********************"
+	print("5 ********************")
 	# Settings of coordinates and verify if it's OK
 	myCoords = DataArrayDouble.New()
 	myCoords.setValues(coordinates,nbOfNodes,3)
 	mesh.setCoords(myCoords)
 	mesh.checkConsistencyLight()
 
-	print "6 ********************"
+	print("6 ********************")
 	# Extraction of surfacic meshing
 	pt=[0.,0.,0.]
 	vec=[0.,0.,1.]
 	nodes = mesh.findNodesOnPlane(pt,vec,1e-12)
 	mesh2D = mesh.buildFacePartOfMySelfNode(nodes,True)
-	#print mesh2D
+	#print(mesh2D)
 	mesh2D.setName("3Dcube")
 	mesh2D.checkConsistencyLight()
 
-	print "7 ********************"
+	print("7 ********************")
 	# Creation of field : with following definition
 	# => Definition of the mesh support
 	# => Definition of field name
@@ -97,7 +97,7 @@
 	myCoords=DataArrayDouble.New()
 	sampleTab=[]
 	bar = mesh.computeCellCenterOfMass()
-	print bar.getNbOfElems()
+	print(bar.getNbOfElems())
 	for i in range(nbOfCells):
 		x = bar.getIJ(i+1,1)
 		y = bar.getIJ(i+1,2)
@@ -239,8 +239,8 @@
 	pt=[1]
 	m2 = meshU.buildPartOfMySelf(pt,True);
 	ret,tabIdCells = meshU.areCellsIncludedIn(m2,0)
-	print ret
-	print tabIdCells
+	print(ret)
+	print(tabIdCells)
 	# Definition of the name group
 	tabIdCells.setName("meshGroup")
 
@@ -249,13 +249,13 @@
 	fmeshU.setName("Grid")
 	fmeshU.setDescription("IHopeToConvinceLastMEDMEMUsers")
 	myCoords = meshU.getCoords()
-	print myCoords
+	print(myCoords)
 	fmeshU.setCoords(myCoords)
-	print "**************************"
+	print("**************************")
 	fmeshU.setMeshAtLevel(0,meshU)
-	print "**************************"
+	print("**************************")
 	fmeshU.setGroupsAtLevel(0,[tabIdCells],False)
-	print "**************************"
+	print("**************************")
 
 	medFileName = "MEDCoupling_Gridcube3D.med"
 	fmeshU.write(medFileName,2)

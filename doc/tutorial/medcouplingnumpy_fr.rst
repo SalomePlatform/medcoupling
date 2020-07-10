@@ -18,9 +18,9 @@ Nous allons ici faire quelques petites manipulations pour voir ce lien entre MED
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pour commencer l'exercice importer le module Python ``MEDCoupling``: ::
+Pour commencer l'exercice importer le module Python ``medcoupling``: ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 
 NumPy est un prérequis optionnel, vérifions que nous en bénéficions bien : ::
 
@@ -45,15 +45,15 @@ Créons maintenant un tableau NumPy reposant sur les mêmes données que ``arr``
 
 Et afficher ``nparr``. ::
 
-	print nparr.__repr__()
-	print nparr.tolist()
+	print(nparr.__repr__())
+	print(nparr.tolist())
 
 Mais est ce qu'on ne nous a pas mystifié ? ``arr`` et ``nparr`` partagent-ils le même bloc mémoire ?
 Pour le vérifier assignons 7.0 un tuple sur 2 avec ``nparr`` et vérifions que ``arr`` et ``nparr`` sont simultanément modifiés. ::
 
 	nparr[::2] = 7.
-	print nparr.__repr__()
-	print arr.__repr__()
+	print(nparr.__repr__())
+	print(arr.__repr__())
 
 C'est rigolo ! Mais si je détruis ``arr`` (le premier à avoir alloué la mémoire) est-ce que ``nparr`` est tué aussi ? 
 Ne risque-t-on pas le SIGSEGV ?
@@ -61,20 +61,20 @@ Testons : ::
 
 	del arr
 	import gc; gc.collect()     # Make sure the object has been deleted
-	print nparr.__repr__()
+	print(nparr.__repr__())
 
 OK super. Mais inversement puis je faire une instance de ``DataArrayDouble`` avec ``nparr`` ? Oui, en utilisant le constructeur
 qui prend un ``nparray`` en entrée.
 Et afficher le contenu.::
 
 	arr2 = mc.DataArrayDouble(nparr)
-	print arr2.__repr__()
+	print(arr2.__repr__())
 
 Modifions ``nparr`` en assignant 5.0 pour tous les tuples et vérifier que les 2 représentations ont bien été modifiées simultanément.::
 
 	nparr[:] = 5.
-	print nparr.__repr__()
-	print arr2.__repr__()
+	print(nparr.__repr__())
+	print(arr2.__repr__())
 
 Nous en profitons pour montrer un petit service pratique avec NumPy, à savoir, l'écriture optimisée. 
 Ecrivons le contenu binaire de ``nparr`` dans un fichier. ::
@@ -94,7 +94,7 @@ Pour rigoler, assignons 3.14 à ``a``, flushons et relisons. ::
 	a[:] = 3.14
 	f.flush()
 	b = np.memmap(f2,dtype='float64',mode='r',offset=0,shape=(12,))
-	print b.__repr__()
+	print(b.__repr__())
 
 On voit donc que le passage de MEDCoupling à NumPy se fait directement et de manière optimisée. Donc ca peut valoir le coup !
 Tout ce qui vient d'être montré marche aussi avec des ``DataArrayInt``.

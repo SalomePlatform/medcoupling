@@ -34,7 +34,7 @@ Avec l'API avancée lire tout le fichier "agitateur.med" et afficher tous les pa
 
 	data = ml.MEDFileData("agitateur.med")
 	ts = data.getFields()[0].getTimeSteps()
-	print ts
+	print(ts)
 
 Récupérer le maillage de l'agitateur (en vert) au pas de temps (2,-1) (cf. ts).
 La position de l'agitateur est définie par un champ sur le maillage global du système et n'a pas de maillage propre.
@@ -121,7 +121,7 @@ vectoriel par cellule de ``posSkin`` avec ``forceVectSkin`` (méthode ``DataArra
 Sommer ``torqueOnSkin`` en utilisant la méthode ``DataArrayDouble.accumulate()``. ::
 
 	zeTorque = torquePerCellOnSkin.accumulate()
-	print "couple = %r N.m" % zeTorque[2]
+	print("couple = %r N.m" % zeTorque[2])
 
 Vérifions le couple calculé précédemment en divisant la puissance par la vitesse *angulaire*.
 La vitesse *linéaire* est stockée dans le champ "VITESSE_ELEM_DOM".
@@ -134,7 +134,7 @@ Calculer la puissance par cellule de la peau de l'agitateur et la sommer. ::
 	speedOnSkin = speedMc.getArray()[tupleIdsInField]
 	powerSkin = ml.DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
 	power = powerSkin.accumulate()[0]
-	print "power = %r W"%(power)
+	print("power = %r W"%(power))
 
 Calculer la vitesse *angulaire*. Pour ce faire, calculer la somme de ``x^2``, ``y^2`` et ``xz`` de ``posSkin`` et 
 construire (avec NumPy) la matrice 2x2 d'inertie ``inertiaSkin=[[x2,xy], [xy,z2]]``.
@@ -152,7 +152,7 @@ avec ``linalg.eig(inertiaSkin)``. ::
 	inertiaSkinValues, inertiaSkinVects = np.linalg.eig(inertiaSkin)
 	pos = max(enumerate(inertiaSkinValues), key=lambda x: x[1])[0]
 	vect0 = inertiaSkinVects[pos].tolist()[0]
-	print vect0
+	print(vect0)
 
 Grâce au calcul précédent on peut déduire que l'agitateur a tourné de 1.1183827931 radian (cf. solution complète pour le
 détail - on remet les étapes précédentes dans une fonction que l'on applique sur plusieurs pas de temps).
@@ -160,7 +160,7 @@ détail - on remet les étapes précédentes dans une fonction que l'on applique
 Calculer et comparer le couple sur l'agitateur. ::
 
 	omega = 1.1183827931 / (ts[-1][2]-ts[0][2])
-	print "At timestep (%d,%d) (physical time=%r s) the torque is: %r N.m, power/omega=%r N.m " % (ts[2][0],ts[2][1],ts[2][2],zeTorque[2],power/omega)
+	print("At timestep (%d,%d) (physical time=%r s) the torque is: %r N.m, power/omega=%r N.m " % (ts[2][0],ts[2][1],ts[2][2],zeTorque[2],power/omega))
 
 Solution
 ~~~~~~~~

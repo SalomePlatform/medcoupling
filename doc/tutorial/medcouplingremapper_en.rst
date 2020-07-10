@@ -61,14 +61,14 @@ cell in "trgMesh" the sum of the areas is always equal to 1.0.
 ::
 
 	myMatrix=remap.getCrudeMatrix()
-	print myMatrix # to see what it looks like
+	print(myMatrix) # to see what it looks like
 	sumByRows=DataArrayDouble(len(myMatrix))
 	for i,wIt in enumerate(sumByRows):
 	  su=0.
 	  for it in myMatrix[i]:
 	    su+=myMatrix[i][it]
 	  wIt[0]=su
-	print "Does interpolation look OK? %s"%(str(sumByRows.isUniform(1.,1e-12)))
+	print("Does interpolation look OK? %s"%(str(sumByRows.isUniform(1.,1e-12))))
 
 .. note:: Some triangles were added into "srcMesh" to make "myMatrix" less boring. "myMatrix".
 
@@ -102,8 +102,8 @@ Set the nature of "srcField" to IntensiveMaximum (intensive field, e.g. a temper
 Check that with this nature the field integral is conserved. On the other side 
 the sum on cells (accumulation) is NOT conserved. ::
 
-	print "IntensiveMaximum %lf == %lf"%(srcField.integral(True)[0],trgFieldCV.integral(True)[0])
-	print "IntensiveMaximum %lf != %lf"%(srcField.getArray().accumulate()[0],trgFieldCV.getArray().accumulate()[0])
+	print("IntensiveMaximum %lf == %lf"%(srcField.integral(True)[0],trgFieldCV.integral(True)[0]))
+	print("IntensiveMaximum %lf != %lf"%(srcField.getArray().accumulate()[0],trgFieldCV.getArray().accumulate()[0]))
 
 Set the nature of "srcField" to ExtensiveConservation (extensive field, e.g. a power). ::
 
@@ -114,8 +114,8 @@ Check that given this nature the field integral is NOT conserved. On the other s
 cumulative sum on cells is conserved. ::
 ::
 
-	print "ExtensiveConservation %lf != %lf"%(srcField.integral(True)[0],trgFieldI.integral(True)[0])
-	print "ExtensiveConservation %lf == %lf"%(srcField.getArray().accumulate()[0],trgFieldI.getArray().accumulate()[0])
+	print("ExtensiveConservation %lf != %lf"%(srcField.integral(True)[0],trgFieldI.integral(True)[0]))
+	print("ExtensiveConservation %lf == %lf"%(srcField.getArray().accumulate()[0],trgFieldI.getArray().accumulate()[0]))
 
 Visualize the fields using ParaViS.
 

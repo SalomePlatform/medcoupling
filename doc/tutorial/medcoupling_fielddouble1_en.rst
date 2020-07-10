@@ -30,9 +30,9 @@ This exercise focuses on the relationship between a mesh and the values of a fie
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
 
-Import the MEDCoupling Python module. ::
+Import the medcoupling Python module. ::
 
-	from MEDCoupling import *
+	from medcoupling import *
 
 We are going to create a MEDCouplingUMesh from a 3D cartesian mesh. Each direction will contain 10 cells and 11 nodes. The generated MEDCouplingUMesh
 will contain 1000 cells. ::
@@ -68,7 +68,7 @@ Two possibilities :
 Compare the two fields:
 Compare f and f2 with a precision of 1e-12 on coordinates and 1e-12 on values. ::
 
-	print "f and f2 are equal: %s"%(f.isEqualWithoutConsideringStr(f2,1e-12,1e-12))
+	print("f and f2 are equal: %s"%(f.isEqualWithoutConsideringStr(f2,1e-12,1e-12)))
 
 Builing of a subpart of a field
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,7 +100,7 @@ Check that fPart1Cpy and fPart1 are the same (discarding any permutation): ::
 
 	fPart1Cpy.substractInPlaceDM(fPart1,12,1e-12)
 	fPart1Cpy.getArray().abs()
-	print "Fields are the same? %s"%(fPart1Cpy.getArray().accumulate()[0]<1e-12)
+	print("Fields are the same? %s"%(fPart1Cpy.getArray().accumulate()[0]<1e-12))
 
 .. note:: This is in fact a very special case of interpolation. Except that here 
 	we assume that the supports of "fPart1" and "fPart1Cpy" are equal, discarding any 
@@ -129,7 +129,7 @@ Evaluate the field "f" on the same barycenters. The method used is MEDCouplingFi
 	arr2=f.getValueOnMulti(bary)
 	delta=arr1-arr2
 	delta.abs()
-	print "Check OK: %s"%(delta.accumulate()[0]<1e-12)
+	print("Check OK: %s"%(delta.accumulate()[0]<1e-12))
 
 .. note:: In this context and for example for a field on cells, "evaluate" at a point means returning the value of the cell containing the point.
 .. note:: This technique can be used to quickly assess the quality of an interpolation.

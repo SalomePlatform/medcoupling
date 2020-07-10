@@ -25,9 +25,9 @@ Plusieurs points seront traités dans cet exercice :
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Importer le module Python ``MEDCoupling``. ::
+Importer le module Python ``medcoupling``. ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 
 Construire un maillage. Ce maillage ``mesh3D`` contient artificiellement 2 types de cellules (``mc.NORM_HEXA8`` et ``mc.NORM_POLYHED``)
 pour appréhender le mélange de types geometriques.
@@ -60,7 +60,11 @@ Faire un bon gros copier-coller des lignes suivantes pour construire la mesh (l'
 	mesh3D.orientCorrectlyPolyhedrons()
 	mesh3D.sortCellsInMEDFileFrmt()
 	mesh3D.checkConsistencyLight()
-	renum = mc.DataArrayInt(60); renum[:15]=range(15,30) ; renum[15:30]=range(15) ; renum[30:45]=range(45,60) ; renum[45:]=range(30,45)
+	renum = mc.DataArrayInt(60)
+        renum[:15]=list(range(15,30))
+        renum[15:30]=list(range(15))
+        renum[30:45]=list(range(45,60))
+        renum[45:]=list(range(30,45))
 	mesh3D.renumberNodes(renum,60)
 	
 Convertir les unités
@@ -151,9 +155,9 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 
 On vérifie alors que les 3 solutions sont les mêmes : ::
 
-	print cellIdsSol1.getValues()
-	print cellIdsSol2.getValues()
-	print cellIdsSol3.getValues()
+	print(cellIdsSol1.getValues())
+	print(cellIdsSol2.getValues())
+	print(cellIdsSol3.getValues())
 
 
 Extraire une sous partie d'un maillage 3D
@@ -183,15 +187,15 @@ Maintenant, ``mesh3DPart`` repose sur 30 nodes et possède 6 cellules. Pour êtr
 alors important de voir si ``mesh3DPart`` est bien ordonné, c'est-à-dire si ses cellules sont bien rangées par type géométrique.
 On commence par inspecter l'état actuel : ::
 
-	print mesh3DPart.advancedRepr()
+	print(mesh3DPart.advancedRepr())
 	
 La fonction suivante fait le même travail : ::
 
-	print mesh3DPart.checkConsecutiveCellTypesAndOrder([mc.NORM_HEXA8, mc.NORM_POLYHED])
+	print(mesh3DPart.checkConsecutiveCellTypesAndOrder([mc.NORM_HEXA8, mc.NORM_POLYHED]))
 
 Ou bien : ::
 
-	print mesh3DPart.checkConsecutiveCellTypes()
+	print(mesh3DPart.checkConsecutiveCellTypes())
 
 On voit que ``mesh3DPart`` contient 6 cellules, quatre HEXA8 puis deux POLYHED. Les cellules sont bien 
 groupées par type géométrique. Si ce n'était pas le cas, on aurait pu invoquer ``MEDCouplingUMesh.sortCellsInMEDFileFrmt()``.
@@ -220,7 +224,7 @@ Il y a deux solutions.
 	magn = bary2.magnitude()
 	ids = magn.findIdsInRange(0.,1e-12)
 	idStart = int(ids) # ids is assumed to contain only one value, if not an exception is thrown
-	ze_range = range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells())
+	ze_range = list(range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells()))
 	cellIds2Sol2 = extMesh.getMesh3DIds()[ze_range]
 
 Maintenant on construit cette sous partie de ``mesh3D`` en utilisant ``cellIds2Sol1`` ou ``cellIds2Sol2``: ::

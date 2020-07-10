@@ -50,7 +50,7 @@ We are then ready to write it. ::
 Then trying to read it. ::
 
 	meshRead=ml.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
-	print "Is the mesh read in file equals targetMesh? %s"%(meshRead.isEqual(targetMesh,1e-12))
+	print("Is the mesh read in file equals targetMesh? %s"%(meshRead.isEqual(targetMesh,1e-12)))
 
 Writing/Reading a field on one time step at once
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,7 +68,7 @@ Creation of a vector field "f" on cell supported by "targetMesh". ::
 Reading into MyFirstField.med ::
 
 	f2=ml.ReadFieldCell("MyFirstField.med",f.getMesh().getName(),0,f.getName(),7,8)
-	print "Is the field read in file equals f ? %s"%(f2.isEqual(f,1e-12,1e-12))
+	print("Is the field read in file equals f ? %s"%(f2.isEqual(f,1e-12,1e-12)))
 
 Writing/Reading a field on one or many times steps in "multi-session mode"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

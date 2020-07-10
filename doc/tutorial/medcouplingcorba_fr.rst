@@ -18,10 +18,10 @@ SALOME utilise l'implémentation `omniORB <http://omniorb.sourceforge.net/>`_ et
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pour commencer l'exercice importer le module ``MEDCoupling``
+Pour commencer l'exercice importer le module ``medcoupling``
 et la classe ``MEDCouplingUMeshServant`` du module Python ``MEDCouplingCorba``. ::
 
-	import MEDCoupling as mc
+	import medcoupling as mc
 	from MEDCouplingCorba import MEDCouplingUMeshServant
 
 Créer un maillage
@@ -60,7 +60,7 @@ de ParaViS, et ainsi créer une nouvelle source dans ParaViS. ::
 	import CORBA
 	orb = CORBA.ORB_init()
 	ior = orb.object_to_string(ref_m)
-	print ior
+	print(ior)
 
 Puis, via un copier/coller dans l'IHM ParaViS (Menu "Source -> Para MED Corba Plugin Source"), passer l'IOR. 
 On voit s'afficher notre maillage.
