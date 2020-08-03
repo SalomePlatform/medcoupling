@@ -26,6 +26,12 @@
 #include <unistd.h>
 #endif
 
+#if OMPI_MAJOR_VERSION >= 4
+#define MPI_ERROR_HANDLER(var) MPI_Comm_set_errhandler(MPI_COMM_WORLD, var);
+#else
+#define MPI_ERROR_HANDLER(var) MPI_Errhandler_set(MPI_COMM_WORLD, var);
+#endif
+
 MPI2Connector::MPI2Connector()
 {
   MPI_Comm_size( MPI_COMM_WORLD, &_nb_proc );
@@ -54,8 +60,7 @@ MPI_Comm MPI2Connector::remoteMPI2Connect(const std::string& service)
   _srv = false;
 
   MPI_Barrier(MPI_COMM_WORLD);
-
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+  MPI_ERROR_HANDLER(MPI_ERRORS_RETURN);
   if( _num_proc == 0 )
     { 
       /* rank 0 try to be a server. If service is already published, try to be a cient */
@@ -104,7 +109,7 @@ MPI_Comm MPI2Connector::remoteMPI2Connect(const std::string& service)
           throw std::exception();
         }
     }
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
+  MPI_ERROR_HANDLER(MPI_ERRORS_ARE_FATAL);
   
   /* If rank 0 is server, all processes call MPI_Comm_accept */
   /* If rank 0 is not server, all processes call MPI_Comm_connect */
