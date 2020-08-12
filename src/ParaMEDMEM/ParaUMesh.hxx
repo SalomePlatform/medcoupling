@@ -58,6 +58,8 @@ namespace MEDCoupling
     MCAuto<DataArrayIdType> _cell_global;
     MCAuto<DataArrayIdType> _node_global;
   private:
+    MCAuto<DataArrayIdType> getCellIdsLyingOnNodesFalse(const DataArrayIdType *globalNodeIds) const;
+    MCAuto<DataArrayIdType> getCellIdsLyingOnNodesTrue(const DataArrayIdType *globalNodeIds) const;
     template<class T>
     typename Traits<T>::ArrayType *redistributeCellFieldT(const DataArrayIdType *globalCellIds, const typename Traits<T>::ArrayType *fieldValueToRed) const
     {

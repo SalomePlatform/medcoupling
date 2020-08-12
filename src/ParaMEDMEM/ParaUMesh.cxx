@@ -74,7 +74,81 @@ std::vector<const BigMemoryObject *> ParaUMesh::getDirectChildrenWithNull() cons
 MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodes(const DataArrayIdType *globalNodeIds, bool fullyIn) const
 {
   if(fullyIn)
-    throw INTERP_KERNEL::Exception("ParaUMesh::getCellIdsLyingOnNodes : not implemented yet for fullyIn == True !");
+    return this->getCellIdsLyingOnNodesTrue(globalNodeIds);
+  else
+    return this->getCellIdsLyingOnNodesFalse(globalNodeIds);
+}
+
+MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesTrue(const DataArrayIdType *globalNodeIds) const
+{
+  MPI_Comm comm(MPI_COMM_WORLD);
+  CommInterface ci;
+  int size;
+  ci.commSize(comm,&size);
+  std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]),nbOfElems2(new mcIdType[size]),nbOfElems3(new mcIdType[size]);
+  mcIdType nbOfNodeIdsLoc(globalNodeIds->getNumberOfTuples());
+  ci.allGather(&nbOfNodeIdsLoc,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
+  //store for each proc the local nodeids intercepted by current proc
+  std::vector< MCAuto<DataArrayIdType> > tabs(size);
+  // loop to avoid to all procs to have all the nodes per proc
+  for(int subDiv = 0 ; subDiv < size ; ++subDiv)
+  {
+    std::unique_ptr<mcIdType[]> nbOfElemsSp(CommInterface::SplitArrayOfLength(nbOfElems,size,subDiv,size));
+    mcIdType nbOfNodeIdsSum(std::accumulate(nbOfElemsSp.get(),nbOfElemsSp.get()+size,0));
+    std::unique_ptr<mcIdType[]> allGlobalNodeIds(new mcIdType[nbOfNodeIdsSum]);
+    std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElemsSp,size) );
+    std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) );
+    mcIdType startGlobalNodeIds,endGlobalNodeIds;
+    DataArray::GetSlice(0,globalNodeIds->getNumberOfTuples(),1,subDiv,size,startGlobalNodeIds,endGlobalNodeIds);
+    ci.allGatherV(globalNodeIds->begin()+startGlobalNodeIds,endGlobalNodeIds-startGlobalNodeIds,MPI_ID_TYPE,allGlobalNodeIds.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
+    mcIdType offset(0);
+    for(int curRk = 0 ; curRk < size ; ++curRk)
+    {
+      MCAuto<DataArrayIdType> globalNodeIdsOfCurProc(DataArrayIdType::New());
+      globalNodeIdsOfCurProc->useArray(allGlobalNodeIds.get()+offset,false,DeallocType::CPP_DEALLOC,nbOfElemsSp[curRk],1);
+      offset += nbOfElemsSp[curRk];
+      MCAuto<DataArrayIdType> globalNodeIdsCaptured(_node_global->buildIntersection(globalNodeIdsOfCurProc));
+      MCAuto<DataArrayIdType> localNodeIdsToLocate(_node_global->findIdForEach(globalNodeIdsCaptured->begin(),globalNodeIdsCaptured->end()));
+      if(tabs[curRk].isNull())
+        tabs[curRk] = localNodeIdsToLocate;
+      else
+        tabs[curRk]->insertAtTheEnd(localNodeIdsToLocate->begin(),localNodeIdsToLocate->end());
+    }
+  }
+
+  for(int curRk = 0 ; curRk < size ; ++curRk)
+  {
+    MCAuto<DataArrayIdType> localNodeIds(tabs[curRk]);
+    localNodeIds->sort();
+    MCAuto<DataArrayIdType> localNodeIdsUnique(localNodeIds->buildUnique());
+    MCAuto<DataArrayIdType> localCellCaptured(_mesh->getCellIdsLyingOnNodes(localNodeIdsUnique->begin(),localNodeIdsUnique->end(),true));
+    MCAuto<DataArrayIdType> localCellCapturedGlob(_cell_global->selectByTupleIdSafe(localCellCaptured->begin(),localCellCaptured->end()));
+    tabs[curRk] = localCellCapturedGlob;
+  }
+  
+  for(int curRk = 0 ; curRk < size ; ++curRk)
+  {
+    tabs[curRk] = tabs[curRk]->buildUniqueNotSorted();
+    nbOfElems3[curRk] = tabs[curRk]->getNumberOfTuples();
+  }
+  std::vector<const DataArrayIdType *> tabss(tabs.begin(),tabs.end());
+  MCAuto<DataArrayIdType> cells(DataArrayIdType::Aggregate(tabss));
+  ci.allToAll(nbOfElems3.get(),1,MPI_ID_TYPE,nbOfElems2.get(),1,MPI_ID_TYPE,comm);
+  mcIdType nbOfCellIdsSum(std::accumulate(nbOfElems2.get(),nbOfElems2.get()+size,0));
+  MCAuto<DataArrayIdType> cellIdsFromProcs(DataArrayIdType::New());
+  cellIdsFromProcs->alloc(nbOfCellIdsSum,1);
+  {
+    std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElems3,size) ),nbOfElemsOutInt( CommInterface::ToIntArray<mcIdType>(nbOfElems2,size) );
+    std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) ), offsetsOut( CommInterface::ComputeOffset(nbOfElemsOutInt,size) );
+    ci.allToAllV(cells->begin(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,
+                 cellIdsFromProcs->getPointer(),nbOfElemsOutInt.get(),offsetsOut.get(),MPI_ID_TYPE,comm);
+  }
+  cellIdsFromProcs->sort();
+  return cellIdsFromProcs;
+}
+
+MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesFalse(const DataArrayIdType *globalNodeIds) const
+{
   MPI_Comm comm(MPI_COMM_WORLD);
   CommInterface ci;
   int size;
