@@ -72,8 +72,17 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
   //output parameters
   int* partition = new int[n+1];
   
-  int* vlbloctab = _vlbloctab?const_cast<int*>(_vlbloctab->begin()):0;
-  
+#ifdef MEDCOUPLING_USE_64BIT_IDS
+  std::vector<int> vlbloctabVec;
+  int *vlbloctab(nullptr);
+  if( _vlbloctab )
+    {
+      vlbloctabVec.insert( vlbloctabVec.end() , _vlbloctab->begin() , _vlbloctab->end() );
+      vlbloctab = vlbloctabVec.data();
+    }
+#else
+  mcIdType *vlbloctab = _vlbloctab?const_cast<mcIdType*>(_vlbloctab->begin()):nullptr;
+#endif
   SCOTCH_randomReset();
   SCOTCH_Dgraph scotch_graph;
   SCOTCH_dgraphInit(&scotch_graph, MPI_COMM_WORLD);
