@@ -25,6 +25,7 @@
 #include "MCType.hxx"
 
 #include <cstdio>
+#include <memory>
 #include <mpi.h>
 
 #ifdef MED_ENABLE_PTSCOTCH
@@ -54,15 +55,8 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
   //number of graph vertices
   int n = FromIdType<int>(_graph->getNumberOf());
   //graph
-#ifdef MEDCOUPLING_USE_64BIT_IDS
-  std::vector<int> indexVec( _graph->getIndex(), _graph->getIndexArray()->end() );
-  std::vector<int> valueVec( _graph->getValues(), _graph->getValuesArray()->end() );
-  int * xadj=indexVec.data();
-  int * adjncy=valueVec.data();
-#else
-  int * xadj=const_cast<int*>(_graph->getIndex());
-  int * adjncy=const_cast<int*>(_graph->getValues());
-#endif
+  mcIdType * xadj=const_cast<mcIdType*>(_graph->getIndex());
+  mcIdType * adjncy=const_cast<mcIdType*>(_graph->getValues());
   //ndomain
   int nparts=ndomain;
 
@@ -70,19 +64,29 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
   throw INTERP_KERNEL::Exception("PTSCOTCHGraph::partGraph : PTSCOTCH is not available. Check your products, please.");
 #else
   //output parameters
-  int* partition = new int[n+1];
-  
+  std::unique_ptr<mcIdType[]> partition(new mcIdType[n+1]);
 #ifdef MEDCOUPLING_USE_64BIT_IDS
-  std::vector<int> vlbloctabVec;
-  int *vlbloctab(nullptr);
-  if( _vlbloctab )
-    {
-      vlbloctabVec.insert( vlbloctabVec.end() , _vlbloctab->begin() , _vlbloctab->end() );
-      vlbloctab = vlbloctabVec.data();
-    }
+  mcIdType *cellWeightPtr(nullptr);
+  std::vector<mcIdType> cellWeightVec;
+  if(_cell_weight)
+  {
+    cellWeightVec.insert(cellWeightVec.end(),_cell_weight,_cell_weight+_graph->getLength());
+    cellWeightPtr = cellWeightVec.data();
+  }
+  mcIdType *edgeWeightPtr(nullptr);
+  std::vector<mcIdType> edgeWeightVec;
+  if(_edge_weight)
+  {
+    edgeWeightVec.insert(edgeWeightVec.end(),_edge_weight,_edge_weight+_graph->getLength());
+    edgeWeightPtr = edgeWeightVec.data();
+  }
 #else
-  mcIdType *vlbloctab = _vlbloctab?const_cast<mcIdType*>(_vlbloctab->begin()):nullptr;
+  mcIdType *cellWeightPtr(_cell_weight);
+  mcIdType *edgeWeightPtr(_edge_weight);
 #endif
+  
+  mcIdType *vlbloctab = _vlbloctab?const_cast<mcIdType*>(_vlbloctab->begin()):nullptr;
+
   SCOTCH_randomReset();
   SCOTCH_Dgraph scotch_graph;
   SCOTCH_dgraphInit(&scotch_graph, MPI_COMM_WORLD);
@@ -92,13 +96,13 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
                      n,             // vertlocmax            , should be set to vertlocnbr for graphs without holes
                      xadj,          // vertloctab[vertnbr+1] , index vertex table
                      0,             // vendloctab            , index end vertex table if disjoint, set to zero
-                     _cell_weight,  // veloloctab            , graph vertices loads, set to zero
+                     cellWeightPtr,  // veloloctab            , graph vertices loads, set to zero
                      vlbloctab,     // vlblocltab            , vertex label array : global vertex index
                      xadj[n],       // edgelocnbr            , number of edges
                      xadj[n],       // edgelocsiz            , same as edgelocnbr if edgeloctab is compact
                      adjncy,        // edgeloctab[edgelocnbr], global indexes of edges
                      0,             // edgegsttab            , optional, should be computed internally, set to zero
-                     _edge_weight); // edloloctab            , graph edges loads, set to zero
+                     edgeWeightPtr); // edloloctab            , graph edges loads, set to zero
   
   SCOTCH_Strat scotch_strategy;
   SCOTCH_stratInit(&scotch_strategy);
@@ -110,7 +114,7 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
   if (nparts>1)
     {
       if (MyGlobals::_Verbose>10) std::cout << "SCOTCHGraph::graphPart SCOTCH_graphPart" << std::endl;
-      SCOTCH_dgraphPart(&scotch_graph,nparts,&scotch_strategy,partition);
+      SCOTCH_dgraphPart(&scotch_graph,nparts,&scotch_strategy,partition.get());
     }
   else  //partition for 1 subdomain
     {
@@ -129,7 +133,6 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
       index[i+1]=index[i]+1;
       value[i]=ToIdType(partition[i]);
     }
-  delete [] partition;
   
   //creating a skylinearray with no copy of the index and partition array
   //the fifth argument true specifies that only the pointers are passed 
