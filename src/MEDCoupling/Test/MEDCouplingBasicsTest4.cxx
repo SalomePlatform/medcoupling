@@ -23,7 +23,7 @@
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingMultiFields.hxx"
 #include "MEDCouplingFieldOverTime.hxx"
