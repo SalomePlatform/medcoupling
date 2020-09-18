@@ -32,11 +32,11 @@ INTERP_KERNEL::Exception::Exception(const char *reason, const char *file, int li
 {
 }
 
-INTERP_KERNEL::Exception::~Exception() throw ()
+INTERP_KERNEL::Exception::~Exception() noexcept(true)
 {
 }
 
-const char *INTERP_KERNEL::Exception::what() const throw()
+const char *INTERP_KERNEL::Exception::what() const noexcept(true)
 {
   return _reason.c_str();
 }

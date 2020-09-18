@@ -1246,7 +1246,7 @@ bool MEDCouplingUMesh::unPolyze()
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[posOfCurCell];
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
       INTERP_KERNEL::NormalizedCellType newType=INTERP_KERNEL::NORM_ERROR;
-      mcIdType newLgth;
+      mcIdType newLgth=0;
       if(cm.isDynamic())
         {
           switch(cm.getDimension())
@@ -1265,11 +1265,12 @@ bool MEDCouplingUMesh::unPolyze()
                 newType=INTERP_KERNEL::CellSimplify::tryToUnPoly3D(zipFullReprOfPolyh,nbOfFaces,lgthOfPolyhConn,conn+newPos+1,newLgth);
                 break;
               }
-            case 1:
+         /*   case 1:  // Not supported yet
               {
                 newType=(lgthOfCurCell==3)?INTERP_KERNEL::NORM_SEG2:INTERP_KERNEL::NORM_POLYL;
                 break;
               }
+         */
           }
           ret=ret || (newType!=type);
           conn[newPos]=newType;
@@ -1663,8 +1664,6 @@ int MEDCouplingUMesh::AreCellsEqualPolicy7(const mcIdType *conn, const mcIdType 
                       else
                         return 0;
                     }
-
-                  return work!=tmp+sz1?1:0;
                 }
               else
                 {//case of SEG2 and SEG3
@@ -1710,7 +1709,6 @@ int MEDCouplingUMesh::AreCellsEqualPolicy7(const mcIdType *conn, const mcIdType 
  * \param [in] startCellId specifies the cellId starting from which the equality computation will be carried out. By default it is 0, which it means that all cells in \a this will be scanned.
  * \param [out] commonCellsArr common cells ids (\ref numbering-indirect)
  * \param [out] commonCellsIArr common cells ids (\ref numbering-indirect)
- * \return the correspondence array old to new in a newly allocated array.
  *
  */
 void MEDCouplingUMesh::findCommonCells(int compType, mcIdType startCellId, DataArrayIdType *& commonCellsArr, DataArrayIdType *& commonCellsIArr) const
@@ -1935,9 +1933,9 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplin
  * By default coordinates are kept. This method is close to MEDCouplingUMesh::buildPartOfMySelf except that here input
  * cellIds is not given explicitly but by a range python like.
  *
- * \param start
- * \param end
- * \param step
+ * \param start starting ID
+ * \param end end ID (excluded)
+ * \param step step size
  * \param keepCoords that specifies if you want or not to keep coords as this or zip it (see MEDCoupling::MEDCouplingUMesh::zipCoords). If true zipCoords is \b NOT called, if false, zipCoords is called.
  * \return a newly allocated
  *
@@ -2232,7 +2230,7 @@ DataArrayIdType *MEDCouplingUMesh::findCellIdsOnBoundary() const
  * \throw if \b otherDimM1OnSameCoords is not part of constituent of \b this, or if coordinate pointer of \b this and \b otherDimM1OnSameCoords
  *        are not same, or if this->getMeshDimension()-1!=otherDimM1OnSameCoords.getMeshDimension()
  *
- * \param [in] otherDimM1OnSameCoords
+ * \param [in] otherDimM1OnSameCoords other mesh
  * \param [out] cellIdsRk0 a newly allocated array containing the cell ids of s0 (which are cell ids of \b this) in the above algorithm.
  * \param [out] cellIdsRk1 a newly allocated array containing the cell ids of s1 \b indexed into the \b cellIdsRk0 subset. To get the absolute ids of s1, simply invoke
  *              cellIdsRk1->transformWithIndArr(cellIdsRk0->begin(),cellIdsRk0->end());
@@ -2638,7 +2636,7 @@ void MEDCouplingUMesh::duplicateNodesInConn(const mcIdType *nodeIdsToDuplicateBg
  * should be contained in[0;this->getNumberOfCells()).
  *
  * \param [in] old2NewBg is expected to be a dynamically allocated pointer of size at least equal to this->getNumberOfCells()
- * \param check
+ * \param check whether to check content of old2NewBg
  */
 void MEDCouplingUMesh::renumberCells(const mcIdType *old2NewBg, bool check)
 {
@@ -3158,9 +3156,9 @@ bool MEDCouplingUMesh::isEmptyMesh(const std::vector<mcIdType>& tinyInfo) const
 /*!
  * Second step of serialization process.
  * \param tinyInfo must be equal to the result given by getTinySerializationInformation method.
- * \param a1
- * \param a2
- * \param littleStrings
+ * \param a1 DataArrayDouble
+ * \param a2 DataArrayDouble
+ * \param littleStrings string vector
  */
 void MEDCouplingUMesh::resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
@@ -3338,8 +3336,8 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) cons
   mcIdType nbNodes=getNumberOfNodes();
   MCAuto<DataArrayDouble> nnpc;
   {
-    MCAuto<DataArrayIdType> tmp(computeNbOfNodesPerCell());
-    nnpc=tmp->convertToDblArr();
+    MCAuto<DataArrayIdType> tmp2(computeNbOfNodesPerCell());
+    nnpc=tmp2->convertToDblArr();
   }
   std::for_each(nnpc->rwBegin(),nnpc->rwEnd(),[](double& v) { v=1./v; });
   const double *nnpcPtr(nnpc->begin());
@@ -5811,7 +5809,7 @@ DataArrayIdType *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vect
  * The result is put in the array \a idsPerType. In the returned parameter \a code, foreach i \a code[3*i+2] refers (if different from -1) to a location into the \a idsPerType.
  * This method has 1 input \a profile and 3 outputs \a code \a idsInPflPerType and \a idsPerType.
  *
- * \param [in] profile
+ * \param [in] profile list of IDs constituing the profile
  * \param [out] code is a vector of size 3*n where n is the number of different geometric type in \a this \b reduced to the profile \a profile. \a code has exactly the same semantic than in MEDCouplingUMesh::checkTypeConsistencyAndContig method.
  * \param [out] idsInPflPerType is a vector of size of different geometric type in the subpart defined by \a profile of \a this ( equal to \a code.size()/3). For each i,
  *              \a idsInPflPerType[i] stores the tuple ids in \a profile that correspond to the geometric type code[3*i+0]
@@ -6230,8 +6228,8 @@ DataArrayIdType *MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh()
 /*!
  * Convert the nodal connectivity of the mesh so that all the cells are of dynamic types (polygon or quadratic
  * polygon). This returns the corresponding new nodal connectivity in \ref numbering-indirect format.
- * \param nodalConn
- * \param nodalConnI
+ * \param nodalConn nodal connectivity
+ * \param nodalConnIndex nodal connectivity indices
  */
 void MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayIdType *&nodalConn, DataArrayIdType *&nodalConnIndex) const
 {
@@ -7189,8 +7187,7 @@ bool MEDCouplingUMesh::IsPyra5WellOriented(const mcIdType *begin, const mcIdType
  *
  * \param [in] eps is a relative precision that allows to establish if some 3D plane are coplanar or not.
  * \param [in] coords the coordinates with nb of components exactly equal to 3
- * \param [in] begin begin of the nodal connectivity (geometric type included) of a single polyhedron cell
- * \param [in] end end of nodal connectivity of a single polyhedron cell (excluded)
+ * \param [in] index begin of the nodal connectivity (geometric type included) of a single polyhedron cell
  * \param [out] res the result is put at the end of the vector without any alteration of the data.
  */
 void MEDCouplingUMesh::SimplifyPolyhedronCell(double eps, const DataArrayDouble *coords, mcIdType index, DataArrayIdType *res, MEDCouplingUMesh *faces,
@@ -7364,7 +7361,7 @@ void MEDCouplingUMesh::TryToCorrectPolyhedronOrientation(mcIdType *begin, mcIdTy
           nbOfEdgesInFace=std::distance(bgFace,endFace);
           if(!isPerm[i])
             {
-              bool b;
+              bool b=false;
               for(std::size_t j=0;j<nbOfEdgesInFace;j++)
                 {
                   std::pair<mcIdType,mcIdType> p1(bgFace[j],bgFace[(j+1)%nbOfEdgesInFace]);

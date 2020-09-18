@@ -3567,7 +3567,6 @@ void IntermediateMED::makeFieldNewName(std::set< std::string >&    usedNames,
 //================================================================================
 /*!
  * \brief Split sub-components with different nb of gauss points into several sub-components
- *  \param [in,out] fld - a field to split if necessary
  */
 //================================================================================
 

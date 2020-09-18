@@ -481,7 +481,7 @@ const mcIdType * MEDCouplingSkyLineArray::getSimplePackSafePtr(const mcIdType ab
  * \param[in] superPackIndices the list of super-packs that should be inspected
  * \param[in] packBg the pack that the function is looking for in each of the provided super-pack
  * \param[in] packEnd the pack that the function is looking for in each of the provided super-pack
- * \param[out] a vector of mcIdType, having the same size as superPackIndices and containing for each inspected super-pack
+ * \param[out] out a vector of mcIdType, having the same size as superPackIndices and containing for each inspected super-pack
  * the index of the first matching pack, or -1 if none found.
  */
 void MEDCouplingSkyLineArray::findPackIds(const std::vector<mcIdType> & superPackIndices,

@@ -48,7 +48,7 @@ namespace INTERP_KERNEL
   }
 
   /*!
-   * @param icellT in format of MyMeshType.
+   * @param icellS in format of MyMeshType.
    */
   template<class MyMeshType, class MyMatrix>
   void Intersector3D<MyMeshType,MyMatrix>::getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS) const
@@ -76,7 +76,7 @@ namespace INTERP_KERNEL
   }
 
   /*!
-   * @param icellT in C format.
+   * @param icellS in C format.
    * @return is in format of MyMeshType
    */
   template<class MyMeshType, class MyMatrix>
@@ -89,7 +89,7 @@ namespace INTERP_KERNEL
 
   /*!
    * @param icellS in format of MyMeshType.
-   * @param res ; out param in format of MyMeshType.
+   * @param[out] res out param in format of MyMeshType.
    */
   template<class MyMeshType, class MyMatrix>
   void Intersector3D<MyMeshType,MyMatrix>::getConnOfSourceCell(ConnType icellS, typename std::vector<ConnType>& res) const

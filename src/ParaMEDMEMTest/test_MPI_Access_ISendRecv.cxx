@@ -109,7 +109,7 @@ void MPIAccessTest::test_MPI_Access_ISendRecv() {
                << ")" << endl ;
           mpi_access.test( SendRequestId[j], flag ) ;
           if ( flag ) {
-            int target, tag, error, outcount ;
+            int tag, error, outcount ;
               mpi_access.status( SendRequestId[j], target, tag, error, outcount,
                                  true ) ;
               debugStream << "test" << myrank << " Send RequestId " << SendRequestId[j]

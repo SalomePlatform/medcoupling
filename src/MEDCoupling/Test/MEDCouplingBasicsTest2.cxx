@@ -91,7 +91,7 @@ void MEDCouplingBasicsTest2::testGaussPointField1()
   CPPUNIT_ASSERT_EQUAL(ToIdType(0),f->getGaussLocalizationIdOfOneCell(0));
   CPPUNIT_ASSERT_EQUAL(ToIdType(1),f->getGaussLocalizationIdOfOneCell(1));
   CPPUNIT_ASSERT_EQUAL(ToIdType(1),f->getGaussLocalizationIdOfOneCell(2));
-  CPPUNIT_ASSERT_THROW(f->checkConsistencyLight(),INTERP_KERNEL::Exception);//<- cell 3 has no localization
+  CPPUNIT_ASSERT_THROW(f->checkConsistencyLight(),INTERP_KERNEL::Exception);// <- cell 3 has no localization
   mcIdType ids4[1]={3};
   std::vector<double> _gsCoo2(_gsCoo1);
   std::vector<double> _wg2(_wg1);
@@ -102,11 +102,11 @@ void MEDCouplingBasicsTest2::testGaussPointField1()
   f->getCellIdsHavingGaussLocalization(0,tmpIds);
   CPPUNIT_ASSERT_EQUAL(2,(int)tmpIds.size());
   CPPUNIT_ASSERT(std::equal(ids2,ids2+2,tmpIds.begin()));
-  CPPUNIT_ASSERT_THROW(f->checkConsistencyLight(),INTERP_KERNEL::Exception);//<- it's always not ok because undelying array not with the good size.
+  CPPUNIT_ASSERT_THROW(f->checkConsistencyLight(),INTERP_KERNEL::Exception);// <- it's always not ok because undelying array not with the good size.
   DataArrayDouble *array2=f->getArray()->subArray(0,10);
   f->setArray(array2);
   array2->decrRef();
-  f->checkConsistencyLight();//<- here it is OK
+  f->checkConsistencyLight();// <- here it is OK
   MEDCouplingFieldDouble *f2=f->clone(true);
   CPPUNIT_ASSERT(f->isEqual(f2,1e-14,1e-14));
   MEDCouplingGaussLocalization& gl1=f2->getGaussLocalization(0);

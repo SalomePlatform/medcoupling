@@ -665,7 +665,7 @@ void MEDCouplingCMesh::translate(const double *vector)
 
 /*!
  * Applies scaling transformation to all nodes of \a this mesh.
- *  \param [in] postd::size_t - coordinates of a scaling center. This array is to be of
+ *  \param [in] point - coordinates of a scaling center. This array is to be of
  *         size \a this->getSpaceDimension() at least.
  *  \param [in] factor - a scale factor.
  */

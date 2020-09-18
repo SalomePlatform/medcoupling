@@ -1372,8 +1372,10 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
  * Private. Third step of the partitioning algorithm (Intersect2DMeshes): reconstruct full 2D cells from the
  * (newly created) nodes corresponding to the edge intersections.
  * Output params:
- * @param[out] cr, crI connectivity of the resulting mesh
- * @param[out] cNb1, cNb2 correspondence arrays giving for the merged mesh the initial cells IDs in m1 / m2
+ * @param[out] cr connectivity of the resulting mesh
+ * @param[out] crI connectivity of the resulting mesh
+ * @param[out] cNb1 correspondence arrays giving for the merged mesh the initial cells IDs in m1 / m2
+ * @param[out] cNb2 correspondence arrays giving for the merged mesh the initial cells IDs in m1 / m2
  * TODO: describe input parameters
  */
 void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const mcIdType *desc1, const mcIdType *descIndx1,
@@ -1670,6 +1672,9 @@ mcIdType MEDCouplingUMesh::split2DCellsQuadratic(const DataArrayIdType *desc, co
  * The meshes should be in 2D space. In
  * addition, returns two arrays mapping cells of the result mesh to cells of the input
  * meshes.
+ * \b WARNING: the two meshes should be correctly oriented for this method to work properly. Methods changeSpaceDimension() and
+ * orientCorrectly2DCells() can be used for this.
+ * \b WARNING: the two meshes should be "clean" (no un-merged nodes, no non-conformal cells)
  *  \param [in] m1 - the first input mesh which is a partitioned object. The mesh must be so that each point in the space covered by \a m1
  *                      must be covered exactly by one entity, \b no \b more. If it is not the case, some tools are available to heal the mesh (conformize2D, mergeNodes)
  *  \param [in] m2 - the second input mesh which is a partition tool. The mesh must be so that each point in the space covered by \a m2
@@ -1752,6 +1757,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
  * Thus the final result contains the aggregation of nodes of \a mesh2D, then nodes of \a mesh1D, then new nodes that are the result of the intersection
  * and finally, in case of quadratic polygon the centers of edges new nodes.
  * The meshes should be in 2D space. In addition, returns two arrays mapping cells of the resulting mesh to cells of the input.
+ *
+ * \b WARNING: the 2D mesh should be correctly oriented for this method to work properly. Methods changeSpaceDimension() and
+ * orientCorrectly2DCells() can be used for this.
+ * \b WARNING: the two meshes should be "clean" (no un-merged nodes, no non-conformal cells)
  *
  * \param [in] mesh2D - the 2D mesh (spacedim=meshdim=2) to be intersected using \a mesh1D tool. The mesh must be so that each point in the space covered by \a mesh2D
  *                      must be covered exactly by one entity, \b no \b more. If it is not the case, some tools are available to heal the mesh (conformize2D, mergeNodes)

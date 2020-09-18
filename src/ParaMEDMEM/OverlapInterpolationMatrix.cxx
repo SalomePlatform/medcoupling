@@ -56,8 +56,7 @@ namespace MEDCoupling
     _target_field(target_field),
     _source_support(source_field->getSupport()->getCellMesh()),
     _target_support(target_field->getSupport()->getCellMesh()),
-    _mapping(group, locator),
-    _group(group)
+    _mapping(group, locator)
   {
   }
 

@@ -182,13 +182,13 @@ namespace INTERP_KERNEL
 
     LOG(2, "for seg " << seg << " consistency " << term1 + term2 + term3 );
     LOG(2, "term1 :" << term1 << " term2 :" << term2 << " term3: " << term3 );
-    
+
     const int num_zero = (term1 == 0.0 ? 1 : 0) + (term2 == 0.0 ? 1 : 0) + (term3 == 0.0 ? 1 : 0);
     const int num_neg = (term1 < 0.0 ? 1 : 0) + (term2 < 0.0 ? 1 : 0) + (term3 < 0.0 ? 1 : 0);
     const int num_pos = (term1 > 0.0 ? 1 : 0) + (term2 > 0.0 ? 1 : 0) + (term3 > 0.0 ? 1 : 0);
-    
+
     assert( num_zero + num_neg + num_pos == 3 );
-    
+
     // calculated geometry is inconsistent if we have one of the following cases
     // * one term zero and the other two of the same sign
     // * two terms zero

@@ -363,7 +363,7 @@ void MEDCouplingField::clearGaussLocalizations()
  *          problem.
  *  \param [in] locId - the id of the Gauss localization object of interest.
  *         It must be in range <em> 0 <= locId < getNbOfGaussLocalization() </em>.
- *  \return \ref MEDCoupling::MEDCouplingGaussLocalization "MEDCouplingGaussLocalization" & - the
+ *  \return the Gauss localization object as a \ref MEDCoupling::MEDCouplingGaussLocalization "MEDCouplingGaussLocalization" &.
  *  Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If \a locId is not within the valid range.

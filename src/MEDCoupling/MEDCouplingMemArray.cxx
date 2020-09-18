@@ -204,7 +204,7 @@ void DataArray::copyPartOfStringInfoFrom(const DataArray& other, const std::vect
   std::size_t nbOfCompoOth=other.getNumberOfComponents();
   std::size_t newNbOfCompo=compoIds.size();
   for(std::size_t i=0;i<newNbOfCompo;i++)
-    if(compoIds[i]>=nbOfCompoOth || compoIds[i]<0)
+    if(compoIds[i]>=nbOfCompoOth)
       {
         std::ostringstream oss; oss << "Specified component id is out of range (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompoOth << ")";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -220,7 +220,7 @@ void DataArray::copyPartOfStringInfoFrom2(const std::vector<std::size_t>& compoI
   std::size_t partOfCompoToSet=compoIds.size();
   std::size_t nbOfCompo=getNumberOfComponents();
   for(std::size_t i=0;i<partOfCompoToSet;i++)
-    if(compoIds[i]>=nbOfCompo || compoIds[i]<0)
+    if(compoIds[i]>=nbOfCompo)
       {
         std::ostringstream oss; oss << "Specified component id is out of range (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompo << ")";
         throw INTERP_KERNEL::Exception(oss.str().c_str());

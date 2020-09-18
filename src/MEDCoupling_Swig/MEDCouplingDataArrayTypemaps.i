@@ -2044,7 +2044,7 @@ static void convertObjToPossibleCpp6(PyObject *value, mcIdType& sw, char& cTyp, 
             {
               vsType[i]=convertPyObjectToStr(o);
             }
-          catch(INTERP_KERNEL::Exception& e)
+          catch(INTERP_KERNEL::Exception& )
             {
               std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not a string ! only tuples of strings accepted !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -2064,7 +2064,7 @@ static void convertObjToPossibleCpp6(PyObject *value, mcIdType& sw, char& cTyp, 
             {
               vsType[i]=convertPyObjectToStr(o);
             }
-          catch(INTERP_KERNEL::Exception& e)
+          catch(INTERP_KERNEL::Exception& )
             {
               std::ostringstream oss; oss << "List as been detected but element #" << i << " is not a string ! only tuples of strings accepted !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());

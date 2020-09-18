@@ -92,7 +92,7 @@ namespace MEDCoupling
   }
 
   template<class T, class U>
-  typename MEDCoupling::MCAuto<U> DynamicCast(typename MEDCoupling::MCAuto<T>& autoSubPtr) throw()
+  typename MEDCoupling::MCAuto<U> DynamicCast(typename MEDCoupling::MCAuto<T>& autoSubPtr) noexcept(true)
   {
     T *subPtr(autoSubPtr);
     U *ptr(dynamic_cast<U *>(subPtr));

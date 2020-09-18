@@ -1274,7 +1274,7 @@ mcIdType MEDCouplingStructuredMesh::getNumberOfNodes() const
 /*!
  * This method returns for a cell which id is \a cellId the location (locX,locY,locZ) of this cell in \a this.
  *
- * \param [in] cellId
+ * \param [in] cellId ID of the cell
  * \return - A vector of size this->getMeshDimension()
  * \throw if \a cellId not in [ 0, this->getNumberOfCells() )
  */
@@ -1297,7 +1297,7 @@ std::vector<mcIdType> MEDCouplingStructuredMesh::getLocationFromCellId(mcIdType 
 /*!
  * This method returns for a node which id is \a nodeId the location (locX,locY,locZ) of this node in \a this.
  *
- * \param [in] nodeId
+ * \param [in] nodeId ID of the node
  * \return - A vector of size this->getSpaceDimension()
  * \throw if \a cellId not in [ 0, this->getNumberOfNodes() )
  */

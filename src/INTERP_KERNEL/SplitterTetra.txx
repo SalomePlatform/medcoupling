@@ -250,8 +250,7 @@ namespace INTERP_KERNEL
             else
               {
                 faceType = cellModelCell.getSonType(ii);
-                const CellModel& faceModel=CellModel::GetCellModel(faceType);
-                assert(faceModel.getDimension() == 2);
+                assert(CellModel::GetCellModel(faceType).getDimension() == 2);
                 nbFaceNodes = cellModelCell.getNumberOfNodesConstituentTheSon(ii);
                 faceNodes = new ConnType[nbFaceNodes];
                 cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
@@ -374,7 +373,7 @@ namespace INTERP_KERNEL
   /**
    * Calculates the intersection surface of two coplanar triangles.
    *
-   * @param palneNormal normal of the plane for the first triangle
+   * @param planeNormal normal of the plane for the first triangle
    * @param planeConstant constant of the equation of the plane for the first triangle
    * @param p1 coordinates of the first  node of the first  triangle
    * @param p2 coordinates of the second node of the first  triangle
@@ -540,7 +539,7 @@ namespace INTERP_KERNEL
    * Determine if a face is coplanar with a triangle.
    * The first face is characterized by the equation of her plane
    *
-   * @param palneNormal normal of the plane for the first triangle
+   * @param planeNormal normal of the plane for the first triangle
    * @param planeConstant constant of the equation of the plane for the first triangle
    * @param coordsFace coordinates of the triangle face
    * @param precision precision for double float data used for comparison
@@ -1253,7 +1252,6 @@ namespace INTERP_KERNEL
    *
    * @param targetMesh  the target mesh
    * @param targetCell  the global number of the cell that the object represents, in targetMesh mode.
-   * @param policy      the splitting policy of the object
    *
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
@@ -1300,6 +1298,7 @@ namespace INTERP_KERNEL
           default:
             break;
           }
+        break;
 
       case 5: // NORM_PYRA5
         break;

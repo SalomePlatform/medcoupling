@@ -689,7 +689,7 @@ std::vector< std::pair<int,int> > MEDFileParameterMultiTS::getIterations() const
 }
 
 /*!
- * \param [out] ret1
+ * \param [out] ret1 - list of available timesteps
  */
 std::vector< std::pair<int,int> > MEDFileParameterMultiTS::getTimeSteps(std::vector<double>& ret1) const
 {

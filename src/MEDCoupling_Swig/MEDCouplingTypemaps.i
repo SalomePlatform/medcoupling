@@ -36,13 +36,15 @@
 
 auto PyDeleter = [](PyObject *ob) { Py_DECREF(ob) ; };
 
-class AutoPyPtr : std::unique_ptr<PyObject,decltype(PyDeleter)>
-{
-  public:
-  AutoPyPtr(PyObject *ob):std::unique_ptr<PyObject,decltype(PyDeleter)>(ob,PyDeleter) { }
-  PyObject *retn() { return this->release(); }
-  operator PyObject *() const { return this->get(); }
-};
+namespace {   // Only in this TU, so in an anonymous namespace
+  class AutoPyPtr : std::unique_ptr<PyObject,decltype(PyDeleter)>
+  {
+    public:
+      AutoPyPtr(PyObject *ob):std::unique_ptr<PyObject,decltype(PyDeleter)>(ob,PyDeleter) { }
+      PyObject *retn() { return this->release(); }
+      operator PyObject *() const { return this->get(); }
+  };
+}
 
 AutoPyPtr convertMapStringInt(const std::map<std::string,mcIdType>& cpp)
 {

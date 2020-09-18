@@ -166,8 +166,8 @@ namespace INTERP_KERNEL
    * This method builds a potentially non-convex polygon cell built with the first point of 'triIn' the barycenter of two edges starting or ending with
    * the first point of 'triIn' and the barycenter of 'triIn'.
    *
-   * @param triIn is a 6 doubles array in full interlace mode, that represents a triangle.
-   * @param quadOut is a 8 doubles array filled after the following call.
+   * @param polygIn is a 6 doubles array in full interlace mode, that represents a triangle.
+   * @param polygOut is a 8 doubles array filled after the following call.
    */
   template<int SPACEDIM>
   inline void fillDualCellOfPolyg(const double *polygIn, mcIdType nPtsPolygonIn, double *polygOut)
@@ -337,8 +337,9 @@ namespace INTERP_KERNEL
   
   /*!
    * \brief Solve system equation in matrix form using Gaussian elimination algorithm
-   *  \param M - N x N+NB_OF_VARS matrix
-   *  \param sol - vector of N solutions
+   *  \param matrix - N x N+NB_OF_VARS matrix
+   *  \param solutions - vector of N solutions
+   *  \param eps - precision
    *  \retval bool - true if succeeded
    */
   template<unsigned SZ, unsigned NB_OF_RES>
@@ -1084,7 +1085,7 @@ namespace INTERP_KERNEL
     return result;
   }
   template<class T, int dim> 
-  inline double distance2(  T * a, int inda, T * b, int indb)
+  inline double distance2(  T * a, std::size_t inda, T * b, std::size_t indb)
   {   
     double result =0;
     for(int idim =0; idim<dim; idim++) result += ((*a)[inda+idim] - (*b)[indb+idim])* ((*a)[inda+idim] - (*b)[indb+idim]);
@@ -1279,18 +1280,18 @@ namespace INTERP_KERNEL
   /*! Indexes istart1 and istart2 designate two points P1 in L1 and P2 in L2 that have identical coordinates. Generally called with istart1=0.*/
   /*! Integer sign ( 1 or -1) indicate the direction used in going all over L2. */
   template<class T, int dim> 
-  bool checkEqualPolygonsOneDirection(T * L1, T * L2, int size1, int size2, int istart1, int istart2, double epsilon, int sign)
+  bool checkEqualPolygonsOneDirection(T * L1, T * L2, std::size_t size1, std::size_t size2, std::size_t istart1, std::size_t istart2, double epsilon, int sign)
   {
-    int i1 = istart1;
-    int i2 = istart2;
-    int i1next = ( i1 + 1 ) % size1;
-    int i2next = ( i2 + sign +size2) % size2;
-    
+    std::size_t i1 = istart1;
+    std::size_t i2 = istart2;
+    std::size_t i1next = ( i1 + 1 ) % size1;
+    std::size_t i2next = ( i2 + sign +size2) % size2;
+
     while(true)
       {
         while( i1next!=istart1 && distance2<T,dim>(L1,i1*dim, L1,i1next*dim) < epsilon ) i1next = (  i1next + 1 ) % size1;  
         while( i2next!=istart2 && distance2<T,dim>(L2,i2*dim, L2,i2next*dim) < epsilon ) i2next = (  i2next + sign +size2 ) % size2;  
-        
+
         if(i1next == istart1)
           {
             if(i2next == istart2)
@@ -1325,14 +1326,14 @@ namespace INTERP_KERNEL
         std::cout << "Warning InterpolationUtils.hxx:checkEqualPolygonsPointer: Null pointer " << std::endl;
         throw(Exception("big error: not closed polygon..."));
       }
-    
-    int size1 = (*L1).size()/dim;
-    int size2 = (*L2).size()/dim;
-    int istart1 = 0;
-    int istart2 = 0;
-    
+
+    std::size_t size1 = (*L1).size()/dim;
+    std::size_t size2 = (*L2).size()/dim;
+    std::size_t istart1 = 0;
+    std::size_t istart2 = 0;
+
     while( istart2 < size2  && distance2<T,dim>(L1,istart1*dim, L2,istart2*dim) > epsilon ) istart2++;
-  
+
     if(istart2 == size2)
       {  
         return (size1 == 0) && (size2 == 0);

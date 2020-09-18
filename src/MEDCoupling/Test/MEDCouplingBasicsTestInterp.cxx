@@ -1634,7 +1634,7 @@ void MEDCouplingBasicsTestInterp::testInterpolationCU2D()
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0972222 ,res[4][2],precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0138889 ,res[4][5],precis);
 
-  std::vector<std::map<int,double> > resRev;
+  std::vector<std::map<mcIdType,double> > resRev;
   myInterpolator.interpolateMeshesRev(targetWrapper,sourceWrapper,resRev,"P0P0");
 
   CPPUNIT_ASSERT_DOUBLES_EQUAL( res[0][0] ,resRev[0][0],precis);

@@ -33,13 +33,7 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \defgroup interpolationCurve InterpolationCurve
-   *
-   * \class InterpolationCurve
-   * \brief Class used to compute the coefficients of the interpolation matrix between 
-   * two local meshes in two dimensions.
-   */
+
   template<class RealCurve>
   InterpolationCurve<RealCurve>::InterpolationCurve()
   {

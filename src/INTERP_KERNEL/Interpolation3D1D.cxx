@@ -23,13 +23,6 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \class Interpolation3D1D
-   * \brief Class used to calculate the interpolation between a 3D mesh and 1D mesh (in 3D space)
-   * Can be seen as a specialization of Interpolation3D, and allows notably the adjustment of bounind boxes.
-   * 
-   */
-
   Interpolation3D1D::Interpolation3D1D() { }
 
   Interpolation3D1D::Interpolation3D1D(const InterpolationOptions& io):Interpolation<Interpolation3D1D>(io) { }

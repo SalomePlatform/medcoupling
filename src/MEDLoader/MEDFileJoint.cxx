@@ -26,6 +26,7 @@
 #include "CellModel.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
+// From MEDLOader.cxx TU
 extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type                 typmai3[INTERP_KERNEL::NORM_MAXTYPE];
@@ -52,7 +53,7 @@ MEDFileJointCorrespondence::MEDFileJointCorrespondence():
 /*!
  * Constructor.
  *  \param [in] correspondence - correspondence.
- *  \param [in] is_nodal - is the correspondence of cells or nodes.
+ *  \param [in] isNodal - is the correspondence of cells or nodes.
  *  \param [in] loc_geo_type - the local geometry type of correspondence.
  *  \param [in] rem_geo_type - the remote geometry type of correspondence.
  */
@@ -470,10 +471,9 @@ MEDFileJoint::MEDFileJoint()
 /*!
  * Returns a new MEDFileJoint holding the mesh data that has been read from a given MED
  * file. The Joint to load is specified by mesh name and a Joint iteration.
- *  \param [in] fileName - the name of MED file to read.
+ *  \param [in] fid - the handler ID of MED file to read.
  *  \param [in] mName - the name of the mesh to read.
  *  \param [in] curJoint - the iteration number of current joint.
- *  \return MEDFileJoint * - a new instance of MEDFileJoint.
  *  \throw If the file is not readable.
  *  \throw If there is no mesh with given attributes in the file.
  */

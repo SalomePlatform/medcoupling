@@ -21,13 +21,13 @@
 #ifndef __MEDLOADERTEST_HXX__
 #define __MEDLOADERTEST_HXX__
 
+#include "MEDCouplingFieldInt.hxx"   // this one can not use a class forward
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace MEDCoupling
 {
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
-  class MEDCouplingFieldInt;
   class MEDCouplingFieldFloat;
 
   class MEDLoaderTest : public CppUnit::TestFixture

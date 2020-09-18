@@ -60,8 +60,7 @@ namespace INTERP_KERNEL
    *
    */
 
-  /** \file TransformedTriangle.hxx
-   * 
+  /**
    * OVERVIEW of how the class works : (details can be found in the documentation of each method)
    * 
    * Constructor : 

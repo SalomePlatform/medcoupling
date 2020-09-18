@@ -1073,8 +1073,6 @@ namespace MEDCoupling
    * For more info on renumbering see \ref numbering.
    *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
    *     giving a previous position of i-th new value.
-   *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
-   *          is to delete using decrRef() as it is no more needed.
    */
   template<class T>
   void DataArrayTemplate<T>::renumberInPlaceR(const mcIdType *new2Old)
@@ -1354,7 +1352,7 @@ namespace MEDCoupling
    * Changes the number of components within \a this array so that its raw data **does
    * not** change, instead splitting this data into tuples changes.
    *  \warning This method erases all (name and unit) component info set before!
-   *  \param [in] newNbOfComp - number of components for \a this array to have.
+   *  \param [in] newNbOfCompo - number of components for \a this array to have.
    *  \throw If \a this is not allocated
    *  \throw If getNbOfElems() % \a newNbOfCompo != 0.
    *  \throw If \a newNbOfCompo is lower than 1.
@@ -1469,7 +1467,7 @@ namespace MEDCoupling
     std::size_t newNbOfCompo=compoIds.size();
     std::size_t oldNbOfCompo=getNumberOfComponents();
     for(std::vector<std::size_t>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
-      if((*it)<0 || (*it)>=oldNbOfCompo)
+      if((*it)>=oldNbOfCompo)  // (*it) >= 0 (it is a size_t)
         {
           std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::keepSelectedComponents : invalid requested component : " << *it << " whereas it should be in [0," << oldNbOfCompo << ") !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -4463,7 +4461,7 @@ struct NotInRange
    * from values of \a this array, which is supposed to contain a renumbering map in
    * "New to Old" mode. The result array contains a renumbering map in "Old to New" mode.
    * To know how to use the renumbering maps see \ref numbering.
-   *  \param [in] newNbOfElem - the number of tuples in the result array.
+   *  \param [in] oldNbOfElem - the number of tuples in the result array.
    *  \return DataArrayInt * - the new instance of DataArrayInt.
    *          The caller is to delete this result array using decrRef() as it is no more
    *          needed.
@@ -4533,7 +4531,6 @@ struct NotInRange
    * from values of \a this array, which is supposed to contain a renumbering map in
    * "New to Old" mode. The result array contains a renumbering map in "Old to New" mode.
    * To know how to use the renumbering maps see \ref numbering.
-   *  \param [in] newNbOfElem - the number of tuples in the result array.
    *  \return MapII  - the new instance of Map.
    *
    *  \if ENABLE_EXAMPLES
@@ -5255,7 +5252,7 @@ struct NotInRange
     const T *ptr=this->getConstPointer();
     mcIdType nbTuple(this->getNumberOfTuples());
     std::size_t nbComps(this->getNumberOfComponents());
-    if(compId<0 || compId>=nbComps)
+    if(compId>=nbComps) // compId >= 0 (it is a size_t)
       throw INTERP_KERNEL::Exception("DataArrayInt::accumulate : Invalid compId specified : No such nb of components !");
     T ret=0;
     for(mcIdType i=0;i<nbTuple;i++)
@@ -5747,7 +5744,6 @@ struct NotInRange
       throw INTERP_KERNEL::Exception("DataArrayInt::indexOfSameConsecutiveValueGroups : only single component allowed !");
     const T *pt(this->begin());
     const T *const ptEnd(this->end()) , * const ptBg(this->begin());
-    const T *oldPt(pt);
     // first find nb of different values in this
     std::size_t nbOfTuplesOut(0);
     while( pt != ptEnd )
@@ -7216,7 +7212,7 @@ struct NotInRange
    *
    * \param [in] idsOfSelectStart begin of set of ids of the input extraction (included)
    * \param [in] idsOfSelectStop end of set of ids of the input extraction (excluded)
-   * \param [in] idsOfSelectStep
+   * \param [in] idsOfSelectStep step of set of ids of the input extraction
    * \param [in] arrIn arr origin array from which the extraction will be done.
    * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
    * \param [out] arrOut the resulting array

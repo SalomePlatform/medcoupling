@@ -395,7 +395,6 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
           // Check tangent vector of the arc circle at the common node with the linear segment.
           // There we can tell if the arc of circle is 'moving away' from the seg, or if it might intersect it twice
           const Node &n(*_earlyInter->getNodeOnly());
-          const double * center(getE1().getCenter());
 
           double tang[2] = {-(n[1]-center[1]), n[0]-center[0]};  // (-y, x) is the tangent vector in the trigo direction with (x,y) = (center->node)
           bool invSeg = _i1S2E || _i1E2E;

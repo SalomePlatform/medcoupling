@@ -189,7 +189,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
         //debugStream << endl ;
      }
 
-     int sts = MyMPIAccessDEC->allToAllvTime( sendbuf, sendcounts , sdispls , MPI_DOUBLE ,
+     sts = MyMPIAccessDEC->allToAllvTime( sendbuf, sendcounts , sdispls , MPI_DOUBLE ,
                                             recvbuf, recvcounts , rdispls , MPI_DOUBLE ) ;
      chksts( sts , myrank , mpi_access ) ;
 
@@ -218,23 +218,22 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
 //     debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " check of recvbuf" << endl ;
      bool badrecvbuf = false ;
      for ( target = 0 ; target < size ; target++ ) {
-        int j ;
-        for ( j = 0 ; j < datamsglength ; j++ ) {
-           int index = target*datamsglength+j ;
-           if ( j < recvcounts[target] ) {
+        for ( int jj = 0 ; jj < datamsglength ; jj++ ) {
+           int index = target*datamsglength+jj ;
+           if ( jj < recvcounts[target] ) {
              if ( fabs(recvbuf[index] - (target*1000000 + myrank*10000 +
-                  (timeLoc[target]/deltatime[target])*100 + j)) > 101) {
+                  (timeLoc[target]/deltatime[target])*100 + jj)) > 101) {
                badrecvbuf = true ;
                debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " target " << target << " timeLoc[target] "
                     << timeLoc[target] << " recvbuf[" << index << "] " << (int ) recvbuf[index]
                     << " # " << (int ) (target*1000000 +
-                       myrank*10000 + (timeLoc[target]/deltatime[target])*100 + j)
+                       myrank*10000 + (timeLoc[target]/deltatime[target])*100 + jj)
                     << endl ;
              }
              else if ( badrecvbuf ) {
                debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " recvbuf[" << index << "] "
                     << recvbuf[index] << " ~= " << (int ) (target*1000000 +
-                       myrank*10000 + (timeLoc[target]/deltatime[target])*100 + j) << endl ;
+                       myrank*10000 + (timeLoc[target]/deltatime[target])*100 + jj) << endl ;
              }
            }
            else if ( recvbuf[index] != -1 ) {

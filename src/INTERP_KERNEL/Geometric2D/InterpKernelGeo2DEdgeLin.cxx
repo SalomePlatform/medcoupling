@@ -27,7 +27,7 @@ using namespace INTERP_KERNEL;
 
 namespace INTERP_KERNEL
 {
-  extern const unsigned MAX_SIZE_OF_LINE_XFIG_FILE=1024;
+  const unsigned MAX_SIZE_OF_LINE_XFIG_FILE=1024;
 }
 
 SegSegIntersector::SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2):
@@ -131,10 +131,8 @@ bool SegSegIntersector::areColinears() const
 
 /*!
  * Should be called \b once ! non const method.
- * \param whereToFind specifies the box where final seek should be done. Essentially it is used for caracteristic reason.
- * \param colinearity returns if regarding QuadraticPlanarPrecision::getPrecision() ; e1 and e2 are colinears
- *                    If true 'this' is modified ! So this method be called once above all if true is returned for this parameter.
- * \param areOverlapped if colinearity if true, this parameter looks if e1 and e2 are overlapped, i.e. is they lie on the same line (= this is different from
+ * \param obviousNoIntersection set to true if it is obvious that there is no intersection
+ * \param areOverlapped if the two segs are colinears, this parameter looks if e1 and e2 are overlapped, i.e. is they lie on the same line (= this is different from
  * a true intersection, two segments can be in "overlap" mode, without intersecting)
  */
 void SegSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped)

@@ -82,7 +82,7 @@ void MPIAccessTest::test_MPI_Access_Cancel() {
   int intsendbuf[5] ;
   double doublesendbuf[10] ;
   int RequestId[10] ;
-  int sts ;
+  int sts = 0;
   int i , j ;
   for ( j = 0 ; j < 3 ; j++ ) {
      for ( i = 0 ; i < 10 ; i++ ) {
@@ -124,7 +124,7 @@ void MPIAccessTest::test_MPI_Access_Cancel() {
                  sts = mpi_access.IRecv(&recvbuf,outcount,MPI_INT,source,
                                         RequestId[i] ) ;
                  if ( datatype == MPI_INT ) {
-                   int source, tag, error, outcount ;
+                   int error;
                    mpi_access.wait( RequestId[i] ) ;
                    mpi_access.status( RequestId[i], source, tag, error, outcount,
                                       true ) ;

@@ -637,8 +637,7 @@ void GaussInfo::initLocalInfo()
         break;
       }
 
-
-      _my_local_ref_dim = 3;
+/*      _my_local_ref_dim = 3;
       _my_local_nb_ref  = 6;
       penta6aInit();
       aSatify = isSatisfy();
@@ -650,7 +649,7 @@ void GaussInfo::initLocalInfo()
           CHECK_MACRO;
         }
       break;
-
+*/
     case NORM_PENTA15:
       {
         _my_local_ref_dim = 3;

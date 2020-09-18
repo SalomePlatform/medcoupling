@@ -30,6 +30,12 @@
 
 namespace INTERP_KERNEL
 {
+  /**
+   * \class Interpolation1D0D
+   * \brief Class used to calculate the interpolation between a 1D mesh and 0D mesh (in 3D space)
+   * Can be seen as a specialization of Interpolation3D, and allows notably the adjustment of bounind boxes.
+   *
+   */
   class INTERPKERNEL_EXPORT Interpolation1D0D : public Interpolation<Interpolation1D0D>
   {
   public:

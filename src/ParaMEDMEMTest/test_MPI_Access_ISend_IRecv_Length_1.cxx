@@ -94,9 +94,9 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
     }
     int j ;
     for (j = 1 ; j <= i ; j++) {
-      int source ;
-      MPI_Datatype datatype ;
-      int outcount ;
+      int source = 0;
+      MPI_Datatype datatype = 0;
+      int outcount = 0;
       int flag ;
       if ( myrank == 0 ) {
         mpi_access.test( SendRequestId[j], flag ) ;
@@ -125,7 +125,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
       }
       if ( flag ) {
         if ( myrank == 0 ) {
-          int target, tag, error, outcount ;
+          int tag, error ;
           mpi_access.status( SendRequestId[j], target, tag, error, outcount,
                              true ) ;
           debugStream << "test" << myrank << " Test(Send RequestId " << SendRequestId[j]
@@ -175,10 +175,8 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
     debugStream << "test" << myrank << " TestAll SendRequest flag " << flag << endl ;
   }
   else {
-    int i ;
     int source ;
     int outcount ;
-    int flag ;
     if ( maxirecv != maxreq ) {
       ostringstream strstream ;
       strstream << "==========================================================="

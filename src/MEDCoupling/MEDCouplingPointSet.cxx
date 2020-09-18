@@ -217,7 +217,7 @@ bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingP
 /*!
  * Returns coordinates of \a nodeId-th node.
  *  \param [in] nodeId - the ID of the node of interest.
- *  \param [in, out] coo - the array filled with coordinates of the \a nodeId-th
+ *  \param [in,out] coo - the array filled with coordinates of the \a nodeId-th
  *         node. This array is not cleared before filling in, the coordinates are
  *         appended to its end.
  *  \throw If the coordinates array is not set.
@@ -370,7 +370,8 @@ void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, mcIdType nbOfP
 
 /*!
  * @param comm in param in the same format than one returned by findCommonNodes method (\ref numbering-indirect).
- * @param commI in param in the same format than one returned by findCommonNodes method (\ref numbering-indirect).
+ * @param commIndex in param in the same format than one returned by findCommonNodes method (\ref numbering-indirect).
+ * @param newNbOfNodes new number of nodes
  * @return the old to new correspondence array.
  */
 DataArrayIdType *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const DataArrayIdType *comm, const DataArrayIdType *commIndex,

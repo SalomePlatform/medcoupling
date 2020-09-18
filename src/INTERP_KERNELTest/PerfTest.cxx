@@ -30,7 +30,6 @@
 #include <string>
 
 /**
- * \file PerfTest.cxx
  * Test program which takes two meshes and calculates their intersection matrix.
  *
  * USAGE : PerfTest mesh1 mesh2
@@ -81,7 +80,7 @@ namespace INTERP_TEST
       Interpolation3D interpolator;
       interpolator.interpolateMeshes(sMesh_wrapper, tMesh_wrapper,m,"P0P0");
 
-      std::pair<int, int> eff = countNumberOfMatrixEntries(m);
+//      std::pair<int, int> eff = countNumberOfMatrixEntries(m);
 //      LOG(1, eff.first << " of " << numTargetElems * numSrcElems << " intersections calculated : ratio = "
 //          << double(eff.first) / double(numTargetElems * numSrcElems));
       LOG(1, eff.second << " non-zero elements of " << eff.first << " total : filter efficiency = "

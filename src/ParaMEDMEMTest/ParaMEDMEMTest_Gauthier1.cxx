@@ -345,11 +345,11 @@ void ParaMEDMEMTest::testGauthier2()
             }
           CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected1[type],pmin,1e-12);
           CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[type],pmax,1e-12);
-      
-          int nbCompo(vitesse->getField()->getNumberOfComponents());
+
+          std::size_t nbCompo(vitesse->getField()->getNumberOfComponents());
           p=vitesse->getField()->getArray()->begin();
           for(int i=0;i<vitesse->getField()->getNumberOfTuples();i++)
-            for(int c=0;c<nbCompo;c++,p++)
+            for(std::size_t c=0;c<nbCompo;c++,p++)
               CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected3[type][i*nbCompo+c],*p,1e-12);
         }
       delete vitesse;

@@ -194,7 +194,7 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly()
  * If meshes of \b srcField and \b targetField do not match exactly those given into \ref MEDCoupling::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
  * 
  * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on MEDCoupling::MEDCouplingRemapper::prepare.
- * \param [in/out] targetField the destination field with the allocated array in which all tuples will be overwritten.
+ * \param [in,out] targetField the destination field with the allocated array in which all tuples will be overwritten.
  * \param [in] dftValue is the value that will be assigned in the targetField to each entity of target mesh (entity depending on the method selected on prepare invocation) that is not intercepted by any entity of source mesh.
  *             For example in "P0P0" case (cell-cell) if a cell in target mesh is not overlapped by any source cell the \a dftValue value will be attached on that cell in the returned \a targetField. In some cases a target
  *             cell not intercepted by any source cell is a bug so in this case it is advised to set a huge value (1e300 for example) to \a dftValue to quickly point to the problem. But for users doing parallelism a target cell can
@@ -1144,7 +1144,6 @@ void MEDCouplingRemapper::computeDeno(NatureOfField nat, const MEDCouplingFieldD
 void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField)
 {
   _nature_of_deno=nat;
-  std::size_t _time_deno_update=getTimeOfThis();
   switch(_nature_of_deno)
   {
     case IntensiveMaximum:

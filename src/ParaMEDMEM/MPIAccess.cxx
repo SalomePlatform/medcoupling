@@ -407,8 +407,8 @@ namespace MEDCoupling
         int outcount = 0 ;
         if ( sts == MPI_SUCCESS )
           {
-            MPI_Datatype datatype = MPIDatatype( RequestId ) ;
-            _comm_interface.getCount(MPIStatus( RequestId ), datatype, &outcount ) ;
+            MPI_Datatype datatype2 = MPIDatatype( RequestId ) ;
+            _comm_interface.getCount(MPIStatus( RequestId ), datatype2, &outcount ) ;
             setMPIOutCount( RequestId , outcount ) ;
             setMPICompleted( RequestId , true ) ;
             deleteStatus( RequestId ) ;

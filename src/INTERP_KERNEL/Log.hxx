@@ -21,7 +21,6 @@
 #define _LOG_H_
 
 /** 
- * \file Log.hxx
  * \brief Simple pre-processor logging utility.
  *
  * Replaces LOG( lvl, x ) with "if(lvl <= LOG_LEVEL) std::cout << x << std::endl" when logging is active 

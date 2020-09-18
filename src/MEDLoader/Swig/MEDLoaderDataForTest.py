@@ -415,7 +415,7 @@ class MEDLoaderDataForTest:
         f1=MEDCouplingFieldInt.New(ON_CELLS,ONE_TIME);
         f1.setName("IntVectorFieldOnCells");
         f1.setMesh(mesh);
-        array=DataArrayInt([0,10,20,1,11,21,2,12,22,3,13,23,4,14,24,5,15,25],nbOfCells ,3)
+        array=DataArrayInt32([0,10,20,1,11,21,2,12,22,3,13,23,4,14,24,5,15,25],nbOfCells ,3)
         array.setInfoOnComponent(0,"va1 [MW/m^3]");
         array.setInfoOnComponent(1,"va2 [g/cm^3]");
         array.setInfoOnComponent(2,"val3 [K]");

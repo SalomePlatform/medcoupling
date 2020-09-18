@@ -37,8 +37,6 @@ void BOOSTRenumbering::renumber(const mcIdType *graph, const mcIdType *index_gra
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, 
      boost::property<boost::vertex_color_t, boost::default_color_type,
        boost::property<boost::vertex_degree_t,mcIdType> > > Graph;
-  typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-  typedef boost::graph_traits<Graph>::vertices_size_type size_type;
   Graph G(nbCell);
   for (mcIdType i=0;i<nbCell;++i)
     for (mcIdType j=index_graph[i];j<index_graph[i+1];++j)

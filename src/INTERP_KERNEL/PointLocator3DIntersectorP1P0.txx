@@ -29,7 +29,6 @@ namespace INTERP_KERNEL
   /**
    * @param targetMesh  mesh containing the target elements
    * @param srcMesh     mesh containing the source elements
-   * @param policy      splitting policy to be used
    *
    * WARNING : in _split attribute, sourceMesh and targetMesh are switched in order to fit intersectCells feature.
    */

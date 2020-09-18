@@ -146,10 +146,10 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
   else
     dec.setIntersectionType(INTERP_KERNEL::Convex);
 
-  MEDCoupling::MEDCouplingUMesh* mesh;
-  MEDCoupling::ParaMESH* paramesh;
-  MEDCoupling::ParaFIELD* parafield;
-  ICoCo::MEDField* icocofield ;
+  MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
+  MEDCoupling::ParaMESH* paramesh = nullptr;
+  MEDCoupling::ParaFIELD* parafield = nullptr;
+  ICoCo::MEDField* icocofield = nullptr;
   
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;

@@ -540,10 +540,10 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<mcIdType,INTERP_K
             {
               mcIdType idBg=direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1];
               mcIdType idEnd=direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2];
-              bool direction11,found=false;
-              bool direct1;//store if needed the direction in 1
-              mcIdType offset2;
-              mcIdType nbOfSubEdges1;
+              bool direction11=false,found=false;
+              bool direct1=false;//store if needed the direction in 1
+              mcIdType offset2=0;
+              mcIdType nbOfSubEdges1=0;
               for(std::vector<std::pair<mcIdType,std::pair<bool,mcIdType> > >::const_iterator it=idIns1.begin();it!=idIns1.end() && !found;it++)
                 {
                   mcIdType idIn1=(*it).first;//store if needed the cell id in 1
@@ -672,8 +672,8 @@ void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,mcId
 /*!
  * This method make the hypothesis that \a this and \a other are split at the minimum into edges that are fully IN, OUT or ON.
  * This method returns newly created polygons in \a conn and \a connI and the corresponding ids ( \a idThis, \a idOther) are stored respectively into \a nbThis and \a nbOther.
- * @param [in,out] edgesThis, parameter that keep informed the caller about the edges in this not shared by the result of intersection of \a this with \a other
- * @param [in,out] edgesBoundaryOther, parameter that stores all edges in result of intersection that are not
+ * @param [in,out] edgesThis parameter that keep informed the caller about the edges in this not shared by the result of intersection of \a this with \a other
+ * @param [in,out] edgesBoundaryOther parameter that stores all edges in result of intersection that are not
  */
 void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, std::set<INTERP_KERNEL::Edge *>& edgesThis, std::set<INTERP_KERNEL::Edge *>& edgesBoundaryOther,
                                           const std::map<INTERP_KERNEL::Node *,mcIdType>& mapp, mcIdType idThis, mcIdType idOther, mcIdType offset,
@@ -1080,7 +1080,7 @@ std::list<QuadraticPolygon *> QuadraticPolygon::zipConsecutiveInSegments() const
 }
 
 /*!
- * @param [in] pol1zip is a list of set of edges (=an opened polygon) coming from split polygon 1.
+ * @param [in] pol1Zip is a list of set of edges (=an opened polygon) coming from split polygon 1.
  * @param [in] pol1 should be considered as pol1Simplified.
  * @param [in] pol2 is split pol2.
  * @param [out] results the resulting \b CLOSED polygons.
@@ -1089,7 +1089,7 @@ void QuadraticPolygon::ClosePolygons(std::list<QuadraticPolygon *>& pol1Zip, con
                                      std::vector<QuadraticPolygon *>& results)
 {
   bool directionKnownInPol2=false;
-  bool directionInPol2;
+  bool directionInPol2=false;
   bool needCleaning = false;
   for(std::list<QuadraticPolygon *>::iterator iter=pol1Zip.begin();iter!=pol1Zip.end();)
     {

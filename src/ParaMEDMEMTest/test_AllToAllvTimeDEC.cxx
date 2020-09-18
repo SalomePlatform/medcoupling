@@ -174,7 +174,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
       //       MyMPIAccessDEC->NextTime( nextdeltatime ) ;
     }
     MyMPIAccessDEC->setTime( timeLoc , nextdeltatime ) ;
-    debugStream << "test_AllToAllvTimeDEC" << myrank << "=====TIME " << time << "=====DELTATIME "
+    debugStream << "test_AllToAllvTimeDEC" << myrank << "=====TIME " << timeLoc << "=====DELTATIME "
          << nextdeltatime << "=====MAXTIME " << maxtime << " ======" << endl ; 
     int * sendbuf = new int[datamsglength*size] ;
     //     int * sendbuf = (int *) malloc(sizeof(int)*datamsglength*size) ;
@@ -210,9 +210,9 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
       delete [] sendbuf ;
     }
     else {
-      int sts = MyMPIAccessDEC->allToAllvTime( sendbuf, sendcounts , sdispls , MPI_INT ,
+      int sts2 = MyMPIAccessDEC->allToAllvTime( sendbuf, sendcounts , sdispls , MPI_INT ,
                                                recvbuf, recvcounts , rdispls , MPI_INT ) ;
-      chksts( sts , myrank , mpi_access ) ;
+      chksts( sts2 , myrank , mpi_access ) ;
     }
 
     //     debugStream << "test_AllToAllvTimeDEC" << myrank << " recvbuf before CheckSent" ;
@@ -242,10 +242,9 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
     //     debugStream << "test_AllToAllvTimeDEC" << myrank << " check of recvbuf" << endl ;
     bool badrecvbuf = false ;
     for ( i = 0 ; i < size ; i++ ) {
-      int j ;
-      for ( j = 0 ; j < datamsglength ; j++ ) {
-        int index = i*datamsglength+j ;
-        if ( j < recvcounts[i] ) {
+      for ( int jj = 0 ; jj < datamsglength ; jj++ ) {
+        int index = i*datamsglength+jj ;
+        if ( jj < recvcounts[i] ) {
           if ( recvbuf[index] != (index/datamsglength)*1000000 + myrank*1000 +
                myrank*datamsglength+(index%datamsglength) ) {
             badrecvbuf = true ;

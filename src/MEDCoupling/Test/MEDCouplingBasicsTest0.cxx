@@ -1658,7 +1658,7 @@ void MEDCouplingBasicsTest::test2D1DMeshesIntersection(MEDCouplingUMesh *sourceM
   CPPUNIT_ASSERT_DOUBLES_EQUAL(correctLength, length, prec * std::max(correctLength, length));
 
   INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
-  int duplicateFacesNbr = duplicateFaces.size();
+  int duplicateFacesNbr = (int)duplicateFaces.size();
   LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
   CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
 
@@ -1699,7 +1699,7 @@ void MEDCouplingBasicsTest::test3D2DMeshesIntersection(MEDCouplingUMesh *sourceM
     CPPUNIT_ASSERT_DOUBLES_EQUAL(correctSurf, surf, prec * std::max(correctSurf, surf));
 
     INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
-    int duplicateFacesNbr = duplicateFaces.size();
+    int duplicateFacesNbr = (int)duplicateFaces.size();
     LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
     CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
 

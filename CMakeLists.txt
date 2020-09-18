@@ -21,6 +21,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11 FATAL_ERROR)
 #INCLUDE(CMakeDependentOption)
 PROJECT(MEDCoupling C CXX)
 
+
 # Versioning
 # ===========
 # Project name, upper case
@@ -44,6 +45,30 @@ ENDIF()
 # Platform setup
 # ==============
 INCLUDE(SalomeSetupPlatform)
+
+# [ABN]: use the below for aggressive code quality check: 
+#if( EXISTS "aaaa")
+#    add_definitions(-Weverything)
+#    add_definitions(-Wno-inconsistent-missing-override)
+#    add_definitions(-Wno-c++98-compat -Wno-c++98-compat-pedantic)
+#    add_definitions(-Wno-sign-conversion)
+#    add_definitions(-Wno-switch-enum)
+#
+#    add_definitions(-Wno-documentation-unknown-command) # \image in Doxygen
+#    add_definitions(-Wno-gnu-statement-expression)      # assert(...)
+#
+#    add_definitions(-Wno-reserved-id-macro -Wno-padded -Wno-weak-vtables -Wdouble-promotion -Wno-comma -Wno-unused-parameter)
+#    add_definitions(-Wno-unreachable-code-break -Wno-old-style-cast -Wno-deprecated -Wno-double-promotion)
+#    add_definitions(-Wno-exit-time-destructors -Wno-global-constructors -Wno-missing-prototypes)
+#    add_definitions(-Wno-covered-switch-default -Wno-weak-template-vtables -Wno-undefined-func-template -Wno-used-but-marked-unused)
+#    add_definitions(-Wno-unreachable-code-return -Wno-missing-noreturn -Wno-unused-member-function -Wno-header-hygiene)
+#    add_definitions(-Wno-ignored-qualifiers) # because of MED-file 
+#    add_definitions(-Wno-unused-function -Wno-unused-macros)
+#    add_definitions(-Wno-missing-field-initializers)
+#    add_definitions(-Wno-shadow)  # SWIG generates a lot of those ...
+#
+#    add_definitions(-Wno-float-equal)  # OUCH
+#endif()
 
 #
 # User options

@@ -279,10 +279,10 @@ void OverlapMapping::computeDenoConservativeVolumic(mcIdType nbOfTuplesTrg)
       denoM.resize(mat.size());
       if(isItem1==_sent_trg_ids.end() || curSrcId==myProcId)//item1 of step2 main algo. Simple, because rowId of mat are directly target ids.
         {
-          mcIdType rowId=0;
-          for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
+          mcIdType rowId2=0;
+          for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId2++)
             for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
-              denoM[rowId][(*it2).first]=deno[rowId];
+              denoM[rowId2][(*it2).first]=deno[rowId2];
         }
       else
         {

@@ -84,8 +84,8 @@ namespace INTERP_KERNEL
   //================================================================================
   /*!
    * \brief This method computes a value per each node of source cell for each target cell.
-   *  \param srcCell - a source tetrahedron
-   *  \param tgtCells - target elements
+   *  \param srcCells - source elements
+   *  \param tgtCell - target element
    *  \param res - matrix to fill in 
    */
   //================================================================================

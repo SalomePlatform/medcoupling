@@ -143,7 +143,7 @@ void CppExample_MEDCouplingFieldDouble_substractInPlaceDM()
     mesh1->fillFromAnalytic( MEDCoupling::ON_NODES,1,"x"); // field1 values == coords1
   MCAuto<MEDCouplingFieldDouble> field2 =
     mesh2->fillFromAnalytic( MEDCoupling::ON_NODES,1,"x"); // field2 values == coords2
-  const double levOfCheck = 10; // nodes can be permuted
+  const int levOfCheck = 10; // nodes can be permuted
   field1->substractInPlaceDM( field2, levOfCheck, 1e-13, 0 ); // values #0 and #2 must swap
   //! [CppSnippet_MEDCouplingFieldDouble_substractInPlaceDM_2]
   //! [CppSnippet_MEDCouplingFieldDouble_substractInPlaceDM_3]
@@ -174,7 +174,7 @@ void CppExample_MEDCouplingFieldDouble_changeUnderlyingMesh()
   //! [CppSnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_2]
   MCAuto<MEDCouplingFieldDouble> field =
     mesh1->fillFromAnalytic( MEDCoupling::ON_NODES,1,"x"); // field values == coords1
-  const double levOfCheck = 10; // nodes can be permuted
+  const int levOfCheck = 10; // nodes can be permuted
   field->changeUnderlyingMesh( mesh2, levOfCheck, 1e-13, 0 ); // values #0 and #2 must swap
   CPPUNIT_ASSERT( std::equal( coords2, coords2+4, field->getArray()->getConstPointer() ));
   //! [CppSnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_2]

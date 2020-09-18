@@ -2302,14 +2302,6 @@ bool MEDCoupling1DGTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *o
   if(!c1->isEqualWithoutConsideringStr(*c2))
     return false;
   return true;
-  c1=_conn_indx; c2=otherC->_conn_indx;
-  if(c1==c2)
-    return true;
-  if(!c1 || !c2)
-    return false;
-  if(!c1->isEqualWithoutConsideringStr(*c2))
-    return false;
-  return true;
 }
 
 /*!
@@ -3072,7 +3064,6 @@ void MEDCoupling1DGTUMesh::unserialization(const std::vector<double>& tinyInfoD,
  * Finds nodes not used in any cell and returns an array giving a new id to every node
  * by excluding the unused nodes, for which the array holds -1. The result array is
  * a mapping in "Old to New" mode.
- *  \param [out] nbrOfNodesInUse - number of node ids present in the nodal connectivity.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType. Its length is \a
  *          this->getNumberOfNodes(). It holds for each node of \a this mesh either -1
  *          if the node is unused or a new id else. The caller is to delete this

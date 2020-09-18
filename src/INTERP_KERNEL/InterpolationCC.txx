@@ -63,8 +63,8 @@ namespace INTERP_KERNEL
    * \brief Fills the matrix by precomputed cell interferences along axes
    *  \param inter_of_axis - cell/cell interferences along each axis
    *  \param result - matrix to fill in
-   *  \param src_nb_cells[] - nb of cells along each of axes in the source mesh
-   *  \param tgt_nb_cells[] - nb of cells along each of axes in the target mesh
+   *  \param src_nb_cells - nb of cells along each of axes in the source mesh
+   *  \param tgt_nb_cells - nb of cells along each of axes in the target mesh
    *  \param src_i_cell - source cell number accumulated by previous axes
    *  \param tgt_i_cell - target cell number accumulated by previous axes
    *  \param src_prev_area - factor by which this axis icreases cell number

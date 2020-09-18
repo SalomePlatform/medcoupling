@@ -34,28 +34,17 @@ using namespace MEDCoupling;
 
 MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                                            const std::vector<double>& gsCoo, const std::vector<double>& w)
-try:_type(type),_ref_coord(refCoo),_gauss_coord(gsCoo),_weight(w)
+:_type(type),_ref_coord(refCoo),_gauss_coord(gsCoo),_weight(w)
 {
+  // Will potentially throw (and then release memory for above objects _ref_coord etc ...)
   checkConsistencyLight();
-}
-catch(INTERP_KERNEL::Exception& e)
-{
-    _type=INTERP_KERNEL::NORM_ERROR;
-    _ref_coord.clear();
-    _gauss_coord.clear();
-    _weight.clear();
-    throw e;
 }
 
 MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType typ)
-try:_type(typ)
+:_type(typ)
 {
+  // Will potentially throw
   INTERP_KERNEL::CellModel::GetCellModel(_type);
-}
-catch(INTERP_KERNEL::Exception& e)
-{
-    _type=INTERP_KERNEL::NORM_ERROR;
-    throw e;
 }
 
 void MEDCouplingGaussLocalization::setType(INTERP_KERNEL::NormalizedCellType typ)
@@ -224,7 +213,6 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::localizePtsInRefCooForEach
   double *retPtr(ret->getPointer());
   if(dim!=ToIdType(ptsInRefCoo->getNumberOfComponents()))
     throw INTERP_KERNEL::Exception("MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell : number of components of input coo is not equal to dim of element !");
-  const std::vector<double>& wg(getWeights());
   INTERP_KERNEL::GaussCoords calculator;
   calculator.addGaussInfo(typ,dim, ptsInRefCoo->begin(),nbPts,&_ref_coord[0],getNumberOfPtsInRefCell());
   //

@@ -74,8 +74,6 @@ namespace MEDCoupling
     MEDCouplingPointSet *_source_support;
     MEDCouplingPointSet *_target_support;
     OverlapMapping      _mapping;
- 
-    const ProcessorGroup& _group;
   };
 }
 

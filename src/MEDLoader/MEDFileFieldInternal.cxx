@@ -32,6 +32,7 @@
 
 #include "CellModel.hxx"
 
+// From MEDLOader.cxx TU
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
@@ -371,7 +372,8 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(mcIdType& start, mc
 
 /*!
  * Leaf method of field with profile assignment. This method is the most general one. No optimization is done here.
- * \param [in] pflName input containing name of profile if any. 0 if no profile (except for GAUSS_PT where a no profile can hide a profile when split by loc_id).
+ * \param [in] isPflAlone whether there are several profiles or not
+ * \param [in] start starting ID
  * \param [in] multiTypePfl is the end user profile specified in high level API
  * \param [in] idsInPfl is the selection into the \a multiTypePfl whole profile that corresponds to the current geometric type.
  * \param [in] locIds is the profile needed to be created for MED file format. It can be null if all cells of current geometric type are fetched in \a multiTypePfl.
@@ -914,8 +916,6 @@ void MEDFileFieldPerMeshPerTypePerDisc::fillValues(int discId, mcIdType& startEn
 
 void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid, const MEDFileFieldNameScope& nasc) const
 {
-  TypeOfField type=getType();
-  INTERP_KERNEL::NormalizedCellType geoType(getGeoType());
   med_geometry_type mgeoti;
   med_entity_type menti;
   _father->entriesForMEDfile(getType(),mgeoti,menti);

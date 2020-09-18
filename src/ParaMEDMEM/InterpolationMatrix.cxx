@@ -48,10 +48,11 @@ namespace MEDCoupling
      Creates an empty matrix structure linking two distributed supports.
      The method must be called by all processors belonging to source
      and target groups.
-     \param source_support local support
+     \param source_field local source field
      \param source_group processor group containing the local processors
      \param target_group processor group containing the distant processors
-     \param method interpolation method
+     \param dec_options DEC options (including projection method P0, P1)
+     \param interp_options interpolation options
   */
   InterpolationMatrix::InterpolationMatrix(const MEDCoupling::ParaFIELD *source_field, 
                                            const ProcessorGroup& source_group,
@@ -639,7 +640,6 @@ namespace MEDCoupling
    * This method introduce global ids aspects in computed 'rowsPartialSumD'.
    * As precondition rowsPartialSumD.size()==policyPartial.size()==globalIdsPartial.size(). Foreach i in [0;rowsPartialSumD.size() ) rowsPartialSumD[i].size()==globalIdsPartial[i].size()
    * @param rowsPartialSumD : in parameter, Partial row sum computed for each lazy procs connected with.
-   * @param rowsPartialSumI : in parameter, Corresponding local ids for each lazy procs connected with.
    * @param globalIdsPartial : in parameter, the global numbering, of elements connected with.
    * @param globalIdsLazySideInteraction : out parameter, constituted from all global ids of lazy procs connected with.
    * @para sumCorresponding : out parameter, relative to 'globalIdsLazySideInteraction'

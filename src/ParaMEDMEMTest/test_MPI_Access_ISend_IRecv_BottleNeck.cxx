@@ -141,28 +141,26 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_BottleNeck() {
 
   if(MPI_ACCESS_VERBOSE) mpi_access.check() ;
   if ( myrank == 0 ) {
-    int size = mpi_access.sendRequestIdsSize() ;
-    debugStream << "test" << myrank << " before WaitAll sendreqsize " << size << endl ;
+    int size2 = mpi_access.sendRequestIdsSize() ;
+    debugStream << "test" << myrank << " before WaitAll sendreqsize " << size2 << endl ;
     mpi_access.waitAll(maxreq, SendRequestId) ;
-    size = mpi_access.sendRequestIdsSize() ;
-    debugStream << "test" << myrank << " after WaitAll sendreqsize " << size << endl ;
-    int * ArrayOfSendRequests = new int[ size ] ;
-    int nSendRequest = mpi_access.sendRequestIds( size , ArrayOfSendRequests ) ;
-    int i ;
+    size2 = mpi_access.sendRequestIdsSize() ;
+    debugStream << "test" << myrank << " after WaitAll sendreqsize " << size2 << endl ;
+    int * ArrayOfSendRequests = new int[ size2 ] ;
+    int nSendRequest = mpi_access.sendRequestIds( size2 , ArrayOfSendRequests ) ;
     for ( i = 0 ; i < nSendRequest ; i++ ) {
        mpi_access.deleteRequest( ArrayOfSendRequests[i] ) ;
     }
     delete [] ArrayOfSendRequests ;
   }
   else {
-    int size = mpi_access.recvRequestIdsSize() ;
-    debugStream << "test" << myrank << " before WaitAll recvreqsize " << size << endl ;
+    int size2 = mpi_access.recvRequestIdsSize() ;
+    debugStream << "test" << myrank << " before WaitAll recvreqsize " << size2 << endl ;
     mpi_access.waitAll(maxreq, RecvRequestId) ;
-    size = mpi_access.recvRequestIdsSize() ;
-    debugStream << "test" << myrank << " after WaitAll recvreqsize " << size << endl ;
-    int * ArrayOfRecvRequests = new int[ size ] ;
-    int nRecvRequest = mpi_access.recvRequestIds( size , ArrayOfRecvRequests ) ;
-    int i ;
+    size2 = mpi_access.recvRequestIdsSize() ;
+    debugStream << "test" << myrank << " after WaitAll recvreqsize " << size2 << endl ;
+    int * ArrayOfRecvRequests = new int[ size2 ] ;
+    int nRecvRequest = mpi_access.recvRequestIds( size2 , ArrayOfRecvRequests ) ;
     for ( i = 0 ; i < nRecvRequest ; i++ ) {
        mpi_access.deleteRequest( ArrayOfRecvRequests[i] ) ;
     }
@@ -173,7 +171,6 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_BottleNeck() {
   if ( myrank == 0 ) {
     int sendrequests[maxreq] ;
     int sendreqsize = mpi_access.sendRequestIds( target , maxreq , sendrequests ) ;
-    int i ;
     if ( sendreqsize != 0 ) {
       ostringstream strstream ;
       strstream << "=========================================================" << endl

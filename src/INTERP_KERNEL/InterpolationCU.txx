@@ -84,8 +84,8 @@ namespace INTERP_KERNEL
    * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
    * 
 
-   * @param srcMesh     cartesian source mesh
-   * @param targetMesh  unstructured target mesh
+   * @param src_mesh     cartesian source mesh
+   * @param tgt_mesh  unstructured target mesh
    * @param result      matrix in which the result is stored 
    * @param method      interpolation method
    */
@@ -208,8 +208,8 @@ namespace INTERP_KERNEL
    * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
    * 
 
-   * @param srcMesh     2-dimesional unstructured target mesh
-   * @param targetMesh  2-dimensional cartesian source mesh
+   * @param meshS     2-dimesional unstructured target mesh
+   * @param meshT     2-dimensional cartesian source mesh
    * @param result      matrix in which the result is stored 
    * @param method      interpolation method
    */
@@ -223,7 +223,7 @@ namespace INTERP_KERNEL
 
     MatrixType revResult;
     CConnType sizeT = interpolateMeshes( meshT, meshS, revResult, method );
-    UConnType sizeS = revResult.size();
+    UConnType sizeS = static_cast<UConnType>(revResult.size());
     result.resize( sizeT );
 
     for ( CConnType iS = 0; iS < sizeS; ++iS )

@@ -133,3 +133,4 @@ MCAuto<ParaSkyLineArray> ParaSkyLineArray::equiRedistribute(mcIdType nbOfEntitie
   MCAuto<ParaSkyLineArray> ret(ParaSkyLineArray::New(skOut,globalIdsOut));
   return ret.retn();
 }
+

@@ -1588,14 +1588,14 @@ void MEDCouplingUMesh::AppendExtrudedCell(const mcIdType *connBg, const mcIdType
  * This method allows to compute given the status of 3D curve cells and the descending connectivity 3DSurf->3DCurve to deduce the intersection of each 3D surf cells
  * with a plane. The result will be put in 'cut3DSuf' out parameter.
  * \param [in] cut3DCurve  input parameter that gives for each 3DCurve cell if it owns fully to the plane or partially.
- * \param [out] nodesOnPlane, returns all the nodes that are on the plane.
+ * \param [out] nodesOnPlane returns all the nodes that are on the plane.
  * \param [in] nodal3DSurf is the nodal connectivity of 3D surf mesh.
  * \param [in] nodalIndx3DSurf is the nodal connectivity index of 3D surf mesh.
  * \param [in] nodal3DCurve is the nodal connectivity of 3D curve mesh.
- * \param [in] nodal3DIndxCurve is the nodal connectivity index of 3D curve mesh.
+ * \param [in] nodalIndx3DCurve is the nodal connectivity index of 3D curve mesh.
  * \param [in] desc is the descending connectivity 3DSurf->3DCurve
  * \param [in] descIndx is the descending connectivity index 3DSurf->3DCurve
- * \param [out] cut3DSuf input/output param.
+ * \param [out] cut3DSurf input/output param.
  */
 void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<mcIdType>& cut3DCurve, std::vector<mcIdType>& nodesOnPlane, const mcIdType *nodal3DSurf, const mcIdType *nodalIndx3DSurf,
                                                    const mcIdType *nodal3DCurve, const mcIdType *nodalIndx3DCurve,
@@ -1818,7 +1818,7 @@ void MEDCouplingUMesh::attractSeg3MidPtsAroundNodesUnderground(double ratio, con
                       auto ptToMove(nc[*nci+3]);
                       auto attractor(aa?nc[*nci+1]:nc[*nci+2]),endPt(aa?nc[*nci+2]:nc[*nci+1]);
                       std::transform(coords+spaceDim*attractor,coords+spaceDim*(attractor+1),coords+spaceDim*endPt,
-                                     coords+spaceDim*ptToMove,[ratio](const double& stPt, const double& endPt) { return stPt+ratio*(endPt-stPt); });
+                                     coords+spaceDim*ptToMove,[ratio](const double& stPt2, const double& endPt2) { return stPt2+ratio*(endPt2-stPt2); });
                     }
                   else
                     continue;//both 2 boundary nodes of current seg3 are un nodeIds input list -> skip it.

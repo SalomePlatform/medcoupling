@@ -81,7 +81,7 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
   int target = 1 - myrank ;
   int sendbuf[10] ;
   int RequestId[10] ;
-  int sts ;
+  int sts = 0;
   int i ;
   for ( i = 0 ; i < 10 ; i++ ) {
      if ( myrank == 0 ) {

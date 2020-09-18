@@ -107,12 +107,12 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
         mpi_access.test( RecvRequestId[j], flag ) ;
       }
       if ( flag ) {
-        int target,source, tag, error, outcount ;
+        int target2,source, tag, error, outcount ;
         if ( myrank == 0 ) {
-          mpi_access.status( SendRequestId[j], target, tag, error, outcount,
+          mpi_access.status( SendRequestId[j], target2, tag, error, outcount,
                              true ) ;
           debugStream << "test" << myrank << " Test(Send RequestId " << SendRequestId[j]
-               << ") : target " << target << " tag " << tag << " error " << error
+               << ") : target " << target2 << " tag " << tag << " error " << error
                << " flag " << flag << endl ;
         }
         else {

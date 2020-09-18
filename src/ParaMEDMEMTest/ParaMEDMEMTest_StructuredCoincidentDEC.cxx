@@ -72,9 +72,9 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
   MEDCoupling::MPIProcessorGroup target_group(interface,3,size-1);
   MEDCoupling::MPIProcessorGroup source_group (interface,0,2);
 
-  MEDCoupling::MEDCouplingUMesh* mesh;
-  MEDCoupling::ParaMESH* paramesh;
-  MEDCoupling::ParaFIELD* parafield;
+  MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
+  MEDCoupling::ParaMESH* paramesh = nullptr;
+  MEDCoupling::ParaFIELD* parafield = nullptr;
 
   string filename_xml1 = INTERP_TEST::getResourceFile("square1_split");
   string filename_2    = INTERP_TEST::getResourceFile("square1.med");

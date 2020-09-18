@@ -152,7 +152,7 @@ void MPIAccessDECTest::test_AllToAllTimeDEC( bool Asynchronous ) {
       recvbuf[j] = -1 ;
     }
 
-    int sts = MyMPIAccessDEC->allToAllTime( sendbuf, sendcount , MPI_INT ,
+    sts = MyMPIAccessDEC->allToAllTime( sendbuf, sendcount , MPI_INT ,
                                             recvbuf, recvcount , MPI_INT ) ;
     chksts( sts , myrank , mpi_access ) ;
 

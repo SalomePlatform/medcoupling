@@ -492,10 +492,10 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
 
   MEDCoupling::InterpKernelDEC dec (*source_group,*target_group);
 
-  MEDCoupling::MEDCouplingUMesh* mesh;
-  MEDCoupling::ParaMESH* paramesh;
-  MEDCoupling::ParaFIELD* parafield;
-  ICoCo::MEDField* icocofield ;
+  MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
+  MEDCoupling::ParaMESH* paramesh = nullptr;
+  MEDCoupling::ParaFIELD* parafield = nullptr;
+  ICoCo::MEDField* icocofield = nullptr;
   
   string filename_xml1              = "square1_split";
   string filename_xml2              = "square2_split";
@@ -700,8 +700,8 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
 
   MEDCoupling::InterpKernelDEC dec (*source_group,*target_group);
 
-  MEDCoupling::MEDCouplingUMesh* mesh;
-  MEDCoupling::MEDCouplingFieldDouble* mcfield;
+  MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
+  MEDCoupling::MEDCouplingFieldDouble* mcfield = nullptr;
   
   string filename_xml1              = "square1_split";
   string filename_xml2              = "square2_split";
@@ -859,10 +859,10 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
 
   MEDCoupling::InterpKernelDEC dec (*source_group,*target_group);
 
-  MEDCoupling::MEDCouplingUMesh* mesh;
-  MEDCoupling::ParaMESH* paramesh;
-  MEDCoupling::ParaFIELD* parafield;
-  ICoCo::MEDField* icocofield ;
+  MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
+  MEDCoupling::ParaMESH* paramesh = nullptr;
+  MEDCoupling::ParaFIELD* parafield = nullptr;
+  ICoCo::MEDField* icocofield = nullptr;
   
   char * tmp_dir_c                    = getenv("TMP");
   string tmp_dir;
@@ -2116,11 +2116,10 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
 
   MEDCoupling::InterpKernelDEC dec (*source_group,*target_group);
   
-  MEDCoupling::MEDCouplingUMesh* mesh;
-  MEDCoupling::ParaMESH* paramesh;
-  MEDCoupling::ParaFIELD* parafield;
-  
-  ICoCo::MEDField* icocofield ;
+  MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
+  MEDCoupling::ParaMESH* paramesh = nullptr;
+  MEDCoupling::ParaFIELD* parafield = nullptr;
+  ICoCo::MEDField* icocofield = nullptr;
 
   char * tmp_dir_c                    = getenv("TMP");
   string tmp_dir;

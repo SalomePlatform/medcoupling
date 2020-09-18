@@ -462,7 +462,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
 {
   MCAuto<DataArrayDouble> ptsForLoc;
   MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(gt,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
-  mcIdType nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(ToIdType(loc.getGaussWeights().size()));
+  mcIdType nbCells(geoMesh->getNumberOfCells()),nbg(ToIdType(loc.getGaussWeights().size()));
   MCConstAuto<DataArrayDouble> zeThickness;
   if(!pfl.empty())
     {

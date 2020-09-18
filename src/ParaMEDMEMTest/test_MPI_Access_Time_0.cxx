@@ -112,7 +112,7 @@ void MPIAccessTest::test_MPI_Access_Time_0() {
   int RecvTimeRequestId[maxreq] ;
   int SendRequestId[maxreq] ;
   int RecvRequestId[maxreq] ;
-  int sts ;
+  int sts = 0;
   int sendbuf[maxreq] ;
   int recvbuf[maxreq] ;
   MEDCoupling::TimeMessage aSendTimeMsg[maxreq] ;

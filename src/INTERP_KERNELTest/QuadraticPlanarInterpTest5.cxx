@@ -1177,7 +1177,6 @@ void QuadraticPlanarInterpTest::checkGetMiddleOfPoints()
     double p2[] = {0.0, 1.0};
     double e_center[] = {-0.71, 2.0};
     double mid[] = {0.0,0.0}; // out
-    double mide[] = {0.0,0.0}; // expected
 
     Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
     // start, end, center_x, center_y, radius, angle0, angle

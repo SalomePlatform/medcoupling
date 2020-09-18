@@ -394,7 +394,7 @@ namespace INTERP_KERNEL
                                                                        int N1, int N2)
   {    
     int i_loc, i_glob, j1, j1_glob, j2,j2_glob, j3, j3_glob, j4,j4_glob,
-      i_prev, i_prev_glob, i_next, i_next_glob, nb_prev, sign, idim;
+      i_prev, i_prev_glob, i_next, i_next_glob, nb_prev=0, sign, idim;
     const double * Poly1, * Poly2;
     bool four_neighbours=false;
     _terminus = N1 < 3 || N2<3;

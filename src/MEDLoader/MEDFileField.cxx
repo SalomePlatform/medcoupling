@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <iterator>
 
+// From MEDLoader.cxx TU:
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmainoeud[1];
 extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
@@ -234,7 +235,7 @@ void MEDFileFields::simpleRepr(int bkOffset, std::ostream& oss) const
   for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
     {
       const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur=(*it);
-      std::string chapter(17,'0'+i);
+      std::string chapter(17,(char)('0'+i));
       oss << startLine << chapter << std::endl;
       if(cur)
         {

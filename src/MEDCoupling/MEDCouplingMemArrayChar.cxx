@@ -397,15 +397,12 @@ DataArrayIdType *DataArrayChar::findIdsInRange(char vmin, char vmax) const
 
 /*!
  * Returns a new DataArrayChar by concatenating two given arrays, so that (1) the number
- * of tuples in the result array is <em> a1->getNumberOfTuples() + a2->getNumberOfTuples() -
- * offsetA2</em> and (2)
+ * of tuples in the result array is <em> a1->getNumberOfTuples() + a2->getNumberOfTuples() </em> and (2)
  * the number of component in the result array is same as that of each of given arrays.
- * First \a offsetA2 tuples of \a a2 are skipped and thus are missing from the result array.
  * Info on components is copied from the first of the given arrays. Number of components
  * in the given arrays must be the same.
  *  \param [in] a1 - an array to include in the result array.
  *  \param [in] a2 - another array to include in the result array.
- *  \param [in] offsetA2 - number of tuples of \a a2 to skip.
  *  \return DataArrayChar * - the new instance of DataArrayChar.
  *          The caller is to delete this result array using decrRef() as it is no more
  *          needed.

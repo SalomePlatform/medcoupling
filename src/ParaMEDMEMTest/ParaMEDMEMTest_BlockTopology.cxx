@@ -94,7 +94,7 @@ void ParaMEDMEMTest::testBlockTopology_constructor()
   CPPUNIT_ASSERT_EQUAL(global,2*size-1);
 
   std::vector<std::pair<int,mcIdType> > bounds = blocktopo2.getLocalArrayMinMax();
-  int vecsize = bounds.size();
+  int vecsize = (int)bounds.size();
   CPPUNIT_ASSERT_EQUAL(1,vecsize);
   CPPUNIT_ASSERT_EQUAL(2*rank, (bounds[0]).first);
   CPPUNIT_ASSERT_EQUAL(ToIdType(2*rank+2), (bounds[0]).second);

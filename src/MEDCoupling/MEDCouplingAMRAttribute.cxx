@@ -819,7 +819,7 @@ void MEDCouplingAMRAttribute::spillInfoOnComponents(const std::vector< std::vect
 
 /*!
  * Assign nature for each fields in \a this.
- * \param [in] nfs
+ * \param [in] nfs vector of field natures.
  */
 void MEDCouplingAMRAttribute::spillNatures(const std::vector<NatureOfField>& nfs)
 {

@@ -23,7 +23,6 @@
 #include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingFieldInt.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "TestInterpKernelUtils.hxx"  // getResourceFile()
@@ -158,9 +157,11 @@ void MEDLoaderTest::testFieldRW2()
   MEDCouplingFieldInt *f2_int=dynamic_cast<MEDCouplingFieldInt *>(ReadFieldCell(fileName,f1_int->getMesh()->getName().c_str(),0,f1_int->getName().c_str(),8,9));
   CPPUNIT_ASSERT(f1_int->isEqual(f2_int,1e-12,0)); // exact equality for int values
   f2_int->decrRef();
+  f1_int->decrRef();
   MEDCouplingFieldFloat *f2_fl=dynamic_cast<MEDCouplingFieldFloat *>(ReadFieldCell(fileName,f1_fl->getMesh()->getName().c_str(),0,f1_fl->getName().c_str(),8,9));
-  CPPUNIT_ASSERT(f1_fl->isEqual(f2_fl,1e-12,1e-12));
+  CPPUNIT_ASSERT(f1_fl->isEqual(f2_fl,1e-12,1e-07f));  // float comparison
   f2_fl->decrRef();
+  f1_fl->decrRef();
   //ON NODES
   f1=buildVecFieldOnNodes_1();
   const char fileName2[]="file9.med";
@@ -374,7 +375,7 @@ void MEDLoaderTest::testFieldProfilRW1()
   WriteUMesh(fileName,mesh1,true);
   const mcIdType part1[5]={1,2,4,13,15};
   MEDCouplingUMesh *mesh2=(MEDCouplingUMesh *)mesh1->buildPartOfMySelf(part1,part1+5,true);
-  mesh2->setName(mesh1->getName().c_str());//<- important for the test
+  mesh2->setName(mesh1->getName().c_str());// <- important for the test
   //
   mcIdType nbOfCells=mesh2->getNumberOfCells();
   CPPUNIT_ASSERT_EQUAL(ToIdType(5),nbOfCells);
@@ -391,7 +392,7 @@ void MEDLoaderTest::testFieldProfilRW1()
   f1->setTime(3.14,2,7);
   f1->checkConsistencyLight();
   //
-  WriteField(fileName,f1,false);//<- false important for the test
+  WriteField(fileName,f1,false);// <- false important for the test
   //
   MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7));
   std::vector<MEDCoupling::TypeOfField> types=GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
@@ -432,7 +433,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   const mcIdType arr2[2]={1,4};//node ids are 2,4,5,3,6,7
   MEDCouplingFieldDouble *f2=f1->buildSubPart(arr2,arr2+2);
   (const_cast<MEDCouplingMesh *>(f2->getMesh()))->setName(f1->getMesh()->getName().c_str());
-  WriteField(fileName,f2,false);//<- false important for the test
+  WriteField(fileName,f2,false);// <- false important for the test
   //
   MEDCouplingFieldDouble *f3=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7));
   f3->checkConsistencyLight();
@@ -442,7 +443,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   const mcIdType arr3[6]={1,3,0,5,2,4};
   f2->renumberNodes(arr3);
   WriteUMesh(fileName2,m,true);
-  WriteField(fileName2,f2,false);//<- false important for the test
+  WriteField(fileName2,f2,false);// <- false important for the test
   f3=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName2,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7));
   f3->checkConsistencyLight();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
@@ -479,7 +480,7 @@ void MEDLoaderTest::testFieldNodeProfilRW2()
   const mcIdType renumArr[12]={3,7,2,1,5,11,10,0,9,6,8,4};
   f1->renumberNodes(renumArr);
   f1->checkConsistencyLight();
-  WriteField(fileName,f1,false);//<- false important for the test
+  WriteField(fileName,f1,false);// <- false important for the test
   MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7));
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   //
@@ -1408,15 +1409,15 @@ MEDCouplingFieldInt *MEDLoaderTest::buildIntVecFieldOnCells_1()
   MEDCouplingFieldInt *f1=MEDCouplingFieldInt::New(ON_CELLS,ONE_TIME);
   f1->setName("IntVectorFieldOnCells");
   f1->setMesh(mesh);
-  DataArrayInt *array=DataArrayInt::New();
+  DataArrayInt32 *array=DataArrayInt32::New();
   array->alloc(nbOfCells,3);
   array->setInfoOnComponent(0,"val1 [MW/m^3]");
   array->setInfoOnComponent(1,"va2 [g/cm^3]");
   array->setInfoOnComponent(2,"val3 [K]");
   f1->setArray(array);
   array->decrRef();
-  mcIdType *tmp=array->getPointer();
-  const mcIdType arr1[18]={0,10,20,1,11,21,2,12,22,3,13,23,4,14,24,5,15,25};
+  int *tmp=array->getPointer();
+  const int arr1[18]={0,10,20,1,11,21,2,12,22,3,13,23,4,14,24,5,15,25};
   std::copy(arr1,arr1+18,tmp);
   f1->setTime(2.,0,1);
   f1->checkConsistencyLight();

@@ -47,8 +47,6 @@ namespace MEDCoupling
     MEDCoupling::BlockTopology* _block_topology;
     // stores the x,y,z axes on the global grid
     std::vector<std::vector<double> > _global_axis;
-    //id of the local grid
-    int _my_domain_id;
   };
 }
 

@@ -165,7 +165,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCopy() const
  *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
  *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
  *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
- * \param [in] deepCopy - if \c true, the copy of the underlying data arrays is
+ * \param [in] deepCpy - if \c true, the copy of the underlying data arrays is
  *         deep, else all data arrays of \a this field are shared by the new field.
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
  *         caller is to delete this field using decrRef() as it is no more needed. 

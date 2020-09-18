@@ -49,6 +49,12 @@
 #include <algorithm>
 #include <memory>
 
+extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
+extern med_geometry_type typmainoeud[1];
+extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
+extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
+
+
 med_geometry_type typmai[MED_N_CELL_FIXED_GEO] = { MED_POINT1,
   MED_SEG2,
   MED_SEG3,
@@ -136,11 +142,11 @@ med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE] = { MED_POINT1,//0
   MED_POLYGON2//32
 };
 
-double _EPS_FOR_NODE_COMP=1.e-12;
+// Just for this translation unit:
+static double _EPS_FOR_NODE_COMP=1.e-12;
+static int _COMP_FOR_CELL=0;
+static int _TOO_LONG_STR=0;
 
-int _COMP_FOR_CELL=0;
-
-int _TOO_LONG_STR=0;
 
 using namespace MEDCoupling;
 

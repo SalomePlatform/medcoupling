@@ -638,7 +638,7 @@ std::string MEDFileFieldGlobs::CreateNewNameNotIn(const std::string& prefix, con
 
 /*!
  * Creates a MEDFileFieldGlobsReal on a given file name. Nothing is read here.
- *  \param [in] fname - the file name.
+ *  \param [in] fid - the MED file handler.
  */
 MEDFileFieldGlobsReal::MEDFileFieldGlobsReal(med_idt fid):_globals(MEDFileFieldGlobs::New(fid))
 {
@@ -665,7 +665,7 @@ std::vector<const BigMemoryObject *> MEDFileFieldGlobsReal::getDirectChildrenWit
 
 /*!
  * Returns a string describing profiles and Gauss points held in \a this.
- *  \return std::string - the description string.
+ *  \param[out] oss - the description string (in a std::ostream).
  */
 void MEDFileFieldGlobsReal::simpleReprGlobs(std::ostream& oss) const
 {
@@ -847,7 +847,7 @@ std::string MEDFileFieldGlobsReal::createNewNameOfLoc() const
 
 /*!
  * Sets the name of a MED file.
- *  \param [inout] fileName - the file name.
+ *  \param [in,out] fileName - the file name.
  */
 void MEDFileFieldGlobsReal::setFileName(const std::string& fileName)
 {
@@ -1048,7 +1048,7 @@ int MEDFileFieldGlobsReal::getLocalizationId(const std::string& loc) const
 
 /*!
  * Returns an id of a profile by its name.
- *  \param [in] loc - the profile name of interest.
+ *  \param [in] pfl - the profile name of interest.
  *  \return int - the id of the profile.
  *  \throw If there is no a profile named \a loc.
  */
@@ -1241,7 +1241,7 @@ std::string MEDFileFieldNameScope::getName() const
 
 /*!
  * Sets name of \a this field
- *  \param [in] name - the new field name.
+ *  \param [in] fieldName - the new field name.
  */
 void MEDFileFieldNameScope::setName(const std::string& fieldName)
 {

@@ -32,7 +32,7 @@ namespace MEDCoupling
 {
   
   ParaGRID::ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) : 
-    _global_axis(), _my_domain_id(0)
+    _global_axis()
   {
     _block_topology = dynamic_cast<BlockTopology*>(topology);
     if(_block_topology==0)

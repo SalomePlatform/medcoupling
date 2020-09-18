@@ -147,7 +147,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTSWithoutSDA::buil
   std::size_t j=bg;
   for(int i=0;i<nbOfEntriesToKeep;i++,j+=step)
     {
-      if(j>=0 && j<sz)
+      if(j<sz)
         {
           const MEDFileAnyTypeField1TSWithoutSDA *tse=_time_steps[j];
           MCAuto<MEDFileAnyTypeField1TSWithoutSDA> tse2;
@@ -418,7 +418,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::simpleRepr(int bkOffset, std::ostream
   int i=0;
   for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,i++)
     {
-      std::string chapter(17,'0'+i);
+      std::string chapter(17,(char)('0'+i));
       oss << startLine << chapter << std::endl;
       const MEDFileAnyTypeField1TSWithoutSDA *cur=(*it);
       if(cur)

@@ -50,13 +50,6 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \defgroup interpolationPlanar InterpolationPlanar
-   *
-   * \class InterpolationPlanar
-   * \brief Class used to compute the coefficients of the interpolation matrix between 
-   * two local meshes in two dimensions. Meshes can contain mixed triangular and quadrangular elements.
-   */
   template<class RealPlanar>
   InterpolationPlanar<RealPlanar>::InterpolationPlanar():_dim_caracteristic(1)
                                                          

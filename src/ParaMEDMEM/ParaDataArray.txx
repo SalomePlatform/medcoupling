@@ -94,7 +94,7 @@ namespace MEDCoupling
     int rank(-1);
     ci.commRank(comm,&rank);
     T vmin(std::numeric_limits<T>::max()),vmax(-std::numeric_limits<T>::max());
-    DataArrayTools<T>::GetSlice(0,nbOfElems,1,static_cast<T>(rank),static_cast<T>(size),vmin,vmax);
+    DataArrayTools<T>::GetSlice(0,nbOfElems,1,ToIdType(rank),ToIdType(size),vmin,vmax);
     aggregatedIds->applyLin(1,-vmin);
     MCAuto<DataArrayIdType> seqComp(aggregatedIds->buildComplement(ToIdType(vmax-vmin)));
     seqComp->applyLin(1,ToIdType(vmin));

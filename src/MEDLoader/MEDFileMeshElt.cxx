@@ -31,6 +31,7 @@
 
 #include <iostream>
 
+// From MEDLOader.cxx TU
 extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;

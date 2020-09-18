@@ -53,6 +53,40 @@ namespace MEDCoupling
     static MPI_Datatype MPIDataType;
   };
 
+  /*! \anchor CommInterface-det
+     \class CommInterface
+
+    The class \a CommInterface is the gateway to the MPI library.
+    It is a wrapper around all MPI calls, thus trying to abstract the rest of the code from using the direct MPI API
+    (but this is not strictly respected overall in practice ...). It is used in all
+    the \ref parallel "DEC related classes".
+
+    It is typically instantiated after the MPI_Init() call in a program and is afterwards passed as a
+    parameter to the constructors of various \ref parallel "parallel objects" so that they access the
+    MPI library via this common interface.
+
+    As an example, the following code excerpt initializes a processor group made of the zero processor.
+
+    \verbatim
+    #include "CommInterface.hxx"
+    #include "ProcessorGroup.hxx"
+
+    int main(int argc, char** argv)
+    {
+    //initialization
+    MPI_Init(&argc, &argv);
+    MEDCoupling::CommInterface comm_interface;
+
+    //setting up a processor group with proc 0
+    set<int> procs;
+    procs.insert(0);
+    MEDCoupling::ProcessorGroup group(procs, comm_interface);
+
+    //cleanup
+    MPI_Finalize();
+    }
+    \endverbatim
+  */
   class CommInterface
   {
   public:
@@ -130,7 +164,6 @@ namespace MEDCoupling
     template<class T>
     int gatherArraysT(MPI_Comm comm, int root, const typename Traits<T>::ArrayType *array, std::unique_ptr<T[]>& result, std::unique_ptr<mcIdType[]>& resultIndex, int& rank) const
     {
-      using DataArrayT = typename Traits<T>::ArrayType;
       int size;
       this->commSize(comm,&size);
       rank = -1;
@@ -180,7 +213,6 @@ namespace MEDCoupling
     template<class T>
     int allGatherArraysT(MPI_Comm comm, const typename Traits<T>::ArrayType *array, std::unique_ptr<T[]>& result, std::unique_ptr<mcIdType[]>& resultIndex) const
     {
-      using DataArrayT = typename Traits<T>::ArrayType;
       int size;
       this->commSize(comm,&size);
       std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]);

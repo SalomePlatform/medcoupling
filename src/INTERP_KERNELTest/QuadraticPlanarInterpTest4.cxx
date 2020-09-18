@@ -518,9 +518,9 @@ void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
   ElementaryEdge *e1=dynamic_cast<ElementaryEdge *>((*pol)[1]);
   ElementaryEdge *e2=dynamic_cast<ElementaryEdge *>((*pol)[0]);
   CPPUNIT_ASSERT(e0); CPPUNIT_ASSERT(e1); CPPUNIT_ASSERT(e2);
-  CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e0->getPtr()));//<- testing detection of colinearity
+  CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e0->getPtr()));// <- testing detection of colinearity
   CPPUNIT_ASSERT(dynamic_cast<EdgeArcCircle *>(e1->getPtr()));
-  CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e2->getPtr()));//<- testing detection of colinearity
+  CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e2->getPtr()));// <- testing detection of colinearity
   nodes.clear();
   delete pol;
   nodes.push_back(new Node(coords));
@@ -536,9 +536,9 @@ void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
   e1=dynamic_cast<ElementaryEdge *>((*pol)[1]);
   e2=dynamic_cast<ElementaryEdge *>((*pol)[0]);
   CPPUNIT_ASSERT(e0); CPPUNIT_ASSERT(e1); CPPUNIT_ASSERT(e2);
-  CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e0->getPtr()));//<- testing detection of colinearity
+  CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e0->getPtr()));// <- testing detection of colinearity
   CPPUNIT_ASSERT(dynamic_cast<EdgeArcCircle *>(e1->getPtr()));
-  CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e2->getPtr()));//<- testing detection of colinearity
+  CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e2->getPtr()));// <- testing detection of colinearity
   delete pol;
   const double coords2[]={
     0.,0.,

@@ -897,7 +897,7 @@ bool FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
 {
   bool cutFound(false); cutPlace=-1;// do not set axisId before to be sure that cutFound was set to true
   const std::vector< std::pair<mcIdType,mcIdType> >& part(patchToBeSplit->getConstPart());
-  mcIdType sign,minimumPatchLength(bso.getMinimumPatchLength());
+  mcIdType sign=0,minimumPatchLength(bso.getMinimumPatchLength());
   const mcIdType dim(patchToBeSplit->getDimension());
 
   std::vector<mcIdType> zeroCrossDims(dim,-1);
@@ -1266,7 +1266,6 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyOnGhostZone(mcIdTyp
  *
  * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
  * \param [in] cellFieldOnThis - The array of the cell field on \c this->getImageMesh() to be projected to patch having id \a patchId.
- * \param [in,out] cellFieldOnPatch - The array of the cell field on the requested patch to be filled.
  * \param [in] ghostLev - The size of the ghost zone (must be >=0 !)
  * \param [in] arrsOnPatches - \b WARNING arrsOnPatches[patchId] is \b NOT \b const. All others are const.
  *
@@ -1900,12 +1899,12 @@ MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::deepCopy(MEDCouplingCa
 
 /*!
  * This method creates a multi level patches split at once.
- * This method calls as times as size of \a bso createPatchesFromCriterion. Size of \a bso and size of \a factors must be the same !
+ * This method calls as many times as size of \a bso createPatchesFromCriterion. Size of \a bso and size of \a factors must be the same !
  * \b WARNING, after the call the number of levels in \a this is equal to bso.size() + 1 !
  *
- * \param [in] bso
- * \param [in] criterion
- * \param [in] factors
+ * \param [in] bso vector of BoxSplittingOptions
+ * \param [in] criterion DataArrayDouble
+ * \param [in] factors vector of vector of factors
  * \param [in] eps - See DataArrayDouble::toVectorOfBool for more information about the semantic of eps.
  *
  * \sa createPatchesFromCriterion

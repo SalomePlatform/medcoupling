@@ -376,7 +376,8 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::getMeasureField(bool isAbs) 
 }
 
 /*!
- * \param [in,out] f field fed with good values.
+ * \param [in] isAbs whether to compute signed or absolute values
+ * \param [in,out] field field fed with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCouplingFieldDouble *field) const
@@ -402,7 +403,8 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCoupling
 }
 
 /*!
- * \param [in,out] f field fed with good values.
+ * \param [in] isAbs whether to compute signed or absolute values
+ * \param [in,out] field field fed with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCouplingFieldDouble *field) const
@@ -428,7 +430,8 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCoupling
 }
 
 /*!
- * \param [in,out] f field fed with good values.
+ * \param [in] isAbs whether to compute signed or absolute values
+ * \param [in,out] field field fed with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
 void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3(bool isAbs, MEDCouplingFieldDouble *field) const
@@ -537,6 +540,7 @@ mcIdType MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, d
                 return nodeId;
             }
         }
+      break;
     case 2:
       if(spaceDim==2)
         {
@@ -566,6 +570,7 @@ mcIdType MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, d
                 return nx+ny*_structure[0];
             }
         }
+      break;
     case 3:
       {
         if(spaceDim==3)
@@ -630,9 +635,11 @@ mcIdType MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, d
               }
           }
       }
+      break;
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getCellContainingPoint : mesh dimension managed are 1, 2 or 3 !");
   }
+  return 0;
 }
 
 void MEDCouplingCurveLinearMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<mcIdType>& elts) const

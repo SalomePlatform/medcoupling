@@ -34,6 +34,7 @@
 #include <set>
 #include <iomanip>
 
+// From MEDLOader.cxx TU
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmainoeud[1];
@@ -104,7 +105,7 @@ double MeshCls::checkMeshTimeStep(med_idt fid, const std::string& mName, int nst
 {
   bool found=false;
   med_int numdt,numit;
-  med_float dtt;
+  med_float dtt=0.0;
   std::vector< std::pair<int,int> > p(nstep);
   for(int i=0;i<nstep;i++)
     {
@@ -171,7 +172,7 @@ std::vector<const BigMemoryObject *> MEDFileMeshL2::getDirectChildrenWithNull() 
 
 INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1)
 {
-  med_mesh_type type_maillage;
+  med_mesh_type type_maillage=MED_UNDEF_MESH_TYPE;
   char maillage_description[MED_COMMENT_SIZE+1];
   char dtunit[MED_LNAME_SIZE+1];
   med_int spaceDim,dim;
@@ -182,7 +183,7 @@ INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> MEDFileMeshL2::GetMeshIdFromName(
   med_sorting_type stype;
   std::vector<std::string> ms;
   med_int nstep;
-  med_axis_type axistype;
+  med_axis_type axistype=MED_UNDEF_AXIS_TYPE;
   for(int i=0;i<n && found==0;i++)
     {
       med_int naxis(MEDmeshnAxis(fid,i+1));
@@ -298,10 +299,10 @@ void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const std::string& meshName
       INTERP_KERNEL::AutoPtr<char> gro=new char[MED_LNAME_SIZE*ngro+1];
       MEDfamily23Info(fid,meshName.c_str(),i+1,nomfam,attide,attval,attdes,&numfam,gro);
       std::string famName(MEDLoaderBase::buildStringFromFortran(nomfam,MED_NAME_SIZE));
-      std::vector<std::string> grps(ngro);
+      std::vector<std::string> grps2(ngro);
       for(int j=0;j<ngro;j++)
-        grps[j]=MEDLoaderBase::buildStringFromFortran(gro+j*MED_LNAME_SIZE,MED_LNAME_SIZE);
-      crudeFams[i]=std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > >(famName,std::pair<mcIdType,std::vector<std::string> >(numfam,grps));
+        grps2[j]=MEDLoaderBase::buildStringFromFortran(gro+j*MED_LNAME_SIZE,MED_LNAME_SIZE);
+      crudeFams[i]=std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > >(famName,std::pair<mcIdType,std::vector<std::string> >(numfam,grps2));
     }
   RenameFamiliesFromFileToMemInternal(crudeFams);
   for(std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > >::const_iterator it0=crudeFams.begin();it0!=crudeFams.end();it0++)

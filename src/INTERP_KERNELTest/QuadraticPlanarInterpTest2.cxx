@@ -56,7 +56,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[0],center[0]+radius*cos(3*M_PI/4),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[1],center[0]+radius*cos(M_PI/3),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[2],center[1]+radius*sin(3*M_PI/4),ADMISSIBLE_ERROR);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[3],center[1]+radius*sin(M_PI/2),ADMISSIBLE_ERROR);//<<
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[3],center[1]+radius*sin(M_PI/2),ADMISSIBLE_ERROR);
   e1->decrRef();
   //
   e1=buildArcOfCircle(center,radius,3*M_PI/4,7*M_PI/8);
@@ -67,7 +67,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
   e1->decrRef();
   //
   e1=buildArcOfCircle(center,radius,7.*M_PI/8.,9.*M_PI/8.);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[0],center[0]+radius*cos(M_PI),ADMISSIBLE_ERROR);//<<
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[0],center[0]+radius*cos(M_PI),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[1],center[0]+radius*cos(7*M_PI/8),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[2],center[1]+radius*sin(9*M_PI/8),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[3],center[1]+radius*sin(7*M_PI/8),ADMISSIBLE_ERROR);
@@ -83,7 +83,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
   e1=buildArcOfCircle(center,radius,11.*M_PI/8.,7.*M_PI/4.);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[0],center[0]+radius*cos(11*M_PI/8),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[1],center[0]+radius*cos(7*M_PI/4),ADMISSIBLE_ERROR);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[2],center[1]+radius*sin(3*M_PI/2),ADMISSIBLE_ERROR);//<<
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[2],center[1]+radius*sin(3*M_PI/2),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[3],center[1]+radius*sin(7*M_PI/4),ADMISSIBLE_ERROR);
   e1->decrRef();
   //
@@ -96,7 +96,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
   //
   e1=buildArcOfCircle(center,radius,-M_PI/8.,M_PI/4.);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[0],center[0]+radius*cos(M_PI/4),ADMISSIBLE_ERROR);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[1],center[0]+radius*cos(0.),ADMISSIBLE_ERROR);      //<<
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[1],center[0]+radius*cos(0.),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[2],center[1]+radius*sin(15*M_PI/8),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[3],center[1]+radius*sin(M_PI/4),ADMISSIBLE_ERROR);
   e1->decrRef();

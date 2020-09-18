@@ -1263,6 +1263,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
         if(renumPol==1)
           return ret.retn();
       }
+      [[clang::fallthrough]];  // yes no break here - silence clang warning.
     case 2:
       {
         //no need to test _field_per_mesh.empty() because geMeshName has already done it
@@ -1283,9 +1284,11 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
           }
         return ret.retn();
       }
+      break;
     default:
       throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getFieldOnMeshAtLevel : unsupported renum policy ! Dealing with policy 0 1 2 and 3 !");
   }
+  return nullptr;
 }
 
 /*!
@@ -2139,7 +2142,6 @@ int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, int fieldIdCFormat, bool c
 /*!
  * This method throws an INTERP_KERNEL::Exception if \a fieldName field is not in file pointed by \a fid and with name \a fileName.
  * 
- * \param [out]
  * \return in case of success the number of time steps available for the field with name \a fieldName.
  */
 int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut, std::string& meshName)

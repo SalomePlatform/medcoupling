@@ -611,7 +611,7 @@ namespace MEDCoupling
    * has not been constructed via file reading, an exception is thrown.
    * For more info, see \ref AdvMEDLoaderAPIFieldRW
    *  \param [in] type - a spatial discretization of interest.
-   *  \param [in] mName - a name of the supporting mesh.
+   *  \param [in] mname - a name of the supporting mesh.
    *  \param [in] meshDimRelToMax - a relative dimension of the supporting mesh entities.
    *  \param [in] renumPol - specifies how to permute values of the result field according to
    *          the optional numbers of cells and nodes, if any. The valid values are
@@ -1179,7 +1179,6 @@ namespace MEDCoupling
    *          field of interest lies on. If the field lies on all entities of the given
    *          dimension, all ids in \a pfl are zero. The caller is to delete this array
    *          using decrRef() as it is no more needed.  
-   *  \param [in] glob - the global data storing profiles and localization.
    *  \return DataArrayDouble * - a new instance of DataArrayDouble holding values of the
    *          field. The caller is to delete this array using decrRef() as it is no more needed.
    *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.

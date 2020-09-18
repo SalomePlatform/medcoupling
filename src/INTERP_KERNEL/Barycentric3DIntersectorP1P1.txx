@@ -33,7 +33,6 @@ namespace INTERP_KERNEL
    * 
    * @param targetMesh  mesh containing the target elements
    * @param srcMesh     mesh containing the source elements
-   * @param policy      splitting policy to be used
    */
   template<class MyMeshType, class MyMatrix>
   Barycentric3DIntersectorP1P1<MyMeshType,MyMatrix>::Barycentric3DIntersectorP1P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh, double precision):

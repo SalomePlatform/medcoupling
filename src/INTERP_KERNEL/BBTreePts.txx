@@ -130,12 +130,12 @@ public:
     delete _right;
   }
 
-  /*! returns in \a elems the list of elements potentially containing the point pointed to by \a xx
+  /*! returns in \a elem an element potentially containing the point pointed to by \a xx
       Contrary to BBTreePts::getElementsAroundPoint the norm 2 is used here.
 
-    \param [in] xx pointer to query point coords
-    \param [in] threshold
-    \param elems list of elements (given in 0-indexing) intersecting the bounding box
+    \param[in] xx pointer to query point coords
+    \param[in] threshold detection precision
+    \param[out] elem the element intersecting the bounding box
     \sa BBTreePts::getElementsAroundPoint
   */
   double getElementsAroundPoint2(const double *xx, double threshold, ConnType& elem) const

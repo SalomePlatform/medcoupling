@@ -97,7 +97,7 @@ void ElementaryEdge::initLocations() const
 }
 
 /*!
- * WARNING use this method if and only if this is so that it is completely in/out/on of @param pol.
+ * WARNING use this method if and only if this is so that it is completely in/out/on of param 'pol'.
  */
 TypeOfEdgeLocInPolygon ElementaryEdge::locateFullyMySelf(const ComposedEdge& pol, TypeOfEdgeLocInPolygon precEdgeLoc) const
 {

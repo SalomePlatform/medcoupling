@@ -36,7 +36,36 @@ namespace MEDCoupling
 {
   class ProcessorGroup;
   class ParaFIELD;
-  
+
+  /*!
+   * \anchor DisjointDEC-det
+   * \class DisjointDEC
+   *
+   * \section DisjointDEC-over Overview
+   *
+   * Abstract interface class representing a link between two
+   * processor groups for exchanging mesh or field data. The two processor groups must
+   * have a void intersection (\ref MEDCoupling::OverlapDEC "OverlapDEC" is to be considered otherwise).
+   * The %DEC is initialized by attaching a field on the receiving or on the
+   * sending side.
+   *
+   * The data is sent or received through calls to the (abstract) methods recvData() and sendData().
+   *
+   * One can attach either a \c MEDCoupling::ParaFIELD, or a
+   * \c ICoCo::Field, or directly a \c MEDCoupling::MEDCouplingFieldDouble instance.
+   * See the various signatures of the method DisjointDEC::attachLocalField()
+   *
+   * The derivations of this class should be considered for practical instantiation:
+   * - \ref InterpKernelDEC-det "InterpKernelDEC"
+   * - \ref ExplicitCoincidentDEC-det "ExplicitCoincidentDEC"
+   * - \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC"
+   *
+   * \section DisjointDEC-options DisjointDEC options
+   * The options supported by %DisjointDEC objects are the same that the ones supported for all
+   * DECs in general and are all inherited from the class \ref MEDCoupling::DECOptions "DECOptions"
+   *
+  */
+
   class DisjointDEC : public DEC
   {
   public:

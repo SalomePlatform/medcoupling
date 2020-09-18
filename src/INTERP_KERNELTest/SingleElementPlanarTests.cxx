@@ -28,8 +28,6 @@ using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST 
 {
-  const double _Epsilon = 1.e-12;
-  const double _Precision = 1.e-12;
   const double _losange1[8] = {   1,0,   0,1,   -1,0,  0,-1 };
   const double _losange2[8] = {   2,0,    1,1,    0,0,  1,-1 };
   const double _losange3[8] = {2.5,0.5,1.5,1.5,0.5,0.5,1.5,-0.5 };

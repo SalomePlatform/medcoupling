@@ -35,6 +35,7 @@
 #include <limits>
 #include <cmath>
 
+// From MEDLOader.cxx TU
 extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
@@ -695,10 +696,10 @@ void MEDFileMesh::removeGroupAtLevel(int meshDimRelToMaxExt, const std::string& 
   if(idsToKill->empty())
     return ;
   std::vector<std::string> newFamsOnGrp;
-  for(std::vector<std::string>::const_iterator it=famsOnGrp.begin();it!=famsOnGrp.end();it++)
+  for(std::vector<std::string>::const_iterator itt=famsOnGrp.begin();itt!=famsOnGrp.end();itt++)
     {
-      if(!idsToKill->presenceOfValue(getFamilyId(*it)))
-         newFamsOnGrp.push_back(*it);
+      if(!idsToKill->presenceOfValue(getFamilyId(*itt)))
+         newFamsOnGrp.push_back(*itt);
     }
   (*it).second=newFamsOnGrp;
 }
@@ -859,7 +860,7 @@ void MEDFileMesh::rearrangeFamilies()
       {
           fams=getFamilyFieldAtLevel(*it);
       }
-      catch(INTERP_KERNEL::Exception& e) { }
+      catch(INTERP_KERNEL::Exception& ) { }
       if(!fams)
         continue;
       std::vector<bool> v(fams->getNumberOfTuples(),false);
@@ -942,7 +943,7 @@ void MEDFileMesh::zipFamilies()
             {
               fams=getFamilyFieldAtLevel(*it);
             }
-          catch(INTERP_KERNEL::Exception& e) { }
+          catch(INTERP_KERNEL::Exception& ) { }
           if(!fams)
             continue;
           MCAuto<DataArrayIdType> idsToModif(fams->findIdsEqualList(famIdsSubstSession.second.data(),famIdsSubstSession.second.data()+famIdsSubstSession.second.size()));
@@ -2091,14 +2092,14 @@ DataArrayIdType *MEDFileMesh::getNodeGroupsArr(const std::vector<std::string>& g
 }
 
 /*!
- * Returns ids of nodes contained in a given group.
- *  \param [in] grp - the name of the group of interest.
+ * Returns ids of nodes contained in a given family.
+ *  \param [in] fam - the name of the family of interest.
  *  \param [in] renum - if \c true, the optional numbers of nodes, if available, are
  *          returned instead of ids. 
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
- *          numbers, if available and required, of nodes of the group. The caller
+ *          numbers, if available and required, of nodes of the family. The caller
  *          is to delete this array using decrRef() as it is no more needed. 
- *  \throw If the name of a nonexistent group is specified.
+ *  \throw If the name of a nonexistent family is specified.
  *  \throw If the family field is missing for nodes.
  */
 DataArrayIdType *MEDFileMesh::getNodeFamilyArr(const std::string& fam, bool renum) const
@@ -2454,7 +2455,7 @@ MEDFileUMesh *MEDFileUMesh::New()
  * \param [in] fileName - the name of the file.
  * \param [in] mName - the name of the mesh to be read.
  * \param [in] types - the list of the geo types of which some part will be taken. A geometric type in \a types must appear only once at most.
- * \param [in] slicPerType - an array of size 3 times larger than \a types that specifies for each type in \a types (in the same order) resp the start, the stop and the step.
+ * \param [in] slicPerTyp - an array of size 3 times larger than \a types that specifies for each type in \a types (in the same order) resp the start, the stop and the step.
  * \param [in] dt - the iteration, that is to say the first element of the pair that locates the asked time step.
  * \param [in] it - the order, that is to say the second element of the pair that locates the asked time step.
  * \param [in] mrs - the request for what to be loaded.
@@ -2487,7 +2488,7 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOf(med_idt fid, const std::string& mName, co
  * \param [in] mName - Name of the mesh inside file pointed be \a fileName nodes to be read of.
  * \param [in] dt - Time iteration inside file pointed be \a fileName nodes to be read of.
  * \param [in] it - Time order inside file pointed be \a fileName nodes to be read of.
- * \param [in] infosOnCompo - Components info of nodes to be read of. The size of string vector should be equal to space dimension of mesh to be read.
+ * \param [in] infosOnComp - Components info of nodes to be read of. The size of string vector should be equal to space dimension of mesh to be read.
  * \param [in] startNodeId - Start Node Id (included) of chunk of data to be read
  * \param [in] stopNodeId - Start Node Id (included) of chunk of data to be read
  * \param [out] coords - output coordinates of requested chunk (DataArrayDouble)
@@ -3708,7 +3709,7 @@ DataArrayIdType *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std:
  * valid**. This is a feature, because MEDLoader does not create cells that do not exist! 
  * To build a valid MEDCouplingUMesh from the returned one in this case,
  * call MEDCouplingUMesh::Build0DMeshFromCoords().
- *  \param [in] meshDimRelToMax - the relative dimension of interest.
+ *  \param [in] meshDimRelToMaxExt - the relative dimension of interest.
  *  \param [in] renum - if \c true, the returned mesh is permuted according to the
  *          optional numbers of mesh entities.
  *  \return MEDCouplingUMesh * - a pointer to MEDCouplingUMesh that the caller is to
@@ -6060,6 +6061,7 @@ void MEDFileStructuredMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArra
         mcIdType nbCells=mesh->getNumberOfCellsOfSubLevelMesh();
         nameArr->checkNbOfTuplesAndComp(nbCells,MED_SNAME_SIZE,"MEDFileStructuredMesh::setNameFieldAtLevel : Problem in size of names arr ! Mismatch with number of faces of mesh !");
         _names_faces=nameArr;
+        break;
       }
     default:
       throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setNameFieldAtLevel : Only available for levels 0 or 1 or -1 !");

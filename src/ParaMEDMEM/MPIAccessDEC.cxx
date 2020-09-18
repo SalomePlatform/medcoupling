@@ -34,11 +34,7 @@ namespace MEDCoupling
     \param source_group working side ProcessorGroup
     \param target_group lazy side ProcessorGroup
     \param Asynchronous Communication mode (default asynchronous)
-    \param nStepBefore Number of Time step needed for the interpolation before current time
-    \param nStepAfter Number of Time step needed for the interpolation after current time
-
   */
-
   MPIAccessDEC::MPIAccessDEC( const ProcessorGroup& source_group,
                               const ProcessorGroup& target_group,
                               bool Asynchronous )
@@ -339,7 +335,7 @@ namespace MEDCoupling
       {
         return allToAllTime( sendbuf, sendcount, sendtype , recvbuf, recvcount, recvtype ) ;
       }
-    int sts ;
+    int sts = 0;
     int target ;
     int sendoffset = 0 ;
     int recvoffset = 0 ;
@@ -401,7 +397,7 @@ namespace MEDCoupling
         return allToAllvTime( sendbuf, sendcounts, sdispls, sendtype ,
                               recvbuf, recvcounts, rdispls, recvtype ) ;
       }
-    int sts ;
+    int sts = 0;
     int target ;
     int SendRequestId ;
     int RecvRequestId ;
@@ -516,7 +512,7 @@ namespace MEDCoupling
   int MPIAccessDEC::allToAllTime( void* sendbuf, int sendcount , MPI_Datatype sendtype ,
                                   void* recvbuf, int recvcount , MPI_Datatype recvtype )
   {
-    int sts ;
+    int sts = 0;
     int target ;
     int sendoffset = 0 ;
     int SendTimeRequestId ;
@@ -636,7 +632,7 @@ namespace MEDCoupling
                                    void* recvbuf, int* recvcounts, int* rdispls,
                                    MPI_Datatype recvtype )
   {
-    int sts ;
+    int sts = 0;
     int target ;
     int SendTimeRequestId ;
     int SendDataRequestId ;

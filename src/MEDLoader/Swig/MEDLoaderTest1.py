@@ -114,7 +114,7 @@ class MEDLoaderTest1(unittest.TestCase):
         f2_int=MEDLoader.ReadFieldCell(fileName,f1_int.getMesh().getName(),0,f1_int.getName(),8,9);
         self.assertTrue(f1_int.isEqual(f2_int,1e-12,0));  # exact comparison here
         f2_fl=MEDLoader.ReadFieldCell(fileName,f1_fl.getMesh().getName(),0,f1_fl.getName(),8,9);
-        self.assertTrue(f1_fl.isEqual(f2_fl,1e-12,1e-12));
+        self.assertTrue(f1_fl.isEqual(f2_fl,1e-12,1e-7)); # float comparison here 
         #ON NODES
         f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
         fileName2="Pyfile9.med";
