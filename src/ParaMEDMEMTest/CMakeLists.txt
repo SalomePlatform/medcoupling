@@ -118,21 +118,26 @@ ENDFOREACH(bintestparamem ${TESTSParaMEDMEM})
 SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
 
 #  -- some tests require 2, 3, 4 or 5 procs --
-ADD_TEST(NAME TestParaMEDMEM_Proc2 COMMAND ${MPIEXEC} -np 2 --oversubscribe $<TARGET_FILE:TestParaMEDMEM>)
+# MPICH does not support --oversubscribe:
+IF(NOT ${MPIEXEC_EXECUTABLE} MATCHES "mpich")
+    SET(_oversub_opt "--oversubscribe")
+ENDIF()
+
+ADD_TEST(NAME TestParaMEDMEM_Proc2 COMMAND ${MPIEXEC} -np 2  ${_oversub_opt} $<TARGET_FILE:TestParaMEDMEM>)
 SET_TESTS_PROPERTIES(TestParaMEDMEM_Proc2 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(NAME TestParaMEDMEM_Proc3 COMMAND ${MPIEXEC} -np 3 --oversubscribe $<TARGET_FILE:TestParaMEDMEM>)
+ADD_TEST(NAME TestParaMEDMEM_Proc3 COMMAND ${MPIEXEC} -np 3 ${_oversub_opt} $<TARGET_FILE:TestParaMEDMEM>)
 SET_TESTS_PROPERTIES(TestParaMEDMEM_Proc3 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(NAME TestParaMEDMEM_Proc4 COMMAND ${MPIEXEC} -np 4 --oversubscribe $<TARGET_FILE:TestParaMEDMEM>)
+ADD_TEST(NAME TestParaMEDMEM_Proc4 COMMAND ${MPIEXEC} -np 4 ${_oversub_opt} $<TARGET_FILE:TestParaMEDMEM>)
 SET_TESTS_PROPERTIES(TestParaMEDMEM_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(NAME TestParaMEDMEM_Proc5 COMMAND ${MPIEXEC} -np 5 --oversubscribe $<TARGET_FILE:TestParaMEDMEM>)
+ADD_TEST(NAME TestParaMEDMEM_Proc5 COMMAND ${MPIEXEC} -np 5 ${_oversub_opt} $<TARGET_FILE:TestParaMEDMEM>)
 SET_TESTS_PROPERTIES(TestParaMEDMEM_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
 
-ADD_TEST(NAME TestMPIAccess_Proc2 COMMAND ${MPIEXEC} -np 2 --oversubscribe $<TARGET_FILE:TestMPIAccess>)
+ADD_TEST(NAME TestMPIAccess_Proc2 COMMAND ${MPIEXEC} -np 2 ${_oversub_opt} $<TARGET_FILE:TestMPIAccess>)
 SET_TESTS_PROPERTIES(TestMPIAccess_Proc2 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(NAME TestMPIAccess_Proc3 COMMAND ${MPIEXEC} -np 3 --oversubscribe $<TARGET_FILE:TestMPIAccess>)
+ADD_TEST(NAME TestMPIAccess_Proc3 COMMAND ${MPIEXEC} -np 3 ${_oversub_opt} $<TARGET_FILE:TestMPIAccess>)
 SET_TESTS_PROPERTIES(TestMPIAccess_Proc3 PROPERTIES ENVIRONMENT "${tests_env}")
 
-ADD_TEST(NAME TestMPIAccessDEC_Proc4 COMMAND ${MPIEXEC} -np 4 --oversubscribe $<TARGET_FILE:TestMPIAccessDEC>)
+ADD_TEST(NAME TestMPIAccessDEC_Proc4 COMMAND ${MPIEXEC} -np 4 ${_oversub_opt} $<TARGET_FILE:TestMPIAccessDEC>)
 SET_TESTS_PROPERTIES(TestMPIAccessDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
 
 # Installation rules
