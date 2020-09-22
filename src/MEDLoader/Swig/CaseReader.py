@@ -21,7 +21,7 @@
 
 # http://www-vis.lbl.gov/NERSC/Software/ensight/doc/OnlineHelp/UM-C11.pdf
 import numpy as np
-from MEDLoader import *
+from medcoupling import *
 from CaseIO import CaseIO
 import sys,re,os
 
@@ -56,11 +56,7 @@ class CaseReader(CaseIO):
         cI=DataArrayInt(len(cells)+1) ; cI.iota() ; cI*=nbNodesPerCell+1
         #
         cells2=cells.reshape(len(cells),nbNodesPerCell)
-        if cells2.dtype=='int32':
-            c2=DataArrayInt(cells2)
-        else:
-            c2=DataArrayInt(np.array(cells2,dtype="int32"))
-            pass
+        c2=DataArrayInt(np.array(cells2,dtype="int{}".format(MEDCouplingSizeOfIDs())) )
         c=DataArrayInt(len(cells),nbNodesPerCell+1) ; c[:,0]=ct ; c[:,1:]=c2-1 ; c.rearrange(1)
         m.setConnectivity(c,cI,True)
         m.checkConsistency()
