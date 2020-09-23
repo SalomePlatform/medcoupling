@@ -6735,7 +6735,36 @@ class MEDLoaderTest3(unittest.TestCase):
 
     def testMeshConvertFromMEDFileGeoType(self):
         self.assertEqual(MEDFileMesh.ConvertFromMEDFileGeoType(320),NORM_HEXA20)
-        
+    
+    @WriteInTmpDir
+    def testFieldInt64_0(self):
+        """
+        Small basic test with I/O of field in int64.
+        """
+        fname="Pyfile120.med"
+        arr = DataArrayDouble([0,1])
+        m = MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m.setName("mesh") ; m=m.buildUnstructured()
+        f = MEDCouplingFieldInt64(ON_CELLS) ; f.setName("field")
+        v = 1234567890123456
+        f.setArray(DataArrayInt64([v]))
+        f.setMesh(m)
+        mm = MEDFileUMesh()
+        mm[0] = m
+        f1ts = MEDFileInt64Field1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        fmts = MEDFileInt64FieldMultiTS()
+        fmts.pushBackTimeStep(f1ts)
+        fs = MEDFileFields()
+        fs.pushField(fmts)
+        mm.write(fname,2)
+        fs.write(fname,0)
+        #
+        mm = MEDFileMesh.New(fname)
+        fs = MEDFileFields(fname)
+        f = fs[0][0].field(mm)
+        self.assertTrue( isinstance(f,MEDCouplingFieldInt64) )
+        self.assertEqual( f.getArray().getIJ(0,0) , v )
+
     pass
 
 if __name__ == "__main__":

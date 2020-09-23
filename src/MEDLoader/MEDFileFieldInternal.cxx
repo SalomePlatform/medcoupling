@@ -725,7 +725,14 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, const MEDFileF
   DataArrayInt32 *arrI(dynamic_cast<DataArrayInt32 *>(arr));
   if(arrI)
     {
-      int *startFeeding(arrI->getPointer()+_start*nbOfCompo);
+      Int32 *startFeeding(arrI->getPointer()+_start*nbOfCompo);
+      goReadZeValuesInFile(fid,fieldName,nbOfCompo,iteration,order,menti,mgeoti,reinterpret_cast<unsigned char*>(startFeeding));
+      return ;
+    }
+  DataArrayInt64 *arrI64(dynamic_cast<DataArrayInt64 *>(arr));
+  if(arrI64)
+    {
+      Int64 *startFeeding(arrI64->getPointer()+_start*nbOfCompo);
       goReadZeValuesInFile(fid,fieldName,nbOfCompo,iteration,order,menti,mgeoti,reinterpret_cast<unsigned char*>(startFeeding));
       return ;
     }
@@ -919,16 +926,19 @@ void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid, const MEDFileFieldN
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : the array to be written is not allocated !");
   const DataArrayDouble *arrD(dynamic_cast<const DataArrayDouble *>(arr));
   const DataArrayInt32 *arrI(dynamic_cast<const DataArrayInt32 *>(arr));
+  const DataArrayInt64 *arrI64(dynamic_cast<const DataArrayInt64 *>(arr));
   const DataArrayFloat *arrF(dynamic_cast<const DataArrayFloat *>(arr));
   const unsigned char *locToWrite=0;
   if(arrD)
     locToWrite=reinterpret_cast<const unsigned char *>(arrD->getConstPointer()+_start*arr->getNumberOfComponents());
   else if(arrI)
     locToWrite=reinterpret_cast<const unsigned char *>(arrI->getConstPointer()+_start*arr->getNumberOfComponents());
+  else if(arrI64)
+    locToWrite=reinterpret_cast<const unsigned char *>(arrI64->getConstPointer()+_start*arr->getNumberOfComponents());
   else if(arrF)
     locToWrite=reinterpret_cast<const unsigned char *>(arrF->getConstPointer()+_start*arr->getNumberOfComponents());
   else
-    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : not recognized type of values ! Supported are FLOAT64 FLOAT32 and INT32 !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::writeLL : not recognized type of values ! Supported are FLOAT64 FLOAT32 INT32 and INT64 !");
   MEDFILESAFECALLERWR0(MEDfieldValueWithProfileWr,(fid,nasc.getName().c_str(),getIteration(),getOrder(),getTime(),menti,mgeoti,
                                                    MED_COMPACT_PFLMODE,_profile.c_str(),_localization.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,ToMedInt(_nval),
                                                    locToWrite));

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020  CEA/DEN, EDF R&D
+// Copyright (C) 2020  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,38 +16,13 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Yann Pora (EDF R&D)
+// Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLINGFIELDINT_HXX__
-#define __MEDCOUPLINGFIELDINT_HXX__
+#pragma once
 
-#include "MEDCoupling.hxx"
-#include "MEDCouplingFieldT.hxx"
-#include "MEDCouplingMemArray.hxx"
-
-#include <string>
+#include "MEDCouplingFieldInt32.hxx"
 
 namespace MEDCoupling
 {
-  class MEDCouplingFieldDouble;
-  class MEDCouplingFieldTemplate;
-  
-  class MEDCouplingFieldInt : public MEDCouplingFieldT<int>
-  {
-  public:
-    MEDCOUPLING_EXPORT static MEDCouplingFieldInt *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldInt *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
-    MEDCOUPLING_EXPORT MEDCouplingFieldInt *deepCopy() const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldInt *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldInt"); }
-  protected:
-    MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td);
-    MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCopy);
-    MEDCouplingFieldInt(NatureOfField n, MEDCouplingTimeDiscretizationInt *td, MEDCouplingFieldDiscretization *type);
-    MEDCouplingFieldInt(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
-    ~MEDCouplingFieldInt() { }
-  };
+    using MEDCouplingFieldInt = MEDCouplingFieldInt32;
 }
-
-#endif

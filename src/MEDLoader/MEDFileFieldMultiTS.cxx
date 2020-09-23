@@ -31,15 +31,19 @@
 
 using namespace MEDCoupling;
 
-template class MEDCoupling::MEDFileTemplateFieldMultiTSWithoutSDA<int>;
+template class MEDCoupling::MEDFileTemplateFieldMultiTSWithoutSDA<Int32>;
+template class MEDCoupling::MEDFileTemplateFieldMultiTSWithoutSDA<Int64>;
 template class MEDCoupling::MEDFileTemplateFieldMultiTSWithoutSDA<float>;
 template class MEDCoupling::MEDFileTemplateFieldMultiTSWithoutSDA<double>;
-template class MEDCoupling::MEDFileNDTemplateFieldMultiTSWithoutSDA<int>;
+template class MEDCoupling::MEDFileNDTemplateFieldMultiTSWithoutSDA<Int32>;
+template class MEDCoupling::MEDFileNDTemplateFieldMultiTSWithoutSDA<Int64>;
 template class MEDCoupling::MEDFileNDTemplateFieldMultiTSWithoutSDA<float>;
-template class MEDCoupling::MEDFileTemplateFieldMultiTS<int>;
+template class MEDCoupling::MEDFileTemplateFieldMultiTS<Int32>;
+template class MEDCoupling::MEDFileTemplateFieldMultiTS<Int64>;
 template class MEDCoupling::MEDFileTemplateFieldMultiTS<float>;
 template class MEDCoupling::MEDFileTemplateFieldMultiTS<double>;
-template class MEDCoupling::MEDFileNDTemplateFieldMultiTS<int>;
+template class MEDCoupling::MEDFileNDTemplateFieldMultiTS<Int32>;
+template class MEDCoupling::MEDFileNDTemplateFieldMultiTS<Int64>;
 template class MEDCoupling::MEDFileNDTemplateFieldMultiTS<float>;
 
 extern INTERP_KERNEL::NormalizedCellType ConvertGeometryType(med_geometry_type geotype);
@@ -527,7 +531,12 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysR
           }
         case MED_INT32:
           {
-            _time_steps[i]=MEDFileIntField1TSWithoutSDA::New(getName(),getMeshName(),i+1,FromMedInt<int>(numdt),FromMedInt<int>(numo),_infos);
+            _time_steps[i]=MEDFileInt32Field1TSWithoutSDA::New(getName(),getMeshName(),i+1,FromMedInt<int>(numdt),FromMedInt<int>(numo),_infos);
+            break;
+          }
+        case MED_INT64:
+          {
+            _time_steps[i]=MEDFileInt64Field1TSWithoutSDA::New(getName(),getMeshName(),i+1,FromMedInt<int>(numdt),FromMedInt<int>(numo),_infos);
             break;
           }
         case MED_FLOAT32:
@@ -539,12 +548,12 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysR
           {
             if(sizeof(med_int)==sizeof(int))
               {
-                _time_steps[i]=MEDFileIntField1TSWithoutSDA::New(getName(),getMeshName(),i+1,FromMedInt<int>(numdt),FromMedInt<int>(numo),_infos);
+                _time_steps[i]=MEDFileInt32Field1TSWithoutSDA::New(getName(),getMeshName(),i+1,FromMedInt<int>(numdt),FromMedInt<int>(numo),_infos);
                 break;
               }
           }
         default:
-          throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysRecursively : managed field type are : FLOAT64, INT32, FLOAT32 !");
+          throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysRecursively : managed field type are : FLOAT64, INT32, FLOAT32, INT64 !");
       }
       if(loadAll)
         _time_steps[i]->loadStructureAndBigArraysRecursively(fid,*this,ms,entitiesForSubInstances);
@@ -1080,7 +1089,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldNoProfileSBT(const MEDCoup
 void MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArray *arr, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile, MEDFileFieldGlobsReal& glob, bool smartPflKiller)
 {
   if(!field)
-    throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTSWithoutSDA::appendFieldNoProfileSBT : input field is NULL !");
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldNoProfileSBT : input field is NULL !");
   if(!_time_steps.empty())
     checkCoherencyOfTinyInfo(field,arr);
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> obj(createNew1TSWithoutSDAEmptyInstance());
@@ -1128,9 +1137,9 @@ std::vector< std::vector<DataArrayDouble *> > MEDFileFieldMultiTSWithoutSDA::get
   return myF1TSC->getFieldSplitedByType2(mname,types,typesF,pfls,locs);
 }
 
-MEDFileIntFieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::convertToInt() const
+MEDFileInt32FieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::convertToInt() const
 {
-  MCAuto<MEDFileIntFieldMultiTSWithoutSDA> ret(new MEDFileIntFieldMultiTSWithoutSDA);
+  MCAuto<MEDFileInt32FieldMultiTSWithoutSDA> ret(new MEDFileInt32FieldMultiTSWithoutSDA);
   ret->MEDFileAnyTypeFieldMultiTSWithoutSDA::operator =(*this);
   int i=0;
   for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,i++)
@@ -1183,7 +1192,12 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
       }
     case MED_INT32:
       {
-        ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
+        ret=new MEDFileInt32FieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
+        break;
+      }
+    case MED_INT64:
+      {
+        ret=new MEDFileInt64FieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
         break;
       }
     case MED_FLOAT32:
@@ -1195,13 +1209,13 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
       {
         if(sizeof(med_int)==sizeof(int))
           {
-            ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
+            ret=new MEDFileInt32FieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
             break;
           }
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32, MED_INT64] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -1227,7 +1241,12 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
       }
     case MED_INT32:
       {
-        ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
+        ret=new MEDFileInt32FieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
+        break;
+      }
+    case MED_INT64:
+      {
+        ret=new MEDFileInt64FieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
         break;
       }
     case MED_FLOAT32:
@@ -1239,13 +1258,13 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
       {
         if(sizeof(med_int)==sizeof(int))
           {
-            ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
+            ret=new MEDFileInt32FieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
             break;
           }
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fid) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::BuildContentFrom(fid) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32, MED_INT64] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -1264,9 +1283,15 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromCont
       ret->_content=c;  c->incrRef();
       return ret.retn();
     }
-  if(dynamic_cast<const MEDFileIntFieldMultiTSWithoutSDA *>(c))
+  if(dynamic_cast<const MEDFileInt32FieldMultiTSWithoutSDA *>(c))
     {
-      MCAuto<MEDFileIntFieldMultiTS> ret(MEDFileIntFieldMultiTS::New());
+      MCAuto<MEDFileInt32FieldMultiTS> ret(MEDFileInt32FieldMultiTS::New());
+      ret->_content=c;  c->incrRef();
+      return ret.retn();
+    }
+  if(dynamic_cast<const MEDFileInt64FieldMultiTSWithoutSDA *>(c))
+    {
+      MCAuto<MEDFileInt64FieldMultiTS> ret(MEDFileInt64FieldMultiTS::New());
       ret->_content=c;  c->incrRef();
       return ret.retn();
     }
@@ -1301,10 +1326,10 @@ catch(INTERP_KERNEL::Exception& e)
 //= MEDFileAnyTypeFieldMultiTS
 
 /*!
- * Returns a new instance of MEDFileFieldMultiTS or MEDFileIntFieldMultiTS holding data of the first field
+ * Returns a new instance of MEDFileFieldMultiTS or MEDFileInt32FieldMultiTS holding data of the first field
  * that has been read from a specified MED file.
  *  \param [in] fileName - the name of the MED file to read.
- *  \return MEDFileFieldMultiTS * - a new instance of MEDFileFieldMultiTS or MEDFileIntFieldMultiTS. The caller
+ *  \return MEDFileFieldMultiTS * - a new instance of MEDFileFieldMultiTS or MEDFileInt32FieldMultiTS. The caller
  *          is to delete this field using decrRef() as it is no more needed.
  *  \throw If reading the file fails.
  */
@@ -1323,11 +1348,11 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(med_idt fid, bool lo
 }
 
 /*!
- * Returns a new instance of MEDFileFieldMultiTS or MEDFileIntFieldMultiTS holding data of a given field
+ * Returns a new instance of MEDFileFieldMultiTS or MEDFileInt32FieldMultiTS holding data of a given field
  * that has been read from a specified MED file.
  *  \param [in] fileName - the name of the MED file to read.
  *  \param [in] fieldName - the name of the field to read.
- *  \return MEDFileFieldMultiTS * - a new instance of MEDFileFieldMultiTS or MEDFileIntFieldMultiTS. The caller
+ *  \return MEDFileFieldMultiTS * - a new instance of MEDFileFieldMultiTS or MEDFileInt32FieldMultiTS. The caller
  *          is to delete this field using decrRef() as it is no more needed.
  *  \throw If reading the file fails.
  *  \throw If there is no field named \a fieldName in the file.
@@ -1741,10 +1766,10 @@ MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> MEDFileAnyTypeFieldMultiTS::getCont
 }
 
 /*!
- * Returns a new MEDFileField1TS or MEDFileIntField1TS holding data of a given time step of \a this field.
+ * Returns a new MEDFileField1TS or MEDFileInt32Field1TS holding data of a given time step of \a this field.
  *  \param [in] iteration - the iteration number of a required time step.
  *  \param [in] order - the iteration order number of required time step.
- *  \return MEDFileField1TS * or MEDFileIntField1TS *- a new instance of MEDFileField1TS or MEDFileIntField1TS. The caller is to
+ *  \return MEDFileField1TS * or MEDFileInt32Field1TS *- a new instance of MEDFileField1TS or MEDFileInt32Field1TS. The caller is to
  *          delete this field using decrRef() as it is no more needed.
  *  \throw If there is no required time step in \a this field.
  */
@@ -1755,7 +1780,7 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeFieldMultiTS::getTimeStep(int iteration, i
 }
 
 /*!
- * Returns a new MEDFileField1TS or MEDFileIntField1TS holding data of a given time step of \a this field.
+ * Returns a new MEDFileField1TS or MEDFileInt32Field1TS holding data of a given time step of \a this field.
  *  \param [in] time - the time of the time step of interest.
  *  \param [in] eps - a precision used to compare time values.
  *  \return MEDFileField1TS * - a new instance of MEDFileField1TS. The caller is to
@@ -2041,7 +2066,8 @@ MCAuto<MEDFileAnyTypeFieldMultiTS> MEDFileAnyTypeFieldMultiTS::Aggregate(const s
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : input vector is empty !");
   std::size_t sz(fmtss.size());
   std::vector<const MEDFileFieldMultiTS *> fmtss1;
-  std::vector<const MEDFileIntFieldMultiTS *> fmtss2;
+  std::vector<const MEDFileInt32FieldMultiTS *> fmtss2;
+  std::vector<const MEDFileInt64FieldMultiTS *> fmtss3;
   for(std::vector<const MEDFileAnyTypeFieldMultiTS *>::const_iterator it=fmtss.begin();it!=fmtss.end();it++)
     {
       if(!(*it))
@@ -2052,20 +2078,28 @@ MCAuto<MEDFileAnyTypeFieldMultiTS> MEDFileAnyTypeFieldMultiTS::Aggregate(const s
           fmtss1.push_back(elt1);
           continue;
         }
-      const MEDFileIntFieldMultiTS *elt2(dynamic_cast<const MEDFileIntFieldMultiTS *>(*it));
+      const MEDFileInt32FieldMultiTS *elt2(dynamic_cast<const MEDFileInt32FieldMultiTS *>(*it));
       if(elt2)
         {
           fmtss2.push_back(elt2);
           continue;
         }
+      const MEDFileInt64FieldMultiTS *elt3(dynamic_cast<const MEDFileInt64FieldMultiTS *>(*it));
+      if(elt3)
+        {
+          fmtss3.push_back(elt3);
+          continue;
+        }
       throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : not recognized type !");
     }
-  if(fmtss1.size()!=sz && fmtss2.size()!=sz)
+  if(fmtss1.size()!=sz && fmtss2.size()!=sz && fmtss3.size()!=sz)
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : type of data is not homogeneous !");
   if(fmtss1.size()==sz)
     return AggregateHelperFMTS<double>(fmtss1,dts);
   if(fmtss2.size()!=sz)
-    return AggregateHelperFMTS<int>(fmtss2,dts);
+    return AggregateHelperFMTS<Int32>(fmtss2,dts);
+  if(fmtss3.size()!=sz)
+    return AggregateHelperFMTS<Int64>(fmtss3,dts);
   throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::Aggregate : not implemented yet !");
 }
 
@@ -2087,22 +2121,22 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFieldMultiTS::shallowCpy() const
  *
  * \param [in] isDeepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
  *                            By default (true) the globals are deeply copied.
- * \return MEDFileIntFieldMultiTS * - a new object that is the result of the conversion of \a this to int32 field.
+ * \return MEDFileInt32FieldMultiTS * - a new object that is the result of the conversion of \a this to int32 field.
  */
-MEDFileIntFieldMultiTS *MEDFileFieldMultiTS::convertToInt(bool isDeepCpyGlobs) const
+MEDFileInt32FieldMultiTS *MEDFileFieldMultiTS::convertToInt(bool isDeepCpyGlobs) const
 {
-  MCAuto<MEDFileIntFieldMultiTS> ret;
+  MCAuto<MEDFileInt32FieldMultiTS> ret;
   const MEDFileAnyTypeFieldMultiTSWithoutSDA *content(_content);
   if(content)
     {
       const MEDFileFieldMultiTSWithoutSDA *contc=dynamic_cast<const MEDFileFieldMultiTSWithoutSDA *>(content);
       if(!contc)
         throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::convertToInt : the content inside this is not FLOAT64 ! This is incoherent !");
-      MCAuto<MEDFileIntFieldMultiTSWithoutSDA> newc(contc->convertToInt());
-      ret=static_cast<MEDFileIntFieldMultiTS *>(MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent((MEDFileIntFieldMultiTSWithoutSDA *)newc));
+      MCAuto<MEDFileInt32FieldMultiTSWithoutSDA> newc(contc->convertToInt());
+      ret=static_cast<MEDFileInt32FieldMultiTS *>(MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent((MEDFileInt32FieldMultiTSWithoutSDA *)newc));
     }
   else
-    ret=MEDFileIntFieldMultiTS::New();
+    ret=MEDFileInt32FieldMultiTS::New();
   if(isDeepCpyGlobs)
     ret->deepCpyGlobs(*this);
   else
@@ -2162,4 +2196,4 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeFieldMultiTSIterator::nextt()
     return 0;
 }
 
-//= MEDFileIntFieldMultiTS
+//= MEDFileInt32FieldMultiTS

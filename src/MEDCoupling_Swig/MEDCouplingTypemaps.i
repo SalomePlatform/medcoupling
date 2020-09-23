@@ -16,10 +16,9 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLINGTYPEMAPS_I__
-#define __MEDCOUPLINGTYPEMAPS_I__
+#pragma once
 
 #include "MEDCouplingDataArrayTypemaps.i"
 #include "MEDCouplingUMesh.hxx"
@@ -135,8 +134,10 @@ static PyObject *convertField(MEDCoupling::MEDCouplingField *f, int owner)
     }
   if(dynamic_cast<MEDCoupling::MEDCouplingFieldDouble *>(f))
     ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble,owner);
-  if(dynamic_cast<MEDCoupling::MEDCouplingFieldInt *>(f))
-    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldInt,owner);
+  if(dynamic_cast<MEDCoupling::MEDCouplingFieldInt32 *>(f))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldInt32,owner);
+  if(dynamic_cast<MEDCoupling::MEDCouplingFieldInt64 *>(f))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldInt64,owner);
   if(dynamic_cast<MEDCoupling::MEDCouplingFieldFloat *>(f))
     ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldFloat,owner);
   if(!ret)
@@ -767,5 +768,3 @@ PyObject *Mesh_getCellsContainingPointsLike(PyObject *p, double eps, const MEDCo
   PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(eltsIndex.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
   return ret;
 }
-
-#endif

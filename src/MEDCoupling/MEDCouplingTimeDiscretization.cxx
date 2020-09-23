@@ -694,27 +694,27 @@ void MEDCouplingTimeKeeper::checkTimePresence(double time, double eps) const
 
 ////////////////////////
 
-MEDCouplingTimeDiscretizationInt::MEDCouplingTimeDiscretizationInt(const MEDCouplingTimeDiscretizationInt& other, bool deepCopy):MEDCouplingTimeDiscretizationSimple<int>(other,deepCopy)
+MEDCouplingTimeDiscretizationInt32::MEDCouplingTimeDiscretizationInt32(const MEDCouplingTimeDiscretizationInt32& other, bool deepCopy):MEDCouplingTimeDiscretizationSimple<Int32>(other,deepCopy)
 {
 }
 
-MEDCouplingTimeDiscretizationInt *MEDCouplingTimeDiscretizationInt::performCopyOrIncrRef(bool deepCopy) const
+MEDCouplingTimeDiscretizationInt32 *MEDCouplingTimeDiscretizationInt32::performCopyOrIncrRef(bool deepCopy) const
 {
-  return new MEDCouplingTimeDiscretizationInt(*this,deepCopy);
+  return new MEDCouplingTimeDiscretizationInt32(*this,deepCopy);
 }
 
-MEDCouplingTimeDiscretizationInt *MEDCouplingTimeDiscretizationInt::New(TypeOfTimeDiscretization type)
+MEDCouplingTimeDiscretizationInt32 *MEDCouplingTimeDiscretizationInt32::New(TypeOfTimeDiscretization type)
 {
   switch(type)
   {
-    case MEDCouplingTimeDiscretizationInt::DISCRETIZATION:
-      return new MEDCouplingTimeDiscretizationInt;
+    case MEDCouplingTimeDiscretizationInt32::DISCRETIZATION:
+      return new MEDCouplingTimeDiscretizationInt32;
     default:
       throw INTERP_KERNEL::Exception("Time discretization not implemented yet for integers !");
   }
 }
 
-bool MEDCouplingTimeDiscretizationInt::isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<int> *other, int prec, std::string& reason) const
+bool MEDCouplingTimeDiscretizationInt32::isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<Int32> *other, Int32 prec, std::string& reason) const
 {
   if(prec!=0)
     throw INTERP_KERNEL::Exception("isEqualIfNotWhy : only precision equal to 0 supported for int !");
@@ -723,10 +723,10 @@ bool MEDCouplingTimeDiscretizationInt::isEqualIfNotWhy(const MEDCouplingTimeDisc
       reason="Time discretization is NULL.";
       return false;
     }
-  const MEDCouplingTimeDiscretizationInt *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationInt *>(other));
+  const MEDCouplingTimeDiscretizationInt32 *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationInt32 *>(other));
   if(!otherC)
-    throw INTERP_KERNEL::Exception("isEqualIfNotWhy : other is not a MEDCouplingTimeDiscretizationInt !");
-  if(!MEDCouplingTimeDiscretizationTemplate<int>::areStrictlyCompatible(other,reason))
+    throw INTERP_KERNEL::Exception("isEqualIfNotWhy : other is not a MEDCouplingTimeDiscretizationInt32 !");
+  if(!MEDCouplingTimeDiscretizationTemplate<Int32>::areStrictlyCompatible(other,reason))
     return false;
   if(!_tk.isEqualIfNotWhy(otherC->_tk,_time_tolerance,reason))
     return false;
@@ -735,11 +735,72 @@ bool MEDCouplingTimeDiscretizationInt::isEqualIfNotWhy(const MEDCouplingTimeDisc
   return _array->isEqualIfNotWhy(*other->getArray(),reason);
 }
 
-bool MEDCouplingTimeDiscretizationInt::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<int> *other, int prec) const
+bool MEDCouplingTimeDiscretizationInt32::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<Int32> *other, Int32 prec) const
 {
   if(prec!=0)
-    throw INTERP_KERNEL::Exception("MEDCouplingTimeDiscretizationInt::isEqualWithoutConsideringStr : only precision 0 is supported !");
-  const MEDCouplingTimeDiscretizationInt *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationInt *>(other));
+    throw INTERP_KERNEL::Exception("MEDCouplingTimeDiscretizationInt32::isEqualWithoutConsideringStr : only precision 0 is supported !");
+  const MEDCouplingTimeDiscretizationInt32 *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationInt32 *>(other));
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("isEqualWithoutConsideringStr : other is not a MEDCouplingTimeDiscretizationInt !");
+  std::string tmp;
+  if(!areStrictlyCompatible(other,tmp))
+    return false;
+  std::string reason;
+  if(!_tk.isEqualIfNotWhy(otherC->_tk,_time_tolerance,reason))
+    return false;
+  if(_array==other->getArray())
+    return true;
+  return _array->isEqualWithoutConsideringStr(*(other->getArray()));
+}
+
+////////////////////////
+
+MEDCouplingTimeDiscretizationInt64::MEDCouplingTimeDiscretizationInt64(const MEDCouplingTimeDiscretizationInt64& other, bool deepCopy):MEDCouplingTimeDiscretizationSimple<Int64>(other,deepCopy)
+{
+}
+
+MEDCouplingTimeDiscretizationInt64 *MEDCouplingTimeDiscretizationInt64::performCopyOrIncrRef(bool deepCopy) const
+{
+  return new MEDCouplingTimeDiscretizationInt64(*this,deepCopy);
+}
+
+MEDCouplingTimeDiscretizationInt64 *MEDCouplingTimeDiscretizationInt64::New(TypeOfTimeDiscretization type)
+{
+  switch(type)
+  {
+    case MEDCouplingTimeDiscretizationInt64::DISCRETIZATION:
+      return new MEDCouplingTimeDiscretizationInt64;
+    default:
+      throw INTERP_KERNEL::Exception("Time discretization not implemented yet for integers !");
+  }
+}
+
+bool MEDCouplingTimeDiscretizationInt64::isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<Int64> *other, Int64 prec, std::string& reason) const
+{
+  if(prec!=0)
+    throw INTERP_KERNEL::Exception("isEqualIfNotWhy : only precision equal to 0 supported for int !");
+  if(!other)
+    {
+      reason="Time discretization is NULL.";
+      return false;
+    }
+  const MEDCouplingTimeDiscretizationInt64 *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationInt64 *>(other));
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("isEqualIfNotWhy : other is not a MEDCouplingTimeDiscretizationInt64 !");
+  if(!MEDCouplingTimeDiscretizationTemplate<Int64>::areStrictlyCompatible(other,reason))
+    return false;
+  if(!_tk.isEqualIfNotWhy(otherC->_tk,_time_tolerance,reason))
+    return false;
+  if(_array==other->getArray())
+    return true;
+  return _array->isEqualIfNotWhy(*other->getArray(),reason);
+}
+
+bool MEDCouplingTimeDiscretizationInt64::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<Int64> *other, Int64 prec) const
+{
+  if(prec!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingTimeDiscretizationInt64::isEqualWithoutConsideringStr : only precision 0 is supported !");
+  const MEDCouplingTimeDiscretizationInt64 *otherC(dynamic_cast<const MEDCouplingTimeDiscretizationInt64 *>(other));
   if(!otherC)
     throw INTERP_KERNEL::Exception("isEqualWithoutConsideringStr : other is not a MEDCouplingTimeDiscretizationInt !");
   std::string tmp;

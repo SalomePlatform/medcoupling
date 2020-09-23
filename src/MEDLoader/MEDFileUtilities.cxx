@@ -49,18 +49,21 @@ med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode)
 const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
 {
   static const char medFloat64[]="MED_FLOAT64";
+  static const char medFloat32[]="MED_FLOAT32";
   static const char medInt32[]="MED_INT32";
   static const char medInt64[]="MED_INT64";
   switch(ft)
   {
     case MED_FLOAT64:
       return medFloat64;
+    case MED_FLOAT32:
+      return medFloat32;
     case MED_INT32:
       return medInt32;
     case MED_INT64:
       return medInt64;
     default:
-      throw INTERP_KERNEL::Exception("Non supported field type ! Should be FLOAT64, INT32 or INT64 !");
+      throw INTERP_KERNEL::Exception("Non supported field type ! Should be FLOAT64, FLOAT32, INT32 or INT64 !");
   }
 }
 

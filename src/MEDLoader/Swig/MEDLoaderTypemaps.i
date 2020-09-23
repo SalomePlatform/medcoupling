@@ -66,8 +66,10 @@ static PyObject *convertMEDFileField1TS(MEDCoupling::MEDFileAnyTypeField1TS *p, 
     }
   if(dynamic_cast<MEDFileField1TS *>(p))
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileField1TS,owner);
-  if(dynamic_cast<MEDFileIntField1TS *>(p))
-    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileIntField1TS,owner);
+  if(dynamic_cast<MEDFileInt32Field1TS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileInt32Field1TS,owner);
+  if(dynamic_cast<MEDFileInt64Field1TS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileInt64Field1TS,owner);
   if(dynamic_cast<MEDFileFloatField1TS *>(p))
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileFloatField1TS,owner);
   if(!ret)
@@ -85,8 +87,10 @@ static PyObject *convertMEDFileFieldMultiTS(MEDCoupling::MEDFileAnyTypeFieldMult
     }
   if(dynamic_cast<MEDFileFieldMultiTS *>(p))
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileFieldMultiTS,owner);
-  if(dynamic_cast<MEDFileIntFieldMultiTS *>(p))
-    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileIntFieldMultiTS,owner);
+  if(dynamic_cast<MEDFileInt32FieldMultiTS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileInt32FieldMultiTS,owner);
+  if(dynamic_cast<MEDFileInt64FieldMultiTS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileInt64FieldMultiTS,owner);
   if(dynamic_cast<MEDFileFloatFieldMultiTS *>(p))
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_MEDCoupling__MEDFileFloatFieldMultiTS,owner);
   if(!ret)

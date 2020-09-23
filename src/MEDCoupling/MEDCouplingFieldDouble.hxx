@@ -28,7 +28,7 @@
 namespace MEDCoupling
 {
   class Voronizer;
-  class MEDCouplingFieldInt;
+  class MEDCouplingFieldInt32;
   class MEDCouplingFieldTemplate;
 
   class MEDCouplingFieldDouble : public MEDCouplingFieldT<double>
@@ -49,7 +49,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *nodeToCellDiscretization() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cellToNodeDiscretization() const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldInt *convertToIntField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt32 *convertToIntField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *convertToFloatField() const;
     MEDCOUPLING_EXPORT double getIJK(mcIdType cellId, int nodeIdInCell, int compoId) const;
     MEDCOUPLING_EXPORT double accumulate(int compId) const;

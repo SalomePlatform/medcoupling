@@ -18,7 +18,7 @@
 //
 // Author : Yann Pora (EDF R&D)
 
-#include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldInt32.hxx"
 #include "MEDCouplingFieldT.txx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
@@ -27,48 +27,48 @@
 
 using namespace MEDCoupling;
 
-template class MEDCoupling::MEDCouplingFieldT<int>;
+template class MEDCoupling::MEDCouplingFieldT<Int32>;
 
-MEDCouplingFieldInt *MEDCouplingFieldInt::New(TypeOfField type, TypeOfTimeDiscretization td)
+MEDCouplingFieldInt32 *MEDCouplingFieldInt32::New(TypeOfField type, TypeOfTimeDiscretization td)
 {
-  return new MEDCouplingFieldInt(type,td);
+  return new MEDCouplingFieldInt32(type,td);
 }
 
-MEDCouplingFieldInt *MEDCouplingFieldInt::New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td)
+MEDCouplingFieldInt32 *MEDCouplingFieldInt32::New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td)
 {
-  return new MEDCouplingFieldInt(ft,td);
+  return new MEDCouplingFieldInt32(ft,td);
 }
 
-MEDCouplingFieldInt::MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingFieldT<int>(type,MEDCouplingTimeDiscretizationInt::New(td))
-{
-}
-
-MEDCouplingFieldInt::MEDCouplingFieldInt(const MEDCouplingFieldInt& other, bool deepCpy):MEDCouplingFieldT<int>(other,deepCpy)
+MEDCouplingFieldInt32::MEDCouplingFieldInt32(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingFieldT<Int32>(type,MEDCouplingTimeDiscretizationInt32::New(td))
 {
 }
 
-MEDCouplingFieldInt::MEDCouplingFieldInt(NatureOfField n, MEDCouplingTimeDiscretizationInt *td, MEDCouplingFieldDiscretization *type):MEDCouplingFieldT<int>(type,n,td)
+MEDCouplingFieldInt32::MEDCouplingFieldInt32(const MEDCouplingFieldInt32& other, bool deepCpy):MEDCouplingFieldT<Int32>(other,deepCpy)
+{
+}
+
+MEDCouplingFieldInt32::MEDCouplingFieldInt32(NatureOfField n, MEDCouplingTimeDiscretizationInt32 *td, MEDCouplingFieldDiscretization *type):MEDCouplingFieldT<Int32>(type,n,td)
 {
 }
 
 /*!
  * ** WARINING : This method do not deeply copy neither mesh nor spatial discretization. Only a shallow copy (reference) is done for mesh and spatial discretization ! **
  */
-MEDCouplingFieldInt::MEDCouplingFieldInt(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td):MEDCouplingFieldT<int>(ft,MEDCouplingTimeDiscretizationInt::New(td),false)
+MEDCouplingFieldInt32::MEDCouplingFieldInt32(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td):MEDCouplingFieldT<Int32>(ft,MEDCouplingTimeDiscretizationInt32::New(td),false)
 {
 }
 
-MEDCouplingFieldInt *MEDCouplingFieldInt::deepCopy() const
+MEDCouplingFieldInt32 *MEDCouplingFieldInt32::deepCopy() const
 {
   return cloneWithMesh(true);
 }
 
-MEDCouplingFieldInt *MEDCouplingFieldInt::clone(bool recDeepCpy) const
+MEDCouplingFieldInt32 *MEDCouplingFieldInt32::clone(bool recDeepCpy) const
 {
-  return new MEDCouplingFieldInt(*this,recDeepCpy);
+  return new MEDCouplingFieldInt32(*this,recDeepCpy);
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldInt::convertToDblField() const
+MEDCouplingFieldDouble *MEDCouplingFieldInt32::convertToDblField() const
 {
   MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*this));
   int t1,t2;

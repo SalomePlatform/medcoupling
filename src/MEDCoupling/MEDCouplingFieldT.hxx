@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLINGFIELDT_HXX__
-#define __MEDCOUPLINGFIELDT_HXX__
+#pragma once
 
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingTraits.hxx"
@@ -105,5 +104,3 @@ namespace MEDCoupling
     MEDCouplingTimeDiscretizationTemplate<T> *_time_discr;
   };
 }
-
-#endif

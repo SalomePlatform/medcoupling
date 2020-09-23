@@ -30,7 +30,7 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldFloat.hxx"
-#include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldInt32.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingTraits.hxx"
 #include "MCAuto.hxx"
@@ -1263,11 +1263,11 @@ MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(const std::string& 
       }
   }
   {
-    MCAuto<MEDFileIntField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileIntField1TS>(f));
+    MCAuto<MEDFileInt32Field1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileInt32Field1TS>(f));
     if(f1.isNotNull())
       {
-        MCAuto<MEDCoupling::MEDCouplingFieldInt> ret(f1->field(mesh));
-        return MEDCoupling::DynamicCast<MEDCouplingFieldInt,MEDCouplingField>(ret);
+        MCAuto<MEDCoupling::MEDCouplingFieldInt32> ret(f1->field(mesh));
+        return MEDCoupling::DynamicCast<MEDCouplingFieldInt32,MEDCouplingField>(ret);
       }
   }
   {
@@ -1390,10 +1390,10 @@ namespace MEDCoupling
         }
     }
     {
-      MCAuto<MEDFileIntField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileIntField1TS>(f));
+      MCAuto<MEDFileInt32Field1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileInt32Field1TS>(f));
       if(f1.isNotNull())
         {
-          MCAuto<MEDCoupling::MEDCouplingFieldInt> ret(ReadFieldCellLikeT<int>(f1,type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+          MCAuto<MEDCoupling::MEDCouplingFieldInt32> ret(ReadFieldCellLikeT<int>(f1,type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
           return ret.retn();
         }
     }
@@ -1467,10 +1467,10 @@ MEDCoupling::MEDCouplingField *MEDCoupling::ReadFieldNode(const std::string& fil
       }
   }
   {
-    MCAuto<MEDFileIntField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileIntField1TS>(f));
+    MCAuto<MEDFileInt32Field1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileInt32Field1TS>(f));
     if(f1.isNotNull())
       {
-        MCAuto<MEDCoupling::MEDCouplingFieldInt> ret(ReadFieldNodeT<int>(f1,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+        MCAuto<MEDCoupling::MEDCouplingFieldInt32> ret(ReadFieldNodeT<int>(f1,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
         return ret.retn();
       }
   }
@@ -1744,7 +1744,7 @@ void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MED
       }
   }
   {
-    const MEDCoupling::MEDCouplingFieldInt *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt *>(f));
+    const MEDCoupling::MEDCouplingFieldInt32 *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt32 *>(f));
     if(f1)
       {
         WriteFieldT<int>(fileName,f1,writeFromScratch);
@@ -1805,7 +1805,7 @@ void MEDCoupling::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName,
     return ;
   }
   {
-    const MEDCoupling::MEDCouplingFieldInt *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt *>(f));
+    const MEDCoupling::MEDCouplingFieldInt32 *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt32 *>(f));
     if(f1)
       WriteFieldUsingAlreadyWrittenMeshT<int>(fileName,f1);
     return ;

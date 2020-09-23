@@ -16,11 +16,12 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMesh.hxx"
-#include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldInt32.hxx"
+#include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
@@ -39,7 +40,12 @@ MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldFl
   return new MEDCouplingFieldTemplate(f,true);
 }
 
-MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldInt& f)
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldInt32& f)
+{
+  return new MEDCouplingFieldTemplate(f,true);
+}
+
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldInt64& f)
 {
   return new MEDCouplingFieldTemplate(f,true);
 }
@@ -54,7 +60,12 @@ MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::NewWithoutCheck(const MEDCou
   return new MEDCouplingFieldTemplate(f,false);
 }
 
-MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::NewWithoutCheck(const MEDCouplingFieldInt& f)
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::NewWithoutCheck(const MEDCouplingFieldInt32& f)
+{
+  return new MEDCouplingFieldTemplate(f,false);
+}
+
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::NewWithoutCheck(const MEDCouplingFieldInt64& f)
 {
   return new MEDCouplingFieldTemplate(f,false);
 }
@@ -97,7 +108,14 @@ MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& 
     checkConsistencyLight();
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f, bool isChecked):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt32& f, bool isChecked):MEDCouplingField(f,false) 
+{
+  forceTimeOfThis(f);
+  if(isChecked)
+    checkConsistencyLight();
+}
+
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt64& f, bool isChecked):MEDCouplingField(f,false) 
 {
   forceTimeOfThis(f);
   if(isChecked)

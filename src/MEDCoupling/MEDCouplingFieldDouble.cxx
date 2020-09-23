@@ -21,7 +21,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldT.txx"
-#include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldInt32.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
@@ -470,7 +470,7 @@ typename Traits<U>::FieldType *ConvertToUField(const MEDCouplingFieldDouble *sel
   return ret.retn();
 }
 
-MEDCouplingFieldInt *MEDCouplingFieldDouble::convertToIntField() const
+MEDCouplingFieldInt32 *MEDCouplingFieldDouble::convertToIntField() const
 {
   return ConvertToUField<int>(this);
 }

@@ -37,7 +37,8 @@
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldInt32.hxx"
+#include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
@@ -270,15 +271,24 @@ typedef long int mcIdType;
 %newobject MEDCoupling::MEDCouplingFieldDouble::cellToNodeDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject MEDCoupling::MEDCouplingFieldDouble::computeVectorFieldCyl;
-%newobject MEDCoupling::MEDCouplingFieldInt::New;
-%newobject MEDCoupling::MEDCouplingFieldInt::convertToDblField;
-%newobject MEDCoupling::MEDCouplingFieldInt::getArray;
-%newobject MEDCoupling::MEDCouplingFieldInt::deepCopy;
-%newobject MEDCoupling::MEDCouplingFieldInt::clone;
-%newobject MEDCoupling::MEDCouplingFieldInt::cloneWithMesh;
-%newobject MEDCoupling::MEDCouplingFieldInt::buildSubPart;
-%newobject MEDCoupling::MEDCouplingFieldInt::buildSubPartRange;
-%newobject MEDCoupling::MEDCouplingFieldInt::__getitem__;
+%newobject MEDCoupling::MEDCouplingFieldInt32::New;
+%newobject MEDCoupling::MEDCouplingFieldInt32::convertToDblField;
+%newobject MEDCoupling::MEDCouplingFieldInt32::getArray;
+%newobject MEDCoupling::MEDCouplingFieldInt32::deepCopy;
+%newobject MEDCoupling::MEDCouplingFieldInt32::clone;
+%newobject MEDCoupling::MEDCouplingFieldInt32::cloneWithMesh;
+%newobject MEDCoupling::MEDCouplingFieldInt32::buildSubPart;
+%newobject MEDCoupling::MEDCouplingFieldInt32::buildSubPartRange;
+%newobject MEDCoupling::MEDCouplingFieldInt32::__getitem__;
+%newobject MEDCoupling::MEDCouplingFieldInt64::New;
+%newobject MEDCoupling::MEDCouplingFieldInt64::convertToDblField;
+%newobject MEDCoupling::MEDCouplingFieldInt64::getArray;
+%newobject MEDCoupling::MEDCouplingFieldInt64::deepCopy;
+%newobject MEDCoupling::MEDCouplingFieldInt64::clone;
+%newobject MEDCoupling::MEDCouplingFieldInt64::cloneWithMesh;
+%newobject MEDCoupling::MEDCouplingFieldInt64::buildSubPart;
+%newobject MEDCoupling::MEDCouplingFieldInt64::buildSubPartRange;
+%newobject MEDCoupling::MEDCouplingFieldInt64::__getitem__;
 %newobject MEDCoupling::MEDCouplingFieldFloat::New;
 %newobject MEDCoupling::MEDCouplingFieldFloat::convertToDblField;
 %newobject MEDCoupling::MEDCouplingFieldFloat::getArray;
@@ -489,7 +499,8 @@ typedef long int mcIdType;
 %feature("unref") MEDCouplingFieldDiscretizationKriging "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
 %feature("unref") MEDCouplingFieldFloat "$this->decrRef();"
-%feature("unref") MEDCouplingFieldInt "$this->decrRef();"
+%feature("unref") MEDCouplingFieldInt32 "$this->decrRef();"
+%feature("unref") MEDCouplingFieldInt64 "$this->decrRef();"
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 %feature("unref") MEDCouplingFieldTemplate "$this->decrRef();"
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
@@ -3885,7 +3896,8 @@ namespace MEDCoupling
   public:
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f);
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldFloat& f);
-    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt& f);
+    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt32& f);
+    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt64& f);
     static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
@@ -3903,7 +3915,12 @@ namespace MEDCoupling
            return MEDCouplingFieldTemplate::New(f);
          }
          
-         MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f)
+         MEDCouplingFieldTemplate(const MEDCouplingFieldInt32& f)
+         {
+           return MEDCouplingFieldTemplate::New(f);
+         }
+
+         MEDCouplingFieldTemplate(const MEDCouplingFieldInt64& f)
          {
            return MEDCouplingFieldTemplate::New(f);
          }
@@ -3953,7 +3970,8 @@ namespace MEDCoupling
   %template(MEDCouplingFieldTfloat) MEDCoupling::MEDCouplingFieldT<float>;
   %template(MEDCouplingFieldTint) MEDCoupling::MEDCouplingFieldT<int>;
   
-  class MEDCouplingFieldInt;
+  class MEDCouplingFieldInt32;
+  class MEDCouplingFieldInt64;
   class MEDCouplingFieldFloat;
   
   class MEDCouplingFieldDouble : public MEDCouplingFieldT<double>
@@ -3971,7 +3989,7 @@ namespace MEDCoupling
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     std::string  writeVTK(const std::string& fileName, bool isBinary=true) const;
-    MEDCouplingFieldInt *convertToIntField() const;
+    MEDCouplingFieldInt32 *convertToIntField() const;
     MEDCouplingFieldFloat *convertToFloatField() const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
@@ -5165,34 +5183,34 @@ namespace MEDCoupling
        }
   };
 
-  class MEDCouplingFieldInt : public MEDCouplingFieldT<int>
+  class MEDCouplingFieldInt32 : public MEDCouplingFieldT<int>
   {
   public:
-    static MEDCouplingFieldInt *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
-    static MEDCouplingFieldInt *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
-    bool isEqual(const MEDCouplingFieldInt *other, double meshPrec, int valsPrec) const;
-    bool isEqualWithoutConsideringStr(const MEDCouplingFieldInt *other, double meshPrec, int valsPrec) const;
+    static MEDCouplingFieldInt32 *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
+    static MEDCouplingFieldInt32 *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+    bool isEqual(const MEDCouplingFieldInt32 *other, double meshPrec, int valsPrec) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingFieldInt32 *other, double meshPrec, int valsPrec) const;
     void setTimeUnit(const std::string& unit);
     std::string getTimeUnit() const;
     void setTime(double val, int iteration, int order);
     void setArray(DataArrayInt32 *array);
-    MEDCouplingFieldInt *deepCopy() const;
-    MEDCouplingFieldInt *clone(bool recDeepCpy) const;
-    MEDCouplingFieldInt *cloneWithMesh(bool recDeepCpy) const;
+    MEDCouplingFieldInt32 *deepCopy() const;
+    MEDCouplingFieldInt32 *clone(bool recDeepCpy) const;
+    MEDCouplingFieldInt32 *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *convertToDblField() const;
-    MEDCouplingFieldInt *buildSubPartRange(int begin, int end, int step) const;
+    MEDCouplingFieldInt32 *buildSubPartRange(int begin, int end, int step) const;
     %extend {
-      MEDCouplingFieldInt(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME)
+      MEDCouplingFieldInt32(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME)
       {
-        return MEDCouplingFieldInt::New(type,td);
+        return MEDCouplingFieldInt32::New(type,td);
       }
 
-      MEDCouplingFieldInt(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME)
+      MEDCouplingFieldInt32(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME)
       {
-        return MEDCouplingFieldInt::New(ft,td);
+        return MEDCouplingFieldInt32::New(ft,td);
       }
 
-      PyObject *isEqualIfNotWhy(const MEDCouplingFieldInt *other, double meshPrec, int valsPrec) const
+      PyObject *isEqualIfNotWhy(const MEDCouplingFieldInt32 *other, double meshPrec, int valsPrec) const
       {
         std::string ret1;
         bool ret0=self->isEqualIfNotWhy(other,meshPrec,valsPrec,ret1);
@@ -5216,12 +5234,12 @@ namespace MEDCoupling
         return oss.str();
       }
 
-      MEDCouplingFieldInt *buildSubPart(PyObject *li) const
+      MEDCouplingFieldInt32 *buildSubPart(PyObject *li) const
       {
         return fieldT_buildSubPart(self,li);
       }
 
-      MEDCouplingFieldInt *__getitem__(PyObject *li) const
+      MEDCouplingFieldInt32 *__getitem__(PyObject *li) const
       {
         return fieldT__getitem__(self,li);
       }
@@ -5247,7 +5265,7 @@ namespace MEDCoupling
 
       PyObject *getTinySerializationInformation() const
       {
-        return field_getTinySerializationInformation<MEDCouplingFieldInt>(self);
+        return field_getTinySerializationInformation<MEDCouplingFieldInt32>(self);
       }
       
       PyObject *serialize() const
@@ -5257,12 +5275,114 @@ namespace MEDCoupling
 
       PyObject *__getstate__() const
       {
-        return field__getstate__<MEDCouplingFieldInt>(self,MEDCoupling_MEDCouplingFieldInt_getTinySerializationInformation,MEDCoupling_MEDCouplingFieldInt_serialize);
+        return field__getstate__<MEDCouplingFieldInt32>(self,MEDCoupling_MEDCouplingFieldInt32_getTinySerializationInformation,MEDCoupling_MEDCouplingFieldInt32_serialize);
       }
       
       void __setstate__(PyObject *inp)
       {
         field__setstate__<int>(self,inp);
+      }
+    }
+  };
+
+  class MEDCouplingFieldInt64 : public MEDCouplingFieldT<int>
+  {
+  public:
+    static MEDCouplingFieldInt64 *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
+    static MEDCouplingFieldInt64 *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+    bool isEqual(const MEDCouplingFieldInt64 *other, double meshPrec, int valsPrec) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingFieldInt64 *other, double meshPrec, int valsPrec) const;
+    void setTimeUnit(const std::string& unit);
+    std::string getTimeUnit() const;
+    void setTime(double val, int iteration, int order);
+    void setArray(DataArrayInt64 *array);
+    MEDCouplingFieldInt64 *deepCopy() const;
+    MEDCouplingFieldInt64 *clone(bool recDeepCpy) const;
+    MEDCouplingFieldInt64 *cloneWithMesh(bool recDeepCpy) const;
+    MEDCouplingFieldDouble *convertToDblField() const;
+    MEDCouplingFieldInt64 *buildSubPartRange(int begin, int end, int step) const;
+    %extend {
+      MEDCouplingFieldInt64(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME)
+      {
+        return MEDCouplingFieldInt64::New(type,td);
+      }
+
+      MEDCouplingFieldInt64(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME)
+      {
+        return MEDCouplingFieldInt64::New(ft,td);
+      }
+
+      PyObject *isEqualIfNotWhy(const MEDCouplingFieldInt64 *other, double meshPrec, int valsPrec) const
+      {
+        std::string ret1;
+        bool ret0=self->isEqualIfNotWhy(other,meshPrec,valsPrec,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
+      }
+      
+      std::string __str__() const
+      {
+        return self->simpleRepr();
+      }
+
+      std::string __repr__() const
+      {
+        std::ostringstream oss;
+        self->reprQuickOverview(oss);
+        return oss.str();
+      }
+
+      MEDCouplingFieldInt64 *buildSubPart(PyObject *li) const
+      {
+        return fieldT_buildSubPart(self,li);
+      }
+
+      MEDCouplingFieldInt64 *__getitem__(PyObject *li) const
+      {
+        return fieldT__getitem__(self,li);
+      }
+
+      DataArrayInt64 *getArray()
+      {
+        DataArrayInt64 *ret=self->getArray();
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+      
+      PyObject *getTime()
+        {
+        int tmp1,tmp2;
+        double tmp0=self->getTime(tmp1,tmp2);
+        PyObject *res = PyList_New(3);
+        PyList_SetItem(res,0,SWIG_From_double(tmp0));
+        PyList_SetItem(res,1,SWIG_From_int(tmp1));
+        PyList_SetItem(res,2,SWIG_From_int(tmp2));
+        return res;
+        }
+
+      PyObject *getTinySerializationInformation() const
+      {
+        return field_getTinySerializationInformation<MEDCouplingFieldInt64>(self);
+      }
+      
+      PyObject *serialize() const
+      {
+        return field_serialize<Int64>(self);
+      }
+
+      PyObject *__getstate__() const
+      {
+        return field__getstate__<MEDCouplingFieldInt64>(self,MEDCoupling_MEDCouplingFieldInt64_getTinySerializationInformation,MEDCoupling_MEDCouplingFieldInt64_serialize);
+      }
+      
+      void __setstate__(PyObject *inp)
+      {
+        field__setstate__<Int64>(self,inp);
       }
     }
   };
@@ -5984,10 +6104,14 @@ def MEDCouplingFieldDoubleReduce(self):
     self.checkConsistencyLight()
     d=(self.getTypeOfField(),self.getTimeDiscretization())
     return MEDCouplingStdReduceFunct,(MEDCouplingFieldDouble,(d,(self.__getstate__()),))
-def MEDCouplingFieldIntReduce(self):
+def MEDCouplingFieldInt32Reduce(self):
     self.checkConsistencyLight()
     d=(self.getTypeOfField(),self.getTimeDiscretization())
-    return MEDCouplingStdReduceFunct,(MEDCouplingFieldInt,(d,(self.__getstate__()),))
+    return MEDCouplingStdReduceFunct,(MEDCouplingFieldInt32,(d,(self.__getstate__()),))
+def MEDCouplingFieldInt64Reduce(self):
+    self.checkConsistencyLight()
+    d=(self.getTypeOfField(),self.getTimeDiscretization())
+    return MEDCouplingStdReduceFunct,(MEDCouplingFieldInt64,(d,(self.__getstate__()),))
 def MEDCouplingFieldFloatReduce(self):
     self.checkConsistencyLight()
     d=(self.getTypeOfField(),self.getTimeDiscretization())
@@ -6010,10 +6134,14 @@ def MEDCouplingFieldTemplateReduce(self):
 MEDCouplingUMesh.ExtractFromIndexedArrays           = DataArrayInt.ExtractFromIndexedArrays
 MEDCouplingUMesh.ExtractFromIndexedArraysSlice      = DataArrayInt.ExtractFromIndexedArraysSlice
 MEDCouplingUMesh.SetPartOfIndexedArrays             = DataArrayInt.SetPartOfIndexedArrays
-##MEDCouplingUMesh.SetPartOfIndexedArraysSlice        = DataArrayInt.SetPartOfIndexedArraysSlice
 MEDCouplingUMesh.SetPartOfIndexedArraysSameIdx      = DataArrayInt.SetPartOfIndexedArraysSameIdx
 MEDCouplingUMesh.RemoveIdsFromIndexedArrays         = DataArrayInt.RemoveIdsFromIndexedArrays
-##MEDCouplingUMesh.SetPartOfIndexedArraysSameIdxSlice = DataArrayInt.SetPartOfIndexedArraysSameIdxSlice
+MEDCouplingFieldInt = MEDCouplingFieldInt32
+
+if MEDCouplingUse64BitIDs():
+  MEDCouplingFieldID = MEDCouplingFieldInt64
+else:
+  MEDCouplingFieldID = MEDCouplingFieldInt32
 
 %}
 

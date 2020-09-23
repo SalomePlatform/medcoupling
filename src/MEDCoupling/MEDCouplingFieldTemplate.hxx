@@ -18,14 +18,14 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGFIELDTEMPLATE_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGFIELDTEMPLATE_HXX__
+#pragma once
 
 #include "MEDCouplingField.hxx"
 
 namespace MEDCoupling
 {
-  class MEDCouplingFieldInt;
+  class MEDCouplingFieldInt32;
+  class MEDCouplingFieldInt64;
   class MEDCouplingFieldFloat;
   class MEDCouplingFieldDouble;
   /*!
@@ -43,11 +43,13 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldFloat& f);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt& f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt32& f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt64& f);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(TypeOfField type);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldDouble& f);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldFloat& f);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldInt& f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldInt32& f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldInt64& f);
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldTemplate"); }
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldTemplate *other, double meshPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingFieldTemplate *other, double meshPrec) const;
@@ -68,10 +70,9 @@ namespace MEDCoupling
   private:
     MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f, bool isChecked=true);
     MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f, bool isChecked=true);
-    MEDCouplingFieldTemplate(const MEDCouplingFieldInt& f, bool isChecked=true);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldInt32& f, bool isChecked=true);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldInt64& f, bool isChecked=true);
     MEDCouplingFieldTemplate(TypeOfField type);
     MEDCouplingFieldTemplate(const MEDCouplingFieldTemplate& other, bool deepCopy);
   };
 }
-
-#endif

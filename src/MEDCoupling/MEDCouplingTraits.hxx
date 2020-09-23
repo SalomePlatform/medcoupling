@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLINGTRAITS_HXX__
-#define __MEDCOUPLINGTRAITS_HXX__
+#pragma once
 
 #include "MEDCoupling.hxx"
 #include "MCType.hxx"
@@ -41,7 +40,8 @@ namespace MEDCoupling
   class DataArrayInt64;
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldFloat;
-  class MEDCouplingFieldInt;
+  class MEDCouplingFieldInt32;
+  class MEDCouplingFieldInt64;
   class DataArrayInt32Tuple;
   class DataArrayInt64Tuple;
   class DataArrayFloatTuple;
@@ -87,7 +87,7 @@ namespace MEDCoupling
     static const char VTKReprStr[];
     using ArrayType = DataArrayInt32;
     using ArrayTypeCh = DataArrayInt32;
-    using FieldType = MEDCouplingFieldInt;
+    using FieldType = MEDCouplingFieldInt32;
     using ArrayTuple = DataArrayInt32Tuple;
     using IteratorType = DataArrayInt32Iterator;
   };
@@ -102,7 +102,7 @@ namespace MEDCoupling
     static const char VTKReprStr[];
     using ArrayType = DataArrayInt64;
     using ArrayTypeCh = DataArrayInt64;
-    //using FieldType = MEDCouplingFieldInt64;
+    using FieldType = MEDCouplingFieldInt64;
     using ArrayTuple = DataArrayInt64Tuple;
     using IteratorType = DataArrayInt64Iterator;
   };
@@ -117,5 +117,3 @@ namespace MEDCoupling
     using IteratorType = DataArrayByteIterator;
   };
 }
-
-#endif

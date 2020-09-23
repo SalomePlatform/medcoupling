@@ -18,10 +18,10 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDLOADERTRAITS_HXX__
-#define __MEDLOADERTRAITS_HXX__
+#pragma once
 
 #include "MEDLoaderDefines.hxx"
+#include "MCType.hxx"
 
 namespace MEDCoupling
 {
@@ -33,15 +33,19 @@ namespace MEDCoupling
 
   class MEDFileFieldMultiTS;
   class MEDFileField1TS;
-  class MEDFileIntFieldMultiTS;
-  class MEDFileIntField1TS;
+  class MEDFileInt32FieldMultiTS;
+  class MEDFileInt64FieldMultiTS;
+  class MEDFileInt32Field1TS;
+  class MEDFileInt64Field1TS;
   class MEDFileFloatFieldMultiTS;
   class MEDFileFloatField1TS;
   class MEDFileField1TSWithoutSDA;
-  class MEDFileIntField1TSWithoutSDA;
+  class MEDFileInt32Field1TSWithoutSDA;
+  class MEDFileInt64Field1TSWithoutSDA;
   class MEDFileFloatField1TSWithoutSDA;
   class MEDFileFieldMultiTSWithoutSDA;
-  class MEDFileIntFieldMultiTSWithoutSDA;
+  class MEDFileInt32FieldMultiTSWithoutSDA;
+  class MEDFileInt64FieldMultiTSWithoutSDA;
   class MEDFileFloatFieldMultiTSWithoutSDA;
   
   template<>
@@ -63,12 +67,21 @@ namespace MEDCoupling
   };
   
   template<>
-  struct MEDLOADER_EXPORT MLFieldTraits<int>
+  struct MEDLOADER_EXPORT MLFieldTraits<Int32>
   {
-    typedef MEDFileIntFieldMultiTSWithoutSDA FMTSWSDAType;
-    typedef MEDFileIntFieldMultiTS FMTSType;
-    typedef MEDFileIntField1TS F1TSType;
-    typedef MEDFileIntField1TSWithoutSDA F1TSWSDAType;
+    typedef MEDFileInt32FieldMultiTSWithoutSDA FMTSWSDAType;
+    typedef MEDFileInt32FieldMultiTS FMTSType;
+    typedef MEDFileInt32Field1TS F1TSType;
+    typedef MEDFileInt32Field1TSWithoutSDA F1TSWSDAType;
+  };
+
+  template<>
+  struct MEDLOADER_EXPORT MLFieldTraits<Int64>
+  {
+    typedef MEDFileInt64FieldMultiTSWithoutSDA FMTSWSDAType;
+    typedef MEDFileInt64FieldMultiTS FMTSType;
+    typedef MEDFileInt64Field1TS F1TSType;
+    typedef MEDFileInt64Field1TSWithoutSDA F1TSWSDAType;
   };
 
   template<class T>
@@ -98,5 +111,3 @@ namespace MEDCoupling
     static const char ClassName[];
   };
 }
-
-#endif

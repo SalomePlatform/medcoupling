@@ -238,16 +238,28 @@ namespace MEDCoupling
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
   };
   
-  class MEDCouplingTimeDiscretizationInt : public MEDCouplingTimeDiscretizationSimple<int>
+  class MEDCouplingTimeDiscretizationInt32 : public MEDCouplingTimeDiscretizationSimple<Int32>
   {
   public:
-    MEDCouplingTimeDiscretizationInt() { }
-    std::string getClassName() const override { return std::string("MEDCouplingTimeDiscretizationInt"); }
-    MEDCouplingTimeDiscretizationInt(const MEDCouplingTimeDiscretizationInt& other, bool deepCopy);
-    static MEDCouplingTimeDiscretizationInt *New(TypeOfTimeDiscretization type);
-    MEDCouplingTimeDiscretizationInt *performCopyOrIncrRef(bool deepCopy) const;
-    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<int> *other, int prec, std::string& reason) const;
-    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<int> *other, int prec) const;
+    MEDCouplingTimeDiscretizationInt32() { }
+    std::string getClassName() const override { return std::string("MEDCouplingTimeDiscretizationInt32"); }
+    MEDCouplingTimeDiscretizationInt32(const MEDCouplingTimeDiscretizationInt32& other, bool deepCopy);
+    static MEDCouplingTimeDiscretizationInt32 *New(TypeOfTimeDiscretization type);
+    MEDCouplingTimeDiscretizationInt32 *performCopyOrIncrRef(bool deepCopy) const;
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<Int32> *other, Int32 prec, std::string& reason) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<Int32> *other, Int32 prec) const;
+  };
+
+  class MEDCouplingTimeDiscretizationInt64 : public MEDCouplingTimeDiscretizationSimple<Int64>
+  {
+  public:
+    MEDCouplingTimeDiscretizationInt64() { }
+    std::string getClassName() const override { return std::string("MEDCouplingTimeDiscretizationInt64"); }
+    MEDCouplingTimeDiscretizationInt64(const MEDCouplingTimeDiscretizationInt64& other, bool deepCopy);
+    static MEDCouplingTimeDiscretizationInt64 *New(TypeOfTimeDiscretization type);
+    MEDCouplingTimeDiscretizationInt64 *performCopyOrIncrRef(bool deepCopy) const;
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<Int64> *other, Int64 prec, std::string& reason) const override;
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<Int64> *other, Int64 prec) const override;
   };
 
   class MEDCouplingTimeDiscretizationFloat : public MEDCouplingTimeDiscretizationSimple<float>

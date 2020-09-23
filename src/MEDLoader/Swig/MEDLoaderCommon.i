@@ -184,15 +184,25 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileFieldMultiTS::convertToInt;
 
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::New;
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::field;
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::LoadSpecificEntities;
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::getUndergroundDataArray;
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::convertToDouble;
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtLevel;
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtTopLevel;
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel;
-%newobject MEDCoupling::MEDFileIntFieldMultiTS::getFieldAtLevelOld;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::New;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::field;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::LoadSpecificEntities;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::getUndergroundDataArray;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::convertToDouble;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::getFieldAtLevel;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::getFieldAtTopLevel;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::getFieldOnMeshAtLevel;
+%newobject MEDCoupling::MEDFileInt32FieldMultiTS::getFieldAtLevelOld;
+
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::New;
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::field;
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::LoadSpecificEntities;
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::getUndergroundDataArray;
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::convertToDouble;
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::getFieldAtLevel;
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::getFieldAtTopLevel;
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::getFieldOnMeshAtLevel;
+%newobject MEDCoupling::MEDFileInt64FieldMultiTS::getFieldAtLevelOld;
 
 %newobject MEDCoupling::MEDFileFloatFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileFloatFieldMultiTS::field;
@@ -218,14 +228,23 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileField1TS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileField1TS::convertToInt;
 
-%newobject MEDCoupling::MEDFileIntField1TS::New;
-%newobject MEDCoupling::MEDFileIntField1TS::field;
-%newobject MEDCoupling::MEDFileIntField1TS::getFieldAtLevel;
-%newobject MEDCoupling::MEDFileIntField1TS::getFieldAtTopLevel;
-%newobject MEDCoupling::MEDFileIntField1TS::getFieldOnMeshAtLevel;
-%newobject MEDCoupling::MEDFileIntField1TS::getFieldAtLevelOld;
-%newobject MEDCoupling::MEDFileIntField1TS::getUndergroundDataArray;
-%newobject MEDCoupling::MEDFileIntField1TS::convertToDouble;
+%newobject MEDCoupling::MEDFileInt32Field1TS::New;
+%newobject MEDCoupling::MEDFileInt32Field1TS::field;
+%newobject MEDCoupling::MEDFileInt32Field1TS::getFieldAtLevel;
+%newobject MEDCoupling::MEDFileInt32Field1TS::getFieldAtTopLevel;
+%newobject MEDCoupling::MEDFileInt32Field1TS::getFieldOnMeshAtLevel;
+%newobject MEDCoupling::MEDFileInt32Field1TS::getFieldAtLevelOld;
+%newobject MEDCoupling::MEDFileInt32Field1TS::getUndergroundDataArray;
+%newobject MEDCoupling::MEDFileInt32Field1TS::convertToDouble;
+
+%newobject MEDCoupling::MEDFileInt64Field1TS::New;
+%newobject MEDCoupling::MEDFileInt64Field1TS::field;
+%newobject MEDCoupling::MEDFileInt64Field1TS::getFieldAtLevel;
+%newobject MEDCoupling::MEDFileInt64Field1TS::getFieldAtTopLevel;
+%newobject MEDCoupling::MEDFileInt64Field1TS::getFieldOnMeshAtLevel;
+%newobject MEDCoupling::MEDFileInt64Field1TS::getFieldAtLevelOld;
+%newobject MEDCoupling::MEDFileInt64Field1TS::getUndergroundDataArray;
+%newobject MEDCoupling::MEDFileInt64Field1TS::convertToDouble;
 
 %newobject MEDCoupling::MEDFileFloatField1TS::New;
 %newobject MEDCoupling::MEDFileFloatField1TS::field;
@@ -305,11 +324,13 @@ using namespace MEDCoupling;
 %feature("unref") MEDFileFieldLoc "$this->decrRef();"
 %feature("unref") MEDFileAnyTypeField1TS "$this->decrRef();"
 %feature("unref") MEDFileField1TS "$this->decrRef();"
-%feature("unref") MEDFileIntField1TS "$this->decrRef();"
+%feature("unref") MEDFileInt32Field1TS "$this->decrRef();"
+%feature("unref") MEDFileInt64Field1TS "$this->decrRef();"
 %feature("unref") MEDFileFloatField1TS "$this->decrRef();"
 %feature("unref") MEDFileAnyTypeFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileFieldMultiTS "$this->decrRef();"
-%feature("unref") MEDFileIntFieldMultiTS "$this->decrRef();"
+%feature("unref") MEDFileInt32FieldMultiTS "$this->decrRef();"
+%feature("unref") MEDFileInt64FieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileFloatFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileMeshSupports "$this->decrRef();"
 %feature("unref") MEDFileStructureElements "$this->decrRef();"
@@ -2269,7 +2290,7 @@ namespace MEDCoupling
     static MEDFileField1TS *New(const std::string& fileName, bool loadAll=true);
     static MEDFileField1TS *New(DataArrayByte *db);
     static MEDFileField1TS *New();
-    MEDCoupling::MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const;
+    MEDCoupling::MEDFileInt32Field1TS *convertToInt(bool isDeepCpyGlobs=true) const;
     void copyTimeInfoFrom(MEDCouplingFieldDouble *mcf);
     MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const;
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
@@ -2377,51 +2398,51 @@ namespace MEDCoupling
        }
   };
 
-  class MEDFileIntField1TS : public MEDFileAnyTypeField1TS
+  class MEDFileInt32Field1TS : public MEDFileAnyTypeField1TS
   {
   public:
-    static MEDFileIntField1TS *New();
-    static MEDFileIntField1TS *New(const std::string& fileName, bool loadAll=true);
-    static MEDFileIntField1TS *New(DataArrayByte *db);
-    static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
-    static MEDFileIntField1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    static MEDFileInt32Field1TS *New();
+    static MEDFileInt32Field1TS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileInt32Field1TS *New(DataArrayByte *db);
+    static MEDFileInt32Field1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileInt32Field1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
     MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     //
-    void setFieldNoProfileSBT(const MEDCouplingFieldInt *field);
-    void setFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
-    void setFieldProfileFlatly(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
-    void copyTimeInfoFrom(MEDCouplingFieldInt *mcf);
-    MEDCouplingFieldInt *field(const MEDFileMesh *mesh) const;
-    MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
-    MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
-    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
-    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const;
-    MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
+    void setFieldNoProfileSBT(const MEDCouplingFieldInt32 *field);
+    void setFieldProfile(const MEDCouplingFieldInt32 *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    void setFieldProfileFlatly(const MEDCouplingFieldInt32 *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    void copyTimeInfoFrom(MEDCouplingFieldInt32 *mcf);
+    MEDCouplingFieldInt32 *field(const MEDFileMesh *mesh) const;
+    MEDCouplingFieldInt32 *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldInt32 *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
+    MEDCouplingFieldInt32 *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt32 *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt32 *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     %extend
     {
-      MEDFileIntField1TS()
+      MEDFileInt32Field1TS()
       {
-        return MEDFileIntField1TS::New();
+        return MEDFileInt32Field1TS::New();
       }
 
-      MEDFileIntField1TS(const std::string& fileName, bool loadAll=true)
+      MEDFileInt32Field1TS(const std::string& fileName, bool loadAll=true)
       {
-        return MEDFileIntField1TS::New(fileName,loadAll);
+        return MEDFileInt32Field1TS::New(fileName,loadAll);
       }
 
-      MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
+      MEDFileInt32Field1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
-        return MEDFileIntField1TS::New(fileName,fieldName,loadAll);
+        return MEDFileInt32Field1TS::New(fileName,fieldName,loadAll);
       }
 
-      MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true)
+      MEDFileInt32Field1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true)
       {
-        return MEDFileIntField1TS::New(fileName,fieldName,iteration,order,loadAll);
+        return MEDFileInt32Field1TS::New(fileName,fieldName,iteration,order,loadAll);
       }
 
-      MEDFileIntField1TS(DataArrayByte *db)
+      MEDFileInt32Field1TS(DataArrayByte *db)
       {
-        return MEDFileIntField1TS::New(db);
+        return MEDFileInt32Field1TS::New(db);
       }
 
       std::string __str__() const
@@ -2431,7 +2452,7 @@ namespace MEDCoupling
 
       PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const
       {
-         return MEDFileField1TS_getFieldWithProfile<int>(self,type,meshDimRelToMax,mesh);
+         return MEDFileField1TS_getFieldWithProfile<Int32>(self,type,meshDimRelToMax,mesh);
       }
       
       DataArrayInt32 *getUndergroundDataArray() const
@@ -2444,7 +2465,79 @@ namespace MEDCoupling
 
       PyObject *getUndergroundDataArrayExt() const
       {
-        return MEDFileField1TS_getUndergroundDataArrayExt<int>(self);
+        return MEDFileField1TS_getUndergroundDataArrayExt<Int32>(self);
+      }
+    }
+  };
+
+  class MEDFileInt64Field1TS : public MEDFileAnyTypeField1TS
+  {
+  public:
+    static MEDFileInt64Field1TS *New();
+    static MEDFileInt64Field1TS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileInt64Field1TS *New(DataArrayByte *db);
+    static MEDFileInt64Field1TS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileInt64Field1TS *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
+    MEDCoupling::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
+    //
+    void setFieldNoProfileSBT(const MEDCouplingFieldInt64 *field);
+    void setFieldProfile(const MEDCouplingFieldInt64 *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    void setFieldProfileFlatly(const MEDCouplingFieldInt64 *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    void copyTimeInfoFrom(MEDCouplingFieldInt64 *mcf);
+    MEDCouplingFieldInt64 *field(const MEDFileMesh *mesh) const;
+    MEDCouplingFieldInt64 *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldInt64 *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
+    MEDCouplingFieldInt64 *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt64 *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt64 *getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
+    %extend
+    {
+      MEDFileInt64Field1TS()
+      {
+        return MEDFileInt64Field1TS::New();
+      }
+
+      MEDFileInt64Field1TS(const std::string& fileName, bool loadAll=true)
+      {
+        return MEDFileInt64Field1TS::New(fileName,loadAll);
+      }
+
+      MEDFileInt64Field1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
+      {
+        return MEDFileInt64Field1TS::New(fileName,fieldName,loadAll);
+      }
+
+      MEDFileInt64Field1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true)
+      {
+        return MEDFileInt64Field1TS::New(fileName,fieldName,iteration,order,loadAll);
+      }
+
+      MEDFileInt64Field1TS(DataArrayByte *db)
+      {
+        return MEDFileInt64Field1TS::New(db);
+      }
+
+      std::string __str__() const
+      {
+        return self->simpleRepr();
+      }
+
+      PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const
+      {
+         return MEDFileField1TS_getFieldWithProfile<Int64>(self,type,meshDimRelToMax,mesh);
+      }
+      
+      DataArrayInt64 *getUndergroundDataArray() const
+      {
+        DataArrayInt64 *ret=self->getUndergroundDataArray();
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      PyObject *getUndergroundDataArrayExt() const
+      {
+        return MEDFileField1TS_getUndergroundDataArrayExt<Int64>(self);
       }
     }
   };
@@ -2909,7 +3002,8 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileIntFieldMultiTS;
+  class MEDFileInt32FieldMultiTS;
+  class MEDFileInt64FieldMultiTS;
   
   class MEDFileFieldMultiTS : public MEDFileAnyTypeFieldMultiTS
   {
@@ -2928,7 +3022,7 @@ namespace MEDCoupling
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field);
     void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
-    MEDFileIntFieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const;
+    MEDFileInt32FieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const;
     %extend
        {
          MEDFileFieldMultiTS()
@@ -3068,50 +3162,50 @@ namespace MEDCoupling
     }
   };
 
-  class MEDFileIntFieldMultiTS : public MEDFileAnyTypeFieldMultiTS
+  class MEDFileInt32FieldMultiTS : public MEDFileAnyTypeFieldMultiTS
   {
   public:
-    static MEDFileIntFieldMultiTS *New();
-    static MEDFileIntFieldMultiTS *New(const std::string& fileName, bool loadAll=true);
-    static MEDFileIntFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
-    static MEDFileIntFieldMultiTS *New(DataArrayByte *db);
+    static MEDFileInt32FieldMultiTS *New();
+    static MEDFileInt32FieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileInt32FieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileInt32FieldMultiTS *New(DataArrayByte *db);
     //
-    void appendFieldNoProfileSBT(const MEDCouplingFieldInt *field);
-    void appendFieldProfile(const MEDCouplingFieldInt *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    void appendFieldNoProfileSBT(const MEDCouplingFieldInt32 *field);
+    void appendFieldProfile(const MEDCouplingFieldInt32 *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
     MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const;
-    MEDCouplingFieldInt *field(int iteration, int order, const MEDFileMesh *mesh) const;
-    MEDCouplingFieldInt *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
-    MEDCouplingFieldInt *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const;
-    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
-    MEDCouplingFieldInt *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const;
-    MEDCouplingFieldInt *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldInt32 *field(int iteration, int order, const MEDFileMesh *mesh) const;
+    MEDCouplingFieldInt32 *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldInt32 *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const;
+    MEDCouplingFieldInt32 *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt32 *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt32 *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
     %extend
     {
-      MEDFileIntFieldMultiTS()
+      MEDFileInt32FieldMultiTS()
       {
-        return MEDFileIntFieldMultiTS::New();
+        return MEDFileInt32FieldMultiTS::New();
       }
       
-      MEDFileIntFieldMultiTS(const std::string& fileName, bool loadAll=true)
+      MEDFileInt32FieldMultiTS(const std::string& fileName, bool loadAll=true)
       {
-        return MEDFileIntFieldMultiTS::New(fileName,loadAll);
+        return MEDFileInt32FieldMultiTS::New(fileName,loadAll);
       }
       
-      MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
+      MEDFileInt32FieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
-        return MEDFileIntFieldMultiTS::New(fileName,fieldName,loadAll);
+        return MEDFileInt32FieldMultiTS::New(fileName,fieldName,loadAll);
       }
 
-      MEDFileIntFieldMultiTS(DataArrayByte *db)
+      MEDFileInt32FieldMultiTS(DataArrayByte *db)
       {
-        return MEDFileIntFieldMultiTS::New(db);
+        return MEDFileInt32FieldMultiTS::New(db);
       }
       
-      static MEDFileIntFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
+      static MEDFileInt32FieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
       {
         std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
         std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(convertVecPairIntToVecPairTOFCT(tmp));
-        return MEDFileIntFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
+        return MEDFileInt32FieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
       }
 
       std::string __str__() const
@@ -3124,7 +3218,7 @@ namespace MEDCoupling
          DataArrayIdType *ret1=0;
          DataArrayInt32 *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
          PyObject *ret=PyTuple_New(2);
-         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<int>::TI, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<Int32>::TI, SWIG_POINTER_OWN | 0 ));
          PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
          return ret;
       }
@@ -3132,6 +3226,77 @@ namespace MEDCoupling
       DataArrayInt32 *getUndergroundDataArray(int iteration, int order) const
       {
         DataArrayInt32 *ret=self->getUndergroundDataArray(iteration,order);
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+    }
+  };
+
+  class MEDFileInt64FieldMultiTS : public MEDFileAnyTypeFieldMultiTS
+  {
+  public:
+    static MEDFileInt64FieldMultiTS *New();
+    static MEDFileInt64FieldMultiTS *New(const std::string& fileName, bool loadAll=true);
+    static MEDFileInt64FieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true);
+    static MEDFileInt64FieldMultiTS *New(DataArrayByte *db);
+    //
+    void appendFieldNoProfileSBT(const MEDCouplingFieldInt64 *field);
+    void appendFieldProfile(const MEDCouplingFieldInt64 *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayIdType *profile);
+    MEDCoupling::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const;
+    MEDCouplingFieldInt64 *field(int iteration, int order, const MEDFileMesh *mesh) const;
+    MEDCouplingFieldInt64 *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const;
+    MEDCouplingFieldInt64 *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const;
+    MEDCouplingFieldInt64 *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt64 *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const;
+    MEDCouplingFieldInt64 *getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, int renumPol=0) const;
+    %extend
+    {
+      MEDFileInt64FieldMultiTS()
+      {
+        return MEDFileInt64FieldMultiTS::New();
+      }
+      
+      MEDFileInt64FieldMultiTS(const std::string& fileName, bool loadAll=true)
+      {
+        return MEDFileInt64FieldMultiTS::New(fileName,loadAll);
+      }
+      
+      MEDFileInt64FieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
+      {
+        return MEDFileInt64FieldMultiTS::New(fileName,fieldName,loadAll);
+      }
+
+      MEDFileInt64FieldMultiTS(DataArrayByte *db)
+      {
+        return MEDFileInt64FieldMultiTS::New(db);
+      }
+      
+      static MEDFileInt64FieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
+      {
+        std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
+        std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(convertVecPairIntToVecPairTOFCT(tmp));
+        return MEDFileInt64FieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
+      }
+
+      std::string __str__() const
+      {
+        return self->simpleRepr();
+      }
+
+      PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const
+      {
+         DataArrayIdType *ret1=0;
+         DataArrayInt64 *ret0=self->getFieldWithProfile(type,iteration,order,meshDimRelToMax,mesh,ret1);
+         PyObject *ret=PyTuple_New(2);
+         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTITraits<Int64>::TI, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+         return ret;
+      }
+
+      DataArrayInt64 *getUndergroundDataArray(int iteration, int order) const
+      {
+        DataArrayInt64 *ret=self->getUndergroundDataArray(iteration,order);
         if(ret)
           ret->incrRef();
         return ret;
@@ -4169,4 +4334,12 @@ def exit1TS(self, exctype, exc, tb):
     pass
 MEDFileAnyTypeField1TS.__enter__=enter1TS
 MEDFileAnyTypeField1TS.__exit__=exit1TS
+MEDFileIntField1TS = MEDFileInt32Field1TS
+MEDFileIntFieldMultiTS = MEDFileInt32FieldMultiTS
+if MEDCouplingUse64BitIDs():
+  MEDFileIDField1TS = MEDFileInt64Field1TS
+  MEDFileIDFieldMultiTS = MEDFileInt64FieldMultiTS
+else:
+  MEDFileIDField1TS = MEDFileInt32Field1TS
+  MEDFileIDFieldMultiTS = MEDFileInt32FieldMultiTS
 %}

@@ -43,7 +43,8 @@ SET(medcoupling_SOURCES
   MEDCouplingField.cxx
   MEDCouplingFieldFloat.cxx
   MEDCouplingFieldDouble.cxx
-  MEDCouplingFieldInt.cxx
+  MEDCouplingFieldInt32.cxx
+  MEDCouplingFieldInt64.cxx
   MEDCouplingUMesh.cxx
   MEDCouplingUMesh_internal.cxx
   MEDCouplingUMesh_intersection.cxx

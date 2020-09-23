@@ -18,12 +18,12 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDFILEFIELD_TXX__
-#define __MEDFILEFIELD_TXX__
+#pragma once
 
 #include "MEDFileField.hxx"
 #include "MEDCouplingTraits.hxx"
-#include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldInt32.hxx"
+#include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
@@ -1397,5 +1397,3 @@ namespace MEDCoupling
     return ret.retn();
   }
 }
-
-#endif

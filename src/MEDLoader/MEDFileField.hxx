@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDFILEFIELD_HXX__
-#define __MEDFILEFIELD_HXX__
+#pragma once
 
 #include "MEDLoaderDefines.hxx"
 
@@ -36,7 +35,6 @@
 #include "MEDLoaderTraits.hxx"
 #include "MEDCouplingTraits.hxx"
 #include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingFieldInt.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingPartDefinition.hxx"
 
@@ -154,5 +152,3 @@ namespace MEDCoupling
     int _nb_iter;
   };
 }
-
-#endif

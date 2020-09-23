@@ -273,7 +273,12 @@ try:MEDFileFieldGlobsReal(fid)
           }
         case MED_INT32:
           {
-            _fields[i]=MEDFileIntFieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
+            _fields[i]=MEDFileInt32FieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
+            break;
+          }
+        case MED_INT64:
+          {
+            _fields[i]=MEDFileInt64FieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
             break;
           }
         case MED_FLOAT32:
@@ -285,13 +290,13 @@ try:MEDFileFieldGlobsReal(fid)
           {
             if(sizeof(med_int)==sizeof(int))
               {
-                _fields[i]=MEDFileIntFieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
+                _fields[i]=MEDFileInt32FieldMultiTSWithoutSDA::New(fid,fieldName,meshName,typcha,infos,nbOfStep,dtunit,loadAll,ms,entities);
                 break;
               }
           }
         default:
           {
-            std::ostringstream oss; oss << "constructor MEDFileFields(fileName) : file \'" << FileNameFromFID(fid) << "\' at pos #" << i << " field has name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32] !";
+            std::ostringstream oss; oss << "constructor MEDFileFields(fileName) : file \'" << FileNameFromFID(fid) << "\' at pos #" << i << " field has name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32, MED_INT64] !";
             throw INTERP_KERNEL::Exception(oss.str());
           }
       }
@@ -848,17 +853,20 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const
     return 0;
   MCAuto<MEDFileAnyTypeFieldMultiTS> ret;
   const MEDFileFieldMultiTSWithoutSDA *fmtsC(dynamic_cast<const MEDFileFieldMultiTSWithoutSDA *>(fmts));
-  const MEDFileIntFieldMultiTSWithoutSDA *fmtsC2(dynamic_cast<const MEDFileIntFieldMultiTSWithoutSDA *>(fmts));
+  const MEDFileInt32FieldMultiTSWithoutSDA *fmtsC2(dynamic_cast<const MEDFileInt32FieldMultiTSWithoutSDA *>(fmts));
+  const MEDFileInt64FieldMultiTSWithoutSDA *fmtsC4(dynamic_cast<const MEDFileInt64FieldMultiTSWithoutSDA *>(fmts));
   const MEDFileFloatFieldMultiTSWithoutSDA *fmtsC3(dynamic_cast<const MEDFileFloatFieldMultiTSWithoutSDA *>(fmts));
   if(fmtsC)
     ret=MEDFileFieldMultiTS::New(*fmtsC,false);
   else if(fmtsC2)
-    ret=MEDFileIntFieldMultiTS::New(*fmtsC2,false);
+    ret=MEDFileInt32FieldMultiTS::New(*fmtsC2,false);
+  else if(fmtsC4)
+    ret=MEDFileInt64FieldMultiTS::New(*fmtsC4,false);
   else if(fmtsC3)
     ret=MEDFileFloatFieldMultiTS::New(*fmtsC3,false);
   else
     {
-      std::ostringstream oss; oss << "MEDFileFields::getFieldAtPos : At pos #" << i << " field is neither double (FLOAT64) nor float (FLOAT32) nor integer (INT32) !";
+      std::ostringstream oss; oss << "MEDFileFields::getFieldAtPos : At pos #" << i << " field is neither double (FLOAT64) nor float (FLOAT32) nor integer (INT32) nor integer (INT64) !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
   ret->shallowCpyGlobs(*this);

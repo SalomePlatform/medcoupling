@@ -86,7 +86,8 @@ MEDCouplingFieldDouble.__ifloordiv__=MEDCouplingFieldDoubleIdiv
 
 MEDCouplingFieldTemplate.__reduce__=MEDCouplingFieldTemplateReduce
 
-MEDCouplingFieldInt.__reduce__=MEDCouplingFieldIntReduce
+MEDCouplingFieldInt32.__reduce__=MEDCouplingFieldInt32Reduce
+MEDCouplingFieldInt64.__reduce__=MEDCouplingFieldInt64Reduce
   
 MEDCouplingFieldFloat.__reduce__=MEDCouplingFieldFloatReduce
 
@@ -185,7 +186,8 @@ del MEDCouplingFieldDoubleIpow
 del MEDCouplingFieldDoubleIsub
 del MEDCouplingFieldDoubleReduce
 del MEDCouplingFieldFloatReduce
-del MEDCouplingFieldIntReduce 
+del MEDCouplingFieldInt32Reduce
+del MEDCouplingFieldInt64Reduce
 del MEDCouplingFieldTemplateReduce
 del MEDCouplingIMeshReduce
 del MEDCouplingMappedExtrudedMeshReduce

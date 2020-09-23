@@ -31,19 +31,24 @@ using namespace MEDCoupling;
 
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 
-template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<int>;
+template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<Int32>;
+template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<Int64>;
 template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<float>;
 template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<double>;
-template class MEDCoupling::MEDFileField1TSNDTemplateWithoutSDA<int>;
+template class MEDCoupling::MEDFileField1TSNDTemplateWithoutSDA<Int32>;
+template class MEDCoupling::MEDFileField1TSNDTemplateWithoutSDA<Int64>;
 template class MEDCoupling::MEDFileField1TSNDTemplateWithoutSDA<float>;
-template class MEDCoupling::MEDFileTemplateField1TS<int>;
+template class MEDCoupling::MEDFileTemplateField1TS<Int32>;
+template class MEDCoupling::MEDFileTemplateField1TS<Int64>;
 template class MEDCoupling::MEDFileTemplateField1TS<float>;
 template class MEDCoupling::MEDFileTemplateField1TS<double>;
-template class MEDCoupling::MEDFileNDTemplateField1TS<int>;
+template class MEDCoupling::MEDFileNDTemplateField1TS<Int32>;
+template class MEDCoupling::MEDFileNDTemplateField1TS<Int64>;
 template class MEDCoupling::MEDFileNDTemplateField1TS<float>;
 
 const char MEDFileField1TSWithoutSDA::TYPE_STR[]="FLOAT64";
-const char MEDFileIntField1TSWithoutSDA::TYPE_STR[]="INT32";
+const char MEDFileInt32Field1TSWithoutSDA::TYPE_STR[]="INT32";
+const char MEDFileInt64Field1TSWithoutSDA::TYPE_STR[]="INT64";
 const char MEDFileFloatField1TSWithoutSDA::TYPE_STR[]="FLOAT32";
 
 //= MEDFileAnyTypeField1TSWithoutSDA
@@ -1430,9 +1435,9 @@ const char *MEDFileField1TSWithoutSDA::getTypeStr() const
   return TYPE_STR;
 }
 
-MEDFileIntField1TSWithoutSDA *MEDFileField1TSWithoutSDA::convertToInt() const
+MEDFileInt32Field1TSWithoutSDA *MEDFileField1TSWithoutSDA::convertToInt() const
 {
-  MCAuto<MEDFileIntField1TSWithoutSDA> ret(new MEDFileIntField1TSWithoutSDA);
+  MCAuto<MEDFileInt32Field1TSWithoutSDA> ret(new MEDFileInt32Field1TSWithoutSDA);
   ret->MEDFileAnyTypeField1TSWithoutSDA::operator =(*this);
   ret->deepCpyLeavesFrom(*this);
   const DataArrayDouble *arr(_arr);
@@ -1490,25 +1495,25 @@ MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::deepCopy() const
   return ret.retn();
 }
 
-//= MEDFileIntField1TSWithoutSDA
+//= MEDFileInt32Field1TSWithoutSDA
 
-MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::New(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos)
+MEDFileInt32Field1TSWithoutSDA *MEDFileInt32Field1TSWithoutSDA::New(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos)
 {
-  return new MEDFileIntField1TSWithoutSDA(fieldName,meshName,csit,iteration,order,infos);
+  return new MEDFileInt32Field1TSWithoutSDA(fieldName,meshName,csit,iteration,order,infos);
 }
 
-MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA()
+MEDFileInt32Field1TSWithoutSDA::MEDFileInt32Field1TSWithoutSDA()
 {
 }
 
-MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order,
+MEDFileInt32Field1TSWithoutSDA::MEDFileInt32Field1TSWithoutSDA(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order,
                                                            const std::vector<std::string>& infos):MEDFileField1TSNDTemplateWithoutSDA<int>(fieldName,meshName,csit,iteration,order,infos)
 {
   DataArrayInt32 *arr(getOrCreateAndGetArrayTemplate());
   arr->setInfoAndChangeNbOfCompo(infos);
 }
 
-const char *MEDFileIntField1TSWithoutSDA::getTypeStr() const
+const char *MEDFileInt32Field1TSWithoutSDA::getTypeStr() const
 {
   return TYPE_STR;
 }
@@ -1529,7 +1534,7 @@ const char *MEDFileIntField1TSWithoutSDA::getTypeStr() const
  *  \throw If no field values are available.
  *  \sa getUndergroundDataArray()
  */
-DataArray *MEDFileIntField1TSWithoutSDA::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
+DataArray *MEDFileInt32Field1TSWithoutSDA::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
 {
   return getUndergroundDataArrayIntExt(entries);
 }
@@ -1550,7 +1555,7 @@ DataArray *MEDFileIntField1TSWithoutSDA::getUndergroundDataArrayExt(std::vector<
  *  \throw If no field values are available.
  *  \sa getUndergroundDataArray()
  */
-DataArrayInt *MEDFileIntField1TSWithoutSDA::getUndergroundDataArrayIntExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
+DataArrayInt32 *MEDFileInt32Field1TSWithoutSDA::getUndergroundDataArrayIntExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
 {
   if(_field_per_mesh.size()!=1)
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : field lies on several meshes, this method has no sense !");
@@ -1560,16 +1565,101 @@ DataArrayInt *MEDFileIntField1TSWithoutSDA::getUndergroundDataArrayIntExt(std::v
   return getUndergroundDataArrayTemplate();
 }
 
-MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::shallowCpy() const
+MEDFileInt32Field1TSWithoutSDA *MEDFileInt32Field1TSWithoutSDA::shallowCpy() const
 {
-  MCAuto<MEDFileIntField1TSWithoutSDA> ret(new MEDFileIntField1TSWithoutSDA(*this));
+  MCAuto<MEDFileInt32Field1TSWithoutSDA> ret(new MEDFileInt32Field1TSWithoutSDA(*this));
   ret->deepCpyLeavesFrom(*this);
   return ret.retn();
 }
 
-MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::deepCopy() const
+MEDFileInt32Field1TSWithoutSDA *MEDFileInt32Field1TSWithoutSDA::deepCopy() const
 {
-  MCAuto<MEDFileIntField1TSWithoutSDA> ret(shallowCpy());
+  MCAuto<MEDFileInt32Field1TSWithoutSDA> ret(shallowCpy());
+  if(_arr.isNotNull())
+    ret->_arr=_arr->deepCopy();
+  return ret.retn();
+}
+
+//= MEDFileInt64Field1TSWithoutSDA
+
+MEDFileInt64Field1TSWithoutSDA *MEDFileInt64Field1TSWithoutSDA::New(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos)
+{
+  return new MEDFileInt64Field1TSWithoutSDA(fieldName,meshName,csit,iteration,order,infos);
+}
+
+MEDFileInt64Field1TSWithoutSDA::MEDFileInt64Field1TSWithoutSDA()
+{
+}
+
+MEDFileInt64Field1TSWithoutSDA::MEDFileInt64Field1TSWithoutSDA(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order,
+                                                           const std::vector<std::string>& infos):MEDFileField1TSNDTemplateWithoutSDA<Int64>(fieldName,meshName,csit,iteration,order,infos)
+{
+  DataArrayInt64 *arr(getOrCreateAndGetArrayTemplate());
+  arr->setInfoAndChangeNbOfCompo(infos);
+}
+
+const char *MEDFileInt64Field1TSWithoutSDA::getTypeStr() const
+{
+  return TYPE_STR;
+}
+
+/*!
+ * Returns a pointer to the underground DataArrayIdType instance and a
+ * sequence describing parameters of a support of each part of \a this field. The
+ * caller should not decrRef() the returned DataArrayIdType. This method allows for a
+ * direct access to the field values. This method is intended for the field lying on one
+ * mesh only.
+ *  \param [in,out] entries - the sequence describing parameters of a support of each
+ *         part of \a this field. Each item of this sequence consists of two parts. The
+ *         first part describes a type of mesh entity and an id of discretization of a
+ *         current field part. The second part describes a range of values [begin,end)
+ *         within the returned array relating to the current field part.
+ *  \return DataArrayIdType * - the pointer to the field values array.
+ *  \throw If the number of underlying meshes is not equal to 1.
+ *  \throw If no field values are available.
+ *  \sa getUndergroundDataArray()
+ */
+DataArray *MEDFileInt64Field1TSWithoutSDA::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
+{
+  return getUndergroundDataArrayIntExt(entries);
+}
+
+/*!
+ * Returns a pointer to the underground DataArrayInt instance and a
+ * sequence describing parameters of a support of each part of \a this field. The
+ * caller should not decrRef() the returned DataArrayIdType. This method allows for a
+ * direct access to the field values. This method is intended for the field lying on one
+ * mesh only.
+ *  \param [in,out] entries - the sequence describing parameters of a support of each
+ *         part of \a this field. Each item of this sequence consists of two parts. The
+ *         first part describes a type of mesh entity and an id of discretization of a
+ *         current field part. The second part describes a range of values [begin,end)
+ *         within the returned array relating to the current field part.
+ *  \return DataArrayInt * - the pointer to the field values array.
+ *  \throw If the number of underlying meshes is not equal to 1.
+ *  \throw If no field values are available.
+ *  \sa getUndergroundDataArray()
+ */
+DataArrayInt64 *MEDFileInt64Field1TSWithoutSDA::getUndergroundDataArrayIntExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
+{
+  if(_field_per_mesh.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : field lies on several meshes, this method has no sense !");
+  if(_field_per_mesh[0]==0)
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt : no field specified !");
+  _field_per_mesh[0]->getUndergroundDataArrayExt(entries);
+  return getUndergroundDataArrayTemplate();
+}
+
+MEDFileInt64Field1TSWithoutSDA *MEDFileInt64Field1TSWithoutSDA::shallowCpy() const
+{
+  MCAuto<MEDFileInt64Field1TSWithoutSDA> ret(new MEDFileInt64Field1TSWithoutSDA(*this));
+  ret->deepCpyLeavesFrom(*this);
+  return ret.retn();
+}
+
+MEDFileInt64Field1TSWithoutSDA *MEDFileInt64Field1TSWithoutSDA::deepCopy() const
+{
+  MCAuto<MEDFileInt64Field1TSWithoutSDA> ret(shallowCpy());
   if(_arr.isNotNull())
     ret->_arr=_arr->deepCopy();
   return ret.retn();
@@ -1683,7 +1773,12 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       }
     case MED_INT32:
       {
-        ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+        ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+        break;
+      }
+    case MED_INT64:
+      {
+        ret=MEDFileInt64Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
         break;
       }
     case MED_FLOAT32:
@@ -1695,13 +1790,13 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       {
         if(sizeof(med_int)==sizeof(int))
           {
-            ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+            ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
             break;
           }
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_INT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_FLOAT32, MED_INT32, MED_INT64] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -1751,7 +1846,12 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       }
     case MED_INT32:
       {
-        ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+        ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+        break;
+      }
+    case MED_INT64:
+      {
+        ret=MEDFileInt64Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
         break;
       }
     case MED_FLOAT32:
@@ -1763,13 +1863,13 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       {
         if(sizeof(med_int)==sizeof(int))
           {
-            ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+            ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
             break;
           }
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32, MED_INT64] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -1816,9 +1916,15 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDF
       ret->_content=c; c->incrRef();
       return ret.retn();
     }
-  if(dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(c))
+  if(dynamic_cast<const MEDFileInt32Field1TSWithoutSDA *>(c))
     {
-      MCAuto<MEDFileIntField1TS> ret(MEDFileIntField1TS::New());
+      MCAuto<MEDFileInt32Field1TS> ret(MEDFileInt32Field1TS::New());
+      ret->_content=c; c->incrRef();
+      return ret.retn();
+    }
+  if(dynamic_cast<const MEDFileInt64Field1TSWithoutSDA *>(c))
+    {
+      MCAuto<MEDFileInt64Field1TS> ret(MEDFileInt64Field1TS::New());
       ret->_content=c; c->incrRef();
       return ret.retn();
     }
@@ -1911,7 +2017,12 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       }
     case MED_INT32:
       {
-        ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
+        ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
+        break;
+      }
+    case MED_INT64:
+      {
+        ret=MEDFileInt64Field1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
         break;
       }
     case MED_FLOAT32:
@@ -1923,13 +2034,13 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
       {
         if(sizeof(med_int)==sizeof(int))
           {
-            ret=MEDFileIntField1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
+            ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
             break;
           }
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid,fieldName,iteration,order) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid,fieldName,iteration,order) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32, MED_INT64] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
@@ -2542,22 +2653,22 @@ mcIdType MEDFileAnyTypeField1TS::copyTinyInfoFrom(const TimeHolder *th, const ME
  *
  * \param [in] isDeepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
  *                            By default (true) the globals are deeply copied.
- * \return MEDFileIntField1TS * - a new object that is the result of the conversion of \a this to int32 field.
+ * \return MEDFileInt32Field1TS * - a new object that is the result of the conversion of \a this to int32 field.
  */
-MEDFileIntField1TS *MEDFileField1TS::convertToInt(bool isDeepCpyGlobs) const
+MEDFileInt32Field1TS *MEDFileField1TS::convertToInt(bool isDeepCpyGlobs) const
 {
-  MCAuto<MEDFileIntField1TS> ret;
+  MCAuto<MEDFileInt32Field1TS> ret;
   const MEDFileAnyTypeField1TSWithoutSDA *content(_content);
   if(content)
     {
       const MEDFileField1TSWithoutSDA *contc=dynamic_cast<const MEDFileField1TSWithoutSDA *>(content);
       if(!contc)
         throw INTERP_KERNEL::Exception("MEDFileField1TS::convertToInt : the content inside this is not FLOAT64 ! This is incoherent !");
-      MCAuto<MEDFileIntField1TSWithoutSDA> newc(contc->convertToInt());
-      ret=static_cast<MEDFileIntField1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileIntField1TSWithoutSDA *)newc));
+      MCAuto<MEDFileInt32Field1TSWithoutSDA> newc(contc->convertToInt());
+      ret=static_cast<MEDFileInt32Field1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileInt32Field1TSWithoutSDA *)newc));
     }
   else
-    ret=MEDFileIntField1TS::New();
+    ret=MEDFileInt32Field1TS::New();
   if(isDeepCpyGlobs)
     ret->deepCpyGlobs(*this);
   else
@@ -2610,12 +2721,12 @@ std::vector< std::vector<DataArrayDouble *> > MEDFileField1TS::getFieldSplitedBy
   return contentNotNull()->getFieldSplitedByType2(mname,types,typesF,pfls,locs);
 }
 
-//= MEDFileIntField1TS
+//= MEDFileInt32Field1TS
 
-MCAuto<MEDCouplingFieldDouble> MEDFileIntField1TS::ConvertFieldIntToFieldDouble(const MEDCouplingFieldInt *f)
+MCAuto<MEDCouplingFieldDouble> MEDFileInt32Field1TS::ConvertFieldIntToFieldDouble(const MEDCouplingFieldInt32 *f)
 {
   if(!f)
-    throw INTERP_KERNEL::Exception("MEDFileIntField1TS::ConvertFieldIntToFieldDouble : null input field !");
+    throw INTERP_KERNEL::Exception("MEDFileInt32Field1TS::ConvertFieldIntToFieldDouble : null input field !");
   int t1,t2;
   double t0(f->getTime(t1,t2));
   std::string tu(f->getTimeUnit());
@@ -2625,6 +2736,18 @@ MCAuto<MEDCouplingFieldDouble> MEDFileIntField1TS::ConvertFieldIntToFieldDouble(
   return ret;
 }
 
-//= MEDFileFloatField1TS
+//= MEDFileInt64Field1TS
 
-//= MEDFileFloatField1TS
+MCAuto<MEDCouplingFieldDouble> MEDFileInt64Field1TS::ConvertFieldIntToFieldDouble(const MEDCouplingFieldInt64 *f)
+{
+  if(!f)
+    throw INTERP_KERNEL::Exception("MEDFileInt64Field1TS::ConvertFieldIntToFieldDouble : null input field !");
+  int t1,t2;
+  double t0(f->getTime(t1,t2));
+  std::string tu(f->getTimeUnit());
+  MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::New(*f));
+  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(*ft));
+  ret->setTime(t0,t1,t2); ret->setTimeUnit(tu);
+  return ret;
+}
+
