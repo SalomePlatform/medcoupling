@@ -1880,6 +1880,7 @@ DataArrayDouble *DataArrayDouble::cartesianize(MEDCouplingAxisType atOfThis) con
     {
     case AX_CART:
       ret=deepCopy();
+      break;
     case AX_CYL:
       if(nbOfComp==3)
         {

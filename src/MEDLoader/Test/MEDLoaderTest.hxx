@@ -27,6 +27,8 @@ namespace MEDCoupling
 {
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
+  class MEDCouplingFieldInt;
+  class MEDCouplingFieldFloat;
 
   class MEDLoaderTest : public CppUnit::TestFixture
   {
@@ -96,6 +98,8 @@ namespace MEDCoupling
     MEDCouplingUMesh *build3DMesh_1();
     MEDCouplingUMesh *build3DMesh_2();
     MEDCouplingFieldDouble *buildVecFieldOnCells_1();
+    MEDCouplingFieldInt    *buildIntVecFieldOnCells_1();
+    MEDCouplingFieldFloat  *buildFloatVecFieldOnCells_1();
     MEDCouplingFieldDouble *buildVecFieldOnNodes_1();
     MEDCouplingFieldDouble *buildVecFieldOnGauss_1();
     MEDCouplingFieldDouble *buildVecFieldOnGaussNE_1();

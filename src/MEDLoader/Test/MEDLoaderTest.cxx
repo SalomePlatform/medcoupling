@@ -23,6 +23,8 @@
 #include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "TestInterpKernelUtils.hxx"  // getResourceFile()
 
@@ -118,14 +120,21 @@ void MEDLoaderTest::testFieldRW2()
   static const double VAL1=12345.67890314;
   static const double VAL2=-1111111111111.;
   MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
+  MEDCouplingFieldInt *f1_int=buildIntVecFieldOnCells_1();
+  MEDCouplingFieldFloat *f1_fl=buildFloatVecFieldOnCells_1();
   WriteField(fileName,f1,true);
   f1->setTime(10.,8,9);
+  f1_int->setTime(10.,8,9);
+  f1_fl->setTime(10.,8,9);
   double *tmp=f1->getArray()->getPointer();
   tmp[0]=VAL1;
   WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(10.14,18,19);
   tmp[0]=VAL2;
   WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  // Write int and float fields:
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1_int);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1_fl);
   //retrieving time steps...
   MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),8,9));
   f1->setTime(10.,8,9);
@@ -145,6 +154,13 @@ void MEDLoaderTest::testFieldRW2()
   CPPUNIT_ASSERT_THROW(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),28,19),INTERP_KERNEL::Exception);
   f2->decrRef();
   f1->decrRef();
+  // Reading Int and Float fields:
+  MEDCouplingFieldInt *f2_int=dynamic_cast<MEDCouplingFieldInt *>(ReadFieldCell(fileName,f1_int->getMesh()->getName().c_str(),0,f1_int->getName().c_str(),8,9));
+  CPPUNIT_ASSERT(f1_int->isEqual(f2_int,1e-12,0)); // exact equality for int values
+  f2_int->decrRef();
+  MEDCouplingFieldFloat *f2_fl=dynamic_cast<MEDCouplingFieldFloat *>(ReadFieldCell(fileName,f1_fl->getMesh()->getName().c_str(),0,f1_fl->getName().c_str(),8,9));
+  CPPUNIT_ASSERT(f1_fl->isEqual(f2_fl,1e-12,1e-12));
+  f2_fl->decrRef();
   //ON NODES
   f1=buildVecFieldOnNodes_1();
   const char fileName2[]="file9.med";
@@ -175,7 +191,7 @@ void MEDLoaderTest::testFieldRW2()
 }
 
 /*!
- * Multi field in a same file, but this field has several
+ * Multi field in a same file, but this field has several timesteps
  */
 void MEDLoaderTest::testFieldRW3()
 {
@@ -1384,6 +1400,53 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnCells_1()
   mesh->decrRef();
   return f1;
 }
+
+MEDCouplingFieldInt *MEDLoaderTest::buildIntVecFieldOnCells_1()
+{
+  MEDCouplingUMesh *mesh=build3DSurfMesh_1();
+  mcIdType nbOfCells=mesh->getNumberOfCells();
+  MEDCouplingFieldInt *f1=MEDCouplingFieldInt::New(ON_CELLS,ONE_TIME);
+  f1->setName("IntVectorFieldOnCells");
+  f1->setMesh(mesh);
+  DataArrayInt *array=DataArrayInt::New();
+  array->alloc(nbOfCells,3);
+  array->setInfoOnComponent(0,"val1 [MW/m^3]");
+  array->setInfoOnComponent(1,"va2 [g/cm^3]");
+  array->setInfoOnComponent(2,"val3 [K]");
+  f1->setArray(array);
+  array->decrRef();
+  mcIdType *tmp=array->getPointer();
+  const mcIdType arr1[18]={0,10,20,1,11,21,2,12,22,3,13,23,4,14,24,5,15,25};
+  std::copy(arr1,arr1+18,tmp);
+  f1->setTime(2.,0,1);
+  f1->checkConsistencyLight();
+  mesh->decrRef();
+  return f1;
+}
+
+MEDCouplingFieldFloat *MEDLoaderTest::buildFloatVecFieldOnCells_1()
+{
+  MEDCouplingUMesh *mesh=build3DSurfMesh_1();
+  mcIdType nbOfCells=mesh->getNumberOfCells();
+  MEDCouplingFieldFloat *f1=MEDCouplingFieldFloat::New(ON_CELLS,ONE_TIME);
+  f1->setName("FloatVectorFieldOnCells");
+  f1->setMesh(mesh);
+  DataArrayFloat *array=DataArrayFloat::New();
+  array->alloc(nbOfCells,3);
+  array->setInfoOnComponent(0,"power [MW/m^3]");
+  array->setInfoOnComponent(1,"density [g/cm^3]");
+  array->setInfoOnComponent(2,"temperature [K]");
+  f1->setArray(array);
+  array->decrRef();
+  float *tmp=array->getPointer();
+  const float arr1[18]={0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.};
+  std::copy(arr1,arr1+18,tmp);
+  f1->setTime(2.,0,1);
+  f1->checkConsistencyLight();
+  mesh->decrRef();
+  return f1;
+}
+
 
 MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnNodes_1()
 {

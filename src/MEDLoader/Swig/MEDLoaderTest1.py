@@ -82,13 +82,20 @@ class MEDLoaderTest1(unittest.TestCase):
         VAL1=12345.67890314;
         VAL2=-1111111111111.;
         f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        f1_int=MEDLoaderDataForTest.buildIntVecFieldOnCells_1();
+        f1_fl=MEDLoaderDataForTest.buildFloatVecFieldOnCells_1();
         MEDLoader.WriteField(fileName,f1,True);
         f1.setTime(10.,8,9);
+        f1_int.setTime(10.,8,9);
+        f1_fl.setTime(10.,8,9);
         f1.getArray().setIJ(0,0,VAL1);
         MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
         f1.setTime(10.14,18,19);
         f1.getArray().setIJ(0,0,VAL2);
         MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+        # Write int and float fields:
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1_int);
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1_fl);
         #retrieving time steps...
         f2=MEDLoader.ReadFieldCell(fileName,f1.getMesh().getName(),0,f1.getName(),8,9);
         f1.setTime(10.,8,9);
@@ -103,6 +110,11 @@ class MEDLoaderTest1(unittest.TestCase):
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
         #test of throw on invalid (dt,it)
         self.assertRaises(Exception,MEDLoader.ReadFieldCell,fileName,f1.getMesh().getName(),0,f1.getName(),28,19);
+        # Reading Int and Float fields:
+        f2_int=MEDLoader.ReadFieldCell(fileName,f1_int.getMesh().getName(),0,f1_int.getName(),8,9);
+        self.assertTrue(f1_int.isEqual(f2_int,1e-12,0));  # exact comparison here
+        f2_fl=MEDLoader.ReadFieldCell(fileName,f1_fl.getMesh().getName(),0,f1_fl.getName(),8,9);
+        self.assertTrue(f1_fl.isEqual(f2_fl,1e-12,1e-12));
         #ON NODES
         f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
         fileName2="Pyfile9.med";

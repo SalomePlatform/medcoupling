@@ -1799,22 +1799,28 @@ void MEDCoupling::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName,
   if(!f)
     throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMesh : input field is null !");
   {
-    const MEDCoupling::MEDCouplingFieldDouble *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldDouble *>(f));
-    if(f1)
-      WriteFieldUsingAlreadyWrittenMeshT<double>(fileName,f1);
-    return ;
+      const MEDCoupling::MEDCouplingFieldDouble *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldDouble *>(f));
+      if(f1)
+        {
+          WriteFieldUsingAlreadyWrittenMeshT<double>(fileName,f1);
+          return ;
+        }
   }
   {
     const MEDCoupling::MEDCouplingFieldInt32 *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt32 *>(f));
     if(f1)
-      WriteFieldUsingAlreadyWrittenMeshT<int>(fileName,f1);
-    return ;
+      {
+        WriteFieldUsingAlreadyWrittenMeshT<int>(fileName,f1);
+        return ;
+      }
   }
   {
     const MEDCoupling::MEDCouplingFieldFloat *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldFloat *>(f));
     if(f1)
-      WriteFieldUsingAlreadyWrittenMeshT<float>(fileName,f1);
-    return ;
+      {
+        WriteFieldUsingAlreadyWrittenMeshT<float>(fileName,f1);
+        return ;
+      }
   }
   throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMesh : input field is not in FLOAT32, FLOAT64, INT32 !");
 }
