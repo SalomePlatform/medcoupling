@@ -2169,7 +2169,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
 #endif
         }
       if ( !cellGraph )
-        throw INTERP_KERNEL::Exception("MeshCollection::createPartition : PARMETIS/METIS is not available. Check your products, please.");
+        throw INTERP_KERNEL::Exception("MeshCollection::createPartition : PARMETIS/METIS is not available (or you're not running in //). Check your products, please.");
       break;
 
     case Graph::SCOTCH:

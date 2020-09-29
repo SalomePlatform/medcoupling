@@ -29,6 +29,7 @@
 #endif
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 namespace INTERP_TEST
 {
@@ -36,13 +37,23 @@ namespace INTERP_TEST
   {
     std::string resourceFile = "";
     if ( getenv("MEDCOUPLING_ROOT_DIR") ) {
-      // use MEDCOUPLING_ROOT_DIR env.var
-      resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
-      resourceFile += "/share/resources/med/";
-      resourceFile += filename;
-      std::ifstream my_file(resourceFile.c_str());
-      if (my_file.good())
-        return resourceFile;
+        // use MEDCOUPLING_ROOT_DIR env.var
+        resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
+        resourceFile += "/share/resources/med/";
+        resourceFile += filename;
+        std::ifstream my_file(resourceFile.c_str());
+        if (my_file.good())
+          return resourceFile;
+    }
+    if ( getenv("MEDCOUPLING_RESOURCE_DIR") ) {
+        // use MEDCOUPLING_RESOURCE_DIR env.var
+        resourceFile = getenv("MEDCOUPLING_RESOURCE_DIR");
+        resourceFile.erase(std::remove(resourceFile.begin(), resourceFile.end(), ':'), resourceFile.end());
+        resourceFile += "/";
+        resourceFile += filename;
+        std::ifstream my_file(resourceFile.c_str());
+        if (my_file.good())
+          return resourceFile;
     }
     // else
     char * tmp_c = getcwd(NULL, 0);
