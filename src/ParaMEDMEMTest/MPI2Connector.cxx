@@ -29,10 +29,12 @@
 
 #ifdef OMPI_MAJOR_VERSION 
 #   if OMPI_MAJOR_VERSION >= 4
-#      define MPI_ERROR_HANDLER(var) MPI_Comm_set_errhandler(MPI_COMM_WORLD, var);
+#      define MPI_ERROR_HANDLER(var) MPI_Comm_set_errhandler(MPI_COMM_WORLD, var)
+#   else
+#      define MPI_ERROR_HANDLER(var) MPI_Errhandler_set(MPI_COMM_WORLD, var)
 #   endif
 #else  // MPICH and other versions:
-#   define MPI_ERROR_HANDLER(var) MPI_Errhandler_set(MPI_COMM_WORLD, var);
+#   define MPI_ERROR_HANDLER(var) MPI_Errhandler_set(MPI_COMM_WORLD, var)
 #endif
 
 MPI2Connector::MPI2Connector()
