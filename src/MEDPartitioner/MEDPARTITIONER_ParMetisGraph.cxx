@@ -69,7 +69,7 @@ void ParMETISGraph::partGraph(int ndomain,
 #else
   int * xadj=const_cast<int*>(_graph->getIndex());
   int * adjncy=const_cast<int*>(_graph->getValues());
-+#endif
+#endif
   //constraints
   int * vwgt=_cell_weight;
   int * adjwgt=_edge_weight;
