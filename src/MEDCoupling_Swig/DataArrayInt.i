@@ -258,10 +258,12 @@
                 return ret.retn();
               }
           }
+#if defined(WITH_NUMPY)
         else if(MEDCouplingHasNumPyBindings() && PyArray_Check(elt0) && nbOfTuples==NULL && nbOfComp==NULL)
           {//ARRAY.New(numpyArray)
             return BuildNewInstance<ARRAY,INT>(elt0,NPYTraits<INT>::NPYObjectType,NPYTraits<INT>::NPYFunc,MEDCoupling::Traits<INT>::NPYStr);
           }
+#endif
         else
           throw INTERP_KERNEL::Exception(msg.c_str());
         throw INTERP_KERNEL::Exception(msg.c_str());//to make g++ happy
