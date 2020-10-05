@@ -135,20 +135,20 @@ namespace MEDCoupling
     int getCount(MPI_Status *status, MPI_Datatype datatype, int *count) const { return MPI_Get_count(status, datatype, count); }
 
     int broadcast(void* buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm) const { return MPI_Bcast(buffer, count,  datatype, root, comm); }
-    int gather(const void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm) const { return MPI_Gather(sendbuf,sendcount,sendtype,recvbuf,recvcount,recvtype,root,comm); }
-    int gatherV(const void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, const int recvcounts[], const int displs[], MPI_Datatype recvtype, int root, MPI_Comm comm) const { return MPI_Gatherv(sendbuf,sendcount,sendtype,recvbuf,recvcounts,displs,recvtype,root,comm); }
+    int gather(const void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm) const { return MPI_Gather(const_cast<void*>(sendbuf),sendcount,sendtype,recvbuf,recvcount,recvtype,root,comm); }
+    int gatherV(const void* sendbuf, int sendcount, MPI_Datatype sendtype, void* recvbuf, const int recvcounts[], const int displs[], MPI_Datatype recvtype, int root, MPI_Comm comm) const { return MPI_Gatherv(const_cast<void*>(sendbuf),sendcount,sendtype,recvbuf,const_cast<int *>(recvcounts),const_cast<int *>(displs),recvtype,root,comm); }
     int allGather(void* sendbuf, int sendcount, MPI_Datatype sendtype,
                   void* recvbuf, int recvcount, MPI_Datatype recvtype,
                   MPI_Comm comm) const { return MPI_Allgather(sendbuf,sendcount, sendtype, recvbuf, recvcount, recvtype, comm); }
     int allGatherV(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int recvcounts[],
-                   const int displs[], MPI_Datatype recvtype, MPI_Comm comm) const { return MPI_Allgatherv(sendbuf,sendcount,sendtype,recvbuf,recvcounts,displs,recvtype,comm); }
+                   const int displs[], MPI_Datatype recvtype, MPI_Comm comm) const { return MPI_Allgatherv(const_cast<void*>(sendbuf),sendcount,sendtype,recvbuf,const_cast<int *>(recvcounts),const_cast<int *>(displs),recvtype,comm); }
     int allToAll(void* sendbuf, int sendcount, MPI_Datatype sendtype,
                  void* recvbuf, int recvcount, MPI_Datatype recvtype,
                  MPI_Comm comm) const { return MPI_Alltoall(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm); }
     int allToAllV(const void* sendbuf, int* sendcounts, int* senddispls,
                   MPI_Datatype sendtype, void* recvbuf, int* recvcounts,
                   int* recvdispls, MPI_Datatype recvtype, 
-                  MPI_Comm comm) const { return MPI_Alltoallv(sendbuf, sendcounts, senddispls, sendtype, recvbuf, recvcounts, recvdispls, recvtype, comm); }
+                  MPI_Comm comm) const { return MPI_Alltoallv(const_cast<void*>(sendbuf), sendcounts, senddispls, sendtype, recvbuf, recvcounts, recvdispls, recvtype, comm); }
 
     int reduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype,
                MPI_Op op, int root, MPI_Comm comm) const { return MPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm); }
