@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "MEDCoupling_version.h"
+
 #include <cstdint>
 #include <stddef.h>
 #include <cstddef>

@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLING_MCTYPE_HXX__
-#define __MEDCOUPLING_MCTYPE_HXX__
+#pragma once
 
 #include "MCIdType.hxx"
 
@@ -54,5 +53,3 @@ namespace MEDCoupling
 #define DataArrayInt DataArrayInt32
 #define DataArrayIntIterator DataArrayInt32Iterator
 }
-
-#endif

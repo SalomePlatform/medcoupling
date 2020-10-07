@@ -20,8 +20,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#if !defined(__MEDCOUPLING_VERSION_H__)
-#define __MEDCOUPLING_VERSION_H__
+#pragma once
 
 /*!
   Specify version of MEDCoupling, as follows
@@ -39,4 +38,6 @@
 #define MEDCOUPLING_VERSION_STR         "@MEDCOUPLING_VERSION@"
 #define MEDCOUPLING_VERSION             @MEDCOUPLING_XVERSION@
 
-#endif // __MEDCOUPLING_VERSION_H__
+// define MEDCOUPLING_USE_64BIT_IDS if effectly used at medcoupling compile time
+
+@MEDCOUPLING_USE_64BIT_IDS_CPP_DEFINE@
