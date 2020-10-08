@@ -119,7 +119,7 @@ void DataArrayDouble::FindTupleIdsNearTuplesAlg(const BBTreePts<SPACEDIM,mcIdTyp
 template<mcIdType SPACEDIM>
 void DataArrayDouble::FindClosestTupleIdAlg(const BBTreePts<SPACEDIM,mcIdType>& myTree, double dist, const double *pos, mcIdType nbOfTuples, const double *thisPt, mcIdType thisNbOfTuples, mcIdType *res)
 {
-  double distOpt(dist);
+  double distOpt = std::max(dist, std::numeric_limits<double>::epsilon());
   const double *p(pos);
   mcIdType *r(res);
   for(mcIdType i=0;i<nbOfTuples;i++,p+=SPACEDIM,r++)

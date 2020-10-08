@@ -2623,7 +2623,17 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             ids3=ptsi.findClosestTupleId(d2i)
             idsExpected3=idsExpected2.deepCopy() ; idsExpected3.reverse()
             self.assertTrue(idsExpected3.isEqual(ids3))
+            
+            #
+            ones = [1.0]*nbPt
+            twos = [2.0]*nbPt
+            d3=DataArrayDouble.Meld( DataArrayDouble(ones), DataArrayDouble(twos) )
+            d4=DataArrayDouble.Meld( DataArrayDouble(ones), DataArrayDouble(ones) )
+            idsExpected4 = DataArrayInt([0]*nbPt)
+            ids4 = d3.findClosestTupleId(d4)
+            self.assertTrue(idsExpected.isEqual(ids))
             pass
+    
 
     def testSwig2DataArrayAsciiChar1(self):
         alpha=DataArrayInt(26) ; alpha.iota(ord("A"))
