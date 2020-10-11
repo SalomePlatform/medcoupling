@@ -17,15 +17,14 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __ParaIdType_HXX__
-#define __ParaIdType_HXX__
+#pragma once
 
 #include <mpi.h>
+
+#include "MEDCoupling_version.h"
 
 #ifndef MEDCOUPLING_USE_64BIT_IDS
 #define MPI_ID_TYPE MPI_INT
 #else
 #define MPI_ID_TYPE MPI_LONG
-#endif
-
 #endif
