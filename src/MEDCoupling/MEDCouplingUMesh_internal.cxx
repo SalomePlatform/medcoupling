@@ -510,6 +510,11 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const mcIdType *begin, const
   MCAuto<DataArrayIdType> cellIdsKept=DataArrayIdType::New(); cellIdsKept->alloc(0,1);
   checkConnectivityFullyDefined();
   mcIdType tmp=-1;
+  if(getNodalConnectivity()->empty())
+  {
+    cellIdsKeptArr=cellIdsKept.retn();
+    return;
+  }
   mcIdType sz=getNodalConnectivity()->getMaxValue(tmp); sz=std::max(sz,ToIdType(0))+1;
   std::vector<bool> fastFinder(sz,false);
   for(const mcIdType *work=begin;work!=end;work++)

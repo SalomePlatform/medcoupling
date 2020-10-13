@@ -1496,8 +1496,17 @@ void MEDFileUMeshSplitL1::TraduceFamilyNumber(const std::vector< std::vector<mcI
 void MEDFileUMeshSplitL1::computeRevNum() const
 {
   mcIdType pos;
-  mcIdType maxValue=_num->getMaxValue(pos);
-  _rev_num=_num->invertArrayN2O2O2N(maxValue+1);
+  if(!_num->empty())
+  {
+    mcIdType maxValue=_num->getMaxValue(pos);
+    _rev_num=_num->invertArrayN2O2O2N(maxValue+1);
+  }
+  else
+  {
+    _rev_num = DataArrayIdType::New();
+    _rev_num->alloc(0,1);
+  }
+  
 }
 
 //=
