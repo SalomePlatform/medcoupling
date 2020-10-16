@@ -7131,8 +7131,15 @@ MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::deepCopy() const
 int MEDFileCurveLinearMesh::getMeshDimension() const
 {
   if(!((const MEDCouplingCurveLinearMesh*)_clmesh))
-    throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh::getMeshDimension : unable to get meshdimension because no mesh set !");
+    throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh::getMeshDimension : unable to get mesh dimension because no mesh set !");
   return _clmesh->getMeshDimension();
+}
+
+int MEDFileCurveLinearMesh::getSpaceDimension() const
+{
+  if(!((const MEDCouplingCurveLinearMesh*)_clmesh))
+    throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh::getMeshDimension : unable to get space dimension because no mesh set !");
+  return _clmesh->getSpaceDimension();
 }
 
 std::string MEDFileCurveLinearMesh::simpleRepr() const

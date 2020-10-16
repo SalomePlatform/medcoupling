@@ -1253,6 +1253,7 @@ class MEDLoaderTest4(unittest.TestCase):
         a0Exp.setInfoOnComponents(["XX [m]","YYY [km]"])
         m.setCoords(a0Exp)
         mm=MEDFileCurveLinearMesh() ; mm.setMesh(m)
+        self.assertEqual(mm.getSpaceDimension(), m.getSpaceDimension())
         fam=DataArrayInt(8) ; fam.iota(0) ; mm.setFamilyFieldArr(0,fam) ; del fam
         num=DataArrayInt(8) ; num.iota(100) ; mm.setRenumFieldArr(0,num) ; del num
         #

@@ -167,6 +167,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void normalizeFamIdsTrio();
     MEDLOADER_EXPORT void normalizeFamIdsMEDFile();
     MEDLOADER_EXPORT virtual int getMeshDimension() const = 0;
+    MEDLOADER_EXPORT virtual int getSpaceDimension() const = 0;
     MEDLOADER_EXPORT virtual std::string simpleRepr() const;
     MEDLOADER_EXPORT virtual std::string advancedRepr() const = 0;
     //
@@ -392,9 +393,9 @@ MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<Data
   private:
     static const char SPE_FAM_STR_EXTRUDED_MESH[];
   private:
-    std::vector< MCAuto<MEDFileUMeshSplitL1> > _ms;
+    std::vector< MCAuto<MEDFileUMeshSplitL1> > _ms;   ///< The array of single-dimension constituting meshes, stored in decreasing order (dimRelativeToMax=0,-1,-2, ...)
     MCAuto<DataArrayDouble> _coords;
-    MCAuto<DataArrayIdType> _fam_coords;     ///< Node family indices
+    MCAuto<DataArrayIdType> _fam_coords;              ///< Node family indices
     MCAuto<DataArrayIdType> _num_coords;
     MCAuto<DataArrayIdType> _global_num_coords;
     MCAuto<DataArrayAsciiChar> _name_coords;
@@ -532,6 +533,7 @@ MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<Data
     MEDLOADER_EXPORT MEDFileCurveLinearMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT int getMeshDimension() const;
+    MEDLOADER_EXPORT int getSpaceDimension() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT std::string advancedRepr() const;
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;

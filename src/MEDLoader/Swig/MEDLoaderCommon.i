@@ -1778,6 +1778,8 @@ namespace MEDCoupling
     static MEDFileCurveLinearMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
     static MEDFileCurveLinearMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     void setMesh(MEDCouplingCurveLinearMesh *m);
+    int getSpaceDimension() const;
+    int getMeshDimension() const;
     %extend
        {
          MEDFileCurveLinearMesh()
