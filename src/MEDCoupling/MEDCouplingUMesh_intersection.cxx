@@ -556,7 +556,15 @@ void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MED
     }
 }
 
-MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::vector< std::vector<mcIdType> >& intersectEdge2, const DataArrayDouble *coords1, const std::vector<double>& addCoo, const std::map<mcIdType,mcIdType>& mergedNodes, const std::vector< std::vector<mcIdType> >& colinear2, const std::vector< std::vector<mcIdType> >& intersectEdge1,
+/*
+ *  Build the final 1D mesh resulting from the newly created points after intersection with the segments of the descending 2D mesh.
+ *  @param[out] idsInRetColinear IDs of edges in the result (ret) that are colinears to one of the segment of the descending 2D mesh. Indexing scheme
+ *  is the one of the ret 1D mesh.
+ *  @param[out] idsInMesh1DForIdsInRetColinear same IDs as above in the descending 2D mesh
+ */
+MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::vector< std::vector<mcIdType> >& intersectEdge2,
+                                     const DataArrayDouble *coords1, const std::vector<double>& addCoo, const std::map<mcIdType,mcIdType>& mergedNodes,
+                                     const std::vector< std::vector<mcIdType> >& colinear2, const std::vector< std::vector<mcIdType> >& intersectEdge1,
                                      MCAuto<DataArrayIdType>& idsInRetColinear, MCAuto<DataArrayIdType>& idsInMesh1DForIdsInRetColinear)
 {
   idsInRetColinear=DataArrayIdType::New(); idsInRetColinear->alloc(0,1);
@@ -581,7 +589,8 @@ MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::
       mcIdType nbSubEdge=ToIdType(subEdges.size()/2);
       for(mcIdType j=0;j<nbSubEdge;j++,kk++)
         {
-          MCAuto<INTERP_KERNEL::Node> n1(MEDCouplingUMeshBuildQPNode(subEdges[2*j],coords1->begin(),offset1,coo2Ptr,offset2,addCoo)),n2(MEDCouplingUMeshBuildQPNode(subEdges[2*j+1],coords1->begin(),offset1,coo2Ptr,offset2,addCoo));
+          MCAuto<INTERP_KERNEL::Node> n1(MEDCouplingUMeshBuildQPNode(subEdges[2*j],coords1->begin(),offset1,coo2Ptr,offset2,addCoo)),
+                                      n2(MEDCouplingUMeshBuildQPNode(subEdges[2*j+1],coords1->begin(),offset1,coo2Ptr,offset2,addCoo));
           MCAuto<INTERP_KERNEL::Edge> e2(e->buildEdgeLyingOnMe(n1,n2));
           INTERP_KERNEL::Edge *e2Ptr(e2);
           std::map<mcIdType,mcIdType>::const_iterator itm;
@@ -619,6 +628,7 @@ MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::
         }
       e->decrRef();
     }
+
   MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::New(mesh1D->getName(),1));
   ret->setConnectivity(cOut,ciOut,true);
   MCAuto<DataArrayDouble> arr3(DataArrayDouble::New());
@@ -1821,13 +1831,56 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   MCAuto<DataArrayIdType> idsInRet1Colinear,idsInDescMesh2DForIdsInRetColinear;
   MCAuto<DataArrayIdType> ret2(DataArrayIdType::New()); ret2->alloc(0,1);
   MCAuto<MEDCouplingUMesh> ret1(BuildMesh1DCutFrom(mesh1D,intersectEdge2,mesh2D->getCoords(),addCoo,mergedNodes,colinear2,intersectEdge1,
-      idsInRet1Colinear,idsInDescMesh2DForIdsInRetColinear));
+                                                   idsInRet1Colinear,idsInDescMesh2DForIdsInRetColinear));
+
+  // ### Colinearity fix :
+  // if a node in ret1 has been merged with an already existing node in mesh2D,
+  // we might end up with edges in ret1 that are colinear with some edges in mesh2D
+  // even if none of the edges of the two original meshes were colinear.
+  // this procedure detects such edges and adds them in idsInRet1Colinear/idsInDescMesh2DForIdsInRetColinear
+  // a- find edges in ret1 that are in contact with 2 cells
+  MCAuto<DataArrayDouble> centerOfMassRet1(ret1->computeCellCenterOfMass());
+  MCAuto<DataArrayIdType> cells,cellsIndex;
+  mesh2D->getCellsContainingPoints(centerOfMassRet1->begin(),centerOfMassRet1->getNumberOfTuples(),eps,cells,cellsIndex);
+  MCAuto<DataArrayIdType> cellsIndex2(DataArrayIdType::New()); cellsIndex2->alloc(0,1);
+  if (cellsIndex->getNumberOfTuples() > 1)
+    cellsIndex2 = cellsIndex->deltaShiftIndex();
+  MCAuto<DataArrayIdType> idsInRet1With2Contacts(cellsIndex2->findIdsEqual(2));
+
+  MCAuto<DataArrayIdType> realIdsInDesc2D(desc1->deepCopy());
+  realIdsInDesc2D->abs(); realIdsInDesc2D->applyLin(1,-1);
+  const mcIdType *cRet1(ret1->getNodalConnectivity()->begin()),*ciRet1(ret1->getNodalConnectivityIndex()->begin());
+  for(const mcIdType *it=idsInRet1With2Contacts->begin();it!=idsInRet1With2Contacts->end();it++)
+    {
+      // b- find the edge that the 2 cells in m1Desc have in common:
+      // this is the edge which is colinear with the one in ret1
+      const mcIdType* cellId1 = cells->begin() + cellsIndex->begin()[*it];
+      const mcIdType* cellId2 = cells->begin() + cellsIndex->begin()[*it]+1;
+
+      std::set<mcIdType> s1(realIdsInDesc2D->begin()+dd2->begin()[*cellId1], realIdsInDesc2D->begin()+dd2->begin()[*cellId1+1]);
+      std::set<mcIdType> s2(realIdsInDesc2D->begin()+dd2->begin()[*cellId2], realIdsInDesc2D->begin()+dd2->begin()[*cellId2+1]);
+      mcIdType commonEdgeId;
+      std::set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(), &commonEdgeId);
+
+      // c- find correct orientation for commonEdgeId
+      const mcIdType* firstNodeInColinearEdgeRet1 = cRet1 + ciRet1[*it]+1;
+      const mcIdType* secondNodeInColinearEdgeRet1 =  cRet1 + ciRet1[*it]+2;
+      std::vector<mcIdType> v; v.push_back(commonEdgeId);
+      if(IsColinearOfACellOf(intersectEdge1, v, *firstNodeInColinearEdgeRet1,*secondNodeInColinearEdgeRet1,commonEdgeId))
+        {
+          idsInRet1Colinear->pushBackSilent(*it);
+          idsInDescMesh2DForIdsInRetColinear->pushBackSilent(commonEdgeId);
+        }
+    }
+  // ### End colinearity fix
+
   MCAuto<DataArrayIdType> ret3(DataArrayIdType::New()); ret3->alloc(ret1->getNumberOfCells()*2,1); ret3->fillWithValue(std::numeric_limits<mcIdType>::max()); ret3->rearrange(2);
   MCAuto<DataArrayIdType> idsInRet1NotColinear(idsInRet1Colinear->buildComplement(ret1->getNumberOfCells()));
   // deal with cells in mesh2D that are not cut but only some of their edges are
   MCAuto<DataArrayIdType> idsInDesc2DToBeRefined(idsInDescMesh2DForIdsInRetColinear->deepCopy());
   idsInDesc2DToBeRefined->abs(); idsInDesc2DToBeRefined->applyLin(1,-1);
   idsInDesc2DToBeRefined=idsInDesc2DToBeRefined->buildUnique();
+
   MCAuto<DataArrayIdType> out0s;//ids in mesh2D that are impacted by the fact that some edges of \a mesh1D are part of the edges of those cells
   if(!idsInDesc2DToBeRefined->empty())
     {
@@ -1840,9 +1893,11 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
     }
   //
   MCAuto<MEDCouplingUMesh> ret1NonCol(static_cast<MEDCouplingUMesh *>(ret1->buildPartOfMySelf(idsInRet1NotColinear->begin(),idsInRet1NotColinear->end())));
-  MCAuto<DataArrayDouble> baryRet1(ret1NonCol->computeCellCenterOfMass());
-  MCAuto<DataArrayIdType> elts,eltsIndex;
-  mesh2D->getCellsContainingPoints(baryRet1->begin(),baryRet1->getNumberOfTuples(),eps,elts,eltsIndex);
+  MCAuto<DataArrayDouble> baryRet1(centerOfMassRet1->selectByTupleId(idsInRet1NotColinear->begin(), idsInRet1NotColinear->end()));
+  DataArrayIdType *out(0),*outi(0);
+  DataArrayIdType::ExtractFromIndexedArrays(idsInRet1NotColinear->begin(),idsInRet1NotColinear->end(),cells,cellsIndex,out,outi);
+  MCAuto<DataArrayIdType> elts(out),eltsIndex(outi);
+
   MCAuto<DataArrayIdType> eltsIndex2(DataArrayIdType::New()); eltsIndex2->alloc(0,1);
   if (eltsIndex->getNumberOfTuples() > 1)
     eltsIndex2 = eltsIndex->deltaShiftIndex();

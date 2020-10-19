@@ -1227,6 +1227,34 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(mapLeftRight.getValues(), [-1, -1, 0, 4, -1, -1, 1, 4, -1, -1, 1, 3, -1, -1, 2, 3, -1, -1])
         pass
 
+    def testSwig2Intersect2DMeshWith1DLine21(self):
+        """ A line intersecting a cell very close to one of its node (collinearity not detected) """
+        eps=1.0e-5  # was working at 1.0e-8, but should also really work with 1.0e-5
+        mesh = MEDCouplingUMesh('mesh', 2)
+        coo = DataArrayDouble([(110.65324,180.56968),(112.01128,182.78580),(113.36932,185.00192),(118.27200,181.90669),(118.27200,178.79852),(118.27200,175.67380)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([NORM_QUAD4, 0, 1, 4, 5, NORM_QUAD4, 1, 2, 3, 4])
+        cI = DataArrayInt([0, 5, 10])
+        mesh.setConnectivity(c, cI)
+
+        tool = MEDCouplingUMesh('tool', 1)
+        coo = DataArrayDouble([(0.0, 182.78400),  (182.78400, 182.78400)]) 
+        tool.setCoords(coo)
+        c = DataArrayInt([NORM_SEG2,0,1])
+        cI = DataArrayInt([0, 3])
+        tool.setConnectivity(c, cI)
+        
+        res2D, res1D, resToSelf, mapLeftRight = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
+        self.assertEqual(res1D.getNodalConnectivity().getValues(), [1, 6, 1, 1, 1, 8, 1, 8, 9, 1, 9, 7])
+        self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 3, 6, 9, 12])
+        self.assertEqual(res2D.getNodalConnectivity().getValues(), [5, 0, 1, 8, 4, 5, 5, 1, 2, 9, 8, 5, 3, 4, 8, 9])
+        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(),[0, 6, 11, 16])
+
+        self.assertEqual(resToSelf.getValues(), [0, 1, 1])
+        self.assertEqual(mapLeftRight.getValues(), [-1, -1, 1, 0, 1, 2, -1, -1])
+
+            
+
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8
         coo = [0.,-0.5,0.,0.,0.5,0.,0.5,-0.5,0.25,
