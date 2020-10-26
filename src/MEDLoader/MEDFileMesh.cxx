@@ -6416,24 +6416,37 @@ MEDCouplingMesh *MEDFileStructuredMesh::getMeshAtLevel(int meshDimRelToMax, bool
   }
 }
 
+/*!
+ * Returns all relative mesh levels (**excluding nodes**) where given families are defined.
+ * To include nodes, call getFamsNonEmptyLevelsExt() method.
+ *  \param [in] fams - the name of the family of interest.
+ *  \return std::vector<int> - a sequence of the relative dimensions.
+ */
 std::vector<mcIdType> MEDFileStructuredMesh::getFamsNonEmptyLevels(const std::vector<std::string>& fams) const
 {
-  std::vector<mcIdType> ret;
+  std::vector<mcIdType> lvls;
+  std::vector<mcIdType> famIds(getFamiliesIds(fams));
   const DataArrayIdType *famCells(_fam_cells),*famFaces(_fam_faces);
-  if(famCells && famCells->presenceOfValue(ret))
-    ret.push_back(0);
-  if(famFaces && famFaces->presenceOfValue(ret))
-    ret.push_back(-1);
-  return ret;  
+  if(famCells && famCells->presenceOfValue(famIds))
+    lvls.push_back(0);
+  if(famFaces && famFaces->presenceOfValue(famIds))
+    lvls.push_back(-1);
+  return lvls;
 }
 
+/*!
+ * Returns all relative mesh levels (including nodes) where given families are defined.
+ *  \param [in] fams - the names of the families of interest.
+ *  \return std::vector<int> - a sequence of the relative dimensions.
+ */
 std::vector<mcIdType> MEDFileStructuredMesh::getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const
 {
-  std::vector<mcIdType> ret(getFamsNonEmptyLevels(fams));
+  std::vector<mcIdType> lvls(getFamsNonEmptyLevels(fams));
+  std::vector<mcIdType> famIds(getFamiliesIds(fams));
   const DataArrayIdType *famNodes(_fam_nodes);
-  if(famNodes && famNodes->presenceOfValue(ret))
-    ret.push_back(1);
-  return ret;  
+  if(famNodes && famNodes->presenceOfValue(famIds))
+    lvls.push_back(1);
+  return lvls;
 }
 
 /*!

@@ -840,7 +840,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * This method reserve nbOfElems elements in memory ( nbOfElems*8 bytes ) \b without impacting the number of tuples in \a this.
+   * This method reserve nbOfElems elements in memory ( nbOfElems*sizeof(T) ) \b without impacting the number of tuples in \a this.
    * If \a this has already been allocated, this method checks that \a this has only one component. If not an INTERP_KERNEL::Exception will be thrown.
    * If \a this has not already been allocated, number of components is set to one.
    * This method allows to reduce number of reallocations on invocation of DataArrayDouble::pushBackSilent and DataArrayDouble::pushBackValsSilent on \a this.
