@@ -16,13 +16,17 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileMeshReadSelector.hxx"
 
+#include "InterpKernelException.hxx"
+
+#include <sstream>
+
 using namespace MEDCoupling;
 
-MEDFileMeshReadSelector::MEDFileMeshReadSelector():_code(0xFFFFFFFF)
+MEDFileMeshReadSelector::MEDFileMeshReadSelector():_nb_coords_load_sessions(1),_code(0xFFFFFFFF)
 {
 }
 
@@ -38,6 +42,13 @@ unsigned int MEDFileMeshReadSelector::getCode() const
 void MEDFileMeshReadSelector::setCode(unsigned int newCode)
 {
   _code=newCode;
+}
+
+void MEDFileMeshReadSelector::setNumberOfCoordsLoadSessions(mcIdType newNbOfCoordsLoadSessions)
+{
+  if(newNbOfCoordsLoadSessions < 1)
+    throw INTERP_KERNEL::Exception("MEDFileMeshReadSelector::setNumberOfCoordsLoadSessions : input must be >= 1 !");
+  _nb_coords_load_sessions = newNbOfCoordsLoadSessions;
 }
 
 bool MEDFileMeshReadSelector::isCellFamilyFieldReading() const
@@ -141,6 +152,7 @@ void MEDFileMeshReadSelector::setGlobalNodeNumFieldReading(bool b)
 void MEDFileMeshReadSelector::reprAll(std::ostream& str) const
 {
   str << "MEDFileMeshReadSelector (code=" << _code << ") : \n";
+  str << "Number of coords load part sessions : " << this->_nb_coords_load_sessions << std::endl;
   str << "Read family field on cells : " << ReprStatus(isCellFamilyFieldReading()) << std::endl;
   str << "Read family field on nodes : " << ReprStatus(isNodeFamilyFieldReading()) << std::endl;
   str << "Read name field on cells : " << ReprStatus(isCellNameFieldReading()) << std::endl;

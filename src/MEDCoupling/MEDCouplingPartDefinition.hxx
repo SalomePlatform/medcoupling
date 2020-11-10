@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGPARTDEFINITION_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGPARTDEFINITION_HXX__
+#pragma once
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -110,5 +109,3 @@ namespace MEDCoupling
     mcIdType _step;
   };
 }
-
-#endif

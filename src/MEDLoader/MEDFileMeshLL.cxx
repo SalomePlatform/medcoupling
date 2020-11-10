@@ -560,13 +560,26 @@ void MEDFileUMeshL2::loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const
   for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
     for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
       (*it1)->getMesh()->computeNodeIdsAlg(fetchedNodeIds);
-  mcIdType nMin(ToIdType(std::distance(fetchedNodeIds.begin(),std::find(fetchedNodeIds.begin(),fetchedNodeIds.end(),true))));
-  mcIdType nMax(ToIdType(std::distance(fetchedNodeIds.rbegin(),std::find(fetchedNodeIds.rbegin(),fetchedNodeIds.rend(),true))));
-  nMax=nCoords-nMax;
-  for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
-    for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-      (*it1)->getMesh()->renumberNodesWithOffsetInConn(-nMin);
-  loadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax);
+  if(!mrs || mrs->getNumberOfCoordsLoadSessions()==1)
+  {
+    mcIdType nMin(ToIdType(std::distance(fetchedNodeIds.begin(),std::find(fetchedNodeIds.begin(),fetchedNodeIds.end(),true))));
+    mcIdType nMax(ToIdType(std::distance(fetchedNodeIds.rbegin(),std::find(fetchedNodeIds.rbegin(),fetchedNodeIds.rend(),true))));
+    nMax=nCoords-nMax;
+    for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
+      for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+        (*it1)->getMesh()->renumberNodesWithOffsetInConn(-nMin);
+    this->loadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax);
+  }
+  else
+  {
+    mcIdType nbOfCooLS(mrs->getNumberOfCoordsLoadSessions());
+    MCAuto<DataArrayIdType> fni(DataArrayIdType::BuildListOfSwitchedOn(fetchedNodeIds));
+    MCAuto< MapKeyVal<mcIdType, mcIdType> > o2n(fni->invertArrayN2O2O2NOptimized());
+    for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
+      for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+        (*it1)->getMesh()->renumberNodesInConn(o2n->data());
+    this->loadPartCoordsSlice(fid,infosOnComp,mName,dt,it,fni,nbOfCooLS);
+  }
 }
 
 void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
@@ -698,9 +711,74 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<D
   _coords->setInfoOnComponents(infosOnComp);
 }
 
+/*!
+ * For performance reasons LoadPartCoordsArray method calls LoadPartCoords
+ */
+void MEDFileUMeshL2::LoadPartCoordsArray(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const DataArrayIdType *nodeIds,
+MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords)
+{
+  MCAuto<PartDefinition> useless;
+  nodeIds->checkAllocated();
+  nodeIds->checkNbOfComps(1,"loadPartCoordsSlice : Only one component expected !");
+  mcIdType nMin(0),nMax(0);
+  if(!nodeIds->empty())
+  { nMin = nodeIds->front(); nMax = nodeIds->back()+1; }
+  LoadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax,_coords,useless,_fam_coords,_num_coords,_name_coords);
+  if(nodeIds->empty())
+    return ;
+  MCAuto<DataArrayIdType> nodeIds2(nodeIds->deepCopy());
+  nodeIds2->applyLin(1,-nMin);
+  _coords = _coords->selectByTupleIdSafe(nodeIds2->begin(),nodeIds2->end());
+  if(_fam_coords.isNotNull())
+    _fam_coords = _fam_coords->selectByTupleIdSafe(nodeIds2->begin(),nodeIds2->end());
+  if(_num_coords.isNotNull())
+    _num_coords = _num_coords->selectByTupleIdSafe(nodeIds2->begin(),nodeIds2->end());
+  if(_name_coords.isNotNull())
+    {
+      MCAuto<DataArrayChar> tmp(_name_coords->selectByTupleIdSafe(nodeIds2->begin(),nodeIds2->end()));
+      _name_coords = DynamicCastSafe<DataArrayChar,DataArrayAsciiChar>( tmp );
+    }
+}
+
 void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax)
 {
   LoadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax,_coords,_part_coords,_fam_coords,_num_coords,_name_coords);
+}
+
+void MEDFileUMeshL2::loadPartCoordsSlice(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const DataArrayIdType *nodeIds, mcIdType nbOfCoordLS)
+{
+  nodeIds->checkAllocated();
+  nodeIds->checkNbOfComps(1,"loadPartCoordsSlice : Only one component expected !");
+  if(nodeIds->empty())
+    return ;
+  if( nbOfCoordLS<1 )
+    throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartCoordsSlice : nb of coords load session must be >=1 !");
+  mcIdType nMin(nodeIds->front()),nMax(nodeIds->back()+1);
+  std::vector< MCAuto<DataArrayDouble> > coords(nbOfCoordLS);
+  std::vector< MCAuto<DataArrayIdType> > famCoords(nbOfCoordLS);
+  std::vector< MCAuto<DataArrayIdType> > numCoords(nbOfCoordLS);
+  std::vector< MCAuto<DataArrayAsciiChar> > nameCoords(nbOfCoordLS);
+  for(mcIdType ipart = 0 ; ipart < nbOfCoordLS ; ++ipart)
+    {
+      mcIdType partStart,partStop;
+      DataArray::GetSlice(nMin,nMax,1,ipart,nbOfCoordLS,partStart,partStop);
+      MCAuto<DataArrayIdType> idsNodeIdsToKeep(nodeIds->findIdsInRange(partStart,partStop));
+      MCAuto<DataArrayIdType> nodeIdsToKeep( nodeIds->selectByTupleIdSafe(idsNodeIdsToKeep->begin(),idsNodeIdsToKeep->end()) );
+      LoadPartCoordsArray(fid,infosOnComp,mName,dt,it,nodeIdsToKeep,coords[ipart],famCoords[ipart],numCoords[ipart],nameCoords[ipart]);
+    }
+  _coords = DataArrayDouble::Aggregate(ToConstVect<DataArrayDouble>(coords));
+  if(famCoords[0].isNotNull())
+    _fam_coords = DataArrayIdType::Aggregate(ToConstVect<DataArrayIdType>(famCoords));
+  if(numCoords[0].isNotNull())
+    _num_coords = DataArrayIdType::Aggregate(ToConstVect<DataArrayIdType>(numCoords));
+  if(nameCoords[0].isNotNull())
+  {
+    std::vector< MCAuto<DataArrayChar> > nameCoords2(nameCoords.begin(),nameCoords.end());
+    std::for_each(nameCoords2.begin(),nameCoords2.end(),[](MCAuto<DataArrayChar>& elt){ elt->incrRef(); });
+    MCAuto<DataArrayChar> tmp( DataArrayChar::Aggregate(ToConstVect<DataArrayChar>(nameCoords2)) );
+    _name_coords = DynamicCastSafe<DataArrayChar,DataArrayAsciiChar>( tmp );
+  }
+  _part_coords = DataArrayPartDefinition::New( const_cast<DataArrayIdType *>(nodeIds) );
 }
 
 void MEDFileUMeshL2::sortTypes()

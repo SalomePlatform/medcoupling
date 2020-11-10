@@ -16,14 +16,14 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
+// Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDFILEMESHREADSELECTOR_HXX__
-#define __MEDFILEMESHREADSELECTOR_HXX__
+#pragma once
 
 #include "MEDLoaderDefines.hxx"
 
-#include <sstream>
+#include "MCIdType.hxx"
+
 #include <string>
 
 namespace MEDCoupling
@@ -35,6 +35,8 @@ namespace MEDCoupling
     MEDFileMeshReadSelector(unsigned int code);
     unsigned int getCode() const;
     void setCode(unsigned int newCode);
+    mcIdType getNumberOfCoordsLoadSessions() const { return _nb_coords_load_sessions; }
+    void setNumberOfCoordsLoadSessions(mcIdType newNbOfCoordsLoadSessions);
     bool isCellFamilyFieldReading() const;
     bool isNodeFamilyFieldReading() const;
     bool isCellNameFieldReading() const;
@@ -53,6 +55,7 @@ namespace MEDCoupling
   private:
     static std::string ReprStatus(bool v);
   private:
+    mcIdType _nb_coords_load_sessions;
     //bit #0 cell family field
     //bit #1 node family field
     //bit #2 cell name field
@@ -63,4 +66,3 @@ namespace MEDCoupling
   };
 }
 
-#endif

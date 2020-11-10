@@ -4159,6 +4159,28 @@ class MEDLoaderTest3(unittest.TestCase):
         arr=DataArrayDouble([(204,304),(205,305),(206,306),(207,307),(210,310),(211,311),(212,312),(213,313)])
         arr.setInfoOnComponents(compos)
         self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
+        m_ref = mm[0].deepCopy()
+        # now read it in 2 load sessions to avoid memory peak. zipCoords is no more requested here.
+        ms=MEDFileMeshes()
+        mrs = MEDFileMeshReadSelector()
+        mrs.setNumberOfCoordsLoadSessions(2)
+        mm=MEDFileUMesh.LoadPartOf(fileName,meshName,[NORM_QUAD4],[4,6,1],-1,-1,mrs)
+        ms.pushMesh(mm)
+        spd=mm.getPartDefAtLevel(0,NORM_QUAD4)
+        self.assertEqual(spd.getSlice(),slice(4,6,1))
+        spd=mm.getPartDefAtLevel(1)
+        self.assertTrue(spd.getNumberOfElems()==8 and spd.getNumberOfElems()==mm.getNumberOfNodes())
+        self.assertTrue(spd.toDAI().isEqual(DataArrayInt([4,5,6,7,10,11,12,13])))
+        fs=MEDFileFields.LoadPartOf(fileName,False,ms)
+        fs[0][0].loadArrays()
+        arr=DataArrayDouble([(4,104),(5,105)])
+        arr.setInfoOnComponents(compos)
+        self.assertTrue(fs[0][0].getUndergroundDataArray().isEqual(arr,1e-12))
+        fs[1][0].loadArrays()
+        arr=DataArrayDouble([(204,304),(205,305),(206,306),(207,307),(210,310),(211,311),(212,312),(213,313)])
+        arr.setInfoOnComponents(compos)
+        self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
+        self.assertTrue( mm[0].deepCopy().isEqual(m_ref,1e-12) )
         pass
 
     @WriteInTmpDir

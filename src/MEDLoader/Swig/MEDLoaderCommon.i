@@ -672,6 +672,8 @@ namespace MEDCoupling
   public:
     MEDFileMeshReadSelector();
     MEDFileMeshReadSelector(unsigned int code);
+    mcIdType getNumberOfCoordsLoadSessions();
+    void setNumberOfCoordsLoadSessions(mcIdType newNbOfCoordsLoadSessions);
     unsigned int getCode() const;
     void setCode(unsigned int newCode);
     bool isCellFamilyFieldReading() const;
