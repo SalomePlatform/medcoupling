@@ -2093,7 +2093,13 @@ DataArrayDouble *DataArrayDouble::determinant() const
 
 /*!
  * Computes 3 eigenvalues of every upper triangular matrix defined by the tuple of
- * \a this array, which contains 6 components.
+ * \a this array, which contains 6 components. The 6 components of tuples are expected to be stored as follow :<br>
+ *               \a tuple[0] = \c matrix_XX <br>
+ *               \a tuple[1] = \c matrix_YY <br>
+ *               \a tuple[2] = \c matrix_ZZ <br>
+ *               \a tuple[3] = \c matrix_XY <br>
+ *               \a tuple[4] = \c matrix_YZ <br>
+ *               \a tuple[5] = \c matrix_XZ <br>
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing 3
  *          components, whose each tuple contains the eigenvalues of the matrix of
  *          corresponding tuple of \a this array.
@@ -2119,7 +2125,13 @@ DataArrayDouble *DataArrayDouble::eigenValues() const
 
 /*!
  * Computes 3 eigenvectors of every upper triangular matrix defined by the tuple of
- * \a this array, which contains 6 components.
+ * \a this array, which contains 6 components. The 6 components of tuples are expected to be stored as follow :<br>
+ *               \a tuple[0] = \c matrix_XX <br>
+ *               \a tuple[1] = \c matrix_YY <br>
+ *               \a tuple[2] = \c matrix_ZZ <br>
+ *               \a tuple[3] = \c matrix_XY <br>
+ *               \a tuple[4] = \c matrix_YZ <br>
+ *               \a tuple[5] = \c matrix_XZ <br>
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing 9
  *          components, whose each tuple contains 3 eigenvectors of the matrix of
  *          corresponding tuple of \a this array.
