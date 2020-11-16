@@ -88,19 +88,20 @@ MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesTrue(const DataArrayIdT
   std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]),nbOfElems2(new mcIdType[size]),nbOfElems3(new mcIdType[size]);
   mcIdType nbOfNodeIdsLoc(globalNodeIds->getNumberOfTuples());
   ci.allGather(&nbOfNodeIdsLoc,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
-  //store for each proc the local nodeids intercepted by current proc
   std::vector< MCAuto<DataArrayIdType> > tabs(size);
+  //store for each proc the local nodeids intercepted by current proc
+  int nbOfCollectiveCalls = 1;// this parameter controls the memory peak
   // loop to avoid to all procs to have all the nodes per proc
-  for(int subDiv = 0 ; subDiv < size ; ++subDiv)
+  for(int subDiv = 0 ; subDiv < nbOfCollectiveCalls ; ++subDiv)
   {
-    std::unique_ptr<mcIdType[]> nbOfElemsSp(CommInterface::SplitArrayOfLength(nbOfElems,size,subDiv,size));
+    std::unique_ptr<mcIdType[]> nbOfElemsSp(CommInterface::SplitArrayOfLength(nbOfElems,size,subDiv,nbOfCollectiveCalls));
     mcIdType nbOfNodeIdsSum(std::accumulate(nbOfElemsSp.get(),nbOfElemsSp.get()+size,0));
     std::unique_ptr<mcIdType[]> allGlobalNodeIds(new mcIdType[nbOfNodeIdsSum]);
     std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElemsSp,size) );
     std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) );
     mcIdType startGlobalNodeIds,endGlobalNodeIds;
-    DataArray::GetSlice(0,globalNodeIds->getNumberOfTuples(),1,subDiv,size,startGlobalNodeIds,endGlobalNodeIds);
-    ci.allGatherV(globalNodeIds->begin()+startGlobalNodeIds,endGlobalNodeIds-startGlobalNodeIds,MPI_ID_TYPE,allGlobalNodeIds.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
+    DataArray::GetSlice(0,globalNodeIds->getNumberOfTuples(),1,subDiv,nbOfCollectiveCalls,startGlobalNodeIds,endGlobalNodeIds);
+    ci.allGatherV(globalNodeIds->begin()+startGlobalNodeIds,FromIdType<int>(endGlobalNodeIds-startGlobalNodeIds),MPI_ID_TYPE,allGlobalNodeIds.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
     mcIdType offset(0);
     for(int curRk = 0 ; curRk < size ; ++curRk)
     {
@@ -156,18 +157,19 @@ MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesFalse(const DataArrayId
   std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]),nbOfElems2(new mcIdType[size]),nbOfElems3(new mcIdType[size]);
   mcIdType nbOfNodeIdsLoc(globalNodeIds->getNumberOfTuples());
   ci.allGather(&nbOfNodeIdsLoc,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
-  std::vector< MCAuto<DataArrayIdType> > tabs(size);
   // loop to avoid to all procs to have all the nodes per proc
-  for(int subDiv = 0 ; subDiv < size ; ++subDiv)
+  int nbOfCollectiveCalls = 1;// this parameter controls the memory peak
+  std::vector< MCAuto<DataArrayIdType> > tabs(size);
+  for(int subDiv = 0 ; subDiv < nbOfCollectiveCalls ; ++subDiv)
   {
-    std::unique_ptr<mcIdType[]> nbOfElemsSp(CommInterface::SplitArrayOfLength(nbOfElems,size,subDiv,size));
+    std::unique_ptr<mcIdType[]> nbOfElemsSp(CommInterface::SplitArrayOfLength(nbOfElems,size,subDiv,nbOfCollectiveCalls));
     mcIdType nbOfNodeIdsSum(std::accumulate(nbOfElemsSp.get(),nbOfElemsSp.get()+size,0));
     std::unique_ptr<mcIdType[]> allGlobalNodeIds(new mcIdType[nbOfNodeIdsSum]);
     std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElemsSp,size) );
     std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) );
     mcIdType startGlobalNodeIds,endGlobalNodeIds;
-    DataArray::GetSlice(0,globalNodeIds->getNumberOfTuples(),1,subDiv,size,startGlobalNodeIds,endGlobalNodeIds);
-    ci.allGatherV(globalNodeIds->begin()+startGlobalNodeIds,endGlobalNodeIds-startGlobalNodeIds,MPI_ID_TYPE,allGlobalNodeIds.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
+    DataArray::GetSlice(0,globalNodeIds->getNumberOfTuples(),1,subDiv,nbOfCollectiveCalls,startGlobalNodeIds,endGlobalNodeIds);
+    ci.allGatherV(globalNodeIds->begin()+startGlobalNodeIds,FromIdType<int>(endGlobalNodeIds-startGlobalNodeIds),MPI_ID_TYPE,allGlobalNodeIds.get(),nbOfElemsInt.get(),offsetsIn.get(),MPI_ID_TYPE,comm);
     mcIdType offset(0);
     for(int curRk = 0 ; curRk < size ; ++curRk)
     {
