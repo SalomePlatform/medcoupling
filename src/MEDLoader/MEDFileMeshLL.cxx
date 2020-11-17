@@ -1787,6 +1787,9 @@ void MEDFileUMeshAggregateCompute::renumberNodesInConnWithoutComputation(const m
       if(!m)
         return;
       m->renumberNodesInConn(newNodeNumbersO2N);
+      // if _mp_time == _m_time notify for future clients that _m_parts is obsolete
+      _m_parts.clear();
+      _m_time = std::max(_m_time,_mp_time+1);
     }
 }
 
