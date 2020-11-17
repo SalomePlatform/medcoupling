@@ -1859,17 +1859,18 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
 
       std::set<mcIdType> s1(realIdsInDesc2D->begin()+dd2->begin()[*cellId1], realIdsInDesc2D->begin()+dd2->begin()[*cellId1+1]);
       std::set<mcIdType> s2(realIdsInDesc2D->begin()+dd2->begin()[*cellId2], realIdsInDesc2D->begin()+dd2->begin()[*cellId2+1]);
-      mcIdType commonEdgeId;
-      std::set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(), &commonEdgeId);
+
+      std::vector<mcIdType> commonEdgeId;
+      std::set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(), std::back_inserter(commonEdgeId));
 
       // c- find correct orientation for commonEdgeId
       const mcIdType* firstNodeInColinearEdgeRet1 = cRet1 + ciRet1[*it]+1;
       const mcIdType* secondNodeInColinearEdgeRet1 =  cRet1 + ciRet1[*it]+2;
-      std::vector<mcIdType> v; v.push_back(commonEdgeId);
-      if(IsColinearOfACellOf(intersectEdge1, v, *firstNodeInColinearEdgeRet1,*secondNodeInColinearEdgeRet1,commonEdgeId))
+      mcIdType commonEdgeIdCorrectlyOriented;
+      if(IsColinearOfACellOf(intersectEdge1, commonEdgeId, *firstNodeInColinearEdgeRet1,*secondNodeInColinearEdgeRet1, commonEdgeIdCorrectlyOriented))
         {
           idsInRet1Colinear->pushBackSilent(*it);
-          idsInDescMesh2DForIdsInRetColinear->pushBackSilent(commonEdgeId);
+          idsInDescMesh2DForIdsInRetColinear->pushBackSilent(commonEdgeIdCorrectlyOriented);
         }
     }
   // ### End colinearity fix
