@@ -32,6 +32,8 @@ namespace INTERP_KERNEL
    * matrix[0]=m_xx, matrix[1]=m_yy, matrix[2]=m_zz,
    * matrix[3]=m_xy, matrix[4]=m_yz, matrix[5]=m_xz
    * This method returns the 3 eigenvalues in 'eigenVals'.
+   * 
+   * https://en.wikipedia.org/wiki/Eigenvalue_algorithm
    */
   void computeEigenValues6(const double *matrix, double *eigenVals)
   {
@@ -44,7 +46,10 @@ namespace INTERP_KERNEL
     double tmp=p*sqp;
     double phi;
     if(fabs(q)<=fabs(tmp))
-      phi=1./3.*acos(q/tmp);
+      if(tmp !=0)
+        phi=1./3.*acos(q/tmp);
+      else // EDF22176
+        phi=1./3.;
     else
       phi=0.;
     if(phi<0.)

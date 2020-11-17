@@ -897,6 +897,19 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         f.setArray(DataArrayDouble(18*[0.]))
         self.assertTrue(f.getLocalizationOfDiscr().isEqual(coo[conn],1e-10))
 
+    def testDADEigenValuesPb(self):
+        """EDF22126 : eigen values with Identity matrix returned nan. Now it returns correct eigen values 1.0 """
+        valuesExp = DataArrayDouble([(1.,1.,1.),(2.,-1.,0.),(2.,0.,1.),(3.,0.,0.)])
+        d = DataArrayDouble(4, 6)
+        for i,(v0, v1, v2, v3, v4, v5,) in enumerate([
+                (1, 1, 1, 0, 0, 0),
+                (1, 0, 0, 1, 0, 1),
+                (1, 1, 1, 0, 1, 0),
+                (1, 1, 1, 1, 1, 1)]):
+            d[i] = [v0, v1, v2, v3, v4, v5]
+        self.assertTrue(d.eigenValues().isEqual(valuesExp,1e-12))
+        pass
+
     pass
 
 if __name__ == '__main__':
