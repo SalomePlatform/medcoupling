@@ -781,6 +781,11 @@ std::string MEDCoupling1SGTUMesh::simpleRepr() const
 {
   static const char msg0[]="No coordinates specified !";
   std::ostringstream ret;
+  if(!_cm)
+    {
+      ret << "No geometric type specified" << std::endl;
+      return ret.str();
+    }
   ret << "Single static geometic type (" << _cm->getRepr() << ") unstructured mesh with name : \"" << getName() << "\"\n";
   ret << "Description of mesh : \"" << getDescription() << "\"\n";
   int tmpp1,tmpp2;
@@ -1414,7 +1419,13 @@ DataArrayIdType *MEDCoupling1SGTUMesh::simplexizePlanarFace6()
 
 void MEDCoupling1SGTUMesh::reprQuickOverview(std::ostream& stream) const
 {
-  stream << "MEDCoupling1SGTUMesh C++ instance at " << this << ". Type=" << _cm->getRepr() << ". Name : \"" << getName() << "\".";
+  stream << "MEDCoupling1SGTUMesh C++ instance at " << this << ". Type=";
+  if(!_cm)
+  {
+    stream << "Not set";
+    return ;
+  }
+  stream << _cm->getRepr() << ". Name : \"" << getName() << "\".";
   stream << " Mesh dimension : " << getMeshDimension() << ".";
   if(!_coords)
     { stream << " No coordinates set !"; return ; }
@@ -2563,6 +2574,8 @@ mcIdType MEDCoupling1DGTUMesh::getNumberOfNodesInCell(mcIdType cellId) const
 std::string MEDCoupling1DGTUMesh::simpleRepr() const
 {
   static const char msg0[]="No coordinates specified !";
+  if(!_cm)
+    return std::string("Cell type not specified");
   std::ostringstream ret;
   ret << "Single dynamic geometic type (" << _cm->getRepr() << ") unstructured mesh with name : \"" << getName() << "\"\n";
   ret << "Description of mesh : \"" << getDescription() << "\"\n";
@@ -2800,7 +2813,13 @@ DataArrayIdType *MEDCoupling1DGTUMesh::simplexize(int policy)
 
 void MEDCoupling1DGTUMesh::reprQuickOverview(std::ostream& stream) const
 {
-  stream << "MEDCoupling1DGTUMesh C++ instance at " << this << ". Type=" << _cm->getRepr() << ". Name : \"" << getName() << "\".";
+  stream << "MEDCoupling1DGTUMesh C++ instance at " << this << ". Type=";
+  if(!_cm)
+    {
+      stream << "Not defined";
+      return ;
+    }
+  stream << _cm->getRepr() << ". Name : \"" << getName() << "\".";
   stream << " Mesh dimension : " << getMeshDimension() << ".";
   if(!_coords)
     { stream << " No coordinates set !"; return ; }

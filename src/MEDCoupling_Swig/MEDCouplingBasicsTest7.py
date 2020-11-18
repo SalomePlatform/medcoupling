@@ -910,6 +910,19 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(d.eigenValues().isEqual(valuesExp,1e-12))
         pass
 
+    def testBugOnReprOf1SGTUMesh(self):
+        """ Non reg bug on repr of empty MEDCoupling1SGTUMesh instance """
+        m = MEDCoupling1SGTUMesh()
+        m.simpleRepr()
+        str(m)
+        m.advancedRepr()
+        repr(m)
+        m = MEDCoupling1DGTUMesh()
+        m.simpleRepr()
+        str(m)
+        m.advancedRepr()
+        repr(m)
+
     pass
 
 if __name__ == '__main__':
