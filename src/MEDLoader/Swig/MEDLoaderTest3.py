@@ -6787,6 +6787,33 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue( isinstance(f,MEDCouplingFieldInt64) )
         self.assertEqual( f.getArray().getIJ(0,0) , v )
 
+    @WriteInTmpDir
+    def testNonRegUMeshSubParts(self):
+        """
+        Non regression test focuses on accordance between time stamp and active data structure in MEDFileUMeshAggregateCompute class.
+        """
+        fname = "Pyfile121.med"
+        m0 = MEDCouplingUMesh("mesh",1)
+        coords = DataArrayDouble([(0,0),(1,0),(2,0)])
+        m0.setCoords(coords)
+        m0.allocateCells()
+        m0.insertNextCell(NORM_SEG2,[1,2])
+        mm = MEDFileUMesh()
+        mm[0] = m0
+        m1 = MEDCoupling1SGTUMesh(m0.getName(), NORM_POINT1)
+        m1.setCoords(m0.getCoords())
+        m1.setNodalConnectivity(DataArrayInt([1,2]))
+        m1.setName(m0.getName())
+        mm[-1] = m1
+        fni = mm.computeFetchedNodeIds() # <- This invokation of const method implies 1SGTU parts computation
+        mm.zipCoords() # <- This call changes the coords and connectivity
+        mm.write(fname,2)
+        #
+        mm = MEDFileMesh.New(fname)
+        mm[0].checkConsistency() # <- check that correct DS has been taken at write time into MEDFileUMeshAggregateCompute
+        self.assertTrue( m0.isEqual(mm[0],1e-12) )
+        pass
+
     pass
 
 if __name__ == "__main__":
