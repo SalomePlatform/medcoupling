@@ -1385,7 +1385,7 @@ void MEDCouplingBasicsTest1::testMergeField1()
   double values[7]={0.25,0.125,0.125,0.25,0.25,0.5,0.5};
   const double *tmp=f3->getArray()->getConstPointer();
   std::transform(tmp,tmp+7,values,values,std::minus<double>());
-  std::transform(values,values+7,values,std::ptr_fun<double,double>(fabs));
+  std::transform(values,values+7,values,[](double c){return fabs(c);});
   double max=*std::max_element(values,values+7);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   m4->decrRef();
@@ -1439,7 +1439,7 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic()
   double values1[5]={-0.1,0.23333333333333336,0.56666666666666665,0.4,0.9};
   const double *tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+5,values1,values1,std::minus<double>());
-  std::transform(values1,values1+5,values1,std::ptr_fun<double,double>(fabs));
+  std::transform(values1,values1+5,values1,[](double c){return fabs(c);});
   double max=*std::max_element(values1,values1+5);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -1453,7 +1453,7 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic()
   double values2[9]={-0.6,-0.1,0.4,-0.1,0.4,0.9,0.4,0.9,1.4};
   tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+9,values2,values2,std::minus<double>());
-  std::transform(values2,values2+9,values2,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+9,values2,[](double c){return fabs(c);});
   max=*std::max_element(values2,values2+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -1467,7 +1467,7 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic()
   double values3[18]={-0.6,-1.2,-0.1,-0.2,0.4,0.8,-0.1,-0.2,0.4,0.8,0.9,1.8,0.4,0.8,0.9,1.8,1.4,2.8};
   tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+18,values3,values3,std::minus<double>());
-  std::transform(values3,values3+18,values3,std::ptr_fun<double,double>(fabs));
+  std::transform(values3,values3+18,values3,[](double c){return fabs(c);});
   max=*std::max_element(values3,values3+18);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   double values4[2];
@@ -1497,7 +1497,7 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic2()
   double values1[5]={-0.1,0.23333333333333336,0.56666666666666665,0.4,0.9};
   const double *tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+5,values1,values1,std::minus<double>());
-  std::transform(values1,values1+5,values1,std::ptr_fun<double,double>(fabs));
+  std::transform(values1,values1+5,values1,[](double c){return fabs(c);});
   double max=*std::max_element(values1,values1+5);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -1511,7 +1511,7 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic2()
   double values2[9]={-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1};
   tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+9,values2,values2,std::minus<double>());
-  std::transform(values2,values2+9,values2,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+9,values2,[](double c){return fabs(c);});
   max=*std::max_element(values2,values2+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -1524,7 +1524,7 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic2()
   tmp=f1->getArray()->getConstPointer();
   double values2Bis[9]={-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1};
   std::transform(tmp,tmp+9,values2Bis,values2Bis,std::minus<double>());
-  std::transform(values2,values2+9,values2Bis,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+9,values2Bis,[](double c){return fabs(c);});
   max=*std::max_element(values2Bis,values2Bis+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -1538,7 +1538,7 @@ void MEDCouplingBasicsTest1::testFillFromAnalytic2()
   double values3[18]={-0.6,-1.2,-0.1,-0.2,0.4,0.8,-0.1,-0.2,0.4,0.8,0.9,1.8,0.4,0.8,0.9,1.8,1.4,2.8};
   tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+18,values3,values3,std::minus<double>());
-  std::transform(values3,values3+18,values3,std::ptr_fun<double,double>(fabs));
+  std::transform(values3,values3+18,values3,[](double c){return fabs(c);});
   max=*std::max_element(values3,values3+18);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   double values4[2];
@@ -1572,7 +1572,7 @@ void MEDCouplingBasicsTest1::testApplyFunc()
   double values1[9]={-1.8,-0.3,1.2,-0.3,1.2,2.7,1.2,2.7,4.2};
   const double *tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+9,values1,values1,std::minus<double>());
-  std::transform(values1,values1+9,values1,std::ptr_fun<double,double>(fabs));
+  std::transform(values1,values1+9,values1,[](double c){return fabs(c);});
   double max=*std::max_element(values1,values1+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -1605,7 +1605,7 @@ void MEDCouplingBasicsTest1::testApplyFunc2()
                       5.0423700574830965, 17.435300118916864};
   const double *tmp=f2->getArray()->getConstPointer();
   std::transform(tmp,tmp+18,values2,values2,std::minus<double>());
-  std::transform(values2,values2+18,values2,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+18,values2,[](double c){return fabs(c);});
   double max=*std::max_element(values2,values2+18);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f2->decrRef();
@@ -1618,7 +1618,7 @@ void MEDCouplingBasicsTest1::testApplyFunc2()
   double values1[9]={-1.8,-0.3,1.2,-0.3,1.2,2.7,1.2,2.7,4.2};
   tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+9,values1,values1,std::minus<double>());
-  std::transform(values1,values1+9,values1,std::ptr_fun<double,double>(fabs));
+  std::transform(values1,values1+9,values1,[](double c){return fabs(c);});
   max=*std::max_element(values1,values1+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -1639,7 +1639,7 @@ void MEDCouplingBasicsTest1::testOperationsOnFields()
   double values1[9]={-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8};
   const double *tmp=f3->getArray()->getConstPointer();
   std::transform(tmp,tmp+9,values1,values1,std::minus<double>());
-  std::transform(values1,values1+9,values1,std::ptr_fun<double,double>(fabs));
+  std::transform(values1,values1+9,values1,[](double c){return fabs(c);});
   double max=*std::max_element(values1,values1+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f3->decrRef();
@@ -1651,7 +1651,7 @@ void MEDCouplingBasicsTest1::testOperationsOnFields()
   double values2[9]={0.36,0.01,0.16,0.01,0.16,0.81,0.16,0.81,1.96};
   tmp=f3->getArray()->getConstPointer();
   std::transform(tmp,tmp+9,values2,values2,std::minus<double>());
-  std::transform(values2,values2+9,values2,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+9,values2,[](double c){return fabs(c);});
   max=*std::max_element(values2,values2+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f3->decrRef();
@@ -1664,7 +1664,7 @@ void MEDCouplingBasicsTest1::testOperationsOnFields()
   double values3[9]={0.6,0.1,-0.4,0.1,-0.4,-0.9,-0.4,-0.9,-1.4};
   tmp=f4->getArray()->getConstPointer();
   std::transform(tmp,tmp+9,values3,values3,std::minus<double>());
-  std::transform(values3,values3+9,values3,std::ptr_fun<double,double>(fabs));
+  std::transform(values3,values3+9,values3,[](double c){return fabs(c);});
   max=*std::max_element(values3,values3+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f3->decrRef();
@@ -1695,7 +1695,7 @@ void MEDCouplingBasicsTest1::testOperationsOnFields()
   tmp=f3->getArray()->getConstPointer();
   double values4[9]={-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8};
   std::transform(tmp,tmp+9,values4,values4,std::minus<double>());
-  std::transform(values4,values4+9,values4,std::ptr_fun<double,double>(fabs));
+  std::transform(values4,values4+9,values4,[](double c){return fabs(c);});
   max=*std::max_element(values4,values4+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f5->decrRef();
@@ -1717,7 +1717,7 @@ void MEDCouplingBasicsTest1::testOperationsOnFields()
   tmp=f3->getArray()->getConstPointer();
   double values5[9]={-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8};
   std::transform(tmp,tmp+9,values5,values5,std::minus<double>());
-  std::transform(values5,values5+9,values5,std::ptr_fun<double,double>(fabs));
+  std::transform(values5,values5+9,values5,[](double c){return fabs(c);});
   max=*std::max_element(values5,values5+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f5->decrRef();

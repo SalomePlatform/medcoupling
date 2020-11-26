@@ -618,7 +618,7 @@ void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayIdType *revNodal, Da
       const mcIdType *endNdlConnOfCurCell=conn+connIndex[eltId+1];
       for(const mcIdType *iter=strtNdlConnOfCurCell;iter!=endNdlConnOfCurCell;iter++)
         if(*iter>=0)//for polyhedrons
-          *std::find_if(revNodalPtr+revNodalIndxPtr[*iter],revNodalPtr+revNodalIndxPtr[*iter+1],std::bind2nd(std::equal_to<mcIdType>(),-1))=eltId;
+          *std::find_if(revNodalPtr+revNodalIndxPtr[*iter],revNodalPtr+revNodalIndxPtr[*iter+1],std::bind(std::equal_to<mcIdType>(),std::placeholders::_1,-1))=eltId;
     }
 }
 
@@ -1733,7 +1733,7 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, mcIdType startCellId, co
         {
           if(!isFetched[i])
             {
-              const mcIdType *connOfNode=std::find_if(connPtr+connIPtr[i]+1,connPtr+connIPtr[i+1],std::bind2nd(std::not_equal_to<mcIdType>(),-1));
+              const mcIdType *connOfNode=std::find_if(connPtr+connIPtr[i]+1,connPtr+connIPtr[i+1],std::bind(std::not_equal_to<mcIdType>(),std::placeholders::_1,-1));
               std::vector<mcIdType> v,v2;
               if(connOfNode!=connPtr+connIPtr[i+1])
                 {
@@ -1768,7 +1768,7 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, mcIdType startCellId, co
         {
           if(!isFetched[i])
             {
-              const mcIdType *connOfNode=std::find_if(connPtr+connIPtr[i]+1,connPtr+connIPtr[i+1],std::bind2nd(std::not_equal_to<mcIdType>(),-1));
+              const mcIdType *connOfNode=std::find_if(connPtr+connIPtr[i]+1,connPtr+connIPtr[i+1],std::bind(std::not_equal_to<mcIdType>(),std::placeholders::_1,-1));
               // v2 contains the result of successive intersections using rev nodal on on each node of cell #i
               std::vector<mcIdType> v,v2;
               if(connOfNode!=connPtr+connIPtr[i+1])
@@ -3014,7 +3014,7 @@ mcIdType MEDCouplingUMesh::getNumberOfNodesInCell(mcIdType cellId) const
   if(pt[ptI[cellId]]!=INTERP_KERNEL::NORM_POLYHED)
     return ptI[cellId+1]-ptI[cellId]-1;
   else
-    return ToIdType(std::count_if(pt+ptI[cellId]+1,pt+ptI[cellId+1],std::bind2nd(std::not_equal_to<mcIdType>(),-1)));
+    return ToIdType(std::count_if(pt+ptI[cellId]+1,pt+ptI[cellId+1],std::bind(std::not_equal_to<mcIdType>(),std::placeholders::_1,-1)));
 }
 
 /*!
@@ -3251,7 +3251,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
           area_vol[iel]=INTERP_KERNEL::computeVolSurfOfCell2<mcIdType,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[iel+1]-ipt-1,coords,dim_space);
         }
       if(isAbs)
-        std::transform(area_vol,area_vol+nbelem,area_vol,std::ptr_fun<double,double>(fabs));
+        std::transform(area_vol,area_vol+nbelem,area_vol,[](double c){return fabs(c);});
     }
   else
     {
@@ -3304,7 +3304,7 @@ DataArrayDouble *MEDCouplingUMesh::getPartMeasureField(bool isAbs, const mcIdTyp
           *area_vol++=INTERP_KERNEL::computeVolSurfOfCell2<mcIdType,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[*iel+1]-ipt-1,coords,dim_space);
         }
       if(isAbs)
-        std::transform(array->getPointer(),area_vol,array->getPointer(),std::ptr_fun<double,double>(fabs));
+        std::transform(array->getPointer(),area_vol,array->getPointer(),[](double c){return fabs(c);});
     }
   else
     {
@@ -3401,7 +3401,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
               mcIdType offset=connI[i];
               INTERP_KERNEL::crossprod<3>(locPtr+3*i,coords+3*conn[offset+1],coords+3*conn[offset+2],vals);
               double n=INTERP_KERNEL::norm<3>(vals);
-              std::transform(vals,vals+3,vals,std::bind2nd(std::multiplies<double>(),1./n));
+              std::transform(vals,vals+3,vals,std::bind(std::multiplies<double>(),std::placeholders::_1,1./n));
             }
         }
       else
@@ -3420,7 +3420,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
           mcIdType offset=connI[i];
           std::transform(coords+2*conn[offset+2],coords+2*conn[offset+2]+2,coords+2*conn[offset+1],tmp,std::minus<double>());
           double n=INTERP_KERNEL::norm<2>(tmp);
-          std::transform(tmp,tmp+2,tmp,std::bind2nd(std::multiplies<double>(),1./n));
+          std::transform(tmp,tmp+2,tmp,std::bind(std::multiplies<double>(),std::placeholders::_1,1./n));
           *vals++=-tmp[1];
           *vals++=tmp[0];
         }
@@ -3480,7 +3480,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildPartOrthogonalField(const mcIdTyp
               mcIdType offset=connI[*i];
               INTERP_KERNEL::crossprod<3>(locPtr,coords+3*conn[offset+1],coords+3*conn[offset+2],vals);
               double n=INTERP_KERNEL::norm<3>(vals);
-              std::transform(vals,vals+3,vals,std::bind2nd(std::multiplies<double>(),1./n));
+              std::transform(vals,vals+3,vals,std::bind(std::multiplies<double>(),std::placeholders::_1,1./n));
             }
         }
       else
@@ -3497,7 +3497,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildPartOrthogonalField(const mcIdTyp
           mcIdType offset=connI[*i];
           std::transform(coords+2*conn[offset+2],coords+2*conn[offset+2]+2,coords+2*conn[offset+1],tmp,std::minus<double>());
           double n=INTERP_KERNEL::norm<2>(tmp);
-          std::transform(tmp,tmp+2,tmp,std::bind2nd(std::multiplies<double>(),1./n));
+          std::transform(tmp,tmp+2,tmp,std::bind(std::multiplies<double>(),std::placeholders::_1,1./n));
           *vals++=-tmp[1];
           *vals++=tmp[0];
         }
@@ -6412,7 +6412,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::keepSpecifiedCells(INTERP_KERNEL::Normalized
         for(mcIdType j=0;j<code[3*i+1];j++)
           *idsPtr++=offset+j;
       else
-        idsPtr=std::transform(idsPerGeoTypeBg,idsPerGeoTypeEnd,idsPtr,std::bind2nd(std::plus<mcIdType>(),offset));
+        idsPtr=std::transform(idsPerGeoTypeBg,idsPerGeoTypeEnd,idsPtr,std::bind(std::plus<mcIdType>(),std::placeholders::_1,offset));
       offset+=code[3*i+1];
     }
   MCAuto<MEDCouplingUMesh> ret=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(idsTokeep->begin(),idsTokeep->end(),true));
@@ -6547,7 +6547,7 @@ DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const
             }
           mcIdType nbOfNodesInCell=nodalI[i+1]-nodalI[i]-1;
           if(nbOfNodesInCell>0)
-            std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./(double)nbOfNodesInCell));
+            std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind(std::multiplies<double>(),std::placeholders::_1,1./(double)nbOfNodesInCell));
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on cell #" << i << " presence of cell with no nodes !";
@@ -6569,7 +6569,7 @@ DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const
                 }
             }
           if(!s.empty())
-            std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./(double)s.size()));
+            std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind(std::multiplies<double>(),std::placeholders::_1,1./(double)s.size()));
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on polyhedron cell #" << i << " there are no nodes !";
@@ -6684,7 +6684,7 @@ DataArrayDouble *MEDCouplingUMesh::computePlaneEquationOf3DFaces() const
               for(mcIdType offset=nodalI[0]+1;offset<nodalI[1];offset++)
                 std::transform(coor+3*nodal[offset],coor+3*(nodal[offset]+1),dd,dd,std::plus<double>());
               mcIdType nbOfNodesInCell(nodalI[1]-nodalI[0]-1);
-              std::transform(dd,dd+3,dd,std::bind2nd(std::multiplies<double>(),1./(double)nbOfNodesInCell));
+              std::transform(dd,dd+3,dd,std::bind(std::multiplies<double>(),std::placeholders::_1,1./(double)nbOfNodesInCell));
               std::copy(dd,dd+3,matrix+4*2);
               INTERP_KERNEL::inverseMatrix(matrix,4,matrix2);
               retPtr[0]=matrix2[3]; retPtr[1]=matrix2[7]; retPtr[2]=matrix2[11]; retPtr[3]=matrix2[15];
@@ -6893,7 +6893,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<c
       mcIdType meshLgth2=(*iter)->getNodalConnectivityArrayLen();
       nodalPtr=std::copy(nod,nod+meshLgth2,nodalPtr);
       if(iter!=meshes.begin())
-        nodalIndexPtr=std::transform(index+1,index+nbOfCells+1,nodalIndexPtr,std::bind2nd(std::plus<mcIdType>(),offset));
+        nodalIndexPtr=std::transform(index+1,index+nbOfCells+1,nodalIndexPtr,std::bind(std::plus<mcIdType>(),std::placeholders::_1,offset));
       else
         nodalIndexPtr=std::copy(index,index+nbOfCells+1,nodalIndexPtr);
       offset+=meshLgth2;

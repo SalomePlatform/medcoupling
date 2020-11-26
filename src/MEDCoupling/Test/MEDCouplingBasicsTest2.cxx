@@ -2077,7 +2077,7 @@ void MEDCouplingBasicsTest2::testFillFromAnalytic3()
   double values1[5]={-0.1,0.23333333333333336,0.56666666666666665,0.4,0.9};
   const double *tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+5,values1,values1,std::minus<double>());
-  std::transform(values1,values1+5,values1,std::ptr_fun<double,double>(fabs));
+  std::transform(values1,values1+5,values1,[](double c){return fabs(c);});
   double max=*std::max_element(values1,values1+5);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -2094,7 +2094,7 @@ void MEDCouplingBasicsTest2::testFillFromAnalytic3()
   double values2[9]={-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1};
   tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+9,values2,values2,std::minus<double>());
-  std::transform(values2,values2+9,values2,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+9,values2,[](double c){return fabs(c);});
   max=*std::max_element(values2,values2+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -2111,12 +2111,12 @@ void MEDCouplingBasicsTest2::testFillFromAnalytic3()
   double values2Bis[9]={-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1};
   double values2BisBis[9];
   std::transform(tmp,tmp+9,values2Bis,values2BisBis,std::minus<double>());
-  std::transform(values2,values2+9,values2BisBis,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+9,values2BisBis,[](double c){return fabs(c);});
   max=*std::max_element(values2BisBis,values2BisBis+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   tmp=f1->getEndArray()->getConstPointer();
   std::transform(tmp,tmp+9,values2Bis,values2BisBis,std::minus<double>());
-  std::transform(values2,values2+9,values2BisBis,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+9,values2BisBis,[](double c){return fabs(c);});
   max=*std::max_element(values2BisBis,values2BisBis+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
@@ -2132,7 +2132,7 @@ void MEDCouplingBasicsTest2::testFillFromAnalytic3()
   double values3[18]={-0.6,-1.2,-0.1,-0.2,0.4,0.8,-0.1,-0.2,0.4,0.8,0.9,1.8,0.4,0.8,0.9,1.8,1.4,2.8};
   tmp=f1->getArray()->getConstPointer();
   std::transform(tmp,tmp+18,values3,values3,std::minus<double>());
-  std::transform(values3,values3+18,values3,std::ptr_fun<double,double>(fabs));
+  std::transform(values3,values3+18,values3,[](double c){return fabs(c);});
   max=*std::max_element(values3,values3+18);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   double values4[2];
@@ -2240,9 +2240,9 @@ void MEDCouplingBasicsTest2::testAreaBary3D2()
   mcIdType tmpConn[8]={0,1,2,3,4,5,6,7};
   mesh->allocateCells(3);
   mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,tmpConn);
-  std::transform(tmpConn,tmpConn+8,tmpConn,std::bind2nd(std::plus<int>(),8));
+  std::transform(tmpConn,tmpConn+8,tmpConn,std::bind(std::plus<int>(),std::placeholders::_1,8));
   mesh->insertNextCell(INTERP_KERNEL::NORM_PENTA6,6,tmpConn);
-  std::transform(tmpConn,tmpConn+8,tmpConn,std::bind2nd(std::plus<int>(),6));
+  std::transform(tmpConn,tmpConn+8,tmpConn,std::bind(std::plus<int>(),std::placeholders::_1,6));
   mesh->insertNextCell(INTERP_KERNEL::NORM_PYRA5,5,tmpConn);
   mesh->finishInsertingCells();
   mesh->checkConsistencyLight();

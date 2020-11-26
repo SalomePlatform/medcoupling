@@ -2012,13 +2012,13 @@ DataArrayDouble *DataArrayDouble::fromCartToCylGiven(const DataArrayDouble *coor
     throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : magnitude of vect is too low !");
   double Ur[3],Uteta[3],Uz[3],*retPtr(ret->getPointer());
   const double *coo(coords->begin()),*vectField(begin());
-  std::transform(vect,vect+3,Uz,std::bind2nd(std::multiplies<double>(),1./magOfVect));
+  std::transform(vect,vect+3,Uz,std::bind(std::multiplies<double>(),std::placeholders::_1,1./magOfVect));
   for(mcIdType i=0;i<nbTuples;i++,vectField+=3,retPtr+=3,coo+=3)
     {
       std::transform(coo,coo+3,center,Ur,std::minus<double>());
       Uteta[0]=Uz[1]*Ur[2]-Uz[2]*Ur[1]; Uteta[1]=Uz[2]*Ur[0]-Uz[0]*Ur[2]; Uteta[2]=Uz[0]*Ur[1]-Uz[1]*Ur[0];
       double magOfTeta(sqrt(Uteta[0]*Uteta[0]+Uteta[1]*Uteta[1]+Uteta[2]*Uteta[2]));
-      std::transform(Uteta,Uteta+3,Uteta,std::bind2nd(std::multiplies<double>(),1./magOfTeta));
+      std::transform(Uteta,Uteta+3,Uteta,std::bind(std::multiplies<double>(),std::placeholders::_1,1./magOfTeta));
       Ur[0]=Uteta[1]*Uz[2]-Uteta[2]*Uz[1]; Ur[1]=Uteta[2]*Uz[0]-Uteta[0]*Uz[2]; Ur[2]=Uteta[0]*Uz[1]-Uteta[1]*Uz[0];
       retPtr[0]=Ur[0]*vectField[0]+Ur[1]*vectField[1]+Ur[2]*vectField[2];
       retPtr[1]=Uteta[0]*vectField[0]+Uteta[1]*vectField[1]+Uteta[2]*vectField[2];
@@ -3477,18 +3477,18 @@ void DataArrayDouble::Rotate3DAlg(const double *center, const double *vect, doub
   double norm(sqrt(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]));
   if(norm<std::numeric_limits<double>::min())
     throw INTERP_KERNEL::Exception("DataArrayDouble::Rotate3DAlg : magnitude of input vector is too close of 0. !");
-  std::transform(vect,vect+3,vectorNorm,std::bind2nd(std::multiplies<double>(),1/norm));
+  std::transform(vect,vect+3,vectorNorm,std::bind(std::multiplies<double>(),std::placeholders::_1,1/norm));
   //rotation matrix computation
   matrix[0]=cosa; matrix[1]=0.; matrix[2]=0.; matrix[3]=0.; matrix[4]=cosa; matrix[5]=0.; matrix[6]=0.; matrix[7]=0.; matrix[8]=cosa;
   matrixTmp[0]=vectorNorm[0]*vectorNorm[0]; matrixTmp[1]=vectorNorm[0]*vectorNorm[1]; matrixTmp[2]=vectorNorm[0]*vectorNorm[2];
   matrixTmp[3]=vectorNorm[1]*vectorNorm[0]; matrixTmp[4]=vectorNorm[1]*vectorNorm[1]; matrixTmp[5]=vectorNorm[1]*vectorNorm[2];
   matrixTmp[6]=vectorNorm[2]*vectorNorm[0]; matrixTmp[7]=vectorNorm[2]*vectorNorm[1]; matrixTmp[8]=vectorNorm[2]*vectorNorm[2];
-  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind2nd(std::multiplies<double>(),1-cosa));
+  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind(std::multiplies<double>(),std::placeholders::_1,1-cosa));
   std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
   matrixTmp[0]=0.; matrixTmp[1]=-vectorNorm[2]; matrixTmp[2]=vectorNorm[1];
   matrixTmp[3]=vectorNorm[2]; matrixTmp[4]=0.; matrixTmp[5]=-vectorNorm[0];
   matrixTmp[6]=-vectorNorm[1]; matrixTmp[7]=vectorNorm[0]; matrixTmp[8]=0.;
-  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind2nd(std::multiplies<double>(),sina));
+  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind(std::multiplies<double>(),std::placeholders::_1,sina));
   std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
   //rotation matrix computed.
   double tmp[3];

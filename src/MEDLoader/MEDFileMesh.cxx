@@ -2242,7 +2242,7 @@ void MEDFileMesh::TranslateFamilyIds(mcIdType offset, DataArrayIdType *famArr, s
     {
       if(offset<0)
         std::transform((*it1).begin(),(*it1).end(),(*it1).begin(),std::negate<mcIdType>());
-      std::transform((*it1).begin(),(*it1).end(),(*it1).begin(),std::bind2nd(std::plus<mcIdType>(),offset));
+      std::transform((*it1).begin(),(*it1).end(),(*it1).begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,offset));
     }
 }
 

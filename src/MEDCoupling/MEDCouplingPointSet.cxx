@@ -445,7 +445,7 @@ void MEDCouplingPointSet::renumberNodesCenter(const mcIdType *newNodeNumbers, mc
       div[newNodeNumbers[i]]++;
     }
   for(mcIdType i=0;i<newNbOfNodes;i++)
-    ptToFill=std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./(double)div[i]));
+    ptToFill=std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind(std::multiplies<double>(),std::placeholders::_1,1./(double)div[i]));
   setCoords(newCoords);
   newCoords->decrRef();
   renumberNodesInConn(newNodeNumbers);
@@ -609,7 +609,7 @@ void MEDCouplingPointSet::scale(const double *point, double factor)
   for(mcIdType i=0;i<nbNodes;i++)
     {
       std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::minus<double>());
-      std::transform(coords+i*dim,coords+(i+1)*dim,coords+i*dim,std::bind2nd(std::multiplies<double>(),factor));
+      std::transform(coords+i*dim,coords+(i+1)*dim,coords+i*dim,std::bind(std::multiplies<double>(),std::placeholders::_1,factor));
       std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::plus<double>());
     }
   _coords->declareAsNew();
@@ -1221,7 +1221,7 @@ bool MEDCouplingPointSet::areCellsFrom2MeshEqual(const MEDCouplingPointSet *othe
       getCoordinatesOfNode(c1[0],n1);
       other->getCoordinatesOfNode(c2[0],n2);
       std::transform(n1.begin(),n1.end(),n2.begin(),n1.begin(),std::minus<double>());
-      std::transform(n1.begin(),n1.end(),n1.begin(),std::ptr_fun<double,double>(fabs));
+      std::transform(n1.begin(),n1.end(),n1.begin(),[](double c){return fabs(c);}); 
       if(*std::max_element(n1.begin(),n1.end())>prec)
         return false;
     }
@@ -1264,7 +1264,7 @@ void MEDCouplingPointSet::tryToShareSameCoordsPermute(const MEDCouplingPointSet&
       throw INTERP_KERNEL::Exception("MEDCouplingPointSet::tryToShareSameCoordsPermute fails : no nodes are mergeable with specified given epsilon !");
     }
   mcIdType maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+otherNbOfNodes);
-  const mcIdType *pt=std::find_if(da->getConstPointer()+otherNbOfNodes,da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<mcIdType>(),maxId));
+  const mcIdType *pt=std::find_if(da->getConstPointer()+otherNbOfNodes,da->getConstPointer()+da->getNbOfElems(),std::bind(std::greater<mcIdType>(),std::placeholders::_1,maxId));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     {
       setCoords(oldCoords);
@@ -1426,7 +1426,7 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
   //mergeNodes
   if(!areNodesMerged && oldNbOfNodes != 0)
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Nodes are incompatible ! ");
-  const mcIdType *pt=std::find_if(da->getConstPointer()+oldNbOfNodes,da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<mcIdType>(),oldNbOfNodes-1));
+  const mcIdType *pt=std::find_if(da->getConstPointer()+oldNbOfNodes,da->getConstPointer()+da->getNbOfElems(),std::bind(std::greater<mcIdType>(),std::placeholders::_1,oldNbOfNodes-1));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some nodes in other are not in this !");
   m->renumberNodes(da->getConstPointer(),newNbOfNodes);
@@ -1489,7 +1489,7 @@ void MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh 
   MCAuto<MEDCouplingPointSet> m=mergeMyselfWithOnSameCoords(otherC);
   MCAuto<DataArrayIdType> da=m->zipConnectivityTraducer(cellCompPol);
   mcIdType maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
-  const mcIdType *pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<mcIdType>(),maxId));
+  const mcIdType *pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind(std::greater<mcIdType>(),std::placeholders::_1,maxId));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     {
       throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : some cells in other are not in this !");

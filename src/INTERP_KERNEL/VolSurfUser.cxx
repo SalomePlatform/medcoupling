@@ -220,7 +220,7 @@ namespace INTERP_KERNEL
     double baryOfNodes[3]={0.,0.,0.};
     for(std::size_t i=0;i<nbOfEdges;i++)
       { baryOfNodes[0]+=coords[3*connOfPolygonBg[i]]; baryOfNodes[1]+=coords[3*connOfPolygonBg[i]+1]; baryOfNodes[2]+=coords[3*connOfPolygonBg[i]+2]; }
-    std::transform(baryOfNodes,baryOfNodes+3,baryOfNodes,std::bind2nd(std::multiplies<double>(),1./((double)nbOfEdges)));
+    std::transform(baryOfNodes,baryOfNodes+3,baryOfNodes,std::bind(std::multiplies<double>(),std::placeholders::_1,1./((double)nbOfEdges)));
     double matrix[12];
     if(!ComputeRotTranslationMatrixToPut3PointsOnOXY(coords+3*connOfPolygonBg[0],coords+3*connOfPolygonBg[1],baryOfNodes,matrix))
       return std::numeric_limits<double>::max();

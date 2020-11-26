@@ -218,7 +218,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivityGen(DataArrayIdTy
       const mcIdType *endNdlConnOfCurCell=connM1+connIndexM1[eltId+1];
       for(const mcIdType *iter=strtNdlConnOfCurCell;iter!=endNdlConnOfCurCell;iter++)
         if(*iter>=0)//for polyhedrons
-          *std::find_if(revNodalPtr+revNodalIndxPtr[*iter],revNodalPtr+revNodalIndxPtr[*iter+1],std::bind2nd(std::equal_to<mcIdType>(),-1))=eltId;
+          *std::find_if(revNodalPtr+revNodalIndxPtr[*iter],revNodalPtr+revNodalIndxPtr[*iter+1],std::bind(std::equal_to<mcIdType>(),std::placeholders::_1,-1))=eltId;
     }
   //
   DataArrayIdType *commonCells=0,*commonCellsI=0;

@@ -25,10 +25,7 @@
 
 #include <sstream>
 #include <fstream>
-
-#ifdef WIN32
 #include <functional>
-#endif
 
 using namespace MEDCoupling;
 
@@ -486,7 +483,7 @@ void MEDCouplingGridCollection::copyOverlappedZoneFrom(mcIdType ghostLev, const 
       std::vector<mcIdType> deltaThis,deltaOther;
       std::vector< std::pair<mcIdType,mcIdType> > rgThis((*it).first->positionRelativeToGodFather(deltaThis));
       std::vector<mcIdType> thisSt((*it).first->getImageMesh()->getCellGridStructure());
-      std::transform(thisSt.begin(),thisSt.end(),thisSt.begin(),std::bind2nd(std::plus<mcIdType>(),2*ghostLev));
+      std::transform(thisSt.begin(),thisSt.end(),thisSt.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,2*ghostLev));
       for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it2=other._map_of_dadc.begin();it2!=other._map_of_dadc.end();it2++)
         {
           std::vector< std::pair<mcIdType,mcIdType> > rgOther((*it2).first->positionRelativeToGodFather(deltaOther));
@@ -499,7 +496,7 @@ void MEDCouplingGridCollection::copyOverlappedZoneFrom(mcIdType ghostLev, const 
               std::vector<mcIdType> otherSt((*it2).first->getImageMesh()->getCellGridStructure());
               MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(pThis,ghostLev);
               MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(pOther,ghostLev);
-              std::transform(otherSt.begin(),otherSt.end(),otherSt.begin(),std::bind2nd(std::plus<mcIdType>(),2*ghostLev));
+              std::transform(otherSt.begin(),otherSt.end(),otherSt.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,2*ghostLev));
               mcIdType sz((*it2).second->size());
               for(mcIdType i=0;i<sz;i++)
                 {

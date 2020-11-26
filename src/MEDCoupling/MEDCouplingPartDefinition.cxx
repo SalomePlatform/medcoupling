@@ -151,7 +151,7 @@ PartDefinition *DataArrayPartDefinition::composeWith(const PartDefinition *other
         {
           MCAuto<DataArrayIdType> arr(DataArrayIdType::New());
           arr->alloc(_arr->getNumberOfTuples(),1);
-          std::transform(_arr->begin(),_arr->end(),arr->getPointer(),std::bind2nd(std::plus<mcIdType>(),a));
+          std::transform(_arr->begin(),_arr->end(),arr->getPointer(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,a));
           return DataArrayPartDefinition::New(arr);
         }
     }

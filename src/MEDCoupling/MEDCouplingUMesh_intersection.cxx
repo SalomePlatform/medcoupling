@@ -1489,8 +1489,8 @@ void InsertNodeInConnIfNecessary(mcIdType nodeIdToInsert, std::vector<mcIdType>&
       mcIdType pt0(conn[i]),pt1(conn[(i+1)%sz]);
       double v1[3]={coords[3*pt1+0]-coords[3*pt0+0],coords[3*pt1+1]-coords[3*pt0+1],coords[3*pt1+2]-coords[3*pt0+2]},v2[3]={coords[3*nodeIdToInsert+0]-coords[3*pt0+0],coords[3*nodeIdToInsert+1]-coords[3*pt0+1],coords[3*nodeIdToInsert+2]-coords[3*pt0+2]};
       double normm(sqrt(v1[0]*v1[0]+v1[1]*v1[1]+v1[2]*v1[2]));
-      std::transform(v1,v1+3,v1,std::bind2nd(std::multiplies<double>(),1./normm));
-      std::transform(v2,v2+3,v2,std::bind2nd(std::multiplies<double>(),1./normm));
+      std::transform(v1,v1+3,v1,std::bind(std::multiplies<double>(),std::placeholders::_1,1./normm));
+      std::transform(v2,v2+3,v2,std::bind(std::multiplies<double>(),std::placeholders::_1,1./normm));
       double v3[3];
       v3[0]=v1[1]*v2[2]-v1[2]*v2[1]; v3[1]=v1[2]*v2[0]-v1[0]*v2[2]; v3[2]=v1[0]*v2[1]-v1[1]*v2[0];
       double normm2(sqrt(v3[0]*v3[0]+v3[1]*v3[1]+v3[2]*v3[2])),dotTest(v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2]);

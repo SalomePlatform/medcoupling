@@ -24,10 +24,7 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
-
-#ifdef WIN32
 #include <functional>
-#endif 
 
 using namespace INTERP_KERNEL;
 
@@ -438,93 +435,93 @@ void ValueDoubleExpr::negate()
 
 void ValueDoubleExpr::sqrt()
 {
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),0.));
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,0.));
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to apply sqrt on < 0. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::sqrt));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::sqrt(c);});
 }
 
 void ValueDoubleExpr::cos()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::cos));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::cos(c);});
 }
 
 void ValueDoubleExpr::sin()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::sin));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::sin(c);});
 }
 
 void ValueDoubleExpr::tan()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::tan));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::tan(c);});
 }
 
 void ValueDoubleExpr::acos()
 {
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),-1.));
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,-1.));
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to apply acos on < 1. value !");
-  it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::greater<double>(),1.));
+  it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::greater<double>(),std::placeholders::_1,1.));
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to apply acos on > 1. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::acos));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::acos(c);});
 }
 
 void ValueDoubleExpr::asin()
 {
-   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),-1.));
+   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,-1.));
    if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to apply asin on < 1. value !");
-  it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::greater<double>(),1.));
+  it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::greater<double>(),std::placeholders::_1,1.));
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to apply asin on > 1. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::asin));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::asin(c);});
 }
 
 void ValueDoubleExpr::atan()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::atan));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::atan(c);});
 }
 
 void ValueDoubleExpr::cosh()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::cosh));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::cosh(c);});
 }
 
 void ValueDoubleExpr::sinh()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::sinh));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::sinh(c);});
 }
 
 void ValueDoubleExpr::tanh()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::tanh));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::tanh(c);});
 }
 
 void ValueDoubleExpr::abs()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(fabs));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::fabs(c);});
 }
 
 void ValueDoubleExpr::exp()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::exp));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::exp(c);});
 }
 
 void ValueDoubleExpr::ln()
 {
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less_equal<double>(),0.));
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less_equal<double>(),std::placeholders::_1,0.));
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to apply neperian/natural log on <= 0. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::log));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::log(c);});
 }
 
 void ValueDoubleExpr::log10()
 {
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less_equal<double>(),0.));
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less_equal<double>(),std::placeholders::_1,0.));
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to apply log10 on <= 0. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::log10));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::log10(c);});
 }
 
 Value *ValueDoubleExpr::plus(const Value *other) const
@@ -566,11 +563,11 @@ Value *ValueDoubleExpr::pow(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   double p=otherC->getData()[0];
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),0.));
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,0.));
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to operate pow(a,b) with a<0. !");
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind2nd(std::ptr_fun<double,double,double>(std::pow),p));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind([](double x, double y){return std::pow(x,y);},std::placeholders::_1,p)); 
   return ret;
 }
 
@@ -578,7 +575,7 @@ Value *ValueDoubleExpr::max(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::ptr_fun<const double&, const double&, const double& >(std::max));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),[](const double& x, const double& y){return std::max(x,y);});
   return ret;
 }
 
@@ -586,7 +583,7 @@ Value *ValueDoubleExpr::min(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::ptr_fun<const double&, const double&, const double& >(std::min));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),[](const double& x, const double& y){return std::min(x,y);});
   return ret;
 }
 

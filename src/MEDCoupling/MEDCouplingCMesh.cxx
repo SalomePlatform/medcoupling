@@ -613,7 +613,7 @@ mcIdType MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps)
       const double *d=getCoordsAt(i)->getConstPointer();
       mcIdType nbOfNodes=getCoordsAt(i)->getNbOfElems();
       double ref=pos[i];
-      const double *w=std::find_if(d,d+nbOfNodes,std::bind2nd(std::greater_equal<double>(),ref));
+      const double *w=std::find_if(d,d+nbOfNodes,std::bind(std::greater_equal<double>(),std::placeholders::_1,ref));
       mcIdType w2=ToIdType(std::distance(d,w));
       if(w2<nbOfNodes)
         {
@@ -654,13 +654,13 @@ void MEDCouplingCMesh::translate(const double *vector)
 {
   if(_x_array)
     std::transform(_x_array->getConstPointer(),_x_array->getConstPointer()+_x_array->getNbOfElems(),
-                   _x_array->getPointer(),std::bind2nd(std::plus<double>(),vector[0]));
+                   _x_array->getPointer(),std::bind(std::plus<double>(),std::placeholders::_1,vector[0]));
   if(_y_array)
     std::transform(_y_array->getConstPointer(),_y_array->getConstPointer()+_y_array->getNbOfElems(),
-                   _y_array->getPointer(),std::bind2nd(std::plus<double>(),vector[1]));
+                   _y_array->getPointer(),std::bind(std::plus<double>(),std::placeholders::_1,vector[1]));
   if(_z_array)
     std::transform(_z_array->getConstPointer(),_z_array->getConstPointer()+_z_array->getNbOfElems(),
-                   _z_array->getPointer(),std::bind2nd(std::plus<double>(),vector[2]));
+                   _z_array->getPointer(),std::bind(std::plus<double>(),std::placeholders::_1,vector[2]));
 }
 
 /*!
@@ -678,9 +678,9 @@ void MEDCouplingCMesh::scale(const double *point, double factor)
         {
           double *coords=c->getPointer();
           mcIdType lgth=ToIdType(c->getNbOfElems());
-          std::transform(coords,coords+lgth,coords,std::bind2nd(std::minus<double>(),point[i]));
-          std::transform(coords,coords+lgth,coords,std::bind2nd(std::multiplies<double>(),factor));
-          std::transform(coords,coords+lgth,coords,std::bind2nd(std::plus<double>(),point[i]));
+          std::transform(coords,coords+lgth,coords,std::bind(std::minus<double>(),std::placeholders::_1,point[i]));
+          std::transform(coords,coords+lgth,coords,std::bind(std::multiplies<double>(),std::placeholders::_1,factor));
+          std::transform(coords,coords+lgth,coords,std::bind(std::plus<double>(),std::placeholders::_1,point[i]));
           c->declareAsNew();
         }
     }
@@ -752,7 +752,7 @@ DataArrayDouble *MEDCouplingCMesh::computeCellCenterOfMass() const
       const double *srcPtr=tabs[j]->getConstPointer();
       tabsPtr[j].insert(tabsPtr[j].end(),srcPtr,srcPtr+sz);
       std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),srcPtr+1,tabsPtr[j].begin(),std::plus<double>());
-      std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),tabsPtr[j].begin(),std::bind2nd(std::multiplies<double>(),0.5));
+      std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),tabsPtr[j].begin(),std::bind(std::multiplies<double>(),std::placeholders::_1,0.5));
     }
   mcIdType tmp2[3];
   for(int i=0;i<nbCells;i++)

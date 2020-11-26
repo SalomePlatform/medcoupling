@@ -1400,7 +1400,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
   MCAuto<DataArrayIdType> nnr;
   std::vector<mcIdType> cgs,ngs(getNodeGridStructure());
   cgs.resize(ngs.size());
-  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<mcIdType>(),-1));
+  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,-1));
   if(pfl)
     {
       std::vector< std::pair<mcIdType,mcIdType> > cellParts;
@@ -1536,7 +1536,7 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
   MCAuto<DataArrayIdType> nnr;
   std::vector<mcIdType> cgs,ngs(getNodeGridStructure());
   cgs.resize(ngs.size());
-  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<mcIdType>(),-1));
+  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,-1));
   if(pfl)
     {
       std::vector< std::pair<mcIdType,mcIdType> > cellParts,nodeParts;

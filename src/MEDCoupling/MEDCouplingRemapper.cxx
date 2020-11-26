@@ -1232,7 +1232,7 @@ void MEDCouplingRemapper::computeProduct(const double *inputPointer, int inputNb
       std::map<mcIdType,double>::const_iterator iter3=_deno_multiply[idx].begin();
       for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++,iter3++)
         {
-          std::transform(inputPointer+(*iter2).first*inputNbOfCompo,inputPointer+((*iter2).first+1)*inputNbOfCompo,tmp,std::bind2nd(std::multiplies<double>(),(*iter2).second/(*iter3).second));
+          std::transform(inputPointer+(*iter2).first*inputNbOfCompo,inputPointer+((*iter2).first+1)*inputNbOfCompo,tmp,std::bind(std::multiplies<double>(),std::placeholders::_1,(*iter2).second/(*iter3).second));
           std::transform(tmp,tmp+inputNbOfCompo,resPointer+idx*inputNbOfCompo,resPointer+idx*inputNbOfCompo,std::plus<double>());
         }
     }
@@ -1250,7 +1250,7 @@ void MEDCouplingRemapper::computeReverseProduct(const double *inputPointer, int 
       for(std::map<mcIdType,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         {
           isReached[(*iter2).first]=true;
-          std::transform(inputPointer+idx*inputNbOfCompo,inputPointer+(idx+1)*inputNbOfCompo,tmp,std::bind2nd(std::multiplies<double>(),(*iter2).second/_deno_reverse_multiply[(*iter2).first][idx]));
+          std::transform(inputPointer+idx*inputNbOfCompo,inputPointer+(idx+1)*inputNbOfCompo,tmp,std::bind(std::multiplies<double>(),std::placeholders::_1,(*iter2).second/_deno_reverse_multiply[(*iter2).first][idx]));
           std::transform(tmp,tmp+inputNbOfCompo,resPointer+((*iter2).first)*inputNbOfCompo,resPointer+((*iter2).first)*inputNbOfCompo,std::plus<double>());
         }
     }

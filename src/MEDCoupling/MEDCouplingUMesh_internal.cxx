@@ -806,7 +806,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(mcIdType nbO
   for(mcIdType iz=0;iz<nbOf1DCells;iz++)
     {
       if(iz!=0)
-        std::transform(newConnIPtr+1,newConnIPtr+1+nbOf2DCells,newConnIPtr+1+iz*nbOf2DCells,std::bind2nd(std::plus<mcIdType>(),newConnIPtr[iz*nbOf2DCells]));
+        std::transform(newConnIPtr+1,newConnIPtr+1+nbOf2DCells,newConnIPtr+1+iz*nbOf2DCells,std::bind(std::plus<mcIdType>(),std::placeholders::_1,newConnIPtr[iz*nbOf2DCells]));
       const mcIdType *posOfTypeOfCell(newConnIPtr);
       for(std::vector<mcIdType>::const_iterator iter=newc.begin();iter!=newc.end();iter++,newConnPtr++)
         {
@@ -1347,7 +1347,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesLL(const std::vector<const MEDCo
       mcIdType curNbOfCell=ToIdType((*it)->getNumberOfCells());
       const mcIdType *curCI=(*it)->_nodal_connec_index->begin();
       const mcIdType *curC=(*it)->_nodal_connec->begin();
-      cIPtr=std::transform(curCI+1,curCI+curNbOfCell+1,cIPtr,std::bind2nd(std::plus<mcIdType>(),offset));
+      cIPtr=std::transform(curCI+1,curCI+curNbOfCell+1,cIPtr,std::bind(std::plus<mcIdType>(),std::placeholders::_1,offset));
       for(mcIdType j=0;j<curNbOfCell;j++)
         {
           const mcIdType *src=curC+curCI[j];
@@ -1572,7 +1572,7 @@ void MEDCouplingUMesh::AppendExtrudedCell(const mcIdType *connBg, const mcIdType
         *ii++=-1;
         std::reverse_iterator<const mcIdType *> rConnBg(connEnd);
         std::reverse_iterator<const mcIdType *> rConnEnd(connBg+1);
-        std::transform(rConnBg,rConnEnd,ii,std::bind2nd(std::plus<mcIdType>(),deltaz));
+        std::transform(rConnBg,rConnEnd,ii,std::bind(std::plus<mcIdType>(),std::placeholders::_1,deltaz));
         std::size_t nbOfRadFaces=std::distance(connBg+1,connEnd);
         for(std::size_t i=0;i<nbOfRadFaces;i++)
           {

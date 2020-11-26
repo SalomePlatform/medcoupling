@@ -2542,9 +2542,9 @@ void MEDCouplingLinearTime::getValueForTime(double time, const std::vector<doubl
 {
   double alpha=(_end.getTimeValue()-time)/(_end.getTimeValue()-_start.getTimeValue());
   std::size_t nbComp=vals.size()/2;
-  std::transform(vals.begin(),vals.begin()+nbComp,res,std::bind2nd(std::multiplies<double>(),alpha));
+  std::transform(vals.begin(),vals.begin()+nbComp,res,std::bind(std::multiplies<double>(),std::placeholders::_1,alpha));
   std::vector<double> tmp(nbComp);
-  std::transform(vals.begin()+nbComp,vals.end(),tmp.begin(),std::bind2nd(std::multiplies<double>(),1-alpha));
+  std::transform(vals.begin()+nbComp,vals.end(),tmp.begin(),std::bind(std::multiplies<double>(),std::placeholders::_1,1-alpha));
   std::transform(tmp.begin(),tmp.end(),res,res,std::plus<double>());
 }
 
@@ -2556,13 +2556,13 @@ void MEDCouplingLinearTime::getValueOnTime(mcIdType eltId, double time, double *
   else
     throw INTERP_KERNEL::Exception("No start array existing.");
   std::size_t nbComp=_array->getNumberOfComponents();
-  std::transform(value,value+nbComp,value,std::bind2nd(std::multiplies<double>(),alpha));
+  std::transform(value,value+nbComp,value,std::bind(std::multiplies<double>(),std::placeholders::_1,alpha));
   std::vector<double> tmp(nbComp);
   if(_end_array)
     _end_array->getTuple(eltId,&tmp[0]);
   else
     throw INTERP_KERNEL::Exception("No end array existing.");
-  std::transform(tmp.begin(),tmp.end(),tmp.begin(),std::bind2nd(std::multiplies<double>(),1-alpha));
+  std::transform(tmp.begin(),tmp.end(),tmp.begin(),std::bind(std::multiplies<double>(),std::placeholders::_1,1-alpha));
   std::transform(tmp.begin(),tmp.end(),value,value,std::plus<double>());
 }
 

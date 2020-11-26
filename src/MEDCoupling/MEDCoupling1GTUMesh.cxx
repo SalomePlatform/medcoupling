@@ -888,7 +888,7 @@ DataArrayDouble *MEDCoupling1SGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
             std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::computeIsoBarycenterOfNodesPerCell : on cell #" << i << " presence of nodeId #" << *nodal << " should be in [0," <<   nbOfNodes << ") !";
             throw INTERP_KERNEL::Exception(oss.str().c_str());
           }
-      std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),coeff));
+      std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind(std::multiplies<double>(),std::placeholders::_1,coeff));
     }
   return ret.retn();
 }
@@ -1237,7 +1237,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesLL(std::vector<const
     {
       mcIdType curConnLgth=(*it)->getNodalConnectivityLength();
       const mcIdType *curC=(*it)->_conn->begin();
-      cPtr=std::transform(curC,curC+curConnLgth,cPtr,std::bind2nd(std::plus<mcIdType>(),offset));
+      cPtr=std::transform(curC,curC+curConnLgth,cPtr,std::bind(std::plus<mcIdType>(),std::placeholders::_1,offset));
       offset+=(*it)->getNumberOfNodes();
     }
   //
@@ -1622,7 +1622,7 @@ void MEDCoupling1SGTUMesh::getReverseNodalConnectivity(DataArrayIdType *revNodal
     {
       for(int j=0;j<nbOfNodesPerCell;j++,conn++)
         {
-          *std::find_if(revNodalPtr+revNodalIndxPtr[*conn],revNodalPtr+revNodalIndxPtr[*conn+1],std::bind2nd(std::equal_to<mcIdType>(),-1))=eltId;
+          *std::find_if(revNodalPtr+revNodalIndxPtr[*conn],revNodalPtr+revNodalIndxPtr[*conn+1],std::bind(std::equal_to<mcIdType>(),std::placeholders::_1,-1))=eltId;
         }
     }
 }
@@ -2669,7 +2669,7 @@ DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
                       std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell : on cell #" << i << " presence of nodeId #" << *nodal << " should be in [0," <<   nbOfNodes << ") !";
                       throw INTERP_KERNEL::Exception(oss.str().c_str());
                     }
-                  std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./double(nodali[1]-nodali[0])));
+                  std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind(std::multiplies<double>(),std::placeholders::_1,1./double(nodali[1]-nodali[0])));
                 }
             }
           else
@@ -2702,7 +2702,7 @@ DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
                     }
                 }
               if(nbOfNod!=0)
-                std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./nbOfNod));
+                std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind(std::multiplies<double>(),std::placeholders::_1,1./nbOfNod));
               else
                 {
                   std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell (polyhedron) : no nodes in cell #" << i << " !";
@@ -2952,7 +2952,7 @@ void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayIdType *revNodal
         {
           mcIdType nodeId=conn[conni[eltId]+j];
           if(nodeId!=-1)
-            *std::find_if(revNodalPtr+revNodalIndxPtr[nodeId],revNodalPtr+revNodalIndxPtr[nodeId+1],std::bind2nd(std::equal_to<mcIdType>(),-1))=eltId;
+            *std::find_if(revNodalPtr+revNodalIndxPtr[nodeId],revNodalPtr+revNodalIndxPtr[nodeId+1],std::bind(std::equal_to<mcIdType>(),std::placeholders::_1,-1))=eltId;
         }
     }
 }

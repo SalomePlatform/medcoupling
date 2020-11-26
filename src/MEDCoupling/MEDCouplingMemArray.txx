@@ -2711,7 +2711,7 @@ namespace MEDCoupling
             T *ptr(this->getPointer());
             const T *ptrc(other->begin());
             for(mcIdType i=0;i<nbOfTuple;i++)
-              std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(FCT(),*ptrc++));
+              std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind(FCT(),std::placeholders::_1,*ptrc++));
           }
         else
           throw INTERP_KERNEL::Exception(msg);
@@ -2852,7 +2852,7 @@ namespace MEDCoupling
             const T *a2Ptr(a2->begin()),*a1Ptr(a1->begin());
             T *res(ret->getPointer());
             for(mcIdType i=0;i<nbOfTuple1;i++)
-              res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(FCT(),a2Ptr[i]));
+              res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind(FCT(),std::placeholders::_1,a2Ptr[i]));
             ret->copyStringInfoFrom(*a1);
             return ret.retn();
           }
@@ -2985,7 +2985,7 @@ namespace MEDCoupling
                 const T *aMaxPtr(aMax->begin());
                 T *res=ret->getPointer();
                 for(mcIdType i=0;i<nbOfTuple;i++)
-                  res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(FCT(),aMinPtr[i]));
+                  res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind(FCT(),std::placeholders::_1,aMinPtr[i]));
                 ret->copyStringInfoFrom(*aMax);
               }
             else
@@ -3401,7 +3401,7 @@ struct NotInRange
     this->checkAllocated();
     T *ptr(this->getPointer());
     std::size_t nbOfElems(this->getNbOfElems());
-    std::transform(ptr,ptr+nbOfElems,ptr,std::ptr_fun<T,T>(std::abs));
+    std::transform(ptr,ptr+nbOfElems,ptr,[](T c){return std::abs(c);});
     this->declareAsNew();
   }
 
@@ -3424,7 +3424,7 @@ struct NotInRange
     mcIdType nbOfTuples(this->getNumberOfTuples());
     std::size_t nbOfComp(this->getNumberOfComponents());
     newArr->alloc(nbOfTuples,nbOfComp);
-    std::transform(this->begin(),this->end(),newArr->getPointer(),std::ptr_fun<T,T>(std::abs));
+    std::transform(this->begin(),this->end(),newArr->getPointer(),[](T c){return std::abs(c);});
     newArr->copyStringInfoFrom(*this);
     return newArr.retn();
   }
@@ -4340,7 +4340,7 @@ struct NotInRange
     std::set<T> castsDetected;
     for(mcIdType i=0;i<nbOfTuples;i++)
       {
-        rintstart res=std::find_if(bg,end2,std::bind2nd(std::less_equal<T>(), work[i]));
+        rintstart res=std::find_if(bg,end2,std::bind(std::less_equal<T>(),std::placeholders::_1,work[i]));
         std::size_t pos=std::distance(bg,res);
         std::size_t pos2=nbOfCast-pos;
         if(pos2<nbOfCast)
@@ -5394,7 +5394,7 @@ struct NotInRange
     this->checkAllocated();
     T *ptr=this->getPointer();
     std::size_t nbOfElems=this->getNbOfElems();
-    std::transform(ptr,ptr+nbOfElems,ptr,std::bind2nd(std::divides<T>(),val));
+    std::transform(ptr,ptr+nbOfElems,ptr,std::bind(std::divides<T>(),std::placeholders::_1,val));
     this->declareAsNew();
   }
 
@@ -5413,7 +5413,7 @@ struct NotInRange
     this->checkAllocated();
     T *ptr=this->getPointer();
     std::size_t nbOfElems=this->getNbOfElems();
-    std::transform(ptr,ptr+nbOfElems,ptr,std::bind2nd(std::modulus<T>(),val));
+    std::transform(ptr,ptr+nbOfElems,ptr,std::bind(std::modulus<T>(),std::placeholders::_1,val));
     this->declareAsNew();
   }
 
@@ -6461,7 +6461,7 @@ struct NotInRange
                 T *ptr=this->getPointer();
                 const T *ptrc=other->getConstPointer();
                 for(mcIdType i=0;i<nbOfTuple;i++)
-                  std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::modulus<T>(),*ptrc++));
+                  std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind(std::modulus<T>(),std::placeholders::_1,*ptrc++));
               }
             else
               throw INTERP_KERNEL::Exception(msg);
@@ -6702,7 +6702,7 @@ struct NotInRange
             const T *a1Ptr=a1->getConstPointer();
             T *res=ret->getPointer();
             for(mcIdType i=0;i<nbOfTuple1;i++)
-              res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(std::modulus<T>(),a2Ptr[i]));
+              res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind(std::modulus<T>(),std::placeholders::_1,a2Ptr[i]));
             ret->copyStringInfoFrom(*a1);
             return ret.retn();
           }
@@ -7016,7 +7016,7 @@ struct NotInRange
     ret->alloc(retSz,1);
     T *pt=ret->getPointer(); *pt++=0;
     for(typename std::vector<const DataArrayType *>::const_iterator it=arrs.begin();it!=arrs.end();it++)
-      pt=std::transform((*it)->begin()+1,(*it)->end(),pt,std::bind2nd(std::plus<T>(),pt[-1]));
+      pt=std::transform((*it)->begin()+1,(*it)->end(),pt,std::bind(std::plus<T>(),std::placeholders::_1,pt[-1]));
     ret->copyStringInfoFrom(*(arrs[0]));
     return ret.retn();
   }

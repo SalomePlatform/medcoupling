@@ -204,7 +204,7 @@ void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int
   mcIdType nbOfNodesPerCell(mc->getNumberOfNodesPerCell());
   conn->alloc(nbOfNodesPerCell*curNbOfElem,1);
   MEDFILESAFECALLERRD0(MEDmeshElementConnectivityRd,(fid,mName,dt,it,entity,geoElt,MED_NODAL,MED_FULL_INTERLACE,conn->getPointer()));
-  std::transform(conn->begin(),conn->end(),conn->getPointer(),std::bind2nd(std::plus<med_int>(),-1));
+  std::transform(conn->begin(),conn->end(),conn->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,-1));
   mc->setNodalConnectivity(FromMedIntArray<mcIdType>(conn));
   loadCommonPart(fid,mName,dt,it,curNbOfElem,geoElt,entity,mrs);
 }
@@ -229,7 +229,7 @@ void MEDFileUMeshPerType::loadPartStaticType(med_idt fid, const char *mName, int
                            /*lastblocksize=useless because count=1*/0,&filter);
   MEDFILESAFECALLERRD0(MEDmeshElementConnectivityAdvancedRd,(fid,mName,dt,it,entity,geoElt,MED_NODAL,&filter,conn->getPointer()));
   MEDfilterClose(&filter);
-  std::transform(conn->begin(),conn->end(),conn->getPointer(),std::bind2nd(std::plus<med_int>(),-1));
+  std::transform(conn->begin(),conn->end(),conn->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,-1));
   mc->setNodalConnectivity(FromMedIntArray<mcIdType>(conn));
   loadPartOfCellCommonPart(fid,mName,strt,end,step,dt,it,mdim,curNbOfElem,geoElt,entity,mrs);
 }
@@ -305,8 +305,8 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int 
   MCAuto<DataArrayMedInt> conn(DataArrayMedInt::New()),connI(DataArrayMedInt::New());
   conn->alloc(arraySize,1); connI->alloc(curNbOfElem+1,1);
   MEDFILESAFECALLERRD0(MEDmeshPolygon2Rd,(fid,mName,dt,it,MED_CELL,geoElt,MED_NODAL,connI->getPointer(),conn->getPointer()));
-  std::transform(conn->begin(),conn->end(),conn->getPointer(),std::bind2nd(std::plus<med_int>(),-1));
-  std::transform(connI->begin(),connI->end(),connI->getPointer(),std::bind2nd(std::plus<med_int>(),-1));
+  std::transform(conn->begin(),conn->end(),conn->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,-1));
+  std::transform(connI->begin(),connI->end(),connI->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,-1));
   mc->setNodalConnectivity(FromMedIntArray<mcIdType>(conn),FromMedIntArray<mcIdType>(connI));
   loadCommonPart(fid,mName,dt,it,curNbOfElem,geoElt,entity,mrs);
 }
@@ -336,11 +336,11 @@ void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int 
   for(mcIdType i=0;i<curNbOfElem;i++)
     {
       finalIndex[i+1]=finalIndex[i]+index[i+1]-index[i]-1+indexFace[index[i+1]-1]-indexFace[index[i]-1];
-      wFinalConn=std::transform(locConn+indexFace[index[i]-1]-1,locConn+indexFace[index[i]]-1,wFinalConn,std::bind2nd(std::plus<mcIdType>(),-1));
+      wFinalConn=std::transform(locConn+indexFace[index[i]-1]-1,locConn+indexFace[index[i]]-1,wFinalConn,std::bind(std::plus<mcIdType>(),std::placeholders::_1,-1));
       for(mcIdType j=index[i];j<index[i+1]-1;j++)
         {
           *wFinalConn++=-1;
-          wFinalConn=std::transform(locConn+indexFace[j]-1,locConn+indexFace[j+1]-1,wFinalConn,std::bind2nd(std::plus<mcIdType>(),-1));
+          wFinalConn=std::transform(locConn+indexFace[j]-1,locConn+indexFace[j+1]-1,wFinalConn,std::bind(std::plus<mcIdType>(),std::placeholders::_1,-1));
         }
     }
   mc->setNodalConnectivity(conn,connI);
@@ -363,7 +363,7 @@ void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int mdim,
       if(!m0)
         throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::Write : internal error #1 !");
       MCAuto<DataArrayMedInt> arr(DataArrayMedInt::Copy(m0->getNodalConnectivity()));
-      std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind2nd(std::plus<med_int>(),1));
+      std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,1));
       MEDFILESAFECALLERWR0(MEDmeshElementConnectivityWr,(fid,mname.c_str(),dt,it,timm,MED_CELL,curMedType,MED_NODAL,MED_FULL_INTERLACE,ToMedInt(nbOfCells),arr->begin()));
     }
   else
@@ -374,8 +374,8 @@ void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int mdim,
       if(ikt==INTERP_KERNEL::NORM_POLYGON || ikt==INTERP_KERNEL::NORM_QPOLYG)
         {
           MCAuto<DataArrayMedInt> arr(DataArrayMedInt::Copy(m0->getNodalConnectivity())),arrI(DataArrayMedInt::Copy(m0->getNodalConnectivityIndex()));
-          std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind2nd(std::plus<med_int>(),1));
-          std::transform(arrI->begin(),arrI->end(),arrI->getPointer(),std::bind2nd(std::plus<med_int>(),1));
+          std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,1));
+          std::transform(arrI->begin(),arrI->end(),arrI->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,1));
           MEDFILESAFECALLERWR0(MEDmeshPolygon2Wr,(fid,mname.c_str(),dt,it,timm,MED_CELL,ikt==INTERP_KERNEL::NORM_POLYGON?MED_POLYGON:MED_POLYGON2,MED_NODAL,ToMedInt(nbOfCells+1),arrI->begin(),arr->begin()));
         }
       else
@@ -395,7 +395,7 @@ void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int mdim,
               for(const mcIdType *w=conn+connI[i];w!=conn+connI[i+1];w2++)
                 {
                   const mcIdType *wend=std::find(w,conn+connI[i+1],-1);
-                  bt=std::transform(w,wend,bt,std::bind2nd(std::plus<mcIdType>(),1));
+                  bt=std::transform(w,wend,bt,std::bind(std::plus<mcIdType>(),std::placeholders::_1,1));
                   std::size_t nbOfNode=std::distance(w,wend);
                   w2[1]=w2[0]+(med_int)nbOfNode;
                   if(wend!=conn+connI[i+1])

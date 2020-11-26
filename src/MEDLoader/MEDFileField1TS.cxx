@@ -444,7 +444,7 @@ int MEDFileAnyTypeField1TSWithoutSDA::getNonEmptyLevels(const std::string& mname
     }
   int ret=*std::max_element(ret1.begin(),ret1.end());
   std::copy(ret1.rbegin(),ret1.rend(),std::back_insert_iterator<std::vector<int> >(levs));
-  std::transform(levs.begin(),levs.end(),levs.begin(),std::bind2nd(std::plus<int>(),-ret));
+  std::transform(levs.begin(),levs.end(),levs.begin(),std::bind(std::plus<int>(),std::placeholders::_1,-ret));
   return ret;
 }
 

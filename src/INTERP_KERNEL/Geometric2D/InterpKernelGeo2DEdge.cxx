@@ -605,7 +605,7 @@ void Edge::getNormalVector(double *vectOutput) const
   std::copy((const double *)(*_end),(const double *)(*_end)+2,vectOutput);
   std::transform(vectOutput,vectOutput+2,(const double *)(*_start),vectOutput,std::minus<double>());
   double norm=1./Node::norm(vectOutput);
-  std::transform(vectOutput,vectOutput+2,vectOutput,bind2nd(std::multiplies<double>(),norm));
+  std::transform(vectOutput,vectOutput+2,vectOutput,bind(std::multiplies<double>(),std::placeholders::_1,norm));
   double tmp=vectOutput[0];
   vectOutput[0]=vectOutput[1];
   vectOutput[1]=-tmp;
@@ -691,7 +691,7 @@ void Edge::Interpolate1DLin(const std::vector<double>& distrib1, const std::vect
   MergePoints commonNode;
   for(unsigned int i=0;i<nbOfV1;i++)
     {
-      std::vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind2nd(std::greater_equal<double>(),distrib1[i]));
+      std::vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind(std::greater_equal<double>(),std::placeholders::_1,distrib1[i]));
       if(iter!=distrib2.end())
         {
           for(unsigned int j=(unsigned)((iter-1)-distrib2.begin());j<nbOfV2;j++)

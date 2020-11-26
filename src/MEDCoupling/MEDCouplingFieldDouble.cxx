@@ -233,7 +233,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
           for(std::size_t k=0;k<nbNodesInCell;k++)
             std::transform(srcPt+nodeIds[k]*nbCompo,srcPt+(nodeIds[k]+1)*nbCompo,pt,pt,std::plus<double>());
           if(nbNodesInCell!=0)
-            std::transform(pt,pt+nbCompo,pt,std::bind2nd(std::multiplies<double>(),1./((double)nbNodesInCell)));
+            std::transform(pt,pt+nbCompo,pt,std::bind(std::multiplies<double>(),std::placeholders::_1,1./((double)nbNodesInCell)));
           else
             {
               std::ostringstream oss; oss << "MEDCouplingFieldDouble::nodeToCellDiscretization : Cell id #" << i << " has been detected to have no nodes !";
@@ -706,7 +706,7 @@ void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) c
   arr->multiplyEqual(w->getArray());
   arr->accumulate(res);
   std::size_t nCompo = getArray()->getNumberOfComponents();
-  std::transform(res,res+nCompo,res,std::bind2nd(std::multiplies<double>(),1./deno));
+  std::transform(res,res+nCompo,res,std::bind(std::multiplies<double>(),std::placeholders::_1,1./deno));
 }
 
 /*!
