@@ -332,6 +332,7 @@ MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<Data
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const;
     MEDLOADER_EXPORT void forceComputationOfParts() const;
+    MEDLOADER_EXPORT void computeRevNum() const;
     MEDLOADER_EXPORT std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const;
     MEDLOADER_EXPORT MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const;
     MEDLOADER_EXPORT DataArrayIdType *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
@@ -385,7 +386,6 @@ MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<Data
     MEDFileUMeshSplitL1 *getMeshAtLevSafe(int meshDimRelToMaxExt);
     void checkMeshDimCoherency(int meshDim, int meshDimRelToMax) const;
     DataArrayDouble *checkMultiMesh(const std::vector<const MEDCouplingUMesh *>& ms) const;
-    void computeRevNum() const;
     void synchronizeTinyInfoOnLeaves() const;
     void changeFamilyIdArr(mcIdType oldId, mcIdType newId);
     std::list< MCAuto<DataArrayIdType> > getAllNonNullFamilyIds() const;

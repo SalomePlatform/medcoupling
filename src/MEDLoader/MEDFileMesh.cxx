@@ -3035,7 +3035,6 @@ void MEDFileUMesh::dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl
   if(!mrs || mrs->isGlobalNodeNumFieldReading())
     _global_num_coords=loaderl2.getCoordsGlobalNum();
   _part_coords=loaderl2.getPartDefOfCoo();
-  computeRevNum();
 }
 
 MEDFileUMesh::~MEDFileUMesh()
@@ -5486,7 +5485,6 @@ void MEDFileUMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayIdType *ren
         throw INTERP_KERNEL::Exception("MEDFileUMesh::setRenumFieldArr : the coordinates have not been set !");
       renumArr->checkNbOfTuplesAndComp(_coords->getNumberOfTuples(),1,"MEDFileUMesh::setRenumArr : Problem in size of node numbering arr ! ");
       _num_coords.takeRef(renumArr);
-      computeRevNum();
       return ;
     }
   if(meshDimRelToMaxExt>1)

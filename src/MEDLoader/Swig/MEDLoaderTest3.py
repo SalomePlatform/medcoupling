@@ -288,6 +288,7 @@ class MEDLoaderTest3(unittest.TestCase):
         renumNode=DataArrayInt.New()
         renumNode.setValues([10,11,12,13,14,15,16,17,18],9,1)
         mm.setRenumFieldArr(1,renumNode)
+        mm.computeRevNum()
         mm.setMeshAtLevel(-1,m1,True);
         mm.setMeshAtLevel(0,m,True);
         mm.setMeshAtLevel(-2,m2,True);

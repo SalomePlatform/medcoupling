@@ -1431,6 +1431,7 @@ namespace MEDCoupling
     MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const;
     MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const;
     void forceComputationOfParts() const;
+    void computeRevNum() const;
     //
     void setFamilyNameAttachedOnId(int id, const std::string& newFamName);
     void setCoords(DataArrayDouble *coords);
