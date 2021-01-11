@@ -6690,7 +6690,7 @@ class MEDLoaderTest3(unittest.TestCase):
         """
         MEDFileMesh.zipFamilies tries to reduce family partitions under groups.
         """
-        mname="mesh" 
+        mname="mesh"
         arr=DataArrayDouble(10) ; arr.iota()
         m=MEDCouplingCMesh()
         m.setCoords(arr,arr)
@@ -6704,7 +6704,7 @@ class MEDLoaderTest3(unittest.TestCase):
             d.setName("grp%d"%i)
             mm.addGroup(0,d)
             pass
-        
+
         grp_all = DataArrayInt.Range(0,m.getNumberOfCells(),1)
         grp_all.setName("grp_all")
         mm.addGroup(0,grp_all)
@@ -6723,7 +6723,7 @@ class MEDLoaderTest3(unittest.TestCase):
         """
         MEDFileMesh.zipFamilies tries to reduce family partitions under groups.
         """
-        mname="mesh" 
+        mname="mesh"
         arr=DataArrayDouble(21) ; arr.iota()
         m=MEDCouplingCMesh()
         m.setCoords(arr)
@@ -6758,7 +6758,7 @@ class MEDLoaderTest3(unittest.TestCase):
 
     def testMeshConvertFromMEDFileGeoType(self):
         self.assertEqual(MEDFileMesh.ConvertFromMEDFileGeoType(320),NORM_HEXA20)
-    
+
     @WriteInTmpDir
     def testFieldInt64_0(self):
         """
