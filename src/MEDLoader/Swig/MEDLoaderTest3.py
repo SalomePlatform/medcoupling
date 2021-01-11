@@ -1581,6 +1581,51 @@ class MEDLoaderTest3(unittest.TestCase):
         pass
 
     @WriteInTmpDir
+    def testBuildInnerBoundary6(self):
+        """ 3D test where the crack has a funny shape with a singular point (i.e. two faces of the M1 group are only connected by one point, not a full segment)
+        The singular point was wrongly duplicated.
+        """
+        coo = DataArrayDouble([(-1.38778e-17,0.226,0),(-1.38778e-17,-1.38778e-17,0),(0.226,0.226,0),(0.226,-1.38778e-17,0),(0.452,0.226,0),(0.452,-1.38778e-17,0),
+                                (-1.38778e-17,0.452,0),(0.226,0.452,0),(0.452,0.452,0),(-1.38778e-17,0.226,0.25),(0.226,0.226,0.25),(0.226,-1.38778e-17,0.25),(-1.38778e-17,-1.38778e-17,0.25),
+                                (-1.38778e-17,0.226,0.779375),(0.226,0.226,0.779375),(0.226,-1.38778e-17,0.779375),(-1.38778e-17,-1.38778e-17,0.779375),(-1.38778e-17,0.226,1.30875),
+                                (0.226,0.226,1.30875),(0.226,-1.38778e-17,1.30875),(-1.38778e-17,-1.38778e-17,1.30875),(0.452,0.226,0.25),(0.452,-1.38778e-17,0.25),(0.452,0.226,0.779375),
+                                (0.452,-1.38778e-17,0.779375),(0.452,0.226,1.30875),(0.452,-1.38778e-17,1.30875),(-1.38778e-17,0.452,0.25),(0.226,0.452,0.25),(-1.38778e-17,0.452,0.779375),
+                                (0.226,0.452,0.779375),(-1.38778e-17,0.452,1.30875),(0.226,0.452,1.30875),(0.452,0.452,0.25),(0.452,0.452,0.779375),(0.452,0.452,1.30875),(0.146,0.226,0.779375),
+                                (0.146,-1.38778e-17,0.779375),(0.146,0.226,1.30875),(0.146,-1.38778e-17,1.30875),(0.146,0.452,0.779375),(0.146,0.452,1.30875)])
+        c0 = [18, 0, 2, 3, 1, 9, 10, 11, 12, 18, 9, 10, 11, 12, 13, 36, 37, 16, 18, 13, 36, 37, 16, 17, 38, 39, 20, 18, 2, 4, 5, 3, 10, 21, 22, 11, 18, 10, 21, 22, 11, 14, 23, 24, 15,
+              18, 14, 23, 24, 15, 18, 25, 26, 19, 18, 6, 7, 2, 0, 27, 28, 10, 9, 18, 27,
+              28, 10, 9, 29, 40, 36, 13, 18, 29, 40, 36, 13, 31, 41, 38, 17, 18, 7, 8, 4, 2, 28, 33, 21, 10, 18, 28, 33, 21, 10, 30, 34, 23, 14, 18, 30, 34, 23, 14, 32, 35, 25, 18]
+        cI0 = [0, 9, 18, 27, 36, 45, 54, 63, 72, 81, 90, 99, 108]
+        m3 = MEDCouplingUMesh("3D", 3)
+        m3.setCoords(coo)
+        m3.setConnectivity(DataArrayInt(c0), DataArrayInt(cI0))
+        m3.checkConsistency()
+        m2, _, _, _, _ = m3.buildDescendingConnectivity()
+        grpIds = DataArrayInt([7,12,22,27]); grpIds.setName("group")
+        mfu = MEDFileUMesh()
+        mfu.setMeshAtLevel(0, m3)
+        mfu.setMeshAtLevel(-1, m2)
+        mfu.setGroupsAtLevel(-1, [grpIds])
+        nNod = m3.getNumberOfNodes()
+        nodesDup, cells1, cells2 = mfu.buildInnerBoundaryAlongM1Group("group")
+        m3_bis = mfu.getMeshAtLevel(0)
+        m3_bis.checkConsistency()
+        m2_bis = mfu.getMeshAtLevel(-1)
+        m2_bis.checkConsistency()
+        self.assertEqual(nNod+8, mfu.getNumberOfNodes())
+        self.assertEqual(nNod+8, m3_bis.getNumberOfNodes())
+        self.assertEqual(nNod+8, m2_bis.getNumberOfNodes())
+        self.assertEqual([13, 14, 17, 18, 23, 25, 36, 38], nodesDup.getValues())
+        self.assertEqual(m3_bis.getCoords()[nodesDup].getValues(), m3_bis.getCoords()[nNod:].getValues())
+        self.assertEqual(set([1, 2, 4, 5]), set(cells1.getValues()))
+        self.assertEqual(set([7, 8, 10, 11]), set(cells2.getValues()))
+        self.assertEqual([7, 12, 22, 27],mfu.getGroupArr(-1,"group").getValues())
+        self.assertEqual([56, 57, 58, 59],mfu.getGroupArr(-1,"group_dup").getValues())  # here only one cell has been duplicated
+        m_desc, _, _, _, _ = m3_bis.buildDescendingConnectivity()
+        m_desc.checkDeepEquivalOnSameNodesWith(m2_bis, 2, 9.9999)
+        pass
+
+    @WriteInTmpDir
     def testBasicConstructors(self):
         GeneratePyfile18(self)
         fname="Pyfile18.med"

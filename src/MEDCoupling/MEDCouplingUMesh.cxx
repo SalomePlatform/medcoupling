@@ -2322,7 +2322,6 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const
  * \param [out] cellIdsNeededToBeRenum cell ids in \b this in which the renumber of nodes should be performed.
  * \param [out] cellIdsNotModified cell ids mcIdType \b this that lies on \b otherDimM1OnSameCoords mesh whose connectivity do \b not need to be modified as it is the case for \b cellIdsNeededToBeRenum.
  *
- * \warning This method modifies param \b otherDimM1OnSameCoords (for speed reasons).
  */
 void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayIdType *& nodeIdsToDuplicate,
                                             DataArrayIdType *& cellIdsNeededToBeRenum, DataArrayIdType *& cellIdsNotModified) const
@@ -2339,14 +2338,15 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
 
   // Checking star-shaped M1 group:
   DAInt dt0=DataArrayIdType::New(),dit0=DataArrayIdType::New(),rdt0=DataArrayIdType::New(),rdit0=DataArrayIdType::New();
-  MCUMesh meshM2 = otherDimM1OnSameCoords.buildDescendingConnectivity(dt0, dit0, rdt0, rdit0);
+  MCUMesh meshM2 = otherDimM1OnSameCoords.buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); // 2D: a mesh of points, 3D: a mesh of segs
   DAInt dsi = rdit0->deltaShiftIndex();
-  DAInt idsTmp0 = dsi->findIdsNotInRange(-1, 3);
+  DAInt idsTmp0 = dsi->findIdsNotInRange(-1, 3);  // for 2D: if a point is connected to more than 2 segs. For 3D: if a seg is connected to more than two faces.
   if(idsTmp0->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group: group is too complex: some points (or edges) have more than two connected segments (or faces)!");
   dt0=0; dit0=0; rdt0=0; rdit0=0; idsTmp0=0;
 
-  // Get extreme nodes from the group (they won't be duplicated), ie nodes belonging to boundary cells of M1
+  // Get extreme nodes from the group (they won't be duplicated except if they also lie on bound of M0 -- see below),
+  // ie nodes belonging to the boundary "cells" (might be points) of M1
   DAInt xtremIdsM2 = dsi->findIdsEqual(1); dsi = 0;
   MCUMesh meshM2Part = static_cast<MEDCouplingUMesh *>(meshM2->buildPartOfMySelf(xtremIdsM2->begin(), xtremIdsM2->end(),true));
   DAInt xtrem = meshM2Part->computeFetchedNodeIds();
@@ -2354,15 +2354,17 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   dt0=DataArrayIdType::New(),dit0=DataArrayIdType::New(),rdt0=DataArrayIdType::New(),rdit0=DataArrayIdType::New();
   MCUMesh m0desc = buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); dt0=0; dit0=0; rdt0=0;
   dsi = rdit0->deltaShiftIndex();
-  DAInt boundSegs = dsi->findIdsEqual(1);   // boundary segs/faces of the M0 mesh
+  DAInt boundSegs = dsi->findIdsEqual(1);  dsi = 0; // boundary segs/faces of the M0 mesh
   MCUMesh m0descSkin = static_cast<MEDCouplingUMesh *>(m0desc->buildPartOfMySelf(boundSegs->begin(),boundSegs->end(), true));
   DAInt fNodes = m0descSkin->computeFetchedNodeIds();
-  // In 3D, some points on the boundary of M0 still need duplication:
+  // In 3D, some points on the boundary of M0 will NOT be duplicated (where as in 2D, points on the boundary of M0 are always duplicated)
+  // Think of a partial (plane) crack in a cube: the points at the tip of the crack and not located inside the volume of the cube are not duplicated
+  // although they are technically on the skin of the cube.
   DAInt notDup = 0;
   if (getMeshDimension() == 3)
     {
       DAInt dnu1=DataArrayIdType::New(), dnu2=DataArrayIdType::New(), dnu3=DataArrayIdType::New(), dnu4=DataArrayIdType::New();
-      MCUMesh m0descSkinDesc = m0descSkin->buildDescendingConnectivity(dnu1, dnu2, dnu3, dnu4);
+      MCUMesh m0descSkinDesc = m0descSkin->buildDescendingConnectivity(dnu1, dnu2, dnu3, dnu4); // all segments of the skin of the 3D (M0) mesh
       dnu1=0;dnu2=0;dnu3=0;dnu4=0;
       DataArrayIdType * corresp=0;
       meshM2->areCellsIncludedIn(m0descSkinDesc,2,corresp);
@@ -2370,10 +2372,26 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
       corresp->decrRef();
       if (validIds->getNumberOfTuples())
         {
+          // Build the set of segments which are: in the desc mesh of the skin of the 3D mesh (M0) **and** in the desc mesh of the M1 group:
           MCUMesh m1IntersecSkin = static_cast<MEDCouplingUMesh *>(m0descSkinDesc->buildPartOfMySelf(validIds->begin(), validIds->end(), true));
+          // Its boundary nodes should no be duplicated (this is for example the tip of the crack inside the cube described above)
           DAInt notDuplSkin = m1IntersecSkin->findBoundaryNodes();
           DAInt fNodes1 = fNodes->buildSubstraction(notDuplSkin);
-          notDup = xtrem->buildSubstraction(fNodes1);
+
+          // Also, in this (segment) mesh, nodes connected to more than 3 segs should not be dup either (singular points - see testBuildInnerBoundary6())
+          dt0=DataArrayIdType::New(),dit0=DataArrayIdType::New(),rdt0=DataArrayIdType::New(),rdit0=DataArrayIdType::New();
+          MCUMesh meshM2Desc = meshM2->buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); dt0=0; dit0=0; rdt0=0;  // a mesh made of node cells
+          dsi = rdit0->deltaShiftIndex();
+          DAInt singPoints = dsi->findIdsNotInRange(-1,4);   // points connected to (strictly) more than 3 segments
+          const mcIdType *cc = meshM2Desc->getNodalConnectivity()->begin(), *ccI = meshM2Desc->getNodalConnectivityIndex()->begin();
+          mcIdType * singPointsP = singPoints->rwBegin();
+          for (mcIdType j=0; j < singPoints->getNumberOfTuples(); j++) // replace ids in singPoints by real coordinate index (was index of cells in notDuplSkin)
+            {
+              mcIdType nodeCellIdx = singPointsP[j];
+              singPointsP[j] = cc[ccI[nodeCellIdx]+1];  // +1 to skip type
+            }
+          DAInt fNodes2 = fNodes1->buildSubstraction(singPoints);
+          notDup = xtrem->buildSubstraction(fNodes2);
         }
       else
         notDup = xtrem->buildSubstraction(fNodes);
