@@ -788,7 +788,8 @@ void MEDFileAnyTypeField1TSWithoutSDA::loadBigArraysRecursivelyIfNecessary(med_i
 
 void MEDFileAnyTypeField1TSWithoutSDA::loadStructureAndBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc, const MEDFileMeshes *ms, const MEDFileEntities *entities)
 {
-  loadOnlyStructureOfDataRecursively(fid,nasc,ms,entities);
+  MEDFileCapability cap(fid);
+  loadOnlyStructureOfDataRecursively(fid,nasc,ms,entities,&cap);
   loadBigArraysRecursively(fid,nasc);
 }
 
