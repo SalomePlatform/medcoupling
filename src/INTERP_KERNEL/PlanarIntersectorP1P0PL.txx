@@ -67,7 +67,7 @@ namespace INTERP_KERNEL
             PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&CoordsS[0],littleTargetCell,3,3);
             std::copy(littleTargetCell,littleTargetCell+3,baryTTmp);
           }
-        if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(baryTTmp,&CoordsS[0],3,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
+        if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(baryTTmp,&CoordsS[0],3,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
           {
             double resLoc[3];
             barycentric_coords<SPACEDIM>(&CoordsS[0],baryTTmp,resLoc);

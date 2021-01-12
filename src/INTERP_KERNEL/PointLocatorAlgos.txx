@@ -24,7 +24,11 @@
 #include "CellModel.hxx"
 #include "BBTree.txx"
 
+#include "InterpKernelGeo2DNode.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
+
 #include <list>
+#include <vector>
 #include <set>
 #include <limits>
 
@@ -102,7 +106,7 @@ namespace INTERP_KERNEL
       return retlist;
     }
 
-    static bool isElementContainsPointAlg2D(const double *ptToTest, const double *cellPts, mcIdType nbEdges, double eps)
+    static bool isElementContainsPointAlg2DSimple(const double *ptToTest, const double *cellPts, mcIdType nbEdges, double eps)
     {
       /* with dimension 2, it suffices to check all the edges
          and see if the sign of double products from the point
@@ -130,6 +134,60 @@ namespace INTERP_KERNEL
         }
       bool ret=decideFromSign(sign, nbEdges);
       delete [] sign;
+      return ret;
+    }
+
+    // Same as isElementContainsPointAlg2DSimple() with a different input format ...
+    static bool isElementContainsPointAlgo2DSimple2(const double *ptToTest, NormalizedCellType type,
+                                                    const double *coords, const typename MyMeshType::MyConnType *conn_elem,
+                                                    typename MyMeshType::MyConnType conn_elem_sz, double eps)
+    {
+      const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+      typedef typename MyMeshType::MyConnType ConnType;
+      const NumberingPolicy numPol=MyMeshType::My_numPol;
+
+      const CellModel& cmType=CellModel::GetCellModel(type);
+      bool ret=false;
+
+      int nbEdges=cmType.getNumberOfSons();
+      double *pts = new double[nbEdges*SPACEDIM];
+      for (int iedge=0; iedge<nbEdges; iedge++)
+        {
+          const double* a=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[iedge]));
+          std::copy(a,a+SPACEDIM,pts+iedge*SPACEDIM);
+        }
+      ret=isElementContainsPointAlg2DSimple(ptToTest,pts,nbEdges,eps);
+      delete [] pts;
+      return ret;
+    }
+
+    static bool isElementContainsPointAlgo2DPolygon(const double *ptToTest, NormalizedCellType type,
+                                                    const double *coords, const typename MyMeshType::MyConnType *conn_elem,
+                                                    typename MyMeshType::MyConnType conn_elem_sz, double eps)
+    {
+      // Override precision for this method only:
+      INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+
+      const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+      typedef typename MyMeshType::MyConnType ConnType;
+      const NumberingPolicy numPol=MyMeshType::My_numPol;
+
+      std::vector<INTERP_KERNEL::Node *> nodes(conn_elem_sz);
+      INTERP_KERNEL::QuadraticPolygon *pol(0);
+      for(mcIdType j=0;j<conn_elem_sz;j++)
+        {
+          mcIdType nodeId(OTT<ConnType,numPol>::ind2C(conn_elem[j]));
+          nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*SPACEDIM],coords[nodeId*SPACEDIM+1]);
+        }
+      if(!INTERP_KERNEL::CellModel::GetCellModel(type).isQuadratic())
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
+      else
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
+      INTERP_KERNEL::Node *n(new INTERP_KERNEL::Node(ptToTest[0],ptToTest[1]));
+      double a(0.),b(0.),c(0.);
+      a=pol->normalizeMe(b,c); n->applySimilarity(b,c,a);
+      bool ret=pol->isInOrOut2(n);
+      delete pol; n->decrRef();
       return ret;
     }
 
@@ -166,7 +224,9 @@ namespace INTERP_KERNEL
     /*!
      * Precondition : spacedim==meshdim. To be checked upstream to this call.
      */
-    static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const typename MyMeshType::MyConnType *conn_elem, typename MyMeshType::MyConnType conn_elem_sz, double eps)
+    static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords,
+                                       const typename MyMeshType::MyConnType *conn_elem,
+                                       typename MyMeshType::MyConnType conn_elem_sz, double eps)
     {
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
@@ -176,18 +236,11 @@ namespace INTERP_KERNEL
       //
       if (SPACEDIM==2)
         {
-          int nbEdges=cmType.getNumberOfSons();
-          double *pts = new double[nbEdges*SPACEDIM];
-          for (int iedge=0; iedge<nbEdges; iedge++)
-            {
-              const double* a=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[iedge]));
-              std::copy(a,a+SPACEDIM,pts+iedge*SPACEDIM);
-            }
-          bool ret=isElementContainsPointAlg2D(ptToTest,pts,nbEdges,eps);
-          delete [] pts;
-          return ret;
+          if(type != INTERP_KERNEL::NORM_POLYGON && !cmType.isQuadratic())
+            return isElementContainsPointAlgo2DSimple2(ptToTest, type, coords, conn_elem, conn_elem_sz, eps);
+          else
+            return isElementContainsPointAlgo2DPolygon(ptToTest, type, coords, conn_elem, conn_elem_sz, eps);
         }
-                        
       if (SPACEDIM==3)
         {
           return isElementContainsPointAlg3D(ptToTest,conn_elem,conn_elem_sz,coords,cmType,eps);

@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
           PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&tmpSource[0],&tmpTarget[0],ToConnType(tmpSource.size())/SPACEDIM,nbNodesT);
         for(ConnType nodeIdT=0;nodeIdT<nbNodesT;nodeIdT++)
           {
-            if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(&tmpTarget[0]+nodeIdT*SPACEDIM,&tmpSource[0],ToConnType(tmpSource.size())/SPACEDIM,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
+            if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(&tmpTarget[0]+nodeIdT*SPACEDIM,&tmpSource[0],ToConnType(tmpSource.size())/SPACEDIM,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
               {
                 ConnType curNodeTInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConnT[nodeIdT]);
                 typename MyMatrix::value_type& resRow=res[curNodeTInCmode];

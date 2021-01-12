@@ -53,13 +53,22 @@ namespace INTERP_KERNEL
     std::vector<double> CoordsS;
     PlanarIntersector<MyMeshType,MyMatrix>::getRealCoordinates(icellT,icellS,nbNodesT,nbNodesS,CoordsT,CoordsS,orientation);
     NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(icellT);
+    NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(icellS);
     QuadraticPolygon *pT=buildPolygonFrom(CoordsT,tT);
     double baryT[SPACEDIM];
     pT->getBarycenterGeneral(baryT);
     delete pT;
-    if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(baryT,&CoordsS[0],nbNodesS,InterpType<MyMeshType,MyMatrix,PTLOC2D_INTERSECTOR >::_precision))
-      return 1.;
-    return 0.;
+    bool ret;
+    double eps = InterpType<MyMeshType,MyMatrix,PTLOC2D_INTERSECTOR >::_precision;
+    if (tS != INTERP_KERNEL::NORM_POLYGON && !CellModel::GetCellModel(tS).isQuadratic())
+      ret = PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(baryT,&CoordsS[0],nbNodesS,eps);
+    else
+      {
+        std::vector<ConnType> conn_elem(nbNodesS);
+        std::iota(conn_elem.begin(), conn_elem.end(), 0);
+        ret = PointLocatorAlgos<MyMeshType>::isElementContainsPointAlgo2DPolygon(baryT, tS, &CoordsS[0], &conn_elem[0], nbNodesS, eps);
+      }
+    return (ret ? 1. : 0.);
   }
 
   INTERSECTOR_TEMPLATE

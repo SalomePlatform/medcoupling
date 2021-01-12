@@ -129,30 +129,15 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
           mcIdType sz(connI[(*iter)+1]-connI[*iter]-1);
           INTERP_KERNEL::NormalizedCellType ct((INTERP_KERNEL::NormalizedCellType)conn[connI[*iter]]);
           bool status(false);
-          // [ABN] : point locator algorithms are only properly working for linear cells.
-          if(ct!=INTERP_KERNEL::NORM_POLYGON && !sensibilityTo2DQuadraticLinearCellsFunc(ct,_mesh_dim))
-            status=INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<SPACEDIM> >::isElementContainsPoint(pos+i*SPACEDIM,ct,coords,conn+connI[*iter]+1,sz,eps);
+          // [ABN] : point locator algorithms are not impl. for POLY or QPOLY in spaceDim3
+          if(  SPACEDIM!=2 &&
+              (ct == INTERP_KERNEL::NORM_POLYGON || sensibilityTo2DQuadraticLinearCellsFunc(ct,_mesh_dim)))
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellsContainingPointsAlg : not implemented yet for POLYGON and QPOLYGON in spaceDim 3 !");
+          // Keep calling simple algorithm when this is desired and simple for speed reasons:
+          if (SPACEDIM == 2 && ct != INTERP_KERNEL::NORM_POLYGON && !sensibilityTo2DQuadraticLinearCellsFunc(ct,_mesh_dim))
+            status=INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<2> >::isElementContainsPointAlgo2DSimple2(pos+i*SPACEDIM,ct,coords,conn+connI[*iter]+1,sz,eps);
           else
-            {
-              if(SPACEDIM!=2)
-                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellsContainingPointsAlg : not implemented yet for POLYGON and QPOLYGON in spaceDim 3 !");
-              std::vector<INTERP_KERNEL::Node *> nodes(sz);
-              INTERP_KERNEL::QuadraticPolygon *pol(0);
-              for(mcIdType j=0;j<sz;j++)
-                {
-                  mcIdType nodeId(conn[connI[*iter]+1+j]);
-                  nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*SPACEDIM],coords[nodeId*SPACEDIM+1]);
-                }
-              if(!INTERP_KERNEL::CellModel::GetCellModel(ct).isQuadratic())
-                pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
-              else
-                pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
-              INTERP_KERNEL::Node *n(new INTERP_KERNEL::Node(pos[i*SPACEDIM],pos[i*SPACEDIM+1]));
-              double a(0.),b(0.),c(0.);
-              a=pol->normalizeMe(b,c); n->applySimilarity(b,c,a);
-              status=pol->isInOrOut2(n);
-              delete pol; n->decrRef();
-            }
+            status=INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<SPACEDIM> >::isElementContainsPoint(pos+i*SPACEDIM,ct,coords,conn+connI[*iter]+1,sz,eps);
           if(status)
             {
               eltsIndexPtr[i+1]++;

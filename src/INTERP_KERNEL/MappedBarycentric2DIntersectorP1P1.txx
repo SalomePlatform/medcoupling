@@ -58,7 +58,7 @@ namespace INTERP_KERNEL
         for(ConnType nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
           {
             typename MyMatrix::value_type& resRow=res[OTT<ConnType,numPol>::ind2C(startOfCellNodeConnT[nodeIdT])];
-            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(&CoordsTTmp[nodeIdT*SPACEDIM],&CoordsS[0],4,PlanarIntersector<MyMeshType,MyMatrix>::_precision) )
+            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(&CoordsTTmp[nodeIdT*SPACEDIM],&CoordsS[0],4,PlanarIntersector<MyMeshType,MyMatrix>::_precision) )
               {
                 double mco[2];  // mapped coordinates in the quad4
                 std::vector<const double*> coo(4);

@@ -57,7 +57,7 @@ namespace INTERP_KERNEL
         for(int nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
           {
             typename MyMatrix::value_type& resRow=res[OTT<ConnType,numPol>::ind2C(startOfCellNodeConnT[nodeIdT])];
-            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(CoordsTTmp.data()+nodeIdT*SPACEDIM,CoordsS.data(),3,this->_precision) )
+            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(CoordsTTmp.data()+nodeIdT*SPACEDIM,CoordsS.data(),3,this->_precision) )
               {
                 double resLoc[3];
                 barycentric_coords<SPACEDIM>(&CoordsS[0],&CoordsTTmp[nodeIdT*SPACEDIM],resLoc);
