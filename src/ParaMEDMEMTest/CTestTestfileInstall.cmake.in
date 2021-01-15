@@ -1,0 +1,58 @@
+# Copyright (C) 2015-2020  CEA/DEN, EDF R&D
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+set(MPIEXEC @MPIEXEC@)
+set(_oversub_opt @_oversub_opt@)
+
+SET(TEST_NAMES ParaMEDMEMTest)
+
+# TestParaMEDMEM
+
+set(tfile TestParaMEDMEM_Proc2)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 2 ${_oversub_opt} TestParaMEDMEM)
+
+set(tfile TestParaMEDMEM_Proc3)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 3 ${_oversub_opt} TestParaMEDMEM)
+
+set(tfile TestParaMEDMEM_Proc4)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} TestParaMEDMEM)
+
+set(tfile TestParaMEDMEM_Proc5)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 5 ${_oversub_opt} TestParaMEDMEM)
+
+# TestMPIAccess
+
+set(tfile TestMPIAccess_Proc2)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 2 ${_oversub_opt} TestMPIAccess)
+
+set(tfile TestMPIAccess_Proc3)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 3 ${_oversub_opt} TestMPIAccess)
+
+# TestMPIAccessDEC
+
+set(tfile TestMPIAccessDEC_Proc4)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} TestMPIAccessDEC)
+

@@ -70,6 +70,6 @@ IF(MEDCOUPLING_USE_MPI)
 ENDIF(MEDCOUPLING_USE_MPI)
 
 # Application tests
-INSTALL(FILES CTestTestfileInstall.cmake
-  DESTINATION ${MEDCOUPLING_INSTALL_TESTS}
-  RENAME CTestTestfile.cmake)
+configure_file(CTestTestfileInstall.cmake.in "CTestTestfileST.cmake" @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfileST.cmake DESTINATION ${MEDCOUPLING_INSTALL_TESTS} RENAME CTestTestfile.cmake)
+
