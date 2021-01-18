@@ -3548,7 +3548,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(mm.getNumberFieldAtLevel(1) is None)
         delta4=ref_heap_mem-mm.getHeapMemorySize()
         self.assertTrue(delta4<delta3)
-        self.assertTrue(delta4>=32*4*2)
+        self.assertTrue(delta4>=MEDCouplingSizeOfIDs()/2*4*2)
         #
         mm=MEDFileUMesh.New(fname,"mesh",-1,-1,MEDFileMeshReadSelector(51))
         self.assertEqual(len(mm.getGroupsNames()),6)
