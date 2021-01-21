@@ -67,7 +67,7 @@ void MEDCoupling::DACheckNbOfTuplesAndComp(const DataArray *da, mcIdType nbOfTup
   da->checkNbOfTuplesAndComp(nbOfTuples,nbOfCompo,msg);
 }
 
-template<mcIdType SPACEDIM>
+template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, mcIdType nbNodes, mcIdType limitNodeId, double prec, DataArrayIdType *c, DataArrayIdType *cI) const
 {
   const double *coordsPtr=getConstPointer();
@@ -100,7 +100,7 @@ void DataArrayDouble::findCommonTuplesAlg(const double *bbox, mcIdType nbNodes, 
     }
 }
 
-template<mcIdType SPACEDIM>
+template<int SPACEDIM>
 void DataArrayDouble::FindTupleIdsNearTuplesAlg(const BBTreePts<SPACEDIM,mcIdType>& myTree, const double *pos, mcIdType nbOfTuples, double eps,
                                                 DataArrayIdType *c, DataArrayIdType *cI)
 {
@@ -116,7 +116,7 @@ void DataArrayDouble::FindTupleIdsNearTuplesAlg(const BBTreePts<SPACEDIM,mcIdTyp
     }
 }
 
-template<mcIdType SPACEDIM>
+template<int SPACEDIM>
 void DataArrayDouble::FindClosestTupleIdAlg(const BBTreePts<SPACEDIM,mcIdType>& myTree, double dist, const double *pos, mcIdType nbOfTuples, const double *thisPt, mcIdType thisNbOfTuples, mcIdType *res)
 {
   double distOpt = std::max(dist, std::numeric_limits<double>::epsilon());

@@ -535,11 +535,11 @@ namespace MEDCoupling
     bool resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI);
     void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   public:
-    template<mcIdType SPACEDIM>
+    template<int SPACEDIM>
     void findCommonTuplesAlg(const double *bbox, mcIdType nbNodes, mcIdType limitNodeId, double prec, DataArrayIdType *c, DataArrayIdType *cI) const;
-    template<mcIdType SPACEDIM>
+    template<int SPACEDIM>
     static void FindClosestTupleIdAlg(const BBTreePts<SPACEDIM,mcIdType>& myTree, double dist, const double *pos, mcIdType nbOfTuples, const double *thisPt, mcIdType thisNbOfTuples, mcIdType *res);
-    template<mcIdType SPACEDIM>
+    template<int SPACEDIM>
     static void FindTupleIdsNearTuplesAlg(const BBTreePts<SPACEDIM,mcIdType>& myTree, const double *pos, mcIdType nbOfTuples, double eps,
                                           DataArrayIdType *c, DataArrayIdType *cI);
   private:
