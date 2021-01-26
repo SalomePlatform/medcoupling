@@ -766,9 +766,9 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayIdType
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done. This method calls
  * MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
- * This method lists cell by cell in \b this which are its neighbors. To compute the result
+ * This method lists for every cell in \b this its neighbor \b cells. To compute the result
  * only connectivities are considered.
- * The neighbor cells of cell having id 'cellId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
+ * The neighbor cells of a given cell having id 'cellId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
  * The format of return is hence \ref numbering-indirect.
  *
  * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly
@@ -912,7 +912,7 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::explodeIntoEdges(MCAuto<DataArrayIdTy
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done. This method calls
  * MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
- * This method lists node by node in \b this which are its neighbors. To compute the result
+ * This method lists for every node in \b this its neighbor \b nodes. To compute the result
  * only connectivities are considered.
  * The neighbor nodes of node having id 'nodeId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
  *
