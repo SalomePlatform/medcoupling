@@ -789,7 +789,23 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayIdType *&neighbors, Data
   ComputeNeighborsOfCellsAdv(desc,descIndx,revDesc,revDescIndx,neighbors,neighborsIndx);
 }
 
-void MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne(const DataArrayIdType *nodeNeigh, const DataArrayIdType *nodeNeighI, MCAuto<DataArrayIdType>& cellNeigh, MCAuto<DataArrayIdType>& cellNeighIndex) const
+/**
+ * Given a set of identifiers indexed by the node IDs of the mesh (and given in the (\ref numbering-indirect format) ,
+ * re-arrange the data to produce a set indexed by cell IDs. The mapping between a node ID and a cell ID is done using the connectivity
+ * of the mesh (e.g. a triangular element will receive the information from its three vertices).
+ * Doublons are eliminated. If present in the inital dataset, the ID of the cell itself is also remooved.
+ *
+ * \param [in] nodeNeigh a set of identifiers (mcIdType) stored by node index (\ref numbering-indirect format)
+ * \param [in] nodeNeighI a set of identifiers (mcIdType) stored by node index (\ref numbering-indirect format)
+ * \param [out] cellNeigh This array is newly allocated and should be dealt by the caller. It contains the initial identifiers
+ * provided in the input parameters but stored now by cell index (See 2nd output parameter and \ref numbering-indirect).
+ * \param [out] cellNeighI is an array of size this->getNumberOfCells()+1 newly allocated and should be
+ * dealt by the caller. This arrays allow to use the first output parameter \b neighbors (\ref numbering-indirect).
+ *
+ * \raise if the number of tuples in nodeNeighI is not equal to the number of nodes in the mesh.
+ */
+void MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne(const DataArrayIdType *nodeNeigh, const DataArrayIdType *nodeNeighI,
+                                                           MCAuto<DataArrayIdType>& cellNeigh, MCAuto<DataArrayIdType>& cellNeighIndex) const
 {
   if(!nodeNeigh || !nodeNeighI)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne : null pointer !");
@@ -805,7 +821,7 @@ void MEDCouplingUMesh::computeCellNeighborhoodFromNodesOne(const DataArrayIdType
     {
       std::set<mcIdType> s;
       for(const mcIdType *it=c+ci[i]+1;it!=c+ci[i+1];it++)
-        if(*it>=0)
+        if(*it>=0)  // avoid -1 in polygons or polyedrons
           s.insert(ne+nei[*it],ne+nei[*it+1]);
       s.erase(i);
       cellNeigh->insertAtTheEnd(s.begin(),s.end());
