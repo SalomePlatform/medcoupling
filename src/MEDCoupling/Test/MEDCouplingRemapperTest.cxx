@@ -1290,29 +1290,29 @@ void MEDCouplingRemapperTest::testBugNonRegression1()
   coordsSrc->decrRef(); connSrc->decrRef(); connISrc->decrRef();
   // target
   DataArrayDouble *coordsTrg(DataArrayDouble::New());
-const double coordsTrgData[36]={-2,1.1547005383792521,264.85199999999998,-2,0.57735026918962618,264.85199999999998,-2.5,0.2886751345948132,264.85199999999998,-2.5,1.443375672974065,264.85199999999998,-3.0000000000000004,1.1547005383792526,264.85199999999998,-3.0000000000000004,0.57735026918962662,264.85199999999998,-2,1.1547005383792521,289.05200000000002,-2,0.57735026918962618,289.05200000000002,-2.5,0.2886751345948132,289.05200000000002,-2.5,1.443375672974065,289.05200000000002,-3.0000000000000004,1.1547005383792526,289.05200000000002,-3.0000000000000004,0.57735026918962662,289.05200000000002};
- coordsTrg->useArray(coordsTrgData,false,DeallocType::CPP_DEALLOC,12,3);
- DataArrayIdType *connTrg=DataArrayIdType::New();
- const mcIdType connTrgData[44]={31,0,1,2,5,4,3,-1,7,6,9,10,11,8,-1,3,9,6,0,-1,4,10,9,3,-1,5,11,10,4,-1,2,8,11,5,-1,1,7,8,2,-1,0,6,7,1};
- connTrg->useArray(connTrgData,false,DeallocType::CPP_DEALLOC,44,1);
- DataArrayIdType *connITrg=DataArrayIdType::New();
- const mcIdType connITrgData[2]={0,44};
- connITrg->useArray(connITrgData,false,DeallocType::CPP_DEALLOC,2,1);
- MEDCouplingUMesh *trgMesh=MEDCouplingUMesh::New("target",3);
- trgMesh->setCoords(coordsTrg);
- trgMesh->setConnectivity(connTrg,connITrg,true);
- coordsTrg->decrRef(); connTrg->decrRef(); connITrg->decrRef();
- // Go !
- const double valExpected(20.957814771583468);
- MEDCouplingRemapper remapper;
- remapper.setPrecision(1e-12);
- remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
- CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(srcMesh,trgMesh,"P0P0"));
- std::vector<std::map<mcIdType,double> > matrx(remapper.getCrudeMatrix());
- CPPUNIT_ASSERT_EQUAL(1,(int)matrx.size());
- CPPUNIT_ASSERT_EQUAL(1,(int)matrx[0].size());
- CPPUNIT_ASSERT_DOUBLES_EQUAL(valExpected,matrx[0][0],1e-13);
- //
- srcMesh->decrRef(); trgMesh->decrRef();
+  const double coordsTrgData[36]={-2,1.1547005383792521,264.85199999999998,-2,0.57735026918962618,264.85199999999998,-2.5,0.2886751345948132,264.85199999999998,-2.5,1.443375672974065,264.85199999999998,-3.0000000000000004,1.1547005383792526,264.85199999999998,-3.0000000000000004,0.57735026918962662,264.85199999999998,-2,1.1547005383792521,289.05200000000002,-2,0.57735026918962618,289.05200000000002,-2.5,0.2886751345948132,289.05200000000002,-2.5,1.443375672974065,289.05200000000002,-3.0000000000000004,1.1547005383792526,289.05200000000002,-3.0000000000000004,0.57735026918962662,289.05200000000002};
+  coordsTrg->useArray(coordsTrgData,false,DeallocType::CPP_DEALLOC,12,3);
+  DataArrayIdType *connTrg=DataArrayIdType::New();
+  const mcIdType connTrgData[44]={31,0,1,2,5,4,3,-1,7,6,9,10,11,8,-1,3,9,6,0,-1,4,10,9,3,-1,5,11,10,4,-1,2,8,11,5,-1,1,7,8,2,-1,0,6,7,1};
+  connTrg->useArray(connTrgData,false,DeallocType::CPP_DEALLOC,44,1);
+  DataArrayIdType *connITrg=DataArrayIdType::New();
+  const mcIdType connITrgData[2]={0,44};
+  connITrg->useArray(connITrgData,false,DeallocType::CPP_DEALLOC,2,1);
+  MEDCouplingUMesh *trgMesh=MEDCouplingUMesh::New("target",3);
+  trgMesh->setCoords(coordsTrg);
+  trgMesh->setConnectivity(connTrg,connITrg,true);
+  coordsTrg->decrRef(); connTrg->decrRef(); connITrg->decrRef();
+  // Go !
+  const double valExpected(20.957814771583468);
+  MEDCouplingRemapper remapper;
+  remapper.setPrecision(1e-12);
+  remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(srcMesh,trgMesh,"P0P0"));
+  std::vector<std::map<mcIdType,double> > matrx(remapper.getCrudeMatrix());
+  CPPUNIT_ASSERT_EQUAL(1,(int)matrx.size());
+  CPPUNIT_ASSERT_EQUAL(1,(int)matrx[0].size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(valExpected,matrx[0][0],1e-13);
+  //
+  srcMesh->decrRef(); trgMesh->decrRef();
 }
 

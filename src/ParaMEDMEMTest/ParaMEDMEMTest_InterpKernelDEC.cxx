@@ -1475,11 +1475,10 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           mesh->setCoords(myCoords);
           myCoords->decrRef();
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
-          DataArrayIdType *da=DataArrayIdType::New();
-          const mcIdType globalNumberingP2[5]={0,1,2,3,4};
-          da->useArray(globalNumberingP2,false,DeallocType::CPP_DEALLOC,5,1);
+          std::vector<mcIdType> globalNumberingP2 = {0,1,2,3,4};
+          MCAuto<DataArrayIdType> da=DataArrayIdType::New(); da->alloc(5,1);
+          std::copy(globalNumberingP2.begin(), globalNumberingP2.end(), da->rwBegin());
           paramesh->setNodeGlobal(da);
-          da->decrRef();
         }
       if(rank==3)
         {
@@ -1496,11 +1495,10 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           mesh->setCoords(myCoords);
           myCoords->decrRef();
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
-          DataArrayIdType *da=DataArrayIdType::New();
-          const mcIdType globalNumberingP3[3]={4,2,5};
-          da->useArray(globalNumberingP3,false,DeallocType::CPP_DEALLOC,3,1);
+          std::vector<mcIdType> globalNumberingP3 = {4,2,5};
+          MCAuto<DataArrayIdType> da=DataArrayIdType::New(); da->alloc(3,1);
+          std::copy(globalNumberingP3.begin(), globalNumberingP3.end(), da->rwBegin());
           paramesh->setNodeGlobal(da);
-          da->decrRef();
         }
       if(rank==4)
         {
@@ -1518,11 +1516,10 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
           mesh->setCoords(myCoords);
           myCoords->decrRef();
           paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
-          DataArrayIdType *da=DataArrayIdType::New();
-          const mcIdType globalNumberingP4[6]={3,6,7,4,8,5};
-          da->useArray(globalNumberingP4,false,DeallocType::CPP_DEALLOC,6,1);
+          std::vector<mcIdType> globalNumberingP4 = {3,6,7,4,8,5};
+          MCAuto<DataArrayIdType> da=DataArrayIdType::New(); da->alloc(6,1);
+          std::copy(globalNumberingP4.begin(), globalNumberingP4.end(), da->rwBegin());
           paramesh->setNodeGlobal(da);
-          da->decrRef();
         }
       MEDCoupling::ComponentTopology comptopo;
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
