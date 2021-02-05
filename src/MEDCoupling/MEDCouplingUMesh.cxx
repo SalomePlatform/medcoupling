@@ -208,9 +208,13 @@ void MEDCouplingUMesh::checkConsistencyLight() const
 
 /*!
  * Checks if \a this mesh is well defined. If no exception is thrown by this method,
- * then \a this mesh is most probably is writable, exchangeable and available for all
+ * then \a this mesh is informatically clean, most probably is writable, exchangeable and available for all
  * algorithms. <br> In addition to the checks performed by checkConsistencyLight(), this
- * method thoroughly checks the nodal connectivity.
+ * method thoroughly checks the nodal connectivity. For more geometrical checking
+ * checkGeomConsistency method is better than this.
+ * 
+ * \sa MEDCouplingUMesh::checkGeomConsistency
+ * 
  *  \param [in] eps - a not used parameter.
  *  \throw If the mesh dimension is not set.
  *  \throw If the coordinates array is not set (if mesh dimension != -1 ).
@@ -285,6 +289,28 @@ void MEDCouplingUMesh::checkConsistency(double eps) const
         }
     }
 }
+
+/*!
+ * This method adds some geometrical checks in addition to the informatical check of checkConsistency method.
+ * This method in particular checks that a same node is not repeated several times in a cell.
+ * 
+ *  \throw If there is a presence a multiple same node ID in nodal connectivity of cell.
+ */
+void MEDCouplingUMesh::checkGeomConsistency(double eps) const
+{
+  this->checkConsistency(eps);
+  auto nbOfCells(getNumberOfCells());
+  const mcIdType *ptr(_nodal_connec->begin()),*ptrI(_nodal_connec_index->begin());
+  for(auto icell = 0 ; icell < nbOfCells ; ++icell)
+  {
+    std::set<mcIdType> s(ptr+ptrI[icell]+1,ptr+ptrI[icell+1]);
+    if(s.size()==ptrI[icell+1]-ptrI[icell]-1)
+      continue;
+    std::ostringstream oss; oss << "MEDCouplingUMesh::checkGeomConsistency : for cell #" << icell << " presence of multiple same nodeID !";
+    throw INTERP_KERNEL::Exception(oss.str());
+  }
+}
+
 
 /*!
  * Sets dimension of \a this mesh. The mesh dimension in general depends on types of

@@ -57,6 +57,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void checkGeomConsistency(double eps=1e-12) const;
     MEDCOUPLING_EXPORT void setMeshDimension(int meshDim);
     MEDCOUPLING_EXPORT void allocateCells(mcIdType nbOfCells=0);
     MEDCOUPLING_EXPORT void insertNextCell(INTERP_KERNEL::NormalizedCellType type, mcIdType size, const mcIdType *nodalConnOfCell);

@@ -923,6 +923,19 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         m.advancedRepr()
         repr(m)
 
+    def testCheckGeomConsistency0(self):
+        """Test of MEDCouplingUMesh.checkGeomConsistency"""
+        m = MEDCouplingUMesh("",2)
+        m.setCoords(DataArrayDouble([(0,0),(1,0),(2,0),(0,1),(1,1),(2,1)]))
+        m.allocateCells()
+        m.insertNextCell(NORM_TRI6,[0,1,2,3,4,5])
+        m.insertNextCell(NORM_TRI6,[0,1,3,3,4,5])
+        m.checkConsistency()
+        self.assertRaises(InterpKernelException,m.checkGeomConsistency) # cell1 is incorrect because node 3 is repeated twice
+        m.getNodalConnectivity()[10]=2 # replace 3 by 2 for cell#1 to fix the problem
+        m.checkConsistency()
+        m.checkGeomConsistency() # now m is OK
+
     pass
 
 if __name__ == '__main__':

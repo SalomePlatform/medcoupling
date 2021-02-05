@@ -2048,6 +2048,7 @@ namespace MEDCoupling
     static MEDCouplingUMesh *New();
     static MEDCouplingUMesh *New(const char *meshName, int meshDim);
     void checkConsistencyLight() const;
+    void checkGeomConsistency(double eps=1e-12) const;
     void setMeshDimension(int meshDim);
     void allocateCells(int nbOfCells=0);
     void finishInsertingCells();
