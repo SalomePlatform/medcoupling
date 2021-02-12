@@ -17,6 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+ADD_SUBDIRECTORY(MPIAccess)   # maybe to delete one day ...
+
 ADD_DEFINITIONS(${MPI_DEFINITIONS} ${CPPUNIT_DEFINITIONS})
 
 INCLUDE_DIRECTORIES(
@@ -24,6 +26,7 @@ INCLUDE_DIRECTORIES(
   ${CPPUNIT_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDLoader
   ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDMEM
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDMEM/MPIAccess
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
   ${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo
@@ -43,29 +46,7 @@ SET(ParaMEDMEMTest_SOURCES
   ParaMEDMEMTest_FabienAPI.cxx
   ParaMEDMEMTest_NonCoincidentDEC.cxx
   ParaMEDMEMTest_OverlapDEC.cxx
-  MPIAccessDECTest.cxx
-  test_AllToAllDEC.cxx
-  test_AllToAllvDEC.cxx
-  test_AllToAllTimeDEC.cxx
-  test_AllToAllvTimeDEC.cxx
-  test_AllToAllvTimeDoubleDEC.cxx
-  MPIAccessTest.cxx
-  test_MPI_Access_Send_Recv.cxx
-  test_MPI_Access_Cyclic_Send_Recv.cxx
-  test_MPI_Access_SendRecv.cxx
-  test_MPI_Access_ISend_IRecv.cxx
-  test_MPI_Access_Cyclic_ISend_IRecv.cxx
-  test_MPI_Access_ISendRecv.cxx
-  test_MPI_Access_Probe.cxx
-  test_MPI_Access_IProbe.cxx
-  test_MPI_Access_Cancel.cxx
-  test_MPI_Access_Send_Recv_Length.cxx
-  test_MPI_Access_ISend_IRecv_Length.cxx
-  test_MPI_Access_ISend_IRecv_Length_1.cxx
-  test_MPI_Access_Time.cxx
-  test_MPI_Access_Time_0.cxx
-  test_MPI_Access_ISend_IRecv_BottleNeck.cxx
-  )
+)
 
 ADD_LIBRARY(ParaMEDMEMTest ${ParaMEDMEMTest_SOURCES})
 SET_TARGET_PROPERTIES(ParaMEDMEMTest PROPERTIES COMPILE_FLAGS "")
@@ -76,35 +57,25 @@ SET(TESTSParaMEDMEM)
 SET(TestParaMEDMEM_SOURCES
   TestParaMEDMEM.cxx
   )
-SET(TESTSParaMEDMEM ${TESTSParaMEDMEM} TestParaMEDMEM)
-
-SET(TestMPIAccessDEC_SOURCES
-  TestMPIAccessDEC.cxx
-  )
-SET(TESTSParaMEDMEM ${TESTSParaMEDMEM} TestMPIAccessDEC)
-
-SET(TestMPIAccess_SOURCES
-  TestMPIAccess.cxx
-  )
-SET(TESTSParaMEDMEM ${TESTSParaMEDMEM} TestMPIAccess)
+LIST(APPEND TESTSParaMEDMEM TestParaMEDMEM)
 
 SET(test_perf_SOURCES
   test_perf.cxx
   )
-SET(TESTSParaMEDMEM ${TESTSParaMEDMEM} test_perf)
+LIST(APPEND TESTSParaMEDMEM test_perf)
 
 IF(MPI2_IS_OK)
   SET(ParaMEDMEMTestMPI2_1_SOURCES
     MPI2Connector.cxx
     ParaMEDMEMTestMPI2_1.cxx
     )
-  SET(TESTSParaMEDMEM ${TESTSParaMEDMEM} ParaMEDMEMTestMPI2_1)
+  LIST(APPEND TESTSParaMEDMEM ParaMEDMEMTestMPI2_1)
 
   SET(ParaMEDMEMTestMPI2_2_SOURCES
     MPI2Connector.cxx
     ParaMEDMEMTestMPI2_2.cxx
     )
-  SET(TESTSParaMEDMEM ${TESTSParaMEDMEM} ParaMEDMEMTestMPI2_2)
+  LIST(APPEND TESTSParaMEDMEM ParaMEDMEMTestMPI2_2)
 ENDIF(MPI2_IS_OK)
 
 FOREACH(bintestparamem ${TESTSParaMEDMEM})
@@ -132,20 +103,10 @@ SET_TESTS_PROPERTIES(TestParaMEDMEM_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
 ADD_TEST(NAME TestParaMEDMEM_Proc5 COMMAND ${MPIEXEC} -np 5 ${_oversub_opt} $<TARGET_FILE:TestParaMEDMEM>)
 SET_TESTS_PROPERTIES(TestParaMEDMEM_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
 
-ADD_TEST(NAME TestMPIAccess_Proc2 COMMAND ${MPIEXEC} -np 2 ${_oversub_opt} $<TARGET_FILE:TestMPIAccess>)
-SET_TESTS_PROPERTIES(TestMPIAccess_Proc2 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(NAME TestMPIAccess_Proc3 COMMAND ${MPIEXEC} -np 3 ${_oversub_opt} $<TARGET_FILE:TestMPIAccess>)
-SET_TESTS_PROPERTIES(TestMPIAccess_Proc3 PROPERTIES ENVIRONMENT "${tests_env}")
-
-ADD_TEST(NAME TestMPIAccessDEC_Proc4 COMMAND ${MPIEXEC} -np 4 ${_oversub_opt} $<TARGET_FILE:TestMPIAccessDEC>)
-SET_TESTS_PROPERTIES(TestMPIAccessDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
-
 # Installation rules
 INSTALL(TARGETS ${TESTSParaMEDMEM} DESTINATION ${MEDCOUPLING_INSTALL_BINS})
 SET(COMMON_HEADERS_HXX
   MPIMainTest.hxx
-  MPIAccessDECTest.hxx
-  MPIAccessTest.hxx
   ParaMEDMEMTest.hxx
   MPI2Connector.hxx
 )

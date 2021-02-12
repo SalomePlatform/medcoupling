@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MPIAccessDEC.hxx"
+#include "MPIAccess/MPIAccessDEC.hxx"
 
 #include <cstring>
 

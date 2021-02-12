@@ -17,7 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MPIAccess.hxx"
+#include "MPIAccess/MPIAccess.hxx"
+
 #include "InterpolationUtils.hxx"
 
 #include <iostream>

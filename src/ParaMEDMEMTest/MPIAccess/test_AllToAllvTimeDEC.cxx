@@ -27,10 +27,10 @@
 #include "MPIAccessDECTest.hxx"
 #include <cppunit/TestAssert.h>
 
+#include "../ParaMEDMEM/MPIAccess/MPIAccessDEC.hxx"
 //#include "CommInterface.hxx"
 //#include "ProcessorGroup.hxx"
 //#include "MPIProcessorGroup.hxx"
-#include "MPIAccessDEC.hxx"
 #include "LinearTimeInterpolator.hxx"
 
 // use this define to enable lines, execution of which leads to Segmentation Fault

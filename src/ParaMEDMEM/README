@@ -25,7 +25,8 @@ Exemple avec MPICH :
 
 mpirun -np 2 xterm -e gdb src/ParaMEDMEMTest/TestMPIAccess
 
-
+[ABN-2021] MPIAccess is now isolated - it is only used in NxM_Mapping
+=====================================================================
 
 
 

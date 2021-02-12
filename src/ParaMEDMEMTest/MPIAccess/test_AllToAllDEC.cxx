@@ -26,10 +26,7 @@
 #include "MPIAccessDECTest.hxx"
 #include <cppunit/TestAssert.h>
 
-//#include "CommInterface.hxx"
-//#include "ProcessorGroup.hxx"
-//#include "MPIProcessorGroup.hxx"
-#include "MPIAccessDEC.hxx"
+#include "../ParaMEDMEM/MPIAccess/MPIAccessDEC.hxx"
 
 // use this define to enable lines, execution of which leads to Segmentation Fault
 #define ENABLE_FAULTS
@@ -40,11 +37,11 @@
 using namespace std;
 using namespace MEDCoupling;
 
-void MPIAccessDECTest::test_AllToAllvDECSynchronousPointToPoint() {
-  test_AllToAllvDEC( false ) ;
+void MPIAccessDECTest::test_AllToAllDECSynchronousPointToPoint() {
+  test_AllToAllDEC( false ) ;
 }
-void MPIAccessDECTest::test_AllToAllvDECAsynchronousPointToPoint() {
-  test_AllToAllvDEC( true ) ;
+void MPIAccessDECTest::test_AllToAllDECAsynchronousPointToPoint() {
+  test_AllToAllDEC( true ) ;
 }
 
 static void chksts( int sts , int myrank , MEDCoupling::MPIAccess mpi_access ) {
@@ -52,11 +49,11 @@ static void chksts( int sts , int myrank , MEDCoupling::MPIAccess mpi_access ) {
   int lenerr ;
   if ( sts != MPI_SUCCESS ) {
     mpi_access.errorString(sts, msgerr, &lenerr) ;
-    debugStream << "test_AllToAllvDEC" << myrank << " lenerr " << lenerr << " "
+    debugStream << "test" << myrank << " lenerr " << lenerr << " "
          << msgerr << endl ;
     ostringstream strstream ;
-    strstream << "==========================================================="
-              << "test_AllToAllvDEC" << myrank << " KO"
+    strstream << "===========================================================" << endl
+              << "test_AllToAllDEC" << myrank << " KO" << endl
               << "==========================================================="
               << endl ;
     debugStream << strstream.str() << endl ;
@@ -65,9 +62,9 @@ static void chksts( int sts , int myrank , MEDCoupling::MPIAccess mpi_access ) {
   return ;
 }
 
-void MPIAccessDECTest::test_AllToAllvDEC( bool Asynchronous ) {
+void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
 
-  debugStream << "test_AllToAllvDEC" << endl ;
+  debugStream << "test_AllToAllDEC" << endl ;
 
   //  MPI_Init(&argc, &argv) ; 
 
@@ -79,7 +76,7 @@ void MPIAccessDECTest::test_AllToAllvDEC( bool Asynchronous ) {
   if ( size < 2 || size > 11 ) {
     ostringstream strstream ;
     strstream << "usage :" << endl
-              << "mpirun -np <nbprocs> test_AllToAllvDEC" << endl
+              << "mpirun -np <nbprocs> test_AllToAllDEC" << endl
               << " (nbprocs >=2)" << endl
               << "test must be run with more than 1 proc and less than 12 procs"
               << endl ;
@@ -87,9 +84,7 @@ void MPIAccessDECTest::test_AllToAllvDEC( bool Asynchronous ) {
     CPPUNIT_FAIL( strstream.str() ) ;
   }
 
-  //  int Asynchronous = atoi(argv[1]);
-
-  debugStream << "test_AllToAllvDEC" << myrank << endl ;
+  debugStream << "test_AllToAllDEC" << myrank << endl ;
 
   MEDCoupling::CommInterface interface ;
   std::set<int> sourceprocs;
@@ -114,60 +109,32 @@ void MPIAccessDECTest::test_AllToAllvDEC( bool Asynchronous ) {
 #define datamsglength 10
 
   //  int sts ;
-  int *sendcounts = new int[size] ;
-  int *sdispls = new int[size] ;
-  int *recvcounts = new int[size] ;
-  int *rdispls = new int[size] ;
-  for ( i = 0 ; i < size ; i++ ) {
-    sendcounts[i] = datamsglength-i;
-    sdispls[i] = i*datamsglength ;
-    recvcounts[i] = datamsglength-myrank;
-    rdispls[i] = i*datamsglength ;
-  }
+  int sendcount = datamsglength ;
+  int recvcount = datamsglength ;
   int * recvbuf = new int[datamsglength*size] ;
 
   int ireq ;
   for ( ireq = 0 ; ireq < maxreq ; ireq++ ) {
     int * sendbuf = new int[datamsglength*size] ;
-    //    int * sendbuf = (int *) malloc( sizeof(int)*datamsglength*size) ;
     int j ;
     for ( j = 0 ; j < datamsglength*size ; j++ ) {
       sendbuf[j] = myrank*1000000 + ireq*1000 + j ;
       recvbuf[j] = -1 ;
     }
 
-    MyMPIAccessDEC->allToAllv( sendbuf, sendcounts , sdispls , MPI_INT ,
-                               recvbuf, recvcounts , rdispls , MPI_INT ) ;
-
-    //    debugStream << "test_AllToAllvDEC" << myrank << " recvbuf before CheckSent" ;
-    //    for ( i = 0 ; i < datamsglength*size ; i++ ) {
-    //       debugStream << " " << recvbuf[i] ;
-    //    }
-    //    debugStream << endl ;
-
-    //    debugStream << "test_AllToAllvDEC" << myrank << " sendbuf " << sendbuf << endl ;
-    //    MyMPIAccessDEC->CheckSent() ;
+    MyMPIAccessDEC->allToAll( sendbuf, sendcount , MPI_INT ,
+                              recvbuf, recvcount , MPI_INT ) ;
 
     int nRecvReq = mpi_access->recvRequestIdsSize() ;
-    //    debugStream << "test_AllToAllvDEC" << myrank << " WaitAllRecv " << nRecvReq << " Requests" << endl ;
     int *ArrayOfRecvRequests = new int[nRecvReq] ;
     int nReq = mpi_access->recvRequestIds( nRecvReq, ArrayOfRecvRequests ) ;
     mpi_access->waitAll( nReq , ArrayOfRecvRequests ) ;
     mpi_access->deleteRequests( nReq , ArrayOfRecvRequests ) ;
     delete [] ArrayOfRecvRequests ;
-
-    //    debugStream << "test_AllToAllvDEC" << myrank << " recvbuf" ;
-    //    for ( i = 0 ; i < datamsglength*size ; i++ ) {
-    //       debugStream << " " << recvbuf[i] ;
-    //    }
-    //    debugStream << endl ;
   }
 
-  //  debugStream << "test_AllToAllvDEC" << myrank << " final CheckSent" << endl ;
-  //  MyMPIAccessDEC->CheckSent() ;
-
   int nSendReq = mpi_access->sendRequestIdsSize() ;
-  debugStream << "test_AllToAllvDEC" << myrank << " final SendRequestIds " << nSendReq << " SendRequests"
+  debugStream << "test_AllToAllDEC" << myrank << " final SendRequestIds " << nSendReq << " SendRequests"
        << endl ;
   if ( nSendReq ) {
     int *ArrayOfSendRequests = new int[nSendReq] ;
@@ -179,13 +146,13 @@ void MPIAccessDECTest::test_AllToAllvDEC( bool Asynchronous ) {
   int nRecvReq = mpi_access->recvRequestIdsSize() ;
   if ( nRecvReq ) {
     ostringstream strstream ;
-    strstream << "test_AllToAllvDEC" << myrank << " final RecvRequestIds " << nRecvReq
+    strstream << "test_AllToAllDEC" << myrank << " final RecvRequestIds " << nRecvReq
               << " RecvRequests # 0 Error" << endl ;
     debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
   else {
-    debugStream << "test_AllToAllvDEC" << myrank << " final RecvRequestIds " << nRecvReq
+    debugStream << "test_AllToAllDEC" << myrank << " final RecvRequestIds " << nRecvReq
          << " RecvRequests = 0 OK" << endl ;
   }
 
@@ -194,19 +161,11 @@ void MPIAccessDECTest::test_AllToAllvDEC( bool Asynchronous ) {
   delete sourcegroup ;
   delete targetgroup ;
   delete MyMPIAccessDEC ;
-  delete [] sendcounts ;
-  delete [] sdispls ;
-  delete [] recvcounts ;
-  delete [] rdispls ;
   delete [] recvbuf ;
 
   //  MPI_Finalize();
 
-  debugStream << "test_AllToAllvDEC" << myrank << " OK" << endl ;
+  debugStream << "test_AllToAllDEC" << myrank << " OK" << endl ;
 
   return ;
 }
-
-
-
-

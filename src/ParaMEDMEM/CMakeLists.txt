@@ -27,6 +27,7 @@ ENDIF()
 INCLUDE_DIRECTORIES(
   ${MPI_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/MPIAccess
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
   ${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
@@ -37,42 +38,44 @@ INCLUDE_DIRECTORIES(
   )
 
 SET(paramedmem_SOURCES
-  ProcessorGroup.cxx
-  MPIProcessorGroup.cxx
-  ParaMESH.cxx
+  BlockTopology.cxx
   CommInterface.cxx
-  ParaUMesh.cxx
-  ParaSkyLineArray.cxx
-  ParaDataArray.cxx
   ComponentTopology.cxx
-  MPIAccess.cxx
-  InterpolationMatrix.cxx
-  OverlapInterpolationMatrix.cxx
-  StructuredCoincidentDEC.cxx
-  ExplicitCoincidentDEC.cxx
-  InterpKernelDEC.cxx
-  ElementLocator.cxx
-  OverlapElementLocator.cxx
-  MPIAccessDEC.cxx
-  TimeInterpolator.cxx
-  LinearTimeInterpolator.cxx
   DEC.cxx
   DisjointDEC.cxx
-  OverlapDEC.cxx
+  ElementLocator.cxx
+  ExplicitCoincidentDEC.cxx
+  ExplicitMapping.cxx
   ExplicitTopology.cxx
+  InterpKernelDEC.cxx
+  InterpolationMatrix.cxx
+  LinearTimeInterpolator.cxx
+  MPIProcessorGroup.cxx
   MxN_Mapping.cxx
+  OverlapDEC.cxx
+  OverlapElementLocator.cxx
+  OverlapInterpolationMatrix.cxx
   OverlapMapping.cxx
+  ParaDataArray.cxx
   ParaFIELD.cxx
   ParaGRID.cxx
-  BlockTopology.cxx
-  ExplicitMapping.cxx
-  )
+  ParaMESH.cxx
+  ParaSkyLineArray.cxx
+  ParaUMesh.cxx
+  ProcessorGroup.cxx
+  StructuredCoincidentDEC.cxx
+  TimeInterpolator.cxx
+  MPIAccess/MPIAccess.cxx
+  MPIAccess/MPIAccessDEC.cxx
+)
 
 ADD_LIBRARY(paramedmem ${paramedmem_SOURCES})
 TARGET_LINK_LIBRARIES(paramedmem medcouplingcpp ${MPI_LIBRARIES})
 INSTALL(TARGETS paramedmem EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
 FILE(GLOB paramedmem_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
+FILE(GLOB mpiaccess_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/MPIAccess/*.hxx")
+LIST(APPEND paramedmem_HEADERS_HXX ${mpiaccess_HEADERS_HXX})
 INSTALL(FILES ${paramedmem_HEADERS_HXX} DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
 
 FILE(GLOB paramedmem_HEADERS_TXX "${CMAKE_CURRENT_SOURCE_DIR}/*.txx")

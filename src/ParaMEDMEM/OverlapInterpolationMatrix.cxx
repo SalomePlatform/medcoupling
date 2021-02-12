@@ -32,6 +32,7 @@
 #include "Interpolation2D3D.txx"
 #include "Interpolation2D1D.txx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "InterpolationOptions.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
