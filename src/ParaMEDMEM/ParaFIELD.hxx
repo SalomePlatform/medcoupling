@@ -39,6 +39,7 @@ namespace MEDCoupling
     ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* mesh, const ComponentTopology& component_topology); 
     ParaFIELD(MEDCouplingFieldDouble* field, ParaMESH *sup, const ProcessorGroup& group);
     virtual ~ParaFIELD();
+    void release();
 
     void synchronizeTarget( MEDCoupling::ParaFIELD* source_field);
     void synchronizeSource( MEDCoupling::ParaFIELD* target_field);

@@ -30,6 +30,7 @@
 #include "InterpKernelDEC.hxx"
 #include "NonCoincidentDEC.hxx"
 #include "StructuredCoincidentDEC.hxx"
+#include "OverlapDEC.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ICoCoMEDField.hxx"
@@ -54,6 +55,7 @@ using namespace ICoCo;
 %include "DisjointDEC.hxx"
 %include "InterpKernelDEC.hxx"
 %include "StructuredCoincidentDEC.hxx"
+%include "OverlapDEC.hxx"
 
 %include "ICoCoField.hxx"
 %rename(ICoCoMEDField) ICoCo::MEDField;

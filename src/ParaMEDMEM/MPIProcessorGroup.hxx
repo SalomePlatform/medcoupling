@@ -38,6 +38,8 @@ namespace MEDCoupling
     MPIProcessorGroup(const CommInterface& interface,int pstart, int pend, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     MPIProcessorGroup(const MPIProcessorGroup& other);
     virtual ~MPIProcessorGroup();
+    void release();
+
     virtual MPIProcessorGroup *deepCopy() const;
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const;
     void intersect (ProcessorGroup&) { }

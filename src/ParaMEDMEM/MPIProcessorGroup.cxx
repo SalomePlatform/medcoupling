@@ -181,10 +181,20 @@ namespace MEDCoupling
 
   MPIProcessorGroup::~MPIProcessorGroup()
   {
-    _comm_interface.groupFree(&_group);
+    release();
+  }
+
+  /** Destructor involves MPI operations: make sure this is accessible from a proper
+   * method for Python wrapping.
+   */
+  void MPIProcessorGroup::release()
+  {
+    if (_group != MPI_GROUP_EMPTY)
+      _comm_interface.groupFree(&_group);
+    _group = MPI_GROUP_EMPTY;
     if (_comm!=_world_comm && _comm !=MPI_COMM_NULL)
       _comm_interface.commFree(&_comm);
-  
+    _comm = MPI_COMM_NULL;
   }
 
   /*! Translation of the rank id between two processor groups. This method translates rank \a rank

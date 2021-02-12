@@ -77,8 +77,18 @@ namespace MEDCoupling
 
   ParaMESH::~ParaMESH()
   {
+    release();
+  }
+
+  /** Destructor involves MPI operations: make sure this is accessible from a proper
+   * method for Python wrapping.
+   */
+  void ParaMESH::release()
+  {
     delete _block_topology;
     delete _explicit_topology;
+    _block_topology = nullptr;
+    _explicit_topology = nullptr;
   }
 
 }

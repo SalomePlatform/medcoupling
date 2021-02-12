@@ -173,7 +173,7 @@ namespace MEDCoupling
       {
         delete _local_field;
       }
-    _local_field=0;
+    _local_field=nullptr;
     _owns_field=false;
     if(_owns_groups)
       {
@@ -181,12 +181,13 @@ namespace MEDCoupling
         delete _target_group;
       }
     _owns_groups=false;
-    _source_group=0;
-    _target_group=0;
+    _source_group=nullptr;
+    _target_group=nullptr;
     delete _union_group;
-    _union_group=0;
+    _union_group=nullptr;
     if (_union_comm != MPI_COMM_NULL)
       _comm_interface->commFree(&_union_comm);
+    _union_comm = MPI_COMM_NULL;
   }
 
   /**

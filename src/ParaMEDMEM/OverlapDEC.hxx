@@ -224,6 +224,8 @@ namespace MEDCoupling
   public:
     OverlapDEC(const std::set<int>& procIds,const MPI_Comm& world_comm=MPI_COMM_WORLD);
     virtual ~OverlapDEC();
+    void release();
+
     void sendRecvData(bool way=true);
     void sendData();
     void recvData();

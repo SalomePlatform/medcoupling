@@ -133,6 +133,8 @@ namespace MEDCoupling
     InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
                     const MPI_Comm& world_comm=MPI_COMM_WORLD);
     virtual ~InterpKernelDEC();
+    void release();
+
     void synchronize();
     void recvData();
     void recvData(double time);

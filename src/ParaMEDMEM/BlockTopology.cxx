@@ -41,7 +41,7 @@ namespace MEDCoupling
   BlockTopology::BlockTopology() :
     _dimension(0), _nb_procs_per_dim(0),
     _local_array_indices(0), _cycle_type(0),
-    _proc_group(NULL),_nb_elems(0),
+    _proc_group(nullptr),_nb_elems(0),
     _owns_processor_group(false)
   {}
 
@@ -169,8 +169,17 @@ namespace MEDCoupling
 
   BlockTopology::~BlockTopology()
   {
+    release();
+  }
+
+  /** Destructor involves MPI operations: make sure this is accessible from a proper
+   * method for Python wrapping.
+   */
+  void BlockTopology::release()
+  {
     if (_owns_processor_group)
       delete _proc_group;
+    _proc_group = nullptr;
   }
 
   //!converts a pair <subdomainid,local> to a global number
@@ -317,11 +326,8 @@ namespace MEDCoupling
   void BlockTopology::unserialize(const mcIdType* serializer,const CommInterface& comm_interface)
   {
     const mcIdType* ptr_serializer=serializer;
-    cout << "unserialize..."<<endl;
     _dimension=(int)*(ptr_serializer++);
-    cout << "dimension "<<_dimension<<endl;
     _nb_elems=*(ptr_serializer++);
-    cout << "nbelems "<<_nb_elems<<endl;
     _nb_procs_per_dim.resize(_dimension);
     _cycle_type.resize(_dimension);
     _local_array_indices.resize(_dimension);
@@ -337,9 +343,10 @@ namespace MEDCoupling
     mcIdType size_comm=*(ptr_serializer++);
     for (int i=0; i<size_comm; i++)
       procs.insert((int)*(ptr_serializer++));
-    cout << "unserialize..."<<procs.size()<<endl;
+
+    if (_owns_processor_group)
+      delete _proc_group;
     _proc_group=new MPIProcessorGroup(comm_interface,procs);
     _owns_processor_group=true;
-    //TODO manage memory ownership of _proc_group  
   }
 }

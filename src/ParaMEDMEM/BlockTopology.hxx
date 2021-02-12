@@ -50,6 +50,8 @@ namespace MEDCoupling
     BlockTopology(const BlockTopology& geom_topo, const ComponentTopology& comp_topo);
     BlockTopology(const ProcessorGroup& group, mcIdType nb_elem);
     virtual ~BlockTopology();
+    void release();
+
     //!Retrieves the number of elements for a given topology
     mcIdType getNbElements()const { return _nb_elems; }
     mcIdType getNbLocalElements() const;

@@ -79,18 +79,20 @@ namespace MEDCoupling
     DisjointDEC &operator=(const DisjointDEC& s);
     DisjointDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
                 const MPI_Comm& world_comm=MPI_COMM_WORLD);
+    virtual ~DisjointDEC();
+
     void setNature(NatureOfField nature);
     void attachLocalField( MEDCouplingFieldDouble *field);
     void attachLocalField(const ParaFIELD *field, bool ownPt=false);
     void attachLocalField(const ICoCo::MEDField *field);
-    
+
     virtual void prepareSourceDE() = 0;
     virtual void prepareTargetDE() = 0;
     virtual void recvData() = 0;
     virtual void sendData() = 0;
     void sendRecvData(bool way=true);
     virtual void synchronize() = 0;
-    virtual ~DisjointDEC();
+
     virtual void computeProcGroup() { }
     void renormalizeTargetField(bool isWAbs);
     //

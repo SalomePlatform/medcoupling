@@ -19,126 +19,119 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from ParaMEDMEM import *
-import sys, os
+from medcoupling import *
+from mpi4py import MPI
+import unittest
+import os
 
-MPI_Init(sys.argv)
+class ParaMEDMEM_DEC_Tests(unittest.TestCase):
+    def test_NonCoincidentDEC_py(self):
+        size = MPI.COMM_WORLD.size
+        rank = MPI.COMM_WORLD.rank
 
-size = MPI_Comm_size(MPI_COMM_WORLD)
-rank = MPI_Comm_rank(MPI_COMM_WORLD)
-if size != 5:
-    raise RuntimeError("Expect MPI_COMM_WORLD size == 5")
+        if size != 5:
+            raise RuntimeError("Expect MPI.MPI_COMM_WORLD size == 5")
 
-nproc_source = 3
-procs_source = list(range(nproc_source))
-procs_target = list(range(size - nproc_source + 1, size))
+        nproc_source = 3
+        procs_source = list(range(nproc_source))
+        procs_target = list(range(size - nproc_source + 1, size))
 
-interface = CommInterface()
+        interface = CommInterface()
 
-target_group = MPIProcessorGroup(interface, procs_target)
-source_group = MPIProcessorGroup(interface, procs_source)
+        target_group = MPIProcessorGroup(interface, procs_target)
+        source_group = MPIProcessorGroup(interface, procs_source)
 
-source_mesh= 0
-target_mesh= 0
-parasupport= 0
-mesh       = 0
-support    = 0
-field      = 0
-paramesh   = 0
-parafield  = 0
-icocofield = 0
+        dec = NonCoincidentDEC(source_group, target_group)
 
-dec = NonCoincidentDEC(source_group, target_group)
+        data_dir = os.path.join(os.environ['MEDCOUPLING_ROOT_DIR'], "share", "resources", "med")
+        if not os.path.isdir(data_dir):
+            data_dir = os.environ.get('MED_RESOURCES_DIR',"::").split(":")[1]
+        tmp_dir  = os.environ.get('TMP', "")
+        if tmp_dir == '':
+            tmp_dir = "/tmp"
 
-data_dir = os.environ['MEDCOUPLING_ROOT_DIR']
-tmp_dir  = os.environ['TMP']
-if tmp_dir == '':
-    tmp_dir = "/tmp"
-    pass
+        filename_xml1 = os.path.join(data_dir, "square1_split")
+        filename_xml2 = os.path.join(data_dir, "square2_split")
 
-filename_xml1 = data_dir + "/share/resources/med/square1_split"
-filename_xml2 = data_dir + "/share/resources/med/square2_split"
+        MPI.COMM_WORLD.Barrier()
 
-MPI_Barrier(MPI_COMM_WORLD)
+        if source_group.containsMyRank():
+            filename = filename_xml1 + str(rank+1) + ".med"
+            meshname = "Mesh_2_" + str(rank+1)
 
-if source_group.containsMyRank():
+            mesh = MESH(MED_DRIVER, filename, meshname)
+            support = SUPPORT(mesh, "all elements", MED_CELL)
+            paramesh = ParaMESH(mesh, source_group, "source mesh")
 
-    filename = filename_xml1 + str(rank+1) + ".med"
-    meshname = "Mesh_2_" + str(rank+1)
+            parasupport = UnstructuredParaSUPPORT( support, source_group)
+            comptopo = ComponentTopology()
 
-    mesh = MESH(MED_DRIVER, filename, meshname)
-    support = SUPPORT(mesh, "all elements", MED_CELL)
-    paramesh = ParaMESH(mesh, source_group, "source mesh")
+            parafield = ParaFIELD(parasupport, comptopo)
 
-    parasupport = UnstructuredParaSUPPORT( support, source_group)
-    comptopo = ComponentTopology()
+            nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS);
 
-    parafield = ParaFIELD(parasupport, comptopo)
+            value = [1.0]*nb_local
 
-    nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS);
+            parafield.getField().setValue(value)
+            icocofield = ICoCo_MEDField(paramesh,parafield)
+            dec.attachLocalField(icocofield,'P0')
+            pass
 
-    value = [1.0]*nb_local
+        if target_group.containsMyRank():
+            filename = filename_xml2 + str(rank - nproc_source + 1) + ".med"
+            meshname = "Mesh_3_" + str(rank - nproc_source + 1)
 
-    parafield.getField().setValue(value)
-    icocofield = ICoCo_MEDField(paramesh,parafield)
-    dec.attachLocalField(icocofield,'P0')
-    pass
+            mesh = MESH(MED_DRIVER, filename, meshname)
+            support = SUPPORT(mesh, "all elements", MED_CELL)
+            paramesh = ParaMESH(mesh, target_group, "target mesh")
 
-if target_group.containsMyRank():
+            parasupport = UnstructuredParaSUPPORT( support, target_group)
+            comptopo = ComponentTopology()
+            parafield = ParaFIELD(parasupport, comptopo)
 
-    filename = filename_xml2 + str(rank - nproc_source + 1) + ".med"
-    meshname = "Mesh_3_" + str(rank - nproc_source + 1)
+            nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS)
+            value = [0.0]*nb_local
 
-    mesh = MESH(MED_DRIVER, filename, meshname)
-    support = SUPPORT(mesh, "all elements", MED_CELL)
-    paramesh = ParaMESH(mesh, target_group, "target mesh")
+            parafield.getField().setValue(value)
+            icocofield = ICoCo_MEDField(paramesh,parafield)
 
-    parasupport = UnstructuredParaSUPPORT( support, target_group)
-    comptopo = ComponentTopology()
-    parafield = ParaFIELD(parasupport, comptopo)
+            dec.attachLocalField(icocofield, 'P0')
+            pass
 
-    nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS)
-    value = [0.0]*nb_local
+        field_before_int = [0.0]
+        field_after_int = [0.0]
 
-    parafield.getField().setValue(value)
-    icocofield = ICoCo_MEDField(paramesh,parafield)
+        if source_group.containsMyRank():
+            field_before_int = [parafield.getVolumeIntegral(1)]
+            MPI.MPI_Bcast(field_before_int, 1, MPI.MPI_DOUBLE, 0, MPI.MPI_COMM_WORLD);
+            dec.synchronize()
+            print("DEC usage")
+            dec.setForcedRenormalization(False)
+            dec.sendData()
+            pass
 
-    dec.attachLocalField(icocofield, 'P0')
-    pass
+        if target_group.containsMyRank():
+            MPI.MPI_Bcast(field_before_int, 1, MPI.MPI_DOUBLE, 0, MPI.MPI_COMM_WORLD)
+            dec.synchronize()
+            dec.setForcedRenormalization(False)
+            dec.recvData()
+            field_after_int = [parafield.getVolumeIntegral(1)]
+            pass
 
-field_before_int = [0.0]
-field_after_int = [0.0]
+        MPI.MPI_Bcast(field_before_int, 1, MPI.MPI_DOUBLE, 0, MPI.MPI_COMM_WORLD)
+        MPI.MPI_Bcast(field_after_int , 1, MPI.MPI_DOUBLE, size-1, MPI.MPI_COMM_WORLD)
 
-if source_group.containsMyRank():
+        epsilon = 1e-6
+        self.assertDoubleEquals(field_before_int[0], field_after_int[0], epsilon)
 
-    field_before_int = [parafield.getVolumeIntegral(1)]
-    MPI_Bcast(field_before_int, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    dec.synchronize()
-    print("DEC usage")
-    dec.setForcedRenormalization(False)
+        # Some clean up that still needs MPI communication, so to be done before MPI_Finalize()
+        dec.release()
+        target_group.release()
+        source_group.release()
 
-    dec.sendData()
-    pass
+        MPI.COMM_WORLD.Barrier()
+        MPI.Finalize()
 
-if target_group.containsMyRank():
+if __name__ == "__main__":
+    unittest.main()
 
-    MPI_Bcast(field_before_int, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD)
-    dec.synchronize()
-    dec.setForcedRenormalization(False)
-    dec.recvData()
-    field_after_int = [parafield.getVolumeIntegral(1)]
-    pass
-
-MPI_Bcast(field_before_int, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD)
-MPI_Bcast(field_after_int , 1, MPI_DOUBLE, size-1, MPI_COMM_WORLD)
-
-epsilon = 1e-6
-if abs(field_before_int[0] - field_after_int[0]) > epsilon:
-    print("Field before is not equal field after: %s != %s"%\
-          (field_before_int[0],field_after_int[0]))
-    pass
-
-
-MPI_Barrier(MPI_COMM_WORLD)
-MPI_Finalize()
-print("# End of testNonCoincidentDEC")

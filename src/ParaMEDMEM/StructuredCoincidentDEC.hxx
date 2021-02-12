@@ -87,6 +87,8 @@ namespace MEDCoupling
     StructuredCoincidentDEC();
     StructuredCoincidentDEC( ProcessorGroup& source, ProcessorGroup& target);
     virtual ~StructuredCoincidentDEC();
+    void release();
+
     void synchronize();
     void recvData();
     void sendData();
@@ -99,6 +101,10 @@ namespace MEDCoupling
 
     BlockTopology* _topo_source;
     BlockTopology* _topo_target;
+
+    bool _owns_topo_source;
+    bool _owns_topo_target;
+
     int* _send_counts;
     int* _recv_counts;
     int* _send_displs;

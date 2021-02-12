@@ -123,11 +123,27 @@ namespace MEDCoupling
 
   ParaFIELD::~ParaFIELD()
   {
+    release();
+  }
+
+  /** Destructor involves MPI operations: make sure this is accessible from a proper
+   * method for Python wrapping.
+   */
+  void ParaFIELD::release()
+  {
     if(_field)
-      _field->decrRef();
+      {
+        _field->decrRef();
+        _field = nullptr;
+      }
+
     if(_own_support)
-      delete _support;
+      {
+        delete _support;
+        _support = nullptr;
+      }
     delete _topology;
+    _topology = nullptr;
   }
 
   void ParaFIELD::synchronizeTarget(ParaFIELD* source_field)

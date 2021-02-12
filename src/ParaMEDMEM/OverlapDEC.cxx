@@ -60,19 +60,39 @@ namespace MEDCoupling
 
   OverlapDEC::~OverlapDEC()
   {
+    release();
+  }
+
+  /** Destructor involves MPI operations: make sure this is accessible from a proper
+   * method for Python wrapping.
+   */
+  void OverlapDEC::release()
+  {
     if(_own_group)
-      delete _group;
+      {
+        delete _group;
+        _group = nullptr;
+      }
     if(_own_source_field)
-      delete _source_field;
+      {
+        delete _source_field;
+        _source_field = nullptr;
+      }
     if(_own_target_field)
-      delete _target_field;
+      {
+        delete _target_field;
+        _target_field = nullptr;
+      }
     delete _interpolation_matrix;
+    _interpolation_matrix = nullptr;
     delete _locator;
+    _locator = nullptr;
     if (_comm != MPI_COMM_NULL)
       {
         MEDCoupling::CommInterface comm;
         comm.commFree(&_comm);
       }
+    _comm = MPI_COMM_NULL;
   }
 
   void OverlapDEC::sendRecvData(bool way)

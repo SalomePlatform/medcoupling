@@ -71,9 +71,17 @@ namespace MEDCoupling
 
   InterpKernelDEC::~InterpKernelDEC()
   {
-    if (_interpolation_matrix !=0)
+    release();
+  }
+
+  void InterpKernelDEC::release()
+  {
+    if (_interpolation_matrix != nullptr)
       delete _interpolation_matrix;
-  } 
+    _interpolation_matrix = nullptr;
+    DisjointDEC::cleanInstance();
+  }
+
 
   /*! 
     \brief Synchronization process for exchanging topologies.

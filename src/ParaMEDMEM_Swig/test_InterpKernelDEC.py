@@ -19,20 +19,139 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from ParaMEDMEM import *
-from MEDLoader import ReadUMeshFromFile
+from medcoupling import *
+from ParaMEDMEMTestTools import WriteInTmpDir
 import sys, os
 import unittest
 import math
 from mpi4py import MPI
 
 
-class ParaMEDMEMBasicsTest(unittest.TestCase):
-    def testInterpKernelDEC_2D(self):
+class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
+    """ See test_StructuredCoincidentDEC_py_1() for a quick start.
+    """
+    def generateFullSource(self):
+        """ The complete source mesh: 4 squares each divided in 2 diagonaly (so 8 cells in total) """
+        msh  = self.generateFullTarget()
+        msh.simplexize(0)
+        msh.setName("src_mesh")
+        fld = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
+        fld.setMesh(msh); fld.setName("source_F");
+        da = DataArrayDouble(msh.getNumberOfCells())
+        da.iota()
+        da *= 2
+        fld.setArray(da)
+        return msh, fld
+
+    def generateFullTarget(self):
+        """ The complete target mesh: 4 squares """
+        m1 = MEDCouplingCMesh("tgt_msh")
+        da = DataArrayDouble([0,1,2])
+        m1.setCoords(da, da)
+        msh = m1.buildUnstructured()
+        return msh
+
+    #
+    # Below, the two functions emulating the set up of a piece of the source and target mesh
+    # on each proc. Obviously in real world problems, this comes from your code and is certainly
+    # not computed by cuting again from scratch the full-size mesh!!
+    #
+    def getPartialSource(self, rank):
+        """ Will return an empty mesh piece for rank=2 and 3 """
+        msh, f = self.generateFullSource()
+        if rank == 0:
+            sub_m, sub_f = msh[0:4], f[0:4]
+        elif rank == 1:
+            sub_m, sub_f = msh[4:8], f[4:8]
+        sub_m.zipCoords()
+        return sub_m, sub_f
+
+    def getPartialTarget(self, rank):
+        """ One square for each rank """
+        msh = self.generateFullTarget()
+        if rank == 2:
+            sub_m = msh[[0,2]]
+        elif rank == 3:
+            sub_m = msh[[1,3]]
+        sub_m.zipCoords()
+        # Receiving side must prepare an empty field that will be filled by DEC:
+        fld = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
+        da = DataArrayDouble(sub_m.getNumberOfCells())
+        fld.setArray(da)
+        fld.setName("tgt_F")
+        fld.setMesh(sub_m)
+        return sub_m, fld
+
+    @WriteInTmpDir
+    def testInterpKernelDEC_2D_py_1(self):
+        """ This test illustrates a basic use of the InterpKernelDEC.
+        Look at the C++ documentation of the class for more informations.
+        """
+        size = MPI.COMM_WORLD.size
+        rank = MPI.COMM_WORLD.rank
+        if size != 4:
+            print("Should be run on 4 procs!")
+            return
+
+        # Define two processor groups
+        nproc_source = 2
+        procs_source = list(range(nproc_source))
+        procs_target = list(range(size - nproc_source, size))
+
+        interface = CommInterface()
+        source_group = MPIProcessorGroup(interface, procs_source)
+        target_group = MPIProcessorGroup(interface, procs_target)
+        idec = InterpKernelDEC(source_group, target_group)
+
+        # Write out full size meshes/fields for inspection
+        if rank == 0:
+            _, fld = self.generateFullSource()
+            mshT = self.generateFullTarget()
+            WriteField("./source_field_FULL.med", fld, True)
+            WriteUMesh("./target_mesh_FULL.med", mshT, True)
+
+        MPI.COMM_WORLD.Barrier()  # really necessary??
+
+        #
+        # OK, let's go DEC !!
+        #
+        if source_group.containsMyRank():
+            _, fieldS = self.getPartialSource(rank)
+            fieldS.setNature(IntensiveMaximum)   # The only policy supported for now ...
+            WriteField("./source_field_part_%d.med" % rank, fieldS, True)
+            idec.attachLocalField(fieldS)
+            idec.synchronize()
+            idec.sendData()
+
+        if target_group.containsMyRank():
+            mshT, fieldT = self.getPartialTarget(rank)
+            fieldT.setNature(IntensiveMaximum)
+            WriteUMesh("./target_mesh_part_%d.med" % rank, mshT, True)
+            idec.attachLocalField(fieldT)
+            idec.synchronize()
+            idec.recvData()
+            # Now the actual checks:
+            if rank == 2:
+                self.assertEqual(fieldT.getArray().getValues(), [1.0, 9.0])
+            elif rank == 3:
+                self.assertEqual(fieldT.getArray().getValues(), [5.0, 13.0])
+
+        # Release DEC (this involves MPI exchanges -- notably the release of the communicator -- so better be done before MPI.Finalize()
+        idec.release()
+        source_group.release()
+        target_group.release()
+        MPI.COMM_WORLD.Barrier()
+
+    @WriteInTmpDir
+    def test_InterpKernelDEC_2D_py_2(self):
+        """ More involved test using Para* objects.
+        """
         size = MPI.COMM_WORLD.size
         rank = MPI.COMM_WORLD.rank
         if size != 5:
-            raise RuntimeError("Expect MPI_COMM_WORLD size == 5")
+            print("Should be run on 5 procs!")
+            return
+
         print(rank)
         nproc_source = 3
         procs_source = list(range(nproc_source))
@@ -43,20 +162,12 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         source_group = MPIProcessorGroup(interface, procs_source)
         dec = InterpKernelDEC(source_group, target_group)
 
-        mesh       =0
-        support    =0
-        paramesh   =0
-        parafield  =0
-        icocofield =0
-        data_dir = os.environ['MEDCOUPLING_ROOT_DIR']
-        tmp_dir  = os.environ['TMP']
+        data_dir = os.path.join(os.environ['MEDCOUPLING_ROOT_DIR'], "share", "resources", "med")
+        if not os.path.isdir(data_dir):
+            data_dir = os.environ.get('MED_RESOURCES_DIR',"::").split(":")[1]
 
-        if not tmp_dir or len(tmp_dir)==0:
-            tmp_dir = "/tmp"
-            pass
-
-        filename_xml1 = os.path.join(data_dir, "share/resources/med/square1_split")
-        filename_xml2 = os.path.join(data_dir, "share/resources/med/square2_split")
+        filename_xml1 = os.path.join(data_dir, "square1_split")
+        filename_xml2 = os.path.join(data_dir, "square2_split")
 
         MPI.COMM_WORLD.Barrier()
         if source_group.containsMyRank():
@@ -104,18 +215,16 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             dec.sendData()
             pass
         ## end
-        interface = 0
-        target_group = 0
-        source_group = 0
-        dec = 0
-        mesh       =0
-        support    =0
-        paramesh   =0
-        parafield  =0
-        icocofield =0
-        MPI.COMM_WORLD.Barrier()
-        MPI.Finalize()
-        pass
-    pass
 
-unittest.main()
+        # Some clean up that still needs MPI communication, so to be done before MPI_Finalize()
+        parafield.release()
+        paramesh.release()
+        dec.release()
+        target_group.release()
+        source_group.release()
+        MPI.COMM_WORLD.Barrier()
+
+if __name__ == "__main__":
+    unittest.main()
+    MPI.Finalize()
+

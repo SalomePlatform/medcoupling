@@ -47,7 +47,7 @@ namespace MEDCoupling
     ExplicitTopology( const ExplicitTopology& topo, int nbcomponents);
     ExplicitTopology(const ParaMESH &mesh);
     virtual ~ExplicitTopology();
-    
+
     inline mcIdType getNbElements()const;
     inline mcIdType getNbLocalElements() const;
     const ProcessorGroup* getProcGroup()const { return _proc_group; }

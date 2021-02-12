@@ -57,7 +57,7 @@ SET (SWIG_MODULE_ParaMEDMEM_EXTRA_DEPS
     ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX}
     ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
 
-IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")     
+IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
   SWIG_ADD_MODULE(ParaMEDMEM python ParaMEDMEM.i)
 ELSE()
   SWIG_ADD_LIBRARY(ParaMEDMEM LANGUAGE python SOURCES ParaMEDMEM.i)
@@ -66,9 +66,52 @@ ENDIF()
 SWIG_LINK_LIBRARIES(ParaMEDMEM ${PYTHON_LIBRARIES} paramedmem)
 SWIG_CHECK_GENERATION(ParaMEDMEM)
 
+#
+# Tests
+#
+SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH NOCHECK ${CMAKE_CURRENT_BINARY_DIR}/../PyWrapping)
+SALOME_ACCUMULATE_ENVIRONMENT(MED_RESOURCES_DIR NOCHECK ${CMAKE_SOURCE_DIR}/resources)
+SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
+
+#  -- some tests require 2, 3, 4 or 5 procs --
+# MPICH does not support --oversubscribe:
+IF(NOT ${MPIEXEC_EXECUTABLE} MATCHES "mpich")
+    SET(_oversub_opt "--oversubscribe")
+ENDIF()
+
+ADD_TEST(NAME PyPara_Basics_Proc2
+         COMMAND ${MPIEXEC} -np 2  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_BasicOperation.py)
+SET_TESTS_PROPERTIES(PyPara_Basics_Proc2 PROPERTIES ENVIRONMENT "${tests_env}")
+
+ADD_TEST(NAME PyPara_InterpKernelDEC_Proc4
+         COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_InterpKernelDEC.py)
+SET_TESTS_PROPERTIES(PyPara_InterpKernelDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
+ADD_TEST(NAME PyPara_InterpKernelDEC_Proc5
+         COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_InterpKernelDEC.py)
+SET_TESTS_PROPERTIES(PyPara_InterpKernelDEC_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
+
+#ADD_TEST(NAME PyPara_NonCoincidentDEC_Proc5
+#         COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_NonCoincidentDEC.py)
+#SET_TESTS_PROPERTIES(PyPara_NonCoincidentDEC_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
+
+ADD_TEST(NAME PyPara_StructuredCoincidentDEC_Proc4
+         COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_StructuredCoincidentDEC.py)
+SET_TESTS_PROPERTIES(PyPara_StructuredCoincidentDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
+
+ADD_TEST(NAME PyPara_OverlapDEC_Proc4
+         COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_OverlapDEC.py)
+SET_TESTS_PROPERTIES(PyPara_OverlapDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
+
+SET(_tst_scripts
+  test_InterpKernelDEC.py
+  test_NonCoincidentDEC.py
+  test_StructuredCoincidentDEC.py
+  test_OverlapDEC.py
+)
+
 INSTALL(TARGETS _ParaMEDMEM DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 INSTALL(FILES ParaMEDMEM.i ParaMEDMEMCommon.i DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
-INSTALL(FILES test_InterpKernelDEC.py test_NonCoincidentDEC.py test_StructuredCoincidentDEC.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
+INSTALL(FILES ${_tst_scripts} DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
 SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/ParaMEDMEM.py ${MEDCOUPLING_INSTALL_PYTHON} EXTRA_DPYS "${SWIG_MODULE_ParaMEDMEM_REAL_NAME}")
 
 INSTALL(FILES test_InterpKernelDEC.py test_NonCoincidentDEC.py test_StructuredCoincidentDEC.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})

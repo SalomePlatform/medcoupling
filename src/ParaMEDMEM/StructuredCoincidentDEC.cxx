@@ -34,35 +34,57 @@ using namespace std;
 namespace MEDCoupling
 {
 
-  StructuredCoincidentDEC::StructuredCoincidentDEC():_topo_source(0),_topo_target(0),
-                                                     _send_counts(0),_recv_counts(0),
-                                                     _send_displs(0),_recv_displs(0),
-                                                     _recv_buffer(0),_send_buffer(0)
+  StructuredCoincidentDEC::StructuredCoincidentDEC():_topo_source(nullptr),_topo_target(nullptr),
+                                                     _owns_topo_source(false), _owns_topo_target(false),
+                                                     _send_counts(nullptr),_recv_counts(nullptr),
+                                                     _send_displs(nullptr),_recv_displs(nullptr),
+                                                     _recv_buffer(nullptr),_send_buffer(nullptr)
   {
-  }
-
-
-  StructuredCoincidentDEC::~StructuredCoincidentDEC()
-  {
-    delete [] _send_buffer;
-    delete [] _recv_buffer;
-    delete []_send_displs;
-    delete [] _recv_displs;
-    delete [] _send_counts;
-    delete [] _recv_counts;
-    if (! _source_group->containsMyRank())
-      delete _topo_source;
-    if(!_target_group->containsMyRank())
-      delete _topo_target;
   }
 
   StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):
       DisjointDEC(local_group,distant_group),
-      _topo_source(0),_topo_target(0),
-      _send_counts(0),_recv_counts(0),
-      _send_displs(0),_recv_displs(0),
-      _recv_buffer(0),_send_buffer(0)
+      _topo_source(nullptr),_topo_target(nullptr),
+      _owns_topo_source(false), _owns_topo_target(false),
+      _send_counts(nullptr),_recv_counts(nullptr),
+      _send_displs(nullptr),_recv_displs(nullptr),
+      _recv_buffer(nullptr),_send_buffer(nullptr)
   {
+  }
+
+  StructuredCoincidentDEC::~StructuredCoincidentDEC()
+  {
+    release();
+  }
+
+  /** Destructor involves MPI operations: make sure this is accessible from a proper
+   * method for Python wrapping.
+   */
+  void StructuredCoincidentDEC::release()
+  {
+    delete [] _send_buffer;
+    delete [] _recv_buffer;
+    delete [] _send_displs;
+    delete [] _recv_displs;
+    delete [] _send_counts;
+    delete [] _recv_counts;
+    _send_buffer = nullptr;
+    _recv_buffer = nullptr;
+    _send_displs = nullptr;
+    _recv_displs = nullptr;
+    _send_counts = nullptr;
+    _recv_counts = nullptr;
+
+    if (_owns_topo_source)
+      delete _topo_source;
+    if (_owns_topo_target)
+      delete _topo_target;
+    _topo_source = nullptr;
+    _topo_target = nullptr;
+    _owns_topo_source = false;
+    _owns_topo_target = false;
+
+    DisjointDEC::cleanInstance();
   }
 
   /*! Synchronization process for exchanging topologies
@@ -71,16 +93,22 @@ namespace MEDCoupling
   {
     if (_source_group->containsMyRank())
       _topo_source = dynamic_cast<BlockTopology*>(_local_field->getTopology());
+    else
+      _owns_topo_source = true;  // _topo_source will be filled by broadcastTopology below
     if (_target_group->containsMyRank())
       _topo_target = dynamic_cast<BlockTopology*>(_local_field->getTopology());
+    else
+      _owns_topo_target = true;  // _topo_target will be filled by broadcastTopology below
 
     // Transmitting source topology to target code
+    MESSAGE ("Broadcast source topo ...");
     broadcastTopology(_topo_source,1000);
+
     // Transmitting target topology to source code
+    MESSAGE ("Broadcast target topo ...");
     broadcastTopology(_topo_target,2000);
     if (_topo_source->getNbElements() != _topo_target->getNbElements())
       throw INTERP_KERNEL::Exception("Incompatible dimensions for target and source topologies");
-
   }
 
   /*! Creates the arrays necessary for the data transfer
@@ -229,8 +257,7 @@ namespace MEDCoupling
 
     MPIProcessorGroup* group=new MPIProcessorGroup(*_comm_interface);
 
-    // The master proc creates a send buffer containing
-    // a serialized topology
+    // The master proc creates a send buffer containing a serialized topology
     int rank_master;
 
     if (topo!=0 && topo->getProcGroup()->myRank()==0)
@@ -250,7 +277,7 @@ namespace MEDCoupling
       {
         MESSAGE(" rank "<<group->myRank()<< " waiting ...");
         _comm_interface->recv(&rank_master, 1,MPI_INT, MPI_ANY_SOURCE, tag+group->myRank(), *(group->getComm()),&status);
-        MESSAGE(" rank "<<group->myRank()<< "received master rank"<<rank_master);
+        MESSAGE(" rank "<<group->myRank()<< " received master rank "<<rank_master);
       }
     // The topology is broadcasted to all processors in the group
     _comm_interface->broadcast(&size, 1,MPI_ID_TYPE,rank_master,*(group->getComm()));
@@ -260,9 +287,7 @@ namespace MEDCoupling
       copy(serializer, serializer+size, buffer);
     _comm_interface->broadcast(buffer,(int)size,MPI_ID_TYPE,rank_master,*(group->getComm()));
 
-    // Processors which did not possess the source topology
-    // unserialize it
-
+    // Processors which did not possess the source topology unserialize it
     BlockTopology* topotemp=new BlockTopology();
     topotemp->unserialize(buffer, *_comm_interface);
 
@@ -360,5 +385,6 @@ namespace MEDCoupling
         synchronizeTopology();
         prepareTargetDE();
       }
+    MESSAGE ("sync OK");
   }
 }

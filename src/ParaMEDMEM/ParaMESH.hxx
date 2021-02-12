@@ -56,6 +56,8 @@ namespace MEDCoupling
               const ProcessorGroup& proc_group ) ;
 
     virtual ~ParaMESH();
+    void release();
+
     void setNodeGlobal(DataArrayIdType *nodeGlobal);
     void setCellGlobal(DataArrayIdType *cellGlobal);
     Topology* getTopology() const { return _explicit_topology; }
@@ -80,7 +82,7 @@ namespace MEDCoupling
     int _my_domain_id;
 
     //global topology of the cells
-    MEDCoupling::BlockTopology* _block_topology;
+    BlockTopology* _block_topology;
     Topology*  _explicit_topology;
     // pointers to global numberings
     MCAuto<DataArrayIdType> _node_global;

@@ -260,7 +260,7 @@ namespace MEDCoupling
     if(_target_field->getField()->getNature()==IntensiveMaximum)
       _mapping.computeDenoConservativeVolumic(_target_field->getField()->getNumberOfTuplesExpected());
     else
-      throw INTERP_KERNEL::Exception("OverlapDEC: Policy not implemented yet: only IntensiveMaximum!");
+      throw INTERP_KERNEL::Exception("OverlapDEC: Policy not set (did you call setNature()?) or not implemented yet: only IntensiveMaximum!");
 //      {
 //      if(_target_field->getField()->getNature()==IntensiveConservation)
 //        {
