@@ -85,6 +85,10 @@ SET(medloader_SOURCES
   SauvMedConvertor.cxx
   SauvReader.cxx
   SauvWriter.cxx
+  MEDMESHConverterUtilities.cxx
+  MeshFormatReader.cxx
+  MeshFormatWriter.cxx
+  libmesh5.cxx
   )
 
 ADD_LIBRARY(medloader ${medloader_SOURCES})

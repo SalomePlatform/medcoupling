@@ -42,6 +42,8 @@
 #include "MEDLoaderTypemaps.i"
 #include "SauvReader.hxx"
 #include "SauvWriter.hxx"
+#include "MeshFormatReader.hxx"
+#include "MeshFormatWriter.hxx"
 
 using namespace MEDCoupling;
 %}
@@ -309,12 +311,17 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::SauvReader::New;
 %newobject MEDCoupling::SauvReader::loadInMEDFileDS;
 
+
 %newobject MEDCoupling::MEDFileMeshStruct::New;
 %newobject MEDCoupling::MEDMeshMultiLev::prepare;
 %newobject MEDCoupling::MEDMeshMultiLev::buildDataArray;
 %newobject MEDCoupling::MEDMeshMultiLev::retrieveGlobalNodeIdsIfAny;
 %newobject MEDCoupling::MEDFileFastCellSupportComparator::New;
 %newobject MEDCoupling::MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport;
+
+%newobject MEDCoupling::MeshFormatReader::loadInMEDFileDS;
+%newobject MEDCoupling::MeshFormatReader::MeshFormatReader;
+%newobject MEDCoupling::MeshFormatWriter::MeshFormatWriter;
 
 %feature("unref") MEDFileMesh "$this->decrRef();"
 %feature("unref") MEDFileUMesh "$this->decrRef();"
@@ -4328,6 +4335,32 @@ namespace MEDCoupling
       }
     }
   };
+  
+  class MeshFormatReader
+  {
+  public:
+    MeshFormatReader(const std::string& meshFileName, const std::vector<std::string>& fieldFileName);
+    MeshFormatReader();
+    MEDFileData* loadInMedFileDS();
+    void setMeshName(const std::string& theMeshName);
+    std::string getMeshName() const;
+    void setFile(const std::string& theFileName);
+    void setFieldFileNames(const std::vector<std::string>& theFieldFileNames);
+    std::vector<std::string> getFieldFileNames() const;
+  };
+  class MeshFormatWriter
+  {
+  public:
+    MeshFormatWriter(const std::string& meshFileName, const std::vector<std::string>& fieldFileNames);
+    MeshFormatWriter();
+    void setMeshFileName(const std::string& meshFileName);
+    std::string getMeshFileName() const;
+    void setFieldFileNames(const std::vector<std::string>& fieldFileNames);
+    std::vector<std::string> getFieldFileNames() const;
+    void setMEDFileDS(MEDCoupling::MEDFileData* mfd);
+    void write();
+  };
+  
 }
 
 %pythoncode %{
