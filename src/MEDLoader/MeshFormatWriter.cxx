@@ -405,7 +405,7 @@ MeshFormat::Status MeshFormatWriter::setFieldOnNodes(MEDCoupling::MEDFileFieldMu
     }
     delete [] valTab0;
 
-
+    return MeshFormat::Status::DRS_OK;
 
 }
 
@@ -476,6 +476,7 @@ MeshFormat::Status MeshFormatWriter::setFieldOnCells(MEDCoupling::MEDFileFieldMu
     delete [] cellToNodeFldb;
     delete [] fldb;
 
+    return MeshFormat::Status::DRS_OK;
 }
  /*\
  |*| extract the upper triangular matrix  of fullTensor
