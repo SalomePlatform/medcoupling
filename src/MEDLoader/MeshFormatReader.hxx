@@ -107,17 +107,22 @@ private:
         if (itTmp == aMap.end()) return;
         else
         {
-            std::vector <MeshFormatElement>* tmpVec2 = aMap[removeFromFamily.first];
-            const MeshFormatElement e = removeFromFamily.second;
-            auto itt2 = std::find(tmpVec2->cbegin(), tmpVec2->cend(), e);
-            if (itt2 != tmpVec2->cend())
-                tmpVec2->erase(itt2);
-
-            if (!tmpVec2->size())
-            {
-                delete tmpVec2;
-                aMap.erase(removeFromFamily.first);
-            }
+	  std::vector <MeshFormatElement>* tmpVec2 = aMap[removeFromFamily.first];
+#if __GNUC_PREREQ(4,9)
+	  std::vector <MeshFormatElement>::const_iterator itt2;
+#else
+	  std::vector <MeshFormatElement>::iterator itt2;
+#endif
+	  const MeshFormatElement e = removeFromFamily.second;
+	  itt2 = std::find(tmpVec2->begin(), tmpVec2->end(), e);
+	  if (itt2 != tmpVec2->end())
+	    tmpVec2->erase(itt2);
+	  
+	  if (!tmpVec2->size())
+	    {
+	      delete tmpVec2;
+	      aMap.erase(removeFromFamily.first);
+	    }
         }
     }
 public:
