@@ -41,161 +41,165 @@
 
 namespace MEDCoupling
 {
-class DataArrayDouble;
-class DataArrayInt;
-class MEDFileData;
-class MEDFileFields;
-class MEDFileFieldMultiTS;
-class MEDFileUMesh;
-class MEDCouplingUMesh;
+  class DataArrayDouble;
+  class DataArrayInt;
+  class MEDFileData;
+  class MEDFileFields;
+  class MEDFileFieldMultiTS;
+  class MEDFileUMesh;
+  class MEDCouplingUMesh;
 
-
-struct MeshFormatElement {
-    MeshFormatElement(int type, int id=0):_type(type), _id(id) {}
+  struct MeshFormatElement
+  {
+    MeshFormatElement(int type, int id = 0) : _type(type), _id(id) {}
     int _type;
     int _id;
 
-    inline friend bool operator==(const MeshFormatElement& a, const MeshFormatElement&b ) {
-        return ((a._type == b._type) && (a._id == b._id));
+    inline friend bool operator==(const MeshFormatElement &a, const MeshFormatElement &b)
+    {
+      return ((a._type == b._type) && (a._id == b._id));
     }
-};
+  };
 
-struct MeshFormatFamily {
+  struct MeshFormatFamily
+  {
 
-    std::map <int, std::vector<MeshFormatElement>* > _meshFormatFams;
-    std::map <int, std::vector<MeshFormatElement>* > _meshFormatFams_0;
-    std::map <int, std::vector<MeshFormatElement>* > _meshFormatFams_1;
-    std::map <int, std::vector<MeshFormatElement>* > _meshFormatFams_2;
-    std::map <int, std::vector<MeshFormatElement>* > _meshFormatFamsNodes;
+    std::map<int, std::vector<MeshFormatElement> *> _meshFormatFams;
+    std::map<int, std::vector<MeshFormatElement> *> _meshFormatFams_0;
+    std::map<int, std::vector<MeshFormatElement> *> _meshFormatFams_1;
+    std::map<int, std::vector<MeshFormatElement> *> _meshFormatFams_2;
+    std::map<int, std::vector<MeshFormatElement> *> _meshFormatFamsNodes;
 
-public:
+  public:
     void insert(std::pair<int, MeshFormatElement> addToFamily, int dimRelMax)
     {
-        insertPairInMap(_meshFormatFams, addToFamily);
-        insertPairInMap(getMapAtLevel(dimRelMax), addToFamily);
+      insertPairInMap(_meshFormatFams, addToFamily);
+      insertPairInMap(getMapAtLevel(dimRelMax), addToFamily);
     }
-private:
-    void insertPairInMap(std::map <int, std::vector<MeshFormatElement>* >& aMap, std::pair<int, MeshFormatElement> addToFamily)
+
+  private:
+    void insertPairInMap(std::map<int, std::vector<MeshFormatElement> *> &aMap, std::pair<int, MeshFormatElement> addToFamily)
     {
-        std::map <int, std::vector<MeshFormatElement>* >::iterator it = aMap.find(addToFamily.first);
-        if (it!= aMap.end())
-        {
-            aMap[addToFamily.first]->push_back(addToFamily.second);
-        }
-        else
-        {
-            std::vector <MeshFormatElement>* tmpVec = new std::vector <MeshFormatElement> ;
-            tmpVec->push_back(addToFamily.second);
-            aMap.insert(std::pair <int, std::vector <MeshFormatElement>* > (addToFamily.first, tmpVec) );
-
-        }
-
+      std::map<int, std::vector<MeshFormatElement> *>::iterator it = aMap.find(addToFamily.first);
+      if (it != aMap.end())
+      {
+        aMap[addToFamily.first]->push_back(addToFamily.second);
+      }
+      else
+      {
+        std::vector<MeshFormatElement> *tmpVec = new std::vector<MeshFormatElement>;
+        tmpVec->push_back(addToFamily.second);
+        aMap.insert(std::pair<int, std::vector<MeshFormatElement> *>(addToFamily.first, tmpVec));
+      }
     }
-public:
+
+  public:
     void remove(std::pair<int, MeshFormatElement> removeFromFamily, int dimRelMax)
     {
-        removePairFromMap(_meshFormatFams, removeFromFamily);
-        removePairFromMap(getMapAtLevel(dimRelMax), removeFromFamily);
-
+      removePairFromMap(_meshFormatFams, removeFromFamily);
+      removePairFromMap(getMapAtLevel(dimRelMax), removeFromFamily);
     }
-private:
-    void removePairFromMap(std::map <int, std::vector<MeshFormatElement>* > & aMap, const std::pair<int, MeshFormatElement> removeFromFamily)
+
+  private:
+    void removePairFromMap(std::map<int, std::vector<MeshFormatElement> *> &aMap, const std::pair<int, MeshFormatElement> removeFromFamily)
     {
 
-        if (!aMap.size() ) return;
-        std::map <int, std::vector<MeshFormatElement>* >::iterator itTmp = aMap.find(removeFromFamily.first);
-        if (itTmp == aMap.end()) return;
-        else
-        {
-	  std::vector <MeshFormatElement>* tmpVec2 = aMap[removeFromFamily.first];
-#if __GNUC_PREREQ(4,9)
-	  std::vector <MeshFormatElement>::const_iterator itt2;
+      if (!aMap.size())
+        return;
+      std::map<int, std::vector<MeshFormatElement> *>::iterator itTmp = aMap.find(removeFromFamily.first);
+      if (itTmp == aMap.end())
+        return;
+      else
+      {
+        std::vector<MeshFormatElement> *tmpVec2 = aMap[removeFromFamily.first];
+#if __GNUC_PREREQ(4, 9)
+        std::vector<MeshFormatElement>::const_iterator itt2;
 #else
-	  std::vector <MeshFormatElement>::iterator itt2;
+        std::vector<MeshFormatElement>::iterator itt2;
 #endif
-	  const MeshFormatElement e = removeFromFamily.second;
-	  itt2 = std::find(tmpVec2->begin(), tmpVec2->end(), e);
-	  if (itt2 != tmpVec2->end())
-	    tmpVec2->erase(itt2);
-	  
-	  if (!tmpVec2->size())
-	    {
-	      delete tmpVec2;
-	      aMap.erase(removeFromFamily.first);
-	    }
-        }
-    }
-public:
-    std::map <int, std::vector<MeshFormatElement>* > & getMapAtLevel(int dimRelMax)
-    {
-        switch(dimRelMax)
+        const MeshFormatElement e = removeFromFamily.second;
+        itt2 = std::find(tmpVec2->begin(), tmpVec2->end(), e);
+        if (itt2 != tmpVec2->end())
+          tmpVec2->erase(itt2);
+
+        if (!tmpVec2->size())
         {
-        case 0 :
-            return  _meshFormatFams_0;
-            break;
-        case -1 :
-            return  _meshFormatFams_1;
-            break;
-        case -2 :
-            return  _meshFormatFams_2;
-            break;
-        case 1 :
-            return  _meshFormatFamsNodes;
-            break;
+          delete tmpVec2;
+          aMap.erase(removeFromFamily.first);
         }
+      }
     }
-public:
+
+  public:
+    std::map<int, std::vector<MeshFormatElement> *> &getMapAtLevel(int dimRelMax)
+    {
+      switch (dimRelMax)
+      {
+      case 0:
+        return _meshFormatFams_0;
+        break;
+      case -1:
+        return _meshFormatFams_1;
+        break;
+      case -2:
+        return _meshFormatFams_2;
+        break;
+      case 1:
+        return _meshFormatFamsNodes;
+        break;
+      }
+    }
+
+  public:
     ~MeshFormatFamily()
     {
 
-        freeMap(_meshFormatFams);
-        freeMap(_meshFormatFams_0);
-        freeMap(_meshFormatFams_1);
-        freeMap(_meshFormatFams_2);
-        freeMap(_meshFormatFamsNodes);
-
+      freeMap(_meshFormatFams);
+      freeMap(_meshFormatFams_0);
+      freeMap(_meshFormatFams_1);
+      freeMap(_meshFormatFams_2);
+      freeMap(_meshFormatFamsNodes);
     }
 
-private:
-    void freeMap(std::map <int, std::vector<MeshFormatElement>* > & aMap)
+  private:
+    void freeMap(std::map<int, std::vector<MeshFormatElement> *> &aMap)
     {
-        std::map <int, std::vector<MeshFormatElement>* >::iterator it = aMap.begin();
-        for (; it !=aMap.end(); ++it) delete it->second;
+      std::map<int, std::vector<MeshFormatElement> *>::iterator it = aMap.begin();
+      for (; it != aMap.end(); ++it)
+        delete it->second;
     }
-
-};
-class MeshFormatReader
-{
-public :
+  };
+  class MeshFormatReader
+  {
+  public:
     MEDLOADER_EXPORT MeshFormatReader();
-    MEDLOADER_EXPORT MeshFormatReader(const std::string& meshFileName, const std::vector<std::string>& fieldFileName);
+    MEDLOADER_EXPORT MeshFormatReader(const std::string &meshFileName, const std::vector<std::string> &fieldFileName);
     MEDLOADER_EXPORT ~MeshFormatReader();
-  
-    MEDLOADER_EXPORT MEDCoupling::MCAuto<MEDCoupling::MEDFileData> loadInMedFileDS() ;
-    MEDLOADER_EXPORT void setMeshName(const std::string& theMeshName);
+
+    MEDLOADER_EXPORT MEDCoupling::MCAuto<MEDCoupling::MEDFileData> loadInMedFileDS();
+    MEDLOADER_EXPORT void setMeshName(const std::string &theMeshName);
     MEDLOADER_EXPORT std::string getMeshName() const;
-    MEDLOADER_EXPORT void setFile(const std::string& theFileName);
-    MEDLOADER_EXPORT void setFieldFileNames(const std::vector<std::string>& theFieldFileNames);
+    MEDLOADER_EXPORT void setFile(const std::string &theFileName);
+    MEDLOADER_EXPORT void setFieldFileNames(const std::vector<std::string> &theFieldFileNames);
     MEDLOADER_EXPORT std::vector<std::string> getFieldFileNames() const;
-    MEDLOADER_EXPORT std::vector< std::string > getErroMessage() const;
+    MEDLOADER_EXPORT std::vector<std::string> getErroMessage() const;
 
-private :
-
-    MeshFormat::Status addMessage(const std::string& msg, const bool isFatal=false);
+  private:
+    MeshFormat::Status addMessage(const std::string &msg, const bool isFatal = false);
     MeshFormat::Status perform();
     MeshFormat::Status performFields();
-    MeshFormat::Status setNodes(MEDCoupling::DataArrayDouble* coordArray);
-    void setEdges(MEDCoupling::MEDCouplingUMesh* dimMesh1, int nbEdges);
-    void setTriangles( MEDCoupling::MEDCouplingUMesh* dimMesh2, int nbTria);
-    void setQuadrangles( MEDCoupling::MEDCouplingUMesh* dimMesh2, int nbQuad);
-    void setTetrahedras( MEDCoupling::MEDCouplingUMesh* dimMesh3, int nbTet);
-    void setPyramids(MEDCoupling::MEDCouplingUMesh* dimMesh3, int nbPyr);
-    void setHexahedras(MEDCoupling::MEDCouplingUMesh* dimMesh3, int nbHex);
-    void setPrisms(MEDCoupling::MEDCouplingUMesh* dimMesh3, int nbPrism);
-    void callParserGetLin( MeshFormat::GmfKwdCod kwd,  double* val, int valSize, int* ref);
-    void setTypeOfFieldAndDimRel(MeshFormat::GmfKwdCod kwd, MEDCoupling::TypeOfField* typeOfField, int* dimRel );
-    void backward_shift(MEDCoupling::mcIdType*, int size);
-    void setFields( MeshFormat::GmfKwdCod kwd, int nmbSol, int nbComp);
+    MeshFormat::Status setNodes(MEDCoupling::DataArrayDouble *coordArray);
+    void setEdges(MEDCoupling::MEDCouplingUMesh *dimMesh1, int nbEdges);
+    void setTriangles(MEDCoupling::MEDCouplingUMesh *dimMesh2, int nbTria);
+    void setQuadrangles(MEDCoupling::MEDCouplingUMesh *dimMesh2, int nbQuad);
+    void setTetrahedras(MEDCoupling::MEDCouplingUMesh *dimMesh3, int nbTet);
+    void setPyramids(MEDCoupling::MEDCouplingUMesh *dimMesh3, int nbPyr);
+    void setHexahedras(MEDCoupling::MEDCouplingUMesh *dimMesh3, int nbHex);
+    void setPrisms(MEDCoupling::MEDCouplingUMesh *dimMesh3, int nbPrism);
+    void callParserGetLin(MeshFormat::GmfKwdCod kwd, double *val, int valSize, int *ref);
+    void setTypeOfFieldAndDimRel(MeshFormat::GmfKwdCod kwd, MEDCoupling::TypeOfField *typeOfField, int *dimRel);
+    void backward_shift(MEDCoupling::mcIdType *, int size);
+    void setFields(MeshFormat::GmfKwdCod kwd, int nmbSol, int nbComp);
     INTERP_KERNEL::NormalizedCellType toMedType(MeshFormat::GmfKwdCod kwd);
     void buildFamilies();
     void buildNodesFamilies();
@@ -208,8 +212,8 @@ private :
     std::string _myMeshName;
     std::vector<std::string> _myFieldFileNames;
     int _dim, _version;
-    std::vector< std::string > _myErrorMessages;
-    MeshFormat::Status                     _myStatus;
+    std::vector<std::string> _myErrorMessages;
+    MeshFormat::Status _myStatus;
     MEDCoupling::MCAuto<MEDCoupling::MEDFileData> _myMed;
     MEDCoupling::MCAuto<MEDCoupling::MEDFileUMesh> _uMesh;
     MEDCoupling::MCAuto<MEDCoupling::MEDFileFields> _fields;
@@ -219,6 +223,6 @@ private :
     int _dim1NbEl;
     int _dim2NbEl;
     int _dim3NbEl;
-};
-}
+  };
+} // namespace MEDCoupling
 #endif //MESHFORMATREADER_HXX
