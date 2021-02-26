@@ -6,7 +6,7 @@ Read Mesh from file
 
 To read a mesh from a MED file simply invoke
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_1
    :end-before:  UG_ReadMeshFromFile_1
 
@@ -15,14 +15,14 @@ return the first one.
 
 You can access to a precise mesh by doing
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_2
    :end-before:  UG_ReadMeshFromFile_2
 
 Read field from file
 --------------------
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadField_1
    :end-before:  UG_ReadField_1
 
@@ -34,13 +34,13 @@ specify the field name.
 
 To know all fields in "file.med" either you read exception thrown or you can invoke
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadField_2
    :end-before:  UG_ReadField_2
 
 When you have the fieldName you can safely invoke.
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadField_3
    :end-before:  UG_ReadField_3
 
@@ -55,7 +55,7 @@ A time step is identified by two piece of information :
 
 To retrieve list of time step of a field invoke
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadField_4
    :end-before:  UG_ReadField_4
 
@@ -66,7 +66,7 @@ the triplet is the physical time step.
 To read a field "Field1" at time step defined by pair "(ts0,ts1)"
 you can invoke
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadField_5
    :end-before:  UG_ReadField_5
 
@@ -93,7 +93,7 @@ This responsability is let to the end user to avoid misrenumbering effect.
 
 You can check this by invoking:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_3
    :end-before:  UG_ReadMeshFromFile_3
 
@@ -101,7 +101,7 @@ To reorder cells you are encouraged to read :ref:`this <renumber_for_MED>`.
 
 If *m* is well numbered, you can dump it into a file by doing :
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_0
    :end-before:  UG_ReadMeshFromFile_0
 
@@ -117,7 +117,7 @@ You are expected to have a field *f* with a mesh :ref:`correctly numbered.<medco
 
 If *f* is a valid MEDCouplingFieldDouble you can dump it into a MED file by simply :
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadField_0
    :end-before:  UG_ReadField_0
 
@@ -131,7 +131,7 @@ MEDCouplingFieldDouble with at least one element in it.
 
 .. WARNING:: All meshes of elements in *fs* are expected to be the same
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadField_6
    :end-before:  UG_ReadField_6
 
@@ -403,7 +403,7 @@ necessary to use the advanced medcoupling API, namely class MEDFileUMesh_.
 
 First of all we populate a MEDFileUMesh with meshes (MEDCouplingUMesh) of different dimensions, if present:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_4
    :end-before:  UG_ReadMeshFromFile_4
 
@@ -411,7 +411,7 @@ Level must be 0 for a mesh of highest dimension, -1 for a mesh of dimension a un
 
 If cells are not yet sorted by geometric type, we can pass True as the third argument of setMeshAtLevel to make them sorted:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_9
    :end-before:  UG_ReadMeshFromFile_9
 
@@ -419,13 +419,13 @@ If cells are not yet sorted by geometric type, we can pass True as the third arg
 
 We can change point coordinates as soon as all meshes are added:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_5
    :end-before:  UG_ReadMeshFromFile_5
 
 To define groups we call, for example:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_6
    :end-before:  UG_ReadMeshFromFile_6
 
@@ -433,13 +433,13 @@ The first argument of addGroup defines a type of group. 1 stands for nodes. 0,-1
 
 It is possible to change name of a group or a family by calling:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_7
    :end-before:  UG_ReadMeshFromFile_7
 
 Finally we write all data added to *mm* to a file:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_ReadMeshFromFile_8
    :end-before:  UG_ReadMeshFromFile_8
 
@@ -454,7 +454,7 @@ Having *field* on *mesh* we can write it using MEDFileField1TS_ class, which is 
 
 .. _MEDFileField1TS: ../../developer/classMEDCoupling_1_1MEDFileField1TS.html
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_RWFieldAdv_0
    :end-before:  UG_RWFieldAdv_0
 
@@ -462,7 +462,7 @@ The last argument of write method defines behavior if a file exists. 2 means rem
 
 If there is a need to write a field lying only on a part of a mesh, the following code gives an example of this:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_RWFieldAdv_1
    :end-before:  UG_RWFieldAdv_1
 
@@ -470,7 +470,7 @@ If there is a need to write a field lying only on a part of a mesh, the followin
 
 MEDFileField1TS also can be used to read a field:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_RWFieldAdv_2
    :end-before:  UG_RWFieldAdv_2
 
@@ -480,7 +480,7 @@ MEDFileField1TS also can be used to read a field:
 
 *level* of a field, if unknown, can be defined by calling:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_RWFieldAdv_3
    :end-before:  UG_RWFieldAdv_3
 
@@ -490,13 +490,13 @@ To read/write fields including several time steps medcoupling provides MEDFileFi
 
 .. _MEDFileFieldMultiTS: ../../developer/classMEDCoupling_1_1MEDFileFieldMultiTS.html
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_RWFieldAdv_4
    :end-before:  UG_RWFieldAdv_4
 
 To read a time step with a known *iteration* and *order* MEDFileField1TS can be used as shown above. To iterate through all time steps, use MEDFileFieldMultiTS as following:
 
-.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest.py
+.. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_RWFieldAdv_5
    :end-before:  UG_RWFieldAdv_5
 
