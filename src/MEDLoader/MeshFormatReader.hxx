@@ -112,7 +112,7 @@ namespace MEDCoupling
       else
       {
         std::vector<MeshFormatElement> *tmpVec2 = aMap[removeFromFamily.first];
-#if __GNUC_PREREQ(4, 9)
+#if !defined WIN32 && __GNUC_PREREQ(4, 9)
         std::vector<MeshFormatElement>::const_iterator itt2;
 #else
         std::vector<MeshFormatElement>::iterator itt2;
