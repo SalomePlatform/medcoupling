@@ -304,7 +304,7 @@ void MEDCouplingUMesh::checkGeomConsistency(double eps) const
   for(auto icell = 0 ; icell < nbOfCells ; ++icell)
   {
     std::set<mcIdType> s(ptr+ptrI[icell]+1,ptr+ptrI[icell+1]);
-    if(s.size()==ptrI[icell+1]-ptrI[icell]-1)
+    if(ToIdType(s.size())==ptrI[icell+1]-ptrI[icell]-1)
       continue;
     std::ostringstream oss; oss << "MEDCouplingUMesh::checkGeomConsistency : for cell #" << icell << " presence of multiple same nodeID !";
     throw INTERP_KERNEL::Exception(oss.str());
