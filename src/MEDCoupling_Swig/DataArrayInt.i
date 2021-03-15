@@ -2573,6 +2573,11 @@ namespace MEDCoupling
     ARRAYDEF( DataArrayInt32, Int32 )
   };
   %extend DataArrayInt32 {
+    DataArrayInt64 *convertToInt64Arr() const
+    {
+      MCAuto<DataArrayInt64> ret(self->convertToInt64Arr());
+      return ret.retn();
+    }
 #ifdef WITH_NUMPY
     PyObject *toNumPyArray() // not const. It is not a bug !
     {
@@ -2599,6 +2604,11 @@ namespace MEDCoupling
     ARRAYDEF( DataArrayInt64, Int64 )
   };
   %extend DataArrayInt64 {
+    DataArrayInt32 *convertToInt32Arr() const
+    {
+      MCAuto<DataArrayInt32> ret(self->convertToInt32Arr());
+      return ret.retn();
+    }
 #ifdef WITH_NUMPY
     PyObject *toNumPyArray() // not const. It is not a bug !
     {

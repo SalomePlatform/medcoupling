@@ -159,6 +159,7 @@
 %newobject MEDCoupling::DataArrayInt32::__rmod__;
 %newobject MEDCoupling::DataArrayInt32::__pow__;
 %newobject MEDCoupling::DataArrayInt32::__rpow__;
+%newobject MEDCoupling::DataArrayInt32::convertToInt64Arr;
 %newobject MEDCoupling::DataArrayInt32Tuple::buildDAInt;
 %newobject MEDCoupling::DataArrayInt64::New;
 %newobject MEDCoupling::DataArrayInt64::__iter__;
@@ -234,6 +235,7 @@
 %newobject MEDCoupling::DataArrayInt64::__rmod__;
 %newobject MEDCoupling::DataArrayInt64::__pow__;
 %newobject MEDCoupling::DataArrayInt64::__rpow__;
+%newobject MEDCoupling::DataArrayInt64::convertToInt32Arr;
 %newobject MEDCoupling::DataArrayInt64Tuple::buildDAInt;
 %newobject MEDCoupling::DataArrayChar::convertToIntArr;
 %newobject MEDCoupling::DataArrayChar::renumber;

@@ -718,6 +718,7 @@ namespace MEDCoupling
     DataArrayInt32 *deepCopy() const;
     DataArrayInt32 *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     DataArrayInt32 *buildNewEmptyInstance() const { return DataArrayInt32::New(); }
+    MCAuto<DataArrayInt64> convertToInt64Arr() const;
   public:
     DataArrayInt32 *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
     DataArrayInt32 *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }
@@ -740,6 +741,7 @@ namespace MEDCoupling
     DataArrayInt64 *deepCopy() const;
     DataArrayInt64 *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     DataArrayInt64 *buildNewEmptyInstance() const { return DataArrayInt64::New(); }//ok
+    MCAuto<DataArrayInt32> convertToInt32Arr() const;
   public:
     DataArrayInt64 *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
     DataArrayInt64 *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }

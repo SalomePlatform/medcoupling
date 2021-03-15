@@ -3625,6 +3625,17 @@ DataArrayInt32 *DataArrayInt32::deepCopy() const
   return new DataArrayInt32(*this);
 }
 
+MCAuto<DataArrayInt64> DataArrayInt32::convertToInt64Arr() const
+{
+  this->checkAllocated();
+  MCAuto<DataArrayInt64> ret(DataArrayInt64::New());
+  ret->alloc(this->getNumberOfTuples(),this->getNumberOfComponents());
+  ret->copyStringInfoFrom(*this);
+  const std::int32_t *pt(this->begin());
+  std::for_each(ret->getPointer(),ret->getPointer()+ret->getNbOfElems(),[&pt](std::int64_t& val) { val = std::int64_t(*pt++); });
+  return ret;
+}
+
 DataArrayInt32Iterator *DataArrayInt32::iterator()
 {
   return new DataArrayInt32Iterator(this);
@@ -3662,6 +3673,17 @@ Int32 DataArrayInt32Tuple::intValue() const
 DataArrayInt32 *DataArrayInt32Tuple::buildDAInt(std::size_t nbOfTuples, std::size_t nbOfCompo) const
 {
   return this->buildDA(nbOfTuples,nbOfCompo);
+}
+
+MCAuto<DataArrayInt32> DataArrayInt64::convertToInt32Arr() const
+{
+  this->checkAllocated();
+  MCAuto<DataArrayInt32> ret(DataArrayInt32::New());
+  ret->alloc(this->getNumberOfTuples(),this->getNumberOfComponents());
+  ret->copyStringInfoFrom(*this);
+  const std::int64_t *pt(this->begin());
+  std::for_each(ret->getPointer(),ret->getPointer()+ret->getNbOfElems(),[&pt](std::int32_t& val) { val = std::int32_t(*pt++); });
+  return ret;
 }
 
 DataArrayInt64Iterator *DataArrayInt64::iterator()

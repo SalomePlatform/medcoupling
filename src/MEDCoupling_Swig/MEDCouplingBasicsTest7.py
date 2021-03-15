@@ -936,6 +936,26 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         m.checkConsistency()
         m.checkGeomConsistency() # now m is OK
 
+    def testInt32Int64Arr0(self):
+        n = 30
+        arr = DataArrayInt32(n)
+        arr.iota() ; arr.rearrange(3)
+        comps = ["a","bb","ccc"]
+        name = "aaa"
+        arr.setName(name) ; arr.setInfoOnComponents(comps)
+        self.assertEqual(arr.accumulate(),[135, 145, 155])
+        arr2 = arr.convertToInt64Arr() # test is here
+        self.assertEqual(arr2.accumulate(),[135, 145, 155])
+        self.assertTrue(isinstance(arr2,DataArrayInt64))
+        self.assertEqual(arr2.getName(),name)
+        self.assertEqual(arr2.getInfoOnComponents(),comps)
+        arr3 = arr2.convertToInt32Arr() # test is here
+        self.assertEqual(arr3.accumulate(),[135, 145, 155])
+        self.assertTrue(isinstance(arr3,DataArrayInt32))
+        self.assertEqual(arr3.getName(),name)
+        self.assertEqual(arr3.getInfoOnComponents(),comps)
+        self.assertTrue(arr3.isEqual(arr))
+
     pass
 
 if __name__ == '__main__':
