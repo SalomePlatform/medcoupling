@@ -114,8 +114,8 @@ class Localizer
 {
     std::string _locale;
 public:
-    Localizer();
-    ~Localizer();
+	MEDLOADER_EXPORT Localizer();
+	MEDLOADER_EXPORT ~Localizer();
 };
 }
 
