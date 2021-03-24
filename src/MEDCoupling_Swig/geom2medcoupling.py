@@ -71,3 +71,29 @@ def to_geomshape(mcmesh):
     if mcmesh.getSpaceDimension() != 3:
         mcmesh.changeSpaceDimension(3,0.0)
     return (dico[mdim])(mcmesh)
+
+def compute_interpolation_P0P0_matrix_with_geom(srcMesh,trgMesh):
+    """
+    Method computing interpolation matrix P0P0 using GEOM/OCCT engine.
+    This method is normaly slower than mc.MEDCouplingRemapper.prepare method but it may be used to check values.
+
+    :return: a matrix with the same format than mc.MEDCouplingRemapper.getCrudeMatrix (use mc.MEDCouplingRemapper.ToCSRMatrix to convert it into scipy sparse format)
+    """
+    mat_geom = trgMesh.getNumberOfCells()*[{}]
+    for j in range(trgMesh.getNumberOfCells()):
+        for i in range(srcMesh.getNumberOfCells()):
+            mc_src_mesh = srcMesh[i]
+            src_geom = to_geomshape(mc_src_mesh)
+            mc_trg_mesh = trgMesh[j]
+            trg_geom = to_geomshape(mc_trg_mesh)
+
+            from salome.geom import geomBuilder
+            geompy = geomBuilder.New()
+            import GEOM
+            geompy.ExportBREP(src_geom, "src.brep")
+            geompy.ExportBREP(trg_geom, "trg.brep")
+            Common_1 = geompy.MakeCommonList([src_geom, trg_geom], True)
+            _,_,volume = geompy.BasicProperties(Common_1)
+            if volume > 0.:
+                mat_geom[j][i] = volume
+    return mat_geom
