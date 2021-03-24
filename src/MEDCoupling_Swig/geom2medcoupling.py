@@ -79,7 +79,7 @@ def compute_interpolation_P0P0_matrix_with_geom(srcMesh,trgMesh):
 
     :return: a matrix with the same format than mc.MEDCouplingRemapper.getCrudeMatrix (use mc.MEDCouplingRemapper.ToCSRMatrix to convert it into scipy sparse format)
     """
-    mat_geom = trgMesh.getNumberOfCells()*[{}]
+    mat_geom = [ {} for i in range(trgMesh.getNumberOfCells()) ]
     for j in range(trgMesh.getNumberOfCells()):
         for i in range(srcMesh.getNumberOfCells()):
             mc_src_mesh = srcMesh[i]
