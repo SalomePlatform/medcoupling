@@ -1492,6 +1492,22 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.checkMatrix(rem.getCrudeMatrix(),[{0:0.65,1:0.35}],src.getNumberOfNodes(),1e-12)
         pass
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
+    def testRemToCSRMatrix(self):
+        import scipy
+        mPy = [{0:1.0,1:3.0,3:7.0,6:10.},{1:12.0,2:23.0}]
+        m = MEDCouplingRemapper.ToCSRMatrix(mPy,8)
+        self.assertTrue(isinstance(m,scipy.sparse.csr.csr_matrix))
+        self.assertEqual(m.getnnz(),6)
+        self.assertAlmostEqual(m[0,0],1.0,12)
+        self.assertAlmostEqual(m[0,1],3.0,12)
+        self.assertAlmostEqual(m[0,3],7.0,12)
+        self.assertAlmostEqual(m[0,6],10.0,12)
+        self.assertAlmostEqual(m[1,1],12.0,12)
+        self.assertAlmostEqual(m[1,2],23.0,12)
+        self.assertEqual(m.shape,(2,8))
+        pass
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):

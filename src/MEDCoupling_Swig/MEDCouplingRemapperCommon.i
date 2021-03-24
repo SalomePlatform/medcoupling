@@ -91,6 +91,12 @@ namespace MEDCoupling
            {
              return ToCSRMatrix(self->getCrudeMatrix(),self->getNumberOfColsOfMatrix());
            }
+           static PyObject *ToCSRMatrix(PyObject *m, mcIdType nbOfCols)
+           {
+              std::vector<std::map<mcIdType,double> > mCpp;
+              convertToVectMapIntDouble(m,mCpp);
+              return ToCSRMatrix(mCpp,nbOfCols);
+           }
 #endif
            void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, PyObject *m)
            {
