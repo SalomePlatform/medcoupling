@@ -176,14 +176,14 @@ class MeshFormatParser {
     /* External procedures                                                                          */
     /*----------------------------------------------------------*/
 public :
-	MEDLOADER_EXPORT MeshFormatParser();
-	MEDLOADER_EXPORT int GmfOpenMesh(const char *, int, ...);
-	MEDLOADER_EXPORT int GmfCloseMesh(int);
+  MEDLOADER_EXPORT MeshFormatParser();
+  MEDLOADER_EXPORT int GmfOpenMesh(const char *, int, ...);
+  MEDLOADER_EXPORT int GmfCloseMesh(int);
     int GmfStatKwd(int, int, ...);
     int GmfGotoKwd(int, int);
-	MEDLOADER_EXPORT int GmfSetKwd(int, int, ...);
+  MEDLOADER_EXPORT int GmfSetKwd(int, int, ...);
     void GmfGetLin(int, int, ...);
-	MEDLOADER_EXPORT void GmfSetLin(int, int, ...);
+  MEDLOADER_EXPORT void GmfSetLin(int, int, ...);
 private :
 
 
