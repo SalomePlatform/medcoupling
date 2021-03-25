@@ -51,6 +51,8 @@
 
 // see MeshGems/Docs/meshgems_formats_description.pdf
 extern const char* GmfKwdFmt[ GmfMaxKwd + 1 ][4];
+// occ/24009
+#include "MEDLoaderDefines.hxx"
 /*----------------------------------------------------------*/
 /* Structures                                                                                           */
 /*----------------------------------------------------------*/
@@ -174,14 +176,14 @@ class MeshFormatParser {
     /* External procedures                                                                          */
     /*----------------------------------------------------------*/
 public :
-    MeshFormatParser();
-    int GmfOpenMesh(const char *, int, ...);
-    int GmfCloseMesh(int);
+  MEDLOADER_EXPORT MeshFormatParser();
+  MEDLOADER_EXPORT int GmfOpenMesh(const char *, int, ...);
+  MEDLOADER_EXPORT int GmfCloseMesh(int);
     int GmfStatKwd(int, int, ...);
     int GmfGotoKwd(int, int);
-    int GmfSetKwd(int, int, ...);
+  MEDLOADER_EXPORT int GmfSetKwd(int, int, ...);
     void GmfGetLin(int, int, ...);
-    void GmfSetLin(int, int, ...);
+  MEDLOADER_EXPORT void GmfSetLin(int, int, ...);
 private :
 
 
