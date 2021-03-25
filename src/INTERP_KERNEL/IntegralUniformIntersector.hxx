@@ -21,7 +21,7 @@
 #ifndef __INTEGRALUNIFORMINTERSECTOR_HXX__
 #define __INTEGRALUNIFORMINTERSECTOR_HXX__
 
-#include "TargetIntersector.hxx"
+#include "TargetIntersector.txx"
 
 #include <cmath>
 

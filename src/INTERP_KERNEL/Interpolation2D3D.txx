@@ -110,7 +110,7 @@ namespace INTERP_KERNEL
 
     // create BBTree structure
     // - get bounding boxes
-    double* bboxes = new double[6 * numSrcElems];
+    std::vector<double> bboxes(6 * numSrcElems);
     ConnType* srcElemIdx = new ConnType[numSrcElems];
     for(ConnType i = 0; i < numSrcElems ; ++i)
       {
@@ -127,7 +127,10 @@ namespace INTERP_KERNEL
         srcElemIdx[i] = srcElems[i]->getIndex();
       }
 
-    BBTree<3,ConnType> tree(bboxes, srcElemIdx, 0, numSrcElems, 0.);
+    // [ABN] Adjust 2D bounding box (those might be flat in the cases where the 2D surf are perfectly aligned with the axis)
+    performAdjustmentOfBB(intersector, bboxes);
+
+    BBTree<3,ConnType> tree(bboxes.data(), srcElemIdx, 0, numSrcElems, 0.);
 
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
@@ -154,7 +157,6 @@ namespace INTERP_KERNEL
 
       }
 
-    delete [] bboxes;
     delete [] srcElemIdx;
 
     DuplicateFacesType::iterator iter;

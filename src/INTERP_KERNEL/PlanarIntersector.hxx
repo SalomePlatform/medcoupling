@@ -21,7 +21,7 @@
 #ifndef __PLANARINTERSECTOR_HXX__
 #define __PLANARINTERSECTOR_HXX__
 
-#include "TargetIntersector.hxx"
+#include "TargetIntersector.txx"
 #include "NormalizedUnstructuredMesh.hxx"
 
 #include <map>
@@ -44,7 +44,6 @@ namespace INTERP_KERNEL
     PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
     virtual ~PlanarIntersector();
     void createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox);
-    void adjustBoundingBoxes(std::vector<double>& bbox, double surf3DAdjustmentEps, double surf3DAdjustmentEpsAbs);
     inline void getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes);
     static int Projection(double *Coords_A, double *Coords_B,
                           ConnType nb_NodesA, ConnType nb_NodesB, double epsilon, double md3DSurf, double minDot3DSurf, double median_plane, bool do_rotate);

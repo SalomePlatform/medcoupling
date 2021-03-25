@@ -24,7 +24,7 @@
 #ifndef __IntersectorCU_HXX__
 #define __IntersectorCU_HXX__
 
-#include "TargetIntersector.hxx"
+#include "TargetIntersector.txx"
 #include "NormalizedUnstructuredMesh.hxx"
 
 namespace INTERP_KERNEL

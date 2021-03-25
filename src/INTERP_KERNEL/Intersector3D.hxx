@@ -21,7 +21,7 @@
 #ifndef __INTERSECTOR3D_HXX__
 #define __INTERSECTOR3D_HXX__
 
-#include "TargetIntersector.hxx"
+#include "TargetIntersector.txx"
 
 namespace INTERP_KERNEL
 {
@@ -35,6 +35,7 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     Intersector3D(const MyMeshType& targetMesh, const MyMeshType& srcMesh);
+
     void getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const;
     void getRealSourceCoordinates(ConnType icellT, std::vector<double>& coordsT) const;
     const ConnType *getStartConnOfTargetCell(ConnType icellT) const;

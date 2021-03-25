@@ -122,33 +122,6 @@ namespace INTERP_KERNEL
       }
   }
 
-  /*! Readjusts a set of bounding boxes so that they are extended
-    in all dimensions for avoiding missing interesting intersections
-  
-    \param bbox vector containing the bounding boxes
-  */
-  template<class MyMeshType, class MyMatrix>
-  void PlanarIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes(std::vector<double>& bbox, double surf3DAdjustmentEps, double surf3DAdjustmentEpsAbs)
-  {
-    /* We build the segment tree for locating possible matching intersections*/
-  
-    std::size_t size = bbox.size()/(2*SPACEDIM);
-    for (std::size_t i=0; i<size; i++)
-      {
-        double max=- std::numeric_limits<double>::max();
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {            
-            double Dx=bbox[i*2*SPACEDIM+1+2*idim]-bbox[i*2*SPACEDIM+2*idim];
-            max=(max<Dx)?Dx:max;
-          }
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {            
-            bbox[i*2*SPACEDIM+2*idim  ] -= surf3DAdjustmentEps*max+surf3DAdjustmentEpsAbs;
-            bbox[i*2*SPACEDIM+2*idim+1] += surf3DAdjustmentEps*max+surf3DAdjustmentEpsAbs;
-          }
-      }
-  }
-
   /*!
    * @param icellT id in target mesh in format of MyMeshType.
    * @param coordsT output val that stores coordinates of the target cell automatically resized to the right length.

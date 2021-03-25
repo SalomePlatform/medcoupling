@@ -36,6 +36,7 @@ namespace INTERP_KERNEL
   class TargetIntersector
   {
   public:
+    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     typedef typename MyMeshType::MyConnType ConnType;
   public:
     /*!
@@ -48,7 +49,9 @@ namespace INTERP_KERNEL
 
     virtual ConnType getNumberOfRowsOfResMatrix() const = 0;
     virtual ConnType getNumberOfColsOfResMatrix() const = 0;
+
     virtual ~TargetIntersector() { }
+    void adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEps, double adjustmentEpsAbs);
   };
 }
 

@@ -28,6 +28,8 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpolationOptions.hxx"
 #include "MCIdType.hxx"
+#include "Intersector3D.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -53,9 +55,18 @@ namespace INTERP_KERNEL
                           MyMatrixType& matrix,
                           const std::string& method);
     INTERPKERNEL_EXPORT DuplicateFacesType retrieveDuplicateFaces() const { return _duplicate_faces; }
+
+  protected:
+    template<class MyMeshType, class MyMatrixType>
+    void performAdjustmentOfBB(Intersector3D<MyMeshType,MyMatrixType>* intersector, std::vector<double>& bbox) const
+    {
+      intersector->adjustBoundingBoxes(bbox,InterpolationOptions::getBoundingBoxAdjustment(),InterpolationOptions::getBoundingBoxAdjustmentAbs());
+    }
+
   private:
     SplittingPolicy _splitting_policy;
     DuplicateFacesType _duplicate_faces;
+
   };
 }
 

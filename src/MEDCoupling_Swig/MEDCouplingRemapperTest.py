@@ -1506,7 +1506,47 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(m[1,1],12.0,12)
         self.assertAlmostEqual(m[1,2],23.0,12)
         self.assertEqual(m.shape,(2,8))
-        pass
+
+    def test_Interpolation2D3D_bbox_adjustment_1(self):
+        """ Interpolation 2D <-> 3D was not using bounding box adjustment.
+        In case of a 2D mesh perfectly aligned with the axis, the bounding box intersection was not working properly (flat bounding box).
+        """
+        ## Source
+        meshS = MEDCouplingUMesh('SupportOf_TEMPERATURE_OUT', 2)
+        coo = cooS = DataArrayDouble([(-0.00074999999999877595,0.00000000000000000000,0.00032540000000000005),
+                (-0.00049999999999755579,0.00025000000000140708,0.00032540000000000005),(-0.00049999999999755600,0.00000000000000000000,0.00032540000000000005),
+                (-0.00100000000000000002,0.00000000000000000000,0.00032540000000000005),(-0.00100000000000000002,0.00025000000000000543,0.00032540000000000005),
+                (-0.00075651925565617829,0.00034416831541328637,0.00032540000000000005)])  # the extra 5e-20 on Z is the true culprit :-)
+        meshS.setCoords(coo)
+        c = DataArrayInt([3, 0, 1, 2, 3, 0, 3, 4, 3, 5, 0, 4, 3, 5, 1, 0])
+        cI = DataArrayInt([0, 4, 8, 12, 16])
+        meshS.setConnectivity(c, cI)
+        meshS.checkConsistency()
+        ## Target
+        meshT = MEDCouplingUMesh('IJK_mesh', 3)
+        coo = DataArrayDouble([(-0.001,0,0.000303602),(-0.0009,0,0.000303602),(-0.0008,0,0.000303602),(-0.0007,0,0.000303602),(-0.0006,0,0.000303602),
+            (-0.0005,0,0.000303602),(-0.001,0.0005,0.000303602),(-0.0009,0.0005,0.000303602),(-0.0008,0.0005,0.000303602),(-0.0007,0.0005,0.000303602),
+            (-0.0006,0.0005,0.000303602),(-0.0005,0.0005,0.000303602),(-0.001,0,0.0003254),(-0.0009,0,0.0003254),(-0.0008,0,0.0003254),(-0.0007,0,0.0003254),
+            (-0.0006,0,0.0003254),(-0.0005,0,0.0003254),(-0.001,0.0005,0.0003254),(-0.0009,0.0005,0.0003254),(-0.0008,0.0005,0.0003254),(-0.0007,0.0005,0.0003254),
+            (-0.0006,0.0005,0.0003254),(-0.0005,0.0005,0.0003254)])
+        meshT.setCoords(coo)
+        c = DataArrayInt([18, 1, 0, 6, 7, 13, 12, 18, 19, 18, 2, 1, 7, 8, 14, 13, 19, 20, 18, 3, 2, 8, 9, 15, 14, 20, 21, 18, 4, 3, 9, 10, 16, 15, 21, 22,
+                             18, 5, 4, 10, 11, 17, 16, 22, 23])
+        cI = DataArrayInt([0, 9, 18, 27, 36, 45])
+        meshT.setConnectivity(c, cI)
+        meshT.checkConsistency()
+        ## Dummy field
+        fldSrc = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
+        fldSrc.setMesh(meshS)
+        da = DataArrayDouble(meshS.getNumberOfCells())
+        da[:] = 50.0
+        fldSrc.setArray(da)
+        remap = MEDCouplingRemapper()
+        # remap.setBoundingBoxAdjustmentAbs(1.0e-5)  # was not taken into account for 2D/3D - but we don't even need it! Default value is OK.
+        remap.prepare(meshS, meshT, "P0P0")
+        fldSrc.setNature(IntensiveMaximum)
+        fldTgt = remap.transferField(fldSrc, -1.0)
+        self.assertTrue(fldTgt.getArray().isUniform(50.0, 1e-12))
 
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))

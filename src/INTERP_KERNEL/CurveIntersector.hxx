@@ -21,7 +21,7 @@
 #ifndef __CURVEINTERSECTOR_HXX__
 #define __CURVEINTERSECTOR_HXX__
 
-#include "TargetIntersector.hxx"
+#include "TargetIntersector.txx"
 #include "NormalizedUnstructuredMesh.hxx"
 
 namespace INTERP_KERNEL
@@ -39,7 +39,6 @@ namespace INTERP_KERNEL
                      double  precision, double adjustmentEpsAbs, double medianLine, int printLevel);
     virtual ~CurveIntersector();
     void createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox);
-    void adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEpsAbs);
     static void getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes);
     static void ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos);
   protected :

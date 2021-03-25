@@ -150,26 +150,6 @@ namespace INTERP_KERNEL
     startPos = std::max(startPos,0.); startPos = std::min(startPos,1.);
     endPos=1.-startPos; 
   }
-  
-  /*! Readjusts a set of bounding boxes so that they are extended
-    in all dimensions for avoiding missing interesting intersections
-
-    \param bbox vector containing the bounding boxes
-  */
-  template<class MyMeshType, class MyMatrix>
-  void CurveIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes (std::vector<double>& bbox,
-                                                                   double adjustmentEpsAbs)
-  {
-    std::size_t size = bbox.size()/(2*SPACEDIM);
-    for (std::size_t i=0; i<size; i++)
-      {
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            bbox[i*2*SPACEDIM+2*idim  ] -= adjustmentEpsAbs;
-            bbox[i*2*SPACEDIM+2*idim+1] += adjustmentEpsAbs;
-          }
-      }
-  }
 
   /*!
    * @param icellT id in target mesh in format of MyMeshType.
