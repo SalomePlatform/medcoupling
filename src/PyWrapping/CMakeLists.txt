@@ -67,10 +67,10 @@ INCLUDE_DIRECTORIES(
   )
 
 IF(WIN32)
-  SET(medcoupling_LIB_dependancies ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingremapper)
+  SET(medcoupling_LIB_dependancies ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingremapper medicoco)
 ELSE(WIN32)
   # ${PYTHON_LIBRARIES} not needed see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
-  SET(medcoupling_LIB_dependancies ${PLATFORM_LIBS} medcouplingremapper)
+  SET(medcoupling_LIB_dependancies ${PLATFORM_LIBS} medcouplingremapper medicoco)
 ENDIF(WIN32)
   
 IF(NOT MEDCOUPLING_MICROMED)

@@ -70,7 +70,7 @@ SET(paramedmem_SOURCES
 )
 
 ADD_LIBRARY(paramedmem ${paramedmem_SOURCES})
-TARGET_LINK_LIBRARIES(paramedmem medcouplingcpp ${MPI_LIBRARIES})
+TARGET_LINK_LIBRARIES(paramedmem medcouplingcpp medicoco ${MPI_LIBRARIES})
 INSTALL(TARGETS paramedmem EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
 FILE(GLOB paramedmem_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

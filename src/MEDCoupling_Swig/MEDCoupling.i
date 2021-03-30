@@ -24,7 +24,6 @@
 #endif
 
 %include "MEDCouplingCommon.i"
-%include "ICoCoMEDField.i"
 
 %pythoncode %{
 def MEDCouplingDataArrayDoubleIadd(self,*args):

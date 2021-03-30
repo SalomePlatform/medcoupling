@@ -1,4 +1,4 @@
-Linked into target 'paramedmem' library. 
+Linked into target 'mc_icoco' library. 
 
 The files below are part of the official ICoCo API and should NOT be modified:
     - ICoCoField.h
@@ -11,4 +11,4 @@ The files below are part of the official ICoCo API and should NOT be modified:
 
 Their official version can be found in the TRUST repository:
 
-    https://sourceforge.net/projects/trust/
+    https://github.com/cea-trust-platform/icoco-coupling
