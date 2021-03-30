@@ -106,6 +106,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual std::string simpleRepr() const = 0;
     MEDCOUPLING_EXPORT virtual std::string advancedRepr() const = 0;
     // tools
+    MEDCOUPLING_EXPORT virtual MCAuto<DataArrayDouble> computeMeshCenterOfMass() const;
     MEDCOUPLING_EXPORT virtual const DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const = 0;
     MEDCOUPLING_EXPORT virtual std::vector<mcIdType> getDistributionOfTypes() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayIdType *checkTypeConsistencyAndContig(const std::vector<mcIdType>& code, const std::vector<const DataArrayIdType *>& idsPerType) const = 0;

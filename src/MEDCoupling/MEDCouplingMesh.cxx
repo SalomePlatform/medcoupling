@@ -675,6 +675,22 @@ void MEDCouplingMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(const d
 }
 
 /*!
+ * Method computing center of mass of whole mesh (\a this)
+ * \return DataArrayDouble * - a new instance of DataArrayDouble with one tuple of n components where n is space dimension
+ */
+MCAuto<DataArrayDouble> MEDCouplingMesh::computeMeshCenterOfMass() const
+{
+  MCAuto<DataArrayDouble> cellCenters( this->computeCellCenterOfMass() );
+  MCAuto<MEDCouplingFieldDouble> vol( this->getMeasureField(true) );
+  MCAuto<DataArrayDouble> volXCenter( DataArrayDouble::Multiply(cellCenters,vol->getArray()) );
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(1, this->getSpaceDimension());
+  volXCenter->accumulate( ret->getPointer() );
+  double volOfMesh(vol->accumulate(0));
+  ret->applyLin(1.0/volOfMesh,0.0);
+  return ret;
+}
+
+/*!
  * Writes \a this mesh into a VTK format file named as specified.
  *  \param [in] fileName - the name of the file to write in. If the extension is OK the fileName will be used directly.
  *                         If extension is invalid or no extension the right extension will be appended.

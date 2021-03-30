@@ -956,6 +956,16 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertEqual(arr3.getInfoOnComponents(),comps)
         self.assertTrue(arr3.isEqual(arr))
 
+    def testComputeMeshCenterOfMass0(self):
+        #2D
+        arr = DataArrayDouble(5) ; arr.iota()
+        m = MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m=m.buildUnstructured()
+        self.assertTrue( m.computeMeshCenterOfMass().isEqual(DataArrayDouble([2,2],1,2),1e-12) )
+        #3D
+        m = MEDCouplingCMesh() ; m.setCoords(arr,arr,arr) ; m=m.buildUnstructured()
+        self.assertTrue( m.computeMeshCenterOfMass().isEqual(DataArrayDouble([2,2,2],1,3),1e-12) )
+
+
     pass
 
 if __name__ == '__main__':

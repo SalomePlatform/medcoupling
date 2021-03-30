@@ -309,6 +309,7 @@ typedef long int mcIdType;
 %newobject MEDCoupling::MEDCouplingMesh::buildPartRange;
 %newobject MEDCoupling::MEDCouplingMesh::giveCellsWithType;
 %newobject MEDCoupling::MEDCouplingMesh::getCoordinatesAndOwner;
+%newobject MEDCoupling::MEDCouplingMesh::computeMeshCenterOfMass;
 %newobject MEDCoupling::MEDCouplingMesh::computeCellCenterOfMass;
 %newobject MEDCoupling::MEDCouplingMesh::computeIsoBarycenterOfNodesPerCell;
 %newobject MEDCoupling::MEDCouplingMesh::buildOrthogonalField;
@@ -750,6 +751,12 @@ namespace MEDCoupling
          {
            return self->simpleRepr();
          }
+         
+          DataArrayDouble *computeMeshCenterOfMass() const
+          {
+            MCAuto<DataArrayDouble> ret(self->computeMeshCenterOfMass());
+            return ret.retn();
+          }
 
          PyObject *getTime()
          {
