@@ -30,6 +30,8 @@
 
 %include "MEDCouplingRemapperCommon.i"
 
+%include "ICoCoMEDField.i"
+
 #ifdef WITH_MED_FILE
 %include "MEDLoaderCommon.i"
 #endif

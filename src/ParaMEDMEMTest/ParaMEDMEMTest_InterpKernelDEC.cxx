@@ -30,9 +30,10 @@
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ComponentTopology.hxx"
-#include "ICoCoMEDField.hxx"
 #include "ParaMEDLoader.hxx"
+#include "ICoCoMEDDoubleField.hxx"
 #include "MEDLoader.hxx"
+#include "MEDCouplingUMesh.hxx"
 #include "TestInterpKernelUtils.hxx"
 
  
@@ -495,7 +496,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
   MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
   MEDCoupling::ParaMESH* paramesh = nullptr;
   MEDCoupling::ParaFIELD* parafield = nullptr;
-  ICoCo::MEDField* icocofield = nullptr;
+  ICoCo::MEDDoubleField* icocofield = nullptr;
   
   string filename_xml1              = "square1_split";
   string filename_xml2              = "square2_split";
@@ -541,7 +542,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
         value[ielem]=1.0;
     
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField(parafield->getField());
+      icocofield=new ICoCo::MEDDoubleField(parafield->getField());
       dec.setMethod(srcMeth);
       dec.attachLocalField(icocofield);
     }
@@ -577,7 +578,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       for(int ielem=0; ielem<nb_local;ielem++)
         value[ielem]=0.0;
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField(parafield->getField());
+      icocofield=new ICoCo::MEDDoubleField(parafield->getField());
       dec.setMethod(targetMeth);
       dec.attachLocalField(icocofield);
     }
@@ -862,7 +863,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
   MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
   MEDCoupling::ParaMESH* paramesh = nullptr;
   MEDCoupling::ParaFIELD* parafield = nullptr;
-  ICoCo::MEDField* icocofield = nullptr;
+  ICoCo::MEDDoubleField* icocofield = nullptr;
   
   char * tmp_dir_c                    = getenv("TMP");
   string tmp_dir;
@@ -914,7 +915,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
         value[ielem]=1.0;
     
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField(parafield->getField());
+      icocofield=new ICoCo::MEDDoubleField(parafield->getField());
       dec.setMethod(srcMeth);
       dec.attachLocalField(icocofield);
     }
@@ -950,7 +951,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       for(int ielem=0; ielem<nb_local;ielem++)
         value[ielem]=0.0;
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField(parafield->getField());
+      icocofield=new ICoCo::MEDDoubleField(parafield->getField());
       dec.setMethod(targetMeth);
       dec.attachLocalField(icocofield);
     }  
@@ -2116,7 +2117,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
   MEDCoupling::MEDCouplingUMesh* mesh = nullptr;
   MEDCoupling::ParaMESH* paramesh = nullptr;
   MEDCoupling::ParaFIELD* parafield = nullptr;
-  ICoCo::MEDField* icocofield = nullptr;
+  ICoCo::MEDDoubleField* icocofield = nullptr;
 
   char * tmp_dir_c                    = getenv("TMP");
   string tmp_dir;
@@ -2169,7 +2170,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
         value[ielem]=0.0;
     
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField(parafield->getField());
+      icocofield=new ICoCo::MEDDoubleField(parafield->getField());
      
       dec.attachLocalField(icocofield);
 
@@ -2209,7 +2210,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
       for(int ielem=0; ielem<nb_local;ielem++)
         value[ielem]=0.0;
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField(parafield->getField());
+      icocofield=new ICoCo::MEDDoubleField(parafield->getField());
       
       dec.attachLocalField(icocofield);
     }

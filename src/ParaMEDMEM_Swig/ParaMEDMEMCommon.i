@@ -33,7 +33,8 @@
 #include "OverlapDEC.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
-#include "ICoCoMEDField.hxx"
+#include "ICoCoMEDDoubleField.hxx"
+#include "ICoCoMEDIntField.hxx"
 #include "ComponentTopology.hxx"
 #include "ParaUMesh.hxx"
 #include "ParaSkyLineArray.hxx"
@@ -56,10 +57,6 @@ using namespace ICoCo;
 %include "InterpKernelDEC.hxx"
 %include "StructuredCoincidentDEC.hxx"
 %include "OverlapDEC.hxx"
-
-%include "ICoCoField.hxx"
-%rename(ICoCoMEDField) ICoCo::MEDField;
-%include "ICoCoMEDField.hxx"
 
 %newobject MEDCoupling::ParaUMesh::New;
 %newobject MEDCoupling::ParaUMesh::getMesh;

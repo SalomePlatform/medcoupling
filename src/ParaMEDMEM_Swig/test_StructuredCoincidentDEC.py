@@ -182,7 +182,7 @@ class ParaMEDMEM_SC_DEC_Tests(unittest.TestCase):
                 for icomp in range(6):
                     value.append(global_numbering[ielem]*6.0+icomp);
             parafield.getField().setValues(value)
-            icocofield = ICoCoMEDField(parafield.getField())
+            icocofield = ICoCoMEDDoubleField(parafield.getField())
             dec.setMethod("P0")
             dec.attachLocalField(parafield)
             dec.synchronize()
@@ -198,7 +198,7 @@ class ParaMEDMEM_SC_DEC_Tests(unittest.TestCase):
             nb_local=mesh.getNumberOfCells()
             value = [0.0]*(nb_local*comptopo.nbLocalComponents())
             parafield.getField().setValues(value)
-            icocofield = ICoCoMEDField(parafield.getField())
+            icocofield = ICoCoMEDDoubleField(parafield.getField())
             dec.setMethod("P0")
             dec.attachLocalField(parafield)
             dec.synchronize()

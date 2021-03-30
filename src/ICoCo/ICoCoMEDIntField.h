@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2020  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,30 +17,9 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __ICOCOMEDFIELD_HXX__
-#define __ICOCOMEDFIELD_HXX__
+// WARNING: this file is part of the official ICoCo API and should not be modified.
+// The official version can be found at the following URL:
+//
+//    https://github.com/cea-trust-platform/icoco-coupling
 
-#include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingFieldDouble.hxx"
-
-#include <vector>
-#include "ICoCoField.hxx"
-
-namespace ICoCo
-{
-  class MEDField : public ICoCo::Field
-  {
-  public:
-    MEDField():_field(0) { }
-    MEDField(MEDCoupling::MEDCouplingFieldDouble* field);
-    MEDField(const MEDField& field);
-    MEDField& operator=(const MEDField& field);
-    virtual ~MEDField();
-    MEDCoupling::MEDCouplingFieldDouble *getField() const  { return _field; }
-    const MEDCoupling::MEDCouplingMesh *getMesh() const { return _field->getMesh(); }
-  private:
-    MEDCoupling::MEDCouplingFieldDouble *_field;
-  };
-}
-
-#endif
+#include "ICoCoMEDIntField.hxx"

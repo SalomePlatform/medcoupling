@@ -18,6 +18,7 @@ You can also take a look at the numerous \ref examples "code examples" provided 
 - \subpage interpolation
 - \subpage cpp
 - \subpage distrib
+- \subpage icoco
 - \subpage misc
 
 */

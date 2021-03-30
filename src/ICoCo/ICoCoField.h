@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2020  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,33 +17,9 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-// ICoCo file common to several codes
-// ICoCoField.cxx
-// version 1.2 10/05/2010
+// WARNING: this file is part of the official ICoCo API and should not be modified.
+// The official version can be found at the following URL:
+//
+//    https://github.com/cea-trust-platform/icoco-coupling
 
-#include "ICoCoField.hxx"
-
-#include <string>
-
-using namespace ICoCo;
-using std::string;
-
-Field::Field() {
-  _name=new string;
-}
-
-Field::~Field() {
-  delete _name;
-}
-
-void Field::setName(const string& name) {
-  *_name=name;
-}
-
-const string& Field::getName() const {
-  return *_name;
-}
-
-const char* Field::getCharName() const {
-  return _name->c_str();
-}
+#include <ICoCoField.hxx>

@@ -28,7 +28,7 @@
 #include <string>
 
 namespace ICoCo {
-  class MEDField;
+  class MEDDoubleField;
 }
 
 namespace MEDCoupling
@@ -234,8 +234,8 @@ namespace MEDCoupling
     void attachTargetLocalField(ParaFIELD *field, bool ownPt=false);
     void attachSourceLocalField(MEDCouplingFieldDouble *field);
     void attachTargetLocalField(MEDCouplingFieldDouble *field);
-    void attachSourceLocalField(ICoCo::MEDField *field);
-    void attachTargetLocalField(ICoCo::MEDField *field);
+    void attachSourceLocalField(ICoCo::MEDDoubleField *field);
+    void attachTargetLocalField(ICoCo::MEDDoubleField *field);
     ProcessorGroup *getGroup() { return _group; }
     bool isInGroup() const;
 

@@ -37,6 +37,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo
   )
 
 SET(medcoupling_SOURCES
@@ -77,9 +78,10 @@ SET(medcoupling_SOURCES
   MEDCouplingPartDefinition.cxx
   MEDCouplingSkyLineArray.cxx
   MEDCouplingVoronoi.cxx
-  ../ICoCo/ICoCoField.cxx
-  ../ICoCo/ICoCoMEDField.cxx
-  )
+  ../ICoCo/ICoCoField.cpp      # [ABN] Yes, .cpp, this is imposed by ICoCo.
+  ../ICoCo/ICoCoMEDDoubleField.cxx
+  ../ICoCo/ICoCoMEDIntField.cxx
+)
 
 SET(medcouplingremapper_SOURCES
   MEDCouplingRemapper.cxx
@@ -94,7 +96,9 @@ ADD_LIBRARY(medcouplingremapper ${medcouplingremapper_SOURCES})
 TARGET_LINK_LIBRARIES(medcouplingremapper medcouplingcpp)
 INSTALL(TARGETS medcouplingremapper EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
-FILE(GLOB medcoupling_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
+FILE(GLOB medcoupling_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx" 
+                                  "${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo/*.hxx"
+                                  "${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo/*.h")
 FILE(GLOB medcoupling_HEADERS_TXX "${CMAKE_CURRENT_SOURCE_DIR}/*.txx")
 FILE(GLOB icoco_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo/*.hxx")
 INSTALL(FILES ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX} ${icoco_HEADERS_HXX} MEDCouplingNatureOfFieldEnum DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})

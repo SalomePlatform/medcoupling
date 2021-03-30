@@ -73,7 +73,7 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
             value = [1.0]*nb_local
 
             parafield.getField().setValue(value)
-            icocofield = ICoCo_MEDField(paramesh,parafield)
+            icocofield = ICoCoMEDDoubleField(paramesh,parafield)
             dec.attachLocalField(icocofield,'P0')
             pass
 
@@ -93,7 +93,7 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
             value = [0.0]*nb_local
 
             parafield.getField().setValue(value)
-            icocofield = ICoCo_MEDField(paramesh,parafield)
+            icocofield = ICoCoMEDDoubleField(paramesh,parafield)
 
             dec.attachLocalField(icocofield, 'P0')
             pass
