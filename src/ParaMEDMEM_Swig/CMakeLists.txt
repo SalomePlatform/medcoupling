@@ -118,7 +118,7 @@ SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/ParaMEDMEM.py ${MEDCOUPLING_I
 INSTALL(FILES test_InterpKernelDEC.py test_NonCoincidentDEC.py test_StructuredCoincidentDEC.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
 
 set(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/ParaMEDMEM_Swig)
-install(FILES test_InterpKernelDEC.py test_NonCoincidentDEC.py test_OverlapDEC.py test_StructuredCoincidentDEC.py ParaMEDMEMTestTools.py DESTINATION ${TEST_INSTALL_DIRECTORY})
+install(FILES test_InterpKernelDEC.py test_NonCoincidentDEC.py test_OverlapDEC.py test_StructuredCoincidentDEC.py ParaMEDMEMTestTools.py test_BasicOperation.py DESTINATION ${TEST_INSTALL_DIRECTORY})
 # export MPIEXEC and _oversub_opt to CTestTestfile.cmake of salome test mechanism
 configure_file(CTestTestfileInstall.cmake.in "CTestTestfileST.cmake" @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfileST.cmake DESTINATION ${TEST_INSTALL_DIRECTORY} RENAME CTestTestfile.cmake)
