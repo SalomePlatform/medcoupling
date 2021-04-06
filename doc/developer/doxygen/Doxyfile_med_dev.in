@@ -184,6 +184,7 @@ HTML_OUTPUT            = html
 HTML_HEADER            = @CMAKE_CURRENT_BINARY_DIR@/static/header.html
 HTML_FOOTER            = @CMAKE_CURRENT_SOURCE_DIR@/static/footer.html
 HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/static/medcoupling_extra.css
+HTML_EXTRA_FILES       = @CMAKE_CURRENT_SOURCE_DIR@/images/head.png
 GENERATE_HTMLHELP      = NO
 GENERATE_CHI           = YES
 BINARY_TOC             = NO
