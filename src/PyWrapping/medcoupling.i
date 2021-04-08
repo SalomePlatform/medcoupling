@@ -25,6 +25,7 @@
 #define INTERPKERNEL_EXPORT
 #define MEDCOUPLING_EXPORT
 #define MEDLOADER_EXPORT
+#define MEDCOUPLINGICOCO_EXPORT
 
 %include "MEDCouplingCommon.i"
 

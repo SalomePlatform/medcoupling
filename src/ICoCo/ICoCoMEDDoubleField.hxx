@@ -26,6 +26,7 @@
 #define ICoCoMEDDoubleField_included
 
 #include "ICoCoField.hxx"
+#include "ICoCo.hxx"
 
 namespace MEDCoupling
 {
@@ -44,7 +45,7 @@ namespace ICoCo
    * @sa the MEDCoupling documentation, notably the reference counter mechanism used to manage the lifecycle of
    * MEDCoupling objects.
    */
-  class MEDDoubleField : public ICoCo::Field
+  class MEDCOUPLINGICOCO_EXPORT MEDDoubleField : public ICoCo::Field
   {
   public:
     /*! Builds an empty field (internal MEDCoupling object not set).
