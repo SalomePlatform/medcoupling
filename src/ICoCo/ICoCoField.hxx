@@ -34,11 +34,7 @@ namespace ICoCo
    *
    * The Field class holds the name of the field.
    */
-#ifndef SWIG
   class MEDCOUPLINGICOCO_EXPORT Field
-#else
-  class Field
-#endif
   {
   public:
     /*! @brief Set the name of the field.
