@@ -197,6 +197,7 @@ namespace MEDCoupling
     static mcIdType GetNumberOfItemGivenBES(mcIdType begin, mcIdType end, mcIdType step, const std::string& msg);
     static mcIdType GetNumberOfItemGivenBESRelative(mcIdType begin, mcIdType end, mcIdType step, const std::string& msg);
     static mcIdType GetPosOfItemGivenBESRelativeNoThrow(mcIdType value, mcIdType begin, mcIdType end, mcIdType step);
+    static std::vector<std::string> SplitStringInChuncks(const std::string st, std::size_t sz);
     static std::string GetVarNameFromInfo(const std::string& info);
     static std::string GetUnitFromInfo(const std::string& info);
     static std::string BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit);

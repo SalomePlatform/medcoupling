@@ -424,6 +424,29 @@ std::string DataArray::getUnitOnComponent(std::size_t i) const
 }
 
 /*!
+ * Split \a st string into chunks of sz characters each.
+ * Size of input \a st must a be a multiple of \a sz. If not an exception is thrown.
+ */
+std::vector<std::string> DataArray::SplitStringInChuncks(const std::string st, std::size_t sz)
+{
+  std::size_t len = st.length();
+  std::size_t nbOfCompo(len/sz);
+  if( nbOfCompo*sz != len)
+  {
+    THROW_IK_EXCEPTION("DataArray::SplitStringInChuncks : Length of input string (" << len << ") is not equal to " << nbOfCompo << "*" << sz << " !");
+  }
+  std::vector<std::string> ret(nbOfCompo);
+  for(std::size_t i = 0 ; i < nbOfCompo ; ++i)
+  {
+    std::string part = st.substr(i*sz,sz);
+    std::size_t p3=part.find_last_not_of(" \t");
+    part = part.substr(0,p3+1);
+    ret[i] = part;
+  }
+  return ret;
+}
+
+/*!
  * Returns the var part of the full component information.
  * For example, if \a info == "SIGXY [N/m^2]", then this method returns "SIGXY".
  * If a unit part of information is not detected by presence of

@@ -30,12 +30,6 @@
 #include <string>
 #include <sstream>
 
-#define THROW_IK_EXCEPTION(text)                        \
-  {                                                     \
-    std::ostringstream oss; oss << text;                \
-    throw INTERP_KERNEL::Exception(oss.str().c_str());  \
-  }
-
 namespace SauvUtilities
 {
   INTERP_KERNEL::NormalizedCellType MEDLOADER_EXPORT gibi2medGeom( size_t gibiType );

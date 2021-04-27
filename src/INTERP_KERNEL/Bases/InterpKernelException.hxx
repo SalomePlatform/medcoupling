@@ -41,4 +41,10 @@ namespace INTERP_KERNEL
   };
 }
 
+#define THROW_IK_EXCEPTION(text)               \
+{                                              \
+    std::ostringstream oss; oss << text;       \
+    throw INTERP_KERNEL::Exception(oss.str()); \
+}
+
 #endif

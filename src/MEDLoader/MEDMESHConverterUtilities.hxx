@@ -28,14 +28,6 @@
 # include <vector>
 #include <cstring>
 
-
-
-#define THROW_IK_EXCEPTION(text)                        \
-{                                                     \
-    std::ostringstream oss; oss << text;                \
-    throw INTERP_KERNEL::Exception(oss.str().c_str());  \
-}
-
 namespace MeshFormat
 {
 bool isMeshExtensionCorrect( const std::string& fileName );
