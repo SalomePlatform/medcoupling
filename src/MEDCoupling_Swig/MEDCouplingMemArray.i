@@ -326,6 +326,8 @@
 %newobject MEDCoupling::DataArrayPartDefinition::New;
 %newobject MEDCoupling::SlicePartDefinition::New;
 
+%newobject FromPyIntPtrToDataArrayByte;
+
 
 %feature("unref") DataArray "$this->decrRef();"
 %feature("unref") DataArrayDouble "$this->decrRef();"
@@ -3698,9 +3700,20 @@ typedef DataArrayInt64 DataArrayIdType;
       }
     }
   };
+
+}
+
+%inline
+{
+  MEDCoupling::DataArrayByte *FromPyIntPtrToDataArrayByte(long intPtr)
+  {
+    MEDCoupling::DataArrayByte *ret(reinterpret_cast<MEDCoupling::DataArrayByte *>(intPtr));
+    return ret;
+  }
 }
 
 %include "DataArrayInt.i"
+
 
 %pythoncode %{
 def MEDCouplingStdReduceFunct(cls,params):
