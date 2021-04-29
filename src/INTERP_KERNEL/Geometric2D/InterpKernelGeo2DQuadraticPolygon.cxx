@@ -1310,7 +1310,7 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
             {  itConstr++; continue;  }
 
           bool smthHappened=false, doneEarly=false;
-          // Complete a partially reconstructed polygon with boundary edges by matching nodes:
+          // Complete a partially reconstructed polygon with boundary edges of pol2 by matching nodes:
           for(std::list<Edge *>::iterator it2=edgesInPol2OnBoundaryL.begin();it2!=edgesInPol2OnBoundaryL.end();)
             {
               if(curN==(*it2)->getEndNode())  // only end node should be considered if orientation is correct for input meshes
@@ -1327,6 +1327,28 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
               if (curN == startN) // we might end here
                 { doneEarly = true;  break;  }
             }
+
+          // It might be the case that the lookup on start nodes made above failed because pol2 is wrongly oriented.
+          // Be somewhat flexible and keep on supporting this case here (useful for voronisation notably):
+          if(!smthHappened)
+            {
+              for(std::list<Edge *>::iterator it2=edgesInPol2OnBoundaryL.begin();it2!=edgesInPol2OnBoundaryL.end();)
+                {
+                  if(curN==(*it2)->getStartNode())
+                    {
+                      (*it2)->incrRef();
+                      (*itConstr)->pushBack(new ElementaryEdge(*it2,true));
+                      curN=(*it2)->getEndNode();
+                      smthHappened=true;
+                      it2=edgesInPol2OnBoundaryL.erase(it2);
+                    }
+                  else
+                    it2++;
+                  if (curN == startN) // we might end here
+                      { doneEarly = true;  break;  }
+                }
+            }
+
           if (doneEarly)
             {  itConstr++; continue;  }
 
@@ -1347,7 +1369,7 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
                     itZip++;
                 }
             }
-          else
+          else // Nothing happened.
             {
               for(std::list<ElementaryEdge *>::const_iterator it5=(*itConstr)->_sub_edges.begin();it5!=(*itConstr)->_sub_edges.end();it5++)
                 {
