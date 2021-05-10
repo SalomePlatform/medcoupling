@@ -26,7 +26,7 @@
 #define ICoCoField_included
 #include <string>
 
-#include "ICoCo.hxx"
+#include <ICoCo_DeclSpec.hxx>
 
 namespace ICoCo
 {
@@ -34,7 +34,7 @@ namespace ICoCo
    *
    * The Field class holds the name of the field.
    */
-  class MEDCOUPLINGICOCO_EXPORT Field
+  class ICOCO_EXPORT Field
   {
   public:
     /*! @brief Set the name of the field.
