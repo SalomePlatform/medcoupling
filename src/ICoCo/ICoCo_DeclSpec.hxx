@@ -22,16 +22,16 @@
 //
 //    https://github.com/cea-trust-platform/icoco-coupling
 
-#ifndef ICoCo_included
+#ifndef ICoCo_DeclSpec_included
 
 #ifdef WIN32
 #  if defined medicoco_EXPORTS
-#    define MEDCOUPLINGICOCO_EXPORT __declspec( dllexport )
+#    define ICOCO_EXPORT __declspec( dllexport )
 #  else
-#    define MEDCOUPLINGICOCO_EXPORT __declspec( dllimport )
+#    define ICOCO_EXPORT __declspec( dllimport )
 #  endif
 #else
-#  define MEDCOUPLINGICOCO_EXPORT
+#  define ICOCO_EXPORT
 #endif
 
-#endif // ICoCo_included
+#endif // ICoCo_DeclSpec_included
