@@ -23,7 +23,6 @@
 
 #define MEDCOUPLING_EXPORT
 #define INTERPKERNEL_EXPORT
-#define MEDCOUPLINGICOCO_EXPORT 
 
 %include "MEDCouplingCommon.i"
 %include "ICoCoMEDField.i"

@@ -1304,24 +1304,55 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
       // retPolsUnderConstruction initially empty -> see if(!pol1Zip.empty()) below ...
       for(std::list<QuadraticPolygon *>::iterator itConstr=retPolsUnderContruction.begin();itConstr!=retPolsUnderContruction.end();)
         {
-          if((*itConstr)->getStartNode()==(*itConstr)->getEndNode())  // reconstruction of a cell is finished
-            {
-              itConstr++;
-              continue;
-            }
-          Node *curN=(*itConstr)->getEndNode();
-          bool smthHappened=false;
-          // Complete a partially reconstructed polygon with boundary edges by matching nodes:
+          Node *startN = (*itConstr)->getStartNode();
+          Node *curN = (*itConstr)->getEndNode();
+          if(startN == curN)  // reconstruction of a cell is finished
+            {  itConstr++; continue;  }
+
+          bool smthHappened=false, doneEarly=false;
+          // Complete a partially reconstructed polygon with boundary edges of pol2 by matching nodes:
           for(std::list<Edge *>::iterator it2=edgesInPol2OnBoundaryL.begin();it2!=edgesInPol2OnBoundaryL.end();)
             {
-              if(curN==(*it2)->getStartNode())
-                { (*it2)->incrRef(); (*itConstr)->pushBack(new ElementaryEdge(*it2,true)); curN=(*it2)->getEndNode(); smthHappened=true; it2=edgesInPol2OnBoundaryL.erase(it2); }
-              else if(curN==(*it2)->getEndNode())
-                { (*it2)->incrRef(); (*itConstr)->pushBack(new ElementaryEdge(*it2,false)); curN=(*it2)->getStartNode(); smthHappened=true; it2=edgesInPol2OnBoundaryL.erase(it2); }
+              if(curN==(*it2)->getEndNode())  // only end node should be considered if orientation is correct for input meshes
+                                              // in the funny case of cells exactly included (see test case testIntersect2DMeshesTmp13) this is mandatory to take edges from pol2 in the right order.
+                {
+                  (*it2)->incrRef();
+                  (*itConstr)->pushBack(new ElementaryEdge(*it2,false));
+                  curN=(*it2)->getStartNode();
+                  smthHappened=true;
+                  it2=edgesInPol2OnBoundaryL.erase(it2);
+                }
               else
                 it2++;
+              if (curN == startN) // we might end here
+                { doneEarly = true;  break;  }
             }
-          if(smthHappened)
+
+          // It might be the case that the lookup on start nodes made above failed because pol2 is wrongly oriented.
+          // Be somewhat flexible and keep on supporting this case here (useful for voronisation notably):
+          if(!smthHappened)
+            {
+              for(std::list<Edge *>::iterator it2=edgesInPol2OnBoundaryL.begin();it2!=edgesInPol2OnBoundaryL.end();)
+                {
+                  if(curN==(*it2)->getStartNode())
+                    {
+                      (*it2)->incrRef();
+                      (*itConstr)->pushBack(new ElementaryEdge(*it2,true));
+                      curN=(*it2)->getEndNode();
+                      smthHappened=true;
+                      it2=edgesInPol2OnBoundaryL.erase(it2);
+                    }
+                  else
+                    it2++;
+                  if (curN == startN) // we might end here
+                      { doneEarly = true;  break;  }
+                }
+            }
+
+          if (doneEarly)
+            {  itConstr++; continue;  }
+
+          if(smthHappened) // Now continue the construction by finding the next bit in pol1Zip. Not too sure what are the cases where the boolean if False ...
             {
               for(std::list<QuadraticPolygon *>::iterator itZip=pol1Zip.begin();itZip!=pol1Zip.end();)
                 {
@@ -1338,7 +1369,7 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
                     itZip++;
                 }
             }
-          else
+          else // Nothing happened.
             {
               for(std::list<ElementaryEdge *>::const_iterator it5=(*itConstr)->_sub_edges.begin();it5!=(*itConstr)->_sub_edges.end();it5++)
                 {

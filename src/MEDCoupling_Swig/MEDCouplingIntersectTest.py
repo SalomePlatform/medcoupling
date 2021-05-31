@@ -697,6 +697,43 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(res2Tool.getValues(), [0, -1, -1])
         pass
 
+    def testIntersect2DMeshesTmp13(self):
+        """ Bug fix: when part of mesh2 is fully included in mesh1 and some points of mesh2 are touching edges of mesh1, reconstruction of
+        residual cells was not properly done.
+        """
+        eps = 1.0e-6
+        # First case: only two points of mesh2 touching edges of mesh1
+        coo1 = DataArrayDouble([(0,0) , (1,1),  (1,0)])
+        mesh1 = MEDCouplingUMesh("mesh1", 2)
+        mesh1.setCoords(coo1)
+        c = DataArrayInt([NORM_TRI3, 0,1,2])
+        cI = DataArrayInt([0,4])
+        mesh1.setConnectivity(c, cI)
+
+        coo2 = DataArrayDouble([(0.5,0) , (0.5,0.5),  (0.7,0.25)])
+        mesh2 = MEDCouplingUMesh("mesh1", 2)
+        mesh2.setCoords(coo2)
+        c = DataArrayInt([NORM_TRI3, 0,1,2])
+        cI = DataArrayInt([0,4])
+        mesh2.setConnectivity(c, cI)
+
+        meshinter, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(mesh1,mesh2,eps)
+        self.assertEqual(meshinter.getNodalConnectivity().getValues(), [5, 3, 4, 5, 5, 4, 1, 2, 3, 5, 5, 3, 0, 4])
+        self.assertEqual(meshinter.getNodalConnectivityIndex().getValues(), [0, 4, 10, 14])
+        self.assertEqual(res2Back.getValues(), [0, 0, 0])
+        self.assertEqual(res2Tool.getValues(), [0, -1, -1])
+
+        # Second case: all three points of mesh2 touching edges of mesh1
+        coo2[2, 0] = 1.0
+        mesh2.setConnectivity(c, cI)
+
+        meshinter, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(mesh1,mesh2,eps)
+        self.assertEqual(meshinter.getNodalConnectivity().getValues(), [5, 3, 4, 5, 5, 4, 1, 5, 5, 5, 2, 3, 5, 3, 0, 4])
+        self.assertEqual(meshinter.getNodalConnectivityIndex().getValues(), [0, 4, 8, 12, 16])
+        self.assertEqual(res2Back.getValues(), [0,0,0,0])
+        self.assertEqual(res2Tool.getValues(), [0,-1,-1,-1])
+        pass
+
     def testSwig2Intersect2DMeshWith1DLine1(self):
         """A basic test with no colinearity between m1 and m2."""
         i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
@@ -1238,12 +1275,12 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         mesh.setConnectivity(c, cI)
 
         tool = MEDCouplingUMesh('tool', 1)
-        coo = DataArrayDouble([(0.0, 182.78400),  (182.78400, 182.78400)]) 
+        coo = DataArrayDouble([(0.0, 182.78400),  (182.78400, 182.78400)])
         tool.setCoords(coo)
         c = DataArrayInt([NORM_SEG2,0,1])
         cI = DataArrayInt([0, 3])
         tool.setConnectivity(c, cI)
-        
+
         res2D, res1D, resToSelf, mapLeftRight = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
         self.assertEqual(res1D.getNodalConnectivity().getValues(), [1, 6, 1, 1, 1, 8, 1, 8, 9, 1, 9, 7])
         self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 3, 6, 9, 12])
@@ -1253,7 +1290,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(resToSelf.getValues(), [0, 1, 1])
         self.assertEqual(mapLeftRight.getValues(), [-1, -1, 1, 0, 1, 2, -1, -1])
 
-            
+
 
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8

@@ -44,7 +44,7 @@ namespace ICoCo
    * @sa the MEDCoupling documentation, notably the reference counter mechanism used to manage the lifecycle of
    * MEDCoupling objects.
    */
-  class MEDCOUPLINGICOCO_EXPORT MEDIntField : public ICoCo::Field
+  class ICOCO_EXPORT MEDIntField : public ICoCo::Field
   {
   public:
     /*! Builds an empty field (internal MEDCoupling object not set).

@@ -23,6 +23,8 @@
 #include "ICoCoMEDIntField.hxx"
 %}
 
+#define ICOCO_EXPORT
+
 %include "std_string.i"
 %include "ICoCoField.hxx"
 
