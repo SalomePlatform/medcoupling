@@ -965,6 +965,33 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         m = MEDCouplingCMesh() ; m.setCoords(arr,arr,arr) ; m=m.buildUnstructured()
         self.assertTrue( m.computeMeshCenterOfMass().isEqual(DataArrayDouble([2,2,2],1,3),1e-12) )
 
+    def testBugPenta15_0(self):
+        """
+        Non regression test from Roberto Da Via pointing error in connectivity of 5th sub face of penta15 cell.
+        """
+        coo=DataArrayDouble([
+            (0,1,1),(0,0,1),(1,0,1),
+            (0,1,0),(0,0,0),(1,0,0),
+            (0,0.5,1),(0.5,0,1),(0.5,0.5,1),
+            (0,0.5,0),(0.5,0,0),(0.5,0.5,0),
+            (0,1,0.5),(0,0,0.5),(1,0,0.5)
+        ])
+
+        m = MEDCouplingUMesh("penta15",3)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_PENTA15,list(range(15)))
+        bm = m.buildBoundaryMesh(True)
+        bm.writeVTK("boundary.vtu")
+        conn_expected = [
+            [6, 0, 1, 2, 6, 7, 8],
+            [6, 3, 5, 4, 11, 10, 9],
+            [8, 0, 3, 4, 1, 12, 9, 13, 6],
+            [8, 1, 4, 5, 2, 13, 10, 14, 7],
+            [8, 2, 5, 3, 0, 14, 11, 12, 8] # old = [8, 2, 4, 5, 0, 14, 11, 12, 8]
+        ]
+        self.assertTrue( bm.getNodalConnectivity().isEqual(DataArrayInt(sum(conn_expected,[]))) )
+
 
     pass
 
