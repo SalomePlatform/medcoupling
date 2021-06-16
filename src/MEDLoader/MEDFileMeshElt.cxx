@@ -362,7 +362,7 @@ void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int mdim,
       const MEDCoupling1SGTUMesh *m0(dynamic_cast<const MEDCoupling1SGTUMesh *>(m));
       if(!m0)
         throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::Write : internal error #1 !");
-      MCAuto<DataArrayMedInt> arr(DataArrayMedInt::Copy(m0->getNodalConnectivity()));
+      MCAuto<DataArrayMedInt> arr(DataArrayMedInt_Copy(m0->getNodalConnectivity()));
       std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,1));
       MEDFILESAFECALLERWR0(MEDmeshElementConnectivityWr,(fid,mname.c_str(),dt,it,timm,MED_CELL,curMedType,MED_NODAL,MED_FULL_INTERLACE,ToMedInt(nbOfCells),arr->begin()));
     }
@@ -373,7 +373,7 @@ void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int mdim,
         throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::Write : internal error #2 !");
       if(ikt==INTERP_KERNEL::NORM_POLYGON || ikt==INTERP_KERNEL::NORM_QPOLYG)
         {
-          MCAuto<DataArrayMedInt> arr(DataArrayMedInt::Copy(m0->getNodalConnectivity())),arrI(DataArrayMedInt::Copy(m0->getNodalConnectivityIndex()));
+          MCAuto<DataArrayMedInt> arr(DataArrayMedInt_Copy(m0->getNodalConnectivity())),arrI(DataArrayMedInt_Copy(m0->getNodalConnectivityIndex()));
           std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,1));
           std::transform(arrI->begin(),arrI->end(),arrI->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,1));
           MEDFILESAFECALLERWR0(MEDmeshPolygon2Wr,(fid,mname.c_str(),dt,it,timm,MED_CELL,ikt==INTERP_KERNEL::NORM_POLYGON?MED_POLYGON:MED_POLYGON2,MED_NODAL,ToMedInt(nbOfCells+1),arrI->begin(),arr->begin()));

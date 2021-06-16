@@ -66,30 +66,21 @@ namespace MEDCoupling
 
 namespace MEDCoupling
 {
+#ifdef MED_INT_IS_LONG
+  using DataArrayMedInt = DataArrayInt64;
+#else
+  using DataArrayMedInt = DataArrayInt32;
+#endif
 
-  class DataArrayMedInt : public DataArrayDiscreteSigned< med_int >
+  template<class INTARRAY>
+  DataArrayMedInt * DataArrayMedInt_Copy( const INTARRAY* intArray )
   {
-    friend class DataArrayDiscrete<med_int>;
-  public:
-    template<class INTARRAY>
-    static DataArrayMedInt *Copy( const INTARRAY* array );
-    static DataArrayMedInt *New() { return new DataArrayMedInt(); }
-    std::string getClassName() const override { return std::string("DataArrayMedInt"); }
-    DataArrayMedInt *deepCopy() const { return new DataArrayMedInt(*this); }
-    //DataArrayMedInt *buildNewEmptyInstance() const { return new DataArrayMedInt(); }//ko
-    DataArray *buildNewEmptyInstance() const { if ( sizeof(med_int)==sizeof(int)) return DataArrayInt32::New(); return DataArrayInt64::New(); }
-  public:
-    DataArrayMedInt *copySorted(bool asc=true) const override { MCAuto<DataArrayMedInt> ret(this->deepCopy()); ret->sort(); return ret.retn(); }
-    DataArray *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
-    DataArray *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }
-    DataArray *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
-    DataArray *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return this->myKeepSelectedComponents(compoIds); }
-    DataArray *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const { return this->mySelectByTupleIdSafeSlice(bg,end2,step); }
-    DataArray *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return this->mySelectByTupleRanges(ranges); }
-  private:
-    ~DataArrayMedInt() { }
-    DataArrayMedInt() { }
-  };
+    DataArrayMedInt* medIntArray = DataArrayMedInt::New();
+    medIntArray->alloc( intArray->getNumberOfTuples(), intArray->getNumberOfComponents() );
+    medIntArray->copyStringInfoFrom( *intArray );
+    std::copy( intArray->begin(), intArray->end(), medIntArray->getPointer() );
+    return medIntArray;
+  }
 
   template< class T1, class T2 >
   MCAuto<T1> StaticCast( const MCAuto< T2 >& array )
@@ -106,7 +97,7 @@ namespace MEDCoupling
   {
     if ( sizeof( med_int ) == sizeof( typename INTARRAY::Type ))
       return StaticCast< DataArrayMedInt >( intArray );
-    return DataArrayMedInt::Copy((const INTARRAY*) intArray );
+    return DataArrayMedInt_Copy((const INTARRAY*) intArray );
   }
 
   template< class INT >
@@ -119,7 +110,7 @@ namespace MEDCoupling
       ia->incrRef();
       return StaticCast< DataArrayMedInt >( ia );
     }
-    return DataArrayMedInt::Copy( intArray );
+    return DataArrayMedInt_Copy( intArray );
   }
 
   template< class INT >
@@ -164,15 +155,6 @@ namespace MEDCoupling
     return static_cast< INT >( mi );
   }
 
-  template<class INTARRAY>
-  DataArrayMedInt * DataArrayMedInt::Copy( const INTARRAY* intArray )
-  {
-    DataArrayMedInt* medIntArray = DataArrayMedInt::New();
-    medIntArray->alloc( intArray->getNumberOfTuples(), intArray->getNumberOfComponents() );
-    medIntArray->copyStringInfoFrom( *intArray );
-    std::copy( intArray->begin(), intArray->end(), medIntArray->getPointer() );
-    return medIntArray;
-  }
 }
 
 #endif

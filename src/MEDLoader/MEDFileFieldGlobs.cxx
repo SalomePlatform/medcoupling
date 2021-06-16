@@ -74,7 +74,7 @@ void MEDFileFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) co
   std::size_t nbOfPfls=_pfls.size();
   for(std::size_t i=0;i<nbOfPfls;i++)
     {
-      MCAuto<DataArrayMedInt> cpy=DataArrayMedInt::Copy((const DataArrayIdType*)_pfls[i]);
+      MCAuto<DataArrayMedInt> cpy=DataArrayMedInt_Copy((const DataArrayIdType*)_pfls[i]);
       cpy->applyLin(1,1,0);
       INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
       MEDLoaderBase::safeStrCpy(_pfls[i]->getName().c_str(),MED_NAME_SIZE,pflName,opt.getTooLongStrPolicy());

@@ -496,18 +496,18 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysR
   MEDFileCapability mfcap(fid);
   if( ( !entities || entities->areAllStaticPresentAndNoDyn() ) && mfcap.isFastReader())
     {// no entities
-      int nentitype(MEDfieldnEntityType(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT));
+      med_int nentitype(MEDfieldnEntityType(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT));
       INTERP_KERNEL::AutoPtr<med_entity_type> types(new med_entity_type[nentitype]);
       med_int usedbyncs;
       MEDFILESAFECALLERRD0(MEDfieldEntityType,(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT,types,&usedbyncs));
       std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesFastP;
       for(int i=0;i<nentitype;i++)
         {
-          int ngeotype(MEDfieldnGeometryType(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT,types[i]));
+          med_int ngeotype(MEDfieldnGeometryType(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT,types[i]));
           INTERP_KERNEL::AutoPtr<med_geometry_type> geotypes(new med_geometry_type[ngeotype]);
           med_int geousedbyncs;
           MEDFILESAFECALLERRD0(MEDfieldGeometryType,(fid,_name.c_str(),MED_ALL_DT,MED_ALL_IT,types[i],geotypes,&geousedbyncs));
-          for(int j=0;j<ngeotype;j++)
+          for(med_int j=0;j<ngeotype;j++)
             {
               std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> p(MEDFileMesh::ConvertFromMEDFileEntity(types[i]),ConvertGeometryType(geotypes[j]));
               entitiesFastP.push_back(p);

@@ -512,7 +512,7 @@ void MEDFileEquivalenceData::writeAdvanced(med_idt fid, med_entity_type medtype,
   INTERP_KERNEL::AutoPtr<char> name(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   MEDLoaderBase::safeStrCpy(meshName.c_str(),MED_NAME_SIZE,meshName2,getFather()->getMesh()->getTooLongStrPolicy());
   MEDLoaderBase::safeStrCpy(equName.c_str(),MED_NAME_SIZE,name,getFather()->getMesh()->getTooLongStrPolicy());
-  MCAuto<DataArrayMedInt> da2(DataArrayMedInt::Copy(da)); da2->rearrange(1); da2->applyLin(1,1); da2->rearrange(2);
+  MCAuto<DataArrayMedInt> da2(DataArrayMedInt_Copy(da)); da2->rearrange(1); da2->applyLin(1,1); da2->rearrange(2);
   MEDFILESAFECALLERWR0(MEDequivalenceCorrespondenceWr,(fid,meshName2,name,dt,it,medtype,medgt,ToMedInt(da2->getNumberOfTuples()),da2->begin()));
 }
 

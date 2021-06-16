@@ -17,6 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+if(MED_INT_IS_LONG)
+  add_definitions(-DMED_INT_IS_LONG)
+endif(MED_INT_IS_LONG)
+
 # InterpKERNEL
 ADD_SUBDIRECTORY(INTERP_KERNEL)
 IF(MEDCOUPLING_BUILD_TESTS)

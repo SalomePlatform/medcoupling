@@ -5627,6 +5627,25 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(DataArrayDouble([0.0]),1e-14))
         pass
 
+    @WriteInTmpDir
+    def test43(self):
+        """
+        EDF23724 : point to error during 64bit convertion into medcoupling a DataArrayMedInt class was created.
+                   This class is not dynamic_castable to DataArrayInt32 nor DataArrayInt64. It lead previously to strange behaviour
+        """
+        fname = "tessss.med"
+        arr=DataArrayDouble(10) ; arr.iota()
+        m = MEDCouplingCMesh() ; m.setCoords(arr)
+        m = m.buildUnstructured()
+        m.setName("mesh")
+        mm = MEDFileUMesh() ; mm[0] = m
+        mm.setGlobalNumFieldAtLevel(1,DataArrayInt([0,4,5,6,10,12,16,17,19,20]))
+        mm.write(fname,2)
+        mm_reload = MEDFileMesh.New(fname)
+        # DataArrayMedInt class no more exists. Check that.
+        self.assertNotEqual(mm_reload.getGlobalNumFieldAtLevel(1).getClassName() , "DataArrayMedInt")
+        pass
+
     pass
 
 if __name__ == "__main__":

@@ -522,9 +522,9 @@ void MEDCoupling::GetFamiliesGroupsInfo(const std::string& fileName, const std::
   char nomfam[MED_NAME_SIZE+1];
   for(med_int i=0;i<nbFams;++i)
     {
-      med_int nbGrps(MEDnFamilyGroup(fid,meshName.c_str(),i+1)),famId;
+      med_int nbGrps(MEDnFamilyGroup(fid,meshName.c_str(),FromMedInt<int>(i+1))),famId;
       std::unique_ptr<char[]> gro{new char[MED_LNAME_SIZE*nbGrps+1]};
-      MEDFILESAFECALLERRD0(MEDfamilyInfo,(fid,meshName.c_str(),i+1,nomfam,&famId,gro.get()));
+      MEDFILESAFECALLERRD0(MEDfamilyInfo,(fid,meshName.c_str(),FromMedInt<int>(i+1),nomfam,&famId,gro.get()));
       std::string fam(MEDLoaderBase::buildStringFromFortran(nomfam,MED_NAME_SIZE));
       families[fam] = FromMedInt<mcIdType>(famId);
       std::vector<std::string> v(nbGrps);
