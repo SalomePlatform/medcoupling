@@ -7082,6 +7082,9 @@ struct NotInRange
           throw INTERP_KERNEL::Exception("DataArrayInt::BuildIntersection : only single component allowed !");
       }
     //
+    if(a.size()==1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::BuildIntersection : only single not null element in array ! For safety reasons exception is raised !");
+    //
     std::set<T> r;
     for(typename std::vector<const DataArrayType *>::const_iterator it=a.begin();it!=a.end();it++)
       {
