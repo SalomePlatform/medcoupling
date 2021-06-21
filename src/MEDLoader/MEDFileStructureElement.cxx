@@ -383,7 +383,7 @@ mcIdType MEDFileStructureElements::getNumberOfNodesPerSE(const std::string& seNa
     return 1;
   const MEDFileStructureElement *se(getSEWithName(seName));
   std::string meshName(se->getMeshName());
-  return _sup->getNumberOfNodesInConnOf(se->getEntity(),meshName);
+  return _sup->getNumberOfNodesInConnOf(se->getEntity(),se->getGeoType(),meshName);
 }
 
 const MEDFileStructureElement *MEDFileStructureElements::getSEWithName(const std::string& seName) const
