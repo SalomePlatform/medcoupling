@@ -801,6 +801,11 @@ INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypePerDisc::getGeoType(
   return _father->getGeoType();
 }
 
+INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypePerDisc::getGeoTypeStatic() const
+{
+  return _father->getGeoTypeStatic();
+}
+
 void MEDFileFieldPerMeshPerTypePerDisc::fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const
 {
   types.insert(_type);
@@ -1778,6 +1783,11 @@ INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerType::getGeoType() const
   return _geo_type;
 }
 
+INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerType::getGeoTypeStatic() const
+{
+  return _geo_type;
+}
+
 void MEDFileFieldPerMeshPerType::entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const
 {
   ent=MEDFileFieldPerMeshPerTypeCommon::ConvertIntoMEDFileType(mct,_geo_type,gt);
@@ -1928,6 +1938,11 @@ void MEDFileFieldPerMeshPerTypeDyn::entriesForMEDfile(TypeOfField mct, med_geome
 INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypeDyn::getGeoType() const
 {
   throw INTERP_KERNEL::Exception("not implemented yet !");
+}
+
+INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerTypeDyn::getGeoTypeStatic() const
+{
+  return _se->getGeoType();
 }
 
 void MEDFileFieldPerMeshPerTypeDyn::simpleRepr(int bkOffset, std::ostream& oss, int id) const

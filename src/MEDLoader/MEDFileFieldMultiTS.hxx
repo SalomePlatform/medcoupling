@@ -34,7 +34,8 @@ namespace MEDCoupling
   class MEDFileFieldVisitor;
   class MEDFileAnyTypeField1TS;
   class MEDFileAnyTypeField1TSWithoutSDA;
-  
+  class MEDFileAnyTypeFieldMultiTS;
+
   class MEDFileAnyTypeFieldMultiTSWithoutSDA : public RefCountObject, public MEDFileFieldNameScope
   {
   protected:
@@ -53,6 +54,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual const char *getTypeStr() const = 0;
     MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTSWithoutSDA *shallowCpy() const = 0;
     MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTSWithoutSDA *createNew() const = 0;
+    MEDLOADER_EXPORT virtual MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const = 0;
     MEDLOADER_EXPORT virtual MEDFileAnyTypeField1TSWithoutSDA *createNew1TSWithoutSDAEmptyInstance() const = 0;
     MEDLOADER_EXPORT virtual void checkCoherencyOfType(const MEDFileAnyTypeField1TSWithoutSDA *f1ts) const = 0;
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
@@ -147,6 +149,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileInt32FieldMultiTSWithoutSDA *convertToInt() const;
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSWithoutSDA *shallowCpy() const { return new MEDFileFieldMultiTSWithoutSDA(*this); }
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileFieldMultiTSWithoutSDA"); }
+    MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const override;
   protected:
     MEDFileFieldMultiTSWithoutSDA(const std::string& fieldName, const std::string& meshName):MEDFileTemplateFieldMultiTSWithoutSDA<double>(fieldName,meshName) { }
     MEDFileFieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, const std::string& meshName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileTemplateFieldMultiTSWithoutSDA<double>(fid,fieldName,meshName,fieldTyp,infos,nbOfStep,dtunit,loadAll,ms,entities) { }
@@ -174,6 +177,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileInt32FieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileNDTemplateFieldMultiTSWithoutSDA<Int32>(fid,fieldId,loadAll,ms,entities) { }
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSWithoutSDA *shallowCpy() const { return new MEDFileInt32FieldMultiTSWithoutSDA(*this); }
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileInt32FieldMultiTSWithoutSDA"); }
+    MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const override;
   protected:
     MEDFileInt32FieldMultiTSWithoutSDA(const std::string& fieldName, const std::string& meshName):MEDFileNDTemplateFieldMultiTSWithoutSDA<Int32>(fieldName,meshName) { }
     MEDFileInt32FieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, const std::string& meshName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileNDTemplateFieldMultiTSWithoutSDA<Int32>(fid,fieldName,meshName,fieldTyp,infos,nbOfStep,dtunit,loadAll,ms,entities) { }
@@ -189,6 +193,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileInt64FieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileNDTemplateFieldMultiTSWithoutSDA<Int64>(fid,fieldId,loadAll,ms,entities) { }
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSWithoutSDA *shallowCpy() const { return new MEDFileInt64FieldMultiTSWithoutSDA(*this); }
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileInt64FieldMultiTSWithoutSDA"); }
+    MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const override;
   protected:
     MEDFileInt64FieldMultiTSWithoutSDA(const std::string& fieldName, const std::string& meshName):MEDFileNDTemplateFieldMultiTSWithoutSDA<Int64>(fieldName,meshName) { }
     MEDFileInt64FieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, const std::string& meshName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileNDTemplateFieldMultiTSWithoutSDA<Int64>(fid,fieldName,meshName,fieldTyp,infos,nbOfStep,dtunit,loadAll,ms,entities) { }
@@ -204,6 +209,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileFloatFieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileNDTemplateFieldMultiTSWithoutSDA<float>(fid,fieldId,loadAll,ms,entities) { }
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSWithoutSDA *shallowCpy() const { return new MEDFileFloatFieldMultiTSWithoutSDA(*this); }
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileFloatFieldMultiTSWithoutSDA"); }
+    MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const override;
   protected:
     MEDFileFloatFieldMultiTSWithoutSDA(const std::string& fieldName, const std::string& meshName):MEDFileNDTemplateFieldMultiTSWithoutSDA<float>(fieldName,meshName) { }
     MEDFileFloatFieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, const std::string& meshName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileNDTemplateFieldMultiTSWithoutSDA<float>(fid,fieldName,meshName,fieldTyp,infos,nbOfStep,dtunit,loadAll,ms,entities) { }

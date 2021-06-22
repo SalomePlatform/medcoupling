@@ -185,6 +185,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getFieldAtLevelOld;
 %newobject MEDCoupling::MEDFileFieldMultiTS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileFieldMultiTS::convertToInt;
+%newobject MEDCoupling::MEDFileFieldMultiTS::Aggregate;
 
 %newobject MEDCoupling::MEDFileInt32FieldMultiTS::New;
 %newobject MEDCoupling::MEDFileInt32FieldMultiTS::field;
@@ -3037,6 +3038,17 @@ namespace MEDCoupling
     MEDFileInt32FieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const;
     %extend
        {
+         static MEDFileAnyTypeFieldMultiTS *Aggregate(PyObject *fmtssPy, PyObject *dtsPy)
+         {
+            std::vector<const MEDFileAnyTypeFieldMultiTS *> fmtss;
+            convertFromPyObjVectorOfObj<const MEDFileAnyTypeFieldMultiTS *>(fmtssPy,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",fmtss);
+            std::vector< std::vector< std::pair<mcIdType,mcIdType> > > dts2;
+            convertPyToVectorVectorPairInt(dtsPy,dts2);
+            std::vector< std::vector< std::pair<int,mcIdType> > > dts(MEDVectorVectorMIIterator(0,dts2),MEDVectorVectorMIIterator(dts2.size(),dts2));
+            MCAuto<MEDFileAnyTypeFieldMultiTS> ret = MEDFileFieldMultiTS::Aggregate(fmtss,dts);
+            return ret.retn();
+         }
+
          MEDFileFieldMultiTS()
          {
            return MEDFileFieldMultiTS::New();

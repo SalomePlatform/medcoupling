@@ -19,6 +19,31 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include <vector>
+#include <iterator>
+
+class MEDVectorMIIterator : public std::iterator< std::input_iterator_tag, long, long, const std::pair<int,mcIdType> *, std::pair<int,mcIdType> >
+{
+  long _num = 0;
+  std::vector< std::pair<mcIdType,mcIdType> > _data;
+public:
+  explicit MEDVectorMIIterator(long num , std::vector< std::pair<mcIdType,mcIdType> > data) : _num(num),_data(data) {}
+  MEDVectorMIIterator& operator++() { ++_num; return *this;}
+  bool operator==(const MEDVectorMIIterator& other) const {return _num == other._num;}
+  bool operator!=(const MEDVectorMIIterator& other) const {return !(*this == other);}
+  reference operator*() const {return {(int)_data[_num].first,_data[_num].second}; }
+};
+
+class MEDVectorVectorMIIterator : public std::iterator< std::input_iterator_tag, long, long, const std::vector< std::pair<int,mcIdType> >*, std::vector< std::pair<int,mcIdType> > >
+{
+  long _num = 0;
+  std::vector< std::vector< std::pair<mcIdType,mcIdType> > > _data;
+public:
+  explicit MEDVectorVectorMIIterator(long num , std::vector< std::vector< std::pair<mcIdType,mcIdType> > > data) : _num(num),_data(data) {}
+  MEDVectorVectorMIIterator& operator++() { ++_num; return *this;}
+  bool operator==(const MEDVectorVectorMIIterator& other) const {return _num == other._num;}
+  bool operator!=(const MEDVectorVectorMIIterator& other) const {return !(*this == other);}
+  reference operator*() const { auto data = _data[_num]; return reference(MEDVectorMIIterator(0,data),MEDVectorMIIterator(data.size(),data)); }
+};
 
 static PyObject *convertMEDFileMesh(MEDCoupling::MEDFileMesh* mesh, int owner)
 {

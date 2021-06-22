@@ -1077,6 +1077,120 @@ void MEDFileFields::getMeshSENames(std::vector< std::pair<std::string,std::strin
 void MEDFileFields::blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *ses)
 {
   MEDFileBlowStrEltUp::DealWithSE(this,ms,ses);
+  this->aggregateFieldsOnSameMeshes(ms);
+}
+
+/*!
+ * This method is dedicated to explosed Structured Elements that can lead to exotic situation.
+ * Especially when there are several structured elements for a same field.
+ * 
+ * This method looks into meshes into \a ms if there is presence of multiple mesh having same name.
+ * If so, these meshes are aggregated in the same order than \a ms.
+ * The fields in \a this lying on the same meshName are also aggregated in the same order than \a this.
+ */
+void MEDFileFields::aggregateFieldsOnSameMeshes(MEDFileMeshes *ms)
+{
+  if(!ms)
+    THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : ms is nullptr !");
+  MCAuto<MEDFileFields> mfs(MEDFileFields::New());
+  std::map<std::string,std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA>> > fsByName;
+  for(auto fmts : _fields)
+  {
+    fsByName[fmts->getMeshName()].push_back(fmts);
+  }
+  std::vector<std::string> fieldsNamesToBeAggregated;
+  std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > otherFields;
+  std::set<std::string> expectedMeshNamesToMerge;
+  for(auto fieldsWithSame : fsByName)
+  {
+    if(fieldsWithSame.second.size() > 1)
+    {
+      fieldsNamesToBeAggregated.push_back(fieldsWithSame.first);
+      std::set< std::string > zeMeshNames;
+      for(auto fmtsWithSameName : fieldsWithSame.second)
+        zeMeshNames.insert(fmtsWithSameName->getMeshName());
+      if(zeMeshNames.size()!=1)
+        THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : Presence of multiple MultiTS instances with same name but lying on same meshName. Looks bad !");
+      std::string meshNameToMerge = *zeMeshNames.begin();
+      if(expectedMeshNamesToMerge.find(meshNameToMerge) != expectedMeshNamesToMerge.end())
+        THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : unexpected situation ! Error in implementation !");
+      expectedMeshNamesToMerge.insert(*zeMeshNames.begin());
+    }
+    else
+    {
+      otherFields.push_back(fieldsWithSame.second.front());
+    }
+  }
+  for(auto fieldNameToBeAggregated : fieldsNamesToBeAggregated)
+  {
+    auto base_fs = fsByName[fieldNameToBeAggregated].front();
+    auto fieldsToBeAggregated = fsByName[fieldNameToBeAggregated];
+    std::vector< std::vector< std::pair<int,mcIdType> > > dtsToAggregate;
+    std::vector< MCAuto<MEDFileAnyTypeFieldMultiTS> > eltsToAggregate;
+    for(auto fieldToBeAggregated : fieldsToBeAggregated)
+    {
+      std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > > entries;
+      int iteration,order;
+      {
+        auto dtits = fieldToBeAggregated->getIterations();
+        iteration = dtits.front().first;
+        order = dtits.front().second;
+      }
+      fieldToBeAggregated->getUndergroundDataArrayExt(iteration,order,entries);
+      std::vector< std::pair<int,mcIdType> > dtsToPush;
+      for(auto entry : entries)
+        dtsToPush.push_back({entry.first.first,entry.second.second-entry.second.first});
+      dtsToAggregate.push_back(dtsToPush);
+      MCAuto<MEDFileAnyTypeFieldMultiTS> eltToAggregate = MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent(fieldToBeAggregated);
+      eltsToAggregate.push_back(eltToAggregate);
+    }
+    MCAuto<MEDFileAnyTypeFieldMultiTS> gg = MEDFileAnyTypeFieldMultiTS::Aggregate(FromVecAutoToVecOfConst(eltsToAggregate),dtsToAggregate);
+    gg->setMeshName(base_fs->getMeshName());
+    otherFields.push_back(gg->getContent());
+  }
+  // now deal with meshes
+  std::map<std::string,std::vector< MEDFileMesh *> > msByName;
+  for(auto iMesh = 0 ; iMesh < ms->getNumberOfMeshes() ; ++iMesh)
+  {
+    auto curMesh = ms->getMeshAtPos(iMesh);
+    msByName[curMesh->getName()].push_back(curMesh);
+  }
+  std::set<std::string> meshesNamesToBeAggregated;
+  std::vector< MCAuto<MEDFileMesh> > otherMeshes;
+  for(auto msWithSameName : msByName)
+  {
+    if(msWithSameName.second.size()>1)
+      meshesNamesToBeAggregated.insert(msWithSameName.first);
+    else
+    {
+      otherMeshes.push_back( MCAuto<MEDFileMesh>::TakeRef(msWithSameName.second.front()) );
+    }
+  }
+  if(meshesNamesToBeAggregated != expectedMeshNamesToMerge)
+    THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : mismatch between meshes to be aggregated and meshnames into fields to be aggregated");
+  std::vector<const DataArrayDouble *> coos;
+  for(auto meshNameToBeAggregated : meshesNamesToBeAggregated)
+  {
+    for(auto curMesh : msByName[meshNameToBeAggregated])
+    {
+      if(!curMesh->getNonEmptyLevels().empty())
+        THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : only meshes without cells supported.");
+      MEDFileUMesh *curMeshU(dynamic_cast<MEDFileUMesh *>(curMesh));
+      if(!curMeshU)
+        THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : only unstructured mesh supported.");
+      coos.push_back(curMeshU->getCoords());
+    }
+    MCAuto<DataArrayDouble> coo=DataArrayDouble::Aggregate(coos);
+    MCAuto<MEDFileUMesh> gg = MEDFileUMesh::New();
+    gg->setName(meshNameToBeAggregated);
+    gg->setCoords(coo);
+    otherMeshes.push_back(DynamicCast<MEDFileUMesh,MEDFileMesh>(gg));
+  }
+  //
+  ms->resize(0);
+  for(auto mesh : otherMeshes)
+    ms->pushMesh(mesh);
+  _fields = otherFields;
 }
 
 MCAuto<MEDFileFields> MEDFileFields::partOfThisOnStructureElements() const
