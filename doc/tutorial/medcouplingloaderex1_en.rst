@@ -21,12 +21,11 @@ from a MED file.
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
 
-Import the whole Python module MEDLoader (which includes MEDCoupling).
-Also import NumPy and acos() from the math module. ::
+Import the whole Python module medcoupling.
+Also import NumPy. ::
 
-	from MEDLoader import *
-	from numpy import *
-	from math import acos
+    import medcoupling as mc
+    import numpy as np
 
 Mesh and field extraction using advanced API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +33,7 @@ Mesh and field extraction using advanced API
 Using the advanced API read the whole file "agitateur.med" and display all time-steps of
 the first field. ::
 
-	data=MEDFileData("agitateur.med")
+	data=mc.MEDFileData("agitateur.med")
 	ts=data.getFields()[0].getTimeSteps()
 	print(ts)
 
@@ -44,7 +43,7 @@ only the field part having a value within [0.0, 1.0] (variable "ids"). ::
 
 	fMts=data.getFields()["DISTANCE_INTERFACE_ELEM_BODY_ELEM_DOM"]
 	f1ts=fMts[(2,-1)]
-	fMc=f1ts.getFieldAtLevel(ON_CELLS,0)
+	fMc=f1ts.getFieldAtLevel(mc.ON_CELLS,0)
 	arr=fMc.getArray()
 	arr.getMinMaxPerComponent() # just to see the variation range of the field per component
 	ids=arr.findIdsInRange(0.,1.)
@@ -55,7 +54,7 @@ Store the result in pressOnAgitateur. ::
 
 	pressMts=data.getFields()["PRESSION_ELEM_DOM"]
 	press1ts=pressMts[(2,-1)]
-	pressMc=press1ts.getFieldAtLevel(ON_CELLS,0)
+	pressMc=press1ts.getFieldAtLevel(mc.ON_CELLS,0)
 	pressOnAgitateurMc=pressMc[ids]
 
 Delete unused nodes in pressOnAgitateurMc.getMesh(). ::
@@ -117,7 +116,7 @@ centerOfMass -> G, where G represents the center of mass of the current cell. ::
 Compute the cross product for each cell of "posSkin" using "forceVectSkin"
 (method DataArrayDouble.CrossProduct()). ::
 
-	torquePerCellOnSkin=DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
+	torquePerCellOnSkin=mc.DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
 
 Sum "torqueOnSkin" using DataArrayDouble.accumulate(). ::
 
@@ -129,9 +128,9 @@ Compute the power per skin cell and sum it. ::
 
        speedMts=data.getFields()["VITESSE_ELEM_DOM"]
        speed1ts=speedMts[(2,-1)]
-       speedMc=speed1ts.getFieldAtLevel(ON_CELLS,0)
+       speedMc=speed1ts.getFieldAtLevel(mc.ON_CELLS,0)
        speedOnSkin=speedMc.getArray()[tupleIdsInField]
-       powerSkin=DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
+       powerSkin=mc.DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
        power=powerSkin.accumulate()[0]
        print("power = %r W"%(power))
 

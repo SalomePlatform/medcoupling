@@ -6,10 +6,7 @@
 
 ::
 
-	from MEDCoupling import *
-	from MEDLoader import *
-	import MEDLoaderDataForTest
-
+    import medcoupling as mc
 	from math import *
 
 	# Definition of environment variables
@@ -34,7 +31,7 @@
 	# => Definition of the mesh dimension
 	# => Definition of number of cells
 	# => Definition of name of meshing
-	mesh=MEDCouplingUMesh.New()
+	mesh=mc.MEDCouplingUMesh.New()
 	mesh.setMeshDimension(3)
 	mesh.allocateCells(nbOfCells+nbOfCells2D)
 	mesh.setName("3Dcube")
@@ -63,12 +60,12 @@
 	print("4 ********************")
 	# Adding cells in meshing
 	for i in range(nbOfCells):
-		mesh.insertNextCell(NORM_HEXA8,8,connectivity[8*i:8*(i+1)])
+		mesh.insertNextCell(mc.NORM_HEXA8,8,connectivity[8*i:8*(i+1)])
 		pass
 
 	print("5 ********************")
 	# Settings of coordinates and verify if it's OK
-	myCoords = DataArrayDouble.New()
+	myCoords = mc.DataArrayDouble.New()
 	myCoords.setValues(coordinates,nbOfNodes,3)
 	mesh.setCoords(myCoords)
 	mesh.checkConsistencyLight()
@@ -88,13 +85,13 @@
 	# => Definition of the mesh support
 	# => Definition of field name
 	# => Definition of field nature
-	field = MEDCouplingFieldDouble.New(ON_CELLS)
+	field = mc.MEDCouplingFieldDouble.New(ON_CELLS)
 	field.setMesh(mesh)
 	field.setName("field")
 	field.setNature(ExtensiveMaximum)
 
 	# Computing and setting field values
-	myCoords=DataArrayDouble.New()
+	myCoords=mc.DataArrayDouble.New()
 	sampleTab=[]
 	bar = mesh.computeCellCenterOfMass()
 	print(bar.getNbOfElems())
@@ -110,34 +107,31 @@
 	myCoords.setValues(sampleTab,nbOfCells,1)
 	field.setArray(myCoords)
 
-	fBF = MEDCouplingFieldDouble.New(ON_CELLS)
+	fBF = mc.MEDCouplingFieldDouble.New(ON_CELLS)
 	fBF.setMesh(mesh2D)
 	fBF.setName("fieldBottomFace")
 	fBF.setNature(ExtensiveMaximum)
 	Cval = 10.
-	myCoords2D=DataArrayDouble.New()
+	myCoords2D=mc.DataArrayDouble.New()
 	sampleTab=[]
 	for i in range(nbOfCells2D):
 		sampleTab.append(Cval)
 	myCoords2D.setValues(sampleTab,nbOfCells2D,1)
 	fBF.setArray(myCoords2D)
 
-	medFileName = "MEDCoupling_cube3D.med"
+	medFileName = "mc.MEDCoupling_cube3D.med"
 	# For note : True / False in Write* functions
 	# => True : overwriting existing file
 	# => False : add in existing file 
 	meshes=[mesh2D,mesh]
-	MEDLoader.WriteUMeshes(medFileName,meshes,True);
-	MEDLoader.WriteField(medFileName,field,False)
-	MEDLoader.WriteField(medFileName,fBF,False)
+	mc.WriteUMeshes(medFileName,meshes,True);
+	mc.WriteField(medFileName,field,False)
+	mc.WriteField(medFileName,fBF,False)
 
 
 ::
 
-	from MEDCoupling import *
-	from MEDLoader import *
-	import MEDLoaderDataForTest
-
+    import medcoupling as mc
 	from math import *
 
 	spaceDim3D = 3
@@ -157,29 +151,29 @@
 			coordinates.append(float(i))
 			coordinates.append(float(j))
 	Connectivities = [0,4,5,1, 1,5,6,2, 2,6,7,3, 4,8,9,5, 5,9,10,6, 6,10,11,7, 8,12,13,9, 9,13,14,10, 10,14,15,11]
-	myCoords = DataArrayDouble.New()
+	myCoords = mc.DataArrayDouble.New()
 	myCoords.setValues(coordinates,NbNode2D,MeshDim2D)
 
-	m1 = MEDCouplingUMesh.New()
+	m1 = mc.MEDCouplingUMesh.New()
 	m1.setMeshDimension(MeshDim2D)
 	m1.allocateCells(NbCell2D)
 	m1.setCoords(myCoords)
 	m1.setName("2D_Support")
 
 	for i in range(NbCell2D):
-		m1.insertNextCell(NORM_QUAD4,4,Connectivities[4*i:4*(i+1)])
+		m1.insertNextCell(mc.NORM_QUAD4,4,Connectivities[4*i:4*(i+1)])
 	m1.changeSpaceDimension(3)
 
 	# Creation of 1D meshing
 	coords = [ 0.0, 1.0, 2.0, 3.0 ]
 	conn   = [ 0,1, 1,2, 2,3 ]
-	m2 = MEDCouplingUMesh.New()
+	m2 = mc.MEDCouplingUMesh.New()
 	m2.setMeshDimension(1)
 	m2.allocateCells(3)
-	m2.insertNextCell(NORM_SEG2,2,conn[0:2])
-	m2.insertNextCell(NORM_SEG2,2,conn[2:4])
-	m2.insertNextCell(NORM_SEG2,2,conn[4:6])
-	myCoords1D=DataArrayDouble.New()
+	m2.insertNextCell(mc.NORM_SEG2,2,conn[0:2])
+	m2.insertNextCell(mc.NORM_SEG2,2,conn[2:4])
+	m2.insertNextCell(mc.NORM_SEG2,2,conn[4:6])
+	myCoords1D=mc.DataArrayDouble.New()
 	myCoords1D.setValues(coords,4,1)
 	m2.setCoords(myCoords1D)
 	m2.changeSpaceDimension(3)
@@ -197,15 +191,12 @@
 	meshGroup.setName("meshGroup");
 
 	medFileName = "MEDCoupling_Extrudedcube3D.med"
-	MEDLoader.WriteUMeshesPartition(medFileName,"Extrusion",[m3,meshGroup],True)
+	mc.WriteUMeshesPartition(medFileName,"Extrusion",[m3,meshGroup],True)
 	
 
 ::
 
-	from MEDCoupling import *
-	from MEDLoader import *
-	import MEDLoaderDataForTest
-
+    import medcoupling as mc
 	from math import *
 
 	spaceDim3D = 3
@@ -218,14 +209,14 @@
 
 	# Creation of a grid => Structured mesh
 	# Need directions definition
-	mesh=MEDCouplingCMesh.New()
-	coordsX=DataArrayDouble.New()
+	mesh=mc.MEDCouplingCMesh.New()
+	coordsX=mc.DataArrayDouble.New()
 	arrX=[ 0., 1., 2., 3. ]
 	coordsX.setValues(arrX,4,1)
-	coordsY=DataArrayDouble.New()
+	coordsY=mc.DataArrayDouble.New()
 	arrY=[ 0., 1., 2., 3. ]
 	coordsY.setValues(arrY,4,1)
-	coordsZ=DataArrayDouble.New()
+	coordsZ=mc.DataArrayDouble.New()
 	arrZ=[ 0., 1., 2., 3. ]
 	coordsZ.setValues(arrZ,4,1)
 	mesh.setCoords(coordsX,coordsY,coordsZ)
@@ -244,8 +235,8 @@
 	# Definition of the name group
 	tabIdCells.setName("meshGroup")
 
-	# Passing MEDCoupling to MEDFile
-	fmeshU = MEDFileUMesh.New()
+	# Passing mc.MEDCoupling to mc.MEDFile
+	fmeshU = mc.MEDFileUMesh.New()
 	fmeshU.setName("Grid")
 	fmeshU.setDescription("IHopeToConvinceLastMEDMEMUsers")
 	myCoords = meshU.getCoords()

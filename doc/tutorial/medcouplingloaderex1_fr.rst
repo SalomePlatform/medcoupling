@@ -21,10 +21,10 @@ L'objectif est de donner un exemple complet de post-traitement non trivial à pa
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pour commencer l'exercice importer tout le module python ``MEDLoader`` (qui inclut ``MEDCoupling``). 
+Pour commencer l'exercice importer le module python ``medcoupling``. 
 Importer aussi ``numpy``. ::
 
-	import MEDLoader as ml
+	import medcoupling as mc
 	import numpy as np
 
 Extraction des maillages et champs avec l'API avancée
@@ -32,7 +32,7 @@ Extraction des maillages et champs avec l'API avancée
 
 Avec l'API avancée lire tout le fichier "agitateur.med" et afficher tous les pas de temps du 1er champ. ::
 
-	data = ml.MEDFileData("agitateur.med")
+	data = mc.MEDFileData("agitateur.med")
 	ts = data.getFields()[0].getTimeSteps()
 	print(ts)
 
@@ -44,7 +44,7 @@ de cellules correspondant dans ``ids`` : ::
 
 	fMts = data.getFields()["DISTANCE_INTERFACE_ELEM_BODY_ELEM_DOM"]
 	f1ts = fMts[(2,-1)]
-	fMc = f1ts.getFieldAtLevel(ml.ON_CELLS,0)
+	fMc = f1ts.getFieldAtLevel(mc.ON_CELLS,0)
 	arr = fMc.getArray()
 	arr.getMinMaxPerComponent()      # just to see the field variation range per component
 	ids = arr.findIdsInRange(0.,1.)
@@ -55,7 +55,7 @@ A l'aide du champ "PRESSION_ELEM_DOM" trouver le champ de pression 3D qu'appliqu
 
 	pressMts = data.getFields()["PRESSION_ELEM_DOM"]
 	press1ts = pressMts[(2,-1)]
-	pressMc = press1ts.getFieldAtLevel(ml.ON_CELLS,0)
+	pressMc = press1ts.getFieldAtLevel(mc.ON_CELLS,0)
 	pressOnAgitateurMc = pressMc[ids]
 
 Supprimer les noeuds inutiles de ``pressOnAgitateurMc.getMesh()`` : ::
@@ -116,7 +116,7 @@ le vecteur ``centerOfMass`` -> ``G``, avec ``G`` le barycentre de la cellule cou
 Appliquer maintenant la formule classique de calcul du moment : calculer le produit 
 vectoriel par cellule de ``posSkin`` avec ``forceVectSkin`` (méthode ``DataArrayDouble.CrossProduct()``). ::
 
-	torquePerCellOnSkin = ml.DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
+	torquePerCellOnSkin = mc.DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
 
 Sommer ``torqueOnSkin`` en utilisant la méthode ``DataArrayDouble.accumulate()``. ::
 
@@ -130,9 +130,9 @@ Calculer la puissance par cellule de la peau de l'agitateur et la sommer. ::
 
 	speedMts = data.getFields()["VITESSE_ELEM_DOM"]
 	speed1ts = speedMts[(2,-1)]
-	speedMc = speed1ts.getFieldAtLevel(ml.ON_CELLS,0)
+	speedMc = speed1ts.getFieldAtLevel(mc.ON_CELLS,0)
 	speedOnSkin = speedMc.getArray()[tupleIdsInField]
-	powerSkin = ml.DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
+	powerSkin = mc.DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
 	power = powerSkin.accumulate()[0]
 	print("power = %r W"%(power))
 

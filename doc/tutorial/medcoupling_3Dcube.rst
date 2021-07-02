@@ -19,10 +19,9 @@ In spite of a mesh in MEDCoupling has only one dimension, it's possible to save 
 Beginning of implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To implement this exercice we use the python language script and import the MEDCoupling and MEDLoader parts of the MED module. We need also mathematical functions, so we import the python math module::
+To implement this exercice we use the python language script and import the medcoupling module. We need also mathematical functions, so we import the python math module::
 
-	from MEDCoupling import *
-	from MEDLoader import *
+    import medcoupling as mc
 	from math import *
 
 You must define 3 variables for space dimension, number of nodes on each dimension and total number of nodes::
@@ -49,7 +48,7 @@ First instantiate a meshing object. Therefore, we need to define :
 
 ::
 
-	mesh=MEDCouplingUMesh.New()
+	mesh = mc.MEDCouplingUMesh.New()
 	mesh.setMeshDimension(3)
 	mesh.allocateCells(...)
 	mesh.setName("3Dcube")
@@ -66,7 +65,7 @@ Define the coordinates of the nodes of the 3D cube mesh, and then use the setCoo
 			for i in range(N):
 				coordinates.append(...)
 				
-	myCoords = DataArrayDouble.New()
+	myCoords = mc.DataArrayDouble.New()
 	myCoords.setValues(coordinates,nbOfNodes,3)
 	mesh.setCoords(myCoords)
 	
@@ -91,7 +90,7 @@ For each hexahedron of the mesh, you have to give its connectivity: the list of 
 
 	# Adding cells in meshing
 	for i in range(nbOfCells):
-		mesh.insertNextCell(NORM_HEXA8,8,connectivity[8*i:8*(i+1)])
+		mesh.insertNextCell(mc.NORM_HEXA8,8,connectivity[8*i:8*(i+1)])
 		pass
 		
 	# Check mesh consistency:
@@ -112,17 +111,17 @@ Definition of 2D mesh
 			coordinates.append(...)
 			...
 	Connectivities = [...]
-	myCoords = DataArrayDouble.New()
+	myCoords = mc.DataArrayDouble.New()
 	myCoords.setValues(coordinates,NbNode2D,MeshDim2D)
 
-	m1 = MEDCouplingUMesh.New()
+	m1 = mc.MEDCouplingUMesh.New()
 	m1.setMeshDimension(MeshDim2D)
 	m1.allocateCells(NbCell2D)
 	m1.setCoords(myCoords)
 	m1.setName("2D_Support")
 
 	for i in range(NbCell2D):
-		m1.insertNextCell(NORM_QUAD4,4,Connectivities[4*i:4*(i+1)])
+		m1.insertNextCell(mc.NORM_QUAD4,4,Connectivities[4*i:4*(i+1)])
 	m1.changeSpaceDimension(3)
 
 Definition of 1D mesh
@@ -131,13 +130,13 @@ Definition of 1D mesh
 
 	coords = [ ... ]
 	conn   = [ ... ]
-	m2 = MEDCouplingUMesh.New()
+	m2 = mc.MEDCouplingUMesh.New()
 	m2.setMeshDimension(1)
 	m2.allocateCells(3)
-	m2.insertNextCell(NORM_SEG2,2,conn[0:2])
-	m2.insertNextCell(NORM_SEG2,2,conn[2:4])
-	m2.insertNextCell(NORM_SEG2,2,conn[4:6])
-	myCoords1D=DataArrayDouble.New()
+	m2.insertNextCell(mc.NORM_SEG2,2,conn[0:2])
+	m2.insertNextCell(mc.NORM_SEG2,2,conn[2:4])
+	m2.insertNextCell(mc.NORM_SEG2,2,conn[4:6])
+	myCoords1D=mc.DataArrayDouble.New()
 	myCoords1D.setValues(coords,4,1)
 	m2.setCoords(myCoords1D)
 	m2.changeSpaceDimension(3)
@@ -163,14 +162,14 @@ it's the easiest way to create a grid since you have no connectivity to set. The
 
 ::
 
-	mesh=MEDCouplingCMesh.New()
-	coordsX=DataArrayDouble.New()
+	mesh=mc.MEDCouplingCMesh.New()
+	coordsX=mc.DataArrayDouble.New()
 	arrX=[ ... ]
 	coordsX.setValues(arrX,4,1)
-	coordsY=DataArrayDouble.New()
+	coordsY=mc.DataArrayDouble.New()
 	arrY=[ ... ]
 	coordsY.setValues(arrY,4,1)
-	coordsZ=DataArrayDouble.New()
+	coordsZ=mc.DataArrayDouble.New()
 	arrZ=[ ... ]
 	coordsZ.setValues(arrZ,4,1)
 	mesh.setCoords(coordsX,coordsY,coordsZ)
@@ -188,7 +187,7 @@ A group is a set of cells defining by their id. This set must the input for crea
 Generally ids cells using in group are known. So you just need put these ids in a DataArray.
 ::
 
-	tabIdCells = DataArrayInt.New()
+	tabIdCells = mc.DataArrayInt.New()
 	IdCells = [ ... ]
 	tabIdCells.setValues(IdCells,...)
 
@@ -220,7 +219,7 @@ Moreover, we need to define:
 ::
 
 	# Passing MEDCoupling to MEDFile
-	fmeshU = MEDFileUMesh.New()
+	fmeshU = mc.MEDFileUMesh.New()
 	fmeshU.setName("Grid")
 	fmeshU.setDescription("IHopeToConvinceLastMEDMEMUsers")
 	myCoords = meshU.getCoords()
@@ -254,13 +253,13 @@ The field will be a sin function dependent of distance of the barycenter of each
 	# => Definition of the mesh support
 	# => Definition of field name
 	# => Definition of field nature
-	field = MEDCouplingFieldDouble.New(ON_CELLS)
+	field = mc.MEDCouplingFieldDouble.New(ON_CELLS)
 	field.setMesh(mesh)
 	field.setName("field")
 	field.setNature(ExtensiveMaximum)
 
 	# Computing and setting field values
-	myCoords=DataArrayDouble.New()
+	myCoords=mc.DataArrayDouble.New()
 	sampleTab=[]
 	bar = mesh.computeCellCenterOfMass()
 	print(bar.getNbOfElems())
@@ -283,7 +282,7 @@ General Case
 ::
 
 	medFileName = "MEDCoupling_Extrudedcube3D.med"
-	MEDLoader.WriteUMesh(medFileName,meshU,True)
+	mc.WriteUMesh(medFileName,meshU,True)
 
 .. note:: True / False in Write* functions : True for overwriting existing file and False for adding in existing file 
 
@@ -311,7 +310,7 @@ The connectivity must respect following figure:
 	
 	medFileName = "MEDCoupling_cube3D.med"
 	meshes=[mesh2D,mesh]
-	MEDLoader.WriteUMeshes(medFileName,meshes,True)
+	mc.WriteUMeshes(medFileName,meshes,True)
 	
 Group Case
 ````````````
@@ -325,7 +324,7 @@ Saving the fields in the med file
 
 ::
 
-	MEDLoader.WriteField(medFileName,field,False)
+	mc.WriteField(medFileName,field,False)
 
 Visualize the mesh with the SMESH module of Salome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

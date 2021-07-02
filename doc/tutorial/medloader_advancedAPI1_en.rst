@@ -23,10 +23,10 @@ Topics covered:
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
 
-To implement this exercise we use the Python scripting language and import the MEDLoader Python module.
-The whole MEDCoupling module is fully included in MEDLoader. No need to import medcoupling when MEDLoader has been loaded. ::
+To implement this exercise we use the Python scripting language and import the `medcoupling` Python module. ::
 
-	import MEDLoader as ml
+    import medcoupling as mc
+
 
 Writing and Reading meshes using MEDLoader's advanced API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,14 +35,14 @@ First of all, creation of a mesh "targetMesh". ::
 
 	targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        targetMesh=ml.MEDCouplingUMesh.New("MyMesh",2)
+        targetMesh=mc.MEDCouplingUMesh.New("MyMesh",2)
         targetMesh.allocateCells(5)
-        targetMesh.insertNextCell(ml.NORM_TRI3,3,targetConn[4:7])
-        targetMesh.insertNextCell(ml.NORM_TRI3,3,targetConn[7:10])
-	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[0:4])
-        targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[10:14])
-        targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[14:18])
-        myCoords=ml.DataArrayDouble.New(targetCoords,9,2)
+        targetMesh.insertNextCell(mc.NORM_TRI3,3,targetConn[4:7])
+        targetMesh.insertNextCell(mc.NORM_TRI3,3,targetConn[7:10])
+	targetMesh.insertNextCell(mc.NORM_QUAD4,4,targetConn[0:4])
+        targetMesh.insertNextCell(mc.NORM_QUAD4,4,targetConn[10:14])
+        targetMesh.insertNextCell(mc.NORM_QUAD4,4,targetConn[14:18])
+        myCoords=mc.DataArrayDouble.New(targetCoords,9,2)
         targetMesh.setCoords(myCoords)
         
 
@@ -59,28 +59,28 @@ Build "targetMesh1" representing the sub-constituents (faces) of "targetMesh" re
 
 Then we are ready to write targetMesh and targetMesh1 into TargetMesh2.med. ::
 
-	meshMEDFile=ml.MEDFileUMesh.New()
+	meshMEDFile=mc.MEDFileUMesh.New()
 	meshMEDFile.setMeshAtLevel(0,targetMesh)
 	meshMEDFile.setMeshAtLevel(-1,targetMesh1)
 	meshMEDFile.write("TargetMesh2.med",2) # 2 stands for write from scratch
 
 Create 2 groups on level 0. The first called "grp0_Lev0" on cells [0,1,3] and the second called "grp1_Lev0" on cells [1,2,3,4] ::
 
-	grp0_0=ml.DataArrayInt.New([0,1,3]) ; grp0_0.setName("grp0_Lev0")
-	grp1_0=ml.DataArrayInt.New([1,2,3,4]) ; grp1_0.setName("grp1_Lev0")
+	grp0_0=mc.DataArrayInt.New([0,1,3]) ; grp0_0.setName("grp0_Lev0")
+	grp1_0=mc.DataArrayInt.New([1,2,3,4]) ; grp1_0.setName("grp1_Lev0")
 	meshMEDFile.setGroupsAtLevel(0,[grp0_0,grp1_0])
 
 Create 3 groups on level -1. The 1st called "grp0_LevM1" on cells [0,1], the 2nd called "grp1_LevM1" on cells [0,1,2], and the 3rd called "grp2_LevM1" on cells [1,2,3] ::
 
-	grp0_M1=ml.DataArrayInt.New([0,1]) ; grp0_M1.setName("grp0_LevM1")
-	grp1_M1=ml.DataArrayInt.New([0,1,2]) ; grp1_M1.setName("grp1_LevM1")
-	grp2_M1=ml.DataArrayInt.New([1,2,3]) ; grp2_M1.setName("grp2_LevM1")
+	grp0_M1=mc.DataArrayInt.New([0,1]) ; grp0_M1.setName("grp0_LevM1")
+	grp1_M1=mc.DataArrayInt.New([0,1,2]) ; grp1_M1.setName("grp1_LevM1")
+	grp2_M1=mc.DataArrayInt.New([1,2,3]) ; grp2_M1.setName("grp2_LevM1")
 	meshMEDFile.setGroupsAtLevel(-1,[grp0_M1,grp1_M1,grp2_M1])
 	
 
 Then trying to read it. ::
 
-	meshMEDFileRead=ml.MEDFileMesh.New("TargetMesh2.med")
+	meshMEDFileRead=mc.MEDFileMesh.New("TargetMesh2.med")
 	meshRead0=meshMEDFileRead.getMeshAtLevel(0)
 	meshRead1=meshMEDFileRead.getMeshAtLevel(-1)
 	print("Is the mesh at level 0 read in file equals targetMesh ? %s"%(meshRead0.isEqual(targetMesh,1e-12)))
@@ -100,7 +100,7 @@ Writing and Reading fields
 
 Creation of a simple vector field on cells called f.  ::
 
-	f=ml.MEDCouplingFieldDouble.New(ml.ON_CELLS,ml.ONE_TIME)
+	f=mc.MEDCouplingFieldDouble.New(mc.ON_CELLS,mc.ONE_TIME)
 	f.setTime(5.6,7,8)
 	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
@@ -108,7 +108,7 @@ Creation of a simple vector field on cells called f.  ::
 
 Put f into a MEDFileField1TS for preparation of MED writing ::
 
-	fMEDFile=ml.MEDFileField1TS.New()
+	fMEDFile=mc.MEDFileField1TS.New()
 	fMEDFile.setFieldNoProfileSBT(f)
 
 Append field to "TargetMesh2.med" ::
@@ -117,9 +117,9 @@ Append field to "TargetMesh2.med" ::
 
 Read it : ::
 
-	fMEDFileRead=ml.MEDFileField1TS.New("TargetMesh2.med",f.getName(),7,8)
-	fRead1=fMEDFileRead.getFieldOnMeshAtLevel(ml.ON_CELLS,0,meshMEDFileRead) # fastest method. No reading of the supporting mesh.
-	fRead2=fMEDFileRead.getFieldAtLevel(ml.ON_CELLS,0) # like above but mesh is re-read from file...
+	fMEDFileRead=mc.MEDFileField1TS.New("TargetMesh2.med",f.getName(),7,8)
+	fRead1=fMEDFileRead.getFieldOnMeshAtLevel(mc.ON_CELLS,0,meshMEDFileRead) # fastest method. No reading of the supporting mesh.
+	fRead2=fMEDFileRead.getFieldAtLevel(mc.ON_CELLS,0) # like above but mesh is re-read from file...
 	print("Does the field f remain the same using fast method ? %s"%(fRead1.isEqual(f,1e-12,1e-12)))
 	print("Does the field f remain the same using slow method ? %s"%(fRead2.isEqual(f,1e-12,1e-12)))
 	
@@ -128,20 +128,20 @@ Writing and Reading fields on a "profile"
 
 Build a reduction on cells [1,2,3] of f and call it fPart. ::
 
-	pfl=ml.DataArrayInt.New([1,2,3]) ; pfl.setName("My1stPfl")
+	pfl=mc.DataArrayInt.New([1,2,3]) ; pfl.setName("My1stPfl")
 	fPart=f.buildSubPart(pfl)
 	fPart.setName("fPart")
 
 Put it into MEDFileField1TS data structure. ::
 
-	fMEDFile2=ml.MEDFileField1TS.New()
+	fMEDFile2=mc.MEDFileField1TS.New()
 	fMEDFile2.setFieldProfile(fPart,meshMEDFileRead,0,pfl)
 	fMEDFile2.write("TargetMesh2.med",0) # 0 is very important here because we want to append to TargetMesh2.med and not to scratch it
 
 Read "fPart" field from File "TargetMesh2.med". ::
 
-	fMEDFileRead2=ml.MEDFileField1TS.New("TargetMesh2.med",fPart.getName(),7,8)
-	fPartRead,pflRead=fMEDFileRead2.getFieldWithProfile(ml.ON_CELLS,0,meshMEDFileRead)
+	fMEDFileRead2=mc.MEDFileField1TS.New("TargetMesh2.med",fPart.getName(),7,8)
+	fPartRead,pflRead=fMEDFileRead2.getFieldWithProfile(mc.ON_CELLS,0,meshMEDFileRead)
 	print(fPartRead.isEqualWithoutConsideringStr(fPart.getArray(),1e-12))
 	print(pflRead.isEqualWithoutConsideringStr(pfl))
 

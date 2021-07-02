@@ -6,9 +6,7 @@
 
 ::
 
-	from MEDCoupling import *
-	from MEDLoader import *
-
+    import medcoupling as mc
 	from math import *
 
 	numberOfNodes = 25
@@ -52,12 +50,12 @@
 
 	print("2 ********************")
 	# Creation of mesh
-	mesh=MEDCouplingUMesh.New()
+	mesh=mc.MEDCoupplingUMesh.New()
 	mesh.setMeshDimension(2)
 	mesh.allocateCells(numberOfCells)
 	mesh.setName("MaFleur")
 
-	myCoords=DataArrayDouble.New()
+	myCoords=mc.DataArrayDouble.New()
 	myCoords.setValues(coordinates,numberOfNodes,2)
 	mesh.setCoords(myCoords)
 
@@ -69,7 +67,7 @@
 		connectivity.append(i%6+1)
 		connectivity.append((i+1)%6+1)
 	for i in range(6):
-		mesh.insertNextCell(NORM_TRI3,3,connectivity[3*i:3*(i+1)])
+		mesh.insertNextCell(mc.NORM_TRI3,3,connectivity[3*i:3*(i+1)])
 		pass
 
 	print("4 ********************")
@@ -87,11 +85,11 @@
 			connectivity.append(start+2*(i+3)+3)
 		connectivity.append((i+1)%6+1)
 	for i in range(6):
-		mesh.insertNextCell(NORM_POLYGON,6,connectivity[6*i:6*(i+1)])
+		mesh.insertNextCell(mc.NORM_POLYGON,6,connectivity[6*i:6*(i+1)])
 		pass
 
 	print("5 ********************")
 	mesh.checkConsistencyLight()
 
-	medFileName = "MEDCoupling_Fleur.med"
-	MEDLoader.WriteUMesh(medFileName,mesh,True)
+	medFileName = "MEDCouppling_Fleur.med"
+	mc.WriteUMesh(medFileName,mesh,True)

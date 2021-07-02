@@ -6,17 +6,17 @@ Agitateur - Swirler
 
 ::
 
-	import MEDLoader as ml
+	import medcoupling as mc
 	import numpy as np
 	
 	# Get available time steps
-	data = ml.MEDFileData("agitateur.med")
+	data = mc.MEDFileData("agitateur.med")
 	ts = data.getFields()[0].getTimeSteps()
 	print(ts)
 	# Get position of the swirler
 	fMts = data.getFields()["DISTANCE_INTERFACE_ELEM_BODY_ELEM_DOM"]
 	f1ts = fMts[(2,-1)]
-	fMc = f1ts.getFieldAtLevel(ml.ON_CELLS,0)
+	fMc = f1ts.getFieldAtLevel(mc.ON_CELLS,0)
 	arr = fMc.getArray()
 	arr.getMinMaxPerComponent()      # just to see the field variation range per component
 	ids = arr.findIdsInRange(0.,1.)
@@ -24,7 +24,7 @@ Agitateur - Swirler
 	# Extract pression field on the swirler
 	pressMts = data.getFields()["PRESSION_ELEM_DOM"]
 	press1ts = pressMts[(2,-1)]
-	pressMc = press1ts.getFieldAtLevel(ml.ON_CELLS,0)
+	pressMc = press1ts.getFieldAtLevel(mc.ON_CELLS,0)
 	pressOnAgitateurMc = pressMc[ids]
 	#
 	pressOnAgitateurMc.getMesh().zipCoords()
@@ -53,16 +53,16 @@ Agitateur - Swirler
 	barySkin=agitateurSkinMc.computeCellCenterOfMass()
 	posSkin = barySkin-centerOfMass
 
-	torquePerCellOnSkin = ml.DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
+	torquePerCellOnSkin = mc.DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
 
 	zeTorque = torquePerCellOnSkin.accumulate()
 	print("couple = %r N.m" % zeTorque[2])
 	# Power computation
 	speedMts = data.getFields()["VITESSE_ELEM_DOM"]
 	speed1ts = speedMts[(2,-1)]
-	speedMc = speed1ts.getFieldAtLevel(ml.ON_CELLS,0)
+	speedMc = speed1ts.getFieldAtLevel(mc.ON_CELLS,0)
 	speedOnSkin = speedMc.getArray()[tupleIdsInField]
-	powerSkin = ml.DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
+	powerSkin = mc.DataArrayDouble.Dot(forceVectSkin,speedOnSkin)
 	power = powerSkin.accumulate()[0]
 	print("power = %r W"%(power))
 	# Eigen vector computation
@@ -79,7 +79,7 @@ Agitateur - Swirler
 	print(vect0)
 
 	def computeAngle(locAgitateur1ts):
-		fMc = locAgitateur1ts.getFieldAtLevel(ml.ON_CELLS,0)
+		fMc = locAgitateur1ts.getFieldAtLevel(mc.ON_CELLS,0)
 		arr = fMc.getArray()
 		ids = arr.findIdsInRange(0.,1.)
 		f2Mc = fMc[ids]

@@ -22,9 +22,9 @@ The aim of this exercise is to use MEDCoupling to intersect those two meshes, as
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
 
-Import the whole Python module MEDLoader (which includes MEDCoupling). ::
+To implement this exercise we use the Python scripting language and import the `medcoupling` Python module. ::
 
-	from MEDLoader import *
+    import medcoupling as mc
 
 Read and repare the static mesh "Fixe.med"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,8 +32,8 @@ Read and repare the static mesh "Fixe.med"
 With the advanced API read the whole file "Fixe.med" and call "fixm" the MEDCouplingUMEsh instance 
 representing the static mesh. ::
 
-	fixe=MEDFileMesh.New("Fixe.med")
-	fixm=fixe.getMeshAtLevel(0)
+	fixe = mc.MEDFileMesh.New("Fixe.med")
+	fixm = fixe.getMeshAtLevel(0)
 
 In what follows, it is required that any two cells touching each other share the same edges.
 As we are in nodal connectivity mode it means that common nodes have to merged. This is not the case here.
@@ -45,7 +45,7 @@ Merge the nodes closer than 1e-10 and assess the impact on the node count of "fi
 
 Same thing for "Mobile.med" (called "mobm"). Repair it by deleting duplicated nodes. ::
 
-	mobile=MEDFileMesh.New("Mobile.med")
+	mobile = mc.MEDFileMesh.New("Mobile.med")
 	mobm=mobile.getMeshAtLevel(0)
 	mobm.mergeNodes(1e-10)
 
@@ -61,7 +61,7 @@ at EDF).
 The trick for now is to store QPOLYG in standard linear polygons and to convert them after reading.
 Only "mobm" is concerned. Convert all polygonal cells in "mobm" into QPOLYG. ::
 
-	ids=mobm.giveCellsWithType(NORM_POLYGON)
+	ids = mobm.giveCellsWithType(NORM_POLYGON)
 	mobm.getNodalConnectivity()[mobm.getNodalConnectivityIndex()[ids]]=NORM_QPOLYG
 	mobm.computeTypes()
 
@@ -70,17 +70,17 @@ and those have to be split into smaller linear segments to be able to represent 
 It only take a cut fineness parameter (0.1 will suffice (angle expressed in rd)). Remember not to modify 
 neither "fixm" nor "mobm"! ::
 
-        fixm2=fixm.deepCopy()        # tessellate2D is non const  - a mesh copy is required
+        fixm2 = fixm.deepCopy()        # tessellate2D is non const  - a mesh copy is required
         fixm2.tessellate2D(0.1)
         fixm2.writeVTK("fixm2.vtu")
-        mobm2=mobm.deepCopy()
+        mobm2 = mobm.deepCopy()
         mobm2.tessellate2D(0.1)
         mobm2.writeVTK("mobm2.vtu")
 
 Define a small method displayVTK() which we will use later on. ::
 
 	def displayVTK(m,fname):
-		tmp=m.deepCopy()
+		tmp = m.deepCopy()
 		tmp.tessellate2D(0.1)
 		tmp.writeVTK(fname)
 		return
@@ -93,9 +93,9 @@ Use MEDCouplingUMesh.partitionBySpreadZone() to partition "mobm" in zones and on
 extract the first zone.
 Name this new instance "zone1Mobm", remove all orphan nodes and display. ::
 
-	zonesInMobm=mobm.partitionBySpreadZone()
+	zonesInMobm = mobm.partitionBySpreadZone()
 	print("number of zones in mobm : %i"%(len(zonesInMobm)))
-	zone1Mobm=mobm[zonesInMobm[0]]
+	zone1Mobm = mobm[zonesInMobm[0]]
 	zone1Mobm.zipCoords()
 	displayVTK(zone1Mobm,"zone1Mobm.vtu")
 
@@ -105,8 +105,8 @@ From now on we work on "zone1Mobm". We will reduce the working area of "fixm" ar
 To achieve this: reduce "fixm" taking only "fixm" cells located in the bounding box of "zone1Mobm" (MEDCouplingUMesh.getBoundingBox() and MEDCouplingUMesh.getCellsInBoundingBox()).
 Name this object "partFixm", remove its orphan nodes and display it. ::
 
-	ids2=fixm.getCellsInBoundingBox(zone1Mobm.getBoundingBox(),1e-10)
-	partFixm=fixm[ids2]
+	ids2 = fixm.getCellsInBoundingBox(zone1Mobm.getBoundingBox(),1e-10)
+	partFixm = fixm[ids2]
 	partFixm.zipCoords()
 	displayVTK(partFixm,"partFixm.vtu")
 
@@ -126,13 +126,13 @@ This method returns 3 parameters (see API documentation) which will be called pa
 
 In partFixMob merge common nodes with a threshold of 1e-10. ::
 
-	partFixMob,iPart,iMob=MEDCouplingUMesh.Intersect2DMeshes(partFixm,zone1Mobm,1e-10)
+	partFixMob,iPart,iMob = mc.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zone1Mobm,1e-10)
 	partFixMob.mergeNodes(1e-10)
 
 Get and display partFixm part which is not in zone1Mobm. Call this mesh partFixmWithoutZone1Mobm. ::
 
-	ids3=iMob.findIdsEqual(-1)
-	partFixmWithoutZone1Mobm=partFixMob[ids3]
+	ids3 = iMob.findIdsEqual(-1)
+	partFixmWithoutZone1Mobm = partFixMob[ids3]
 	displayVTK(partFixmWithoutZone1Mobm,"partFixmWithoutZone1Mobm.vtu")
 
 .. image:: images/partFixmWithoutZone1Mobm.jpg
@@ -149,7 +149,7 @@ Area is a algebraic value. The check can be performed only if all cells are corr
 all oriented consistently.
 To check this let's inspect the areas of the 38 cells of partFixm (variable name "areaPartFixm"). ::
 
-	areaPartFixm=partFixm.getMeasureField(isAbs=False).getArray()
+	areaPartFixm = partFixm.getMeasureField(isAbs=False).getArray()
 	print(areaPartFixm.getValues())
 
 All values are negative: this MED file doesn't respect the MED file convention.
@@ -157,33 +157,33 @@ All values are negative: this MED file doesn't respect the MED file convention.
 To cut long story short, we perform comparison on absolute arrays. 
 Check then that the first test check#0 is successful ::
 
-	areaPartFixm=partFixm.getMeasureField(isAbs=False).getArray()
+	areaPartFixm = partFixm.getMeasureField(isAbs=False).getArray()
 	areaPartFixm.abs()
-	areaPartFixMob=partFixMob.getMeasureField(isAbs=False).getArray()
+	areaPartFixMob = partFixMob.getMeasureField(isAbs=False).getArray()
 	areaPartFixMob.abs()
-	val1=areaPartFixm.accumulate()[0]
-	val2=areaPartFixMob.accumulate()[0]
+	val1 = areaPartFixm.accumulate()[0]
+	val2 = areaPartFixMob.accumulate()[0]
 	print("Check #0 %lf == %lf a 1e-8 ? %s"%(val1,val2,str(abs(val1-val2)<1e-8)))
 
 Now check#1. Same spirit as in check#0. ::
 
-	areaZone1Mobm=zone1Mobm.getMeasureField(isAbs=False).getArray()
+	areaZone1Mobm = zone1Mobm.getMeasureField(isAbs=False).getArray()
 	areaZone1Mobm.abs()
-	val3=areaZone1Mobm.accumulate()[0]
-	ids4=iMob.findIdsNotEqual(-1)
+	val3 = areaZone1Mobm.accumulate()[0]
+	ids4 = iMob.findIdsNotEqual(-1)
 	areaPartFixMob2=areaPartFixMob[ids4]
-	val4=areaPartFixMob2.accumulate()[0]
+	val4 = areaPartFixMob2.accumulate()[0]
 	print("Check #1 %lf == %lf a 1e-8 ? %s"%(val3,val4,str(abs(val3-val4)<1e-8)))
 
 Finally check#2. ::
 
-	isCheck2OK=True
+	isCheck2OK = True
 	for icell in list(range(partFixm.getNumberOfCells())):
-	    ids5=iPart.findIdsEqual(icell)
-	    areaOfCells=areaPartFixMob[ids5]
+	    ids5 = iPart.findIdsEqual(icell)
+	    areaOfCells = areaPartFixMob[ids5]
 	    areaOfCells.abs()
 	    if abs(areaOfCells.accumulate()[0]-areaPartFixm[icell])>1e-9:
-	        isCheck2OK=False
+	        isCheck2OK = False
 	        pass
 	    pass
 	print("Check #2? %s"%(str(isCheck2OK)))
@@ -195,16 +195,16 @@ We are done with partFixMob.
 Now create a cell field on partFixMob by setting it to 0 on the part covering only partFixm and 1 on the overlapped
 part. Visualize it in a VTK file. ::
 
-	f=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
-	m=partFixMob.deepCopy() ; m.tessellate2D(0.1)
+	f = mc.MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+	m = partFixMob.deepCopy() ; m.tessellate2D(0.1)
 	f.setMesh(m)
-	arr=DataArrayDouble(partFixMob.getNumberOfCells(),1)
+	arr = mc.DataArrayDouble(partFixMob.getNumberOfCells(),1)
 	arr[iMob.findIdsEqual(-1)]=0.
 	arr[iMob.findIdsNotEqual(-1)]=1.
 	f.setArray(arr)
 	f.checkConsistencyLight()
 	f.setName("Zone")
-	MEDCouplingFieldDouble.WriteVTK("Zone.vtu",[f])
+	mc.MEDCouplingFieldDouble.WriteVTK("Zone.vtu",[f])
 
 .. image:: images/LocationEx2.jpg
 
@@ -212,25 +212,25 @@ More generally take zones 0, 1 and 5.
 Create a cell field whose value is 0 in the zone being exclusively part of fixm,
 1 in the zone #0, 2 in the zone #1 and 3 in the zone #5. ::
 
-	zonesMobm=MEDCouplingUMesh.MergeUMeshesOnSameCoords([mobm[zonesInMobm[0]], mobm[zonesInMobm[1]], mobm[zonesInMobm[5]]])
+	zonesMobm = mc.MEDCouplingUMesh.MergeUMeshesOnSameCoords([mobm[zonesInMobm[0]], mobm[zonesInMobm[1]], mobm[zonesInMobm[5]]])
 	zonesMobm.zipCoords()
-	partFixMob2,iPart2,iMob2=MEDCouplingUMesh.Intersect2DMeshes(partFixm,zonesMobm,1e-10)
+	partFixMob2,iPart2,iMob2 = mc.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zonesMobm,1e-10)
 	partFixMob2.mergeNodes(1e-10)
-	f2=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
-	m2=partFixMob2.deepCopy() ; m2.tessellate2D(0.1)
+	f2 = mc.MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+	m2 = partFixMob2.deepCopy() ; m2.tessellate2D(0.1)
 	f2.setMesh(m2)
-	arr=DataArrayDouble(partFixMob2.getNumberOfCells(),1)
+	arr = mc.DataArrayDouble(partFixMob2.getNumberOfCells(),1)
 	arr[iMob2.findIdsEqual(-1)]=0.
-	st=0 ; end=st+len(zonesInMobm[0])
+	st=0 ; end = st+len(zonesInMobm[0])
 	arr[iMob2.findIdsInRange(st,end)]=1.
-	st+=len(zonesInMobm[0]) ; end=st+len(zonesInMobm[1])
+	st += len(zonesInMobm[0]) ; end=st+len(zonesInMobm[1])
 	arr[iMob2.findIdsInRange(st,end)]=2.
-	st+=len(zonesInMobm[1]) ; end=st+len(zonesInMobm[2])
+	st += len(zonesInMobm[1]) ; end=st+len(zonesInMobm[2])
 	arr[iMob2.findIdsInRange(st,end)]=3.
 	f2.setArray(arr)
 	f2.checkConsistencyLight()
 	f2.setName("Zone2")
-	MEDCouplingFieldDouble.WriteVTK("Zone2.vtu",[f2])
+	mc.MEDCouplingFieldDouble.WriteVTK("Zone2.vtu",[f2])
 
 .. image:: images/zonesMobm.jpg
 

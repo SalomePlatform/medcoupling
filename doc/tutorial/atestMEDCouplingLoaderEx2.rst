@@ -6,7 +6,7 @@ Intersection géométrique de maillages
 
 ::
 
-	import MEDLoader as ml
+	import medcoupling as mc
 	
 	def displayVTK(m,fname):
 		tmp = m.deepCopy()
@@ -15,13 +15,13 @@ Intersection géométrique de maillages
 		return
 
 	# Read and clean Fixe.med
-	fixe = ml.MEDFileMesh.New("Fixe.med")
+	fixe = mc.MEDFileMesh.New("Fixe.med")
 	fixm = fixe.getMeshAtLevel(0)
 	print("Nb of nodes in the file : %i " % (fixm.getNumberOfNodes()))
 	fixm.mergeNodes(1e-10)
 	print("Nb of non duplicated nodes : %i" % (fixm.getNumberOfNodes()))
 	# Read and clean Mobile.med
-	mobile = ml.MEDFileMesh.New("Mobile.med")
+	mobile = mc.MEDFileMesh.New("Mobile.med")
 	mobm = mobile.getMeshAtLevel(0)
 	mobm.mergeNodes(1e-10)
 	# Visualize fixm and mobm with PARAVIEW
@@ -43,7 +43,7 @@ Intersection géométrique de maillages
 	partFixm.zipCoords()
 	displayVTK(partFixm,"partFixm.vtu")
 	# Intersect partFixm with zone1Mobm
-	partFixMob, iPart, iMob = ml.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zone1Mobm,1e-10)
+	partFixMob, iPart, iMob = mc.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zone1Mobm,1e-10)
 	partFixMob.mergeNodes(1e-10)
 	# Get the part of partFixm not included in zone1Mobm using partFixMob
 	ids3 = iMob.findIdsEqual(-1)
@@ -78,27 +78,27 @@ Intersection géométrique de maillages
 	    pass
 	print("Check #2? %s" % (str(isCheck2OK)))
 	# Indicator field creation
-	f = ml.MEDCouplingFieldDouble(ml.ON_CELLS,ml.ONE_TIME)
+	f = mc.MEDCouplingFieldDouble(mc.ON_CELLS,mc.ONE_TIME)
 	m = partFixMob.deepCopy()
 	m.tessellate2D(0.1)
 	f.setMesh(m)
-	arr = ml.DataArrayDouble(partFixMob.getNumberOfCells(),1)
+	arr = mc.DataArrayDouble(partFixMob.getNumberOfCells(),1)
 	arr[iMob.findIdsEqual(-1)] = 0.
 	arr[iMob.findIdsNotEqual(-1)] = 1.
 	f.setArray(arr)
 	f.checkConsistencyLight()
 	f.setName("Zone")
-	ml.MEDCouplingFieldDouble.WriteVTK("Zone.vtu",[f])
+	mc.MEDCouplingFieldDouble.WriteVTK("Zone.vtu",[f])
 	# Other zones
-	zonesMobm = ml.MEDCouplingUMesh.MergeUMeshesOnSameCoords([mobm[zonesInMobm[0]], mobm[zonesInMobm[1]], mobm[zonesInMobm[5]]])
+	zonesMobm = mc.MEDCouplingUMesh.MergeUMeshesOnSameCoords([mobm[zonesInMobm[0]], mobm[zonesInMobm[1]], mobm[zonesInMobm[5]]])
 	zonesMobm.zipCoords()
-	partFixMob2,iPart2,iMob2 = ml.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zonesMobm,1e-10)
+	partFixMob2,iPart2,iMob2 = mc.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zonesMobm,1e-10)
 	partFixMob2.mergeNodes(1e-10)
-	f2 = ml.MEDCouplingFieldDouble(ml.ON_CELLS, ml.ONE_TIME)
+	f2 = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
 	m2 = partFixMob2.deepCopy()
 	m2.tessellate2D(0.1)
 	f2.setMesh(m2)
-	arr = ml.DataArrayDouble(partFixMob2.getNumberOfCells(),1)
+	arr = mc.DataArrayDouble(partFixMob2.getNumberOfCells(),1)
 	arr[iMob2.findIdsEqual(-1)]=0.
 	st = 0
 	end = st + len(zonesInMobm[0])
@@ -112,4 +112,4 @@ Intersection géométrique de maillages
 	f2.setArray(arr)
 	f2.checkConsistencyLight()
 	f2.setName("Zone2")
-	ml.MEDCouplingFieldDouble.WriteVTK("Zone2.vtu",[f2])
+	mc.MEDCouplingFieldDouble.WriteVTK("Zone2.vtu",[f2])

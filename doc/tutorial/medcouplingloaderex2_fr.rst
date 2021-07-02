@@ -30,9 +30,10 @@ Le but ici est d'utiliser MEDCoupling pour:
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pour commencer l'exercice importer tout le module python MEDLoader (qui inclus MEDCoupling). ::
+Cet exercice repose comme tous les autres sur le language de script Python. On charge 
+le module Python ``medcoupling``.::
 
-	import MEDLoader as ml
+    import medcoupling as mc
 
 Lire et réparer le maillage statique "Fixe.med"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +41,7 @@ Lire et réparer le maillage statique "Fixe.med"
 Avec l'API avancée lire tout le fichier "Fixe.med" et appeler ``fixm``
 l'objet de type ``MEDCouplingUMesh`` représentant le maillage statique. ::
 
-	fixe = ml.MEDFileMesh.New("Fixe.med")
+	fixe = mc.MEDFileMesh.New("Fixe.med")
 	fixm = fixe.getMeshAtLevel(0)
 
 Pour ce qui suit il faut absolument que deux cellules se touchant partagent les mêmes edges. Pour ce faire, comme on est
@@ -54,7 +55,7 @@ Fusionner le noeuds distants de moins de 1e-10 et regarder l'impact sur le nombr
 Même traitement pour ``Mobile.med``, le lire avec l'API avancée de MEDLoader (appeler ``mobm`` l'instance du maillage) 
 et le réparer en supprimant les noeuds dupliqués. ::
 
-	mobile = ml.MEDFileMesh.New("Mobile.med")
+	mobile = mc.MEDFileMesh.New("Mobile.med")
 	mobm = mobile.getMeshAtLevel(0)
 	mobm.mergeNodes(1e-10)
 
@@ -129,7 +130,7 @@ ici ``partFixMob``, ``iPart`` et ``iMob`` dans cet ordre.
 
 Sur ``partFixMob`` merger les noeuds à 1e-10 près. ::
 
-	partFixMob, iPart, iMob = ml.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zone1Mobm,1e-10)
+	partFixMob, iPart, iMob = mc.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zone1Mobm,1e-10)
 	partFixMob.mergeNodes(1e-10)
 
 Récupérer et afficher la partie de ``partFixm`` qui n'est pas dans ``zone1Mobm``. Appeler ce maillage ``partFixmWithoutZone1Mobm``. ::
@@ -201,17 +202,17 @@ Maintenant créer un champ aux cellules sur ``partFixMob`` en mettant 0 sur la p
 exclusive ``partFixm`` et 1 sur la partie couverte. Nous créons donc un champ représentant une fonction indicatrice. 
 Le visualiser en utilisant un fichier VTK (ne pas oublier l'option *Triangulate* de ParaView). ::
 
-	f = ml.MEDCouplingFieldDouble(ml.ON_CELLS,ml.ONE_TIME)
+	f = mc.MEDCouplingFieldDouble(mc.ON_CELLS,mc.ONE_TIME)
 	m = partFixMob.deepCopy()
 	m.tessellate2D(0.1)
 	f.setMesh(m)
-	arr = ml.DataArrayDouble(partFixMob.getNumberOfCells(),1)
+	arr = mc.DataArrayDouble(partFixMob.getNumberOfCells(),1)
 	arr[iMob.findIdsEqual(-1)] = 0.
 	arr[iMob.findIdsNotEqual(-1)] = 1.
 	f.setArray(arr)
 	f.checkConsistencyLight()
 	f.setName("Zone")
-	ml.MEDCouplingFieldDouble.WriteVTK("Zone.vtu",[f])
+	mc.MEDCouplingFieldDouble.WriteVTK("Zone.vtu",[f])
 
 .. image:: images/LocationEx2.jpg
 	:scale: 100
@@ -219,15 +220,15 @@ Le visualiser en utilisant un fichier VTK (ne pas oublier l'option *Triangulate*
 Plus généralement prendre les zones 0, 1 et 5. Faire un champ aux cellules qui vaut 0 dans la zone exclusivement de ``fixm``,
 1 dans zone #0, 2 dans la zone #1 et finalement 3 dans la zone #5. ::
 
-	zonesMobm = ml.MEDCouplingUMesh.MergeUMeshesOnSameCoords([mobm[zonesInMobm[0]], mobm[zonesInMobm[1]], mobm[zonesInMobm[5]]])
+	zonesMobm = mc.MEDCouplingUMesh.MergeUMeshesOnSameCoords([mobm[zonesInMobm[0]], mobm[zonesInMobm[1]], mobm[zonesInMobm[5]]])
 	zonesMobm.zipCoords()
-	partFixMob2,iPart2,iMob2 = ml.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zonesMobm,1e-10)
+	partFixMob2,iPart2,iMob2 = mc.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zonesMobm,1e-10)
 	partFixMob2.mergeNodes(1e-10)
-	f2 = ml.MEDCouplingFieldDouble(ml.ON_CELLS, ml.ONE_TIME)
+	f2 = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
 	m2 = partFixMob2.deepCopy()
 	m2.tessellate2D(0.1)
 	f2.setMesh(m2)
-	arr = ml.DataArrayDouble(partFixMob2.getNumberOfCells(),1)
+	arr = mc.DataArrayDouble(partFixMob2.getNumberOfCells(),1)
 	arr[iMob2.findIdsEqual(-1)]=0.
 	st = 0
 	end = st + len(zonesInMobm[0])
@@ -241,7 +242,7 @@ Plus généralement prendre les zones 0, 1 et 5. Faire un champ aux cellules qui
 	f2.setArray(arr)
 	f2.checkConsistencyLight()
 	f2.setName("Zone2")
-	ml.MEDCouplingFieldDouble.WriteVTK("Zone2.vtu",[f2])
+	mc.MEDCouplingFieldDouble.WriteVTK("Zone2.vtu",[f2])
 
 Ne pas oublier l'option *Triangulate* de ParaView dans le panneau Display pour bien voir les champs:
 

@@ -22,12 +22,9 @@ Début d'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Cet exercice repose comme tous les autres sur le language de script Python. On charge 
-le module Python ``MEDLoader``.
+le module Python ``medcoupling``.::
 
-Pour information, le module ``MEDCoupling`` complet est inclus dans ``MEDLoader``. Pas besoin de l'importer
-si ``MEDLoader`` a été chargé. ::
-
-	import MEDLoader as ml
+	import medcoupling as mc
 
 Lecture, écriture d'un maillage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -36,14 +33,14 @@ Tout d'abord créons un maillage ``targetMesh`` composé de plusieurs types géo
 
 	targetCoords = [-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
 	targetConn = [0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-	targetMesh = ml.MEDCouplingUMesh("MyMesh",2)
+	targetMesh = mc.MEDCouplingUMesh("MyMesh",2)
 	targetMesh.allocateCells(5)
-	targetMesh.insertNextCell(ml.NORM_TRI3,3,targetConn[4:7])
-	targetMesh.insertNextCell(ml.NORM_TRI3,3,targetConn[7:10])
-	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[0:4])
-	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[10:14])
-	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[14:18])
-	myCoords = ml.DataArrayDouble(targetCoords,9,2)
+	targetMesh.insertNextCell(mc.NORM_TRI3,3,targetConn[4:7])
+	targetMesh.insertNextCell(mc.NORM_TRI3,3,targetConn[7:10])
+	targetMesh.insertNextCell(mc.NORM_QUAD4,4,targetConn[0:4])
+	targetMesh.insertNextCell(mc.NORM_QUAD4,4,targetConn[10:14])
+	targetMesh.insertNextCell(mc.NORM_QUAD4,4,targetConn[14:18])
+	myCoords = mc.DataArrayDouble(targetCoords,9,2)
 	myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
 	targetMesh.setCoords(myCoords)
 
@@ -51,11 +48,11 @@ Tout d'abord créons un maillage ``targetMesh`` composé de plusieurs types géo
 
 Le maillage peut alors directement être écrit ... ::
 
-	ml.WriteUMesh("TargetMesh.med",targetMesh,True)  # True means 'from scratch'
+	mc.WriteUMesh("TargetMesh.med",targetMesh,True)  # True means 'from scratch'
 
 ... et relu. ::
 
-	meshRead = ml.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
+	meshRead = mc.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
 	print("Is the read mesh equal to 'targetMesh' ?", meshRead.isEqual(targetMesh,1e-12))
 
 Lire/Ecrire un champ sur un pas de temps
@@ -67,12 +64,12 @@ Nous en profitons pour rappeler
 que dans les champs MEDCoupling, le temps physique est donné pour information seulement, le stockage et la plupart des
 fonctions de l'API se basent sur les deux derniers entiers. ::
 
-	f = ml.MEDCouplingFieldDouble.New(ml.ON_CELLS, ml.ONE_TIME)
+	f = mc.MEDCouplingFieldDouble.New(mc.ON_CELLS, mc.ONE_TIME)
 	f.setTime(5.6,7,8)                              # Declare the timestep associated to the field 
 	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
-	ml.WriteField("MyFirstField.med",f,True)
+	mc.WriteField("MyFirstField.med",f,True)
 
 Question subsidiaire : à quoi correspond le champ ainsi créé ?
 
@@ -80,7 +77,7 @@ Question subsidiaire : à quoi correspond le champ ainsi créé ?
 
 Nous relisons ensuite MyFirstField.med : ::
 
-	f2 = ml.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
+	f2 = mc.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
 	print("Is the read field identical to 'f' ?", f2.isEqual(f,1e-12,1e-12))
 	
 .. note:: Lors de la lecture du champ, on doit donc connaître: son nom, le nom de sa mesh de support
@@ -98,27 +95,27 @@ Lire/Ecrire un champ sur plusieurs pas de temps
 Ici contrairement au cas précédent, nous écrivons en plusieurs fois dans le *même* fichier MED.
 Ecrivons tout d'abord le maillage. ::
 
-	ml.WriteUMesh("MySecondField.med",f.getMesh(),True)
+	mc.WriteUMesh("MySecondField.med",f.getMesh(),True)
 	
 Ensuite, nous écrivons seulement les informations relatives au champ (principalement son tableau de valeurs en fait
 ). ::
 
-	ml.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)   # mesh is not re-written
+	mc.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)   # mesh is not re-written
 	
 Nous rajoutons ensuite un second pas de temps sur le *même* maillage. ::
 
 	f2 = f.clone(True)         # 'True' means that we need a deep copy  
 	f2.getArray()[:] = 2.0
 	f2.setTime(7.8,9,10)
-	ml.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
+	mc.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
 
 Maintenant le fichier "MySecondField.med" contient le maillage et un champ à deux pas de temps porté par ce maillage.
 
 Nous pouvons relire tout cela avec des méthodes similaires à ce qui a été vu précédemment : ::
 
-	f3 = ml.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
+	f3 = mc.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
 	print("Is the field read in file equals to 'f' ?", f.isEqual(f3,1e-12,1e-12))
-	f4 = ml.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
+	f4 = mc.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
 	print("Is the field read in file equals to 'f2' ?", f2.isEqual(f4,1e-12,1e-12))
 
 Solution

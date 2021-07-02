@@ -6,9 +6,7 @@ Read med File
 
 ::
 
-	from MEDCoupling import *
-	from MEDLoader import *
-
+    import medcoupling as mc
 
 	medFileName = "MEDCoupling_cube3D.med"
 	MeshName = "3Dcube"
@@ -16,12 +14,12 @@ Read med File
 	Field2DName = "fieldBottomFace"
 
 	# Retrieving meshes
-	mesh3D = MEDLoader.ReadUMeshFromFile(medFileName,MeshName,0)
-	mesh2D = MEDLoader.ReadUMeshFromFile(medFileName,MeshName,-1)
+	mesh3D = mc.ReadUMeshFromFile(medFileName,MeshName,0)
+	mesh2D = mc.ReadUMeshFromFile(medFileName,MeshName,-1)
 
 	# Retrieving fields
-	f = MEDLoader.ReadFieldCell(medFileName,mesh3D.getName(),0,FieldName,-1,-1)
-	f2 = MEDLoader.ReadFieldCell(medFileName,mesh2D.getName(),-1,Field2DName,-1,-1)
+	f = mc.ReadFieldCell(medFileName,mesh3D.getName(),0,FieldName,-1,-1)
+	f2 = mc.ReadFieldCell(medFileName,mesh2D.getName(),-1,Field2DName,-1,-1)
 
 	# Retrieving Coords Mesh
 	Coords3D = mesh3D.getCoords()

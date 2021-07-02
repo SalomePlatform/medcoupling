@@ -12,10 +12,9 @@ We will use the case of the 3D cube in order to retrieve all meshes and fields a
 Beginning of implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To implement this exercice we use the python language script and import the MEDCoupling and MEDLoader parts of the MED module. We need also mathematical functions, so we import the python math module::
+To implement this exercice we use the python language script and import the medcoupling module. We need also mathematical functions, so we import the python math module::
 
-	from MEDCoupling import *
-	from MEDLoader import *
+    import medcoupling as mc
 	from math import *
 
 
@@ -37,8 +36,8 @@ This information is given by a number : 0,-1 or -2.
  
 and the iteration and order of the field. In our case, since there is no iteration, it's -1 for these 2 arguments::
 
-	mesh3D = MEDLoader.ReadUMeshFromFile(medFileName,MeshName,0)
-	f = MEDLoader.ReadFieldCell(medFileName,mesh3D.getName(),0,FieldName,-1,-1)
+	mesh3D = mc.ReadUMeshFromFile(medFileName,MeshName,0)
+	f = mc.ReadFieldCell(medFileName,mesh3D.getName(),0,FieldName,-1,-1)
 
 
 Retrieving 2D mesh and associated field
@@ -46,8 +45,8 @@ Retrieving 2D mesh and associated field
 
 Do the same thing for the 2D mesh and the associated field::
 
-	mesh2D = MEDLoader.ReadUMeshFromFile(...)
-	f2 = MEDLoader.ReadFieldCell(...)
+	mesh2D = mc.ReadUMeshFromFile(...)
+	f2 = mc.ReadFieldCell(...)
 
 Retrieving mesh coords
 ~~~~~~~~~~~~~~~~~~~~~~

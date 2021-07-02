@@ -13,16 +13,14 @@ In this example we propose to build a mesh on a 2D geometry. We first create tri
 Beginning of implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To implement this exercice we use the python language script and import the MEDCoupling and MEDLoader parts of the MED module::
+To implement this exercice we use the python language script and import the medcoupling module. We need also mathematical functions, so we import the python math module::
 
-	from MEDCoupling import *
-	from MEDLoader import *
-
-	from math import *
+    import medcoupling as mc
+    from math import *
 
 Then we must instantiate a meshing object::
 
-	mesh=MEDCouplingUMesh.New()
+	mesh=mc.MEDCouplingUMesh.New()
 	mesh.setMeshDimension(2)
 	mesh.allocateCells(numberOfCells)
 	mesh.setName("MaFleur")
@@ -64,7 +62,7 @@ Define the coordinates of the extra nodes of the hexagons around the central hex
 	for i in range(6):
 	  ...
 
-	myCoords=DataArrayDouble.New()
+	myCoords=mc.DataArrayDouble.New()
 	myCoords.setValues(coordinates,numberOfNodes,2)
 	mesh.setCoords(myCoords)
 
@@ -80,7 +78,7 @@ For each triangle of the mesh, you have to give its connectivity: the list of th
 		connectivity.append(...)
 		connectivity.append(...)
 	for i in range(6):
-		mesh.insertNextCell(NORM_TRI3,3,connectivity[3*i:3*(i+1)])
+		mesh.insertNextCell(mc.NORM_TRI3,3,connectivity[3*i:3*(i+1)])
 		pass
 
 
@@ -94,7 +92,7 @@ For each hexagon of the mesh, you have to give its connectivity: the list of the
 		start = i%6+1
 		connectivity.append(...)
 	for i in range(6):
-		mesh.insertNextCell(NORM_POLYGON,6,connectivity[6*i:6*(i+1)])
+		mesh.insertNextCell(mc.NORM_POLYGON,6,connectivity[6*i:6*(i+1)])
 		pass
 	mesh.checkConsistencyLight()
 
@@ -104,7 +102,7 @@ Saving the mesh in a med file
 You have to create a med file with the MED driver::
 
 	medFileName = "MEDCoupling_Fleur.med"
-	MEDLoader.WriteUMesh(medFileName,mesh,True)
+	mc.WriteUMesh(medFileName,mesh,True)
 
 Visualize the mesh with SMESH module of Salome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
