@@ -681,6 +681,27 @@ static void convertPyToVectorPairInt(PyObject *pyLi, std::vector< std::pair<mcId
     throw INTERP_KERNEL::Exception(msg);
 }
 
+static void convertPyToVectorVectorPairInt(PyObject *pyLi, std::vector< std::vector< std::pair<mcIdType,mcIdType> > >& arr)
+{
+  const char msg[]="list must contain tuples of 2 integers only or tuple must contain tuples of 2 integers only !";
+  if(PyList_Check(pyLi))
+    {
+      std::size_t size=PyList_Size(pyLi);
+      arr.resize(size);
+      for(std::size_t i = 0 ; i < size ; ++i)
+        convertPyToVectorPairInt(PyList_GetItem(pyLi,i),arr[i]);
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      std::size_t size=PyTuple_Size(pyLi);
+      arr.resize(size);
+      for(std::size_t i = 0 ; i < size ; ++i)
+        convertPyToVectorPairInt(PyTuple_GetItem(pyLi,i),arr[i]);
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
+}
+
 static void convertPyToVectorPairStringInt(PyObject *pyLi, std::vector< std::pair<std::string,int> >& arr)
 {
   const char msg[]="convertPyToVectorPairStringInt : list must contain tuples of 2 integers only or tuple must contain tuples of 1 string and 1 integer only !";

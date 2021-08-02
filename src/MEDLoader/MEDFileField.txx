@@ -197,6 +197,8 @@ namespace MEDCoupling
         _arr->setContigPartOfSelectedValuesSlice(start,zeArr,(*it).second.first,(*it).second.second,1);
         start+=(*it).second.second-(*it).second.first;
       }
+    // see definition of _nb_of_tuples_to_be_allocated. array is built from scratch and allocated.
+    _nb_of_tuples_to_be_allocated=-3;
   }
 
   template<class T>

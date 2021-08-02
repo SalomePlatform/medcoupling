@@ -158,6 +158,7 @@ namespace MEDCoupling
     void fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const;
     void setType(TypeOfField newType);
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    INTERP_KERNEL::NormalizedCellType getGeoTypeStatic() const;
     std::size_t getNumberOfComponents() const;
     mcIdType getNumberOfTuples() const;
     mcIdType getStart() const { return _start; }
@@ -269,6 +270,7 @@ namespace MEDCoupling
     virtual ~MEDFileFieldPerMeshPerTypeCommon();
     virtual void getDimension(int& dim) const = 0;
     virtual INTERP_KERNEL::NormalizedCellType getGeoType() const = 0;
+    virtual INTERP_KERNEL::NormalizedCellType getGeoTypeStatic() const = 0;
     virtual void entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const = 0;
     virtual void simpleRepr(int bkOffset, std::ostream& oss, int id) const = 0;
     virtual std::string getGeoTypeRepr() const = 0;
@@ -295,7 +297,8 @@ namespace MEDCoupling
     static MCAuto<MEDFileFieldPerMeshPerType> Aggregate(mcIdType &start, const std::vector< std::pair<int,const MEDFileFieldPerMeshPerType *> >& pms, const std::vector< std::vector< std::pair<int,mcIdType> > >& dts, INTERP_KERNEL::NormalizedCellType gt, MEDFileFieldPerMesh *father, std::vector<std::pair< int, std::pair<mcIdType,mcIdType> > >& extractInfo);
   public:// overload of abstract methods
     void getDimension(int& dim) const;
-    INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    INTERP_KERNEL::NormalizedCellType getGeoType() const override;
+    INTERP_KERNEL::NormalizedCellType getGeoTypeStatic() const override;
     void entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const;
     void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
     std::string getGeoTypeRepr() const;
@@ -317,7 +320,8 @@ namespace MEDCoupling
     std::string getModelName() const;
   public:
     void getDimension(int& dim) const;
-    INTERP_KERNEL::NormalizedCellType getGeoType() const;
+    INTERP_KERNEL::NormalizedCellType getGeoType() const override;
+    INTERP_KERNEL::NormalizedCellType getGeoTypeStatic() const override;
     void entriesForMEDfile(TypeOfField mct, med_geometry_type& gt, med_entity_type& ent) const;
     void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
     std::string getGeoTypeRepr() const;

@@ -1157,6 +1157,36 @@ MEDFileInt32FieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::convertToInt(
   return ret.retn();
 }
 
+MCAuto<MEDFileAnyTypeFieldMultiTS> MEDFileFieldMultiTSWithoutSDA::createNewWithSDA() const
+{
+  MCAuto<MEDFileFieldMultiTS> ret(MEDFileFieldMultiTS::New());
+  return DynamicCast<MEDFileFieldMultiTS,MEDFileAnyTypeFieldMultiTS>(ret);
+}
+
+//=
+
+MCAuto<MEDFileAnyTypeFieldMultiTS> MEDFileInt32FieldMultiTSWithoutSDA::createNewWithSDA() const
+{
+  MCAuto<MEDFileInt32FieldMultiTS> ret(MEDFileInt32FieldMultiTS::New());
+  return DynamicCast<MEDFileInt32FieldMultiTS,MEDFileAnyTypeFieldMultiTS>(ret);
+}
+
+//=
+
+MCAuto<MEDFileAnyTypeFieldMultiTS> MEDFileInt64FieldMultiTSWithoutSDA::createNewWithSDA() const
+{
+  MCAuto<MEDFileInt64FieldMultiTS> ret(MEDFileInt64FieldMultiTS::New());
+  return DynamicCast<MEDFileInt64FieldMultiTS,MEDFileAnyTypeFieldMultiTS>(ret);
+}
+
+//=
+
+MCAuto<MEDFileAnyTypeFieldMultiTS> MEDFileFloatFieldMultiTSWithoutSDA::createNewWithSDA() const
+{
+  MCAuto<MEDFileFloatFieldMultiTS> ret(MEDFileFloatFieldMultiTS::New());
+  return DynamicCast<MEDFileFloatFieldMultiTS,MEDFileAnyTypeFieldMultiTS>(ret);
+}
+
 //= MEDFileAnyTypeFieldMultiTS
 
 MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS()
@@ -2059,6 +2089,7 @@ MCAuto< MEDFileAnyTypeFieldMultiTS > AggregateHelperFMTS(const std::vector< type
 
 /*!
  * \a dts and \a ftmss are expected to have same size.
+ * see MEDFileFieldPerMeshPerTypePerDisc::Aggregate for description of \a dts.
  */
 MCAuto<MEDFileAnyTypeFieldMultiTS> MEDFileAnyTypeFieldMultiTS::Aggregate(const std::vector<const MEDFileAnyTypeFieldMultiTS *>& fmtss, const std::vector< std::vector< std::pair<int,mcIdType> > >& dts)
 {

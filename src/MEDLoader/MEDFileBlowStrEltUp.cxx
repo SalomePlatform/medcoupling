@@ -313,6 +313,7 @@ public:
   FieldWalker2(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd);
   std::string getLoc() const { return _loc; }
   std::string getPfl() const { return _pfl; }
+  INTERP_KERNEL::NormalizedCellType getGeoType() const { return _ct; }
   bool isClassic() const { return _is_classic; }
   bool operator!=(const FieldWalker2& other) const;
   bool operator==(const FieldWalker2& other) const;
@@ -320,6 +321,7 @@ public:
 private:
   std::string _loc;
   std::string _pfl;
+  INTERP_KERNEL::NormalizedCellType _ct;
   bool _is_classic;
   MCAuto<SlicePartDefinition> _pd;
 };
@@ -348,6 +350,7 @@ public:
 private:
   std::vector<std::string> _locs;
   std::vector<std::string> _pfl;
+  std::vector<INTERP_KERNEL::NormalizedCellType> _cts;
   MCAuto<PartDefinition> _pd;
 };
 
@@ -362,13 +365,14 @@ const char LocInfo::EPAISSEUR[]="EPAISSEUR";
 LocInfo::LocInfo(const std::vector<FieldWalker2>& fw)
 {
   std::size_t sz(fw.size());
-  _locs.resize(sz); _pfl.resize(sz);
+  _locs.resize(sz); _pfl.resize(sz); _cts.resize(sz);
   if(sz>0)
     _pd=fw[0].getPartDef()->deepCopy();
   for(std::size_t i=0;i<sz;i++)
     {
       _locs[i]=fw[i].getLoc();
       _pfl[i]=fw[i].getPfl();
+      _cts[i]=fw[i].getGeoType();
       if(i>0)
         _pd=(*_pd)+(*(fw[i].getPartDef()));
     }
@@ -636,19 +640,22 @@ MCAuto<MEDFileUMesh> LocInfo::generateNonClassicalData(int zePos, const MEDFileU
         throw INTERP_KERNEL::Exception("LocInfo::generateNonClassicalData : internal error !");
       const MEDFileUMesh *meshLoc(gtk2->getMesh()),*section(gtk2->getSection());
       const MEDFileStructureElement *se(gtk2->getSE());
-      INTERP_KERNEL::NormalizedCellType gt;
+      MCAuto<MEDCouplingUMesh> um(meshLoc->getMeshAtLevel(0));
+      INTERP_KERNEL::NormalizedCellType gt(_cts[i]);
       {
         std::vector<int> nel(meshLoc->getNonEmptyLevels());
         if(nel.size()!=1)
           throw INTERP_KERNEL::Exception(MSG1);
         if(nel[0]!=0)
           throw INTERP_KERNEL::Exception(MSG1);
-        MCAuto<MEDCouplingUMesh> um(meshLoc->getMeshAtLevel(0));
-        if(um->getNumberOfCells()!=1)
+        mcIdType zePos(-1);
+        for(mcIdType icell = 0 ; icell < um->getNumberOfCells() ; ++icell)
+          if( gt == um->getTypeOfCell(icell) )
+            zePos = icell;
+        if(zePos == -1)
           throw INTERP_KERNEL::Exception(MSG1);
-        gt=um->getTypeOfCell(0);
         std::vector<mcIdType> v;
-        um->getNodeIdsOfCell(0,v);
+        um->getNodeIdsOfCell(zePos,v);
         std::size_t sz2(v.size());
         for(std::size_t j=0;j<sz2;j++)
           if(v[j]!=ToIdType(j))
@@ -684,6 +691,7 @@ FieldWalker2::FieldWalker2(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd)
 {
   _loc=pmptpd->getLocalization();
   _pfl=pmptpd->getProfile();
+  _ct=pmptpd->getGeoTypeStatic();
   _is_classic=pmptpd->getType()!=ON_GAUSS_PT;
   _pd=SlicePartDefinition::New(pmptpd->getStart(),pmptpd->getEnd(),1);
 }
