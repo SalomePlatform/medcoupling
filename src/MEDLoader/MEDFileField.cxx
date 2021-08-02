@@ -1092,7 +1092,12 @@ void MEDFileFields::aggregateFieldsOnSameMeshes(MEDFileMeshes *ms)
 {
   if(!ms)
     THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : ms is nullptr !");
-  MCAuto<MEDFileFields> mfs(MEDFileFields::New());
+  //
+  std::vector<std::string> msNames(ms->getMeshesNames());
+  std::set<std::string> msNamesSet(msNames.begin(),msNames.end());
+  if(msNames.size() == msNamesSet.size())
+    return ;
+  //
   std::map<std::string,std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA>> > fsByName;
   for(auto fmts : _fields)
   {
@@ -1186,7 +1191,7 @@ void MEDFileFields::aggregateFieldsOnSameMeshes(MEDFileMeshes *ms)
     gg->setCoords(coo);
     otherMeshes.push_back(DynamicCast<MEDFileUMesh,MEDFileMesh>(gg));
   }
-  //
+  // until this point nothing has changed in \a this nor in \a ms as if a const method.
   ms->resize(0);
   for(auto mesh : otherMeshes)
     ms->pushMesh(mesh);
