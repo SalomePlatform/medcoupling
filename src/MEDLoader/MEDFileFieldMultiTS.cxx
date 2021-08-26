@@ -47,7 +47,7 @@ template class MEDCoupling::MEDFileNDTemplateFieldMultiTS<Int64>;
 template class MEDCoupling::MEDFileNDTemplateFieldMultiTS<float>;
 
 extern INTERP_KERNEL::NormalizedCellType ConvertGeometryType(med_geometry_type geotype);
-  
+
 //= MEDFileAnyTypeFieldMultiTSWithoutSDA
 
 MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA()
@@ -680,7 +680,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::eraseTimeStepIds2(int bg, int end, in
 int MEDFileAnyTypeFieldMultiTSWithoutSDA::getPosOfTimeStep(int iteration, int order) const
 {
   int ret=0;
-  std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutSDA::getPosOfTimeStep : No such time step (" << iteration << "," << order << ") !\nPossibilities are : "; 
+  std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutSDA::getPosOfTimeStep : No such time step (" << iteration << "," << order << ") !\nPossibilities are : ";
   for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA>  >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,ret++)
     {
       const MEDFileAnyTypeField1TSWithoutSDA *tmp(*it);
@@ -730,7 +730,7 @@ std::vector< std::pair<int,int> > MEDFileAnyTypeFieldMultiTSWithoutSDA::getItera
 /*!
  * This method has 3 inputs 'iteration' 'order' 'mname'. 'mname' can be null if the user is the general case where there is only one meshName lying on 'this'
  * This method returns two things.
- * - The absolute dimension of 'this' in first parameter. 
+ * - The absolute dimension of 'this' in first parameter.
  * - The available ext levels relative to the absolute dimension returned in first parameter. These relative levels are relative
  *   to the first output parameter. The values in 'levs' will be returned in decreasing order.
  *
@@ -743,7 +743,7 @@ std::vector< std::pair<int,int> > MEDFileAnyTypeFieldMultiTSWithoutSDA::getItera
  *
  * This method is useful to make the link between meshDimension of the underlying mesh in 'this' and the levels on 'this'.
  * It is possible (even if it is not common) that the highest level in 'this' were not equal to the meshDimension of the underlying mesh in 'this'.
- * 
+ *
  * Let's consider the typical following case :
  * - a mesh 'm1' has a meshDimension 3 and has the following non empty levels
  * [0,-1,-2] for example 'm1' lies on TETRA4, HEXA8 TRI3 and SEG2
@@ -752,7 +752,7 @@ std::vector< std::pair<int,int> > MEDFileAnyTypeFieldMultiTSWithoutSDA::getItera
  * - 'f2' lies on 'm1' too and is defined on 2D and 1D cells for example TRI3 and SEG2
  *
  * In this case f1->getNonEmptyLevelsExt will return (3,[0,-2]) and f2->getNonEmptyLevelsExt will return (2,[0,-1])
- * 
+ *
  * To retrieve the highest level of f1 it should be done, f1->getFieldAtLevel(ON_CELLS,3-3+0);//absDim-meshDim+relativeLev
  * To retrieve the lowest level of f1 it should be done, f1->getFieldAtLevel(ON_CELLS,3-3+(-2));//absDim-meshDim+relativeLev
  * To retrieve the highest level of f2 it should be done, f1->getFieldAtLevel(ON_CELLS,2-3+0);//absDim-meshDim+relativeLev
@@ -933,10 +933,10 @@ std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > MEDFileAnyTypeFieldM
       const MEDFileAnyTypeField1TSWithoutSDA *timeStep(_time_steps[i]);
       if(!timeStep)
         {
-          std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::splitDiscretizations : time step #" << i << " is null !"; 
+          std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::splitDiscretizations : time step #" << i << " is null !";
           throw INTERP_KERNEL::Exception(oss.str());
         }
-      items[i]=timeStep->splitDiscretizations();  
+      items[i]=timeStep->splitDiscretizations();
     }
   //
   std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > ret;
@@ -1331,7 +1331,7 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromCont
       ret->_content=c;  c->incrRef();
       return ret.retn();
     }
-  throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 FLOAT32 and INT32 has been built but not intercepted !");
+  throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 FLOAT32 INT32 and INT64 has been built but not intercepted !");
 }
 
 MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c, med_idt fid)
@@ -1648,7 +1648,7 @@ void MEDFileAnyTypeFieldMultiTS::writeLL(med_idt fid) const
  * This method alloc the arrays and load potentially huge arrays contained in this field.
  * This method should be called when a MEDFileAnyTypeFieldMultiTS::New constructor has been with false as the last parameter.
  * This method can be also called to refresh or reinit values from a file.
- * 
+ *
  * \throw If the fileName is not set or points to a non readable MED file.
  */
 void MEDFileAnyTypeFieldMultiTS::loadArrays()
@@ -1662,7 +1662,7 @@ void MEDFileAnyTypeFieldMultiTS::loadArrays()
 /*!
  * This method behaves as MEDFileAnyTypeFieldMultiTS::loadArrays does, the first call, if \a this was built using a file without loading big arrays.
  * But once data loaded once, this method does nothing.
- * 
+ *
  * \throw If the fileName is not set or points to a non readable MED file.
  * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::unloadArrays
  */
@@ -1679,7 +1679,7 @@ void MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary()
  * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
  * \b WARNING, this method does release arrays even if \a this does not come from a load of a MED file.
  * So this method can lead to a loss of data. If you want to unload arrays safely call MEDFileAnyTypeFieldMultiTS::unloadArraysWithoutDataLoss instead.
- * 
+ *
  * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary, MEDFileAnyTypeFieldMultiTS::unloadArraysWithoutDataLoss
  */
 void MEDFileAnyTypeFieldMultiTS::unloadArrays()
@@ -1691,7 +1691,7 @@ void MEDFileAnyTypeFieldMultiTS::unloadArrays()
  * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
  * This method is the symmetrical method of MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary.
  * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
- * 
+ *
  * \sa MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary
  */
 void MEDFileAnyTypeFieldMultiTS::unloadArraysWithoutDataLoss()
@@ -2209,7 +2209,7 @@ MEDFileAnyTypeFieldMultiTSIterator::MEDFileAnyTypeFieldMultiTSIterator(MEDFileAn
     }
 }
 
-MEDFileAnyTypeFieldMultiTSIterator::~MEDFileAnyTypeFieldMultiTSIterator() 
+MEDFileAnyTypeFieldMultiTSIterator::~MEDFileAnyTypeFieldMultiTSIterator()
 {
 }
 

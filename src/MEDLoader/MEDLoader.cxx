@@ -31,6 +31,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldInt32.hxx"
+#include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingTraits.hxx"
 #include "MCAuto.hxx"
@@ -195,7 +196,7 @@ int MEDLoaderNS::readUMeshDimFromFile(const std::string& fileName, const std::st
   if(nstep!=1)
     {
       throw INTERP_KERNEL::Exception("multisteps on mesh not managed yet !");
-    } 
+    }
   med_int numdt,numit;
   med_float dt;
   MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,nommaa,1,&numdt,&numit,&dt));
@@ -1277,6 +1278,14 @@ MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(const std::string& 
       }
   }
   {
+    MCAuto<MEDFileInt64Field1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileInt64Field1TS>(f));
+    if(f1.isNotNull())
+      {
+        MCAuto<MEDCoupling::MEDCouplingFieldInt64> ret(f1->field(mesh));
+        return MEDCoupling::DynamicCast<MEDCouplingFieldInt64,MEDCouplingField>(ret);
+      }
+  }
+  {
     MCAuto<MEDFileFloatField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileFloatField1TS>(f));
     if(f1.isNotNull())
       {
@@ -1284,7 +1293,8 @@ MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(const std::string& 
         return MEDCoupling::DynamicCast<MEDCouplingFieldFloat,MEDCouplingField>(ret);
       }
   }
-  throw INTERP_KERNEL::Exception("MEDCoupling::ReadField : only FLOAT32, FLOAT64 and INT32 supported for the moment !");
+
+  throw INTERP_KERNEL::Exception("MEDCoupling::ReadField : only FLOAT32, FLOAT64, INT32 and INT64 supported for the moment !");
 }
 
 MCAuto<MEDCoupling::MEDCouplingField> MEDCoupling::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
@@ -1404,6 +1414,14 @@ namespace MEDCoupling
         }
     }
     {
+      MCAuto<MEDFileInt64Field1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileInt64Field1TS>(f));
+      if(f1.isNotNull())
+        {
+          MCAuto<MEDCoupling::MEDCouplingFieldInt64> ret(ReadFieldCellLikeT<Int64>(f1,type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+          return ret.retn();
+        }
+    }
+    {
       MCAuto<MEDFileFloatField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileFloatField1TS>(f));
       if(f1.isNotNull())
         {
@@ -1411,7 +1429,7 @@ namespace MEDCoupling
           return ret.retn();
         }
     }
-    throw INTERP_KERNEL::Exception("MEDCoupling::ReadFieldCell : only FLOAT32, FLOAT64 and INT32 supported for the moment !");
+    throw INTERP_KERNEL::Exception("MEDCoupling::ReadFieldCell : only FLOAT32, FLOAT64, INT32 and INT64 supported for the moment !");
   }
 
   template<class T>
@@ -1481,6 +1499,14 @@ MEDCoupling::MEDCouplingField *MEDCoupling::ReadFieldNode(const std::string& fil
       }
   }
   {
+    MCAuto<MEDFileInt64Field1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileInt64Field1TS>(f));
+    if(f1.isNotNull())
+      {
+        MCAuto<MEDCoupling::MEDCouplingFieldInt64> ret(ReadFieldNodeT<Int64>(f1,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
+        return ret.retn();
+      }
+  }
+  {
     MCAuto<MEDFileFloatField1TS> f1(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileFloatField1TS>(f));
     if(f1.isNotNull())
       {
@@ -1488,7 +1514,7 @@ MEDCoupling::MEDCouplingField *MEDCoupling::ReadFieldNode(const std::string& fil
         return ret.retn();
       }
   }
-  throw INTERP_KERNEL::Exception("MEDCoupling::ReadFieldNode : only FLOAT32, FLOAT64 and INT32 supported for the moment !");
+  throw INTERP_KERNEL::Exception("MEDCoupling::ReadFieldNode : only FLOAT32, FLOAT64, INT32 and INT64 supported for the moment !");
 }
 
 MEDCoupling::MEDCouplingField *MEDCoupling::ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
@@ -1758,6 +1784,15 @@ void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MED
       }
   }
   {
+    const MEDCoupling::MEDCouplingFieldInt64 *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt64 *>(f));
+    if(f1)
+      {
+        WriteFieldT<Int64>(fileName,f1,writeFromScratch);
+        return ;
+      }
+  }
+
+  {
     const MEDCoupling::MEDCouplingFieldFloat *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldFloat *>(f));
     if(f1)
       {
@@ -1765,7 +1800,7 @@ void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MED
         return ;
       }
   }
-  throw INTERP_KERNEL::Exception("WriteField : input field is not in FLOAT32, FLOAT64, INT32 !");
+  throw INTERP_KERNEL::Exception("WriteField : input field is not in FLOAT32, FLOAT64, INT32 and INT64!");
 }
 
 void MEDCoupling::WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingField *f, bool writeFromScratch)
@@ -1821,6 +1856,14 @@ void MEDCoupling::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName,
       }
   }
   {
+    const MEDCoupling::MEDCouplingFieldInt64 *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldInt64 *>(f));
+    if(f1)
+      {
+        WriteFieldUsingAlreadyWrittenMeshT<Int64>(fileName,f1);
+        return ;
+      }
+  }
+  {
     const MEDCoupling::MEDCouplingFieldFloat *f1(dynamic_cast<const MEDCoupling::MEDCouplingFieldFloat *>(f));
     if(f1)
       {
@@ -1828,5 +1871,5 @@ void MEDCoupling::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName,
         return ;
       }
   }
-  throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMesh : input field is not in FLOAT32, FLOAT64, INT32 !");
+  throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMesh : input field is not in FLOAT32, FLOAT64, INT32 and INT64 !");
 }

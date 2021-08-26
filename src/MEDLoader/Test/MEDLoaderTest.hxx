@@ -99,6 +99,7 @@ namespace MEDCoupling
     MEDCouplingUMesh *build3DMesh_2();
     MEDCouplingFieldDouble *buildVecFieldOnCells_1();
     MEDCouplingFieldInt    *buildIntVecFieldOnCells_1();
+    MEDCouplingFieldInt64  *buildInt64VecFieldOnCells_1();
     MEDCouplingFieldFloat  *buildFloatVecFieldOnCells_1();
     MEDCouplingFieldDouble *buildVecFieldOnNodes_1();
     MEDCouplingFieldDouble *buildVecFieldOnGauss_1();

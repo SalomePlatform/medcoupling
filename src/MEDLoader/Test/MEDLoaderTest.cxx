@@ -24,6 +24,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldFloat.hxx"
+#include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "TestInterpKernelUtils.hxx"  // getResourceFile()
 
@@ -121,10 +122,12 @@ void MEDLoaderTest::testFieldRW2()
   MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
   MEDCouplingFieldInt *f1_int=buildIntVecFieldOnCells_1();
   MEDCouplingFieldFloat *f1_fl=buildFloatVecFieldOnCells_1();
+  MEDCouplingFieldInt64 *f1_int64=buildInt64VecFieldOnCells_1();
   WriteField(fileName,f1,true);
   f1->setTime(10.,8,9);
   f1_int->setTime(10.,8,9);
   f1_fl->setTime(10.,8,9);
+  f1_int64->setTime(10.,8,9);
   double *tmp=f1->getArray()->getPointer();
   tmp[0]=VAL1;
   WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
@@ -133,6 +136,7 @@ void MEDLoaderTest::testFieldRW2()
   WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   // Write int and float fields:
   WriteFieldUsingAlreadyWrittenMesh(fileName,f1_int);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1_int64);
   WriteFieldUsingAlreadyWrittenMesh(fileName,f1_fl);
   //retrieving time steps...
   MEDCouplingFieldDouble *f2=dynamic_cast<MEDCouplingFieldDouble *>(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),8,9));
@@ -158,6 +162,10 @@ void MEDLoaderTest::testFieldRW2()
   CPPUNIT_ASSERT(f1_int->isEqual(f2_int,1e-12,0)); // exact equality for int values
   f2_int->decrRef();
   f1_int->decrRef();
+  MEDCouplingFieldInt64 *f2_int64=dynamic_cast<MEDCouplingFieldInt64 *>(ReadFieldCell(fileName,f1_int64->getMesh()->getName().c_str(),0,f1_int64->getName().c_str(),8,9));
+  CPPUNIT_ASSERT(f1_int64->isEqual(f2_int64,1e-12,0)); // exact equality for int values
+  f2_int64->decrRef();
+  f1_int64->decrRef();
   MEDCouplingFieldFloat *f2_fl=dynamic_cast<MEDCouplingFieldFloat *>(ReadFieldCell(fileName,f1_fl->getMesh()->getName().c_str(),0,f1_fl->getName().c_str(),8,9));
   CPPUNIT_ASSERT(f1_fl->isEqual(f2_fl,1e-12,1e-07f));  // float comparison
   f2_fl->decrRef();
@@ -1418,6 +1426,29 @@ MEDCouplingFieldInt *MEDLoaderTest::buildIntVecFieldOnCells_1()
   array->decrRef();
   int *tmp=array->getPointer();
   const int arr1[18]={0,10,20,1,11,21,2,12,22,3,13,23,4,14,24,5,15,25};
+  std::copy(arr1,arr1+18,tmp);
+  f1->setTime(2.,0,1);
+  f1->checkConsistencyLight();
+  mesh->decrRef();
+  return f1;
+}
+
+MEDCouplingFieldInt64 *MEDLoaderTest::buildInt64VecFieldOnCells_1()
+{
+  MEDCouplingUMesh *mesh=build3DSurfMesh_1();
+  mcIdType nbOfCells=mesh->getNumberOfCells();
+  MEDCouplingFieldInt64 *f1=MEDCouplingFieldInt64::New(ON_CELLS,ONE_TIME);
+  f1->setName("Int64VectorFieldOnCells");
+  f1->setMesh(mesh);
+  DataArrayInt64 *array=DataArrayInt64::New();
+  array->alloc(nbOfCells,3);
+  array->setInfoOnComponent(0,"val1 [MW/m^3]");
+  array->setInfoOnComponent(1,"va2 [g/cm^3]");
+  array->setInfoOnComponent(2,"val3 [K]");
+  f1->setArray(array);
+  array->decrRef();
+  int64_t *tmp=array->getPointer();
+  const int64_t arr1[18]={0,10,20,1,11,21,2,12,22,3,13,23,4,14,24,5,15,25};
   std::copy(arr1,arr1+18,tmp);
   f1->setTime(2.,0,1);
   f1->checkConsistencyLight();

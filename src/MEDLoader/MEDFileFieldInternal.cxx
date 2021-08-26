@@ -745,7 +745,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, const MEDFileF
       goReadZeValuesInFile(fid,fieldName,nbOfCompo,iteration,order,menti,mgeoti,reinterpret_cast<unsigned char*>(startFeeding));
       return ;
     }
-  throw INTERP_KERNEL::Exception("Error on array reading ! Unrecognized type of field ! Should be in FLOAT64 FLOAT32 or INT32 !");
+  throw INTERP_KERNEL::Exception("Error on array reading ! Unrecognized type of field ! Should be in FLOAT64 FLOAT32 INT32 or INT64 !");
 }
 
 /*!
