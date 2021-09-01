@@ -367,7 +367,7 @@ typedef DataArrayInt64 DataArrayIdType;
   public:
     static MCAuto< MapII > New();
   };
-  
+
   class PartDefinition : public RefCountObject, public TimeLabel
   {
   public:
@@ -422,7 +422,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return self->getRepr();
       }
-      
+
       std::string __repr__() const
       {
         std::ostringstream oss; oss << "DataArrayPartDefinition C++ instance at " << self << "." << std::endl;
@@ -452,12 +452,12 @@ typedef DataArrayInt64 DataArrayIdType;
         self->getSlice(a,b,c);
         return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(c));
       }
-      
+
       std::string __str__() const
       {
         return self->getRepr();
       }
-      
+
       std::string __repr__() const
       {
         std::ostringstream oss; oss << "SlicePartDefinition C++ instance at " << self << "." << std::endl;
@@ -468,7 +468,7 @@ typedef DataArrayInt64 DataArrayIdType;
   protected:
     virtual ~SlicePartDefinition();
   };
-  
+
   class DataArray : public RefCountObject, public TimeLabel
   {
   public:
@@ -528,7 +528,7 @@ typedef DataArrayInt64 DataArrayIdType;
           PyList_SetItem(ret,i,PyString_FromString(comps[i].c_str()));
         return ret;
       }
-      
+
       void copyPartOfStringInfoFrom(const DataArray& other, PyObject *li)
       {
         std::vector<std::size_t> tmp;
@@ -616,7 +616,7 @@ typedef DataArrayInt64 DataArrayIdType;
           }
         self->setContigPartOfSelectedValues(tupleIdStart,a,tuplesSelecPtr2);
       }
-      
+
       virtual void setContigPartOfSelectedValuesSlice(mcIdType tupleIdStart, PyObject *aBase, mcIdType bg, mcIdType end2, mcIdType step)
       {
         DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValuesSlice : 2nd parameter \"aBase\" should be of type DataArray");
@@ -719,7 +719,7 @@ typedef DataArrayInt64 DataArrayIdType;
         GetIndicesOfSliceExplicitely(slic,&strt,&stp,&step,"DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBESRelative(ToIdType(strt),ToIdType(stp),ToIdType(step),"");
       }
-      
+
       static DataArray *Aggregate(PyObject *arrs)
       {
         std::vector<const DataArray *> tmp;
@@ -806,7 +806,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return DataArrayT_New<float>(elt0,nbOfTuples,elt2);
       }
-   
+
       DataArrayFloat(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0)
       {
         return MEDCoupling_DataArrayFloat_New__SWIG_1(elt0,nbOfTuples,elt2);
@@ -866,7 +866,7 @@ typedef DataArrayInt64 DataArrayIdType;
         PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
         return ret;
       }
-      
+
       PyObject *__getitem__(PyObject *obj)
       {
         return DataArrayT__getitem<float>(self,obj);
@@ -876,7 +876,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return DataArrayT__setitem__<float>(self,obj,value);
       }
-      
+
       PyObject *___iadd___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_iadd<float>(trueSelf,obj,self);
@@ -901,7 +901,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return DataArrayT_idiv<float>(trueSelf,obj,self);
       }
-      
+
 #ifdef WITH_NUMPY
       PyObject *toNumPyArray() // not const. It is not a bug !
       {
@@ -955,7 +955,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return self->buildDAFloat(1,self->getNumberOfCompo());
       }
-  
+
       /*PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayFloat> ret=self->buildDAFloat(1,self->getNumberOfCompo());
@@ -970,9 +970,9 @@ typedef DataArrayInt64 DataArrayIdType;
       }
     }
   };
-  
+
   class DataArrayDoubleIterator;
-  
+
   class DataArrayDouble : public DataArray
   {
   public:
@@ -1092,6 +1092,7 @@ typedef DataArrayInt64 DataArrayIdType;
     MCAuto<DataArrayIdType> findIdsLowerOrEqualTo(double val) const;
     MCAuto<DataArrayIdType> findIdsLowerThan(double val) const;
     MCAuto<DataArrayInt32> convertToIntArr() const;
+    MCAuto<DataArrayInt64> convertToInt64Arr() const;
     MCAuto<DataArrayDouble> selectPartDef(const PartDefinition* pd) const;
     MCAuto<DataArrayDouble> cumSum() const;
     MCAuto<DataArrayFloat> convertToFloatArr() const;
@@ -1106,7 +1107,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return DataArrayT_New<double>(elt0,nbOfTuples,elt2);
       }
-   
+
       DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0)
       {
         return MEDCoupling_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
@@ -1163,7 +1164,7 @@ typedef DataArrayInt64 DataArrayIdType;
           PyTuple_SetItem(ret,0,ret0);
         }
         PyTuple_SetItem(ret,1,PyFloat_FromDouble(radius));
-        PyTuple_SetItem(ret,2,PyFloat_FromDouble(ang));        
+        PyTuple_SetItem(ret,2,PyFloat_FromDouble(ang));
         return ret;
       }
 
@@ -1171,7 +1172,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return self->iterator();
       }
-   
+
       void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0)
       {
         const char *msg="MEDCoupling::DataArrayDouble::setValues : Available API are : \n-DataArrayDouble.setValues([1.,3.,4.])\n-DataArrayDouble.setValues([1.,3.,4.],3)\n-DataArrayDouble.setValues([1.,3.,4.,5.],2,2)\n-DataArrayDouble.setValues([(1.,1.7),(3.,3.7),(4.,4.7)])\n !";
@@ -1272,7 +1273,7 @@ typedef DataArrayInt64 DataArrayIdType;
         PyTuple_SetItem(ret,1,PyFloat_FromDouble(res1));
         return ret;
       }
-      
+
       DataArrayDouble *symmetry3DPlane(PyObject *point, PyObject *normalVector)
       {
         const char msg[]="Python wrap of DataArrayDouble::symmetry3DPlane : ";
@@ -1313,7 +1314,7 @@ typedef DataArrayInt64 DataArrayIdType;
         const double *vectorPtr=convertObjToPossibleCpp5_Safe(vector,sw,val2,a2,aa2,bb2,msg,1,3,true);
         return self->fromCartToCylGiven(coords,centerPtr,vectorPtr);
       }
-      
+
       DataArrayDouble *renumber(PyObject *li)
       {
         void *da=0;
@@ -1470,7 +1471,7 @@ typedef DataArrayInt64 DataArrayIdType;
         PyObject *ret=convertDblArrToPyListOfTuple<double>(tmp,2,ToIdType(nbOfCompo));
         return ret;
       }
-      
+
       PyObject *normMaxPerComponent() const
       {
         std::size_t nbOfCompo(self->getNumberOfComponents());
@@ -1539,7 +1540,7 @@ typedef DataArrayInt64 DataArrayIdType;
           PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(retCpp[i].retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
         return res;
       }
-   
+
       PyObject *getTuple(mcIdType tupleId)
       {
         std::size_t sz=self->getNumberOfComponents();
@@ -1694,7 +1695,7 @@ typedef DataArrayInt64 DataArrayIdType;
             throw INTERP_KERNEL::Exception(msg);
           }
       }
-   
+
       PyObject *___iadd___(PyObject *trueSelf, PyObject *obj)
       {
         return DataArrayT_iadd<double>(trueSelf,obj,self);
@@ -1947,7 +1948,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return DataArrayT_idiv<double>(trueSelf,obj,self);
       }
-   
+
       DataArrayDouble *__pow__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __pow__ !";
@@ -2057,7 +2058,7 @@ typedef DataArrayInt64 DataArrayIdType;
             throw INTERP_KERNEL::Exception(msg);
           }
       }
-   
+
       PyObject *computeTupleIdsNearTuples(const DataArrayDouble *other, double eps)
       {
         DataArrayIdType *c=0,*cI=0;
@@ -2133,7 +2134,7 @@ typedef DataArrayInt64 DataArrayIdType;
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
-  
+
       PyObject *___isub___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
@@ -2141,7 +2142,7 @@ typedef DataArrayInt64 DataArrayIdType;
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
-  
+
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
@@ -2441,7 +2442,7 @@ typedef DataArrayInt64 DataArrayIdType;
             throw INTERP_KERNEL::Exception("DataArrayChar::__len__ : Instance is NOT allocated !");
           }
       }
-      
+
       PyObject *isEqualIfNotWhy(const DataArrayChar& other) const
       {
         std::string ret1;
@@ -2453,7 +2454,7 @@ typedef DataArrayInt64 DataArrayIdType;
         PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
         return ret;
       }
-      
+
       DataArrayChar *renumber(PyObject *li)
       {
         void *da=0;
@@ -2482,7 +2483,7 @@ typedef DataArrayInt64 DataArrayIdType;
             return self->renumber(da2->getConstPointer());
           }
       }
-      
+
       DataArrayChar *renumberR(PyObject *li)
       {
         void *da=0;
@@ -2511,7 +2512,7 @@ typedef DataArrayInt64 DataArrayIdType;
             return self->renumberR(da2->getConstPointer());
           }
       }
-      
+
       DataArrayChar *renumberAndReduce(PyObject *li, mcIdType newNbOfTuple)
       {
         void *da=0;
@@ -2540,14 +2541,14 @@ typedef DataArrayInt64 DataArrayIdType;
             return self->renumberAndReduce(da2->getConstPointer(),newNbOfTuple);
           }
       }
-      
+
       static DataArrayChar *Aggregate(PyObject *dachs)
       {
         std::vector<const MEDCoupling::DataArrayChar *> tmp;
         convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayChar *>(dachs,SWIGTYPE_p_MEDCoupling__DataArrayChar,"DataArrayChar",tmp);
         return DataArrayChar::Aggregate(tmp);
       }
-      
+
       static DataArrayChar *Meld(PyObject *dachs)
       {
         std::vector<const MEDCoupling::DataArrayChar *> tmp;
@@ -2556,7 +2557,7 @@ typedef DataArrayInt64 DataArrayIdType;
       }
     }
   };
-  
+
   class DataArrayByteIterator;
 
   class DataArrayByte : public DataArrayChar
@@ -2666,14 +2667,14 @@ typedef DataArrayInt64 DataArrayIdType;
         {
           return MEDCoupling_DataArrayByte_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
-   
+
       std::string __repr__() const
       {
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
       }
-  
+
       int __int__() const
       {
         return (int) self->byteValue();
@@ -2688,7 +2689,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return (mcIdType)self->getIJ(tupleId,compoId);
       }
-      
+
       mcIdType getIJSafe(mcIdType tupleId, mcIdType compoId) const
       {
         return (mcIdType)self->getIJSafe(tupleId,compoId);
@@ -2706,7 +2707,7 @@ typedef DataArrayInt64 DataArrayIdType;
         mcIdType nbOfTuples=self->getNumberOfTuples();
         return convertCharArrToPyListOfTuple(vals,(int)nbOfComp,nbOfTuples);
       }
-   
+
       bool presenceOfTuple(PyObject *tupl) const
       {
         mcIdType sz=-1,sw=-1;
@@ -2828,7 +2829,7 @@ typedef DataArrayInt64 DataArrayIdType;
             return MEDCoupling_DataArrayByte_presenceOfTuple(self,obj);
           }
       }
-      
+
 #ifdef WITH_NUMPY
       PyObject *toNumPyArray() // not const. It is not a bug !
       {
@@ -3077,21 +3078,21 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return self->repr();
       }
-      
+
       char __int__() const
       {
         return self->byteValue();
       }
-      
+
       DataArrayByte *buildDAByte()
       {
         return self->buildDAByte(1,self->getNumberOfCompo());
       }
     }
   };
-  
+
   class DataArrayAsciiCharIterator;
-  
+
   class DataArrayAsciiChar : public DataArrayChar
   {
   public:
@@ -3244,7 +3245,7 @@ typedef DataArrayInt64 DataArrayIdType;
         tmp[0]=self->getIJ(tupleId,compoId);
         return std::string(tmp);
       }
-   
+
       std::string getIJSafe(mcIdType tupleId, mcIdType compoId) const
       {
         char tmp[2]; tmp[1]='\0';
@@ -3286,7 +3287,7 @@ typedef DataArrayInt64 DataArrayIdType;
         else
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::presenceOfTuple : only strings in input supported !");
       }
-   
+
       bool presenceOfValue(PyObject *vals) const
       {
         if(PyString_Check(vals))
@@ -3374,7 +3375,7 @@ typedef DataArrayInt64 DataArrayIdType;
         else
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::search : only strings in input supported !");
       }
-   
+
       PyObject *getTuple(mcIdType tupleId) const
       {
         std::size_t sz=self->getNumberOfComponents();
@@ -3693,7 +3694,7 @@ typedef DataArrayInt64 DataArrayIdType;
       {
         return self->repr();
       }
-      
+
       DataArrayAsciiChar *buildDAAsciiChar()
       {
         return self->buildDAAsciiChar(1,self->getNumberOfCompo());

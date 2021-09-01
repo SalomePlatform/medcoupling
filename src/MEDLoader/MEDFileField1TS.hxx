@@ -32,7 +32,7 @@ namespace MEDCoupling
 {
   class TimeHolder;
   class MEDFileMeshes;
-  
+
   /*!
    * SDA is for Shared Data Arrays such as profiles.
    */
@@ -185,6 +185,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileField1TSWithoutSDA *shallowCpy() const;
     MEDLOADER_EXPORT MEDFileField1TSWithoutSDA *deepCopy() const;
     MEDLOADER_EXPORT MEDFileInt32Field1TSWithoutSDA *convertToInt() const;
+    MEDLOADER_EXPORT MEDFileInt64Field1TSWithoutSDA *convertToInt64() const;
+    MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA *convertToFloat() const;
   public:
     static const char TYPE_STR[];
   };
@@ -198,7 +200,7 @@ namespace MEDCoupling
     MEDFileField1TSNDTemplateWithoutSDA() { }
     MEDFileField1TSNDTemplateWithoutSDA(const std::string& fieldName, const std::string& meshName, int csit, int iteration, int order, const std::vector<std::string>& infos):MEDFileField1TSTemplateWithoutSDA<T>(fieldName,meshName,csit,iteration,order) { }
   };
-  
+
   /*!
    * SDA is for Shared Data Arrays such as profiles.
    */
@@ -413,6 +415,7 @@ namespace MEDCoupling
     friend class MEDFileTemplateField1TS<double>;
   public:
     MEDLOADER_EXPORT MEDFileInt32Field1TS *convertToInt(bool isDeepCpyGlobs=true) const;
+    MEDLOADER_EXPORT MEDFileInt64Field1TS *convertToInt64(bool isDeepCpyGlobs=true) const;
   public:
     MEDLOADER_EXPORT MEDFileField1TS *shallowCpy() const;
     MEDLOADER_EXPORT std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
@@ -435,6 +438,8 @@ namespace MEDCoupling
   {
   public:
     MEDLOADER_EXPORT MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
+    MEDLOADER_EXPORT MEDFileField1TS *convertToInt(bool isDeepCpyGlobs=true) const;
+    MEDLOADER_EXPORT MEDFileField1TS *convertToInt64(bool isDeepCpyGlobs=true) const;
   protected:
     ~MEDFileNDTemplateField1TS() { }
     MEDFileNDTemplateField1TS() { }

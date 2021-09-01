@@ -379,10 +379,10 @@ namespace MEDCoupling
   /*!
    * This method performs systematically an allocation of \a newNbOfElements elements in \a this.
    * \a _nb_of_elem and \a _nb_of_elem_alloc will \b NOT be systematically equal (contrary to MemArray<T>::reAlloc method.
-   * So after the call of this method \a _nb_of_elem will be equal tostd::min<std::size_t>(_nb_of_elem,newNbOfElements) and \a _nb_of_elem_alloc equal to 
+   * So after the call of this method \a _nb_of_elem will be equal tostd::min<std::size_t>(_nb_of_elem,newNbOfElements) and \a _nb_of_elem_alloc equal to
    * \a newNbOfElements. This method is typically used to perform a pushBack to avoid systematic allocations-copy-deallocation.
    * So after the call of this method the accessible content is perfectly set.
-   * 
+   *
    * So this method should not be confused with MemArray<T>::reserve that is close to MemArray<T>::reAlloc but not same.
    */
   template<class T>
@@ -406,7 +406,7 @@ namespace MEDCoupling
    * This method performs systematically an allocation of \a newNbOfElements elements in \a this.
    * \a _nb_of_elem and \a _nb_of_elem_alloc will be equal even if only std::min<std::size_t>(_nb_of_elem,newNbOfElements) come from the .
    * The remaining part of the new allocated chunk are available but not set previously !
-   * 
+   *
    * So this method should not be confused with MemArray<T>::reserve that is close to MemArray<T>::reAlloc but not same.
    */
   template<class T>
@@ -506,7 +506,7 @@ namespace MEDCoupling
           }
       }
   }
-  
+
   template<class T>
   DataArrayIterator<T>::~DataArrayIterator()
   {
@@ -534,7 +534,7 @@ namespace MEDCoupling
   DataArrayTuple<T>::DataArrayTuple(T *pt, std::size_t nbOfComp):_pt(pt),_nb_of_compo(nbOfComp)
   {
   }
-  
+
   template<class T>
   T DataArrayTuple<T>::zeValue() const
   {
@@ -542,7 +542,7 @@ namespace MEDCoupling
       return *_pt;
     throw INTERP_KERNEL::Exception("DataArrayTuple<T>::zeValue : DataArrayTuple instance has not exactly 1 component -> Not possible to convert it into a single value !");
   }
-  
+
   template<class T>
   typename Traits<T>::ArrayType *DataArrayTuple<T>::buildDA(std::size_t nbOfTuples, std::size_t nbOfCompo) const
   {
@@ -559,7 +559,7 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   }
-  
+
   //////////////////////////////////
 
   /*!
@@ -686,7 +686,7 @@ namespace MEDCoupling
     std::copy(arrBegin,arrEnd,ret->getPointer());
     return ret;
   }
-  
+
   template<class T>
   std::vector< MCAuto< typename Traits<T>::ArrayTypeCh > > DataArrayTemplate<T>::explodeComponents() const
   {
@@ -710,7 +710,7 @@ namespace MEDCoupling
       }
     return ret;
   }
-  
+
   template<class T>
   std::size_t DataArrayTemplate<T>::getHeapMemorySizeWithoutChildren() const
   {
@@ -718,7 +718,7 @@ namespace MEDCoupling
     sz*=sizeof(T);
     return DataArray::getHeapMemorySizeWithoutChildren()+sz;
   }
-  
+
   /*!
    * Allocates the raw data in memory. If the memory was already allocated, then it is
    * freed and re-allocated. See an example of this method use
@@ -737,7 +737,7 @@ namespace MEDCoupling
 
   /*!
    * Sets a C array to be used as raw data of \a this. The previously set info
-   *  of components is retained and re-sized. 
+   *  of components is retained and re-sized.
    * For more info see \ref MEDCouplingArraySteps1.
    *  \param [in] array - the C array to be used as raw data of \a this.
    *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
@@ -754,7 +754,7 @@ namespace MEDCoupling
     _mem.useArray(array,ownership,type,nbOfTuple*nbOfCompo);
     declareAsNew();
   }
-  
+
   template<class T>
   void DataArrayTemplate<T>::useExternalArrayWithRWAccess(const T *array, std::size_t nbOfTuple, std::size_t nbOfCompo)
   {
@@ -813,7 +813,7 @@ namespace MEDCoupling
   {
     return getConstPointer()!=0;
   }
-  
+
   /*!
    * Checks if raw data is allocated and throws an exception if it is not the case.
    *  \throw If the raw data is not allocated.
@@ -827,7 +827,7 @@ namespace MEDCoupling
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
-  
+
   /*!
    * This method deallocated \a this without modification of information relative to the components.
    * After call of this method, DataArrayDouble::isAllocated will return false.
@@ -844,7 +844,7 @@ namespace MEDCoupling
    * If \a this has already been allocated, this method checks that \a this has only one component. If not an INTERP_KERNEL::Exception will be thrown.
    * If \a this has not already been allocated, number of components is set to one.
    * This method allows to reduce number of reallocations on invocation of DataArrayDouble::pushBackSilent and DataArrayDouble::pushBackValsSilent on \a this.
-   * 
+   *
    * \sa DataArrayDouble::pack, DataArrayDouble::pushBackSilent, DataArrayDouble::pushBackValsSilent
    */
   template<class T>
@@ -866,7 +866,7 @@ namespace MEDCoupling
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
-  
+
   /*!
    * This method adds at the end of \a this the single value \a val. This method do \b not update its time label to avoid useless incrementation
    * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
@@ -892,7 +892,7 @@ namespace MEDCoupling
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
-  
+
   /*!
    * This method adds at the end of \a this a series of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
    * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
@@ -920,7 +920,7 @@ namespace MEDCoupling
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
-  
+
   /*!
    * This method returns silently ( without updating time label in \a this ) the last value, if any and suppress it.
    * \throw If \a this is already empty.
@@ -937,7 +937,7 @@ namespace MEDCoupling
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
-  
+
   /*!
    * Allocates the raw data in memory. If exactly same memory as needed already
    * allocated, it is not re-allocated.
@@ -1020,7 +1020,7 @@ namespace MEDCoupling
   /*!
    * Changes number of tuples in the array. If the new number of tuples is smaller
    * than the current number the array is truncated, otherwise the array is extended.
-   *  \param [in] nbOfTuples - new number of tuples. 
+   *  \param [in] nbOfTuples - new number of tuples.
    *  \throw If \a this is not allocated.
    *  \throw If \a nbOfTuples is negative.
    */
@@ -1100,7 +1100,7 @@ namespace MEDCoupling
 
   /*!
    * Sorts values of the array. \b Warning, this method is not const, it alterates \a this content.
-   * 
+   *
    *  \param [in] asc - \a true means ascending order, \a false, descending.
    *  \throw If \a this is not allocated.
    *  \throw If \a this->getNumberOfComponents() != 1.
@@ -1122,7 +1122,7 @@ namespace MEDCoupling
   /*!
    * Sorts values of the array and put the result in a newly allocated returned array.
    * This method does not alterate \a this content.
-   * 
+   *
    *  \param [in] asc - \a true means ascending order, \a false, descending.
    *  \throw If \a this is not allocated.
    *  \throw If \a this->getNumberOfComponents() != 1.
@@ -1199,7 +1199,7 @@ namespace MEDCoupling
    * Returns a shorten and permuted copy of \a this array. The new DataArrayDouble is
    * of size \a newNbOfTuple and it's values are permuted as required by \a old2New array.
    * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ] for all
-   * \a old2New[ i ] >= 0. In other words every i-th tuple in \a this array, for which 
+   * \a old2New[ i ] >= 0. In other words every i-th tuple in \a this array, for which
    * \a old2New[ i ] is negative, is missing from the result array.
    * For more info on renumbering see \ref numbering.
    *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
@@ -1299,11 +1299,11 @@ namespace MEDCoupling
         MCAuto<DataArrayIdType> arr(dpd->toDAI());
         MCAuto<DataArray> ret2(selectByTupleIdSafe(arr->begin(),arr->end()));
         return DynamicCastSafe<DataArray,typename Traits<T>::ArrayTypeCh>(ret2);
-        
+
       }
     throw INTERP_KERNEL::Exception("DataArrayTemplate<T>::selectPartDef : unrecognized part def !");
   }
-  
+
   /*!
    * Returns a shorten and permuted copy of \a this array. The new DataArrayDouble is
    * of size \a new2OldEnd - \a new2OldBg and it's values are permuted as required by
@@ -1386,7 +1386,7 @@ namespace MEDCoupling
 
   /*!
    * Changes the number of components within \a this array to be equal to its number
-   * of tuples, and inversely its number of tuples to become equal to its number of 
+   * of tuples, and inversely its number of tuples to become equal to its number of
    * components. So that its raw data **does not** change, instead splitting this
    * data into tuples changes.
    *  \warning This method erases all (name and unit) component info set before!
@@ -1407,7 +1407,7 @@ namespace MEDCoupling
    * is truncated to have \a newNbOfComp components, keeping first components. If \a
    * newNbOfComp is more than \a this->getNumberOfComponents() then the result array is
    * expanded as each tuple is populated with \a dftValue to have \a newNbOfComp
-   * components.  
+   * components.
    *  \param [in] newNbOfComp - number of components for the new array to have.
    *  \param [in] dftValue - value assigned to new values added to the new array.
    *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
@@ -1451,7 +1451,7 @@ namespace MEDCoupling
    *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
    *          is to delete using decrRef() as it is no more needed.
    *  \throw If \a this is not allocated.
-   *  \throw If a component index (\a i) is not valid: 
+   *  \throw If a component index (\a i) is not valid:
    *         \a i < 0 || \a i >= \a this->getNumberOfComponents().
    *
    *  \if ENABLE_EXAMPLES
@@ -1565,7 +1565,7 @@ namespace MEDCoupling
     ret->copyStringInfoFrom(*this);
     return ret.retn();
   }
-  
+
   /*!
    * Copy all values from another DataArrayDouble into specified tuples and components
    * of \a this array. Textual data is not copied.
@@ -1580,13 +1580,13 @@ namespace MEDCoupling
    *  \param [in] endComp - index of the component before which the components to assign
    *              to are located.
    *  \param [in] stepComp - index increment to get index of the next component to assign to.
-   *  \param [in] strictCompoCompare - if \a true (by default), then \a a->getNumberOfComponents() 
+   *  \param [in] strictCompoCompare - if \a true (by default), then \a a->getNumberOfComponents()
    *              must be equal to the number of columns to assign to, else an
    *              exception is thrown; if \a false, then it is only required that \a
    *              a->getNbOfElems() equals to number of values to assign to (this condition
-   *              must be respected even if \a strictCompoCompare is \a true). The number of 
+   *              must be respected even if \a strictCompoCompare is \a true). The number of
    *              values to assign to is given by following Python expression:
-   *              \a nbTargetValues = 
+   *              \a nbTargetValues =
    *              \c len(\c range(\a bgTuples,\a endTuples,\a stepTuples)) *
    *              \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
    *  \throw If \a a is NULL.
@@ -1648,7 +1648,7 @@ namespace MEDCoupling
           }
       }
   }
-  
+
   /*!
  * Assign a given value to values at specified tuples and components of \a this array.
  * The tree parameters defining set of indices of tuples and components are similar to
@@ -1687,14 +1687,14 @@ namespace MEDCoupling
       for(mcIdType j=0;j<newNbOfComp;j++)
         pt[j*stepComp]=a;
   }
-  
+
   /*!
-   * Copy all values from another DataArrayDouble (\a a) into specified tuples and 
+   * Copy all values from another DataArrayDouble (\a a) into specified tuples and
    * components of \a this array. Textual data is not copied.
    * The tuples and components to assign to are defined by C arrays of indices.
    * There are two *modes of usage*:
    * - If \a a->getNbOfElems() equals to number of values to assign to, then every value
-   *   of \a a is assigned to its own location within \a this array. 
+   *   of \a a is assigned to its own location within \a this array.
    * - If \a a includes one tuple, then all values of \a a are assigned to the specified
    *   components of every specified tuple of \a this array. In this mode it is required
    *   that \a a->getNumberOfComponents() equals to the number of specified components.
@@ -1703,16 +1703,16 @@ namespace MEDCoupling
    *  \param [in] bgTuples - pointer to an array of tuple indices of \a this array to
    *              assign values of \a a to.
    *  \param [in] endTuples - specifies the end of the array \a bgTuples, so that
-   *              pointer to a tuple index <em>(pi)</em> varies as this: 
+   *              pointer to a tuple index <em>(pi)</em> varies as this:
    *              \a bgTuples <= \a pi < \a endTuples.
    *  \param [in] bgComp - pointer to an array of component indices of \a this array to
    *              assign values of \a a to.
    *  \param [in] endComp - specifies the end of the array \a bgTuples, so that
-   *              pointer to a component index <em>(pi)</em> varies as this: 
+   *              pointer to a component index <em>(pi)</em> varies as this:
    *              \a bgComp <= \a pi < \a endComp.
    *  \param [in] strictCompoCompare - this parameter is checked only if the
-   *               *mode of usage* is the first; if it is \a true (default), 
-   *               then \a a->getNumberOfComponents() must be equal 
+   *               *mode of usage* is the first; if it is \a true (default),
+   *               then \a a->getNumberOfComponents() must be equal
    *               to the number of specified columns, else this is not required.
    *  \throw If \a a is NULL.
    *  \throw If \a a is not allocated.
@@ -1756,12 +1756,12 @@ namespace MEDCoupling
     T *pt(getPointer());
     const T *srcPt(a->getConstPointer());
     if(assignTech)
-      {    
+      {
         for(const mcIdType *w=bgTuples;w!=endTuples;w++)
           {
             DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
             for(const mcIdType *z=bgComp;z!=endComp;z++,srcPt++)
-              {    
+              {
                 pt[(std::size_t)(*w)*nbComp+(*z)]=*srcPt;
               }
           }
@@ -1773,13 +1773,13 @@ namespace MEDCoupling
             const T *srcPt2=srcPt;
             DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
             for(const mcIdType *z=bgComp;z!=endComp;z++,srcPt2++)
-              {    
+              {
                 pt[(std::size_t)(*w)*nbComp+(*z)]=*srcPt2;
               }
           }
       }
   }
-  
+
   /*!
    * Assign a given value to values at specified tuples and components of \a this array.
    * The tuples and components to assign to are defined by C arrays of indices.
@@ -1787,12 +1787,12 @@ namespace MEDCoupling
    *  \param [in] bgTuples - pointer to an array of tuple indices of \a this array to
    *              assign \a a to.
    *  \param [in] endTuples - specifies the end of the array \a bgTuples, so that
-   *              pointer to a tuple index (\a pi) varies as this: 
+   *              pointer to a tuple index (\a pi) varies as this:
    *              \a bgTuples <= \a pi < \a endTuples.
    *  \param [in] bgComp - pointer to an array of component indices of \a this array to
    *              assign \a a to.
    *  \param [in] endComp - specifies the end of the array \a bgTuples, so that
-   *              pointer to a component index (\a pi) varies as this: 
+   *              pointer to a component index (\a pi) varies as this:
    *              \a bgComp <= \a pi < \a endComp.
    *  \throw If \a this is not allocated.
    *  \throw If any index of tuple/component given by <em>bgTuples / bgComp</em> is
@@ -1818,16 +1818,16 @@ namespace MEDCoupling
           pt[(std::size_t)(*w)*nbComp+(*z)]=a;
         }
   }
-  
+
   /*!
-   * Copy all values from another DataArrayDouble (\a a) into specified tuples and 
+   * Copy all values from another DataArrayDouble (\a a) into specified tuples and
    * components of \a this array. Textual data is not copied.
    * The tuples to assign to are defined by a C array of indices.
    * The components to assign to are defined by three values similar to parameters of
    * the Python function \c range(\c start,\c stop,\c step).
    * There are two *modes of usage*:
    * - If \a a->getNbOfElems() equals to number of values to assign to, then every value
-   *   of \a a is assigned to its own location within \a this array. 
+   *   of \a a is assigned to its own location within \a this array.
    * - If \a a includes one tuple, then all values of \a a are assigned to the specified
    *   components of every specified tuple of \a this array. In this mode it is required
    *   that \a a->getNumberOfComponents() equals to the number of specified components.
@@ -1836,20 +1836,20 @@ namespace MEDCoupling
    *  \param [in] bgTuples - pointer to an array of tuple indices of \a this array to
    *              assign values of \a a to.
    *  \param [in] endTuples - specifies the end of the array \a bgTuples, so that
-   *              pointer to a tuple index <em>(pi)</em> varies as this: 
+   *              pointer to a tuple index <em>(pi)</em> varies as this:
    *              \a bgTuples <= \a pi < \a endTuples.
    *  \param [in] bgComp - index of the first component of \a this array to assign to.
    *  \param [in] endComp - index of the component before which the components to assign
    *              to are located.
    *  \param [in] stepComp - index increment to get index of the next component to assign to.
    *  \param [in] strictCompoCompare - this parameter is checked only in the first
-   *               *mode of usage*; if \a strictCompoCompare is \a true (default), 
-   *               then \a a->getNumberOfComponents() must be equal 
+   *               *mode of usage*; if \a strictCompoCompare is \a true (default),
+   *               then \a a->getNumberOfComponents() must be equal
    *               to the number of specified columns, else this is not required.
    *  \throw If \a a is NULL.
    *  \throw If \a a is not allocated.
    *  \throw If \a this is not allocated.
-   *  \throw If any index of tuple given by \a bgTuples is out of a valid range for 
+   *  \throw If any index of tuple given by \a bgTuples is out of a valid range for
    *         \a this array.
    *  \throw In the first *mode of usage*, if <em>strictCompoCompare == true </em> and
    *         if <em> a->getNumberOfComponents()</em> is unequal to the number of components
@@ -1913,7 +1913,7 @@ namespace MEDCoupling
           }
       }
   }
-  
+
   /*!
    * Assign a given value to values at specified tuples and components of \a this array.
    * The tuples to assign to are defined by a C array of indices.
@@ -1923,14 +1923,14 @@ namespace MEDCoupling
    *  \param [in] bgTuples - pointer to an array of tuple indices of \a this array to
    *              assign \a a to.
    *  \param [in] endTuples - specifies the end of the array \a bgTuples, so that
-   *              pointer to a tuple index <em>(pi)</em> varies as this: 
+   *              pointer to a tuple index <em>(pi)</em> varies as this:
    *              \a bgTuples <= \a pi < \a endTuples.
    *  \param [in] bgComp - index of the first component of \a this array to assign to.
    *  \param [in] endComp - index of the component before which the components to assign
    *              to are located.
    *  \param [in] stepComp - index increment to get index of the next component to assign to.
    *  \throw If \a this is not allocated.
-   *  \throw If any index of tuple given by \a bgTuples is out of a valid range for 
+   *  \throw If any index of tuple given by \a bgTuples is out of a valid range for
    *         \a this array.
    *  \throw If parameters specifying components to assign to, do not give a
    *            non-empty range of increasing indices or indices are out of a valid range
@@ -1971,15 +1971,15 @@ namespace MEDCoupling
    *  \param [in] bgComp - pointer to an array of component indices of \a this array to
    *              assign \a a to.
    *  \param [in] endComp - specifies the end of the array \a bgTuples, so that
-   *              pointer to a component index (\a pi) varies as this: 
+   *              pointer to a component index (\a pi) varies as this:
    *              \a bgComp <= \a pi < \a endComp.
-   *  \param [in] strictCompoCompare - if \a true (by default), then \a a->getNumberOfComponents() 
+   *  \param [in] strictCompoCompare - if \a true (by default), then \a a->getNumberOfComponents()
    *              must be equal to the number of columns to assign to, else an
    *              exception is thrown; if \a false, then it is only required that \a
    *              a->getNbOfElems() equals to number of values to assign to (this condition
-   *              must be respected even if \a strictCompoCompare is \a true). The number of 
+   *              must be respected even if \a strictCompoCompare is \a true). The number of
    *              values to assign to is given by following Python expression:
-   *              \a nbTargetValues = 
+   *              \a nbTargetValues =
    *              \c len(\c range(\a bgTuples,\a endTuples,\a stepTuples)) *
    *              \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
    *  \throw If \a a is NULL.
@@ -2052,7 +2052,7 @@ namespace MEDCoupling
       for(const mcIdType *z=bgComp;z!=endComp;z++)
         pt[*z]=a;
   }
-  
+
   /*!
    * Copy some tuples from another DataArrayDouble into specified tuples
    * of \a this array. Textual data is not copied. Both arrays must have equal number of
@@ -2071,7 +2071,7 @@ namespace MEDCoupling
    *  \throw If \a tuplesSelec is not allocated.
    *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
    *  \throw If \a tuplesSelec->getNumberOfComponents() != 2.
-   *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for 
+   *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for
    *         the corresponding (\a this or \a a) array.
    */
   template<class T>
@@ -2112,7 +2112,7 @@ namespace MEDCoupling
         }
     }
   }
-  
+
   /*!
    * Copy some tuples from another DataArrayDouble (\a aBase) into contiguous tuples
    * of \a this array. Textual data is not copied. Both arrays must have equal number of
@@ -2133,7 +2133,7 @@ namespace MEDCoupling
    *  \throw If <em>this->getNumberOfComponents() != aBase->getNumberOfComponents()</em>.
    *  \throw If \a tuplesSelec->getNumberOfComponents() != 1.
    *  \throw If <em>tupleIdStart + tuplesSelec->getNumberOfTuples() > this->getNumberOfTuples().</em>
-   *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for 
+   *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for
    *         \a aBase array.
  */
   template<class T>
@@ -2173,7 +2173,7 @@ namespace MEDCoupling
           }
       }
   }
-  
+
   /*!
    * Copy some tuples from another DataArrayDouble (\a aBase) into contiguous tuples
    * of \a this array. Textual data is not copied. Both arrays must have equal number of
@@ -2298,7 +2298,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * Returns the first value of \a this. 
+   * Returns the first value of \a this.
    *  \return double - the last value of \a this array.
    *  \throw If \a this is not allocated.
    *  \throw If \a this->getNumberOfComponents() != 1.
@@ -2315,9 +2315,9 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("DataArrayTemplate::front : number of tuples must be >= 1 !");
     return *(getConstPointer());
   }
-  
+
   /*!
-   * Returns the last value of \a this. 
+   * Returns the last value of \a this.
    *  \return double - the last value of \a this array.
    *  \throw If \a this is not allocated.
    *  \throw If \a this->getNumberOfComponents() != 1.
@@ -2334,7 +2334,7 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("DataArrayTemplate::back : number of tuples must be >= 1 !");
     return *(getConstPointer()+nbOfTuples-1);
   }
-  
+
   /*!
    * Returns the maximal value and its location within \a this one-dimensional array.
    *  \param [out] tupleId - index of the tuple holding the maximal value.
@@ -2357,7 +2357,7 @@ namespace MEDCoupling
     tupleId=ToIdType(std::distance(vals,loc));
     return *loc;
   }
-  
+
   /*!
    * Returns the maximal value within \a this array that is allowed to have more than
    *  one component.
@@ -2372,7 +2372,7 @@ namespace MEDCoupling
     const T *loc(std::max_element(begin(),end()));
     return *loc;
   }
-  
+
   /*!
    * Returns the maximal absolute value in \a this and the first occurrence location associated to it.
    * \return the element in this (positive or negative) having the max abs value in \a this.
@@ -2438,7 +2438,7 @@ namespace MEDCoupling
     tupleId=ToIdType(std::distance(vals,loc));
     return *loc;
   }
-  
+
   /*!
    * Returns the minimal value within \a this array that is allowed to have more than
    *  one component.
@@ -2452,7 +2452,7 @@ namespace MEDCoupling
     const T *loc=std::min_element(begin(),end());
     return *loc;
   }
-  
+
   template<class T>
   void DataArrayTemplate<T>::circularPermutation(mcIdType nbOfShift)
   {
@@ -2478,7 +2478,7 @@ namespace MEDCoupling
         std::copy((T*)buf,(T *)buf+(nbTuples-effNbSh)*nbOfCompo,work);
       }
   }
-  
+
   template<class T>
   void DataArrayTemplate<T>::circularPermutationPerTuple(mcIdType nbOfShift)
   {
@@ -2514,7 +2514,7 @@ namespace MEDCoupling
       sts[i]=_info_on_compo[(i+effNbSh)%nbOfCompo];
     setInfoOnComponents(sts);
   }
-  
+
   template<class T>
   void DataArrayTemplate<T>::reversePerTuple()
   {
@@ -2588,7 +2588,7 @@ namespace MEDCoupling
     ret->copyStringInfoFrom(*this);
     return ret;
   }
-  
+
   /*!
    * Creates a new DataArrayDouble and assigns all (textual and numerical) data of \a this
    * array to the new one.
@@ -2611,6 +2611,16 @@ namespace MEDCoupling
     return convertToOtherTypeOfArr<int>();
   }
 
+  /*!
+   * Creates a new DataArrayInt64 and assigns all (textual and numerical) data of \a this
+   * array to the new one.
+   *  \return DataArrayInt * - the new instance of DataArrayInt64.
+   */
+  template<class T>
+  MCAuto<DataArrayInt64> DataArrayTemplateClassic<T>::convertToInt64Arr() const
+  {
+    return convertToOtherTypeOfArr<Int64>();
+  }
   /*!
    * Creates a new DataArrayFloat and assigns all (textual and numerical) data of \a this
    * array to the new one.
@@ -2664,7 +2674,7 @@ namespace MEDCoupling
       *ptr=a*(*ptr)+b;
     this->declareAsNew();
   }
-  
+
   /*!
    * Returns a full copy of \a this array except that sign of all elements is reversed.
    *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
@@ -2732,7 +2742,7 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception(msg);
     this->declareAsNew();
   }
-  
+
   /*!
    * Adds values of another DataArrayDouble to values of \a this one. There are 3
    * valid cases.
@@ -2778,7 +2788,7 @@ namespace MEDCoupling
   {
     this->somethingEqual< std::minus<T> >(other);
   }
-  
+
   /*!
    * Multiply values of another DataArrayDouble to values of \a this one. There are 3
    * valid cases.
@@ -2825,7 +2835,7 @@ namespace MEDCoupling
   {
     this->somethingEqual< std::divides<T> >(other);
   }
-  
+
   template<class T, class FCT>
   typename Traits<T>::ArrayType *DivSub(const typename Traits<T>::ArrayType *a1, const typename Traits<T>::ArrayType *a2)
   {
@@ -2880,7 +2890,7 @@ namespace MEDCoupling
         return 0;
       }
   }
-  
+
   /*!
    * Returns a new DataArrayDouble that is a subtraction of two given arrays. There are 3
    * valid cases.
@@ -2911,7 +2921,7 @@ namespace MEDCoupling
   {
     return DivSub< T,std::minus<T> >(a1,a2);
   }
-  
+
   /*!
    * Returns a new DataArrayDouble that is a division of two given arrays. There are 3
    * valid cases.
@@ -3014,7 +3024,7 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array MulAdd !");
     return ret.retn();
   }
-  
+
   /*!
    * Returns a new DataArrayDouble that is a product of two given arrays. There are 3
    * valid cases.
@@ -3045,7 +3055,7 @@ namespace MEDCoupling
   {
     return MulAdd< T , std::multiplies<T> >(a1,a2);
   }
-  
+
   /*!
    * Returns a new DataArrayDouble that is a sum of two given arrays. There are 3
    * valid cases.
@@ -3076,7 +3086,7 @@ namespace MEDCoupling
   {
     return MulAdd< T , std::plus<T> >(a1,a2);
   }
-  
+
   /*!
    * Returns either a \a deep or \a shallow copy of this array. For more info see
    * \ref MEDCouplingArrayBasicsCopyDeep and \ref MEDCouplingArrayBasicsCopyShallow.
@@ -3103,7 +3113,7 @@ namespace MEDCoupling
     bool operator()(T v) const { return v>=_v; }
     T _v;
   };
-  
+
   template<class T>
   struct GreaterThan
   {
@@ -3111,7 +3121,7 @@ namespace MEDCoupling
     bool operator()(T v) const { return v>_v; }
     T _v;
   };
-  
+
   template<class T>
   struct LowerEqual
   {
@@ -3119,7 +3129,7 @@ namespace MEDCoupling
     bool operator()(T v) const { return v<=_v; }
     T _v;
   };
-  
+
   template<class T>
   struct LowerThan
   {
@@ -3127,7 +3137,7 @@ namespace MEDCoupling
     bool operator()(T v) const { return v<_v; }
     T _v;
   };
-  
+
   template<class T>
   struct InRange
   {
@@ -3157,28 +3167,28 @@ struct NotInRange
     MCAuto<DataArrayIdType> ret(findIdsAdv(lt));
     return ret.retn();
   }
-  
+
   template<class T>
   MCAuto<DataArrayIdType> DataArrayTemplateClassic<T>::findIdsGreaterOrEqualTo(T val) const
   {
     GreatEqual<T> ge(val);
     return findIdsAdv(ge);
   }
-  
+
   template<class T>
   MCAuto<DataArrayIdType> DataArrayTemplateClassic<T>::findIdsGreaterThan(T val) const
   {
     GreaterThan<T> gt(val);
     return findIdsAdv(gt);
   }
-  
+
   template<class T>
   MCAuto<DataArrayIdType> DataArrayTemplateClassic<T>::findIdsLowerOrEqualTo(T val) const
   {
     LowerEqual<T> le(val);
     return findIdsAdv(le);
   }
-  
+
   template<class T>
   MCAuto<DataArrayIdType> DataArrayTemplateClassic<T>::findIdsLowerThan(T val) const
   {
@@ -3308,10 +3318,10 @@ struct NotInRange
     ret->useArray(tab,true,DeallocType::C_DEALLOC,this->getNumberOfTuples(),this->getNumberOfComponents());
     return ret.retn();
   }
-  
+
   /*!
    * Appends components of another array to components of \a this one, tuple by tuple.
-   * So that the number of tuples of \a this array remains the same and the number of 
+   * So that the number of tuples of \a this array remains the same and the number of
    * components increases.
    *  \param [in] other - the DataArrayDouble to append to \a this one.
    *  \throw If \a this is not allocated.
@@ -3349,7 +3359,7 @@ struct NotInRange
   }
 
   /*!
-   * 
+   *
    * \param [in] nbTimes specifies the nb of times each tuples in \a this will be duplicated contiguouly in returned DataArrayDouble instance.
    *             \a nbTimes  should be at least equal to 1.
    * \return a newly allocated DataArrayDouble having one component and number of tuples equal to \a nbTimes * \c this->getNumberOfTuples.
@@ -3376,7 +3386,7 @@ struct NotInRange
     ret->copyStringInfoFrom(*this);
     return ret.retn();
   }
-  
+
   template<class T>
   void DataArrayTemplateClassic<T>::aggregate(const typename Traits<T>::ArrayType *other)
   {
@@ -3445,7 +3455,7 @@ struct NotInRange
 
   /*!
    * Computes for each tuple the sum of number of components values in the tuple and return it.
-   * 
+   *
    * \return DataArrayDouble * - the new instance of DataArrayDouble containing the
    *          same number of tuples as \a this array and one component.
    *          The caller is to delete this result array using decrRef() as it is no more
@@ -3492,10 +3502,10 @@ struct NotInRange
 
   template<>
   struct ImplReprTraits<double> {  static void SetPrecision(std::ostream& oss) { oss.precision(17); } };
-  
+
   template<>
   struct ImplReprTraits<float> {  static void SetPrecision(std::ostream& oss) { oss.precision(7); } };
-  
+
   template<class T>
   void DataArrayTemplateClassic<T>::reprStream(std::ostream& stream) const
   {
@@ -3553,7 +3563,7 @@ struct NotInRange
     reprNotTooLongStream(ret);
     return ret.str();
   }
-  
+
   /*!
    * Returns a textual and human readable representation of \a this instance of
    * DataArrayInt. This text is shown when a DataArrayInt is printed in Python.
@@ -3568,7 +3578,7 @@ struct NotInRange
     DataArrayTemplateClassic<T>::reprStream(ret);
     return ret.str();
   }
-  
+
   template<class T>
   std::string DataArrayTemplateClassic<T>::reprZip() const
   {
@@ -3576,9 +3586,9 @@ struct NotInRange
     DataArrayTemplateClassic<T>::reprZipStream(ret);
     return ret.str();
   }
-  
+
   /////////////////////////////////
-  
+
   /*!
    * Checks if all values in \a this array are equal to \a val at precision \a eps.
    *  \param [in] val - value to check equality of array values to.
@@ -3629,7 +3639,7 @@ struct NotInRange
   /*!
    * Equivalent to DataArrayInt::isEqual except that if false the reason of
    * mismatch is given.
-   * 
+   *
    * \param [in] other the instance to be compared with \a this
    * \param [out] reason In case of inequality returns the reason.
    * \sa DataArrayInt::isEqual
@@ -3654,7 +3664,7 @@ struct NotInRange
     std::string tmp;
     return isEqualIfNotWhy(other,tmp);
   }
-  
+
   /*!
    * Returns a new instance of DataArrayInt. The caller is to delete this array
    * using decrRef() as it is no more needed.
@@ -3664,7 +3674,7 @@ struct NotInRange
   {
     return new typename Traits<T>::ArrayType;
   }
-  
+
   /*!
    * Checks if values of \a this and another DataArrayInt are equal. For more info see
    * \ref MEDCouplingArrayBasicsCompare.
@@ -3694,7 +3704,7 @@ struct NotInRange
     b->sort();
     return a->isEqualWithoutConsideringStr(*b);
   }
-  
+
   template<class T>
   template<class ALG>
   void DataArrayDiscrete<T>::switchOnTupleAlg(T val, std::vector<bool>& vec, ALG algo) const
@@ -3710,7 +3720,7 @@ struct NotInRange
       if(algo(pt[i],val))
         vec[i]=true;
   }
-  
+
   /*!
    * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple equal to \a val
    * put True to the corresponding entry in \a vec.
@@ -3728,7 +3738,7 @@ struct NotInRange
    * This method assumes that \a this has one component and is allocated. This method scans all tuples in \a this and for all tuple different from \a val
    * put True to the corresponding entry in \a vec.
    * \a vec is expected to be with the same size than the number of tuples of \a this.
-   * 
+   *
    *  \sa DataArrayInt::switchOnTupleEqualTo.
    */
   template<class T>
@@ -3780,7 +3790,7 @@ struct NotInRange
   /*!
    * Creates a new one-dimensional DataArrayInt of the same size as \a this and a given
    * one-dimensional arrays that must be of the same length. The result array describes
-   * correspondence between \a this and \a other arrays, so that 
+   * correspondence between \a this and \a other arrays, so that
    * <em> other.getIJ(i,0) == this->getIJ(ret->getIJ(i),0)</em>. If such a permutation is
    * not possible because some element in \a other is not in \a this, an exception is thrown.
    *  \param [in] other - an array to compute permutation to.
@@ -3791,7 +3801,7 @@ struct NotInRange
    *  \throw If \a other->getNumberOfComponents() != 1.
    *  \throw If \a this->getNumberOfTuples() != \a other->getNumberOfTuples().
    *  \throw If \a other includes a value which is not in \a this array.
-   * 
+   *
    *  \if ENABLE_EXAMPLES
    *  \ref cpp_mcdataarrayint_buildpermutationarr "Here is a C++ example".
    *
@@ -4271,9 +4281,9 @@ struct NotInRange
   /*!
    * Computes distribution of values of \a this one-dimensional array between given value
    * ranges (casts). This method is typically useful for entity number splitting by types,
-   * for example. 
+   * for example.
    *  \warning The values contained in \a arrBg should be sorted ascendently. No
-   *           check of this is be done. If not, the result is not warranted. 
+   *           check of this is be done. If not, the result is not warranted.
    *  \param [in] arrBg - the array of ascending values defining the value ranges. The i-th
    *         value of \a arrBg (\a arrBg[ i ]) gives the lowest value of the i-th range,
    *         and the greatest value of the i-th range equals to \a arrBg[ i+1 ] - 1. \a
@@ -4560,7 +4570,7 @@ struct NotInRange
 
   /*!
    * Creates a map, whose contents are computed
-   * from values of \a this array, which is supposed to contain a renumbering map in 
+   * from values of \a this array, which is supposed to contain a renumbering map in
    * "New to Old" mode. The result array contains a renumbering map in "New to Old" mode as C++ map for performance reasons.
    *
    * \sa invertArrayN2O2O2NOptimized, MEDCouplingPointSet::renumberNodesInConn
@@ -4934,7 +4944,7 @@ struct NotInRange
         ret->pushBackSilent(i);
     return ret.retn();
   }
-  
+
   /*!
    * Creates a new DataArrayInt containing IDs (indices) of tuples holding tuple equal to those defined by [ \a tupleBg , \a tupleEnd )
    * This method is an extension of  DataArrayInt::findIdsEqual method.
@@ -5001,7 +5011,7 @@ struct NotInRange
         ret->pushBackSilent(i);
     return ret.retn();
   }
-  
+
   /*!
    * Creates a new DataArrayInt containing IDs (indices) of tuples holding values \b not
    * equal to any of given values.
@@ -5046,7 +5056,7 @@ struct NotInRange
       return ToIdType(std::distance(cptr,ret));
     return -1;
   }
-  
+
   /*!
    * This method expects to be called when number of components of this is equal to one.
    * This method returns the tuple id, if it exists, of the first tuple so that the value is contained in \b vals.
@@ -5198,8 +5208,8 @@ struct NotInRange
   {
     return this->findIdFirstEqualTuple(tupl)!=-1;
   }
-  
-  
+
+
   /*!
    * Returns \a true if a given value is present within \a this one-dimensional array.
    *  \param [in] value - the value to find within \a this array.
@@ -5213,7 +5223,7 @@ struct NotInRange
   {
     return this->findIdFirstEqual(value)!=-1;
   }
-  
+
   /*!
    * This method expects to be called when number of components of this is equal to one.
    * This method returns true if it exists a tuple so that the value is contained in \b vals.
@@ -5244,7 +5254,7 @@ struct NotInRange
     for(mcIdType i=0;i<nbTuple;i++)
       std::transform(ptr+i*nbComps,ptr+(i+1)*nbComps,res,res,std::plus<T>());
   }
-  
+
   template <class T>
   T DataArrayDiscrete<T>::accumulate(std::size_t compId) const
   {
@@ -5478,7 +5488,7 @@ struct NotInRange
       }
     this->declareAsNew();
   }
-  
+
   /*!
    * Modify all elements of \a this array, so that
    * an element _x_ becomes \f$ val ^ x \f$.
@@ -5532,7 +5542,7 @@ struct NotInRange
     MCAuto<DataArrayIdType> ret(this->findIdsAdv(ir));
     return ret.retn();
   }
-  
+
   /*!
    * This method works only on data array with one component.
    * This method returns a newly allocated array storing stored ascendantly tuple ids in \b this so that
@@ -5727,7 +5737,7 @@ struct NotInRange
    * Locate groups of all consecutive same values in \a this and return them into an indexed array of positions pointing to \a this starting with 0.
    * Number of tuples of returned array is equal to size of \a this->buildUnique() + 1.
    * Last value of returned array is equal to \a this->getNumberOfTuples()
-   * 
+   *
    * \b Example:
    * - \a this : [0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 5, 11]
    * - \a return is : [0, 1, 3, 5, 6, 8, 11, 12]
@@ -6784,9 +6794,9 @@ struct NotInRange
    * \a ids1 and \a ids2 are expected to be both a list of ids (both with number of components equal to one) not sorted and with values that can be negative.
    * This method will throw an exception is no such permutation array can be obtained. It is typically the case if there is some ids in \a ids1 not in \a ids2 or
    * inversely.
-   * The difference with DataArrayInt::FindPermutationFromFirstToSecond is that this method supports multiple same values in \a ids1 and \a ids2 whereas 
+   * The difference with DataArrayInt::FindPermutationFromFirstToSecond is that this method supports multiple same values in \a ids1 and \a ids2 whereas
    * DataArrayInt::FindPermutationFromFirstToSecond doesn't. It implies that this method my be slower than the DataArrayInt::FindPermutationFromFirstToSecond one.
-   * 
+   *
    * In case of success both assertion will be true (no throw) :
    * \c ids1->renumber(ret)->isEqual(ids2) where \a ret is the return of this method.
    * \c ret->transformWithIndArr(ids2)->isEqual(ids1)
@@ -6848,10 +6858,10 @@ struct NotInRange
       }
       else
       {
-        std::ostringstream oss; oss << MSG0 << "At pos " << std::distance(ids1->begin(),it1) << " value is " << *it1 << " and occurence rank is " << occRk1 << ". No such item into second array !"; 
+        std::ostringstream oss; oss << MSG0 << "At pos " << std::distance(ids1->begin(),it1) << " value is " << *it1 << " and occurence rank is " << occRk1 << ". No such item into second array !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
-      
+
     }
     return ret.retn();
   }

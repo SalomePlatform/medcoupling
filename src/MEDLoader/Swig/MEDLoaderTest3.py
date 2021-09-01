@@ -3158,8 +3158,16 @@ class MEDLoaderTest3(unittest.TestCase):
         ff1=ff0i.convertToDouble()
         self.assertTrue(ff1.getUndergroundDataArray().isEqual(ff0.getUndergroundDataArray(),1e-13))
         self.assertEqual(ff1.getFieldSplitedByType(),fspExp)
+        # For int64
+        ff0i64=ff0.convertToInt64()
+        self.assertEqual(ff0i64.getFieldSplitedByType(),fspExp)
+        self.assertTrue(arr.convertToInt64Arr().isEqual(ff0i64.getUndergroundDataArray()))
+        #
+        ff2=ff0i64.convertToDouble()
+        self.assertTrue(ff2.getUndergroundDataArray().isEqual(ff0.getUndergroundDataArray(),1e-13))
+        self.assertEqual(ff2.getFieldSplitedByType(),fspExp)
         # With profiles
-        del arr,f0,ff0,ff1,ff0i,fspExp
+        del arr,f0,ff0,ff1,ff2,ff0i,ff0i64,fspExp
         ff0=MEDFileField1TS()
         f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m[:7]) ; arr=DataArrayDouble(7*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["XX [pm]","YYY [hm]"]) ; f0.setArray(arr) ; f0.setName("FieldCellPfl")
         f0.checkConsistencyLight()
@@ -3177,6 +3185,16 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(isinstance(ff1,MEDFileField1TS))
         self.assertTrue(ff1.getUndergroundDataArray().isEqual(ff0.getUndergroundDataArray(),1e-13))
         self.assertEqual(ff1.getFieldSplitedByType(),fspExp)
+        # For Int64
+        ff0i64=ff0.convertToInt64()
+        self.assertTrue(isinstance(ff0i64,MEDFileInt64Field1TS))
+        self.assertEqual(ff0i64.getFieldSplitedByType(),fspExp)
+        self.assertTrue(arr.convertToInt64Arr().isEqual(ff0i64.getUndergroundDataArray()))
+        #
+        ff2=ff0i64.convertToDouble()
+        self.assertTrue(isinstance(ff2,MEDFileField1TS))
+        self.assertTrue(ff2.getUndergroundDataArray().isEqual(ff0.getUndergroundDataArray(),1e-13))
+        self.assertEqual(ff2.getFieldSplitedByType(),fspExp)
         ## MultiTimeSteps
         ff0=MEDFileFieldMultiTS()
         f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m[:7]) ; arr=DataArrayDouble(7*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["X [km]","YY [mm]"]) ; f0.setArray(arr) ; f0.setName("FieldCellMTime") ; f0.setTime(0.1,0,10)

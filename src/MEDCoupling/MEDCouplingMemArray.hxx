@@ -45,7 +45,7 @@ namespace MEDCoupling
   // -- WARNING this enum must be synchronized with MEDCouplingCommon.i file ! --
 
   class PartDefinition;
-  
+
   template<class T>
   class MEDCouplingPointer
   {
@@ -338,6 +338,7 @@ namespace MEDCoupling
   public:
     MCAuto<DataArrayDouble> convertToDblArr() const;
     MCAuto<DataArrayInt> convertToIntArr() const;
+    MCAuto<DataArrayInt64> convertToInt64Arr() const;
     MCAuto<DataArrayFloat> convertToFloatArr() const;
     void applyLin(T a, T b, std::size_t compoId);
     void applyLin(T a, T b);
@@ -386,7 +387,7 @@ namespace MEDCoupling
     template<class FCT>
     void somethingEqual(const typename Traits<T>::ArrayType *other);
   };
-  
+
   template<class T>
   class DataArrayTemplateFP : public DataArrayTemplateClassic<T>
   {
@@ -700,7 +701,7 @@ namespace MEDCoupling
   protected:
     ~DataArrayDiscrete() { }
   };
-  
+
   template<class T>
   class DataArrayDiscreteSigned : public DataArrayDiscrete<T>
   {
@@ -831,7 +832,7 @@ namespace MEDCoupling
     DataArrayChar *buildEmptySpecializedDAChar() const;
     DataArrayByteIterator *iterator();
     DataArrayByte *deepCopy() const;
-    DataArrayByte *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); } 
+    DataArrayByte *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     DataArrayByte *performCopyOrIncrRef(bool deepCopy) const;
     DataArrayByte *buildNewEmptyInstance() const { return DataArrayByte::New(); }
     char byteValue() const;
@@ -948,7 +949,7 @@ namespace MEDCoupling
     float floatValue() const;
     DataArrayFloat *buildDAFloat(std::size_t nbOfTuples, std::size_t nbOfCompo) const;
   };
-  
+
   class MEDCOUPLING_EXPORT DataArrayInt32Iterator : public DataArrayIterator<Int32>
   {
   public:
@@ -1013,7 +1014,7 @@ namespace MEDCoupling
     char *_pt;
     std::size_t _nb_of_compo;
   };
-  
+
   class DataArrayByteTuple;
 
   class MEDCOUPLING_EXPORT DataArrayByteIterator

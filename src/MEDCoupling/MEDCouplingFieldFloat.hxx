@@ -31,7 +31,7 @@ namespace MEDCoupling
 {
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldTemplate;
-  
+
   class MEDCouplingFieldFloat : public MEDCouplingFieldT<float>
   {
   public:
@@ -40,6 +40,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt32 *convertToIntField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *convertToInt64Field() const;
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldFloat"); }
   protected:
     MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscretization td);

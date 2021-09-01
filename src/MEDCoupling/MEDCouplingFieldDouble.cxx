@@ -22,6 +22,7 @@
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldT.txx"
 #include "MEDCouplingFieldInt32.hxx"
+#include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
@@ -47,18 +48,18 @@ template class MEDCoupling::MEDCouplingFieldT<double>;
  * Creates a new MEDCouplingFieldDouble, of given spatial type and time discretization.
  * For more info, see \ref MEDCouplingFirstSteps3.
  * \param [in] type - the type of spatial discretization of the created field, one of
- *        (\ref MEDCoupling::ON_CELLS "ON_CELLS", 
+ *        (\ref MEDCoupling::ON_CELLS "ON_CELLS",
  *         \ref MEDCoupling::ON_NODES "ON_NODES",
- *         \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ *         \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT",
  *         \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
  *         \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
- *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
- *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME",
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME",
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME",
  *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
- *         caller is to delete this field using decrRef() as it is no more needed. 
+ *         caller is to delete this field using decrRef() as it is no more needed.
  */
 MEDCouplingFieldDouble* MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTimeDiscretization td)
 {
@@ -67,7 +68,7 @@ MEDCouplingFieldDouble* MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTime
 
 /*!
  * Creates a new MEDCouplingFieldDouble, of a given time discretization and with a
- * spatial type and supporting mesh copied from a given 
+ * spatial type and supporting mesh copied from a given
  * \ref MEDCouplingFieldTemplatesPage "field template".
  * For more info, see \ref MEDCouplingFirstSteps3.
  * \warning This method does not deeply copy neither the mesh nor the spatial
@@ -76,12 +77,12 @@ MEDCouplingFieldDouble* MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTime
  * \param [in] ft - the \ref MEDCouplingFieldTemplatesPage "field template" defining
  *        the spatial discretization and the supporting mesh.
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
- *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
- *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME",
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME",
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME",
  *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
- *         caller is to delete this field using decrRef() as it is no more needed. 
+ *         caller is to delete this field using decrRef() as it is no more needed.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td)
 {
@@ -104,7 +105,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(const MEDCouplingFieldTempla
 /*!
  * This method if possible the time information (time unit, time iteration, time unit and time value) with its support
  * that is to say its mesh.
- * 
+ *
  * \throw  If \c this->_mesh is null an exception will be thrown. An exception will also be throw if the spatial discretization is
  *         NO_TIME.
  */
@@ -121,11 +122,11 @@ void MEDCouplingFieldDouble::synchronizeTimeWithSupport()
  * - \ref MEDCouplingTemporalDisc "temporal discretization" data that holds array(s)
  * of field values,
  * - \ref MEDCouplingSpatialDisc "a spatial discretization".
- * 
+ *
  * \c clone(false) is rather dedicated for advanced users that want to limit the amount
  * of memory. It allows the user to perform methods like operator+(), operator*()
  * etc. with \a this and the returned field. If the user wants to duplicate deeply the
- * underlying mesh he should call cloneWithMesh() method or deepCopy() instead. 
+ * underlying mesh he should call cloneWithMesh() method or deepCopy() instead.
  * \warning The underlying \b mesh of the returned field is **always the same**
  *         (pointer) as \a this one **whatever the value** of \a recDeepCpy parameter.
  *  \param [in] recDeepCpy - if \c true, the copy of the underlying data arrays is
@@ -161,15 +162,15 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCopy() const
  * shares the data array(s) with \a this field, or holds a deep copy of it, depending on
  * \a deepCopy parameter. But the underlying \b mesh is always **shallow copied**.
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
- *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
- *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME",
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME",
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME",
  *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \param [in] deepCpy - if \c true, the copy of the underlying data arrays is
  *         deep, else all data arrays of \a this field are shared by the new field.
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
- *         caller is to delete this field using decrRef() as it is no more needed. 
- * 
+ *         caller is to delete this field using decrRef() as it is no more needed.
+ *
  * \if ENABLE_EXAMPLES
  * \ref cpp_mcfielddouble_buildNewTimeReprFromThis "Here is a C++ example."<br>
  * \ref py_mcfielddouble_buildNewTimeReprFromThis "Here is a Python example."
@@ -198,7 +199,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
  *         caller is to delete this field using decrRef() as it is no more needed. The returned field will share the same mesh object object than those in \a this.
  * \throw If \a this spatial discretization is empty or not ON_NODES.
  * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkConsistencyLight).
- * 
+ *
  * \warning This method is a \b non \b conservative method of remapping from node spatial discretization to cell spatial discretization.
  * If a conservative method of interpolation is required MEDCoupling::MEDCouplingRemapper class should be used instead with "P1P0" method.
  */
@@ -371,7 +372,7 @@ bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *
 
 /*!
  * Permutes values of \a this field according to a given permutation array for node
- * renumbering. The underlying mesh is deeply copied and its nodes are also permuted. 
+ * renumbering. The underlying mesh is deeply copied and its nodes are also permuted.
  * The number of nodes can change, contrary to renumberCells().
  *  \param [in] old2NewBg - the permutation array in "Old to New" mode. Its length is
  *         to be equal to \a this->getMesh()->getNumberOfNodes().
@@ -382,7 +383,7 @@ bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *
  *  \throw If \a check == \c true and \a old2NewBg contains equal ids.
  *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
  *  \throw If values at merged nodes differ more than \a eps.
- * 
+ *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_renumberNodes "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_renumberNodes "Here is a Python example".
@@ -403,17 +404,17 @@ void MEDCouplingFieldDouble::renumberNodes(const mcIdType *old2NewBg, double eps
 
 /*!
  * Permutes values of \a this field according to a given permutation array for nodes
- * renumbering. The underlying mesh is \b not permuted. 
+ * renumbering. The underlying mesh is \b not permuted.
  * The number of nodes can change, contrary to renumberCells().
  * A given epsilon specifies a threshold of error in case of two nodes are merged but
  * the difference of values on these nodes are higher than \a eps.
  * This method performs a part of job of renumberNodes(), excluding node renumbering
  * in mesh. The reasonable use of this
  * method is only for multi-field instances lying on the same mesh to avoid a
- * systematic duplication and renumbering of _mesh attribute. 
+ * systematic duplication and renumbering of _mesh attribute.
  * \warning Use this method with a lot of care!
  * \warning In case of an exception thrown, the contents of the data array can be
- *         partially modified until the exception occurs. 
+ *         partially modified until the exception occurs.
  *  \param [in] old2NewBg - the permutation array in "Old to New" mode. Its length is
  *         to be equal to \a this->getMesh()->getNumberOfNodes().
  *  \param [in] newNbOfNodes - a number of nodes in the mesh after renumbering.
@@ -474,7 +475,10 @@ MEDCouplingFieldInt32 *MEDCouplingFieldDouble::convertToIntField() const
 {
   return ConvertToUField<int>(this);
 }
-
+MEDCouplingFieldInt64 *MEDCouplingFieldDouble::convertToInt64Field() const
+{
+  return ConvertToUField<Int64>(this);
+}
 MEDCouplingFieldFloat *MEDCouplingFieldDouble::convertToFloatField() const
 {
   return ConvertToUField<float>(this);
@@ -516,7 +520,7 @@ double MEDCouplingFieldDouble::accumulate(int compId) const
 
 /*!
  * Accumulates values of each component of \a this array.
- *  \param [out] res - an array of length \a this->getNumberOfComponents(), allocated 
+ *  \param [out] res - an array of length \a this->getNumberOfComponents(), allocated
  *         by the caller, that is filled by this method with sum value for each
  *         component.
  *  \throw If the data array is not set.
@@ -686,7 +690,7 @@ double MEDCouplingFieldDouble::norm2() const
 
 /*!
  * Computes the weighted average of values of each component of \a this field, the weights being the
- * values returned by buildMeasureField().  
+ * values returned by buildMeasureField().
  *  \param [out] res - pointer to an array of result sum values, of size at least \a
  *         this->getNumberOfComponents(), that is to be allocated by the caller.
  *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weights computed by
@@ -986,7 +990,7 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) con
  *  \param [in] nbOfPoints - number of points of interest.
  *  \return DataArrayDouble * - a new instance of DataArrayDouble holding field
  *         values relating to the input points. This array is of size \a nbOfPoints
- *         tuples per \a this->getNumberOfComponents() components. The caller is to 
+ *         tuples per \a this->getNumberOfComponents() components. The caller is to
  *         delete this array using decrRef() as it is no more needed.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the mesh is not set.
@@ -1165,7 +1169,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& f
  * a corresponding node coordinates array (where it is set via
  * DataArrayDouble::setInfoOnComponent()).<br>
  * For more info on supported expressions that can be used in the function, see \ref
- * MEDCouplingArrayApplyFuncExpr. <br> 
+ * MEDCouplingArrayApplyFuncExpr. <br>
  * In a general case, a value resulting from the function evaluation is assigned to all
  * components of a field value. But there is a possibility to have its own expression for
  * each component within one function. For this purpose, there are predefined variable
@@ -1415,7 +1419,7 @@ void MEDCouplingFieldDouble::applyFuncNamedCompo(int nbOfComp, const std::vector
  * MEDCouplingArrayApplyFuncExpr. <br>
  * The function can include **only one** arbitrary named variable
  * (e.g. "x","y" or "va44") to refer to a field atomic value. <br>
- * In a general case, a value resulting from the function evaluation is assigned to 
+ * In a general case, a value resulting from the function evaluation is assigned to
  * a single field value. But there is a possibility to have its own expression for
  * each component within one function. For this purpose, there are predefined variable
  * names (IVec, JVec, KVec, LVec etc) each dedicated to a certain component (IVec, to
@@ -1477,10 +1481,10 @@ std::size_t MEDCouplingFieldDouble::getNumberOfComponents() const
  * Use MEDCouplingField::getNumberOfTuplesExpected instead of this method. This method will be removed soon, because it is
  * confusing compared to getNumberOfComponents() and getNumberOfValues() behaviour.
  *
- * Returns number of tuples in \a this field, that depends on 
+ * Returns number of tuples in \a this field, that depends on
  * - the number of entities in the underlying mesh
  * - \ref MEDCouplingSpatialDisc "spatial discretization" of \a this field (e.g. number
- * of Gauss points if \a this->getTypeOfField() == 
+ * of Gauss points if \a this->getTypeOfField() ==
  * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT").
  *
  * The returned value does \b not \b depend on the number of tuples in the data array
@@ -1557,7 +1561,7 @@ std::vector<const BigMemoryObject *> MEDCouplingFieldDouble::getDirectChildrenWi
  *  \throw If the data array is not set.
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If \a this field if of type other than 
+ *  \throw If \a this field if of type other than
  *         \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT" or
  *         \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE".
  */
@@ -1569,7 +1573,7 @@ double MEDCouplingFieldDouble::getIJK(mcIdType cellId, int nodeIdInCell, int com
 }
 
 /*!
- * Sets the data array. 
+ * Sets the data array.
  *  \param [in] array - the data array holding values of \a this field. It's size
  *         should correspond to the mesh and
  *         \ref MEDCouplingSpatialDisc "spatial discretization" of \a this field
@@ -1641,7 +1645,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
  * Subtracts another field from \a this one in case when the two fields have different
  * supporting meshes. The subtraction is performed provided that the tho meshes can be
  * considered equal with use of specified equality criteria, else an exception is thrown.
- * If the meshes match, the mesh of \a f is set to \a this field (\a this is permuted if 
+ * If the meshes match, the mesh of \a f is set to \a this field (\a this is permuted if
  * necessary) and field values are subtracted. No interpolation is done here, only an
  * analysis of two underlying mesh is done to see if the meshes are geometrically
  * equivalent.<br>
@@ -1842,7 +1846,7 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals)
 /*!
  * This method calls MEDCouplingUMesh::buildSlice3D method. So this method makes the assumption that underlying mesh exists.
  * For the moment, this method is implemented for fields on cells.
- * 
+ *
  * \return a newly allocated field double containing the result that the user should deallocate.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::extractSlice3D(const double *origin, const double *vec, double eps) const
@@ -1880,12 +1884,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::extractSlice3D(const double *ori
 /*!
  * Divides every cell of the underlying mesh into simplices (triangles in 2D and
  * tetrahedra in 3D). If some cells are divided, the underlying mesh is replaced by a new
- * mesh instance containing the simplices.<br> 
+ * mesh instance containing the simplices.<br>
  *  \param [in] policy - specifies a pattern used for splitting. For its description, see
  *          MEDCouplingUMesh::simplexize().
  *  \return bool - \c true if some cells have been divided and hence \a this field lies
  *         on another mesh.
- *  \throw If \a policy has an invalid value. For valid values, see the description of 
+ *  \throw If \a policy has an invalid value. For valid values, see the description of
  *         MEDCouplingUMesh::simplexize().
  *  \throw If MEDCouplingMesh::simplexize() is not applicable to the underlying mesh.
  *  \throw If the mesh is not well defined.
@@ -2045,7 +2049,7 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::convertQuadraticCellsToLi
  * Finally \a this is also expected to be consistent.
  * In these conditions this method returns a newly created field (to be dealed by the caller).
  * The returned field will also 3 compo vector field be on nodes lying on the same mesh than \a this.
- * 
+ *
  * For each 3 compo tuple \a tup in \a this the returned tuple is the result of the transformation of \a tup in the new referential. This referential is defined by \a Ur, \a Uteta, \a Uz.
  * \a Ur is the vector between \a center point and the associated node with \a tuple. \a Uz is \a vect normalized. And Uteta is the cross product of \a Uz with \a Ur.
  *
@@ -2068,7 +2072,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::computeVectorFieldCyl(const doub
  * every tensor of \a this 6-componental field.
  *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, whose
  *          each tuple is calculated from the tuple <em>(t)</em> of \a this field as
- *          follows: \f$ t[0]^2+t[1]^2+t[2]^2+2*t[3]^2+2*t[4]^2+2*t[5]^2\f$. 
+ *          follows: \f$ t[0]^2+t[1]^2+t[2]^2+2*t[3]^2+2*t[4]^2+2*t[5]^2\f$.
  *          This new field lies on the same mesh as \a this one. The caller is to delete
  *          this field using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
@@ -2089,10 +2093,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::doublyContractedProduct() const
 /*!
  * Creates a new MEDCouplingFieldDouble filled with the determinant of a square
  * matrix defined by every tuple of \a this field, having either 4, 6 or 9 components.
- * The case of 6 components corresponds to that of the upper triangular matrix. 
+ * The case of 6 components corresponds to that of the upper triangular matrix.
  *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, whose
- *          each tuple is the determinant of matrix of the corresponding tuple of \a this 
- *          field. This new field lies on the same mesh as \a this one. The caller is to 
+ *          each tuple is the determinant of matrix of the corresponding tuple of \a this
+ *          field. This new field lies on the same mesh as \a this one. The caller is to
  *          delete this field using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  *  \throw If the spatial discretization of \a this field is NULL.
@@ -2113,11 +2117,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::determinant() const
 /*!
  * Creates a new MEDCouplingFieldDouble with 3 components filled with 3 eigenvalues of
  * an upper triangular matrix defined by every tuple of \a this 6-componental field.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, 
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble,
  *          having 3 components, whose each tuple contains the eigenvalues of the matrix of
  *          corresponding tuple of \a this field. This new field lies on the same mesh as
  *          \a this one. The caller is to delete this field using decrRef() as it is no
- *          more needed.  
+ *          more needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
@@ -2136,11 +2140,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenValues() const
 /*!
  * Creates a new MEDCouplingFieldDouble with 9 components filled with 3 eigenvectors of
  * an upper triangular matrix defined by every tuple of \a this 6-componental field.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, 
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble,
  *          having 9 components, whose each tuple contains the eigenvectors of the matrix of
  *          corresponding tuple of \a this field. This new field lies on the same mesh as
  *          \a this one. The caller is to delete this field using decrRef() as it is no
- *          more needed.  
+ *          more needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
@@ -2161,11 +2165,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenVectors() const
  * a matrix defined by every tuple of \a this field having either 4, 6 or 9
  * components. The case of 6 components corresponds to that of the upper triangular
  * matrix.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, 
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble,
  *          having the same number of components as \a this one, whose each tuple
  *          contains the inverse matrix of the matrix of corresponding tuple of \a this
  *          field. This new field lies on the same mesh as \a this one. The caller is to
- *          delete this field using decrRef() as it is no more needed.  
+ *          delete this field using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  *  \throw If the spatial discretization of \a this field is NULL.
  */
@@ -2186,11 +2190,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::inverse() const
  * a matrix defined by every tuple of \a this field having either 4, 6 or 9
  * components. The case of 6 components corresponds to that of the upper triangular
  * matrix.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, 
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble,
  *          having 1 component, whose each tuple is the trace of the matrix of
  *          corresponding tuple of \a this field.
  *          This new field lies on the same mesh as \a this one. The caller is to
- *          delete this field using decrRef() as it is no more needed.  
+ *          delete this field using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  *  \throw If the spatial discretization of \a this field is NULL.
  */
@@ -2209,12 +2213,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::trace() const
 /*!
  * Creates a new MEDCouplingFieldDouble filled with the stress deviator tensor of
  * a stress tensor defined by every tuple of \a this 6-componental field.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, 
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble,
  *          having same number of components and tuples as \a this field,
  *          whose each tuple contains the stress deviator tensor of the stress tensor of
  *          corresponding tuple of \a this field. This new field lies on the same mesh as
  *          \a this one. The caller is to delete this field using decrRef() as it is no
- *          more needed.  
+ *          more needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
@@ -2233,11 +2237,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deviator() const
 /*!
  * Creates a new MEDCouplingFieldDouble filled with the magnitude of
  * every vector of \a this field.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, 
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble,
  *          having one component, whose each tuple is the magnitude of the vector
  *          of corresponding tuple of \a this field. This new field lies on the
  *          same mesh as \a this one. The caller is to
- *          delete this field using decrRef() as it is no more needed.  
+ *          delete this field using decrRef() as it is no more needed.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::magnitude() const
@@ -2257,7 +2261,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::magnitude() const
  * values of every tuple of \a this field.
  *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble.
  *          This new field lies on the same mesh as \a this one. The caller is to
- *          delete this field using decrRef() as it is no more needed.  
+ *          delete this field using decrRef() as it is no more needed.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxPerTuple() const
@@ -2278,8 +2282,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxPerTuple() const
  * Changes number of components in \a this field. If \a newNbOfComp is less
  * than \a this->getNumberOfComponents() then each tuple
  * is truncated to have \a newNbOfComp components, keeping first components. If \a
- * newNbOfComp is more than \a this->getNumberOfComponents() then 
- * each tuple is populated with \a dftValue to have \a newNbOfComp components.  
+ * newNbOfComp is more than \a this->getNumberOfComponents() then
+ * each tuple is populated with \a dftValue to have \a newNbOfComp components.
  *  \param [in] newNbOfComp - number of components for the new field to have.
  *  \param [in] dftValue - value assigned to new values added to \a this field.
  *  \throw If \a this is not allocated.
@@ -2298,7 +2302,7 @@ void MEDCouplingFieldDouble::changeNbOfComponents(std::size_t newNbOfComp, doubl
  *              into the new field.
  *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble that the caller
  *          is to delete using decrRef() as it is no more needed.
- *  \throw If a component index (\a i) is not valid: 
+ *  \throw If a component index (\a i) is not valid:
  *         \a i < 0 || \a i >= \a this->getNumberOfComponents().
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::keepSelectedComponents(const std::vector<std::size_t>& compoIds) const
@@ -2347,7 +2351,7 @@ void MEDCouplingFieldDouble::sortPerTuple(bool asc)
  *  \param [in] f1 - the first field.
  *  \param [in] f2 - the second field.
  *  \return MEDCouplingFieldDouble * - the result field. It is a new instance of
- *          MEDCouplingFieldDouble. The caller is to delete this mesh using decrRef() 
+ *          MEDCouplingFieldDouble. The caller is to delete this mesh using decrRef()
  *          as it is no more needed.
  *  \throw If the fields are not compatible for the merge.
  *  \throw If the spatial discretization of \a f1 is NULL.
@@ -2369,12 +2373,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
  * Creates a new MEDCouplingFieldDouble by concatenating all given fields.
  * Values of the *i*-th field precede values of the (*i*+1)-th field within the result.
  * If there is only one field in \a a, a deepCopy() (except time information of mesh and
- * field) of the field is returned. 
+ * field) of the field is returned.
  * Generally speaking the first field in \a a is used to assign tiny attributes of the
- * returned field. 
+ * returned field.
  *  \param [in] a - a vector of fields (MEDCouplingFieldDouble) to concatenate.
  *  \return MEDCouplingFieldDouble * - the result field. It is a new instance of
- *          MEDCouplingFieldDouble. The caller is to delete this mesh using decrRef() 
+ *          MEDCouplingFieldDouble. The caller is to delete this mesh using decrRef()
  *          as it is no more needed.
  *  \throw If \a a is empty.
  *  \throw If the fields are not compatible for the merge.
@@ -2456,9 +2460,9 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MeldFields(const MEDCouplingFiel
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble containing a dot product of two given fields, 
+ * Returns a new MEDCouplingFieldDouble containing a dot product of two given fields,
  * so that the i-th tuple of the result field is a sum of products of j-th components of
- * i-th tuples of given fields (\f$ f_i = \sum_{j=1}^n f1_j * f2_j \f$). 
+ * i-th tuples of given fields (\f$ f_i = \sum_{j=1}^n f1_j * f2_j \f$).
  * Number of tuples and components in the given fields must be the same.
  *  \param [in] f1 - a given field.
  *  \param [in] f2 - another given field.
@@ -2483,7 +2487,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::DotFields(const MEDCouplingField
 }
 
 /*!
- * Returns a new MEDCouplingFieldDouble containing a cross product of two given fields, 
+ * Returns a new MEDCouplingFieldDouble containing a cross product of two given fields,
  * so that
  * the i-th tuple of the result field is a 3D vector which is a cross
  * product of two vectors defined by the i-th tuples of given fields.
@@ -2576,9 +2580,9 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MinFields(const MEDCouplingField
 /*!
  * Returns a copy of \a this field in which sign of all values is reversed.
  *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble
- *         containing the same number of tuples and components as \a this field. 
+ *         containing the same number of tuples and components as \a this field.
  *         The caller is to delete this result field using decrRef() as it is no more
- *         needed. 
+ *         needed.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If a data array is not allocated.
  */
@@ -2803,7 +2807,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCoupli
 
 /*!
  * Directly called by MEDCouplingFieldDouble::operator^.
- * 
+ *
  * \sa MEDCouplingFieldDouble::operator^
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
@@ -2821,7 +2825,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::PowFields(const MEDCouplingField
 
 /*!
  * Directly call MEDCouplingFieldDouble::PowFields static method.
- * 
+ *
  * \sa MEDCouplingFieldDouble::PowFields
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::operator^(const MEDCouplingFieldDouble& other) const

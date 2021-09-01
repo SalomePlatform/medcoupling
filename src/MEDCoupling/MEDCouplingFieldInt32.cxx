@@ -19,8 +19,10 @@
 // Author : Yann Pora (EDF R&D)
 
 #include "MEDCouplingFieldInt32.hxx"
+#include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldT.txx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingMemArray.txx"
@@ -68,17 +70,33 @@ MEDCouplingFieldInt32 *MEDCouplingFieldInt32::clone(bool recDeepCpy) const
   return new MEDCouplingFieldInt32(*this,recDeepCpy);
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldInt32::convertToDblField() const
+template<class U>
+typename Traits<U>::FieldType *ConvertToUField(const MEDCouplingFieldInt32 *self)
 {
-  MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*this));
+  MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*self));
   int t1,t2;
-  double t0(getTime(t1,t2));
-  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(*tmp,getTimeDiscretization()));
+  double t0(self->getTime(t1,t2));
+  MCAuto<typename Traits<U>::FieldType > ret(Traits<U>::FieldType::New(*tmp,self->getTimeDiscretization()));
   ret->setTime(t0,t1,t2);
-  if(getArray())
+  if(self->getArray())
     {
-      MCAuto<DataArrayDouble> arr(getArray()->convertToDblArr());
+      MCAuto<typename Traits<U>::ArrayType> arr(self->getArray()->convertToOtherTypeOfArr<U>());
       ret->setArray(arr);
     }
   return ret.retn();
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldInt32::convertToDblField() const
+{
+  return ConvertToUField<double>(this);
+}
+
+MEDCouplingFieldInt64 *MEDCouplingFieldInt32::convertToInt64Field() const
+{
+  return ConvertToUField<Int64>(this);
+}
+
+MEDCouplingFieldFloat *MEDCouplingFieldInt32::convertToFloatField() const
+{
+  return ConvertToUField<float>(this);
 }

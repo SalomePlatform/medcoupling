@@ -50,6 +50,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *nodeToCellDiscretization() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cellToNodeDiscretization() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt32 *convertToIntField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *convertToInt64Field() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *convertToFloatField() const;
     MEDCOUPLING_EXPORT double getIJK(mcIdType cellId, int nodeIdInCell, int compoId) const;
     MEDCOUPLING_EXPORT double accumulate(int compId) const;

@@ -230,6 +230,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtLevelOld;
 %newobject MEDCoupling::MEDFileField1TS::getUndergroundDataArray;
 %newobject MEDCoupling::MEDFileField1TS::convertToInt;
+%newobject MEDCoupling::MEDFileField1TS::convertToInt64;
 
 %newobject MEDCoupling::MEDFileInt32Field1TS::New;
 %newobject MEDCoupling::MEDFileInt32Field1TS::field;
@@ -453,7 +454,7 @@ namespace MEDCoupling
     PyTuple_SetItem(ret,1,b.retn());
     return ret.retn();
   }
-  
+
   MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName));
@@ -465,13 +466,13 @@ namespace MEDCoupling
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName,fieldName));
     return ret.retn();
   }
-  
+
   MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName, const std::string& fieldName, int iteration, int order)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName,fieldName,iteration,order));
     return ret.retn();
   }
-  
+
   MEDCoupling::MEDCouplingField *ReadFieldSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(type,fileName,meshName,meshDimRelToMax,fieldName,iteration,order));
@@ -492,7 +493,7 @@ namespace MEDCoupling
       }
     return ret;
   }
-  
+
   PyObject *GetAllFieldIterationsSwig(const std::string& fileName, const std::string& fieldName)
     {
       std::vector< std::pair< std::pair<int,int>, double> > res=MEDCoupling::GetAllFieldIterations(fileName,fieldName);
@@ -508,7 +509,7 @@ namespace MEDCoupling
         }
       return ret;
     }
-  
+
   PyObject *GetCellFieldIterationsSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
     {
       std::vector< std::pair<int,int> > res=MEDCoupling::GetCellFieldIterations(fileName,meshName,fieldName);
@@ -582,7 +583,7 @@ namespace MEDCoupling
       PyTuple_SetItem(ret,3,SWIG_From_long(numberOfNodes));
       return ret;
     }
-  
+
   PyObject *ReadFieldsOnSameMeshSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax,
                                      const std::string& fieldName, PyObject *liIts)
     {
@@ -590,28 +591,28 @@ namespace MEDCoupling
       std::vector<MEDCoupling::MEDCouplingFieldDouble *> res=MEDCoupling::ReadFieldsOnSameMesh(type,fileName,meshName,meshDimRelToMax,fieldName,its);
       return convertFieldDoubleVecToPy(res);
     }
-  
+
   void WriteUMeshesPartitionSwig(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch)
   {
     std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
     convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
     MEDCoupling::WriteUMeshesPartition(fileName,meshName,v,writeFromScratch);
   }
-  
+
   void WriteUMeshesPartitionDepSwig(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch)
   {
     std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
     convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
     MEDCoupling::WriteUMeshesPartitionDep(fileName,meshName,v,writeFromScratch);
   }
-  
+
   void WriteUMeshesSwig(const std::string& fileName, PyObject *li, bool writeFromScratch)
   {
     std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
     convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
     MEDCoupling::WriteUMeshes(fileName,v,writeFromScratch);
   }
-  
+
   PyObject *GetTypesOfFieldSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
     {
       std::vector< MEDCoupling::TypeOfField > v=MEDCoupling::GetTypesOfField(fileName,meshName,fieldName);
@@ -621,7 +622,7 @@ namespace MEDCoupling
         PyList_SetItem(ret,i,PyInt_FromLong((int)v[i]));
       return ret;
     }
-  
+
   MEDCoupling::MEDCouplingUMesh *ReadUMeshFromGroupsSwig(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li)
     {
       std::vector<std::string> grps;
@@ -648,7 +649,7 @@ namespace MEDCoupling
     int getZipConnPolicy();
     void setZipConnPolicy(int newVal);
   };
-  
+
   class MEDFileWritableStandAlone : public MEDFileWritable
   {
   public:
@@ -674,7 +675,7 @@ namespace MEDCoupling
          }
        }
   };
-  
+
   class MEDFileMeshReadSelector
   {
   public:
@@ -706,7 +707,7 @@ namespace MEDCoupling
         self->reprAll(oss);
         return oss.str();
       }
-      
+
       std::string __repr__() const
       {
         std::ostringstream oss; oss << "MEDFileMeshReadSelector C++ instance at " << self << " (with code=" << self->getCode() << ").";
@@ -759,7 +760,7 @@ namespace MEDCoupling
       {
         return self->simpleRepr();
       }
-      
+
       DataArrayIdType *getCorrespondence() const
       {
         const DataArrayIdType *ret(self->getCorrespondence());
@@ -802,7 +803,7 @@ namespace MEDCoupling
       {
         return self->simpleRepr();
       }
-      
+
       MEDFileJointCorrespondence *getCorrespondenceAtPos(int i) const
       {
         MEDFileJointCorrespondence *ret(self->getCorrespondenceAtPos(i));
@@ -847,7 +848,7 @@ namespace MEDCoupling
       {
         return MEDFileJoint::New();
       }
-      
+
       MEDFileJoint(const std::string& fileName, const std::string& mName, int num)
       {
         return MEDFileJoint::New(fileName,mName,num);
@@ -862,7 +863,7 @@ namespace MEDCoupling
       {
         return self->simpleRepr();
       }
-      
+
       MEDFileJointOneStep *getStepAtPos(int i) const
       {
         MEDFileJointOneStep *ret(self->getStepAtPos(i));
@@ -899,7 +900,7 @@ namespace MEDCoupling
       {
         return MEDFileJoints::New();
       }
-      
+
       MEDFileJoints(const std::string& fileName, const std::string& meshName)
       {
         return MEDFileJoints::New(fileName,meshName);
@@ -948,7 +949,7 @@ namespace MEDCoupling
       }
     }
   };
-  
+
   class MEDFileEquivalenceBase : public RefCountObject, public MEDFileWritableStandAlone
   {
   private:
@@ -995,7 +996,7 @@ namespace MEDCoupling
         if(ret) ret->incrRef();
         return ret;
       }
-      
+
       PyObject *getTypes() const
       {
         std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getTypes());
@@ -1033,14 +1034,14 @@ namespace MEDCoupling
         if(ret) ret->incrRef();
         return ret;
       }
-      
+
       MEDFileEquivalenceCell *getCell()
       {
         MEDFileEquivalenceCell *ret(self->getCell());
         if(ret) ret->incrRef();
         return ret;
       }
-      
+
       MEDFileEquivalenceNode *getNode()
       {
         MEDFileEquivalenceNode *ret(self->getNode());
@@ -1049,7 +1050,7 @@ namespace MEDCoupling
       }
     }
   };
-  
+
   class MEDFileEquivalences : public RefCountObject, public MEDFileWritableStandAlone
   {
   private:
@@ -1269,7 +1270,7 @@ namespace MEDCoupling
            convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayIdType *>(li,SWIGTITraits<mcIdType>::TI,"DataArrayInt",grps);
            self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
          }
-         
+
          PyObject *areFamsEqual(const MEDFileMesh *other) const
          {
            std::string what;
@@ -1345,7 +1346,7 @@ namespace MEDCoupling
              tmp->incrRef();
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 );
          }
-         
+
          PyObject *getNameFieldAtLevel(int meshDimRelToMaxExt) const
          {
            const DataArrayAsciiChar *tmp=self->getNameFieldAtLevel(meshDimRelToMaxExt);
@@ -1363,7 +1364,7 @@ namespace MEDCoupling
            PyTuple_SetItem(ret,1,SWIG_From_bool(ret1));
            return ret;
          }
-         
+
          PyObject *unPolyze()
          {
            DataArrayIdType *ret3=0;
@@ -1458,7 +1459,7 @@ namespace MEDCoupling
     MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;
     MEDCouplingMappedExtrudedMesh *convertToExtrudedMesh() const;
     %extend
-       { 
+       {
          MEDFileUMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
          {
            return MEDFileUMesh::New(fileName,mName,dt,it,mrs);
@@ -1638,7 +1639,7 @@ namespace MEDCoupling
            std::vector< std::pair<int,mcIdType> > ret(self->getAllDistributionOfTypes());
            return convertVecPairIntToPy(ret);
          }
-         
+
          DataArrayIdType *deduceNodeSubPartFromCellSubPart(PyObject *extractDef) const
          {
            std::map<int, MCAuto<DataArrayIdType> > extractDefCpp;
@@ -1666,7 +1667,7 @@ namespace MEDCoupling
            convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",ms);
            self->setGroupsFromScratch(meshDimRelToMax,ms,renum);
          }
-         
+
          void setGroupsOnSetMesh(int meshDimRelToMax, PyObject *li, bool renum=false)
          {
            std::vector<const MEDCouplingUMesh *> ms;
@@ -1700,7 +1701,7 @@ namespace MEDCoupling
            PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(ret2),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
            return ret;
          }
-         
+
          MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const
          {
            MEDCoupling1GTUMesh *ret(self->getDirectUndergroundSingleGeoTypeMesh(gt));
@@ -1770,7 +1771,7 @@ namespace MEDCoupling
          {
            return MEDFileCMesh::New(db);
          }
-         
+
          PyObject *getMesh() const
          {
            const MEDCouplingCMesh *tmp=self->getMesh();
@@ -1812,7 +1813,7 @@ namespace MEDCoupling
          {
            return MEDFileCurveLinearMesh::New(db);
          }
-         
+
          PyObject *getMesh() const
          {
            const MEDCouplingCurveLinearMesh *tmp=self->getMesh();
@@ -1834,7 +1835,7 @@ namespace MEDCoupling
     void setOneTimeStep(MEDFileMesh *mesh1TimeStep);
     void cartesianizeMe();
     %extend
-       { 
+       {
          MEDFileMeshMultiTS()
          {
            return MEDFileMeshMultiTS::New();
@@ -1951,7 +1952,7 @@ namespace MEDCoupling
          {
            return self->getNumberOfMeshes();
          }
-         
+
          MEDFileMesh *getMeshAtPos(int i) const
            {
              MEDFileMesh *ret=self->getMeshAtPos(i);
@@ -2046,7 +2047,7 @@ namespace MEDCoupling
            loc->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_MEDCoupling__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
-       
+
        PyObject *getLocalization(const std::string& locName) const
        {
          const MEDFileFieldLoc *loc=&self->getLocalization(locName);
@@ -2054,7 +2055,7 @@ namespace MEDCoupling
            loc->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_MEDCoupling__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
-       
+
        PyObject *zipPflsNames()
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > ret=self->zipPflsNames();
@@ -2096,7 +2097,7 @@ namespace MEDCoupling
          std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
          self->changeLocsRefsNamesGen(v);
        }
-       
+
        void changeLocsNamesInStruct(PyObject *li)
        {
          std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
@@ -2190,7 +2191,7 @@ namespace MEDCoupling
       {
         self->setProfileNameOnLeaf(0,typ,locId,newPflName,forceRenameOnGlob);
       }
-      
+
       void setLocNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newLocName, bool forceRenameOnGlob=false)
       {
         self->setLocNameOnLeaf(0,typ,locId,newLocName,forceRenameOnGlob);
@@ -2201,7 +2202,7 @@ namespace MEDCoupling
         std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
         return self->changeMeshNames(modifTab);
       }
-      
+
       PyObject *getTypesOfFieldAvailable() const
       {
         std::vector<TypeOfField> ret=self->getTypesOfFieldAvailable();
@@ -2304,6 +2305,7 @@ namespace MEDCoupling
     static MEDFileField1TS *New(DataArrayByte *db);
     static MEDFileField1TS *New();
     MEDCoupling::MEDFileInt32Field1TS *convertToInt(bool isDeepCpyGlobs=true) const;
+    MEDCoupling::MEDFileInt64Field1TS *convertToInt64(bool isDeepCpyGlobs=true) const;
     void copyTimeInfoFrom(MEDCouplingFieldDouble *mcf);
     MEDCouplingFieldDouble *field(const MEDFileMesh *mesh) const;
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
@@ -2323,7 +2325,7 @@ namespace MEDCoupling
          {
            return MEDFileField1TS::New(fileName,loadAll);
          }
-         
+
          MEDFileField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
          {
            return MEDFileField1TS::New(fileName,fieldName,loadAll);
@@ -2343,7 +2345,7 @@ namespace MEDCoupling
          {
            return MEDFileField1TS::New();
          }
-         
+
          void copyTinyInfoFrom(const MEDCouplingFieldDouble *field)
          {
            const DataArrayDouble *arr=0;
@@ -2351,12 +2353,12 @@ namespace MEDCoupling
              arr=field->getArray();
            self->copyTinyInfoFrom(field,arr);
          }
-         
+
          std::string __str__() const
          {
            return self->simpleRepr();
          }
-         
+
          PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const
          {
            return MEDFileField1TS_getFieldWithProfile<double>(self,type,meshDimRelToMax,mesh);
@@ -2467,7 +2469,7 @@ namespace MEDCoupling
       {
          return MEDFileField1TS_getFieldWithProfile<Int32>(self,type,meshDimRelToMax,mesh);
       }
-      
+
       DataArrayInt32 *getUndergroundDataArray() const
       {
         DataArrayInt32 *ret=self->getUndergroundDataArray();
@@ -2539,7 +2541,7 @@ namespace MEDCoupling
       {
          return MEDFileField1TS_getFieldWithProfile<Int64>(self,type,meshDimRelToMax,mesh);
       }
-      
+
       DataArrayInt64 *getUndergroundDataArray() const
       {
         DataArrayInt64 *ret=self->getUndergroundDataArray();
@@ -2611,7 +2613,7 @@ namespace MEDCoupling
       {
          return MEDFileField1TS_getFieldWithProfile<float>(self,type,meshDimRelToMax,mesh);
       }
-      
+
       DataArrayFloat *getUndergroundDataArray() const
       {
         DataArrayFloat *ret=self->getUndergroundDataArray();
@@ -2619,7 +2621,7 @@ namespace MEDCoupling
           ret->incrRef();
         return ret;
       }
-      
+
       PyObject *getUndergroundDataArrayExt() const
       {
         return MEDFileField1TS_getUndergroundDataArrayExt<float>(self);
@@ -2717,13 +2719,13 @@ namespace MEDCoupling
         else
           throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::__getitem__ : invalid input params ! expected fmts[int], fmts[int,int] or fmts[double] to request time step !");
       }
-      
+
       PyObject *getIterations() const
       {
         std::vector< std::pair<int,int> > res(self->getIterations());
         return convertVecPairIntToPy(res);
       }
-      
+
       PyObject *getTimeSteps() const
       {
         std::vector<double> ret1;
@@ -2740,7 +2742,7 @@ namespace MEDCoupling
           }
         return ret2;
       }
-      
+
       PyObject *getTypesOfFieldAvailable() const
       {
         std::vector< std::vector<TypeOfField> > ret=self->getTypesOfFieldAvailable();
@@ -2755,7 +2757,7 @@ namespace MEDCoupling
           }
         return ret2;
       }
-      
+
       PyObject *getNonEmptyLevels(int iteration, int order, const std::string& mname=std::string()) const
       {
         std::vector<int> ret1;
@@ -2765,7 +2767,7 @@ namespace MEDCoupling
         PyTuple_SetItem(elt,1,convertIntArrToPyList2(ret1));
         return elt;
       }
-      
+
       PyObject *getFieldSplitedByType(int iteration, int order, const std::string& mname=std::string()) const
       {
         std::vector<INTERP_KERNEL::NormalizedCellType> types;
@@ -2821,7 +2823,7 @@ namespace MEDCoupling
             return ret;
           }
       }
-      
+
       void __delitem__(PyObject *elts)
       {
         if(PySlice_Check(elts))
@@ -2837,7 +2839,7 @@ namespace MEDCoupling
               self->eraseTimeStepIds(&idsToRemove[0],&idsToRemove[0]+idsToRemove.size());
           }
       }
-      
+
       void eraseTimeStepIds(PyObject *li)
       {
         mcIdType sw;
@@ -2980,7 +2982,7 @@ namespace MEDCoupling
           }
         return retPy;
       }
-      
+
       static PyObject *MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(PyObject *li, const MEDFileMesh *mesh)
       {
         std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTS;
@@ -3017,7 +3019,7 @@ namespace MEDCoupling
 
   class MEDFileInt32FieldMultiTS;
   class MEDFileInt64FieldMultiTS;
-  
+
   class MEDFileFieldMultiTS : public MEDFileAnyTypeFieldMultiTS
   {
   public:
@@ -3063,7 +3065,7 @@ namespace MEDCoupling
          {
            return MEDFileFieldMultiTS::New(fileName,fieldName,loadAll);
          }
-         
+
          MEDFileFieldMultiTS(DataArrayByte *db)
          {
            return MEDFileFieldMultiTS::New(db);
@@ -3081,7 +3083,7 @@ namespace MEDCoupling
              }
            return MEDFileFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
          }
-         
+
          std::string __str__() const
          {
            return self->simpleRepr();
@@ -3137,7 +3139,7 @@ namespace MEDCoupling
              ret->incrRef();
            return ret;
          }
-         
+
          PyObject *getUndergroundDataArrayExt(int iteration, int order) const
          {
            std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > > elt1Cpp;
@@ -3209,12 +3211,12 @@ namespace MEDCoupling
       {
         return MEDFileInt32FieldMultiTS::New();
       }
-      
+
       MEDFileInt32FieldMultiTS(const std::string& fileName, bool loadAll=true)
       {
         return MEDFileInt32FieldMultiTS::New(fileName,loadAll);
       }
-      
+
       MEDFileInt32FieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
         return MEDFileInt32FieldMultiTS::New(fileName,fieldName,loadAll);
@@ -3224,7 +3226,7 @@ namespace MEDCoupling
       {
         return MEDFileInt32FieldMultiTS::New(db);
       }
-      
+
       static MEDFileInt32FieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
       {
         std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
@@ -3280,12 +3282,12 @@ namespace MEDCoupling
       {
         return MEDFileInt64FieldMultiTS::New();
       }
-      
+
       MEDFileInt64FieldMultiTS(const std::string& fileName, bool loadAll=true)
       {
         return MEDFileInt64FieldMultiTS::New(fileName,loadAll);
       }
-      
+
       MEDFileInt64FieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
         return MEDFileInt64FieldMultiTS::New(fileName,fieldName,loadAll);
@@ -3295,7 +3297,7 @@ namespace MEDCoupling
       {
         return MEDFileInt64FieldMultiTS::New(db);
       }
-      
+
       static MEDFileInt64FieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
       {
         std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
@@ -3351,12 +3353,12 @@ namespace MEDCoupling
       {
         return MEDFileFloatFieldMultiTS::New();
       }
-      
+
       MEDFileFloatFieldMultiTS(const std::string& fileName, bool loadAll=true)
       {
         return MEDFileFloatFieldMultiTS::New(fileName,loadAll);
       }
-      
+
       MEDFileFloatFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true)
       {
         return MEDFileFloatFieldMultiTS::New(fileName,fieldName,loadAll);
@@ -3366,7 +3368,7 @@ namespace MEDCoupling
       {
         return MEDFileFloatFieldMultiTS::New(db);
       }
-      
+
       static MEDFileFloatFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
       {
         std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
@@ -3398,7 +3400,7 @@ namespace MEDCoupling
       }
     }
   };
-  
+
   class MEDFileMeshSupports : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
@@ -3416,7 +3418,7 @@ namespace MEDCoupling
          }
        }
   };
- 
+
   class MEDFileStructureElements : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
@@ -3480,12 +3482,12 @@ namespace MEDCoupling
          {
            return MEDFileFields::NewAdv(fileName,loadAll,entities);
          }
-         
+
          std::string __str__() const
          {
            return self->simpleRepr();
          }
-         
+
          MEDFileFields *partOfThisOnStructureElements() const
          {
            MCAuto<MEDFileFields> ret(self->partOfThisOnStructureElements());
@@ -3497,7 +3499,7 @@ namespace MEDCoupling
            MCAuto<MEDFileFields> ret(self->partOfThisLyingOnSpecifiedMeshSEName(meshName,seName));
            return ret.retn();
          }
-         
+
          static MEDFileFields *LoadSpecificEntities(const std::string& fileName, PyObject *entities, bool loadAll=true)
          {
            std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
@@ -3549,7 +3551,7 @@ namespace MEDCoupling
            std::vector< std::pair<int,int> > ts=convertTimePairIdsFromPy(timeSteps);
            return self->partOfThisNotLyingOnSpecifiedTimeSteps(ts);
          }
-         
+
          PyObject *__getitem__(PyObject *obj)
          {
            if(obj && PyList_Check(obj))
@@ -3583,7 +3585,7 @@ namespace MEDCoupling
          {
            return self->iterator();
          }
-         
+
          bool changeMeshNames(PyObject *li)
          {
            std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
@@ -3601,7 +3603,7 @@ namespace MEDCoupling
              }
            return self->getPosFromFieldName(convertPyObjectToStr(elt0,msg));
          }
-         
+
          std::vector<int> getPosOfFields(PyObject *elts) const
          {
            if(PyList_Check(elts))
@@ -3629,7 +3631,7 @@ namespace MEDCoupling
            convertFromPyObjVectorOfObj<MEDCoupling::MEDFileAnyTypeFieldMultiTS *>(fields,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",tmp);
            self->pushFields(tmp);
          }
-         
+
          void __delitem__(PyObject *elts)
          {
            if(elts && PySlice_Check(elts))
@@ -3716,7 +3718,7 @@ namespace MEDCoupling
       {
         return MEDFileParameterDouble1TS::New();
       }
-      
+
       MEDFileParameterDouble1TS(const std::string& fileName)
       {
         return MEDFileParameterDouble1TS::New(fileName);
@@ -3773,7 +3775,7 @@ namespace MEDCoupling
       {
         return MEDFileParameterMultiTS::New();
       }
-      
+
       MEDFileParameterMultiTS(const std::string& fileName)
       {
         return MEDFileParameterMultiTS::New(fileName);
@@ -3788,7 +3790,7 @@ namespace MEDCoupling
       {
         return self->simpleRepr();
       }
-      
+
       PyObject *isEqual(const MEDFileParameterMultiTS *other, double eps) const
       {
         std::string what;
@@ -3800,7 +3802,7 @@ namespace MEDCoupling
         PyList_SetItem(res,1,PyString_FromString(what.c_str()));
         return res;
       }
-      
+
       void eraseTimeStepIds(PyObject *ids)
       {
         mcIdType sw;
@@ -3902,7 +3904,7 @@ namespace MEDCoupling
         if(!idsToRemove.empty())
           self->eraseTimeStepIds(&idsToRemove[0],&idsToRemove[0]+idsToRemove.size());
       }
-      
+
       MEDFileParameter1TS *getTimeStepAtPos(int posId) const
       {
         MEDFileParameter1TS *ret=self->getTimeStepAtPos(posId);
@@ -3966,7 +3968,7 @@ namespace MEDCoupling
       {
         return MEDFileParameters::New();
       }
-      
+
       MEDFileParameters(const std::string& fileName)
       {
         return MEDFileParameters::New(fileName);
@@ -3976,7 +3978,7 @@ namespace MEDCoupling
       {
         return MEDFileParameters::New(db);
       }
-      
+
       std::string __str__() const
       {
         return self->simpleRepr();
@@ -4002,7 +4004,7 @@ namespace MEDCoupling
       {
         return self->getNumberOfParams();
       }
-      
+
       MEDFileParameterMultiTS *getParamAtPos(int i) const
       {
         MEDFileParameterMultiTS *ret=self->getParamAtPos(i);
@@ -4018,7 +4020,7 @@ namespace MEDCoupling
           ret->incrRef();
         return ret;
       }
-      
+
       PyObject *isEqual(const MEDFileParameters *other, double eps) const
       {
         std::string what;
@@ -4145,7 +4147,7 @@ namespace MEDCoupling
       }
     }
   };
-  
+
   ///////////////
 
   class MEDFileMeshStruct;
@@ -4163,7 +4165,7 @@ namespace MEDCoupling
   protected:
     ~MEDFileMeshStruct();
   };
-  
+
   class MEDMeshMultiLev : public RefCountObject
   {
   public:
@@ -4200,7 +4202,7 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
-      
+
       PyObject *retrieveFamilyIdsOnNodes() const
       {
         DataArrayIdType *famIds(0);
@@ -4347,7 +4349,7 @@ namespace MEDCoupling
       }
     }
   };
-  
+
   class MeshFormatReader
   {
   public:
@@ -4372,7 +4374,7 @@ namespace MEDCoupling
     void setMEDFileDS(MEDCoupling::MEDFileData* mfd);
     void write();
   };
-  
+
 }
 
 %pythoncode %{

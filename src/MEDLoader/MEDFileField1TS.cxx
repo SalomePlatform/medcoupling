@@ -76,7 +76,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::accept(MEDFileFieldVisitor& visitor) cons
 }
 
 /*!
- * Prints a string describing \a this field into a stream. This string is outputted 
+ * Prints a string describing \a this field into a stream. This string is outputted
  * by \c print Python command.
  *  \param [in] bkOffset - number of white spaces printed at the beginning of each line.
  *  \param [in,out] oss - the out stream.
@@ -214,7 +214,7 @@ int MEDFileAnyTypeField1TSWithoutSDA::getMeshOrder() const
  * iteration order number.
  *  \param [in] iteration - the iteration number of interest.
  *  \param [in] order - the iteration order number of interest.
- *  \return bool - \c true if \a this->getIteration() == \a iteration && 
+ *  \return bool - \c true if \a this->getIteration() == \a iteration &&
  *          \a this->getOrder() == \a order.
  */
 bool MEDFileAnyTypeField1TSWithoutSDA::isDealingTS(int iteration, int order) const
@@ -358,9 +358,9 @@ void MEDFileAnyTypeField1TSWithoutSDA::changeLocsRefsNamesGen2(const std::vector
  *          for the case with only one underlying mesh. (Actually, the number of meshes is
  *          not checked if \a mname == \c NULL).
  *  \param [in,out] types - a sequence of types of underlying mesh entities. A type per
- *          a field part is returned. 
+ *          a field part is returned.
  *  \param [in,out] typesF - a sequence of sequences of types of spatial discretizations.
- *          This sequence is of the same length as \a types. 
+ *          This sequence is of the same length as \a types.
  *  \param [in,out] pfls - a sequence returning a profile name per each type of spatial
  *          discretization. A profile name can be empty.
  *          Length of this and of nested sequences is the same as that of \a typesF.
@@ -369,7 +369,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::changeLocsRefsNamesGen2(const std::vector
  *          Length of this and of nested sequences is the same as that of \a typesF.
  *  \return std::vector< std::vector< std::pair<int,int> > > - a sequence holding a range
  *          of ids of tuples within the data array, per each type of spatial
- *          discretization within one mesh entity type. 
+ *          discretization within one mesh entity type.
  *          Length of this and of nested sequences is the same as that of \a typesF.
  *  \throw If no field is lying on \a mname.
  */
@@ -382,18 +382,18 @@ std::vector< std::vector< std::pair<mcIdType,mcIdType> > > MEDFileAnyTypeField1T
 
 /*!
  * Returns dimensions of mesh elements \a this field lies on. The returned value is a
- * maximal absolute dimension and values returned via the out parameter \a levs are 
+ * maximal absolute dimension and values returned via the out parameter \a levs are
  * dimensions relative to the maximal absolute dimension. <br>
  * This method is designed for MEDFileField1TS instances that have a discretization
- * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
- * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ * \ref MEDCoupling::ON_CELLS "ON_CELLS",
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT",
  * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE".
  * Only these 3 discretizations will be taken into account here. If \a this is
  * \ref MEDCoupling::ON_NODES "ON_NODES", -1 is returned and \a levs are empty.<br>
  * This method is useful to make the link between the dimension of the underlying mesh
  * and the levels of \a this, because it is possible that the highest dimension of \a this
  * field is not equal to the dimension of the underlying mesh.
- * 
+ *
  * Let's consider the following case:
  * - mesh \a m1 has a meshDimension 3 and has non empty levels [0,-1,-2] with elements
  * TETRA4, HEXA8, TRI3 and SEG2.
@@ -408,7 +408,7 @@ std::vector< std::vector< std::pair<mcIdType,mcIdType> > > MEDFileAnyTypeField1T
  * <em> meshDimRelToMax = absDim - meshDim + relativeLev </em>.
  * For example<br>
  * to retrieve the highest level of
- * \a f1: <em>f1->getFieldAtLevel( ON_CELLS, 3-3+0 ); // absDim - meshDim + relativeLev</em><br> 
+ * \a f1: <em>f1->getFieldAtLevel( ON_CELLS, 3-3+0 ); // absDim - meshDim + relativeLev</em><br>
  * to retrieve the lowest level of \a f1: <em>f1->getFieldAtLevel( ON_CELLS, 3-3+(-2) );</em><br>
  * to retrieve the highest level of \a f2: <em>f2->getFieldAtLevel( ON_CELLS, 2-3+0 );</em><br>
  * to retrieve the lowest level of \a f2: <em>f2->getFieldAtLevel( ON_CELLS, 2-3+(-1) )</em>.
@@ -494,7 +494,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::makeReduction(INTERP_KERNEL::NormalizedCe
 /*!
  * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
  * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
- * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
+ * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of
  *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutSDA::getFieldSplitedByType. For non gausspoints field users, the value is 0.
  */
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId)
@@ -507,7 +507,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLeafGive
 /*!
  * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
  * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
- * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
+ * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of
  *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutSDA::getFieldSplitedByType. For non gausspoints field users, the value is 0.
  */
 const MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const
@@ -821,7 +821,7 @@ std::vector<const BigMemoryObject *> MEDFileAnyTypeField1TSWithoutSDA::getDirect
 /*!
  * Adds a MEDCouplingFieldDouble to \a this. The underlying mesh of the given field is
  * checked if its elements are sorted suitable for writing to MED file ("STB" stands for
- * "Sort By Type"), if not, an exception is thrown. 
+ * "Sort By Type"), if not, an exception is thrown.
  *  \param [in] field - the field to add to \a this. The array of field \a field is ignored
  *  \param [in] arr - the array of values.
  *  \param [in,out] glob - the global data where profiles and localization present in
@@ -854,12 +854,12 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldNoProfileSBT(const TimeHolder *th
 
 /*!
  * Adds a MEDCouplingFieldDouble to \a this. Specified entities of a given dimension
- * of a given mesh are used as the support of the given field (a real support is not used). 
- * Elements of the given mesh must be sorted suitable for writing to MED file. 
+ * of a given mesh are used as the support of the given field (a real support is not used).
+ * Elements of the given mesh must be sorted suitable for writing to MED file.
  * Order of underlying mesh entities of the given field specified by \a profile parameter
  * is not prescribed; this method permutes field values to have them sorted by element
  * type as required for writing to MED file. A new profile is added only if no equal
- * profile is missing. 
+ * profile is missing.
  *  \param [in] field - the field to add to \a this. The field double values are ignored.
  *  \param [in] arrOfVals - the values of the field \a field used.
  *  \param [in] mesh - the supporting mesh of \a field.
@@ -892,7 +892,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const TimeHolder *th, con
     {
       m->splitProfilePerType(profile,code,idsInPflPerType,idsPerType,smartPflKiller);
       std::vector< MCAuto<DataArrayIdType> > idsInPflPerType2(idsInPflPerType.size()); std::copy(idsInPflPerType.begin(),idsInPflPerType.end(),idsInPflPerType2.begin());
-      std::vector< MCAuto<DataArrayIdType> > idsPerType2(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType2.begin()); 
+      std::vector< MCAuto<DataArrayIdType> > idsPerType2(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType2.begin());
       std::vector<const DataArrayIdType *> idsPerType3(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType3.begin());
       // start of check
       MCAuto<MEDCouplingFieldTemplate> field2=field->clone(false);
@@ -1128,7 +1128,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::fieldOnMesh(const MEDF
  *
  *  \param [in] glob - the global data storing profiles and localization.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
- *          caller is to delete this field using decrRef() as it is no more needed. 
+ *          caller is to delete this field using decrRef() as it is no more needed.
  *  \throw If the MED file is not readable.
  *  \throw If there is no mesh named \a mName in the MED file.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
@@ -1159,7 +1159,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtLevel(TypeOf
  *  \param [in] glob - the global data storing profiles and localization.
  *  \param [in] mesh - the supporting mesh.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
- *          caller is to delete this field using decrRef() as it is no more needed. 
+ *          caller is to delete this field using decrRef() as it is no more needed.
  *  \throw If the MED file is not readable.
  *  \throw If no field of \a this is lying on \a mesh.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
@@ -1176,7 +1176,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
 
 /*!
  * Returns a new MEDCouplingFieldDouble of a given type lying on the top level cells of a
- * given mesh. 
+ * given mesh.
  *  \param [in] type - a spatial discretization of the new field.
  *  \param [in] mName - a name of the supporting mesh.
  *  \param [in] renumPol - specifies how to permute values of the result field according to
@@ -1188,7 +1188,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
  *
  *  \param [in] glob - the global data storing profiles and localization.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
- *          caller is to delete this field using decrRef() as it is no more needed. 
+ *          caller is to delete this field using decrRef() as it is no more needed.
  *  \throw If the MED file is not readable.
  *  \throw If there is no mesh named \a mName in the MED file.
  *  \throw If there are no mesh entities in the mesh.
@@ -1223,7 +1223,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtTopLevel(Typ
  *  \param [in] nodeRenum - the node numbers array used for permutation of the result
  *         field according to \a renumPol.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
- *          caller is to delete this field using decrRef() as it is no more needed. 
+ *          caller is to delete this field using decrRef() as it is no more needed.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
  *  \throw If no field of \a this is lying on \a mesh.
  *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
@@ -1300,7 +1300,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
  *  \param [out] pfl - a new instance of DataArrayIdType holding ids of mesh entities the
  *          field of interest lies on. If the field lies on all entities of the given
  *          dimension, all ids in \a pfl are zero. The caller is to delete this array
- *          using decrRef() as it is no more needed.  
+ *          using decrRef() as it is no more needed.
  *  \param [in] glob - the global data storing profiles and localization.
  *  \return DataArrayDouble * - a new instance of DataArrayDouble holding values of the
  *          field. The caller is to delete this array using decrRef() as it is no more needed.
@@ -1330,12 +1330,12 @@ void MEDFileField1TSWithoutSDA::CheckMeshDimRel(int meshDimRelToMax)
 }
 
 /*!
- * Checks if elements of a given mesh are in the order suitable for writing 
+ * Checks if elements of a given mesh are in the order suitable for writing
  * to the MED file. If this is not so, an exception is thrown. In a case of success, returns a
  * vector describing types of elements and their number.
  *  \param [in] mesh - the mesh to check.
  *  \return std::vector<int> - a vector holding for each element type (1) item of
- *          INTERP_KERNEL::NormalizedCellType, (2) number of elements, (3) -1. 
+ *          INTERP_KERNEL::NormalizedCellType, (2) number of elements, (3) -1.
  *          These values are in full-interlace mode.
  *  \throw If elements in \a mesh are not in the order suitable for writing to the MED file.
  */
@@ -1394,12 +1394,12 @@ MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::New(const std::string& fie
  *          for the case with only one underlying mesh. (Actually, the number of meshes is
  *          not checked if \a mname == \c NULL).
  *  \param [in,out] types - a sequence of types of underlying mesh entities. A type per
- *          a field part is returned. 
+ *          a field part is returned.
  *  \param [in,out] typesF - a sequence of sequences of types of spatial discretizations.
  *          A field part can include sub-parts with several different spatial discretizations,
- *          \ref MEDCoupling::ON_CELLS "ON_CELLS" and 
+ *          \ref MEDCoupling::ON_CELLS "ON_CELLS" and
  *          \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT" for example.
- *          This sequence is of the same length as \a types. 
+ *          This sequence is of the same length as \a types.
  *  \param [in,out] pfls - a sequence returning a profile name per each type of spatial
  *          discretization. A profile name can be empty.
  *          Length of this and of nested sequences is the same as that of \a typesF.
@@ -1448,6 +1448,20 @@ MEDFileInt32Field1TSWithoutSDA *MEDFileField1TSWithoutSDA::convertToInt() const
   if(arr)
     {
       MCAuto<DataArrayInt> arr2(arr->convertToIntArr());
+      ret->setArray(arr2);
+    }
+  return ret.retn();
+}
+
+MEDFileInt64Field1TSWithoutSDA *MEDFileField1TSWithoutSDA::convertToInt64() const
+{
+  MCAuto<MEDFileInt64Field1TSWithoutSDA> ret(new MEDFileInt64Field1TSWithoutSDA);
+  ret->MEDFileAnyTypeField1TSWithoutSDA::operator =(*this);
+  ret->deepCpyLeavesFrom(*this);
+  const DataArrayDouble *arr(_arr);
+  if(arr)
+    {
+      MCAuto<DataArrayInt64> arr2(arr->convertToInt64Arr());
       ret->setArray(arr2);
     }
   return ret.retn();
@@ -2142,7 +2156,7 @@ int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, int fieldIdCFormat, bool c
 
 /*!
  * This method throws an INTERP_KERNEL::Exception if \a fieldName field is not in file pointed by \a fid and with name \a fileName.
- * 
+ *
  * \return in case of success the number of time steps available for the field with name \a fieldName.
  */
 int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut, std::string& meshName)
@@ -2185,7 +2199,7 @@ int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fieldNam
  *
  * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
  * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
- * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
+ * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of
  *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutSDA::getFieldSplitedByType. For non gausspoints field users, the value is 0.
  * \param [in] newLocName is the new localization name.
  * \param [in] forceRenameOnGlob specifies the behaviour in case of profile \b newPflName already exists. If true, the renaming is done without check. It can lead to major bug.
@@ -2223,7 +2237,7 @@ void MEDFileAnyTypeField1TS::setProfileNameOnLeaf(const std::string& mName, INTE
  *
  * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
  * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
- * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
+ * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of
  *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutSDA::getFieldSplitedByType. For non gausspoints field users, the value is 0.
  * \param [in] newLocName is the new localization name.
  * \param [in] forceRenameOnGlob specifies the behaviour in case of profile \b newLocName already exists. If true, the renaming is done without check. It can lead to major bug.
@@ -2268,7 +2282,7 @@ const MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::contentNotNullBa
  * This method alloc the arrays and load potentially huge arrays contained in this field.
  * This method should be called when a MEDFileAnyTypeField1TS::New constructor has been with false as the last parameter.
  * This method can be also called to refresh or reinit values from a file.
- * 
+ *
  * \throw If the fileName is not set or points to a non readable MED file.
  * \sa MEDFileAnyTypeField1TS::loadArraysIfNecessary
  */
@@ -2284,7 +2298,7 @@ void MEDFileAnyTypeField1TS::loadArrays()
  * This method behaves as MEDFileAnyTypeField1TS::loadArrays does, the first call, if \a this was built using a file without loading big arrays.
  * But once data loaded once, this method does nothing. Contrary to MEDFileAnyTypeField1TS::loadArrays and MEDFileAnyTypeField1TS::unloadArrays
  * this method does not throw if \a this does not come from file read.
- * 
+ *
  * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::unloadArrays
  */
 void MEDFileAnyTypeField1TS::loadArraysIfNecessary()
@@ -2300,7 +2314,7 @@ void MEDFileAnyTypeField1TS::loadArraysIfNecessary()
  * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
  * \b WARNING, this method does release arrays even if \a this does not come from a load of a MED file.
  * So this method can lead to a loss of data. If you want to unload arrays safely call MEDFileAnyTypeField1TS::unloadArraysWithoutDataLoss instead.
- * 
+ *
  * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::loadArraysIfNecessary, MEDFileAnyTypeField1TS::unloadArraysWithoutDataLoss
  */
 void MEDFileAnyTypeField1TS::unloadArrays()
@@ -2312,7 +2326,7 @@ void MEDFileAnyTypeField1TS::unloadArrays()
  * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
  * This method is the symmetrical method of MEDFileAnyTypeField1TS::loadArraysIfNecessary.
  * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
- * 
+ *
  * \sa MEDFileAnyTypeField1TS::loadArraysIfNecessary
  */
 void MEDFileAnyTypeField1TS::unloadArraysWithoutDataLoss()
@@ -2354,7 +2368,7 @@ std::vector<const BigMemoryObject *> MEDFileAnyTypeField1TS::getDirectChildrenWi
 }
 
 /*!
- * Returns a string describing \a this field. This string is outputted 
+ * Returns a string describing \a this field. This string is outputted
  * by \c print Python command.
  */
 std::string MEDFileAnyTypeField1TS::simpleRepr() const
@@ -2672,6 +2686,35 @@ MEDFileInt32Field1TS *MEDFileField1TS::convertToInt(bool isDeepCpyGlobs) const
     }
   else
     ret=MEDFileInt32Field1TS::New();
+  if(isDeepCpyGlobs)
+    ret->deepCpyGlobs(*this);
+  else
+    ret->shallowCpyGlobs(*this);
+  return ret.retn();
+}
+
+/*!
+ * This method performs a copy with datatype modification ( float64->int64 ) of \a this. The globals information are copied
+ * following the given input policy.
+ *
+ * \param [in] isDeepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ *                            By default (true) the globals are deeply copied.
+ * \return MEDFileInt32Field1TS * - a new object that is the result of the conversion of \a this to int64 field.
+ */
+MEDFileInt64Field1TS *MEDFileField1TS::convertToInt64(bool isDeepCpyGlobs) const
+{
+  MCAuto<MEDFileInt64Field1TS> ret;
+  const MEDFileAnyTypeField1TSWithoutSDA *content(_content);
+  if(content)
+    {
+      const MEDFileField1TSWithoutSDA *contc=dynamic_cast<const MEDFileField1TSWithoutSDA *>(content);
+      if(!contc)
+        throw INTERP_KERNEL::Exception("MEDFileField1TS::convertToInt : the content inside this is not FLOAT64 ! This is incoherent !");
+      MCAuto<MEDFileInt64Field1TSWithoutSDA> newc(contc->convertToInt64());
+      ret=static_cast<MEDFileInt64Field1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileInt64Field1TSWithoutSDA *)newc));
+    }
+  else
+    ret=MEDFileInt64Field1TS::New();
   if(isDeepCpyGlobs)
     ret->deepCpyGlobs(*this);
   else
