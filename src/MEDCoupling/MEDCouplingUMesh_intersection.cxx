@@ -2336,6 +2336,9 @@ void MEDCouplingUMesh::ReplaceEdgeInFace(const mcIdType * sIdxConn, const mcIdTy
  * This method expects that all nodes in \a this are not closer than \a eps.
  * If it is not the case you can invoke MEDCouplingUMesh::mergeNodes before calling this method.
  *
+ * \b WARNING this method only works for 'partition-like' non-conformities. When joining adjacent faces, the set of all small faces must fit exactly into the
+ * neighboring bigger face. No real face intersection is actually computed.
+ *
  * \param [in] eps the relative error to detect merged edges.
  * \return DataArrayIdType  * - The list of cellIds in \a this that have been subdivided. If empty, nothing changed in \a this (as if it were a const method). The array is a newly allocated array
  *                           that the user is expected to deal with.
@@ -2343,6 +2346,7 @@ void MEDCouplingUMesh::ReplaceEdgeInFace(const mcIdType * sIdxConn, const mcIdTy
  * \throw If \a this is not coherent.
  * \throw If \a this has not spaceDim equal to 3.
  * \throw If \a this has not meshDim equal to 3.
+ * \throw If the 'partition-like' condition described above is not respected.
  * \sa MEDCouplingUMesh::mergeNodes, MEDCouplingUMesh::conformize2D, MEDCouplingUMesh::convertAllToPoly()
  */
 DataArrayIdType *MEDCouplingUMesh::conformize3D(double eps)
