@@ -48,6 +48,8 @@
 %include "ParaMEDMEMCommon.i"
 #endif
 
+%constant const char __version__[]=MEDCOUPLING_GIT_SHA1;
+
 %{
   static const char SEQ_INTERPOL_EXT[]="Sequential interpolator";
   static const char MEDFILEIO_EXT[]="MED file I/O";
