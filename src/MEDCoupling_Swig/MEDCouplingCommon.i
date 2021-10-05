@@ -365,6 +365,7 @@ typedef long int mcIdType;
 %newobject MEDCoupling::MEDCouplingUMesh::getRenumArrForMEDFileFrmt;
 %newobject MEDCoupling::MEDCouplingUMesh::convertCellArrayPerGeoType;
 %newobject MEDCoupling::MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec;
+%newobject MEDCoupling::MEDCouplingUMesh::findNodesToDuplicate;
 %newobject MEDCoupling::MEDCouplingUMesh::buildDirectionVectorField;
 %newobject MEDCoupling::MEDCouplingUMesh::convertLinearCellsToQuadratic;
 %newobject MEDCoupling::MEDCouplingUMesh::getEdgeRatioField;
@@ -2452,14 +2453,19 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords) const
+      DataArrayIdType *findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords) const
       {
-        DataArrayIdType *tmp0=0,*tmp1=0,*tmp2=0;
-        self->findNodesToDuplicate(otherDimM1OnSameCoords,tmp0,tmp1,tmp2);
-        PyObject *ret=PyTuple_New(3);
+        DataArrayIdType *ret=self->findNodesToDuplicate(otherDimM1OnSameCoords);
+        return ret;
+      }
+
+      PyObject *findCellsToRenumber(const MEDCouplingUMesh& otherDimM1OnSameCoords, const DataArrayIdType *dupNodes) const
+      {
+        DataArrayIdType *tmp0=0,*tmp1=0;
+        self->findCellsToRenumber(otherDimM1OnSameCoords,dupNodes->begin(), dupNodes->end(), tmp0,tmp1);
+        PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tmp0),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp1),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(tmp2),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 

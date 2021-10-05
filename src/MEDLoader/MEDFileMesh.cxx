@@ -4085,9 +4085,9 @@ void MEDFileUMesh::optimizeFamilies()
  *  might not be duplicated at all.
  *  After this operation a top-level cell bordering the group will loose some neighbors (typically the cell which is  on the
  *  other side of the group is no more a neighbor)
- *   - finally, the connectivity of (part of) the top level-cells bordering the group is also modified so that some cells
+ *  - the connectivity of (part of) the top level-cells bordering the group is also modified so that some cells
  *  bordering the newly created boundary use the newly computed nodes.
- *  Finally note that optional cell numbers are also affected by this method and might become invalid for SMESH.
+ *  - finally note that optional cell numbers are also affected by this method and might become invalid for SMESH.
  *  Use clearNodeAndCellNumbers() afterwards to ensure a proper SMESH loading.
  *
  *  \param[in] grpNameM1 name of the (-1)-level group defining the boundary
@@ -4110,11 +4110,16 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
   MUMesh m1=getMeshAtLevel(-1);
   mcIdType nbNodes=m0->getNumberOfNodes();
   MUMesh m11=getGroup(-1,grpNameM1);
-  DataArrayIdType *tmp00=0,*tmp11=0,*tmp22=0;
-  m0->findNodesToDuplicate(*m11,tmp00,tmp11,tmp22);
-  DAInt nodeIdsToDuplicate(tmp00);
+  DataArrayIdType *tmp00=0, *tmp11=0,*tmp22=0;
+
+  // !!! The core of the duplication logic is in these 2 methods:
+  // !!!
+  DAInt nodeIdsToDuplicate = m0->findNodesToDuplicate(*m11);  // identify nodes to duplicate
+  m0->findCellsToRenumber(*m11, nodeIdsToDuplicate->begin(), nodeIdsToDuplicate->end(), tmp11,tmp22);  // identify cells needing renumbering
   DAInt cellsToModifyConn0(tmp11);
   DAInt cellsToModifyConn1(tmp22);
+  // !!!!
+
   MUMesh tmp0=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),true));
   // node renumbering of cells in m1 impacted by duplication of node but not in group 'grpNameM1' on level -1
   DAInt descTmp0=DataArrayIdType::New(),descITmp0=DataArrayIdType::New(),revDescTmp0=DataArrayIdType::New(),revDescITmp0=DataArrayIdType::New();

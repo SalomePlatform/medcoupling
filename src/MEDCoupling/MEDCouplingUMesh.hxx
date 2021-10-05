@@ -144,7 +144,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayIdType *findCellIdsOnBoundary() const;
     MEDCOUPLING_EXPORT void findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayIdType *&cellIdsRk0, DataArrayIdType *&cellIdsRk1) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *computeSkin() const;
-    MEDCOUPLING_EXPORT void findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayIdType *& nodeIdsToDuplicate,
+    MEDCOUPLING_EXPORT DataArrayIdType *findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords) const;
+    MEDCOUPLING_EXPORT void findCellsToRenumber(const MEDCouplingUMesh& otherDimM1OnSameCoords, const mcIdType *nodeIdsToDuplicateBg, const mcIdType *nodeIdsToDuplicateEnd,
                                                  DataArrayIdType *& cellIdsNeededToBeRenum, DataArrayIdType *& cellIdsNotModified) const;
     MEDCOUPLING_EXPORT void duplicateNodes(const mcIdType *nodeIdsToDuplicateBg, const mcIdType *nodeIdsToDuplicateEnd);
     MEDCOUPLING_EXPORT void renumberNodesWithOffsetInConn(mcIdType offset);

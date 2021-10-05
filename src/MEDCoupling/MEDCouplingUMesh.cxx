@@ -2360,16 +2360,15 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const
  *
  * \param [in] otherDimM1OnSameCoords a mesh lying on the same coords than \b this and with a mesh dimension equal to those of \b this minus 1. WARNING this input
  *             parameter is altered during the call.
- * \param [out] nodeIdsToDuplicate node ids needed to be duplicated following the algorithm explain above.
- * \param [out] cellIdsNeededToBeRenum cell ids in \b this in which the renumber of nodes should be performed.
- * \param [out] cellIdsNotModified cell ids mcIdType \b this that lies on \b otherDimM1OnSameCoords mesh whose connectivity do \b not need to be modified as it is the case for \b cellIdsNeededToBeRenum.
+ * \return node ids which need to be duplicated following the algorithm explained above.
  *
  */
-void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayIdType *& nodeIdsToDuplicate,
-                                            DataArrayIdType *& cellIdsNeededToBeRenum, DataArrayIdType *& cellIdsNotModified) const
+DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords) const
 {
-  typedef MCAuto<DataArrayIdType> DAInt;
-  typedef MCAuto<MEDCouplingUMesh> MCUMesh;
+  // DEBUG NOTE: in case of issue with the algorithm in this method, see Python script in resources/dev
+  // which mimicks the C++
+  using DAInt = MCAuto<DataArrayIdType>;
+  using MCUMesh = MCAuto<MEDCouplingUMesh>;
 
   checkFullyDefined();
   otherDimM1OnSameCoords.checkFullyDefined();
@@ -2395,7 +2394,7 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   // Remove from the list points on the boundary of the M0 mesh (those need duplication!)
   dt0=DataArrayIdType::New(),dit0=DataArrayIdType::New(),rdt0=DataArrayIdType::New(),rdit0=DataArrayIdType::New();
   MCUMesh m0desc = buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); dt0=0; dit0=0; rdt0=0;
-  dsi = rdit0->deltaShiftIndex();
+  dsi = rdit0->deltaShiftIndex();  rdit0=0;
   DAInt boundSegs = dsi->findIdsEqual(1);  dsi = 0; // boundary segs/faces of the M0 mesh
   MCUMesh m0descSkin = static_cast<MEDCouplingUMesh *>(m0desc->buildPartOfMySelf(boundSegs->begin(),boundSegs->end(), true));
   DAInt fNodes = m0descSkin->computeFetchedNodeIds();
@@ -2410,108 +2409,297 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
       dnu1=0;dnu2=0;dnu3=0;dnu4=0;
       DataArrayIdType * corresp=0;
       meshM2->areCellsIncludedIn(m0descSkinDesc,2,corresp);
+      // validIds is the list of segments which are on both the skin of *this*, and in the segments of the M1 group
+      // In the cube example above, this is a U shape polyline.
       DAInt validIds = corresp->findIdsInRange(0, meshM2->getNumberOfCells());
       corresp->decrRef();
       if (validIds->getNumberOfTuples())
         {
           // Build the set of segments which are: in the desc mesh of the skin of the 3D mesh (M0) **and** in the desc mesh of the M1 group:
+          // (the U-shaped polyline described above)
           MCUMesh m1IntersecSkin = static_cast<MEDCouplingUMesh *>(m0descSkinDesc->buildPartOfMySelf(validIds->begin(), validIds->end(), true));
           // Its boundary nodes should no be duplicated (this is for example the tip of the crack inside the cube described above)
           DAInt notDuplSkin = m1IntersecSkin->findBoundaryNodes();
           DAInt fNodes1 = fNodes->buildSubstraction(notDuplSkin);
 
-          // Also, in this (segment) mesh, nodes connected to more than 3 segs should not be dup either (singular points - see testBuildInnerBoundary6())
-          dt0=DataArrayIdType::New(),dit0=DataArrayIdType::New(),rdt0=DataArrayIdType::New(),rdit0=DataArrayIdType::New();
-          MCUMesh meshM2Desc = meshM2->buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); dt0=0; dit0=0; rdt0=0;  // a mesh made of node cells
-          dsi = rdit0->deltaShiftIndex();
-          DAInt singPoints = dsi->findIdsNotInRange(-1,4);   // points connected to (strictly) more than 3 segments
-          const mcIdType *cc = meshM2Desc->getNodalConnectivity()->begin(), *ccI = meshM2Desc->getNodalConnectivityIndex()->begin();
-          mcIdType * singPointsP = singPoints->rwBegin();
-          for (mcIdType j=0; j < singPoints->getNumberOfTuples(); j++) // replace ids in singPoints by real coordinate index (was index of cells in notDuplSkin)
+          // Specific logic to handle singular points :
+          //   - a point on this U-shape line used in a cell which has no face in common with M1 is deemed singular.
+          //   - indeed, if duplicated, such a point would lead to the duplication of a cell which has no face touching M1 ! The
+          //   algorithm would be duplicating too much ...
+          // This is a costly algorithm so only go into it if a simple (non sufficient) criteria is met: a node connected to more than 3 segs in meshM2:
+          dnu1=DataArrayIdType::New(), dnu2=DataArrayIdType::New(), dnu3=DataArrayIdType::New(), rdit0=DataArrayIdType::New();
+          MCUMesh meshM2Desc = meshM2->buildDescendingConnectivity(dnu1, dnu2, dnu3, rdit0);  // a mesh made of node cells
+          dnu1=0;dnu2=0;dnu3=0;
+          dsi = rdit0->deltaShiftIndex();  rdit0=0;
+          DAInt singPoints = dsi->findIdsNotInRange(-1,4) ;    dsi=0;// points connected to (strictly) more than 3 segments
+          if (singPoints->getNumberOfTuples())
             {
-              mcIdType nodeCellIdx = singPointsP[j];
-              singPointsP[j] = cc[ccI[nodeCellIdx]+1];  // +1 to skip type
+              DAInt boundNodes = m1IntersecSkin->computeFetchedNodeIds();
+              // If a point on this U-shape line is connected to cells which do not share any face with M1, then it
+              // should not be duplicated
+              //    1. Extract N D cells touching U-shape line:
+              DAInt cellsAroundBN = getCellIdsLyingOnNodes(boundNodes->begin(), boundNodes->end(), false);  // false= take cell in, even if not all nodes are in dupl
+              MCUMesh mAroundBN = static_cast<MEDCouplingUMesh *>(this->buildPartOfMySelf(cellsAroundBN->begin(), cellsAroundBN->end(), true));
+              DAInt descBN=DataArrayIdType::New(), descIBN=DataArrayIdType::New(), revDescBN=DataArrayIdType::New(), revDescIBN=DataArrayIdType::New();
+              MCUMesh mAroundBNDesc = mAroundBN->buildDescendingConnectivity(descBN,descIBN,revDescBN,revDescIBN);
+              //    2. Identify cells in sub-mesh mAroundBN which have a face in common with M1
+              DataArrayIdType *idsOfM1BNt;
+              mAroundBNDesc->areCellsIncludedIn(&otherDimM1OnSameCoords,2, idsOfM1BNt);
+              DAInt idsOfM1BN(idsOfM1BNt);
+              mcIdType nCells=mAroundBN->getNumberOfCells(), nCellsDesc=mAroundBNDesc->getNumberOfCells();
+              DAInt idsTouch=DataArrayIdType::New(); idsTouch->alloc(0,1);
+              const mcIdType *revDescIBNP=revDescIBN->begin(), *revDescBNP=revDescBN->begin();
+              for(const auto& v: *idsOfM1BN)
+                {
+                  if (v >= nCellsDesc)    // Keep valid match only
+                    continue;
+                  mcIdType idx0 = revDescIBNP[v];
+                  // Keep the two cells on either side of the face v of M1:
+                  mcIdType c1=revDescBNP[idx0], c2=revDescBNP[idx0+1];
+                  idsTouch->pushBackSilent(c1);  idsTouch->pushBackSilent(c2);
+                }
+              //    3. Build complement
+              DAInt idsTouchCompl = idsTouch->buildComplement(nCells);
+              MCUMesh mAroundBNStrict = static_cast<MEDCouplingUMesh *>(mAroundBN->buildPartOfMySelf(idsTouchCompl->begin(), idsTouchCompl->end(), true));
+              DAInt nod3 = mAroundBNStrict->computeFetchedNodeIds();
+              DAInt inters = boundNodes->buildIntersection(nod3);
+              fNodes1 = fNodes1->buildSubstraction(inters);  // reminder: fNodes1 represent nodes that need dupl.
             }
-          DAInt fNodes2 = fNodes1->buildSubstraction(singPoints);
-          notDup = xtrem->buildSubstraction(fNodes2);
+          notDup = xtrem->buildSubstraction(fNodes1);
         }
-      else
+      else  // if (validIds-> ...)
         notDup = xtrem->buildSubstraction(fNodes);
     }
-  else
+  else  // if (3D ...)
     notDup = xtrem->buildSubstraction(fNodes);
 
-  // Now compute cells around group (i.e. cells where we will do the propagation to identify the two sub-sets delimited by the group)
   DAInt m1Nodes = otherDimM1OnSameCoords.computeFetchedNodeIds();
   DAInt dupl = m1Nodes->buildSubstraction(notDup);
-  DAInt cellsAroundGroup = getCellIdsLyingOnNodes(dupl->begin(), dupl->end(), false);  // false= take cell in, even if not all nodes are in notDup
+  return dupl.retn();
+}
+
+
+/*!
+ * This method expects that \b this and \b otherDimM1OnSameCoords share the same coordinates array.
+ * otherDimM1OnSameCoords->getMeshDimension() is expected to be equal to this->getMeshDimension()-1.
+ * This method is part of the MEDFileUMesh::buildInnerBoundaryAlongM1Group() algorithm.
+ * Given a set of nodes to duplicate, this method identifies which cells should have their connectivity modified
+ * to produce the inner boundary. It is typically called after findNodesToDuplicate().
+ *
+ * \param [in] otherDimM1OnSameCoords a mesh lying on the same coords than \b this and with a mesh dimension equal to those of \b this minus 1. WARNING this input
+ *             parameter is altered during the call.
+ * \param [in] nodeIdsToDuplicateBg node ids needed to be duplicated, as returned by findNodesToDuplicate.
+ * \param [in] nodeIdsToDuplicateEnd node ids needed to be duplicated, as returned by findNodesToDuplicate.
+ * \param [out] cellIdsNeededToBeRenum cell ids in \b this in which the renumber of nodes should be performed.
+ * \param [out] cellIdsNotModified cell ids in \b this that lies on \b otherDimM1OnSameCoords mesh whose connectivity do \b not need to be modified as it is the case for \b cellIdsNeededToBeRenum.
+ *
+ */
+void MEDCouplingUMesh::findCellsToRenumber(const MEDCouplingUMesh& otherDimM1OnSameCoords, const mcIdType *nodeIdsToDuplicateBg, const mcIdType *nodeIdsToDuplicateEnd,
+                                           DataArrayIdType *& cellIdsNeededToBeRenum, DataArrayIdType *& cellIdsNotModified) const
+{
+  // DEBUG NOTE: in case of issue with the algorithm in this method, see Python script in resources/dev
+  // which mimicks the C++
+  using DAInt = MCAuto<DataArrayIdType>;
+  using MCUMesh = MCAuto<MEDCouplingUMesh>;
+
+  checkFullyDefined();
+  otherDimM1OnSameCoords.checkFullyDefined();
+  if(getCoords()!=otherDimM1OnSameCoords.getCoords())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: meshes do not share the same coords array !");
+  if(otherDimM1OnSameCoords.getMeshDimension()!=getMeshDimension()-1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: the mesh given in other parameter must have this->getMeshDimension()-1 !");
+
+  DAInt cellsAroundGroupLarge = getCellIdsLyingOnNodes(nodeIdsToDuplicateBg, nodeIdsToDuplicateEnd, false);  // false= take cell in, even if not all nodes are in dupl
 
   //
-  MCUMesh m0Part2=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellsAroundGroup->begin(),cellsAroundGroup->end(),true));
-  mcIdType nCells2 = m0Part2->getNumberOfCells();
-  DAInt desc00=DataArrayIdType::New(),descI00=DataArrayIdType::New(),revDesc00=DataArrayIdType::New(),revDescI00=DataArrayIdType::New();
-  MCUMesh m01=m0Part2->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
+  MCUMesh mAroundGrpLarge=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellsAroundGroupLarge->begin(),cellsAroundGroupLarge->end(),true));
+  DAInt descL=DataArrayIdType::New(),descIL=DataArrayIdType::New(),revDescL=DataArrayIdType::New(),revDescIL=DataArrayIdType::New();
+  MCUMesh mArGrpLargeDesc=mAroundGrpLarge->buildDescendingConnectivity(descL,descIL,revDescL,revDescIL);
+  const mcIdType *descILP=descIL->begin(), *descLP=descL->begin();
 
-  // Neighbor information of the mesh without considering the crack (serves to count how many connex pieces it is made of)
-  DataArrayIdType *tmp00=0,*tmp11=0;
-  MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00, tmp00, tmp11);
-  DAInt neighInit00(tmp00);
-  DAInt neighIInit00(tmp11);
+  // Extract now all N D cells which have a complete face in touch with the group:
+  //   1. Identify cells of M1 group in sub-mesh mAroundGrp
+  DataArrayIdType *idsOfM1t;
+  mArGrpLargeDesc->areCellsIncludedIn(&otherDimM1OnSameCoords,2, idsOfM1t);
+  DAInt idsOfM1Large(idsOfM1t);
+  mcIdType nL = mArGrpLargeDesc->getNumberOfCells();
+  DAInt idsStrict = DataArrayIdType::New(); idsStrict->alloc(0,1);
+  //  2. Build map giving for each cell ID in mAroundGrp (not in mAroundGrpLarge) the corresponding cell
+  //     ID on the other side of the crack:
+  std::map<mcIdType, mcIdType> toOtherSide, pos;
+  mcIdType cnt = 0;
+  const mcIdType *revDescILP=revDescIL->begin(), *revDescLP=revDescL->begin();
+  for(const auto& v: *idsOfM1Large)
+    {
+      if (v >= nL)    // Keep valid match only
+        continue;
+      mcIdType idx0 = revDescILP[v];
+      // Keep the two cells on either side of the face v of M1:
+      mcIdType c1=revDescLP[idx0], c2=revDescLP[idx0+1];
+      DAInt t1=idsStrict->findIdsEqual(c1), t2=idsStrict->findIdsEqual(c2);
+
+      if (!t1->getNumberOfTuples())
+        {  pos[c1] = cnt++; idsStrict->pushBackSilent(c1);   }
+      if (!t2->getNumberOfTuples())
+        {  pos[c2] = cnt++; idsStrict->pushBackSilent(c2);   }
+
+      mcIdType k1 = pos[c1], k2=pos[c2];
+      toOtherSide[k1] = k2;
+      toOtherSide[k2] = k1;
+    }
+
+  DAInt cellsAroundGroup = cellsAroundGroupLarge->selectByTupleId(idsStrict->begin(), idsStrict->end());
+  MCUMesh mAroundGrp = static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellsAroundGroup->begin(), cellsAroundGroup->end(), true));
+  mcIdType nCells=cellsAroundGroup->getNumberOfTuples(), nCellsLarge=cellsAroundGroupLarge->getNumberOfTuples();
+  DAInt desc=DataArrayIdType::New(),descI=DataArrayIdType::New(),revDesc=DataArrayIdType::New(),revDescI=DataArrayIdType::New();  
+  MCUMesh mArGrpDesc=mAroundGrp->buildDescendingConnectivity(desc,descI,revDesc,revDescI);
+  DataArrayIdType *idsOfM1t2;
+  mArGrpDesc->areCellsIncludedIn(&otherDimM1OnSameCoords,2, idsOfM1t2);  // TODO can we avoid recomputation here?
+  DAInt idsOfM1(idsOfM1t2);
+
   // Neighbor information of the mesh WITH the crack (some neighbors are removed):
-  DataArrayIdType *idsTmp=0;
-  m01->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsTmp);
-  DAInt ids(idsTmp);
-  // In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
-  // of the frontier given in parameter (i.e. the cells of low dimension from the group delimiting the crack):
-  DataArrayIdType::RemoveIdsFromIndexedArrays(ids->begin(),ids->end(),desc00,descI00);
-  DataArrayIdType *tmp0=0,*tmp1=0;
-  // Compute the neighbor of each cell in m0Part2, taking into account the broken link above. Two
-  // cells on either side of the crack (defined by the mesh of low dimension) are not neighbor anymore.
-  ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00,tmp0,tmp1);
-  DAInt neigh00(tmp0);
-  DAInt neighI00(tmp1);
+  //     In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
+  //     of the frontier given in parameter (i.e. the cells of low dimension from the group delimiting the crack):
+  DataArrayIdType::RemoveIdsFromIndexedArrays(idsOfM1->begin(), idsOfM1->end(),desc,descI);
+  //     Compute the neighbor of each cell in mAroundGrp, taking into account the broken link above. Two
+  //     cells on either side of the crack (defined by the mesh of low dimension) are not neighbor anymore.
+  DataArrayIdType *neight=0, *neighIt=0;
+  MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(desc,descI,revDesc,revDescI, neight, neighIt);
+  DAInt neigh(neight), neighI(neighIt);
 
-  // For each initial connex part of the sub-mesh (or said differently for each independent crack):
-  mcIdType seed = 0, nIter = 0;
-  mcIdType nIterMax = nCells2+1; // Safety net for the loop
-  DAInt hitCells = DataArrayIdType::New(); hitCells->alloc(nCells2);
-  hitCells->fillWithValue(-1);
-  DAInt cellsToModifyConn0_torenum = DataArrayIdType::New();
-  cellsToModifyConn0_torenum->alloc(0,1);
+  // For each initial connex part of the M1 mesh (or said differently for each independent crack):
+  mcIdType seed=0, nIter=0;
+  mcIdType nIterMax = nCells+1; // Safety net for the loop
+  DAInt hitCells = DataArrayIdType::New(); hitCells->alloc(nCells,1);
+  mcIdType* hitCellsP = hitCells->rwBegin();
+  hitCells->fillWithValue(0);  // 0 : not hit, +x: one side of the crack, -x: other side of the crack, with 'x' the index of the connex component
+  mcIdType PING_FULL, PONG_FULL;
+  mcIdType MAX_CP = 10000;  // the choices below assume we won't have more than 10000 different connex parts ...
+  mcIdType PING_FULL_init = 0, PING_PART = MAX_CP;
+  mcIdType PONG_FULL_init = 0, PONG_PART = -MAX_CP;
+  cnt=0;
   while (nIter < nIterMax)
     {
-      DAInt t = hitCells->findIdsEqual(-1);
-      if (!t->getNumberOfTuples())
+      DAInt t = hitCells->findIdsEqual(0);
+      if(!t->getNumberOfTuples())
         break;
-      // Connex zone without the crack (to compute the next seed really)
-      mcIdType dnu;
-      DAInt connexCheck = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neighInit00,neighIInit00, -1, dnu);
-      mcIdType cnt(0);
-      for (mcIdType * ptr = connexCheck->getPointer(); cnt < connexCheck->getNumberOfTuples(); ptr++, cnt++)
-        hitCells->setIJ(*ptr,0,1);
-      // Connex zone WITH the crack (to identify cells lying on either part of the crack)
-      DAInt spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neigh00,neighI00, -1, dnu);
-      cellsToModifyConn0_torenum = DataArrayIdType::Aggregate(cellsToModifyConn0_torenum, spreadZone, 0);
-      // Compute next seed, i.e. a cell in another connex part, which was not covered by the previous iterations
-      DAInt comple = cellsToModifyConn0_torenum->buildComplement(nCells2);
-      DAInt nonHitCells = hitCells->findIdsEqual(-1);
-      DAInt intersec = nonHitCells->buildIntersection(comple);
-      if (intersec->getNumberOfTuples())
-        { seed = intersec->getIJ(0,0); }
+      mcIdType seed = t->getIJ(0,0);
+      bool done = false;
+      cnt++;
+      PING_FULL = PING_FULL_init+cnt;
+      PONG_FULL = PONG_FULL_init-cnt;
+      // while the connex bits in correspondance on either side of the crack are not fully covered
+      while(!done && nIter < nIterMax)  // Start of the ping-pong
+        {
+          nIter++;
+          // Identify connex zone around the seed - this zone corresponds to some cells on the other side
+          // of the crack that might extend further away. So we will need to compute spread zone on the other side
+          // too ... and this process can repeat, hence the "ping-pong" logic.
+          mcIdType dnu;
+          DAInt spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neigh,neighI, -1, dnu);
+          done = true;
+          for(const mcIdType& s: *spreadZone)
+            {
+              hitCellsP[s] = PING_FULL;
+              const auto& it = toOtherSide.find(s);
+              if (it != toOtherSide.end())
+                {
+                  mcIdType other = it->second;
+                  if (hitCellsP[other] != PONG_FULL)
+                    {
+                      // On the other side of the crack we hit a cell which was not fully covered previously by the 
+                      // ComputeSpreadZone process, so we are not done yet, ComputeSreadZone will need to be applied there
+                      done = false;
+                      hitCellsP[other] = PONG_PART;
+                      //  Compute next seed, i.e. a cell on the other side of the crack
+                      seed = other;
+                    }
+                }
+            }
+          if (done)
+            {
+              // we might have several disjoint PONG parts in front of a single PING connex part:
+              DAInt idsPong = hitCells->findIdsEqual(PONG_PART);
+              if (idsPong->getNumberOfTuples())
+                {
+                  seed = idsPong->getIJ(0,0);
+                  done = false;
+                }
+              continue;  // continue without switching side (or break if 'done' remains false)
+            }
+          else
+            {
+              // Go to the other side
+              std::swap(PING_FULL, PONG_FULL);
+              std::swap(PING_PART, PONG_PART);
+            }
+        } // while (!done ...)
+      DAInt nonHitCells = hitCells->findIdsEqual(0);
+      if (nonHitCells->getNumberOfTuples())
+        seed = nonHitCells->getIJ(0,0);
       else
-        { break; }
-      nIter++;
-    }
+        break;
+    } // while (nIter < nIterMax ...
   if (nIter >= nIterMax)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate(): internal error - too many iterations.");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: Too many iterations - should not happen");
 
-  DAInt cellsToModifyConn1_torenum=cellsToModifyConn0_torenum->buildComplement(neighI00->getNumberOfTuples()-1);
-  cellsToModifyConn0_torenum->transformWithIndArr(cellsAroundGroup->begin(),cellsAroundGroup->end());
-  cellsToModifyConn1_torenum->transformWithIndArr(cellsAroundGroup->begin(),cellsAroundGroup->end());
+  // Now we have handled all N D cells which have a face touching the M1 group. It remains the cells
+  // which are just touching the group by one (or several) node(s) (see for example testBuildInnerBoundaryAlongM1Group4)
+  // All those cells are in direct contact with a cell which is either PING_FULL or PONG_FULL
+  // So first reproject the PING/PONG info onto mAroundGrpLarge:
+  DAInt hitCellsLarge = DataArrayIdType::New(); hitCellsLarge->alloc(nCellsLarge,1);
+  hitCellsLarge->fillWithValue(0);
+  mcIdType *hitCellsLargeP=hitCellsLarge->rwBegin(), tt=0;
+  for(const auto &i: *idsStrict)
+    { hitCellsLargeP[i] = hitCellsP[tt++]; }
+  DAInt nonHitCells = hitCellsLarge->findIdsEqual(0);
+  // Neighbor information in mAroundGrpLarge:
+  DataArrayIdType *neighLt=0, *neighILt=0;
+  MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(descL,descIL,revDescL,revDescIL, neighLt, neighILt);
+  DAInt neighL(neighLt), neighIL(neighILt);
+  const mcIdType *neighILP=neighIL->begin(), *neighLP=neighL->begin();
+  for(const auto& c : *nonHitCells)
+    {
+      mcIdType cnt00 = neighILP[c];
+      for (const mcIdType *n=neighLP+cnt00; cnt00 < neighILP[c+1]; n++, cnt00++)
+        {
+          mcIdType neighVal = hitCellsLargeP[*n];
+          if (neighVal != 0 && std::abs(neighVal) < MAX_CP)  // (@test_T0) second part of the test to skip cells being assigned and target only cells assigned in the first part of the algo above
+            {
+              mcIdType currVal = hitCellsLargeP[c];
+              if (currVal != 0)   // Several neighbors have a candidate number
+                {
+                  // Unfortunately in some weird cases (see testBuildInnerBoundary8) a cell in mAroundGrpLarge
+                  // might have as neighbor two conflicting spread zone ...
+                  if (currVal*neighVal < 0)
+                    {
+                      // If we arrive here, the cell was already assigned a number and we found a neighbor with
+                      // a different sign ... we must swap the whole spread zone!!
+                      DAInt ids1 = hitCellsLarge->findIdsEqual(neighVal), ids1b = hitCellsLarge->findIdsEqual(-neighVal);
+                      DAInt ids2 = hitCellsLarge->findIdsEqual(MAX_CP*neighVal), ids2b = hitCellsLarge->findIdsEqual(-MAX_CP*neighVal);
+                      // A nice little lambda to multiply part of a DAInt by -1 ...
+                      auto mul_part_min1 = [hitCellsLargeP](const DAInt& ids) { for(const auto& i: *ids) hitCellsLargeP[i] *= -1; };
+                      mul_part_min1(ids1);
+                      mul_part_min1(ids1b);
+                      mul_part_min1(ids2);
+                      mul_part_min1(ids2b);
+                    }
+                }
+              else  // First assignation
+                hitCellsLargeP[c] = MAX_CP*neighVal;  // Same sign, but different value to preserve PING_FULL and PONG_FULL
+            }
+        }
+    }
+  DAInt cellsRet1 = hitCellsLarge->findIdsInRange(1,MAX_CP*MAX_CP);   // Positive spread zone number
+  DAInt cellsRet2 = hitCellsLarge->findIdsInRange(-MAX_CP*MAX_CP, 0); // Negative spread zone number
+
+  if (cellsRet1->getNumberOfTuples() + cellsRet2->getNumberOfTuples() != cellsAroundGroupLarge->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: Some cells not hit - Internal error should not happen");
+  cellsRet1->transformWithIndArr(cellsAroundGroupLarge->begin(),cellsAroundGroupLarge->end());
+  cellsRet2->transformWithIndArr(cellsAroundGroupLarge->begin(),cellsAroundGroupLarge->end());
   //
-  cellIdsNeededToBeRenum=cellsToModifyConn0_torenum.retn();
-  cellIdsNotModified=cellsToModifyConn1_torenum.retn();
-  nodeIdsToDuplicate=dupl.retn();
+  cellIdsNeededToBeRenum=cellsRet1.retn();
+  cellIdsNotModified=cellsRet2.retn();
 }
 
 /*!
