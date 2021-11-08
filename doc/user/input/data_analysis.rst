@@ -491,6 +491,18 @@ The last argument if True, only polygons are checked, else, all cells are checke
 
    A mesh before applying orientCorrectly2DCells (to the left) and after (to the right)
 
+Alternatively you can orient all 2D cells equally using the first cell as a reference:
+
+.. literalinclude:: ../../../src/MEDCoupling_Swig/UsersGuideExamplesTest.py
+   :start-after: UG_CommonHandlingMesh_11_1
+   :end-before:  UG_CommonHandlingMesh_11_1
+
+Also it is possible to orient some selected 2D cells by using another group of cells as the reference:
+
+.. literalinclude:: ../../../src/MEDCoupling_Swig/UsersGuideExamplesTest.py
+   :start-after: UG_CommonHandlingMesh_11_2
+   :end-before:  UG_CommonHandlingMesh_11_2
+
 If your mesh includes incorrectly oriented polyhedra, the following method can help to fix your mesh:
 
 .. literalinclude:: ../../../src/MEDCoupling_Swig/UsersGuideExamplesTest.py

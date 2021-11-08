@@ -919,6 +919,17 @@ void CppExample_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented()
   mesh->are2DCellsNotCorrectlyOriented( vec, false, badCellIds );
   CPPUNIT_ASSERT( badCellIds.size() == 0 ); // the orientation is OK
   //! [CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_2]
+  //! [CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_3]
+  mesh->orientCorrectly2DCells();
+  //! [CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_3]
+  //! [CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_4]
+  const mcIdType refCells[] = { 0,2 };
+  const mcIdType objCells[] = { 1,3 };
+  MCAuto<MEDCouplingUMesh> refGroup = mesh->buildPartOfMySelf( refCells, refCells + 2 );
+  MCAuto<MEDCouplingUMesh> objGroup = mesh->buildPartOfMySelf( objCells, objCells + 2 );
+  objGroup->orientCorrectly2DCells( refGroup );
+  mesh->setPartOfMySelf( objCells, objCells + 2, *objGroup );
+  //! [CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_4]
 }
 
 void CppExample_MEDCouplingUMesh_getCellsContainingPoints()

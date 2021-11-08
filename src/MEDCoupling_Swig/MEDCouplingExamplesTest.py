@@ -706,6 +706,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         badCellIds=mesh.are2DCellsNotCorrectlyOriented( vec, False )
         assert len( badCellIds ) == 0 # the orientation is OK
         #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_2]
+        #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_3]
+        mesh.orientCorrectly2DCells( None )
+        #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_3]
+        #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_4]
+        refCells = [ 0,2 ]
+        objCells = [ 1,3 ]
+        refGroup = mesh.buildPartOfMySelf( refCells )
+        objGroup = mesh.buildPartOfMySelf( objCells )
+        objGroup.orientCorrectly2DCells( refGroup )
+        mesh.setPartOfMySelf( objCells, objGroup )
+        #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_4]
         return
 
     def testExample_MEDCouplingUMesh_getCellsContainingPoints(self):

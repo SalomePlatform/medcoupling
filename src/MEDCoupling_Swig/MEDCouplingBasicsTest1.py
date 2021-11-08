@@ -2311,6 +2311,69 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(mesh.getNodalConnectivityIndex().getValues(), cIRef)
         pass
 
+    def testCellOrientation6(self):
+        # CCTP 2.3.1 (bos #26452)
+        mesh = MEDCouplingUMesh('Orientation', 3)
+        coo = [0,0,0, 0,10,0, 10,0,0, 10,10,0, -10,0,0, -10,10,-0, 0,0,10, 10,0,10, -10,0,10, 0,-10,0, 10,-10,0, -10,-10,0, 0,5,0, 5,0,0, 10,5,0, 5,10,0, -5,0,-0, -10,5,-0, -5,10,-0, 0,0,5, 10,0,5, 5,0,10, -10,0,5, -5,0,10, 0,-5,0, 10,-5,0, 5,-10,0, -10,-5,0, -5,-10,0, 5,5,0, -5,5,-0, 5,0,5, -5,0,5, 5,-5,0, -5,-5,0]
+        meshCoords = DataArrayDouble.New(coo, 35, 3)
+        mesh.setCoords(meshCoords)
+        mesh.setMeshDimension( 2 )
+        conn = [ 1,12,29,15, 15,29,14, 3, 12, 0,13,29, 29,13, 2,14,  1,12,30,18, 18,30,17, 5, 12, 0,16,30, 30,16, 4,17,  6,19,31,21, 21,31,20, 7, 19, 0,13,31, 31,13, 2,20,  6,19,32,23, 23,32,22, 8, 19, 0,16,32, 32,16, 4,22, 9,24,33,26, 26,33,25,10, 24, 0,13,33, 33,13, 2,25, 9,24,34,28, 28,34,27,11, 24, 0,16,34, 34,16, 4,27]
+        mesh.allocateCells(24)
+        for i in range(24):
+            mesh.insertNextCell(NORM_QUAD4,4,conn[4*i:4*(i+1)]);
+        mesh.finishInsertingCells()
+        Group_1 = list( range( 0, 4 ))
+        Group_2 = list( range( 4, 8 ))
+        Group_3 = list( range( 8, 12 ))
+        Group_5 = list( range( 16, 20 ))
+        Group_7 = Group_3
+        Group_8 = list( range( 12, 16 ))
+
+        # example 1.1 - check failure on non-manifold
+        objMesh = mesh.buildPartOfMySelf( Group_1 + Group_3 + Group_5 )
+        refMesh = mesh.buildPartOfMySelf( Group_1 )
+        self.assertRaisesRegex(Exception, "Non-manifold",
+                               objMesh.orientCorrectly2DCells, refMesh )
+        # example 1.2
+        # - do nothing, as request "de non-appartenance de la reference a la cible" dropped
+        #
+        # example 1.3 - fix orientation of Group_1 and Group_8
+        objMesh = mesh.buildPartOfMySelf( Group_1 + Group_2 + Group_7 + Group_8 )
+        refMesh = mesh.buildPartOfMySelf( Group_7 )
+        objMesh.orientCorrectly2DCells( refMesh )
+        # check Group_1
+        self.assertEqual( objMesh.getNodeIdsOfCell( 0 ), [ 1, 15, 29, 12 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 1 ), [ 15, 3, 14, 29 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 2 ), [ 12, 29, 13, 0 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 3 ), [ 29, 14, 2, 13 ])
+        # check Group_8
+        self.assertEqual( objMesh.getNodeIdsOfCell( 12 ), [ 6, 23, 32, 19 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 13 ), [ 23, 8, 22, 32 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 14 ), [ 19, 32, 16, 0 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 15 ), [ 32, 22, 4, 16 ])
+        #
+        # Case with no reference given. Group_2 and Group_7 must reverse
+        objMesh = mesh.buildPartOfMySelf( Group_1 + Group_2 + Group_7 + Group_8 )
+        objMesh.orientCorrectly2DCells( None )
+        # check Group_2
+        self.assertEqual( objMesh.getNodeIdsOfCell( 4 ), [ 1, 18, 30, 12 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 5 ), [ 18, 5, 17, 30 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 6 ), [ 12, 30, 16, 0 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 7 ), [ 30, 17, 4, 16 ])
+        # check Group_7
+        self.assertEqual( objMesh.getNodeIdsOfCell( 8 ), [ 6, 21, 31, 19 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 9 ), [ 21, 7, 20, 31 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 10 ), [ 19, 31, 13, 0 ])
+        self.assertEqual( objMesh.getNodeIdsOfCell( 11 ), [ 31, 20, 2, 13 ])
+        #
+        # Case with differently oriented reference faces. Expect an exception
+        objMesh = mesh.buildPartOfMySelf( Group_1 + Group_2 + Group_7 + Group_8 )
+        refMesh = mesh.buildPartOfMySelf( Group_1 + Group_2 )
+        self.assertRaisesRegex(Exception, "Different orientation",
+                               objMesh.orientCorrectly2DCells, refMesh )
+        pass
+
     def testPolyhedronBarycenter(self):
         connN=[0,3,2,1, -1, 4,5,6,7, -1, 0,4,7,3, -1, 3,7,6,2, -1, 2,6,5,1, -1, 1,5,4,0];
         coords=[0.,0.,0., 1.,0.,0., 1.,1.,0., 0.,1.,0., 0.,0.,1., 1.,0.,1., 1.,1.,1., 0.,1.,1., 0.5, 0.5, 0.5];

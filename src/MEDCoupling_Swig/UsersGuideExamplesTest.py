@@ -475,6 +475,19 @@ vec=[0,0,-1]
 skin.orientCorrectly2DCells(vec,False)
 #! [UG_CommonHandlingMesh_11]
 
+#! [UG_CommonHandlingMesh_11_1]
+skin.orientCorrectly2DCells( None )
+#! [UG_CommonHandlingMesh_11_1]
+
+#! [UG_CommonHandlingMesh_11_2]
+refCells = [ 0,2,4 ]
+objCells = [ 1,3,5,6,7,8, 20 ]
+refGroup = skin.buildPartOfMySelf( refCells )
+objGroup = skin.buildPartOfMySelf( objCells )
+objGroup.orientCorrectly2DCells( refGroup )
+skin.setPartOfMySelf( objCells, objGroup )
+#! [UG_CommonHandlingMesh_11_2]
+
 #! [UG_CommonHandlingMesh_12]
 m3.orientCorrectlyPolyhedrons()
 #! [UG_CommonHandlingMesh_12]

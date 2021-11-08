@@ -8527,3 +8527,411 @@ const mcIdType *MEDCouplingUMeshCell::getAllConn(mcIdType& lgth) const
   else
     return 0;
 }
+
+/// @cond INTERNAL
+
+namespace MEDCouplingImpl
+{
+  const mcIdType theUndefID = std::numeric_limits< mcIdType >::max(); //!< undefined cell id
+
+  //================================================================================
+  /*!
+   * \brief Encode a cell id and a mesh index into a code
+   *  \param [in] id - cell id
+   *  \param [in] iMesh - mesh index [0,1]
+   *  \return mcIdType - code
+   */
+  //================================================================================
+
+  mcIdType encodeID( mcIdType id, int iMesh )
+  {
+    return ( id + 1 ) * ( iMesh ? -1 : 1 );
+  }
+  //================================================================================
+  /*!
+   * \brief Return cell id and mesh index by a given id
+   *  \param [in] id - code of a cell in a mesh
+   *  \param [out] iMesh - returned mesh index
+   *  \return mcIdType - cell id
+   */
+  //================================================================================
+
+  mcIdType decodeID( mcIdType id, int& iMesh )
+  {
+    iMesh = ( id < 0 );
+    return std::abs( id ) - 1;
+  }
+
+  //================================================================================
+  /*!
+   * \brief return another face sharing two given nodes of a face edge
+   *  \param [in] n0 - 1st node of the edge
+   *  \param [in] n1 - 2nd node of the edge
+   *  \param [in] inputFaceID - face including \a n0 andf \a n2
+   *  \param [in] mesh - object and reference meshes
+   *  \param [in] revNodal - reverse nodal connectivity of the two meshes
+   *  \param [in] revNodalIndx - index of reverse nodal connectivity of the two meshes
+   *  \param [out] facesByEdge - return another face including \a n0 andf \a n2
+   *  \param [out] equalFaces - return faces equal to facesByEdge
+   */
+  //================================================================================
+
+  void getFacesOfEdge( mcIdType n0,
+                       mcIdType n1,
+                       mcIdType inputFaceID,
+                       MEDCouplingUMesh* mesh[],
+                       MCAuto<DataArrayIdType> revNodal[],
+                       MCAuto<DataArrayIdType> revNodalIndx[],
+                       std::vector< mcIdType >& facesByEdge,
+                       std::vector< mcIdType >& equalFaces)
+  {
+    // find faces sharing the both nodes of edge
+
+    facesByEdge.clear();
+    size_t prevNbF; // nb faces found in 0-th mesh
+    for ( int iM = 0; iM < 2; ++iM )
+      {
+        const mcIdType * revInd = revNodalIndx[ iM ]->begin();
+        const mcIdType * rev    = revNodal    [ iM ]->begin();
+
+        mcIdType nbRevFaces0 = revInd[ n0 + 1 ] - revInd[ n0 ];
+        mcIdType nbRevFaces1 = revInd[ n1 + 1 ] - revInd[ n1 ];
+
+        prevNbF = facesByEdge.size();
+        facesByEdge.resize( prevNbF + std::max( nbRevFaces0, nbRevFaces1 ));
+
+        auto it = std::set_intersection( rev + revInd[ n0 ],
+                                         rev + revInd[ n0 ] + nbRevFaces0,
+                                         rev + revInd[ n1 ],
+                                         rev + revInd[ n1 ] + nbRevFaces1,
+                                         facesByEdge.begin() + prevNbF );
+        facesByEdge.resize( it - facesByEdge.begin() );
+      }
+
+    // facesByEdge now contains at least the 'inputFaceID'
+    // check if there are other faces
+
+    size_t nbF = facesByEdge.size();
+    if ( nbF > 1 )
+      {
+        if ( prevNbF > 0 && prevNbF < nbF ) // faces found in both meshes
+          {
+            // remove from facesByEdge equal faces in different meshes
+            const mcIdType *conn [2] = { mesh[0]->getNodalConnectivity()->getConstPointer(),
+                                         mesh[1]->getNodalConnectivity()->getConstPointer() };
+            const mcIdType *connI[2] = { mesh[0]->getNodalConnectivityIndex()->getConstPointer(),
+                                         mesh[1]->getNodalConnectivityIndex()->getConstPointer() };
+            for ( size_t i0 = 0; i0 < prevNbF; ++i0 )
+              {
+                if ( facesByEdge[ i0 ] == theUndefID )
+                  continue;
+                mcIdType objFaceID = MEDCouplingImpl::encodeID( facesByEdge[ i0 ], 0 );
+                bool   isInputFace = ( objFaceID == inputFaceID );
+
+                for ( size_t i1 = prevNbF; i1 < facesByEdge.size(); ++i1 )
+                  {
+                    if ( facesByEdge[ i1 ] == theUndefID )
+                      continue;
+
+                    mcIdType f0 = facesByEdge[ i0 ];
+                    mcIdType f1 = facesByEdge[ i1 ];
+                    size_t nbNodes0 = connI[0][ f0 + 1 ] - connI[0][ f0 ] - 1;
+                    size_t nbNodes1 = connI[1][ f1 + 1 ] - connI[1][ f1 ] - 1;
+                    if ( nbNodes0 != nbNodes1 )
+                      continue;
+
+                    const mcIdType * fConn0 = conn[0] + connI[0][ f0 ] + 1;
+                    const mcIdType * fConn1 = conn[1] + connI[1][ f1 ] + 1;
+                    if ( std::equal( fConn0, fConn0 + nbNodes0, fConn1 ))
+                      {
+                        // equal faces; remove an object one
+                        mcIdType refFaceID = MEDCouplingImpl::encodeID( facesByEdge[ i1 ], 1 );
+                        if ( refFaceID == inputFaceID )
+                          isInputFace = true;
+
+                        if ( std::find( equalFaces.begin(),
+                                        equalFaces.end(), objFaceID ) == equalFaces.end() )
+                          equalFaces.push_back( objFaceID );
+
+                        facesByEdge[ i0 ] = theUndefID;
+                        if ( isInputFace )
+                          facesByEdge[ i1 ] = theUndefID;
+                        break;
+                      }
+                  }
+                if ( isInputFace )
+                  facesByEdge[ i0 ] = theUndefID;
+              }
+          }
+      }
+
+    nbF = facesByEdge.size();
+    for ( size_t i = 0; i < facesByEdge.size(); ++i )
+      {
+        if ( facesByEdge[ i ] != theUndefID )
+          {
+            facesByEdge[ i ] = MEDCouplingImpl::encodeID( facesByEdge[ i ], i >= prevNbF );
+            if ( facesByEdge[ i ] == inputFaceID )
+              facesByEdge[ i ] = theUndefID;
+          }
+        nbF -= ( facesByEdge[ i ] == theUndefID );
+      }
+
+    if ( nbF > 1 )
+      return; // non-manifold
+
+    if ( nbF < 1 )
+      {
+        facesByEdge.clear();
+      }
+    else // nbF == 1, set a found face first
+      {
+        if ( facesByEdge[ 0 ] == theUndefID )
+          {
+            for ( size_t i = 1; i < facesByEdge.size(); ++i )
+              if ( facesByEdge[ i ] != theUndefID )
+                {
+                  facesByEdge[ 0 ] = facesByEdge[ i ];
+                  break;
+                }
+          }
+        facesByEdge.resize( 1 );
+      }
+    return;
+  }
+
+  //================================================================================
+  /*!
+   * \brief Remove a face from nodal reversed connectivity
+   *  \param [in] node - a node of the face
+   *  \param [in] face - the face
+   *  \param [in.out] revNodal - reverse nodal connectivity
+   *  \param [in,out] revNodalIndx - reverse nodal connectivity index
+   */
+  //================================================================================
+
+  void removeFromRevNodal( mcIdType node,
+                           mcIdType face,
+                           MCAuto<DataArrayIdType>& revNodal,
+                           MCAuto<DataArrayIdType>& revNodalIndx)
+  {
+    mcIdType* fBeg = revNodal->getPointer() + revNodalIndx->getIJ( node, 0 );
+    mcIdType* fEnd = revNodal->getPointer() + revNodalIndx->getIJ( node + 1, 0);
+    auto it = std::find( fBeg, fEnd, face );
+    if ( it != fEnd )
+      {
+        for ( auto it2 = it + 1; it2 < fEnd; ++it2 ) // keep faces sorted
+          *( it2 - 1 ) = *it2;
+
+        *( fEnd - 1 ) = theUndefID;
+      }
+  }
+
+  //================================================================================
+  /*!
+   * \brief Check order of two nodes in a given face
+   *  \param [inout] n0 - node 1
+   *  \param [inout] n1 - node 2
+   *  \param [inout] iFEnc - face
+   *  \param [inout] mesh - mesh
+   *  \return bool - true if the nodes are in [ .., n1, n0, ..] order in face
+   */
+  //================================================================================
+
+  bool isReverseOrder( mcIdType n0,
+                       mcIdType n1,
+                       mcIdType iFEnc,
+                       MEDCouplingUMesh* mesh[] )
+  {
+    int iMesh;
+    mcIdType iF = decodeID( iFEnc, iMesh );
+
+    const mcIdType *conn  = mesh[ iMesh ]->getNodalConnectivity()->getConstPointer();
+    const mcIdType *connI = mesh[ iMesh ]->getNodalConnectivityIndex()->getConstPointer();
+
+    auto it0 = std::find( conn + connI[ iF ] + 1,
+                          conn + connI[ iF + 1 ],
+                          n0 );
+    auto it1 = std::find( conn + connI[ iF ] + 1,
+                          conn + connI[ iF + 1 ],
+                          n1 );
+    long i0 = it0 - conn;
+    long i1 = it1 - conn;
+
+    bool isRev = ( std::abs( i1 - i0 ) == 1 ) ?  i1 < i0 :  i0 < i1;
+    return isRev;
+  }
+
+  //================================================================================
+  /*!
+   * \brief Change orientation of a face in one of given meshes
+   *  \param [in] iFEnc - face ID also encoding a mesh index
+   *  \param [in,out] mesh - object and reference meshes
+   */
+  //================================================================================
+
+  void reverseFace( mcIdType iFEnc, MEDCouplingUMesh* mesh[] )
+  {
+    int iMesh;
+    mcIdType face = decodeID( iFEnc, iMesh );
+
+    mcIdType *conn  = mesh[ iMesh ]->getNodalConnectivity()->getPointer();
+    mcIdType *connI = mesh[ iMesh ]->getNodalConnectivityIndex()->getPointer();
+
+    const INTERP_KERNEL::CellModel& cm =
+      INTERP_KERNEL::CellModel::GetCellModel( mesh[iMesh]->getTypeOfCell( face ));
+
+    cm.changeOrientationOf2D( conn + connI[ face ] + 1,
+                              (unsigned int)( connI[ face + 1 ] - connI[ face ] - 1 ));
+    return;
+  }
+}
+
+/// @endcond
+
+//================================================================================
+/*!
+ * \brief Orient cells of \a this 2D mesh equally to \a refFaces
+ *  \param [in] refFaces - 2D mesh containing correctly oriented faces. It is optional.
+ *              If there are no cells in \a refFaces or it is nullptr, then any face
+ *              in \a this mesh is used as a reference
+ *  \throw If \a this mesh is not well defined.
+ *  \throw If \a this mesh or \refFaces are not 2D.
+ *  \throw If \a this mesh and \refFaces do not share nodes.
+ *  \throw If \a refFaces are not equally oriented.
+ *  \throw If \a this mesh plus \a refFaces together form a non-manifold mesh.
+ *
+ *  \if ENABLE_EXAMPLES
+ *  \ref cpp_mcumesh_are2DCellsNotCorrectlyOriented "Here is a C++ example".<br>
+ *  \ref  py_mcumesh_are2DCellsNotCorrectlyOriented "Here is a Python example".
+ *  \endif
+ */
+//================================================================================
+
+void MEDCouplingUMesh::orientCorrectly2DCells(const MEDCouplingUMesh* refFaces)
+{
+  checkConsistencyLight();
+  if ( getMeshDimension() != 2 )
+    throw INTERP_KERNEL::Exception("The mesh dimension must be 2");
+  if ( refFaces )
+    {
+      refFaces->checkConsistencyLight();
+      if ( refFaces->getMeshDimension() != 2 )
+        throw INTERP_KERNEL::Exception("The reference mesh dimension must be 2");
+      if ( getCoords() != refFaces->getCoords() )
+        throw INTERP_KERNEL::Exception("Object and reference meshes must share nodes ");
+      if ( refFaces->getNumberOfCells() == 0 )
+        refFaces = nullptr;
+    }
+  if ( getNumberOfCells() == 0 )
+    return;
+
+  enum { _OBJ, _REF };
+  MEDCouplingUMesh* mesh[2] = { this, const_cast< MEDCouplingUMesh* >( refFaces ) };
+  MCAuto<MEDCouplingUMesh> meshPtr;
+  if ( !mesh[_REF] )
+    {
+      meshPtr = mesh[_REF] = MEDCouplingUMesh::New();
+      mesh[_REF]->setCoords( mesh[_OBJ]->getCoords() );
+      mesh[_REF]->allocateCells(0);
+      mesh[_REF]->finishInsertingCells();
+    }
+  mcIdType nbFacesToCheck[2] = { mesh[_OBJ]->getNumberOfCells(),
+                                 mesh[_REF]->getNumberOfCells() };
+  std::vector< bool > isFaceQueued[ 2 ]; // enqueued faces of 2 meshes
+  isFaceQueued[_OBJ].resize( nbFacesToCheck[_OBJ] );
+  isFaceQueued[_REF].resize( nbFacesToCheck[_REF] );
+
+  MCAuto<DataArrayIdType> revNodal    [2] = { DataArrayIdType::New(), DataArrayIdType::New() };
+  MCAuto<DataArrayIdType> revNodalIndx[2] = { DataArrayIdType::New(), DataArrayIdType::New() };
+  mesh[_OBJ]->getReverseNodalConnectivity( revNodal[_OBJ], revNodalIndx[_OBJ] );
+  mesh[_REF]->getReverseNodalConnectivity( revNodal[_REF], revNodalIndx[_REF] );
+
+  std::vector< mcIdType > faceNodes(4);
+  std::vector< mcIdType > facesByEdge(4), equalFaces;
+  std::vector< mcIdType > faceQueue; // starting faces with IDs counted from 1; negative ID mean a face in ref mesh
+
+  while ( nbFacesToCheck[_OBJ] + nbFacesToCheck[_REF] > 0 ) // until all faces checked
+    {
+      if ( faceQueue.empty() ) // all neighbors checked, find more faces to check
+        {
+          for ( int iMesh = 1; iMesh >= 0; --iMesh ) // on [ _REF, _OBJ ]
+            if ( nbFacesToCheck[iMesh] > 0 )
+              for ( mcIdType f = 0, nbF = mesh[iMesh]->getNumberOfCells(); f < nbF; ++f )
+                if ( !isFaceQueued[iMesh][f] )
+                  {
+                    faceQueue.push_back( MEDCouplingImpl::encodeID( f, iMesh ));
+                    isFaceQueued[ iMesh ][ f ] = true;
+                    iMesh = 0;
+                    break;
+                  }
+          if ( faceQueue.empty() )
+            break;
+        }
+
+      mcIdType fID = faceQueue.back();
+      faceQueue.pop_back();
+
+      int iMesh, iMesh2;
+      mcIdType refFace = MEDCouplingImpl::decodeID( fID, iMesh );
+
+      nbFacesToCheck[iMesh]--;
+
+      equalFaces.clear();
+      faceNodes.clear();
+      mesh[iMesh]->getNodeIdsOfCell( refFace, faceNodes );
+      const INTERP_KERNEL::CellModel& cm = INTERP_KERNEL::CellModel::GetCellModel( mesh[iMesh]->getTypeOfCell( refFace ));
+      const int nbEdges = cm.getNumberOfSons();
+
+      // loop on edges of the refFace
+      mcIdType n0 = faceNodes[ nbEdges - 1 ]; // 1st node of edge
+      for ( int edge = 0; edge < nbEdges; ++edge )
+        {
+          mcIdType n1 = faceNodes[ edge ]; // 2nd node of edge
+
+          // get faces sharing the edge
+          MEDCouplingImpl::getFacesOfEdge( n0, n1, fID, mesh, revNodal, revNodalIndx,
+                                           facesByEdge, equalFaces );
+
+          if ( facesByEdge.size() > 1 )
+            THROW_IK_EXCEPTION("Non-manifold mesh at edge " << n0+1 << " - " << n1+1);
+
+          if ( facesByEdge.size() == 1 )
+            {
+              // compare orientation of two faces
+              //
+              if ( !MEDCouplingImpl::isReverseOrder( n0, n1, facesByEdge[0], mesh ))
+                {
+                  if ( facesByEdge[0] < 0 ) // in the ref mesh
+                    throw INTERP_KERNEL::Exception("Different orientation of reference faces");
+
+                  MEDCouplingImpl::reverseFace( facesByEdge[0], mesh );
+                }
+              mcIdType face2 = MEDCouplingImpl::decodeID( facesByEdge[0], iMesh2 );
+              if ( !isFaceQueued[iMesh2][face2] )
+                {
+                  isFaceQueued[iMesh2][face2] = true;
+                  faceQueue.push_back( facesByEdge[0] );
+                }
+            }
+          n0 = n1;
+        }
+
+      // remove face and equalFaces from revNodal in order not to treat them again
+      equalFaces.push_back( fID );
+      for ( mcIdType face : equalFaces )
+        {
+          mcIdType f            = MEDCouplingImpl::decodeID( face, iMesh2 );
+          const mcIdType *conn  = mesh[iMesh2]->getNodalConnectivity()->getConstPointer();
+          const mcIdType *connI = mesh[iMesh2]->getNodalConnectivityIndex()->getConstPointer();
+          mcIdType nbNodes      = connI[ f + 1 ] - connI[ f ] - 1;
+          for ( const mcIdType* n = conn + connI[ f ] + 1, *nEnd = n + nbNodes; n < nEnd; ++n )
+
+            MEDCouplingImpl::removeFromRevNodal( *n, f,  // not to treat f again
+                                                 revNodal[ iMesh2 ], revNodalIndx[ iMesh2 ] );
+        }
+
+    } // while() until all faces checked
+
+  return;
+}

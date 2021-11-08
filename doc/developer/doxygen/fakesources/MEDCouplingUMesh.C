@@ -132,6 +132,7 @@ MEDCouplingUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, dou
 //MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
 //MEDCouplingUMesh::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes);
 MEDCouplingUMesh::orientCorrectly2DCells(const double *vec, bool polyOnly);
+MEDCouplingUMesh::orientCorrectly2DCells(const MEDCouplingUMesh* refFaces = nullptr);
 MEDCouplingUMesh::orientCorrectlyPolyhedrons();
 //MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
 //MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);

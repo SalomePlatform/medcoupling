@@ -171,7 +171,10 @@ finds one reversed face. After that we fix the incorrectly oriented cell using
 \ref MEDCoupling::MEDCouplingUMesh::orientCorrectly2DCells "orientCorrectly2DCells()" and
 re-check the orientation of cells.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_2
-
+Alternatively you can orient all 2D cells equally using the first cell as a reference:
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_3
+Also it is possible to orient some selected 2D cells by using another group of cells as the reference:
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_4
 
 \subsubsection cpp_mcumesh_renumberNodesInConn Renumbering nodes in the connectivity array
 
