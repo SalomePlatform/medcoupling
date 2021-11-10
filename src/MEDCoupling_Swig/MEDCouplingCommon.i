@@ -85,11 +85,7 @@ typedef long int mcIdType;
 #endif
 %template(i32vec) std::vector<int>;
 #endif
-#ifdef WIN32
-typedef long long mcPyPtrType;
-#else
-typedef long mcPyPtrType;
-#endif
+
 
 ////////////////////
 %typemap(out) MEDCoupling::MEDCouplingMesh*
