@@ -21,7 +21,6 @@ SET(BASE_TESTS
   MEDLoaderTest123.py
   MEDLoaderTest4.py
   MEDLoaderExamplesTest.py
-  SauvLoaderTest.py
   UsersGuideExamplesTest_ML.py
 )
 

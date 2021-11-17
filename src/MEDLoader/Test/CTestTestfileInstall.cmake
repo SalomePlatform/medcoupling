@@ -19,7 +19,6 @@
 
 SET(TEST_NAMES
   TestMEDLoader
-  TestSauvLoader
 )
 
 FOREACH(tfile ${TEST_NAMES})
