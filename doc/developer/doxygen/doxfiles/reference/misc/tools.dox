@@ -74,27 +74,4 @@ It can be used in this way :
 renumber MEDFile_in MeshName Method[BOOST/METIS] MEDFile_out
 \endcode
 
-\section sauv2med sauv2med tool
-
-The sauv2med tool enable conversion from a Cast3m \a sauv file into a
-MED file. It is a python script that encapsulates the read/write
-drivers provided by the MEDLoader library.
-
-Calling
-\code
-sauv2med myfile.sauv
-\endcode
-generates a \a med file named \a myfile.sauv.med
-
-\section med2sauv med2sauv tool
-
-med2sauv operator is the operator that is inverse of sauv2med. Its
-behaviour is symmetrical.
-
-Calling
-\code
-med2sauv myfile.med
-\endcode
-generates a \a sauv file named \a myfile.med.sauv
-
 */

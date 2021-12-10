@@ -36,6 +36,12 @@ typedef std::int64_t mcIdType;
 
 #endif
 
+#ifdef WIN32
+typedef long long mcPyPtrType;
+#else
+typedef long mcPyPtrType;
+#endif
+
 template <class T> inline std::size_t ToSizeT(T val)
 {
   return static_cast<std::size_t>(val);

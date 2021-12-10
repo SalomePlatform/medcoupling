@@ -3706,7 +3706,7 @@ typedef DataArrayInt64 DataArrayIdType;
 
 %inline
 {
-  MEDCoupling::DataArrayByte *FromPyIntPtrToDataArrayByte(long intPtr)
+  MEDCoupling::DataArrayByte *FromPyIntPtrToDataArrayByte(mcPyPtrType intPtr)
   {
     MEDCoupling::DataArrayByte *ret(reinterpret_cast<MEDCoupling::DataArrayByte *>(intPtr));
     return ret;
