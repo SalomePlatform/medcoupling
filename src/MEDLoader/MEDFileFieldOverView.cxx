@@ -398,14 +398,19 @@ DataArrayIdType *MEDMeshMultiLev::retrieveGlobalNodeIdsIfAny() const
 {
   const MEDFileUMesh *umesh(dynamic_cast<const MEDFileUMesh *>(_mesh));
   if(!umesh)
-    return 0;
+    return nullptr;
   const PartDefinition *pd(umesh->getPartDefAtLevel(1));
   if(!pd)
-    return 0;
+  {
+    MCAuto<DataArrayIdType> gni = umesh->getGlobalNumFieldAtLevel(1);
+    if(gni.isNull())
+      return nullptr;
+    return gni->deepCopy();
+  }
   MCAuto<DataArrayIdType> tmp(pd->toDAI());
   const DataArrayIdType *tmpCpp(tmp);
   if(!tmpCpp)
-    return 0;
+    return nullptr;
   //
   const DataArrayIdType *nr(_node_reduction);
   if(nr)
