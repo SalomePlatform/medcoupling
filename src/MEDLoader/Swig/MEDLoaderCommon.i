@@ -784,6 +784,7 @@ namespace MEDCoupling
     void setIteration(int it);
     int getIteration() const;
     void pushCorrespondence(MEDFileJointCorrespondence* correspondence);
+    void clearCorrespondences();
     int getNumberOfCorrespondences() const;
     void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName) const;
     std::string simpleRepr() const;

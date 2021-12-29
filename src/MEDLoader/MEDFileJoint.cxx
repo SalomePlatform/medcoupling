@@ -328,6 +328,11 @@ void MEDFileJointOneStep::pushCorrespondence(MEDFileJointCorrespondence* corresp
   correspondence->incrRef();
 }
 
+void MEDFileJointOneStep::clearCorrespondences()
+{
+  _correspondences.clear();
+}
+
 int MEDFileJointOneStep::getNumberOfCorrespondences() const
 {
   return (int)_correspondences.size();

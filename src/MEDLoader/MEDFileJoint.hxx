@@ -94,6 +94,7 @@ public:
   MEDLOADER_EXPORT void setIteration(int it) { _iteration=it; }
   MEDLOADER_EXPORT int getIteration() const { return _iteration; }
   MEDLOADER_EXPORT void pushCorrespondence(MEDFileJointCorrespondence* correspondence);
+  MEDLOADER_EXPORT void clearCorrespondences();
   MEDLOADER_EXPORT int getNumberOfCorrespondences() const;
   MEDLOADER_EXPORT MEDFileJointCorrespondence *getCorrespondenceAtPos(int i) const;
 
