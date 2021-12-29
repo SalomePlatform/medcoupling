@@ -581,7 +581,7 @@ MEDFileJoint *MEDFileJoint::deepCopy() const
   for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++,i++)
     if((const MEDFileJointOneStep *)*it)
       joint[i]=(*it)->deepCopy();
-  MCAuto<MEDFileJoint> ret=MEDFileJoint::New();
+  MCAuto<MEDFileJoint> ret=new MEDFileJoint(*this);
   ret->_joint=joint;
   return ret.retn();
 }

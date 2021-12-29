@@ -5004,6 +5004,12 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual( "joint_description", one_joint.getDescription())
         self.assertEqual( 1, one_joint.getDomainNumber())
         self.assertEqual( "joint_1", one_joint.getJointName())
+        one_joint_copy = one_joint.deepCopy()
+        self.assertEqual( "maa1", one_joint_copy.getLocalMeshName())
+        self.assertEqual( "maa2", one_joint_copy.getRemoteMeshName())
+        self.assertEqual( "joint_description", one_joint_copy.getDescription())
+        self.assertEqual( 1, one_joint_copy.getDomainNumber())
+        self.assertEqual( "joint_1", one_joint_copy.getJointName())
         pass
 
     @unittest.skipUnless('linux'==platform.system().lower(),"stderr redirection not ported on Windows ?")
