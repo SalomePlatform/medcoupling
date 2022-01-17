@@ -21,6 +21,7 @@
 #define __TRANSFORMED_TRIANGLE_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "VectorUtils.hxx"
 
 #include <vector>
 

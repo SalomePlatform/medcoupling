@@ -1548,6 +1548,44 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fldTgt = remap.transferField(fldSrc, -1.0)
         self.assertTrue(fldTgt.getArray().isUniform(50.0, 1e-12))
 
+    def testGrandyBug1(self):
+        """
+        Non regression test relative to test tuleap26461
+        """
+        rem = MEDCouplingRemapper()
+        src_final = MEDCouplingUMesh("src_final",3)
+        src_final.setCoords( DataArrayDouble([0.74763179385813627,2.0528797000000716,0.42830000000000013,0.77426950622837643,2.0528797000000001,0.40000000000000036,0.77426950622837643,2.0528797000000001,0.42830000000000013,0.77426950622830537,2.0262419876297604,0.42830000000000013],4,3) )
+        src_final.allocateCells()
+        src_final.insertNextCell(NORM_TETRA4,[0,3,2,1])
+        trg_final = MEDCouplingUMesh("trg_final",3)
+        trg_final.setCoords( DataArrayDouble([0.81034725000000007,1.9988565499999984,0.40000000000000002,0.75632410000000005,2.0528796999999983,0.40000000000000002,0.75632410000000005,1.9988565499999984,0.41800000000000004,0.81034725000000007,2.0528796999999983,0.41800000000000004],4,3) )
+        trg_final.allocateCells()
+        trg_final.insertNextCell(NORM_TETRA4,[0,2,1,3])
+
+        ref_values = [# ref values coming from geom2medcoupling.py
+            (0.0,   1.671615506097834e-08),
+            (1e-12, 1.671615506712106e-08),
+            (1e-11, 1.671615512239666e-08),
+            (1e-10, 1.6716155675164925e-08),
+            (1e-9,  1.671616120285316e-08),
+            (1e-8,  1.6716216479802182e-08),
+            (1e-7,  1.671676925650806e-08),
+            (1e-6,  1.672014459316238e-08),
+            (1e-5,  1.6805275475457618e-08),
+            (1e-4,  1.7608769838220544e-08),
+            (1e-3,  2.5791583779126835e-08)
+        ]
+
+        for ty,ref_value in ref_values:
+            trg_final2 = trg_final.deepCopy()
+            trg_final2.translate([0,ty,0])
+            rem.setPrecision(1e-12)
+            rem.prepare(src_final,trg_final2,"P0P0")
+            mat_mc = rem.getCrudeMatrix()
+            csr_new = MEDCouplingRemapper.ToCSRMatrix(mat_mc,src_final.getNumberOfCells())
+            delta = abs(csr_new[0,0]-ref_value)/ref_value
+            self.assertTrue(delta < 1e-3)
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):

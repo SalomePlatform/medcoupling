@@ -188,7 +188,7 @@ inline bool TransformedTriangle::testEdgeIntersectsTriangle(const TetraEdge edge
 
   //? should equality with zero use epsilon?
   LOG(5, "testEdgeIntersectsTriangle : t1 = " << t1 << " t2 = " << t2 );
-  return (t1*t2 <= 0.0) && (t1 - t2 != 0.0);
+  return (t1*t2 <= 0.0) && !epsilonEqual(t1 - t2, 0.0); // tuleap26461
 }
 
 inline bool TransformedTriangle::testFacetSurroundsSegment(const TriSegment seg, const TetraFacet facet) const
