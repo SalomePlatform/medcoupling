@@ -29,7 +29,11 @@
 
 using namespace INTERP_KERNEL;
 
-UnitDataBase UnitDataBase::_uniqueMapForExpr;
+const UnitDataBase& UnitDataBase::GetUniqueMapForExpr()
+{
+  static UnitDataBase db;
+  return db;
+}
 
 static const char InterpKernelMuAscii[2]={-0x4B,0x0};
 

@@ -38,7 +38,7 @@ namespace INTERP_KERNEL
 {
   class DiameterCalculator;
   class OrientationInverter;
-  
+
   /*!
    * This class describes all static elements (different from polygons and polyhedron) 3D, 2D and 1D.
    */
@@ -50,9 +50,10 @@ namespace INTERP_KERNEL
     static const unsigned MAX_NB_OF_LITTLE_SONS=12;
   private:
     CellModel(NormalizedCellType type);
-    static void buildUniqueInstance();
+    static void BuildUniqueInstance(std::map<NormalizedCellType,CellModel>& map);
   public:
     INTERPKERNEL_EXPORT static const CellModel& GetCellModel(NormalizedCellType type);
+    INTERPKERNEL_EXPORT static const std::map<NormalizedCellType,CellModel>& GetMapOfUniqueInstance();
     INTERPKERNEL_EXPORT NormalizedCellType getEnum() const { return _type; }
     INTERPKERNEL_EXPORT const char *getRepr() const;
     INTERPKERNEL_EXPORT bool isExtruded() const { return _is_extruded; }
@@ -108,7 +109,6 @@ namespace INTERP_KERNEL
     unsigned _little_sons_con[MAX_NB_OF_LITTLE_SONS][3];
     unsigned _nb_of_sons_con[MAX_NB_OF_SONS];
     NormalizedCellType _sons_type[MAX_NB_OF_SONS];
-    static std::map<NormalizedCellType,CellModel> _map_of_unique_instance;
     static const char *CELL_TYPES_REPR[];
   };
 }

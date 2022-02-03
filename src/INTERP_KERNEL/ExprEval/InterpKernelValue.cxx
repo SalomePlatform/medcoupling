@@ -226,7 +226,7 @@ void ValueUnit::setDouble(double val)
 void ValueUnit::setVarname(int fastPos, const std::string& var)
 {
   double add,mul;
-  const short *projInBase=UnitDataBase::_uniqueMapForExpr.getInfoForUnit(var,add,mul);
+  const short *projInBase=UnitDataBase::GetUniqueMapForExpr().getInfoForUnit(var,add,mul);
   _data.setInfo(projInBase,add,mul);
 }
 
@@ -567,7 +567,7 @@ Value *ValueDoubleExpr::pow(const Value *other) const
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to operate pow(a,b) with a<0. !");
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind([](double x, double y){return std::pow(x,y);},std::placeholders::_1,p)); 
+  std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind([](double x, double y){return std::pow(x,y);},std::placeholders::_1,p));
   return ret;
 }
 

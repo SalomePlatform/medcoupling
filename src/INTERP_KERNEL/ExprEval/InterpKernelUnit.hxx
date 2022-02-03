@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT UnitDataBase();
     INTERPKERNEL_EXPORT const short *getInfoForUnit(const std::string& unit, double& addFact, double& mFact) const;
-    INTERPKERNEL_EXPORT static UnitDataBase _uniqueMapForExpr;
+    INTERPKERNEL_EXPORT static const UnitDataBase& GetUniqueMapForExpr();
     INTERPKERNEL_EXPORT static const int SIZE_OF_UNIT_BASE=5;
   private:
     std::map<std::string,double> _prefix_pow_10;
