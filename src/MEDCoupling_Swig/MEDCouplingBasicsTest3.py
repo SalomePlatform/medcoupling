@@ -2608,8 +2608,39 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         for i in range(135):
             self.assertAlmostEqual(expected11[i],slice1.getCoords().getIJ(0,i),12);
             pass
-        pass
+         ##
+        coo = DataArrayDouble([1.8686305176182501,0.85678785370447097,7.4, 1.8686305176182501,0.85678785370447097,7.5, 1.8663408654534299,0.82910039403216995,7.4, 1.8663408654534299,0.82910039403216995,7.5, 1.8370211426271501,0.83286926189135702,7.4, 1.8370211426271501,0.83286926189135702,7.5, 1.84595839792064,0.86012397150595199,7.4, 1.84595839792064,0.86012397150595199,7.5], 8,3)
+        conn = DataArrayInt([18,0,2,4,6,1,3,5,7])
+        connI = DataArrayInt([0,9])
 
+        mesh3D_2=MEDCouplingUMesh.New();
+        mesh3D_2.setName("3DMesh_2");
+        mesh3D_2.setMeshDimension(3);
+        mesh3D_2.setCoords(coo);
+        mesh3D_2.setConnectivity(conn,connI,True);
+
+        expected12=[0]
+        expected13=[5,5,9,8,4]
+        expected14=[0,5]
+        expected15=[1.8686305176182501,0.85678785370447097,7.4, 1.8686305176182501,0.85678785370447097,7.5, 1.8663408654534299,0.82910039403216995,7.4, 1.8663408654534299,0.82910039403216995,7.5, 1.8370211426271501,0.83286926189135702,7.4, 1.8370211426271501,0.83286926189135702,7.5, 1.84595839792064,0.86012397150595199, 7.4, 1.84595839792064,0.86012397150595199,7.5, 1.8666525378798646,0.83286927118760312,7.4, 1.8666525378798646,0.83286927118760312,7.5] 
+
+        y_cut = 0.8328692711876031
+        ori, vec = [0.0, y_cut, 0.0], [0.0,1.0,0.0]
+        slice1, ids = mesh3D_2.buildSlice3D(DataArrayDouble(ori,1,3), DataArrayDouble(vec,1,3), 1.0e-8)
+        self.assertEqual(2,slice1.getMeshDimension());
+        self.assertEqual(3,slice1.getSpaceDimension());
+        self.assertEqual(10,slice1.getNumberOfNodes());
+        self.assertEqual(1,slice1.getNumberOfCells());
+        self.assertEqual(1,ids.getNumberOfTuples());
+        self.assertEqual(5,slice1.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(2,slice1.getNodalConnectivityIndex().getNumberOfTuples());
+        self.assertEqual(expected12,ids.getValues());
+        self.assertEqual(expected13,slice1.getNodalConnectivity().getValues());
+        self.assertEqual(expected14,slice1.getNodalConnectivityIndex().getValues());
+        for i in range(27):
+            self.assertAlmostEqual(expected15[i],slice1.getCoords().getIJ(0,i),12);
+            pass    
+        pass
     def testBuildSlice3DSurf1(self):
         mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
         mesh2D=mesh3D.buildDescendingConnectivity()[0];

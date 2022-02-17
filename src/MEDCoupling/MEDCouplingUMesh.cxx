@@ -3838,7 +3838,11 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3D(const double *origin, const dou
   revDesc2=0; revDescIndx2=0;
   MCAuto<MEDCouplingUMesh> mDesc1=mDesc2->buildDescendingConnectivity(desc1,descIndx1,revDesc1,revDescIndx1);//meshDim==1 spaceDim==3
   revDesc1=0; revDescIndx1=0;
-  mDesc1->fillCellIdsToKeepFromNodeIds(&nodes[0],&nodes[0]+nodes.size(),true,cellIds1D);
+  //Marking all 1D cells that contained at least one node located on the plane
+  //the intersection between those cells and the plane, which consist of the nodes previously tagged, thus don't need to be computed afterwards
+  //(if said intersection is computed in MEDCouplingUMesh::split3DCurveWithPlane, then we might create additional nodes
+  //due to accuracy errors when the needed nodes already exist)
+  mDesc1->fillCellIdsToKeepFromNodeIds(&nodes[0],&nodes[0]+nodes.size(),false,cellIds1D);
   MCAuto<DataArrayIdType> cellIds1DTmp(cellIds1D);
   //
   std::vector<mcIdType> cut3DCurve(mDesc1->getNumberOfCells(),-2);

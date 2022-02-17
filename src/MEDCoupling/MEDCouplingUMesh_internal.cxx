@@ -547,7 +547,7 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const mcIdType *begin, const
  * This method has one in/out parameter : 'cut3DCurve'.
  * Param 'cut3DCurve' is expected to be of size 'this->getNumberOfCells()'. For each i in [0,'this->getNumberOfCells()')
  * if cut3DCurve[i]==-2, it means that for cell #i in \a this nothing has been detected previously.
- * if cut3DCurve[i]==-1, it means that cell#i has been already detected to be fully part of plane defined by ('origin','vec').
+ * if cut3DCurve[i]==-1, it means that cell#i has been already detected to be fully (or partially) part of plane defined by ('origin','vec').
  * This method will throw an exception if \a this contains a non linear segment.
  */
 void MEDCouplingUMesh::split3DCurveWithPlane(const double *origin, const double *vec, double eps, std::vector<mcIdType>& cut3DCurve)
@@ -1624,11 +1624,20 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<mcIdType>& 
                 res.push_back(status);
               else
                 {
-                  res.push_back(nodal3DCurve[nodalIndx3DCurve[edgeId]+1]);
-                  res.push_back(nodal3DCurve[nodalIndx3DCurve[edgeId]+2]);
+                  const mcIdType& node1 = nodal3DCurve[nodalIndx3DCurve[edgeId]+1];
+                  const mcIdType& node2 = nodal3DCurve[nodalIndx3DCurve[edgeId]+2];
+                  // Here, we have an edge that has either one or both of its nodes intersecting the plane
+                  // we're only adding the nodes from the edges fully contained in the plane
+                  if(std::find(nodesOnP.begin(), nodesOnP.end(),node1) != nodesOnP.end()
+                  && std::find(nodesOnP.begin(), nodesOnP.end(),node2) != nodesOnP.end())
+                    {
+                      res.push_back(node1);
+                      res.push_back(node2);
+                    }
                 }
             }
         }
+
       switch(res.size())
       {
         case 2:
