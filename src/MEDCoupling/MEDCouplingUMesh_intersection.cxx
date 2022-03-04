@@ -1127,7 +1127,7 @@ MEDCouplingUMesh *BuildMesh2DCutInternal(double eps, MEDCouplingUMesh *splitMesh
   if (i < nbCellsInSplitMesh1D-1)
     {
       // Build circular permutation to shift consecutive edges together
-      renumb->iota(i+1);
+      renumb->iota(nbCellsInSplitMesh1D-1-i);
       renumb->applyModulus(nbCellsInSplitMesh1D);
       splitMesh1D->renumberCells(renumbP, false);
       cSplitPtr = splitMesh1D->getNodalConnectivity()->begin();
