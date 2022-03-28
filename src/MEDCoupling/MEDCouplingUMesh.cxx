@@ -7979,9 +7979,15 @@ DataArrayIdType *MEDCouplingUMesh::orderConsecutiveCells1D() const
               ptId = direction ? (ptId1 == prevPointId ? ptId2 : ptId1) : (ptId2 == prevPointId ? ptId1 : ptId2);
               if (dsi[ptId] == 1) // hitting the end of the line
                 break;
+
               prevPointId = ptId;
               mcIdType seg1 = rD[rDI[ptId]], seg2 = rD[rDI[ptId]+1];
               activeSeg = (seg1 == activeSeg) ? seg2 : seg1;
+
+              //for piecewise meshes made up of closed parts
+              bool segmentAlreadyTreated = (std::find(linePiece.begin(), linePiece.end(), activeSeg) != linePiece.end());
+              if(segmentAlreadyTreated)
+                break;
             }
         }
       // Done, save final piece into DA:
@@ -7991,6 +7997,7 @@ DataArrayIdType *MEDCouplingUMesh::orderConsecutiveCells1D() const
       // identify next valid start segment (one which is not consumed)
       if(!edgeSet.empty())
         startSeg = *(edgeSet.begin());
+
     }
   while (!edgeSet.empty());
   return result.retn();
