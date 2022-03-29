@@ -665,6 +665,12 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertRaises(InterpKernelException,a.indicesOfSubPart,f) # 12 in f does not exist in a
         pass
 
+    def testDAIsortToHaveConsecutivePairs(self):
+        dref=DataArrayInt64([(6, 216), (216, 218), (218, 220), (220, 222), (222, 224), (224, 226)])
+        dtest=DataArrayInt64([(6, 216), (218, 216), (224, 226), (222, 220), (218, 220), (222, 224)])
+        dtest.sortToHaveConsecutivePairs()
+        self.assertTrue(dtest.isEqual(dref))
+
     def testDAIFromLinkedListOfPairToList1(self):
         d=DataArrayInt64([(5,7),(7,3),(3,12),(12,17)])
         zeRes=DataArrayInt64([5,7,3,12,17])
