@@ -648,6 +648,7 @@ namespace MEDCoupling
     DataArrayIdType *findRangeIdForEachTuple(const DataArrayType *ranges) const;
     DataArrayType *findIdInRangeForEachTuple(const DataArrayType *ranges) const;
     void sortEachPairToMakeALinkedList();
+    void sortToHaveConsecutivePairs();
     MCAuto<DataArrayType> fromLinkedListOfPairToList() const;
     DataArrayType *getDifferentValues() const;
     std::vector<DataArrayIdType *> partitionByDifferentValues(std::vector<T>& differentIds) const;

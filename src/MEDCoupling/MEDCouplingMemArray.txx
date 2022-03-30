@@ -6248,7 +6248,7 @@ struct NotInRange
    *
    * This method is useful for users having an unstructured mesh having only SEG2 to rearrange internally the connectivity without any coordinates consideration.
    *
-   * \sa MEDCouplingUMesh::orderConsecutiveCells1D, DataArrayInt::fromLinkedListOfPairToList
+   * \sa MEDCouplingUMesh::orderConsecutiveCells1D, DataArrayInt::sortToHaveConsecutivePairs(), DataArrayInt::fromLinkedListOfPairToList
    */
   template <class T>
   void DataArrayDiscrete<T>::sortEachPairToMakeALinkedList()
@@ -6267,6 +6267,11 @@ struct NotInRange
             if(conn[2]==conn[3])
               {
                 std::ostringstream oss; oss << "DataArrayInt::sortEachPairToMakeALinkedList : In the tuple #" << i << " presence of a pair filled with same ids !";
+                throw INTERP_KERNEL::Exception(oss.str().c_str());
+              }
+            if(conn[2]!=conn[1] && conn[3]!=conn[1])
+              {
+                std::ostringstream oss; oss << "DataArrayInt::sortEachPairToMakeALinkedList : There is no common noeud between the tuple #" << i << " and the tuple #" << i + 1 << ". Need call DataArrayInt::sortToHaveConsecutivePairs() ";
                 throw INTERP_KERNEL::Exception(oss.str().c_str());
               }
             if(conn[2]!=conn[1] && conn[3]==conn[1] && conn[2]!=conn[0])
@@ -6305,6 +6310,57 @@ struct NotInRange
               }
           }
       }
+  }
+
+  /*!
+   * This method is the improvement from the method sortEachPairToMakeALinkedList().
+   *
+   * \sa MEDCouplingUMesh::orderConsecutiveCells1D, DataArrayInt::sortEachPairToMakeALinkedList(), DataArrayInt::fromLinkedListOfPairToList
+   */
+  template <class T>
+  void DataArrayDiscrete<T>::sortToHaveConsecutivePairs()
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=2)
+      throw INTERP_KERNEL::Exception("DataArrayInt::sortToHaveConsecutivePairs : Only works on DataArrayInt instance with nb of components equal to 2 !");
+    mcIdType nbOfTuples(this->getNumberOfTuples());
+    T *thisPtr(this->getPointer());
+    mcIdType idOfLastTuple = 0;
+    std::pair<T*,T*> tmp;
+    if(thisPtr[0]==thisPtr[1])
+      {
+        THROW_IK_EXCEPTION("DataArrayInt::sortToHaveConsecutivePairs : In the first tuple presence of a pair filled with same ids !");
+      }
+    while(idOfLastTuple < nbOfTuples-1)
+    {
+      mcIdType i = idOfLastTuple+1;
+      tmp.first = &thisPtr[2*i];
+      tmp.second = &thisPtr[2*i+1];
+      if(std::get<0>(tmp)[0] == std::get<1>(tmp)[0])
+        {
+          THROW_IK_EXCEPTION("DataArrayInt::sortToHaveConsecutivePairs : In the tuple #" << i << " presence of a pair filled with same ids !");
+        }
+      while((this->getIJ(idOfLastTuple,1) != std::get<0>(tmp)[0] &&
+            this->getIJ(idOfLastTuple,1) != std::get<1>(tmp)[0]) &&
+            i < nbOfTuples-1)
+        {
+          std::swap(std::get<0>(tmp)[0],thisPtr[2*(i+1)]);
+          std::swap(std::get<1>(tmp)[0],thisPtr[2*(i+1)+1]);
+          i++;
+        }
+      if(i < nbOfTuples-1 ||
+         this->getIJ(idOfLastTuple,1) == std::get<0>(tmp)[0] ||
+         this->getIJ(idOfLastTuple,1) == std::get<1>(tmp)[0])
+      {
+        if(this->getIJ(idOfLastTuple,1) != std::get<0>(tmp)[0])
+          std::swap(std::get<0>(tmp)[0],std::get<1>(tmp)[0]);
+        idOfLastTuple++;
+      }
+      else
+      {
+        THROW_IK_EXCEPTION("DataArrayInt::sortToHaveConsecutivePairs : not found the tuple which have the common noeud = " << this->getIJ(idOfLastTuple,1));
+      }
+    }
   }
 
   /*!
