@@ -998,6 +998,37 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         ]
         self.assertTrue( bm.getNodalConnectivity().isEqual(DataArrayInt(sum(conn_expected,[]))) )
 
+    def testBugWithPolyhedInterpWithMoreThan255Nodes(self):
+        """
+        [EDF25207] : Check interpolation containing polyhedron with more than 255 nodes is OK at bbox computation stage
+        """
+        n = 8
+        arr = DataArrayDouble(n) ; arr.iota()
+        m = MEDCouplingCMesh()
+        m.setCoords(arr,arr,arr)
+        m = m.buildUnstructured()
+        skin = m.computeSkin()
+        skin.zipCoords()
+        # check that skin contains more than 2**8-1 node to reveal bug
+        self.assertTrue(skin.getNumberOfNodes()>255)
+        # Build a single polyhedron cell from skin
+        skin1 = MEDCoupling1SGTUMesh(skin)
+        conn = skin1.getNodalConnectivity()
+        conn.rearrange( MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(skin1.getCellModelEnum()) )
+        connPolyhed = conn.changeNbOfComponents(MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(skin1.getCellModelEnum())+1,-1)
+        connPolyhed.rearrange(1)
+        connPolyhed.popBackSilent()
+        meshSinglePolyhed = MEDCouplingUMesh("",3)
+        meshSinglePolyhed.allocateCells()
+        meshSinglePolyhed.insertNextCell(NORM_POLYHED,connPolyhed.getValues())
+        meshSinglePolyhed.setCoords( skin1.getCoords() )
+
+        rem = MEDCouplingRemapper()
+        rem.prepare(meshSinglePolyhed,m,"P0P0")
+        res = rem.getCrudeMatrix()
+        self.assertTrue( all([len(elt)==1 for elt in res]) )
+        self.assertTrue( all([elt[0]>0.99 and elt[0]<1.01 for elt in res]) )
+
 
     pass
 

@@ -22,6 +22,8 @@
 
 #include "BoundingBox.hxx"
 
+#include <cstdint>
+
 namespace INTERP_KERNEL
 {
 
@@ -42,7 +44,7 @@ namespace INTERP_KERNEL
     
     ConnType getIndex() const { return _index; }
     
-    unsigned char getNumberOfNodes() const { return _number; }
+    std::uint16_t getNumberOfNodes() const { return _number; }
     
     const BoundingBox* getBoundingBox() const { return _box; }
 
@@ -56,7 +58,7 @@ namespace INTERP_KERNEL
     /// global number of the element
     const ConnType _index;
 
-    const unsigned char _number;
+    const std::uint16_t _number;
     
     /// bounding box of the element - does not change after having been initialised
     BoundingBox* _box;
