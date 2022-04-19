@@ -37,6 +37,7 @@ namespace INTERP_KERNEL
   {
 
   public:
+    using nbnodesincelltype = std::uint32_t;
     template<class MyMeshType>
     MeshElement(const ConnType index, const MyMeshType& mesh);
     
@@ -44,7 +45,7 @@ namespace INTERP_KERNEL
     
     ConnType getIndex() const { return _index; }
     
-    std::uint16_t getNumberOfNodes() const { return _number; }
+    nbnodesincelltype getNumberOfNodes() const { return _number; }
     
     const BoundingBox* getBoundingBox() const { return _box; }
 
@@ -58,7 +59,7 @@ namespace INTERP_KERNEL
     /// global number of the element
     const ConnType _index;
 
-    const std::uint16_t _number;
+    nbnodesincelltype _number;
     
     /// bounding box of the element - does not change after having been initialised
     BoundingBox* _box;

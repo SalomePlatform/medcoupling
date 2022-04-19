@@ -26,6 +26,8 @@
 #include "MeshUtils.hxx"
 #include "BoundingBox.hxx"
 #include <assert.h>
+#include <type_traits>
+#include <limits>
 
 namespace INTERP_KERNEL
 {
@@ -39,16 +41,24 @@ namespace INTERP_KERNEL
   template<class ConnType>
   template<class MyMeshType>
   MeshElement<ConnType>::MeshElement(const ConnType index, const MyMeshType& mesh)
-    : _index(index), _number( static_cast<std::uint16_t>(mesh.getNumberOfNodesOfElement(OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index))) ), _box(nullptr)
+    : _index(index), _number( 0 ), _box(nullptr)
   {
-    const double**vertices = new const double*[_number];
+    auto numberCore = mesh.getNumberOfNodesOfElement(OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index));
+    if(numberCore < std::numeric_limits<nbnodesincelltype>::max())
+    {
+      _number = static_cast< nbnodesincelltype >(numberCore);
+      const double**vertices = new const double*[_number];
+      for( nbnodesincelltype i = 0 ; i < _number ; ++i)
+        vertices[i] = getCoordsOfNode(i , OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index), mesh);
 
-    for(std::uint16_t i = 0 ; i < _number ; ++i)
-      vertices[i] = getCoordsOfNode(i , OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index), mesh);
-
-    // create bounding box
-    _box = new BoundingBox(vertices,_number);
-    delete [] vertices;
+      // create bounding box
+      _box = new BoundingBox(vertices,_number);
+      delete [] vertices;
+    }
+    else
+    {
+      std::cerr << "ERROR at index " << index << " : exceeding capacity !" << std::endl;
+    }
   }
     
   /**
