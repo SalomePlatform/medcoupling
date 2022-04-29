@@ -17,7 +17,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(tests.set)
+IF(MEDCOUPLING_BUILD_PY_TESTS)
+    INCLUDE(tests.set)
+ENDIF()
 
 FOREACH(tfile ${BASE_TESTS})
   GET_FILENAME_COMPONENT(BASE_NAME ${tfile} NAME_WE)

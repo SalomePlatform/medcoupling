@@ -25,27 +25,32 @@ SET(TEST_NAMES ParaMEDMEMTest)
 # force mpiexec to use PATH env var to detect right python into mpiexec command line
 set(PATH_FOR_PYTHON $ENV{PATH})
 
-set(tfile PyPara_Basics_Proc2)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
-add_test(${TEST_NAME} ${MPIEXEC} -np 2 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_BasicOperation.py)
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+IF(MEDCOUPLING_BUILD_PY_TESTS)
 
-set(tfile PyPara_InterpKernelDEC_Proc4)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
-add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_InterpKernelDEC.py)
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
-set(tfile PyPara_InterpKernelDEC_Proc5)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
-add_test(${TEST_NAME} ${MPIEXEC} -np 5 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_InterpKernelDEC.py)
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+    set(tfile PyPara_Basics_Proc2)
+    set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+    add_test(${TEST_NAME} ${MPIEXEC} -np 2 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_BasicOperation.py)
+    set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+    
+    set(tfile PyPara_InterpKernelDEC_Proc4)
+    set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+    add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_InterpKernelDEC.py)
+    set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+    
+    set(tfile PyPara_InterpKernelDEC_Proc5)
+    set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+    add_test(${TEST_NAME} ${MPIEXEC} -np 5 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_InterpKernelDEC.py)
+    set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+    
+    set(tfile PyPara_StructuredCoincidentDEC_Proc4)
+    set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+    add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_StructuredCoincidentDEC.py)
+    set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+    
+    set(tfile PyPara_OverlapDEC_Proc4)
+    set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+    add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_OverlapDEC.py)
+    set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
-set(tfile PyPara_StructuredCoincidentDEC_Proc4)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
-add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_StructuredCoincidentDEC.py)
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
-
-set(tfile PyPara_OverlapDEC_Proc4)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
-add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_OverlapDEC.py)
-set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+ENDIF()

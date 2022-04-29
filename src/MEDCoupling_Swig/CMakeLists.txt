@@ -16,8 +16,9 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-
-INCLUDE(tests.set)
+IF(MEDCOUPLING_BUILD_PY_TESTS)
+    INCLUDE(tests.set)
+ENDIF()
 
 INCLUDE(${SWIG_USE_FILE})
 

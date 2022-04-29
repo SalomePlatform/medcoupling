@@ -70,38 +70,40 @@ SWIG_CHECK_GENERATION(ParaMEDMEM)
 #
 # Tests
 #
-SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH NOCHECK ${CMAKE_CURRENT_BINARY_DIR}/../PyWrapping)
-SALOME_ACCUMULATE_ENVIRONMENT(MED_RESOURCES_DIR NOCHECK ${CMAKE_SOURCE_DIR}/resources)
-SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
-
-#  -- some tests require 2, 3, 4 or 5 procs --
-# MPICH does not support --oversubscribe:
-IF(NOT ${MPIEXEC_EXECUTABLE} MATCHES "mpich")
-    SET(_oversub_opt "--oversubscribe")
+IF(MEDCOUPLING_BUILD_PY_TESTS)
+    SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH NOCHECK ${CMAKE_CURRENT_BINARY_DIR}/../PyWrapping)
+    SALOME_ACCUMULATE_ENVIRONMENT(MED_RESOURCES_DIR NOCHECK ${CMAKE_SOURCE_DIR}/resources)
+    SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
+    
+    #  -- some tests require 2, 3, 4 or 5 procs --
+    # MPICH does not support --oversubscribe:
+    IF(NOT ${MPIEXEC_EXECUTABLE} MATCHES "mpich")
+        SET(_oversub_opt "--oversubscribe")
+    ENDIF()
+    
+    ADD_TEST(NAME PyPara_Basics_Proc2
+             COMMAND ${MPIEXEC} -np 2  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_BasicOperation.py)
+    SET_TESTS_PROPERTIES(PyPara_Basics_Proc2 PROPERTIES ENVIRONMENT "${tests_env}")
+    
+    ADD_TEST(NAME PyPara_InterpKernelDEC_Proc4
+             COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_InterpKernelDEC.py)
+    SET_TESTS_PROPERTIES(PyPara_InterpKernelDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
+    ADD_TEST(NAME PyPara_InterpKernelDEC_Proc5
+             COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_InterpKernelDEC.py)
+    SET_TESTS_PROPERTIES(PyPara_InterpKernelDEC_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
+    
+    #ADD_TEST(NAME PyPara_NonCoincidentDEC_Proc5
+    #         COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_NonCoincidentDEC.py)
+    #SET_TESTS_PROPERTIES(PyPara_NonCoincidentDEC_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
+    
+    ADD_TEST(NAME PyPara_StructuredCoincidentDEC_Proc4
+             COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_StructuredCoincidentDEC.py)
+    SET_TESTS_PROPERTIES(PyPara_StructuredCoincidentDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
+    
+    ADD_TEST(NAME PyPara_OverlapDEC_Proc4
+             COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_OverlapDEC.py)
+    SET_TESTS_PROPERTIES(PyPara_OverlapDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
 ENDIF()
-
-ADD_TEST(NAME PyPara_Basics_Proc2
-         COMMAND ${MPIEXEC} -np 2  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_BasicOperation.py)
-SET_TESTS_PROPERTIES(PyPara_Basics_Proc2 PROPERTIES ENVIRONMENT "${tests_env}")
-
-ADD_TEST(NAME PyPara_InterpKernelDEC_Proc4
-         COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_InterpKernelDEC.py)
-SET_TESTS_PROPERTIES(PyPara_InterpKernelDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
-ADD_TEST(NAME PyPara_InterpKernelDEC_Proc5
-         COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_InterpKernelDEC.py)
-SET_TESTS_PROPERTIES(PyPara_InterpKernelDEC_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
-
-#ADD_TEST(NAME PyPara_NonCoincidentDEC_Proc5
-#         COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_NonCoincidentDEC.py)
-#SET_TESTS_PROPERTIES(PyPara_NonCoincidentDEC_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
-
-ADD_TEST(NAME PyPara_StructuredCoincidentDEC_Proc4
-         COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_StructuredCoincidentDEC.py)
-SET_TESTS_PROPERTIES(PyPara_StructuredCoincidentDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
-
-ADD_TEST(NAME PyPara_OverlapDEC_Proc4
-         COMMAND ${MPIEXEC} -np 4  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_OverlapDEC.py)
-SET_TESTS_PROPERTIES(PyPara_OverlapDEC_Proc4 PROPERTIES ENVIRONMENT "${tests_env}")
 
 SET(_tst_scripts
   test_InterpKernelDEC.py
