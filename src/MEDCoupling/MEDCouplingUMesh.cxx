@@ -2497,8 +2497,6 @@ DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& 
 void MEDCouplingUMesh::findCellsToRenumber(const MEDCouplingUMesh& otherDimM1OnSameCoords, const mcIdType *nodeIdsToDuplicateBg, const mcIdType *nodeIdsToDuplicateEnd,
                                            DataArrayIdType *& cellIdsNeededToBeRenum, DataArrayIdType *& cellIdsNotModified) const
 {
-  // DEBUG NOTE: in case of issue with the algorithm in this method, see Python script in resources/dev
-  // which mimicks the C++
   using DAInt = MCAuto<DataArrayIdType>;
   using MCUMesh = MCAuto<MEDCouplingUMesh>;
 
@@ -2509,192 +2507,79 @@ void MEDCouplingUMesh::findCellsToRenumber(const MEDCouplingUMesh& otherDimM1OnS
   if(otherDimM1OnSameCoords.getMeshDimension()!=getMeshDimension()-1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: the mesh given in other parameter must have this->getMeshDimension()-1 !");
 
+  // Compute cell IDs of the mesh with cells that touch the M1 group with a least one node:
   DAInt cellsAroundGroupLarge = getCellIdsLyingOnNodes(nodeIdsToDuplicateBg, nodeIdsToDuplicateEnd, false);  // false= take cell in, even if not all nodes are in dupl
-
-  //
   MCUMesh mAroundGrpLarge=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellsAroundGroupLarge->begin(),cellsAroundGroupLarge->end(),true));
+  mcIdType nCellsLarge=cellsAroundGroupLarge->getNumberOfTuples();
   DAInt descL=DataArrayIdType::New(),descIL=DataArrayIdType::New(),revDescL=DataArrayIdType::New(),revDescIL=DataArrayIdType::New();
   MCUMesh mArGrpLargeDesc=mAroundGrpLarge->buildDescendingConnectivity(descL,descIL,revDescL,revDescIL);
   const mcIdType *descILP=descIL->begin(), *descLP=descL->begin();
-
-  // Extract now all N D cells which have a complete face in touch with the group:
-  //   1. Identify cells of M1 group in sub-mesh mAroundGrp
   DataArrayIdType *idsOfM1t;
   mArGrpLargeDesc->areCellsIncludedIn(&otherDimM1OnSameCoords,2, idsOfM1t);
   DAInt idsOfM1Large(idsOfM1t);
   mcIdType nL = mArGrpLargeDesc->getNumberOfCells();
-  DAInt idsStrict = DataArrayIdType::New(); idsStrict->alloc(0,1);
-  //  2. Build map giving for each cell ID in mAroundGrp (not in mAroundGrpLarge) the corresponding cell
-  //     ID on the other side of the crack:
-  std::map<mcIdType, mcIdType> toOtherSide, pos;
-  mcIdType cnt = 0;
+
+  // Computation of the neighbor information of the mesh WITH the crack (some neighbor links are removed):
+  //     In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
+  //     of the frontier given in parameter (i.e. the cells of low dimension from the group delimiting the crack):
+  DAInt descLTrunc = descL->deepCopy(), descILTrunc = descIL->deepCopy();
+  DataArrayIdType::RemoveIdsFromIndexedArrays(idsOfM1Large->begin(), idsOfM1Large->end(),descLTrunc,descILTrunc);
+  DataArrayIdType *neight=0, *neighIt=0;
+  MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(descLTrunc,descILTrunc,revDescL,revDescIL, neight, neighIt);
+  DAInt neighL(neight), neighIL(neighIt);
+
+  DAInt hitCellsLarge = DataArrayIdType::New(); hitCellsLarge->alloc(nCellsLarge,1);
+  hitCellsLarge->fillWithValue(0);  // 0 : not hit, +1: one side of the crack, -1: other side of the crack,
+  mcIdType* hitCellsLargeP = hitCellsLarge->rwBegin();
+
+  // Now loop on the faces of the M1 group and fill spread zones on either side of the crack:
   const mcIdType *revDescILP=revDescIL->begin(), *revDescLP=revDescL->begin();
   for(const auto& v: *idsOfM1Large)
     {
-      if (v >= nL)    // Keep valid match only
-        continue;
+      if (v >= nL) continue;   // Keep valid match only - see doc of areCellsIncludedIn()
       mcIdType idx0 = revDescILP[v];
-      // Keep the two cells on either side of the face v of M1:
+      // Retrieve the two cells on either side of the face v of M1:
       mcIdType c1=revDescLP[idx0], c2=revDescLP[idx0+1];
-      DAInt t1=idsStrict->findIdsEqual(c1), t2=idsStrict->findIdsEqual(c2);
-
-      if (!t1->getNumberOfTuples())
-        {  pos[c1] = cnt++; idsStrict->pushBackSilent(c1);   }
-      if (!t2->getNumberOfTuples())
-        {  pos[c2] = cnt++; idsStrict->pushBackSilent(c2);   }
-
-      mcIdType k1 = pos[c1], k2=pos[c2];
-      toOtherSide[k1] = k2;
-      toOtherSide[k2] = k1;
-    }
-
-  DAInt cellsAroundGroup = cellsAroundGroupLarge->selectByTupleId(idsStrict->begin(), idsStrict->end());
-  MCUMesh mAroundGrp = static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellsAroundGroup->begin(), cellsAroundGroup->end(), true));
-  mcIdType nCells=cellsAroundGroup->getNumberOfTuples(), nCellsLarge=cellsAroundGroupLarge->getNumberOfTuples();
-  DAInt desc=DataArrayIdType::New(),descI=DataArrayIdType::New(),revDesc=DataArrayIdType::New(),revDescI=DataArrayIdType::New();  
-  MCUMesh mArGrpDesc=mAroundGrp->buildDescendingConnectivity(desc,descI,revDesc,revDescI);
-  DataArrayIdType *idsOfM1t2;
-  mArGrpDesc->areCellsIncludedIn(&otherDimM1OnSameCoords,2, idsOfM1t2);  // TODO can we avoid recomputation here?
-  DAInt idsOfM1(idsOfM1t2);
-
-  // Neighbor information of the mesh WITH the crack (some neighbors are removed):
-  //     In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
-  //     of the frontier given in parameter (i.e. the cells of low dimension from the group delimiting the crack):
-  DataArrayIdType::RemoveIdsFromIndexedArrays(idsOfM1->begin(), idsOfM1->end(),desc,descI);
-  //     Compute the neighbor of each cell in mAroundGrp, taking into account the broken link above. Two
-  //     cells on either side of the crack (defined by the mesh of low dimension) are not neighbor anymore.
-  DataArrayIdType *neight=0, *neighIt=0;
-  MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(desc,descI,revDesc,revDescI, neight, neighIt);
-  DAInt neigh(neight), neighI(neighIt);
-
-  // For each initial connex part of the M1 mesh (or said differently for each independent crack):
-  mcIdType seed=0, nIter=0;
-  mcIdType nIterMax = nCells+1; // Safety net for the loop
-  DAInt hitCells = DataArrayIdType::New(); hitCells->alloc(nCells,1);
-  mcIdType* hitCellsP = hitCells->rwBegin();
-  hitCells->fillWithValue(0);  // 0 : not hit, +x: one side of the crack, -x: other side of the crack, with 'x' the index of the connex component
-  mcIdType PING_FULL, PONG_FULL;
-  mcIdType MAX_CP = 10000;  // the choices below assume we won't have more than 10000 different connex parts ...
-  mcIdType PING_FULL_init = 0, PING_PART = MAX_CP;
-  mcIdType PONG_FULL_init = 0, PONG_PART = -MAX_CP;
-  cnt=0;
-  while (nIter < nIterMax)
-    {
-      DAInt t = hitCells->findIdsEqual(0);
-      if(!t->getNumberOfTuples())
-        break;
-      mcIdType seed = t->getIJ(0,0);
-      bool done = false;
-      cnt++;
-      PING_FULL = PING_FULL_init+cnt;
-      PONG_FULL = PONG_FULL_init-cnt;
-      // while the connex bits in correspondance on either side of the crack are not fully covered
-      while(!done && nIter < nIterMax)  // Start of the ping-pong
+      std::map<mcIdType, mcIdType> toOther = {{c1, c2}, {c2, c1}};
+      // Handle the spread zones on the two sides of the crack:
+      for (const auto c: {c1, c2})
         {
-          nIter++;
-          // Identify connex zone around the seed - this zone corresponds to some cells on the other side
-          // of the crack that might extend further away. So we will need to compute spread zone on the other side
-          // too ... and this process can repeat, hence the "ping-pong" logic.
+          if (hitCellsLargeP[c]) continue;
+          // Identify connex zone around this cell - if we find a value already assigned there, use it.
           mcIdType dnu;
-          DAInt spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neigh,neighI, -1, dnu);
-          done = true;
-          for(const mcIdType& s: *spreadZone)
+          DAInt spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&c, &c+1, neighL,neighIL, -1, dnu);
+          std::set<mcIdType> sv;
+          for (const mcIdType& s: *spreadZone)
+            if (hitCellsLargeP[s]) sv.insert(hitCellsLargeP[s]);
+          if (sv.size() > 1)
+            // Strange: we find in the same spread zone a +1 and -1 !
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: internal error #0 - conflicting values - should not happen!");
+          // If a valid value was found, use it:
+          mcIdType val = sv.size()==1 ? *sv.begin() : 0;
+          // Hopefully this does not conflict with an potential value on the other side:
+          mcIdType other = toOther[c];
+          if (hitCellsLargeP[other])
             {
-              hitCellsP[s] = PING_FULL;
-              const auto& it = toOtherSide.find(s);
-              if (it != toOtherSide.end())
-                {
-                  mcIdType other = it->second;
-                  if (hitCellsP[other] != PONG_FULL)
-                    {
-                      // On the other side of the crack we hit a cell which was not fully covered previously by the 
-                      // ComputeSpreadZone process, so we are not done yet, ComputeSreadZone will need to be applied there
-                      done = false;
-                      hitCellsP[other] = PONG_PART;
-                      //  Compute next seed, i.e. a cell on the other side of the crack
-                      seed = other;
-                    }
-                }
+              if(val && hitCellsLargeP[other] != -val)
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: internal error #1 - conflictint values - should not happen!");;
+              // We do not yet have a value, but other side has one. Use it!
+              if(!val) val = -hitCellsLargeP[other];
             }
-          if (done)
-            {
-              // we might have several disjoint PONG parts in front of a single PING connex part:
-              DAInt idsPong = hitCells->findIdsEqual(PONG_PART);
-              if (idsPong->getNumberOfTuples())
-                {
-                  seed = idsPong->getIJ(0,0);
-                  done = false;
-                }
-              continue;  // continue without switching side (or break if 'done' remains false)
-            }
-          else
-            {
-              // Go to the other side
-              std::swap(PING_FULL, PONG_FULL);
-              std::swap(PING_PART, PONG_PART);
-            }
-        } // while (!done ...)
-      DAInt nonHitCells = hitCells->findIdsEqual(0);
-      if (nonHitCells->getNumberOfTuples())
-        seed = nonHitCells->getIJ(0,0);
-      else
-        break;
-    } // while (nIter < nIterMax ...
-  if (nIter >= nIterMax)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: Too many iterations - should not happen");
-
-  // Now we have handled all N D cells which have a face touching the M1 group. It remains the cells
-  // which are just touching the group by one (or several) node(s) (see for example testBuildInnerBoundaryAlongM1Group4)
-  // All those cells are in direct contact with a cell which is either PING_FULL or PONG_FULL
-  // So first reproject the PING/PONG info onto mAroundGrpLarge:
-  DAInt hitCellsLarge = DataArrayIdType::New(); hitCellsLarge->alloc(nCellsLarge,1);
-  hitCellsLarge->fillWithValue(0);
-  mcIdType *hitCellsLargeP=hitCellsLarge->rwBegin(), tt=0;
-  for(const auto &i: *idsStrict)
-    { hitCellsLargeP[i] = hitCellsP[tt++]; }
-  DAInt nonHitCells = hitCellsLarge->findIdsEqual(0);
-  // Neighbor information in mAroundGrpLarge:
-  DataArrayIdType *neighLt=0, *neighILt=0;
-  MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(descL,descIL,revDescL,revDescIL, neighLt, neighILt);
-  DAInt neighL(neighLt), neighIL(neighILt);
-  const mcIdType *neighILP=neighIL->begin(), *neighLP=neighL->begin();
-  for(const auto& c : *nonHitCells)
-    {
-      mcIdType cnt00 = neighILP[c];
-      for (const mcIdType *n=neighLP+cnt00; cnt00 < neighILP[c+1]; n++, cnt00++)
-        {
-          mcIdType neighVal = hitCellsLargeP[*n];
-          if (neighVal != 0 && std::abs(neighVal) < MAX_CP)  // (@test_T0) second part of the test to skip cells being assigned and target only cells assigned in the first part of the algo above
-            {
-              mcIdType currVal = hitCellsLargeP[c];
-              if (currVal != 0)   // Several neighbors have a candidate number
-                {
-                  // Unfortunately in some weird cases (see testBuildInnerBoundary8) a cell in mAroundGrpLarge
-                  // might have as neighbor two conflicting spread zone ...
-                  if (currVal*neighVal < 0)
-                    {
-                      // If we arrive here, the cell was already assigned a number and we found a neighbor with
-                      // a different sign ... we must swap the whole spread zone!!
-                      DAInt ids1 = hitCellsLarge->findIdsEqual(neighVal), ids1b = hitCellsLarge->findIdsEqual(-neighVal);
-                      DAInt ids2 = hitCellsLarge->findIdsEqual(MAX_CP*neighVal), ids2b = hitCellsLarge->findIdsEqual(-MAX_CP*neighVal);
-                      // A nice little lambda to multiply part of a DAInt by -1 ...
-                      auto mul_part_min1 = [hitCellsLargeP](const DAInt& ids) { for(const auto& i: *ids) hitCellsLargeP[i] *= -1; };
-                      mul_part_min1(ids1);
-                      mul_part_min1(ids1b);
-                      mul_part_min1(ids2);
-                      mul_part_min1(ids2b);
-                    }
-                }
-              else  // First assignation
-                hitCellsLargeP[c] = MAX_CP*neighVal;  // Same sign, but different value to preserve PING_FULL and PONG_FULL
-            }
+          // Cover first initialisation:
+          if (!val) val = 1;
+          // And finally, fill the current spread zone:
+          for(const mcIdType& s: *spreadZone) hitCellsLargeP[s] = val;
         }
     }
-  DAInt cellsRet1 = hitCellsLarge->findIdsInRange(1,MAX_CP*MAX_CP);   // Positive spread zone number
-  DAInt cellsRet2 = hitCellsLarge->findIdsInRange(-MAX_CP*MAX_CP, 0); // Negative spread zone number
+
+  DAInt cellsRet1 = hitCellsLarge->findIdsEqual(1);
+  DAInt cellsRet2 = hitCellsLarge->findIdsEqual(-1);
 
   if (cellsRet1->getNumberOfTuples() + cellsRet2->getNumberOfTuples() != cellsAroundGroupLarge->getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: Some cells not hit - Internal error should not happen");
+    {
+      DAInt nonHitCells = hitCellsLarge->findIdsEqual(0); // variable kept for debug ...
+      throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: Some cells not hit - Internal error should not happen");
+    }
   cellsRet1->transformWithIndArr(cellsAroundGroupLarge->begin(),cellsAroundGroupLarge->end());
   cellsRet2->transformWithIndArr(cellsAroundGroupLarge->begin(),cellsAroundGroupLarge->end());
   //
