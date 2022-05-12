@@ -47,7 +47,11 @@ namespace INTERP_KERNEL
   catch (INTERP_KERNEL::Exception& _e) {
     // Reraise with SWIG_Python_Raise
     SWIG_Python_Raise(SWIG_NewPointerObj((new INTERP_KERNEL::Exception(static_cast< const INTERP_KERNEL::Exception& >(_e))),SWIGTYPE_p_INTERP_KERNEL__Exception,SWIG_POINTER_OWN), "INTERP_KERNEL::Exception", SWIGTYPE_p_INTERP_KERNEL__Exception);
+#ifdef MEDCOUPLING_SWIG4_COMPAT
+    return nullptr;
+#else
     SWIG_fail;
+#endif
   }
 }
 
