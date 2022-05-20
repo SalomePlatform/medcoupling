@@ -1770,6 +1770,40 @@ class MEDLoaderTest3(unittest.TestCase):
         m_desc.checkDeepEquivalOnSameNodesWith(m2_bis, 2, 9.9999)
         pass
 
+    def testBuildInnerBoundary10(self):
+        """ 2D tests where some cells are touching the M1 group with just a node, and are **not** neighbor
+        with any cells touching the M1 group by a face.
+        """
+        m2 = MEDCouplingUMesh("mesh", 2)
+        coo = DataArrayDouble([0.0, 0.0, 1.0, 0.0, 2.0, 0.0, 3.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 1.0, 3.0, 1.0, 0.0, 2.0, 1.0, 2.0, 2.0, 2.0, 3.0, 2.0, 2.5, 0.0, 3.0, 0.5], 14, 2)
+        m2.setCoords(coo)
+        c = DataArrayInt([ 3,12,2,6,  3,3,12,6,  3,13,3,6,  3,7,13,6,   4, 1, 0, 4, 5,   4, 2, 1, 5, 6,   4, 5, 4, 8, 9,   4, 6, 5, 9, 10,   4, 7, 6, 10, 11])
+        cI = DataArrayInt([0,4,8,12,16,21,26,31,36,41])
+        m2.setConnectivity(c, cI)
+        m2.checkConsistency()
+        m1, _, _,  _, _ = m2.buildDescendingConnectivity()
+        grpIds = DataArrayInt([8,14]); grpIds.setName("group")
+        mfu = MEDFileUMesh()
+        mfu.setMeshAtLevel(0, m2)
+        mfu.setMeshAtLevel(-1, m1)
+        mfu.setGroupsAtLevel(-1, [grpIds])
+        nNod = m2.getNumberOfNodes()
+        nodesDup, cells1, cells2 = mfu.buildInnerBoundaryAlongM1Group("group")
+        m2_bis = mfu.getMeshAtLevel(0)
+        m2_bis.checkConsistency()
+        m1_bis = mfu.getMeshAtLevel(-1)
+        m1_bis.checkConsistency()
+        self.assertEqual(nNod+2, mfu.getNumberOfNodes())
+        self.assertEqual(nNod+2, m2_bis.getNumberOfNodes())
+        self.assertEqual(nNod+2, m1_bis.getNumberOfNodes())
+        self.assertEqual([6, 7], nodesDup.getValues())
+        self.assertEqual([2.,1., 3.,1.], m2_bis.getCoords()[nNod:].getValues())
+        self.assertEqual(set([0,1,2,3,5]), set(cells1.getValues()))
+        self.assertEqual(set([7,8]), set(cells2.getValues()))
+        self.assertEqual([8,14],mfu.getGroupArr(-1,"group").getValues())
+        self.assertEqual([22,23],mfu.getGroupArr(-1,"group_dup").getValues())
+        pass
+
     @WriteInTmpDir
     def testBasicConstructors(self):
         GeneratePyfile18(self)
