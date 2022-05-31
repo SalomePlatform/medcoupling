@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021  CEA/DEN, EDF R&D
+# Copyright (C) 2015-2022  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -49,7 +49,7 @@ ENDIF()
 
 # Versioning
 # ===========
-SALOME_SETUP_VERSION(9.8.0 DEVELOPMENT)
+SALOME_SETUP_VERSION(9.9.0 DEVELOPMENT)
 MESSAGE(STATUS "Building ${PROJECT_NAME_UC} ${${PROJECT_NAME_UC}_VERSION} from \"${${PROJECT_NAME_UC}_GIT_SHA1}\"")
 
 # Platform setup
@@ -211,6 +211,14 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
   ENDIF()
   IF ("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
       MESSAGE(STATUS "Using Python 3")
+  ENDIF()
+  IF ("${SWIG_VERSION}" VERSION_GREATER_EQUAL "4")
+    SET(MEDCOUPLING_SWIG4_COMPAT TRUE CACHE BOOL "SWIG 4 compatibility (experimental)")
+  ELSE()
+    SET(MEDCOUPLING_SWIG4_COMPAT FALSE)
+  ENDIF()
+  IF(MEDCOUPLING_SWIG4_COMPAT)
+    LIST(APPEND CMAKE_SWIG_FLAGS "-DMEDCOUPLING_SWIG4_COMPAT")
   ENDIF()
 ENDIF(MEDCOUPLING_ENABLE_PYTHON)
 

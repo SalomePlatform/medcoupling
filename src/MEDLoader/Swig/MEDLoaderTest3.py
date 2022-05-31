@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2021  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2022  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -1724,6 +1724,48 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(set([4, 5, 6, 7, 42, 43, 44, 45, 46, 47]), set(cells2.getValues()))
         self.assertEqual([2, 7, 12, 17, 101, 106, 111, 116, 160, 164, 170, 173, 176, 179],mfu.getGroupArr(-1,"group").getValues())
         self.assertEqual([212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225],mfu.getGroupArr(-1,"group_dup").getValues())  # here only one cell has been duplicated
+        m_desc, _, _, _, _ = m3_bis.buildDescendingConnectivity()
+        m_desc.checkDeepEquivalOnSameNodesWith(m2_bis, 2, 9.9999)
+        pass
+
+    def testBuildInnerBoundary9(self):
+        """ 3D test where the crack is performed so that two non-connex parts are found facing one single connex part on the other side
+        of the crack. 
+        """
+        m3 = MEDCouplingUMesh('box', 3)
+        coo = DataArrayDouble([(0,4.6,0),(3,4.6,0),(5,4.6,0),(15,4.6,0),(15,0,0),(5,-1.60551e-25,0),(5,3,0),(3,0,0),(3,3.8,0),(0,0,0),(0,3.8,0),(0,4.6,10),(0,4.6,20),(3,4.6,10),(3,4.6,20),(5,4.6,10),(5,4.6,20),(15,4.6,10),(15,4.6,20),(15,0,10),(15,0,20),(5,-1.60551e-25,10),(5,-1.60551e-25,20),(5,3,10),(5,3,20),(3,0,10),(3,0,20),(3,3.8,10),(3,3.8,20),(0,0,10),(0,0,20),(0,3.8,10),(0,3.8,20),(3,3,0),(0,3,0),(3,3,10),(3,3,20),(0,3,10),(0,3,20)])
+        m3.setCoords(coo)
+        c = DataArrayInt([31, 7, 33, 6, 5, -1, 25, 21, 23, 35, -1, 7, 25, 35, 33, -1, 33, 35, 23, 6, -1, 6, 23, 21, 5, -1, 5, 21, 25, 7, 31, 25, 35, 23, 21, -1, 26, 22, 24, 36, -1, 25, 26, 36, 35, -1, 35, 36, 24, 23, -1, 23, 24, 22, 21, -1, 21, 22, 26, 25, 31, 9, 34, 33, 7, -1, 29, 25, 35, 37, -1, 9, 29, 37, 34, -1, 34, 37, 35, 33, -1, 33, 35, 25, 7, -1, 7, 25, 29, 9, 31, 29, 37, 35, 25, -1, 30, 26, 36, 38, -1, 29, 30, 38, 37, -1, 37, 38, 36, 35, -1, 35, 36, 26, 25, -1, 25, 26, 30, 29, 31, 0, 1, 8, 10, -1, 11, 31, 27, 13, -1, 0, 11, 13, 1, -1, 1, 13, 27, 8, -1, 8, 27, 31, 10, -1, 10, 31, 11, 0, 31, 11, 13, 27, 31, -1, 12, 32, 28, 14, -1, 11, 12, 14, 13, -1, 13, 14, 28, 27, -1, 27, 28, 32, 31, -1, 31, 32, 12, 11, 31, 6, 8, 1, 2, -1, 23, 15, 13, 27, -1, 6, 23, 27, 8, -1, 8, 27, 13, 1, -1, 1, 13, 15, 2, -1, 2, 15, 23, 6, 31, 23, 27, 13, 15, -1, 24, 16, 14, 28, -1, 23, 24, 28, 27, -1, 27, 28, 14, 13, -1, 13, 14, 16, 15, -1, 15, 16, 24, 23, 31, 6, 2, 3, 4, 5, -1, 23, 21, 19, 17, 15, -1, 2, 6, 23, 15, -1, 3, 2, 15, 17, -1, 4, 3, 17, 19, -1, 5, 4, 19, 21, -1, 6, 5, 21, 23, 31, 23, 15, 17, 19, 21, -1, 24, 22, 20, 18, 16, -1, 15, 23, 24, 16, -1, 17, 15, 16, 18, -1, 19, 17, 18, 20, -1, 21, 19, 20, 22, -1, 23, 21, 22, 24])
+        cI = DataArrayInt([0, 30, 60, 90, 120, 150, 180, 210, 240, 277, 314])
+        m3.setConnectivity(c, cI)
+        m3.checkConsistency()
+        m2, _, _,_,_ = m3.buildDescendingConnectivity()
+        grpIds = DataArrayInt([4,9,35,39]); grpIds.setName("group")
+        mfu = MEDFileUMesh()
+        mfu.setMeshAtLevel(0, m3)
+        mfu.setMeshAtLevel(-1, m2)
+        mfu.setGroupsAtLevel(-1, [grpIds])
+        m2, _, _, _, _ = m3.buildDescendingConnectivity()
+        grpIds = DataArrayInt([4,9,35,39]); grpIds.setName("group")
+        mfu = MEDFileUMesh()
+        mfu.setMeshAtLevel(0, m3)
+        mfu.setMeshAtLevel(-1, m2)
+        mfu.setGroupsAtLevel(-1, [grpIds])
+        nNod = m3.getNumberOfNodes()
+        nodesDup, cells1, cells2 = mfu.buildInnerBoundaryAlongM1Group("group")
+        m3_bis = mfu.getMeshAtLevel(0)
+        m3_bis.checkConsistency()
+        m2_bis = mfu.getMeshAtLevel(-1)
+        m2_bis.checkConsistency()
+        self.assertEqual(nNod+9, mfu.getNumberOfNodes())
+        self.assertEqual(nNod+9, m3_bis.getNumberOfNodes())
+        self.assertEqual(nNod+9, m2_bis.getNumberOfNodes())
+        self.assertEqual([2, 5, 6, 15, 16, 21, 22, 23, 24], nodesDup.getValues())
+        self.assertEqual(m3_bis.getCoords()[nodesDup].getValues(), m3_bis.getCoords()[nNod:].getValues())
+        self.assertEqual(set([0,1,6,7]), set(cells1.getValues()))
+        self.assertEqual(set([8,9]), set(cells2.getValues()))
+        self.assertEqual([4,9,35,39],mfu.getGroupArr(-1,"group").getValues())
+        self.assertEqual([49, 50, 51, 52],mfu.getGroupArr(-1,"group_dup").getValues())  # here only one cell has been duplicated
         m_desc, _, _, _, _ = m3_bis.buildDescendingConnectivity()
         m_desc.checkDeepEquivalOnSameNodesWith(m2_bis, 2, 9.9999)
         pass
