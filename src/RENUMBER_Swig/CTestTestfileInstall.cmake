@@ -17,25 +17,24 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-IF(MEDCOUPLING_BUILD_PY_TESTS)
-    SET(TEST_NAMES
-      MEDRenumberTest
-      )
-    FOREACH(tfile ${TEST_NAMES})
-      SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
-      ADD_TEST(${TEST_NAME} python ${tfile}.py)
-      SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
-        LABELS "${COMPONENT_NAME}"
-        TIMEOUT ${TIMEOUT}
-        ENVIRONMENT "PYTHONPATH=../../bin:$ENV{PYTHONPATH}"
-        )
-    ENDFOREACH()
-    
-    SET(TEST_NAME ${COMPONENT_NAME}_RENUMBER_Swig_MEDRenumberUserGuide)
-    ADD_TEST(${TEST_NAME} python UsersGuideExamplesTest.py)
-    SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
-      LABELS "${COMPONENT_NAME}"
-      TIMEOUT ${TIMEOUT}
-      ENVIRONMENT "PYTHONPATH=../../bin:$ENV{PYTHONPATH}"
-      )
-ENDIF()
+SET(TEST_NAMES
+  MEDRenumberTest
+)
+
+FOREACH(tfile ${TEST_NAMES})
+  SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
+  ADD_TEST(${TEST_NAME} python ${tfile}.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+    LABELS "${COMPONENT_NAME}"
+    TIMEOUT ${TIMEOUT}
+    ENVIRONMENT "PYTHONPATH=../../bin:$ENV{PYTHONPATH}"
+    )
+ENDFOREACH()
+
+SET(TEST_NAME ${COMPONENT_NAME}_RENUMBER_Swig_MEDRenumberUserGuide)
+ADD_TEST(${TEST_NAME} python UsersGuideExamplesTest.py)
+SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+  LABELS "${COMPONENT_NAME}"
+  TIMEOUT ${TIMEOUT}
+  ENVIRONMENT "PYTHONPATH=../../bin:$ENV{PYTHONPATH}"
+  )

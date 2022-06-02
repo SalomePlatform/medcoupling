@@ -17,15 +17,14 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-IF(MEDCOUPLING_BUILD_PY_TESTS)
-    INCLUDE(tests.set)
-    FOREACH(tfile ${ALL_TESTS})
-      GET_FILENAME_COMPONENT(BASE_NAME ${tfile} NAME_WE)
-      SET(TEST_NAME ${COMPONENT_NAME}_${BASE_NAME})
-      ADD_TEST(${TEST_NAME} python ${tfile})
-      SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
-        LABELS "${COMPONENT_NAME}"
-        TIMEOUT ${TIMEOUT}
-        )
-    ENDFOREACH()
-ENDIF()
+INCLUDE(tests.set)
+
+FOREACH(tfile ${ALL_TESTS})
+  GET_FILENAME_COMPONENT(BASE_NAME ${tfile} NAME_WE)
+  SET(TEST_NAME ${COMPONENT_NAME}_${BASE_NAME})
+  ADD_TEST(${TEST_NAME} python ${tfile})
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+    LABELS "${COMPONENT_NAME}"
+    TIMEOUT ${TIMEOUT}
+    )
+ENDFOREACH()
