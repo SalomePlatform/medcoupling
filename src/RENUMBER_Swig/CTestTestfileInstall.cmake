@@ -17,11 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(TEST_NAMES
-  MEDRenumberTest
-)
-
 IF(MEDCOUPLING_BUILD_PY_TESTS)
+    SET(TEST_NAMES
+      MEDRenumberTest
+      )
     FOREACH(tfile ${TEST_NAMES})
       SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
       ADD_TEST(${TEST_NAME} python ${tfile}.py)
@@ -38,5 +37,5 @@ IF(MEDCOUPLING_BUILD_PY_TESTS)
       LABELS "${COMPONENT_NAME}"
       TIMEOUT ${TIMEOUT}
       ENVIRONMENT "PYTHONPATH=../../bin:$ENV{PYTHONPATH}"
-  )
+      )
 ENDIF()

@@ -20,46 +20,46 @@
 set(MPIEXEC @MPIEXEC@)
 set(_oversub_opt @_oversub_opt@)
 
-SET(TEST_NAMES ParaMEDMEMTest)
+SET(TEST_PREFIX ParaMEDMEMTest)
 
 # TestParaMEDMEM
 
 set(tfile TestParaMEDMEM_Proc2)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_PREFIX}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 2 ${_oversub_opt} TestParaMEDMEM)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
 set(tfile TestParaMEDMEM_Proc3)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_PREFIX}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 3 ${_oversub_opt} TestParaMEDMEM)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
 set(tfile TestParaMEDMEM_Proc4)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_PREFIX}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} TestParaMEDMEM)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
 set(tfile TestParaMEDMEM_Proc5)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_PREFIX}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 5 ${_oversub_opt} TestParaMEDMEM)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
 # TestMPIAccess
 
 set(tfile TestMPIAccess_Proc2)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_PREFIX}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 2 ${_oversub_opt} TestMPIAccess)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
 set(tfile TestMPIAccess_Proc3)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_PREFIX}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 3 ${_oversub_opt} TestMPIAccess)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
 # TestMPIAccessDEC
 
 set(tfile TestMPIAccessDEC_Proc4)
-set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_PREFIX}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} TestMPIAccessDEC)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
