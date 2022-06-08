@@ -249,7 +249,7 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
   if(array)
     {
       srcField->checkConsistencyLight();
-      if(ToIdType(trgNbOfCompo)!=srcField->getNumberOfTuplesExpected())
+      if(trgNbOfCompo != srcField->getNumberOfComponents())
         throw INTERP_KERNEL::Exception("Number of components mismatch !");
     }
   else
