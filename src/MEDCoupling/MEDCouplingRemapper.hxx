@@ -89,12 +89,14 @@ namespace MEDCoupling
     //
     int prepareNotInterpKernelOnly();
     int prepareNotInterpKernelOnlyGaussGauss();
+    int prepareNotInterpKernelOnlyFEFE();
     //
     static int CheckInterpolationMethodManageableByNotOnlyInterpKernel(const std::string& method);
     //
     bool isInterpKernelOnlyOrNotOnly() const;
     void updateTime() const;
     void checkPrepare() const;
+    void synchronizeSizeOfSideMatricesAfterMatrixComputation(mcIdType nbOfColsInMatrix);
     std::string checkAndGiveInterpolationMethodStr(std::string& srcMeth, std::string& trgMeth) const;
     void releaseData(bool matrixSuppression);
     void restartUsing(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target);

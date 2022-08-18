@@ -28,6 +28,7 @@
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingFieldDiscretizationOnNodesFE.hxx"
 #include "MEDCouplingMultiFields.hxx"
 #include "MEDCouplingPartDefinition.hxx"
 #include "MEDCouplingCartesianAMRMesh.hxx"
@@ -121,6 +122,8 @@ static PyObject *convertFieldDiscretization(MEDCoupling::MEDCouplingFieldDiscret
     ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDiscretizationGaussNE,owner);
   if(dynamic_cast<MEDCoupling::MEDCouplingFieldDiscretizationKriging *>(fd))
     ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDiscretizationKriging,owner);
+  if(dynamic_cast<MEDCoupling::MEDCouplingFieldDiscretizationOnNodesFE *>(fd))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDiscretizationOnNodesFE,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of field discretization on downcast !");
   return ret;

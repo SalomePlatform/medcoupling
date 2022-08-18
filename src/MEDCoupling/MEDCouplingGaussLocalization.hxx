@@ -54,6 +54,8 @@ namespace MEDCoupling
     //
     MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> localizePtsInRefCooForEachCell(const DataArrayDouble *ptsInRefCoo, const MEDCouplingUMesh *mesh) const;
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> buildRefCell() const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getShapeFunctionValues() const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getDerivativeOfShapeFunctionValues() const;
     //
     MEDCOUPLING_EXPORT const std::vector<double>& getRefCoords() const { return _ref_coord; }
     MEDCOUPLING_EXPORT double getRefCoord(int ptIdInCell, int comp) const;
@@ -70,6 +72,7 @@ namespace MEDCoupling
     //
     MEDCOUPLING_EXPORT static MEDCouplingGaussLocalization BuildNewInstanceFromTinyInfo(mcIdType dim, const std::vector<mcIdType>& tinyData);
     MEDCOUPLING_EXPORT static bool AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps);
+    MEDCOUPLING_EXPORT static MCAuto<DataArrayDouble> GetDefaultReferenceCoordinatesOf(INTERP_KERNEL::NormalizedCellType type);
   private:
     int checkCoherencyOfRequest(mcIdType gaussPtIdInCell, int comp) const;
   private:

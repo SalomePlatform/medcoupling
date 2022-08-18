@@ -1586,6 +1586,62 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             delta = abs(csr_new[0,0]-ref_value)/ref_value
             self.assertTrue(delta < 1e-3)
 
+    def testFEFE_0(self):
+        """
+        Test to stress localisation of target points into a source mesh using standard reference FE elements.
+        """
+        gt = NORM_HEXA27
+        nbPtsInCell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType( gt )
+        coo = DataArrayDouble([(9.0, 18.0, 27.0), (9.0, 22.0, 27.0), (11.0, 22.0, 27.0), (11.0, 18.0, 27.0), (9.0, 18.0, 33.0), (9.0, 22.0, 33.0), (11.0, 22.0, 33.0), (11.0, 18.0, 33.0), (8.8, 20.0, 26.4), (10.0, 21.6, 27.6), (11.2, 20.0, 26.4), (10.0, 18.4, 27.6), (8.8, 20.0, 33.6), (10.0, 21.6, 32.4), (11.2, 20.0, 33.6), (10.0, 18.4, 32.4), (8.8, 17.6, 30.0), (9.2, 21.6, 30.0), (11.2, 22.4, 30.0), (10.8, 18.4, 30.0), (10.0, 20.0, 26.4), (9.2, 20.0, 30.0), (10.0, 22.4, 30.0), (10.8, 20.0, 30.0), (10.0, 17.6, 30.0), (10.0, 20.0, 32.4), (10.0, 20.0, 30.0)])
+        m = MEDCouplingUMesh("mesh",3)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(gt,list(range(nbPtsInCell)))
+
+        inPts = DataArrayDouble( [(9.1, 18.2, 27.3), (9.1, 21.8, 27.3), (10.9, 21.8, 27.3), (10.9, 18.2, 27.3), (9.1, 18.2, 32.7), (9.1, 21.8, 32.7), (10.9, 21.8, 32.7), (10.9, 18.2, 32.7), (8.9, 20.0, 26.7), (10.0, 21.4, 27.9), (11.1, 20.0, 26.7), (10.0, 18.6, 27.9), (8.9, 20.0, 33.3), (10.0, 21.4, 32.1), (11.1, 20.0, 33.3), (10.0, 18.6, 32.1), (8.9, 17.8, 30.0), (9.3, 21.4, 30.0), (11.1, 22.2, 30.0), (10.7, 18.6, 30.0), (10.0, 20.0, 26.7), (9.3, 20.0, 30.0), (10.0, 22.2, 30.0), (10.7, 20.0, 30.0), (10.0, 17.8, 30.0), (10.0, 20.0, 32.1), (10.0, 20.0, 30.0)] )
+
+        outPts = DataArrayDouble( [(8.9, 17.8, 26.7), (8.9, 22.2, 26.7), (11.1, 22.2, 26.7), (11.1, 17.8, 26.7), (8.9, 17.8, 33.3), (8.9, 22.2, 33.3), (11.1, 22.2, 33.3), (11.1, 17.8, 33.3), (8.7, 20.0, 26.1), (10.0, 21.8, 27.3), (11.3, 20.0, 26.1), (10.0, 18.2, 27.3), (8.7, 20.0, 33.9), (10.0, 21.8, 32.7), (11.3, 20.0, 33.9), (10.0, 18.2, 32.7), (8.7, 17.4, 30.0), (9.1, 21.8, 30.0), (11.3, 22.6, 30.0), (10.9, 18.2, 30.0), (10.0, 20.0, 26.1), (9.1, 20.0, 30.0), (10.0, 22.6, 30.0), (10.9, 20.0, 30.0), (10.0, 17.4, 30.0), (10.0, 20.0, 32.7), (14.0, 20.0, 30.0)] )
+
+        srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+        srcField.setMesh(m)
+        arr = DataArrayDouble(nbPtsInCell)
+        arr.iota()
+        srcField.setArray(arr)
+
+        ref_val0 = DataArrayDouble( [6.5782430384766535, 5.505760346014328, 7.80996256527073, 7.643290943690746, 9.758765408487054, 9.06408508454036, 11.003779543627997, 11.205026363340515, 10.56416007071563, 18.44359561721225, 12.499588353132655, 19.85351355074463, 14.186041573114885, 19.339743214851023, 16.084629460041207, 20.892007336402663, 17.269258227200577, 19.549962126638338, 19.039562190136063, 21.648928068870756, 20.667409503475078, 22.062499999998867, 22.562500000009678, 23.812499999505995, 24.395833333387696, 25.62468592706991, 26.] )
+
+        eps = 1e-8
+
+        for i in range(nbPtsInCell):
+            self.assertTrue( abs( srcField.getValueOn( inPts[i] )[0]-ref_val0[i] ) < eps )
+
+        self.assertTrue( srcField.getValueOnMulti( inPts ).isEqual(ref_val0,eps) )
+
+        srcFt=MEDCouplingFieldTemplate(srcField)
+        trgFt=MEDCouplingFieldTemplate(ON_NODES_FE)
+        trgMesh = MEDCouplingUMesh.Build0DMeshFromCoords( inPts )
+        trgFt.setMesh(trgMesh)
+        rem = MEDCouplingRemapper()
+        rem.setIntersectionType( PointLocator )
+        rem.prepareEx(srcFt,trgFt)
+        # scan content of matrix computed by remapper
+        mat = rem.getCrudeMatrix()
+        self.assertEqual( len(mat) , nbPtsInCell )
+        for irow,row in enumerate(mat):
+            self.assertTrue( abs( sum([y for x,y in row.items()]) - 1.0) < eps )
+            self.assertEqual( irow , [x for x,y in row.items() if y == max([y for x,y in row.items()])][0] ) # check that max coeff is for irow elt (due to construction of inPts )
+
+        # ask for MEDCouplingFieldDiscretizationOnNodesFE instance to compute coordination into ref element
+        sd = srcField.getDiscretization()
+        coosInRefElemFoundByNewton = sd.getCooInRefElement(srcField.getMesh(),inPts)
+
+        for zePt,cooInRefElemFoundByNewton in zip(inPts,coosInRefElemFoundByNewton):
+            # now check by performing refCoo -> realCoo
+            ftest = MEDCouplingFieldDouble(ON_GAUSS_PT)
+            ftest.setMesh(srcField.getMesh())
+            ftest.setGaussLocalizationOnType(gt,sum([list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()],[]),list(cooInRefElemFoundByNewton),[1])
+            self.assertTrue ( float( (ftest.getLocalizationOfDiscr()-zePt).magnitude() ) < 1e-4 )
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):

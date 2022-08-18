@@ -47,6 +47,7 @@
 #include "MEDCouplingFieldOverTime.hxx"
 #include "MEDCouplingDefinitionTime.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingFieldDiscretizationOnNodesFE.hxx"
 #include "MEDCouplingCartesianAMRMesh.hxx"
 #include "MEDCouplingAMRAttribute.hxx"
 #include "MEDCouplingMatrix.hxx"
@@ -217,6 +218,7 @@ typedef long mcPyPtrType;
 %feature("autodoc", "1");
 %feature("docstring");
 
+%newobject MEDCoupling::MEDCouplingFieldDiscretizationOnNodesFE::getCooInRefElement;
 %newobject MEDCoupling::MEDCouplingField::buildMeasureField;
 %newobject MEDCoupling::MEDCouplingField::getLocalizationOfDiscr;
 %newobject MEDCoupling::MEDCouplingField::computeTupleIdsToSelectFromCellIds;
@@ -478,6 +480,9 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::DenseMatrix::__mul__;
 %newobject MEDCoupling::MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell;
 %newobject MEDCoupling::MEDCouplingGaussLocalization::buildRefCell;
+%newobject MEDCoupling::MEDCouplingGaussLocalization::getShapeFunctionValues;
+%newobject MEDCoupling::MEDCouplingGaussLocalization::getDerivativeOfShapeFunctionValues;
+%newobject MEDCoupling::MEDCouplingGaussLocalization::GetDefaultReferenceCoordinatesOf;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::BuildFromPolyhedronConn;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::getSuperIndexArray;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::getIndexArray;
@@ -503,6 +508,7 @@ typedef long mcPyPtrType;
 %feature("unref") MEDCouplingFieldDiscretizationGauss "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationGaussNE "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationKriging "$this->decrRef();"
+%feature("unref") MEDCouplingFieldDiscretizationOnNodesFE "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
 %feature("unref") MEDCouplingFieldFloat "$this->decrRef();"
 %feature("unref") MEDCouplingFieldInt32 "$this->decrRef();"
@@ -636,7 +642,8 @@ namespace MEDCoupling
       ON_NODES = 1,
       ON_GAUSS_PT = 2,
       ON_GAUSS_NE = 3,
-      ON_NODES_KR = 4
+      ON_NODES_KR = 4,
+      ON_NODES_FE = 5
     } TypeOfField;
 
   typedef enum
@@ -1302,6 +1309,24 @@ namespace MEDCoupling
       MEDCouplingUMesh *buildRefCell() const
       {
         MCAuto<MEDCouplingUMesh> ret(self->buildRefCell());
+        return ret.retn();
+      }
+      
+      DataArrayDouble *getShapeFunctionValues() const
+      {
+        MCAuto<DataArrayDouble> ret(self->getShapeFunctionValues());
+        return ret.retn();
+      }
+      
+      DataArrayDouble *getDerivativeOfShapeFunctionValues() const
+      {
+        MCAuto<DataArrayDouble> ret(self->getDerivativeOfShapeFunctionValues());
+        return ret.retn();
+      }
+
+      static DataArrayDouble *GetDefaultReferenceCoordinatesOf(INTERP_KERNEL::NormalizedCellType type)
+      {
+        MCAuto<DataArrayDouble> ret(MEDCouplingGaussLocalization::GetDefaultReferenceCoordinatesOf(type));
         return ret.retn();
       }
     }

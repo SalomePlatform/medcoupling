@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022  CEA/DEN, EDF R&D
+// Copyright (C) 2022  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,36 +16,38 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
 
-#ifndef __INTERPKERNELEXCEPTION_HXX__
-#define __INTERPKERNELEXCEPTION_HXX__
+#pragma once
 
 #include "INTERPKERNELDefines.hxx"
-
-#include <string>
-#include <exception>
-#include <sstream>
+#include "MCIdType.hxx"
 
 namespace INTERP_KERNEL
 {
-  class Exception : public std::exception
+  template <class T>
+  class INTERPKERNEL_EXPORT DenseMatrixT
   {
+  private:
+    mcIdType nn;
+    mcIdType mm;
+    T **v;
   public:
-    INTERPKERNEL_EXPORT Exception(const char *reason);
-    INTERPKERNEL_EXPORT Exception(const std::string& reason);
-    INTERPKERNEL_EXPORT Exception(const char *reason, const char *file, int line);
-    INTERPKERNEL_EXPORT ~Exception() noexcept(true);
-    INTERPKERNEL_EXPORT const char *what() const noexcept(true);
-  protected:
-    std::string _reason;
+    DenseMatrixT();
+    DenseMatrixT(mcIdType n, mcIdType m);
+    DenseMatrixT(mcIdType n, mcIdType m, const T &a);	
+    DenseMatrixT(mcIdType n, mcIdType m, const T *a);
+    DenseMatrixT(const DenseMatrixT &rhs);
+    DenseMatrixT & operator=(const DenseMatrixT &rhs);
+    using value_type = T;
+    //! subscripting: pointer to row i
+    T* operator[](const mcIdType i) { return v[i]; }
+    const T* operator[](const mcIdType i) const { return v[i]; }
+    mcIdType nrows() const { return nn; }
+    mcIdType ncols() const { return mm; }
+    void resize(mcIdType newn, mcIdType newm);
+    void assign(mcIdType newn, mcIdType newm, const T &a);
+    ~DenseMatrixT();
   };
-}
 
-#define THROW_IK_EXCEPTION(text)               \
-{                                              \
-    std::ostringstream oss; oss << text;       \
-    throw INTERP_KERNEL::Exception(oss.str()); \
+  using DenseMatrix = DenseMatrixT<double>;
 }
-
-#endif

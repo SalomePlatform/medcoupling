@@ -469,4 +469,21 @@ namespace MEDCoupling
       }
     }
   };
+
+  class MEDCouplingFieldDiscretizationOnNodesFE : public MEDCouplingFieldDiscretizationOnNodes
+  {
+    public:
+    %extend
+    {
+      DataArrayDouble *getCooInRefElement(const MEDCouplingMesh *mesh, PyObject *locs)
+      {
+        mcIdType sw,nbPts;
+        double v0; MEDCoupling::DataArrayDouble *v1(0); MEDCoupling::DataArrayDoubleTuple *v2(0); std::vector<double> v3;
+        const double *inp=convertObjToPossibleCpp5_Safe2(locs,sw,v0,v1,v2,v3,"wrap of MEDCouplingFieldDouble::getValueOnMulti",
+                                                         mesh->getSpaceDimension(),true,nbPts);
+        MCAuto<DataArrayDouble> ret(self->getCooInRefElement(mesh,inp,nbPts));
+        return ret.retn();
+      }
+    }
+  };
 }

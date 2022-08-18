@@ -27,16 +27,13 @@ namespace INTERP_KERNEL
 
   Interpolation3D1D::Interpolation3D1D(const InterpolationOptions& io):Interpolation<Interpolation3D1D>(io) { }
 
-  /**
-   * Inspired from PlanarIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes
-   */
-  void Interpolation3D1D::adjustBoundingBoxes(std::vector<double>& bbox)
+  void Interpolation3D1D::adjustBoundingBoxes(double *bbox, std::size_t sz)
   {
     const int SPACE_DIM = 3;
     const double adj = getBoundingBoxAdjustmentAbs();
     const double adjRel = getBoundingBoxAdjustment();
 
-    std::size_t size = bbox.size()/(2*SPACE_DIM);
+    std::size_t size = sz/(2*SPACE_DIM);
     for (std::size_t i=0; i<size; i++)
       {
         double max=- std::numeric_limits<double>::max();
@@ -51,5 +48,13 @@ namespace INTERP_KERNEL
             bbox[i*2*SPACE_DIM+2*idim+1] += adjRel*max+adj;
           }
       }
+  }
+
+  /**
+   * Inspired from PlanarIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes
+   */
+  void Interpolation3D1D::adjustBoundingBoxes(std::vector<double>& bbox)
+  {
+    adjustBoundingBoxes(bbox.data(),bbox.size());
   }
 }

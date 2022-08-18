@@ -58,9 +58,9 @@ namespace INTERP_KERNEL
 
   protected:
     template<class MyMeshType, class MyMatrixType>
-    void performAdjustmentOfBB(Intersector3D<MyMeshType,MyMatrixType>* intersector, std::vector<double>& bbox) const
+    void performAdjustmentOfBB(Intersector3D<MyMeshType,MyMatrixType>* intersector, double *bbox, std::size_t sz) const
     {
-      intersector->adjustBoundingBoxes(bbox,InterpolationOptions::getBoundingBoxAdjustment(),InterpolationOptions::getBoundingBoxAdjustmentAbs());
+      intersector->adjustBoundingBoxes(bbox,sz,InterpolationOptions::getBoundingBoxAdjustment(),InterpolationOptions::getBoundingBoxAdjustmentAbs());
     }
 
   private:

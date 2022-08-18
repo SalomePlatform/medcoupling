@@ -45,7 +45,8 @@ namespace MEDCoupling
     ON_NODES = 1,
     ON_GAUSS_PT = 2,
     ON_GAUSS_NE = 3,
-    ON_NODES_KR = 4
+    ON_NODES_KR = 4,
+    ON_NODES_FE = 5
   } TypeOfField;
 
   //! The various temporal discretization of a field

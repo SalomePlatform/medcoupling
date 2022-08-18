@@ -62,6 +62,9 @@ SET(interpkernel_SOURCES
   ExprEval/InterpKernelValue.cxx
   ExprEval/InterpKernelAsmX86.cxx
   GaussPoints/InterpKernelGaussCoords.cxx
+  LinearAlgebra/InterpKernelDenseMatrix.cxx
+  LinearAlgebra/InterpKernelLUDecomp.cxx
+  LinearAlgebra/InterpKernelQRDecomp.cxx
   )
 
 INCLUDE_DIRECTORIES(
@@ -70,6 +73,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/Geometric2D
   ${CMAKE_CURRENT_SOURCE_DIR}/ExprEval
   ${CMAKE_CURRENT_SOURCE_DIR}/GaussPoints
+  ${CMAKE_CURRENT_SOURCE_DIR}/LinearAlgebra
   )
 
 IF (NOT DEFINED MSVC)

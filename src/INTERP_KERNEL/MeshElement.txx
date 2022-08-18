@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <type_traits>
 #include <limits>
+#include <memory>
 
 namespace INTERP_KERNEL
 {
@@ -40,35 +41,29 @@ namespace INTERP_KERNEL
    */
   template<class ConnType>
   template<class MyMeshType>
-  MeshElement<ConnType>::MeshElement(const ConnType index, const MyMeshType& mesh)
-    : _index(index), _number( 0 ), _box(nullptr)
+  MeshElement<ConnType>::MeshElement(const ConnType index, const MyMeshType& mesh): _number( 0 )
+  {
+    this->assign(index,mesh);
+  }
+
+  template<class ConnType>
+  template<class MyMeshType>
+  void MeshElement<ConnType>::assign(const ConnType index, const MyMeshType& mesh)
   {
     auto numberCore = mesh.getNumberOfNodesOfElement(OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index));
     if(numberCore < std::numeric_limits<nbnodesincelltype>::max())
     {
       _number = static_cast< nbnodesincelltype >(numberCore);
-      const double**vertices = new const double*[_number];
+      std::unique_ptr<const double*[]> vertices( new const double*[_number] );
       for( nbnodesincelltype i = 0 ; i < _number ; ++i)
         vertices[i] = getCoordsOfNode(i , OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index), mesh);
-
       // create bounding box
-      _box = new BoundingBox(vertices,_number);
-      delete [] vertices;
+      _box.initializeWith(vertices.get(),_number);
     }
     else
     {
-      std::cerr << "ERROR at index " << index << " : exceeding capacity !" << std::endl;
+      THROW_IK_EXCEPTION("ERROR at index " << index << " : exceeding capacity !");
     }
-  }
-    
-  /**
-   * Destructor
-   *
-   */
-  template<class ConnType>
-  MeshElement<ConnType>::~MeshElement()
-  {
-    delete _box;
   }
 
   /////////////////////////////////////////////////////////////////////

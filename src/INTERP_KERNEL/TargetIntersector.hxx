@@ -52,6 +52,7 @@ namespace INTERP_KERNEL
 
     virtual ~TargetIntersector() { }
     void adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEps, double adjustmentEpsAbs);
+    void adjustBoundingBoxes(double *bbox, std::size_t sz, double adjustmentEps, double adjustmentEpsAbs);
   };
 }
 

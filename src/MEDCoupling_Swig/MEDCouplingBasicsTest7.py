@@ -1029,6 +1029,57 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue( all([len(elt)==1 for elt in res]) )
         self.assertTrue( all([elt[0]>0.99 and elt[0]<1.01 for elt in res]) )
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def testShapeFuncAndDerivative0(self):
+        """
+        Test values returned by MEDCoupling on HEXA27 element of shape function and its derivatives.
+        See https://www.code-aster.org/V2/doc/v10/fr/man_r/r3/r3.01.01.pdf
+        """
+        import numpy as np
+        
+        ref_coords_hexa27_med = [[-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, -1.0, 1.0], [-1.0, 0.0, -1.0], [0.0, 1.0, -1.0], [1.0, 0.0, -1.0], [0.0, -1.0, -1.0], [-1.0, 0.0, 1.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0], [0.0, -1.0, 1.0], [-1.0, -1.0, 0.0], [-1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.0, 0.0]]
+
+        def coor2index(coor):
+            zeMap = {-1.0 : 0, 0.0 : 2 , 1.0 : 1}
+            return zeMap[coor]
+
+        vcoor2index = np.vectorize( coor2index )
+        node2ijk_hexa27_med = vcoor2index( np.array(ref_coords_hexa27_med) )
+
+        def N_1d_quad(x):
+            return np.array([-0.5*x*(1-x), 0.5*x*(x+1), 1.-x*x])
+
+        def N_3d_hexa27(x, i, j, k):
+            return N_1d_quad(x[0])[i]*N_1d_quad(x[1])[j]*N_1d_quad(x[2])[k]
+
+        def N_hexa27(x):
+            return np.array([N_3d_hexa27(x, *node2ijk_hexa27_med[node,:]) for node in range(27)])
+
+        # Implementing shape function derivatives
+        def diff_N_1d_quad(x):
+            return np.array([x-0.5, x+0.5, -2.*x])
+
+        def diff_N_3d_hexa27(x, i, j, k):
+            return np.array([diff_N_1d_quad(x[0])[i]*N_1d_quad(x[1])[j]     *N_1d_quad(x[2])[k],
+                            N_1d_quad(x[0])[i]     *diff_N_1d_quad(x[1])[j]*N_1d_quad(x[2])[k],
+                            N_1d_quad(x[0])[i]     *N_1d_quad(x[1])[j]     *diff_N_1d_quad(x[2])[k]])
+
+        def diff_N_hexa27(x):
+            return np.array([diff_N_3d_hexa27(x, *node2ijk_hexa27_med[node,:]) for node in range(27)])
+        # computation of ref values
+        posInRefCoord = [-0.85685375,-0.90643355,-0.90796825]
+        ref = N_hexa27( np.array(posInRefCoord) )
+        ref2 = diff_N_hexa27( np.array(posInRefCoord) )
+        # computation using MEDCoupling
+        gl = MEDCouplingGaussLocalization(NORM_HEXA27,sum(ref_coords_hexa27_med,[]),posInRefCoord,[1])
+        mcShapeFunc = gl.getShapeFunctionValues()
+        mcShapeFunc.rearrange(1)
+        self.assertTrue( mcShapeFunc.isEqual(DataArrayDouble(ref),1e-12) )
+
+        mvDevOfShapeFunc = gl.getDerivativeOfShapeFunctionValues()
+        mvDevOfShapeFunc.rearrange(1)
+        ref2_mc = DataArrayDouble(ref2) ; ref2_mc.rearrange(1)
+        self.assertTrue( mvDevOfShapeFunc.isEqual( ref2_mc, 1e-12) )
 
     pass
 

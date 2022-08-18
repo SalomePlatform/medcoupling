@@ -449,7 +449,8 @@ namespace MEDCoupling
    * \ref MEDCoupling::ON_NODES "ON_NODES",
    * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
    * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
-   * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
+   * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR",
+   * \ref MEDCoupling::ON_NODES_FE "ON_NODES_FE").
    *
    * For example, \a this is a field on cells lying on a mesh that have 10 cells, \a partBg contains the following cell ids [3,7,6].
    * Then the returned field will lie on mesh having 3 cells and will contain 3 tuples.
@@ -512,7 +513,8 @@ namespace MEDCoupling
    * \ref MEDCoupling::ON_NODES "ON_NODES",
    * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
    * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
-   * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
+   * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR",
+   * \ref MEDCoupling::ON_NODES_FE "ON_NODES_FE").
    *
    * For example, \a this is a field on cells lying on a mesh that have 10 cells, \a part contains following cell ids [3,7,6].
    * Then the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.<br>

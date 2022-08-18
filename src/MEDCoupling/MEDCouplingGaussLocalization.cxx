@@ -76,15 +76,20 @@ void MEDCouplingGaussLocalization::checkConsistencyLight() const
 int MEDCouplingGaussLocalization::getDimension() const
 {
   if(_weight.empty())
-    return -1;
+    THROW_IK_EXCEPTION("getDimension : weight is empty !");
   return (int)_gauss_coord.size()/(int)_weight.size();
 }
 
 int MEDCouplingGaussLocalization::getNumberOfPtsInRefCell() const
 {
-  int dim=getDimension();
-  if(dim==0)
-    return -1;
+  if(_gauss_coord.empty())
+  {
+    if(!_weight.empty())
+      THROW_IK_EXCEPTION("getNumberOfPtsInRefCell : gauss_coords are empty whereas weights are not empty !");
+    const INTERP_KERNEL::CellModel& cm = INTERP_KERNEL::CellModel::GetCellModel(_type);
+    return ((int)_ref_coord.size()) / ((int)cm.getDimension());
+  }
+  int dim( getDimension() );
   return (int)_ref_coord.size()/dim;
 }
 
@@ -242,6 +247,46 @@ MCAuto<MEDCouplingUMesh> MEDCouplingGaussLocalization::buildRefCell() const
 }
 
 /*!
+ * This method returns an array containing for each Gauss Points in \a this, function values relative to the points of the
+ * reference cell. Number of components of returned array is equal to the number of points of the reference cell.
+ */
+MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::getShapeFunctionValues() const
+{
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  int nbGaussPt(getNumberOfGaussPt()),nbPtsRefCell(getNumberOfPtsInRefCell()),dim(getDimension());
+  ret->alloc(nbGaussPt,nbPtsRefCell);
+  double *retPtr(ret->getPointer());
+  for(int iGaussPt = 0 ; iGaussPt < nbGaussPt ; ++iGaussPt)
+  {
+    std::vector<double> curGaussPt(_gauss_coord.begin()+iGaussPt*dim,_gauss_coord.begin()+(iGaussPt+1)*dim);
+    INTERP_KERNEL::GaussInfo gi(_type,curGaussPt,1,_ref_coord,nbPtsRefCell);
+    gi.initLocalInfo();
+    const double *funcVal( gi.getFunctionValues(0) );
+    std::copy(funcVal,funcVal+nbPtsRefCell,retPtr);
+    retPtr += nbPtsRefCell;
+  }
+  return ret;
+}
+
+MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::getDerivativeOfShapeFunctionValues() const
+{
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  int nbGaussPt(getNumberOfGaussPt()),nbPtsRefCell(getNumberOfPtsInRefCell()),dim(getDimension());
+  ret->alloc(nbGaussPt,nbPtsRefCell*dim);
+  double *retPtr(ret->getPointer());
+  for(int iGaussPt = 0 ; iGaussPt < nbGaussPt ; ++iGaussPt)
+  {
+    std::vector<double> curGaussPt(_gauss_coord.begin()+iGaussPt*dim,_gauss_coord.begin()+(iGaussPt+1)*dim);
+    INTERP_KERNEL::GaussInfo gi(_type,curGaussPt,1,_ref_coord,nbPtsRefCell);
+    gi.initLocalInfo();
+    const double *devOfFuncVal( gi.getDerivativeOfShapeFunctionAt(0) );
+    std::copy(devOfFuncVal,devOfFuncVal+nbPtsRefCell*dim,retPtr);
+    retPtr += nbPtsRefCell*dim;
+  }
+  return ret;
+}
+
+/*!
  * This method sets the comp_th component of ptIdInCell_th point coordinate of reference element of type this->_type.
  * @throw if not 0<=ptIdInCell<nbOfNodePerCell or if not 0<=comp<dim
  */
@@ -314,4 +359,18 @@ bool MEDCouplingGaussLocalization::AreAlmostEqual(const std::vector<double>& v1,
   std::transform(v1.begin(),v1.end(),v2.begin(),tmp.begin(),std::minus<double>());
   std::transform(tmp.begin(),tmp.end(),tmp.begin(),[](double c){return fabs(c);});
   return *std::max_element(tmp.begin(),tmp.end())<eps;
+}
+
+MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::GetDefaultReferenceCoordinatesOf(INTERP_KERNEL::NormalizedCellType type)
+{
+  std::vector<double> retCpp(INTERP_KERNEL::GaussInfo::GetDefaultReferenceCoordinatesOf(type));
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  auto nbDim(cm.getDimension());
+  std::size_t sz(retCpp.size());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  if( sz%std::size_t(nbDim) != 0 )
+    THROW_IK_EXCEPTION("GetDefaultReferenceCoordinatesOf : unexpected size of defaut array : " << sz << " % " << nbDim << " != 0 !");
+  ret->alloc(sz/size_t(nbDim),nbDim);
+  std::copy(retCpp.begin(),retCpp.end(),ret->getPointer());
+  return ret;
 }

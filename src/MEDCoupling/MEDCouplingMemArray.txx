@@ -5866,7 +5866,7 @@ struct NotInRange
       throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : only single component allowed !");
     std::size_t nbOfElements=this->getNumberOfTuples();
     if(nbOfElements<2)
-      throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : 1 tuple at least must be present in 'this' !");
+      throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : 2 tuples at least must be present in 'this' !");
     const T *ptr=this->getConstPointer();
     DataArrayType *ret=DataArrayType::New();
     ret->alloc(nbOfElements-1,1);

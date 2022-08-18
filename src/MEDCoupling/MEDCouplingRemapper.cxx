@@ -27,6 +27,7 @@
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingNormalizedCartesianMesh.txx"
+#include "MEDCouplingFieldDiscretizationOnNodesFE.hxx"
 
 #include "Interpolation1D.txx"
 #include "Interpolation2DCurve.hxx"
@@ -123,10 +124,7 @@ void MEDCouplingRemapper::setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, 
         }
     }
   _matrix=m;
-  _deno_multiply.clear();
-  _deno_multiply.resize(_matrix.size());
-  _deno_reverse_multiply.clear();
-  _deno_reverse_multiply.resize(srcNbElem);
+  synchronizeSizeOfSideMatricesAfterMatrixComputation(srcNbElem);
 }
 
 int MEDCouplingRemapper::prepareInterpKernelOnly()
@@ -181,6 +179,8 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly()
   {
     case 0:
       return prepareNotInterpKernelOnlyGaussGauss();
+    case 1:
+      return prepareNotInterpKernelOnlyFEFE();
     default:
       {
         std::ostringstream oss; oss << "MEDCouplingRemapper::prepareNotInterpKernelOnly : INTERNAL ERROR ! the method \"" << method << "\" declared as managed bu not implemented !";
@@ -689,11 +689,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
     }
   else
     throw INTERP_KERNEL::Exception("No interpolation available for the given mesh and space dimension");
-  _deno_multiply.clear();
-  _deno_multiply.resize(_matrix.size());
-  _deno_reverse_multiply.clear();
-  _deno_reverse_multiply.resize(nbCols);
-  declareAsNew();
+  synchronizeSizeOfSideMatricesAfterMatrixComputation(nbCols);
   return 1;
 }
 
@@ -727,11 +723,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
   buildFinalInterpolationMatrixByConvolution(matrix1D,matrix2D,src_mesh->getMesh3DIds()->getConstPointer(),nbCols2D,nbCols1D,
                                              target_mesh->getMesh3DIds()->getConstPointer());
   //
-  _deno_multiply.clear();
-  _deno_multiply.resize(_matrix.size());
-  _deno_reverse_multiply.clear();
-  _deno_reverse_multiply.resize(nbCols2D*nbCols1D);
-  declareAsNew();
+  synchronizeSizeOfSideMatricesAfterMatrixComputation(nbCols2D*nbCols1D);
   return 1;
 }
 
@@ -783,11 +775,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUC()
   ReverseMatrix(res,target_mesh->getNumberOfCells(),_matrix);
   nullifiedTinyCoeffInCrudeMatrixAbs(0.);
   //
-  _deno_multiply.clear();
-  _deno_multiply.resize(_matrix.size());
-  _deno_reverse_multiply.clear();
-  _deno_reverse_multiply.resize(src_mesh->getNumberOfCells());
-  declareAsNew();
+  synchronizeSizeOfSideMatricesAfterMatrixComputation(src_mesh->getNumberOfCells());
   return 1;
 }
 
@@ -837,11 +825,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCU()
   }
   nullifiedTinyCoeffInCrudeMatrixAbs(0.);
   //
-  _deno_multiply.clear();
-  _deno_multiply.resize(_matrix.size());
-  _deno_reverse_multiply.clear();
-  _deno_reverse_multiply.resize(src_mesh->getNumberOfCells());
-  declareAsNew();
+  synchronizeSizeOfSideMatricesAfterMatrixComputation(src_mesh->getNumberOfCells());
   return 1;
 }
 
@@ -890,11 +874,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCC()
   }
   nullifiedTinyCoeffInCrudeMatrixAbs(0.);
   //
-  _deno_multiply.clear();
-  _deno_multiply.resize(_matrix.size());
-  _deno_reverse_multiply.clear();
-  _deno_reverse_multiply.resize(src_mesh->getNumberOfCells());
-  declareAsNew();
+  synchronizeSizeOfSideMatricesAfterMatrixComputation(src_mesh->getNumberOfCells());
   return 1;
 }
 
@@ -949,11 +929,43 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
       for(const mcIdType *orphanTrgId=orphanTrgIds->begin();orphanTrgId!=orphanTrgIds->end();orphanTrgId++,srcIdPerTrgPtr++)
         _matrix[*orphanTrgId][*srcIdPerTrgPtr]=2.;
     }
-  _deno_multiply.clear();
-  _deno_multiply.resize(_matrix.size());
-  _deno_reverse_multiply.clear();
-  _deno_reverse_multiply.resize(srcLoc->getNumberOfTuples());
-  declareAsNew();
+  synchronizeSizeOfSideMatricesAfterMatrixComputation( srcLoc->getNumberOfTuples() );
+  return 1;
+}
+
+int MEDCouplingRemapper::prepareNotInterpKernelOnlyFEFE()
+{
+  if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareNotInterpKernelOnlyFEFE : The intersection type is not supported ! Only PointLocator is supported for FE->FE interpolation ! Please invoke setIntersectionType(PointLocator) on the MEDCouplingRemapper instance !");
+  MCAuto<DataArrayDouble> trgLoc=_target_ft->getLocalizationOfDiscr();
+  mcIdType trgSpaceDim=ToIdType(trgLoc->getNumberOfComponents());
+  if(trgSpaceDim!=3)
+    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only spacedim 3 supported for target !")
+  if(_src_ft->getMesh()->getSpaceDimension() != 3)
+    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only spacedim 3 supported for source !")
+  const MEDCouplingUMesh *srcUMesh( dynamic_cast<const MEDCouplingUMesh *>(_src_ft->getMesh()) );
+  const MEDCouplingPointSet *trgMesh( dynamic_cast<const MEDCouplingPointSet *>(_target_ft->getMesh()) );
+  if( !srcUMesh )
+    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only 3D UMesh supported as source !");
+  if( !trgMesh )
+    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only 3D PointSet mesh supported as target !");
+
+  _matrix.clear();
+  _matrix.resize(trgMesh->getNumberOfNodes());
+  mcIdType rowId(0);
+
+  auto matrixFeeder = [this,&rowId](const MEDCouplingGaussLocalization& gl, const std::vector<mcIdType>& conn)
+  {
+    auto& row = this->_matrix[rowId++];
+    MCAuto<DataArrayDouble> resVector( gl.getShapeFunctionValues() );
+    for(int iPt = 0 ; iPt < gl.getNumberOfPtsInRefCell(); ++iPt)
+    {
+      row[ conn[iPt] ] = resVector->getIJ(0,iPt);
+    }
+  };
+
+  MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf3DPtsIn3D(srcUMesh,trgMesh->getCoords()->begin(),trgMesh->getNumberOfNodes(),matrixFeeder);
+  synchronizeSizeOfSideMatricesAfterMatrixComputation( srcUMesh->getNumberOfNodes() );
   return 1;
 }
 
@@ -965,9 +977,11 @@ int MEDCouplingRemapper::CheckInterpolationMethodManageableByNotOnlyInterpKernel
 {
   if(method=="GAUSSGAUSS")
     return 0;
+  if(method=="FEFE")
+    return 1;
   std::ostringstream oss; oss << "MEDCouplingRemapper::CheckInterpolationMethodManageableByNotOnlyInterpKernel : ";
   oss << "The method \"" << method << "\" is not manageable by not INTERP_KERNEL only method.";
-  oss << " Not only INTERP_KERNEL methods dealed are : GAUSSGAUSS !";
+  oss << " Not only INTERP_KERNEL methods dealed are : GAUSSGAUSS FEFE !";
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
@@ -1027,6 +1041,15 @@ void MEDCouplingRemapper::checkPrepare() const
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::checkPrepare : it appears that MEDCouplingRemapper::prepare(Ex) has not been called !");
   if(!s->getMesh() || !t->getMesh())
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::checkPrepare : it appears that no all field templates have their mesh set !");
+}
+
+void MEDCouplingRemapper::synchronizeSizeOfSideMatricesAfterMatrixComputation(mcIdType nbOfColsInMatrix)
+{
+  _deno_multiply.clear();
+  _deno_multiply.resize(_matrix.size());
+  _deno_reverse_multiply.clear();
+  _deno_reverse_multiply.resize(nbOfColsInMatrix);
+  declareAsNew();
 }
 
 /*!

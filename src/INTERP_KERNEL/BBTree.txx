@@ -23,6 +23,7 @@
 #include <algorithm>
 
 #include <iostream>
+#include <memory>
 #include <limits>
 #include <cmath>
 
@@ -31,7 +32,6 @@ constexpr double BBTREE_DFT_EPSILON = 1e-12;
 template <int dim, class ConnType = int>
 class BBTree
 {
-
 private:
   BBTree* _left;
   BBTree* _right;
@@ -47,7 +47,7 @@ private:
   static const int MIN_NB_ELEMS=15;
   static const int MAX_LEVEL=20;
 public:
-
+  BBTree() = default;
   /*!
     Constructor of the bounding box tree
     \param bbs pointer to the [xmin1 xmax1 ymin1 ymax1 xmin2 xmax2 ...] array containing the bounding boxes that are to be indexed.
@@ -67,7 +67,6 @@ public:
     BBTree<2> tree = new BBTree<2>(elems,0,0,nbelems,1e-12);
     \endcode
   */
-
   BBTree(const double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=BBTREE_DFT_EPSILON):
     _left(0), _right(0), _level(level), _bb(bbs), _terminal(false),_nbelems(nbelems),_epsilon(epsilon)
   {
@@ -76,24 +75,26 @@ public:
         _terminal=true;
       
       }
-    double* nodes=new double [nbelems];
-    _elems.resize(nbelems);
-    for (ConnType i=0; i<nbelems; i++)
-      {
-        ConnType elem;
-        if (elems!=0)
-          elem= elems[i];
-        else
-          elem=i;
+    double median = std::numeric_limits<double>::max();
+    {
+      std::unique_ptr<double[]> nodes( new double [nbelems] );
+      _elems.resize(nbelems);
+      for (ConnType i=0; i<nbelems; i++)
+        {
+          ConnType elem;
+          if (elems)
+            elem= elems[i];
+          else
+            elem=i;
 
-        _elems[i]=elem;
-        nodes[i]=bbs[elem*dim*2+(level%dim)*2];
-      }
-    if (_terminal) { delete[] nodes; return;}
+          _elems[i]=elem;
+          nodes[i]=bbs[elem*dim*2+(level%dim)*2];
+        }
+      if (_terminal) { return; }
 
-    std::nth_element<double*>(nodes, nodes+nbelems/2, nodes+nbelems);
-    double median = *(nodes+nbelems/2);
-    delete[] nodes;
+      std::nth_element<double*>(nodes.get(), nodes.get()+nbelems/2, nodes.get()+nbelems);
+      median = *(nodes.get()+nbelems/2);
+    }
     // std:: cout << *median <<std::endl;
 
     std::vector<ConnType> new_elems_left;
@@ -140,8 +141,6 @@ public:
     _right=new BBTree(bbs, tmp, level+1, (ConnType)new_elems_right.size(),_epsilon);
   
   }
-
-
  
   ~BBTree()
   {
@@ -150,13 +149,11 @@ public:
 
   }
 
-  
   /*! returns in \a elems the list of elements potentially intersecting the bounding box pointed to by \a bb
     
     \param bb pointer to query bounding box
     \param elems list of elements (given in 0-indexing that is to say in \b C \b mode) intersecting the bounding box
   */
-
   void getIntersectingElems(const double* bb, std::vector<ConnType>& elems) const
   {
     //  terminal node : return list of elements intersecting bb
@@ -234,7 +231,6 @@ public:
     \param xx pointer to query point coords
     \param elems list of elements (given in 0-indexing) intersecting the bounding box
   */
-
   void getElementsAroundPoint(const double* xx, std::vector<ConnType>& elems) const
   {
     //  terminal node : return list of elements intersecting bb
@@ -271,8 +267,6 @@ public:
     _left->getElementsAroundPoint(xx,elems);
     _right->getElementsAroundPoint(xx,elems);
   }
-
-
 
   ConnType size()
   {

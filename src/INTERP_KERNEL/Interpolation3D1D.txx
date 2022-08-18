@@ -29,9 +29,7 @@
 #include "PointLocator3DIntersectorP1P1.txx"
 #include "Log.hxx"
 
-#include "BBTree.txx"
-
-#include <memory>
+#include "InterpolationHelper.txx"
 
 namespace INTERP_KERNEL
 {
@@ -47,21 +45,9 @@ namespace INTERP_KERNEL
 
     typedef typename MyMeshType::MyConnType ConnType;
     // create MeshElement objects corresponding to each element of the two meshes
-    const ConnType numSrcElems = srcMesh.getNumberOfElements();
     const ConnType numTargetElems = targetMesh.getNumberOfElements();
 
-    LOG(2, "Source mesh has " << numSrcElems << " elements and target mesh has " << numTargetElems << " elements ");
-
-    std::vector< std::unique_ptr< MeshElement<ConnType> > > srcElems(numSrcElems);
-    std::vector< std::unique_ptr< MeshElement<ConnType> > > targetElems(numTargetElems);
-
-    std::map<MeshElement<ConnType>*, ConnType> indices;
-
-    for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      srcElems[i].reset( new MeshElement<ConnType>(i, srcMesh) );
-
-    for(ConnType i = 0 ; i < numTargetElems ; ++i)
-      targetElems[i].reset( new MeshElement<ConnType>(i, targetMesh) );
+    LOG(2, "Target mesh has " << numTargetElems << " elements ");
 
     std::unique_ptr< Intersector3D<MyMeshType,MatrixType> > intersector;
     std::string methC = InterpolationOptions::filterInterpolationMethod(method);
@@ -82,52 +68,25 @@ namespace INTERP_KERNEL
     // create empty maps for all source elements
     result.resize(intersector->getNumberOfRowsOfResMatrix());
 
-    // create BBTree structure
-    // - get bounding boxes
-    std::vector<double> bboxes(6*numSrcElems);
-    std::unique_ptr<ConnType[]> srcElemIdx{ new ConnType[numSrcElems] };
-    for(ConnType i = 0; i < numSrcElems ; ++i)
-      {
-        // get source bboxes in right order
-        const BoundingBox* box = srcElems[i]->getBoundingBox();
-        bboxes[6*i+0] = box->getCoordinate(BoundingBox::XMIN);
-        bboxes[6*i+1] = box->getCoordinate(BoundingBox::XMAX);
-        bboxes[6*i+2] = box->getCoordinate(BoundingBox::YMIN);
-        bboxes[6*i+3] = box->getCoordinate(BoundingBox::YMAX);
-        bboxes[6*i+4] = box->getCoordinate(BoundingBox::ZMIN);
-        bboxes[6*i+5] = box->getCoordinate(BoundingBox::ZMAX);
-
-        srcElemIdx[i] = srcElems[i]->getIndex();
-      }
-
-    adjustBoundingBoxes(bboxes);
-    const double *bboxPtr = nullptr;
-    if(numSrcElems>0)
-      bboxPtr=bboxes.data();
-    BBTree<3,ConnType> tree(bboxPtr, srcElemIdx.get(), 0, numSrcElems);
+    BBTreeStandAlone<3,ConnType> tree( BuildBBTreeWithAdjustment(srcMesh,[this](double *bbox, typename MyMeshType::MyConnType sz){ this->adjustBoundingBoxes(bbox,sz); }) );
 
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
     for(ConnType i = 0; i < numTargetElems; ++i)
       {
-        const BoundingBox* box = targetElems[i]->getBoundingBox();
-        const ConnType targetIdx = targetElems[i]->getIndex();
-
+        MeshElement<ConnType> trgMeshElem(i, targetMesh);
+        
+        const BoundingBox* box = trgMeshElem.getBoundingBox();
         // get target bbox in right order
         double targetBox[6];
-        targetBox[0] = box->getCoordinate(BoundingBox::XMIN);
-        targetBox[1] = box->getCoordinate(BoundingBox::XMAX);
-        targetBox[2] = box->getCoordinate(BoundingBox::YMIN);
-        targetBox[3] = box->getCoordinate(BoundingBox::YMAX);
-        targetBox[4] = box->getCoordinate(BoundingBox::ZMIN);
-        targetBox[5] = box->getCoordinate(BoundingBox::ZMAX);
+        box->fillInXMinXmaxYminYmaxZminZmaxFormat(targetBox);
 
         std::vector<ConnType> intersectElems;
 
         tree.getIntersectingElems(targetBox, intersectElems);
 
         if ( !intersectElems.empty() )
-          intersector->intersectCells(targetIdx,intersectElems,result);
+          intersector->intersectCells(i,intersectElems,result);
       }
     return intersector->getNumberOfColsOfResMatrix();
   }

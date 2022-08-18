@@ -36,10 +36,31 @@ namespace INTERP_KERNEL
    *
    */
   BoundingBox::BoundingBox(const double** pts, const unsigned numPts)
-    :_coords(new double[6])
   {
-    assert(numPts > 0);     
+    initializeWith(pts,numPts);
+  }
 
+  void BoundingBox::fillInXMinXmaxYminYmaxZminZmaxFormat(double data[6]) const
+  {
+    data[0] = this->getCoordinate(BoundingBox::XMIN);
+    data[1] = this->getCoordinate(BoundingBox::XMAX);
+    data[2] = this->getCoordinate(BoundingBox::YMIN);
+    data[3] = this->getCoordinate(BoundingBox::YMAX);
+    data[4] = this->getCoordinate(BoundingBox::ZMIN);
+    data[5] = this->getCoordinate(BoundingBox::ZMAX);
+  }
+
+  /**
+   * Constructor creating box from an array of the points corresponding
+   * to the vertices of the element.
+   * Each point is represented by an array of three doubles.
+   *
+   * @param pts     array of points 
+   * @param numPts  number of vertices
+   *
+   */
+  void BoundingBox::initializeWith(const double** pts, const unsigned numPts)
+  {
     // initialize with first two points
     const double *pt0(pts[0]);
 
@@ -63,11 +84,8 @@ namespace INTERP_KERNEL
    * @param  box1  the first box
    * @param  box2  the second box
    */
-  BoundingBox::BoundingBox(const BoundingBox& box1, const BoundingBox& box2) 
-    : _coords(new double[6])
+  BoundingBox::BoundingBox(const BoundingBox& box1, const BoundingBox& box2)
   {
-    assert(_coords != 0);
-
     for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
       {
         _coords[c] = std::min(box1._coords[c], box2._coords[c]);
@@ -75,15 +93,6 @@ namespace INTERP_KERNEL
       }
     
     assert(isValid());
-  }
-
-  /**
-   * Destructor
-   *
-   */
-  BoundingBox::~BoundingBox()
-  {
-    delete [] _coords;
   }
 
   /**

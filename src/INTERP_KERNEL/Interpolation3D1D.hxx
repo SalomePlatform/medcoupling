@@ -43,6 +43,7 @@ namespace INTERP_KERNEL
     template<class MyMeshType, class MatrixType>
     typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method);
   private:
+    void adjustBoundingBoxes(double *bbox, std::size_t sz);
     void adjustBoundingBoxes(std::vector<double>& bbox);
   };
 }

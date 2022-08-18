@@ -73,19 +73,17 @@ namespace INTERP_KERNEL
     // create BBTree structure
     // - get bounding boxes
     std::vector<double> bboxes(2*SPACEDIM*numSrcElems);
-    ConnType* srcElemIdx = new ConnType[numSrcElems];
     for(ConnType i = 0; i < numSrcElems ; ++i)
       {
         // get source bboxes in right order
         srcElems[i]->getBoundingBox()->toCompactData(bboxes.data()+6*i);
-        srcElemIdx[i] = srcElems[i]->getIndex();
       }
 
     adjustBoundingBoxes(bboxes);
     const double *bboxPtr(nullptr);
     if(numSrcElems>0)
       bboxPtr=&bboxes[0];
-    BBTree<SPACEDIM,ConnType> tree(bboxPtr, srcElemIdx, 0, numSrcElems);
+    BBTree<SPACEDIM,ConnType> tree(bboxPtr, nullptr, 0, numSrcElems);
     const ConnType *trgConnPtr(targetMesh.getConnectivityPtr()),*trgConnIPtr(targetMesh.getConnectivityIndexPtr());
     const ConnType *srcConnPtr(srcMesh.getConnectivityPtr()),*srcConnIPtr(srcMesh.getConnectivityIndexPtr());
     const double *trgCooPtr(targetMesh.getCoordinatesPtr()),*srcCooPtr(srcMesh.getCoordinatesPtr());
@@ -109,7 +107,6 @@ namespace INTERP_KERNEL
               }
           }
       }
-    delete [] srcElemIdx;
     for(ConnType i = 0 ; i < numSrcElems ; ++i)
       delete srcElems[i];
     return srcMesh.getNumberOfNodes();

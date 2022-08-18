@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022  CEA/DEN, EDF R&D
+// Copyright (C) 2022  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,36 +16,28 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
 
-#ifndef __INTERPKERNELEXCEPTION_HXX__
-#define __INTERPKERNELEXCEPTION_HXX__
+#pragma once
 
-#include "INTERPKERNELDefines.hxx"
-
-#include <string>
-#include <exception>
-#include <sstream>
+#include "InterpKernelDenseMatrix.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
-  class Exception : public std::exception
+  class LUDecomp
   {
+  private:
+    mcIdType n;
+    INTERP_KERNEL::DenseMatrix lu;
+    std::vector<mcIdType> indx;
+    double d;
+    const INTERP_KERNEL::DenseMatrix& aref;
   public:
-    INTERPKERNEL_EXPORT Exception(const char *reason);
-    INTERPKERNEL_EXPORT Exception(const std::string& reason);
-    INTERPKERNEL_EXPORT Exception(const char *reason, const char *file, int line);
-    INTERPKERNEL_EXPORT ~Exception() noexcept(true);
-    INTERPKERNEL_EXPORT const char *what() const noexcept(true);
-  protected:
-    std::string _reason;
+    LUDecomp (const INTERP_KERNEL::DenseMatrix& a);
+    void solve(const std::vector<double>& b, std::vector<double> &x);
+    void solve(const INTERP_KERNEL::DenseMatrix& b, INTERP_KERNEL::DenseMatrix &x);
+    void inverse(INTERP_KERNEL::DenseMatrix &ainv);
+    double det();
+    void mprove(const std::vector<double>& b, std::vector<double> &x);
   };
 }
-
-#define THROW_IK_EXCEPTION(text)               \
-{                                              \
-    std::ostringstream oss; oss << text;       \
-    throw INTERP_KERNEL::Exception(oss.str()); \
-}
-
-#endif

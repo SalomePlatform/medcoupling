@@ -33,15 +33,20 @@ namespace INTERP_KERNEL
   class INTERPKERNEL_EXPORT BoundingBox 
   {
   public:
-
     /// Enumeration representing the six coordinates that define the bounding box
     enum BoxCoord { XMIN = 0, YMIN = 1, ZMIN = 2, XMAX = 3, YMAX = 4, ZMAX = 5 };
-        
+    
+    BoundingBox() { }
+
     BoundingBox(const double** pts, const unsigned numPts);
 
     BoundingBox(const BoundingBox& box1, const BoundingBox& box2);
 
-    ~BoundingBox();
+    ~BoundingBox() { }
+    
+    void fillInXMinXmaxYminYmaxZminZmaxFormat(double data[6]) const;
+
+    void initializeWith(const double** pts, const unsigned numPts);
 
     bool isDisjointWith(const BoundingBox& box) const;
     
@@ -54,6 +59,8 @@ namespace INTERP_KERNEL
     inline void dumpCoords() const;
 
     void toCompactData(double data[6]) const;
+  
+    BoundingBox& operator=(const BoundingBox& box) = delete;
 
   private:
     
@@ -62,12 +69,9 @@ namespace INTERP_KERNEL
     /// disallow copying
     BoundingBox(const BoundingBox& box);
     
-    /// disallow assignment
-    BoundingBox& operator=(const BoundingBox& box);
-    
     /// Vector containing the coordinates of the box
     /// interlaced in the order XMIN, YMIN, ZMIN, XMAX, YMAX, ZMAX
-    double* _coords;
+    double _coords[6];
 
   };
 

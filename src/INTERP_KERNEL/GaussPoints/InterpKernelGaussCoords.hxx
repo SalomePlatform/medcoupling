@@ -57,12 +57,14 @@ namespace INTERP_KERNEL
 
     INTERPKERNEL_EXPORT GaussInfo convertToLinear() const;
 
-    INTERPKERNEL_EXPORT const double* getFunctionValues( const int theGaussId ) const;
+    INTERPKERNEL_EXPORT const double *getFunctionValues( const int theGaussId ) const;
+    INTERPKERNEL_EXPORT const double *getDerivativeOfShapeFunctionAt( const int theGaussId ) const;
 
     INTERPKERNEL_EXPORT void initLocalInfo();
     
     INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray);
-
+    INTERPKERNEL_EXPORT static std::vector<double> GetDefaultReferenceCoordinatesOf(NormalizedCellType ct);
+    INTERPKERNEL_EXPORT static bool IsInOrOutForReference(NormalizedCellType ct, const double *ptInRefCoo, double eps);
   public:
     static const double SEG2A_REF[2];
     static const double SEG2B_REF[2];
@@ -193,6 +195,7 @@ namespace INTERP_KERNEL
     int                _my_local_nb_ref;             //Nb of the local reference coordinates
 
     DataVector         _my_function_value;          //Shape Function values
+    DataVector         _my_derivative_func_value;   //Derivative of the shape function
   };
 
 

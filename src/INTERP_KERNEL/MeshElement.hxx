@@ -41,28 +41,27 @@ namespace INTERP_KERNEL
     template<class MyMeshType>
     MeshElement(const ConnType index, const MyMeshType& mesh);
     
-    ~MeshElement();
-    
-    ConnType getIndex() const { return _index; }
+    MeshElement() = default;
+
+    template<class MyMeshType>
+    void assign(const ConnType index, const MyMeshType& mesh);
+
+    ~MeshElement() { }
     
     nbnodesincelltype getNumberOfNodes() const { return _number; }
     
-    const BoundingBox* getBoundingBox() const { return _box; }
+    const BoundingBox *getBoundingBox() const { return &_box; }
+
+    MeshElement& operator=(const MeshElement& elem) = delete;
 
   private:
     /// disallow copying
     MeshElement(const MeshElement& elem);
 
-    /// disallow assignment
-    MeshElement& operator=(const MeshElement& elem);
-
-    /// global number of the element
-    const ConnType _index;
-
     nbnodesincelltype _number;
     
     /// bounding box of the element - does not change after having been initialised
-    BoundingBox* _box;
+    BoundingBox _box;
   };
 
   /**

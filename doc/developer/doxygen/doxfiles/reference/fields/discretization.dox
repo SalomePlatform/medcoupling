@@ -21,6 +21,7 @@ A field can be supported by:
     - Gauss points: built with \ref MEDCoupling::TypeOfField "ON_GAUSS_PT"
     - Gauss points on nodes per element: built with \ref MEDCoupling::TypeOfField "ON_GAUSS_NE"
     - Kriging points:  built with \ref MEDCoupling::TypeOfField "ON_NODES_KR"
+    - On points using standard FE description :  built with \ref MEDCoupling::TypeOfField "ON_NODES_FE"
 
 The spatial discretization is at the center of the \ref interpolation "interpolation" mechanisms,
 since one of the main interpolation parameter is indeed specifying from which source discretization

@@ -32,7 +32,7 @@
 #include "PointLocator3DIntersectorP1P0.txx"
 #include "PolyhedronIntersectorP1P1.txx"
 #include "PointLocator3DIntersectorP1P1.txx"
-#include "Log.hxx"
+#include "InterpolationHelper.txx"
 
 #include "BBTree.txx"
 
@@ -67,24 +67,13 @@ namespace INTERP_KERNEL
   {
     typedef typename MyMeshType::MyConnType ConnType;
     // create MeshElement objects corresponding to each element of the two meshes
-    const ConnType numSrcElems = srcMesh.getNumberOfElements();
     const ConnType numTargetElems = targetMesh.getNumberOfElements();
 
-    LOG(2, "Source mesh has " << numSrcElems << " elements and target mesh has " << numTargetElems << " elements ");
+    LOG(2, "Target mesh has " << numTargetElems << " elements ");
 
-    std::vector<MeshElement<ConnType>*> srcElems(numSrcElems);
-    std::vector<MeshElement<ConnType>*> targetElems(numTargetElems);
+    DuplicateFacesType intersectFaces; 
 
-    std::map<MeshElement<ConnType>*, ConnType> indices;
-    DuplicateFacesType intersectFaces;
-
-    for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      srcElems[i] = new MeshElement<ConnType>(i, srcMesh);       
-
-    for(ConnType i = 0 ; i < numTargetElems ; ++i)
-      targetElems[i] = new MeshElement<ConnType>(i, targetMesh);
-
-    Intersector3D<MyMeshType,MyMatrixType>* intersector=0;
+    std::unique_ptr< Intersector3D<MyMeshType,MyMatrixType> > intersector;
     std::string methC = InterpolationOptions::filterInterpolationMethod(method);
     const double dimCaracteristic = CalculateCharacteristicSizeOfMeshes(srcMesh, targetMesh, InterpolationOptions::getPrintLevel());
     if(methC=="P0P0")
@@ -92,12 +81,12 @@ namespace INTERP_KERNEL
         switch(InterpolationOptions::getIntersectionType())
           {
           case Triangulation:
-            intersector=new Polyhedron3D2DIntersectorP0P0<MyMeshType,MyMatrixType>(targetMesh,
+            intersector.reset( new Polyhedron3D2DIntersectorP0P0<MyMeshType,MyMatrixType>(targetMesh,
                                                                                    srcMesh,
                                                                                    dimCaracteristic,
                                                                                    getPrecision(),
                                                                                    intersectFaces,
-                                                                                   getSplittingPolicy());
+                                                                                   getSplittingPolicy()) );
             break;
           default:
             throw INTERP_KERNEL::Exception("Invalid 2D to 3D intersection type for P0P0 interp specified : must be Triangulation.");
@@ -109,55 +98,28 @@ namespace INTERP_KERNEL
     matrix.resize(intersector->getNumberOfRowsOfResMatrix());
 
     // create BBTree structure
-    // - get bounding boxes
-    std::vector<double> bboxes(6 * numSrcElems);
-    ConnType* srcElemIdx = new ConnType[numSrcElems];
-    for(ConnType i = 0; i < numSrcElems ; ++i)
-      {
-        // get source bboxes in right order
-        const BoundingBox* box = srcElems[i]->getBoundingBox();
-        bboxes[6*i+0] = box->getCoordinate(BoundingBox::XMIN);
-        bboxes[6*i+1] = box->getCoordinate(BoundingBox::XMAX);
-        bboxes[6*i+2] = box->getCoordinate(BoundingBox::YMIN);
-        bboxes[6*i+3] = box->getCoordinate(BoundingBox::YMAX);
-        bboxes[6*i+4] = box->getCoordinate(BoundingBox::ZMIN);
-        bboxes[6*i+5] = box->getCoordinate(BoundingBox::ZMAX);
-
-        // source indices have to begin with zero for BBox, I think
-        srcElemIdx[i] = srcElems[i]->getIndex();
-      }
-
     // [ABN] Adjust 2D bounding box (those might be flat in the cases where the 2D surf are perfectly aligned with the axis)
-    performAdjustmentOfBB(intersector, bboxes);
-
-    BBTree<3,ConnType> tree(bboxes.data(), srcElemIdx, 0, numSrcElems, 0.);
+    BBTreeStandAlone<3,ConnType> tree( BuildBBTreeWithAdjustment(srcMesh,[this,&intersector](double *bbox, typename MyMeshType::MyConnType sz){ this->performAdjustmentOfBB(intersector.get(),bbox,sz); }) );
 
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
     for(ConnType i = 0; i < numTargetElems; ++i)
       {
-        const BoundingBox* box = targetElems[i]->getBoundingBox();
-        const ConnType targetIdx = targetElems[i]->getIndex();
+        MeshElement<ConnType> trgMeshElem(i, targetMesh);
+        
+        const BoundingBox *box = trgMeshElem.getBoundingBox();
 
         // get target bbox in right order
         double targetBox[6];
-        targetBox[0] = box->getCoordinate(BoundingBox::XMIN);
-        targetBox[1] = box->getCoordinate(BoundingBox::XMAX);
-        targetBox[2] = box->getCoordinate(BoundingBox::YMIN);
-        targetBox[3] = box->getCoordinate(BoundingBox::YMAX);
-        targetBox[4] = box->getCoordinate(BoundingBox::ZMIN);
-        targetBox[5] = box->getCoordinate(BoundingBox::ZMAX);
+        box->fillInXMinXmaxYminYmaxZminZmaxFormat(targetBox);
 
         std::vector<ConnType> intersectElems;
 
         tree.getIntersectingElems(targetBox, intersectElems);
 
         if ( !intersectElems.empty() )
-            intersector->intersectCells(targetIdx, intersectElems, matrix);
-
+          intersector->intersectCells(i, intersectElems, matrix);
       }
-
-    delete [] srcElemIdx;
 
     DuplicateFacesType::iterator iter;
     for (iter = intersectFaces.begin(); iter != intersectFaces.end(); ++iter)
@@ -171,16 +133,6 @@ namespace INTERP_KERNEL
     // free allocated memory
     ConnType ret=intersector->getNumberOfColsOfResMatrix();
 
-    delete intersector;
-
-    for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      {
-        delete srcElems[i];
-      }
-    for(ConnType i = 0 ; i < numTargetElems ; ++i)
-      {
-        delete targetElems[i];
-      }
     return ret;
 
   }

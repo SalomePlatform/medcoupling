@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022  CEA/DEN, EDF R&D
+// Copyright (C) 2022  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,36 +16,29 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
 
-#ifndef __INTERPKERNELEXCEPTION_HXX__
-#define __INTERPKERNELEXCEPTION_HXX__
+// Implementation coming from Numerical Recipes in C of 1994 (version 2.04)
 
-#include "INTERPKERNELDefines.hxx"
+#pragma once
 
-#include <string>
-#include <exception>
-#include <sstream>
+#include "InterpKernelDenseMatrix.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
-  class Exception : public std::exception
+  struct QRDecomp
   {
+  private:
+    mcIdType n;
+    INTERP_KERNEL::DenseMatrix qt;
+    INTERP_KERNEL::DenseMatrix r;
+    bool sing;
   public:
-    INTERPKERNEL_EXPORT Exception(const char *reason);
-    INTERPKERNEL_EXPORT Exception(const std::string& reason);
-    INTERPKERNEL_EXPORT Exception(const char *reason, const char *file, int line);
-    INTERPKERNEL_EXPORT ~Exception() noexcept(true);
-    INTERPKERNEL_EXPORT const char *what() const noexcept(true);
-  protected:
-    std::string _reason;
+    QRDecomp(const INTERP_KERNEL::DenseMatrix& a);
+    void solve(const std::vector<double>& b, std::vector<double> &x);
+    void qtmult(const std::vector<double>& b, std::vector<double> &x);
+    void rsolve(const std::vector<double>& b, std::vector<double> &x);
+    void update(const std::vector<double>& u, const std::vector<double>& v);
+    void rotate(const mcIdType i, const double a, const double b);
   };
 }
-
-#define THROW_IK_EXCEPTION(text)               \
-{                                              \
-    std::ostringstream oss; oss << text;       \
-    throw INTERP_KERNEL::Exception(oss.str()); \
-}
-
-#endif

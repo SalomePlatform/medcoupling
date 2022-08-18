@@ -19,6 +19,7 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingFieldDiscretizationOnNodesFE.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
@@ -44,25 +45,15 @@ const double MEDCouplingFieldDiscretization::DFLT_PRECISION=1.e-12;
 
 const char MEDCouplingFieldDiscretizationP0::REPR[]="P0";
 
-const TypeOfField MEDCouplingFieldDiscretizationP0::TYPE=ON_CELLS;
-
 const char MEDCouplingFieldDiscretizationP1::REPR[]="P1";
-
-const TypeOfField MEDCouplingFieldDiscretizationP1::TYPE=ON_NODES;
 
 const mcIdType MEDCouplingFieldDiscretizationPerCell::DFT_INVALID_LOCID_VALUE=-1;
 
 const char MEDCouplingFieldDiscretizationGauss::REPR[]="GAUSS";
 
-const TypeOfField MEDCouplingFieldDiscretizationGauss::TYPE=ON_GAUSS_PT;
-
 const char MEDCouplingFieldDiscretizationGaussNE::REPR[]="GSSNE";
 
-const TypeOfField MEDCouplingFieldDiscretizationGaussNE::TYPE=ON_GAUSS_NE;
-
 const char MEDCouplingFieldDiscretizationKriging::REPR[]="KRIGING";
-
-const TypeOfField MEDCouplingFieldDiscretizationKriging::TYPE=ON_NODES_KR;
 
 // doc is here http://www.code-aster.org/V2/doc/default/fr/man_r/r3/r3.01.01.pdf
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_POINT1[1]={0.};
@@ -142,6 +133,8 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
       return new MEDCouplingFieldDiscretizationGaussNE;
     case MEDCouplingFieldDiscretizationKriging::TYPE:
       return new MEDCouplingFieldDiscretizationKriging;
+    case MEDCouplingFieldDiscretizationOnNodesFE::TYPE:
+      return new MEDCouplingFieldDiscretizationOnNodesFE;
     default:
       throw INTERP_KERNEL::Exception("Chosen discretization is not implemented yet.");
   }
@@ -159,22 +152,30 @@ TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const s
     return MEDCouplingFieldDiscretizationGaussNE::TYPE;
   if(repr==MEDCouplingFieldDiscretizationKriging::REPR)
     return MEDCouplingFieldDiscretizationKriging::TYPE;
+  if(repr==MEDCouplingFieldDiscretizationOnNodesFE::REPR)
+    return MEDCouplingFieldDiscretizationOnNodesFE::TYPE;
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
 }
 
 std::string MEDCouplingFieldDiscretization::GetTypeOfFieldRepr(TypeOfField type)
 {
-  if(type==MEDCouplingFieldDiscretizationP0::TYPE)
-    return MEDCouplingFieldDiscretizationP0::REPR;
-  if(type==MEDCouplingFieldDiscretizationP1::TYPE)
-    return MEDCouplingFieldDiscretizationP1::REPR;
-  if(type==MEDCouplingFieldDiscretizationGauss::TYPE)
-    return MEDCouplingFieldDiscretizationGauss::REPR;
-  if(type==MEDCouplingFieldDiscretizationGaussNE::TYPE)
-    return MEDCouplingFieldDiscretizationGaussNE::REPR;
-  if(type==MEDCouplingFieldDiscretizationKriging::TYPE)
-    return MEDCouplingFieldDiscretizationKriging::REPR;
-  throw INTERP_KERNEL::Exception("GetTypeOfFieldRepr : Representation does not match with any field discretization !");
+  switch(type)
+  {
+    case MEDCouplingFieldDiscretizationP0::TYPE:
+      return MEDCouplingFieldDiscretizationP0::REPR;
+    case MEDCouplingFieldDiscretizationP1::TYPE:
+      return MEDCouplingFieldDiscretizationP1::REPR;
+    case MEDCouplingFieldDiscretizationGauss::TYPE:
+      return MEDCouplingFieldDiscretizationGauss::REPR;
+    case MEDCouplingFieldDiscretizationGaussNE::TYPE:
+      return MEDCouplingFieldDiscretizationGaussNE::REPR;
+    case MEDCouplingFieldDiscretizationKriging::TYPE:
+      return MEDCouplingFieldDiscretizationKriging::REPR;
+    case MEDCouplingFieldDiscretizationOnNodesFE::TYPE:
+      return MEDCouplingFieldDiscretizationOnNodesFE::REPR;
+    default:
+      throw INTERP_KERNEL::Exception("GetTypeOfFieldRepr : Representation does not match with any field discretization !");
+  }
 }
 
 bool MEDCouplingFieldDiscretization::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
@@ -478,20 +479,6 @@ void MEDCouplingFieldDiscretization::RenumberEntitiesFromN2OArr(const mcIdType *
       mcIdType oldNb=new2OldPtr[i];
       std::copy(ptSrc+oldNb*nbOfComp,ptSrc+(oldNb+1)*nbOfComp,ptToFill+i*nbOfComp);
     }
-}
-
-template<class FIELD_DISC>
-MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretization::EasyAggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds)
-{
-  if(fds.empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::aggregate : input array is empty");
-  for(const MEDCouplingFieldDiscretization * it : fds)
-    {
-      const FIELD_DISC *itc(dynamic_cast<const FIELD_DISC *>(it));
-      if(!itc)
-        throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::aggregate : same field discretization expected for all input discretizations !");
-    }
-  return fds[0]->clone();
 }
 
 MEDCouplingFieldDiscretization::~MEDCouplingFieldDiscretization()

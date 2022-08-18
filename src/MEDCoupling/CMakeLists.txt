@@ -37,6 +37,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/LinearAlgebra
   )
 
 SET(medcoupling_SOURCES
@@ -61,6 +62,7 @@ SET(medcoupling_SOURCES
   MEDCouplingStructuredMesh.cxx
   MEDCouplingTimeDiscretization.cxx
   MEDCouplingFieldDiscretization.cxx
+  MEDCouplingFieldDiscretizationOnNodesFE.cxx
   MEDCouplingRefCountObject.cxx
   MEDCouplingPointSet.cxx
   MEDCouplingFieldTemplate.cxx

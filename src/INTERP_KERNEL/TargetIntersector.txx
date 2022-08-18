@@ -26,6 +26,12 @@
 
 namespace INTERP_KERNEL
 {
+  template<class MyMeshType, class MyMatrix>
+  void TargetIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEps, double adjustmentEpsAbs)
+  {
+    this->adjustBoundingBoxes(bbox.data(),bbox.size(),adjustmentEps,adjustmentEpsAbs);
+  }
+
   /*! Readjusts a set of bounding boxes so that they are extended
     in all dimensions for avoiding missing interesting intersections
 
@@ -34,9 +40,9 @@ namespace INTERP_KERNEL
     @param adjustmentEpsAbs absolute adjustment value (added on each side of the BBox in each dimension)
   */
   template<class MyMeshType, class MyMatrix>
-  void TargetIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEps, double adjustmentEpsAbs)
+  void TargetIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes(double *bbox, std::size_t sz, double adjustmentEps, double adjustmentEpsAbs)
   {
-    std::size_t size = bbox.size()/(2*SPACEDIM);
+    std::size_t size = sz/(2*SPACEDIM);
     for (std::size_t i=0; i<size; i++)
       {
         double max=- std::numeric_limits<double>::max();

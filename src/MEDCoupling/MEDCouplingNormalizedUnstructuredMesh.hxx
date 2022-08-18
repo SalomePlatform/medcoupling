@@ -35,7 +35,7 @@ class MEDCouplingNormalizedUnstructuredMesh
 public:
   static const int MY_SPACEDIM=SPACEDIM;
   static const int MY_MESHDIM=MESHDIM;
-  typedef mcIdType MyConnType;
+  using MyConnType = mcIdType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
   MEDCouplingNormalizedUnstructuredMesh(const MEDCoupling::MEDCouplingPointSet *mesh);
