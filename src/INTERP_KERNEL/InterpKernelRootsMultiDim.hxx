@@ -206,7 +206,10 @@ namespace INTERP_KERNEL
             if (temp > test) test=temp;
         }
         check=(test < TOLMIN);
-        return;
+        if( check )
+          return;
+        else
+          continue;
       }
       test=0.0;
       for (i=0;i<n;i++)

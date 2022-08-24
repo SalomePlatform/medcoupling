@@ -1642,6 +1642,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             ftest.setGaussLocalizationOnType(gt,sum([list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()],[]),list(cooInRefElemFoundByNewton),[1])
             self.assertTrue ( float( (ftest.getLocalizationOfDiscr()-zePt).magnitude() ) < 1e-4 )
 
+        # testing with outside point
+        for zePt in outPts:
+            #safer than
+            #self.assertRaises(InterpKernelException,sd.getCooInRefElement,srcField.getMesh(),zePt.buildDADouble())
+            try:
+                sd.getCooInRefElement(srcField.getMesh(),zePt.buildDADouble())
+            except InterpKernelException as e:
+                self.assertTrue("fail to locate point" in e.what())
+            else:
+                self.assertTrue(false,"")    
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):
