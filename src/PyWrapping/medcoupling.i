@@ -49,6 +49,7 @@
 #endif
 
 %constant const char __version__[]=MEDCOUPLING_GIT_SHA1;
+%constant const char __config_datetime__[]=MEDCOUPLING_CONFIG_DT;
 
 %{
   static const char SEQ_INTERPOL_EXT[]="Sequential interpolator";
