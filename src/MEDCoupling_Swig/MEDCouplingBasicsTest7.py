@@ -1081,6 +1081,44 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         ref2_mc = DataArrayDouble(ref2) ; ref2_mc.rearrange(1)
         self.assertTrue( mvDevOfShapeFunc.isEqual( ref2_mc, 1e-12) )
 
+    def testShapeFuncAndDerivative1(self):
+        """
+        This test focus
+        """
+        def GetShapeFunc(ref_coord,vec):
+            gl3 = MEDCouplingGaussLocalization(gt,sum(ref_coord,[]), vec, [1])
+            funVal = gl3.getShapeFunctionValues()
+            funVal.rearrange(1)
+            return funVal
+
+        def GetDerivative(ref_coord,vec):
+            gl3 = MEDCouplingGaussLocalization(gt,sum(ref_coord,[]), vec, [1])
+            funVal = gl3.getDerivativeOfShapeFunctionValues()
+            return funVal
+        vec = [-0.85685375,-0.90643355,-0.90796825]
+        eps = 1e-6
+
+        for gt in [NORM_HEXA8,NORM_PENTA6,NORM_PYRA5,NORM_PENTA15,NORM_HEXA20,NORM_HEXA27]: # type of cell for which derivatives are implemented
+            ref_coord = [list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()]
+
+            der_computed = GetDerivative(ref_coord,vec)
+            der_computed.rearrange(3)
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0]+eps,vec[1],vec[2]])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_X = der_computed[:,0]-der_deduced
+            delta_X.abs()
+            self.assertTrue(delta_X.findIdsNotInRange(-1e-5,+1e-5).empty())
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0],vec[1]+eps,vec[2]])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_Y = der_computed[:,1]-der_deduced
+            delta_Y.abs()
+            self.assertTrue(delta_Y.findIdsNotInRange(-1e-5,+1e-5).empty())
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0],vec[1],vec[2]+eps])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_Z = der_computed[:,2]-der_deduced
+            delta_Z.abs()
+            self.assertTrue(delta_Z.findIdsNotInRange(-1e-5,+1e-5).empty())
+
     pass
 
 if __name__ == '__main__':

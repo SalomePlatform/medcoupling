@@ -1622,6 +1622,30 @@ void GaussInfo::pyra5aInit()
   funValue[3] = 0.25*(+gc[0] + gc[1] - 1.0)*(-gc[0] + gc[1] - 1.0)*(1.0 - gc[2]);
   funValue[4] = gc[2];
   SHAPE_FUN_MACRO_END;
+
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+
+  devFunValue[0] = 0.5*(gc[0]+1)*(1.0 - gc[2]);
+  devFunValue[1] = -0.5*gc[1]*(1.0 - gc[2]);
+  devFunValue[2] = -0.25*(-gc[0] + gc[1] - 1.0)*(-gc[0] - gc[1] - 1.0);
+  
+  devFunValue[3] = -0.5*gc[0]*(1.0 - gc[2]);
+  devFunValue[4] = 0.5*(gc[1]+1)*(1.0 - gc[2]);
+  devFunValue[5] = -0.25*(-gc[0] - gc[1] - 1.0)*(+gc[0] - gc[1] - 1.0);
+
+  devFunValue[6] = 0.5*(gc[0]-1)*(1.0 - gc[2]);
+  devFunValue[7] = -0.5*gc[1]*(1.0 - gc[2]);
+  devFunValue[8] = -0.25*(+gc[0] + gc[1] - 1.0)*(+gc[0] - gc[1] - 1.0);
+  
+  devFunValue[9] = -0.5*gc[0]*(1.0 - gc[2]);
+  devFunValue[10] = 0.5*(1*gc[1]-1)*(1.0 - gc[2]);
+  devFunValue[11] = -0.25*(+gc[0] + gc[1] - 1.0)*(-gc[0] + gc[1] - 1.0);
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 1.0;
+
+  DEV_SHAPE_FUN_MACRO_END;
 }
 /*!
  * Init Pyramid Reference coordinates ans Shape function.
@@ -1916,6 +1940,34 @@ void GaussInfo::penta6aInit()
   funValue[4] = 0.5*gc[2]*(gc[0] + 1.0);
   funValue[5] = 0.5*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   SHAPE_FUN_MACRO_END;
+
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+
+  devFunValue[0] = 0.5*gc[1]*(-1.0);
+  devFunValue[1] = 0.5*(1.0 - gc[0]);
+  devFunValue[2] = 0.0;
+
+  devFunValue[3] = 0.5*gc[2]*(-1.0);
+  devFunValue[4] = 0.0;
+  devFunValue[5] = 0.5*(1.0 - gc[0]);
+
+  devFunValue[6] = 0.5*(1.0 - gc[1] - gc[2])*(-1.0);
+  devFunValue[7] = 0.5*(-1.0)*(1.0 - gc[0]);
+  devFunValue[8] = 0.5*(-1.0)*(1.0 - gc[0]);
+
+  devFunValue[9] = 0.5*gc[1];
+  devFunValue[10] = 0.5*(gc[0] + 1.0);
+  devFunValue[11] = 0.0;
+
+  devFunValue[12] = 0.5*gc[2];
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 0.5*(gc[0] + 1.0);
+
+  devFunValue[15] = 0.5*(1.0 - gc[1] - gc[2]);
+  devFunValue[16] = 0.5*(-1.0)*(1.0 + gc[0]);
+  devFunValue[17] = 0.5*(-1.0)*(1.0 + gc[0]);
+
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -2168,6 +2220,70 @@ void GaussInfo::penta15aInit()
   funValue[13] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   funValue[14] = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   SHAPE_FUN_MACRO_END;
+
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+
+  devFunValue[0] = 0.5*gc[1]*(2 * gc[0] - 2 * gc[1] + 1.0 );
+  devFunValue[1] = (1.0 - gc[0])*(2.0*gc[1] -1 - 0.5*gc[0]);
+  devFunValue[2] = 0.0;
+
+  devFunValue[3] = 0.5*gc[2]*(2 * gc[0] - 2 * gc[2] + 1.0 );
+  devFunValue[4] = 0.0;
+  devFunValue[5] = (1.0 - gc[0])*(2.0*gc[2] -1 - 0.5*gc[0]);
+
+  devFunValue[6] = 0.5*(1.0 - gc[1] - gc[2])*(2*gc[0] -1.0 + 2*gc[1] + 2*gc[2]);
+  devFunValue[7] = 0.5*(gc[0] - 1.0)* ( -4*gc[1] -gc[0] -4*gc[2] + 2.0);
+  devFunValue[8] = 0.5*(gc[0] - 1.0)* ( -4*gc[2] -4*gc[1] -gc[0] + 2.0);
+
+  devFunValue[9] = 0.5*gc[1]*( 2*gc[0] + 2*gc[1] -1.0 );
+  devFunValue[10] = (1.0 + gc[0])*(2.0*gc[1] - 1.0 + 0.5*gc[0]);
+  devFunValue[11] = 0.0;
+
+  devFunValue[12] = 0.5*gc[2]*( 2*gc[0] + 2*gc[2] -1.0 );
+  devFunValue[13] = 0.0;
+  devFunValue[14] = (1.0 + gc[0])*(2.0*gc[2] - 1.0 + 0.5*gc[0]);
+
+  devFunValue[15] = 0.5*(1.0 - gc[1] - gc[2])*(2 * gc[0] - 2.0 * gc[1] - 2.0 * gc[2] + 1.0 );
+  devFunValue[16] = 0.5*(-gc[0] - 1.0) * (-4.0*gc[1] + gc[0] - 4.0 * gc[2] + 2.0) ;
+  devFunValue[17] = 0.5*(-gc[0] - 1.0) * (-4.0*gc[2] - 4*gc[1] + gc[0] + 2.0 );
+
+  devFunValue[18] = - 2.0*gc[1]*gc[2];
+  devFunValue[19] = 2.0*gc[2]*(1.0 - gc[0]);
+  devFunValue[20] = 2.0*gc[1]*(1.0 - gc[0]);
+
+  devFunValue[21] = -2.0*gc[2]*(1.0 - gc[1] - gc[2]);
+  devFunValue[22] = -2.0*gc[2]*(1.0 - gc[0]);
+  devFunValue[23] = (-4*gc[2]-2*gc[1]+2.0)*(1.0 - gc[0]);
+
+  devFunValue[24] = -2.0*gc[1]*(1.0 - gc[1] - gc[2]);
+  devFunValue[25] = (-4*gc[1]-2*gc[2]+2)*(1.0 - gc[0]);
+  devFunValue[26] = -2.0*gc[1]*(1.0 - gc[0]);
+
+  devFunValue[27] = gc[1]*(- 2.0 * gc[0]);
+  devFunValue[28] = (1.0 - gc[0]*gc[0]);
+  devFunValue[29] = 0.0;
+
+  devFunValue[30] = -2.0 * gc[2] *gc[0];
+  devFunValue[31] = 0.0;
+  devFunValue[32] = (1.0 - gc[0]*gc[0]);
+
+  devFunValue[33] = -2.0 * (1.0 - gc[1] - gc[2]) * gc[0];
+  devFunValue[34] = -1.0*(1.0 - gc[0]*gc[0]);
+  devFunValue[35] = -1.0*(1.0 - gc[0]*gc[0]);
+
+  devFunValue[36] = 2.0*gc[1]*gc[2];
+  devFunValue[37] = 2.0*gc[2]*(1.0 + gc[0]);
+  devFunValue[38] = 2.0*gc[1]*(1.0 + gc[0]);
+
+  devFunValue[39] = 2.0*gc[2]*(1.0 - gc[1] - gc[2]);
+  devFunValue[40] = -2.0*gc[2]*(1.0 + gc[0]);
+  devFunValue[41] = (2.0 - 2.0 * gc[1] - 4.0 * gc[2])*(1.0 + gc[0]);
+
+  devFunValue[42] = 2.0*gc[1]*(1.0 - gc[1] - gc[2]);
+  devFunValue[43] = (2.0 - 4*gc[1] - 2*gc[2])*(1.0 + gc[0]);
+  devFunValue[44] = -2.0*gc[1]*(1.0 + gc[0]);
+
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -2581,6 +2697,42 @@ void GaussInfo::hexa8aInit()
   funValue[6] = 0.125*(1.0 + gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
   funValue[7] = 0.125*(1.0 - gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
   SHAPE_FUN_MACRO_END;
+
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+
+  devFunValue[0] = 0.125 * (-1.0) * (1.0 - gc[1])*(1.0 - gc[2]);
+  devFunValue[1] = 0.125 * (1.0 - gc[0]) * (-1.0) * (1.0 - gc[2]);
+  devFunValue[2] = 0.125 * (1.0 - gc[0]) * (1.0 - gc[1]) *(-1.0);
+
+  devFunValue[3] = 0.125*(1.0 - gc[1])*(1.0 - gc[2]);
+  devFunValue[4] = 0.125*(1.0 + gc[0])*(-1.0)*(1.0 - gc[2]);
+  devFunValue[5] = 0.125*(1.0 + gc[0])*(1.0 - gc[1])*(-1.0);
+
+  devFunValue[6] = 0.125*(1.0 + gc[1])*(1.0 - gc[2]);
+  devFunValue[7] = 0.125*(1.0 + gc[0])*(1.0 - gc[2]);
+  devFunValue[8] = 0.125*(1.0 + gc[0])*(1.0 + gc[1])*(-1.0);
+
+  devFunValue[9 ] = 0.125*(-1.0)*(1.0 + gc[1])*(1.0 - gc[2]);
+  devFunValue[10] = 0.125*(1.0 - gc[0])*(1.0 - gc[2]);
+  devFunValue[11] = 0.125*(1.0 - gc[0])*(1.0 + gc[1])*(-1.0);
+
+  devFunValue[12] = 0.125*(-1.0)*(1.0 - gc[1])*(1.0 + gc[2]);
+  devFunValue[13] = 0.125*(1.0 - gc[0])*(-1.0)*(1.0 + gc[2]);
+  devFunValue[14] = 0.125*(1.0 - gc[0])*(1.0 - gc[1]);
+
+  devFunValue[15] = 0.125*(1.0 - gc[1])*(1.0 + gc[2]);
+  devFunValue[16] = 0.125*(1.0 + gc[0])*(-1.0)*(1.0 + gc[2]);
+  devFunValue[17] = 0.125*(1.0 + gc[0])*(1.0 - gc[1]);
+
+  devFunValue[18] = 0.125*(1.0 + gc[1])*(1.0 + gc[2]);
+  devFunValue[19] = 0.125*(1.0 + gc[0])*(1.0 + gc[2]);
+  devFunValue[20] = 0.125*(1.0 + gc[0])*(1.0 + gc[1]);
+
+  devFunValue[21] = 0.125*(-1.0)*(1.0 + gc[1])*(1.0 + gc[2]);
+  devFunValue[22] = 0.125*(1.0 - gc[0])*(1.0 + gc[2]);
+  devFunValue[23] = 0.125*(1.0 - gc[0])*(1.0 + gc[1]);
+
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
