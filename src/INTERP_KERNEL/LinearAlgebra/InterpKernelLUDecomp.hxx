@@ -24,7 +24,7 @@
 
 namespace INTERP_KERNEL
 {
-  class LUDecomp
+  class INTERPKERNEL_EXPORT LUDecomp
   {
   private:
     mcIdType n;
