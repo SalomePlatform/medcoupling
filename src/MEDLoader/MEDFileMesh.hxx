@@ -203,6 +203,7 @@ namespace MEDCoupling
     void killEquivalences() { _equiv=(MEDFileEquivalences *)0; }
     void initializeEquivalences() { _equiv=MEDFileEquivalences::New(this); }
     MEDLOADER_EXPORT static INTERP_KERNEL::NormalizedCellType ConvertFromMEDFileGeoType(med_geometry_type geoType);
+    MEDLOADER_EXPORT static med_geometry_type ConvertToMEDFileGeoType(INTERP_KERNEL::NormalizedCellType geoType);
     static TypeOfField ConvertFromMEDFileEntity(med_entity_type etype);
   protected:
     MEDFileMesh();

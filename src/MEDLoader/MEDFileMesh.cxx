@@ -7824,6 +7824,16 @@ INTERP_KERNEL::NormalizedCellType MEDFileMesh::ConvertFromMEDFileGeoType(med_geo
   return typmai2[std::distance(typmai,pos)];
 }
 
+med_geometry_type MEDFileMesh::ConvertToMEDFileGeoType(INTERP_KERNEL::NormalizedCellType geoType)
+{
+  INTERP_KERNEL::NormalizedCellType *pos(std::find(typmai2,typmai2+MED_N_CELL_FIXED_GEO,geoType));
+  if(pos==typmai2+MED_N_CELL_FIXED_GEO)
+  {
+    THROW_IK_EXCEPTION("MEDFileMesh::ConvertToMEDFileGeoType : no entry for " << geoType);
+  }
+  return typmai[std::distance(typmai2,pos)];
+}
+
 TypeOfField MEDFileMesh::ConvertFromMEDFileEntity(med_entity_type etype)
 {
   switch(etype)

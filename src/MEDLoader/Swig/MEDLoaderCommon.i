@@ -1242,6 +1242,11 @@ namespace MEDCoupling
             return MEDFileMesh::ConvertFromMEDFileGeoType(geoType2);
          }
 
+         static int ConvertToMEDFileGeoType(INTERP_KERNEL::NormalizedCellType geoType)
+         {
+            return (int) MEDFileMesh::ConvertToMEDFileGeoType(geoType);
+         }
+
          PyObject *getTime()
          {
            int tmp1,tmp2;

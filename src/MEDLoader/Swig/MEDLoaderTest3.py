@@ -7009,6 +7009,7 @@ class MEDLoaderTest3(unittest.TestCase):
 
     def testMeshConvertFromMEDFileGeoType(self):
         self.assertEqual(MEDFileMesh.ConvertFromMEDFileGeoType(320),NORM_HEXA20)
+        self.assertEqual(MEDFileMesh.ConvertToMEDFileGeoType(NORM_HEXA20),320)
 
     @WriteInTmpDir
     def testFieldInt64_0(self):
