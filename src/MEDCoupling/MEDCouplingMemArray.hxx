@@ -863,7 +863,7 @@ namespace MEDCoupling
     DataArrayChar *buildEmptySpecializedDAChar() const;
     DataArrayAsciiCharIterator *iterator();
     DataArrayAsciiChar *deepCopy() const;
-    DataArrayAsciiChar *copySorted(bool asc=true) const override { throw INTERP_KERNEL::Exception("DataArrayAsciiChar::copySorted : not implemented for DataArrayByte"); }
+    DataArrayAsciiChar *copySorted(bool asc=true) const override { (void)asc;throw INTERP_KERNEL::Exception("DataArrayAsciiChar::copySorted : not implemented for DataArrayByte"); }
     DataArrayAsciiChar *performCopyOrIncrRef(bool deepCopy) const;
     DataArrayAsciiChar *buildNewEmptyInstance() const { return DataArrayAsciiChar::New(); }
     char asciiCharValue() const;
