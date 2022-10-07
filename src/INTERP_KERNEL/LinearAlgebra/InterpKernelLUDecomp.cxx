@@ -22,6 +22,7 @@
 #include "InterpKernelLUDecomp.hxx"
 #include "InterpKernelException.hxx"
 
+#include <cmath>
 #include <sstream>
 
 using namespace INTERP_KERNEL;
