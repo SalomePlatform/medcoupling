@@ -534,12 +534,24 @@ std::vector<std::string> MEDFileMesh::getGroupsOnSpecifiedLev(int meshDimRelToMa
 {
   std::vector<std::string> ret;
   std::vector<std::string> allGrps(getGroupsNames());
-  for(std::vector<std::string>::const_iterator it=allGrps.begin();it!=allGrps.end();it++)
+  const DataArrayIdType *arr=getFamilyFieldAtLevel(meshDimRelToMaxExt);
+  if(!arr)
+    return ret;
+  std::set<mcIdType> famIdsInUse(arr->begin(),arr->end());
+  //
+  for(auto it : _groups)
+  {
+    for(auto it2 : it.second)
     {
-      std::vector<mcIdType> levs(getGrpNonEmptyLevelsExt((*it)));
-      if(std::find(levs.begin(),levs.end(),meshDimRelToMaxExt)!=levs.end())
-        ret.push_back(*it);
+      auto it3 = _families.find( it2 );
+      mcIdType famIdToTest = (*it3).second;
+      if( famIdsInUse.find(famIdToTest) != famIdsInUse.end() )
+      {
+        ret.push_back( it.first );
+        break ;
+      }
     }
+  }
   return ret;
 }
 
