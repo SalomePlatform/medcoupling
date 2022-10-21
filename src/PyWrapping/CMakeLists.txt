@@ -66,7 +66,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_BINARY_DIR}/doc
   )
 
-IF(WIN32)
+IF(WIN32 OR CYGWIN)
   SET(medcoupling_LIB_dependancies ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingremapper medicoco)
 ELSE(WIN32)
   # ${PYTHON_LIBRARIES} not needed see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
