@@ -5703,6 +5703,19 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue( cas1.getGroupArr(0,"GCELL2").isEqual(gcell2) )
         self.assertTrue( cas1.getGroupArr(0,"GCELL3").isEqual(gcell3) )
 
+    @WriteInTmpDir
+    def test46(self):
+        """
+        EDF26362 : unconsistency between DataArrayDouble instance in MEDFileUMesh and those of MEDCouplingUMesh or MEDCoupling1GTUMesh used at write time
+        """
+        fname = "test46.med"
+        arr=DataArrayDouble([0,1,1,2,3])
+        m = MEDCouplingUMesh.Build1DMeshFromCoords(arr)
+        mm = MEDFileUMesh()
+        mm[0] = m
+        m.mergeNodes(1e-5) # coords into m has been modified so coords of mm and m mismatches
+        self.assertRaises(InterpKernelException,mm.write,fname,2) # write fails due to mismatch of number of tuples of coords of mm and those of m
+
     pass
 
 if __name__ == "__main__":

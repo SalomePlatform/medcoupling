@@ -1417,6 +1417,17 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
     *w=famIdTrad[*w];
 }
 
+void MEDFileUMeshSplitL1::checkCoordsConsistency(const DataArrayDouble *coords) const
+{
+  std::vector<MEDCoupling1GTUMesh *> ms(_m_by_types.getParts());
+  for(auto mesh : ms)
+  {
+    if(mesh)
+      if(mesh->getCoords() != coords)
+        mesh->getCoords()->checkNbOfTuplesAndComp(*coords,"MEDFileUMeshSplitL1::checkCoordsConsistency : mismatch between coordinates instance in MEDFileUMesh and instance in subparts");
+  }
+}
+
 void MEDFileUMeshSplitL1::write(med_idt fid, const std::string& mName, int mdim) const
 {
   std::vector<MEDCoupling1GTUMesh *> ms(_m_by_types.getParts());

@@ -3091,8 +3091,11 @@ void MEDFileUMesh::writeMeshLL(med_idt fid) const
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileUMeshL2::WriteCoords(fid,meshName,_iteration,_order,_time,_coords,_fam_coords,_num_coords,_name_coords,_global_num_coords);
   for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
-    if((const MEDFileUMeshSplitL1 *)(*it)!=0)
+    if(it->isNotNull())
+    {
+      (*it)->checkCoordsConsistency(coo);
       (*it)->write(fid,meshName,mdim);
+    }
   MEDFileUMeshL2::WriteFamiliesAndGrps(fid,meshName,_families,_groups,_too_long_str);
 }
 

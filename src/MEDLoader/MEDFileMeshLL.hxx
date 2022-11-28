@@ -303,6 +303,7 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<D
     void eraseFamilyField();
     void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,mcIdType>& familyIds,
                               std::map<std::string, std::vector<std::string> >& groups);
+    void checkCoordsConsistency(const DataArrayDouble *coords) const;
     void write(med_idt fid, const std::string& mName, int mdim) const;
     //
     void setFamilyArr(DataArrayIdType *famArr);
