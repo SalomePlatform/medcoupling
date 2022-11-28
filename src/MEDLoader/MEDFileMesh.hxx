@@ -170,6 +170,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual int getSpaceDimension() const = 0;
     MEDLOADER_EXPORT virtual std::string simpleRepr() const;
     MEDLOADER_EXPORT virtual std::string advancedRepr() const = 0;
+    MEDLOADER_EXPORT void addGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayIdType *>& grps);
     //
     MEDLOADER_EXPORT virtual void setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayIdType *>& grps, bool renum=false);
     MEDLOADER_EXPORT virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayIdType *famArr) = 0;

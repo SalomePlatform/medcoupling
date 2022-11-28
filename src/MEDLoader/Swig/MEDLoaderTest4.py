@@ -5676,6 +5676,33 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue( cas2.getGroupArr(0, "GNODE1").isEqualWithoutConsideringStr( DataArrayInt([]) ) ) # Expected to return empty array on both cases
         self.assertTrue( cas1.getGroupArr(1, "GCELL1").isEqualWithoutConsideringStr( DataArrayInt([]) ) ) # Expected to return empty array on both cases
 
+    def test45(self):
+        """
+        EDF26451 : addGroupsAtLevel
+        """
+        arr = DataArrayDouble([0,1,2,3])
+        cmesh = MEDCouplingCMesh("TEST")
+        cmesh.setCoords(arr, arr, arr)
+        umesh3d = cmesh.buildUnstructured()
+        umesh2d = umesh3d.computeSkin()
+
+        cas1 = MEDFileUMesh()
+
+        cas1[0] = umesh3d
+        cas1[-1] = umesh2d
+
+        gcell1 = DataArrayInt([1,2,4]) ; gcell1.setName("GCELL1")
+        cas1.setGroupsAtLevel(0, [gcell1])
+
+        gcell2 = DataArrayInt([2,5,6,7]) ; gcell2.setName("GCELL2")
+        gcell3 = DataArrayInt([5,16,17,26]) ; gcell3.setName("GCELL3")
+
+        cas1.addGroupsAtLevel(0,[gcell2,gcell3]) # <- the aim of the test is here
+        self.assertEqual( cas1.getGroupsOnSpecifiedLev(0) , ("GCELL1","GCELL2","GCELL3") )
+        self.assertTrue( cas1.getGroupArr(0,"GCELL1").isEqual(gcell1) )
+        self.assertTrue( cas1.getGroupArr(0,"GCELL2").isEqual(gcell2) )
+        self.assertTrue( cas1.getGroupArr(0,"GCELL3").isEqual(gcell3) )
+
     pass
 
 if __name__ == "__main__":

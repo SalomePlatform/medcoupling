@@ -1990,6 +1990,17 @@ std::string MEDFileMesh::simpleRepr() const
 }
 
 /*!
+ * Simple loop over MEDFileMesh::addGroup method.
+ * 
+ * \sa MEDFileMesh::addGroup
+ */
+void MEDFileMesh::addGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayIdType *>& grps)
+{
+  for(auto grp : grps)
+    this->addGroup(meshDimRelToMaxExt,grp);
+}
+
+/*!
  * This method is nearly like getFamilyFieldAtLevel method. Except that if the array does not exist at the specified level \a meshDimRelToMaxExt
  * an empty one is created.
  */

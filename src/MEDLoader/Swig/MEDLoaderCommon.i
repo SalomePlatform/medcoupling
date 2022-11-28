@@ -1277,6 +1277,13 @@ namespace MEDCoupling
            self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
          }
 
+         void addGroupsAtLevel(int meshDimRelToMaxExt, PyObject *grps)
+         {
+           std::vector<const DataArrayIdType *> grpsCpp;
+           convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayIdType *>(grps,SWIGTITraits<mcIdType>::TI,"DataArrayInt",grpsCpp);
+           self->addGroupsAtLevel(meshDimRelToMaxExt,grpsCpp);
+         }
+
          PyObject *areFamsEqual(const MEDFileMesh *other) const
          {
            std::string what;
