@@ -115,13 +115,15 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual([1,2,4,13,15],medmesh.getFamiliesArr(0,["Family_-5","Family_-3"],True).getValues());
         self.assertEqual([18,1,2,3,4,13,14,15],medmesh.getGroupsArr(0,["mesh2","mesh4","mesh3"],True).getValues());
         famn=medmesh.getFamilyNameGivenId(0)
-        self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,True);
+        #self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,True) # EDF26299
+        self.assertTrue(medmesh.getNodeFamilyArr(famn,True).isEqualWithoutConsideringStr(DataArrayInt([])))
         #without renum
         self.assertEqual([2,3,5,14,16],medmesh.getGroupArr(0,"mesh2").getValues());
         self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_-3").getValues());
         self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_-5","Family_-3"]).getValues());
         self.assertEqual([0,2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh3","mesh4"],False).getValues());
-        self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,False);
+        #self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,False) # EDF26299
+        self.assertTrue(medmesh.getNodeFamilyArr(famn,False).isEqualWithoutConsideringStr(DataArrayInt([])))
         pass
 
     # this tests emulates MEDMEM ( Except that it works ! ) The permutation are NOT taken into account

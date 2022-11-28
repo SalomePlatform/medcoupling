@@ -5646,6 +5646,36 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertNotEqual(mm_reload.getGlobalNumFieldAtLevel(1).getClassName() , "DataArrayMedInt")
         pass
 
+    def test44(self):
+        """
+        EDF26299 : symmetrization of the behavior between families at nodes and cells
+        """
+        arr = DataArrayDouble([0,1,2])
+        cmesh = MEDCouplingCMesh("TEST")
+        cmesh.setCoords(arr, arr, arr)
+        umesh3d = cmesh.buildUnstructured()
+        umesh2d = umesh3d.computeSkin()
+
+        cas1 = MEDFileUMesh()
+
+        cas1[0] = umesh3d
+        cas1[-1] = umesh2d
+        cas2 = cas1.deepCopy()
+
+        # cas1 only groups on cells
+        gcell1 = DataArrayInt([1])
+        gcell1.setName("GCELL1")
+        cas1.setGroupsAtLevel(0, [gcell1])
+
+
+        # Cas2 only groups on nodes
+        gnode1 = DataArrayInt([1])
+        gnode1.setName("GNODE1")
+        cas2.setGroupsAtLevel(1, [gnode1])
+        # On demande un groupe sur un niveau ou ce groupe n'existe pas
+        self.assertTrue( cas2.getGroupArr(0, "GNODE1").isEqualWithoutConsideringStr( DataArrayInt([]) ) ) # Expected to return empty array on both cases
+        self.assertTrue( cas1.getGroupArr(1, "GCELL1").isEqualWithoutConsideringStr( DataArrayInt([]) ) ) # Expected to return empty array on both cases
+
     pass
 
 if __name__ == "__main__":

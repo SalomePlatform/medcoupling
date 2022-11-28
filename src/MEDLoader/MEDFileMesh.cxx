@@ -3692,7 +3692,7 @@ DataArrayIdType *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std:
   std::vector<mcIdType> famIds=getFamiliesIds(fams);
   if(meshDimRelToMaxExt==1)
     {
-      if((const DataArrayIdType *)_fam_coords)
+      if(_fam_coords.isNotNull())
         {
           MCAuto<DataArrayIdType> da;
           if(!famIds.empty())
@@ -3705,7 +3705,11 @@ DataArrayIdType *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std:
             return da.retn();
         }
       else
-        throw INTERP_KERNEL::Exception("MEDFileUMesh::getFamiliesArr : no family array specified on nodes !");
+      {
+        MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+        ret->alloc(0,1);
+        return ret.retn();
+      }
     }
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   if(!famIds.empty())
