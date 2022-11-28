@@ -299,7 +299,7 @@ MeshFormat::Status MeshFormatReader::performFields()
         _myCurrentFileId = -1;
         _myCurrentOpenFile ="";
     }
-
+    return status;
 }
 
 void MeshFormatReader::setFields( MeshFormat::GmfKwdCod kwd, int nmbSol, int nbComp)

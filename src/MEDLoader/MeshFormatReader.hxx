@@ -144,6 +144,7 @@ namespace MEDCoupling
         return _meshFormatFamsNodes;
         break;
       }
+      THROW_IK_EXCEPTION("getMapAtLevel : dimRelMax must be in [0,-1,-2,1]");
     }
 
   public:
