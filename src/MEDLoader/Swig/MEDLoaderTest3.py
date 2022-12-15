@@ -6184,35 +6184,39 @@ class MEDLoaderTest3(unittest.TestCase):
     @WriteInTmpDir
     def testAggregateWithGroups(self):
         """ Testing MEDFileUMesh::Aggretate when groups are present. """
-        def generate(grp_name, offset):
-            coo = DataArrayDouble([0., 1., 2.])
-            coo += offset
+        def generate(fam, fam_dict, grps, y_offset):
+            """ Generate a 2x3 cartesian grid, with family IDs fam, family names given by the dict,
+                and group given by grps
+            """
             m = MEDCouplingCMesh("toto")
-            m.setCoords(coo, coo)
+            coo_x = DataArrayDouble([0., 1., 2.])
+            coo_y = DataArrayDouble([0., 1., 2., 3.])
+            coo_y += y_offset
+            m.setCoords(coo_x, coo_y)
             m = m.buildUnstructured()
             mu = MEDFileUMesh.New()
             mu.setMeshAtLevel(0, m)
-            g = DataArrayInt([0])
-            g.setName(grp_name)
-            g2 = DataArrayInt([1])
-            g2.setName("common")  # make a common group for all meshes being merged
-            mu.setGroupsAtLevel(0, [g, g2])
+            for f_nam, i in fam_dict.items():
+                mu.setFamilyId(f_nam, i)
+            mu.setFamilyFieldArr(0, DataArrayInt(fam))
+            for g_nam, f_ids in grps.items():
+                mu.setFamiliesIdsOnGroup(g_nam, f_ids)
             return mu
 
-        m1 = generate("A", 0.)
-        m2 = generate("B", 2.)
+        # Two meshes where either family names or family IDs will be conflicting:
+        m1 = generate([-4,-4,-3,-1,-1,-2], {"Fam_-1": -1, "Fam_-2": -2, "Fam_-3": -3, "Fam_-4": -4 }, {"G1": [-1,-2], "G2": [-2]} ,0)
+        m2 = generate([-4,-4,-4,-1,-1,-3], {"Woops_-1": -1, "Fam_-2": -3, "Fam_-4": -4}, {"G1": [-1,-3], "G2": [-3]} , -3)
+
         mm = MEDFileUMesh.Aggregate([m1,m2])
 
-        self.assertEqual(mm.getFamilyFieldAtLevel(0).getValues(), [-2, -3, -1, -1, -4, -5, -1, -1])
+        self.assertEqual(mm.getFamilyFieldAtLevel(0).getValues(),[-4, -4, -3, -1, -1, -2, -4, -4, -4, -6, -6, -5])
         self.assertEqual(mm.getNumberFieldAtLevel(0), None)
-        refFamIds=[('Family_-1',-1),('Family_-2',-2),('Family_-3',-3), ('Family_-4',-4), ('Family_-5',-5)]
+        refFamIds=[('Fam_-1',-1),('Fam_-2',-2),('Fam_-3',-3), ('Fam_-4',-4), ('Family_-5',-5), ('Family_-6',-6)]
         self.assertEqual(set(mm.getFamiliesNames()),set([elt[0] for elt in refFamIds]))
         self.assertEqual(set([mm.getFamilyId(elt) for elt in mm.getFamiliesNames()]),set([elt[1] for elt in refFamIds]))
-        self.assertEqual(mm.getGroupsNames(),('A','B', 'common'))
-        self.assertEqual(mm.getGroupArr(0, 'A').getValues(), [0])
-        self.assertEqual(mm.getGroupArr(0, 'B').getValues(), [4])
-        self.assertEqual(mm.getGroupArr(0, 'common').getValues(), [1,5])
-
+        self.assertEqual(mm.getGroupsNames(),('G1','G2'))
+        self.assertEqual(mm.getGroupArr(0, 'G1').getValues(), [3,4,5,9,10,11])
+        self.assertEqual(mm.getGroupArr(0, 'G2').getValues(), [5, 11])
         pass
 
     @WriteInTmpDir

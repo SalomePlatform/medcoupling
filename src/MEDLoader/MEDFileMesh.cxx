@@ -4882,29 +4882,40 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
         {
           const std::string& famName = it3.first;
           mcIdType famNum = it3.second;
-          if (famNumMap_rev.find(famNum) != famNumMap_rev.end()) // Family number is already used!
+          if (famNumMap_rev.count(famNum) || famNumMap.count(famName)) // Family number, or family name is already used!
             {
-              // Is it used by a group of the current mesh or a group from a previous mesh?
-              // If not, this is OK (typically -1 familly).
-              bool used = false;
-              //    Current mesh
-              const std::map<std::string, std::vector<std::string> >& locMap2(msh->getGroupInfo());
-              for(const auto& it4 : locMap2)
+              bool needsRenum = true;
+              // Algorithm is as follows: if couple (name, id) do **not** match with the previously registered name and id,
+              // then current family is declared as needing renumbering (needsRenum=True) to avoid strange situations.
+              // Otherwise we just trigger a renum if the family is used by a group (either in the current mesh, or in a previous one).
+              // Thus, if not used by any group at all (but consistent!!), this is actually OK, we can just merge this family by aggregating (typically -1 familly).
+
+              //    1. ID and name matching ?
+              if (famNumMap_rev.count(famNum) && famNumMap_rev.at(famNum) == famName &&
+                  famNumMap.count(famName) && famNumMap.at(famName) == famNum)
+                needsRenum = false;
+
+              //    2. Current mesh
+              if (!needsRenum)
                 {
-                  const auto& famLst = it4.second;
-                  if (std::find(famLst.begin(), famLst.end(), famName) != famLst.end())
-                    { used = true; break; }
+                  const std::map<std::string, std::vector<std::string> >& locMap2(msh->getGroupInfo());
+                  for(const auto& it4 : locMap2)
+                    {
+                      const auto& famLst = it4.second;
+                      if (std::find(famLst.begin(), famLst.end(), famName) != famLst.end())
+                        { needsRenum = true; break; }
+                    }
                 }
-              //    Previous meshes ...
-              if (!used)
+              //    3. Previous meshes ...
+              if (!needsRenum)
                 for(const auto& it4 : grpFamMap)
                   {
                     const auto& famLst = it4.second;
                     if (std::find(famLst.begin(), famLst.end(), famName) != famLst.end())
-                      { used = true; break; }
+                      { needsRenum = true; break; }
                   }
 
-              if(used)
+              if(needsRenum)
                 { // Generate a new family name, and a new family number
                   fam_conflict = true;
                   std::ostringstream oss;
@@ -4916,8 +4927,11 @@ MCAuto<MEDFileUMesh> MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMes
                   famNumMap_rev[min_fam_num] = new_name;
                 }
             }
-          famNumMap[famName] = famNum;
-          famNumMap_rev[famNum] = famName;
+          else
+            {
+              famNumMap[famName] = famNum;
+              famNumMap_rev[famNum] = famName;
+            }
         }
 
       for(const auto& level : levs)
