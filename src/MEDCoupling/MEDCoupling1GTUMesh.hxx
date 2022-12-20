@@ -158,6 +158,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh *computeDualMesh() const;
     MEDCOUPLING_EXPORT DataArrayIdType *sortHexa8EachOther();
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *explodeEachHexa8To6Quad4() const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> computeTriangleHeight() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *structurizeMe(DataArrayIdType *& cellPerm, DataArrayIdType *& nodePerm, double eps=1e-12) const;
   public://serialization
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<mcIdType>& tinyInfo, std::vector<std::string>& littleStrings) const;

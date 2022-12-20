@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 #include <iterator>
+#include <functional>
 
 namespace MEDCoupling
 {
@@ -497,6 +498,7 @@ namespace MEDCoupling
     DataArrayDouble *trace() const;
     DataArrayDouble *deviator() const;
     DataArrayDouble *magnitude() const;
+    DataArrayDouble *minPerTuple() const;
     DataArrayDouble *maxPerTuple() const;
     DataArrayDouble *maxPerTupleWithCompoId(DataArrayIdType* &compoIdOfMaxPerTuple) const;
     DataArrayDouble *buildEuclidianDistanceDenseMatrix() const;
@@ -544,6 +546,8 @@ namespace MEDCoupling
     template<int SPACEDIM>
     static void FindTupleIdsNearTuplesAlg(const BBTreePts<SPACEDIM,mcIdType>& myTree, const double *pos, mcIdType nbOfTuples, double eps,
                                           DataArrayIdType *c, DataArrayIdType *cI);
+  private:
+    DataArrayDouble *operatePerTuple(std::function<double(const double *bg, const double *endd)> func) const;
   private:
     ~DataArrayDouble() { }
     DataArrayDouble() { }

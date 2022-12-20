@@ -1119,6 +1119,19 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             delta_Z.abs()
             self.assertTrue(delta_Z.findIdsNotInRange(-1e-5,+1e-5).empty())
 
+    def testComputeTriangleHeight0(self):
+        arr = DataArrayDouble([0,1])
+        m = MEDCouplingCMesh() ; m.setCoords(arr,arr)
+        m = m.buildUnstructured() ; m.simplexize(0) ; m = MEDCoupling1SGTUMesh(m)
+        res = m.computeTriangleHeight()
+        expected = DataArrayDouble([(1.0, 1.0, sqrt(2)/2.0), (sqrt(2)/2.0, 1.0, 1.0)])
+        self.assertTrue( res.isEqual(expected,1e-12) )
+        m.changeSpaceDimension(3,100)
+        res2 = m.computeTriangleHeight()
+        self.assertTrue( res2.isEqual(expected,1e-12) )
+        expected2 = DataArrayDouble([sqrt(2)/2.0, sqrt(2)/2.0])
+        self.assertTrue( res2.minPerTuple().isEqual(expected2,1e-12) )
+
     pass
 
 if __name__ == '__main__':

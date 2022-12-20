@@ -21,6 +21,7 @@
 #include "VolSurfUser.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpolationUtils.hxx"
+#include "VectorUtils.hxx"
 
 #include <cmath>
 #include <limits>
@@ -276,5 +277,15 @@ namespace INTERP_KERNEL
     matrix[11]=-p0[0]*matrix[8]-p0[1]*matrix[9]-p0[2]*matrix[10];
     return true;
   }
-}
 
+  template<int SPACEDIM>
+  void ComputeTriangleHeight(const double *PA, const double *PB, const double *PC, double *res)
+  {
+    double AB = getDistanceBtw2Pts<SPACEDIM>(PA,PB);
+    double BC = getDistanceBtw2Pts<SPACEDIM>(PB,PC);
+    double CA = getDistanceBtw2Pts<SPACEDIM>(PC,PA);
+    double perim( (AB+BC+CA)*0.5 );
+    double num( 2*sqrt(perim*(perim-AB)*(perim-BC)*(perim-CA)) );
+    res[0] = num/AB; res[1] = num/BC; res[2] = num/CA;
+  }
+}

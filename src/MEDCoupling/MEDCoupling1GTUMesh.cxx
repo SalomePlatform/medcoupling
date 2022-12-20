@@ -27,6 +27,7 @@
 #include "DiameterCalculator.hxx"
 #include "OrientationInverter.hxx"
 #include "InterpKernelAutoPtr.hxx"
+#include "VolSurfUser.cxx"
 
 using namespace MEDCoupling;
 
@@ -1741,6 +1742,52 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4() const
   ret->setCoords(getCoords());
   ret->setNodalConnectivity(c);
   return ret.retn();
+}
+
+/*!
+ * This method for each cell in \a this the triangle height for each edge in a newly allocated/created array instance.
+ *
+ * \return DataArrayDouble * - a newly allocated instance with this->getNumberOfCells() tuples and 3 components storing for each cell in \a this the corresponding  height.
+ * \throw If \a this is not a mesh containing only NORM_TRI3 cells.
+ * \throw If \a this is not properly allocated.
+ * \throw If spaceDimension is not in 2 or 3.
+ */
+MCAuto<DataArrayDouble> MEDCoupling1SGTUMesh::computeTriangleHeight() const
+{
+  checkConsistencyLight();
+  const INTERP_KERNEL::CellModel& cm(getCellModel());
+  if(cm.getEnum()!=INTERP_KERNEL::NORM_TRI3)
+    THROW_IK_EXCEPTION("MEDCoupling1SGTUMesh::computeTriangleHeight : this method can be applied only on TRI3 mesh !");
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+  mcIdType nbTri3( getNumberOfCells() );
+  const double *coordPtr( this->getCoords()->begin() );
+  const mcIdType *inConnPtr(getNodalConnectivity()->begin());
+  ret->alloc(nbTri3,3);
+  double *retPtr( ret->getPointer() );
+  switch( this->getSpaceDimension())
+  {
+    case 2:
+    {
+      constexpr unsigned SPACEDIM = 2;
+      for(mcIdType iCell = 0 ; iCell < nbTri3 ; ++iCell)
+      {
+        INTERP_KERNEL::ComputeTriangleHeight<SPACEDIM>(coordPtr + SPACEDIM*inConnPtr[3*iCell+0], coordPtr + SPACEDIM*inConnPtr[3*iCell+1], coordPtr + SPACEDIM*inConnPtr[3*iCell+2],retPtr+3*iCell);
+      }
+      break;
+    }
+    case 3:
+    {
+      constexpr unsigned SPACEDIM = 3;
+      for(mcIdType iCell = 0 ; iCell < nbTri3 ; ++iCell)
+      {
+        INTERP_KERNEL::ComputeTriangleHeight<SPACEDIM>(coordPtr + SPACEDIM*inConnPtr[3*iCell+0], coordPtr + SPACEDIM*inConnPtr[3*iCell+1], coordPtr + SPACEDIM*inConnPtr[3*iCell+2],retPtr+3*iCell);
+      }
+      break;
+    }
+    default:
+      THROW_IK_EXCEPTION("MEDCoupling1SGTUMesh::computeTriangleHeight : only spacedim in [2,3] supported !");
+  }
+  return ret;
 }
 
 /*!

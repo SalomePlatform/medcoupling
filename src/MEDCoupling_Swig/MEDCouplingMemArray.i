@@ -288,6 +288,7 @@
 %newobject MEDCoupling::DataArrayDouble::deviator;
 %newobject MEDCoupling::DataArrayDouble::magnitude;
 %newobject MEDCoupling::DataArrayDouble::maxPerTuple;
+%newobject MEDCoupling::DataArrayDouble::minPerTuple;
 %newobject MEDCoupling::DataArrayDouble::sumPerTuple;
 %newobject MEDCoupling::DataArrayDouble::computeBBoxPerTuple;
 %newobject MEDCoupling::DataArrayDouble::buildEuclidianDistanceDenseMatrix;
@@ -1048,6 +1049,7 @@ typedef DataArrayInt64 DataArrayIdType;
     DataArrayDouble *deviator() const;
     DataArrayDouble *magnitude() const;
     DataArrayDouble *maxPerTuple() const;
+    DataArrayDouble *minPerTuple() const;
     DataArrayDouble *sumPerTuple() const;
     DataArrayDouble *buildEuclidianDistanceDenseMatrix() const;
     DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const;

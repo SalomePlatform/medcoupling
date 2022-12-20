@@ -2337,16 +2337,7 @@ DataArrayDouble *DataArrayDouble::magnitude() const
   return ret;
 }
 
-/*!
- * Computes the maximal value within every tuple of \a this array.
- *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
- *          same number of tuples as \a this array and one component.
- *          The caller is to delete this result array using decrRef() as it is no more
- *          needed.
- *  \throw If \a this is not allocated.
- *  \sa DataArrayDouble::maxPerTupleWithCompoId
- */
-DataArrayDouble *DataArrayDouble::maxPerTuple() const
+DataArrayDouble *DataArrayDouble::operatePerTuple(std::function<double(const double *bg, const double *endd)> func) const
 {
   checkAllocated();
   std::size_t nbOfComp(getNumberOfComponents());
@@ -2356,8 +2347,36 @@ DataArrayDouble *DataArrayDouble::maxPerTuple() const
   const double *src=getConstPointer();
   double *dest=ret->getPointer();
   for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
-    *dest=*std::max_element(src,src+nbOfComp);
+    *dest=func(src,src+nbOfComp);
   return ret.retn();
+}
+
+/*!
+ * Computes the maximal value within every tuple of \a this array.
+ *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
+ *          same number of tuples as \a this array and one component.
+ *          The caller is to delete this result array using decrRef() as it is no more
+ *          needed.
+ *  \throw If \a this is not allocated.
+ *  \sa DataArrayDouble::maxPerTupleWithCompoId, DataArrayDouble::minPerTuple
+ */
+DataArrayDouble *DataArrayDouble::maxPerTuple() const
+{
+  return this->operatePerTuple([](const double *bg, const double *endd) { return *std::max_element(bg,endd); });
+}
+
+/*!
+ * Computes the minimal value within every tuple of \a this array.
+ *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
+ *          same number of tuples as \a this array and one component.
+ *          The caller is to delete this result array using decrRef() as it is no more
+ *          needed.
+ *  \throw If \a this is not allocated.
+ *  \sa DataArrayDouble::maxPerTuple
+ */
+DataArrayDouble *DataArrayDouble::minPerTuple() const
+{
+  return this->operatePerTuple([](const double *bg, const double *endd) { return *std::min_element(bg,endd); });
 }
 
 /*!

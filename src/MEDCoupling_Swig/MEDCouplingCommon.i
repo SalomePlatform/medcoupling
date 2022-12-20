@@ -413,6 +413,7 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCoupling1SGTUMesh::buildSetInstanceFromThis;
 %newobject MEDCoupling::MEDCoupling1SGTUMesh::computeDualMesh;
 %newobject MEDCoupling::MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4;
+%newobject MEDCoupling::MEDCoupling1SGTUMesh::computeTriangleHeight;
 %newobject MEDCoupling::MEDCoupling1SGTUMesh::sortHexa8EachOther;
 %newobject MEDCoupling::MEDCoupling1SGTUMesh::Merge1SGTUMeshes;
 %newobject MEDCoupling::MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords;
@@ -3202,6 +3203,12 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cellPerm),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(nodePerm),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         return ret;
+      }
+
+      DataArrayDouble *MEDCoupling1SGTUMesh::computeTriangleHeight() const
+      {
+        MCAuto<DataArrayDouble> ret = self->computeTriangleHeight();
+        return ret.retn();
       }
 
       static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(PyObject *li)

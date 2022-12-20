@@ -49,6 +49,9 @@ namespace INTERP_KERNEL
   double INTERPKERNEL_EXPORT DistanceFromPtToPolygonInSpaceDim3(const double *pt, const mcIdType *connOfPolygonBg, const mcIdType *connOfPolygonEnd, const double *coords);
 
   bool ComputeRotTranslationMatrixToPut3PointsOnOXY(const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3, double *matrix);
+
+  template<int SPACEDIM>
+  void ComputeTriangleHeight(const double *PA, const double *PB, const double *PC, double *res);
 }
 
 #endif
