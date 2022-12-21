@@ -4921,6 +4921,55 @@ struct NotInRange
   }
 
   /*!
+   * This method searches each value in \a valToSearchIntoTuples among values in \a this given the corresponding tuple to find into.
+   * If the value at the corresponding tuple is not found in the tuple an exception will be thrown.
+   * If the value is found the corresponding component id is returned.
+   * 
+   *  \param [in] valToSearchIntoTuples - a one component array containing the values to find in \a this
+   *  \param [in] tupleIdHint - a one component array having same size than \a valToSearchIntoTuples giving for each value the tuple to find into
+   *  \return DataArrayInt * - A newly allocated array having same size than \a valToSearchIntoTuples with one component
+   * 
+   *   \b Example: <br>
+   *          - \a this: [(0, 1, 2), (3, 4, 5), (6, 2, 3), (7, 8, 9), (9, 0, 10), (11, 12, 13), (14, 5, 11), (15, 16, 17)]
+   *          - \a valToSearchIntoTuples: [1, 4, 6, 8, 10, 12, 14, 16, 17]
+   *          - \a tupleIdHint: [0, 1, 2, 3, 4, 5, 6, 7, 7]
+   *          - result array: [1, 1, 0, 1, 2, 1, 0, 1, 2] == <br>
+   */
+  template <class T>
+  DataArrayIdType *DataArrayDiscrete<T>::locateComponentId(const DataArrayType *valToSearchIntoTuples, const DataArrayIdType *tupleIdHint) const
+  {
+    if(!valToSearchIntoTuples || !tupleIdHint)
+      THROW_IK_EXCEPTION("DataArrayInt::locateComponentId : valToSearchIntoTuples and tupleIdHint must be not nullptr !");
+    valToSearchIntoTuples->checkAllocated(); tupleIdHint->checkAllocated();
+    this->checkAllocated();
+    constexpr char MSG1[] = "DataArrayInt::locateComponentId : single component array expected";
+    valToSearchIntoTuples->checkNbOfComps(1,MSG1); tupleIdHint->checkNbOfComps(1,MSG1);
+    auto nbOfCompo( this->getNumberOfComponents() ),thisNbTuples( this->getNumberOfTuples() );
+    auto nbOfTuples( valToSearchIntoTuples->getNumberOfTuples() );
+    tupleIdHint->checkNbOfTuples(nbOfTuples,"Number of tuples of input arrays must be the same.");
+    const T *cPtr(this->begin()),*valSearchPt(valToSearchIntoTuples->begin());
+    const mcIdType *tHintPtr(tupleIdHint->begin());
+    MCAuto<DataArrayIdType> ret = DataArrayIdType::New();
+    ret->alloc(nbOfTuples,1);
+    mcIdType *retPtr(ret->getPointer());
+    for(auto i = 0 ; i < nbOfTuples ; ++i)
+    {
+      if( tHintPtr[i] >=0 && tHintPtr[i] < thisNbTuples )
+      {
+        auto strtSearch(cPtr+nbOfCompo*tHintPtr[i]),endSearch(cPtr+nbOfCompo*(tHintPtr[i]+1));
+        auto pos = std::find(strtSearch,endSearch,valSearchPt[i]);
+        if(pos != endSearch)
+          *retPtr++ = ToIdType( std::distance(strtSearch,pos) );
+        else
+          THROW_IK_EXCEPTION("At pos " << i << " value " << valSearchPt[i] << " is not present at tuple " << tHintPtr[i]);
+      }
+      else
+        THROW_IK_EXCEPTION("At pos " << i << " hint tuple is " << tHintPtr[i] << " not in [0," << thisNbTuples << ")");
+    }
+    return ret.retn();
+  }
+
+  /*!
    * Creates a new DataArrayInt containing IDs (indices) of tuples holding value \b not
    * equal to a given one.
    *  \param [in] val - the value to ignore within \a this.

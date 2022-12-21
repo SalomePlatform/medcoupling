@@ -2019,6 +2019,11 @@
         return pyRet;
       }
       
+      DataArrayIdType *locateComponentId(const ARRAY *valToSearchIntoTuples, const DataArrayIdType *tupleIdHint) const
+      {
+        return self->locateComponentId(valToSearchIntoTuples,tupleIdHint);
+      }
+      
       PyObject *findIdsRangesInListOfIds(const ARRAY *listOfIds) const
       {
         DataArrayIdType *ret0=0;

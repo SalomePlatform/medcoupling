@@ -1132,6 +1132,14 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         expected2 = DataArrayDouble([sqrt(2)/2.0, sqrt(2)/2.0])
         self.assertTrue( res2.minPerTuple().isEqual(expected2,1e-12) )
 
+    def testDAILocateComponentId0(self):
+        arr = DataArrayInt( [(0, 1, 2), (3, 4, 5), (6, 2, 3), (7, 8, 9), (9, 0, 10), (11, 12, 13), (14, 5, 11), (15, 16, 17)] )
+        valToSearchIntoTuples = DataArrayInt( [1, 4, 6, 8, 10, 12, 14, 16, 17] )
+        tupleIdHint = DataArrayInt( [0, 1, 2, 3, 4, 5, 6, 7, 7] )
+        ret = arr.locateComponentId( valToSearchIntoTuples, tupleIdHint )
+        self.assertTrue( ret.isEqual(DataArrayInt([1, 1, 0, 1, 2, 1, 0, 1, 2]) ) )
+        pass
+
     pass
 
 if __name__ == '__main__':

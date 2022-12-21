@@ -142,6 +142,7 @@
 %newobject MEDCoupling::DataArrayInt32::occurenceRankInThis;
 %newobject MEDCoupling::DataArrayInt32::buildPermutationArr;
 %newobject MEDCoupling::DataArrayInt32::buildPermArrPerLevel;
+%newobject MEDCoupling::DataArrayInt32::locateComponentId;
 %newobject MEDCoupling::DataArrayInt32::getDifferentValues;
 %newobject MEDCoupling::DataArrayInt32::FindPermutationFromFirstToSecond;
 %newobject MEDCoupling::DataArrayInt32::FindPermutationFromFirstToSecondDuplicate;
@@ -218,6 +219,7 @@
 %newobject MEDCoupling::DataArrayInt64::occurenceRankInThis;
 %newobject MEDCoupling::DataArrayInt64::buildPermutationArr;
 %newobject MEDCoupling::DataArrayInt64::buildPermArrPerLevel;
+%newobject MEDCoupling::DataArrayInt64::locateComponentId;
 %newobject MEDCoupling::DataArrayInt64::getDifferentValues;
 %newobject MEDCoupling::DataArrayInt64::FindPermutationFromFirstToSecond;
 %newobject MEDCoupling::DataArrayInt64::FindPermutationFromFirstToSecondDuplicate;

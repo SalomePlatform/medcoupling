@@ -603,6 +603,7 @@ namespace MEDCoupling
     T checkUniformAndGuess() const;
     bool hasUniqueValues() const;
     void setSelectedComponents(const DataArrayType *a, const std::vector<std::size_t>& compoIds);
+    DataArrayIdType *locateComponentId(const DataArrayType *valToSearchIntoTuples, const DataArrayIdType *tupleIdHint) const;
     DataArrayIdType *findIdsNotEqual(T val) const;
     DataArrayIdType *findIdsEqualTuple(const T *tupleBg, const T *tupleEnd) const;
     DataArrayIdType *findIdsEqualList(const T *valsBg, const T *valsEnd) const;
