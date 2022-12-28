@@ -7073,6 +7073,48 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue( m0.isEqual(mm[0],1e-12) )
         pass
 
+    @WriteInTmpDir
+    def testFieldMultiTSSetInfo0(self):
+        """
+        [EDF26665] : Test written to check correct behaviour of MEDFileFieldMultiTS.setInfo, lacking in Python wrappers
+        """
+        fname = "Pyfile122.med"
+        def generateAMEDFileFromScratch(fname,fieldToGenerate):
+            arr  = DataArrayDouble(10) ; arr.iota()
+            m = MEDCouplingCMesh() ; m.setCoords(arr,arr)
+            m = m.buildUnstructured() ; m.setName("mesh")
+            f = MEDCouplingFieldDouble(ON_CELLS)
+            f.setMesh(m)
+            f.setName(fieldToGenerate)
+            arr = DataArrayDouble( f.getNumberOfMeshPlacesExpected() )
+            f.setArray(arr)
+            WriteMesh(fname,m,True)
+            for i in range(10):
+                arr[:] = float(i) + 0.1
+                f.setTime(float(i) + 0.1, i , 0)
+                WriteFieldUsingAlreadyWrittenMesh(fname,f)
+
+
+        def changeCompoInMEDFile(fname, fnameTarget, fieldToModify):
+            mfd = MEDFileData(fname)
+            mfd.getMeshes().write(fnameTarget,2)
+            fmtsToModify = mfd.getFields().getFieldWithName(fieldToModify)
+            for f1ts in fmtsToModify:
+                self.assertTrue( f1ts.getUndergroundDataArray().getInfoOnComponents() != ["Scalars"])
+            fmtsToModify.setInfo(["Scalars"]) # <- test is here !
+            fmtsToModify.write(fnameTarget,0)
+
+        fieldToModify = "Field122"
+        generateAMEDFileFromScratch(fname,fieldToModify)
+        fnameTarget = fname
+        changeCompoInMEDFile(fname,fnameTarget,fieldToModify)
+
+        fmts = MEDFileFieldMultiTS(fname,fieldToModify)
+        for f1ts in fmts:
+            self.assertTrue( f1ts.getUndergroundDataArray().getInfoOnComponents() == ["Scalars"])
+
+        pass
+
     pass
 
 if __name__ == "__main__":

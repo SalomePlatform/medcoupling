@@ -2674,6 +2674,7 @@ namespace MEDCoupling
     void setDtUnit(const std::string& dtUnit);
     std::string getMeshName() const;
     void setMeshName(const std::string& newMeshName);
+    void setInfo(const std::vector<std::string>& infos);
     const std::vector<std::string>& getInfo() const;
     bool presenceOfMultiDiscPerGeoType() const;
     int getNumberOfComponents() const;
