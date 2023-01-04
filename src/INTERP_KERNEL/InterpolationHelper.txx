@@ -30,12 +30,6 @@
 namespace INTERP_KERNEL
 {
   template<class MyMeshType>
-  BBTreeStandAlone<3,typename MyMeshType::MyConnType> BuildBBTree(const MyMeshType& srcMesh)
-  {
-    return BuildBBTreeWithAdjustment(srcMesh,[](double *,typename MyMeshType::MyConnType){});
-  }
-  
-  template<class MyMeshType>
   BBTreeStandAlone<3,typename MyMeshType::MyConnType> BuildBBTreeWithAdjustment(const MyMeshType& srcMesh, std::function<void(double *,typename MyMeshType::MyConnType)> bboxAdjuster)
   {
     using ConnType = typename MyMeshType::MyConnType;
@@ -54,5 +48,11 @@ namespace INTERP_KERNEL
       }
     bboxAdjuster(bboxes.get(),nbElts);
     return BBTreeStandAlone<3,ConnType>(std::move(bboxes),numSrcElems);
+  }
+
+  template<class MyMeshType>
+  BBTreeStandAlone<3,typename MyMeshType::MyConnType> BuildBBTree(const MyMeshType& srcMesh)
+  {
+    return BuildBBTreeWithAdjustment(srcMesh,[](double *,typename MyMeshType::MyConnType){});
   }
 }
