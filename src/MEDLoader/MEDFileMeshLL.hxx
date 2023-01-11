@@ -121,12 +121,16 @@ namespace MEDCoupling
     std::vector<std::string> loadCommonPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, int& Mdim);
     void loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadPartFromUserDistrib(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, int dt, int it, MEDFileMeshReadSelector *mrs);
     void dealWithCoordsInLoadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<std::string>& infosOnComp, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
     std::vector<std::string> loadPartConnectivityOnly(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs, int& Mdim);
     void loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadPartOfConnectivity(med_idt fid, int mdim, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadPartOfConnectivityFromUserDistrib(med_idt fid, int mdim, const std::string& mName, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, int dt, int it, MEDFileMeshReadSelector *mrs);
+
     void loadCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it);
     void loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax);
+    void loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const std::vector<mcIdType>& distribNodes);
     void loadPartCoordsSlice(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const DataArrayIdType *nodeIds, mcIdType nbOfCoordLS);
     int getNumberOfLevels() const { return (int)_per_type_mesh.size(); }
     bool emptyLev(int levId) const { return _per_type_mesh[levId].empty(); }
@@ -140,10 +144,15 @@ namespace MEDCoupling
     MCAuto<DataArrayIdType> getCoordsGlobalNum() const { return _global_num_coords; }
     MCAuto<DataArrayAsciiChar> getCoordsName() const { return _name_coords; }
     static void WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayIdType *famCoords, const DataArrayIdType *numCoords, const DataArrayAsciiChar *nameCoords, const DataArrayIdType *globalNumCoords);
+    static void LoadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const std::vector<mcIdType>& distribNodes,
+    MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords);
     static void LoadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax,
-MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords);
+    MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords);
     static void LoadPartCoordsArray(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const DataArrayIdType *nodeIds,
 MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords);
+    static void allocCoordsPartCoords(mcIdType spaceDim, mcIdType nMin, mcIdType nMax, MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords);
+    static void allocCoordsPartCoords(mcIdType spaceDim, const std::vector<mcIdType>& nodeIds, MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords);
+    static void fillPartCoords(med_idt fid, mcIdType spaceDim, const std::string& mName, int dt, int it, const PartDefinition *partCoords, MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords);
   private:
     void sortTypes();
   private:

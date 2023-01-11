@@ -31,6 +31,7 @@
 #include "InterpKernelAutoPtr.hxx"
 #include "CellModel.hxx"
 
+#include "MEDFilterEntity.hxx"
 #include <set>
 #include <iomanip>
 
@@ -602,6 +603,52 @@ void MEDFileUMeshL2::loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const
   dealWithCoordsInLoadPart(fid,mId,mName,infosOnComp,types,slicPerTyp,dt,it,mrs);
 }
 
+/*!
+ * This method loads from file \a fid a part of the mesh (made of same geometrical type cells \a type) called \a mName. The loading is done in 2 steps:
+ * First, we load the connectivity of nodes.
+ * Second, we load coordinates of nodes lying in the specified cells (same as MEDFileUMeshL2::dealWithCoordsInLoadPart, except in this case, we're not limited to slice of nodes)
+ * \throw exception if multiple load sessions are requested
+ */
+void MEDFileUMeshL2::loadPartFromUserDistrib(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  int Mdim;
+  std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
+  if(Mdim==-4)
+    return ;
+
+  /* First step : loading connectivity of nodes, ie building a new mesh of one geometrical type with only the specified cells in distrib */
+  loadPartOfConnectivityFromUserDistrib(fid,Mdim,mName,distrib,dt,it,mrs);
+
+  /* Second step : loading nodes */
+  med_bool changement,transformation;
+  mcIdType nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  std::vector<bool> fetchedNodeIds(nCoords,false);
+  for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
+    for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+      (*it1)->getMesh()->computeNodeIdsAlg(fetchedNodeIds);    // for each node in the original mesh, which ones are laying on the current single geometrical type partial mesh
+
+  if(!mrs || mrs->getNumberOfCoordsLoadSessions()==1)
+    {
+      // renumbering nodes inside the connectivity of the partial mesh:
+      // until now, the numbering used in the connectivity of the cells was that of the integral mesh,
+      // so it might be sparsed as some original nodes are missing in the partial mesh,
+      // thus we want each node to be renumbered so that the sequence of their numbers form a range
+      MCAuto<DataArrayIdType> fni(DataArrayIdType::BuildListOfSwitchedOn(fetchedNodeIds));
+      MCAuto< MapKeyVal<mcIdType, mcIdType> > o2n(fni->invertArrayN2O2O2NOptimized());
+      for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
+        for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+          (*it1)->getMesh()->renumberNodesInConn(o2n->data());
+
+      // loading coordinates of fetched nodes
+      std::vector<mcIdType> distribNodes;
+      for(std::map<mcIdType,mcIdType>::const_iterator mapIter = o2n->data().begin(); mapIter != o2n->data().end(); ++mapIter)
+          distribNodes.push_back(mapIter->first);
+      this->loadPartCoords(fid,infosOnComp,mName,dt,it,distribNodes);
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartFromUserDistrib: multiple load sessions not handled!");
+}
+
 void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   _per_type_mesh.resize(1);
@@ -630,6 +677,23 @@ void MEDFileUMeshL2::loadPartOfConnectivity(med_idt fid, int mdim, const std::st
       mcIdType strt(slicPerTyp[3*ii+0]),stp(slicPerTyp[3*ii+1]),step(slicPerTyp[3*ii+2]);
       MCAuto<MEDFileUMeshPerType> tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,types[ii],strt,stp,step,mrs));
       _per_type_mesh[0].push_back(tmp);
+    }
+  sortTypes();
+}
+
+/*!
+ * This method builds a new mesh of single geometrical type based on the partition of cells \a distrib, from mesh \a mName in file \a fid.
+ * This distribution is not necessarily a slice.
+ */
+void MEDFileUMeshL2::loadPartOfConnectivityFromUserDistrib(med_idt fid, int mdim, const std::string& mName, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  _per_type_mesh.resize(1);
+  _per_type_mesh[0].clear();
+  std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>::const_iterator iter;
+  for (iter = distrib.begin(); iter != distrib.end(); iter++)
+    {
+        MCAuto<MEDFileUMeshPerType> tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,iter->first/*type*/,iter->second/*distrib over the current type*/,mrs));
+        _per_type_mesh[0].push_back(tmp);
     }
   sortTypes();
 }
@@ -682,54 +746,107 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& inf
     _coords->setInfoOnComponent(i,infosOnComp[i]);
 }
 
+
+void MEDFileUMeshL2::LoadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const std::vector<mcIdType>& distribNodes,
+MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords)
+{
+  med_int spaceDim((int)infosOnComp.size());
+  allocCoordsPartCoords(spaceDim,distribNodes,_coords,_part_coords);
+  _coords->setInfoOnComponents(infosOnComp);
+  fillPartCoords(fid,spaceDim,mName,dt,it,_part_coords,_coords,_fam_coords,_num_coords,_name_coords);
+}
+
 void MEDFileUMeshL2::LoadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax,
 MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords)
 {
-  med_bool changement,transformation;
-  med_int spaceDim((int)infosOnComp.size()),nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  med_int spaceDim((int)infosOnComp.size());
+  allocCoordsPartCoords(spaceDim,nMin,nMax,_coords,_part_coords);
+  _coords->setInfoOnComponents(infosOnComp);
+  fillPartCoords(fid,spaceDim,mName,dt,it,_part_coords,_coords,_fam_coords,_num_coords,_name_coords);
+}
+
+/*!
+ * This method allocates the space needed to load coordinates of nodes specified in the vector \a nodeIds and creates a PartDefinition object to store the ids in \a nodeIds
+ */
+void MEDFileUMeshL2::allocCoordsPartCoords(mcIdType spaceDim, const std::vector<mcIdType>& nodeIds, MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords)
+{
+  mcIdType nbNodesToLoad(nodeIds.size());
+  _coords=DataArrayDouble::New();
+  _coords->alloc(nbNodesToLoad,spaceDim);
+
+  MCAuto<DataArrayIdType> nodeIdsArray=DataArrayIdType::New();
+  nodeIdsArray->useArray(nodeIds.data(),false,DeallocType::C_DEALLOC,nbNodesToLoad,1);
+  _part_coords=PartDefinition::New(nodeIdsArray);
+}
+
+/*!
+ * This method allocates the space needed to load coordinates of all nodes between \a nMin and \a nMax and creates a PartDefinition object to store them
+ */
+void MEDFileUMeshL2::allocCoordsPartCoords(mcIdType spaceDim, mcIdType nMin, mcIdType nMax, MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords)
+{
   _coords=DataArrayDouble::New();
   mcIdType nbNodesToLoad(nMax-nMin);
   _coords->alloc(nbNodesToLoad,spaceDim);
-  med_filter filter=MED_FILTER_INIT,filter2=MED_FILTER_INIT;
-  MEDfilterBlockOfEntityCr(fid,/*nentity*/nCoords,/*nvaluesperentity*/1,/*nconstituentpervalue*/spaceDim,
-                           MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
-                           /*start*/ToMedInt(nMin+1),/*stride*/1,/*count*/1,/*blocksize*/ToMedInt(nbNodesToLoad),
-                           /*lastblocksize=useless because count=1*/0,&filter);
-  MEDFILESAFECALLERRD0(MEDmeshNodeCoordinateAdvancedRd,(fid,mName.c_str(),dt,it,&filter,_coords->getPointer()));
+
   _part_coords=PartDefinition::New(nMin,nMax,1);
-  MEDfilterClose(&filter);
-  MEDfilterBlockOfEntityCr(fid,nCoords,1,1,MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,
-                           MED_NO_PROFILE,ToMedInt(nMin+1),1,1,ToMedInt(nbNodesToLoad),0,&filter2);
-  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    {
-      MCAuto<DataArrayMedInt> miFamCoord=DataArrayMedInt::New();
-      miFamCoord->alloc(nbNodesToLoad,1);
-      MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_FAMILY_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,miFamCoord->getPointer()));
-      _fam_coords=FromMedIntArray<mcIdType>(miFamCoord);
-    }
-  else
-    _fam_coords=nullptr;
-  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    {
-      MCAuto<DataArrayMedInt> miNumCoord=DataArrayMedInt::New();
-      miNumCoord->alloc(nbNodesToLoad,1);
-      MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,miNumCoord->getPointer()));
-      _num_coords=FromMedIntArray<mcIdType>(miNumCoord);
-    }
-  else
-    _num_coords=nullptr;
-  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NAME,MED_NODAL,&changement,&transformation)>0)
-    {
-      _name_coords=DataArrayAsciiChar::New();
-      _name_coords->alloc(nbNodesToLoad+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-      MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_NAME,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_name_coords->getPointer()));
-      _name_coords->reAlloc(nbNodesToLoad);//not a bug to avoid the memory corruption due to last \0 at the end
-    }
-  else
-    _name_coords=nullptr;
-  MEDfilterClose(&filter2);
-  _coords->setInfoOnComponents(infosOnComp);
 }
+
+/*!
+ * This method loads coordinates of every node in \a partCoords and additionnal low-level information
+ */
+void MEDFileUMeshL2::fillPartCoords(med_idt fid, mcIdType spaceDim, const std::string& mName, int dt, int it, const PartDefinition *partCoords,
+                                    MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords)
+{
+  med_bool changement,transformation;
+  med_int nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  mcIdType nbNodesToLoad = partCoords->getNumberOfElems();
+
+  // Based on the ids in \a partCoords, defining the appropriate med_filter (filter of block if the ids form a slice, a generic filter otherwise)
+  {
+    MEDFilterEntity filter1;
+    filter1.fill(fid,/*nentity*/nCoords,/*nvaluesperentity*/1,/*nconstituentpervalue*/spaceDim,
+        MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
+        partCoords);
+    // With the filter defined above, retrieve coordinates of nodes
+    MEDFILESAFECALLERRD0(MEDmeshNodeCoordinateAdvancedRd,(fid,mName.c_str(),dt,it,filter1.getPtr(),_coords->getPointer()));
+  }
+
+  {
+    MEDFilterEntity filter2;
+    filter2.fill(fid,nCoords,1,1,
+        MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE, partCoords);
+
+    // Retrieve additional information regarding nodes
+    if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
+      {
+        MCAuto<DataArrayMedInt> miFamCoord=DataArrayMedInt::New();
+        miFamCoord->alloc(nbNodesToLoad,1);
+        MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_FAMILY_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,filter2.getPtr(),miFamCoord->getPointer()));
+        _fam_coords=FromMedIntArray<mcIdType>(miFamCoord);
+      }
+    else
+      _fam_coords=nullptr;
+    if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
+      {
+        MCAuto<DataArrayMedInt> miNumCoord=DataArrayMedInt::New();
+        miNumCoord->alloc(nbNodesToLoad,1);
+        MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,filter2.getPtr(),miNumCoord->getPointer()));
+        _num_coords=FromMedIntArray<mcIdType>(miNumCoord);
+      }
+    else
+      _num_coords=nullptr;
+    if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NAME,MED_NODAL,&changement,&transformation)>0)
+      {
+        _name_coords=DataArrayAsciiChar::New();
+        _name_coords->alloc(nbNodesToLoad+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
+        MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_NAME,dt,it,MED_NODE,MED_NO_GEOTYPE,filter2.getPtr(),_name_coords->getPointer()));
+        _name_coords->reAlloc(nbNodesToLoad);//not a bug to avoid the memory corruption due to last \0 at the end
+      }
+    else
+      _name_coords=nullptr;
+  }  // filter2
+}
+
 
 /*!
  * For performance reasons LoadPartCoordsArray method calls LoadPartCoords
@@ -764,6 +881,12 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>&
 {
   LoadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax,_coords,_part_coords,_fam_coords,_num_coords,_name_coords);
 }
+
+void MEDFileUMeshL2::loadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const std::vector<mcIdType>& distribNodes)
+{
+  LoadPartCoords(fid,infosOnComp,mName,dt,it,distribNodes,_coords,_part_coords,_fam_coords,_num_coords,_name_coords);
+}
+
 
 void MEDFileUMeshL2::loadPartCoordsSlice(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const DataArrayIdType *nodeIds, mcIdType nbOfCoordLS)
 {

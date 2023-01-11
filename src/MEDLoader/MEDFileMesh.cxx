@@ -2539,6 +2539,24 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOf(med_idt fid, const std::string& mName, co
 }
 
 /*!
+ * This method loads from file with name \a fileName a part of the mesh called \a mName as MEDFileUMesh::LoadPartOf does. The difference is that
+ * here we are not limited to slice of cells, but we can potentially load a random selection of cells, defined in the \a distrib vector.
+ * \param [in] fid - id of the file
+ * \param [in] mName - the name of the mesh to be read
+ * \param [in] distrib - map defining for each geometric type, the corresponding vector of cells we want to load with c-type indexing (starting from zero).
+ * \param [in] dt - the iteration, that is to say the first element of the pair that locates the asked time step.
+ * \param [in] it - the order, that is to say the second element of the pair that locates the asked time step.
+ * \param [in] mrs - the request for what to be loaded.
+ * \return MEDFileUMesh * - a new instance of MEDFileUMesh. The caller is to delete this mesh using decrRef() as it is no more needed.
+ */
+MEDFileUMesh *MEDFileUMesh::LoadPartOfFromUserDistrib(med_idt fid, const std::string& mName, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MCAuto<MEDFileUMesh> ret(MEDFileUMesh::New());
+  ret->loadPartUMeshFromFileFromUserDistrib(fid,mName,distrib,[](MEDFileUMeshL2& loader,med_idt fid, MeshOrStructMeshCls *mid,const std::string& mName,const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib,int dt,int it,MEDFileMeshReadSelector *mrs){ loader.loadPartFromUserDistrib(fid,mid,mName,distrib,dt,it,mrs); },dt,it,mrs);
+  return ret.retn();
+}
+
+/*!
  * This method is an helper to load only consecutive nodes chunk of data of MED file pointed by \a fileName.
  * Consecutive chunk is specified classicaly by start (included) stop (excluded) format with \a startNodeId and \a stopNodeId respectively.
  * This method returns 5 elements.
@@ -2925,6 +2943,32 @@ std::function<void(MEDFileUMeshL2&,med_idt fid, MeshOrStructMeshCls *,const std:
   functorOnUMeshL2(loaderl2,fid,mid,mName,types,slicPerTyp,dt,it,mrs);
   dispatchLoadedPart(fid,loaderl2,mName,mrs);
 }
+
+/*!
+ * This method loads only a part of specified cells in the \a distrib map vector
+ * See MEDFileUMesh::LoadPartOfFromUserDistrib for detailed description.
+ *
+ * \sa loadLL
+ */
+void MEDFileUMesh::loadPartUMeshFromFileFromUserDistrib(med_idt fid, const std::string& mName, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib,
+                                                        std::function<void(MEDFileUMeshL2&,med_idt fid, MeshOrStructMeshCls *,const std::string&,const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>&,int,int,MEDFileMeshReadSelector *)> functorOnUMeshL2,
+                                                        int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDFileUMeshL2 loaderl2;
+  MEDCoupling::MEDCouplingMeshType meshType;
+  int dummy0,dummy1;
+  std::string dummy2;
+  MEDCoupling::MEDCouplingAxisType dummy3;
+  INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2));
+  if(meshType!=UNSTRUCTURED)
+    {
+      std::ostringstream oss; oss << "loadPartUMeshFromFileFromUserDistrib : Trying to load as unstructured an existing mesh with name '" << mName << "' !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  functorOnUMeshL2(loaderl2,fid,mid,mName,distrib,dt,it,mrs);
+  dispatchLoadedPart(fid,loaderl2,mName,mrs);
+}
+
 
 /*!
  * \brief Write joints in a file

@@ -39,6 +39,9 @@ SET(MED_other_FILES
   Test2Dpoly.med
   Test3D.med
   Test3Dpoly.med
+  SimpleTest2D.med
+  SimpleTest3D.med
+  Test2DMultiGeoType.med
   UnitTetraDegenT.med
   DegenEdgeXY.med
   DegenFaceXYZ.med

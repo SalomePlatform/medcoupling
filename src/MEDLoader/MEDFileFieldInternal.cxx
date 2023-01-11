@@ -30,6 +30,8 @@
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 
+#include "MEDFilterEntity.hxx"
+
 #include "CellModel.hxx"
 
 // From MEDLOader.cxx TU
@@ -591,47 +593,15 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
       INTERP_KERNEL::AutoPtr<char> pflname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),locname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
       med_int profilesize,nbi;
       med_int overallNval(MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,menti,mgeoti,FromIdType<int>(_profile_it+1),MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi));
-      const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(pd));
-      if(spd)
-        {
-          mcIdType start,stop,step;
-          spd->getSlice(start,stop,step);
-          mcIdType nbOfEltsToLoad(DataArray::GetNumberOfItemGivenBES(start,stop,step,"MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile"));
-          med_filter filter=MED_FILTER_INIT;
-          MEDFILESAFECALLERRD0(MEDfilterBlockOfEntityCr,(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
-                                                         MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
-                                                         /*start*/ToMedInt(start+1),/*stride*/ToMedInt(step),/*count*/1,/*blocksize*/ToMedInt(nbOfEltsToLoad),
-                                                         /*lastblocksize=useless because count=1*/0,&filter));
-          MEDFILESAFECALLERRD0(MEDfieldValueAdvancedRd,(fid,fieldName.c_str(),iteration,order,menti,mgeoti,&filter,startFeedingPtr));
-          MEDfilterClose(&filter);
-          return ;
-        }
-      const DataArrayPartDefinition *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
-      if(dpd)
-        {
-          dpd->checkConsistencyLight();
-          MCAuto<DataArrayIdType> myIds(dpd->toDAI());
-          mcIdType a(myIds->getMinValueInArray()),b(myIds->getMaxValueInArray());
-          myIds=myIds->deepCopy();// WARNING deep copy here because _pd is modified by applyLin !!!
-          myIds->applyLin(1,-a);
-          mcIdType nbOfEltsToLoad(b-a+1);
-          med_filter filter=MED_FILTER_INIT;
-          {//TODO : manage int32 !
-            MCAuto<DataArrayDouble> tmp(DataArrayDouble::New());
-            tmp->alloc(nbOfEltsToLoad,nbOfCompo);
-            MEDFILESAFECALLERRD0(MEDfilterBlockOfEntityCr,(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
-                                                           MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
-                                                           /*start*/ToMedInt(a+1),/*stride*/1,/*count*/1,/*blocksize*/ToMedInt(nbOfEltsToLoad),
-                                                           /*lastblocksize=useless because count=1*/0,&filter));
-            MEDFILESAFECALLERRD0(MEDfieldValueAdvancedRd,(fid,fieldName.c_str(),iteration,order,menti,mgeoti,&filter,reinterpret_cast<unsigned char *>(tmp->getPointer())));
-            MCAuto<DataArrayDouble> feeder(DataArrayDouble::New());
-            feeder->useExternalArrayWithRWAccess(reinterpret_cast<double *>(startFeedingPtr),_nval,nbOfCompo);
-            feeder->setContigPartOfSelectedValues(0,tmp,myIds);
-          }
-          MEDfilterClose(&filter);
-        }
-      else
-        throw INTERP_KERNEL::Exception("Not implemented yet for not slices!");
+
+      {//TODO : manage int32 !
+        pd->checkConsistencyLight();
+        MEDFilterEntity filter;
+        filter.fill(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
+                  MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
+                  pd);
+        MEDFILESAFECALLERRD0(MEDfieldValueAdvancedRd,(fid,fieldName.c_str(),iteration,order,menti,mgeoti,filter.getPtr(),startFeedingPtr));
+      }
     }
 }
 
@@ -747,6 +717,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, const MEDFileF
     }
   throw INTERP_KERNEL::Exception("Error on array reading ! Unrecognized type of field ! Should be in FLOAT64 FLOAT32 INT32 or INT64 !");
 }
+
 
 /*!
  * Set a \c this->_start **and** \c this->_end keeping the same delta between the two.
@@ -1990,6 +1961,11 @@ MEDFileFieldPerMesh *MEDFileFieldPerMesh::NewOnRead(med_idt fid, MEDFileAnyTypeF
   return new MEDFileFieldPerMesh(fid,fath,meshCsit,meshIteration,meshOrder,nasc,mm,entities);
 }
 
+MEDFileFieldPerMesh *MEDFileFieldPerMesh::NewOnRead(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const PartDefinition *pd, const MEDFileEntities *entities)
+{
+  return new MEDFileFieldPerMesh(fid,fath,meshCsit,meshIteration,meshOrder,nasc,pd,entities);
+}
+
 MEDFileFieldPerMesh *MEDFileFieldPerMesh::New(MEDFileAnyTypeField1TSWithoutSDA *fath, const MEDCouplingMesh *mesh)
 {
   return new MEDFileFieldPerMesh(fath,mesh);
@@ -3050,7 +3026,7 @@ DataArray *MEDFileFieldPerMesh::finishField4(const std::vector<std::pair<mcIdTyp
 
 /// @cond INTERNAL
 
-class MFFPMIter
+class MFFPMIter  // MEDFileFieldPerMeshIterator
 {
 public:
   static MFFPMIter *NewCell(const MEDFileEntities *entities);
@@ -3152,6 +3128,9 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
   INTERP_KERNEL::AutoPtr<char> locName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   const MEDFileUMesh *mmu(dynamic_cast<const MEDFileUMesh *>(mm));
   INTERP_KERNEL::AutoCppPtr<MFFPMIter> iter0(MFFPMIter::NewCell(entities));
+
+  // for each geometric type inside my mesh, check if there is a field profile ie if the field is defined on this type of cells (whether the discretization is on cells or on gauss_ne)
+  // and if this is the case, retrieve the part to be read and build a new MedFileField from it
   for(iter0->begin();!iter0->finished();iter0->next())
     {
       med_int nbProfile (MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_CELL        ,typmai[iter0->current()],meshCsit+1,meshName,pflName,locName));
@@ -3170,8 +3149,13 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
             setMeshName(name1);
         }
     }
+
+
+  // entities are pairs of a field discretization and geometric type
+  // if no entities have been passed, then it means we can consider nodes by default
   if(MFFPMIter::IsPresenceOfNode(entities))
     {
+      // if there is a profile on nodes for the current field, retrieve the part to be read and build a new MedFileField from it
       med_int nbProfile(MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_NODE,MED_NONE,meshCsit+1,meshName,pflName,locName));
       if(nbProfile>0)
         {
@@ -3214,6 +3198,41 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
         }
     }
 }
+
+MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const PartDefinition *pd, const MEDFileEntities *entities):_mesh_iteration(meshIteration),_mesh_order(meshOrder),
+    _father(fath)
+{
+  INTERP_KERNEL::AutoPtr<char> meshName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> pflName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> locName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+  INTERP_KERNEL::AutoCppPtr<MFFPMIter> iter0(MFFPMIter::NewCell(entities));
+  for(iter0->begin();!iter0->finished();iter0->next())
+    {
+      med_int nbProfile (MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_CELL        ,typmai[iter0->current()],meshCsit+1,meshName,pflName,locName));
+      std::string name0(MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1));
+      med_int nbProfile2(MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_NODE_ELEMENT,typmai[iter0->current()],meshCsit+1,meshName,pflName,locName));
+      std::string name1(MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1));
+      if(nbProfile>0 || nbProfile2>0)
+        {
+          _field_pm_pt.push_back(MEDFileFieldPerMeshPerType::NewOnRead(fid,this,ON_CELLS,typmai2[iter0->current()],nasc,pd));
+          if(nbProfile>0)
+            setMeshName(name0);
+          else
+            setMeshName(name1);
+        }
+    }
+
+  if(MFFPMIter::IsPresenceOfNode(entities))
+    {
+      med_int nbProfile(MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_NODE,MED_NONE,meshCsit+1,meshName,pflName,locName));
+      if(nbProfile>0)
+        {
+          _field_pm_pt.push_back(MEDFileFieldPerMeshPerType::NewOnRead(fid,this,ON_NODES,INTERP_KERNEL::NORM_ERROR,nasc,pd));
+          setMeshName(MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE));
+        }
+    }
+}
+
 
 MEDFileFieldPerMesh::MEDFileFieldPerMesh(MEDFileAnyTypeField1TSWithoutSDA *fath, const MEDCouplingMesh *mesh):_father(fath)
 {

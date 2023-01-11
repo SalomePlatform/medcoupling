@@ -23,8 +23,47 @@
 #include "MEDFileMesh.hxx"
 #include "MEDFileMeshLL.hxx"
 #include "MEDLoader.hxx"
+#include "MEDFileField1TS.hxx"
+#include "MEDFileUtilities.hxx"
+#include "MEDFileEntities.hxx"
+#include <iostream>
+#include <fstream>
+
+
+// From MEDLOader.cxx TU
+extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
+
+void getSingleGeometricType(const std::string& fileName, const std::string& mName, INTERP_KERNEL::NormalizedCellType& geoType)
+{
+  int meshDim, spaceDim;
+   mcIdType numberOfNodes;
+   std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
+   std::size_t numberOfTypesMaxDimension = typesDistrib[0].size();
+   if(numberOfTypesMaxDimension != 1)
+     throw INTERP_KERNEL::Exception("ParaMEDFileMesh : only mesh with single geometrical type are supported with given distribution !");
+   geoType = typesDistrib[0][0].first;
+}
+
+void checkDistribution(const MPI_Comm& com, mcIdType totalNumberOfElements, const std::vector<mcIdType>& distrib)
+{
+  mcIdType nbEltsInDistribLoc = distrib.size();
+  mcIdType nbEltsInDistribTot = -1;
+#ifdef HAVE_MPI
+  MPI_Allreduce(&nbEltsInDistribLoc, &nbEltsInDistribTot, 1, MPI_LONG, MPI_SUM, com);
+#else
+      throw INTERP_KERNEL::Exception("not(HAVE_MPI) incompatible with MPI_World_Size>1");
+#endif
+  if(nbEltsInDistribTot != totalNumberOfElements)
+    {
+      if(nbEltsInDistribTot > totalNumberOfElements)
+        throw INTERP_KERNEL::Exception("ParaMEDFileMesh : Some of your partitions overlap each other ! Each element in your distribution vector must appear only once ! ");
+      else
+        throw INTERP_KERNEL::Exception("ParaMEDFileMesh : The distribution does not cover the whole mesh ! Each element of the mesh must appear once in your distribution vector ");
+    }
+}
+
 
 MEDFileMesh *ParaMEDFileMesh::New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
@@ -73,8 +112,29 @@ MEDFileUMesh *ParaMEDFileUMesh::New(int iPart, int nbOfParts, const std::string&
   return ParaMEDFileUMesh::NewPrivate(fid,iPart,nbOfParts,fileName,mName,dt,it,mrs);
 }
 
-// MPI_COMM_WORLD, MPI_INFO_NULL 
-MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+/*!
+ * Opens the given file in parallel so that each processor can load a specific part of the mesh \a mName.
+ * Each processor will load the cells contained in the vector \a distrib (only nodes lying on those cells will be loaded),
+ * in order to read the entire mesh in parallel (memory consumption is thus distributed among all the processes).
+ * \param [in] distrib - map defining for each geometric type, the corresponding vector of cells we want to load with c-type indexing (starting from zero).
+ * Each vector in this map has an independant numerotation, which means on one processor, vectors of different types may contain the same numbers, they will not refer to the same cells
+ * (the i-th cell of a type A does not correspond to the i-th cell of type B)
+ * However they have to differ from one processor to another, as to ensure that:
+ * 1) each processor only loads a unique part of the mesh
+ * 2) the combined distribution vectors cover the entire mesh
+ * \param [in] com - group of MPI processes that will read the file
+ * \param [in] nfo- MPI info object (used to manage MPI routines)
+ * \param [in] filename - name of the file we want to read
+ * \param [in] mName - name of the mesh we want to read
+ * \param [in] dt - order at which to read the mesh
+ * \param [in] it - iteration at which to read the mesh
+ * \param [in] mrs - object used to read additional low-level information
+ * \return MEDFileUMesh* - a new instance of MEDFileUMesh. The
+ *         caller is to delete this mesh using decrRef() as it is no more needed.
+ * \throw exception if the mesh contains multiple types of cells
+ * \throw exception if the partition of the mesh cells defined by \a distrib does not cover the whole mesh
+ */
+MEDFileUMesh *ParaMEDFileUMesh::ParaNew(const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>> &distrib, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
 #ifdef HDF5_IS_PARALLEL
@@ -82,9 +142,60 @@ MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm
 #else
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
 #endif
+  return ParaMEDFileUMesh::NewPrivate(fid,com,distrib,fileName,mName,dt,it,mrs);
+}
+
+
+/*!
+ * Opens the given file in parallel so that each processor can load its part of the mesh \a mName.
+ * The mesh will be equally and linearly distributed among all processes:
+ * the list of cells will be divided into \a nbOfParts slices and only slice \a iPart (cells and nodes lying on those cells) will be loaded by the current processor.
+ * The entire mesh is thus read in parallel and memory consumption is divided among the group of processes.
+ * \param [in] iPart - part of the mesh that will be loaded
+ * \param [in] nbOfParts - total number of parts in which to divide the mesh
+ * \param [in] com - group of MPI processes that will read the file
+ * \param [in] nfo- MPI info object (used to manage MPI routines)
+ * \param [in] filename - name of the file we want to read
+ * \param [in] mName - name of the mesh we want to read
+ * \param [in] dt - Time order at which to read the mesh
+ * \param [in] it - Time iteration at which to read the mesh
+ * \param [in] mrs - object used to read additional low-level information
+ * \return MEDFileUMesh* - a new instance of MEDFileUMesh. The
+ *         caller is to delete this mesh using decrRef() as it is no more needed.
+ */
+MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+#ifdef HDF5_IS_PARALLEL
+  MEDFileUtilities::AutoFid fid(MEDparFileOpen(fileName.c_str(),MED_ACC_RDONLY,com,nfo)); // MPI_COMM_WORLD, MPI_INFO_NULL
+#else
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+#endif
   return ParaMEDFileUMesh::NewPrivate(fid,iPart,nbOfParts,fileName,mName,dt,it,mrs);
 }
 
+/*!
+ * Loads mesh \a mName in parallel using a custom partition of the mesh cells among the processes.
+ * See ParaMEDFileUMesh::ParaNew for detailed description.
+ */
+MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, const MPI_Comm& com, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MCAuto<MEDFileUMesh> ret;
+  for(std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>::const_iterator iter=distrib.begin(); iter!= distrib.end(); iter++)
+    {
+        med_geometry_type geoMedType(typmai3[iter->first /*current geometric type*/]);
+        med_bool changement,transformation;
+        med_int totalNumberOfElements(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
+        checkDistribution(com,totalNumberOfElements,iter->second /*distrib over this geometric type*/);
+    }
+  ret=MEDFileUMesh::LoadPartOfFromUserDistrib(fid,mName,distrib,dt,it,mrs);
+  return ret.retn();
+}
+
+/*!
+ * Loads mesh \a mName in parallel using a slice partition of the mesh cells among the processes
+ * See ParaMEDFileUMesh::ParaNew for detailed description.
+ */
 MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MCAuto<MEDFileUMesh> ret;
@@ -105,6 +216,62 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
   ret=MEDFileUMesh::LoadPartOf(fid,mName,types,distrib,dt,it,mrs);
   return ret.retn();
 }
+
+/*!
+ * Loads field \a fName laying on mesh \a mName from the filename \a fileName in parallel:
+ * each processor will load their portion of the field (ie the portion laying on the cells in the vector \a distrib given in the parameters).
+ * WARNING : this will only load the array of values of the field, additionnal information of the local field such as the number of its tuples might be incorrect
+ * \param [in] com - group of MPI processes that will read the file
+ * \param [in] nfo- MPI info object (used to manage MPI routines)
+ * \param [in] fileName - name of the file containing the field
+ * \param [in] fName - name of the field we want to load
+ * \param [in] mName - name of the mesh on which the field is defined
+ * \param [in] distrib - vector of cells on which we want to load the field \a fName (with c-type indexing, so starting from zero).
+ * \param [in] dt - Time order at which to read the field
+ * \param [in] it - Time iteration at which to read the field
+ * \return MEDFileField1TS* - a new instance of MEDFileField1TS. The
+ *         caller is to delete it using decrRef() as it is no more needed.
+ * \throw exception if the field is not of type FLOAT64
+ * \throw exception if the mesh contains more than one geometric type
+ * \throw exception if the given distribution does not cover the entire mesh on which the field is defined
+ */
+MEDFileField1TS *ParaMEDFileField1TS::ParaNew(const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, int dt, int it)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+#ifdef HDF5_IS_PARALLEL
+  MEDFileUtilities::AutoFid fid(MEDparFileOpen(fileName.c_str(),MED_ACC_RDONLY,com,nfo));
+#else
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+#endif
+  return ParaMEDFileField1TS::NewPrivate(fid,com,fName,mName,distrib,loc,dt,it);
+}
+
+/*!
+ * Loads field \a fName in parallel using a custom partition of the mesh cells on which the field is defined among the processes.
+ * See ParaMEDFileField1TS::ParaNew for detailed description.
+ */
+MEDFileField1TS *ParaMEDFileField1TS::NewPrivate(med_idt fid, const MPI_Comm& com, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, int dt, int it)
+{
+  INTERP_KERNEL::NormalizedCellType geoType;
+  getSingleGeometricType(MEDFileWritable::FileNameFromFID(fid),mName,geoType);
+  if(loc==ON_CELLS) //if distribution is on nodes, no fast way to check it (as a node can be shared by multiple processors)
+    {
+      med_geometry_type geoMedType(typmai3[geoType]);
+      med_bool changement,transformation;
+      med_int totalNumberOfElements(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoMedType,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation));
+      checkDistribution(com,totalNumberOfElements,distrib);
+    }
+  std::vector<std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType>> tmp={ {loc, geoType} };
+  INTERP_KERNEL::AutoCppPtr<MEDFileEntities> entities(MEDFileEntities::BuildFrom(&tmp));
+  MCAuto<MEDFileAnyTypeField1TS> partFile(MEDFileAnyTypeField1TS::NewAdv(fid,fName,dt,it,entities,distrib));
+
+  MCAuto<MEDFileField1TS> ret(MEDCoupling::DynamicCast<MEDFileAnyTypeField1TS,MEDFileField1TS>(partFile));
+  if(ret.isNotNull())
+    return ret.retn();
+  else
+    throw INTERP_KERNEL::Exception("ParaMEDFileField1TS::ParaNew : only FLOAT64 field supported for the moment !");
+}
+
 
 MEDFileMeshes *ParaMEDFileMeshes::New(int iPart, int nbOfParts, const std::string& fileName)
 {

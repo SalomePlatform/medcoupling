@@ -342,6 +342,7 @@ namespace MEDCoupling
   public:
     static MEDFileFieldPerMesh *New(MEDFileAnyTypeField1TSWithoutSDA *fath, const MEDCouplingMesh *mesh);
     static MEDFileFieldPerMesh *NewOnRead(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const MEDFileMesh *mm, const MEDFileEntities *entities);
+    static MEDFileFieldPerMesh *NewOnRead(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const PartDefinition *pd, const MEDFileEntities *entities);
     std::string getClassName() const override { return std::string("MEDFileFieldPerMesh"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -413,6 +414,7 @@ namespace MEDCoupling
                                   std::vector<mcIdType>& code, std::vector<DataArrayIdType *>& notNullPfls);
     static mcIdType ComputeNbOfElems(const MEDFileFieldGlobsReal *glob, TypeOfField type, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector< std::pair<mcIdType,mcIdType> >& dads, const std::vector<int>& locs);
     MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const MEDFileMesh *mm, const MEDFileEntities *entities);
+    MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const PartDefinition *pd, const MEDFileEntities *entities);
     MEDFileFieldPerMesh(MEDFileAnyTypeField1TSWithoutSDA *fath, const MEDCouplingMesh *mesh);
     MEDFileFieldPerMesh(MEDFileAnyTypeField1TSWithoutSDA *fath, const std::string& meshName, int meshIt, int meshOrd):_mesh_iteration(meshIt),_mesh_order(meshOrd),_father(fath) { }
   private:

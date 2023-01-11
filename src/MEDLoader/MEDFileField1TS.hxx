@@ -117,9 +117,11 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void allocNotFromFile(mcIdType newNbOfTuples);
     MEDLOADER_EXPORT bool allocIfNecessaryTheArrayToReceiveDataFromFile();
     MEDLOADER_EXPORT void loadOnlyStructureOfDataRecursively(med_idt fid, const MEDFileFieldNameScope& nasc, const MEDFileMeshes *ms, const MEDFileEntities *entities, const MEDFileCapability *capability = nullptr);
+    MEDLOADER_EXPORT void loadOnlyStructureOfDataRecursively(med_idt fid, const MEDFileFieldNameScope& nasc, const PartDefinition *pd, const MEDFileEntities *entities, const MEDFileCapability *capability = nullptr);
     MEDLOADER_EXPORT void loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc);
     MEDLOADER_EXPORT void loadBigArraysRecursivelyIfNecessary(med_idt fid, const MEDFileFieldNameScope& nasc);
     MEDLOADER_EXPORT void loadStructureAndBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc, const MEDFileMeshes *ms, const MEDFileEntities *entities);
+    MEDLOADER_EXPORT void loadStructureAndBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc, const PartDefinition *pd, const MEDFileEntities *entities);
     MEDLOADER_EXPORT void unloadArrays();
     MEDLOADER_EXPORT void writeLL(med_idt fid, const MEDFileWritable& opts, const MEDFileFieldNameScope& nasc) const;
     MEDLOADER_EXPORT static std::string FieldNameToMEDFileConvention(const std::string& nonCorrectFieldName);
@@ -278,6 +280,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities);
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities);
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities);
+    MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *BuildContentFrom(med_idt fid, const std::string& fieldName, int iteration, int order, const PartDefinition *pd, const MEDFileEntities *entities);
+    MEDLOADER_EXPORT static MEDFileAnyTypeField1TSWithoutSDA *AllocateContentFrom(med_idt fid, const std::string& fieldName, int iteration=-1, int order=-1);
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     // direct forwarding to MEDFileAnyTypeField1TSWithoutSDA instance _content
   public:
@@ -289,6 +293,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TS *New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TS *NewAdv(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileEntities *entities);
     MEDLOADER_EXPORT static MEDFileAnyTypeField1TS *NewAdv(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileEntities *entities);
+    MEDLOADER_EXPORT static MEDFileAnyTypeField1TS *NewAdv(med_idt fid, const std::string& fieldName, int iteration, int order, const MEDFileEntities *entities, const std::vector<mcIdType>& distrib);
+
     MEDLOADER_EXPORT int getDimension() const;
     MEDLOADER_EXPORT int getIteration() const;
     MEDLOADER_EXPORT int getOrder() const;
@@ -374,6 +380,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll=true);
     MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll=true);
     MEDLOADER_EXPORT static typename MLFieldTraits<T>::F1TSType *New(const typename MLFieldTraits<T>::F1TSWSDAType& other, bool shallowCopyOfContent);
+
   public:
     MEDLOADER_EXPORT static typename Traits<T>::ArrayType *ReturnSafelyTypedDataArray(MCAuto<DataArray>& arr);
     MEDLOADER_EXPORT typename Traits<T>::ArrayType *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayIdType *&pfl) const;

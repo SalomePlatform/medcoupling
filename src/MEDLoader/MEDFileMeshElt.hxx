@@ -58,6 +58,8 @@ namespace MEDCoupling
   public:
     static MEDFileUMeshPerType *New(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType geoElt2, MEDFileMeshReadSelector *mrs);
     static MEDFileUMeshPerType *NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, mcIdType strt, mcIdType stp, mcIdType step, MEDFileMeshReadSelector *mrs);
+    static MEDFileUMeshPerType *NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, const std::vector<mcIdType>& distrib, MEDFileMeshReadSelector *mrs);
+
     std::string getClassName() const override { return std::string("MEDFileUMeshPerType"); }
     static bool isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity);
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -72,19 +74,21 @@ namespace MEDCoupling
                         med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPart(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
                   med_entity_type entity, mcIdType strt, mcIdType end, mcIdType step, MEDFileMeshReadSelector *mrs);
+    void loadPart(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
+                  med_entity_type entity, const std::vector<mcIdType>& distrib, MEDFileMeshReadSelector *mrs);
     void loadFromStaticType(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType curNbOfElem, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
                             med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPartStaticType(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType curNbOfElem, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
-                            med_entity_type entity, mcIdType strt, mcIdType end, mcIdType step, MEDFileMeshReadSelector *mrs);
+                            med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPolyg(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType arraySize, med_geometry_type geoElt,
                    med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPolyh(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType connFaceLgth, med_geometry_type geoElt,
                    med_entity_type entity, MEDFileMeshReadSelector *mrs);
-    void loadPartOfCellCommonPart(med_idt fid, const char *mName, mcIdType strt, mcIdType stp, mcIdType step, int dt, int it, int mdim, mcIdType curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
+    void loadPartOfCellCommonPart(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
+
   private:
     MCAuto<MEDCoupling1GTUMesh> _m;
     MCAuto<PartDefinition> _pd;
   };
 }
-
 #endif

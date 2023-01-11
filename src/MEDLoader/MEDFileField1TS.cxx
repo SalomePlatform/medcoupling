@@ -772,6 +772,27 @@ void MEDFileAnyTypeField1TSWithoutSDA::loadOnlyStructureOfDataRecursively(med_id
   _field_per_mesh[0]->loadOnlyStructureOfDataRecursively(fid,_nb_of_tuples_to_be_allocated,nasc);
 }
 
+void MEDFileAnyTypeField1TSWithoutSDA::loadOnlyStructureOfDataRecursively(med_idt fid, const MEDFileFieldNameScope& nasc, const PartDefinition *pd, const MEDFileEntities *entities, const MEDFileCapability *capability)
+{
+  med_int numdt,numit;
+  med_float dt;
+  med_int meshnumdt(-1),meshnumit(-1);
+  MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nasc.getName().c_str(),_csit,&numdt,&numit,&_dt));
+  if(!capability || !capability->isFastReader())
+  {
+    med_bool localMesh;
+    med_int nmesh;
+    INTERP_KERNEL::AutoPtr<char> meshName(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+    MEDFILESAFECALLERRD0(MEDfield23ComputingStepMeshInfo,(fid,nasc.getName().c_str(),_csit,&numdt,&numit,&dt,&nmesh,meshName,&localMesh,&meshnumdt,&meshnumit)); // to check with Adrien for legacy MED files
+  }
+  if(_iteration!=numdt || _order!=numit)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::loadBigArraysRecursively : unexpected exception internal error !");
+  _field_per_mesh.resize(1);
+  _field_per_mesh[0]=MEDFileFieldPerMesh::NewOnRead(fid,this,0,FromMedInt<int>(meshnumdt),FromMedInt<int>(meshnumit),nasc,pd,entities);
+  _nb_of_tuples_to_be_allocated=0;
+  _field_per_mesh[0]->loadOnlyStructureOfDataRecursively(fid,_nb_of_tuples_to_be_allocated,nasc);
+}
+
 void MEDFileAnyTypeField1TSWithoutSDA::loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc)
 {
   allocIfNecessaryTheArrayToReceiveDataFromFile();
@@ -790,6 +811,13 @@ void MEDFileAnyTypeField1TSWithoutSDA::loadStructureAndBigArraysRecursively(med_
 {
   MEDFileCapability cap(fid);
   loadOnlyStructureOfDataRecursively(fid,nasc,ms,entities,&cap);
+  loadBigArraysRecursively(fid,nasc);
+}
+
+void MEDFileAnyTypeField1TSWithoutSDA::loadStructureAndBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc, const PartDefinition *pd, const MEDFileEntities *entities)
+{
+  MEDFileCapability cap(fid);
+  loadOnlyStructureOfDataRecursively(fid,nasc,pd,entities,&cap);
   loadBigArraysRecursively(fid,nasc);
 }
 
@@ -1774,64 +1802,135 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS()
 {
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::AllocateContentFrom(med_idt fid, const std::string& fieldName, int iteration, int order)
 {
-  med_field_type typcha;
-  //
-  std::vector<std::string> infos;
-  std::string dtunit,fieldName,meshName;
-  LocateField2(fid,0,true,fieldName,typcha,infos,dtunit,meshName);
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret;
+  med_field_type typcha;
+  std::vector<std::string> infos;
+  std::string dtunit,meshName;
+  int iii(-1);
+  int nbOfStep2(-1);
+  std::string fName(fieldName);
+  if(fName.empty())
+      LocateField2(fid,0,true,fName,typcha,infos,dtunit,meshName);
+  nbOfStep2=LocateField(fid,fName,iii,typcha,infos,dtunit,meshName);
+  if(nbOfStep2<1)
+    {
+      std::ostringstream oss; oss << "MEDFileField1TS(fid,fName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fName << "\' but there is no time steps on it !";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+
   switch(typcha)
   {
     case MED_FLOAT64:
       {
-        ret=MEDFileField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+        ret=MEDFileField1TSWithoutSDA::New(fName,meshName,-1,iteration,order,std::vector<std::string>());
         break;
       }
     case MED_INT32:
       {
-        ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+        ret=MEDFileInt32Field1TSWithoutSDA::New(fName,meshName,-1,iteration,order,std::vector<std::string>());
         break;
       }
     case MED_INT64:
       {
-        ret=MEDFileInt64Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+        ret=MEDFileInt64Field1TSWithoutSDA::New(fName,meshName,-1,iteration,order,std::vector<std::string>());
         break;
       }
     case MED_FLOAT32:
       {
-        ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+        ret=MEDFileFloatField1TSWithoutSDA::New(fName,meshName,-1,iteration,order,std::vector<std::string>());
         break;
       }
     case MED_INT:
       {
         if(sizeof(med_int)==sizeof(int))
           {
-            ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
+            ret=MEDFileInt32Field1TSWithoutSDA::New(fName,meshName,-1,iteration,order,std::vector<std::string>());
             break;
           }
       }
     default:
       {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of the first field is not in [MED_FLOAT64, MED_FLOAT32, MED_INT32, MED_INT64] !";
+        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::AllocateContentFrom(fid,fName,iteration,order) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32, MED_INT64] !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
   ret->setDtUnit(dtunit.c_str());
   ret->getOrCreateAndGetArray()->setInfoAndChangeNbOfCompo(infos);
-  //
-  med_int numdt,numit;
-  med_float dt;
-  MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,fieldName.c_str(),1,&numdt,&numit,&dt));
-  ret->setTime(FromMedInt<int>(numdt),FromMedInt<int>(numit),dt);
-  ret->_csit=1;
+
+  // searching for timestep given in parameter
+  bool found=false;
+  std::vector< std::pair<int,int> > dtits(nbOfStep2);
+  for(int i=0;i<nbOfStep2 && !found;i++)
+    {
+      med_int numdt,numit;
+      med_float dt;
+      MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,fName.c_str(),i+1,&numdt,&numit,&dt));
+      if (iteration==-1 && order==-1) // either no timestep were given, so we just stop at the first one
+       {
+           found=true;
+           ret->_csit=i+1;
+           ret->setTime(FromMedInt<int>(numdt),FromMedInt<int>(numit),dt);
+       }
+      else if(numdt==iteration && numit==order) // or we found the correct timestep
+        {
+          found=true;
+          ret->_csit=i+1;
+        }
+      else
+        dtits[i]=std::pair<int,int>(numdt,numit);
+    }
+  if(!found)
+    {
+      std::ostringstream oss; oss << "No such iteration (" << iteration << "," << order << ") in existing field '" << fName << "' in file '" << FileNameFromFID(fid) << "' ! Available iterations are : ";
+      for(std::vector< std::pair<int,int> >::const_iterator iter=dtits.begin();iter!=dtits.end();iter++)
+        oss << "(" << (*iter).first << "," << (*iter).second << "), ";
+      throw INTERP_KERNEL::Exception(oss.str());
+    }
+
+  return ret.retn();
+
+}
+
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
+{
+  std::string useless;
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret(AllocateContentFrom(fid,useless));
   if(loadAll)
     ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
   else
     ret->loadOnlyStructureOfDataRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
   return ret.retn();
 }
+
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
+{
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret(AllocateContentFrom(fid,fieldName));
+  if(loadAll)
+    ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
+  else
+    ret->loadOnlyStructureOfDataRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
+  return ret.retn();
+}
+
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
+{
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret(AllocateContentFrom(fid,fieldName,iteration,order));
+  if(loadAll)
+    ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
+  else
+    ret->loadOnlyStructureOfDataRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
+  return ret.retn();
+}
+
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fieldName, int iteration, int order, const PartDefinition *pd, const MEDFileEntities *entities)
+{
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret(AllocateContentFrom(fid,fieldName,iteration,order));
+  ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),pd,entities);
+  return ret.retn();
+}
+
 
 MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
 try:MEDFileFieldGlobsReal(fid)
@@ -1844,79 +1943,21 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
-{
-  med_field_type typcha;
-  std::vector<std::string> infos;
-  std::string dtunit,meshName;
-  int nbSteps(0);
-  {
-    int iii=-1;
-    nbSteps=LocateField(fid,fieldName,iii,typcha,infos,dtunit,meshName);
-  }
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret;
-  switch(typcha)
-  {
-    case MED_FLOAT64:
-      {
-        ret=MEDFileField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
-        break;
-      }
-    case MED_INT32:
-      {
-        ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
-        break;
-      }
-    case MED_INT64:
-      {
-        ret=MEDFileInt64Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
-        break;
-      }
-    case MED_FLOAT32:
-      {
-        ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
-        break;
-      }
-    case MED_INT:
-      {
-        if(sizeof(med_int)==sizeof(int))
-          {
-            ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,-1/*iteration*/,-1/*order*/,std::vector<std::string>());
-            break;
-          }
-      }
-    default:
-      {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32, MED_INT64] !";
-        throw INTERP_KERNEL::Exception(oss.str());
-      }
-  }
-  ret->setMeshName(meshName);
-  ret->setDtUnit(dtunit.c_str());
-  ret->getOrCreateAndGetArray()->setInfoAndChangeNbOfCompo(infos);
-  //
-  if(nbSteps<1)
-    {
-      std::ostringstream oss; oss << "MEDFileField1TS(fid,fieldName) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but there is no time steps on it !";
-      throw INTERP_KERNEL::Exception(oss.str());
-    }
-  //
-  med_int numdt,numit;
-  med_float dt;
-  MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,fieldName.c_str(),1,&numdt,&numit,&dt));
-  ret->setTime(FromMedInt<int>(numdt),FromMedInt<int>(numit),dt);
-  ret->_csit=1;
-  if(loadAll)
-    ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
-  else
-    ret->loadOnlyStructureOfDataRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
-  return ret.retn();
-}
-
 MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
 try:MEDFileFieldGlobsReal(fid)
 {
   _content=BuildContentFrom(fid,fieldName,loadAll,ms,entities);
+  loadGlobals(fid);
+}
+catch(INTERP_KERNEL::Exception& e)
+{
+    throw e;
+}
+
+MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
+try:MEDFileFieldGlobsReal(fid)
+{
+  _content=BuildContentFrom(fid,fieldName,iteration,order,loadAll,ms,entities);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -1976,6 +2017,7 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(med_idt fid, bool loadAll)
   return ret.retn();
 }
 
+
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
@@ -1998,7 +2040,7 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName,
 
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,iteration,order,loadAll,0,0));
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,iteration,order,loadAll,(const MEDFileMeshes *)0,0));
   MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fid));
   ret->loadGlobals(fid);
   return ret.retn();
@@ -2012,98 +2054,24 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::NewAdv(const std::string& fileNa
 
 MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::NewAdv(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileEntities *entities)
 {
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,iteration,order,loadAll,0,entities));
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,iteration,order,loadAll,(const MEDFileMeshes *)0,entities));
   MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fid));
   ret->loadGlobals(fid);
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
+
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::NewAdv(med_idt fid, const std::string& fieldName, int iteration, int order, const MEDFileEntities *entities, const std::vector<mcIdType>& distrib)
 {
-  med_field_type typcha;
-  std::vector<std::string> infos;
-  std::string dtunit,meshName;
-  int iii(-1);
-  int nbOfStep2(LocateField(fid,fieldName,iii,typcha,infos,dtunit,meshName));
-  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> ret;
-  switch(typcha)
-  {
-    case MED_FLOAT64:
-      {
-        ret=MEDFileField1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
-        break;
-      }
-    case MED_INT32:
-      {
-        ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
-        break;
-      }
-    case MED_INT64:
-      {
-        ret=MEDFileInt64Field1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
-        break;
-      }
-    case MED_FLOAT32:
-      {
-        ret=MEDFileFloatField1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
-        break;
-      }
-    case MED_INT:
-      {
-        if(sizeof(med_int)==sizeof(int))
-          {
-            ret=MEDFileInt32Field1TSWithoutSDA::New(fieldName,meshName,-1,iteration,order,std::vector<std::string>());
-            break;
-          }
-      }
-    default:
-      {
-        std::ostringstream oss; oss << "MEDFileAnyTypeField1TS::BuildContentFrom(fid,fieldName,iteration,order) : file \'" << FileNameFromFID(fid) << "\' contains field with name \'" << fieldName << "\' but the type of field is not in [MED_FLOAT64, MED_INT32, MED_FLOAT32, MED_INT64] !";
-        throw INTERP_KERNEL::Exception(oss.str());
-      }
-  }
-  ret->setDtUnit(dtunit.c_str());
-  ret->getOrCreateAndGetArray()->setInfoAndChangeNbOfCompo(infos);
-  //
-  bool found=false;
-  std::vector< std::pair<int,int> > dtits(nbOfStep2);
-  for(int i=0;i<nbOfStep2 && !found;i++)
-    {
-      med_int numdt,numit;
-      med_float dt;
-      MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,fieldName.c_str(),i+1,&numdt,&numit,&dt));
-      if(numdt==iteration && numit==order)
-        {
-          found=true;
-          ret->_csit=i+1;
-        }
-      else
-        dtits[i]=std::pair<int,int>(numdt,numit);
-    }
-  if(!found)
-    {
-      std::ostringstream oss; oss << "No such iteration (" << iteration << "," << order << ") in existing field '" << fieldName << "' in file '" << FileNameFromFID(fid) << "' ! Available iterations are : ";
-      for(std::vector< std::pair<int,int> >::const_iterator iter=dtits.begin();iter!=dtits.end();iter++)
-        oss << "(" << (*iter).first << "," << (*iter).second << "), ";
-      throw INTERP_KERNEL::Exception(oss.str());
-    }
-  if(loadAll)
-    ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
-  else
-    ret->loadOnlyStructureOfDataRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret),ms,entities);
+  MCAuto<DataArrayIdType> listOfIds=DataArrayIdType::New();
+  listOfIds->useArray(distrib.data(),false,DeallocType::C_DEALLOC,distrib.size(),1);
+  MCAuto<PartDefinition> pd=PartDefinition::New(listOfIds);
+  MCAuto<MEDFileAnyTypeField1TSWithoutSDA> c(BuildContentFrom(fid,fieldName,iteration,order,pd,entities));
+  MCAuto<MEDFileAnyTypeField1TS> ret(BuildNewInstanceFromContent(c,fid));
+  ret->loadGlobals(fid);
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
-try:MEDFileFieldGlobsReal(fid)
-{
-  _content=BuildContentFrom(fid,fieldName,iteration,order,loadAll,ms,entities);
-  loadGlobals(fid);
-}
-catch(INTERP_KERNEL::Exception& e)
-{
-    throw e;
-}
 
 /*!
  * This constructor is a shallow copy constructor. If \a shallowCopyOfContent is true the content of \a other is shallow copied.

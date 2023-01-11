@@ -26,6 +26,11 @@
 #include "mpi.h"
 
 #include <string>
+#include <vector>
+#include <map>
+#include "MCIdType.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "NormalizedGeometricTypes"
 
 namespace MEDCoupling
 {
@@ -33,6 +38,7 @@ namespace MEDCoupling
   class MEDFileUMesh;
   class MEDFileMeshes;
   class MEDFileMeshReadSelector;
+  class MEDFileField1TS;
 
   class ParaMEDFileMesh
   {
@@ -46,9 +52,13 @@ namespace MEDCoupling
   public:
     static MEDFileUMesh *New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     static MEDFileUMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileUMesh *ParaNew(const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>&, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+
   private:
     static MEDFileUMesh *NewPrivate(med_idt fid, int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
+    static MEDFileUMesh *NewPrivate(med_idt fid, const MPI_Comm& com, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>&, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
   };
+
 
   class ParaMEDFileMeshes
   {
@@ -56,6 +66,16 @@ namespace MEDCoupling
     static MEDFileMeshes *New(int iPart, int nbOfParts, const std::string& fileName);
     static MEDFileMeshes *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName);
   };
+
+  class ParaMEDFileField1TS
+  {
+  public:
+      static MEDFileField1TS *ParaNew(const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, int dt=-1, int it=-1);
+  private:
+      static MEDFileField1TS *NewPrivate(med_idt fid, const MPI_Comm& com, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, int dt, int it);
+
+  };
+
 }
 
 #endif

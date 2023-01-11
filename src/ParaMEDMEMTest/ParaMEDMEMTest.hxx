@@ -85,6 +85,11 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testFabienAPI1);       // 3 procs
   CPPUNIT_TEST(testFabienAPI2);       // 3 procs
 
+  CPPUNIT_TEST(testParallelLoad1);   // 2 procs
+  CPPUNIT_TEST(testParallelLoad2);   // 3 procs
+  CPPUNIT_TEST(testParallelLoad3);   // 2 procs
+  CPPUNIT_TEST(testParallelLoad4);   // 2 procs
+  CPPUNIT_TEST(testParallelLoad5);   // 2 procs
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -148,6 +153,12 @@ public:
   void testFabienAPI1();
   void testFabienAPI2();
 
+  void testParallelLoad1();
+  void testParallelLoad2();
+  void testParallelLoad3();
+  void testParallelLoad4();
+  void testParallelLoad5();
+
   std::string getTmpDirectory();
   std::string makeTmpFile( const std::string&, const std::string& = "" );
 
@@ -166,6 +177,8 @@ private:
   void testInterpKernelDEC2_2D_(const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC_3D_(const char *srcMeth, const char *targetMeth);
   void testGauthier3_GEN(bool, int);
+
+
 };
 
 // to automatically remove temporary files from disk
