@@ -4944,8 +4944,9 @@ struct NotInRange
     this->checkAllocated();
     constexpr char MSG1[] = "DataArrayInt::locateComponentId : single component array expected";
     valToSearchIntoTuples->checkNbOfComps(1,MSG1); tupleIdHint->checkNbOfComps(1,MSG1);
-    auto nbOfCompo( this->getNumberOfComponents() ),thisNbTuples( this->getNumberOfTuples() );
-    auto nbOfTuples( valToSearchIntoTuples->getNumberOfTuples() );
+    std::size_t nbOfCompo( this->getNumberOfComponents() );
+    mcIdType thisNbTuples( this->getNumberOfTuples() );
+    mcIdType nbOfTuples( valToSearchIntoTuples->getNumberOfTuples() );
     tupleIdHint->checkNbOfTuples(nbOfTuples,"Number of tuples of input arrays must be the same.");
     const T *cPtr(this->begin()),*valSearchPt(valToSearchIntoTuples->begin());
     const mcIdType *tHintPtr(tupleIdHint->begin());

@@ -27,7 +27,7 @@
 #include "DiameterCalculator.hxx"
 #include "OrientationInverter.hxx"
 #include "InterpKernelAutoPtr.hxx"
-#include "VolSurfUser.cxx"
+#include "VolSurfUser.txx"
 
 using namespace MEDCoupling;
 

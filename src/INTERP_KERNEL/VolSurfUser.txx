@@ -23,6 +23,7 @@
 #include "VolSurfUser.hxx"
 #include "VolSurfFormulae.hxx"
 #include "InterpolationUtils.hxx"
+#include "VectorUtils.hxx"
 
 #include <algorithm>
 
@@ -433,6 +434,17 @@ namespace INTERP_KERNEL
     if(spaceDim==1)
       return computeBarycenter<ConnType,numPolConn,1>(type,connec,lgth,coords,res);
     throw INTERP_KERNEL::Exception("Invalid spaceDim specified for compute barycenter : must be 1, 2 or 3");
+  }
+
+  template<int SPACEDIM>
+  void ComputeTriangleHeight(const double *PA, const double *PB, const double *PC, double *res)
+  {
+    double AB = getDistanceBtw2Pts<SPACEDIM>(PA,PB);
+    double BC = getDistanceBtw2Pts<SPACEDIM>(PB,PC);
+    double CA = getDistanceBtw2Pts<SPACEDIM>(PC,PA);
+    double perim( (AB+BC+CA)*0.5 );
+    double num( 2*sqrt(perim*(perim-AB)*(perim-BC)*(perim-CA)) );
+    res[0] = num/AB; res[1] = num/BC; res[2] = num/CA;
   }
 }
 
