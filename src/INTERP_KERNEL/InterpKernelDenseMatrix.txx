@@ -20,6 +20,7 @@
 #pragma once
 
 #include "InterpKernelDenseMatrix.hxx"
+#include "InterpKernelException.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -137,5 +138,23 @@ namespace INTERP_KERNEL
       delete[] (v[0]);
       delete[] (v);
     }
+  }
+
+  template<class T>
+  T Determinant22(const T *m)
+  { return m[0]*m[3]-m[1]*m[2]; }
+
+  template<class T>
+  T Determinant33(const T *m)
+  { return m[0]*(m[4]*m[8]-m[7]*m[5])-m[1]*(m[3]*m[8]-m[6]*m[5])+m[2]*(m[3]*m[7]-m[6]*m[4]);}
+  
+  template <class T>
+  T DenseMatrixT<T>::determinant() const
+  {
+    if(nn==2 && mm==2)
+      return Determinant22(v[0]);
+    if(nn==3 && mm==3)
+      return Determinant33(v[0]);
+    THROW_IK_EXCEPTION("DenseMatrixT::determinant : only 2x2 and 3x3 implemented !");
   }
 }

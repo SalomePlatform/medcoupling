@@ -62,7 +62,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const std::vector<double>& getGaussCoords() const { return _gauss_coord; }
     MEDCOUPLING_EXPORT double getGaussCoord(int gaussPtIdInCell, int comp) const;
     MEDCOUPLING_EXPORT const std::vector<double>& getWeights() const { return _weight; }
-    MEDCOUPLING_EXPORT double getWeight(int gaussPtIdInCell, double newVal) const;
+    MEDCOUPLING_EXPORT double getWeight(int gaussPtIdInCell) const;
     MEDCOUPLING_EXPORT void setRefCoord(int ptIdInCell, int comp, double newVal);
     MEDCOUPLING_EXPORT void setGaussCoord(int gaussPtIdInCell, int comp, double newVal);
     MEDCOUPLING_EXPORT void setWeight(int gaussPtIdInCell, double newVal);

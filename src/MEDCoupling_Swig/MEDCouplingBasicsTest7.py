@@ -1119,6 +1119,41 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             delta_Z.abs()
             self.assertTrue(delta_Z.findIdsNotInRange(-1e-5,+1e-5).empty())
 
+        # 2D cells
+        vec = [0.64,0.2]
+
+        for gt in [NORM_QUAD8,NORM_QUAD4,NORM_TRI3,NORM_TRI6]:
+            ref_coord = [list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()]
+
+            der_computed = GetDerivative(ref_coord,vec)
+            der_computed.rearrange(2)
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0]+eps,vec[1]])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_X = der_computed[:,0]-der_deduced
+            delta_X.abs()
+            self.assertTrue(delta_X.findIdsNotInRange(-1e-5,+1e-5).empty())
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0],vec[1]+eps])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_Y = der_computed[:,1]-der_deduced
+            delta_Y.abs()
+            self.assertTrue(delta_Y.findIdsNotInRange(-1e-5,+1e-5).empty())
+
+        # B version of TRI6, QUAD4 and QUAD8
+        for gt,ref_coord in [(NORM_TRI6,[[0., 0.], [1., 0.], [0., 1.], [0.5, 0.], [0.5, 0.5], [0., 0.5]]),
+            (NORM_QUAD4,[[-1., -1.], [1., -1.], [1., 1.], [-1., 1.]]),(NORM_QUAD8,[[-1., -1.], [1., -1.], [1., 1.], [-1., 1.], [0., -1.], [1., 0.], [0., 1.], [-1., 0.]])]:
+            der_computed = GetDerivative(ref_coord,vec)
+            der_computed.rearrange(2)
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0]+eps,vec[1]])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_X = der_computed[:,0]-der_deduced
+            delta_X.abs()
+            self.assertTrue(delta_X.findIdsNotInRange(-1e-5,+1e-5).empty())
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0],vec[1]+eps])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_Y = der_computed[:,1]-der_deduced
+            delta_Y.abs()
+            self.assertTrue(delta_Y.findIdsNotInRange(-1e-5,+1e-5).empty())
+
     def testComputeTriangleHeight0(self):
         arr = DataArrayDouble([0,1])
         m = MEDCouplingCMesh() ; m.setCoords(arr,arr)

@@ -47,6 +47,7 @@ namespace INTERP_KERNEL
     void resize(mcIdType newn, mcIdType newm);
     void assign(mcIdType newn, mcIdType newm, const T &a);
     ~DenseMatrixT();
+    T determinant() const;
   };
 
   using DenseMatrix = DenseMatrixT<double>;

@@ -30,6 +30,7 @@
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelGaussCoords.hxx"
 #include "InterpKernelMatrixTools.hxx"
+#include "InterpKernelDenseMatrix.hxx"
 
 #include <set>
 #include <list>
@@ -1711,8 +1712,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : mesh instance specified is NULL !");
-  MCAuto<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isAbs);
-  const double *volPtr=vol->getArray()->begin();
+  MCAuto<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
+  const double *coordsOfMesh( umesh->getCoords()->begin() );
+  auto spaceDim(mesh->getSpaceDimension());
+  if( spaceDim != mesh->getMeshDimension())
+    THROW_IK_EXCEPTION("MEDCouplingFieldDiscretizationGauss::getMeasureField : only implemented when space dimension and mesh dimension are equal !");
   MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_GAUSS_PT);
   ret->setMesh(mesh);
   ret->setDiscretization(const_cast<MEDCouplingFieldDiscretizationGauss *>(this));
@@ -1721,7 +1725,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
   _discr_per_cell->checkAllocated();
   if(_discr_per_cell->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : no discr per cell array defined but with nb of components different from 1 !");
-  if(_discr_per_cell->getNumberOfTuples()!=vol->getNumberOfTuples())
+  if(_discr_per_cell->getNumberOfTuples()!=mesh->getNumberOfCells())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : no discr per cell array defined but mismatch between nb of cells of mesh and size of spatial disr array !");
   MCAuto<DataArrayIdType> offset=getOffsetArr(mesh);
   MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); arr->alloc(getNumberOfTuples(mesh),1);
@@ -1741,11 +1745,28 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
           const MEDCouplingGaussLocalization& loc=_loc[locId];
           mcIdType nbOfGaussPt=loc.getNumberOfGaussPt();
           INTERP_KERNEL::AutoPtr<double> weights=new double[nbOfGaussPt];
-          double sum=std::accumulate(loc.getWeights().begin(),loc.getWeights().end(),0.);
-          std::transform(loc.getWeights().begin(),loc.getWeights().end(),(double *)weights,std::bind(std::multiplies<double>(),std::placeholders::_1,1./sum));
           for(const mcIdType *cellId=curIds->begin();cellId!=curIds->end();cellId++)
-            for(mcIdType j=0;j<nbOfGaussPt;j++)
-              arrPtr[offsetPtr[*cellId]+j]=weights[j]*volPtr[*cellId];
+          {
+            std::vector<mcIdType> conn;
+            umesh->getNodeIdsOfCell(*cellId,conn);
+            std::vector<double> ptsInCell; ptsInCell.reserve(conn.size()*loc.getDimension());
+            std::for_each( conn.cbegin(), conn.cend(), [spaceDim,coordsOfMesh,&ptsInCell](mcIdType c) { ptsInCell.insert(ptsInCell.end(),coordsOfMesh+c*spaceDim,coordsOfMesh+(c+1)*spaceDim); } );
+            std::size_t nbPtsInCell(ptsInCell.size()/spaceDim);
+            INTERP_KERNEL::DenseMatrix jacobian(spaceDim,spaceDim);
+            MCAuto<DataArrayDouble> shapeFunc = loc.getDerivativeOfShapeFunctionValues();
+            for(mcIdType iGPt = 0 ; iGPt < nbOfGaussPt ; ++iGPt)
+            {
+              for(auto i = 0 ; i < spaceDim ; ++i)
+                for(auto j = 0 ; j < spaceDim ; ++j)
+                {
+                  double res = 0.0;
+                  for( std::size_t k = 0 ; k < nbPtsInCell ; ++k )
+                    res += ptsInCell[spaceDim*k+i] * shapeFunc->getIJ(iGPt,spaceDim*k+j);
+                  jacobian[ i ][ j ] = res;
+                }
+              arrPtr[offsetPtr[*cellId]+iGPt]=std::abs( jacobian.determinant() )*loc.getWeight(FromIdType<int>(iGPt));
+            }
+          }
         }
       else
         {

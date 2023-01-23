@@ -1289,7 +1289,7 @@ namespace MEDCoupling
     const std::vector<double>& getGaussCoords() const;
     double getGaussCoord(int gaussPtIdInCell, int comp) const;
     const std::vector<double>& getWeights() const;
-    double getWeight(int gaussPtIdInCell, double newVal) const;
+    double getWeight(int gaussPtIdInCell) const;
     void setRefCoord(int ptIdInCell, int comp, double newVal);
     void setGaussCoord(int gaussPtIdInCell, int comp, double newVal);
     void setWeight(int gaussPtIdInCell, double newVal);

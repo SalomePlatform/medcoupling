@@ -143,7 +143,7 @@ double MEDCouplingGaussLocalization::getGaussCoord(int gaussPtIdInCell, int comp
   return _gauss_coord[gaussPtIdInCell*dim+comp];
 }
 
-double MEDCouplingGaussLocalization::getWeight(int gaussPtIdInCell, double newVal) const
+double MEDCouplingGaussLocalization::getWeight(int gaussPtIdInCell) const
 {
   checkCoherencyOfRequest(gaussPtIdInCell,0);
   return _weight[gaussPtIdInCell];
