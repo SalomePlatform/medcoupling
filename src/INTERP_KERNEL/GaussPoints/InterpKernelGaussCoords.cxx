@@ -848,6 +848,14 @@ void GaussInfo::seg2aInit()
   funValue[0] = 0.5*(1.0 - gc[0]);
   funValue[1] = 0.5*(1.0 + gc[0]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+
+  devFunValue[0] = -0.5;
+
+  devFunValue[1] = 0.5;
+
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 void GaussInfo::seg2bInit() 
@@ -865,6 +873,14 @@ void GaussInfo::seg2bInit()
   funValue[0] = 1.0 - gc[0];
   funValue[1] = gc[0];
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+
+  devFunValue[0] = -1.0 ;
+
+  devFunValue[1] = 1.0 ;
+
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!

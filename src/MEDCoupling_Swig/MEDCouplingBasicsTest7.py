@@ -1175,6 +1175,36 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue( ret.isEqual(DataArrayInt([1, 1, 0, 1, 2, 1, 0, 1, 2]) ) )
         pass
 
+    def testMeasureOnGaussPtMeshDimNotEqualSpaceDim0(self):
+        """
+        [EDF26877] : This test focuses on computation of measure field on field on Gauss Point in the special case where SpaceDim
+        are not eqaul to the meshDim.
+        """
+        seg2 = MEDCouplingUMesh("mesh",1)
+        seg2.setCoords(DataArrayDouble([(3,3),(4,4)]))
+        seg2.allocateCells()
+        seg2.insertNextCell(NORM_SEG2,[0,1])
+        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH1RB") ; fff.setNature(IntensiveMaximum)
+        fff.setMesh(seg2)
+        fff.setGaussLocalizationOnCells([0], [0.,1.], [0.333333333333333], [1.0])
+        disc = fff.getDiscretization()
+        # spaceDim = 2 meshDim = 1
+        self.assertTrue( disc.getMeasureField(seg2,True).getArray().isEqual(DataArrayDouble([sqrt(2.0)]),1e-10) )
+        # spaceDim = 3 meshDim = 1
+        seg2.setCoords(DataArrayDouble([(3,3,3),(4,4,4)]))
+        self.assertTrue( disc.getMeasureField(seg2,True).getArray().isEqual(DataArrayDouble([sqrt(3.0)]),1e-10) )
+        # spaceDim = 3 meshDim = 2
+        tri = MEDCouplingUMesh("mesh",2)
+        tri.setCoords( DataArrayDouble([(0,0,0),(1,1,0),(2,2,2)]) )
+        tri.allocateCells()
+        tri.insertNextCell(NORM_TRI3,[0,1,2])
+        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH1RB") ; fff.setNature(IntensiveMaximum)
+        fff.setMesh(tri)
+        fff.setGaussLocalizationOnCells(list(range(0, 1)), [0., 0., 1., 0., 0., 1.], [0.3333333333333333, 0.3333333333333333], [0.5])
+        disc = fff.getDiscretization()
+        self.assertTrue( disc.getMeasureField(tri,True).getArray().isEqual( tri.getMeasureField(True).getArray(), 1e-10) )
+        pass
+
     pass
 
 if __name__ == '__main__':

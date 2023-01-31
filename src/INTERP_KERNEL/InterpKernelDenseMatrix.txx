@@ -21,6 +21,9 @@
 
 #include "InterpKernelDenseMatrix.hxx"
 #include "InterpKernelException.hxx"
+#include "VectorUtils.hxx"
+
+#include <cmath>
 
 namespace INTERP_KERNEL
 {
@@ -151,10 +154,33 @@ namespace INTERP_KERNEL
   template <class T>
   T DenseMatrixT<T>::determinant() const
   {
+    if(nn==1 && mm==1)
+      return v[0][0];
     if(nn==2 && mm==2)
       return Determinant22(v[0]);
     if(nn==3 && mm==3)
       return Determinant33(v[0]);
-    THROW_IK_EXCEPTION("DenseMatrixT::determinant : only 2x2 and 3x3 implemented !");
+    THROW_IK_EXCEPTION("DenseMatrixT::determinant : only 1x1, 2x2 and 3x3 implemented !");
+  }
+  
+  template <class T>
+  T DenseMatrixT<T>::toJacobian() const
+  {
+    if(nn == mm)
+      return determinant();
+    const T *vPtr(this->v[0]);
+    if(nn==3 && mm==1)
+      return norm(vPtr);
+    if(nn==2 && mm==1)
+      return std::sqrt(vPtr[0]*vPtr[0] + vPtr[1]*vPtr[1]);
+    if(nn==3 && mm==2)
+    {
+      T tmp[3];
+      T VA[3] = {v[0][0],v[1][0],v[2][0]};
+      T VB[3] = {v[0][1],v[1][1],v[2][1]};
+      cross(VA,VB,tmp);
+      return norm(tmp);
+    }
+    THROW_IK_EXCEPTION("DenseMatrixT::toJacobian : only 1x1, 2x1, 3x1, 3x2, 2x2 and 3x3 implemented !");
   }
 }

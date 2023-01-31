@@ -1715,8 +1715,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
   MCAuto<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
   const double *coordsOfMesh( umesh->getCoords()->begin() );
   auto spaceDim(mesh->getSpaceDimension());
-  if( spaceDim != mesh->getMeshDimension())
-    THROW_IK_EXCEPTION("MEDCouplingFieldDiscretizationGauss::getMeasureField : only implemented when space dimension and mesh dimension are equal !");
+  auto meshDim(mesh->getMeshDimension());
   MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_GAUSS_PT);
   ret->setMesh(mesh);
   ret->setDiscretization(const_cast<MEDCouplingFieldDiscretizationGauss *>(this));
@@ -1752,19 +1751,19 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
             std::vector<double> ptsInCell; ptsInCell.reserve(conn.size()*loc.getDimension());
             std::for_each( conn.cbegin(), conn.cend(), [spaceDim,coordsOfMesh,&ptsInCell](mcIdType c) { ptsInCell.insert(ptsInCell.end(),coordsOfMesh+c*spaceDim,coordsOfMesh+(c+1)*spaceDim); } );
             std::size_t nbPtsInCell(ptsInCell.size()/spaceDim);
-            INTERP_KERNEL::DenseMatrix jacobian(spaceDim,spaceDim);
+            INTERP_KERNEL::DenseMatrix jacobian(spaceDim,meshDim);
             MCAuto<DataArrayDouble> shapeFunc = loc.getDerivativeOfShapeFunctionValues();
             for(mcIdType iGPt = 0 ; iGPt < nbOfGaussPt ; ++iGPt)
             {
               for(auto i = 0 ; i < spaceDim ; ++i)
-                for(auto j = 0 ; j < spaceDim ; ++j)
+                for(auto j = 0 ; j < meshDim ; ++j)
                 {
                   double res = 0.0;
                   for( std::size_t k = 0 ; k < nbPtsInCell ; ++k )
-                    res += ptsInCell[spaceDim*k+i] * shapeFunc->getIJ(iGPt,spaceDim*k+j);
+                    res += ptsInCell[spaceDim*k+i] * shapeFunc->getIJ(iGPt,meshDim*k+j);
                   jacobian[ i ][ j ] = res;
                 }
-              arrPtr[offsetPtr[*cellId]+iGPt]=std::abs( jacobian.determinant() )*loc.getWeight(FromIdType<int>(iGPt));
+              arrPtr[offsetPtr[*cellId]+iGPt]=std::abs( jacobian.toJacobian() )*loc.getWeight(FromIdType<int>(iGPt));
             }
           }
         }

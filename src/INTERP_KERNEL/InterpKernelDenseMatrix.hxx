@@ -48,6 +48,7 @@ namespace INTERP_KERNEL
     void assign(mcIdType newn, mcIdType newm, const T &a);
     ~DenseMatrixT();
     T determinant() const;
+    T toJacobian() const;
   };
 
   using DenseMatrix = DenseMatrixT<double>;
