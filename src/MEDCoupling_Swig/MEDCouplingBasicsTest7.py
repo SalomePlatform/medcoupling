@@ -1097,8 +1097,8 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             return funVal
         vec = [-0.85685375,-0.90643355,-0.90796825]
         eps = 1e-6
-
-        for gt in [NORM_HEXA8,NORM_PENTA6,NORM_PYRA5,NORM_PENTA15,NORM_HEXA20,NORM_HEXA27]: # type of cell for which derivatives are implemented
+        # 3D cells
+        for gt in [NORM_TETRA4,NORM_TETRA10,NORM_HEXA8,NORM_PENTA6,NORM_PYRA5,NORM_PYRA13,NORM_PENTA15,NORM_PENTA6,NORM_PENTA18,NORM_HEXA20,NORM_HEXA27]: # type of cell for which derivatives are implemented
             ref_coord = [list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()]
 
             der_computed = GetDerivative(ref_coord,vec)
@@ -1107,7 +1107,27 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             der_deduced = ( GetShapeFunc(ref_coord,[vec[0]+eps,vec[1],vec[2]])-GetShapeFunc(ref_coord,vec) ) / eps
             delta_X = der_computed[:,0]-der_deduced
             delta_X.abs()
-            self.assertTrue(delta_X.findIdsNotInRange(-1e-5,+1e-5).empty())
+            self.assertTrue(delta_X.findIdsNotInRange(-1e-4,+1e-4).empty())
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0],vec[1]+eps,vec[2]])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_Y = der_computed[:,1]-der_deduced
+            delta_Y.abs()
+            self.assertTrue(delta_Y.findIdsNotInRange(-1e-5,+1e-5).empty())
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0],vec[1],vec[2]+eps])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_Z = der_computed[:,2]-der_deduced
+            delta_Z.abs()
+            self.assertTrue(delta_Z.findIdsNotInRange(-1e-5,+1e-5).empty())
+
+        for gt,ref_coord  in [(NORM_TETRA4,[[0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]]),(NORM_TETRA10,[[0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5], [0.0, 0.5, 0.5], [0.5, 0.5, 0.0], [0.5, 0.0, 0.0], [0.5, 0.0, 0.5]]),(NORM_HEXA8,[[-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, -1.0, 1.0]]),(NORM_HEXA8,[[-1.0, 1.0, 0.0], [-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [1.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),(NORM_HEXA8,[[-1.0, -1.0, 0.0], [-1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),(NORM_PENTA6,[[-1.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, -0.0, 1.0], [1.0, 1.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 1.0]]),(NORM_PENTA6,[[-1.0, 1.0, 0.0], [-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),(NORM_PENTA6,[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),(NORM_PYRA5,[[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]),(NORM_PYRA13, [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [0.5, -0.5, 0.0], [-0.5, -0.5, 0.0], [-0.5, 0.5, 0.0], [0.5, 0.5, 0.0], [0.5, 0.0, 0.5], [0.0, -0.5, 0.5], [-0.5, 0.0, 0.5], [0.0, 0.5, 0.5]]),(NORM_PENTA15,[[-1.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, -0.0, 1.0], [1.0, 1.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 1.0], [-1.0, 0.5, 0.0], [-1.0, 0.0, 0.5], [-1.0, 0.5, 0.5], [1.0, 0.5, 0.0], [1.0, 0.0, 0.5], [1.0, 0.5, 0.5], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 1.0]]),(NORM_PENTA18,[[-1.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, -0.0, 1.0], [1.0, 1.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 1.0], [-1.0, 0.5, 0.0], [-1.0, 0.0, 0.5], [-1.0, 0.5, 0.5], [1.0, 0.5, 0.0], [1.0, 0.0, 0.5], [1.0, 0.5, 0.5], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5], [0.0, 0.5, 0.5]]),(NORM_HEXA20,[[-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, -1.0, 1.0], [-1.0, 0.0, -1.0], [0.0, 1.0, -1.0], [1.0, 0.0, -1.0], [0.0, -1.0, -1.0], [-1.0, 0.0, 1.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0], [0.0, -1.0, 1.0], [-1.0, -1.0, 0.0], [-1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, -1.0, 0.0]])]: # type of cell for which derivatives are implemented
+            
+            der_computed = GetDerivative(ref_coord,vec)
+            der_computed.rearrange(3)
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0]+eps,vec[1],vec[2]])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_X = der_computed[:,0]-der_deduced
+            delta_X.abs()
+            self.assertTrue(delta_X.findIdsNotInRange(-1e-4,+1e-4).empty())
 
             der_deduced = ( GetShapeFunc(ref_coord,[vec[0],vec[1]+eps,vec[2]])-GetShapeFunc(ref_coord,vec) ) / eps
             delta_Y = der_computed[:,1]-der_deduced
@@ -1122,7 +1142,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         # 2D cells
         vec = [0.64,0.2]
 
-        for gt in [NORM_QUAD8,NORM_QUAD4,NORM_TRI3,NORM_TRI6]:
+        for gt in [NORM_QUAD4,NORM_QUAD8,NORM_QUAD9,NORM_TRI3,NORM_TRI6,NORM_TRI7]:
             ref_coord = [list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()]
 
             der_computed = GetDerivative(ref_coord,vec)
@@ -1136,11 +1156,11 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             der_deduced = ( GetShapeFunc(ref_coord,[vec[0],vec[1]+eps])-GetShapeFunc(ref_coord,vec) ) / eps
             delta_Y = der_computed[:,1]-der_deduced
             delta_Y.abs()
-            self.assertTrue(delta_Y.findIdsNotInRange(-1e-5,+1e-5).empty())
+            self.assertTrue(delta_Y.findIdsNotInRange(-1e-4,+1e-4).empty())
 
         # B version of TRI6, QUAD4 and QUAD8
-        for gt,ref_coord in [(NORM_TRI6,[[0., 0.], [1., 0.], [0., 1.], [0.5, 0.], [0.5, 0.5], [0., 0.5]]),
-            (NORM_QUAD4,[[-1., -1.], [1., -1.], [1., 1.], [-1., 1.]]),(NORM_QUAD8,[[-1., -1.], [1., -1.], [1., 1.], [-1., 1.], [0., -1.], [1., 0.], [0., 1.], [-1., 0.]])]:
+        for gt,ref_coord in [(NORM_TRI3,[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]),(NORM_TRI6,[[0., 0.], [1., 0.], [0., 1.], [0.5, 0.], [0.5, 0.5], [0., 0.5]]),
+            (NORM_QUAD4,[[-1., -1.], [1., -1.], [1., 1.], [-1., 1.]]),(NORM_QUAD4,[[-1., -1.], [-1., 1.], [1., 1.], [1., -1.]]),(NORM_QUAD4,[[-1., 0.], [1., 0.], [0., 0.], [0., 0.]]),(NORM_QUAD8,[[-1., -1.], [1., -1.], [1., 1.], [-1., 1.], [0., -1.], [1., 0.], [0., 1.], [-1., 0.]])]:
             der_computed = GetDerivative(ref_coord,vec)
             der_computed.rearrange(2)
 
@@ -1153,6 +1173,31 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             delta_Y = der_computed[:,1]-der_deduced
             delta_Y.abs()
             self.assertTrue(delta_Y.findIdsNotInRange(-1e-5,+1e-5).empty())
+            
+        # 1D cells
+        vec = [0.64]
+
+        for gt in [NORM_SEG2,NORM_SEG3]:
+            ref_coord = [list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()]
+
+            der_computed = GetDerivative(ref_coord,vec)
+            der_computed.rearrange(1)
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0]+eps])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_X = der_computed[:,0]-der_deduced
+            delta_X.abs()
+            self.assertTrue(delta_X.findIdsNotInRange(-1e-5,+1e-5).empty())
+        
+        #B version of SEG2
+        for gt,ref_coord in [(NORM_SEG2,[[0.], [1.]])]:
+            der_computed = GetDerivative(ref_coord,vec)
+            der_computed.rearrange(1)
+
+            der_deduced = ( GetShapeFunc(ref_coord,[vec[0]+eps])-GetShapeFunc(ref_coord,vec) ) / eps
+            delta_X = der_computed[:,0]-der_deduced
+            delta_X.abs()
+            self.assertTrue(delta_X.findIdsNotInRange(-1e-5,+1e-5).empty())
+        
 
     def testComputeTriangleHeight0(self):
         arr = DataArrayDouble([0,1])

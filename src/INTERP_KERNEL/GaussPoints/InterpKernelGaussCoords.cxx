@@ -904,6 +904,12 @@ void GaussInfo::seg3Init()
   funValue[1] = 0.5*(1.0 + gc[0])*gc[0];
   funValue[2] = (1.0 + gc[0])*(1.0 - gc[0]);
   SHAPE_FUN_MACRO_END;
+
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = -0.5*(1-2*gc[0]);
+  devFunValue[1] = 0.5*(2*gc[0]+1);
+  devFunValue[2] = -2*gc[0];
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1160,6 +1166,29 @@ void GaussInfo::tria7aInit()
   funValue[5]=4*gc[1]*(1-4*gc[0]-gc[1]+3*gc[0]*(gc[0]+gc[1]));
   funValue[6]=27*gc[0]*gc[1]*(1-gc[0]-gc[1]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 7*gc[1]-3*gc[1]*(2*gc[0]+gc[1])+4*gc[0]-3;
+  devFunValue[1] = -3+4.0*gc[1]+7.0*gc[0]-6.0*gc[0]*gc[1]-3.0*gc[0]*gc[0];
+  
+  devFunValue[2] = -6*gc[0]*gc[1]+4*gc[0]-3*gc[1]*gc[1]+3*gc[1]-1;
+  devFunValue[3] = 3.0*gc[0]*(1-2.0*gc[1]-gc[0]);
+  
+  devFunValue[4] = 3.0*gc[1]*(1-2.0*gc[0]-gc[1]);
+  devFunValue[5] = -1+4.0*gc[1]+3.0*gc[0]-6.0*gc[0]*gc[1]-3.0*gc[0]*gc[0];
+ 
+  devFunValue[6] = 4*(6*gc[0]*gc[1]-2*gc[0]+3*gc[1]*gc[1]-4*gc[1]+1);
+  devFunValue[7] = 4.0*gc[0]*(-4.0+6.0*gc[1]+3.0*gc[0]);
+  
+  devFunValue[8] = 4*gc[1]*(6*gc[0]+3*gc[1]-2);
+  devFunValue[9] = 4.0*gc[0]*(-2.0+6.0*gc[1]+3.0*gc[0]);
+  
+  devFunValue[10] = 4*gc[1]*(3*(gc[1]+2*gc[0])-4);
+  devFunValue[11] = 4.0*(1-2.0*gc[1]-4.0*gc[0]+6.0*gc[0]*gc[1]+3.0*gc[0]*gc[0]);
+  
+  devFunValue[12] = 27*gc[1]*(-2*gc[0]-gc[1]+1);
+  devFunValue[13] = 27.*gc[0]*(1-2.0*gc[1]-gc[0]);
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1297,8 +1326,8 @@ void GaussInfo::quad4cInit()
   devFunValue[2] = -0.25*(1.0 + gc[1]);
   devFunValue[3] = 0.25*(1.0 - gc[0]);
 
-  devFunValue[4] = 0.25*(1.0 + gc[0]);
-  devFunValue[5] = 0.25*(1.0 + gc[1]);
+  devFunValue[4] = 0.25*(1.0 + gc[1]);
+  devFunValue[5] = 0.25*(1.0 + gc[0]);
 
   devFunValue[6] = 0.25*(1.0 - gc[1]);
   devFunValue[7] = -0.25*(1.0 + gc[0]);
@@ -1336,6 +1365,22 @@ void GaussInfo::quad4DegSeg2Init()
    funValue[2] = 0.;
    funValue[3] = 0.;
    SHAPE_FUN_MACRO_END;
+   
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+
+  devFunValue[0] = -0.5;
+  devFunValue[1] = 0.0;
+
+  devFunValue[2] = 0.5;
+  devFunValue[3] = 0.0;
+
+  devFunValue[4] = 0.0;
+  devFunValue[5] = 0.0;
+
+  devFunValue[6] = 0.0;
+  devFunValue[7] = 0.0;
+
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1552,6 +1597,35 @@ void GaussInfo::quad9aInit()
   funValue[7] = 0.5*gc[0]*(gc[0]-1.)*(1.-gc[1]*gc[1]);
   funValue[8] = (1.-gc[0]*gc[0])*(1.-gc[1]*gc[1]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.5*(2*gc[0]-1.0)*0.5*gc[1]*(gc[1]-1.0);
+  devFunValue[1] = 0.5*gc[0]*(gc[0]-1.0)*0.5*(2*gc[1]-1.0);;
+  
+  devFunValue[2] = 0.5*(2.0*gc[0]+1.0)*0.5*gc[1]*(gc[1]-1.0);
+  devFunValue[3] = 0.5*gc[0]*(1.0+gc[0])*0.5*(2.0*gc[1]-1.0);
+  
+  devFunValue[4] = 0.5*(2.0*gc[0]+1.0)*0.5*gc[1]*(1.0+gc[1]);
+  devFunValue[5] = 0.5*gc[0]*(1.0+gc[0])*0.5*(2.0*gc[1]+1.0);
+  
+  devFunValue[6] = 0.5*(2.0*gc[0]-1.0)*0.5*gc[1]*(1.0+gc[1]);
+  devFunValue[7] = 0.5*gc[0]*(gc[0]-1.0)*0.5*(2.0*gc[1]+1.0);
+  
+  devFunValue[8] = -2.0*gc[0]*0.5*gc[1]*(gc[1]-1.0);
+  devFunValue[9] = (1.0+gc[0])*(1.0-gc[0])*0.5*(2.0*gc[1]-1.0);
+  
+  devFunValue[10] = 0.5*(2.0*gc[0]+1.0)*(1.0+gc[1])*(1.0-gc[1]);
+  devFunValue[11] = 0.5*gc[0]*(1+gc[0])*-2.0*gc[1];
+  
+  devFunValue[12] = -2.0*gc[0]*0.5*gc[1]*(1.0+gc[1]);
+  devFunValue[13] = (1.0+gc[0])*(1.0-gc[0])*0.5*(2.0*gc[1]+1.0);
+  
+  devFunValue[14] = 0.5*(2.0*gc[0]-1.0)*(1.0+gc[1])*(1.0-gc[1]);
+  devFunValue[15] = 0.5*gc[0]*(gc[0]-1.0)*-2.0*gc[1];
+  
+  devFunValue[16] = -2.0*gc[0]*(1.0+gc[1])*(1.0-gc[1]);
+  devFunValue[17] = (1.0+gc[0])*(1.0-gc[0])*-2.0*gc[1];
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1589,6 +1663,24 @@ void GaussInfo::tetra4aInit()
   funValue[2] = 1.0 - gc[0] - gc[1] - gc[2];
   funValue[3] = gc[0];
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.0;
+  devFunValue[1] = 1.0;
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = 0.0;
+  devFunValue[4] = 0.0;
+  devFunValue[5] = 1.0;
+  
+  devFunValue[6] = -1.0;
+  devFunValue[7] = -1.0;
+  devFunValue[8] = -1.0;
+  
+  devFunValue[9] = 1.0;
+  devFunValue[10] = 0.0;
+  devFunValue[11] = 0.0;
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1626,6 +1718,24 @@ void GaussInfo::tetra4bInit()
   funValue[1] = 1.0 - gc[0] - gc[1] - gc[2];
   funValue[3] = gc[0];
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.0;
+  devFunValue[1] = 1.0;
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = -1.0;
+  devFunValue[4] = -1.0;
+  devFunValue[5] = -1.0;
+  
+  devFunValue[6] = 0.0;
+  devFunValue[7] = 0.0;
+  devFunValue[8] = 1.0;
+  
+  devFunValue[9] = 1.0;
+  devFunValue[10] = 0.0;
+  devFunValue[11] = 0.0;
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1699,6 +1809,48 @@ void GaussInfo::tetra10aInit()
   funValue[8] = 4.0*gc[0]*gc[2];
   funValue[9] = 4.0*gc[0]*(1.0 - gc[0] - gc[1] - gc[2]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.0;
+  devFunValue[1] = 4.0*gc[1]-1.0;
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = 0.0;
+  devFunValue[4] = 0.0;
+  devFunValue[5] = 4.0*gc[2]-1.0;
+  
+  devFunValue[6] = 1.0-4.0*(1-gc[0]-gc[1]-gc[2]);
+  devFunValue[7] = 1.0-4.0*(1-gc[0]-gc[1]-gc[2]);
+  devFunValue[8] = 1.0-4.0*(1-gc[0]-gc[1]-gc[2]);
+  
+  devFunValue[9] = 4.0*gc[0]-1.0;
+  devFunValue[10] = 0.0;
+  devFunValue[11] = 0.0;
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 4.0*gc[2];
+  devFunValue[14] = 4.0*gc[1];
+  
+  devFunValue[15] = -4.0*gc[2];
+  devFunValue[16] = -4.0*gc[2];
+  devFunValue[17] = 4.0*((1-gc[0]-gc[1]-gc[2])-gc[2]);
+  
+  devFunValue[18] = -4.0*gc[1];
+  devFunValue[19] = 4.0*((1-gc[0]-gc[1]-gc[2])-gc[1]);;
+  devFunValue[20] = -4.0*gc[1];
+  
+  devFunValue[21] = 4.0*gc[1];
+  devFunValue[22] = 4.0*gc[0];
+  devFunValue[23] = 0.0;
+  
+  devFunValue[24] = 4.0*gc[2];
+  devFunValue[25] = 0.0;
+  devFunValue[26] = 4.0*gc[0];
+  
+  devFunValue[27] = 4.0*((1-gc[0]-gc[1]-gc[2])-gc[0]);
+  devFunValue[28] = -4.0*gc[0];
+  devFunValue[29] = -4.0*gc[0];
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1771,6 +1923,48 @@ void GaussInfo::tetra10bInit()
   funValue[9] = 4.0*gc[0]*gc[2];
   funValue[8] = 4.0*gc[0]*(1.0 - gc[0] - gc[1] - gc[2]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.0;
+  devFunValue[1] = 4.0*gc[1]-1.0;
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = 1.0-4.0*(1-gc[0]-gc[1]-gc[2]);
+  devFunValue[4] = 1.0-4.0*(1-gc[0]-gc[1]-gc[2]);
+  devFunValue[5] = 1.0-4.0*(1-gc[0]-gc[1]-gc[2]);
+  
+  devFunValue[6] = 0.0;
+  devFunValue[7] = 0.0;
+  devFunValue[8] = 4.0*gc[2]-1.0;
+  
+  devFunValue[9] = 4.0*gc[0]-1.0;
+  devFunValue[10] = 0.0;
+  devFunValue[11] = 0.0;
+  
+  devFunValue[12] = -4.0*gc[1];
+  devFunValue[13] = 4.0*((1-gc[0]-gc[1]-gc[2])-gc[1]);;
+  devFunValue[14] = -4.0*gc[1];
+  
+  devFunValue[15] = -4.0*gc[2];
+  devFunValue[16] = -4.0*gc[2];
+  devFunValue[17] = 4.0*((1-gc[0]-gc[1]-gc[2])-gc[2]);
+  
+  devFunValue[18] = 0.0;
+  devFunValue[19] = 4.0*gc[2];
+  devFunValue[20] = 4.0*gc[1];
+  
+  devFunValue[21] = 4.0*gc[1];
+  devFunValue[22] = 4.0*gc[0];
+  devFunValue[23] = 0.0;
+  
+  devFunValue[24] = 4.0*((1-gc[0]-gc[1]-gc[2])-gc[0]);
+  devFunValue[25] = -4.0*gc[0];
+  devFunValue[26] = -4.0*gc[0];
+  
+  devFunValue[27] = 4.0*gc[2];
+  devFunValue[28] = 0.0;
+  devFunValue[29] = 4.0*gc[0];
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1808,30 +2002,30 @@ void GaussInfo::pyra5aInit()
   LOCAL_COORD_MACRO_END;
   
   SHAPE_FUN_MACRO_BEGIN;
-  funValue[0] = 0.25*(-gc[0] + gc[1] - 1.0)*(-gc[0] - gc[1] - 1.0)*(1.0 - gc[2]);
-  funValue[1] = 0.25*(-gc[0] - gc[1] - 1.0)*(+gc[0] - gc[1] - 1.0)*(1.0 - gc[2]);
-  funValue[2] = 0.25*(+gc[0] + gc[1] - 1.0)*(+gc[0] - gc[1] - 1.0)*(1.0 - gc[2]);
-  funValue[3] = 0.25*(+gc[0] + gc[1] - 1.0)*(-gc[0] + gc[1] - 1.0)*(1.0 - gc[2]);
+  funValue[0] = 0.25*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[1] = 0.25*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[2] = 0.25*(gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[3] = 0.25*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]);
   funValue[4] = gc[2];
   SHAPE_FUN_MACRO_END;
 
   DEV_SHAPE_FUN_MACRO_BEGIN;
 
-  devFunValue[0] = 0.5*(gc[0]+1)*(1.0 - gc[2]);
-  devFunValue[1] = -0.5*gc[1]*(1.0 - gc[2]);
-  devFunValue[2] = -0.25*(-gc[0] + gc[1] - 1.0)*(-gc[0] - gc[1] - 1.0);
+  devFunValue[0] = (-(-gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[1] = ((-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[2] = ((-gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))/((1.0-gc[2])*4.0);
   
-  devFunValue[3] = -0.5*gc[0]*(1.0 - gc[2]);
-  devFunValue[4] = 0.5*(gc[1]+1)*(1.0 - gc[2]);
-  devFunValue[5] = -0.25*(-gc[0] - gc[1] - 1.0)*(+gc[0] - gc[1] - 1.0);
+  devFunValue[3] = ((-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[4] = (-(-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[5] = ((-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))/((1.0-gc[2])*4.0);
 
-  devFunValue[6] = 0.5*(gc[0]-1)*(1.0 - gc[2]);
-  devFunValue[7] = -0.5*gc[1]*(1.0 - gc[2]);
-  devFunValue[8] = -0.25*(+gc[0] + gc[1] - 1.0)*(+gc[0] - gc[1] - 1.0);
+  devFunValue[6] = ((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[7] = ((gc[0]-gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[8] = ((gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))/((1.0-gc[2])*4.0);
   
-  devFunValue[9] = -0.5*gc[0]*(1.0 - gc[2]);
-  devFunValue[10] = 0.5*(1*gc[1]-1)*(1.0 - gc[2]);
-  devFunValue[11] = -0.25*(+gc[0] + gc[1] - 1.0)*(-gc[0] + gc[1] - 1.0);
+  devFunValue[9] = ((-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[10] = ((gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[11] = ((gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))/((1.0-gc[2])*4.0);
   
   devFunValue[12] = 0.0;
   devFunValue[13] = 0.0;
@@ -1839,6 +2033,7 @@ void GaussInfo::pyra5aInit()
 
   DEV_SHAPE_FUN_MACRO_END;
 }
+
 /*!
  * Init Pyramid Reference coordinates ans Shape function.
  * Case B.
@@ -1874,12 +2069,34 @@ void GaussInfo::pyra5bInit()
   LOCAL_COORD_MACRO_END;
   
   SHAPE_FUN_MACRO_BEGIN;
-  funValue[0] = 0.25*(-gc[0] + gc[1] - 1.0)*(-gc[0] - gc[1] - 1.0)*(1.0 - gc[2]);
-  funValue[3] = 0.25*(-gc[0] - gc[1] - 1.0)*(+gc[0] - gc[1] - 1.0)*(1.0 - gc[2]);
-  funValue[2] = 0.25*(+gc[0] + gc[1] - 1.0)*(+gc[0] - gc[1] - 1.0)*(1.0 - gc[2]);
-  funValue[1] = 0.25*(+gc[0] + gc[1] - 1.0)*(-gc[0] + gc[1] - 1.0)*(1.0 - gc[2]);
+  funValue[0] = 0.25*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[3] = 0.25*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[2] = 0.25*(gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[1] = 0.25*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]);
   funValue[4] = gc[2];
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = (-(-gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[1] = ((-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[2] = ((-gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))/((1.0-gc[2])*4.0);
+
+  devFunValue[3] = ((-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[4] = ((gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[5] = ((gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))/((1.0-gc[2])*4.0);
+  
+  devFunValue[6] = ((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[7] = ((gc[0]-gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[8] = ((gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))/((1.0-gc[2])*4.0);
+  
+  devFunValue[9] = ((-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[10] = (-(-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0))/((1.0-gc[2])*4.0);
+  devFunValue[11] = ((-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))/((1.0-gc[2])*4.0);
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 1.0;
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -1957,35 +2174,79 @@ void GaussInfo::pyra13aInit()
   LOCAL_COORD_MACRO_END;
   
   SHAPE_FUN_MACRO_BEGIN;
-  funValue[0] = 0.5*(-gc[0] + gc[1] + gc[2] - 1.0)*(-gc[0] - gc[1] + gc[2] - 1.0)*
-    (gc[0] - 0.5)/(1.0 - gc[2]);
-  funValue[1] = 0.5*(-gc[0] - gc[1] + gc[2] - 1.0)*(+gc[0] - gc[1] + gc[2] - 1.0)*
-    (gc[1] - 0.5)/(1.0 - gc[2]);
-  funValue[2] = 0.5*(+gc[0] - gc[1] + gc[2] - 1.0)*(+gc[0] + gc[1] + gc[2] - 1.0)*
-    (-gc[0] - 0.5)/(1.0 - gc[2]);
-  funValue[3] = 0.5*(+gc[0] + gc[1] + gc[2] - 1.0)*(-gc[0] + gc[1] + gc[2] - 1.0)*
-    (-gc[1] - 0.5)/(1.0 - gc[2]);
+  funValue[0]=0.5*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-0.5)/(1.0-gc[2]);
+  funValue[1]=0.5*(-gc[0]-gc[1]+gc[2]-1.0)*(+gc[0]-gc[1]+gc[2]-1.0)*(gc[1]-0.5)/(1.0-gc[2]);
+  funValue[2]=0.5*(+gc[0]-gc[1]+gc[2]-1.0)*(+gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-0.5)/(1.0-gc[2]);
+  funValue[3]=0.5*(+gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[1]-0.5)/(1.0-gc[2]);
   
-  funValue[4] = 2.0*gc[2]*(gc[2] - 0.5);
+  funValue[4]=2.0*gc[2]*(gc[2]-0.5);
   
-  funValue[5] = 0.5*(-gc[0] + gc[1] + gc[2] - 1.0)*(-gc[0] - gc[1] + gc[2] - 1.0)*
-    (gc[0] - gc[1] + gc[2] - 1.0)/(1.0 - gc[2]);
-  funValue[6] = 0.5*(-gc[0] - gc[1] + gc[2] - 1.0)*(gc[0] - gc[1] + gc[2] - 1.0)*
-    (gc[0] + gc[1] + gc[2] - 1.0)/(1.0 - gc[2]);
-  funValue[7] = 0.5*(gc[0] - gc[1] + gc[2] - 1.0)*(gc[0] + gc[1] + gc[2] - 1.0)*
-    (-gc[0] + gc[1] + gc[2] - 1.0)/(1.0 - gc[2]);
-  funValue[8] = 0.5*(gc[0] + gc[1] + gc[2] - 1.0)*(-gc[0] + gc[1] + gc[2] - 1.0)*
-    (-gc[0] - gc[1] + gc[2] - 1.0)/(1.0 - gc[2]);
+  funValue[5]=0.5*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[6]=0.5*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[7]=0.5*(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[8]=0.5*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
   
-  funValue[9] = 0.5*gc[2]*(-gc[0] + gc[1] + gc[2] - 1.0)*(-gc[0] - gc[1] + gc[2] - 1.0)/
-    (1.0 - gc[2]);
-  funValue[10] = 0.5*gc[2]*(-gc[0] - gc[1] + gc[2] - 1.0)*(gc[0] - gc[1] + gc[2] - 1.0)/
-    (1.0 - gc[2]);
-  funValue[11] = 0.5*gc[2]*(gc[0] - gc[1] + gc[2] - 1.0)*(gc[0] + gc[1] + gc[2] - 1.0)/
-    (1.0 - gc[2]);
-  funValue[12] = 0.5*gc[2]*(gc[0] + gc[1] + gc[2] - 1.0)*(-gc[0] + gc[1] + gc[2] - 1.0)/
-    (1.0 - gc[2]);
+  funValue[9]=gc[2]*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[10]=gc[2]*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[11]=gc[2]*(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]);
+  funValue[12]=gc[2]*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]);
   SHAPE_FUN_MACRO_END;
+
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = ((-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)-((-gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0))*(gc[0]-0.5))/(2.0*(1.0-gc[2]));
+  devFunValue[1] = ((-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0))*(gc[0]-0.5)/(2.0*(1.0-gc[2]));
+  devFunValue[2] = ((-gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))*(gc[0]-0.5)/(2.0*(1.0-gc[2]));
+  
+  devFunValue[3] = ((-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0))*(gc[1]-0.5)/(2.0*(1.0-gc[2]));
+  devFunValue[4] = ((-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)-((-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))*(gc[1]-0.5))/(2.0*(1.0-gc[2]));
+  devFunValue[5] = ((-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))*(gc[1]-0.5)/(2.0*(1.0-gc[2]));
+  
+  devFunValue[6] = (((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))*(-gc[0]-0.5)-(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[7] = ((gc[0]-gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))*(-gc[0]-0.5)/(2.0*(1.0-gc[2]));
+  devFunValue[8] = ((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))*(-gc[0]-0.5)/(2.0*(1.0-gc[2]));
+  
+  devFunValue[9] = ((-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))*(-gc[1]-0.5)/(2.0*(1.0-gc[2]));
+  devFunValue[10] = (((-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0))*(-gc[1]-0.5)-(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[11] = ((-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))*(-gc[1]-0.5)/(2.0*(1.0-gc[2]));
+  
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 4.0*gc[2]-1.0;
+  
+  devFunValue[15] = -((-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[16] = -((-gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[17] = ((-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))/(2.0*(1.0-gc[2]));
+  
+  devFunValue[18] = -((gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[19] = -((gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[20] = ((gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))/(2.0*(1.0-gc[2]));
+  
+  devFunValue[21] = -((gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[22] = -((gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[23] = ((gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))/(2.0*(1.0-gc[2]));
+  
+  devFunValue[24] = -((gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[25] = -((gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[26] = ((-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))/(2.0*(1.0-gc[2]));
+  
+  
+  devFunValue[27] =(-(-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[28] = ((-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[29] = (-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2])/(1.0-gc[2])+((-gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+
+  devFunValue[30] = ((-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[31] = (-(gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[32] = (-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2])/(1.0-gc[2])+((gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  
+  devFunValue[33] = ((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[34] = ((gc[0]-gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[35] = (gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2])/(1.0-gc[2])+((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  
+  devFunValue[36] = ((-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[37] = ((-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[38] = (gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2])/(1.0-gc[2])+((gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -2068,7 +2329,7 @@ void GaussInfo::pyra13bInit()
   funValue[2] =0.5*(+gc[0]-gc[1]+gc[2]-1.0)*(+gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-0.5)/(1.0-gc[2]);
   funValue[3] =0.5*(-gc[0]-gc[1]+gc[2]-1.0)*(+gc[0]-gc[1]+gc[2]-1.0)*(gc[1]-0.5)/(1.0-gc[2]);
   
-  funValue[4] =2.*gc[2]*(gc[2]-0.5);
+  funValue[4] =2.0*gc[2]*(gc[2]-0.5);
   
   funValue[5] =-0.5*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
   funValue[6] =-0.5*(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]);
@@ -2081,6 +2342,62 @@ void GaussInfo::pyra13bInit()
   funValue[12]=gc[2]*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]);
   
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = ((-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)-((-gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0))*(gc[0]-0.5))/(2.0*(1.0-gc[2]));
+  devFunValue[1] = ((-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0))*(gc[0]-0.5)/(2.0*(1.0-gc[2]));
+  devFunValue[2] = ((-gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))*(gc[0]-0.5)/(2.0*(1.0-gc[2]));
+  
+  devFunValue[9] = ((-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0))*(gc[1]-0.5)/(2.0*(1.0-gc[2]));
+  devFunValue[10] = ((-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)-((-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))*(gc[1]-0.5))/(2.0*(1.0-gc[2]));
+  devFunValue[11] = ((-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))*(gc[1]-0.5)/(2.0*(1.0-gc[2]));
+  
+  devFunValue[6] = (((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))*(-gc[0]-0.5)-(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[7] = ((gc[0]-gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))*(-gc[0]-0.5)/(2.0*(1.0-gc[2]));
+  devFunValue[8] = ((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))*(-gc[0]-0.5)/(2.0*(1.0-gc[2]));
+  
+  devFunValue[3] = ((-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))*(-gc[1]-0.5)/(2.0*(1.0-gc[2]));
+  devFunValue[4] = (((-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0))*(-gc[1]-0.5)-(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[5] = ((-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))*(-gc[1]-0.5)/(2.0*(1.0-gc[2]));
+  
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 4.0*gc[2]-1.0;
+  
+  devFunValue[24] = ((-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[25] = ((-gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[26] = -((-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))/(2.0*(1.0-gc[2]));
+  
+  devFunValue[21] = ((gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[22] = ((gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[23] = -((gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))/(2.0*(1.0-gc[2]));
+  
+  devFunValue[18] = ((gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[19] = ((gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[20] = -((gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2]))/(2.0*(1.0-gc[2]));
+  
+  devFunValue[15] = ((gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[16] = ((gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0))/(2.0*(1.0-gc[2]));
+  devFunValue[17] = -((-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2]))/(2.0*(1.0-gc[2]));
+  
+  
+  devFunValue[27] =(-(-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[28] = ((-gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[29] = (-gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2])/(1.0-gc[2])+((-gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+
+  devFunValue[36] = ((-gc[0]-gc[1]+gc[2]-1.0)-(gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[37] = (-(gc[0]-gc[1]+gc[2]-1.0)-(-gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[38] = (-gc[0]-gc[1]+gc[2]-1.0)*(gc[0]-gc[1]+gc[2]-1.0)/(1.0-gc[2])/(1.0-gc[2])+((gc[0]-gc[1]+gc[2]-1.0)+(-gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  
+  devFunValue[33] = ((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[34] = ((gc[0]-gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[35] = (gc[0]-gc[1]+gc[2]-1.0)*(gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2])/(1.0-gc[2])+((gc[0]+gc[1]+gc[2]-1.0)+(gc[0]-gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  
+  devFunValue[30] = ((-gc[0]+gc[1]+gc[2]-1.0)-(gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[31] = ((-gc[0]+gc[1]+gc[2]-1.0)+(gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  devFunValue[32] = (gc[0]+gc[1]+gc[2]-1.0)*(-gc[0]+gc[1]+gc[2]-1.0)/(1.0-gc[2])/(1.0-gc[2])+((gc[0]+gc[1]+gc[2]-1.0)+(-gc[0]+gc[1]+gc[2]-1.0))*gc[2]/(1.0-gc[2]);
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 
@@ -2209,6 +2526,32 @@ void GaussInfo::penta6bInit()
   funValue[5] = 0.5*gc[2]*(gc[0] + 1.0);
   funValue[4] = 0.5*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.5*gc[1]*(-1.0);
+  devFunValue[1] = 0.5*(1.0 - gc[0]);
+  devFunValue[2] = 0.0;
+
+  devFunValue[6] = 0.5*gc[2]*(-1.0);
+  devFunValue[7] = 0.0;
+  devFunValue[8] = 0.5*(1.0 - gc[0]);
+
+  devFunValue[3] = 0.5*(1.0 - gc[1] - gc[2])*(-1.0);
+  devFunValue[4] = 0.5*(-1.0)*(1.0 - gc[0]);
+  devFunValue[5] = 0.5*(-1.0)*(1.0 - gc[0]);
+
+  devFunValue[9] = 0.5*gc[1];
+  devFunValue[10] = 0.5*(gc[0] + 1.0);
+  devFunValue[11] = 0.0;
+
+  devFunValue[15] = 0.5*gc[2];
+  devFunValue[16] = 0.0;
+  devFunValue[17] = 0.5*(gc[0] + 1.0);
+
+  devFunValue[12] = 0.5*(1.0 - gc[1] - gc[2]);
+  devFunValue[13] = 0.5*(-1.0)*(1.0 + gc[0]);
+  devFunValue[14] = 0.5*(-1.0)*(1.0 + gc[0]);
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -2257,6 +2600,32 @@ void GaussInfo::penta6DegTria3aInit()
    funValue[4] = 0.;
    funValue[5] = 0.;
    SHAPE_FUN_MACRO_END;
+   
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.0;
+  devFunValue[1] = 0.5;
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = -0.5;
+  devFunValue[4] = -0.5;
+  devFunValue[5] = 0.0;
+  
+  devFunValue[6] = 0.5;
+  devFunValue[7] = 0.0;
+  devFunValue[8] = 0.0;
+  
+  devFunValue[9] = 0.0;
+  devFunValue[10] = 0.0;
+  devFunValue[11] = 0.0;
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 0.0;
+  
+  devFunValue[15] = 0.0;
+  devFunValue[16] = 0.0;
+  devFunValue[17] = 0.0;
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -2305,6 +2674,32 @@ void GaussInfo::penta6DegTria3bInit()
    funValue[4] = 0.;
    funValue[5] = 0.;
    SHAPE_FUN_MACRO_END;
+   
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = -1.0;
+  devFunValue[1] = -1.0;
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = 1.0;
+  devFunValue[4] = 0.0;
+  devFunValue[5] = 0.0;
+  
+  devFunValue[6] = 0.0;
+  devFunValue[7] = 1.0;
+  devFunValue[8] = 0.0;
+  
+  devFunValue[9] = 0.0;
+  devFunValue[10] = 0.0;
+  devFunValue[11] = 0.0;
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 0.0;
+  
+  devFunValue[15] = 0.0;
+  devFunValue[16] = 0.0;
+  devFunValue[17] = 0.0;
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -2412,7 +2807,7 @@ void GaussInfo::penta15aInit()
   funValue[13] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   funValue[14] = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   SHAPE_FUN_MACRO_END;
-
+  
   DEV_SHAPE_FUN_MACRO_BEGIN;
 
   devFunValue[0] = 0.5*gc[1]*(2 * gc[0] - 2 * gc[1] + 1.0 );
@@ -2583,6 +2978,70 @@ void GaussInfo::penta15bInit()
   funValue[10] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   funValue[9]  = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.5*gc[1]*(2 * gc[0] - 2 * gc[1] + 1.0 );
+  devFunValue[1] = (1.0 - gc[0])*(2.0*gc[1] -1 - 0.5*gc[0]);
+  devFunValue[2] = 0.0;
+
+  devFunValue[6] = 0.5*gc[2]*(2 * gc[0] - 2 * gc[2] + 1.0 );
+  devFunValue[7] = 0.0;
+  devFunValue[8] = (1.0 - gc[0])*(2.0*gc[2] -1 - 0.5*gc[0]);
+
+  devFunValue[3] = 0.5*(1.0 - gc[1] - gc[2])*(2*gc[0] -1.0 + 2*gc[1] + 2*gc[2]);
+  devFunValue[4] = 0.5*(gc[0] - 1.0)* ( -4*gc[1] -gc[0] -4*gc[2] + 2.0);
+  devFunValue[5] = 0.5*(gc[0] - 1.0)* ( -4*gc[2] -4*gc[1] -gc[0] + 2.0);
+
+  devFunValue[9] = 0.5*gc[1]*( 2*gc[0] + 2*gc[1] -1.0 );
+  devFunValue[10] = (1.0 + gc[0])*(2.0*gc[1] - 1.0 + 0.5*gc[0]);
+  devFunValue[11] = 0.0;
+
+  devFunValue[15] = 0.5*gc[2]*( 2*gc[0] + 2*gc[2] -1.0 );
+  devFunValue[16] = 0.0;
+  devFunValue[17] = (1.0 + gc[0])*(2.0*gc[2] - 1.0 + 0.5*gc[0]);
+
+  devFunValue[12] = 0.5*(1.0 - gc[1] - gc[2])*(2 * gc[0] - 2.0 * gc[1] - 2.0 * gc[2] + 1.0 );
+  devFunValue[13] = 0.5*(-gc[0] - 1.0) * (-4.0*gc[1] + gc[0] - 4.0 * gc[2] + 2.0) ;
+  devFunValue[14] = 0.5*(-gc[0] - 1.0) * (-4.0*gc[2] - 4*gc[1] + gc[0] + 2.0 );
+
+  devFunValue[24] = - 2.0*gc[1]*gc[2];
+  devFunValue[25] = 2.0*gc[2]*(1.0 - gc[0]);
+  devFunValue[26] = 2.0*gc[1]*(1.0 - gc[0]);
+
+  devFunValue[21] = -2.0*gc[2]*(1.0 - gc[1] - gc[2]);
+  devFunValue[22] = -2.0*gc[2]*(1.0 - gc[0]);
+  devFunValue[23] = (-4*gc[2]-2*gc[1]+2.0)*(1.0 - gc[0]);
+
+  devFunValue[18] = -2.0*gc[1]*(1.0 - gc[1] - gc[2]);
+  devFunValue[19] = (-4*gc[1]-2*gc[2]+2)*(1.0 - gc[0]);
+  devFunValue[20] = -2.0*gc[1]*(1.0 - gc[0]);
+
+
+  devFunValue[36] = gc[1]*(- 2.0 * gc[0]);
+  devFunValue[37] = (1.0 - gc[0]*gc[0]);
+  devFunValue[38] = 0.0;
+
+  devFunValue[42] = -2.0 * gc[2] *gc[0];
+  devFunValue[43] = 0.0;
+  devFunValue[44] = (1.0 - gc[0]*gc[0]);
+
+  devFunValue[39] = -2.0 * (1.0 - gc[1] - gc[2]) * gc[0];
+  devFunValue[40] = -1.0*(1.0 - gc[0]*gc[0]);
+  devFunValue[41] = -1.0*(1.0 - gc[0]*gc[0]);
+
+  devFunValue[33] = 2.0*gc[1]*gc[2];
+  devFunValue[34] = 2.0*gc[2]*(1.0 + gc[0]);
+  devFunValue[35] = 2.0*gc[1]*(1.0 + gc[0]);
+
+  devFunValue[30] = 2.0*gc[2]*(1.0 - gc[1] - gc[2]);
+  devFunValue[31] = -2.0*gc[2]*(1.0 + gc[0]);
+  devFunValue[32] = (2.0 - 2.0 * gc[1] - 4.0 * gc[2])*(1.0 + gc[0]);
+
+  devFunValue[27] = 2.0*gc[1]*(1.0 - gc[1] - gc[2]);
+  devFunValue[28] = (2.0 - 4*gc[1] - 2*gc[2])*(1.0 + gc[0]);
+  devFunValue[29] = -2.0*gc[1]*(1.0 + gc[0]);
+  
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 void GaussInfo::penta18aInit() 
@@ -2681,30 +3140,104 @@ void GaussInfo::penta18aInit()
   LOCAL_COORD_MACRO_END;
   
   SHAPE_FUN_MACRO_BEGIN;
-  funValue[0] = 0.5*gc[1]*(1.0 - gc[0])*(2.0*gc[1] - 2.0 - gc[0]);
-  funValue[1] = 0.5*gc[2]*(1.0 - gc[0])*(2.0*gc[2] - 2.0 - gc[0]);
-  funValue[2] = 0.5*(gc[0] - 1.0)*(1.0 - gc[1] - gc[2])*(gc[0] + 2.0*gc[1] + 2.0*gc[2]);
+  funValue[0] = gc[0]*gc[1]*(gc[0]-1.0)*(2.0*gc[1]-1.0)/2.0;
+  funValue[1] = gc[0]*gc[2]*(gc[0]-1.0)*(2.0*gc[2]-1.0)/2.0;
+  funValue[2] = gc[0]*(gc[0]-1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0)/2.0;
   
-  funValue[3] = 0.5*gc[1]*(1.0 + gc[0])*(2.0*gc[1] - 2.0 + gc[0]);
-  funValue[4] = 0.5*gc[2]*(1.0 + gc[0])*(2.0*gc[2] - 2.0 + gc[0]);
-  funValue[5] = 0.5*(-gc[0] - 1.0)*(1.0 - gc[1] - gc[2])*(-gc[0] + 2.0*gc[1] + 2.0*gc[2]);
+  funValue[3] = gc[0]*gc[1]*(gc[0]+1.0)*(2.0*gc[1]-1.0)/2.0;
+  funValue[4] = gc[0]*gc[2]*(gc[0]+1.0)*(2.0*gc[2]-1.0)/2.0;
+  funValue[5] = gc[0]*(gc[0]+1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0)/2.0;
   
-  funValue[6] = 2.0*gc[1]*gc[2]*(1.0 - gc[0]);
-  funValue[7] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 - gc[0]);
-  funValue[8] = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 - gc[0]);
+  funValue[6] = 2.0*gc[0]*gc[1]*gc[2]*(gc[0]-1.0);
+  funValue[7] = -2.0*gc[0]*gc[2]*(gc[0]-1.0)*(gc[2]+gc[1]-1.0);
+  funValue[8] = -2.0*gc[0]*gc[1]*(gc[0]-1.0)*(gc[2]+gc[1]-1.0);
   
-  funValue[9] = gc[1]*(1.0 - gc[0]*gc[0]);
-  funValue[10] = gc[2]*(1.0 - gc[0]*gc[0]);
-  funValue[11] = (1.0 - gc[1] - gc[2])*(1.0 - gc[0]*gc[0]);
+  funValue[9] = -gc[1]*(gc[0]-1.0)*(gc[0]+1.0)*(2.0*gc[1]-1.0);
+  funValue[10] = -gc[2]*(gc[0]-1.0)*(gc[0]+1.0)*(2.0*gc[2]-1.0);
+  funValue[11] = -(gc[0]-1.0)*(gc[0]+1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0);
   
-  funValue[12] = 2.0*gc[1]*gc[2]*(1.0 + gc[0]);
-  funValue[13] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
-  funValue[14] = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
+  funValue[12] = 2.0*gc[0]*gc[1]*gc[2]*(gc[0]+1.0);
+  funValue[13] = -2.0*gc[0]*gc[2]*(gc[0]+1.0)*(gc[2]+gc[1]-1.0);
+  funValue[14] = -2.0*gc[0]*gc[1]*(gc[0]+1.0)*(gc[2]+gc[1]-1.0);
   
-  funValue[15] = 4.0*gc[1]*gc[2]*(1.0 - gc[0] * gc[0]);
-  funValue[16] = 4.0*gc[2]*(gc[0] * gc[0] - 1) * ( gc[2] + gc[1] - 1);
-  funValue[17] = 4.0*gc[1]*(gc[0] * gc[0] - 1) * ( gc[2] + gc[1] - 1);
+  funValue[15] = -4.0*gc[1]*gc[2]*(gc[0]-1.0)*(gc[0]+1.0);
+  funValue[16] = 4.0*gc[2]*(gc[0]-1.0)*(gc[0]+1.0)*(gc[2]+gc[1]-1.0);
+  funValue[17] = 4.0*gc[1]*(gc[0]-1.0)*(gc[0]+1.0)*(gc[2]+gc[1]-1.0);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = gc[1]*(2.0*gc[0]-1.0)*(2.0*gc[1]-1.0)/2.0;
+  devFunValue[1] = gc[0]*(gc[0]-1.0)*(4.0*gc[1]-1.0)/2.0;
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = gc[2]*(2.0*gc[0]-1.0)*(2.0*gc[2]-1.0)/2.0;
+  devFunValue[4] = 0.0;
+  devFunValue[5] = gc[0]*(gc[0]-1.0)*(4.0*gc[2]-1.0)/2.0;
+  
+  devFunValue[6] = (2.0*gc[0]-1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0)/2.0;
+  devFunValue[7] = gc[0]*(gc[0]-1.0)*(4.0*gc[2]+4.0*gc[1]-3.0)/2.0;
+  devFunValue[8] = gc[0]*(gc[0]-1.0)*(4.0*gc[2]+4.0*gc[1]-3.0)/2.0;
+  
+  devFunValue[9] = gc[1]*(2.0*gc[0]+1.0)*(2.0*gc[1]-1.0)/2.0;
+  devFunValue[10] = gc[0]*(gc[0]+1.0)*(4.0*gc[1]-1.0)/2.0;
+  devFunValue[11] = 0.0;
+  
+  devFunValue[12] = gc[2]*(2.0*gc[0]+1.0)*(2.0*gc[2]-1.0)/2.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = gc[0]*(gc[0]+1.0)*(4.0*gc[2]-1.0)/2.0;
+  
+  devFunValue[15] = (2.0*gc[0]+1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0)/2.0;
+  devFunValue[16] = gc[0]*(gc[0]+1.0)*(4.0*gc[2]+4.0*gc[1]-3.0)/2.0;
+  devFunValue[17] = gc[0]*(gc[0]+1.0)*(4.0*gc[2]+4.0*gc[1]-3.0)/2.0;
+  
+  devFunValue[18] = 2.0*gc[1]*gc[2]*(2.0*gc[0]-1.0);
+  devFunValue[19] = 2.0*gc[0]*gc[2]*(gc[0]-1.0);
+  devFunValue[20] = 2.0*gc[0]*gc[1]*(gc[0]-1.0);
+  
+  devFunValue[21] = -2.0*gc[2]*(2.0*gc[0]-1.0)*(gc[2]+gc[1]-1.0);
+  devFunValue[22] = -2.0*gc[0]*gc[2]*(gc[0]-1.0);
+  devFunValue[23] = -2.0*gc[0]*(gc[0]-1.0)*(2.0*gc[2]+gc[1]-1.0);
+  
+  devFunValue[24] = -2.0*gc[1]*(2.0*gc[0]-1.0)*(gc[2]+gc[1]-1.0);
+  devFunValue[25] = -2.0*gc[0]*(gc[0]-1.0)*(2.0*gc[1]+gc[2]-1.0);
+  devFunValue[26] = -2.0*gc[0]*gc[1]*(gc[0]-1.0);
+  
+  devFunValue[27] = -2.0*gc[0]*gc[1]*(2.0*gc[1]-1.0);
+  devFunValue[28] = -(gc[0]-1.0)*(gc[0]+1.0)*(4.0*gc[1]-1.0);
+  devFunValue[29] = 0.0;
+  
+  devFunValue[30] = -2.0*gc[0]*gc[2]*(2.0*gc[2]-1.0);
+  devFunValue[31] = 0.0;
+  devFunValue[32] = -(gc[0]-1.0)*(gc[0]+1.0)*(4.0*gc[2]-1.0);
+  
+  devFunValue[33] = -2.0*gc[0]*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0);
+  devFunValue[34] = -(gc[0]-1.0)*(gc[0]+1.0)*(4.0*gc[2]+4.0*gc[1]-3.0);
+  devFunValue[35] = -(gc[0]-1.0)*(gc[0]+1.0)*(4.0*gc[2]+4.0*gc[1]-3.0);
+  
+  devFunValue[36] = 2.0*gc[1]*gc[2]*(2.0*gc[0]+1.0);
+  devFunValue[37] = 2.0*gc[0]*gc[2]*(gc[0]+1.0);
+  devFunValue[38] = 2.0*gc[0]*gc[1]*(gc[0]+1.0);
+  
+  devFunValue[39] = -2.0*gc[2]*(2.0*gc[0]+1.0)*(gc[2]+gc[1]-1.0);
+  devFunValue[40] = -2.0*gc[0]*gc[2]*(gc[0]+1.0);
+  devFunValue[41] = -2.0*gc[0]*(gc[0]+1.0)*(2.0*gc[2]+gc[1]-1.0);
+  
+  devFunValue[42] = -2.0*gc[1]*(2.0*gc[0]+1.0)*(gc[2]+gc[1]-1.0);
+  devFunValue[43] = -2.0*gc[0]*(gc[0]+1.0)*(2.0*gc[1]+gc[2]-1.0);
+  devFunValue[44] = -2.0*gc[0]*gc[1]*(gc[0]+1.0);
+  
+  devFunValue[45] = -8.0*gc[0]*gc[1]*gc[2];
+  devFunValue[46] = -4.0*gc[2]*(gc[0]-1.0)*(gc[0]+1.0);
+  devFunValue[47] = -4.0*gc[1]*(gc[0]-1.0)*(gc[0]+1.0);
+  
+  devFunValue[48] = 8.0*gc[0]*gc[2]*(gc[2]+gc[1]-1.0);
+  devFunValue[49] = 4.0*gc[2]*(gc[0]-1.0)*(gc[0]+1.0);
+  devFunValue[50] = 4.0*(gc[0]-1.0)*(gc[0]+1.0)*(2.0*gc[2]+gc[1]-1.0);
+  
+  devFunValue[51] = 8.0*gc[0]*gc[1]*(gc[2]+gc[1]-1.0);
+  devFunValue[52] = 4.0*(gc[0]-1.0)*(gc[0]+1.0)*(2.0*gc[1]+gc[2]-1.0);
+  devFunValue[53] = 4.0*gc[1]*(gc[0]-1.0)*(gc[0]+1.0);
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 void GaussInfo::penta18bInit() 
@@ -2802,31 +3335,105 @@ void GaussInfo::penta18bInit()
     break;
   LOCAL_COORD_MACRO_END;
   
-  SHAPE_FUN_MACRO_BEGIN;
-  funValue[0] = 0.5*gc[1]*(1.0 - gc[0])*(2.0*gc[1] - 2.0 - gc[0]);
-  funValue[2] = 0.5*gc[2]*(1.0 - gc[0])*(2.0*gc[2] - 2.0 - gc[0]);
-  funValue[1] = 0.5*(gc[0] - 1.0)*(1.0 - gc[1] - gc[2])*(gc[0] + 2.0*gc[1] + 2.0*gc[2]);
+  SHAPE_FUN_MACRO_BEGIN;  
+  funValue[0] = gc[0]*gc[1]*(gc[0]-1.0)*(2.0*gc[1]-1.0)/2.0;
+  funValue[2] = gc[0]*gc[2]*(gc[0]-1.0)*(2.0*gc[2]-1.0)/2.0;
+  funValue[1] = gc[0]*(gc[0]-1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0)/2.0;
   
-  funValue[3] = 0.5*gc[1]*(1.0 + gc[0])*(2.0*gc[1] - 2.0 + gc[0]);
-  funValue[5] = 0.5*gc[2]*(1.0 + gc[0])*(2.0*gc[2] - 2.0 + gc[0]);
-  funValue[4] = 0.5*(-gc[0] - 1.0)*(1.0 - gc[1] - gc[2])*(-gc[0] + 2.0*gc[1] + 2.0*gc[2]);
+  funValue[3] = gc[0]*gc[1]*(gc[0]+1.0)*(2.0*gc[1]-1.0)/2.0;
+  funValue[5] = gc[0]*gc[2]*(gc[0]+1.0)*(2.0*gc[2]-1.0)/2.0;
+  funValue[4] = gc[0]*(gc[0]+1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0)/2.0;
   
-  funValue[8] = 2.0*gc[1]*gc[2]*(1.0 - gc[0]);
-  funValue[7] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 - gc[0]);
-  funValue[6] = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 - gc[0]);
+  funValue[8] = 2.0*gc[0]*gc[1]*gc[2]*(gc[0]-1.0);
+  funValue[7] = -2.0*gc[0]*gc[2]*(gc[0]-1.0)*(gc[2]+gc[1]-1.0);
+  funValue[6] = -2.0*gc[0]*gc[1]*(gc[0]-1.0)*(gc[2]+gc[1]-1.0);
   
-  funValue[12] = gc[1]*(1.0 - gc[0]*gc[0]);
-  funValue[14] = gc[2]*(1.0 - gc[0]*gc[0]);
-  funValue[13] = (1.0 - gc[1] - gc[2])*(1.0 - gc[0]*gc[0]);
+  funValue[12] = -gc[1]*(gc[0]-1.0)*(gc[0]+1.0)*(2.0*gc[1]-1.0);
+  funValue[14] = -gc[2]*(gc[0]-1.0)*(gc[0]+1.0)*(2.0*gc[2]-1.0);
+  funValue[13] = -(gc[0]-1.0)*(gc[0]+1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0);
   
-  funValue[11] = 2.0*gc[1]*gc[2]*(1.0 + gc[0]);
-  funValue[10] = 2.0*gc[2]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
-  funValue[9]  = 2.0*gc[1]*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
+  funValue[11] = 2.0*gc[0]*gc[1]*gc[2]*(gc[0]+1.0);
+  funValue[10] = -2.0*gc[0]*gc[2]*(gc[0]+1.0)*(gc[2]+gc[1]-1.0);
+  funValue[9] = -2.0*gc[0]*gc[1]*(gc[0]+1.0)*(gc[2]+gc[1]-1.0);
   
-  funValue[17] = 4.0*gc[1]*gc[2]*(1.0 - gc[0] * gc[0]);
-  funValue[16] = 4.0*gc[2]*(gc[0] * gc[0] - 1) * ( gc[2] + gc[1] - 1);
-  funValue[15] = 4.0*gc[1]*(gc[0] * gc[0] - 1) * ( gc[2] + gc[1] - 1);
+  funValue[17] = -4.0*gc[1]*gc[2]*(gc[0]-1.0)*(gc[0]+1.0);
+  funValue[16] = 4.0*gc[2]*(gc[0]-1.0)*(gc[0]+1.0)*(gc[2]+gc[1]-1.0);
+  funValue[15] = 4.0*gc[1]*(gc[0]-1.0)*(gc[0]+1.0)*(gc[2]+gc[1]-1.0);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = gc[1]*(2.0*gc[0]-1.0)*(2.0*gc[1]-1.0)/2.0;
+  devFunValue[1] = gc[0]*(gc[0]-1.0)*(4.0*gc[1]-1.0)/2.0;
+  devFunValue[2] = 0.0;
+  
+  devFunValue[6] = gc[2]*(2.0*gc[0]-1.0)*(2.0*gc[2]-1.0)/2.0;
+  devFunValue[7] = 0.0;
+  devFunValue[8] = gc[0]*(gc[0]-1.0)*(4.0*gc[2]-1.0)/2.0;
+  
+  devFunValue[3] = (2.0*gc[0]-1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0)/2.0;
+  devFunValue[4] = gc[0]*(gc[0]-1.0)*(4.0*gc[2]+4.0*gc[1]-3.0)/2.0;
+  devFunValue[5] = gc[0]*(gc[0]-1.0)*(4.0*gc[2]+4.0*gc[1]-3.0)/2.0;
+  
+  devFunValue[9] = gc[1]*(2.0*gc[0]+1.0)*(2.0*gc[1]-1.0)/2.0;
+  devFunValue[10] = gc[0]*(gc[0]+1.0)*(4.0*gc[1]-1.0)/2.0;
+  devFunValue[11] = 0.0;
+  
+  devFunValue[15] = gc[2]*(2.0*gc[0]+1.0)*(2.0*gc[2]-1.0)/2.0;
+  devFunValue[16] = 0.0;
+  devFunValue[17] = gc[0]*(gc[0]+1.0)*(4.0*gc[2]-1.0)/2.0;
+  
+  devFunValue[12] = (2.0*gc[0]+1.0)*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0)/2.0;
+  devFunValue[13] = gc[0]*(gc[0]+1.0)*(4.0*gc[2]+4.0*gc[1]-3.0)/2.0;
+  devFunValue[14] = gc[0]*(gc[0]+1.0)*(4.0*gc[2]+4.0*gc[1]-3.0)/2.0;
+  
+  devFunValue[24] = 2.0*gc[1]*gc[2]*(2.0*gc[0]-1.0);
+  devFunValue[25] = 2.0*gc[0]*gc[2]*(gc[0]-1.0);
+  devFunValue[26] = 2.0*gc[0]*gc[1]*(gc[0]-1.0);
+  
+  devFunValue[21] = -2.0*gc[2]*(2.0*gc[0]-1.0)*(gc[2]+gc[1]-1.0);
+  devFunValue[22] = -2.0*gc[0]*gc[2]*(gc[0]-1.0);
+  devFunValue[23] = -2.0*gc[0]*(gc[0]-1.0)*(2.0*gc[2]+gc[1]-1.0);
+  
+  devFunValue[18] = -2.0*gc[1]*(2.0*gc[0]-1.0)*(gc[2]+gc[1]-1.0);
+  devFunValue[19] = -2.0*gc[0]*(gc[0]-1.0)*(2.0*gc[1]+gc[2]-1.0);
+  devFunValue[20] = -2.0*gc[0]*gc[1]*(gc[0]-1.0);
+  
+  devFunValue[36] = -2.0*gc[0]*gc[1]*(2.0*gc[1]-1.0);
+  devFunValue[37] = -(gc[0]-1.0)*(gc[0]+1.0)*(4.0*gc[1]-1.0);
+  devFunValue[38] = 0.0;
+  
+  devFunValue[42] = -2.0*gc[0]*gc[2]*(2.0*gc[2]-1.0);
+  devFunValue[43] = 0.0;
+  devFunValue[44] = -(gc[0]-1.0)*(gc[0]+1.0)*(4.0*gc[2]-1.0);
+  
+  devFunValue[39] = -2.0*gc[0]*(gc[2]+gc[1]-1.0)*(2.0*gc[2]+2.0*gc[1]-1.0);
+  devFunValue[40] = -(gc[0]-1.0)*(gc[0]+1.0)*(4.0*gc[2]+4.0*gc[1]-3.0);
+  devFunValue[41] = -(gc[0]-1.0)*(gc[0]+1.0)*(4.0*gc[2]+4.0*gc[1]-3.0);
+  
+  devFunValue[33] = 2.0*gc[1]*gc[2]*(2.0*gc[0]+1.0);
+  devFunValue[34] = 2.0*gc[0]*gc[2]*(gc[0]+1.0);
+  devFunValue[35] = 2.0*gc[0]*gc[1]*(gc[0]+1.0);
+  
+  devFunValue[30] = -2.0*gc[2]*(2.0*gc[0]+1.0)*(gc[2]+gc[1]-1.0);
+  devFunValue[31] = -2.0*gc[0]*gc[2]*(gc[0]+1.0);
+  devFunValue[32] = -2.0*gc[0]*(gc[0]+1.0)*(2.0*gc[2]+gc[1]-1.0);
+  
+  devFunValue[27] = -2.0*gc[1]*(2.0*gc[0]+1.0)*(gc[2]+gc[1]-1.0);
+  devFunValue[28] = -2.0*gc[0]*(gc[0]+1.0)*(2.0*gc[1]+gc[2]-1.0);
+  devFunValue[29] = -2.0*gc[0]*gc[1]*(gc[0]+1.0);
+  
+  devFunValue[51] = -8.0*gc[0]*gc[1]*gc[2];
+  devFunValue[52] = -4.0*gc[2]*(gc[0]-1.0)*(gc[0]+1.0);
+  devFunValue[53] = -4.0*gc[1]*(gc[0]-1.0)*(gc[0]+1.0);
+  
+  devFunValue[48] = 8.0*gc[0]*gc[2]*(gc[2]+gc[1]-1.0);
+  devFunValue[49] = 4.0*gc[2]*(gc[0]-1.0)*(gc[0]+1.0);
+  devFunValue[50] = 4.0*(gc[0]-1.0)*(gc[0]+1.0)*(2.0*gc[2]+gc[1]-1.0);
+  
+  devFunValue[45] = 8.0*gc[0]*gc[1]*(gc[2]+gc[1]-1.0);
+  devFunValue[46] = 4.0*(gc[0]-1.0)*(gc[0]+1.0)*(2.0*gc[1]+gc[2]-1.0);
+  devFunValue[47] = 4.0*gc[1]*(gc[0]-1.0)*(gc[0]+1.0);
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -2987,6 +3594,40 @@ void GaussInfo::hexa8bInit()
   funValue[6] = 0.125*(1.0 + gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
   funValue[5] = 0.125*(1.0 - gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.125 * (-1.0) * (1.0 - gc[1])*(1.0 - gc[2]);
+  devFunValue[1] = 0.125 * (1.0 - gc[0]) * (-1.0) * (1.0 - gc[2]);
+  devFunValue[2] = 0.125 * (1.0 - gc[0]) * (1.0 - gc[1]) *(-1.0);
+  
+  devFunValue[9] = 0.125*(1.0 - gc[1])*(1.0 - gc[2]);
+  devFunValue[10] = 0.125*(1.0 + gc[0])*(-1.0)*(1.0 - gc[2]);
+  devFunValue[11] = 0.125*(1.0 + gc[0])*(1.0 - gc[1])*(-1.0);
+
+  devFunValue[6] = 0.125*(1.0 + gc[1])*(1.0 - gc[2]);
+  devFunValue[7] = 0.125*(1.0 + gc[0])*(1.0 - gc[2]);
+  devFunValue[8] = 0.125*(1.0 + gc[0])*(1.0 + gc[1])*(-1.0);
+
+  devFunValue[3] = 0.125*(-1.0)*(1.0 + gc[1])*(1.0 - gc[2]);
+  devFunValue[4] = 0.125*(1.0 - gc[0])*(1.0 - gc[2]);
+  devFunValue[5] = 0.125*(1.0 - gc[0])*(1.0 + gc[1])*(-1.0);
+
+  devFunValue[12] = 0.125*(-1.0)*(1.0 - gc[1])*(1.0 + gc[2]);
+  devFunValue[13] = 0.125*(1.0 - gc[0])*(-1.0)*(1.0 + gc[2]);
+  devFunValue[14] = 0.125*(1.0 - gc[0])*(1.0 - gc[1]);
+
+  devFunValue[21] = 0.125*(1.0 - gc[1])*(1.0 + gc[2]);
+  devFunValue[22] = 0.125*(1.0 + gc[0])*(-1.0)*(1.0 + gc[2]);
+  devFunValue[23] = 0.125*(1.0 + gc[0])*(1.0 - gc[1]);
+
+  devFunValue[18] = 0.125*(1.0 + gc[1])*(1.0 + gc[2]);
+  devFunValue[19] = 0.125*(1.0 + gc[0])*(1.0 + gc[2]);
+  devFunValue[20] = 0.125*(1.0 + gc[0])*(1.0 + gc[1]);
+
+  devFunValue[15] = 0.125*(-1.0)*(1.0 + gc[1])*(1.0 + gc[2]);
+  devFunValue[16] = 0.125*(1.0 - gc[0])*(1.0 + gc[2]);
+  devFunValue[17] = 0.125*(1.0 - gc[0])*(1.0 + gc[1]);
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -3047,6 +3688,40 @@ void GaussInfo::hexa8DegQuad4aInit()
   funValue[6] = 0.;
   funValue[7] = 0.;
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = -0.25*(1.0+gc[1]);
+  devFunValue[1] = 0.25*(1.0-gc[0]);
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = -0.25*(1-gc[1]);
+  devFunValue[4] = -0.25*(1.0-gc[0]);
+  devFunValue[5] = 0.0;
+  
+  devFunValue[6] = 0.25*(1.0-gc[1]);
+  devFunValue[7] = -0.25*(1.0+gc[0]);
+  devFunValue[8] = 0.0;
+  
+  devFunValue[9] = 0.25*(1.0+gc[1]);
+  devFunValue[10] = 0.25*(1.0+gc[0]);
+  devFunValue[11] = 0.0;
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 0.0;
+  
+  devFunValue[15] = 0.0;
+  devFunValue[16] = 0.0;
+  devFunValue[17] = 0.0;
+  
+  devFunValue[18] = 0.0;
+  devFunValue[19] = 0.0;
+  devFunValue[20] = 0.0;
+  
+  devFunValue[21] = 0.0;
+  devFunValue[22] = 0.0;
+  devFunValue[23] = 0.0;
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -3097,16 +3772,50 @@ void GaussInfo::hexa8DegQuad4bInit()
    break;
    LOCAL_COORD_MACRO_END;
 
-   SHAPE_FUN_MACRO_BEGIN;
-   funValue[0] = 0.25*(1.0 - gc[0])*(1.0 - gc[1]);
-   funValue[1] = 0.25*(1.0 + gc[0])*(1.0 - gc[1]);
-   funValue[2] = 0.25*(1.0 + gc[0])*(1.0 + gc[1]);
-   funValue[3] = 0.25*(1.0 - gc[0])*(1.0 + gc[1]);
-   funValue[4] = 0.;
-   funValue[5] = 0.;
-   funValue[6] = 0.;
-   funValue[7] = 0.;
-   SHAPE_FUN_MACRO_END;
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = 0.25*(1.0 - gc[0])*(1.0 - gc[1]);
+  funValue[1] = 0.25*(1.0 + gc[0])*(1.0 - gc[1]);
+  funValue[2] = 0.25*(1.0 + gc[0])*(1.0 + gc[1]);
+  funValue[3] = 0.25*(1.0 - gc[0])*(1.0 + gc[1]);
+  funValue[4] = 0.;
+  funValue[5] = 0.;
+  funValue[6] = 0.;
+  funValue[7] = 0.;
+  SHAPE_FUN_MACRO_END;
+     
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = -0.25*(1.0-gc[1]);
+  devFunValue[1] = -0.25*(1.0-gc[0]);
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = 0.25*(1-gc[1]);
+  devFunValue[4] = -0.25*(1.0+gc[0]);
+  devFunValue[5] = 0.0;
+  
+  devFunValue[6] = 0.25*(1.0+gc[1]);
+  devFunValue[7] = 0.25*(1.0+gc[0]);
+  devFunValue[8] = 0.0;
+  
+  devFunValue[9] = -0.25*(1.0+gc[1]);
+  devFunValue[10] = 0.25*(1.0-gc[0]);
+  devFunValue[11] = 0.0;
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 0.0;
+  
+  devFunValue[15] = 0.0;
+  devFunValue[16] = 0.0;
+  devFunValue[17] = 0.0;
+  
+  devFunValue[18] = 0.0;
+  devFunValue[19] = 0.0;
+  devFunValue[20] = 0.0;
+  
+  devFunValue[21] = 0.0;
+  devFunValue[22] = 0.0;
+  devFunValue[23] = 0.0;
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -3158,16 +3867,50 @@ void GaussInfo::hexa8DegQuad4cInit()
 
    LOCAL_COORD_MACRO_END;
 
-   SHAPE_FUN_MACRO_BEGIN;
-   funValue[0] = 0.25*(1.0 - gc[0])*(1.0 - gc[1]);
-   funValue[1] = 0.25*(1.0 - gc[0])*(1.0 + gc[1]);
-   funValue[2] = 0.25*(1.0 + gc[0])*(1.0 + gc[1]);
-   funValue[3] = 0.25*(1.0 + gc[0])*(1.0 - gc[1]);
-   funValue[4] = 0. ;
-   funValue[5] = 0. ;
-   funValue[6] = 0. ;
-   funValue[7] = 0. ;
-   SHAPE_FUN_MACRO_END;
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = 0.25*(1.0 - gc[0])*(1.0 - gc[1]);
+  funValue[1] = 0.25*(1.0 - gc[0])*(1.0 + gc[1]);
+  funValue[2] = 0.25*(1.0 + gc[0])*(1.0 + gc[1]);
+  funValue[3] = 0.25*(1.0 + gc[0])*(1.0 - gc[1]);
+  funValue[4] = 0. ;
+  funValue[5] = 0. ;
+  funValue[6] = 0. ;
+  funValue[7] = 0. ;
+  SHAPE_FUN_MACRO_END;
+   
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = -0.25*(1.0-gc[1]);
+  devFunValue[1] = -0.25*(1.0-gc[0]);
+  devFunValue[2] = 0.0;
+  
+  devFunValue[3] = -0.25*(1.0+gc[1]);
+  devFunValue[4] = 0.25*(1.0-gc[0]);
+  devFunValue[5] = 0.0;
+  
+  devFunValue[6] = 0.25*(1.0+gc[1]);
+  devFunValue[7] = 0.25*(1.0+gc[0]);
+  devFunValue[8] = 0.0;
+  
+  devFunValue[9] = 0.25*(1.0-gc[1]);
+  devFunValue[10] = -0.25*(1.0+gc[0]);
+  devFunValue[11] = 0.0;
+  
+  devFunValue[12] = 0.0;
+  devFunValue[13] = 0.0;
+  devFunValue[14] = 0.0;
+  
+  devFunValue[15] = 0.0;
+  devFunValue[16] = 0.0;
+  devFunValue[17] = 0.0;
+  
+  devFunValue[18] = 0.0;
+  devFunValue[19] = 0.0;
+  devFunValue[20] = 0.0;
+  
+  devFunValue[21] = 0.0;
+  devFunValue[22] = 0.0;
+  devFunValue[23] = 0.0;
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 /*!
@@ -3537,6 +4280,88 @@ void GaussInfo::hexa20bInit()
   funValue[13] = 0.25*(1.0 - gc[0]*gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
   funValue[12] = 0.25*(1.0 - gc[1]*gc[1])*(1.0 - gc[0])*(1.0 + gc[2]);
   SHAPE_FUN_MACRO_END;
+  
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 0.125*(1. + gc[1] + gc[2] + 2* gc[0]) * (1.0 - gc[1])*(1.0 - gc[2]);
+  devFunValue[1] = 0.125*(1.0 - gc[0])*(1. + gc[0] + gc[2] + 2 * gc[1])*(1.0 - gc[2]);
+  devFunValue[2] = 0.125*(1.0 - gc[0])*(1.0 - gc[1])*(1.0 + gc[0] + gc[1] + 2 *gc[2]);
+
+  devFunValue[9] = 0.125*(-1.0 - gc[1] - gc[2] + 2*gc[0])*(1.0 - gc[1])*(1.0 - gc[2]);
+  devFunValue[10] = 0.125*(1.0 + gc[0])*  (1 - gc[0] + gc[2] + 2*gc[1])  *(1.0 - gc[2]);
+  devFunValue[11] = 0.125*(1.0 + gc[0])*(1.0 - gc[1])* (1 - gc[0] + gc[1] + 2*gc[2]);
+  
+  devFunValue[6] = 0.125*(-1.0 + gc[1] - gc[2] + 2*gc[0])*(1.0 + gc[1])*(1.0 - gc[2]);
+  devFunValue[7] = 0.125*(1.0 + gc[0])* (-1 + gc[0] - gc[2] + 2*gc[1]) *(1.0 - gc[2]);
+  devFunValue[8] = 0.125*(1.0 + gc[0])*(1.0 + gc[1])*(1.0 - gc[0] - gc[1] + 2*gc[2]);
+
+  devFunValue[3] = 0.125*(1.0 - gc[1] + gc[2] + 2*gc[0])*(1.0 + gc[1])*(1.0 - gc[2]);
+  devFunValue[4] = 0.125*(1.0 - gc[0])*(-1 - gc[0] - gc[2] + 2*gc[1])*(1.0 - gc[2]);
+  devFunValue[5] = 0.125*(1.0 - gc[0])*(1.0 + gc[1])*(1.0 + gc[0] - gc[1] + 2*gc[2]);
+  
+  devFunValue[12] = 0.125*(1.0 + gc[1] - gc[2] + 2*gc[0])*(1.0 - gc[1])*(1.0 + gc[2]);
+  devFunValue[13] = 0.125*(1.0 - gc[0])*(1 + gc[0] - gc[2] + 2*gc[1])*(1.0 + gc[2]);
+  devFunValue[14] = 0.125*(1.0 - gc[0])*(1.0 - gc[1])*(-1.0 - gc[0] - gc[1] + 2*gc[2]);
+  
+  devFunValue[21] = 0.125*(-1.0 - gc[1] + gc[2] + 2*gc[0])*(1.0 - gc[1])*(1.0 + gc[2]);
+  devFunValue[22] = 0.125*(1.0 + gc[0])*(1 - gc[0] - gc[2] + 2*gc[1])*(1.0 + gc[2]);
+  devFunValue[23] = 0.125*(1.0 + gc[0])*(1.0 - gc[1])*(-1.0 + gc[0] - gc[1] + 2*gc[2]);
+  
+  devFunValue[18] = 0.125*(-1.0 + gc[1] + gc[2] + 2*gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
+  devFunValue[19] = 0.125*(1.0 + gc[0])*(-1 + gc[0] + gc[2] + 2*gc[1])*(1.0 + gc[2]);
+  devFunValue[20] = 0.125*(1.0 + gc[0])*(1.0 + gc[1])*(-1.0 + gc[0] + gc[1] + 2*gc[2]);
+
+  devFunValue[15] = 0.125*(1.0 - gc[1] - gc[2] + 2*gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
+  devFunValue[16] = 0.125*(1.0 - gc[0])*(-1 - gc[0] + gc[2] + 2*gc[1])*(1.0 + gc[2]);
+  devFunValue[17] = 0.125*(1.0 - gc[0])*(1.0 + gc[1])*(-1.0 - gc[0] + gc[1] + 2*gc[2]);
+
+  devFunValue[33] = 0.25*(-2.0*gc[0])*(1.0 - gc[1])*(1.0 - gc[2]);
+  devFunValue[34] = 0.25*(1.0 - gc[0]*gc[0])*(-1)*(1.0 - gc[2]);
+  devFunValue[35] = 0.25*(1.0 - gc[0]*gc[0])*(1.0 - gc[1])*(-1.0);
+
+  devFunValue[30] = 0.25*(1.0 - gc[1]*gc[1])*(1.0 - gc[2]);
+  devFunValue[31] = 0.25*(-2.0*gc[1])*(1.0 + gc[0])*(1.0 - gc[2]);
+  devFunValue[32] = 0.25*(1.0 - gc[1]*gc[1])*(1.0 + gc[0])*(-1.0);
+
+  devFunValue[27] = 0.25*(-2.0*gc[0])*(1.0 + gc[1])*(1.0 - gc[2]);
+  devFunValue[28] = 0.25*(1.0 - gc[0]*gc[0])*(1.0)*(1.0 - gc[2]);
+  devFunValue[29] = 0.25*(1.0 - gc[0]*gc[0])*(1.0 + gc[1])*(-1.0);
+
+  devFunValue[24] = 0.25*(1.0 - gc[1]*gc[1])*(-1.0)*(1.0 - gc[2]);
+  devFunValue[25] = 0.25*(-2.0*gc[1])*(1.0 - gc[0])*(1.0 - gc[2]);
+  devFunValue[26] = 0.25*(1.0 - gc[1]*gc[1])*(1.0 - gc[0])*(-1.0);
+
+  devFunValue[48] = 0.25*(1.0 - gc[2]*gc[2])*(-1.0)*(1.0 - gc[1]);
+  devFunValue[49] = 0.25*(1.0 - gc[2]*gc[2])*(1.0 - gc[0])*(-1.0);
+  devFunValue[50] = 0.25*(-2.0*gc[2])*(1.0 - gc[0])*(1.0 - gc[1]);
+
+  devFunValue[57] = 0.25*(1.0 - gc[2]*gc[2])*(1.0 - gc[1]);
+  devFunValue[58] = 0.25*(1.0 - gc[2]*gc[2])*(1.0 + gc[0])*(-1.0);
+  devFunValue[59] = 0.25*(-2.0*gc[2])*(1.0 + gc[0])*(1.0 - gc[1]);
+
+  devFunValue[54] = 0.25*(1.0 - gc[2]*gc[2])*(1.0 + gc[1]);
+  devFunValue[55] = 0.25*(1.0 - gc[2]*gc[2])*(1.0 + gc[0]);
+  devFunValue[56] = 0.25*(-2.0*gc[2])*(1.0 + gc[0])*(1.0 + gc[1]);
+
+  devFunValue[51] = 0.25*(1.0 - gc[2]*gc[2])*(-1.0)*(1.0 + gc[1]);
+  devFunValue[52] = 0.25*(1.0 - gc[2]*gc[2])*(1.0 - gc[0]);
+  devFunValue[53] = 0.25*(-2.0*gc[2])*(1.0 - gc[0])*(1.0 + gc[1]);
+
+  devFunValue[45] = 0.25*(-2.0*gc[0])*(1.0 - gc[1])*(1.0 + gc[2]);
+  devFunValue[46] = 0.25*(1.0 - gc[0]*gc[0])*(-1.0)*(1.0 + gc[2]);
+  devFunValue[47] = 0.25*(1.0 - gc[0]*gc[0])*(1.0 - gc[1]);
+
+  devFunValue[42] = 0.25*(1.0 - gc[1]*gc[1])*(1.0 + gc[2]);
+  devFunValue[43] = 0.25*(-2.0*gc[1])*(1.0 + gc[0])*(1.0 + gc[2]);
+  devFunValue[44] = 0.25*(1.0 - gc[1]*gc[1])*(1.0 + gc[0]);
+
+  devFunValue[39] = 0.25*(-2.0*gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
+  devFunValue[40] = 0.25*(1.0 - gc[0]*gc[0])*(1.0 + gc[2]);
+  devFunValue[41] = 0.25*(1.0 - gc[0]*gc[0])*(1.0 + gc[1]);
+
+  devFunValue[36] = 0.25*(1.0 - gc[1]*gc[1])*(-1.0)*(1.0 + gc[2]);
+  devFunValue[37] = 0.25*(-2.0*gc[1])*(1.0 - gc[0])*(1.0 + gc[2]);
+  devFunValue[38] = 0.25*(1.0 - gc[1]*gc[1])*(1.0 - gc[0]);
+  DEV_SHAPE_FUN_MACRO_END;
 }
 
 void GaussInfo::hexa27aInit()
