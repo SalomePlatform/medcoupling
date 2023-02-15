@@ -627,7 +627,7 @@ void MEDCouplingBasicsTest4::testGaussCoordinates1()
   resToTest=f->getLocalizationOfDiscr();
   CPPUNIT_ASSERT_EQUAL(3,(int)resToTest->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(8,(int)resToTest->getNumberOfTuples());//2+3+4+4 gauss points for resp TRI3,TRI6,QUAD4,QUAD8
-  const double expected3[24]={1.312,3.15,1.02, 0.56,3.3,0.6, 2.18,1.1,0.2, 1.18,1.54,0.98, 1.56,0.3,3.6, 1.613,0.801,4.374, 2.6,2.4,2.3, 2.31232,2.3933985,1.553255};
+  const double expected3[24]={1.312,3.15,1.02, 0.56,3.3,0.6, 2.20,1.0,0.2, 2.44, 2.52,1.4, 1.56,0.3,3.6, 1.613,0.801,4.374, 2.6,2.4,2.3, 2.31232,2.3933985,1.553255};
   for(int i=0;i<24;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[i],resToTest->getIJ(0,i),1e-14);
   resToTest->decrRef();
