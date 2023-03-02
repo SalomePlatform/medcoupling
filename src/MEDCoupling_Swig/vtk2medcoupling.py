@@ -46,7 +46,7 @@ def mesh_convertor_mem(ug):
     c=mc.DataArrayInt(conn)[:]
     ci=mc.DataArrayInt(cla)[:]
     # for pv580
-    if LooseVersion(vtk.VTK_VERSION) >= LooseVersion("8.90.0"):
+    if LooseVersion(vtk.vtkVersion().GetVTKVersion()) >= LooseVersion("8.90.0"):
         ci = ci.deltaShiftIndex()+1
         ci.computeOffsetsFull()
     #
