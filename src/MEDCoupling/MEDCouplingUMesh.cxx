@@ -2354,16 +2354,16 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const
 /*!
  * This method expects that \b this and \b otherDimM1OnSameCoords share the same coordinates array.
  * otherDimM1OnSameCoords->getMeshDimension() is expected to be equal to this->getMeshDimension()-1.
- * This method searches for nodes needed to be duplicated. These nodes are nodes fetched by \b otherDimM1OnSameCoords which are not part of the boundary of \b otherDimM1OnSameCoords.
- * If a node is in the boundary of \b this \b and in the boundary of \b otherDimM1OnSameCoords this node is considered as needed to be duplicated.
+ * This method searches for nodes needed to be duplicated. Those are the nodes fetched by \b otherDimM1OnSameCoords which are not part of the boundary of \b otherDimM1OnSameCoords.
+ * If a node is in the boundary of \b this \b and in the boundary of \b otherDimM1OnSameCoords, it will be duplicated.
  * When the set of node ids \b nodeIdsToDuplicate is computed, cell ids in \b this is searched so that their connectivity includes at least 1 node in \b nodeIdsToDuplicate.
  *
- * \param [in] otherDimM1OnSameCoords a mesh lying on the same coords than \b this and with a mesh dimension equal to those of \b this minus 1. WARNING this input
+ * \param [in] crackingMesh a mesh lying on the same coords than \b this and with a mesh dimension equal to those of \b this minus 1. WARNING this input
  *             parameter is altered during the call.
  * \return node ids which need to be duplicated following the algorithm explained above.
  *
  */
-DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords) const
+DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& crackingMesh) const
 {
   // DEBUG NOTE: in case of issue with the algorithm in this method, see Python script in resources/dev
   // which mimicks the C++
@@ -2371,15 +2371,26 @@ DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& 
   using MCUMesh = MCAuto<MEDCouplingUMesh>;
 
   checkFullyDefined();
-  otherDimM1OnSameCoords.checkFullyDefined();
-  if(getCoords()!=otherDimM1OnSameCoords.getCoords())
+  crackingMesh.checkFullyDefined();
+  if(getCoords()!=crackingMesh.getCoords())
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : meshes do not share the same coords array !");
-  if(otherDimM1OnSameCoords.getMeshDimension()!=getMeshDimension()-1)
+  if(crackingMesh.getMeshDimension()!=getMeshDimension()-1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the mesh given in other parameter must have this->getMeshDimension()-1 !");
+
+  // Clean the M1 group (cracking mesh): the M1 cells which are part of M0 boundary are irrelevant (we can't create a crack on the boundary of M0!)
+  MCUMesh m0skin = computeSkin();
+  DataArrayIdType *idsToKeepP;
+  m0skin->areCellsIncludedIn(&crackingMesh,2, idsToKeepP);
+  DAInt idsToKeep(idsToKeepP);
+  DAInt ids2 = idsToKeep->findIdsNotInRange(0, m0skin->getNumberOfCells());  // discard cells on the skin of M0
+  MCUMesh otherDimM1OnSameCoords =static_cast<MEDCouplingUMesh *>(crackingMesh.buildPartOfMySelf(ids2->begin(), ids2->end(), true));
+
+  if (!otherDimM1OnSameCoords->getNumberOfCells())
+    return MCAuto<DataArrayIdType>(DataArrayIdType::New()).retn();
 
   // Checking star-shaped M1 group:
   DAInt dt0=DataArrayIdType::New(),dit0=DataArrayIdType::New(),rdt0=DataArrayIdType::New(),rdit0=DataArrayIdType::New();
-  MCUMesh meshM2 = otherDimM1OnSameCoords.buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); // 2D: a mesh of points, 3D: a mesh of segs
+  MCUMesh meshM2 = otherDimM1OnSameCoords->buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); // 2D: a mesh of points, 3D: a mesh of segs
   DAInt dsi = rdit0->deltaShiftIndex();
   DAInt idsTmp0 = dsi->findIdsNotInRange(-1, 3);  // for 2D: if a point is connected to more than 2 segs. For 3D: if a seg is connected to more than two faces.
   if(idsTmp0->getNumberOfTuples())
@@ -2391,33 +2402,28 @@ DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& 
   DAInt xtremIdsM2 = dsi->findIdsEqual(1); dsi = 0;
   MCUMesh meshM2Part = static_cast<MEDCouplingUMesh *>(meshM2->buildPartOfMySelf(xtremIdsM2->begin(), xtremIdsM2->end(),true));
   DAInt xtrem = meshM2Part->computeFetchedNodeIds();
-  // Remove from the list points on the boundary of the M0 mesh (those need duplication!)
-  dt0=DataArrayIdType::New(),dit0=DataArrayIdType::New(),rdt0=DataArrayIdType::New(),rdit0=DataArrayIdType::New();
-  MCUMesh m0desc = buildDescendingConnectivity(dt0, dit0, rdt0, rdit0); dt0=0; dit0=0; rdt0=0;
-  dsi = rdit0->deltaShiftIndex();  rdit0=0;
-  DAInt boundSegs = dsi->findIdsEqual(1);  dsi = 0; // boundary segs/faces of the M0 mesh
-  MCUMesh m0descSkin = static_cast<MEDCouplingUMesh *>(m0desc->buildPartOfMySelf(boundSegs->begin(),boundSegs->end(), true));
-  DAInt fNodes = m0descSkin->computeFetchedNodeIds();
-  // In 3D, some points on the boundary of M0 will NOT be duplicated (where as in 2D, points on the boundary of M0 are always duplicated)
-  // Think of a partial (plane) crack in a cube: the points at the tip of the crack and not located inside the volume of the cube are not duplicated
-  // although they are technically on the skin of the cube.
+  // Remove from the list points on the boundary of the M0 mesh (those need duplication!).
+  //    In 3D, some points on the boundary of M0 will NOT be duplicated (where as in 2D, points on the boundary of M0 are always duplicated)
+  //    Think of a partial (plane) crack in a cube: the points at the tip of the crack and not located inside the volume of the cube are not duplicated
+  //    although they are technically on the skin of the cube.
+  DAInt fNodes = m0skin->computeFetchedNodeIds();
   DAInt notDup = 0;
   if (getMeshDimension() == 3)
     {
       DAInt dnu1=DataArrayIdType::New(), dnu2=DataArrayIdType::New(), dnu3=DataArrayIdType::New(), dnu4=DataArrayIdType::New();
-      MCUMesh m0descSkinDesc = m0descSkin->buildDescendingConnectivity(dnu1, dnu2, dnu3, dnu4); // all segments of the skin of the 3D (M0) mesh
+      MCUMesh m0skinDesc = m0skin->buildDescendingConnectivity(dnu1, dnu2, dnu3, dnu4); // all segments of the skin of the 3D (M0) mesh
       dnu1=0;dnu2=0;dnu3=0;dnu4=0;
       DataArrayIdType * corresp=0;
-      meshM2->areCellsIncludedIn(m0descSkinDesc,2,corresp);
+      meshM2->areCellsIncludedIn(m0skinDesc,2,corresp);
       // validIds is the list of segments which are on both the skin of *this*, and in the segments of the M1 group
-      // In the cube example above, this is a U shape polyline.
+      // In the cube example above, this is a U-shaped polyline.
       DAInt validIds = corresp->findIdsInRange(0, meshM2->getNumberOfCells());
       corresp->decrRef();
       if (validIds->getNumberOfTuples())
         {
           // Build the set of segments which are: in the desc mesh of the skin of the 3D mesh (M0) **and** in the desc mesh of the M1 group:
           // (the U-shaped polyline described above)
-          MCUMesh m1IntersecSkin = static_cast<MEDCouplingUMesh *>(m0descSkinDesc->buildPartOfMySelf(validIds->begin(), validIds->end(), true));
+          MCUMesh m1IntersecSkin = static_cast<MEDCouplingUMesh *>(m0skinDesc->buildPartOfMySelf(validIds->begin(), validIds->end(), true));
           // Its boundary nodes should no be duplicated (this is for example the tip of the crack inside the cube described above)
           DAInt notDuplSkin = m1IntersecSkin->findBoundaryNodes();
           DAInt fNodes1 = fNodes->buildSubstraction(notDuplSkin);
@@ -2444,7 +2450,7 @@ DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& 
               MCUMesh mAroundBNDesc = mAroundBN->buildDescendingConnectivity(descBN,descIBN,revDescBN,revDescIBN);
               //    2. Identify cells in sub-mesh mAroundBN which have a face in common with M1
               DataArrayIdType *idsOfM1BNt;
-              mAroundBNDesc->areCellsIncludedIn(&otherDimM1OnSameCoords,2, idsOfM1BNt);
+              mAroundBNDesc->areCellsIncludedIn(otherDimM1OnSameCoords,2, idsOfM1BNt);
               DAInt idsOfM1BN(idsOfM1BNt);
               mcIdType nCells=mAroundBN->getNumberOfCells(), nCellsDesc=mAroundBNDesc->getNumberOfCells();
               DAInt idsTouch=DataArrayIdType::New(); idsTouch->alloc(0,1);
@@ -2473,7 +2479,7 @@ DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& 
   else  // if (3D ...)
     notDup = xtrem->buildSubstraction(fNodes);
 
-  DAInt m1Nodes = otherDimM1OnSameCoords.computeFetchedNodeIds();
+  DAInt m1Nodes = otherDimM1OnSameCoords->computeFetchedNodeIds();
   DAInt dupl = m1Nodes->buildSubstraction(notDup);
   return dupl.retn();
 }
@@ -2486,8 +2492,7 @@ DataArrayIdType* MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& 
  * Given a set of nodes to duplicate, this method identifies which cells should have their connectivity modified
  * to produce the inner boundary. It is typically called after findNodesToDuplicate().
  *
- * \param [in] otherDimM1OnSameCoords a mesh lying on the same coords than \b this and with a mesh dimension equal to those of \b this minus 1. WARNING this input
- *             parameter is altered during the call.
+ * \param [in] otherDimM1OnSameCoords a mesh lying on the same coords than \b this and with a mesh dimension equal to those of \b this minus 1.
  * \param [in] nodeIdsToDuplicateBg node ids needed to be duplicated, as returned by findNodesToDuplicate.
  * \param [in] nodeIdsToDuplicateEnd node ids needed to be duplicated, as returned by findNodesToDuplicate.
  * \param [out] cellIdsNeededToBeRenum cell ids in \b this in which the renumber of nodes should be performed.
@@ -2506,6 +2511,14 @@ void MEDCouplingUMesh::findCellsToRenumber(const MEDCouplingUMesh& otherDimM1OnS
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: meshes do not share the same coords array !");
   if(otherDimM1OnSameCoords.getMeshDimension()!=getMeshDimension()-1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: the mesh given in other parameter must have this->getMeshDimension()-1 !");
+
+  // Degenerated case - no nodes to duplicate
+  if (nodeIdsToDuplicateBg == nodeIdsToDuplicateEnd)
+    {
+      cellIdsNeededToBeRenum = DataArrayIdType::New(); cellIdsNeededToBeRenum->alloc(0,1);
+      cellIdsNotModified = DataArrayIdType::New(); cellIdsNotModified->alloc(0,1);
+      return;
+    }
 
   // Compute cell IDs of the mesh with cells that touch the M1 group with a least one node:
   DAInt cellsAroundGroupLarge = getCellIdsLyingOnNodes(nodeIdsToDuplicateBg, nodeIdsToDuplicateEnd, false);  // false= take cell in, even if not all nodes are in dupl
@@ -2561,7 +2574,7 @@ void MEDCouplingUMesh::findCellsToRenumber(const MEDCouplingUMesh& otherDimM1OnS
           if (hitCellsLargeP[other])
             {
               if(val && hitCellsLargeP[other] != -val)
-                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: internal error #1 - conflictint values - should not happen!");;
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: internal error #1 - conflicting values - should not happen!");;
               // We do not yet have a value, but other side has one. Use it!
               if(!val) val = -hitCellsLargeP[other];
             }
