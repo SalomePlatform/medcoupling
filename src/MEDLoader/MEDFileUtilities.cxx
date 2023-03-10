@@ -203,6 +203,11 @@ void MEDCoupling::MEDFileWritableStandAlone::write30(const std::string& fileName
   this->writeXX(fileName,mode,3,0,6);
 }
 
+void MEDCoupling::MEDFileWritableStandAlone::write40(const std::string& fileName, int mode) const
+{
+  this->writeXX(fileName,mode,4,0,1);
+}
+
 void MEDCoupling::MEDFileWritableStandAlone::writeXX(const std::string& fileName, int mode, med_int maj, med_int min, med_int rel) const
 {
 #if ( MED_NUM_MAJEUR>4 || ( MED_NUM_MAJEUR==4 && MED_NUM_MINEUR>=1 ) )
