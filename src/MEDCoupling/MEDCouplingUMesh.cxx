@@ -2229,10 +2229,15 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
 DataArrayIdType *MEDCouplingUMesh::findCellIdsOnBoundary() const
 {
   checkFullyDefined();
-  MCAuto<DataArrayIdType> desc=DataArrayIdType::New();
-  MCAuto<DataArrayIdType> descIndx=DataArrayIdType::New();
-  MCAuto<DataArrayIdType> revDesc=DataArrayIdType::New();
-  MCAuto<DataArrayIdType> revDescIndx=DataArrayIdType::New();
+  MCAuto<DataArrayIdType> ret2(DataArrayIdType::New());
+
+  if (getNumberOfCells() == 0)
+    {
+      ret2->alloc(0,1);
+      return ret2.retn();
+    }
+
+  MCAuto<DataArrayIdType> desc(DataArrayIdType::New()), descIndx(DataArrayIdType::New()), revDesc(DataArrayIdType::New()), revDescIndx(DataArrayIdType::New());
   //
   buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx)->decrRef();
   desc=(DataArrayIdType*)0; descIndx=(DataArrayIdType*)0;
@@ -2248,7 +2253,6 @@ DataArrayIdType *MEDCouplingUMesh::findCellIdsOnBoundary() const
     if(!ret1[revDescPtr[revDescIndxPtr[*pt]]])
       { ret1[revDescPtr[revDescIndxPtr[*pt]]]=true; sz++; }
   //
-  DataArrayIdType *ret2=DataArrayIdType::New();
   ret2->alloc(sz,1);
   mcIdType *ret2Ptr=ret2->getPointer();
   sz=0;
@@ -2256,7 +2260,7 @@ DataArrayIdType *MEDCouplingUMesh::findCellIdsOnBoundary() const
     if(*it)
       *ret2Ptr++=sz;
   ret2->setName("BoundaryCells");
-  return ret2;
+  return ret2.retn();
 }
 
 /*!
