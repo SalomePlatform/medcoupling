@@ -547,13 +547,14 @@ void MEDFileUMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const 
   loadCoords(fid,infosOnComp,mName,dt,it);
 }
 
-void MEDFileUMeshL2::loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+/*!
+ * This method is expected to be invoked after the load of connectivity.
+ * This method is in charge of :
+ *  - dealing with optimized load of coordinates (loading only points fetched by the already loaded cells)
+ *  - update the connectivity in \a this to fit the coordinates loaded just above
+ */
+void MEDFileUMeshL2::dealWithCoordsInLoadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<std::string>& infosOnComp, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  int Mdim;
-  std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
-  if(Mdim==-4)
-    return ;
-  loadPartOfConnectivity(fid,Mdim,mName,types,slicPerTyp,dt,it,mrs);
   med_bool changement,transformation;
   mcIdType nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
   std::vector<bool> fetchedNodeIds(nCoords,false);
@@ -580,6 +581,25 @@ void MEDFileUMeshL2::loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const
         (*it1)->getMesh()->renumberNodesInConn(o2n->data());
     this->loadPartCoordsSlice(fid,infosOnComp,mName,dt,it,fni,nbOfCooLS);
   }
+}
+
+std::vector<std::string> MEDFileUMeshL2::loadPartConnectivityOnly(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs, int& Mdim)
+{
+  std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
+  if(Mdim==-4)
+    return infosOnComp;
+  loadPartOfConnectivity(fid,Mdim,mName,types,slicPerTyp,dt,it,mrs);
+  return infosOnComp;
+}
+
+void MEDFileUMeshL2::loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  int Mdim;
+  std::vector<std::string> infosOnComp(loadPartConnectivityOnly(fid,mId,mName,types,slicPerTyp,dt,it,mrs,Mdim));
+  if(Mdim==-4)
+    return ;
+  loadPartOfConnectivity(fid,Mdim,mName,types,slicPerTyp,dt,it,mrs);
+  dealWithCoordsInLoadPart(fid,mId,mName,infosOnComp,types,slicPerTyp,dt,it,mrs);
 }
 
 void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)

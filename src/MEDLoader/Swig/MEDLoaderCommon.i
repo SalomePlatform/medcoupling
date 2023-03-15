@@ -108,6 +108,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileData::getJoints;
 %newobject MEDCoupling::MEDFileStructuredMesh::getImplicitFaceMesh;
 %newobject MEDCoupling::MEDFileUMesh::New;
+%newobject MEDCoupling::MEDFileUMesh::LoadConnectivityOnlyPartOf;
 %newobject MEDCoupling::MEDFileUMesh::LoadPartOf;
 %newobject MEDCoupling::MEDFileUMesh::getCoords;
 %newobject MEDCoupling::MEDFileUMesh::getPartDefAtLevel;
@@ -1496,6 +1497,17 @@ namespace MEDCoupling
          MEDFileUMesh()
          {
            return MEDFileUMesh::New();
+         }
+         
+         static MEDFileUMesh *LoadConnectivityOnlyPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<mcIdType>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
+         {
+           std::vector<int> typesCpp1;
+           convertPyToNewIntArr3(types,typesCpp1);
+           std::size_t sz(typesCpp1.size());
+           std::vector<INTERP_KERNEL::NormalizedCellType> typesCpp2(sz);
+           for(std::size_t ii=0;ii<sz;ii++)
+             typesCpp2[ii]=(INTERP_KERNEL::NormalizedCellType)typesCpp1[ii];
+           return MEDFileUMesh::LoadConnectivityOnlyPartOf(fileName,mName,typesCpp2,slicPerTyp,dt,it,mrs).retn();
          }
 
          static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<mcIdType>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)

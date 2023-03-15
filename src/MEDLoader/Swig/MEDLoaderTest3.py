@@ -4333,6 +4333,23 @@ class MEDLoaderTest3(unittest.TestCase):
         arr = DataArrayDouble(21, 2) ; arr[:, 0] = list(range(203, 224)) ; arr[:, 1] = list(range(303, 324))
         arr.setInfoOnComponents(compos)
         self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
+        # [EDF27364] : test of LoadConnectivityOnlyPartOf
+        mm3=MEDFileUMesh.LoadConnectivityOnlyPartOf(fileName,meshName,[NORM_QUAD4],[0,6,1])
+        mm3.forceComputationOfParts()
+        m3s = mm3.getDirectUndergroundSingleGeoTypeMeshes(0)
+        self.assertEqual( len(m3s), 1 )
+        m3s = m3s[0]
+        self.assertTrue( m3s.getCoords() is None )
+        self.assertEqual( m3s.getCellModelEnum() , NORM_QUAD4 )
+        self.assertTrue( m3s.getNodalConnectivity().isEqual(DataArrayInt([1,0,6,7,2,1,7,8,3,2,8,9,4,3,9,10,5,4,10,11,7,6,12,13])) )
+        mm4 = MEDFileUMesh.LoadConnectivityOnlyPartOf(fileName,meshName,[NORM_QUAD4],[3,15,1])
+        mm4.forceComputationOfParts()
+        m4s = mm4.getDirectUndergroundSingleGeoTypeMeshes(0)
+        self.assertEqual( len(m4s), 1 )
+        m4s = m4s[0]
+        self.assertTrue( m4s.getCoords() is None )
+        self.assertEqual( m4s.getCellModelEnum() , NORM_QUAD4 )
+        self.assertTrue( m4s.getNodalConnectivity().isEqual(DataArrayInt([4,3,9,10,5,4,10,11,7,6,12,13,8,7,13,14,9,8,14,15,10,9,15,16,11,10,16,17,13,12,18,19,14,13,19,20,15,14,20,21,16,15,21,22,17,16,22,23])) )
         pass
 
     @WriteInTmpDir

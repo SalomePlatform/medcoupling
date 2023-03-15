@@ -2469,6 +2469,41 @@ MEDFileUMesh *MEDFileUMesh::New()
 }
 
 /*!
+ * Please refer to the other MEDFileUMesh::LoadConnectivityOnlyPartOf method that has the same semantic and the same parameter (excepted the first).
+ * This method is \b NOT wrapped into python.
+ */
+MCAuto<MEDFileUMesh> MEDFileUMesh::LoadConnectivityOnlyPartOf(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MCAuto<MEDFileUMesh> ret(MEDFileUMesh::New());
+  ret->loadPartUMeshFromFile(fid,mName,types,slicPerTyp,[](MEDFileUMeshL2& loader,med_idt fid, MeshOrStructMeshCls *mid,const std::string& mName,const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>&slicPerTyp,int dt,int it,MEDFileMeshReadSelector *mrs){ int Mdim; loader.loadPartConnectivityOnly(fid,mid,mName,types,slicPerTyp,dt,it,mrs,Mdim); },dt,it,mrs);
+  return ret;
+}
+
+/*!
+ * This method loads from file with name \a fileName the mesh called \a mName as New does. The difference is that
+ * here only a part of cells contained in the file will be loaded. The selection of cell is specified using the two consecutive parameters
+ * \a types and \a slicPerTyp. This method allows to load from a mesh (typically huge) in a MED file a part of cells of that mesh.
+ * The part of cells is specified using triplet (start,stop,step) for each geometric type. Only nodes lying on selected cells will be loaded to reduce
+ * at most the memory consumtion. Contrary to MEDFileUMesh::LoadPart this method does not load coordinates but only connectivities
+ *
+ * \param [in] fileName - the name of the file.
+ * \param [in] mName - the name of the mesh to be read.
+ * \param [in] types - the list of the geo types of which some part will be taken. A geometric type in \a types must appear only once at most.
+ * \param [in] slicPerTyp - an array of size 3 times larger than \a types that specifies for each type in \a types (in the same order) resp the start, the stop and the step.
+ * \param [in] dt - the iteration, that is to say the first element of the pair that locates the asked time step.
+ * \param [in] it - the order, that is to say the second element of the pair that locates the asked time step.
+ * \param [in] mrs - the request for what to be loaded.
+ * \return MEDFileUMesh * - a new instance of MEDFileUMesh. The caller is to delete this mesh using decrRef() as it is no more needed.
+ * \sa MEDFileUMesh::LoadPartOf
+ */
+MCAuto<MEDFileUMesh> MEDFileUMesh::LoadConnectivityOnlyPartOf(const std::string& fileName, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  return MEDFileUMesh::LoadConnectivityOnlyPartOf(fid,mName,types,slicPerTyp,dt,it,mrs);
+}
+
+/*!
  * This method loads from file with name \a fileName the mesh called \a mName as New does. The difference is that
  * here only a part of cells contained in the file will be loaded. The selection of cell is specified using the two consecutive parameters
  * \a types and \a slicPerTyp. This method allows to load from a mesh (typically huge) in a MED file a part of cells of that mesh.
@@ -2483,6 +2518,7 @@ MEDFileUMesh *MEDFileUMesh::New()
  * \param [in] it - the order, that is to say the second element of the pair that locates the asked time step.
  * \param [in] mrs - the request for what to be loaded.
  * \return MEDFileUMesh * - a new instance of MEDFileUMesh. The caller is to delete this mesh using decrRef() as it is no more needed.
+ * \sa MEDFileUMesh::LoadConnectivityOnlyPartOf
  */
 MEDFileUMesh *MEDFileUMesh::LoadPartOf(const std::string& fileName, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
@@ -2498,7 +2534,7 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOf(const std::string& fileName, const std::s
 MEDFileUMesh *MEDFileUMesh::LoadPartOf(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MCAuto<MEDFileUMesh> ret(MEDFileUMesh::New());
-  ret->loadPartUMeshFromFile(fid,mName,types,slicPerTyp,dt,it,mrs);
+  ret->loadPartUMeshFromFile(fid,mName,types,slicPerTyp,[](MEDFileUMeshL2& loader,med_idt fid, MeshOrStructMeshCls *mid,const std::string& mName,const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>&slicPerTyp,int dt,int it,MEDFileMeshReadSelector *mrs){ loader.loadPart(fid,mid,mName,types,slicPerTyp,dt,it,mrs); },dt,it,mrs);
   return ret.retn();
 }
 
@@ -2872,7 +2908,8 @@ catch(INTERP_KERNEL::Exception& e)
  *
  * \sa loadLL
  */
-void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp,
+std::function<void(MEDFileUMeshL2&,med_idt fid, MeshOrStructMeshCls *,const std::string&, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>&,int,int,MEDFileMeshReadSelector *)> functorOnUMeshL2, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUMeshL2 loaderl2;
   MEDCoupling::MEDCouplingMeshType meshType;
@@ -2885,7 +2922,7 @@ void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, 
       std::ostringstream oss; oss << "loadPartUMeshFromFile : Trying to load as unstructured an existing mesh with name '" << mName << "' !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  loaderl2.loadPart(fid,mid,mName,types,slicPerTyp,dt,it,mrs);
+  functorOnUMeshL2(loaderl2,fid,mid,mName,types,slicPerTyp,dt,it,mrs);
   dispatchLoadedPart(fid,loaderl2,mName,mrs);
 }
 
