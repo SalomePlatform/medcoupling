@@ -151,7 +151,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
                this->getMesh(),
                initialCollection.getCellFamilyIds(),
                "cellFamily");
-  castIntField(initialCollection.getFaceMesh(), 
+  castIntField(initialCollection.getFaceMesh(),
                this->getFaceMesh(),
                initialCollection.getFaceFamilyIds(),
                "faceFamily");
@@ -591,13 +591,14 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
   meshesCastTo.resize(nbNewDomain);
   for (int inew=0; inew<nbNewDomain; inew++)
     {
-      vector<const MEDCoupling::MEDCouplingUMesh*> myMeshes;
+      vector<MEDCoupling::MEDCouplingUMesh*> myMeshes;
       for (int iold=0; iold<nbOldDomain; iold++)
         {
           MEDCoupling::MEDCouplingUMesh *umesh=splitMeshes[inew][iold];
           if (umesh!=0)
             if (umesh->getNumberOfCells()>0)
                 myMeshes.push_back(umesh);
+
         }
 
       MEDCoupling::MEDCouplingUMesh *bndMesh = 0;
@@ -608,12 +609,28 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
           bndMesh =
             ((MEDCoupling::MEDCouplingUMesh *)_mesh[inew]->buildBoundaryMesh(/*keepCoords=*/true));
           if (bndMesh->getNumberOfCells()>0)
-            myMeshes.push_back( bndMesh );
+              myMeshes.push_back( bndMesh );
         }
 
       if (myMeshes.size()>0)
         {
-          meshesCastTo[inew]=MEDCoupling::MEDCouplingUMesh::MergeUMeshes(myMeshes);
+          // Need to merge faces that are both in the initial set of faces and in the boundary mesh
+          // which is the last element in myMeshes:
+          if(bndMesh)
+            {
+              for (int iold2 = 0; iold2 < (int)myMeshes.size()-1; iold2++)
+                myMeshes[iold2]->tryToShareSameCoordsPermute(*bndMesh, 1.e-10);
+              vector<const MEDCoupling::MEDCouplingUMesh*> myMeshes_c;
+              for (auto & mesh: myMeshes) myMeshes_c.push_back(mesh);
+              meshesCastTo[inew]=MEDCoupling::MEDCouplingUMesh::MergeUMeshesOnSameCoords(myMeshes_c);
+              MCAuto<DataArrayIdType> tmp = meshesCastTo[inew]->zipConnectivityTraducer(2);
+            }
+          else
+            {
+              vector<const MEDCoupling::MEDCouplingUMesh*> myMeshes_c;
+              for (auto & mesh: myMeshes) myMeshes_c.push_back(mesh);
+              meshesCastTo[inew]=MEDCoupling::MEDCouplingUMesh::MergeUMeshes(myMeshes_c);
+            }
           meshesCastTo[inew]->sortCellsInMEDFileFrmt()->decrRef();
         }
       else
