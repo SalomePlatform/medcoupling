@@ -19,8 +19,7 @@
 #
 
 from MEDLoader import *
-import os
-import tempfile,os,shutil
+import tempfile, os, sys, shutil
 
 zeDir = tempfile.mkdtemp()
 os.chdir(zeDir)
@@ -188,4 +187,6 @@ for ff1TS in ff:
     field=ff1TS.getFieldAtLevel(ON_CELLS,level)
     field=ff1TS.getFieldOnMeshAtLevel(ON_CELLS,level,mm)
 #! [UG_RWFieldAdv_5]
+
+os.chdir(os.path.dirname(zeDir))
 shutil.rmtree(zeDir)

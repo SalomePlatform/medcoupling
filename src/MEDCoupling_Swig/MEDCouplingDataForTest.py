@@ -20,10 +20,7 @@
 
 
 import sys
-if sys.platform == "win32":
-    from MEDCouplingCompat import *
-else:
-    from medcoupling import *
+from medcoupling import *
 
 class MEDCouplingDataForTest:
     def build2DTargetMesh_1(cls):

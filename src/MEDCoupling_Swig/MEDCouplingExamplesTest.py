@@ -20,10 +20,7 @@
 
 
 import sys
-if sys.platform == "win32":
-    from MEDCouplingCompat import *
-else:
-    from medcoupling import *
+from medcoupling import *
 import unittest
 from math import pi, sqrt
 
@@ -34,6 +31,7 @@ def WriteInTmpDir(func):
         with tempfile.TemporaryDirectory() as tmpdirname:
             os.chdir(tmpdirname)
             ret = func(*args,**kwargs)
+            os.chdir(os.path.dirname(tmpdirname))
             pass
         return ret
     return decoratedFunc

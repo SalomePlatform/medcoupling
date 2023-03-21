@@ -21,6 +21,7 @@
 
 from MEDLoader import *
 from math import pi,e,sqrt
+import sys
 
 def WriteInTmpDir(func):
     def decaratedFunc(*args,**kwargs):
@@ -29,6 +30,7 @@ def WriteInTmpDir(func):
         with tempfile.TemporaryDirectory() as tmpdirname:
             os.chdir(tmpdirname)
             ret = func(*args,**kwargs)
+            os.chdir(os.path.dirname(tmpdirname))
             pass
         return ret
     return decaratedFunc

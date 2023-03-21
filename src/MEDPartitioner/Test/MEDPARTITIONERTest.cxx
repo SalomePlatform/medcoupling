@@ -93,13 +93,22 @@ std::string MEDPARTITIONERTest::getPartitionerExe() const
   if ( getenv("MEDCOUPLING_ROOT_DIR") )
     {
       execName=getenv("MEDCOUPLING_ROOT_DIR");  //.../INSTALL/MED
+#ifndef WIN32
       execName+="/bin/medpartitioner";
+#else
+      execName+="\\bin\\medpartitioner.exe";
+#endif
       std::ifstream my_file(execName.c_str());
       if (my_file.good())
         return execName;
     }
   execName = getcwd(NULL, 0);
+#ifndef WIN32
   execName += "/../../MEDPartitioner/medpartitioner";
+#else
+  execName += "\\..\\..\\MEDPartitioner\\medpartitioner.exe";
+#endif
+
   if (! std::ifstream(execName.c_str()))
     CPPUNIT_FAIL("Can't find medpartitioner, please set MEDCOUPLING_ROOT_DIR");
   return execName;
@@ -996,8 +1005,11 @@ void MEDPARTITIONERTest::launchMetisOrScotchMedpartitionerOnTestMeshes(std::stri
   string cmd,execName,sourceName,targetName;
 
   execName=getPartitionerExe();
-
+#ifndef WIN32
   cmd="which "+execName+" 2>/dev/null 1>/dev/null";  //no trace
+#else
+  cmd="dir "+execName+" > NUL 2>&1";  //no trace
+#endif
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL_MESSAGE(execName + " - INVALID PATH TO medpartitioner", 0, res);
 

@@ -25,11 +25,12 @@ import unittest
 
 def WriteInTmpDir(func):
     def decoratedFunc(*args,**kwargs):
-        import tempfile,os
+        import tempfile,os, sys
         ret = None
         with tempfile.TemporaryDirectory() as tmpdirname:
             os.chdir(tmpdirname)
             ret = func(*args,**kwargs)
+            os.chdir(os.path.dirname(tmpdirname))
             pass
         return ret
     return decoratedFunc

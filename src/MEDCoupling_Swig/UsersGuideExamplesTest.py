@@ -20,10 +20,7 @@
 
 
 import sys
-if sys.platform == "win32":
-    from MEDCouplingCompat import *
-else:
-    from medcoupling import *
+from medcoupling import *
 from math import pi, sqrt
 
 # ! [PySnippetUMeshStdBuild1_1]

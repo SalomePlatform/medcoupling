@@ -28,4 +28,5 @@ with tempfile.TemporaryDirectory() as tmpdirname:
     os.chdir(tmpdirname)
     p = sp.check_output(full_path)
     print(p.decode())
+    os.chdir(os.path.dirname(tmpdirname))
     pass

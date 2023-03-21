@@ -18,10 +18,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 import sys
-if sys.platform == "win32":
-    from MEDCouplingCompat import *
-else:
-    from medcoupling import *
+from medcoupling import *
 
 from math import pi, sqrt
 
