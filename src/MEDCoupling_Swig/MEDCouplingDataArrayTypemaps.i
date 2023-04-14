@@ -3147,8 +3147,11 @@ bool isCSRMatrix(PyObject *m)
   PyObject* pdict(PyDict_New());
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
   PyObject *tmp(PyRun_String("from scipy.sparse import csr_matrix", Py_single_input, pdict, pdict));
-  if(!tmp)
-    throw INTERP_KERNEL::Exception("Problem during loading csr_matrix in scipy.sparse ! Is Scipy module available in present ?");
+  if (!tmp)
+  {
+    PyErr_Clear(); // Otherwise exception propagation will fail.
+    throw INTERP_KERNEL::Exception("Problem during loading csr_matrix in scipy.sparse! Is Scipy module available and present?");
+  }
   PyObject *csrMatrixCls=PyDict_GetItemString(pdict,"csr_matrix");
   if(!csrMatrixCls)
     throw INTERP_KERNEL::Exception("csr_matrix not found in scipy.sparse ! Is Scipy module available in present ?");
