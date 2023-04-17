@@ -35,7 +35,7 @@
 
 #include <fstream>
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__APPLE__)
 #include <features.h>
 #endif
 

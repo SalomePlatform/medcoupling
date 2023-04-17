@@ -73,7 +73,7 @@ using namespace INTERP_KERNEL;
 typedef int mcIdType;
 typedef DataArrayInt32 DataArrayIdType;
 %template(ivec) std::vector<int>;
-%template(i64vec) std::vector<long>;
+%template(i64vec) std::vector<int64_t>;
 #else
 //typedef std::int64_t mcIdType;
 typedef DataArrayInt64 DataArrayIdType;
