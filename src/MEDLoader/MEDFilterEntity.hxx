@@ -25,10 +25,6 @@
 #include "med.h"
 #include <memory>
 
-#ifdef __GNUC__
-#  include <features.h>
-#endif // __GNUC__
-
 namespace MEDCoupling
 {
 
@@ -62,11 +58,7 @@ namespace MEDCoupling
 #if defined(WIN32)
     ref = MED_FILTER_INIT;
 #else
-  #if defined(__GNUC__) && __GNUC_PREREQ(9,0)
-    ref = MED_FILTER_INIT;
-  #else
     ref = (med_filter)MED_FILTER_INIT;
-  #endif
 #endif // WIN32
   }
 
