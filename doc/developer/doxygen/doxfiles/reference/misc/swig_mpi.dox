@@ -1,0 +1,24 @@
+/*!
+
+\page swig_mpi Passing a MPI communicator to a SWIG-ed interface
+
+This is not directly linked to MEDCoupling, but the following issue often
+arises when wrapping a C++ code to Python using the SWIG tool (for example, to be able
+to couple two codes in Python).
+
+If you want to be able to pass a communicator defined on the Python side (typically with the
+Python module mpi4py) to your C++ code (which you have wrapped with SWIG), the following
+magic lines need to be inserted into your ".i" file for this to work correctly:
+
+\code{.cpp}
+%include /usr/lib/python3/dist-packages/mpi4py/include/mpi4py/mpi4py.i
+%mpi4py_typemap(Comm, MPI_Comm);
+
+....
+void method_taking_a_MPI_Comm(MPI_Comm mpicomm);
+...
+\endcode
+
+where the path to mpi4py.i needs to be adapted to your configuration.
+
+*/

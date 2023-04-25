@@ -21,5 +21,8 @@ data or not.
 For advanced usage, one has to be aware of the stamping mechanism used internally to know
 whether an instance has been modified or not. This is described in the second page above:
  \ref MEDCouplingTimeLabelPage
+
+If your interested into wrapping your C++ code to Python with SWIG and intend to do this in a parallel context
+you might also want to check \ref swig_mpi.
   
   */

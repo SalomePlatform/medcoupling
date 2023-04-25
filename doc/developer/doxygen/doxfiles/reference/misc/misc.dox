@@ -7,6 +7,6 @@ anywhere else in the documentation.
 - \subpage tools
 - \subpage icoco
 - \subpage MEDCouplingFieldTemplatesPage
-
+- \subpage swig_mpi
 
 */
