@@ -62,5 +62,11 @@
    fun:*PyInit*
 }
 
-
+{
+   <raise_excep>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:_dl_catch_exception
+}
 

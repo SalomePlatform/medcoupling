@@ -88,6 +88,25 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
         fld.setMesh(sub_m)
         return sub_m, fld
 
+    def testOverlapDEC_ctor(self):
+        """ Test the various Python ctors """
+        size = MPI.COMM_WORLD.size
+        if size != 4:
+            print("Should be run on 4 procs!")
+            return
+        # Define processor group
+        proc_group = list(range(size))
+        # With 2 iterables:
+        o1 = OverlapDEC.New(proc_group)
+        # Should also work directly:
+        o2 = OverlapDEC(proc_group)
+        # With an iterable and a custom comm:
+        o3 = OverlapDEC.New(proc_group, MPI.COMM_WORLD)
+        # Also work directly with the **hack** on the comm:
+        o4 = OverlapDEC(proc_group, MPI._addressof(MPI.COMM_WORLD))
+        self.assertRaises(NotImplementedError, OverlapDEC, proc_group, MPI.COMM_WORLD)
+        o4.release(); o3.release(); o2.release(); o1.release()
+
     @WriteInTmpDir
     def testOverlapDEC_2D_py_1(self):
         """ The main method of the test """

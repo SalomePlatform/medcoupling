@@ -82,6 +82,37 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         fld.setMesh(sub_m)
         return sub_m, fld
 
+    def testInterpKernelDEC_ctor(self):
+        """ Test the various Python ctors """
+        size = MPI.COMM_WORLD.size
+        if size != 4:
+            print("Should be run on 4 procs!")
+            return
+        # Define two processor groups
+        nproc_source = 2
+        l1, l2 = range(nproc_source), range(size - nproc_source, size)
+        # With 2 iterables:
+        i1 = InterpKernelDEC.New(l1, l2)
+        # Should also work directly:
+        i2 = InterpKernelDEC(l1, l2)
+        # With 2 proc groups:
+        interface = CommInterface()
+        source_group = MPIProcessorGroup(interface, list(l1))
+        target_group = MPIProcessorGroup(interface, list(l2))
+        i3 = InterpKernelDEC.New(source_group, target_group)
+        # Should also work directly:
+        i4 = InterpKernelDEC(source_group, target_group)
+        # With 2 iterables and a custom comm:
+        i5 = InterpKernelDEC.New(l1, l2, MPI.COMM_WORLD)
+        # Work directly with the **hack**
+        i6 = InterpKernelDEC(l1, l2, MPI._addressof(MPI.COMM_WORLD))
+        # Should fail with 2 proc groups **and** a communicator
+        self.assertRaises(InterpKernelException, InterpKernelDEC.New, source_group, target_group, MPI.COMM_WORLD)
+        self.assertRaises(NotImplementedError, InterpKernelDEC, source_group, target_group, MPI.COMM_WORLD)
+        i6.release(); i5.release(); i4.release(); i3.release(); i2.release(); i1.release()
+        source_group.release()
+        target_group.release()
+
     @WriteInTmpDir
     def testInterpKernelDEC_2D_py_1(self):
         """ This test illustrates a basic use of the InterpKernelDEC.

@@ -130,8 +130,7 @@ namespace MEDCoupling
   public:  
     InterpKernelDEC();
     InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
-    InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
-                    const MPI_Comm& world_comm=MPI_COMM_WORLD);
+    InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     virtual ~InterpKernelDEC();
     void release();
 

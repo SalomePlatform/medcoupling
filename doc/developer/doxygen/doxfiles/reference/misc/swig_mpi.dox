@@ -21,4 +21,11 @@ void method_taking_a_MPI_Comm(MPI_Comm mpicomm);
 
 where the path to mpi4py.i needs to be adapted to your configuration.
 
+In MEDCoupling DEC APIs (InterpKernelDEC and OverlapDEC constructors), the Python interface deals with that using the following trick to get the C++ address of the MPI communicator:
+
+\code{.py}
+from mpi4py import MPI
+MPI._addressof(mpicomm) # returns the C++ address of the MPI communicator
+\endcode
+
 */
