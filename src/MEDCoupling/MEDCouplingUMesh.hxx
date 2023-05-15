@@ -108,6 +108,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void convertExtrudedPolyhedra();
     MEDCOUPLING_EXPORT bool unPolyze();
     MEDCOUPLING_EXPORT void simplifyPolyhedra(double eps);
+    MEDCOUPLING_EXPORT void colinearizeEdges(double eps);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSpreadZonesWithPoly() const;
     MEDCOUPLING_EXPORT std::vector<DataArrayIdType *> partitionBySpreadZone() const;
     MEDCOUPLING_EXPORT DataArrayIdType *computeFetchedNodeIds() const;

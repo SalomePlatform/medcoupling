@@ -1340,6 +1340,8 @@ bool MEDCouplingUMesh::unPolyze()
  * This method performs operation only on polyhedrons in \b this. If no polyhedrons exists in \b this, \b this remains unchanged.
  * This method allows to merge if any coplanar 3DSurf cells that may appear in some polyhedrons cells.
  *
+ * \b WARNING: this method will not modify edges connectivity! Take a look at colinearizeEdges for that.
+ *
  * \param [in] eps is a relative precision that allows to establish if some 3D plane are coplanar or not. This epsilon is used to recenter around origin to have maximal
  *             precision.
  */
@@ -1374,6 +1376,84 @@ void MEDCouplingUMesh::simplifyPolyhedra(double eps)
     }
   if(changed)
     setConnectivity(connNew,connINew,false);
+}
+
+/*!
+ * This method expects that spaceDimension is equal to 3 and meshDimension equal to 3.
+ * This method performs operation only on polyhedrons in \b this. If no polyhedrons exists in \b this, \b this remains unchanged.
+ * This method allows to simplify edges of polyhedron cells so that consecutive colinear segments (with intermediate points
+ * not used by any other cell) are merged together.
+ *
+ * \param [in] eps is a relative precision that allows to establish if two consecutive 3D segments are colinear or not.
+ *
+ * \sa simplifyPolyhedra
+ */
+void MEDCouplingUMesh::colinearizeEdges(double eps)
+{
+  //
+  // Thanks to Antoine Gerschenfeld (CEA) for contributing this method!
+  //
+  using DAI = MCAuto<DataArrayIdType>;
+  checkFullyDefined();
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::colinearizeEdges() : works with meshdim=3 and spaceDim=3!");
+  double seps = sqrt(1-eps);
+  // Computing connectivities and correspondances : elements -> segments -> points
+  DAI E_Fi(DataArrayIdType::New()), E_F(DataArrayIdType::New()), F_Ei(DataArrayIdType::New()), F_E(DataArrayIdType::New()),
+         F_Si(DataArrayIdType::New()), F_S(DataArrayIdType::New()), S_Fi(DataArrayIdType::New()), S_F(DataArrayIdType::New()),
+         S_Pi(DataArrayIdType::New()), S_P(DataArrayIdType::New()), P_Si(DataArrayIdType::New()), P_S(DataArrayIdType::New());
+  MCAuto<MEDCouplingUMesh> m_f(buildDescendingConnectivity(E_F, E_Fi, F_E, F_Ei)),
+         m_s(m_f->buildDescendingConnectivity(F_S, F_Si, S_F, S_Fi)),
+         m_p(m_s->buildDescendingConnectivity(S_P, S_Pi, P_S, P_Si)); // E: elem, F: faces, S: segments (edges), P: points (vertices)
+  const mcIdType *S_Pp(S_P->begin()), *S_Pip(S_Pi->begin()), *P_Sp(P_S->begin()), *P_Sip(P_Si->begin());
+  std::set<mcIdType> pt_rem;
+  const mcIdType *m_pi = m_p->getNodalConnectivityIndex()->begin(),
+                 *m_pc = m_p->getNodalConnectivity()->begin();
+  double (*coord)[3] = (double (*)[3]) getCoords()->begin();
+  // Find all points only connected to exaclty 2 segments - they are the candidates for elimination
+  // Note that in 3D this can only happen for polyhedrons (when this happens at all)
+  DAI dsi = P_Si->deltaShiftIndex();
+  DAI cand = dsi->findIdsEqual(2);
+  for (const mcIdType& i: *cand)  // i is a point to be potentially eliminated, shared by 2 segs only
+    {
+      double n2[2] = {0., 0.}, scal = 0.; // n2 is a squared norm, scal is a scalar product
+      mcIdType p[2][2];                   // p[j][k] is the ID (in the coord array) of the k-th point of the j-th segment
+      for (mcIdType j = 0; j < 2; j++)
+        for (mcIdType k = 0; k < 2; k++)
+          {
+            mcIdType off1 = P_Sip[i] + j;   // offset to get ID of the j-th seg (around the i-th point) in the point->seg correspondance
+            mcIdType pt_id = P_Sp[off1] + k; // ID of the k-th point of the j-th seg in the point->seg correspondance
+            mcIdType pt_id2 = S_Pp[S_Pip[pt_id]]; // ID of the point in the point mesh
+            p[j][k] = m_pc[m_pi[pt_id2] + 1];  // Absolute ID, as read from the connectvity (+1 to skip type: NORM_POINT1)
+            // Just for fun, as initially written by Antoine :-)
+            // p[j][k] = m_pc[m_pi[S_P->getIJ(S_Pi->getIJ(P_S->getIJ(P_Si->getIJ(i, 0) + j, 0), 0) + k, 0)] + 1];
+          }
+      // Geometric test on scalar product
+      for (int d = 0; d < 3; d++) // dimension
+        {
+          for (int j = 0; j < 2; j++)
+            n2[j] += std::pow(coord[p[j][1]][d] - coord[p[j][0]][d], 2);
+          scal += (coord[p[1][1]][d] - coord[p[1][0]][d]) * (coord[p[0][1]][d] - coord[p[0][0]][d]);
+        }
+      if (scal * scal > seps * n2[0] * n2[1]) // seps is a sqrt for homogeneity
+        pt_rem.insert(m_pc[m_pi[i] + 1]);  // point should be removed
+    }
+  // Clean connectivity by filtering points to be removed:
+  DataArrayIdType *old_index = getNodalConnectivityIndex(), *old_conn = getNodalConnectivity();
+  DAI new_index(DataArrayIdType::New()), new_conn(DataArrayIdType::New());
+  const mcIdType *old_index_p(old_index->begin()), *old_conn_p(old_conn->begin());
+  for (mcIdType i = 0; i < getNumberOfCells(); i++)
+    {
+      new_index->pushBackSilent(new_conn->getNbOfElems());
+      for (mcIdType j = old_index_p[i]; j < old_index_p[i + 1]; j++)
+        {
+          // Keep point if it is not to be removed, or if is first in connectivity (TODO this last check could be removed?)
+          if (std::find(pt_rem.begin(), pt_rem.end(), old_conn_p[j]) == pt_rem.end() || j == old_index_p[i])
+            new_conn->pushBackSilent(old_conn_p[j]);
+        }
+    }
+  new_index->pushBackSilent(new_conn->getNbOfElems());
+  setConnectivity(new_conn, new_index);
 }
 
 /*!

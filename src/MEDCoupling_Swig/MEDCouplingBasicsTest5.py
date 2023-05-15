@@ -2009,14 +2009,14 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         # Just to get a nice coords array ...
         mm = MEDCouplingCMesh(); arr = DataArrayDouble([0.0, 1.0,2.0])
         mm.setCoords(arr, arr);  mm = mm.buildUnstructured();   coo = mm.getCoords()
-         
+
         mesh = MEDCouplingUMesh("M", 2)
         mesh.setCoords(coo)
         c = [NORM_POLYGON, 0,1,4,7,6,3,  NORM_QUAD4, 1,2,5,4,  NORM_QUAD4,4,5,8,7]
         cI = [0, 7,12,17]
         mm.setConnectivity(DataArrayInt(c),DataArrayInt(cI))
         mm.checkConsistencyLight()
-        
+
         mm.colinearizeKeepingConform2D(eps)
         c = mm.getNodalConnectivity().getValues()
         cI = mm.getNodalConnectivityIndex().getValues()
@@ -4829,6 +4829,29 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual(c.getValues(), tgt_c.getValues())
         self.assertEqual(cI.getValues(), tgt_cI.getValues())
         pass
+
+    def testColinearizeEdges(self):
+        mesh = MEDCouplingUMesh('mesh', 3)
+        coo = DataArrayDouble([(0,0,0), (1,0,0), (2,0,0), (3,0,0),
+                               (0,0,3), (1,0,3), (2,0,3), (3,0,3),
+                               (0,1,0), (3,1,0),
+                               (0,1,3), (3,1,3)])
+        mesh.setCoords(coo)
+        c = DataArrayInt([NORM_POLYHED, 0,1,2,3,7,6,5,4,-1,  # front
+                                        9,8,10,11, -1,       # back
+                                        0,4,10,8,  -1,       # left
+                                        3,7,11,9,  -1,       # right
+                                        0,1,2,3,9,8,-1,      # bottom
+                                        4,5,6,7,11,10        # top
+                                        ])
+        cI = DataArrayInt([0, c.getNumberOfTuples()])
+        mesh.setConnectivity(c, cI)
+        mesh.colinearizeEdges(1.0e-8)
+        c, cI = mesh.getNodalConnectivity(), mesh.getNodalConnectivityIndex()
+        tgt_c = DataArrayInt([NORM_POLYHED, 0, 3, 7, 4, -1, 9, 8, 10, 11, -1, 0, 4, 10, 8, -1, 3, 7, 11, 9, -1, 0, 3, 9, 8, -1, 4, 7, 11, 10])
+        tgt_cI = DataArrayInt([0, 30])
+        self.assertEqual(c.getValues(), tgt_c.getValues())
+        self.assertEqual(cI.getValues(), tgt_cI.getValues())
 
     pass
 

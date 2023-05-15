@@ -3047,6 +3047,7 @@ namespace MEDCoupling
     void convertExtrudedPolyhedra();
     bool unPolyze();
     void simplifyPolyhedra(double eps);
+    void colinearizeEdges(double eps);
     MEDCouplingUMesh *buildSpreadZonesWithPoly() const;
     MEDCouplingUMesh *buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy);
   };
