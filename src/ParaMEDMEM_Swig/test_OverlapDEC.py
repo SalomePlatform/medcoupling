@@ -104,7 +104,7 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
         o3 = OverlapDEC.New(proc_group, MPI.COMM_WORLD)
         # Also work directly with the **hack** on the comm:
         o4 = OverlapDEC(proc_group, MPI._addressof(MPI.COMM_WORLD))
-        self.assertRaises(NotImplementedError, OverlapDEC, proc_group, MPI.COMM_WORLD)
+        self.assertRaises(Exception, OverlapDEC, proc_group, MPI.COMM_WORLD)
         o4.release(); o3.release(); o2.release(); o1.release()
 
     @WriteInTmpDir

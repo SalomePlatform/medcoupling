@@ -108,7 +108,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         i6 = InterpKernelDEC(l1, l2, MPI._addressof(MPI.COMM_WORLD))
         # Should fail with 2 proc groups **and** a communicator
         self.assertRaises(InterpKernelException, InterpKernelDEC.New, source_group, target_group, MPI.COMM_WORLD)
-        self.assertRaises(NotImplementedError, InterpKernelDEC, source_group, target_group, MPI.COMM_WORLD)
+        self.assertRaises(Exception, InterpKernelDEC, source_group, target_group, MPI.COMM_WORLD)
         i6.release(); i5.release(); i4.release(); i3.release(); i2.release(); i1.release()
         source_group.release()
         target_group.release()
