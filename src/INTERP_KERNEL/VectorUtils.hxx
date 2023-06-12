@@ -159,6 +159,16 @@ namespace INTERP_KERNEL
     return epsilonEqual(dot(cros, cros), 0.0, eps);
   }
 
+  /**
+   * Caracteristic vector size (its biggest component, in absolute)
+   */
+  inline double caracteristicDimVector(const double *v)
+  {
+    double ret = 0;
+    for (int i = 0; i < 3; i++)
+      ret = std::max(ret, std::fabs(v[i]));
+    return ret;
+  }
 
   /**
    * Compares doubles using a relative tolerance
