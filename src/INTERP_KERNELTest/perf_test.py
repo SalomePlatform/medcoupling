@@ -1,5 +1,5 @@
 #! /bin/env python
-# Copyright (C) 2007-2022  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2023  CEA, EDF
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
