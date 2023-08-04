@@ -1174,7 +1174,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         # 1D cells
         vec = [0.64]
 
-        for gt in [NORM_SEG2,NORM_SEG3]:
+        for gt in [NORM_SEG2,NORM_SEG3,NORM_SEG4]:
             ref_coord = [list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()]
 
             der_computed = GetDerivative(ref_coord,vec)

@@ -340,6 +340,7 @@ private:
   static MCAuto<DataArrayDouble> BuildMeshFromAngleVrille(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *angleDeVrille, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
   static MCAuto<DataArrayDouble> BuildMeshFromEpaisseur(INTERP_KERNEL::NormalizedCellType gt, const DataArrayDouble *thickness, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
   static MCAuto<DataArrayDouble> BuildMeshPipeSEG3(const DataArrayDouble *angle, const DataArrayDouble *scale, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
+  static MCAuto<DataArrayDouble> BuildMeshPipeSEG4(const DataArrayDouble *angle, const DataArrayDouble *scale, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
   static MCAuto<MEDCouplingUMesh> BuildMeshCommon(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs, MCAuto<DataArrayDouble>& ptsForLoc);
   static MCAuto<DataArrayDouble> BuildMeshFromStructure(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs);
 public:
@@ -579,6 +580,78 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
   return resu;
 }
 
+MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG4(const DataArrayDouble *angle, const DataArrayDouble *scale, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
+{
+  static const char MSG1[]="BuildMeshPipeSEG4 : not recognized pattern ! Send mail to anthony.geay@edf.fr with corresponding MED file !";
+  MCAuto<DataArrayDouble> ptsForLoc;
+  MCAuto<MEDCouplingUMesh> geoMesh(BuildMeshCommon(INTERP_KERNEL::NORM_SEG4,pfl,loc,zeStr,mesh,section,globs,ptsForLoc));
+  mcIdType nbSecPts(section->getNumberOfNodes()),nbCells(geoMesh->getNumberOfCells()),nbg(ToIdType(loc.getGaussWeights().size()));
+  MCConstAuto<DataArrayDouble> zeAngle,zeScale;
+  if(!pfl.empty())
+    {
+      const DataArrayIdType *pflArr(globs->getProfile(pfl));
+      zeAngle=angle->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
+      zeScale=scale->selectByTupleIdSafe(pflArr->begin(),pflArr->end());
+    }
+  else
+    {
+      zeAngle.takeRef(angle);
+      zeScale.takeRef(scale);
+    }
+  if(zeAngle->getNumberOfComponents()!=4 || zeScale->getNumberOfComponents()!=2 || nbg!=3)
+    throw INTERP_KERNEL::Exception(MSG1);
+  MCAuto<MEDCouplingFieldDouble> dir;
+  {
+    MCAuto<MEDCouplingUMesh> geoMesh2(geoMesh->deepCopy());
+    geoMesh2->convertQuadraticCellsToLinear();
+    dir=geoMesh2->buildDirectionVectorField();
+  }
+  MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
+  std::size_t nbCompo(ptsForLoc->getNumberOfComponents());
+  MCAuto<DataArrayDouble> secPts(section->getCoords()->changeNbOfComponents(nbCompo,0.));
+  {
+    const int TAB[3]={2,0,1};
+    std::vector<std::size_t> v(TAB,TAB+3);
+    secPts=secPts->keepSelectedComponents(v);
+  }
+  const double CENTER[3]={0.,0.,0.},AX0[3]={0.,0.,1.};
+  double AX1[3]; AX1[2]=0.;
+  std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
+  for(mcIdType j=0;j<nbCells;j++)
+    {
+      constexpr int DIM=3;
+      MCAuto<DataArrayDouble> p(secPts->deepCopy());
+      double ang0(rot->getIJ(j,2));
+      double rmin(zeScale->getIJ(j,0)),rmax(zeScale->getIJ(j,1));
+      {
+        auto pt(p->rwBegin());
+        for(int i=0;i<nbSecPts;i++)
+          {
+            auto nrm(sqrt(std::accumulate(pt,pt+DIM,0.,[](double sum, double v) { return sum+v*v; } )));
+            auto sca((rmin+2.*(nrm-0.5)*(rmax-rmin))/nrm);
+            std::for_each(pt,pt+3,[sca](double& val) { val*=sca; } );
+            std::advance(pt,DIM);
+          }
+      }
+      DataArrayDouble::Rotate3DAlg(CENTER,AX0,ang0,nbSecPts,p->begin(),p->getPointer());
+      AX1[0]=-sin(ang0); AX1[1]=cos(ang0);// rot Oy around OZ
+      double ang1(M_PI/2.-rot->getIJ(j,1));
+      DataArrayDouble::Rotate3DAlg(CENTER,AX1,-ang1,nbSecPts,p->begin(),p->getPointer());
+      for(int l=0;l<3;l++)
+        {
+          MCAuto<DataArrayDouble> p3(p->deepCopy());
+          DataArrayDouble::Rotate3DAlg(CENTER,dir->getArray()->begin()+j*3,zeAngle->getIJ(j,l),nbSecPts,p3->begin(),p3->getPointer());
+          MCAuto<DataArrayDouble> p2(p3->deepCopy());
+          for(std::size_t k=0;k<nbCompo;k++)
+            p2->applyLin(1.,ptsForLoc->getIJ(j*nbg+l,k),k);
+          arrs[j*nbg+l]=p2;
+        }
+    }
+  std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
+  MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
+  return resu;
+}
+
 MCAuto<DataArrayDouble> LocInfo::BuildMeshFromStructure(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs)
 {
   static const char MSG1[]="BuildMeshFromStructure : not recognized pattern ! Send mail to anthony.geay@edf.fr with corresponding MED file !";
@@ -602,22 +675,26 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromStructure(INTERP_KERNEL::Normalize
       if(zeArr0.isNull() || zeArr1.isNull())
         throw INTERP_KERNEL::Exception(MSG1);
       MCAuto<DataArrayDouble> zeArr00(DynamicCastSafe<DataArray,DataArrayDouble>(zeArr0)),zeArr11(DynamicCastSafe<DataArray,DataArrayDouble>(zeArr1));
+      MCAuto<DataArrayDouble> angle,scale;
+      if(zeArr00->getName()==ANGLE)
+        angle=zeArr00;
+      if(zeArr00->getName()==SCALE)
+        scale=zeArr00;
+      if(zeArr11->getName()==ANGLE)
+        angle=zeArr11;
+      if(zeArr11->getName()==SCALE)
+        scale=zeArr11;
+      if(angle.isNull() || scale.isNull())
+        throw INTERP_KERNEL::Exception(MSG1);
       switch(gt)
       {
         case INTERP_KERNEL::NORM_SEG3:
           {
-            MCAuto<DataArrayDouble> angle,scale;
-            if(zeArr00->getName()==ANGLE)
-              angle=zeArr00;
-            if(zeArr00->getName()==SCALE)
-              scale=zeArr00;
-            if(zeArr11->getName()==ANGLE)
-              angle=zeArr11;
-            if(zeArr11->getName()==SCALE)
-              scale=zeArr11;
-            if(angle.isNull() || scale.isNull())
-              throw INTERP_KERNEL::Exception(MSG1);
             return BuildMeshPipeSEG3(angle,scale,pfl,loc,zeStr,mesh,section,globs);
+          }
+        case INTERP_KERNEL::NORM_SEG4:
+          {
+            return BuildMeshPipeSEG4(angle,scale,pfl,loc,zeStr,mesh,section,globs);
           }
         default:
           throw INTERP_KERNEL::Exception(MSG1);

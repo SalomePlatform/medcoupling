@@ -69,6 +69,7 @@ namespace INTERP_KERNEL
     static const double SEG2A_REF[2];
     static const double SEG2B_REF[2];
     static const double SEG3_REF[3];
+    static const double SEG4_REF[4];
     static const double TRIA3A_REF[6];
     static const double TRIA3B_REF[6];
     static const double TRIA6A_REF[12];
@@ -108,6 +109,7 @@ namespace INTERP_KERNEL
     void seg2aInit();
     void seg2bInit();
     void seg3Init();
+    void seg4Init();
 
     //2D
     void tria3aInit();

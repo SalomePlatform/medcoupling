@@ -35,6 +35,8 @@ const double GaussInfo::SEG2B_REF[2]={0., 1.0};
 
 const double GaussInfo::SEG3_REF[3]={-1.0, 1.0, 0.0};
 
+const double GaussInfo::SEG4_REF[4]={-1.0, 1.0, -0.3333333333333333, 0.3333333333333333};
+
 const double GaussInfo::TRIA3A_REF[6]={-1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
 
 const double GaussInfo::TRIA3B_REF[6]={0.0, 0.0, 1.0, 0.0, 0.0, 1.0};
@@ -471,6 +473,8 @@ std::vector<double> GaussInfo::GetDefaultReferenceCoordinatesOf(NormalizedCellTy
       return std::vector<double>(SEG2A_REF,SEG2A_REF+sizeof(SEG2A_REF)/sizeof(double));
     case INTERP_KERNEL::NORM_SEG3:
       return std::vector<double>(SEG3_REF,SEG3_REF+sizeof(SEG3_REF)/sizeof(double));
+    case INTERP_KERNEL::NORM_SEG4:
+      return std::vector<double>(SEG4_REF,SEG4_REF+sizeof(SEG4_REF)/sizeof(double));
     case INTERP_KERNEL::NORM_TRI3:
       return std::vector<double>(TRIA3A_REF,TRIA3A_REF+sizeof(TRIA3A_REF)/sizeof(double));
     case INTERP_KERNEL::NORM_TRI6:
@@ -574,6 +578,14 @@ void GaussInfo::initLocalInfo()
       _my_local_ref_dim = 1;
       _my_local_nb_ref  = 3;
       seg3Init();
+      aSatify = isSatisfy();
+      CHECK_MACRO;
+      break;
+
+    case NORM_SEG4:
+      _my_local_ref_dim = 1;
+      _my_local_nb_ref  = 4;
+      seg4Init();
       aSatify = isSatisfy();
       CHECK_MACRO;
       break;
@@ -909,6 +921,40 @@ void GaussInfo::seg3Init()
   devFunValue[0] = -0.5*(1-2*gc[0]);
   devFunValue[1] = 0.5*(2*gc[0]+1);
   devFunValue[2] = -2*gc[0];
+  DEV_SHAPE_FUN_MACRO_END;
+}
+
+/*!
+ * Init Segment 4 Reference coordinates ans Shape function.
+ */
+void GaussInfo::seg4Init() 
+{
+  LOCAL_COORD_MACRO_BEGIN;
+  case 0:
+    coords[0] = SEG4_REF[0];
+    break;
+  case 1:
+    coords[0] = SEG4_REF[1];
+    break;
+  case 2:
+    coords[0] = SEG4_REF[2];
+    break;
+  case 3:
+    coords[0] = SEG4_REF[3];
+  LOCAL_COORD_MACRO_END;
+  
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = 9.0/16.0 * (1-gc[0])*(gc[0]+1.0/3.0)*(gc[0]-1.0/3.0);
+  funValue[1] = -9.0/16.0 * (1+gc[0])*(1.0/3.0-gc[0])*(gc[0]+1.0/3.0);
+  funValue[2] = 27.0/16.0 * (gc[0]-1)*(gc[0]+1)*(gc[0]-1.0/3.0);
+  funValue[3] = -27.0/16.0 * (gc[0]-1)*(gc[0]+1)*(gc[0]+1.0/3.0);
+  SHAPE_FUN_MACRO_END;
+
+  DEV_SHAPE_FUN_MACRO_BEGIN;
+  devFunValue[0] = 9.0/16.0 * (-3.0*gc[0]*gc[0]+2.0*gc[0]+1.0/9.0);
+  devFunValue[1] = 9.0/16.0 * (3.0*gc[0]*gc[0]+2.0*gc[0]-1.0/9.0);
+  devFunValue[2] = 27.0/16.0 * (3.0*gc[0]*gc[0]-2.0/3.0*gc[0]-1.0);
+  devFunValue[3] = -27.0/16.0 * (3.0*gc[0]*gc[0]+2.0/3.0*gc[0]-1.0);
   DEV_SHAPE_FUN_MACRO_END;
 }
 
