@@ -23,7 +23,7 @@ SET(TEST_NAMES
 
 FOREACH(tfile ${TEST_NAMES})
   SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
-  ADD_TEST(${TEST_NAME} python MCTestLauncher.py ${tfile})
+  ADD_TEST(${TEST_NAME} python3 MCTestLauncher.py ${tfile})
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
     LABELS "${COMPONENT_NAME}"
     TIMEOUT ${TIMEOUT}
