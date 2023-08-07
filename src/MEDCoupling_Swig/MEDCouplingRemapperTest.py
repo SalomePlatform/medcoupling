@@ -1651,7 +1651,34 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             except InterpKernelException as e:
                 self.assertTrue("fail to locate point" in e.what())
             else:
-                self.assertTrue(false,"")    
+                self.assertTrue(false,"")
+
+    def testP1P0OnHexa_1(self):
+        """
+        See EDF27859 : This test focuses on P1P0 interpolation with source containing HEXA. So P1P0 intersector is going to split into tetras
+        the source cell.
+        """
+        trgMesh = MEDCouplingUMesh("mesh",3)
+        trgMesh.setCoords( DataArrayDouble([18500.0, 0.0, 0.0, 18544.0, 0.0, 0.0, 18544.0, 0.0, 200.0, 18500.0, 0.0, 200.0, 18497.96424104365, 274.44295777156043, 0.0, 18541.959399238567, 275.0956869684225, 0.0, 18541.959399238567, 275.0956869684225, 200.0, 18497.96424104365, 274.44295777156043, 200.0],8,3) )
+        firstPts = DataArrayDouble(3*10) ; firstPts[:] = 0. ; firstPts.rearrange(3)
+        trgMesh.setCoords( DataArrayDouble.Aggregate(firstPts,trgMesh.getCoords()) ) # this line is important to check that correct ids are taken into account
+        trgMesh.allocateCells(1)
+        trgMesh.insertNextCell(NORM_HEXA8,[10,11,12,13,14,15,16,17])
+        trgMesh.writeVTK("trgMeshNonReg.vtu")
+
+        srcMesh = trgMesh.deepCopy()
+        cc = trgMesh.computeCellCenterOfMass()[0]
+        trgMesh.scale(cc,1.01) # This line is to workaround the EDF28414 bug inside 3D intersector
+
+        expectedMatrix0 = [{10: 503624.09065889206, 11: 100868.41855508549, 12: 503863.42469772906, 13: 100629.0845162416, 14: 100629.08451623631, 15: 503863.4246977626, 16: 100868.418555101, 17: 503624.0906588909}]
+        expectedMatrix1 = [{10: 604492.509213978, 11: 201736.8371101737, 12: 201736.83711016813, 13: 201497.50307132734, 14: 201258.16903247262, 15: 201497.50307133005, 16: 604492.5092140044, 17: 201258.16903247265}]
+        expectedMatrix2 = [{10: 302066.754077835, 11: 302425.7551361466, 12: 302425.7551361466, 13: 302066.754077835, 14: 302066.7540778395, 15: 302425.7551361595, 16: 302425.7551361595, 17: 302066.75407783955}]
+        for sp,expectedMatrix in [ (PLANAR_FACE_5,expectedMatrix0),(PLANAR_FACE_6,expectedMatrix1),(GENERAL_24,expectedMatrix2)]:
+            remap = MEDCouplingRemapper()
+            remap.setSplittingPolicy( sp )
+            remap.prepare(srcMesh,trgMesh,"P1P0")
+            mat = remap.getCrudeMatrix()
+            self.checkMatrix(expectedMatrix,mat,18,1.0)
 
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))

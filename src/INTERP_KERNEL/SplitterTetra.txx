@@ -1021,7 +1021,7 @@ namespace INTERP_KERNEL
 
             case GENERAL_24:
               {
-                calculateGeneral24Tetra(tetra);
+                calculateGeneral24TetraOld(tetra);
               }
               break;
 
@@ -1065,13 +1065,26 @@ namespace INTERP_KERNEL
         for(int j = 0; j < 4; ++j)
           {
             conn[j] = subZone[ SPLIT_NODES_5[4*i+j] ];
-            nodes[j] = getCoordsOfSubNode(conn[j]);
+            typename MyMeshTypeS::MyConnType realConn;
+            nodes[j] = getCoordsOfSubNode2(conn[j],realConn);
+            conn[j] = realConn;
           }
         SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
       }
   }
 
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  {
+    sixSplitGen(subZone,tetra,[](SplitterTetra2& obj, typename MyMeshTypeS::MyConnType& conn, const double *&coords)
+    {
+      typename MyMeshTypeS::MyConnType realConn;
+      coords = obj.getCoordsOfSubNode2(conn,realConn);
+      conn = realConn;
+    });
+  }
+  
   /**
    * Splits the hexahedron into six tetrahedra.
    * This method adds six SplitterTetra objects to the vector tetra. 
@@ -1080,7 +1093,7 @@ namespace INTERP_KERNEL
    *                 splitting to be reused on the subzones of the GENERAL_* types of splitting
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
-  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::sixSplitGen(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra, std::function<void(SplitterTetra2& , typename MyMeshTypeS::MyConnType&, const double*&)> func)
   {
     for(int i = 0; i < 6; ++i)
       {
@@ -1089,7 +1102,7 @@ namespace INTERP_KERNEL
         for(int j = 0; j < 4; ++j)
           {
             conn[j] = subZone[SPLIT_NODES_6[4*i+j]];
-            nodes[j] = getCoordsOfSubNode(conn[j]);
+            func(*this,conn[j],nodes[j]);
           }
         SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
@@ -1097,14 +1110,38 @@ namespace INTERP_KERNEL
   }
 
   /**
+   * Version of calculateGeneral24Tetra connectivity aware for P1P0 and P0P1
+   */
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  {
+    calculateGeneral24TetraGen(tetra,[](SplitterTetra2& obj, typename MyMeshTypeS::MyConnType conn[4], const double* nodes[4]) {
+      typename MyMeshTypeS::MyConnType realConn;
+      nodes[2] = obj.getCoordsOfSubNode2(conn[2],realConn); conn[2] = realConn;
+      nodes[3] = obj.getCoordsOfSubNode2(conn[3],realConn); conn[3] = realConn;
+    });
+  }
+
+  /*!
+   * Version for 3D2DP0P0
+   */
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateGeneral24TetraOld(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  {
+    calculateGeneral24TetraGen(tetra,[](SplitterTetra2& obj, typename MyMeshTypeS::MyConnType conn[4], const double* nodes[4]) {
+      nodes[2] = obj.getCoordsOfSubNode(conn[2]);
+      nodes[3] = obj.getCoordsOfSubNode(conn[3]);
+    });
+  }
+  
+  /**
    * Splits the hexahedron into 24 tetrahedra.
    * The splitting is done by combining the barycenter of the tetrahedron, the barycenter of each face 
    * and the nodes of each edge of the face. This creates 6 faces * 4 edges / face = 24 tetrahedra.
    * The submesh nodes introduced are the barycenters of the faces and the barycenter of the cell.
-   * 
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
-  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateGeneral24TetraGen(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra, std::function<void(SplitterTetra2& , typename MyMeshTypeS::MyConnType[4], const double*[4])> func)
   {
     // The two nodes of the original mesh cell used in each tetrahedron.
     // The tetrahedra all have nodes (cellCenter, faceCenter, edgeNode1, edgeNode2)
@@ -1115,7 +1152,7 @@ namespace INTERP_KERNEL
     typename MyMeshTypeS::MyConnType conn[4];
     // get the cell center
     conn[0] = 14;
-    nodes[0] = getCoordsOfSubNode(conn[0]);
+    nodes[0] = getCoordsOfSubNode(conn[0]); 
 
     for(int faceCenterNode = 8; faceCenterNode < 14; ++faceCenterNode)
       {
@@ -1127,15 +1164,12 @@ namespace INTERP_KERNEL
             const int row = 4*(faceCenterNode - 8) + j;
             conn[2] = TETRA_EDGES_GENERAL_24[2*row];
             conn[3] = TETRA_EDGES_GENERAL_24[2*row + 1];
-            nodes[2] = getCoordsOfSubNode(conn[2]);
-            nodes[3] = getCoordsOfSubNode(conn[3]);
-
+            func(*this,conn,nodes);
             SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes, conn);
             tetra.push_back(t);
           }
       }
   }
-
 
   /**
    * Splits the hexahedron into 48 tetrahedra.
@@ -1150,7 +1184,9 @@ namespace INTERP_KERNEL
   { 
     for(int i = 0; i < 8; ++i)
       {
-        sixSplit(GENERAL_48_SUBZONES+8*i,tetra);
+        sixSplitGen(GENERAL_48_SUBZONES+8*i,tetra,[](SplitterTetra2& obj, typename MyMeshTypeS::MyConnType& conn, const double *&coords){
+          coords = obj.getCoordsOfSubNode(conn);
+        });
       }
   }
   

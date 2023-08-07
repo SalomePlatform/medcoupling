@@ -1287,8 +1287,8 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P0_1()
   INTERP_KERNEL::Interpolation3D myInterpolator;
   std::vector<std::map<mcIdType,double> > res;
   myInterpolator.setPrecision(1e-12);
-  INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
-  for ( int i = 0; i < 4; ++i )
+  INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24};
+  for ( int i = 0; i < 3; ++i )
   {
     myInterpolator.setSplittingPolicy( sp[i] );
     res.clear();

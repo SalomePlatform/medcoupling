@@ -544,12 +544,14 @@ namespace INTERP_KERNEL
     SplitterTetra2(const MyMeshTypeT& targetMesh, const MyMeshTypeS& srcMesh, SplittingPolicy policy);
     ~SplitterTetra2();
     void releaseArrays();
+    SplittingPolicy getSplittingPolicy() const { return _splitting_pol; }
     void splitTargetCell2(typename MyMeshTypeT::MyConnType targetCell, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void splitTargetCell(typename MyMeshTypeT::MyConnType targetCell, typename MyMeshTypeT::MyConnType nbOfNodesT,
                          typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
     void fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
     void sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
     void calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
+    void calculateGeneral24TetraOld(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
     void splitPyram5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
     void splitConvex(typename MyMeshTypeT::MyConnType                     targetCell,//to suppress
@@ -559,6 +561,9 @@ namespace INTERP_KERNEL
     inline const double* getCoordsOfSubNode2(typename MyMeshTypeT::MyConnType node, typename MyMeshTypeT::MyConnType& nodeId);//to suppress
     //template<int n>
     inline void calcBarycenter(typename MyMeshTypeT::MyConnType n, double* barycenter, const int* pts);//to suppress
+  private:
+    void sixSplitGen(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra, std::function<void(SplitterTetra2& , typename MyMeshTypeS::MyConnType&, const double*&)> func);
+    void calculateGeneral24TetraGen(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra, std::function<void(SplitterTetra2& , typename MyMeshTypeS::MyConnType[4], const double*[4])> func);
   private:
     const MyMeshTypeT& _target_mesh;
     const MyMeshTypeS& _src_mesh;

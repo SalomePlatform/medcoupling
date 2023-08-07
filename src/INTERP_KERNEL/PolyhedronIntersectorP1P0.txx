@@ -66,6 +66,23 @@ namespace INTERP_KERNEL
     _tetra.clear();
   }
 
+  template<class RowType, class ConnType>
+  void AddContributionInRow(RowType& row, ConnType colId, double value)
+  {
+    if(value != 0.)
+    {
+      typename RowType::const_iterator iterRes=row.find(colId);
+      if(iterRes==row.end())
+        row.insert(std::make_pair(colId,value));
+      else
+      {
+        double val=(*iterRes).second+value;
+        row.erase(colId);
+        row.insert(std::make_pair(colId,val));
+      }
+    }
+  }
+
   /**
    * Calculates the volume of intersection of an element in the source mesh and the target element
    * represented by the object.
@@ -80,37 +97,52 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void PolyhedronIntersectorP1P0<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
   {
-    SplitterTetra<MyMeshType>* subTetras[24];
     typename MyMatrix::value_type& resRow=res[targetCell];
+    INTERP_KERNEL::SplittingPolicy sp( _split.getSplittingPolicy() );
+    if( sp == GENERAL_48 )
+      THROW_IK_EXCEPTION("GENERAL_28 spliting is not supported for P1P0 interpolation");
+    SplitterTetra<MyMeshType>* subTetras[24];
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
+    {
+      releaseArrays();
+      ConnType nbOfNodesS=this->_src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
+      _split.splitTargetCell(*iterCellS,nbOfNodesS,_tetra);
+      INTERP_KERNEL::NormalizedCellType srcType = this->_src_mesh.getTypeOfElement( OTT<ConnType,numPol>::indFC(*iterCellS) );
+      if( srcType == NORM_TETRA4 || (srcType == NORM_HEXA8 && sp != GENERAL_24 ))
       {
-        releaseArrays();
-        ConnType nbOfNodesS=Intersector3D<MyMeshType,MyMatrix>::_src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
-        _split.splitTargetCell(*iterCellS,nbOfNodesS,_tetra);
-        for(typename std::vector<SplitterTetra<MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
+        for(typename std::vector<SplitterTetra<MyMeshType>*>::const_iterator iter = _tetra.cbegin(); iter != _tetra.cend(); ++iter)
           {
             (*iter)->splitIntoDualCells(subTetras);
+            double vol2 = 0.;
             for(int i=0;i<24;i++)
               {
                 SplitterTetra<MyMeshType> *tmp=subTetras[i];
                 double volume = tmp->intersectSourceCell(targetCell);
+                vol2 += volume;
                 ConnType sourceNode=tmp->getId(0);
-                if(volume!=0.)
-                  {
-                    typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(sourceNode));
-                    if(iterRes==resRow.end())
-                      resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(sourceNode),volume));
-                    else
-                      {
-                        double val=(*iterRes).second+volume;
-                        resRow.erase(OTT<ConnType,numPol>::indFC(sourceNode));
-                        resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(sourceNode),val));
-                      }
-                  }
+                AddContributionInRow(resRow,OTT<ConnType,numPol>::indFC(sourceNode),volume);
                 delete tmp;
               }
           }
       }
+      else
+      {// for HEXA and GENERAL_24 no need to use subsplitting into dual mesh
+        for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
+          {
+            releaseArrays();
+            ConnType nbOfNodesS=Intersector3D<MyMeshType,MyMatrix>::_src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
+            _split.splitTargetCell2(*iterCellS,_tetra);
+            for(typename std::vector<SplitterTetra<MyMeshType>*>::const_iterator iter = _tetra.cbegin(); iter != _tetra.cend(); ++iter)
+              {
+                double volume = std::abs( (*iter)->intersectSourceCell(targetCell) );
+                // node #0 is for internal node node #1 is for the node at the middle of the face
+                ConnType sourceNode0( (*iter)->getId(0) ), sourceNode1( (*iter)->getId(1) );
+                AddContributionInRow(resRow,OTT<ConnType,numPol>::indFC(sourceNode0),volume/2.);
+                AddContributionInRow(resRow,OTT<ConnType,numPol>::indFC(sourceNode1),volume/2.);
+              }
+          }
+      }
+    }
   }
 }
 
