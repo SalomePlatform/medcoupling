@@ -1313,6 +1313,74 @@ DataArrayIdType *MEDCouplingUMesh::buildUnionOf2DMeshQuadratic(const MEDCoupling
   return ret.retn();
 }
 
+/*!
+ * \param [in] arrIn array part of the indexed array pair to be treated
+ * \param [in] arrIndxIn array index part of the indexed array pair to be treated
+ * \param [out] arrOut array part of the indexed array pair containing result
+ * \param [out] arrIndxOut array index part of the indexed array pair containing result
+ */
+void MEDCouplingUMesh::DeleteCellTypeInIndexedArray(const DataArrayIdType *arrIn, const DataArrayIdType *arrIndxIn, MCAuto<DataArrayIdType>& arrOut, MCAuto<DataArrayIdType>& arrIndxOut)
+{
+  if( !arrIn || !arrIn->isAllocated() )
+    THROW_IK_EXCEPTION("input array is null or not allocated !");
+  if( !arrIndxIn || !arrIndxIn->isAllocated() )
+    THROW_IK_EXCEPTION("input indexed array is null or not allocated !");
+  arrIn->checkNbOfComps(1,"input array"); arrIndxIn->checkNbOfComps(1,"input indexed array");
+  mcIdType arrNbTuples(arrIn->getNumberOfTuples()),arrIndxNbTuples(arrIndxIn->getNumberOfTuples());
+  if( arrIndxNbTuples < 1 )
+    THROW_IK_EXCEPTION("Indexed array is supposed to have length >= 1 !");
+  if( arrNbTuples < arrIndxNbTuples )
+    THROW_IK_EXCEPTION("Number of tuples of input array is to low compared to indexed array one !");
+  const mcIdType *inArrPtr(arrIn->begin()),*inArrIndxPtr(arrIndxIn->begin());
+  if( *inArrIndxPtr != 0 )
+    THROW_IK_EXCEPTION("First value of indexed array must be 0 !");
+  arrOut = DataArrayIdType::New(); arrOut->alloc(arrNbTuples-arrIndxNbTuples+1,1);
+  arrIndxOut = DataArrayIdType::New(); arrIndxOut->alloc(arrIndxNbTuples,1);
+  bool presenceOfPolyh = false;
+  {
+    mcIdType *outArrPtr(arrOut->getPointer()),*outArrIndxPtr(arrIndxOut->getPointer());
+    *outArrIndxPtr++ = 0;
+    for( mcIdType i = 0 ; i < arrIndxNbTuples - 1 ; ++i )
+    {
+      mcIdType startPos(*inArrIndxPtr++);
+      mcIdType endPos(*inArrIndxPtr);
+      if(inArrPtr[startPos] == INTERP_KERNEL::NORM_POLYHED)
+        {
+          presenceOfPolyh = true;
+          break;
+        }
+      outArrPtr = std::copy(inArrPtr+startPos+1,inArrPtr+endPos,outArrPtr);
+      *outArrIndxPtr++ = endPos - i - 1;
+    }
+  }
+  if(!presenceOfPolyh)
+    return ;
+  //
+  {
+    arrOut = DataArrayIdType::New(); arrOut->alloc(0,1);
+    inArrIndxPtr = arrIndxIn->begin();
+    mcIdType *outArrIndxPtr = arrIndxOut->getPointer();
+    *outArrIndxPtr++ = 0;
+    for( mcIdType i = 0 ; i < arrIndxNbTuples - 1 ; ++i,++outArrIndxPtr )
+    {
+      mcIdType startPos(*inArrIndxPtr++);
+      mcIdType endPos(*inArrIndxPtr);
+      if(inArrPtr[startPos] != INTERP_KERNEL::NORM_POLYHED)
+      {
+        arrOut->insertAtTheEnd(inArrPtr+startPos+1,inArrPtr+endPos);
+        outArrIndxPtr[0] = outArrIndxPtr[-1] + (endPos-startPos-1);
+      }
+      else
+      {
+        std::set<mcIdType> s(inArrPtr+startPos+1,inArrPtr+endPos);
+        s.erase( -1 );
+        arrOut->insertAtTheEnd(s.begin(),s.end());
+        outArrIndxPtr[0] = outArrIndxPtr[-1] + s.size();
+      }
+    }
+  }
+}
+
 MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesLL(const std::vector<const MEDCouplingUMesh *>& a)
 {
   if(a.empty())

@@ -368,6 +368,7 @@ MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<Data
     MEDLOADER_EXPORT DataArrayIdType *computeFetchedNodeIds() const;
     MEDLOADER_EXPORT DataArrayIdType *deduceNodeSubPartFromCellSubPart(const std::map<int, MCAuto<DataArrayIdType> >& extractDef) const;
     MEDLOADER_EXPORT MEDFileUMesh *extractPart(const std::map<int, MCAuto<DataArrayIdType> >& extractDef) const;
+    // MCAuto<MEDFileUMesh> extractPart(int level, DataArrayIdType *keepCells, bool removeOrphanNodes = true) const; // implemented in python
     MEDLOADER_EXPORT MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const;
     MEDLOADER_EXPORT MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const;
     MEDLOADER_EXPORT MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;

@@ -2734,6 +2734,19 @@ namespace MEDCoupling
         return ret;
       }
 
+      PyObject *explodeMeshTo(int targetDeltaLevel) const
+      {
+        MCAuto<DataArrayIdType> desc,descIndx,revDesc,revDescIndx;
+        MCAuto<MEDCouplingUMesh> m=self->explodeMeshTo(targetDeltaLevel,desc,descIndx,revDesc,revDescIndx);
+        PyObject *ret=PyTuple_New(5);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(desc.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(descIndx.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(revDesc.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(revDescIndx.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       PyObject *explodeIntoEdges() const
       {
         MCAuto<DataArrayIdType> desc,descIndex,revDesc,revDescIndx;

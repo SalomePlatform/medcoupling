@@ -123,6 +123,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool areCellsIncludedInPolicy7(const MEDCouplingUMesh *other, DataArrayIdType *& arr) const;
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayIdType *revNodal, DataArrayIdType *revNodalIndx) const;
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> explodeIntoEdges(MCAuto<DataArrayIdType>& desc, MCAuto<DataArrayIdType>& descIndex, MCAuto<DataArrayIdType>& revDesc, MCAuto<DataArrayIdType>& revDescIndx) const;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> explodeMeshTo(int targetDeltaLevel, MCAuto<DataArrayIdType>& desc, MCAuto<DataArrayIdType>& descIndx, MCAuto<DataArrayIdType>& revDesc, MCAuto<DataArrayIdType>& revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *explode3DMeshTo1D(DataArrayIdType *desc, DataArrayIdType *descIndx, DataArrayIdType *revDesc, DataArrayIdType *revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity(DataArrayIdType *desc, DataArrayIdType *descIndx, DataArrayIdType *revDesc, DataArrayIdType *revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity2(DataArrayIdType *desc, DataArrayIdType *descIndx, DataArrayIdType *revDesc, DataArrayIdType *revDescIndx) const;
@@ -320,6 +321,7 @@ namespace MEDCoupling
                                        MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex,
                                        std::function<bool(INTERP_KERNEL::NormalizedCellType,mcIdType)> sensibilityTo2DQuadraticLinearCellsFunc) const;
 /// @cond INTERNAL
+    static void DeleteCellTypeInIndexedArray(const DataArrayIdType *arrIn, const DataArrayIdType *arrIndxIn, MCAuto<DataArrayIdType>& arrOut, MCAuto<DataArrayIdType>& arrIndxOut);
     static MEDCouplingUMesh *MergeUMeshesLL(const std::vector<const MEDCouplingUMesh *>& a);
     typedef mcIdType (*DimM1DescNbrer)(mcIdType id, mcIdType nb, const INTERP_KERNEL::CellModel& cm, bool compute, const mcIdType *conn1, const mcIdType *conn2);
     template<class SonsGenerator>

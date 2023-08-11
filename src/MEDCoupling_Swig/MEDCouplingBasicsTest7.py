@@ -449,9 +449,9 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         # non regression test in python wrapping
         rg=DataArrayInt64([0,10,29,56,75,102,121,148,167,194,213,240,259,286,305,332,351,378,397,424,443,470,489,516])
         a,b,c=DataArrayInt64([75]).splitByValueRange(rg)
-        assert(a.isEqual(DataArrayInt64([4])))
-        assert(b.isEqual(DataArrayInt64([0])))
-        assert(c.isEqual(DataArrayInt64([4])))
+        self.assertTrue(a.isEqual(DataArrayInt64([4])))
+        self.assertTrue(b.isEqual(DataArrayInt64([0])))
+        self.assertTrue(c.isEqual(DataArrayInt64([4])))
         pass
 
     def testDAIBuildExplicitArrByRanges1(self):
@@ -1246,6 +1246,65 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         disc = fff.getDiscretization()
         self.assertTrue( disc.getMeasureField(tri,True).getArray().isEqual( tri.getMeasureField(True).getArray(), 1e-10) )
         pass
+
+    def testUMeshExplodeMeshTo(self):
+        """
+        [EDF27988] : implementation of reduceToCells implies implementation of MEDCouplingUMesh.explodeMeshTo
+        """
+        arr = DataArrayDouble(5) ; arr.iota()
+        m = MEDCouplingCMesh() ; m.setCoords(arr,arr,arr)
+        m = m.buildUnstructured()
+        m1 = m[::2] ; m2 = m[1::2]
+        m1.simplexize(PLANAR_FACE_5)
+        m = MEDCouplingUMesh.MergeUMeshesOnSameCoords([m1,m2])
+        mE1 = m.explodeMeshTo(-1)
+        ref1 = m.buildDescendingConnectivity()
+        mE2 = m.explodeMeshTo(-2)
+        ref2 = m.explode3DMeshTo1D()
+        mE3 = m.explodeMeshTo(-3)
+        self.assertTrue( len(mE1) ==5 )
+        self.assertTrue( mE1[0].getNodalConnectivity().isEqual(ref1[0].getNodalConnectivity()) )
+        self.assertTrue( mE1[0].getNodalConnectivityIndex().isEqual(ref1[0].getNodalConnectivityIndex()) )
+        self.assertTrue( mE1[0].getCoords().getHiddenCppPointer() == m.getCoords().getHiddenCppPointer() )
+        for i in range(1,5):
+            self.assertTrue( mE1[i].isEqual(ref1[i]) )
+        #
+        self.assertTrue( len(mE2) ==5 )
+        self.assertTrue( mE2[0].getNodalConnectivity().isEqual(ref2[0].getNodalConnectivity()) )
+        self.assertTrue( mE2[0].getNodalConnectivityIndex().isEqual(ref2[0].getNodalConnectivityIndex()) )
+        self.assertTrue( mE2[0].getCoords().getHiddenCppPointer() == m.getCoords().getHiddenCppPointer() )
+        for i in range(1,5):
+            self.assertTrue( mE2[i].isEqual(ref2[i]) )
+        #
+        self.assertTrue( mE3[0].getMeshDimension() == 0 )
+        self.assertTrue( mE3[0].getNumberOfCells() == mE3[0].getNumberOfNodes() )
+        a,b = m.getReverseNodalConnectivity()
+        self.assertTrue( mE3[3].isEqual(a) and mE3[4].isEqual(b) )
+        ref3_2 = (m.getNodalConnectivityIndex().deltaShiftIndex()-1) ; ref3_2.computeOffsetsFull()
+        self.assertTrue( ref3_2.isEqual(mE3[2]) )
+        tmp = m.getNodalConnectivityIndex().deepCopy() ; tmp.popBackSilent() ; tmp = tmp.buildComplement( len(m.getNodalConnectivity()) ) ; ref3_1 = m.getNodalConnectivity()[tmp]
+        self.assertTrue( ref3_1.isEqual(mE3[1]) )
+        #
+        cellsInPolyh = [37,160]
+        polyh = m[cellsInPolyh]
+        polyh.convertAllToPoly()
+        m[cellsInPolyh] = polyh
+        pE3 = m.explodeMeshTo(-3)
+        self.assertTrue( pE3[0].getMeshDimension() == 0 )
+        self.assertTrue( pE3[0].getNumberOfCells() == pE3[0].getNumberOfNodes() )
+        a,b = m.getReverseNodalConnectivity()
+        self.assertTrue( pE3[3].isEqual(a) and pE3[4].isEqual(b) )
+        self.assertTrue( pE3[2].isEqual(mE3[2]) ) # indexed arrays are the same
+
+        ref_a,ref_b = DataArrayInt.ExtractFromIndexedArrays( DataArrayInt(cellsInPolyh).buildComplement(m.getNumberOfCells()), mE3[1], mE3[2] )
+        a,b = DataArrayInt.ExtractFromIndexedArrays( DataArrayInt(cellsInPolyh).buildComplement(m.getNumberOfCells()), pE3[1], pE3[2] )
+        self.assertTrue( ref_a.isEqual(a) )
+        self.assertTrue( ref_b.isEqual(b) )
+        for cell in cellsInPolyh:
+            ref_c,ref_d = DataArrayInt.ExtractFromIndexedArrays( cell, mE3[1], mE3[2] ) ; ref_c.sort()
+            c,d = DataArrayInt.ExtractFromIndexedArrays( cell, pE3[1], pE3[2] )
+            self.assertTrue( ref_c.isEqual(c) )
+            self.assertTrue( ref_d.isEqual(d) )
 
     pass
 

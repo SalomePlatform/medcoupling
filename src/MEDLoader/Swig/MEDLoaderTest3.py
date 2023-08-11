@@ -7132,6 +7132,65 @@ class MEDLoaderTest3(unittest.TestCase):
 
         pass
 
+    def testUMeshReduceToCells(self):
+        """
+        [EDF27988] : test of MEDFileUMesh.reduceToCells method
+        """
+        arr = DataArrayDouble(4) ; arr.iota()
+        arrZ = DataArrayDouble(2) ; arrZ.iota()
+        m = MEDCouplingCMesh() ; m.setCoords(arr,arr,arrZ)
+        m = m.buildUnstructured()
+        mm = MEDFileUMesh()
+        mm[0] = m
+        m1 = m.buildDescendingConnectivity()[0]
+        bas1 = DataArrayInt([0,6,11,16,21,25,29,34,38])
+        haut1 = DataArrayInt([1,7,12,17,22,26,30,35,39])
+        lat1 = DataArrayInt([8,9,23,36])
+        allcellsInMM = DataArrayInt.Aggregate([bas1,haut1,lat1])
+        allcellsInMM.sort()
+        m1InMM = m1[allcellsInMM]
+        mm[-1] = m1InMM
+        bas1 = allcellsInMM.findIdForEach(bas1) ; bas1.setName("bas1")
+        haut1 = allcellsInMM.findIdForEach(haut1) ; haut1.setName("haut1")
+        lat1 = allcellsInMM.findIdForEach(lat1) ; lat1.setName("lat1")
+        m2 = m1InMM.buildDescendingConnectivity()[0]
+        lat2 = DataArrayInt( [ 14, 15, 16, 17, 34, 35, 50, 51] )
+        allCellsInMM2 = DataArrayInt( [4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 27, 28, 29, 32, 33, 34, 35, 38, 39, 43, 44, 45, 48, 49, 50, 51, 54, 55] )
+        lat2 = allCellsInMM2.findIdForEach(lat2) ; lat2.setName("lat2")
+        m2InMM = m2[allCellsInMM2]
+        mm[-2] = m2InMM
+        mm.setName("mesh")
+        ##
+        bas1_id = -1 ; haut1_id = -2 ; lat1_id = -3 ; lat2_id = -4
+        fam0 = DataArrayInt( m.getNumberOfCells() ) ; fam0.iota()
+        mm.setFamilyFieldArr(0,fam0)
+        fam1 = DataArrayInt( m1InMM.getNumberOfCells() ) ; fam1[:] = 0 ; fam1[bas1] = bas1_id ; fam1[haut1] = haut1_id ; fam1[lat1] = lat1_id
+        mm.setFamilyFieldArr(-1,fam1)
+        fam2 = DataArrayInt( m2InMM.getNumberOfCells() ) ; fam2[:] = 0 ; fam2[lat2] = lat2_id
+        mm.setFamilyFieldArr(-2,fam2)
+        for grp,famid in [(bas1,bas1_id),(haut1,haut1_id),(lat1,lat1_id),(lat2,lat2_id)]:
+            mm.addFamily(grp.getName(),famid)
+            mm.setFamiliesIdsOnGroup(grp.getName(),[famid])
+        # ze heart of the test
+        mmr = mm.reduceToCells(0,DataArrayInt([4]))
+        # assert section
+        tmp = m[4] ; tmp.zipCoords()
+        self.assertTrue( mmr[0].isEqual(tmp,1e-12) )
+        tmp = MEDCoupling1SGTUMesh( mmr[-1] )
+        self.assertTrue( tmp.getCellModelEnum() == NORM_QUAD4 )
+        self.assertTrue( tmp.getNodalConnectivity().isEqual( DataArrayInt([0, 4, 5, 1, 1, 0, 2, 3, 5, 7, 6, 4, 2, 6, 7, 3]) ) )
+        tmp = MEDCoupling1SGTUMesh( mmr[-2] )
+        self.assertTrue( tmp.getCellModelEnum() == NORM_SEG2 )
+        self.assertTrue( tmp.getNodalConnectivity().isEqual( DataArrayInt([5, 4, 0, 4, 5, 1, 4, 6, 5, 7, 7, 6, 2, 6, 7, 3]) ) )
+        #
+        self.assertTrue( mmr.getFamilyFieldAtLevel(0).isEqual(DataArrayInt([4])) )
+        self.assertTrue( mmr.getFamilyFieldAtLevel(-1).isEqual(DataArrayInt([-3, -1, -2, -3])) )
+        self.assertTrue( mmr.getFamilyFieldAtLevel(-2).isEqual(DataArrayInt([0, -4, -4, 0, 0, 0, -4, -4])) )
+        #
+        self.assertTrue( set( mm.getGroupsNames() ) == set( mmr.getGroupsNames() ) )
+        for grp in mm.getGroupsNames():
+            self.assertTrue( set(mm.getFamiliesIdsOnGroup(grp)) == set(mmr.getFamiliesIdsOnGroup(grp)) )
+
     pass
 
 if __name__ == "__main__":

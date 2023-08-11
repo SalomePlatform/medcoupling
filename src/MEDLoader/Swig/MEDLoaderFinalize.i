@@ -19,6 +19,9 @@
 // Author : Anthony Geay (EDF R&D)
 
 %pythoncode %{
+import MEDLoaderFinalize
+MEDFileUMesh.reduceToCells = MEDLoaderFinalize.MEDFileUMeshReduceToCells
+del MEDLoaderFinalize
 MEDFileMeshesIterator.__next__ = MEDFileMeshesIterator.next
 MEDFileAnyTypeFieldMultiTSIterator.__next__ = MEDFileAnyTypeFieldMultiTSIterator.next
 MEDFileFieldsIterator.__next__ = MEDFileFieldsIterator.next

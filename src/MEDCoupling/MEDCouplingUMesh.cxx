@@ -698,6 +698,44 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayIdType 
 }
 
 /*!
+ * This method is a generalization of buildDescendingConnectivity method. This method return mesh containing subcells of this at level specified by \a targetDeltaLevel
+ * and return descending and reverse descending correspondances to this.
+ *
+ * \param [in] targetDeltaLevel target delta level compared to \a this mesh dimension. This parameter is expected to be lower than zero.
+ * 
+ * \throw If targetDeltaLevel is greater or equal to zero
+ * \throw If targetDeltaLevel is lower than -meshDim
+ * \sa MEDCouplingUMesh::buildDescendingConnectivity, MEDCouplingUMesh::explode3DMeshTo1D
+ */
+MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::explodeMeshTo(int targetDeltaLevel, MCAuto<DataArrayIdType>& desc, MCAuto<DataArrayIdType>& descIndx, MCAuto<DataArrayIdType>& revDesc, MCAuto<DataArrayIdType>& revDescIndx) const
+{
+  this->checkConsistencyLight();
+  if( targetDeltaLevel >= 0 )
+    THROW_IK_EXCEPTION("Input parameter targetDeltaLevel is expected to be lower than zero !");
+  if( targetDeltaLevel == -1 )
+  {
+    desc = DataArrayIdType::New(); descIndx = DataArrayIdType::New(); revDesc = DataArrayIdType::New(); revDescIndx = DataArrayIdType::New();
+    MCAuto<MEDCouplingUMesh> ret( this->buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx) );
+    return ret;
+  }
+  if( targetDeltaLevel == -2 && this->getMeshDimension() == 3 )
+  {
+    desc = DataArrayIdType::New(); descIndx = DataArrayIdType::New(); revDesc = DataArrayIdType::New(); revDescIndx = DataArrayIdType::New();
+    MCAuto<MEDCouplingUMesh> ret( this->explode3DMeshTo1D(desc,descIndx,revDesc,revDescIndx) );
+    return ret;
+  }
+  if( targetDeltaLevel == -this->getMeshDimension() )
+  {
+    MCAuto<MEDCouplingUMesh> ret = MEDCouplingUMesh::Build0DMeshFromCoords( const_cast<DataArrayDouble *>( this->getCoords() ) );
+    MEDCouplingUMesh::DeleteCellTypeInIndexedArray(getNodalConnectivity(),getNodalConnectivityIndex(),desc,descIndx);
+    revDesc = DataArrayIdType::New(); revDescIndx = DataArrayIdType::New();
+    this->getReverseNodalConnectivity(revDesc,revDescIndx);
+    return ret;
+  }
+  THROW_IK_EXCEPTION("Not valid input targetDeltaLevel regarding mesh dimension");
+}
+
+/*!
  * \a this has to have a mesh dimension equal to 3. If it is not the case an INTERP_KERNEL::Exception will be thrown.
  * This behaves exactly as MEDCouplingUMesh::buildDescendingConnectivity does except that this method compute directly the transition from mesh dimension 3 to sub edges (dimension 1)
  * in one shot. That is to say that this method is equivalent to 2 successive calls to MEDCouplingUMesh::buildDescendingConnectivity.

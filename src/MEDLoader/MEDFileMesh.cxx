@@ -4534,7 +4534,7 @@ DataArrayIdType *MEDFileUMesh::deduceNodeSubPartFromCellSubPart(const std::map<i
  * This method returns a new MEDFileUMesh that is the result of the extraction of cells/nodes in \a this.
  * 
  * \return - a new reference of MEDFileUMesh
- * \sa MEDFileUMesh::deduceNodeSubPartFromCellSubPart, MEDFileFields::extractPart
+ * \sa MEDFileUMesh::deduceNodeSubPartFromCellSubPart, MEDFileFields::extractPart, MEDFileUMesh.reduceToCells
  */
 MEDFileUMesh *MEDFileUMesh::extractPart(const std::map<int, MCAuto<DataArrayIdType> >& extractDef) const
 {
