@@ -4356,7 +4356,7 @@ mcIdType MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps)
  *          point, for more points getCellsContainingPoints() is recommended as it is
  *          faster.
  *  \param [in] pos - array of coordinates of the ball central point.
- *  \param [in] eps - ball radius.
+ *  \param [in] eps - ball radius (i.e. the precision) relative to max dimension along X, Y or Z of the the considered cell bounding box.
  *  \param [out] elts - vector returning ids of the found cells. It is cleared
  *         before inserting ids.
  *  \throw If the coordinates array is not set.
@@ -4423,7 +4423,7 @@ void MEDCouplingUMesh::getCellsContainingPointsZeAlg(const double *pos, mcIdType
  *         X0,Y0,Z0,X1,Y1,Z1,... Size of the array must be \a
  *         this->getSpaceDimension() * \a nbOfPoints
  *  \param [in] nbOfPoints - number of points to locate within \a this mesh.
- *  \param [in] eps - radius of balls (i.e. the precision).
+ *  \param [in] eps - ball radius (i.e. the precision) relative to max dimension along X, Y or Z of the the considered cell bounding box.
  *  \param [out] elts - vector returning ids of found cells.
  *  \param [out] eltsIndex - an array, of length \a nbOfPoints + 1,
  *         dividing cell ids in \a elts into groups each referring to one

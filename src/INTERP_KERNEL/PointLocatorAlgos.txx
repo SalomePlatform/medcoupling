@@ -31,6 +31,7 @@
 #include <vector>
 #include <set>
 #include <limits>
+#include <memory>
 
 namespace INTERP_KERNEL
 {
@@ -119,7 +120,7 @@ namespace INTERP_KERNEL
        
          here XA^XC and XC^XB have different signs*/
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-      int* sign = new int[nbEdges];
+      std::unique_ptr<char[]> sign( new char[nbEdges] );
       for (mcIdType iedge=0; iedge<nbEdges; iedge++)
         {
           const double* A=cellPts+SPACEDIM*iedge;
@@ -132,8 +133,7 @@ namespace INTERP_KERNEL
           else
             sign[iedge]=0;
         }
-      bool ret=decideFromSign(sign, nbEdges);
-      delete [] sign;
+      bool ret=decideFromSign(sign.get(), nbEdges);
       return ret;
     }
 
@@ -198,26 +198,41 @@ namespace INTERP_KERNEL
       const NumberingPolicy numPol=MyMeshType::My_numPol;
       
       int nbfaces = cmType.getNumberOfSons2(conn_elem,conn_elem_sz);
-      int *sign = new int[nbfaces];
-      ConnType *connOfSon = new ConnType[conn_elem_sz];
+      std::unique_ptr<char[]> sign( new char[nbfaces] );
+      std::unique_ptr<ConnType[]> connOfSon( new ConnType[conn_elem_sz] );
+      std::unique_ptr<double[]> ptsOfTetrahedrizedPolyhedron( new double[3*3*nbfaces] );
       for (int iface=0; iface<nbfaces; iface++)
         {
           NormalizedCellType typeOfSon;
-          cmType.fillSonCellNodalConnectivity2(iface,conn_elem,conn_elem_sz,connOfSon,typeOfSon);
+          cmType.fillSonCellNodalConnectivity2(iface,conn_elem,conn_elem_sz,connOfSon.get(),typeOfSon);
           const double* AA=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[0]));
+          std::copy(AA,AA+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface);
           const double* BB=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[1]));
+          std::copy(BB,BB+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface+3);
           const double* CC=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[2]));                                                       
-          double Vol=triple_product(AA,BB,CC,ptToTest);
-          if (Vol<-eps)
-            sign[iface]=-1;
-          else if (Vol>eps)
-            sign[iface]=1;
-              else
-                sign[iface]=0;
+          std::copy(CC,CC+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface+6);
         }
-      bool ret=decideFromSign(sign, nbfaces);
-      delete [] sign;
-      delete [] connOfSon;
+      double centerPt[3];
+      double normalizeFact = NormalizeTetrahedrizedPolyhedron(ptsOfTetrahedrizedPolyhedron.get(),nbfaces,centerPt);
+      double ptToTestNorm[3] = {(ptToTest[0]-centerPt[0])/normalizeFact,
+      (ptToTest[1]-centerPt[1])/normalizeFact,
+      (ptToTest[2]-centerPt[2])/normalizeFact};
+      for (int iface=0; iface<nbfaces; iface++)
+        {
+          double lengthNorm = ( TripleProduct(
+          ptsOfTetrahedrizedPolyhedron.get() + 9*iface + 3,
+          ptsOfTetrahedrizedPolyhedron.get() + 9*iface + 6,
+          ptToTestNorm,
+          ptsOfTetrahedrizedPolyhedron.get() + 9*iface) );
+          // assigne sign[iface] : 0 means on the face within eps, 1 or -1 means far from tetra representing face
+          if( lengthNorm<-eps )
+            sign[iface]=-1;
+          else if( lengthNorm>eps )
+            sign[iface]=1;
+          else
+            sign[iface]=0;
+        }
+      bool ret=decideFromSign(sign.get(), nbfaces);
       return ret;
     }
 
@@ -273,10 +288,10 @@ namespace INTERP_KERNEL
       return isElementContainsPoint(x,type,coords,conn_elem,conn_elem_sz,eps);
     }
                 
-    static bool decideFromSign(const int* sign, mcIdType nbelem)
+    static bool decideFromSign(const char *sign, mcIdType nbelem)
     {
-      int min_sign = 1;
-      int max_sign = -1;
+      char min_sign = 1;
+      char max_sign = -1;
       for (int i=0; i<nbelem;i++)
         {
           min_sign=(sign[i]<min_sign)?sign[i]:min_sign;

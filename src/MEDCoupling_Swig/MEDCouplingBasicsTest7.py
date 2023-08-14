@@ -1305,6 +1305,31 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             c,d = DataArrayInt.ExtractFromIndexedArrays( cell, pE3[1], pE3[2] )
             self.assertTrue( ref_c.isEqual(c) )
             self.assertTrue( ref_d.isEqual(d) )
+    
+    def testGetCellContainingPointRelativeEps(self):
+        """
+        See EDF27860 : This test checks that detection of point inside a cell works by normalizing cell around origin with factor equal to the max delta of bbox along axis X, Y or Z.
+        """
+        # in this test cell is vuluntary far from origin {15260.775604514516, 11197.646906189217, 14187.820484060947}
+        # and caracteritic size is ~ 1500
+        coo = DataArrayDouble( [(14724.199858870656, 11928.888084722483, 14442.32726944039), (14788.407409534622, 11992.60694822231, 14453.86181555231), (15572.175148726046, 10798.586790270576, 14471.54225356788), (15643.898717334796, 10853.094666047728, 14477.233802854305), (15005.31495255754, 11573.261110174888, 13933.313698681504), (15070.29423166349, 11636.377758513776, 13946.650959030132), (15797.351350158377, 10466.40572765595, 13965.524190108257), (15869.808770928525, 10519.99285973948, 13972.419352086607), (15273.866774426142, 11216.458197414971, 13433.169979717744), (15340.421031616577, 11277.882145177837, 13446.53598386297), (16013.382514001762, 10132.795887638129, 13465.184281842226), (16086.979064572806, 10184.802292369684, 13472.147425473782)] )
+        m = MEDCouplingUMesh("",3)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_TETRA4,[0,5,4,6])
+        m.insertNextCell(NORM_TETRA4,[4,5,9,7])
+
+        ##### See EDF2760 pt is outside cell 0 (6e-4) and 1 (8e-4)
+        pt = DataArrayDouble([(15263.41200205526, 11314.957094727113, 13950.0)])
+        a,b = m.getCellsContainingPoints(pt,1e-3)
+        self.assertTrue(a.isEqual(DataArrayInt([0,1])))
+        self.assertTrue(b.isEqual(DataArrayInt([0,2])))
+
+        # by shifting pt by 10 along Z pt in only inside cell # 0
+        pt += [0,0,10]
+        a1,b1 = m.getCellsContainingPoints(pt,1e-3)
+        self.assertTrue(a1.isEqual(DataArrayInt([0])))
+        self.assertTrue(b1.isEqual(DataArrayInt([0,1])))
 
     pass
 

@@ -1253,27 +1253,61 @@ namespace INTERP_KERNEL
       }
     return result;
   }
-  
-  /*! Computes the triple product (XA^XB).XC (in 3D)*/
-  inline double triple_product(const double* A, const double*B, const double*C, const double*X)
+
+  /*!
+   * This method normalize input "tetrahedrized polyhedron" to put it around 0,0,0 point and with the normalization factor.
+   *
+   * \param [in,out] ptsOfTetrahedrizedPolyhedron nbfaces * 3 * 3 vector that store in full interlace all the 3 first points of each face of the input polyhedron
+   * \param [in] nbfaces number of faces in the tetrahedrized polyhedron to be normalized
+   * \param [out] centerPt the center of input tetrahedrized polyhedron
+   * \return the normalization factor corresponding to the max amplitude among all nbfaces*3 input points and among X, Y and Z axis.
+   */
+  inline double NormalizeTetrahedrizedPolyhedron(double *ptsOfTetrahedrizedPolyhedron, int nbfaces, double centerPt[3])
   {
-    double XA[3];
-    XA[0]=A[0]-X[0];
-    XA[1]=A[1]-X[1];
-    XA[2]=A[2]-X[2];
-    double XB[3];
-    XB[0]=B[0]-X[0];
-    XB[1]=B[1]-X[1];
-    XB[2]=B[2]-X[2];
-    double XC[3];
-    XC[0]=C[0]-X[0];
-    XC[1]=C[1]-X[1];
-    XC[2]=C[2]-X[2];
+    centerPt[0] = 0.0; centerPt[1] = 0.0; centerPt[2] = 0.0;
+    double minMax[6]={ std::numeric_limits<double>::max(), -std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::max(), -std::numeric_limits<double>::max(),
+    std::numeric_limits<double>::max(), -std::numeric_limits<double>::max() };
+    for(int iPt = 0 ; iPt < 3 * nbfaces ; ++iPt)
+    {
+      for(int k = 0 ; k < 3 ; ++k)
+      {
+        minMax[2*k]   = std::min(minMax[2*k],ptsOfTetrahedrizedPolyhedron[3*iPt+k]);
+        minMax[2*k+1] = std::max(minMax[2*k+1],ptsOfTetrahedrizedPolyhedron[3*iPt+k]);
+      }
+    }
+    double normFact = 0.0;
+    for(int k = 0 ; k < 3 ; ++k)
+    {
+      centerPt[k] = (minMax[2*k] + minMax[2*k+1]) / 2.0 ;
+      normFact = std::max(minMax[2*k+1] - minMax[2*k], normFact);
+    }
+    // renormalize into ptsOfTetrahedrizedPolyhedron
+    for(int iPt = 0 ; iPt < 3 * nbfaces ; ++iPt)
+    {
+      for(int k = 0 ; k < 3 ; ++k)
+      {
+        ptsOfTetrahedrizedPolyhedron[3*iPt+k] = ( ptsOfTetrahedrizedPolyhedron[3*iPt+k] - centerPt[k] ) / normFact;
+      }
+    }
+    return normFact;
+  }
+  
+  /*!
+   * Computes the triple product (XA^XB).XC/(norm(XA^XB)) (in 3D)
+   * Returned value is equal to the distance (positive or negative depending of the position of C relative to XAB plane) between XAB plane and C point.
+   */
+  inline double TripleProduct(const double *A, const double *B, const double *C, const double *X)
+  {
+    double XA[3]={ A[0]-X[0], A[1]-X[1], A[2]-X[2] };
+    double XB[3]={ B[0]-X[0], B[1]-X[1], B[2]-X[2] };
+    double XC[3]={ C[0]-X[0], C[1]-X[1], C[2]-X[2] };
     
-    return 
-      (XA[1]*XB[2]-XA[2]*XB[1])*XC[0]+
-      (XA[2]*XB[0]-XA[0]*XB[2])*XC[1]+
-      (XA[0]*XB[1]-XA[1]*XB[0])*XC[2];
+    double XA_cross_XB[3] = {XA[1]*XB[2]-XA[2]*XB[1], XA[2]*XB[0]-XA[0]*XB[2], XA[0]*XB[1]-XA[1]*XB[0]};
+    // norm is equal to double the area of the triangle
+    double norm = std::sqrt(XA_cross_XB[0]*XA_cross_XB[0]+XA_cross_XB[1]*XA_cross_XB[1]+XA_cross_XB[2]*XA_cross_XB[2]);
+
+    return ( XA_cross_XB[0]*XC[0]+ XA_cross_XB[1]*XC[1] + XA_cross_XB[2]*XC[2] ) / norm;
   }
   
   /*! Subroutine of checkEqualPolygins that tests if two list of nodes (not necessarily distincts) describe the same polygon, assuming they share a common point.*/
