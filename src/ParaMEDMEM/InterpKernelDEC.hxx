@@ -135,13 +135,18 @@ namespace MEDCoupling
     void release();
 
     void synchronize();
+    void synchronizeWithDefaultValue(double val);
+    MCAuto<DataArrayIdType> retrieveNonFetchedIds() const;
     void recvData();
     void recvData(double time);
     void sendData();
     void sendData(double time , double deltatime);
     void prepareSourceDE() { }
     void prepareTargetDE() { }
-  private :
+  private:
+    MCAuto<DataArrayIdType> retrieveNonFetchedIdsSource() const;
+    MCAuto<DataArrayIdType> retrieveNonFetchedIdsTarget() const;
+  private:
     InterpolationMatrix* _interpolation_matrix;
   };
 }

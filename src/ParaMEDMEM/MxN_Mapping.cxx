@@ -134,6 +134,23 @@ namespace MEDCoupling
     delete[] recvdispls;
   }
 
+  MCAuto<DataArrayIdType> MxN_Mapping::retrieveNonFetchedIdsTarget(mcIdType nbTuples) const
+  {
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
+    std::vector<bool> hitMachine(nbTuples,false);
+    for (int i=0; i< _recv_proc_offsets[_union_group->size()]; i++)
+      {
+        mcIdType recvId(_recv_ids[i]);
+        hitMachine[recvId] = true;
+      }
+    for( mcIdType ituple = 0 ; ituple <  nbTuples ; ++ituple )
+      {
+        if( ! hitMachine[ituple] )
+          ret->pushBackSilent( ituple );
+      }
+    return ret;
+  }
+
   /*! Exchanging field data between two groups of processes
    * 
    * \param field MEDCoupling field containing the values to be sent
@@ -153,7 +170,6 @@ namespace MEDCoupling
       sendbuf = new double[_sending_ids.size()*nbcomp];
     if (_recv_ids.size()>0)
       recvbuf = new double[_recv_ids.size()*nbcomp];
-    
     int* sendcounts = new int[_union_group->size()];
     int* senddispls=new int[_union_group->size()];
     int* recvcounts=new int[_union_group->size()];
@@ -196,16 +212,17 @@ namespace MEDCoupling
   
     //setting the received values in the field
     DataArrayDouble *fieldArr=field.getArray();
-    double* recvptr=recvbuf;                         
+    double* recvptr=recvbuf;
     for (int i=0; i< _recv_proc_offsets[_union_group->size()]; i++)
       {
+        mcIdType recvId(_recv_ids[i]);
         for (int icomp=0; icomp<nbcomp; icomp++)
           {
-            double temp = fieldArr->getIJ(_recv_ids[i],icomp);
-            fieldArr->setIJ(_recv_ids[i],icomp,temp+*recvptr);
+            double temp = fieldArr->getIJ(recvId,icomp);
+            fieldArr->setIJ(recvId,icomp,temp+*recvptr);
             recvptr++;
           }
-      }   
+      }
     if (sendbuf!=0 && getAllToAllMethod()== Native)
       delete[] sendbuf;
     if (recvbuf !=0)

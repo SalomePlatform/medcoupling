@@ -54,11 +54,14 @@ namespace MEDCoupling
                          const mcIdType* distant_elems, const std::string& srcMeth, const std::string& targetMeth);
     void finishContributionW(ElementLocator& elementLocator);
     void finishContributionL(ElementLocator& elementLocator);
+    MCAuto<DataArrayIdType> retrieveNonFetchedIdsTarget(mcIdType nbTuples) const;
     void multiply(MEDCouplingFieldDouble& field) const;
+    MCAuto<DataArrayIdType> retrieveNonFetchedIdsSource() const;
     void transposeMultiply(MEDCouplingFieldDouble& field)const;
     void prepare();
     mcIdType getNbRows() const { return ToIdType(_row_offsets.size()); }
     MPIAccessDEC* getAccessDEC() { return _mapping.getAccessDEC(); }
+    void setDefaultValue(double val) { _presence_dft_value = true;  _dft_value = val; }
   private:
     void computeConservVolDenoW(ElementLocator& elementLocator);
     void computeIntegralDenoW(ElementLocator& elementLocator);
@@ -93,6 +96,8 @@ namespace MEDCoupling
   private:
     bool isSurfaceComputationNeeded(const std::string& method) const;
   private:
+    bool _presence_dft_value = false;
+    double _dft_value = 0.0;
     const MEDCoupling::ParaFIELD *_source_field;
     std::vector<mcIdType> _row_offsets;
     std::map<std::pair<int,mcIdType>, mcIdType > _col_offsets;

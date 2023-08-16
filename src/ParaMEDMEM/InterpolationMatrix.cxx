@@ -849,7 +849,10 @@ namespace MEDCoupling
     _mapping.prepareSendRecv();
   }
 
-
+  MCAuto<DataArrayIdType> InterpolationMatrix::retrieveNonFetchedIdsTarget(mcIdType nbTuples) const
+  {
+    return _mapping.retrieveNonFetchedIdsTarget(nbTuples);
+  }
 
   /*!
      \brief performs t=Ws, where t is the target field, s is the source field
@@ -866,12 +869,10 @@ namespace MEDCoupling
   {
     mcIdType nbcomp = ToIdType(field.getArray()->getNumberOfComponents());
     vector<double> target_value(_col_offsets.size()* nbcomp,0.0);
-
     //computing the matrix multiply on source side
     if (_source_group.containsMyRank())
       {
         mcIdType nbrows = ToIdType(_coeffs.size());
-
         // performing W.S
         // W is the intersection matrix
         // S is the source vector
@@ -894,17 +895,42 @@ namespace MEDCoupling
 
     if (_target_group.containsMyRank())
       {
-        mcIdType nbelems = field.getArray()->getNumberOfTuples() ;
-        double* value = const_cast<double*> (field.getArray()->getPointer());
-        for (mcIdType i=0; i<nbelems*nbcomp; i++)
-          {
-            value[i]=0.0;
-          }
+        field.getArray()->fillWithZero();
       }
 
     //on source side : sending  T=VT^(-1).(W.S)
     //on target side :: receiving T and storing it in field
-    _mapping.sendRecv(&target_value[0],field);
+    _mapping.sendRecv(target_value.data(),field);
+
+    if( _target_group.containsMyRank() )
+    {
+      if( this->_presence_dft_value )
+      {
+        const MCAuto<DataArrayIdType> nonFetchedEntities = _mapping.retrieveNonFetchedIdsTarget(field.getArray()->getNumberOfTuples());
+        double *fieldPtr( field.getArray()->getPointerSilent() );
+        for( const mcIdType *eltId = nonFetchedEntities->begin() ; eltId != nonFetchedEntities->end() ; ++eltId)
+          std::fill( fieldPtr + (*eltId)*nbcomp, fieldPtr + ((*eltId)+1)*nbcomp, this->_dft_value );
+      }
+    }
+  }
+
+  MCAuto<DataArrayIdType> InterpolationMatrix::retrieveNonFetchedIdsSource() const
+  {
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
+    if (_source_group.containsMyRank())
+      {
+        mcIdType nbrows = ToIdType( _coeffs.size() );
+        for (mcIdType irow = 0; irow < nbrows; irow++)
+          {
+            if( _row_offsets[irow+1] == _row_offsets[irow] )
+            {
+              ret->pushBackSilent( irow );
+            }
+          }
+      }
+    else
+      THROW_IK_EXCEPTION("InterpolationMatrix::retrieveNonFetchedIdsSource : not supposed to be called target side !");
+    return ret;
   }
   
 
@@ -941,17 +967,25 @@ namespace MEDCoupling
         //T is the target vector
         for (mcIdType irow = 0; irow < nbrows; irow++)
           {
-            for (mcIdType icol = _row_offsets[irow]; icol < _row_offsets[irow+1]; icol++)
-              {
-                int colid    = _coeffs[irow][icol-_row_offsets[irow]].first;
-                double value = _coeffs[irow][icol-_row_offsets[irow]].second;
-                double deno = _deno_reverse_multiply[irow][icol-_row_offsets[irow]];
-                for (std::size_t icomp=0; icomp<nbcomp; icomp++)
-                  {
-                    double coeff_row = source_value[colid*nbcomp+icomp];
-                    array[irow*nbcomp+icomp] += value*coeff_row/deno;
-                  }
-              }
+            if( _row_offsets[irow+1] > _row_offsets[irow] )
+            {
+              for (mcIdType icol = _row_offsets[irow]; icol < _row_offsets[irow+1]; icol++)
+                {
+                  int colid    = _coeffs[irow][icol-_row_offsets[irow]].first;
+                  double value = _coeffs[irow][icol-_row_offsets[irow]].second;
+                  double deno = _deno_reverse_multiply[irow][icol-_row_offsets[irow]];
+                  for (std::size_t icomp=0; icomp<nbcomp; icomp++)
+                    {
+                      double coeff_row = source_value[colid*nbcomp+icomp];
+                      array[irow*nbcomp+icomp] += value*coeff_row/deno;
+                    }
+                }
+            }
+            else
+            {
+              if( _presence_dft_value )
+                std::fill(array+irow*nbcomp,array+(irow+1)*nbcomp,this->_dft_value);
+            }
           }
       }
   }

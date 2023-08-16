@@ -165,6 +165,15 @@ namespace MEDCoupling
     _interpolation_matrix->prepare();
   }
 
+  /*!
+   * Set a default value for non fetched entities
+   */
+  void InterpKernelDEC::synchronizeWithDefaultValue(double val)
+  {
+    this->synchronize();
+    if(_interpolation_matrix )
+      _interpolation_matrix->setDefaultValue(val);
+  }
 
   /*!
     Receives the data whether the processor is on the working side or on the lazy side. It must match a \a sendData() call on the other side.
@@ -181,6 +190,29 @@ namespace MEDCoupling
       }
   }
 
+  MCAuto<DataArrayIdType> InterpKernelDEC::retrieveNonFetchedIds() const
+  {
+    if( _source_group->containsMyRank() )
+    {
+      return this->retrieveNonFetchedIdsSource();
+    }
+    if( _target_group->containsMyRank() )
+    {
+      return this->retrieveNonFetchedIdsTarget();
+    }
+    THROW_IK_EXCEPTION("Not detected side of rank !");
+  }
+
+  MCAuto<DataArrayIdType> InterpKernelDEC::retrieveNonFetchedIdsSource() const
+  {
+    return _interpolation_matrix->retrieveNonFetchedIdsSource();
+  }
+
+  MCAuto<DataArrayIdType> InterpKernelDEC::retrieveNonFetchedIdsTarget() const
+  {
+    mcIdType nbTuples = _local_field->getField()->getNumberOfTuplesExpected();
+    return _interpolation_matrix->retrieveNonFetchedIdsTarget(nbTuples);
+  }
 
   /*!
     Receives the data at time \a time in asynchronous mode. The value of the field

@@ -45,6 +45,7 @@ namespace MEDCoupling
     void addElementFromSource(int distant_proc, mcIdType distant_elem);
     void prepareSendRecv();
     void sendRecv(MEDCouplingFieldDouble& field);
+    MCAuto<DataArrayIdType> retrieveNonFetchedIdsTarget(mcIdType nbTuples) const;
     void sendRecv(double* sendfield, MEDCouplingFieldDouble& field) const ;
     void reverseSendRecv(double* recvfield, MEDCouplingFieldDouble& field) const ;
  

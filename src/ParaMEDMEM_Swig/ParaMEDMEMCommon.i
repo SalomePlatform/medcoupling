@@ -75,6 +75,7 @@ using namespace ICoCo;
 
 %newobject MEDCoupling::InterpKernelDEC::_NewWithPG_internal;
 %newobject MEDCoupling::InterpKernelDEC::_NewWithComm_internal;
+%newobject MEDCoupling::InterpKernelDEC::retrieveNonFetchedIds;
 %newobject MEDCoupling::OverlapDEC::_NewWithComm_internal;
 
 %feature("unref") ParaSkyLineArray "$this->decrRef();"
@@ -296,6 +297,7 @@ namespace MEDCoupling
       void release();
 
       void synchronize();
+      void synchronizeWithDefaultValue(double val);
       void recvData();
       void recvData(double time);
       void sendData();
@@ -321,6 +323,12 @@ namespace MEDCoupling
         static InterpKernelDEC* _NewWithComm_internal(const std::set<int>& src_ids, const std::set<int>& trg_ids, long long another_comm)
         {
           return new InterpKernelDEC(src_ids,trg_ids, *(MPI_Comm*)another_comm); // I know, ugly cast ...
+        }
+
+        DataArrayIdType *retrieveNonFetchedIds() const
+        {
+          MCAuto<DataArrayIdType> ret = self->retrieveNonFetchedIds();
+          return ret.retn();
         }
       }
   };

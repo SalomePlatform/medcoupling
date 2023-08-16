@@ -255,6 +255,108 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         source_group.release()
         MPI.COMM_WORLD.Barrier()
 
+    def test_InterpKernelDEC_default(self):
+        """
+        [EDF27375] : Put a default value when non intersecting case
+        """
+        size = MPI.COMM_WORLD.size
+        rank = MPI.COMM_WORLD.rank
+        if size != 4:
+            print("Should be run on 4 procs!")
+            return
+        nproc_source = 2
+        procs_source = list(range(nproc_source))
+        procs_target = list(range(size - nproc_source, size))
+
+        interface = CommInterface()
+        target_group = MPIProcessorGroup(interface, procs_target)
+        source_group = MPIProcessorGroup(interface, procs_source)
+        dec = InterpKernelDEC(source_group, target_group)
+        #
+        MPI.COMM_WORLD.Barrier()
+        if source_group.containsMyRank():
+            mesh = eval("Source_Proc_{}".format(rank))()
+            nb_local=mesh.getNumberOfCells()
+            field = MEDCouplingFieldDouble(ON_CELLS)
+            field.setNature(IntensiveMaximum)
+            field.setMesh(mesh)
+            arr = DataArrayDouble(nb_local) ; arr.iota() ; arr += rank
+            field.setArray(arr)
+            dec.attachLocalField(field)
+            dec.synchronizeWithDefaultValue(-2000.0)
+            dec.sendData()
+            # target -> source
+            dec.recvData()
+            if rank == 0:
+                self.assertTrue(field.getArray().isEqual(DataArrayDouble([0.6,0.6,-2000]),1e-12))
+                self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([2])) )
+            if rank == 1:
+                self.assertTrue(field.getArray().isEqual(DataArrayDouble([1.0,-2000]),1e-12))
+                self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([1])) )
+        else:
+            mesh = eval("Target_Proc_{}".format(rank))()
+            nb_local=mesh.getNumberOfCells()
+            field = MEDCouplingFieldDouble(ON_CELLS)
+            field.setNature(IntensiveMaximum)
+            field.setMesh(mesh)
+            arr = DataArrayDouble(nb_local) ; arr[:] = -20
+            field.setArray(arr)
+            dec.attachLocalField(field)
+            dec.synchronizeWithDefaultValue(-1000.0)
+            dec.recvData()
+            if rank == 2:
+                # matrix S0 / T2 = [[(0,S0,1),(1,S0,1.5)]
+                # IntensiveMaximum => [[(0,S0,1/2.5),(1,S0,1.5/2.5)]
+                # 
+                self.assertTrue(field.getArray().isEqual(DataArrayDouble([0.6]),1e-12))
+                self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([])) )
+            if rank == 3:
+                # matrix S1 / T3 = [[],[(0,S1,1.0)],[(0,S1,2.0)],[]]
+                # IntensiveMaximum => [[],[(0,S1,1.0/1.0)],[(0,S1,2.0/2.0)],[]]
+                self.assertTrue(field.getArray().isEqual(DataArrayDouble([-1000.0, 1.0, 1.0, -1000.0]),1e-8))
+                self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([0,3])) )
+            # target -> source
+            dec.sendData()
+
+        # Some clean up that still needs MPI communication, so to be done before MPI_Finalize()
+        dec.release()
+        target_group.release()
+        source_group.release()
+        MPI.COMM_WORLD.Barrier()
+
+def Source_Proc_0():
+    coo = DataArrayDouble([(0,2),(2,2),(4,2),(0,4),(2,4),(4,4),(0,6),(2,6)])
+    m = MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+    m.insertNextCell(NORM_QUAD4,[0,1,4,3])
+    m.insertNextCell(NORM_QUAD4,[1,2,5,4])
+    m.insertNextCell(NORM_QUAD4,[3,4,7,6])
+    return m
+
+def Source_Proc_1():
+    coo = DataArrayDouble([(6,2),(8,2),(10,2),(6,4),(8,4),(10,4)])
+    m = MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+    m.insertNextCell(NORM_QUAD4,[0,1,4,3])
+    m.insertNextCell(NORM_QUAD4,[1,2,5,4])
+    return m
+
+def Target_Proc_2():
+    coo = DataArrayDouble([(1,0),(3.5,0),(1,3),(3.5,3)])
+    m = MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+    m.insertNextCell(NORM_QUAD4,[0,1,3,2])
+    return m
+
+def Target_Proc_3():
+    coo = DataArrayDouble([(6,0),(7,0),(8,0),(9,0),(10,0),
+                           (6,1),(7,1),(9,1),(10,1),
+                           (7,3),(8,3),
+                           (6,4),(7,4)])
+    m = MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+    m.insertNextCell(NORM_QUAD4,[0,1,6,5])
+    m.insertNextCell(NORM_QUAD4,[1,2,10,9])
+    m.insertNextCell(NORM_QUAD4,[5,6,12,11])
+    m.insertNextCell(NORM_QUAD4,[3,4,8,7])
+    return m
+
 if __name__ == "__main__":
     unittest.main()
     MPI.Finalize()
