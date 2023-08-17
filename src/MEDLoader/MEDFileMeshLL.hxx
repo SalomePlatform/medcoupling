@@ -249,6 +249,7 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<D
     mcIdType getSize() const;
     void setCoords(DataArrayDouble *coords);
     void forceComputationOfPartsFromUMesh() const;
+    void declarePartsUpdated() const;
     const PartDefinition *getPartDefOfWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
     void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const;
     void unserialize(const std::string& name, DataArrayDouble *coo, std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI);
@@ -287,6 +288,7 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<D
     void assignMesh(MEDCouplingUMesh *m, bool newOrOld);
     void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
     void forceComputationOfParts() const;
+    void declarePartsUpdated() const;
     bool empty() const;
     bool presenceOfOneFams(const std::vector<mcIdType>& ids) const;
     int getMeshDimension() const;

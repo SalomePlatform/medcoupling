@@ -2724,6 +2724,11 @@ try:MEDFileTemplateField1TS<double>(other,shallowCopyOfContent)
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
+MCAuto<MEDFileAnyTypeField1TS> MEDFileField1TS::buildNewEmpty() const
+{
+  return MCAuto<MEDFileAnyTypeField1TS>(MEDFileField1TS::New());
+}
+
 MEDFileField1TS *MEDFileField1TS::shallowCpy() const
 {
   return new MEDFileField1TS(*this);
@@ -2736,6 +2741,11 @@ std::vector< std::vector<DataArrayDouble *> > MEDFileField1TS::getFieldSplitedBy
 }
 
 //= MEDFileInt32Field1TS
+
+MCAuto<MEDFileAnyTypeField1TS> MEDFileInt32Field1TS::buildNewEmpty() const
+{
+  return MCAuto<MEDFileAnyTypeField1TS>(MEDFileInt32Field1TS::New());
+}
 
 MCAuto<MEDCouplingFieldDouble> MEDFileInt32Field1TS::ConvertFieldIntToFieldDouble(const MEDCouplingFieldInt32 *f)
 {
@@ -2752,6 +2762,11 @@ MCAuto<MEDCouplingFieldDouble> MEDFileInt32Field1TS::ConvertFieldIntToFieldDoubl
 
 //= MEDFileInt64Field1TS
 
+MCAuto<MEDFileAnyTypeField1TS> MEDFileInt64Field1TS::buildNewEmpty() const
+{
+  return MCAuto<MEDFileAnyTypeField1TS>(MEDFileInt64Field1TS::New());
+}
+
 MCAuto<MEDCouplingFieldDouble> MEDFileInt64Field1TS::ConvertFieldIntToFieldDouble(const MEDCouplingFieldInt64 *f)
 {
   if(!f)
@@ -2765,3 +2780,9 @@ MCAuto<MEDCouplingFieldDouble> MEDFileInt64Field1TS::ConvertFieldIntToFieldDoubl
   return ret;
 }
 
+//= MEDFileFloatField1TS
+
+MCAuto<MEDFileAnyTypeField1TS> MEDFileFloatField1TS::buildNewEmpty() const
+{
+  return MCAuto<MEDFileAnyTypeField1TS>(MEDFileFloatField1TS::New());
+}

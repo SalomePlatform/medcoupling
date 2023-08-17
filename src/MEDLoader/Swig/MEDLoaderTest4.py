@@ -5716,6 +5716,58 @@ class MEDLoaderTest4(unittest.TestCase):
         m.mergeNodes(1e-5) # coords into m has been modified so coords of mm and m mismatches
         self.assertRaises(InterpKernelException,mm.write,fname,2) # write fails due to mismatch of number of tuples of coords of mm and those of m
 
+    def test47(self):
+        """
+        [EDF28448] : MEDFileUMesh.declarePartsUpdated
+        """
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords(DataArrayDouble([(0,0,0)]))
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[2,3,5,6])
+        mm = MEDFileUMesh()
+        mm[0] = m
+        #
+        mm.forceComputationOfParts()
+        mtest = mm.getDirectUndergroundSingleGeoTypeMeshes(0)[0]
+        self.assertTrue( mtest.getNodalConnectivity().isEqual(DataArrayInt([2,3,5,6])) )
+        # change content of data in parts
+        mtest.getNodalConnectivity()[:] += 1
+        self.assertTrue( mtest.getNodalConnectivity().isEqual(DataArrayInt([3,4,6,7])) )
+        self.assertTrue( mm[0].getNodalConnectivity().isEqual(DataArrayInt([NORM_QUAD4,2,3,5,6])) ) # <- oops UMesh is now not updated !
+        mm.declarePartsUpdated() # invoke declarePartsUpdated to tell mm that something has changed ASTGUMesh vector parts and this is now the correct version
+        self.assertTrue( mm[0].getNodalConnectivity().isEqual(DataArrayInt([NORM_QUAD4,3,4,6,7])) ) # parts and umesh are now synchronized
+
+    @WriteInTmpDir
+    def test48(self):
+        """
+        [EDF28448] : MEDFileField1TS context manager deal with file and not file situation indifferently
+        """
+        fname = "test48.med"
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords(DataArrayDouble([(0,0,0)]))
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[2,3,5,6])
+        mm = MEDFileUMesh()
+        mm[0] = m
+        # now test context manager 
+        fmts = MEDFileFieldMultiTS()
+        f1ts = MEDFileField1TS()
+        f = MEDCouplingFieldDouble(ON_CELLS) ; f.setName("Field") ; f.setMesh(mm[0]) ; f.setArray(DataArrayDouble([0.123]))
+        f1ts.setFieldNoProfileSBT(f)
+        fmts.pushBackTimeStep(f1ts)
+        with f1ts:
+            self.assertEqual( f1ts.getTypesOfFieldAvailable() , [ON_CELLS] )
+            self.assertTrue( f1ts.getUndergroundDataArray().isEqual( DataArrayDouble([0.123]), 1e-12) )
+        self.assertTrue( f1ts.getUndergroundDataArray().isEqual( DataArrayDouble([0.123]), 1e-12) )
+        f1ts.write(fname,2)
+        fs_read = MEDFileFields(fname,False)
+        f1ts_read = fs_read[0][0]
+        self.assertEqual( f1ts_read.getTypesOfFieldAvailable() , [ON_CELLS] )
+        self.assertTrue(not f1ts_read.getUndergroundDataArray().isAllocated())
+        with f1ts_read:
+            self.assertTrue(f1ts_read.getUndergroundDataArray().isAllocated())
+        self.assertTrue(not f1ts_read.getUndergroundDataArray().isAllocated())
+
     pass
 
 if __name__ == "__main__":

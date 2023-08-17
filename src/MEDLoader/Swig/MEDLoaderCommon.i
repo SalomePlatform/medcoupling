@@ -223,6 +223,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::shallowCpy;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::deepCopy;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::extractPart;
+%newobject MEDCoupling::MEDFileAnyTypeField1TS::buildNewEmpty;
 %newobject MEDCoupling::MEDFileField1TS::New;
 %newobject MEDCoupling::MEDFileField1TS::field;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtLevel;
@@ -1453,6 +1454,7 @@ namespace MEDCoupling
     MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const;
     MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const;
     MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const;
+    void declarePartsUpdated() const;
     void forceComputationOfParts() const;
     void computeRevNum() const;
     //
@@ -2210,6 +2212,12 @@ namespace MEDCoupling
         PyTuple_SetItem(elt,0,SWIG_From_int(res.first));
         PyTuple_SetItem(elt,1,SWIG_From_int(res.second));
         return elt;
+      }
+
+      MEDFileAnyTypeField1TS *buildNewEmpty() const
+      {
+        MCAuto<MEDFileAnyTypeField1TS> ret = self->buildNewEmpty();
+        return ret.retn();
       }
 
       void setProfileNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newPflName, bool forceRenameOnGlob=false)
@@ -4405,10 +4413,10 @@ namespace MEDCoupling
 
 %pythoncode %{
 def enter1TS(self):
-    self.loadArrays()
+    self.loadArraysIfNecessary()
     pass
 def exit1TS(self, exctype, exc, tb):
-    self.unloadArrays()
+    self.unloadArraysWithoutDataLoss()
     pass
 MEDFileAnyTypeField1TS.__enter__=enter1TS
 MEDFileAnyTypeField1TS.__exit__=exit1TS

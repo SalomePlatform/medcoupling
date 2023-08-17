@@ -3905,10 +3905,26 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM3Mesh(bool renum) const
 }
 
 /*!
+ * This method inform datastructure that vector of MEDCoupling1GTUMesh instances have been touched.
+ * So the version of data to take is vector of MEDCoupling1GTUMesh not MEDCouplingUMesh
+ */
+void MEDFileUMesh::declarePartsUpdated() const
+{
+  for(std::vector< MCAuto<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
+    {
+      const MEDFileUMeshSplitL1 *elt(*it);
+      if(elt)
+        elt->declarePartsUpdated();
+    }
+}
+
+/*!
  * This method is for advanced users. There is two storing strategy of mesh in \a this.
  * Either MEDCouplingUMesh, or vector of MEDCoupling1GTUMesh instances.
  * When assignment is done the first one is done, which is not optimal in write mode for MED file.
  * This method allows to switch from MEDCouplingUMesh mode to MEDCoupling1GTUMesh mode.
+ * 
+ * \sa MEDFileUMesh::declarePartsUpdated
  */
 void MEDFileUMesh::forceComputationOfParts() const
 {

@@ -1387,6 +1387,11 @@ void MEDFileUMeshSplitL1::forceComputationOfParts() const
   _m_by_types.forceComputationOfPartsFromUMesh();
 }
 
+void MEDFileUMeshSplitL1::declarePartsUpdated() const
+{
+  _m_by_types.declarePartsUpdated();
+}
+
 void MEDFileUMeshSplitL1::assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts)
 {
   _m_by_types.assignParts(mParts);
@@ -1966,6 +1971,12 @@ void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
   _part_def.clear();
   _part_def.resize(_m_parts.size());
   _mp_time=std::max(_mp_time,_m_time);
+}
+
+void MEDFileUMeshAggregateCompute::declarePartsUpdated() const
+{
+  _mp_time=std::max(_mp_time,_m_time) + 1;
+  _m.nullify();
 }
 
 const PartDefinition *MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const
