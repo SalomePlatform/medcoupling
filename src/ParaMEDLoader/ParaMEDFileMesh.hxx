@@ -70,9 +70,9 @@ namespace MEDCoupling
   class ParaMEDFileField1TS
   {
   public:
-      static MEDFileField1TS *ParaNew(const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, int dt=-1, int it=-1);
+      static MEDFileField1TS *ParaNew(const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, INTERP_KERNEL::NormalizedCellType geoType, int dt=-1, int it=-1);
   private:
-      static MEDFileField1TS *NewPrivate(med_idt fid, const MPI_Comm& com, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, int dt, int it);
+      static MEDFileField1TS *NewPrivate(med_idt fid, const MPI_Comm& com, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, INTERP_KERNEL::NormalizedCellType geoType, int dt, int it);
 
   };
 

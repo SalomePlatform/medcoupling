@@ -35,17 +35,6 @@ extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 
-void getSingleGeometricType(const std::string& fileName, const std::string& mName, INTERP_KERNEL::NormalizedCellType& geoType)
-{
-  int meshDim, spaceDim;
-   mcIdType numberOfNodes;
-   std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
-   std::size_t numberOfTypesMaxDimension = typesDistrib[0].size();
-   if(numberOfTypesMaxDimension != 1)
-     throw INTERP_KERNEL::Exception("ParaMEDFileMesh : only mesh with single geometrical type are supported with given distribution !");
-   geoType = typesDistrib[0][0].first;
-}
-
 void checkDistribution(const MPI_Comm& com, mcIdType totalNumberOfElements, const std::vector<mcIdType>& distrib)
 {
   mcIdType nbEltsInDistribLoc = distrib.size();
@@ -219,14 +208,16 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
 
 /*!
  * Loads field \a fName laying on mesh \a mName from the filename \a fileName in parallel:
- * each processor will load their portion of the field (ie the portion laying on the cells in the vector \a distrib given in the parameters).
+ * each processor will load their portion of the field (ie the portion laying on the cells/nodes in the vector \a distrib given in the parameters).
  * WARNING : this will only load the array of values of the field, additionnal information of the local field such as the number of its tuples might be incorrect
  * \param [in] com - group of MPI processes that will read the file
  * \param [in] nfo- MPI info object (used to manage MPI routines)
  * \param [in] fileName - name of the file containing the field
  * \param [in] fName - name of the field we want to load
  * \param [in] mName - name of the mesh on which the field is defined
- * \param [in] distrib - vector of cells on which we want to load the field \a fName (with c-type indexing, so starting from zero).
+ * \param [in] distrib - vector of cells/nodes on which we want to load the field \a fName (with c-type indexing, so starting from zero).
+ * \param [in] loc - localisation of the field 
+ * \param [in] geoType - geometrical type of the cells on which the field is laying (only needed if the field is located on cells) 
  * \param [in] dt - Time order at which to read the field
  * \param [in] it - Time iteration at which to read the field
  * \return MEDFileField1TS* - a new instance of MEDFileField1TS. The
@@ -235,7 +226,7 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
  * \throw exception if the mesh contains more than one geometric type
  * \throw exception if the given distribution does not cover the entire mesh on which the field is defined
  */
-MEDFileField1TS *ParaMEDFileField1TS::ParaNew(const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, int dt, int it)
+MEDFileField1TS *ParaMEDFileField1TS::ParaNew(const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, INTERP_KERNEL::NormalizedCellType geoType, int dt, int it)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
 #ifdef HDF5_IS_PARALLEL
@@ -243,24 +234,22 @@ MEDFileField1TS *ParaMEDFileField1TS::ParaNew(const MPI_Comm& com, const MPI_Inf
 #else
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
 #endif
-  return ParaMEDFileField1TS::NewPrivate(fid,com,fName,mName,distrib,loc,dt,it);
+  return ParaMEDFileField1TS::NewPrivate(fid,com,fName,mName,distrib,loc,geoType,dt,it);
 }
 
 /*!
- * Loads field \a fName in parallel using a custom partition of the mesh cells on which the field is defined among the processes.
+ * Loads field \a fName in parallel using a custom partition of the mesh entities (cells or nodes) on which the field is defined among the processes.
  * See ParaMEDFileField1TS::ParaNew for detailed description.
  */
-MEDFileField1TS *ParaMEDFileField1TS::NewPrivate(med_idt fid, const MPI_Comm& com, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, int dt, int it)
+MEDFileField1TS *ParaMEDFileField1TS::NewPrivate(med_idt fid, const MPI_Comm& com, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, INTERP_KERNEL::NormalizedCellType geoType, int dt, int it)
 {
-  INTERP_KERNEL::NormalizedCellType geoType;
-  getSingleGeometricType(MEDFileWritable::FileNameFromFID(fid),mName,geoType);
   if(loc==ON_CELLS) //if distribution is on nodes, no fast way to check it (as a node can be shared by multiple processors)
-    {
-      med_geometry_type geoMedType(typmai3[geoType]);
-      med_bool changement,transformation;
-      med_int totalNumberOfElements(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoMedType,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation));
-      checkDistribution(com,totalNumberOfElements,distrib);
-    }
+  {
+	  med_geometry_type geoMedType(typmai3[geoType]);
+	  med_bool changement,transformation;
+	  med_int totalNumberOfElements(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoMedType,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation));
+	  checkDistribution(com,totalNumberOfElements,distrib);
+  }
   std::vector<std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType>> tmp={ {loc, geoType} };
   INTERP_KERNEL::AutoCppPtr<MEDFileEntities> entities(MEDFileEntities::BuildFrom(&tmp));
   MCAuto<MEDFileAnyTypeField1TS> partFile(MEDFileAnyTypeField1TS::NewAdv(fid,fName,dt,it,entities,distrib));

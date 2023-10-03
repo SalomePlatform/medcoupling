@@ -347,7 +347,7 @@ void ParaMEDMEMTest::testParallelLoad4()
       distrib = {2,3,6,7};
 
   std::string filename=INTERP_TEST::getResourceFile("SimpleTest2D.med");
-  MCAuto<MEDFileField1TS> f1TS = ParaMEDFileField1TS::ParaNew(MPI_COMM_WORLD, MPI_INFO_NULL,filename,"fieldOnCells","mesh",distrib,ON_CELLS);
+  MCAuto<MEDFileField1TS> f1TS = ParaMEDFileField1TS::ParaNew(MPI_COMM_WORLD, MPI_INFO_NULL,filename,"fieldOnCells","mesh",distrib,ON_CELLS,INTERP_KERNEL::NORM_QUAD4);
   MCAuto<MEDCouplingFieldDouble> fieldRef = genLocFieldCells(rank);
   CPPUNIT_ASSERT(f1TS->getUndergroundDataArray()->isEqual(*fieldRef->getArray(),1e-12));
   MPI_Barrier(MPI_COMM_WORLD);
@@ -373,7 +373,8 @@ void ParaMEDMEMTest::testParallelLoad5()
       distrib = {2,3,4,7,8,9,12,13,14};
 
   std::string filename=INTERP_TEST::getResourceFile("SimpleTest2D.med");
-  MCAuto<MEDFileField1TS> f1TS = ParaMEDFileField1TS::ParaNew(MPI_COMM_WORLD, MPI_INFO_NULL,filename,"fieldOnNodes","mesh",distrib,ON_NODES);
+  // for fields on nodes, geometrical type is not needed
+  MCAuto<MEDFileField1TS> f1TS = ParaMEDFileField1TS::ParaNew(MPI_COMM_WORLD, MPI_INFO_NULL,filename,"fieldOnNodes","mesh",distrib,ON_NODES,INTERP_KERNEL::NORM_ERROR);
   MCAuto<MEDCouplingFieldDouble> fieldRef = genLocFieldNodes(rank);
   CPPUNIT_ASSERT(f1TS->getUndergroundDataArray()->isEqual(*fieldRef->getArray(),1e-12));
   MPI_Barrier(MPI_COMM_WORLD);
