@@ -680,6 +680,14 @@ namespace MEDCoupling
       std::ostringstream oss; oss << "C++ Pointer address is : " << self;
       return oss.str();
     }
+
+    // Hack to allow retrieving of underlying C++ pointer whatever the situation
+    // This allows for example to mix different types of Python binding (SWIG and PyBind for example)
+    long long getHiddenCppPointerAsLongLong() const
+    {
+      return (long long) self;
+    }
+
   }
 
   %extend MEDCouplingGaussLocalization
