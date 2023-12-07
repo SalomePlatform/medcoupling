@@ -3,10 +3,99 @@
 #
 
 {
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:cfunction_vectorcall_FASTCALL
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:cfunction_vectorcall_FASTCALL_KEYWORDS
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:*PyImport_ImportModule*
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:*PyObject_FastCallDict*
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:*PyObject_CallFunctionObjArgs*
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:*ufunc_generic_fastcall*
+}
+
+{
+   <eval_vec>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:_PyObject_*alloc*
+   ...
+   fun:PyList_New
+   ...
+   fun:_PyEval_EvalFrameDefault
+}
+
+
+{
+   <eval_vec2>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:POINTER
+   fun:cfunction_vectorcall_O
+   ...
+   fun:_PyEval_Vector
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:_PyObject_GenericSetAttrWithDict
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   fun:unicode_decode_utf8
+}
+
+{
    <malloc>
    Memcheck:Leak
    fun:malloc
-   fun:PyObject_Malloc
+   ...
+   fun:*PyObject_Malloc*
 }
 
 {
@@ -14,7 +103,7 @@
    Memcheck:Leak
    fun:*alloc
    ...
-   fun:PyUnicode_*
+   fun:*PyUnicode_*
 }
 
 {

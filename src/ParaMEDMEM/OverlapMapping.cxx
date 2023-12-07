@@ -544,7 +544,8 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
                   throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: SEND: unexpected end iterator in _sent_src_ids!");
                 vals=fieldInput->getArray()->selectByTupleId(*(*isItem11).second);
               }
-            nbsend[procID] = (int)vals->getNbOfElems();
+            nbsend[procID] = (int)vals->getNbOfElems();  // nb of elem = nb_tuples*nb_compo
+            // Flat version of values to send:
             valsToSend.insert(valsToSend.end(),vals->getConstPointer(),vals->getConstPointer()+nbsend[procID]);
           }
 
@@ -569,14 +570,14 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
                 map <int,mcIdType>::const_iterator isItem11 = _nb_of_rcv_src_ids.find(procID);
                 if (isItem11 == _nb_of_rcv_src_ids.end())
                   throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: RCV: unexpected end iterator in _nb_of_rcv_src_ids!");
-                nbrecv[procID] = (int)((*isItem11).second);
+                nbrecv[procID] = (int)((*isItem11).second * nbOfCompo);
               }
             else
               {
-                map<int, vector<mcIdType> >::const_iterator isItem11 = _src_ids_zip_recv.find(procID);
-                if (isItem11 == _src_ids_zip_recv.end())
+                map<int, vector<mcIdType> >::const_iterator isItem22 = _src_ids_zip_recv.find(procID);
+                if (isItem22 == _src_ids_zip_recv.end())
                   throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: RCV: unexpected end iterator in _src_ids_zip_recv!");
-                nbrecv[procID] = (int)((*isItem11).second.size()*nbOfCompo);
+                nbrecv[procID] = (int)((*isItem22).second.size() * nbOfCompo);
               }
           }
     }
@@ -652,7 +653,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
                   transform(localSrcField+((*it3).first)*nbOfCompo,
                             localSrcField+((*it3).first+1)*nbOfCompo,
                             (double *)tmp,
-                            bind2nd(multiplies<double>(),ratio) );
+                            [=](double d) { return d*ratio; });
                   // Accumulate with current value:
                   transform((double *)tmp,(double *)tmp+nbOfCompo,targetPt,targetPt,plus<double>());
                   hit_cells[j] = true;
@@ -709,7 +710,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
                   transform(bigArr+nbrecv2[srcProcID]+((*it4).second)*nbOfCompo,
                             bigArr+nbrecv2[srcProcID]+((*it4).second+1)*nbOfCompo,
                             (double *)tmp,
-                            bind2nd(multiplies<double>(),ratio) );
+                            [=](double d) { return d*ratio; } );
                   transform((double *)tmp,(double *)tmp+nbOfCompo,targetPt,targetPt,plus<double>());
                   hit_cells[tgrIds[j]] = true;
                 }
@@ -738,7 +739,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
                   transform(bigArr+nbrecv2[srcProcID]+((*it3).first)*nbOfCompo,
                             bigArr+nbrecv2[srcProcID]+((*it3).first+1)*nbOfCompo,
                             (double *)tmp,
-                            bind2nd(multiplies<double>(),ratio));
+                            [=](double d) { return d*ratio; } );
                   // Accumulate with current value:
                   transform((double *)tmp,(double *)tmp+nbOfCompo,targetPt,targetPt,plus<double>());
                   hit_cells[j] = true;

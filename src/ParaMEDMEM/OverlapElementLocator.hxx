@@ -73,7 +73,7 @@ namespace MEDCoupling
   private:
     typedef MCAuto< MEDCouplingPointSet >  AutoMCPointSet;
     typedef MCAuto< DataArrayIdType >      AutoDAInt;
-    typedef std::pair<int,bool>  Proc_SrcOrTgt;  // a key indicating a proc ID and whether the data is for source mesh/field or target mesh/field
+    typedef std::pair<int,bool>  Proc_SrcOrTgt;  ///< a key indicating a proc ID and whether the data is for source mesh/field or target mesh/field
 
     static const int START_TAG_MESH_XCH;
 
@@ -93,14 +93,16 @@ namespace MEDCoupling
     std::vector< ProcCouple > _to_do_list;
     //! list of procs the local proc will have to send mesh data to:
     std::vector< Proc_SrcOrTgt > _procs_to_send_mesh;
-//    /*! list of procs the local proc will have to send field data to for the final matrix-vector computation:
-//     * This can be different from _procs_to_send_mesh (restricted to Source) because interpolation matrix bits are computed on a potentially
-//     * different proc than the target one.   */
+    /*! list of procs the local proc will have to send field data to for the final matrix-vector computation:
+     * This can be different from _procs_to_send_mesh (restricted to Source) because interpolation matrix bits are computed on a potentially
+     * different proc than the target one.   */
     std::vector< int > _procs_to_send_field;
     //! Set of distant meshes
     std::map< Proc_SrcOrTgt,  AutoMCPointSet > _remote_meshes;
     //! Set of cell ID mappings for the above distant meshes (because only part of the meshes are exchanged)
     std::map< Proc_SrcOrTgt, AutoDAInt > _remote_elems;
+    //! Bounding boxes (for source and target) for **all** procs.
+    //! Format minmax : Xmin_src,Xmax_src,Ymin_src,Ymax_src,Zmin_src,Zmax_src,Xmin_trg,Xmax_trg,Ymin_trg,Ymax_trg,Zmin_trg,Zmax_trg
     double* _domain_bounding_boxes;
     //! bounding box absolute adjustment
     double _epsAbs;

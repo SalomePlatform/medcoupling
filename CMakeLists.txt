@@ -61,7 +61,7 @@ INCLUDE(SalomeSetupPlatform)
 #    add_definitions(-Weverything)
 #    add_definitions(-Wno-inconsistent-missing-override)
 #    add_definitions(-Wno-c++98-compat -Wno-c++98-compat-pedantic)
-#    add_definitions(-Wno-sign-conversion)
+#    add_definitions(-Wsign-conversion)
 #    add_definitions(-Wno-switch-enum)
 #
 #    add_definitions(-Wno-documentation-unknown-command) # \image in Doxygen

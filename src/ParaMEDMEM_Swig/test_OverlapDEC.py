@@ -37,16 +37,19 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
     Main method is testOverlapDEC_2D_py_1()
     """
 
-    def generateFullSource(self):
+    def generateFullSource(self, nb_compo=1):
         """ The complete source mesh: 4 squares each divided in 2 diagonaly (so 8 cells in total) """
         msh  = self.generateFullTarget()
         msh.simplexize(0)
         msh.setName("src_mesh")
         fld = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
-        fld.setMesh(msh); fld.setName("source_F");
-        da = DataArrayDouble(msh.getNumberOfCells())
-        da.iota()
-        da *= 2
+        fld.setMesh(msh); fld.setName("source_F")
+        nc = msh.getNumberOfCells()
+        da = DataArrayDouble(nc*nb_compo)
+        da.rearrange(nb_compo)
+        for c in range(nb_compo):
+          da[:, c] = list(range(nc))
+        da *= 2     # To compensate for the later division of the volume by 2 betw target and source cells.
         fld.setArray(da)
         return msh, fld
 
@@ -61,11 +64,11 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
     #
     # Below, the two functions emulating the set up of a piece of the source and target mesh
     # on each proc. Obviously in real world problems, this comes from your code and is certainly
-    # not computed by cuting again from scratch the full-size mesh!!
+    # not computed by cutting again from scratch the full-size mesh!!
     #
-    def getPartialSource(self, rank):
+    def getPartialSource(self, rank, nb_compo=1):
         """ Will return an empty mesh piece for rank=2 and 3 """
-        msh, f = self.generateFullSource()
+        msh, f = self.generateFullSource(nb_compo)
         if rank in [2,3]:
             sub_m, sub_f = msh[[]], f[[]]  # Little trick to select nothing in the mesh, thus producing an empty mesh
         elif rank == 0:
@@ -75,14 +78,14 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
         sub_m.zipCoords()
         return sub_m, sub_f
 
-    def getPartialTarget(self, rank):
+    def getPartialTarget(self, rank, nb_compo=1):
         """ One square for each rank """
         msh = self.generateFullTarget()
         sub_m = msh[rank]
         sub_m.zipCoords()
         # Receiving side must prepare an empty field that will be filled by DEC:
         fld = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
-        da = DataArrayDouble(sub_m.getNumberOfCells())
+        da = DataArrayDouble(sub_m.getNumberOfCells(), nb_compo)
         fld.setArray(da)
         fld.setName("tgt_F")
         fld.setMesh(sub_m)
@@ -109,7 +112,61 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
 
     @WriteInTmpDir
     def testOverlapDEC_2D_py_1(self):
-        """ The main method of the test """
+        """ The main method of the test. """
+        ncompo = 4   # Dummy field with 4 components
+        size = MPI.COMM_WORLD.size
+        rank = MPI.COMM_WORLD.rank
+        if size != 4:
+            raise RuntimeError("Should be run on 4 procs!")
+
+        for algo in range(3):
+            # Define (single) processor group - note the difference with InterpKernelDEC which needs two groups.
+            proc_group = list(range(size))   # No need for ProcessorGroup object here.
+            odec = OverlapDEC(proc_group)
+            odec.setWorkSharingAlgo(algo)    # Default is 1 - put here to test various different configurations of send/receive patterns
+
+            # Write out full size meshes/fields for inspection
+            if rank == 0:
+                _, fld = self.generateFullSource(ncompo)
+                mshT = self.generateFullTarget()
+                WriteField("./source_field_FULL.med", fld, True)
+                WriteUMesh("./target_mesh_FULL.med", mshT, True)
+
+            MPI.COMM_WORLD.Barrier()  # really necessary??
+
+            #
+            # OK, let's go DEC !!
+            #
+            _, fieldS = self.getPartialSource(rank, ncompo)
+            fieldS.setNature(IntensiveMaximum)   # The only policy supported for now ...
+            mshT, fieldT = self.getPartialTarget(rank, ncompo)
+            fieldT.setNature(IntensiveMaximum)
+            if rank not in [2,3]:
+                WriteField("./source_field_part_%d.med" % rank, fieldS, True)
+            WriteUMesh("./target_mesh_part_%d.med" % rank, mshT, True)
+
+            odec.attachSourceLocalField(fieldS)
+            odec.attachTargetLocalField(fieldT)
+            odec.synchronize()
+            odec.sendRecvData()
+
+            # Now the actual checks:
+            ref_vals = [1.0, 5.0, 9.0, 13.0]
+            self.assertEqual(fieldT.getArray().getValues(), [ref_vals[rank]]*ncompo)
+
+            # Release DEC (this involves MPI exchanges -- notably the release of the communicator -- so better be done before MPI.Finalize()
+            odec.release()
+
+            MPI.COMM_WORLD.Barrier()
+
+    @WriteInTmpDir
+    def testOverlapDEC_2D_py_2(self):
+        """ Test on a question that often comes back: should I re-synchronize() / re-attach() each time that
+        I want to send a new field? 
+        Basic answer: 
+          - you do not have to re-synchronize, but you can re-attach a new field, as long as it has the same support.
+        WARNING: this differs in InterpKernelDEC ...
+        """
         size = MPI.COMM_WORLD.size
         rank = MPI.COMM_WORLD.rank
         if size != 4:
@@ -118,13 +175,6 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
         # Define (single) processor group - note the difference with InterpKernelDEC which needs two groups.
         proc_group = list(range(size))   # No need for ProcessorGroup object here.
         odec = OverlapDEC(proc_group)
-
-        # Write out full size meshes/fields for inspection
-        if rank == 0:
-            _, fld = self.generateFullSource()
-            mshT = self.generateFullTarget()
-            WriteField("./source_field_FULL.med", fld, True)
-            WriteUMesh("./target_mesh_FULL.med", mshT, True)
 
         MPI.COMM_WORLD.Barrier()  # really necessary??
 
@@ -135,24 +185,22 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
         fieldS.setNature(IntensiveMaximum)   # The only policy supported for now ...
         mshT, fieldT = self.getPartialTarget(rank)
         fieldT.setNature(IntensiveMaximum)
-        if rank not in [2,3]:
-            WriteField("./source_field_part_%d.med" % rank, fieldS, True)
-        WriteUMesh("./target_mesh_part_%d.med" % rank, mshT, True)
 
-        odec.attachSourceLocalField(fieldS)
-        odec.attachTargetLocalField(fieldT)
-        odec.synchronize()
-        odec.sendRecvData()
+        mul = 1
+        for t in range(3):  # Emulating a time loop ...
+            if t == 0:
+                odec.attachSourceLocalField(fieldS)   # only once!
+                odec.attachTargetLocalField(fieldT)   # only once!
+                odec.synchronize()                    # only once!
+            else:
+                das = fieldS.getArray()               # but we can still hack the underlying field values ...
+                das *= 2
+                mul *= 2
+            odec.sendRecvData()                       # each time!
 
-        # Now the actual checks:
-        if rank == 0:
-            self.assertEqual(fieldT.getArray().getValues(), [1.0])
-        elif rank == 1:
-            self.assertEqual(fieldT.getArray().getValues(), [5.0])
-        elif rank == 2:
-            self.assertEqual(fieldT.getArray().getValues(), [9.0])
-        elif rank == 3:
-            self.assertEqual(fieldT.getArray().getValues(), [13.0])
+            # Now the actual checks:
+            ref_vals = [1.0, 5.0, 9.0, 13.0]
+            self.assertEqual(fieldT.getArray().getValues(), [ref_vals[rank]*mul])
 
         # Release DEC (this involves MPI exchanges -- notably the release of the communicator -- so better be done before MPI.Finalize()
         odec.release()
@@ -162,3 +210,5 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
     MPI.Finalize()
+    # tt = ParaMEDMEM_O_DEC_Tests()
+    # tt.testOverlapDEC_2D_py_1()

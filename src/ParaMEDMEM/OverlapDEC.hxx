@@ -69,27 +69,30 @@ namespace MEDCoupling
       In order to reduce as much as possible the amount of communications between distant processors,
       every processor computes a bounding box for A and B. Then a AllToAll communication is performed
       so that
-      every processor can compute the \b global interactions between processor.
+      every processor can compute the \b global interactions between processors.
       This computation leads every processor to compute the same global TODO list expressed as a list
-      of pair. A pair ( x, y ) means that proc \b x fieldtemplate A can interact with fieltemplate B of
+      of pair. A pair ( x, y ) means that proc \b x fieldtemplate A can interact with field-template B of
       proc \b y because the two bounding boxes interact.
       In the \ref ParaMEDMEMOverlapDECImgTest1 "example above" this computation leads to the following
-      a \b global TODO list :
+      \b global TODO list :
 
-      \b (0,0),(0,1),(1,0),(1,2),(2,0),(2,1),(2,2)
+      \b (0,0), (0,1), (1,0), (1,2), (2,0), (2,1), (2,2)
 
       Here the pair (0,2) does not appear because the bounding box of fieldtemplateA of proc#2 does
-      not intersect that of fieldtemplate B on proc#0.
+      not intersect that of fieldtemplate B on proc#0. Notice that this pairing is not symmetric!
+      (0,2) is not the same as (2,0) since source and target can not be swapped.
 
-      Stage performed by MEDCoupling::OverlapElementLocator::computeBoundingBoxes.
+      Stage performed by MEDCoupling::OverlapElementLocator::computeBoundingBoxesAndInteractionList.
 
       \subsection ParaMEDMEMOverlapDECAlgoStep2 Step 2 : Computation of local TODO list
 
       Starting from the global interaction previously computed in \ref ParaMEDMEMOverlapDECAlgoStep1
-      "Step 1", each proc computes the TODO list per proc.
-      The following rules is chosen : a pair (x,y) can be treated by either proc \#x or proc \#y,
-      in order to reduce the amount of data transfers among
-      processors. The algorithm chosen for load balancing is the following : Each processor has
+      "Step 1", each proc computes the TODO list per proc. A pair (x,y) can be treated by either proc \#x or proc \#y,
+      in order to reduce the amount of data transfers among processors.
+
+      Several strategies are possible. Historically (setWorkSharingAlgo(0)) the following was implemented:
+
+      The algorithm chosen for load balancing is the following : Each processor has
       an empty \b local TODO list at the beginning. Then for each pair (k,m) in
       \b global TODO list, if proc\#k has less temporary local list than proc\#m pair, (k,m) is added
       to temporary local TODO list of proc\#k.
@@ -105,20 +108,28 @@ namespace MEDCoupling
       - proc\#1 : (0,1),(1,0)
       - proc\#2 : (1,2),(2,0),(2,1),(2,2)
 
-      The algorithm described here is not perfect for this use case, we hope to enhance it soon.
+      This algo is coded in OverlapElementLocator::computeTodoList_original.
 
-      At this stage each proc knows precisely its \b local TODO list (with regard to interpolation).
-      The \b local TODO list of other procs than local
-      is kept for future computations.
+
+      Another version of the work sharing algorithm (setWorkSharingAlgo(1), the default now) is provided
+      in OverlapElementLocator::computeTodoList_new and hopes to be more efficient:
+
+      - a job (i,j) is assigned initially to both proc\#i and proc\#j.
+      - we then scan all the procs, identify the one with the biggest load
+      - on this proc, we scan all the pairs (i,j) and remove the one corresponding to the less loaded remote proc
+      - doing so, we have reduced the load of the most loaded proc
+      - the process is repeated until no more duplicate job is found on each proc.
+
+      At the end of this stage each proc knows precisely its \b local TODO list (with regard to interpolation).
+      The \b local TODO list of other procs than local is kept for future computations.
 
       \subsection ParaMEDMEMOverlapDECAlgoStep3 Step 3 : Matrix echange between procs
 
-      Knowing the \b local TODO list, the aim now is to exchange field-templates between procs.
-      Each proc computes knowing TODO list per
-      proc computed in \ref ParaMEDMEMOverlapDECAlgoStep2 "Step 2" the exchange TODO list :
+      The aim now is to exchange (source and target) field-templates between processors.
+      Knowing for every processor the \b local TODO list, each proc computes the \b exchange TODO list :
 
-      In the \ref ParaMEDMEMOverlapDECImgTest1 "example above" the exchange TODO list gives the
-      following results :
+      In the \ref ParaMEDMEMOverlapDECImgTest1 "example above" (using the first load balancing algorithm described)
+      the \b exchange TODO list looks like this:
 
       Sending TODO list per proc :
 
@@ -127,7 +138,11 @@ namespace MEDCoupling
       - Proc \#1 : Send fieldtemplate A to Proc\#2, Send fieldtemplate B to Proc\#2
       - Proc \#2 : No send.
 
-      Receiving TODO list per proc :
+      For example, initial TODO list was indicating (0,1) on proc\#1 meaning that proc\#1 will be in charge
+      of computing the intersection between part of the source (A) detained on proc\#0 with part of the
+      target (B) located on proc\#1. Hence proc\#0 needs to send A to proc\#1.
+
+      Similarly here it the receiving TODO list per proc :
 
       - proc \#0 : No receiving
       - proc \#1 : receiving fieldtemplate A from Proc\#0,  receiving fieldtemplate B from Proc\#0
@@ -135,8 +150,8 @@ namespace MEDCoupling
       receiving fieldtemplate B from Proc\#1
 
       To avoid as much as possible large volumes of transfers between procs, only relevant parts of
-      meshes are sent. In order for proc\#k to send fieldtemplate A to fieldtemplate B
-      of proc \#m., proc\#k computes the part of mesh A contained in the boundingbox B of proc\#m. It
+      the meshes are sent. In order for proc\#k to send fieldtemplate A to fieldtemplate B
+      of proc \#m, proc\#k computes the part of mesh A contained in the boundingbox B of proc\#m. It
       implies that the corresponding cellIds or nodeIds of the
       corresponding part are sent to proc \#m too.
 
@@ -145,17 +160,17 @@ namespace MEDCoupling
 
       As will be dealt in Step 6, for final matrix-vector computations, the resulting matrix of the
       couple (k,m) wherever it is computed (proc \#k or proc \#m)
-      will be stored in \b proc\#m.
+      will be stored in \b proc\#m (target side).
 
       - If proc \#k is in charge (performs the matrix computation) for this couple (k,m), target ids
-      (cells or nodes) of the mesh in proc \#m are renumbered, because proc \#m has seelected a sub mesh
-      of the target mesh to avoid large amounts of data to transfer. In this case as proc \#m is ultimately
-       in charge of the matrix, proc \#k must keep preciously the
-      source ids needed to be sent to proc\#m. No problem will appear for matrix assembling in proc m
+      (cells or nodes) of the mesh in proc\#m are renumbered, because proc\#m has selected a sub mesh
+      of the target mesh to avoid large amounts of data to transfer. In this case, as proc\#m is ultimately
+      in charge of the matrix, proc\#k must keep preciously the
+      source ids needed to be sent to proc\#m. No problem will appear for matrix assembling in proc\#m
       for source ids because no restriction was done.
-      Concerning source ids to be sent for the matrix-vector computation, proc k will know precisely
-      which source ids field values to send to proc \#m.
-      This is embodied by OverlapMapping::keepTracksOfTargetIds in proc m.
+      Concerning source ids to be sent for the matrix-vector computation, proc\#k will know precisely
+      which source ids field values to send to proc\#m.
+      This is embodied by OverlapMapping::keepTracksOfTargetIds in proc\#m.
 
       - If proc \#m is in charge (performs matrix computation) for this couple (k,m), source ids (cells
       or nodes) of the mesh in proc \#k are renumbered, because proc \#k has selected a sub mesh of the
@@ -164,7 +179,7 @@ namespace MEDCoupling
       from remote proc \#k, and thus the matrix is directly correct, no need for renumbering as
        in \ref ParaMEDMEMOverlapDECAlgoStep5 "Step 5". However proc \#k must
       keep track of the ids sent to proc \#m for the matrix-vector computation.
-      This is incarnated by OverlapMapping::keepTracksOfSourceIds in proc k.
+      This is incarnated by OverlapMapping::keepTracksOfSourceIds in proc\#k.
 
       This step is performed in MEDCoupling::OverlapElementLocator::exchangeMeshes method.
 
@@ -173,8 +188,7 @@ namespace MEDCoupling
       After mesh exchange in \ref ParaMEDMEMOverlapDECAlgoStep3 "Step3" each processor has all the
       required information to treat its \b local TODO list computed in
       \ref ParaMEDMEMOverlapDECAlgoStep2 "Step2". This step is potentially CPU costly, which is why
-      the \b local TODO list per proc is expected to
-      be as well balanced as possible.
+      the \b local TODO list per proc is expected to be as well balanced as possible.
 
       The interpolation is performed as the \ref MEDCoupling::MEDCouplingRemapper "remapper" does.
 

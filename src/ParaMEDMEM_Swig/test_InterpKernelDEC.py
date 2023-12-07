@@ -255,6 +255,70 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         source_group.release()
         MPI.COMM_WORLD.Barrier()
 
+    def testInterpKernelDEC_2D_py_3(self):
+        """ Test on a question that often comes back: should I re-synchronize() / re-attach() each time that
+        I want to send a new field? 
+        Basic answer: 
+          - you do not have to re-synchronize, but you can re-attach a new field, as long as it has the same support.
+        WARNING: this differs in OverlapDEC ...
+        """
+        size = MPI.COMM_WORLD.size
+        rank = MPI.COMM_WORLD.rank
+        if size != 4:
+            print("Should be run on 4 procs!")
+            return
+
+        # Define two processor groups
+        nproc_source = 2
+        procs_source = list(range(nproc_source))
+        procs_target = list(range(size - nproc_source, size))
+
+        interface = CommInterface()
+        source_group = MPIProcessorGroup(interface, procs_source)
+        target_group = MPIProcessorGroup(interface, procs_target)
+        idec = InterpKernelDEC(source_group, target_group)
+
+        MPI.COMM_WORLD.Barrier()  # really necessary??
+
+        #
+        # OK, let's go DEC !!
+        #
+        mul = 1
+        for t in range(3):  # Emulating a time loop for example
+            if source_group.containsMyRank():
+                _, fieldS = self.getPartialSource(rank)
+                fieldS.setNature(IntensiveMaximum)   # The only policy supported for now ...
+                fS2 = fieldS.deepCopy()
+                fS2.setMesh(fieldS.getMesh())
+                idec.attachLocalField(fS2)         # each time, but same support!
+                if t == 0:
+                    idec.synchronize()             # only once!
+                das = fS2.getArray()
+                das *= t+1
+                idec.sendData()                    # each time!
+
+            if target_group.containsMyRank():
+                mshT, fieldT = self.getPartialTarget(rank)
+                fieldT.setNature(IntensiveMaximum)
+                fT2 = fieldT.deepCopy()
+                fT2.setMesh(fieldT.getMesh())
+                idec.attachLocalField(fT2)          # each time, but same support!
+                if t == 0:
+                    idec.synchronize()              # only once!
+                idec.recvData()                     # each time!
+                # Now the actual checks:
+                mul = t+1
+                if rank == 2:
+                    self.assertEqual(fT2.getArray().getValues(), [1.0*mul, 9.0*mul])
+                elif rank == 3:
+                    self.assertEqual(fT2.getArray().getValues(), [5.0*mul, 13.0*mul])
+
+        # Release DEC (this involves MPI exchanges -- notably the release of the communicator -- so better be done before MPI.Finalize()
+        idec.release()
+        source_group.release()
+        target_group.release()
+        MPI.COMM_WORLD.Barrier()
+
     def test_InterpKernelDEC_default(self):
         """
         [EDF27375] : Put a default value when non intersecting case
@@ -307,7 +371,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
             if rank == 2:
                 # matrix S0 / T2 = [[(0,S0,1),(1,S0,1.5)]
                 # IntensiveMaximum => [[(0,S0,1/2.5),(1,S0,1.5/2.5)]
-                # 
+                #
                 self.assertTrue(field.getArray().isEqual(DataArrayDouble([0.6]),1e-12))
                 self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([])) )
             if rank == 3:
@@ -360,4 +424,3 @@ def Target_Proc_3():
 if __name__ == "__main__":
     unittest.main()
     MPI.Finalize()
-
