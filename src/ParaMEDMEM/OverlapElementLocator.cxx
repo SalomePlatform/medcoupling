@@ -344,6 +344,8 @@ namespace MEDCoupling
                 _procs_to_send_mesh.push_back(Proc_SrcOrTgt(i,false));
           }
       }
+    // Sort to avoid deadlocks!!
+    std::sort(_procs_to_send_mesh.begin(), _procs_to_send_mesh.end());
 #ifdef DEC_DEBUG
     std::stringstream scout;
     scout << "(" << _group.myRank() << ") PROC TO SEND list is: ";
@@ -362,37 +364,35 @@ namespace MEDCoupling
   {
     int myProcId=_group.myRank();
     //starting to receive every procs whose id is lower than myProcId.
-    std::vector<ProcCouple> toDoListForFetchRemaining;
+    std::vector<Proc_SrcOrTgt> firstRcv, secondRcv;
     for (const ProcCouple& pc: _to_do_list)
       {
         if(pc.first == pc.second) continue; // no xchg needed
 
         if(pc.first==myProcId)
           {
-            if(pc.second<myProcId)
-              receiveRemoteMeshFrom(pc.second,false);
-            else
-              toDoListForFetchRemaining.push_back(ProcCouple(pc.first, pc.second));
+            if(pc.second<myProcId)      firstRcv.push_back(Proc_SrcOrTgt(pc.second,false));
+            else                        secondRcv.push_back(Proc_SrcOrTgt(pc.second, false));
           }
         else
           {//pc.second==myProcId
-            if(pc.first<myProcId)
-              receiveRemoteMeshFrom(pc.first,true);
-            else
-              toDoListForFetchRemaining.push_back(ProcCouple(pc.first, pc.second));
+            if(pc.first<myProcId)       firstRcv.push_back(Proc_SrcOrTgt(pc.first,true));
+            else                        secondRcv.push_back(Proc_SrcOrTgt(pc.first,true));
           }
       }
-    //sending source or target mesh to remote procs
+    // Actual receiving, in order please to avoid deadlocks!
+    std::sort(firstRcv.begin(), firstRcv.end());
+    for (const Proc_SrcOrTgt& pst: firstRcv)
+      receiveRemoteMeshFrom(pst.first, pst.second);
+
+    // Sending source or target mesh to remote procs (_procs_to_send_mesh is sorted too!)
     for (const Proc_SrcOrTgt& pst: _procs_to_send_mesh)
       sendLocalMeshTo(pst.first, pst.second,matrix);
-    //fetching remaining meshes
-    for (const ProcCouple& pc: toDoListForFetchRemaining)
-      {  // NB: here pc.first always != from pc.second
-        if(pc.first==myProcId)
-          receiveRemoteMeshFrom(pc.second,false);
-        else//pc.second==myProcId
-          receiveRemoteMeshFrom(pc.first,true);
-      }
+
+    // Actual 2nd receiving, in order again please to avoid deadlocks!
+    std::sort(secondRcv.begin(), secondRcv.end());
+    for (const Proc_SrcOrTgt& pst: secondRcv)
+      receiveRemoteMeshFrom(pst.first, pst.second);
   }
   
   std::string OverlapElementLocator::getSourceMethod() const
