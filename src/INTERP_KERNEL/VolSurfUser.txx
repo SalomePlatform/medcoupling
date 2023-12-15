@@ -439,12 +439,19 @@ namespace INTERP_KERNEL
   template<int SPACEDIM>
   void ComputeTriangleHeight(const double *PA, const double *PB, const double *PC, double *res)
   {
-    double AB = getDistanceBtw2Pts<SPACEDIM>(PA,PB);
-    double BC = getDistanceBtw2Pts<SPACEDIM>(PB,PC);
-    double CA = getDistanceBtw2Pts<SPACEDIM>(PC,PA);
+    constexpr double EPS = 1e-12;
+    double AB = getDistanceBtw2Pts<SPACEDIM>(PA,PB); double maxLength = AB;
+    double BC = getDistanceBtw2Pts<SPACEDIM>(PB,PC); if (BC > maxLength) maxLength = BC;
+    double CA = getDistanceBtw2Pts<SPACEDIM>(PC,PA); if (CA > maxLength) maxLength = CA;
     double perim( (AB+BC+CA)*0.5 );
     double num( 2*sqrt(perim*(perim-AB)*(perim-BC)*(perim-CA)) );
     res[0] = num/AB; res[1] = num/BC; res[2] = num/CA;
+    if (AB/maxLength <= EPS) 
+      res[0] = BC;
+    if (BC/maxLength <= EPS) 
+      res[1] = CA;
+    if (CA/maxLength <= EPS) 
+      res[3] = AB;
   }
 }
 
