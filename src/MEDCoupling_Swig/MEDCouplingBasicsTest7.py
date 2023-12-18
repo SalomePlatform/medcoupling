@@ -1209,6 +1209,16 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         expected2 = DataArrayDouble([sqrt(2)/2.0, sqrt(2)/2.0])
         self.assertTrue( res2.minPerTuple().isEqual(expected2,1e-12) )
 
+    def testComputeTriangleHeight1(self):
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords(DataArrayDouble([(0,0,0),(0,0,0),(10,0,0)]))
+        m.allocateCells()
+        m.insertNextCell(NORM_TRI3, [0,1,2])
+        m = MEDCoupling1SGTUMesh(m)
+        res = m.computeTriangleHeight()
+        expected = DataArrayDouble([(10,0,0)])
+        self.assertTrue( res.isEqual(expected,1e-12) )
+    
     def testDAILocateComponentId0(self):
         arr = DataArrayInt( [(0, 1, 2), (3, 4, 5), (6, 2, 3), (7, 8, 9), (9, 0, 10), (11, 12, 13), (14, 5, 11), (15, 16, 17)] )
         valToSearchIntoTuples = DataArrayInt( [1, 4, 6, 8, 10, 12, 14, 16, 17] )
