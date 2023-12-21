@@ -619,7 +619,9 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
   INTERP_KERNEL::AutoPtr<double> tmp=new double[nbOfCompo];
 
   // By default field value set to default value - so mark which cells are hit
-  INTERP_KERNEL::AutoPtr<bool> hit_cells = new bool[fieldOutput->getNumberOfTuples()];
+  mcIdType ntup = fieldOutput->getNumberOfTuples();
+  INTERP_KERNEL::AutoPtr<bool> hit_cells = new bool[ntup];
+  std::fill((bool *)hit_cells, (bool *)hit_cells+ntup, false);
 
   for(vector<int>::const_iterator itProc=_the_matrix_st_source_proc_id.begin(); itProc != _the_matrix_st_source_proc_id.end();itProc++)
   // For each source processor corresponding to a locally held matrix:
@@ -750,7 +752,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
 
   // Fill in default values for cells which haven't been hit:
   int i = 0;
-  for(bool * hit_cells_ptr=hit_cells; i< fieldOutput->getNumberOfTuples(); hit_cells_ptr++,i++)
+  for(bool * hit_cells_ptr=hit_cells; i< ntup; hit_cells_ptr++,i++)
     if (!(*hit_cells_ptr))
       {
         double * targetPt=fieldOutput->getArray()->getPointer();
