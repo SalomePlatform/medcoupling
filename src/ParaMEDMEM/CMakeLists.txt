@@ -51,6 +51,7 @@ SET(paramedmem_SOURCES
   InterpolationMatrix.cxx
   LinearTimeInterpolator.cxx
   MPIProcessorGroup.cxx
+  ByStringMPIProcessorGroup.cxx
   MxN_Mapping.cxx
   OverlapDEC.cxx
   OverlapElementLocator.cxx

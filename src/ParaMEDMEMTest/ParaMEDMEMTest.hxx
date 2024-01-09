@@ -55,7 +55,8 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testOverlapDEC2_ter);                // 3 procs
 //  CPPUNIT_TEST(testOverlapDEC3);                    // 2 procs
 //  CPPUNIT_TEST(testOverlapDEC4);                    // 2 procs
-
+  CPPUNIT_TEST(testByStringMPIProcessorGroup_constructor);        // 1 and 2 procs
+  CPPUNIT_TEST(testByStringMPIProcessorGroup_stringconstructor);  // 3 procs
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D);// 5 procs
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpDEC_2D);      // 5 procs
   CPPUNIT_TEST(testSynchronousEqualInterpKernelDEC_2D);                   // 5 procs
@@ -123,6 +124,8 @@ public:
   void testOverlapDEC3();
 //  void testOverlapDEC3_bis();
   void testOverlapDEC4();
+  void testByStringMPIProcessorGroup_constructor();
+  void testByStringMPIProcessorGroup_stringconstructor();
 #ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC_2D();
   void testNonCoincidentDEC_3D();

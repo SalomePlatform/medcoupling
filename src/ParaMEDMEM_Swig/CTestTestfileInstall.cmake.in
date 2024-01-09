@@ -40,6 +40,11 @@ set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 5 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_InterpKernelDEC.py)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
 
+set(tfile PyPara_InterpKernelDEC_easy_Proc5)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 5 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_InterpKernelDEC_easy.py)
+set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+
 set(tfile PyPara_StructuredCoincidentDEC_Proc4)
 set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_StructuredCoincidentDEC.py)

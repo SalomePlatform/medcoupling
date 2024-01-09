@@ -34,6 +34,7 @@ namespace MEDCoupling
   public:
     MPIProcessorGroup(const CommInterface& interface);
     MPIProcessorGroup(const CommInterface& interface, std::set<int> proc_ids, const MPI_Comm& world_comm=MPI_COMM_WORLD);
+    MPIProcessorGroup(const CommInterface& interface, std::map<std::string,std::set<int>> proc_ids_by_name, const std::string& simCodeTag, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     MPIProcessorGroup (const ProcessorGroup& proc_group, std::set<int> proc_ids);
     MPIProcessorGroup(const CommInterface& interface,int pstart, int pend, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     MPIProcessorGroup(const MPIProcessorGroup& other);

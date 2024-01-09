@@ -40,6 +40,7 @@ INCLUDE_DIRECTORIES(
 SET(ParaMEDMEMTest_SOURCES
   ParaMEDMEMTest.cxx
   ParaMEDMEMTest_MPIProcessorGroup.cxx
+  ParaMEDMEMTest_ByStringMPIProcessorGroup.cxx
   ParaMEDMEMTest_BlockTopology.cxx
   ParaMEDMEMTest_InterpKernelDEC.cxx
   ParaMEDMEMTest_StructuredCoincidentDEC.cxx

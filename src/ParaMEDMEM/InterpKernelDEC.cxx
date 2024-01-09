@@ -69,6 +69,43 @@ namespace MEDCoupling
   {
   }
 
+  /*!
+   * Creates an InterpKernelDEC from an string identifier for the source and target groups.
+   * The set of procs might not cover entirely MPI_COMM_WORLD
+   * (a sub-communicator holding the union of source and target procs is recreated internally).
+   */
+  InterpKernelDEC::InterpKernelDEC(ProcessorGroup& generic_group, const std::string& source_group, const std::string& target_group):
+    DisjointDEC(generic_group.getProcIDsByName(source_group),generic_group.getProcIDsByName(target_group)),
+    _interpolation_matrix(0)
+  {
+  }
+  
+  /*!
+   * Split the interaction group based on the predefined token string "<->"
+   *  The string at left of the token will be the source group and the string at right the target group
+   */
+  static std::pair<std::string,std::string> GetGroupsName( const std::string& interaction_group )
+  {
+    const std::string delimiter = "<->";
+    size_t delimiter_position = interaction_group.find(delimiter);
+    if ( delimiter_position == std::string::npos )
+      throw ( "No delimiter <-> found in the interaction group.");
+
+    std::string src = interaction_group.substr(0,delimiter_position);
+    std::string tgt = interaction_group.substr(delimiter_position+delimiter.size(),interaction_group.size());
+    return std::make_pair(src,tgt);
+  }
+
+  /*!
+   * Creates an InterpKernelDEC from an string defining an interaction. 
+   *  The source and target group are obtained by spliting the string based in the "<->" token.
+   *  The constructor accepting a ProcessorGroup and two strings is reused.
+   */
+  InterpKernelDEC::InterpKernelDEC(ProcessorGroup& generic_group, const std::string& interaction_group ):
+    InterpKernelDEC(generic_group,GetGroupsName(interaction_group).first,GetGroupsName(interaction_group).second)
+  {
+  }
+
   InterpKernelDEC::~InterpKernelDEC()
   {
     release();

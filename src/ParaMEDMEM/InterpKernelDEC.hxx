@@ -131,6 +131,8 @@ namespace MEDCoupling
     InterpKernelDEC();
     InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
     InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids, const MPI_Comm& world_comm=MPI_COMM_WORLD);
+    InterpKernelDEC(ProcessorGroup& generic_group, const std::string& source_group, const std::string& target_group);
+    InterpKernelDEC(ProcessorGroup& generic_group, const std::string& interaction_group);
     virtual ~InterpKernelDEC();
     void release();
 

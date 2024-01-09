@@ -91,6 +91,10 @@ IF(MEDCOUPLING_BUILD_PY_TESTS)
     ADD_TEST(NAME PyPara_InterpKernelDEC_Proc5
              COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_InterpKernelDEC.py)
     SET_TESTS_PROPERTIES(PyPara_InterpKernelDEC_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
+
+    ADD_TEST(NAME PyPara_InterpKernelDEC_easy_Proc5
+             COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_InterpKernelDEC_easy.py)
+    SET_TESTS_PROPERTIES(PyPara_InterpKernelDEC_easy_Proc5 PROPERTIES ENVIRONMENT "${tests_env}")
     
     #ADD_TEST(NAME PyPara_NonCoincidentDEC_Proc5
     #         COMMAND ${MPIEXEC} -np 5  ${_oversub_opt} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_NonCoincidentDEC.py)
@@ -120,7 +124,7 @@ SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/ParaMEDMEM.py ${MEDCOUPLING_I
 INSTALL(FILES test_InterpKernelDEC.py test_NonCoincidentDEC.py test_StructuredCoincidentDEC.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
 
 set(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/ParaMEDMEM_Swig)
-install(FILES test_InterpKernelDEC.py test_NonCoincidentDEC.py test_OverlapDEC.py test_StructuredCoincidentDEC.py ParaMEDMEMTestTools.py test_BasicOperation.py DESTINATION ${TEST_INSTALL_DIRECTORY})
+install(FILES test_InterpKernelDEC.py test_InterpKernelDEC_easy.py test_NonCoincidentDEC.py test_OverlapDEC.py test_StructuredCoincidentDEC.py ParaMEDMEMTestTools.py test_BasicOperation.py DESTINATION ${TEST_INSTALL_DIRECTORY})
 # export MPIEXEC and _oversub_opt to CTestTestfile.cmake of salome test mechanism
 configure_file(CTestTestfileInstall.cmake.in "CTestTestfileST.cmake" @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfileST.cmake DESTINATION ${TEST_INSTALL_DIRECTORY} RENAME CTestTestfile.cmake)

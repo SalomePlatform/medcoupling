@@ -92,6 +92,23 @@ namespace MEDCoupling
   }
 
 
+  /*! Creates a processor group that is based on the processors included in \a proc_ids_by_name[name].
+    This routine must be called by all processors in MPI_COMM_WORLD.
+
+    \param interface CommInterface object giving access to the MPI
+    communication layer
+    \param proc_ids_by_name a map defining a relation between a name and a set of ids that are to be integrated in the group. 
+    The ids number are to be understood in terms of MPI_COMM_WORLD ranks.
+    \param simCodeTag identifier of the group
+  */
+
+  MPIProcessorGroup::MPIProcessorGroup(const CommInterface& interface, std::map<std::string,std::set<int>> proc_ids_by_name, const std::string& simCodeTag, const MPI_Comm& world_comm):
+    ProcessorGroup(interface, proc_ids_by_name, simCodeTag), _world_comm(world_comm)
+  {
+    updateMPISpecificAttributes();
+  }
+
+
   void MPIProcessorGroup::updateMPISpecificAttributes()
   {
     //Creation of a communicator 

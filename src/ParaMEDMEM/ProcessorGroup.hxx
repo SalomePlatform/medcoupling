@@ -43,6 +43,8 @@ namespace MEDCoupling
     ProcessorGroup (const ProcessorGroup& other):
       _comm_interface(other.getCommInterface()),_proc_ids(other._proc_ids) { }
     ProcessorGroup (const CommInterface& interface, int start, int end);
+    ProcessorGroup(const CommInterface& interface,std::map<std::string,std::set<int>> proc_ids_by_name,const std::string& simCodeTag):
+      _comm_interface(interface),_proc_ids_by_name(proc_ids_by_name),_proc_ids(proc_ids_by_name.at(simCodeTag)) { }
     virtual ~ProcessorGroup() { }
     virtual ProcessorGroup *deepCopy() const = 0;
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const = 0;
@@ -55,9 +57,11 @@ namespace MEDCoupling
     virtual int translateRank(const ProcessorGroup*, int) const = 0;
     virtual ProcessorGroup* createComplementProcGroup() const = 0;
     virtual ProcessorGroup* createProcGroup() const = 0;
-    virtual const std::set<int>& getProcIDs()const  { return _proc_ids; } 
+    virtual const std::set<int>& getProcIDs()const  { return _proc_ids; }
+    virtual const std::set<int>& getProcIDsByName( const std::string& simCodeTag ) const { return _proc_ids_by_name.at(simCodeTag); }
   protected:
     const CommInterface _comm_interface;
+    std::map<std::string,std::set<int>> _proc_ids_by_name;
     std::set<int> _proc_ids;
   };
 }
