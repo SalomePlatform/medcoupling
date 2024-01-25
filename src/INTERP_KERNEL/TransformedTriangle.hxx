@@ -70,6 +70,9 @@ namespace INTERP_KERNEL
    * coordinates of the corners of the triangle. It copies their coordinates and then proceeds to pre-calculating certain
    * entities used in the intersection calculation : the double products, triple products and the values of the function E
    * (Grandy, [53]).
+   * It is also at this point in constructor that:
+   *  - the special case of PQR included in the XYZ plane is treated
+   *  - the inconsistencies between double products/triple products computation is handled
    *
    * calculateIntersectionVolume() : 
    * This is the only method in the public interface. It calculates the volume under the intersection polygons
@@ -95,18 +98,14 @@ namespace INTERP_KERNEL
    *    When an intersection point has been detected it is calculated with a corresponding calc* - method in the cases where it
    * is not known directly. It is then added to the polygon A and/or B as necessary.
    *
-   * OPTIMIZE : 
-   *    If OPTIMIZE is defined, a large number of methods will be prefixed with inline and some optimizations concerning the tests 
-   * with zero double products will be used.
    */
   class INTERPKERNEL_EXPORT TransformedTriangle
   {
  
 
   public:
-
-    friend class INTERP_TEST::TransformedTriangleTest;
     friend class INTERP_TEST::TransformedTriangleIntersectTest;
+    friend class INTERP_TEST::TransformedTriangleTest;
     /*
      * Enumerations representing the different geometric elements of the unit tetrahedron
      * and the triangle. The end element, NO_* gives the number of elements in the enumeration
@@ -140,126 +139,90 @@ namespace INTERP_KERNEL
 
     double calculateIntersectionVolume(); 
     double calculateIntersectionSurface(TetraAffineTransform* tat);
-
     void dumpCoords() const;
 
     // Queries of member values used by UnitTetraIntersectionBary
-
     const double* getCorner(TriCorner corner) const { return _coords + 5*corner; }
-
     const std::vector<double*>& getPolygonA() const { return _polygonA; }
-
     double getVolume() const { return _volume; }
 
   protected:
-
     TransformedTriangle() { }
 
     // ----------------------------------------------------------------------------------
     //  High-level methods called directly by calculateIntersectionVolume()     
     // ----------------------------------------------------------------------------------
     void calculateIntersectionAndProjectionPolygons();
-
     void calculatePolygonBarycenter(const IntersectionPolygon poly, double* barycenter); 
-
     void sortIntersectionPolygon(const IntersectionPolygon poly, const double* barycenter); 
-
     double calculateVolumeUnderPolygon(IntersectionPolygon poly, const double* barycenter); 
 
     // ----------------------------------------------------------------------------------
     //  High-level methods called directly by calculateIntersectionSurface()
     // ----------------------------------------------------------------------------------
     void calculateIntersectionPolygon();
-
     double calculateSurfacePolygon();
 
     // ----------------------------------------------------------------------------------
     //  Detection of degenerate triangles  
     // ----------------------------------------------------------------------------------
-
     bool isTriangleInPlaneOfFacet(const TetraFacet facet) const;
-    
     bool isTriangleParallelToFacet(const TetraFacet facet) const;
-
     int isTriangleInclinedToFacet(const TetraFacet facet) const;
-
     bool isTriangleBelowTetraeder() const;
 
     // ----------------------------------------------------------------------------------
     //  Intersection test methods and intersection point calculations           
     // ----------------------------------------------------------------------------------
- 
     inline bool testSurfaceEdgeIntersection(const TetraEdge edge) const; 
-
     void calcIntersectionPtSurfaceEdge(const TetraEdge edge, double* pt) const;  
-
     inline bool testSegmentFacetIntersection(const TriSegment seg, const TetraFacet facet) const; 
-
     void calcIntersectionPtSegmentFacet(const TriSegment seg, const TetraFacet facet, double* pt) const;  
-
     bool testSegmentEdgeIntersection(const TriSegment seg, const TetraEdge edge) const; 
- 
     void calcIntersectionPtSegmentEdge(const TriSegment seg, const TetraEdge edge, double* pt) const ; 
-
     bool testSegmentCornerIntersection(const TriSegment seg, const TetraCorner corner) const ;
-
     inline bool testSurfaceRayIntersection(const TetraCorner corner) const;
-
     bool testSegmentHalfstripIntersection(const TriSegment seg, const TetraEdge edg);
-
     void calcIntersectionPtSegmentHalfstrip(const TriSegment seg, const TetraEdge edge, double* pt) const;
-    
     bool testSegmentRayIntersection(const TriSegment seg, const TetraCorner corner) const;
-
     inline bool testCornerInTetrahedron(const TriCorner corner) const;
-
     inline bool testCornerOnXYZFacet(const TriCorner corner) const;
-
     inline bool testCornerAboveXYZFacet(const TriCorner corner) const;
 
     // ----------------------------------------------------------------------------------
     //  Utility methods used in intersection tests                       
     // ----------------------------------------------------------------------------------
-    
     bool testTriangleSurroundsEdge(const TetraEdge edge) const;
-
     inline bool testEdgeIntersectsTriangle(const TetraEdge edge) const;
-
     inline bool testFacetSurroundsSegment(const TriSegment seg, const TetraFacet facet) const;
-
     inline bool testSegmentIntersectsFacet(const TriSegment seg, const TetraFacet facet) const;
-
     bool testSegmentIntersectsHPlane(const TriSegment seg) const;
-
     bool testSurfaceAboveCorner(const TetraCorner corner) const;
-    
     bool testTriangleSurroundsRay(const TetraCorner corner) const;
 
     // ----------------------------------------------------------------------------------
     //  Double and triple product calculations                           
     // ----------------------------------------------------------------------------------
-    
-    void resetNearZeroCoordinates();
-
+    void handleDegenerateCases();
     bool areDoubleProductsConsistent(const TriSegment seg) const;
-
-    void preCalculateDoubleProducts(void);
-
+    void preCalculateDoubleProducts();
     inline void resetDoubleProducts(const TriSegment seg, const TetraCorner corner);
-
     double calculateDistanceCornerSegment(const TetraCorner corner, const TriSegment seg) const;
-    
-    void preCalculateTripleProducts(void);
-
+    void preCalculateTripleProducts();
     double calculateAngleEdgeTriangle(const TetraEdge edge) const;
-
     inline double calcStableC(const TriSegment seg, const DoubleProduct dp) const;
-
     inline double calcStableT(const TetraCorner corner) const;
+    inline double calcUnstableC(const TriSegment seg, const DoubleProduct dp, double & delta) const;
+    double calcTByDevelopingRow(const TetraCorner corner, const int row, const bool project) const;
 
-    inline double calcUnstableC(const TriSegment seg, const DoubleProduct dp) const;
-
-    double calcTByDevelopingRow(const TetraCorner corner, const int row = 1, const bool project = false) const;
+    // ----------------------------------------------------------------------------------
+    // Debug
+    // ----------------------------------------------------------------------------------
+    inline const std::string& strTC(TetraCorner tc) const;
+    inline const std::string& strTE(TetraEdge te) const;
+    inline const std::string& strTF(TetraFacet tf) const;
+    inline const std::string& strTriC(TriCorner tc) const;
+    inline const std::string& strTriS(TriSegment tc) const;
 
     // ----------------------------------------------------------------------------------
     //  Member variables                                                 
@@ -282,8 +245,12 @@ namespace INTERP_KERNEL
     /// following order in enumeration DoubleProduct
     double _doubleProducts[24];
 
+    double _deltas[24];
+
     /// Array containing the 4 triple products.
     /// order : t_O, t_X, t_Y, t_Z
+    /// For example t_O represent the signed volume of the tetrahedron OPQR, and is positive if PQR is oriented clockwise
+    //  when seen from the vertex O.
     double _tripleProducts[4];
 
     /// Vector holding the points of the intersection polygon A.
@@ -340,11 +307,11 @@ namespace INTERP_KERNEL
     // by a given row
     static const DoubleProduct DP_FOR_DETERMINANT_EXPANSION[12];
     
-    // values used to decide how imprecise the double products 
+    // values used to decide how/when imprecise the double products
     // should be to set them to 0.0
-    static const long double MACH_EPS;    // machine epsilon
-    static const long double MULT_PREC_F; // precision of multiplications (Grandy : f)
-    static const long double THRESHOLD_F; // threshold for zeroing (Grandy : F/f)
+    static const double MACH_EPS;    // machine epsilon
+    static const double MULT_PREC_F; // precision of multiplications (Grandy : f)
+    static const double THRESHOLD_F; // threshold for zeroing (Grandy : F/f)
 
     static const double TRIPLE_PRODUCT_ANGLE_THRESHOLD;
 
@@ -354,10 +321,10 @@ namespace INTERP_KERNEL
 
     // signs associated with entries in DP_FOR_SEGMENT_FACET_INTERSECTION
     static const double SIGN_FOR_SEG_FACET_INTERSECTION[12];
-    
+
     // coordinates of corners of tetrahedron
     static const double COORDS_TET_CORNER[12];
-    
+
     // indices to use in tables DP_FOR_SEG_FACET_INTERSECTION and SIGN_FOR_SEG_FACET_INTERSECTION
     // for the calculation of the coordinates (x,y,z) of the intersection points
     // for Segment-Facet and Segment-Edge intersections
@@ -424,7 +391,7 @@ namespace INTERP_KERNEL
     return _tripleProducts[corner];
   }
 
-  inline double TransformedTriangle::calcUnstableC(const TriSegment seg, const DoubleProduct dp) const
+  inline double TransformedTriangle::calcUnstableC(const TriSegment seg, const DoubleProduct dp, double& delta) const
   {
     // find the points of the triangle
     // 0 -> P, 1 -> Q, 2 -> R
@@ -435,7 +402,10 @@ namespace INTERP_KERNEL
     const int off1 = DP_OFFSET_1[dp];
     const int off2 = DP_OFFSET_2[dp];
 
-    return _coords[5*pt1 + off1] * _coords[5*pt2 + off2] - _coords[5*pt1 + off2] * _coords[5*pt2 + off1];
+    const double prd1 = _coords[5*pt1 + off1] * _coords[5*pt2 + off2],
+                 prd2 = _coords[5*pt1 + off2] * _coords[5*pt2 + off1];
+    delta = std::fabs(prd1) + std::fabs(prd2);
+    return  prd1 - prd2;
   }
 
   // ----------------------------------------------------------------------------------
@@ -517,8 +487,7 @@ namespace INTERP_KERNEL
 
   inline bool TransformedTriangle::testEdgeIntersectsTriangle(const TetraEdge edge) const
   {
-    // correspondence edge - triple products
-    // for edges OX, ..., ZX (Grandy, table III)
+    // correspondence edge - triple products for edges OX, ..., ZX (Grandy, table III)
     static const TetraCorner TRIPLE_PRODUCTS[12] =
     {
       X, O, // OX
@@ -533,9 +502,17 @@ namespace INTERP_KERNEL
     const double t1 = calcStableT(TRIPLE_PRODUCTS[2*edge]);
     const double t2 = calcStableT(TRIPLE_PRODUCTS[2*edge + 1]);
 
-    //? should equality with zero use epsilon?
-    LOG(5, "testEdgeIntersectsTriangle : t1 = " << t1 << " t2 = " << t2 );
-    return (t1*t2 <= 0.0) && !epsilonEqual(t1 - t2, 0.0); // tuleap26461
+    // [ABN] Okayyy: if either t1 or t2 exactly equal zero, then it can mean two things:
+    //   - either PQR is very close to the corner -> this is OK, further computation of intersection point between
+    // surface and edge will produce a correct result
+    //   - or, if the other triple prod is also very small, then this is a degenerate case: the edge is almost in PQR -> this is bad
+    // and leads to weird intersection point computation -> we avoid this.
+    // PS : here was written "// tuleap26461" -> whoo this helps :-)
+    if (t1 == 0.0 || t2 == 0.0)
+      if (std::fabs(t1+t2) < THRESHOLD_F*MULT_PREC_F)
+        return false;
+
+    return (t1*t2 <= 0.0) && !epsilonEqual(t1,t2, (double)MULT_PREC_F);
   }
 
   inline bool TransformedTriangle::testFacetSurroundsSegment(const TriSegment seg, const TetraFacet facet) const
@@ -583,19 +560,20 @@ namespace INTERP_KERNEL
 
   inline bool TransformedTriangle::testSurfaceAboveCorner(const TetraCorner corner) const
   {
-    // ? There seems to be an error in Grandy -> it should be C_XY instead of C_YZ in [28].
-    // ? I haven't really figured out why, but it seems to work.
-    const double normal = calcStableC(PQ, C_XY) + calcStableC(QR, C_XY) + calcStableC(RP, C_XY);
+    // There is an error in Grandy -> it should be C_XY instead of C_YZ in [28].
+    //
+    // Idea: the nz value (Grandy [28] corrected!) can be interpreted as a special variant of the triple product t_O
+    // where the z coordinate has been set to 1. It represents the signed volume of the tet OP'Q'R' where P', Q' and R' are the
+    // projection of P, Q, R on the z=1 plane.
+    // Comparing the sign of this triple product with t_X (or t_Y, ... dep on the corner) indicates whether the corner is in the
+    // half-space above or below the PQR triangle, similarly to what is explained in [16].
+    // (this works even for the Z corner, since we could have chosen z=24 (instead of z=1) this would not have changed the final sign test).
+    const double nz = calcStableC(PQ, C_XY) + calcStableC(QR, C_XY) + calcStableC(RP, C_XY);
 
-    LOG(6, "surface above corner " << corner << " : " << "n = " << normal << ", t = [" <<  calcTByDevelopingRow(corner, 1, false) << ", "  << calcTByDevelopingRow(corner, 2, false) << ", " << calcTByDevelopingRow(corner, 3, false) );
-    LOG(6, "] - stable : " << calcStableT(corner)  );
+    // Triple product might have not been computed, but here we need one:
+    const double tp = _validTP[corner] ? calcStableT(corner) : calcTByDevelopingRow(corner, 1, false);
 
-    //? we don't care here if the triple product is "invalid", that is, the triangle does not surround one of the
-    // edges going out from the corner (Grandy [53])
-    if(!_validTP[corner])
-      return ( calcTByDevelopingRow(corner, 1, false) * normal ) >= 0.0;
-    else
-      return ( calcStableT(corner) * normal ) >= 0.0;
+    return tp*nz >= 0.0;
   }
 
   inline bool TransformedTriangle::testTriangleSurroundsRay(const TetraCorner corner) const
@@ -650,6 +628,5 @@ namespace INTERP_KERNEL
   }
 
 }
-
 
 #endif

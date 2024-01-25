@@ -62,24 +62,55 @@ namespace INTERP_KERNEL
     };
   
   /// The machine epsilon, used in precision corrections
-  const long double TransformedTriangle::MACH_EPS = std::numeric_limits<double>::epsilon();
+  const double TransformedTriangle::MACH_EPS = std::numeric_limits<double>::epsilon();
   
   /// 4.0 * the machine epsilon, represents the precision of multiplication when performing corrections corrections ( f in Grandy )
-  const long double TransformedTriangle::MULT_PREC_F = 4.0 * TransformedTriangle::MACH_EPS;
+  const double TransformedTriangle::MULT_PREC_F = 4.0 * TransformedTriangle::MACH_EPS;
 
   /// Threshold for resetting double and triple products to zero; ( F / f in Grandy )
-  const long double TransformedTriangle::THRESHOLD_F = 500.0;
+  const double TransformedTriangle::THRESHOLD_F = 20.0;
 
   /// Threshold for what is considered a small enough angle to warrant correction of triple products by Grandy, [57]
   const double TransformedTriangle::TRIPLE_PRODUCT_ANGLE_THRESHOLD = 0.1;
 
 
-  // after transformation to the U-space, coordinates are inaccurate
-  // small variations around zero should not be taken into account
-  void TransformedTriangle::resetNearZeroCoordinates()
+  // Handle cases where one of the segment (or all) is (almost) in XYZ plane.
+  // We follow Grandy's suggestion and perturb slightly to have exactly h=0 for the segment (Grandy p.447)
+  // Note that if PQR is == to the upper facet of the unit tetra (XYZ), the tetra-corner-inclusion test should take it in,
+  // thanks to Grandy [21] and the fact that S_x test is "<=0" (not <0)
+  // After that, we also snap P,Q,R to the corners if they're very close.
+  void TransformedTriangle::handleDegenerateCases()
   {
-    for (int i=0; i<15; i++)
-      if (fabs(_coords[i])<TransformedTriangle::MACH_EPS*40.0) _coords[i]=0.0;
+    static const TriCorner PT_SEG_MAP[] = {
+      P, Q,
+      Q, R,
+      R, P
+    };
+
+    const double eps = THRESHOLD_F*TransformedTriangle::MULT_PREC_F;
+    for (TriSegment seg = PQ; seg <= RP; seg = TriSegment(seg+1))
+      {
+        // Is h coordinate for both end of segment small enough?
+        int pt1 = PT_SEG_MAP[2*seg], pt2 = PT_SEG_MAP[2*seg+1];
+        if (fabs(_coords[5*pt1+3]) < eps && fabs(_coords[5*pt2+3]) < eps)
+          {
+            // If so, perturb x,y and z to reset h to exactly zero.
+            for (auto pt: {pt1, pt2})  // thx C++17
+              {
+                const double correc = _coords[pt*5+3]/3.; // this should be really small!
+                _coords[pt*5+0] += correc;
+                _coords[pt*5+1] += correc;
+                _coords[pt*5+2] += correc;
+                // And then, if x,y or z very close to 0 or 1, snap exactly to tetra corner:
+                for(int d=0; d < 3; d++)
+                  {
+                    if (fabs(_coords[5*pt+d]) < eps)    _coords[5*pt+d] = 0.0;
+                    if (fabs(_coords[5*pt+d]-1) < eps)  _coords[5*pt+d] = 1.0;
+                  }
+                _coords[pt*5+3] = 0.0;
+              }
+          }
+      }
   }
   
   // ----------------------------------------------------------------------------------
@@ -92,7 +123,7 @@ namespace INTERP_KERNEL
    * and it is thus the "stable" double products that are stored.
    *
    */
-  void TransformedTriangle::preCalculateDoubleProducts(void)
+  void TransformedTriangle::preCalculateDoubleProducts()
   {
     if(_is_double_products_calculated)
       return;
@@ -101,7 +132,10 @@ namespace INTERP_KERNEL
     for(TriSegment seg = PQ ; seg <= RP ; seg = TriSegment(seg + 1))
       {
         for(DoubleProduct dp = C_YZ ; dp <= C_10 ; dp = DoubleProduct(dp + 1))
-          _doubleProducts[8*seg + dp] = calcUnstableC(seg, dp);
+          {
+            const int idx = 8*seg + dp;
+            _doubleProducts[idx] = calcUnstableC(seg, dp, _deltas[idx]);
+          }
       }
 
     std::map<double, TetraCorner> distances;
@@ -120,33 +154,21 @@ namespace INTERP_KERNEL
                 distances.insert( std::make_pair( dist, corner ) );
               }
 
-            // first element -> minimum distance
+            // first element -> minimum distance (because map is sorted)
             const TetraCorner minCorner = distances.begin()->second;
             resetDoubleProducts(seg, minCorner);
             distances.clear();
           }
       }
-  
+
     // -- (2) check that each double product satisfies Grandy, [47], else set to 0
     for(TriSegment seg = PQ ; seg <= RP ; seg = TriSegment(seg + 1))
       {
         for(DoubleProduct dp = C_YZ ; dp <=  C_10 ; dp = DoubleProduct(dp + 1))
           {
-            // find the points of the triangle
-            // 0 -> P, 1 -> Q, 2 -> R 
-            const int pt1 = seg;
-            const int pt2 = (seg + 1) % 3;
+            const int idx = 8*seg+dp;
 
-            // find offsets
-            const int off1 = DP_OFFSET_1[dp];
-            const int off2 = DP_OFFSET_2[dp];
-
-            const double term1 = _coords[5*pt1 + off1] * _coords[5*pt2 + off2]; 
-            const double term2 = _coords[5*pt1 + off2] * _coords[5*pt2 + off1];
-
-            const long double delta = MULT_PREC_F * ( std::fabs(term1) + std::fabs(term2) );
-         
-            if( epsilonEqual(_doubleProducts[8*seg + dp], 0.0, (double)(THRESHOLD_F * delta)))
+            if( epsilonEqual(_doubleProducts[idx], 0.0, THRESHOLD_F * MULT_PREC_F * _deltas[idx]))
               {
                 // debug output
 #if LOG_LEVEL >= 5
@@ -157,13 +179,11 @@ namespace INTERP_KERNEL
                   }
 #endif 
 
-
-                _doubleProducts[8*seg + dp] = 0.0;
-                
+                _doubleProducts[idx] = 0.0;
               }
           }
       }
-    
+
     _is_double_products_calculated = true;
   }
 
@@ -176,30 +196,45 @@ namespace INTERP_KERNEL
    */
   bool TransformedTriangle::areDoubleProductsConsistent(const TriSegment seg) const
   {
-    const double term1 = _doubleProducts[8*seg + C_YZ] * _doubleProducts[8*seg + C_XH];
-    const double term2 = _doubleProducts[8*seg + C_ZX] * _doubleProducts[8*seg + C_YH];
-    const double term3 = _doubleProducts[8*seg + C_XY] * _doubleProducts[8*seg + C_ZH];
+    // Careful! Here doubleProducts have not yet been corrected for roundoff errors!
+    // So we need to epsilon-adjust to correctly identify zeros:
+    static const DoubleProduct DP_LST[6] = {C_YZ, C_XH,
+                                            C_ZX, C_YH,
+                                            C_XY, C_ZH};
+    double dps[6];
+    for (int i = 0; i < 6; i++)
+      {
+        const double dp = _doubleProducts[8*seg + DP_LST[i]];
+        dps[i] = dp;
+      }
+
+    const double term1 = dps[0] * dps[1];
+    const double term2 = dps[2] * dps[3];
+    const double term3 = dps[4] * dps[5];
 
     LOG(2, "for seg " << seg << " consistency " << term1 + term2 + term3 );
     LOG(2, "term1 :" << term1 << " term2 :" << term2 << " term3: " << term3 );
 
+    // Test for "== 0.0" here is OK since doubleProduct has been fixed for rounding to zero already.
     const int num_zero = (term1 == 0.0 ? 1 : 0) + (term2 == 0.0 ? 1 : 0) + (term3 == 0.0 ? 1 : 0);
     const int num_neg = (term1 < 0.0 ? 1 : 0) + (term2 < 0.0 ? 1 : 0) + (term3 < 0.0 ? 1 : 0);
     const int num_pos = (term1 > 0.0 ? 1 : 0) + (term2 > 0.0 ? 1 : 0) + (term3 > 0.0 ? 1 : 0);
 
     assert( num_zero + num_neg + num_pos == 3 );
 
-    // calculated geometry is inconsistent if we have one of the following cases
+    // Calculated geometry is inconsistent if we have one of the following cases
     // * one term zero and the other two of the same sign
     // * two terms zero
     // * all terms positive
     // * all terms negative
-    if(((num_zero == 1 && num_neg != 1) || num_zero == 2 || (num_neg == 0 && num_zero != 3) || num_neg == 3 ))
-      {
+    const bool inconsist = (num_zero == 1 && num_neg != 1) ||
+                           num_zero == 2 ||
+                           (num_neg == 0 && num_zero != 3) ||
+                           num_neg == 3;
+    if(inconsist)  {
         LOG(4, "inconsistent dp found" );
       }
-    return !((num_zero == 1 && num_neg != 1) || num_zero == 2 || (num_neg == 0 && num_zero != 3) || num_neg == 3 );
-
+    return !inconsist;
   }
 
   /**
@@ -250,12 +285,10 @@ namespace INTERP_KERNEL
    * the problem of errors due to cancellation.
    *
    */
-  void TransformedTriangle::preCalculateTripleProducts(void)
+  void TransformedTriangle::preCalculateTripleProducts()
   {
     if(_is_triple_products_calculated)
-      {
-        return;
-      }
+      return;
 
     // find edge / row to use -> that whose edge makes the smallest angle to the triangle
     // use a map to find the minimum
@@ -272,7 +305,7 @@ namespace INTERP_KERNEL
 
             // get edge by using correspondence between Double Product and Edge
             TetraEdge edge = TetraEdge(dp);
-           
+
             // use edge only if it is surrounded by the surface
             if( _triangleSurroundsEdgeCache[edge] )
                 {
@@ -288,13 +321,10 @@ namespace INTERP_KERNEL
             const int minRow = anglesForRows.begin()->second;
 
             if(minAngle < TRIPLE_PRODUCT_ANGLE_THRESHOLD)
-              {
-                _tripleProducts[corner] = calcTByDevelopingRow(corner, minRow, true);
-              } 
+              _tripleProducts[corner] = calcTByDevelopingRow(corner, minRow, true);
             else 
-              {
-                _tripleProducts[corner] = calcTByDevelopingRow(corner, minRow, false);
-              }
+              _tripleProducts[corner] = calcTByDevelopingRow(corner, minRow, false);
+
             _validTP[corner] = true;
           }
         else
@@ -303,12 +333,9 @@ namespace INTERP_KERNEL
             LOG(6, "Triple product not calculated for corner " << corner );
             _tripleProducts[corner] = -3.14159265;
             _validTP[corner] = false;
-
           }
         anglesForRows.clear();
-
       }
-
     _is_triple_products_calculated = true;
   }
 
@@ -371,12 +398,15 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * Calculates triple product associated with the given corner of tetrahedron, developing 
+   * Calculates triple product associated with the given corner of tetrahedron, developing
    * the determinant by the given row. The triple product gives the signed volume of 
    * the tetrahedron between this corner and the triangle PQR. If the flag project is true, 
    * one coordinate is projected out in order to eliminate errors in the intersection point
    * calculation due to cancellation.
    * 
+   * Consistency with the double product computation and potential cancellation is also done here.
+   *
+   *
    * @pre            double products have already been calculated
    * @param corner   corner for which the triple product is calculated
    * @param row      row (1 <= row <= 3) used to calculate the determinant
@@ -439,23 +469,23 @@ namespace INTERP_KERNEL
     const double cPQ = calcStableC(PQ, dp);
 
     double alpha = 0.0;
-    
+
     // coordinate to use for projection (Grandy, [57]) with edges
     // OX, OY, OZ, XY, YZ, ZX in order : 
     // (y, z, x, h, h, h)
     // for the first three we could also use {2, 0, 1}
     static const int PROJECTION_COORDS[6] = { 1, 2, 0, 3, 3, 3 } ;
-    
+
     const int coord = PROJECTION_COORDS[ dp ];
-    
+
     // coordinate values for P, Q and R
     const double coordValues[3] = { _coords[5*P + coord], _coords[5*Q + coord], _coords[5*R + coord] };
-    
+
     if(project)
       {
         // products coordinate values with corresponding double product
         const double coordDPProd[3] = { coordValues[0] * cQR, coordValues[1] * cRP, coordValues[2] * cPQ };
-       
+
         const double sumDPProd = coordDPProd[0] + coordDPProd[1] + coordDPProd[2];
         const double sumDPProdSq = dot(coordDPProd, coordDPProd);
 
@@ -467,6 +497,22 @@ namespace INTERP_KERNEL
     const double cRPbar = cRP * (1.0 - alpha * coordValues[1] * cRP);
     const double cPQbar = cPQ * (1.0 - alpha * coordValues[2] * cPQ);
 
+    // [ABN] Triple product cancellation logic:
+    // This part is not well described in Grandy (end of p.446) :
+    //     "We use a method analogous to (47) to remove imprecise triple products,..."
+    //
+    // Our algo for cancelling a triple product:
+    //   - retrieve the deltas associated with each DP involved (because a DP itself is a sum of two terms - see [42]
+    //   - multiply them by the coordinate coming from the determinant expansion
+    //   - and finally sum the 3 corresponding terms of the developement
+    //
+    // Using directly the DP (as was done before here) leads to issues, since this DP might have been cancelled
+    // already earlier on, and we lost the delta information -> doing this, we risk not cancelling the triple prod
+    // when we should have.
+    const double cQRbar_delta = _deltas[8*QR + dp],
+                 cRPbar_delta = _deltas[8*RP + dp],
+                 cPQbar_delta = _deltas[8*PQ + dp];
+
     // check sign of barred products - should not change
     //    assert(cQRbar * cQR >= 0.0);
     //assert(cRPbar * cRP >= 0.0);
@@ -476,15 +522,13 @@ namespace INTERP_KERNEL
     const double q_term = _coords[5*Q + offset] * cRPbar;
     const double r_term = _coords[5*R + offset] * cPQbar;
 
-    // check that we are not so close to zero that numerical errors could take over, 
-    // otherwise reset to zero (cf Grandy, p. 446)
-#ifdef FIXED_DELTA
-    const double delta = FIXED_DELTA;
-#else
-    const long double delta = MULT_PREC_F * (std::fabs(p_term) + std::fabs(q_term) + std::fabs(r_term));
-#endif
+    const double p_delta = std::fabs(_coords[5*P + offset] * cQRbar_delta),
+                 q_delta = std::fabs(_coords[5*Q + offset] * cRPbar_delta),
+                 r_delta = std::fabs(_coords[5*R + offset] * cPQbar_delta);
 
-    if( epsilonEqual( p_term + q_term + r_term, 0.0, (double)(THRESHOLD_F * delta)) )
+    const double delta = p_delta + q_delta + r_delta;
+
+    if( epsilonEqual( p_term + q_term + r_term, 0.0, THRESHOLD_F * MULT_PREC_F * delta) )
       {
         LOG(4, "Reset imprecise triple product for corner " << corner << " to zero" ); 
         return 0.0;

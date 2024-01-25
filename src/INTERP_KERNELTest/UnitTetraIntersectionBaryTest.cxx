@@ -300,6 +300,41 @@ namespace INTERP_TEST
     CPPUNIT_ASSERT_DOUBLES_EQUAL(6944.4444444444443,volume,1e-9);
   }
 
+  /**
+   * Extract from a single tetra from BoxHexa1.med and BoxHexa2.med.
+   * Symetry test was failing.
+   */
+  void UnitTetraIntersectionBaryTest::test_UnitTetraIntersectionBary_14()
+  {
+    double S[] = {
+      25.0, 96.0, 0.0,
+      25.0, 120.0, 0.0,
+      37.5, 120.0, 0.0,
+      25.0, 120.0, 11.333333333333339255};
+
+    double T[] = {
+      25.0, 90.0, 6.333333333333339255,
+      25.0, 120.0, 6.3333333333333357018,
+      41.6666666666666714036, 120.0, 6.3333333333333348136,
+      25.0, 120.0, 17.6666666666666714036};
+
+    mcIdType conn[4] = { 0,1,2,3 };
+    const double* tnodes[4]={ T, T+3, T+6, T+9 };
+    const double* snodes[4]={ S, S+3, S+6, S+9 };
+    const double refVol = 48.6591695501729;
+
+    __MESH_DUMMY dummyMesh;
+    SplitterTetra<__MESH_DUMMY> src( dummyMesh, snodes, conn );
+    double volume = src.intersectTetra( tnodes );
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(refVol,volume,1e-9);
+
+    // Now the other way round:
+    SplitterTetra<__MESH_DUMMY> tgt( dummyMesh, tnodes, conn );
+    double volume2 = tgt.intersectTetra( snodes );
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(refVol,volume2,1e-9);
+  }
+
+
   void UnitTetraIntersectionBaryTest::test_TetraAffineTransform_reverseApply()
   {
     double nodes[12] = { -4.0, 9.0, 3.0, 

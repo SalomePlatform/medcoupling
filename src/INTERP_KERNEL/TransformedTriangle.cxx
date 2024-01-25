@@ -122,12 +122,14 @@ namespace INTERP_KERNEL
     _coords[5*Q + 3] = 1 - q[0] - q[1] - q[2];
     _coords[5*R + 3] = 1 - r[0] - r[1] - r[2];
 
+    // Handle degenerated case where one of the seg of PQR is (almost) inside XYZ plane,
+    // and hence by extension when the whole PQR triangle is in the XYZ plane
+    handleDegenerateCases();
+
     // H coordinate
     _coords[5*P + 4] = 1 - p[0] - p[1];
     _coords[5*Q + 4] = 1 - q[0] - q[1];
     _coords[5*R + 4] = 1 - r[0] - r[1];
-
-    resetNearZeroCoordinates();
 
     // initialise rest of data
     preCalculateDoubleProducts();
@@ -785,7 +787,7 @@ namespace INTERP_KERNEL
     {
       // coordinate to check
       const int coord = static_cast<int>(facet);
-      return (_coords[5*P + coord] == _coords[5*Q + coord]) && (_coords[5*P + coord] == _coords[5*R + coord]);
+      return (epsilonEqual(_coords[5*P + coord], _coords[5*Q + coord])) && (epsilonEqual(_coords[5*P + coord], _coords[5*R + coord]));
     }
 
     /**

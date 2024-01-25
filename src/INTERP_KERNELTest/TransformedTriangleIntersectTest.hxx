@@ -47,6 +47,17 @@ namespace INTERP_TEST
     CPPUNIT_TEST( testTriangle12 );
     CPPUNIT_TEST( testTriangle13 );
 
+
+    // Tests for degenerated cases where PQR is almost in XYZ plane:
+    CPPUNIT_TEST( testTriangle_vol1 );
+    CPPUNIT_TEST( testTriangle_vol2 );
+    CPPUNIT_TEST( testTriangle_vol3 );
+    CPPUNIT_TEST( testTriangle_vol4 );
+    CPPUNIT_TEST( testTriangle_vol5 );
+    CPPUNIT_TEST( testTriangle_vol6 );
+    CPPUNIT_TEST( testTriangle_vol7 );
+    CPPUNIT_TEST( testTriangle_vol8 );
+
     CPPUNIT_TEST_SUITE_END();
 
     typedef INTERP_KERNEL::TransformedTriangle::TriSegment TriSegment;
@@ -55,40 +66,30 @@ namespace INTERP_TEST
   public:
 
     void testTriangle1();
-  
     void testTriangle2();
-
     void testTriangle3();
-
     void testTriangle4();
-
     void testTriangle5();
-
     void testTriangle6();
-
     void testTriangle7();
-
     void testTriangle8();
-
     void testTriangle9();
-  
     void testTriangle10();
-  
     void testTriangle11();
-  
     void testTriangle12();
-
     void testTriangle13();
 
-  private:
- 
+    void testTriangle_vol1();
+    void testTriangle_vol2();
+    void testTriangle_vol3();
+    void testTriangle_vol4();
+    void testTriangle_vol5();
+    void testTriangle_vol6();
+    void testTriangle_vol7();
+    void testTriangle_vol8();
+
   };
 
 }
-
-
-
-
-
 
 #endif

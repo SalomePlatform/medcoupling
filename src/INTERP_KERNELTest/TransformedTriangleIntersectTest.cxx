@@ -19,6 +19,7 @@
 
 #include "TransformedTriangleIntersectTest.hxx"
 #include <iostream>
+#include <iomanip>
 
 #include "Log.hxx"
 
@@ -1194,7 +1195,7 @@ namespace INTERP_TEST
     CPPUNIT_ASSERT_EQUAL(false, tri->testSurfaceEdgeIntersection(TT::XY));
 
     // surface-ray (3 possibilities)
-    CPPUNIT_ASSERT_EQUAL(true , tri->testSurfaceRayIntersection(TT::X));
+    CPPUNIT_ASSERT_EQUAL(true, tri->testSurfaceRayIntersection(TT::X));
     CPPUNIT_ASSERT_EQUAL(false, tri->testSurfaceRayIntersection(TT::Y));
     CPPUNIT_ASSERT_EQUAL(false, tri->testSurfaceRayIntersection(TT::Z));
 
@@ -2127,10 +2128,229 @@ namespace INTERP_TEST
     delete tri;
   }
 
+  // Extract from BoxHexa1.med (or was it BoxHexa2.med ?)
+  void TransformedTriangleIntersectTest::testTriangle_vol1()
+  {
+    LOG(1, "+++++++ Testing testTriangle_vol1" );
+
+    double coords[9] = {
+      -0.8088235294117645, 0, 0.55882352941176472,
+        0.44117647058823506, 0, 0.55882352941176483,
+        -0.89215686274509864, 1.3333333333333339, 0.55882352941176483};
+
+    double refVol = 0.054383777732546296;
+
+    TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
+    const double vol = tri.calculateIntersectionVolume();
+
+    LOG(3, "  --- Final points in polygon A");
+    for(const auto& pt:  tri._polygonA)
+      LOG(3,vToStr(pt));
+    LOG(3, "  --- Final points in polygon B");
+    for(const auto& pt:  tri._polygonB)
+      LOG(3,vToStr(pt));
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vol, refVol, 1.0e-10);
+  }
+
+  // Extract from BoxHexa1.med (or was it BoxHexa2.med ?)
+  void TransformedTriangleIntersectTest::testTriangle_vol2()
+  {
+    LOG(1, "+++++++ Testing testTriangle_vol2" );
+
+    double coords[9] = {
+      0.44117647058823506, 0, 0.55882352941176483,
+      -0.55882352941176472, 0, 1.5588235294117649,
+      -0.89215686274509864, 1.3333333333333339, 0.55882352941176483 };
+
+    double refVol = -0.06869529818848;
+
+    TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
+    const double vol = tri.calculateIntersectionVolume();
+
+    LOG(3, "  --- Final points in polygon A");
+    for(const auto& pt:  tri._polygonA)
+      LOG(3,vToStr(pt));
+    LOG(3, "  --- Final points in polygon B");
+    for(const auto& pt:  tri._polygonB)
+      LOG(3,vToStr(pt));
+
+    CPPUNIT_ASSERT(tri.isTriangleInPlaneOfFacet(TransformedTriangle::XYZ));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vol, refVol, 1.0e-10);
+  }
+
+  // Extract from BoxModSmall1.med
+  void TransformedTriangleIntersectTest::testTriangle_vol3()
+  {
+    LOG(1, "+++++++ Testing testTriangle_vol3" );
+
+    double coords[9] = {
+      0, -4.4408920985006262e-16, 1,
+      -1.2062474433365091, -0.037350951323461778, 2.1879983126221099,
+      0.49877186496532655, 0.59827776894780405, 0.79353793765518521
+    };
+    double refVol = -0.051135429735185;
+
+    TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
+    const double vol = tri.calculateIntersectionVolume();
+
+    LOG(3, "  --- Final points in polygon A");
+    for(const auto& pt:  tri._polygonA)
+      LOG(3,vToStr(pt));
+    LOG(3, "  --- Final points in polygon B");
+    for(const auto& pt:  tri._polygonB)
+      LOG(3,vToStr(pt));
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vol, refVol, 1.0e-10);
+  }
+
+  // Taken from Box1Moderate.med
+  void TransformedTriangleIntersectTest::testTriangle_vol4()
+  {
+    LOG(1, "+++++++ Testing testTriangle_vol4" );
+
+    double coords[9] = {
+      1, 3.552713678800501e-15, 0,
+      2.022774182629973, -1.020222639063029, -0.01375178680446254,
+      0.7495960843059706, 0.1125313911637846, 0.7430770879625861
+    };
+    double refVol = -0.00060846166394417;
+
+    TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
+    const double vol = tri.calculateIntersectionVolume();
+
+    LOG(3, "  --- Final points in polygon A");
+    for(const auto& pt:  tri._polygonA)
+      LOG(3,vToStr(pt));
+    LOG(3, "  --- Final points in polygon B");
+    for(const auto& pt:  tri._polygonB)
+      LOG(3,vToStr(pt));
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vol, refVol, 1.0e-10);
+  }
+
+  // Taken from Box1Moderate.med too
+  void TransformedTriangleIntersectTest::testTriangle_vol5()
+  {
+    LOG(1, "+++++++ Testing testTriangle_vol5" );
+
+    double coords[9] = {
+      1, 3.552713678800501e-15, 0,
+      -3.552713678800501e-15, 0, 0.9999999999999982,
+      0, 1.000000000000004, -8.881784197001252e-16
+    };
+    double refVol = -1/6.;
+
+    TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
+    const double vol = tri.calculateIntersectionVolume();
+
+    LOG(3, "  --- Final points in polygon A");
+    for(const auto& pt:  tri._polygonA)
+      LOG(3,vToStr(pt));
+    LOG(3, "  --- Final points in polygon B");
+    for(const auto& pt:  tri._polygonB)
+      LOG(3,vToStr(pt));
+
+    CPPUNIT_ASSERT(tri.isTriangleInPlaneOfFacet(TransformedTriangle::XYZ));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vol, refVol, 1.0e-10);
+  }
+
+  // Taken from Box1Moderate.med again
+  void TransformedTriangleIntersectTest::testTriangle_vol6()
+  {
+    LOG(1, "+++++++ Testing testTriangle_vol6" );
+
+    double coords[9] = {
+      1.000000000000004, 0, 0,
+      0, 0, 0.9999999999999929,
+      3.552713678800501e-15, 1, 0};
+    double refVol = -1/6.;
+
+    TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
+    const double vol = tri.calculateIntersectionVolume();
+
+    LOG(3, "  --- Final points in polygon A");
+    for(const auto& pt:  tri._polygonA)
+      LOG(3,vToStr(pt));
+    LOG(3, "  --- Final points in polygon B");
+    for(const auto& pt:  tri._polygonB)
+      LOG(3,vToStr(pt));
+
+    CPPUNIT_ASSERT(tri.isTriangleInPlaneOfFacet(TransformedTriangle::XYZ));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vol, refVol, 1.0e-10);
+  }
+
+  // Taken from  MEDCouplingRemapperTest.py::testCellToNodeReverse3D()
+  void TransformedTriangleIntersectTest::testTriangle_vol7()
+  {
+    LOG(1, "+++++++ Testing testTriangle_vol7" );
+
+    double coords[9] = {
+      0.9999999999999999, 3.700743415417188e-17, 3.700743415417188e-17,
+      -5.551115123125783e-17, 0, 1,
+      3.700743415417188e-17, 0.9999999999999999, 3.700743415417188e-17
+    };
+
+    double refVol = -1/6.;
+
+    TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
+    const double vol = tri.calculateIntersectionVolume();
+
+    LOG(3, "  --- Final points in polygon A");
+    for(const auto& pt:  tri._polygonA)
+      LOG(3,vToStr(pt));
+    LOG(3, "  --- Final points in polygon B");
+    for(const auto& pt:  tri._polygonB)
+      LOG(3,vToStr(pt));
+
+    CPPUNIT_ASSERT(tri.isTriangleInPlaneOfFacet(TransformedTriangle::XYZ));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vol, refVol, 1.0e-10);
+
+    // Polygon A should not contain anything else than tetra corners:
+    double barycenter[3];
+    tri.calculatePolygonBarycenter(TransformedTriangle::A, barycenter);
+    tri.sortIntersectionPolygon(TransformedTriangle::A, barycenter);
+    const double eps = TransformedTriangle::THRESHOLD_F *  TransformedTriangle::MULT_PREC_F;
+    for (auto& p: tri._polygonA)
+      for (int d=0; d<3; d++)
+        {
+          CPPUNIT_ASSERT(fabs(p[d]) < eps || fabs(p[d]-1) < eps);
+        }
+  }
+
+  // This test is useful if TransformedTriangle::THRESHOLD_F = 20 (like in Grandy's article)
+  // With this value, it is an almost degenerate case : the triangle is very close to XYZ plane, but this still
+  // falls in the 'non-degenerate' category. Total volume is 1/6 but coming from
+  // contributions from A and B.
+  // With current value of threshold (=100, chosen because of P1P1 intersector), triangle becomes completely degenerated.
+  void TransformedTriangleIntersectTest::testTriangle_vol8()
+  {
+    LOG(1, "+++++++ Testing testTriangle_vol8" );
+
+    double coords[9] = {
+      0.9999999999999787, 7.105427357601002e-15, -3.552713678800501e-15,
+      -1.4210854715202e-14, 0, 0.9999999999999964,
+      -7.105427357601002e-15, 1.000000000000014, -3.552713678800501e-15
+    };
+
+    double refVol = -1/6.;
+
+    TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
+    const double vol = tri.calculateIntersectionVolume();
+
+    LOG(3, "  --- Final points in polygon A");
+    for(const auto& pt:  tri._polygonA)
+      LOG(3,vToStr(pt));
+    LOG(3, "  --- Final points in polygon B");
+    for(const auto& pt:  tri._polygonB)
+      LOG(3,vToStr(pt));
+
+//    CPPUNIT_ASSERT (! tri.isTriangleInPlaneOfFacet(TransformedTriangle::XYZ) ); // not degenerate if threshold == 20.0
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vol, refVol, 1.0e-10);
+  }
+
 
 } // NAMESPACE 
-
-
 
 
 

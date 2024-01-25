@@ -148,15 +148,15 @@ namespace INTERP_TEST
 
     double c_vals[3 * 8];
     for(TriSegment seg = TransformedTriangle::PQ ; seg <= TransformedTriangle::RP ; seg = TriSegment(seg + 1)) {
-      
-      c_vals[seg*8 + 0] = tri1->calcUnstableC(seg, TransformedTriangle::C_XY);
-      c_vals[seg*8 + 1] = tri1->calcUnstableC(seg, TransformedTriangle::C_YZ);
-      c_vals[seg*8 + 2] = tri1->calcUnstableC(seg, TransformedTriangle::C_ZX);
-      c_vals[seg*8 + 3] = tri1->calcUnstableC(seg, TransformedTriangle::C_XH);
-      c_vals[seg*8 + 4] = tri1->calcUnstableC(seg, TransformedTriangle::C_YH);
-      c_vals[seg*8 + 5] = tri1->calcUnstableC(seg, TransformedTriangle::C_ZH);
-      c_vals[seg*8 + 6] = tri1->calcUnstableC(seg, TransformedTriangle::C_01);
-      c_vals[seg*8 + 7] = tri1->calcUnstableC(seg, TransformedTriangle::C_10);
+      double dnu;
+      c_vals[seg*8 + 0] = tri1->calcUnstableC(seg, TransformedTriangle::C_XY, dnu);
+      c_vals[seg*8 + 1] = tri1->calcUnstableC(seg, TransformedTriangle::C_YZ, dnu);
+      c_vals[seg*8 + 2] = tri1->calcUnstableC(seg, TransformedTriangle::C_ZX, dnu);
+      c_vals[seg*8 + 3] = tri1->calcUnstableC(seg, TransformedTriangle::C_XH, dnu);
+      c_vals[seg*8 + 4] = tri1->calcUnstableC(seg, TransformedTriangle::C_YH, dnu);
+      c_vals[seg*8 + 5] = tri1->calcUnstableC(seg, TransformedTriangle::C_ZH, dnu);
+      c_vals[seg*8 + 6] = tri1->calcUnstableC(seg, TransformedTriangle::C_01, dnu);
+      c_vals[seg*8 + 7] = tri1->calcUnstableC(seg, TransformedTriangle::C_10, dnu);
 
     }
     
@@ -253,12 +253,13 @@ namespace INTERP_TEST
     // find unstable products to check for consistency (Grandy [46])  
     for(TriSegment seg = TransformedTriangle::PQ ; seg <= TransformedTriangle::RP ; seg = TriSegment(seg + 1)) 
       {
-        const double c_xy = tri2->calcUnstableC(seg, TransformedTriangle::C_XY);
-        const double c_yz = tri2->calcUnstableC(seg, TransformedTriangle::C_YZ);
-        const double c_zx = tri2->calcUnstableC(seg, TransformedTriangle::C_ZX);
-        const double c_xh = tri2->calcUnstableC(seg, TransformedTriangle::C_XH);
-        const double c_yh = tri2->calcUnstableC(seg, TransformedTriangle::C_YH);
-        const double c_zh = tri2->calcUnstableC(seg, TransformedTriangle::C_ZH);
+        double dnu;
+        const double c_xy = tri2->calcUnstableC(seg, TransformedTriangle::C_XY, dnu);
+        const double c_yz = tri2->calcUnstableC(seg, TransformedTriangle::C_YZ, dnu);
+        const double c_zx = tri2->calcUnstableC(seg, TransformedTriangle::C_ZX, dnu);
+        const double c_xh = tri2->calcUnstableC(seg, TransformedTriangle::C_XH, dnu);
+        const double c_yh = tri2->calcUnstableC(seg, TransformedTriangle::C_YH, dnu);
+        const double c_zh = tri2->calcUnstableC(seg, TransformedTriangle::C_ZH, dnu);
       
         const int num_zero = (c_yz*c_xh == 0.0 ? 1 : 0) + (c_zx*c_yh == 0.0 ? 1 : 0) + (c_xy*c_zh == 0.0 ? 1 : 0);
         const int num_neg = (c_yz*c_xh < 0.0 ? 1 : 0) + (c_zx*c_yh < 0.0 ? 1 : 0) + (c_xy*c_zh < 0.0 ? 1 : 0);
