@@ -823,6 +823,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a=zeros(20,dtype=float32)
         b = a[::-1]
         self.assertRaises(InterpKernelException,DataArrayFloat.New,b) # b is not contiguous in memory
+        DataArrayFloat.New( ravel(b) )
         pass
     
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
