@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <iomanip>
 #include <numeric>
 #include <string>
 #include <cmath>
@@ -78,7 +79,7 @@ namespace INTERP_KERNEL
   inline const std::string vToStr(const double* pt)
   {
     std::stringstream ss(std::ios::out);
-    ss << "[" << pt[0] << ", " << pt[1] << ", " << pt[2] << "]";
+    ss << std::setprecision(16) << "[" << pt[0] << ", " << pt[1] << ", " << pt[2] << "]";
     return ss.str();
   }
 

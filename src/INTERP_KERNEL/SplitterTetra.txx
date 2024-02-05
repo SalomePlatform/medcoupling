@@ -216,12 +216,8 @@ namespace INTERP_KERNEL
     // halfspace filtering check
     // NB : might not be beneficial for caching of triangles
     for(int i = 0; i < 8; ++i)
-      {
-        if(isOutside[i])
-          {
-            isTargetOutside = true;
-          }
-      }
+      if(isOutside[i])
+        isTargetOutside = true;
 
     double totalVolume = 0.0;
 
@@ -873,6 +869,7 @@ namespace INTERP_KERNEL
         
         TransformedTriangle tri(nodes[faceNodes[0]], nodes[faceNodes[1]], nodes[faceNodes[2]]);
         double vol = tri.calculateIntersectionVolume();
+        LOG(1, "ii = " << ii << " Volume=" << vol)
         totalVolume += vol;
       }
       

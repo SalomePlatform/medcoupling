@@ -166,7 +166,7 @@ namespace INTERP_TEST
             LOG(1, "Source volume inconsistent : vol of cell " << i << " = " << sVol[i] << " but the row sum is " << sum_row );
             ok = false;
           }
-        LOG(1, "diff = " <<sum_row - sVol[i] );
+        LOG(2, "diff = " <<sum_row - sVol[i] );
       }
 
     // target elements
@@ -180,7 +180,7 @@ namespace INTERP_TEST
             LOG(1, "Target volume inconsistent : vol of cell " << i << " = " << tVol[i] << " but the col sum is " << sum_col);
             ok = false;
           }
-        LOG(1, "diff = " <<sum_col - tVol[i] );
+        LOG(2, "diff = " <<sum_col - tVol[i] );
       }
     delete[] sVol;
     delete[] tVol;
@@ -419,7 +419,6 @@ namespace INTERP_TEST
 
     IntersectionMatrix matrix1;
     calcIntersectionMatrix(mesh1path, mesh1, mesh2path, mesh2, matrix1);
-
 #if LOG_LEVEL >= 2
     dumpIntersectionMatrix(matrix1);
 #endif
@@ -475,8 +474,8 @@ namespace INTERP_TEST
   void MeshTestToolkit<SPACEDIM,MESHDIM>::intersectMeshes(const char* mesh1, const char* mesh2, const double correctVol, const double prec, bool doubleTest) const
   {
     const std::string path1 = std::string(mesh1) + std::string(".med");
-    std::cout << "here :" << path1 << std::endl;
     const std::string path2 = std::string(mesh2) + std::string(".med");
+    std::cout << "here :" << path1 << " with " << path2 << std::endl;
 
     intersectMeshes(path1.c_str(), mesh1, path2.c_str(), mesh2, correctVol, prec, doubleTest);
   }

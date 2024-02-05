@@ -278,10 +278,10 @@ namespace INTERP_KERNEL
                 {
                   // -- calculate angle between edge and PQR
                   const double angle = calculateAngleEdgeTriangle(edge);
-                  anglesForRows.insert(std::make_pair(angle, row));              
+                  anglesForRows.insert(std::make_pair(angle, row));
                 }
           }
-       
+
         if(anglesForRows.size() != 0) // we have found a good row
           {
             const double minAngle = anglesForRows.begin()->first;
@@ -299,8 +299,7 @@ namespace INTERP_KERNEL
           }
         else
           {
-            // this value will not be used
-            // we set it to whatever
+            // this value will not be used - we set it to whatever
             LOG(6, "Triple product not calculated for corner " << corner );
             _tripleProducts[corner] = -3.14159265;
             _validTP[corner] = false;

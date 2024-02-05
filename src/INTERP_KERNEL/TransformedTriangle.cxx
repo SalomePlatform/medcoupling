@@ -147,14 +147,10 @@ namespace INTERP_KERNEL
   TransformedTriangle::~TransformedTriangle()
   {
     // delete elements of polygons
-    for(std::vector<double*>::iterator it = _polygonA.begin() ; it != _polygonA.end() ; ++it)
-      {
-        delete[] *it;
-      }
-    for(std::vector<double*>::iterator it = _polygonB.begin() ; it != _polygonB.end() ; ++it)
-      {
-        delete[] *it;
-      }    
+    for(auto& it: _polygonA)
+      delete[] it;
+    for(auto& it: _polygonB)
+      delete[] it;
   }
 
   /**
@@ -206,6 +202,11 @@ namespace INTERP_KERNEL
     if(_polygonA.size() > 2)
       {
         LOG(2, "---- Treating polygon A ... ");
+#if LOG_LEVEL > 0
+        LOG(3, "  --- Final points in polygon A");
+        for(const auto& pt:  _polygonA)
+          LOG(3,vToStr(pt));
+#endif
         calculatePolygonBarycenter(A, barycenter);
         sortIntersectionPolygon(A, barycenter);
         volA = calculateVolumeUnderPolygon(A, barycenter);
@@ -214,17 +215,27 @@ namespace INTERP_KERNEL
 
     double volB = 0.0;
     // if triangle is not in h = 0 plane, calculate volume under B
-    if(_polygonB.size() > 2 && !isTriangleInPlaneOfFacet(XYZ))
+    if(_polygonB.size() > 2 && !isTriangleInPlaneOfFacet(XYZ)) // second condition avoids double counting in case triangle fully included in h=0 facet
       {
         LOG(2, "---- Treating polygon B ... ");
-       
+#if LOG_LEVEL > 0
+        LOG(3, "  --- Final points in polygon B");
+        for(const auto& pt:  _polygonB)
+          LOG(3,vToStr(pt));
+#endif
         calculatePolygonBarycenter(B, barycenter);
         sortIntersectionPolygon(B, barycenter);
         volB = calculateVolumeUnderPolygon(B, barycenter);
         LOG(2, "Volume is " << sign * volB);
       }
 
-    LOG(2, "volA + volB = " << sign * (volA + volB) << std::endl << "***********");
+#if LOG_LEVEL >= 2
+    LOG(2, "############ Triangle :")
+    dumpCoords();
+    LOG(2, "vol A = " << volA);
+    LOG(2, "vol B = " << volB);
+    LOG(2, "TOTAL = " << sign*(volA+volB));
+#endif
   
     return _volume = sign * (volA + volB);
 
@@ -265,7 +276,7 @@ namespace INTERP_KERNEL
   }
 
   // ----------------------------------------------------------------------------------
-  // TransformedTriangle PRIVATE
+  // TransformedTriangle PROTECTED
   // ----------------------------------------------------------------------------------
 
   /**
@@ -278,6 +289,11 @@ namespace INTERP_KERNEL
    */
   void TransformedTriangle::calculateIntersectionAndProjectionPolygons()
   {
+#if LOG_LEVEL >= 3
+    std::cout << " @@@@@@@@ COORDS @@@@@@  " << std::endl;
+    dumpCoords();
+#endif
+
     assert(_polygonA.size() == 0);
     assert(_polygonB.size() == 0);
     // avoid reallocations in push_back() by pre-allocating enough memory
@@ -293,15 +309,15 @@ namespace INTERP_KERNEL
             double* ptA = new double[3];
             calcIntersectionPtSurfaceEdge(edge, ptA);
             _polygonA.push_back(ptA);
-            LOG(3,"Surface-edge : " << vToStr(ptA) << " added to A ");
+            LOG(3,"Surface-edge (edge " << strTE(edge) << "): " << vToStr(ptA) << " added to A ");
             if(edge >= XY)
               {
                 double* ptB = new double[3];
                 copyVector3(ptA, ptB);
                 _polygonB.push_back(ptB);
-                LOG(3,"Surface-edge : " << vToStr(ptB) << " added to B ");
+                LOG(3,"Surface-edge (edge " << strTE(edge) << "): " << vToStr(ptB) << " added to B ");
               }
-           
+
           }
       }
 
@@ -313,7 +329,7 @@ namespace INTERP_KERNEL
             double* ptB = new double[3];
             copyVector3(&COORDS_TET_CORNER[3 * corner], ptB);
             _polygonB.push_back(ptB);
-            LOG(3,"Surface-ray : " << vToStr(ptB) << " added to B");
+            LOG(3,"Surface-ray (corner " << strTC(corner) << "): " << vToStr(ptB) << " added to B");
           }
       }
 
@@ -323,33 +339,31 @@ namespace INTERP_KERNEL
 
         bool isZero[NO_DP];
 
-        // check beforehand which double-products are zero
+        // check beforehand which double-products are zero.
         for(DoubleProduct dp = C_YZ; dp < NO_DP; dp = DoubleProduct(dp + 1))
-          {
-            isZero[dp] = (calcStableC(seg, dp) == 0.0);
-          }
+          isZero[dp] = (calcStableC(seg, dp) == 0.0);
 
         // segment - facet
         for(TetraFacet facet = OYZ ; facet < NO_TET_FACET ; facet = TetraFacet(facet + 1))
           {
             // is this test worth it?
             const bool doTest = 
-              !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet]] && 
-              !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet + 1]] &&
-              !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet + 2]];
+                !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet]] &&
+                !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet + 1]] &&
+                !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet + 2]];
 
             if(doTest && testSegmentFacetIntersection(seg, facet))
               {
                 double* ptA = new double[3];
                 calcIntersectionPtSegmentFacet(seg, facet, ptA);
                 _polygonA.push_back(ptA);
-                LOG(3,"Segment-facet : " << vToStr(ptA) << " added to A");
+                LOG(3,"Segment-facet (facet " << strTF(facet) << ", seg " << strTriS(seg) << "): " << vToStr(ptA) << " added to A");
                 if(facet == XYZ)
                   {
                     double* ptB = new double[3];
                     copyVector3(ptA, ptB);
                     _polygonB.push_back(ptB);
-                    LOG(3,"Segment-facet : " << vToStr(ptB) << " added to B");
+                    LOG(3,"Segment-facet (facet " << strTF(facet) << ", seg " << strTriS(seg) << "): " << vToStr(ptB) << " added to B");
                   }
 
               }
@@ -365,111 +379,112 @@ namespace INTERP_KERNEL
                 double* ptA = new double[3];
                 calcIntersectionPtSegmentEdge(seg, edge, ptA);
                 _polygonA.push_back(ptA);
-                LOG(3,"Segment-edge : " << vToStr(ptA) << " added to A");
+                LOG(3,"Segment-edge (edge " << strTE(edge) << ", seg " << strTriS(seg) << "): " << vToStr(ptA) << " added to A");
                 if(edge >= XY)
                   {
                     double* ptB = new double[3];
                     copyVector3(ptA, ptB);
                     _polygonB.push_back(ptB);
+                    LOG(3,"Segment-edge (edge " << strTE(edge) << ", seg " << strTriS(seg) << "): " << vToStr(ptA) << " added to B");
                   }
               }
           }
-       
+
         // segment - corner
         for(TetraCorner corner = O ; corner < NO_TET_CORNER ; corner = TetraCorner(corner + 1))
           {
             const bool doTest = 
-              isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner] )] &&
-              isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner+1] )] &&
-              isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner+2] )];
+                isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner] )] &&
+                isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner+1] )] &&
+                isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner+2] )];
 
             if(doTest && testSegmentCornerIntersection(seg, corner))
               {
                 double* ptA = new double[3];
                 copyVector3(&COORDS_TET_CORNER[3 * corner], ptA);
                 _polygonA.push_back(ptA);
-                LOG(3,"Segment-corner : " << vToStr(ptA) << " added to A");
+                LOG(3,"Segment-corner (corner " << strTC(corner) << ", seg " << strTriS(seg) << "): " << vToStr(ptA) << " added to A");
                 if(corner != O)
                   {
                     double* ptB = new double[3];
                     _polygonB.push_back(ptB);
                     copyVector3(&COORDS_TET_CORNER[3 * corner], ptB);
-                    LOG(3,"Segment-corner : " << vToStr(ptB) << " added to B");
+                    LOG(3,"Segment-corner (corner " << strTC(corner) << ", seg " << strTriS(seg) << "): " << vToStr(ptB) << " added to B");
                   }
               }
           }
 
-            // segment - ray 
-            for(TetraCorner corner = X ; corner < NO_TET_CORNER ; corner = TetraCorner(corner + 1))
+        // segment - ray
+        for(TetraCorner corner = X ; corner < NO_TET_CORNER ; corner = TetraCorner(corner + 1))
+          {
+            if(isZero[DP_SEGMENT_RAY_INTERSECTION[7*(corner-1)]] && testSegmentRayIntersection(seg, corner))
               {
-                if(isZero[DP_SEGMENT_RAY_INTERSECTION[7*(corner-1)]] && testSegmentRayIntersection(seg, corner))
-                  {
-                    double* ptB = new double[3];
-                    copyVector3(&COORDS_TET_CORNER[3 * corner], ptB);
-                    _polygonB.push_back(ptB);
-                    LOG(3,"Segment-ray : " << vToStr(ptB) << " added to B");
-                  }
+                double* ptB = new double[3];
+                copyVector3(&COORDS_TET_CORNER[3 * corner], ptB);
+                _polygonB.push_back(ptB);
+                LOG(3,"Segment-ray (corner " << strTC(corner) << ", seg " << strTriS(seg) << "): " << vToStr(ptB) << " added to B");
               }
-       
-            // segment - halfstrip
-            for(TetraEdge edge = XY ; edge <= ZX ; edge = TetraEdge(edge + 1))
-              {
+          }
+
+        // segment - halfstrip
+        for(TetraEdge edge = XY ; edge <= ZX ; edge = TetraEdge(edge + 1))
+          {
 
 #if 0
-                const int edgeIdx = int(edge) - 3; // offset since we only care for edges XY - ZX
-                const bool doTest = 
-                  !isZero[DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIdx]] &&
-                  !isZero[DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIdx+1]];
-       
+            const int edgeIdx = int(edge) - 3; // offset since we only care for edges XY - ZX
+            const bool doTest =
+                !isZero[DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIdx]] &&
+                !isZero[DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIdx+1]];
 
-                if(doTest && testSegmentHalfstripIntersection(seg, edge))
+
+            if(doTest && testSegmentHalfstripIntersection(seg, edge))
 #endif
-                  if(testSegmentHalfstripIntersection(seg, edge))
-                    {
-                      double* ptB = new double[3];
-                      calcIntersectionPtSegmentHalfstrip(seg, edge, ptB);
-                      _polygonB.push_back(ptB);
-                      LOG(3,"Segment-halfstrip : " << vToStr(ptB) << " added to B");
-                    }
-              }
+              if(testSegmentHalfstripIntersection(seg, edge))
+                {
+                  double* ptB = new double[3];
+                  calcIntersectionPtSegmentHalfstrip(seg, edge, ptB);
+                  _polygonB.push_back(ptB);
+                  LOG(3,"Segment-halfstrip : " << vToStr(ptB) << " added to B");
+                }
+          }
       }
 
-        // inclusion tests
-        for(TriCorner corner = P ; corner < NO_TRI_CORNER ; corner = TriCorner(corner + 1))
+    // inclusion tests
+    for(TriCorner corner = P ; corner < NO_TRI_CORNER ; corner = TriCorner(corner + 1))
+      {
+        // { XYZ - inclusion only possible if in Tetrahedron?
+        // tetrahedron
+        if(testCornerInTetrahedron(corner))
           {
-            // { XYZ - inclusion only possible if in Tetrahedron?
-            // tetrahedron
-            if(testCornerInTetrahedron(corner))
-              {
-                double* ptA = new double[3];
-                copyVector3(&_coords[5*corner], ptA);
-                _polygonA.push_back(ptA);
-                LOG(3,"Inclusion tetrahedron : " << vToStr(ptA) << " added to A");
-              }
+            double* ptA = new double[3];
+            copyVector3(&_coords[5*corner], ptA);
+            _polygonA.push_back(ptA);
+            LOG(3,"Inclusion tetrahedron (corner " << strTriC(corner) << "): " << vToStr(ptA) << " added to A");
+          }
 
-            // XYZ - plane
-            if(testCornerOnXYZFacet(corner))
-              {
-                double* ptB = new double[3];
-                copyVector3(&_coords[5*corner], ptB);
-                _polygonB.push_back(ptB);
-                LOG(3,"Inclusion XYZ-plane : " << vToStr(ptB) << " added to B");
-              }
+        // XYZ - plane
+        if(testCornerOnXYZFacet(corner))
+          {
+            double* ptB = new double[3];
+            copyVector3(&_coords[5*corner], ptB);
+            _polygonB.push_back(ptB);
+            LOG(3,"Inclusion XYZ-plane (corner " << strTriC(corner) << "): " << vToStr(ptB) << " added to B");
+          }
 
-            // projection on XYZ - facet
-            if(testCornerAboveXYZFacet(corner))
-              {
-                double* ptB = new double[3];
-                copyVector3(&_coords[5*corner], ptB);
-                ptB[2] = 1 - ptB[0] - ptB[1];
-                assert(epsilonEqual(ptB[0]+ptB[1]+ptB[2] - 1, 0.0));
-                _polygonB.push_back(ptB);
-                LOG(3,"Projection XYZ-plane : " << vToStr(ptB) << " added to B");
-              }
-
+        // projection on XYZ - facet
+        if(testCornerAboveXYZFacet(corner))
+          {
+            double* ptB = new double[3];
+            copyVector3(&_coords[5*corner], ptB);
+            ptB[2] = 1 - ptB[0] - ptB[1];   // lower z to project on XYZ
+            assert(epsilonEqual(ptB[0]+ptB[1]+ptB[2] - 1, 0.0));
+            _polygonB.push_back(ptB);
+            LOG(3,"Projection XYZ-plane (corner " << strTriC(corner) << "): " << vToStr(ptB) << " added to B");
           }
 
       }
+
+  }
 
   /**
    * Calculates the intersection polygon A, performing the intersection tests
@@ -504,10 +519,9 @@ namespace INTERP_KERNEL
         bool isZero[NO_DP];
 
         // check beforehand which double-products are zero
+        // Test for "== 0.0" here is OK since doubleProduct has been fixed for rounding to zero already.
         for(DoubleProduct dp = C_YZ; dp < NO_DP; dp = DoubleProduct(dp + 1))
-          {
-            isZero[dp] = (calcStableC(seg, dp) == 0.0);
-          }
+          isZero[dp] = (calcStableC(seg, dp) == 0.0);
 
         // segment - facet
         for(TetraFacet facet = OYZ ; facet < NO_TET_FACET ; facet = TetraFacet(facet + 1))
@@ -751,18 +765,13 @@ namespace INTERP_KERNEL
      */
     bool TransformedTriangle::isTriangleInPlaneOfFacet(const TetraFacet facet) const
     {
-
       // coordinate to check
       const int coord = static_cast<int>(facet);
 
       for(TriCorner c = P ; c < NO_TRI_CORNER ; c = TriCorner(c + 1))
-        {
-          if(_coords[5*c + coord] != 0.0)
-            {
-              return false;
-            }
-        }
-    
+        if(_coords[5*c + coord] != 0.0)
+          return false;
+
       return true;
     }
 
@@ -801,9 +810,7 @@ namespace INTERP_KERNEL
 
       double sign = uv_xy[0] * uv_xy[3] - uv_xy[1] * uv_xy[2];
       if(epsilonEqual(sign, 0.))
-        {
-          sign = 0.;
-        }
+        sign = 0.;
       return (sign < 0.) ? -1 : (sign > 0.) ? 1 : 0;
     }
 
@@ -815,13 +822,10 @@ namespace INTERP_KERNEL
     bool TransformedTriangle::isTriangleBelowTetraeder() const
     {
       for(TriCorner c = P ; c < NO_TRI_CORNER ; c = TriCorner(c + 1))
-        {
-          // check z-coords for all points
-          if(_coords[5*c + 2] >= 0.0)
-            {
-              return false;
-            }
-        }
+        // check z-coords for all points
+        if(_coords[5*c + 2] >= 0.0)
+          return false;
+
       return true;
     }
 
@@ -833,10 +837,10 @@ namespace INTERP_KERNEL
     {
       std::cout << "Coords : ";
       for(int i = 0 ; i < 3; ++i)
-        {
-          std::cout << vToStr(&_coords[5*i]) << ",";
-        }
+        std::cout << vToStr(&_coords[5*i]) << ",";
+
       std::cout << std::endl;
     }
-    
+
+
   } // NAMESPACE 

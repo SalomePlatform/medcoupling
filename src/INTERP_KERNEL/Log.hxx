@@ -28,10 +28,10 @@
  * LOG_LEVEL (which can be defined at compile-time for each file by passing option -DLOG_LEVEL=x to gcc)
  * than the message is logged.
  *
- *
- *
  */
 
+
+//#define LOG_LEVEL 4
 /// define LOG_LEVEL here if it is not already defined
 #ifndef LOG_LEVEL
 #define LOG_LEVEL 0
@@ -51,14 +51,6 @@
 #define LOG3( x , msg1 , msg2 )
 
 #endif
-
-
-
-
-
-
-
-
 
 
 

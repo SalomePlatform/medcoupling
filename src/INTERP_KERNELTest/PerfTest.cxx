@@ -83,8 +83,8 @@ namespace INTERP_TEST
 //      std::pair<int, int> eff = countNumberOfMatrixEntries(m);
 //      LOG(1, eff.first << " of " << numTargetElems * numSrcElems << " intersections calculated : ratio = "
 //          << double(eff.first) / double(numTargetElems * numSrcElems));
-      LOG(1, eff.second << " non-zero elements of " << eff.first << " total : filter efficiency = "
-          << double(eff.second) / double(eff.first));
+//      LOG(1, eff.second << " non-zero elements of " << eff.first << " total : filter efficiency = "
+//          << double(eff.second) / double(eff.first));
 
       LOG(1, "Intersection calculation done. " << std::endl );
 

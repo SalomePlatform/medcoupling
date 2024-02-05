@@ -441,7 +441,7 @@ namespace INTERP_KERNEL
    * which indicates whether the points that have already been checked are all in a halfspace. For each halfspace, 
    * the corresponding array element will be true if and only if it was true when the method was called and pt lies in the halfspace.
    * 
-   * @param pt        double[3] containing the coordiantes of a transformed point
+   * @param pt        double[3] containing the coordinates of a transformed point
    * @param isOutside bool[8] which indicate the results of earlier checks. 
    */
   template<class MyMeshType>

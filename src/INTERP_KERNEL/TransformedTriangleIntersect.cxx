@@ -168,13 +168,12 @@ namespace INTERP_KERNEL
     const double alpha = tA / (tA - tB);
 
     // calculate point
-    LOG(4, "corner A = " << corners[0] << " corner B = " << corners[1] );
+    LOG(4, "corner A = " << strTC(corners[0]) << " corner B = " << strTC(corners[1]) );
     LOG(4, "tA = " << tA << " tB = " << tB << " alpha= " << alpha );
     for(int i = 0; i < 3; ++i)
       {
 
-        pt[i] = (1 - alpha) * COORDS_TET_CORNER[3*corners[0] + i] + 
-          alpha * COORDS_TET_CORNER[3*corners[1] + i];
+        pt[i] = (1 - alpha)*COORDS_TET_CORNER[3*corners[0] + i] + alpha*COORDS_TET_CORNER[3*corners[1] + i];
 #if 0
         pt[i] = (1 - alpha) * getCoordinateForTetCorner<corners[0], i>() + 
           alpha * getCoordinateForTetCorner<corners[0], i>();
@@ -234,7 +233,7 @@ namespace INTERP_KERNEL
 
   /**
    * Tests if the given segment of the triangle intersects the given edge of the tetrahedron (Grandy, eq. [20]
-   * If the OPTIMIZE is defined, it does not do the test the double product that should be zero.
+   *
    * @param seg    segment of the triangle
    * @param edge   edge of tetrahedron
    * @return      true if the segment intersects the edge 
@@ -249,13 +248,13 @@ namespace INTERP_KERNEL
         for(int i = 0 ; i < 2 ; ++i) 
           {
             facet[i] = FACET_FOR_EDGE[2*edge + i];
-           
+
             // find the two c-values -> the two for the other edges of the facet
             int idx1 = 0 ; 
             int idx2 = 1;
             DoubleProduct dp1 = DP_FOR_SEG_FACET_INTERSECTION[3*facet[i] + idx1];
             DoubleProduct dp2 = DP_FOR_SEG_FACET_INTERSECTION[3*facet[i] + idx2];
-           
+
             if(dp1 == DoubleProduct( edge ))
               {
                 idx1 = 2;
@@ -266,7 +265,7 @@ namespace INTERP_KERNEL
                 idx2 = 2;
                 dp2 = DP_FOR_SEG_FACET_INTERSECTION[3*facet[i] + idx2];
               }
-           
+
             const double c1 = SIGN_FOR_SEG_FACET_INTERSECTION[3*facet[i] + idx1]*calcStableC(seg, dp1);
             const double c2 = SIGN_FOR_SEG_FACET_INTERSECTION[3*facet[i] + idx2]*calcStableC(seg, dp2);
 
@@ -347,24 +346,15 @@ namespace INTERP_KERNEL
             const double sign = SIGN_FOR_SEG_FACET_INTERSECTION[dpIdx];
             c[j] = dpIdx < 0.0 ? 0.0 : sign * calcStableC(seg, dp);
           }
-       
-        // pt[i] = (c1*s1 + c2*s2) / (s1^2 + s2^2)
 
         pt[i] = (c[0] * s[0] + c[1] * s[1]) / denominator;
-       
-        // strange bug with -O2 enabled : assertion fails when we don't have the following
-        // trace - line
-        //std::cout << "pt[i] = " << pt[i] << std::endl;
-        //assert(pt[i] >= 0.0); // check we are in tetraeder
-        //assert(pt[i] <= 1.0);
-       
       }
   }
 
     
   /**
    * Tests if the given segment of the triangle intersects the given corner of the tetrahedron.
-   * (Grandy, eq. [21]). If OPTIMIZE is defined, the double products that should be zero are not verified.
+   * (Grandy, eq. [21]).
    *
    * @param seg    segment of the triangle
    * @param corner corner of the tetrahedron
@@ -372,8 +362,6 @@ namespace INTERP_KERNEL
    */
   bool TransformedTriangle::testSegmentCornerIntersection(const TriSegment seg, const TetraCorner corner) const 
   {
-    
-
     // facets meeting at a given corner
     static const TetraFacet FACETS_FOR_CORNER[12] =
       {
@@ -388,9 +376,7 @@ namespace INTERP_KERNEL
       {
         const TetraFacet facet = FACETS_FOR_CORNER[3*corner + i];
         if(testSegmentIntersectsFacet(seg, facet))
-          {
-            return true;
-          }
+          return true;
       }
     
     return false;
@@ -432,11 +418,10 @@ namespace INTERP_KERNEL
       };
     
     const TetraFacet facet =  FACET_FOR_HALFSTRIP_INTERSECTION[edgeIndex];
-
     
     // special case : facet H = 0
     const bool cond2 = (facet == NO_TET_FACET) ? testSegmentIntersectsHPlane(seg) : testSegmentIntersectsFacet(seg, facet);
-    LOG(4, "Halfstrip tests (" << seg << ", " << edge << ") : " << (cVals[0]*cVals[1] < 0.0) << ", " << cond2 << ", " << (cVals[2]*cVals[3] > 0.0) );
+    LOG(4, "Halfstrip tests (" << strTriS(seg) << ", " << strTE(edge) << ") : " << (cVals[0]*cVals[1] < 0.0) << ", " << cond2 << ", " << (cVals[2]*cVals[3] > 0.0) );
     LOG(4, "c2 = " << cVals[2] << ", c3 = " << cVals[3] ); 
   
     return (cVals[0]*cVals[1] < 0.0) && cond2 && (cVals[2]*cVals[3] > 0.0);
@@ -497,7 +482,6 @@ namespace INTERP_KERNEL
   /**
    * Tests if the given segment of triangle PQR intersects the ray pointing 
    * in the upwards z - direction from the given corner of the tetrahedron. (Grandy eq. [29])
-   * If OPTIMIZE is defined, the double product that should be zero is not verified.
    * 
    * @param seg    segment of the triangle PQR
    * @param corner corner of the tetrahedron on the h = 0 facet (X, Y, or Z)
@@ -573,6 +557,7 @@ namespace INTERP_KERNEL
 
     // if two or more c-values are zero we disallow x-edge intersection
     // Grandy, p.446
+    // test for == 0.0 is OK here, if you look at the way double products were pre-comuted:
     const int numZeros = (cPQ == 0.0 ? 1 : 0) + (cQR == 0.0 ? 1 : 0) + (cRP == 0.0 ? 1 : 0);
     
     if(numZeros >= 2 ) 
