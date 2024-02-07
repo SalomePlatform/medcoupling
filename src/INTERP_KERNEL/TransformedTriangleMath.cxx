@@ -68,7 +68,7 @@ namespace INTERP_KERNEL
   const double TransformedTriangle::MULT_PREC_F = 4.0 * TransformedTriangle::MACH_EPS;
 
   /// Threshold for resetting double and triple products to zero; ( F / f in Grandy )
-  const double TransformedTriangle::THRESHOLD_F = 20.0;
+  const double TransformedTriangle::THRESHOLD_F = 100.0;
 
   /// Threshold for what is considered a small enough angle to warrant correction of triple products by Grandy, [57]
   const double TransformedTriangle::TRIPLE_PRODUCT_ANGLE_THRESHOLD = 0.1;
