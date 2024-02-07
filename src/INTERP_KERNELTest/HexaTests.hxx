@@ -33,9 +33,7 @@ namespace INTERP_TEST
     CPPUNIT_TEST_SUITE( HexaTests );
 
     CPPUNIT_TEST( simpleHexaBox );
-    //VB : slightly inaccurate so that it triggers a failure of the test
-    // should be investigated in the future
-    //    CPPUNIT_TEST( reflexiveHexaBox );
+    CPPUNIT_TEST( reflexiveHexaBox );
     CPPUNIT_TEST( hexaBoxes );
     CPPUNIT_TEST( hexaBoxesMoved );
 
