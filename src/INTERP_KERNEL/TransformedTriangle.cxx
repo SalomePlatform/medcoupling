@@ -71,8 +71,15 @@ namespace INTERP_KERNEL
     bool operator()(const double* pt1, const double* pt2)
     {
       // calculate angles with the axis
-      const double ang1 = atan2(pt1[_aIdx] - _a, pt1[_bIdx] - _b);
-      const double ang2 = atan2(pt2[_aIdx] - _a, pt2[_bIdx] - _b);
+//      const double ang1 = atan2(pt1[_aIdx] - _a, pt1[_bIdx] - _b);
+//      const double ang2 = atan2(pt2[_aIdx] - _a, pt2[_bIdx] - _b);
+
+      // A ***much*** faster alternative to atan2 to get a pseudo-angle suitable for sorting:
+      // https://stackoverflow.com/questions/16542042/fastest-way-to-sort-vectors-by-angle-without-actually-computing-that-angle
+      const double dy1 = pt1[_aIdx] - _a, dx1 = pt1[_bIdx] - _b,
+                   dy2 = pt2[_aIdx] - _a, dx2 = pt2[_bIdx] - _b;
+      const double ang1 = std::copysign(1. - dx1/(std::fabs(dx1)+fabs(dy1)),dy1);
+      const double ang2 = std::copysign(1. - dx2/(std::fabs(dx2)+fabs(dy2)),dy2);
 
       return ang1 > ang2;
     }
@@ -690,14 +697,7 @@ namespace INTERP_KERNEL
           // We keep the test here anyway, to avoid interdependency.
 
           // is triangle inclined to x == 0 ?
-          if(isTriangleInclinedToFacet(OZX))
-            {
-              type = SortOrder::XZ;
-            }
-          else //if(isTriangleParallelToFacet(OYZ))
-            {
-              type = SortOrder::YZ;
-            }
+          type = isTriangleInclinedToFacet(OZX) ? SortOrder::XZ : SortOrder::YZ;
         }
 
       // create order object
