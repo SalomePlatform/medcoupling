@@ -1791,8 +1791,22 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
 {
   if(!mesh2D || !mesh1D)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshWith1DLine : input meshes must be not NULL !");
+  
   mesh2D->checkFullyDefined();
   mesh1D->checkFullyDefined();
+
+  { // (In a scope to free mem early)
+      // Check if any node within mesh1D is connected to more than two edges
+      DataArrayIdType *mesh1DDesc1(DataArrayIdType::New()),*mesh1DDescIndx1(DataArrayIdType::New()),*mesh1DRevDesc1(DataArrayIdType::New()),*mesh1DRevDescIndx1(DataArrayIdType::New());
+      MCAuto<DataArrayIdType> m1dd1(mesh1DDesc1),m1dd2(mesh1DDescIndx1),m1dd3(mesh1DRevDesc1),m1dd4(mesh1DRevDescIndx1);
+      MCAuto<MEDCouplingUMesh> mesh1Desc(mesh1D->buildDescendingConnectivity(mesh1DDesc1,mesh1DDescIndx1,mesh1DRevDesc1,mesh1DRevDescIndx1));
+      MCAuto<DataArrayIdType> dsi=mesh1DRevDescIndx1->deltaShiftIndex();
+      MCAuto<DataArrayIdType> tpls = dsi->findIdsGreaterOrEqualTo(3);
+      if(tpls->getNumberOfTuples() != 0)
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshWith1DLine : Certain nodes of the 1D mesh are connected to more than 2 edges !\
+                                                                                  If the 1D mesh consists of mutiple lines, make sure those lines are not overlapping. ");
+  }
+
   const std::vector<std::string>& compNames(mesh2D->getCoords()->getInfoOnComponents());
   if(mesh2D->getMeshDimension()!=2 || mesh2D->getSpaceDimension()!=2 || mesh1D->getMeshDimension()!=1 || mesh1D->getSpaceDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshWith1DLine works with mesh2D with spacedim=meshdim=2 and mesh1D with meshdim=1 spaceDim=2 !");

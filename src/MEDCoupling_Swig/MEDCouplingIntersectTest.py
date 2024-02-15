@@ -1293,7 +1293,17 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(resToSelf.getValues(), [0, 1, 1])
         self.assertEqual(mapLeftRight.getValues(), [-1, -1, 1, 0, 1, 2, -1, -1])
 
-
+    def testSwig2Intersect2DMeshWith1DLine22(self):
+        """ Simple check that an execption is thrown if 1D mesh is not a single line (one point
+        connected to more than 2 edges. """
+        m2 = MEDCouplingCMesh.New()
+        da = DataArrayDouble(3)
+        da.iota()
+        m2.setCoords(da, da)
+        m2 = m2.buildUnstructured()
+        m1,_,_,_,_ = m2.buildDescendingConnectivity() # m1 will have it central point connected to 4 edges
+        # MEDCouplingUMesh.Intersect2DMeshWith1DLine(m2, m1, 1.0e-8)
+        self.assertRaises(InterpKernelException, MEDCouplingUMesh.Intersect2DMeshWith1DLine, m2, m1, 1.0e-8)
 
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8
