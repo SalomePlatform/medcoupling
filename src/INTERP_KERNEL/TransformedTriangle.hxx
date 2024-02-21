@@ -512,7 +512,7 @@ namespace INTERP_KERNEL
       if (std::fabs(t1+t2) < THRESHOLD_F*MULT_PREC_F)
         return false;
 
-    return (t1*t2 <= 0.0) && !epsilonEqual(t1,t2, (double)MULT_PREC_F);
+    return (t1*t2 <= 0.0) && !epsilonEqual(t1,t2, MULT_PREC_F);
   }
 
   inline bool TransformedTriangle::testFacetSurroundsSegment(const TriSegment seg, const TetraFacet facet) const

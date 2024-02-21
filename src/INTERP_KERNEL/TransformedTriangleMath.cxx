@@ -331,7 +331,7 @@ namespace INTERP_KERNEL
           {
             // this value will not be used - we set it to whatever
             LOG(6, "Triple product not calculated for corner " << corner );
-            _tripleProducts[corner] = -3.14159265;
+            _tripleProducts[corner] = std::nan("triplep");
             _validTP[corner] = false;
           }
         anglesForRows.clear();
@@ -390,11 +390,9 @@ namespace INTERP_KERNEL
     
     //? is this more stable? -> no subtraction
     //    return asin( dotProd / ( lenNormal * lenEdgeVec ) ) + 3.141592625358979 / 2.0;
-    double tmp=dotProd / ( lenNormal * lenEdgeVec );
-    tmp=std::max(tmp,-1.);
-    tmp=std::min(tmp,1.);
-    return atan(1.0)*4.0 - acos(tmp);
-
+    const double tmp=dotProd / ( lenNormal * lenEdgeVec );
+    const double safe_tmp=std::max(std::min(tmp,1.),-1.);
+    return M_PI - std::acos(safe_tmp);
   }
 
   /**

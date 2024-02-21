@@ -646,20 +646,19 @@ namespace INTERP_KERNEL
       const std::size_t m = polygon.size();
 
       for(int j = 0 ; j < 3 ; ++j)
-        {
-          barycenter[j] = 0.0;
-        }
+	barycenter[j] = 0.0;
+
+      for(std::size_t i = 0 ; i < m ; ++i)
+	{
+	  const double* pt = polygon[i];
+	  for(int j = 0 ; j < 3 ; ++j)
+	    barycenter[j] += pt[j];
+	}
 
       if(m != 0)
         {
-          for(std::size_t i = 0 ; i < m ; ++i)
-            {
-              const double* pt = polygon[i];
-              for(int j = 0 ; j < 3 ; ++j)
-                {
-                  barycenter[j] += pt[j] / double(m);
-                }
-            }
+	  for(int j = 0 ; j < 3 ; ++j)
+	    barycenter[j] = barycenter[j] / double(m);
         }
       LOG(3,"Barycenter is " << vToStr(barycenter));
     }
