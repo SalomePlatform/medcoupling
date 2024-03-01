@@ -70,16 +70,15 @@ namespace INTERP_KERNEL
      */
     bool operator()(const double* pt1, const double* pt2)
     {
-      // calculate angles with the axis
-//      const double ang1 = atan2(pt1[_aIdx] - _a, pt1[_bIdx] - _b);
-//      const double ang2 = atan2(pt2[_aIdx] - _a, pt2[_bIdx] - _b);
-
       // A ***much*** faster alternative to atan2 to get a pseudo-angle suitable for sorting:
       // https://stackoverflow.com/questions/16542042/fastest-way-to-sort-vectors-by-angle-without-actually-computing-that-angle
       const double dy1 = pt1[_aIdx] - _a, dx1 = pt1[_bIdx] - _b,
                    dy2 = pt2[_aIdx] - _a, dx2 = pt2[_bIdx] - _b;
-      const double ang1 = std::copysign(1. - dx1/(std::fabs(dx1)+fabs(dy1)),dy1);
-      const double ang2 = std::copysign(1. - dx2/(std::fabs(dx2)+fabs(dy2)),dy2);
+      const double deno1 = std::fabs(dx1)+fabs(dy1),
+                   deno2 = std::fabs(dx2)+fabs(dy2);
+
+      const double ang1 = deno1 == 0.0 ? 0.0 : std::copysign(1. - dx1/deno1, dy1),
+                   ang2 = deno2 == 0.0 ? 0.0 : std::copysign(1. - dx2/deno2, dy2);
 
       return ang1 > ang2;
     }
