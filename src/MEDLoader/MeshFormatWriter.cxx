@@ -74,11 +74,14 @@ void MeshFormatWriter::setMEDFileDS(MEDCoupling::MEDFileData* mfd)
     _mesh->incrRef();
     MEDCoupling::MEDFileFields* fields = mfd->getFields();
 
-    for (int i = 0; i<fields->getNumberOfFields(); i++ )
+    if (fields)
     {
-        MEDCoupling::MEDFileAnyTypeFieldMultiTS* field = fields->getFieldAtPos(i);
-        MEDCoupling::MEDFileFieldMultiTS * f = dynamic_cast<MEDCoupling::MEDFileFieldMultiTS *>(field);
-        _fields.push_back(f);
+      for (int i = 0; i<fields->getNumberOfFields(); i++ )
+      {
+          MEDCoupling::MEDFileAnyTypeFieldMultiTS* field = fields->getFieldAtPos(i);
+          MEDCoupling::MEDFileFieldMultiTS * f = dynamic_cast<MEDCoupling::MEDFileFieldMultiTS *>(field);
+          _fields.push_back(f);
+      }
     }
 
 
@@ -867,7 +870,8 @@ void MeshFormatWriter::linkFamilyToCells()
         int meshDimRelToMax = levs[iDim];
         MEDCoupling::MCAuto< MEDCoupling::MEDCouplingMesh > mesh = _mesh->getMeshAtLevel( meshDimRelToMax);
         MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh0 = mesh->buildUnstructured();
-        const MEDCoupling::DataArrayIdType * famIds = _mesh->getFamilyFieldAtLevel(meshDimRelToMax);
+        const MEDCoupling::DataArrayIdType * famIdsField = _mesh->getFamilyFieldAtLevel(meshDimRelToMax);
+        const MEDCoupling::DataArrayIdType * famIds = famIdsField->getDifferentValues();
         const MEDCoupling::mcIdType * famID = famIds->begin(), *famIDEnd = famIds->end();
         for (; famID < famIDEnd; ++famID)
         {
