@@ -18,14 +18,27 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
+#include "MCAuto.hxx"
+#include "MCIdType.hxx"
+#include "MCType.hxx"
+#include "InterpKernelException.hxx"
 #include "MEDCouplingBasicsTest.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMemArray.txx"
 #include "MEDCouplingMultiFields.hxx"
+#include <vector>
+#include <stdio.h>
+#include <cppunit/TestAssert.h>
+#include <algorithm>
+#include <cmath>
+#include "NormalizedGeometricTypes"
+#include <math.h>
+#include <cstdlib>
 
 
 void CppExample_MEDCouplingFieldDouble_WriteVTK()
@@ -109,12 +122,12 @@ void CppExample_MEDCouplingFieldDouble_MergeFields()
   field2->applyFunc("x + 5"); // "translate" field2
 
   // concatenate field1 and field2
-  MCAuto<MEDCouplingFieldDouble> field3 =
+  MCAuto<MEDCouplingFieldDouble> const field3 =
     MEDCouplingFieldDouble::MergeFields( field1, field2 );
   std::vector<const MEDCouplingFieldDouble *> fields( 2 );
   fields[0] = field1;
   fields[1] = field2;
-  MCAuto<MEDCouplingFieldDouble> field4 =
+  MCAuto<MEDCouplingFieldDouble> const field4 =
     MEDCouplingFieldDouble::MergeFields( fields );
   //! [CppSnippet_MEDCouplingFieldDouble_MergeFields_1]
 }
@@ -217,7 +230,7 @@ void CppExample_MEDCouplingFieldDouble_applyFunc3()
   // transform the field to a 3D vector field
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
   const char* varNames[2] = { "a", "b" }; // names used to refer to X and Y components
-  std::vector<std::string> varNamesVec( varNames, varNames+2 );
+  std::vector<std::string> const varNamesVec( varNames, varNames+2 );
   field->applyFuncNamedCompo( 3, varNamesVec, func ); // require 3 components 
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components as required
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc3_1]
@@ -328,7 +341,7 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic3()
   field->setMesh( mesh );
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
   const char* varNames[2] = { "a", "b" }; // names used to refer to X and Y coord components
-  std::vector<std::string> varNamesVec( varNames, varNames+2 );
+  std::vector<std::string> const varNamesVec( varNames, varNames+2 );
   field->fillFromAnalyticNamedCompo( 3, varNamesVec, func );
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic3_2]
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic3_3]
@@ -341,7 +354,7 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic3()
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
-  double dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
+  double const dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[0], 10 + bc1[1], 13 ); // "10 + IVec * b"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[1], 10 + bc1[0], 13 ); // "10 + JVec * a"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[2], 10 + dist  , 13 ); // "10 + KVec * sqrt( a*a + b*b )"
@@ -379,7 +392,7 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic2()
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
-  double dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
+  double const dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[0], 10 + bc1[1], 13 ); // "10 + IVec * b"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[1], 10 + bc1[0], 13 ); // "10 + JVec * a"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[2], 10 + dist  , 13 ); // "10 + KVec * sqrt( a*a + b*b )"
@@ -415,7 +428,7 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic()
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
-  double dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
+  double const dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[0], 10 + bc1[1], 13 ); // "10 + IVec * b"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[1], 10 + bc1[0], 13 ); // "10 + JVec * a"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[2], 10 + dist  , 13 ); // "10 + KVec * sqrt( a*a + b*b )"
@@ -665,7 +678,7 @@ void CppExample_MEDCouplingMesh_fillFromAnalytic3()
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic3_2]
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
   const char* varNames[2] = { "a", "b" }; // names used to refer to X and Y coord components
-  std::vector<std::string> varNamesVec( varNames, varNames+2 );
+  std::vector<std::string> const varNamesVec( varNames, varNames+2 );
   MCAuto<MEDCouplingFieldDouble> field =
     mesh->fillFromAnalyticNamedCompo( MEDCoupling::ON_CELLS, 3, varNamesVec, func );
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic3_2]
@@ -679,7 +692,7 @@ void CppExample_MEDCouplingMesh_fillFromAnalytic3()
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
-  double dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
+  double const dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[0], 10 + bc1[1], 13 ); // "10 + IVec * b"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[1], 10 + bc1[0], 13 ); // "10 + JVec * a"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[2], 10 + dist  , 13 ); // "10 + KVec * sqrt( a*a + b*b )"
@@ -715,7 +728,7 @@ void CppExample_MEDCouplingMesh_fillFromAnalytic2()
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
-  double dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
+  double const dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[0], 10 + bc1[1], 13 ); // "10 + IVec * b"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[1], 10 + bc1[0], 13 ); // "10 + JVec * a"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[2], 10 + dist  , 13 ); // "10 + KVec * sqrt( a*a + b*b )"
@@ -749,7 +762,7 @@ void CppExample_MEDCouplingMesh_fillFromAnalytic()
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
-  double dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
+  double const dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] );  // "sqrt( a*a + b*b )"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[0], 10 + bc1[1], 13 ); // "10 + IVec * b"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[1], 10 + bc1[0], 13 ); // "10 + JVec * a"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( val1[2], 10 + dist  , 13 ); // "10 + KVec * sqrt( a*a + b*b )"
@@ -796,7 +809,7 @@ void CppExample_MEDCouplingUMesh_areCellsIncludedIn()
     (MEDCouplingUMesh*) mesh1->buildPartOfMySelf( cells2, cells2+3, true );
   //! [CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_2]
   //! [CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_3]
-  int compType = 0; // the strongest policy
+  int const compType = 0; // the strongest policy
   DataArrayIdType *corr2to1, *corr1to2;
   // a larger mesh1 includes a smaller mesh2
   CPPUNIT_ASSERT( mesh1->areCellsIncludedIn( mesh2, compType, corr2to1 ));
@@ -1351,8 +1364,8 @@ void CppExample_MEDCouplingUMesh_buildPartOfMySelf()
   //! [CppSnippet_MEDCouplingUMesh_buildPartOfMySelf_1]
   //! [CppSnippet_MEDCouplingUMesh_buildPartOfMySelf_2]
   const mcIdType cellIds[2]={1,2};
-  MEDCouplingUMesh* mesh2=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,true);
-  MEDCouplingUMesh* mesh3=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,false);
+  auto* mesh2=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,true);
+  auto* mesh3=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,false);
   CPPUNIT_ASSERT(  coordsArr->isEqual( *mesh2->getCoords(), 1e-13 )); // same nodes
   CPPUNIT_ASSERT( !coordsArr->isEqual( *mesh3->getCoords(), 1e-13 )); // different nodes
   for ( mcIdType i = 0; i < 2; ++i )
@@ -1466,7 +1479,7 @@ void CppExample_MEDCouplingUMesh_zipCoordsTraducer()
   //! [CppSnippet_MEDCouplingUMesh_zipCoordsTraducer_1]
   //! [CppSnippet_MEDCouplingUMesh_zipCoordsTraducer_2]
   const mcIdType cellIds[2]={1,2};
-  MEDCouplingUMesh* mesh2=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,true);
+  auto* mesh2=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,true);
   DataArrayIdType *arr=mesh2->zipCoordsTraducer();
   CPPUNIT_ASSERT_EQUAL( ToIdType(4), mesh2->getNumberOfNodes() ); // nb of nodes decreased
   CPPUNIT_ASSERT_EQUAL( mesh->getNumberOfNodes(), arr->getNumberOfTuples() );
@@ -1499,7 +1512,7 @@ void CppExample_MEDCouplingUMesh_getNodeIdsInUse()
   //! [CppSnippet_MEDCouplingUMesh_getNodeIdsInUse_1]
   //! [CppSnippet_MEDCouplingUMesh_getNodeIdsInUse_2]
   const mcIdType cellIds[2]={1,2};
-  MEDCouplingUMesh* mesh2=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,true);
+  auto* mesh2=(MEDCouplingUMesh*)mesh->buildPartOfMySelf(cellIds,cellIds+2,true);
   mcIdType newNbOfNodes = 0;
   DataArrayIdType *arr=mesh2->getNodeIdsInUse( newNbOfNodes );
   const mcIdType idsExpected[9] = {-1,0,1,-1,2,3,-1,-1,-1};
@@ -2032,7 +2045,7 @@ void CppExample_DataArrayDouble_findCommonTuples()
   std::copy(array2,array2+12,da->getPointer());
   //! [CppSnippet_DataArrayDouble_findCommonTuples1]
   //! [CppSnippet_DataArrayDouble_findCommonTuples2]
-  DataArrayIdType *c=0,*cI=0;
+  DataArrayIdType *c=nullptr,*cI=nullptr;
   da->findCommonTuples(1.01e-1,-1,c,cI);
 
   const mcIdType expected3[5]={0,3,4,1,2};
@@ -2118,7 +2131,7 @@ void CppExampleFieldDoubleBuildSubPart1()
   CPPUNIT_ASSERT_EQUAL(ToIdType(6),f2->getMesh()->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getMeshDimension());
-  MEDCoupling::MEDCouplingUMesh *m2C=dynamic_cast<MEDCoupling::MEDCouplingUMesh *>(const_cast<MEDCoupling::MEDCouplingMesh *>(f2->getMesh()));
+  auto *m2C=dynamic_cast<MEDCoupling::MEDCouplingUMesh *>(const_cast<MEDCoupling::MEDCouplingMesh *>(f2->getMesh()));
   CPPUNIT_ASSERT_EQUAL(ToIdType(13),m2C->getNodalConnectivityArrayLen());
   const double expected2[12]={0.2, -0.3, 0.7, -0.3, 0.2, 0.2, 0.7, 0.2, 0.2, 0.7, 0.7, 0.7};
   for(mcIdType i=0;i<12;i++)
@@ -2281,8 +2294,8 @@ void CppSnippetDataArrayBuild1()
   const mcIdType nbOfNodes=12;
   double coords[3*nbOfNodes]={2.,3.,4.,3.,4.,5.,4.,5.,6.,5.,6.,7.,6.,7.,8.,7.,8.,9.,8.,9.,10.,9.,10.,11.,10.,11.,12.,11.,12.,13.,12.,13.,14.,13.,14.,15.};
   //
-  MEDCoupling::DataArrayDouble *coordsArr=0;
-  double *tmp=0;
+  MEDCoupling::DataArrayDouble *coordsArr=nullptr;
+  double *tmp=nullptr;
   //! [CppSnippetDataArrayBuild1_0]
   //
   //! [CppSnippetDataArrayBuild1_1]
@@ -2328,7 +2341,7 @@ void CppSnippetDataArrayBuild1()
   coordsArr->alloc(nbOfNodes,3);
   tmp=coordsArr->getPointer();
   std::copy(coords,coords+3*nbOfNodes,tmp);
-  MEDCoupling::DataArrayDouble *coordsArrCpy=0;
+  MEDCoupling::DataArrayDouble *coordsArrCpy=nullptr;
   //! [CppSnippetDataArrayBuild1_5]
   coordsArrCpy=coordsArr->deepCopy();
   //! [CppSnippetDataArrayBuild1_5]
@@ -2508,7 +2521,7 @@ void CppSnippetFieldDoubleBuild4()
   //! [CppSnippetFieldDoubleBuild4_1]
 }
 
-int main(int argc, char *argv[])
+int main(int  /*argc*/, char * /*argv*/[])
 {
   CppExample_MEDCouplingFieldDouble_WriteVTK();
   CppExample_MEDCouplingFieldDouble_MaxFields();

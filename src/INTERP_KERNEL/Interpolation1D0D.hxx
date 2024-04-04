@@ -22,10 +22,10 @@
 #define __INTERPOLATION1D0D_HXX__
 
 #include "INTERPKERNELDefines.hxx"
-#include "Interpolation.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "InterpolationOptions.hxx"
+#include "Interpolation.hxx"
 
+#include <string>
 #include <vector>
 
 namespace INTERP_KERNEL

@@ -20,16 +20,17 @@
 #ifndef __INTERPOLATION2D3D_HXX__
 #define __INTERPOLATION2D3D_HXX__
 
+#include <cstddef>
 #include <set>
 #include <map>
 
 #include "INTERPKERNELDefines.hxx"
-#include "Interpolation.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "InterpolationOptions.hxx"
 #include "MCIdType.hxx"
 #include "Intersector3D.hxx"
-#include <vector>
+#include "NormalizedGeometricTypes"
+#include "Interpolation.hxx"
+#include <string>
 
 namespace INTERP_KERNEL
 {
@@ -45,7 +46,7 @@ namespace INTERP_KERNEL
   class Interpolation2D3D : public Interpolation<Interpolation2D3D>
   {
   public:
-    typedef std::map<mcIdType,std::set<mcIdType> > DuplicateFacesType;
+    using DuplicateFacesType = std::map<mcIdType, std::set<mcIdType>>;
 
     INTERPKERNEL_EXPORT Interpolation2D3D();
     INTERPKERNEL_EXPORT Interpolation2D3D(const InterpolationOptions& io);

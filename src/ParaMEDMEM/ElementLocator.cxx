@@ -17,22 +17,27 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include <cstddef>
 #include <mpi.h>
 #include "CommInterface.hxx"
 #include "ElementLocator.hxx"
+#include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MCType.hxx"
+#include "ParaIdType.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "Topology.hxx"
-#include "BlockTopology.hxx"
 #include "ParaFIELD.hxx"
 #include "ParaMESH.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
-#include "MEDCouplingFieldDouble.hxx"
 #include "MCAuto.hxx"
-#include "DirectedBoundingBox.hxx"
 
-#include <map>
-#include <set>
 #include <limits>
+#include <string>
+#include <vector>
+#include <set>
+#include <map>
 
 using namespace std;
 
@@ -62,7 +67,7 @@ namespace MEDCoupling
 
   const MPI_Comm *ElementLocator::getCommunicator() const
   {
-    MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
+    auto* group=static_cast<MPIProcessorGroup*> (_union_group);
     return group->getComm();
   }
 
@@ -83,7 +88,7 @@ namespace MEDCoupling
                                     MEDCouplingPointSet*& distant_mesh,
                                     mcIdType*& distant_ids)
   {
-    int rank = _union_group->translateRank(&_distant_group,idistantrank);
+    int const rank = _union_group->translateRank(&_distant_group,idistantrank);
 
     if (find(_distant_proc_ids.begin(), _distant_proc_ids.end(),rank)==_distant_proc_ids.end())
       return;
@@ -100,7 +105,7 @@ namespace MEDCoupling
 #endif
     
     DataArrayIdType *distant_ids_send;
-    MEDCouplingPointSet *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(elems->begin(),elems->end(),distant_ids_send);
+    auto *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(elems->begin(),elems->end(),distant_ids_send);
     _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
     distant_ids_send->decrRef();
     
@@ -111,11 +116,11 @@ namespace MEDCoupling
   void ElementLocator::exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth)
   {
     CommInterface comm_interface=_union_group->getCommInterface();
-    MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
+    auto* group=static_cast<MPIProcessorGroup*> (_union_group);
     const MPI_Comm* comm=(group->getComm());
     MPI_Status status;
     // it must be converted to union numbering before communication
-    int idistRankInUnion = group->translateRank(&_distant_group,idistantrank);
+    int const idistRankInUnion = group->translateRank(&_distant_group,idistantrank);
     char *recv_buffer=new char[4];
     std::vector<char> send_buffer(4);
     std::copy(sourceMeth.begin(),sourceMeth.end(),send_buffer.begin());
@@ -133,8 +138,8 @@ namespace MEDCoupling
   */
   void ElementLocator::_computeBoundingBoxes()
   {
-    CommInterface comm_interface =_union_group->getCommInterface();
-    MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
+    CommInterface const comm_interface =_union_group->getCommInterface();
+    auto* group=static_cast<MPIProcessorGroup*> (_union_group);
     const MPI_Comm* comm = group->getComm();
     _local_cell_mesh_space_dim = -1;
     if(_local_cell_mesh->getMeshDimension() != -1)
@@ -161,9 +166,9 @@ namespace MEDCoupling
     if ( dbbData.size() < bbSize ) dbbData.resize(bbSize,0);
     double * minmax= &dbbData[0];
 #else
-    int bbSize = 2*_local_cell_mesh_space_dim;
+    int const bbSize = 2*_local_cell_mesh_space_dim;
     _domain_bounding_boxes = new double[bbSize*_union_group->size()];
-    double * minmax=new double [bbSize];
+    auto * minmax=new double [bbSize];
     if(_local_cell_mesh->getMeshDimension() != -1)
       _local_cell_mesh->getBoundingBox(minmax);
     else
@@ -180,7 +185,7 @@ namespace MEDCoupling
   
     for (int i=0; i< _distant_group.size(); i++)
       {
-        int rank=_union_group->translateRank(&_distant_group,i);
+        int const rank=_union_group->translateRank(&_distant_group,i);
 
         if (_intersectsBoundingBox(rank))
           {
@@ -212,7 +217,7 @@ namespace MEDCoupling
     const double eps = 1e-12;
     for (int idim=0; idim < _local_cell_mesh_space_dim; idim++)
       {
-        bool intersects = (distant_bb[idim*2]<local_bb[idim*2+1]+eps)
+        bool const intersects = (distant_bb[idim*2]<local_bb[idim*2+1]+eps)
           && (local_bb[idim*2]<distant_bb[idim*2+1]+eps);
         if (!intersects) return false; 
       }
@@ -243,20 +248,20 @@ namespace MEDCoupling
     tinyInfoLocal.push_back(distant_ids_send->getNumberOfTuples());
     tinyInfoDistant.resize(tinyInfoLocal.size());
     std::fill(tinyInfoDistant.begin(),tinyInfoDistant.end(),0);
-    MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
+    auto* group=static_cast<MPIProcessorGroup*> (_union_group);
     const MPI_Comm* comm=group->getComm();
     MPI_Status status; 
     
     // iproc_distant is the number of proc in distant group
     // it must be converted to union numbering before communication
-    int iprocdistant_in_union = group->translateRank(&_distant_group,
+    int const iprocdistant_in_union = group->translateRank(&_distant_group,
                                                      iproc_distant);
     
     comm_interface.sendRecv(&tinyInfoLocal[0], (int)tinyInfoLocal.size(), MPI_ID_TYPE, iprocdistant_in_union, 1112,
                             &tinyInfoDistant[0], (int)tinyInfoDistant.size(), MPI_ID_TYPE,iprocdistant_in_union,1112,
                             *comm, &status);
-    DataArrayIdType *v1Local=0;
-    DataArrayDouble *v2Local=0;
+    DataArrayIdType *v1Local=nullptr;
+    DataArrayDouble *v2Local=nullptr;
     DataArrayIdType *v1Distant=DataArrayIdType::New();
     DataArrayDouble *v2Distant=DataArrayDouble::New();
     //serialization of local mesh to send data to distant proc.
@@ -331,7 +336,7 @@ namespace MEDCoupling
   {
     policy.resize(_distant_proc_ids.size());
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     MPI_Status status;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
@@ -347,7 +352,7 @@ namespace MEDCoupling
   void ElementLocator::sendSumToLazySideW(const std::vector< std::vector<mcIdType> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds)
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         const vector<mcIdType>& eltIds=distantLocEltIds[procId];
@@ -365,7 +370,7 @@ namespace MEDCoupling
   void ElementLocator::recvSumFromLazySideW(std::vector< std::vector<double> >& globalSumRelToDistantIds)
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     MPI_Status status;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
@@ -380,7 +385,7 @@ namespace MEDCoupling
   void ElementLocator::sendLocalIdsToLazyProcsW(const std::vector< std::vector<mcIdType> >& distantLocEltIds)
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         const vector<mcIdType>& eltIds=distantLocEltIds[procId];
@@ -396,7 +401,7 @@ namespace MEDCoupling
   void ElementLocator::recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<mcIdType> >& distantLocEltIds, std::vector< std::vector<mcIdType> >& globalIds)
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     MPI_Status status;
     globalIds.resize(_distant_proc_ids.size());
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
@@ -414,7 +419,7 @@ namespace MEDCoupling
   void ElementLocator::recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<mcIdType> >& globalIds)
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     MPI_Status status;
     globalIds.resize(_distant_proc_ids.size());
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
@@ -433,7 +438,7 @@ namespace MEDCoupling
   void ElementLocator::sendPartialSumToLazyProcsW(const std::vector<mcIdType>& distantGlobIds, const std::vector<double>& sum)
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     int lgth=(int)distantGlobIds.size();
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
@@ -449,7 +454,7 @@ namespace MEDCoupling
   void ElementLocator::sendCandidatesForAddElementsW(const std::vector<mcIdType>& distantGlobIds)
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     int lgth=(int)distantGlobIds.size();
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
@@ -464,7 +469,7 @@ namespace MEDCoupling
   void ElementLocator::recvAddElementsFromLazyProcsW(std::vector<std::vector<mcIdType> >& elementsToAdd)
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     MPI_Status status;
     int lgth=(int)_distant_proc_ids.size();
     elementsToAdd.resize(lgth);
@@ -483,7 +488,7 @@ namespace MEDCoupling
    */
   int ElementLocator::sendPolicyToWorkingSideL()
   {
-    CommInterface comm;
+    CommInterface const comm;
     int toSend;
     DataArrayIdType *isCumulative=_local_para_field.returnCumulativeGlobalNumbering();
     if(isCumulative)
@@ -505,7 +510,7 @@ namespace MEDCoupling
   {
     _values_added.resize(_local_para_field.getField()->getNumberOfTuples());
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     _ids_per_working_proc.resize(_distant_proc_ids.size());
     MPI_Status status;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
@@ -528,7 +533,7 @@ namespace MEDCoupling
   void ElementLocator::sendToWorkingSideL()
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         vector<mcIdType>& ids=_ids_per_working_proc[procId];
@@ -548,7 +553,7 @@ namespace MEDCoupling
   void ElementLocator::recvLocalIdsFromWorkingSideL()
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     _ids_per_working_proc.resize(_distant_proc_ids.size());
     MPI_Status status;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
@@ -567,7 +572,7 @@ namespace MEDCoupling
   void ElementLocator::sendGlobalIdsToWorkingSideL()
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     DataArrayIdType *globalIds=_local_para_field.returnGlobalNumbering();
     const mcIdType *globalIdsC=globalIds->getConstPointer();
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
@@ -590,7 +595,7 @@ namespace MEDCoupling
   {
     std::size_t procId=0;
     std::size_t wProcSize=_distant_proc_ids.size();
-    CommInterface comm;
+    CommInterface const comm;
     _ids_per_working_proc.resize(wProcSize);
     _values_per_working_proc.resize(wProcSize);
     MPI_Status status;
@@ -635,7 +640,7 @@ namespace MEDCoupling
   {
     std::size_t procId=0;
     std::size_t wProcSize=_distant_proc_ids.size();
-    CommInterface comm;
+    CommInterface const comm;
     _ids_per_working_proc3.resize(wProcSize);
     MPI_Status status;
     std::map<int,double> sums;
@@ -676,7 +681,7 @@ namespace MEDCoupling
   void ElementLocator::sendAddElementsToWorkingSideL()
   {
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         const std::vector<mcIdType>& vals=_ids_per_working_proc3[procId];
@@ -693,7 +698,7 @@ namespace MEDCoupling
   void ElementLocator::sendCandidatesGlobalIdsToWorkingSideL()
   { 
     int procId=0;
-    CommInterface comm;
+    CommInterface const comm;
     DataArrayIdType *globalIds=_local_para_field.returnGlobalNumbering();
     const mcIdType *globalIdsC=globalIds->getConstPointer();
     MCAuto<DataArrayIdType> candidates=_local_para_field.getSupport()->getCellMesh()->findBoundaryNodes();

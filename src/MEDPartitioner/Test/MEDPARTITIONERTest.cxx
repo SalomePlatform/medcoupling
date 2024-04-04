@@ -19,6 +19,10 @@
 
 #include "MEDPARTITIONERTest.hxx"
 
+#include "MCIdType.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MCType.hxx"
+#include "MCAuto.hxx"
 #include "MEDPARTITIONER_MeshCollection.hxx"
 #include "MEDPARTITIONER_ParallelTopology.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
@@ -27,21 +31,21 @@
 #include "CellModel.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDLoader.hxx"
-#include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingMultiFields.hxx"
+#include "NormalizedGeometricTypes"
 
 #include <cppunit/TestAssert.h>
 
-#include <sstream>
+#include <iostream>
+#include <memory>
 #include <fstream>
 #include <cmath>
-#include <list>
-#include <stdexcept>
 #include <cstdlib>
+#include <string>
 #include <vector>
 #ifdef WIN32
 #include<direct.h>
@@ -102,7 +106,7 @@ std::string MEDPARTITIONERTest::getPartitionerExe() const
       if (my_file.good())
         return execName;
     }
-  execName = getcwd(NULL, 0);
+  execName = getcwd(nullptr, 0);
 #ifndef WIN32
   execName += "/../../MEDPartitioner/medpartitioner";
 #else
@@ -231,7 +235,7 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
       std::copy(conn.begin()+i*8,conn.begin()+(i+1)*8,onehexa);
       if (false) //(_verbose)
         {
-          for (int j=0; j<8; j++) cout<<onehexa[j]<<" ";
+          for (long const j : onehexa) cout<<j<<" ";
           cout<<endl;
         }
       mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,onehexa);
@@ -255,13 +259,13 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCARRE3DMesh()
   for (int j=0; j<=_nj; j++)
     for (int i=0; i<=_ni; i++)
       {
-        int k=j;
+        int const k=j;
         coor.push_back(i+.1);
         coor.push_back(j+.2);
         coor.push_back(k+.3);
       }
   int ii;
-  int k=0;
+  int const k=0;
   for (int j=0; j<_nj; j++)
     for (int i=0; i<_ni; i++)
       {
@@ -299,7 +303,7 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCARRE3DMesh()
       std::copy(conn.begin()+i*4,conn.begin()+(i+1)*4,onequa);
       if (false) //(_verbose)
         {
-          for (int j=0; j<4; j++) cout<<onequa[j]<<" ";
+          for (long const j : onequa) cout<<j<<" ";
           cout<<endl;
         }
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,onequa);
@@ -323,13 +327,13 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildFACE3DMesh()
   for (int j=0; j<=_nj; j++)
     for (int i=0; i<=_ni; i++)
       {
-        int k=0;
+        int const k=0;
         coor.push_back(i+.1);
         coor.push_back(j+.2);
         coor.push_back(k+.3);
       }
   int ii;
-  int k=0;
+  int const k=0;
   for (int j=0; j<_nj; j++)
     for (int i=0; i<_ni; i++)
       {
@@ -368,7 +372,7 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildFACE3DMesh()
       std::copy(conn.begin()+i*4,conn.begin()+(i+1)*4,onequa);
       if (false) //(_verbose)
         {
-          for (int j=0; j<4; j++) cout<<onequa[j]<<" ";
+          for (long const j : onequa) cout<<j<<" ";
           cout<<endl;
         }
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,onequa);
@@ -398,7 +402,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnCells(string myfileN
         }
 
   MEDCouplingUMesh *mesh=ReadUMeshFromFile(myfileName.c_str(),_mesh_name.c_str(),0);
-  mcIdType nbOfCells=mesh->getNumberOfCells();
+  mcIdType const nbOfCells=mesh->getNumberOfCells();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   f1->setName("VectorFieldOnCells");
   f1->setDescription("DescriptionOfFieldOnCells"); //not saved in file?
@@ -431,7 +435,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnNodes()
         }
 
   MEDCouplingUMesh *mesh=ReadUMeshFromFile(_file_name.c_str(),_mesh_name.c_str(),0);
-  mcIdType nbOfNodes=mesh->getNumberOfNodes();
+  mcIdType const nbOfNodes=mesh->getNumberOfNodes();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
   f1->setName("VectorFieldOnNodes");
   f1->setDescription("DescriptionOfFieldOnNodes"); //not saved in file?
@@ -603,7 +607,7 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
 
               DataArrayDouble* coords=mesh->getCoords();
               //int nbOfComp=coords->getNumberOfComponents();  //be 3D
-              mcIdType nbOfTuple=coords->getNumberOfTuples();
+              mcIdType const nbOfTuple=coords->getNumberOfTuples();
               double* ptr=coords->getPointer();
               double* ptrini=ptrInit;
               for (mcIdType i=0; i<nbOfTuple; i++)
@@ -690,10 +694,10 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
 
     //more nbptgauss=8 by default needs set MEDCouplingFieldDiscretizationPerCell
     //theory: (may be) http://www.code-aster.org/V2/doc/v9/fr/man_r/r3/r3.06.03.pdf
-    int nbptgauss=8; //nb pt de gauss by cell
-    mcIdType nbcell=f3->getMesh()->getNumberOfCells();
-    mcIdType nb=nbcell*nbptgauss;
-    int nbcomp=2;
+    int const nbptgauss=8; //nb pt de gauss by cell
+    mcIdType const nbcell=f3->getMesh()->getNumberOfCells();
+    mcIdType const nb=nbcell*nbptgauss;
+    int const nbcomp=2;
     array->alloc(nb,nbcomp);
     double *ptr=array->getPointer();
     int ii=0;
@@ -806,9 +810,9 @@ void MEDPARTITIONERTest::testMeshCollectionSingle()
   createTestMeshes();
   MyGlobals::_World_Size=1;
   MyGlobals::_Rank=0;
-  string fileName=_file_name_with_faces;
+  string const fileName=_file_name_with_faces;
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
-  MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
+  MEDPARTITIONER::MeshCollection const collection(fileName,parallelizer);
   CPPUNIT_ASSERT(collection.isParallelMode());
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
   CPPUNIT_ASSERT(collection.getName()=="testMesh");
@@ -822,9 +826,9 @@ void MEDPARTITIONERTest::testMeshCollectionXml()
 {
   setSmallSize();
   createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //xml but not so huge
-  string fileName=_file_name_huge_xml;
+  string const fileName=_file_name_huge_xml;
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
-  MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
+  MEDPARTITIONER::MeshCollection const collection(fileName,parallelizer);
   CPPUNIT_ASSERT(collection.isParallelMode());
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
   CPPUNIT_ASSERT(collection.getName()=="testMesh");
@@ -845,14 +849,14 @@ void MEDPARTITIONERTest::testMeshCollectionSinglePartitionMetis()
   setSmallSize();
   createTestMeshes();
   //MyGlobals::_Verbose=500;
-  string fileName=_file_name_with_faces;
-  int ndomains=2;
+  string const fileName=_file_name_with_faces;
+  int const ndomains=2;
   bool split_family=false;
   bool empty_groups=false;
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
   MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
 
-  MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+  auto* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
   aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
   //Creating the graph and partitioning it
   auto_ptr< MEDPARTITIONER::Topology > new_topo;
@@ -879,13 +883,13 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
 {
   setSmallSize();
   createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //xml on 2*2*2 meshes but not so huge
-  string fileName=_file_name_huge_xml;
+  string const fileName=_file_name_huge_xml;
   bool split_family=false;
   bool empty_groups=false;
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
   MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
 
-  MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+  auto* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
   aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
 
   for (int ndomains=2 ; ndomains<=16 ; ndomains++)
@@ -908,7 +912,7 @@ void MEDPARTITIONERTest::testMetisSmallSize()
   //#if !defined(HAVE_MPI)
   setSmallSize();
   createTestMeshes();
-  std::string MetisOrScotch("metis");
+  std::string const MetisOrScotch("metis");
   launchMetisOrScotchMedpartitionerOnTestMeshes(MetisOrScotch);
   verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(MetisOrScotch);
   verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnCells(MetisOrScotch);
@@ -1077,15 +1081,15 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(std
   std::vector<MEDCoupling::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) cellMeshes.size());
   mcIdType nbcells=0;
-  for (std::size_t i = 0; i < cellMeshes.size(); i++)
-    nbcells+=cellMeshes[i]->getNumberOfCells();
+  for (auto & cellMeshe : cellMeshes)
+    nbcells+=cellMeshe->getNumberOfCells();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
 
   std::vector<MEDCoupling::MEDCouplingUMesh*>faceMeshes=collection.getFaceMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) faceMeshes.size());
   mcIdType nbfaces=0;
-  for (std::size_t i=0; i < faceMeshes.size(); i++)
-    nbfaces+=faceMeshes[i]->getNumberOfCells();
+  for (auto & faceMeshe : faceMeshes)
+    nbfaces+=faceMeshe->getNumberOfCells();
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), nbfaces);
 
   //merge split meshes and test equality
@@ -1218,8 +1222,8 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
   mcIdType* pc=corr[1]->getPointer();
   for (int i = 0; i < nbcells; i++)
     {
-      std::size_t i1=pc[i]*nbcomp;
-      std::size_t i2=i*nbcomp;
+      std::size_t const i1=pc[i]*nbcomp;
+      std::size_t const i2=i*nbcomp;
       for (std::size_t j = 0; j < nbcomp; j++)
         {
           if (p1[i1+j]==p2[i2+j]) nbequal++;
@@ -1300,15 +1304,15 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
 
     }
   int nbequal=0;
-  int nbptgauss=8;
+  int const nbptgauss=8;
   std::size_t nbcomp=field1->getNumberOfComponents();
   double* p1=f1->getPointer();
   double* p2=f2->getPointer();
   mcIdType* pc=corr[1]->getPointer();
   for (int i = 0; i < nbcells; i++)
     {
-      std::size_t i1=pc[i]*nbcomp*nbptgauss;
-      std::size_t i2=i*nbcomp*nbptgauss;
+      std::size_t const i1=pc[i]*nbcomp*nbptgauss;
+      std::size_t const i2=i*nbcomp*nbptgauss;
       for (std::size_t j = 0; j < nbcomp*nbptgauss; j++)
         {
           if (p1[i1+j]==p2[i2+j]) nbequal++;
@@ -1420,7 +1424,7 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
   const int ndomains = 4;
   ParaDomainSelector parallelizer(false);
   MeshCollection collection(fileName,parallelizer);
-  ParallelTopology* aPT = (ParallelTopology*) collection.getTopology();
+  auto* aPT = (ParallelTopology*) collection.getTopology();
   aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
 
   std::unique_ptr< Topology > new_topo;

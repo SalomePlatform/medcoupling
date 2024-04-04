@@ -22,13 +22,14 @@
 
 #include "InterpKernelDenseMatrix.hxx"
 #include "InterpKernelLUDecomp.hxx"
-#include "InterpKernelQRDecomp.hxx"
 #include "InterpKernelException.hxx"
 #include "MCIdType.hxx"
 
+#include <sstream>
 #include <vector>
 #include <limits>
 #include <cmath>
+#include <functional>
 
 template<class T>
 inline T sqr(const T a) { return a*a; }
@@ -100,18 +101,18 @@ namespace INTERP_KERNEL
   class JacobianCalculator
   {
   private:
-    const double EPS;
+    const double EPS{1.0e-8};
     T &func;
   public:
-    JacobianCalculator(T &funcc) : EPS(1.0e-8),func(funcc) {}
+    JacobianCalculator(T &funcc) : func(funcc) {}
     INTERP_KERNEL::DenseMatrix operator() (const std::vector<double>& x, const std::vector<double>& fvec)
     {
-      mcIdType n=x.size();
+      mcIdType const n=x.size();
       INTERP_KERNEL::DenseMatrix df(n,n);
       std::vector<double> xh=x;
       for (mcIdType j=0;j<n;j++)
       {
-        double temp=xh[j];
+        double const temp=xh[j];
         double h=EPS*std::abs(temp);
         if (h == 0.0) h=EPS;
         xh[j]=temp+h;

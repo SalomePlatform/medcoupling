@@ -19,22 +19,32 @@
 
 #include "MEDPARTITIONER_Utils.hxx"
 
+#include "MCIdType.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "BBTree.txx"
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
-#include "MEDFileUtilities.hxx"
-#include "CellModel.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "InterpKernelException.hxx"
 #include "MCAuto.hxx"
 #include "InterpKernelAutoPtr.hxx"
+#include "med.h"
+#include "medfile.h"
+#include "medfield.h"
 
-#include <fstream>
+#include <cstdlib>
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <map>
 #include <sstream>
 #include <string>
 #include <cstring>
+#include <vector>
+#include <utility>
 
 using namespace MEDPARTITIONER;
 
@@ -113,8 +123,8 @@ std::vector<int> MEDPARTITIONER::CreateRandomSize(const int size)
   srand( MyGlobals::_Randomize );
   for (int i=0; i<size; i++)
     {
-      int ii=rand()%size;
-      int tmp=res[ii];
+      int const ii=rand()%size;
+      int const tmp=res[ii];
       res[ii]=res[i];
       res[i]=tmp;
     }
@@ -131,20 +141,20 @@ void MEDPARTITIONER::RandomizeAdj(int* xadj, int* adjncy, std::vector<int>& ran,
       std::cerr << "MEDPARTITIONER::RandomizeAdj only works on one proc!" << std::endl;
       return;
     }
-  std::size_t size=ran.size();
+  std::size_t const size=ran.size();
   std::vector<int> invran(size);
   for (unsigned int i=0; i<size; i++)
     invran[ran[i]]=i;
   vx.resize(size+1);
-  int lga=xadj[size];
+  int const lga=xadj[size];
   va.resize(lga);
   int jj=0;
   vx[0]=0;
   for (std::size_t i=0; i<size; i++)
     {
-      int ir=ran[i];
+      int const ir=ran[i];
       int ii=xadj[ir];
-      int lgj=xadj[ir+1]-ii;
+      int const lgj=xadj[ir+1]-ii;
       for (int j=0; j<lgj; j++)
         {
           va[jj]=invran[adjncy[ii]];
@@ -161,7 +171,7 @@ void MEDPARTITIONER::TestRandomize()
   //int adjncy[13]={1,4,0,2,4,1,3,4,2,4,4,3,4};
   int xadj[6]={0,2,5,9,12,13};
   int adjncy[13]={0,0,1,1,1,2,2,2,2,3,3,3,4};
-  int size=5;
+  int const size=5;
   std::vector<int> r=CreateRandomSize(size);
   std::vector<int> vx,va;
   RandomizeAdj(&xadj[0],&adjncy[0],r,vx,va);
@@ -172,8 +182,8 @@ std::string MEDPARTITIONER::ReprVectorOfString(const std::vector<std::string>& v
   if (vec.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i) 
-    oss << " -> '" << *i << "'" << std::endl;
+  for (const auto & i : vec) 
+    oss << " -> '" << i << "'" << std::endl;
   return oss.str();
 }
 
@@ -182,8 +192,8 @@ std::string MEDPARTITIONER::ReprVectorOfString(const std::vector<std::string>& v
   if (vec.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i) 
-    oss << separator << *i;
+  for (const auto & i : vec) 
+    oss << separator << i;
   return oss.str();
 }
 
@@ -192,8 +202,8 @@ std::string MEDPARTITIONER::ReprMapOfStringInt(const std::map<std::string,mcIdTy
   if (mymap.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::map<std::string,mcIdType>::const_iterator i=mymap.begin(); i!=mymap.end(); ++i) 
-    oss << " -> [" << (*i).first << "]=" << (*i).second << std::endl;
+  for (const auto & i : mymap) 
+    oss << " -> [" << i.first << "]=" << i.second << std::endl;
   return oss.str();
 }
 
@@ -202,8 +212,8 @@ std::string MEDPARTITIONER::ReprMapOfStringVectorOfString(const std::map< std::s
   if (mymap.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::map< std::string,std::vector<std::string> >::const_iterator i=mymap.begin(); i!=mymap.end(); ++i) 
-    oss << " -> [" << (*i).first << "]=" << std::endl << ReprVectorOfString((*i).second) << std::endl;
+  for (const auto & i : mymap) 
+    oss << " -> [" << i.first << "]=" << std::endl << ReprVectorOfString(i.second) << std::endl;
   return oss.str();
 }
 
@@ -212,10 +222,10 @@ std::string MEDPARTITIONER::ReprFieldDescriptions(const std::vector<std::string>
   if (vec.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
+  for (const auto & i : vec)
     {
       oss << " ->"; 
-      oss << ReprVectorOfString(DeserializeToVectorOfString(*i), separator) << std::endl;
+      oss << ReprVectorOfString(DeserializeToVectorOfString(i), separator) << std::endl;
     }
   return oss.str();
 }
@@ -238,8 +248,8 @@ std::string MEDPARTITIONER::SerializeFromString(const std::string& s)
 std::string MEDPARTITIONER::SerializeFromVectorOfString(const std::vector<std::string>& vec)
 {
   std::ostringstream oss;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
-    oss<< std::setw(5) << (*i).size() << "/" << *i << "/";
+  for (const auto & i : vec)
+    oss<< std::setw(5) << i.size() << "/" << i << "/";
   return oss.str();
 }
 
@@ -250,7 +260,7 @@ std::vector<std::string> MEDPARTITIONER::DeserializeToVectorOfString(const std::
 {
   std::vector<std::string> res;
   std::size_t pos=0;
-  std::size_t posmax=str.size();
+  std::size_t const posmax=str.size();
   if (posmax==0)
     return res;  //empty vector
   std::size_t length;
@@ -271,12 +281,12 @@ std::vector<std::string> MEDPARTITIONER::DeserializeToVectorOfString(const std::
 
 std::string MEDPARTITIONER::EraseTagSerialized(const std::string& fromStr, const std::string& tag)
 {
-  std::vector<std::string> vec=DeserializeToVectorOfString(fromStr);
+  std::vector<std::string> const vec=DeserializeToVectorOfString(fromStr);
   std::vector<std::string> res;
-  for (std::size_t i=0; i<vec.size(); i++)
+  for (const auto & i : vec)
     {
-      if (vec[i].find(tag)==std::string::npos)
-        res.push_back(vec[i]);
+      if (i.find(tag)==std::string::npos)
+        res.push_back(i);
     }
   return MEDPARTITIONER::SerializeFromVectorOfString(res);
 }
@@ -288,10 +298,10 @@ std::string MEDPARTITIONER::EraseTagSerialized(const std::string& fromStr, const
 std::vector<std::string> MEDPARTITIONER::VectorizeFromMapOfStringInt(const std::map<std::string,mcIdType>& mymap)
 {
   std::vector<std::string> res;
-  for (std::map<std::string,mcIdType>::const_iterator i=mymap.begin(); i!=mymap.end(); ++i)
+  for (const auto & i : mymap)
     {
       std::ostringstream oss;
-      oss << (*i).second << "/" << (*i).first;
+      oss << i.second << "/" << i.first;
       res.push_back(oss.str());
     }
   return res;
@@ -303,18 +313,18 @@ std::vector<std::string> MEDPARTITIONER::VectorizeFromMapOfStringInt(const std::
 std::map<std::string,mcIdType> MEDPARTITIONER::DevectorizeToMapOfStringInt(const std::vector<std::string>& vec)
 {
   std::map<std::string,mcIdType> res;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
+  for (const auto & i : vec)
     {
-      std::size_t pos=0;
-      std::size_t posmax=(*i).size();
-      std::size_t found=(*i).find('/'); //first slash
+      std::size_t const pos=0;
+      std::size_t const posmax=i.size();
+      std::size_t const found=i.find('/'); //first slash
       if ((found==std::string::npos) || (found<1))
         throw INTERP_KERNEL::Exception("Error aIntNumber/anyString is expected");
       mcIdType second;
-      std::istringstream iss((*i).substr(pos,found));
+      std::istringstream iss(i.substr(pos,found));
       iss >> second;
-      std::string first=(*i).substr(pos+found+1,posmax-found);
-      std::map<std::string,mcIdType>::iterator it=res.find(first);
+      std::string const first=i.substr(pos+found+1,posmax-found);
+      auto const it=res.find(first);
       if (it!=res.end())
         if ((*it).second!=second)
           throw INTERP_KERNEL::Exception("Error not the same map value");
@@ -331,11 +341,11 @@ std::map<std::string,mcIdType> MEDPARTITIONER::DevectorizeToMapOfStringInt(const
 std::vector<std::string> MEDPARTITIONER::VectorizeFromMapOfStringVectorOfString(const std::map< std::string,std::vector<std::string> >& mymap)
 {
   std::vector<std::string> res;
-  for (std::map< std::string,std::vector<std::string> >::const_iterator i=mymap.begin(); i!=mymap.end(); ++i)
+  for (const auto & i : mymap)
     {
-      std::vector<std::string> vs=(*i).second;  //a vector of string;
+      std::vector<std::string> vs=i.second;  //a vector of string;
       std::ostringstream oss;
-      oss << "Keymap/" << (*i).first << "/" << (*i).second.size();
+      oss << "Keymap/" << i.first << "/" << i.second.size();
       vs.insert(vs.begin(), oss.str());
       res.push_back(SerializeFromVectorOfString(vs));
     }
@@ -349,20 +359,20 @@ std::vector<std::string> MEDPARTITIONER::VectorizeFromMapOfStringVectorOfString(
 std::map< std::string,std::vector<std::string> > MEDPARTITIONER::DevectorizeToMapOfStringVectorOfString(const std::vector<std::string>& vec)
 {
   std::map< std::string,std::vector<std::string> > res;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
+  for (const auto & i : vec)
     {
-      std::vector<std::string> vs=DeserializeToVectorOfString(*i);
+      std::vector<std::string> vs=DeserializeToVectorOfString(i);
     
-      std::string enTete=vs[0];
-      std::size_t posmax=enTete.size();
-      std::size_t foundKey=enTete.find("Keymap/");
-      std::size_t foundSizeVector=enTete.find_last_of('/');
+      std::string const enTete=vs[0];
+      std::size_t const posmax=enTete.size();
+      std::size_t const foundKey=enTete.find("Keymap/");
+      std::size_t const foundSizeVector=enTete.find_last_of('/');
       if ((foundKey==std::string::npos) || (foundKey!=0) || ((foundKey+7)>=foundSizeVector))
         throw INTERP_KERNEL::Exception("Error Keymap/anyString/aIntNumber is expected");
       int sizeVector;
       std::istringstream iss(enTete.substr(foundSizeVector+1,posmax-foundSizeVector));
       iss >> sizeVector;
-      std::string keymap=enTete.substr(foundKey+7,foundSizeVector-foundKey-7);
+      std::string const keymap=enTete.substr(foundKey+7,foundSizeVector-foundKey-7);
       for (int ii=1; ii<=sizeVector; ii++)
         res[keymap].push_back(vs[ii]); //add unconditionally,so merge duplicates in second vector
     }
@@ -378,9 +388,9 @@ std::vector<std::string> MEDPARTITIONER::SelectTagsInVectorOfString(const std::v
   std::vector<std::string> res;
   if (vec.size()==0)
     return res;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
+  for (const auto & i : vec)
     {
-      if ((*i).find(tag)!=std::string::npos) res.push_back(*i);
+      if (i.find(tag)!=std::string::npos) res.push_back(i);
     }
   return res;
 }
@@ -394,18 +404,18 @@ std::vector<std::string> MEDPARTITIONER::DeleteDuplicatesInVectorOfString(const 
   if (vec.size()==0) return res;
   //shit for unique and unique_copy for the duplicate CONSECUTIVE elements
   //I do not want to sort
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
+  for (const auto & i : vec)
     {
       bool found=false;
-      for (std::vector<std::string>::const_iterator j=res.begin(); j!=res.end(); ++j)
+      for (const auto & re : res)
         {
-          if ((*i).compare(*j)==0)
+          if (i.compare(re)==0)
             {
               found=true;
               break;
             }
         }
-      if (!found) res.push_back(*i);
+      if (!found) res.push_back(i);
     }
   return res;
 }
@@ -413,8 +423,8 @@ std::vector<std::string> MEDPARTITIONER::DeleteDuplicatesInVectorOfString(const 
 std::map< std::string,std::vector<std::string> > MEDPARTITIONER::DeleteDuplicatesInMapOfStringVectorOfString(const std::map< std::string,std::vector<std::string> >& mymap)
 {
   std::map< std::string,std::vector<std::string> > res;
-  for (std::map< std::string,std::vector<std::string> >::const_iterator i=mymap.begin(); i!=mymap.end(); ++i)
-    res[(*i).first]=DeleteDuplicatesInVectorOfString((*i).second);
+  for (const auto & i : mymap)
+    res[i.first]=DeleteDuplicatesInVectorOfString(i.second);
   return res;
 }
 
@@ -429,8 +439,8 @@ std::string MEDPARTITIONER::Cle1ToStr(const std::string& s, const int inew)
 
 void MEDPARTITIONER::Cle1ToData(const std::string& key, std::string& s, int& inew)
 {
-  std::size_t posmax=key.size();
-  std::size_t found=key.find(' ');
+  std::size_t const posmax=key.size();
+  std::size_t const found=key.find(' ');
   if ((found==std::string::npos) || (found<1))
     throw INTERP_KERNEL::Exception("Error 'aStringWithoutWhitespace aInt' is expected");
   s=key.substr(0,found);
@@ -447,8 +457,8 @@ std::string MEDPARTITIONER::Cle2ToStr(const std::string& s, const int inew, cons
 
 void MEDPARTITIONER::Cle2ToData(const std::string& key, std::string& s, int& inew, int& iold)
 {
-  std::size_t posmax=key.size();
-  std::size_t found=key.find(' ');
+  std::size_t const posmax=key.size();
+  std::size_t const found=key.find(' ');
   if ((found==std::string::npos) || (found<1))
     throw INTERP_KERNEL::Exception("Error 'aStringWithoutWhitespace aInt aInt' is expected");
   s=key.substr(0,found);
@@ -479,7 +489,7 @@ std::string MEDPARTITIONER::ExtractFromDescription(const std::string& descriptio
       res=res.substr(0,found);
       return res;
     }
-  std::size_t lg=StrToInt(description.substr(found-6,found));
+  std::size_t const lg=StrToInt(description.substr(found-6,found));
   beg+=tag.length();
   return description.substr(beg,lg-tag.length());
 }
@@ -539,7 +549,7 @@ std::vector<std::string> MEDPARTITIONER::BrowseFieldDouble(const MEDCoupling::ME
   std::vector<std::string> res;
   if (fd->getArray())
     {
-      std::size_t nb=fd->getArray()->getNumberOfComponents();
+      std::size_t const nb=fd->getArray()->getNumberOfComponents();
       res.push_back("nbComponents="); res.back()+=IntToStr((int)nb);
       for (unsigned int i=0; i<nb; i++)
         {
@@ -560,31 +570,31 @@ std::vector<std::string> MEDPARTITIONER::BrowseFieldDouble(const MEDCoupling::ME
 std::vector<std::string> MEDPARTITIONER::BrowseAllFields(const std::string& myfile)
 {
   std::vector<std::string> res;
-  std::vector<std::string> meshNames=MEDCoupling::GetMeshNames(myfile);
+  std::vector<std::string> const meshNames=MEDCoupling::GetMeshNames(myfile);
   
-  for (std::size_t i=0; i<meshNames.size(); i++)
+  for (const auto & meshName : meshNames)
     {
-      std::vector<std::string> fieldNames=
-        MEDCoupling::GetAllFieldNamesOnMesh(myfile,meshNames[i]);
-      for (std::size_t j = 0; j < fieldNames.size(); j++)
+      std::vector<std::string> const fieldNames=
+        MEDCoupling::GetAllFieldNamesOnMesh(myfile,meshName);
+      for (const auto & fieldName : fieldNames)
         {
-          std::vector< MEDCoupling::TypeOfField > typeFields=
-            MEDCoupling::GetTypesOfField(myfile, meshNames[i], fieldNames[j]);
-          for (std::size_t k = 0; k < typeFields.size(); k++)
+          std::vector< MEDCoupling::TypeOfField > const typeFields=
+            MEDCoupling::GetTypesOfField(myfile, meshName, fieldName);
+          for (auto & typeField : typeFields)
             {
-              std::vector< std::pair< int, int > > its=
-                GetFieldIterations(typeFields[k], myfile, meshNames[i], fieldNames[j]);
+              std::vector< std::pair< int, int > > const its=
+                GetFieldIterations(typeField, myfile, meshName, fieldName);
               if (MyGlobals::_Is0verbose>100)
-                std::cout<< "fieldName " << fieldNames[j] << " typeField " << typeFields[k] << " its.size() " << its.size() << std::endl;
-              for (std::size_t m = 0; m < its.size(); m++)
+                std::cout<< "fieldName " << fieldName << " typeField " << typeField << " its.size() " << its.size() << std::endl;
+              for (auto & it : its)
                 {
                   std::vector<std::string> resi;
                   resi.push_back("fileName="); resi.back()+=myfile;
-                  resi.push_back("meshName="); resi.back()+=meshNames[i];
-                  resi.push_back("fieldName="); resi.back()+=fieldNames[j];
-                  resi.push_back("typeField="); resi.back()+=IntToStr((int)typeFields[k]);
-                  resi.push_back("DT="); resi.back()+=IntToStr((int)its[m].first);
-                  resi.push_back("IT="); resi.back()+=IntToStr((int)its[m].second);
+                  resi.push_back("meshName="); resi.back()+=meshName;
+                  resi.push_back("fieldName="); resi.back()+=fieldName;
+                  resi.push_back("typeField="); resi.back()+=IntToStr((int)typeField);
+                  resi.push_back("DT="); resi.back()+=IntToStr((int)it.first);
+                  resi.push_back("IT="); resi.back()+=IntToStr((int)it.second);
                   res.push_back(SerializeFromVectorOfString(resi));
                 }
             }
@@ -593,7 +603,7 @@ std::vector<std::string> MEDPARTITIONER::BrowseAllFields(const std::string& myfi
   return res;
 }
 
-std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, const char *meshName, const int idomain)
+std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, const char * /*meshName*/, const int idomain)
 {
   const int lggeom=10;
   const med_geometry_type GEOMTYPE[lggeom]={ //MED_N_CELL_FIXED_GEO] = { 
@@ -671,8 +681,8 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
   };
   
   std::vector<std::string> res;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
-  med_int nbFields=MEDnField(fid);
+  med_idt const fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  med_int const nbFields=MEDnField(fid);
   if (MyGlobals::_Verbose>20)
     std::cout << "on filename " << fileName << " nbOfField " << nbFields << std::endl;
   //
@@ -685,14 +695,14 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
   //
   for(int i=1; i<=nbFields; i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i);
+      med_int const ncomp=MEDfieldnComponent(fid,i);
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> dt_unit=new char[MED_LNAME_SIZE+1];
       med_int nbPdt;
       MEDfieldInfo(fid,i,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
-      std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
-      std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
+      std::string const curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
+      std::string const curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
       for (int k=1; k<=nbPdt; k++)
         {
           MEDfieldComputingStepInfo(fid,nomcha,k,&numdt,&numo,&dt);
@@ -705,16 +715,16 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
               for (int j=0; j<lggeom; j++)
                 {
                   med_int profilesize=0,nbi=0;
-                  med_entity_type enttype=ENTITYTYPE[ie];
+                  med_entity_type const enttype=ENTITYTYPE[ie];
                   //enttype=MED_NODE;enttype=MED_CELL;enttype=MED_NODE_ELEMENT;
                   char pflname[MED_NAME_SIZE+1]="";
                   char locname[MED_NAME_SIZE+1]="";
-                  med_int nbofprofile=MEDfieldnProfile(fid,nomcha,numdt,numo,enttype,GEOMTYPE[j],pflname,locname);
-                  int profileit=1;
+                  med_int const nbofprofile=MEDfieldnProfile(fid,nomcha,numdt,numo,enttype,GEOMTYPE[j],pflname,locname);
+                  int const profileit=1;
                   if (enttype==MED_NODE)
                     {
-                      med_geometry_type mygeomtype=MED_UNDEF_ENTITY_TYPE;
-                      med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,enttype,mygeomtype,profileit,
+                      med_geometry_type const mygeomtype=MED_UNDEF_ENTITY_TYPE;
+                      med_int const nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,enttype,mygeomtype,profileit,
                                                                 MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi);
                       if (nbOfVal>0)
                         {
@@ -745,8 +755,8 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
                     }
                   else
                     {
-                      med_geometry_type mygeomtype=GEOMTYPE[j];
-                      med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,enttype,mygeomtype,profileit,
+                      med_geometry_type const mygeomtype=GEOMTYPE[j];
+                      med_int const nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,enttype,mygeomtype,profileit,
                                                                 MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi);
                       if (nbOfVal>0)
                         {
@@ -864,7 +874,7 @@ namespace MEDPARTITIONER
         _PgetIntersectingElems   = & BBTreeOfDim::_getIntersectingElems< 1 >;
         break;
       default:
-        _tree=0;
+        _tree=nullptr;
         throw INTERP_KERNEL::Exception("BBTreeOfDim(): wrong space dimension");
       }
   }
@@ -877,13 +887,13 @@ namespace MEDPARTITIONER
   void BBTreeOfDim::getElementsAroundPoint( const double* coordsPtr,
                                             std::vector<mcIdType>& elems ) const
   {
-    BBTreeOfDim* me = (BBTreeOfDim*) this;
+    auto* me = (BBTreeOfDim*) this;
     (me->*_PgetElementsAroundPoint) ( coordsPtr, elems );
   }
   void BBTreeOfDim::getIntersectingElems(const double* bb,
                                          std::vector<mcIdType>& elems) const
   {
-    BBTreeOfDim* me = (BBTreeOfDim*) this;
+    auto* me = (BBTreeOfDim*) this;
     (me->*_PgetIntersectingElems) ( bb, elems );
   }
 }

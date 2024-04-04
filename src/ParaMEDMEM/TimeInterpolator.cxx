@@ -29,6 +29,5 @@ namespace MEDCoupling
   }
 
   TimeInterpolator::~TimeInterpolator()
-  {
-  } 
+  = default; 
 }

@@ -21,8 +21,10 @@
 // Author    : Edward AGAPOV (eap)
 //
 
+#include "MCIdType.hxx"
 #include "MEDCouplingNormalizedCartesianMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 template<int SPACEDIM>
 MEDCouplingNormalizedCartesianMesh<SPACEDIM>::MEDCouplingNormalizedCartesianMesh(const MEDCoupling::MEDCouplingCMesh *mesh):_mesh(mesh)

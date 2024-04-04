@@ -19,14 +19,13 @@
 //
 
 #include "ParaMESH.hxx"
+#include "MEDCouplingPointSet.hxx"
+#include "MCType.hxx"
 #include "ProcessorGroup.hxx"
-#include "MPIProcessorGroup.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
-#include "MEDCouplingMemArray.hxx"
 
-#include <fstream>
-#include <vector>
+#include <string>
 
 //inclusion for the namespaces
 using namespace std;
@@ -47,14 +46,14 @@ namespace MEDCoupling
     _cell_global.takeRef(CorrespElt_local2global);
   }
 
-  ParaMESH::ParaMESH( MEDCouplingPointSet *mesh, const ProcessorGroup& proc_group, const std::string& name):
+  ParaMESH::ParaMESH( MEDCouplingPointSet *mesh, const ProcessorGroup& proc_group, const std::string&  /*name*/):
     _my_domain_id(proc_group.myRank()),
     _block_topology(new BlockTopology(proc_group, mesh->getNumberOfCells()))
   {
     _cell_mesh.takeRef(mesh);
-    mcIdType nb_elem=mesh->getNumberOfCells();
+    mcIdType const nb_elem=mesh->getNumberOfCells();
     _explicit_topology=new BlockTopology(proc_group,nb_elem);
-    mcIdType nbOfCells=mesh->getNumberOfCells();
+    mcIdType const nbOfCells=mesh->getNumberOfCells();
     _cell_global = DataArrayIdType::New();
     _cell_global->alloc(nbOfCells,1);
     mcIdType *cellglobal=_cell_global->getPointer();

@@ -23,13 +23,16 @@
 //
 #include "UnitTetraIntersectionBaryTest.hxx"
 
+#include "TransformedTriangle.hxx"
+#include "SplitterTetra.txx"
+#include "InterpKernelException.hxx"
 #include "UnitTetraIntersectionBary.hxx"
 #include "TetraAffineTransform.hxx"
 #include "InterpolationUtils.hxx"
-#include "SplitterTetra.txx"
 #include "MCIdType.hxx"
 
-#include <iostream>
+#include <cppunit/TestAssert.h>
+#include <vector>
 
 using namespace INTERP_KERNEL;
 
@@ -46,8 +49,7 @@ namespace INTERP_TEST
 //                            { 1, 2, 3 },
 //                            { 3, 2, 0 } };
     bary.init(true);
-    for ( int i = 0; i < 4; ++i ) {
-      int* faceNodes = faceConn[ i ];
+    for (auto faceNodes : faceConn) {
       TransformedTriangle tri(nodes[faceNodes[0]], nodes[faceNodes[1]], nodes[faceNodes[2]]);
       tri.calculateIntersectionVolume();
       bary.addSide( tri );
@@ -63,8 +65,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.166667, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.25, baryCenter[0], 1e-5);
@@ -81,8 +83,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.166667, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.25, baryCenter[0], 1e-5);
@@ -99,8 +101,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.020833333333333332, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.125, baryCenter[0], 1e-5);
@@ -117,8 +119,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.020833333333333332, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.125, baryCenter[0], 1e-5);
@@ -135,8 +137,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.1215, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.225, baryCenter[0], 1e-5);
@@ -153,8 +155,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.000441855, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.353463 , baryCenter[0], 1e-5 );
@@ -171,8 +173,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0103501, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.215578 , baryCenter[0], 1e-5 );
@@ -189,8 +191,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0349217, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.332275  , baryCenter[0], 1e-2 );
@@ -207,8 +209,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( !ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, vol, 1e-15);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( -1. , baryCenter[0], 1e-5 );
@@ -225,8 +227,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.166667, vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.25, baryCenter[0], 1e-5);
@@ -243,8 +245,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.15873 , vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.250000, baryCenter[0], 1e-5);
@@ -261,8 +263,8 @@ namespace INTERP_TEST
     UnitTetraIntersectionBary bary;
     fill_UnitTetraIntersectionBary(bary,nodes);
     double baryCenter[3];
-    bool ok    = bary.getBary( baryCenter );
-    double vol = bary.getVolume();
+    bool const ok    = bary.getBary( baryCenter );
+    double const vol = bary.getVolume();
     CPPUNIT_ASSERT( ok );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.005208 , vol, 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.562500, baryCenter[0], 1e-5);
@@ -272,7 +274,7 @@ namespace INTERP_TEST
 
   struct __MESH_DUMMY
   {
-    typedef mcIdType MyConnType;
+    using MyConnType = mcIdType;
   };
 
   void UnitTetraIntersectionBaryTest::test_UnitTetraIntersectionBary_13()
@@ -289,12 +291,12 @@ namespace INTERP_TEST
       75,150,75,
       100,100,100};
 
-    mcIdType conn[4] = { 0,1,2,3 };
+    mcIdType const conn[4] = { 0,1,2,3 };
     
     const double* tnodes[4]={ T, T+3, T+6, T+9 };
     const double* snodes[4]={ S, S+3, S+6, S+9 };
     
-    __MESH_DUMMY dummyMesh;
+    __MESH_DUMMY const dummyMesh;
     SplitterTetra<__MESH_DUMMY> src( dummyMesh, snodes, conn );
     double volume = src.intersectTetra( tnodes );
     CPPUNIT_ASSERT_DOUBLES_EQUAL(6944.4444444444443,volume,1e-9);
@@ -318,19 +320,19 @@ namespace INTERP_TEST
       41.6666666666666714036, 120.0, 6.3333333333333348136,
       25.0, 120.0, 17.6666666666666714036};
 
-    mcIdType conn[4] = { 0,1,2,3 };
+    mcIdType const conn[4] = { 0,1,2,3 };
     const double* tnodes[4]={ T, T+3, T+6, T+9 };
     const double* snodes[4]={ S, S+3, S+6, S+9 };
     const double refVol = 48.6591695501729;
 
-    __MESH_DUMMY dummyMesh;
+    __MESH_DUMMY const dummyMesh;
     SplitterTetra<__MESH_DUMMY> src( dummyMesh, snodes, conn );
-    double volume = src.intersectTetra( tnodes );
+    double const volume = src.intersectTetra( tnodes );
     CPPUNIT_ASSERT_DOUBLES_EQUAL(refVol,volume,1e-9);
 
     // Now the other way round:
     SplitterTetra<__MESH_DUMMY> tgt( dummyMesh, tnodes, conn );
-    double volume2 = tgt.intersectTetra( snodes );
+    double const volume2 = tgt.intersectTetra( snodes );
     CPPUNIT_ASSERT_DOUBLES_EQUAL(refVol,volume2,1e-9);
   }
 
@@ -344,7 +346,7 @@ namespace INTERP_TEST
     //    double pSrc[3] = { -4.0, 9.0, 3.0 };
     double pSrc[3] = { 40., -20., 100. };
     double pDest[] = {1,1,1};
-    TetraAffineTransform a(nodes);
+    TetraAffineTransform const a(nodes);
     a.apply( pDest, pSrc );
     a.reverseApply( pDest, pDest );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( pSrc[0], pDest[0], 1e-12);
@@ -355,7 +357,7 @@ namespace INTERP_TEST
   void UnitTetraIntersectionBaryTest::test_barycentric_coords()
   {
     // compute barycentric coordinates
-    double nodes[4][3] = { {11.0, 0.0, 2.0 },
+    double const nodes[4][3] = { {11.0, 0.0, 2.0 },
                            {-4.0, 9.0, 3.0 },
                            { 0.0, 0.0, 0.0 }, 
                            { 6.0, 1.0,10.0 }};
@@ -404,9 +406,9 @@ namespace INTERP_TEST
                            { 1.0, 2.0, 0.0 }
     };
     // Translate cube:
-    for (int i=0; i < 8; ++i)
-      for (int j=0; j < 3; ++j)
-        nodes[i][j] += 15.0;
+    for (auto & node : nodes)
+      for (double & j : node)
+        j += 15.0;
 
     std::vector<const double*> n (8);
     for (int i=0; i<8; i++)
@@ -469,9 +471,9 @@ namespace INTERP_TEST
                            { 1.0, 0.0 } };
 
     // Translate quad4:
-    for (int i=0; i < 4; ++i)
-      for (int j=0; j < 2; ++j)
-        nodes[i][j] += 15.0;
+    for (auto & node : nodes)
+      for (double & j : node)
+        j += 15.0;
 
     std::vector<const double*> n (4);
     for (int i=0; i<4; i++)

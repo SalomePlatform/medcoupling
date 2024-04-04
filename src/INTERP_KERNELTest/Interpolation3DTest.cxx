@@ -20,14 +20,20 @@
 #include "Interpolation3DTest.hxx"
 
 #include "MEDFileMesh.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MeshTestToolkit.hxx"
 
-#include <map>
+#include <cstdlib>
+#include <cppunit/TestAssert.h>
 #include <cmath>
-#include <vector>
+#include <map>
+#include <string>
 #include <iostream>
 #include <algorithm>
+#include <vector>
+#include <numeric>
 
 #include "VectorUtils.hxx"
 

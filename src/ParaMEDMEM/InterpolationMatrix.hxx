@@ -20,10 +20,18 @@
 #ifndef __INTERPOLATIONMATRIX_HXX__
 #define __INTERPOLATIONMATRIX_HXX__
 
+#include "MCType.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingPointSet.hxx"
 #include "MPIAccessDEC.hxx"
 #include "MxN_Mapping.hxx"
 #include "InterpolationOptions.hxx"
 #include "DECOptions.hxx"
+#include "ParaFIELD.hxx"
+#include <string>
+#include <vector>
+#include <utility>
 
 namespace MEDCoupling
 {

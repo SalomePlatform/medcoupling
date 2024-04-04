@@ -20,6 +20,15 @@
 
 #include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include <istream>
+#include <vector>
+#include <ostream>
+#include <cmath>
+#include <math.h>
+#include <map>
+#include "MCIdType.hxx"
+#include <cstddef>
+#include <algorithm>
 
 using namespace INTERP_KERNEL;
 
@@ -44,12 +53,11 @@ Node::Node(std::istream& stream):_cnt(1),_loc(UNKNOWN)
 }
 
 Node::~Node()
-{
-}
+= default;
 
 bool Node::decrRef()
 {
-  bool ret=(--_cnt==0);
+  bool const ret=(--_cnt==0);
   if(ret)
     delete this;
   return ret;
@@ -75,7 +83,7 @@ double Node::getSlope(const Node& other) const
  */
 bool Node::isEqualAndKeepTrack(const Node& other, std::vector<Node *>& track) const
 {
-  bool ret=isEqual(other);
+  bool const ret=isEqual(other);
   if(ret)
     track.push_back(const_cast<Node *>(&other));
   return ret;
@@ -98,10 +106,10 @@ double Node::distanceWithSq(const Node& other) const
  */
 double Node::computeSlope(const double *pt1, const double *pt2)
 {
-  double x=pt2[0]-pt1[0];
-  double y=pt2[1]-pt1[1];
-  double norm=sqrt(x*x+y*y);
-  double ret=EdgeArcCircle::SafeAcos(fabs(x)/norm);
+  double const x=pt2[0]-pt1[0];
+  double const y=pt2[1]-pt1[1];
+  double const norm=sqrt(x*x+y*y);
+  double const ret=EdgeArcCircle::SafeAcos(fabs(x)/norm);
   if( (x>=0. && y>=0.) || (x<0. && y<0.) )
     return ret;
   else
@@ -114,9 +122,9 @@ double Node::computeSlope(const double *pt1, const double *pt2)
  */
 double Node::computeAngle(const double *pt1, const double *pt2)
 {
-  double x=pt2[0]-pt1[0];
-  double y=pt2[1]-pt1[1];
-  double norm=sqrt(x*x+y*y);
+  double const x=pt2[0]-pt1[0];
+  double const y=pt2[1]-pt1[1];
+  double const norm=sqrt(x*x+y*y);
   return EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(x/norm,y/norm);
 }
 
@@ -151,7 +159,7 @@ void Node::unApplySimilarity(double xBary, double yBary, double dimChar)
 void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
                              std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo, mcIdType *nodeId) const
 {
-  std::map<INTERP_KERNEL::Node *,mcIdType>::const_iterator it=mapOther.find(const_cast<Node *>(this));
+  auto it=mapOther.find(const_cast<Node *>(this));
   if(it!=mapOther.end())     // order matters, try in mapOther first.
     {
       *nodeId=(*it).second+offset1;
@@ -169,7 +177,7 @@ void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,mcIdType>& map
       *nodeId=(*it).second;
       return;
     }
-  int id=(int)addCoo.size()/2;
+  int const id=(int)addCoo.size()/2;
   addCoo.push_back(fact*_coords[0]+baryX);
   addCoo.push_back(fact*_coords[1]+baryY);
   *nodeId=offset2+id;
@@ -183,7 +191,7 @@ void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& ma
                               std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo, std::vector<mcIdType>& pointsOther) const
 {
   mcIdType tmp;
-  std::size_t sz1=addCoo.size();
+  std::size_t const sz1=addCoo.size();
   fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,&tmp);
   if(sz1!=addCoo.size()     // newly created point
       || (tmp >= offset2    // or previously created point merged with a neighbour
@@ -192,7 +200,7 @@ void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& ma
       pointsOther.push_back(tmp);
       return ;
     }
-  std::vector<mcIdType>::const_iterator it=std::find(pointsOther.begin(),pointsOther.end(),tmp);
+  std::vector<mcIdType>::const_iterator const it=std::find(pointsOther.begin(),pointsOther.end(),tmp);
   if(it!=pointsOther.end())
     return ;
   pointsOther.push_back(tmp);

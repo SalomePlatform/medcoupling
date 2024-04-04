@@ -28,7 +28,11 @@
 #include "MCType.hxx"
 
 #include "BoxSplittingOptions.hxx"
-#include "InterpKernelException.hxx"
+#include <vector>
+#include <utility>
+#include <string>
+#include <cstddef>
+#include <ostream>
 
 namespace MEDCoupling
 {
@@ -61,7 +65,7 @@ namespace MEDCoupling
     const MEDCouplingCartesianAMRMeshGen *getMeshSafe() const;
     MEDCouplingCartesianAMRMeshGen *getMeshSafe();
   private:
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
   protected:
     MCAuto<MEDCouplingCartesianAMRMeshGen> _mesh;
   };
@@ -74,7 +78,7 @@ namespace MEDCoupling
   public:
     MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMeshGen *mesh, const std::vector< std::pair<mcIdType,mcIdType> >& bottomLeftTopRight);
     std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRPatch"); }
-    MEDCouplingCartesianAMRPatch *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
+    MEDCouplingCartesianAMRPatch *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const override;
     // direct forward to _mesh
     MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<mcIdType,mcIdType> >& bottomLeftTopRight, const std::vector<mcIdType>& factors);
     // end of direct forward to _mesh
@@ -96,7 +100,7 @@ namespace MEDCoupling
   private:
     static void ComputeZonesOfTwoRelativeToOneDiffLev(mcIdType ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, std::vector< std::pair<mcIdType,mcIdType> >& p1Zone, std::vector< std::pair<mcIdType,mcIdType> >& p2Zone, std::vector<mcIdType>& factToApplyOn2);
   private:
-    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
     static const MEDCouplingCartesianAMRMeshGen *FindCommonAncestor(const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, mcIdType& lev);
     static std::vector<mcIdType> ComputeOffsetFromTwoToOne(const MEDCouplingCartesianAMRMeshGen *comAncestor, mcIdType lev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2);
     static void UpdateNeighborsOfOneWithTwoInternal(mcIdType ghostLev, const std::vector<mcIdType>& factors, const std::vector< std::pair<mcIdType,mcIdType> >&p1 ,const std::vector< std::pair<mcIdType,mcIdType> >&p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2);
@@ -118,9 +122,9 @@ namespace MEDCoupling
   public:
     MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh);
     std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRPatchGF"); }
-    MEDCouplingCartesianAMRPatchGF *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
+    MEDCouplingCartesianAMRPatchGF *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const override;
   private:
-    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
   private:
     MEDCouplingCartesianAMRPatchGF(const MEDCouplingCartesianAMRPatchGF& other, MEDCouplingCartesianAMRMeshGen *father);
   };
@@ -204,9 +208,9 @@ namespace MEDCoupling
   public:
     virtual void getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<mcIdType>& ret) const = 0;
   protected:
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDCOUPLING_EXPORT void updateTime() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDCOUPLING_EXPORT void updateTime() const override;
   protected:
     MCAuto<MEDCouplingIMesh> _mesh;
     std::vector< MCAuto<MEDCouplingCartesianAMRPatch> > _patches;
@@ -218,16 +222,16 @@ namespace MEDCoupling
   public:
     MEDCouplingCartesianAMRMeshSub(MEDCouplingCartesianAMRMeshGen *father, MEDCouplingIMesh *mesh);
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRMeshSub"); }
-    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const;
-    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
-    MEDCOUPLING_EXPORT mcIdType getAbsoluteLevel() const;
-    MEDCOUPLING_EXPORT void detachFromFather();
-    MEDCOUPLING_EXPORT std::vector< std::pair<mcIdType,mcIdType> > positionRelativeToGodFather(std::vector<mcIdType>& st) const;
-    MEDCOUPLING_EXPORT mcIdType getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const;
+    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const override;
+    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const override;
+    MEDCOUPLING_EXPORT mcIdType getAbsoluteLevel() const override;
+    MEDCOUPLING_EXPORT void detachFromFather() override;
+    MEDCOUPLING_EXPORT std::vector< std::pair<mcIdType,mcIdType> > positionRelativeToGodFather(std::vector<mcIdType>& st) const override;
+    MEDCOUPLING_EXPORT mcIdType getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const override;
   private:
     MEDCouplingCartesianAMRMeshSub(const MEDCouplingCartesianAMRMeshSub& other, MEDCouplingCartesianAMRMeshGen *father);
-    MEDCouplingCartesianAMRMeshSub *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
-    void getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<mcIdType>& ret) const;
+    MEDCouplingCartesianAMRMeshSub *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const override;
+    void getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<mcIdType>& ret) const override;
   protected:
     MEDCouplingCartesianAMRMeshGen *_father;
   };
@@ -239,23 +243,23 @@ namespace MEDCoupling
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(MEDCouplingIMesh *mesh);
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRMesh"); }
-    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const;
-    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
-    MEDCOUPLING_EXPORT mcIdType getAbsoluteLevel() const;
-    MEDCOUPLING_EXPORT void detachFromFather();
-    MEDCOUPLING_EXPORT std::vector< std::pair<mcIdType,mcIdType> > positionRelativeToGodFather(std::vector<mcIdType>& st) const;
-    MEDCOUPLING_EXPORT mcIdType getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const;
-    MEDCOUPLING_EXPORT std::vector<MEDCouplingCartesianAMRPatchGen *> retrieveGridsAt(mcIdType absoluteLev) const;
-    MEDCouplingCartesianAMRMesh *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
+    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const override;
+    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const override;
+    MEDCOUPLING_EXPORT mcIdType getAbsoluteLevel() const override;
+    MEDCOUPLING_EXPORT void detachFromFather() override;
+    MEDCOUPLING_EXPORT std::vector< std::pair<mcIdType,mcIdType> > positionRelativeToGodFather(std::vector<mcIdType>& st) const override;
+    MEDCOUPLING_EXPORT mcIdType getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const override;
+    MEDCOUPLING_EXPORT std::vector<MEDCouplingCartesianAMRPatchGen *> retrieveGridsAt(mcIdType absoluteLev) const override;
+    MEDCouplingCartesianAMRMesh *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const override;
     MEDCOUPLING_EXPORT void createPatchesFromCriterionML(const std::vector<const INTERP_KERNEL::BoxSplittingOptions *>& bso, const DataArrayDouble *criterion, const std::vector< std::vector<mcIdType> >& factors, double eps);
   private:
-    void getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<mcIdType>& ret) const;
+    void getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<mcIdType>& ret) const override;
     MEDCouplingCartesianAMRMesh(const MEDCouplingCartesianAMRMesh& other);
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop,
                                 const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCouplingCartesianAMRMesh(MEDCouplingIMesh *mesh);
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    ~MEDCouplingCartesianAMRMesh();
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    ~MEDCouplingCartesianAMRMesh() override;
   };
 }
 

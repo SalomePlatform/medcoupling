@@ -19,6 +19,13 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingMemArray.txx"
+#include "MCType.hxx"
+#include <string>
+#include <ostream>
+#include <cstddef>
+#include <algorithm>
+#include <iterator>
+#include <sstream>
 
 using namespace MEDCoupling;
 
@@ -40,8 +47,8 @@ DataArrayFloat *DataArrayFloat::deepCopy() const
 
 void DataArrayFloat::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
-  mcIdType nbTuples(getNumberOfTuples());
-  std::size_t nbComp(getNumberOfComponents());
+  mcIdType const nbTuples(getNumberOfTuples());
+  std::size_t const nbComp(getNumberOfComponents());
   const float *data(begin());
   stream.precision(7);
   stream << "DataArrayFloat *" << varName << "=DataArrayFloat::New();" << std::endl;
@@ -63,10 +70,10 @@ void DataArrayFloat::reprQuickOverview(std::ostream& stream) const
   stream << "DataArrayFloat C++ instance at " << this << ". ";
   if(isAllocated())
     {
-      std::size_t nbOfCompo=_info_on_compo.size();
+      std::size_t const nbOfCompo=_info_on_compo.size();
       if(nbOfCompo>=1)
         {
-          mcIdType nbOfTuples=getNumberOfTuples();
+          mcIdType const nbOfTuples=getNumberOfTuples();
           stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
           reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
         }
@@ -80,8 +87,8 @@ void DataArrayFloat::reprQuickOverview(std::ostream& stream) const
 void DataArrayFloat::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const
 {
   const float *data(begin());
-  mcIdType nbOfTuples(getNumberOfTuples());
-  std::size_t nbOfCompo=_info_on_compo.size();
+  mcIdType const nbOfTuples(getNumberOfTuples());
+  std::size_t const nbOfCompo=_info_on_compo.size();
   std::ostringstream oss2; oss2 << "[";
   oss2.precision(7);
   std::string oss2Str(oss2.str());
@@ -101,7 +108,7 @@ void DataArrayFloat::reprQuickOverviewData(std::ostream& stream, std::size_t max
       else
         oss2 << *data++;
       if(i!=nbOfTuples-1) oss2 << ", ";
-      std::string oss3Str(oss2.str());
+      std::string const oss3Str(oss2.str());
       if(oss3Str.length()<maxNbOfByteInRepr)
         oss2Str=oss3Str;
       else

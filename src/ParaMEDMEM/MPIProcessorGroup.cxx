@@ -20,11 +20,10 @@
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "CommInterface.hxx"
-#include "InterpolationUtils.hxx"
 
+#include <cstdlib>
 #include <iostream>
-#include <set>
-#include <algorithm>
+#include <string>
 #include "mpi.h"
 
 using namespace std;
@@ -165,7 +164,7 @@ namespace MEDCoupling
         _comm_interface.groupFree(&group_world);
         throw INTERP_KERNEL::Exception("invalid argument in MPIProcessorGroup constructor (comm,pfirst,plast)");
       }
-    int nprocs=pend-pstart+1;
+    int const nprocs=pend-pstart+1;
     int* ranks=new int[nprocs];
     for (int i=pstart; i<=pend;i++)
       {
@@ -222,7 +221,7 @@ namespace MEDCoupling
   */
   int MPIProcessorGroup::translateRank(const ProcessorGroup* group, int rank) const
   {
-    const MPIProcessorGroup* targetgroup=dynamic_cast<const MPIProcessorGroup*>(group);
+    const auto* targetgroup=dynamic_cast<const MPIProcessorGroup*>(group);
     int local_rank;
     MPI_Group_translate_ranks(targetgroup->_group, 1, &rank, _group, &local_rank);
     return local_rank;
@@ -235,7 +234,7 @@ namespace MEDCoupling
   ProcessorGroup* MPIProcessorGroup::createComplementProcGroup() const
   {
     set <int> procs;
-    int world_size=_comm_interface.worldSize();
+    int const world_size=_comm_interface.worldSize();
     for (int i=0; i<world_size; i++)
       procs.insert(i);
     for (set<int>::const_iterator iter=_proc_ids.begin(); iter!= _proc_ids.end(); iter++)

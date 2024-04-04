@@ -35,10 +35,10 @@ namespace MEDPARTITIONER
   class MEDPARTITIONER_EXPORT PTSCOTCHGraph : public Graph
   {
   public:
-    PTSCOTCHGraph() { }
-    PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray* , int *edgeweight=0, DataArrayIdType *vlbloctab=0);
-    virtual ~PTSCOTCHGraph();
-    void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=0);
+    PTSCOTCHGraph() = default;
+    PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray* , int *edgeweight=nullptr, DataArrayIdType *vlbloctab=nullptr);
+    ~PTSCOTCHGraph() override;
+    void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=nullptr) override;
   protected:
     MEDCoupling::DataArrayIdType *_vlbloctab;
   };

@@ -28,13 +28,12 @@ INTERP_KERNEL::Exception::Exception(const std::string& reason):_reason(reason)
 {
 }
 
-INTERP_KERNEL::Exception::Exception(const char *reason, const char *file, int line):_reason(reason)
+INTERP_KERNEL::Exception::Exception(const char *reason, const char * /*file*/, int  /*line*/):_reason(reason)
 {
 }
 
 INTERP_KERNEL::Exception::~Exception() noexcept(true)
-{
-}
+= default;
 
 const char *INTERP_KERNEL::Exception::what() const noexcept(true)
 {

@@ -22,6 +22,8 @@
 #define __CURVEINTERSECTORP1P1PL_HXX__
 
 #include "CurveIntersector.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -31,7 +33,7 @@ namespace INTERP_KERNEL
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
-    typedef typename MyMeshType::MyConnType ConnType;
+    using ConnType = typename MyMeshType::MyConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
 
     CurveIntersectorP1P1PL(const MyMeshType& meshT, const MyMeshType& meshS,

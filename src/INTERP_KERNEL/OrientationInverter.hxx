@@ -31,7 +31,7 @@ namespace INTERP_KERNEL
   {
   public:
     INTERPKERNEL_EXPORT static OrientationInverter *BuildInstanceFrom(NormalizedCellType gt);
-    INTERPKERNEL_EXPORT virtual ~OrientationInverter() { }
+    INTERPKERNEL_EXPORT virtual ~OrientationInverter() = default;
     INTERPKERNEL_EXPORT virtual void operate(mcIdType *beginPt, mcIdType *endPt) const = 0;
   };
 
@@ -39,7 +39,7 @@ namespace INTERP_KERNEL
   {
   public:
     OrientationInverterChecker(unsigned nbNodes):_nb_nodes(nbNodes) { }
-    void operate(mcIdType *beginPt, mcIdType *endPt) const { check(beginPt,endPt); operateAndShutUp(beginPt); }
+    void operate(mcIdType *beginPt, mcIdType *endPt) const override { check(beginPt,endPt); operateAndShutUp(beginPt); }
     virtual void operateAndShutUp(mcIdType *beginPt) const = 0;
   protected:
     unsigned getNbNodes() const { return _nb_nodes; }
@@ -53,82 +53,82 @@ namespace INTERP_KERNEL
   {
   public:
     OrientationInverterSEG2():OrientationInverterChecker(2u) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverterSEG3 : public OrientationInverterChecker
   {
   public:
     OrientationInverterSEG3():OrientationInverterChecker(3u) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverter2DLinear : public OrientationInverterChecker
   {
   public:
     OrientationInverter2DLinear(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverter2DQuadratic : public OrientationInverterChecker
   {
   public:
     OrientationInverter2DQuadratic(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverterPolygon : public OrientationInverter
   {
   public:
-    void operate(mcIdType *beginPt, mcIdType *endPt) const;
+    void operate(mcIdType *beginPt, mcIdType *endPt) const override;
   };
 
   class OrientationInverterQPolygon : public OrientationInverter
   {
   public:
-    void operate(mcIdType *beginPt, mcIdType *endPt) const;
+    void operate(mcIdType *beginPt, mcIdType *endPt) const override;
   };
 
   class OrientationInverterTetra4 : public OrientationInverterChecker
   {
   public:
     OrientationInverterTetra4():OrientationInverterChecker(4u) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverterTetra10 : public OrientationInverterChecker
   {
   public:
     OrientationInverterTetra10():OrientationInverterChecker(10u) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverterPyra5 : public OrientationInverterChecker
   {
   public:
     OrientationInverterPyra5():OrientationInverterChecker(5u) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverterPyra13 : public OrientationInverterChecker
   {
   public:
     OrientationInverterPyra13():OrientationInverterChecker(13u) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverter3DExtrusionLinear : public OrientationInverterChecker
   {
   public:
     OrientationInverter3DExtrusionLinear(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 
   class OrientationInverter3DExtrusionQuadratic : public OrientationInverterChecker
   {
   public:
     OrientationInverter3DExtrusionQuadratic(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
-    void operateAndShutUp(mcIdType *beginPt) const;
+    void operateAndShutUp(mcIdType *beginPt) const override;
   };
 }
 

@@ -22,6 +22,9 @@
 #include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DNode.hxx"
+#include <cmath>
+#include <algorithm>
+#include "InterpKernelGeo2DPrecision.hxx"
 
 using namespace INTERP_KERNEL;
 
@@ -59,8 +62,8 @@ double &Bounds::operator[](int i)
 
 double Bounds::getDiagonal() const
 {
-  double a=_x_max-_x_min;
-  double b=_y_max-_y_min;
+  double const a=_x_max-_x_min;
+  double const b=_y_max-_y_min;
   return sqrt(a*a+b*b);
 }
 
@@ -108,14 +111,14 @@ void Bounds::prepareForAggregation()
  */
 void Bounds::getInterceptedArc(const double *center, double radius, double& intrcptArcAngle0, double& intrcptArcDelta) const
 {
-  double diag=getDiagonal();
+  double const diag=getDiagonal();
   if(diag<2.*radius)
     {
       double v1[2],v2[2],w1[2],w2[2];
       v1[0]=_x_min-center[0]; v1[1]=_y_max-center[1]; v2[0]=_x_max-center[0]; v2[1]=_y_min-center[1];
       w1[0]=v1[0]; w1[1]=_y_min-center[1];           w2[0]=v2[0]; w2[1]=_y_max-center[1];
-      double delta1=EdgeArcCircle::SafeAsin(v1[0]*v2[1]-v1[1]*v2[0]);
-      double delta2=EdgeArcCircle::SafeAsin(w1[0]*w2[1]-w1[1]*w2[0]);
+      double const delta1=EdgeArcCircle::SafeAsin(v1[0]*v2[1]-v1[1]*v2[0]);
+      double const delta2=EdgeArcCircle::SafeAsin(w1[0]*w2[1]-w1[1]*w2[0]);
       double tmp;
       if(fabs(delta1)>fabs(delta2))
         {
@@ -133,7 +136,7 @@ void Bounds::getInterceptedArc(const double *center, double radius, double& intr
 double Bounds::fitXForXFigD(double val, int res) const
 {
   double delta=std::max(_x_max-_x_min,_y_max-_y_min)/2.;
-  double ret=val-(_x_max+_x_min)/2.+delta;
+  double const ret=val-(_x_max+_x_min)/2.+delta;
   delta=11.1375*res/(2.*delta);
   return ret*delta;
 }
@@ -141,17 +144,17 @@ double Bounds::fitXForXFigD(double val, int res) const
 double Bounds::fitYForXFigD(double val, int res) const
 {
   double delta=std::max(_x_max-_x_min,_y_max-_y_min)/2.;
-  double ret=(_y_max+_y_min)/2.-val+delta;
+  double const ret=(_y_max+_y_min)/2.-val+delta;
   delta=11.1375*res/(2.*delta);
   return ret*delta;
 }
 
 Bounds *Bounds::nearlyAmIIntersectingWith(const Bounds& other) const
 {
-  double eps = QuadraticPlanarPrecision::getPrecision();
+  double const eps = QuadraticPlanarPrecision::getPrecision();
   if( (other._x_min > _x_max+eps) || (other._x_max < _x_min-eps) || (other._y_min > _y_max+eps)
       || (other._y_max < _y_min-eps) )
-    return 0;
+    return nullptr;
   if( (other._x_min >= _x_max ) || (other._x_max <= _x_min) || (other._y_min >= _y_max) || (other._y_max <= _y_min) )
     {
       return new Bounds(std::max(_x_min-eps,other._x_min),
@@ -166,7 +169,7 @@ Bounds *Bounds::nearlyAmIIntersectingWith(const Bounds& other) const
 Bounds *Bounds::amIIntersectingWith(const Bounds& other) const
 {
   if( (other._x_min > _x_max) || (other._x_max < _x_min) || (other._y_min > _y_max) || (other._y_max < _y_min) )
-    return 0;
+    return nullptr;
   return new Bounds(std::max(_x_min,other._x_min),std::min(_x_max,other._x_max),std::max(_y_min,other._y_min),std::min(_y_max,other._y_max));
 }
 
@@ -180,8 +183,8 @@ Position Bounds::where(double x, double y) const
 
 Position Bounds::nearlyWhere(double x, double y) const
 {
-  bool thinX=Node::areDoubleEquals(_x_min,_x_max);
-  bool thinY=Node::areDoubleEquals(_y_min,_y_max);
+  bool const thinX=Node::areDoubleEquals(_x_min,_x_max);
+  bool const thinY=Node::areDoubleEquals(_y_min,_y_max);
   if(!thinX)
     {
       if((Node::areDoubleEquals(x,_x_min) || Node::areDoubleEquals(x,_x_max)) && ((y<_y_max+QuadraticPlanarPrecision::getPrecision()) && (y>_y_min-QuadraticPlanarPrecision::getPrecision())))

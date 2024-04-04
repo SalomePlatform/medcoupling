@@ -21,11 +21,9 @@
 #ifndef __POINTLOCATORINTERSECTOR_HXX__
 #define __POINTLOCATORINTERSECTOR_HXX__
 
-#include "PlanarIntersectorP0P0.hxx"
-#include "PlanarIntersectorP0P1.hxx"
-#include "PlanarIntersectorP1P0.hxx"
-#include "PlanarIntersectorP1P1.hxx"
-#include "PlanarIntersectorP1P0Bary.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include "NormalizedGeometricTypes"
+#include <vector>
 
 namespace INTERP_KERNEL
 {

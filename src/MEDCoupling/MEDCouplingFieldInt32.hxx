@@ -20,9 +20,14 @@
 
 #pragma once
 
+#include "MCType.hxx"
 #include "MEDCoupling.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingFieldT.hxx"
-#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingTraits.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MEDCouplingTimeDiscretization.hxx"
 
 #include <string>
 
@@ -37,7 +42,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingFieldInt32 *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     MEDCOUPLING_EXPORT static MEDCouplingFieldInt32 *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
     MEDCOUPLING_EXPORT MEDCouplingFieldInt32 *deepCopy() const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldInt32 *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt32 *clone(bool recDeepCpy) const override;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *convertToFloatField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *convertToInt64Field() const;
@@ -47,6 +52,6 @@ namespace MEDCoupling
     MEDCouplingFieldInt32(const MEDCouplingFieldInt32& other, bool deepCopy);
     MEDCouplingFieldInt32(NatureOfField n, MEDCouplingTimeDiscretizationInt32 *td, MEDCouplingFieldDiscretization *type);
     MEDCouplingFieldInt32(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
-    ~MEDCouplingFieldInt32() { }
+    ~MEDCouplingFieldInt32() override = default;
   };
 }

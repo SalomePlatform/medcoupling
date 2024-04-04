@@ -18,8 +18,11 @@
 //
 
 #include "ThreeDSurfProjectionTest.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "PlanarIntersector.txx"
 #include "MCIdType.hxx"
+#include <algorithm>
+#include <cppunit/TestAssert.h>
 
 class MyMeshType
 {
@@ -45,7 +48,7 @@ void INTERP_TEST::ThreeDSurfProjectionTest::test1()
   //MEDCouplingPointSet.Rotate3DAlg([0.,0.,0.],[2.,1.,3.],0.3,coo2)
   const double coo[9]={0.,0.,0.,0.96809749223257568,0.24332379388106262,-0.059839592782071335,-0.23056279077409292,0.95852673990234838,0.16753294721527912};
   const double coo2[9]={9.8122602102980502e-08,-1.4839144255482456e-7,9.8404874611628791e-7,0.96809759035517784,0.24332364548962007,-0.059838608733325221,-0.23056269265149082,0.9585265915109058,0.16753393126402524};
-  double *tmp0(new double[9]),*tmp1(new double[9]);
+  auto *tmp0(new double[9]),*tmp1(new double[9]);
   int ret;
   //eps=1e-2. eps is a tolerance to detect that two points are the same or not in a same polygon.
   // here the max 3D distance is 1e-5 > 1e-6 so 1 is expected
@@ -90,7 +93,7 @@ void INTERP_TEST::ThreeDSurfProjectionTest::test2()
   //
   const double coo[9]={0.,0.,0.,0.96809749223257568,0.24332379388106262,-0.059839592782071335,-0.23056279077409292,0.95852673990234838,0.16753294721527912};
   const double coo2[9]={7.2311562622637225e-07,6.8998795679738294e-07,3.1943866106249849e-08,0.72852072144314628,0.33125439126063028,0.5996079016637561,0.0090154262465889021,0.87059752249869415,-0.49191448334281612};
-  double *tmp0(new double[9]),*tmp1(new double[9]);
+  auto *tmp0(new double[9]),*tmp1(new double[9]);
   int ret;
   //eps=1e-2. eps is a tolerance to detect that two points are the same or not in a same polygon.
   // here the max 3D distance is 1e-5 > 1e-6 so 1 is expected

@@ -24,20 +24,36 @@
 #include "SauvMedConvertor.hxx"
 
 #include "CellModel.hxx"
+#include "InterpKernelException.hxx"
+#include "MCIdType.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileData.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "NormalizedGeometricTypes"
+#include "SauvUtilities.hxx"
 
+#include <algorithm>
+#include <cstdio>
 #include <iostream>
 #include <cassert>
 #include <cmath>
+#include <map>
+#include <list>
 #include <queue>
 #include <limits>
 
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
+#include <vector>
+#include <utility>
+#include <set>
+#include <sstream>
 
 #ifdef WIN32
 #include <io.h>
@@ -46,7 +62,6 @@
 #endif
 
 #ifdef HAS_XDR
-#include <rpc/types.h>
 #include <rpc/xdr.h>
 #endif
 
@@ -196,9 +211,9 @@ namespace
   inline void reverse(const Cell & aCell, const std::vector<std::pair<int,int> > & swapVec )
   {
     Cell* ma = const_cast<Cell*>(&aCell);
-    for ( unsigned i = 0; i < swapVec.size(); ++i )
-      std::swap( ma->_nodes[ swapVec[i].first ],
-                 ma->_nodes[ swapVec[i].second ]);
+    for (const auto & i : swapVec)
+      std::swap( ma->_nodes[ i.first ],
+                 ma->_nodes[ i.second ]);
     if ( swapVec.empty() )
       ma->_reverse = true;
     else
@@ -215,7 +230,7 @@ namespace
       return i1->_number < i2->_number;
     }
   };
-  typedef std::map< const Cell*, unsigned, TCellByIDCompare > TCellToOrderMap;
+  using TCellToOrderMap = std::map<const Cell *, unsigned int, TCellByIDCompare>;
 
   //================================================================================
   /*!
@@ -230,7 +245,7 @@ namespace
     // check if relocation table is necessary
     bool isRelocated = false;
     unsigned newOrder = 0;
-    TCellToOrderMap::iterator c2oIt = cell2order.begin(), c2oEnd = cell2order.end();
+    auto c2oIt = cell2order.begin(), c2oEnd = cell2order.end();
     for ( ; !isRelocated && c2oIt != c2oEnd; ++c2oIt, ++newOrder )
       isRelocated = ( c2oIt->second != newOrder );
 
@@ -245,9 +260,9 @@ namespace
 
 namespace // define default GAUSS points
 {
-  typedef std::vector<double> TDoubleVector;
-  typedef double*             TCoordSlice;
-  typedef int                 TInt;
+  using TDoubleVector = std::vector<double>;
+  using TCoordSlice = double *;
+  using TInt = int;
   //---------------------------------------------------------------
   //! Shape function definitions
   //---------------------------------------------------------------
@@ -415,7 +430,7 @@ namespace // define default GAUSS points
   //---------------------------------------------------------------
   TSeg2a::TSeg2a():TShapeFun(1,2)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -427,7 +442,7 @@ namespace // define default GAUSS points
   //---------------------------------------------------------------
   TSeg3a::TSeg3a():TShapeFun(1,3)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -441,7 +456,7 @@ namespace // define default GAUSS points
   TTria3a::TTria3a():
     TShapeFun(2,3)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -454,7 +469,7 @@ namespace // define default GAUSS points
   //---------------------------------------------------------------
   TTria6a::TTria6a():TShapeFun(2,6)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -472,7 +487,7 @@ namespace // define default GAUSS points
   TTria3b::TTria3b():
     TShapeFun(2,3)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -486,7 +501,7 @@ namespace // define default GAUSS points
   TTria6b::TTria6b():
     TShapeFun(2,6)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -504,7 +519,7 @@ namespace // define default GAUSS points
   TQuad4a::TQuad4a():
     TShapeFun(2,4)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -519,7 +534,7 @@ namespace // define default GAUSS points
   TQuad8a::TQuad8a():
     TShapeFun(2,8)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -539,7 +554,7 @@ namespace // define default GAUSS points
   TQuad4b::TQuad4b():
     TShapeFun(2,4)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -554,7 +569,7 @@ namespace // define default GAUSS points
   TQuad8b::TQuad8b():
     TShapeFun(2,8)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -574,7 +589,7 @@ namespace // define default GAUSS points
   TTetra4a::TTetra4a():
     TShapeFun(3,4)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -589,7 +604,7 @@ namespace // define default GAUSS points
   TTetra10a::TTetra10a():
     TShapeFun(3,10)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -612,7 +627,7 @@ namespace // define default GAUSS points
   TTetra4b::TTetra4b():
     TShapeFun(3,4)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -627,7 +642,7 @@ namespace // define default GAUSS points
   TTetra10b::TTetra10b():
     TShapeFun(3,10)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -650,7 +665,7 @@ namespace // define default GAUSS points
   THexa8a::THexa8a():
     TShapeFun(3,8)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -669,7 +684,7 @@ namespace // define default GAUSS points
   THexa20a::THexa20a(TInt theDim, TInt theNbRef):
     TShapeFun(theDim,theNbRef)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -701,7 +716,7 @@ namespace // define default GAUSS points
   THexa27a::THexa27a():
     THexa20a(3,27)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -719,7 +734,7 @@ namespace // define default GAUSS points
   THexa8b::THexa8b():
     TShapeFun(3,8)
   {
-    TInt aNbRef = GetNbRef();
+    TInt const aNbRef = GetNbRef();
     for(TInt aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -738,7 +753,7 @@ namespace // define default GAUSS points
   THexa20b::THexa20b(TInt theDim, TInt theNbRef):
     TShapeFun(theDim,theNbRef)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -770,7 +785,7 @@ namespace // define default GAUSS points
   TPenta6a::TPenta6a():
     TShapeFun(3,6)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -787,7 +802,7 @@ namespace // define default GAUSS points
   TPenta6b::TPenta6b():
     TShapeFun(3,6)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -804,7 +819,7 @@ namespace // define default GAUSS points
   TPenta15a::TPenta15a():
     TShapeFun(3,15)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -831,7 +846,7 @@ namespace // define default GAUSS points
   TPenta15b::TPenta15b():
     TShapeFun(3,15)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -858,7 +873,7 @@ namespace // define default GAUSS points
   TPyra5a::TPyra5a():
     TShapeFun(3,5)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -874,7 +889,7 @@ namespace // define default GAUSS points
   TPyra5b::TPyra5b():
     TShapeFun(3,5)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -890,7 +905,7 @@ namespace // define default GAUSS points
   TPyra13a::TPyra13a():
     TShapeFun(3,13)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -915,7 +930,7 @@ namespace // define default GAUSS points
   TPyra13b::TPyra13b():
     TShapeFun(3,13)
   {
-    std::size_t aNbRef = myRefCoord.size();
+    std::size_t const aNbRef = myRefCoord.size();
     for(std::size_t aRefId = 0; aRefId < aNbRef; aRefId++){
       TCoordSlice aCoord = GetCoord(aRefId);
       switch(aRefId){
@@ -1474,7 +1489,7 @@ const int * SauvUtilities::getGibi2MedQuadraticInterlace( INTERP_KERNEL::Normali
   static const int seg3   [] = {0,2,1};
   if ( conn.empty() )
     {
-      conn.resize( MaxMedCellType + 1, 0 );
+      conn.resize( MaxMedCellType + 1, nullptr );
       conn[ NORM_HEXA20 ] = hexa20;
       conn[ NORM_PENTA15] = penta15;
       conn[ NORM_PYRA13 ] = pyra13;
@@ -1493,7 +1508,7 @@ const int * SauvUtilities::getGibi2MedQuadraticInterlace( INTERP_KERNEL::Normali
 //================================================================================
 
 Cell::Cell(const Cell& ma)
-  : _nodes(ma._nodes), _reverse(ma._reverse), _sortedNodeIDs(0), _number(ma._number)
+  : _nodes(ma._nodes), _reverse(ma._reverse),  _number(ma._number)
 {
   if ( ma._sortedNodeIDs )
     {
@@ -1510,7 +1525,7 @@ Cell::Cell(const Cell& ma)
 
 SauvUtilities::Link Cell::link(int i) const
 {
-  std::size_t i2 = ( i + 1 ) % _nodes.size();
+  std::size_t const i2 = ( i + 1 ) % _nodes.size();
   if ( _reverse )
     return std::make_pair( _nodes[i2]->_number, _nodes[i]->_number );
   else
@@ -1527,7 +1542,7 @@ const TID* Cell::getSortedNodes() const
 {
   if ( !_sortedNodeIDs )
     {
-      size_t l=_nodes.size();
+      size_t const l=_nodes.size();
       _sortedNodeIDs = new TID[ l ];
 
       for (size_t i=0; i!=l; ++i)
@@ -1598,8 +1613,8 @@ mcIdType Group::size() const
   else if ( !_cells.empty() )
     sizze = _cells.size();
   else
-    for ( size_t i = 0; i < _groups.size(); ++i )
-      sizze += _groups[i]->size();
+    for (auto _group : _groups)
+      sizze += _group->size();
   return ToIdType( sizze );
 }
 
@@ -1704,11 +1719,11 @@ ASCIIReader::~ASCIIReader()
   if (_file >= 0)
     {
       ::close (_file);
-      if (_start != 0L)
+      if (_start != nullptr)
         {
           delete [] _start;
           //delete [] _tmpBuf;
-          _start = 0;
+          _start = nullptr;
         }
       _file = -1;
     }
@@ -1817,7 +1832,7 @@ void ASCIIReader::init( int nbToRead, int nbPosInLine, int width, int shift /*= 
     }
   else
     {
-      _curPos = 0;
+      _curPos = nullptr;
     }
 }
 
@@ -1897,7 +1912,7 @@ void ASCIIReader::next()
     }
   else
     {
-      _curPos = 0;
+      _curPos = nullptr;
     }
 }
 
@@ -1916,9 +1931,9 @@ int ASCIIReader::getInt() const
   // 53619906   |                                                                SCALAIRE
   // 53619907   |    -63312600499       1       0       0       0      -2       0       2
   //   where -63312600499 is actually -633 and 12600499
-  char hold=_curPos[_width];
+  char const hold=_curPos[_width];
   _curPos[_width] = '\0';
-  int result = atoi( _curPos );
+  int const result = atoi( _curPos );
   _curPos[_width] = hold;
   return result;
   //return atoi(str());
@@ -1992,7 +2007,7 @@ std::string ASCIIReader::getName() const
  */
 //================================================================================
 
-XDRReader::XDRReader(const char* fileName) :FileReader(fileName), _xdrs_file(NULL)
+XDRReader::XDRReader(const char* fileName) :FileReader(fileName), _xdrs_file(nullptr)
 {
 }
 
@@ -2010,7 +2025,7 @@ XDRReader::~XDRReader()
       xdr_destroy((XDR*)_xdrs);
       free((XDR*)_xdrs);
       ::fclose(_xdrs_file);
-      _xdrs_file = NULL;
+      _xdrs_file = nullptr;
     }
 #endif
 }
@@ -2058,7 +2073,7 @@ bool XDRReader::open()
             xdr_destroy((XDR*)_xdrs);
             free((XDR*)_xdrs);
             fclose(_xdrs_file);
-            _xdrs_file = NULL;
+            _xdrs_file = nullptr;
           }
       }
 #endif
@@ -2109,7 +2124,7 @@ void XDRReader::initNameReading(int nbValues, int width)
   _xdr_kind = _xdr_kind_char;
   if(nbValues*width)
     {
-      unsigned int nels = nbValues*width;
+      unsigned int const nels = nbValues*width;
       _xdr_cvals = (char*)malloc((nels+1)*sizeof(char));
 #ifdef HAS_XDR
       xdr_string((XDR*)_xdrs, &_xdr_cvals, nels);
@@ -2131,7 +2146,7 @@ void XDRReader::initIntReading(int nbValues)
   if(nbValues)
     {
 #ifdef HAS_XDR
-      unsigned int nels = nbValues;
+      unsigned int const nels = nbValues;
       unsigned int actual_nels;
       _xdr_ivals = (int*)malloc(nels*sizeof(int));
       xdr_array((XDR*)_xdrs, (char **)&_xdr_ivals, &actual_nels, nels, sizeof(int), (xdrproc_t)xdr_int);
@@ -2152,7 +2167,7 @@ void XDRReader::initDoubleReading(int nbValues)
   if(nbValues)
     {
 #ifdef HAS_XDR
-      unsigned int nels = nbValues;
+      unsigned int const nels = nbValues;
       unsigned int actual_nels;
       _xdr_dvals = (double*)malloc(nels*sizeof(double));
       xdr_array((XDR*)_xdrs, (char **)&_xdr_dvals, &actual_nels, nels, sizeof(double), (xdrproc_t)xdr_double);
@@ -2317,37 +2332,37 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
           // correct pointers to sub-groups
           for ( size_t j = 0; j < _groups[i]._groups.size(); ++j )
             {
-              std::size_t iG = _groups[i]._groups[j] - &_groups[0];
+              std::size_t const iG = _groups[i]._groups[j] - &_groups[0];
               newGroups[i]._groups[j] = & newGroups[ iG ];
             }
         }
 
       // fix given groups
       if ( groupsToFix )
-        for ( size_t i = 0; i < groupsToFix->size(); ++i )
-          if ( (*groupsToFix)[i] )
+        for (auto & i : *groupsToFix)
+          if ( i )
             {
-              std::size_t iG = (*groupsToFix)[i] - &_groups[0];
-              (*groupsToFix)[i] = & newGroups[ iG ];
+              std::size_t const iG = i - &_groups[0];
+              i = & newGroups[ iG ];
             }
 
       // fix field supports
       for ( int isNode = 0; isNode < 2; ++isNode )
         {
-          std::vector<DoubleField* >& fields = isNode ? _nodeFields : _cellFields;
-          for ( size_t i = 0; i < fields.size(); ++i )
+          std::vector<DoubleField* > const& fields = isNode ? _nodeFields : _cellFields;
+          for (auto & field : fields)
             {
-              if ( !fields[i] ) continue;
-              for ( size_t j = 0; j < fields[i]->_sub.size(); ++j )
-                if ( fields[i]->_sub[j]._support )
+              if ( !field ) continue;
+              for (auto & j : field->_sub)
+                if ( j._support )
                   {
-                    std::size_t iG = fields[i]->_sub[j]._support - &_groups[0];
-                    fields[i]->_sub[j]._support = & newGroups[ iG ];
+                    std::size_t const iG = j._support - &_groups[0];
+                    j._support = & newGroups[ iG ];
                   }
-              if ( fields[i]->_group )
+              if ( field->_group )
                 {
-                  std::size_t iG = fields[i]->_group - &_groups[0];
-                  fields[i]->_group = & newGroups[ iG ];
+                  std::size_t const iG = field->_group - &_groups[0];
+                  field->_group = & newGroups[ iG ];
                 }
             }
         }
@@ -2440,9 +2455,9 @@ void IntermediateMED::setGroupLongNames()
 
   // IMP 0023285: only keep the meshes named in the table MED_MAIL
   // clear all group names
-  for ( size_t i = 0; i < _groups.size(); ++i )
-    if ( !_groups[i]._isProfile )
-      _groups[i]._name.clear();
+  for (auto & _group : _groups)
+    if ( !_group._isProfile )
+      _group._name.clear();
 
 
   // IMP 0020434: mapping GIBI names to MED names
@@ -2450,7 +2465,7 @@ void IntermediateMED::setGroupLongNames()
 
   std::set<int> treatedGroups;
 
-  std::list<nameGIBItoMED>::iterator itGIBItoMED = _listGIBItoMED_mail.begin();
+  auto itGIBItoMED = _listGIBItoMED_mail.begin();
   for (; itGIBItoMED != _listGIBItoMED_mail.end(); itGIBItoMED++)
     {
       if ( (int)_groups.size() < itGIBItoMED->gibi_id ) continue;
@@ -2466,9 +2481,9 @@ void IntermediateMED::setGroupLongNames()
         }
       else if ( !grp._refNames.empty() && grp._refNames.back().empty() )
         {
-          for ( unsigned i = 0; i < grp._refNames.size(); ++i )
-            if ( grp._refNames[i].empty() )
-              grp._refNames[i] = _mapStrings[ (*itGIBItoMED).med_id ];
+          for (auto & _refName : grp._refNames)
+            if ( _refName.empty() )
+              _refName = _mapStrings[ (*itGIBItoMED).med_id ];
         }
       else
         {
@@ -2480,17 +2495,16 @@ void IntermediateMED::setGroupLongNames()
   // remove all cells belonging to non-named groups only
 
   // use Cell::_reverse to mark cells to keep
-  for ( size_t i = 0; i < _groups.size(); ++i )
+  for (auto & grp : _groups)
     {
-      SauvUtilities::Group & grp = _groups[i];
       if ( grp._isProfile || !grp._name.empty() )
         {
-          for ( size_t iC = 0; iC < grp._cells.size(); ++iC )
-            grp._cells[iC]->_reverse = true;
+          for (auto & _cell : grp._cells)
+            _cell->_reverse = true;
 
-          for (size_t j = 0; j < grp._groups.size(); ++j )
-            for ( size_t iC = 0; iC < grp._groups[j]->_cells.size(); ++iC )
-              grp._groups[j]->_cells[iC]->_reverse = true;
+          for (auto & _group : grp._groups)
+            for (auto & _cell : _group->_cells)
+              _cell->_reverse = true;
         }
     }
   // remove non-marked cells (with _reverse == false)
@@ -2498,7 +2512,7 @@ void IntermediateMED::setGroupLongNames()
   while ( cellsIt.nextType() )
     {
       std::set<Cell> & cells = _cellsByType[ cellsIt.type() ];
-      std::set<Cell>::iterator cIt = cells.begin();
+      auto cIt = cells.begin();
       while ( cIt != cells.end() )
         if ( cIt->_reverse )
           {
@@ -2520,7 +2534,7 @@ void IntermediateMED::setGroupLongNames()
 
 void IntermediateMED::setFieldLongNames(std::set< std::string >& usedNames)
 {
-  std::list<nameGIBItoMED>::iterator itGIBItoMED = _listGIBItoMED_cham.begin();
+  auto itGIBItoMED = _listGIBItoMED_cham.begin();
   for (; itGIBItoMED != _listGIBItoMED_cham.end(); itGIBItoMED++)
     {
       if (itGIBItoMED->gibi_pile == PILE_FIELD)
@@ -2535,10 +2549,10 @@ void IntermediateMED::setFieldLongNames(std::set< std::string >& usedNames)
 
   for (itGIBItoMED =_listGIBItoMED_comp.begin(); itGIBItoMED != _listGIBItoMED_comp.end(); itGIBItoMED++)
     {
-      std::string medName  = _mapStrings[itGIBItoMED->med_id];
-      std::string gibiName = _mapStrings[itGIBItoMED->gibi_id];
+      std::string const medName  = _mapStrings[itGIBItoMED->med_id];
+      std::string const gibiName = _mapStrings[itGIBItoMED->gibi_id];
 
-      bool name_found = false;
+      bool const name_found = false;
       for ( int isNodal = 0; isNodal < 2 && !name_found; ++isNodal )
         {
           std::vector<DoubleField* > & fields = isNodal ? _nodeFields : _cellFields;
@@ -2547,13 +2561,13 @@ void IntermediateMED::setFieldLongNames(std::set< std::string >& usedNames)
               if (medName.find( fields[ifi]->_name + "." ) == 0 )
                 {
                   std::vector<DoubleField::_Sub_data>& aSubDs = fields[ifi]->_sub;
-                  std::size_t nbSub = aSubDs.size();
+                  std::size_t const nbSub = aSubDs.size();
                   for (std::size_t isu = 0; isu < nbSub; isu++)
                     for (int ico = 0; ico < aSubDs[isu].nbComponents(); ico++)
                       {
                         if (aSubDs[isu].compName(ico) == gibiName)
                           {
-                            std::string medNameCompo = medName.substr( fields[ifi]->_name.size() + 1 );
+                            std::string const medNameCompo = medName.substr( fields[ifi]->_name.size() + 1 );
                             fields[ifi]->_sub[isu].compName(ico) = medNameCompo;
                           }
                       }
@@ -2562,10 +2576,10 @@ void IntermediateMED::setFieldLongNames(std::set< std::string >& usedNames)
         }
     } // iterate on _listGIBItoMED_comp
 
-  for ( size_t i = 0; i < _nodeFields.size() ; i++)
-    usedNames.insert( _nodeFields[i]->_name );
-  for ( size_t i = 0; i < _cellFields.size() ; i++)
-    usedNames.insert( _cellFields[i]->_name );
+  for (auto & _nodeField : _nodeFields)
+    usedNames.insert( _nodeField->_name );
+  for (auto & _cellField : _cellFields)
+    usedNames.insert( _cellField->_name );
 }
 
 //================================================================================
@@ -2576,9 +2590,8 @@ void IntermediateMED::setFieldLongNames(std::set< std::string >& usedNames)
 
 void IntermediateMED::decreaseHierarchicalDepthOfSubgroups()
 {
-  for (size_t i=0; i!=_groups.size(); ++i)
+  for (auto & grp : _groups)
     {
-      Group& grp = _groups[i];
       for (size_t j = 0; j < grp._groups.size(); ++j )
         {
           Group & sub_grp = *grp._groups[j];
@@ -2593,9 +2606,9 @@ void IntermediateMED::decreaseHierarchicalDepthOfSubgroups()
       // remove empty sub-_groups
       std::vector< Group* > newSubGroups;
       newSubGroups.reserve( grp._groups.size() );
-      for (size_t j = 0; j < grp._groups.size(); ++j )
-        if ( !grp._groups[j]->empty() )
-          newSubGroups.push_back( grp._groups[j] );
+      for (auto & _group : grp._groups)
+        if ( !_group->empty() )
+          newSubGroups.push_back( _group );
       if ( newSubGroups.size() < grp._groups.size() )
         grp._groups.swap( newSubGroups );
     }
@@ -2619,17 +2632,15 @@ void IntermediateMED::eraseUselessGroups()
   // }
   std::set<Group*> groups2convert;
   // keep not named sub-groups of field supports
-  for (size_t i=0; i!=_groups.size(); ++i)
+  for (auto & grp : _groups)
     {
-      Group& grp = _groups[i];
       if ( grp._isProfile && !grp._groups.empty() )
         groups2convert.insert( grp._groups.begin(), grp._groups.end() );
     }
 
   // keep named groups and their subgroups
-  for (size_t i=0; i!=_groups.size(); ++i)
+  for (auto & grp : _groups)
     {
-      Group& grp = _groups[i];
       if ( !grp._name.empty() && !grp.empty() )
         {
           groups2convert.insert( &grp );
@@ -2637,9 +2648,9 @@ void IntermediateMED::eraseUselessGroups()
         }
     }
   // erase groups that are not in groups2convert and not _isProfile
-  for (size_t i=0; i!=_groups.size(); ++i)
+  for (auto & _group : _groups)
     {
-      Group* grp = &_groups[i];
+      Group* grp = &_group;
       if ( !grp->_isProfile && !groups2convert.count( grp ) )
         {
           grp->_cells.clear();
@@ -2657,17 +2668,16 @@ void IntermediateMED::eraseUselessGroups()
 void IntermediateMED::detectMixDimGroups()
 {
   //hasMixedCells = false;
-  for ( size_t i=0; i < _groups.size(); ++i )
+  for (auto & grp : _groups)
     {
-      Group& grp = _groups[i];
       if ( grp._groups.size() < 2 )
         continue;
 
       // check if sub-groups have different dimension
-      unsigned dim1 = getDim( &grp );
+      unsigned const dim1 = getDim( &grp );
       for ( size_t j = 1; j  < grp._groups.size(); ++j )
         {
-          unsigned dim2 = getDim( grp._groups[j] );
+          unsigned const dim2 = getDim( grp._groups[j] );
           if ( dim1 != dim2 )
             {
               grp._cells.clear();
@@ -2694,7 +2704,7 @@ void IntermediateMED::orientElements2D()
   // ------------------------------------
   // fix connectivity of quadratic edges
   // ------------------------------------
-  std::set<Cell>& quadEdges = _cellsByType[ INTERP_KERNEL::NORM_SEG3 ];
+  std::set<Cell> const& quadEdges = _cellsByType[ INTERP_KERNEL::NORM_SEG3 ];
   if ( !quadEdges.empty() )
     {
       elemIt = quadEdges.begin(), elemEnd = quadEdges.end();
@@ -2820,9 +2830,8 @@ void IntermediateMED::orientFaces3D()
   std::map<Link, std::list<const Cell*> > linkFacesMap;
   std::map<Link, std::list<const Cell*> >::iterator lfIt, lfIt2;
 
-  for (size_t i=0; i!=_groups.size(); ++i)
+  for (auto & grp : _groups)
     {
-      Group& grp = _groups[i];
       if ( !grp._cells.empty() && getDimension( grp._cellType ) == 2 )
         for ( size_t j = 0; j < grp._cells.size(); ++j )
           if ( faces.insert( grp._cells[j] ).second )
@@ -2861,7 +2870,7 @@ void IntermediateMED::orientFaces3D()
           // loop on links of <face>
           for ( int i = 0; i < (int)face->_nodes.size(); ++i )
             {
-              Link link = face->link( i );
+              Link const link = face->link( i );
               // find the neighbor faces
               lfIt = linkFacesMap.find( link );
               int nbFaceByLink = 0;
@@ -2869,7 +2878,7 @@ void IntermediateMED::orientFaces3D()
               if ( lfIt != linkFacesMap.end() )
                 {
                   std::list<const Cell*> & fList = lfIt->second;
-                  std::list<const Cell*>::iterator fIt = fList.begin();
+                  auto fIt = fList.begin();
                   assert( fIt != fList.end() );
                   for ( ; fIt != fList.end(); fIt++, nbFaceByLink++ )
                     {
@@ -2880,13 +2889,13 @@ void IntermediateMED::orientFaces3D()
                           // reverse and remove badFace from linkFacesMap
                           for ( int j = 0; j < (int)badFace->_nodes.size(); ++j )
                             {
-                              Link badlink = badFace->link( j );
+                              Link const badlink = badFace->link( j );
                               if ( badlink == link ) continue;
                               lfIt2 = linkFacesMap.find( badlink );
                               if ( lfIt2 != linkFacesMap.end() )
                                 {
                                   std::list<const Cell*> & ff = lfIt2->second;
-                                  std::list<const Cell*>::iterator lfIt3 = find( ff.begin(), ff.end(), badFace );
+                                  auto const lfIt3 = find( ff.begin(), ff.end(), badFace );
                                   // check if badFace has been found,
                                   // else we can't erase it
                                   // case of degenerated face in edge
@@ -2906,12 +2915,12 @@ void IntermediateMED::orientFaces3D()
                   linkFacesMap.erase( lfIt );
                 }
               // add good neighbors to the queue
-              Link revLink( link.second, link.first );
+              Link const revLink( link.second, link.first );
               lfIt = linkFacesMap.find( revLink );
               if ( lfIt != linkFacesMap.end() )
                 {
                   std::list<const Cell*> & fList = lfIt->second;
-                  std::list<const Cell*>::iterator fIt = fList.begin();
+                  auto fIt = fList.begin();
                   for ( ; fIt != fList.end(); fIt++, nbFaceByLink++ )
                     {
                       ml.push_back( *fIt );
@@ -2924,7 +2933,7 @@ void IntermediateMED::orientFaces3D()
                 {
                   if ( manifold )
                     {
-                      std::list<const Cell*>::iterator ii = ml.begin();
+                      auto ii = ml.begin();
                       std::cout << nbFaceByLink << " faces by 1 link:" << std::endl;
                       for( ; ii!= ml.end(); ii++ )
                         std::cout << "in sub-mesh <" << fgm[ *ii ]->_name << "> " << **ii << std::endl;
@@ -3013,7 +3022,7 @@ void IntermediateMED::orientVolumes()
                   vec[0] = normal[1] * vec01[2] - normal[2] * vec01[1];
                   vec[1] = normal[2] * vec01[0] - normal[0] * vec01[2];
                   vec[2] = normal[0] * vec01[1] - normal[1] * vec01[0];
-                  double dot2 = vec[0]*vec03[0] + vec[1]*vec03[1] + vec[2]*vec03[2]; // vec*vec03
+                  double const dot2 = vec[0]*vec03[0] + vec[1]*vec03[1] + vec[2]*vec03[2]; // vec*vec03
                   if ( dot2 < 0 ) // concave -> reverse normal
                     {
                       normal[0] *= -1;
@@ -3029,7 +3038,7 @@ void IntermediateMED::orientVolumes()
           tbDir[2] = n[0][2] - n[3][2];
 
           // compare 2 directions: normal and top-bottom
-          double dot = normal[0]*tbDir[0] + normal[1]*tbDir[1] + normal[2]*tbDir[2];
+          double const dot = normal[0]*tbDir[0] + normal[1]*tbDir[1] + normal[2]*tbDir[2];
           if ( dot < 0. ) // need reverse
             reverse( *elemIt, swapVec );
 
@@ -3047,10 +3056,10 @@ void IntermediateMED::orientVolumes()
 int NodeContainer::numberNodes()
 {
   int id = 1;
-  for ( size_t i = 0; i < _nodes.size(); ++i )
-    for ( size_t j = 0; j < _nodes[i].size(); ++j )
-      if ( _nodes[i][j].isUsed() )
-        _nodes[i][j]._number = id++;
+  for (auto & _node : _nodes)
+    for (auto & j : _node)
+      if ( j.isUsed() )
+        j._number = id++;
   return id-1;
 }
 
@@ -3088,7 +3097,7 @@ void IntermediateMED::numberElements()
               if ( elemIt->_number < minNumber ) minNumber = elemIt->_number;
               if ( elemIt->_number > maxNumber ) maxNumber = elemIt->_number;
             }
-          mcIdType typeSize = ToIdType( typeCells->size() );
+          mcIdType const typeSize = ToIdType( typeCells->size() );
           if ( typeSize != maxNumber - minNumber + 1 )
             ok = false;
           if ( prevNbElems+1 != (int)minNumber )
@@ -3201,7 +3210,7 @@ void IntermediateMED::setConnectivity( MEDCoupling::MEDFileUMesh*    mesh,
           prevNbCells += ToIdType( cells->size() );
 
           // fill dimMesh
-          TCellType cellType = dimCells.type();
+          TCellType const cellType = dimCells.type();
           nodalConnOfCell = &connectivity[0];
           for ( size_t i = 0; i < cells->size(); ++i, nodalConnOfCell += nbCellNodes )
             dimMesh->insertNextCell( cellType, nbCellNodes, nodalConnOfCell );
@@ -3246,17 +3255,16 @@ void IntermediateMED::setGroups( MEDCoupling::MEDFileUMesh* mesh )
           std::vector< Group* > groupVec;
           if ( grp._groups.empty() ) groupVec.push_back( & grp );
           else                       groupVec = grp._groups;
-          for ( size_t iG = 0; iG < groupVec.size(); ++iG )
+          for (auto aG : groupVec)
             {
-              Group* aG = groupVec[ iG ];
               if ( (int)getDim( aG ) != dim )
                 continue;
-              for ( size_t iC = 0; iC < aG->_cells.size(); ++iC )
-                cell2order.insert( cell2order.end(), std::make_pair( aG->_cells[iC], orderInGroup++ ));
+              for (auto & _cell : aG->_cells)
+                cell2order.insert( cell2order.end(), std::make_pair( _cell, orderInGroup++ ));
             }
           if ( cell2order.empty() )
             continue;
-          bool isSelfIntersect = ( orderInGroup != cell2order.size() );
+          bool const isSelfIntersect = ( orderInGroup != cell2order.size() );
           if ( isSelfIntersect ) // self intersecting group
             {
               std::ostringstream msg;
@@ -3324,7 +3332,7 @@ void IntermediateMED::setGroups( MEDCoupling::MEDFileUMesh* mesh )
 
 bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
 {
-  int dim = getDim( grp );
+  int const dim = getDim( grp );
 
   mcIdType nbElems = 0;
   if ( dim == 0 )
@@ -3348,7 +3356,7 @@ bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
       dimRel = dim - meshDim;
     }
 
-  bool onAll = ( nbElems == grp->size() );
+  bool const onAll = ( nbElems == grp->size() );
   return onAll;
 }
 
@@ -3360,7 +3368,7 @@ bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
 
 MEDCoupling::MEDFileFields * IntermediateMED::makeMEDFileFields(MEDCoupling::MEDFileUMesh* mesh)
 {
-  if ( _nodeFields.empty() && _cellFields.empty() ) return 0;
+  if ( _nodeFields.empty() && _cellFields.empty() ) return nullptr;
 
   // set long names
   std::set< std::string > usedFieldNames;
@@ -3419,7 +3427,7 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
       double * valPtr = values->getPointer();
       if ( uniteSubs )
         {
-          mcIdType nbElems = fld->_group->size();
+          mcIdType const nbElems = fld->_group->size();
           for ( mcIdType elemShift = 0; elemShift < nbElems && iSub < fld->_sub.size(); )
             elemShift += fld->setValues( valPtr, iSub++, elemShift );
           setTS( fld, values, medFields, mesh );
@@ -3499,7 +3507,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   // set gauss points
   if ( timeStamp->getTypeOfField() == MEDCoupling::ON_GAUSS_PT )
     {
-      TGaussDef gaussDef( fld->_sub[iSub]._support->_cellType,
+      TGaussDef const gaussDef( fld->_sub[iSub]._support->_cellType,
                           fld->_sub[iSub].nbGauss() );
       timeStamp->setGaussLocalizationOnType( fld->_sub[iSub]._support->_cellType,
                                              gaussDef.myRefCoords,
@@ -3549,7 +3557,7 @@ void IntermediateMED::makeFieldNewName(std::set< std::string >&    usedNames,
     }
   else
     {
-      std::string::size_type pos = base.rfind('_');
+      std::string::size_type const pos = base.rfind('_');
       if ( pos != std::string::npos )
         base = base.substr( 0, pos+1 );
       else
@@ -3673,7 +3681,7 @@ bool DoubleField::isMedCompatible(bool& sameNbGauss) const
 
 bool DoubleField::hasSameComponentsBySupport() const
 {
-  std::vector< _Sub_data >::const_iterator sub_data = _sub.begin();
+  auto sub_data = _sub.begin();
   const _Sub_data& first_sub_data = *sub_data;
   for ( ++sub_data ; sub_data != _sub.end(); ++sub_data )
     {
@@ -3776,7 +3784,7 @@ mcIdType DoubleField::setValues( double * valPtr, const int iSub, const mcIdType
   mcIdType valsShift = 0;
   for ( mcIdType iS = iSub-1, shift = elemShift; shift > 0; --iS)
     {
-      mcIdType nbE = _sub[iS]._support->size();
+      mcIdType const nbE = _sub[iS]._support->size();
       shift -= nbE;
       valsShift += nbE * _sub[iS].nbComponents() * _sub[iS].nbGauss();
     }
@@ -3784,14 +3792,14 @@ mcIdType DoubleField::setValues( double * valPtr, const int iSub, const mcIdType
   if ( isConstField )
     for ( mcIdType iE = 0; iE < nbElems; ++iE )
       {
-        mcIdType iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
+        mcIdType const iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
         for ( iComp = 0; iComp < nbComponents; ++iComp )
           valPtr[ iMed + iComp ] = compValues[iComp][ 0 ];
       }
   else
     for ( mcIdType iE = 0; iE < nbElems; ++iE )
       {
-        mcIdType iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
+        mcIdType const iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
         for ( iComp = 0; iComp < nbComponents; ++iComp )
           for ( int iG = 0; iG < nbGauss; ++iG )
             valPtr[ iMed + iG * nbComponents + iComp ] = compValues[iComp][ iE * nbGauss + iG ];
@@ -3807,19 +3815,19 @@ mcIdType DoubleField::setValues( double * valPtr, const int iSub, const mcIdType
 
 IntermediateMED::~IntermediateMED()
 {
-  for ( size_t i = 0; i < _nodeFields.size(); ++i )
-    if ( _nodeFields[i] )
-      delete _nodeFields[i];
+  for (auto & _nodeField : _nodeFields)
+    if ( _nodeField )
+      delete _nodeField;
   _nodeFields.clear();
 
-  for ( size_t i = 0; i < _cellFields.size(); ++i )
-    if ( _cellFields[i] )
-      delete _cellFields[i];
+  for (auto & _cellField : _cellFields)
+    if ( _cellField )
+      delete _cellField;
   _cellFields.clear();
 
-  for ( size_t i = 0; i < _groups.size(); ++i )
-    if ( _groups[i]._medGroup )
-      _groups[i]._medGroup->decrRef();
+  for (auto & _group : _groups)
+    if ( _group._medGroup )
+      _group._medGroup->decrRef();
 }
 
 //================================================================================
@@ -3848,7 +3856,7 @@ const std::set< Cell > * CellsByDimIterator::nextType()
   while ( ++myCurType < myTypeEnd )
     if ( !myImed->_cellsByType[myCurType].empty() && ( myDim < 0 || dim(false) == myDim ))
       return & myImed->_cellsByType[myCurType];
-  return 0;
+  return nullptr;
 }
 /*!
  * \brief return dimension of cells returned by the last or further next()

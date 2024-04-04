@@ -19,15 +19,19 @@
 
 #include "Interpolation3D.hxx"
 #include "Interpolation3D.txx"
+#include "MeshTestToolkit.hxx"
+#include "MCAuto.hxx"
+#include "MEDFileMesh.hxx"
+#include "MEDCouplingUMesh.hxx"
 #include "MeshTestToolkit.txx"
 #include "Log.hxx"
 #include "VectorUtils.hxx"
-#include "TestInterpKernelUtils.hxx"
 
-#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingNormalizedUnstructuredMesh.txx"
 
 #include <cassert>
 #include <string>
+#include <utility>
 
 /**
  * Test program which takes two meshes and calculates their intersection matrix.

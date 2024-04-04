@@ -24,9 +24,8 @@
 #ifndef __InterpolationCU_HXX__
 #define __InterpolationCU_HXX__
 
+#include "InterpolationOptions.hxx"
 #include "Interpolation.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
-#include "InterpKernelUtilities.hxx"
 
 namespace INTERP_KERNEL
 {

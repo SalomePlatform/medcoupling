@@ -21,8 +21,10 @@
 #include "MEDFileMeshReadSelector.hxx"
 
 #include "InterpKernelException.hxx"
+#include "MCIdType.hxx"
 
-#include <sstream>
+#include <ostream>
+#include <string>
 
 using namespace MEDCoupling;
 
@@ -89,7 +91,7 @@ bool MEDFileMeshReadSelector::isGlobalNodeNumFieldReading() const
 void MEDFileMeshReadSelector::setCellFamilyFieldReading(bool b)
 {
   unsigned int code(_code & 0xFFFFFFFE);
-  unsigned int b2=b?1:0;
+  unsigned int const b2=b?1:0;
   //b2<<=0;
   code+=b2;
   _code=code;

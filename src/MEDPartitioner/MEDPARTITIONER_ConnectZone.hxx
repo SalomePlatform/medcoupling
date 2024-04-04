@@ -20,9 +20,10 @@
 #ifndef __MEDPARTITIONER_CONNECTZONE_HXX__
 #define __MEDPARTITIONER_CONNECTZONE_HXX__
 
+#include "MCIdType.hxx"
 #include "MEDPARTITIONER.hxx"
 #include "MCAuto.hxx"
-#include "MCType.hxx"
+#include <utility>
 
 namespace MEDCoupling
 {

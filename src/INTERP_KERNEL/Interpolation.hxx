@@ -21,9 +21,7 @@
 #ifndef __INTERPOLATION_HXX__
 #define __INTERPOLATION_HXX__
 
-#include "INTERPKERNELDefines.hxx"
 #include "InterpolationOptions.hxx"
-#include "InterpKernelException.hxx"
 
 #include <string>
 
@@ -33,7 +31,7 @@ namespace INTERP_KERNEL
   class Interpolation : public InterpolationOptions
   {
   public:
-    Interpolation() { }
+    Interpolation() = default;
     Interpolation(const InterpolationOptions& io) :InterpolationOptions(io){}
     //interpolation of two triangular meshes.
     template<class MatrixType, class MyMeshType>

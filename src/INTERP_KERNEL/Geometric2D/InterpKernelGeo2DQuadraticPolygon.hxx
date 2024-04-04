@@ -26,8 +26,14 @@
 #include "InterpKernelGeo2DComposedEdge.hxx"
 #include "InterpKernelGeo2DAbstractEdge.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
+#include "MCIdType.hxx"
 
+#include <cstddef>
 #include <list>
+#include <utility>
+#include <map>
+#include <set>
+#include <ostream>
 #include <vector>
 
 namespace INTERP_KERNEL
@@ -36,7 +42,7 @@ namespace INTERP_KERNEL
   class MergePoints;
 
   enum NodeUsage { USAGE_UNKNOWN, USAGE_LINEAR, USAGE_QUADRATIC_ONLY };
-  typedef std::pair<INTERP_KERNEL::Node *,NodeUsage> NodeWithUsage;
+  using NodeWithUsage = std::pair<INTERP_KERNEL::Node *, NodeUsage>;
 
   /**
    * A set of quadratic or linear edges, not necessarily connected to form a closed polygon.
@@ -46,8 +52,8 @@ namespace INTERP_KERNEL
   class QuadraticPolygon : public ComposedEdge
   {
   public:
-    INTERPKERNEL_EXPORT QuadraticPolygon() { }
-    INTERPKERNEL_EXPORT QuadraticPolygon(const QuadraticPolygon& other):ComposedEdge(other) { }
+    INTERPKERNEL_EXPORT QuadraticPolygon() = default;
+    INTERPKERNEL_EXPORT QuadraticPolygon(const QuadraticPolygon& other) = default;
     INTERPKERNEL_EXPORT QuadraticPolygon(const char *fileName);
     INTERPKERNEL_EXPORT static QuadraticPolygon *BuildLinearPolygon(std::vector<Node *>& nodes);
     INTERPKERNEL_EXPORT static QuadraticPolygon *BuildArcCirclePolygon(std::vector<Node *>& nodes);
@@ -118,7 +124,7 @@ namespace INTERP_KERNEL
 namespace INTERP_KERNEL
 {
   template<class EDGES>
-  void QuadraticPolygon::UpdateNeighbours(const MergePoints& merger, IteratorOnComposedEdge it1, IteratorOnComposedEdge it2,
+  void QuadraticPolygon::UpdateNeighbours(const MergePoints&  /*merger*/, IteratorOnComposedEdge it1, IteratorOnComposedEdge it2,
                                           const EDGES *e1, const EDGES *e2)
   {
     it1.previousLoop(); it2.previousLoop();

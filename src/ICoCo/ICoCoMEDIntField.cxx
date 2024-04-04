@@ -18,12 +18,13 @@
 //
 
 #include "ICoCoMEDIntField.h"
+#include "ICoCoMEDIntField.hxx"
 #include "MEDCouplingFieldInt32.hxx"
 
 namespace ICoCo
 {
 
-  MEDIntField::MEDIntField() : _field(0) {}
+  MEDIntField::MEDIntField() : _field(nullptr) {}
 
   /*! Constructor directly attaching a MEDCouplingFieldInt
     the object does not take the control the objects pointed by 

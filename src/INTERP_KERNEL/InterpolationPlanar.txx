@@ -22,31 +22,38 @@
 #define __INTERPOLATIONPLANAR_TXX__
 
 #include "InterpolationPlanar.hxx"
+
 #include "Interpolation.txx"
 #include "InterpolationOptions.hxx"
-#include "PlanarIntersector.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include "InterpolationUtils.hxx"
+
+#include "PlanarIntersectorP0P0.hxx"
+#include "PlanarIntersectorP1P0.hxx"
+#include "PlanarIntersectorP0P1.hxx"
+#include "PlanarIntersectorP1P1.hxx"
+#include "PlanarIntersectorP0P1Bary.hxx"
+#include "PlanarIntersectorP1P0Bary.hxx"
+
 #include "PlanarIntersector.txx"
-#include "TriangulationIntersector.hxx"
 #include "TriangulationIntersector.txx"
-#include "ConvexIntersector.hxx"
 #include "ConvexIntersector.txx"
-#include "Geometric2DIntersector.hxx"
 #include "Geometric2DIntersector.txx"
-#include "PointLocator2DIntersector.hxx"
 #include "PointLocator2DIntersector.txx"
-#include "PlanarIntersectorP0P1PL.hxx"
 #include "PlanarIntersectorP0P1PL.txx"
-#include "PlanarIntersectorP1P0PL.hxx"
 #include "PlanarIntersectorP1P0PL.txx"
-#include "PlanarIntersectorP1P1PL.hxx"
 #include "PlanarIntersectorP1P1PL.txx"
-#include "MappedBarycentric2DIntersectorP1P1.hxx"
 #include "MappedBarycentric2DIntersectorP1P1.txx"
 #include "VectorUtils.hxx"
 #include "BBTree.txx"
 
+#include <algorithm>
+#include <cstddef>
+#include <iostream>
 #include <limits>
+#include <string>
 #include <time.h>
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -113,7 +120,7 @@ namespace INTERP_KERNEL
     typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
 
-    long global_start =clock();
+    long const global_start =clock();
     std::size_t counter=0;   
     /***********************************************************/
     /* Check both meshes are made of triangles and quadrangles */
@@ -372,24 +379,24 @@ namespace INTERP_KERNEL
     /* Instantiate the intersector and initialise the result vector */
     /****************************************************************/
  
-    long start_filtering=clock();
+    long const start_filtering=clock();
  
     std::vector<double> bbox;
     intersector->createBoundingBoxes(myMeshS,bbox); // create the bounding boxes
     performAdjustmentOfBB(intersector,bbox);
-    const double *bboxPtr=0;
+    const double *bboxPtr=nullptr;
     if(nbMailleS>0)
       bboxPtr=&bbox[0];
     BBTree<SPACEDIM,ConnType> my_tree(bboxPtr, 0, 0,nbMailleS);//creating the search structure 
 
-    long end_filtering=clock();
+    long const end_filtering=clock();
 
     result.resize(intersector->getNumberOfRowsOfResMatrix());//on initialise.
 
     /****************************************************/
     /* Loop on the target cells - core of the algorithm */
     /****************************************************/
-    long start_intersection=clock();
+    long const start_intersection=clock();
     ConnType nbelem_type=myMeshT.getNumberOfElements();
     const ConnType *connIndxT=myMeshT.getConnectivityIndexPtr();
     for(ConnType iT=0; iT<nbelem_type; iT++)
@@ -408,10 +415,10 @@ namespace INTERP_KERNEL
 
     if (InterpolationOptions::getPrintLevel() >=1)
       {
-        long end_intersection=clock();
+        long const end_intersection=clock();
         std::cout << "Filtering time= " << end_filtering-start_filtering << std::endl;
         std::cout << "Intersection time= " << end_intersection-start_intersection << std::endl;
-        long global_end =clock();    
+        long const global_end =clock();    
         std::cout << "Number of computed intersections = " << counter << std::endl;
         std::cout << "Global time= " << global_end - global_start << std::endl;
       }

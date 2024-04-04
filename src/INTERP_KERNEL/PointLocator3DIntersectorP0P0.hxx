@@ -23,7 +23,7 @@
 
 #include "Intersector3DP0P0.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include "InterpKernelUtilities.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {

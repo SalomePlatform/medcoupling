@@ -19,10 +19,13 @@
 #ifndef __MESHREGION_TXX__
 #define __MESHREGION_TXX__
 
+#include "MeshElement.hxx"
+#include "InterpolationUtils.hxx"
+#include "BoundingBox.hxx"
 #include "MeshRegion.hxx"
 
-#include "MeshElement.txx"
 #include "MeshUtils.hxx"
+#include <cassert>
 
 namespace INTERP_KERNEL
 {
@@ -32,7 +35,7 @@ namespace INTERP_KERNEL
    * 
    */
   template<class ConnType>
-  MeshRegion<ConnType>::MeshRegion():_box(0)
+  MeshRegion<ConnType>::MeshRegion():_box(nullptr)
   {
   }
     
@@ -63,9 +66,9 @@ namespace INTERP_KERNEL
     const unsigned char numNodes = element->getNumberOfNodes();
     const ConnType elemIdx = element->getIndex();
        
-    if(_box == 0)
+    if(_box == nullptr)
       {
-        const double** pts = new const double*[numNodes];
+        const auto** pts = new const double*[numNodes];
 
         // get coordinates of the nodes of the element
         for(unsigned char i = 0 ; i < numNodes ; ++i)

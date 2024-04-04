@@ -22,8 +22,6 @@
 
 #include "TimeInterpolator.hxx"
 
-#include <map>
-#include <iostream>
 
 namespace MEDCoupling
 {
@@ -39,13 +37,13 @@ namespace MEDCoupling
     public:  
       LinearTimeInterpolator( double InterpPrecision=0, int nStepBefore=1,
                               int nStepAfter=1 ) ;
-      virtual ~LinearTimeInterpolator();
+      ~LinearTimeInterpolator() override;
       void doInterp( double time0, double time1, double time, int recvcount,
                      int nbuff0, int nbuff1,
-                     int **recvbuff0, int **recvbuff1, int *result );
+                     int **recvbuff0, int **recvbuff1, int *result ) override;
       void doInterp( double time0, double time1, double time, int recvcount,
                      int nbuff0, int nbuff1,
-                     double **recvbuff0, double **recvbuff1, double *result );
+                     double **recvbuff0, double **recvbuff1, double *result ) override;
   };
 }
 

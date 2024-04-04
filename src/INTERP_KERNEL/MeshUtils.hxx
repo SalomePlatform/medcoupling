@@ -21,6 +21,9 @@
 #define __MESHUTILS_HXX__
 
 #include "InterpolationUtils.hxx"
+#include "NormalizedGeometricTypes"
+#include "NormalizedUnstructuredMesh.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {

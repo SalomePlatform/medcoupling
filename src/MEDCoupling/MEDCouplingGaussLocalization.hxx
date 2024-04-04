@@ -21,11 +21,14 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGGAUSSLOCALIZATION_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGGAUSSLOCALIZATION_HXX__
 
+#include "MCType.hxx"
+#include "MCAuto.hxx"
 #include "MEDCoupling.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "InterpKernelException.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <string>
+#include <cstddef>
 #include <vector>
 
 namespace MEDCoupling

@@ -20,20 +20,19 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "ParaUMesh.hxx"
-#include "ProcessorGroup.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include "MCAuto.hxx"
+#include "MCType.hxx"
+#include "ParaIdType.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "MPIProcessorGroup.hxx"
-#include "Topology.hxx"
-#include "BlockTopology.hxx"
 #include "CommInterface.hxx"
-#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingMemArray.txx"
 
 #include "mpi.h"
 
-#include <fstream>
-#include <sstream>
+#include <cstddef>
 #include <numeric>
-#include <memory>
-#include <vector>
 
 using namespace MEDCoupling;
 
@@ -82,7 +81,7 @@ MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodes(const DataArrayIdType 
 MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesTrue(const DataArrayIdType *globalNodeIds) const
 {
   MPI_Comm comm(MPI_COMM_WORLD);
-  CommInterface ci;
+  CommInterface const ci;
   int size;
   ci.commSize(comm,&size);
   std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]),nbOfElems2(new mcIdType[size]),nbOfElems3(new mcIdType[size]);
@@ -90,7 +89,7 @@ MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesTrue(const DataArrayIdT
   ci.allGather(&nbOfNodeIdsLoc,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
   std::vector< MCAuto<DataArrayIdType> > tabs(size);
   //store for each proc the local nodeids intercepted by current proc
-  int nbOfCollectiveCalls = 1;// this parameter controls the memory peak
+  int const nbOfCollectiveCalls = 1;// this parameter controls the memory peak
   // loop to avoid to all procs to have all the nodes per proc
   for(int subDiv = 0 ; subDiv < nbOfCollectiveCalls ; ++subDiv)
   {
@@ -121,7 +120,7 @@ MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesTrue(const DataArrayIdT
   {
     MCAuto<DataArrayIdType> localNodeIds(tabs[curRk]);
     localNodeIds->sort();
-    MCAuto<DataArrayIdType> localNodeIdsUnique(localNodeIds->buildUnique());
+    MCAuto<DataArrayIdType> const localNodeIdsUnique(localNodeIds->buildUnique());
     MCAuto<DataArrayIdType> localCellCaptured(_mesh->getCellIdsLyingOnNodes(localNodeIdsUnique->begin(),localNodeIdsUnique->end(),true));
     MCAuto<DataArrayIdType> localCellCapturedGlob(_cell_global->selectByTupleIdSafe(localCellCaptured->begin(),localCellCaptured->end()));
     tabs[curRk] = localCellCapturedGlob;
@@ -151,14 +150,14 @@ MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesTrue(const DataArrayIdT
 MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesFalse(const DataArrayIdType *globalNodeIds) const
 {
   MPI_Comm comm(MPI_COMM_WORLD);
-  CommInterface ci;
+  CommInterface const ci;
   int size;
   ci.commSize(comm,&size);
   std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]),nbOfElems2(new mcIdType[size]),nbOfElems3(new mcIdType[size]);
   mcIdType nbOfNodeIdsLoc(globalNodeIds->getNumberOfTuples());
   ci.allGather(&nbOfNodeIdsLoc,1,MPI_ID_TYPE,nbOfElems.get(),1,MPI_ID_TYPE,comm);
   // loop to avoid to all procs to have all the nodes per proc
-  int nbOfCollectiveCalls = 1;// this parameter controls the memory peak
+  int const nbOfCollectiveCalls = 1;// this parameter controls the memory peak
   std::vector< MCAuto<DataArrayIdType> > tabs(size);
   for(int subDiv = 0 ; subDiv < nbOfCollectiveCalls ; ++subDiv)
   {
@@ -177,7 +176,7 @@ MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesFalse(const DataArrayId
       globalNodeIdsOfCurProc->useArray(allGlobalNodeIds.get()+offset,false,DeallocType::CPP_DEALLOC,nbOfElemsSp[curRk],1);
       offset += nbOfElemsSp[curRk];
       MCAuto<DataArrayIdType> globalNodeIdsCaptured(_node_global->buildIntersection(globalNodeIdsOfCurProc));
-      MCAuto<DataArrayIdType> localNodeIdsToLocate(_node_global->findIdForEach(globalNodeIdsCaptured->begin(),globalNodeIdsCaptured->end()));
+      MCAuto<DataArrayIdType> const localNodeIdsToLocate(_node_global->findIdForEach(globalNodeIdsCaptured->begin(),globalNodeIdsCaptured->end()));
       MCAuto<DataArrayIdType> localCellCaptured(_mesh->getCellIdsLyingOnNodes(localNodeIdsToLocate->begin(),localNodeIdsToLocate->end(),false));
       MCAuto<DataArrayIdType> localCellCapturedGlob(_cell_global->selectByTupleIdSafe(localCellCaptured->begin(),localCellCaptured->end()));
       if(tabs[curRk].isNull())
@@ -233,7 +232,7 @@ DataArrayDouble *ParaUMesh::redistributeNodeField(const DataArrayIdType *globalC
 ParaUMesh *ParaUMesh::redistributeCells(const DataArrayIdType *globalCellIds) const
 {
   MPI_Comm comm(MPI_COMM_WORLD);
-  CommInterface ci;
+  CommInterface const ci;
   std::unique_ptr<mcIdType[]> allGlobalCellIds,allGlobalCellIdsIndex;
   int size(ci.allGatherArrays(comm,globalCellIds,allGlobalCellIds,allGlobalCellIdsIndex));
   // Prepare ParaUMesh parts to be sent : compute for each proc the contribution of current rank.
@@ -246,11 +245,11 @@ ParaUMesh *ParaUMesh::redistributeCells(const DataArrayIdType *globalCellIds) co
     globalCellIdsOfCurProc->useArray(allGlobalCellIds.get()+offset,false,DeallocType::CPP_DEALLOC,allGlobalCellIdsIndex[curRk+1]-offset,1);
     // the key call is here : compute for rank curRk the cells to be sent
     MCAuto<DataArrayIdType> globalCellIdsCaptured(_cell_global->buildIntersection(globalCellIdsOfCurProc));// OK for the global cellIds
-    MCAuto<DataArrayIdType> localCellIdsCaptured(_cell_global->findIdForEach(globalCellIdsCaptured->begin(),globalCellIdsCaptured->end()));
+    MCAuto<DataArrayIdType> const localCellIdsCaptured(_cell_global->findIdForEach(globalCellIdsCaptured->begin(),globalCellIdsCaptured->end()));
     MCAuto<MEDCouplingUMesh> meshPart(_mesh->buildPartOfMySelf(localCellIdsCaptured->begin(),localCellIdsCaptured->end(),true));
     MCAuto<DataArrayIdType> o2n(meshPart->zipCoordsTraducer());// OK for the mesh
     MCAuto<DataArrayIdType> n2o(o2n->invertArrayO2N2N2O(meshPart->getNumberOfNodes()));
-    MCAuto<DataArrayIdType> globalNodeIdsPart(_node_global->selectByTupleIdSafe(n2o->begin(),n2o->end())); // OK for the global nodeIds
+    MCAuto<DataArrayIdType> const globalNodeIdsPart(_node_global->selectByTupleIdSafe(n2o->begin(),n2o->end())); // OK for the global nodeIds
     meshPartsToBeSent[curRk] = meshPart;
     globalCellIdsToBeSent[curRk] = globalCellIdsCaptured;
     globalNodeIdsToBeSent[curRk] = globalNodeIdsPart;
@@ -284,7 +283,7 @@ ParaUMesh *ParaUMesh::redistributeCells(const DataArrayIdType *globalCellIds) co
   MCAuto<DataArrayIdType> aggregatedNodeIdsSorted(aggregatedNodeIds->copySorted());
   MCAuto<DataArrayIdType> nodeIdsIntoAggregatedIds(DataArrayIdType::FindPermutationFromFirstToSecondDuplicate(aggregatedNodeIdsSorted,aggregatedNodeIds));
   MCAuto<DataArrayIdType> idxOfSameNodeIds(aggregatedNodeIdsSorted->indexOfSameConsecutiveValueGroups());
-  MCAuto<DataArrayIdType> n2o_nodes(nodeIdsIntoAggregatedIds->selectByTupleIdSafe(idxOfSameNodeIds->begin(),idxOfSameNodeIds->end()-1));//new == new ordering so that global node ids are sorted . old == coarse ordering implied by the aggregation
+  MCAuto<DataArrayIdType> const n2o_nodes(nodeIdsIntoAggregatedIds->selectByTupleIdSafe(idxOfSameNodeIds->begin(),idxOfSameNodeIds->end()-1));//new == new ordering so that global node ids are sorted . old == coarse ordering implied by the aggregation
   MCAuto<DataArrayIdType> finalGlobalNodeIds(aggregatedNodeIdsSorted->selectByTupleIdSafe(idxOfSameNodeIds->begin(),idxOfSameNodeIds->end()-1));
   MCAuto<DataArrayDouble> finalCoords(coords->selectByTupleIdSafe(n2o_nodes->begin(),n2o_nodes->end()));
   finalCoords->copyStringInfoFrom(*_mesh->getCoords());

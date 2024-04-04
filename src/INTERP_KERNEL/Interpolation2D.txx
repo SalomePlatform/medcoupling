@@ -20,8 +20,6 @@
 #ifndef __INTERPOLATION2D_TXX__
 #define __INTERPOLATION2D_TXX__
 
-#include "Interpolation2D.hxx"
 
-#include "InterpolationPlanar.txx"
 
 #endif

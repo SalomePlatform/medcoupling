@@ -30,9 +30,11 @@
 #include "MEDCouplingMap.hxx"
 #include "BBTreePts.txx"
 
+#include <cstddef>
+#include <ostream>
 #include <string>
+#include <utility>
 #include <vector>
-#include <iterator>
 #include <functional>
 
 namespace MEDCoupling
@@ -51,14 +53,14 @@ namespace MEDCoupling
   class MEDCouplingPointer
   {
   public:
-    MEDCouplingPointer():_internal(0),_external(0) { }
+    MEDCouplingPointer():_internal(nullptr),_external(nullptr) { }
     void null() { _internal=0; _external=0; }
     bool isNull() const { return _internal==0 && _external==0; }
     void setInternal(T *pointer);
     void setExternal(const T *pointer);
     const T *getConstPointer() const { if(_internal) return _internal; else return _external; }
     const T *getConstPointerLoc(std::size_t offset) const { if(_internal) return _internal+offset; else return _external+offset; }
-    T *getPointer() { if(_internal) return _internal; if(_external) throw INTERP_KERNEL::Exception("Trying to write on an external pointer."); else return 0; }
+    T *getPointer() { if(_internal) return _internal; if(_external) throw INTERP_KERNEL::Exception("Trying to write on an external pointer."); else return nullptr; }
   private:
     T *_internal;
     const T *_external;
@@ -68,9 +70,9 @@ namespace MEDCoupling
   class MemArray
   {
   public:
-    typedef void (*Deallocator)(void *,void *);
+    using Deallocator = void (*)(void *, void *);
   public:
-    MemArray():_nb_of_elem(0),_nb_of_elem_alloc(0),_ownership(false),_dealloc(0),_param_for_deallocator(0) { }
+    MemArray() = default;
     MemArray(const MemArray<T>& other);
     bool isNull() const { return _pointer.isNull(); }
     const T *getConstPointerLoc(std::size_t offset) const { return _pointer.getConstPointerLoc(offset); }
@@ -117,12 +119,12 @@ namespace MEDCoupling
     static void DestroyPointer(T *pt, Deallocator dealloc, void *param);
     static Deallocator BuildFromType(DeallocType type);
   private:
-    std::size_t _nb_of_elem;
-    std::size_t _nb_of_elem_alloc;
-    bool _ownership;
+    std::size_t _nb_of_elem{0};
+    std::size_t _nb_of_elem_alloc{0};
+    bool _ownership{false};
     MEDCouplingPointer<T> _pointer;
-    Deallocator _dealloc;
-    void *_param_for_deallocator;
+    Deallocator _dealloc{nullptr};
+    void *_param_for_deallocator{nullptr};
   };
 
   template <class T> class DataArrayTools
@@ -142,8 +144,8 @@ namespace MEDCoupling
   class MEDCOUPLING_EXPORT DataArray : public RefCountObject, public TimeLabel
   {
   public:
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     void setName(const std::string& name);
     void copyStringInfoFrom(const DataArray& other);
     void copyPartOfStringInfoFrom(const DataArray& other, const std::vector<std::size_t>& compoIds);
@@ -213,7 +215,7 @@ namespace MEDCoupling
     virtual void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const = 0;
   protected:
     DataArray() { }
-    ~DataArray() { }
+    ~DataArray() override = default;
   protected:
     static void CheckValueInRange(mcIdType ref, mcIdType value, const std::string& msg);
     static void CheckValueInRangeEx(mcIdType value, mcIdType start, mcIdType end, const std::string& msg);
@@ -231,7 +233,7 @@ namespace MEDCoupling
   class DataArrayTemplate : public DataArray
   {
   public:
-    typedef T Type;
+    using Type = T;
   public:
     static MCAuto< typename Traits<T>::ArrayTypeCh > NewFromStdVector(const typename std::vector<T>& v);
     static MCAuto< typename Traits<T>::ArrayTypeCh > NewFromArray(const T *arrBegin, const T *arrEnd);
@@ -244,19 +246,19 @@ namespace MEDCoupling
       std::for_each(this->begin(),this->end(),[&comma,&oss](const T& elt) { oss << comma << elt; comma[0]=','; } );
       oss << std::endl;
     }
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    void updateTime() const { }
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    void updateTime() const override { }
     //
-    mcIdType getNumberOfTuples() const { return ToIdType(_info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents()); }
-    mcIdType getNbOfElems() const { return ToIdType(_mem.getNbOfElem()); }
+    mcIdType getNumberOfTuples() const override { return ToIdType(_info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents()); }
+    mcIdType getNbOfElems() const override { return ToIdType(_mem.getNbOfElem()); }
     bool empty() const;
-    void *getVoidStarPointer() { return getPointer(); }
+    void *getVoidStarPointer() override { return getPointer(); }
     const T *getConstPointer() const { return _mem.getConstPointer(); }
     const T *begin() const { return getConstPointer(); }
     const T *end() const { return getConstPointer()+getNbOfElems(); }
     T *rwBegin() { return getPointer(); }
     T *rwEnd() { return getPointer()+getNbOfElems(); }
-    void alloc(std::size_t nbOfTuple, std::size_t nbOfCompo=1);
+    void alloc(std::size_t nbOfTuple, std::size_t nbOfCompo=1) override;
     void useArray(const T *array, bool ownership, DeallocType type, std::size_t nbOfTuple, std::size_t nbOfCompo);
     void useExternalArrayWithRWAccess(const T *array, std::size_t nbOfTuple, std::size_t nbOfCompo);
     T getIJSafe(std::size_t tupleId, std::size_t compoId) const;
@@ -267,10 +269,10 @@ namespace MEDCoupling
     T *getPointerSilent() { return _mem.getPointer(); }
     void pack() const;
     bool isAllocated() const override;
-    void checkAllocated() const;
-    void desallocate();
+    void checkAllocated() const override;
+    void desallocate() override;
     void reserve(std::size_t nbOfElems);
-    void rearrange(std::size_t newNbOfCompo);
+    void rearrange(std::size_t newNbOfCompo) override;
     void transpose();
     void pushBackSilent(T val);
     template<class InputIterator>
@@ -278,14 +280,14 @@ namespace MEDCoupling
     T popBackSilent();
     T front() const;
     T back() const;
-    std::size_t getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
+    std::size_t getNbOfElemAllocated() const override { return _mem.getNbOfElemAllocated(); }
     void allocIfNecessary(std::size_t nbOfTuple, std::size_t nbOfCompo);
     void deepCopyFrom(const DataArrayTemplate<T>& other);
     void reverse();
     void fillWithValue(T val);
-    void reAlloc(std::size_t newNbOfTuple);
-    void renumberInPlace(const mcIdType *old2New);
-    void renumberInPlaceR(const mcIdType *new2Old);
+    void reAlloc(std::size_t newNbOfTuple) override;
+    void renumberInPlace(const mcIdType *old2New) override;
+    void renumberInPlaceR(const mcIdType *new2Old) override;
     void sort(bool asc=true);
     typename Traits<T>::ArrayType *renumber(const mcIdType *old2New) const;
     typename Traits<T>::ArrayType *renumberR(const mcIdType *new2Old) const;
@@ -293,9 +295,9 @@ namespace MEDCoupling
     typename Traits<T>::ArrayType *changeNbOfComponents(std::size_t newNbOfComp, T dftValue) const;
     typename Traits<T>::ArrayType *subArray(mcIdType tupleIdBg, mcIdType tupleIdEnd=-1) const;
     MCAuto<typename Traits<T>::ArrayTypeCh> selectPartDef(const PartDefinition* pd) const;
-    void circularPermutation(mcIdType nbOfShift=1);
-    void circularPermutationPerTuple(mcIdType nbOfShift=1);
-    void reversePerTuple();
+    void circularPermutation(mcIdType nbOfShift=1) override;
+    void circularPermutationPerTuple(mcIdType nbOfShift=1) override;
+    void reversePerTuple() override;
     void setPartOfValues1(const typename Traits<T>::ArrayType *a, mcIdType bgTuples, mcIdType endTuples, mcIdType stepTuples, mcIdType bgComp, mcIdType endComp, mcIdType stepComp, bool strictCompoCompare=true);
     void setPartOfValuesSimple1(T a, mcIdType bgTuples, mcIdType endTuples, mcIdType stepTuples, mcIdType bgComp, mcIdType endComp, mcIdType stepComp);
     void setPartOfValues2(const typename Traits<T>::ArrayType *a, const mcIdType *bgTuples, const mcIdType *endTuples, const mcIdType *bgComp, const mcIdType *endComp, bool strictCompoCompare=true);
@@ -305,8 +307,8 @@ namespace MEDCoupling
     void setPartOfValues4(const typename Traits<T>::ArrayType *a, mcIdType bgTuples, mcIdType endTuples, mcIdType stepTuples, const mcIdType *bgComp, const mcIdType *endComp, bool strictCompoCompare=true);
     void setPartOfValuesSimple4(T a, mcIdType bgTuples, mcIdType endTuples, mcIdType stepTuples, const mcIdType *bgComp, const mcIdType *endComp);
     void setPartOfValuesAdv(const typename Traits<T>::ArrayType *a, const DataArrayIdType *tuplesSelec);
-    void setContigPartOfSelectedValues(mcIdType tupleIdStart, const DataArray *aBase, const DataArrayIdType *tuplesSelec);
-    void setContigPartOfSelectedValuesSlice(mcIdType tupleIdStart, const DataArray *aBase, mcIdType bg, mcIdType end2, mcIdType step);
+    void setContigPartOfSelectedValues(mcIdType tupleIdStart, const DataArray *aBase, const DataArrayIdType *tuplesSelec) override;
+    void setContigPartOfSelectedValuesSlice(mcIdType tupleIdStart, const DataArray *aBase, mcIdType bg, mcIdType end2, mcIdType step) override;
     T getMaxValue(mcIdType& tupleId) const;
     T getMaxValueInArray() const;
     T getMaxAbsValue(std::size_t& tupleId) const;
@@ -370,11 +372,11 @@ namespace MEDCoupling
     typename Traits<T>::ArrayType *performCopyOrIncrRef(bool dCpy) const;
     typename Traits<T>::ArrayType *sumPerTuple() const;
     void iota(T init=(T)0);
-    void reprStream(std::ostream& stream) const;
-    void reprZipStream(std::ostream& stream) const;
+    void reprStream(std::ostream& stream) const override;
+    void reprZipStream(std::ostream& stream) const override;
     void reprNotTooLongStream(std::ostream& stream) const;
-    void reprWithoutNameStream(std::ostream& stream) const;
-    void reprZipWithoutNameStream(std::ostream& stream) const;
+    void reprWithoutNameStream(std::ostream& stream) const override;
+    void reprZipWithoutNameStream(std::ostream& stream) const override;
     void reprNotTooLongWithoutNameStream(std::ostream& stream) const;
     std::string repr() const;
     std::string reprZip() const;
@@ -406,18 +408,18 @@ namespace MEDCoupling
   public:
     static DataArrayFloat *New();
   public:// abstract method overload
-    DataArrayFloat *deepCopy() const;
+    DataArrayFloat *deepCopy() const override;
     DataArrayFloat *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     std::string getClassName() const override { return std::string("DataArrayFloat"); }
-    DataArrayFloat *buildNewEmptyInstance() const { return DataArrayFloat::New(); }
-    DataArrayFloat *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return DataArrayTemplateFP<float>::mySelectByTupleRanges(ranges); }
-    DataArrayFloat *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return DataArrayTemplateFP<float>::myKeepSelectedComponents(compoIds); }
-    DataArrayFloat *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
-    DataArrayFloat *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return DataArrayTemplateFP<float>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
-    DataArrayFloat *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const { return DataArrayTemplateFP<float>::mySelectByTupleIdSafeSlice(bg,end2,step); }
-    void reprCppStream(const std::string& varName, std::ostream& stream) const;
-    void reprQuickOverview(std::ostream& stream) const;
-    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
+    DataArrayFloat *buildNewEmptyInstance() const override { return DataArrayFloat::New(); }
+    DataArrayFloat *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const override { return DataArrayTemplateFP<float>::mySelectByTupleRanges(ranges); }
+    DataArrayFloat *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const override { return DataArrayTemplateFP<float>::myKeepSelectedComponents(compoIds); }
+    DataArrayFloat *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
+    DataArrayFloat *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return DataArrayTemplateFP<float>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
+    DataArrayFloat *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const override { return DataArrayTemplateFP<float>::mySelectByTupleIdSafeSlice(bg,end2,step); }
+    void reprCppStream(const std::string& varName, std::ostream& stream) const override;
+    void reprQuickOverview(std::ostream& stream) const override;
+    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const override;
   public:// non abstract but essential
     bool isEqual(const DataArrayFloat& other, float prec) const;
     bool isEqualIfNotWhy(const DataArrayFloat& other, float prec, std::string& reason) const;
@@ -425,7 +427,7 @@ namespace MEDCoupling
   public:
     DataArrayFloatIterator *iterator();
   private:
-    ~DataArrayFloat() { }
+    ~DataArrayFloat() override = default;
     DataArrayFloat() { }
   };
 }
@@ -438,25 +440,25 @@ namespace MEDCoupling
   public:
     static DataArrayDouble *New();
     double doubleValue() const;
-    DataArrayDouble *deepCopy() const;
+    DataArrayDouble *deepCopy() const override;
     DataArrayDouble *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     std::string getClassName() const override { return std::string("DataArrayDouble"); }
-    DataArrayDouble *buildNewEmptyInstance() const { return DataArrayDouble::New(); }
+    DataArrayDouble *buildNewEmptyInstance() const override { return DataArrayDouble::New(); }
     void checkMonotonic(bool increasing, double eps) const;
     bool isMonotonic(bool increasing, double eps) const;
     void writeVTK(std::ostream& ofs, mcIdType indent, const std::string& nameInFile, DataArrayByte *byteArr) const;
-    void reprCppStream(const std::string& varName, std::ostream& stream) const;
-    void reprQuickOverview(std::ostream& stream) const;
-    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
+    void reprCppStream(const std::string& varName, std::ostream& stream) const override;
+    void reprQuickOverview(std::ostream& stream) const override;
+    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const override;
     bool isEqual(const DataArrayDouble& other, double prec) const;
     bool isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const;
-    DataArrayDouble *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
+    DataArrayDouble *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
     DataArrayDouble *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }
-    DataArrayDouble *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return DataArrayTemplateFP<double>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
-    DataArrayDouble *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return DataArrayTemplateFP<double>::myKeepSelectedComponents(compoIds); }
-    DataArrayDouble *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const { return DataArrayTemplateFP<double>::mySelectByTupleIdSafeSlice(bg,end2,step); }
-    DataArrayDouble *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return DataArrayTemplateFP<double>::mySelectByTupleRanges(ranges); }
+    DataArrayDouble *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return DataArrayTemplateFP<double>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
+    DataArrayDouble *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const override { return DataArrayTemplateFP<double>::myKeepSelectedComponents(compoIds); }
+    DataArrayDouble *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const override { return DataArrayTemplateFP<double>::mySelectByTupleIdSafeSlice(bg,end2,step); }
+    DataArrayDouble *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const override { return DataArrayTemplateFP<double>::mySelectByTupleRanges(ranges); }
     bool areIncludedInMe(const DataArrayDouble *other, double prec, DataArrayIdType *&tupleIds) const;
     void findCommonTuples(double prec, mcIdType limitTupleId, DataArrayIdType *&comm, DataArrayIdType *&commIndex) const;
     double minimalDistanceTo(const DataArrayDouble *other, mcIdType& thisTupleId, mcIdType& otherTupleId) const;
@@ -550,7 +552,7 @@ namespace MEDCoupling
   private:
     DataArrayDouble *operatePerTuple(std::function<double(const double *bg, const double *endd)> func) const;
   private:
-    ~DataArrayDouble() { }
+    ~DataArrayDouble() override = default;
     DataArrayDouble() { }
   };
 }
@@ -579,9 +581,9 @@ namespace MEDCoupling
     void checkStrictlyMonotonic(bool increasing) const;
     bool isStrictlyMonotonic(bool increasing) const;
     mcIdType getHashCode() const;
-    void reprCppStream(const std::string& varName, std::ostream& stream) const;
-    void reprQuickOverview(std::ostream& stream) const;
-    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
+    void reprCppStream(const std::string& varName, std::ostream& stream) const override;
+    void reprQuickOverview(std::ostream& stream) const override;
+    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const override;
     void writeVTK(std::ostream& ofs, mcIdType indent, const std::string& type, const std::string& nameInFile, DataArrayByte *byteArr) const;
     void transformWithIndArr(const T *indArrBg, const T *indArrEnd);
     void transformWithIndArr(const MapKeyVal<T, T>& m);
@@ -706,7 +708,7 @@ namespace MEDCoupling
     template<class ALG>
     void switchOnTupleAlg(T val, std::vector<bool>& vec, ALG algo) const;
   protected:
-    ~DataArrayDiscrete() { }
+    ~DataArrayDiscrete() override = default;
   };
 
   template<class T>
@@ -715,7 +717,7 @@ namespace MEDCoupling
   public:
     bool isFittingWith(const std::vector<bool>& v) const;
   protected:
-    ~DataArrayDiscreteSigned() { }
+    ~DataArrayDiscreteSigned() override = default;
   };
 
   class DataArrayInt32Iterator;
@@ -724,22 +726,22 @@ namespace MEDCoupling
   {
     friend class DataArrayDiscrete<Int32>;
   public:
-    DataArrayInt32 *deepCopy() const;
+    DataArrayInt32 *deepCopy() const override;
     DataArrayInt32 *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
-    DataArrayInt32 *buildNewEmptyInstance() const { return DataArrayInt32::New(); }
+    DataArrayInt32 *buildNewEmptyInstance() const override { return DataArrayInt32::New(); }
     MCAuto<DataArrayInt64> convertToInt64Arr() const;
   public:
-    DataArrayInt32 *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
+    DataArrayInt32 *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
     DataArrayInt32 *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }
-    DataArrayInt32 *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
-    DataArrayInt32 *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return this->myKeepSelectedComponents(compoIds); }
-    DataArrayInt32 *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const { return this->mySelectByTupleIdSafeSlice(bg,end2,step); }
-    DataArrayInt32 *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return this->mySelectByTupleRanges(ranges); }
+    DataArrayInt32 *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return this->mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
+    DataArrayInt32 *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const override { return this->myKeepSelectedComponents(compoIds); }
+    DataArrayInt32 *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const override { return this->mySelectByTupleIdSafeSlice(bg,end2,step); }
+    DataArrayInt32 *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const override { return this->mySelectByTupleRanges(ranges); }
     std::string getClassName() const override { return std::string("DataArrayInt32"); }
   public:
     DataArrayInt32Iterator *iterator();
   private:
-    ~DataArrayInt32() { }
+    ~DataArrayInt32() override = default;
     DataArrayInt32() { }
   };
 
@@ -747,22 +749,22 @@ namespace MEDCoupling
   {
     friend class DataArrayDiscrete<Int64>;
   public:
-    DataArrayInt64 *deepCopy() const;
+    DataArrayInt64 *deepCopy() const override;
     DataArrayInt64 *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
-    DataArrayInt64 *buildNewEmptyInstance() const { return DataArrayInt64::New(); }//ok
+    DataArrayInt64 *buildNewEmptyInstance() const override { return DataArrayInt64::New(); }//ok
     MCAuto<DataArrayInt32> convertToInt32Arr() const;
   public:
-    DataArrayInt64 *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
+    DataArrayInt64 *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
     DataArrayInt64 *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }
-    DataArrayInt64 *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return DataArrayTemplate<Int64>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
-    DataArrayInt64 *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return DataArrayTemplate<Int64>::myKeepSelectedComponents(compoIds); }
-    DataArrayInt64 *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const { return DataArrayTemplate<Int64>::mySelectByTupleIdSafeSlice(bg,end2,step); }
-    DataArrayInt64 *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return DataArrayTemplate<Int64>::mySelectByTupleRanges(ranges); }
+    DataArrayInt64 *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return DataArrayTemplate<Int64>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
+    DataArrayInt64 *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const override { return DataArrayTemplate<Int64>::myKeepSelectedComponents(compoIds); }
+    DataArrayInt64 *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const override { return DataArrayTemplate<Int64>::mySelectByTupleIdSafeSlice(bg,end2,step); }
+    DataArrayInt64 *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const override { return DataArrayTemplate<Int64>::mySelectByTupleRanges(ranges); }
     std::string getClassName() const override { return std::string("DataArrayInt64"); }
   public:
     DataArrayInt64Iterator *iterator();
   private:
-    ~DataArrayInt64() { }
+    ~DataArrayInt64() override = default;
     DataArrayInt64() { }
   };
 }
@@ -797,14 +799,14 @@ namespace MEDCoupling
     std::string repr() const;
     std::string reprZip() const;
     DataArrayInt *convertToIntArr() const;
-    DataArrayChar *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
+    DataArrayChar *selectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return this->mySelectByTupleId(new2OldBg,new2OldEnd); }
     DataArrayChar *selectByTupleId(const DataArrayIdType& di) const { return this->mySelectByTupleId(di); }
-    DataArrayChar *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const { return DataArrayTemplate<char>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
-    DataArrayChar *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const { return DataArrayTemplate<char>::myKeepSelectedComponents(compoIds); }
-    DataArrayChar *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const { return DataArrayTemplate<char>::mySelectByTupleIdSafeSlice(bg,end2,step); }
+    DataArrayChar *selectByTupleIdSafe(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const override { return DataArrayTemplate<char>::mySelectByTupleIdSafe(new2OldBg,new2OldEnd); }
+    DataArrayChar *keepSelectedComponents(const std::vector<std::size_t>& compoIds) const override { return DataArrayTemplate<char>::myKeepSelectedComponents(compoIds); }
+    DataArrayChar *selectByTupleIdSafeSlice(mcIdType bg, mcIdType end2, mcIdType step) const override { return DataArrayTemplate<char>::mySelectByTupleIdSafeSlice(bg,end2,step); }
     bool isUniform(char val) const;
     void meldWith(const DataArrayChar *other);
-    DataArray *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const { return DataArrayTemplate<char>::mySelectByTupleRanges(ranges); }
+    DataArray *selectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const override { return DataArrayTemplate<char>::mySelectByTupleRanges(ranges); }
     DataArrayIdType *findIdsEqual(char val) const;
     DataArrayIdType *findIdsNotEqual(char val) const;
     mcIdType findIdSequence(const std::vector<char>& vals) const;
@@ -836,25 +838,25 @@ namespace MEDCoupling
   {
   public:
     static DataArrayByte *New();
-    DataArrayChar *buildEmptySpecializedDAChar() const;
+    DataArrayChar *buildEmptySpecializedDAChar() const override;
     DataArrayByteIterator *iterator();
-    DataArrayByte *deepCopy() const;
+    DataArrayByte *deepCopy() const override;
     DataArrayByte *copySorted(bool asc=true) const override { return this->copySortedImpl(asc); }
     DataArrayByte *performCopyOrIncrRef(bool deepCopy) const;
-    DataArrayByte *buildNewEmptyInstance() const { return DataArrayByte::New(); }
+    DataArrayByte *buildNewEmptyInstance() const override { return DataArrayByte::New(); }
     char byteValue() const;
-    void reprStream(std::ostream& stream) const;
-    void reprZipStream(std::ostream& stream) const;
-    void reprWithoutNameStream(std::ostream& stream) const;
-    void reprZipWithoutNameStream(std::ostream& stream) const;
-    void reprCppStream(const std::string& varName, std::ostream& stream) const;
-    void reprQuickOverview(std::ostream& stream) const;
-    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
-    bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
+    void reprStream(std::ostream& stream) const override;
+    void reprZipStream(std::ostream& stream) const override;
+    void reprWithoutNameStream(std::ostream& stream) const override;
+    void reprZipWithoutNameStream(std::ostream& stream) const override;
+    void reprCppStream(const std::string& varName, std::ostream& stream) const override;
+    void reprQuickOverview(std::ostream& stream) const override;
+    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const override;
+    bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const override;
     std::vector<bool> toVectorOfBool() const;
     std::string getClassName() const override { return std::string("DataArrayByte"); }
   private:
-    ~DataArrayByte() { }
+    ~DataArrayByte() override = default;
     DataArrayByte() { }
   };
 
@@ -866,24 +868,24 @@ namespace MEDCoupling
     static DataArrayAsciiChar *New();
     static DataArrayAsciiChar *New(const std::string& st);
     static DataArrayAsciiChar *New(const std::vector<std::string>& vst, char defaultChar);
-    DataArrayChar *buildEmptySpecializedDAChar() const;
+    DataArrayChar *buildEmptySpecializedDAChar() const override;
     DataArrayAsciiCharIterator *iterator();
-    DataArrayAsciiChar *deepCopy() const;
+    DataArrayAsciiChar *deepCopy() const override;
     DataArrayAsciiChar *copySorted(bool asc=true) const override { (void)asc;throw INTERP_KERNEL::Exception("DataArrayAsciiChar::copySorted : not implemented for DataArrayByte"); }
     DataArrayAsciiChar *performCopyOrIncrRef(bool deepCopy) const;
-    DataArrayAsciiChar *buildNewEmptyInstance() const { return DataArrayAsciiChar::New(); }
+    DataArrayAsciiChar *buildNewEmptyInstance() const override { return DataArrayAsciiChar::New(); }
     char asciiCharValue() const;
-    void reprStream(std::ostream& stream) const;
-    void reprZipStream(std::ostream& stream) const;
-    void reprWithoutNameStream(std::ostream& stream) const;
-    void reprZipWithoutNameStream(std::ostream& stream) const;
-    void reprCppStream(const std::string& varName, std::ostream& stream) const;
-    void reprQuickOverview(std::ostream& stream) const;
-    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
-    bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
+    void reprStream(std::ostream& stream) const override;
+    void reprZipStream(std::ostream& stream) const override;
+    void reprWithoutNameStream(std::ostream& stream) const override;
+    void reprZipWithoutNameStream(std::ostream& stream) const override;
+    void reprCppStream(const std::string& varName, std::ostream& stream) const override;
+    void reprQuickOverview(std::ostream& stream) const override;
+    void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const override;
+    bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const override;
     std::string getClassName() const override { return std::string("DataArrayAsciiChar"); }
   private:
-    ~DataArrayAsciiChar() { }
+    ~DataArrayAsciiChar() override = default;
     DataArrayAsciiChar() { }
     DataArrayAsciiChar(const std::string& st);
     DataArrayAsciiChar(const std::vector<std::string>& vst, char defaultChar);
@@ -927,7 +929,7 @@ namespace MEDCoupling
   {
   public:
     DataArrayDoubleIterator(DataArrayDouble *da);
-    ~DataArrayDoubleIterator() { }
+    ~DataArrayDoubleIterator() = default;
   };
 
   class MEDCOUPLING_EXPORT DataArrayDoubleTuple : public DataArrayTuple<double>
@@ -945,7 +947,7 @@ namespace MEDCoupling
   {
   public:
     DataArrayFloatIterator(DataArrayFloat *da);
-    ~DataArrayFloatIterator() { }
+    ~DataArrayFloatIterator() = default;
   };
 
   class MEDCOUPLING_EXPORT DataArrayFloatTuple : public DataArrayTuple<float>
@@ -961,14 +963,14 @@ namespace MEDCoupling
   {
   public:
     DataArrayInt32Iterator(DataArrayInt32 *da);
-    ~DataArrayInt32Iterator() { }
+    ~DataArrayInt32Iterator() = default;
   };
 
   class MEDCOUPLING_EXPORT DataArrayInt64Iterator : public DataArrayIterator<Int64>
   {
   public:
     DataArrayInt64Iterator(DataArrayInt64 *da);
-    ~DataArrayInt64Iterator() { }
+    ~DataArrayInt64Iterator() = default;
   };
 
   class MEDCOUPLING_EXPORT  DataArrayInt32Tuple : public DataArrayTuple<Int32>
@@ -989,7 +991,7 @@ namespace MEDCoupling
     DataArrayInt64 *buildDAInt(std::size_t nbOfTuples, std::size_t nbOfCompo) const;
   };
 
-  typedef DataArrayInt32Tuple DataArrayIntTuple;
+  using DataArrayIntTuple = DataArrayInt32Tuple;
 
   class DataArrayAsciiCharTuple;
 

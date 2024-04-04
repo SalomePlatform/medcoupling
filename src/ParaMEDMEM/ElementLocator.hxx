@@ -20,13 +20,14 @@
 #ifndef __ELEMENTLOCATOR_HXX__
 #define __ELEMENTLOCATOR_HXX__
 
-#include "InterpolationOptions.hxx"
-#include "MEDCouplingNatureOfField.hxx"
-#include "MCType.hxx"
-
 #include <mpi.h>
+
+#include <string>
 #include <vector>
-#include <set>
+
+#include "InterpolationOptions.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
 
 namespace MEDCoupling
 {
@@ -49,7 +50,10 @@ namespace MEDCoupling
                       MEDCouplingPointSet*& target_mesh,
                       mcIdType*& distant_ids);
     void exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth);
-    const std::vector<int>& getDistantProcIds() const { return _distant_proc_ids; }
+    const std::vector<int> &getDistantProcIds() const
+    {
+        return _distant_proc_ids;
+    }
     const MPI_Comm *getCommunicator() const;
     NatureOfField getLocalNature() const;
     //! This method is used to informed if there is -1D mesh on distant_group side or on local_group side.
@@ -89,8 +93,8 @@ namespace MEDCoupling
     int _local_cell_mesh_space_dim;
     bool _is_m1d_corr;
     MEDCouplingPointSet* _local_face_mesh;
-    std::vector<MEDCouplingPointSet*> _distant_cell_meshes;
-    std::vector<MEDCouplingPointSet*> _distant_face_meshes;
+    std::vector<MEDCouplingPointSet *> _distant_cell_meshes;
+    std::vector<MEDCouplingPointSet *> _distant_face_meshes;
     double* _domain_bounding_boxes;
     const ProcessorGroup& _distant_group;
     const ProcessorGroup& _local_group;
@@ -99,10 +103,11 @@ namespace MEDCoupling
     const MPI_Comm *_comm;
     //Attributes only used by lazy side
     std::vector<double> _values_added;
-    std::vector< std::vector<mcIdType> > _ids_per_working_proc;
-    std::vector< std::vector<mcIdType> > _ids_per_working_proc3;
-    std::vector< std::vector<double> > _values_per_working_proc;
-  public:
+    std::vector<std::vector<mcIdType> > _ids_per_working_proc;
+    std::vector<std::vector<mcIdType> > _ids_per_working_proc3;
+    std::vector<std::vector<double> > _values_per_working_proc;
+
+   public:
     static const int CUMULATIVE_POLICY=3;
     static const int NO_POST_TREATMENT_POLICY=7;
   };

@@ -22,6 +22,8 @@
 #define __MEDLOADERTEST_HXX__
 
 #include "MEDCouplingFieldInt.hxx"   // this one can not use a class forward
+#include <cppunit/TestFixture.h>
+#include "MEDCouplingTraits.hxx"
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace MEDCoupling

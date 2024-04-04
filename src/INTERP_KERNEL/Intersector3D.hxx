@@ -21,7 +21,9 @@
 #ifndef __INTERSECTOR3D_HXX__
 #define __INTERSECTOR3D_HXX__
 
-#include "TargetIntersector.txx"
+#include "TargetIntersector.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -31,7 +33,7 @@ namespace INTERP_KERNEL
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
-    typedef typename MyMeshType::MyConnType ConnType;
+    using ConnType = typename MyMeshType::MyConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     Intersector3D(const MyMeshType& targetMesh, const MyMeshType& srcMesh);

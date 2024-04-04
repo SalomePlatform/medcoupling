@@ -36,13 +36,13 @@ namespace INTERP_KERNEL
     /// Enumeration representing the six coordinates that define the bounding box
     enum BoxCoord { XMIN = 0, YMIN = 1, ZMIN = 2, XMAX = 3, YMAX = 4, ZMAX = 5 };
     
-    BoundingBox() { }
+    BoundingBox() = default;
 
     BoundingBox(const double** pts, const unsigned numPts);
 
     BoundingBox(const BoundingBox& box1, const BoundingBox& box2);
 
-    ~BoundingBox() { }
+    ~BoundingBox() = default;
     
     void fillInXMinXmaxYminYmaxZminZmaxFormat(double data[6]) const;
 

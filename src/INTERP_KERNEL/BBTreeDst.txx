@@ -21,12 +21,13 @@
 #ifndef __BBTREEDST_TXX__
 #define __BBTREEDST_TXX__
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
-#include <iostream>
 #include <limits>
 #include <cmath>
+
+#include "MCIdType.hxx"
 
 template <int dim>
 class BBTreeDst
@@ -39,14 +40,14 @@ private:
   double _min_right;
   const double *_bb;
   std::vector<mcIdType> _elems;
-  double  *_terminal;
+  double  *_terminal{nullptr};
   mcIdType _nbelems;
 
   static const int MIN_NB_ELEMS=15;
   static const int MAX_LEVEL=20;
 public:
   BBTreeDst(const double* bbs, mcIdType* elems, int level, mcIdType nbelems):
-    _left(0),_right(0),_level(level),_bb(bbs),_terminal(0),_nbelems(nbelems)
+    _left(0),_right(0),_level(level),_bb(bbs),_nbelems(nbelems)
   {
     if((nbelems < MIN_NB_ELEMS || level> MAX_LEVEL))
       _terminal=new double[2*dim];
@@ -58,11 +59,11 @@ public:
         fillBBoxTerminal(bbs);
         return ;
       }
-    double *nodes=new double[nbelems];
+    auto *nodes=new double[nbelems];
     for (mcIdType i=0; i<nbelems; i++)
       nodes[i]=bbs[_elems[i]*dim*2+(level%dim)*2];
     std::nth_element<double*>(nodes, nodes+nbelems/2, nodes+nbelems);
-    double median = *(nodes+nbelems/2);
+    double const median = *(nodes+nbelems/2);
     delete [] nodes;
     std::vector<mcIdType> new_elems_left;
     std::vector<mcIdType> new_elems_right;
@@ -74,7 +75,7 @@ public:
     for(mcIdType i=0; i<nbelems;i++)
       {
         mcIdType elem;
-        if (elems!=0)
+        if (elems!=nullptr)
           elem= elems[i];
         else
           elem=i;
@@ -95,11 +96,11 @@ public:
     _max_left=max_left;
     _min_right=min_right;
     mcIdType *tmp;
-    tmp=0;
+    tmp=nullptr;
     if(!new_elems_left.empty())
       tmp=&(new_elems_left[0]);
     _left=new BBTreeDst(bbs, tmp, level+1, ToIdType(new_elems_left.size()));
-    tmp=0;
+    tmp=nullptr;
     if(!new_elems_right.empty())
       tmp=&(new_elems_right[0]);
     _right=new BBTreeDst(bbs, tmp, level+1, ToIdType(new_elems_right.size()));
@@ -124,7 +125,7 @@ public:
       }
     else
       {
-        double minOfMaxDsts=sqrt(minOfMaxDstsSq);
+        double const minOfMaxDsts=sqrt(minOfMaxDstsSq);
         if(_min_right-pt[_level%dim]>minOfMaxDsts)
           { _left->getElemsWhoseMinDistanceToPtSmallerThan(pt,minOfMaxDstsSq,elems); return ; }
         if(pt[_level%dim]-_max_left>minOfMaxDsts)
@@ -151,7 +152,7 @@ public:
       }
     else
       {
-        double minOfMaxDsts=sqrt(minOfMaxDstsSq);
+        double const minOfMaxDsts=sqrt(minOfMaxDstsSq);
         if(_min_right-pt[_level%dim]>minOfMaxDsts)
           { _left->getMinDistanceOfMax(pt,minOfMaxDstsSq); return ; }
         if(pt[_level%dim]-_max_left>minOfMaxDsts)
@@ -186,7 +187,7 @@ public:
         for (int idim=0; idim<dim; idim++)
           {
             double val1=pt[idim]-bbox[idim*2],val2=pt[idim]-bbox[idim*2+1];
-            double x=std::max(fabs(val1),fabs(val2));
+            double const x=std::max(fabs(val1),fabs(val2));
             zeRes+=x*x;
           }
         return zeRes;
@@ -204,10 +205,10 @@ public:
         for (int idim=0; idim<dim; idim++)
           {
             double val1=pt[idim]-bbox[idim*2],val2=pt[idim]-bbox[idim*2+1];
-            char pos=static_cast<char>((( (0.<val1)-(val1<0.) )+( (0.<val2)-(val2<0.) ))/2);// sign(val) = (0.<val)-(val<0.)
+            char const pos=static_cast<char>((( (0.<val1)-(val1<0.) )+( (0.<val2)-(val2<0.) ))/2);// sign(val) = (0.<val)-(val<0.)
             if(pos!=0)
               {
-                double x=pos==1?val2:val1;
+                double const x=pos==1?val2:val1;
                 zeRes+=x*x;
               }
           }

@@ -21,11 +21,13 @@
 #ifndef __OVERLAPMAPPING_HXX__
 #define __OVERLAPMAPPING_HXX__
 
-#include "MCAuto.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "OverlapElementLocator.hxx"
 
 #include <vector>
 #include <map>
+
 //#define DEC_DEBUG
 
 namespace MEDCoupling

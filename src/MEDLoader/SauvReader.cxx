@@ -23,14 +23,22 @@
 
 #include "SauvReader.hxx"
 
+#include "InterpKernelException.hxx"
 #include "SauvMedConvertor.hxx"
 #include "MCAuto.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "SauvUtilities.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <clocale>
+#include <cstdlib>
 #include <cstring>
-#include <sstream>
+#include <map>
+#include <set>
 #include <iostream>
+#include <string>
+#include <vector>
+#include <utility>
 
 using namespace MEDCoupling;
 using namespace SauvUtilities;
@@ -46,7 +54,7 @@ namespace
   public:
     Localizer()
     {
-      _locale = setlocale(LC_NUMERIC, NULL);
+      _locale = setlocale(LC_NUMERIC, nullptr);
       setlocale(LC_NUMERIC, "C");
     }
     ~Localizer()
@@ -72,7 +80,7 @@ SauvReader* SauvReader::New(const std::string& fileName)
   parser = new XDRReader( fileName.c_str() );
   if ( parser->open() )
     {
-      SauvReader* reader = new SauvReader;
+      auto* reader = new SauvReader;
       reader->_fileReader = parser.retn();
       return reader;
     }
@@ -81,7 +89,7 @@ SauvReader* SauvReader::New(const std::string& fileName)
   parser = new ASCIIReader( fileName.c_str() );
   if ( parser->open() )
     {
-      SauvReader* reader = new SauvReader;
+      auto* reader = new SauvReader;
       reader->_fileReader = parser.retn();
       return reader;
     }
@@ -132,7 +140,7 @@ std::string SauvReader::lineNb() const
 
 MEDCoupling::MEDFileData * SauvReader::loadInMEDFileDS()
 {
-  Localizer loc; // localization, to read numbers in "C" locale
+  Localizer const loc; // localization, to read numbers in "C" locale
 
   SauvUtilities::IntermediateMED iMed; // intermadiate DS
   _iMed = &iMed;
@@ -402,11 +410,11 @@ void SauvReader::read_PILE_SOUS_MAILLAGE(const int                 nbObjects,
   for (int object=0; object!=nbObjects; ++object) // loop on sub-groups
     {
       initIntReading( 5 );
-      int castemCellType = getIntNext();
-      int nbSubGroups    = getIntNext();
-      int nbReferences   = getIntNext();
-      int nbNodesPerElem = getIntNext();
-      int nbElements     = getIntNext();
+      int const castemCellType = getIntNext();
+      int const nbSubGroups    = getIntNext();
+      int const nbReferences   = getIntNext();
+      int const nbNodesPerElem = getIntNext();
+      int const nbElements     = getIntNext();
 
       _iMed->_groups.push_back(Group());
       SauvUtilities::Group & group = _iMed->_groups.back();
@@ -462,7 +470,7 @@ void SauvReader::read_PILE_SOUS_MAILLAGE(const int                 nbObjects,
                   ma.init();
                   for ( int n = 0; n < nbNodesPerElem; ++n )
                     {
-                      int nodeID = getIntNext();
+                      int const nodeID = getIntNext();
                       pNode = _iMed->getNode( nodeID );
                       ma._nodes[n] = pNode;
                       _iMed->_nbNodes += ( !pNode->isUsed() );
@@ -478,7 +486,7 @@ void SauvReader::read_PILE_SOUS_MAILLAGE(const int                 nbObjects,
   // set group names
   for (i=0; i!=(int)objectNames.size(); ++i)
     {
-      int grpID = nameIndices[i];
+      int const grpID = nameIndices[i];
       SauvUtilities::Group & grp = _iMed->_groups[ grpID-1 ];
       if ( !grp._name.empty() ) // a group has several names
         { // create a group with subgroup grp and named grp.name
@@ -508,7 +516,7 @@ void SauvReader::read_PILE_LREEL (const int nbObjects, std::vector<std::string>&
       for (int object=0; object!=nbObjects; ++object) // pour chaque Group
         {
           initIntReading(1);
-          int nb_vals = getIntNext();
+          int const nb_vals = getIntNext();
           initDoubleReading(nb_vals);
           for(int i=0; i<nb_vals; i++) next();
         }
@@ -526,7 +534,7 @@ void SauvReader::read_PILE_LOGIQUES (const int, std::vector<std::string>&, std::
   if ( isXRD() )
     {
       initIntReading(1);
-      int nb_vals = getIntNext();
+      int const nb_vals = getIntNext();
       initIntReading(nb_vals);
       for(int i=0; i<nb_vals; i++) next();
     }
@@ -543,7 +551,7 @@ void SauvReader::read_PILE_FLOATS (const int, std::vector<std::string>&, std::ve
   if ( isXRD() )
     {
       initIntReading(1);
-      int nb_vals = getIntNext();
+      int const nb_vals = getIntNext();
       initDoubleReading(nb_vals);
       for(int i=0; i<nb_vals; i++) next();
     }
@@ -560,7 +568,7 @@ void SauvReader::read_PILE_INTEGERS (const int, std::vector<std::string>&, std::
   if ( isXRD() )
     {
       initIntReading(1);
-      int nb_vals = getIntNext();
+      int const nb_vals = getIntNext();
       initIntReading(nb_vals);
       for(int i=0; i<nb_vals; i++) next();
     }
@@ -579,14 +587,14 @@ void SauvReader::read_PILE_LMOTS (const int nbObjects, std::vector<std::string>&
       for (int object=0; object!=nbObjects; ++object) // pour chaque Group
         {
           initIntReading(2);
-          int len = getIntNext();
-          int nb_vals = getIntNext();
-          int nb_char = len*nb_vals;
+          int const len = getIntNext();
+          int const nb_vals = getIntNext();
+          int const nb_char = len*nb_vals;
           int nb_char_tmp = 0;
-          int fixed_length = 71;
+          int const fixed_length = 71;
           while (nb_char_tmp < nb_char)
             {
-              int remain_len = nb_char - nb_char_tmp;
+              int const remain_len = nb_char - nb_char_tmp;
               int width;
               if ( remain_len > fixed_length )
                 {
@@ -618,18 +626,18 @@ void SauvReader::read_PILE_MODL (const int nbObjects, std::vector<std::string>&,
         {
           // see wrmodl.eso
           initIntReading(10);
-          int n1  = getIntNext();
-          int nm2 = getIntNext();
-          int nm3 = getIntNext();
-          int nm4 = getIntNext();
-          int nm5 = getIntNext();
-          int n45 = getIntNext();
+          int const n1  = getIntNext();
+          int const nm2 = getIntNext();
+          int const nm3 = getIntNext();
+          int const nm4 = getIntNext();
+          int const nm5 = getIntNext();
+          int const n45 = getIntNext();
           /*int nm6 =*/ getIntNext();
           /*int nm7 =*/ getIntNext();
           next();
           next();
-          int nm1 = n1 * n45;
-          int nm9 = n1 * 16;
+          int const nm1 = n1 * n45;
+          int const nm9 = n1 * 16;
           for (initIntReading(nm1); more(); next());
           for (initIntReading(nm9); more(); next());
           for (initNameReading(nm5, 8); more(); next());
@@ -649,14 +657,14 @@ void SauvReader::read_PILE_MODL (const int nbObjects, std::vector<std::string>&,
 void SauvReader::read_PILE_NOEUDS (const int nbObjects, std::vector<std::string>&, std::vector<int>&)
 {
   initIntReading(1);
-  int nb_indices = getIntNext();
+  int const nb_indices = getIntNext();
 
   if (nb_indices != nbObjects)
     THROW_IK_EXCEPTION("Error of reading PILE NUMERO  " << PILE_NOEUDS << lineNb() );
 
   for ( initIntReading( nbObjects ); more(); next() )
     {
-      int coordID = getInt();
+      int const coordID = getInt();
       _iMed->getNode( index()+1 )->_coordID = coordID;
     }
 }
@@ -667,10 +675,10 @@ void SauvReader::read_PILE_NOEUDS (const int nbObjects, std::vector<std::string>
  */
 //================================================================================
 
-void SauvReader::read_PILE_COORDONNEES (const int nbObjects, std::vector<std::string>&, std::vector<int>&)
+void SauvReader::read_PILE_COORDONNEES (const int  /*nbObjects*/, std::vector<std::string>&, std::vector<int>&)
 {
   initIntReading(1);
-  int nbReals = getIntNext();
+  int const nbReals = getIntNext();
 
   if ( nbReals < (int)(_iMed->_nbNodes*(_iMed->_spaceDim+1)) )
     THROW_IK_EXCEPTION("Error of reading PILE NUMERO  " << PILE_COORDONNEES << lineNb() );
@@ -699,8 +707,8 @@ void SauvReader::read_PILE_COORDONNEES (const int nbObjects, std::vector<std::st
 void SauvReader::setFieldSupport(const vector<SauvUtilities::Group*>& supports,
                                  SauvUtilities::DoubleField*          field)
 {
-  SauvUtilities::Group* group = NULL;
-  set<SauvUtilities::Group*> sup_set( supports.begin(), supports.end() );
+  SauvUtilities::Group* group = nullptr;
+  set<SauvUtilities::Group*> const sup_set( supports.begin(), supports.end() );
   if ( sup_set.size() == 1 ) // one or equal supports
     {
       group = supports[0];
@@ -711,13 +719,13 @@ void SauvReader::setFieldSupport(const vector<SauvUtilities::Group*>& supports,
       map<int,int> nbGaussByCellType;
       for ( size_t i = 0; i < supports.size(); ++i )
         {
-          map<int,int>::iterator ct2ng = nbGaussByCellType.find( supports[i]->_cellType );
+          auto const ct2ng = nbGaussByCellType.find( supports[i]->_cellType );
           if ( ct2ng == nbGaussByCellType.end() )
             nbGaussByCellType[ supports[i]->_cellType ] = field->_sub[i].nbGauss();
           else if ( ct2ng->second != field->_sub[i].nbGauss() )
             return;
         }
-      bool isSameCellType = ( nbGaussByCellType.size() == 1 );
+      bool const isSameCellType = ( nbGaussByCellType.size() == 1 );
       // try to find an existing composite group with the same sub-groups
       if ( isSameCellType )
         for ( size_t i = 0; i < _iMed->_groups.size() && !group; ++i )
@@ -757,8 +765,8 @@ void SauvReader::setFieldSupport(const vector<SauvUtilities::Group*>& supports,
               isSwapped = false;
               for ( std::size_t i = 1; i < groups.size(); ++i )
                 {
-                  std::size_t nbN1 = groups[i-1]->empty() ? 0 : groups[i-1]->_cells[0]->_nodes.size();
-                  std::size_t nbN2 = groups[i  ]->empty() ? 0 : groups[i  ]->_cells[0]->_nodes.size();
+                  std::size_t const nbN1 = groups[i-1]->empty() ? 0 : groups[i-1]->_cells[0]->_nodes.size();
+                  std::size_t const nbN2 = groups[i  ]->empty() ? 0 : groups[i  ]->_cells[0]->_nodes.size();
                   if ( nbN1 > nbN2 )
                     {
                       isSwapped = isModified = true;
@@ -774,12 +782,12 @@ void SauvReader::setFieldSupport(const vector<SauvUtilities::Group*>& supports,
               size_t iFromSub = 0, iNewSub = 0, iNewComp = 0;
               for ( ; iFromSub < field->_sub.size(); iFromSub += groups.size() )
                 {
-                  size_t iFromComp = iNewComp;
-                  for ( size_t iG = 0; iG < groups.size(); ++iG )
+                  size_t const iFromComp = iNewComp;
+                  for (auto & group : groups)
                     {
                       size_t iComp = iFromComp;
                       for ( size_t iSub = iFromSub; iSub < field->_sub.size(); ++iSub )
-                        if ( field->_sub[ iSub ]._support == groups[ iG ] )
+                        if ( field->_sub[ iSub ]._support == group )
                           {
                             newSub[ iNewSub++ ] = field->_sub[ iSub ];
                             int iC = 0, nbC = field->_sub[ iSub ].nbComponents();
@@ -817,7 +825,7 @@ void SauvReader::setFieldNames(const vector<SauvUtilities::DoubleField* >& field
   unsigned i;
   for ( i = 0; i < indices_objets_nommes.size(); ++i )
     {
-      int fieldIndex = indices_objets_nommes[ i ];
+      int const fieldIndex = indices_objets_nommes[ i ];
       if ( fields[ fieldIndex - 1 ] )
         fields[ fieldIndex - 1 ]->_name = objets_nommes[ i ];
     }
@@ -833,7 +841,7 @@ void SauvReader::read_PILE_NODES_FIELD (const int                 nbObjects,
                                         std::vector<std::string>& objectNames,
                                         std::vector<int>&         nameIndices)
 {
-  _iMed->_nodeFields.resize( nbObjects, (SauvUtilities::DoubleField*) 0 );
+  _iMed->_nodeFields.resize( nbObjects, (SauvUtilities::DoubleField*) nullptr );
   for (int object=0; object!=nbObjects; ++object) // loop on fields
     {
       // EXAMPLE ( with no values )
@@ -867,7 +875,7 @@ void SauvReader::read_PILE_NODES_FIELD (const int                 nbObjects,
       initIntReading( nb_sub * 3 );
       for ( i_sub = 0; i_sub < nb_sub; ++i_sub )
         {
-          int supId = -getIntNext(); // (a) reference to support
+          int const supId = -getIntNext(); // (a) reference to support
           if ( supId < 1 || supId > (int)_iMed->_groups.size() )
             THROW_IK_EXCEPTION("Wrong mesh reference: "<< supId << lineNb() );
           supports[ i_sub ] = &_iMed->_groups[ supId-1 ]; // (a) reference to support
@@ -880,7 +888,7 @@ void SauvReader::read_PILE_NODES_FIELD (const int                 nbObjects,
         }
 
       // create a field if there are values
-      SauvUtilities::DoubleField* fdouble = 0;
+      SauvUtilities::DoubleField* fdouble = nullptr;
       if ( total_nb_values > 0 )
         fdouble = new DoubleField( nb_sub, total_nb_comp );
       _iMed->_nodeFields[ object ] = fdouble;
@@ -895,7 +903,7 @@ void SauvReader::read_PILE_NODES_FIELD (const int                 nbObjects,
           for ( i_comp = 0; i_comp < nb_comps[ i_sub ]; ++i_comp, next() )
             {
               // store component name
-              string compName = getName();
+              string const compName = getName();
               if ( fdouble )
                 fdouble->_sub[ i_sub ].compName( i_comp ) = compName;
             }
@@ -974,14 +982,14 @@ void SauvReader::read_PILE_FIELD (const int                 nbObjects,
   // (17)  1.00000000000000E+02  1.00000000000000E+02  1.00000000000000E+02
   // (18)  ...
 
-  _iMed->_cellFields.resize( nbObjects, (SauvUtilities::DoubleField*) 0 );
+  _iMed->_cellFields.resize( nbObjects, (SauvUtilities::DoubleField*) nullptr );
   for (int object=0; object!=nbObjects; ++object) // pour chaque field
     {
       initIntReading( 4 );
       int i_sub, nb_sub = getIntNext(); // (1) <nb_sub> 2 6 <title length>
       next(); // skip "2"
       next(); // skip "6"
-      int title_length = getIntNext(); // <title length>
+      int const title_length = getIntNext(); // <title length>
       if ( nb_sub < 1 )
         THROW_IK_EXCEPTION("Error of field reading: wrong nb of subcomponents " << nb_sub << lineNb() );
 
@@ -1018,7 +1026,7 @@ void SauvReader::read_PILE_FIELD (const int                 nbObjects,
       vector<int>     nb_comp( nb_sub );
       for ( i_sub = 0; i_sub < nb_sub; ++i_sub )
         {                                    // (3)
-          int supportId     = -getIntNext(); // <reference to support>
+          int const supportId     = -getIntNext(); // <reference to support>
           next();                            // ignore <address>
           nb_comp [ i_sub ] =  getIntNext(); // <nb of components in the sub>
           for ( int i = 0; i < 6; ++i ) next();  // ignore 6 ints, in example "0 0 0 -2 0 3"
@@ -1039,7 +1047,7 @@ void SauvReader::read_PILE_FIELD (const int                 nbObjects,
       // loop on subcomponents of a field, each of which refers to
       // a certain support and has its own number of components;
       // read component values
-      SauvUtilities::DoubleField* fdouble = 0;
+      SauvUtilities::DoubleField* fdouble = nullptr;
       for ( i_sub = 0; i_sub < nb_sub; ++ i_sub )
         {
           vector<string> comp_names( nb_comp[ i_sub ]), comp_type( nb_comp[ i_sub ]);
@@ -1059,7 +1067,7 @@ void SauvReader::read_PILE_FIELD (const int                 nbObjects,
                                     << ">" << lineNb() );
             }
           // now type is known, create a field, one for all subs
-          bool isReal = (nb_comp[i_sub] > 0) ? (comp_type[0] == "REAL*8") : true;
+          bool const isReal = (nb_comp[i_sub] > 0) ? (comp_type[0] == "REAL*8") : true;
           if ( !fdouble && total_nb_comp )
             {
               if ( !isReal )
@@ -1075,7 +1083,7 @@ void SauvReader::read_PILE_FIELD (const int                 nbObjects,
             {
               // (9) nb of values
               initIntReading( 4 );
-              int nb_val_by_elem = getIntNext();
+              int const nb_val_by_elem = getIntNext();
               int nb_values      = getIntNext();
               next();
               next();
@@ -1125,9 +1133,9 @@ void SauvReader::read_PILE_TABLES (const int                 nbObjects,
 {
   // IMP 0020434: mapping GIBI names to MED names
 
-  string table_med_mail = "MED_MAIL";
-  string table_med_cham = "MED_CHAM";
-  string table_med_comp = "MED_COMP";
+  string const table_med_mail = "MED_MAIL";
+  string const table_med_cham = "MED_CHAM";
+  string const table_med_comp = "MED_COMP";
   int table_med_mail_id = -1;
   int table_med_cham_id = -1;
   int table_med_comp_id = -1;
@@ -1145,7 +1153,7 @@ void SauvReader::read_PILE_TABLES (const int                 nbObjects,
       // read tables "MED_MAIL", "MED_CHAM" and "MED_COMP", that keeps correspondence
       // between GIBI names (8 symbols if any) and MED names (possibly longer)
       initIntReading(1);
-      int nb_table_vals = getIntNext();
+      int const nb_table_vals = getIntNext();
       if (nb_table_vals < 0)
         THROW_IK_EXCEPTION("Error of reading PILE NUMERO  10" << lineNb() );
 
@@ -1208,13 +1216,13 @@ void SauvReader::read_PILE_TABLES (const int                 nbObjects,
 //================================================================================
 
 void SauvReader::read_PILE_STRINGS (const int                 nbObjects,
-                                    std::vector<std::string>& objectNames,
-                                    std::vector<int>&         nameIndices)
+                                    std::vector<std::string>&  /*objectNames*/,
+                                    std::vector<int>&          /*nameIndices*/)
 {
   // IMP 0020434: mapping GIBI names to MED names
   initIntReading(2);
-  int stringLen    = getIntNext();
-  int nbSubStrings = getIntNext();
+  int const stringLen    = getIntNext();
+  int const nbSubStrings = getIntNext();
   if (nbSubStrings != nbObjects)
     THROW_IK_EXCEPTION("Error of reading PILE NUMERO  27" << lineNb() );
 
@@ -1224,7 +1232,7 @@ void SauvReader::read_PILE_STRINGS (const int                 nbObjects,
       const int fixedLength = 71;
       while ((int)aWholeString.length() < stringLen)
         {
-          int remainLen = (int)(stringLen - aWholeString.length());
+          int const remainLen = (int)(stringLen - aWholeString.length());
           int len;
           if ( remainLen > fixedLength )
             {
@@ -1246,7 +1254,7 @@ void SauvReader::read_PILE_STRINGS (const int                 nbObjects,
       while ((int)aWholeString.length() < stringLen)
         {
           getNextLine( line );
-          int remainLen = (int)(stringLen - aWholeString.length());
+          int const remainLen = (int)(stringLen - aWholeString.length());
           if ( remainLen > fixedLength )
             {
               aWholeString += line + 1;

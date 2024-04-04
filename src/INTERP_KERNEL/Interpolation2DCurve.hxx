@@ -21,8 +21,9 @@
 #ifndef __INTERPOLATION2DCURVE_HXX__
 #define __INTERPOLATION2DCURVE_HXX__
 
-#include "InterpolationCurve.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpolationOptions.hxx"
+#include "InterpolationCurve.hxx"
 
 namespace INTERP_KERNEL
 {

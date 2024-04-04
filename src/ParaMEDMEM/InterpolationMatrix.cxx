@@ -17,27 +17,37 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "DECOptions.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "Interpolation2D.hxx"
+#include "Interpolation3D.hxx"
+#include "Interpolation2D3D.hxx"
+#include "Interpolation2D1D.hxx"
+#include "Interpolation1D.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MCAuto.hxx"
+#include "InterpKernelException.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ProcessorGroup.hxx"
 #include "MxN_Mapping.hxx"
 #include "InterpolationMatrix.hxx"
-#include "TranslationRotationMatrix.hxx"
-#include "Interpolation.hxx"
-#include "Interpolation1D.txx"
 #include "Interpolation2DCurve.hxx"
-#include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
 #include "Interpolation2D3D.txx"
 #include "Interpolation2D1D.txx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "InterpolationOptions.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "ElementLocator.hxx"
 
 #include <algorithm>
+#include <string>
+#include <cstddef>
+#include <utility>
+#include <sstream>
+#include <limits>
 
 using namespace std;
 
@@ -67,15 +77,14 @@ namespace MEDCoupling
     _source_group(source_group),
     _target_group(target_group)
   {
-    mcIdType nbelems = source_field->getField()->getNumberOfTuples();
+    mcIdType const nbelems = source_field->getField()->getNumberOfTuples();
     _row_offsets.resize(nbelems+1);
     _coeffs.resize(nbelems);
     _target_volume.resize(nbelems);
   }
 
   InterpolationMatrix::~InterpolationMatrix()
-  {
-  }
+  = default;
 
 
   /*!
@@ -104,8 +113,8 @@ namespace MEDCoupling
     //creating the interpolator structure
     vector<map<mcIdType,double> > surfaces;
     //computation of the intersection volumes between source and target elements
-    MEDCouplingUMesh *distant_supportC=dynamic_cast<MEDCouplingUMesh *>(&distant_support);
-    MEDCouplingUMesh *source_supportC=dynamic_cast<MEDCouplingUMesh *>(_source_support);
+    auto *distant_supportC=dynamic_cast<MEDCouplingUMesh *>(&distant_support);
+    auto *source_supportC=dynamic_cast<MEDCouplingUMesh *>(_source_support);
     if ( distant_support.getMeshDimension() == -1 )
       {
         if(source_supportC->getMeshDimension()==2 && source_supportC->getSpaceDimension()==2)
@@ -248,9 +257,9 @@ namespace MEDCoupling
       {
         throw INTERP_KERNEL::Exception("no interpolator exists for these mesh and space dimensions ");
       }
-    bool needTargetSurf=isSurfaceComputationNeeded(targetMeth);
+    bool const needTargetSurf=isSurfaceComputationNeeded(targetMeth);
 
-    MEDCouplingFieldDouble *target_triangle_surf=0;
+    MEDCouplingFieldDouble *target_triangle_surf=nullptr;
     if(needTargetSurf)
       target_triangle_surf = distant_support.getMeasureField(getMeasureAbsStatus());
     fillDSFromVM(iproc_distant,distant_elems,surfaces,target_triangle_surf);
@@ -345,7 +354,7 @@ namespace MEDCoupling
 
   void InterpolationMatrix::finishContributionW(ElementLocator& elementLocator)
   {
-    NatureOfField nature=elementLocator.getLocalNature();
+    NatureOfField const nature=elementLocator.getLocalNature();
     switch(nature)
       {
       case IntensiveMaximum:
@@ -378,7 +387,7 @@ namespace MEDCoupling
 
   void InterpolationMatrix::finishContributionL(ElementLocator& elementLocator)
   {
-    NatureOfField nature=elementLocator.getLocalNature();
+    NatureOfField const nature=elementLocator.getLocalNature();
     switch(nature)
       {
       case IntensiveMaximum:
@@ -418,7 +427,7 @@ namespace MEDCoupling
   
   void InterpolationMatrix::computeConservVolDenoL(ElementLocator& elementLocator)
   {
-    int pol1=elementLocator.sendPolicyToWorkingSideL();
+    int const pol1=elementLocator.sendPolicyToWorkingSideL();
     if(pol1==ElementLocator::NO_POST_TREATMENT_POLICY)
       {
         elementLocator.recvFromWorkingSideL();
@@ -442,7 +451,7 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("Not managed policy detected on lazy side : not implemented !");
   }
 
-  void InterpolationMatrix::computeIntegralDenoW(ElementLocator& elementLocator)
+  void InterpolationMatrix::computeIntegralDenoW(ElementLocator&  /*elementLocator*/)
   {
     MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField(getMeasureAbsStatus());
     _deno_multiply.resize(_coeffs.size());
@@ -457,7 +466,7 @@ namespace MEDCoupling
     _deno_reverse_multiply=_target_volume;
   }
 
-  void InterpolationMatrix::computeRevIntegralDenoW(ElementLocator& elementLocator)
+  void InterpolationMatrix::computeRevIntegralDenoW(ElementLocator&  /*elementLocator*/)
   {
     _deno_multiply=_target_volume;
     MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField(getMeasureAbsStatus());
@@ -841,7 +850,7 @@ namespace MEDCoupling
      */
   void InterpolationMatrix::prepare()
   {
-    mcIdType nbelems = _source_field->getField()->getNumberOfTuples();
+    mcIdType const nbelems = _source_field->getField()->getNumberOfTuples();
     for (mcIdType ielem=0; ielem < nbelems; ielem++)
       {
         _row_offsets[ielem+1]+=_row_offsets[ielem];

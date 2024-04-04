@@ -25,6 +25,7 @@
 #define __IntersectorCU1D_HXX__
 
 #include "IntersectorCU.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -32,8 +33,8 @@ namespace INTERP_KERNEL
   class IntersectorCU1D : public IntersectorCU<MyCMeshType,MyUMeshType,MyMatrix,IntersectorCU1D<MyCMeshType,MyUMeshType,MyMatrix> >
   {
   public:
-    typedef typename MyUMeshType::MyConnType UConnType;
-    typedef typename MyCMeshType::MyConnType CConnType;
+    using UConnType = typename MyUMeshType::MyConnType;
+    using CConnType = typename MyCMeshType::MyConnType;
   public:
     IntersectorCU1D(const MyCMeshType& meshS, const MyUMeshType& meshT);
     ~IntersectorCU1D();

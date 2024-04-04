@@ -19,13 +19,19 @@
 // Author : Yann Pora (EDF R&D)
 
 #include "MEDCouplingFieldInt32.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldT.txx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMesh.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MEDCouplingTraits.hxx"
 
 using namespace MEDCoupling;
 
@@ -75,7 +81,7 @@ typename Traits<U>::FieldType *ConvertToUField(const MEDCouplingFieldInt32 *self
 {
   MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*self));
   int t1,t2;
-  double t0(self->getTime(t1,t2));
+  double const t0(self->getTime(t1,t2));
   MCAuto<typename Traits<U>::FieldType > ret(Traits<U>::FieldType::New(*tmp,self->getTimeDiscretization()));
   ret->setTime(t0,t1,t2);
   if(self->getArray())

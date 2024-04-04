@@ -20,9 +20,13 @@
 
 #pragma once
 
+#include "MCType.hxx"
 #include "MEDCoupling.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingFieldT.hxx"
-#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MEDCouplingTimeDiscretization.hxx"
 
 #include <string>
 
@@ -37,7 +41,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingFieldInt64 *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     MEDCOUPLING_EXPORT static MEDCouplingFieldInt64 *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
     MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *deepCopy() const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *clone(bool recDeepCpy) const override;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldInt64"); }
   protected:
@@ -45,6 +49,6 @@ namespace MEDCoupling
     MEDCouplingFieldInt64(const MEDCouplingFieldInt64& other, bool deepCopy);
     MEDCouplingFieldInt64(NatureOfField n, MEDCouplingTimeDiscretizationInt64 *td, MEDCouplingFieldDiscretization *type);
     MEDCouplingFieldInt64(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
-    ~MEDCouplingFieldInt64() { }
+    ~MEDCouplingFieldInt64() override = default;
   };
 }

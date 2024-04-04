@@ -21,12 +21,16 @@
 #ifndef __MEDFILEENTITIES_HXX__
 #define __MEDFILEENTITIES_HXX__
 
+#include "MCAuto.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "MEDLoaderDefines.hxx"
 
 #include "MEDFileStructureElement.hxx"
-
-#include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedGeometricTypes"
+
+#include <string>
+#include <vector>
+#include <utility>
 
 namespace MEDCoupling
 {
@@ -46,8 +50,8 @@ namespace MEDCoupling
   public:
     MEDFileStaticEntities(const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities):_entities(entities) { }
     const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& getEntries() const { return _entities; }
-    std::vector<int> getDynGTAvail() const;
-    bool areAllStaticTypesPresent() const;
+    std::vector<int> getDynGTAvail() const override;
+    bool areAllStaticTypesPresent() const override;
     bool areAllStaticPresentAndNoDyn() const override;
   private:
     std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > _entities;
@@ -56,9 +60,9 @@ namespace MEDCoupling
   class MEDLOADER_EXPORT MEDFileAllStaticEntites : public MEDFileEntities
   {
   public:
-    MEDFileAllStaticEntites() { }
-    std::vector<int> getDynGTAvail() const;
-    bool areAllStaticTypesPresent() const;
+    MEDFileAllStaticEntites() = default;
+    std::vector<int> getDynGTAvail() const override;
+    bool areAllStaticTypesPresent() const override;
     bool areAllStaticPresentAndNoDyn() const override;
   };
 
@@ -66,8 +70,8 @@ namespace MEDCoupling
   {
   public:
     MEDFileAllStaticEntitiesPlusDyn(const MEDFileStructureElements *se);
-    std::vector<int> getDynGTAvail() const;
-    bool areAllStaticTypesPresent() const;
+    std::vector<int> getDynGTAvail() const override;
+    bool areAllStaticTypesPresent() const override;
     bool areAllStaticPresentAndNoDyn() const override;
     const MEDFileStructureElement *getWithGT(int idGT) const;
     const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;

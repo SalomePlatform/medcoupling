@@ -21,8 +21,13 @@
 #ifndef __PlanarIntersectorP0P1Bary_TXX__
 #define __PlanarIntersectorP0P1Bary_TXX__
 
+#include "NormalizedGeometricTypes"
+#include "PlanarIntersector.hxx"
 #include "PlanarIntersectorP0P1Bary.hxx"
 #include "InterpolationUtils.hxx"
+#include "InterpKernelUtilities.hxx"
+#include "CellModel.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {

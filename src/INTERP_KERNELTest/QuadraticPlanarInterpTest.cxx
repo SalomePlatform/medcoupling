@@ -19,6 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "QuadraticPlanarInterpTest.hxx"
+#include "InterpKernelGeo2DPrecision.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
@@ -26,8 +27,9 @@
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "TestInterpKernelUtils.hxx"
 
+#include <cppunit/TestAssert.h>
+#include <math.h>
 #include <sstream>
-#include <iostream>
 
 using namespace INTERP_KERNEL;
 
@@ -52,7 +54,7 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
 {
   //Testing bounds calculation. For Seg2
   std::istringstream stream("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4700");
-  EdgeLin *e1=new EdgeLin(stream);
+  auto *e1=new EdgeLin(stream);
   Bounds bound=e1->getBounds();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.32,bound[0],ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.45,bound[1],ADMISSIBLE_ERROR);
@@ -73,18 +75,18 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
 
 void QuadraticPlanarInterpTest::ReadWriteInXfigGlobal()
 {
-  QuadraticPolygon pol1(INTERP_TEST::getResourceFile("Pol1.fig").c_str());
+  QuadraticPolygon const pol1(INTERP_TEST::getResourceFile("Pol1.fig").c_str());
   pol1.dumpInXfigFile("Pol1_gen.fig");
-  QuadraticPolygon pol2(INTERP_TEST::getResourceFile("Pol2.fig").c_str());
+  QuadraticPolygon const pol2(INTERP_TEST::getResourceFile("Pol2.fig").c_str());
   pol2.dumpInXfigFile("Pol2_gen.fig");
-  QuadraticPolygon pol3(INTERP_TEST::getResourceFile("Pol3.fig").c_str());
+  QuadraticPolygon const pol3(INTERP_TEST::getResourceFile("Pol3.fig").c_str());
   pol3.dumpInXfigFile("Pol3_gen.fig");
-  QuadraticPolygon pol4(INTERP_TEST::getResourceFile("Pol4.fig").c_str());
+  QuadraticPolygon const pol4(INTERP_TEST::getResourceFile("Pol4.fig").c_str());
   CPPUNIT_ASSERT_EQUAL(1,pol4.size());
-  ElementaryEdge *edge1=dynamic_cast<ElementaryEdge *>(pol4[0]);
+  auto *edge1=dynamic_cast<ElementaryEdge *>(pol4[0]);
   CPPUNIT_ASSERT(edge1);
   Edge *edge2=edge1->getPtr();
-  EdgeArcCircle *edge=dynamic_cast<EdgeArcCircle *>(edge2);
+  auto *edge=dynamic_cast<EdgeArcCircle *>(edge2);
   CPPUNIT_ASSERT(edge);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.24375,edge->getRadius(),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(5.7857653289925404,edge->getAngle(),ADMISSIBLE_ERROR);
@@ -104,7 +106,7 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigGlobal()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.49741997818704586,edge->getAngle(),ADMISSIBLE_ERROR);//5.7857653289925404 + 2*PI
   n1->decrRef();
   //A half circle.
-  EdgeArcCircle *e=new EdgeArcCircle(0.84,0.54,0.78,0.6,0.84,0.66);
+  auto *e=new EdgeArcCircle(0.84,0.54,0.78,0.6,0.84,0.66);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.06,e->getRadius(),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-3.1415925921507317,e->getAngle(),1e-5);
   e->decrRef();
@@ -118,7 +120,7 @@ void QuadraticPlanarInterpTest::BasicGeometricTools()
 {
   Node *n1=new Node(1.,1.);
   Node *n2=new Node(4.,2.);
-  EdgeLin *e1=new EdgeLin(n1,n2);
+  auto *e1=new EdgeLin(n1,n2);
   double tmp[2];
   e1->getNormalVector(tmp);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.94868329805051377,tmp[1],ADMISSIBLE_ERROR);
@@ -138,7 +140,7 @@ void QuadraticPlanarInterpTest::BasicGeometricTools()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0158113883008418,e1->getDistanceToPoint(tmp),1e-12);
   tmp[0]=0.; tmp[1]=5.;
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,e1->getDistanceToPoint(tmp),1e-12);
-  EdgeArcCircle *e=new EdgeArcCircle(4.,3.,0.,5.,-5.,0.);
+  auto *e=new EdgeArcCircle(4.,3.,0.,5.,-5.,0.);
   tmp[0]=-4.; tmp[1]=3.;
   CPPUNIT_ASSERT(e->isNodeLyingOn(tmp));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,e->getDistanceToPoint(tmp),1e-12);
@@ -156,9 +158,9 @@ void QuadraticPlanarInterpTest::IntersectionBasics()
 {
   //Testing intersection of Bounds.
   std::istringstream stream1("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
-  EdgeLin *e1=new EdgeLin(stream1);
+  auto *e1=new EdgeLin(stream1);
   std::istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
-  EdgeLin *e2=new EdgeLin(stream2);
+  auto *e2=new EdgeLin(stream2);
   Bounds *bound=e1->getBounds().amIIntersectingWith(e2->getBounds()); CPPUNIT_ASSERT(bound);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.32,(*bound)[0],ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.45,(*bound)[1],ADMISSIBLE_ERROR);
@@ -168,9 +170,9 @@ void QuadraticPlanarInterpTest::IntersectionBasics()
   e2->decrRef(); e1->decrRef();
   //
   std::istringstream stream3("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3000 7200 6000 3700");
-  EdgeLin *e3=new EdgeLin(stream3);
+  auto *e3=new EdgeLin(stream3);
   std::istringstream stream4("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4800 6600 7200 4200");
-  EdgeLin *e4=new EdgeLin(stream4);
+  auto *e4=new EdgeLin(stream4);
   bound=e3->getBounds().amIIntersectingWith(e4->getBounds()); CPPUNIT_ASSERT(bound);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.48,(*bound)[0],ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6,(*bound)[1],ADMISSIBLE_ERROR);
@@ -182,7 +184,7 @@ void QuadraticPlanarInterpTest::IntersectionBasics()
 
 void QuadraticPlanarInterpTest::EdgeLinUnitary()
 {
-  EdgeLin *e1=new EdgeLin(0.5,0.5,3.7,4.1);
+  auto *e1=new EdgeLin(0.5,0.5,3.7,4.1);
   Node *n=new Node(2.1,2.3);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getCharactValue(*n),0.5,1e-8);
   n->decrRef();
@@ -352,7 +354,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   v1.clear(); v2.clear(); v3.clear();
   //Test 3bis - INSIDE - INSIDE - Bis | opp dir.
   double center[2]={0.,0.};
-  double radius=1.;
+  double const radius=1.;
   e1=buildArcOfCircle(center,radius,-M_PI,0); e2=buildArcOfCircle(center,radius,-2*M_PI/3.+2*M_PI,-M_PI/3.);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(M_PI,e1->getCurveLength(),1e-12); CPPUNIT_ASSERT_DOUBLES_EQUAL(5.*M_PI/3.,e2->getCurveLength(),1e-12);// To check that in the previous line +2.M_PI has done its job.
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));
@@ -898,8 +900,8 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
 void QuadraticPlanarInterpTest::IntersectionPointOnlyUnitarySegSeg()
 {
   // 0deg - classical
-  EdgeLin *e1=new EdgeLin(0.,0.,1.,0.);
-  EdgeLin *e2=new EdgeLin(0.3,0.3,0.5,-0.3);
+  auto *e1=new EdgeLin(0.,0.,1.,0.);
+  auto *e2=new EdgeLin(0.3,0.3,0.5,-0.3);
   ComposedEdge& v1=*(new ComposedEdge);
   ComposedEdge& v2=*(new ComposedEdge); MergePoints v3;
   CPPUNIT_ASSERT(e1->intersectWith(e2,v3,v1,v2));

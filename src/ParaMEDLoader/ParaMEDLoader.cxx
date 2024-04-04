@@ -24,21 +24,21 @@
 #include "BlockTopology.hxx"
 #include "MEDCouplingUMesh.hxx"
 
+#include <cstddef>
 #include <fstream>
 #include <sstream>
 
 using namespace MEDCoupling;
 
 ParaMEDLoader::ParaMEDLoader()
-{
-}
+= default;
 
 void ParaMEDLoader::WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *mesh)
 {
   if(!mesh->getBlockTopology()->getProcGroup()->containsMyRank())
     return ;
-  int myRank=mesh->getBlockTopology()->getProcGroup()->myRank();
-  int nbDomains=mesh->getBlockTopology()->getProcGroup()->size();
+  int const myRank=mesh->getBlockTopology()->getProcGroup()->myRank();
+  int const nbDomains=mesh->getBlockTopology()->getProcGroup()->size();
   std::vector<std::string> fileNames(nbDomains);
   for(int i=0;i<nbDomains;i++)
     {

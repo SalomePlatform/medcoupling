@@ -23,8 +23,9 @@
 
 #include "Interpolation.hxx"
 #include "PlanarIntersector.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "InterpolationOptions.hxx"
+#include <string>
+#include <vector>
 
 namespace INTERP_KERNEL
 {

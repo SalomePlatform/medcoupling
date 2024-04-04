@@ -20,11 +20,17 @@
 
 #pragma once
 
+#include "MEDCouplingTraits.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingMemArray.txx"
+#include "MCAuto.hxx"
 #include "ParaDataArray.hxx"
 #include "CommInterface.hxx"
-#include "MEDCouplingMemArray.txx"
 
+#include <cstddef>
+#include <limits>
 #include <sstream>
+#include <string>
 
 namespace MEDCoupling
 {

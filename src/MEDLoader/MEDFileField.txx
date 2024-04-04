@@ -20,6 +20,12 @@
 
 #pragma once
 
+#include "MEDCouplingMemArray.hxx"
+#include "MCType.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDFileEntities.hxx"
+#include "InterpKernelAutoPtr.hxx"
 #include "MEDFileField.hxx"
 #include "MEDCouplingTraits.hxx"
 #include "MEDCouplingFieldInt32.hxx"
@@ -27,6 +33,19 @@
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
+#include "MEDFileField1TS.hxx"
+#include <vector>
+#include <utility>
+#include "NormalizedGeometricTypes"
+#include "MEDLoaderTraits.hxx"
+#include <cstddef>
+#include "MEDFileFieldInternal.hxx"
+#include <string>
+#include "MEDFileUtilities.hxx"
+#include "med.h"
+#include <sstream>
+#include <map>
+#include "MEDFileFieldMultiTS.hxx"
 
 namespace MEDCoupling
 {
@@ -39,7 +58,7 @@ namespace MEDCoupling
         _arr=0;
         return ;
       }
-    typename Traits<T>::ArrayType *arrC=dynamic_cast<typename Traits<T>::ArrayType *>(arr);
+    auto *arrC=dynamic_cast<typename Traits<T>::ArrayType *>(arr);
     if(!arrC)
       throw INTERP_KERNEL::Exception("MEDFileField1TSTemplateWithoutSDA::setArray : the input not null array is not of type DataArrayDouble !");
     else
@@ -191,11 +210,11 @@ namespace MEDCoupling
     _arr=Traits<T>::ArrayType::New();
     _arr->alloc(start,nbCompo); _arr->copyStringInfoFrom(*arr);
     start=0;
-    for(std::vector<std::pair< int, std::pair<mcIdType,mcIdType> > >::const_iterator it=extractInfo.begin();it!=extractInfo.end();it++)
+    for(const auto & it : extractInfo)
       {
-        const DataArray *zeArr(das[(*it).first]);
-        _arr->setContigPartOfSelectedValuesSlice(start,zeArr,(*it).second.first,(*it).second.second,1);
-        start+=(*it).second.second-(*it).second.first;
+        const DataArray *zeArr(das[it.first]);
+        _arr->setContigPartOfSelectedValuesSlice(start,zeArr,it.second.first,it.second.second,1);
+        start+=it.second.second-it.second.first;
       }
     // see definition of _nb_of_tuples_to_be_allocated. array is built from scratch and allocated.
     _nb_of_tuples_to_be_allocated=-3;
@@ -350,7 +369,7 @@ namespace MEDCoupling
     const MEDFileAnyTypeField1TSWithoutSDA *pt(_content);
     if(!pt)
       throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the content pointer is null !");
-    const typename MLFieldTraits<T>::F1TSWSDAType *ret(dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(pt));
+    const auto *ret(dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(pt));
     if(!ret)
       {
         std::ostringstream oss; oss << "MEDFileTemplateField1TS<T>::contentNotNull : the content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
@@ -365,7 +384,7 @@ namespace MEDCoupling
     MEDFileAnyTypeField1TSWithoutSDA *pt(_content);
     if(!pt)
       throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::contentNotNull : the non const content pointer is null !");
-    typename MLFieldTraits<T>::F1TSWSDAType *ret(dynamic_cast<typename MLFieldTraits<T>::F1TSWSDAType *>(pt));
+    auto *ret(dynamic_cast<typename MLFieldTraits<T>::F1TSWSDAType *>(pt));
     if(!ret)
       {
         std::ostringstream oss; oss << "MEDFileTemplateField1TS<T>::contentNotNull : the non const content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
@@ -435,8 +454,8 @@ namespace MEDCoupling
     if(arr.isNull())
       throw INTERP_KERNEL::Exception("MEDFileTemplateField1TS<T>::SetDataArrayInField : no array !");
     int t1,t2;
-    double t0(f->getTime(t1,t2));
-    std::string tu(f->getTimeUnit());
+    double const t0(f->getTime(t1,t2));
+    std::string const tu(f->getTimeUnit());
     MCAuto<typename Traits<T>::ArrayType> arr2(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(arr));
     MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::New(*f));
     MCAuto<typename Traits<T>::FieldType> ret(Traits<T>::FieldType::New(*ft));
@@ -723,22 +742,22 @@ namespace MEDCoupling
     if(!mm)
       throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : input mesh is NULL !");
     MCAuto<typename MLFieldTraits<T>::F1TSType> ret(MLFieldTraits<T>::F1TSType::New());
-    std::vector<TypeOfField> tof(getTypesOfFieldAvailable());
-    for(std::vector<TypeOfField>::const_iterator it0=tof.begin();it0!=tof.end();it0++)
+    std::vector<TypeOfField> const tof(getTypesOfFieldAvailable());
+    for(auto it0 : tof)
       {
-        if((*it0)!=ON_NODES)
+        if(it0!=ON_NODES)
           {
             std::vector<int> levs;
             getNonEmptyLevels(mm->getName(),levs);
-            for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
+            for(int const lev : levs)
               {
-                std::map<int, MCAuto<DataArrayIdType> >::const_iterator it2(extractDef.find(*lev));
+                auto const it2(extractDef.find(lev));
                 if(it2!=extractDef.end())
                   {
                     MCAuto<DataArrayIdType> t((*it2).second);
                     if(t.isNull())
                       throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a value with null pointer 1 !");
-                    MCAuto<typename Traits<T>::FieldType> f(getFieldOnMeshAtLevel(ON_CELLS,(*lev),mm));
+                    MCAuto<typename Traits<T>::FieldType> f(getFieldOnMeshAtLevel(ON_CELLS,lev,mm));
                     MCAuto<typename Traits<T>::FieldType> fOut(f->buildSubPart(t));
                     ret->setFieldNoProfileSBT(fOut);
                   }
@@ -746,7 +765,7 @@ namespace MEDCoupling
           }
         else
           {
-            std::map<int, MCAuto<DataArrayIdType> >::const_iterator it2(extractDef.find(1));
+            auto const it2(extractDef.find(1));
             if(it2==extractDef.end())
               throw INTERP_KERNEL::Exception("MEDFileField1TS::extractPart : presence of a NODE field and no extract array available for NODE !");
             MCAuto<DataArrayIdType> t((*it2).second);
@@ -811,7 +830,7 @@ namespace MEDCoupling
   {
     if(!f1ts)
       throw INTERP_KERNEL::Exception("MEDFileFieldMultiTSWithoutSDA::checkCoherencyOfType : input field1TS is NULL ! Impossible to check !");
-    const typename MLFieldTraits<T>::F1TSWSDAType *f1tsC(dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(f1ts));
+    const auto *f1tsC(dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(f1ts));
     if(!f1tsC)
       {
         std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutSDA::checkCoherencyOfType : the input field1TS is not a " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR << " type !";
@@ -845,7 +864,7 @@ namespace MEDCoupling
     MCAuto<MEDFileFieldMultiTSWithoutSDA> ret(new MEDFileFieldMultiTSWithoutSDA);
     ret->MEDFileAnyTypeFieldMultiTSWithoutSDA::operator =(*this);
     int i=0;
-    for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=this->_time_steps.begin();it!=this->_time_steps.end();it++,i++)
+    for(auto it=this->_time_steps.begin();it!=this->_time_steps.end();it++,i++)
       {
         const MEDFileAnyTypeField1TSWithoutSDA *eltToConv(*it);
         if(eltToConv)
@@ -895,7 +914,7 @@ namespace MEDCoupling
     if(!mm)
       throw INTERP_KERNEL::Exception("MEDFileTemplateFieldMultiTS<T>::extractPart : mesh is null !");
     MCAuto<typename MLFieldTraits<T>::FMTSType> fmtsOut(MLFieldTraits<T>::FMTSType::New());
-    int nbTS(getNumberOfTS());
+    int const nbTS(getNumberOfTS());
     for(int i=0;i<nbTS;i++)
       {
         MCAuto<MEDFileAnyTypeField1TS> f1ts(getTimeStepAtPos(i));
@@ -1272,7 +1291,7 @@ namespace MEDCoupling
     const MEDFileAnyTypeFieldMultiTSWithoutSDA *pt(_content);
     if(!pt)
       throw INTERP_KERNEL::Exception("MEDFileTemplateFieldMultiTS<T>::contentNotNull : the content pointer is null !");
-    const typename MLFieldTraits<T>::FMTSWSDAType *ret=dynamic_cast<const typename MLFieldTraits<T>::FMTSWSDAType *>(pt);
+    const auto *ret=dynamic_cast<const typename MLFieldTraits<T>::FMTSWSDAType *>(pt);
     if(!ret)
       throw INTERP_KERNEL::Exception("MEDFileTemplateFieldMultiTS<T>::contentNotNull : the content pointer is not null but it is not of type double ! Reason is maybe that the read field has not the type FLOAT64 !");
     return ret;
@@ -1306,7 +1325,7 @@ namespace MEDCoupling
         std::ostringstream oss; oss << "MEDFileFieldMultiTS::getTimeStepAtPos : field at pos #" << pos << " is null !";
         throw INTERP_KERNEL::Exception(oss.str());
       }
-    const typename MLFieldTraits<T>::F1TSWSDAType *itemC=dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(item);
+    const auto *itemC=dynamic_cast<const typename MLFieldTraits<T>::F1TSWSDAType *>(item);
     if(itemC)
       {
         MCAuto<typename MLFieldTraits<T>::F1TSType> ret(MLFieldTraits<T>::F1TSType::New(*itemC,false));
@@ -1358,7 +1377,7 @@ namespace MEDCoupling
   {
     if(!f1ts)
       throw INTERP_KERNEL::Exception("MEDFileTemplateFieldMultiTS<T>::checkCoherencyOfType : input field1TS is NULL ! Impossible to check !");
-    const typename MLFieldTraits<T>::F1TSType *f1tsC=dynamic_cast<const typename MLFieldTraits<T>::F1TSType *>(f1ts);
+    const auto *f1tsC=dynamic_cast<const typename MLFieldTraits<T>::F1TSType *>(f1ts);
     if(!f1tsC)
       {
         std::ostringstream oss; oss << "MEDFileTemplateFieldMultiTS<T>::checkCoherencyOfType : the input field1TS is not a " << MLFieldTraits<T>::F1TSWSDAType::TYPE_STR << " type !";
@@ -1383,7 +1402,7 @@ namespace MEDCoupling
     const MEDFileAnyTypeFieldMultiTSWithoutSDA *content(this->_content);
     if(content)
       {
-        const typename MLFieldTraits<T>::FMTSWSDAType *contc=dynamic_cast<const typename MLFieldTraits<T>::FMTSWSDAType *>(content);
+        const auto *contc=dynamic_cast<const typename MLFieldTraits<T>::FMTSWSDAType *>(content);
         if(!contc)
           throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::convertToInt : the content inside this is not INT32 ! This is incoherent !");
         MCAuto<MEDFileFieldMultiTSWithoutSDA> newc(contc->convertToDouble());

@@ -18,8 +18,14 @@
 //
 
 #include "MPIAccess/MPIAccessDEC.hxx"
+#include "ProcessorGroup.hxx"
+#include "MPIProcessorGroup.hxx"
+#include "MPIAccess.hxx"
+#include "DECOptions.hxx"
+#include "LinearTimeInterpolator.hxx"
 
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 
@@ -47,7 +53,7 @@ namespace MEDCoupling
       {
         procs.insert(i) ;
       }
-    MPIProcessorGroup *mpilg = static_cast<MPIProcessorGroup *>(const_cast<ProcessorGroup *>(&source_group));
+    auto *mpilg = static_cast<MPIProcessorGroup *>(const_cast<ProcessorGroup *>(&source_group));
     _MPI_union_group = new MEDCoupling::MPIProcessorGroup( union_group->getCommInterface(),procs,mpilg->getWorldComm());
     delete union_group ;
     _my_rank = _MPI_union_group->myRank() ;
@@ -69,7 +75,7 @@ namespace MEDCoupling
     _data_messages_type->resize( _group_size ) ;
     _data_messages = new vector< vector< void * > > ;
     _data_messages->resize( _group_size ) ;
-    _time_interpolator = NULL ;
+    _time_interpolator = nullptr ;
     _map_of_send_buffers = new map< int , SendBuffStruct * > ;
   }
 
@@ -104,7 +110,7 @@ namespace MEDCoupling
     switch ( aTimeInterp )
       {
       case WithoutTimeInterp :
-        _time_interpolator = NULL ;
+        _time_interpolator = nullptr ;
         _n_step_before = 0 ;
         _n_step_after = 0 ;
         break ;
@@ -347,7 +353,7 @@ namespace MEDCoupling
       checkSent() ;
 
     //DoSend + DoRecv : SendRecv
-    SendBuffStruct * aSendDataStruct = NULL ;
+    SendBuffStruct * aSendDataStruct = nullptr ;
     if ( _asynchronous && sendbuf )
       {
         aSendDataStruct = new SendBuffStruct ;
@@ -409,7 +415,7 @@ namespace MEDCoupling
       }
 
     //DoSend + DoRecv : SendRecv
-    SendBuffStruct * aSendDataStruct = NULL ;
+    SendBuffStruct * aSendDataStruct = nullptr ;
     if ( _asynchronous && sendbuf )
       {
         aSendDataStruct = new SendBuffStruct ;
@@ -518,7 +524,7 @@ namespace MEDCoupling
     int SendTimeRequestId ;
     int SendDataRequestId ;
 
-    if ( _time_interpolator == NULL )
+    if ( _time_interpolator == nullptr )
       {
         return MPI_ERR_OTHER ;
       }
@@ -530,11 +536,11 @@ namespace MEDCoupling
       }
 
     //DoSend : Time + SendBuff
-    SendBuffStruct * aSendTimeStruct = NULL ;
-    SendBuffStruct * aSendDataStruct = NULL ;
+    SendBuffStruct * aSendTimeStruct = nullptr ;
+    SendBuffStruct * aSendDataStruct = nullptr ;
     if ( sendbuf && sendcount )
       {
-        TimeMessage * aSendTimeMessage = new TimeMessage ;
+        auto * aSendTimeMessage = new TimeMessage ;
         if ( _asynchronous )
           {
             aSendTimeStruct = new SendBuffStruct ;
@@ -637,7 +643,7 @@ namespace MEDCoupling
     int SendTimeRequestId ;
     int SendDataRequestId ;
 
-    if ( _time_interpolator == NULL )
+    if ( _time_interpolator == nullptr )
       {
         return MPI_ERR_OTHER ;
       }
@@ -665,11 +671,11 @@ namespace MEDCoupling
       + And if we are in synchronous mode we delete the SendMessages.
     */
     //DoSend : Time + SendBuff
-    SendBuffStruct * aSendTimeStruct = NULL ;
-    SendBuffStruct * aSendDataStruct = NULL ;
+    SendBuffStruct * aSendTimeStruct = nullptr ;
+    SendBuffStruct * aSendDataStruct = nullptr ;
     if ( sendbuf )
       {
-        TimeMessage * aSendTimeMessage = new TimeMessage ;
+        auto * aSendTimeMessage = new TimeMessage ;
         if ( _asynchronous )
           {
             aSendTimeStruct = new SendBuffStruct ;
@@ -909,10 +915,10 @@ namespace MEDCoupling
   {
     int sts = MPI_SUCCESS ;
     int flag = WithWait ;
-    int size = _MPI_access->sendRequestIdsSize() ;
+    int const size = _MPI_access->sendRequestIdsSize() ;
     int * ArrayOfSendRequests = new int[ size ] ;
-    int nSendRequest = _MPI_access->sendRequestIds( size , ArrayOfSendRequests ) ;
-    bool SendTrace = false ;
+    int const nSendRequest = _MPI_access->sendRequestIds( size , ArrayOfSendRequests ) ;
+    bool const SendTrace = false ;
     int i ;
     for ( i = 0 ; i < nSendRequest ; i++ )
       {

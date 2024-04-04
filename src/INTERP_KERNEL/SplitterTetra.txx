@@ -19,6 +19,10 @@
 #ifndef __SPLITTERTETRA_TXX__
 #define __SPLITTERTETRA_TXX__
 
+#include "InterpKernelHashMap.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include "NormalizedGeometricTypes"
+#include "InterpolationUtils.hxx"
 #include "SplitterTetra.hxx"
 
 #include "TetraAffineTransform.hxx"
@@ -32,8 +36,10 @@
 
 #include <cmath>
 #include <cassert>
-#include <string>
-#include <sstream>
+#include <iostream>
+#include <cstddef>
+#include <functional>
+#include <set>
 #include <vector>
 
 namespace INTERP_KERNEL
@@ -74,7 +80,7 @@ namespace INTERP_KERNEL
    */
   template<class MyMeshType>
   SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double** tetraCorners, const typename MyMeshType::MyConnType *nodesId)
-    : _t(0), _src_mesh(srcMesh)
+    : _t(nullptr), _src_mesh(srcMesh)
   {
     std::copy(nodesId,nodesId+4,_conn);
     _coords[0]=tetraCorners[0][0]; _coords[1]=tetraCorners[0][1]; _coords[2]=tetraCorners[0][2];
@@ -99,7 +105,7 @@ namespace INTERP_KERNEL
    * \param [in] tetraCorners  array 4*3 doubles containing corners of input tetrahedron (P0X,P0Y,P0Y,P1X,P1Y,P1Z,P2X,P2Y,P2Z,P3X,P3Y,P3Z).
    */
   template<class MyMeshType>
-  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const ConnType *conn): _t(0),_src_mesh(srcMesh)
+  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const ConnType *conn): _t(nullptr),_src_mesh(srcMesh)
   {
     if(!conn)
       { _conn[0]=0; _conn[1]=1; _conn[2]=2; _conn[3]=3; }
@@ -143,12 +149,12 @@ namespace INTERP_KERNEL
   void SplitterTetra<MyMeshType>::splitMySelfForDual(double* output, int i, typename MyMeshType::MyConnType& nodeId)
   {
     double *tmp[4];
-    int offset=i/6;
+    int const offset=i/6;
     nodeId=_conn[offset];
     tmp[0]=_coords+3*offset; tmp[1]=_coords+((offset+1)%4)*3; tmp[2]=_coords+((offset+2)%4)*3; tmp[3]=_coords+((offset+3)%4)*3;
-    int caseToTreat=i%6;
-    int case1=caseToTreat/2;
-    int case2=caseToTreat%2;
+    int const caseToTreat=i%6;
+    int const case1=caseToTreat/2;
+    int const case2=caseToTreat%2;
     const int tab[3][2]={{1,2},{3,2},{1,3}};
     const int *curTab=tab[case1];
     double pt0[3]; pt0[0]=(tmp[curTab[case2]][0]+tmp[0][0])/2.; pt0[1]=(tmp[curTab[case2]][1]+tmp[0][1])/2.; pt0[2]=(tmp[curTab[case2]][2]+tmp[0][2])/2.;
@@ -197,7 +203,7 @@ namespace INTERP_KERNEL
     bool isTargetOutside = false;
 
     // calculate the coordinates of the nodes
-    ConnType *cellNodes=new ConnType[nbOfNodes4Type];
+    auto *cellNodes=new ConnType[nbOfNodes4Type];
     for(ConnType i = 0;i<nbOfNodes4Type;++i)
       {
         // we could store mapping local -> global numbers too, but not sure it is worth it
@@ -215,8 +221,8 @@ namespace INTERP_KERNEL
 
     // halfspace filtering check
     // NB : might not be beneficial for caching of triangles
-    for(int i = 0; i < 8; ++i)
-      if(isOutside[i])
+    for(bool const i : isOutside)
+      if(i)
         isTargetOutside = true;
 
     double totalVolume = 0.0;
@@ -498,7 +504,7 @@ namespace INTERP_KERNEL
         // Map 2D intersections back to the 3D triangle space.
         if (maxNormal == 0)
           {
-            double invNX = ((double) 1.) / planeNormal[0];
+            double const invNX = ((double) 1.) / planeNormal[0];
             for (i = 0; i < nb_inter; i++)
               {
                 inter3[3 * i + 1] = inter2[2 * i];
@@ -508,7 +514,7 @@ namespace INTERP_KERNEL
           }
         else if (maxNormal == 1)
           {
-            double invNY = ((double) 1.) / planeNormal[1];
+            double const invNY = ((double) 1.) / planeNormal[1];
             for (i = 0; i < nb_inter; i++)
               {
                 inter3[3 * i] = inter2[2 * i];
@@ -518,7 +524,7 @@ namespace INTERP_KERNEL
           }
         else
           {
-            double invNZ = ((double) 1.) / planeNormal[2];
+            double const invNZ = ((double) 1.) / planeNormal[2];
             for (i = 0; i < nb_inter; i++)
               {
                 inter3[3 * i] = inter2[2 * i];
@@ -648,9 +654,8 @@ namespace INTERP_KERNEL
                 { 0, 3, 1 },
                 { 1, 2, 3 } };
             double planeNormal[3];
-            for (int iTetraFace = 0; iTetraFace < 4; ++iTetraFace)
+            for (auto tetraFaceNodesConn : tetraFacesNodesConn)
               {
-                const int * const tetraFaceNodesConn = tetraFacesNodesConn[iTetraFace];
                 TriangleFaceKey key = TriangleFaceKey(_conn[tetraFaceNodesConn[0]],
                                                       _conn[tetraFaceNodesConn[1]],
                                                       _conn[tetraFaceNodesConn[2]]);
@@ -663,20 +668,20 @@ namespace INTERP_KERNEL
                     const double normOfTetraTriNormal = norm(planeNormal);
                     if (epsilonEqual(normOfTetraTriNormal, 0.))
                       {
-                        for (int i = 0; i < 3; ++i)
+                        for (double & i : planeNormal)
                           {
-                            planeNormal[i] = 0.;
+                            i = 0.;
                           }
                       }
                     else
                       {
                         const double invNormOfTetraTriNormal = 1. / normOfTetraTriNormal;
-                        for (int i = 0; i < 3; ++i)
+                        for (double & i : planeNormal)
                           {
-                            planeNormal[i] *= invNormOfTetraTriNormal;
+                            i *= invNormOfTetraTriNormal;
                           }
                       }
-                    double planeConstant = dot(planeNormal, coordsTetraTriNode1);
+                    double const planeConstant = dot(planeNormal, coordsTetraTriNode1);
                     if (IsFacesCoplanar(planeNormal, planeConstant, polyCoords, precision))
                       {
                         ConnType nbrPolyTri = polyNodesNbr - 2; // split polygon into nbrPolyTri triangles
@@ -848,9 +853,9 @@ namespace INTERP_KERNEL
 
     // halfspace filtering check
     // NB : might not be beneficial for caching of triangles
-    for(int i = 0; i < 8; ++i)
+    for(bool const i : isOutside)
     {
-      if(isOutside[i])
+      if(i)
       {
         isTargetOutside = true;
       }
@@ -868,7 +873,7 @@ namespace INTERP_KERNEL
         cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
         
         TransformedTriangle tri(nodes[faceNodes[0]], nodes[faceNodes[1]], nodes[faceNodes[2]]);
-        double vol = tri.calculateIntersectionVolume();
+        double const vol = tri.calculateIntersectionVolume();
         LOG(1, "ii = " << ii << " Volume=" << vol)
         totalVolume += vol;
       }
@@ -907,8 +912,8 @@ namespace INTERP_KERNEL
     // free potential sub-mesh nodes that have been allocated
     if(_nodes.size()>=/*8*/_node_ids.size())
       {
-        typename MyMeshTypeT::MyConnType nbOfNodesT = static_cast<typename MyMeshTypeT::MyConnType>(_node_ids.size());
-        std::vector<const double*>::iterator iter = _nodes.begin() + /*8*/nbOfNodesT;
+        auto nbOfNodesT = static_cast<typename MyMeshTypeT::MyConnType>(_node_ids.size());
+        auto iter = _nodes.begin() + /*8*/nbOfNodesT;
         while(iter != _nodes.end())
           {
             delete[] *iter;
@@ -983,7 +988,7 @@ namespace INTERP_KERNEL
             nodes[node]=getCoordsOfNode2(node, OTT<ConnType,numPol>::indFC(targetCell),_target_mesh,conn[node]);
           }
         std::copy(conn,conn+4,_node_ids.begin());
-        SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
+        auto* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
         return ;
       }
@@ -1066,7 +1071,7 @@ namespace INTERP_KERNEL
             nodes[j] = getCoordsOfSubNode2(conn[j],realConn);
             conn[j] = realConn;
           }
-        SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
+        auto* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
       }
   }
@@ -1101,7 +1106,7 @@ namespace INTERP_KERNEL
             conn[j] = subZone[SPLIT_NODES_6[4*i+j]];
             func(*this,conn[j],nodes[j]);
           }
-        SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
+        auto* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
       }
   }
@@ -1162,7 +1167,7 @@ namespace INTERP_KERNEL
             conn[2] = TETRA_EDGES_GENERAL_24[2*row];
             conn[3] = TETRA_EDGES_GENERAL_24[2*row + 1];
             func(*this,conn,nodes);
-            SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes, conn);
+            auto* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes, conn);
             tetra.push_back(t);
           }
       }
@@ -1206,11 +1211,11 @@ namespace INTERP_KERNEL
     // create tetrahedra
     const double* nodes[4];
     typename MyMeshTypeS::MyConnType conn[4];
-    for(int i = 0; i < 2; ++i)
+    for(auto i : SPLIT_PYPA5)
       {
         for(int j = 0; j < 4; ++j)
-          nodes[j] = getCoordsOfSubNode2(SPLIT_PYPA5[i][j],conn[j]);
-        SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
+          nodes[j] = getCoordsOfSubNode2(i[j],conn[j]);
+        auto* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
       }
   }
@@ -1260,7 +1265,7 @@ namespace INTERP_KERNEL
         if ( normCellType != NORM_POLYHED )
           cellModelCell.fillSonCellNodalConnectivity(ii,&allNodeIndices[0],faceNodes);
 
-        int nbTetra = nbFaceNodes - 2; // split polygon into nbTetra triangles
+        int const nbTetra = nbFaceNodes - 2; // split polygon into nbTetra triangles
 
         // create tetrahedra
         for(int i = 0; i < nbTetra; ++i)
@@ -1268,7 +1273,7 @@ namespace INTERP_KERNEL
             nodes[0] = getCoordsOfSubNode2( faceNodes[0],  conn[0]);
             nodes[1] = getCoordsOfSubNode2( faceNodes[1+i],conn[1]);
             nodes[2] = getCoordsOfSubNode2( faceNodes[2+i],conn[2]);
-            SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
+            auto* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
             tetra.push_back(t);
           }
 
@@ -1292,7 +1297,7 @@ namespace INTERP_KERNEL
   {
     // retrieve real mesh nodes
     
-    typename MyMeshTypeT::MyConnType nbOfNodesT = static_cast<typename MyMeshTypeT::MyConnType>(_node_ids.size());// Issue 0020634. _node_ids.resize(8);
+    auto nbOfNodesT = static_cast<typename MyMeshTypeT::MyConnType>(_node_ids.size());// Issue 0020634. _node_ids.resize(8);
     for(int node = 0; node < nbOfNodesT ; ++node)
       {
         // calculate only normal nodes
@@ -1310,7 +1315,7 @@ namespace INTERP_KERNEL
             {
               for(int i = 0; i < 7; ++i)
                 {
-                  double* barycenter = new double[3];
+                  auto* barycenter = new double[3];
                   calcBarycenter(4, barycenter, &GENERAL_24_SUB_NODES[4*i]);
                   _nodes.push_back(barycenter);
                 }
@@ -1321,7 +1326,7 @@ namespace INTERP_KERNEL
             {
               for(int i = 0; i < 19; ++i)
                 {
-                  double* barycenter = new double[3];
+                  auto* barycenter = new double[3];
                   calcBarycenter(2, barycenter, &GENERAL_48_SUB_NODES[2*i]);
                   _nodes.push_back(barycenter);
                 }
@@ -1341,7 +1346,7 @@ namespace INTERP_KERNEL
           // add barycenter of a cell
           std::vector<int> allIndices(nbOfNodesT);
           for ( int i = 0; i < nbOfNodesT; ++i ) allIndices[i] = i;
-          double* barycenter = new double[3];
+          auto* barycenter = new double[3];
           calcBarycenter(nbOfNodesT, barycenter, &allIndices[0]);
           _nodes.push_back(barycenter);
         }

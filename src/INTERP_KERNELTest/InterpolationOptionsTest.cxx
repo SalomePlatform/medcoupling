@@ -17,16 +17,18 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "Interpolation2D.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 
 #include "InterpolationOptionsTest.hxx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
-#include "Interpolation2D.txx"
 #include "TestInterpKernelUtils.hxx"
 
-#include <iostream>
-#include <vector>
+#include <string>
 
 using namespace MEDCoupling;
 
@@ -51,10 +53,10 @@ namespace INTERP_TEST
    */
   void InterpolationOptionsTest::test_InterpolationOptions() 
   {
-    std::string sourcename=INTERP_TEST::getResourceFile("square1.med");
+    std::string const sourcename=INTERP_TEST::getResourceFile("square1.med");
     MEDFileUMesh *source_mesh=MEDFileUMesh::New(sourcename.c_str(),"Mesh_2");
 
-    std::string targetname=INTERP_TEST::getResourceFile("square2.med");
+    std::string const targetname=INTERP_TEST::getResourceFile("square2.med");
     MEDFileUMesh *target_mesh=MEDFileUMesh::New(targetname.c_str(),"Mesh_3");
 
     MEDCouplingUMesh *source_mesh_mc=source_mesh->getMeshAtLevel(0);
@@ -75,8 +77,8 @@ namespace INTERP_TEST
       targetvalue[i]=0.0;
     // Ok at this point we have our mesh in MED-Memory format.
     // Go to wrap med_source_mesh and med_target_mesh.
-    MEDCouplingNormalizedUnstructuredMesh<2,2> wrap_source_mesh(source_mesh_mc);
-    MEDCouplingNormalizedUnstructuredMesh<2,2> wrap_target_mesh(target_mesh_mc);
+    MEDCouplingNormalizedUnstructuredMesh<2,2> const wrap_source_mesh(source_mesh_mc);
+    MEDCouplingNormalizedUnstructuredMesh<2,2> const wrap_target_mesh(target_mesh_mc);
     // Go for interpolation...
     INTERP_KERNEL::Interpolation2D myInterpolator;
     //optional call to parametrize your interpolation. First precision, tracelevel, intersector wanted.

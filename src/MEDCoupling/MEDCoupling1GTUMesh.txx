@@ -19,8 +19,10 @@
 // Author : Anthony Geay (EDF R&D)
 
 #pragma once
+#include "MCType.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 
+#include <iterator>
 #include <sstream>
 
 template<class MAPCLS>
@@ -28,7 +30,7 @@ void MEDCoupling::MEDCoupling1SGTUMesh::renumberNodesInConnT(const MAPCLS& newNo
 {
   getNumberOfCells();//only to check that all is well defined.
   mcIdType *begPtr(_conn->getPointer());
-  mcIdType nbElt(_conn->getNumberOfTuples());
+  mcIdType const nbElt(_conn->getNumberOfTuples());
   mcIdType *endPtr(begPtr+nbElt);
   for(mcIdType *it=begPtr;it!=endPtr;it++)
     {
@@ -51,7 +53,7 @@ void MEDCoupling::MEDCoupling1DGTUMesh::renumberNodesInConnT(const MAPCLS& newNo
 {
   getNumberOfCells();//only to check that all is well defined.
   //
-  mcIdType nbOfTuples(_conn->getNumberOfTuples());
+  mcIdType const nbOfTuples(_conn->getNumberOfTuples());
   mcIdType *pt(_conn->getPointer());
   for(mcIdType i=0;i<nbOfTuples;i++,pt++)
     {

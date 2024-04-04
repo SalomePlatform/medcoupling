@@ -20,12 +20,14 @@
 #ifndef __MPIACCESSDEC_HXX__
 #define __MPIACCESSDEC_HXX__
 
-#include "DEC.hxx"
-#include "LinearTimeInterpolator.hxx"
+#include "DECOptions.hxx"
 
-#include <map>
+#include <cstdlib>
 #include <iostream>
 #include "MPIAccess.hxx"
+#include "ProcessorGroup.hxx"
+#include "MPIProcessorGroup.hxx"
+#include "TimeInterpolator.hxx"
 
 namespace MEDCoupling
 {

@@ -18,16 +18,21 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
+#include "InterpKernelGeo2DNode.hxx"
+#include "InterpKernelGeo2DPrecision.hxx"
+#include "InterpKernelGeo2DBounds.hxx"
 #include "QuadraticPlanarInterpTest.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DEdgeLin.hxx"
 
+#include <algorithm>
 #include <cmath>
-#include <sstream>
-#include <iostream>
-#include <iterator>
+#include <cppunit/TestAssert.h>
+#include <math.h>
+#include <map>
+#include <vector>
 
 using namespace INTERP_KERNEL;
 
@@ -40,9 +45,9 @@ void QuadraticPlanarInterpTest::checkPolygonsIntersection1()
   Node *n1=new Node(0.,0.);                Node *n4=new Node(0.,-0.3);   
   Node *n2=new Node(1.,0.);                Node *n5=new Node(1.,-0.3);
   Node *n3=new Node(0.5,1.);               Node *n6=new Node(0.5,0.7);
-  EdgeLin *e1_2=new EdgeLin(n1,n2);        EdgeLin *e4_5=new EdgeLin(n4,n5);
-  EdgeLin *e2_3=new EdgeLin(n2,n3);        EdgeLin *e5_6=new EdgeLin(n5,n6);
-  EdgeLin *e3_1=new EdgeLin(n3,n1);        EdgeLin *e6_4=new EdgeLin(n6,n4);
+  auto *e1_2=new EdgeLin(n1,n2);        auto *e4_5=new EdgeLin(n4,n5);
+  auto *e2_3=new EdgeLin(n2,n3);        auto *e5_6=new EdgeLin(n5,n6);
+  auto *e3_1=new EdgeLin(n3,n1);        auto *e6_4=new EdgeLin(n6,n4);
   //
   std::vector<QuadraticPolygon *> result;
   for(int k=0;k<2;k++)
@@ -95,7 +100,7 @@ void QuadraticPlanarInterpTest::checkPolygonsIntersection1()
   n2=new Node(1.,0.);                n5=new Node(0.5,0.);
   n3=new Node(0.5,1.);               n6=new Node(0.75,0.5); Node *n7=new Node(2.,0.5);
   e1_2=new EdgeLin(n1,n2); e2_3=new EdgeLin(n2,n3); e3_1=new EdgeLin(n3,n1);
-  EdgeLin *e5_4=new EdgeLin(n5,n4); EdgeLin *e4_7=new EdgeLin(n4,n7); EdgeLin *e7_6=new EdgeLin(n7,n6); EdgeLin *e6_5=new EdgeLin(n6,n5);
+  auto *e5_4=new EdgeLin(n5,n4); auto *e4_7=new EdgeLin(n4,n7); auto *e7_6=new EdgeLin(n7,n6); auto *e6_5=new EdgeLin(n6,n5);
   //
   for(int k=0;k<2;k++)
     for(int i=0;i<3;i++)
@@ -514,9 +519,9 @@ void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
   QuadraticPolygon *pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.04719755,pol->getArea(),1e-5);
   CPPUNIT_ASSERT_EQUAL(3,pol->size());
-  ElementaryEdge *e0=dynamic_cast<ElementaryEdge *>((*pol)[0]);
-  ElementaryEdge *e1=dynamic_cast<ElementaryEdge *>((*pol)[1]);
-  ElementaryEdge *e2=dynamic_cast<ElementaryEdge *>((*pol)[0]);
+  auto *e0=dynamic_cast<ElementaryEdge *>((*pol)[0]);
+  auto *e1=dynamic_cast<ElementaryEdge *>((*pol)[1]);
+  auto *e2=dynamic_cast<ElementaryEdge *>((*pol)[0]);
   CPPUNIT_ASSERT(e0); CPPUNIT_ASSERT(e1); CPPUNIT_ASSERT(e2);
   CPPUNIT_ASSERT(dynamic_cast<EdgeLin *>(e0->getPtr()));// <- testing detection of colinearity
   CPPUNIT_ASSERT(dynamic_cast<EdgeArcCircle *>(e1->getPtr()));
@@ -592,7 +597,7 @@ void QuadraticPlanarInterpTest::check1DInterpLin()
       0.1000 , 0.1500 , 0.2000 , 0.2500,  0.3000,  0.3500,  0.4000,  0.4500,  0.5000,  0.5500, 
       0.6000,  0.6500,  0.7000,  0.7194,  0.7388,  0.7581,  0.7775,  0.7969,  0.8163,  0.8356, 
       0.8550};
-  std::vector<double> zLev1(Z_VALS_1,Z_VALS_1+NB_OF_CELL_AXIAL_1+1);
+  std::vector<double> const zLev1(Z_VALS_1,Z_VALS_1+NB_OF_CELL_AXIAL_1+1);
 
   const int NB_OF_CELL_AXIAL_2=46;
   static const double Z_VALS_2[NB_OF_CELL_AXIAL_2+1]=
@@ -601,7 +606,7 @@ void QuadraticPlanarInterpTest::check1DInterpLin()
       ,  0.20,  0.25, 0.30, 0.350 ,0.40 ,0.450 ,0.500 , 0.550, 0.600 ,0.650 ,0.700
       , 0.7194 ,0.7388 ,0.7581 ,0.7775 ,0.7969 ,0.8163 ,0.8356, 0.8550
       ,  0.8738 ,0.8925 ,0.9113 ,0.9300 ,0.9488 ,0.9675 ,0.9863, 1.0050};
-  std::vector<double> zLev2(Z_VALS_2,Z_VALS_2+NB_OF_CELL_AXIAL_2+1);
+  std::vector<double> const zLev2(Z_VALS_2,Z_VALS_2+NB_OF_CELL_AXIAL_2+1);
   std::map<int,std::map<int,double> > m;
   Edge::Interpolate1DLin(zLev1,zLev2,m);
   CPPUNIT_ASSERT_EQUAL(30,(int)m.size());
@@ -619,7 +624,7 @@ void QuadraticPlanarInterpTest::check1DInterpLin()
   static const double Z_VALS_3[NB_OF_CELL_AXIAL_3+1]={
     0.,0.01,0.05,0.10,0.15,0.20,0.25,0.30,
     0.35,0.40,0.45,0.50,0.55,0.60 };
-  std::vector<double> zLev3(Z_VALS_3,Z_VALS_3+NB_OF_CELL_AXIAL_3+1);
+  std::vector<double> const zLev3(Z_VALS_3,Z_VALS_3+NB_OF_CELL_AXIAL_3+1);
   Edge::Interpolate1DLin(zLev3,zLev1,m);
   CPPUNIT_ASSERT_EQUAL(13,(int)m.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,m[0][8],1e-12);
@@ -682,7 +687,7 @@ void QuadraticPlanarInterpTest::checkNonRegression1()
   const double radius1=2.902;
   const double angleS1=-0.49999999950907054; const double angleL1=-0.0942156629996692;
   const double center1[2]={13.66, -23.66};
-  EdgeArcCircle *e1=new EdgeArcCircle(nS1,nE1,center1,radius1,angleS1,angleL1);
+  auto *e1=new EdgeArcCircle(nS1,nE1,center1,radius1,angleS1,angleL1);
   //
   const double coords2[]=
     {
@@ -694,7 +699,7 @@ void QuadraticPlanarInterpTest::checkNonRegression1()
   const double radius2=2.4345;
   const double angleS2=-0.523598776190207; const double angleL2=0.5235987755846041;
   const double center2[]={ 13.933240960547204, -24.132999998525658 };
-  EdgeArcCircle *e2=new EdgeArcCircle(nS2,nE2,center2,radius2,angleS2,angleL2);
+  auto *e2=new EdgeArcCircle(nS2,nE2,center2,radius2,angleS2,angleL2);
   MergePoints merge;
   QuadraticPolygon c1,c2;
   e1->intersectWith(e2,merge,c1,c2);
@@ -773,7 +778,7 @@ void QuadraticPlanarInterpTest::checkNonRegression3()
   const double radius1=3.4304999897666599;
   const double angleS1=2.6179938783536514; const double angleL1=-0.52359877711901204;
   const double center1[2]={13.933240950441375, -24.132999992807399};
-  EdgeArcCircle *e1=new EdgeArcCircle(nS1,nE1,center1,radius1,angleS1,angleL1);
+  auto *e1=new EdgeArcCircle(nS1,nE1,center1,radius1,angleS1,angleL1);
   //
   const double coords2[]=
     {
@@ -782,14 +787,14 @@ void QuadraticPlanarInterpTest::checkNonRegression3()
     };
   Node *nS2=new Node(coords2);
   Node *nE2=new Node(coords2+2);
-  EdgeLin *e2=new EdgeLin(nS2,nE2);
+  auto *e2=new EdgeLin(nS2,nE2);
   MergePoints merge;
   QuadraticPolygon c1,c2;
   CPPUNIT_ASSERT(e1->intersectWith(e2,merge,c1,c2));
   CPPUNIT_ASSERT_EQUAL(2,c1.size());
   CPPUNIT_ASSERT_EQUAL(2,c2.size());
-  ElementaryEdge *tmp1=dynamic_cast<ElementaryEdge *>(c1.front()); CPPUNIT_ASSERT(tmp1);
-  EdgeArcCircle *tmp2=dynamic_cast<EdgeArcCircle *>(tmp1->getPtr()); CPPUNIT_ASSERT(tmp2);
+  auto *tmp1=dynamic_cast<ElementaryEdge *>(c1.front()); CPPUNIT_ASSERT(tmp1);
+  auto *tmp2=dynamic_cast<EdgeArcCircle *>(tmp1->getPtr()); CPPUNIT_ASSERT(tmp2);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2.6179938783536514,tmp2->getAngle0(),1e-14);
   //clean-up
   nS1->decrRef(); nE1->decrRef(); nS2->decrRef(); nE2->decrRef(); e1->decrRef(); e2->decrRef();
@@ -896,7 +901,7 @@ void QuadraticPlanarInterpTest::checkNonRegression5()
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
   QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
-  std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
+  std::vector<QuadraticPolygon *> const v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(0,(int)v.size());
   //CPPUNIT_ASSERT_DOUBLES_EQUAL(0.00164773941455998,v[0]->getArea(),1e-7);
   //delete v[0];
@@ -1101,7 +1106,7 @@ void QuadraticPlanarInterpTest::checkNonRegression9()
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
   QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
-  std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
+  std::vector<QuadraticPolygon *> const v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(0,(int)v.size());
   delete pol1;
   delete pol2;
@@ -1122,11 +1127,11 @@ void QuadraticPlanarInterpTest::checkNonRegression10()
   Node *n3_1=new Node(coords1+4);
   Node *n1_2=new Node(coords2);
   Node *n2_2=new Node(coords2+2);
-  EdgeArcCircle *e1=new EdgeArcCircle(n1_1,n3_1,n2_1);
-  EdgeLin *e2=new EdgeLin(n1_2,n2_2);
+  auto *e1=new EdgeArcCircle(n1_1,n3_1,n2_1);
+  auto *e2=new EdgeLin(n1_2,n2_2);
   MergePoints merge;
-  ComposedEdge *c1=new ComposedEdge;
-  ComposedEdge *c2=new ComposedEdge;
+  auto *c1=new ComposedEdge;
+  auto *c2=new ComposedEdge;
   CPPUNIT_ASSERT(e1->intersectWith(e2,merge,*c1,*c2));
   CPPUNIT_ASSERT_EQUAL(2,c1->size());
   CPPUNIT_ASSERT_EQUAL(2,c2->size());
@@ -1600,20 +1605,20 @@ void QuadraticPlanarInterpTest::checkNormalize()
   Node *n1=new Node(0.,0.);                Node *n4=new Node(0.,-3.);
   Node *n2=new Node(10.,0.);               Node *n5=new Node(10.,-3.);
   Node *n3=new Node(5.,10.);               Node *n6=new Node(5.,7.);
-  EdgeLin *e1_2=new EdgeLin(n1,n2);        EdgeLin *e4_5=new EdgeLin(n4,n5);
-  EdgeLin *e2_3=new EdgeLin(n2,n3);        EdgeLin *e5_6=new EdgeLin(n5,n6);
-  EdgeLin *e3_1=new EdgeLin(n3,n1);        EdgeLin *e6_4=new EdgeLin(n6,n4);
+  auto *e1_2=new EdgeLin(n1,n2);        auto *e4_5=new EdgeLin(n4,n5);
+  auto *e2_3=new EdgeLin(n2,n3);        auto *e5_6=new EdgeLin(n5,n6);
+  auto *e3_1=new EdgeLin(n3,n1);        auto *e6_4=new EdgeLin(n6,n4);
   //
   QuadraticPolygon pol1; pol1.pushBack(e1_2); pol1.pushBack(e2_3); pol1.pushBack(e3_1);
   QuadraticPolygon pol2; pol2.pushBack(e4_5); pol2.pushBack(e5_6); pol2.pushBack(e6_4);
   n1->decrRef(); n2->decrRef(); n3->decrRef(); n4->decrRef(); n5->decrRef(); n6->decrRef();
-  double area1Start=pol1.getArea();
+  double const area1Start=pol1.getArea();
   double xb,yb;
-  double fact=pol1.normalize(&pol2,xb,yb);
-  double area1End=pol1.getArea();
+  double const fact=pol1.normalize(&pol2,xb,yb);
+  double const area1End=pol1.getArea();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(area1Start,area1End*fact*fact,1e-14);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(13.,fact,1.e-14);
-  double area=pol1.intersectWith(pol2);
+  double const area=pol1.intersectWith(pol2);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(24.5,area*fact*fact,1e-14);
   //
   n1=new Node(0.,0.);  n4=new Node(0.,-3.);
@@ -1628,7 +1633,7 @@ void QuadraticPlanarInterpTest::checkNormalize()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(24.5,pol3.intersectWithAbs(pol4),1.e-14);
   // Ok testing EdgeArcCircle update.
   double center[2]={5.,5.};
-  double radius=300.;
+  double const radius=300.;
   EdgeArcCircle *e1=buildArcOfCircle(center,radius,M_PI/4.,M_PI/3.);
   const Bounds& b=e1->getBounds();
   double x,y,fact2;
@@ -1652,11 +1657,11 @@ void QuadraticPlanarInterpTest::checkMakePartitionAbs1()
   Node *n1=new Node(0.,0.5);               Node *n5=new Node(0.3,1.2);
   Node *n2=new Node(1.,0.5);               Node *n6=new Node(1.1,1.3);
   Node *n3=new Node(1.,0.);                Node *n7=new Node(-0.1,0.9);
-  EdgeLin *e0_1=new EdgeLin(n0,n1);
-  EdgeLin *e1_2=new EdgeLin(n1,n2);        EdgeLin *e4_5=new EdgeLin(n4,n5);
-  EdgeLin *e2_3=new EdgeLin(n2,n3);        EdgeLin *e5_6=new EdgeLin(n5,n6);
-  EdgeLin *e3_0=new EdgeLin(n3,n0);        EdgeLin *e6_4=new EdgeLin(n6,n4);
-  EdgeLin *e4_7=new EdgeLin(n4,n7);        EdgeLin *e7_5=new EdgeLin(n7,n5);
+  auto *e0_1=new EdgeLin(n0,n1);
+  auto *e1_2=new EdgeLin(n1,n2);        auto *e4_5=new EdgeLin(n4,n5);
+  auto *e2_3=new EdgeLin(n2,n3);        auto *e5_6=new EdgeLin(n5,n6);
+  auto *e3_0=new EdgeLin(n3,n0);        auto *e6_4=new EdgeLin(n6,n4);
+  auto *e4_7=new EdgeLin(n4,n7);        auto *e7_5=new EdgeLin(n7,n5);
   QuadraticPolygon pol1; pol1.pushBack(e0_1); pol1.pushBack(e1_2); pol1.pushBack(e2_3); pol1.pushBack(e3_0);
   QuadraticPolygon pol2; pol2.pushBack(e4_5); pol2.pushBack(e5_6); pol2.pushBack(e6_4);
   pol2.pushBack(e7_5); e4_5->incrRef(); pol2.pushBack(new ElementaryEdge(e4_5,false)); pol2.pushBack(e4_7);
@@ -1670,7 +1675,7 @@ void QuadraticPlanarInterpTest::checkMakePartitionAbs1()
  */
 void QuadraticPlanarInterpTest::checkArcArcIntersection1()
 {
-  double eps=1.0e-8;
+  double const eps=1.0e-8;
   INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(eps);
 
   Node *n0=new Node(6.37533,38.8928);            Node *n3=new Node(6.29194,39.2789);
@@ -1680,8 +1685,8 @@ void QuadraticPlanarInterpTest::checkArcArcIntersection1()
   Node *n6=new Node(6.2534549999999998, 38.861800000000002);  // to have a linear edge e1
 
   //EdgeArcCircle *e1=new EdgeArcCircle(n0, n2, n6, true);  // to have a linear edge e1
-  EdgeArcCircle *e1=new EdgeArcCircle(n0, n2, n1, true);
-  EdgeArcCircle *e2=new EdgeArcCircle(n3, n5, n4, true);
+  auto *e1=new EdgeArcCircle(n0, n2, n1, true);
+  auto *e2=new EdgeArcCircle(n3, n5, n4, true);
 
   MergePoints merge;
   QuadraticPolygon c1,c2;

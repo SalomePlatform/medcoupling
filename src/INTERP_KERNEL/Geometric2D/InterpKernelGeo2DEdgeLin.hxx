@@ -22,7 +22,12 @@
 #define __INTERPKERNELGEO2DEDGELIN_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "InterpKernelGeo2DBounds.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
+#include "InterpKernelGeo2DNode.hxx"
+#include <list>
+#include <istream>
+#include <ostream>
 
 namespace INTERP_KERNEL
 {
@@ -31,11 +36,11 @@ namespace INTERP_KERNEL
     friend class Edge;
   public:
     SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2);
-    bool areColinears() const;
-    bool haveTheySameDirection() const;
-    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
-    std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
+    bool areColinears() const override;
+    bool haveTheySameDirection() const override;
+    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const override;
+    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped) override;
+    std::list< IntersectElement > getIntersectionsCharacteristicVal() const override;
   private:
     void getCurveAbscisse(Node *node, TypeOfLocInEdge& where, MergePoints& commonNode) const;
   private:
@@ -53,31 +58,31 @@ namespace INTERP_KERNEL
     EdgeLin(std::istream& lineInXfig);
     EdgeLin(Node *start, Node *end, bool direction=true);
     EdgeLin(double sX, double sY, double eX, double eY);
-    ~EdgeLin();
-    TypeOfFunction getTypeOfFunc() const { return SEG; }
-    void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const;
-    void update(Node *m);
+    ~EdgeLin() override;
+    TypeOfFunction getTypeOfFunc() const override { return SEG; }
+    void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const override;
+    void update(Node *m) override;
     double getNormSq() const;
-    double getAreaOfZone() const;
-    double getCurveLength() const;
-    void getBarycenter(double *bary) const;
-    void getBarycenterOfZone(double *bary) const;
-    void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const;
-    bool isIn(double characterVal) const;
-    Node *buildRepresentantOfMySelf() const;
-    double getCharactValue(const Node& node) const;
-    double getCharactValueBtw0And1(const Node& node) const;
-    double getDistanceToPoint(const double *pt) const;
-    bool isNodeLyingOn(const double *coordOfNode) const;
-    bool isLower(double val1, double val2) const { return val1<val2; }
+    double getAreaOfZone() const override;
+    double getCurveLength() const override;
+    void getBarycenter(double *bary) const override;
+    void getBarycenterOfZone(double *bary) const override;
+    void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const override;
+    bool isIn(double characterVal) const override;
+    Node *buildRepresentantOfMySelf() const override;
+    double getCharactValue(const Node& node) const override;
+    double getCharactValueBtw0And1(const Node& node) const override;
+    double getDistanceToPoint(const double *pt) const override;
+    bool isNodeLyingOn(const double *coordOfNode) const override;
+    bool isLower(double val1, double val2) const override { return val1<val2; }
     double getCharactValueEng(const double *node) const;
     bool doIHaveSameDirectionAs(const Edge& other) const;
     void dynCastFunction(const EdgeLin * &seg,
-                         const EdgeArcCircle * &arcSeg) const { seg=this; }
+                         const EdgeArcCircle * & /*arcSeg*/) const override { seg=this; }
   protected:
     EdgeLin() { }
     void updateBounds();
-    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction) const;
+    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction) const override;
   };
 }
 

@@ -21,7 +21,12 @@
 #ifndef __MEDCOUPLING_MEDCOUPLINGMAP_TXX__
 #define __MEDCOUPLING_MEDCOUPLINGMAP_TXX__
 
+#include "MCAuto.hxx"
 #include "MEDCouplingMap.hxx"
+#include <cstddef>
+#include <utility>
+#include <vector>
+#include "MEDCouplingRefCountObject.hxx"
 
 namespace MEDCoupling
 {

@@ -19,17 +19,31 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileMeshSupport.hxx"
+#include "MCAuto.hxx"
+#include "MEDFileUtilities.hxx"
+#include "MCIdType.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "CellModel.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileMeshLL.hxx"
 #include "MEDFileSafeCaller.txx"
 
 #include "InterpKernelAutoPtr.hxx"
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include "med.h"
+#include "medmesh.h"
+#include <cstddef>
+#include <sstream>
+#include <vector>
+#include "NormalizedGeometricTypes"
 
 using namespace MEDCoupling;
 
 MEDFileMeshSupports *MEDFileMeshSupports::New(const std::string& fileName)
 {
-  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(fileName));
   return New(fid);
 }
 
@@ -45,33 +59,31 @@ MEDFileMeshSupports *MEDFileMeshSupports::New()
 
 MEDFileMeshSupports::MEDFileMeshSupports(med_idt fid)
 {
-  med_int nbSM(MEDnSupportMesh(fid));
+  med_int const nbSM(MEDnSupportMesh(fid));
   _supports.resize(nbSM);
   for(int i=0;i<nbSM;i++)
     {
       INTERP_KERNEL::AutoPtr<char> msn(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
       INTERP_KERNEL::AutoPtr<char> description(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
       med_axis_type axType;
-      med_int nAxis(MEDsupportMeshnAxis(fid,i+1));
+      med_int const nAxis(MEDsupportMeshnAxis(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> axisName(new char[MED_SNAME_SIZE*nAxis+1]),axisUnit(new char[MED_SNAME_SIZE*nAxis+1]);
       med_int spaceDim(0),meshDim(0);
       MEDFILESAFECALLERRD0(MEDsupportMeshInfo,(fid,i+1,msn,&spaceDim,&meshDim,description,&axType,axisName,axisUnit));
-      std::string name(MEDLoaderBase::buildStringFromFortran(msn,MED_NAME_SIZE));
+      std::string const name(MEDLoaderBase::buildStringFromFortran(msn,MED_NAME_SIZE));
       _supports[i]=MEDFileUMesh::New(fid,name);
     }
 }
 
 MEDFileMeshSupports::MEDFileMeshSupports()
-{
-}
+= default;
 
 MEDFileMeshSupports::~MEDFileMeshSupports()
-{
-}
+= default;
 
 std::vector<const BigMemoryObject *> MEDFileMeshSupports::getDirectChildrenWithNull() const
 {
-  std::size_t sz(_supports.size());
+  std::size_t const sz(_supports.size());
   std::vector<const BigMemoryObject *> ret(sz);
   for(std::size_t i=0;i<sz;i++)
     ret[i]=_supports[i];
@@ -85,30 +97,30 @@ std::size_t MEDFileMeshSupports::getHeapMemorySizeWithoutChildren() const
 
 void MEDFileMeshSupports::writeLL(med_idt fid) const
 {
-  for(std::vector< MCAuto<MEDFileUMesh> >::const_iterator it=_supports.begin();it!=_supports.end();it++)
-    if((*it).isNotNull())
-      (*it)->writeLL(fid);
+  for(const auto & _support : _supports)
+    if(_support.isNotNull())
+      _support->writeLL(fid);
 }
 
 std::vector<std::string> MEDFileMeshSupports::getSupMeshNames() const
 {
   std::vector<std::string> ret;
-  for(std::vector< MCAuto<MEDFileUMesh> >::const_iterator it=_supports.begin();it!=_supports.end();it++)
-    if((*it).isNotNull())
-      ret.push_back((*it)->getName());
+  for(const auto & _support : _supports)
+    if(_support.isNotNull())
+      ret.push_back(_support->getName());
   return ret;
 }
 
 const MEDFileUMesh *MEDFileMeshSupports::getSupMeshWithName(const std::string& name) const
 {
   std::vector<std::string> mns;
-  for(std::vector< MCAuto<MEDFileUMesh> >::const_iterator it=_supports.begin();it!=_supports.end();it++)
+  for(const auto & _support : _supports)
     {
-      if((*it).isNotNull())
+      if(_support.isNotNull())
         {
-          std::string na((*it)->getName());
+          std::string const na(_support->getName());
           if(na==name)
-            return *it;
+            return _support;
           else
             mns.push_back(na);
         }

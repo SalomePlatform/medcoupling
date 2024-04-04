@@ -19,22 +19,23 @@
 #ifndef __INTERPOLATION2D3D_TXX__
 #define __INTERPOLATION2D3D_TXX__
 
+#include "BBTreeStandAlone.txx"
+#include "BoundingBox.hxx"
 #include "Interpolation2D3D.hxx"
-#include "Interpolation.txx"
+// #include "Interpolation.txx"
+#include "Intersector3D.txx"
+#include "Log.hxx"
+#include "InterpolationOptions.hxx"
 #include "MeshElement.txx"
-#include "TransformedTriangle.hxx"
+#include "NormalizedGeometricTypes"
 #include "Polyhedron3D2DIntersectorP0P0.txx"
-#include "PointLocator3DIntersectorP0P0.txx"
-#include "PolyhedronIntersectorP0P1.txx"
-#include "PointLocator3DIntersectorP0P1.txx"
-#include "PolyhedronIntersectorP1P0.txx"
-#include "PolyhedronIntersectorP1P0Bary.txx"
-#include "PointLocator3DIntersectorP1P0.txx"
-#include "PolyhedronIntersectorP1P1.txx"
-#include "PointLocator3DIntersectorP1P1.txx"
 #include "InterpolationHelper.txx"
+#include "InterpKernelException.hxx"
 
-#include "BBTree.txx"
+#include <memory>
+#include <string>
+#include <vector>
+#include <utility>
 
 namespace INTERP_KERNEL
 {

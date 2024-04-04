@@ -19,26 +19,40 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldT.txx"
+#include "MCAuto.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingField.hxx"
+#include "MCIdType.hxx"
+#include "CellModel.hxx"
+#include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldInt32.hxx"
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldFloat.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingPointSet.hxx"
+#include "MEDCouplingTraits.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MEDCouplingGaussLocalization.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MCAuto.txx"
 #include "MEDCouplingVoronoi.hxx"
-#include "MEDCouplingNatureOfField.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MCAuto.txx"
 
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelGaussCoords.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <cstddef>
+#include <set>
 #include <sstream>
 #include <limits>
 #include <algorithm>
 #include <functional>
+#include <string>
+#include <vector>
 
 using namespace MEDCoupling;
 
@@ -206,20 +220,20 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
 {
   checkConsistencyLight();
-  TypeOfField tf(getTypeOfField());
+  TypeOfField const tf(getTypeOfField());
   if(tf!=ON_NODES)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::nodeToCellDiscretization : this field is expected to be on ON_NODES !");
   MCAuto<MEDCouplingFieldDouble> ret(clone(false));
   MCAuto<MEDCouplingFieldDiscretizationP0> nsp(new MEDCouplingFieldDiscretizationP0);
   ret->setDiscretization(nsp);
   const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkConsistencyLight call
-  mcIdType nbCells=ToIdType(m->getNumberOfCells());
+  mcIdType const nbCells=ToIdType(m->getNumberOfCells());
   std::vector<DataArrayDouble *> arrs(getArrays());
-  std::size_t sz(arrs.size());
+  std::size_t const sz(arrs.size());
   std::vector< MCAuto<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
   for(std::size_t j=0;j<sz;j++)
     {
-      std::size_t nbCompo(arrs[j]->getNumberOfComponents());
+      std::size_t const nbCompo(arrs[j]->getNumberOfComponents());
       outArrsSafe[j]=DataArrayDouble::New(); outArrsSafe[j]->alloc(nbCells,nbCompo);
       outArrsSafe[j]->copyStringInfoFrom(*arrs[j]);
       outArrs[j]=outArrsSafe[j];
@@ -230,7 +244,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
           std::vector<mcIdType> nodeIds;
           m->getNodeIdsOfCell(i,nodeIds);
           std::fill(pt,pt+nbCompo,0.);
-          std::size_t nbNodesInCell(nodeIds.size());
+          std::size_t const nbNodesInCell(nodeIds.size());
           for(std::size_t k=0;k<nbNodesInCell;k++)
             std::transform(srcPt+nodeIds[k]*nbCompo,srcPt+(nodeIds[k]+1)*nbCompo,pt,pt,std::plus<double>());
           if(nbNodesInCell!=0)
@@ -262,7 +276,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::cellToNodeDiscretization() const
 {
   checkConsistencyLight();
-  TypeOfField tf(getTypeOfField());
+  TypeOfField const tf(getTypeOfField());
   if(tf!=ON_CELLS)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::cellToNodeDiscretization : this field is expected to be on ON_CELLS !");
   MCAuto<MEDCouplingFieldDouble> ret(clone(false));
@@ -272,14 +286,14 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::cellToNodeDiscretization() const
   MCAuto<DataArrayIdType> rn(DataArrayIdType::New()),rni(DataArrayIdType::New());
   m->getReverseNodalConnectivity(rn,rni);
   MCAuto<DataArrayIdType> rni2(rni->deltaShiftIndex());
-  MCAuto<DataArrayDouble> rni3(rni2->convertToDblArr()); rni2=0;
+  MCAuto<DataArrayDouble> rni3(rni2->convertToDblArr()); rni2=nullptr;
   std::vector<DataArrayDouble *> arrs(getArrays());
-  std::size_t sz(arrs.size());
+  std::size_t const sz(arrs.size());
   std::vector< MCAuto<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
   for(std::size_t j=0;j<sz;j++)
     {
       MCAuto<DataArrayDouble> tmp(arrs[j]->selectByTupleIdSafe(rn->begin(),rn->end()));
-      outArrsSafe[j]=(tmp->accumulatePerChunck(rni->begin(),rni->end())); tmp=0;
+      outArrsSafe[j]=(tmp->accumulatePerChunck(rni->begin(),rni->end())); tmp=nullptr;
       outArrsSafe[j]->divideEqual(rni3);
       outArrsSafe[j]->copyStringInfoFrom(*arrs[j]);
       outArrs[j]=outArrsSafe[j];
@@ -336,7 +350,7 @@ std::string MEDCouplingFieldDouble::advancedRepr() const
 
 std::string MEDCouplingFieldDouble::writeVTK(const std::string& fileName, bool isBinary) const
 {
-  std::vector<const MEDCouplingFieldDouble *> fs(1,this);
+  std::vector<const MEDCouplingFieldDouble *> const fs(1,this);
   return MEDCouplingFieldDouble::WriteVTK(fileName,fs,isBinary);
 }
 
@@ -349,7 +363,7 @@ bool MEDCouplingFieldDouble::areCompatibleForMerge(const MEDCouplingField *other
 {
   if(!MEDCouplingField::areCompatibleForMerge(other))
     return false;
-  const MEDCouplingFieldDouble *otherC(dynamic_cast<const MEDCouplingFieldDouble *>(other));
+  const auto *otherC(dynamic_cast<const MEDCouplingFieldDouble *>(other));
   if(!otherC)
     return false;
   if(!timeDiscr()->areCompatible(otherC->timeDiscr()))
@@ -391,12 +405,12 @@ bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *
  */
 void MEDCouplingFieldDouble::renumberNodes(const mcIdType *old2NewBg, double eps)
 {
-  const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
+  const auto *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
     throw INTERP_KERNEL::Exception("Invalid mesh to apply renumberNodes on it !");
-  mcIdType nbOfNodes=meshC->getNumberOfNodes();
+  mcIdType const nbOfNodes=meshC->getNumberOfNodes();
   MCAuto<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCopy());
-  mcIdType newNbOfNodes=*std::max_element(old2NewBg,old2NewBg+nbOfNodes)+1;
+  mcIdType const newNbOfNodes=*std::max_element(old2NewBg,old2NewBg+nbOfNodes)+1;
   renumberNodesWithoutMesh(old2NewBg,newNbOfNodes,eps);
   meshC2->renumberNodes(old2NewBg,newNbOfNodes);
   setMesh(meshC2);
@@ -430,9 +444,9 @@ void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const mcIdType *old2NewBg,
     throw INTERP_KERNEL::Exception("Expecting a spatial discretization to be able to operate a renumbering !");
   std::vector<DataArrayDouble *> arrays;
   timeDiscr()->getArrays(arrays);
-  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
-    if(*iter)
-      _type->renumberValuesOnNodes(eps,old2NewBg,newNbOfNodes,*iter);
+  for(auto array : arrays)
+    if(array)
+      _type->renumberValuesOnNodes(eps,old2NewBg,newNbOfNodes,array);
 }
 
 /*!
@@ -450,7 +464,7 @@ void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const mcIdType *old2NewBg,
  */
 DataArrayIdType *MEDCouplingFieldDouble::findIdsInRange(double vmin, double vmax) const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::findIdsInRange : no default array set !");
   return getArray()->findIdsInRange(vmin,vmax);
 }
@@ -460,7 +474,7 @@ typename Traits<U>::FieldType *ConvertToUField(const MEDCouplingFieldDouble *sel
 {
   MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*self));
   int t1,t2;
-  double t0(self->getTime(t1,t2));
+  double const t0(self->getTime(t1,t2));
   MCAuto<typename Traits<U>::FieldType > ret(Traits<U>::FieldType::New(*tmp,self->getTimeDiscretization()));
   ret->setTime(t0,t1,t2);
   if(self->getArray())
@@ -513,7 +527,7 @@ MEDCouplingFieldDouble::MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeD
  */
 double MEDCouplingFieldDouble::accumulate(int compId) const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::accumulate : no default array defined !");
   return getArray()->accumulate(compId);
 }
@@ -527,7 +541,7 @@ double MEDCouplingFieldDouble::accumulate(int compId) const
  */
 void MEDCouplingFieldDouble::accumulate(double *res) const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::accumulate : no default array defined !");
   getArray()->accumulate(res);
 }
@@ -546,13 +560,13 @@ double MEDCouplingFieldDouble::getMaxValue() const
   timeDiscr()->getArrays(arrays);
   double ret(-std::numeric_limits<double>::max());
   bool isExistingArr=false;
-  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+  for(auto array : arrays)
     {
-      if(*iter)
+      if(array)
         {
           isExistingArr=true;
           mcIdType loc;
-          ret=std::max(ret,(*iter)->getMaxValue(loc));
+          ret=std::max(ret,array->getMaxValue(loc));
         }
     }
   if(!isExistingArr)
@@ -576,16 +590,16 @@ double MEDCouplingFieldDouble::getMaxValue2(DataArrayIdType*& tupleIds) const
   timeDiscr()->getArrays(arrays);
   double ret(-std::numeric_limits<double>::max());
   bool isExistingArr=false;
-  tupleIds=0;
+  tupleIds=nullptr;
   MCAuto<DataArrayIdType> ret1;
-  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+  for(auto array : arrays)
     {
-      if(*iter)
+      if(array)
         {
           isExistingArr=true;
           DataArrayIdType *tmp;
-          ret=std::max(ret,(*iter)->getMaxValue2(tmp));
-          MCAuto<DataArrayIdType> tmpSafe(tmp);
+          ret=std::max(ret,array->getMaxValue2(tmp));
+          MCAuto<DataArrayIdType> const tmpSafe(tmp);
           if(!((const DataArrayIdType *)ret1))
             ret1=tmpSafe;
         }
@@ -610,13 +624,13 @@ double MEDCouplingFieldDouble::getMinValue() const
   timeDiscr()->getArrays(arrays);
   double ret(std::numeric_limits<double>::max());
   bool isExistingArr=false;
-  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+  for(auto array : arrays)
     {
-      if(*iter)
+      if(array)
         {
           isExistingArr=true;
           mcIdType loc;
-          ret=std::min(ret,(*iter)->getMinValue(loc));
+          ret=std::min(ret,array->getMinValue(loc));
         }
     }
   if(!isExistingArr)
@@ -640,16 +654,16 @@ double MEDCouplingFieldDouble::getMinValue2(DataArrayIdType*& tupleIds) const
   timeDiscr()->getArrays(arrays);
   double ret(-std::numeric_limits<double>::max());
   bool isExistingArr=false;
-  tupleIds=0;
+  tupleIds=nullptr;
   MCAuto<DataArrayIdType> ret1;
-  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+  for(auto array : arrays)
     {
-      if(*iter)
+      if(array)
         {
           isExistingArr=true;
           DataArrayIdType *tmp;
-          ret=std::max(ret,(*iter)->getMinValue2(tmp));
-          MCAuto<DataArrayIdType> tmpSafe(tmp);
+          ret=std::max(ret,array->getMinValue2(tmp));
+          MCAuto<DataArrayIdType> const tmpSafe(tmp);
           if(!((const DataArrayIdType *)ret1))
             ret1=tmpSafe;
         }
@@ -668,7 +682,7 @@ double MEDCouplingFieldDouble::getMinValue2(DataArrayIdType*& tupleIds) const
  */
 double MEDCouplingFieldDouble::getAverageValue() const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getAverageValue : no default array defined !");
   return getArray()->getAverageValue();
 }
@@ -682,7 +696,7 @@ double MEDCouplingFieldDouble::getAverageValue() const
  */
 double MEDCouplingFieldDouble::norm2() const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::norm2 : no default array defined !");
   return getArray()->norm2();
 }
@@ -702,14 +716,14 @@ double MEDCouplingFieldDouble::norm2() const
  */
 void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getWeightedAverageValue : no default array defined !");
   MCAuto<MEDCouplingFieldDouble> w=buildMeasureField(isWAbs);
-  double deno=w->getArray()->accumulate((std::size_t)0);
+  double const deno=w->getArray()->accumulate((std::size_t)0);
   MCAuto<DataArrayDouble> arr=getArray()->deepCopy();
   arr->multiplyEqual(w->getArray());
   arr->accumulate(res);
-  std::size_t nCompo = getArray()->getNumberOfComponents();
+  std::size_t const nCompo = getArray()->getNumberOfComponents();
   std::transform(res,res+nCompo,res,std::bind(std::multiplies<double>(),std::placeholders::_1,1./deno));
 }
 
@@ -728,7 +742,7 @@ void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) c
  */
 double MEDCouplingFieldDouble::getWeightedAverageValue(int compId, bool isWAbs) const
 {
-  std::size_t nbComps=getArray()->getNumberOfComponents();
+  std::size_t const nbComps=getArray()->getNumberOfComponents();
   if(compId<0 || compId>=ToIdType(nbComps))
     {
       std::ostringstream oss; oss << "MEDCouplingFieldDouble::getWeightedAverageValue : Invalid compId specified : No such nb of components ! Should be in [0," << nbComps << ") !";
@@ -756,7 +770,7 @@ double MEDCouplingFieldDouble::normL1(int compId) const
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL1 !");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform normL1 !");
-  std::size_t nbComps=getArray()->getNumberOfComponents();
+  std::size_t const nbComps=getArray()->getNumberOfComponents();
   if(compId<0 || compId>=ToIdType(nbComps))
     {
       std::ostringstream oss; oss << "MEDCouplingFieldDouble::normL1 : Invalid compId specified : No such nb of components ! Should be in [0," << nbComps << ") !";
@@ -803,7 +817,7 @@ double MEDCouplingFieldDouble::normL2(int compId) const
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL2");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform normL2 !");
-  std::size_t nbComps=getArray()->getNumberOfComponents();
+  std::size_t const nbComps=getArray()->getNumberOfComponents();
   if(compId<0 || compId>=ToIdType(nbComps))
     {
       std::ostringstream oss; oss << "MEDCouplingFieldDouble::normL2 : Invalid compId specified : No such nb of components ! Should be in [0," << nbComps << ") !";
@@ -845,9 +859,9 @@ void MEDCouplingFieldDouble::normL2(double *res) const
  */
 double MEDCouplingFieldDouble::normMax(int compId) const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::normMax : no default array defined !");
-  std::size_t nbComps=getArray()->getNumberOfComponents();
+  std::size_t const nbComps=getArray()->getNumberOfComponents();
   if(compId<0 || compId>=ToIdType(nbComps))
     {
       std::ostringstream oss; oss << "MEDCouplingFieldDouble::normMax : Invalid compId specified : No such nb of components ! Should be in [0," << nbComps << ") !";
@@ -870,7 +884,7 @@ double MEDCouplingFieldDouble::normMax(int compId) const
  */
 void MEDCouplingFieldDouble::normMax(double *res) const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::normMax : no default array defined !");
   getArray()->normMaxPerComponent(res);
 }
@@ -895,7 +909,7 @@ double MEDCouplingFieldDouble::integral(int compId, bool isWAbs) const
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform integral");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform integral !");
-  std::size_t nbComps=getArray()->getNumberOfComponents();
+  std::size_t const nbComps=getArray()->getNumberOfComponents();
   if(compId<0 || compId>=ToIdType(nbComps))
     {
       std::ostringstream oss; oss << "MEDCouplingFieldDouble::integral : Invalid compId specified : No such nb of components ! Should be in [0," << nbComps << ") !";
@@ -1030,17 +1044,17 @@ DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc,
  */
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const
 {
-  std::vector< const DataArrayDouble *> arrs=timeDiscr()->getArraysForTime(time);
+  std::vector< const DataArrayDouble *> const arrs=timeDiscr()->getArraysForTime(time);
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOn");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform getValueOn !");
   std::vector<double> res2;
-  for(std::vector< const DataArrayDouble *>::const_iterator iter=arrs.begin();iter!=arrs.end();iter++)
+  for(auto arr : arrs)
     {
-      std::size_t sz=res2.size();
-      res2.resize(sz+(*iter)->getNumberOfComponents());
-      _type->getValueOn(*iter,_mesh,spaceLoc,&res2[sz]);
+      std::size_t const sz=res2.size();
+      res2.resize(sz+arr->getNumberOfComponents());
+      _type->getValueOn(arr,_mesh,spaceLoc,&res2[sz]);
     }
   timeDiscr()->getValueForTime(time,res2,res);
 }
@@ -1081,7 +1095,7 @@ MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator=(double value)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::operator= : no mesh defined !");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform operator = !");
-  mcIdType nbOfTuple=_type->getNumberOfTuples(_mesh);
+  mcIdType const nbOfTuple=_type->getNumberOfTuples(_mesh);
   timeDiscr()->setOrCreateUniformValueOnAllComponents(nbOfTuple,value);
   return *this;
 }
@@ -1292,7 +1306,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::applyFunc : no mesh defined !");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform applyFunc !");
-  mcIdType nbOfTuple=_type->getNumberOfTuples(_mesh);
+  mcIdType const nbOfTuple=_type->getNumberOfTuples(_mesh);
   timeDiscr()->setUniformValue(nbOfTuple,nbOfComp,val);
 }
 
@@ -1472,7 +1486,7 @@ void MEDCouplingFieldDouble::applyFuncFast64(const std::string& func)
  */
 std::size_t MEDCouplingFieldDouble::getNumberOfComponents() const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getNumberOfComponents : No array specified !");
   return getArray()->getNumberOfComponents();
 }
@@ -1519,7 +1533,7 @@ mcIdType MEDCouplingFieldDouble::getNumberOfTuples() const
  */
 mcIdType MEDCouplingFieldDouble::getNumberOfValues() const
 {
-  if(getArray()==0)
+  if(getArray()==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getNumberOfValues : No array specified !");
   return getArray()->getNbOfElems();
 }
@@ -1629,9 +1643,9 @@ double MEDCouplingFieldDouble::getIJK(mcIdType cellId, int nodeIdInCell, int com
  */
 void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps)
 {
-  if(_mesh==0 || other==0)
+  if(_mesh==nullptr || other==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::changeUnderlyingMesh : is expected to operate on not null meshes !");
-  DataArrayIdType *cellCor=0,*nodeCor=0;
+  DataArrayIdType *cellCor=nullptr,*nodeCor=nullptr;
   other->checkGeoEquivalWith(_mesh,levOfCheck,precOnMesh,cellCor,nodeCor);
   MCAuto<DataArrayIdType> cellCor2(cellCor),nodeCor2(nodeCor);
   if(cellCor)
@@ -1705,7 +1719,7 @@ void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f,
  */
 bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals)
 {
-  const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
+  const auto *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
     throw INTERP_KERNEL::Exception("Invalid support mesh to apply mergeNodes on it : must be a MEDCouplingPointSet one !");
   if(_type.isNull())
@@ -1718,9 +1732,9 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals)
     return ret;
   std::vector<DataArrayDouble *> arrays;
   timeDiscr()->getArrays(arrays);
-  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
-    if(*iter)
-      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),*iter);
+  for(auto array : arrays)
+    if(array)
+      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),array);
   setMesh(meshC2);
   return true;
 }
@@ -1744,7 +1758,7 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals)
  */
 bool MEDCouplingFieldDouble::mergeNodesCenter(double eps, double epsOnVals)
 {
-  const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
+  const auto *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
     throw INTERP_KERNEL::Exception("Invalid support mesh to apply mergeNodes on it : must be a MEDCouplingPointSet one !");
   if(_type.isNull())
@@ -1757,9 +1771,9 @@ bool MEDCouplingFieldDouble::mergeNodesCenter(double eps, double epsOnVals)
     return ret;
   std::vector<DataArrayDouble *> arrays;
   timeDiscr()->getArrays(arrays);
-  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
-    if(*iter)
-      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),*iter);
+  for(auto array : arrays)
+    if(array)
+      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),array);
   setMesh(meshC2);
   return true;
 }
@@ -1781,21 +1795,21 @@ bool MEDCouplingFieldDouble::mergeNodesCenter(double eps, double epsOnVals)
  */
 bool MEDCouplingFieldDouble::zipCoords(double epsOnVals)
 {
-  const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
+  const auto *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::zipCoords : Invalid support mesh to apply zipCoords on it : must be a MEDCouplingPointSet one !");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform zipCoords !");
   MCAuto<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCopy());
-  mcIdType oldNbOfNodes=meshC2->getNumberOfNodes();
+  mcIdType const oldNbOfNodes=meshC2->getNumberOfNodes();
   MCAuto<DataArrayIdType> arr=meshC2->zipCoordsTraducer();
   if(meshC2->getNumberOfNodes()!=oldNbOfNodes)
     {
       std::vector<DataArrayDouble *> arrays;
       timeDiscr()->getArrays(arrays);
-      for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
-        if(*iter)
-          _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),*iter);
+      for(auto array : arrays)
+        if(array)
+          _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),array);
       setMesh(meshC2);
       return true;
     }
@@ -1822,21 +1836,21 @@ bool MEDCouplingFieldDouble::zipCoords(double epsOnVals)
  */
 bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals)
 {
-  const MEDCouplingUMesh *meshC=dynamic_cast<const MEDCouplingUMesh *>(_mesh);
+  const auto *meshC=dynamic_cast<const MEDCouplingUMesh *>(_mesh);
   if(!meshC)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::zipConnectivity : Invalid support mesh to apply zipCoords on it : must be a MEDCouplingPointSet one !");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform zipConnectivity !");
   MCAuto<MEDCouplingUMesh> meshC2((MEDCouplingUMesh *)meshC->deepCopy());
-  mcIdType oldNbOfCells(meshC2->getNumberOfCells());
+  mcIdType const oldNbOfCells(meshC2->getNumberOfCells());
   MCAuto<DataArrayIdType> arr=meshC2->zipConnectivityTraducer(compType);
   if(meshC2->getNumberOfCells()!=oldNbOfCells)
     {
       std::vector<DataArrayDouble *> arrays;
       timeDiscr()->getArrays(arrays);
-      for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
-        if(*iter)
-          _type->renumberValuesOnCells(epsOnVals,meshC,arr->getConstPointer(),ToIdType(meshC2->getNumberOfCells()),*iter);
+      for(auto array : arrays)
+        if(array)
+          _type->renumberValuesOnCells(epsOnVals,meshC,arr->getConstPointer(),ToIdType(meshC2->getNumberOfCells()),array);
       setMesh(meshC2);
       return true;
     }
@@ -1859,11 +1873,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::extractSlice3D(const double *ori
   const MCAuto<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
   MCAuto<MEDCouplingFieldDouble> ret(clone(false));
   ret->setMesh(umesh);
-  DataArrayIdType *cellIds=0;
+  DataArrayIdType *cellIds=nullptr;
   MCAuto<MEDCouplingUMesh> mesh2=umesh->buildSlice3D(origin,vec,eps,cellIds);
-  MCAuto<DataArrayIdType> cellIds2=cellIds;
+  MCAuto<DataArrayIdType> const cellIds2=cellIds;
   ret->setMesh(mesh2);
-  MCAuto<DataArrayIdType> tupleIds=computeTupleIdsToSelectFromCellIds(cellIds->begin(),cellIds->end());
+  MCAuto<DataArrayIdType> const tupleIds=computeTupleIdsToSelectFromCellIds(cellIds->begin(),cellIds->end());
   std::vector<DataArrayDouble *> arrays;
   timeDiscr()->getArrays(arrays);
   int i=0;
@@ -1902,17 +1916,17 @@ bool MEDCouplingFieldDouble::simplexize(int policy)
     throw INTERP_KERNEL::Exception("No underlying mesh on this field to perform simplexize !");
   if(_type.isNull())
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform simplexize !");
-  std::size_t oldNbOfCells=_mesh->getNumberOfCells();
+  std::size_t const oldNbOfCells=_mesh->getNumberOfCells();
   MCAuto<MEDCouplingMesh> meshC2(_mesh->deepCopy());
   MCAuto<DataArrayIdType> arr=meshC2->simplexize(policy);
-  std::size_t newNbOfCells=meshC2->getNumberOfCells();
+  std::size_t const newNbOfCells=meshC2->getNumberOfCells();
   if(oldNbOfCells==newNbOfCells)
     return false;
   std::vector<DataArrayDouble *> arrays;
   timeDiscr()->getArrays(arrays);
-  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
-    if(*iter)
-      _type->renumberValuesOnCellsR(_mesh,arr->getConstPointer(),ToIdType(arr->getNbOfElems()),*iter);
+  for(auto array : arrays)
+    if(array)
+      _type->renumberValuesOnCellsR(_mesh,arr->getConstPointer(),ToIdType(arr->getNbOfElems()),array);
   setMesh(meshC2);
   return true;
 }
@@ -1984,25 +1998,25 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::convertQuadraticCellsToLi
         if(!mesh)
           throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::convertQuadraticCellsToLinear : null mesh !");
         MCAuto<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
-        std::set<INTERP_KERNEL::NormalizedCellType> gt(umesh->getAllGeoTypes());
+        std::set<INTERP_KERNEL::NormalizedCellType> const gt(umesh->getAllGeoTypes());
         MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_GAUSS_PT));
         //
         const MEDCouplingFieldDiscretization *disc(getDiscretization());
-        const MEDCouplingFieldDiscretizationGauss *disc2(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc));
+        const auto *disc2(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc));
         if(!disc2)
           throw INTERP_KERNEL::Exception("convertQuadraticCellsToLinear : Not a ON_GAUSS_PT field");
-        std::set<INTERP_KERNEL::NormalizedCellType> gt2(umesh->getAllGeoTypes());
+        std::set<INTERP_KERNEL::NormalizedCellType> const gt2(umesh->getAllGeoTypes());
         std::vector< MCAuto<DataArrayIdType> > cellIdsV;
         std::vector< MCAuto<MEDCouplingUMesh> > meshesV;
         std::vector< MEDCouplingGaussLocalization > glV;
         bool isZipReq(false);
-        for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=gt.begin();it!=gt.end();it++)
+        for(auto it : gt)
           {
-            const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(*it));
-            MCAuto<DataArrayIdType> cellIds(umesh->giveCellsWithType(*it));
+            const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(it));
+            MCAuto<DataArrayIdType> cellIds(umesh->giveCellsWithType(it));
             cellIdsV.push_back(cellIds);
             MCAuto<MEDCouplingUMesh> part(umesh->buildPartOfMySelf(cellIds->begin(),cellIds->end()));
-            mcIdType id(disc2->getGaussLocalizationIdOfOneType(*it));
+            mcIdType const id(disc2->getGaussLocalizationIdOfOneType(it));
             const MEDCouplingGaussLocalization& gl(disc2->getGaussLocalization(id));
             if(!cm.isQuadratic())
               {
@@ -2012,9 +2026,9 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::convertQuadraticCellsToLi
               {
                 isZipReq=true;
                 part->convertQuadraticCellsToLinear();
-                INTERP_KERNEL::GaussInfo gi(*it,gl.getGaussCoords(),gl.getNumberOfGaussPt(),gl.getRefCoords(),gl.getNumberOfPtsInRefCell());
-                INTERP_KERNEL::GaussInfo gi2(gi.convertToLinear());
-                MEDCouplingGaussLocalization gl2(gi2.getGeoType(),gi2.getRefCoords(),gi2.getGaussCoords(),gl.getWeights());
+                INTERP_KERNEL::GaussInfo const gi(it,gl.getGaussCoords(),gl.getNumberOfGaussPt(),gl.getRefCoords(),gl.getNumberOfPtsInRefCell());
+                INTERP_KERNEL::GaussInfo const gi2(gi.convertToLinear());
+                MEDCouplingGaussLocalization const gl2(gi2.getGeoType(),gi2.getRefCoords(),gi2.getGaussCoords(),gl.getWeights());
                 glV.push_back(gl2);
               }
             meshesV.push_back(part);
@@ -2033,8 +2047,8 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::convertQuadraticCellsToLi
           umesh->zipCoords();
         ret->setArray(const_cast<DataArrayDouble *>(getArray()));
         ret->setMesh(umesh);
-        for(std::vector< MEDCouplingGaussLocalization >::const_iterator it=glV.begin();it!=glV.end();it++)
-          ret->setGaussLocalizationOnType((*it).getType(),(*it).getRefCoords(),(*it).getGaussCoords(),(*it).getWeights());
+        for(const auto & it : glV)
+          ret->setGaussLocalizationOnType(it.getType(),it.getRefCoords(),it.getGaussCoords(),it.getWeights());
         ret->copyAllTinyAttrFrom(this);
         ret->checkConsistencyLight();
         return ret;
@@ -2395,7 +2409,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
   std::vector< MCAuto<MEDCouplingUMesh> > ms(a.size());
   std::vector< const MEDCouplingUMesh *> ms2(a.size());
   std::vector< const MEDCouplingTimeDiscretization *> tds(a.size());
-  std::vector< const MEDCouplingFieldDouble *>::const_iterator it=a.begin();
+  auto it=a.begin();
   std::vector<const MEDCouplingFieldDiscretization *> fds(a.size());
   const MEDCouplingFieldDouble *ref((*it++));
   if(!ref)
@@ -2412,7 +2426,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
       if(a[i]->getMesh())
         { ms[i]=a[i]->getMesh()->buildUnstructured(); ms2[i]=ms[i]; }
       else
-        { ms[i]=0; ms2[i]=0; }
+        { ms[i]=nullptr; ms2[i]=nullptr; }
       tds[i]=a[i]->timeDiscr();
       fds[i]=a[i]->getDiscretization();
     }
@@ -2481,7 +2495,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::DotFields(const MEDCouplingField
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply DotFields on them!  Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td(f1->timeDiscr()->dot(f2->timeDiscr()));
   td->copyTinyAttrFrom(*f1->timeDiscr());
-  MEDCouplingFieldDouble *ret(new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone()));
+  auto *ret(new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone()));
   ret->setMesh(f1->getMesh());
   return ret;
 }
@@ -2864,7 +2878,7 @@ std::string MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const 
 {
   if(fs.empty())
     return std::string();
-  std::size_t nfs=fs.size();
+  std::size_t const nfs=fs.size();
   if(!fs[0])
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : 1st instance of field is NULL !");
   const MEDCouplingMesh *m=fs[0]->getMesh();
@@ -2883,13 +2897,13 @@ std::string MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const 
   for(std::size_t i=0;i<nfs;i++)
     {
       const MEDCouplingFieldDouble *cur=fs[i];
-      std::string name(cur->getName());
+      std::string const name(cur->getName());
       if(name.empty())
         {
           std::ostringstream oss; oss << "MEDCouplingFieldDouble::WriteVTK : Field in pos #" << i << " has no name !";
           throw INTERP_KERNEL::Exception(oss.str());
         }
-      TypeOfField typ=cur->getTypeOfField();
+      TypeOfField const typ=cur->getTypeOfField();
       if(typ==ON_CELLS)
         cur->getArray()->writeVTK(coss,8,cur->getName(),byteArr);
       else if(typ==ON_NODES)
@@ -2909,7 +2923,7 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
   MCAuto<MEDCouplingFieldDouble> fieldToWO;
   const MEDCouplingMesh *inpMeshBase(getMesh());
   MCAuto<MEDCouplingUMesh> inpMesh(inpMeshBase->buildUnstructured());
-  std::string meshName(inpMesh->getName());
+  std::string const meshName(inpMesh->getName());
   if(!inpMesh->isPresenceOfQuadratic())
     fieldToWO=clone(false);
   else
@@ -2918,12 +2932,12 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
       inpMeshBase=fieldToWO->getMesh();
       inpMesh=inpMeshBase->buildUnstructured();
     }
-  mcIdType nbCells(inpMesh->getNumberOfCells());
+  mcIdType const nbCells(inpMesh->getNumberOfCells());
   const MEDCouplingFieldDiscretization *disc(fieldToWO->getDiscretization());
-  const MEDCouplingFieldDiscretizationGauss *disc2(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc));
+  const auto *disc2(dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc));
   if(!disc2)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::voronoize2D : Not a ON_GAUSS_PT field");
-  mcIdType nbLocs(disc2->getNbOfGaussLocalization());
+  mcIdType const nbLocs(disc2->getNbOfGaussLocalization());
   std::vector< MCAuto<MEDCouplingUMesh> > cells(nbCells);
   for(mcIdType i=0;i<nbLocs;i++)
     {
@@ -2935,7 +2949,7 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
       MCAuto<DataArrayDouble> coo2(DataArrayDouble::NewFromStdVector(coo));
       coo2->rearrange(vor->getDimension());
       //
-      MCAuto<MEDCouplingUMesh> coo3(MEDCouplingUMesh::Build0DMeshFromCoords(coo2));
+      MCAuto<MEDCouplingUMesh> const coo3(MEDCouplingUMesh::Build0DMeshFromCoords(coo2));
       //
       MCAuto<MEDCouplingUMesh> vorCellsForCurDisc(vor->doIt(mesh,coo2,eps));
       std::vector<mcIdType> ids;
@@ -2945,7 +2959,7 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
         MCAuto<MEDCouplingUMesh> subMesh(inpMesh->buildPartOfMySelf(&ids[0],&ids[0]+ids.size()));
         ptsInReal=gl.localizePtsInRefCooForEachCell(vorCellsForCurDisc->getCoords(),subMesh);
       }
-      mcIdType nbPtsPerCell(vorCellsForCurDisc->getNumberOfNodes());
+      mcIdType const nbPtsPerCell(vorCellsForCurDisc->getNumberOfNodes());
       for(mcIdType j=0;j<ToIdType(ids.size());j++)
         {
           MCAuto<MEDCouplingUMesh> elt(vorCellsForCurDisc->clone(false));
@@ -2966,7 +2980,7 @@ MCAuto<MEDCouplingFieldDouble> MEDCouplingFieldDouble::voronoizeGen(const Voroni
   onCells->setTimeUnit(getTimeUnit());
   {
     int b,c;
-    double a(getTime(b,c));
+    double const a(getTime(b,c));
     onCells->setTime(a,b,c);
   }
   onCells->setName(getName());
@@ -2977,8 +2991,8 @@ MEDCouplingTimeDiscretization *MEDCouplingFieldDouble::timeDiscr()
 {
   MEDCouplingTimeDiscretizationTemplate<double> *ret(_time_discr);
   if(!ret)
-    return 0;
-  MEDCouplingTimeDiscretization *retc(dynamic_cast<MEDCouplingTimeDiscretization *>(ret));
+    return nullptr;
+  auto *retc(dynamic_cast<MEDCouplingTimeDiscretization *>(ret));
   if(!retc)
     throw INTERP_KERNEL::Exception("Field Double Null invalid type of time discr !");
   return retc;
@@ -2988,8 +3002,8 @@ const MEDCouplingTimeDiscretization *MEDCouplingFieldDouble::timeDiscr() const
 {
   const MEDCouplingTimeDiscretizationTemplate<double> *ret(_time_discr);
   if(!ret)
-    return 0;
-  const MEDCouplingTimeDiscretization *retc(dynamic_cast<const MEDCouplingTimeDiscretization *>(ret));
+    return nullptr;
+  const auto *retc(dynamic_cast<const MEDCouplingTimeDiscretization *>(ret));
   if(!retc)
     throw INTERP_KERNEL::Exception("Field Double Null invalid type of time discr !");
   return retc;

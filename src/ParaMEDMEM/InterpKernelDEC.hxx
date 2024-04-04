@@ -21,8 +21,11 @@
 #define __INTERPKERNELDEC_HXX__
 
 #include "DisjointDEC.hxx"
+#include "MCAuto.hxx"
+#include "MCType.hxx"
 #include "MxN_Mapping.hxx"
 #include "InterpolationOptions.hxx"
+#include <string>
 
 namespace MEDCoupling
 {
@@ -133,18 +136,18 @@ namespace MEDCoupling
     InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     InterpKernelDEC(ProcessorGroup& generic_group, const std::string& source_group, const std::string& target_group);
     InterpKernelDEC(ProcessorGroup& generic_group, const std::string& interaction_group);
-    virtual ~InterpKernelDEC();
+    ~InterpKernelDEC() override;
     void release();
 
-    void synchronize();
+    void synchronize() override;
     void synchronizeWithDefaultValue(double val);
     MCAuto<DataArrayIdType> retrieveNonFetchedIds() const;
-    void recvData();
+    void recvData() override;
     void recvData(double time);
-    void sendData();
+    void sendData() override;
     void sendData(double time , double deltatime);
-    void prepareSourceDE() { }
-    void prepareTargetDE() { }
+    void prepareSourceDE() override { }
+    void prepareTargetDE() override { }
   private:
     MCAuto<DataArrayIdType> retrieveNonFetchedIdsSource() const;
     MCAuto<DataArrayIdType> retrieveNonFetchedIdsTarget() const;

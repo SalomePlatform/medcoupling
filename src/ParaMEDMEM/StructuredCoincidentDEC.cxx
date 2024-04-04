@@ -17,8 +17,11 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include <cstddef>
 #include <mpi.h>
-#include "CommInterface.hxx"
+#include "DisjointDEC.hxx"
+#include "MCType.hxx"
+#include "ParaIdType.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
 #include "ComponentTopology.hxx"
@@ -28,6 +31,7 @@
 #include "InterpKernelUtilities.hxx"
 
 #include <iostream>
+#include <utility>
 
 using namespace std;
 
@@ -122,15 +126,15 @@ namespace MEDCoupling
 
     if (!_topo_source->getProcGroup()->containsMyRank())
       return;
-    MPIProcessorGroup* group=new MPIProcessorGroup(_topo_source->getProcGroup()->getCommInterface());
+    auto* group=new MPIProcessorGroup(_topo_source->getProcGroup()->getCommInterface());
 
-    int myranksource = _topo_source->getProcGroup()->myRank();
+    int const myranksource = _topo_source->getProcGroup()->myRank();
 
     vector <mcIdType>* target_arrays=new vector<mcIdType>[_topo_target->getProcGroup()->size()];
 
     //cout<<" topotarget size"<<  _topo_target->getProcGroup()->size()<<endl;
 
-    mcIdType nb_local = _topo_source-> getNbLocalElements();
+    mcIdType const nb_local = _topo_source-> getNbLocalElements();
     for (mcIdType ielem=0; ielem< nb_local ; ielem++)
       {
         //  cout <<"source local :"<<myranksource<<","<<ielem<<endl;
@@ -159,7 +163,7 @@ namespace MEDCoupling
     for (int iproc=0; iproc < _topo_target->getProcGroup()->size(); iproc++)
       {
         //converts the rank in target to the rank in union communicator
-        int unionrank=group->translateRank(_topo_target->getProcGroup(),iproc);
+        int const unionrank=group->translateRank(_topo_target->getProcGroup(),iproc);
         _send_counts[unionrank]=(int)target_arrays[iproc].size();
       }
 
@@ -200,12 +204,12 @@ namespace MEDCoupling
   {
     if (!_topo_target->getProcGroup()->containsMyRank())
       return;
-    MPIProcessorGroup* group=new MPIProcessorGroup(_topo_source->getProcGroup()->getCommInterface());
+    auto* group=new MPIProcessorGroup(_topo_source->getProcGroup()->getCommInterface());
 
-    int myranktarget = _topo_target->getProcGroup()->myRank();
+    int const myranktarget = _topo_target->getProcGroup()->myRank();
 
     vector < vector <mcIdType> > source_arrays(_topo_source->getProcGroup()->size());
-    mcIdType nb_local = _topo_target-> getNbLocalElements();
+    mcIdType const nb_local = _topo_target-> getNbLocalElements();
     for (mcIdType ielem=0; ielem< nb_local ; ielem++)
       {
         //  cout <<"TS target local :"<<myranktarget<<","<<ielem<<endl;
@@ -230,7 +234,7 @@ namespace MEDCoupling
     for (int iproc=0; iproc < _topo_source->getProcGroup()->size(); iproc++)
       {
         //converts the rank in target to the rank in union communicator
-        int unionrank=group->translateRank(_topo_source->getProcGroup(),iproc);
+        int const unionrank=group->translateRank(_topo_source->getProcGroup(),iproc);
         _recv_counts[unionrank]=(int)source_arrays[iproc].size();
       }
     for (std::size_t i=1; i<union_size; i++)
@@ -252,15 +256,15 @@ namespace MEDCoupling
   {
     MPI_Status status;
 
-    mcIdType* serializer=0;
+    mcIdType* serializer=nullptr;
     mcIdType size;
 
-    MPIProcessorGroup* group=new MPIProcessorGroup(*_comm_interface);
+    auto* group=new MPIProcessorGroup(*_comm_interface);
 
     // The master proc creates a send buffer containing a serialized topology
     int rank_master;
 
-    if (topo!=0 && topo->getProcGroup()->myRank()==0)
+    if (topo!=nullptr && topo->getProcGroup()->myRank()==0)
       {
         MESSAGE ("Master rank");
         topo->serialize(serializer, size);
@@ -282,23 +286,23 @@ namespace MEDCoupling
     // The topology is broadcasted to all processors in the group
     _comm_interface->broadcast(&size, 1,MPI_ID_TYPE,rank_master,*(group->getComm()));
 
-    mcIdType* buffer=new mcIdType[size];
-    if (topo!=0 && topo->getProcGroup()->myRank()==0)
+    auto* buffer=new mcIdType[size];
+    if (topo!=nullptr && topo->getProcGroup()->myRank()==0)
       copy(serializer, serializer+size, buffer);
     _comm_interface->broadcast(buffer,(int)size,MPI_ID_TYPE,rank_master,*(group->getComm()));
 
     // Processors which did not possess the source topology unserialize it
-    BlockTopology* topotemp=new BlockTopology();
+    auto* topotemp=new BlockTopology();
     topotemp->unserialize(buffer, *_comm_interface);
 
-    if (topo==0)
+    if (topo==nullptr)
       topo=topotemp;
     else
       delete topotemp;
 
     // Memory cleaning
     delete[] buffer;
-    if (serializer!=0)
+    if (serializer!=nullptr)
       delete[] serializer;
     MESSAGE (" rank "<<group->myRank()<< " unserialize is over");
     delete group;
@@ -324,17 +328,17 @@ namespace MEDCoupling
                                _recv_buffer, _recv_counts, _recv_displs, MPI_DOUBLE,comm);
     cout<<"end AllToAll"<<endl;
 
-    mcIdType nb_local = _topo_target->getNbLocalElements();
+    mcIdType const nb_local = _topo_target->getNbLocalElements();
     //double* value=new double[nb_local];
-    double* value=const_cast<double*>(_local_field->getField()->getArray()->getPointer());
+    auto* value=const_cast<double*>(_local_field->getField()->getArray()->getPointer());
 
-    int myranktarget=_topo_target->getProcGroup()->myRank();
+    int const myranktarget=_topo_target->getProcGroup()->myRank();
     vector<int> counters(_topo_source->getProcGroup()->size());
     counters[0]=0;
     for (int i=0; i<_topo_source->getProcGroup()->size()-1; i++)
       {
-        MPIProcessorGroup* group=new MPIProcessorGroup(*_comm_interface);
-        int worldrank=group->translateRank(_topo_source->getProcGroup(),i);
+        auto* group=new MPIProcessorGroup(*_comm_interface);
+        int const worldrank=group->translateRank(_topo_source->getProcGroup(),i);
         counters[i+1]=counters[i]+_recv_counts[worldrank];
         delete group;
       }

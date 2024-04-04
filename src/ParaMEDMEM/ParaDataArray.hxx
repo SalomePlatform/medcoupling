@@ -20,7 +20,14 @@
 
 #pragma once
 
+#include "MCAuto.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingTraits.hxx"
+#include <cstddef>
+#include <vector>
+#include <string>
 
 namespace MEDCoupling
 {

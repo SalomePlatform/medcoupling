@@ -18,29 +18,37 @@
 //
 
 #include "MeshFormatWriter.hxx"
+#include "MEDFileFieldMultiTS.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileData.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "NormalizedGeometricTypes"
 #include "libmesh5.hxx"
 #include "MEDMESHConverterUtilities.hxx"
 #include <cstring>
 #include <algorithm>
-#include <map>
 #include <cstdlib>
-#include <fstream>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 
 namespace MEDCoupling {
   
 MeshFormatWriter::MeshFormatWriter()
-{}
+= default;
 MeshFormatWriter::MeshFormatWriter(const std::string& meshFileName,
                                    const std::vector<std::string>& fieldFileNames):_meshFileName(meshFileName),
                                    _fieldFileNames(fieldFileNames)
 {}
 MeshFormatWriter::~MeshFormatWriter()
-{}
+= default;
 void MeshFormatWriter::setMeshFileName(const std::string& meshFileName)
 {
     _meshFileName = meshFileName;
@@ -90,7 +98,7 @@ void MeshFormatWriter::setMEDFileDS(MEDCoupling::MEDFileData* mfd)
 void MeshFormatWriter::write()
 {
 
-    MeshFormat::Localizer loc;
+    MeshFormat::Localizer const loc;
 
     MEDCoupling::MCAuto<MEDCoupling::MEDCouplingMesh > mesh = _mesh->getMeshAtLevel( 1 );
     MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh = mesh->buildUnstructured();
@@ -145,15 +153,15 @@ MeshFormat::Status MeshFormatWriter::perform()
     MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3;
 
     std::vector<int> dims = _mesh->getNonEmptyLevelsExt();
-    int dim = _mesh->getMeshDimension();
+    int const dim = _mesh->getMeshDimension();
     bool threeDElements = false;
     bool twoDElements = false;
     bool OneDElements = false;
     if (dims.size() != 0)
     {
-        bool maxLevelDimElments = ( std::find(dims.begin(), dims.end(), 0) != dims.end() );
-        bool nextToMaxLevelDimElments = ( std::find(dims.begin(), dims.end(), -1) != dims.end() );
-        bool nextToNextToMaxLevelDimElments = (std::find(dims.begin(), dims.end(), -2) != dims.end() );
+        bool const maxLevelDimElments = ( std::find(dims.begin(), dims.end(), 0) != dims.end() );
+        bool const nextToMaxLevelDimElments = ( std::find(dims.begin(), dims.end(), -1) != dims.end() );
+        bool const nextToNextToMaxLevelDimElments = (std::find(dims.begin(), dims.end(), -2) != dims.end() );
         threeDElements = (dim == 3) ? maxLevelDimElments : false ;
         twoDElements =  (dim == 3) ? nextToMaxLevelDimElments : maxLevelDimElments ;
         OneDElements = (dim == 3) ? nextToNextToMaxLevelDimElments : nextToMaxLevelDimElments;
@@ -222,7 +230,7 @@ MeshFormat::Status MeshFormatWriter::perform()
 
 
     MEDCoupling::MCAuto< MEDCoupling::MEDCouplingMesh > mesh0 = _mesh->getMeshAtLevel(1);
-    MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh0 = mesh0->buildUnstructured();
+    MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > const umesh0 = mesh0->buildUnstructured();
 
     // nodes
     getNodes(umesh0);
@@ -330,10 +338,10 @@ MeshFormat::Status MeshFormatWriter::performFields()
     }
 
 
-    int  dim = _mesh->getMeshDimension();  // dim mesh  field lying to
+    int  const dim = _mesh->getMeshDimension();  // dim mesh  field lying to
     std::vector<std::string>::const_iterator fieldFileIt = _fieldFileNames.begin();
     int iField = 0;
-    std::vector<int> levs {0} ;
+    std::vector<int> const levs {0} ;
     for (; fieldFileIt !=_fieldFileNames.end();  ++fieldFileIt)
     {
         // Open files
@@ -349,7 +357,7 @@ MeshFormat::Status MeshFormatWriter::performFields()
             std::vector< std::vector<MEDCoupling::TypeOfField> > fTypes = f->getTypesOfFieldAvailable();
             std::vector< std::pair<int,int> >  iters = f->getIterations();
             const std::vector<std::string>& compInfo = f->getInfo();
-            std::pair<int,int> it = iters[0];
+            std::pair<int,int> const it = iters[0];
 
             //~// Open File for writing
             _myCurrentFileId = _writer.GmfOpenMesh( fieldFileIt->c_str(), GmfWrite, _version, _dim );
@@ -388,7 +396,7 @@ MeshFormat::Status MeshFormatWriter::setFieldOnNodes(MEDCoupling::MEDFileFieldMu
     const MEDCoupling::DataArrayDouble* valsArray = f->getUndergroundDataArray(iteration, order);
     int typTab[] = { getGmfSolKwd((int)compSize, _dim) };
     _writer.GmfSetKwd(_myCurrentFileId, MeshFormat::GmfSolAtVertices, (int)valsVec[0][0].second, 1, typTab);
-    double* valTab0 = new double[compSize];
+    auto* valTab0 = new double[compSize];
     double* valTab;
     for ( size_t i = valsVec[0][0].first; i < (std::size_t)valsVec[0][0].second; ++i )
     {
@@ -415,11 +423,11 @@ MeshFormat::Status MeshFormatWriter::setFieldOnNodes(MEDCoupling::MEDFileFieldMu
 MeshFormat::Status MeshFormatWriter::setFieldOnCells(MEDCoupling::MEDFileFieldMultiTS * f, int iteration, int order, std::vector<int> levs )
 {
 
-    int  dim = _mesh->getMeshDimension();  // dim mesh  field lying to
-    int absDim = f->getNonEmptyLevels(iteration, order,  f->getMeshName(), levs);
+    int  const dim = _mesh->getMeshDimension();  // dim mesh  field lying to
+    int const absDim = f->getNonEmptyLevels(iteration, order,  f->getMeshName(), levs);
 
-    MEDCoupling::MEDCouplingFieldDouble**  cellToNodeFldb  = new MEDCoupling::MEDCouplingFieldDouble* [(int)levs.size()] ;
-    MEDCoupling::MEDCouplingFieldDouble**  fldb  = new MEDCoupling::MEDCouplingFieldDouble* [(int)levs.size()] ;
+    auto**  cellToNodeFldb  = new MEDCoupling::MEDCouplingFieldDouble* [(int)levs.size()] ;
+    auto**  fldb  = new MEDCoupling::MEDCouplingFieldDouble* [(int)levs.size()] ;
 
     for (size_t k = 0; k<levs.size(); k++) fldb[k] = f->field( iteration, order,_mesh );
 
@@ -435,7 +443,7 @@ MeshFormat::Status MeshFormatWriter::setFieldOnCells(MEDCoupling::MEDFileFieldMu
         MEDCoupling::DataArrayDouble* timeStamp = cellToNodeFldb[j]->getArray();
         double* values = timeStamp->getPointer();
 
-        int typ = getGmfSolKwd((int)nbComp, _dim) ;
+        int const typ = getGmfSolKwd((int)nbComp, _dim) ;
         if(typ == -1)
         {
             addMessage( MeshFormat::Comment(" error with Number of Component   ") << nbComp, /*fatal=*/true );
@@ -497,7 +505,7 @@ void MeshFormatWriter::extractSymetricTensor(double fullTensor[], double*& symTe
   for (int ii =0; ii<_dim; ii++)
     for (int jj =ii; jj<_dim; jj++)
     {
-      int kk = _dim*(_dim-1)/2- (_dim-ii)*(_dim-ii-1)/2+jj;
+      int const kk = _dim*(_dim-1)/2- (_dim-ii)*(_dim-ii-1)/2+jj;
       symTensor[kk] = fullTensor[ii+jj*_dim];
     }  
 }
@@ -511,12 +519,12 @@ int MeshFormatWriter::getGmfSolKwd(const int nbComp, const int dim)
 }
 bool MeshFormatWriter::checkFileName()
 {
-    bool ret = true;
+    bool const ret = true;
     return ret;
 }
 bool MeshFormatWriter::checkFieldFileName()
 {
-    bool ret = true;
+    bool const ret = true;
     return ret;
 
 }
@@ -550,7 +558,7 @@ MeshFormat::Status MeshFormatWriter::addMessage(const std::string& msg,
 
 void MeshFormatWriter::forward_shift(std::vector<MEDCoupling::mcIdType> &conn)
 {
-    std::vector<MEDCoupling::mcIdType>::iterator it = conn.begin();
+    auto it = conn.begin();
     for (; it != conn.end(); ++it) *it = *it+1;
 }
 
@@ -575,7 +583,7 @@ void MeshFormatWriter::getNodes(MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMe
 
         std::copy(coordPrt, coordPrt+_dim, xyz);
 
-        MeshFormatNode e(xyz[0], xyz[1], xyz[2], idNode);
+        MeshFormatNode const e(xyz[0], xyz[1], xyz[2], idNode);
         _idNodeToNode.insert(std::pair <int, MeshFormatNode> (idNode, e));
 
         coordPrt+= _dim;
@@ -583,7 +591,7 @@ void MeshFormatWriter::getNodes(MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMe
         idNode++;
     }
     linkFamilyToNodes();
-    std::map <int, MeshFormatNode>::iterator itNode = _idNodeToNode.begin();
+    auto itNode = _idNodeToNode.begin();
     for (; itNode!= _idNodeToNode.end(); ++itNode)
         _dim == 3?  _writer.GmfSetLin( _myCurrentFileId, MeshFormat::GmfVertices, itNode->second.xyz[0],
                      itNode->second.xyz[1], itNode->second.xyz[2], std::abs(itNode->second._famId) ) :
@@ -592,247 +600,247 @@ void MeshFormatWriter::getNodes(MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMe
 }
 
 
-void MeshFormatWriter::getNSEG2(MEDCoupling::mcIdType nbEdgesNSEG2, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh1)
+void MeshFormatWriter::getNSEG2(MEDCoupling::mcIdType  /*nbEdgesNSEG2*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh1)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh1->giveCellsWithType(INTERP_KERNEL::NORM_SEG2);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh1->getNodeIdsOfCell(*it,  conn) ;
+        umesh1->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
 
-        MeshFormatCell e(INTERP_KERNEL::NORM_SEG2, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_SEG2, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_SEG2, idCellToCell) );
 }
 
 
-void MeshFormatWriter::getNSEG3( MEDCoupling::mcIdType nbEdgesNSEG3, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh1)
+void MeshFormatWriter::getNSEG3( MEDCoupling::mcIdType  /*nbEdgesNSEG3*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh1)
 {
 
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh1->giveCellsWithType(INTERP_KERNEL::NORM_SEG3);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
 
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh1->getNodeIdsOfCell(*it,  conn) ;
+        umesh1->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_SEG3, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_SEG3, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_SEG3, idCellToCell) );
 }
 
 
-void MeshFormatWriter::getTRI3( MEDCoupling::mcIdType nbTRI3, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
+void MeshFormatWriter::getTRI3( MEDCoupling::mcIdType  /*nbTRI3*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh2->giveCellsWithType(INTERP_KERNEL::NORM_TRI3);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh2->getNodeIdsOfCell(*it,  conn) ;
+        umesh2->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_TRI3, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_TRI3, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_TRI3, idCellToCell) );
 }
 
 
-void MeshFormatWriter::getTRI6( MEDCoupling::mcIdType nbTRI6, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
+void MeshFormatWriter::getTRI6( MEDCoupling::mcIdType  /*nbTRI6*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh2->giveCellsWithType(INTERP_KERNEL::NORM_TRI6);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh2->getNodeIdsOfCell(*it,  conn) ;
+        umesh2->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_TRI6, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_TRI6, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
 
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_TRI6, idCellToCell) );
 }
 
-void MeshFormatWriter::getQUAD4( MEDCoupling::mcIdType nbQUAD4, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
+void MeshFormatWriter::getQUAD4( MEDCoupling::mcIdType  /*nbQUAD4*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh2->giveCellsWithType(INTERP_KERNEL::NORM_QUAD4);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh2->getNodeIdsOfCell(*it,  conn) ;
+        umesh2->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_QUAD4, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_QUAD4, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_QUAD4, idCellToCell) );
 }
 
-void MeshFormatWriter::getQUAD8(MEDCoupling::mcIdType nbQUAD8, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
+void MeshFormatWriter::getQUAD8(MEDCoupling::mcIdType  /*nbQUAD8*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh2->giveCellsWithType(INTERP_KERNEL::NORM_QUAD8);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh2->getNodeIdsOfCell(*it,  conn) ;
+        umesh2->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_QUAD8, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_QUAD8, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_QUAD8, idCellToCell) );
 }
 
-void MeshFormatWriter::getQUAD9(MEDCoupling::mcIdType nbQUAD9, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
+void MeshFormatWriter::getQUAD9(MEDCoupling::mcIdType  /*nbQUAD9*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh2)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh2->giveCellsWithType(INTERP_KERNEL::NORM_QUAD9);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh2->getNodeIdsOfCell(*it,  conn) ;
+        umesh2->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_QUAD9, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_QUAD9, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
 
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_QUAD9, idCellToCell) );
 }
 
-void MeshFormatWriter::getTETRA4(MEDCoupling::mcIdType nbTETRA4, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
+void MeshFormatWriter::getTETRA4(MEDCoupling::mcIdType  /*nbTETRA4*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh3->giveCellsWithType(INTERP_KERNEL::NORM_TETRA4);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh3->getNodeIdsOfCell(*it,  conn) ;
+        umesh3->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_TETRA4, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_TETRA4, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
 
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_TETRA4, idCellToCell) );
 }
 
-void MeshFormatWriter::getTETRA10(MEDCoupling::mcIdType nbTETRA10, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
+void MeshFormatWriter::getTETRA10(MEDCoupling::mcIdType  /*nbTETRA10*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh3->giveCellsWithType(INTERP_KERNEL::NORM_TETRA10);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh3->getNodeIdsOfCell(*it,  conn) ;
+        umesh3->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_TETRA10, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_TETRA10, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_TETRA10, idCellToCell) );
 }
 
-void MeshFormatWriter::getPYRA5(MEDCoupling::mcIdType nbPYRA5, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
+void MeshFormatWriter::getPYRA5(MEDCoupling::mcIdType  /*nbPYRA5*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh3->giveCellsWithType(INTERP_KERNEL::NORM_PYRA5);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh3->getNodeIdsOfCell(*it,  conn) ;
+        umesh3->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_PYRA5, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_PYRA5, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_PYRA5, idCellToCell) );
 }
 
-void MeshFormatWriter::getHEXA8(MEDCoupling::mcIdType nbHEXA8, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
+void MeshFormatWriter::getHEXA8(MEDCoupling::mcIdType  /*nbHEXA8*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh3->giveCellsWithType(INTERP_KERNEL::NORM_HEXA8);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh3->getNodeIdsOfCell(*it,  conn) ;
+        umesh3->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_HEXA8, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_HEXA8, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_HEXA8, idCellToCell) );
 }
-void MeshFormatWriter::getHEXA20(MEDCoupling::mcIdType nbHEXA20, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
+void MeshFormatWriter::getHEXA20(MEDCoupling::mcIdType  /*nbHEXA20*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh3->giveCellsWithType(INTERP_KERNEL::NORM_HEXA20);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh3->getNodeIdsOfCell(*it,  conn) ;
+        umesh3->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_HEXA20, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_HEXA20, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_HEXA20, idCellToCell) );
 }
-void MeshFormatWriter::getHEXA27(MEDCoupling::mcIdType nbHEXA27, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
+void MeshFormatWriter::getHEXA27(MEDCoupling::mcIdType  /*nbHEXA27*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh3->giveCellsWithType(INTERP_KERNEL::NORM_HEXA27);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh3->getNodeIdsOfCell(*it,  conn) ;
+        umesh3->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_HEXA27, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_HEXA27, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_HEXA27, idCellToCell) );
 }
 
-void MeshFormatWriter::getPENTA6(MEDCoupling::mcIdType nbPENTA6, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
+void MeshFormatWriter::getPENTA6(MEDCoupling::mcIdType  /*nbPENTA6*/, MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh3)
 {
 
     MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> elementId = umesh3->giveCellsWithType(INTERP_KERNEL::NORM_PENTA6);
     std::map<int, MeshFormatCell> idCellToCell;
-    for ( const mcIdType *it=elementId->begin(); it!=elementId->end(); it++ )
+    for (long const it : *elementId)
     {
         std::vector<MEDCoupling::mcIdType> conn;
-        umesh3->getNodeIdsOfCell(*it,  conn) ;
+        umesh3->getNodeIdsOfCell(it,  conn) ;
         forward_shift(conn);
-        MeshFormatCell e(INTERP_KERNEL::NORM_PENTA6, (int)*it);
+        MeshFormatCell e(INTERP_KERNEL::NORM_PENTA6, (int)it);
         e.setConn(conn);
-        idCellToCell.insert(std::pair <int, MeshFormatCell> (*it, e));
+        idCellToCell.insert(std::pair <int, MeshFormatCell> (it, e));
     }
     _typeToIdCellToCell.insert(std::pair <INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >(INTERP_KERNEL::NORM_PENTA6, idCellToCell) );
 }
@@ -850,7 +858,7 @@ void MeshFormatWriter::linkFamilyToNodes()
         const MEDCoupling::mcIdType * nodeIdsIt = nodeIds->begin(), * famIDEnd = nodeIds->end();
         for(; nodeIdsIt< famIDEnd; ++nodeIdsIt) {
 
-            std::map <int, MeshFormatNode>::iterator itNode = _idNodeToNode.find((int)*nodeIdsIt);
+            auto const itNode = _idNodeToNode.find((int)*nodeIdsIt);
             if (itNode == _idNodeToNode.end()) continue;
             else itNode->second._famId =(int) famIt->second;
 
@@ -864,10 +872,9 @@ void MeshFormatWriter::linkFamilyToNodes()
 void MeshFormatWriter::linkFamilyToCells()
 {
 
-    std::vector<int> levs =  _mesh->getNonEmptyLevels();
-    for (size_t iDim = 0; iDim < levs.size(); iDim++ )
+    std::vector<int> const levs =  _mesh->getNonEmptyLevels();
+    for (int const meshDimRelToMax : levs)
     {
-        int meshDimRelToMax = levs[iDim];
         MEDCoupling::MCAuto< MEDCoupling::MEDCouplingMesh > mesh = _mesh->getMeshAtLevel( meshDimRelToMax);
         MEDCoupling::MCAuto< MEDCoupling::MEDCouplingUMesh > umesh0 = mesh->buildUnstructured();
         const MEDCoupling::DataArrayIdType * famIdsField = _mesh->getFamilyFieldAtLevel(meshDimRelToMax);
@@ -876,17 +883,17 @@ void MeshFormatWriter::linkFamilyToCells()
         for (; famID < famIDEnd; ++famID)
         {
             if (!(*famID)) continue; // "FAMILLE_ZERO"
-            std::string famName = _mesh->getFamilyNameGivenId(*famID);
+            std::string const famName = _mesh->getFamilyNameGivenId(*famID);
             MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> cellIds =  _mesh->getFamilyArr( meshDimRelToMax, famName);
             const MEDCoupling::mcIdType * cellIdsIt = cellIds->begin(), *cellIDEnd = cellIds->end();
             for(; cellIdsIt< cellIDEnd; ++cellIdsIt)
             {
-                INTERP_KERNEL::NormalizedCellType type = umesh0->getTypeOfCell(*cellIdsIt); //TODO
-                std::map<INTERP_KERNEL::NormalizedCellType, std::map <int, MeshFormatCell> >::iterator itCellMap = _typeToIdCellToCell.find(type);
+                INTERP_KERNEL::NormalizedCellType const type = umesh0->getTypeOfCell(*cellIdsIt); //TODO
+                auto const itCellMap = _typeToIdCellToCell.find(type);
                 if (itCellMap == _typeToIdCellToCell.end()) continue;
                 else
                 {
-                    std::map <int, MeshFormatCell>::iterator itCell = itCellMap->second.find((int)*cellIdsIt);
+                    auto const itCell = itCellMap->second.find((int)*cellIdsIt);
                     if (itCell == itCellMap->second.end()) continue;
                     else itCell->second._famId = (int)*famID;
                 }
@@ -901,10 +908,10 @@ void MeshFormatWriter::linkFamilyToCells()
 void MeshFormatWriter::writeCells()
 {
 
-    std::map < INTERP_KERNEL::NormalizedCellType, std::map<int, MeshFormatCell> >::iterator typeCellMapIt = _typeToIdCellToCell.begin();
+    auto typeCellMapIt = _typeToIdCellToCell.begin();
     for (; typeCellMapIt!= _typeToIdCellToCell.end(); ++typeCellMapIt)
     {
-        std::map<int, MeshFormatCell>::iterator cellMapIt = typeCellMapIt->second.begin();
+        auto cellMapIt = typeCellMapIt->second.begin();
         switch (typeCellMapIt->first)
         {
         case INTERP_KERNEL::NORM_SEG2 :

@@ -19,11 +19,14 @@
 // Author : Adrien Bruneton (CEA/DEN)
 
 #include "Interpolation3D1D.hxx"
-#include "Interpolation3D1D.txx"
+#include "InterpolationOptions.hxx"
+#include <cstddef>
+#include <limits>
+#include <vector>
 
 namespace INTERP_KERNEL
 {
-  Interpolation3D1D::Interpolation3D1D() { }
+  Interpolation3D1D::Interpolation3D1D() = default;
 
   Interpolation3D1D::Interpolation3D1D(const InterpolationOptions& io):Interpolation<Interpolation3D1D>(io) { }
 
@@ -33,13 +36,13 @@ namespace INTERP_KERNEL
     const double adj = getBoundingBoxAdjustmentAbs();
     const double adjRel = getBoundingBoxAdjustment();
 
-    std::size_t size = sz/(2*SPACE_DIM);
+    std::size_t const size = sz/(2*SPACE_DIM);
     for (std::size_t i=0; i<size; i++)
       {
         double max=- std::numeric_limits<double>::max();
         for(int idim=0; idim<SPACE_DIM; idim++)
           {
-            double Dx=bbox[i*2*SPACE_DIM+1+2*idim]-bbox[i*2*SPACE_DIM+2*idim];
+            double const Dx=bbox[i*2*SPACE_DIM+1+2*idim]-bbox[i*2*SPACE_DIM+2*idim];
             max=(max<Dx)?Dx:max;
           }
         for(int idim=0; idim<SPACE_DIM; idim++)

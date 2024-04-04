@@ -25,6 +25,9 @@
 #define __IntersectorCU2D_HXX__
 
 #include "IntersectorCU.hxx"
+#include "PlanarIntersectorP0P0.hxx"
+#include "TriangulationIntersector.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -32,8 +35,8 @@ namespace INTERP_KERNEL
   class IntersectorCU2D : public IntersectorCU<MyCMeshType,MyUMeshType,MyMatrix,IntersectorCU2D<MyCMeshType,MyUMeshType,MyMatrix> >
   {
   public:
-    typedef typename MyUMeshType::MyConnType UConnType;
-    typedef typename MyCMeshType::MyConnType CConnType;
+    using UConnType = typename MyUMeshType::MyConnType;
+    using CConnType = typename MyCMeshType::MyConnType;
   public:
     IntersectorCU2D(const MyCMeshType& meshS, const MyUMeshType& meshT);
     double intersectGeometry(UConnType icellT, const std::vector<CConnType>& icellC);

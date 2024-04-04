@@ -337,7 +337,7 @@ namespace INTERP_KERNEL
           }
              
         // swap rows in index vector
-        int tmp = idx[k];
+        int const tmp = idx[k];
         idx[k] = idx[row];
         idx[row] = tmp;
       

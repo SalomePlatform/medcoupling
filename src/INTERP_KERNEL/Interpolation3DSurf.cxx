@@ -19,13 +19,13 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "Interpolation3DSurf.hxx"
+#include "InterpolationOptions.hxx"
 #include "InterpolationPlanar.txx"
 
 namespace INTERP_KERNEL
 {
   Interpolation3DSurf::Interpolation3DSurf()
-  {
-  }
+  = default;
 
   Interpolation3DSurf::Interpolation3DSurf(const InterpolationOptions& io):InterpolationPlanar<Interpolation3DSurf>(io)
   {
@@ -51,8 +51,8 @@ namespace INTERP_KERNEL
      - Values: integer between 0 and 3.
      - Default: 0.
   */
-  void Interpolation3DSurf::setOptions(double precision, int printLevel, double medianPlan, 
-                                       IntersectionType intersectionType, bool doRotat, int orientation)
+  void Interpolation3DSurf::setOptions(double precision, int printLevel, double  medianPlan, 
+                                       IntersectionType intersectionType, bool  doRotat, int orientation)
   {
     InterpolationPlanar<Interpolation3DSurf>::setOptions(precision,printLevel,intersectionType, orientation);
     InterpolationPlanar<Interpolation3DSurf>::setDoRotate(doRotat);

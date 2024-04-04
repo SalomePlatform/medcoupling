@@ -22,6 +22,7 @@
 
 #include "InterpKernelTestExport.hxx"
 #include "InterpolationPlanarTestSuite.hxx"
+#include <cppunit/extensions/HelperMacros.h>
 
 namespace INTERP_TEST 
 {

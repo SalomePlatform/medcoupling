@@ -23,9 +23,14 @@
 //
 #include "UnitTetraIntersectionBary.hxx"
 
+#include "TransformedTriangle.hxx"
 #include "VectorUtils.hxx"
 #include "InterpolationUtils.hxx"
 #include "VolSurfFormulae.hxx"
+#include <vector>
+#include <cmath>
+#include <list>
+#include <cstddef>
 
 #define NB_TETRA_SIDES 4
 #define NB_TETRA_NODES 4
@@ -103,7 +108,7 @@ namespace INTERP_KERNEL
       }
 
     // check if polygon orientation is same as the one of triangle
-    std::vector<double*>::const_iterator p = pPolygonA->begin(), pEnd = pPolygonA->end();
+    auto p = pPolygonA->begin(), pEnd = pPolygonA->end();
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
     std::cout.precision(18);
     std::cout << "**** int polygon() " << std::endl;
@@ -227,7 +232,7 @@ namespace INTERP_KERNEL
 
     baryCenter[0] = baryCenter[1] = baryCenter[2] = 0.;
 
-    std::list< std::vector< double* > >::iterator f = _faces.begin(), fEnd = _faces.end();
+    auto f = _faces.begin(), fEnd = _faces.end();
     double * PP = f->at(0);
 
     for ( ++f; f != fEnd; ++f )
@@ -237,7 +242,7 @@ namespace INTERP_KERNEL
           continue;
 
         bool pBelongsToPoly = false;
-        std::vector<double*>::iterator v = polygon.begin(), vEnd = polygon.end();
+        auto v = polygon.begin(), vEnd = polygon.end();
         for ( ; !pBelongsToPoly && v != vEnd; ++v )
           pBelongsToPoly = samePoint( PP, *v );
         if ( pBelongsToPoly )
@@ -310,14 +315,13 @@ namespace INTERP_KERNEL
 
     bool sideAdded[NB_TETRA_SIDES] = { false, false, false, false };
     int nbAddedSides = 0;
-    std::list< std::vector< double* > >::iterator f = _faces.begin(), fEnd = _faces.end();
+    auto f = _faces.begin(), fEnd = _faces.end();
     for ( ; f != fEnd; ++f )
     {
-      std::vector< double* >& polygon = *f;
+      std::vector< double* > const& polygon = *f;
       double coordSum[3] = {0,0,0};
-      for ( int i = 0; i < (int)polygon.size(); ++i )
+      for (auto p : polygon)
       {
-        double* p = polygon[i];
         coordSum[0] += p[0];
         coordSum[1] += p[1];
         coordSum[2] += p[2];
@@ -338,12 +342,12 @@ namespace INTERP_KERNEL
     // Add segments of already added polygons to future polygonal faces on sides of tetra
     // ---------------------------------------------------------------------------------
 
-    std::size_t nbIntersectPolygs = _faces.size();
+    std::size_t const nbIntersectPolygs = _faces.size();
 
     std::vector< double* > * sideFaces[ 4 ]; // future polygons on sides of tetra
     for ( int i = 0; i < NB_TETRA_SIDES; ++i )
     {
-      sideFaces[ i ]=0;
+      sideFaces[ i ]=nullptr;
       if ( !sideAdded[ i ] )
       {
         _faces.push_back( std::vector< double* > () );
@@ -436,7 +440,7 @@ namespace INTERP_KERNEL
         if ( ic ) corner2Poly[ ic-1 ] -= 1.0;
 
         // _polyNormals are outside of a tetrahedron
-        double dot = dotprod<3>( corner2Poly, &_polyNormals[iF][0] );
+        double const dot = dotprod<3>( corner2Poly, &_polyNormals[iF][0] );
         if ( dot < -DEFAULT_ABS_TOL*DEFAULT_ABS_TOL )
         {
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
@@ -454,7 +458,7 @@ namespace INTERP_KERNEL
       if ( !sideFaces[i] ) continue;
       std::vector< double* >& sideFace = *sideFaces[i];
 
-      std::size_t nbPoints = sideFace.size();
+      std::size_t const nbPoints = sideFace.size();
       if ( nbPoints == 0 )
         continue; // not intersected face at all - no cut off corners can be detected
 
@@ -464,10 +468,10 @@ namespace INTERP_KERNEL
       bool isSegmentOnEdge=false;
       for ( std::size_t ip = 0; ip < nbPoints; ++ip )
       {
-        std::size_t isSegmentEnd = ( ip % 2 );
+        std::size_t const isSegmentEnd = ( ip % 2 );
 
         double* p = sideFace[ ip ];
-        double* p2 = isSegmentEnd ? 0 : sideFace[ip+1];
+        double* p2 = isSegmentEnd ? nullptr : sideFace[ip+1];
 
         if ( !isSegmentEnd )
           isSegmentOnEdge = false; // initialize
@@ -582,7 +586,7 @@ namespace INTERP_KERNEL
         if ( !sideFaces[ i ] ) continue;
         std::vector< double* >& sideFace = *sideFaces[i];
 
-        int excludeCorner = (i + 1) % NB_TETRA_NODES;
+        int const excludeCorner = (i + 1) % NB_TETRA_NODES;
         for ( int ic = 0; ic < NB_TETRA_NODES; ++ic )
         {
           if ( !cutOffCorners[ ic ] && ic != excludeCorner )
@@ -643,7 +647,7 @@ namespace INTERP_KERNEL
           sortIntersectionPolygon( A, _barycenterA );
         }
         // exclude equal points
-        std::vector< double* >::iterator v = _polygonA.begin(), vEnd = _polygonA.end();
+        auto v = _polygonA.begin(), vEnd = _polygonA.end();
         face.push_back( *v );
         *v = 0;
         for ( ++v; v != vEnd; ++v )
@@ -712,14 +716,14 @@ namespace INTERP_KERNEL
 
   void UnitTetraIntersectionBary::clearPolygons(bool andFaces)
   {
-    for(std::vector<double*>::iterator it = _polygonA.begin() ; it != _polygonA.end() ; ++it)
-      {  delete[] *it;
-        *it = 0; 
+    for(auto & it : _polygonA)
+      {  delete[] it;
+        it = nullptr; 
       }
-    for(std::vector<double*>::iterator it = _polygonB.begin() ; it != _polygonB.end() ; ++it)
+    for(auto & it : _polygonB)
       { 
-        delete[] *it; 
-        *it = 0; 
+        delete[] it; 
+        it = nullptr; 
       }
 
     _polygonA.clear();
@@ -727,14 +731,14 @@ namespace INTERP_KERNEL
 
     if ( andFaces )
       {
-        std::list< std::vector< double* > >::iterator f = this->_faces.begin(), fEnd = this->_faces.end();
+        auto f = this->_faces.begin(), fEnd = this->_faces.end();
         for ( ; f != fEnd; ++f )
           {
             std::vector< double* >& polygon = *f;
-            for(std::vector<double*>::iterator it = polygon.begin() ; it != polygon.end() ; ++it)
+            for(auto & it : polygon)
               { 
-                delete[] *it;
-                *it = 0;
+                delete[] it;
+                it = nullptr;
               }
           }
         this->_faces.clear();

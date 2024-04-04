@@ -19,9 +19,9 @@
 
 #include "ByStringMPIProcessorGroup.hxx"
 
-#include <iostream>
-#include <set>
-#include <algorithm>
+#include <cstddef>
+#include <string>
+#include "MPIProcessorGroup.hxx"
 #include "mpi.h"
 
 using namespace std;
@@ -106,8 +106,7 @@ namespace MEDCoupling
   }
 
   ByStringMPIProcessorGroup::~ByStringMPIProcessorGroup()
-  {
-  }
+  = default;
 
   ByStringMPIProcessorGroup *ByStringMPIProcessorGroup::deepCopy() const
   {

@@ -23,9 +23,14 @@
 #ifndef __IntersectorCU3D_TXX__
 #define __IntersectorCU3D_TXX__
 
+#include "IntersectorCU.hxx"
 #include "IntersectorCU3D.hxx"
 #include "IntersectorCU.txx"
-#include "SplitterTetra.txx"
+#include "MCIdType.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include "InterpKernelException.hxx"
+#include "NormalizedGeometricTypes"
+#include "BoundingBox.hxx"
 
 #define  IntersectorCU3D_TEMPLATE template<class MyCMeshType, class MyUMeshType, class MyMatrix>
 #define  INTERSECTOR_CU3D IntersectorCU3D<MyCMeshType,MyUMeshType,MyMatrix >
@@ -45,7 +50,7 @@ namespace INTERP_KERNEL
   public:
     static const int MY_SPACEDIM=3;
     static const int MY_MESHDIM=3;
-    typedef mcIdType MyConnType;
+    using MyConnType = mcIdType;
     static const NumberingPolicy My_numPol=ALL_C_MODE;
 
     _Cartesian3D2UnstructHexMesh(const double * coords[3]): _coordsC(coords) {}
@@ -80,8 +85,8 @@ namespace INTERP_KERNEL
       boundingBox[BoundingBox::ZMIN] = _coordsU[2];
       boundingBox[BoundingBox::ZMAX] = _coordsU[2+4*MY_SPACEDIM];
     }
-    NormalizedCellType getTypeOfElement(mcIdType eltId) const { return NORM_HEXA8; }
-    mcIdType getNumberOfNodesOfElement(mcIdType eltId) const { return 8; }
+    NormalizedCellType getTypeOfElement(mcIdType  /*eltId*/) const { return NORM_HEXA8; }
+    mcIdType getNumberOfNodesOfElement(mcIdType  /*eltId*/) const { return 8; }
     mcIdType getNumberOfElements() const { return 1; }
     mcIdType getNumberOfNodes()    const { return 8; }
     const double *getCoordinatesPtr()   const { return _coordsU; }
@@ -120,7 +125,7 @@ namespace INTERP_KERNEL
   IntersectorCU3D_TEMPLATE
   INTERSECTOR_CU3D::~IntersectorCU3D()
   {
-    delete _uHexMesh; _uHexMesh=0;
+    delete _uHexMesh; _uHexMesh=nullptr;
     delete _split; _split=0;
   }
 

@@ -17,21 +17,13 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "CommInterface.hxx"
-#include "Topology.hxx"
-#include "BlockTopology.hxx"
-#include "ComponentTopology.hxx"
-#include "ParaFIELD.hxx"
-#include "ParaMESH.hxx"
 #include "DEC.hxx"
-#include "ICoCoMEDDoubleField.hxx"
-#include "MPIProcessorGroup.hxx"
 
 #include <cmath>
 
 namespace MEDCoupling
 {
-  DEC::DEC():_comm_interface(0)
+  DEC::DEC():_comm_interface(nullptr)
   {
   }
 
@@ -41,6 +33,5 @@ namespace MEDCoupling
   }
   
   DEC::~DEC()
-  {
-  }
+  = default;
 }

@@ -32,14 +32,14 @@ typedef std::int32_t mcIdType;
 
 #else
 
-typedef std::int64_t mcIdType;
+using mcIdType = std::int64_t;
 
 #endif
 
 #ifdef WIN32
 typedef long long mcPyPtrType;
 #else
-typedef long mcPyPtrType;
+using mcPyPtrType = long;
 #endif
 
 template <class T> inline std::size_t ToSizeT(T val)

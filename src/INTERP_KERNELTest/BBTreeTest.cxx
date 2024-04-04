@@ -18,8 +18,9 @@
 //
 
 #include "BBTreeTest.hxx"
-#include <iostream>
+#include <cppunit/TestAssert.h>
 #include <vector>
+#include "BBTree.txx"
 #include "DirectedBoundingBox.hxx"
 
 namespace INTERP_TEST
@@ -46,7 +47,7 @@ namespace INTERP_TEST
   void BBTreeTest::test_BBTree() {
     //bbox tree creation
     const int N=10;
-    double* bbox=new double[4*N*N];
+    auto* bbox=new double[4*N*N];
     for (int i=0; i<N; i++)
       for (int j=0; j<N; j++)
         {
@@ -55,7 +56,7 @@ namespace INTERP_TEST
           bbox[4*(i*N+j)+2]=j;
           bbox[4*(i*N+j)+3]=j+1;
         }
-    BBTree<2> tree(bbox,0,0,N*N);
+    BBTree<2> const tree(bbox,nullptr,0,N*N);
     std::vector <int> elems; 
   
     //box outside the tree
@@ -129,10 +130,10 @@ namespace INTERP_TEST
         0,-3,0,    2,-3,0,   2,-2,0,   0,-2,0, 
         10,-3,10, 12,-3,10, 12,-2,10, 10,-2,10
       };
-    INTERP_KERNEL::DirectedBoundingBox shiftedBB_x( shifted_x, nbP, dim);
-    INTERP_KERNEL::DirectedBoundingBox shiftedBB_X( shifted_X, nbP, dim);
-    INTERP_KERNEL::DirectedBoundingBox shiftedBB_y( shifted_y, nbP, dim);
-    INTERP_KERNEL::DirectedBoundingBox shiftedBB_Y( shifted_Y, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const shiftedBB_x( shifted_x, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const shiftedBB_X( shifted_X, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const shiftedBB_y( shifted_y, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const shiftedBB_Y( shifted_Y, nbP, dim);
 
     CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_x ));
     CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_X ));
@@ -145,7 +146,7 @@ namespace INTERP_TEST
         0,0,0,    2,0,0,   2,1,0,   0,1,0, 
         0,0,2,    2,0,2,   2,1,2,   0,1,2
       };
-    INTERP_KERNEL::DirectedBoundingBox ibb( inters_coords, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const ibb( inters_coords, nbP, dim);
     CPPUNIT_ASSERT( !bb.isDisjointWith( ibb ));
 
     // overlapping non-directed BB
@@ -204,8 +205,8 @@ namespace INTERP_TEST
         -3,0, -1,0,
         7,10, 9,10,
       };
-    INTERP_KERNEL::DirectedBoundingBox shiftedBB_x( shifted_x, nbP, dim);
-    INTERP_KERNEL::DirectedBoundingBox shiftedBB_X( shifted_X, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const shiftedBB_x( shifted_x, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const shiftedBB_X( shifted_X, nbP, dim);
 
     CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_x ));
     CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_X ));
@@ -216,7 +217,7 @@ namespace INTERP_TEST
         0,0,    2,0, 
         0,2,    2,2
       };
-    INTERP_KERNEL::DirectedBoundingBox ibb( inters_coords, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const ibb( inters_coords, nbP, dim);
     CPPUNIT_ASSERT( !bb.isDisjointWith( ibb ));
 
     // overlapping non-directed BB
@@ -270,8 +271,8 @@ namespace INTERP_TEST
       {
         -3.0, -0.001
       };
-    INTERP_KERNEL::DirectedBoundingBox shiftedBB_x( shifted_x, nbP, dim);
-    INTERP_KERNEL::DirectedBoundingBox shiftedBB_X( shifted_X, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const shiftedBB_x( shifted_x, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const shiftedBB_X( shifted_X, nbP, dim);
 
     CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_x ));
     CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_X ));
@@ -281,7 +282,7 @@ namespace INTERP_TEST
       {
         -2,2
       };
-    INTERP_KERNEL::DirectedBoundingBox ibb( inters_coords, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox const ibb( inters_coords, nbP, dim);
     CPPUNIT_ASSERT( !bb.isDisjointWith( ibb ));
 
     // overlapping non-directed BB

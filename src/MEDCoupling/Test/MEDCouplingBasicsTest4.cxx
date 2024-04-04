@@ -19,18 +19,27 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingBasicsTest4.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "InterpKernelException.hxx"
+#include "MEDCouplingDefinitionTime.hxx"
+#include "MCType.hxx"
+#include "MCIdType.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingMultiFields.hxx"
 #include "MEDCouplingFieldOverTime.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <algorithm>
 #include <cmath>
-#include <functional>
-#include <iterator>
+#include <cppunit/TestAssert.h>
+#include <cstddef>
+#include <vector>
+#include <math.h>
 
 using namespace MEDCoupling;
 
@@ -40,7 +49,7 @@ void MEDCouplingBasicsTest4::testDescriptionInMeshTimeUnit1()
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   m->setDescription(text1);
   CPPUNIT_ASSERT(std::string(m->getDescription())==text1);
-  MEDCouplingUMesh *m2=(MEDCouplingUMesh *)m->deepCopy();
+  auto *m2=(MEDCouplingUMesh *)m->deepCopy();
   CPPUNIT_ASSERT(m->isEqual(m2,1e-12));
   CPPUNIT_ASSERT(std::string(m2->getDescription())==text1);
   m2->setDescription("ggg");
@@ -61,12 +70,12 @@ void MEDCouplingBasicsTest4::testDescriptionInMeshTimeUnit1()
 void MEDCouplingBasicsTest4::testMultiFields1()
 {
   MEDCouplingMultiFields *mfs=buildMultiFields_1();
-  std::vector<MEDCouplingMesh *> ms=mfs->getMeshes();
+  std::vector<MEDCouplingMesh *> const ms=mfs->getMeshes();
   std::vector<int> refs;
-  std::vector<MEDCouplingMesh *> dms=mfs->getDifferentMeshes(refs);
-  std::vector<DataArrayDouble *> das=mfs->getArrays();
+  std::vector<MEDCouplingMesh *> const dms=mfs->getDifferentMeshes(refs);
+  std::vector<DataArrayDouble *> const das=mfs->getArrays();
   std::vector< std::vector<int> > refs2;
-  std::vector<DataArrayDouble *> das2=mfs->getDifferentArrays(refs2);
+  std::vector<DataArrayDouble *> const das2=mfs->getDifferentArrays(refs2);
   //
   CPPUNIT_ASSERT_EQUAL(5,(int)ms.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)dms.size());
@@ -90,7 +99,7 @@ void MEDCouplingBasicsTest4::testFieldOverTime1()
   CPPUNIT_ASSERT_THROW(MEDCouplingFieldOverTime::New(fs),INTERP_KERNEL::Exception);
   f4bis->setTime(2.7,20,21);
   MEDCouplingFieldOverTime *fot=MEDCouplingFieldOverTime::New(fs);
-  MEDCouplingDefinitionTime dt=fot->getDefinitionTimeZone();
+  MEDCouplingDefinitionTime const dt=fot->getDefinitionTimeZone();
   std::vector<double> hs=dt.getHotSpotsTime();
   CPPUNIT_ASSERT_EQUAL(6,(int)hs.size());
   const double expected1[]={0.2,0.7,1.2,1.35,1.7,2.7};
@@ -153,8 +162,8 @@ void MEDCouplingBasicsTest4::testFieldOverTime1()
   dt3.unserialize(tmp1,tmp2);
   CPPUNIT_ASSERT(dt2.isEqual(dt3));
   //
-  for(std::vector<MEDCouplingFieldDouble *>::iterator it=fs.begin();it!=fs.end();it++)
-    (*it)->decrRef();
+  for(auto & f : fs)
+    f->decrRef();
   fot->decrRef();
 }
 
@@ -273,7 +282,7 @@ void MEDCouplingBasicsTest4::testMeshSetTime1()
   CPPUNIT_ASSERT(!m1->isEqual(m2,1e-12));
   //
   m1->setTime(10.34,55,12);
-  MEDCouplingUMesh *m3=(MEDCouplingUMesh *)m1->deepCopy();
+  auto *m3=(MEDCouplingUMesh *)m1->deepCopy();
   CPPUNIT_ASSERT(m1->isEqual(m3,1e-12));
   tmp3=m3->getTime(tmp1,tmp2);
   CPPUNIT_ASSERT_EQUAL(55,tmp1);
@@ -297,7 +306,7 @@ void MEDCouplingBasicsTest4::testMeshSetTime1()
   CPPUNIT_ASSERT_EQUAL(8,tmp1);
   CPPUNIT_ASSERT_EQUAL(100,tmp2);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(5.67,tmp3,1e-12);
-  MEDCouplingCMesh *c=(MEDCouplingCMesh *)b->deepCopy();
+  auto *c=(MEDCouplingCMesh *)b->deepCopy();
   CPPUNIT_ASSERT(c->isEqual(b,1e-12));
   tmp3=c->getTime(tmp1,tmp2);
   CPPUNIT_ASSERT_EQUAL(8,tmp1);
@@ -513,7 +522,7 @@ void MEDCouplingBasicsTest4::testGaussCoordinates1()
   std::vector<double> gsCoo1(1); gsCoo1[0]=0.2;
   std::vector<double> refCoo1(2); refCoo1[0]=-1.0; refCoo1[1]=1.0;
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_SEG2,refCoo1,gsCoo1,wg1);
-  std::vector<double> wg2(wg1);
+  std::vector<double> const wg2(wg1);
   std::vector<double> gsCoo2(1); gsCoo2[0]=0.2;
   std::vector<double> refCoo2(3); refCoo2[0]=-1.0; refCoo2[1]=1.0; refCoo2[2]=0.0;
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_SEG3,refCoo2,gsCoo2,wg2);
@@ -534,27 +543,27 @@ void MEDCouplingBasicsTest4::testGaussCoordinates1()
   f->setMesh(m2);
   std::vector<double> wg3(2); wg3[0]=0.3; wg3[1]=0.3;
   const double tria3CooGauss[4]={ 0.1, 0.8, 0.2, 0.7 };
-  std::vector<double> gsCoo3(tria3CooGauss,tria3CooGauss+4);
+  std::vector<double> const gsCoo3(tria3CooGauss,tria3CooGauss+4);
   const double tria3CooRef[6]={ 0.0, 0.0, 1.0 , 0.0, 0.0, 1.0 };
-  std::vector<double> refCoo3(tria3CooRef,tria3CooRef+6);
+  std::vector<double> const refCoo3(tria3CooRef,tria3CooRef+6);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,refCoo3,gsCoo3,wg3);
   std::vector<double> wg4(3); wg4[0]=0.3; wg4[1]=0.3; wg4[2]=0.3;
   const double tria6CooGauss[6]={ 0.3, 0.2, 0.2, 0.1, 0.2, 0.4 };
-  std::vector<double> gsCoo4(tria6CooGauss,tria6CooGauss+6);
+  std::vector<double> const gsCoo4(tria6CooGauss,tria6CooGauss+6);
   const double tria6CooRef[12]={0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.5, 0.5, 0.0, 0.5};
-  std::vector<double> refCoo4(tria6CooRef,tria6CooRef+12);
+  std::vector<double> const refCoo4(tria6CooRef,tria6CooRef+12);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI6,refCoo4,gsCoo4,wg4);
   std::vector<double> wg5(4); wg5[0]=0.3; wg5[1]=0.3; wg5[2]=0.3; wg5[3]=0.3;
   const double quad4CooGauss[8]={ 0.3, 0.2, 0.2, 0.1, 0.2, 0.4, 0.15, 0.27 };
-  std::vector<double> gsCoo5(quad4CooGauss,quad4CooGauss+8);
+  std::vector<double> const gsCoo5(quad4CooGauss,quad4CooGauss+8);
   const double quad4CooRef[8]={-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0};
-  std::vector<double> refCoo5(quad4CooRef,quad4CooRef+8);
+  std::vector<double> const refCoo5(quad4CooRef,quad4CooRef+8);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD4,refCoo5,gsCoo5,wg5);
   std::vector<double> wg6(4); wg6[0]=0.3; wg6[1]=0.3; wg6[2]=0.3; wg6[3]=0.3;
   const double quad8CooGauss[8]={ 0.34, 0.16, 0.21, 0.3, 0.23, 0.4, 0.14, 0.37 };
-  std::vector<double> gsCoo6(quad8CooGauss,quad8CooGauss+8);
+  std::vector<double> const gsCoo6(quad8CooGauss,quad8CooGauss+8);
   const double quad8CooRef[16]={ -1.0, -1.0, 1.0, -1.0, 1.0,  1.0, -1.0,  1.0, 0.0, -1.0, 1.0,  0.0, 0.0,  1.0, -1.0,  0.0};
-  std::vector<double> refCoo6(quad8CooRef,quad8CooRef+16);
+  std::vector<double> const refCoo6(quad8CooRef,quad8CooRef+16);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD8,refCoo6,gsCoo6,wg6);
   //
   resToTest=f->getLocalizationOfDiscr();
@@ -577,51 +586,51 @@ void MEDCouplingBasicsTest4::testGaussCoordinates1()
   //
   std::vector<double> wg7(1); wg7[0]=0.3;
   const double tetra4CooGauss[3]={0.34, 0.16, 0.21};
-  std::vector<double> gsCoo7(tetra4CooGauss,tetra4CooGauss+3);
+  std::vector<double> const gsCoo7(tetra4CooGauss,tetra4CooGauss+3);
   const double tetra4CooRef[12]={0.0,1.0,0.0, 0.0,0.0,1.0, 0.0,0.0,0.0, 1.0,0.0,0.0};
-  std::vector<double> refCoo7(tetra4CooRef,tetra4CooRef+12);
+  std::vector<double> const refCoo7(tetra4CooRef,tetra4CooRef+12);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TETRA4,refCoo7,gsCoo7,wg7);
   std::vector<double> wg8(1); wg8[0]=0.3;
   const double tetra10CooGauss[3]={0.2, 0.3, 0.1};
-  std::vector<double> gsCoo8(tetra10CooGauss,tetra10CooGauss+3);
+  std::vector<double> const gsCoo8(tetra10CooGauss,tetra10CooGauss+3);
   const double tetra10CooRef[30]={0.0,1.0,0.0, 0.0,0.0,0.0, 0.0,0.0,1.0, 1.0,0.0,0.0, 0.0,0.5,0.0, 0.0,0.0,0.5, 0.0,0.5,0.5, 0.5,0.5,0.0, 0.5,0.0,0.0, 0.5,0.0,0.5};
-  std::vector<double> refCoo8(tetra10CooRef,tetra10CooRef+30);
+  std::vector<double> const refCoo8(tetra10CooRef,tetra10CooRef+30);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TETRA10,refCoo8,gsCoo8,wg8);
   std::vector<double> wg9(1); wg9[0]=0.3;
   const double pyra5CooGauss[3]={0.2, 0.3, 0.1};
-  std::vector<double> gsCoo9(pyra5CooGauss,pyra5CooGauss+3);
+  std::vector<double> const gsCoo9(pyra5CooGauss,pyra5CooGauss+3);
   const double pyra5CooRef[15]={1.0,0.0,0.0, 0.0,1.0,0.0, -1.0,0.0,0.0, 0.0,-1.0,0.0, 0.0,0.0,1.0};
-  std::vector<double> refCoo9(pyra5CooRef,pyra5CooRef+15);
+  std::vector<double> const refCoo9(pyra5CooRef,pyra5CooRef+15);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_PYRA5,refCoo9,gsCoo9,wg9);
   std::vector<double> wg10(1); wg10[0]=0.3;
   const double pyra13CooGauss[3]={0.1, 0.2, 0.7};
-  std::vector<double> gsCoo10(pyra13CooGauss,pyra13CooGauss+3);
+  std::vector<double> const gsCoo10(pyra13CooGauss,pyra13CooGauss+3);
   const double pyra13CooRef[39]={1.0,0.0,0.0, 0.0,1.0,0.0,-1.0,0.0,0.0,0.0,-1.0,0.0,0.0,0.0,1.0,0.5,0.5,0.0,-0.5,0.5,0.0,-0.5,-0.5,0.0,0.5,-0.5,0.0,0.5,0.0,0.5,0.0,0.5,0.5,-0.5,0.0,0.5,0.0,-0.5,0.5};
-  std::vector<double> refCoo10(pyra13CooRef,pyra13CooRef+39);
+  std::vector<double> const refCoo10(pyra13CooRef,pyra13CooRef+39);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_PYRA13,refCoo10,gsCoo10,wg10);
   std::vector<double> wg11(1); wg11[0]=0.3;
   const double penta6CooGauss[3]={0.2, 0.3, 0.1};
-  std::vector<double> gsCoo11(penta6CooGauss,penta6CooGauss+3);
+  std::vector<double> const gsCoo11(penta6CooGauss,penta6CooGauss+3);
   const double penta6CooRef[18]={-1.0,1.0,0.0,-1.0,-0.0,1.0,-1.0,0.0,0.0,1.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0,0.0};
-  std::vector<double> refCoo11(penta6CooRef,penta6CooRef+18);
+  std::vector<double> const refCoo11(penta6CooRef,penta6CooRef+18);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_PENTA6,refCoo11,gsCoo11,wg11);
   std::vector<double> wg12(1); wg12[0]=0.3;
   const double penta15CooGauss[3]={0.2, 0.3,0.15};
-  std::vector<double> gsCoo12(penta15CooGauss,penta15CooGauss+3);
+  std::vector<double> const gsCoo12(penta15CooGauss,penta15CooGauss+3);
   const double penta15CooRef[45]={-1.0,1.0,0.0,-1.0,0.0,1.0,-1.0,0.0,0.0,1.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0,0.0,-1.0,0.5,0.5,-1.0,0.0,0.5,-1.0,0.5,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.5,0.5,1.0,0.0, 0.5,1.0,0.5,0.0};
-  std::vector<double> refCoo12(penta15CooRef,penta15CooRef+45);
+  std::vector<double> const refCoo12(penta15CooRef,penta15CooRef+45);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_PENTA15,refCoo12,gsCoo12,wg12);
   std::vector<double> wg13(1); wg13[0]=0.3;
   const double hexa8CooGauss[3]={0.2,0.3,0.15};
-  std::vector<double> gsCoo13(hexa8CooGauss,hexa8CooGauss+3);
+  std::vector<double> const gsCoo13(hexa8CooGauss,hexa8CooGauss+3);
   const double hexa8CooRef[24]={-1.0,-1.0,-1.0,1.0,-1.0,-1.0,1.0,1.0,-1.0,-1.0,1.0,-1.0,-1.0,-1.0,1.0,1.0,-1.0,1.0,1.0,1.0,1.0,-1.0,1.0,1.0};
-  std::vector<double> refCoo13(hexa8CooRef,hexa8CooRef+24);
+  std::vector<double> const refCoo13(hexa8CooRef,hexa8CooRef+24);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_HEXA8,refCoo13,gsCoo13,wg13);
   std::vector<double> wg14(1); wg14[0]=0.3;
   const double hexa20CooGauss[3]={0.11,0.3,0.55};
-  std::vector<double> gsCoo14(hexa20CooGauss,hexa20CooGauss+3);
+  std::vector<double> const gsCoo14(hexa20CooGauss,hexa20CooGauss+3);
   const double hexa20CooRef[60]={-1.0,-1.0,-1.0,1.0,-1.0,-1.0,1.0,1.0,-1.0,-1.0,1.0,-1.0,-1.0,-1.0,1.0,1.0,-1.0,1.0,1.0,1.0,1.0,-1.0,1.0,1.0,0.0,-1.0,-1.0,1.0,0.0,-1.0,0.0,1.0,-1.0,-1.0,0.0,-1.0,-1.0,-1.0,0.0,1.0,-1.0,0.0,1.0,1.0,0.0,-1.0,1.0,0.0,0.0,-1.0,1.0,1.0,0.0,1.0,0.0,1.0,1.0,-1.0,0.0,1.0};
-  std::vector<double> refCoo14(hexa20CooRef,hexa20CooRef+60);
+  std::vector<double> const refCoo14(hexa20CooRef,hexa20CooRef+60);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_HEXA20,refCoo14,gsCoo14,wg14);
   //
   resToTest=f->getLocalizationOfDiscr();
@@ -734,7 +743,7 @@ void MEDCouplingBasicsTest4::testGetValueOn2()
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
   f->setMesh(m);
   DataArrayDouble *arr=DataArrayDouble::New();
-  std::size_t nbOfCells=m->getNumberOfCells();
+  std::size_t const nbOfCells=m->getNumberOfCells();
   arr->alloc(nbOfCells,3);
   f->setArray(arr);
   arr->decrRef();
@@ -753,7 +762,7 @@ void MEDCouplingBasicsTest4::testGetValueOn2()
   f=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
   f->setMesh(m);
   arr=DataArrayDouble::New();
-  mcIdType nbOfNodes=m->getNumberOfNodes();
+  mcIdType const nbOfNodes=m->getNumberOfNodes();
   arr->alloc(nbOfNodes,3);
   f->setArray(arr);
   arr->decrRef();
@@ -956,7 +965,7 @@ void MEDCouplingBasicsTest4::testUnPolyze2()
   m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
   m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
   m->finishInsertingCells();
-  std::vector<const MEDCouplingUMesh *> ms(4,m);
+  std::vector<const MEDCouplingUMesh *> const ms(4,m);
   MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(ms);
   std::vector<mcIdType> temp(1,2);
   m2->convertToPolyTypes(&temp[0],&temp[0]+temp.size());
@@ -1134,14 +1143,14 @@ void MEDCouplingBasicsTest4::testDAIOperations1()
 
 void MEDCouplingBasicsTest4::testEmulateMEDMEMBDC1()
 {
-  MEDCouplingUMesh *m1=0;
+  MEDCouplingUMesh *m1=nullptr;
   MEDCouplingUMesh *m=buildPointe_1(m1);
   DataArrayIdType *da1=DataArrayIdType::New();
   DataArrayIdType *da2=DataArrayIdType::New();
-  DataArrayIdType *da3=0;
-  DataArrayIdType *da4=0;
-  DataArrayIdType *da5=0;
-  DataArrayIdType *da0=0;
+  DataArrayIdType *da3=nullptr;
+  DataArrayIdType *da4=nullptr;
+  DataArrayIdType *da5=nullptr;
+  DataArrayIdType *da0=nullptr;
   MEDCouplingUMesh *m2=m->emulateMEDMEMBDC(m1,da1,da2,da3,da4,da5,da0);
   const mcIdType expected0[47]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46};
   const mcIdType expected1[6]={1,32,29,23,41,36};
@@ -1189,7 +1198,7 @@ void MEDCouplingBasicsTest4::testEmulateMEDMEMBDC1()
 
 void MEDCouplingBasicsTest4::testGetLevArrPerCellTypes1()
 {
-  MEDCouplingUMesh *m1=0;
+  MEDCouplingUMesh *m1=nullptr;
   MEDCouplingUMesh *m=buildPointe_1(m1);
   m1->decrRef();
   DataArrayIdType *d0=DataArrayIdType::New();
@@ -1199,7 +1208,7 @@ void MEDCouplingBasicsTest4::testGetLevArrPerCellTypes1()
   m1=m->buildDescendingConnectivity(d0,d1,d2,d3);
   d0->decrRef(); d1->decrRef(); d2->decrRef(); d3->decrRef();
   INTERP_KERNEL::NormalizedCellType order[2]={INTERP_KERNEL::NORM_TRI3,INTERP_KERNEL::NORM_QUAD4};
-  DataArrayIdType *da1=0;
+  DataArrayIdType *da1=nullptr;
   DataArrayIdType *da0=m1->getLevArrPerCellTypes(order,order+2,da1);
   const mcIdType expected0[47]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1};
   const mcIdType expected1[47]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46};
@@ -1228,10 +1237,10 @@ void MEDCouplingBasicsTest4::testGetLevArrPerCellTypes1()
 
 void MEDCouplingBasicsTest4::testSortCellsInMEDFileFrmt1()
 {
-  MEDCouplingUMesh *m1=0;
+  MEDCouplingUMesh *m1=nullptr;
   MEDCouplingUMesh *m=buildPointe_1(m1);
-  MEDCouplingUMesh *m2=(MEDCouplingUMesh *)m->deepCopy();
-  m->setCoords(0);
+  auto *m2=(MEDCouplingUMesh *)m->deepCopy();
+  m->setCoords(nullptr);
   const mcIdType vals[16]={0,1,2,14,3,12,4,5,15,6,7,8,9,10,11,13};
   DataArrayIdType *da=DataArrayIdType::New();
   da->alloc(16,1);
@@ -1296,7 +1305,7 @@ void MEDCouplingBasicsTest4::testDAISplitByValueRange1()
   DataArrayIdType *d=DataArrayIdType::New();
   d->alloc(9,1);
   std::copy(val1,val1+9,d->getPointer());
-  DataArrayIdType *ee=0,*f=0,*g=0;
+  DataArrayIdType *ee=nullptr,*f=nullptr,*g=nullptr;
   d->splitByValueRange(val2,val2+3,ee,f,g);
  CPPUNIT_ASSERT_EQUAL(9,(int)ee->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)ee->getNumberOfComponents());
@@ -1776,7 +1785,7 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   da->alloc(6,1);
   const double array1[6]={2.3,1.2,1.3,2.3,2.301,0.8};
   std::copy(array1,array1+6,da->getPointer());
-  DataArrayIdType *c=0,*cI=0;
+  DataArrayIdType *c=nullptr,*cI=nullptr;
   // nbOftuples=1
   da->findCommonTuples(1e-2,-1,c,cI);
   const mcIdType expected1[3]={0,3,4};
@@ -1961,7 +1970,7 @@ void MEDCouplingBasicsTest4::testGetNodeIdsInUse1()
 {
   MEDCouplingUMesh *m0=build2DTargetMesh_1();
   const mcIdType CellIds[2]={1,2};
-  MEDCouplingUMesh *m1=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(CellIds,CellIds+2,true));
+  auto *m1=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(CellIds,CellIds+2,true));
   mcIdType newNbOfNodes=-1;
   DataArrayIdType *arr=m1->getNodeIdsInUse(newNbOfNodes);
   const mcIdType expected[9]={-1,0,1,-1,2,3,-1,-1,-1};
@@ -2032,14 +2041,14 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp1()
   m1c->setCoordsAt(1,coordY);
   MEDCouplingUMesh *m1=m1c->buildUnstructured();
   const mcIdType subPart1[3]={3,4,5};
-  MEDCouplingUMesh *m1bis=static_cast<MEDCouplingUMesh *>(m1->buildPartOfMySelf(subPart1,subPart1+3,false));
-  MEDCouplingUMesh *m2tmp=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
+  auto *m1bis=static_cast<MEDCouplingUMesh *>(m1->buildPartOfMySelf(subPart1,subPart1+3,false));
+  auto *m2tmp=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
   const mcIdType subPart2[3]={0,1,2};
-  MEDCouplingUMesh *m2=static_cast<MEDCouplingUMesh *>(m2tmp->buildPartOfMySelf(subPart2,subPart2+3,false));
+  auto *m2=static_cast<MEDCouplingUMesh *>(m2tmp->buildPartOfMySelf(subPart2,subPart2+3,false));
   const double vec[2]={0.5,0.5};
   m2->translate(vec);
   // End of construction of input meshes m1bis and m2 -> start of specific part of the test
-  DataArrayIdType *d1=0,*d2=0;
+  DataArrayIdType *d1=nullptr,*d2=nullptr;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1bis,m2,1e-10,d1,d2);
   const mcIdType expected1[8]={0,0,1,1,1,2,2,2};
   const mcIdType expected2[8]={0,-1,0,1,-1,1,2,-1};
@@ -2125,7 +2134,7 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp2()
   m2c->setCoordsAt(1,coordsY2);
   MEDCouplingUMesh *m2=m2c->buildUnstructured();
   //
-  DataArrayIdType *d1=0,*d2=0;
+  DataArrayIdType *d1=nullptr,*d2=nullptr;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1,m2,1e-10,d1,d2);
   const mcIdType expected1[9]={0,0,1,1,2,2,3,4,5};
   const mcIdType expected2[9]={0,2,1,3,1,3,2,3,3};
@@ -2205,7 +2214,7 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp3()
   m2->setCoords(myCoords2);
   myCoords2->decrRef();
   //
-  DataArrayIdType *d1=0,*d2=0;
+  DataArrayIdType *d1=nullptr,*d2=nullptr;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1,m2,1e-10,d1,d2);
   m3->unPolyze();
   const mcIdType expected1[16]={0,1,1,1,2,3,3,3,4,5,5,5,6,7,7,7};

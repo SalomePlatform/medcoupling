@@ -51,16 +51,13 @@ namespace MEDCoupling
   {
   protected:
     std::string _method;
-    bool _asynchronous;
-    TimeInterpolationMethod _timeInterpolationMethod;
-    AllToAllMethod _allToAllMethod;
-    bool _forcedRenormalization;
+    bool _asynchronous{false};
+    TimeInterpolationMethod _timeInterpolationMethod{WithoutTimeInterp};
+    AllToAllMethod _allToAllMethod{Native};
+    bool _forcedRenormalization{false};
   public:
-    DECOptions():_method("P0"),
-                 _asynchronous(false),
-                 _timeInterpolationMethod(WithoutTimeInterp),
-                 _allToAllMethod(Native),
-                 _forcedRenormalization(false)
+    DECOptions():_method("P0")
+                 
     {
     }
     

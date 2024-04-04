@@ -25,18 +25,17 @@
 #include <map>
 #include <algorithm>
 #include <utility>
-#include <iterator>
 #include "MCAuto.hxx"
 #include "InterpKernelException.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
+#include "MEDLoaderDefines.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "MCType.hxx"
 #include "MEDMESHConverterUtilities.hxx"
 #include "libmesh5.hxx"
+#include "NormalizedGeometricTypes"
 
-#include <fstream>
 
 #if !defined(WIN32) && !defined(__APPLE__)
-#include <features.h>
 #endif
 
 namespace MEDCoupling
@@ -80,14 +79,14 @@ namespace MEDCoupling
   private:
     void insertPairInMap(std::map<int, std::vector<MeshFormatElement> *> &aMap, std::pair<int, MeshFormatElement> addToFamily)
     {
-      std::map<int, std::vector<MeshFormatElement> *>::iterator it = aMap.find(addToFamily.first);
+      auto const it = aMap.find(addToFamily.first);
       if (it != aMap.end())
       {
         aMap[addToFamily.first]->push_back(addToFamily.second);
       }
       else
       {
-        std::vector<MeshFormatElement> *tmpVec = new std::vector<MeshFormatElement>;
+        auto *tmpVec = new std::vector<MeshFormatElement>;
         tmpVec->push_back(addToFamily.second);
         aMap.insert(std::pair<int, std::vector<MeshFormatElement> *>(addToFamily.first, tmpVec));
       }
@@ -106,7 +105,7 @@ namespace MEDCoupling
 
       if (!aMap.size())
         return;
-      std::map<int, std::vector<MeshFormatElement> *>::iterator itTmp = aMap.find(removeFromFamily.first);
+      auto const itTmp = aMap.find(removeFromFamily.first);
       if (itTmp == aMap.end())
         return;
       else
@@ -161,7 +160,7 @@ namespace MEDCoupling
   private:
     void freeMap(std::map<int, std::vector<MeshFormatElement> *> &aMap)
     {
-      std::map<int, std::vector<MeshFormatElement> *>::iterator it = aMap.begin();
+      auto it = aMap.begin();
       for (; it != aMap.end(); ++it)
         delete it->second;
     }

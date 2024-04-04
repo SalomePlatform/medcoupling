@@ -20,12 +20,16 @@
 
 #pragma once
 
+#include "MEDCouplingRefCountObject.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingTraits.hxx"
+#include "CommInterface.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "ProcessorGroup.hxx"
 #include "MEDCouplingMemArray.hxx"
 
+#include <cstddef>
 #include <string>
-#include <vector>
 
 namespace MEDCoupling
 {
@@ -48,7 +52,7 @@ namespace MEDCoupling
     DataArrayIdType *getGlobalCellIds() { return _cell_global; }
     DataArrayIdType *getGlobalNodeIds() { return _node_global; }
   protected:
-    virtual ~ParaUMesh() { }
+    ~ParaUMesh() override = default;
     ParaUMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalCellIds, DataArrayIdType *globalNodeIds);
     std::string getClassName() const override { return "ParaUMesh"; }
     std::size_t getHeapMemorySizeWithoutChildren() const override;
@@ -65,7 +69,7 @@ namespace MEDCoupling
     {
       using DataArrayT = typename Traits<T>::ArrayType;
       MPI_Comm comm(MPI_COMM_WORLD);
-      CommInterface ci;
+      CommInterface const ci;
       if( _cell_global->getNumberOfTuples() != fieldValueToRed->getNumberOfTuples() )
         throw INTERP_KERNEL::Exception("PAraUMesh::redistributeCellFieldT : invalid input length of array !");
       std::unique_ptr<mcIdType[]> allGlobalCellIds,allGlobalCellIdsIndex;
@@ -106,7 +110,7 @@ namespace MEDCoupling
     {
       using DataArrayT = typename Traits<T>::ArrayType;
       MPI_Comm comm(MPI_COMM_WORLD);
-      CommInterface ci;
+      CommInterface const ci;
       if( _node_global->getNumberOfTuples() != fieldValueToRed->getNumberOfTuples() )
         throw INTERP_KERNEL::Exception("PAraUMesh::redistributeNodeFieldT : invalid input length of array !");
       std::unique_ptr<mcIdType[]> allGlobalCellIds,allGlobalCellIdsIndex;
@@ -121,7 +125,7 @@ namespace MEDCoupling
         globalCellIdsOfCurProc->useArray(allGlobalCellIds.get()+offset,false,DeallocType::CPP_DEALLOC,allGlobalCellIdsIndex[curRk+1]-offset,1);
         // the key call is here : compute for rank curRk the cells to be sent
         MCAuto<DataArrayIdType> globalCellIdsCaptured(_cell_global->buildIntersection(globalCellIdsOfCurProc));// OK for the global cellIds
-        MCAuto<DataArrayIdType> localCellIdsCaptured(_cell_global->findIdForEach(globalCellIdsCaptured->begin(),globalCellIdsCaptured->end()));
+        MCAuto<DataArrayIdType> const localCellIdsCaptured(_cell_global->findIdForEach(globalCellIdsCaptured->begin(),globalCellIdsCaptured->end()));
         MCAuto<MEDCouplingUMesh> meshPart(_mesh->buildPartOfMySelf(localCellIdsCaptured->begin(),localCellIdsCaptured->end(),true));
         MCAuto<DataArrayIdType> o2n(meshPart->zipCoordsTraducer());// OK for the mesh
         MCAuto<DataArrayIdType> n2o(o2n->invertArrayO2N2N2O(meshPart->getNumberOfNodes()));

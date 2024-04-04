@@ -21,6 +21,7 @@
 #ifndef _EXPREVALINTERPTEST_HXX_
 #define _EXPREVALINTERPTEST_HXX_
 
+#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "InterpKernelTestExport.hxx"

@@ -18,10 +18,11 @@
 //
 
 #include "TransformedTriangleIntersectTest.hxx"
-#include <iostream>
-#include <iomanip>
+#include <cppunit/TestAssert.h>
+#include <cmath>
 
 #include "Log.hxx"
+#include "TransformedTriangle.hxx"
 
 /// macro to test for zero double products outside the segment-edge intersection test method
 /// as is done in TransformedTriangle when OPTIMIZE is defined
@@ -145,7 +146,7 @@ namespace INTERP_TEST
         0.4, 2.5, 0.5  // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -299,7 +300,7 @@ namespace INTERP_TEST
         1.5, 0.5,-0.25, // Q
         -0.5,-1.5, 0.75  // R
       };
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -453,7 +454,7 @@ namespace INTERP_TEST
         -0.4, 0.3, 0.9   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -607,7 +608,7 @@ namespace INTERP_TEST
         0.2, -1.3, -1.4   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -763,7 +764,7 @@ namespace INTERP_TEST
         0.5, -2.6, 1.3   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -918,7 +919,7 @@ namespace INTERP_TEST
         -3.0, 3.0, -0.5   // R
       };
   
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -1073,7 +1074,7 @@ namespace INTERP_TEST
         0.3, 0.4, 0.2   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -1228,7 +1229,7 @@ namespace INTERP_TEST
         -0.1, -0.4, 0.9   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -1382,7 +1383,7 @@ namespace INTERP_TEST
         0.1, 0.2, 0.8   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -1537,7 +1538,7 @@ namespace INTERP_TEST
         0.4, 0.3, 0.3   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -1691,7 +1692,7 @@ namespace INTERP_TEST
         0.3, 0.3, 0.3   // R
       };
   
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -1846,7 +1847,7 @@ namespace INTERP_TEST
         0.6, 0.6, -0.6   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -2000,7 +2001,7 @@ namespace INTERP_TEST
         -0.2, -0.1, 3.0   // R
       };
 
-    TransformedTriangle* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
+    auto* tri = new TransformedTriangle(&coords[0], &coords[3], &coords[6]);
 
     // run all intersection tests and ensure that the ones
     // listed with yes in the tables above return true and 
@@ -2138,7 +2139,7 @@ namespace INTERP_TEST
         0.44117647058823506, 0, 0.55882352941176483,
         -0.89215686274509864, 1.3333333333333339, 0.55882352941176483};
 
-    double refVol = 0.054383777732546296;
+    double const refVol = 0.054383777732546296;
 
     TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
     const double vol = tri.calculateIntersectionVolume();
@@ -2163,7 +2164,7 @@ namespace INTERP_TEST
       -0.55882352941176472, 0, 1.5588235294117649,
       -0.89215686274509864, 1.3333333333333339, 0.55882352941176483 };
 
-    double refVol = -0.06869529818848;
+    double const refVol = -0.06869529818848;
 
     TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
     const double vol = tri.calculateIntersectionVolume();
@@ -2189,7 +2190,7 @@ namespace INTERP_TEST
       -1.2062474433365091, -0.037350951323461778, 2.1879983126221099,
       0.49877186496532655, 0.59827776894780405, 0.79353793765518521
     };
-    double refVol = -0.051135429735185;
+    double const refVol = -0.051135429735185;
 
     TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
     const double vol = tri.calculateIntersectionVolume();
@@ -2214,7 +2215,7 @@ namespace INTERP_TEST
       2.022774182629973, -1.020222639063029, -0.01375178680446254,
       0.7495960843059706, 0.1125313911637846, 0.7430770879625861
     };
-    double refVol = -0.00060846166394417;
+    double const refVol = -0.00060846166394417;
 
     TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
     const double vol = tri.calculateIntersectionVolume();
@@ -2239,7 +2240,7 @@ namespace INTERP_TEST
       -3.552713678800501e-15, 0, 0.9999999999999982,
       0, 1.000000000000004, -8.881784197001252e-16
     };
-    double refVol = -1/6.;
+    double const refVol = -1/6.;
 
     TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
     const double vol = tri.calculateIntersectionVolume();
@@ -2264,7 +2265,7 @@ namespace INTERP_TEST
       1.000000000000004, 0, 0,
       0, 0, 0.9999999999999929,
       3.552713678800501e-15, 1, 0};
-    double refVol = -1/6.;
+    double const refVol = -1/6.;
 
     TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
     const double vol = tri.calculateIntersectionVolume();
@@ -2291,7 +2292,7 @@ namespace INTERP_TEST
       3.700743415417188e-17, 0.9999999999999999, 3.700743415417188e-17
     };
 
-    double refVol = -1/6.;
+    double const refVol = -1/6.;
 
     TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
     const double vol = tri.calculateIntersectionVolume();
@@ -2333,7 +2334,7 @@ namespace INTERP_TEST
       -7.105427357601002e-15, 1.000000000000014, -3.552713678800501e-15
     };
 
-    double refVol = -1/6.;
+    double const refVol = -1/6.;
 
     TransformedTriangle tri(&coords[0], &coords[3], &coords[6]);
     const double vol = tri.calculateIntersectionVolume();

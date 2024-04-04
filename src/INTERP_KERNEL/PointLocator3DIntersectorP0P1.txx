@@ -20,9 +20,15 @@
 #ifndef __POINTLOCATOR3DINTERSECTORP0P1_TXX__
 #define __POINTLOCATOR3DINTERSECTORP0P1_TXX__
 
-#include "PointLocator3DIntersectorP0P1.hxx"
 #include "Intersector3DP0P1.txx"
-#include "MeshUtils.hxx"
+#include "InterpolationUtils.hxx"
+#include "InterpKernelUtilities.hxx"
+#include "NormalizedGeometricTypes"
+#include "PointLocator3DIntersectorP0P1.hxx"
+#include "PointLocatorAlgos.txx"
+#include "CellModel.hxx"
+#include <vector>
+#include <cstddef>
 
 namespace INTERP_KERNEL
 {
@@ -39,8 +45,7 @@ namespace INTERP_KERNEL
 
   template<class MyMeshType, class MyMatrix>
   PointLocator3DIntersectorP0P1<MyMeshType,MyMatrix>::~PointLocator3DIntersectorP0P1()
-  {
-  }
+  = default;
 
   /**
    * 

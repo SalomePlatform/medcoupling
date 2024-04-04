@@ -21,13 +21,15 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGMULTIFIELDS_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGMULTIFIELDS_HXX__
 
+#include "MEDCoupling.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MCAuto.hxx"
 #include "MCType.hxx"
 
-#include "InterpKernelException.hxx"
 
+#include <string>
+#include <cstddef>
 #include <vector>
 
 namespace MEDCoupling
@@ -60,9 +62,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int>& refs) const;
     MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getArrays() const;
     MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getDifferentArrays(std::vector< std::vector<int> >& refs) const;
-    MEDCOUPLING_EXPORT void updateTime() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDCOUPLING_EXPORT void updateTime() const override;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<mcIdType>& tinyInfo, std::vector<double>& tinyInfo2, int& nbOfDiffMeshes, int& nbOfDiffArr) const;
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD,
                                                   const std::vector<MEDCouplingFieldTemplate *>& ft, const std::vector<MEDCouplingMesh *>& ms,

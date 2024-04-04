@@ -22,7 +22,6 @@
 
 #include "MEDCoupling.hxx"
 #include "MCType.hxx"
-#include <vector>
 
 namespace MEDCoupling
 {

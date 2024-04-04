@@ -24,6 +24,7 @@
 #include "RENUMBER_Renumbering.hxx"
 
 #include <string>
+#include <vector>
 
 namespace MED_RENUMBER
 {

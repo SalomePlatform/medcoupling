@@ -18,15 +18,17 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
+#include "InterpKernelGeo2DNode.hxx"
+#include "InterpKernelGeo2DComposedEdge.hxx"
+#include "InterpKernelGeo2DAbstractEdge.hxx"
+#include "InterpKernelGeo2DEdge.hxx"
 #include "QuadraticPlanarInterpTest.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
-#include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DEdgeLin.hxx"
 
 #include <cmath>
-#include <sstream>
-#include <iostream>
+#include <cppunit/TestAssert.h>
 
 using namespace INTERP_KERNEL;
 
@@ -38,10 +40,10 @@ void QuadraticPlanarInterpTest::checkInOutDetection()
   Node *n1=new Node(0.,0.);
   Node *n2=new Node(1.,0.);
   Node *n3=new Node(0.5,1.);
-  EdgeLin *e1=new EdgeLin(n1,n2);
-  EdgeLin *e2=new EdgeLin(n2,n3);
-  EdgeLin *e3=new EdgeLin(n3,n1);
-  ComposedEdge *tri=new ComposedEdge;
+  auto *e1=new EdgeLin(n1,n2);
+  auto *e2=new EdgeLin(n2,n3);
+  auto *e3=new EdgeLin(n3,n1);
+  auto *tri=new ComposedEdge;
   tri->pushBack(e1); tri->pushBack(e2); tri->pushBack(e3);
   //
   Node *where=new Node(0.4,0.1);
@@ -61,22 +63,22 @@ void QuadraticPlanarInterpTest::checkInOutDetection()
 void QuadraticPlanarInterpTest::checkAssemblingBases1()
 {
   Node *n1=new Node(0.,0.);
-  Node *n2=new Node(0.1,0.); EdgeLin *e1_2=new EdgeLin(n1,n2);
-  Node *n3=new Node(0.2,0.); EdgeLin *e2_3=new EdgeLin(n2,n3);
-  Node *n4=new Node(0.3,0.); EdgeLin *e3_4=new EdgeLin(n3,n4);
-  Node *n5=new Node(0.4,0.); EdgeLin *e4_5=new EdgeLin(n4,n5);
-  Node *n6=new Node(0.5,0.); EdgeLin *e5_6=new EdgeLin(n5,n6);
-  Node *n7=new Node(0.6,0.); EdgeLin *e6_7=new EdgeLin(n6,n7);
-  Node *n8=new Node(0.7,0.); EdgeLin *e7_8=new EdgeLin(n7,n8);
-  Node *n9=new Node(0.8,0.); EdgeLin *e8_9=new EdgeLin(n8,n9);
-  Node *n10=new Node(0.9,0.); EdgeLin *e9_10=new EdgeLin(n9,n10);
-  Node *n11=new Node(1.,0.); EdgeLin *e10_11=new EdgeLin(n10,n11);
-  Node *n12=new Node(0.5,1.); EdgeLin *e11_12=new EdgeLin(n11,n12);
-  EdgeLin *e12_1=new EdgeLin(n12,n1);
+  Node *n2=new Node(0.1,0.); auto *e1_2=new EdgeLin(n1,n2);
+  Node *n3=new Node(0.2,0.); auto *e2_3=new EdgeLin(n2,n3);
+  Node *n4=new Node(0.3,0.); auto *e3_4=new EdgeLin(n3,n4);
+  Node *n5=new Node(0.4,0.); auto *e4_5=new EdgeLin(n4,n5);
+  Node *n6=new Node(0.5,0.); auto *e5_6=new EdgeLin(n5,n6);
+  Node *n7=new Node(0.6,0.); auto *e6_7=new EdgeLin(n6,n7);
+  Node *n8=new Node(0.7,0.); auto *e7_8=new EdgeLin(n7,n8);
+  Node *n9=new Node(0.8,0.); auto *e8_9=new EdgeLin(n8,n9);
+  Node *n10=new Node(0.9,0.); auto *e9_10=new EdgeLin(n9,n10);
+  Node *n11=new Node(1.,0.); auto *e10_11=new EdgeLin(n10,n11);
+  Node *n12=new Node(0.5,1.); auto *e11_12=new EdgeLin(n11,n12);
+  auto *e12_1=new EdgeLin(n12,n1);
   //Only one level
   e1_2->incrRef(); e2_3->incrRef(); e3_4->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_7->incrRef(); 
   e7_8->incrRef(); e8_9->incrRef(); e9_10->incrRef(); e10_11->incrRef(); e11_12->incrRef(); e12_1->incrRef();
-  ComposedEdge *c=new ComposedEdge;
+  auto *c=new ComposedEdge;
   c->pushBack(e1_2); c->pushBack(e2_3); c->pushBack(e3_4); c->pushBack(e4_5); c->pushBack(e5_6); c->pushBack(e6_7);
   c->pushBack(e7_8); c->pushBack(e8_9); c->pushBack(e9_10); c->pushBack(e10_11); c->pushBack(e11_12); c->pushBack(e12_1);
   CPPUNIT_ASSERT_EQUAL(12,c->recursiveSize());
@@ -98,10 +100,10 @@ void QuadraticPlanarInterpTest::checkAssemblingBases1()
   //(e1_2, (e2_3,(e3_4, e4_5, e5_6, e6_7, (e7_8, e8_9 ), ( e9_10 , e10_11 ), e11_12 ),e12_1 ) )
   e1_2->incrRef(); e2_3->incrRef(); e3_4->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_7->incrRef(); 
   e7_8->incrRef(); e8_9->incrRef(); e9_10->incrRef(); e10_11->incrRef(); e11_12->incrRef(); e12_1->incrRef();
-  ComposedEdge *c2_2_4=new ComposedEdge; c2_2_4->pushBack(e7_8); c2_2_4->pushBack(e8_9);
-  ComposedEdge *c2_2_5=new ComposedEdge; c2_2_5->pushBack(e9_10); c2_2_5->pushBack(e10_11);
-  ComposedEdge *c2_2=new ComposedEdge; c2_2->pushBack(e3_4); c2_2->pushBack(e4_5); c2_2->pushBack(e5_6);  c2_2->pushBack(e6_7); c2_2->pushBack(c2_2_4); c2_2->pushBack(c2_2_5); c2_2->pushBack(e11_12);
-  ComposedEdge *c2=new ComposedEdge; c2->pushBack(e2_3); c2->pushBack(c2_2); c2->pushBack(e12_1);
+  auto *c2_2_4=new ComposedEdge; c2_2_4->pushBack(e7_8); c2_2_4->pushBack(e8_9);
+  auto *c2_2_5=new ComposedEdge; c2_2_5->pushBack(e9_10); c2_2_5->pushBack(e10_11);
+  auto *c2_2=new ComposedEdge; c2_2->pushBack(e3_4); c2_2->pushBack(e4_5); c2_2->pushBack(e5_6);  c2_2->pushBack(e6_7); c2_2->pushBack(c2_2_4); c2_2->pushBack(c2_2_5); c2_2->pushBack(e11_12);
+  auto *c2=new ComposedEdge; c2->pushBack(e2_3); c2->pushBack(c2_2); c2->pushBack(e12_1);
   c=new ComposedEdge; c->pushBack(e1_2); c->pushBack(c2); CPPUNIT_ASSERT_EQUAL(12,c->recursiveSize());
   IteratorOnComposedEdge it2(c);
   CPPUNIT_ASSERT(it2.current()->getPtr()==e1_2);
@@ -183,14 +185,14 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   Node *n1=new Node(0.,0.);                Node *n4=new Node(0.,-0.3);   
   Node *n2=new Node(1.,0.);                Node *n5=new Node(1.,-0.3);
   Node *n3=new Node(0.5,1.);               Node *n6=new Node(0.5,0.7);
-  EdgeLin *e1_2=new EdgeLin(n1,n2);        EdgeLin *e4_5=new EdgeLin(n4,n5);
-  EdgeLin *e2_3=new EdgeLin(n2,n3);        EdgeLin *e5_6=new EdgeLin(n5,n6);
-  EdgeLin *e3_1=new EdgeLin(n3,n1);        EdgeLin *e6_4=new EdgeLin(n6,n4);
+  auto *e1_2=new EdgeLin(n1,n2);        auto *e4_5=new EdgeLin(n4,n5);
+  auto *e2_3=new EdgeLin(n2,n3);        auto *e5_6=new EdgeLin(n5,n6);
+  auto *e3_1=new EdgeLin(n3,n1);        auto *e6_4=new EdgeLin(n6,n4);
   //
   e1_2->incrRef(); e2_3->incrRef(); e3_1->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_4->incrRef(); 
   QuadraticPolygon pol1; pol1.pushBack(e1_2); pol1.pushBack(e2_3); pol1.pushBack(e3_1);
   QuadraticPolygon pol2; pol2.pushBack(e4_5); pol2.pushBack(e5_6); pol2.pushBack(e6_4);
-  QuadraticPolygon cpyPol1(pol1); int nbOfSplits=0;
+  QuadraticPolygon const cpyPol1(pol1); int nbOfSplits=0;
   cpyPol1.SplitPolygonsEachOther(pol1,pol2,nbOfSplits);
   CPPUNIT_ASSERT_EQUAL(5,pol1.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(5,pol2.recursiveSize());CPPUNIT_ASSERT_EQUAL(15,nbOfSplits);
@@ -200,7 +202,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   CPPUNIT_ASSERT(pol2[3]->getEndNode()==pol1[0]->getEndNode());
   CPPUNIT_ASSERT(pol2[3]->getEndNode()->getLoc()==ON_1);
   cpyPol1.performLocatingOperation(pol2);
-  ElementaryEdge *tmp=dynamic_cast<ElementaryEdge *>(pol2[0]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e4_5);
+  auto *tmp=dynamic_cast<ElementaryEdge *>(pol2[0]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e4_5);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
   tmp=dynamic_cast<ElementaryEdge *>(pol2[1]); CPPUNIT_ASSERT(tmp);
@@ -221,12 +223,12 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   n2=new Node(1.,0.);                n5=new Node(0.5,0.);
   n3=new Node(0.5,1.);               n6=new Node(0.75,0.5); Node *n7=new Node(2.,0.5);
   e1_2=new EdgeLin(n1,n2); e2_3=new EdgeLin(n2,n3); e3_1=new EdgeLin(n3,n1);
-  EdgeLin *e5_4=new EdgeLin(n5,n4); EdgeLin *e4_7=new EdgeLin(n4,n7); EdgeLin *e7_6=new EdgeLin(n7,n6); EdgeLin *e6_5=new EdgeLin(n6,n5);
+  auto *e5_4=new EdgeLin(n5,n4); auto *e4_7=new EdgeLin(n4,n7); auto *e7_6=new EdgeLin(n7,n6); auto *e6_5=new EdgeLin(n6,n5);
   //
   e1_2->incrRef(); e2_3->incrRef(); e3_1->incrRef(); e5_4->incrRef(); e4_7->incrRef(); e7_6->incrRef(); e6_5->incrRef();
   QuadraticPolygon pol3; pol3.pushBack(e1_2); pol3.pushBack(e2_3); pol3.pushBack(e3_1);
   QuadraticPolygon pol4; pol4.pushBack(e5_4); pol4.pushBack(e4_7); pol4.pushBack(e7_6); pol4.pushBack(e6_5);
-  QuadraticPolygon cpyPol3(pol3); nbOfSplits=0;
+  QuadraticPolygon const cpyPol3(pol3); nbOfSplits=0;
   cpyPol3.SplitPolygonsEachOther(pol3,pol4,nbOfSplits);
   CPPUNIT_ASSERT_EQUAL(5,pol3.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(4,pol4.recursiveSize());CPPUNIT_ASSERT_EQUAL(16,nbOfSplits);
@@ -259,7 +261,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   e1_2->incrRef(); e2_3->incrRef(); e3_1->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_4->incrRef();
   QuadraticPolygon pol5; pol5.pushBack(e1_2); pol5.pushBack(e2_3); pol5.pushBack(e3_1);
   QuadraticPolygon pol6; pol6.pushBack(e4_5); pol6.pushBack(e5_6); pol6.pushBack(e6_4);
-  QuadraticPolygon cpyPol5(pol5); nbOfSplits=0;
+  QuadraticPolygon const cpyPol5(pol5); nbOfSplits=0;
   cpyPol5.SplitPolygonsEachOther(pol5,pol6,nbOfSplits);
   CPPUNIT_ASSERT_EQUAL(4,pol5.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(4,pol6.recursiveSize()); CPPUNIT_ASSERT_EQUAL(13,nbOfSplits);
@@ -291,7 +293,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   e1_2->incrRef(); e2_3->incrRef(); e3_1->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_4->incrRef();
   QuadraticPolygon pol7; pol7.pushBack(e1_2); pol7.pushBack(e2_3); pol7.pushBack(e3_1);
   QuadraticPolygon pol8; pol8.pushBack(e4_5); pol8.pushBack(e5_6); pol8.pushBack(e6_4);
-  QuadraticPolygon cpyPol7(pol7); nbOfSplits=0;
+  QuadraticPolygon const cpyPol7(pol7); nbOfSplits=0;
   cpyPol7.SplitPolygonsEachOther(pol7,pol8,nbOfSplits);
   tmp=dynamic_cast<ElementaryEdge *>(pol8[0]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e1_2);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_ON_1);

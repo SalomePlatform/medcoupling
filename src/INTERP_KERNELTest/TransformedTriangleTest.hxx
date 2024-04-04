@@ -20,6 +20,7 @@
 #ifndef __TU_TRANSFORMED_TRIANGLE_HXX__
 #define __TU_TRANSFORMED_TRIANGLE_HXX__
 
+#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "InterpKernelTestExport.hxx"
@@ -45,8 +46,8 @@ namespace INTERP_TEST
  //   CPPUNIT_TEST( test_calcStableC_Consistency );
     CPPUNIT_TEST_SUITE_END();
 
-    typedef INTERP_KERNEL::TransformedTriangle::TriSegment TriSegment;
-    typedef INTERP_KERNEL::TransformedTriangle::DoubleProduct DoubleProduct;
+    using TriSegment = INTERP_KERNEL::TransformedTriangle::TriSegment;
+    using DoubleProduct = INTERP_KERNEL::TransformedTriangle::DoubleProduct;
 
   public:
     void setUp();

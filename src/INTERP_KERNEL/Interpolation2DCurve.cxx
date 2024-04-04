@@ -20,6 +20,7 @@
 
 #include "Interpolation2DCurve.hxx"
 #include "InterpolationCurve.txx"
+#include "InterpolationOptions.hxx"
 
 namespace INTERP_KERNEL
 {

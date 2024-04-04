@@ -17,13 +17,14 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "Log.hxx"
 #include "TransformedTriangle.hxx"
-#include <iostream>
-#include <fstream>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <limits>
 #include <map>
+#include <math.h>
 #include <utility>
 
 #include "VectorUtils.hxx"
@@ -247,8 +248,8 @@ namespace INTERP_KERNEL
   double TransformedTriangle::calculateDistanceCornerSegment(const TetraCorner corner, const TriSegment seg) const
   {
     // NB uses fact that TriSegment <=> TriCorner that is first point of segment (PQ <=> P)
-    const TriCorner ptP_idx = TriCorner(seg);
-    const TriCorner ptQ_idx = TriCorner( (seg + 1) % 3);
+    const auto ptP_idx = TriCorner(seg);
+    const auto ptQ_idx = TriCorner( (seg + 1) % 3);
     
     const double ptP[3] = { _coords[5*ptP_idx], _coords[5*ptP_idx + 1], _coords[5*ptP_idx + 2]  };
     const double ptQ[3] = { _coords[5*ptQ_idx], _coords[5*ptQ_idx + 1], _coords[5*ptQ_idx + 2]  };
@@ -304,7 +305,7 @@ namespace INTERP_KERNEL
             const DoubleProduct dp = DP_FOR_DETERMINANT_EXPANSION[3*corner + (row - 1)];
 
             // get edge by using correspondence between Double Product and Edge
-            TetraEdge edge = TetraEdge(dp);
+            auto const edge = TetraEdge(dp);
 
             // use edge only if it is surrounded by the surface
             if( _triangleSurroundsEdgeCache[edge] )

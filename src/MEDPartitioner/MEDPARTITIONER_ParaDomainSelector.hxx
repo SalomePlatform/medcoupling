@@ -20,8 +20,8 @@
 #ifndef __MEDPARTITIONER_PARADOMAINSELECTOR_HXX__
 #define __MEDPARTITIONER_PARADOMAINSELECTOR_HXX__
 
+#include "MCIdType.hxx"
 #include "MEDPARTITIONER.hxx"
-#include "MCType.hxx"
 
 #include <memory>
 #include <vector>

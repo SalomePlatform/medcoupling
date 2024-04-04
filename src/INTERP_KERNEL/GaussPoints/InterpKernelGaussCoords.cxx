@@ -20,12 +20,17 @@
 //Local includes
 #include "InterpKernelGaussCoords.hxx"
 #include "CellModel.hxx"
+#include "NormalizedGeometricTypes"
+#include "InterpKernelException.hxx"
+#include "MCIdType.hxx"
 
 //STL includes
+#include <cstddef>
 #include <math.h>
 #include <algorithm>
 #include <sstream>
 #include <cmath>
+#include <vector>
 
 using namespace INTERP_KERNEL;
 
@@ -144,7 +149,7 @@ const double GaussInfo::HEXA27A_REF[81]={-1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0,
 //---------------------------------------------------------------
 static bool IsEqual(double theLeft, double theRight) 
 {
-  static double EPS = 1.0E-3;
+  static double const EPS = 1.0E-3;
   if(fabs(theLeft) + fabs(theRight) > EPS)
     return fabs(theLeft-theRight)/(fabs(theLeft)+fabs(theRight)) < EPS;
   return true;
@@ -178,8 +183,7 @@ GaussInfo::GaussInfo( NormalizedCellType theGeometry,
  * Destructor
  */
 GaussInfo::~GaussInfo()
-{
-}
+= default;
 
 /*!
  * Return dimension of the gauss coordinates
@@ -241,10 +245,10 @@ GaussInfo GaussInfo::convertToLinear() const
     {
     case NORM_SEG3:
       {
-        std::vector<double> a(SEG3_REF,SEG3_REF+3);
+        std::vector<double> const a(SEG3_REF,SEG3_REF+3);
         if(IsSatisfy(a,_my_reference_coord))
           {
-            std::vector<double> c(SEG2A_REF,SEG2A_REF+2);
+            std::vector<double> const c(SEG2A_REF,SEG2A_REF+2);
             return GaussInfo(NORM_SEG2,_my_gauss_coord,getNbGauss(),c,2);
           }
         throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for SEG3 !");
@@ -254,22 +258,22 @@ GaussInfo GaussInfo::convertToLinear() const
         std::vector<double> a(TRIA6A_REF,TRIA6A_REF+12),b(TRIA6B_REF,TRIA6B_REF+12);
         if(IsSatisfy(a,_my_reference_coord))
           {
-            std::vector<double> c(TRIA3A_REF,TRIA3A_REF+6);
+            std::vector<double> const c(TRIA3A_REF,TRIA3A_REF+6);
             return GaussInfo(NORM_TRI3,_my_gauss_coord,getNbGauss(),c,3);
           }
         if(IsSatisfy(b,_my_reference_coord))
           {
-            std::vector<double> c(TRIA3B_REF,TRIA3B_REF+6);
+            std::vector<double> const c(TRIA3B_REF,TRIA3B_REF+6);
             return GaussInfo(NORM_TRI3,_my_gauss_coord,getNbGauss(),c,3);
           }
         throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for TRI6 !");
       }
     case NORM_TRI7:
       {
-        std::vector<double> a(TRIA7A_REF,TRIA7A_REF+14);
+        std::vector<double> const a(TRIA7A_REF,TRIA7A_REF+14);
         if(IsSatisfy(a,_my_reference_coord))
           {
-            std::vector<double> c(TRIA3B_REF,TRIA3B_REF+6);
+            std::vector<double> const c(TRIA3B_REF,TRIA3B_REF+6);
             return GaussInfo(NORM_TRI3,_my_gauss_coord,getNbGauss(),c,3);
           }
         throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for TRI7 !");
@@ -279,22 +283,22 @@ GaussInfo GaussInfo::convertToLinear() const
         std::vector<double> a(QUAD8A_REF,QUAD8A_REF+16),b(QUAD8B_REF,QUAD8B_REF+16);
         if(IsSatisfy(a,_my_reference_coord))
           {
-            std::vector<double> c(QUAD4A_REF,QUAD4A_REF+8);
+            std::vector<double> const c(QUAD4A_REF,QUAD4A_REF+8);
             return GaussInfo(NORM_QUAD4,_my_gauss_coord,getNbGauss(),c,4);
           }
         if(IsSatisfy(b,_my_reference_coord))
           {
-            std::vector<double> c(QUAD4B_REF,QUAD4B_REF+8);
+            std::vector<double> const c(QUAD4B_REF,QUAD4B_REF+8);
             return GaussInfo(NORM_QUAD4,_my_gauss_coord,getNbGauss(),c,4);
           }
         throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for QUAD8 !");
       }
     case NORM_QUAD9:
       {
-        std::vector<double> a(QUAD9A_REF,QUAD9A_REF+18);
+        std::vector<double> const a(QUAD9A_REF,QUAD9A_REF+18);
         if(IsSatisfy(a,_my_reference_coord))
           {
-            std::vector<double> c(QUAD4B_REF,QUAD4B_REF+8);
+            std::vector<double> const c(QUAD4B_REF,QUAD4B_REF+8);
             return GaussInfo(NORM_QUAD4,_my_gauss_coord,getNbGauss(),c,4);
           }
         throw INTERP_KERNEL::Exception("GaussInfo::convertToLinear : not recognized pattern for QUAD9 !");
@@ -304,7 +308,7 @@ GaussInfo GaussInfo::convertToLinear() const
         std::vector<double> a(TETRA10A_REF,TETRA10A_REF+30),b(TETRA10B_REF,TETRA10B_REF+30);
         if(IsSatisfy(a,_my_reference_coord))
           {
-            std::vector<double> c(TETRA4A_REF,TETRA4A_REF+12);
+            std::vector<double> const c(TETRA4A_REF,TETRA4A_REF+12);
             return GaussInfo(NORM_TETRA4,_my_gauss_coord,getNbGauss(),c,4);
           }
         if(IsSatisfy(b,_my_reference_coord))
@@ -407,7 +411,7 @@ bool GaussInfo::IsSatisfy(const std::vector<double>& ref1, const std::vector<dou
 bool GaussInfo::isSatisfy() 
 {
 
-  bool anIsSatisfy = ((_my_local_nb_ref == _my_nb_ref) && (_my_local_ref_dim == getReferenceCoordDim()));
+  bool const anIsSatisfy = ((_my_local_nb_ref == _my_nb_ref) && (_my_local_ref_dim == getReferenceCoordDim()));
   //Check coordinates
   if(anIsSatisfy)
     {
@@ -437,10 +441,10 @@ std::vector<double> GaussInfo::NormalizeCoordinatesIfNecessary(NormalizedCellTyp
   if(sz%dim!=0)
     throw INTERP_KERNEL::Exception("GaussInfo::NormalizeCoordinatesIfNecessary : invalid input array ! Inconsistent with the given dimension !");
   const CellModel& cm(CellModel::GetCellModel(ct));
-  std::size_t baseDim((std::size_t)cm.getDimension());
+  auto const baseDim((std::size_t)cm.getDimension());
   if(baseDim==dim)
     return inputArray;
-  std::size_t nbOfItems(sz/dim);
+  std::size_t const nbOfItems(sz/dim);
   std::vector<double> ret(nbOfItems*baseDim);
   if(baseDim>dim)
     {
@@ -542,7 +546,7 @@ bool GaussInfo::IsInOrOutForReference(NormalizedCellType ct, const double *ptInR
   }
 }
 
-typedef void (*MapToShapeFunction)(GaussInfo& obj);
+using MapToShapeFunction = void (*)(GaussInfo &);
 
 /*!
  * Initialize the internal vectors
@@ -630,7 +634,7 @@ void GaussInfo::initLocalInfo()
         _my_local_ref_dim = 2;
         _my_local_nb_ref  = 4;
         MapToShapeFunction QUAD4PTR[]={Quad4aInit,Quad4bInit,Quad4cInit,Quad4DegSeg2Init};
-        std::size_t NB_OF_QUAD4PTR(sizeof(QUAD4PTR)/sizeof(MapToShapeFunction));
+        std::size_t const NB_OF_QUAD4PTR(sizeof(QUAD4PTR)/sizeof(MapToShapeFunction));
         for(std::size_t i=0;i<NB_OF_QUAD4PTR && !aSatify;i++)
           {
             (QUAD4PTR[i])(*this);
@@ -724,7 +728,7 @@ void GaussInfo::initLocalInfo()
         _my_local_ref_dim = 3;
         _my_local_nb_ref  = 6;
         MapToShapeFunction PENTA6PTR[]={Penta6aInit,Penta6bInit,Penta6DegTria3aInit,Penta6DegTria3bInit};
-        std::size_t NB_OF_PENTA6PTR(sizeof(PENTA6PTR)/sizeof(MapToShapeFunction));
+        std::size_t const NB_OF_PENTA6PTR(sizeof(PENTA6PTR)/sizeof(MapToShapeFunction));
         for(std::size_t i=0;i<NB_OF_PENTA6PTR && !aSatify;i++)
           {
             (PENTA6PTR[i])(*this);
@@ -752,7 +756,7 @@ void GaussInfo::initLocalInfo()
         _my_local_ref_dim = 3;
         _my_local_nb_ref  = 15;
         MapToShapeFunction PENTA15PTR[]={Penta15aInit,Penta15bInit};
-        std::size_t NB_OF_PENTA15PTR(sizeof(PENTA15PTR)/sizeof(MapToShapeFunction));
+        std::size_t const NB_OF_PENTA15PTR(sizeof(PENTA15PTR)/sizeof(MapToShapeFunction));
         for(std::size_t i=0;i<NB_OF_PENTA15PTR && !aSatify;i++)
           {
             (PENTA15PTR[i])(*this);
@@ -767,7 +771,7 @@ void GaussInfo::initLocalInfo()
         _my_local_ref_dim = 3;
         _my_local_nb_ref  = 18;
         MapToShapeFunction PENTA18PTR[]={Penta18aInit,Penta18bInit};
-        std::size_t NB_OF_PENTA18PTR(sizeof(PENTA18PTR)/sizeof(MapToShapeFunction));
+        std::size_t const NB_OF_PENTA18PTR(sizeof(PENTA18PTR)/sizeof(MapToShapeFunction));
         for(std::size_t i=0;i<NB_OF_PENTA18PTR && !aSatify;i++)
           {
             (PENTA18PTR[i])(*this);
@@ -782,7 +786,7 @@ void GaussInfo::initLocalInfo()
         _my_local_ref_dim = 3;
         _my_local_nb_ref  = 8;
         MapToShapeFunction HEXA8PTR[]={Hexa8aInit,Hexa8bInit,Hexa8DegQuad4aInit,Hexa8DegQuad4bInit,Hexa8DegQuad4cInit};
-        std::size_t NB_OF_HEXA8PTR(sizeof(HEXA8PTR)/sizeof(MapToShapeFunction));
+        std::size_t const NB_OF_HEXA8PTR(sizeof(HEXA8PTR)/sizeof(MapToShapeFunction));
         for(std::size_t i=0;i<NB_OF_HEXA8PTR && !aSatify;i++)
           {
             (HEXA8PTR[i])(*this);
@@ -4702,8 +4706,7 @@ void GaussInfo::hexa27aInit()
  * Constructor
  */
 GaussCoords::GaussCoords()
-{
-}
+= default;
 
 /*!
  * Destructor
@@ -4746,7 +4749,7 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
     aReferenceCoord.push_back(theReferenceCoord[i]);
 
 
-  GaussInfo* info = new GaussInfo( theGeometry, aGaussCoord, FromIdType<int>(theNbGauss), aReferenceCoord, FromIdType<int>(theNbRef));
+  auto* info = new GaussInfo( theGeometry, aGaussCoord, FromIdType<int>(theNbGauss), aReferenceCoord, FromIdType<int>(theNbRef));
   info->initLocalInfo();
 
   //If info with cell type doesn't exist add it
@@ -4774,8 +4777,8 @@ double* GaussCoords::calculateCoords( NormalizedCellType theGeometry,
                                       const mcIdType *theIndex)
 {
   const GaussInfo *info = getInfoGivenCellType(theGeometry);
-  int nbCoords = theSpaceDim * info->getNbGauss();
-  double *aCoords = new double[nbCoords];
+  int const nbCoords = theSpaceDim * info->getNbGauss();
+  auto *aCoords = new double[nbCoords];
   calculateCoordsAlg(info,theNodeCoords,theSpaceDim,theIndex,aCoords);
   return aCoords;
 }
@@ -4789,9 +4792,9 @@ void GaussCoords::calculateCoords( NormalizedCellType theGeometry, const double 
 
 void GaussCoords::calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const mcIdType *theIndex, double *result)
 {
-  int aConn = info->getNbRef();
+  int const aConn = info->getNbRef();
 
-  int nbCoords = theSpaceDim * info->getNbGauss();
+  int const nbCoords = theSpaceDim * info->getNbGauss();
   std::fill(result,result+nbCoords,0.);
 
   for( int gaussId = 0; gaussId < info->getNbGauss(); gaussId++ ) 

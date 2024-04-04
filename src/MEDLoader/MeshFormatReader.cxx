@@ -19,14 +19,22 @@
 
 #include "MeshFormatReader.hxx"
 
+#include "MCAuto.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MCType.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileData.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "NormalizedGeometricTypes"
 #include "libmesh5.hxx"
 #include "MEDMESHConverterUtilities.hxx"
+#include <algorithm>
 #include <cstring>
-#include <fstream>
+#include <map>
+#include <string>
+#include <vector>
+#include <utility>
 
 namespace MEDCoupling {
 MeshFormatReader::MeshFormatReader():_myMeshName("MESH")
@@ -39,12 +47,12 @@ MeshFormatReader::MeshFormatReader(const std::string& meshFileName,
 {}
 
 MeshFormatReader::~MeshFormatReader()
-{}
+= default;
 
 MEDCoupling::MCAuto<MEDCoupling::MEDFileData> MeshFormatReader::loadInMedFileDS()
 {
     _myStatus = perform();
-    if(_myStatus != MeshFormat::DRS_OK) return 0;
+    if(_myStatus != MeshFormat::DRS_OK) return nullptr;
 
     if ( !_uMesh->getName().c_str() || strlen( _uMesh->getName().c_str() ) == 0 )
         _uMesh->setName( _myMeshName );
@@ -69,9 +77,9 @@ MEDCoupling::MCAuto<MEDCoupling::MEDFileData> MeshFormatReader::loadInMedFileDS(
 
 MeshFormat::Status MeshFormatReader::perform()
 {
-    MeshFormat::Localizer loc;
+    MeshFormat::Localizer const loc;
 
-    MeshFormat::Status status = MeshFormat::DRS_OK;
+    MeshFormat::Status const status = MeshFormat::DRS_OK;
 
 
     // open the file
@@ -99,13 +107,13 @@ MeshFormat::Status MeshFormatReader::perform()
     setNodes(coordArray);
 
 
-    int nbEdges = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfEdges);
-    int nbTria = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfTriangles);
-    int nbQuad = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfQuadrilaterals);
-    int nbTet = _reader.GmfStatKwd( _myCurrentFileId, MeshFormat::GmfTetrahedra );
-    int nbPyr = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfPyramids);
-    int nbHex = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfHexahedra);
-    int nbPrism = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfPrisms);
+    int const nbEdges = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfEdges);
+    int const nbTria = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfTriangles);
+    int const nbQuad = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfQuadrilaterals);
+    int const nbTet = _reader.GmfStatKwd( _myCurrentFileId, MeshFormat::GmfTetrahedra );
+    int const nbPyr = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfPyramids);
+    int const nbHex = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfHexahedra);
+    int const nbPrism = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfPrisms);
 
     _dim1NbEl = nbEdges;
     _dim2NbEl = nbTria + nbQuad;
@@ -210,7 +218,7 @@ MeshFormat::Status MeshFormatReader::perform()
 MeshFormat::Status MeshFormatReader::performFields()
 {
 
-    MeshFormat::Status status = MeshFormat::DRS_OK;
+    MeshFormat::Status const status = MeshFormat::DRS_OK;
     _fields = MEDCoupling::MEDFileFields::New();
 
 
@@ -250,7 +258,7 @@ MeshFormat::Status MeshFormatReader::performFields()
         }
 
 
-        MeshFormat::GmfKwdCod kwd = meshFormatSol[0];
+        MeshFormat::GmfKwdCod const kwd = meshFormatSol[0];
         int NmbSol, NmbTypes, NmbReals, TypesTab[ GmfMaxTyp ];
         NmbSol = _reader.GmfStatKwd( _myCurrentFileId, kwd, &NmbTypes, &NmbReals, TypesTab );
         if(NmbSol)
@@ -310,9 +318,9 @@ void MeshFormatReader::setFields( MeshFormat::GmfKwdCod kwd, int nmbSol, int nbC
     double* values = fieldValues->getPointer();
 
     int ref;
-    double *val = new double[nbComp];
+    auto *val = new double[nbComp];
 
-    bool isOnAll = (_uMesh->getNumberOfNodes()== nmbSol);
+    bool const isOnAll = (_uMesh->getNumberOfNodes()== nmbSol);
 
 
     for(int i = 1; i<= nmbSol; i++)
@@ -339,7 +347,7 @@ void MeshFormatReader::setFields( MeshFormat::GmfKwdCod kwd, int nmbSol, int nbC
 
 
     timeStamp->setMesh( dimMesh );
-    std::string name = "Field_on_Vertex";
+    std::string const name = "Field_on_Vertex";
     timeStamp->setName(name);
     timeStamp->setArray(fieldValues);
     // set an order
@@ -409,8 +417,8 @@ void MeshFormatReader::backward_shift(mcIdType* tab, int size)
 MeshFormat::Status MeshFormatReader::setNodes( MEDCoupling::DataArrayDouble* coordArray)
 {
 
-    MeshFormat::Status status = MeshFormat::DRS_OK;
-    int nbNodes = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfVertices);
+    MeshFormat::Status const status = MeshFormat::DRS_OK;
+    int const nbNodes = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfVertices);
     if ( nbNodes < 1 )
         return addMessage( "No nodes in the mesh", /*fatal=*/true );
 
@@ -436,7 +444,7 @@ MeshFormat::Status MeshFormatReader::setNodes( MEDCoupling::DataArrayDouble* coo
             nCoords[1] = y;
             nCoords[2] = z;
             std::copy(coordPointer, coordPointer+_dim, coordPrt);
-            MeshFormatElement e(MeshFormat::GmfVertices, i-1);
+            MeshFormatElement const e(MeshFormat::GmfVertices, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 1);
             coordPrt += _dim;
 
@@ -455,7 +463,7 @@ MeshFormat::Status MeshFormatReader::setNodes( MEDCoupling::DataArrayDouble* coo
             nCoords[1] = y;
             nCoords[2] = z;
             std::copy(coordPointer, coordPointer+_dim, coordPrt);
-            MeshFormatElement e(MeshFormat::GmfVertices, i-1);
+            MeshFormatElement const e(MeshFormat::GmfVertices, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 1);
             coordPrt += _dim;
         }
@@ -474,7 +482,7 @@ void MeshFormatReader::setEdges( MEDCoupling::MEDCouplingUMesh* dimMesh1, int nb
     int ref;
     // read extra vertices for quadratic edges
     std::vector<int> quadNodesAtEdges( nbEdges + 1, -1 );
-    if ( int nbQuadEdges = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfExtraVerticesAtEdges))
+    if ( int const nbQuadEdges = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfExtraVerticesAtEdges))
     {
         _reader.GmfGotoKwd(_myCurrentFileId, MeshFormat::GmfExtraVerticesAtEdges);
         for ( int i = 1; i <= nbQuadEdges; ++i )
@@ -496,7 +504,7 @@ void MeshFormatReader::setEdges( MEDCoupling::MEDCouplingUMesh* dimMesh1, int nb
             mcIdType nodalConnPerCell[3] = {iN[0], iN[1], midN};
             backward_shift(nodalConnPerCell, 3);
             dimMesh1->insertNextCell(INTERP_KERNEL::NORM_SEG3, 3,nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfEdges, i-1);
+            MeshFormatElement const e(MeshFormat::GmfEdges, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 1 -_dim);
         }
         else
@@ -505,7 +513,7 @@ void MeshFormatReader::setEdges( MEDCoupling::MEDCouplingUMesh* dimMesh1, int nb
             mcIdType nodalConnPerCell[2] = {iN[0], iN[1]};
             backward_shift(nodalConnPerCell, 2);
             dimMesh1->insertNextCell(INTERP_KERNEL::NORM_SEG2, 2,nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfEdges, i-1);
+            MeshFormatElement const e(MeshFormat::GmfEdges, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 1 -_dim);
         }
     }
@@ -521,7 +529,7 @@ void MeshFormatReader::setTriangles(MEDCoupling::MEDCouplingUMesh* dimMesh2, int
     int ref;
     // read extra vertices for quadratic triangles
     std::vector< std::vector<int> > quadNodesAtTriangles( nbTria + 1 );
-    if ( int nbQuadTria = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfExtraVerticesAtTriangles ))
+    if ( int const nbQuadTria = _reader.GmfStatKwd(_myCurrentFileId, MeshFormat::GmfExtraVerticesAtTriangles ))
     {
         _reader.GmfGotoKwd( _myCurrentFileId, MeshFormat::GmfExtraVerticesAtTriangles );
         for ( int i = 1; i <= nbQuadTria; ++i )
@@ -552,7 +560,7 @@ void MeshFormatReader::setTriangles(MEDCoupling::MEDCouplingUMesh* dimMesh2, int
             mcIdType nodalConnPerCell[6] = {iN[0], iN[1], iN[2], midN[0], midN[1], midN[2]};
             backward_shift(nodalConnPerCell, 6);
             dimMesh2->insertNextCell(INTERP_KERNEL::NORM_TRI6, 6, nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfTriangles, i-1);
+            MeshFormatElement const e(MeshFormat::GmfTriangles, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 2 -_dim);
         }
         else
@@ -560,7 +568,7 @@ void MeshFormatReader::setTriangles(MEDCoupling::MEDCouplingUMesh* dimMesh2, int
             mcIdType nodalConnPerCell[3] = {iN[0], iN[1], iN[2]};
             backward_shift(nodalConnPerCell, 3);
             dimMesh2->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfTriangles, i-1);
+            MeshFormatElement const e(MeshFormat::GmfTriangles, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 2 -_dim);
         }
         if ( !midN.empty() ) MeshFormat::FreeVector( midN );
@@ -575,7 +583,7 @@ void MeshFormatReader::setQuadrangles( MEDCoupling::MEDCouplingUMesh* dimMesh2, 
     int ref;
     // read extra vertices for quadratic quadrangles
     std::vector< std::vector<int> > quadNodesAtQuadrilaterals( nbQuad + 1 );
-    if ( int nbQuadQuad = _reader.GmfStatKwd( _myCurrentFileId, MeshFormat::GmfExtraVerticesAtQuadrilaterals ))
+    if ( int const nbQuadQuad = _reader.GmfStatKwd( _myCurrentFileId, MeshFormat::GmfExtraVerticesAtQuadrilaterals ))
     {
         _reader.GmfGotoKwd(_myCurrentFileId, MeshFormat::GmfExtraVerticesAtQuadrilaterals);
         for ( int i = 1; i <= nbQuadQuad; ++i )
@@ -603,7 +611,7 @@ void MeshFormatReader::setQuadrangles( MEDCoupling::MEDCouplingUMesh* dimMesh2, 
                                            };
             backward_shift(nodalConnPerCell, 8);
             dimMesh2->insertNextCell(INTERP_KERNEL::NORM_QUAD8,8, nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfQuadrilaterals, i-1);
+            MeshFormatElement const e(MeshFormat::GmfQuadrilaterals, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 2 -_dim);
         }
         else if ( midN.size() > 8-4 ) // QUAD9
@@ -613,7 +621,7 @@ void MeshFormatReader::setQuadrangles( MEDCoupling::MEDCouplingUMesh* dimMesh2, 
                                            };
             backward_shift(nodalConnPerCell, 9);
             dimMesh2->insertNextCell(INTERP_KERNEL::NORM_QUAD9,9, nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfQuadrilaterals, i-1);
+            MeshFormatElement const e(MeshFormat::GmfQuadrilaterals, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 2 -_dim);
         }
         else // QUAD4
@@ -621,7 +629,7 @@ void MeshFormatReader::setQuadrangles( MEDCoupling::MEDCouplingUMesh* dimMesh2, 
             mcIdType nodalConnPerCell[4] = {iN[0], iN[1], iN[2], iN[3]};
             backward_shift(nodalConnPerCell, 4);
             dimMesh2->insertNextCell(INTERP_KERNEL::NORM_QUAD4, 4, nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfQuadrilaterals, i-1);
+            MeshFormatElement const e(MeshFormat::GmfQuadrilaterals, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 2 -_dim);
         }
         if ( !midN.empty() ) MeshFormat::FreeVector( midN );
@@ -635,7 +643,7 @@ void MeshFormatReader::setTetrahedras( MEDCoupling::MEDCouplingUMesh* dimMesh3, 
     int ref;
     // read extra vertices for quadratic tetrahedra
     std::vector< std::vector<int> > quadNodesAtTetrahedra( nbTet + 1 );
-    if ( int nbQuadTetra = _reader.GmfStatKwd( _myCurrentFileId, MeshFormat::GmfExtraVerticesAtTetrahedra ))
+    if ( int const nbQuadTetra = _reader.GmfStatKwd( _myCurrentFileId, MeshFormat::GmfExtraVerticesAtTetrahedra ))
     {
         _reader.GmfGotoKwd(_myCurrentFileId, MeshFormat::GmfExtraVerticesAtTetrahedra);
         for ( int i = 1; i <= nbQuadTetra; ++i )
@@ -663,7 +671,7 @@ void MeshFormatReader::setTetrahedras( MEDCoupling::MEDCouplingUMesh* dimMesh3, 
                                             };
             backward_shift(nodalConnPerCell, 10);
             dimMesh3->insertNextCell(INTERP_KERNEL::NORM_TETRA10, 10,nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfTetrahedra, i-1);
+            MeshFormatElement const e(MeshFormat::GmfTetrahedra, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 3 -_dim);
         }
         else // TETRA4
@@ -671,7 +679,7 @@ void MeshFormatReader::setTetrahedras( MEDCoupling::MEDCouplingUMesh* dimMesh3, 
             mcIdType nodalConnPerCell[4] = {iN[0], iN[2], iN[1], iN[3]};
             backward_shift(nodalConnPerCell, 4);
             dimMesh3->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4, nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfTetrahedra, i-1);
+            MeshFormatElement const e(MeshFormat::GmfTetrahedra, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 3 -_dim);
         }
         if ( !midN.empty() ) MeshFormat::FreeVector( midN );
@@ -691,7 +699,7 @@ void MeshFormatReader::setPyramids( MEDCoupling::MEDCouplingUMesh* dimMesh3, int
         mcIdType nodalConnPerCell[5] = {iN[3], iN[2], iN[1], iN[0], iN[4]};
         backward_shift(nodalConnPerCell, 5);
         dimMesh3->insertNextCell(INTERP_KERNEL::NORM_PYRA5, 5,nodalConnPerCell);
-        MeshFormatElement e(MeshFormat::GmfPyramids, i-1);
+        MeshFormatElement const e(MeshFormat::GmfPyramids, i-1);
         _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 3 -_dim);
     }
 
@@ -704,7 +712,7 @@ void MeshFormatReader::setHexahedras( MEDCoupling::MEDCouplingUMesh* dimMesh3, i
     int ref;
     // read extra vertices for quadratic hexahedra
     std::vector< std::vector<int> > quadNodesAtHexahedra( nbHex + 1 );
-    if ( int nbQuadHexa = _reader.GmfStatKwd( _myCurrentFileId, MeshFormat::GmfExtraVerticesAtHexahedra ))
+    if ( int const nbQuadHexa = _reader.GmfStatKwd( _myCurrentFileId, MeshFormat::GmfExtraVerticesAtHexahedra ))
     {
         _reader.GmfGotoKwd(_myCurrentFileId, MeshFormat::GmfExtraVerticesAtHexahedra);
         for ( int i = 1; i <= nbQuadHexa; ++i )
@@ -744,7 +752,7 @@ void MeshFormatReader::setHexahedras( MEDCoupling::MEDCouplingUMesh* dimMesh3, i
                                             };
             backward_shift(nodalConnPerCell, 20);
             dimMesh3->insertNextCell(INTERP_KERNEL::NORM_HEXA20,20, nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfHexahedra, i-1);
+            MeshFormatElement const e(MeshFormat::GmfHexahedra, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 3 -_dim);
 
 
@@ -763,7 +771,7 @@ void MeshFormatReader::setHexahedras( MEDCoupling::MEDCouplingUMesh* dimMesh3, i
                                             };
             backward_shift(nodalConnPerCell, 27);
             dimMesh3->insertNextCell(INTERP_KERNEL::NORM_HEXA27,27, nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfHexahedra, i-1);
+            MeshFormatElement const e(MeshFormat::GmfHexahedra, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 3 -_dim);
 
         }
@@ -774,7 +782,7 @@ void MeshFormatReader::setHexahedras( MEDCoupling::MEDCouplingUMesh* dimMesh3, i
                                            };
             backward_shift(nodalConnPerCell, 8);
             dimMesh3->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8, nodalConnPerCell);
-            MeshFormatElement e(MeshFormat::GmfHexahedra, i-1);
+            MeshFormatElement const e(MeshFormat::GmfHexahedra, i-1);
             _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 3 -_dim);
 
         }
@@ -797,7 +805,7 @@ void MeshFormatReader::setPrisms(MEDCoupling::MEDCouplingUMesh* dimMesh3, int nb
         mcIdType nodalConnPerCell[8] = {iN[0], iN[2], iN[1], iN[3], iN[5], iN[4]};
         backward_shift(nodalConnPerCell, 8);
         dimMesh3->insertNextCell(INTERP_KERNEL::NORM_PENTA6, 6,nodalConnPerCell);
-        MeshFormatElement e(MeshFormat::GmfPrisms, i-1);
+        MeshFormatElement const e(MeshFormat::GmfPrisms, i-1);
         _fams.insert(std::pair <int, MeshFormatElement> (ref, e), 3 -_dim);
 
     }
@@ -877,7 +885,7 @@ void MeshFormatReader::setTypeOfFieldAndDimRel(MeshFormat::GmfKwdCod kwd, MEDCou
 }
 
 
-INTERP_KERNEL::NormalizedCellType MeshFormatReader::toMedType(MeshFormat::GmfKwdCod kwd)
+INTERP_KERNEL::NormalizedCellType MeshFormatReader::toMedType(MeshFormat::GmfKwdCod  /*kwd*/)
 {
     INTERP_KERNEL::NormalizedCellType type;
     //~switch (kwd)
@@ -919,13 +927,12 @@ void MeshFormatReader::buildFamilies()
 
 void MeshFormatReader::buildCellsFamilies()
 {
-    std::vector<int> levs =  _uMesh->getNonEmptyLevels();
-    for (size_t iDim = 0; iDim<levs.size(); iDim++ )
+    std::vector<int> const levs =  _uMesh->getNonEmptyLevels();
+    for (int const dimRelMax : levs)
     {
-        int dimRelMax = levs[iDim];
         std::map <int, std::vector<MeshFormatElement>* > famDim = _fams.getMapAtLevel(dimRelMax);
         std::map <int, std::vector<MeshFormatElement>* >::const_iterator _meshFormatFamsIt = famDim.begin();
-        std::vector< const MEDCoupling::DataArrayIdType* > fams;
+        std::vector< const MEDCoupling::DataArrayIdType* > const fams;
         MEDCoupling::DataArrayIdType* cellIds = MEDCoupling::DataArrayIdType::New();
         cellIds->alloc(_uMesh->getSizeAtLevel(dimRelMax), 1);
         cellIds->fillWithZero();
@@ -933,10 +940,10 @@ void MeshFormatReader::buildCellsFamilies()
         for(; _meshFormatFamsIt!= famDim.end(); ++_meshFormatFamsIt)
         {
             const int famId = _meshFormatFamsIt->first;
-            std::string famName ="FromMeshGemsFormatAttributFamily_"+std::to_string(famId);
+            std::string const famName ="FromMeshGemsFormatAttributFamily_"+std::to_string(famId);
             std::vector <MeshFormatElement>* cellsInFam = _meshFormatFamsIt->second;
             if (!famId) continue;
-            std::vector <MeshFormatElement>::iterator cellsInFamIt = cellsInFam->begin();
+            auto cellsInFamIt = cellsInFam->begin();
 
             _uMesh->addFamily(famName, famId);
             for ( ; cellsInFamIt !=cellsInFam->end(); ++cellsInFamIt)
@@ -954,11 +961,11 @@ void MeshFormatReader::buildCellsFamilies()
 
 void MeshFormatReader::buildNodesFamilies()
 {
-  std::vector<int> levs =  _uMesh->getNonEmptyLevels();
-     int dimRelMax = 1;
+  std::vector<int> const levs =  _uMesh->getNonEmptyLevels();
+     int const dimRelMax = 1;
   std::map <int, std::vector<MeshFormatElement>* > famDim = _fams.getMapAtLevel(dimRelMax);
   std::map <int, std::vector<MeshFormatElement>* >::const_iterator _meshFormatFamsIt = famDim.begin();
-  std::vector< const MEDCoupling::DataArrayIdType* > fams;
+  std::vector< const MEDCoupling::DataArrayIdType* > const fams;
   MEDCoupling::DataArrayIdType* cellIds = MEDCoupling::DataArrayIdType::New();
   cellIds->alloc(_uMesh->getSizeAtLevel(dimRelMax), 1);
   cellIds->fillWithZero();
@@ -969,11 +976,10 @@ void MeshFormatReader::buildNodesFamilies()
     if (!famId) continue; 
     bool thisIsACellFamily = false;
     
-    for (size_t iDim = 0; iDim<levs.size(); iDim++ )
+    for (int const dimMesh : levs)
     {
-      int dimMesh = levs[iDim];
       std::map <int, std::vector<MeshFormatElement>* > famDimAtLevel = _fams.getMapAtLevel(dimMesh);  
-      std::map <int, std::vector<MeshFormatElement>* >::iterator famDimAtLevelId = famDimAtLevel.find(famId);  
+      auto const famDimAtLevelId = famDimAtLevel.find(famId);  
       if (famDimAtLevelId != famDimAtLevel.end())
       {
         thisIsACellFamily = true;
@@ -983,9 +989,9 @@ void MeshFormatReader::buildNodesFamilies()
     }
     
     if (thisIsACellFamily) continue;
-    std::string famName ="FromMeshGemsFormatAttributFamily_"+std::to_string(famId);
+    std::string const famName ="FromMeshGemsFormatAttributFamily_"+std::to_string(famId);
     std::vector <MeshFormatElement>* cellsInFam = _meshFormatFamsIt->second;
-    std::vector <MeshFormatElement>::iterator cellsInFamIt = cellsInFam->begin();
+    auto cellsInFamIt = cellsInFam->begin();
 
     _uMesh->addFamily(famName, famId);
     for ( ; cellsInFamIt !=cellsInFam->end(); ++cellsInFamIt)

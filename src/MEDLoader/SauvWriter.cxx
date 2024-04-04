@@ -23,16 +23,30 @@
 #include "SauvWriter.hxx"
 
 #include "InterpKernelException.hxx"
+#include "MCIdType.hxx"
+#include "MEDFileFieldMultiTS.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileData.hxx"
 #include "CellModel.hxx"
+#include "NormalizedGeometricTypes"
+#include "SauvUtilities.hxx"
 
+#include <cctype>
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <cstdlib>
 #include <iomanip>
+#include <map>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
 using namespace MEDCoupling;
 using namespace SauvUtilities;
@@ -87,7 +101,7 @@ namespace
     if ( !name.empty() )
       {
         // cut off leading white spaces
-        string::size_type firstChar = name.find_first_not_of(" \t");
+        string::size_type const firstChar = name.find_first_not_of(" \t");
         if (firstChar < name.length())
           {
             name = name.substr(firstChar);
@@ -97,7 +111,7 @@ namespace
             name = ""; // only whitespaces there - remove them
           }
         // cut off trailing white spaces
-        string::size_type lastChar = name.find_last_not_of(" \t");
+        string::size_type const lastChar = name.find_last_not_of(" \t");
         if (lastChar < name.length())
           name = name.substr(0, lastChar + 1);
       }
@@ -130,7 +144,7 @@ namespace
     if (!healedName.empty())
       {
         string name = healedName;
-        std::size_t len = name.length();
+        std::size_t const len = name.length();
         for (std::size_t i = 0; i < len; ++i)
           name[i] = (char)toupper(name[i]);
 
@@ -141,13 +155,13 @@ namespace
           {
             INFOS_MED("Save <" << theName << "> as <" << name << ">");
 
-            map<string,int>::iterator it = nameMap.find(name);
+            auto const it = nameMap.find(name);
             if (it != nameMap.end())
               {
                 // There is already such name in the map.
 
                 // a. Replace in the map the old pair by the current one
-                int old_ind = nameMap[name];
+                int const old_ind = nameMap[name];
                 nameMap[name] = ind;
                 // b. Rebuild the old pair (which was in the map,
                 //    it seems to be built automatically by step II)
@@ -168,10 +182,10 @@ namespace
                     if (new_loc_index > 0)
                       {
                         // prefix
-                        string str = name.substr(0,5);
+                        string const str = name.substr(0,5);
                         if (namePrefixesMap.find(str) != namePrefixesMap.end())
                           {
-                            int old_loc_index = namePrefixesMap[str];
+                            int const old_loc_index = namePrefixesMap[str];
                             if (new_loc_index < old_loc_index) new_loc_index = old_loc_index;
                           }
                         namePrefixesMap[str] = new_loc_index;
@@ -187,7 +201,7 @@ namespace
         if (len > 5) name = name.substr(0,5);
 
         // numeric suffix
-        map<string,int>::iterator name2ind = namePrefixesMap.insert( make_pair( name, 0 )).first;
+        auto const name2ind = namePrefixesMap.insert( make_pair( name, 0 )).first;
         string numSuffix = SauvUtilities::toString( ++(name2ind->second) );
 
         if ( numSuffix.size() + name.size() > 8 )
@@ -263,7 +277,7 @@ void SauvWriter::setMEDFileDS(const MEDFileData* medData,
     for ( int i = 0; i < fields->getNumberOfFields(); ++i )
       {
         MEDFileAnyTypeFieldMultiTS * fB = fields->getFieldAtPos(i);
-        MEDFileFieldMultiTS * f = dynamic_cast<MEDFileFieldMultiTS *>(fB);
+        auto * f = dynamic_cast<MEDFileFieldMultiTS *>(fB);
         if(!f)
           continue;// fields on int32 not managed
         if ( f->getMeshName() == _fileMesh->getName() )
@@ -330,10 +344,8 @@ void SauvWriter::fillSubMeshes( int& nbSauvObjects, map<string,int>& nameNbMap )
   // fill names of SubMesh'es and count nb of sauv sub-meshes they will be stored into
   nbSauvObjects = 0;
   map<string,int> namePrefixMap;
-  for ( size_t i = 0; i < _subs.size(); ++i )
+  for (auto & sm : _subs)
     {
-      SubMesh& sm = _subs[i];
-
       sm._nbSauvObjects = 0;
       if ( sm._subs.empty() )
         {
@@ -369,11 +381,10 @@ void SauvWriter::fillSubMeshes( int& nbSauvObjects, map<string,int>& nameNbMap )
 
 void SauvWriter::fillFamilySubMeshes()
 {
-  SubMesh* nilSm = (SubMesh*) 0;
-  std::vector<int> dims = _fileMesh->getNonEmptyLevelsExt();
-  for ( size_t iDim = 0; iDim < dims.size(); ++iDim )
+  auto* nilSm = (SubMesh*) nullptr;
+  std::vector<int> const dims = _fileMesh->getNonEmptyLevelsExt();
+  for (int const dimRelExt : dims)
     {
-      int dimRelExt = dims[ iDim ];
       MCAuto< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel(dimRelExt);
       const DataArrayIdType * famIds = _fileMesh->getFamilyFieldAtLevel(dimRelExt);
       if ( !famIds ) continue;
@@ -389,12 +400,12 @@ void SauvWriter::fillFamilySubMeshes()
           if ( *famID != curFamID )
             {
               curFamID = *famID;
-              map< mcIdType, SubMesh* >::iterator f2s = _famIDs2Sub.insert( make_pair( curFamID, nilSm )).first;
+              auto const f2s = _famIDs2Sub.insert( make_pair( curFamID, nilSm )).first;
               if ( !f2s->second )
                 f2s->second = addSubMesh( "", dimRelExt ); // no names for families
               curSubMesh = f2s->second;
             }
-          INTERP_KERNEL::NormalizedCellType cellType =
+          INTERP_KERNEL::NormalizedCellType const cellType =
             dimRelExt == 1 ? INTERP_KERNEL::NORM_POINT1 : mesh->getTypeOfCell( cellID );
           curSubMesh->_cellIDsByType[ cellType ].push_back( cellID );
         }
@@ -432,7 +443,7 @@ void SauvWriter::fillFamilySubMeshes()
 void SauvWriter::fillGroupSubMeshes()
 {
   const map<string, vector<string> >& grpFams = _fileMesh->getGroupInfo();
-  map<string, vector<string> >::const_iterator g2ff = grpFams.begin();
+  auto g2ff = grpFams.begin();
   for ( ; g2ff != grpFams.end(); ++g2ff )
     {
       const string&        groupName = g2ff->first;
@@ -440,10 +451,10 @@ void SauvWriter::fillGroupSubMeshes()
       if ( famNames.empty() ) continue;
       std::vector<SubMesh*> famSubMeshes( famNames.size() );
       std::size_t k = 0;
-      for ( size_t i = 0; i < famNames.size(); ++i )
+      for (const auto & famName : famNames)
         {
-          mcIdType famID = _fileMesh->getFamilyId( famNames[i].c_str() );
-          map< mcIdType, SubMesh* >::iterator i2f = _famIDs2Sub.find( famID );
+          mcIdType const famID = _fileMesh->getFamilyId( famName.c_str() );
+          auto const i2f = _famIDs2Sub.find( famID );
           if ( i2f != _famIDs2Sub.end() )
             {
               famSubMeshes[ k ] = i2f->second;
@@ -489,19 +500,19 @@ void SauvWriter::fillGroupSubMeshes()
 void SauvWriter::fillProfileSubMeshes()
 {
   _profile2Sub.clear();
-  SubMesh* nilSm = (SubMesh*) 0;
+  auto* nilSm = (SubMesh*) nullptr;
   for ( int isOnNodes = 0; isOnNodes < 2; ++isOnNodes )
     {
       vector< MCAuto< MEDFileFieldMultiTS > >
         fields = isOnNodes ? _nodeFields : _cellFields;
-      for ( size_t i = 0; i < fields.size(); ++i )
+      for (auto & field : fields)
         {
-          vector< pair<int,int> > iters = fields[i]->getIterations();
+          vector< pair<int,int> > iters = field->getIterations();
 
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
-          fields[i]->getFieldSplitedByType( iters[0].first, iters[0].second,
+          field->getFieldSplitedByType( iters[0].first, iters[0].second,
                                             _fileMesh->getName().c_str(), types, typesF, pfls, locs);
           int dimRelExt;
           for ( size_t iType = 0; iType < types.size(); ++iType )
@@ -512,14 +523,14 @@ void SauvWriter::fillProfileSubMeshes()
                 dimRelExt = getDimension( types[iType] ) - _fileMesh->getMeshDimension();
               for ( size_t iPfl = 0; iPfl < pfls[iType].size(); ++iPfl )
                 {
-                  bool isOnAll = pfls[iType][iPfl].empty();
+                  bool const isOnAll = pfls[iType][iPfl].empty();
                   if ( isOnAll ) pfls[iType][iPfl] = noProfileName( types[iType] );
-                  map< string, SubMesh* >::iterator pfl2sm =
+                  auto const pfl2sm =
                     _profile2Sub.insert( make_pair( pfls[iType][iPfl], nilSm )).first;
                   if ( !pfl2sm->second )
                     {
                       SubMesh* sm = pfl2sm->second = addSubMesh( "", dimRelExt ); // no names for profiles
-                      const DataArrayIdType * pfl = isOnAll ? 0 : fields[i]->getProfile( pfls[iType][iPfl].c_str() );
+                      const DataArrayIdType * pfl = isOnAll ? nullptr : field->getProfile( pfls[iType][iPfl].c_str() );
                       makeProfileIDs( sm, types[iType], pfl );
                     }
                 }
@@ -537,19 +548,19 @@ void SauvWriter::fillProfileSubMeshes()
 int SauvWriter::evaluateNbProfileSubMeshes() const
 {
   std::size_t nb = 0;
-  for ( std::size_t i = 0; i < _nodeFields.size(); ++i )
-    nb += 1 + _nodeFields[i]->getPflsReallyUsed().size();
+  for (const auto & _nodeField : _nodeFields)
+    nb += 1 + _nodeField->getPflsReallyUsed().size();
 
-  for ( std::size_t i = 0; i < _cellFields.size(); ++i )
+  for (const auto & _cellField : _cellFields)
     {
-      nb += _cellFields[i]->getPflsReallyUsed().size();
+      nb += _cellField->getPflsReallyUsed().size();
 
-      vector< pair<int,int> > iters = _cellFields[i]->getIterations();
+      vector< pair<int,int> > iters = _cellField->getIterations();
 
       vector<INTERP_KERNEL::NormalizedCellType> types;
       vector< vector<TypeOfField> > typesF;
       vector< vector<string> > pfls, locs;
-      _cellFields[i]->getFieldSplitedByType( iters[0].first, iters[0].second,
+      _cellField->getFieldSplitedByType( iters[0].first, iters[0].second,
                                              _fileMesh->getName().c_str(), types, typesF, pfls, locs);
       nb += 2 * types.size(); // x 2 - a type can be on nodes and on cells at the same time
     }
@@ -569,7 +580,7 @@ void SauvWriter::makeProfileIDs( SubMesh*                          sm,
 {
   MCAuto< MEDCouplingMesh >
     mesh = _fileMesh->getMeshAtLevel(sm->_dimRelExt);
-  const MEDCouplingUMesh* uMesh = dynamic_cast< const MEDCouplingUMesh* > ((const MEDCouplingMesh*) mesh );
+  const auto* uMesh = dynamic_cast< const MEDCouplingUMesh* > ((const MEDCouplingMesh*) mesh );
 
   if ( sm->_dimRelExt == 1 ) type = INTERP_KERNEL::NORM_POINT1;
   vector< mcIdType >& ids = sm->_cellIDsByType[ type ];
@@ -603,7 +614,7 @@ void SauvWriter::makeProfileIDs( SubMesh*                          sm,
           code[1] = mesh->getNumberOfCellsWithType( type );
           code[2] = -1;
         }
-      vector<const DataArrayIdType *> idsPerType( 1, profile );
+      vector<const DataArrayIdType *> const idsPerType( 1, profile );
       MCAuto<DataArrayIdType>
         resIDs = uMesh->checkTypeConsistencyAndContig( code, idsPerType );
       if (( const DataArrayIdType *) resIDs )
@@ -691,7 +702,7 @@ void SauvWriter::writeNames( const map<string,int>& nameNbMap )
     // * 8001       FORMAT(8(1X,A8))
     TFieldCounter fcount( *_sauvFile, 8 );
     *_sauvFile << left;
-    map<string,int>::const_iterator nameNbIt = nameNbMap.begin();
+    auto nameNbIt = nameNbMap.begin();
     for ( ; nameNbIt != nameNbMap.end(); nameNbIt++, fcount++ )
       *_sauvFile << " " << setw(8) << nameNbIt->first;
     fcount.stop();
@@ -729,7 +740,7 @@ void SauvWriter::writeSubMeshes()
 
   for ( unsigned int iSub = 0; iSub < _subs.size(); ++iSub )
     {
-      SubMesh& sm = _subs[iSub];
+      SubMesh const& sm = _subs[iSub];
       if ( sm._nbSauvObjects < 1 ) continue;
 
       // The first record of each sub-mesh writes
@@ -756,13 +767,13 @@ void SauvWriter::writeSubMeshes()
               const vector<mcIdType>& cellIDs = sm._cellIDsByType[iType];
               if ( cellIDs.empty() ) continue;
 
-              INTERP_KERNEL::NormalizedCellType
+              auto
                 cellType = INTERP_KERNEL::NormalizedCellType( iType );
               const INTERP_KERNEL::CellModel &
                 cell = INTERP_KERNEL::CellModel::GetCellModel( cellType );
-              int castemType       = SauvUtilities::med2gibiGeom( cellType );
-              unsigned nbElemNodes = cell.getNumberOfNodes();
-              std::size_t  nbElems = cellIDs.size();
+              int const castemType       = SauvUtilities::med2gibiGeom( cellType );
+              unsigned const nbElemNodes = cell.getNumberOfNodes();
+              std::size_t  const nbElems = cellIDs.size();
 
               *_sauvFile << setw(8) << castemType
                         << zeroI8
@@ -818,13 +829,13 @@ void SauvWriter::writeSubMeshes()
 
 void SauvWriter::writeCompoundSubMesh(int iSub)
 {
-  SubMesh& sm = _subs[iSub];
+  SubMesh const& sm = _subs[iSub];
   if ( sm._nbSauvObjects < 1 || sm._subs.empty()) return;
 
   vector< int > subIDs;
-  for ( size_t i = 0; i < sm._subs.size(); ++i ) // loop on sub-meshes of families
-    for ( int j = 0; j < sm._subs[i]->_nbSauvObjects; ++j )
-      subIDs.push_back( sm._subs[i]->_id + j );
+  for (auto & _sub : sm._subs) // loop on sub-meshes of families
+    for ( int j = 0; j < _sub->_nbSauvObjects; ++j )
+      subIDs.push_back( _sub->_id + j );
       
   *_sauvFile << zeroI8
              << setw(8) << subIDs.size()
@@ -881,8 +892,8 @@ void SauvWriter::writeNodes()
   {
     for ( int j = 0; j < dim; ++j, fcount++ )
       {
-        double coo = coordArray->getIJ( i, j );
-        bool  zero = ( -precision < coo && coo < precision );
+        double const coo = coordArray->getIJ( i, j );
+        bool  const zero = ( -precision < coo && coo < precision );
         *_sauvFile << setw(22) << ( zero ? 0.0 : coo );
       }
     *_sauvFile << density;
@@ -902,7 +913,7 @@ void SauvWriter::writeNodes()
 
 void SauvWriter::writeLongNames()
 {
-  int nbTables =
+  int const nbTables =
     3 - _longNames[ LN_MAIL ].empty() - _longNames[ LN_CHAM ].empty() - _longNames[ LN_COMP ].empty();
   if (nbTables == 0) return;
 
@@ -938,7 +949,7 @@ void SauvWriter::writeLongNames()
 
       *_sauvFile << setw(8) << longNames.size()*4 << endl; // Nb of table values
 
-      vector<nameGIBItoMED>::iterator itGIBItoMED = longNames.begin();
+      auto itGIBItoMED = longNames.begin();
       for (; itGIBItoMED != longNames.end(); itGIBItoMED++, iStr++)
         {
           // PILE of i-th key (med name)
@@ -1006,7 +1017,7 @@ void SauvWriter::writeFieldNames( const bool                 isNodal,
 
   for ( unsigned int iF = 0; iF < flds.size(); ++iF )
     {
-      string name = addName( nameNbMap, fldNamePrefixMap, flds[iF]->getName(), iF+1 );
+      string const name = addName( nameNbMap, fldNamePrefixMap, flds[iF]->getName(), iF+1 );
       nameGIBItoMED aMEDName;
       aMEDName.gibi_pile = isNodal ? PILE_NODES_FIELD : PILE_FIELD;
       aMEDName.gibi_id   = iF+1;
@@ -1033,11 +1044,11 @@ void SauvWriter::makeCompNames(const string&         fieldName,
                                const vector<string>& compInfo,
                                map<string, string>&  mapMedToGibi)
 {
-  for ( size_t i = 0; i < compInfo.size(); ++i )
-    mapMedToGibi[compInfo[i]] = cleanName( compInfo[i] );
+  for (const auto & i : compInfo)
+    mapMedToGibi[i] = cleanName( i );
 
   int compIndex = 1;
-  map<string, string>::iterator namesIt = mapMedToGibi.begin();
+  auto namesIt = mapMedToGibi.begin();
   for (; namesIt != mapMedToGibi.end(); namesIt++)
     {
       string & compGibiName = (*namesIt).second;
@@ -1053,7 +1064,7 @@ void SauvWriter::makeCompNames(const string&         fieldName,
         while (mapMedToGibi.count(compGibiName) > 0); // real component name could be CXXX
       }
 
-      string compMedName = fieldName + "." + namesIt->first;
+      string const compMedName = fieldName + "." + namesIt->first;
       nameGIBItoMED aMEDName;
       aMEDName.med_name  = compMedName;
       aMEDName.gibi_pile = PILE_STRINGS;
@@ -1084,11 +1095,11 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
   // (5)           cree  par  muc pri
   // (6)
   // (7)       2
-  for ( size_t iF = 0; iF < _nodeFields.size(); ++iF )
+  for (auto & _nodeField : _nodeFields)
     {
       // (1) write nb subcomponents, nb components(total)
-      vector< pair<int,int> >  iters = _nodeFields[iF]->getIterations();
-      const vector<string>& compInfo = _nodeFields[iF]->getInfo();
+      vector< pair<int,int> >  const iters = _nodeField->getIterations();
+      const vector<string>& compInfo = _nodeField->getInfo();
       const std::size_t nbSub = iters.size();
       const std::size_t nbComp = compInfo.size();
       const std::size_t totalNbComp = nbSub * nbComp;
@@ -1101,20 +1112,18 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
       // write support, number of values and number of components
       fcount.init(10);
       vector< mcIdType > vals(3);
-      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
+      for (auto it : iters)
         {
-          pair<int,int> it = iters[iIt];
-
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
           vector< vector< std::pair<mcIdType,mcIdType> > > valsVec;
-          valsVec=_nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
+          valsVec=_nodeField->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
                                                           types, typesF, pfls, locs);
           // believe that there can be only one type in a nodal field,
           // so do not use a loop on types
           if ( pfls[0][0].empty() ) pfls[0][0] = noProfileName( types[0] );
-          map< string, SubMesh* >::iterator pfl2Sub = _profile2Sub.find( pfls[0][0] );
+          auto const pfl2Sub = _profile2Sub.find( pfls[0][0] );
           if ( pfl2Sub == _profile2Sub.end() )
             THROW_IK_EXCEPTION( "SauvWriter::writeNodalFields(): no sub-mesh for profile |"
                                 << pfls[0][0] << "|");
@@ -1128,7 +1137,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
 
       // (3) Write names of components
       map<string, string> mapMedToGibi;
-      makeCompNames( _nodeFields[iF]->getName(), compInfo, mapMedToGibi );
+      makeCompNames( _nodeField->getName(), compInfo, mapMedToGibi );
       fcount.init(8);
       *_sauvFile << left;
       for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
@@ -1143,26 +1152,24 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
         *_sauvFile << " "  << setw(8) << 0;
       fcount.stop();
 
-      string description = _nodeFields[iF]->getName();
+      string const description = _nodeField->getName();
       *_sauvFile << endl;                                         // (5) TYPE
       *_sauvFile << setw(72) << description.substr(0,71) << endl; // (6) TITRE
       //*_sauvFile << endl;                                         // (7) 0 attributes
 
       // write values of each component
       fcount.init( 3 ); // 3 values per a line
-      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
+      for (auto it : iters)
         {
-          pair<int,int> it = iters[iIt];
-
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
           vector< vector< std::pair<mcIdType,mcIdType> > > valsVec;
-          valsVec = _nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
+          valsVec = _nodeField->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
                                                             types, typesF, pfls, locs);
           // believe that there can be only one type in a nodal field,
           // so do not perform a loop on types
-          const DataArrayDouble* valsArray = _nodeFields[iF]->getUndergroundDataArray(it.first, it.second);
+          const DataArrayDouble* valsArray = _nodeField->getUndergroundDataArray(it.first, it.second);
           for ( size_t j = 0; j < compInfo.size(); ++j )
             {
               for ( size_t i = valsVec[0][0].first; i < (std::size_t)valsVec[0][0].second; ++i, fcount++ )
@@ -1210,19 +1217,17 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
     {
       // count nb of sub-components
       std::size_t iSub, nbSub = 0;
-      vector< pair<int,int> >  iters = _cellFields[iF]->getIterations();
-      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
+      vector< pair<int,int> >  const iters = _cellFields[iF]->getIterations();
+      for (auto it : iters)
         {
-          pair<int,int> it = iters[iIt];
-
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
           vector< vector< std::pair<mcIdType,mcIdType> > > valsVec;
           valsVec = _cellFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
                                                             types, typesF, pfls, locs);
-          for ( size_t i = 0; i < valsVec.size(); ++i )
-            nbSub += valsVec[i].size();
+          for (const auto & i : valsVec)
+            nbSub += i.size();
         }
       // (1) write nb sub-components, title length
       *_sauvFile << setw(8) << nbSub
@@ -1230,7 +1235,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
                  << setw(8) << 6  // whatever
                  << setw(8) << 72 << endl; // title length
       // (2) title
-      string title = _cellFields[iF]->getName();
+      string const title = _cellFields[iF]->getName();
       *_sauvFile << setw(72) << title.substr(0,71) << endl;
       *_sauvFile << setw(72) << " " << endl;
 
@@ -1239,10 +1244,8 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
       const vector<string>& compInfo = _cellFields[iF]->getInfo();
       vals[2] = ToIdType( compInfo.size() );
       fcount.init(10);
-      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
+      for (auto it : iters)
         {
-          pair<int,int> it = iters[iIt];
-
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
@@ -1252,7 +1255,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
             for ( size_t iP = 0; iP < pfls[iType].size(); ++iP )
               {
                 if ( pfls[iType][iP].empty() ) pfls[iType][iP] = noProfileName( types[iType] );
-                map< string, SubMesh* >::iterator pfl2Sub = _profile2Sub.find( pfls[iType][iP] );
+                auto const pfl2Sub = _profile2Sub.find( pfls[iType][iP] );
                 if ( pfl2Sub == _profile2Sub.end() )
                   THROW_IK_EXCEPTION( "SauvWriter::writeElemFields(): no sub-mesh for profile |"
                                       << pfls[iType][iP] << "|");
@@ -1277,9 +1280,8 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
 
       // loop on sub-components of a field, each of which refers to
       // a certain support and has its own number of components
-      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
+      for (auto it : iters)
         {
-          pair<int,int> it = iters[iIt];
           writeElemTimeStamp( iF, it.first, it.second );
         }
     } // loop on cell fields
@@ -1291,7 +1293,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
  */
 //================================================================================
 
-void SauvWriter::writeElemTimeStamp(int iF, int iter, int order)
+void SauvWriter::writeElemTimeStamp(int iF, int  iter, int  order)
 {
   // (6)   317767  317761  317755  317815
   // (7)  YOUN     NU       H        SIGY
@@ -1343,7 +1345,7 @@ void SauvWriter::writeElemTimeStamp(int iF, int iter, int order)
         int nbPntPerCell = 1;
         if ( !locs[iType][iP].empty() )
           {
-            int locID = _cellFields[iF]->getLocalizationId( locs[iType][iP].c_str() );
+            int const locID = _cellFields[iF]->getLocalizationId( locs[iType][iP].c_str() );
             nbPntPerCell = _cellFields[iF]->getNbOfGaussPtPerCell( locID );
           }
         else if ( typesF[iType][iP] == ON_GAUSS_NE )

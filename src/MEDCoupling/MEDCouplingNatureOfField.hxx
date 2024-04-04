@@ -24,7 +24,7 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingNatureOfFieldEnum"
 
-#include "InterpKernelException.hxx"
+#include <string>
 
 namespace MEDCoupling
 {

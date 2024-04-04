@@ -24,7 +24,6 @@
 #include "ExplicitMapping.hxx"
 #include "ExplicitTopology.hxx"
 
-#include <map>
 
 namespace MEDCoupling
 {
@@ -34,15 +33,15 @@ namespace MEDCoupling
   {
   public:
     ExplicitCoincidentDEC();
-    virtual ~ExplicitCoincidentDEC();
-    void synchronize();
+    ~ExplicitCoincidentDEC() override;
+    void synchronize() override;
     void broadcastTopology(BlockTopology*&, int tag);
     void broadcastTopology(const ExplicitTopology* toposend, ExplicitTopology* toporecv, int tag);
     void transferMappingToSource();
-    void prepareSourceDE();
-    void prepareTargetDE();
-    void recvData();
-    void sendData();
+    void prepareSourceDE() override;
+    void prepareTargetDE() override;
+    void recvData() override;
+    void sendData() override;
   private:  
     ExplicitTopology* _toposource;
     ExplicitTopology* _topotarget;

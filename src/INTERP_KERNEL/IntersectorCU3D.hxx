@@ -26,6 +26,7 @@
 
 #include "IntersectorCU.hxx"
 #include "SplitterTetra.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -35,8 +36,8 @@ namespace INTERP_KERNEL
   class IntersectorCU3D : public IntersectorCU<MyCMeshType,MyUMeshType,MyMatrix,IntersectorCU3D<MyCMeshType,MyUMeshType,MyMatrix> >
   {
   public:
-    typedef typename MyUMeshType::MyConnType UConnType;
-    typedef typename MyCMeshType::MyConnType CConnType;
+    using UConnType = typename MyUMeshType::MyConnType;
+    using CConnType = typename MyCMeshType::MyConnType;
   public:
     IntersectorCU3D(const MyCMeshType& meshS, const MyUMeshType& meshT, SplittingPolicy splitting_policy);
     ~IntersectorCU3D();
@@ -44,8 +45,8 @@ namespace INTERP_KERNEL
 
   private:
 
-    typedef SplitterTetra2<MyUMeshType, _Cartesian3D2UnstructHexMesh > TSplitter;
-    typedef SplitterTetra <_Cartesian3D2UnstructHexMesh >              TTetra;
+    using TSplitter = SplitterTetra2<MyUMeshType, _Cartesian3D2UnstructHexMesh>;
+    using TTetra = SplitterTetra<_Cartesian3D2UnstructHexMesh>;
     _Cartesian3D2UnstructHexMesh* _uHexMesh;
     TSplitter*                    _split;
   };

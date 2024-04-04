@@ -57,6 +57,7 @@
 
 #include "InterpKernelAutoPtr.hxx"
 #include "BoxSplittingOptions.hxx"
+#include "MEDCouplingNatureOfField.hxx"
 
 using namespace MEDCoupling;
 using namespace INTERP_KERNEL;

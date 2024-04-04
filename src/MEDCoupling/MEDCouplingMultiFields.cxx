@@ -19,13 +19,20 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingMultiFields.hxx"
+#include "MCAuto.hxx"
+#include "MCIdType.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMesh.hxx"
-#include "MCAuto.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 
+#include <cstddef>
+#include <iterator>
 #include <sstream>
 #include <algorithm>
+#include <string>
+#include <vector>
 
 using namespace MEDCoupling;
 
@@ -44,9 +51,9 @@ MEDCouplingMultiFields *MEDCouplingMultiFields::deepCopy() const
   return new MEDCouplingMultiFields(*this);
 }
 
-bool MEDCouplingMultiFields::isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const
+bool MEDCouplingMultiFields::isEqual(const MEDCouplingMultiFields *other, double  meshPrec, double  valsPrec) const
 {
-  std::size_t sz=_fs.size();
+  std::size_t const sz=_fs.size();
   if(sz!=other->_fs.size())
     return false;
   for(std::size_t i=0;i<sz;i++)
@@ -55,22 +62,22 @@ bool MEDCouplingMultiFields::isEqual(const MEDCouplingMultiFields *other, double
       const MEDCouplingFieldDouble *f2=other->_fs[i];
       if(f1!=f2)
         {
-          if(f1==0 || f2==0)
+          if(f1==nullptr || f2==nullptr)
             return false;
           if(!_fs[i]->isEqual(other->_fs[i],meshPrec,valsPrec))
             return false;
         }
     }
   std::vector<int> refs1,refs2;
-  std::vector<MEDCouplingMesh *> ms1=getDifferentMeshes(refs1);
-  std::vector<MEDCouplingMesh *> ms2=other->getDifferentMeshes(refs2);
+  std::vector<MEDCouplingMesh *> const ms1=getDifferentMeshes(refs1);
+  std::vector<MEDCouplingMesh *> const ms2=other->getDifferentMeshes(refs2);
   if(ms1.size()!=ms2.size())
     return false;
   if(refs1!=refs2)
     return false;
   std::vector< std::vector<int> > refs3,refs4;
-  std::vector<DataArrayDouble *> das1=getDifferentArrays(refs3);
-  std::vector<DataArrayDouble *> das2=getDifferentArrays(refs4);
+  std::vector<DataArrayDouble *> const das1=getDifferentArrays(refs3);
+  std::vector<DataArrayDouble *> const das2=getDifferentArrays(refs4);
   if(das1.size()!=das2.size())
     return false;
   if(refs3!=refs4)
@@ -80,7 +87,7 @@ bool MEDCouplingMultiFields::isEqual(const MEDCouplingMultiFields *other, double
 
 std::string MEDCouplingMultiFields::getName() const
 {
-  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  auto it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       return (*it)->getName();
@@ -89,7 +96,7 @@ std::string MEDCouplingMultiFields::getName() const
 
 std::string MEDCouplingMultiFields::getDescription() const
 {
-  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  auto it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       return (*it)->getDescription();
@@ -98,7 +105,7 @@ std::string MEDCouplingMultiFields::getDescription() const
 
 std::string MEDCouplingMultiFields::getTimeUnit() const
 {
-  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  auto it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       return (*it)->getTimeUnit();
@@ -107,7 +114,7 @@ std::string MEDCouplingMultiFields::getTimeUnit() const
 
 double MEDCouplingMultiFields::getTimeResolution() const
 {
-  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  auto it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       return (*it)->getTimeTolerance();
@@ -138,9 +145,9 @@ std::string MEDCouplingMultiFields::advancedRepr() const
   return simpleRepr();
 }
 
-bool MEDCouplingMultiFields::isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const
+bool MEDCouplingMultiFields::isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double  meshPrec, double  valsPrec) const
 {
-  std::size_t sz=_fs.size();
+  std::size_t const sz=_fs.size();
   if(sz!=other->_fs.size())
     return false;
   for(std::size_t i=0;i<sz;i++)
@@ -180,7 +187,7 @@ const MEDCouplingFieldDouble *MEDCouplingMultiFields::getFieldAtPos(int id) cons
 
 void MEDCouplingMultiFields::updateTime() const
 {
-  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  auto it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       (*it)->updateTime();
@@ -198,19 +205,19 @@ std::size_t MEDCouplingMultiFields::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> MEDCouplingMultiFields::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
-    ret.push_back((const MEDCouplingFieldDouble *)*it);
+  for(const auto & _f : _fs)
+    ret.push_back((const MEDCouplingFieldDouble *)_f);
   return ret;
 }
 
 std::vector<MEDCouplingMesh *> MEDCouplingMultiFields::getMeshes() const
 {
   std::vector<MEDCouplingMesh *> ms;
-  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
+  for(const auto & _f : _fs)
     {
-      const MEDCouplingMesh *m=0;
-      if((const MEDCouplingFieldDouble *)(*it))
-        m=(*it)->getMesh();
+      const MEDCouplingMesh *m=nullptr;
+      if((const MEDCouplingFieldDouble *)_f)
+        m=_f->getMesh();
       ms.push_back(const_cast<MEDCouplingMesh *>(m));
     }
   return ms;
@@ -221,14 +228,14 @@ std::vector<MEDCouplingMesh *> MEDCouplingMultiFields::getDifferentMeshes(std::v
   refs.resize(_fs.size());
   std::vector<MEDCouplingMesh *> ms;
   int id=0;
-  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++,id++)
+  for(auto it=_fs.begin();it!=_fs.end();it++,id++)
     {
-      const MEDCouplingMesh *m=0;
+      const MEDCouplingMesh *m=nullptr;
       if((const MEDCouplingFieldDouble *)(*it))
         m=(*it)->getMesh();
       if(m)
         {
-          std::vector<MEDCouplingMesh *>::iterator it2=std::find(ms.begin(),ms.end(),m);
+          auto const it2=std::find(ms.begin(),ms.end(),m);
           if(it2==ms.end())
             {
               ms.push_back(const_cast<MEDCouplingMesh *>(m));
@@ -246,9 +253,9 @@ std::vector<MEDCouplingMesh *> MEDCouplingMultiFields::getDifferentMeshes(std::v
 std::vector<DataArrayDouble *> MEDCouplingMultiFields::getArrays() const
 {
   std::vector<DataArrayDouble *> tmp;
-  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
+  for(const auto & _f : _fs)
     {
-      std::vector<DataArrayDouble *> tmp2=(*it)->getArrays();
+      std::vector<DataArrayDouble *> tmp2=_f->getArrays();
       tmp.insert(tmp.end(),tmp2.begin(),tmp2.end());
     }
   return tmp;
@@ -259,7 +266,7 @@ std::vector<DataArrayDouble *> MEDCouplingMultiFields::getDifferentArrays(std::v
   refs.resize(_fs.size());
   int id=0;
   std::vector<DataArrayDouble *> ret;
-  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++,id++)
+  for(auto it=_fs.begin();it!=_fs.end();it++,id++)
     {
       std::vector<DataArrayDouble *> tmp2;
       if((const MEDCouplingFieldDouble *)(*it))
@@ -274,7 +281,7 @@ std::vector<DataArrayDouble *> MEDCouplingMultiFields::getDifferentArrays(std::v
         {
           if(*it2)
             {
-              std::vector<DataArrayDouble *>::iterator it3=std::find(ret.begin(),ret.end(),*it2);
+              auto const it3=std::find(ret.begin(),ret.end(),*it2);
               if(it3==ret.end())
                 {
                   ret.push_back(*it2);
@@ -292,10 +299,10 @@ std::vector<DataArrayDouble *> MEDCouplingMultiFields::getDifferentArrays(std::v
 
 void MEDCouplingMultiFields::checkConsistencyLight() const
 {
-  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  auto it=_fs.begin();
   for(;it!=_fs.end();it++)
     {
-      if((const MEDCouplingFieldDouble *)(*it)==0)
+      if((const MEDCouplingFieldDouble *)(*it)==nullptr)
         throw INTERP_KERNEL::Exception("MEDCouplingMultiFields::checkConsistencyLight : There is an empty Field in array...");
       (*it)->checkConsistencyLight();
     }
@@ -304,7 +311,7 @@ void MEDCouplingMultiFields::checkConsistencyLight() const
 MEDCouplingMultiFields::MEDCouplingMultiFields(const std::vector<MEDCouplingFieldDouble *>& fs):_fs(fs.size())
 {
   int id=0;
-  for(std::vector< MEDCouplingFieldDouble * >::const_iterator it=fs.begin();it!=fs.end();it++,id++)
+  for(auto it=fs.begin();it!=fs.end();it++,id++)
     {
       if(*it)
         (*it)->incrRef();
@@ -321,17 +328,17 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const std::vector<MEDCouplingFiel
  */
 MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& other):RefCountObject(other)
 {
-  std::size_t sz=other._fs.size();
+  std::size_t const sz=other._fs.size();
   _fs.resize(sz);
   std::vector<int> refs;
   std::vector< std::vector<int> > refs2;
   std::vector<MEDCouplingMesh *> ms=other.getDifferentMeshes(refs);
-  std::size_t msLgh=ms.size();
+  std::size_t const msLgh=ms.size();
   std::vector< MCAuto<MEDCouplingMesh> > ms2(msLgh);
   for(std::size_t i=0;i<msLgh;i++)
     ms2[i]=ms[i]->deepCopy();
   std::vector<DataArrayDouble *> das=other.getDifferentArrays(refs2);
-  std::size_t dasLgth=das.size();
+  std::size_t const dasLgth=das.size();
   std::vector< MCAuto<DataArrayDouble> > das2(dasLgth);
   for(std::size_t i=0;i<dasLgth;i++)
     das2[i]=das[i]->deepCopy();
@@ -344,14 +351,14 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& oth
           tmp->decrRef();
           if(refs[i]!=-1)
             _fs[i]->setMesh(ms2[refs[i]]);
-          std::size_t nbOfArr=refs2[i].size();
+          std::size_t const nbOfArr=refs2[i].size();
           std::vector<DataArrayDouble *> tmp2(nbOfArr);
           for(std::size_t j=0;j<nbOfArr;j++)
             {
               if(refs2[i][j]!=-1)
                 tmp2[j]=das2[refs2[i][j]];
               else
-                tmp2[j]=0;
+                tmp2[j]=nullptr;
             }
           _fs[i]->setArrays(tmp2);
           std::vector<mcIdType> tinyInfo;
@@ -364,25 +371,24 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& oth
 }
 
 MEDCouplingMultiFields::MEDCouplingMultiFields()
-{
-}
+= default;
 
 void MEDCouplingMultiFields::getTinySerializationInformation(std::vector<mcIdType>& tinyInfo, std::vector<double>& tinyInfo2, int& nbOfDiffMeshes, int& nbOfDiffArr) const
 {
   std::vector<int> refs;
-  std::vector<MEDCouplingMesh *> ms=getDifferentMeshes(refs);
+  std::vector<MEDCouplingMesh *> const ms=getDifferentMeshes(refs);
   nbOfDiffMeshes=(int)ms.size();
   std::vector< std::vector<int> > refs2;
-  std::vector<DataArrayDouble *> fs=getDifferentArrays(refs2);
+  std::vector<DataArrayDouble *> const fs=getDifferentArrays(refs2);
   nbOfDiffArr=(int)fs.size();
   //
-  mcIdType sz=ToIdType(refs.size());//==_fs.size()
+  mcIdType const sz=ToIdType(refs.size());//==_fs.size()
   mcIdType sz2=0;
   for(mcIdType i=0;i<sz;i++)
     sz2+=ToIdType(refs2[i].size());
   //
   tinyInfo2.clear();
-  std::vector<int> doubleDaInd(sz);
+  std::vector<int> const doubleDaInd(sz);
   std::vector<int> timeDiscrInt;
   tinyInfo.resize(sz2+5*sz+3);
   tinyInfo[0]=sz;
@@ -398,7 +404,7 @@ void MEDCouplingMultiFields::getTinySerializationInformation(std::vector<mcIdTyp
       tinyInfo2.insert(tinyInfo2.end(),tmp.begin(),tmp.end());
       timeDiscrInt.insert(timeDiscrInt.end(),tmp2.begin(),tmp2.end());
     }
-  mcIdType sz3=ToIdType(timeDiscrInt.size());
+  mcIdType const sz3=ToIdType(timeDiscrInt.size());
   tinyInfo[2]=sz3;
   //
   for(mcIdType i=0;i<sz;i++)
@@ -418,13 +424,13 @@ void MEDCouplingMultiFields::finishUnserialization(const std::vector<mcIdType>& 
                                                    const std::vector<MEDCouplingFieldTemplate *>& ft, const std::vector<MEDCouplingMesh *>& ms,
                                                    const std::vector<DataArrayDouble *>& das)
 {
-  mcIdType sz=tinyInfoI[0];
+  mcIdType const sz=tinyInfoI[0];
   _fs.resize(sz);
-  mcIdType sz2=tinyInfoI[1];
+  mcIdType const sz2=tinyInfoI[1];
   // dealing with ft with no mesh set.
   for(mcIdType i=0;i<sz;i++)
     {
-      mcIdType meshId=tinyInfoI[3+i];
+      mcIdType const meshId=tinyInfoI[3+i];
       if(meshId!=-1)
         ft[i]->setMesh(ms[meshId]);
     }
@@ -435,23 +441,23 @@ void MEDCouplingMultiFields::finishUnserialization(const std::vector<mcIdType>& 
   for(mcIdType i=0;i<sz;i++)
     {
       _fs[i]=MEDCouplingFieldDouble::New(*ft[i],(TypeOfTimeDiscretization)tinyInfoI[2*sz+3+i]);
-      mcIdType sz3=tinyInfoI[sz+i+3];
+      mcIdType const sz3=tinyInfoI[sz+i+3];
       std::vector<DataArrayDouble *> tmp(sz3);
       for(mcIdType j=0;j<sz3;j++,k++)
         {
-          mcIdType daId=tinyInfoI[5*sz+k+3];
+          mcIdType const daId=tinyInfoI[5*sz+k+3];
           if(daId!=-1)
             tmp[j]=das[daId];
           else
-            tmp[j]=0;
+            tmp[j]=nullptr;
         }
       _fs[i]->setArrays(tmp);
       // time discr tiny info
-      mcIdType lgthI=tinyInfoI[4*sz+3+i];
-      mcIdType lgthD=tinyInfoI[3*sz+3+i];
+      mcIdType const lgthI=tinyInfoI[4*sz+3+i];
+      mcIdType const lgthD=tinyInfoI[3*sz+3+i];
       //
-      std::vector<mcIdType> tdInfoI(tinyInfoI.begin()+sz2+5*sz+3+offI,tinyInfoI.begin()+sz2+5*sz+3+offI+lgthI);
-      std::vector<double> tdInfoD(tinyInfoD.begin()+offD,tinyInfoD.begin()+offD+lgthD);
+      std::vector<mcIdType> const tdInfoI(tinyInfoI.begin()+sz2+5*sz+3+offI,tinyInfoI.begin()+sz2+5*sz+3+offI+lgthI);
+      std::vector<double> const tdInfoD(tinyInfoD.begin()+offD,tinyInfoD.begin()+offD+lgthD);
       _fs[i]->getTimeDiscretizationUnderGround()->finishUnserialization2(tdInfoI,tdInfoD);
       //
       offI+=lgthI;

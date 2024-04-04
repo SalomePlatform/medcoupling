@@ -19,7 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "Interpolation3D.hxx"
-#include "Interpolation3D.txx"
+#include "InterpolationOptions.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -28,8 +28,7 @@ namespace INTERP_KERNEL
    * 
    */
   Interpolation3D::Interpolation3D()
-  {
-  }
+  = default;
   Interpolation3D::Interpolation3D(const InterpolationOptions& io):Interpolation<Interpolation3D>(io)
   {
   }

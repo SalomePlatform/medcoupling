@@ -22,7 +22,11 @@
 //
 
 #include "InterpolationCC.hxx"
+#include "InterpolationOptions.hxx"
 #include "InterpolationUtils.hxx"
+#include <algorithm>
+#include <string>
+#include <list>
 
 // convert index "From Mesh Index"
 #define _FMI(i) OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::ind2C((i))
@@ -37,8 +41,7 @@ namespace INTERP_KERNEL
    */
   //================================================================================
   InterpolationCC::InterpolationCC()
-  {
-  }
+  = default;
 
   InterpolationCC::InterpolationCC(const InterpolationOptions& io):Interpolation<InterpolationCC>(io)
   {
@@ -217,12 +220,12 @@ namespace INTERP_KERNEL
         x2t = tgt_coords[ j ][ it+1 ];
         x2s = src_coords[ j ][ is+1 ];
 
-        double x1 = std::max( x1s ,x1t );
-        double x2 = std::min( x2s ,x2t );
+        double const x1 = std::max( x1s ,x1t );
+        double const x2 = std::min( x2s ,x2t );
         axis_interferences.push_back( Interference( is, it, x2 - x1 ));
 
         // to the next target and/or source cell
-        double diff2 = x2s - x2t;
+        double const diff2 = x2s - x2t;
         if ( diff2 > -eps )
           intersection = ( ++it < tgt_nb_cells[j] );
         if ( diff2 < eps )

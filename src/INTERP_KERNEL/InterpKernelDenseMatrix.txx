@@ -21,6 +21,7 @@
 
 #include "InterpKernelDenseMatrix.hxx"
 #include "InterpKernelException.hxx"
+#include "MCIdType.hxx"
 #include "VectorUtils.hxx"
 
 #include <cmath>

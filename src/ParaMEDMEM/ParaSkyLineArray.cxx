@@ -20,20 +20,17 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "ParaSkyLineArray.hxx"
-#include "ProcessorGroup.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
+#include "MCType.hxx"
+#include "MCAuto.hxx"
 #include "MPIProcessorGroup.hxx"
-#include "Topology.hxx"
-#include "BlockTopology.hxx"
 #include "CommInterface.hxx"
 #include "MEDCouplingMemArray.hxx"
 
 #include "mpi.h"
 
-#include <fstream>
+#include <cstddef>
 #include <sstream>
-#include <numeric>
-#include <memory>
-#include <vector>
 
 using namespace MEDCoupling;
 
@@ -78,7 +75,7 @@ std::vector<const BigMemoryObject *> ParaSkyLineArray::getDirectChildrenWithNull
 MCAuto<ParaSkyLineArray> ParaSkyLineArray::equiRedistribute(mcIdType nbOfEntities) const
 {
   MPI_Comm comm(MPI_COMM_WORLD);
-  CommInterface ci;
+  CommInterface const ci;
   int size;
   ci.commSize(comm,&size);
   std::vector< MCAuto<MEDCouplingSkyLineArray> > skToBeSent(size);

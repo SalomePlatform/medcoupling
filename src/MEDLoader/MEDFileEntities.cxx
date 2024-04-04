@@ -19,6 +19,13 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileEntities.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDFileStructureElement.hxx"
+#include "MEDFileMesh.hxx"
+#include "NormalizedGeometricTypes"
+#include <string>
+#include <vector>
+#include <utility>
 
 using namespace MEDCoupling;
 
@@ -39,8 +46,7 @@ MEDFileEntities *MEDFileEntities::BuildFrom(const MEDFileStructureElements& se)
 }
 
 MEDFileEntities::~MEDFileEntities()
-{
-}
+= default;
 
 //////////////
 

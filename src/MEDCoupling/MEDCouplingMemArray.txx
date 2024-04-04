@@ -21,21 +21,31 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 #define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 
+#include "MCType.hxx"
+#include "MEDCouplingMap.txx"
 #include "MEDCouplingMemArray.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingTraits.hxx"
 #include "InterpKernelException.hxx"
-#include "InterpolationUtils.hxx"
 #include "MEDCouplingPartDefinition.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "MCAuto.hxx"
-#include "MEDCouplingMap.txx"
 
+#include <ostream>
+#include <iterator>
+#include <cstdint>
+#include <limits>
+#include <functional>
+#include <map>
 #include <set>
+#include <cstddef>
 #include <sstream>
 #include <cstdlib>
 #include <numeric>
 #include <algorithm>
-#include <iterator>
+#include <string>
+#include <vector>
+#include <utility>
 
 namespace MEDCoupling
 {
@@ -43,7 +53,7 @@ namespace MEDCoupling
   void MEDCouplingPointer<T>::setInternal(T *pointer)
   {
     _internal=pointer;
-    _external=0;
+    _external=nullptr;
   }
 
   template<class T>
@@ -54,7 +64,7 @@ namespace MEDCoupling
   }
 
   template<class T>
-  MemArray<T>::MemArray(const MemArray<T>& other):_nb_of_elem(0),_nb_of_elem_alloc(0),_ownership(false),_dealloc(0),_param_for_deallocator(0)
+  MemArray<T>::MemArray(const MemArray<T>& other)
   {
     if(!other._pointer.isNull())
       {
@@ -178,7 +188,7 @@ namespace MEDCoupling
       stream << "No data";
     stream << "\n";
     stream << "Data content :\n";
-    bool ret=!_pointer.isNull();
+    bool const ret=!_pointer.isNull();
     if(!ret)
       stream << "No data !\n";
     return ret;
@@ -195,7 +205,7 @@ namespace MEDCoupling
         const T *data=getConstPointer();
         if(_nb_of_elem!=0 && sl!=0)
           {
-            std::size_t nbOfTuples=_nb_of_elem/std::abs(sl);
+            std::size_t const nbOfTuples=_nb_of_elem/std::abs(sl);
             for(std::size_t i=0;i<nbOfTuples;i++)
               {
                 stream << "Tuple #" << i << " : ";
@@ -232,7 +242,7 @@ namespace MEDCoupling
       {
         if(_nb_of_elem!=0 && sl!=0)
           {
-            std::size_t nbOfTuples=_nb_of_elem/std::abs(sl);
+            std::size_t const nbOfTuples=_nb_of_elem/std::abs(sl);
             for(std::size_t i=0;i<nbOfTuples;i++)
               {
                 stream << "|";
@@ -338,8 +348,8 @@ namespace MEDCoupling
       std::sort(pt,pt+_nb_of_elem);
     else
       {
-        typename std::reverse_iterator<T *> it1(pt+_nb_of_elem);
-        typename std::reverse_iterator<T *> it2(pt);
+        typename std::reverse_iterator<T *> const it1(pt+_nb_of_elem);
+        typename std::reverse_iterator<T *> const it2(pt);
         std::sort(it1,it2);
       }
   }
@@ -401,7 +411,7 @@ namespace MEDCoupling
     _nb_of_elem_alloc=newNbOfElements;
     _ownership=true;
     _dealloc=CDeallocator;
-    _param_for_deallocator=0;
+    _param_for_deallocator=nullptr;
   }
 
   /*!
@@ -425,17 +435,17 @@ namespace MEDCoupling
     _nb_of_elem_alloc=newNbOfElements;
     _ownership=true;
     _dealloc=CDeallocator;
-    _param_for_deallocator=0;
+    _param_for_deallocator=nullptr;
   }
 
   template<class T>
-  void MemArray<T>::CPPDeallocator(void *pt, void *param)
+  void MemArray<T>::CPPDeallocator(void *pt, void * /*param*/)
   {
     delete [] reinterpret_cast<T*>(pt);
   }
 
   template<class T>
-  void MemArray<T>::CDeallocator(void *pt, void *param)
+  void MemArray<T>::CDeallocator(void *pt, void * /*param*/)
   {
     free(pt);
   }
@@ -443,7 +453,7 @@ namespace MEDCoupling
   template<class T>
   void MemArray<T>::COffsetDeallocator(void *pt, void *param)
   {
-    int64_t *offset(reinterpret_cast<int64_t *>(param));
+    auto *offset(reinterpret_cast<int64_t *>(param));
     char *ptcast(reinterpret_cast<char *>(pt));
     free(ptcast+*offset);
   }
@@ -478,8 +488,8 @@ namespace MEDCoupling
       DestroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
     _pointer.null();
     _ownership=false;
-    _dealloc=NULL;
-    _param_for_deallocator=NULL;
+    _dealloc=nullptr;
+    _param_for_deallocator=nullptr;
     _nb_of_elem=0;
     _nb_of_elem_alloc=0;
   }
@@ -522,7 +532,7 @@ namespace MEDCoupling
     if(_tuple_id<_nb_tuple)
       {
         _tuple_id++;
-        typename Traits<T>::ArrayTuple *ret=new typename Traits<T>::ArrayTuple(_pt,_nb_comp);
+        auto *ret=new typename Traits<T>::ArrayTuple(_pt,_nb_comp);
         _pt+=_nb_comp;
         return ret;
       }
@@ -813,7 +823,7 @@ namespace MEDCoupling
   template<class T>
   bool DataArrayTemplate<T>::isAllocated() const
   {
-    return getConstPointer()!=0;
+    return getConstPointer()!=nullptr;
   }
 
   /*!
@@ -956,7 +966,7 @@ namespace MEDCoupling
     mcIdType nbOfTuples(other.getNumberOfTuples());
     std::size_t nbOfComp(other.getNumberOfComponents());
     allocIfNecessary(nbOfTuples,nbOfComp);
-    std::size_t nbOfElems(nbOfTuples*nbOfComp);
+    std::size_t const nbOfElems(nbOfTuples*nbOfComp);
     T *pt(getPointer());
     const T *ptI(other.begin());
     for(std::size_t i=0;i<nbOfElems;i++)
@@ -1019,13 +1029,13 @@ namespace MEDCoupling
   void DataArrayTemplate<T>::renumberInPlace(const mcIdType *old2New)
   {
     checkAllocated();
-    mcIdType nbTuples(getNumberOfTuples());
-    std::size_t nbOfCompo(getNumberOfComponents());
+    mcIdType const nbTuples(getNumberOfTuples());
+    std::size_t const nbOfCompo(getNumberOfComponents());
     T *tmp(new T[nbTuples*nbOfCompo]);
     const T *iptr(begin());
     for(mcIdType i=0;i<nbTuples;i++)
       {
-        mcIdType v=old2New[i];
+        mcIdType const v=old2New[i];
         if(v>=0 && v<nbTuples)
           std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*v);
         else
@@ -1052,13 +1062,13 @@ namespace MEDCoupling
   void DataArrayTemplate<T>::renumberInPlaceR(const mcIdType *new2Old)
   {
     checkAllocated();
-    mcIdType nbTuples(getNumberOfTuples());
-    std::size_t nbOfCompo(getNumberOfComponents());
+    mcIdType const nbTuples(getNumberOfTuples());
+    std::size_t const nbOfCompo(getNumberOfComponents());
     T *tmp(new T[nbTuples*nbOfCompo]);
     const T *iptr(begin());
     for(mcIdType i=0;i<nbTuples;i++)
       {
-        mcIdType v=new2Old[i];
+        mcIdType const v=new2Old[i];
         if(v>=0 && v<nbTuples)
           std::copy(iptr+nbOfCompo*v,iptr+nbOfCompo*(v+1),tmp+nbOfCompo*i);
         else
@@ -1195,7 +1205,7 @@ namespace MEDCoupling
     T *optr=ret->getPointer();
     for(mcIdType i=0;i<nbTuples;i++)
       {
-        mcIdType w=old2New[i];
+        mcIdType const w=old2New[i];
         if(w>=0)
           std::copy(iptr+i*nbOfCompo,iptr+(i+1)*nbOfCompo,optr+w*nbOfCompo);
       }
@@ -1225,7 +1235,7 @@ namespace MEDCoupling
     checkAllocated();
     MCAuto<DataArray> ret0(buildNewEmptyInstance());
     MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
-    std::size_t nbComp(getNumberOfComponents());
+    std::size_t const nbComp(getNumberOfComponents());
     ret->alloc(std::distance(new2OldBg,new2OldEnd),nbComp);
     ret->copyStringInfoFrom(*this);
     T *pt(ret->getPointer());
@@ -1249,7 +1259,7 @@ namespace MEDCoupling
     if(!pd)
       throw INTERP_KERNEL::Exception("DataArrayTemplate<T>::selectPartDef : null input pointer !");
     MCAuto<typename Traits<T>::ArrayTypeCh> ret(Traits<T>::ArrayTypeCh::New());
-    const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(pd));
+    const auto *spd(dynamic_cast<const SlicePartDefinition *>(pd));
     if(spd)
       {
         mcIdType a,b,c;
@@ -1267,7 +1277,7 @@ namespace MEDCoupling
             return DynamicCastSafe<DataArray,typename Traits<T>::ArrayTypeCh>(ret2);
           }
       }
-    const DataArrayPartDefinition *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
+    const auto *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
     if(dpd)
       {
         MCAuto<DataArrayIdType> arr(dpd->toDAI());
@@ -1303,8 +1313,8 @@ namespace MEDCoupling
     checkAllocated();
     MCAuto<DataArray> ret0(buildNewEmptyInstance());
     MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
-    std::size_t nbComp(getNumberOfComponents());
-    mcIdType oldNbOfTuples(getNumberOfTuples());
+    std::size_t const nbComp(getNumberOfComponents());
+    mcIdType const oldNbOfTuples(getNumberOfTuples());
     ret->alloc(std::distance(new2OldBg,new2OldEnd),nbComp);
     ret->copyStringInfoFrom(*this);
     T *pt(ret->getPointer());
@@ -1342,7 +1352,7 @@ namespace MEDCoupling
         std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::rearrange : input newNbOfCompo must be > 0 !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    std::size_t nbOfElems=getNbOfElems();
+    std::size_t const nbOfElems=getNbOfElems();
     if(nbOfElems%newNbOfCompo!=0)
       {
         std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::rearrange : nbOfElems%newNbOfCompo!=0 !";
@@ -1399,7 +1409,7 @@ namespace MEDCoupling
     T *nc(ret->getPointer());
     mcIdType nbOfTuples=getNumberOfTuples();
     std::size_t oldNbOfComp=getNumberOfComponents();
-    std::size_t dim(std::min(oldNbOfComp,newNbOfComp));
+    std::size_t const dim(std::min(oldNbOfComp,newNbOfComp));
     for(mcIdType i=0;i<nbOfTuples;i++)
       {
         std::size_t j=0;
@@ -1438,15 +1448,15 @@ namespace MEDCoupling
     checkAllocated();
     MCAuto<DataArray> ret0(buildNewEmptyInstance());
     MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
-    std::size_t newNbOfCompo=compoIds.size();
-    std::size_t oldNbOfCompo=getNumberOfComponents();
-    for(std::vector<std::size_t>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
-      if((*it)>=oldNbOfCompo)  // (*it) >= 0 (it is a size_t)
+    std::size_t const newNbOfCompo=compoIds.size();
+    std::size_t const oldNbOfCompo=getNumberOfComponents();
+    for(unsigned long const compoId : compoIds)
+      if(compoId>=oldNbOfCompo)  // (*it) >= 0 (it is a size_t)
         {
-          std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::keepSelectedComponents : invalid requested component : " << *it << " whereas it should be in [0," << oldNbOfCompo << ") !";
+          std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::keepSelectedComponents : invalid requested component : " << compoId << " whereas it should be in [0," << oldNbOfCompo << ") !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-    mcIdType nbOfTuples(getNumberOfTuples());
+    mcIdType const nbOfTuples(getNumberOfTuples());
     ret->alloc(nbOfTuples,newNbOfCompo);
     ret->copyPartOfStringInfoFrom(*this,compoIds);
     const T *oldc(getConstPointer());
@@ -1528,9 +1538,9 @@ namespace MEDCoupling
     checkAllocated();
     MCAuto<DataArray> ret0(buildNewEmptyInstance());
     MCAuto< typename Traits<T>::ArrayType > ret(DynamicCastSafe<DataArray,typename Traits<T>::ArrayType>(ret0));
-    std::size_t nbComp(getNumberOfComponents());
+    std::size_t const nbComp(getNumberOfComponents());
     std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::selectByTupleIdSafeSlice : ";
-    mcIdType newNbOfTuples(GetNumberOfItemGivenBESRelative(bg,end2,step,oss.str()));
+    mcIdType const newNbOfTuples(GetNumberOfItemGivenBESRelative(bg,end2,step,oss.str()));
     ret->alloc(newNbOfTuples,nbComp);
     T *pt(ret->getPointer());
     const T *srcPt(getConstPointer()+bg*nbComp);
@@ -1650,8 +1660,8 @@ namespace MEDCoupling
   {
     const char msg[]="DataArrayTemplate::setPartOfValuesSimple1";
     checkAllocated();
-    mcIdType newNbOfTuples(DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg));
-    mcIdType newNbOfComp(DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg));
+    mcIdType const newNbOfTuples(DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg));
+    mcIdType const newNbOfComp(DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg));
     std::size_t nbComp(getNumberOfComponents());
     mcIdType nbOfTuples(getNumberOfTuples());
     DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
@@ -1919,7 +1929,7 @@ namespace MEDCoupling
   {
     const char msg[]="DataArrayTemplate::setPartOfValuesSimple3";
     checkAllocated();
-    std::size_t newNbOfComp(DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg));
+    std::size_t const newNbOfComp(DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg));
     std::size_t nbComp(getNumberOfComponents());
     mcIdType nbOfTuples(getNumberOfTuples());
     DataArray::CheckValueInRangeEx(ToIdType(nbComp),bgComp,endComp,"invalid component value");
@@ -2015,7 +2025,7 @@ namespace MEDCoupling
   {
     const char msg[]="DataArrayTemplate::setPartOfValuesSimple4";
     checkAllocated();
-    mcIdType newNbOfTuples(DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg));
+    mcIdType const newNbOfTuples(DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg));
     std::size_t nbComp(getNumberOfComponents());
     for(const mcIdType *z=bgComp;z!=endComp;z++)
       DataArray::CheckValueInRange(ToIdType(nbComp),*z,"invalid component id");
@@ -2115,20 +2125,20 @@ namespace MEDCoupling
   {
     if(!aBase || !tuplesSelec)
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : input DataArray is NULL !");
-    const typename Traits<T>::ArrayType *a(dynamic_cast<const typename Traits<T>::ArrayType *>(aBase));
+    const auto *a(dynamic_cast<const typename Traits<T>::ArrayType *>(aBase));
     if(!a)
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : input DataArray aBase is not a DataArrayDouble !");
     checkAllocated();
     a->checkAllocated();
     tuplesSelec->checkAllocated();
-    std::size_t nbOfComp(getNumberOfComponents());
+    std::size_t const nbOfComp(getNumberOfComponents());
     if(nbOfComp!=a->getNumberOfComponents())
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : This and a do not have the same number of components !");
     if(tuplesSelec->getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : Expecting to have a tuple selector DataArrayInt instance with exactly 1 component !");
-    mcIdType thisNt(getNumberOfTuples());
-    mcIdType aNt(a->getNumberOfTuples());
-    mcIdType nbOfTupleToWrite(tuplesSelec->getNumberOfTuples());
+    mcIdType const thisNt(getNumberOfTuples());
+    mcIdType const aNt(a->getNumberOfTuples());
+    mcIdType const nbOfTupleToWrite(tuplesSelec->getNumberOfTuples());
     T *valsToSet(getPointer()+tupleIdStart*nbOfComp);
     if(tupleIdStart+nbOfTupleToWrite>thisNt)
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValues : invalid number range of values to write !");
@@ -2181,18 +2191,18 @@ namespace MEDCoupling
         std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::setContigPartOfSelectedValuesSlice : input DataArray is NULL !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    const typename Traits<T>::ArrayType *a(dynamic_cast<const typename Traits<T>::ArrayType *>(aBase));
+    const auto *a(dynamic_cast<const typename Traits<T>::ArrayType *>(aBase));
     if(!a)
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValuesSlice : input DataArray aBase is not a DataArrayDouble !");
     checkAllocated();
     a->checkAllocated();
-    std::size_t nbOfComp(getNumberOfComponents());
+    std::size_t const nbOfComp(getNumberOfComponents());
     const char msg[]="DataArrayDouble::setContigPartOfSelectedValuesSlice";
-    mcIdType nbOfTupleToWrite(DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg));
+    mcIdType const nbOfTupleToWrite(DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg));
     if(nbOfComp!=a->getNumberOfComponents())
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValuesSlice : This and a do not have the same number of components !");
-    mcIdType thisNt(getNumberOfTuples());
-    mcIdType aNt(a->getNumberOfTuples());
+    mcIdType const thisNt(getNumberOfTuples());
+    mcIdType const aNt(a->getNumberOfTuples());
     T *valsToSet(getPointer()+tupleIdStart*nbOfComp);
     if(tupleIdStart+nbOfTupleToWrite>thisNt)
       throw INTERP_KERNEL::Exception("DataArrayTemplate::setContigPartOfSelectedValuesSlice : invalid number range of values to write !");
@@ -2221,8 +2231,8 @@ namespace MEDCoupling
   typename Traits<T>::ArrayType *DataArrayTemplate<T>::mySelectByTupleRanges(const std::vector<std::pair<mcIdType,mcIdType> >& ranges) const
   {
     checkAllocated();
-    std::size_t nbOfComp(getNumberOfComponents());
-    mcIdType nbOfTuplesThis(getNumberOfTuples());
+    std::size_t const nbOfComp(getNumberOfComponents());
+    mcIdType const nbOfTuplesThis(getNumberOfTuples());
     if(ranges.empty())
       {
         MCAuto<DataArray> ret0(buildNewEmptyInstance());
@@ -2233,7 +2243,7 @@ namespace MEDCoupling
       }
     mcIdType ref(ranges.front().first),nbOfTuples(0);
     bool isIncreasing(true);
-    for(std::vector<std::pair<mcIdType,mcIdType> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+    for(auto it=ranges.begin();it!=ranges.end();it++)
       {
         if((*it).first<=(*it).second)
           {
@@ -2266,8 +2276,8 @@ namespace MEDCoupling
     ret->copyStringInfoFrom(*this);
     const T *src(getConstPointer());
     T *work(ret->getPointer());
-    for(std::vector<std::pair<mcIdType,mcIdType> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
-      work=std::copy(src+(*it).first*nbOfComp,src+(*it).second*nbOfComp,work);
+    for(const auto & range : ranges)
+      work=std::copy(src+range.first*nbOfComp,src+range.second*nbOfComp,work);
     return ret.retn();
   }
 
@@ -2434,9 +2444,9 @@ namespace MEDCoupling
   void DataArrayTemplate<T>::circularPermutation(mcIdType nbOfShift)
   {
     checkAllocated();
-    std::size_t nbOfCompo(getNumberOfComponents());
-    mcIdType nbTuples(getNumberOfTuples());
-    mcIdType effNbSh(EffectiveCircPerm(nbOfShift,nbTuples));
+    std::size_t const nbOfCompo(getNumberOfComponents());
+    mcIdType const nbTuples(getNumberOfTuples());
+    mcIdType const effNbSh(EffectiveCircPerm(nbOfShift,nbTuples));
     if(effNbSh==0)
       return ;
     T *work(getPointer());
@@ -2460,9 +2470,9 @@ namespace MEDCoupling
   void DataArrayTemplate<T>::circularPermutationPerTuple(mcIdType nbOfShift)
   {
     checkAllocated();
-    std::size_t nbOfCompo(getNumberOfComponents());
-    mcIdType nbTuples(getNumberOfTuples());
-    mcIdType effNbSh(EffectiveCircPerm(nbOfShift,ToIdType(nbOfCompo)));
+    std::size_t const nbOfCompo(getNumberOfComponents());
+    mcIdType const nbTuples(getNumberOfTuples());
+    mcIdType const effNbSh(EffectiveCircPerm(nbOfShift,ToIdType(nbOfCompo)));
     if(effNbSh==0)
       return ;
     T *work(getPointer());
@@ -2496,8 +2506,8 @@ namespace MEDCoupling
   void DataArrayTemplate<T>::reversePerTuple()
   {
     checkAllocated();
-    std::size_t nbOfCompo(getNumberOfComponents());
-    mcIdType nbTuples(getNumberOfTuples());
+    std::size_t const nbOfCompo(getNumberOfComponents());
+    mcIdType const nbTuples(getNumberOfTuples());
     if(nbOfCompo<=1)
       return ;
     T *work(getPointer());
@@ -3806,7 +3816,7 @@ struct NotInRange
     mcIdType *retToFill(ret->getPointer());
     for(mcIdType i=0;i<nbTuple;i++)
       {
-        std::map<mcIdType,mcIdType>::const_iterator it=mm.find(ToIdType(pt[i]));
+        auto it=mm.find(ToIdType(pt[i]));
         if(it==mm.end())
           {
             std::ostringstream oss; oss << "DataArrayInt::buildPermutationArr : Arrays mismatch : element (" << pt[i] << ") in 'other' not findable in 'this' !";
@@ -3848,7 +3858,7 @@ struct NotInRange
       throw INTERP_KERNEL::Exception("DataArrayInt::indicesOfSubPart : some elements appears more than once !");
     for(mcIdType i=0;i<nbTuples;i++,retPt++,pt++)
       {
-        std::map<mcIdType,mcIdType>::const_iterator it(m.find(ToIdType(*pt)));
+        auto it(m.find(ToIdType(*pt)));
         if(it!=m.end())
           *retPt=(*it).second;
         else
@@ -3999,8 +4009,8 @@ struct NotInRange
   template<class T>
   void DataArrayDiscrete<T>::reprCppStream(const std::string& varName, std::ostream& stream) const
   {
-    mcIdType nbTuples(this->getNumberOfTuples());
-    std::size_t nbComp(this->getNumberOfComponents());
+    mcIdType const nbTuples(this->getNumberOfTuples());
+    std::size_t const nbComp(this->getNumberOfComponents());
     const T *data(this->getConstPointer());
     stream << Traits<T>::ArrayTypeName << " *" << varName << "=" << Traits<T>::ArrayTypeName << "::New();" << std::endl;
     if(nbTuples*nbComp>=1)
@@ -4025,10 +4035,10 @@ struct NotInRange
     stream << Traits<T>::ArrayTypeName << " C++ instance at " << this << ". ";
     if(this->isAllocated())
       {
-        std::size_t nbOfCompo(this->getNumberOfComponents());
+        std::size_t const nbOfCompo(this->getNumberOfComponents());
         if(nbOfCompo>=1)
           {
-            mcIdType nbOfTuples(this->getNumberOfTuples());
+            mcIdType const nbOfTuples(this->getNumberOfTuples());
             stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
             reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
           }
@@ -4043,8 +4053,8 @@ struct NotInRange
   void DataArrayDiscrete<T>::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const
   {
     const T *data(this->begin());
-    mcIdType nbOfTuples(this->getNumberOfTuples());
-    std::size_t nbOfCompo(this->getNumberOfComponents());
+    mcIdType const nbOfTuples(this->getNumberOfTuples());
+    std::size_t const nbOfCompo(this->getNumberOfComponents());
     std::ostringstream oss2; oss2 << "[";
     std::string oss2Str(oss2.str());
     bool isFinished=true;
@@ -4063,7 +4073,7 @@ struct NotInRange
         else
           oss2 << *data++;
         if(i!=nbOfTuples-1) oss2 << ", ";
-        std::string oss3Str(oss2.str());
+        std::string const oss3Str(oss2.str());
         if(oss3Str.length()<maxNbOfByteInRepr)
           oss2Str=oss3Str;
         else
@@ -4329,7 +4339,7 @@ struct NotInRange
       {
         rintstart res=std::find_if(bg,end2,std::bind(std::less_equal<T>(),std::placeholders::_1,work[i]));
         std::size_t pos=std::distance(bg,res);
-        std::size_t pos2=nbOfCast-pos;
+        std::size_t const pos2=nbOfCast-pos;
         if(pos2<nbOfCast)
           {
             ret1Ptr[i]=static_cast<T>(pos2);
@@ -4707,8 +4717,8 @@ struct NotInRange
     MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
     ret->alloc(nbOfTuples,1);
     mcIdType *retPtr=ret->getPointer();
-    for(std::vector< std::vector<mcIdType> >::const_iterator it1=tmp.begin();it1!=tmp.end();it1++)
-      retPtr=std::copy((*it1).begin(),(*it1).end(),retPtr);
+    for(const auto & it1 : tmp)
+      retPtr=std::copy(it1.begin(),it1.end(),retPtr);
     arr=ret.retn();
     arrI=retI.retn();
   }
@@ -4887,7 +4897,7 @@ struct NotInRange
     this->checkAllocated();
     a->checkAllocated();
     this->copyPartOfStringInfoFrom2(compoIds,*a);
-    std::size_t partOfCompoSz=compoIds.size();
+    std::size_t const partOfCompoSz=compoIds.size();
     std::size_t nbOfCompo = this->getNumberOfComponents();
     mcIdType nbOfTuples=std::min(this->getNumberOfTuples(),a->getNumberOfTuples());
     const T *ac=a->getConstPointer();
@@ -5644,7 +5654,7 @@ struct NotInRange
         tmp[*w]=true;
       else
         throw INTERP_KERNEL::Exception("DataArrayInt::buildComplement : an element is not in valid range : [0,nbOfElement) !");
-    std::size_t nbOfRetVal=std::count(tmp.begin(),tmp.end(),false);
+    std::size_t const nbOfRetVal=std::count(tmp.begin(),tmp.end(),false);
     DataArrayIdType *ret=DataArrayIdType::New();
     ret->alloc(nbOfRetVal,1);
     mcIdType j=0;
@@ -6780,7 +6790,7 @@ struct NotInRange
     this->setName(tinyInfoS[0]);
     if(this->isAllocated())
       {
-        mcIdType nbOfCompo=tinyInfoI[1];
+        mcIdType const nbOfCompo=tinyInfoI[1];
         for(mcIdType i=0;i<nbOfCompo;i++)
           this->setInfoOnComponent(i,tinyInfoS[i+1]);
       }
@@ -7060,7 +7070,7 @@ struct NotInRange
   mcIdType *DataArrayDiscrete<T>::CheckAndPreparePermutation(const T *start, const T *end)
   {
     std::size_t sz=std::distance(start,end);
-    mcIdType *ret=(mcIdType *)malloc(sz*sizeof(mcIdType));
+    auto *ret=(mcIdType *)malloc(sz*sizeof(mcIdType));
     T *work=new T[sz];
     std::copy(start,end,work);
     std::sort(work,work+sz);
@@ -7343,10 +7353,10 @@ struct NotInRange
     arrIn->checkAllocated(); arrIndxIn->checkAllocated();
     if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArrays : input arrays must have exactly one component !");
-    std::size_t sz=std::distance(idsOfSelectBg,idsOfSelectEnd);
+    std::size_t const sz=std::distance(idsOfSelectBg,idsOfSelectEnd);
     const T *arrInPtr=arrIn->begin();
     const mcIdType *arrIndxPtr=arrIndxIn->begin();
-    mcIdType nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
+    mcIdType const nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
     if(nbOfGrps<0)
       throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArrays : The format of \"arrIndxIn\" is invalid ! Its nb of tuples should be >=1 !");
     mcIdType maxSizeOfArr(arrIn->getNumberOfTuples());
@@ -7419,10 +7429,10 @@ struct NotInRange
     arrIn->checkAllocated(); arrIndxIn->checkAllocated();
     if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArraysSlice : input arrays must have exactly one component !");
-    mcIdType sz=DataArray::GetNumberOfItemGivenBESRelative(idsOfSelectStart,idsOfSelectStop,idsOfSelectStep,"MEDCouplingUMesh::ExtractFromIndexedArraysSlice : Input slice ");
+    mcIdType const sz=DataArray::GetNumberOfItemGivenBESRelative(idsOfSelectStart,idsOfSelectStop,idsOfSelectStep,"MEDCouplingUMesh::ExtractFromIndexedArraysSlice : Input slice ");
     const T *arrInPtr=arrIn->begin();
     const mcIdType *arrIndxPtr=arrIndxIn->begin();
-    mcIdType nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
+    mcIdType const nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
     if(nbOfGrps<0)
       throw INTERP_KERNEL::Exception("DataArrayInt::ExtractFromIndexedArraysSlice : The format of \"arrIndxIn\" is invalid ! Its nb of tuples should be >=1 !");
     mcIdType maxSizeOfArr(arrIn->getNumberOfTuples());
@@ -7492,11 +7502,11 @@ struct NotInRange
                                                     const DataArrayType *srcArr, const DataArrayIdType *srcArrIndex,
                                                     DataArrayType* &arrOut, DataArrayIdType* &arrIndexOut)
   {
-    if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    if(arrIn==0 || arrIndxIn==nullptr || srcArr==0 || srcArrIndex==nullptr)
       throw INTERP_KERNEL::Exception("DataArrayInt::SetPartOfIndexedArrays : presence of null pointer in input parameter !");
     MCAuto<DataArrayType> arro=DataArrayType::New();
     MCAuto<DataArrayIdType> arrIo=DataArrayIdType::New();
-    mcIdType nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+    mcIdType const nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
     std::vector<bool> v(nbOfTuples,true);
     mcIdType offset=0;
     const mcIdType *arrIndxInPtr=arrIndxIn->begin();
@@ -7530,7 +7540,7 @@ struct NotInRange
           }
         else
           {
-            std::size_t pos=std::distance(idsOfSelectBg,std::find(idsOfSelectBg,idsOfSelectEnd,ii));
+            std::size_t const pos=std::distance(idsOfSelectBg,std::find(idsOfSelectBg,idsOfSelectEnd,ii));
             arroPtr=std::copy(srcArrPtr+srcArrIndexPtr[pos],srcArrPtr+srcArrIndexPtr[pos+1],arroPtr);
             *arrIoPtr=arrIoPtr[-1]+(srcArrIndexPtr[pos+1]-srcArrIndexPtr[pos]);
           }
@@ -7563,15 +7573,15 @@ struct NotInRange
                                                          const DataArrayType *srcArr, const DataArrayIdType *srcArrIndex,
                                                          DataArrayType* &arrOut, DataArrayIdType* &arrIndexOut)
   {
-    if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    if(arrIn==0 || arrIndxIn==nullptr || srcArr==0 || srcArrIndex==nullptr)
       throw INTERP_KERNEL::Exception("DataArrayInt::SetPartOfIndexedArraysSlice : presence of null pointer in input parameter !");
     MCAuto<DataArrayType> arro=DataArrayType::New();
     MCAuto<DataArrayIdType> arrIo=DataArrayIdType::New();
-    mcIdType nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+    mcIdType const nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
     mcIdType offset=0;
     const mcIdType *arrIndxInPtr=arrIndxIn->begin();
     const mcIdType *srcArrIndexPtr=srcArrIndex->begin();
-    mcIdType nbOfElemsToSet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"DataArrayInt::SetPartOfIndexedArraysSlice : ");
+    mcIdType const nbOfElemsToSet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"DataArrayInt::SetPartOfIndexedArraysSlice : ");
     mcIdType it=start;
     for(mcIdType i=0;i<nbOfElemsToSet;i++,srcArrIndexPtr++,it+=step)
       {
@@ -7592,7 +7602,7 @@ struct NotInRange
     T *arroPtr=arro->getPointer();
     for(mcIdType ii=0;ii<nbOfTuples;ii++,arrIoPtr++)
       {
-        mcIdType pos=DataArray::GetPosOfItemGivenBESRelativeNoThrow(ii,start,end,step);
+        mcIdType const pos=DataArray::GetPosOfItemGivenBESRelativeNoThrow(ii,start,end,step);
         if(pos<0)
           {
             arroPtr=std::copy(arrInPtr+arrIndxInPtr[ii],arrInPtr+arrIndxInPtr[ii+1],arroPtr);
@@ -7626,9 +7636,9 @@ struct NotInRange
                                                            DataArrayType *arrInOut, const DataArrayIdType *arrIndxIn,
                                                            const DataArrayType *srcArr, const DataArrayIdType *srcArrIndex)
   {
-    if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    if(arrInOut==0 || arrIndxIn==nullptr || srcArr==0 || srcArrIndex==nullptr)
       throw INTERP_KERNEL::Exception("DataArrayInt::SetPartOfIndexedArraysSameIdx : presence of null pointer in input parameter !");
-    mcIdType nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+    mcIdType const nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
     const mcIdType *arrIndxInPtr=arrIndxIn->begin();
     const mcIdType *srcArrIndexPtr=srcArrIndex->begin();
     T *arrInOutPtr=arrInOut->getPointer();
@@ -7672,14 +7682,14 @@ struct NotInRange
                                                                 DataArrayType *arrInOut, const DataArrayIdType *arrIndxIn,
                                                                 const DataArrayType *srcArr, const DataArrayIdType *srcArrIndex)
   {
-    if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    if(arrInOut==0 || arrIndxIn==nullptr || srcArr==0 || srcArrIndex==nullptr)
       throw INTERP_KERNEL::Exception("DataArrayInt::SetPartOfIndexedArraysSameIdxSlice : presence of null pointer in input parameter !");
-    mcIdType nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+    mcIdType const nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
     const mcIdType *arrIndxInPtr=arrIndxIn->begin();
     const mcIdType *srcArrIndexPtr=srcArrIndex->begin();
     T *arrInOutPtr=arrInOut->getPointer();
     const T *srcArrPtr=srcArr->begin();
-    mcIdType nbOfElemsToSet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"DataArrayInt::SetPartOfIndexedArraysSameIdxSlice : ");
+    mcIdType const nbOfElemsToSet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"DataArrayInt::SetPartOfIndexedArraysSameIdxSlice : ");
     mcIdType it=start;
     for(mcIdType i=0;i<nbOfElemsToSet;i++,srcArrIndexPtr++,it+=step)
       {
@@ -7721,7 +7731,7 @@ struct NotInRange
     if(offsetForRemoval<0)
       throw INTERP_KERNEL::Exception("DataArrayInt::RemoveIdsFromIndexedArrays : offsetForRemoval should be >=0 !");
     std::set<T> s(idsToRemoveBg,idsToRemoveEnd);
-    mcIdType nbOfGrps=arrIndx->getNumberOfTuples()-1;
+    mcIdType const nbOfGrps=arrIndx->getNumberOfTuples()-1;
     mcIdType *arrIPtr=arrIndx->getPointer();
     *arrIPtr++=0;
     mcIdType previousArrI=0;
@@ -7813,7 +7823,7 @@ struct NotInRange
     ret->alloc(nbOfOldTuples,1);
     mcIdType *pt=ret->getPointer();
     std::fill(pt,pt+nbOfOldTuples,-1);
-    mcIdType nbOfGrps=ToIdType(std::distance(arrIBg,arrIEnd))-1;
+    mcIdType const nbOfGrps=ToIdType(std::distance(arrIBg,arrIEnd))-1;
     const mcIdType *cIPtr=arrIBg;
     for(mcIdType i=0;i<nbOfGrps;i++)
       pt[arr[cIPtr[i]]]=-(i+2);
@@ -7826,7 +7836,7 @@ struct NotInRange
               pt[iNode]=newNb++;
             else
               {
-                mcIdType grpId=-(pt[iNode]+2);
+                mcIdType const grpId=-(pt[iNode]+2);
                 for(mcIdType j=cIPtr[grpId];j<cIPtr[grpId+1];j++)
                   {
                     if(arr[j]>=0 && arr[j]<nbOfOldTuples)
@@ -7885,7 +7895,7 @@ struct NotInRange
       {
         const T *ptr=(*iter)->getConstPointer();
         std::size_t nbOfElem=(*iter)->getNbOfElems();
-        mcIdType sfid=fid;
+        mcIdType const sfid=fid;
         for(mcIdType j=0;j<sfid;j++)
           {
             bool found=false;
@@ -7934,22 +7944,22 @@ namespace MEDCouplingImpl
   class OpSwitchedOn
   {
   public:
-    OpSwitchedOn(T *pt):_pt(pt),_cnt(0) { }
+    OpSwitchedOn(T *pt):_pt(pt) { }
     void operator()(const bool& b) { if(b) *_pt++=FromIdType<T>(_cnt); _cnt++; }
   private:
     T *_pt;
-    MEDCoupling::mcIdType _cnt;
+    MEDCoupling::mcIdType _cnt{0};
   };
 
   template <class T>
   class OpSwitchedOff
   {
   public:
-    OpSwitchedOff(T *pt):_pt(pt),_cnt(0) { }
+    OpSwitchedOff(T *pt):_pt(pt) { }
     void operator()(const bool& b) { if(!b) *_pt++=FromIdType<T>(_cnt); _cnt++; }
   private:
     T *_pt;
-    MEDCoupling::mcIdType _cnt;
+    MEDCoupling::mcIdType _cnt{0};
   };
 }
 /// @endcond
@@ -8003,7 +8013,7 @@ namespace MEDCoupling
     const T *w(this->begin()),*end2(this->end());
     T refVal=-std::numeric_limits<T>::max();
     T i=0;
-    std::vector<bool>::const_iterator it(v.begin());
+    auto it(v.begin());
     for(;it!=v.end();it++,i++)
       {
         if(*it)

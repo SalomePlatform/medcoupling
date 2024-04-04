@@ -28,7 +28,7 @@ namespace MEDCoupling
   template<class T>
   struct MEDLOADER_EXPORT MLFieldTraits
   {
-    typedef T EltType;
+    using EltType = T;
   };
 
   class MEDFileFieldMultiTS;
@@ -51,37 +51,37 @@ namespace MEDCoupling
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<double>
   {
-    typedef MEDFileFieldMultiTSWithoutSDA FMTSWSDAType;
-    typedef MEDFileFieldMultiTS FMTSType;
-    typedef MEDFileField1TS F1TSType;
-    typedef MEDFileField1TSWithoutSDA F1TSWSDAType;
+    using FMTSWSDAType = MEDFileFieldMultiTSWithoutSDA;
+    using FMTSType = MEDFileFieldMultiTS;
+    using F1TSType = MEDFileField1TS;
+    using F1TSWSDAType = MEDFileField1TSWithoutSDA;
   };
 
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<float>
   {
-    typedef MEDFileFloatFieldMultiTSWithoutSDA FMTSWSDAType;
-    typedef MEDFileFloatFieldMultiTS FMTSType;
-    typedef MEDFileFloatField1TS F1TSType;
-    typedef MEDFileFloatField1TSWithoutSDA F1TSWSDAType;
+    using FMTSWSDAType = MEDFileFloatFieldMultiTSWithoutSDA;
+    using FMTSType = MEDFileFloatFieldMultiTS;
+    using F1TSType = MEDFileFloatField1TS;
+    using F1TSWSDAType = MEDFileFloatField1TSWithoutSDA;
   };
   
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<Int32>
   {
-    typedef MEDFileInt32FieldMultiTSWithoutSDA FMTSWSDAType;
-    typedef MEDFileInt32FieldMultiTS FMTSType;
-    typedef MEDFileInt32Field1TS F1TSType;
-    typedef MEDFileInt32Field1TSWithoutSDA F1TSWSDAType;
+    using FMTSWSDAType = MEDFileInt32FieldMultiTSWithoutSDA;
+    using FMTSType = MEDFileInt32FieldMultiTS;
+    using F1TSType = MEDFileInt32Field1TS;
+    using F1TSWSDAType = MEDFileInt32Field1TSWithoutSDA;
   };
 
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<Int64>
   {
-    typedef MEDFileInt64FieldMultiTSWithoutSDA FMTSWSDAType;
-    typedef MEDFileInt64FieldMultiTS FMTSType;
-    typedef MEDFileInt64Field1TS F1TSType;
-    typedef MEDFileInt64Field1TSWithoutSDA F1TSWSDAType;
+    using FMTSWSDAType = MEDFileInt64FieldMultiTSWithoutSDA;
+    using FMTSType = MEDFileInt64FieldMultiTS;
+    using F1TSType = MEDFileInt64Field1TS;
+    using F1TSWSDAType = MEDFileInt64Field1TSWithoutSDA;
   };
 
   template<class T>

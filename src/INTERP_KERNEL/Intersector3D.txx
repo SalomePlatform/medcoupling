@@ -21,8 +21,10 @@
 #define __INTERSECTOR3D_TXX__
 
 #include "Intersector3D.hxx"
+#include "InterpolationUtils.hxx"
 
 #include <algorithm>
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -39,7 +41,7 @@ namespace INTERP_KERNEL
   {
     ConnType nbNodesT=_target_mesh.getNumberOfNodesOfElement(icellT);
     coordsT.resize(SPACEDIM*nbNodesT);
-    std::vector<double>::iterator iter=coordsT.begin();
+    auto iter=coordsT.begin();
     for (ConnType iT=0; iT<nbNodesT; iT++)
       {
         const double *coordsCur=getCoordsOfNode(iT,icellT,_target_mesh);
@@ -55,7 +57,7 @@ namespace INTERP_KERNEL
   {
     ConnType nbNodesS=_src_mesh.getNumberOfNodesOfElement(icellS);
     coordsS.resize(SPACEDIM*nbNodesS);
-    std::vector<double>::iterator iter=coordsS.begin();
+    auto iter=coordsS.begin();
     for (ConnType iS=0; iS<nbNodesS; iS++)
       {
         const double *coordsCur=getCoordsOfNode(iS,icellS,_src_mesh);

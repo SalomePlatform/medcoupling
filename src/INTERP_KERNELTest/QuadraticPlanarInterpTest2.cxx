@@ -18,14 +18,18 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
+#include "InterpKernelGeo2DEdge.hxx"
+#include "InterpKernelGeo2DNode.hxx"
+#include "InterpKernelGeo2DPrecision.hxx"
 #include "QuadraticPlanarInterpTest.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DEdgeLin.hxx"
 
 #include <cmath>
-#include <sstream>
-#include <iostream>
+#include <math.h>
+#include <cppunit/TestAssert.h>
+#include <vector>
 
 using namespace INTERP_KERNEL;
 
@@ -37,7 +41,7 @@ static const double ADMISSIBLE_ERROR = 1.e-14;
 void QuadraticPlanarInterpTest::IntersectArcCircleBase()
 {
   double center[2]={0.5,0.5};
-  double radius=0.3;
+  double const radius=0.3;
   EdgeArcCircle *e1=buildArcOfCircle(center,radius,M_PI/4.,M_PI/3.);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[0],center[0]+radius*cos(M_PI/3),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getBounds()[1],center[0]+radius*cos(M_PI/4),ADMISSIBLE_ERROR);
@@ -107,7 +111,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
   std::vector<Node *> v4;
   MergePoints v3;
   EdgeArcCircle *e2;
-  ArcCArcCIntersector *intersector=0;
+  ArcCArcCIntersector *intersector=nullptr;
   for(unsigned k=0;k<8;k++)
     {
       e1=buildArcOfCircle(center,radius,M_PI/4.+k*M_PI/4.,M_PI/3.+k*M_PI/4.);
@@ -168,8 +172,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[1]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT(!v4[0]->isEqual(*v4[1]));
       CPPUNIT_ASSERT_DOUBLES_EQUAL(btw2NodesAndACenter(*v4[0],*v4[1],e1->getCenter()),0.35587863972199624,1e-10);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -193,8 +197,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[1]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT(!v4[0]->isEqual(*v4[1]));
       CPPUNIT_ASSERT_DOUBLES_EQUAL(btw2NodesAndACenter(*v4[0],*v4[1],e1->getCenter()),0.35587863972199624,1e-10);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -218,8 +222,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[1]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT(!v4[0]->isEqual(*v4[1]));
       CPPUNIT_ASSERT_DOUBLES_EQUAL(btw2NodesAndACenter(*v4[0],*v4[1],e1->getCenter()),0.6793851523346941,1e-10);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -243,8 +247,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[1]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT(!v4[0]->isEqual(*v4[1]));
       CPPUNIT_ASSERT_DOUBLES_EQUAL(btw2NodesAndACenter(*v4[0],*v4[1],e1->getCenter()),0.6793851523346941,1e-10);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -268,8 +272,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[1]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT(!v4[0]->isEqual(*v4[1]));
       CPPUNIT_ASSERT_DOUBLES_EQUAL(1.1195732971845034,btw2NodesAndACenter(*v4[0],*v4[1],e1->getCenter()),1e-10);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -293,8 +297,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[1]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT(!v4[0]->isEqual(*v4[1]));
       CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.1195732971845034,btw2NodesAndACenter(*v4[0],*v4[1],e1->getCenter()),1e-10);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -318,8 +322,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[1]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT(!v4[0]->isEqual(*v4[1]));
       CPPUNIT_ASSERT_DOUBLES_EQUAL(-3.0844420190512074,btw2NodesAndACenter(*v4[0],*v4[1],e1->getCenter()),1e-10);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -343,8 +347,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[1]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT(!v4[0]->isEqual(*v4[1]));
       CPPUNIT_ASSERT_DOUBLES_EQUAL(-3.0844420190512074,btw2NodesAndACenter(*v4[0],*v4[1],e1->getCenter()),1e-10);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v3.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -365,8 +369,8 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       CPPUNIT_ASSERT_EQUAL(1,(int)v4.size()); CPPUNIT_ASSERT_EQUAL(0,(int)v3.getNumberOfAssociations());
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e1->getRadius(),Node::distanceBtw2Pt(e1->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(e2->getRadius(),Node::distanceBtw2Pt(e2->getCenter(),(*(v4[0]))),ADMISSIBLE_ERROR);
-      for(std::vector<Node *>::iterator iter=v4.begin();iter!=v4.end();iter++)
-        (*iter)->decrRef();
+      for(auto & iter : v4)
+        iter->decrRef();
       v4.clear(); v4.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
@@ -493,7 +497,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
 
 void QuadraticPlanarInterpTest::IntersectArcCircleFull()
 {
-  double center1[2]; center1[0]=0.;   center1[1]=0.;   double radius1=3.;
+  double center1[2]; center1[0]=0.;   center1[1]=0.;   double const radius1=3.;
   double center2[2]; center2[0]=0.75; center2[1]=-2.6; double radius2=1.;
   EdgeArcCircle *e1=buildArcOfCircle(center1,radius1,-M_PI/3.,4.*M_PI/3.);
   EdgeArcCircle *e2=buildArcOfCircle(center2,radius2,0.,M_PI/2.);
@@ -605,7 +609,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleSegumentBase()
 {
   double center[2]={2.,2.};
   EdgeArcCircle *e1=buildArcOfCircle(center,2.3,M_PI/4.,5.*M_PI/4.);
-  EdgeLin *e2=new EdgeLin(-1.3,1.,3.,5.3);
+  auto *e2=new EdgeLin(-1.3,1.,3.,5.3);
   EdgeIntersector *intersector=new ArcCSegIntersector(*e1,*e2);
   bool order;
   bool obvious,areOverlapped;
@@ -651,7 +655,7 @@ QuadraticPolygon *QuadraticPlanarInterpTest::buildQuadraticPolygonCoarseInfo(con
 
 EdgeArcCircle *QuadraticPlanarInterpTest::buildArcOfCircle(const double *center, double radius, double alphaStart, double alphaEnd)
 {
-  double alphaM=(alphaStart+alphaEnd)/2;
+  double const alphaM=(alphaStart+alphaEnd)/2;
   return new EdgeArcCircle(center[0]+cos(alphaStart)*radius,center[1]+sin(alphaStart)*radius,
                            center[0]+cos(alphaM)*radius,center[1]+sin(alphaM)*radius,
                            center[0]+cos(alphaEnd)*radius,center[1]+sin(alphaEnd)*radius);
@@ -664,8 +668,8 @@ double QuadraticPlanarInterpTest::btw2NodesAndACenter(const Node& n1, const Node
   double tmp1[2],tmp2[2];
   tmp1[0]=n1Pt[0]-center[0]; tmp1[1]=n1Pt[1]-center[1];
   tmp2[0]=n2Pt[0]-center[0]; tmp2[1]=n2Pt[1]-center[1];
-  double distTmp1=sqrt(tmp1[0]*tmp1[0]+tmp1[1]*tmp1[1]);
-  double distTmp2=sqrt(tmp2[0]*tmp2[0]+tmp2[1]*tmp2[1]);
+  double const distTmp1=sqrt(tmp1[0]*tmp1[0]+tmp1[1]*tmp1[1]);
+  double const distTmp2=sqrt(tmp2[0]*tmp2[0]+tmp2[1]*tmp2[1]);
   double ret=acos((tmp1[0]*tmp2[0]+tmp1[1]*tmp2[1])/(distTmp1*distTmp2));
   if(tmp1[0]*tmp2[1]-tmp1[1]*tmp2[0]<0)
     ret=-ret;

@@ -23,6 +23,7 @@
 
 #include "MCAuto.hxx"
 
+#include <cstddef>
 #include <vector>
 
 namespace MEDCoupling

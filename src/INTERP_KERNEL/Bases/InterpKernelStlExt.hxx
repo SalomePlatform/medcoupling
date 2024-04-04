@@ -20,7 +20,6 @@
 #ifndef __INTERPKERNELSTLEXT_HXX__
 #define __INTERPKERNELSTLEXT_HXX__
 
-#include <functional>
 
 namespace INTERP_KERNEL
 {

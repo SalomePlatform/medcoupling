@@ -20,9 +20,18 @@
 
 #pragma once
 
+#include "MEDCoupling.hxx"
+#include "MCAuto.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MEDCouplingGaussLocalization.hxx"
 
 #include <functional>
+#include <string>
+#include <ostream>
+#include <vector>
 
 namespace MEDCoupling
 {

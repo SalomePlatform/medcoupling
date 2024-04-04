@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
+#include <cstddef>
 #include <vector>
 #include <algorithm>
 

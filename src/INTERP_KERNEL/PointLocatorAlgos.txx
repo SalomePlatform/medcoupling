@@ -20,6 +20,7 @@
 #ifndef __POINTLOCATORALGOS_TXX__
 #define __POINTLOCATORALGOS_TXX__
 
+#include "InterpKernelGeo2DPrecision.hxx"
 #include "InterpolationUtils.hxx"
 #include "CellModel.hxx"
 #include "BBTree.txx"
@@ -27,7 +28,12 @@
 
 #include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "MCIdType.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <algorithm>
+#include <cmath>
 #include <list>
 #include <vector>
 #include <set>
@@ -39,7 +45,7 @@ namespace INTERP_KERNEL
   class GenericPointLocatorAlgos
   {
   public:
-    virtual ~GenericPointLocatorAlgos() { }
+    virtual ~GenericPointLocatorAlgos() = default;
     virtual std::list<mcIdType> locates(const double* x, double eps) = 0;
   };
         
@@ -84,7 +90,7 @@ namespace INTERP_KERNEL
       _tree=new BBTree<SPACEDIM,typename MyMeshType::MyConnType>(_bb,0,0,nelem);
     }
 
-    ~PointLocatorAlgos()
+    ~PointLocatorAlgos() override
     {
       delete[] _bb;
       delete _tree;
@@ -92,7 +98,7 @@ namespace INTERP_KERNEL
         
     //returns the list of elements that contains 
     //the point pointed to by x
-    std::list<typename MyMeshType::MyConnType> locates(const double* x, double eps)
+    std::list<typename MyMeshType::MyConnType> locates(const double* x, double eps) override
     {
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
@@ -121,12 +127,12 @@ namespace INTERP_KERNEL
        
          here XA^XC and XC^XB have different signs*/
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-      std::unique_ptr<char[]> sign( new char[nbEdges] );
+      std::unique_ptr<char[]> const sign( new char[nbEdges] );
       for (mcIdType iedge=0; iedge<nbEdges; iedge++)
         {
           const double* A=cellPts+SPACEDIM*iedge;
           const double* B=cellPts+SPACEDIM*((iedge+1)%nbEdges);
-          double a=mon_determinant(ptToTest, A, B);
+          double const a=mon_determinant(ptToTest, A, B);
           if(a<-eps)
             sign[iedge]=-1;
           else if(a>eps)
@@ -141,7 +147,7 @@ namespace INTERP_KERNEL
     // Same as isElementContainsPointAlg2DSimple() with a different input format ...
     static bool isElementContainsPointAlgo2DSimple2(const double *ptToTest, NormalizedCellType type,
                                                     const double *coords, const typename MyMeshType::MyConnType *conn_elem,
-                                                    typename MyMeshType::MyConnType conn_elem_sz, double eps)
+                                                    typename MyMeshType::MyConnType  /*conn_elem_sz*/, double eps)
     {
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
@@ -150,8 +156,8 @@ namespace INTERP_KERNEL
       const CellModel& cmType=CellModel::GetCellModel(type);
       bool ret=false;
 
-      int nbEdges=cmType.getNumberOfSons();
-      double *pts = new double[nbEdges*SPACEDIM];
+      int const nbEdges=cmType.getNumberOfSons();
+      auto *pts = new double[nbEdges*SPACEDIM];
       for (int iedge=0; iedge<nbEdges; iedge++)
         {
           const double* a=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[iedge]));
@@ -167,14 +173,14 @@ namespace INTERP_KERNEL
                                                     typename MyMeshType::MyConnType conn_elem_sz, double eps)
     {
       // Override precision for this method only:
-      INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
+      INTERP_KERNEL::QuadraticPlanarPrecision const prec(eps);
 
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
 
       std::vector<INTERP_KERNEL::Node *> nodes(conn_elem_sz);
-      INTERP_KERNEL::QuadraticPolygon *pol(0);
+      INTERP_KERNEL::QuadraticPolygon *pol(nullptr);
       for(mcIdType j=0;j<conn_elem_sz;j++)
         {
           mcIdType nodeId(OTT<ConnType,numPol>::ind2C(conn_elem[j]));
@@ -184,10 +190,10 @@ namespace INTERP_KERNEL
         pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
       else
         pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
-      INTERP_KERNEL::Node *n(new INTERP_KERNEL::Node(ptToTest[0],ptToTest[1]));
+      auto *n(new INTERP_KERNEL::Node(ptToTest[0],ptToTest[1]));
       double a(0.),b(0.),c(0.);
       a=pol->normalizeMe(b,c); n->applySimilarity(b,c,a);
-      bool ret=pol->isInOrOut2(n);
+      bool const ret=pol->isInOrOut2(n);
       delete pol; n->decrRef();
       return ret;
     }
@@ -199,9 +205,9 @@ namespace INTERP_KERNEL
       const NumberingPolicy numPol=MyMeshType::My_numPol;
       
       int nbfaces = cmType.getNumberOfSons2(conn_elem,conn_elem_sz);
-      std::unique_ptr<char[]> sign( new char[nbfaces] );
+      std::unique_ptr<char[]> const sign( new char[nbfaces] );
       std::unique_ptr<ConnType[]> connOfSon( new ConnType[conn_elem_sz] );
-      std::unique_ptr<double[]> ptsOfTetrahedrizedPolyhedron( new double[3*3*nbfaces] );
+      std::unique_ptr<double[]> const ptsOfTetrahedrizedPolyhedron( new double[3*3*nbfaces] );
       for (int iface=0; iface<nbfaces; iface++)
         {
           NormalizedCellType typeOfSon;
@@ -230,7 +236,7 @@ namespace INTERP_KERNEL
           }
         }
       double centerPt[3];
-      double normalizeFact = NormalizeTetrahedrizedPolyhedron(ptsOfTetrahedrizedPolyhedron.get(),nbfaces,centerPt);
+      double const normalizeFact = NormalizeTetrahedrizedPolyhedron(ptsOfTetrahedrizedPolyhedron.get(),nbfaces,centerPt);
       double ptToTestNorm[3] = {(ptToTest[0]-centerPt[0])/normalizeFact,
       (ptToTest[1]-centerPt[1])/normalizeFact,
       (ptToTest[2]-centerPt[2])/normalizeFact};
@@ -281,8 +287,8 @@ namespace INTERP_KERNEL
         {
           double p1=coords[(OTT<ConnType,numPol>::ind2C(conn_elem[0]))];
           double p2=coords[(OTT<ConnType,numPol>::ind2C(conn_elem[1]))];
-          double delta=fabs(p1-p2)+eps;
-          double val=*ptToTest-std::min(p1,p2);
+          double const delta=fabs(p1-p2)+eps;
+          double const val=*ptToTest-std::min(p1,p2);
           return val>-eps && val<delta;
         }
       throw INTERP_KERNEL::Exception("Invalid spacedim detected ! Managed spaceDim are 2 and 3 !");

@@ -52,7 +52,7 @@ namespace INTERP_KERNEL
     void getBarycenter(double& xBary, double& yBary) const;
     void applySimilarity(double xBary, double yBary, double dimChar);
     void unApplySimilarity(double xBary, double yBary, double dimChar);
-    Bounds& operator=(const Bounds& other) { _x_min=other._x_min; _x_max=other._x_max; _y_min=other._y_min; _y_max=other._y_max; return *this; }
+    Bounds& operator=(const Bounds& other) = default;
     Bounds(double xMin, double xMax, double yMin, double yMax):_x_min(xMin),_x_max(xMax),_y_min(yMin),_y_max(yMax) { }
     void setValues(double xMin, double xMax, double yMin, double yMax) { _x_min=xMin; _x_max=xMax; _y_min=yMin; _y_max=yMax; }
     void prepareForAggregation();

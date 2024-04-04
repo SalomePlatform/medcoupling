@@ -21,13 +21,12 @@
 #define _BASICMAINTEST_HXX_
 
 #include <cppunit/CompilerOutputter.h>
+#include <cppunit/Portability.h>
 #include <cppunit/TestResult.h>
 #include <cppunit/TestResultCollector.h>
 #include <cppunit/TextTestProgressListener.h>
-#include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/TestRunner.h>
-#include <stdexcept>
 
 #include <iostream>
 #include <fstream>
@@ -43,7 +42,7 @@
  */
 // ============================================================================
 
-int main(int argc, char* argv[])
+int main(int  /*argc*/, char*  /*argv*/[])
 {
 #if !defined WIN32 && !defined __APPLE__
   fpu_control_t cw = _FPU_DEFAULT & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_MASK_OM);
@@ -85,7 +84,7 @@ int main(int argc, char* argv[])
 
   // ---  Run the tests.
 
-  bool wasSucessful = result.wasSuccessful();
+  bool const wasSucessful = result.wasSuccessful();
   testFile.close();
 
   // ---  Return error code 1 if the one of test failed.

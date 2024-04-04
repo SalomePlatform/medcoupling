@@ -22,10 +22,9 @@
 #define __INTERPKERNELUNIT_HXX__
 
 #include "INTERPKERNELDefines.hxx"
-#include "InterpKernelException.hxx"
 
 #include <map>
-#include <sstream>
+#include <string>
 
 namespace INTERP_KERNEL
 {

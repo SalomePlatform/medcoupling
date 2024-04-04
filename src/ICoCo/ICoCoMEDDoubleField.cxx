@@ -22,7 +22,7 @@
 
 namespace ICoCo
 {
-  MEDDoubleField::MEDDoubleField() : _field(0) {}
+  MEDDoubleField::MEDDoubleField() : _field(nullptr) {}
 
   MEDDoubleField::MEDDoubleField(MEDCoupling::MEDCouplingFieldDouble *field):_field(field)
   {

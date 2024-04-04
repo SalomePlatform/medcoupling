@@ -21,14 +21,17 @@
 #ifndef __INTERPOLATION2D_HXX__
 #define __INTERPOLATION2D_HXX__
 
-#include "InterpolationPlanar.hxx"
+#include "InterpolationOptions.hxx"
+#include "PlanarIntersector.hxx"
+#include "InterpolationPlanar.txx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
   class Interpolation2D : public InterpolationPlanar<Interpolation2D>
   {
   public:
-    Interpolation2D() { }
+    Interpolation2D() = default;
     Interpolation2D(const InterpolationOptions& io):InterpolationPlanar<Interpolation2D>(io) { }
   public:
     bool doRotate() const { return false; }

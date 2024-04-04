@@ -21,8 +21,8 @@
 #ifndef __TARGETINTERSECTOR__HXX__
 #define __TARGETINTERSECTOR__HXX__
 
-#include "INTERPKERNELDefines.hxx"
 
+#include <cstddef>
 #include <vector>
 
 namespace INTERP_KERNEL
@@ -37,7 +37,7 @@ namespace INTERP_KERNEL
   {
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    typedef typename MyMeshType::MyConnType ConnType;
+    using ConnType = typename MyMeshType::MyConnType;
   public:
     /*!
      * Tool for cell intersection, result is always positive.
@@ -50,7 +50,7 @@ namespace INTERP_KERNEL
     virtual ConnType getNumberOfRowsOfResMatrix() const = 0;
     virtual ConnType getNumberOfColsOfResMatrix() const = 0;
 
-    virtual ~TargetIntersector() { }
+    virtual ~TargetIntersector() = default;
     void adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEps, double adjustmentEpsAbs);
     void adjustBoundingBoxes(double *bbox, std::size_t sz, double adjustmentEps, double adjustmentEpsAbs);
   };

@@ -21,12 +21,8 @@
 #ifndef __CONVEXINTERSECTOR_HXX__
 #define __CONVEXINTERSECTOR_HXX__
 
-#include "PlanarIntersectorP0P0.hxx"
-#include "PlanarIntersectorP0P1.hxx"
-#include "PlanarIntersectorP1P0.hxx"
-#include "PlanarIntersectorP1P1.hxx"
-#include "PlanarIntersectorP1P0Bary.hxx"
-#include "PlanarIntersectorP0P1Bary.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -36,7 +32,7 @@ namespace INTERP_KERNEL
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
-    typedef typename MyMeshType::MyConnType ConnType;
+    using ConnType = typename MyMeshType::MyConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 

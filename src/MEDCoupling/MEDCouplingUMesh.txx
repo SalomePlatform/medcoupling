@@ -19,6 +19,8 @@
 // Author : Anthony Geay (EDF R&D)
 
 #pragma once
+#include "MCType.hxx"
+#include "MCIdType.hxx"
 #include "MEDCouplingUMesh.hxx"
 
 #include <sstream>
@@ -29,7 +31,7 @@ void MEDCoupling::MEDCouplingUMesh::renumberNodesInConnT(const MAPCLS& newNodeNu
   checkConnectivityFullyDefined();
   mcIdType *conn(getNodalConnectivity()->getPointer());
   const mcIdType *connIndex(getNodalConnectivityIndex()->getConstPointer());
-  mcIdType nbOfCells=ToIdType(getNumberOfCells());
+  mcIdType const nbOfCells=ToIdType(getNumberOfCells());
   for(mcIdType i=0;i<nbOfCells;i++)
     for(mcIdType iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
       {

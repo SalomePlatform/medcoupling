@@ -19,20 +19,29 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingVoronoi.hxx"
+#include "MCAuto.hxx"
+#include "MCIdType.hxx"
+#include "MCType.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MCAuto.txx"
 
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
-#include "Interpolation2D.txx"
-#include "Interpolation3DSurf.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include <algorithm>
+#include <iterator>
+#include <math.h>
+#include <cmath>
+#include "NormalizedGeometricTypes"
+#include <cstddef>
+#include <vector>
+#include <set>
 
 using namespace MEDCoupling;
 
 Voronizer::~Voronizer()
-{
-}
+= default;
 
 int Voronizer1D::getDimension() const
 {
@@ -59,13 +68,13 @@ MCAuto<MEDCouplingUMesh> ComputeBigCellFrom(const double pt1[2], const double pt
   static const double PT[2]={0.,0.};
   m->scale(PT,FACT);
   MCAuto<MEDCouplingUMesh> mu(m->buildUnstructured());
-  double l(std::max(bbox[1]-bbox[0],bbox[3]-bbox[2]));
+  double const l(std::max(bbox[1]-bbox[0],bbox[3]-bbox[2]));
   double middle[2]={(pt1[0]+pt2[0])/2.,(pt1[1]+pt2[1])/2.};
   double v[2]={pt1[0],pt1[1]};
   DataArrayDouble::Rotate2DAlg(middle,M_PI/2,1,v,v);
   v[0]=middle[0]-v[0]; v[1]=middle[1]-v[1];
   {
-    double nor(sqrt(v[0]*v[0]+v[1]*v[1]));
+    double const nor(sqrt(v[0]*v[0]+v[1]*v[1]));
     v[0]/=nor; v[1]/=nor;
   }
   MCAuto<MEDCouplingUMesh> line(MEDCouplingUMesh::New("line",1));
@@ -79,8 +88,8 @@ MCAuto<MEDCouplingUMesh> ComputeBigCellFrom(const double pt1[2], const double pt
   line->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,CONN);
   MCAuto<MEDCouplingUMesh> sp2,sp1;
   {
-    DataArrayIdType *cellNb1(0),*cellNb2(0);
-    MEDCouplingUMesh *sp2Pt(0),*sp1Pt(0);
+    DataArrayIdType *cellNb1(nullptr),*cellNb2(nullptr);
+    MEDCouplingUMesh *sp2Pt(nullptr),*sp1Pt(nullptr);
     MEDCouplingUMesh::Intersect2DMeshWith1DLine(mu,line,eps,sp2Pt,sp1Pt,cellNb1,cellNb2);
     sp1=sp1Pt; sp2=sp2Pt;
     MCAuto<DataArrayIdType> cellNb10(cellNb1),cellNb20(cellNb2);
@@ -100,7 +109,7 @@ MCAuto<MEDCouplingUMesh> ComputeBigCellFrom(const double pt1[2], const double pt
 }
 
 
-MCAuto<MEDCouplingUMesh> MergeVorCells2D(MEDCouplingUMesh *p, double eps, bool isZip)
+MCAuto<MEDCouplingUMesh> MergeVorCells2D(MEDCouplingUMesh *p, double  /*eps*/, bool isZip)
 {
   MCAuto<DataArrayIdType> edgeToKeep;
   MCAuto<MEDCouplingUMesh> p0;
@@ -138,7 +147,7 @@ MCAuto<MEDCouplingUMesh> MergeVorCells2D(MEDCouplingUMesh *p, double eps, bool i
 
 MCAuto<MEDCouplingUMesh> MergeVorCells(const std::vector< MCAuto<MEDCouplingUMesh> >& vcs, double eps)
 {
-  std::size_t sz(vcs.size());
+  std::size_t const sz(vcs.size());
   if(sz<1)
     throw INTERP_KERNEL::Exception("MergeVorCells : len of input vec expected to be >= 1 !");
   if(sz==1)
@@ -151,7 +160,7 @@ MCAuto<MEDCouplingUMesh> MergeVorCells(const std::vector< MCAuto<MEDCouplingUMes
   p->zipCoords();
   {
     bool dummy; mcIdType dummy2;
-    MCAuto<DataArrayIdType> dummy3(p->mergeNodes(eps,dummy,dummy2));
+    MCAuto<DataArrayIdType> const dummy3(p->mergeNodes(eps,dummy,dummy2));
   }
   return MergeVorCells2D(p,eps,true);
 }
@@ -164,7 +173,7 @@ MCAuto<MEDCouplingUMesh> SimplifyPolygon(const MEDCouplingUMesh *m, double eps)
   if(m->getNumberOfCells()!=1)
     throw INTERP_KERNEL::Exception("SimplifyPolygon : internal error !");
   const mcIdType *conn(m->getNodalConnectivity()->begin()),*conni(m->getNodalConnectivityIndex()->begin());
-  mcIdType nbPtsInPolygon(conni[1]-conni[0]-1);
+  mcIdType const nbPtsInPolygon(conni[1]-conni[0]-1);
   const double *coo(m->getCoords()->begin());
   std::vector<mcIdType> resConn;
   for(mcIdType i=0;i<nbPtsInPolygon;i++)
@@ -179,7 +188,7 @@ MCAuto<MEDCouplingUMesh> SimplifyPolygon(const MEDCouplingUMesh *m, double eps)
         coo[3*current+1]-coo[3*zeNext+1],
         coo[3*current+2]-coo[3*zeNext+2],
       };
-      double c[3]={a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]};
+      double const c[3]={a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]};
       if(sqrt(c[0]*c[0]+c[1]*c[1]+c[2]*c[2])>eps)
         resConn.push_back(current);
     }
@@ -192,7 +201,7 @@ MCAuto<MEDCouplingUMesh> SimplifyPolygon(const MEDCouplingUMesh *m, double eps)
 
 MCAuto<MEDCouplingUMesh> MergeVorCells3D(const std::vector< MCAuto<MEDCouplingUMesh> >& vcs, double eps)
 {
-  std::size_t sz(vcs.size());
+  std::size_t const sz(vcs.size());
   if(sz<1)
     throw INTERP_KERNEL::Exception("MergeVorCells : len of input vec expected to be >= 1 !");
   if(sz==1)
@@ -205,7 +214,7 @@ MCAuto<MEDCouplingUMesh> MergeVorCells3D(const std::vector< MCAuto<MEDCouplingUM
   p->zipCoords();
   {
     bool dummy; mcIdType dummy2;
-    MCAuto<DataArrayIdType> dummy3(p->mergeNodes(eps,dummy,dummy2));
+    MCAuto<DataArrayIdType> const dummy3(p->mergeNodes(eps,dummy,dummy2));
   }
   MCAuto<DataArrayIdType> edgeToKeep;
   MCAuto<MEDCouplingUMesh> p0;
@@ -219,7 +228,7 @@ MCAuto<MEDCouplingUMesh> MergeVorCells3D(const std::vector< MCAuto<MEDCouplingUM
   MCAuto<DataArrayDouble> eqn(skinOfRes->computePlaneEquationOf3DFaces());
   MCAuto<DataArrayIdType> comm,commI;
   {
-    DataArrayIdType *a(0),*b(0);
+    DataArrayIdType *a(nullptr),*b(nullptr);
     eqn->findCommonTuples(eps,0,a,b);
     comm=a; commI=b;
     //comm=DataArrayIdType::New(); comm->alloc(0,1); commI=DataArrayIdType::New(); commI->alloc(1,1); commI->setIJ(0,0,0);
@@ -298,7 +307,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer1D::doIt(const MEDCouplingUMesh *
     throw INTERP_KERNEL::Exception("Voronoize1D : spacedim must be equal to 1 and meshdim also equal to 1 !");
   if(m->getNumberOfCells()!=1)
     throw INTERP_KERNEL::Exception("Voronoize1D : mesh is expected to have only one cell !");
-  mcIdType nbPts(points->getNumberOfTuples());
+  mcIdType const nbPts(points->getNumberOfTuples());
   if(nbPts<1)
     throw INTERP_KERNEL::Exception("Voronoize1D : at least one point expected !");
   std::vector<double> bbox(4);
@@ -315,7 +324,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer1D::doIt(const MEDCouplingUMesh *
       {
         bool dummy;
         mcIdType newNbNodes;
-        MCAuto<DataArrayIdType> dummy3(vorTess->mergeNodes(eps,dummy,newNbNodes));
+        MCAuto<DataArrayIdType> const dummy3(vorTess->mergeNodes(eps,dummy,newNbNodes));
       }
       std::vector<mcIdType> polygsToIterOn;
       const double *pt(pts+i);
@@ -325,12 +334,11 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer1D::doIt(const MEDCouplingUMesh *
       if(polygsToIterOn.size()>2)
         throw INTERP_KERNEL::Exception("Voronoize1D : overlap of points !");
       std::vector< MCAuto<MEDCouplingUMesh> > newVorCells;
-      for(std::vector<mcIdType>::const_iterator it=polygsToIterOn.begin();it!=polygsToIterOn.end();it++)
+      for(long const poly : polygsToIterOn)
         {
-          mcIdType poly(*it);
           //
           double seed(pts[poly]),zept(*pt);
-          double mid((seed+zept)/2.);
+          double const mid((seed+zept)/2.);
           //
           MCAuto<MEDCouplingUMesh> tile(l0[poly]);
           tile->zipCoords();
@@ -364,7 +372,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer1D::doIt(const MEDCouplingUMesh *
   MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::MergeUMeshes(l0Bis));
   {
     bool dummy; mcIdType dummy2;
-    MCAuto<DataArrayIdType> dummy3(ret->mergeNodes(eps,dummy,dummy2));
+    MCAuto<DataArrayIdType> const dummy3(ret->mergeNodes(eps,dummy,dummy2));
   }
   return ret;
 }
@@ -379,7 +387,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
     throw INTERP_KERNEL::Exception("Voronoize2D : spacedim must be equal to 2 and meshdim also equal to 2 !");
   if(m->getNumberOfCells()!=1)
     throw INTERP_KERNEL::Exception("Voronoize2D : mesh is expected to have only one cell !");
-  mcIdType nbPts(points->getNumberOfTuples());
+  mcIdType const nbPts(points->getNumberOfTuples());
   if(nbPts<1)
     throw INTERP_KERNEL::Exception("Voronoize2D : at least one point expected !");
   std::vector<double> bbox(4);
@@ -396,7 +404,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
       {
         bool dummy;
         mcIdType newNbNodes;
-        MCAuto<DataArrayIdType> dummy3(vorTess->mergeNodes(eps,dummy,newNbNodes));
+        MCAuto<DataArrayIdType> const dummy3(vorTess->mergeNodes(eps,dummy,newNbNodes));
       }
       std::vector<mcIdType> polygsToIterOn;
       const double *pt(pts+i*2);
@@ -407,7 +415,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
       std::vector< MCAuto<MEDCouplingUMesh> > newVorCells;
       while(!elemsToDo.empty())
         {
-          mcIdType poly(*elemsToDo.begin()); elemsToDo.erase(elemsToDo.begin()); elemsDone.insert(poly);
+          mcIdType const poly(*elemsToDo.begin()); elemsToDo.erase(elemsToDo.begin()); elemsDone.insert(poly);
           const double *seed(pts+2*poly);
           MCAuto<MEDCouplingUMesh> cell(ComputeBigCellFrom(pt,seed,bbox,eps));
           MCAuto<MEDCouplingUMesh> tile(l0[poly]);
@@ -415,7 +423,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
           MCAuto<MEDCouplingUMesh> a;
           MCAuto<DataArrayIdType> b,c;
           {
-            DataArrayIdType *bPtr(0),*cPtr(0);
+            DataArrayIdType *bPtr(nullptr),*cPtr(nullptr);
             a=MEDCouplingUMesh::Intersect2DMeshes(tile,cell,eps,bPtr,cPtr);
             b=bPtr; c=cPtr;
           }
@@ -439,8 +447,8 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
           //
           MCAuto<DataArrayIdType> ids;
           {
-            DataArrayIdType *tmp(0);
-            bool sta(a->getCoords()->areIncludedInMe(cell->getCoords(),eps,tmp));
+            DataArrayIdType *tmp(nullptr);
+            bool const sta(a->getCoords()->areIncludedInMe(cell->getCoords(),eps,tmp));
             ids=tmp;
             if(!sta)
               throw INTERP_KERNEL::Exception("Voronoize2D : internal error 2 !");
@@ -478,18 +486,18 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer2D::doIt(const MEDCouplingUMesh *
   MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::MergeUMeshes(l0Bis));
   {
     bool dummy; mcIdType dummy2;
-    MCAuto<DataArrayIdType> dummy3(ret->mergeNodes(eps,dummy,dummy2));
+    MCAuto<DataArrayIdType> const dummy3(ret->mergeNodes(eps,dummy,dummy2));
   }
   return ret;
 }
 
-MCAuto<MEDCouplingUMesh> Split3DCellInParts(const MEDCouplingUMesh *m, const double pt[3], const double seed[3], double eps, mcIdType tmp[2])
+MCAuto<MEDCouplingUMesh> Split3DCellInParts(const MEDCouplingUMesh *m, const double pt[3], const double seed[3], double eps, mcIdType  /*tmp*/[2])
 {
   if(m->getMeshDimension()!=3 || m->getSpaceDimension()!=3 || m->getNumberOfCells()!=1)
     throw INTERP_KERNEL::Exception("Split3DCellInParts : expecting a 3D with exactly one cell !");
-  double middle[3]={(pt[0]+seed[0])/2.,(pt[1]+seed[1])/2.,(pt[2]+seed[2])/2.};
-  double vec[3]={pt[0]-seed[0],pt[1]-seed[1],pt[2]-seed[2]};
-  MCAuto<MEDCouplingUMesh> res(m->clipSingle3DCellByPlane(middle,vec,eps));
+  double const middle[3]={(pt[0]+seed[0])/2.,(pt[1]+seed[1])/2.,(pt[2]+seed[2])/2.};
+  double const vec[3]={pt[0]-seed[0],pt[1]-seed[1],pt[2]-seed[2]};
+  MCAuto<MEDCouplingUMesh> const res(m->clipSingle3DCellByPlane(middle,vec,eps));
   return res;
 }
 
@@ -504,7 +512,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
     throw INTERP_KERNEL::Exception("Voronoize3D : spacedim must be equal to 3 and meshdim also equal to 3 !");
   if(m->getNumberOfCells()!=1)
     throw INTERP_KERNEL::Exception("Voronoize3D : mesh is expected to have only one cell !");
-  mcIdType nbPts(points->getNumberOfTuples());
+  mcIdType const nbPts(points->getNumberOfTuples());
   if(nbPts<1)
     throw INTERP_KERNEL::Exception("Voronoize3D : at least one point expected !");
   std::vector< MCAuto<MEDCouplingUMesh> > l0(1,MCAuto<MEDCouplingUMesh>(m->deepCopy()));
@@ -519,7 +527,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
       {
         bool dummy;
         mcIdType newNbNodes;
-        MCAuto<DataArrayIdType> dummy3(vorTess->mergeNodes(eps,dummy,newNbNodes));
+        MCAuto<DataArrayIdType> const dummy3(vorTess->mergeNodes(eps,dummy,newNbNodes));
       }
       std::vector<mcIdType> polygsToIterOn;
       const double *pt(pts+i*3);
@@ -555,7 +563,7 @@ MCAuto<MEDCouplingUMesh> MEDCoupling::Voronizer3D::doIt(const MEDCouplingUMesh *
   MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::MergeUMeshes(l0Bis));
   {
     bool dummy; mcIdType dummy2;
-    MCAuto<DataArrayIdType> dummy3(ret->mergeNodes(eps,dummy,dummy2));
+    MCAuto<DataArrayIdType> const dummy3(ret->mergeNodes(eps,dummy,dummy2));
   }
   return ret;
 }

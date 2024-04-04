@@ -19,10 +19,16 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "ExprEvalInterpTest.hxx"
+#include "InterpKernelException.hxx"
 #include "InterpKernelExprParser.hxx"
+#include "InterpKernelUnit.hxx"
 
+#include <cppunit/TestAssert.h>
+#include <algorithm>
 #include <limits>
-#include <iterator>
+#include <string>
+#include <set>
+#include <vector>
 
 using namespace INTERP_TEST;
 
@@ -351,35 +357,35 @@ void ExprEvalInterpTest::testInterpreterUnit0()
 
 void ExprEvalInterpTest::testInterpreterUnit1()
 {
-  INTERP_KERNEL::Unit unit1("m/s");
-  INTERP_KERNEL::Unit unit2("km/h");
+  INTERP_KERNEL::Unit const unit1("m/s");
+  INTERP_KERNEL::Unit const unit2("km/h");
   CPPUNIT_ASSERT(unit1.isCompatibleWith(unit2) && unit2.isCompatibleWith(unit1));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(360,unit1.convert(unit2,100.),1e-10);
-  INTERP_KERNEL::Unit unit3("J/s");
-  INTERP_KERNEL::Unit unit4("kW");
+  INTERP_KERNEL::Unit const unit3("J/s");
+  INTERP_KERNEL::Unit const unit4("kW");
   CPPUNIT_ASSERT(unit3.isCompatibleWith(unit4) && unit4.isCompatibleWith(unit3));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,unit3.convert(unit4,1000.),1e-10);
   CPPUNIT_ASSERT(unit4.getCoarseRepr()=="kW");
-  INTERP_KERNEL::Unit unit5("kpT");
+  INTERP_KERNEL::Unit const unit5("kpT");
   CPPUNIT_ASSERT(!unit5.isInterpretationOK());
   CPPUNIT_ASSERT(unit5.getCoarseRepr()=="kpT");
-  INTERP_KERNEL::Unit unit6("m*kpT");
+  INTERP_KERNEL::Unit const unit6("m*kpT");
   CPPUNIT_ASSERT(!unit6.isInterpretationOK());
-  INTERP_KERNEL::Unit unit7("m*s^-1");
+  INTERP_KERNEL::Unit const unit7("m*s^-1");
   CPPUNIT_ASSERT(unit7.isCompatibleWith(unit2) && unit2.isCompatibleWith(unit7));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(360,unit7.convert(unit2,100.),1e-10);
   const char unit8C[3]={-0x50,0x43,0x0};
-  INTERP_KERNEL::Unit unit8(unit8C);
-  INTERP_KERNEL::Unit unit9("K");
+  INTERP_KERNEL::Unit const unit8(unit8C);
+  INTERP_KERNEL::Unit const unit9("K");
   CPPUNIT_ASSERT(unit9.isCompatibleWith(unit8) && unit8.isCompatibleWith(unit9));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(335.15,unit8.convert(unit9,62.),1e-10);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-16.37,unit9.convert(unit8,256.78),1e-10);
-  INTERP_KERNEL::Unit unit10("m");
-  INTERP_KERNEL::Unit unit11("cm");
+  INTERP_KERNEL::Unit const unit10("m");
+  INTERP_KERNEL::Unit const unit11("cm");
   CPPUNIT_ASSERT(unit10.isCompatibleWith(unit11) && unit11.isCompatibleWith(unit10));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(6200.,unit10.convert(unit11,62.),1e-8);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.62,unit11.convert(unit10,62.),1e-15);
-  INTERP_KERNEL::Unit unit12("m-m");
+  INTERP_KERNEL::Unit const unit12("m-m");
   CPPUNIT_ASSERT(!unit12.isInterpretationOK());
 }
 
@@ -591,7 +597,7 @@ void ExprEvalInterpTest::testInterpreter6()
   INTERP_KERNEL::ExprParser expr5("x-2*cos(y/3.)");
   expr5.parse();
   expr5.prepareFastEvaluator();
-  double *aa(new double[2]);
+  auto *aa(new double[2]);
   std::vector<std::string> vv(2); vv[0]="x"; vv[1]="y";
   expr5.prepareExprEvaluationDouble(vv,2,1,0,aa,aa+2);
   expr5.prepareFastEvaluator();

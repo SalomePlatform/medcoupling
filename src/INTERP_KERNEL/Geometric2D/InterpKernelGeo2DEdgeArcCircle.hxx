@@ -22,8 +22,17 @@
 #define __INTERPKERNELGEO2DEDGEARCCIRCLE_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "InterpKernelGeo2DBounds.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
+#include "InterpKernelGeo2DNode.hxx"
 #include "MCIdType.hxx"
+#include <list>
+#include <istream>
+#include <ostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+#include <math.h>
 
 namespace INTERP_KERNEL
 {
@@ -31,11 +40,11 @@ namespace INTERP_KERNEL
   {
   public:
     ArcCArcCIntersector(const EdgeArcCircle& e1, const EdgeArcCircle& e2);
-    bool haveTheySameDirection() const;
-    bool areColinears() const;
-    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
-    std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
+    bool haveTheySameDirection() const override;
+    bool areColinears() const override;
+    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const override;
+    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped) override;
+    std::list< IntersectElement > getIntersectionsCharacteristicVal() const override;
   private:
     //! return angle in ]-Pi;Pi[ - 'node' must be on curve of '_e1'
     double getAngle(Node *node) const;
@@ -56,10 +65,10 @@ namespace INTERP_KERNEL
   public:
     ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e2, bool reverse=true);
     //virtual overloading
-    bool areColinears() const;
-    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
-    std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
+    bool areColinears() const override;
+    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const override;
+    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped) override;
+    std::list< IntersectElement > getIntersectionsCharacteristicVal() const override;
   private:
     const EdgeArcCircle& getE1() const { return (const EdgeArcCircle&)_e1; }
     const EdgeLin& getE2() const { return (const EdgeLin&)_e2; }
@@ -81,29 +90,29 @@ namespace INTERP_KERNEL
     EdgeArcCircle(Node *start, Node *end, const double *center, double radius, double angle0, double deltaAngle, bool direction=true);
     //! for tests
     void changeMiddle(Node *newMiddle);
-    void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const;
-    void update(Node *m);
-    double getAreaOfZone() const;
-    double getCurveLength() const;
-    void getBarycenter(double *bary) const;
-    void getBarycenterOfZone(double *bary) const;
-    void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const;
-    void getMiddleOfPointsOriented(const double *p1, const double *p2, double *mid) const;
-    bool isIn(double characterVal) const;
-    Node *buildRepresentantOfMySelf() const;
-    bool isLower(double val1, double val2) const;
-    double getCharactValue(const Node& node) const;
-    double getCharactValueBtw0And1(const Node& node) const;
-    double getDistanceToPoint(const double *pt) const;
-    bool isNodeLyingOn(const double *coordOfNode) const;
-    TypeOfFunction getTypeOfFunc() const { return ARC_CIRCLE; }
-    void dynCastFunction(const EdgeLin * &seg,
-                         const EdgeArcCircle * &arcSeg) const { arcSeg=this; }
+    void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const override;
+    void update(Node *m) override;
+    double getAreaOfZone() const override;
+    double getCurveLength() const override;
+    void getBarycenter(double *bary) const override;
+    void getBarycenterOfZone(double *bary) const override;
+    void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const override;
+    void getMiddleOfPointsOriented(const double *p1, const double *p2, double *mid) const override;
+    bool isIn(double characterVal) const override;
+    Node *buildRepresentantOfMySelf() const override;
+    bool isLower(double val1, double val2) const override;
+    double getCharactValue(const Node& node) const override;
+    double getCharactValueBtw0And1(const Node& node) const override;
+    double getDistanceToPoint(const double *pt) const override;
+    bool isNodeLyingOn(const double *coordOfNode) const override;
+    TypeOfFunction getTypeOfFunc() const override { return ARC_CIRCLE; }
+    void dynCastFunction(const EdgeLin * & /*seg*/,
+                         const EdgeArcCircle * &arcSeg) const override { arcSeg=this; }
     const double *getCenter() const { return _center; }
     void getCenter(double *center) const { center[0]=_center[0]; center[1]=_center[1]; }
-    bool doIHaveSameDirectionAs(const Edge& other) const { return false; }
-    void applySimilarity(double xBary, double yBary, double dimChar);
-    void unApplySimilarity(double xBary, double yBary, double dimChar);
+    bool doIHaveSameDirectionAs(const Edge&  /*other*/) const { return false; }
+    void applySimilarity(double xBary, double yBary, double dimChar) override;
+    void unApplySimilarity(double xBary, double yBary, double dimChar) override;
     double getAngle0() const { return _angle0; }
     double getRadius() const { return _radius; }
     double getAngle() const { return _angle; }
@@ -114,7 +123,7 @@ namespace INTERP_KERNEL
     static void GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
                                           double *center, double& radius, double& angleInRad, double& angleInRad0);
     //! To avoid in aggressive optimizations nan.
-    static double SafeSqrt(double val) { double ret=std::max(val,0.); return sqrt(ret); }
+    static double SafeSqrt(double val) { double const ret=std::max(val,0.); return sqrt(ret); }
     static double SafeAcos(double cosAngle) { double ret=std::min(cosAngle,1.); ret=std::max(ret,-1.); return acos(ret); }
     static double SafeAsin(double sinAngle) { double ret=std::min(sinAngle,1.); ret=std::max(ret,-1.); return asin(ret); }
     //! @param start and @param angleIn in ]-Pi;Pi] and @param delta in ]-2*Pi,2*Pi[
@@ -125,7 +134,7 @@ namespace INTERP_KERNEL
     static double NormalizeAngle(double angle) { if(angle>M_PI) return angle-2.*M_PI; if(angle<-M_PI) return angle+2.*M_PI; return angle; }
   protected:
     void updateBounds();
-    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const;
+    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const override;
 
   protected:
     //! Absolute angle where the arc starts. Value between -Pi and Pi

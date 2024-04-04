@@ -18,9 +18,17 @@
 //
 
 #include "CommInterface.hxx" 
+#include "DECOptions.hxx"
+#include "MCType.hxx"
+#include "ParaIdType.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "MPIAccessDEC.hxx"
+#include <cstddef>
+#include <ostream>
 #include "MxN_Mapping.hxx"
 
 using namespace std;
@@ -67,7 +75,7 @@ namespace MEDCoupling
 
   void MxN_Mapping::prepareSendRecv()
   {
-    CommInterface comm_interface=_union_group->getCommInterface();
+    CommInterface const comm_interface=_union_group->getCommInterface();
     // sending count pattern
     int* nbsend=new int[_union_group->size()];
     int* nbrecv=new int[_union_group->size()];
@@ -76,7 +84,7 @@ namespace MEDCoupling
         nbsend[i]=_send_proc_offsets[i+1]-_send_proc_offsets[i];
       }
   
-    MPIProcessorGroup* group = static_cast<MPIProcessorGroup*>(_union_group);
+    auto* group = static_cast<MPIProcessorGroup*>(_union_group);
     const MPI_Comm* comm=group->getComm();
     comm_interface.allToAll(nbsend, 1, MPI_INT,
                             nbrecv, 1, MPI_INT,
@@ -93,8 +101,8 @@ namespace MEDCoupling
     delete[] nbrecv;
 
     _recv_ids.resize(_recv_proc_offsets[_union_group->size()]);
-    mcIdType* isendbuf=0;
-    mcIdType* irecvbuf=0;
+    mcIdType* isendbuf=nullptr;
+    mcIdType* irecvbuf=nullptr;
     if (_sending_ids.size()>0)
       isendbuf = new mcIdType[_sending_ids.size()];
     if (_recv_ids.size()>0)  
@@ -160,12 +168,12 @@ namespace MEDCoupling
    */ 
   void MxN_Mapping::sendRecv(double* sendfield, MEDCouplingFieldDouble& field) const 
   {
-    CommInterface comm_interface=_union_group->getCommInterface();
-    const MPIProcessorGroup* group = static_cast<const MPIProcessorGroup*>(_union_group);
+    CommInterface const comm_interface=_union_group->getCommInterface();
+    const auto* group = static_cast<const MPIProcessorGroup*>(_union_group);
  
     int nbcomp=(int)field.getArray()->getNumberOfComponents();
-    double* sendbuf=0;
-    double* recvbuf=0;
+    double* sendbuf=nullptr;
+    double* recvbuf=nullptr;
     if (_sending_ids.size() >0)
       sendbuf = new double[_sending_ids.size()*nbcomp];
     if (_recv_ids.size()>0)
@@ -223,9 +231,9 @@ namespace MEDCoupling
             recvptr++;
           }
       }
-    if (sendbuf!=0 && getAllToAllMethod()== Native)
+    if (sendbuf!=nullptr && getAllToAllMethod()== Native)
       delete[] sendbuf;
-    if (recvbuf !=0)
+    if (recvbuf !=nullptr)
       delete[] recvbuf;
     delete[] sendcounts;
     delete[] recvcounts;
@@ -243,12 +251,12 @@ namespace MEDCoupling
    */ 
   void MxN_Mapping::reverseSendRecv(double* recvfield, MEDCouplingFieldDouble& field) const 
   {
-    CommInterface comm_interface=_union_group->getCommInterface();
-    const MPIProcessorGroup* group = static_cast<const MPIProcessorGroup*>(_union_group);
+    CommInterface const comm_interface=_union_group->getCommInterface();
+    const auto* group = static_cast<const MPIProcessorGroup*>(_union_group);
 
     int nbcomp=(int)field.getArray()->getNumberOfComponents();
-    double* sendbuf=0;
-    double* recvbuf=0;
+    double* sendbuf=nullptr;
+    double* recvbuf=nullptr;
     if (_recv_ids.size() >0)
       sendbuf = new double[_recv_ids.size()*nbcomp];
     if (_sending_ids.size()>0)
@@ -303,9 +311,9 @@ namespace MEDCoupling
             recvptr++;
           }
       }
-    if (sendbuf!=0 && getAllToAllMethod() == Native)
+    if (sendbuf!=nullptr && getAllToAllMethod() == Native)
       delete[] sendbuf;
-    if (recvbuf!=0)
+    if (recvbuf!=nullptr)
       delete[] recvbuf;
     delete[] sendcounts;
     delete[] recvcounts;

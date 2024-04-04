@@ -23,8 +23,7 @@
 
 #include "MEDCouplingBasicsTest.hxx"
 
-#include <map>
-#include <vector>
+#include <cppunit/extensions/HelperMacros.h>
 
 namespace MEDCoupling
 {

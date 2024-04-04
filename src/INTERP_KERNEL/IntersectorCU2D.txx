@@ -23,8 +23,13 @@
 #ifndef __IntersectorCU2D_TXX__
 #define __IntersectorCU2D_TXX__
 
+#include "IntersectorCU.hxx"
 #include "IntersectorCU2D.hxx"
 #include "IntersectorCU.txx"
+#include "InterpKernelException.hxx"
+#include "CellModel.hxx"
+#include "NormalizedGeometricTypes"
+#include <vector>
 
 #define IntersectorCU2D_TEMPLATE template<class MyCMeshType, class MyUMeshType, class MyMatrix>
 #define INTERSECTOR_CU2D IntersectorCU2D<MyCMeshType, MyUMeshType, MyMatrix >

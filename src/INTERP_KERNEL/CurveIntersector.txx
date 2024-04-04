@@ -22,9 +22,16 @@
 
 #include "CurveIntersector.hxx"
 #include "InterpolationUtils.hxx"
+#include "MCIdType.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
+#include "NormalizedGeometricTypes"
 #include "PointLocatorAlgos.txx"
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
+#include <vector>
+#include <utility>
 
 namespace INTERP_KERNEL
 {
@@ -54,8 +61,7 @@ namespace INTERP_KERNEL
 
   template<class MyMeshType, class MyMatrix>
   CurveIntersector<MyMeshType,MyMatrix>::~CurveIntersector()
-  {
-  }
+  = default;
 
   //================================================================================
   /*!
@@ -93,7 +99,7 @@ namespace INTERP_KERNEL
               ::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[icell]+j)]);
             for(int idim=0; idim<SPACEDIM; idim++)
               {
-                double x = *(coord_node+idim);
+                double const x = *(coord_node+idim);
                 bbox[ibox*2*SPACEDIM + 2*idim]   =
                   ( bbox[ibox*2*SPACEDIM + 2*idim] < x ) ? bbox[ibox*2*SPACEDIM + 2*idim] : x;
                 bbox[ibox*2*SPACEDIM + 2*idim+1] =
@@ -130,7 +136,7 @@ namespace INTERP_KERNEL
           SPACEDIM*(OTT<ConnType,numPol>::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[OTT<ConnType,numPol>::ind2C(iP)]+i)]));
         for(int idim=0; idim<SPACEDIM; idim++)
           {
-            double x = *(coord_node+idim);
+            double const x = *(coord_node+idim);
             bb[2*idim  ] = (x<bb[2*idim  ]) ? x : bb[2*idim  ];
             bb[2*idim+1] = (x>bb[2*idim+1]) ? x : bb[2*idim+1];
           }
@@ -145,7 +151,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void CurveIntersector<MyMeshType,MyMatrix>::ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos)
   {
-    double deno(endOfSeg-startOfSeg);
+    double const deno(endOfSeg-startOfSeg);
     startPos = (endOfSeg-pt)/deno;
     startPos = std::max(startPos,0.); startPos = std::min(startPos,1.);
     endPos=1.-startPos; 
@@ -356,8 +362,8 @@ namespace INTERP_KERNEL
         double t0s1[2] = { s1[X]-t0[X], s1[Y]-t0[Y] };
         double nt01_x_t0s0 = t0s0[X] * t01[Y] - t0s0[Y] * t01[X]; // t0s0 dot norm of t01
         double nt01_x_t0s1 = t0s1[X] * t01[Y] - t0s1[Y] * t01[X]; // t0s1 dot norm of t01
-        double dist_ts0 = fabs( nt01_x_t0s0 ); // dist from tgt seg to s0
-        double dist_ts1 = fabs( nt01_x_t0s1 ); // dist from tgt seg to s1
+        double const dist_ts0 = fabs( nt01_x_t0s0 ); // dist from tgt seg to s0
+        double const dist_ts1 = fabs( nt01_x_t0s1 ); // dist from tgt seg to s1
         bool s0_out_of_tol = ( dist_ts0 > _tolerance );
         bool s1_out_of_tol = ( dist_ts1 > _tolerance );
         if ( nt01_x_t0s0 * nt01_x_t0s1 > 0 && ( s0_out_of_tol || s1_out_of_tol ))
@@ -423,8 +429,8 @@ namespace INTERP_KERNEL
     if ( xt0 > xt1 ) std::swap( xt0, xt1 );
     if ( xs0 > xs1 ) std::swap( xs0, xs1 );
 
-    double x0 = std::max( xt0, xs0 );
-    double x1 = std::min( xt1, xs1 );
+    double const x0 = std::max( xt0, xs0 );
+    double const x1 = std::min( xt1, xs1 );
     return ( x0 < x1 ) ? ( x1 - x0 ) : 0.;
   }
 
@@ -434,7 +440,7 @@ namespace INTERP_KERNEL
   public:
     static const int MY_SPACEDIM=1;
     static const int MY_MESHDIM=8;
-    typedef mcIdType MyConnType;
+    using MyConnType = mcIdType;
     static const INTERP_KERNEL::NumberingPolicy My_numPol=MyMeshType::My_numPol;
     // begin
     // useless, but for windows compilation ...

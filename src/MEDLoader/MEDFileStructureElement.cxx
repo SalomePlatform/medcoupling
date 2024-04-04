@@ -19,12 +19,26 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileStructureElement.hxx"
+#include "MCType.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MCIdType.hxx"
+#include "MEDFileBasis.hxx"
 #include "MEDFileMeshSupport.hxx"
+#include "MEDFileUtilities.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileMeshLL.hxx"
 #include "MEDFileSafeCaller.txx"
 
 #include "InterpKernelAutoPtr.hxx"
+#include <string>
+#include <cstddef>
+#include "NormalizedGeometricTypes"
+#include "med.h"
+#include "medstructelement.h"
+#include <sstream>
+#include <vector>
 
 using namespace MEDCoupling;
 
@@ -58,14 +72,14 @@ MEDFileSEConstAtt *MEDFileSEConstAtt::New(med_idt fid, MEDFileStructureElement *
 
 MEDFileSEConstAtt::MEDFileSEConstAtt(med_idt fid, MEDFileStructureElement *father, int idCstAtt, const MEDFileUMesh *mesh):MEDFileSEHolder(father)
 {
-  std::string modelName(getModelName());
+  std::string const modelName(getModelName());
   INTERP_KERNEL::AutoPtr<char> constattname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),profilename(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   med_attribute_type constatttype;
   med_int nbCompo;
   med_entity_type met;
   med_int miPflSz;
   MEDFILESAFECALLERRD0(MEDstructElementConstAttInfo,(fid,modelName.c_str(),idCstAtt+1,constattname,&constatttype,&nbCompo,&met,profilename,&miPflSz));
-  std::string name(MEDLoaderBase::buildStringFromFortran(constattname,MED_NAME_SIZE));
+  std::string const name(MEDLoaderBase::buildStringFromFortran(constattname,MED_NAME_SIZE));
   setName(name);
   setProfile(MEDLoaderBase::buildStringFromFortran(profilename,MED_NAME_SIZE));
   _tof=MEDFileMesh::ConvertFromMEDFileEntity(met);
@@ -137,7 +151,7 @@ MEDFileSEVarAtt *MEDFileSEVarAtt::New(med_idt fid, MEDFileStructureElement *fath
 
 MEDFileSEVarAtt::MEDFileSEVarAtt(med_idt fid, MEDFileStructureElement *father, int idVarAtt):MEDFileSEHolder(father)
 {
-  std::string modelName(getModelName());
+  std::string const modelName(getModelName());
   INTERP_KERNEL::AutoPtr<char> varattname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),profilename(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   med_attribute_type varatttype;
   {
@@ -201,10 +215,10 @@ MEDFileStructureElement::MEDFileStructureElement(med_idt fid, int idSE, const ME
 std::vector<const BigMemoryObject *> MEDFileStructureElement::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MCAuto<MEDFileSEConstAtt> >::const_iterator it=_cst_att.begin();it!=_cst_att.end();it++)
-    ret.push_back(*it);
-  for(std::vector< MCAuto<MEDFileSEVarAtt> >::const_iterator it=_var_att.begin();it!=_var_att.end();it++)
-    ret.push_back(*it);
+  for(const auto & it : _cst_att)
+    ret.push_back(it);
+  for(const auto & it : _var_att)
+    ret.push_back(it);
   return ret;
 }
 
@@ -280,18 +294,18 @@ std::string MEDFileStructureElement::getMeshName() const
 std::vector<std::string> MEDFileStructureElement::getVarAtts() const
 {
   std::vector<std::string> ret;
-  for(std::vector< MCAuto<MEDFileSEVarAtt> >::const_iterator it=_var_att.begin();it!=_var_att.end();it++)
-    if((*it).isNotNull())
-      ret.push_back((*it)->getName());
+  for(const auto & it : _var_att)
+    if(it.isNotNull())
+      ret.push_back(it->getName());
   return ret;
 }
 
 const MEDFileSEVarAtt *MEDFileStructureElement::getVarAtt(const std::string& varName) const
 {
-  for(std::vector< MCAuto<MEDFileSEVarAtt> >::const_iterator it=_var_att.begin();it!=_var_att.end();it++)
-    if((*it).isNotNull())
-      if((*it)->getName()==varName)
-        return *it;
+  for(const auto & it : _var_att)
+    if(it.isNotNull())
+      if(it->getName()==varName)
+        return it;
   std::ostringstream oss; oss << "MEDFileStructureElement::getVarAtt : no var att with name \"" << varName << "\" !";
   throw INTERP_KERNEL::Exception(oss.str());
 }
@@ -300,7 +314,7 @@ const MEDFileSEVarAtt *MEDFileStructureElement::getVarAtt(const std::string& var
 
 MEDFileStructureElements *MEDFileStructureElements::New(const std::string& fileName, const MEDFileMeshSupports *ms)
 {
-  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(fileName));
   return New(fid,ms);
 }
 
@@ -317,8 +331,8 @@ MEDFileStructureElements *MEDFileStructureElements::New()
 std::vector<const BigMemoryObject *> MEDFileStructureElements::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MCAuto<MEDFileStructureElement> >::const_iterator it=_elems.begin();it!=_elems.end();it++)
-    ret.push_back(*it);
+  for(const auto & _elem : _elems)
+    ret.push_back(_elem);
   return ret;
 }
 
@@ -333,7 +347,7 @@ void MEDFileStructureElements::writeLL(med_idt fid) const
 
 MEDFileStructureElements::MEDFileStructureElements(med_idt fid, const MEDFileMeshSupports *ms)
 {
-  med_int nbSE(MEDnStructElement(fid));
+  med_int const nbSE(MEDnStructElement(fid));
   _elems.resize(nbSE);
   for(int i=0;i<nbSE;i++)
     _elems[i]=MEDFileStructureElement::New(fid,i,ms);
@@ -341,12 +355,10 @@ MEDFileStructureElements::MEDFileStructureElements(med_idt fid, const MEDFileMes
 }
 
 MEDFileStructureElements::MEDFileStructureElements()
-{
-}
+= default;
 
 MEDFileStructureElements::~MEDFileStructureElements()
-{
-}
+= default;
 
 int MEDFileStructureElements::getNumberOf() const
 {
@@ -356,9 +368,9 @@ int MEDFileStructureElements::getNumberOf() const
 std::vector<int> MEDFileStructureElements::getDynGTAvail() const
 {
   std::vector<int> ret;
-  for(std::vector< MCAuto<MEDFileStructureElement> >::const_iterator it=_elems.begin();it!=_elems.end();it++)
+  for(const auto & _elem : _elems)
     {
-      const MEDFileStructureElement *elt(*it);
+      const MEDFileStructureElement *elt(_elem);
       if(elt)
         ret.push_back(elt->getDynGT());
     }
@@ -367,11 +379,11 @@ std::vector<int> MEDFileStructureElements::getDynGTAvail() const
 
 const MEDFileStructureElement *MEDFileStructureElements::getWithGT(int idGT) const
 {
-  for(std::vector< MCAuto<MEDFileStructureElement> >::const_iterator it=_elems.begin();it!=_elems.end();it++)
-    if((*it).isNotNull())
+  for(const auto & _elem : _elems)
+    if(_elem.isNotNull())
       {
-        if((*it)->getDynGT()==idGT)
-          return *it;
+        if(_elem->getDynGT()==idGT)
+          return _elem;
       }
   std::ostringstream oss; oss << "MEDFileStructureElements::getWithGT : no such geo type " << idGT << " !";
   throw INTERP_KERNEL::Exception(oss.str());
@@ -382,17 +394,17 @@ mcIdType MEDFileStructureElements::getNumberOfNodesPerSE(const std::string& seNa
   if(seName=="MED_PARTICLE")
     return 1;
   const MEDFileStructureElement *se(getSEWithName(seName));
-  std::string meshName(se->getMeshName());
+  std::string const meshName(se->getMeshName());
   return _sup->getNumberOfNodesInConnOf(se->getEntity(),se->getGeoType(),meshName);
 }
 
 const MEDFileStructureElement *MEDFileStructureElements::getSEWithName(const std::string& seName) const
 {
-  for(std::vector< MCAuto<MEDFileStructureElement> >::const_iterator it=_elems.begin();it!=_elems.end();it++)
+  for(const auto & _elem : _elems)
     {
-      if((*it).isNotNull())
-        if((*it)->getName()==seName)
-          return *it;
+      if(_elem.isNotNull())
+        if(_elem->getName()==seName)
+          return _elem;
     }
   std::ostringstream oss; oss << "MEDFileStructureElements::getSEWithName : no such structure element with name " << seName << " !";
   throw INTERP_KERNEL::Exception(oss.str());

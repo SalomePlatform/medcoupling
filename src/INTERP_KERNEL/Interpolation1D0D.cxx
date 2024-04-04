@@ -19,12 +19,14 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "Interpolation1D0D.hxx"
-#include "Interpolation1D0D.txx"
+#include "InterpolationOptions.hxx"
+#include <cstddef>
+#include <vector>
 
 namespace INTERP_KERNEL
 {
   Interpolation1D0D::Interpolation1D0D()
-  {}
+  = default;
 
   Interpolation1D0D::Interpolation1D0D(const InterpolationOptions& io):Interpolation<Interpolation1D0D>(io)
   {}
@@ -37,7 +39,7 @@ namespace INTERP_KERNEL
     const int SPACE_DIM = 3;
     const double adj(getPrecision());// here precision is used instead of getBoundingBoxAdjustment and getBoundingBoxAdjustmentAbs because in the context only precision is relevant
 
-    std::size_t size = bbox.size()/(2*SPACE_DIM);
+    std::size_t const size = bbox.size()/(2*SPACE_DIM);
     for (std::size_t i=0; i<size; i++)
       {
         for(int idim=0; idim<SPACE_DIM; idim++)

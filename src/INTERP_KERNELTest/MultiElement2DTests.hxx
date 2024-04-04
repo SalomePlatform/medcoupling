@@ -22,6 +22,9 @@
 
 #include "InterpolationTestSuite.hxx"
 
+#include <cppunit/extensions/HelperMacros.h>
+#include "MeshTestToolkit.hxx"
+
 namespace INTERP_TEST
 {
   /**

@@ -21,10 +21,12 @@
 #include "MEDLoaderBase.hxx"
 #include "InterpKernelException.hxx"
 
+#include <algorithm>
 #include <sstream>
 #include <fstream>
 #include <cstring>
 #include <iostream>
+#include <string>
 
 const char MEDLoaderBase::WHITE_SPACES[]=" \n";
 
@@ -37,7 +39,7 @@ int MEDLoaderBase::getStatusOfFile(const std::string& fileName)
       ifs.close();
       return NOT_EXIST;
     }
-  std::ofstream ofs(fileName.c_str(),std::ios_base::app);
+  std::ofstream const ofs(fileName.c_str(),std::ios_base::app);
   if((ofs.rdstate() & std::ofstream::failbit)!=0)
     {
       return EXIST_RDONLY;
@@ -55,7 +57,7 @@ char *MEDLoaderBase::buildEmptyString(std::size_t lgth)
 
 void MEDLoaderBase::getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName)
 {
-  std::size_t pos=fullName.find_last_of(getPathSep());
+  std::size_t const pos=fullName.find_last_of(getPathSep());
   if(pos!=std::string::npos)
     {
       dirName=fullName.substr(0,pos);
@@ -99,8 +101,8 @@ std::string MEDLoaderBase::buildUnionUnit(const char *name, int nameLgth, const 
 
 void MEDLoaderBase::splitIntoNameAndUnit(const std::string& s, std::string& name, std::string& unit)
 {
-  std::string::size_type f1=s.find_first_of('[');
-  std::string::size_type f2=s.find_last_of(']');
+  std::string::size_type const f1=s.find_first_of('[');
+  std::string::size_type const f2=s.find_last_of(']');
   if(f1!=std::string::npos && f2!=std::string::npos)
     {
       if(f1<f2)
@@ -118,13 +120,13 @@ void MEDLoaderBase::splitIntoNameAndUnit(const std::string& s, std::string& name
 
 void MEDLoaderBase::strip(std::string& s)
 {
-  std::string::size_type f1=s.find_first_not_of(' ');
+  std::string::size_type const f1=s.find_first_not_of(' ');
   if(f1==std::string::npos)
     {
       s="";
       return ;
     }
-  std::string::size_type f2=s.find_last_not_of(' ');
+  std::string::size_type const f2=s.find_last_not_of(' ');
   s=s.substr(f1,f2-f1+1);
 }
 
@@ -145,7 +147,7 @@ void MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int beh
         }
       else if(behaviour==1)
         {
-          std::string s=zipString(src,maxLgth);
+          std::string const s=zipString(src,maxLgth);
           std::cerr << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth << ") : ";
           std::cerr << "zipping to : " << s << "\n";
           strcpy(dest,s.c_str());
@@ -170,25 +172,25 @@ void MEDLoaderBase::safeStrCpy2(const char *src, int maxLgth, char *dest, int be
         }
       else if(behaviour==1)
         {
-          std::string s=zipString(src,maxLgth);
+          std::string const s=zipString(src,maxLgth);
           std::cerr << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth << ") : ";
           std::cerr << "zipping to : " << s << "\n";
           strcpy(dest,s.c_str());
           return ;
         }
     }
-  std::size_t n(strlen(src));
+  std::size_t const n(strlen(src));
   std::fill(dest,dest+maxLgth,' ');
   strncpy(dest,src,n);
 }
 
 std::string MEDLoaderBase::buildStringFromFortran(const char *expr, int lgth)
 {
-  std::string ret(expr,lgth);
-  std::string whiteSpaces(WHITE_SPACES);
-  std::size_t lgthReal=strlen(ret.c_str());
+  std::string const ret(expr,lgth);
+  std::string const whiteSpaces(WHITE_SPACES);
+  std::size_t const lgthReal=strlen(ret.c_str());
   std::string ret2=ret.substr(0,lgthReal);
-  std::size_t found=ret2.find_last_not_of(whiteSpaces);
+  std::size_t const found=ret2.find_last_not_of(whiteSpaces);
   if (found!=std::string::npos)
     ret2.erase(found+1);
   else
@@ -227,7 +229,7 @@ void MEDLoaderBase::zipEqualConsChar(std::string& s, int minConsSmChar)
 {
   for(std::string::iterator it=s.begin();it!=s.end();it++)
     {
-      char tmp=*it;
+      char const tmp=*it;
       int sz=1;
       for(std::string::iterator it2=it+1;it2!=s.end() && *it2==tmp;it2++)
         sz++;

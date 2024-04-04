@@ -21,15 +21,18 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGFIELD_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGFIELD_HXX__
 
+#include "MCType.hxx"
 #include "MEDCoupling.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
 #include "MEDCouplingTimeLabel.hxx"
-#include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingRefCountObject.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "MCAuto.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "InterpKernelException.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <set>
+#include <cstddef>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -82,9 +85,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT mcIdType getGaussLocalizationIdOfOneCell(mcIdType cellId) const;
     MEDCOUPLING_EXPORT void getCellIdsHavingGaussLocalization(int locId, std::vector<mcIdType>& cellIds) const;
     MEDCOUPLING_EXPORT const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const;
-    MEDCOUPLING_EXPORT void updateTime() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDCOUPLING_EXPORT void updateTime() const override;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     // for MED file RW
     MEDCOUPLING_EXPORT mcIdType getNumberOfTuplesExpectedRegardingCode(const std::vector<mcIdType>& code, const std::vector<const DataArrayIdType *>& idsPerType) const;
     MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const = 0;
@@ -92,7 +95,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingField(TypeOfField type);
     MEDCOUPLING_EXPORT MEDCouplingField(const MEDCouplingField& other, bool deepCopy=true);
     MEDCOUPLING_EXPORT MEDCouplingField(MEDCouplingFieldDiscretization *type, NatureOfField nature=NoNature);
-    MEDCOUPLING_EXPORT virtual ~MEDCouplingField();
+    MEDCOUPLING_EXPORT ~MEDCouplingField() override;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhyProtected(const MEDCouplingField *other, double meshPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrProtected(const MEDCouplingField *other, double meshPrec) const;
   protected:

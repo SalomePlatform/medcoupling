@@ -21,11 +21,18 @@
 #ifndef __MEDFILEMESHSUPPORT_HXX__
 #define __MEDFILEMESHSUPPORT_HXX__
 
+#include "MCAuto.hxx"
+#include "MEDFileUtilities.hxx"
+#include "MCType.hxx"
 #include "MEDLoaderDefines.hxx"
-#include "MEDFileUtilities.txx"
 #include "MEDFileMesh.hxx"
 
 #include "MEDCouplingRefCountObject.hxx"
+#include <string>
+#include "med.h"
+#include <cstddef>
+#include <vector>
+#include "NormalizedGeometricTypes"
 
 namespace MEDCoupling
 {
@@ -37,16 +44,16 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileMeshSupports *New();
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileMeshSupports"); }
   public:
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const override;
     MEDLOADER_EXPORT std::vector<std::string> getSupMeshNames() const;
     MEDLOADER_EXPORT const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
     MEDLOADER_EXPORT mcIdType getNumberOfNodesInConnOf(TypeOfField entity, INTERP_KERNEL::NormalizedCellType gt, const std::string& name) const;
   private:
     MEDFileMeshSupports(med_idt fid);
     MEDFileMeshSupports();
-    ~MEDFileMeshSupports();
+    ~MEDFileMeshSupports() override;
   private:
     std::vector< MCAuto<MEDFileUMesh> > _supports;
   };

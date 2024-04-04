@@ -19,11 +19,38 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileBlowStrEltUp.hxx"
+#include "MCAuto.hxx"
+#include "MCAuto.txx"
+#include "MCType.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
+#include "MCIdType.hxx"
+#include "InterpKernelAutoPtr.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDFileField.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include "MEDFileFieldMultiTS.hxx"
+#include "MEDFileField1TS.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDFileFieldGlobs.hxx"
+#include "MEDFileFieldInternal.hxx"
 #include "MEDFileFieldVisitor.hxx"
 #include "MEDCouplingPartDefinition.hxx"
-#include "MCAuto.txx"
+#include "MEDFileMesh.hxx"
+#include "MEDFileStructureElement.hxx"
+#include <algorithm>
+#include <cstddef>
+#include "MEDFileMeshLL.hxx"
+#include "MEDFileMeshElt.hxx"
+#include "NormalizedGeometricTypes"
+#include <cmath>
+#include <iterator>
+#include <math.h>
 #include <numeric>
+#include <utility>
+#include <string>
+#include <sstream>
+#include <vector>
 
 using namespace MEDCoupling;
 
@@ -36,12 +63,12 @@ MEDFileBlowStrEltUp::MEDFileBlowStrEltUp(const MEDFileFields *fsOnlyOnSE, const 
   _ms.takeRef(ms); _ses.takeRef(ses);
   std::vector< std::pair<std::string,std::string> > ps;
   fsOnlyOnSE->getMeshSENames(ps);
-  std::size_t sz(ps.size());
+  std::size_t const sz(ps.size());
   _elts.resize(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       const std::pair<std::string,std::string>& p(ps[i]);
-      MCAuto<MEDFileFields> f(fsOnlyOnSE->partOfThisLyingOnSpecifiedMeshSEName(p.first,p.second));
+      MCAuto<MEDFileFields> const f(fsOnlyOnSE->partOfThisLyingOnSpecifiedMeshSEName(p.first,p.second));
       _elts[i]=f;
     }
   for(std::size_t i=0;i<sz;i++)
@@ -50,7 +77,7 @@ MEDFileBlowStrEltUp::MEDFileBlowStrEltUp(const MEDFileFields *fsOnlyOnSE, const 
       MEDFileMesh *mesh(_ms->getMeshWithName(p.first));
       if(!mesh)
         throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp : NULL mesh !");
-      MEDFileUMesh *umesh(dynamic_cast<MEDFileUMesh *>(mesh));
+      auto *umesh(dynamic_cast<MEDFileUMesh *>(mesh));
       if(!umesh)
         throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp : Blow up of Stru Elt not managed yet for unstructured meshes !");
     }
@@ -67,7 +94,7 @@ MCAuto<MEDFileEltStruct4Mesh> MEDFileBlowStrEltUp::dealWithSEInMesh(const std::s
     throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithSEInMesh : null pointer !");
   if(seName==MED_BALL_STR)
     {
-      MCAuto<MEDFileEltStruct4Mesh> ret(dealWithMEDBALLInMesh(mesh,mOut,fsOut));
+      MCAuto<MEDFileEltStruct4Mesh> const ret(dealWithMEDBALLInMesh(mesh,mOut,fsOut));
       mesh->killStructureElements();
       return ret;
     }
@@ -79,11 +106,11 @@ MCAuto<MEDFileEltStruct4Mesh> MEDFileBlowStrEltUp::dealWithMEDBALLInMesh(const M
   mOut=MEDFileUMesh::New(); fsOut=MEDFileFields::New();
   const std::vector< MCAuto<MEDFileEltStruct4Mesh> >& strs(mesh->getAccessOfUndergroundEltStrs());
   MCAuto<MEDFileEltStruct4Mesh> zeStr;
-  for(std::vector< MCAuto<MEDFileEltStruct4Mesh> >::const_iterator it=strs.begin();it!=strs.end();it++)
+  for(const auto & str : strs)
     {
-      if((*it)->getGeoTypeName()==MED_BALL_STR)
+      if(str->getGeoTypeName()==MED_BALL_STR)
         {
-          zeStr=*it;
+          zeStr=str;
           break;
         }
     }
@@ -126,13 +153,13 @@ MCAuto<MEDFileEltStruct4Mesh> MEDFileBlowStrEltUp::dealWithMEDBALLInMesh(const M
     mOut->setRenumFieldArr(0,const_cast<DataArrayIdType *>(nf0));
   mOut->copyFamGrpMapsFrom(*mesh);
   const std::vector< MCAuto<DataArray> >& vars(zeStr->getVars());
-  for(std::vector< MCAuto<DataArray> >::const_iterator it=vars.begin();it!=vars.end();it++)
+  for(const auto & var : vars)
     {
-      const DataArray *elt(*it);
+      const DataArray *elt(var);
       if(!elt)
         continue;
       {
-        const DataArrayDouble *eltC(dynamic_cast<const DataArrayDouble *>(elt));
+        const auto *eltC(dynamic_cast<const DataArrayDouble *>(elt));
         if(eltC)
           {
             MCAuto<MEDFileFieldMultiTS> fmts(MEDFileFieldMultiTS::New());
@@ -168,9 +195,9 @@ void MEDFileBlowStrEltUp::dealWithSEInFields(const std::string& seName, const ME
   throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithSEInFields : only MED_BALL is managed for the moment, but if you are interested please send spec to anthony.geay@edf.fr !");
 }
 
-void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MEDFileFields *zeOutputs) const
+void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, const MEDFileEltStruct4Mesh * /*zeStr*/, const MEDFileFields *varAtt, MEDFileFields *zeOutputs) const
 {
-  int nbf(fs->getNumberOfFields());
+  int const nbf(fs->getNumberOfFields());
   std::vector< MCAuto<MEDFileAnyTypeFieldMultiTS> > elts0;
   std::vector< MEDFileAnyTypeFieldMultiTS * > elts1;
   std::string zeMeshName;
@@ -178,12 +205,12 @@ void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, cons
     {
       MCAuto<MEDFileAnyTypeFieldMultiTS> elt(fs->getFieldAtPos(i));
       MCAuto<MEDFileAnyTypeFieldMultiTS> eltOut(elt->buildNewEmpty());
-      int nbTS(elt->getNumberOfTS());
+      int const nbTS(elt->getNumberOfTS());
       for(int j=0;j<nbTS;j++)
         {
           MCAuto<MEDFileAnyTypeField1TS> eltt(elt->getTimeStepAtPos(j));
           MCAuto<MEDFileAnyTypeField1TS> elttOut(eltt->deepCopy());
-          std::string meshName(eltt->getMeshName());
+          std::string const meshName(eltt->getMeshName());
           zeMeshName=BuildNewMeshName(meshName,MED_BALL_STR);
           elttOut->setMeshName(zeMeshName);
           elttOut->convertMedBallIntoClassic();
@@ -203,8 +230,8 @@ void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, cons
       std::size_t jj(0);
       for(std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> >::const_iterator it1=sp2.begin();it1!=sp2.end();it1++,jj++)
         {
-          for(std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
-            zeOutputs->pushField(*it2);
+          for(auto it2 : *it1)
+            zeOutputs->pushField(it2);
           // The most exciting part. Users that put profiles on struct elements part of fields. Reduce var att.
           if((*it1).size()<1)
             throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : take a deep breath !");
@@ -212,7 +239,7 @@ void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, cons
           {
             if(!(*it1)[0])
               throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : take a deep breath 2 !");
-            int pdm((*it1)[0]->getNumberOfTS());
+            int const pdm((*it1)[0]->getNumberOfTS());
             if(pdm<1)
               throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : take a deep breath 3 !");
             zeGuideForPfl=(*it1)[0]->getTimeStepAtPos(0);
@@ -228,12 +255,12 @@ void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, cons
           // Yeah we have pfls
           std::vector<double> t2s;
           std::vector< std::pair<int,int> > t1s((*it1)[0]->getTimeSteps(t2s));
-          std::size_t nbTS3(t2s.size());
-          int nbf2(varAtt->getNumberOfFields());
+          std::size_t const nbTS3(t2s.size());
+          int const nbf2(varAtt->getNumberOfFields());
           for(int i=0;i<nbf2;i++)
             {
               MCAuto<MEDFileAnyTypeFieldMultiTS> elt(varAtt->getFieldAtPos(i));
-              int nbTS2(elt->getNumberOfTS());
+              int const nbTS2(elt->getNumberOfTS());
               if(nbTS2!=1)
                 throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::dealWithMEDBALLSInFields : internal error ! The dealWithMEDBALLInMesh is expected to return a single TS !");
               MCAuto<MEDFileAnyTypeField1TS> elt2(elt->getTimeStepAtPos(0));
@@ -255,20 +282,20 @@ void MEDFileBlowStrEltUp::dealWithMEDBALLSInFields(const MEDFileFields *fs, cons
 
 void MEDFileBlowStrEltUp::generate(MEDFileMeshes *msOut, MEDFileFields *allZeOutFields)
 {
-  for(std::vector< MCAuto<MEDFileFields> >::iterator elt=_elts.begin();elt!=_elts.end();elt++)
+  for(auto & _elt : _elts)
     {
       std::vector< std::pair<std::string,std::string> > ps;
-      (*elt)->getMeshSENames(ps);
+      _elt->getMeshSENames(ps);
       if(ps.size()!=1)
         throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::generateMeshes : internal error !");
       MEDFileMesh *mesh(_ms->getMeshWithName(ps[0].first));
       if(!mesh)
         throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::generateMeshes : NULL mesh !");
-      MEDFileUMesh *umesh(dynamic_cast<MEDFileUMesh *>(mesh));
+      auto *umesh(dynamic_cast<MEDFileUMesh *>(mesh));
       if(!umesh)
         throw INTERP_KERNEL::Exception("MEDFileBlowStrEltUp::generateMeshes : Blow up of Stru Elt not managed yet for unstructured meshes !");
       //
-      MCAuto<MEDFileFields> classicalSEFields(splitFieldsPerLoc(*elt,umesh,msOut,allZeOutFields));
+      MCAuto<MEDFileFields> classicalSEFields(splitFieldsPerLoc(_elt,umesh,msOut,allZeOutFields));
       if(classicalSEFields.isNotNull())
         {
           MCAuto<MEDFileUMesh> mOut;
@@ -329,7 +356,7 @@ private:
 class LocInfo
 {
 public:
-  LocInfo() { }
+  LocInfo() = default;
   LocInfo(const std::vector<FieldWalker2>& fw);
   bool operator==(const LocInfo& other) const { return _locs==other._locs && _pfl==other._pfl; }
   void push(const std::string& loc, const std::string& pfl) { checkUniqueLoc(loc); _locs.push_back(loc); _pfl.push_back(pfl); }
@@ -365,7 +392,7 @@ const char LocInfo::EPAISSEUR[]="EPAISSEUR";
 
 LocInfo::LocInfo(const std::vector<FieldWalker2>& fw)
 {
-  std::size_t sz(fw.size());
+  std::size_t const sz(fw.size());
   _locs.resize(sz); _pfl.resize(sz); _cts.resize(sz);
   if(sz>0)
     _pd=fw[0].getPartDef()->deepCopy();
@@ -388,7 +415,7 @@ void LocInfo::checkUniqueLoc(const std::string& loc) const
     }
 }
 
-MCAuto<MEDCouplingUMesh> LocInfo::BuildMeshCommon(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh *section, const MEDFileFieldGlobsReal *globs, MCAuto<DataArrayDouble>& ptsForLoc)
+MCAuto<MEDCouplingUMesh> LocInfo::BuildMeshCommon(INTERP_KERNEL::NormalizedCellType gt, const std::string& pfl, const MEDFileFieldLoc& loc, const MEDFileEltStruct4Mesh *zeStr, const MEDFileUMesh *mesh, const MEDFileUMesh * /*section*/, const MEDFileFieldGlobsReal *globs, MCAuto<DataArrayDouble>& ptsForLoc)
 {
   MCAuto<DataArrayIdType> conn(zeStr->getConn());
   conn=conn->deepCopy(); conn->rearrange(1);
@@ -430,12 +457,12 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
   //
   MCAuto<MEDCouplingFieldDouble> dir(geoMesh->buildDirectionVectorField());
   MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
-  std::size_t nbCompo(ptsForLoc->getNumberOfComponents());
+  std::size_t const nbCompo(ptsForLoc->getNumberOfComponents());
   MCAuto<DataArrayDouble> secPts(section->getCoords()->changeNbOfComponents(nbCompo,0.));
   mcIdType nbSecPts(secPts->getNumberOfTuples()),nbCells(geoMesh->getNumberOfCells()),nbg(ToIdType(loc.getGaussWeights().size()));
   {
     const int TAB[3]={2,0,1};
-    std::vector<std::size_t> v(TAB,TAB+3);
+    std::vector<std::size_t> const v(TAB,TAB+3);
     secPts=secPts->keepSelectedComponents(v);
   }
   const double CENTER[3]={0.,0.,0.},AX0[3]={0.,0.,1.};
@@ -444,10 +471,10 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
   for(int j=0;j<nbCells;j++)
     {
       MCAuto<DataArrayDouble> p(secPts->deepCopy());
-      double ang0(rot->getIJ(j,2));
+      double const ang0(rot->getIJ(j,2));
       DataArrayDouble::Rotate3DAlg(CENTER,AX0,ang0,nbSecPts,p->begin(),p->getPointer());
       AX1[0]=-sin(ang0); AX1[1]=cos(ang0);// rot Oy around OZ
-      double ang1(M_PI/2.-rot->getIJ(j,1));
+      double const ang1(M_PI/2.-rot->getIJ(j,1));
       DataArrayDouble::Rotate3DAlg(CENTER,AX1,-ang1,nbSecPts,p->begin(),p->getPointer());
       DataArrayDouble::Rotate3DAlg(CENTER,dir->getArray()->begin()+j*3,angleVrille->getIJ(j,0),nbSecPts,p->begin(),p->getPointer());
       for(int l=0;l<nbg;l++)
@@ -459,7 +486,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromAngleVrille(INTERP_KERNEL::Normali
         }
     }
   std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
-  MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
+  MCAuto<DataArrayDouble> const resu(DataArrayDouble::Aggregate(arrs2));
   return resu;
 }
 
@@ -481,7 +508,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
     MCAuto<MEDCouplingFieldDouble> ortho(geoMesh->buildOrthogonalField());
     orthoArr.takeRef(ortho->getArray());
   }
-  mcIdType nbCompo(ToIdType(orthoArr->getNumberOfComponents()));
+  mcIdType const nbCompo(ToIdType(orthoArr->getNumberOfComponents()));
   MCAuto<DataArrayDouble> secPts(section->getCoords()->duplicateEachTupleNTimes(nbCompo));
   secPts->rearrange(nbCompo);
   std::vector< MCAuto<DataArrayDouble> > arrs(nbCells*nbg);
@@ -504,7 +531,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshFromEpaisseur(INTERP_KERNEL::Normalize
         }
     }
   std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
-  MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
+  MCAuto<DataArrayDouble> const resu(DataArrayDouble::Aggregate(arrs2));
   return resu;
 }
 
@@ -535,11 +562,11 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
     dir=geoMesh2->buildDirectionVectorField();
   }
   MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
-  std::size_t nbCompo(ptsForLoc->getNumberOfComponents());
+  std::size_t const nbCompo(ptsForLoc->getNumberOfComponents());
   MCAuto<DataArrayDouble> secPts(section->getCoords()->changeNbOfComponents(nbCompo,0.));
   {
     const int TAB[3]={2,0,1};
-    std::vector<std::size_t> v(TAB,TAB+3);
+    std::vector<std::size_t> const v(TAB,TAB+3);
     secPts=secPts->keepSelectedComponents(v);
   }
   const double CENTER[3]={0.,0.,0.},AX0[3]={0.,0.,1.};
@@ -549,7 +576,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
     {
       constexpr int DIM=3;
       MCAuto<DataArrayDouble> p(secPts->deepCopy());
-      double ang0(rot->getIJ(j,2));
+      double const ang0(rot->getIJ(j,2));
       double rmin(zeScale->getIJ(j,0)),rmax(zeScale->getIJ(j,1));
       {
         auto pt(p->rwBegin());
@@ -563,7 +590,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
       }
       DataArrayDouble::Rotate3DAlg(CENTER,AX0,ang0,nbSecPts,p->begin(),p->getPointer());
       AX1[0]=-sin(ang0); AX1[1]=cos(ang0);// rot Oy around OZ
-      double ang1(M_PI/2.-rot->getIJ(j,1));
+      double const ang1(M_PI/2.-rot->getIJ(j,1));
       DataArrayDouble::Rotate3DAlg(CENTER,AX1,-ang1,nbSecPts,p->begin(),p->getPointer());
       for(int l=0;l<3;l++)
         {
@@ -576,7 +603,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG3(const DataArrayDouble *angle,
         }
     }
   std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
-  MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
+  MCAuto<DataArrayDouble> const resu(DataArrayDouble::Aggregate(arrs2));
   return resu;
 }
 
@@ -607,11 +634,11 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG4(const DataArrayDouble *angle,
     dir=geoMesh2->buildDirectionVectorField();
   }
   MCAuto<DataArrayDouble> rot(dir->getArray()->fromCartToSpher());
-  std::size_t nbCompo(ptsForLoc->getNumberOfComponents());
+  std::size_t const nbCompo(ptsForLoc->getNumberOfComponents());
   MCAuto<DataArrayDouble> secPts(section->getCoords()->changeNbOfComponents(nbCompo,0.));
   {
     const int TAB[3]={2,0,1};
-    std::vector<std::size_t> v(TAB,TAB+3);
+    std::vector<std::size_t> const v(TAB,TAB+3);
     secPts=secPts->keepSelectedComponents(v);
   }
   const double CENTER[3]={0.,0.,0.},AX0[3]={0.,0.,1.};
@@ -621,7 +648,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG4(const DataArrayDouble *angle,
     {
       constexpr int DIM=3;
       MCAuto<DataArrayDouble> p(secPts->deepCopy());
-      double ang0(rot->getIJ(j,2));
+      double const ang0(rot->getIJ(j,2));
       double rmin(zeScale->getIJ(j,0)),rmax(zeScale->getIJ(j,1));
       {
         auto pt(p->rwBegin());
@@ -635,7 +662,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG4(const DataArrayDouble *angle,
       }
       DataArrayDouble::Rotate3DAlg(CENTER,AX0,ang0,nbSecPts,p->begin(),p->getPointer());
       AX1[0]=-sin(ang0); AX1[1]=cos(ang0);// rot Oy around OZ
-      double ang1(M_PI/2.-rot->getIJ(j,1));
+      double const ang1(M_PI/2.-rot->getIJ(j,1));
       DataArrayDouble::Rotate3DAlg(CENTER,AX1,-ang1,nbSecPts,p->begin(),p->getPointer());
       for(int l=0;l<3;l++)
         {
@@ -648,7 +675,7 @@ MCAuto<DataArrayDouble> LocInfo::BuildMeshPipeSEG4(const DataArrayDouble *angle,
         }
     }
   std::vector<const DataArrayDouble *> arrs2(VecAutoToVecOfCstPt(arrs));
-  MCAuto<DataArrayDouble> resu(DataArrayDouble::Aggregate(arrs2));
+  MCAuto<DataArrayDouble> const resu(DataArrayDouble::Aggregate(arrs2));
   return resu;
 }
 
@@ -712,13 +739,13 @@ MCAuto<MEDFileUMesh> LocInfo::generateNonClassicalData(int zePos, const MEDFileU
     {
       const MEDFileFieldLoc& loc(globs->getLocalization(_locs[i]));
       const MEDFileGTKeeper *gtk(loc.getUndergroundGTKeeper());
-      const MEDFileGTKeeperDyn *gtk2(dynamic_cast<const MEDFileGTKeeperDyn *>(gtk));
+      const auto *gtk2(dynamic_cast<const MEDFileGTKeeperDyn *>(gtk));
       if(!gtk2)
         throw INTERP_KERNEL::Exception("LocInfo::generateNonClassicalData : internal error !");
       const MEDFileUMesh *meshLoc(gtk2->getMesh()),*section(gtk2->getSection());
       const MEDFileStructureElement *se(gtk2->getSE());
       MCAuto<MEDCouplingUMesh> um(meshLoc->getMeshAtLevel(0));
-      INTERP_KERNEL::NormalizedCellType gt(_cts[i]);
+      INTERP_KERNEL::NormalizedCellType const gt(_cts[i]);
       {
         std::vector<int> nel(meshLoc->getNonEmptyLevels());
         if(nel.size()!=1)
@@ -733,18 +760,18 @@ MCAuto<MEDFileUMesh> LocInfo::generateNonClassicalData(int zePos, const MEDFileU
           throw INTERP_KERNEL::Exception(MSG1);
         std::vector<mcIdType> v;
         um->getNodeIdsOfCell(zePos,v);
-        std::size_t sz2(v.size());
+        std::size_t const sz2(v.size());
         for(std::size_t j=0;j<sz2;j++)
           if(v[j]!=ToIdType(j))
             throw INTERP_KERNEL::Exception(MSG1);
       }
       const std::vector< MCAuto<MEDFileEltStruct4Mesh> >& strs(mesh->getAccessOfUndergroundEltStrs());
       MCAuto<MEDFileEltStruct4Mesh> zeStr;
-      for(std::vector< MCAuto<MEDFileEltStruct4Mesh> >::const_iterator it=strs.begin();it!=strs.end();it++)
+      for(const auto & str : strs)
         {
-          if((*it)->getGeoTypeName()==se->getName())
+          if(str->getGeoTypeName()==se->getName())
             {
-              zeStr=*it;
+              zeStr=str;
               break;
             }
         }
@@ -785,14 +812,14 @@ bool FieldWalker2::operator==(const FieldWalker2& other) const
     std::string tmp;
     ret2=_pd->isEqual(other._pd,tmp);
   }
-  bool ret(_loc==other._loc && _pfl==other._pfl && _is_classic==other._is_classic && ret2);
+  bool const ret(_loc==other._loc && _pfl==other._pfl && _is_classic==other._is_classic && ret2);
   return ret;
 }
 
 class FieldWalker1
 {
 public:
-  FieldWalker1(const MEDFileAnyTypeField1TSWithoutSDA *ts):_ts(ts),_pm_pt(0),_nb_mesh(0) { }
+  FieldWalker1(const MEDFileAnyTypeField1TSWithoutSDA *ts):_ts(ts) { }
   void newMeshEntry(const MEDFileFieldPerMesh *fpm);
   void endMeshEntry(const MEDFileFieldPerMesh *fpm) { }
   void newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt);
@@ -803,12 +830,12 @@ public:
   std::vector<FieldWalker2> getNonClassicalData() const { return _fw; }
 private:
   const MEDFileAnyTypeField1TSWithoutSDA *_ts;
-  const MEDFileFieldPerMeshPerTypeDyn *_pm_pt;
+  const MEDFileFieldPerMeshPerTypeDyn *_pm_pt{nullptr};
   std::vector<FieldWalker2> _fw;
-  int _nb_mesh;
+  int _nb_mesh{0};
 };
 
-void FieldWalker1::newMeshEntry(const MEDFileFieldPerMesh *fpm)
+void FieldWalker1::newMeshEntry(const MEDFileFieldPerMesh * /*fpm*/)
 {
   if(_nb_mesh++==1)
     throw INTERP_KERNEL::Exception("FieldWalker1::newMeshEntry : multi mesh not supported !");
@@ -818,7 +845,7 @@ void FieldWalker1::newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon
 {
   if(_pm_pt)
     throw INTERP_KERNEL::Exception("FieldWalker1::newPerMeshPerTypeEntry : multi SE loc not managed yet !");
-  const MEDFileFieldPerMeshPerTypeDyn *pmpt2(dynamic_cast<const MEDFileFieldPerMeshPerTypeDyn *>(pmpt));
+  const auto *pmpt2(dynamic_cast<const MEDFileFieldPerMeshPerTypeDyn *>(pmpt));
   if(!pmpt2)
     throw INTERP_KERNEL::Exception("newPerMeshPerTypeEntry : internal error !");
   _pm_pt=pmpt2;
@@ -836,7 +863,7 @@ void FieldWalker1::newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerD
 
 void FieldWalker1::checkOK(const FieldWalker1& other) const
 {
-  std::size_t sz(_fw.size());
+  std::size_t const sz(_fw.size());
   if(other._fw.size()!=sz)
     throw INTERP_KERNEL::Exception("checkOK : not OK because size are not the same !");
   for(std::size_t i=0;i<sz;i++)
@@ -849,9 +876,9 @@ bool FieldWalker1::isClassical() const
   if(_fw.empty())
     throw INTERP_KERNEL::Exception("FieldWalker1::endPerMeshPerTypeEntry : internal error !");
   std::size_t ic(0),inc(0);
-  for(std::vector<FieldWalker2>::const_iterator it=_fw.begin();it!=_fw.end();it++)
+  for(const auto & it : _fw)
     {
-      if((*it).isClassic())
+      if(it.isClassic())
         ic++;
       else
         inc++;
@@ -898,13 +925,13 @@ void FieldWalker::newTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts)
   _fw=new FieldWalker1(ts);
 }
 
-void FieldWalker::endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts)
+void FieldWalker::endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA * /*ts*/)
 {
   if(_fw_prev.isNull())
     _fw_prev=new FieldWalker1(*_fw);
   else
     _fw_prev->checkOK(*_fw);
-  _fw=0;
+  _fw=nullptr;
 }
 
 void FieldWalker::newMeshEntry(const MEDFileFieldPerMesh *fpm)
@@ -936,23 +963,23 @@ void FieldWalker::newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDi
 class LocSpliter : public MEDFileFieldVisitor
 {
 public:
-  LocSpliter(const MEDFileFieldGlobsReal *globs):_globs(globs),_fw(0) { }
+  LocSpliter(const MEDFileFieldGlobsReal *globs):_globs(globs),_fw(nullptr) { }
   MCAuto<MEDFileFields> getClassical() const { return _classical; }
   void generateNonClassicalData(const MEDFileUMesh *mesh, std::vector< MCAuto<MEDFileFields> >& outFields, std::vector< MCAuto<MEDFileUMesh> >& outMeshes) const;
 private:
-  void newFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field);
-  void endFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field);
+  void newFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) override;
+  void endFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) override;
   //
-  void newTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts);
-  void endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts);
+  void newTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts) override;
+  void endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts) override;
   //
-  void newMeshEntry(const MEDFileFieldPerMesh *fpm);
-  void endMeshEntry(const MEDFileFieldPerMesh *fpm);
+  void newMeshEntry(const MEDFileFieldPerMesh *fpm) override;
+  void endMeshEntry(const MEDFileFieldPerMesh *fpm) override;
   //
-  void newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt);
-  void endPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt);
+  void newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) override;
+  void endPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) override;
   //
-  void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd);
+  void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd) override;
 private:
   const MEDFileFieldGlobsReal *_globs;
   std::vector< LocInfo > _locs;
@@ -983,9 +1010,9 @@ void LocSpliter::endFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field
     }
   else
     {
-      std::vector<FieldWalker2> fw2(_fw->getNonClassicalData());
-      LocInfo elt(fw2);
-      std::vector< LocInfo >::iterator it(std::find(_locs.begin(),_locs.end(),elt));
+      std::vector<FieldWalker2> const fw2(_fw->getNonClassicalData());
+      LocInfo const elt(fw2);
+      auto const it(std::find(_locs.begin(),_locs.end(),elt));
       if(it==_locs.end())
         {
           _locs.push_back(elt);
@@ -1005,7 +1032,7 @@ void LocSpliter::endFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field
 void LocSpliter::generateNonClassicalData(const MEDFileUMesh *mesh, std::vector< MCAuto<MEDFileFields> >& outFields, std::vector< MCAuto<MEDFileUMesh> >& outMeshes) const
 {
   int i(0);
-  for(std::vector<LocInfo>::const_iterator it=_locs.begin();it!=_locs.end();it++,i++)
+  for(auto it=_locs.begin();it!=_locs.end();it++,i++)
     {
       MCAuto<MEDFileUMesh> m((*it).generateNonClassicalData(i,mesh,_globs));
       outMeshes.push_back(m);
@@ -1023,7 +1050,7 @@ void LocSpliter::generateNonClassicalData(const MEDFileUMesh *mesh, std::vector<
               MCAuto<MEDFileField1TS> outF1t(MEDFileField1TS::New());
               MCAuto<MEDFileField1TS> f1ts(fmts->getTimeStepAtPos(k));
               int t2,t3;
-              double t1(f1ts->getTime(t2,t3));
+              double const t1(f1ts->getTime(t2,t3));
               MCAuto<MEDCouplingFieldDouble> mcf(MEDCouplingFieldDouble::New(ON_NODES));
               MCAuto<DataArrayDouble> arr,arr2;
               arr.takeRef(f1ts->getUndergroundDataArray());
@@ -1100,16 +1127,16 @@ MCAuto<MEDFileFields> MEDFileBlowStrEltUp::splitFieldsPerLoc(const MEDFileFields
   std::vector< MCAuto<MEDFileFields> > outFields;
   std::vector< MCAuto<MEDFileUMesh> > outMeshes;
   ls.generateNonClassicalData(mesh,outFields,outMeshes);
-  for(std::vector< MCAuto<MEDFileFields> >::iterator it=outFields.begin();it!=outFields.end();it++)
+  for(auto & outField : outFields)
     {
-      for(int j=0;j<(*it)->getNumberOfFields();j++)
+      for(int j=0;j<outField->getNumberOfFields();j++)
         {
-          MCAuto<MEDFileAnyTypeFieldMultiTS> fmts((*it)->getFieldAtPos(j));
+          MCAuto<MEDFileAnyTypeFieldMultiTS> fmts(outField->getFieldAtPos(j));
           //DealWithConflictNames(fmts,allZeOutFields);// uncomment to have a writable data structure
           allZeOutFields->pushField(fmts);
         }
     }
-  for(std::vector< MCAuto<MEDFileUMesh> >::iterator it=outMeshes.begin();it!=outMeshes.end();it++)
-    msOut->pushMesh(*it);
+  for(auto & outMeshe : outMeshes)
+    msOut->pushMesh(outMeshe);
   return ls.getClassical();
 }

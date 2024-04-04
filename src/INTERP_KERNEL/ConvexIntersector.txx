@@ -21,6 +21,7 @@
 #define __CONVEXINTERSECTOR_TXX__
 
 #include "ConvexIntersector.hxx"
+#include "PlanarIntersector.txx"
 #include "PlanarIntersectorP0P0.txx"
 #include "PlanarIntersectorP0P1.txx"
 #include "PlanarIntersectorP1P0.txx"
@@ -29,8 +30,12 @@
 #include "PlanarIntersectorP0P1Bary.txx"
 
 #include "PolygonAlgorithms.txx"
+#include "InterpolationUtils.hxx"
 
+#include <deque>
 #include <iostream>
+#include <vector>
+#include <limits>
 
 #define CONVINTERSECTOR_TEMPLATE template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
 #define CONVEX_INTERSECTOR_ ConvexIntersector<MyMeshType,MyMatrix,InterpType>
@@ -92,7 +97,7 @@ namespace INTERP_KERNEL
   CONVINTERSECTOR_TEMPLATE
   double CONVEX_INTERSECTOR_::intersectGeometryWithQuadrangle(const double             * quadrangle,
                                                               const std::vector<double>& sourceCoords,
-                                                              bool                       isSourceQuad)
+                                                              bool                        /*isSourceQuad*/)
   {
     double result = 0;
     int nbOfNodesS=int(sourceCoords.size())/SPACEDIM;
@@ -154,7 +159,7 @@ namespace INTERP_KERNEL
 
   CONVINTERSECTOR_TEMPLATE
   double CONVEX_INTERSECTOR_::intersectGeoBary(const std::vector<double>& targetCell,
-                                               bool                       targetCellQuadratic,
+                                               bool                        /*targetCellQuadratic*/,
                                                const double *             sourceTria,
                                                std::vector<double>&       res)
   {

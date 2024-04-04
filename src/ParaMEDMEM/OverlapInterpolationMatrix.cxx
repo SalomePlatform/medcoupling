@@ -19,27 +19,30 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "OverlapInterpolationMatrix.hxx"
+#include "DECOptions.hxx"
+#include "OverlapElementLocator.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "Interpolation2D.hxx"
+#include "Interpolation3D.hxx"
+#include "Interpolation2D3D.hxx"
+#include "Interpolation2D1D.hxx"
+#include "Interpolation1D.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ProcessorGroup.hxx"
-#include "TranslationRotationMatrix.hxx"
-#include "Interpolation.hxx"
-#include "Interpolation1D.txx"
 #include "Interpolation2DCurve.hxx"
-#include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
 #include "Interpolation2D3D.txx"
 #include "Interpolation2D1D.txx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "InterpolationOptions.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "ElementLocator.hxx"
-#include "InterpKernelAutoPtr.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 
-#include <algorithm>
+#include <string>
 
 using namespace std;
 
@@ -72,8 +75,7 @@ namespace MEDCoupling
   }
 
   OverlapInterpolationMatrix::~OverlapInterpolationMatrix()
-  {
-  }
+  = default;
 
   // TODO? Merge with MEDCouplingRemapper::prepareInterpKernelOnlyUU() ?
   /**!
@@ -93,8 +95,8 @@ namespace MEDCoupling
     vector<SparseDoubleVec > sparse_matrix_part;
     mcIdType colSize=0;
     //computation of the intersection volumes between source and target elements
-    const MEDCouplingUMesh *trgC=dynamic_cast<const MEDCouplingUMesh *>(trg);
-    const MEDCouplingUMesh *srcC=dynamic_cast<const MEDCouplingUMesh *>(src);
+    const auto *trgC=dynamic_cast<const MEDCouplingUMesh *>(trg);
+    const auto *srcC=dynamic_cast<const MEDCouplingUMesh *>(src);
     if ( src->getMeshDimension() == -1 )
       {
         if(trgC->getMeshDimension()==2 && trgC->getSpaceDimension()==2)

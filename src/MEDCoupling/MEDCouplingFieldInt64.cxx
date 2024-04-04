@@ -20,10 +20,15 @@
 
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldT.txx"
+#include "MCType.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMesh.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
 
 using namespace MEDCoupling;
 
@@ -72,7 +77,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldInt64::convertToDblField() const
 {
   MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*this));
   int t1,t2;
-  double t0(getTime(t1,t2));
+  double const t0(getTime(t1,t2));
   MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(*tmp,getTimeDiscretization()));
   ret->setTime(t0,t1,t2);
   if(getArray())

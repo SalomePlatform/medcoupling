@@ -19,12 +19,25 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileEquivalence.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDFileBasis.hxx"
+#include "CellModel.hxx"
+#include "MCType.hxx"
 #include "MEDFileSafeCaller.txx"
-#include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMemArray.txx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileMesh.hxx"
 #include "InterpKernelAutoPtr.hxx"
+#include "med.h"
+#include "NormalizedGeometricTypes"
+#include <string>
+#include "medequivalence.h"
+#include <sstream>
+#include <ostream>
+#include <vector>
+#include <cstddef>
+#include <algorithm>
+#include <iterator>
 
 // From MEDLOader.cxx TU
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
@@ -45,7 +58,7 @@ MEDFileEquivalencePair *MEDFileEquivalencePair::Load(MEDFileEquivalences *father
 
 void MEDFileEquivalencePair::writeLL(med_idt fid) const
 {
-  std::string meshName(getFather()->getMeshName());
+  std::string const meshName(getFather()->getMeshName());
   INTERP_KERNEL::AutoPtr<char> meshName2(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> name(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> desc(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
@@ -159,7 +172,7 @@ void MEDFileEquivalencePair::setArray(int meshDimRelToMaxExt, DataArrayInt *da)
       MEDFileEquivalenceNode *node(_node);
       if(!node)
         {
-          _node=new MEDFileEquivalenceNode(this,0);
+          _node=new MEDFileEquivalenceNode(this,nullptr);
           node=_node;
         }
       node->setArray(da);
@@ -190,7 +203,7 @@ MEDFileEquivalenceCell *MEDFileEquivalencePair::initCell()
  */
 MEDFileEquivalenceNode *MEDFileEquivalencePair::initNode()
 {
-  _node=new MEDFileEquivalenceNode(this,0);
+  _node=new MEDFileEquivalenceNode(this,nullptr);
   return _node;
 }
 
@@ -201,7 +214,7 @@ std::size_t MEDFileEquivalencePair::getHeapMemorySizeWithoutChildren() const
 
 void MEDFileEquivalencePair::load(med_idt fid)
 {
-  std::string meshName(_father->getMeshName());
+  std::string const meshName(_father->getMeshName());
   int dt,it;
   _father->getDtIt(dt,it);
   med_int ncor;
@@ -213,7 +226,7 @@ void MEDFileEquivalencePair::load(med_idt fid)
       MEDFILESAFECALLERRD0(MEDequivalenceCorrespondenceRd,(fid,meshName.c_str(),_name.c_str(),dt,it,MED_NODE,MED_NONE,da->getPointer()));
       da->applyLin(1,-1);
       da->rearrange(2);
-      MCAuto<MEDFileEquivalenceNode> node(new MEDFileEquivalenceNode(this,FromMedIntArray<int>(da)));
+      MCAuto<MEDFileEquivalenceNode> const node(new MEDFileEquivalenceNode(this,FromMedIntArray<int>(da)));
       _node=node;
     }
   _cell=MEDFileEquivalenceCell::Load(fid,this);
@@ -221,7 +234,7 @@ void MEDFileEquivalencePair::load(med_idt fid)
 
 std::vector<const BigMemoryObject *> MEDFileEquivalences::getDirectChildrenWithNull() const
 {
-  std::size_t sz(_equ.size());
+  std::size_t const sz(_equ.size());
   std::vector<const BigMemoryObject *> ret(sz);
   for(std::size_t i=0;i<sz;i++)
     ret[i]=_equ[i];
@@ -245,7 +258,7 @@ std::string MEDFileEquivalences::getMeshName() const
 
 void MEDFileEquivalences::pushEquivalence(MEDFileEquivalencePair *elt)
 {
-  MCAuto<MEDFileEquivalencePair> elta(elt);
+  MCAuto<MEDFileEquivalencePair> const elta(elt);
   if(elt)
     elt->incrRef();
   _equ.push_back(elta);
@@ -253,7 +266,7 @@ void MEDFileEquivalences::pushEquivalence(MEDFileEquivalencePair *elt)
 
 MEDFileEquivalencePair *MEDFileEquivalences::getEquivalence(int i)
 {
-  int sz(size());
+  int const sz(size());
   if(i<0 || i>=sz)
     {
       std::ostringstream oss; oss << "MEDFileEquivalences::getEquivalence : invalid id ! Must be in [0," << sz << ") !";
@@ -264,9 +277,9 @@ MEDFileEquivalencePair *MEDFileEquivalences::getEquivalence(int i)
 
 MEDFileEquivalencePair *MEDFileEquivalences::getEquivalenceWithName(const std::string& name)
 {
-  for(std::vector< MCAuto<MEDFileEquivalencePair> >::iterator it=_equ.begin();it!=_equ.end();it++)
+  for(auto & it : _equ)
     {
-      MEDFileEquivalencePair *elt(*it);
+      MEDFileEquivalencePair *elt(it);
       if(elt)
         {
           if(elt->getName()==name)
@@ -288,9 +301,9 @@ int MEDFileEquivalences::size() const
 std::vector<std::string> MEDFileEquivalences::getEquivalenceNames() const
 {
   std::vector<std::string> ret;
-  for(std::vector< MCAuto<MEDFileEquivalencePair> >::const_iterator it=_equ.begin();it!=_equ.end();it++)
+  for(const auto & it : _equ)
     {
-      const MEDFileEquivalencePair *elt(*it);
+      const MEDFileEquivalencePair *elt(it);
       if(elt)
         {
           ret.push_back(elt->getName());
@@ -315,7 +328,7 @@ MEDFileEquivalences *MEDFileEquivalences::deepCopy(MEDFileMesh *owner) const
 
 bool MEDFileEquivalences::isEqual(const MEDFileEquivalences *other, std::string& what) const
 {
-  std::size_t sz(_equ.size());
+  std::size_t const sz(_equ.size());
   if(sz!=other->_equ.size())
     {
       what="Equivalences differs : not same number !";
@@ -348,7 +361,7 @@ bool MEDFileEquivalences::isEqual(const MEDFileEquivalences *other, std::string&
 void MEDFileEquivalences::getRepr(std::ostream& oss) const
 {
   std::size_t ii(0);
-  for(std::vector< MCAuto<MEDFileEquivalencePair> >::const_iterator it=_equ.begin();it!=_equ.end();it++,ii++)
+  for(auto it=_equ.begin();it!=_equ.end();it++,ii++)
     {
       const MEDFileEquivalencePair *elt(*it);
       oss << "Equivalence #" << ii << " : " ;
@@ -361,7 +374,7 @@ void MEDFileEquivalences::getRepr(std::ostream& oss) const
 
 void MEDFileEquivalences::killEquivalenceWithName(const std::string& name)
 {
-  std::vector< MCAuto<MEDFileEquivalencePair> >::iterator it(_equ.begin());
+  auto it(_equ.begin());
   for(;it!=_equ.end();it++)
     {
       const MEDFileEquivalencePair *elt(*it);
@@ -378,13 +391,13 @@ void MEDFileEquivalences::killEquivalenceWithName(const std::string& name)
 
 void MEDFileEquivalences::killEquivalenceAt(int i)
 {
-  int sz(size());
+  int const sz(size());
   if(i<0 || i>=sz)
     {
       std::ostringstream oss; oss << "MEDFileEquivalences::killEquivalenceAt : Id must be in [0," << sz << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  std::vector< MCAuto<MEDFileEquivalencePair> >::iterator it(_equ.begin());
+  auto it(_equ.begin());
   for(int j=0;j<i;it++,j++);
   _equ.erase(it);
 }
@@ -396,9 +409,9 @@ void MEDFileEquivalences::clear()
 
 void MEDFileEquivalences::writeLL(med_idt fid) const
 {
-  for(std::vector< MCAuto<MEDFileEquivalencePair> >::const_iterator it=_equ.begin();it!=_equ.end();it++)
+  for(const auto & it : _equ)
     {
-      const MEDFileEquivalencePair *elt(*it);
+      const MEDFileEquivalencePair *elt(it);
       if(elt)
         elt->writeLL(fid);
     }
@@ -406,7 +419,7 @@ void MEDFileEquivalences::writeLL(med_idt fid) const
 
 int MEDFileEquivalences::PresenceOfEquivalences(med_idt fid, const std::string& meshName)
 {
-  med_int nequ(MEDnEquivalence(fid,meshName.c_str()));
+  med_int const nequ(MEDnEquivalence(fid,meshName.c_str()));
   return FromMedInt<int>(nequ);
 }
 
@@ -415,7 +428,7 @@ MEDFileEquivalences *MEDFileEquivalences::Load(med_idt fid, int nbOfEq, MEDFileM
   MCAuto<MEDFileEquivalences> ret(new MEDFileEquivalences(owner));
   if(!owner)
     throw INTERP_KERNEL::Exception("MEDFileEquivalences::Load : owner is NULL !");
-  std::string meshName(owner->getName());
+  std::string const meshName(owner->getName());
   for(int i=0;i<nbOfEq;i++)
     {
       INTERP_KERNEL::AutoPtr<char> equ(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
@@ -443,9 +456,9 @@ void MEDFileEquivalences::CheckDataArray(const DataArrayInt *data)
 
 void MEDFileEquivalences::deepCpyFrom(const MEDFileEquivalences& other)
 {
-  for(std::vector< MCAuto<MEDFileEquivalencePair> >::const_iterator it=other._equ.begin();it!=other._equ.end();it++)
+  for(const auto & it : other._equ)
     {
-      const MEDFileEquivalencePair *elt(*it);
+      const MEDFileEquivalencePair *elt(it);
       MCAuto<MEDFileEquivalencePair> eltCpy;
       if(elt)
         {
@@ -506,8 +519,8 @@ void MEDFileEquivalenceData::writeAdvanced(med_idt fid, med_entity_type medtype,
   const MEDFileMesh *mesh(getFather()->getMesh());
   int dt,it;
   mesh->getTime(dt,it);
-  std::string meshName(mesh->getName());
-  std::string equName(getFather()->getName());
+  std::string const meshName(mesh->getName());
+  std::string const equName(getFather()->getName());
   INTERP_KERNEL::AutoPtr<char> meshName2(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> name(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   MEDLoaderBase::safeStrCpy(meshName.c_str(),MED_NAME_SIZE,meshName2,getFather()->getMesh()->getTooLongStrPolicy());
@@ -558,7 +571,7 @@ void MEDFileEquivalenceCellType::writeLL(med_idt fid) const
 
 std::vector<const BigMemoryObject *> MEDFileEquivalenceCell::getDirectChildrenWithNull() const
 {
-  std::size_t sz(_types.size());
+  std::size_t const sz(_types.size());
   std::vector<const BigMemoryObject *> ret(sz);
   for(std::size_t i=0;i<sz;i++)
     ret[i]=_types[i];
@@ -577,14 +590,14 @@ MEDFileEquivalenceCell *MEDFileEquivalenceCell::Load(med_idt fid, MEDFileEquival
   if(ret->size()>0)
     return ret.retn();
   else
-    return 0;
+    return nullptr;
 }
 
 void MEDFileEquivalenceCell::writeLL(med_idt fid) const
 {
-  for(std::vector< MCAuto<MEDFileEquivalenceCellType> >::const_iterator it=_types.begin();it!=_types.end();it++)
+  for(const auto & _type : _types)
     {
-      const MEDFileEquivalenceCellType *ct(*it);
+      const MEDFileEquivalenceCellType *ct(_type);
       if(ct)
         ct->writeLL(fid);
     }
@@ -593,9 +606,9 @@ void MEDFileEquivalenceCell::writeLL(med_idt fid) const
 MEDFileEquivalenceCell *MEDFileEquivalenceCell::deepCopy(MEDFileEquivalencePair *owner) const
 {
   MCAuto<MEDFileEquivalenceCell> ret(new MEDFileEquivalenceCell(owner));
-  for(std::vector< MCAuto<MEDFileEquivalenceCellType> >::const_iterator it=_types.begin();it!=_types.end();it++)
+  for(const auto & _type : _types)
     {
-      const MEDFileEquivalenceCellType *elt(*it);
+      const MEDFileEquivalenceCellType *elt(_type);
       MCAuto<MEDFileEquivalenceCellType> eltCpy;
       if(elt)
         eltCpy=elt->deepCopy(owner);
@@ -606,7 +619,7 @@ MEDFileEquivalenceCell *MEDFileEquivalenceCell::deepCopy(MEDFileEquivalencePair 
 
 bool MEDFileEquivalenceCell::isEqual(const MEDFileEquivalenceCell *other, std::string& what) const
 {
-  std::size_t sz(_types.size());
+  std::size_t const sz(_types.size());
   if(sz!=other->_types.size())
     {
       std::ostringstream oss; oss << "Nb of geo types differs : " << sz << " != " << other->_types.size();
@@ -637,9 +650,9 @@ bool MEDFileEquivalenceCell::isEqual(const MEDFileEquivalenceCell *other, std::s
 
 void MEDFileEquivalenceCell::getRepr(std::ostream& oss) const
 {
-  for(std::vector< MCAuto<MEDFileEquivalenceCellType> >::const_iterator it=_types.begin();it!=_types.end();it++)
+  for(const auto & _type : _types)
     {
-      const MEDFileEquivalenceCellType *elt(*it);
+      const MEDFileEquivalenceCellType *elt(_type);
       if(elt)
         elt->getRepr(oss);
     }
@@ -647,9 +660,9 @@ void MEDFileEquivalenceCell::getRepr(std::ostream& oss) const
 
 DataArrayInt *MEDFileEquivalenceCell::getArray(INTERP_KERNEL::NormalizedCellType type)
 {
-  for(std::vector< MCAuto<MEDFileEquivalenceCellType> >::iterator it=_types.begin();it!=_types.end();it++)
+  for(auto & _type : _types)
     {
-      MEDFileEquivalenceCellType *elt(*it);
+      MEDFileEquivalenceCellType *elt(_type);
       if(elt && elt->getType()==type)
         return elt->getArray();
     }
@@ -663,7 +676,7 @@ void MEDFileEquivalenceCell::setArray(int meshDimRelToMax, DataArrayInt *da)
     return ;
   MEDFileEquivalences::CheckDataArray(da);
   MEDFileMesh *mm(getMesh());
-  mcIdType totalNbOfCells(mm->getNumberOfCellsAtLevel(meshDimRelToMax));
+  mcIdType const totalNbOfCells(mm->getNumberOfCellsAtLevel(meshDimRelToMax));
   //
   MCAuto<DataArrayInt> tmp(da->deepCopy()); tmp->rearrange(1);
   int maxv,minv;
@@ -674,42 +687,42 @@ void MEDFileEquivalenceCell::setArray(int meshDimRelToMax, DataArrayInt *da)
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   //
-  std::vector<INTERP_KERNEL::NormalizedCellType> gts(mm->getGeoTypesAtLevel(meshDimRelToMax));
+  std::vector<INTERP_KERNEL::NormalizedCellType> const gts(mm->getGeoTypesAtLevel(meshDimRelToMax));
   int startId(0),endId;
-  std::vector<std::size_t> compS(1,0);
-  for(std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator it=gts.begin();it!=gts.end();it++)
+  std::vector<std::size_t> const compS(1,0);
+  for(auto gt : gts)
     {
-      endId=startId+(int)mm->getNumberOfCellsWithType(*it);
+      endId=startId+(int)mm->getNumberOfCellsWithType(gt);
       MCAuto<DataArrayInt> da0(da->keepSelectedComponents(compS));
       MCAuto<DataArrayIdType> ids(da0->findIdsInRange(startId,endId));
       MCAuto<DataArrayInt> da1(da->selectByTupleIdSafe(ids->begin(),ids->end()));
       da1->applyLin(1,-startId);
-      setArrayForType(*it,da1);
+      setArrayForType(gt,da1);
       startId=endId;
     }
 }
 
 void MEDFileEquivalenceCell::setArrayForType(INTERP_KERNEL::NormalizedCellType type, DataArrayInt *da)
 {
-  for(std::vector< MCAuto<MEDFileEquivalenceCellType> >::iterator it=_types.begin();it!=_types.end();it++)
+  for(auto & _type : _types)
     {
-      MEDFileEquivalenceCellType *elt(*it);
+      MEDFileEquivalenceCellType *elt(_type);
       if(elt && elt->getType()==type)
         {
           elt->setArray(da);
           return ;
         }
     }
-  MCAuto<MEDFileEquivalenceCellType> newElt(new MEDFileEquivalenceCellType(getFather(),type,da));
+  MCAuto<MEDFileEquivalenceCellType> const newElt(new MEDFileEquivalenceCellType(getFather(),type,da));
   _types.push_back(newElt);
 }
 
 std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileEquivalenceCell::getTypes() const
 {
   std::vector<INTERP_KERNEL::NormalizedCellType> ret;
-  for(std::vector< MCAuto<MEDFileEquivalenceCellType> >::const_iterator it=_types.begin();it!=_types.end();it++)
+  for(const auto & _type : _types)
     {
-      const MEDFileEquivalenceCellType *elt(*it);
+      const MEDFileEquivalenceCellType *elt(_type);
       if(elt)
         ret.push_back(elt->getType());
     }
@@ -732,7 +745,7 @@ void MEDFileEquivalenceCell::load(med_idt fid)
           MEDFILESAFECALLERRD0(MEDequivalenceCorrespondenceRd,(fid,meshName.c_str(),name.c_str(),dt,it,MED_CELL,typmai[i],da->getPointer()));
           da->applyLin(1,-1);
           da->rearrange(2);
-          MCAuto<MEDFileEquivalenceCellType> ct(new MEDFileEquivalenceCellType(getFather(),typmai2[i],FromMedIntArray<int>(da)));
+          MCAuto<MEDFileEquivalenceCellType> const ct(new MEDFileEquivalenceCellType(getFather(),typmai2[i],FromMedIntArray<int>(da)));
           _types.push_back(ct);
         }
     }

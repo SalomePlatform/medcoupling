@@ -18,7 +18,15 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
+#include "MCType.hxx"
+#include "Interpolation.txx"
+#include "Interpolation2D1D.txx"
+#include "InterpolationOptions.hxx"
+#include "Log.hxx"
+#include "Interpolation2D3D.txx"
 #include "MEDCouplingBasicsTest.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
@@ -27,11 +35,14 @@
 
 #include "MEDCouplingBasicsTestData1.hxx"
 
-#include "Interpolation2D.txx"
-#include "Interpolation2D3D.txx"
-#include "Interpolation2D1D.txx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingNormalizedCartesianMesh.txx"
+#include "NormalizedGeometricTypes"
+#include "VectorUtils.hxx"
+#include <algorithm>
+#include <iostream>
+#include <cppunit/TestAssert.h>
+#include <vector>
+#include <map>
 
 using namespace MEDCoupling;
 
@@ -849,7 +860,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_4()
 
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_3()
 {
-  return 0;
+  return nullptr;
 }
 
 MEDCouplingMultiFields *MEDCouplingBasicsTest::buildMultiFields_1()
@@ -1177,9 +1188,9 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildPointe_1(MEDCouplingUMesh *& m1)
 double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<mcIdType,double> >& matrix)
 {
   double ret=0.;
-  for(std::vector< std::map<mcIdType,double> >::const_iterator iter=matrix.begin();iter!=matrix.end();iter++)
-    for(std::map<mcIdType,double>::const_iterator iter2=(*iter).begin();iter2!=(*iter).end();iter2++)
-      ret+=(*iter2).second;
+  for(const auto & iter : matrix)
+    for(auto iter2 : iter)
+      ret+=iter2.second;
   return ret;
 }
 
@@ -1630,9 +1641,9 @@ MEDCouplingUMesh* MEDCouplingBasicsTest::build3D2DTetraTargetMesh(const double i
 int MEDCouplingBasicsTest::countNonZero(const std::vector< std::map<mcIdType,double> >& matrix)
 {
   int ret=0;
-  for(std::vector< std::map<mcIdType,double> >::const_iterator iter=matrix.begin();iter!=matrix.end();iter++)
-    for(std::map<mcIdType,double>::const_iterator iter2=(*iter).begin();iter2!=(*iter).end();iter2++)
-      if (!INTERP_KERNEL::epsilonEqual((*iter2).second, 0.)) ret +=1;
+  for(const auto & iter : matrix)
+    for(auto iter2 : iter)
+      if (!INTERP_KERNEL::epsilonEqual(iter2.second, 0.)) ret +=1;
   return ret;
 }
 
@@ -1642,8 +1653,8 @@ void MEDCouplingBasicsTest::test2D1DMeshesIntersection(MEDCouplingUMesh *sourceM
                                                        const int correctDuplicateFacesNbr,
                                                        const int correctTotalIntersectFacesNbr)
 {
-  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
-  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> const sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> const targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D1D myInterpolator;
   myInterpolator.setPrecision(1e-12);
   const double prec = 1.0e-5;
@@ -1657,8 +1668,8 @@ void MEDCouplingBasicsTest::test2D1DMeshesIntersection(MEDCouplingUMesh *sourceM
   LOG(1, "length =  " << length <<"  correctLength = " << correctLength );
   CPPUNIT_ASSERT_DOUBLES_EQUAL(correctLength, length, prec * std::max(correctLength, length));
 
-  INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
-  int duplicateFacesNbr = (int)duplicateFaces.size();
+  INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType const duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+  int const duplicateFacesNbr = (int)duplicateFaces.size();
   LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
   CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
 
@@ -1679,16 +1690,16 @@ void MEDCouplingBasicsTest::test3D2DMeshesIntersection(MEDCouplingUMesh *sourceM
                                                        const int correctDuplicateFacesNbr,
                                                        const int correctTotalIntersectFacesNbr)
 {
-  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
-  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> const sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> const targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D3D myInterpolator;
   myInterpolator.setPrecision(1e-12);
   const double prec = 1.0e-5;
   IntersectionMatrix matrix;
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
-  for ( size_t i = 0; i < sizeof(sp)/sizeof(sp[0]); ++i )
+  for (auto & i : sp)
   {
-    myInterpolator.setSplittingPolicy( sp[i] );
+    myInterpolator.setSplittingPolicy( i );
     matrix.clear();
     myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,matrix,"P0P0");
 
@@ -1698,8 +1709,8 @@ void MEDCouplingBasicsTest::test3D2DMeshesIntersection(MEDCouplingUMesh *sourceM
     LOG(1, "surf =  " << surf <<"  correctSurf = " << correctSurf );
     CPPUNIT_ASSERT_DOUBLES_EQUAL(correctSurf, surf, prec * std::max(correctSurf, surf));
 
-    INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
-    int duplicateFacesNbr = (int)duplicateFaces.size();
+    INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType const duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+    int const duplicateFacesNbr = (int)duplicateFaces.size();
     LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
     CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
 

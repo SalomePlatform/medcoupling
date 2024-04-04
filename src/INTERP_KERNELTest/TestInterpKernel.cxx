@@ -26,6 +26,8 @@
 #include "TransformedTriangleTest.hxx"
 #include "UnitTetraIntersectionBaryTest.hxx"
 #include "UnitTetra3D2DIntersectionTest.hxx"
+#include "MeshTestToolkit.txx"
+#include <cppunit/extensions/HelperMacros.h>
 
 #ifndef MEDCOUPLING_MICROMED
 #include "HexaTests.hxx"

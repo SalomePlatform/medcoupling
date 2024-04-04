@@ -21,9 +21,11 @@
 #include "VolSurfUser.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpolationUtils.hxx"
-#include "VectorUtils.hxx"
+#include "MCIdType.hxx"
 
 #include <cmath>
+#include <cstddef>
+#include <iterator>
 #include <limits>
 #include <algorithm>
 #include <functional>
@@ -35,29 +37,29 @@ namespace INTERP_KERNEL
    */
   double OrthoDistanceFromPtToPlaneInSpaceDim3(const double *p, const double *p1, const double *p2, const double *p3)
   {
-    double prec = 1.0e-14;
-    double T[2][3] = {{p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]},
+    double const prec = 1.0e-14;
+    double const T[2][3] = {{p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]},
                       {p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2]}};
-    double N[3] = {T[0][1]*T[1][2]-T[0][2]*T[1][1],
+    double const N[3] = {T[0][1]*T[1][2]-T[0][2]*T[1][1],
                    T[0][2]*T[1][0]-T[0][0]*T[1][2],
                    T[0][0]*T[1][1]-T[0][1]*T[1][0]};
 
-    double norm2 = N[0]*N[0] + N[1]*N[1] + N[2]*N[2];
+    double const norm2 = N[0]*N[0] + N[1]*N[1] + N[2]*N[2];
     if (norm2 < prec)
       throw INTERP_KERNEL::Exception("OrthoDistanceFromPtToPlaneInSpaceDim3: degenerated normal vector!");
-    double num = N[0]*(p[0]-p1[0]) + N[1]*(p[1]-p1[1]) + N[2]*(p[2]-p1[2]);
+    double const num = N[0]*(p[0]-p1[0]) + N[1]*(p[1]-p1[1]) + N[2]*(p[2]-p1[2]);
     return num/sqrt(norm2);
   }
 
   double SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint)
   {
     double dx=pt1Seg2[0]-pt0Seg2[0],dy=pt1Seg2[1]-pt0Seg2[1];
-    double norm=sqrt(dx*dx+dy*dy);
+    double const norm=sqrt(dx*dx+dy*dy);
     if(norm==0.)
       return (pt[0]-pt0Seg2[0])*(pt[0]-pt0Seg2[0])+(pt[1]-pt0Seg2[1])*(pt[1]-pt0Seg2[1]);//return std::numeric_limits<double>::max();
     dx/=norm; dy/=norm;
     double dx2=pt[0]-pt0Seg2[0],dy2=pt[1]-pt0Seg2[1];
-    double dotP=(dx2*dx+dy2*dy);
+    double const dotP=(dx2*dx+dy2*dy);
     if(dotP<0. || dotP>norm)
       return dotP<0.?(pt[0]-pt0Seg2[0])*(pt[0]-pt0Seg2[0])+(pt[1]-pt0Seg2[1])*(pt[1]-pt0Seg2[1]):(pt[0]-pt1Seg2[0])*(pt[0]-pt1Seg2[0])+(pt[1]-pt1Seg2[1])*(pt[1]-pt1Seg2[1]);
     nbOfHint++;
@@ -76,17 +78,17 @@ namespace INTERP_KERNEL
         w[i] = pt[i] - pt0Seg2[i];
     }
 
-    double c1 = dotprod<3>(w,v);
+    double const c1 = dotprod<3>(w,v);
     if ( c1 <= 0 )
       return norm<3>(w);
-    double c2 = dotprod<3>(v,v);
+    double const c2 = dotprod<3>(v,v);
     if ( c2 <= c1 )
       {
         for(int i=0; i < 3; i++)
           w[i] = pt[i] - pt1Seg2[i];
         return norm<3>(w);
       }
-    double b = c1 / c2;
+    double const b = c1 / c2;
     for(int i=0; i < 3; i++)
       w[i] = pt0Seg2[i] + b * v[i] - pt[i];
     return norm<3>(w);
@@ -143,7 +145,7 @@ namespace INTERP_KERNEL
 
     double a00=dotprod<3>(edge0, edge0), a01=dotprod<3>(edge0,edge1), a11=dotprod<3>(edge1,edge1);
     double b0=dotprod<3>(diff, edge0), b1=dotprod<3>(diff, edge1), c=dotprod<3>(diff, diff);
-    double det = fabs(a00*a11 - a01*a01);
+    double const det = fabs(a00*a11 - a01*a01);
     double s = a01*b1 - a11*b0, t = a01*b0 - a00*b1;
     double sDist;
 
@@ -171,13 +173,13 @@ namespace INTERP_KERNEL
                   {
                     // points are colinear (degenerated triangle)
                     // => Compute distance between segments
-                     double distance = std::min(DistanceFromPtToSegInSpaceDim3(pt, pt0Tri3, pt1Tri3),
+                     double const distance = std::min(DistanceFromPtToSegInSpaceDim3(pt, pt0Tri3, pt1Tri3),
                                                 DistanceFromPtToSegInSpaceDim3(pt, pt1Tri3, pt2Tri3));
                      return distance;
                   }
 
                 // else we can divide by non-zero
-                double invDet = 1 / det;
+                double const invDet = 1 / det;
                 s *= invDet;    t *= invDet;
                 sDist = s*(a00*s + a01*t + 2*b0) + t*(a01*s + a11*t + 2*b1) + c;
               }
@@ -191,11 +193,11 @@ namespace INTERP_KERNEL
             if (t < 0.0)  // region 6
               sDist = _HelperDistancePtToTri3D_2(a01, a11, a00, b1, b0, c);
             else {  // region 1
-                double numer = a11 + b1 - a01 - b0;
+                double const numer = a11 + b1 - a01 - b0;
                 if (numer <= 0.0)
                   sDist = a11 + 2*b1 + c;
                 else {
-                    double denom = a00 - 2*a01 + a11;
+                    double const denom = a00 - 2*a01 + a11;
                     if (numer >= denom)
                       sDist = a00 + 2*b0 + c;
                     else {
@@ -215,7 +217,7 @@ namespace INTERP_KERNEL
 
   double DistanceFromPtToPolygonInSpaceDim3(const double *pt, const mcIdType *connOfPolygonBg, const mcIdType *connOfPolygonEnd, const double *coords)
   {
-    std::size_t nbOfEdges=std::distance(connOfPolygonBg,connOfPolygonEnd);
+    std::size_t const nbOfEdges=std::distance(connOfPolygonBg,connOfPolygonEnd);
     if(nbOfEdges<3)
       throw INTERP_KERNEL::Exception("DistanceFromPtToPolygonInSpaceDim3 : trying to compute a distance to a polygon containing less than 3 edges !");
     double baryOfNodes[3]={0.,0.,0.};
@@ -233,12 +235,12 @@ namespace INTERP_KERNEL
         ptXY[2*i+1]=matrix[4]*coords[3*connOfPolygonBg[i]]+matrix[5]*coords[3*connOfPolygonBg[i]+1]+matrix[6]*coords[3*connOfPolygonBg[i]+2]+matrix[7];
       }
     double xy[2]={matrix[0]*pt[0]+matrix[1]*pt[1]+matrix[2]*pt[2]+matrix[3],matrix[4]*pt[0]+matrix[5]*pt[1]+matrix[6]*pt[2]+matrix[7]};
-    double z=matrix[8]*pt[0]+matrix[9]*pt[1]+matrix[10]*pt[2]+matrix[11];
+    double const z=matrix[8]*pt[0]+matrix[9]*pt[1]+matrix[10]*pt[2]+matrix[11];
     double ret=std::numeric_limits<double>::max();
     std::size_t nbOfHint=0;
     for(std::size_t i=0;i<nbOfEdges;i++)
       {
-        double tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,((double *)ptXY)+2*i,((double *)ptXY)+2*((i+1)%nbOfEdges),nbOfHint);
+        double const tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,((double *)ptXY)+2*i,((double *)ptXY)+2*((i+1)%nbOfEdges),nbOfHint);
         ret=std::min(ret,z*z+tmp);
       }
     if(nbOfHint==nbOfEdges)
@@ -263,7 +265,7 @@ namespace INTERP_KERNEL
                   z*s,y*y*(1-c)+c,y*z*(1-c),
                   -y*s,z*y*(1-c),z*z*(1-c)+c};
     // 2nd rotation matrix
-    double x=p2[0]-p0[0];
+    double const x=p2[0]-p0[0];
     y=p2[1]-p0[1]; z=p2[2]-p0[2];
     double y1=x*r0[3]+y*r0[4]+z*r0[5],z1=x*r0[6]+y*r0[7]+z*r0[8];
     c=y1/sqrt(y1*y1+z1*z1);

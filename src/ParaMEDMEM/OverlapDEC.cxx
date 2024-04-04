@@ -20,24 +20,28 @@
 
 #include "OverlapDEC.hxx"
 #include "CommInterface.hxx"
+#include "MCType.hxx"
+#include "MEDCouplingMesh.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "OverlapElementLocator.hxx"
 #include "OverlapInterpolationMatrix.hxx"
 #include "ICoCoMEDDoubleField.hxx"
+#include <string>
+#include <ostream>
 
 namespace MEDCoupling
 {
   OverlapDEC::OverlapDEC(const std::set<int>& procIds, const MPI_Comm& world_comm):
       _load_balancing_algo(1),
-      _own_group(true),_interpolation_matrix(0), _locator(0),
+      _own_group(true),_interpolation_matrix(nullptr), _locator(nullptr),
       _default_field_value(0.0),
-      _source_field(0),_own_source_field(false),
-      _target_field(0),_own_target_field(false),
+      _source_field(nullptr),_own_source_field(false),
+      _target_field(nullptr),_own_target_field(false),
       _comm(MPI_COMM_NULL)
   {
-    MEDCoupling::CommInterface comm;
+    MEDCoupling::CommInterface const comm;
     int *ranks_world=new int[procIds.size()]; // ranks of sources and targets in world_comm
     std::copy(procIds.begin(),procIds.end(),ranks_world);
     MPI_Group group,world_group;
@@ -49,7 +53,7 @@ namespace MEDCoupling
     comm.groupFree(&world_group);
     if(_comm==MPI_COMM_NULL)
       {
-        _group=0;
+        _group=nullptr;
         return ;
       }
     std::set<int> idsUnion;
@@ -89,7 +93,7 @@ namespace MEDCoupling
     _locator = nullptr;
     if (_comm != MPI_COMM_NULL)
       {
-        MEDCoupling::CommInterface comm;
+        MEDCoupling::CommInterface const comm;
         comm.commFree(&_comm);
       }
     _comm = MPI_COMM_NULL;
@@ -131,8 +135,8 @@ namespace MEDCoupling
     _locator->copyOptions(*this);
     _locator->exchangeMeshes(*_interpolation_matrix);
     std::vector< std::pair<int,int> > jobs=_locator->getToDoList();
-    std::string srcMeth=_locator->getSourceMethod();
-    std::string trgMeth=_locator->getTargetMethod();
+    std::string const srcMeth=_locator->getSourceMethod();
+    std::string const trgMeth=_locator->getTargetMethod();
     for(std::vector< std::pair<int,int> >::const_iterator it=jobs.begin();it!=jobs.end();it++)
       {
         const MEDCouplingPointSet *src=_locator->getSourceMesh((*it).first);
@@ -170,9 +174,9 @@ namespace MEDCoupling
     if(!isInGroup())
       return ;
 
-    ParaMESH *paramesh = new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),
+    auto *paramesh = new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),
                                       *_group,field->getMesh()->getName());
-    ParaFIELD *tmpField=new ParaFIELD(field, paramesh, *_group);
+    auto *tmpField=new ParaFIELD(field, paramesh, *_group);
     tmpField->setOwnSupport(true);
     attachSourceLocalField(tmpField,true);
   }
@@ -182,9 +186,9 @@ namespace MEDCoupling
     if(!isInGroup())
       return ;
 
-    ParaMESH *paramesh = new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),
+    auto *paramesh = new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),
                                       *_group,field->getMesh()->getName());
-    ParaFIELD *tmpField=new ParaFIELD(field, paramesh, *_group);
+    auto *tmpField=new ParaFIELD(field, paramesh, *_group);
     tmpField->setOwnSupport(true);
     attachTargetLocalField(tmpField,true);
   }

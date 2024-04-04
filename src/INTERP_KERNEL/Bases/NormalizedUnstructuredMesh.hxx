@@ -21,7 +21,6 @@
 #ifndef __NORMALIZEDUNSTRUCTUREDMESH_HXX__
 #define __NORMALIZEDUNSTRUCTUREDMESH_HXX__
 
-#include "NormalizedGeometricTypes"
 
 namespace INTERP_KERNEL
 {

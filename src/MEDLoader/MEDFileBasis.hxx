@@ -21,9 +21,10 @@
 #ifndef __MEDFILEBASIS_HXX__
 #define __MEDFILEBASIS_HXX__
 
-#include "InterpKernelException.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingTraits.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 
 #include <string>
 #include <vector>

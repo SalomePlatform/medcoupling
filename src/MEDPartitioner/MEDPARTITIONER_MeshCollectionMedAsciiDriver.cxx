@@ -17,6 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "MCIdType.hxx"
 #include "MEDPARTITIONER_ParallelTopology.hxx"
 #include "MEDPARTITIONER_MeshCollectionDriver.hxx"
 #include "MEDPARTITIONER_MeshCollection.hxx"
@@ -27,18 +28,14 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDLoader.hxx"
 
-#include <map>
-#include <set>
+#include <cstddef>
+#include <cstdlib>
 #include <vector>
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-#include <libxml/tree.h>
-#include <libxml/parser.h>
-#include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
 
 using namespace MEDPARTITIONER;
 
@@ -57,24 +54,24 @@ int MeshCollectionMedAsciiDriver::read(MEDCoupling::MEDFileData* filedata)
 {
   readMEDFileData(filedata);
 
-  std::vector<MEDPARTITIONER::ConnectZone*> cz; // to fill from filedata
+  std::vector<MEDPARTITIONER::ConnectZone*> const cz; // to fill from filedata
   std::vector<mcIdType*> cellglobal;
   std::vector<mcIdType*> nodeglobal;
   std::vector<mcIdType*> faceglobal;
-  std::size_t size = _collection->getMesh().size();
+  std::size_t const size = _collection->getMesh().size();
   cellglobal.resize(size);
   nodeglobal.resize(size);
   faceglobal.resize(size);
   for ( unsigned int idomain = 0; idomain < size; ++idomain )
     {
-      cellglobal[idomain]=0;
-      faceglobal[idomain]=0;
-      nodeglobal[idomain]=0;
+      cellglobal[idomain]=nullptr;
+      faceglobal[idomain]=nullptr;
+      nodeglobal[idomain]=nullptr;
       if ( (_collection->getMesh())[idomain] && (_collection->getMesh())[idomain]->getNumberOfNodes() > 0 )
         _collection->setNonEmptyMesh(idomain);
     }
   //creation of topology from mesh and connect zones
-  ParallelTopology* aPT = new ParallelTopology((_collection->getMesh()), cz, cellglobal, nodeglobal, faceglobal);
+  auto* aPT = new ParallelTopology((_collection->getMesh()), cz, cellglobal, nodeglobal, faceglobal);
   _collection->setTopology(aPT,true);
 
   return 0;
@@ -125,9 +122,9 @@ int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector*
           //reading information about the domain
           std::string mesh,host;
           int idomain;
-          cellglobal[i]=0;
-          faceglobal[i]=0;
-          nodeglobal[i]=0;
+          cellglobal[i]=nullptr;
+          faceglobal[i]=nullptr;
+          nodeglobal[i]=nullptr;
 
           asciiinput >> mesh >> idomain >> MyGlobals::_Mesh_Names[i] >> host >> MyGlobals::_File_Names[i];
 
@@ -150,7 +147,7 @@ int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector*
     }
 
   //creation of topology from mesh and connect zones
-  ParallelTopology* aPT = new ParallelTopology((_collection->getMesh()), (_collection->getCZ()), cellglobal, nodeglobal, faceglobal);
+  auto* aPT = new ParallelTopology((_collection->getMesh()), (_collection->getCZ()), cellglobal, nodeglobal, faceglobal);
   _collection->setTopology(aPT, true);
 
   for (int i=0; i<nbdomain; i++)
@@ -168,7 +165,7 @@ int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector*
  */
 void MeshCollectionMedAsciiDriver::write(const char* filename, ParaDomainSelector* domainSelector) const
 {
-  std::size_t nbdomains=_collection->getMesh().size();
+  std::size_t const nbdomains=_collection->getMesh().size();
   std::vector<std::string> filenames;
   filenames.resize(nbdomains);
 

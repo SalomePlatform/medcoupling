@@ -20,7 +20,9 @@
 
 #include "MEDFileBasis.hxx"
 
+#include <algorithm>
 #include <cstring>
+#include <string>
 
 using namespace MEDCoupling;
 

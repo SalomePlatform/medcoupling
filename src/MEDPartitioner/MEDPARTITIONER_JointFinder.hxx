@@ -20,10 +20,11 @@
 #ifndef __MEDPARTITIONER_JOINTFINDER_HXX__
 #define __MEDPARTITIONER_JOINTFINDER_HXX__
 
+#include "MCIdType.hxx"
 #include "MEDPARTITIONER.hxx"
-#include "MCType.hxx"
 
 #include <map>
+#include <utility>
 #include <vector>
 
 namespace MEDPARTITIONER

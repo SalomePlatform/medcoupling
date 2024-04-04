@@ -20,12 +20,18 @@
 
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldT.txx"
+#include "MEDCouplingFieldDiscretization.hxx"
+#include "MCAuto.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingFieldInt.hxx"
+#include "MEDCouplingFieldInt32.hxx"
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMesh.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MEDCouplingTraits.hxx"
 
 using namespace MEDCoupling;
 

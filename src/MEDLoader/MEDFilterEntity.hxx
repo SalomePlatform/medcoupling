@@ -21,9 +21,17 @@
 #ifndef __MEDFILTERENTITY_HXX__
 #define __MEDFILTERENTITY_HXX__
 
+#include "MCType.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingPartDefinition.hxx"
+#include "InterpKernelException.hxx"
+#include "MEDFileBasis.hxx"
 #include "med.h"
+#include "medfilter.h"
+#include <algorithm>
+#include <iterator>
 #include <memory>
+#include <vector>
 
 namespace MEDCoupling
 {
@@ -66,12 +74,12 @@ namespace MEDCoupling
                              const med_int constituentSelect, const med_switch_mode switchMode, const med_storage_mode storageMode, const char * const profileName,
                              const PartDefinition* pd)
   {
-    const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(pd));
+    const auto *spd(dynamic_cast<const SlicePartDefinition *>(pd));
     if(spd)
       {
         //Here, pd contains a slice, so it's more efficient to define a filter of block
         //(which will load contiguous values)
-        mcIdType nbOfEltsToLoad = spd->getNumberOfElems();
+        mcIdType const nbOfEltsToLoad = spd->getNumberOfElems();
         mcIdType strt,end,step;
         spd->getSlice(strt,end,step);
         if(strt<0)
@@ -84,10 +92,10 @@ namespace MEDCoupling
                                  /*lastblocksize=useless because count=1*/0,_filter.get());
         return;
       }
-    const DataArrayPartDefinition *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
+    const auto *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
     if(dpd)
       {
-        mcIdType nbOfEltsToLoad = dpd->getNumberOfElems();
+        mcIdType const nbOfEltsToLoad = dpd->getNumberOfElems();
 
       //convert to fortran indexing
       std::vector<mcIdType> dpdPlus1;

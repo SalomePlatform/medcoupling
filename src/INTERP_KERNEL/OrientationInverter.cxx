@@ -21,7 +21,11 @@
 #include "OrientationInverter.hxx"
 #include "InterpKernelException.hxx"
 #include "CellModel.hxx"
+#include "NormalizedGeometricTypes"
+#include "MCIdType.hxx"
 
+#include <iterator>
+#include <cstddef>
 #include <sstream>
 #include <algorithm>
 
@@ -98,7 +102,7 @@ void OrientationInverter2DLinear::operateAndShutUp(mcIdType *beginPt) const
 
 void OrientationInverter2DQuadratic::operateAndShutUp(mcIdType *beginPt) const
 {
-  int nbNodes(getNbNodes());
+  int const nbNodes(getNbNodes());
   std::reverse(beginPt+1,beginPt+nbNodes/2);
   std::reverse(beginPt+nbNodes/2,beginPt+nbNodes);
 }
@@ -110,7 +114,7 @@ void OrientationInverterPolygon::operate(mcIdType *beginPt, mcIdType *endPt) con
 
 void OrientationInverterQPolygon::operate(mcIdType *beginPt, mcIdType *endPt) const
 {
-  std::size_t sz(std::distance(beginPt,endPt));
+  std::size_t const sz(std::distance(beginPt,endPt));
   std::reverse(beginPt+1,beginPt+sz/2);
   std::reverse(beginPt+sz/2,endPt);
 }
@@ -141,7 +145,7 @@ void OrientationInverterPyra13::operateAndShutUp(mcIdType *beginPt) const
 
 void OrientationInverter3DExtrusionLinear::operateAndShutUp(mcIdType *beginPt) const
 {
-  int nbNodes(getNbNodes());
+  int const nbNodes(getNbNodes());
   std::reverse(beginPt+1,beginPt+nbNodes/2);
   std::reverse(beginPt+nbNodes/2+1,beginPt+nbNodes);
 }

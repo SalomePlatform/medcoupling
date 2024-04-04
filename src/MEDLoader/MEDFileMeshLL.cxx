@@ -19,7 +19,19 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDFileMeshLL.hxx"
+#include "MEDCouplingCurveLinearMesh.hxx"
+#include "MEDCouplingMesh.hxx"
+#include "MEDCouplingMemArray.txx"
+#include "MEDFileBasis.hxx"
+#include "MCType.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingMap.txx"
+#include "MEDCouplingPartDefinition.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MCIdType.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
 #include "MEDFileMesh.hxx"
+#include "MEDFileMeshElt.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileMeshReadSelector.hxx"
@@ -32,7 +44,22 @@
 #include "CellModel.hxx"
 
 #include "MEDFilterEntity.hxx"
+#include "med.h"
+#include "NormalizedGeometricTypes"
+#include "medmesh.h"
+#include <algorithm>
+#include <cstddef>
+#include "medfamily.h"
+#include "medstructelement.h"
+#include <istream>
+#include <iterator>
+#include <map>
+#include <ostream>
 #include <set>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <utility>
 #include <iomanip>
 
 // From MEDLOader.cxx TU
@@ -52,11 +79,11 @@ std::vector<std::string> MeshCls::getAxisInfoOnMesh(med_idt fid, const std::stri
   med_int spaceDim, meshDim, nbSteps;
   med_sorting_type stype;
   med_axis_type axistype;
-  med_int naxis(MEDmeshnAxis(fid,getID()));
+  med_int const naxis(MEDmeshnAxis(fid,getID()));
   INTERP_KERNEL::AutoPtr<char> nameTmp(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> axisname(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> axisunit(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
-  INTERP_KERNEL::AutoPtr<char> univTmp(MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE));
+  INTERP_KERNEL::AutoPtr<char> const univTmp(MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE));
   if(MEDmeshInfo(fid,getID(),nameTmp,&spaceDim,&meshDim,&type_maillage,description.getPointer(),dtunit.getPointer(),
       &stype,&nbSteps,&axistype,axisname,axisunit)!=0)
     throw INTERP_KERNEL::Exception("A problem has been detected when trying to get info on mesh !");
@@ -96,7 +123,7 @@ std::vector<std::string> MeshCls::getAxisInfoOnMesh(med_idt fid, const std::stri
   std::vector<std::string> infosOnComp(naxis);
   for(int i=0;i<naxis;i++)
     {
-      std::string info(MEDLoaderBase::buildUnionUnit(((char *)axisname)+i*MED_SNAME_SIZE,MED_SNAME_SIZE,((char *)axisunit)+i*MED_SNAME_SIZE,MED_SNAME_SIZE));
+      std::string const info(MEDLoaderBase::buildUnionUnit(((char *)axisname)+i*MED_SNAME_SIZE,MED_SNAME_SIZE,((char *)axisunit)+i*MED_SNAME_SIZE,MED_SNAME_SIZE));
       infosOnComp[i]=info;
     }
   return infosOnComp;
@@ -126,16 +153,16 @@ double MeshCls::checkMeshTimeStep(med_idt fid, const std::string& mName, int nst
   return dtt;
 }
 
-std::vector<std::string> StructMeshCls::getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const
+std::vector<std::string> StructMeshCls::getAxisInfoOnMesh(med_idt fid, const std::string&  /*mName*/, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int&  /*Mdim*/, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const
 {
   INTERP_KERNEL::AutoPtr<char> msn(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
   INTERP_KERNEL::AutoPtr<char> zeDescription(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
   med_axis_type medAxType;
-  med_int nAxis(MEDsupportMeshnAxis(fid,getID()));
+  med_int const nAxis(MEDsupportMeshnAxis(fid,getID()));
   INTERP_KERNEL::AutoPtr<char> axisName(new char[MED_SNAME_SIZE*nAxis+1]),axisUnit(new char[MED_SNAME_SIZE*nAxis+1]);
   med_int spaceDim(0),meshDim(0);
   MEDFILESAFECALLERRD0(MEDsupportMeshInfo,(fid,getID(),msn,&spaceDim,&meshDim,zeDescription,&medAxType,axisName,axisUnit));
-  std::string descriptionCpp(MEDLoaderBase::buildStringFromFortran(zeDescription,MED_COMMENT_SIZE));
+  std::string const descriptionCpp(MEDLoaderBase::buildStringFromFortran(zeDescription,MED_COMMENT_SIZE));
   description.set(descriptionCpp.c_str());
   dtunit.clear(); univName.clear(); meshType=UNSTRUCTURED; nstep=1;
   axType=MEDFileMeshL2::TraduceAxisType(medAxType);
@@ -145,14 +172,14 @@ std::vector<std::string> StructMeshCls::getAxisInfoOnMesh(med_idt fid, const std
   std::vector<std::string> ret;
   for(int i=0;i<nAxis;i++)
     {
-      std::string info(DataArray::BuildInfoFromVarAndUnit(MEDLoaderBase::buildStringFromFortran(axisName+i*MED_SNAME_SIZE,MED_SNAME_SIZE),
+      std::string const info(DataArray::BuildInfoFromVarAndUnit(MEDLoaderBase::buildStringFromFortran(axisName+i*MED_SNAME_SIZE,MED_SNAME_SIZE),
                                                           MEDLoaderBase::buildStringFromFortran(axisUnit+i*MED_SNAME_SIZE,MED_SNAME_SIZE)));
       ret.push_back(info);
     }
   return ret;
 }
 
-double StructMeshCls::checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const
+double StructMeshCls::checkMeshTimeStep(med_idt  /*fid*/, const std::string&  /*mName*/, int  /*nstep*/, int  /*dt*/, int  /*it*/) const
 {
   return 0.;
 }
@@ -178,7 +205,7 @@ INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> MEDFileMeshL2::GetMeshIdFromName(
   char dtunit[MED_LNAME_SIZE+1];
   med_int spaceDim,dim;
   char nommaa[MED_NAME_SIZE+1];
-  med_int n=MEDnMesh(fid);
+  med_int const n=MEDnMesh(fid);
   char found(0);
   int ret=-1;
   med_sorting_type stype;
@@ -187,11 +214,11 @@ INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> MEDFileMeshL2::GetMeshIdFromName(
   med_axis_type axistype=MED_UNDEF_AXIS_TYPE;
   for(int i=0;i<n && found==0;i++)
     {
-      med_int naxis(MEDmeshnAxis(fid,i+1));
+      med_int const naxis(MEDmeshnAxis(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> axisname(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE)),axisunit(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
       MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));      
       dtunit1=MEDLoaderBase::buildStringFromFortran(dtunit,sizeof(dtunit));
-      std::string cur(MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa)));
+      std::string const cur(MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa)));
       ms.push_back(cur);
       if(cur==mName)
         {
@@ -201,13 +228,13 @@ INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> MEDFileMeshL2::GetMeshIdFromName(
     }
   if(found==0)
     {//last chance ! Is it a support mesh ?
-      med_int nbSM(MEDnSupportMesh(fid));
+      med_int const nbSM(MEDnSupportMesh(fid));
       for(int i=0;i<nbSM && found==0;i++)
         {
-          med_int naxis(MEDsupportMeshnAxis(fid,i+1));
+          med_int const naxis(MEDsupportMeshnAxis(fid,i+1));
           INTERP_KERNEL::AutoPtr<char> axisname(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE)),axisunit(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
           MEDFILESAFECALLERRD0(MEDsupportMeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,maillage_description,&axistype,axisname,axisunit));
-          std::string cur(MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa)));
+          std::string const cur(MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa)));
           ms.push_back(cur);
           if(cur==mName)
             {
@@ -288,29 +315,29 @@ void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const std::string& meshName
     return ;
   char nomfam[MED_NAME_SIZE+1];
   med_int numfam;
-  med_int nfam=MEDnFamily(fid,meshName.c_str());
+  med_int const nfam=MEDnFamily(fid,meshName.c_str());
   std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > > crudeFams(nfam);
   for(int i=0;i<nfam;i++)
     {
-      med_int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
-      med_int natt=MEDnFamily23Attribute(fid,meshName.c_str(),i+1);
+      med_int const ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
+      med_int const natt=MEDnFamily23Attribute(fid,meshName.c_str(),i+1);
       INTERP_KERNEL::AutoPtr<med_int> attide=new med_int[natt];
       INTERP_KERNEL::AutoPtr<med_int> attval=new med_int[natt];
       INTERP_KERNEL::AutoPtr<char> attdes=new char[MED_COMMENT_SIZE*natt+1];
       INTERP_KERNEL::AutoPtr<char> gro=new char[MED_LNAME_SIZE*ngro+1];
       MEDfamily23Info(fid,meshName.c_str(),i+1,nomfam,attide,attval,attdes,&numfam,gro);
-      std::string famName(MEDLoaderBase::buildStringFromFortran(nomfam,MED_NAME_SIZE));
+      std::string const famName(MEDLoaderBase::buildStringFromFortran(nomfam,MED_NAME_SIZE));
       std::vector<std::string> grps2(ngro);
       for(int j=0;j<ngro;j++)
         grps2[j]=MEDLoaderBase::buildStringFromFortran(gro+j*MED_LNAME_SIZE,MED_LNAME_SIZE);
       crudeFams[i]=std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > >(famName,std::pair<mcIdType,std::vector<std::string> >(numfam,grps2));
     }
   RenameFamiliesFromFileToMemInternal(crudeFams);
-  for(std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > >::const_iterator it0=crudeFams.begin();it0!=crudeFams.end();it0++)
+  for(const auto & crudeFam : crudeFams)
     {
-      fams[(*it0).first]=(*it0).second.first;
-      for(std::vector<std::string>::const_iterator it1=(*it0).second.second.begin();it1!=(*it0).second.second.end();it1++)
-        grps[*it1].push_back((*it0).first);
+      fams[crudeFam.first]=crudeFam.second.first;
+      for(auto it1=crudeFam.second.second.begin();it1!=crudeFam.second.second.end();it1++)
+        grps[*it1].push_back(crudeFam.first);
     }
 }
 
@@ -318,27 +345,27 @@ void MEDFileMeshL2::WriteFamiliesAndGrps(med_idt fid, const std::string& mname, 
 {
   std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > > crudeFams(fams.size());
   std::size_t ii(0);
-  for(std::map<std::string,mcIdType>::const_iterator it=fams.begin();it!=fams.end();it++,ii++)
+  for(auto it=fams.begin();it!=fams.end();it++,ii++)
     {
       std::vector<std::string> grpsOfFam;
-      for(std::map<std::string, std::vector<std::string> >::const_iterator it1=grps.begin();it1!=grps.end();it1++)
+      for(const auto & grp : grps)
         {
-          if(std::find((*it1).second.begin(),(*it1).second.end(),(*it).first)!=(*it1).second.end())
-            grpsOfFam.push_back((*it1).first);
+          if(std::find(grp.second.begin(),grp.second.end(),(*it).first)!=grp.second.end())
+            grpsOfFam.push_back(grp.first);
         }
       crudeFams[ii]=std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > >((*it).first,std::pair<mcIdType,std::vector<std::string> >((*it).second,grpsOfFam));
     }
   RenameFamiliesFromMemToFileInternal(crudeFams);
-  for(std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > >::const_iterator it=crudeFams.begin();it!=crudeFams.end();it++)
+  for(const auto & crudeFam : crudeFams)
     {
-      std::size_t ngro((*it).second.second.size());
+      std::size_t const ngro(crudeFam.second.second.size());
       INTERP_KERNEL::AutoPtr<char> groName=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE*ngro);
       int i=0;
-      for(std::vector<std::string>::const_iterator it2=(*it).second.second.begin();it2!=(*it).second.second.end();it2++,i++)
+      for(auto it2=crudeFam.second.second.begin();it2!=crudeFam.second.second.end();it2++,i++)
         MEDLoaderBase::safeStrCpy2((*it2).c_str(),MED_LNAME_SIZE,groName+i*MED_LNAME_SIZE,tooLongStrPol);
       INTERP_KERNEL::AutoPtr<char> famName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-      MEDLoaderBase::safeStrCpy((*it).first.c_str(),MED_NAME_SIZE,famName,tooLongStrPol);
-      med_int ret=MEDfamilyCr(fid,mname.c_str(),famName,ToMedInt((*it).second.first),ToMedInt(ngro),groName);
+      MEDLoaderBase::safeStrCpy(crudeFam.first.c_str(),MED_NAME_SIZE,famName,tooLongStrPol);
+      med_int ret=MEDfamilyCr(fid,mname.c_str(),famName,ToMedInt(crudeFam.second.first),ToMedInt(ngro),groName);
       ret++;
     }
 }
@@ -352,7 +379,7 @@ void MEDFileMeshL2::RenameFamiliesPatternInternal(std::vector< std::pair<std::st
   if(!func(fams))
     return ;
   ii=0;
-  for(std::vector< std::pair<std::string,std::pair<mcIdType,std::vector<std::string> > > >::iterator it=crudeFams.begin();it!=crudeFams.end();it++,ii++)
+  for(auto it=crudeFams.begin();it!=crudeFams.end();it++,ii++)
     (*it).first=fams[ii];
 }
 
@@ -369,21 +396,21 @@ bool MEDFileMeshL2::RenameFamiliesFromFileToMem(std::vector< std::string >& famN
 {
   std::map<std::string,mcIdType> m;
   std::set<std::string> s;
-  for(std::vector< std::string >::const_iterator it=famNames.begin();it!=famNames.end();it++)
+  for(const auto & famName : famNames)
     {
-      if(s.find(*it)!=s.end())
-        m[*it]=0;
-      s.insert(*it);
+      if(s.find(famName)!=s.end())
+        m[famName]=0;
+      s.insert(famName);
     }
   if(m.empty())
     return false;// the general case !
-  for(std::vector< std::string >::iterator it=famNames.begin();it!=famNames.end();it++)
+  for(auto & famName : famNames)
     {
-      std::map<std::string,mcIdType>::iterator it2(m.find(*it));
+      auto const it2(m.find(famName));
       if(it2!=m.end())
         {
-          std::ostringstream oss; oss << *it << ZE_SEP_FOR_FAMILY_KILLERS << std::setfill('0') << std::setw(ZE_SEP2_FOR_FAMILY_KILLERS) << (*it2).second++;
-          *it=oss.str();
+          std::ostringstream oss; oss << famName << ZE_SEP_FOR_FAMILY_KILLERS << std::setfill('0') << std::setw(ZE_SEP2_FOR_FAMILY_KILLERS) << (*it2).second++;
+          famName=oss.str();
         }
     }
   return true;
@@ -401,9 +428,9 @@ void MEDFileMeshL2::RenameFamiliesFromMemToFileInternal(std::vector< std::pair<s
 bool MEDFileMeshL2::RenameFamiliesFromMemToFile(std::vector< std::string >& famNames)
 {
   bool isSmthingStrange(false);
-  for(std::vector< std::string >::const_iterator it=famNames.begin();it!=famNames.end();it++)
+  for(const auto & famName : famNames)
     {
-      std::size_t found((*it).find(ZE_SEP_FOR_FAMILY_KILLERS));
+      std::size_t const found(famName.find(ZE_SEP_FOR_FAMILY_KILLERS));
       if(found!=std::string::npos)
         isSmthingStrange=true;
     }
@@ -411,22 +438,22 @@ bool MEDFileMeshL2::RenameFamiliesFromMemToFile(std::vector< std::string >& famN
     return false;
   // pattern matching
   std::map< std::string, std::vector<std::string> > m;
-  for(std::vector< std::string >::const_iterator it=famNames.begin();it!=famNames.end();it++)
+  for(const auto & famName : famNames)
     {
-      std::size_t found((*it).find(ZE_SEP_FOR_FAMILY_KILLERS));
+      std::size_t const found(famName.find(ZE_SEP_FOR_FAMILY_KILLERS));
       if(found!=std::string::npos && found>=1)
         {
-          std::string s1((*it).substr(found+sizeof(ZE_SEP_FOR_FAMILY_KILLERS)-1));
+          std::string const s1(famName.substr(found+sizeof(ZE_SEP_FOR_FAMILY_KILLERS)-1));
           if((int)s1.size()!=ZE_SEP2_FOR_FAMILY_KILLERS)
             continue;
           int k(-1);
           std::istringstream iss(s1);
           iss >> k;
-          bool isOK((iss.rdstate() & ( std::istream::failbit | std::istream::eofbit)) == std::istream::eofbit);
+          bool const isOK((iss.rdstate() & ( std::istream::failbit | std::istream::eofbit)) == std::istream::eofbit);
           if(isOK && k>=0)
             {
-              std::string s0((*it).substr(0,found));
-              m[s0].push_back(*it);
+              std::string const s0(famName.substr(0,found));
+              m[s0].push_back(famName);
             }
         }
     }
@@ -438,17 +465,17 @@ bool MEDFileMeshL2::RenameFamiliesFromMemToFile(std::vector< std::string >& famN
     {
       if((*it).second.size()==1)
         continue;
-      for(std::vector<std::string>::const_iterator it1=(*it).second.begin();it1!=(*it).second.end();it1++)
+      for(auto it1=(*it).second.begin();it1!=(*it).second.end();it1++)
         zeMap[*it1]=(*it).first;
     }
   if(zeMap.empty())
     return false;
   // traduce
-  for(std::vector< std::string >::iterator it=famNames.begin();it!=famNames.end();it++)
+  for(auto & famName : famNames)
     {
-      std::map<std::string,std::string>::iterator it1(zeMap.find(*it));
+      auto const it1(zeMap.find(famName));
       if(it1!=zeMap.end())
-        *it=(*it1).second;
+        famName=(*it1).second;
     }    
   return true;
 }
@@ -514,8 +541,7 @@ med_grid_type MEDFileMeshL2::TraduceAxisTypeRevStruct(MEDCoupling::MEDCouplingAx
 }
 
 MEDFileUMeshL2::MEDFileUMeshL2()
-{
-}
+= default;
 
 std::vector<std::string> MEDFileUMeshL2::loadCommonPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, int& Mdim)
 {
@@ -541,7 +567,7 @@ std::vector<std::string> MEDFileUMeshL2::loadCommonPart(med_idt fid, const MeshO
 void MEDFileUMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   int Mdim;
-  std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
+  std::vector<std::string> const infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
   if(Mdim==-4)
     return ;
   loadConnectivity(fid,Mdim,mName,dt,it,mrs);//to improve check (dt,it) coherency
@@ -554,32 +580,32 @@ void MEDFileUMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const 
  *  - dealing with optimized load of coordinates (loading only points fetched by the already loaded cells)
  *  - update the connectivity in \a this to fit the coordinates loaded just above
  */
-void MEDFileUMeshL2::dealWithCoordsInLoadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<std::string>& infosOnComp, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileUMeshL2::dealWithCoordsInLoadPart(med_idt fid, const MeshOrStructMeshCls * /*mId*/, const std::string& mName, const std::vector<std::string>& infosOnComp, const std::vector<INTERP_KERNEL::NormalizedCellType>&  /*types*/, const std::vector<mcIdType>&  /*slicPerTyp*/, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
-  mcIdType nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  mcIdType const nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
   std::vector<bool> fetchedNodeIds(nCoords,false);
-  for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
-    for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-      (*it1)->getMesh()->computeNodeIdsAlg(fetchedNodeIds);
+  for(const auto & it0 : _per_type_mesh)
+    for(const auto & it1 : it0)
+      it1->getMesh()->computeNodeIdsAlg(fetchedNodeIds);
   if(!mrs || mrs->getNumberOfCoordsLoadSessions()==1)
   {
-    mcIdType nMin(ToIdType(std::distance(fetchedNodeIds.begin(),std::find(fetchedNodeIds.begin(),fetchedNodeIds.end(),true))));
+    mcIdType const nMin(ToIdType(std::distance(fetchedNodeIds.begin(),std::find(fetchedNodeIds.begin(),fetchedNodeIds.end(),true))));
     mcIdType nMax(ToIdType(std::distance(fetchedNodeIds.rbegin(),std::find(fetchedNodeIds.rbegin(),fetchedNodeIds.rend(),true))));
     nMax=nCoords-nMax;
-    for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
-      for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-        (*it1)->getMesh()->renumberNodesWithOffsetInConn(-nMin);
+    for(const auto & it0 : _per_type_mesh)
+      for(const auto & it1 : it0)
+        it1->getMesh()->renumberNodesWithOffsetInConn(-nMin);
     this->loadPartCoords(fid,infosOnComp,mName,dt,it,nMin,nMax);
   }
   else
   {
-    mcIdType nbOfCooLS(mrs->getNumberOfCoordsLoadSessions());
+    mcIdType const nbOfCooLS(mrs->getNumberOfCoordsLoadSessions());
     MCAuto<DataArrayIdType> fni(DataArrayIdType::BuildListOfSwitchedOn(fetchedNodeIds));
     MCAuto< MapKeyVal<mcIdType, mcIdType> > o2n(fni->invertArrayN2O2O2NOptimized());
-    for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
-      for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-        (*it1)->getMesh()->renumberNodesInConn(o2n->data());
+    for(const auto & it0 : _per_type_mesh)
+      for(const auto & it1 : it0)
+        it1->getMesh()->renumberNodesInConn(o2n->data());
     this->loadPartCoordsSlice(fid,infosOnComp,mName,dt,it,fni,nbOfCooLS);
   }
 }
@@ -596,7 +622,7 @@ std::vector<std::string> MEDFileUMeshL2::loadPartConnectivityOnly(med_idt fid, c
 void MEDFileUMeshL2::loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   int Mdim;
-  std::vector<std::string> infosOnComp(loadPartConnectivityOnly(fid,mId,mName,types,slicPerTyp,dt,it,mrs,Mdim));
+  std::vector<std::string> const infosOnComp(loadPartConnectivityOnly(fid,mId,mName,types,slicPerTyp,dt,it,mrs,Mdim));
   if(Mdim==-4)
     return ;
   loadPartOfConnectivity(fid,Mdim,mName,types,slicPerTyp,dt,it,mrs);
@@ -612,7 +638,7 @@ void MEDFileUMeshL2::loadPart(med_idt fid, const MeshOrStructMeshCls *mId, const
 void MEDFileUMeshL2::loadPartFromUserDistrib(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   int Mdim;
-  std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
+  std::vector<std::string> const infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
   if(Mdim==-4)
     return ;
 
@@ -621,11 +647,11 @@ void MEDFileUMeshL2::loadPartFromUserDistrib(med_idt fid, const MeshOrStructMesh
 
   /* Second step : loading nodes */
   med_bool changement,transformation;
-  mcIdType nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  mcIdType const nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
   std::vector<bool> fetchedNodeIds(nCoords,false);
-  for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
-    for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-      (*it1)->getMesh()->computeNodeIdsAlg(fetchedNodeIds);    // for each node in the original mesh, which ones are laying on the current single geometrical type partial mesh
+  for(const auto & it0 : _per_type_mesh)
+    for(const auto & it1 : it0)
+      it1->getMesh()->computeNodeIdsAlg(fetchedNodeIds);    // for each node in the original mesh, which ones are laying on the current single geometrical type partial mesh
 
   if(!mrs || mrs->getNumberOfCoordsLoadSessions()==1)
     {
@@ -635,9 +661,9 @@ void MEDFileUMeshL2::loadPartFromUserDistrib(med_idt fid, const MeshOrStructMesh
       // thus we want each node to be renumbered so that the sequence of their numbers form a range
       MCAuto<DataArrayIdType> fni(DataArrayIdType::BuildListOfSwitchedOn(fetchedNodeIds));
       MCAuto< MapKeyVal<mcIdType, mcIdType> > o2n(fni->invertArrayN2O2O2NOptimized());
-      for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
-        for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-          (*it1)->getMesh()->renumberNodesInConn(o2n->data());
+      for(const auto & it0 : _per_type_mesh)
+        for(const auto & it1 : it0)
+          it1->getMesh()->renumberNodesInConn(o2n->data());
 
       // loading coordinates of fetched nodes
       std::vector<mcIdType> distribNodes;
@@ -664,10 +690,10 @@ void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& 
 
 void MEDFileUMeshL2::loadPartOfConnectivity(med_idt fid, int mdim, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<mcIdType>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  std::size_t nbOfTypes(types.size());
+  std::size_t const nbOfTypes(types.size());
   if(slicPerTyp.size()!=3*nbOfTypes)
     throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartOfConnectivity : The size of slicPerTyp array is expected to be equal to 3 times size of array types !");
-  std::set<INTERP_KERNEL::NormalizedCellType> types2(types.begin(),types.end());
+  std::set<INTERP_KERNEL::NormalizedCellType> const types2(types.begin(),types.end());
   if(types2.size()!=nbOfTypes)
     throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartOfConnectivity : the geometric types in types array must appear once !");
   _per_type_mesh.resize(1);
@@ -675,7 +701,7 @@ void MEDFileUMeshL2::loadPartOfConnectivity(med_idt fid, int mdim, const std::st
   for(std::size_t ii=0;ii<nbOfTypes;ii++)
     {
       mcIdType strt(slicPerTyp[3*ii+0]),stp(slicPerTyp[3*ii+1]),step(slicPerTyp[3*ii+2]);
-      MCAuto<MEDFileUMeshPerType> tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,types[ii],strt,stp,step,mrs));
+      MCAuto<MEDFileUMeshPerType> const tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,types[ii],strt,stp,step,mrs));
       _per_type_mesh[0].push_back(tmp);
     }
   sortTypes();
@@ -692,7 +718,7 @@ void MEDFileUMeshL2::loadPartOfConnectivityFromUserDistrib(med_idt fid, int mdim
   std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>::const_iterator iter;
   for (iter = distrib.begin(); iter != distrib.end(); iter++)
     {
-        MCAuto<MEDFileUMeshPerType> tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,iter->first/*type*/,iter->second/*distrib over the current type*/,mrs));
+        MCAuto<MEDFileUMeshPerType> const tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,iter->first/*type*/,iter->second/*distrib over the current type*/,mrs));
         _per_type_mesh[0].push_back(tmp);
     }
   sortTypes();
@@ -700,9 +726,9 @@ void MEDFileUMeshL2::loadPartOfConnectivityFromUserDistrib(med_idt fid, int mdim
 
 void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it)
 {
-  int spaceDim((int)infosOnComp.size());
+  int const spaceDim((int)infosOnComp.size());
   med_bool changement,transformation;
-  med_int nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  med_int const nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
   _coords=DataArrayDouble::New();
   _coords->alloc(nCoords,spaceDim);
   double *coordsPtr(_coords->getPointer());
@@ -716,7 +742,7 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& inf
       _fam_coords=FromMedIntArray<mcIdType>(miFamCoord);
     }
   else
-    _fam_coords=0;
+    _fam_coords=nullptr;
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       MCAuto<DataArrayMedInt> miNumCoord=DataArrayMedInt::New();
@@ -725,7 +751,7 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& inf
       _num_coords=FromMedIntArray<mcIdType>(miNumCoord);
     }
   else
-    _num_coords=0;
+    _num_coords=nullptr;
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NAME,MED_NODAL,&changement,&transformation)>0)
     {
       _name_coords=DataArrayAsciiChar::New();
@@ -734,7 +760,7 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& inf
       _name_coords->reAlloc(nCoords);//not a bug to avoid the memory corruption due to last \0 at the end
     }
   else
-    _name_coords=0;
+    _name_coords=nullptr;
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_GLOBAL_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       MCAuto<DataArrayMedInt> miNumCoord=DataArrayMedInt::New();
@@ -750,7 +776,7 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, const std::vector<std::string>& inf
 void MEDFileUMeshL2::LoadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, const std::vector<mcIdType>& distribNodes,
 MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords)
 {
-  med_int spaceDim((int)infosOnComp.size());
+  med_int const spaceDim((int)infosOnComp.size());
   allocCoordsPartCoords(spaceDim,distribNodes,_coords,_part_coords);
   _coords->setInfoOnComponents(infosOnComp);
   fillPartCoords(fid,spaceDim,mName,dt,it,_part_coords,_coords,_fam_coords,_num_coords,_name_coords);
@@ -759,7 +785,7 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<D
 void MEDFileUMeshL2::LoadPartCoords(med_idt fid, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, mcIdType nMin, mcIdType nMax,
 MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords)
 {
-  med_int spaceDim((int)infosOnComp.size());
+  med_int const spaceDim((int)infosOnComp.size());
   allocCoordsPartCoords(spaceDim,nMin,nMax,_coords,_part_coords);
   _coords->setInfoOnComponents(infosOnComp);
   fillPartCoords(fid,spaceDim,mName,dt,it,_part_coords,_coords,_fam_coords,_num_coords,_name_coords);
@@ -770,7 +796,7 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords, MCAuto<D
  */
 void MEDFileUMeshL2::allocCoordsPartCoords(mcIdType spaceDim, const std::vector<mcIdType>& nodeIds, MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords)
 {
-  mcIdType nbNodesToLoad(nodeIds.size());
+  mcIdType const nbNodesToLoad(nodeIds.size());
   _coords=DataArrayDouble::New();
   _coords->alloc(nbNodesToLoad,spaceDim);
 
@@ -785,7 +811,7 @@ void MEDFileUMeshL2::allocCoordsPartCoords(mcIdType spaceDim, const std::vector<
 void MEDFileUMeshL2::allocCoordsPartCoords(mcIdType spaceDim, mcIdType nMin, mcIdType nMax, MCAuto<DataArrayDouble>& _coords, MCAuto<PartDefinition>& _part_coords)
 {
   _coords=DataArrayDouble::New();
-  mcIdType nbNodesToLoad(nMax-nMin);
+  mcIdType const nbNodesToLoad(nMax-nMin);
   _coords->alloc(nbNodesToLoad,spaceDim);
 
   _part_coords=PartDefinition::New(nMin,nMax,1);
@@ -798,8 +824,8 @@ void MEDFileUMeshL2::fillPartCoords(med_idt fid, mcIdType spaceDim, const std::s
                                     MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<DataArrayIdType>& _num_coords, MCAuto<DataArrayAsciiChar>& _name_coords)
 {
   med_bool changement,transformation;
-  med_int nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
-  mcIdType nbNodesToLoad = partCoords->getNumberOfElems();
+  med_int const nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  mcIdType const nbNodesToLoad = partCoords->getNumberOfElems();
 
   // Based on the ids in \a partCoords, defining the appropriate med_filter (filter of block if the ids form a slice, a generic filter otherwise)
   {
@@ -906,7 +932,7 @@ void MEDFileUMeshL2::loadPartCoordsSlice(med_idt fid, const std::vector<std::str
       mcIdType partStart,partStop;
       DataArray::GetSlice(nMin,nMax,1,ipart,nbOfCoordLS,partStart,partStop);
       MCAuto<DataArrayIdType> idsNodeIdsToKeep(nodeIds->findIdsInRange(partStart,partStop));
-      MCAuto<DataArrayIdType> nodeIdsToKeep( nodeIds->selectByTupleIdSafe(idsNodeIdsToKeep->begin(),idsNodeIdsToKeep->end()) );
+      MCAuto<DataArrayIdType> const nodeIdsToKeep( nodeIds->selectByTupleIdSafe(idsNodeIdsToKeep->begin(),idsNodeIdsToKeep->end()) );
       LoadPartCoordsArray(fid,infosOnComp,mName,dt,it,nodeIdsToKeep,coords[ipart],famCoords[ipart],numCoords[ipart],nameCoords[ipart]);
     }
   _coords = DataArrayDouble::Aggregate(ToConstVect<DataArrayDouble>(coords));
@@ -927,25 +953,25 @@ void MEDFileUMeshL2::loadPartCoordsSlice(med_idt fid, const std::vector<std::str
 void MEDFileUMeshL2::sortTypes()
 {
   std::set<int> mdims;
-  std::vector< MCAuto<MEDFileUMeshPerType> > tmp(_per_type_mesh[0]);
+  std::vector< MCAuto<MEDFileUMeshPerType> > const tmp(_per_type_mesh[0]);
   _per_type_mesh.clear();
-  for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it=tmp.begin();it!=tmp.end();it++)
-    mdims.insert((*it)->getDim());
+  for(const auto & it : tmp)
+    mdims.insert(it->getDim());
   if(mdims.empty())
     return;
-  int mdim=*mdims.rbegin();
+  int const mdim=*mdims.rbegin();
   _per_type_mesh.resize(mdim+1);
   for(int dim=mdim+1;dim!=0;dim--)
     {
       std::vector< MCAuto<MEDFileUMeshPerType> >& elt=_per_type_mesh[mdim+1-dim];
-      for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it=tmp.begin();it!=tmp.end();it++)
-        if((*it)->getDim()==dim-1)
-          elt.push_back(*it);
+      for(const auto & it : tmp)
+        if(it->getDim()==dim-1)
+          elt.push_back(it);
     }
   // suppression of contiguous empty levels at the end of _per_type_mesh.
   int nbOfUselessLev=0;
   bool isFirst=true;
-  for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::reverse_iterator it2=_per_type_mesh.rbegin();it2!=_per_type_mesh.rend();it2++)
+  for(auto it2=_per_type_mesh.rbegin();it2!=_per_type_mesh.rend();it2++)
     {
       if((*it2).empty() && isFirst)
         {
@@ -982,24 +1008,24 @@ void MEDFileUMeshL2::WriteCoords(med_idt fid, const std::string& mname, int dt, 
 
 bool MEDFileUMeshL2::isFamDefinedOnLev(int levId) const
 {
-  for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it=_per_type_mesh[levId].begin();it!=_per_type_mesh[levId].end();it++)
-    if((*it)->getFam()==0)
+  for(const auto & it : _per_type_mesh[levId])
+    if(it->getFam()==nullptr)
       return false;
   return true;
 }
 
 bool MEDFileUMeshL2::isNumDefinedOnLev(int levId) const
 {
-  for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it=_per_type_mesh[levId].begin();it!=_per_type_mesh[levId].end();it++)
-    if((*it)->getNum()==0)
+  for(const auto & it : _per_type_mesh[levId])
+    if(it->getNum()==nullptr)
       return false;
   return true;
 }
 
 bool MEDFileUMeshL2::isNamesDefinedOnLev(int levId) const
 {
-  for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it=_per_type_mesh[levId].begin();it!=_per_type_mesh[levId].end();it++)
-    if((*it)->getNames()==0)
+  for(const auto & it : _per_type_mesh[levId])
+    if(it->getNames()==nullptr)
       return false;
   return true;
 }
@@ -1030,9 +1056,9 @@ void MEDFileCMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const 
   _cmesh=MEDCouplingCMesh::New();
   for(int i=0;i<Mdim;i++)
     {
-      med_data_type dataTypeReq=GetDataTypeCorrespondingToSpaceId(i);
+      med_data_type const dataTypeReq=GetDataTypeCorrespondingToSpaceId(i);
       med_bool chgt=MED_FALSE,trsf=MED_FALSE;
-      med_int nbOfElt(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,dataTypeReq,MED_NO_CMODE,&chgt,&trsf));
+      med_int const nbOfElt(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,dataTypeReq,MED_NO_CMODE,&chgt,&trsf));
       MCAuto<DataArrayDouble> da=DataArrayDouble::New();
       da->alloc(nbOfElt,1);
       da->setInfoOnComponent(0,infosOnComp[i]);
@@ -1057,8 +1083,7 @@ med_data_type MEDFileCMeshL2::GetDataTypeCorrespondingToSpaceId(int id)
 }
 
 MEDFileCLMeshL2::MEDFileCLMeshL2()
-{
-}
+= default;
 
 void MEDFileCLMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const std::string& mName, int dt, int it)
 {
@@ -1067,7 +1092,7 @@ void MEDFileCLMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const
   int Mdim;
   MEDCoupling::MEDCouplingMeshType meshType;
   MEDCoupling::MEDCouplingAxisType dummy3;
-  std::vector<std::string> infosOnComp(getAxisInfoOnMesh(fid,mId,mName,meshType,dummy3,nstep,Mdim));
+  std::vector<std::string> const infosOnComp(getAxisInfoOnMesh(fid,mId,mName,meshType,dummy3,nstep,Mdim));
   if(meshType!=CURVE_LINEAR)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
   _time=mId->checkMeshTimeStep(fid,mName,nstep,dt,it);
@@ -1081,7 +1106,7 @@ void MEDFileCLMeshL2::loadAll(med_idt fid, const MeshOrStructMeshCls *mId, const
   MCAuto<DataArrayIdType> stGrid=FromMedIntArray<mcIdType>(miStGrid);
   _clmesh->setNodeGridStructure(stGrid->begin(),stGrid->end());
   med_bool chgt=MED_FALSE,trsf=MED_FALSE;
-  med_int nbNodes(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&chgt,&trsf));
+  med_int const nbNodes(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&chgt,&trsf));
   MCAuto<DataArrayDouble> da=DataArrayDouble::New();
   da->alloc(nbNodes,infosOnComp.size());
   da->setInfoOnComponents(infosOnComp);
@@ -1099,7 +1124,7 @@ MEDFileUMeshPermCompute::MEDFileUMeshPermCompute(const MEDFileUMeshSplitL1* st):
 MEDFileUMeshPermCompute::operator MEDCouplingUMesh *() const
 {
   _st->_num->updateTime();
-  if((MEDCouplingUMesh *)_m==0)
+  if((MEDCouplingUMesh *)_m==nullptr)
     {
       updateTime();
       _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types.getUmesh()->deepCopy());
@@ -1147,12 +1172,12 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other):RefCo
 {
 }
 
-MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const std::string& mName, int id):_m(this)
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const std::string&  /*mName*/, int id):_m(this)
 {
   const std::vector< MCAuto<MEDFileUMeshPerType> >& v=l2.getLev(id);
   if(v.empty())
     return;
-  std::size_t sz=v.size();
+  std::size_t const sz=v.size();
   std::vector<const MEDCoupling1GTUMesh *> ms(sz);
   std::vector<const DataArrayIdType *> fams(sz),nums(sz);
   std::vector<const DataArrayChar *> names(sz);
@@ -1266,12 +1291,12 @@ void MEDFileUMeshSplitL1::checkConsistency() const
 {
   if (!_fam || _fam->getNumberOfTuples() != getSize())
     throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::checkConsistency(): internal family array has an invalid size!");
-  mcIdType nbCells = getSize();
+  mcIdType const nbCells = getSize();
   if (_num)
     {
       _num->checkNbOfTuplesAndComp(nbCells,1,"MEDFileUMeshSplitL1::checkConsistency(): inconsistent internal node numbering array!");
       mcIdType pos;
-      mcIdType maxValue=_num->getMaxValue(pos);
+      mcIdType const maxValue=_num->getMaxValue(pos);
       if (!_rev_num || _rev_num->getNumberOfTuples() != (maxValue+1))
         throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::checkConsistency(): inconsistent internal revert node numbering array!");
     }
@@ -1291,7 +1316,7 @@ bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, 
     return false;
   const DataArrayIdType *d1=_fam;
   const DataArrayIdType *d2=other->_fam;
-  if((d1==0 && d2!=0) || (d1!=0 && d2==0))
+  if((d1==nullptr && d2!=nullptr) || (d1!=nullptr && d2==nullptr))
     {
       what="Presence of family arr in one sublevel and not in other!";
       return false;
@@ -1304,7 +1329,7 @@ bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, 
       }
   d1=_num;
   d2=other->_num;
-  if((d1==0 && d2!=0) || (d1!=0 && d2==0))
+  if((d1==nullptr && d2!=nullptr) || (d1!=nullptr && d2==nullptr))
     {
       what="Presence of cell numbering arr in one sublevel and not in other!";
       return false;
@@ -1317,7 +1342,7 @@ bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, 
       }
   const DataArrayAsciiChar *e1=_names;
   const DataArrayAsciiChar *e2=other->_names;
-  if((e1==0 && e2!=0) || (e1!=0 && e2==0))
+  if((e1==nullptr && e2!=nullptr) || (e1!=nullptr && e2==nullptr))
     {
       what="Presence of cell names arr in one sublevel and not in other!";
       return false;
@@ -1430,10 +1455,10 @@ int MEDFileUMeshSplitL1::getMeshDimension() const
 void MEDFileUMeshSplitL1::simpleRepr(std::ostream& oss) const
 {
   std::vector<mcIdType> code=_m_by_types.getDistributionOfTypes();
-  std::size_t nbOfTypes=code.size()/3;
+  std::size_t const nbOfTypes=code.size()/3;
   for(std::size_t i=0;i<nbOfTypes;i++)
     {
-      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType) code[3*i];
+      auto typ=(INTERP_KERNEL::NormalizedCellType) code[3*i];
       oss << "    - Number of cells with type " << INTERP_KERNEL::CellModel::GetCellModel(typ).getRepr() << " : " << code[3*i+1] << std::endl;
     }
 }
@@ -1446,7 +1471,7 @@ mcIdType MEDFileUMeshSplitL1::getSize() const
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const mcIdType *idsBg, const mcIdType *idsEnd, bool renum) const
 {
   MCAuto<DataArrayIdType> eltsToKeep=_fam->findIdsEqualList(idsBg,idsEnd);
-  MEDCouplingUMesh *m=(MEDCouplingUMesh *)_m_by_types.getUmesh()->buildPartOfMySelf(eltsToKeep->begin(),eltsToKeep->end(),true);
+  auto *m=(MEDCouplingUMesh *)_m_by_types.getUmesh()->buildPartOfMySelf(eltsToKeep->begin(),eltsToKeep->end(),true);
   if(renum)
     return renumIfNeeded(m,eltsToKeep->begin());
   return m;
@@ -1489,7 +1514,7 @@ DataArrayIdType *MEDFileUMeshSplitL1::extractFamilyFieldOnGeoType(INTERP_KERNEL:
 {
   const DataArrayIdType *fam(_fam);
   if(!fam)
-    return 0;
+    return nullptr;
   mcIdType start(0),stop(0);
   _m_by_types.getStartStopOfGeoTypeWithoutComputation(gt,start,stop);
   return fam->selectByTupleIdSafeSlice(start,stop,1);
@@ -1499,7 +1524,7 @@ DataArrayIdType *MEDFileUMeshSplitL1::extractNumberFieldOnGeoType(INTERP_KERNEL:
 {
   const DataArrayIdType *num(_num);
   if(!num)
-    return 0;
+    return nullptr;
   mcIdType start(0),stop(0);
   _m_by_types.getStartStopOfGeoTypeWithoutComputation(gt,start,stop);
   return num->selectByTupleIdSafeSlice(start,stop,1);
@@ -1509,7 +1534,7 @@ DataArrayIdType *MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField()
 {
   if((DataArrayIdType *)_fam)
     return _fam;
-  mcIdType nbOfTuples=_m_by_types.getSize();
+  mcIdType const nbOfTuples=_m_by_types.getSize();
   _fam=DataArrayIdType::New(); _fam->alloc(nbOfTuples,1); _fam->fillWithZero();
   return _fam;
 }
@@ -1548,15 +1573,15 @@ void MEDFileUMeshSplitL1::eraseFamilyField()
  * This method ignores _m and _m_by_types.
  */
 void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,mcIdType>& familyIds,
-                                               std::map<std::string, std::vector<std::string> >& groups)
+                                               std::map<std::string, std::vector<std::string> >&  /*groups*/)
 {
   std::vector< DataArrayIdType * > corr;
   _m=MEDCouplingUMesh::FuseUMeshesOnSameCoords(ms,0,corr);
-  std::vector< MCAuto<DataArrayIdType> > corrMSafe(corr.begin(),corr.end());
+  std::vector< MCAuto<DataArrayIdType> > const corrMSafe(corr.begin(),corr.end());
   std::vector< std::vector<mcIdType> > fidsOfGroups;
-  std::vector< const DataArrayIdType * > corr2(corr.begin(),corr.end());
+  std::vector< const DataArrayIdType * > const corr2(corr.begin(),corr.end());
   _fam=DataArrayIdType::MakePartition(corr2,((MEDCouplingUMesh *)_m)->getNumberOfCells(),fidsOfGroups);
-  mcIdType nbOfCells=((MEDCouplingUMesh *)_m)->getNumberOfCells();
+  mcIdType const nbOfCells=((MEDCouplingUMesh *)_m)->getNumberOfCells();
   std::map<mcIdType,std::string> newfams;
   std::map<mcIdType,mcIdType> famIdTrad;
   TraduceFamilyNumber(fidsOfGroups,familyIds,famIdTrad,newfams);
@@ -1567,7 +1592,7 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
 
 void MEDFileUMeshSplitL1::checkCoordsConsistency(const DataArrayDouble *coords) const
 {
-  std::vector<MEDCoupling1GTUMesh *> ms(_m_by_types.getParts());
+  std::vector<MEDCoupling1GTUMesh *> const ms(_m_by_types.getParts());
   for(auto mesh : ms)
   {
     if(mesh)
@@ -1578,12 +1603,12 @@ void MEDFileUMeshSplitL1::checkCoordsConsistency(const DataArrayDouble *coords) 
 
 void MEDFileUMeshSplitL1::write(med_idt fid, const std::string& mName, int mdim) const
 {
-  std::vector<MEDCoupling1GTUMesh *> ms(_m_by_types.getParts());
+  std::vector<MEDCoupling1GTUMesh *> const ms(_m_by_types.getParts());
   mcIdType start=0;
-  for(std::vector<MEDCoupling1GTUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
+  for(auto m : ms)
     {
-      mcIdType nbCells=(*it)->getNumberOfCells();
-      mcIdType end=start+nbCells;
+      mcIdType const nbCells=m->getNumberOfCells();
+      mcIdType const end=start+nbCells;
       MCAuto<DataArrayIdType> fam,num;
       MCAuto<DataArrayAsciiChar> names;
       if((const DataArrayIdType *)_fam)
@@ -1592,7 +1617,7 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const std::string& mName, int mdim)
         num=_num->subArray(start,end);
       if((const DataArrayAsciiChar *)_names)
         names=static_cast<DataArrayAsciiChar *>(_names->subArray(start,end));
-      MEDFileUMeshPerType::Write(fid,mName,mdim,(*it),fam,num,names);
+      MEDFileUMeshPerType::Write(fid,mName,mdim,m,fam,num,names);
       start=end;
     }
 }
@@ -1627,10 +1652,10 @@ void MEDFileUMeshSplitL1::setFamilyArr(DataArrayIdType *famArr)
 {
   if(!famArr)
     {
-      _fam=0;
+      _fam=nullptr;
       return ;
     }
-  mcIdType sz(_m_by_types.getSize());
+  mcIdType const sz(_m_by_types.getSize());
   famArr->checkNbOfTuplesAndComp(sz,1,"MEDFileUMeshSplitL1::setFamilyArr : Problem in size of Family arr ! ");
   famArr->incrRef();
   _fam=famArr;
@@ -1645,11 +1670,11 @@ void MEDFileUMeshSplitL1::setRenumArr(DataArrayIdType *renumArr)
 {
   if(!renumArr)
     {
-      _num=0;
-      _rev_num=0;
+      _num=nullptr;
+      _rev_num=nullptr;
       return ;
     }
-  mcIdType sz(_m_by_types.getSize());
+  mcIdType const sz(_m_by_types.getSize());
   renumArr->checkNbOfTuplesAndComp(sz,1,"MEDFileUMeshSplitL1::setRenumArr : Problem in size of numbering arr ! ");
   renumArr->incrRef();
   _num=renumArr;
@@ -1660,10 +1685,10 @@ void MEDFileUMeshSplitL1::setNameArr(DataArrayAsciiChar *nameArr)
 {
   if(!nameArr)
     {
-      _names=0;
+      _names=nullptr;
       return ;
     }
-  mcIdType sz(_m_by_types.getSize());
+  mcIdType const sz(_m_by_types.getSize());
   nameArr->checkNbOfTuplesAndComp(sz,MED_SNAME_SIZE,"MEDFileUMeshSplitL1::setNameArr : Problem in size of name arr ! ");
   nameArr->incrRef();
   _names=nameArr;
@@ -1671,9 +1696,9 @@ void MEDFileUMeshSplitL1::setNameArr(DataArrayAsciiChar *nameArr)
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::Renumber2(const DataArrayIdType *renum, MEDCouplingUMesh *m, const mcIdType *cellIds)
 {
-  if(renum==0)
+  if(renum==nullptr)
     return m;
-  if(cellIds==0)
+  if(cellIds==nullptr)
     m->renumberCells(renum->begin(),true);
   else
     {
@@ -1697,7 +1722,7 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::renumIfNeeded(MEDCouplingUMesh *m, const 
 
 DataArrayIdType *MEDFileUMeshSplitL1::Renumber(const DataArrayIdType *renum, const DataArrayIdType *da)
 {
-  if((const DataArrayIdType *)renum==0)
+  if((const DataArrayIdType *)renum==nullptr)
     {
       da->incrRef();
       return const_cast<DataArrayIdType *>(da);
@@ -1713,8 +1738,8 @@ DataArrayIdType *MEDFileUMeshSplitL1::renumIfNeededArr(const DataArrayIdType *da
 std::vector<mcIdType> MEDFileUMeshSplitL1::GetNewFamiliesNumber(mcIdType nb, const std::map<std::string,mcIdType>& families)
 {
   mcIdType id=-1;
-  for(std::map<std::string,mcIdType>::const_iterator it=families.begin();it!=families.end();it++)
-    id=std::max(id,(*it).second);
+  for(const auto & familie : families)
+    id=std::max(id,familie.second);
   if(id==-1)
     id=0;
   std::vector<mcIdType> ret(nb);
@@ -1723,10 +1748,10 @@ std::vector<mcIdType> MEDFileUMeshSplitL1::GetNewFamiliesNumber(mcIdType nb, con
   return ret;
 }
 
-void MEDFileUMeshSplitL1::TraduceFamilyNumber(const std::vector< std::vector<mcIdType> >& fidsGrps, std::map<std::string,mcIdType>& familyIds,
-                                              std::map<mcIdType,mcIdType>& famIdTrad, std::map<mcIdType,std::string>& newfams)
+void MEDFileUMeshSplitL1::TraduceFamilyNumber(const std::vector< std::vector<mcIdType> >&  /*fidsGrps*/, std::map<std::string,mcIdType>&  /*familyIds*/,
+                                              std::map<mcIdType,mcIdType>&  /*famIdTrad*/, std::map<mcIdType,std::string>&  /*newfams*/)
 {
-  std::set<mcIdType> allfids;
+  std::set<mcIdType> const allfids;
   //tony
 }
 
@@ -1735,7 +1760,7 @@ void MEDFileUMeshSplitL1::computeRevNum() const
   mcIdType pos;
   if(!_num->empty())
   {
-    mcIdType maxValue=_num->getMaxValue(pos);
+    mcIdType const maxValue=_num->getMaxValue(pos);
     _rev_num=_num->invertArrayN2O2O2N(maxValue+1);
   }
   else
@@ -1762,9 +1787,9 @@ void MEDFileUMeshAggregateCompute::setName(const std::string& name)
     }
   if(_mp_time>=_m_time)
     {
-      for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+      for(auto & _m_part : _m_parts)
         {
-          MEDCoupling1GTUMesh *tmp(*it);
+          MEDCoupling1GTUMesh *tmp(_m_part);
           if(tmp)
             tmp->setName(name);
         }
@@ -1773,7 +1798,7 @@ void MEDFileUMeshAggregateCompute::setName(const std::string& name)
 
 void MEDFileUMeshAggregateCompute::assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts)
 {
-  std::size_t sz(mParts.size());
+  std::size_t const sz(mParts.size());
   std::vector< MCAuto<MEDCoupling1GTUMesh> > ret(sz);
   for(std::size_t i=0;i<sz;i++)
     {
@@ -1785,14 +1810,14 @@ void MEDFileUMeshAggregateCompute::assignParts(const std::vector< const MEDCoupl
   _m_parts=ret;
   _part_def.clear(); _part_def.resize(sz);
   _mp_time=std::max(_mp_time,_m_time)+1;
-  _m=0;
+  _m=nullptr;
 }
 
 void MEDFileUMeshAggregateCompute::assignDefParts(const std::vector<const PartDefinition *>& partDefs)
 {
   if(_mp_time<_m_time)
     throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::assignDefParts : the parts require a computation !");
-  std::size_t sz(partDefs.size());
+  std::size_t const sz(partDefs.size());
   if(_part_def.size()!=partDefs.size() || _part_def.size()!=_m_parts.size())
     throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::assignDefParts : sizes of vectors of part definition mismatch !");
   for(std::size_t i=0;i<sz;i++)
@@ -1828,8 +1853,8 @@ mcIdType MEDFileUMeshAggregateCompute::getNumberOfCells() const
   if(_mp_time<=_m_time)
     return _m->getNumberOfCells();
   mcIdType ret(0);
-  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
-    ret+=(*it)->getNumberOfCells();
+  for(const auto & _m_part : _m_parts)
+    ret+=_m_part->getNumberOfCells();
   return ret;
 }
 
@@ -1837,7 +1862,7 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshAggregateCompute::get
 {
   if(_mp_time>=_m_time)
     {
-      std::size_t sz(_m_parts.size());
+      std::size_t const sz(_m_parts.size());
       std::vector<INTERP_KERNEL::NormalizedCellType> ret(sz);
       for(std::size_t i=0;i<sz;i++)
         ret[i]=_m_parts[i]->getCellModelEnum();
@@ -1851,9 +1876,9 @@ mcIdType MEDFileUMeshAggregateCompute::getNumberOfCellsWithType(INTERP_KERNEL::N
 {
   if(_mp_time>=_m_time)
     {
-      for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+      for(const auto & _m_part : _m_parts)
         {
-          const MEDCoupling1GTUMesh *elt(*it);
+          const MEDCoupling1GTUMesh *elt(_m_part);
           if(elt && elt->getCellModelEnum()==ct)
             return elt->getNumberOfCells();
         }
@@ -1898,7 +1923,7 @@ void MEDFileUMeshAggregateCompute::highlightUsedNodes(std::vector<bool>& nodesTo
 MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::retrievePartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const
 {
   std::vector<MEDCoupling1GTUMesh *> v(retrievePartsWithoutComputation());
-  std::size_t sz(v.size());
+  std::size_t const sz(v.size());
   for(std::size_t i=0;i<sz;i++)
     {
       if(v[i])
@@ -1912,7 +1937,7 @@ void MEDFileUMeshAggregateCompute::getStartStopOfGeoTypeWithoutComputation(INTER
 {
   start=0; stop=0;
   std::vector<MEDCoupling1GTUMesh *> v(retrievePartsWithoutComputation());
-  std::size_t sz(v.size());
+  std::size_t const sz(v.size());
   for(std::size_t i=0;i<sz;i++)
     {
       if(v[i])
@@ -1933,9 +1958,9 @@ void MEDFileUMeshAggregateCompute::renumberNodesInConnWithoutComputation(const m
 {
   if(_mp_time>_m_time)
     {
-      for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+      for(auto & _m_part : _m_parts)
         {
-          MEDCoupling1GTUMesh *m(*it);
+          MEDCoupling1GTUMesh *m(_m_part);
           if(m)
             m->renumberNodesInConn(newNodeNumbersO2N);
         }
@@ -1963,8 +1988,8 @@ void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
         return ;// no needs to compte parts they are already here !
     }
   std::vector<MEDCouplingUMesh *> ms(m->splitByType());
-  std::vector< MCAuto<MEDCouplingUMesh> > msMSafe(ms.begin(),ms.end());
-  std::size_t sz(msMSafe.size());
+  std::vector< MCAuto<MEDCouplingUMesh> > const msMSafe(ms.begin(),ms.end());
+  std::size_t const sz(msMSafe.size());
   _m_parts.resize(sz);
   for(std::size_t i=0;i<sz;i++)
     _m_parts[i]=MEDCoupling1GTUMesh::New(ms[i]);
@@ -1985,7 +2010,7 @@ const PartDefinition *MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputati
     throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation : the parts require a computation !");
   if(_m_parts.size()!=_part_def.size())
     throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation : size of arrays are expected to be the same !");
-  std::size_t sz(_m_parts.size());
+  std::size_t const sz(_m_parts.size());
   for(std::size_t i=0;i<sz;i++)
     {
       const MEDCoupling1GTUMesh *mesh(_m_parts[i]);
@@ -2000,7 +2025,7 @@ void MEDFileUMeshAggregateCompute::serialize(std::vector<mcIdType>& tinyInt, std
 {
   if(_mp_time<_m_time)
     throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::serialize : the parts require a computation !");
-  std::size_t sz(_m_parts.size());
+  std::size_t const sz(_m_parts.size());
   tinyInt.push_back((mcIdType)sz);
   for(std::size_t i=0;i<sz;i++)
     {
@@ -2008,14 +2033,14 @@ void MEDFileUMeshAggregateCompute::serialize(std::vector<mcIdType>& tinyInt, std
       if(!mesh)
         throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::serialize : one part is empty !");
       tinyInt.push_back(mesh->getCellModelEnum());
-      const MEDCoupling1SGTUMesh *mesh1(dynamic_cast<const MEDCoupling1SGTUMesh *>(mesh));
-      const MEDCoupling1DGTUMesh *mesh2(dynamic_cast<const MEDCoupling1DGTUMesh *>(mesh));
+      const auto *mesh1(dynamic_cast<const MEDCoupling1SGTUMesh *>(mesh));
+      const auto *mesh2(dynamic_cast<const MEDCoupling1DGTUMesh *>(mesh));
       if(mesh1)
         {
           DataArrayIdType *elt(mesh1->getNodalConnectivity());
           if(elt)
             elt->incrRef();
-          MCAuto<DataArrayIdType> elt1(elt);
+          MCAuto<DataArrayIdType> const elt1(elt);
           bigArraysI.push_back(elt1);
         }
       else if(mesh2)
@@ -2045,16 +2070,16 @@ void MEDFileUMeshAggregateCompute::serialize(std::vector<mcIdType>& tinyInt, std
 
 void MEDFileUMeshAggregateCompute::unserialize(const std::string& name, DataArrayDouble *coo, std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI)
 {
-  mcIdType nbParts(tinyInt.back()); tinyInt.pop_back();
+  mcIdType const nbParts(tinyInt.back()); tinyInt.pop_back();
   _part_def.clear(); _part_def.resize(nbParts);
   _m_parts.clear(); _m_parts.resize(nbParts);
   for(mcIdType i=0;i<nbParts;i++)
     {
-      INTERP_KERNEL::NormalizedCellType tp((INTERP_KERNEL::NormalizedCellType) tinyInt.back()); tinyInt.pop_back();
+      auto tp((INTERP_KERNEL::NormalizedCellType) tinyInt.back()); tinyInt.pop_back();
       MCAuto<MEDCoupling1GTUMesh> mesh(MEDCoupling1GTUMesh::New(name,tp));
       mesh->setCoords(coo);
-      MEDCoupling1SGTUMesh *mesh1(dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh *) mesh));
-      MEDCoupling1DGTUMesh *mesh2(dynamic_cast<MEDCoupling1DGTUMesh *>((MEDCoupling1GTUMesh *) mesh));
+      auto *mesh1(dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh *) mesh));
+      auto *mesh2(dynamic_cast<MEDCoupling1DGTUMesh *>((MEDCoupling1GTUMesh *) mesh));
       if(mesh1)
         {
           mesh1->setNodalConnectivity(bigArraysI.back()); bigArraysI.pop_back();
@@ -2069,7 +2094,7 @@ void MEDFileUMeshAggregateCompute::unserialize(const std::string& name, DataArra
       else
         throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::unserialize : unrecognized single geo type mesh !");
       _m_parts[i]=mesh;
-      mcIdType pdid(tinyInt.back()); tinyInt.pop_back();
+      mcIdType const pdid(tinyInt.back()); tinyInt.pop_back();
       if(pdid!=-1)
         _part_def[i]=PartDefinition::Unserialize(tinyInt,bigArraysI);
       _mp_time=std::max(_mp_time,_m_time)+1;
@@ -2096,9 +2121,9 @@ std::size_t MEDFileUMeshAggregateCompute::getTimeOfThis() const
 std::size_t MEDFileUMeshAggregateCompute::getTimeOfParts() const
 {
   std::size_t ret(0);
-  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+  for(const auto & _m_part : _m_parts)
     {
-      const MEDCoupling1GTUMesh *elt(*it);
+      const MEDCoupling1GTUMesh *elt(_m_part);
       if(!elt)
         throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getTimeOfParts : null obj in parts !");
       ret=std::max(ret,elt->getTimeOfThis());
@@ -2118,15 +2143,15 @@ std::size_t MEDFileUMeshAggregateCompute::getTimeOfUMesh() const
 
 std::size_t MEDFileUMeshAggregateCompute::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret(_m_parts.size()*sizeof(MCAuto<MEDCoupling1GTUMesh>));
+  std::size_t const ret(_m_parts.size()*sizeof(MCAuto<MEDCoupling1GTUMesh>));
   return ret;
 }
 
 std::vector<const BigMemoryObject *> MEDFileUMeshAggregateCompute::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
-    ret.push_back((const MEDCoupling1GTUMesh *)*it);
+  for(const auto & _m_part : _m_parts)
+    ret.push_back((const MEDCoupling1GTUMesh *)_m_part);
   ret.push_back((const MEDCouplingUMesh *)_m);
   return ret;
 }
@@ -2150,7 +2175,7 @@ MEDFileUMeshAggregateCompute MEDFileUMeshAggregateCompute::deepCopy(DataArrayDou
       ret._m=static_cast<MEDCoupling::MEDCouplingUMesh*>(_m->deepCopy());
       ret._m->setCoords(coords);
     }
-  std::size_t sz(_part_def.size());
+  std::size_t const sz(_part_def.size());
   ret._part_def.clear(); ret._part_def.resize(sz);
   for(std::size_t i=0;i<sz;i++)
     {
@@ -2163,13 +2188,13 @@ MEDFileUMeshAggregateCompute MEDFileUMeshAggregateCompute::deepCopy(DataArrayDou
 
 void MEDFileUMeshAggregateCompute::shallowCpyMeshes()
 {
-  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+  for(auto & _m_part : _m_parts)
     {
-      const MEDCoupling1GTUMesh *elt(*it);
+      const MEDCoupling1GTUMesh *elt(_m_part);
       if(elt)
         {
           MCAuto<MEDCouplingMesh> elt2(elt->clone(false));
-          *it=DynamicCastSafe<MEDCouplingMesh,MEDCoupling1GTUMesh>(elt2);
+          _m_part=DynamicCastSafe<MEDCouplingMesh,MEDCoupling1GTUMesh>(elt2);
         }
     }
   const MEDCouplingUMesh *m(_m);
@@ -2181,7 +2206,7 @@ bool MEDFileUMeshAggregateCompute::isEqual(const MEDFileUMeshAggregateCompute& o
 {
   const MEDCouplingUMesh *m1(getUmesh());
   const MEDCouplingUMesh *m2(other.getUmesh());
-  if((m1==0 && m2!=0) || (m1!=0 && m2==0))
+  if((m1==nullptr && m2!=nullptr) || (m1!=nullptr && m2==nullptr))
     {
       what="Presence of mesh in one sublevel and not in other!";
       return false;
@@ -2195,7 +2220,7 @@ bool MEDFileUMeshAggregateCompute::isEqual(const MEDFileUMeshAggregateCompute& o
           return false;
         }
     }
-  std::size_t sz(_part_def.size());
+  std::size_t const sz(_part_def.size());
   if(sz!=other._part_def.size())
     {
       what=std::string("number of subdivision per geo type for part definition is not the same !");
@@ -2211,7 +2236,7 @@ bool MEDFileUMeshAggregateCompute::isEqual(const MEDFileUMeshAggregateCompute& o
           what=std::string("a cell part def is defined only for one among this or other !");
           return false;
         }
-      bool ret(pd0->isEqual(pd1,what));
+      bool const ret(pd0->isEqual(pd1,what));
       if(!ret)
         return false;
     }
@@ -2221,25 +2246,24 @@ bool MEDFileUMeshAggregateCompute::isEqual(const MEDFileUMeshAggregateCompute& o
 void MEDFileUMeshAggregateCompute::checkConsistency() const
 {
   if(_mp_time >= _m_time)
-    for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();
-        it!=_m_parts.end(); it++)
-      (*it)->checkConsistency();
+    for(const auto & _m_part : _m_parts)
+      _m_part->checkConsistency();
   else
     _m->checkConsistency();
 }
 
 void MEDFileUMeshAggregateCompute::clearNonDiscrAttributes() const
 {
-  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
-    MEDFileUMeshSplitL1::ClearNonDiscrAttributes(*it);
+  for(const auto & _m_part : _m_parts)
+    MEDFileUMeshSplitL1::ClearNonDiscrAttributes(_m_part);
   MEDFileUMeshSplitL1::ClearNonDiscrAttributes(_m);
 }
 
 void MEDFileUMeshAggregateCompute::synchronizeTinyInfo(const MEDFileMesh& master) const
 {
-  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+  for(const auto & _m_part : _m_parts)
     {
-      const MEDCoupling1GTUMesh *tmp(*it);
+      const MEDCoupling1GTUMesh *tmp(_m_part);
       if(tmp)
         {
           (const_cast<MEDCoupling1GTUMesh *>(tmp))->setName(master.getName().c_str());
@@ -2261,7 +2285,7 @@ void MEDFileUMeshAggregateCompute::synchronizeTinyInfo(const MEDFileMesh& master
 bool MEDFileUMeshAggregateCompute::empty() const
 {
   if(_mp_time<_m_time)
-    return ((const MEDCouplingUMesh *)_m)==0;
+    return ((const MEDCouplingUMesh *)_m)==nullptr;
   //else _mp_time>=_m_time)
   return _m_parts.empty();
 }
@@ -2298,9 +2322,9 @@ std::vector<mcIdType> MEDFileUMeshAggregateCompute::getDistributionOfTypes() con
   else
     {
       std::vector<mcIdType> ret;
-      for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+      for(const auto & _m_part : _m_parts)
         {
-          const MEDCoupling1GTUMesh *tmp(*it);
+          const MEDCoupling1GTUMesh *tmp(_m_part);
           if(!tmp)
             throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getDistributionOfTypes : part mesh contains null instance !");
           std::vector<mcIdType> ret0(tmp->getDistributionOfTypes());
@@ -2322,9 +2346,9 @@ mcIdType MEDFileUMeshAggregateCompute::getSize() const
   else
     {
       mcIdType ret=0;
-      for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+      for(const auto & _m_part : _m_parts)
         {
-          const MEDCoupling1GTUMesh *m(*it);
+          const MEDCoupling1GTUMesh *m(_m_part);
           if(!m)
             throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getSize : part mesh contains null instance !");
           ret+=m->getNumberOfCells();
@@ -2335,11 +2359,11 @@ mcIdType MEDFileUMeshAggregateCompute::getSize() const
 
 void MEDFileUMeshAggregateCompute::setCoords(DataArrayDouble *coords)
 {
-  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+  for(auto & _m_part : _m_parts)
     {
-      MEDCoupling1GTUMesh *tmp(*it);
+      MEDCoupling1GTUMesh *tmp(_m_part);
       if(tmp)
-        (*it)->setCoords(coords);
+        _m_part->setCoords(coords);
     }
   MEDCouplingUMesh *m(_m);
   if(m)
@@ -2361,8 +2385,8 @@ std::vector<const MEDCoupling::BigMemoryObject*> MEDFileEltStruct4Mesh::getDirec
   std::vector<const MEDCoupling::BigMemoryObject*> ret;
   ret.push_back(_conn);
   ret.push_back(_common);
-  for(std::vector< MCAuto<DataArray> >::const_iterator it=_vars.begin();it!=_vars.end();it++)
-    ret.push_back(*it);
+  for(const auto & _var : _vars)
+    ret.push_back(_var);
   return ret;
 }
 
@@ -2380,7 +2404,7 @@ MEDFileEltStruct4Mesh::MEDFileEltStruct4Mesh(med_idt fid, const std::string& mNa
   }
   MCAuto<MEDFileMeshSupports> mss(MEDFileMeshSupports::New(fid));
   MCAuto<MEDFileStructureElements> mse(MEDFileStructureElements::New(fid,mss));
-  mcIdType nbEntities(mse->getNumberOfNodesPerSE(_geo_type_name));
+  mcIdType const nbEntities(mse->getNumberOfNodesPerSE(_geo_type_name));
   MCAuto<DataArrayMedInt> miConn=DataArrayMedInt::New(); miConn->alloc(nCells*nbEntities);
   MEDFILESAFECALLERRD0(MEDmeshElementConnectivityRd,(fid,mName.c_str(),dt,it,MED_STRUCT_ELEMENT,_geo_type,MED_NODAL,MED_FULL_INTERLACE,miConn->getPointer()));
   _conn=FromMedIntArray<mcIdType>(miConn);
@@ -2389,7 +2413,7 @@ MEDFileEltStruct4Mesh::MEDFileEltStruct4Mesh(med_idt fid, const std::string& mNa
   _common=MEDFileUMeshPerTypeCommon::New();
   _common->loadCommonPart(fid,mName.c_str(),dt,it,nCells,geoType,MED_STRUCT_ELEMENT,mrs);
   std::vector<std::string> vns(mse->getVarAttsOf(_geo_type_name));
-  std::size_t sz(vns.size());
+  std::size_t const sz(vns.size());
   _vars.resize(sz);
   for(std::size_t i=0;i<sz;i++)
     {

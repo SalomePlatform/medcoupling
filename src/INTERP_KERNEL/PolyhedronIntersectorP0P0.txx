@@ -21,9 +21,12 @@
 #define __POLYHEDRONINTERSECTORP0P0_TXX__
 
 #include "PolyhedronIntersectorP0P0.hxx"
-#include "Intersector3DP0P0.txx"
-#include "MeshUtils.hxx"
 
+#include <vector>
+
+#include "NormalizedGeometricTypes"
+#include "Intersector3DP0P0.txx"
+#include "InterpolationUtils.hxx"
 #include "SplitterTetra.txx"
 
 namespace INTERP_KERNEL

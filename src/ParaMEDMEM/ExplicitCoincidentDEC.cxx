@@ -17,15 +17,20 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include <cstddef>
+#include <iostream>
 #include <mpi.h>
+#include <utility>
 #include "CommInterface.hxx"
+#include "ExplicitTopology.hxx"
+#include "MCType.hxx"
+#include "ParaIdType.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "Topology.hxx"
-#include "BlockTopology.hxx"
 #include "ComponentTopology.hxx"
 #include "ParaFIELD.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "ExplicitCoincidentDEC.hxx"
-#include "ExplicitMapping.hxx"
 #include "InterpKernelUtilities.hxx"
 
 using namespace std;
@@ -89,18 +94,17 @@ namespace MEDCoupling
   /*! Constructor
    */
   ExplicitCoincidentDEC::ExplicitCoincidentDEC():
-      _toposource(0),_topotarget(0),
-      _targetgroup(0), _sourcegroup(0),
-      _sendcounts(0), _recvcounts(0),
-      _senddispls(0), _recvdispls(0),
-      _recvbuffer(0), _sendbuffer(0),
+      _toposource(nullptr),_topotarget(nullptr),
+      _targetgroup(nullptr), _sourcegroup(nullptr),
+      _sendcounts(nullptr), _recvcounts(nullptr),
+      _senddispls(nullptr), _recvdispls(nullptr),
+      _recvbuffer(nullptr), _sendbuffer(nullptr),
       _distant_elems(), _explicit_mapping()
   {  
   }
 
   ExplicitCoincidentDEC::~ExplicitCoincidentDEC()
-  {
-  }
+  = default;
 
   /*! Synchronization process for exchanging topologies
    */
@@ -137,15 +141,15 @@ namespace MEDCoupling
   
     if (!_toposource->getProcGroup()->containsMyRank())
       return;
-    MPIProcessorGroup* group=new MPIProcessorGroup(_sourcegroup->getCommInterface());
+    auto* group=new MPIProcessorGroup(_sourcegroup->getCommInterface());
   
     // Warning : the size of the target side is implicitly deduced
     //from the size of MPI_COMM_WORLD
-    int target_size = _toposource->getProcGroup()->getCommInterface().worldSize()- _toposource->getProcGroup()->size()  ;
+    int const target_size = _toposource->getProcGroup()->getCommInterface().worldSize()- _toposource->getProcGroup()->size()  ;
   
     vector<int>* target_arrays=new vector<int>[target_size];
   
-    mcIdType nb_local = _toposource-> getNbLocalElements();
+    mcIdType const nb_local = _toposource-> getNbLocalElements();
 
     std::size_t union_size=group->size();
   
@@ -186,7 +190,7 @@ namespace MEDCoupling
   
     for (int ielem=0; ielem<nb_local; ielem++)
       {
-        int ncomp = _toposource->getNbComponents();
+        int const ncomp = _toposource->getNbComponents();
         for (int icomp=0; icomp<ncomp; icomp++)
           {
             _sendbuffer[ielem*ncomp+icomp]=value[bufferindex[ielem]*ncomp+icomp];
@@ -203,10 +207,10 @@ namespace MEDCoupling
   {
     if (!_topotarget->getProcGroup()->containsMyRank())
       return;
-    MPIProcessorGroup* group=new MPIProcessorGroup(_topotarget->getProcGroup()->getCommInterface());
+    auto* group=new MPIProcessorGroup(_topotarget->getProcGroup()->getCommInterface());
 
     vector < vector <mcIdType> > source_arrays(_sourcegroup->size());
-    mcIdType nb_local = _topotarget-> getNbLocalElements();
+    mcIdType const nb_local = _topotarget-> getNbLocalElements();
     for (mcIdType ielem=0; ielem< nb_local ; ielem++)
       {
         //pair<int,mcIdType> source_local =_distant_elems[ielem];
@@ -228,7 +232,7 @@ namespace MEDCoupling
     for (int iproc=0; iproc < _sourcegroup->size(); iproc++)
       {
         //converts the rank in target to the rank in union communicator
-        int unionrank=group->translateRank(_sourcegroup,iproc);
+        int const unionrank=group->translateRank(_sourcegroup,iproc);
         _recvcounts[unionrank]=(int)(source_arrays[iproc].size()*_topotarget->getNbComponents());
       }
     for (std::size_t i=1; i<union_size; i++)
@@ -249,19 +253,19 @@ namespace MEDCoupling
   {
     MPI_Status status;
   
-    mcIdType* serializer=0;
+    mcIdType* serializer=nullptr;
     mcIdType size;
   
-    MPIProcessorGroup* group=new MPIProcessorGroup(*_comm_interface);
+    auto* group=new MPIProcessorGroup(*_comm_interface);
   
     // The send processors serialize the send topology
     // and send the buffers to the recv procs
-    if (toposend !=0 && toposend->getProcGroup()->containsMyRank())
+    if (toposend !=nullptr && toposend->getProcGroup()->containsMyRank())
       {
         toposend->serialize(serializer, size);
         for (int iproc=0; iproc< group->size(); iproc++)
           {
-            int itarget=iproc;
+            int const itarget=iproc;
             if (!toposend->getProcGroup()->contains(itarget))
               {
                 _comm_interface->send(&size,1,MPI_ID_TYPE, itarget,tag+itarget,*(group->getComm()));
@@ -272,25 +276,25 @@ namespace MEDCoupling
     else
       {
         vector <int> size2(group->size());
-        int myworldrank=group->myRank();
+        int const myworldrank=group->myRank();
         for (int iproc=0; iproc<group->size();iproc++)
           {
-            int isource = iproc;
+            int const isource = iproc;
             if (!toporecv->getProcGroup()->contains(isource))
               {
                 mcIdType nbelem;
                 _comm_interface->recv(&nbelem, 1, MPI_ID_TYPE, isource, tag+myworldrank, *(group->getComm()), &status);
-                mcIdType* buffer = new mcIdType[nbelem];
+                auto* buffer = new mcIdType[nbelem];
                 _comm_interface->recv(buffer, (int)nbelem, MPI_ID_TYPE, isource,tag+myworldrank, *(group->getComm()), &status);        
       
-                ExplicitTopology* topotemp=new ExplicitTopology();
+                auto* topotemp=new ExplicitTopology();
                 topotemp->unserialize(buffer, *_comm_interface);
                 delete[] buffer;
         
                 for (mcIdType ielem=0; ielem<toporecv->getNbLocalElements(); ielem++)
                   {
-                    mcIdType global = toporecv->localToGlobal(ielem);
-                    mcIdType sendlocal=topotemp->globalToLocal(global);
+                    mcIdType const global = toporecv->localToGlobal(ielem);
+                    mcIdType const sendlocal=topotemp->globalToLocal(global);
                     if (sendlocal!=-1)
                       {
                         size2[iproc]++;
@@ -307,13 +311,13 @@ namespace MEDCoupling
   void ExplicitCoincidentDEC::transferMappingToSource()
   {
 
-    MPIProcessorGroup* group=new MPIProcessorGroup(*_comm_interface);
+    auto* group=new MPIProcessorGroup(*_comm_interface);
   
     // sending source->target mapping which is stored by target
     //in _distant_elems from target to source
-    if (_topotarget!=0 && _topotarget->getProcGroup()->containsMyRank())
+    if (_topotarget!=nullptr && _topotarget->getProcGroup()->containsMyRank())
       {
-        int world_size = _topotarget->getProcGroup()->getCommInterface().worldSize()  ;
+        int const world_size = _topotarget->getProcGroup()->getCommInterface().worldSize()  ;
         int* nb_transfer_union=new int[world_size];
         int* dummy_recv=new int[world_size];
         for (int i=0; i<world_size; i++)
@@ -341,7 +345,7 @@ namespace MEDCoupling
           }
         int* recvcounts=new int[world_size];
         int* recvdispls=new int[world_size];
-        int *dummyrecv=0;
+        int *dummyrecv=nullptr;
         for (int i=0; i <world_size; i++)
           {
             recvcounts[i]=0;
@@ -353,7 +357,7 @@ namespace MEDCoupling
     //receiving in the source subdomains the mapping sent by targets
     else
       {
-        int world_size = _toposource->getProcGroup()->getCommInterface().worldSize()  ;
+        int const world_size = _toposource->getProcGroup()->getCommInterface().worldSize()  ;
         int* nb_transfer_union=new int[world_size];
         int* dummy_send=new int[world_size];
         for (int i=0; i<world_size; i++)
@@ -363,11 +367,11 @@ namespace MEDCoupling
         int total_size=0;
         for (int i=0; i< world_size; i++)
           total_size+=nb_transfer_union[i];
-        int nbtarget = _targetgroup->size();
+        int const nbtarget = _targetgroup->size();
         int* targetranks = new int[ nbtarget];
         for (int i=0; i<nbtarget; i++)
           targetranks[i]=group->translateRank(_targetgroup,i);
-        mcIdType* mappingbuffer= new mcIdType [total_size*2];
+        auto* mappingbuffer= new mcIdType [total_size*2];
         int* sendcounts= new int [world_size];
         int* senddispls = new int [world_size];
         int* recvcounts=new int[world_size];
@@ -381,7 +385,7 @@ namespace MEDCoupling
               recvdispls[i]=recvdispls[i-1]+recvcounts[i-1];
           }
 
-        int *dummysend=0;
+        int *dummysend=nullptr;
         for (int i=0; i <world_size; i++)
           {
             sendcounts[i]=0;
@@ -403,14 +407,14 @@ namespace MEDCoupling
                                _recvbuffer, _recvcounts, _recvdispls, MPI_DOUBLE,MPI_COMM_WORLD);
     cout<<"end AllToAll"<<endl;
     mcIdType nb_local = _topotarget->getNbLocalElements();
-    double* value=new double[nb_local*_topotarget->getNbComponents()];
+    auto* value=new double[nb_local*_topotarget->getNbComponents()];
 
     vector<int> counters(_sourcegroup->size());
     counters[0]=0;
     for (int i=0; i<_sourcegroup->size()-1; i++)
       {
-        MPIProcessorGroup* group=new MPIProcessorGroup(*_comm_interface);
-        int worldrank=group->translateRank(_sourcegroup,i);
+        auto* group=new MPIProcessorGroup(*_comm_interface);
+        int const worldrank=group->translateRank(_sourcegroup,i);
         counters[i+1]=counters[i]+_recvcounts[worldrank];
       }
   

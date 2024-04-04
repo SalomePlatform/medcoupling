@@ -20,12 +20,19 @@
 #ifndef __MEDFILEJOINT_HXX__
 #define __MEDFILEJOINT_HXX__
 
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDFileUtilities.hxx"
+#include "MCType.hxx"
 #include "MEDLoaderDefines.hxx"
-#include "MEDFileUtilities.txx"
-#include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 
 #include "NormalizedGeometricTypes"
+#include <string>
+#include <cstddef>
+#include <vector>
+#include "med.h"
+#include <utility>
+#include <ostream>
 
 namespace MEDCoupling
 {
@@ -44,8 +51,8 @@ public:
                                                           INTERP_KERNEL::NormalizedCellType loc_geo_type,
                                                           INTERP_KERNEL::NormalizedCellType rem_geo_type);
   MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileJointCorrespondence"); }
-  MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-  MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+  MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+  MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
   MEDLOADER_EXPORT MEDFileJointCorrespondence *deepCopy() const;
   MEDLOADER_EXPORT MEDFileJointCorrespondence *shallowCpy() const;
   MEDLOADER_EXPORT bool isEqual(const MEDFileJointCorrespondence *other) const;
@@ -84,8 +91,8 @@ public:
   MEDLOADER_EXPORT static MEDFileJointOneStep *New(const std::string& fileName, const std::string& mName, const std::string& jointName, int number=1);
   MEDLOADER_EXPORT static MEDFileJointOneStep *New(med_idt fid, const std::string& mName, const std::string& jointName, int number=1);
   MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileJointOneStep"); }
-  MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-  MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+  MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+  MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
   MEDLOADER_EXPORT MEDFileJointOneStep *deepCopy() const;
   MEDLOADER_EXPORT MEDFileJointOneStep *shallowCpy() const;
   MEDLOADER_EXPORT bool isEqual(const MEDFileJointOneStep *other) const;
@@ -125,8 +132,8 @@ public:
     MEDLOADER_EXPORT static MEDFileJoint *New(med_idt fid, const std::string& mName, int num);
     MEDLOADER_EXPORT static MEDFileJoint *New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum );
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileJoint"); }
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     MEDLOADER_EXPORT MEDFileJoint *deepCopy() const;
     MEDLOADER_EXPORT MEDFileJoint *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileJoint *other) const;
@@ -145,7 +152,7 @@ public:
     MEDLOADER_EXPORT int getNumberOfSteps() const;
     MEDLOADER_EXPORT MEDFileJointOneStep *getStepAtPos(int i) const;
 
-    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const override;
 
     MEDLOADER_EXPORT std::string simpleRepr() const;
   private:
@@ -171,11 +178,11 @@ public:
     MEDLOADER_EXPORT static MEDFileJoints *New(med_idt fid, const std::string& meshName);
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileJoints"); }
     MEDLOADER_EXPORT MEDFileJoints *deepCopy() const;
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT void simpleReprWithoutHeader(std::ostream& oss) const;
-    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const override;
     MEDLOADER_EXPORT std::string getMeshName() const;
     MEDLOADER_EXPORT int getNumberOfJoints() const;
     MEDLOADER_EXPORT MEDFileJoint *getJointAtPos(int i) const;
@@ -188,7 +195,7 @@ public:
     MEDLOADER_EXPORT void setJointAtPos(int i, MEDFileJoint *joint);
     MEDLOADER_EXPORT void destroyJointAtPos(int i);
   private:
-    ~MEDFileJoints() { }
+    ~MEDFileJoints() override = default;
     MEDFileJoints();
     MEDFileJoints(med_idt fid, const std::string& meshName);
   private:

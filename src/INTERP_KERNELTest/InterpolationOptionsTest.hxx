@@ -20,6 +20,7 @@
 #ifndef __TU_INTERPOLATIONOPTIONS_HXX__
 #define __TU_INTERPOLATIONOPTIONS_HXX__
 
+#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "InterpKernelTestExport.hxx"

@@ -19,15 +19,31 @@
 // Author : Anthony Geay
 
 #include "MEDCouplingCartesianAMRMesh.hxx"
+#include "MCIdType.hxx"
+#include "MCType.hxx"
+#include "MCAuto.hxx"
+#include "BoxSplittingOptions.hxx"
 #include "MEDCouplingAMRAttribute.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingIMesh.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingMesh.hxx"
+#include "MEDCouplingStructuredMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdlib>
+#include <functional>
+#include <iterator>
 #include <limits>
+#include <ostream>
 #include <sstream>
-#include <numeric>
+#include <utility>
+#include <string>
+#include <vector>
 
 using namespace MEDCoupling;
 
@@ -162,7 +178,7 @@ bool MEDCouplingCartesianAMRPatch::isInMyNeighborhoodExt(const MEDCouplingCartes
   const MEDCouplingCartesianAMRMeshGen *com(FindCommonAncestor(this,other,lev));//check that factors are OK
   if(lev==0)
     return isInMyNeighborhood(other,ghostLev);
-  std::vector<mcIdType> offset(ComputeOffsetFromTwoToOne(com,lev,this,other));
+  std::vector<mcIdType> const offset(ComputeOffsetFromTwoToOne(com,lev,this,other));
   const std::vector< std::pair<mcIdType,mcIdType> >& thisp(getBLTRRange());
   std::vector< std::pair<mcIdType,mcIdType> > otherp(other->getBLTRRange());
   otherp=MEDCouplingStructuredMesh::TranslateCompactFrmt(otherp,offset);
@@ -202,7 +218,7 @@ std::vector< std::pair<mcIdType,mcIdType> > MEDCouplingCartesianAMRPatch::getBLT
   if(!fath)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::getBLTRRangeRelativeToGF : not valid 2 !");
   std::vector<mcIdType> factors(fath->getFactors());
-  std::size_t sz(ret.size());
+  std::size_t const sz(ret.size());
   for(std::size_t ii=0;ii<sz;ii++)
     {
       ret[ii].first*=factors[ii];
@@ -212,14 +228,14 @@ std::vector< std::pair<mcIdType,mcIdType> > MEDCouplingCartesianAMRPatch::getBLT
   fath=oldFather->getFather();
   while(fath)
     {
-      mcIdType pos(fath->getPatchIdFromChildMesh(oldFather));
+      mcIdType const pos(fath->getPatchIdFromChildMesh(oldFather));
       const MEDCouplingCartesianAMRPatch *p(fath->getPatch(pos));
       const std::vector< std::pair<mcIdType,mcIdType> >& tmp(p->getBLTRRange());
       const std::vector<mcIdType>& factors2(fath->getFactors());
       std::transform(factors.begin(),factors.end(),factors2.begin(),factors.begin(),std::multiplies<mcIdType>());
       for(std::size_t ii=0;ii<sz;ii++)
         {
-          mcIdType delta(ret[ii].second-ret[ii].first);
+          mcIdType const delta(ret[ii].second-ret[ii].first);
           ret[ii].first+=tmp[ii].first*factors[ii];
           ret[ii].second=ret[ii].first+delta;
         }
@@ -246,7 +262,7 @@ std::vector<mcIdType> MEDCouplingCartesianAMRPatch::computeCellGridSt() const
 
 bool MEDCouplingCartesianAMRPatch::IsInMyNeighborhood(mcIdType ghostLev, const std::vector< std::pair<mcIdType,mcIdType> >& p1, const std::vector< std::pair<mcIdType,mcIdType> >& p2)
 {
-  std::size_t thispsize(p1.size());
+  std::size_t const thispsize(p1.size());
   if(thispsize!=p2.size())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhood : the dimensions must be the same !");
   for(std::size_t i=0;i<thispsize;i++)
@@ -281,19 +297,19 @@ std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const M
     {
       std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > retTmp;
       std::vector<const MEDCouplingCartesianAMRPatch *> p1Work2,p2Work2;
-      for(std::vector<const MEDCouplingCartesianAMRPatch *>::const_iterator it1=p1Work.begin();it1!=p1Work.end();it1++)
+      for(auto it1 : p1Work)
         {
-          for(std::vector<const MEDCouplingCartesianAMRPatch *>::const_iterator it2=p2Work.begin();it2!=p2Work.end();it2++)
+          for(auto it2 : p2Work)
             {
-              if((*it1)->isInMyNeighborhoodExt(*it2,ghostLev>0?1:0))//1 not ghostLev ! It is not a bug ( I hope :) ) ! Because as \a this is a refinement of \a other ghostLev is supposed to be <= factors
-                retTmp.push_back(std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *>(*it1,*it2));
+              if(it1->isInMyNeighborhoodExt(it2,ghostLev>0?1:0))//1 not ghostLev ! It is not a bug ( I hope :) ) ! Because as \a this is a refinement of \a other ghostLev is supposed to be <= factors
+                retTmp.push_back(std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *>(it1,it2));
             }
-          std::vector<const MEDCouplingCartesianAMRPatch *> tmp1((*it1)->getMesh()->getPatches());
+          std::vector<const MEDCouplingCartesianAMRPatch *> tmp1(it1->getMesh()->getPatches());
           p1Work2.insert(p1Work2.end(),tmp1.begin(),tmp1.end());
         }
-      for(std::vector<const MEDCouplingCartesianAMRPatch *>::const_iterator it2=p2Work.begin();it2!=p2Work.end();it2++)
+      for(auto it2 : p2Work)
         {
-          std::vector<const MEDCouplingCartesianAMRPatch *> tmp2((*it2)->getMesh()->getPatches());
+          std::vector<const MEDCouplingCartesianAMRPatch *> tmp2(it2->getMesh()->getPatches());
           p2Work2.insert(p2Work2.end(),tmp2.begin(),tmp2.end());
         }
       ret.push_back(retTmp);
@@ -318,11 +334,11 @@ void MEDCouplingCartesianAMRPatch::FindNeighborsOfSubPatchesOf(mcIdType ghostLev
   while(!p1Work.empty())
     {
       std::vector<const MEDCouplingCartesianAMRPatch *> p1Work2;
-      for(std::vector<const MEDCouplingCartesianAMRPatch *>::const_iterator it0=p1Work.begin();it0!=p1Work.end();it0++)
+      for(auto it0 : p1Work)
         {
-          if((*it0)->isInMyNeighborhoodDiffLev(p2,ghostLev))
-            ret.push_back(std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *>(*it0,p2));
-          std::vector<const MEDCouplingCartesianAMRPatch *> tmp2((*it0)->getMesh()->getPatches());
+          if(it0->isInMyNeighborhoodDiffLev(p2,ghostLev))
+            ret.push_back(std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *>(it0,p2));
+          std::vector<const MEDCouplingCartesianAMRPatch *> tmp2(it0->getMesh()->getPatches());
           p1Work2.insert(p1Work2.end(),tmp2.begin(),tmp2.end());
         }
       p1Work=p1Work2;
@@ -352,7 +368,7 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoExt(mcIdType ghost
   std::vector< std::pair<mcIdType,mcIdType> > p2BLTR(p2->getBLTRRange());//p2BLTR=[(0,1),(0,5)]
   mcIdType lev(0);
   const MEDCouplingCartesianAMRMeshGen *ca(FindCommonAncestor(p1,p2,lev));
-  std::vector<mcIdType> offset(ComputeOffsetFromTwoToOne(ca,lev,p1,p2));//[12,4]
+  std::vector<mcIdType> const offset(ComputeOffsetFromTwoToOne(ca,lev,p1,p2));//[12,4]
   p2BLTR=MEDCouplingStructuredMesh::TranslateCompactFrmt(p2BLTR,offset);//p2BLTR=[(12,13),(4,9)]
   UpdateNeighborsOfOneWithTwoInternal(ghostLev,p1->getMesh()->getFather()->getFactors(),p1BLTR,p2BLTR,dataOnP1,dataOnP2);
 }
@@ -369,14 +385,14 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(mcIdType 
   std::vector<mcIdType> dimsP2NotRefined(p2->computeCellGridSt());
   std::vector<mcIdType> dimsP2Refined(dimsP2NotRefined);
   std::transform(dimsP2NotRefined.begin(),dimsP2NotRefined.end(),factors.begin(),dimsP2Refined.begin(),std::multiplies<mcIdType>());
-  std::vector< std::pair<mcIdType,mcIdType> > p2RefinedAbs(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsP2NotRefined));
+  std::vector< std::pair<mcIdType,mcIdType> > const p2RefinedAbs(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsP2NotRefined));
   std::vector<mcIdType> dimsP2RefinedGhost(dimsP2Refined.size());
   std::transform(dimsP2Refined.begin(),dimsP2Refined.end(),dimsP2RefinedGhost.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,2*ghostLev));
   MCAuto<DataArrayDouble> fineP2(DataArrayDouble::New()); fineP2->alloc(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(dimsP2RefinedGhost),dataOnP2->getNumberOfComponents());
   MEDCouplingIMesh::SpreadCoarseToFineGhost(dataOnP2,dimsP2NotRefined,fineP2,p2RefinedAbs,factors,ghostLev);
   if(isConservative)
     {
-      mcIdType fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(factors));
+      mcIdType const fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(factors));
       std::transform(fineP2->begin(),fineP2->end(),fineP2->getPointer(),std::bind(std::multiplies<double>(),std::placeholders::_1,1./((double)fact)));
     }
   //
@@ -388,10 +404,10 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(mcIdType 
  * This method has 3 outputs. 2 two first are the resp the position of \a p1 and \a p2 relative to \a p1. And \a factToApplyOn2 is the coeff of refinement to be applied on \a p2 to be virtually
  * on the same level as \a p1.
  */
-void MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev(mcIdType ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, std::vector< std::pair<mcIdType,mcIdType> >& p1Zone, std::vector< std::pair<mcIdType,mcIdType> >& p2Zone, std::vector<mcIdType>& factToApplyOn2)
+void MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev(mcIdType  /*ghostLev*/, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, std::vector< std::pair<mcIdType,mcIdType> >& p1Zone, std::vector< std::pair<mcIdType,mcIdType> >& p2Zone, std::vector<mcIdType>& factToApplyOn2)
 {
   std::vector<const MEDCouplingCartesianAMRMeshGen *> ancestorsOfThis;
-  const MEDCouplingCartesianAMRMeshGen *work(p1->getMesh()),*work2(0);
+  const MEDCouplingCartesianAMRMeshGen *work(p1->getMesh()),*work2(nullptr);
   ancestorsOfThis.push_back(work);
   while(work)
     {
@@ -410,7 +426,7 @@ void MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev(mcIdTyp
       if(work)
         {
           levOther++;
-          std::vector<const MEDCouplingCartesianAMRMeshGen *>::iterator it(std::find(ancestorsOfThis.begin(),ancestorsOfThis.end(),work));
+          auto const it(std::find(ancestorsOfThis.begin(),ancestorsOfThis.end(),work));
           if(it!=ancestorsOfThis.end())
             {
               levThis=std::distance(ancestorsOfThis.begin(),it);
@@ -426,11 +442,11 @@ void MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev(mcIdTyp
   const MEDCouplingCartesianAMRMeshGen *comAncestor(ancestorsOfThis[levThis]);
   mcIdType idThis(comAncestor->getPatchIdFromChildMesh(ancestorsOfThis[levThis-1])),idOther(comAncestor->getPatchIdFromChildMesh(work2));
   const MEDCouplingCartesianAMRPatch *thisp(comAncestor->getPatch(idThis)),*otherp(comAncestor->getPatch(idOther));
-  std::vector<mcIdType> offset(ComputeOffsetFromTwoToOne(comAncestor,ToIdType(levOther),thisp,otherp));
+  std::vector<mcIdType> const offset(ComputeOffsetFromTwoToOne(comAncestor,ToIdType(levOther),thisp,otherp));
   p1Zone=thisp->getBLTRRange(); p2Zone=MEDCouplingStructuredMesh::TranslateCompactFrmt(otherp->getBLTRRange(),offset);
   factToApplyOn2.resize(p1Zone.size()); std::fill(factToApplyOn2.begin(),factToApplyOn2.end(),1);
   //
-  std::size_t nbOfTurn(levThis-levOther);
+  std::size_t const nbOfTurn(levThis-levOther);
   for(std::size_t i=0;i<nbOfTurn;i++)
     {
       std::vector< std::pair<mcIdType,mcIdType> > tmp0;
@@ -441,7 +457,7 @@ void MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev(mcIdTyp
       curAncestor=ancestorsOfThis[levThis-1-i];
       const std::vector<mcIdType>& factors(curAncestor->getFactors());
       std::transform(factToApplyOn2.begin(),factToApplyOn2.end(),factors.begin(),factToApplyOn2.begin(),std::multiplies<mcIdType>());
-      mcIdType tmpId(curAncestor->getPatchIdFromChildMesh(ancestorsOfThis[levThis-2-i]));
+      mcIdType const tmpId(curAncestor->getPatchIdFromChildMesh(ancestorsOfThis[levThis-2-i]));
       p1Zone=curAncestor->getPatch(tmpId)->getBLTRRange();
     }
 }
@@ -457,7 +473,7 @@ const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRPatch::FindCommonAn
 {
   const MEDCouplingCartesianAMRMeshGen *f1(p1->_mesh),*f2(p2->_mesh);
   lev=0;
-  while(f1!=f2 || f1==0 || f2==0)
+  while(f1!=f2 || f1==nullptr || f2==nullptr)
     {
       f1=f1->getFather(); f2=f2->getFather();
       if(f1->getFactors()!=f2->getFactors())
@@ -469,19 +485,19 @@ const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRPatch::FindCommonAn
   return f1;
 }
 
-std::vector<mcIdType> MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne(const MEDCouplingCartesianAMRMeshGen *comAncestor, mcIdType lev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2)
+std::vector<mcIdType> MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne(const MEDCouplingCartesianAMRMeshGen * /*comAncestor*/, mcIdType lev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2)
 {
   if(lev<=0)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne : this method is useful only for lev > 0 !");
-  mcIdType zeLev(lev-1);
-  mcIdType dim(p1->getMesh()->getSpaceDimension());
+  mcIdType const zeLev(lev-1);
+  mcIdType const dim(p1->getMesh()->getSpaceDimension());
   if(p2->getMesh()->getSpaceDimension()!=dim)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne : dimension must be the same !");
   std::vector< mcIdType > ret(dim,0);
   for(mcIdType i=0;i<zeLev;i++)
     {
       const MEDCouplingCartesianAMRMeshGen *f1(p1->_mesh),*f2(p2->_mesh);
-      const MEDCouplingCartesianAMRPatch *p1h(0),*p2h(0);
+      const MEDCouplingCartesianAMRPatch *p1h(nullptr),*p2h(nullptr);
       for(mcIdType j=0;j<lev-i;j++)
         {
           const MEDCouplingCartesianAMRMeshGen *f1tmp(f1->getFather()),*f2tmp(f2->getFather());
@@ -506,18 +522,18 @@ std::vector<mcIdType> MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne(co
 
 void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoInternal(mcIdType ghostLev, const std::vector<mcIdType>& factors, const std::vector< std::pair<mcIdType,mcIdType> >&p1 ,const std::vector< std::pair<mcIdType,mcIdType> >&p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2)
 {//p1=[(1,4),(2,4)] p2=[(4,5),(3,4)]
-  mcIdType dim(ToIdType(factors.size()));
+  mcIdType const dim(ToIdType(factors.size()));
   std::vector<mcIdType> dimsCoarse(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(p1));//[3,2]
   std::transform(dimsCoarse.begin(),dimsCoarse.end(),factors.begin(),dimsCoarse.begin(),std::multiplies<mcIdType>());//[12,8]
   std::transform(dimsCoarse.begin(),dimsCoarse.end(),dimsCoarse.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,2*ghostLev));//[14,10]
-  std::vector< std::pair<mcIdType,mcIdType> > rangeCoarse(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsCoarse));//[(0,14),(0,10)]
-  std::vector<mcIdType> fakeFactors(dim,1);
+  std::vector< std::pair<mcIdType,mcIdType> > const rangeCoarse(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsCoarse));//[(0,14),(0,10)]
+  std::vector<mcIdType> const fakeFactors(dim,1);
   //
   std::vector< std::pair<mcIdType,mcIdType> > tmp0,tmp1,tmp2;
   MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p1,p2,tmp0,false);//tmp0=[(3,4),(1,2)]
   ApplyFactorsOnCompactFrmt(tmp0,factors);//tmp0=[(12,16),(4,8)]
   MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(tmp0,ghostLev);//tmp0=[(13,17),(5,9)]
-  std::vector< std::pair<mcIdType,mcIdType> > interstRange(MEDCouplingStructuredMesh::IntersectRanges(tmp0,rangeCoarse));//interstRange=[(13,14),(5,9)]
+  std::vector< std::pair<mcIdType,mcIdType> > const interstRange(MEDCouplingStructuredMesh::IntersectRanges(tmp0,rangeCoarse));//interstRange=[(13,14),(5,9)]
   MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p2,p1,tmp1,false);//tmp1=[(-3,0),(-1,1)]
   ApplyFactorsOnCompactFrmt(tmp1,factors);//tmp1=[(-12,-4),(-4,0)]
   MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(tmp1,interstRange,tmp2,false);//tmp2=[(1,2),(1,5)]
@@ -540,7 +556,7 @@ MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(const MEDCouplingCart
  */
 void MEDCouplingCartesianAMRPatch::ApplyFactorsOnCompactFrmt(std::vector< std::pair<mcIdType,mcIdType> >& partBeforeFact, const std::vector<mcIdType>& factors)
 {
-  std::size_t sz(factors.size());
+  std::size_t const sz(factors.size());
   if(sz!=partBeforeFact.size())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ApplyFactorsOnCompactFrmt : size of input vectors must be the same !");
   for(std::size_t i=0;i<sz;i++)
@@ -560,7 +576,7 @@ void MEDCouplingCartesianAMRPatch::ApplyAllGhostOnCompactFrmt(std::vector< std::
 {
   if(ghostSize<0)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ApplyAllGhostOnCompactFrmt : ghost size must be >= 0 !");
-  std::size_t sz(partBeforeFact.size());
+  std::size_t const sz(partBeforeFact.size());
   for(std::size_t i=0;i<sz;i++)
     {
       partBeforeFact[i].first-=ghostSize;
@@ -613,8 +629,8 @@ void MEDCouplingCartesianAMRMeshGen::setFactors(const std::vector<mcIdType>& new
 mcIdType MEDCouplingCartesianAMRMeshGen::getMaxNumberOfLevelsRelativeToThis() const
 {
   mcIdType ret(1);
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
-    ret=std::max(ret,(*it)->getMaxNumberOfLevelsRelativeToThis()+1);
+  for(const auto & _patche : _patches)
+    ret=std::max(ret,_patche->getMaxNumberOfLevelsRelativeToThis()+1);
   return ret;
 }
 
@@ -648,9 +664,9 @@ mcIdType MEDCouplingCartesianAMRMeshGen::getNumberOfCellsAtCurrentLevelGhost(mcI
 mcIdType MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithOverlap() const
 {
   mcIdType ret=_mesh->getNumberOfCells();
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(const auto & _patche : _patches)
     {
-      ret+=(*it)->getNumberOfCellsRecursiveWithOverlap();
+      ret+=_patche->getNumberOfCellsRecursiveWithOverlap();
     }
   return ret;
 }
@@ -665,10 +681,10 @@ mcIdType MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithOverlap() 
 mcIdType MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithoutOverlap() const
 {
   mcIdType ret=_mesh->getNumberOfCells();
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(const auto & _patche : _patches)
     {
-      ret-=(*it)->getNumberOfOverlapedCellsForFather();
-      ret+=(*it)->getNumberOfCellsRecursiveWithoutOverlap();
+      ret-=_patche->getNumberOfOverlapedCellsForFather();
+      ret+=_patche->getNumberOfCellsRecursiveWithoutOverlap();
     }
   return ret;
 }
@@ -694,25 +710,25 @@ std::vector<mcIdType> MEDCouplingCartesianAMRMeshGen::getPositionRelativeTo(cons
  */
 const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMeshGen::getPatchAtPosition(const std::vector<mcIdType>& pos) const
 {
-  std::size_t sz(pos.size());
+  std::size_t const sz(pos.size());
   if(sz==0)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPatchAtPosition : empty input -> no patch by definition !");
-  mcIdType patchId(pos[0]);
+  mcIdType const patchId(pos[0]);
   const MEDCouplingCartesianAMRPatch *elt(getPatch(patchId));
   if(sz==1)
     return elt;
   if(!elt || !elt->getMesh())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPatchAtPosition : NULL element found during walk !");
-  std::vector<mcIdType> pos2(pos.begin()+1,pos.end());
+  std::vector<mcIdType> const pos2(pos.begin()+1,pos.end());
   return elt->getMesh()->getPatchAtPosition(pos2);
 }
 
 const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMeshGen::getMeshAtPosition(const std::vector<mcIdType>& pos) const
 {
-  std::size_t sz(pos.size());
+  std::size_t const sz(pos.size());
   if(sz==0)
     return this;
-  mcIdType patchId(pos[0]);
+  mcIdType const patchId(pos[0]);
   const MEDCouplingCartesianAMRPatch *elt(getPatch(patchId));
   if(sz==1)
     {
@@ -722,7 +738,7 @@ const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMeshGen::getMeshAtP
     }
   if(!elt || !elt->getMesh())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPatchAtPosition : NULL element found during walk !");
-  std::vector<mcIdType> pos2(pos.begin()+1,pos.end());
+  std::vector<mcIdType> const pos2(pos.begin()+1,pos.end());
   return elt->getMesh()->getMeshAtPosition(pos2);
 }
 
@@ -749,7 +765,7 @@ void MEDCouplingCartesianAMRMeshGen::addPatch(const std::vector< std::pair<mcIdT
   MCAuto<MEDCouplingIMesh> mesh(static_cast<MEDCouplingIMesh *>(_mesh->buildStructuredSubPart(bottomLeftTopRight)));
   mesh->refineWithFactor(factors);
   MCAuto<MEDCouplingCartesianAMRMeshSub> zeMesh(new MEDCouplingCartesianAMRMeshSub(this,mesh));
-  MCAuto<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight));
+  MCAuto<MEDCouplingCartesianAMRPatch> const elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight));
   _patches.push_back(elt);
   declareAsNew();
 }
@@ -759,7 +775,7 @@ void MEDCouplingCartesianAMRMeshGen::addPatch(const std::vector< std::pair<mcIdT
 class InternalPatch : public RefCountObjectOnly
 {
 public:
-  InternalPatch():_nb_of_true(0) { }
+  InternalPatch() = default;
   mcIdType getDimension() const { return ToIdType(_part.size()); }
   double getEfficiency() const { return (double)_nb_of_true/(double)_crit.size(); }
   mcIdType getNumberOfCells() const { return ToIdType(_crit.size()); }
@@ -778,9 +794,9 @@ public:
   MCAuto<InternalPatch> extractPart(const std::vector< std::pair<mcIdType,mcIdType> >&partInGlobal) const;
   MCAuto<InternalPatch> deepCopy() const;
 protected:
-  ~InternalPatch() { }
+  ~InternalPatch() override = default;
 private:
-  mutable mcIdType _nb_of_true;
+  mutable mcIdType _nb_of_true{0};
   std::vector<bool> _crit;
   //! _part is global
   std::vector< std::pair<mcIdType,mcIdType> > _part;
@@ -788,10 +804,10 @@ private:
 
 void InternalPatch::zipToFitOnCriterion(mcIdType minPatchLgth)
 {
-  std::vector<mcIdType> cgs(computeCGS());
+  std::vector<mcIdType> const cgs(computeCGS());
   std::vector<bool> newCrit;
   std::vector< std::pair<mcIdType,mcIdType> > newPart,newPart2;
-  mcIdType newNbOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(minPatchLgth,cgs,_crit,newCrit,newPart));
+  mcIdType const newNbOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(minPatchLgth,cgs,_crit,newCrit,newPart));
   MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(_part,newPart,newPart2);
   if(newNbOfTrue!=_nb_of_true)
     throw INTERP_KERNEL::Exception("InternalPatch::zipToFitOnCrit : internal error !");
@@ -806,7 +822,7 @@ void InternalPatch::updateNumberOfTrue() const
 MCAuto<InternalPatch> InternalPatch::extractPart(const std::vector< std::pair<mcIdType,mcIdType> >&partInGlobal) const
 {
   MCAuto<InternalPatch> ret(new InternalPatch);
-  std::vector<mcIdType> cgs(computeCGS());
+  std::vector<mcIdType> const cgs(computeCGS());
   std::vector< std::pair<mcIdType,mcIdType> > newPart;
   MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(_part,partInGlobal,newPart);
   MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom(cgs,_crit,newPart,ret->getCriterion());
@@ -824,7 +840,7 @@ MCAuto<InternalPatch> InternalPatch::deepCopy() const
 
 void DissectBigPatch(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, mcIdType axisId, mcIdType largestLength, mcIdType& cutPlace)
 {
-  mcIdType minimumPatchLength(bso.getMinimumPatchLength());
+  mcIdType const minimumPatchLength(bso.getMinimumPatchLength());
   std::vector<double> ratio(largestLength-minimumPatchLength,std::numeric_limits<double>::max());
   mcIdType index_min = -1;
   double minSemiEfficiencyRatio(std::numeric_limits<double>::max());
@@ -860,15 +876,15 @@ void DissectBigPatch(const INTERP_KERNEL::BoxSplittingOptions& bso, const Intern
 bool FindHole(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, mcIdType axisId, mcIdType& cutPlace)
 {
   cutPlace=-1;
-  mcIdType minimumPatchLength(bso.getMinimumPatchLength());
+  mcIdType const minimumPatchLength(bso.getMinimumPatchLength());
   const mcIdType dim(patchToBeSplit->getDimension());
   std::vector< std::vector<mcIdType> > signatures(patchToBeSplit->computeSignature());
   for(mcIdType id=0;id<dim;id++)
     {
       const std::vector<mcIdType>& signature(signatures[id]);
       std::vector<mcIdType> hole;
-      std::vector<double> distance;
-      mcIdType len(ToIdType(signature.size()));
+      std::vector<double> const distance;
+      mcIdType const len(ToIdType(signature.size()));
       for(mcIdType i=minimumPatchLength-1;i<len-minimumPatchLength;i++)
         if(signature[i]==0)
           hole.push_back(i);
@@ -877,13 +893,13 @@ bool FindHole(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch
           mcIdType closestHoleToMiddle(hole[0]);
           mcIdType oldDistanceToMiddle(std::abs(hole[0]-len/2));
           mcIdType newDistanceToMiddle(oldDistanceToMiddle);
-          for(std::size_t i=0;i<hole.size();i++)
+          for(long const i : hole)
             {
-              newDistanceToMiddle=std::abs(hole[i]-len/2);
+              newDistanceToMiddle=std::abs(i-len/2);
               if(newDistanceToMiddle < oldDistanceToMiddle)
                 {
                   oldDistanceToMiddle = newDistanceToMiddle;
-                  closestHoleToMiddle = hole[i];
+                  closestHoleToMiddle = i;
                 }
             }
           cutPlace=closestHoleToMiddle+patchToBeSplit->getConstPart()[axisId].first;
@@ -935,18 +951,18 @@ bool FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
         }
       if ( zero_cross.size() > 0 )
         {
-          mcIdType max_cross=*max_element(edge.begin(),edge.end()) ;
+          mcIdType const max_cross=*max_element(edge.begin(),edge.end()) ;
           for (std::size_t i=0;i<edge.size();i++)
             if (edge[i]==max_cross)
               max_cross_list.push_back(zero_cross[i]+1) ;
 
-          double center(static_cast<double>(signature.size())/2.0);
-          for (std::size_t i=0;i<max_cross_list.size();i++)
-            distance.push_back(fabs(FromIdType<double>(max_cross_list[i])+1-center));
+          double const center(static_cast<double>(signature.size())/2.0);
+          for (long const i : max_cross_list)
+            distance.push_back(fabs(FromIdType<double>(i)+1-center));
 
-          double distance_min=*min_element(distance.begin(),distance.end()) ;
-          mcIdType pos_distance_min=ToIdType(find(distance.begin(),distance.end(),distance_min)-distance.begin());
-          mcIdType best_place = max_cross_list[pos_distance_min] + part[id].first ;
+          double const distance_min=*min_element(distance.begin(),distance.end()) ;
+          mcIdType const pos_distance_min=ToIdType(find(distance.begin(),distance.end(),distance_min)-distance.begin());
+          mcIdType const best_place = max_cross_list[pos_distance_min] + part[id].first ;
           if ( max_cross >=0 )
             {
               zeroCrossDims[id] = best_place ;
@@ -967,8 +983,8 @@ bool FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
 
       if (zeroCrossVals[0]==max_cross_dims &&  zeroCrossVals[1]==max_cross_dims )
         {
-          mcIdType nl_left(part[0].second-part[0].first);
-          mcIdType nc_left(part[1].second-part[1].first);
+          mcIdType const nl_left(part[0].second-part[0].first);
+          mcIdType const nc_left(part[1].second-part[1].first);
           if ( nl_left >=  nc_left )
             max_cross_dims = 0 ;
           else
@@ -1016,7 +1032,7 @@ MCAuto<InternalPatch> DealWithNoCut(const InternalPatch *patch)
 void DealWithCut(double minPatchLgth, const InternalPatch *patchToBeSplit, int axisId, mcIdType cutPlace, std::vector<MCAuto<InternalPatch> >& listOfPatches)
 {
   MCAuto<InternalPatch> leftPart,rightPart;
-  std::vector< std::pair<mcIdType,mcIdType> > rect(patchToBeSplit->getConstPart());
+  std::vector< std::pair<mcIdType,mcIdType> > const rect(patchToBeSplit->getConstPart());
   std::vector< std::pair<mcIdType,mcIdType> > leftRect(rect),rightRect(rect);
   leftRect[axisId].second=cutPlace+1;
   rightRect[axisId].first=cutPlace+1;
@@ -1072,11 +1088,11 @@ mcIdType MEDCouplingCartesianAMRMeshGen::getNumberOfPatches() const
  */
 void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<mcIdType>& factors)
 {
-  mcIdType nbCells(getNumberOfCellsAtCurrentLevel());
+  mcIdType const nbCells(getNumberOfCellsAtCurrentLevel());
   if(nbCells!=ToIdType(criterion.size()))
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion : the number of tuples of criterion array must be equal to the number of cells at the current level !");
   _patches.clear();
-  std::vector<mcIdType> cgs(_mesh->getCellGridStructure());
+  std::vector<mcIdType> const cgs(_mesh->getCellGridStructure());
   std::vector< MCAuto<InternalPatch> > listOfPatches,listOfPatchesOK;
   //
   MCAuto<InternalPatch> p(new InternalPatch);
@@ -1086,31 +1102,31 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
   while(!listOfPatches.empty())
     {
       std::vector< MCAuto<InternalPatch> > listOfPatchesTmp;
-      for(std::vector< MCAuto<InternalPatch> >::iterator it=listOfPatches.begin();it!=listOfPatches.end();it++)
+      for(auto & listOfPatche : listOfPatches)
         {
           //
           int axisId;
           mcIdType largestLength,cutPlace;
-          MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt((*it)->getConstPart(),axisId,largestLength);
-          if((*it)->getEfficiency()>=bso.getEfficiencyThreshold() && ((*it)->getNumberOfCells()>bso.getMaximumNbOfCellsInPatch() || largestLength>bso.getMaximumPatchLength()))
+          MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt(listOfPatche->getConstPart(),axisId,largestLength);
+          if(listOfPatche->getEfficiency()>=bso.getEfficiencyThreshold() && (listOfPatche->getNumberOfCells()>bso.getMaximumNbOfCellsInPatch() || largestLength>bso.getMaximumPatchLength()))
             {
-              DissectBigPatch(bso,*it,axisId,largestLength,cutPlace);
-              DealWithCut(bso.getMinimumPatchLength(),*it,axisId,cutPlace,listOfPatchesTmp);
+              DissectBigPatch(bso,listOfPatche,axisId,largestLength,cutPlace);
+              DealWithCut(bso.getMinimumPatchLength(),listOfPatche,axisId,cutPlace,listOfPatchesTmp);
               continue;
             }//action 1
-          if(FindHole(bso,*it,axisId,cutPlace))//axisId overwritten here if FindHole equal to true !
-            { DealWithCut(bso.getMinimumPatchLength(),*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 2
-          if(FindInflection(bso,*it,cutPlace,axisId))//axisId overwritten here if cutFound equal to true !
-            { DealWithCut(bso.getMinimumPatchLength(),*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 3
-          if(TryAction4(bso,*it,axisId,largestLength,cutPlace))
-            { DealWithCut(bso.getMinimumPatchLength(),*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 4
+          if(FindHole(bso,listOfPatche,axisId,cutPlace))//axisId overwritten here if FindHole equal to true !
+            { DealWithCut(bso.getMinimumPatchLength(),listOfPatche,axisId,cutPlace,listOfPatchesTmp); continue; }//action 2
+          if(FindInflection(bso,listOfPatche,cutPlace,axisId))//axisId overwritten here if cutFound equal to true !
+            { DealWithCut(bso.getMinimumPatchLength(),listOfPatche,axisId,cutPlace,listOfPatchesTmp); continue; }//action 3
+          if(TryAction4(bso,listOfPatche,axisId,largestLength,cutPlace))
+            { DealWithCut(bso.getMinimumPatchLength(),listOfPatche,axisId,cutPlace,listOfPatchesTmp); continue; }//action 4
           else
-            listOfPatchesOK.push_back(DealWithNoCut(*it));
+            listOfPatchesOK.push_back(DealWithNoCut(listOfPatche));
         }
       listOfPatches=listOfPatchesTmp;
     }
-  for(std::vector< MCAuto<InternalPatch> >::const_iterator it=listOfPatchesOK.begin();it!=listOfPatchesOK.end();it++)
-    addPatch((*it)->getConstPart(),factors);
+  for(const auto & it : listOfPatchesOK)
+    addPatch(it->getConstPart(),factors);
   declareAsNew();
 }
 
@@ -1122,7 +1138,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
 {
   if(!criterion || !criterion->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion : the criterion DataArrayByte instance must be allocated and not NULL !");
-  std::vector<bool> crit(criterion->toVectorOfBool());//check that criterion has one component.
+  std::vector<bool> const crit(criterion->toVectorOfBool());//check that criterion has one component.
   createPatchesFromCriterion(bso,crit,factors);
   declareAsNew();
 }
@@ -1131,14 +1147,14 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
 {
   if(!criterion)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion : null criterion pointer !");
-  std::vector<bool> inp(criterion->toVectorOfBool(eps));
+  std::vector<bool> const inp(criterion->toVectorOfBool(eps));
   createPatchesFromCriterion(bso,inp,factors);
 }
 
 mcIdType MEDCouplingCartesianAMRMeshGen::getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const
 {
   mcIdType ret(0);
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ret++)
+  for(auto it=_patches.begin();it!=_patches.end();it++,ret++)
     {
       if((*it)->getMesh()==mesh)
         return ret;
@@ -1148,7 +1164,7 @@ mcIdType MEDCouplingCartesianAMRMeshGen::getPatchIdFromChildMesh(const MEDCoupli
 
 std::vector< const MEDCouplingCartesianAMRPatch *> MEDCouplingCartesianAMRMeshGen::getPatches() const
 {
-  std::size_t sz(_patches.size());
+  std::size_t const sz(_patches.size());
   std::vector< const MEDCouplingCartesianAMRPatch *> ret(sz);
   for(std::size_t i=0;i<sz;i++)
     ret[i]=_patches[i];
@@ -1214,7 +1230,7 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatch(mcIdType patchId, cons
   MEDCouplingIMesh::SpreadCoarseToFine(cellFieldOnThis,_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors());
   if(isConservative)
     {
-      mcIdType fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
+      mcIdType const fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
       std::transform(cellFieldOnPatch->begin(),cellFieldOnPatch->end(),cellFieldOnPatch->getPointer(),std::bind(std::multiplies<double>(),std::placeholders::_1,1./((double)fact)));
     }
 }
@@ -1238,7 +1254,7 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhost(mcIdType patchId,
   MEDCouplingIMesh::SpreadCoarseToFineGhost(cellFieldOnThis,_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),ghostLev);
   if(isConservative)
     {
-      mcIdType fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
+      mcIdType const fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
       std::transform(cellFieldOnPatch->begin(),cellFieldOnPatch->end(),cellFieldOnPatch->getPointer(),std::bind(std::multiplies<double>(),std::placeholders::_1,1./((double)fact)));
     }
 }
@@ -1273,13 +1289,13 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyOnGhostZone(mcIdTyp
  */
 void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(mcIdType patchId, const DataArrayDouble *cellFieldOnThis, mcIdType ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches, bool isConservative) const
 {
-  mcIdType nbp(getNumberOfPatches());
+  mcIdType const nbp(getNumberOfPatches());
   if(nbp!=ToIdType(arrsOnPatches.size()))
     {
       std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv : there are " << nbp << " patches in this and " << arrsOnPatches.size() << " arrays in the last parameter !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  DataArrayDouble *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
+  auto *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
   // first, do as usual
   fillCellFieldOnPatchGhost(patchId,cellFieldOnThis,theFieldToFill,ghostLev,isConservative);
   fillCellFieldOnPatchOnlyGhostAdv(patchId,ghostLev,arrsOnPatches);
@@ -1293,19 +1309,19 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(mcIdType patch
  */
 void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyGhostAdv(mcIdType patchId, mcIdType ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
 {
-  mcIdType nbp(getNumberOfPatches());
+  mcIdType const nbp(getNumberOfPatches());
   if(nbp!=ToIdType(arrsOnPatches.size()))
     {
       std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchOnlyGhostAdv : there are " << nbp << " patches in this and " << arrsOnPatches.size() << " arrays in the last parameter !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   const MEDCouplingCartesianAMRPatch *refP(getPatch(patchId));
-  DataArrayDouble *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
-  std::vector<mcIdType> ids(getPatchIdsInTheNeighborhoodOf(patchId,ghostLev));
-  for(std::vector<mcIdType>::const_iterator it=ids.begin();it!=ids.end();it++)
+  auto *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
+  std::vector<mcIdType> const ids(getPatchIdsInTheNeighborhoodOf(patchId,ghostLev));
+  for(long const id : ids)
     {
-      const MEDCouplingCartesianAMRPatch *otherP(getPatch(*it));
-      MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwo(ghostLev,_factors,refP,otherP,theFieldToFill,arrsOnPatches[*it]);
+      const MEDCouplingCartesianAMRPatch *otherP(getPatch(id));
+      MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwo(ghostLev,_factors,refP,otherP,theFieldToFill,arrsOnPatches[id]);
     }
 }
 
@@ -1334,7 +1350,7 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatch(mcIdType patch
   MEDCouplingIMesh::CondenseFineToCoarse(_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),cellFieldOnThis);
   if(!isConservative)
     {
-      mcIdType fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
+      mcIdType const fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
       MEDCouplingStructuredMesh::MultiplyPartOf(_mesh->getCellGridStructure(),patch->getBLTRRange(),1./((double)fact),cellFieldOnThis);
     }
 }
@@ -1361,7 +1377,7 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatchGhost(mcIdType 
   MEDCouplingIMesh::CondenseFineToCoarseGhost(_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),cellFieldOnThis,ghostLev);
   if(!isConservative)
     {
-      mcIdType fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
+      mcIdType const fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
       MEDCouplingStructuredMesh::MultiplyPartOfByGhost(_mesh->getCellGridStructure(),patch->getBLTRRange(),ghostLev,1./((double)fact),cellFieldOnThis);
     }
 }
@@ -1376,7 +1392,7 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatchGhost(mcIdType 
  */
 DataArrayIdType *MEDCouplingCartesianAMRMeshGen::findPatchesInTheNeighborhoodOf(mcIdType patchId, mcIdType ghostLev) const
 {
-  mcIdType nbp(getNumberOfPatches());
+  mcIdType const nbp(getNumberOfPatches());
   MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
   for(mcIdType i=0;i<nbp;i++)
     {
@@ -1391,10 +1407,10 @@ MEDCouplingUMesh *MEDCouplingCartesianAMRMeshGen::buildUnstructured() const
 {
   MCAuto<MEDCouplingUMesh> part(_mesh->buildUnstructured());
   std::vector<bool> bs(_mesh->getNumberOfCells(),false);
-  std::vector<mcIdType> cgs(_mesh->getCellGridStructure());
+  std::vector<mcIdType> const cgs(_mesh->getCellGridStructure());
   std::vector< MCAuto<MEDCouplingUMesh> > msSafe(_patches.size()+1);
   std::size_t ii(0);
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ii++)
+  for(auto it=_patches.begin();it!=_patches.end();it++,ii++)
     {
       MEDCouplingStructuredMesh::SwitchOnIdsFrom(cgs,(*it)->getBLTRRange(),bs);
       msSafe[ii+1]=(*it)->getMesh()->buildUnstructured();
@@ -1417,12 +1433,12 @@ MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMeshGen::buildMeshFromPatchEnvelop(
 {
   std::vector<const MEDCoupling1SGTUMesh *> cells;
   std::vector< MCAuto<MEDCoupling1SGTUMesh> > cellsSafe;
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(const auto & _patche : _patches)
     {
-      const MEDCouplingCartesianAMRPatch *patch(*it);
+      const MEDCouplingCartesianAMRPatch *patch(_patche);
       if(patch)
         {
-          MCAuto<MEDCouplingIMesh> cell(patch->getMesh()->getImageMesh()->asSingleCell());
+          MCAuto<MEDCouplingIMesh> const cell(patch->getMesh()->getImageMesh()->asSingleCell());
           MCAuto<MEDCoupling1SGTUMesh> cell1SGT(cell->build1SGTUnstructured());
           cellsSafe.push_back(cell1SGT); cells.push_back(cell1SGT);
         }
@@ -1434,9 +1450,9 @@ MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMeshGen::buildMeshOfDirectChildrenO
 {
   std::vector<const MEDCoupling1SGTUMesh *> patches;
   std::vector< MCAuto<MEDCoupling1SGTUMesh> > patchesSafe;
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(const auto & _patche : _patches)
       {
-        const MEDCouplingCartesianAMRPatch *patch(*it);
+        const MEDCouplingCartesianAMRPatch *patch(_patche);
         if(patch)
           {
             MCAuto<MEDCoupling1SGTUMesh> patchMesh(patch->getMesh()->getImageMesh()->build1SGTUnstructured());
@@ -1457,13 +1473,13 @@ MEDCouplingFieldDouble *MEDCouplingCartesianAMRMeshGen::buildCellFieldOnRecurseW
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::buildCellFieldOnRecurseWithoutOverlapWithoutGhost : array is empty ! Should never happen !");
   //
   std::vector<bool> bs(_mesh->getNumberOfCells(),false);
-  std::vector<mcIdType> cgs(_mesh->getCellGridStructure());
+  std::vector<mcIdType> const cgs(_mesh->getCellGridStructure());
   std::vector< MCAuto<MEDCouplingFieldDouble> > msSafe(_patches.size()+1);
   std::size_t ii(0);
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ii++)
+  for(auto it=_patches.begin();it!=_patches.end();it++,ii++)
     {
       MEDCouplingStructuredMesh::SwitchOnIdsFrom(cgs,(*it)->getBLTRRange(),bs);
-      std::vector<const DataArrayDouble *> tmpArrs(extractSubTreeFromGlobalFlatten((*it)->getMesh(),recurseArrs));
+      std::vector<const DataArrayDouble *> const tmpArrs(extractSubTreeFromGlobalFlatten((*it)->getMesh(),recurseArrs));
       msSafe[ii+1]=(*it)->getMesh()->buildCellFieldOnRecurseWithoutOverlapWithoutGhost(ghostSz,tmpArrs);
     }
   MCAuto<DataArrayIdType> eltsOff(DataArrayIdType::BuildListOfSwitchedOff(bs));
@@ -1507,7 +1523,7 @@ DataArrayDouble *MEDCouplingCartesianAMRMeshGen::extractGhostFrom(mcIdType ghost
 std::vector<mcIdType> MEDCouplingCartesianAMRMeshGen::getPatchIdsInTheNeighborhoodOf(mcIdType patchId, mcIdType ghostLev) const
 {
   std::vector<mcIdType> ret;
-  mcIdType nbp(getNumberOfPatches());
+  mcIdType const nbp(getNumberOfPatches());
   //
   for(mcIdType i=0;i<nbp;i++)
     {
@@ -1544,7 +1560,7 @@ MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(const MEDCoupling
   const MEDCouplingIMesh *mesh(other._mesh);
   if(mesh)
     _mesh=static_cast<MEDCouplingIMesh *>(mesh->deepCopy());
-  std::size_t sz(other._patches.size());
+  std::size_t const sz(other._patches.size());
   for(std::size_t i=0;i<sz;i++)
     {
       const MEDCouplingCartesianAMRPatch *patch(other._patches[i]);
@@ -1569,7 +1585,7 @@ MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(MEDCouplingIMesh 
 
 void MEDCouplingCartesianAMRMeshGen::checkPatchId(mcIdType patchId) const
 {
-  mcIdType sz(getNumberOfPatches());
+  mcIdType const sz(getNumberOfPatches());
   if(patchId<0 || patchId>=sz)
     {
       std::ostringstream oss; oss << "MEDCouplingCartesianAMRMeshGen::checkPatchId : invalid patchId (" << patchId << ") ! Must be in [0," << sz << ") !";
@@ -1596,27 +1612,27 @@ void MEDCouplingCartesianAMRMeshGen::retrieveGridsAtInternal(mcIdType lev, std::
 {
   if(lev==0)
     {
-      const MEDCouplingCartesianAMRMesh *thisc(dynamic_cast<const MEDCouplingCartesianAMRMesh *>(this));//tony
+      const auto *thisc(dynamic_cast<const MEDCouplingCartesianAMRMesh *>(this));//tony
       MCAuto<MEDCouplingCartesianAMRPatchGF> elt(new MEDCouplingCartesianAMRPatchGF(const_cast<MEDCouplingCartesianAMRMesh *>(thisc)));
       grids.push_back(DynamicCastSafe<MEDCouplingCartesianAMRPatchGF,MEDCouplingCartesianAMRPatchGen>(elt));
     }
   else if(lev==1)
     {
-      for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+      for(const auto & _patche : _patches)
         {
-          const MEDCouplingCartesianAMRPatch *pt(*it);
+          const MEDCouplingCartesianAMRPatch *pt(_patche);
           if(pt)
             {
-              MCAuto<MEDCouplingCartesianAMRPatch> tmp1(*it);
+              MCAuto<MEDCouplingCartesianAMRPatch> tmp1(_patche);
               grids.push_back(DynamicCastSafe<MEDCouplingCartesianAMRPatch,MEDCouplingCartesianAMRPatchGen>(tmp1));
             }
         }
     }
   else
     {
-      for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+      for(const auto & _patche : _patches)
         {
-          const MEDCouplingCartesianAMRPatch *pt(*it);
+          const MEDCouplingCartesianAMRPatch *pt(_patche);
           if(pt)
             pt->getMesh()->retrieveGridsAtInternal(lev-1,grids);
         }
@@ -1635,8 +1651,8 @@ mcIdType MEDCouplingCartesianAMRMeshGen::GetGhostLevelInFineRef(mcIdType ghostLe
   else
     {
       ghostLevInPatchRef=(ghostLev-1)/factors[0]+1;
-      for(std::size_t i=0;i<factors.size();i++)
-        ghostLevInPatchRef=std::max(ghostLevInPatchRef,(ghostLev-1)/factors[i]+1);
+      for(long const factor : factors)
+        ghostLevInPatchRef=std::max(ghostLevInPatchRef,(ghostLev-1)/factor+1);
     }
   return ghostLevInPatchRef;
 }
@@ -1647,22 +1663,22 @@ mcIdType MEDCouplingCartesianAMRMeshGen::GetGhostLevelInFineRef(mcIdType ghostLe
  */
 std::vector<const DataArrayDouble *> MEDCouplingCartesianAMRMeshGen::extractSubTreeFromGlobalFlatten(const MEDCouplingCartesianAMRMeshGen *head, const std::vector<const DataArrayDouble *>& all) const
 {
-  mcIdType maxLev(getMaxNumberOfLevelsRelativeToThis());
+  mcIdType const maxLev(getMaxNumberOfLevelsRelativeToThis());
   std::vector<const DataArrayDouble *> ret;
   std::vector<const MEDCouplingCartesianAMRMeshGen *> meshes(1,this);
   std::size_t kk(0);
   for(mcIdType i=0;i<maxLev;i++)
     {
       std::vector<const MEDCouplingCartesianAMRMeshGen *> meshesTmp;
-      for(std::vector<const MEDCouplingCartesianAMRMeshGen *>::const_iterator it=meshes.begin();it!=meshes.end();it++)
+      for(auto meshe : meshes)
         {
-          if((*it)==head || head->isObjectInTheProgeny(*it))
+          if(meshe==head || head->isObjectInTheProgeny(meshe))
             ret.push_back(all[kk]);
           kk++;
-          std::vector< const MEDCouplingCartesianAMRPatch *> ps((*it)->getPatches());
-          for(std::vector< const MEDCouplingCartesianAMRPatch *>::const_iterator it0=ps.begin();it0!=ps.end();it0++)
+          std::vector< const MEDCouplingCartesianAMRPatch *> const ps(meshe->getPatches());
+          for(auto p : ps)
             {
-              const MEDCouplingCartesianAMRMeshGen *mesh((*it0)->getMesh());
+              const MEDCouplingCartesianAMRMeshGen *mesh(p->getMesh());
               meshesTmp.push_back(mesh);
             }
         }
@@ -1676,14 +1692,14 @@ std::vector<const DataArrayDouble *> MEDCouplingCartesianAMRMeshGen::extractSubT
 void MEDCouplingCartesianAMRMeshGen::dumpPatchesOf(const std::string& varName, std::ostream& oss) const
 {
   std::size_t j(0);
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(const auto & _patche : _patches)
     {
-      const MEDCouplingCartesianAMRPatch *patch(*it);
+      const MEDCouplingCartesianAMRPatch *patch(_patche);
       if(patch)
         {
           std::ostringstream oss2; oss2 << varName << ".addPatch([";
           const std::vector< std::pair<mcIdType,mcIdType> >& bltr(patch->getBLTRRange());
-          std::size_t sz(bltr.size());
+          std::size_t const sz(bltr.size());
           for(std::size_t i=0;i<sz;i++)
             {
               oss2 << "(" << bltr[i].first << "," << bltr[i].second << ")";
@@ -1709,8 +1725,8 @@ std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMeshGen::getDirectCh
 {
   std::vector<const BigMemoryObject *> ret;
   ret.push_back((const MEDCouplingIMesh *)_mesh);
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
-    ret.push_back((const MEDCouplingCartesianAMRPatch*)*it);
+  for(const auto & _patche : _patches)
+    ret.push_back((const MEDCouplingCartesianAMRPatch*)_patche);
   return ret;
 }
 
@@ -1718,9 +1734,9 @@ void MEDCouplingCartesianAMRMeshGen::updateTime() const
 {
   if((const MEDCouplingIMesh *)_mesh)
     updateTimeWith(*_mesh);
-  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(const auto & _patche : _patches)
     {
-      const MEDCouplingCartesianAMRPatch *elt(*it);
+      const MEDCouplingCartesianAMRPatch *elt(_patche);
       if(!elt)
         continue;
       const MEDCouplingCartesianAMRMeshGen *mesh(elt->getMesh());
@@ -1759,16 +1775,16 @@ mcIdType MEDCouplingCartesianAMRMeshSub::getAbsoluteLevel() const
 
 void MEDCouplingCartesianAMRMeshSub::detachFromFather()
 {
-  _father=0;
+  _father=nullptr;
   declareAsNew();
 }
 
 std::vector< std::pair<mcIdType,mcIdType> > MEDCouplingCartesianAMRMeshSub::positionRelativeToGodFather(std::vector<mcIdType>& st) const
 {
   st=_father->getFactors();
-  std::size_t dim(st.size());
+  std::size_t const dim(st.size());
   std::vector<mcIdType> prev(st);
-  mcIdType id(_father->getPatchIdFromChildMesh(this));
+  mcIdType const id(_father->getPatchIdFromChildMesh(this));
   const MEDCouplingCartesianAMRPatch *p(_father->getPatch(id));
   std::vector< std::pair<mcIdType,mcIdType> > ret(p->getBLTRRange());
   std::vector<mcIdType> delta(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(ret)),start(dim);
@@ -1779,8 +1795,8 @@ std::vector< std::pair<mcIdType,mcIdType> > MEDCouplingCartesianAMRMeshSub::posi
   const MEDCouplingCartesianAMRMeshGen *it(_father);
   while(!dynamic_cast<const MEDCouplingCartesianAMRMesh *>(it))
     {
-      const MEDCouplingCartesianAMRMeshSub *itc(static_cast<const MEDCouplingCartesianAMRMeshSub *>(it));
-      mcIdType id2(itc->_father->getPatchIdFromChildMesh(itc));
+      const auto *itc(static_cast<const MEDCouplingCartesianAMRMeshSub *>(it));
+      mcIdType const id2(itc->_father->getPatchIdFromChildMesh(itc));
       const MEDCouplingCartesianAMRPatch *p2(itc->_father->getPatch(id2));
       const std::vector< std::pair<mcIdType,mcIdType> >& start2(p2->getBLTRRange());
       std::vector<mcIdType> tmp(dim);
@@ -1805,7 +1821,7 @@ mcIdType MEDCouplingCartesianAMRMeshSub::getAbsoluteLevelRelativeTo(const MEDCou
 {
   if(this==ref)
     return 0;
-  if(_father==0)
+  if(_father==nullptr)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshSub::getAbsoluteLevelRelativeTo : ref is not in the progeny of this !");
   else
     return _father->getAbsoluteLevelRelativeTo(ref)+1;
@@ -1829,7 +1845,7 @@ void MEDCouplingCartesianAMRMeshSub::getPositionRelativeToInternal(const MEDCoup
     return ;
   if(!_father)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshSub::getPositionRelativeToInternal : ref is not in the progeny of this !");
-  mcIdType myId(_father->getPatchIdFromChildMesh(this));
+  mcIdType const myId(_father->getPatchIdFromChildMesh(this));
   ret.push_back(myId);
   _father->getPositionRelativeToInternal(ref,ret);
 }
@@ -1848,7 +1864,7 @@ MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(MEDCouplingIMesh *
 const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMesh::getFather() const
 {
   //I'm god father ! No father !
-  return 0;
+  return nullptr;
 }
 
 const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMesh::getGodFather() const
@@ -1911,7 +1927,7 @@ MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::deepCopy(MEDCouplingCa
  */
 void MEDCouplingCartesianAMRMesh::createPatchesFromCriterionML(const std::vector<const INTERP_KERNEL::BoxSplittingOptions *>& bso, const DataArrayDouble *criterion, const std::vector< std::vector<mcIdType> >& factors, double eps)
 {
-  std::size_t nbOfLevs(bso.size());
+  std::size_t const nbOfLevs(bso.size());
   if(nbOfLevs!=factors.size())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterionML : size of vectors must be the same !");
   if(nbOfLevs==0)
@@ -1925,7 +1941,7 @@ void MEDCouplingCartesianAMRMesh::createPatchesFromCriterionML(const std::vector
         throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterionML : presence of a NULL BoxSplittingOptions in input vector !");
       //
       std::vector<MEDCouplingCartesianAMRPatchGen *> elts(retrieveGridsAt(ToIdType((i))));
-      std::size_t sz(elts.size());
+      std::size_t const sz(elts.size());
       std::vector< MCAuto<MEDCouplingCartesianAMRPatchGen> > elts2(sz);
       std::vector< MCAuto<DataArrayDouble> > elts3(sz);
       for(std::size_t ii=0;ii<sz;ii++)
@@ -1935,7 +1951,7 @@ void MEDCouplingCartesianAMRMesh::createPatchesFromCriterionML(const std::vector
       std::vector< std::pair<std::string,int> > fieldNames(1); fieldNames[0].first=TMP_STR; fieldNames[0].second=1;
       MCAuto<MEDCouplingAMRAttribute> att(MEDCouplingAMRAttribute::New(this,fieldNames,0));
       att->alloc();
-      DataArrayDouble *tmpDa(const_cast<DataArrayDouble *>(att->getFieldOn(this,TMP_STR)));
+      auto *tmpDa(const_cast<DataArrayDouble *>(att->getFieldOn(this,TMP_STR)));
       tmpDa->deepCopyFrom(*criterion);
       att->synchronizeCoarseToFine();
       for(std::size_t ii=0;ii<sz;ii++)
@@ -1943,7 +1959,7 @@ void MEDCouplingCartesianAMRMesh::createPatchesFromCriterionML(const std::vector
           const DataArrayDouble *critOnLeaf(att->getFieldOn(const_cast<MEDCouplingCartesianAMRMeshGen *>(elts[ii]->getMesh()),TMP_STR));
           elts3[ii]=const_cast<DataArrayDouble *>(critOnLeaf); elts3[ii]->incrRef();
         }
-      att=0;
+      att=nullptr;
       for(std::size_t ii=0;ii<sz;ii++)
         const_cast<MEDCouplingCartesianAMRMeshGen *>(elts[ii]->getMesh())->createPatchesFromCriterion(*bso[i],elts3[ii],factors[i],eps);
     }
@@ -1954,9 +1970,8 @@ void MEDCouplingCartesianAMRMesh::getPositionRelativeToInternal(const MEDCouplin
 
 }
 
-MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const MEDCouplingCartesianAMRMesh& other):MEDCouplingCartesianAMRMeshGen(other)
-{
-}
+MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const MEDCouplingCartesianAMRMesh& other)
+= default;
 
 MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop,
                                                          const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):MEDCouplingCartesianAMRMeshGen(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop)
@@ -1974,5 +1989,4 @@ std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMesh::getDirectChild
 }
 
 MEDCouplingCartesianAMRMesh::~MEDCouplingCartesianAMRMesh()
-{
-}
+= default;

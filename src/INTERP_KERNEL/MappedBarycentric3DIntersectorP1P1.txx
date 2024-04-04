@@ -21,9 +21,16 @@
 #ifndef __MAPPEDBARYCENTRIC3DINTERSECTORP1P1_TXX__
 #define __MAPPEDBARYCENTRIC3DINTERSECTORP1P1_TXX__
 
-#include "MappedBarycentric3DIntersectorP1P1.hxx"
 #include "Intersector3DP1P1.txx"
-#include "MeshUtils.hxx"
+#include "InterpolationUtils.hxx"
+#include "InterpKernelUtilities.hxx"
+#include "MappedBarycentric3DIntersectorP1P1.hxx"
+#include "NormalizedGeometricTypes"
+#include "CellModel.hxx"
+#include "PointLocatorAlgos.txx"
+#include <vector>
+#include <cstddef>
+#include <cmath>
 
 namespace INTERP_KERNEL
 {
@@ -42,8 +49,7 @@ namespace INTERP_KERNEL
 
   template<class MyMeshType, class MyMatrix>
   MappedBarycentric3DIntersectorP1P1<MyMeshType,MyMatrix>::~MappedBarycentric3DIntersectorP1P1()
-  {
-  }
+  = default;
 
   /**
    * @param targetCell in C mode.

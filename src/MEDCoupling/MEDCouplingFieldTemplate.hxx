@@ -20,7 +20,14 @@
 
 #pragma once
 
+#include "MEDCoupling.hxx"
+#include "MCAuto.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingField.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include <string>
+#include <vector>
+#include <ostream>
 
 namespace MEDCoupling
 {
@@ -56,7 +63,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingFieldTemplate *other, double meshPrec) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
-    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const override;
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingFieldTemplate> clone(bool recDeepCpy) const;
     //
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;
@@ -66,7 +73,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     MEDCOUPLING_EXPORT void serialize(DataArrayIdType *&dataInt) const;
     //
-    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const override;
   private:
     MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f, bool isChecked=true);
     MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f, bool isChecked=true);

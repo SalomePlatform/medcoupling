@@ -24,6 +24,9 @@
 #include "VectorUtils.hxx"
 #include "assert.h"
 
+#include <string>
+#include <cmath>
+#include <map>
 #include <vector>
 
 // Levels : 
@@ -436,9 +439,9 @@ namespace INTERP_KERNEL
       _coords[5*corner + 3]  // z
     };
 
-    for(int i = 0 ; i < 4 ; ++i)
+    for(double const i : pt)
       {
-        if(pt[i] < 0.0 || pt[i] > 1.0)
+        if(i < 0.0 || i > 1.0)
           {
             return false;
           }

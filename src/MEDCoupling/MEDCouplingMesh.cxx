@@ -19,17 +19,25 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingMesh.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MCType.hxx"
+#include "CellModel.hxx"
+#include "MCIdType.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MCAuto.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <cstddef>
+#include <algorithm>
+#include <ostream>
+#include <ios>
 #include <set>
 #include <cmath>
 #include <sstream>
 #include <fstream>
-#include <iterator>
+#include <vector>
 
 using namespace MEDCoupling;
 
@@ -56,7 +64,7 @@ bool MEDCouplingMesh::isStructured() const
   return getType()==CARTESIAN;
 }
 
-bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
+bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double  /*prec*/, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingMesh::isEqualIfNotWhy : other instance is NULL !");
@@ -148,8 +156,8 @@ bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
                                           DataArrayIdType *&cellCor, DataArrayIdType *&nodeCor) const
 {
-  cellCor=0;
-  nodeCor=0;
+  cellCor=nullptr;
+  nodeCor=nullptr;
   if(this==other)
     return ;
   switch(levOfCheck)
@@ -203,7 +211,7 @@ DataArrayIdType *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const mcIdTyp
 {
   std::vector<mcIdType> crest;
   std::set<mcIdType> p(partBg,partEnd);
-  mcIdType nbOfCells=getNumberOfCells();
+  mcIdType const nbOfCells=getNumberOfCells();
   for(mcIdType i=0;i<nbOfCells;i++)
     {
       std::vector<mcIdType> conn;
@@ -224,7 +232,7 @@ DataArrayIdType *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const mcIdTyp
 /*!
  * This method checks fastly that \a this and \a other are equal. All common checks are done here.
  */
-void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
+void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double  /*prec*/) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingMesh::checkFastEquivalWith : input mesh is null !");
@@ -263,7 +271,7 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRange(mcIdType beginCellIds, mcIdType
 {
   if(beginCellIds==0 && endCellIds==getNumberOfCells() && stepCellIds==1)
     {
-      MEDCouplingMesh *ret(const_cast<MEDCouplingMesh *>(this));
+      auto *ret(const_cast<MEDCouplingMesh *>(this));
       ret->incrRef();
       return ret;
     }
@@ -279,7 +287,7 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRange(mcIdType beginCellIds, mcIdType
  *
  * \sa MEDCouplingMesh::buildPartAndReduceNodes
  */
-MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType*& arr) const
+MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType&  /*beginOut*/, mcIdType&  /*endOut*/, mcIdType&  /*stepOut*/, DataArrayIdType*& arr) const
 {
   MCAuto<DataArrayIdType> cellIds=DataArrayIdType::Range(beginCellIds,endCellIds,stepCellIds);
   return buildPartAndReduceNodes(cellIds->begin(),cellIds->end(),arr);
@@ -651,7 +659,7 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, mcIdType nbOfP
 {
   eltsIndex=DataArrayIdType::New(); elts=DataArrayIdType::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
   mcIdType *eltsIndexPtr(eltsIndex->getPointer());
-  int spaceDim(getSpaceDimension());
+  int const spaceDim(getSpaceDimension());
   const double *work(pos);
   for(mcIdType i=0;i<nbOfPoints;i++,work+=spaceDim)
     {
@@ -685,7 +693,7 @@ MCAuto<DataArrayDouble> MEDCouplingMesh::computeMeshCenterOfMass() const
   MCAuto<DataArrayDouble> volXCenter( DataArrayDouble::Multiply(cellCenters,vol->getArray()) );
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(1, this->getSpaceDimension());
   volXCenter->accumulate( ret->getPointer() );
-  double volOfMesh(vol->accumulate(0));
+  double const volOfMesh(vol->accumulate(0));
   ret->applyLin(1.0/volOfMesh,0.0);
   return ret;
 }
@@ -752,7 +760,7 @@ void MEDCouplingMesh::writeVTKAdvanced(const std::string& fileName, const std::s
 
 void MEDCouplingMesh::SplitExtension(const std::string& fileName, std::string& baseName, std::string& extension)
 {
-  std::size_t pos(fileName.find_last_of('.'));
+  std::size_t const pos(fileName.find_last_of('.'));
   if(pos==std::string::npos)
     {
       baseName=fileName;

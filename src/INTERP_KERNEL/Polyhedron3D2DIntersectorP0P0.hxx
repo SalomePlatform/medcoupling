@@ -21,8 +21,12 @@
 #define __POLYHEDRON3D2DINTERSECTORP0P0_HXX__
 
 #include "Intersector3DP0P0.hxx"
+#include "MCIdType.hxx"
 #include "SplitterTetra.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
+#include <map>
+#include <set>
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -36,12 +40,12 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrixType>
   class Polyhedron3D2DIntersectorP0P0 : public Intersector3DP0P0<MyMeshType,MyMatrixType>
   {
-    typedef typename std::map<mcIdType,std::set<mcIdType> > DuplicateFacesType;
+    using DuplicateFacesType = typename std::map<mcIdType, std::set<mcIdType>>;
 
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
-    typedef typename MyMeshType::MyConnType ConnType;
+    using ConnType = typename MyMeshType::MyConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
 
   public:

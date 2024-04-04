@@ -19,24 +19,33 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileFieldGlobs.hxx"
-#include "MEDFileField.txx"
+#include "MCAuto.hxx"
+#include "MEDFileBasis.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDLoaderBase.hxx"
-#include "MEDLoaderTraits.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileFieldOverView.hxx"
-#include "MEDFileBlowStrEltUp.hxx"
-#include "MEDFileFieldVisitor.hxx"
+#include "MEDFileFieldInternal.hxx"
 
-#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MCType.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
-#include "CellModel.hxx"
+#include "med.h"
+#include "medprofile.h"
+#include "medlocalization.h"
+#include "NormalizedGeometricTypes"
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
+#include <map>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <ostream>
+#include <utility>
 
 using namespace MEDCoupling;
 
@@ -45,7 +54,7 @@ void MEDFileFieldGlobs::loadProfileInFile(med_idt fid, int id, const std::string
   if(id>=(int)_pfls.size())
     _pfls.resize(id+1);
   MCAuto<DataArrayMedInt> miPfl=DataArrayMedInt::New();
-  med_int lgth(MEDprofileSizeByName(fid,pflName.c_str()));
+  med_int const lgth(MEDprofileSizeByName(fid,pflName.c_str()));
   miPfl->setName(pflName);
   miPfl->alloc(lgth,1);
   MEDFILESAFECALLERRD0(MEDprofileRd,(fid,pflName.c_str(),miPfl->getPointer()));
@@ -58,7 +67,7 @@ void MEDFileFieldGlobs::loadProfileInFile(med_idt fid, int i)
   INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   med_int sz;
   MEDFILESAFECALLERRD0(MEDprofileInfo,(fid,i+1,pflName,&sz));
-  std::string pflCpp=MEDLoaderBase::buildStringFromFortran(pflName,MED_NAME_SIZE);
+  std::string const pflCpp=MEDLoaderBase::buildStringFromFortran(pflName,MED_NAME_SIZE);
   if(i>=(int)_pfls.size())
     _pfls.resize(i+1);
   MCAuto<DataArrayMedInt> miPfl=DataArrayMedInt::New();
@@ -71,7 +80,7 @@ void MEDFileFieldGlobs::loadProfileInFile(med_idt fid, int i)
 
 void MEDFileFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) const
 {
-  std::size_t nbOfPfls=_pfls.size();
+  std::size_t const nbOfPfls=_pfls.size();
   for(std::size_t i=0;i<nbOfPfls;i++)
     {
       MCAuto<DataArrayMedInt> cpy=DataArrayMedInt_Copy((const DataArrayIdType*)_pfls[i]);
@@ -81,7 +90,7 @@ void MEDFileFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) co
       MEDFILESAFECALLERWR0(MEDprofileWr,(fid,pflName,ToMedInt(_pfls[i]->getNumberOfTuples()),cpy->getConstPointer()));
     }
   //
-  std::size_t nbOfLocs=_locs.size();
+  std::size_t const nbOfLocs=_locs.size();
   for(std::size_t i=0;i<nbOfLocs;i++)
     _locs[i]->writeLL(fid);
 }
@@ -89,37 +98,37 @@ void MEDFileFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) co
 void MEDFileFieldGlobs::appendGlobs(const MEDFileFieldGlobs& other, double eps)
 {
   std::vector<std::string> pfls=getPfls();
-  for(std::vector< MCAuto<DataArrayIdType> >::const_iterator it=other._pfls.begin();it!=other._pfls.end();it++)
+  for(const auto & _pfl : other._pfls)
     {
-      std::vector<std::string>::iterator it2=std::find(pfls.begin(),pfls.end(),(*it)->getName());
+      auto const it2=std::find(pfls.begin(),pfls.end(),_pfl->getName());
       if(it2==pfls.end())
         {
-          _pfls.push_back(*it);
+          _pfls.push_back(_pfl);
         }
       else
         {
-          std::size_t id=std::distance(pfls.begin(),it2);
-          if(!(*it)->isEqual(*_pfls[id]))
+          std::size_t const id=std::distance(pfls.begin(),it2);
+          if(!_pfl->isEqual(*_pfls[id]))
             {
-              std::ostringstream oss; oss << "MEDFileFieldGlobs::appendGlobs : Profile \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
+              std::ostringstream oss; oss << "MEDFileFieldGlobs::appendGlobs : Profile \"" << _pfl->getName() << "\" already exists and is different from those expecting to be append !";
               throw INTERP_KERNEL::Exception(oss.str());
             }
         }
     }
   std::vector<std::string> locs=getLocs();
-  for(std::vector< MCAuto<MEDFileFieldLoc> >::const_iterator it=other._locs.begin();it!=other._locs.end();it++)
+  for(const auto & _loc : other._locs)
     {
-      std::vector<std::string>::iterator it2=std::find(locs.begin(),locs.end(),(*it)->getName());
+      auto const it2=std::find(locs.begin(),locs.end(),_loc->getName());
       if(it2==locs.end())
         {
-          _locs.push_back(*it);
+          _locs.push_back(_loc);
         }
       else
         {
-          std::size_t id=std::distance(locs.begin(),it2);
-          if(!(*it)->isEqual(*_locs[id],eps))
+          std::size_t const id=std::distance(locs.begin(),it2);
+          if(!_loc->isEqual(*_locs[id],eps))
             {
-              std::ostringstream oss; oss << "MEDFileFieldGlobs::appendGlobs : Localization \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
+              std::ostringstream oss; oss << "MEDFileFieldGlobs::appendGlobs : Localization \"" << _loc->getName() << "\" already exists and is different from those expecting to be append !";
               throw INTERP_KERNEL::Exception(oss.str());
             }
         }
@@ -128,14 +137,14 @@ void MEDFileFieldGlobs::appendGlobs(const MEDFileFieldGlobs& other, double eps)
 
 void MEDFileFieldGlobs::checkGlobsPflsPartCoherency(const std::vector<std::string>& pflsUsed) const
 {
-  for(std::vector<std::string>::const_iterator it=pflsUsed.begin();it!=pflsUsed.end();it++)
-    getProfile((*it).c_str());
+  for(const auto & it : pflsUsed)
+    getProfile(it.c_str());
 }
 
 void MEDFileFieldGlobs::checkGlobsLocsPartCoherency(const std::vector<std::string>& locsUsed) const
 {
-  for(std::vector<std::string>::const_iterator it=locsUsed.begin();it!=locsUsed.end();it++)
-    getLocalization((*it).c_str());
+  for(const auto & it : locsUsed)
+    getLocalization(it.c_str());
 }
 
 void MEDFileFieldGlobs::loadGlobals(med_idt fid, const MEDFileFieldGlobsReal& real)
@@ -146,7 +155,7 @@ void MEDFileFieldGlobs::loadGlobals(med_idt fid, const MEDFileFieldGlobsReal& re
   for(unsigned int i=0;i<sz;i++)
     loadProfileInFile(fid,i,profiles[i].c_str());
   //
-  std::vector<std::string> locs=real.getLocsReallyUsed();
+  std::vector<std::string> const locs=real.getLocsReallyUsed();
   sz=locs.size();
   _locs.resize(sz);
   for(std::size_t i=0;i<sz;i++)
@@ -155,10 +164,10 @@ void MEDFileFieldGlobs::loadGlobals(med_idt fid, const MEDFileFieldGlobsReal& re
 
 void MEDFileFieldGlobs::loadAllGlobals(med_idt fid, const MEDFileEntities *entities)
 {
-  med_int nProfil=MEDnProfile(fid);
+  med_int const nProfil=MEDnProfile(fid);
   for(int i=0;i<nProfil;i++)
     loadProfileInFile(fid,i);
-  med_int sz=MEDnLocalization(fid);
+  med_int const sz=MEDnLocalization(fid);
   _locs.resize(sz);
   for(int i=0;i<sz;i++)
     {
@@ -184,10 +193,10 @@ std::size_t MEDFileFieldGlobs::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> MEDFileFieldGlobs::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MCAuto< DataArrayIdType > >::const_iterator it=_pfls.begin();it!=_pfls.end();it++)
-    ret.push_back((const DataArrayIdType *)*it);
-  for(std::vector< MCAuto<MEDFileFieldLoc> >::const_iterator it=_locs.begin();it!=_locs.end();it++)
-    ret.push_back((const MEDFileFieldLoc *)*it);
+  for(const auto & _pfl : _pfls)
+    ret.push_back((const DataArrayIdType *)_pfl);
+  for(const auto & _loc : _locs)
+    ret.push_back((const MEDFileFieldLoc *)_loc);
   return ret;
 }
 
@@ -195,13 +204,13 @@ MEDFileFieldGlobs *MEDFileFieldGlobs::deepCopy() const
 {
   MCAuto<MEDFileFieldGlobs> ret=new MEDFileFieldGlobs(*this);
   std::size_t i=0;
-  for(std::vector< MCAuto<DataArrayIdType> >::const_iterator it=_pfls.begin();it!=_pfls.end();it++,i++)
+  for(auto it=_pfls.begin();it!=_pfls.end();it++,i++)
     {
       if((const DataArrayIdType *)*it)
         ret->_pfls[i]=(*it)->deepCopy();
     }
   i=0;
-  for(std::vector< MCAuto<MEDFileFieldLoc> >::const_iterator it=_locs.begin();it!=_locs.end();it++,i++)
+  for(auto it=_locs.begin();it!=_locs.end();it++,i++)
     {
       if((const MEDFileFieldLoc*)*it)
         ret->_locs[i]=(*it)->deepCopy();
@@ -217,22 +226,22 @@ MEDFileFieldGlobs *MEDFileFieldGlobs::deepCopy() const
 MEDFileFieldGlobs *MEDFileFieldGlobs::shallowCpyPart(const std::vector<std::string>& pfls, const std::vector<std::string>& locs) const
 {
   MCAuto<MEDFileFieldGlobs> ret=MEDFileFieldGlobs::New();
-  for(std::vector<std::string>::const_iterator it1=pfls.begin();it1!=pfls.end();it1++)
+  for(const auto & it1 : pfls)
     {
-      DataArrayIdType *pfl=const_cast<DataArrayIdType *>(getProfile((*it1).c_str()));
+      DataArrayIdType *pfl=const_cast<DataArrayIdType *>(getProfile(it1.c_str()));
       if(!pfl)
         throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::shallowCpyPart : internal error ! pfl null !");
       pfl->incrRef();
-      MCAuto<DataArrayIdType> pfl2(pfl);
+      MCAuto<DataArrayIdType> const pfl2(pfl);
       ret->_pfls.push_back(pfl2);
     }
-  for(std::vector<std::string>::const_iterator it2=locs.begin();it2!=locs.end();it2++)
+  for(const auto & it2 : locs)
     {
-      MEDFileFieldLoc *loc=const_cast<MEDFileFieldLoc *>(&getLocalization((*it2).c_str()));
+      MEDFileFieldLoc *loc=const_cast<MEDFileFieldLoc *>(&getLocalization(it2.c_str()));
       if(!loc)
         throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::shallowCpyPart : internal error ! loc null !");
       loc->incrRef();
-      MCAuto<MEDFileFieldLoc> loc2(loc);
+      MCAuto<MEDFileFieldLoc> const loc2(loc);
       ret->_locs.push_back(loc2);
     }
   ret->setFileName(getFileName());
@@ -247,16 +256,16 @@ MEDFileFieldGlobs *MEDFileFieldGlobs::shallowCpyPart(const std::vector<std::stri
 MEDFileFieldGlobs *MEDFileFieldGlobs::deepCpyPart(const std::vector<std::string>& pfls, const std::vector<std::string>& locs) const
 {
   MCAuto<MEDFileFieldGlobs> ret=MEDFileFieldGlobs::New();
-  for(std::vector<std::string>::const_iterator it1=pfls.begin();it1!=pfls.end();it1++)
+  for(const auto & it1 : pfls)
     {
-      DataArrayIdType *pfl=const_cast<DataArrayIdType *>(getProfile((*it1).c_str()));
+      DataArrayIdType *pfl=const_cast<DataArrayIdType *>(getProfile(it1.c_str()));
       if(!pfl)
         throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::deepCpyPart : internal error ! pfl null !");
       ret->_pfls.push_back(pfl->deepCopy());
     }
-  for(std::vector<std::string>::const_iterator it2=locs.begin();it2!=locs.end();it2++)
+  for(const auto & it2 : locs)
     {
-      MEDFileFieldLoc *loc=const_cast<MEDFileFieldLoc *>(&getLocalization((*it2).c_str()));
+      MEDFileFieldLoc *loc=const_cast<MEDFileFieldLoc *>(&getLocalization(it2.c_str()));
       if(!loc)
         throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::deepCpyPart : internal error ! loc null !");
       ret->_locs.push_back(loc->deepCopy());
@@ -270,12 +279,10 @@ MEDFileFieldGlobs::MEDFileFieldGlobs(med_idt fid):_file_name(MEDFileWritable::Fi
 }
 
 MEDFileFieldGlobs::MEDFileFieldGlobs()
-{
-}
+= default;
 
 MEDFileFieldGlobs::~MEDFileFieldGlobs()
-{
-}
+= default;
 
 void MEDFileFieldGlobs::simpleRepr(std::ostream& oss) const
 {
@@ -305,17 +312,17 @@ void MEDFileFieldGlobs::simpleRepr(std::ostream& oss) const
 
 void MEDFileFieldGlobs::changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif)
 {
-  for(std::vector< MCAuto<DataArrayIdType> >::iterator it=_pfls.begin();it!=_pfls.end();it++)
+  for(auto & _pfl : _pfls)
     {
-      DataArrayIdType *elt(*it);
+      DataArrayIdType *elt(_pfl);
       if(elt)
         {
-          std::string name(elt->getName());
-          for(std::vector< std::pair<std::vector<std::string>, std::string > >::const_iterator it2=mapOfModif.begin();it2!=mapOfModif.end();it2++)
+          std::string const name(elt->getName());
+          for(const auto & it2 : mapOfModif)
             {
-              if(std::find((*it2).first.begin(),(*it2).first.end(),name)!=(*it2).first.end())
+              if(std::find(it2.first.begin(),it2.first.end(),name)!=it2.first.end())
                 {
-                  elt->setName((*it2).second.c_str());
+                  elt->setName(it2.second.c_str());
                   return;
                 }
             }
@@ -325,17 +332,17 @@ void MEDFileFieldGlobs::changePflsNamesInStruct(const std::vector< std::pair<std
 
 void MEDFileFieldGlobs::changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif)
 {
-  for(std::vector< MCAuto<MEDFileFieldLoc> >::iterator it=_locs.begin();it!=_locs.end();it++)
+  for(auto & _loc : _locs)
     {
-      MEDFileFieldLoc *elt(*it);
+      MEDFileFieldLoc *elt(_loc);
       if(elt)
         {
-          std::string name(elt->getName());
-          for(std::vector< std::pair<std::vector<std::string>, std::string > >::const_iterator it2=mapOfModif.begin();it2!=mapOfModif.end();it2++)
+          std::string const name(elt->getName());
+          for(const auto & it2 : mapOfModif)
             {
-              if(std::find((*it2).first.begin(),(*it2).first.end(),name)!=(*it2).first.end())
+              if(std::find(it2.first.begin(),it2.first.end(),name)!=it2.first.end())
                 {
-                  elt->setName((*it2).second.c_str());
+                  elt->setName(it2.second.c_str());
                   return;
                 }
             }
@@ -387,7 +394,7 @@ namespace MEDCouplingImpl
 
 int MEDFileFieldGlobs::getLocalizationId(const std::string& loc) const
 {
-  std::vector< MCAuto<MEDFileFieldLoc> >::const_iterator it=std::find_if(_locs.begin(),_locs.end(),MEDCouplingImpl::LocFinder(loc));
+  auto it=std::find_if(_locs.begin(),_locs.end(),MEDCouplingImpl::LocFinder(loc));
   if(it==_locs.end())
     {
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getLocalisationId : no such localisation name : \"" << loc << "\" Possible localizations are : ";
@@ -400,7 +407,7 @@ int MEDFileFieldGlobs::getLocalizationId(const std::string& loc) const
 
 int MEDFileFieldGlobs::getProfileId(const std::string& pfl) const
 {
-  std::vector< MCAuto<DataArrayIdType> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),MEDCouplingImpl::PflFinder(pfl));
+  auto it=std::find_if(_pfls.begin(),_pfls.end(),MEDCouplingImpl::PflFinder(pfl));
   if(it==_pfls.end())
     {
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfileId : no such profile name : \"" << pfl << "\" Possible localizations are : ";
@@ -443,8 +450,8 @@ MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const std::string& locName)
  */
 DataArrayIdType *MEDFileFieldGlobs::getProfile(const std::string& pflName)
 {
-  std::string pflNameCpp(pflName);
-  std::vector< MCAuto<DataArrayIdType> >::iterator it=std::find_if(_pfls.begin(),_pfls.end(),MEDCouplingImpl::PflFinder(pflNameCpp));
+  std::string const pflNameCpp(pflName);
+  auto it=std::find_if(_pfls.begin(),_pfls.end(),MEDCouplingImpl::PflFinder(pflNameCpp));
   if(it==_pfls.end())
     {
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
@@ -489,19 +496,19 @@ void MEDFileFieldGlobs::killLocalizationIds(const std::vector<int>& locIds)
 void MEDFileFieldGlobs::killStructureElementsInGlobs()
 {
   std::vector< MCAuto<MEDFileFieldLoc> > newLocs;
-  for(std::vector< MCAuto<MEDFileFieldLoc> >::iterator it=_locs.begin();it!=_locs.end();it++)
+  for(auto & _loc : _locs)
     {
-      if((*it).isNull())
+      if(_loc.isNull())
         continue;
-      if(!(*it)->isOnStructureElement())
-        newLocs.push_back(*it);
+      if(!_loc->isOnStructureElement())
+        newLocs.push_back(_loc);
     }
   _locs=newLocs;
 }
 
 std::vector<std::string> MEDFileFieldGlobs::getPfls() const
 {
-  std::size_t sz=_pfls.size();
+  std::size_t const sz=_pfls.size();
   std::vector<std::string> ret(sz);
   for(std::size_t i=0;i<sz;i++)
     ret[i]=_pfls[i]->getName();
@@ -510,7 +517,7 @@ std::vector<std::string> MEDFileFieldGlobs::getPfls() const
 
 std::vector<std::string> MEDFileFieldGlobs::getLocs() const
 {
-  std::size_t sz=_locs.size();
+  std::size_t const sz=_locs.size();
   std::vector<std::string> ret(sz);
   for(std::size_t i=0;i<sz;i++)
     ret[i]=_locs[i]->getName();
@@ -520,14 +527,14 @@ std::vector<std::string> MEDFileFieldGlobs::getLocs() const
 bool MEDFileFieldGlobs::existsPfl(const std::string& pflName) const
 {
   std::vector<std::string> v=getPfls();
-  std::string s(pflName);
+  std::string const s(pflName);
   return std::find(v.begin(),v.end(),s)!=v.end();
 }
 
 bool MEDFileFieldGlobs::existsLoc(const std::string& locName) const
 {
   std::vector<std::string> v=getLocs();
-  std::string s(locName);
+  std::string const s(locName);
   return std::find(v.begin(),v.end(),s)!=v.end();
 }
 
@@ -535,7 +542,7 @@ std::vector< std::vector<int> > MEDFileFieldGlobs::whichAreEqualProfiles() const
 {
   std::map<mcIdType,std::vector<int> > m;
   int i=0;
-  for(std::vector< MCAuto<DataArrayIdType> >::const_iterator it=_pfls.begin();it!=_pfls.end();it++,i++)
+  for(auto it=_pfls.begin();it!=_pfls.end();it++,i++)
     {
       const DataArrayIdType *tmp=(*it);
       if(tmp)
@@ -550,9 +557,9 @@ std::vector< std::vector<int> > MEDFileFieldGlobs::whichAreEqualProfiles() const
         {
           std::vector<int> ret0;
           bool equalityOrNot=false;
-          for(std::vector<int>::const_iterator it3=(*it2).second.begin();it3!=(*it2).second.end();it3++)
+          for(auto it3=(*it2).second.begin();it3!=(*it2).second.end();it3++)
             {
-              std::vector<int>::const_iterator it4=it3; it4++;
+              auto it4=it3; it4++;
               for(;it4!=(*it2).second.end();it4++)
                 {
                   if(_pfls[*it3]->isEqualWithoutConsideringStr(*_pfls[*it4]))
@@ -571,20 +578,20 @@ std::vector< std::vector<int> > MEDFileFieldGlobs::whichAreEqualProfiles() const
   return ret;
 }
 
-std::vector< std::vector<int> > MEDFileFieldGlobs::whichAreEqualLocs(double eps) const
+std::vector< std::vector<int> > MEDFileFieldGlobs::whichAreEqualLocs(double  /*eps*/) const
 {
   throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::whichAreEqualLocs : no implemented yet ! Sorry !");
 }
 
 void MEDFileFieldGlobs::appendProfile(DataArrayIdType *pfl)
 {
-  std::string name(pfl->getName());
+  std::string const name(pfl->getName());
   if(name.empty())
     throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::appendProfile : unsupported profiles with no name !");
-  for(std::vector< MCAuto<DataArrayIdType> >::const_iterator it=_pfls.begin();it!=_pfls.end();it++)
-    if(name==(*it)->getName())
+  for(const auto & _pfl : _pfls)
+    if(name==_pfl->getName())
       {
-        if(!pfl->isEqual(*(*it)))
+        if(!pfl->isEqual(*_pfl))
           {
             std::ostringstream oss; oss << "MEDFileFieldGlobs::appendProfile : profile \"" << name << "\" already exists and is different from existing !";
             throw INTERP_KERNEL::Exception(oss.str());
@@ -596,14 +603,14 @@ void MEDFileFieldGlobs::appendProfile(DataArrayIdType *pfl)
 
 void MEDFileFieldGlobs::appendLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
 {
-  std::string name(locName);
+  std::string const name(locName);
   if(name.empty())
     throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::appendLoc : unsupported localizations with no name !");
   MCAuto<MEDFileFieldLoc> obj=MEDFileFieldLoc::New(locName,geoType,refCoo,gsCoo,w);
-  for(std::vector< MCAuto<MEDFileFieldLoc> >::const_iterator it=_locs.begin();it!=_locs.end();it++)
-    if((*it)->isName(locName))
+  for(const auto & _loc : _locs)
+    if(_loc->isName(locName))
       {
-        if(!(*it)->isEqual(*obj,1e-12))
+        if(!_loc->isEqual(*obj,1e-12))
           {
             std::ostringstream oss; oss << "MEDFileFieldGlobs::appendLoc : localization \"" << name << "\" already exists and is different from existing !";
             throw INTERP_KERNEL::Exception(oss.str());
@@ -614,13 +621,13 @@ void MEDFileFieldGlobs::appendLoc(const std::string& locName, INTERP_KERNEL::Nor
 
 std::string MEDFileFieldGlobs::createNewNameOfPfl() const
 {
-  std::vector<std::string> names=getPfls();
+  std::vector<std::string> const names=getPfls();
   return CreateNewNameNotIn("NewPfl_",names);
 }
 
 std::string MEDFileFieldGlobs::createNewNameOfLoc() const
 {
-  std::vector<std::string> names=getLocs();
+  std::vector<std::string> const names=getLocs();
   return CreateNewNameNotIn("NewLoc_",names);
 }
 
@@ -671,7 +678,7 @@ void MEDFileFieldGlobsReal::simpleReprGlobs(std::ostream& oss) const
 {
   const MEDFileFieldGlobs *glob=_globals;
   std::ostringstream oss2; oss2 << glob;
-  std::string stars(oss2.str().length(),'*');
+  std::string const stars(oss2.str().length(),'*');
   oss << "Globals information on fields (at " << oss2.str() << "):" << "\n************************************" << stars  << "\n\n";
   if(glob)
     glob->simpleRepr(oss);
@@ -690,8 +697,7 @@ void MEDFileFieldGlobsReal::killStructureElementsInGlobs()
 }
 
 MEDFileFieldGlobsReal::~MEDFileFieldGlobsReal()
-{
-}
+= default;
 
 /*!
  * Copies references to profiles and Gauss points from another MEDFileFieldGlobsReal.
@@ -945,7 +951,7 @@ void MEDFileFieldGlobsReal::changeLocsNames(const std::vector< std::pair<std::ve
 void MEDFileFieldGlobsReal::changePflName(const std::string& oldName, const std::string& newName)
 {
   std::vector< std::pair<std::vector<std::string>, std::string > > mapOfModif(1);
-  std::pair<std::vector<std::string>, std::string > p(std::vector<std::string>(1,std::string(oldName)),std::string(newName));
+  std::pair<std::vector<std::string>, std::string > const p(std::vector<std::string>(1,std::string(oldName)),std::string(newName));
   mapOfModif[0]=p;
   changePflsNames(mapOfModif);
 }
@@ -959,7 +965,7 @@ void MEDFileFieldGlobsReal::changePflName(const std::string& oldName, const std:
 void MEDFileFieldGlobsReal::changeLocName(const std::string& oldName, const std::string& newName)
 {
   std::vector< std::pair<std::vector<std::string>, std::string > > mapOfModif(1);
-  std::pair<std::vector<std::string>, std::string > p(std::vector<std::string>(1,std::string(oldName)),std::string(newName));
+  std::pair<std::vector<std::string>, std::string > const p(std::vector<std::string>(1,std::string(oldName)),std::string(newName));
   mapOfModif[0]=p;
   changeLocsNames(mapOfModif);
 }
@@ -983,11 +989,11 @@ std::vector< std::pair<std::vector<std::string>, std::string > > MEDFileFieldGlo
     {
       std::vector< std::string > tmp((*it).size());
       int j=0;
-      for(std::vector<int>::const_iterator it2=(*it).begin();it2!=(*it).end();it2++,j++)
+      for(auto it2=(*it).begin();it2!=(*it).end();it2++,j++)
         tmp[j]=std::string(getProfileFromId(*it2)->getName());
-      std::pair<std::vector<std::string>, std::string > p(tmp,tmp.front());
+      std::pair<std::vector<std::string>, std::string > const p(tmp,tmp.front());
       ret[i]=p;
-      std::vector<int> tmp2((*it).begin()+1,(*it).end());
+      std::vector<int> const tmp2((*it).begin()+1,(*it).end());
       killProfileIds(tmp2);
     }
   changePflsRefsNamesGen(ret);
@@ -1014,11 +1020,11 @@ std::vector< std::pair<std::vector<std::string>, std::string > > MEDFileFieldGlo
     {
       std::vector< std::string > tmp((*it).size());
       int j=0;
-      for(std::vector<int>::const_iterator it2=(*it).begin();it2!=(*it).end();it2++,j++)
+      for(auto it2=(*it).begin();it2!=(*it).end();it2++,j++)
         tmp[j]=std::string(getLocalizationFromId(*it2).getName());
-      std::pair<std::vector<std::string>, std::string > p(tmp,tmp.front());
+      std::pair<std::vector<std::string>, std::string > const p(tmp,tmp.front());
       ret[i]=p;
-      std::vector<int> tmp2((*it).begin()+1,(*it).end());
+      std::vector<int> const tmp2((*it).begin()+1,(*it).end());
       killLocalizationIds(tmp2);
     }
   changeLocsRefsNamesGen(ret);
@@ -1223,8 +1229,7 @@ const MEDFileFieldGlobs *MEDFileFieldGlobsReal::contentNotNull() const
 //= MEDFileFieldNameScope
 
 MEDFileFieldNameScope::MEDFileFieldNameScope()
-{
-}
+= default;
 
 MEDFileFieldNameScope::MEDFileFieldNameScope(const std::string& fieldName, const std::string& meshName):_name(fieldName),_mesh_name(meshName)
 {

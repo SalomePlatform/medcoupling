@@ -19,9 +19,14 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "InterpKernelGeo2DEdgeLin.hxx"
+#include "InterpKernelGeo2DEdge.hxx"
 #include "InterpKernelGeo2DNode.hxx"
-#include "InterpKernelException.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
+#include "InterpKernelGeo2DPrecision.hxx"
+#include <cmath>
+#include <list>
+#include <algorithm>
+#include <istream>
+#include <ostream>
 
 using namespace INTERP_KERNEL;
 
@@ -73,7 +78,7 @@ void SegSegIntersector::getCurveAbscisse(Node *node, TypeOfLocInEdge& where, Mer
   obviousCaseForCurvAbscisse(node,where,commonNode,obvious);
   if(obvious)
     return ;
-  double ret=((*node)[!_ind]-(*_e1.getStartNode())[!_ind])/((*_e1.getEndNode())[!_ind]-(*_e1.getStartNode())[!_ind]);
+  double const ret=((*node)[!_ind]-(*_e1.getStartNode())[!_ind])/((*_e1.getEndNode())[!_ind]-(*_e1.getStartNode())[!_ind]);
   if(ret>0. && ret <1.)
     where=INSIDE;
   else if(ret<0.)
@@ -95,15 +100,15 @@ std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicV
       return ret;
     }
 
-  double x= (-_matrix[2]*_col[0]+_matrix[0]*_col[1]) / _determinant;
-  double y= (-_matrix[3]*_col[0]+_matrix[1]*_col[1]) / _determinant;
+  double const x= (-_matrix[2]*_col[0]+_matrix[0]*_col[1]) / _determinant;
+  double const y= (-_matrix[3]*_col[0]+_matrix[1]*_col[1]) / _determinant;
   //Only one intersect point possible
   Node *node=new Node(x,y);
   node->declareOn();
-  bool i_1S=_e1.getStartNode()->isEqual(*node);
-  bool i_1E=_e1.getEndNode()->isEqual(*node);
-  bool i_2S=_e2.getStartNode()->isEqual(*node);
-  bool i_2E=_e2.getEndNode()->isEqual(*node);
+  bool const i_1S=_e1.getStartNode()->isEqual(*node);
+  bool const i_1E=_e1.getEndNode()->isEqual(*node);
+  bool const i_2S=_e2.getStartNode()->isEqual(*node);
+  bool const i_2E=_e2.getEndNode()->isEqual(*node);
   ret.push_back(IntersectElement(_e1.getCharactValue(*node),
       _e2.getCharactValue(*node),
       i_1S,i_1E,i_2S,i_2E,node,_e1,_e2,keepOrder()));
@@ -157,15 +162,15 @@ void SegSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection
   else  // Colinear vectors
     {
       // Compute vectors joining tips of e1 and e2
-      double xS=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
-      double yS=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];
-      double xE=(*(_e1.getEndNode()))[0]-(*(_e2.getEndNode()))[0];
-      double yE=(*(_e1.getEndNode()))[1]-(*(_e2.getEndNode()))[1];
+      double const xS=(*(_e1.getStartNode()))[0]-(*(_e2.getStartNode()))[0];
+      double const yS=(*(_e1.getStartNode()))[1]-(*(_e2.getStartNode()))[1];
+      double const xE=(*(_e1.getEndNode()))[0]-(*(_e2.getEndNode()))[0];
+      double const yE=(*(_e1.getEndNode()))[1]-(*(_e2.getEndNode()))[1];
       double maxDimS(std::max(fabs(xS),fabs(yS))), maxDimE(std::max(fabs(xE), fabs(yE)));
       bool isS = (maxDimS > maxDimE), isE1 = (dimCharE1 >= dimCharE2);
-      double x = isS ? xS : xE;
-      double y = isS ? yS : yE;
-      unsigned shift = isE1 ? 0 : 2;
+      double const x = isS ? xS : xE;
+      double const y = isS ? yS : yE;
+      unsigned const shift = isE1 ? 0 : 2;
       // test colinearity of the greatest tip-joining vector and greatest vector among {e1, e2}
       areOverlapped = fabs(x*_matrix[1+shift]-y*_matrix[0+shift]) < dimCharE1*dimCharE2*QuadraticPlanarPrecision::getPrecision();
       // explanation: if areOverlapped is true, we don't know yet if there will be an intersection (see meaning of areOverlapped in method doxy above)
@@ -194,8 +199,7 @@ EdgeLin::EdgeLin(double sX, double sY, double eX, double eY):Edge(sX,sY,eX,eY)
 }
 
 EdgeLin::~EdgeLin()
-{
-}
+= default;
 
 /*!
  * Characteristic for edges is relative position btw 0.;1.
@@ -222,7 +226,7 @@ double EdgeLin::getCharactValueBtw0And1(const Node& node) const
 
 double EdgeLin::getDistanceToPoint(const double *pt) const
 {
-  double loc=getCharactValueEng(pt);
+  double const loc=getCharactValueEng(pt);
   if(loc>0. && loc<1.)
     {
       double tmp[2];
@@ -232,15 +236,15 @@ double EdgeLin::getDistanceToPoint(const double *pt) const
     }
   else
     {
-      double dist1=Node::distanceBtw2Pt(*_start,pt);
-      double dist2=Node::distanceBtw2Pt(*_end,pt);
+      double const dist1=Node::distanceBtw2Pt(*_start,pt);
+      double const dist2=Node::distanceBtw2Pt(*_end,pt);
       return std::min(dist1,dist2);
     }
 }
 
 bool EdgeLin::isNodeLyingOn(const double *coordOfNode) const
 {
-  double dBase=sqrt(_start->distanceWithSq(*_end));
+  double const dBase=sqrt(_start->distanceWithSq(*_end));
   double d1=Node::distanceBtw2Pt(*_start,coordOfNode);
   d1+=Node::distanceBtw2Pt(*_end,coordOfNode);
   return Node::areDoubleEquals(dBase,d1);
@@ -256,7 +260,7 @@ void EdgeLin::dumpInXfigFile(std::ostream& stream, bool direction, int resolutio
   stream << std::endl;
 }
 
-void EdgeLin::update(Node *m)
+void EdgeLin::update(Node * /*m*/)
 {
   updateBounds();
 }
@@ -297,10 +301,10 @@ void EdgeLin::getBarycenter(double *bary) const
  */
 void EdgeLin::getBarycenterOfZone(double *bary) const
 {
-  double x1=(*_start)[0];
-  double y1=(*_start)[1];
-  double x2=(*_end)[0];
-  double y2=(*_end)[1];
+  double const x1=(*_start)[0];
+  double const y1=(*_start)[1];
+  double const x2=(*_end)[0];
+  double const y2=(*_end)[1];
   bary[0]=(x1-x2)*(y1*(2.*x1+x2)+y2*(2.*x2+x1))/6.;
   //bary[0]+=(y1-y2)*(x2*x2/3.-(x1*x2+x1*x1)/6.)+y1*(x1*x1-x2*x2)/2.;
   //bary[0]+=(y1-y2)*((x2*x2+x1*x2+x1*x1)/3.-(x2+x1)*x1/2.)+y1*(x1*x1-x2*x2)/2.;
@@ -318,8 +322,8 @@ void EdgeLin::getMiddleOfPoints(const double *p1, const double *p2, double *mid)
 
 double EdgeLin::getCurveLength() const
 {
-  double x=(*_start)[0]-(*_end)[0];
-  double y=(*_start)[1]-(*_end)[1];
+  double const x=(*_start)[0]-(*_end)[0];
+  double const y=(*_start)[1]-(*_end)[1];
   return sqrt(x*x+y*y);
 }
 
@@ -338,7 +342,7 @@ void EdgeLin::updateBounds()
 
 double EdgeLin::getCharactValueEng(const double *node) const
 {
-  double car1_1x=node[0]-(*(_start))[0]; double car1_2x=(*(_end))[0]-(*(_start))[0];
-  double car1_1y=node[1]-(*(_start))[1]; double car1_2y=(*(_end))[1]-(*(_start))[1];
+  double const car1_1x=node[0]-(*(_start))[0]; double const car1_2x=(*(_end))[0]-(*(_start))[0];
+  double const car1_1y=node[1]-(*(_start))[1]; double const car1_2y=(*(_end))[1]-(*(_start))[1];
   return (car1_1x*car1_2x+car1_1y*car1_2y)/(car1_2x*car1_2x+car1_2y*car1_2y);
 }

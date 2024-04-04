@@ -22,7 +22,6 @@
 
 #include "MEDPARTITIONER.hxx"
 
-#include <vector>
 #include <string>
 
 namespace MEDCoupling
@@ -43,11 +42,11 @@ namespace MEDPARTITIONER
   {
   public:
     MeshCollectionDriver(MeshCollection*);
-    virtual ~MeshCollectionDriver() { }
-    virtual int read(const char*, ParaDomainSelector* sel=0) = 0;
+    virtual ~MeshCollectionDriver() = default;
+    virtual int read(const char*, ParaDomainSelector* sel=nullptr) = 0;
     int readSeq(const char*,const char*);
     MEDCoupling::MEDFileData *getMEDFileData();
-    virtual void write(const char*, ParaDomainSelector* sel=0) const = 0;
+    virtual void write(const char*, ParaDomainSelector* sel=nullptr) const = 0;
     void readMEDFileData(const MEDCoupling::MEDFileData* filedata);
   protected:
     void readSubdomain(int idomain);

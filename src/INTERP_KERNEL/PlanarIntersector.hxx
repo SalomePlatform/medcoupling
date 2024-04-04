@@ -24,8 +24,10 @@
 #include "TargetIntersector.txx"
 #include "NormalizedUnstructuredMesh.hxx"
 
+#include <cstddef>
 #include <map>
 #include <set>
+#include <vector>
 
 namespace INTERP_KERNEL
 {

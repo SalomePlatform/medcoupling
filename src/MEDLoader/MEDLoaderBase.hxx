@@ -22,8 +22,8 @@
 #define __MEDLOADERBASE_HXX__
 
 #include "MEDLoaderDefines.hxx"
-#include "InterpKernelException.hxx"
 
+#include <cstddef>
 #include <string>
 
 class MEDLOADER_EXPORT MEDLoaderBase

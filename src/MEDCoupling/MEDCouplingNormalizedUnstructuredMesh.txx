@@ -22,12 +22,15 @@
 #define __MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_TXX__
 
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
-#include "InterpKernelAssert.hxx"
 
+#include "MCIdType.hxx"
+#include "InterpKernelAssert.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <algorithm>
 #include <limits>
 
 template<int SPACEDIM,int MESHDIM>
@@ -110,8 +113,8 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::releaseTempArrays(
 {
   delete [] _conn_for_interp;
   delete [] _conn_index_for_interp;
-  _conn_for_interp=0;
-  _conn_index_for_interp=0;
+  _conn_for_interp=nullptr;
+  _conn_index_for_interp=nullptr;
 }
 
 template<int SPACEDIM,int MESHDIM>
@@ -126,11 +129,11 @@ template<int SPACEDIM,int MESHDIM>
 void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
 {
   IKAssert(_mesh->getSpaceDimension()==SPACEDIM);
-  const MEDCoupling::MEDCouplingUMesh *m1(dynamic_cast<const MEDCoupling::MEDCouplingUMesh *>(_mesh));
+  const auto *m1(dynamic_cast<const MEDCoupling::MEDCouplingUMesh *>(_mesh));
   if(m1)
     {
-      mcIdType nbOfCell=ToIdType(m1->getNumberOfCells());
-      mcIdType initialConnSize=ToIdType(m1->getNodalConnectivity()->getNbOfElems());
+      mcIdType const nbOfCell=ToIdType(m1->getNumberOfCells());
+      mcIdType const initialConnSize=ToIdType(m1->getNodalConnectivity()->getNbOfElems());
       _conn_for_interp=new mcIdType[initialConnSize-nbOfCell];
       _conn_index_for_interp=new mcIdType[nbOfCell+1];
       _conn_index_for_interp[0]=0;
@@ -140,7 +143,7 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
       mcIdType *work_conn_index_for_interp=_conn_index_for_interp;
       for(mcIdType i=0;i<nbOfCell;i++)
         {
-          mcIdType nbOfValsToCopy=work_conn_index[1]-work_conn_index[0]-1;
+          mcIdType const nbOfValsToCopy=work_conn_index[1]-work_conn_index[0]-1;
           work_conn_for_interp=std::copy(work_conn,work_conn+nbOfValsToCopy,work_conn_for_interp);
           work_conn_index_for_interp[1]=work_conn_index_for_interp[0]+nbOfValsToCopy;
           work_conn_index++;
@@ -149,10 +152,10 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
         }
       return ;
     }
-  const MEDCoupling::MEDCoupling1DGTUMesh *m2(dynamic_cast<const MEDCoupling::MEDCoupling1DGTUMesh *>(_mesh));
+  const auto *m2(dynamic_cast<const MEDCoupling::MEDCoupling1DGTUMesh *>(_mesh));
   if(m2)
     {
-      mcIdType nbOfCell=ToIdType(m2->getNumberOfCells());
+      mcIdType const nbOfCell=ToIdType(m2->getNumberOfCells());
       _conn_index_for_interp=new mcIdType[nbOfCell+1];
       const mcIdType *conni(m2->getNodalConnectivityIndex()->begin());
       std::copy(conni,conni+nbOfCell+1,_conn_index_for_interp);
@@ -160,7 +163,7 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
       std::copy(m2->getNodalConnectivity()->begin(),m2->getNodalConnectivity()->end(),_conn_for_interp);
       return ;
     }
-  const MEDCoupling::MEDCoupling1SGTUMesh *m3(dynamic_cast<const MEDCoupling::MEDCoupling1SGTUMesh *>(_mesh));
+  const auto *m3(dynamic_cast<const MEDCoupling::MEDCoupling1SGTUMesh *>(_mesh));
   if(m3)
     {
       mcIdType nbOfCell=ToIdType(m3->getNumberOfCells()),nbNodesPerCell(m3->getNumberOfNodesPerCell());

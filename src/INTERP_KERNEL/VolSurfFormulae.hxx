@@ -21,15 +21,18 @@
 #ifndef __VOLSURFFORMULAE_HXX__
 #define __VOLSURFFORMULAE_HXX__
 
+#include "InterpKernelGeo2DNode.hxx"
 #include "InterpolationUtils.hxx"
 #include "InterpKernelException.hxx"
-#include "InterpKernelGeo2DEdgeLin.hxx"
-#include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "MCIdType.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 
+#include <cstddef>
+#include <limits>
 #include <sstream>
 #include <cmath>
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -61,7 +64,7 @@ namespace INTERP_KERNEL
     if(spaceDim==2)
       {
         Edge *ed=Edge::BuildEdgeFrom3Points(begin,middle,end);
-        double ret=ed->getCurveLength(); ed->decrRef();
+        double const ret=ed->getCurveLength(); ed->decrRef();
         return ret;
         }
     else
@@ -213,7 +216,7 @@ namespace INTERP_KERNEL
     calculateBarycenterDyn(coords,nbOfPtsInPolygs,spaceDim,coordOfBary);
     for ( mcIdType i=0; i<nbOfPtsInPolygs; i++ )
       {
-        double tmp = calculateAreaForTria(coords[i],coords[(i+1)%nbOfPtsInPolygs],
+        double const tmp = calculateAreaForTria(coords[i],coords[(i+1)%nbOfPtsInPolygs],
                                           coordOfBary,spaceDim);
         ret+=tmp;
       }
@@ -231,7 +234,7 @@ namespace INTERP_KERNEL
             for(mcIdType i=0;i<nbOfPtsInPolygs;i++)
               nodes[i]=new Node(coords[i][0],coords[i][1]);
             QuadraticPolygon *pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
-            double ret=pol->getArea();
+            double const ret=pol->getArea();
             delete pol;
             return -ret;
           }
@@ -298,19 +301,19 @@ namespace INTERP_KERNEL
     double f1 = (p1[0]-p3[0])/2.0, f2 = (p1[1]-p3[1])/2.0, f3 = (p1[2]-p3[2])/2.0;
     double h1 = (p4[0]-p6[0])/2.0, h2 = (p4[1]-p6[1])/2.0, h3 = (p4[2]-p6[2])/2.0;
 
-    double A = a1*c2*f3 - a1*c3*f2 - a2*c1*f3 + a2*c3*f1 + a3*c1*f2 - a3*c2*f1;
-    double B = b1*c2*h3 - b1*c3*h2 - b2*c1*h3 + b2*c3*h1 + b3*c1*h2 - b3*c2*h1;
-    double C = (a1*c2*h3 + b1*c2*f3) - (a1*c3*h2 + b1*c3*f2)
+    double const A = a1*c2*f3 - a1*c3*f2 - a2*c1*f3 + a2*c3*f1 + a3*c1*f2 - a3*c2*f1;
+    double const B = b1*c2*h3 - b1*c3*h2 - b2*c1*h3 + b2*c3*h1 + b3*c1*h2 - b3*c2*h1;
+    double const C = (a1*c2*h3 + b1*c2*f3) - (a1*c3*h2 + b1*c3*f2)
       - (a2*c1*h3 + b2*c1*f3) + (a2*c3*h1 + b2*c3*f1)
       + (a3*c1*h2 + b3*c1*f2) - (a3*c2*h1 + b3*c2*f1);
-    double D = a1*d2*f3 - a1*d3*f2 - a2*d1*f3 + a2*d3*f1 + a3*d1*f2 - a3*d2*f1;
-    double E = b1*d2*h3 - b1*d3*h2 - b2*d1*h3 + b2*d3*h1 + b3*d1*h2 - b3*d2*h1;
-    double F = (a1*d2*h3 + b1*d2*f3) - (a1*d3*h2 + b1*d3*f2)
+    double const D = a1*d2*f3 - a1*d3*f2 - a2*d1*f3 + a2*d3*f1 + a3*d1*f2 - a3*d2*f1;
+    double const E = b1*d2*h3 - b1*d3*h2 - b2*d1*h3 + b2*d3*h1 + b3*d1*h2 - b3*d2*h1;
+    double const F = (a1*d2*h3 + b1*d2*f3) - (a1*d3*h2 + b1*d3*f2)
       - (a2*d1*h3 + b2*d1*f3) + (a2*d3*h1 + b2*d3*f1)
       + (a3*d1*h2 + b3*d1*f2) - (a3*d2*h1 + b3*d2*f1);
-    double G = a1*e2*f3 - a1*e3*f2 - a2*e1*f3 + a2*e3*f1 + a3*e1*f2 - a3*e2*f1;
-    double H = b1*e2*h3 - b1*e3*h2 - b2*e1*h3 + b2*e3*h1 + b3*e1*h2 - b3*e2*h1;
-    double P = (a1*e2*h3 + b1*e2*f3) - (a1*e3*h2 + b1*e3*f2)
+    double const G = a1*e2*f3 - a1*e3*f2 - a2*e1*f3 + a2*e3*f1 + a3*e1*f2 - a3*e2*f1;
+    double const H = b1*e2*h3 - b1*e3*h2 - b2*e1*h3 + b2*e3*h1 + b3*e1*h2 - b3*e2*h1;
+    double const P = (a1*e2*h3 + b1*e2*f3) - (a1*e3*h2 + b1*e3*f2)
       - (a2*e1*h3 + b2*e1*f3) + (a2*e3*h1 + b2*e3*f1)
       + (a3*e1*h2 + b3*e1*f2) - (a3*e2*h1 + b3*e2*f1);
 
@@ -338,87 +341,87 @@ namespace INTERP_KERNEL
     double s1=(pt2[0]-pt6[0])/8.0, s2=(pt2[1]-pt6[1])/8.0, s3=(pt2[2]-pt6[2])/8.0;
     double t1=(pt1[0]-pt5[0])/8.0, t2=(pt1[1]-pt5[1])/8.0, t3=(pt1[2]-pt5[2])/8.0;
 
-    double A = a1*e2*q3 - a1*e3*q2 - a2*e1*q3 + a2*e3*q1 + a3*e1*q2 - a3*e2*q1;
-    double B = c1*h2*q3 - c1*h3*q2 - c2*h1*q3 + c2*h3*q1 + c3*h1*q2 - c3*h2*q1;
-    double C = (a1*h2 + c1*e2)*q3 - (a1*h3 + c1*e3)*q2
+    double const A = a1*e2*q3 - a1*e3*q2 - a2*e1*q3 + a2*e3*q1 + a3*e1*q2 - a3*e2*q1;
+    double const B = c1*h2*q3 - c1*h3*q2 - c2*h1*q3 + c2*h3*q1 + c3*h1*q2 - c3*h2*q1;
+    double const C = (a1*h2 + c1*e2)*q3 - (a1*h3 + c1*e3)*q2
       - (a2*h1 + c2*e1)*q3 + (a2*h3 + c2*e3)*q1
       + (a3*h1 + c3*e1)*q2 - (a3*h2 + c3*e2)*q1;
-    double D = b1*e2*s3 - b1*e3*s2 - b2*e1*s3 + b2*e3*s1 + b3*e1*s2 - b3*e2*s1;
-    double E = d1*h2*s3 - d1*h3*s2 - d2*h1*s3 + d2*h3*s1 + d3*h1*s2 - d3*h2*s1;
-    double F = (b1*h2 + d1*e2)*s3 - (b1*h3 + d1*e3)*s2
+    double const D = b1*e2*s3 - b1*e3*s2 - b2*e1*s3 + b2*e3*s1 + b3*e1*s2 - b3*e2*s1;
+    double const E = d1*h2*s3 - d1*h3*s2 - d2*h1*s3 + d2*h3*s1 + d3*h1*s2 - d3*h2*s1;
+    double const F = (b1*h2 + d1*e2)*s3 - (b1*h3 + d1*e3)*s2
       - (b2*h1 + d2*e1)*s3 + (b2*h3 + d2*e3)*s1
       + (b3*h1 + d3*e1)*s2 - (b3*h2 + d3*e2)*s1;
-    double G = (a1*e2*s3 + b1*e2*q3) - (a1*e3*s2 + b1*e3*q2)
+    double const G = (a1*e2*s3 + b1*e2*q3) - (a1*e3*s2 + b1*e3*q2)
       - (a2*e1*s3 + b2*e1*q3) + (a2*e3*s1 + b2*e3*q1)
       + (a3*e1*s2 + b3*e1*q2) - (a3*e2*s1 + b3*e2*q1);
-    double H = (c1*h2*s3 + d1*h2*q3) - (c1*h3*s2 + d1*h3*q2)
+    double const H = (c1*h2*s3 + d1*h2*q3) - (c1*h3*s2 + d1*h3*q2)
       - (c2*h1*s3 + d2*h1*q3) + (c2*h3*s1 + d2*h3*q1)
       + (c3*h1*s2 + d3*h1*q2) - (c3*h2*s1 + d3*h2*q1);
-    double I = ((a1*h2 + c1*e2)*s3 + (b1*h2 + d1*e2)*q3)
+    double const I = ((a1*h2 + c1*e2)*s3 + (b1*h2 + d1*e2)*q3)
       - ((a1*h3 + c1*e3)*s2 + (b1*h3 + d1*e3)*q2)
       - ((a2*h1 + c2*e1)*s3 + (b2*h1 + d2*e1)*q3)
       + ((a2*h3 + c2*e3)*s1 + (b2*h3 + d2*e3)*q1)
       + ((a3*h1 + c3*e1)*s2 + (b3*h1 + d3*e1)*q2)
       - ((a3*h2 + c3*e2)*s1 + (b3*h2 + d3*e2)*q1);
-    double J = a1*f2*r3 - a1*f3*r2 - a2*f1*r3 + a2*f3*r1 + a3*f1*r2 - a3*f2*r1;
-    double K = c1*p2*r3 - c1*p3*r2 - c2*p1*r3 + c2*p3*r1 + c3*p1*r2 - c3*p2*r1;
-    double L = (a1*p2 + c1*f2)*r3 - (a1*p3 + c1*f3)*r2
+    double const J = a1*f2*r3 - a1*f3*r2 - a2*f1*r3 + a2*f3*r1 + a3*f1*r2 - a3*f2*r1;
+    double const K = c1*p2*r3 - c1*p3*r2 - c2*p1*r3 + c2*p3*r1 + c3*p1*r2 - c3*p2*r1;
+    double const L = (a1*p2 + c1*f2)*r3 - (a1*p3 + c1*f3)*r2
       - (a2*p1 + c2*f1)*r3 + (a2*p3 + c2*f3)*r1
       + (a3*p1 + c3*f1)*r2 - (a3*p2 + c3*f2)*r1;
-    double M = b1*f2*t3 - b1*f3*t2 - b2*f1*t3 + b2*f3*t1 + b3*f1*t2 - b3*f2*t1;
-    double N = d1*p2*t3 - d1*p3*t2 - d2*p1*t3 + d2*p3*t1 + d3*p1*t2 - d3*p2*t1;
-    double O = (b1*p2 + d1*f2)*t3 - (b1*p3 + d1*f3)*t2
+    double const M = b1*f2*t3 - b1*f3*t2 - b2*f1*t3 + b2*f3*t1 + b3*f1*t2 - b3*f2*t1;
+    double const N = d1*p2*t3 - d1*p3*t2 - d2*p1*t3 + d2*p3*t1 + d3*p1*t2 - d3*p2*t1;
+    double const O = (b1*p2 + d1*f2)*t3 - (b1*p3 + d1*f3)*t2
       - (b2*p1 + d2*f1)*t3 + (b2*p3 + d2*f3)*t1
       + (b3*p1 + d3*f1)*t2 - (b3*p2 + d3*f2)*t1;
-    double P = (a1*f2*t3 + b1*f2*r3) - (a1*f3*t2 + b1*f3*r2)
+    double const P = (a1*f2*t3 + b1*f2*r3) - (a1*f3*t2 + b1*f3*r2)
       - (a2*f1*t3 + b2*f1*r3) + (a2*f3*t1 + b2*f3*r1)
       + (a3*f1*t2 + b3*f1*r2) - (a3*f2*t1 + b3*f2*r1);
-    double Q = (c1*p2*t3 + d1*p2*r3) - (c1*p3*t2 + d1*p3*r2)
+    double const Q = (c1*p2*t3 + d1*p2*r3) - (c1*p3*t2 + d1*p3*r2)
       - (c2*p1*t3 + d2*p1*r3) + (c2*p3*t1 + d2*p3*r1)
       + (c3*p1*t2 + d3*p1*r2) - (c3*p2*t1 + d3*p2*r1);
-    double R = ((a1*p2 + c1*f2)*t3 + (b1*p2 + d1*f2)*r3)
+    double const R = ((a1*p2 + c1*f2)*t3 + (b1*p2 + d1*f2)*r3)
       - ((a1*p3 + c1*f3)*t2 + (b1*p3 + d1*f3)*r2)
       - ((a2*p1 + c2*f1)*t3 + (b2*p1 + d2*f1)*r3)
       + ((a2*p3 + c2*f3)*t1 + (b2*p3 + d2*f3)*r1)
       + ((a3*p1 + c3*f1)*t2 + (b3*p1 + d3*f1)*r2)
       - ((a3*p2 + c3*f2)*t1 + (b3*p2 + d3*f2)*r1);
-    double S = (a1*e2*r3 + a1*f2*q3) - (a1*e3*r2 + a1*f3*q2)
+    double const S = (a1*e2*r3 + a1*f2*q3) - (a1*e3*r2 + a1*f3*q2)
       - (a2*e1*r3 + a2*f1*q3) + (a2*e3*r1 + a2*f3*q1)
       + (a3*e1*r2 + a3*f1*q2) - (a3*e2*r1 + a3*f2*q1);
-    double T = (c1*h2*r3 + c1*p2*q3) - (c1*h3*r2 + c1*p3*q2)
+    double const T = (c1*h2*r3 + c1*p2*q3) - (c1*h3*r2 + c1*p3*q2)
       - (c2*h1*r3 + c2*p1*q3) + (c2*h3*r1 + c2*p3*q1)
       + (c3*h1*r2 + c3*p1*q2) - (c3*h2*r1 + c3*p2*q1);
-    double U = ((a1*h2 + c1*e2)*r3 + (a1*p2 + c1*f2)*q3)
+    double const U = ((a1*h2 + c1*e2)*r3 + (a1*p2 + c1*f2)*q3)
       - ((a1*h3 + c1*e3)*r2 + (a1*p3 + c1*f3)*q2)
       - ((a2*h1 + c2*e1)*r3 + (a2*p1 + c2*f1)*q3)
       + ((a2*h3 + c2*e3)*r1 + (a2*p3 + c2*f3)*q1)
       + ((a3*h1 + c3*e1)*r2 + (a3*p1 + c3*f1)*q2)
       - ((a3*h2 + c3*e2)*r1 + (a3*p2 + c3*f2)*q1);
-    double V = (b1*e2*t3 + b1*f2*s3) - (b1*e3*t2 + b1*f3*s2)
+    double const V = (b1*e2*t3 + b1*f2*s3) - (b1*e3*t2 + b1*f3*s2)
       - (b2*e1*t3 + b2*f1*s3) + (b2*e3*t1 + b2*f3*s1)
       + (b3*e1*t2 + b3*f1*s2) - (b3*e2*t1 + b3*f2*s1);
-    double W = (d1*h2*t3 + d1*p2*s3) - (d1*h3*t2 + d1*p3*s2)
+    double const W = (d1*h2*t3 + d1*p2*s3) - (d1*h3*t2 + d1*p3*s2)
       - (d2*h1*t3 + d2*p1*s3) + (d2*h3*t1 + d2*p3*s1)
       + (d3*h1*t2 + d3*p1*s2) - (d3*h2*t1 + d3*p2*s1);
-    double X = ((b1*h2 + d1*e2)*t3 + (b1*p2 + d1*f2)*s3)
+    double const X = ((b1*h2 + d1*e2)*t3 + (b1*p2 + d1*f2)*s3)
       - ((b1*h3 + d1*e3)*t2 + (b1*p3 + d1*f3)*s2)
       - ((b2*h1 + d2*e1)*t3 + (b2*p1 + d2*f1)*s3)
       + ((b2*h3 + d2*e3)*t1 + (b2*p3 + d2*f3)*s1)
       + ((b3*h1 + d3*e1)*t2 + (b3*p1 + d3*f1)*s2)
       - ((b3*h2 + d3*e2)*t1 + (b3*p2 + d3*f2)*s1);
-    double Y = (a1*e2*t3 + a1*f2*s3 + b1*e2*r3 + b1*f2*q3)
+    double const Y = (a1*e2*t3 + a1*f2*s3 + b1*e2*r3 + b1*f2*q3)
       - (a1*e3*t2 + a1*f3*s2 + b1*e3*r2 + b1*f3*q2)
       - (a2*e1*t3 + a2*f1*s3 + b2*e1*r3 + b2*f1*q3)
       + (a2*e3*t1 + a2*f3*s1 + b2*e3*r1 + b2*f3*q1)
       + (a3*e1*t2 + a3*f1*s2 + b3*e1*r2 + b3*f1*q2)
       - (a3*e2*t1 + a3*f2*s1 + b3*e2*r1 + b3*f2*q1);
-    double Z = (c1*h2*t3 + c1*p2*s3 + d1*h2*r3 + d1*p2*q3)
+    double const Z = (c1*h2*t3 + c1*p2*s3 + d1*h2*r3 + d1*p2*q3)
       - (c1*h3*t2 + c1*p3*s2 + d1*h3*r2 + d1*p3*q2)
       - (c2*h1*t3 + c2*p1*s3 + d2*h1*r3 + d2*p1*q3)
       + (c2*h3*t1 + c2*p3*s1 + d2*h3*r1 + d2*p3*q1)
       + (c3*h1*t2 + c3*p1*s2 + d3*h1*r2 + d3*p1*q2)
       - (c3*h2*t1 + c3*p2*s1 + d3*h2*r1 + d3*p2*q1);
-    double AA = ((a1*h2 + c1*e2)*t3 + (a1*p2 + c1*f2)*s3
+    double const AA = ((a1*h2 + c1*e2)*t3 + (a1*p2 + c1*f2)*s3
                  +(b1*h2 + d1*e2)*r3 + (b1*p2 + d1*f2)*q3)
       - ((a1*h3 + c1*e3)*t2 + (a1*p3 + c1*f3)*s2
          +(b1*h3 + d1*e3)*r2 + (b1*p3 + d1*f3)*q2)
@@ -535,11 +538,11 @@ namespace INTERP_KERNEL
                   coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])+2])/3.;
             ConnType tmpConn[3]={connec[0],connec[i],connec[i+1]};
             areaVectorOfPolygon<ConnType,numPol>(tmpConn,3,coords,tmpArea);
-            double norm2=sqrt(tmpArea[0]*tmpArea[0]+tmpArea[1]*tmpArea[1]+tmpArea[2]*tmpArea[2]);
+            double const norm2=sqrt(tmpArea[0]*tmpArea[0]+tmpArea[1]*tmpArea[1]+tmpArea[2]*tmpArea[2]);
             if(norm2>1e-12)
               {
                 tmpArea[0]/=norm2; tmpArea[1]/=norm2; tmpArea[2]/=norm2;
-                double signOfArea=area[0]*tmpArea[0]+area[1]*tmpArea[1]+area[2]*tmpArea[2];
+                double const signOfArea=area[0]*tmpArea[0]+area[1]*tmpArea[1]+area[2]*tmpArea[2];
                 res[0]+=signOfArea*norm2*v[0]/norm; res[1]+=signOfArea*norm2*v[1]/norm; res[2]+=signOfArea*norm2*v[2]/norm;
               }
           }
@@ -601,13 +604,13 @@ namespace INTERP_KERNEL
         // projection to (u,v) of each faces of polyh to compute integral(x^2/2) on each faces.
         double normal[3];
         areaVectorOfPolygon<ConnType,numPol>(work,nbOfNodesOfCurFace,coords,normal);
-        double normOfNormal=sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
+        double const normOfNormal=sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
         if(normOfNormal<std::numeric_limits<double>::min())
           continue;
         normal[0]/=normOfNormal; normal[1]/=normOfNormal; normal[2]/=normOfNormal;
         double u[2]={normal[1],-normal[0]};
-        double s=sqrt(u[0]*u[0]+u[1]*u[1]);
-        double c=normal[2];
+        double const s=sqrt(u[0]*u[0]+u[1]*u[1]);
+        double const c=normal[2];
         if(fabs(s)>1e-12)
           {
             u[0]/=std::abs(s); u[1]/=std::abs(s);
@@ -619,30 +622,30 @@ namespace INTERP_KERNEL
           normal[1]*coords[3*OTT<ConnType,numPol>::coo2C(work[0])+1]+
           normal[2]*coords[3*OTT<ConnType,numPol>::coo2C(work[0])+2];
         // A,B,D,F,G,H,L,M,N coeffs of rotation matrix defined by (u,c,s)
-        double A=u[0]*u[0]*(1-c)+c;
-        double B=u[0]*u[1]*(1-c);
-        double D=u[1]*s;
-        double F=B;
-        double G=u[1]*u[1]*(1-c)+c;
-        double H=-u[0]*s;
-        double L=-u[1]*s;
-        double M=u[0]*s;
-        double N=c;
-        double CX=-w*D;
-        double CY=-w*H;
-        double CZ=-w*N;
+        double const A=u[0]*u[0]*(1-c)+c;
+        double const B=u[0]*u[1]*(1-c);
+        double const D=u[1]*s;
+        double const F=B;
+        double const G=u[1]*u[1]*(1-c)+c;
+        double const H=-u[0]*s;
+        double const L=-u[1]*s;
+        double const M=u[0]*s;
+        double const N=c;
+        double const CX=-w*D;
+        double const CY=-w*H;
+        double const CZ=-w*N;
         for(int j=0;j<nbOfNodesOfCurFace;j++)
           {
             const double *p1=coords+3*OTT<ConnType,numPol>::coo2C(work[j]);
             const double *p2=coords+3*OTT<ConnType,numPol>::coo2C(work[(j+1)%nbOfNodesOfCurFace]);
-            double u1=A*p1[0]+B*p1[1]+D*p1[2];
-            double u2=A*p2[0]+B*p2[1]+D*p2[2];
-            double v1=F*p1[0]+G*p1[1]+H*p1[2];
-            double v2=F*p2[0]+G*p2[1]+H*p2[2];
+            double const u1=A*p1[0]+B*p1[1]+D*p1[2];
+            double const u2=A*p2[0]+B*p2[1]+D*p2[2];
+            double const v1=F*p1[0]+G*p1[1]+H*p1[2];
+            double const v2=F*p2[0]+G*p2[1]+H*p2[2];
             //
-            double gx=integrationOverA3DLine(u1,v1,u2,v2,A,B,CX);
-            double gy=integrationOverA3DLine(u1,v1,u2,v2,F,G,CY);
-            double gz=integrationOverA3DLine(u1,v1,u2,v2,L,M,CZ);
+            double const gx=integrationOverA3DLine(u1,v1,u2,v2,A,B,CX);
+            double const gy=integrationOverA3DLine(u1,v1,u2,v2,F,G,CY);
+            double const gz=integrationOverA3DLine(u1,v1,u2,v2,L,M,CZ);
             res[0]+=gx*normal[0];
             res[1]+=gy*normal[1];
             res[2]+=gz*normal[2];
@@ -665,7 +668,7 @@ namespace INTERP_KERNEL
             int nbOfNodesOfCurFace=(int)std::distance(work,work2);
             double normal[3];
             areaVectorOfPolygon<ConnType,numPol>(work,nbOfNodesOfCurFace,coords,normal);
-            double normOfNormal=sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
+            double const normOfNormal=sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
             if(normOfNormal<std::numeric_limits<double>::min())
               continue;
             sum+=normOfNormal;
@@ -790,7 +793,7 @@ namespace INTERP_KERNEL
     res[0]=0.; res[1]=0.;
     for(mcIdType i=0;i<lgth;i++)
       {
-        double cp=coords[i][0]*coords[(i+1)%lgth][1]-coords[i][1]*coords[(i+1)%lgth][0];
+        double const cp=coords[i][0]*coords[(i+1)%lgth][1]-coords[i][1]*coords[(i+1)%lgth][0];
         area+=cp;
         res[0]+=cp*(coords[i][0]+coords[(i+1)%lgth][0]);
         res[1]+=cp*(coords[i][1]+coords[(i+1)%lgth][1]);
@@ -802,7 +805,7 @@ namespace INTERP_KERNEL
   template<class ConnType, NumberingPolicy numPol>
   inline void computePolygonBarycenter2D(const ConnType *connec, mcIdType lgth, const double *coords, double *res)
   {
-    double **coords2=new double *[lgth];
+    auto **coords2=new double *[lgth];
     for(mcIdType i=0;i<lgth;i++)
       coords2[i]=const_cast<double *>(coords+2*OTT<ConnType,numPol>::coo2C(connec[i]));
     computePolygonBarycenter2DEngine(coords2,lgth,res);

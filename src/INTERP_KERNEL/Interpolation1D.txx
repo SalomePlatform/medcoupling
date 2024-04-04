@@ -20,8 +20,6 @@
 #ifndef __INTERPOLATION1D_TXX__
 #define __INTERPOLATION1D_TXX__
 
-#include "Interpolation1D.hxx"
 
-#include "InterpolationCurve.txx"
 
 #endif

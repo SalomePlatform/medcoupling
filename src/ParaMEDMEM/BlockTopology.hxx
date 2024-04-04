@@ -20,9 +20,12 @@
 #ifndef __BLOCKTOPOLOGY_HXX__
 #define __BLOCKTOPOLOGY_HXX__
 
+#include "MCType.hxx"
+#include "CommInterface.hxx"
 #include "Topology.hxx"
 #include "ProcessorGroup.hxx"
 
+#include <utility>
 #include <vector>
 
 namespace MEDCoupling
@@ -49,13 +52,13 @@ namespace MEDCoupling
     BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid); 
     BlockTopology(const BlockTopology& geom_topo, const ComponentTopology& comp_topo);
     BlockTopology(const ProcessorGroup& group, mcIdType nb_elem);
-    virtual ~BlockTopology();
+    ~BlockTopology() override;
     void release();
 
     //!Retrieves the number of elements for a given topology
-    mcIdType getNbElements()const { return _nb_elems; }
-    mcIdType getNbLocalElements() const;
-    const ProcessorGroup* getProcGroup()const { return _proc_group; }
+    mcIdType getNbElements()const override { return _nb_elems; }
+    mcIdType getNbLocalElements() const override;
+    const ProcessorGroup* getProcGroup()const override { return _proc_group; }
     std::pair<int,mcIdType> globalToLocal (const mcIdType) const ;
     mcIdType localToGlobal (const std::pair<int,mcIdType>) const;
     std::vector<std::pair<int,mcIdType> > getLocalArrayMinMax() const ;

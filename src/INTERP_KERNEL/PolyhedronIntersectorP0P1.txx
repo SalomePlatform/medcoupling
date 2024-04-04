@@ -20,11 +20,14 @@
 #ifndef __POLYHEDRONINTERSECTORP0P1_TXX__
 #define __POLYHEDRONINTERSECTORP0P1_TXX__
 
-#include "PolyhedronIntersectorP0P1.hxx"
+#include "NormalizedGeometricTypes"
 #include "Intersector3DP0P1.txx"
-#include "MeshUtils.hxx"
+#include "InterpolationUtils.hxx"
+#include "PolyhedronIntersectorP0P1.hxx"
 
-#include "SplitterTetra.txx"
+#include "SplitterTetra.hxx"
+#include <sstream>
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -85,9 +88,8 @@ namespace INTERP_KERNEL
         for(typename std::vector<SplitterTetra<MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
           {
             (*iter)->splitIntoDualCells(subTetras);
-            for(int i=0;i<24;i++)
+            for(auto tmp : subTetras)
               {
-                SplitterTetra<MyMeshType> *tmp=subTetras[i];
                 double volume = tmp->intersectSourceCell(*iterCellS);
                 if(volume!=0.)
                   {

@@ -21,9 +21,11 @@
 #ifndef __INTERPOLATION3DSURF_HXX__
 #define __INTERPOLATION3DSURF_HXX__
 
-#include "InterpolationPlanar.txx"
 #include "INTERPKERNELDefines.hxx"
 #include "InterpolationOptions.hxx"
+#include "PlanarIntersector.hxx"
+#include "InterpolationPlanar.txx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {

@@ -19,16 +19,16 @@
 #ifndef __MESHELEMENT_TXX__
 #define __MESHELEMENT_TXX__
 
+#include "InterpolationUtils.hxx"
+#include "InterpKernelException.hxx"
 #include "MeshElement.hxx"
 
-#include "TetraAffineTransform.hxx"
-#include "TransformedTriangle.hxx"
 #include "MeshUtils.hxx"
 #include "BoundingBox.hxx"
 #include <assert.h>
-#include <type_traits>
 #include <limits>
 #include <memory>
+#include <sstream>
 
 namespace INTERP_KERNEL
 {

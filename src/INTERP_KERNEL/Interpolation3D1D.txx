@@ -20,16 +20,22 @@
 
 #pragma once
 
+#include "InterpKernelException.hxx"
+#include "BBTreeStandAlone.txx"
+#include "BoundingBox.hxx"
 #include "Interpolation3D1D.hxx"
-#include "Interpolation.txx"
-#include "MeshElement.txx"
-#include "PointLocator3DIntersectorP0P0.txx"
-#include "PointLocator3DIntersectorP0P1.txx"
-#include "PointLocator3DIntersectorP1P0.txx"
-#include "PointLocator3DIntersectorP1P1.txx"
+#include "Intersector3D.hxx"
+#include "MeshElement.hxx"
+#include "PointLocator3DIntersectorP0P0.hxx"
+#include "PointLocator3DIntersectorP0P1.hxx"
+#include "PointLocator3DIntersectorP1P0.hxx"
+#include "PointLocator3DIntersectorP1P1.hxx"
 #include "Log.hxx"
 
 #include "InterpolationHelper.txx"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace INTERP_KERNEL
 {

@@ -17,24 +17,19 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "MCType.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
 #include "MEDLoader.hxx"
-#include "MEDLoaderBase.hxx"
-#include "MEDFileUtilities.hxx"
-#include "CellModel.hxx"
-#include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingFieldDouble.hxx"
 #include "InterpKernelException.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingMemArray.txx"
-#include "InterpKernelAutoPtr.hxx"
 
-#include <fstream>
+#include <cstddef>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #ifdef HAVE_MPI
 
@@ -56,14 +51,14 @@ using namespace MEDPARTITIONER;
  */
 std::vector<std::string> MEDPARTITIONER::SendAndReceiveVectorOfString(const std::vector<std::string>& vec, const int source, const int target)
 {
-  int rank=MyGlobals::_Rank;
+  int const rank=MyGlobals::_Rank;
 
   MPI_Status status;
-  int tag = 111001;
+  int const tag = 111001;
   if (rank == source)
     {
-      std::string str=SerializeFromVectorOfString(vec);
-      int size=(int)str.length();
+      std::string const str=SerializeFromVectorOfString(vec);
+      int const size=(int)str.length();
       MPI_Send( &size, 1, MPI_INT, target, tag, MPI_COMM_WORLD );
       MPI_Send( (void*)str.data(), (int)str.length(), MPI_CHAR, target, tag+100, MPI_COMM_WORLD );
     }
@@ -72,7 +67,7 @@ std::vector<std::string> MEDPARTITIONER::SendAndReceiveVectorOfString(const std:
   if (rank == target)
     {
       MPI_Recv(&recSize, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
-      std::string recData(recSize,'x');
+      std::string const recData(recSize,'x');
       MPI_Recv((void*)recData.data(), recSize, MPI_CHAR, source, tag+100, MPI_COMM_WORLD, &status);
       return DeserializeToVectorOfString(recData); //not empty one for target proc
     }
@@ -88,11 +83,11 @@ std::vector<std::string> MEDPARTITIONER::AllgathervVectorOfString(const std::vec
   if (MyGlobals::_World_Size==1) //nothing to do
     return vec;
 
-  int world_size=MyGlobals::_World_Size;
+  int const world_size=MyGlobals::_World_Size;
   std::string str=SerializeFromVectorOfString(vec);
   
   std::vector<int> indexes(world_size);
-  int size=(int)str.length();
+  int const size=(int)str.length();
   MPI_Allgather(&size, 1, MPI_INT, 
                 &indexes[0], 1, MPI_INT, MPI_COMM_WORLD);
   
@@ -123,7 +118,7 @@ std::vector<std::string> MEDPARTITIONER::AllgathervVectorOfString(const std::vec
 */
 void MEDPARTITIONER::SendDoubleVec(const std::vector<double>& vec, const int target)
 {
-  int tag = 111002;
+  int const tag = 111002;
   int size=(int)vec.size();
   if (MyGlobals::_Verbose>1000) 
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDoubleVec " << size << std::endl;
@@ -141,7 +136,7 @@ void MEDPARTITIONER::SendDoubleVec(const std::vector<double>& vec, const int tar
 */
 std::vector<double>* MEDPARTITIONER::RecvDoubleVec(const int source)
 {
-  int tag = 111002;
+  int const tag = 111002;
   int size;
 #ifdef HAVE_MPI
   MPI_Status status;  
@@ -157,7 +152,7 @@ std::vector<double>* MEDPARTITIONER::RecvDoubleVec(const int source)
 
 void MEDPARTITIONER::RecvDoubleVec(std::vector<double>& vec, const int source)
 {
-  int tag = 111002;
+  int const tag = 111002;
   int size;
 #ifdef HAVE_MPI
   MPI_Status status;  
@@ -175,7 +170,7 @@ void MEDPARTITIONER::RecvDoubleVec(std::vector<double>& vec, const int source)
 */
 void MEDPARTITIONER::SendIntVec(const std::vector<mcIdType>& vec, const int target)
 {
-  int tag = 111003;
+  int const tag = 111003;
   int size=(int)vec.size();
   if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendIntVec " << size << std::endl;
@@ -192,7 +187,7 @@ void MEDPARTITIONER::SendIntVec(const std::vector<mcIdType>& vec, const int targ
 */
 std::vector<int> *MEDPARTITIONER::RecvIntVec(const int source)
 {
-  int tag = 111003;
+  int const tag = 111003;
   int size;
 #ifdef HAVE_MPI
   MPI_Status status;  
@@ -208,7 +203,7 @@ std::vector<int> *MEDPARTITIONER::RecvIntVec(const int source)
 
 void MEDPARTITIONER::RecvIntVec(std::vector<mcIdType>& vec, const int source)
 {
-  int tag = 111003;
+  int const tag = 111003;
   int size;
 #ifdef HAVE_MPI
   MPI_Status status;  
@@ -228,9 +223,9 @@ void MEDPARTITIONER::RecvIntVec(std::vector<mcIdType>& vec, const int source)
 */
 void MEDPARTITIONER::SendDataArrayInt(const MEDCoupling::DataArrayInt *da, const int target)
 {
-  if (da==0)
+  if (da==nullptr)
     throw INTERP_KERNEL::Exception("Problem send DataArrayInt* NULL");
-  int tag = 111004;
+  int const tag = 111004;
   int size[3];
   size[0]=(int)da->getNbOfElems();
   size[1]=(int)da->getNumberOfTuples();
@@ -251,7 +246,7 @@ void MEDPARTITIONER::SendDataArrayInt(const MEDCoupling::DataArrayInt *da, const
 */
 MEDCoupling::DataArrayInt *MEDPARTITIONER::RecvDataArrayInt(const int source)
 {
-  int tag = 111004;
+  int const tag = 111004;
   int size[3];
 #ifdef HAVE_MPI
   MPI_Status status;
@@ -276,9 +271,9 @@ MEDCoupling::DataArrayInt *MEDPARTITIONER::RecvDataArrayInt(const int source)
 */
 void MEDPARTITIONER::SendDataArrayDouble(const MEDCoupling::DataArrayDouble *da, const int target)
 {
-  if (da==0)
+  if (da==nullptr)
     throw INTERP_KERNEL::Exception("Problem send DataArrayDouble* NULL");
-  int tag = 111005;
+  int const tag = 111005;
   int size[3];
   size[0]=(int)da->getNbOfElems();
   size[1]=(int)da->getNumberOfTuples();
@@ -299,7 +294,7 @@ void MEDPARTITIONER::SendDataArrayDouble(const MEDCoupling::DataArrayDouble *da,
 */
 MEDCoupling::DataArrayDouble* MEDPARTITIONER::RecvDataArrayDouble(const int source)
 {
-  int tag = 111005;
+  int const tag = 111005;
   int size[3];
 #ifdef HAVE_MPI
   MPI_Status status;
@@ -388,7 +383,7 @@ void MEDPARTITIONER::TestVectorOfStringMpi()
 
 void MEDPARTITIONER::TestMapOfStringIntMpi()
 {
-  int rank=MyGlobals::_Rank;
+  int const rank=MyGlobals::_Rank;
   std::map<std::string,mcIdType> myMap;
   myMap["one"]=1;
   myMap["two"]=22;  //a bug
@@ -418,7 +413,7 @@ void MEDPARTITIONER::TestMapOfStringIntMpi()
 
 void MEDPARTITIONER::TestMapOfStringVectorOfStringMpi()
 {
-  int rank=MyGlobals::_Rank;
+  int const rank=MyGlobals::_Rank;
   std::vector<std::string> myVector;
   std::ostringstream oss;
   oss << "hello from " << std::setw(5) << MyGlobals::_Rank << " " << std::string(rank+1,'n') << " next is an empty one";
@@ -464,13 +459,13 @@ void MEDPARTITIONER::TestMapOfStringVectorOfStringMpi()
 
 void MEDPARTITIONER::TestDataArrayMpi()
 {
-  int rank=MyGlobals::_Rank;
+  int const rank=MyGlobals::_Rank;
   //int
   {
     MEDCoupling::DataArrayInt* send=MEDCoupling::DataArrayInt::New();
-    MEDCoupling::DataArrayInt* recv=0;
-    int nbOfTuples=5;
-    int numberOfComponents=3;
+    MEDCoupling::DataArrayInt* recv=nullptr;
+    int const nbOfTuples=5;
+    int const numberOfComponents=3;
     send->alloc(nbOfTuples,numberOfComponents);
     std::vector<int> vals;
     for (int j=0; j<nbOfTuples; j++)
@@ -497,9 +492,9 @@ void MEDPARTITIONER::TestDataArrayMpi()
   //double
   {
     MEDCoupling::DataArrayDouble* send=MEDCoupling::DataArrayDouble::New();
-    MEDCoupling::DataArrayDouble* recv=0;
-    int nbOfTuples=5;
-    int numberOfComponents=3;
+    MEDCoupling::DataArrayDouble* recv=nullptr;
+    int const nbOfTuples=5;
+    int const numberOfComponents=3;
     send->alloc(nbOfTuples,numberOfComponents);
     std::vector<double> vals;
     for (int j=0; j<nbOfTuples; j++)
@@ -528,9 +523,9 @@ void MEDPARTITIONER::TestDataArrayMpi()
 void MEDPARTITIONER::TestPersistantMpi0To1(int taille, int nb)
 {
   double temps_debut=MPI_Wtime();
-  int rank=MyGlobals::_Rank;
+  int const rank=MyGlobals::_Rank;
   std::vector<int> x, y;
-  int tag=111111;
+  int const tag=111111;
   MPI_Request requete0, requete1;
   MPI_Status statut;
   int ok=0;
@@ -658,10 +653,10 @@ void MEDPARTITIONER::TestPersistantMpiRing(int taille, int nb)
 void MEDPARTITIONER::TestPersistantMpiRingOnCommSplit(int size, int nb)
 {
   double temps_debut=MPI_Wtime();
-  int rank=MyGlobals::_Rank;
+  int const rank=MyGlobals::_Rank;
   MPI_Comm newcomm;
   int color=1;
-  int rankMax=4;
+  int const rankMax=4;
   if (rank>=rankMax)
     color=MPI_UNDEFINED;
   //MPI_Comm_dup (MPI_COMM_WORLD, &newcomm) ;

@@ -20,8 +20,8 @@
 #ifndef __INTERSECTOR3DP0P1_TXX__
 #define __INTERSECTOR3DP0P1_TXX__
 
+#include "Intersector3D.hxx"
 #include "Intersector3DP0P1.hxx"
-#include "Intersector3D.txx"
 
 namespace INTERP_KERNEL
 {

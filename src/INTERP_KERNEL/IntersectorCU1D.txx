@@ -23,8 +23,12 @@
 #ifndef __IntersectorCU1D_TXX__
 #define __IntersectorCU1D_TXX__
 
+#include "IntersectorCU.hxx"
 #include "IntersectorCU1D.hxx"
 #include "IntersectorCU.txx"
+#include "InterpKernelException.hxx"
+#include <vector>
+#include <algorithm>
 
 #define  IntersectorCU1D_TEMPLATE template<class MyCMeshType, class MyUMeshType, class MyMatrix>
 #define  INTERSECTOR_CU1D IntersectorCU1D<MyCMeshType,MyUMeshType,MyMatrix >
@@ -56,8 +60,7 @@ namespace INTERP_KERNEL
 
   IntersectorCU1D_TEMPLATE
   INTERSECTOR_CU1D::~IntersectorCU1D()
-  {
-  }
+  = default;
 
   //================================================================================
   /*!
@@ -75,7 +78,7 @@ namespace INTERP_KERNEL
 
     const double* coordsC = & _INTER_CU::_coordsC[0][ _FMIC(icellS[0]) ];
 
-    double res = std::min( coordsU[1], coordsC[1] ) - std::max( coordsU[0], coordsC[0] );
+    double const res = std::min( coordsU[1], coordsC[1] ) - std::max( coordsU[0], coordsC[0] );
     return res;
   }
 }

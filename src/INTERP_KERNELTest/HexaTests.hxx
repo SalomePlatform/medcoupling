@@ -21,6 +21,7 @@
 #define __HEXA_TESTS_HXX_
 
 #include "InterpolationTestSuite.hxx"
+#include <cppunit/extensions/HelperMacros.h>
 
 namespace INTERP_TEST
 {

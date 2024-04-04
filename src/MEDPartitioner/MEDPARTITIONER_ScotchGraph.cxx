@@ -17,13 +17,17 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "MCIdType.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_ScotchGraph.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
 #include "MEDCouplingSkyLineArray.hxx"
 
+#include <iostream>
 #include <cstdio>
+#include <string>
+#include <vector>
 
 #ifdef MED_ENABLE_SCOTCH
 extern "C"
@@ -44,16 +48,15 @@ SCOTCHGraph::SCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray* graph, int* edgew
 }
 
 SCOTCHGraph::~SCOTCHGraph()
-{
-}
+= default;
 
-void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, ParaDomainSelector* sel)
+void SCOTCHGraph::partGraph(int ndomain, const std::string&  options_string, ParaDomainSelector*  /*sel*/)
 {
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : SCOTCHGraph::partGraph" << std::endl;
   
   //number of graph vertices
-  int n = FromIdType<int>(_graph->getNumberOf());
+  int const n = FromIdType<int>(_graph->getNumberOf());
   //graph
 #ifdef MEDCOUPLING_USE_64BIT_IDS
   std::vector<int> indexVec( _graph->getIndex(), _graph->getIndexArray()->end() );
@@ -65,7 +68,7 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
   int * adjncy=const_cast<int*>(_graph->getValues());
 #endif
   //ndomain
-  int nparts=ndomain;
+  int const nparts=ndomain;
 
 #if !defined(MED_ENABLE_SCOTCH)
   throw INTERP_KERNEL::Exception("SCOTCHGraph::partGraph : SCOTCH is not available. Check your products, please.");

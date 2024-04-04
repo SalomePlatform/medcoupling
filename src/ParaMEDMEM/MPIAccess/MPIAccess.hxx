@@ -21,13 +21,13 @@
 #define __MPIACCESS_HXX__
 
 #include "CommInterface.hxx"
-#include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 
-#include <map>
+#include <cstddef>
+#include <iostream>
 #include <list>
 #include <vector>
-#include <iostream>
+#include <map>
 
 namespace MEDCoupling
 {
@@ -83,13 +83,13 @@ namespace MEDCoupling
     int ISend(void* buffer, int count, MPI_Datatype datatype, int target,
               int &RequestId) ;
     int recv(void* buffer, int count, MPI_Datatype datatype, int source,
-             int &RequestId, int *OutCount=NULL) ;
+             int &RequestId, int *OutCount=nullptr) ;
     int IRecv(void* buffer, int count, MPI_Datatype datatype, int source,
               int &RequestId) ;
     int sendRecv(void* sendbuf, int sendcount, MPI_Datatype sendtype, int dest,
                  int &SendRequestId, void* recvbuf, int recvcount,
                  MPI_Datatype recvtype, int source,
-                 int &RecvRequestId, int *OutCount=NULL) ;
+                 int &RecvRequestId, int *OutCount=nullptr) ;
     int ISendRecv(void* sendbuf, int sendcount, MPI_Datatype sendtype, int dest,
                   int &SendRequestId, void* recvbuf, int recvcount,
                   MPI_Datatype recvtype, int source, int &RecvRequestId) ;
@@ -397,7 +397,7 @@ namespace MEDCoupling
     struct RequestStruct *aRequestStruct = _map_of_request_struct[ RequestId ];
     if ( aRequestStruct )
       return aRequestStruct->MPIStatus;
-    return NULL ;
+    return nullptr ;
   }
 
   // Set the MPICompleted field of the structure Request corresponding to RequestId

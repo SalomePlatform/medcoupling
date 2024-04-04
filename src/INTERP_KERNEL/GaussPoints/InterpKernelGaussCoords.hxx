@@ -21,16 +21,15 @@
 #define __INTERPKERNELGAUSSCOORDS_HXX__
 
 #include "INTERPKERNELDefines.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
-#include "InterpKernelException.hxx"
 #include "MCIdType.hxx"
+#include "NormalizedGeometricTypes"
 
 #include <vector>
 
 namespace INTERP_KERNEL 
 {
-  typedef std::vector<double> DataVector;
-  typedef std::vector<int>    IndexVector;
+  using DataVector = std::vector<double>;
+  using IndexVector = std::vector<int>;
 
   //Class to store Gauss Points information
   class GaussInfo 
@@ -231,7 +230,7 @@ namespace INTERP_KERNEL
     void calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const mcIdType *theIndex,
                             double *result);
   private:
-    typedef std::vector<GaussInfo*> GaussInfoVector;
+    using GaussInfoVector = std::vector<GaussInfo *>;
     GaussInfoVector _my_gauss_info;
   };
 }

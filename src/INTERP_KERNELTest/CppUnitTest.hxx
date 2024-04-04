@@ -20,6 +20,8 @@
 #ifndef __TU_TEST_CPPUNIT_HXX__
 #define __TU_TEST_CPPUNIT_HXX__
 
+#include <cppunit/TestFixture.h>
+#include <cppunit/TestAssert.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "InterpKernelTestExport.hxx"
@@ -52,11 +54,11 @@ class INTERPKERNELTEST_EXPORT TestBogusClass : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {
+  void setUp() override {
     obj = new BogusClass(3.14);
   }
 
-  void tearDown() {
+  void tearDown() override {
     delete obj;
   }
 

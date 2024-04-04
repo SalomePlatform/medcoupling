@@ -19,14 +19,30 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingFieldDiscretizationOnNodesFE.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+#include "MEDCouplingMesh.hxx"
+#include "MEDCouplingGaussLocalization.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MCType.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "BBTreeStandAlone.txx"
+#include "InterpKernelException.hxx"
 #include "InterpKernelDenseMatrix.hxx"
 #include "InterpKernelRootsMultiDim.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "InterpolationHelper.txx"
 #include "InterpKernelGaussCoords.hxx"
+#include "NormalizedGeometricTypes"
+#include "InterpolationHelper.txx"
 
-#include <sstream>
+#include <algorithm>
+#include <ostream>
+#include <cstddef>
+#include <limits>
+#include <functional>
+#include <string>
+#include <vector>
 
 using namespace MEDCoupling;
 
@@ -47,15 +63,15 @@ MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretizationOnNodesFE::
   return EasyAggregate<MEDCouplingFieldDiscretizationOnNodesFE>(fds);
 }
 
-bool MEDCouplingFieldDiscretizationOnNodesFE::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const
+bool MEDCouplingFieldDiscretizationOnNodesFE::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double  /*eps*/, std::string& reason) const
 {
   if(!other)
     {
       reason="other spatial discretization is NULL, and this spatial discretization (Node FE) is defined.";
       return false;
     }
-  const MEDCouplingFieldDiscretizationOnNodesFE *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationOnNodesFE *>(other);
-  bool ret=otherC!=0;
+  const auto *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationOnNodesFE *>(other);
+  bool const ret=otherC!=nullptr;
   if(!ret)
     reason="Spatial discrtization of this is ON_NODES_FE, which is not the case of other.";
   return ret;
@@ -77,7 +93,7 @@ void MEDCouplingFieldDiscretizationOnNodesFE::checkCompatibilityWithNature(Natur
     throw INTERP_KERNEL::Exception("Invalid nature for NodeFE field : expected IntensiveMaximum !");
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationOnNodesFE::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationOnNodesFE::getMeasureField(const MEDCouplingMesh *mesh, bool  /*isAbs*/) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodesFE::getMeasureField : mesh instance specified is NULL !");
@@ -96,7 +112,7 @@ public:
   _pts_in_cell(ptsInCell),_point(point) { }
   std::vector<double> operator()(const std::vector<double>& x)
   {
-    MEDCouplingGaussLocalization gl(_gl->getType(),_gl->getRefCoords(),x,{1.0});
+    MEDCouplingGaussLocalization const gl(_gl->getType(),_gl->getRefCoords(),x,{1.0});
     MCAuto<DataArrayDouble> shapeFunc = gl.getShapeFunctionValues();
     const double *shapeFuncPtr( shapeFunc->begin() );
     std::vector<double> ret(3,0);
@@ -113,15 +129,15 @@ public:
 bool IsInside3D(const MEDCouplingGaussLocalization& gl, const std::vector<double>& ptsInCell, const double locInReal[3], double locInRef[3])
 {
   constexpr double EPS_IN_OUT = 1e-12;
-  std::size_t nbPtsInCell(ptsInCell.size()/3);
+  std::size_t const nbPtsInCell(ptsInCell.size()/3);
   bool ret(false);
   const double *refCoo(gl.getRefCoords().data());
-  INTERP_KERNEL::NormalizedCellType ct(gl.getType());
+  INTERP_KERNEL::NormalizedCellType const ct(gl.getType());
   Functor func(gl,nbPtsInCell,ptsInCell.data(),locInReal);
 
   auto myJacobian = [&gl,nbPtsInCell,ptsInCell](const std::vector<double>& x, const std::vector<double>&, INTERP_KERNEL::DenseMatrix& jacobian)
   {
-    MEDCouplingGaussLocalization mygl(gl.getType(),gl.getRefCoords(),x,{1.0});
+    MEDCouplingGaussLocalization const mygl(gl.getType(),gl.getRefCoords(),x,{1.0});
     MCAuto<DataArrayDouble> shapeFunc = mygl.getDerivativeOfShapeFunctionValues();
     for(std::size_t i = 0 ; i < 3 ; ++i)
       for(std::size_t j = 0 ; j < 3 ; ++j)
@@ -173,8 +189,8 @@ void MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf3DPtsIn3D(const
   std::function<void(const MEDCouplingGaussLocalization&, const std::vector<mcIdType>&)> customFunc)
 {
   const double *coordsOfMesh( umesh->getCoords()->begin() );
-  MEDCouplingNormalizedUnstructuredMesh<3,3> mesh_wrapper(umesh);
-  BBTreeStandAlone<3,mcIdType> tree( INTERP_KERNEL::BuildBBTree( mesh_wrapper ) );
+  MEDCouplingNormalizedUnstructuredMesh<3,3> const mesh_wrapper(umesh);
+  BBTreeStandAlone<3,mcIdType> tree( (INTERP_KERNEL::BuildBBTree( mesh_wrapper )) );
   for(mcIdType iPt = 0 ; iPt < nbOfPts ; ++iPt)
   {
     std::vector<mcIdType> elems;
@@ -182,11 +198,11 @@ void MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf3DPtsIn3D(const
     bool found(false);
     for(auto cellId = elems.cbegin() ; cellId != elems.cend() && !found ; ++cellId)
     {
-      INTERP_KERNEL::NormalizedCellType gt( umesh->getTypeOfCell(*cellId) );
+      INTERP_KERNEL::NormalizedCellType const gt( umesh->getTypeOfCell(*cellId) );
       std::vector<mcIdType> conn;
       umesh->getNodeIdsOfCell(*cellId,conn);
       MCAuto<DataArrayDouble> refCoo( MEDCouplingGaussLocalization::GetDefaultReferenceCoordinatesOf(gt) );
-      std::vector<double> refCooCpp(refCoo->begin(),refCoo->end());
+      std::vector<double> const refCooCpp(refCoo->begin(),refCoo->end());
       std::vector<double> gsCoo(ptsCoo + iPt*3,ptsCoo + (iPt+1)*3); 
       MEDCouplingGaussLocalization gl(gt,refCooCpp,{0,0,0},{1.});
       std::vector<double> ptsInCell; ptsInCell.reserve(conn.size()*gl.getDimension());
@@ -206,7 +222,7 @@ void MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf3DPtsIn3D(const
 
 const MEDCouplingUMesh *MEDCouplingFieldDiscretizationOnNodesFE::checkConfig3D(const MEDCouplingMesh *mesh) const
 {
-  const MEDCouplingUMesh *umesh( dynamic_cast<const MEDCouplingUMesh *>(mesh) );
+  const auto *umesh( dynamic_cast<const MEDCouplingUMesh *>(mesh) );
   if( !umesh )
     THROW_IK_EXCEPTION("getValueOn : not implemented yet for type != MEDCouplingUMesh !");
   if(umesh->getSpaceDimension() != 3 || umesh->getMeshDimension() != 3)
@@ -219,13 +235,13 @@ DataArrayDouble *MEDCouplingFieldDiscretizationOnNodesFE::getValueOnMulti(const 
 {
   if(!arr || !arr->isAllocated())
     throw INTERP_KERNEL::Exception("getValueOnMulti : input array is null or not allocated !");
-  mcIdType nbOfRows=getNumberOfMeshPlaces(mesh);
+  mcIdType const nbOfRows=getNumberOfMeshPlaces(mesh);
   if(arr->getNumberOfTuples()!=nbOfRows)
   {
     THROW_IK_EXCEPTION( "getValueOnMulti : input array does not have correct number of tuples ! Excepted " << nbOfRows << " having " << arr->getNumberOfTuples() << " !")
   }
   const MEDCouplingUMesh *umesh = checkConfig3D(mesh);
-  std::size_t nbCompo( arr->getNumberOfComponents() );
+  std::size_t const nbCompo( arr->getNumberOfComponents() );
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbOfTargetPoints,nbCompo);
   double *res( ret->getPointer() );
@@ -260,7 +276,7 @@ MCAuto<DataArrayDouble> MEDCouplingFieldDiscretizationOnNodesFE::getCooInRefElem
   ret->alloc(nbOfPoints,3);
   double *retPtr(ret->getPointer() );
   
-  auto arrayFeeder = [&retPtr](const MEDCouplingGaussLocalization& gl, const std::vector<mcIdType>& conn)
+  auto arrayFeeder = [&retPtr](const MEDCouplingGaussLocalization& gl, const std::vector<mcIdType>&  /*conn*/)
   {
     std::vector<double> resVector( gl.getGaussCoords() );
     {

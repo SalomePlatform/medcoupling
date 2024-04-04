@@ -21,19 +21,22 @@
 #include "OverlapElementLocator.hxx"
 
 #include "CommInterface.hxx"
+#include "MCType.hxx"
+#include "ParaIdType.hxx"
+#include "MEDCouplingMesh.hxx"
 #include "Topology.hxx"
-#include "BlockTopology.hxx"
 #include "ParaFIELD.hxx"
 #include "ParaMESH.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "OverlapInterpolationMatrix.hxx"
-#include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "DirectedBoundingBox.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
 #include <limits>
+#include <ostream>
+#include <string>
 
 using namespace std;
 
@@ -45,9 +48,9 @@ namespace MEDCoupling
                                                const ProcessorGroup& group, double epsAbs, int workSharingAlgo)
     : _local_source_field(sourceField),
       _local_target_field(targetField),
-      _local_source_mesh(0),
-      _local_target_mesh(0),
-      _domain_bounding_boxes(0),
+      _local_source_mesh(nullptr),
+      _local_target_mesh(nullptr),
+      _domain_bounding_boxes(nullptr),
       _epsAbs(epsAbs),
       _group(group)
   { 
@@ -80,14 +83,14 @@ namespace MEDCoupling
 
   const MPI_Comm *OverlapElementLocator::getCommunicator() const
   {
-    const MPIProcessorGroup* group=static_cast<const MPIProcessorGroup*>(&_group);
+    const auto* group=static_cast<const MPIProcessorGroup*>(&_group);
     return group->getComm();
   }
 
   void OverlapElementLocator::computeBoundingBoxesAndInteractionList()
   {
-    CommInterface comm_interface=_group.getCommInterface();
-    const MPIProcessorGroup* group=static_cast<const MPIProcessorGroup*> (&_group);
+    CommInterface const comm_interface=_group.getCommInterface();
+    const auto* group=static_cast<const MPIProcessorGroup*> (&_group);
     _local_space_dim=0;
     if(_local_source_mesh)
       _local_space_dim=_local_source_mesh->getSpaceDimension();
@@ -95,7 +98,7 @@ namespace MEDCoupling
       _local_space_dim=_local_target_mesh->getSpaceDimension();
     //
     const MPI_Comm* comm = group->getComm();
-    int bbSize=2*2*_local_space_dim;//2 (for source/target) 2 (min/max)
+    int const bbSize=2*2*_local_space_dim;//2 (for source/target) 2 (min/max)
     _domain_bounding_boxes=new double[bbSize*_group.size()];
     INTERP_KERNEL::AutoPtr<double> minmax=new double[bbSize];
     //Format minmax : Xmin_src,Xmax_src,Ymin_src,Ymax_src,Zmin_src,Zmax_src,Xmin_trg,Xmax_trg,Ymin_trg,Ymax_trg,Zmin_trg,Zmax_trg
@@ -151,7 +154,7 @@ namespace MEDCoupling
     //If _group.myRank()==myPair.first, current proc should fetch target mesh of myPair.second (if different from _group.myRank()).
     //If _group.myRank()==myPair.second, current proc should fetch source mesh of myPair.second.
 
-    int myProcId=_group.myRank();
+    int const myProcId=_group.myRank();
     _to_do_list=_all_todo_lists[myProcId];
 
 #ifdef DEC_DEBUG
@@ -293,7 +296,7 @@ namespace MEDCoupling
     //
     // Final formatting - extract remaining keys in each map:
     //
-    int myProcId = _group.myRank();
+    int const myProcId = _group.myRank();
     _all_todo_lists.resize(grp_size);
     procID = 0;
     for(const auto& itVector: full_set)
@@ -326,7 +329,7 @@ namespace MEDCoupling
   {
     // Feeding now '_procs_to_send*'. A same id can appears twice. The second parameter in pair means what
     // to send true=source, false=target
-    int myProcId=_group.myRank();
+    int const myProcId=_group.myRank();
     _procs_to_send_mesh.clear();
     _procs_to_send_field.clear();
     for(int i=0;i<_group.size();i++)
@@ -362,7 +365,7 @@ namespace MEDCoupling
    */
   void OverlapElementLocator::exchangeMeshes(OverlapInterpolationMatrix& matrix)
   {
-    int myProcId=_group.myRank();
+    int const myProcId=_group.myRank();
     //starting to receive every procs whose id is lower than myProcId.
     std::vector<Proc_SrcOrTgt> firstRcv, secondRcv;
     for (const ProcCouple& pc: _to_do_list)
@@ -407,7 +410,7 @@ namespace MEDCoupling
 
   const MEDCouplingPointSet *OverlapElementLocator::getSourceMesh(int procId) const
   {
-    int myProcId=_group.myRank();
+    int const myProcId=_group.myRank();
     if(myProcId==procId)
       return _local_source_mesh;
     Proc_SrcOrTgt p(procId,true);
@@ -417,9 +420,9 @@ namespace MEDCoupling
 
   const DataArrayIdType *OverlapElementLocator::getSourceIds(int procId) const
   {
-    int myProcId=_group.myRank();
+    int const myProcId=_group.myRank();
     if(myProcId==procId)
-      return 0;
+      return nullptr;
     Proc_SrcOrTgt p(procId,true);
     std::map<Proc_SrcOrTgt, AutoDAInt >::const_iterator it=_remote_elems.find(p);
     return (*it).second;
@@ -427,7 +430,7 @@ namespace MEDCoupling
 
   const MEDCouplingPointSet *OverlapElementLocator::getTargetMesh(int procId) const
   {
-    int myProcId=_group.myRank();
+    int const myProcId=_group.myRank();
     if(myProcId==procId)
       return _local_target_mesh;
     Proc_SrcOrTgt p(procId,false);
@@ -437,9 +440,9 @@ namespace MEDCoupling
 
   const DataArrayIdType *OverlapElementLocator::getTargetIds(int procId) const
   {
-    int myProcId=_group.myRank();
+    int const myProcId=_group.myRank();
     if(myProcId==procId)
-      return 0;
+      return nullptr;
     Proc_SrcOrTgt p(procId,false);
     std::map<Proc_SrcOrTgt, AutoDAInt >::const_iterator it=_remote_elems.find(p);
     return (*it).second;
@@ -458,7 +461,7 @@ namespace MEDCoupling
 
     for (int idim=0; idim < _local_space_dim; idim++)
       {
-        bool intersects = (target_bb[idim*2]<source_bb[idim*2+1]+_epsAbs)
+        bool const intersects = (target_bb[idim*2]<source_bb[idim*2+1]+_epsAbs)
           && (source_bb[idim*2]<target_bb[idim*2+1]+_epsAbs);
         if (!intersects)
           return false; 
@@ -483,9 +486,9 @@ namespace MEDCoupling
 #endif
 
    //int myProcId=_group.myRank();
-   const double *distant_bb=0;
-   MEDCouplingPointSet *local_mesh=0;
-   const ParaFIELD *field=0;
+   const double *distant_bb=nullptr;
+   MEDCouplingPointSet *local_mesh=nullptr;
+   const ParaFIELD *field=nullptr;
    if(sourceOrTarget)//source for local mesh but target for distant mesh
      {
        distant_bb=_domain_bounding_boxes+procId*2*2*_local_space_dim+2*_local_space_dim;
@@ -500,7 +503,7 @@ namespace MEDCoupling
      }
    AutoDAInt elems=local_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment());
    DataArrayIdType *old2new_map;
-   MEDCouplingPointSet *send_mesh=static_cast<MEDCouplingPointSet *>(field->getField()->buildSubMeshData(elems->begin(),elems->end(),old2new_map));
+   auto *send_mesh=static_cast<MEDCouplingPointSet *>(field->getField()->buildSubMeshData(elems->begin(),elems->end(),old2new_map));
    if(sourceOrTarget)
      matrix.keepTracksOfSourceIds(procId,old2new_map);
    else
@@ -523,8 +526,8 @@ namespace MEDCoupling
     scout << "(" << rank << ") RCV part of " << st << " FROM: " << procId;
     std::cout << scout.str() << "\n";
 #endif
-    DataArrayIdType *old2new_map=0;
-    MEDCouplingPointSet *m=0;
+    DataArrayIdType *old2new_map=nullptr;
+    MEDCouplingPointSet *m=nullptr;
     receiveMesh(procId,m,old2new_map);
     Proc_SrcOrTgt p(procId,sourceOrTarget);
     _remote_meshes[p]=m;
@@ -533,7 +536,7 @@ namespace MEDCoupling
 
   void OverlapElementLocator::sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayIdType *idsToSend) const
   {
-    CommInterface comInterface=_group.getCommInterface();
+    CommInterface const comInterface=_group.getCommInterface();
 
     // First stage : exchanging sizes
     vector<double> tinyInfoLocalD;//tinyInfoLocalD not used for the moment
@@ -548,8 +551,8 @@ namespace MEDCoupling
     comInterface.send(&lgth,2,MPI_ID_TYPE,procId,START_TAG_MESH_XCH,*_comm);
     comInterface.send(&tinyInfoLocal[0],(int)tinyInfoLocal.size(),MPI_ID_TYPE,procId,START_TAG_MESH_XCH+1,*comm);
     //
-    DataArrayIdType *v1Local=0;
-    DataArrayDouble *v2Local=0;
+    DataArrayIdType *v1Local=nullptr;
+    DataArrayDouble *v2Local=nullptr;
     mesh->serialize(v1Local,v2Local);
     comInterface.send(v1Local->getPointer(),(int)v1Local->getNbOfElems(),MPI_ID_TYPE,procId,START_TAG_MESH_XCH+2,*comm);
     comInterface.send(v2Local->getPointer(),(int)v2Local->getNbOfElems(),MPI_DOUBLE,procId,START_TAG_MESH_XCH+3,*comm);
@@ -565,7 +568,7 @@ namespace MEDCoupling
     mcIdType lgth[2];
     MPI_Status status;
     const MPI_Comm *comm=getCommunicator();
-    CommInterface comInterface=_group.getCommInterface();
+    CommInterface const comInterface=_group.getCommInterface();
     comInterface.recv(lgth,2,MPI_ID_TYPE,procId,START_TAG_MESH_XCH,*_comm,&status);
     std::vector<mcIdType> tinyInfoDistant(lgth[0]);
     ids=DataArrayIdType::New();

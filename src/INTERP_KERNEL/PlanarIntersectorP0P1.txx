@@ -20,9 +20,13 @@
 #ifndef __PLANARINTERSECTORP0P1_TXX__
 #define __PLANARINTERSECTORP0P1_TXX__
 
+#include "PlanarIntersector.txx"
+#include "InterpKernelUtilities.hxx"
+#include "NormalizedGeometricTypes"
 #include "PlanarIntersectorP0P1.hxx"
 #include "InterpolationUtils.hxx"
 #include "CellModel.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {

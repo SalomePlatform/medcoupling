@@ -19,19 +19,29 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingBasicsTest5.hxx"
+#include "MCType.hxx"
+#include "MCIdType.hxx"
+#include "InterpKernelException.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingMultiFields.hxx"
-#include "MEDCouplingFieldOverTime.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <algorithm>
 #include <cmath>
-#include <functional>
-#include <iterator>
+#include <cppunit/TestAssert.h>
+#include <vector>
+#include <string>
+#include <utility>
+#include <math.h>
+#include <set>
 
 using namespace MEDCoupling;
 
@@ -57,7 +67,7 @@ void MEDCouplingBasicsTest5::testUMeshTessellate2D1()
   m1->setCoords(myCoords1);
   myCoords1->decrRef();
   //
-  MEDCouplingUMesh *m11=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
+  auto *m11=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
   m11->tessellate2D(1.);
   CPPUNIT_ASSERT(m11->getCoords()->isEqual(*m11->getCoords(),1e-12));
   const mcIdType expected1[48]={5,0,3,11,1,5,3,4,12,2,1,11,5,5,15,3,0,5,6,16,4,3,15,5,5,5,0,7,19,5,6,5,19,7,8,20,5,0,1,23,7,5,1,2,24,8,7,23};
@@ -68,7 +78,7 @@ void MEDCouplingBasicsTest5::testUMeshTessellate2D1()
   CPPUNIT_ASSERT(std::equal(expected2,expected2+9,m11->getNodalConnectivityIndex()->getConstPointer()));
   m11->decrRef();
   //
-  MEDCouplingUMesh *m12=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
+  auto *m12=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
   m12->tessellate2D(0.5);
   CPPUNIT_ASSERT_EQUAL(ToIdType(41),m12->getNumberOfNodes());
   const mcIdType expected3[60]={5,0,3,25,26,1,5,3,4,27,28,2,1,26,25,5,5,29,30,3,0,5,6,31,32,4,3,30,29,5,5,5,0,7,33,34,5,6,5,34,33,7,8,35,36,5,0,1,37,38,7,5,1,2,39,40,8,7,38,37};
@@ -102,7 +112,7 @@ void MEDCouplingBasicsTest5::testUMeshTessellate2DCurve1()
   m1->setCoords(myCoords);
   myCoords->decrRef();
 
-  MEDCouplingUMesh *m2 = static_cast<MEDCouplingUMesh *>(m1->deepCopy());
+  auto *m2 = static_cast<MEDCouplingUMesh *>(m1->deepCopy());
   m2->tessellate2D(0.1);
   CPPUNIT_ASSERT_NO_THROW(m2->checkConsistency(0.0)); // eps param not used
   m1->decrRef();
@@ -148,7 +158,7 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp4()
   m2->setCoords(myCoords2);
   myCoords2->decrRef();
   //
-  DataArrayIdType *d1=0,*d2=0;
+  DataArrayIdType *d1=nullptr,*d2=nullptr;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m2,m1,1e-10,d1,d2);
   m3->unPolyze();
   const mcIdType expected1[16]={0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7};
@@ -179,7 +189,7 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp4()
 
 void MEDCouplingBasicsTest5::testGetCellIdsCrossingPlane1()
 {
-  MEDCouplingUMesh *mesh2D=0;
+  MEDCouplingUMesh *mesh2D=nullptr;
   MEDCouplingUMesh *mesh3D=build3DExtrudedUMesh_1(mesh2D);
   const double vec[3]={-0.07,1.,0.07};
   const double origin[3]={1.524,1.4552,1.74768};
@@ -200,13 +210,13 @@ void MEDCouplingBasicsTest5::testGetCellIdsCrossingPlane1()
 
 void MEDCouplingBasicsTest5::testBuildSlice3D1()
 {
-  MEDCouplingUMesh *mesh2D=0;
+  MEDCouplingUMesh *mesh2D=nullptr;
   MEDCouplingUMesh *mesh3D=build3DExtrudedUMesh_1(mesh2D);
   mesh2D->decrRef();
   // First slice in the middle of 3D cells
   const double vec1[3]={-0.07,1.,0.07};
   const double origin1[3]={1.524,1.4552,1.74768};
-  DataArrayIdType *ids=0;
+  DataArrayIdType *ids=nullptr;
   MEDCouplingUMesh *slice1=mesh3D->buildSlice3D(origin1,vec1,1e-10,ids);
   const mcIdType expected1[9]={1,3,4,7,9,10,13,15,16};
   const mcIdType expected2[47]={5,42,41,40,43,44,5,42,46,45,41,5,44,43,40,47,48,5,49,42,44,50,5,49,51,46,42,5,50,44,48,52,5,53,49,50,54,5,53,55,51,49,5,54,50,52,56};
@@ -275,7 +285,7 @@ void MEDCouplingBasicsTest5::testBuildSlice3D1()
 
 void MEDCouplingBasicsTest5::testBuildSlice3DSurf1()
 {
-  MEDCouplingUMesh *mesh2D=0;
+  MEDCouplingUMesh *mesh2D=nullptr;
   MEDCouplingUMesh *mesh3D=build3DExtrudedUMesh_1(mesh2D);
   mesh2D->decrRef();
   DataArrayIdType *a=DataArrayIdType::New(),*b=DataArrayIdType::New(),*c=DataArrayIdType::New(),*d=DataArrayIdType::New();
@@ -285,7 +295,7 @@ void MEDCouplingBasicsTest5::testBuildSlice3DSurf1()
   //
   const double vec1[3]={-0.07,1.,0.07};
   const double origin1[3]={1.524,1.4552,1.74768};
-  DataArrayIdType *ids=0;
+  DataArrayIdType *ids=nullptr;
   MEDCouplingUMesh *slice1=mesh2D->buildSlice3DSurf(origin1,vec1,1e-10,ids);
   const mcIdType expected1[25]={6,8,10,11,13,18,19,21,23,25,26,38,41,43,47,49,52,53,64,67,69,73,75,78,79};
   const mcIdType expected2[75]={1,40,41,1,42,41,1,40,43,1,44,43,1,42,44,1,45,41,1,42,46,1,46,45,1,47,40,1,47,48,1,44,48,1,49,42,1,44,50,1,49,50,1,49,51,1,51,46,1,48,52,1,50,52,1,53,49,1,50,54,1,53,54,1,53,55,1,55,51,1,52,56,1,54,56};
@@ -338,7 +348,7 @@ void MEDCouplingBasicsTest5::testDataArrayDoubleAdvSetting1()
   const char *comps[2]={"comp1","comp2"};
   std::vector<std::string> compsCpp(comps,comps+2);
   DataArrayDouble *da=DataArrayDouble::New();
-  DataArrayDouble *tmp=0;
+  DataArrayDouble *tmp=nullptr;
   da->setInfoAndChangeNbOfCompo(compsCpp);
   da->setName("da");
   da->alloc(7,2);
@@ -432,7 +442,7 @@ void MEDCouplingBasicsTest5::testDataArrayIntAdvSetting1()
   const char *comps[2]={"comp1","comp2"};
   std::vector<std::string> compsCpp(comps,comps+2);
   DataArrayIdType *da=DataArrayIdType::New();
-  DataArrayIdType *tmp=0;
+  DataArrayIdType *tmp=nullptr;
   da->setInfoAndChangeNbOfCompo(compsCpp);
   da->setName("da");
   da->alloc(7,2);
@@ -574,12 +584,12 @@ void MEDCouplingBasicsTest5::testAre2DCellsNotCorrectlyOriented1()
   myCoords1->decrRef();
   //
   double vec1[3]={0.,0.,1.};
-  double *vec2=new double[2];
+  auto *vec2=new double[2];
   for(int i=0;i<18;i++)
     {
       vec2[0]=3.*cos(M_PI/9.*i);
       vec2[1]=3.*sin(M_PI/9.*i);
-      MEDCouplingUMesh *m1Cpy=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
+      auto *m1Cpy=static_cast<MEDCouplingUMesh *>(m1->deepCopy());
       m1Cpy->translate(vec2);
       std::vector<mcIdType> res;
       CPPUNIT_ASSERT_THROW(m1Cpy->are2DCellsNotCorrectlyOriented(vec1,false,res),INTERP_KERNEL::Exception);
@@ -737,19 +747,19 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   myCoords3D->decrRef();
   mesh3D->checkConsistencyLight();
   //
-  MEDCouplingUMesh *mesh3D_2=dynamic_cast<MEDCouplingUMesh *>(mesh3D->deepCopy());
-  MEDCouplingUMesh *mesh2D_2=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCopy());
-  MEDCouplingUMesh *mesh3D_4=dynamic_cast<MEDCouplingUMesh *>(mesh3D->deepCopy());
-  MEDCouplingUMesh *mesh2D_4=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCopy());
+  auto *mesh3D_2=dynamic_cast<MEDCouplingUMesh *>(mesh3D->deepCopy());
+  auto *mesh2D_2=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCopy());
+  auto *mesh3D_4=dynamic_cast<MEDCouplingUMesh *>(mesh3D->deepCopy());
+  auto *mesh2D_4=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCopy());
   DataArrayIdType *renumNodes=DataArrayIdType::New();
-  mcIdType oldNbOf3DNodes=mesh3D->getNumberOfNodes();
+  mcIdType const oldNbOf3DNodes=mesh3D->getNumberOfNodes();
   renumNodes->alloc(mesh2D->getNumberOfNodes(),1);
   renumNodes->iota(oldNbOf3DNodes);
   DataArrayDouble *coo=DataArrayDouble::Aggregate(mesh3D->getCoords(),mesh2D->getCoords());
   mesh3D->setCoords(coo);
   mesh2D->setCoords(coo);
   coo->decrRef();
-  MEDCouplingUMesh *mesh2D_3=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCopy());
+  auto *mesh2D_3=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCopy());
   mesh2D_3->shiftNodeNumbersInConn(oldNbOf3DNodes);
   mesh2D->renumberNodesInConn(renumNodes->getConstPointer());
   renumNodes->decrRef();
@@ -758,7 +768,7 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   //
   DataArrayIdType *da1,*da2;
   mesh3D->checkGeoEquivalWith(mesh3D_2,10,1e-12,da1,da2);
-  CPPUNIT_ASSERT(da1==0);
+  CPPUNIT_ASSERT(da1==nullptr);
  CPPUNIT_ASSERT_EQUAL(8,(int)da2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
   const mcIdType expected1[8]={8,11,12,9,4,5,6,7};
@@ -767,7 +777,7 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   da2->decrRef();
   //
   mesh2D->checkGeoEquivalWith(mesh2D_2,10,1e-12,da1,da2);
-  CPPUNIT_ASSERT(da1==0);
+  CPPUNIT_ASSERT(da1==nullptr);
  CPPUNIT_ASSERT_EQUAL(9,(int)da2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
   for(mcIdType i=0;i<9;i++)
@@ -775,7 +785,7 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   da2->decrRef();
   //
   const double vect[3]={1.,0.,0.};
-  MEDCouplingUMesh *mesh2D_5=dynamic_cast<MEDCouplingUMesh *>(mesh2D_4->deepCopy());
+  auto *mesh2D_5=dynamic_cast<MEDCouplingUMesh *>(mesh2D_4->deepCopy());
   mesh2D_5->translate(vect);
   std::vector<MEDCouplingUMesh *> meshes(3);
   meshes[0]=mesh3D_4; meshes[1]=mesh2D_4; meshes[2]=mesh2D_5;
@@ -832,7 +842,7 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
 void MEDCouplingBasicsTest5::testComputeNeighborsOfCells1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
-  DataArrayIdType *d1=0,*d2=0;
+  DataArrayIdType *d1=nullptr,*d2=nullptr;
   m->computeNeighborsOfCells(d1,d2);
  CPPUNIT_ASSERT_EQUAL(6,(int)d2->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(10,(int)d1->getNumberOfTuples());
@@ -935,7 +945,7 @@ void MEDCouplingBasicsTest5::testDataArrayDoubleGetMinMaxPerComponent1()
 {
   const double values1[12]={1.,2.,3.,-0.9,2.1,3.,1.3,1.7,3.,1.,1.8,3.};
   DataArrayDouble *d1=DataArrayDouble::New();
-  double *res=new double[2*3];
+  auto *res=new double[2*3];
   CPPUNIT_ASSERT_THROW(d1->getMinMaxPerComponent(res),INTERP_KERNEL::Exception);
   d1->alloc(4,3);
   std::copy(values1,values1+12,d1->getPointer());
@@ -982,8 +992,8 @@ void MEDCouplingBasicsTest5::testZipConnectivityPol1()
   MEDCouplingUMesh *m1=build2DTargetMesh_1();
   const mcIdType cells1[3]={2,3,4};
   MEDCouplingPointSet *m2_1=m1->buildPartOfMySelf(cells1,cells1+3,true);
-  MEDCouplingUMesh *m2=dynamic_cast<MEDCouplingUMesh *>(m2_1);
-  DataArrayIdType *arr=0;
+  auto *m2=dynamic_cast<MEDCouplingUMesh *>(m2_1);
+  DataArrayIdType *arr=nullptr;
   CPPUNIT_ASSERT(m2);
   // no permutation policy 0
   CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,0,arr));
@@ -1054,7 +1064,7 @@ void MEDCouplingBasicsTest5::testZipConnectivityPol1()
   m2_1=m1->buildPartOfMySelf(cells2,cells2+2,true);
   m2=dynamic_cast<MEDCouplingUMesh *>(m2_1);
   CPPUNIT_ASSERT(m2);
-  arr=0;
+  arr=nullptr;
   // no permutation policy 0
   CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,0,arr));
  CPPUNIT_ASSERT_EQUAL(2,(int)arr->getNumberOfTuples());
@@ -1206,8 +1216,8 @@ void MEDCouplingBasicsTest5::testPartitionBySpreadZone1()
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   const mcIdType part0[3]={2,3,4};
   const mcIdType part1[2]={0,1};
-  MEDCouplingUMesh *m1=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(part0,part0+3));
-  MEDCouplingUMesh *m2=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(part1,part1+2));
+  auto *m1=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(part0,part0+3));
+  auto *m2=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(part1,part1+2));
   std::vector<const MEDCouplingUMesh *> v(3); v[0]=m; v[1]=m1; v[2]=m2;
   MEDCouplingUMesh *m4=MEDCouplingUMesh::MergeUMeshes(v);
   const mcIdType renum[10]={5,2,9,6,4,7,0,1,3,8};
@@ -1279,13 +1289,13 @@ void MEDCouplingBasicsTest5::testGiveCellsWithType1()
 
 void MEDCouplingBasicsTest5::testBuildSlice3D2()
 {
-  MEDCouplingUMesh *mesh2D=0;
+  MEDCouplingUMesh *mesh2D=nullptr;
   MEDCouplingUMesh *mesh3D=build3DExtrudedUMesh_1(mesh2D);
   mesh2D->decrRef();
   // First slice in the middle of 3D cells
   const double vec1[3]={-0.07,1.,0.07};
   const double origin1[3]={1.524,1.4552,1.74768};
-  DataArrayIdType *ids=0;
+  DataArrayIdType *ids=nullptr;
   MEDCouplingUMesh *slice1=mesh3D->buildSlice3D(origin1,vec1,1e-10,ids);
   //
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -1303,7 +1313,7 @@ void MEDCouplingBasicsTest5::testBuildSlice3D2()
   CPPUNIT_ASSERT(f2->getArray()->isEqual(*arr2,1e-12));
   CPPUNIT_ASSERT(slice1->isEqual(f2->getMesh(),1e-12));
   int a,b;
-  double c=f2->getTime(a,b);
+  double const c=f2->getTime(a,b);
   CPPUNIT_ASSERT_EQUAL(6,a);
   CPPUNIT_ASSERT_EQUAL(7,b);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(4.5,c,1e-12);
@@ -1375,10 +1385,10 @@ void MEDCouplingBasicsTest5::testComputeSkin1()
   const mcIdType expected3[18]={0,1,2,3,4,5,9,10,14,15,19,20,24,25,26,27,28,29};
   CPPUNIT_ASSERT_EQUAL(ToIdType(18),ids->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected3,expected3+18,ids->getConstPointer()));
-  MEDCouplingUMesh *part=dynamic_cast<MEDCouplingUMesh *>(umesh->buildFacePartOfMySelfNode(ids->begin(),ids->end(),true));
+  auto *part=dynamic_cast<MEDCouplingUMesh *>(umesh->buildFacePartOfMySelfNode(ids->begin(),ids->end(),true));
   part->setName(skin->getName().c_str());
   CPPUNIT_ASSERT(part->isEqual(skin,1e-12));
-  MEDCouplingUMesh *part2=dynamic_cast<MEDCouplingUMesh *>(part->buildPartOfMySelfSlice(1,18,2,true));
+  auto *part2=dynamic_cast<MEDCouplingUMesh *>(part->buildPartOfMySelfSlice(1,18,2,true));
   DataArrayIdType *ids2=DataArrayIdType::Range(0,18,2);
   part->setPartOfMySelf(ids2->begin(),ids2->end(),*part2);
   ids2->decrRef();
@@ -1404,10 +1414,10 @@ void MEDCouplingBasicsTest5::testUMeshSetPartOfMySelf2()
   std::set<INTERP_KERNEL::NormalizedCellType> s; s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4);
   CPPUNIT_ASSERT(s==m->getAllGeoTypes());
   const mcIdType ids1[3]={0,3,4};
-  MEDCouplingUMesh *part=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(ids1,ids1+3,true));
+  auto *part=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(ids1,ids1+3,true));
   part->simplexize(0)->decrRef();
   const mcIdType ids2[3]={1,2,5};
-  MEDCouplingUMesh *part2=static_cast<MEDCouplingUMesh *>(part->buildPartOfMySelf(ids2,ids2+3,true));
+  auto *part2=static_cast<MEDCouplingUMesh *>(part->buildPartOfMySelf(ids2,ids2+3,true));
   m->setPartOfMySelf(ids1,ids1+3,*part2);
   const mcIdType expected1[20]={3,0,4,1,3,1,4,2,3,4,5,2,3,6,7,4,3,7,5,4};
   CPPUNIT_ASSERT(std::equal(expected1,expected1+20,m->getNodalConnectivity()->getConstPointer()));
@@ -1523,7 +1533,7 @@ void MEDCouplingBasicsTest5::testKrSpatialDiscretization1()
   const double targetPointCoordsX[40]={-0.5,-0.45,-0.4,-0.35,-0.3,-0.25,-0.2,-0.15,-0.1,-0.05,-6.93889390391e-17,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.0,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45};
   const double targetFieldValsExpected[40]={2.975379475824351, 2.95613491917003, 2.936890362515361, 2.917645805861018, 2.898401249206574, 2.879156692552137, 2.859912135897732, 2.840667579243201, 2.821423022588731, 2.802178465934342, 2.78293390927989, 2.763689352625457, 2.744444795971001, 2.725209522098197, 2.709077577124666, 2.706677252549218, 2.727467797847971, 2.713338094723676, 2.671342424824244, 2.664877370146978, 2.653840141412181, 2.619607861392791, 2.569777214476479, 2.513263929794591, 2.450732752808528, 2.368313560985155, 2.250909795670307, 2.098194272085416, 1.954257891732065, 1.895040660973802, 1.865256788315972, 1.835475248687992, 1.80569370905998, 1.775912169431971, 1.746130629803976, 1.716349090175918, 1.686567550547855, 1.656786010919941, 1.627004471291988, 1.597222931663817};
   //
-  int nbOfInputPoints=10;
+  int const nbOfInputPoints=10;
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES_KR,ONE_TIME);
   DataArrayDouble *srcArrX=DataArrayDouble::New();
   srcArrX->alloc(nbOfInputPoints,1);
@@ -1538,7 +1548,7 @@ void MEDCouplingBasicsTest5::testKrSpatialDiscretization1()
   f->setArray(srcVals);
   f->checkConsistencyLight();
   //
-  double *res0=new double[1];
+  auto *res0=new double[1];
   f->getValueOn(targetPointCoordsX,res0);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(targetFieldValsExpected[0],res0[0],1e-10);
   delete [] res0;
@@ -1617,7 +1627,7 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp5()
   m2->setConnectivity(conn,connI,true);
   coords->decrRef(); conn->decrRef(); connI->decrRef();
   //
-  DataArrayIdType *d1=0,*d2=0;
+  DataArrayIdType *d1=nullptr,*d2=nullptr;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1,m2,1e-10,d1,d2);
   CPPUNIT_ASSERT_EQUAL(105,(int)m3->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(105,(int)d1->getNumberOfTuples());
@@ -1770,7 +1780,7 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp6()
   m2->setConnectivity(conn,connI,true);
   coords->decrRef(); conn->decrRef(); connI->decrRef();
   //
-  DataArrayIdType *d1=0,*d2=0;
+  DataArrayIdType *d1=nullptr,*d2=nullptr;
   MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1,m2,1e-10,d1,d2);
   CPPUNIT_ASSERT_EQUAL(4,(int)m3->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(4,(int)d1->getNumberOfTuples());
@@ -1799,7 +1809,7 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp6()
 
 void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp7()
 {
-  double eps = 1.0e-8;
+  double const eps = 1.0e-8;
   // coordinates circle - SEE getCircle() on the Python side
   DataArrayDouble *coords1=DataArrayDouble::New();
   const double coordsData1[16]={0.5328427124746189, -0.08284271247461905, -0.03284271247461901, 0.4828427124746191, -0.03284271247461906, -0.082842712474619, 0.5328427124746191, 0.482842712474619};
@@ -1832,7 +1842,7 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp7()
   m2->setConnectivity(conn2,connI2,true);
   coords2->decrRef(); conn2->decrRef(); connI2->decrRef();
 
-  DataArrayIdType * resToM1 = 0, * resToM2 = 0;
+  DataArrayIdType * resToM1 = nullptr, * resToM2 = nullptr;
   MEDCouplingUMesh *m_intersec=MEDCouplingUMesh::Intersect2DMeshes(m2, m1, eps, resToM1, resToM2);
   m_intersec->zipCoords();
 
@@ -1865,7 +1875,7 @@ void MEDCouplingBasicsTest5::testDAIBuildSubstractionOptimized1()
   DataArrayIdType *da3=DataArrayIdType::New(); da3->useArray(tab3,false,DeallocType::CPP_DEALLOC,3,1);
   DataArrayIdType *da4=DataArrayIdType::New(); da4->useArray(tab1,false,DeallocType::CPP_DEALLOC,7,1);
   //
-  DataArrayIdType *a=0;
+  DataArrayIdType *a=nullptr;
   a=da1->buildSubstractionOptimized(da2);
  CPPUNIT_ASSERT_EQUAL(4,(int)a->getNumberOfTuples());
  CPPUNIT_ASSERT_EQUAL(1,(int)a->getNumberOfComponents());
@@ -2004,7 +2014,7 @@ void MEDCouplingBasicsTest5::testSimplexize3()
   c->decrRef();
   m->checkConsistency();
   //
-  MEDCouplingUMesh *m1=static_cast<MEDCouplingUMesh *>(m->deepCopy());
+  auto *m1=static_cast<MEDCouplingUMesh *>(m->deepCopy());
   DataArrayIdType *d1=m1->simplexize(INTERP_KERNEL::PLANAR_FACE_5);
   m1->checkConsistency();
   MEDCouplingFieldDouble *f1=m1->getMeasureField(ON_CELLS);
@@ -2029,7 +2039,7 @@ void MEDCouplingBasicsTest5::testSimplexize3()
   m1->decrRef();
   d1->decrRef();
   //
-  MEDCouplingUMesh *m2=static_cast<MEDCouplingUMesh *>(m->deepCopy());
+  auto *m2=static_cast<MEDCouplingUMesh *>(m->deepCopy());
   DataArrayIdType *d2=m2->simplexize(INTERP_KERNEL::PLANAR_FACE_6);
   m2->checkConsistency();
   MEDCouplingFieldDouble *f2=m2->getMeasureField(ON_CELLS);

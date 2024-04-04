@@ -21,8 +21,9 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_HXX__
 
+#include "MCIdType.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include "MCType.hxx"
+#include "NormalizedGeometricTypes"
 
 namespace MEDCoupling
 {

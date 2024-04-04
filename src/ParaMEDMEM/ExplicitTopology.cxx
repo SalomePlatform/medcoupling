@@ -18,15 +18,13 @@
 //
 
 #include "CommInterface.hxx"
-#include "ProcessorGroup.hxx"
+#include "MCType.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "ParaMESH.hxx"
-#include "Topology.hxx"
 #include "ExplicitTopology.hxx"
 #include "BlockTopology.hxx"
-#include "ComponentTopology.hxx"
 
-#include <vector>
+#include <iostream>
 #include <algorithm>
 
 using namespace std;
@@ -34,8 +32,8 @@ namespace MEDCoupling
 {
 
 ExplicitTopology::ExplicitTopology():
-   _proc_group(NULL), _nb_elems(0), _nb_components(0),
-   _loc2glob(NULL), _glob2loc()
+   _proc_group(nullptr), _nb_elems(0), _nb_components(0),
+   _loc2glob(nullptr), _glob2loc()
   {}
 
 ExplicitTopology::ExplicitTopology(const ParaMESH& paramesh ):
@@ -69,7 +67,7 @@ ExplicitTopology::ExplicitTopology(const ExplicitTopology& topo, int nb_componen
 
 ExplicitTopology::~ExplicitTopology()
 {
-  if (_loc2glob != 0) delete[] _loc2glob;
+  if (_loc2glob != nullptr) delete[] _loc2glob;
 }
 
 
@@ -94,7 +92,7 @@ void ExplicitTopology::serialize(mcIdType* & serializer, mcIdType& size) const
  * after communication. Uses the same structure as the one used for serialize()
  * 
  * */
-void ExplicitTopology::unserialize(const mcIdType* serializer,const CommInterface& comm_interface)
+void ExplicitTopology::unserialize(const mcIdType* serializer,const CommInterface&  /*comm_interface*/)
 {
   const mcIdType* ptr_serializer=serializer;
   cout << "unserialize..."<<endl;

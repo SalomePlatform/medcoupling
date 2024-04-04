@@ -21,9 +21,9 @@
 #ifndef __GENMATHFORMULAE_HXX__
 #define __GENMATHFORMULAE_HXX__
 
-#include "InterpKernelException.hxx"
 
 #include <cmath>
+#include <math.h>
 
 namespace INTERP_KERNEL
 {
@@ -37,13 +37,13 @@ namespace INTERP_KERNEL
    */
   void computeEigenValues6(const double *matrix, double *eigenVals)
   {
-    double tr=(matrix[0]+matrix[1]+matrix[2])/3.;
-    double K[6]={matrix[0]-tr,matrix[1]-tr,matrix[2]-tr,matrix[3],matrix[4],matrix[5]};
-    double q=(K[0]*K[1]*K[2]+2.*K[4]*K[5]*K[3]-K[0]*K[4]*K[4]-K[2]*K[3]*K[3]-K[1]*K[5]*K[5])/2.;
+    double const tr=(matrix[0]+matrix[1]+matrix[2])/3.;
+    double const K[6]={matrix[0]-tr,matrix[1]-tr,matrix[2]-tr,matrix[3],matrix[4],matrix[5]};
+    double const q=(K[0]*K[1]*K[2]+2.*K[4]*K[5]*K[3]-K[0]*K[4]*K[4]-K[2]*K[3]*K[3]-K[1]*K[5]*K[5])/2.;
     double p=K[0]*K[0]+K[1]*K[1]+K[2]*K[2]+2*(K[3]*K[3]+K[4]*K[4]+K[5]*K[5]);
     p/=6.;
-    double sqp=sqrt(p);
-    double tmp=p*sqp;
+    double const sqp=sqrt(p);
+    double const tmp=p*sqp;
     double phi;
     if(fabs(q)<=fabs(tmp))
       if(tmp !=0)
@@ -72,14 +72,14 @@ namespace INTERP_KERNEL
         const double m9[9]={matrix[0]-eigenVal,matrix[3],matrix[5],matrix[3],matrix[1]-eigenVal,matrix[4],matrix[5],matrix[4],matrix[2]-eigenVal};
         for(int i=0;i<3;i++)
           {
-            double w[9]={m9[0+3*i],m9[1+3*i],m9[2+3*i],m9[0+(3*(i+1))%6],m9[1+(3*(i+1))%6],m9[2+(3*(i+1))%6],1.,1.,1.};
-            double det=w[0]*w[4]*w[8]+w[1]*w[5]*w[6]+w[2]*w[3]*w[7]-w[0]*w[5]*w[7]-w[1]*w[3]*w[8]-w[2]*w[4]*w[6];
+            double const w[9]={m9[0+3*i],m9[1+3*i],m9[2+3*i],m9[0+(3*(i+1))%6],m9[1+(3*(i+1))%6],m9[2+(3*(i+1))%6],1.,1.,1.};
+            double const det=w[0]*w[4]*w[8]+w[1]*w[5]*w[6]+w[2]*w[3]*w[7]-w[0]*w[5]*w[7]-w[1]*w[3]*w[8]-w[2]*w[4]*w[6];
             if(fabs(det)>eps)
               {
                 eigenVector[0]=(w[1]*w[5]-w[4]*w[2])/det;
                 eigenVector[1]=(w[2]*w[3]-w[0]*w[5])/det;
                 eigenVector[2]=(w[0]*w[4]-w[1]*w[3])/det;
-                double norm=sqrt(eigenVector[0]*eigenVector[0]+eigenVector[1]*eigenVector[1]+eigenVector[2]*eigenVector[2]);
+                double const norm=sqrt(eigenVector[0]*eigenVector[0]+eigenVector[1]*eigenVector[1]+eigenVector[2]*eigenVector[2]);
                 eigenVector[0]/=norm;
                 eigenVector[1]/=norm;
                 eigenVector[2]/=norm;

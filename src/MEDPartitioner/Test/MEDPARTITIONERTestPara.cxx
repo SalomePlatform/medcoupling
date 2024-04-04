@@ -17,6 +17,9 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "MCType.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "MEDPARTITIONERTest.hxx"
 
 #include "MEDPARTITIONER_MeshCollection.hxx"
@@ -24,10 +27,8 @@
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
-#include "CellModel.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDLoader.hxx"
-#include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
@@ -36,12 +37,11 @@
 
 #include <cppunit/TestAssert.h>
 
-#include <sstream>
+#include <fstream>
+#include <iostream>
 #include <cmath>
-#include <list>
-#include <stdexcept>
 #include <cstdlib>
-#include <vector>
+#include <string>
 
 #include <unistd.h>  // get_current_dir_name()
 
@@ -59,7 +59,7 @@ std::string MEDPARTITIONERTest::getPartitionerParaExe() const
     {
       execName=getenv("MEDCOUPLING_ROOT_DIR");
       execName+="/bin/medpartitioner_para";
-      std::ifstream my_file(execName.c_str());
+      std::ifstream const my_file(execName.c_str());
       if (my_file.good())
         return execName;
     }
@@ -92,7 +92,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   input=targetName+".xml";
 
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
-  MEDPARTITIONER::MeshCollection collection(input,parallelizer);
+  MEDPARTITIONER::MeshCollection const collection(input,parallelizer);
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
   std::vector<MEDCoupling::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) cellMeshes.size());
@@ -235,8 +235,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   int* pc=corr[1]->getPointer();
   for (int i = 0; i < nbcells; i++)
     {
-      int i1=pc[i]*nbcomp;
-      int i2=i*nbcomp;
+      int const i1=pc[i]*nbcomp;
+      int const i2=i*nbcomp;
       for (int j = 0; j < nbcomp; j++)
         {
           if (p1[i1+j]==p2[i2+j]) nbequal++;
@@ -316,15 +316,15 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
 
     }
   int nbequal=0;
-  int nbptgauss=8;
+  int const nbptgauss=8;
   int nbcomp=field1->getNumberOfComponents();
   double* p1=f1->getPointer();
   double* p2=f2->getPointer();
   int* pc=corr[1]->getPointer();
   for (int i = 0; i < nbcells; i++)
     {
-      int i1=pc[i]*nbcomp*nbptgauss;
-      int i2=i*nbcomp*nbptgauss;
+      int const i1=pc[i]*nbcomp*nbptgauss;
+      int const i2=i*nbcomp*nbptgauss;
       for (int j = 0; j < nbcomp*nbptgauss; j++)
         {
           if (p1[i1+j]==p2[i2+j]) nbequal++;

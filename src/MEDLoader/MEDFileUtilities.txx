@@ -21,7 +21,11 @@
 #ifndef __MEDFILEUTILITIES_TXX__
 #define __MEDFILEUTILITIES_TXX__
 
+#include "MEDCouplingMemArray.hxx"
 #include "MEDFileUtilities.hxx"
+#include "med.h"
+#include <string>
+#include "medfile.h"
 
 template<class T>
 T *MEDCoupling::MEDFileWritableStandAlone::BuildFromMemoryChunk(MEDCoupling::DataArrayByte *db)
@@ -32,7 +36,7 @@ T *MEDCoupling::MEDFileWritableStandAlone::BuildFromMemoryChunk(MEDCoupling::Dat
   med_memfile memfile=MED_MEMFILE_INIT;
   memfile.app_image_ptr=db->getPointer();
   memfile.app_image_size=db->getNbOfElems();
-  std::string dftFileName(MEDCoupling::MEDFileWritableStandAlone::GenerateUniqueDftFileNameInMem());
+  std::string const dftFileName(MEDCoupling::MEDFileWritableStandAlone::GenerateUniqueDftFileNameInMem());
   MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_RDWR));
   return T::New(fid);
 }

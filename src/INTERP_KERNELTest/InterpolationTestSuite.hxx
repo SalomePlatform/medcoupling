@@ -20,9 +20,10 @@
 #ifndef __TU_INTERPOLATION_TEST_SUITE_HXX__
 #define __TU_INTERPOLATION_TEST_SUITE_HXX__
 
+#include "MeshTestToolkit.hxx"
 #include "MeshTestToolkit.txx"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/TestFixture.h>
 
 namespace INTERP_TEST
 {

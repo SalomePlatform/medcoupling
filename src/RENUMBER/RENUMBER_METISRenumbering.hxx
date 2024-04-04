@@ -20,13 +20,15 @@
 #ifndef __METISRENUMBERING_HXX__
 #define __METISRENUMBERING_HXX__
 
+#include "MCIdType.hxx"
+#include "MCType.hxx"
 #include "RENUMBERDefines.hxx"
 #include "RENUMBER_Renumbering.hxx"
 
 class RENUMBER_EXPORT METISRenumbering:public Renumbering
 {
 public:
-  virtual void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nb_cell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm);
+  void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nb_cell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm) override;
 };
 
 #endif /*METISRENUMBERING_HXX_*/

@@ -21,14 +21,19 @@
 #ifndef __MEDFILEMESHELT_HXX__
 #define __MEDFILEMESHELT_HXX__
 
+#include "MCType.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingPartDefinition.hxx"
 #include "MCAuto.hxx"
 
-#include "NormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "NormalizedGeometricTypes"
 
 #include "med.h"
+#include <string>
+#include <cstddef>
+#include <vector>
 
 namespace MEDCoupling
 {
@@ -42,8 +47,8 @@ namespace MEDCoupling
     std::string getClassName() const override { return std::string("MEDFileUMeshPerTypeCommon"); }
     void loadCommonPart(med_idt fid, const char *mName, int dt, int it, mcIdType curNbOfElem, med_geometry_type geoElt,
                         med_entity_type entity, MEDFileMeshReadSelector *mrs);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     const DataArrayIdType *getFam() const { return _fam; }
     const DataArrayIdType *getNum() const { return _num; }
     const DataArrayAsciiChar *getNames() const { return _names; }
@@ -62,8 +67,8 @@ namespace MEDCoupling
 
     std::string getClassName() const override { return std::string("MEDFileUMeshPerType"); }
     static bool isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     int getDim() const;
     MEDCoupling1GTUMesh *getMesh() const { return const_cast<MEDCoupling1GTUMesh *>((const MEDCoupling1GTUMesh *)_m); }
     const PartDefinition *getPartDef() const { return _pd; }

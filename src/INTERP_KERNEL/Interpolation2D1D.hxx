@@ -21,10 +21,13 @@
 #ifndef __INTERPOLATION2D1D_HXX__
 #define __INTERPOLATION2D1D_HXX__
 
-#include "Interpolation.hxx"
-#include "Planar2D1DIntersectorP0P0.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
+#include <string>
+#include <set>
+#include <map>
+
 #include "InterpolationOptions.hxx"
+#include "Interpolation.hxx"
+#include "MCIdType.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -40,7 +43,7 @@ namespace INTERP_KERNEL
   class Interpolation2D1D : public Interpolation<Interpolation2D1D>
   {
   public:
-    typedef std::map<mcIdType,std::set<mcIdType> > DuplicateFacesType;
+    using DuplicateFacesType = std::map<mcIdType, std::set<mcIdType>>;
 
     Interpolation2D1D() { setOrientation(2); }
     Interpolation2D1D(const InterpolationOptions& io):Interpolation<Interpolation2D1D>(io) { }

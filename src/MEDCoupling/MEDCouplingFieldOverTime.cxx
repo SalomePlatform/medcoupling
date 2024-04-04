@@ -19,9 +19,17 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingFieldOverTime.hxx"
+#include "MCAuto.hxx"
+#include "MEDCouplingDefinitionTime.hxx"
 #include "MEDCouplingMesh.hxx"
+#include "MEDCouplingMultiFields.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 
 #include <cmath>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <vector>
 
 using namespace MEDCoupling;
 
@@ -32,11 +40,11 @@ MEDCouplingFieldOverTime *MEDCouplingFieldOverTime::New(const std::vector<MEDCou
 
 double MEDCouplingFieldOverTime::getTimeTolerance() const
 {
-  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  auto it=_fs.begin();
   if(_fs.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldOverTime::getTimeTolerance : empty set !");
   for(;it!=_fs.end();it++)
-    if((const MEDCouplingFieldDouble *)(*it)!=0)
+    if((const MEDCouplingFieldDouble *)(*it)!=nullptr)
       return (*it)->getTimeTolerance();
   throw INTERP_KERNEL::Exception("MEDCouplingFieldOverTime::getTimeTolerance : only empty fields in this !");
 }
@@ -44,7 +52,7 @@ double MEDCouplingFieldOverTime::getTimeTolerance() const
 void MEDCouplingFieldOverTime::checkConsistencyLight() const
 {
   MEDCouplingMultiFields::checkConsistencyLight();
-  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  auto it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((*it)->getTimeDiscretization()==NO_TIME)
       {
@@ -57,7 +65,7 @@ void MEDCouplingFieldOverTime::checkConsistencyLight() const
   const MEDCouplingFieldDouble& ref=*(*(it++));
   int tt1,tt2;
   double reft=ref.getEndTime(tt1,tt2);
-  double eps=getTimeTolerance();
+  double const eps=getTimeTolerance();
   int id=1;
   for(;it!=_fs.end();it++,id++)
     {
@@ -66,7 +74,7 @@ void MEDCouplingFieldOverTime::checkConsistencyLight() const
           std::ostringstream oss; oss << "Field slice at rank #" << id << " is not compatible with the first !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      double curt=(*it)->getStartTime(tt1,tt2);
+      double const curt=(*it)->getStartTime(tt1,tt2);
       if(curt<reft-eps)
         throw INTERP_KERNEL::Exception("MEDCouplingFieldOverTime::checkConsistencyLight : fields are NOT sorted properly in ascending time !");
       reft=(*it)->getEndTime(tt1,tt2);
@@ -91,7 +99,7 @@ std::string MEDCouplingFieldOverTime::simpleRepr() const
   { ret << "Current instance is INVALID !\n"; }
   try
   {
-      MEDCouplingDefinitionTime dt=getDefinitionTimeZone();
+      MEDCouplingDefinitionTime const dt=getDefinitionTimeZone();
       dt.appendRepr(ret);
   }
   catch(INTERP_KERNEL::Exception& /*e*/)
@@ -103,7 +111,7 @@ bool MEDCouplingFieldOverTime::isEqual(const MEDCouplingMultiFields *other, doub
 {
   if(!MEDCouplingMultiFields::isEqual(other,meshPrec,valsPrec))
     return false;
-  const MEDCouplingFieldOverTime *otherC=dynamic_cast<const MEDCouplingFieldOverTime *>(other);
+  const auto *otherC=dynamic_cast<const MEDCouplingFieldOverTime *>(other);
   if(!otherC)
     return false;
   // to implement
@@ -114,7 +122,7 @@ bool MEDCouplingFieldOverTime::isEqualWithoutConsideringStr(const MEDCouplingMul
 {
   if(!MEDCouplingMultiFields::isEqualWithoutConsideringStr(other,meshPrec,valsPrec))
     return false;
-  const MEDCouplingFieldOverTime *otherC=dynamic_cast<const MEDCouplingFieldOverTime *>(other);
+  const auto *otherC=dynamic_cast<const MEDCouplingFieldOverTime *>(other);
   if(!otherC)
     return false;
   // to implement
@@ -149,7 +157,7 @@ MEDCouplingDefinitionTime MEDCouplingFieldOverTime::getDefinitionTimeZone() cons
 {
   std::vector< std::vector<int> > tmp;
   getDifferentArrays(tmp);
-  std::vector<const MEDCouplingFieldDouble *> tmp2(_fs.begin(),_fs.end());
+  std::vector<const MEDCouplingFieldDouble *> const tmp2(_fs.begin(),_fs.end());
   std::vector<int> tmp3;
   getDifferentMeshes(tmp3);
   return MEDCouplingDefinitionTime(tmp2,tmp3,tmp);
@@ -161,5 +169,4 @@ MEDCouplingFieldOverTime::MEDCouplingFieldOverTime(const std::vector<MEDCoupling
 }
 
 MEDCouplingFieldOverTime::MEDCouplingFieldOverTime()
-{
-}
+= default;

@@ -20,13 +20,28 @@
 
 #pragma once
 
+#include "MCType.hxx"
+#include "MCAuto.hxx"
+#include "InterpKernelHashMap.hxx"
 #include "MEDCoupling.hxx"
+#include "MEDCouplingMesh.hxx"
 #include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingMemArray.hxx"
 
 #include "CellModel.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "NormalizedGeometricTypes"
 
+#include <cstddef>
+#include <ostream>
+#include <map>
+#include <functional>
+#include <iterator>
 #include <set>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <utility>
 
 namespace MEDCoupling
 {
@@ -43,20 +58,20 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const std::string& meshName, int meshDim);
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingUMesh"); }
     // Copy methods
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopy() const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopyConnectivityOnly() const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopy() const override;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const override;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopyConnectivityOnly() const override;
 
-    MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other);
-    MEDCOUPLING_EXPORT void updateTime() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return UNSTRUCTURED; }
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
-    MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
-    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
-    MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) override;
+    MEDCOUPLING_EXPORT void updateTime() const override;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const override { return UNSTRUCTURED; }
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const override;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const override;
+    MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const override;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const override;
+    MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const override;
     MEDCOUPLING_EXPORT void checkGeomConsistency(double eps=1e-12) const;
     MEDCOUPLING_EXPORT void setMeshDimension(int meshDim);
     MEDCOUPLING_EXPORT void allocateCells(mcIdType nbOfCells=0);
@@ -64,7 +79,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void finishInsertingCells();
     MEDCOUPLING_EXPORT MEDCouplingUMeshCellIterator *cellIterator();
     MEDCOUPLING_EXPORT MEDCouplingUMeshCellByTypeEntry *cellsByType();
-    MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
+    MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const override;
     MEDCOUPLING_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getAllGeoTypesSorted() const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getTypesOfPart(const mcIdType *begin, const mcIdType *end) const;
     MEDCOUPLING_EXPORT void setConnectivity(DataArrayIdType *conn, DataArrayIdType *connIndex, bool isComputingTypes=true);
@@ -72,30 +87,30 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const DataArrayIdType *getNodalConnectivityIndex() const { return _nodal_connec_index; }
     MEDCOUPLING_EXPORT DataArrayIdType *getNodalConnectivity() { return _nodal_connec; }
     MEDCOUPLING_EXPORT DataArrayIdType *getNodalConnectivityIndex() { return _nodal_connec_index; }
-    MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(mcIdType cellId) const;
-    MEDCOUPLING_EXPORT DataArrayIdType *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT mcIdType getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT void getNodeIdsOfCell(mcIdType cellId, std::vector<mcIdType>& conn) const;
-    MEDCOUPLING_EXPORT std::string simpleRepr() const;
-    MEDCOUPLING_EXPORT std::string advancedRepr() const;
+    MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(mcIdType cellId) const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const override;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const override;
+    MEDCOUPLING_EXPORT void getNodeIdsOfCell(mcIdType cellId, std::vector<mcIdType>& conn) const override;
+    MEDCOUPLING_EXPORT std::string simpleRepr() const override;
+    MEDCOUPLING_EXPORT std::string advancedRepr() const override;
     MEDCOUPLING_EXPORT std::string cppRepr() const;
     MEDCOUPLING_EXPORT std::string reprConnectivityOfThis() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSetInstanceFromThis(std::size_t spaceDim) const;
-    MEDCOUPLING_EXPORT mcIdType getNumberOfNodesInCell(mcIdType cellId) const;
-    MEDCOUPLING_EXPORT mcIdType getNumberOfCells() const;
-    MEDCOUPLING_EXPORT int getMeshDimension() const;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfNodesInCell(mcIdType cellId) const override;
+    MEDCOUPLING_EXPORT mcIdType getNumberOfCells() const override;
+    MEDCOUPLING_EXPORT int getMeshDimension() const override;
     MEDCOUPLING_EXPORT mcIdType getNodalConnectivityArrayLen() const;
     MEDCOUPLING_EXPORT void computeTypes();
     //! size of returned tinyInfo must be always the same.
-    MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<mcIdType>& tinyInfo, std::vector<std::string>& littleStrings) const;
-    MEDCOUPLING_EXPORT bool isEmptyMesh(const std::vector<mcIdType>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
-    MEDCOUPLING_EXPORT void serialize(DataArrayIdType *&a1, DataArrayDouble *&a2) const;
-    MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
-    MEDCOUPLING_EXPORT std::string getVTKDataSetType() const;
-    MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
-    MEDCOUPLING_EXPORT void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
-    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<mcIdType>& tinyInfo, std::vector<std::string>& littleStrings) const override;
+    MEDCOUPLING_EXPORT bool isEmptyMesh(const std::vector<mcIdType>& tinyInfo) const override;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const override;
+    MEDCOUPLING_EXPORT void serialize(DataArrayIdType *&a1, DataArrayDouble *&a2) const override;
+    MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings) override;
+    MEDCOUPLING_EXPORT std::string getVTKDataSetType() const override;
+    MEDCOUPLING_EXPORT std::string getVTKFileExtension() const override;
+    MEDCOUPLING_EXPORT void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const override;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const override;
     //tools
     MEDCOUPLING_EXPORT static int AreCellsEqual(const mcIdType *conn, const mcIdType *connI, mcIdType cell1, mcIdType cell2, int compType);
     MEDCOUPLING_EXPORT static int AreCellsEqualPolicy0(const mcIdType *conn, const mcIdType *connI, mcIdType cell1, mcIdType cell2);
@@ -111,17 +126,17 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void colinearizeEdges(double eps);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSpreadZonesWithPoly() const;
     MEDCOUPLING_EXPORT std::vector<DataArrayIdType *> partitionBySpreadZone() const;
-    MEDCOUPLING_EXPORT DataArrayIdType *computeFetchedNodeIds() const;
-    MEDCOUPLING_EXPORT DataArrayIdType *getNodeIdsInUse(mcIdType& nbrOfNodesInUse) const;
-    MEDCOUPLING_EXPORT void computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const;
-    MEDCOUPLING_EXPORT DataArrayIdType *computeNbOfNodesPerCell() const;
-    MEDCOUPLING_EXPORT DataArrayIdType *computeNbOfFacesPerCell() const;
-    MEDCOUPLING_EXPORT DataArrayIdType *computeEffectiveNbOfNodesPerCell() const;
-    MEDCOUPLING_EXPORT DataArrayIdType *zipCoordsTraducer();
-    MEDCOUPLING_EXPORT void findCommonCells(int compType, mcIdType startCellId, DataArrayIdType *& commonCellsArr, DataArrayIdType *& commonCellsIArr) const;
+    MEDCOUPLING_EXPORT DataArrayIdType *computeFetchedNodeIds() const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *getNodeIdsInUse(mcIdType& nbrOfNodesInUse) const override;
+    MEDCOUPLING_EXPORT void computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *computeNbOfNodesPerCell() const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *computeNbOfFacesPerCell() const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *computeEffectiveNbOfNodesPerCell() const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *zipCoordsTraducer() override;
+    MEDCOUPLING_EXPORT void findCommonCells(int compType, mcIdType startCellId, DataArrayIdType *& commonCellsArr, DataArrayIdType *& commonCellsIArr) const override;
     MEDCOUPLING_EXPORT bool areCellsIncludedIn(const MEDCouplingUMesh *other, int compType, DataArrayIdType *& arr) const;
     MEDCOUPLING_EXPORT bool areCellsIncludedInPolicy7(const MEDCouplingUMesh *other, DataArrayIdType *& arr) const;
-    MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayIdType *revNodal, DataArrayIdType *revNodalIndx) const;
+    MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayIdType *revNodal, DataArrayIdType *revNodalIndx) const override;
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> explodeIntoEdges(MCAuto<DataArrayIdType>& desc, MCAuto<DataArrayIdType>& descIndex, MCAuto<DataArrayIdType>& revDesc, MCAuto<DataArrayIdType>& revDescIndx) const;
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> explodeMeshTo(int targetDeltaLevel, MCAuto<DataArrayIdType>& desc, MCAuto<DataArrayIdType>& descIndx, MCAuto<DataArrayIdType>& revDesc, MCAuto<DataArrayIdType>& revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *explode3DMeshTo1D(DataArrayIdType *desc, DataArrayIdType *descIndx, DataArrayIdType *revDesc, DataArrayIdType *revDescIndx) const;
@@ -134,15 +149,15 @@ namespace MEDCoupling
                                                               DataArrayIdType *&neighbors, DataArrayIdType *&neighborsIdx);
     MEDCOUPLING_EXPORT void computeNeighborsOfNodes(DataArrayIdType *&neighbors, DataArrayIdType *&neighborsIdx) const;
     MEDCOUPLING_EXPORT void computeEnlargedNeighborsOfNodes(MCAuto<DataArrayIdType> &neighbors, MCAuto<DataArrayIdType>& neighborsIdx) const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelf(const mcIdType *begin, const mcIdType *end, bool keepCoords=true) const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelfSlice(mcIdType start, mcIdType end, mcIdType step, bool keepCoords=true) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const override;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelf(const mcIdType *begin, const mcIdType *end, bool keepCoords=true) const override;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelfSlice(mcIdType start, mcIdType end, mcIdType step, bool keepCoords=true) const override;
     MEDCOUPLING_EXPORT void setPartOfMySelf(const mcIdType *cellIdsBg, const mcIdType *cellIdsEnd, const MEDCouplingUMesh& otherOnSameCoordsThanThis);
     MEDCOUPLING_EXPORT void setPartOfMySelfSlice(mcIdType start, mcIdType end, mcIdType step, const MEDCouplingUMesh& otherOnSameCoordsThanThis);
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildFacePartOfMySelfNode(const mcIdType *begin, const mcIdType *end, bool fullyIn) const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
-    MEDCOUPLING_EXPORT DataArrayIdType *findBoundaryNodes() const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildBoundaryMesh(bool keepCoords) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildFacePartOfMySelfNode(const mcIdType *begin, const mcIdType *end, bool fullyIn) const override;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *findBoundaryNodes() const override;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildBoundaryMesh(bool keepCoords) const override;
     MEDCOUPLING_EXPORT DataArrayIdType *findCellIdsOnBoundary() const;
     MEDCOUPLING_EXPORT void findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayIdType *&cellIdsRk0, DataArrayIdType *&cellIdsRk1) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *computeSkin() const;
@@ -150,19 +165,19 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void findCellsToRenumber(const MEDCouplingUMesh& otherDimM1OnSameCoords, const mcIdType *nodeIdsToDuplicateBg, const mcIdType *nodeIdsToDuplicateEnd,
                                                  DataArrayIdType *& cellIdsNeededToBeRenum, DataArrayIdType *& cellIdsNotModified) const;
     MEDCOUPLING_EXPORT void duplicateNodes(const mcIdType *nodeIdsToDuplicateBg, const mcIdType *nodeIdsToDuplicateEnd);
-    MEDCOUPLING_EXPORT void renumberNodesWithOffsetInConn(mcIdType offset);
-    MEDCOUPLING_EXPORT void renumberNodesInConn(const INTERP_KERNEL::HashMap<mcIdType,mcIdType>& newNodeNumbersO2N);
-    MEDCOUPLING_EXPORT void renumberNodesInConn(const mcIdType *newNodeNumbersO2N);
+    MEDCOUPLING_EXPORT void renumberNodesWithOffsetInConn(mcIdType offset) override;
+    MEDCOUPLING_EXPORT void renumberNodesInConn(const INTERP_KERNEL::HashMap<mcIdType,mcIdType>& newNodeNumbersO2N) override;
+    MEDCOUPLING_EXPORT void renumberNodesInConn(const mcIdType *newNodeNumbersO2N) override;
     MEDCOUPLING_EXPORT void renumberNodesInConn(const std::map<mcIdType,mcIdType>& newNodeNumbersO2N) override;
     MEDCOUPLING_EXPORT void shiftNodeNumbersInConn(mcIdType delta);
     MEDCOUPLING_EXPORT void duplicateNodesInConn(const mcIdType *nodeIdsToDuplicateBg, const mcIdType *nodeIdsToDuplicateEnd, mcIdType offset);
-    MEDCOUPLING_EXPORT void renumberCells(const mcIdType *old2NewBg, bool check=true);
-    MEDCOUPLING_EXPORT DataArrayIdType *getCellsInBoundingBox(const double *bbox, double eps) const;
-    MEDCOUPLING_EXPORT DataArrayIdType *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    MEDCOUPLING_EXPORT void renumberCells(const mcIdType *old2NewBg, bool check=true) override;
+    MEDCOUPLING_EXPORT DataArrayIdType *getCellsInBoundingBox(const double *bbox, double eps) const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps) override;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const override;
     MEDCOUPLING_EXPORT DataArrayDouble *getPartMeasureField(bool isAbs, const mcIdType *begin, const mcIdType *end) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const override;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const override;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildPartOrthogonalField(const mcIdType *begin, const mcIdType *end) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildDirectionVectorField() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSlice3D(const double *origin, const double *vec, double eps, DataArrayIdType *&cellIds) const;
@@ -173,15 +188,15 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void project1D(const double *pt, const double *v, double eps, double *res) const;
     MEDCOUPLING_EXPORT double distanceToPoint(const double *ptBg, const double *ptEnd, mcIdType& cellId) const;
     MEDCOUPLING_EXPORT DataArrayDouble *distanceToPoints(const DataArrayDouble *pts, DataArrayIdType *& cellIds) const;
-    MEDCOUPLING_EXPORT mcIdType getCellContainingPoint(const double *pos, double eps) const;
-    MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<mcIdType>& elts) const;
+    MEDCOUPLING_EXPORT mcIdType getCellContainingPoint(const double *pos, double eps) const override;
+    MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<mcIdType>& elts) const override;
     MEDCOUPLING_EXPORT void getCellsContainingPoints(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const override;
     MEDCOUPLING_EXPORT void getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const override;
     MEDCOUPLING_EXPORT void checkButterflyCells(std::vector<mcIdType>& cells, double eps=1e-12) const;
     MEDCOUPLING_EXPORT DataArrayIdType *convexEnvelop2D();
     MEDCOUPLING_EXPORT DataArrayIdType *findAndCorrectBadOriented3DExtrudedCells();
     MEDCOUPLING_EXPORT DataArrayIdType *findAndCorrectBadOriented3DCells();
-    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const override;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTreeFast() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree1DQuadratic(double arcDetEps=1e-12) const;
@@ -192,7 +207,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayIdType *convertLinearCellsToQuadratic(int conversionType=0);
     MEDCOUPLING_EXPORT void tessellate2D(double eps);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *tetrahedrize(int policy, DataArrayIdType *& n2oCells, mcIdType& nbOfAdditionalPoints) const;
-    MEDCOUPLING_EXPORT DataArrayIdType *simplexize(int policy);
+    MEDCOUPLING_EXPORT DataArrayIdType *simplexize(int policy) override;
     MEDCOUPLING_EXPORT bool areOnlySimplexCells() const;
     MEDCOUPLING_EXPORT void convertDegeneratedCells();
     MEDCOUPLING_EXPORT DataArrayIdType *convertDegeneratedCellsAndRemoveFlatOnes();
@@ -203,7 +218,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void changeOrientationOfCells();
     MEDCOUPLING_EXPORT void arePolyhedronsNotCorrectlyOriented(std::vector<mcIdType>& cells) const;
     MEDCOUPLING_EXPORT void orientCorrectlyPolyhedrons();
-    MEDCOUPLING_EXPORT void invertOrientationOfAllCells();
+    MEDCOUPLING_EXPORT void invertOrientationOfAllCells() override;
     MEDCOUPLING_EXPORT void getFastAveragePlaneOfThis(double *vec, double *pos) const;
     MEDCOUPLING_EXPORT void attractSeg3MidPtsAroundNodes(double ratio, const mcIdType *nodeIdsBg, const mcIdType *nodeIdsEnd);
     //Mesh quality
@@ -211,11 +226,11 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getAspectRatioField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getWarpField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getSkewField() const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const override;
     //utilities for MED File RW
-    MEDCOUPLING_EXPORT std::vector<mcIdType> getDistributionOfTypes() const;
-    MEDCOUPLING_EXPORT DataArrayIdType *checkTypeConsistencyAndContig(const std::vector<mcIdType>& code, const std::vector<const DataArrayIdType *>& idsPerType) const;
-    MEDCOUPLING_EXPORT void splitProfilePerType(const DataArrayIdType *profile, std::vector<mcIdType>& code, std::vector<DataArrayIdType *>& idsInPflPerType, std::vector<DataArrayIdType *>& idsPerType, bool smartPflKiller=true) const;
+    MEDCOUPLING_EXPORT std::vector<mcIdType> getDistributionOfTypes() const override;
+    MEDCOUPLING_EXPORT DataArrayIdType *checkTypeConsistencyAndContig(const std::vector<mcIdType>& code, const std::vector<const DataArrayIdType *>& idsPerType) const override;
+    MEDCOUPLING_EXPORT void splitProfilePerType(const DataArrayIdType *profile, std::vector<mcIdType>& code, std::vector<DataArrayIdType *>& idsInPflPerType, std::vector<DataArrayIdType *>& idsPerType, bool smartPflKiller=true) const override;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh, DataArrayIdType *desc, DataArrayIdType *descIndx, DataArrayIdType *&revDesc, DataArrayIdType *&revDescIndx, DataArrayIdType *& nM1LevMeshIds, DataArrayIdType *&meshnM1Old2New) const;
     MEDCOUPLING_EXPORT DataArrayIdType *sortCellsInMEDFileFrmt();
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypes() const;
@@ -237,17 +252,17 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingUMesh *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const mcIdType *idsPerGeoTypeBg, const mcIdType *idsPerGeoTypeEnd) const;
     MEDCOUPLING_EXPORT std::vector<bool> getQuadraticStatus() const;
     //
-    MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const override;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const override;
     MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMassWithPrecision(double eps) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const override;
     MEDCOUPLING_EXPORT DataArrayDouble *getPartBarycenterAndOwner(const mcIdType *begin, const mcIdType *end) const;
     MEDCOUPLING_EXPORT DataArrayDouble *computePlaneEquationOf3DFaces() const;
     MEDCOUPLING_EXPORT DataArrayIdType *conformize2D(double eps);
     MEDCOUPLING_EXPORT DataArrayIdType *colinearize2D(double eps);
     MEDCOUPLING_EXPORT DataArrayIdType *colinearizeKeepingConform2D(double eps);
     MEDCOUPLING_EXPORT DataArrayIdType *conformize3D(double eps);
-    MEDCOUPLING_EXPORT mcIdType split2DCells(const DataArrayIdType *desc, const DataArrayIdType *descI, const DataArrayIdType *subNodesInSeg, const DataArrayIdType *subNodesInSegI, const DataArrayIdType *midOpt=0, const DataArrayIdType *midOptI=0);
+    MEDCOUPLING_EXPORT mcIdType split2DCells(const DataArrayIdType *desc, const DataArrayIdType *descI, const DataArrayIdType *subNodesInSeg, const DataArrayIdType *subNodesInSegI, const DataArrayIdType *midOpt=nullptr, const DataArrayIdType *midOptI=nullptr);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da);
     MEDCOUPLING_EXPORT static MCAuto<MEDCouplingUMesh> Build1DMeshFromCoords(DataArrayDouble *da);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
@@ -284,8 +299,8 @@ namespace MEDCoupling
 
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);
-    ~MEDCouplingUMesh();
-    void checkFullyDefined() const;
+    ~MEDCouplingUMesh() override;
+    void checkFullyDefined() const override;
     void checkConnectivityFullyDefined() const;
     void reprConnectivityOfThisLL(std::ostringstream& stream) const;
     //tools
@@ -296,7 +311,7 @@ namespace MEDCoupling
     void tessellate2DInternal(double eps);
     void tessellate2DCurveInternal(double eps);
     void subDivide2DMesh(const mcIdType *nodeSubdived, const mcIdType *nodeIndxSubdived, const mcIdType *desc, const mcIdType *descIndex);
-    void fillCellIdsToKeepFromNodeIds(const mcIdType *begin, const mcIdType *end, bool fullyIn, DataArrayIdType *&cellIdsKeptArr) const;
+    void fillCellIdsToKeepFromNodeIds(const mcIdType *begin, const mcIdType *end, bool fullyIn, DataArrayIdType *&cellIdsKeptArr) const override;
     void split3DCurveWithPlane(const double *origin, const double *vec, double eps, std::vector<mcIdType>& cut3DCurve);
     MEDCouplingUMesh *buildExtrudedMeshFromThisLowLev(mcIdType nbOfNodesOf1Lev, bool isQuad) const;
     DataArrayDouble *fillExtCoordsUsingTranslation(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
@@ -304,8 +319,8 @@ namespace MEDCoupling
     DataArrayDouble *fillExtCoordsUsingTranslAndAutoRotation2D(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     DataArrayDouble *fillExtCoordsUsingTranslAndAutoRotation3D(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     static bool AreCellsEqualInPool(const std::vector<mcIdType>& candidates, int compType, const mcIdType *conn, const mcIdType *connI, DataArrayIdType *result) ;
-    MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const mcIdType *begin, const mcIdType *end) const;
-    MEDCouplingUMesh *buildPartOfMySelfKeepCoordsSlice(mcIdType start, mcIdType end, mcIdType step) const;
+    MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const mcIdType *begin, const mcIdType *end) const override;
+    MEDCouplingUMesh *buildPartOfMySelfKeepCoordsSlice(mcIdType start, mcIdType end, mcIdType step) const override;
     DataArrayIdType *convertLinearCellsToQuadratic1D0(DataArrayIdType *&conn, DataArrayIdType *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
     DataArrayIdType *convertLinearCellsToQuadratic2DAnd3D0(const MEDCouplingUMesh *m1D, const DataArrayIdType *desc, const DataArrayIdType *descI, DataArrayIdType *&conn, DataArrayIdType *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
     DataArrayIdType *convertLinearCellsToQuadratic2D0(DataArrayIdType *&conn, DataArrayIdType *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
@@ -323,7 +338,7 @@ namespace MEDCoupling
 /// @cond INTERNAL
     static void DeleteCellTypeInIndexedArray(const DataArrayIdType *arrIn, const DataArrayIdType *arrIndxIn, MCAuto<DataArrayIdType>& arrOut, MCAuto<DataArrayIdType>& arrIndxOut);
     static MEDCouplingUMesh *MergeUMeshesLL(const std::vector<const MEDCouplingUMesh *>& a);
-    typedef mcIdType (*DimM1DescNbrer)(mcIdType id, mcIdType nb, const INTERP_KERNEL::CellModel& cm, bool compute, const mcIdType *conn1, const mcIdType *conn2);
+    using DimM1DescNbrer = mcIdType (*)(mcIdType, mcIdType, const INTERP_KERNEL::CellModel &, bool, const mcIdType *, const mcIdType *);
     template<class SonsGenerator>
     MEDCouplingUMesh *buildDescendingConnectivityGen(DataArrayIdType *desc, DataArrayIdType *descIndx, DataArrayIdType *revDesc, DataArrayIdType *revDescIndx, DimM1DescNbrer nbrer) const;
     static void DistanceToPoint3DSurfAlg(const double *pt, const mcIdType *cellIdsBg, const mcIdType *cellIdsEnd, const double *coords, const mcIdType *nc, const mcIdType *ncI, double& ret0, mcIdType& cellId);

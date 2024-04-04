@@ -31,7 +31,7 @@ namespace INTERP_KERNEL
   class DiameterCalculator
   {
   public:
-    INTERPKERNEL_EXPORT virtual ~DiameterCalculator() { }
+    INTERPKERNEL_EXPORT virtual ~DiameterCalculator() = default;
     INTERPKERNEL_EXPORT virtual NormalizedCellType getType() const = 0;
     INTERPKERNEL_EXPORT virtual double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const = 0;
     INTERPKERNEL_EXPORT virtual void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const = 0;
@@ -42,12 +42,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorTRI3S2 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -55,12 +55,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorTRI3S3 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -68,12 +68,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorTRI6S2 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -81,12 +81,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorTRI6S3 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -94,12 +94,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorTRI7S2 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -107,12 +107,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorTRI7S3 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -120,12 +120,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorQUAD4S2 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -133,12 +133,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorQUAD4S3 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -146,12 +146,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorQUAD8S2 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -159,12 +159,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorQUAD8S3 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -172,12 +172,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorQUAD9S2 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -185,12 +185,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorQUAD9S3 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -198,12 +198,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorTETRA4 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -211,12 +211,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorTETRA10 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -224,12 +224,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorHEXA8 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -237,12 +237,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorHEXA20 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -250,12 +250,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorHEXA27 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -263,12 +263,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorPENTA6 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -276,12 +276,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorPENTA15 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -289,12 +289,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorPYRA5 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };
@@ -302,12 +302,12 @@ namespace INTERP_KERNEL
   class DiameterCalulatorPYRA13 : public DiameterCalculator
   {
   public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    NormalizedCellType getType() const override { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const override { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
+    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
+    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const override;
   public:
     static NormalizedCellType TYPE;
   };

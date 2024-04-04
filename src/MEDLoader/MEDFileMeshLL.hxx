@@ -21,6 +21,10 @@
 #ifndef __MEDFILEMESHLL_HXX__
 #define __MEDFILEMESHLL_HXX__
 
+#include "MEDCouplingMesh.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include "MCType.hxx"
 #include "MEDFileBasis.hxx"
 #include "MEDFileMeshElt.hxx"
 
@@ -33,9 +37,15 @@
 
 #include "InterpKernelAutoPtr.hxx"
 
+#include "NormalizedGeometricTypes"
 #include "med.h"
 
+#include <cstddef>
 #include <map>
+#include <string>
+#include <ostream>
+#include <vector>
+#include <utility>
 
 namespace MEDCoupling
 {
@@ -46,7 +56,7 @@ namespace MEDCoupling
   protected:
     MeshOrStructMeshCls(int mid):_mid(mid) { }
   public:
-    virtual ~MeshOrStructMeshCls() {}
+    virtual ~MeshOrStructMeshCls() = default;
     int getID() const { return _mid; }
     virtual std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const = 0;
     virtual double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const = 0;
@@ -58,24 +68,24 @@ namespace MEDCoupling
   {
   public:
     MeshCls(int mid):MeshOrStructMeshCls(mid) { }
-    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const;
-    double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const;
+    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const override;
+    double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const override;
   };
 
   class StructMeshCls : public MeshOrStructMeshCls
   {
   public:
     StructMeshCls(int mid):MeshOrStructMeshCls(mid) { }
-    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const;
-    double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const;
+    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim, MEDFileString& description, MEDFileString& dtunit, MEDFileString& univName) const override;
+    double checkMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it) const override;
   };
   
   class MEDFileMeshL2 : public RefCountObject
   {
   public:
     MEDFileMeshL2();
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     const char *getName() const { return _name.getReprForWrite(); }
     const char *getDescription() const { return _description.getReprForWrite(); }
     const char *getUnivName() const { return _univ_name.getReprForWrite(); }
@@ -205,8 +215,8 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<D
     operator MEDCouplingUMesh *() const;
     void operator=(MEDCouplingUMesh *m);
     void updateTime() const;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
   private:
     const MEDFileUMeshSplitL1 *_st;
     mutable std::size_t _mpt_time;
@@ -235,8 +245,8 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<D
     void renumberNodesInConnWithoutComputation(const mcIdType *newNodeNumbersO2N);
     bool isStoredSplitByType() const;
     std::size_t getTimeOfThis() const;
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     MEDFileUMeshAggregateCompute deepCopy(DataArrayDouble *coords) const;
     void shallowCpyMeshes();
     bool isEqual(const MEDFileUMeshAggregateCompute& other, double eps, std::string& what) const;
@@ -276,8 +286,8 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<D
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
     std::string getClassName() const override { return std::string("MEDFileUMeshSplitL1"); }
     void setName(const std::string& name);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     MEDFileUMeshSplitL1 *shallowCpyUsingCoords(DataArrayDouble *coords) const;
     MEDFileUMeshSplitL1 *deepCopy(DataArrayDouble *coords) const;
     void checkConsistency() const;
@@ -363,10 +373,10 @@ MCAuto<DataArrayDouble>& _coords, MCAuto<DataArrayIdType>& _fam_coords, MCAuto<D
     MCAuto<MEDFileUMeshPerTypeCommon> getMeshDef() const { return _common; }
     const std::vector< MCAuto<DataArray> >& getVars() const { return _vars; }
   private:
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const MEDCoupling::BigMemoryObject*> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::vector<const MEDCoupling::BigMemoryObject*> getDirectChildrenWithNull() const override;
   private:
-    ~MEDFileEltStruct4Mesh() { }
+    ~MEDFileEltStruct4Mesh() override = default;
   private:
     MEDFileEltStruct4Mesh(med_idt fid, const std::string& mName, int dt, int it, int iterOnStEltOfMesh, MEDFileMeshReadSelector *mrs);
   private:

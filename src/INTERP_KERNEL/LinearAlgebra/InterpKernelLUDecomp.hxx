@@ -19,7 +19,9 @@
 
 #pragma once
 
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelDenseMatrix.hxx"
+#include "MCIdType.hxx"
 #include <vector>
 
 namespace INTERP_KERNEL

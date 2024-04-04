@@ -20,10 +20,11 @@
 #ifndef __TU_BB_TREE_HXX__
 #define __TU_BB_TREE_HXX__
 
+#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "InterpKernelTestExport.hxx"
 #include "BBTree.txx"
+#include "InterpKernelTestExport.hxx"
 
 namespace INTERP_TEST
 {

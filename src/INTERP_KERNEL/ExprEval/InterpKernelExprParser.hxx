@@ -23,13 +23,13 @@
 
 #include "INTERPKERNELDefines.hxx"
 #include "InterpKernelUnit.hxx"
-#include "InterpKernelException.hxx"
 #include "InterpKernelFunction.hxx"
 
+#include <cstddef>
+#include <ostream>
 #include <string>
-#include <list>
-#include <map>
 #include <set>
+#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -52,13 +52,13 @@ namespace INTERP_KERNEL
   {
   public:
     INTERPKERNEL_EXPORT LeafExprVal(double value);
-    INTERPKERNEL_EXPORT ~LeafExprVal();
-    INTERPKERNEL_EXPORT double getDoubleValue() const;
-    INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const;
-    INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const;
-    INTERPKERNEL_EXPORT void fillValue(Value *val) const;
-    INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr);
-    INTERPKERNEL_EXPORT LeafExprVal *deepCopy() const;
+    INTERPKERNEL_EXPORT ~LeafExprVal() override;
+    INTERPKERNEL_EXPORT double getDoubleValue() const override;
+    INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const override;
+    INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const override;
+    INTERPKERNEL_EXPORT void fillValue(Value *val) const override;
+    INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr) override;
+    INTERPKERNEL_EXPORT LeafExprVal *deepCopy() const override;
   private:
     double _value;
   };
@@ -68,18 +68,18 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT LeafExprVar(const LeafExprVar& other):_fast_pos(other._fast_pos),_ref_pos(other._ref_pos),_var_name(other._var_name),_val(other._val) { }
     INTERPKERNEL_EXPORT LeafExprVar(const std::string& var);
-    INTERPKERNEL_EXPORT ~LeafExprVar();
-    INTERPKERNEL_EXPORT double getDoubleValue() const;
-    INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const;
-    INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const;
-    INTERPKERNEL_EXPORT void fillValue(Value *val) const;
+    INTERPKERNEL_EXPORT ~LeafExprVar() override;
+    INTERPKERNEL_EXPORT double getDoubleValue() const override;
+    INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const override;
+    INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const override;
+    INTERPKERNEL_EXPORT void fillValue(Value *val) const override;
     INTERPKERNEL_EXPORT std::string getVar() const { return _var_name; }
     INTERPKERNEL_EXPORT void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const;
     INTERPKERNEL_EXPORT void prepareExprEvaluationDouble(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo, int refPos, const double *ptOfInputStart, const double *ptOfInputEnd) const;
     INTERPKERNEL_EXPORT void prepareExprEvaluationVec() const;
-    INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr);
+    INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr) override;
     INTERPKERNEL_EXPORT static bool isRecognizedKeyVar(const std::string& var, int& pos);
-    INTERPKERNEL_EXPORT LeafExprVar *deepCopy() const;
+    INTERPKERNEL_EXPORT LeafExprVar *deepCopy() const override;
   public:
     static const char END_OF_RECOGNIZED_VAR[];
   private:
@@ -92,27 +92,27 @@ namespace INTERP_KERNEL
   class ExprParserOfEval
   {
   public:
-    ExprParserOfEval():_leaf(0) { }
+    ExprParserOfEval():_leaf(nullptr) { }
     ExprParserOfEval(LeafExpr *leaf, const std::vector<ExprParserOfEval>& subParts, const std::vector<Function *>& funcs):_leaf(leaf),_sub_parts(subParts),_funcs(funcs) { }
     void evaluateDoubleInternal(std::vector<double>& stck) const
     {
       if(_leaf)
         stck.push_back(_leaf->getDoubleValue());
       else
-        for(std::vector<ExprParserOfEval>::const_iterator iter=_sub_parts.begin();iter!=_sub_parts.end();iter++)
-          (*iter).evaluateDoubleInternal(stck);
-      for(std::vector<Function *>::const_iterator iter3=_funcs.begin();iter3!=_funcs.end();iter3++)
-        (*iter3)->operateStackOfDouble(stck);
+        for(const auto & _sub_part : _sub_parts)
+          _sub_part.evaluateDoubleInternal(stck);
+      for(auto _func : _funcs)
+        _func->operateStackOfDouble(stck);
     }
     void evaluateDoubleInternalSafe(std::vector<double>& stck) const
     {
       if(_leaf)
         stck.push_back(_leaf->getDoubleValue());
       else
-        for(std::vector<ExprParserOfEval>::const_iterator iter=_sub_parts.begin();iter!=_sub_parts.end();iter++)
-          (*iter).evaluateDoubleInternalSafe(stck);
-      for(std::vector<Function *>::const_iterator iter3=_funcs.begin();iter3!=_funcs.end();iter3++)
-        (*iter3)->operateStackOfDoubleSafe(stck);
+        for(const auto & _sub_part : _sub_parts)
+          _sub_part.evaluateDoubleInternalSafe(stck);
+      for(auto _func : _funcs)
+        _func->operateStackOfDoubleSafe(stck);
     }
     void clearSortedMemory();
     void sortMemory();
@@ -127,8 +127,8 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT ExprParser(ExprParser&& other);
     INTERPKERNEL_EXPORT ExprParser& operator=(ExprParser&& other);
-    INTERPKERNEL_EXPORT ExprParser(const std::string& expr, ExprParser *father=0);
-    INTERPKERNEL_EXPORT ExprParser(const char *expr, int lgth, ExprParser *father=0);
+    INTERPKERNEL_EXPORT ExprParser(const std::string& expr, ExprParser *father=nullptr);
+    INTERPKERNEL_EXPORT ExprParser(const char *expr, int lgth, ExprParser *father=nullptr);
     INTERPKERNEL_EXPORT ~ExprParser();
     INTERPKERNEL_EXPORT void parse();
     INTERPKERNEL_EXPORT bool isParsingSuccessfull() const { return _is_parsing_ok; }

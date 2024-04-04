@@ -22,9 +22,8 @@
 #define __INTERPKERNELCELLSIMPLIFY_HXX__
 
 #include "INTERPKERNELDefines.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
-#include "InterpKernelException.hxx"
 #include "MCIdType.hxx"
+#include "NormalizedGeometricTypes"
 
 namespace INTERP_KERNEL
 {

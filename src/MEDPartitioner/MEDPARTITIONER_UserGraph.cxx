@@ -17,12 +17,14 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "MCIdType.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_UserGraph.hxx"
 
 #include "MEDCouplingSkyLineArray.hxx"
 
 #include <iostream>
+#include <string>
 #include <vector>
 
 using namespace MEDPARTITIONER;
@@ -32,7 +34,7 @@ using namespace MEDPARTITIONER;
  *        (domain numbers range from 0 to ndomain-1
  * \param n number of cells in the mesh
  */
-UserGraph::UserGraph(MEDCoupling::MEDCouplingSkyLineArray *array, const int *partition, mcIdType n):Graph(array,0)
+UserGraph::UserGraph(MEDCoupling::MEDCouplingSkyLineArray *array, const int *partition, mcIdType n):Graph(array,nullptr)
 {
 
   std::vector<mcIdType> index(n+1),value(n);
@@ -49,10 +51,9 @@ UserGraph::UserGraph(MEDCoupling::MEDCouplingSkyLineArray *array, const int *par
 }
 
 UserGraph::~UserGraph()
-{
-}
+= default;
 
-void UserGraph::partGraph(int ndomain, const std::string& options, ParaDomainSelector* sel)
+void UserGraph::partGraph(int  /*ndomain*/, const std::string&  /*options*/, ParaDomainSelector*  /*sel*/)
 {
   std::cerr << "MEDPARTITIONER::UserGraph::partGraph() should not have to be used" << std::endl;
 }

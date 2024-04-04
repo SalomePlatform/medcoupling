@@ -23,6 +23,11 @@
 #include "DirectedBoundingBox.hxx"
 
 #include "InterpolationUtils.hxx"
+#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <limits>
+#include <cstddef>
 
 #define __TENSOR(i,j) tensor[(i)*_dim+(j)]
 #define __AXIS(i)     (&_axes[(i)*_dim])
@@ -120,7 +125,7 @@ namespace
 
         // Rotate to make __TENSOR(k,l) == 0
 
-        double diff = __TENSOR(l,l) - __TENSOR(k,k);
+        double const diff = __TENSOR(l,l) - __TENSOR(k,k);
         double t; // tangent of rotation angle
         if ( fabs(__TENSOR(k,l)) < abs(diff)*1.0e-36)
           {
@@ -128,13 +133,13 @@ namespace
           }
         else
           {
-            double phi = diff/(2.0*__TENSOR(k,l));
+            double const phi = diff/(2.0*__TENSOR(k,l));
             t = 1.0/(abs(phi) + sqrt(phi*phi + 1.0));
             if ( phi < 0.0) t = -t;
           }
-        double c = 1.0/sqrt(t*t + 1.0); // cosine of rotation angle
-        double s = t*c; // sine of rotation angle
-        double tau = s/(1.0 + c);
+        double const c = 1.0/sqrt(t*t + 1.0); // cosine of rotation angle
+        double const s = t*c; // sine of rotation angle
+        double const tau = s/(1.0 + c);
         __TENSOR(k,k) -= t*__TENSOR(k,l);
         __TENSOR(l,l) += t*__TENSOR(k,l);
         __TENSOR(k,l) = 0.0;
@@ -609,7 +614,7 @@ namespace INTERP_KERNEL
 
         // find minmax of cornerBox in the CS of axisBox
 
-        DirectedBoundingBox mmBox((double*)0,0,_dim); //!< empty box with CS == axisBox->_axes
+        DirectedBoundingBox mmBox((double*)nullptr,0,_dim); //!< empty box with CS == axisBox->_axes
         mmBox._axes = axisBox->_axes;
 
         vector<double> corners;
@@ -646,7 +651,7 @@ namespace INTERP_KERNEL
     {
       vector<double> cornersOther;
       getCorners( cornersOther, box );
-      DirectedBoundingBox mmBox((double*)0,0,_dim); //!< empty box with CS == this->_axes
+      DirectedBoundingBox mmBox((double*)nullptr,0,_dim); //!< empty box with CS == this->_axes
       mmBox._axes = this->_axes;
       for ( std::size_t iC = 0, nC = cornersOther.size()/_dim; iC < nC; ++iC)
         mmBox.addPointToBox( &cornersOther[iC*_dim] );
@@ -659,7 +664,7 @@ namespace INTERP_KERNEL
     {
       vector<double> cornersThis;
       getCorners( cornersThis, &_minmax[0] );
-      DirectedBoundingBox mmBox((double*)0,0,_dim); //!< initailized _minmax
+      DirectedBoundingBox mmBox((double*)nullptr,0,_dim); //!< initailized _minmax
       double globCorner[3];
       for ( std::size_t iC = 0, nC = cornersThis.size()/_dim; iC < nC; ++iC)
         {
@@ -688,7 +693,7 @@ namespace INTERP_KERNEL
 
     double pLoc[3];
     toLocalCS( point, pLoc );
-    bool out = isLocalOut( pLoc );
+    bool const out = isLocalOut( pLoc );
 #ifdef _DEBUG_
     switch (_dim)
       {

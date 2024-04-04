@@ -20,16 +20,15 @@
 #ifndef __TRIANGULATIONINTERSECTOR_TXX__
 #define __TRIANGULATIONINTERSECTOR_TXX__
 
+#include "InterpKernelUtilities.hxx"
 #include "TriangulationIntersector.hxx"
-#include "PlanarIntersectorP0P0.txx"
-#include "PlanarIntersectorP0P1.txx"
-#include "PlanarIntersectorP1P0.txx"
-#include "PlanarIntersectorP1P0Bary.txx"
-
-#include "InterpolationUtils.hxx"
 #include "PlanarIntersector.hxx"
+#include "InterpolationUtils.hxx"
 
 #include <iostream>
+#include <vector>
+
+
 
 #define TRI_INTERSECTOR TriangulationIntersector<MyMeshType,MyMatrix,InterpType>
 #define TRI_INTER_TEMPLATE template<class MyMeshType, class MyMatrix, \

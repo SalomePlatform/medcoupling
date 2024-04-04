@@ -21,9 +21,20 @@
 #ifndef __MEDCOUPLINGFIELDDOUBLE_HXX__
 #define __MEDCOUPLINGFIELDDOUBLE_HXX__
 
+#include "MCType.hxx"
+#include "MCAuto.hxx"
 #include "MEDCoupling.hxx"
+#include "MEDCouplingField.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingFieldT.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingRefCountObject.hxx"
+#include <string>
+#include "MEDCouplingTraits.hxx"
+#include <vector>
+#include <cstddef>
+#include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
 
 namespace MEDCoupling
 {
@@ -39,13 +50,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void synchronizeTimeWithSupport();
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
     MEDCOUPLING_EXPORT std::string writeVTK(const std::string& fileName, bool isBinary=true) const;
-    MEDCOUPLING_EXPORT bool areCompatibleForMerge(const MEDCouplingField *other) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForMerge(const MEDCouplingField *other) const override;
     MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingFieldDouble *other) const;
     MEDCOUPLING_EXPORT void renumberNodes(const mcIdType *old2NewBg, double eps=1e-15);
     MEDCOUPLING_EXPORT void renumberNodesWithoutMesh(const mcIdType *old2NewBg, mcIdType newNbOfNodes, double eps=1e-15);
     MEDCOUPLING_EXPORT DataArrayIdType *findIdsInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deepCopy() const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *clone(bool recDeepCpy) const override;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *nodeToCellDiscretization() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cellToNodeDiscretization() const;
@@ -93,9 +104,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::size_t getNumberOfComponents() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfTuples() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfValues() const;
-    MEDCOUPLING_EXPORT void updateTime() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDCOUPLING_EXPORT void updateTime() const override;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
     //
     MEDCOUPLING_EXPORT void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps=1e-15);
     MEDCOUPLING_EXPORT void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps=1e-15);
@@ -154,7 +165,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return timeDiscr(); }
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return timeDiscr(); }
   protected:
-    ~MEDCouplingFieldDouble() { }
+    ~MEDCouplingFieldDouble() override = default;
   private:
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);

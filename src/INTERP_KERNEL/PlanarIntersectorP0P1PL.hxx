@@ -21,7 +21,9 @@
 #ifndef __PLANARINTERSECTORP0P1PL_HXX__
 #define __PLANARINTERSECTORP0P1PL_HXX__
 
+#include "NormalizedUnstructuredMesh.hxx"
 #include "PlanarIntersector.hxx"
+#include <vector>
 
 namespace INTERP_KERNEL
 {

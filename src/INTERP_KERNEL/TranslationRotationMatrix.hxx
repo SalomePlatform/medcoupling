@@ -85,12 +85,12 @@ namespace INTERP_KERNEL
     void  rotate_x (double* P)
     {
       _rotation_coeffs[0]=1.0;
-      double r_sqr = P[1]*P[1]+P[2]*P[2];
+      double const r_sqr = P[1]*P[1]+P[2]*P[2];
       if (r_sqr < EPS)
         {_rotation_coeffs[4]=1.0; _rotation_coeffs[8]=1.0; return;}
-      double r = sqrt(r_sqr);
-      double cos =P[1]/r;
-      double sin =P[2]/r;
+      double const r = sqrt(r_sqr);
+      double const cos =P[1]/r;
+      double const sin =P[2]/r;
 
       _rotation_coeffs[4]=cos;
       _rotation_coeffs[5]=sin;
@@ -104,12 +104,12 @@ namespace INTERP_KERNEL
     void  rotate_z (double* P)
     {
       _rotation_coeffs[8]=1.0;
-      double r_sqr = P[0]*P[0]+P[1]*P[1];
+      double const r_sqr = P[0]*P[0]+P[1]*P[1];
       if (r_sqr < EPS)
         {_rotation_coeffs[4]=1.0; _rotation_coeffs[0]=1.0; return;}
-      double r = sqrt(r_sqr);
-      double cos =P[0]/r;
-      double sin =P[1]/r;
+      double const r = sqrt(r_sqr);
+      double const cos =P[0]/r;
+      double const sin =P[1]/r;
     
       _rotation_coeffs[0]=cos;
       _rotation_coeffs[1]=sin; 

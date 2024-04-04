@@ -17,15 +17,17 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include <cstddef>
 #include <mpi.h>
-#include "CommInterface.hxx"
+#include <string>
+#include <utility>
+#include "DisjointDEC.hxx"
+#include "MCType.hxx"
+#include "MCAuto.hxx"
+#include "InterpKernelException.hxx"
 #include "Topology.hxx"
-#include "BlockTopology.hxx"
 #include "ComponentTopology.hxx"
 #include "ParaFIELD.hxx"
-#include "MPIProcessorGroup.hxx"
-#include "ParaMESH.hxx"
-#include "DEC.hxx"
 #include "InterpolationMatrix.hxx"
 #include "InterpKernelDEC.hxx"
 #include "ElementLocator.hxx"
@@ -34,7 +36,7 @@ namespace MEDCoupling
 {
   InterpKernelDEC::InterpKernelDEC():
     DisjointDEC(),
-    _interpolation_matrix(0)
+    _interpolation_matrix(nullptr)
   {  
   }
 
@@ -51,7 +53,7 @@ namespace MEDCoupling
   */
   InterpKernelDEC::InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):
     DisjointDEC(source_group, target_group),
-    _interpolation_matrix(0)
+    _interpolation_matrix(nullptr)
   {
 
   }
@@ -65,7 +67,7 @@ namespace MEDCoupling
   InterpKernelDEC::InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
                                    const MPI_Comm& world_comm):
     DisjointDEC(src_ids,trg_ids,world_comm),
-    _interpolation_matrix(0)
+    _interpolation_matrix(nullptr)
   {
   }
 
@@ -76,7 +78,7 @@ namespace MEDCoupling
    */
   InterpKernelDEC::InterpKernelDEC(ProcessorGroup& generic_group, const std::string& source_group, const std::string& target_group):
     DisjointDEC(generic_group.getProcIDsByName(source_group),generic_group.getProcIDsByName(target_group)),
-    _interpolation_matrix(0)
+    _interpolation_matrix(nullptr)
   {
   }
   
@@ -147,27 +149,27 @@ namespace MEDCoupling
         ElementLocator locator(*_local_field, *_target_group, *_source_group);
         //transferring option from InterpKernelDEC to ElementLocator   
         locator.copyOptions(*this);
-        MEDCouplingPointSet* distant_mesh=0; 
-        mcIdType* distant_ids=0;
+        MEDCouplingPointSet* distant_mesh=nullptr; 
+        mcIdType* distant_ids=nullptr;
         std::string distantMeth;
         for (int i=0; i<_target_group->size(); i++)
           {
             //        int idistant_proc = (i+_source_group->myRank())%_target_group->size();
-            int idistant_proc=i;
+            int const idistant_proc=i;
 
             //gathers pieces of the target meshes that can intersect the local mesh
             locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
-            if (distant_mesh !=0)
+            if (distant_mesh !=nullptr)
               {
                 locator.exchangeMethod(_method,idistant_proc,distantMeth);
                 //adds the contribution of the distant mesh on the local one
-                int idistant_proc_in_union=_union_group->translateRank(_target_group,idistant_proc);
+                int const idistant_proc_in_union=_union_group->translateRank(_target_group,idistant_proc);
                 //std::cout <<"add contribution from proc "<<idistant_proc_in_union<<" to proc "<<_union_group->myRank()<<std::endl;
                 _interpolation_matrix->addContribution(*distant_mesh,idistant_proc_in_union,distant_ids,_method,distantMeth);
                 distant_mesh->decrRef();
                 delete [] distant_ids;
-                distant_mesh=0;
-                distant_ids=0;
+                distant_mesh=nullptr;
+                distant_ids=nullptr;
               }
           }
        _interpolation_matrix->finishContributionW(locator);
@@ -178,23 +180,23 @@ namespace MEDCoupling
         ElementLocator locator(*_local_field, *_source_group, *_target_group);
         //transferring option from InterpKernelDEC to ElementLocator
         locator.copyOptions(*this);
-        MEDCouplingPointSet* distant_mesh=0;
-        mcIdType* distant_ids=0;
+        MEDCouplingPointSet* distant_mesh=nullptr;
+        mcIdType* distant_ids=nullptr;
         for (int i=0; i<_source_group->size(); i++)
           {
             //        int idistant_proc = (i+_target_group->myRank())%_source_group->size();
-            int  idistant_proc=i;
+            int  const idistant_proc=i;
             //gathers pieces of the target meshes that can intersect the local mesh
             locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
             //std::cout << " Data sent from "<<_union_group->myRank()<<" to source proc "<< idistant_proc<<std::endl;
-            if (distant_mesh!=0)
+            if (distant_mesh!=nullptr)
               {
                 std::string distantMeth;
                 locator.exchangeMethod(_method,idistant_proc,distantMeth);
                 distant_mesh->decrRef();
                 delete [] distant_ids;
-                distant_mesh=0;
-                distant_ids=0;
+                distant_mesh=nullptr;
+                distant_ids=nullptr;
               }
           }
         _interpolation_matrix->finishContributionL(locator);

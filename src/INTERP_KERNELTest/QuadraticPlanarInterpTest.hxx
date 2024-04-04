@@ -21,8 +21,10 @@
 #ifndef _QUADRATICPLANARINTERPTEST_HXX_
 #define _QUADRATICPLANARINTERPTEST_HXX_
 
+#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelTestExport.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
