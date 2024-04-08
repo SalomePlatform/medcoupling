@@ -15,7 +15,7 @@ Python API is almost 100% identical to the C++ one, with the \ref python-api "ru
     -# \ref f-p0p1
     -# \ref f-number
     -# \ref f-struct-ordering
-    
+
 \ref faq-python
     -# \ref f-hellow
     -# \ref f-pyimport
@@ -46,7 +46,7 @@ Take a look at \ref terminology
 Take a look at \ref library
 
 \subsubsection f-visu How can I visualize a mesh and/or a field?
-Use the PARAVIS module of SALOME to visualize your MED file. The following dedicated filters have been 
+Use the PARAVIS module of SALOME to visualize your MED file. The following dedicated filters have been
 written specifically for MED files: Extract group, Extract cell types, ELNO Mesh, ELNO Points, ELNO Surface.
 
 \subsubsection f-p0p1 What does a P0- (or P1-) field mean?
@@ -59,13 +59,13 @@ Take a look at \ref numbering
 When converting a structured mesh to unstructured one, or when storing a field onto a structured
 mesh, the numbering convention detailed in \ref MEDCoupling::MEDCouplingStructuredMesh::buildUnstructured() is used.
 
-\subsection faq-python MEDCoupling scripts in Python 
+\subsection faq-python MEDCoupling scripts in Python
 \subsubsection f-hellow "Can you show me a simple example to get me started"
 TODO
 
 
 \subsubsection f-pyimport "When trying to execute my Python script I have 'ImportError: No module named MEDCoupling'"
-Check that the environment variables PYTHONPATH and LD_LIBRARY_PATH (PATH under Windows) are correctly set. 
+Check that the environment variables PYTHONPATH and LD_LIBRARY_PATH (PATH under Windows) are correctly set.
 If you have a full SALOME installation, use the 'shell' command that will automatically set up everything as it
 should be:
 \code{.sh}
@@ -90,7 +90,7 @@ For starter, take a look at the \ref MEDLoaderBasicAPIPage "basic MEDLoader API"
 
 \subsubsection f-coher "How to control the validity of my mesh"
 Use the methods \ref MEDCoupling::MEDCouplingUMesh::checkConsistencyLight() "MEDCouplingUMesh::checkConsistencyLight()" or
-\ref MEDCoupling::MEDCouplingUMesh::checkConsistency() "MEDCouplingUMesh::checkConsistency()" 
+\ref MEDCoupling::MEDCouplingUMesh::checkConsistency() "MEDCouplingUMesh::checkConsistency()"
 
 \subsubsection f-groups "How can I read/write groups on a mesh"
 Take a look at \ref AdvMEDLoaderAPIMeshReading and \ref AdvMEDLoaderAPIMeshWriting.
@@ -100,11 +100,11 @@ Use the method \ref  MEDCoupling::MEDCouplingCMesh::buildUnstructured() "MEDCoup
 
 \subsection faq-interp Projection, interpolation, remapping
 \subsubsection f-proj How to project a field from one mesh to the other
-This the job of the interpolation algorithms in the MED library. For starters, take a look at the 
-\ref interpolation "general introduction on interpolation". Also 
+This the job of the interpolation algorithms in the MED library. For starters, take a look at the
+\ref interpolation "general introduction on interpolation". Also
 \ref cpp_mcfield_remapper_highlevel "this simple example" gives a good first illustration.
-Finally, if you are intereseted in parallel projection (C++ only!), you should take a 
-look at the \ref para-dec "DEC".  
+Finally, if you are intersected in parallel projection (C++ only!), you should take a
+look at the \ref para-dec "DEC".
 
 \subsubsection f-proj-formula Which formula are used in the field projection algorithms
 The documentation for non \ref glossary "P0 field" (i.e. non \ref glossary "cell-based fields") is still an
@@ -121,10 +121,10 @@ Yes. Please:
 Re-compile in debug mode (with \c CMAKE_BUILD_TYPE=Debug), and use either valgrind or gdb
 to spot the place where the segfault happens.
 The most common source of mistake is some memory mis-allocation and/or deallocation.
-With this respect using the auto pointer class 
+With this respect using the auto pointer class
 \ref MEDCoupling::MCAuto "MCAuto"
-can be of great help.  
- 
+can be of great help.
+
 \n
 \n
 \n

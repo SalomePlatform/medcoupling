@@ -7,7 +7,7 @@ installing the module can be found here.
 Partitioning and parallel functionalities are optional.
 
 Assume that the library sources are located in \a MEDCOUPLING_SRC directory. Build and install directories are MEDCOUPLING_BUILD and MEDCOUPLING_INSTALL, respectively.
-The first step consists in preparing the CMake build precedure :
+The first step consists in preparing the CMake build procedure :
 \verbatim
 mkdir <MEDCOUPLING_BUILD>
 cd <MEDCOUPLING_BUILD>

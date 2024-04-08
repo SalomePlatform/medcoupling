@@ -5,7 +5,7 @@
 The MEDCoupling tool gathers several powerful functionalities around the input and output data of
 simulation codes (meshes and fields mainly).
 
-\image html projectionHQ_600.png "Example of a field interpolation between two 3D surfacic meshes"
+\image html projectionHQ_600.png "Example of a field interpolation between two 3D surface meshes"
 
 The most common usage is to write dedicated code (C++ or Python) linking to the library. However a graphical user interface is also available; for this please refer to the MED module documentation.
 
@@ -52,6 +52,3 @@ This documentation is organized as follows:
 - \ref MEDCoupling "MEDCoupling, MEDLoader (and other parallel classes) API documentation"
 
 */
-
-
-
