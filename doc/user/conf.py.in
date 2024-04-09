@@ -24,13 +24,14 @@ import sphinx
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.mathjax']
+extensions = ['sphinx.ext.mathjax', "breathe"]
 try:
   import sphinx_rtd_theme
   extensions += ['sphinx_rtd_theme']
   use_rtd_theme = True
 except:
   use_rtd_theme = False
+
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
@@ -171,6 +172,12 @@ html_static_path = [os.path.join('@CMAKE_CURRENT_BINARY_DIR@','static')]
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'MEDCouplingUsersGuide'
+
+###################
+# BREATHE OPTIONS #
+###################
+
+breathe_projects = {"dev_docs": "../developer/xml/"}
 
 
 # Options for LaTeX output
