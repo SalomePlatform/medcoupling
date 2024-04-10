@@ -62,7 +62,11 @@ ELSE()
   SWIG_ADD_LIBRARY(MEDPartitioner LANGUAGE python SOURCES MEDPartitioner.i)
 ENDIF()
 
-SWIG_LINK_LIBRARIES(MEDPartitioner ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medpartitionercpp)
+SWIG_LINK_LIBRARIES(MEDPartitioner ${PLATFORM_LIBS} medpartitionercpp)
+IF (WIN32)
+  # PYTHON_LIBRARIES only needed on win32 see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
+  SWIG_LINK_LIBRARIES(MEDPartitioner ${PYTHON_LIBRARIES})
+ENDIF()
 SWIG_CHECK_GENERATION(MEDPartitioner)
 
 IF(WIN32)

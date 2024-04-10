@@ -65,7 +65,11 @@ ELSE()
   SWIG_ADD_LIBRARY(MEDRenumber LANGUAGE python SOURCES MEDRenumber.i)
 ENDIF()
 
-SWIG_LINK_LIBRARIES(MEDRenumber ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} renumbercpp)
+SWIG_LINK_LIBRARIES(MEDRenumber ${PLATFORM_LIBS} renumbercpp)
+IF (WIN32)
+  # PYTHON_LIBRARIES only needed on win32 see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
+  SWIG_LINK_LIBRARIES(MEDRenumber ${PYTHON_LIBRARIES})
+ENDIF()
 SWIG_CHECK_GENERATION(MEDRenumber)
 
 IF(WIN32)

@@ -83,7 +83,12 @@ ELSE()
   SWIG_ADD_LIBRARY(MEDLoader LANGUAGE python SOURCES MEDLoader.i)
 ENDIF()
 
-SWIG_LINK_LIBRARIES(MEDLoader ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medloader medcouplingcpp )
+SWIG_LINK_LIBRARIES(MEDLoader ${PLATFORM_LIBS} medloader medcouplingcpp)
+IF (WIN32 OR CYGWIN)
+  # PYTHON_LIBRARIES only needed on win32 see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
+  SWIG_LINK_LIBRARIES(MEDLoader ${PYTHON_LIBRARIES})
+ENDIF()
+
 SWIG_CHECK_GENERATION(MEDLoader)
 IF(WIN32)
   SET_TARGET_PROPERTIES(_MEDLoader PROPERTIES DEBUG_OUTPUT_NAME _MEDLoader_d)

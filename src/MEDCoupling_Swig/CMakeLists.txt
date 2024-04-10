@@ -121,13 +121,12 @@ ELSE()
   SWIG_ADD_LIBRARY(${MEDCouling_target_name} LANGUAGE python SOURCES MEDCoupling.i)
 ENDIF()
 
+SWIG_LINK_LIBRARIES(${MEDCouling_target_name} ${PLATFORM_LIBS} medcouplingcpp)
 IF(WIN32 OR CYGWIN)
-  SWIG_LINK_LIBRARIES(${MEDCouling_target_name} ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingcpp)
-ELSE(WIN32 OR CYGWIN)
-  # ${PYTHON_LIBRARIES} not needed see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
-  SWIG_LINK_LIBRARIES(${MEDCouling_target_name} ${PLATFORM_LIBS} medcouplingcpp)
-ENDIF(WIN32 OR CYGWIN)
-# ${PYTHON_LIBRARIES} not needed
+  # PYTHON_LIBRARIES only needed on win32 see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
+  SWIG_LINK_LIBRARIES(${MEDCouling_target_name} ${PYTHON_LIBRARIES})
+ENDIF()
+
 SWIG_CHECK_GENERATION(${MEDCouling_target_name})
 SET_SOURCE_FILES_PROPERTIES(MEDCouplingRemapper.i PROPERTIES CPLUSPLUS ON)
 IF(WIN32)
@@ -155,12 +154,11 @@ ELSE()
   SWIG_ADD_LIBRARY(MEDCouplingRemapper LANGUAGE python SOURCES MEDCouplingRemapper.i)
 ENDIF()
 
+SWIG_LINK_LIBRARIES(MEDCouplingRemapper medcouplingremapper)
 IF(WIN32 OR CYGWIN)
-  SWIG_LINK_LIBRARIES(MEDCouplingRemapper ${PYTHON_LIBRARIES} medcouplingremapper)
-ELSE(WIN32 OR CYGWIN)
-  # ${PYTHON_LIBRARIES} not needed see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
-  SWIG_LINK_LIBRARIES(MEDCouplingRemapper medcouplingremapper)
-ENDIF(WIN32 OR CYGWIN)
+  # PYTHON_LIBRARIES only needed on win32 see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
+  SWIG_LINK_LIBRARIES(MEDCouplingRemapper ${PYTHON_LIBRARIES})
+ENDIF()
 
 IF(WIN32)
   SET_TARGET_PROPERTIES(_MEDCouplingRemapper PROPERTIES DEBUG_OUTPUT_NAME _MEDCouplingRemapper_d)
