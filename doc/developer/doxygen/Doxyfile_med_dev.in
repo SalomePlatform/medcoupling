@@ -150,6 +150,7 @@ FILE_PATTERNS          = InterpKernelDEC.*xx \
                          *Servant.*xx \
                          ICoCo*.hxx \
                          *.dox
+EXTENSION_MAPPING      = txx=C++
 RECURSIVE              = YES
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
