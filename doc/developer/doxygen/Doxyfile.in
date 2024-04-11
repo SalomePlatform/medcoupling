@@ -70,13 +70,13 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/index.dox \
                          @CMAKE_CURRENT_BINARY_DIR@/medcouplingexamplesCPP.dox \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/appendix \
                          @CMAKE_CURRENT_SOURCE_DIR@/fakesources \
-                         @PROJECT_SOURCE_DIR@/src/ParaMEDMEM \
-                         @PROJECT_SOURCE_DIR@/src/INTERP_KERNEL \
-                         @PROJECT_SOURCE_DIR@/src/INTERP_KERNEL/Bases \
-                         @PROJECT_SOURCE_DIR@/src/INTERP_KERNEL/Geometric2D \
-                         @PROJECT_SOURCE_DIR@/src/MEDCoupling \
-                         @PROJECT_SOURCE_DIR@/src/ICoCo \
-                         @PROJECT_SOURCE_DIR@/src/MEDLoader
+                         @CMAKE_SOURCE_DIR@/src/ParaMEDMEM \
+                         @CMAKE_SOURCE_DIR@/src/INTERP_KERNEL \
+                         @CMAKE_SOURCE_DIR@/src/INTERP_KERNEL/Bases \
+                         @CMAKE_SOURCE_DIR@/src/INTERP_KERNEL/Geometric2D \
+                         @CMAKE_SOURCE_DIR@/src/MEDCoupling \
+                         @CMAKE_SOURCE_DIR@/src/ICoCo \
+                         @CMAKE_SOURCE_DIR@/src/MEDLoader
 
 FILE_PATTERNS          = InterpKernelDEC.*xx \
                          OverlapDEC.*xx \
@@ -155,10 +155,10 @@ RECURSIVE              = YES
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
 EXCLUDE_SYMBOLS        =
-EXAMPLE_PATH           = @PROJECT_SOURCE_DIR@/src/ParaMEDMEM \
-                         @PROJECT_SOURCE_DIR@/src/MEDCoupling/Test \
-                         @PROJECT_SOURCE_DIR@/src/MEDCoupling_Swig \
-                         @PROJECT_SOURCE_DIR@/src/MEDLoader/Swig
+EXAMPLE_PATH           = @CMAKE_SOURCE_DIR@/src/ParaMEDMEM \
+                         @CMAKE_SOURCE_DIR@/src/MEDCoupling/Test \
+                         @CMAKE_SOURCE_DIR@/src/MEDCoupling_Swig \
+                         @CMAKE_SOURCE_DIR@/src/MEDLoader/Swig
 EXAMPLE_PATTERNS       = *.cxx *.py
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = @CMAKE_CURRENT_SOURCE_DIR@/figures

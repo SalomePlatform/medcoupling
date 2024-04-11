@@ -26,8 +26,8 @@ ELSE()
   SET(MEDCOUPLING_SERVER_BASED_SEARCH "NO")
 ENDIF()
 
-SALOME_CONFIGURE_FILE(Doxyfile.in Doxyfile)
-SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
+configure_file(Doxyfile.in Doxyfile @ONLY)
+configure_file(static/header.html.in static/header.html @ONLY)
 
 
 IF(MEDCOUPLING_ENABLE_PYTHON)
