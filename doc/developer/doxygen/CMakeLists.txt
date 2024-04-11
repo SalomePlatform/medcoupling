@@ -33,9 +33,6 @@ configure_file(static/header.html.in static/header.html @ONLY)
 IF(MEDCOUPLING_ENABLE_PYTHON)
   INCLUDE(doxy2swig/doxy2swig.cmake)
 
-  FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/tmp/medcouplingexamples.in" input)
-  FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/BuildPyExamplesFromCPP.py" pythondocexamplesgenerator)
-  FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" output)
 
   # :TRICKY: For ease of maintenance, documentation for code examples is
   # splitted in several files. We here splice to a single file before running
@@ -56,6 +53,9 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
     FILE(APPEND ${OUT_FILE} ${CONTENTS})
   ENDFUNCTION()
 
+  FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/tmp/medcouplingexamples.in" input)
+  FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/BuildPyExamplesFromCPP.py" pythondocexamplesgenerator)
+  FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" output)
   # Prepare a temporary file to "concat" to:
   FILE(WRITE ${input} "")
   # Call the "concat" function for each example file
