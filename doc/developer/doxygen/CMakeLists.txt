@@ -30,7 +30,13 @@ configure_file(Doxyfile.in Doxyfile @ONLY)
 configure_file(static/header.html.in static/header.html @ONLY)
 
 
-IF(MEDCOUPLING_ENABLE_PYTHON)
+IF(NOT MEDCOUPLING_ENABLE_PYTHON)
+  ADD_CUSTOM_TARGET(doxygen
+    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
+    VERBATIM
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+ELSE()
   INCLUDE(doxy2swig/doxy2swig.cmake)
 
   # >>>>>>>>>>>>>>>>
@@ -55,6 +61,7 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
   FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/tmp/medcouplingexamples.in" input)
   FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/BuildPyExamplesFromCPP.py" pythondocexamplesgenerator)
   FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" output)
+
   # Prepare a temporary file to "concat" to:
   FILE(WRITE ${input} "")
   # Call the "concat" function for each example file
@@ -79,26 +86,19 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
   MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(dev_docs swig_ready MEDCoupling)
   MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(dev_docs swig_ready MEDLoader)
 
-  SET(doxyfile_med_dev ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-  FILE(STRINGS ${doxyfile_med_dev} enabled_sections REGEX "ENABLED_SECTIONS")
+  SET(doxyfile_path ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+  FILE(STRINGS ${doxyfile_path} enabled_sections REGEX "ENABLED_SECTIONS")
   IF(enabled_sections)
-    FILE(READ ${doxyfile_med_dev} doxy_file)
-    STRING(REPLACE ${enabled_sections} "${enabled_sections} ENABLE_EXAMPLES" new_doxy_file ${doxy_file})
-    FILE(WRITE ${doxyfile_med_dev} ${new_doxy_file})
+    FILE(READ ${doxyfile_path} doxyfile_content)
+    STRING(REPLACE ${enabled_sections} "${enabled_sections} ENABLE_EXAMPLES" new_doxyfile ${doxyfile_content})
+    FILE(WRITE ${doxyfile_path} ${new_doxyfile})
   ELSE()
-    FILE(APPEND ${doxyfile_med_dev}
+    FILE(APPEND ${doxyfile_path}
       "#Temporary variable to enable python documentation sections\nENABLED_SECTIONS = ENABLE_EXAMPLES")
   ENDIF()
 
   # Swig generation to have docstrings correctly populated:
   INCLUDE(doxy2swig/doxy2swig.cmake)
-
-ELSE()
-  ADD_CUSTOM_TARGET(dev_docs ALL
-    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
-    VERBATIM
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  )
 ENDIF()
 
 INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc_ref_dev/html/ DESTINATION ${MEDCOUPLING_INSTALL_DOC}/developer)
