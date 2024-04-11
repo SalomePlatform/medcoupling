@@ -18,7 +18,7 @@
 #
 
 # Set MEDCOUPLING_SERVER_BASED_SEARCH=ON when building docs for putting on www.salome-platform.org
-# MEDCOUPLING_SERVER_BASED_SEARCH is used in Doxyfile_med_dev
+# MEDCOUPLING_SERVER_BASED_SEARCH is used in Doxyfile
 #
 IF(MEDCOUPLING_SERVER_BASED_SEARCH)
   SET(MEDCOUPLING_SERVER_BASED_SEARCH "YES")
@@ -26,7 +26,7 @@ ELSE()
   SET(MEDCOUPLING_SERVER_BASED_SEARCH "NO")
 ENDIF()
 
-SALOME_CONFIGURE_FILE(Doxyfile_med_dev.in Doxyfile_med_dev)
+SALOME_CONFIGURE_FILE(Doxyfile.in Doxyfile)
 SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
 
@@ -68,7 +68,7 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
   # Here is the "standard" procedure, as if ${input} was hand-written.
   ADD_CUSTOM_TARGET(dev_docs ALL
     COMMAND ${PYTHON_EXECUTABLE} ${pythondocexamplesgenerator} ${input} ${output}
-    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_dev
+    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
     VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
@@ -80,7 +80,7 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
   MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(dev_docs swig_ready MEDCoupling)
   MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(dev_docs swig_ready MEDLoader)
 
-  SET(doxyfile_med_dev ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_med_dev)
+  SET(doxyfile_med_dev ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
   FILE(STRINGS ${doxyfile_med_dev} enabled_sections REGEX "ENABLED_SECTIONS")
   IF(enabled_sections)
     FILE(READ ${doxyfile_med_dev} doxy_file)
@@ -96,7 +96,7 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
 
 ELSE()
   ADD_CUSTOM_TARGET(dev_docs ALL
-    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_dev
+    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
     VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
