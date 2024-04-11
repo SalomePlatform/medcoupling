@@ -31,7 +31,7 @@ configure_file(static/header.html.in static/header.html @ONLY)
 
 
 IF(NOT MEDCOUPLING_ENABLE_PYTHON)
-  ADD_CUSTOM_TARGET(doxygen
+  ADD_CUSTOM_TARGET(doxygen_documentation
     COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
     VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -72,7 +72,7 @@ ELSE()
   # gets updated if its content has changed.
   # <<<<<<<<<<<<<<<<
 
-  ADD_CUSTOM_TARGET(dev_docs ALL
+  ADD_CUSTOM_TARGET(doxygen_documentation
     COMMAND ${PYTHON_EXECUTABLE} ${pythondocexamplesgenerator} ${input} ${output}
     COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
     VERBATIM
@@ -81,10 +81,10 @@ ELSE()
 
   # Create dummy target gathering the generation of all .i files:
   ADD_CUSTOM_TARGET(swig_ready)
-  ADD_DEPENDENCIES(swig_ready dev_docs)
+  ADD_DEPENDENCIES(swig_ready doxygen_documentation)
 
-  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(dev_docs swig_ready MEDCoupling)
-  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(dev_docs swig_ready MEDLoader)
+  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(doxygen_documentation swig_ready MEDCoupling)
+  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(doxygen_documentation swig_ready MEDLoader)
 
   SET(doxyfile_path ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
   FILE(STRINGS ${doxyfile_path} enabled_sections REGEX "ENABLED_SECTIONS")
