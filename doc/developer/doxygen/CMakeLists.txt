@@ -33,10 +33,9 @@ configure_file(static/header.html.in static/header.html @ONLY)
 IF(MEDCOUPLING_ENABLE_PYTHON)
   INCLUDE(doxy2swig/doxy2swig.cmake)
 
-
-  # :TRICKY: For ease of maintenance, documentation for code examples is
-  # splitted in several files. We here splice to a single file before running
-  # Doxygen.
+  # >>>>>>>>>>>>>>>>
+  # For ease of maintenance, documentation for code examples is splitted in
+  # several files. We here splice to a single file before running Doxygen.
 
   SET(EXAMPLE_FILES # files to concatenate: order is important!
     doxfiles/examples/medcouplingexamplesheader.doxy
@@ -64,8 +63,8 @@ IF(MEDCOUPLING_ENABLE_PYTHON)
   ENDFOREACH()
   # Note: The reason for writing to a temporary is so the real target file only
   # gets updated if its content has changed.
+  # <<<<<<<<<<<<<<<<
 
-  # Here is the "standard" procedure, as if ${input} was hand-written.
   ADD_CUSTOM_TARGET(dev_docs ALL
     COMMAND ${PYTHON_EXECUTABLE} ${pythondocexamplesgenerator} ${input} ${output}
     COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
@@ -102,9 +101,7 @@ ELSE()
   )
 ENDIF()
 
-#INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target dev_docs)")
 INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc_ref_dev/html/ DESTINATION ${MEDCOUPLING_INSTALL_DOC}/developer)
-#INSTALL(FILES images/head.png DESTINATION ${MEDCOUPLING_INSTALL_DOC}/developer)
 
 SET(MAKE_CLEAN_FILES doc_ref_dev tmp)
 SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MAKE_CLEAN_FILES}")
