@@ -161,6 +161,22 @@ namespace INTERP_KERNEL
   }
 
   /**
+   * Test whether three 3D points are colinear.
+   * Implemented by calling overload isColinear3D(v1,v2, eps)
+   */
+  inline bool isColinear3DPts(const double *p1, const double *p2, const double *p3, const double eps = DEFAULT_ABS_TOL)
+  {
+    // check if these points are colinear
+    double vec1[3];
+    // p2-p1
+    std::transform(p2, p2 + 3, p1, vec1, std::minus<double>());
+    double vec2[3];
+    // p3-p2
+    std::transform(p3, p3 + 3, p2, vec2, std::minus<double>());
+    return isColinear3D(vec1, vec2, eps);
+  }
+
+  /**
    * Caracteristic vector size (its biggest component, in absolute)
    */
   inline double caracteristicDimVector(const double *v)

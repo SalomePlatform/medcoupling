@@ -23,6 +23,7 @@
 #include "InterpolationUtils.hxx"
 #include "CellModel.hxx"
 #include "BBTree.txx"
+#include "VectorUtils.hxx"
 
 #include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
@@ -204,13 +205,29 @@ namespace INTERP_KERNEL
       for (int iface=0; iface<nbfaces; iface++)
         {
           NormalizedCellType typeOfSon;
-          cmType.fillSonCellNodalConnectivity2(iface,conn_elem,conn_elem_sz,connOfSon.get(),typeOfSon);
-          const double* AA=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[0]));
-          std::copy(AA,AA+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface);
-          const double* BB=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[1]));
-          std::copy(BB,BB+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface+3);
-          const double* CC=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[2]));                                                       
-          std::copy(CC,CC+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface+6);
+          unsigned nb_face_nodes = cmType.fillSonCellNodalConnectivity2(iface,conn_elem,conn_elem_sz,connOfSon.get(),typeOfSon);
+          // in case of polyhedron, points can be colinear on some faces
+          // => loop until non colinear points are found
+          // or element type is not polyhedron
+          // or max number of nodes is reached to avoid infinite loop on this face
+          bool non_colinear_points_found = false;
+          unsigned i_permutation = 0;
+          while (!non_colinear_points_found)
+          {
+            const double* AA=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[(0+i_permutation) % nb_face_nodes]));
+            const double* BB=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[(1+i_permutation) % nb_face_nodes]));
+            const double* CC=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[(2+i_permutation) % nb_face_nodes]));
+            if (cmType.getEnum() == NORM_POLYHED && isColinear3DPts(AA, BB, CC, eps) && i_permutation < nb_face_nodes)
+              // points are colinear => use next 3 other points
+              i_permutation+=1;
+            else
+              {
+              std::copy(AA,AA+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface);
+              std::copy(BB,BB+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface+3);
+              std::copy(CC,CC+3,ptsOfTetrahedrizedPolyhedron.get()+9*iface+6);
+              non_colinear_points_found = true;
+            }
+          }
         }
       double centerPt[3];
       double normalizeFact = NormalizeTetrahedrizedPolyhedron(ptsOfTetrahedrizedPolyhedron.get(),nbfaces,centerPt);
@@ -219,11 +236,10 @@ namespace INTERP_KERNEL
       (ptToTest[2]-centerPt[2])/normalizeFact};
       for (int iface=0; iface<nbfaces; iface++)
         {
-          double lengthNorm = ( TripleProduct(
-          ptsOfTetrahedrizedPolyhedron.get() + 9*iface + 3,
-          ptsOfTetrahedrizedPolyhedron.get() + 9*iface + 6,
-          ptToTestNorm,
-          ptsOfTetrahedrizedPolyhedron.get() + 9*iface) );
+          double lengthNorm = TripleProduct(ptsOfTetrahedrizedPolyhedron.get() + 9*iface + 3,
+                                            ptsOfTetrahedrizedPolyhedron.get() + 9*iface + 6,
+                                            ptToTestNorm,
+                                            ptsOfTetrahedrizedPolyhedron.get() + 9*iface);
           // assigne sign[iface] : 0 means on the face within eps, 1 or -1 means far from tetra representing face
           if( lengthNorm<-eps )
             sign[iface]=-1;

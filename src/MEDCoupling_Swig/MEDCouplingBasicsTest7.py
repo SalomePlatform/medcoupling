@@ -767,7 +767,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         arr1 = DataArrayInt([0,1,1,2,2,3,4,4,5,5,5,11])
         self.assertTrue(DataArrayInt.FindPermutationFromFirstToSecondDuplicate(arr0,arr1).isEqual(DataArrayInt([8,5,3,1,6,9,4,2,0,11,10,7])))
         self.assertTrue(DataArrayInt.FindPermutationFromFirstToSecondDuplicate(arr1,arr0).isEqual(DataArrayInt([8,3,7,2,6,1,4,11,0,5,10,9])))
-        
+
     def testDAIIndexOfSameConsecutiveValueGroups(self):
         arr = DataArrayInt([0,1,1,2,2,3,4,4,5,5,5,11])
         self.assertTrue(arr.indexOfSameConsecutiveValueGroups().isEqual(DataArrayInt([0,1,3,5,6,8,11,12])))
@@ -781,14 +781,14 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(sk2.getValuesArray().isEqual(arr))
         self.assertTrue(sk2.getIndexArray().isEqual(DataArrayInt([0,13,16,37,84])))
 
-    def testSkyLineUniqueNotSortedByPack(self):    
+    def testSkyLineUniqueNotSortedByPack(self):
         arrI = DataArrayInt([0,3,9,15,18,24,36,48,54])
         arr = DataArrayInt([1,4,5,0,4,5,2,5,6,3,6,7,1,5,6,2,6,7,0,1,5,5,8,9,0,1,4,6,9,10,1,2,4,6,8,9,2,3,5,7,9,10,1,2,5,7,10,11,2,3,6,6,10,11])
         sk = MEDCouplingSkyLineArray(arrI,arr)
         sk2 = sk.uniqueNotSortedByPack()
         self.assertTrue(sk2.getIndexArray().isEqual(DataArrayInt([0,3,8,13,16,21,29,37,42])))
         self.assertTrue(sk2.getValuesArray().isEqual(DataArrayInt([1,4,5,0,2,4,5,6,1,3,5,6,7,2,6,7,0,1,5,8,9,0,1,2,4,6,8,9,10,1,2,3,5,7,9,10,11,2,3,6,10,11])))
-    
+
     def testSkyLineAggregatePacks1(self):
         arr = DataArrayDouble(3) ; arr.iota()
         m = MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m = m.buildUnstructured()
@@ -887,7 +887,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(lsk.getIndexArray().isEqual(DataArrayInt([0, 3, 7, 9])))
         self.assertTrue(rsk.getValuesArray().isEqual(DataArrayInt([11, 12, 13, 14, 15, 16, 17, 18, 19])))
         self.assertTrue(rsk.getIndexArray().isEqual(DataArrayInt([0, 3, 7, 9])))
-    
+
     def testPenta18GaussNE(self):
         conn = [1,0,2,4,3,5,6,7,8,9,13,14,11,10,15,12,17,16]
         coo = DataArrayDouble([(27.237499999999997, 9.8, 0.0), (26.974999999999994, 9.8, 0.0), (27.111517409545634, 9.532083869948877, 0.0), (27.237499999999997, 9.8, 0.5000000000000001), (26.974999999999994, 9.8, 0.5000000000000002), (27.111517409545634, 9.532083869948877, 0.5), (27.106249999999996, 9.8, 0.0), (27.17450870477282, 9.666041934974439, 0.0), (27.04325870477281, 9.666041934974439, 0.0), (27.106249999999996, 9.8, 0.5000000000000001), (27.237499999999997, 9.8, 0.25), (26.974999999999994, 9.8, 0.2500000000000001), (27.106249999999996, 9.8, 0.2500000000000001), (27.174508704772816, 9.666041934974439, 0.5), (27.043258704772814, 9.666041934974439, 0.5000000000000001), (27.111517409545634, 9.532083869948877, 0.25), (27.043258704772818, 9.666041934974436, 0.25000000000000006), (27.174508704772816, 9.666041934974436, 0.25)])
@@ -1033,7 +1033,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         See https://www.code-aster.org/V2/doc/v10/fr/man_r/r3/r3.01.01.pdf
         """
         import numpy as np
-        
+
         ref_coords_hexa27_med = [[-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, -1.0, 1.0], [-1.0, 0.0, -1.0], [0.0, 1.0, -1.0], [1.0, 0.0, -1.0], [0.0, -1.0, -1.0], [-1.0, 0.0, 1.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0], [0.0, -1.0, 1.0], [-1.0, -1.0, 0.0], [-1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.0, 0.0]]
 
         def coor2index(coor):
@@ -1117,7 +1117,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             self.assertTrue(delta_Z.findIdsNotInRange(-1e-5,+1e-5).empty())
 
         for gt,ref_coord  in [(NORM_TETRA4,[[0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]]),(NORM_TETRA10,[[0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5], [0.0, 0.5, 0.5], [0.5, 0.5, 0.0], [0.5, 0.0, 0.0], [0.5, 0.0, 0.5]]),(NORM_HEXA8,[[-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, -1.0, 1.0]]),(NORM_HEXA8,[[-1.0, 1.0, 0.0], [-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [1.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),(NORM_HEXA8,[[-1.0, -1.0, 0.0], [-1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),(NORM_PENTA6,[[-1.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, -0.0, 1.0], [1.0, 1.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 1.0]]),(NORM_PENTA6,[[-1.0, 1.0, 0.0], [-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),(NORM_PENTA6,[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),(NORM_PYRA5,[[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]),(NORM_PYRA13, [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [0.5, -0.5, 0.0], [-0.5, -0.5, 0.0], [-0.5, 0.5, 0.0], [0.5, 0.5, 0.0], [0.5, 0.0, 0.5], [0.0, -0.5, 0.5], [-0.5, 0.0, 0.5], [0.0, 0.5, 0.5]]),(NORM_PENTA15,[[-1.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, -0.0, 1.0], [1.0, 1.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 1.0], [-1.0, 0.5, 0.0], [-1.0, 0.0, 0.5], [-1.0, 0.5, 0.5], [1.0, 0.5, 0.0], [1.0, 0.0, 0.5], [1.0, 0.5, 0.5], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 1.0]]),(NORM_PENTA18,[[-1.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, -0.0, 1.0], [1.0, 1.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 1.0], [-1.0, 0.5, 0.0], [-1.0, 0.0, 0.5], [-1.0, 0.5, 0.5], [1.0, 0.5, 0.0], [1.0, 0.0, 0.5], [1.0, 0.5, 0.5], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5], [0.0, 0.5, 0.5]]),(NORM_HEXA20,[[-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, -1.0, 1.0], [-1.0, 0.0, -1.0], [0.0, 1.0, -1.0], [1.0, 0.0, -1.0], [0.0, -1.0, -1.0], [-1.0, 0.0, 1.0], [0.0, 1.0, 1.0], [1.0, 0.0, 1.0], [0.0, -1.0, 1.0], [-1.0, -1.0, 0.0], [-1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, -1.0, 0.0]])]: # type of cell for which derivatives are implemented
-            
+
             der_computed = GetDerivative(ref_coord,vec)
             der_computed.rearrange(3)
 
@@ -1170,7 +1170,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             delta_Y = der_computed[:,1]-der_deduced
             delta_Y.abs()
             self.assertTrue(delta_Y.findIdsNotInRange(-1e-5,+1e-5).empty())
-            
+
         # 1D cells
         vec = [0.64]
 
@@ -1184,7 +1184,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             delta_X = der_computed[:,0]-der_deduced
             delta_X.abs()
             self.assertTrue(delta_X.findIdsNotInRange(-1e-5,+1e-5).empty())
-        
+
         #B version of SEG2
         for gt,ref_coord in [(NORM_SEG2,[[0.], [1.]])]:
             der_computed = GetDerivative(ref_coord,vec)
@@ -1194,7 +1194,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             delta_X = der_computed[:,0]-der_deduced
             delta_X.abs()
             self.assertTrue(delta_X.findIdsNotInRange(-1e-5,+1e-5).empty())
-        
+
 
     def testComputeTriangleHeight0(self):
         arr = DataArrayDouble([0,1])
@@ -1218,7 +1218,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         res = m.computeTriangleHeight()
         expected = DataArrayDouble([(10,0,0)])
         self.assertTrue( res.isEqual(expected,1e-12) )
-    
+
     def testDAILocateComponentId0(self):
         arr = DataArrayInt( [(0, 1, 2), (3, 4, 5), (6, 2, 3), (7, 8, 9), (9, 0, 10), (11, 12, 13), (14, 5, 11), (15, 16, 17)] )
         valToSearchIntoTuples = DataArrayInt( [1, 4, 6, 8, 10, 12, 14, 16, 17] )
@@ -1315,7 +1315,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
             c,d = DataArrayInt.ExtractFromIndexedArrays( cell, pE3[1], pE3[2] )
             self.assertTrue( ref_c.isEqual(c) )
             self.assertTrue( ref_d.isEqual(d) )
-    
+
     def testGetCellContainingPointRelativeEps(self):
         """
         See EDF27860 : This test checks that detection of point inside a cell works by normalizing cell around origin with factor equal to the max delta of bbox along axis X, Y or Z.
@@ -1341,7 +1341,136 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(a1.isEqual(DataArrayInt([0])))
         self.assertTrue(b1.isEqual(DataArrayInt([0,1])))
 
-    pass
+    def testGetCellContainingPointOnPolyhedronWithPlanarFace(self):
+      """
+      See CEA spns #40783
+      In case of polyhedron with a face defined by several colinear points,
+      we must use other non colinear points to be able to define a face from these three points
+      to define the relative position of the test point to this face
+      """
+      eps = 1.0e-12
+      coo = DataArrayDouble( [ (0.176, 0.1125, 1.05),
+                               (0.176, 0.120375, 1.05),
+                               (0.176, 0.120375, 1.0),
+                               (0.176, 0.1125, 1.0),
+                               (0.176000000000000018, 0.12825, 1.05),
+                               (0.176000000000000018, 0.12825, 1.0),
+                               (0.207, 0.1125, 1.05),
+                               (0.207, 0.1125, 1.0),
+                               (0.207, 0.12825, 1.05),
+                               (0.207, 0.12825, 1.0)] )
+
+      m = MEDCouplingUMesh("Mesh",3)
+      m.setCoords(coo)
+      m.allocateCells()
+      # put -1 to separate faces connectivity
+      # substract -1 from mdump table ids
+      m.insertNextCell(NORM_POLYHED,[0, 1, 2, 3, -1,
+                                     1, 4, 5, 2, -1,
+                                     6, 7, 9,  8, -1,
+                                     3, 7, 6, 0, -1,
+                                     9, 5, 4, 8, -1,
+                                     3, 2, 5, 9, 7, -1, # PB in this order
+                                     #7, 3, 2, 5, 9, -1, # OK in this order
+                                     1, 0, 6, 8, 4])
+
+      # test point inside the box
+      pt_above = (0.2, 0.12, 1.07)
+      pt_below = (0.2, 0.12, 0.9)
+      pt_inside = (0.2, 0.12, 1.025)
+      pts = DataArrayDouble([pt_above, pt_below, pt_inside])
+      a,b = m.getCellsContainingPoints(pts, eps)
+      self.assertTrue(a.isEqual(DataArrayInt([0])))
+      # only the third point is inside
+      self.assertTrue(b.isEqual(DataArrayInt([0,0,0,1])))
+
+      # rotate the mesh to see if getCellsContainingPoints works
+      # even if point is not inside bounding box
+      center=coo[0]
+      vector=[1.,0.,0.]
+      m.rotate(center,vector,-pi/4.);
+
+      # test 3 points: above, below and inside
+      pt_above = (0.19, 0.09, 1.04)
+      pt_below = (0.19, 0.11, 1.02)
+      pt_inside = (0.19, 0.10, 1.02)
+      pts_rotated = DataArrayDouble([pt_above, pt_below, pt_inside])
+
+      a,b = m.getCellsContainingPoints(pts_rotated, eps)
+      self.assertTrue(a.isEqual(DataArrayInt([0])))
+      # only the third point is inside
+      self.assertTrue(b.isEqual(DataArrayInt([0,0,0,1])))
+
+    def testGetCellContainingPointOnPolyhedronWithPlanarFaceWithManyNodes(self):
+      """
+      Similar test with many colinear nodes on the planar face
+      """
+      eps = 1.0e-12
+      coo = DataArrayDouble( [(0.176000000000000018, 0.120375, 1.0 ),
+                              (0.176000000000000018, 0.128250, 1.0 ),
+                              (0.176000000000000018, 0.136125, 1.0 ),
+                              (0.176000000000000018, 0.144, 1.0 ),
+                              (0.176000000000000018, 0.151875, 1.0 ),
+                              (0.176000000000000018, 0.159750, 1.0 ),
+                              (0.176000000000000018, 0.167625, 1.0 ),
+                              (0.176000000000000018, 0.1755, 1.0 ),
+                              (0.176000000000000018, 0.183375, 1.0 ),
+                              (0.176000000000000018, 0.191250, 1.0 ),
+                              (0.176000000000000018, 0.199125, 1.0 ),
+                              (0.176, 0.207, 1.0 ),
+                              (0.207, 0.207, 1.0 ),
+                              (0.176, 0.1125, 1.0 ),
+                              (0.207, 0.1125, 1.0 ),
+                              (0.176, 0.120375, 1.05),
+                              (0.176000000000000018, 0.128250, 1.05),
+                              (0.176000000000000018, 0.136125, 1.05),
+                              (0.176000000000000018, 0.144, 1.05),
+                              (0.176000000000000018, 0.151875, 1.05),
+                              (0.176000000000000018, 0.159750, 1.05),
+                              (0.176000000000000018, 0.167625, 1.05),
+                              (0.176000000000000018, 0.1755, 1.05),
+                              (0.176000000000000018, 0.183375, 1.05),
+                              (0.176000000000000018, 0.191250, 1.05),
+                              (0.176000000000000018, 0.199125, 1.05),
+                              (0.176, 0.207, 1.05),
+                              (0.207, 0.207, 1.05),
+                              (0.176, 0.1125, 1.05),
+                              (0.207, 0.1125,  1.05)])
+
+      m = MEDCouplingUMesh("Mesh",3)
+      m.setCoords(coo)
+      m.allocateCells()
+      # put -1 to separate faces connectivity
+      # substract -1 from mdump table ids
+      m.insertNextCell(NORM_POLYHED,
+                       [13, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, -1, #1
+                       29, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 28, -1, #2
+                       14, 29, 28, 13, -1, #3
+                       11, 26, 27, 12, -1, #4
+                       12, 27, 29, 14, -1, #5
+                       13, 28, 15, 0, -1, #6
+                       0, 15, 16, 1, -1, #7
+                       1, 16, 17, 2, -1, #8
+                       2, 17, 18, 3, -1, #9
+                       3, 18, 19, 4, -1, #10
+                       4, 19, 20, 5, -1, #11
+                       5, 20, 21, 6, -1, #12
+                       6, 21, 22, 7, -1, #13
+                       7, 22, 23, 8, -1, #14
+                       8, 23, 24, 9, -1, #15
+                       9, 24, 25, 10, -1, #16
+                       10, 25, 26, 11] )
+
+      ##### See CEA 40783: error with polyhedrons (box split by on edge on its face)
+      pt_above = (0.1915, 0.15975, 1.07)
+      pt_below = (0.1915, 0.15975, 0.9)
+      pt_inside = (0.1915, 0.15975, 1.025)
+      pts = DataArrayDouble([pt_above, pt_below, pt_inside])
+      a,b = m.getCellsContainingPoints(pts,eps)
+      self.assertTrue(a.isEqual(DataArrayInt([0])))
+      # only the third point is inside
+      self.assertTrue(b.isEqual(DataArrayInt([0,0,0,1])))
+
 
 if __name__ == '__main__':
     unittest.main()
