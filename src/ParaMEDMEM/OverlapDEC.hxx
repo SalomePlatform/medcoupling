@@ -250,6 +250,10 @@ namespace MEDCoupling
     void attachTargetLocalField(MEDCouplingFieldDouble *field);
     void attachSourceLocalField(ICoCo::MEDDoubleField *field);
     void attachTargetLocalField(ICoCo::MEDDoubleField *field);
+
+    ParaFIELD* getSourceLocalField() { return _source_field; }
+    ParaFIELD* getTargetLocalField() { return _target_field; }
+
     ProcessorGroup *getGroup() { return _group; }
     bool isInGroup() const;
 
