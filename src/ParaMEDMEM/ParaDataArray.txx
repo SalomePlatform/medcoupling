@@ -22,7 +22,7 @@
 
 #include "MEDCouplingTraits.hxx"
 #include "MCType.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 #include "ParaDataArray.hxx"
 #include "CommInterface.hxx"

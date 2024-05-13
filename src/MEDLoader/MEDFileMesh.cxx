@@ -47,7 +47,6 @@
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
-#include "MEDCouplingMemArray.txx"
 // #include "MEDFileMeshElt.hxx"
 
 #include "InterpKernelAutoPtr.hxx"

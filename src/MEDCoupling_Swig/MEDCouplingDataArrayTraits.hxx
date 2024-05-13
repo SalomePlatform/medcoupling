@@ -22,7 +22,7 @@
 #define __MEDCOUPLINGDATAARRAYTRAITS_HXX__
 
 #include "MCType.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <Python.h>
 
