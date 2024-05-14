@@ -1,0 +1,4 @@
+Namespace MEDCoupling
+=====================
+
+.. doxygennamespace:: MEDCoupling

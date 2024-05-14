@@ -17,37 +17,19 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# INCLUDE(UseSphinx)
-find_program(SPHINX_EXECUTABLE
-  NAMES sphinx-build
-  DOC "Sphinx Documentation Builder (sphinx-doc.org)"
-)
-
-if (NOT SPHINX_EXECUTABLE)
-  message(FATAL_ERROR "SPHINX_EXECUTABLE (sphinx-build) is not found!")
-endif()
+INCLUDE(UseSphinx)
 
 SALOME_CONFIGURE_FILE(conf.py.in conf.py)
 
-# IF(MEDCOUPLING_BUILD_FRENCH_DOC)
-#   SET(BUILD_LANGUAGE_SWITCHER "true")
-#   SALOME_CONFIGURE_FILE(static/switchers.js.in static/switchers.js)
-#   ADD_MULTI_LANG_DOCUMENTATION(TARGET_NAME usr_doc MODULE html LANGUAGES fr)
-# ELSE()
-#   SET(BUILD_LANGUAGE_SWITCHER "false")
-#   SALOME_CONFIGURE_FILE(static/switchers.js.in static/switchers.js)
-#   ADD_MULTI_LANG_DOCUMENTATION(TARGET_NAME usr_doc MODULE html)
-# ENDIF()
-
-add_custom_target(usr_doc
-  COMMAND ${SPHINX_EXECUTABLE}
-          -c ${CMAKE_CURRENT_BINARY_DIR}
-          -b html
-          ${CMAKE_CURRENT_BINARY_DIR}/html
-  DEPENDS dev_docs
-  COMMENT "sphinx-build html user-doc"
-  VERBATIM
-)
+IF(MEDCOUPLING_BUILD_FRENCH_DOC)
+  SET(BUILD_LANGUAGE_SWITCHER "true")
+  SALOME_CONFIGURE_FILE(static/switchers.js.in static/switchers.js)
+  ADD_MULTI_LANG_DOCUMENTATION(TARGET_NAME usr_doc MODULE html LANGUAGES fr)
+ELSE()
+  SET(BUILD_LANGUAGE_SWITCHER "false")
+  SALOME_CONFIGURE_FILE(static/switchers.js.in static/switchers.js)
+  ADD_MULTI_LANG_DOCUMENTATION(TARGET_NAME usr_doc MODULE html)
+ENDIF()
 
 INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_doc)")
 INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION ${MEDCOUPLING_INSTALL_DOC}/user)

@@ -1,0 +1,4 @@
+File NormalizedGeometricTypes
+=============================
+
+.. doxygenfile:: NormalizedGeometricTypes

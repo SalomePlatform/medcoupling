@@ -1,8 +1,9 @@
 API
 ===
 
-
-.. doxygenindex::
-   :project: dev_docs
-   :no-link:
-   :allow-dot-graphs:
+.. toctree::
+   
+   api/classlist.rst
+   api/structlist.rst
+   api/filelist.rst
+   api/namespacelist.rst
