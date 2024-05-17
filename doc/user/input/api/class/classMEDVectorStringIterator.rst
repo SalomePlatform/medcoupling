@@ -1,4 +1,0 @@
-Class MEDVectorStringIterator
-=============================
-
-.. doxygenclass:: MEDVectorStringIterator

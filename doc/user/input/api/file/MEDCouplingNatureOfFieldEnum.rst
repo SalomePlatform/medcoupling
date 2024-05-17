@@ -1,4 +1,0 @@
-File MEDCouplingNatureOfFieldEnum
-=================================
-
-.. doxygenfile:: MEDCouplingNatureOfFieldEnum

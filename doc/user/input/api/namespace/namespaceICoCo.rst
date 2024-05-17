@@ -1,4 +1,0 @@
-Namespace ICoCo
-===============
-
-.. doxygennamespace:: ICoCo
