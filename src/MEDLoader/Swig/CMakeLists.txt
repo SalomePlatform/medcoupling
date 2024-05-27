@@ -99,7 +99,7 @@ SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/MEDLoader.py ${MEDCOUPLING_IN
 INSTALL(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
 
-INSTALL(FILES ${ALL_TESTS} MEDLoaderDataForTest.py MEDLoaderTest1.py MEDLoaderTest2.py MEDLoaderTest3.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS})
+INSTALL(FILES ${ALL_TESTS} MEDLoaderDataForTest.py MEDLoaderTest1.py MEDLoaderTest2.py MEDLoaderTest3.py CrackAlongTest.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS})
 
 INSTALL(FILES CaseIO.py CaseReader.py CaseWriter.py VTKReader.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
@@ -138,6 +138,7 @@ SET(MEDLOADER_TEST_FILES
     MEDLoaderTest1.py
     MEDLoaderTest2.py
     MEDLoaderTest3.py
+    CrackAlongTest.py
     CaseIO.py
     CaseReader.py
     CaseWriter.py

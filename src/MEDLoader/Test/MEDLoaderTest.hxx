@@ -61,6 +61,7 @@ namespace MEDCoupling
     CPPUNIT_TEST(testMEDLoaderPolygonRead);
     CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
 
+
     CPPUNIT_TEST_SUITE_END();
   public:
     void testMesh1DRW();
@@ -89,6 +90,7 @@ namespace MEDCoupling
     void testMEDLoaderRead1();
     void testMEDLoaderPolygonRead();
     void testMEDLoaderPolyhedronRead();
+
   private:
     MEDCouplingUMesh *build1DMesh_1();
     MEDCouplingUMesh *build2DCurveMesh_1();

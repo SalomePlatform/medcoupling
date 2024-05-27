@@ -25,6 +25,7 @@
 #include "MEDLoaderNS.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDLoaderBase.hxx"
+#include "CrackAlgo.hxx"
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
@@ -32,8 +33,13 @@
 
 #include "InterpKernelAutoPtr.hxx"
 
+#include <cstddef>
 #include <limits>
 #include <cmath>
+#include <memory>
+#include <numeric>
+#include <unordered_map>
+#include <unordered_set>
 
 // From MEDLOader.cxx TU
 extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
@@ -4199,6 +4205,51 @@ void MEDFileUMesh::optimizeFamilies()
     }
   for(std::vector<std::string>::const_iterator it=grpNamesToKill.begin();it!=grpNamesToKill.end();it++)
     _groups.erase(*it);
+}
+
+/**
+ * \b this must be filled at level 0 and -1, the -1 level being part
+ * of the descending connectivity of the top level. This method build a
+ * "crack", or an inner boundary, in \b this along the group of level -1 named
+ * grpNameM1. The boundary is built according to the following method:
+ *  - all nodes which are not connected anymore to its neighboring cells due to
+ *  the crack are duplicated/tripled/... as needed.
+ *  - new (-1)-level cells are built lying on those new nodes. So the
+ * edges/faces along the group are duplicated. The duplicated
+ * (-1)-level cells are added to the grpNameM1.
+ *  - connectivity modification at lev -1 according to the new connectivity at
+ *  lev 0.
+ * Note that some M1 group might lead to no some cells at level 0 being still
+ * connected despite sharing only a face in M1. The behavior of the method
+ * depends on the grpMustBeFullyDup boolean input parameter in this case.
+ * Groups at lev -1 are managed by adding the new duplicated faces to the same
+ * groups of their twin.
+ * Connectivity of mesh at lev -2 is not managed, so it could be not valid
+ * anymore.
+ * After this operation:
+ *  - a top-level cell bordering the group will loose some
+ * neighbors (typically the cell which is on the other side of the group is no
+ * more a neighbor)
+ *  - the connectivity of (part of) the top level-cells bordering the group is
+ * also modified so that some cells bordering the newly created boundary use
+ * the newly computed nodes.
+ *
+ *  \param[in] grpNameM1 name of the (-1)-level group defining the boundary
+ *  \param[in] grpMustBeFullyDup boolean indicating if the method should throw
+ *  an exeption in the case the M1 group leads to some cells at lev 0 not being
+ *  seperated. If set to false, duplicated faces are created but are identical.
+ *  They share the same connectivity.
+ *  \param[out] cell2old2newNode a dict of dict indicating for each modified
+ *  cells at lev 0 the new node connectivity.
+ */
+std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>>
+MEDFileUMesh::crackAlong(const std::string &grp_name, bool grpMustBeFullyDup) {
+    return CrackAlgo::Compute(this, grp_name, grpMustBeFullyDup);
+}
+
+void MEDFileUMesh::openCrack(const std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> & c2o2nN, const double & factor) 
+{
+    CrackAlgo::OpenCrack(this, c2o2nN, factor);
 }
 
 /**

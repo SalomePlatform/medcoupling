@@ -59,6 +59,7 @@ INCLUDE_DIRECTORIES(
   )
 
 SET(medloader_SOURCES
+  CrackAlgo.cxx
   MEDLoader.cxx
   MEDLoaderBase.cxx
   MEDLoaderTraits.cxx

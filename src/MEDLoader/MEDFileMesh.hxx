@@ -31,6 +31,9 @@
 
 #include <map>
 #include <list>
+#include <set>
+#include <memory>
+#include <unordered_map>
 
 namespace MEDCoupling
 {
@@ -363,6 +366,8 @@ MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<Data
     MEDLOADER_EXPORT void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false);
     MEDLOADER_EXPORT void optimizeFamilies();
     // tools
+    MEDLOADER_EXPORT std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> crackAlong(const std::string &grpNameM1, bool grpMustBeFullyDup=true);
+    MEDLOADER_EXPORT void openCrack(const std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> & c2o2nN, const double & factor);
     MEDLOADER_EXPORT void buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, DataArrayIdType *&nodesDuplicated, DataArrayIdType *&cellsModified, DataArrayIdType *&cellsNotModified);
     MEDLOADER_EXPORT bool unPolyze(std::vector<mcIdType>& oldCode, std::vector<mcIdType>& newCode, DataArrayIdType *& o2nRenumCell);
     MEDLOADER_EXPORT DataArrayIdType *zipCoords();
@@ -398,6 +403,17 @@ MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<Data
     void changeFamilyIdArr(mcIdType oldId, mcIdType newId);
     std::list< MCAuto<DataArrayIdType> > getAllNonNullFamilyIds() const;
     MCAuto<MEDFileUMeshSplitL1>& checkAndGiveEntryInSplitL1(int meshDimRelToMax, MEDCouplingPointSet *m);
+    static std::vector<std::shared_ptr<std::vector<mcIdType>>>
+    findConnectedComponents(
+        const std::map<mcIdType, std::set<mcIdType>> &graph
+    );
+    static void dfs(
+        const std::map<mcIdType, std::set<mcIdType>> &graph,
+        const mcIdType &node,
+        const std::size_t& componentId,
+        std::map<mcIdType, bool>& visited,
+        std::map<mcIdType, std::size_t>& componentMap
+    );
 
   private:
     static const char SPE_FAM_STR_EXTRUDED_MESH[];

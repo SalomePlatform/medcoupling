@@ -31,6 +31,7 @@ INCLUDE_DIRECTORIES(
 
 SET(TestMEDLoader_SOURCES
   TestMEDLoader.cxx
+  CrackAlgoTest.cxx
   MEDLoaderTest.cxx
   )
 

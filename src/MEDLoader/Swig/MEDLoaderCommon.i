@@ -1729,6 +1729,60 @@ namespace MEDCoupling
            return ret;
          }
 
+         PyObject * crackAlong(const std::string& grpNameM1, bool grpMustBeFullyDup=true)
+         {
+           const std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> cellOld2NewNode = self->crackAlong(grpNameM1, grpMustBeFullyDup);
+           PyObject * cellOld2NewNodePy = PyDict_New();
+           for (const auto & cellIt: cellOld2NewNode) {
+               PyObject * old2NewPy = PyDict_New();
+               for (const auto & keyVal: cellIt.second) {
+                   PyDict_SetItem(old2NewPy, PyInt_FromLong(keyVal.first), PyInt_FromLong(keyVal.second));
+               }
+               PyDict_SetItem(cellOld2NewNodePy, PyInt_FromLong(cellIt.first), old2NewPy);
+           }
+           return cellOld2NewNodePy;
+         }
+
+         // void OpenCrack(const std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>>& c2o2nN, double factor=0.9)
+         // {
+         //   self->OpenCrack(c2o2nN, factor);
+         // }
+
+         void openCrack(PyObject* c2o2nNPy, double factor=0.9)
+         {
+             if (!PyDict_Check(c2o2nNPy))
+                 throw INTERP_KERNEL::Exception("c2o2nNPy is not a python dict");
+
+             std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> c2o2nN;
+             Py_ssize_t i_cells = 0;
+             PyObject *cell, *val;
+
+             while (PyDict_Next(c2o2nNPy, &i_cells, &cell, &val)) {
+                 if (!PyInt_Check(cell))
+                     throw INTERP_KERNEL::Exception("One of c2o2nNPy cell id is not an int.");
+
+                 if (!PyDict_Check(val))
+                     throw INTERP_KERNEL::Exception("One of c2o2nNPy val is not a python dict");
+                 std::unordered_map<mcIdType, mcIdType> o2nN {};
+                 Py_ssize_t i_node = 0;
+                 PyObject *oldN, *newN;
+
+                 while (PyDict_Next(val, &i_node, &oldN, &newN)) {
+                     if (!PyInt_Check(oldN))
+                         throw INTERP_KERNEL::Exception(
+                             "One of c2o2nNPy old node id is not an int.");
+                     if (!PyInt_Check(newN))
+                         throw INTERP_KERNEL::Exception(
+                             "One of c2o2nNPy new node id is not an int.");
+                     o2nN[PyInt_AsLong(oldN)] = PyInt_AsLong(newN);
+                 }
+
+                 c2o2nN[PyInt_AsLong(cell)] = o2nN;
+             }
+
+             self->openCrack(c2o2nN, factor);
+         }
+
          MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const
          {
            MEDCoupling1GTUMesh *ret(self->getDirectUndergroundSingleGeoTypeMesh(gt));

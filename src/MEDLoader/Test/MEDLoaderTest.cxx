@@ -19,6 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDLoaderTest.hxx"
+#include "MEDCouplingCMesh.hxx"
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
@@ -27,8 +28,9 @@
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "TestInterpKernelUtils.hxx"  // getResourceFile()
+#include "MEDFileMesh.hxx"
 
-#include <cmath>
+#include <algorithm>
 #include <numeric>
 
 using namespace MEDCoupling;
@@ -1569,6 +1571,3 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnGaussNE_1()
   m->decrRef();
   return f;
 }
-
-
-
