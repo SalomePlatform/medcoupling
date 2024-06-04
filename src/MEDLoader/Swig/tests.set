@@ -22,6 +22,7 @@ SET(BASE_TESTS
   MEDLoaderTest4.py
   MEDLoaderExamplesTest.py
   UsersGuideExamplesTest_ML.py
+  MeshFormatWriterTest1.py
 )
 
 # if numpy is used
