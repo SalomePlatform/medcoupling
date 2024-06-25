@@ -22,8 +22,8 @@
 
 #include <string>
 #include <algorithm>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <vector>
 #include <utility>
 
@@ -608,7 +608,7 @@ CrackAlgoTest::CheckM0Mesh(
     DAI desc(DataArrayIdType::New()), descIdx(DataArrayIdType::New()), revDesc(DataArrayIdType::New()), revDescIdx(DataArrayIdType::New());
     MCU mf = m0->buildDescendingConnectivity(desc, descIdx, revDesc, revDescIdx);
 
-    std::unordered_map<mcIdType, std::unordered_set<mcIdType>> c2c;
+    std::map<mcIdType, std::set<mcIdType>> c2c;
 
     const mcIdType * descIdx_ptr = descIdx->begin();
     const mcIdType * desc_ptr = desc->begin();

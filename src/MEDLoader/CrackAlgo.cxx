@@ -22,8 +22,8 @@
 #include "CrackAlgo.hxx"
 
 #include <algorithm>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <string>
 #include <memory>
 #include <utility>
@@ -308,7 +308,7 @@ CrackAlgo::BuildCutC2CGraph(
     const mcIdType * f2c_p {f2c->begin()};
 
     for (const auto &cell : cTouchingN_dup) {
-        c2c[cell] = std::unordered_set<mcIdType>();
+        c2c[cell] = set<mcIdType>();
         for (auto faceIdx = c2fIdx_p[cell]; faceIdx < c2fIdx_p[cell + 1]; faceIdx++) {
             const mcIdType &face = c2f_p[faceIdx];
             // face is not in face to duplicate
@@ -380,7 +380,7 @@ CrackAlgo::CreateNewNodesInTopLevelMesh(
                         coords->getPointer() + static_cast<size_t>(i) * coordsDim);
                 for (const auto &cell : *compo) {
                     // The node number is replaced in all corresponding cells
-                    std::replace(&c2n_ptr[c2nIdx_ptr[cell] + 1], &c2n_ptr[c2nIdx_ptr[cell + 1]], node, i);
+                    replace(&c2n_ptr[c2nIdx_ptr[cell] + 1], &c2n_ptr[c2nIdx_ptr[cell + 1]], node, i);
                     // This map is build in order to assign later new nodes to
                     // the corresponding faces
                     cellOld2NewNode[cell][node] = i;

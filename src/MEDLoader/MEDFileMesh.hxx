@@ -33,7 +33,6 @@
 #include <list>
 #include <set>
 #include <memory>
-#include <unordered_map>
 
 namespace MEDCoupling
 {
@@ -366,8 +365,8 @@ MCAuto<DataArrayDouble>& coords, MCAuto<PartDefinition>& partCoords, MCAuto<Data
     MEDLOADER_EXPORT void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false);
     MEDLOADER_EXPORT void optimizeFamilies();
     // tools
-    MEDLOADER_EXPORT std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> crackAlong(const std::string &grpNameM1, bool grpMustBeFullyDup=true);
-    MEDLOADER_EXPORT void openCrack(const std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> & c2o2nN, const double & factor);
+    MEDLOADER_EXPORT std::map<mcIdType, std::map<mcIdType, mcIdType>> crackAlong(const std::string &grpNameM1, bool grpMustBeFullyDup=true);
+    MEDLOADER_EXPORT void openCrack(const std::map<mcIdType, std::map<mcIdType, mcIdType>> & c2o2nN, const double & factor);
     MEDLOADER_EXPORT void buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, DataArrayIdType *&nodesDuplicated, DataArrayIdType *&cellsModified, DataArrayIdType *&cellsNotModified);
     MEDLOADER_EXPORT bool unPolyze(std::vector<mcIdType>& oldCode, std::vector<mcIdType>& newCode, DataArrayIdType *& o2nRenumCell);
     MEDLOADER_EXPORT DataArrayIdType *zipCoords();

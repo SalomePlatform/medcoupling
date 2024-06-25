@@ -22,12 +22,11 @@
 #ifndef SRC_MEDLOADER_CRACKALGO_HXX_
 #define SRC_MEDLOADER_CRACKALGO_HXX_
 
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <memory>
 #include <string>
-#include <map>
-#include <unordered_set>
+#include <set>
 #include <utility>
 
 #include <MCType.hxx>
@@ -40,11 +39,11 @@ class MEDCouplingUMesh;
 
 class CrackAlgo {
  public:
-     using Set = std::unordered_set<mcIdType>;
-     using Map = std::unordered_map<mcIdType, mcIdType>;
-     using Graph = std::unordered_map<mcIdType, Set>;
-     using Map2Set = std::unordered_map<mcIdType, Set>;
-     using Map2Map = std::unordered_map<mcIdType, Map>;
+     using Set = std::set<mcIdType>;
+     using Map = std::map<mcIdType, mcIdType>;
+     using Graph = std::map<mcIdType, Set>;
+     using Map2Set = std::map<mcIdType, Set>;
+     using Map2Map = std::map<mcIdType, Map>;
 
      CrackAlgo() {}
      ~CrackAlgo() {}

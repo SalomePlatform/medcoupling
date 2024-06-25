@@ -38,8 +38,6 @@
 #include <cmath>
 #include <memory>
 #include <numeric>
-#include <unordered_map>
-#include <unordered_set>
 
 // From MEDLOader.cxx TU
 extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
@@ -4242,12 +4240,12 @@ void MEDFileUMesh::optimizeFamilies()
  *  \param[out] cell2old2newNode a dict of dict indicating for each modified
  *  cells at lev 0 the new node connectivity.
  */
-std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>>
+std::map<mcIdType, std::map<mcIdType, mcIdType>>
 MEDFileUMesh::crackAlong(const std::string &grp_name, bool grpMustBeFullyDup) {
     return CrackAlgo::Compute(this, grp_name, grpMustBeFullyDup);
 }
 
-void MEDFileUMesh::openCrack(const std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> & c2o2nN, const double & factor) 
+void MEDFileUMesh::openCrack(const std::map<mcIdType, std::map<mcIdType, mcIdType>> & c2o2nN, const double & factor) 
 {
     CrackAlgo::OpenCrack(this, c2o2nN, factor);
 }

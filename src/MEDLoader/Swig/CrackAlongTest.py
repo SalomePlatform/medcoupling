@@ -29,11 +29,8 @@ from medcoupling import (
 )
 from MEDLoader import MEDFileUMesh
 
-from MEDLoaderDataForTest import WriteInTmpDir
-
 
 class CrackAlongTest(unittest.TestCase):
-    @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group1(self):
         fname = "Pyfile44.med"
         m = MEDCouplingCMesh.New()
@@ -59,7 +56,7 @@ class CrackAlongTest(unittest.TestCase):
         mm.setGroupsAtLevel(1, [grpNode])
         ref0 = [4, 15, 14, 20, 21, 4, 16, 15, 21, 22, 4, 17, 16, 22, 23]
         ref1 = [4, 9, 8, 14, 15, 4, 10, 9, 15, 16, 4, 11, 10, 16, 17]
-        ref2 = [4, 32, 14, 20, 21, 4, 31, 32, 21, 22, 4, 30, 31, 22, 23]
+        ref2 = [4, 30, 14, 20, 21, 4, 31, 30, 21, 22, 4, 32, 31, 22, 23]
         #
         self.assertEqual(30, mm.getNumberOfNodes())
         self.assertEqual(
@@ -71,7 +68,7 @@ class CrackAlongTest(unittest.TestCase):
         #
         c2o2nN = mm.crackAlong("Grp")
         self.assertEqual(
-            {12: {15: 32}, 13: {15: 32, 16: 31}, 14: {16: 31, 17: 30}}, c2o2nN
+            {12: {15: 30}, 13: {15: 30, 16: 31}, 14: {16: 31, 17: 32}}, c2o2nN
         )
         self.assertEqual(33, mm.getNumberOfNodes())
         self.assertEqual([4, 6, 8, 17, 18, 19], mm.getGroupArr(-1, "Grp").getValues())
@@ -94,7 +91,6 @@ class CrackAlongTest(unittest.TestCase):
         delta.abs()
         self.assertTrue(delta.getMaxValue()[0] < 1e-12)
 
-    @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group2(self):
         fname = "Pyfile45.med"
         m = MEDCouplingCMesh.New()
@@ -153,7 +149,6 @@ class CrackAlongTest(unittest.TestCase):
         delta.abs()
         self.assertTrue(delta.getMaxValue()[0] < 1e-12)
 
-    @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group3(self):
         """Test buildInnerBoundaryAlongM1Group() with *non-connex* cracks"""
         fname = "Pyfile73.med"
@@ -174,7 +169,7 @@ class CrackAlongTest(unittest.TestCase):
         mm.setMeshAtLevel(-1, m2)
         mm.setGroupsAtLevel(-1, [grpSeg])
         c2o2nN = mm.crackAlong("Grp")
-        self.assertEqual({1: {1: 16}, 7: {13: 15}}, c2o2nN)
+        self.assertEqual({1: {1: 15}, 7: {13: 16}}, c2o2nN)
         # self.assertEqual([1, 13], nodes.getValues())
         # self.assertEqual([0, 6], cellsMod.getValues())
         # self.assertEqual([1, 7], cellsNotMod.getValues())
@@ -187,7 +182,6 @@ class CrackAlongTest(unittest.TestCase):
         delta.abs()
         self.assertTrue(delta.getMaxValue()[0] < 1e-10)
 
-    @WriteInTmpDir
     def testBuildInnerBoundaryAlongM1Group4(self):
         """Test case where cells touch the M1 group on some nodes only and not
         on full edges (triangle mesh for ex)
@@ -234,13 +228,13 @@ class CrackAlongTest(unittest.TestCase):
 
         ref0 = [3, 5, 10, 6, 3, 2, 7, 3, 3, 6, 10, 11]
         ref1 = [3, 2, 6, 7, 3, 1, 5, 6, 3, 1, 6, 2, 3, 6, 11, 7]
-        ref2 = [3, 2, 13, 7, 3, 1, 5, 13, 3, 1, 13, 2, 3, 6, 11, 12]
+        ref2 = [3, 2, 12, 7, 3, 1, 5, 12, 3, 1, 12, 2, 3, 6, 11, 13]
 
         self.assertEqual(ref0, m2[[3, 5, 10]].getNodalConnectivity().getValues())
         self.assertEqual(ref1, m2[[4, 8, 9, 11]].getNodalConnectivity().getValues())
 
         c2o2nN = mfu.crackAlong("group")
-        self.assertEqual({9: {6: 13}, 8: {6: 13}, 4: {6: 13}, 11: {7: 12}}, c2o2nN)
+        self.assertEqual({4: {6: 12}, 8: {6: 12}, 9: {6: 12}, 11: {7: 13}}, c2o2nN)
 
         self.assertEqual(ref0, m2[[3, 5, 10]].getNodalConnectivity().getValues())
         self.assertEqual(ref2, m2[[4, 8, 9, 11]].getNodalConnectivity().getValues())
@@ -259,7 +253,6 @@ class CrackAlongTest(unittest.TestCase):
         m_desc, _, _, _, _ = m_bis0.buildDescendingConnectivity()
         m_bis0.checkDeepEquivalOnSameNodesWith(mfu.getMeshAtLevel(-1), 2, 9.9999999)
 
-    @WriteInTmpDir
     def testBuildInnerBoundary5(self):
         """Full 3D test with tetras only. In this case a tri from the group is not duplicated because it is made only
         of non duplicated nodes. The tri in question is hence not part of the final new "dup" group."""
@@ -307,7 +300,6 @@ class CrackAlongTest(unittest.TestCase):
         m_desc, _, _, _, _ = m_bis0.buildDescendingConnectivity()
         m_bis0.checkDeepEquivalOnSameNodesWith(mfu.getMeshAtLevel(-1), 2, 9.9999999)
 
-    @WriteInTmpDir
     def testBuildInnerBoundary6(self):
         """3D test where the crack has a funny shape with a singular point (i.e. two faces of the M1 group are only connected by one point, not a full segment)
         The singular point was wrongly duplicated.
@@ -334,10 +326,10 @@ class CrackAlongTest(unittest.TestCase):
         c2o2nN = mfu.crackAlong("group")
         self.assertEqual(
             {
-                7: {13: 49, 36: 48},
-                8: {13: 49, 36: 48, 17: 46, 38: 45},
-                10: {23: 47, 14: 43},
-                11: {23: 47, 25: 44, 14: 43, 18: 42},
+                7: {13: 42, 36: 48},
+                8: {13: 42, 36: 48, 17: 44, 38: 49},
+                10: {23: 46, 14: 43},
+                11: {23: 46, 25: 47, 14: 43, 18: 45},
             },
             c2o2nN,
         )
@@ -361,7 +353,6 @@ class CrackAlongTest(unittest.TestCase):
         m_desc, _, _, _, _ = m3_bis.buildDescendingConnectivity()
         m_desc.checkDeepEquivalOnSameNodesWith(m2_bis, 2, 9.9999)
 
-    @WriteInTmpDir
     def testBuildInnerBoundary7(self):
         """3D test where the crack has another funny shape with another singular point (i.e. two faces of the M1 group are only connected by one point, not a full segment)
         Once the crack is inserted, the cells on either side of the crack do not necessarily form a connex spread zone. This was not properly handled either.
@@ -394,21 +385,21 @@ class CrackAlongTest(unittest.TestCase):
 
         self.assertEqual(
             {
-                7: {19: 115, 31: 114, 18: 112, 30: 111},
-                27: {70: 116, 71: 99, 66: 95, 67: 94},
-                26: {70: 116, 65: 98, 69: 96, 66: 95},
-                25: {64: 118, 68: 106, 65: 98, 69: 96},
-                29: {68: 107, 69: 97},
-                30: {69: 97},
-                24: {64: 118, 12: 117, 68: 106, 13: 100},
-                28: {68: 107, 13: 101},
-                32: {28: 108, 3: 103},
-                35: {31: 114, 89: 113, 30: 111, 88: 110},
-                6: {18: 112, 30: 111, 17: 109, 29: 105},
-                4: {28: 108, 0: 104, 3: 103, 16: 102},
-                33: {28: 108, 29: 105},
-                5: {17: 109, 28: 108, 29: 105, 16: 102},
-                34: {30: 111, 88: 110, 29: 105},
+                4: {0: 94, 3: 95, 16: 99, 28: 103},
+                5: {16: 99, 17: 100, 28: 103, 29: 104},
+                6: {17: 100, 18: 101, 29 : 104, 30: 105},
+                7: {18: 101, 19: 102, 30: 105, 31: 106},
+                24: {12: 96, 13: 97, 64: 107, 68: 111},
+                25: {64: 107, 65: 108, 68: 111, 69: 113},
+                26: {65: 108, 66: 109, 69: 113, 70: 115},
+                27: {66: 109, 67: 110, 70: 115, 71: 116},
+                28: {13: 98, 68: 112},
+                29: {68: 112, 69: 114},
+                30: {69: 114},
+                32: {3: 95, 28: 103},
+                33: {28: 103, 29: 104},
+                34: {29: 104, 30: 105, 88: 117},
+                35: {30: 105, 31: 106, 88: 117, 89: 118},
             },
             c2o2nN,
         )
@@ -419,20 +410,6 @@ class CrackAlongTest(unittest.TestCase):
         self.assertEqual(nNod + 25, mfu.getNumberOfNodes())
         self.assertEqual(nNod + 25, m3_bis.getNumberOfNodes())
         self.assertEqual(nNod + 25, m2_bis.getNumberOfNodes())
-        # self.assertEqual(
-        #     [0, 3, 12, 13, 16, 17, 18, 19, 28, 29, 30, 31, 64, 65, 66, 67, 68, 69, 70, 71, 88, 89],
-        #     nodesDup.getValues(),
-        # )  # fmt: skip
-        # self.assertEqual(
-        #     m3_bis.getCoords()[nodesDup].getValues(),
-        #     m3_bis.getCoords()[nNod:].getValues(),
-        # )
-        # self.assertEqual(
-        #     set([0, 1, 2, 3, 24, 25, 26, 27, 28, 29, 30, 31]), set(cells1.getValues())
-        # )
-        # self.assertEqual(
-        #     set([4, 5, 6, 7, 20, 21, 22, 23, 32, 33, 34, 35]), set(cells2.getValues())
-        # )
         self.assertEqual(
             [2  , 7  , 12 , 17 , 95 , 99 , 103, 107, 129, 133, 137, 141,
              151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162],
@@ -578,7 +555,7 @@ class CrackAlongTest(unittest.TestCase):
 
         c2o2nN = mfu.crackAlong("group")
 
-        self.assertEqual({6: {6: 49, 23: 47}, 7: {23: 47, 24: 43}, 8: {6: 50, 23: 48, 21: 46, 5: 45, 2: 41, 15: 40}, 9: {23: 48, 21: 46, 24: 44, 22: 42, 15: 40, 16: 39}}, c2o2nN)
+        self.assertEqual({6: {6: 41, 23: 47}, 7: {23: 47, 24: 49}, 8: {6: 42, 23: 48, 21: 45, 5: 40, 2: 39, 15: 43}, 9: {23: 48, 21: 45, 24: 50, 22: 46, 15: 43, 16: 44}}, c2o2nN)
 
         m3_bis = mfu.getMeshAtLevel(0)
         m3_bis.checkConsistency()
@@ -628,7 +605,7 @@ class CrackAlongTest(unittest.TestCase):
 
         c2o2nN = mfu.crackAlong("group")
 
-        self.assertEqual({7: {6: 15}, 8: {6: 15, 7: 14}}, c2o2nN)
+        self.assertEqual({7: {6: 14}, 8: {6: 14, 7: 15}}, c2o2nN)
 
         m2_bis = mfu.getMeshAtLevel(0)
         m2_bis.checkConsistency()

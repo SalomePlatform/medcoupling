@@ -1731,7 +1731,7 @@ namespace MEDCoupling
 
          PyObject * crackAlong(const std::string& grpNameM1, bool grpMustBeFullyDup=true)
          {
-           const std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> cellOld2NewNode = self->crackAlong(grpNameM1, grpMustBeFullyDup);
+           const std::map<mcIdType, std::map<mcIdType, mcIdType>> cellOld2NewNode = self->crackAlong(grpNameM1, grpMustBeFullyDup);
            PyObject * cellOld2NewNodePy = PyDict_New();
            for (const auto & cellIt: cellOld2NewNode) {
                PyObject * old2NewPy = PyDict_New();
@@ -1743,17 +1743,12 @@ namespace MEDCoupling
            return cellOld2NewNodePy;
          }
 
-         // void OpenCrack(const std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>>& c2o2nN, double factor=0.9)
-         // {
-         //   self->OpenCrack(c2o2nN, factor);
-         // }
-
          void openCrack(PyObject* c2o2nNPy, double factor=0.9)
          {
              if (!PyDict_Check(c2o2nNPy))
                  throw INTERP_KERNEL::Exception("c2o2nNPy is not a python dict");
 
-             std::unordered_map<mcIdType, std::unordered_map<mcIdType, mcIdType>> c2o2nN;
+             std::map<mcIdType, std::map<mcIdType, mcIdType>> c2o2nN;
              Py_ssize_t i_cells = 0;
              PyObject *cell, *val;
 
@@ -1763,7 +1758,7 @@ namespace MEDCoupling
 
                  if (!PyDict_Check(val))
                      throw INTERP_KERNEL::Exception("One of c2o2nNPy val is not a python dict");
-                 std::unordered_map<mcIdType, mcIdType> o2nN {};
+                 std::map<mcIdType, mcIdType> o2nN {};
                  Py_ssize_t i_node = 0;
                  PyObject *oldN, *newN;
 
