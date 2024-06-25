@@ -22,11 +22,12 @@
 
 #include <string>
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <utility>
 
 #include <InterpKernelException.hxx>
-#include <CrackAlgo.hxx>
 #include <MEDFileMesh.hxx>
 #include <MEDCouplingMemArray.hxx>
 #include <MEDCouplingCMesh.hxx>
@@ -488,7 +489,7 @@ pair<bool, bool> CrackAlgoTest::TestCrack(
     const MCU f2dup = mm_init->getGroup(-1, grp_name);
 
     mm_init->write(test_name + "_in.med", 2);
-    const auto cellOld2NewNode = CrackAlgo::Compute(mm_init, grp_name);
+    const auto cellOld2NewNode = mm_init->crackAlong(grp_name);
     mm_init->write(test_name + "_out.med", 2);
 
     const MCU f2dup_b = mm_init->getGroup(-1, grp_name);
@@ -498,7 +499,7 @@ pair<bool, bool> CrackAlgoTest::TestCrack(
         CheckM1Mesh(f2dup, f2dup_b)
         };
 
-    CrackAlgo::OpenCrack(mm_init, cellOld2NewNode);
+    mm_init->openCrack(cellOld2NewNode, 0.9);
     mm_init->write(test_name + "_cracked.med", 2);
 
     return res;
@@ -607,7 +608,7 @@ CrackAlgoTest::CheckM0Mesh(
     DAI desc(DataArrayIdType::New()), descIdx(DataArrayIdType::New()), revDesc(DataArrayIdType::New()), revDescIdx(DataArrayIdType::New());
     MCU mf = m0->buildDescendingConnectivity(desc, descIdx, revDesc, revDescIdx);
 
-    CrackAlgo::Map2Set c2c;
+    std::unordered_map<mcIdType, std::unordered_set<mcIdType>> c2c;
 
     const mcIdType * descIdx_ptr = descIdx->begin();
     const mcIdType * desc_ptr = desc->begin();
