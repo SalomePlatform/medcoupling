@@ -120,7 +120,6 @@ MEDFileUMesh *ParaMEDFileUMesh::New(int iPart, int nbOfParts, const std::string&
  * \param [in] mrs - object used to read additional low-level information
  * \return MEDFileUMesh* - a new instance of MEDFileUMesh. The
  *         caller is to delete this mesh using decrRef() as it is no more needed.
- * \throw exception if the mesh contains multiple types of cells
  * \throw exception if the partition of the mesh cells defined by \a distrib does not cover the whole mesh
  */
 MEDFileUMesh *ParaMEDFileUMesh::ParaNew(const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>> &distrib, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
@@ -210,6 +209,7 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
  * Loads field \a fName laying on mesh \a mName from the filename \a fileName in parallel:
  * each processor will load their portion of the field (ie the portion laying on the cells/nodes in the vector \a distrib given in the parameters).
  * WARNING : this will only load the array of values of the field, additionnal information of the local field such as the number of its tuples might be incorrect
+ * WARNING : this method does not check the distribution given as input !
  * \param [in] com - group of MPI processes that will read the file
  * \param [in] nfo- MPI info object (used to manage MPI routines)
  * \param [in] fileName - name of the file containing the field
@@ -223,8 +223,6 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
  * \return MEDFileField1TS* - a new instance of MEDFileField1TS. The
  *         caller is to delete it using decrRef() as it is no more needed.
  * \throw exception if the field is not of type FLOAT64
- * \throw exception if the mesh contains more than one geometric type
- * \throw exception if the given distribution does not cover the entire mesh on which the field is defined
  */
 MEDFileField1TS *ParaMEDFileField1TS::ParaNew(const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, INTERP_KERNEL::NormalizedCellType geoType, int dt, int it)
 {
@@ -243,13 +241,6 @@ MEDFileField1TS *ParaMEDFileField1TS::ParaNew(const MPI_Comm& com, const MPI_Inf
  */
 MEDFileField1TS *ParaMEDFileField1TS::NewPrivate(med_idt fid, const MPI_Comm& com, const std::string& fName, const std::string& mName, const std::vector<mcIdType>& distrib, TypeOfField loc, INTERP_KERNEL::NormalizedCellType geoType, int dt, int it)
 {
-  if(loc==ON_CELLS) //if distribution is on nodes, no fast way to check it (as a node can be shared by multiple processors)
-  {
-	  med_geometry_type geoMedType(typmai3[geoType]);
-	  med_bool changement,transformation;
-	  med_int totalNumberOfElements(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoMedType,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation));
-	  checkDistribution(com,totalNumberOfElements,distrib);
-  }
   std::vector<std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType>> tmp={ {loc, geoType} };
   INTERP_KERNEL::AutoCppPtr<MEDFileEntities> entities(MEDFileEntities::BuildFrom(&tmp));
   MCAuto<MEDFileAnyTypeField1TS> partFile(MEDFileAnyTypeField1TS::NewAdv(fid,fName,dt,it,entities,distrib));
