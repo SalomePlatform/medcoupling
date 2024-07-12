@@ -571,3 +571,22 @@ To get value of a *field* at certain *points* call
    :start-after: UG_MEDCouplingFieldDouble_8
    :end-before:  UG_MEDCouplingFieldDouble_8
 
+Iterative statistics on fields
+------------------------------
+
+Statistical moments accross several *field* instances can be computed without having to store all fields in memory.
+The mean, standard-deviation, variance, and the variance-covariance matrix of field components
+on each field tuple can be computed by calling
+
+.. literalinclude:: ../../../src/Stat/Test/TestMEDCouplingIterativeStatistics.py
+   :start-after: UG_MEDCouplingIterativeStatistics_1
+   :end-before:  UG_MEDCouplingIterativeStatistics_1
+
+In a similar fashion Sobol indices from *field* instances can be computed without having to store all fields in memory.
+The parameters of the fields must be sampled in a *pick-freeze* manner and the fields must be generated
+on the fly according to these generated parameters combinations.
+
+.. literalinclude:: ../../../src/Stat/Test/TestMEDCouplingIterativeStatistics.py
+   :start-after: UG_MEDCouplingIterativeStatistics_2
+   :end-before:  UG_MEDCouplingIterativeStatistics_2
+   

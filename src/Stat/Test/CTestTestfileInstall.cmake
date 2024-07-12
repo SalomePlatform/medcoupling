@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2024  CEA, EDF
+# Copyright (C) 2024  CEA, EDF
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,19 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(COMPONENT_NAME MEDCOUPLING)
-SET(TIMEOUT        120)
-SET(MEDCOUPLING_BUILD_PY_TESTS $<BOOL:@MEDCOUPLING_BUILD_PY_TESTS@>)
-SET(MEDCOUPLING_USE_MPI_BOOL $<BOOL:@MEDCOUPLING_USE_MPI@>)
+SET(TEST_NAMES
+  TestMEDCouplingIterativeStatistics
+)
 
-SUBDIRS(INTERP_KERNELTest)
-SUBDIRS(MEDCoupling)
-SUBDIRS(MEDCoupling_Swig)
-SUBDIRS(ICoCo_Swig)
-SUBDIRS(MEDLoader)
-SUBDIRS(MEDLoader_Swig)
-SUBDIRS(MEDPartitioner)
-
-if(MEDCOUPLING_USE_MPI_BOOL)
-    SUBDIRS(ParaMEDMEMTest)
-    SUBDIRS(ParaMEDMEM_Swig)
-endif()
-
-SUBDIRS(MEDPartitioner_Swig)
-SUBDIRS(RENUMBER_Swig)
-SUBDIRS(PyWrapping)
-SUBDIRS(Stat)
+SET(PYTHONPATH $ENV{PYTHONPATH})
+CMAKE_PATH(APPEND PYTHONPATH "../../bin")
+FOREACH(tfile ${TEST_NAMES})
+  SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
+  ADD_TEST(${TEST_NAME} python3 ${tfile}.py)
+  SET(TEST_ENVIRONMENT)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+    LABELS "${COMPONENT_NAME}"
+    TIMEOUT ${TIMEOUT}
+    ENVIRONMENT "${PYTHONPATH}"
+    )
+ENDFOREACH()

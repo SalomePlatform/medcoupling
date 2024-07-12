@@ -57,8 +57,9 @@
   static const char RENUM_EXT[]="Renumberer";
   static const char PART_EXT[]="Partitioner";
   static const char PAR_INTERPOL_EXT[]="Parallel interpolator (SPMD paradigm)";
+  static const char IT_STATS_EXT[] = "Iterative statistics";
   
-  static const char *EXTENSIONS[]={SEQ_INTERPOL_EXT,MEDFILEIO_EXT,RENUM_EXT,PART_EXT,PAR_INTERPOL_EXT};
+  static const char *EXTENSIONS[]={SEQ_INTERPOL_EXT,MEDFILEIO_EXT,RENUM_EXT,PART_EXT,PAR_INTERPOL_EXT,IT_STATS_EXT};
   static const int NB_OF_EXTENSIONS=sizeof(EXTENSIONS)/sizeof(const char *);
 %}
 
@@ -148,6 +149,9 @@
 #endif
 #ifdef WITH_PARALLEL_INTERPOLATOR
     ret.push_back(std::string(PAR_INTERPOL_EXT));
+#endif
+#ifdef WITH_ITERATIVE_STATISTICS
+    ret.push_back(std::string(IT_STATS_EXT));
 #endif
     return ret;
   }

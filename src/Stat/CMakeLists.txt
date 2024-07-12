@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2024  CEA, EDF
+# Copyright (C) 2024  CEA, EDF
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(COMPONENT_NAME MEDCOUPLING)
-SET(TIMEOUT        120)
-SET(MEDCOUPLING_BUILD_PY_TESTS $<BOOL:@MEDCOUPLING_BUILD_PY_TESTS@>)
-SET(MEDCOUPLING_USE_MPI_BOOL $<BOOL:@MEDCOUPLING_USE_MPI@>)
+install(FILES MEDCouplingIterativeStatistics.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
-SUBDIRS(INTERP_KERNELTest)
-SUBDIRS(MEDCoupling)
-SUBDIRS(MEDCoupling_Swig)
-SUBDIRS(ICoCo_Swig)
-SUBDIRS(MEDLoader)
-SUBDIRS(MEDLoader_Swig)
-SUBDIRS(MEDPartitioner)
+if (MEDCOUPLING_BUILD_PY_TESTS)
+  add_subdirectory(Test)
+endif ()
 
-if(MEDCOUPLING_USE_MPI_BOOL)
-    SUBDIRS(ParaMEDMEMTest)
-    SUBDIRS(ParaMEDMEM_Swig)
-endif()
-
-SUBDIRS(MEDPartitioner_Swig)
-SUBDIRS(RENUMBER_Swig)
-SUBDIRS(PyWrapping)
-SUBDIRS(Stat)
