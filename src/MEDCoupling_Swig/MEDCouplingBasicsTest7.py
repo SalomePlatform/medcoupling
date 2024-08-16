@@ -1471,6 +1471,26 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       # only the third point is inside
       self.assertTrue(b.isEqual(DataArrayInt([0,0,0,1])))
 
+    def testSGTUMeshGetCellsContainingPts1(self):
+      """
+      EDF29571 : Fix problem of perfomance of GTUMesh::getCellsContainingPts
+      """
+      arr = DataArrayDouble(31) ; arr.iota()
+      m = MEDCouplingCMesh() ; m.setCoords(arr,arr,arr)
+      m = m.buildUnstructured()
+      m2 = MEDCoupling1SGTUMesh( m )
+      pts = m[:100].computeCellCenterOfMass()
+      a = datetime.now()
+      a1,b1 = m.getCellsContainingPoints(pts,1e-5)
+      b = datetime.now()
+      a2,b2 = m2.getCellsContainingPoints(pts,1e-5)
+      c = datetime.now()
+      ref = b-a
+      toTest = c-a
+      self.assertTrue( toTest < 10*ref )
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -344,6 +344,15 @@ void MEDCoupling1GTUMesh::getCellsContainingPoint(const double *pos, double eps,
   return m->getCellsContainingPoint(pos,eps,elts);
 }
 
+/*!
+ * to improve perf !
+ */
+void MEDCoupling1GTUMesh::getCellsContainingPoints(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const
+{// See EDF29571
+  MCAuto<MEDCouplingUMesh> m(buildUnstructured());
+  m->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
+}
+
 MEDCouplingFieldDouble *MEDCoupling1GTUMesh::buildOrthogonalField() const
 {
   MCAuto<MEDCouplingUMesh> m=buildUnstructured();
