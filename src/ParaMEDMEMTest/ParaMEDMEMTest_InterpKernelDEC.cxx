@@ -70,6 +70,70 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DP0P1()
   //testInterpKernelDEC_2D_("P0","P1");
 }
 
+/*! Dummy test to check that we can pass a mesh with a coordinate array not owned by the mesh
+ * as a source for the InterpKernelDEC.
+ */
+void ParaMEDMEMTest::testInterpKernelDEC_ext_coords()
+{
+  using namespace MEDCoupling;
+
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
+  if (size != 2) return;
+
+  set<int> src_procs;
+  set<int> dest_procs;
+  src_procs.insert(0);
+  dest_procs.insert(1);
+  //
+  MCAuto<MEDCouplingUMesh> mesh(MEDCouplingUMesh::New("Source mesh Proc0",1));
+  ParaMESH *paramesh=0;
+  ParaFIELD *parafieldP0=0;
+  CommInterface interface;
+  ProcessorGroup* src_group = new MEDCoupling::MPIProcessorGroup(interface,src_procs);
+  ProcessorGroup* dest_group = new MEDCoupling::MPIProcessorGroup(interface,dest_procs);
+
+  double coords[4]={0.3,0.7, 0.9,1.0};
+  mcIdType conn[4]={0,1,2,3};
+  mesh->allocateCells(2);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2);
+  mesh->finishInsertingCells();
+  MCAuto<DataArrayDouble> myCoords(DataArrayDouble::New());
+  mesh->setCoords(myCoords);
+
+  if (rank == 0)  // the one with an external array for coords
+    {
+      myCoords->useArray(coords, false, DeallocType::CPP_DEALLOC, 4, 1);
+      paramesh=new ParaMESH(mesh,*src_group,"source mesh");
+    }
+  else
+    {
+      myCoords->alloc(4,1);
+      std::copy(coords, coords+4, myCoords->rwBegin());
+      paramesh=new ParaMESH(mesh,*dest_group,"source mesh");
+    }
+
+  MEDCoupling::ComponentTopology comptopo;
+  parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+  double *valueP0=parafieldP0->getField()->getArray()->getPointer();
+  parafieldP0->getField()->setNature(IntensiveMaximum);
+
+  MEDCoupling::InterpKernelDEC dec(*src_group, *dest_group);
+  dec.setMethod("P0");
+  dec.attachLocalField(parafieldP0);
+  // Was crashing here, because of a non const pointer in ElementLocator:
+  dec.synchronize();
+
+  delete parafieldP0;
+  delete paramesh;
+  delete src_group;
+  delete dest_group;
+}
+
 void ParaMEDMEMTest::testInterpKernelDEC_1D()
 {
   int size;

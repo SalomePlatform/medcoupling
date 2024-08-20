@@ -106,7 +106,7 @@ namespace MEDCoupling
 
     int send(void* buffer, int count, MPI_Datatype datatype, int target, int tag, MPI_Comm comm) const { return MPI_Send(buffer,count, datatype, target, tag, comm); }
     int recv(void* buffer, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status* status) const { return MPI_Recv(buffer,count, datatype, source, tag, comm, status); }
-    int sendRecv(void* sendbuf, int sendcount, MPI_Datatype sendtype, 
+    int sendRecv(const void* sendbuf, int sendcount, MPI_Datatype sendtype,
                  int dest, int sendtag, void* recvbuf, int recvcount, 
                  MPI_Datatype recvtype, int source, int recvtag, MPI_Comm comm,
                  MPI_Status* status) { return MPI_Sendrecv(sendbuf, sendcount, sendtype, dest, sendtag, recvbuf, recvcount, recvtype, source, recvtag, comm,status); }

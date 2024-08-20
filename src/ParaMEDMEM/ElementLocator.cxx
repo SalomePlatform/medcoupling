@@ -267,12 +267,12 @@ namespace MEDCoupling
     distant_mesh_tmp->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     mcIdType nbLocalElems=0;
     mcIdType nbDistElem=0;
-    mcIdType *ptLocal=0;
+    const mcIdType *ptLocal=0;
     mcIdType *ptDist=0;
     if(v1Local)
       {
         nbLocalElems=v1Local->getNbOfElems();
-        ptLocal=v1Local->getPointer();
+        ptLocal=v1Local->getConstPointer();
       }
     if(v1Distant)
       {
@@ -285,12 +285,12 @@ namespace MEDCoupling
                             iprocdistant_in_union,1111,
                             *comm, &status);
     nbLocalElems=0;
-    double *ptLocal2=0;
+    const double *ptLocal2=0;
     double *ptDist2=0;
     if(v2Local)
       {
         nbLocalElems=v2Local->getNbOfElems();
-        ptLocal2=v2Local->getPointer();
+        ptLocal2=v2Local->getConstPointer();
       }
     nbDistElem=0;
     if(v2Distant)

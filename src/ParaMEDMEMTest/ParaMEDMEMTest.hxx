@@ -36,6 +36,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testMPIProcessorGroup_rank);         // >=2 procs
   CPPUNIT_TEST(testBlockTopology_constructor);      // >=2 procs
   CPPUNIT_TEST(testBlockTopology_serialize);        // 1 proc
+  CPPUNIT_TEST(testInterpKernelDEC_ext_coords);     // 1 procs
   CPPUNIT_TEST(testInterpKernelDEC_1D);             // 5 procs
   CPPUNIT_TEST(testInterpKernelDEC_2DCurve);        // 5 procs
   CPPUNIT_TEST(testInterpKernelDEC_2D);             // 5 procs
@@ -104,6 +105,7 @@ public:
   void testMPIProcessorGroup_rank();
   void testBlockTopology_constructor();
   void testBlockTopology_serialize();
+  void testInterpKernelDEC_ext_coords();
   void testInterpKernelDEC_1D();
   void testInterpKernelDEC_2DCurve();
   void testInterpKernelDEC_2D();
