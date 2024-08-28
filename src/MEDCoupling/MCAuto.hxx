@@ -44,7 +44,7 @@ namespace MEDCoupling
     bool operator==(const T *other) const { return _ptr==other; }
     MCAuto &operator=(const MCAuto& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
     MCAuto &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
-    void takeRef(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; if(_ptr) _ptr->incrRef(); } }
+    void takeRef(T *ptr) { if(_ptr!=ptr) { destroyPtr(); referPtr(ptr); } }
     T *operator->() { return _ptr ; }
     const T *operator->() const { return _ptr; }
     T& operator*() { return *_ptr; }

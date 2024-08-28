@@ -18,6 +18,87 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+import logging
+
+def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logging.INFO):
+  """
+  [EDF30179] : Method fusing nodes in this, then fusing cells in this. Fusion is done following eps and compType.
+
+  :param compType : see MEDCouplingPointSet.zipConnectivityTraducer method for explanations
+  :param eps: see DataArrayDouble.findCommonTuples for explanations.
+  :param logLev: Integer specifying log level
+  :return: MEDFileUMesh instance containing the result of nodes and cells fusion
+  """
+  import MEDLoader as ml
+  def getLogger( level = logging.INFO ):
+    FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
+    logging.basicConfig( format = FORMAT, level = level )
+    return logging.getLogger()
+  logger = getLogger( logLev )
+  def updateMap( mm : ml.MEDFileUMesh, lev : int, famMap : ml.DataArrayInt, famMapI : ml.DataArrayInt):
+    """
+    mm instance to be updated
+    """
+    def famIdManager(lev, famId):
+      if lev<= 0:
+        return -famId
+      else:
+        return famId
+    nbOfPartSetToBeUpdated = len(famMapI) -1
+    for partSetId in range( nbOfPartSetToBeUpdated ):
+      newFamId = famIdManager( lev, famMap[ famMapI[partSetId] ] )
+      newFamName = f"Family_{newFamId}"
+      logger.debug(f"For level {lev} new family : {newFamId}")
+      mm.addFamily(newFamName,newFamId)
+      for famId in famMap[ famMapI[partSetId]+1 :famMapI[partSetId+1] ]:
+        grpsToBeUpdated = mm.getGroupsOnFamily( mm.getFamilyNameGivenId( famIdManager( lev, int(famId) ) ) )
+        for grpToBeUpdated in grpsToBeUpdated:
+          mm.addFamilyOnGrp( grpToBeUpdated, newFamName )
+    pass
+  getLogger( level = logLev )
+  initNbNodes = len( self.getCoords() )
+  logger.info(f"Begin merging nodes with eps = {eps}")
+  cc,cci = self.getCoords().findCommonTuples( eps )
+  logger.info(f"End of merging nodes with eps = {eps} : Nb of nodes groups to be merged : {len(cci)-1} / {self.getNumberOfNodes()}")
+  o2n,newNbNodes = ml.DataArrayInt.ConvertIndexArrayToO2N(initNbNodes,cc,cci)
+  n2oNodes = o2n.invertArrayO2N2N2O( newNbNodes )
+  newCoords = self.getCoords()[n2oNodes]
+  # creation of 
+  mmOut = ml.MEDFileUMesh()
+  mmOut.copyFamGrpMapsFrom( self )
+
+  for lev in self.getNonEmptyLevels():
+    logger.debug(f"Begin level {lev}")
+    m1 = self[lev].deepCopy()
+    logger.debug(f"Begin renumbering connectivity of level {lev}")
+    m1.renumberNodesInConn( o2n )
+    logger.debug(f"End renumbering connectivity of level {lev}")
+    m1.setCoords( newCoords )
+    logger.info(f"Begin of finding of same cells of level {lev}")
+    cce,ccei = m1.findCommonCells(compType,0)
+    logger.info(f"End of finding of same cells of level {lev} : Nb of cells groups to be merged : {len(ccei)-1} / {m1.getNumberOfCells()}")
+    famsCell = self.getFamilyFieldAtLevel(lev)
+    if famsCell:
+      famsCell = -famsCell
+      famsMergedCell,famMap,famMapI = famsCell.forThisAsPartitionBuildReduction(cce,ccei) # <- method updating family field array
+      updateMap(mmOut,lev,famMap,famMapI)
+      famsMergedCell = -famsMergedCell
+    o2nCells,newNbCells = ml.DataArrayInt.ConvertIndexArrayToO2N(m1.getNumberOfCells(),cce,ccei)
+    n2oCells = o2nCells.invertArrayO2N2N2O( newNbCells )
+    m1 = m1[ n2oCells ]
+    m1.setCoords( newCoords )
+    m1.setName( self.getName() )
+    mmOut[lev] = m1
+    if famsCell:
+      mmOut.setFamilyFieldArr( lev, famsMergedCell )
+
+  famsNode = self.getFamilyFieldAtLevel(1)
+  if famsNode:
+    famsMergedNode,famMap,famMapI = famsNode.forThisAsPartitionBuildReduction(cc,cci)
+    updateMap(mmOut,1,famMap,famMapI)
+    mmOut.setFamilyFieldArr(1, famsMergedNode)
+  return mmOut
+
 def MEDFileUMeshReduceToCells(self, level, keepCells, removeOrphanNodes=True):
     """
     Method returning a new MEDFileUMesh, restriction of self to level and keepCell cells at this level.

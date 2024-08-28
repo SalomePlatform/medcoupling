@@ -273,7 +273,8 @@ namespace MEDCoupling
     void rearrange(std::size_t newNbOfCompo);
     void transpose();
     void pushBackSilent(T val);
-    void pushBackValsSilent(const T *valsBg, const T *valsEnd);
+    template<class InputIterator>
+    void pushBackValsSilent(InputIterator valsBg, InputIterator valsEnd);
     T popBackSilent();
     T front() const;
     T back() const;
@@ -656,14 +657,14 @@ namespace MEDCoupling
     void sortToHaveConsecutivePairs();
     MCAuto<DataArrayType> fromLinkedListOfPairToList() const;
     DataArrayType *getDifferentValues() const;
+    MCAuto<DataArrayType> forThisAsPartitionBuildReduction(const MCAuto<DataArrayIdType>& commonEntities, const MCAuto<DataArrayIdType>& commonEntitiesIndex,
+      MCAuto<DataArrayType>& partitionsToBeModified, MCAuto<DataArrayIdType>& partitionsToBeModifiedIndex) const;
     std::vector<DataArrayIdType *> partitionByDifferentValues(std::vector<T>& differentIds) const;
     std::vector< std::pair<mcIdType,mcIdType> > splitInBalancedSlices(mcIdType nbOfSlices) const;
     static DataArrayType *Modulus(const DataArrayType *a1, const DataArrayType *a2);
     void modulusEqual(const DataArrayType *other);
     static DataArrayType *Pow(const DataArrayType *a1, const DataArrayType *a2);
     void powEqual(const DataArrayType *other);
-    //MemArray<T>& accessToMemArray() { return _mem; }
-    //const MemArray<T>& accessToMemArray() const { return _mem; }
   public:
     static DataArrayIdType *FindPermutationFromFirstToSecond(const DataArrayType *ids1, const DataArrayType *ids2);
     static DataArrayIdType *FindPermutationFromFirstToSecondDuplicate(const DataArrayType *ids1, const DataArrayType *ids2);
@@ -1086,4 +1087,33 @@ namespace MEDCoupling
     else
       throw INTERP_KERNEL::Exception("DataArrayDouble::insertAtTheEnd : not available for DataArrayDouble with number of components different than 1 !");
   }
+
+    /*!
+    * This method adds at the end of \a this a series of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
+    * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
+    *
+    *  \param [in] valsBg - an array of values to push at the end of \c this.
+    *  \param [in] valsEnd - specifies the end of the array \a valsBg, so that
+    *              the last value of \a valsBg is \a valsEnd[ -1 ].
+    * \throw If \a this has already been allocated with number of components different from one.
+    * \sa DataArrayDouble::pushBackSilent
+    */
+    template<class T>
+    template<class InputIterator>
+    void DataArrayTemplate<T>::pushBackValsSilent(InputIterator valsBg, InputIterator valsEnd)
+    {
+      std::size_t nbCompo(getNumberOfComponents());
+      if(nbCompo==1)
+        _mem.insertAtTheEnd(valsBg,valsEnd);
+      else if(nbCompo==0)
+        {
+          _info_on_compo.resize(1);
+          _mem.insertAtTheEnd(valsBg,valsEnd);
+        }
+      else
+        {
+          std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::pushBackValsSilent : not available for DataArrayDouble with number of components different than 1 !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
 }

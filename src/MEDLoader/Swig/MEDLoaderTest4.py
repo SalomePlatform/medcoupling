@@ -5768,6 +5768,63 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(f1ts_read.getUndergroundDataArray().isAllocated())
         self.assertTrue(not f1ts_read.getUndergroundDataArray().isAllocated())
 
+    def test49(self):
+        """
+        [EDF30179] : test of MEDFileUMesh.fuseNodesAndCells
+        """
+        import logging
+        mm = MEDFileUMesh()
+        arr = DataArrayDouble(4) ; arr.iota()
+        m = MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m=m.buildUnstructured() ; m.changeSpaceDimension(3,0.)
+        m2 = m.deepCopy() ; m2.translate([3,0,0])
+        m = MEDCouplingUMesh.MergeUMeshes([m,m2]) # generate voluntary duplication of nodes and seg2
+        meshName = "mesh"
+        m.setName(meshName)
+        m1 = m.buildDescendingConnectivity()[0]
+        mm[0] = m
+        mm[-1] = m1
+        infoOnComponents = ["X [m]","YY [m]","ZZZ [m]"]
+        description = "description"
+        mm.getCoords().setInfoOnComponents( infoOnComponents )
+        mm.setDescription( description )
+        # groups on seg2
+        blackGrp = DataArrayInt([7,9,16,22,23,24,25,34,41,42]) ; blackGrp.setName("Black") # represent I at jonction
+        mm.addGroup(-1,blackGrp)
+        redGrp = DataArrayInt([8,14,15,16]) ; redGrp.setName("Red") # square of seg2 left side of junction
+        mm.addGroup(-1,redGrp)
+        greenGrp = DataArrayInt([26,34,35,36]) ; greenGrp.setName("Green")# square of seg2 right side of junction
+        mm.addGroup(-1,greenGrp)
+        # groups on nodes
+        blackGrp = DataArrayInt([2,3,7,11,14,15,16,17,20,24,28,29]) ; blackGrp.setName("BlackNode") # represent I at jonction
+        mm.addGroup(1,blackGrp)
+        redGrp = DataArrayInt([6,7,10,11,20,24]) ; redGrp.setName("RedNode") # square of seg2 left side of junction
+        mm.addGroup(1,redGrp)
+        greenGrp = DataArrayInt([20,21,24,25]) ; greenGrp.setName("GreenNode")# square of seg2 right side of junction
+        mm.addGroup(1,greenGrp)
+        ###
+        mmOut = mm.fuseNodesAndCells(compType = 2 , eps = 1e-6, logLev = logging.WARNING) # <<- hot point is here
+        ###
+        self.assertEqual( mmOut.getName() , meshName )
+        self.assertEqual( mmOut.getCoords().getInfoOnComponents() , infoOnComponents )
+        self.assertEqual( mmOut.getDescription() , description )
+        self.assertEqual( mmOut.getNumberOfNodes() , 28 )
+        self.assertEqual( mmOut.getNumberOfCellsAtLevel(0) , 18 )
+        self.assertEqual( mmOut.getNumberOfCellsAtLevel(-1) , 45 )
+        expCoo = DataArrayDouble( [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 2.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 1.0, 0.0, 3.0, 1.0, 0.0, 0.0, 2.0, 0.0, 1.0, 2.0, 0.0, 2.0, 2.0, 0.0, 3.0, 2.0, 0.0, 0.0, 3.0, 0.0, 1.0, 3.0, 0.0, 2.0, 3.0, 0.0, 3.0, 3.0, 0.0, 4.0, 0.0, 0.0, 5.0, 0.0, 0.0, 6.0, 0.0, 0.0, 4.0, 1.0, 0.0, 5.0, 1.0, 0.0, 6.0, 1.0, 0.0, 4.0, 2.0, 0.0, 5.0, 2.0, 0.0, 6.0, 2.0, 0.0, 4.0, 3.0, 0.0, 5.0, 3.0, 0.0, 6.0, 3.0, 0.0], 28, 3)
+        self.assertTrue( mmOut.getCoords().isEqualWithoutConsideringStr( expCoo, 1e-12) )
+        refConn0 = DataArrayInt( [1, 0, 4, 5, 2, 1, 5, 6, 3, 2, 6, 7, 5, 4, 8, 9, 6, 5, 9, 10, 7, 6, 10, 11, 9, 8, 12, 13, 10, 9, 13, 14, 11, 10, 14, 15, 16, 3, 7, 19, 17, 16, 19, 20, 18, 17, 20, 21, 19, 7, 11, 22, 20, 19, 22, 23, 21, 20, 23, 24, 22, 11, 15, 25, 23, 22, 25, 26, 24, 23, 26, 27] )
+        self.assertTrue( MEDCoupling1SGTUMesh( mmOut[0] ).getNodalConnectivity().isEqualWithoutConsideringStr( refConn0 ) )
+        refConn1 = DataArrayInt( [1, 0, 0, 4, 4, 5, 5, 1, 2, 1, 5, 6, 6, 2, 3, 2, 6, 7, 3, 7, 4, 8, 8, 9, 9, 5, 9, 10, 10, 6, 10, 11, 7, 11, 8, 12, 12, 13, 13, 9, 13, 14, 14, 10, 14, 15, 11, 15, 16, 3, 7, 19, 19, 16, 17, 16, 19, 20, 20, 17, 18, 17, 20, 21, 21, 18, 11, 22, 22, 19, 22, 23, 23, 20, 23, 24, 24, 21, 15, 25, 25, 22, 25, 26, 26, 23, 26, 27, 27, 24] )
+        self.assertTrue( MEDCoupling1SGTUMesh( mmOut[-1] ).getNodalConnectivity().isEqualWithoutConsideringStr( refConn1 ) )
+        self.assertTrue( mmOut.getGroupArr(-1,"Black").isEqualWithoutConsideringStr( DataArrayInt([7, 9, 16, 22, 23, 24, 39]) ) )
+        self.assertTrue( mmOut.getGroupArr(-1,"Green").isEqualWithoutConsideringStr( DataArrayInt([16, 25, 33, 34]) ) )
+        self.assertTrue( mmOut.getGroupArr(-1,"Red").isEqualWithoutConsideringStr( DataArrayInt([8, 14, 15, 16]) ) )
+        self.assertTrue( mmOut.getGroupArr(1,"BlackNode").isEqualWithoutConsideringStr( DataArrayInt([2, 3, 7, 11, 14, 15, 16, 25]) ) )
+        self.assertTrue( mmOut.getGroupArr(1,"RedNode").isEqualWithoutConsideringStr( DataArrayInt([6, 7, 10, 11]) ) )
+        self.assertTrue( mmOut.getGroupArr(1,"GreenNode").isEqualWithoutConsideringStr( DataArrayInt([7, 11, 19, 22]) ) )
+        self.assertEqual( len( mmOut.getFamilyFieldAtLevel(1).findIdsGreaterOrEqualTo(0) ) , 28 )
+        self.assertEqual( len( mmOut.getFamilyFieldAtLevel(-1).findIdsLowerOrEqualTo(0) ) , 45 )  
+
     pass
 
 if __name__ == "__main__":

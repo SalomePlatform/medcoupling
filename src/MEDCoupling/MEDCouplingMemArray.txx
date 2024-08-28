@@ -30,10 +30,12 @@
 #include "MCAuto.hxx"
 #include "MEDCouplingMap.txx"
 
+#include <set>
 #include <sstream>
 #include <cstdlib>
 #include <numeric>
 #include <algorithm>
+#include <iterator>
 
 namespace MEDCoupling
 {
@@ -889,34 +891,6 @@ namespace MEDCoupling
     else
       {
         std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::pushBackSilent : not available for DataArrayDouble with number of components different than 1 !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-  }
-
-  /*!
-   * This method adds at the end of \a this a series of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
-   * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
-   *
-   *  \param [in] valsBg - an array of values to push at the end of \c this.
-   *  \param [in] valsEnd - specifies the end of the array \a valsBg, so that
-   *              the last value of \a valsBg is \a valsEnd[ -1 ].
-   * \throw If \a this has already been allocated with number of components different from one.
-   * \sa DataArrayDouble::pushBackSilent
-   */
-  template<class T>
-  void DataArrayTemplate<T>::pushBackValsSilent(const T *valsBg, const T *valsEnd)
-  {
-    std::size_t nbCompo(getNumberOfComponents());
-    if(nbCompo==1)
-      _mem.insertAtTheEnd(valsBg,valsEnd);
-    else if(nbCompo==0)
-      {
-        _info_on_compo.resize(1);
-        _mem.insertAtTheEnd(valsBg,valsEnd);
-      }
-    else
-      {
-        std::ostringstream oss; oss << Traits<T>::ArrayTypeName << "::pushBackValsSilent : not available for DataArrayDouble with number of components different than 1 !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
@@ -2363,12 +2337,15 @@ namespace MEDCoupling
    *  one component.
    *  \return double - the maximal value among all values of \a this array.
    *  \throw If \a this is not allocated.
+   *         If \a this is empty.
    *  \sa getMaxAbsValueInArray, getMinValueInArray
    */
   template<class T>
   T DataArrayTemplate<T>::getMaxValueInArray() const
   {
     checkAllocated();
+    if( empty() )
+      THROW_IK_EXCEPTION("getMaxValueInArray : this is empty !");
     const T *loc(std::max_element(begin(),end()));
     return *loc;
   }
@@ -5899,7 +5876,7 @@ struct NotInRange
    *          The caller is to delete this array using decrRef() as it is no more needed.
    *  \throw If \a this is not allocated.
    *  \throw If \a this->getNumberOfComponents() != 1.
-   *  \throw If \a this->getNumberOfTuples() < 2.
+   *  \throw If \a this->getNumberOfTuples() < 1.
    *
    *  \b Example: <br>
    *         - this contains [1,3,6,7,7,9,15]
@@ -5915,7 +5892,7 @@ struct NotInRange
     if(this->getNumberOfComponents()!=1)
       throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : only single component allowed !");
     std::size_t nbOfElements=this->getNumberOfTuples();
-    if(nbOfElements<2)
+    if(nbOfElements<1)
       throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : 2 tuples at least must be present in 'this' !");
     const T *ptr=this->getConstPointer();
     DataArrayType *ret=DataArrayType::New();
@@ -6458,6 +6435,100 @@ struct NotInRange
     ret2->alloc(ret.size(),1);
     std::copy(ret.begin(),ret.end(),ret2->getPointer());
     return ret2.retn();
+  }
+
+  template<class T>
+  class PartitionCfg : public std::set<T>
+  {
+    public:
+      PartitionCfg() = default;
+      void setID(T id) { _id = id; }
+      T getID() const { return _id; }
+      bool operator<(const PartitionCfg<T>& other) { return std::set<T>::operator<( other._data ); }
+      bool operator>(const PartitionCfg<T>& other) { return std::set<T>::operator>( other._data ); }
+      bool operator==(const PartitionCfg<T>& other) { return std::set<T>::operator==( other._data ); }
+    private:
+      T _id = 0;
+  };
+
+  /*!
+   * \a this is considered as an array defining a partition. It means that values in \a this define partition-ids. All tuples in \a this with same value can be considered as partition.
+   * Typically MED stores families uses this compact storage method.
+   * 
+   * This method computes and returns the partition stored in \a this on reduced space using a reduction operation specified by pairs \a commonEntities and \a commonEntitiesIndex parameters.
+   * The reduction operation is the consequence of a fusion of enties. It explains the storage format defining reduction.
+   * 
+   * An another way to consider this method : This method can be seen as an interpolation on integer field (\a this). For fused entities it returns in compact way all combinations of partition configuration.
+   * 
+   * \param [out] partitionsToBeModified - For all partitions impacted by the reduction a n-uplet is returned (n is deduced thanks to \a partitionsToBeModifiedIndex)
+   *                                       Each n-uplet represents a list of partitions impacted by reduction. The first element of n-uplet represents the ID to locate entities (using for example findIdsEqual in returned array)
+   *                                       Remaining IDs in n-uplet are Partition IDs impacted.
+   * \param [out] partitionsToBeModifiedIndex - Index attached to \a partitionsToBeModified to interprete.
+   * 
+   * \return - The partition array that is the output of the reduction of \a this. 
+   * 
+   * \sa MEDCouplingUMesh::findCommonCells, DataArrayDouble::findCommonTuples
+   */
+  template <class T>
+  MCAuto< typename DataArrayDiscrete<T>::DataArrayType > DataArrayDiscrete<T>::forThisAsPartitionBuildReduction(const MCAuto<DataArrayIdType>& commonEntities, const MCAuto<DataArrayIdType>& commonEntitiesIndex, MCAuto<DataArrayType>& partitionsToBeModified, MCAuto<DataArrayIdType>& partitionsToBeModifiedIndex) const
+  {
+    constexpr char MSG[] = "this should have only one component";
+    this->checkAllocated(); this->checkNbOfComps(1,MSG);
+    commonEntities->checkAllocated(); commonEntities->checkNbOfComps(1,MSG);
+    commonEntitiesIndex->checkAllocated(); commonEntitiesIndex->checkNbOfComps(1,MSG);
+    std::size_t initialSpaceSz( this->getNumberOfTuples() );
+    mcIdType returnedSpaceSz( 0 );// store size of reducted returned size
+    //
+    MCAuto<DataArrayIdType> sizeOfPacks( commonEntitiesIndex->deltaShiftIndex() );
+    //
+    MCAuto<DataArrayIdType> o2n( DataArrayIdType::ConvertIndexArrayToO2N(initialSpaceSz,commonEntities->begin(),commonEntitiesIndex->begin(),commonEntitiesIndex->end(),returnedSpaceSz) );
+    MCAuto< DataArrayType > ret( DataArrayDiscrete<T>::New() );
+    ret->alloc( returnedSpaceSz, 1 );
+    ret->fillWithValue( std::numeric_limits<T>::max() );
+    // First deal with entities not fused.
+    MCAuto<DataArrayIdType> eltsNotFused( commonEntities->copySorted() );
+    eltsNotFused = eltsNotFused->buildComplement( initialSpaceSz );
+    MCAuto<DataArrayType> partionIdsOfNotFused = this->mySelectByTupleIdSafe(eltsNotFused->begin(),eltsNotFused->end());
+    MCAuto<DataArrayIdType> tupleIdsToSelect = o2n->selectByTupleIdSafe(eltsNotFused->begin(),eltsNotFused->end());
+    ret->setPartOfValues3(partionIdsOfNotFused,tupleIdsToSelect->begin(),tupleIdsToSelect->end(),0,1,1);
+    T *retPt( ret->getPointer() );
+    const mcIdType *o2nPt( o2n->begin() );
+    //
+    partitionsToBeModified = DataArrayType::New(); partitionsToBeModified->alloc(0,1); 
+    partitionsToBeModifiedIndex = DataArrayIdType::New(); partitionsToBeModifiedIndex->alloc(1,1); partitionsToBeModifiedIndex->setIJSilent(0,0,0);
+    if( !sizeOfPacks->empty() )// if empty -> no fusion -> ret is already ready at this point -> nothing to do.
+    {// ready to work
+      mcIdType maxSizeOfPacks = sizeOfPacks->getMaxValueInArray();// store the max size of common entities
+      T newValueInThis = this->getMaxValueInArray() + 1;
+      const T *ptOfThisData( this->begin() );
+      const mcIdType *ceBg( commonEntities->begin() ), *ceiBg( commonEntitiesIndex->begin() );
+      for(mcIdType szOfPack = 2 ; szOfPack <= maxSizeOfPacks ; ++szOfPack)
+      {
+        MCAuto<DataArrayIdType> idsInThisWithSamePackSz = sizeOfPacks->findIdsEqual( FromIdType<T>( szOfPack ) );
+        std::set< PartitionCfg<T> > partitionCfgHolder;
+        for( const mcIdType *idsInThisWithSamePackSzIt = idsInThisWithSamePackSz->begin() ; idsInThisWithSamePackSzIt != idsInThisWithSamePackSz->end() ; ++idsInThisWithSamePackSzIt )
+        {
+          PartitionCfg<T> partitionCfg;
+          std::transform(ceBg + ceiBg[*idsInThisWithSamePackSzIt],ceBg + ceiBg[*idsInThisWithSamePackSzIt + 1], std::inserter(partitionCfg,partitionCfg.end()),[ptOfThisData](mcIdType elt) { return ptOfThisData[elt]; });
+          auto existCfg = partitionCfgHolder.find( partitionCfg );
+          if( existCfg != partitionCfgHolder.end() )
+          {//partition already exist by a previous pack -> reuse it !
+            T newPartitionID = existCfg->getID();
+            retPt[ o2nPt[ ceBg [ ceiBg[*idsInThisWithSamePackSzIt] ] ] ] = newPartitionID;// hypothesis that o2n is so that all o2n[ceBg + ceiBg[*idsInThisWithSamePackSzIt],ceBg + ceiBg[*idsInThisWithSamePackSzIt + 1]) points to the same point in new renumbering
+          }
+          else
+          {//partition does not exist yet -> create it !
+            partitionCfg.setID( newValueInThis++ );
+            partitionCfgHolder.insert( partitionCfg );
+            retPt[ o2nPt[ ceBg [ ceiBg[*idsInThisWithSamePackSzIt] ] ] ] = partitionCfg.getID();
+            partitionsToBeModified->pushBackSilent( partitionCfg.getID() );
+            partitionsToBeModified->pushBackValsSilent(partitionCfg.begin(),partitionCfg.end());
+            partitionsToBeModifiedIndex->pushBackSilent( partitionsToBeModifiedIndex->back() + partitionCfg.size() + 1 );
+          }
+        }
+      }
+    }
+    return ret;
   }
 
   /*!

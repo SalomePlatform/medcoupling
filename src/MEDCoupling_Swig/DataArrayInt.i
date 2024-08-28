@@ -2034,6 +2034,20 @@
         PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<INT>::TI, SWIG_POINTER_OWN | 0 ));
         return pyRet;
       }
+      
+      PyObject *forThisAsPartitionBuildReduction(DataArrayIdType *commonEntities, DataArrayIdType *commonEntitiesIndex) const
+      {
+        MCAuto<DataArrayIdType> ceCpp( MCAuto<DataArrayIdType>::TakeRef(commonEntities) );
+        MCAuto<DataArrayIdType> ceiCpp( MCAuto<DataArrayIdType>::TakeRef(commonEntitiesIndex) );
+        MCAuto<ARRAY> ret1;
+        MCAuto<DataArrayIdType> ret2;
+        MCAuto<ARRAY> ret0 = self->forThisAsPartitionBuildReduction(ceCpp,ceiCpp,ret1,ret2);
+        PyObject *pyRet( PyTuple_New(3) );
+        PyTuple_SetItem(pyRet,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0.retn()),SWIGTITraits<INT>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1.retn()),SWIGTITraits<INT>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(pyRet,2,SWIG_NewPointerObj(SWIG_as_voidptr(ret2.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        return pyRet;
+      }
 
       PyObject *isRange() const
       {

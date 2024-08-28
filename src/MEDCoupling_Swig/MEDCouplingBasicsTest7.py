@@ -1489,8 +1489,44 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       toTest = c-a
       self.assertTrue( toTest < 10*ref )
 
+    def testFuseOfFamilyField0(self):
+      """
+      EDF30179 : Core algo for family field linked to fusion of entities
+      """
+      d = DataArrayInt([2,2,2,2,2,3,3,3,3,1,1,1,1,1,1]) # 5 x 2 , 4 x 3, 6 x 1
 
-
+      c = DataArrayInt([]) ; ci = DataArrayInt([0])
+      #### Case 0 : simplest
+      assert( ci.deltaShiftIndex().empty() ) # EDF30179 : extension of deltaShiftIndex to single elt
+      a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
+      assert( a.isEqual( d ) )
+      assert( b.empty() )
+      assert( f.isEqual(DataArrayInt([0])) )  
+      #### Case 1 : single fusion
+      c = DataArrayInt([3,6]) ; ci = DataArrayInt([0,2])
+      a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
+      assert( a.isEqual( DataArrayInt([2,2,2,4,2,3,3,3,1,1,1,1,1,1]) ) )
+      assert( b.isEqual( DataArrayInt([4,2,3]) ) )
+      assert( f.isEqual( DataArrayInt([0,3]) ) )  
+      #### Case 2 : single fusion - same partition id
+      c = DataArrayInt([6,7]) ; ci = DataArrayInt([0,2])
+      a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
+      assert( a.isEqual( DataArrayInt([2,2,2,2,2,3,4,3,1,1,1,1,1,1]) ) )
+      assert( b.isEqual( DataArrayInt([4,3]) ) )
+      assert( f.isEqual( DataArrayInt([0,2]) ) )  
+      #### Case 3 : multi fusion single tuple
+      c = DataArrayInt([2,7,3,6]) ; ci = DataArrayInt([0,2,4]) # elts (2,7) and (3,6) to merge. These 2 couples refers to partitionIDs (2,3)
+      a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
+      assert( a.isEqual( DataArrayInt([2,2,4,4,2,3,3,1,1,1,1,1,1]) ) )
+      assert( b.isEqual( DataArrayInt([4,2,3]) ) ) # Fuse element can be located with ID 4
+      assert( f.isEqual( DataArrayInt([0,3]) ) )
+      
+      #### Case 4 : multi fusion
+      c = DataArrayInt([2,7,3,10]) ; ci = DataArrayInt([0,2,4])
+      a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
+      assert( a.isEqual( DataArrayInt([2,2,4,5,2,3,3,3,1,1,1,1,1]) ) )
+      assert( b.isEqual( DataArrayInt([4,2,3,5,1,2]) ) )
+      assert( f.isEqual( DataArrayInt([0,3,6]) ) )
 
 if __name__ == '__main__':
     unittest.main()
