@@ -139,6 +139,7 @@ namespace MEDCoupling
     bool operator==(const MCConstAuto& other) const { return _ptr==other._ptr; }
     bool operator==(const T *other) const { return _ptr==other; }
     MCConstAuto &operator=(const MCConstAuto& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
+    MCConstAuto &operator=(const typename MEDCoupling::MCAuto<T>& other) { if(_ptr!=(const T*)other) { destroyPtr(); referPtr((const T*)other); } return *this; }
     MCConstAuto &operator=(const T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
     void takeRef(const T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; if(_ptr) _ptr->incrRef(); } }
     const T *operator->() { return _ptr ; }

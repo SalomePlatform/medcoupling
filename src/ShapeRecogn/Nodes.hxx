@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __NODES_HXX__
-#define __NODES_HXX__
+#pragma once
 
 #include <vector>
 #include "MEDCouplingUMesh.hxx"
@@ -33,7 +32,7 @@ namespace MEDCoupling
         Nodes(const MEDCouplingUMesh *mesh,
               const DataArrayInt64 *neighbors,
               const DataArrayInt64 *neighborsIdx);
-        ~Nodes();
+        ~Nodes() = default;
 
         mcIdType getNbNodes() const;
         const std::vector<double> &getK1() const;
@@ -57,13 +56,13 @@ namespace MEDCoupling
         std::array<double, 3> getCoordinates(mcIdType nodeId) const;
 
     private:
-        const MEDCouplingUMesh *mesh;
+        MCConstAuto<MEDCouplingUMesh> mesh;
         const DataArrayDouble *coords;
         // normals 3 * nbNodes
         std::vector<double> normals;
         // neighbors
-        const DataArrayInt64 *neighbors;
-        const DataArrayInt64 *neighborsIdx;
+        MCConstAuto<DataArrayInt64> neighbors;
+        MCConstAuto<DataArrayInt64> neighborsIdx;
         // curvature
         std::vector<double> k1;
         std::vector<double> k2;
@@ -73,6 +72,4 @@ namespace MEDCoupling
         std::vector<double> mainDirections;
         std::vector<PrimitiveType> primitives;
     };
-};
-
-#endif //__NODES_HXX__
+}

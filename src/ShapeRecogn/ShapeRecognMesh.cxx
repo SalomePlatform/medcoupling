@@ -1,31 +1,32 @@
-#include "ShapeRecognMesh.hxx"
+// Copyright (C) 2024  CEA, EDF
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 
-#include "MEDLoader.hxx"
+#include "ShapeRecognMesh.hxx"
 
 using namespace MEDCoupling;
 
 ShapeRecognMesh::ShapeRecognMesh()
-    : nodeK1(0), nodeK2(0), nodePrimitiveType(0),
-      nodeNormal(0), areaId(0), areaPrimitiveType(0),
-      areaNormal(0), minorRadius(0), radius(0),
-      angle(0), center(0), axis(0), apex(0)
+    : nodeK1(nullptr), nodeK2(nullptr), nodePrimitiveType(nullptr),
+      nodeNormal(nullptr), areaId(nullptr), areaPrimitiveType(nullptr),
+      areaNormal(nullptr), minorRadius(nullptr), radius(nullptr),
+      angle(nullptr), center(nullptr), axis(nullptr), apex(nullptr)
 {
-}
-ShapeRecognMesh::~ShapeRecognMesh()
-{
-    nodeK1->decrRef();
-    nodeK2->decrRef();
-    nodePrimitiveType->decrRef();
-    nodeNormal->decrRef();
-    areaId->decrRef();
-    areaPrimitiveType->decrRef();
-    areaNormal->decrRef();
-    minorRadius->decrRef();
-    radius->decrRef();
-    angle->decrRef();
-    center->decrRef();
-    axis->decrRef();
-    apex->decrRef();
 }
 
 std::size_t ShapeRecognMesh::getHeapMemorySizeWithoutChildren() const
@@ -57,99 +58,67 @@ ShapeRecognMesh *ShapeRecognMesh::New()
     return new ShapeRecognMesh;
 }
 
-void ShapeRecognMesh::save(const std::string &outputFile, bool writeFromScratch) const
-{
-    // Nodes
-    // - k1
-    WriteField(outputFile, nodeK1, writeFromScratch);
-    // - k2
-    WriteField(outputFile, nodeK2, false);
-    // - primitive types
-    WriteField(outputFile, nodePrimitiveType, false);
-    // - Normal
-    WriteField(outputFile, nodeNormal, false);
-    // Areas
-    // - Area Id
-    WriteField(outputFile, areaId, false);
-    // - Primitive Types
-    WriteField(outputFile, areaPrimitiveType, false);
-    // - Normal
-    WriteField(outputFile, areaNormal, false);
-    // - Minor Radius
-    WriteField(outputFile, minorRadius, false);
-    // - Radius
-    WriteField(outputFile, radius, false);
-    // - Angle
-    WriteField(outputFile, angle, false);
-    // - Center
-    WriteField(outputFile, center, false);
-    // - Axis
-    WriteField(outputFile, axis, false);
-    // - Apex
-    WriteField(outputFile, apex, false);
-}
-
-MEDCouplingFieldDouble *ShapeRecognMesh::getNodeK1() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getNodeK1() const
 {
     return nodeK1;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getNodeK2() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getNodeK2() const
 {
     return nodeK2;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getNodePrimitiveType() const
+const MEDCouplingFieldInt32 *ShapeRecognMesh::getNodePrimitiveType() const
 {
     return nodePrimitiveType;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getNodeNormal() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getNodeNormal() const
 {
     return nodeNormal;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getAreaId() const
+const MEDCouplingFieldInt32 *ShapeRecognMesh::getAreaId() const
 {
     return areaId;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getAreaPrimitiveType() const
+const MEDCouplingFieldInt32 *ShapeRecognMesh::getAreaPrimitiveType() const
 {
     return areaPrimitiveType;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getAreaNormal() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getAreaNormal() const
 {
     return areaNormal;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getMinorRadius() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getMinorRadius() const
 {
     return minorRadius;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getRadius() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getRadius() const
 {
     return radius;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getAngle() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getAngle() const
 {
     return angle;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getCenter() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getCenter() const
 {
     return center;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getAxis() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getAxis() const
 {
     return axis;
 }
 
-MEDCouplingFieldDouble *ShapeRecognMesh::getApex() const
+const MEDCouplingFieldDouble *ShapeRecognMesh::getApex() const
 {
     return apex;
 }

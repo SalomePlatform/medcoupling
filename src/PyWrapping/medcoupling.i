@@ -48,6 +48,10 @@
 %include "ParaMEDMEMCommon.i"
 #endif
 
+#ifdef WITH_SHAPE_RECOGN
+%include "ShapeRecognCommon.i"
+#endif
+
 %constant const char __version__[]=MEDCOUPLING_GIT_SHA1;
 %constant const char __config_datetime__[]=MEDCOUPLING_CONFIG_DT;
 
@@ -57,9 +61,10 @@
   static const char RENUM_EXT[]="Renumberer";
   static const char PART_EXT[]="Partitioner";
   static const char PAR_INTERPOL_EXT[]="Parallel interpolator (SPMD paradigm)";
-  static const char IT_STATS_EXT[] = "Iterative statistics";
-  
-  static const char *EXTENSIONS[]={SEQ_INTERPOL_EXT,MEDFILEIO_EXT,RENUM_EXT,PART_EXT,PAR_INTERPOL_EXT,IT_STATS_EXT};
+  static const char IT_STATS_EXT[]="Iterative statistics";
+  static const char SHAPE_RECOGNITION_EXT[]="Shape Recognition";
+
+  static const char *EXTENSIONS[]={SEQ_INTERPOL_EXT,MEDFILEIO_EXT,RENUM_EXT,PART_EXT,PAR_INTERPOL_EXT,IT_STATS_EXT,SHAPE_RECOGNITION_EXT};
   static const int NB_OF_EXTENSIONS=sizeof(EXTENSIONS)/sizeof(const char *);
 %}
 
@@ -133,6 +138,15 @@
     return false;
 #endif
   }
+
+  bool HasShapeRecognitionExt()
+  {
+#ifdef WITH_SHAPE_RECOGN
+    return true;
+#else
+    return false;
+#endif
+  }
   
   std::vector<std::string> ActiveExtensions()
   {
@@ -152,6 +166,9 @@
 #endif
 #ifdef WITH_ITERATIVE_STATISTICS
     ret.push_back(std::string(IT_STATS_EXT));
+#endif
+#ifdef WITH_SHAPE_RECOGN
+    ret.push_back(std::string(SHAPE_RECOGNITION_EXT));
 #endif
     return ret;
   }

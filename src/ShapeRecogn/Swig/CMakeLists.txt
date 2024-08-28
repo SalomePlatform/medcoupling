@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2024  CEA, EDF
+# Copyright (C) 2024  CEA, EDF
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -75,7 +75,6 @@ IF(WIN32)
 ENDIF(WIN32)
 
 INSTALL(TARGETS _ShapeRecogn DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
-INSTALL(FILES ShapeRecogn.i DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
 
 SALOME_INSTALL_SCRIPTS(
   ${CMAKE_CURRENT_BINARY_DIR}/ShapeRecogn.py 

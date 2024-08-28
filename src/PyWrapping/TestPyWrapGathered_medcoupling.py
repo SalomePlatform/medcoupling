@@ -141,7 +141,17 @@ class medcouplingTest(unittest.TestCase):
         a,b,c=f3.getTime()
         self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14);
         pass
-        
+
+    @unittest.skipUnless(HasShapeRecognitionExt(),"Requires Shape recognition extension activated")
+    def test6(self):
+        m = MEDCouplingCMesh()
+        arr = DataArrayDouble(5) ; arr.iota()
+        m.setCoords(arr,arr)
+        m = m.buildUnstructured()
+        m.simplexize(0)
+        m.changeSpaceDimension(3,0.)
+        srMesh = ShapeRecognMeshBuilder( m )
+        rem = srMesh.recognize()
 
     def partitionerTesterHelper(self,algoSelected):
         arr=DataArrayDouble(10) ; arr.iota()

@@ -1,3 +1,22 @@
+// Copyright (C) 2024  CEA, EDF
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
 
 #include "NodesBuilder.hxx"
 #include "Nodes.hxx"
@@ -41,15 +60,15 @@ void NodesBuilder::computeNormals()
     }
     //
     nodes->normals.resize(3 * nbNodes, 1.0);
-    DataArrayInt64 *revNodal = DataArrayInt64::New();
-    DataArrayInt64 *revNodalIdx = DataArrayInt64::New();
+    MCAuto<DataArrayInt64> revNodal = DataArrayInt64::New();
+    MCAuto<DataArrayInt64> revNodalIdx = DataArrayInt64::New();
     mesh->getReverseNodalConnectivity(revNodal, revNodalIdx);
     for (size_t nodeId = 0; nodeId < (size_t)nbNodes; nodeId++)
     {
-        int nbCells = revNodalIdx->getIJ(nodeId + 1, 0) -
-                      revNodalIdx->getIJ(nodeId, 0);
+        mcIdType nbCells = revNodalIdx->getIJ(nodeId + 1, 0) -
+                           revNodalIdx->getIJ(nodeId, 0);
         std::vector<mcIdType> cellIds(nbCells, 0);
-        int start = revNodalIdx->getIJ(nodeId, 0);
+        mcIdType start = revNodalIdx->getIJ(nodeId, 0);
         for (size_t i = 0; i < cellIds.size(); ++i)
             cellIds[i] = revNodal->getIJ(start + i, 0);
         double normal = 0.0;
@@ -67,8 +86,6 @@ void NodesBuilder::computeNormals()
         for (size_t i = 0; i < 3; i++)
             nodes->normals[3 * nodeId + i] /= sqrt(normal);
     }
-    revNodal->decrRef();
-    revNodalIdx->decrRef();
 }
 
 void NodesBuilder::computeCurvatures(double tol)

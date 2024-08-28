@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MATHOPSTEST_HXX__
-#define __MATHOPSTEST_HXX__
+#pragma once
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
@@ -46,6 +45,4 @@ namespace MEDCoupling
         static void testComputeAngles();
         static void testComputeBaseFromNormal();
     };
-};
-
-#endif // __MATHOPSTEST_HXX__
+}

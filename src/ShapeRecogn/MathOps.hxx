@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MATHOPS_HXX__
-#define __MATHOPS_HXX__
+#pragma once
 
 #include <vector>
 #include <array>
@@ -66,6 +65,4 @@ namespace MEDCoupling
         static double computeVariance(std::vector<double> values);
         static std::array<double, 6> computeBaseFromNormal(std::array<double, 3> normal);
     };
-};
-
-#endif //__MATHOPS_HXX__
+}

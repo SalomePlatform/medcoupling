@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -18,12 +18,15 @@
 //
 
 #include "MathOps.hxx"
+#include "MCIdType.hxx"
 
 #include <algorithm>
 #include <lapacke.h>
 #include <cblas.h>
 #include <iostream>
 #include <cfloat>
+#include <cmath>
+#include <cstdlib>
 
 using namespace MEDCoupling;
 
@@ -64,11 +67,11 @@ std::vector<double> MathOps::lstsqRow(
     std::vector<double> &a,
     const std::vector<double> &b)
 {
-    int m = b.size();
-    int n = 3;
-    int nrhs = 1;
-    int ldb = std::max<int>(m, n);
-    int lds = std::min<int>(m, n);
+    auto m = b.size();
+    std::size_t n = 3;
+    std::size_t nrhs = 1;
+    std::size_t ldb = std::max<std::size_t>(m, n);
+    std::size_t lds = std::min<std::size_t>(m, n);
     std::vector<double> x(ldb, 0.0);
     for (size_t i = 0; i < b.size(); ++i)
         x[i] = b[i];
@@ -77,9 +80,9 @@ std::vector<double> MathOps::lstsqRow(
     int rank = 0;
     int info = LAPACKE_dgelsd(
         LAPACK_ROW_MAJOR,
-        m, n, nrhs,
-        a.data(), n,
-        x.data(), nrhs,
+        FromIdType<int>(m), FromIdType<int>(n), FromIdType<int>(nrhs),
+        a.data(), FromIdType<int>(n),
+        x.data(), FromIdType<int>(nrhs),
         s.data(),
         rcond,
         &rank);
@@ -152,7 +155,7 @@ double MathOps::mean(const std::vector<double> &values)
     double mean = 0.0;
     for (double value : values)
         mean += value;
-    return mean / values.size();
+    return mean / double( values.size() );
 }
 
 std::array<double, 3> MathOps::meanCoordinates(const std::vector<double> &coordinates)
@@ -165,9 +168,9 @@ std::array<double, 3> MathOps::meanCoordinates(const std::vector<double> &coordi
         coordsMean[1] += coordinates[3 * nodeId + 1];
         coordsMean[2] += coordinates[3 * nodeId + 2];
     }
-    coordsMean[0] /= nbNodes;
-    coordsMean[1] /= nbNodes;
-    coordsMean[2] /= nbNodes;
+    coordsMean[0] /= double( nbNodes );
+    coordsMean[1] /= double( nbNodes );
+    coordsMean[2] /= double( nbNodes );
     return coordsMean;
 }
 
@@ -234,13 +237,13 @@ double MathOps::computeQuantile(const std::vector<double> &values, double q)
 {
     std::vector<double> sortedValues(values);
     std::sort(sortedValues.begin(), sortedValues.end());
-    double pos = q * (sortedValues.size() - 1);
+    double pos = q * double(sortedValues.size() - 1);
     size_t index = static_cast<size_t>(pos);
-    if (pos == index)
+    if ( std::abs( pos - double(index) ) < 1e-12 )
         return sortedValues[index];
     else
     {
-        double frac = pos - index;
+        double frac = pos - double(index);
         return sortedValues[index] * (1 - frac) + sortedValues[index + 1] * frac;
     }
 }
@@ -265,7 +268,7 @@ std::vector<double> MathOps::computeAngles(
     cblas_dgemv(
         CBLAS_LAYOUT::CblasRowMajor,
         CBLAS_TRANSPOSE::CblasNoTrans,
-        nbDirections, 3, 1.0,
+        int(nbDirections), 3, 1.0,
         directions.data(), 3,
         axis.data(), 1,
         0.0, angles.data(), 1);

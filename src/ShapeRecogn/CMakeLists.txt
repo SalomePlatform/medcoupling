@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2024  CEA, EDF
+# Copyright (C) 2024  CEA, EDF
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,6 @@ INCLUDE_DIRECTORIES(
   ${MEDFILE_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${LAPACKE_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
@@ -49,15 +48,15 @@ SET(shaperecogn_SOURCES
   AreasBuilder.cxx
   ShapeRecognMeshBuilder.cxx
   ShapeRecognMesh.cxx
+  PrimitiveType.cxx
 )
 
 ADD_LIBRARY(shaperecogn ${shaperecogn_SOURCES})
 SET_TARGET_PROPERTIES(shaperecogn PROPERTIES COMPILE_FLAGS "")
-TARGET_LINK_LIBRARIES(shaperecogn medcouplingcpp medloader ${MEDFILE_C_LIBRARIES} ${HDF5_LIBRARIES} ${LAPACK_LIBRARIES})
+TARGET_LINK_LIBRARIES(shaperecogn medcouplingcpp ${LAPACK_LIBRARIES})
 INSTALL(TARGETS shaperecogn EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
 FILE(GLOB shaperecogn_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${shaperecogn_HEADERS_HXX} DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
 
 # To allow usage as SWIG dependencies:
 SET(shaperecogn_HEADERS_HXX PARENT_SCOPE)

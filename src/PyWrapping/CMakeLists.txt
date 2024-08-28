@@ -63,16 +63,23 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDMEM
   ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDMEM/MPIAccess
   ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDMEM_Swig
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ShapeRecogn
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ShapeRecogn/Swig
   ${PROJECT_BINARY_DIR}/doc
   )
-
-IF(WIN32 OR CYGWIN)
+  
+  IF(WIN32 OR CYGWIN)
   SET(medcoupling_LIB_dependancies ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingremapper medicoco)
-ELSE(WIN32)
+  ELSE(WIN32 OR CYGWIN)
   # ${PYTHON_LIBRARIES} not needed see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   SET(medcoupling_LIB_dependancies ${PLATFORM_LIBS} medcouplingremapper medicoco)
-ENDIF(WIN32 OR CYGWIN)
+  ENDIF(WIN32 OR CYGWIN)
   
+  IF(MEDCOUPLING_ENABLE_SHAPERECOGN)
+    LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_SHAPE_RECOGN)
+    LIST(APPEND medcoupling_LIB_dependancies shaperecogn)
+  ENDIF(MEDCOUPLING_ENABLE_SHAPERECOGN)
+
 IF(NOT MEDCOUPLING_MICROMED)
   LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_MED_FILE)
   LIST(APPEND medcoupling_LIB_dependancies medloader)

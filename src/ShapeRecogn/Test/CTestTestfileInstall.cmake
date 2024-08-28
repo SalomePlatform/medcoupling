@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2024  CEA, EDF
+# Copyright (C) 2024  CEA, EDF
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,15 +17,12 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(TEST_NAMES
-  TestShapeRecogn
-)
+SET(TEST_NAME "${COMPONENT_NAME}_ShapeRecogn")
+ADD_TEST(${TEST_NAME} TestShapeRecogn)
+SET_TESTS_PROPERTIES( ${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT} )
 
-FOREACH(tfile ${TEST_NAMES})
-  SET(TEST_NAME ${COMPONENT_NAME}_${tfile})
-  ADD_TEST(${TEST_NAME} python3 MCTestLauncher.py ${tfile})
-  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
-    LABELS "${COMPONENT_NAME}"
-    TIMEOUT ${TIMEOUT}
-    )
-ENDFOREACH()
+SET(tfile "TestShapeRecogn.py")
+set(BASE_NAME "ShapeRecognPy")
+SET(TEST_NAME ${COMPONENT_NAME}_${BASE_NAME})
+ADD_TEST(${TEST_NAME} python3 ${tfile})
+SET_TESTS_PROPERTIES( ${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT} )

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,41 +17,55 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __SHAPERECOGNMESHBUILDER_HXX__
-#define __SHAPERECOGNMESHBUILDER_HXX__
+#pragma once
 
 #include <string>
 
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingFieldDouble.hxx"
+
+#include "Nodes.hxx"
+#include "Areas.hxx"
+
+#include <memory>
+#include <functional>
 
 namespace MEDCoupling
 {
-    class Nodes;
-    class Areas;
+    class MEDCouplingFieldInt32;
+    class MEDCouplingFieldInt64;
+    class MEDCouplingFieldDouble;
+
     class ShapeRecognMesh;
 
     class ShapeRecognMeshBuilder
     {
     public:
-        ShapeRecognMeshBuilder(const std::string &fileName, int meshDimRelToMax = 0);
-        ~ShapeRecognMeshBuilder();
+        ShapeRecognMeshBuilder(MCAuto< MEDCouplingUMesh > mesh);
+        ShapeRecognMeshBuilder(MEDCouplingUMesh *mesh);
+        ~ShapeRecognMeshBuilder() = default;
 
         const Nodes *getNodes() const;
         const Areas *getAreas() const;
 
-        ShapeRecognMesh *recognize();
+        MCAuto<ShapeRecognMesh> recognize();
 
+        // Node properties
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildNodeWeakDirections() const;
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildNodeMainDirections() const;
+
+        //Area properties
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildAreaAxisPoint() const;
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildAreaAffinePoint() const;
     private:
         // Node properties
         MEDCoupling::MEDCouplingFieldDouble *buildNodeK1() const;
         MEDCoupling::MEDCouplingFieldDouble *buildNodeK2() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildNodePrimitiveType() const;
+        MEDCoupling::MEDCouplingFieldInt32  *buildNodePrimitiveType() const;
         MEDCoupling::MEDCouplingFieldDouble *buildNodeNormal() const;
-
+        
         // Area properties
-        MEDCoupling::MEDCouplingFieldDouble *buildAreaId() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildAreaPrimitiveType() const;
+        MEDCoupling::MEDCouplingFieldInt32  *buildAreaId() const;
+        MEDCoupling::MEDCouplingFieldInt32  *buildAreaPrimitiveType() const;
         MEDCoupling::MEDCouplingFieldDouble *buildAreaNormal() const;
         MEDCoupling::MEDCouplingFieldDouble *buildMinorRadius() const;
         MEDCoupling::MEDCouplingFieldDouble *buildRadius() const;
@@ -60,26 +74,14 @@ namespace MEDCoupling
         MEDCoupling::MEDCouplingFieldDouble *buildAxis() const;
         MEDCoupling::MEDCouplingFieldDouble *buildApex() const;
 
-        template <typename T>
-        MEDCouplingFieldDouble *buildField(
-            const std::string &name,
-            size_t nbOfCompo,
-            const std::vector<T> &values) const;
-        MEDCouplingFieldDouble *buildField(
-            const std::string &name,
-            size_t nbOfCompo,
-            double *values) const;
-        MEDCouplingFieldDouble *buildField(
-            const std::string &name,
-            size_t nbOfCompo,
-            DataArrayDouble *values) const;
-        double *buildArea3DArray(const std::array<double, 3> &(*areaFunc)(Areas *, mcIdType)) const;
-        double *buildAreaArray(double (*areaFunc)(Areas *, mcIdType)) const;
-
-        const MEDCouplingUMesh *mesh;
-        Nodes *nodes = nullptr;
-        Areas *areas = nullptr;
+        double *buildArea3DArray(std::function<std::array<double, 3>(Areas *, Int32)> areaFunc) const;
+        double *buildAreaArray(std::function<double(Areas *, Int32)> areaFunc) const;
+        void assign(MCAuto< MEDCouplingUMesh > mesh);
+        void checkNodesBeforeBuildingField() const;
+        void checkAreasBeforeBuildingField() const;
+    private:
+        MCConstAuto< MEDCouplingUMesh > mesh;
+        std::unique_ptr<Nodes> nodes;
+        std::unique_ptr<Areas> areas;
     };
-};
-
-#endif // __SHAPERECOGNMESHBUILDER_HXX__
+}

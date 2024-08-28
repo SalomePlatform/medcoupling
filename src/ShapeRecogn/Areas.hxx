@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __AREAS_HXX__
-#define __AREAS_HXX__
+#pragma once
 
 #include "PrimitiveType.hxx"
 #include "Nodes.hxx"
@@ -60,7 +59,7 @@ namespace MEDCoupling
         void cleanInvalidNodeAreas();
 
         mcIdType getAreaId(mcIdType nodeId) const;
-        const std::vector<mcIdType> &getAreaIdByNodes() const;
+        const std::vector<Int32> &getAreaIdByNodes() const;
 
         bool isEmpty(mcIdType areaId) const;
         size_t getNumberOfAreas() const;
@@ -101,8 +100,6 @@ namespace MEDCoupling
 
         std::vector<Area> areas;
         const Nodes *nodes;
-        std::vector<mcIdType> areaIdByNodes;
+        std::vector<Int32> areaIdByNodes;
     };
-};
-
-#endif // __AREAS_HXX__
+}

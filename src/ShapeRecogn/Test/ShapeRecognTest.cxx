@@ -17,24 +17,12 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#pragma once
+#include "ShapeRecognTest.hxx"
 
-namespace MEDCoupling
+#include "MEDLoader.hxx"
+
+std::unique_ptr<MEDCoupling::ShapeRecognMeshBuilder> BuildShapeRecognMeshBuilderFromFile(const std::string& fileName, int meshDimRelToMax)
 {
-    // Nodes
-    constexpr double EPSILON_PRIMITIVE = 0.005;
-    // Areas
-    // - Match
-    constexpr double TOL_MATCH_CYLINDER = 0.05;
-    constexpr double TOL_MATCH_SPHERE = 0.05;
-    // - Relative distance
-    constexpr double DELTA_PLANE = 0.05;
-    constexpr double DELTA_SPHERE = 0.05;
-    constexpr double DELTA_CYLINDER = 0.05;
-    constexpr double DELTA_CONE = 0.05;
-    // - Invalid Zones
-    constexpr double THETA_MAX_CYLINDER = 0.05;
-    // - Thresholds
-    constexpr int THRESHOLD_MIN_NB_NODES = 5;
-    constexpr int THRESHOLD_MAX_NB_AREAS = 500;
+    MEDCoupling::MCAuto<MEDCoupling::MEDCouplingUMesh> mesh = MEDCoupling::ReadUMeshFromFile(fileName, 0);
+    return std::make_unique<MEDCoupling::ShapeRecognMeshBuilder>(mesh);
 }

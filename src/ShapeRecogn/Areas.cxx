@@ -1,3 +1,22 @@
+// Copyright (C) 2024  CEA, EDF
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
 #include "Areas.hxx"
 #include "MathOps.hxx"
 
@@ -45,7 +64,7 @@ void Areas::removeArea(mcIdType areaId)
 void Areas::addNode(mcIdType areaId, mcIdType nodeId)
 {
     removeNode(nodeId);
-    areaIdByNodes[nodeId] = areaId;
+    areaIdByNodes[nodeId] = FromIdType<Int32>(areaId);
     Area &area = areas[areaId];
     area.nodeIds.push_back(nodeId);
     size_t nbNodes = area.nodeIds.size();
@@ -109,12 +128,12 @@ PrimitiveType Areas::getPrimitiveType(mcIdType areaId) const
 
 std::string Areas::getPrimitiveTypeName(mcIdType areaId) const
 {
-    return convertPrimitiveToString(getPrimitiveType(areaId));
+    return ConvertPrimitiveToString(getPrimitiveType(areaId));
 }
 
 int Areas::getPrimitiveTypeInt(mcIdType areaId) const
 {
-    return convertPrimitiveToInt(getPrimitiveType(areaId));
+    return ConvertPrimitiveToInt(getPrimitiveType(areaId));
 }
 
 const std::vector<mcIdType> &Areas::getNodeIds(mcIdType areaId) const
@@ -219,7 +238,7 @@ void Areas::cleanArea(mcIdType areaId, mcIdType newAreaId = -1)
 {
     Area &area = areas[areaId];
     for (mcIdType nodeId : area.nodeIds)
-        areaIdByNodes[nodeId] = newAreaId;
+        areaIdByNodes[nodeId] = FromIdType<Int32>( newAreaId );
     area.primitive = PrimitiveType::Unknown;
     area.k1 = 0.0;
     area.k2 = 0.0;
@@ -479,7 +498,7 @@ void Areas::computeTorusProperties(mcIdType areaId)
         area.center[i] = xc * base2d[i] + yc * base2d[3 + i] + meanMajorRadiusNodes[i];
 }
 
-const std::vector<mcIdType> &Areas::getAreaIdByNodes() const
+const std::vector<Int32> &Areas::getAreaIdByNodes() const
 {
     return areaIdByNodes;
 }

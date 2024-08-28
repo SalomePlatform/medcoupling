@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __AREASBUILDER_HXX__
-#define __AREASBUILDER_HXX__
+#pragma once
 
 #include "Nodes.hxx"
 #include "Areas.hxx"
@@ -69,6 +68,4 @@ namespace MEDCoupling
 
         size_t threshold = 5;
     };
-};
-
-#endif // __AREASBUILDER_HXX__
+}

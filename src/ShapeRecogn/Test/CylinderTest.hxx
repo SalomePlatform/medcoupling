@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,11 +17,12 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __CYLINDERTEST_HXX__
-#define __CYLINDERTEST_HXX__
-
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "ShapeRecognMeshBuilder.hxx"
+
+#include <memory>
 
 namespace MEDCoupling
 {
@@ -47,9 +48,7 @@ namespace MEDCoupling
         void testThirdArea();
 
     private:
-        ShapeRecognMeshBuilder *srMesh = 0;
+        std::unique_ptr< ShapeRecognMeshBuilder > srMesh;
         const Areas *areas;
     };
-};
-
-#endif // __CYLINDERTEST_HXX__
+}

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,77 +17,31 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __PRIMITIVETYPE_HXX__
-#define __PRIMITIVETYPE_HXX__
+#pragma once
 
+#include <vector>
 #include <string>
+#include <cstdint>
+
 namespace MEDCoupling
 {
-    enum PrimitiveType
-    {
-        Plane = 0,
-        Sphere = 1,
-        Cylinder = 2,
-        Cone = 3,
-        Torus = 4,
-        Unknown = 5
-    };
+  enum class PrimitiveType : std::uint8_t
+  {
+    Plane = 0,
+    Sphere = 1,
+    Cylinder = 2,
+    Cone = 3,
+    Torus = 4,
+    Unknown = 5
+  };
 
-    inline std::string convertPrimitiveToString(PrimitiveType type)
-    {
-        std::string typeName = "";
-        switch (type)
-        {
-        case PrimitiveType::Plane:
-            typeName = "Plane";
-            break;
-        case PrimitiveType::Sphere:
-            typeName = "Sphere";
-            break;
-        case PrimitiveType::Cylinder:
-            typeName = "Cylinder";
-            break;
-        case PrimitiveType::Cone:
-            typeName = "Cone";
-            break;
-        case PrimitiveType::Torus:
-            typeName = "Torus";
-            break;
-        case PrimitiveType::Unknown:
-            typeName = "Unknown";
-            break;
-        default:
-            break;
-        }
-        return typeName;
-    };
+  std::vector<PrimitiveType> AllManagedPrimitives();
 
-    inline int convertPrimitiveToInt(PrimitiveType type)
-    {
-        int typeInt = 5;
-        switch (type)
-        {
-        case PrimitiveType::Plane:
-            typeInt = 0;
-            break;
-        case PrimitiveType::Sphere:
-            typeInt = 1;
-            break;
-        case PrimitiveType::Cylinder:
-            typeInt = 2;
-            break;
-        case PrimitiveType::Cone:
-            typeInt = 3;
-            break;
-        case PrimitiveType::Torus:
-            typeInt = 4;
-            break;
-        case PrimitiveType::Unknown:
-        default:
-            break;
-        }
-        return typeInt;
-    };
+  std::vector<std::string> AllManagedPrimitivesStr();
+
+  std::string ConvertPrimitiveToString(PrimitiveType type);
+  
+  PrimitiveType ConvertStringToPrimitive(const std::string& type);
+
+  int ConvertPrimitiveToInt(PrimitiveType type);
 };
-
-#endif // __PRIMITIVETYPE_HXX__

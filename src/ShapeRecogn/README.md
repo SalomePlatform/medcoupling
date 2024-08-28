@@ -16,7 +16,7 @@ A tool leveraging the MEDCoupling library for recognizing canonical shapes in 3D
 >>
 >> shape_recogn_builder = sr.ShapeRecognMeshBuilder("resources/ShapeRecognCone.med")
 >> shape_recogn = shape_recogn_builder.recognize()
->> shape_recogn.save("ShapeRecognCone_areas.med")
+>> #shape_recogn.save("ShapeRecognCone_areas.med")
 ```
 
 ### Without output file
