@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(
-  medcoupling_data
+  medcoupling_core
   VERSION 10.0.0
   DESCRIPTION
-    "medcoupling_data is a C++ library defining a data format for arrays, meshes, fields and some other usefull related things. It has no dependencies and will keep being that way."
+    "medcoupling_core is a C++ library defining a data format for arrays, meshes, fields and some other usefull related things. It has no dependencies and will keep being that way."
   HOMEPAGE_URL "https://github.com/SalomePlatform/medcoupling"
   LANGUAGES CXX)
 
 option(MEDCOUPLING_ENABLE_PYTHON "Build PYTHON bindings." ON)
 option(MEDCOUPLING_USE_64BIT_IDS "Size of IDs to refer cells and nodes." ON)
-option(MEDCOUPLING_USE_MPI "Adds MPI capabilities to medcoupling_data" OFF)
+option(MEDCOUPLING_USE_MPI "Adds MPI capabilities to medcoupling_core" OFF)
 option(MEDCOUPLING_MICROMED "Switch off med dependency" OFF)
 
 add_subdirectory(source)

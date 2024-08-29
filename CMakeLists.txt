@@ -197,7 +197,7 @@ endif()
 
 enable_testing()
 
-add_subdirectory(medcoupling_data)
+add_subdirectory(medcoupling_core)
 
 if(NOT MEDCOUPLING_MICROMED)
   add_subdirectory(medcoupling_io)
