@@ -75,10 +75,10 @@ if(NOT DEFINED MSVC)
 endif()
 
 target_include_directories(
-  medcouplingcpp ${warning_guard}
+  medcouplingcpp
   PUBLIC
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/polymesh>"
+    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/medcoupling_core>"
 )
 
 set_target_properties(

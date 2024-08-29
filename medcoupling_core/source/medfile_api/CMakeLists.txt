@@ -75,7 +75,7 @@ endif()
 target_compile_definitions(medloader PUBLIC MED_INT_IS_LONG)
 
 target_include_directories(
-  medloader ${warning_guard}
+  medloader
   PUBLIC
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/medfile_api>"
 )

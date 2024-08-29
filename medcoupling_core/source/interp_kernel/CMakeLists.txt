@@ -75,7 +75,7 @@ if(MEDCOUPLING_USE_64BIT_IDS)
 endif()
 
 target_include_directories(
-  interpkernel ${warning_guard}
+  interpkernel
   PUBLIC
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/interp_kernel>"
@@ -84,18 +84,6 @@ target_include_directories(
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/interp_kernel/ExprEval>"
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/interp_kernel/GaussPoints>"
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/interp_kernel/LinearAlgebra>"
-)
-
-target_include_directories(
-  interpkernel SYSTEM
-  PUBLIC
-    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
-    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/interp_kernel>"
-    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/interp_kernel/Bases>"
-    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/interp_kernel/Geometric2D>"
-    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/interp_kernel/ExprEval>"
-    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/interp_kernel/GaussPoints>"
-    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/interp_kernel/LinearAlgebra>"
 )
 
 if(NOT DEFINED MSVC)

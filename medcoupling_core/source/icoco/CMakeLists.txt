@@ -27,12 +27,8 @@ add_library(medicoco ${ICOCO_SOURCES})
 add_library(MEDCoupling::medicoco ALIAS medicoco)
 
 target_include_directories(
-  medicoco ${warning_guard}
+  medicoco
   PUBLIC "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/icoco>")
-
-target_include_directories(
-  medicoco SYSTEM PUBLIC
-  "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/icoco>")
 
 target_link_libraries(medicoco PUBLIC medcouplingcpp)
 
