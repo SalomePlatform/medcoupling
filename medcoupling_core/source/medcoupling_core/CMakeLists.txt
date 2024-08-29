@@ -77,8 +77,8 @@ endif()
 target_include_directories(
   medcouplingcpp
   PUBLIC
-    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/medcoupling_core>"
+  "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
+  "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/medcoupling_core>"
 )
 
 set_target_properties(

@@ -77,7 +77,7 @@ endif()
 target_include_directories(
   interpkernel
   PUBLIC
-    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+  "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>" # MEDCouplingVersion.h
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/interp_kernel>"
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/interp_kernel/Bases>"
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/interp_kernel/Geometric2D>"

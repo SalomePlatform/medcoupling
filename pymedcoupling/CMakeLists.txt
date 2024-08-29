@@ -1,137 +1,132 @@
 # Copyright (C) 2017-2024  CEA, EDF
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public License along
+# with this library; if not, write to the Free Software Foundation, Inc., 59
+# Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email :
+# webmaster.salome@opencascade.com
 #
 # Author : Anthony Geay (EDF R&D)
 
-FIND_PACKAGE(SWIG REQUIRED)
-INCLUDE(${SWIG_USE_FILE})
+add_compile_definitions("WITH_NUMPY" "WITH_SCIPY")
+set_source_files_properties(medcoupling.i PROPERTIES CPLUSPLUS ON)
+if(WIN32)
+  set_property(SOURCE medcoupling.i PROPERTY COMPILE_DEFINITIONS WIN32)
+endif()
 
-ADD_DEFINITIONS(${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS} -DMEDCOUPLING_GIT_SHA1=\"${MEDCOUPLING_GIT_SHA1}\" -DMEDCOUPLING_CONFIG_DT=\"${MEDCOUPLING_CONFIG_TIME}\")
+set(medcoupling_LIB_dependancies
+  Python::Module Python::NumPy medcouplingcpp medcouplingremapper medicoco)
 
-SET_SOURCE_FILES_PROPERTIES(medcoupling.i PROPERTIES CPLUSPLUS ON)
-IF(WIN32)
-  SET_PROPERTY(SOURCE medcoupling.i PROPERTY COMPILE_DEFINITIONS WIN32)
-ENDIF()
-IF ("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
-  SET_SOURCE_FILES_PROPERTIES(medcoupling.i PROPERTIES SWIG_FLAGS "-py3")
-ELSE()
-  SET_SOURCE_FILES_PROPERTIES(medcoupling.i PROPERTIES SWIG_DEFINITIONS "-shadow")
-ENDIF()
-SET(SWIG_MODULE_medcoupling_EXTRA_FLAGS "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
-IF(MEDCOUPLING_USE_64BIT_IDS)
-  STRING(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS ";-DMEDCOUPLING_USE_64BIT_IDS")
-ENDIF(MEDCOUPLING_USE_64BIT_IDS)
+if(NOT MEDCOUPLING_MICROMED)
+  list(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_MED_FILE)
+  list(APPEND medcoupling_LIB_dependancies medloader)
 
-SET(medcoupling_SWIG_DPYS_FILES medcoupling.i)
+  if(MEDCOUPLING_ENABLE_RENUMBER)
+    list(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_RENUMBER)
+    list(APPEND medcoupling_LIB_dependancies renumbercpp)
+  endif(MEDCOUPLING_ENABLE_RENUMBER)
 
-INCLUDE_DIRECTORIES(
-  ${PYTHON_INCLUDE_DIRS}
-  ${NUMPY_INCLUDE_DIR}
-  ${MEDFILE_INCLUDE_DIRS}
-  ${HDF5_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader
-  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader/Swig
-  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling_Swig
-  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
-  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
-  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
-  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
-  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
-  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
-  ${CMAKE_CURRENT_SOURCE_DIR}/../RENUMBER
-  ${CMAKE_CURRENT_SOURCE_DIR}/../RENUMBER_Swig
-  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDPartitioner
-  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDPartitioner_Swig
-  ${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo
-  ${CMAKE_CURRENT_SOURCE_DIR}/../ICoCo/Swig
-  ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDMEM
-  ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDMEM/MPIAccess
-  ${CMAKE_CURRENT_SOURCE_DIR}/../ParaMEDMEM_Swig
-  ${PROJECT_BINARY_DIR}/doc
-  )
+  if(MEDCOUPLING_ENABLE_PARTITIONER)
+    list(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_PARTITIONER)
+    list(APPEND medcoupling_LIB_dependancies medpartitionercpp)
+  endif(MEDCOUPLING_ENABLE_PARTITIONER)
+endif(NOT MEDCOUPLING_MICROMED)
 
-IF(WIN32 OR CYGWIN)
-  SET(medcoupling_LIB_dependancies ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcouplingremapper medicoco)
-ELSE(WIN32)
-  # ${PYTHON_LIBRARIES} not needed see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
-  SET(medcoupling_LIB_dependancies ${PLATFORM_LIBS} medcouplingremapper medicoco)
-ENDIF(WIN32 OR CYGWIN)
-  
-IF(NOT MEDCOUPLING_MICROMED)
-  LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_MED_FILE)
-  LIST(APPEND medcoupling_LIB_dependancies medloader)
+if(MEDCOUPLING_USE_MPI)
+  # include_directories(${MPI_INCLUDE_DIRS})
+  # add_definitions(${MPI_DEFINITIONS})
+  list(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_PARALLEL_INTERPOLATOR)
+  list(APPEND medcoupling_LIB_dependancies paramedmem)
+endif(MEDCOUPLING_USE_MPI)
 
-  IF(MEDCOUPLING_ENABLE_RENUMBER)
-    LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_RENUMBER)
-    LIST(APPEND medcoupling_LIB_dependancies renumbercpp)
-  ENDIF(MEDCOUPLING_ENABLE_RENUMBER)
-  
-  IF(MEDCOUPLING_ENABLE_PARTITIONER)
-    LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_PARTITIONER)
-    LIST(APPEND medcoupling_LIB_dependancies medpartitionercpp)
-  ENDIF(MEDCOUPLING_ENABLE_PARTITIONER)
-ENDIF(NOT MEDCOUPLING_MICROMED)
+swig_add_library(
+  medcoupling
+  LANGUAGE python
+  OUTPUT_DIR .
+  SOURCES medcoupling.i)
 
-IF(MEDCOUPLING_USE_MPI)
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_DIRS})
-  ADD_DEFINITIONS(${MPI_DEFINITIONS})
-  LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_PARALLEL_INTERPOLATOR)
-  LIST(APPEND medcoupling_LIB_dependancies paramedmem)
-ENDIF(MEDCOUPLING_USE_MPI)
+target_include_directories(
+  ${SWIG_MODULE_medcoupling_REAL_NAME}
+  PRIVATE
+  "\$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+  "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/medcoupling_core/python/medcoupling_core>"
+  "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/medcoupling_core/python/icoco>"
+  "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/medcoupling_core/python/medfile_api>"
+  "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/medcoupling_core/python/para_medmem>"
+  "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/medcoupling_tools/renumberer/python>"
+  "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/medcoupling_tools/partitioner/python>"
+)
 
-if(BASICITERATIVESTATISTICS_FOUND)
-  LIST(APPEND SWIG_MODULE_medcoupling_EXTRA_FLAGS -DWITH_ITERATIVE_STATISTICS)
-endif(BASICITERATIVESTATISTICS_FOUND)
+set_target_properties(
+  ${SWIG_MODULE_medcoupling_REAL_NAME} PROPERTIES
+  INSTALL_RPATH ${MEDCOUPLING_INSTALL_PYTHON_LIBS_DEPS_RPATH}
+  SWIG_USE_TARGET_INCLUDE_DIRECTORIES TRUE)
 
-IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")     
-  SWIG_ADD_MODULE(medcoupling python medcoupling.i)
-ELSE()
-  SWIG_ADD_LIBRARY(medcoupling LANGUAGE python SOURCES medcoupling.i)
-ENDIF()
+# add_definitions(
+#   ${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS}
+#   -DMEDCOUPLING_GIT_SHA1=\"${MEDCOUPLING_GIT_SHA1}\"
+#   -DMEDCOUPLING_CONFIG_DT=\"${MEDCOUPLING_CONFIG_TIME}\")
 
-SWIG_LINK_LIBRARIES(medcoupling ${medcoupling_LIB_dependancies})
-SWIG_CHECK_GENERATION(medcoupling)
-IF(WIN32)
-  SET_TARGET_PROPERTIES(_medcoupling PROPERTIES DEBUG_OUTPUT_NAME _medcoupling_d)
-  # To increase the size of the .obj file on Windows because MEDLoaderPYTHON_wrap.cxx, generated by SWIG, is too big
-  TARGET_COMPILE_OPTIONS(_medcoupling PRIVATE /bigobj) 
-ENDIF(WIN32)
+target_compile_definitions(
+  ${SWIG_MODULE_medcoupling_REAL_NAME}
+  PUBLIC
+  MEDCOUPLING_GIT_SHA1="10.0.0" # TODO: use real git sha
+  MEDCOUPLING_CONFIG_DT="23/07/2024 13:30:00" # TODO: This should not be done because it breaks binary definition
+)
 
-INSTALL(TARGETS _medcoupling DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
-INSTALL(FILES medcoupling.i medcoupling_pycode DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
-SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/medcoupling.py ${MEDCOUPLING_INSTALL_PYTHON} EXTRA_DPYS "${SWIG_MODULE_medcoupling_REAL_NAME}")
+target_link_libraries(${SWIG_MODULE_medcoupling_REAL_NAME} PUBLIC ${medcoupling_LIB_dependancies})
 
+if(WIN32)
+  set_target_properties(
+    ${SWIG_MODULE_medcoupling_REAL_NAME} PROPERTIES
+    DEBUG_OUTPUT_NAME _medcoupling_d)
+  # To increase the size of the .obj file on Windows because
+  # MEDLoaderPYTHON_wrap.cxx, generated by SWIG, is too big
+  target_compile_options(${SWIG_MODULE_medcoupling_REAL_NAME} PRIVATE /bigobj)
+endif()
 
-IF(MEDCOUPLING_BUILD_PY_TESTS)
-    INCLUDE(tests.set)
-ENDIF()
+install(
+  TARGETS ${SWIG_MODULE_medcoupling_REAL_NAME}
+  # RUNTIME_DEPENDENCIES DIRECTORIES ${MEDCOUPLING_INSTALL_LIBS}
+  DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
-SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/medcoupling.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
-FOREACH(test ${BASE_TESTS})
-  GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
-  ADD_TEST(NAME ${testname} COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test})
-  SET_TESTS_PROPERTIES(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
-ENDFOREACH()
-
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/PyWrapping)
-
-INSTALL(FILES CTestTestfileInstall.cmake DESTINATION ${TEST_INSTALL_DIRECTORY} RENAME CTestTestfile.cmake)
-INSTALL(FILES ${BASE_TESTS} DESTINATION ${TEST_INSTALL_DIRECTORY})
-INSTALL(FILES tests.set DESTINATION ${TEST_INSTALL_DIRECTORY})
+# install(FILES medcoupling.i medcoupling_pycode
+#         DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
+# salome_install_scripts(
+#   ${CMAKE_CURRENT_BINARY_DIR}/medcoupling.py ${MEDCOUPLING_INSTALL_PYTHON}
+#   EXTRA_DPYS "${SWIG_MODULE_medcoupling_REAL_NAME}")
+# 
+# if(MEDCOUPLING_BUILD_PY_TESTS)
+#   include(tests.set)
+# endif()
+# 
+# salome_generate_tests_environment(tests_env)
+# 
+# foreach(test ${BASE_TESTS})
+#   get_filename_component(testname ${test} NAME_WE)
+#   add_test(NAME ${testname} COMMAND ${PYTHON_EXECUTABLE}
+#                                     ${CMAKE_CURRENT_SOURCE_DIR}/${test})
+#   set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
+# endforeach()
+# 
+# set(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/PyWrapping)
+# 
+# install(
+#   FILES CTestTestfileInstall.cmake
+#   DESTINATION ${TEST_INSTALL_DIRECTORY}
+#   RENAME CTestTestfile.cmake)
+# install(FILES ${BASE_TESTS} DESTINATION ${TEST_INSTALL_DIRECTORY})
+# install(FILES tests.set DESTINATION ${TEST_INSTALL_DIRECTORY})

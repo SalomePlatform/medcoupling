@@ -32,11 +32,11 @@
   MEDCOUPLING_VERSION             : (hex)     complete version number (major << 16) + (minor << 8) + maintenance
 */
 
-#define MEDCOUPLING_VERSION_MAJOR       @MEDCOUPLING_MAJOR_VERSION@
-#define MEDCOUPLING_VERSION_MINOR       @MEDCOUPLING_MINOR_VERSION@
-#define MEDCOUPLING_VERSION_MAINTENANCE @MEDCOUPLING_PATCH_VERSION@
-#define MEDCOUPLING_VERSION_STR         "@MEDCOUPLING_VERSION@"
-#define MEDCOUPLING_VERSION             @MEDCOUPLING_XVERSION@
+#define MEDCOUPLING_VERSION_MAJOR       @medcoupling_core_VERSION_MAJOR@
+#define MEDCOUPLING_VERSION_MINOR       @medcoupling_core_VERSION_MINOR@
+#define MEDCOUPLING_VERSION_MAINTENANCE @medcoupling_core_VERSION_PATCH@
+#define MEDCOUPLING_VERSION_STR         "@medcoupling_core_VERSION@"
+#define MEDCOUPLING_VERSION             @medcoupling_core_XVERSION@
 
 // define MEDCOUPLING_USE_64BIT_IDS if effectly used at medcoupling compile time
 
