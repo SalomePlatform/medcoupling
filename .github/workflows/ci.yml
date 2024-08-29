@@ -1,0 +1,61 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+    - master
+
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  test:
+
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with: { python-version: "3.10" }
+
+    - name: Conan cache
+      uses: actions/cache@v4
+      with:
+        path: conan_cache_save.tgz
+        key: conan-${{ matrix.os }}-${{ hashFiles('conan*.[pl][yo]*') }}
+
+    - name: Install dependencies
+      shell: bash
+      run: bash < .github/scripts/conan-ci-setup.sh
+
+    - name: Setup MultiToolTask
+      if: matrix.os == 'windows-2022'
+      run: |
+        Add-Content "$env:GITHUB_ENV" 'UseMultiToolTask=true'
+        Add-Content "$env:GITHUB_ENV" 'EnforceProcessCountAcrossBuilds=true'
+
+    - name: Configure
+      shell: pwsh
+      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])"
+        -D BUILD_SHARED_LIBS=YES
+
+    - name: Setup PATH
+      if: matrix.os == 'windows-2022'
+      run: Add-Content "$env:GITHUB_PATH" "$(Get-Location)\build\Release"
+
+    - name: Build
+      run: cmake --build build --config Release -j 2
+
+    - name: Install
+      run: cmake --install build --config Release --prefix prefix
+
+    - name: Test
+      working-directory: build
+      run: ctest --output-on-failure --no-tests=error -C Release -j 2
