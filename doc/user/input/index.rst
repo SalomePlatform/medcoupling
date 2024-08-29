@@ -18,7 +18,7 @@ medcoupling functionalities can be split into 4 categories:
 First, this documentation introduces :doc:`fundamental concepts/objects <basic_concepts>`  of medcoupling for a better understanding of examples.
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :numbered:
    :hidden:
 
@@ -27,5 +27,4 @@ First, this documentation introduces :doc:`fundamental concepts/objects <basic_c
    data_analysis
    data_conversion
    data_optimization
-   api/medcoupling_api
 
