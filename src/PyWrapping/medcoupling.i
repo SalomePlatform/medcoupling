@@ -138,6 +138,15 @@
     return false;
 #endif
   }
+  
+  bool HasIterativeStatisticsExt()
+  {
+#ifdef WITH_ITERATIVE_STATISTICS
+    return true;
+#else
+    return false;
+#endif
+  }
 
   bool HasShapeRecognitionExt()
   {
