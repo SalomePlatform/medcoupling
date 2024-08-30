@@ -6,7 +6,7 @@ MEDCoupling is a powerful library to manipulate meshes and fields.
 
 <!-- TABLE OF CONTENTS -->
 <details>
-    <summary>Table of Contents<\summary>
+    <summary>Table of Contents</summary>
     <ol>
         <li>
             <a href="#about-medcoupling">About MEDCoupling</a>
