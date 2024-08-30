@@ -1,5 +1,5 @@
 doc/user/input/api/*
-CMakeUserPresets.json
 conan/
 build/
 install/
+venv/
