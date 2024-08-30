@@ -16,7 +16,7 @@ cmake_policy(SET CMP0144 NEW) # The policy for using PKGNM_ROOT for PkgNm module
 #
 # User options
 # ============
-option(MEDCOUPLING_MICROMED "Build MED without MED file dependency." ON)
+option(MEDCOUPLING_MICROMED "Build MED without MED file dependency." OFF)
 option(MEDCOUPLING_ENABLE_PYTHON "Build PYTHON bindings." ON)
 option(MEDCOUPLING_ENABLE_PARTITIONER "Build MEDPartitioner." OFF)
 option(MEDCOUPLING_ENABLE_RENUMBER "Build Renumber." OFF)
