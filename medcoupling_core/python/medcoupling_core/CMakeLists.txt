@@ -138,23 +138,46 @@ install(FILES vtk2medcoupling.py geom2medcoupling.py
 # salome_accumulate_environment(PYTHONPATH NOCHECK
 #                               ${CMAKE_CURRENT_BINARY_DIR}/../PyWrapping)
 # salome_generate_tests_environment(tests_env)
-# 
-# foreach(test ${BASE_TESTS})
-#   get_filename_component(testname ${test} NAME_WE)
-#   add_test(NAME ${testname} COMMAND ${PYTHON_EXECUTABLE}
-#                                     ${CMAKE_CURRENT_SOURCE_DIR}/${test})
-#   set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
-# endforeach()
-# 
-# if(NUMPY_FOUND)
-#   foreach(test ${NUMPY_TESTS})
-#     get_filename_component(testname ${test} NAME_WE)
-#     add_test(NAME ${testname} COMMAND ${PYTHON_EXECUTABLE}
-#                                       ${CMAKE_CURRENT_SOURCE_DIR}/${test})
-#     set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
-#   endforeach()
-# endif(NUMPY_FOUND)
-# 
+
+set(BASE_TESTS
+  MEDCouplingBasicsTest1.py
+  MEDCouplingBasicsTest2.py
+  MEDCouplingBasicsTest3.py
+  MEDCouplingBasicsTest4.py
+  MEDCouplingBasicsTest5.py
+  MEDCouplingBasicsTest6.py
+  MEDCouplingBasicsTest7.py
+  MEDCouplingIntersectTest.py
+  MEDCouplingExamplesTest.py
+  MEDCouplingRemapperTest.py
+  UsersGuideExamplesTest.py
+)
+
+# if numpy is used
+set(NUMPY_TESTS
+  MEDCouplingNumPyTest.py
+  MEDCouplingPickleTest.py
+  UsersGuideExamplesTest_numpy.py
+)
+
+set(ALL_TESTS ${BASE_TESTS} ${NUMPY_TESTS})
+
+foreach(test ${BASE_TESTS})
+  get_filename_component(testname ${test} NAME_WE)
+  add_test(NAME ${testname} COMMAND ${Python_EXECUTABLE}
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/${test})
+  set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
+endforeach()
+
+if(NUMPY_FOUND)
+  foreach(test ${NUMPY_TESTS})
+    get_filename_component(testname ${test} NAME_WE)
+    add_test(NAME ${testname} COMMAND ${Python_EXECUTABLE}
+                                      ${CMAKE_CURRENT_SOURCE_DIR}/${test})
+    set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
+  endforeach()
+endif(NUMPY_FOUND)
+
 # # Application tests
 # 
 # set(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDCoupling_Swig)

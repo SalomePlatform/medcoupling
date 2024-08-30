@@ -3,3 +3,4 @@ conan/
 build/
 install/
 venv/
+__pycache__/
