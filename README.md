@@ -85,6 +85,6 @@ The MEDCoupling library is under a major refactoring for the v10. It will allow 
 
 ## Building from source
 
-For now the recommended way to compile is to use Salome homemade package
-manager, `sat`. It will install medcoupling dependencies such as HDF5 and
-medfile depending on the choosen configuration (native or not).
+The recommended approach to compile is to use SALOME official package
+manager (SAT). SAT will install MEDCoupling dependencies such as HDF5 and
+MEDFile, depending on the requested configuration (native or not).
