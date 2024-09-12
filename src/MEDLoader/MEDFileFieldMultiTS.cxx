@@ -20,7 +20,6 @@
 
 #include "MEDFileFieldMultiTS.hxx"
 #include "MEDFileField.txx"
-#include "MEDFileMesh.hxx"
 #include "MCType.hxx"
 #include "MEDFileFieldGlobs.hxx"
 #include "MEDFileEntities.hxx"

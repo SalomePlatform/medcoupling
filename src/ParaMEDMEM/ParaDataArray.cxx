@@ -21,11 +21,9 @@
 #include "ParaDataArray.txx"
 #include "MCType.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMemArray.txx"
 
 using namespace MEDCoupling;
 
-template class MEDCoupling::DataArrayTemplate<int>;
 template class MEDCoupling::ParaDataArrayTemplate<Int32>;
 template class MEDCoupling::ParaDataArrayTemplate<Int64>;
 template class MEDCoupling::ParaDataArrayDiscrete<Int32>;

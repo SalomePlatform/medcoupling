@@ -23,7 +23,7 @@
 #include "MCAuto.hxx"
 #include "MCIdType.hxx"
 #include "MEDCouplingCMesh.hxx"
-#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingStructuredMesh.hxx"
 #include "MEDCouplingMesh.hxx"

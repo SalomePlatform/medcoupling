@@ -26,6 +26,7 @@
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingTraits.hxx"
 #include "InterpKernelException.hxx"
+#include "MEDCouplingMemArray.txx"
 
 #include <algorithm>
 #include <cmath>
